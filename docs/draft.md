@@ -2,6 +2,20 @@
 我现在想开发一个agenteam项目，该项目的目的是：以项目为单位，通过组建ai agent开发团队，并提供相应的协作工具实现多agent协同工作推进项目的开发、交付、迭代。
 下面我将阐述本项目预计提供的设计功能：
 
+## 核心定位与设计原则
+
+agenteam 不是另一个 Agent Loop 或单纯的多 Agent 聊天工具，而是构建在成熟 Agent harness 之上的项目级 AI 协作控制面。harness 负责单个 Agent 的运行时循环、工具调用和上下文管理；agenteam 负责项目状态、任务调度、跨 Agent 协作、人类决策、远程 Runner、知识沉淀和执行审计。
+
+默认工作路径是：
+
+```text
+Issue → Scheduler 调度 → Agent Loop 执行 → 产物/证据 → 状态流转
+```
+
+会议不是所有任务的默认工作方式，而是在人类在场的前提下，用于探索、分歧处理、方案选择和授权执行的可选协作空间。Agent 之间的常规协作优先通过 Issue、plan、comments、知识库和结构化决策记录完成。
+
+系统中的“讨论内容”“会议摘要”“用户决策”“执行请求”和“实际项目变更”必须分开建模，不能因为会议产生了摘要，就认为项目已经产生了执行结果。
+
 ## 系统模型（大概，初步草稿）
 
 ```
@@ -58,7 +72,7 @@ agenteam
     │       ├── key
     │       └── models
     │           ├── model-id
-    │           ├── type (chat, img-gen, embedidng...)
+    │           ├── type (chat, img-gen, embedding...)
     │           ├── context-length
     │           ├── max-output
     │           ├── input-type
@@ -70,6 +84,7 @@ agenteam
     │       ├── description
     │       ├── tags
     │       ├── headless
+    │       ├── root-path
     │       └── mount-points
     └── agent-presets
         └── > SAME PARTLY: projects/settings/agent, but not include runner-mount-points & memory
@@ -78,47 +93,117 @@ agenteam
 ## 模型管理：
 允许接入多个 provider 的多个模型;
 系统需要至少配置一个chat、一个embedding、一个reranker才能满足运行
-模型管理属分为系统级别和项目级别两种，所有项目都可以使用系统级模型，也可以自己配置自己的模型；
+模型管理分为系统级别和项目级别两种，所有项目都可以使用系统级模型，也可以自己配置自己的模型；
 在需要选择模型的地方（比如 agent 的配置），两种级别的模型分为两类列出；
 
 ## runner：
 本项目算是一种分布式系统，系统主体所在的服务器只承担项目的管理、调度以及模型的调用，实际代码的存储位置、调试运行位置等是通过 runner 执行的；
 也就是说模型在需要修改代码或者运行命令的时候，需要通过 runner 来操作；
-runner的部署采用单命令一键部署，由系统分发二进制。在 runner 管理页面点击添加 runner 后系统需要在后台生成一个短期密钥，然后拼接到一个安装命令中。在目标服务器运行这个命令即可从系统拉取二进制并且完成自动的安装、配置、启动、连接主系统等步骤。runner的安装部署机制可以参考项目： /Users/deer/mcpc
+runner的部署采用单命令一键部署，由系统分发二进制。在 runner 管理页面点击添加 runner 后系统需要在后台生成一个短期密钥，然后拼接到一个安装命令中。在目标服务器运行这个命令即可从系统拉取二进制并且完成自动的安装、配置、启动、连接主系统等步骤。runner的安装部署机制可以参考项目： https://github.com/LunaDeerTech/mcpc
 runner 的配置是系统级别的，项目里无法配置自定义runner。
+runner 需要配置一个 root-path，作为 runner 在设备上的根目录。后续的挂载点都是以项目为单位挂载到 runner 的 root-path 下的子目录，例如项目 A 写了一个挂载点 src，那么在设备上的实际路径就是 root-path/A/src。
+runner 的 root-path 需要保证在设备上有读写权限，并且不能是系统敏感目录，同时要避免路径穿透。
 headless 是一个bool型配置，用于配置该runner所在的设备是否具有桌面环境。
 runner 的description、headless 在 agent 启动时会被注入到上下文，用于表明运行环境。
 
 ## Agent管理：
 agent 的基础配置包含：名称、主题色tag-color、使用的模型、描述、系统提示词、是否注入项目AGENTS.md到系统提示词。其中主题色用于在用户界面展示时给 agent 的名字着色，其不参与任何其他含义。
-agent 的能力配置包含：允许调用的工具、skills、挂载点。挂载点需要配置名称、所属runner、路径、描述，这些信息都会被注入到上下文。允许调用的工具则应该按照工具的来源分类展示，我们的整个系统本身就提供一些内置的工具，比如项目 basic 更新（description、AGENTS.md），agent、meetings等等，可以说系统本身就提供了很多工具，允许agent操作其所在的项目。
+agent 的能力配置包含：允许调用的工具、skills、挂载点。挂载点需要配置名称、所属runner、路径、描述，这些信息都会被注入到上下文。允许调用的工具则应该按照工具的来源分类展示，我们的整个系统本身就提供一些内置的工具，比如项目 basic 更新（description、AGENTS.md）、agent、meeting 等等，可以说系统本身就提供了很多工具，允许 agent 操作其所在的项目。
 agent 记忆，这个模块直接参考有名的 Hindsight，可以直接把他的设计搬过来；
-系统也可以配置一些 agent-presets，需要配置的内容与项目界别的 agent 一样，不过不需要配置 runner-mount-points 也没有 memory 页面。系统级别的 agent 可以相当于一种模板，在项目创建自己的 agent 的时候可以直接导入系统级 agent 的一些配置，注意不是引用。
+系统也可以配置一些 agent-presets，需要配置的内容与项目级别的 agent 一样，不过不需要配置 runner-mount-points 也没有 memory 页面。系统级别的 agent 可以相当于一种模板，在项目创建自己的 agent 的时候可以直接导入系统级 agent 的一些配置，注意不是引用。
 
 ### memory：
-agent 的 memory 为项目里每个 agent 自己的记忆系统，通过memory沉淀项目相关的知识、经验、坑等内容，便于 agent 在后续的工作中可以直接调用这些记忆来辅助决策、执行等。memory 的设计可以直接原样参考 [Hindsight](https://github.com/vectorize-io/hindsight)，他也是 MIT 架构的可以直接借鉴或者拿来用，不过我建议还是应该参考他的核心架构、设计我们自己写一遍我们的。
+agent 的 memory 为项目里每个 agent 自己的记忆系统，通过 memory 沉淀项目相关的知识、经验和问题，便于 agent 在后续工作中调用这些记忆来辅助决策和执行。memory 的设计可以参考 [Hindsight](https://github.com/vectorize-io/hindsight) 的核心架构；如果复用其代码，需要遵守其许可证并记录借鉴内容。更稳妥的方式是理解其设计后，结合 agenteam 的权限和项目模型自行实现。
 
-## Mettings:
-用于用户与一个或多个Agent 对话、聊天。与传统的ai聊天不同的是，用户可以创建会议，然后添加需要参与会议的 agent，并安排agent 的发言顺序，也就是说不仅仅是用户与一个ai交流，而是允许多个 ai 同时参与交流，形成一个按序发言的会议讨论形式。会议中所有的agent默认只能调用“读”性质的工具，如果需要调用“写”性质的工具则需要用户批准，不论是读还是写都只是在agent原有的工具权限配置基础上做的额外权限控制。
-为了避免会议过程中的长篇大论浪费token以及无意义的思维链、工具调用历史被注入上下文，我们的meeting架构肯定也要和传统的ai聊天不同。传统的聊天就是纯粹的多轮对话或者多次 Agent Loop，调用ai聊天接口，我们则需要分层处理。整体上分为两层：meeting层、Agent Loop层，其中Agent Loop层就是传统意义上的agent harness架构，meeting层则是展示给用户以及其他agent看的信息来源。
-具体来说：meeting 层只包含用户以及各 agent 的“发言内容”，当轮到某个agent发言的时候，其需要把 meeting 层的系统提示词注入到 agent 的系统提示词，参会者的信息、会议主题、meeting层的发言历史等信息注入到 prompt，然后启动 Agent Loop，将最终的结果作为该 agent 的发言内容发送到 meetings。为了避免结果长篇大论，系统提示词语需要要求agent最终采用精简的回答内容，限制字数。完成后下一次轮到这个agent发言的时候需要重新按照上述的流程启动一次 Agent Loop，不应该服用上一轮 Agent Loop。这样才能避免无意义的agent上下文膨胀。
-不过界面上仍然应该提供一个默认折叠的思考过程，用于展示 Agent Loop 运行的完整记录。
-可能会涉及到一些决策、以及权限的请求，因此需要提供工具用于agent向用户发起结构化的决策请求，供用户可以直接在前端上点击选择选项或者是直接以文本回答。会议在所有agent完成回复后认为一轮结束，每一轮发言结束都会自动更新会议的主题（摘要）。
-除了用户可以发起会议之外，agent自身也具备主动发起会议的能力，用于要求相关用户介入做决策或者讨论一些问题。会议的发起需要至少一位人类用户参与，禁止纯agent 的会议。
-会议需要具备引用的能力，需要支持引用：其他会议、issue、文档、agent。需要支持文件（图片、文档、代码片段等）作为附件。
+## Meetings
+
+### 定位
+
+meeting 是用户与一个或多个 Agent 共同参与的协作空间。它不是所有 Issue 的默认执行方式，也不是要求每次讨论都必须产生代码或项目变更的自动化流水线。
+
+会议主要用于：
+
+- 用户想了解某个问题、听取多个 Agent 的独立观点；
+- Agent 之间存在分歧，需要比较方案或补充证据；
+- Issue 被阻塞，需要用户做决策、提供信息或批准下一步动作；
+- 涉及架构、安全、产品取舍等高风险问题，需要人类在场；
+- 用户主动要求多个 Agent 共同讨论某个主题。
+
+会议可以没有项目层面的执行产出。用户通过会议获得信息和判断，本身就是有效结果。是否执行某个动作、是否修改项目状态，由用户在交流过程中主动决定，或由用户批准 Agent 提出的执行建议。
+
+### 会议参与与权限
+
+每个会议至少需要一位人类用户参与，禁止纯 Agent 会议。用户可以创建会议，选择参与的 Agent，并配置参与顺序和讨论主题。
+
+会议中 Agent 的有效权限是在其原有能力配置之上再次收紧：
+
+- 默认只能调用读性质的工具；
+- 如果需要调用写性质的工具，必须向用户发起结构化的执行请求并获得批准；
+- 用户的批准只适用于明确的动作或批准范围，不能让 Agent 绕过原有工具权限；
+- 会议中的决策请求和执行请求应当在界面上与普通发言分开显示。
+
+Agent 也可以主动请求会议，但不能直接启动会议。Agent 需要先提交会议提案或发言，说明会议目的、关联的 Issue、需要用户解决的问题、拟邀请的 Agent 以及预期的用户动作。系统将关联 Issue 置为 `blocked`，并记录 `waiting_for_human` 或 `waiting_for_meeting_approval` 阻塞原因，等待用户批准、拒绝或暂缓。只有用户批准后，会议才进入正式进行状态。
+
+### 会议层与 Agent Loop 层
+
+为了避免把完整的工具调用历史和无意义的思维过程持续注入上下文，meeting 与 Agent Loop 分为两层：
+
+- meeting 层：保存用户和 Agent 面向会议的发言、结构化请求、引用、附件以及会议摘要；
+- Agent Loop 层：每次 Agent 发言时临时启动的传统 harness 运行时，负责读取上下文、调用工具并生成本次发言。
+
+当轮到某个 Agent 发言时，系统将会议系统提示词、参与者信息、会议主题、相关 Issue 信息以及 meeting 层的必要历史注入新的 Agent Loop。Agent Loop 结束后，只将本次面向用户的发言写入 meeting 层。下一次轮到该 Agent 发言时，重新启动一个独立的 Agent Loop，不复用上一轮的完整运行上下文。
+
+Agent 的完整工具调用记录和运行过程应在界面中默认折叠展示，便于审查但不作为后续会议上下文的默认内容。会议摘要每轮发言结束后自动更新，摘要只用于帮助用户和 Agent 快速了解会议进展，不代表用户已经作出决策，也不代表项目已经产生执行结果。
+
+### 会议中的请求与实际产出
+
+会议内容和项目变更必须分开建模。至少应区分：
+
+- 普通会议发言；
+- 会议摘要；
+- 结构化决策请求；
+- Agent 提出的执行建议；
+- 用户批准的执行请求；
+- 实际发生的 Issue、代码、文档或配置变更。
+
+Agent 可以在交流过程中提出建议执行某项动作，用户也可以主动要求 Agent 执行。只有通过用户批准并实际调用工具后，才产生项目层面的变更。会议结束本身不自动改变 Issue 状态，也不自动创建任务或提交代码。
+
+会议需要支持引用其他会议、Issue、文档和 Agent，并支持图片、文档、代码片段等附件。会议也应当记录用户批准、拒绝和暂缓的决策事件，便于后续 Agent 理解上下文和审计。
 
 ## issue:
 issue 是一个项目的最小 agent 任务单元。
-issue 的属性至少有：id（项目里唯一）、title、state（backlog、todo、in-progress、in-review、blocked、cancelled、done）、priority（low、medium、high、critical）、type（feature、bug、task、spike、chore）、description、assignee、plan、comments、logs
+issue 的属性至少有：id（项目里唯一）、title、state（backlog、todo、in-progress、in-review、blocked、cancelled、done）、priority（low、medium、high、critical）、type（feature、bug、task、spike、chore）、description、assignee、plan、comments、logs、depends_on_issue_ids、blockers。
 plan为该issue的执行计划以及每条计划的完成情况，仅供agent参考，agent也可以自己修改这个plan；
 comments 为agent在处理这个issue的过程中留下的关键内容、证据等信息。人类用户也可以在此处留言。comments系统整体上应该采用github那样的issuecomment形式，也就是说不仅仅是记录展示留言，还应当展示项目的流转、变更历史；
 其中logs为所有经手过这个issue 的agent每次的执行完整记录，每次一条；
 backlog, done, cancelled 这三种状态不需要 assignee，其他状态必须要有 assignee；
-agent 每次都是从 issue 启动的，并在执行完成后流转 issue 的状态作为本轮的结束，每一轮都是一个独立的 Agent Loop。除了 logs 之外，issue的其他信息都会被注入到agent的上下文。因此在设计issue的agent system prompt时，需要要求agent在最后结束时更新issue的状态、assignee、plan、comments等信息。logs会在每轮结束后自动追加到issue的logs中，不是由agent自己更新的。
+
+`blocked` 表示 Issue 当前不能继续执行，阻塞原因必须可追踪。初步原因包括：
+
+- `rely_on`：依赖的前置 Issue 尚未完成；
+- `waiting_for_human`：等待用户提供信息、作出决策或批准动作；
+- `waiting_for_meeting_approval`：Agent 已提交会议提案，等待用户批准会议开始；
+- `technical`：Runner、模型、外部服务或其他技术问题导致暂时无法继续。
+
+一个 Issue 可能同时存在多个 blocker，因此不建议只保存一个字符串形式的原因。至少需要记录 blocker 类型、相关 Issue 或会议 ID、说明、创建时间和解除时间。`depends_on_issue_ids` 用于记录前置 Issue；当所有必需的前置 Issue 均为 `done` 后，`rely_on` blocker 才能解除。如果还存在其他 blocker，则不能继续流转。
+
+依赖关系默认采用 AND 语义，需要在创建或修改依赖关系时检查循环依赖。前置 Issue 被 `cancelled` 时是否连带取消当前 Issue，或者转为等待用户决策，需要由项目策略或用户明确决定。
+
+agent 每次都是从 issue 启动的，并在执行完成后流转 issue 的状态作为本轮的结束，每一轮都是一个独立的 Agent Loop。除了 logs 之外，issue 的其他信息都会被注入到 agent 的上下文；日志只在需要审查或明确引用时加载。Agent 可以通过受控工具更新 issue 的状态、assignee、plan 和 comments，但服务端必须校验状态流转是否合法、是否属于当前执行实例，以及是否满足依赖和权限条件。logs 会在每轮结束后自动追加到 issue 的 logs 中，不是由 agent 自己更新的。
 
 ## kanban-board：
 kanban提供本系统的项目核心管理能力。kanban里的最小单元是 issue，若干个issue组成 sprint，若干个 sprint 组成 milestone，一个项目则由若干个 milestone 构成。
-kanban 有一个 Execution Scheduler 按可配置的 tick 间隔（默认 30 秒）周期性运行，按 `blocked → todo → in_progress → in_review` 顺序遍历 Issue，启动 agent loop。 kanban 的管理界面提供一个暂停/启动按钮用于控制 Execution Scheduler的启停。
+kanban 有一个 Execution Scheduler 按可配置的 tick 间隔（默认 30 秒）周期性运行。Scheduler 负责依赖解除、任务抢占和 Agent Loop 的启动，但不负责替代 Agent 或用户作出业务决策。
+
+每次 tick 至少执行以下逻辑：
+
+1. 检查 `blocked` 且 blocker 为 `rely_on` 的 Issue。如果所有必需的前置 Issue 已完成，则解除该 blocker；如果没有其他 blocker，将 Issue 改为 `todo`。`waiting_for_human`、`waiting_for_meeting_approval` 和 `technical` 等 blocker 不由 Scheduler 自动解除。
+2. 从满足执行条件的 `todo` Issue 中选择任务，并以原子方式将其从 `todo` 改为 `in-progress`，创建执行记录或租约，然后启动一次 Agent Loop。必须保证同一个 Issue 同时最多只有一个有效执行实例。
+3. 检查正在执行的任务、超时租约和启动失败记录，按配置执行重试、恢复或转为 `blocked(technical)`。Scheduler 不应因为 Agent 尚未完成就重复启动新的 Agent Loop。
+
+`in-progress` 的状态流转通常由 Agent Loop 在完成本轮工作后写入 `in-review`、`done` 或 `blocked`。`in-review` 是否自动触发独立的审查 Agent Loop，需要单独配置，不应与普通执行任务混为一谈。
+
+Scheduler 的管理界面提供暂停/启动按钮。暂停 Scheduler 只停止新的自动调度，不应中断已经运行的 Agent Loop，除非用户明确要求停止运行。
 
 ## knowledge-base：
 knowledge-base是项目的知识库，用于存放项目的一些关键文档（如产品需求文档，产品设计文档、技术架构文档之类的东西）。需要对进入knowledge- base的文档做向量化，便于agent搜索、插件。
@@ -137,22 +222,35 @@ knowledge-base是项目的知识库，用于存放项目的一些关键文档（
 项目基础信息（description、AGENTS.md）相关： read-project-info, update-project-info
 agent相关： list-agents, create-agent, update-agent, delete-agent
 issue 相关：list-issues, create-issue, update-issue, comment-issue
+issue 依赖相关：add-issue-dependency, remove-issue-dependency, list-issue-dependencies
 knowledge-base 相关：list-docs, create-doc, update-doc, query-doc
 kanban 相关：start-scheduler, pause-scheduler
 milestone 相关：
 sprint 相关：
-meeting 相关：list-meetings, create-meeting, add-agent-to-meeting, remove-agent-from-meeting, update-meeting, comment-meeting, request-decision
+meeting 相关：list-meetings, request-meeting, add-agent-to-meeting, remove-agent-from-meeting, update-meeting, comment-meeting, request-decision, request-execution-approval
+
+其中，用户或系统界面的 `create-meeting` 用于创建会议；`request-meeting` 仅用于 Agent 提交会议提案，不能绕过用户审批直接创建并启动会议。批准、拒绝会议以及批准执行请求属于用户操作。`request-execution-approval` 只负责向用户说明拟执行的动作、范围和风险，实际写操作仍需经过系统权限校验。
 
 ### 内置无法配置权限的：
 memory（仅可访问 agent 自己）： retain, recall, reflect
 
 ## Agent Loop （Agent 运行时）：
-此处的 agent loop 其实才是传统的 harness 架构，在我们的 agenteam 系统里一般来说，agent loop 只会执行一次，这个一次指的是只会执行一次 Agent Loop，直到该 agent 完成本轮的任务（比如完成一个 issue 的处理），然后流转 issue 的状态，结束本轮。下一轮的执行需要重新启动 Agent Loop。
-也就是说我们的系统是在传统 harness 的基础上额外包装了一层 ai 协作层，通过 meeting、kanban、memory、knowledge-base 等模块来扩展实现 agent 的学习、协作、决策、执行等能力。相比于传统的 harness multi agent 架构理论上能够让agent更好地协作、学习、决策、执行。
-不过这个 Agent Loop 模块我认为我们不应该开发，因为工作量比较大难以把握。因此我认为可以直接把成熟的开源的 harness 框架借鉴过来或者集成过来。我在这里列出一些开源的 harness 框架，供参考：
+Agent Loop 是传统 harness 意义上的 Agent 运行时，负责上下文组装、模型调用、工具调用、工具结果处理、错误处理和本轮输出。在 agenteam 中，Agent Loop 不是项目状态机，也不是会议本身，而是被项目调度和会议按需调用的执行单元。
+
+在 Issue 执行场景中，通常一次 Agent Loop 只处理一个 Issue 的一轮工作：Scheduler 先将符合条件的 `todo` Issue 原子地改为 `in-progress`，再启动 Agent Loop；Agent 完成本轮工作后更新 Issue 的合法状态、plan 和 comments，运行记录由系统自动追加到 logs。下一轮执行需要重新启动 Agent Loop。
+
+在会议场景中，每次 Agent 发言也启动一个独立的 Agent Loop，但该 Loop 的目标只是生成本次会议发言、提出决策请求或提出执行建议。会议层只保留面向用户的内容和必要的结构化记录，不复用上一轮完整的工具调用历史。
+
+如果 Agent 在执行 Issue 时需要人类介入，应通过 `request-meeting` 提交提案，并将 Issue 置为相应的 `blocked` 状态等待用户处理；不能通过反复启动 Agent Loop 来等待会议审批。
+
+agenteam 是在传统 harness 的基础上额外包装的一层 AI 项目协作层，通过 meeting、kanban、memory、knowledge-base、runner 和审计等模块扩展 Agent 的协作、决策、执行和持续学习能力。它的核心差异不是重新发明单轮 Agent Loop，而是让 Agent 能够在持久化项目状态和人类控制下长期协作。
+
+Agent Loop 模块本身不一定需要从零开发。可以借鉴或集成成熟的开源 harness 框架，再通过适配层接入 agenteam 的模型、工具、Runner、权限和运行记录。需要重点保留清晰的边界：harness 负责运行时循环，agenteam 负责项目级状态和协作。以下开源 harness 可供参考：
+
 - [pi](https://github.com/earendil-works/pi)
 - [opencode](https://github.com/anomalyco/opencode)
-我个人倾向于不是直接原样集成他们的代码或者是修改他们的代码拿过来，而是参考他们的核心逻辑、关键架构等技术，我们自己写。这些开源 harness 都是 MIT 协议，可以任意拿他们的东西来用，不过为了尊重作者我们还是因该专门有个文档来记录借鉴了哪些东西。当然了，因为我们有自己的多agent架构了，所以完全不需要考虑他们的多agent模块。
+
+可以根据实际需要选择直接集成、封装适配或参考其核心逻辑自行实现。使用第三方代码时，需要单独记录借鉴内容、许可证和后续同步策略。由于 agenteam 自己定义了项目级协作模型，不必直接复用这些 harness 的多 Agent 编排方式，但仍应评估其运行时、会话持久化、权限、工具注册和错误恢复能力。
 
 ## 技术架构
 前端：vue3 + 自定义组件
