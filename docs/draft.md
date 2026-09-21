@@ -105,10 +105,11 @@ runner 需要配置一个 root-path，作为 runner 在设备上的根目录。�
 runner 的 root-path 需要保证在设备上有读写权限，并且不能是系统敏感目录，同时要避免路径穿透。
 headless 是一个bool型配置，用于配置该runner所在的设备是否具有桌面环境。
 runner 的description、headless 在 agent 启动时会被注入到上下文，用于表明运行环境。
+Runner 与主系统之间的远程执行协议由 agenteam 自己定义，不要求采用 MCP。Runner 提供的文件、命令、进程等能力会作为 Runner 来源的工具注册到统一工具系统中。
 
 ## Agent管理：
 agent 的基础配置包含：名称、主题色tag-color、使用的模型、描述、系统提示词、是否注入项目AGENTS.md到系统提示词。其中主题色用于在用户界面展示时给 agent 的名字着色，其不参与任何其他含义。
-agent 的能力配置包含：允许调用的工具、skills、挂载点。挂载点需要配置名称、所属runner、路径、描述，这些信息都会被注入到上下文。允许调用的工具则应该按照工具的来源分类展示，我们的整个系统本身就提供一些内置的工具，比如项目 basic 更新（description、AGENTS.md）、agent、meeting 等等，可以说系统本身就提供了很多工具，允许 agent 操作其所在的项目。
+agent 的能力配置包含：允许调用的工具、skills、挂载点。挂载点需要配置名称、所属runner、路径、描述，这些信息都会被注入到上下文。允许调用的工具应该按照来源分类展示，例如系统内置工具、Runner 工具、MCP 工具；同时还需要支持按照功能和读写属性分类。系统本身会提供项目 basic 更新（description、AGENTS.md）、agent、meeting 等内置工具，允许 agent 在权限范围内操作其所在的项目。
 agent 记忆，这个模块直接参考有名的 Hindsight，可以直接把他的设计搬过来；
 系统也可以配置一些 agent-presets，需要配置的内容与项目级别的 agent 一样，不过不需要配置 runner-mount-points 也没有 memory 页面。系统级别的 agent 可以相当于一种模板，在项目创建自己的 agent 的时候可以直接导入系统级 agent 的一些配置，注意不是引用。
 
@@ -212,11 +213,17 @@ knowledge-base是项目的知识库，用于存放项目的一些关键文档（
 ## explore 页面：
 该页面为一个项目的总览页面，提供一个issue总览的字页面，通过侧边栏树状结构按照 milestone → sprint → issue 的层级关系展示所有的issue，并提供搜索、筛选、排序等功能。用户可以直接在该页面对issue进行操作，如创建、编辑、删除、流转状态等。
 
-## 系统内置提供的工具列表（初步，按来源分类）
+## 工具系统与系统内置工具列表（初步）
 
-所有这些工具都采用内置mcp的方式提供，agent可以调用这些工具来操作项目的各个模块。所有工具都需要在agent的能力配置中被允许才能使用。
-工具可以从功能上分类，同时也要按照“读写”来分类。在配置权限的界面要能够想一种设计，既能够按照功能分类也能够按照读写分类。
-以下仅是我想的初步的有的一些工具，并非决定。
+Agent Loop 内部采用统一的 Tool 抽象和 Tool Registry，不把 MCP 作为唯一的工具调用协议。工具可以来自不同来源，初步包括 Builtin、Runner 和 MCP；不同来源负责发现或定义工具，并转换为统一的 ToolSpec 注册到 Tool Registry。
+
+- Builtin：agenteam 自身提供的项目、Issue、meeting、knowledge-base 等业务工具；
+- Runner：通过 agenteam 的远程 Runner 协议执行文件、命令、进程等分布式能力；
+- MCP：连接外部 MCP Server，发现其 tools 后转换为普通 Tool 注册，实际调用时再通过 MCP 执行。
+
+模型侧始终使用对应模型 Provider 原生的 tool/function calling 能力。Agent Loop 和模型只面对统一的具体工具，不需要感知工具背后来自 Builtin、Runner 还是 MCP，也不通过单一的通用 `call_mcp` 工具间接调用所有 MCP tools。
+
+所有工具都需要经过 agent 能力配置和系统权限校验。工具可以按照来源、功能以及“读写”属性分类展示。以下仅列出目前设想的部分系统内置工具，并非最终决定。
 
 ### 可配置权限的：
 项目基础信息（description、AGENTS.md）相关： read-project-info, update-project-info
@@ -236,6 +243,8 @@ memory（仅可访问 agent 自己）： retain, recall, reflect
 
 ## Agent Loop （Agent 运行时）：
 Agent Loop 是传统 harness 意义上的 Agent 运行时，负责上下文组装、模型调用、工具调用、工具结果处理、错误处理和本轮输出。在 agenteam 中，Agent Loop 不是项目状态机，也不是会议本身，而是被项目调度和会议按需调用的执行单元。
+
+Agent Loop 只依赖统一的 Tool Registry。Tool Registry 将 Builtin、Runner、MCP 等不同来源的工具统一提供给 Agent Loop，再由模型 Provider 适配层转换为对应模型原生的 tool schema；模型产生 Tool Call 后，由系统根据工具来源路由到对应的执行实现。这样模型调用方式、工具来源和实际执行位置彼此解耦。
 
 在 Issue 执行场景中，通常一次 Agent Loop 只处理一个 Issue 的一轮工作：Scheduler 先将符合条件的 `todo` Issue 原子地改为 `in-progress`，再启动 Agent Loop；Agent 完成本轮工作后更新 Issue 的合法状态、plan 和 comments，运行记录由系统自动追加到 logs。下一轮执行需要重新启动 Agent Loop。
 
