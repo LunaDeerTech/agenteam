@@ -172,10 +172,10 @@ Agent 可以在交流过程中提出建议执行某项动作，用户也可以�
 
 ## issue:
 issue 是一个项目的最小 agent 任务单元。
-issue 的属性至少有：id（项目里唯一）、title、state（backlog、todo、in-progress、in-review、blocked、cancelled、done）、priority（low、medium、high、critical）、type（feature、bug、task、spike、chore）、description、assignee、plan、comments、logs、depends_on_issue_ids、blockers。
+issue 的属性至少有：id（项目里唯一）、title、state（backlog、todo、in-progress、in-review、blocked、cancelled、done）、priority（low、medium、high、critical）、type（feature、bug、task、spike、chore）、description、assignee、plan、events、depends_on_issue_ids、blockers。
 plan为该issue的执行计划以及每条计划的完成情况，仅供agent参考，agent也可以自己修改这个plan；
-comments 为agent在处理这个issue的过程中留下的关键内容、证据等信息。人类用户也可以在此处留言。comments系统整体上应该采用github那样的issuecomment形式，也就是说不仅仅是记录展示留言，还应当展示项目的流转、变更历史；
-其中logs为所有经手过这个issue 的agent每次的执行完整记录，每次一条；
+events 为该 Issue 的统一时间线，采用类似 GitHub Issue timeline 的事件模型。它不仅记录 Agent 和人类用户留下的评论、关键内容和证据，也记录 Issue 的状态流转和关键变更历史。事件类型至少可以包括：comment、state_changed、assignee_changed、dependency_added、dependency_removed、blocker_added、blocker_resolved、execution_started、execution_finished 等。用户界面统一按照时间顺序展示这些 IssueEvent，不再把“评论”和“状态变更历史”拆成两套互不关联的数据。
+Agent Loop 的完整运行日志不作为 Issue 的属性保存。每次执行都创建独立的 Execution，完整 runtime log 归属于对应的 Execution；Issue 只通过关联的 Execution 和 IssueEvent 展示执行历史与关键结果。
 backlog, done, cancelled 这三种状态不需要 assignee，其他状态必须要有 assignee；
 
 `blocked` 表示 Issue 当前不能继续执行，阻塞原因必须可追踪。初步原因包括：
@@ -189,7 +189,7 @@ backlog, done, cancelled 这三种状态不需要 assignee，其他状态必须�
 
 依赖关系默认采用 AND 语义，需要在创建或修改依赖关系时检查循环依赖。前置 Issue 被 `cancelled` 时是否连带取消当前 Issue，或者转为等待用户决策，需要由项目策略或用户明确决定。
 
-agent 每次都是从 issue 启动的，并在执行完成后流转 issue 的状态作为本轮的结束，每一轮都是一个独立的 Agent Loop。除了 logs 之外，issue 的其他信息都会被注入到 agent 的上下文；日志只在需要审查或明确引用时加载。Agent 可以通过受控工具更新 issue 的状态、assignee、plan 和 comments，但服务端必须校验状态流转是否合法、是否属于当前执行实例，以及是否满足依赖和权限条件。logs 会在每轮结束后自动追加到 issue 的 logs 中，不是由 agent 自己更新的。
+agent 每次都是从 issue 启动的，并在执行完成后流转 issue 的状态作为本轮的结束，每一轮都是一个独立的 Agent Loop，同时对应一个独立的 Execution。Issue 的业务信息会被注入到 agent 的上下文；历史 Execution 的 runtime log 默认不注入，只在需要审查或明确引用时加载。Agent 可以通过受控工具更新 issue 的状态、assignee、plan，并通过 comment-issue 写入 comment 类型的 IssueEvent；状态、负责人、依赖、blocker 和执行状态等关键变化由系统自动写入对应类型的 IssueEvent。服务端必须校验状态流转是否合法、是否属于当前 Execution，以及是否满足依赖和权限条件。Agent Loop 的完整 runtime log 由系统写入对应的 Execution，不由 Agent 自己更新。
 
 ## kanban-board：
 kanban提供本系统的项目核心管理能力。kanban里的最小单元是 issue，若干个issue组成 sprint，若干个 sprint 组成 milestone，一个项目则由若干个 milestone 构成。
@@ -198,7 +198,7 @@ kanban 有一个 Execution Scheduler 按可配置的 tick 间隔（默认 30 秒
 每次 tick 至少执行以下逻辑：
 
 1. 检查 `blocked` 且 blocker 为 `rely_on` 的 Issue。如果所有必需的前置 Issue 已完成，则解除该 blocker；如果没有其他 blocker，将 Issue 改为 `todo`。`waiting_for_human`、`waiting_for_meeting_approval` 和 `technical` 等 blocker 不由 Scheduler 自动解除。
-2. 从满足执行条件的 `todo` Issue 中选择任务，并以原子方式将其从 `todo` 改为 `in-progress`，创建执行记录或租约，然后启动一次 Agent Loop。必须保证同一个 Issue 同时最多只有一个有效执行实例。
+2. 从满足执行条件且已经分配 assignee 的 `todo` Issue 中 claim 任务，并以原子方式将其从 `todo` 改为 `in-progress`，创建对应的 Execution 和租约，然后启动该 assignee 对应 Agent 的一次 Agent Loop。Scheduler 不负责为 Issue 选择或分配 Agent。必须保证同一个 Issue 同时最多只有一个有效 Execution。
 3. 检查正在执行的任务、超时租约和启动失败记录，按配置执行重试、恢复或转为 `blocked(technical)`。Scheduler 不应因为 Agent 尚未完成就重复启动新的 Agent Loop。
 
 `in-progress` 的状态流转通常由 Agent Loop 在完成本轮工作后写入 `in-review`、`done` 或 `blocked`。`in-review` 是否自动触发独立的审查 Agent Loop，需要单独配置，不应与普通执行任务混为一谈。
