@@ -217,6 +217,37 @@ knowledge-base是项目的知识库，用于存放项目的一些关键文档（
 
 Agent Loop 内部采用统一的 Tool 抽象和 Tool Registry，不把 MCP 作为唯一的工具调用协议。工具可以来自不同来源，初步包括 Builtin、Runner 和 MCP；不同来源负责发现或定义工具，并转换为统一的 ToolSpec 注册到 Tool Registry。
 
+整体结构方向如下：
+
+```text
+                    Tool Registry
+                         │
+                  Unified ToolSpec
+                         │
+           ┌─────────────┼─────────────┐
+           ▼             ▼             ▼
+    Builtin Tool     Runner Tool     MCP Tool
+      Provider         Provider       Provider
+           │             │             │
+           ▼             ▼             ▼
+    Builtin Executor Runner Executor MCP Executor
+           │             │             │
+           ▼             ▼             ▼
+    agenteam backend   Runner RPC    MCP Client
+                                       │
+                                       ▼
+                                   MCP Server
+```
+
+其中 Provider 负责提供和注册工具定义，Executor 负责实际执行。第一版实现不必过早拆分这两个概念，可以先合并为统一的 ToolSource / ToolAdapter：
+
+```text
+ToolSource / ToolAdapter
+├── Builtin
+├── Runner
+└── MCP
+```
+
 - Builtin：agenteam 自身提供的项目、Issue、meeting、knowledge-base 等业务工具；
 - Runner：通过 agenteam 的远程 Runner 协议执行文件、命令、进程等分布式能力；
 - MCP：连接外部 MCP Server，发现其 tools 后转换为普通 Tool 注册，实际调用时再通过 MCP 执行。
