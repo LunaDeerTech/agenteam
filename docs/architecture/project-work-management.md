@@ -1,0 +1,287 @@
+# 项目与工作管理架构
+
+## 1. 模块职责
+
+项目与工作管理模块负责组织一个项目中的长期工作状态。
+
+核心对象包括：
+
+- Project；
+- Milestone；
+- Sprint；
+- Task；
+- Task Plan；
+- Task Event；
+- Task Blocker。
+
+Milestone 和 Sprint 不只是展示或统计层级，也是 Task 的任务上下文边界。
+
+每个 Milestone 和 Sprint 都应至少包含 `title` 与 `description`，用于描述当前阶段目标、范围和约束。Task 必须归属于某个 Sprint，且该 Sprint 必须归属于某个 Milestone，因此每个 Task 在逻辑上都同时处于明确的 Milestone / Sprint 上下文中，不允许存在脱离这两级规划结构的孤立 Task。
+
+## 2. 项目领域模型
+
+```mermaid
+flowchart TB
+    Project["Project"]
+
+    Project --> Milestone["Milestone<br/>Title / Description"]
+    Milestone --> Sprint["Sprint<br/>Title / Description"]
+    Sprint --> Task["Task"]
+
+    Project --> Agent["Agents"]
+    Project --> Meeting["Meetings"]
+    Project --> KB["Knowledge Base"]
+    Project --> Config["Project Config"]
+    Project --> Members["Members"]
+
+    Task --> Plan["Plan"]
+    Task --> Events["Task Events"]
+    Task --> Blockers["Blockers<br/>including rely_on"]
+    Task --> AgentExecutions["Agent Execution References"]
+
+    Meeting --> Participants["Participants"]
+    Meeting --> Messages["Meeting Messages"]
+    Meeting --> Summary["Rolling Summary"]
+    Meeting --> DecisionReq["Decision Requests"]
+    Meeting --> ExecApproval["Execution Approval Requests"]
+
+    Agent --> AgentConfig["Agent Config"]
+    Agent --> Capability["Capabilities"]
+    Agent --> Memory["Memory"]
+
+    KB --> Documents["Documents"]
+    Documents --> Chunks["Chunks / Embeddings"]
+```
+
+图中的关联表达业务关系，不表示模块之间必须直接调用。例如 Meeting 对 Task 的变更仍通过统一 Tool 和业务服务完成。
+
+## 3. Task
+
+Task 是项目中最小的可调度工作单元。
+
+Task 必须具有明确的 Milestone 与 Sprint 归属。创建或移动 Task 时，目标 Sprint 必须属于目标 Milestone，服务端需要保证层级关系一致。
+
+至少包含：
+
+- `id`：项目内唯一；
+- 所属 `milestone`；
+- 所属 `sprint`；
+- `title`；
+- `state`；
+- `priority`；
+- `type`；
+- `description`；
+- `assignee`；
+- `plan`；
+- `blockers`；
+- 关联的 `events`；
+- 关联的 Agent Execution references。
+
+建议的类型：
+
+- feature；
+- bug；
+- task；
+- spike；
+- chore。
+
+建议的优先级：
+
+- low；
+- medium；
+- high；
+- critical。
+
+## 4. Task 状态机
+
+所有 Task 都必须经过审核才能完成。
+
+因此 `done` 只能从 `in-review` 进入，`in-progress -> done` 是非法状态流转。
+
+```mermaid
+stateDiagram-v2
+    [*] --> backlog
+
+    backlog --> todo: assign + ready
+    todo --> in_progress: Scheduler claim
+
+    in_progress --> in_review: submit + assign reviewer
+    in_progress --> blocked: cannot continue
+    in_progress --> cancelled: cancelled
+
+    in_review --> done: review approved
+    in_review --> todo: changes required
+    in_review --> blocked: blocked during review
+    in_review --> cancelled: cancelled
+
+    blocked --> todo: all blockers resolved
+    blocked --> cancelled: cancelled
+
+    todo --> cancelled
+    backlog --> cancelled
+
+    done --> [*]
+    cancelled --> [*]
+```
+
+约束：
+
+- `backlog`、`done`、`cancelled` 不要求 assignee；
+- 其他可执行或等待执行的状态必须具有明确 assignee；
+- `done` 是审核后的终态，不允许普通工作阶段的 Agent 将 `in-progress` 直接标记为 `done`；
+- `assignee` 表示当前阶段负责该 Task 的 Agent，而不是永久 owner；
+- 执行 Agent 完成本轮工作并将 Task 从 `in-progress` 提交到 `in-review` 时，必须同时选择并指定下一阶段的 reviewer assignee；
+- reviewer 的选择由当前执行 Agent 根据项目 `AGENTS.md`、Agent 描述、能力信息和当前任务内容决定，Scheduler 不替它选择；
+- `in-review` 且具有 assignee 的 Task 可以继续由同一个 Scheduler 自动调度审核；
+- reviewer 审核通过后将 Task 置为 `done`；如果要求修改，则将 Task 返回 `todo` 并指定下一轮执行 assignee；如果无法继续，则进入 `blocked`。
+
+Task 的普通字段、结构位置和状态流转通过不同领域操作处理：
+
+- 普通字段修改使用 `update-task`；
+- 移动到其他 Sprint 使用 `move-task`，目标 Milestone 由 Sprint 归属自动确定；
+- 更新 Plan 使用 `update-task-plan`；
+- Task 状态流转统一使用 `transfer-task`。
+
+`transfer-task` 由 Agent 根据当前实际工作结果决定目标状态，并可以同时提交下一阶段 assignee、comment，以及进入 `blocked` 时需要增加的 blocker。
+
+Tool 本身不重复编码 `in-progress -> in-review`、`in-review -> done` 等规则。所有合法流转、必要字段和领域约束都由 Task 状态机在服务端统一判断；不合法的请求必须拒绝并返回明确错误原因。
+
+例如，执行 Agent 完成本轮工作时可以请求转入 `in-review` 并指定 reviewer；reviewer 完成审核后可以根据结果请求进入 `done`、返回 `todo` 并指定下一轮 assignee，或进入 `blocked` 并增加 blocker。
+
+## 5. Plan
+
+`plan` 是当前 Task 的执行计划和完成情况。
+
+它主要用于 Agent 和用户理解工作拆解，不作为独立调度单元。Agent 可以在权限允许的情况下更新 plan。
+
+如果后续需要把计划条目独立调度，应创建新的 Task，而不是把 plan item 隐式升级成 Scheduler 任务。
+
+## 6. Task Event Timeline
+
+Task 使用统一事件时间线，而不是分别维护“评论列表”和“状态历史”。
+
+事件类型至少包括：
+
+- `comment`；
+- `state_changed`；
+- `assignee_changed`；
+- `blocker_added`；
+- `blocker_resolved`；
+- `agent_execution_started`；
+- `agent_execution_finished`；
+- `agent_execution_failed`；
+- 后续可增加 `review_started`、`review_finished` 等审核事件。
+
+完整 execution log 不写入 Task Event。Task Event 只保留项目协作层有意义的事实、结果和证据，并可以引用对应的 Agent Execution ID。
+
+## 7. Task Blocker
+
+Task Dependency 不再作为独立领域对象存在。Task 之间的依赖统一表示为一种 Blocker：
+
+```text
+Blocker
+  type = rely_on
+  related_task_id = ...
+```
+
+这样 Task 只维护一套阻塞模型，同时仍保留依赖关系需要的图约束和自动解除语义。
+
+```mermaid
+flowchart LR
+    Task["Task"]
+
+    Task --> B1["Blocker<br/>rely_on"]
+    Task --> B2["Blocker<br/>waiting_for_human"]
+    Task --> B3["Blocker<br/>waiting_for_meeting_approval"]
+    Task --> B4["Blocker<br/>technical"]
+
+    B1 --> DepTask["Related Task"]
+    B2 --> HumanRequest["Human Request"]
+    B3 --> MeetingProposal["Meeting Proposal"]
+    B4 --> TechnicalEvent["Technical Failure"]
+```
+
+Blocker 不应只是 Task 上的一个字符串字段。至少需要：
+
+- blocker 类型；
+- 说明；
+- 关联对象 ID；
+- 创建时间；
+- 解除时间；
+- 创建者或来源。
+
+一个 Task 可以同时具有多个 blocker。
+
+只有所有 blocker 都解除后，Task 才能重新进入 `todo`。
+
+对于 `rely_on` blocker，服务端必须执行额外约束：
+
+- related Task 必须存在；
+- Task 不能依赖自身；
+- 创建 / 修改依赖关系时检查循环依赖；
+- 前置 Task 满足条件后，Scheduler 可以自动解除对应 `rely_on` blocker。
+
+当前置 Task 被取消时，不应隐式认为 `rely_on` 已经满足。后续可以通过项目策略决定：
+
+- 将当前 Task 转为等待用户决策；
+- 取消当前 Task；
+- 替换依赖；
+- 其他显式处理。
+
+## 8. Milestone 与 Sprint
+
+层级关系：
+
+```text
+Project
+  -> Milestone
+      -> Sprint
+          -> Task
+```
+
+Milestone 和 Sprint 都应至少包含：
+
+- `title`；
+- `description`。
+
+它们都可以由 Agent 创建、更新和删除，但删除不允许强制执行：
+
+- Milestone 仍包含 Sprint 时必须拒绝删除；
+- Sprint 仍包含 Task 时必须拒绝删除；
+- 服务端需要返回明确的结构化错误原因，使 Agent 可以先迁移或处理下级对象后重试。
+
+它们不仅服务于项目规划和进度展示，也构成 Task 的上层任务语境：
+
+- Milestone 描述一个较大的阶段目标、交付边界和整体方向；
+- Sprint 描述 Milestone 内更具体的一轮工作目标和范围；
+- Task 描述该 Sprint 中可被独立调度和执行的具体任务。
+
+因此 Task 不允许脱离 Milestone / Sprint 独立存在。Agent 执行 Task 时，当前 Milestone 与 Sprint 的 `title`、`description` 应作为基础任务上下文的一部分提供给 Agent，使其不仅理解单个 Task，还能理解当前任务所属阶段的目标、边界和项目整体位置。
+
+Milestone / Sprint 归属是 Task 的结构性前置条件；在归属合法之后，Task 当前是否可以被 Scheduler 执行，再由它自身的 state、assignee 和未解除 blocker 决定。
+
+## 9. Tasks 页面与视图
+
+Tasks 是项目工作管理的统一页面，所有视图都基于同一套 Milestone / Sprint / Task 数据和操作能力。
+
+当前包含两种主要 Task 展示方式：
+
+### Explore View
+
+按：
+
+```text
+Milestone -> Sprint -> Task
+```
+
+展示工作树，并提供搜索、筛选、排序和编辑。
+
+### Kanban View
+
+按照 Task 状态组织和展示同一套 Task 数据，用于观察工作流转和当前进度。
+
+Explore 与 Kanban 只是 Tasks 页面中的不同 View，不是独立业务模块，也不存在两套任务模型。
+
+后续可以在同一 Tasks 模型下继续扩展其他项目进度视图，例如 Timeline、Roadmap 等，而不改变底层 Work Management Domain。
+
+所有 Tasks Views 都调用相同的 Task / Work Management Service。
