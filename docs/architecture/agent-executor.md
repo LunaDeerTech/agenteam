@@ -160,13 +160,13 @@ Agent Executor 内部使用统一的 **AgentExecutionContextBuilder** 构造每�
 
 Builder 负责合并两类信息：
 
-- 公共执行信息：Platform Prompt、Agent Config、Project base context、可选 `AGENTS.md`、Runner / mount environment、Model、Tool Capability、execution policy、metadata；
+- 公共执行信息：Platform Prompt、Agent Config、Project base context、可选 `AGENTS.md`、Project Environment Variables、Runner / mount environment、Model、Tool Capability、execution policy、metadata；
 - Trigger-specific Context：由对应业务领域的 Trigger Context Provider 提供，其中既包括业务数据，也包括当前场景需要注入的 Prompt Template / instructions。
 
 Trigger Context Provider 是统一的领域适配接口。第一阶段至少包括：
 
 - `TaskContextProvider`：读取当前 Task、Sprint、Milestone 以及 work / review 语义，并提供 Task 场景 Prompt Template，使 Agent 明确当前任务阶段、可用操作，以及如何根据执行结果通过 `transfer-task` 请求下一步状态流转；实际合法性由 Task 状态机校验；
-- `MeetingContextProvider`：读取 meeting topic、participants、rolling summary、必要的 recent messages 和 meeting policy，并提供 Meeting 场景 Prompt Template，使 Agent 明确会议中的发言、DecisionRequest、ExecutionApprovalRequest、受限写操作和会议收尾方式；
+- `MeetingContextProvider`：读取 meeting topic、participants、rolling summary、必要的 recent messages 和 meeting policy，并提供 Meeting 场景 Prompt Template，使 Agent 明确会议中的发言、DecisionRequest、Governance Approval Request、受限写操作和会议收尾方式；
 - 后续其他 trigger 可以按相同接口扩展，并定义各自的场景 Prompt Template。
 
 Scheduler、Meeting 等触发方只创建 Agent Launch Request，不直接构造 AgentExecutionContext，也不直接调用 Provider。Agent Executor 根据 `trigger.type` 选择对应 Provider，再由 Builder 合并为完整 AgentExecutionContext。
@@ -184,6 +184,7 @@ flowchart TB
         DefaultPrompt["Platform Prompt"]
         AgentConfig["Agent Config"]
         Project["Project Base Context / AGENTS.md"]
+        ProjectEnv["Project Environment Variables"]
         Environment["Runner / Mount Environment"]
         Model["Model Configuration"]
         Tools["Tool Capability"]
@@ -232,6 +233,8 @@ AgentExecutionContext
 ├── base_context
 ├── trigger_context
 ├── environment_context
+│   ├── runner / mount metadata
+│   └── project_variables
 ├── model
 ├── tools
 ├── execution_policy
@@ -249,13 +252,18 @@ AgentExecutionContext
 - `agent.capability_snapshot`：本次执行使用的 Agent 长期能力快照；
 - `base_context`：项目基础信息、可选 `AGENTS.md` 等；
 - `trigger_context`：Trigger Context Provider 准备的业务触发上下文，其中可以包含该 trigger 的场景 Prompt Template / instructions；
-- `environment_context`：Runner、mount、环境说明；
+- `environment_context`：Runner、mount，以及当前 Agent 可见的 Project Environment Variables；
+  - 普通变量包含 `name / description / value`；
+  - Secret 变量只包含当前 Agent 被允许使用的 `name / description / secret=true`，不包含 Secret value；
+  - Project Variables 的运行时实际值不由 AgentExecutionContext 保存，Runner 等执行后端需要时由 Central 解析并临时注入。
 - `model`：已经解析好的模型配置；
 - `tools`：本次执行允许暴露给模型的 ToolSpec 集合；
 - `execution_policy`：本次执行额外限制；
 - `metadata`：trace、trigger、时间限制等执行元数据。
 
 AgentExecutionContext 是 Agent Executor 与 Agent Loop 之间的主要输入边界，也是 Agent Execution 从 `preparing` 进入 `running` 的启动配置。
+
+Project Variables 的完整设计见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
 
 其中保存的是 Prompt components 和其他执行输入，而不是已经组装完成的最终 System Prompt。最终 System Prompt 由 Agent Loop 在 Context Assembly 阶段根据 Platform Prompt、Agent instructions、Trigger Prompt 以及其他需要作为系统级指令表达的内容统一组装。
 
@@ -271,14 +279,15 @@ Agent Loop 不应重新读取 Task、Meeting、Agent 配置等业务数据库来
 4. 创建 Agent Execution，并进入 `preparing`；
 5. AgentExecutionContextBuilder 获取 Agent 配置快照；
 6. Builder 根据 `trigger.type` 调用对应 Trigger Context Provider；
-7. Builder 解析 Runner / mount 环境元数据；
-8. Builder 解析 Model 配置；
-9. Builder 计算本次有效 Tool Capability；
-10. Builder 合并 execution policy / metadata；
-11. 构造 AgentExecutionContext；
-12. Agent Execution 进入 `running` 并启动 Agent Loop；
-13. 持久化 execution log、usage、error 和最终结果；
-14. 更新 Agent Execution 最终状态。
+7. Builder 解析 Project Environment Variables，加入全部普通变量，并按 Agent Secret 白名单加入可用 Secret 的 metadata；
+8. Builder 解析 Runner / mount 环境元数据；
+9. Builder 解析 Model 配置；
+10. Builder 计算本次有效 Tool Capability；
+11. Builder 合并 execution policy / metadata；
+12. 构造 AgentExecutionContext；
+13. Agent Execution 进入 `running` 并启动 Agent Loop；
+14. 持久化 execution log、usage、error 和最终结果；
+15. 更新 Agent Execution 最终状态。
 
 ## 8. Agent Execution
 
@@ -394,17 +403,15 @@ Agent Loop 的详细设计单独见 [Agent Loop](./agent-loop.md)。
 
 ## 11. Tool Capability 计算
 
-Agent Executor 根据多层约束生成本次 Agent Execution 可见的 Tool Set：
+Agent Executor 根据当前可用 Tool、Agent Capability 和 Execution Policy 生成本次 Agent Execution 可见的 Tool Set：
 
 ```text
-System Policy
-  ∩ Project Policy
+Available Tools
   ∩ Agent Capability
   ∩ Execution Policy
-  ∩ Human Approval Scope
 ```
 
-最终仍由 Tool System 在具体 Tool Call 时执行服务端权限校验。
+Approval 不参与 Tool 可见性计算。Project / Resource Scope、平台固定安全规则、Approval Match / Approval Policy 都在具体 Tool Call 时由 Tool System 进行服务端校验。
 
 Agent Executor 负责“本次执行给 Agent Loop 提供哪些 Tool”，Tool System 负责“某次 Tool Call 是否真的允许执行”。
 

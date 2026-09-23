@@ -32,7 +32,8 @@ flowchart TB
     Project --> Meeting["Meetings"]
     Project --> KB["Knowledge Base"]
     Project --> Config["Project Config"]
-    Project --> Members["Members"]
+    Project --> EnvVars["Environment Variables<br/>Variable / Secret"]
+    Project --> Owner["Owner"]
 
     Task --> Plan["Plan"]
     Task --> Events["Task Events"]
@@ -43,7 +44,7 @@ flowchart TB
     Meeting --> Messages["Meeting Messages"]
     Meeting --> Summary["Rolling Summary"]
     Meeting --> DecisionReq["Decision Requests"]
-    Meeting --> ExecApproval["Execution Approval Requests"]
+    Meeting --> ApprovalRefs["Approval Request References"]
 
     Agent --> AgentConfig["Agent Config"]
     Agent --> Capability["Capabilities"]
@@ -54,6 +55,20 @@ flowchart TB
 ```
 
 图中的关联表达业务关系，不表示模块之间必须直接调用。例如 Meeting 对 Task 的变更仍通过统一 Tool 和业务服务完成。
+
+### 2.1 Project Variables
+
+Project Variables 是 Project 的长期配置对象，分为普通 Variable 和 Secret。
+
+- 普通 Variable 对 Project 内所有 Agent 可见；
+- Secret 需要在 Agent 配置中显式授权；
+- Variable / Secret 都包含 description；
+- AgentExecutionContext 负责生成 Model 可见视图；
+- Central 在执行期解析实际值，并按需注入 Runner / MCP 等执行后端。
+
+远端 Runner 不主动读取 Project 配置或 Secret Store，而是在执行 command / process 时由 Central 通过 Runner Protocol 临时下发本次进程所需的 environment。
+
+完整数据模型、Agent 白名单、Prompt 注入、跨设备 Runner 传输和 Secret 生命周期见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
 
 ## 3. Task
 

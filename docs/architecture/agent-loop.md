@@ -73,6 +73,8 @@ AgentExecutionContext
 ├── base_context
 ├── trigger_context
 ├── environment_context
+│   ├── runner / mount metadata
+│   └── project_variables
 ├── model
 ├── tools
 ├── execution_policy
@@ -95,7 +97,8 @@ Agent Loop 启动时首先将 AgentExecutionContext 组织成真正发送给 Mod
 - Agent `instructions`；
 - Trigger-specific Prompt / instructions；
 - 可选项目 `AGENTS.md` 中需要作为系统指令表达的内容；
-- environment / execution policy 中需要作为系统指令表达的约束。
+- environment / execution policy 中需要作为系统指令表达的约束；
+- 当前 Agent 可用的 Project Environment Variables。
 
 Agent Loop 将这些 Prompt components 按稳定规则组合后，形成最终 **System Prompt**，再与业务上下文、消息历史和 ToolSpec 一起交给 Model Adapter。
 
@@ -107,6 +110,8 @@ Agent instructions
 Trigger Prompt / instructions
       +
 Project / AGENTS.md instructions
+      +
+Project Environment Variables
       +
 Environment / Execution constraints
       ↓
@@ -123,6 +128,9 @@ Model Adapter
 - 项目基础信息；
 - prepared trigger context；
 - Runner / mount 环境信息；
+- Project Environment Variables：
+  - 普通变量提供 name、description 和 value；
+  - 当前 Agent 被允许使用的 Secret 只提供 name、description 和 Secret 标记，不提供 value；
 - execution metadata；
 - conversation / execution messages；
 - ToolSpec。
@@ -450,22 +458,51 @@ Agent Loop 可以对明确可恢复的底层错误进行有限 retry，例如：
 
 - transient model network error；
 - provider rate limit；
-- transient Tool transport error。
+- Tool System 明确标记为 retryable 的 transient Tool transport error。
+
+对于 Tool retry，Agent Loop 不自行根据“Tool 名称和 arguments 看起来相同”判断是否属于 retry。
+
+Tool System 负责维护：
+
+~~~text
+Tool Call
+  -> Tool Operation (operation_id)
+      -> Attempt 1
+      -> Attempt 2
+~~~
+
+同一个 Tool Operation 的 technical retry 保持 operation_id 不变，只创建新的 Attempt。
+
+如果当前 Operation 已经通过 One-time Approval，安全的 technical retry 不重新请求 Approval。
+
+但 Approval 不代表 retry 安全；Tool System 仍必须根据 Tool / Backend 的 idempotency 与 outcome 决定是否允许 retry。
+
+尤其：
+
+~~~text
+unknown + non-idempotent
+-> 不允许自动 retry
+~~~
 
 不应自动 retry：
 
 - 业务校验失败；
 - 权限拒绝；
 - Human Approval required；
-- Agent 明确产生了错误业务动作；
-- 无限重复的相同 tool call。
+- Agent 明确产生了新的错误业务动作；
+- Tool System 未明确允许 retry 的 unknown outcome；
+- 无限重复的相同 Tool Operation。
 
 Retry 必须：
 
 - 有次数上限；
 - 支持 backoff；
+- 保持同一 operation_id 与 operation fingerprint；
+- 为每次实际执行创建新的 attempt / backend request id；
 - 写入 Agent Execution log；
 - 计入 usage / duration。
+
+完整设计见 [One-time Approval、Tool Retry 与 Idempotency 详细设计](../design/security-governance/one-time-approval-retry-idempotency.md)。
 
 ## 17. Loop Guard
 

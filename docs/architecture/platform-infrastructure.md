@@ -155,10 +155,10 @@ Redis 不应成为无法重建的业务事实唯一存储。
 至少包括：
 
 - authentication；
-- project membership；
-- RBAC / policy；
+- Project Owner boundary；
+- 平台固定安全规则与 Project / Resource scope；
 - Agent capability；
-- Human Approval；
+- Approval；
 - secret management；
 - audit。
 
@@ -173,7 +173,7 @@ Human Inbox 可以聚合：
 - waiting_for_human；
 - meeting proposals；
 - pending decision requests；
-- execution approval requests；
+- pending approval requests；
 - review requests；
 - technical blockers；
 - Runner failures；
@@ -184,16 +184,37 @@ flowchart TB
     Inbox["Human Inbox"]
 
     Task["Task / Blocker"] --> Inbox
-    Meeting["Meeting Requests"] --> Inbox
-    Decision["Decision Requests"] --> Inbox
-    Approval["Execution Approval"] --> Inbox
+    Meeting["Meeting Proposal / Decision"] --> Inbox
+    Approval["Governance Approval Request"] --> Inbox
     Review["Review Request"] --> Inbox
     Runner["Runner / Technical Failure"] --> Inbox
 
     Inbox --> User["Human User"]
 ```
 
-Inbox 是聚合视图，不应成为这些业务对象的新 Source of Truth。
+Human Inbox 是统一的**人类待处理聚合视图**，不是这些业务对象的新 Source of Truth。
+
+特别是 Agent Execution 在执行过程中产生的权限审批需求，应由 Security / Governance 创建并持久化 Approval Request。Human Inbox 负责把 pending Approval Request 聚合给用户处理，而不是自己保存另一套审批状态。
+
+因此：
+
+```text
+Agent Execution / Tool Authorization
+  -> Governance Approval Request
+      -> Human Inbox
+          -> Human User
+```
+
+Approval Request 可以关联：
+
+- project；
+- agent；
+- source execution；
+- tool / action；
+- resource / scope；
+- Task / Meeting 等业务来源。
+
+如果审批来自 Meeting，Meeting Timeline 可以引用并展示同一个 Approval Request；如果审批来自 Task Execution，也可以从 Task / Execution 页面跳转到同一个 Approval Request。不同 UI 入口不能各自复制一套审批状态。
 
 ## 6. Internal Domain Events
 
@@ -241,7 +262,7 @@ flowchart LR
 - ReviewRequested / Finished；
 - MeetingRequested / Approved；
 - DecisionRequested / Answered / Skipped；
-- ExecutionApprovalRequested / Approved / Rejected；
+- ApprovalRequested / Approved / Rejected；
 - DocumentUpdated；
 - RunnerConnected / Disconnected。
 
@@ -251,36 +272,67 @@ Domain Event 不能代替业务事务本身。需要强一致的状态变化仍�
 
 Audit 与 Task Event / Execution Log 是不同层次。
 
-### Task Event
+~~~text
+Task Event
+= Task 的业务状态发生了什么
 
-回答“这个 Task 的业务状态发生了什么”。
+Execution Log
+= Agent Execution 实际运行了什么
 
-### Execution Log
+Audit
+= 谁以什么权限执行了什么敏感操作
+~~~
 
-回答“这次 Agent Execution 实际运行了什么”。
+Audit 采用 append-oriented 结构化记录，第一阶段不自动过期，不复制完整运行日志。
 
-### Audit Log
+完整数据模型、retention、查询、分页、索引和关联方式见 [Audit 详细设计](../design/security-governance/audit.md)。
 
-回答“谁在什么时间以什么权限对系统执行了什么敏感操作”。
+## 8. Project Environment Variables 与 Secret Management
 
-三者可以关联，但不应合并成同一张万能日志表。
+Project 可以配置两类 Environment Variable：
 
-## 8. Secret Management
+~~~text
+Project Environment Variables
+├── Variable
+└── Secret
+~~~
 
-以下内容不能作为普通配置明文传播：
+每个变量至少包含：
 
-- Model Provider API keys；
-- MCP credentials；
-- Runner enrollment / device credentials；
-- Git SSH private keys；
-- 其他外部服务 token。
+- name；
+- description；
+- type；
+- value。
 
-Agent Execution Context 和 Tool Call 应尽量拿到 secret 的引用或临时注入，不把 secret 写入：
+普通 Variable：
 
-- model context；
-- Task Event；
-- Meeting message；
-- 普通 execution log。
+- 对当前 Project 的所有 Agent 可见；
+- name / description / value 可以进入 AgentExecutionContext 和 Prompt；
+- 执行 Runner command / process 时可以作为普通环境变量注入。
+
+Secret Variable：
+
+- value 加密存储；
+- 保存后普通读取接口不返回明文；
+- 只有被 Project Owner 加入当前 Agent Secret Variable 白名单的 Secret 才能被该 Agent 使用；
+- AgentExecutionContext 和 Prompt 只包含允许使用的 Secret name / description，不包含 Secret value；
+- Secret value 只在具体执行后端需要时解析和临时注入。
+
+执行后端应让 Tool arguments 尽量保持环境变量引用，例如：
+
+~~~text
+$GITHUB_TOKEN
+~~~
+
+而不是把 Secret value 展开后写入 Tool Call。
+
+已解析 Secret 进入 stdout / stderr / Tool Result 路径时，需要在持久化和回传前进行已知 Secret value masking。
+
+Masking 只用于降低意外泄漏风险，不构成针对主动编码、拆分 Secret 等行为的严格数据防泄漏边界。
+
+Model Provider API key、Runner enrollment / device credential 等系统级 Secret 仍属于平台自身 Secret Management，不因为 Project Environment Variables 的存在而变成 Project 变量。
+
+Project Environment Variables 的详细数据模型、Agent 白名单、Prompt 注入和执行期注入见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
 
 ## 9. 部署架构
 

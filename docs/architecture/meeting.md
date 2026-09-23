@@ -26,13 +26,15 @@ Meeting 层只保留面向协作的长期内容，包括：
 
 - user / agent messages；
 - DecisionRequest；
-- ExecutionApprovalRequest；
+- Approval Request references；
 - references；
 - attachments；
 - rolling summary；
 - meeting metadata。
 
-Meeting 同时必须提供统一的 **Meeting Timeline**，按时间顺序展示消息、DecisionRequest、ExecutionApprovalRequest 及其结果。Timeline 是 Meeting 的核心交互视图。Request 自身保存当前状态和最终结果，不再额外维护一套审批结果事件对象；Timeline 根据这些事实生成对应条目。
+Meeting 自己持有 DecisionRequest；执行权限审批属于 Security / Governance 的通用 Approval Request，Meeting 只保存必要引用。
+
+Meeting 同时必须提供统一的 **Meeting Timeline**，按时间顺序展示消息、DecisionRequest、关联 Approval Request 及其结果。Timeline 是 Meeting 的核心交互视图。Approval 状态以 Governance 中的 Approval Request 为 Source of Truth，Meeting 不复制另一套审批状态。
 
 Agent Execution 的完整 tool calls、模型交互和 execution log 不属于 Meeting 主消息历史，应归档到对应的 Agent Execution，并在 UI 中按需展开。
 
@@ -47,37 +49,28 @@ sequenceDiagram
     participant E as Agent Executor
     participant X as Agent Execution
     participant T as Tool System
+    participant G as Security / Governance
+    participant I as Human Inbox
 
     U->>M: create meeting / send message
-
     M->>E: Agent Launch Request
-    Note over E: AgentExecutionContextBuilder + MeetingContextProvider
-    E->>X: create / start with AgentExecutionContext
+    E->>X: create / start Agent Execution
     X->>X: run Agent Loop
 
-    X->>T: optional read tools
-    T-->>X: project / task / knowledge / memory / runner data
+    X->>T: Tool Call
+    T-->>X: tool result / approval required
 
-    X-->>M: public response + structured requests
-    M-->>U: show response
-
-    alt Agent proposes write action
-        X->>T: request-execution-approval(...)
-        T-->>M: create approval request
-        M-->>U: show approval request
-
-        alt approved
-            U->>M: approve exact scope
-            M->>E: Agent Launch Request<br/>purpose = approved_action
-            Note over E: same context build flow
-            E->>X: create approved-action Agent Execution
-            X->>T: invoke approved write tool
-            T-->>X: tool result
-            X-->>M: report result
-        else rejected
-            U->>M: reject
-        end
+    opt approval required
+        T->>G: create / reference Approval Request
+        G->>I: expose pending approval
+        G-->>M: approval reference for Timeline
+        I-->>U: show pending approval
+        U->>G: approve / reject
+        G-->>M: updated approval state
     end
+
+    X-->>M: public response / execution result
+    M-->>U: show Meeting Timeline
 ```
 
 这里刻意不存在 Task 层或 Task participant。
@@ -139,12 +132,12 @@ Agent Capability
 - 审批不能扩大 Agent 原有 Capability；
 - 服务端在实际工具执行时再次校验。
 
-## 6. DecisionRequest 与 ExecutionApprovalRequest
+## 6. DecisionRequest 与 Approval Request
 
-两类 Request 都由 Agent 发起、由用户处理，但语义不同：
+Meeting 中需要区分两类“等待用户输入”：
 
-- **DecisionRequest**：Agent 需要用户给出一个业务答案；
-- **ExecutionApprovalRequest**：Agent 已经知道要执行什么，但执行受限动作前需要用户授权。
+- **DecisionRequest**：Meeting 自己的领域对象，Agent 需要用户给出业务答案；
+- **Approval Request**：Security / Governance 的通用审批对象，用于处理受限执行动作，Meeting 只引用并展示。
 
 ### DecisionRequest
 
@@ -231,84 +224,36 @@ answer = "先使用 PostgreSQL，后续根据分析需求再评估 ClickHouse"
 
 Agent 后续只消费统一的 `answer`，不需要判断答案来自 option 还是自由输入。
 
-### ExecutionApprovalRequest
+### Approval Request
 
-ExecutionApprovalRequest 用于请求用户授权一个明确的受限执行动作。
+Execution 权限审批不再作为 Meeting 自己的领域对象保存。
 
-概念结构：
+当 Meeting 中的 Agent Execution 产生审批需求时：
 
-```text
-ExecutionApprovalRequest
-├── id
-├── meeting_id
-├── agent_id
-├── source_execution_id
-├── action
-├── scope
-├── status
-│   ├── pending
-│   ├── approved
-│   └── rejected
-├── created_at
-└── decided_at
-```
-
-字段含义：
-
-- `meeting_id`：所属 Meeting；
-- `agent_id`：请求授权的 Agent；
-- `source_execution_id`：产生审批请求的 Agent Execution；
-- `action`：面向用户描述“准备执行什么”；
-- `scope`：结构化描述本次授权允许执行的精确范围，供后续服务端校验；
-- `status`：审批状态；
-- `created_at`：请求创建时间；
-- `decided_at`：用户批准或拒绝的时间。
-
-状态语义：
-
-- `pending`：等待用户审批；
-- `approved`：用户已经批准该 action / scope；
-- `rejected`：用户已经拒绝。
-
-约束：
-
-```text
-status = pending
-=> decided_at = null
-
-status = approved | rejected
-=> decided_at must exist
-```
-
-不定义 `deferred`：用户暂时不处理时，请求继续保持 `pending`。
-
-审批通过只代表“允许在给定 scope 内执行”，并不表示动作已经实际执行或执行成功。批准后仍需创建对应 Agent Execution，并真正调用 Tool。
+1. Security / Governance 创建或持有统一 Approval Request；
+2. Approval Request 进入 Human Inbox；
+3. Meeting 保存该 Approval Request 的引用；
+4. Meeting Timeline 展示该审批的 pending / approved / rejected 等当前状态；
+5. 用户无论从 Human Inbox 还是 Meeting 页面处理，操作的都是同一个 Approval Request。
 
 因此：
 
 ```text
-conversation
-  != decision
-  != approval
-  != execution
-  != successful project change
+Meeting
+  -> Approval Request Reference
+      -> Security / Governance Approval Request
+          -> Human Inbox
 ```
 
-### 状态机
+Meeting 不定义 Approval Request 的完整数据结构和生命周期。审批 scope、匹配、复用、消费等规则由 Security / Governance 统一定义。
+
+### DecisionRequest 状态机
 
 ```mermaid
 flowchart LR
-    subgraph DecisionRequest
-        DRStart["created"] --> DRPending["pending"]
-        DRPending -->|"user answers"| DRAnswered["answered"]
-        DRPending -->|"user skips"| DRSkipped["skipped"]
-    end
-
-    subgraph ExecutionApprovalRequest
-        EAStart["created"] --> EAPending["pending"]
-        EAPending -->|"user approves"| EAApproved["approved"]
-        EAPending -->|"user rejects"| EARejected["rejected"]
-    end
+    DRStart["created"] --> DRPending["pending"]
+    DRPending -->|"user answers"| DRAnswered["answered"]
+    DRPending -->|"user skips"| DRSkipped["skipped"]
 ```
 
 ## 7. Meeting Timeline
@@ -322,9 +267,9 @@ Timeline 必须把 Meeting 中不同类型的协作事实统一按时间顺序�
 - DecisionRequest created；
 - DecisionRequest answered；
 - DecisionRequest skipped；
-- ExecutionApprovalRequest created；
-- ExecutionApprovalRequest approved；
-- ExecutionApprovalRequest rejected；
+- Approval Request linked / created；
+- Approval Request approved；
+- Approval Request rejected；
 - approved action 的 Agent Execution 结果；
 - 其他适合面向用户展示的 Meeting-level 事实。
 
@@ -349,7 +294,8 @@ Timeline 必须把 Meeting 中不同类型的协作事实统一按时间顺序�
 Timeline 条目不是另一套 request 状态 Source of Truth：
 
 - DecisionRequest 自己保存 `status / answer`；
-- ExecutionApprovalRequest 自己保存 `status`；
+- Approval Request 的状态由 Security / Governance 保存；
+- Meeting 只保存 Approval Request reference；
 - message 自己保存消息内容；
 - Agent Execution 保存完整运行证据。
 

@@ -144,7 +144,7 @@ Platform Services 提供多个业务模块共同依赖的系统能力，例如�
 - Authentication / Authorization；
 - Approval / Audit；
 - Runner Management；
-- Secret Management；
+- Project Environment Variables / Secret Management；
 - Internal Events；
 - 系统级配置。
 
@@ -189,8 +189,10 @@ External Systems 包括模型 Provider、MCP Server、Git Repository 以及其�
 - [Agent Executor](./agent-executor.md)
 - [Agent Loop](./agent-loop.md)
 - [统一工具系统](./tool-system.md)
+- [MCP 集成](./mcp-integration.md)
 - [Runner](./runner.md)
 - [Knowledge Base 与 Agent Memory](./knowledge-memory.md)
+- [安全与治理](./security-governance.md)
 - [平台基础设施与部署](./platform-infrastructure.md)
 
 ## 6. 当前技术基线

@@ -81,6 +81,7 @@ ToolSpec 至少应包含：
 - category；
 - read/write 属性；
 - risk metadata；
+- default enabled；
 - execution adapter reference。
 
 模型侧最终获得对应 Model Provider 原生的 tool/function schema。
@@ -236,9 +237,12 @@ Blocker
 
 其中：
 
-- `request-decision` 创建 Meeting 中的 `DecisionRequest`，用于 Agent 请求用户回答业务问题；
-- `request-execution-approval` 创建 `ExecutionApprovalRequest`，用于 Agent 请求用户授权明确的受限执行动作；
-- 用户对 DecisionRequest 的 answer / skip，以及对 ExecutionApprovalRequest 的 approve / reject，属于 Meeting/UI 的用户操作，不通过 Agent Tool 完成。
+- `request-decision` 创建 Meeting 自己的 `DecisionRequest`，用于 Agent 请求用户回答业务问题；
+- `request-execution-approval` 用于 Meeting 场景显式发起受限动作审批，但实际 Approval Request 由 Security / Governance 统一创建和持久化，Meeting 只保存引用并在 Timeline 中展示；
+- Approval Request 会进入 Human Inbox，用户可以从 Human Inbox 或对应业务页面处理同一个审批对象；
+- 用户对 DecisionRequest 的 answer / skip，以及对 Approval Request 的 approve / reject，都属于用户操作，不通过 Agent Tool 完成。
+
+Approval 不是 Meeting 专属能力。Task Execution、Runner / MCP Tool 等其他场景产生的审批需求也统一进入 Security / Governance 的 Approval 机制，并由 Human Inbox 聚合。
 
 `create-meeting` 属于用户/UI 能力。
 
@@ -268,7 +272,7 @@ Memory
 
 - `query-doc` 仍只能查询当前 Project 的 Knowledge Base；
 - Memory Tools 仍只能访问当前 Agent 自己的 memory namespace；
-- 所有调用仍经过 System / Project / Server-side Authorization 和审计。
+- 所有调用仍经过 Project / Resource Scope、平台固定安全规则、服务端 Authorization 和审计。
 
 Knowledge Base 的 `list-docs / create-doc / update-doc` 仍属于普通可配置 Tool。
 
@@ -322,16 +326,36 @@ Runner Tool 的所有文件、命令、进程和桌面能力都必须受 Agent m
 
 ## 6. MCP Tools
 
-MCP Adapter 负责：
+MCP Server 通过 MCP Bridge 接入统一 Tool System。
 
-1. 建立 MCP Client；
+MCP Bridge 负责：
+
+1. 根据 MCP Server Config 建立 MCP Client；
 2. 发现 MCP Server tools；
-3. 将 MCP schema 转为 Unified ToolSpec；
-4. 注册到 Tool Registry；
-5. 调用时把统一请求转换为 MCP 请求；
-6. 将结果转换回统一 Tool Result。
+3. 为每个远端 Tool 生成稳定 Tool identity；
+4. 将 MCP schema 转为 Unified ToolSpec；
+5. 注册到 Tool Registry；
+6. 调用时把统一请求转换为 MCP 请求；
+7. 将结果转换回统一 Tool Result；
+8. 维护 Tool availability / discovery 状态。
+
+MCP Bridge discovery 出来的每个 Tool 都是独立的 Unified Tool，不通过单一 `call_mcp` 间接承载。
+
+这些 Tool 与 Builtin / Runner Tool 一样进入 Agent Capability：
+
+```text
+MCP Server
+  -> MCP Bridge discovery
+      -> Unified ToolSpec
+          -> Tool Registry
+              -> Agent Capability
+```
+
+Agent Capability 默认按具体 MCP Tool 授权。新 discovery 出来的 Tool 不自动加入已有 Agent Capability，避免 MCP Server 升级后隐式扩大 Agent 权限。
 
 MCP Server 的工具不能因为来自外部协议而跳过 agenteam 的权限和审计体系。
+
+MCP Server Config、System / Project scope、Credential、Tool stable identity、discovery / refresh、transport 与执行链路的完整设计见 [MCP 集成架构](./mcp-integration.md)。
 
 ## 7. 权限模型
 
@@ -341,21 +365,21 @@ MCP Server 的工具不能因为来自外部协议而跳过 agenteam 的权限�
 flowchart LR
     Tool["Tool Request"]
 
-    SystemPolicy["System Policy"]
-    ProjectPolicy["Project Policy"]
     AgentPolicy["Agent Capability"]
     ContextPolicy["Execution Policy"]
-    Approval["Human Approval Scope"]
+    Scope["Project / Resource Scope<br/>+ 平台固定安全规则"]
+    Match["Approval Match"]
+    ApprovalPolicy["Approval Policy"]
     ServerAuth["Server-side Authorization"]
-
     Execute["Execute"]
 
-    Tool --> SystemPolicy
-    SystemPolicy --> ProjectPolicy
-    ProjectPolicy --> AgentPolicy
+    Tool --> AgentPolicy
     AgentPolicy --> ContextPolicy
-    ContextPolicy --> Approval
-    Approval --> ServerAuth
+    ContextPolicy --> Scope
+    Scope --> Match
+    Match -->|"matched"| ServerAuth
+    Match -->|"no match"| ApprovalPolicy
+    ApprovalPolicy --> ServerAuth
     ServerAuth --> Execute
 ```
 
@@ -364,16 +388,76 @@ flowchart LR
 - Core Agent Tools 是平台保证的基础能力，不受普通 Agent Capability 开关移除，但仍受 scope 和服务端授权；
 - Agent Capability 定义可配置 Tool 的长期最大能力；
 - Agent Execution Policy 可以进一步收紧能力；
-- Meeting 默认限制为读操作；
-- 高风险写操作可以要求结构化 Human Approval；
-- Approval 只授权明确动作或范围；
-- 最终服务端仍必须执行对象级权限、mount/path、安全规则校验。
+- Project / Resource Scope 和平台固定安全规则在具体 Tool Call 时强制校验；
+- 基础权限通过后，先匹配当前 active Approval；
+- 没有匹配 Approval 时，才由 Approval Policy 决定直接执行还是进入 Human Inbox；
+- 最终服务端仍必须执行对象级权限、mount/path、安全规则和业务规则校验。
+
+Approval 不决定 Tool 是否出现在模型可见 Tool Set 中。Tool Set 由当前可用 Tool、Agent Capability 和 Execution Policy 共同决定；Approval 发生在具体调用阶段。
+
+### 7.1 ApprovalScopeResolver
+
+需要支持 Reusable Approval 的 Tool 可以提供 `ApprovalScopeResolver`。
+
+它负责：
+
+- 从当前真实 Tool Call 生成 current scope；
+- 决定该 Tool 是否支持 Reusable Approval；
+- 如果支持，生成“以后都允许此类调用”对应的 Reusable Approval Scope；
+- 判断保存的 Reusable Approval Scope 是否覆盖后续 Tool Call；
+- 提供用于 UI 展示的 human-readable Scope。
+
+Security / Governance 只负责 Project、Agent、stable Tool ID、Approval state 等通用匹配，不实现一套理解所有 Tool 参数的通用 constraints DSL。
+
+Tool 不提供 Reusable Approval Scope 时，审批界面只允许“批准本次”或“拒绝”。
+
+详细规则见 [Approval Scope 详细设计](../design/security-governance/approval-scope.md)。
+
+### 7.2 Tool Operation 与 Attempt
+
+Tool System 区分：
+
+~~~text
+tool_call_id
+= Model 产生的一次 Tool Call
+
+operation_id
+= 该 Tool Call 对应的逻辑 Tool Operation
+
+attempt_id / backend request_id
+= 某一次实际执行尝试
+~~~
+
+新的 Agent Tool Call 总是创建新的 operation_id，即使 Tool 和 arguments 完全相同。
+
+如果 Tool System 对同一个逻辑操作执行 technical retry：
+
+- operation_id 保持不变；
+- operation fingerprint 保持不变；
+- attempt_id / backend request_id 变化；
+- 已绑定该 operation_id 的 One-time Approval 不需要重新审批。
+
+One-time Approval 只确认当前 Tool Operation 是否被用户授权，不决定 retry 是否安全。
+
+是否允许 retry 由 Tool / Backend 的 idempotency、attempt outcome 和可验证 idempotency key 决定。
+
+其中：
+
+~~~text
+unknown + non-idempotent
+-> 不允许自动 retry
+~~~
+
+完整设计见 [One-time Approval、Tool Retry 与 Idempotency 详细设计](../design/security-governance/one-time-approval-retry-idempotency.md)。
 
 ## 8. Tool Result 与审计
 
-每次 Tool Call 至少需要记录：
+每次 Tool Call / Tool Operation 至少需要记录：
 
 - agent execution id；
+- tool_call_id；
+- operation_id；
+- attempt_id / backend request_id；
 - agent；
 - tool id；
 - tool source；
@@ -383,6 +467,8 @@ flowchart LR
 - error；
 - approval id（如有）。
 
-敏感输入、secret 和大体积结果需要采用脱敏或外部 artifact 引用，避免直接写入普通日志。
+敏感输入、Secret 和大体积结果需要采用脱敏或外部 artifact 引用，避免直接写入普通日志。
+
+Project Secret Variable 的 value 不应展开到普通 Tool arguments。Runner command 等场景优先保留 `$VARIABLE_NAME` 引用，并通过独立 execution environment 注入 Secret。对于已经解析到执行后端的 Secret，Tool Result / stdout / stderr 在进入普通日志或回填 Agent Model 前需要对已知 Secret value 做 masking。
 
 无论 Agent 是由 Task Scheduler、Meeting 还是其他触发源启动，Tool Call 都统一归属于当前 Agent Execution，不再为 Meeting turn 单独建立另一套运行记录模型。

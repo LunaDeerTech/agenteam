@@ -191,6 +191,21 @@ Filesystem Tool 必须始终在当前 Agent 被授权的 mount 范围内工作�
 
 命令执行同样必须受到 mount / working directory / Runner policy 的限制，不能通过 shell 间接越过文件系统边界。
 
+Central 会为当前 Agent Execution 计算可用的 Project Environment Variables：
+
+- 所有普通 Project Variables；
+- 当前 Agent 白名单允许的 Secret Variables。
+
+`run-command` 通过独立 environment payload 接收这些变量，并注入目标 child process。
+
+Agent 生成的 command 应尽量引用变量名，例如：
+
+~~~text
+$GITHUB_TOKEN
+~~~
+
+而不是把 Secret value 写入 command 参数或日志。
+
 ### Managed Process
 
 - `start-process`；
@@ -198,6 +213,8 @@ Filesystem Tool 必须始终在当前 Agent 被授权的 mount 范围内工作�
 - `stop-process`。
 
 Managed Process 用于需要跨多次 Agent Tool Call 持续存在的 dev server、测试服务或调试进程。进程记录需要绑定 Runner、mount、Agent Execution 和 audit correlation 信息。
+
+`start-process` 与 `run-command` 使用相同的 Project Environment Variables 注入规则。环境在进程创建时确定，不写入 Runner 持久化配置。
 
 ### Transfer
 
@@ -463,16 +480,28 @@ stop_process
 
 ```text
 RunnerRequest
+├── request_id
+├── operation_id
 ├── project_id
 ├── mount_id
 ├── mount_path
 ├── execution_id
 ├── effective_permissions
+├── environment (optional, sensitive)
+│   ├── variables
+│   └── secrets
+├── idempotency_key (optional)
 ├── audit_correlation_id
 └── operation_payload
 ```
 
 其中 Central 负责计算 `effective_permissions`，Runner 再执行最后一道本机校验。
+
+`environment` 只在 command / process 等需要进程环境的操作中携带。它由 Central 根据 Project Variables 和 Agent Secret Variable 白名单计算；Runner 不自行查询 Project Secret。
+
+Runner 在 stdout / stderr / Tool Result 返回 Central 前，应对本次 request 已知的 Secret value 做 masking。Central 在持久化普通 Execution Log 前仍应执行自己的脱敏检查。
+
+Project Variable / Secret 的 Source of Truth、Agent 白名单、WSS 下发、Runner 内存生命周期和 Managed Process 语义见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
 
 Response 使用统一结构：
 
@@ -499,6 +528,12 @@ UNSUPPORTED_OPERATION
 ## 13. RPC 生命周期、Deadline 与 Cancel
 
 每个 request 必须具有唯一 `request_id`。
+
+同一个逻辑 Tool Operation 因 technical retry 产生新的 Runner RPC 时：
+
+- `operation_id` 保持不变；
+- `request_id` 必须变化；
+- 如果 operation 支持 backend idempotency，则多次 attempt 使用相同的稳定 `idempotency_key`。
 
 Central 可以携带 `deadline`。Runner 收到 request 后：
 
@@ -558,10 +593,15 @@ unknown
 
 规则：
 
+- 每个 Runner RPC request 是当前 Tool Operation 的一个 Attempt；
+- technical retry 必须保持相同 `operation_id`，并创建新的 `request_id`；
+- 已经获得 One-time Approval 只表示该 operation 被授权，不代表 retry 一定安全；
 - `unknown` 的写操作或有副作用操作不能自动重试；
 - 只有 operation 明确声明幂等，或携带服务端可验证的 idempotency key 时，才允许安全重试；
 - Tool System / Agent Loop 应把 unknown 作为独立结果类型处理，而不是伪装成普通 technical error；
-- audit log 必须保留 request_id 和 unknown outcome。
+- audit log 必须同时保留 operation_id、request_id 和 unknown outcome。
+
+详细语义见 [One-time Approval、Tool Retry 与 Idempotency 详细设计](../design/security-governance/one-time-approval-retry-idempotency.md)。
 
 ## 15. Heartbeat、Offline 与 Reconnect
 
