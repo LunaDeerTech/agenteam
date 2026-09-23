@@ -68,7 +68,6 @@ AgentExecutionContext
 │   ├── description
 │   ├── instructions
 │   ├── inject_agents_md
-│   ├── model_parameters
 │   └── capability_snapshot
 ├── base_context
 ├── trigger_context
@@ -260,18 +259,16 @@ Model Adapter 负责：
 
 Agent Loop 不应直接绑定某个具体 Provider 的协议。
 
-例如：
+第一阶段：
 
 ```text
 Agent Loop
     -> Model Adapter
-        -> OpenAI-compatible
-        -> Anthropic
-        -> Gemini
-        -> other providers
+        -> OpenAI Chat Completions / OpenAI-compatible
+        -> Anthropic Messages
 ```
 
-Provider 差异应尽量被 Model Adapter 屏蔽。
+后续可以继续增加其他 Provider / Protocol Adapter。Provider 差异应尽量被 Model Adapter 屏蔽。Provider / Model 配置、Resolved Model Snapshot、统一请求 / 响应、streaming、usage 与错误标准化的完整设计见 [Model System 详细设计](../design/platform-infrastructure/model-system.md)。
 
 ## 9. Tool Calling
 
@@ -587,6 +584,8 @@ Agent Loop 持续向当前 Agent Execution 写入运行事件。
 完整 execution log 的归档边界是 Agent Execution。
 
 Task Event、Meeting message 和 Audit Log 只保存各自领域需要的信息，并可以引用 Agent Execution ID。
+
+每次真实 Provider invocation 的 Token Usage 记录、retry 统计以及按 Agent / Model / Project 聚合的完整设计见 [Model Token Usage 详细设计](../design/platform-infrastructure/model-token-usage.md)。
 
 ## 21. Harness 参考与实现策略
 

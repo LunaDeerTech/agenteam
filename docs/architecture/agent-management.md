@@ -14,17 +14,18 @@ Agent Management 定义项目中“一个 Agent 是什么”，负责长期配�
 
 - name；
 - tag-color；
-- model；
+- `model_ref`；
+- `reasoning_effort`；
 - description；
 - instructions；
 - 是否注入项目 `AGENTS.md`；
-- 可选的 Agent 级 model parameters。
 
 其中：
 
 - tag-color 只用于界面识别，不参与权限、角色或调度语义；
 - `description` 是面向用户和其他 Agent 的简短能力说明，用于快速判断该 Agent 是做什么的、是否适合作为 assignee / reviewer / Meeting participant；
 - `instructions` 是该 Agent 自身长期维护的 Prompt，描述其角色、职责、专业能力、工作方式和个性化约束；
+- `reasoning_effort` 是当前 Agent 对所选 chat Model 的 reasoning 等级选择；当该 Model 的 `parameters.capabilities.reasoning_efforts` 非空时，必须从其中选择一个等级；不支持可选 reasoning effort 的 Model 不展示该配置；
 - Agent Management 不额外保存独立的 `system prompt` 字段。System Prompt 只指 Agent Loop 在执行前将各类 Prompt components 组装完成后的最终产物。
 
 ### Platform Prompt
@@ -210,11 +211,11 @@ Preset 可以包含：
 
 - name；
 - tag-color；
-- model；
+- model_ref；
+- reasoning_effort；
 - description；
 - instructions；
 - AGENTS.md 注入策略；
-- Agent 级 model parameters；
 - allowed tools；
 - skills。
 
@@ -233,12 +234,18 @@ Preset 不包含：
 
 Agent 配置引用一个可用 chat model。
 
-模型可能来自：
+chat Model 可能来自：
 
 - 系统级 Model Provider；
 - 项目级 Model Provider。
 
-Agent Management 只保存模型选择和与 Agent 有关的模型参数，不负责实现模型 Provider 调用协议。实际模型调用由 Agent Loop 的 Model Adapter 处理。
+项目级 Provider 第一阶段只能配置 chat Model；embedding / reranker / image_generation 由平台级 Model Management 统一配置和消费，不出现在 Agent 的 model_ref 选择中。
+
+Agent Management 只保存 `model_ref` 以及按所选 Model 能力配置的 `reasoning_effort`，不保存通用模型请求参数。
+
+删除仍被 Agent 引用的 chat Model 时，Model Management 必须要求用户先选择替代 chat Model，并在删除前批量更新受影响 Agent.model_ref；替换后还必须保证各 Agent 的 reasoning_effort 在新 Model 下合法，不能留下无效配置。
+
+实际模型调用由 Agent Loop 的 Model Adapter 处理。Provider / Model 配置、模型解析、Capability 与 Model Adapter 的完整设计见 [Model System 详细设计](../design/platform-infrastructure/model-system.md)。
 
 ## 6. 权限边界
 

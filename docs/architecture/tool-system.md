@@ -219,6 +219,38 @@ Blocker
 - update-doc；
 - query-doc。
 
+### Media
+
+- generate-image。
+
+`generate-image` 是普通可配置 Builtin Tool，不属于 Core Agent Tools。
+
+它不要求 Agent 直接选择 image_generation Model。Tool backend 使用平台级 Model Management 中的 `image_generation_model_ref`：
+
+```mermaid
+flowchart LR
+    Loop["Agent Loop"]
+    Tool["generate-image"]
+    Selection["Platform image_generation_model_ref"]
+    Adapter["Image Generation Adapter"]
+    Provider["System Model Provider"]
+
+    Loop --> Tool
+    Tool --> Selection
+    Selection --> Adapter
+    Adapter --> Provider
+```
+
+约束：
+
+- `image_generation_model_ref` 只能引用系统级 `type = image_generation` 的 ModelConfig；
+- Project Provider 不允许配置 image_generation Model；
+- selector 未配置或引用的 Model 当前不可用时，`generate-image` 不应作为可执行 Tool 暴露；
+- Agent 只看到统一 ToolSpec 和 Tool Result，不感知具体 image_generation Provider / Model；
+- `generate-image` 与其他普通 Builtin Tool 一样受 Agent Capability、Execution Policy、Approval 与服务端授权约束。
+
+Model 选择和 Adapter 边界见 [Model System 详细设计](../design/platform-infrastructure/model-system.md)。
+
 ### Scheduler
 
 - start-scheduler；

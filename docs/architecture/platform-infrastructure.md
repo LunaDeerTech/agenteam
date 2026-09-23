@@ -26,25 +26,35 @@
 - 系统级；
 - 项目级。
 
-项目可以使用系统级模型，也可以配置自己的模型。在模型选择 UI 中，两类模型应明确区分来源。
+所有 enabled 的系统级 chat Model 对所有 Project 可见。Project 也可以配置自己的 chat Model；在模型选择 UI 中，两类 chat Model 应明确区分来源。第一阶段不增加 System chat Model 的 Project allowlist。
+
+非 chat Model 属于平台内部基础能力：
+
+- embedding；
+- reranker；
+- image generation。
+
+第一阶段这些类型只能由系统级 Provider 配置，Project Provider 不允许创建非 chat Model。
 
 Provider 配置至少包含：
 
 - name；
 - base-url；
-- api-type；
+- protocol；
 - credentials；
 - models。
+
+一个 Provider 固定使用一种 Protocol；同一外部服务如果需要通过不同 Protocol 接入，应配置为不同 Provider，而不是由 Model 覆盖 Protocol。
 
 Model metadata 至少可以包含：
 
 - model-id；
 - type；
-- context-length；
-- max-output；
-- input types；
-- reasoning capability；
-- property overrides。
+- parameters；
+- request overwrite；
+- header overwrite。
+
+其中 parameters 由具体 Model type 定义。例如 chat Model 可以包含 context-length、max-output 和 capabilities，其中 capabilities 可声明 reasoning 以及可选的 reasoning_efforts；embedding、reranker、image generation 等类型可以拥有不同的参数结构，并不要求存在 capabilities。
 
 模型类型可包括：
 
@@ -54,7 +64,35 @@ Model metadata 至少可以包含：
 - reranker；
 - 后续其他类型。
 
-Agent Loop 通过统一 Model Adapter 调用模型，而不是让 Agent Management 或业务模块直接适配每家 Provider。
+平台另外保存三个只引用既有 System Model 的用途 selector：
+
+~~~text
+PlatformModelSelection
+├── embedding_model_ref
+├── reranker_model_ref?
+└── image_generation_model_ref?
+~~~
+
+其中：
+
+- `embedding_model_ref`：Knowledge / Memory 使用的 embedding Model；
+- `reranker_model_ref`：Knowledge / Memory 可选的 reranker Model，可以为空；
+- `image_generation_model_ref`：Builtin 图片生成 Tool 使用的 image_generation Model，可以为空。
+
+三个 selector 都是平台级配置，不支持 Project override，也不在 selector 中重复配置 Model 参数。
+
+Agent Loop 只直接消费 chat Model，并通过统一 Model Adapter 调用模型，而不是让 Agent Management 或业务模块直接适配每家 Provider。embedding / reranker 由 Knowledge / Memory 内部消费；image_generation 由 Builtin image generation Tool 消费。
+
+第一阶段 Chat Provider Adapter 只实现：
+
+- OpenAI Chat Completions / OpenAI-compatible；
+- Anthropic Messages。
+
+Provider / ModelConfig 支持物理删除。删除仍被 Agent 引用的 chat Model 时，必须先在用户确认流程中选择替代 Model，并批量更新受影响 Agent；删除被 PlatformModelSelection 引用的平台 Model 时，必须先替换对应 selector，或在 reranker / image generation 场景清空 optional selector。Provider 只有在其 Models 已全部删除后才能删除。
+
+历史 Agent Execution / Model Invocation Usage 不阻止配置删除：live Provider / Model 外键可以通过 `ON DELETE SET NULL` 置空，但历史记录必须保留调用时的 Provider / Model snapshot。
+
+Provider、Model 配置、Capability、Model Resolver、统一 Model Adapter 与模型调用契约的详细设计见 [Model System 详细设计](../design/platform-infrastructure/model-system.md)。模型调用 Token Usage 的持久化与按 Project / Agent / Model / Provider 统计见 [Model Token Usage 详细设计](../design/platform-infrastructure/model-token-usage.md)。
 
 ## 3. 存储职责
 
@@ -69,6 +107,7 @@ flowchart TB
         Agents["Agents"]
         AgentExecution["Agent Executions"]
         Config["Configuration"]
+        ModelSelection["Platform Model Selection"]
         Audit["Audit Metadata"]
     end
 
@@ -113,6 +152,8 @@ PostgreSQL 是业务 Source of Truth。
 - Approval；
 - Runner metadata；
 - Model config；
+- Platform Model Selection；
+- Model invocation usage；
 - Audit metadata。
 
 ### pgvector

@@ -19,35 +19,52 @@ Knowledge Base 和 Agent Memory 都可能使用向量检索，但它们不是同
 
 ```mermaid
 flowchart TB
+    Selection["Platform Model Selection<br/>embedding_model_ref / reranker_model_ref"]
+
     subgraph KB["Project Knowledge Base"]
         Docs["Documents"]
         Parser["Parser / Chunker"]
-        Embed["Embedding"]
-        Vector["Vector Index"]
-        Search["Knowledge Retrieval"]
+        KBEmbed["Embedding"]
+        KBVector["Vector Index"]
+        KBSearch["Knowledge Retrieval"]
+        KBRank["Optional Rerank"]
     end
 
     subgraph MEM["Agent Memory"]
         Retain["Retain"]
-        Recall["Recall"]
-        Reflect["Reflect"]
         MemoryStore["Memory Store"]
+        MemEmbed["Embedding"]
+        MemVector["Vector Index"]
+        Recall["Recall"]
+        MemRank["Optional Rerank"]
+        Reflect["Reflect"]
     end
 
     Project["Project"] --> Docs
 
     Docs --> Parser
-    Parser --> Embed
-    Embed --> Vector
-    Vector --> Search
+    Parser --> KBEmbed
+    KBEmbed --> KBVector
+    KBVector --> KBSearch
+    KBSearch --> KnowledgeTool
+    KBSearch -. optional .-> KBRank
 
     Agent["Agent"] --> Retain
     Retain --> MemoryStore
-    MemoryStore --> Recall
+    MemoryStore --> MemEmbed
+    MemEmbed --> MemVector
+    MemVector --> Recall
     MemoryStore --> Reflect
+    Recall -. optional .-> MemRank
 
-    Search --> KnowledgeTool["Knowledge Tools"]
+    Selection --> KBEmbed
+    Selection --> KBRank
+    Selection --> MemEmbed
+    Selection --> MemRank
+
+    KBRank --> KnowledgeTool["Knowledge Tools"]
     Recall --> MemoryTool["Memory Tools"]
+    MemRank --> MemoryTool
     Retain --> MemoryTool
     Reflect --> MemoryTool
 
@@ -92,7 +109,7 @@ flowchart LR
     Source["Canonical Document"]
     Parse["Parse"]
     Chunk["Chunk"]
-    Embed["Embedding"]
+    Embed["Embedding<br/>platform embedding_model_ref"]
     Store["pgvector"]
     Ready["Index Ready"]
 
@@ -128,7 +145,23 @@ Agent 通过 Tool 按需查询 Knowledge。
 - hybrid retrieval；
 - reranking。
 
-系统运行至少需要配置可用 embedding / reranking 能力时，具体要求由 Model Management 文档定义。
+Knowledge Retrieval 不直接配置 Provider / Model，而是使用平台级 Model Management 中的用途 selector：
+
+~~~text
+embedding_model_ref
+-> required for vector embedding
+
+reranker_model_ref
+-> optional
+~~~
+
+两个 selector 都只能引用系统级 ModelConfig，并且分别要求 `type = embedding` / `type = reranker`。
+
+Knowledge 和 Agent Memory 共用同一组平台级 embedding / reranker Model。
+
+`reranker_model_ref` 为空时，retrieval 可以继续使用 vector search / keyword / hybrid search，只跳过模型 reranking 阶段。
+
+完整 Model 选择和类型约束见 [Model System 详细设计](../design/platform-infrastructure/model-system.md)。
 
 ## 6. Agent Memory
 
@@ -143,6 +176,8 @@ Memory 用于沉淀：
 - 需要在后续任务中复用的观察。
 
 Memory 的设计可以参考 Hindsight 的 retain / recall / reflect 思路，但应结合 agenteam 的权限、项目和 Agent namespace 自行实现或封装。
+
+Memory 的向量化与 recall retrieval 使用与 Knowledge Base 相同的平台级 `embedding_model_ref`；如果配置了 `reranker_model_ref`，Recall 可以在候选结果上执行 reranking。Memory 不维护自己的 Provider / Model 配置。
 
 如果复用第三方代码，需要记录许可证和借鉴范围。
 

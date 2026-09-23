@@ -228,7 +228,6 @@ AgentExecutionContext
 │   ├── description
 │   ├── instructions
 │   ├── inject_agents_md
-│   ├── model_parameters
 │   └── capability_snapshot
 ├── base_context
 ├── trigger_context
@@ -248,7 +247,6 @@ AgentExecutionContext
 - `agent.description`：当前 Agent 面向外部的简短能力说明，用于 UI 展示和其他 Agent 快速识别其职责；
 - `agent.instructions`：当前 Agent 自身的长期 Prompt，描述其角色、职责、专业能力和工作方式；
 - `agent.inject_agents_md`：是否将项目 `AGENTS.md` 纳入本次执行上下文；
-- `agent.model_parameters`：Agent 级模型参数覆盖；
 - `agent.capability_snapshot`：本次执行使用的 Agent 长期能力快照；
 - `base_context`：项目基础信息、可选 `AGENTS.md` 等；
 - `trigger_context`：Trigger Context Provider 准备的业务触发上下文，其中可以包含该 trigger 的场景 Prompt Template / instructions；
@@ -256,7 +254,7 @@ AgentExecutionContext
   - 普通变量包含 `name / description / value`；
   - Secret 变量只包含当前 Agent 被允许使用的 `name / description / secret=true`，不包含 Secret value；
   - Project Variables 的运行时实际值不由 AgentExecutionContext 保存，Runner 等执行后端需要时由 Central 解析并临时注入。
-- `model`：已经解析好的模型配置；
+- `model`：已经解析好的模型配置，其中包含本次 Execution 生效的 reasoning_effort；
 - `tools`：本次执行允许暴露给模型的 ToolSpec 集合；
 - `execution_policy`：本次执行额外限制；
 - `metadata`：trace、trigger、时间限制等执行元数据。
@@ -281,7 +279,7 @@ Agent Loop 不应重新读取 Task、Meeting、Agent 配置等业务数据库来
 6. Builder 根据 `trigger.type` 调用对应 Trigger Context Provider；
 7. Builder 解析 Project Environment Variables，加入全部普通变量，并按 Agent Secret 白名单加入可用 Secret 的 metadata；
 8. Builder 解析 Runner / mount 环境元数据；
-9. Builder 解析 Model 配置；
+9. Builder 解析 Model 配置，并校验 Agent 的 reasoning_effort 是否属于该 Model 的 `parameters.capabilities.reasoning_efforts`；
 10. Builder 计算本次有效 Tool Capability；
 11. Builder 合并 execution policy / metadata；
 12. 构造 AgentExecutionContext；
@@ -432,6 +430,8 @@ Agent Executor 负责“本次执行给 Agent Loop 提供哪些 Tool”，Tool S
 - final output。
 
 Task Event、Meeting message 和 Audit Log 可以引用 Agent Execution，但不复制完整 execution log。
+
+Agent Execution 的 usage summary 是可重建的派生汇总；每次真实模型调用的 Token Usage Source of Truth 见 [Model Token Usage 详细设计](../design/platform-infrastructure/model-token-usage.md)。
 
 ```text
 Task Event       -> business fact
