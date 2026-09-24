@@ -10,93 +10,310 @@ MCP Server 暴露的 Tool 由 **MCP Bridge** 发现并映射为统一 `ToolSpec`
 
 ~~~mermaid
 flowchart LR
-    Config["MCP Server Config"]
-    Bridge["MCP Bridge"]
-    Server["MCP Server"]
-    Registry["Tool Registry<br/>Unified ToolSpec"]
-    Capability["Agent Capability"]
-    Execution["Agent Execution"]
-    Loop["Agent Loop"]
+    Catalog["MCP Config Catalog<br/>System / Project"]
+    Connection["Project MCP Connection<br/>Connect · Authentication · Enabled State"]
+    Bridge["MCP Integration Runtime<br/>MCP Client / Bridge"]
+    Tools["Unified Tool Runtime"]
+    Execution["Agent Execution<br/>Agent Loop"]
+    Server["External MCP Server"]
+    Secrets["Secret / Credential Management"]
+    Governance["Security / Governance"]
 
-    Config --> Bridge
+    Catalog --> Connection
+    Connection --> Bridge
     Bridge <--> Server
-    Bridge -->|"tool discovery / mapping"| Registry
-    Registry --> Capability
-    Capability --> Execution
-    Execution --> Loop
+    Bridge --> Tools
+    Tools --> Execution
+
+    Secrets -.-> Connection
+    Governance -.-> Tools
 ~~~
 
 因此：
 
 > Agent 看到的是具体 Tool，而不是 MCP 协议本身。
 
-## 2. MCP Server 配置
+## 2. MCP Config 与 MCP Connection
 
-MCP Server Config 是 MCP 集成的长期配置对象。
+MCP 集成明确区分 **MCP Config** 与 **MCP Connection**。
 
-至少应包含：
+`MCP Config` 是长期配置和目录对象，描述：
 
-- `id`；
-- `name`；
-- `description`；
-- `scope`：system / project；
-- `transport`；
+- 这个 MCP 服务是什么；
+- 如何连接；
+- 使用什么 transport；
 - endpoint / command 等 transport-specific config；
-- `credential_ref`；
-- enabled 状态；
-- connection / discovery 状态；
-- 最近一次 discovery 信息。
+- 支持什么身份验证方式。
 
-### 2.1 System-scoped MCP
+`MCP Config` 本身不代表已经与远端 MCP Server 建立真实连接，也不保存某个 Project 的认证状态。
 
-系统级 MCP 由系统管理员配置。
+`MCP Connection` 是 Project 对某个 MCP Config 建立的实际连接关系，描述：
 
-系统级 MCP 可以作为 Project 的可用 Tool 来源；具体 MCP Tool 是否提供给某个 Agent，仍由 Agent Capability 决定。
+- 所属 Project；
+- 引用的 MCP Config；
+- 当前连接 / enabled 状态；
+- 当前认证状态；
+- Credential Binding；
+- discovery 状态；
+- 最近一次成功连接 / discovery 信息。
 
-### 2.2 Project-scoped MCP
+概念关系为：
 
-项目级 MCP 只属于当前 Project。
+~~~mermaid
+flowchart TB
+    SystemConfig["System MCP Config<br/>平台公共目录"]
+    ProjectConfig["Project MCP Config<br/>仅所属 Project 可见"]
 
-它发现出的 Tool 只能被当前 Project 的 Agent 配置和 Agent Execution 使用。
+    ProjectA["Project A"]
+    ProjectB["Project B"]
 
-### 2.3 Credential
+    ASystemConnection["MCP Connection<br/>Project A → System Config"]
+    BSystemConnection["MCP Connection<br/>Project B → System Config"]
+    AProjectConnection["MCP Connection<br/>Project A → Project Config"]
 
-MCP Credential 使用 Secret Reference。
+    SystemConfig -->|"所有 Project 可见"| ProjectA
+    SystemConfig -->|"所有 Project 可见"| ProjectB
+    ProjectConfig -->|"仅所属 Project"| ProjectA
 
-对于 Project-scoped MCP，`credential_ref` 可以引用当前 Project 的 Secret Variable；System-scoped MCP 则引用平台级 Secret。
+    ProjectA -->|"Connect / Authenticate"| ASystemConnection
+    ProjectB -->|"Connect / Authenticate"| BSystemConnection
+    ProjectA -->|"Connect / Authenticate"| AProjectConnection
+~~~
 
-Agent、Agent Execution Context 和 Model 不直接获得 Credential 明文。
+因此：
 
-调用链路：
+> MCP Config 不等于一个已经连接的 MCP Server。真正参与 Project 运行时的是 MCP Connection。
+
+### 2.1 System-scoped MCP Config
+
+System MCP Config 由系统管理员创建，作为平台公共 MCP 目录。
+
+所有 System MCP Config 对所有 Project 可见，但仅“可见”不代表已经连接或可以直接用于 Agent Execution。
+
+Project 想使用某个 System MCP Config 时，必须显式执行 Connect，完成该 Project 自己的登录 / 身份认证并建立 `MCP Connection`。只有连接成功后，该 MCP 才能成为当前 Project 的实际 Tool 来源。
+
+System MCP Config 本身不建立真实服务连接，也不持有 Project Credential。
+
+### 2.2 Project-scoped MCP Config
+
+Project MCP Config 由 Project 自己创建，只对所属 Project 可见。
+
+创建 Project MCP Config 后同样不会自动建立真实连接。Project 仍需要显式 Connect，完成认证并建立对应的 `MCP Connection`，之后才能使用该 MCP 提供的 Tool。
+
+System / Project 两种 Config 的主要差异是配置可见范围；连接、认证、discovery 与 Tool 接入机制统一基于 `MCP Connection`。
+
+### 2.3 Connect 与 Credential
+
+MCP Credential 属于 Project 的 MCP Connection，而不是 System MCP Config。
+
+Connect 流程概念上为：
 
 ~~~text
-MCP Tool Call
-  -> MCP Executor / Bridge
-      -> MCP Server Config
-          -> credential_ref
-              -> Project Secret Variable / Platform Secret
-                  -> Secret Resolver
-                      -> MCP Client
+MCP Config
+  -> Project clicks Connect
+      -> authentication / login
+          -> Credential Binding
+              -> MCP Connection
+                  -> discovery
+                      -> MCP Tools available to this Project
 ~~~
+
+Credential 使用 Secret Reference 或对应认证机制的安全存储，不在 MCP Config 中保存认证明文。
+
+Agent、Agent Execution Context 和 Model 不直接获得 MCP Credential 明文。
 
 MCP Backend 使用某个 Project Secret Variable，不代表该 Secret 会自动加入 Agent 的 `allowed_secret_variables`。MCP Credential Binding 与 Agent 可直接使用的环境变量白名单是两个独立关系。
 
+### 2.4 Enable / Disable / Disconnect / Delete
+
+MCP Connection 的生命周期如下：
+
+~~~mermaid
+stateDiagram-v2
+    [*] --> Unconnected
+
+    Unconnected --> Connecting: Connect
+    Connecting --> Enabled: Authentication success
+    Connecting --> Unconnected: Failure / cancel
+
+    Enabled --> Disabled: Disable
+    Disabled --> Enabled: Enable
+
+    Enabled --> Unconnected: Disconnect
+    Disabled --> Unconnected: Disconnect
+
+    Unconnected --> [*]: Config deleted
+    Enabled --> [*]: Config deleted
+    Disabled --> [*]: Config deleted
+~~~
+
+MCP Connection 的 enable / disable 属于 Project 运行时控制。
+
+Disable 已连接的 MCP Connection：
+
+- 阻止新的 Agent Execution 使用该 Connection；
+- 不主动影响已经开始运行的 Agent Execution；
+- 不改变 MCP Config 本身。
+
+Disconnect / Delete Connection：
+
+- 删除当前 Project 对该 MCP Config 的认证连接；
+- 阻止新的 Agent Execution 使用该 Connection；
+- 不删除 MCP Config；
+- 不主动中断已经运行的 Agent Execution。
+
+Delete MCP Config 是独立的配置管理操作：
+
+- 删除 MCP Config 本身；
+- 自动删除基于该 Config 建立的 MCP Connections；
+- 删除后不能再创建新的 Agent Execution 使用该 MCP；
+- 已经运行中的 Agent Execution 不被主动中断。
+
+因此，disable、disconnect 与 config delete 对**新 Execution** 的效果一致：对应 MCP Tool 不再进入新的 Execution Tool Set；已经运行的 Execution 按其既有运行时快照继续，不因为控制面配置变化而被主动撤销。
+
+如何在连接或配置删除后安全保留运行中 Execution 所需的临时运行时引用，以及何时进行物理 Credential / Connection 清理，属于 MCP Connection Lifecycle 的详细设计问题。
+
 ## 3. MCP Bridge
 
-MCP Bridge 负责把 MCP Server 接入统一 Tool System。
+MCP Bridge 负责 MCP 协议接入与 capability integration。
 
-主要职责：
+MCP Bridge 不等同于 MCP Tool Adapter。它提供统一的 MCP Protocol Runtime，并通过 capability-specific Adapter 把 MCP 的不同能力映射到 agenteam 内部对应子系统。
 
-1. 根据 MCP Server Config 建立连接；
-2. 获取 Server capabilities；
-3. 发现 MCP Tools；
-4. 将 MCP Tool schema 映射为 Unified ToolSpec；
-5. 将映射后的 Tool 注册到 Tool Registry；
-6. 调用时把统一 Tool Call 转换成 MCP 请求；
-7. 将 MCP Result 转换成统一 Tool Result；
-8. 维护 Tool availability / discovery 状态。
+第一阶段只实现 MCP Tool Adapter；未来支持 Resources、Prompts、Elicitation 等能力时，应在同一个 MCP Bridge 中增加对应 Adapter，而不是让各业务模块分别实现 MCP Client。
 
-MCP Bridge 不负责 Agent 权限决策。
+### 3.1 内部架构
+
+~~~mermaid
+flowchart LR
+    Server["External MCP Server"]
+
+    subgraph Bridge["MCP Bridge"]
+        direction LR
+
+        subgraph Protocol["MCP Protocol Runtime"]
+            Client["MCP Client"]
+            Session["Connection / Session<br/>Transport · Authentication<br/>Protocol Negotiation"]
+            Router["Capability / Message Router"]
+        end
+
+        subgraph Adapters["Capability Adapters"]
+            ToolAdapter["MCP Tool Adapter<br/>Phase 1"]
+            FutureAdapter["MCP Resource / Prompt / ... Adapter<br/>Future"]
+        end
+
+        Client --> Session
+        Session --> Router
+
+        Router --> ToolAdapter
+        Router -.-> FutureAdapter
+    end
+
+    ToolRuntime["Unified Tool Runtime"]
+    FutureSubsystem["Other agenteam Subsystem<br/>Future"]
+
+    Server <--> Client
+
+    ToolAdapter --> ToolRuntime
+    FutureAdapter -.-> FutureSubsystem
+~~~
+
+这里的核心边界是：
+
+> Capability Adapter 不直接连接 MCP Server。所有 MCP transport、session、authentication、protocol version、request / response、notification 等协议行为统一由 MCP Protocol Runtime 承担。
+
+这样 MCP 协议演进被隔离在 Bridge 内部，不会让 Unified Tool Runtime 或未来其他内部子系统直接依赖 MCP 协议细节。
+
+### 3.2 MCP Protocol Runtime
+
+MCP Protocol Runtime 是各 Capability Adapter 共用的协议底座，负责：
+
+1. 根据 MCP Config 与 Project MCP Connection 建立运行时连接；
+2. MCP Client 与 transport；
+3. Authentication / Credential Binding 接入；
+4. connection / session lifecycle；
+5. protocol version negotiation；
+6. Server capability discovery；
+7. MCP request / response；
+8. notification / subscription routing；
+9. cancellation / progress / protocol error 等通用协议行为。
+
+Protocol Runtime 不负责把 MCP capability 映射成 agenteam 业务模型。
+
+### 3.3 Capability Adapter
+
+Capability Adapter 负责：
+
+> MCP capability model <-> agenteam internal subsystem model
+
+Adapter 只处理对应 capability 的语义转换，不重新实现 MCP transport、authentication、session 或版本兼容。
+
+第一阶段：
+
+~~~text
+MCP Tool Adapter
+  -> Unified Tool Runtime
+~~~
+
+未来可扩展：
+
+~~~text
+MCP Resource / Prompt / ... Adapter
+  -> corresponding agenteam subsystem
+~~~
+
+这里只保留 capability adapter 的扩展点，不在 architecture 层提前枚举未来具体 Adapter 或其目标子系统。
+
+### 3.4 MCP Tool Adapter
+
+MCP Tool Adapter 是第一阶段唯一实现的 Capability Adapter。
+
+它同时承担两条 Tool 集成路径：
+
+~~~text
+Definition / Discovery path
+
+MCP tools/list
+  -> MCP Tool Adapter
+      -> Unified ToolSpec
+          -> Tool Registry
+~~~
+
+~~~text
+Execution path
+
+Unified Tool Call
+  -> MCP Tool Adapter
+      -> MCP Protocol Runtime
+          -> MCP tools/call
+
+MCP result
+  -> MCP Tool Adapter
+      -> Unified ToolResult / ToolError
+~~~
+
+实现内部可以进一步区分 Tool Definition Adapter 与 Tool Backend Adapter，但对 MCP Bridge 外部仍表现为同一个 MCP Tool Adapter。
+
+MCP Tool 从远端服务进入 agenteam Tool System 的 definition / discovery 链路为：
+
+~~~mermaid
+flowchart LR
+    Server["External MCP Server<br/>MCP Tools"]
+    Protocol["MCP Protocol Runtime"]
+    Adapter["MCP Tool Adapter"]
+    Spec["Unified ToolSpec"]
+    Registry["Tool Registry"]
+    Capability["Agent Capability"]
+    ExecutionSet["Execution Tool Set"]
+
+    Server -->|"tools/list"| Protocol
+    Protocol --> Adapter
+    Adapter -->|"stable identity + normalized schema"| Spec
+    Spec -->|"spec_revision + availability"| Registry
+    Registry -->|"stable tool id reference"| Capability
+    Capability -->|"snapshot when Execution starts"| ExecutionSet
+~~~
+
+MCP Bridge 与 MCP Tool Adapter 都不负责 Agent 权限决策。
 
 MCP Tool 仍必须经过统一的：
 
@@ -219,23 +436,25 @@ Agent Capability 保存 Tool stable ID，而不是复制 MCP Tool schema。
 因此关系是：
 
 ~~~text
-MCP Server Config
-  -> MCP Bridge Discovery
-      -> Unified ToolSpec
+MCP Config
+  -> Project MCP Connection
+      -> MCP Bridge Discovery
+          -> Unified ToolSpec
           -> Tool Registry
               -> Agent Capability references
                   -> Agent Execution Tool Set
 ~~~
 
-MCP Server 是否存在、Tool 是否 available，与 Agent 是否拥有这个 Tool 的长期 Capability 是两个不同问题。
+MCP Config / Connection 是否存在、Tool 是否 available，与 Agent 是否拥有这个 Tool 的长期 Capability 是不同问题。
 
 ## 7. Discovery 与刷新
 
 MCP Tool discovery 至少在以下场景发生：
 
-- MCP Server Config 创建或启用；
-- 配置发生变化；
-- 服务启动后的连接初始化；
+- Project 完成 Connect 并建立 MCP Connection；
+- MCP Connection 重新启用；
+- 影响连接或远端能力的配置发生变化；
+- 服务启动后的已连接 MCP Connection 初始化；
 - 管理员主动 refresh；
 - MCP Server 明确通知 capabilities / tool list 发生变化（如果 transport / protocol 支持）。
 
@@ -270,22 +489,27 @@ Agent Capability 和 Audit 始终使用 stable tool id。
 ~~~mermaid
 sequenceDiagram
     participant A as Agent Loop
-    participant T as Tool System
-    participant M as MCP Executor / Bridge
+    participant D as Tool Dispatcher
+    participant G as Security / Governance
+    participant B as MCP Tool Adapter
+    participant C as MCP Protocol Runtime
     participant S as MCP Server
 
-    A->>T: Unified Tool Call
-    T->>T: Capability / Policy / Authorization
+    A->>D: Unified Tool Call
+    D->>G: authorize(tool, execution, args)
 
-    alt allowed
-        T->>M: execute(stable tool id, args)
-        M->>M: resolve MCP config / credential
-        M->>S: MCP tools/call
-        S-->>M: MCP result
-        M-->>T: normalized Tool Result
-        T-->>A: Tool Result
-    else denied / approval required
-        T-->>A: structured security result
+    alt denied / approval required
+        G-->>D: denied / approval_required
+        D-->>A: structured Tool Error
+    else allowed
+        G-->>D: allowed
+        D->>B: execute(stable tool id, args)
+        B->>C: tools/call request
+        C->>S: MCP tools/call
+        S-->>C: MCP result
+        C-->>B: MCP protocol result
+        B-->>D: normalized ToolResult / ToolError
+        D-->>A: Tool Result
     end
 ~~~
 
@@ -321,20 +545,27 @@ Runner-hosted stdio MCP
 
 当前先保留明确的架构扩展点，不假定所有 stdio MCP 都能直接运行在 Central。Runner-hosted stdio MCP 的具体协议衔接需要与 Runner 架构进一步确认。
 
-## 11. MCP 与 Project Secret Variable
+## 11. MCP Authentication 与 Tool Authorization
 
-MCP Server Config 只保存 `credential_ref`，不保存 Credential 明文。
+MCP Authentication 与 Tool Authorization 是两套独立机制。
 
-Project-scoped MCP 的 `credential_ref` 可以引用当前 Project 的 Secret Variable。
+### 11.1 MCP Authentication
 
-Secret 的实际解析发生在 MCP Backend：
+MCP Authentication 解决的是：
+
+> agenteam / 当前 Project 如何向远端 MCP Server 证明自己的身份并建立 MCP Connection。
+
+认证状态与 Credential Binding 属于 Project 的 MCP Connection。
+
+如果认证机制使用 Project Secret Variable，其实际解析发生在 MCP Backend：
 
 ~~~text
-Project Secret Variable
-  -> MCP Server Config.credential_ref
-      -> MCP Executor / Bridge
-          -> resolve secret
-              -> MCP Client
+Project MCP Connection
+  -> credential binding
+      -> Project Secret Variable / secure credential storage
+          -> MCP Protocol Runtime
+              -> resolve credential
+                  -> MCP Client
 ~~~
 
 原则上：
@@ -343,12 +574,30 @@ Project Secret Variable
 - MCP Tool input schema 不暴露 Credential 字段；
 - Tool Result 和错误需要脱敏；
 - Credential 不进入 Agent Execution 普通日志；
-- Project-scoped MCP 不能引用其他 Project 的 Secret Variable；
+- MCP Connection 不能引用其他 Project 的 Secret Variable；
 - MCP Backend 的 credential binding 不要求把该 Secret Variable 加入 Agent 的 Secret 白名单。
 
 如果某个 Agent 还需要在 Runner command 中直接使用同一个 Secret，则 Project Owner 需要另外把该 Secret Variable 加入该 Agent 的 `allowed_secret_variables`。
 
-详细数据模型见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
+### 11.2 Tool Authorization
+
+Tool Authorization 解决的是：
+
+> 当前 Agent / Agent Execution 是否允许调用某个已经通过 MCP Connection 接入的 MCP Tool。
+
+MCP Connection 认证成功只表示当前 Project 可以访问对应 MCP Server，不代表任意 Agent 自动获得该 Server 的 Tool。
+
+MCP Tool 仍然统一经过 Agent Capability、Execution Policy、Approval、Tool Authorization 与 Audit。
+
+因此：
+
+~~~text
+MCP Authentication
+  = Platform / Project -> MCP Server
+
+Tool Authorization
+  = Agent / Execution -> MCP Tool
+~~~
 
 ## 12. MCP 与安全治理
 
@@ -365,7 +614,7 @@ MCP Tool 和其他 Tool 一样受 Security / Governance 约束。
 
 MCP Server 返回的 Tool annotations 不直接参与 agenteam 的运行时授权或 Approval 判断。
 
-MCP Bridge 只把这些 annotations 翻译为 Unified ToolSpec 的 `default_enabled`，用于 Agent Capability 的初始配置建议。
+MCP Tool Adapter 只把这些 annotations 翻译为 Unified ToolSpec 的 `default_enabled`，用于 Agent Capability 的初始配置建议。
 
 第一阶段固定采用：
 
@@ -379,7 +628,7 @@ default_enabled = (readOnlyHint === true)
 
 ~~~text
 MCP annotations
-  -> MCP Bridge
+  -> MCP Tool Adapter
       -> Unified ToolSpec.default_enabled
 ~~~
 
@@ -396,30 +645,59 @@ Agent Capability
 
 具体转换规则见 [MCP Tool 默认启用策略详细设计](../design/mcp-integration/mcp-tool-default-enable.md)。
 
-## 13. 第一阶段实现边界
+## 13. MCP Capability Integration 原则
+
+agenteam 不以“完整透传 MCP 协议”为目标。
+
+MCP 的不同 capability 必须通过 MCP Bridge 内各自明确的 Capability Adapter 映射到 agenteam 内部对应的子系统，而不是把 MCP 协议对象直接泄漏到 Agent Loop。
+
+总体关系为：
+
+~~~text
+MCP Server
+  -> MCP Protocol Runtime
+      -> capability-specific Adapter
+          -> agenteam subsystem
+~~~
+
+第一阶段只接入 MCP Tools：
+
+~~~text
+MCP Tools
+  -> MCP Protocol Runtime
+      -> MCP Tool Adapter
+          -> Unified Tool Runtime
+~~~
+
+MCP Resources、Prompts、Elicitation、Tasks 等 capability 第一阶段不接入。未来如需支持，应在 MCP Bridge 中分别增加对应 Adapter，并单独设计其内部目标子系统和生命周期语义，而不是因为 MCP Server 暴露该 capability 就自动向 Agent Loop 透传。
+
+## 14. 第一阶段实现边界
 
 第一阶段建议至少支持：
 
-1. System / Project 两级 MCP Server Config；
-2. Streamable HTTP MCP；
-3. MCP Tool discovery；
-4. MCP Tool -> Unified ToolSpec；
-5. stable MCP Tool ID；
-6. Tool Registry 注册；
-7. Agent Capability 逐 Tool 授权；
-8. Tool unavailable / refresh；
-9. Credential Reference；
-10. 统一 Tool Authorization 与 Audit。
+1. System / Project 两级 MCP Config；
+2. Project-scoped MCP Connection；
+3. 显式 Connect / Authentication；
+4. Connection enable / disable / disconnect；
+5. Streamable HTTP MCP；
+6. MCP Tool discovery；
+7. MCP Tool -> Unified ToolSpec；
+8. stable MCP Tool ID；
+9. Tool Registry 注册；
+10. Agent Capability 逐 Tool 授权；
+11. Tool unavailable / refresh；
+12. Credential Binding / Reference；
+13. 统一 Tool Authorization 与 Audit。
 
 第一阶段可以暂缓：
 
 - 自动把整个 MCP Server 的所有 Tool 授权给 Agent；
 - 复杂的 schema migration；
 - Runner-hosted stdio MCP；
-- MCP resources / prompts 的完整接入；
+- MCP resources / prompts / elicitation / tasks 的接入；
 - 自动信任新 discovery 出来的 Tool。
 
-## 14. 与其他架构的边界
+## 15. 与其他架构的边界
 
 ### Agent Management
 
@@ -431,11 +709,11 @@ Agent Capability
 
 ### Security / Governance
 
-决定 MCP Tool 是否允许当前 Agent Execution 调用，以及是否需要审批。
+决定 MCP Tool 是否允许当前 Agent Execution 调用，以及是否需要审批；不负责 MCP Server 登录认证。
 
 ### Project Environment Variables / Secret Management
 
-Project-scoped MCP Credential 可以通过 Secret Reference 指向 Project Secret Variable，并由 MCP Executor 在后端解析；System-scoped MCP 使用平台级 Secret。
+Project MCP Connection 的 Credential Binding 可以通过 Secret Reference 指向当前 Project Secret Variable，并由 MCP Executor 在后端解析。System MCP Config 本身不持有 Project Credential。
 
 ### Runner
 
@@ -443,4 +721,4 @@ Project-scoped MCP Credential 可以通过 Secret Reference 指向 Project Secre
 
 ### Platform Infrastructure
 
-负责 MCP Config、连接状态等持久化与平台级运行基础设施。
+负责 MCP Config、Project MCP Connection、认证状态、连接状态等持久化与平台级运行基础设施。
