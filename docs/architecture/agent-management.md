@@ -62,7 +62,7 @@ Capability 描述 Agent 被允许使用的资源和工具，包括：
 - Runner mount points；
 - allowed Secret Variables。
 
-其中 `allowed tools` 只控制普通可配置 Tool。平台定义的 Core Agent Tools（当前包括 `query-doc`、`recall`、`retain`、`reflect`）始终可见，不能通过 Agent Capability 关闭，但仍受 Project / Agent scope 和服务端授权限制。
+其中 `allowed tools` 只控制普通可配置 Tool。平台定义的 Core Agent Tools（当前包括 `query-doc`、`recall`、`retain`、`reflect`、`list-mcp-resources`、`read-mcp-resource`、`list-artifacts`、`create-artifact`、`read-artifact`）始终可见，不能通过 Agent Capability 关闭，但仍受 Project / Agent scope 和服务端授权限制。
 
 Tool 的统一抽象、来源、权限和调用链路见 [统一工具系统架构](./tool-system.md)。
 
@@ -88,6 +88,12 @@ mcp:<mcp_server_config_id>:<remote_tool_name>
 - Tool schema 更新不应因为 display name 变化而隐式改变 Agent 的权限身份。
 
 MCP Server 配置、Tool discovery、stable identity 和 Bridge 执行链路见 [MCP 集成架构](./mcp-integration.md)。
+
+MCP Resource 不进入普通 `allowed tools` 列表。Agent 通过平台 Core Agent Tools 按需列举 / 读取当前 Project 已连接 MCP 的 Resource；真正读取后的 Resource 内容统一落入 Object Storage，并以 file / image / text projection 供 Agent 消费。
+
+Artifact 同样不直接暴露底层 StoredObject。Agent 通过 `list-artifacts / create-artifact / read-artifact` 管理当前 Project 中有业务语义的 Artifact，用于保存生成结果、复用已有 file/image reference，以及向用户提供可预览 / 下载的文件。
+
+Artifact 下载 URL 由用户侧 UI / API 在权限校验后按需生成，不进入 Agent Context。
 
 Capability 是 Agent 的长期最大权限，不代表任意运行上下文中都能无条件使用这些能力。Meeting 等上下文可以进一步收紧权限。
 

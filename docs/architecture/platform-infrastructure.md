@@ -7,6 +7,7 @@
 - Model Management；
 - PostgreSQL / pgvector；
 - Object Storage / MinIO；
+- Outbound Network Policy；
 - Redis；
 - Authentication / Authorization；
 - Approval / Audit；
@@ -175,6 +176,7 @@ PostgreSQL 是业务 Source of Truth。
 - attachment；
 - 原始上传文件；
 - Agent Execution artifact；
+- MCP Resource materialization；
 - 大体积导出结果；
 - 大型 Execution Log / Runtime Log 等文件性质内容。
 
@@ -217,6 +219,7 @@ StoredObject
 Attachment -----------┐
 Tool Artifact ---------┤
 Original Document -----┤
+MCP Resource ----------┤
 Execution / Runtime Log├──> StoredObject
 Export / Generated File┤
                       ↓
@@ -228,12 +231,26 @@ Export / Generated File┤
 核心原则：
 
 - `StoredObject` 表示平台中一份已经持久化的对象；
-- Attachment、Tool Artifact、Execution Log 等保留自己的业务语义，但底层内容统一引用 `StoredObject`；
+- Attachment、Tool Artifact、MCP Resource Materialization、Execution Log 等保留自己的业务语义，但底层内容统一引用 `StoredObject`；
 - 业务数据库通常只保存 `stored_object_id` 等对象引用，不保存 MinIO bucket / key；
 - 业务服务不直接调用 MinIO SDK，只通过 `ObjectStorageService` 读写对象；
+- Agent 不直接调用 ObjectStorageService，也不直接操作 StoredObject；
+- Agent 通过 Artifact Builtin Tools 操作具有业务语义和 Project scope 的 ToolArtifact；
 - `ObjectStorageService` 负责对象写入、读取、删除、metadata、checksum 和受控下载访问；
 - 大段文件性质内容优先进入 Object Storage，PostgreSQL 保存业务 metadata、索引和对象引用；
 - 底层存储以后从 MinIO 替换为 S3-compatible 或其他对象存储时，不应影响上层业务实体。
+
+Agent-facing 文件能力：
+
+~~~text
+list-artifacts
+create-artifact
+read-artifact
+~~~
+
+它们位于 Tool System，而不是 Object Storage 基础设施 API。
+
+用户预览 / 下载 Artifact 时，由业务 API 在权限校验后调用 `create_download_url` 生成短期 Signed URL；Signed URL 不进入 Agent Context 或长期 Artifact identity。
 
 完整数据模型、对象生命周期、Service API、引用关系和 MinIO 映射见 [Object Storage 详细设计](../design/platform-infrastructure/object-storage.md)。
 
@@ -423,7 +440,46 @@ Model Provider API key、Runner enrollment / device credential 等系统级 Secr
 
 Project Environment Variables 的详细数据模型、Agent 白名单、Prompt 注入和执行期注入见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
 
-## 10. 部署架构
+## 10. Outbound Network Policy
+
+agenteam Central 中由业务配置、用户输入或外部数据决定目标地址的出站网络访问，统一经过平台 **Outbound Network Policy**。
+
+该能力不是 MCP 私有逻辑，而是 Model Provider、MCP、未来 Webhook / HTTP Integration 等模块共享的网络安全边界。
+
+~~~mermaid
+flowchart LR
+    MCP["MCP Protocol Runtime"]
+    Model["Model Adapter"]
+    Future["Future HTTP Integration"]
+
+    Policy["Outbound Network Policy"]
+    Client["Controlled Outbound HTTP Client"]
+    Network["External / Allowed Private Network"]
+
+    MCP --> Policy
+    Model --> Policy
+    Future --> Policy
+
+    Policy --> Client
+    Client --> Network
+~~~
+
+核心原则：
+
+- 业务模块不能各自维护一套 SSRF / private-network 判断；
+- URL、DNS、IP classification、redirect 都在统一策略中处理；
+- loopback、link-local、cloud metadata 等敏感地址默认禁止；
+- private network 是否允许由部署级策略决定；
+- Project / Agent / MCP Config 第一阶段不能自行扩大 Central 的网络访问范围；
+- redirect 每一跳重新校验；
+- Credential 不跨 origin 自动转发；
+- timeout、response size、TLS 等使用平台统一安全上限。
+
+对于需要使用第三方 SDK 的模块，平台应向 SDK 提供已经装配该策略的受控 HTTP Client / Transport，避免 SDK 绕过统一网络边界。
+
+完整 URL validation、DNS rebinding、private CIDR、redirect、Credential forwarding、TLS 和部署策略见 [Outbound Network Policy 详细设计](../design/platform-infrastructure/outbound-network-policy.md)。
+
+## 11. 部署架构
 
 ```mermaid
 flowchart TB
@@ -436,6 +492,7 @@ flowchart TB
         Scheduler["Scheduler"]
         Executor["Agent Executor / Agent Execution"]
         ObjectStorage["Object Storage Service"]
+        Outbound["Outbound Network Policy"]
     end
 
     subgraph Infra["Docker Compose"]
@@ -467,8 +524,9 @@ flowchart TB
     API --> ObjectStorage
     ObjectStorage --> MinIO
 
-    Executor --> Providers
-    Executor --> MCP
+    Executor --> Outbound
+    Outbound --> Providers
+    Outbound --> MCP
 
     Runner1 -->|Outbound WSS Runner Protocol| API
     Runner2 -->|Outbound WSS Runner Protocol| API

@@ -286,6 +286,33 @@ Agent 使用 `request-meeting` 提交会议提案，不能直接绕过用户审�
 - recall；
 - reflect。
 
+### Artifact
+
+- list-artifacts；
+- create-artifact；
+- read-artifact。
+
+Artifact Tool 是 Agent 对平台文件 / 持久化结果的业务访问层。
+
+Agent 不直接操作 ObjectStorageService、StoredObject、MinIO 或 Signed URL：
+
+~~~text
+Agent
+-> Artifact Builtin Tool
+-> ToolArtifact
+-> StoredObject
+-> ObjectStorageService
+~~~
+
+create-artifact 可以：
+
+- 直接保存 Agent 生成的文本 / 文件内容；
+- 从当前 Agent 已有权限的 file_ref / image_ref / MCP Resource 等 source_ref 创建命名 Artifact。
+
+用户预览 / 下载时，由 UI / API 在权限校验后生成短期 Signed URL；Agent 自身不创建或持有下载 URL。
+
+完整 contract 见 [Artifact Builtin Tools 详细设计](../design/tool-system/artifact-tools.md)。
+
 ### Core Agent Tools
 
 以下 Tool 是所有 Agent 都必须具备的基础能力，不进入普通 Agent Capability 的开关列表，用户不能关闭：
@@ -298,12 +325,23 @@ Memory
 - recall
 - retain
 - reflect
+
+MCP Resources
+- list-mcp-resources
+- read-mcp-resource
+
+Artifacts
+- list-artifacts
+- create-artifact
+- read-artifact
 ```
 
 “不可关闭”不代表绕过权限：
 
 - `query-doc` 仍只能查询当前 Project 的 Knowledge Base；
 - Memory Tools 仍只能访问当前 Agent 自己的 memory namespace；
+- MCP Resource Tools 仍只能访问当前 Project 中 enabled MCP Connection 的 Resource Catalog / Resource；
+- Artifact Tools 仍只能列举、创建和读取当前 Project 中当前调用方有权访问的 Artifact；
 - 所有调用仍经过 Project / Resource Scope、平台固定安全规则、服务端 Authorization 和审计。
 
 Knowledge Base 的 `list-docs / create-doc / update-doc` 仍属于普通可配置 Tool。
@@ -512,4 +550,5 @@ Project Secret Variable 的 value 不应展开到普通 Tool arguments。Runner 
 - [Unified Tool Runtime 详细设计](../design/tool-system/tool-runtime.md)：总体职责、完整调用时序、Runtime 与 Agent Loop / Model Adapter / Security & Governance 的边界，以及第一阶段总体实现范围；
 - [Tool Definition & Registry 详细设计](../design/tool-system/tool-definition-registry.md)：Stable Tool Identity、ToolSpec、ToolBinding、ToolRuntimeState、Registry、Tool availability、spec_revision、Execution Tool Set 与 model-visible Tool Projection；
 - [Tool Execution 详细设计](../design/tool-system/tool-execution.md)：ToolCall、Arguments Validation、ToolOperation / ToolAttempt、Authorization、Dispatcher、timeout / cancellation、retry / idempotency、并发与持久化；
-- [Tool Result & Backend 详细设计](../design/tool-system/tool-result-backend.md)：Unified Tool Result、Tool Error / Runtime Failure、Artifact / StoredObject、Result Size、Backend Contract，以及 Builtin / Runner / MCP Backend。
+- [Tool Result & Backend 详细设计](../design/tool-system/tool-result-backend.md)：Unified Tool Result、Tool Error / Runtime Failure、Artifact / StoredObject、Result Size、Backend Contract，以及 Builtin / Runner / MCP Backend；
+- [Artifact Builtin Tools 详细设计](../design/tool-system/artifact-tools.md)：Agent-facing Artifact list / create / read、source_ref、Object Storage 边界以及用户预览 / 下载。

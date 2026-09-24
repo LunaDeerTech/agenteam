@@ -8,6 +8,7 @@
 > > - [Unified Tool Runtime 详细设计](./tool-runtime.md)
 > > 相关详细设计：
 > > - [Object Storage 详细设计](../platform-infrastructure/object-storage.md)
+> > - [Artifact Builtin Tools 详细设计](./artifact-tools.md)
 > > - [MCP Tool 默认启用策略详细设计](../mcp-integration/mcp-tool-default-enable.md)
 
 本分册描述 Tool 执行结果、错误与 Runtime Failure 的统一表示，以及 Builtin、Runner、MCP Backend 如何映射到统一 Backend Contract。
@@ -123,6 +124,18 @@ Tool Runtime 不直接访问 MinIO，也不保存 bucket / object key。media ty
 
 模型只接收必要摘要和可进一步读取的 Artifact / StoredObject 引用。
 
+Agent 后续需要列举、读取或把已有对象整理成明确命名 Artifact 时，通过 Artifact Builtin Tools 完成：
+
+~~~text
+list-artifacts
+create-artifact
+read-artifact
+~~~
+
+ToolResult 中的 `file_ref / image_ref` 不是 Signed URL。
+
+用户侧预览 / 下载时，由 UI / API 根据 Artifact / 业务引用重新执行权限校验，再通过 ObjectStorageService 生成短期 Signed URL。
+
 ### 1.4 metadata
 
 metadata 是平台内部、可安全持久化的通用执行 metadata，例如：
@@ -172,6 +185,7 @@ tool_unavailable
 authorization_denied
 approval_required
 business_rule_violation
+capability_unsupported
 not_found
 conflict
 rate_limited

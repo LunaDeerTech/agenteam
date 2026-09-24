@@ -202,6 +202,11 @@ Execution Policy 只能收紧，不能扩大 Agent Capability。
 - recall；
 - retain；
 - reflect；
+- list-mcp-resources；
+- read-mcp-resource；
+- list-artifacts；
+- create-artifact；
+- read-artifact；
 
 不会被普通 Agent Capability 开关移除。
 
@@ -209,6 +214,8 @@ Execution Policy 只能收紧，不能扩大 Agent Capability。
 
 - 查询当前 Project 的 Knowledge；
 - 访问当前 Agent 自己的 Memory；
+- 访问当前 Project 中 enabled MCP Connection 的 Resource Catalog / Resource；
+- 列举、创建和读取当前 Project 中当前调用方有权访问的 Artifact；
 - 遵守服务端 Authorization。
 
 “Core”不等于“跳过权限”。

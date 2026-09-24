@@ -7,6 +7,7 @@
 >
 > 相关设计：
 > - [Unified Tool Runtime 详细设计](../tool-system/tool-runtime.md)
+> - [Artifact Builtin Tools](../tool-system/artifact-tools.md)
 
 ## 1. 设计目标
 
@@ -16,6 +17,7 @@ Object Storage 是 agenteam 的统一文件 / 大对象持久化层。
 
 - Attachment；
 - Tool Artifact；
+- MCP Resource Materialization；
 - Knowledge 原始文档；
 - Agent Execution / Runtime Log 的大段内容；
 - 导出文件；
@@ -292,6 +294,53 @@ Tool Runtime 不直接操作 MinIO。
 
 小型文本 / structured data 可以继续直接进入 ToolResult；大文件、图片、生成文件、大型 command output 等转为 ToolArtifact + StoredObject。
 
+### 10.1 Agent-facing Artifact Tools
+
+ObjectStorageService 本身不直接暴露为 Agent Tool。
+
+Agent 通过 Artifact Builtin Tools 操作具有业务语义的 ToolArtifact：
+
+~~~text
+list-artifacts
+create-artifact
+read-artifact
+~~~
+
+因此：
+
+~~~text
+Agent
+-> Artifact Builtin Tool
+-> ToolArtifact
+-> StoredObject
+-> ObjectStorageService
+~~~
+
+而不是：
+
+~~~text
+Agent
+-> put/get/delete StoredObject
+~~~
+
+Artifact Tools 的输入输出、source_ref、读取和用户下载规则见 [Artifact Builtin Tools 详细设计](../tool-system/artifact-tools.md)。
+
+### 10.2 Artifact from Existing Object
+
+Agent 可以把自己已有权限的 StoredObject-backed reference 转成一个明确命名的 ToolArtifact。
+
+第一阶段不共享原 StoredObject，而是：
+
+~~~text
+source_ref
+-> authorization
+-> stream source object
+-> new StoredObject
+-> new ToolArtifact
+~~~
+
+这样不依赖尚未实现的 shared-object reference counting / GC。
+
 ## 11. Agent Execution / Runtime Log
 
 Execution Log 的结构化索引和关键 metadata 仍保存在 PostgreSQL。
@@ -346,8 +395,12 @@ Caller
 - 客户端不能仅凭 storage key 访问对象；
 - MinIO credential 不暴露给普通用户或 Agent；
 - Signed URL 必须短期有效；
+- Agent 不直接调用 ObjectStorageService 或创建 Signed URL；
+- Agent 只能通过有业务语义的 Artifact / Resource 等上层能力访问 StoredObject；
 - 是否允许读取对象由引用它的业务实体决定；
 - Secret masking / sensitive data policy 在内容进入 Object Storage 前仍按对应业务规则执行。
+
+用户预览 / 下载应通过业务 API 校验权限后再调用 `create_download_url`，Signed URL 不进入 Agent Context 或长期 Tool Result。
 
 ## 14. 删除与引用关系
 
@@ -396,7 +449,8 @@ ObjectStorageService 的读取 / 写入接口应支持 stream，不要求把完�
 7. pending / available / failed / deleted 状态；
 8. Attachment / Tool Artifact / Original Document / large Execution Log 使用 `stored_object_id` 引用；
 9. 流式读取 / 写入接口；
-10. orphan object 的基础 cleanup 能力。
+10. orphan object 的基础 cleanup 能力；
+11. Artifact Builtin Tools 通过 ToolArtifact 间接使用 Object Storage。
 
 第一阶段不要求：
 
@@ -406,4 +460,5 @@ ObjectStorageService 的读取 / 写入接口应支持 stream，不要求把完�
 - 复杂生命周期分层存储；
 - CDN；
 - 多云 object storage replication；
-- 用户直接访问 MinIO API。
+- 用户直接访问 MinIO API；
+- Agent 直接操作 StoredObject / MinIO / Signed URL。
