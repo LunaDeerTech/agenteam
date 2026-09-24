@@ -504,3 +504,12 @@ unknown + non-idempotent
 Project Secret Variable 的 value 不应展开到普通 Tool arguments。Runner command 等场景优先保留 `$VARIABLE_NAME` 引用，并通过独立 execution environment 注入 Secret。对于已经解析到执行后端的 Secret，Tool Result / stdout / stderr 在进入普通日志或回填 Agent Model 前需要对已知 Secret value 做 masking。
 
 无论 Agent 是由 Task Scheduler、Meeting 还是其他触发源启动，Tool Call 都统一归属于当前 Agent Execution，不再为 Meeting turn 单独建立另一套运行记录模型。
+
+## 9. 详细设计
+
+统一工具系统的详细设计按职责拆分为以下文档：
+
+- [Unified Tool Runtime 详细设计](../design/tool-system/tool-runtime.md)：总体职责、完整调用时序、Runtime 与 Agent Loop / Model Adapter / Security & Governance 的边界，以及第一阶段总体实现范围；
+- [Tool Definition & Registry 详细设计](../design/tool-system/tool-definition-registry.md)：Stable Tool Identity、ToolSpec、ToolBinding、ToolRuntimeState、Registry、Tool availability、spec_revision、Execution Tool Set 与 model-visible Tool Projection；
+- [Tool Execution 详细设计](../design/tool-system/tool-execution.md)：ToolCall、Arguments Validation、ToolOperation / ToolAttempt、Authorization、Dispatcher、timeout / cancellation、retry / idempotency、并发与持久化；
+- [Tool Result & Backend 详细设计](../design/tool-system/tool-result-backend.md)：Unified Tool Result、Tool Error / Runtime Failure、Artifact / StoredObject、Result Size、Backend Contract，以及 Builtin / Runner / MCP Backend。

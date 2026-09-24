@@ -6,7 +6,7 @@
 
 - Model Management；
 - PostgreSQL / pgvector；
-- MinIO；
+- Object Storage / MinIO；
 - Redis；
 - Authentication / Authorization；
 - Approval / Audit；
@@ -120,7 +120,7 @@ flowchart TB
         Attach["Attachments"]
         Docs["Original Documents"]
         Artifact["Agent Execution Artifacts"]
-        LargeLogs["Large Execution Data<br/>optional"]
+        LargeLogs["Large Execution / Runtime Logs"]
     end
 
     subgraph Cache["Redis"]
@@ -132,7 +132,10 @@ flowchart TB
 
     Services --> PG
     Services --> Vec
-    Services --> Object
+    ObjectService["Object Storage Service"]
+
+    Services --> ObjectService
+    ObjectService --> Object
     Services --> Cache
 ```
 
@@ -173,9 +176,11 @@ PostgreSQL 是业务 Source of Truth。
 - 原始上传文件；
 - Agent Execution artifact；
 - 大体积导出结果；
-- 可选的大型日志对象。
+- 大型 Execution Log / Runtime Log 等文件性质内容。
 
-数据库保存 metadata 与 object reference。
+业务模块不直接访问 MinIO，也不直接保存 bucket / object key。平台通过统一 Object Storage Service 管理对象，数据库中的业务实体只保存对统一 StoredObject 的引用。
+
+Object Storage 的统一实体、Service 边界和 MinIO 映射见下节及 [Object Storage 详细设计](../design/platform-infrastructure/object-storage.md)。
 
 ### Redis
 
@@ -189,7 +194,50 @@ PostgreSQL 是业务 Source of Truth。
 
 Redis 不应成为无法重建的业务事实唯一存储。
 
-## 4. Governance
+## 4. Object Storage
+
+MinIO 是平台统一对象存储后端，但不直接暴露给 Project、Tool、Agent Execution、Knowledge 等业务模块。
+
+平台定义统一对象实体：
+
+~~~text
+StoredObject
+├── id
+├── storage_key
+├── media_type
+├── size
+├── checksum
+├── status
+└── created_at
+~~~
+
+并通过统一服务访问：
+
+~~~text
+Attachment -----------┐
+Tool Artifact ---------┤
+Original Document -----┤
+Execution / Runtime Log├──> StoredObject
+Export / Generated File┤
+                      ↓
+             ObjectStorageService
+                      ↓
+                    MinIO
+~~~
+
+核心原则：
+
+- `StoredObject` 表示平台中一份已经持久化的对象；
+- Attachment、Tool Artifact、Execution Log 等保留自己的业务语义，但底层内容统一引用 `StoredObject`；
+- 业务数据库通常只保存 `stored_object_id` 等对象引用，不保存 MinIO bucket / key；
+- 业务服务不直接调用 MinIO SDK，只通过 `ObjectStorageService` 读写对象；
+- `ObjectStorageService` 负责对象写入、读取、删除、metadata、checksum 和受控下载访问；
+- 大段文件性质内容优先进入 Object Storage，PostgreSQL 保存业务 metadata、索引和对象引用；
+- 底层存储以后从 MinIO 替换为 S3-compatible 或其他对象存储时，不应影响上层业务实体。
+
+完整数据模型、对象生命周期、Service API、引用关系和 MinIO 映射见 [Object Storage 详细设计](../design/platform-infrastructure/object-storage.md)。
+
+## 5. Governance
 
 随着 Agent 获得项目写能力，Governance 应作为正式平台能力。
 
@@ -205,7 +253,7 @@ Redis 不应成为无法重建的业务事实唯一存储。
 
 最终权限校验必须发生在服务端。
 
-## 5. Human Inbox
+## 6. Human Inbox
 
 长期运行的 Agent Team 需要一个统一的人类待处理入口，而不能要求用户逐个打开 Task / Meeting / Runner 页面寻找阻塞。
 
@@ -257,7 +305,7 @@ Approval Request 可以关联：
 
 如果审批来自 Meeting，Meeting Timeline 可以引用并展示同一个 Approval Request；如果审批来自 Task Execution，也可以从 Task / Execution 页面跳转到同一个 Approval Request。不同 UI 入口不能各自复制一套审批状态。
 
-## 6. Internal Domain Events
+## 7. Internal Domain Events
 
 业务模块之间建议使用轻量 Domain Event 机制降低耦合。
 
@@ -309,7 +357,7 @@ flowchart LR
 
 Domain Event 不能代替业务事务本身。需要强一致的状态变化仍在对应服务事务中完成。
 
-## 7. Audit
+## 8. Audit
 
 Audit 与 Task Event / Execution Log 是不同层次。
 
@@ -328,7 +376,7 @@ Audit 采用 append-oriented 结构化记录，第一阶段不自动过期，不
 
 完整数据模型、retention、查询、分页、索引和关联方式见 [Audit 详细设计](../design/security-governance/audit.md)。
 
-## 8. Project Environment Variables 与 Secret Management
+## 9. Project Environment Variables 与 Secret Management
 
 Project 可以配置两类 Environment Variable：
 
@@ -375,7 +423,7 @@ Model Provider API key、Runner enrollment / device credential 等系统级 Secr
 
 Project Environment Variables 的详细数据模型、Agent 白名单、Prompt 注入和执行期注入见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
 
-## 9. 部署架构
+## 10. 部署架构
 
 ```mermaid
 flowchart TB
@@ -387,6 +435,7 @@ flowchart TB
         API["Go Backend"]
         Scheduler["Scheduler"]
         Executor["Agent Executor / Agent Execution"]
+        ObjectStorage["Object Storage Service"]
     end
 
     subgraph Infra["Docker Compose"]
@@ -415,7 +464,8 @@ flowchart TB
 
     API --> PG
     API --> Redis
-    API --> MinIO
+    API --> ObjectStorage
+    ObjectStorage --> MinIO
 
     Executor --> Providers
     Executor --> MCP
