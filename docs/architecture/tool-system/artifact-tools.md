@@ -3,7 +3,7 @@
 > 状态：初版设计稿
 >
 > 上层架构：
-> - [统一工具系统架构](../../architecture/tool-system.md)
+> - [统一工具系统架构](./index.md)
 >
 > 相关详细设计：
 > - [Object Storage](../platform-infrastructure/object-storage.md)

@@ -3,9 +3,9 @@
 > 状态：讨论中
 >
 > 上层架构：
-> - [安全与治理架构](../../architecture/security-governance.md)
-> - [MCP 集成架构](../../architecture/mcp-integration.md)
-> - [统一工具系统架构](../../architecture/tool-system.md)
+> - [安全与治理架构](../security-governance/index.md)
+> - [MCP 集成架构](./index.md)
+> - [统一工具系统架构](../tool-system/index.md)
 
 ## 1. 设计范围
 

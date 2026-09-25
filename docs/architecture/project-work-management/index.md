@@ -68,7 +68,7 @@ Project Variables 是 Project 的长期配置对象，分为普通 Variable 和 
 
 远端 Runner 不主动读取 Project 配置或 Secret Store，而是在执行 command / process 时由 Central 通过 Runner Protocol 临时下发本次进程所需的 environment。
 
-完整数据模型、Agent 白名单、Prompt 注入、跨设备 Runner 传输和 Secret 生命周期见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
+完整数据模型、Agent 白名单、Prompt 注入、跨设备 Runner 传输和 Secret 生命周期见 [项目变量与 Secret 详细设计](./project-environment-variables.md)。
 
 ## 3. Task
 

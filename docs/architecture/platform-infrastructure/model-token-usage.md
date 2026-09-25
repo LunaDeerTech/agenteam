@@ -2,11 +2,11 @@
 
 > 状态：设计稿
 >
-> 上层架构：[平台基础设施与部署架构](../../architecture/platform-infrastructure.md)
+> 上层架构：[平台基础设施与部署架构](./index.md)
 >
 > 相关架构：
-> - [Agent Executor 架构](../../architecture/agent-executor.md)
-> - [Agent Loop 架构](../../architecture/agent-loop.md)
+> - [Agent Executor 架构](../agent-executor.md)
+> - [Agent Loop 架构](../agent-loop.md)
 >
 > 相关详细设计：
 > - [Model System 详细设计](./model-system.md)

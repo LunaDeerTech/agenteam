@@ -356,7 +356,7 @@ flowchart TD
 - 直接执行；
 - 或需要用户审批。
 
-具体 Tool / Action / Risk 的固定判断规则不属于架构层，见 [默认审批策略详细设计](../design/security-governance/default-approval-policy.md)。
+具体 Tool / Action / Risk 的固定判断规则不属于架构层，见 [默认审批策略详细设计](./default-approval-policy.md)。
 
 #### 自动审批
 
@@ -383,7 +383,7 @@ Approval Model 只是审批判断组件，不扩大 Agent Capability，也不能
 
 如果 Approval Model 调用失败、结果无效或无法形成可靠判断，应保守地进入用户审批，而不是默认放行。
 
-Approval Model 的输入上下文、输出 Schema 与失败处理等具体规则不属于架构层，见 [自动审批模型详细设计](../design/security-governance/auto-approval-model.md)。
+Approval Model 的输入上下文、输出 Schema 与失败处理等具体规则不属于架构层，见 [自动审批模型详细设计](./auto-approval-model.md)。
 
 #### 完全允许
 
@@ -649,7 +649,7 @@ Reusable Approval：
 - 每次 Tool Call 都重新匹配当前 active Reusable Approval；
 - 撤销后因为不再处于 active 状态，后续调用自然无法匹配。
 
-Reusable Approval 的完整数据模型、Tool-defined Scope、创建、匹配和 Agent 配置页管理见 [Approval Scope 详细设计](../design/security-governance/approval-scope.md)。
+Reusable Approval 的完整数据模型、Tool-defined Scope、创建、匹配和 Agent 配置页管理见 [Approval Scope 详细设计](./approval-scope.md)。
 
 ### 5.5 Approval 的机器校验
 
@@ -670,7 +670,7 @@ One-time Approval 绑定当前 Tool Operation 的 operation_id 和 operation fin
 
 Approval 只确认“这个 Operation 是否被授权”，不决定 retry 是否安全。retry 仍必须遵守具体 Tool / Backend 的 idempotency 与 outcome 规则。
 
-详细设计见 [One-time Approval、Tool Retry 与 Idempotency 详细设计](../design/security-governance/one-time-approval-retry-idempotency.md)。
+详细设计见 [One-time Approval、Tool Retry 与 Idempotency 详细设计](./one-time-approval-retry-idempotency.md)。
 
 Approval Match 不根据 risk category、自然语言描述或相似度扩展授权范围。
 
@@ -726,7 +726,7 @@ Project-scoped MCP 等后端配置可以通过 credential reference 引用 Proje
 
 Runner 自己的 Device Private Key 只保存在 Runner 本地，不属于 Project Environment Variables。
 
-详细设计见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
+详细设计见 [项目变量与 Secret 详细设计](../project-work-management/project-environment-variables.md)。
 
 ### 6.2 Audit
 
@@ -749,7 +749,7 @@ Audit 与 Task Event、Meeting Timeline、Agent Execution Log 保持分离。
 - 查询支持 time / actor / action / outcome / resource / tool / execution / operation / approval / runner 等结构化过滤；
 - 第一阶段不做全文搜索，也不引入独立搜索引擎。
 
-完整数据模型、retention、query、pagination、index 和 correlation 设计见 [Audit 详细设计](../design/security-governance/audit.md)。
+完整数据模型、retention、query、pagination、index 和 correlation 设计见 [Audit 详细设计](./audit.md)。
 
 ### 6.3 最终执行责任
 

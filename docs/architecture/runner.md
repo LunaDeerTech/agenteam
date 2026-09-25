@@ -501,7 +501,7 @@ RunnerRequest
 
 Runner 在 stdout / stderr / Tool Result 返回 Central 前，应对本次 request 已知的 Secret value 做 masking。Central 在持久化普通 Execution Log 前仍应执行自己的脱敏检查。
 
-Project Variable / Secret 的 Source of Truth、Agent 白名单、WSS 下发、Runner 内存生命周期和 Managed Process 语义见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
+Project Variable / Secret 的 Source of Truth、Agent 白名单、WSS 下发、Runner 内存生命周期和 Managed Process 语义见 [项目变量与 Secret 详细设计](./project-work-management/project-environment-variables.md)。
 
 Response 使用统一结构：
 
@@ -601,7 +601,7 @@ unknown
 - Tool System / Agent Loop 应把 unknown 作为独立结果类型处理，而不是伪装成普通 technical error；
 - audit log 必须同时保留 operation_id、request_id 和 unknown outcome。
 
-详细语义见 [One-time Approval、Tool Retry 与 Idempotency 详细设计](../design/security-governance/one-time-approval-retry-idempotency.md)。
+详细语义见 [One-time Approval、Tool Retry 与 Idempotency 详细设计](./security-governance/one-time-approval-retry-idempotency.md)。
 
 ## 15. Heartbeat、Offline 与 Reconnect
 

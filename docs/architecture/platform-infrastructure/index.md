@@ -93,7 +93,7 @@ Provider / ModelConfig 支持物理删除。删除仍被 Agent 引用的 chat Mo
 
 历史 Agent Execution / Model Invocation Usage 不阻止配置删除：live Provider / Model 外键可以通过 `ON DELETE SET NULL` 置空，但历史记录必须保留调用时的 Provider / Model snapshot。
 
-Provider、Model 配置、Capability、Model Resolver、统一 Model Adapter 与模型调用契约的详细设计见 [Model System 详细设计](../design/platform-infrastructure/model-system.md)。模型调用 Token Usage 的持久化与按 Project / Agent / Model / Provider 统计见 [Model Token Usage 详细设计](../design/platform-infrastructure/model-token-usage.md)。
+Provider、Model 配置、Capability、Model Resolver、统一 Model Adapter 与模型调用契约的详细设计见 [Model System 详细设计](./model-system.md)。模型调用 Token Usage 的持久化与按 Project / Agent / Model / Provider 统计见 [Model Token Usage 详细设计](./model-token-usage.md)。
 
 ## 3. 存储职责
 
@@ -182,7 +182,7 @@ PostgreSQL 是业务 Source of Truth。
 
 业务模块不直接访问 MinIO，也不直接保存 bucket / object key。平台通过统一 Object Storage Service 管理对象，数据库中的业务实体只保存对统一 StoredObject 的引用。
 
-Object Storage 的统一实体、Service 边界和 MinIO 映射见下节及 [Object Storage 详细设计](../design/platform-infrastructure/object-storage.md)。
+Object Storage 的统一实体、Service 边界和 MinIO 映射见下节及 [Object Storage 详细设计](./object-storage.md)。
 
 ### Redis
 
@@ -252,7 +252,7 @@ read-artifact
 
 用户预览 / 下载 Artifact 时，由业务 API 在权限校验后调用 `create_download_url` 生成短期 Signed URL；Signed URL 不进入 Agent Context 或长期 Artifact identity。
 
-完整数据模型、对象生命周期、Service API、引用关系和 MinIO 映射见 [Object Storage 详细设计](../design/platform-infrastructure/object-storage.md)。
+完整数据模型、对象生命周期、Service API、引用关系和 MinIO 映射见 [Object Storage 详细设计](./object-storage.md)。
 
 ## 5. Governance
 
@@ -391,7 +391,7 @@ Audit
 
 Audit 采用 append-oriented 结构化记录，第一阶段不自动过期，不复制完整运行日志。
 
-完整数据模型、retention、查询、分页、索引和关联方式见 [Audit 详细设计](../design/security-governance/audit.md)。
+完整数据模型、retention、查询、分页、索引和关联方式见 [Audit 详细设计](../security-governance/audit.md)。
 
 ## 9. Project Environment Variables 与 Secret Management
 
@@ -438,7 +438,7 @@ Masking 只用于降低意外泄漏风险，不构成针对主动编码、拆分
 
 Model Provider API key、Runner enrollment / device credential 等系统级 Secret 仍属于平台自身 Secret Management，不因为 Project Environment Variables 的存在而变成 Project 变量。
 
-Project Environment Variables 的详细数据模型、Agent 白名单、Prompt 注入和执行期注入见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
+Project Environment Variables 的详细数据模型、Agent 白名单、Prompt 注入和执行期注入见 [项目变量与 Secret 详细设计](../project-work-management/project-environment-variables.md)。
 
 ## 10. Outbound Network Policy
 
@@ -477,7 +477,7 @@ flowchart LR
 
 对于需要使用第三方 SDK 的模块，平台应向 SDK 提供已经装配该策略的受控 HTTP Client / Transport，避免 SDK 绕过统一网络边界。
 
-完整 URL validation、DNS rebinding、private CIDR、redirect、Credential forwarding、TLS 和部署策略见 [Outbound Network Policy 详细设计](../design/platform-infrastructure/outbound-network-policy.md)。
+完整 URL validation、DNS rebinding、private CIDR、redirect、Credential forwarding、TLS 和部署策略见 [Outbound Network Policy 详细设计](./outbound-network-policy.md)。
 
 ## 11. 部署架构
 
@@ -533,7 +533,7 @@ flowchart TB
     RunnerN -->|Outbound WSS Runner Protocol| API
 ```
 
-Runner 连接始终由远端 agenteam-runner 主动向 Central 建立出站 WSS Control Channel；Central 不需要能够反向访问 Runner。设备注册、认证、RPC、heartbeat、重连和可选 Data Channel 的完整设计见 [Runner 架构](./runner.md)。
+Runner 连接始终由远端 agenteam-runner 主动向 Central 建立出站 WSS Control Channel；Central 不需要能够反向访问 Runner。设备注册、认证、RPC、heartbeat、重连和可选 Data Channel 的完整设计见 [Runner 架构](../runner.md)。
 
 第一阶段推荐：
 

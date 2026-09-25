@@ -261,7 +261,7 @@ AgentExecutionContext
 
 AgentExecutionContext 是 Agent Executor 与 Agent Loop 之间的主要输入边界，也是 Agent Execution 从 `preparing` 进入 `running` 的启动配置。
 
-Project Variables 的完整设计见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
+Project Variables 的完整设计见 [项目变量与 Secret 详细设计](./project-work-management/project-environment-variables.md)。
 
 其中保存的是 Prompt components 和其他执行输入，而不是已经组装完成的最终 System Prompt。最终 System Prompt 由 Agent Loop 在 Context Assembly 阶段根据 Platform Prompt、Agent instructions、Trigger Prompt 以及其他需要作为系统级指令表达的内容统一组装。
 
@@ -431,7 +431,7 @@ Agent Executor 负责“本次执行给 Agent Loop 提供哪些 Tool”，Tool S
 
 Task Event、Meeting message 和 Audit Log 可以引用 Agent Execution，但不复制完整 execution log。
 
-Agent Execution 的 usage summary 是可重建的派生汇总；每次真实模型调用的 Token Usage Source of Truth 见 [Model Token Usage 详细设计](../design/platform-infrastructure/model-token-usage.md)。
+Agent Execution 的 usage summary 是可重建的派生汇总；每次真实模型调用的 Token Usage Source of Truth 见 [Model Token Usage 详细设计](./platform-infrastructure/model-token-usage.md)。
 
 ```text
 Task Event       -> business fact

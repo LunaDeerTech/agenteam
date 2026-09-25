@@ -64,7 +64,7 @@ Capability 描述 Agent 被允许使用的资源和工具，包括：
 
 其中 `allowed tools` 只控制普通可配置 Tool。平台定义的 Core Agent Tools（当前包括 `query-doc`、`recall`、`retain`、`reflect`、`list-mcp-resources`、`read-mcp-resource`、`list-artifacts`、`create-artifact`、`read-artifact`）始终可见，不能通过 Agent Capability 关闭，但仍受 Project / Agent scope 和服务端授权限制。
 
-Tool 的统一抽象、来源、权限和调用链路见 [统一工具系统架构](./tool-system.md)。
+Tool 的统一抽象、来源、权限和调用链路见 [统一工具系统架构](./tool-system/index.md)。
 
 Tool 应支持按以下维度组织和展示：
 
@@ -87,7 +87,7 @@ mcp:<mcp_server_config_id>:<remote_tool_name>
 - MCP Tool 暂时不可用时，长期 Capability 引用可以保留，但当前 Agent Execution 不暴露该 Tool；
 - Tool schema 更新不应因为 display name 变化而隐式改变 Agent 的权限身份。
 
-MCP Server 配置、Tool discovery、stable identity 和 Bridge 执行链路见 [MCP 集成架构](./mcp-integration.md)。
+MCP Server 配置、Tool discovery、stable identity 和 Bridge 执行链路见 [MCP 集成架构](./mcp-integration/index.md)。
 
 MCP Resource 不进入普通 `allowed tools` 列表。Agent 通过平台 Core Agent Tools 按需列举 / 读取当前 Project 已连接 MCP 的 Resource；真正读取后的 Resource 内容统一落入 Object Storage，并以 file / image / text projection 供 Agent 消费。
 
@@ -118,7 +118,7 @@ Agent Execution 构造时：
 - 当前 Agent 被允许使用的 Secret Variable 只把 name / description / Secret 标记放入 AgentExecutionContext；
 - Secret value 不进入 AgentExecutionContext 和 Model Context。
 
-具体存储、Prompt 注入和执行期环境变量注入见 [项目变量与 Secret 详细设计](../design/project-work-management/project-environment-variables.md)。
+具体存储、Prompt 注入和执行期环境变量注入见 [项目变量与 Secret 详细设计](./project-work-management/project-environment-variables.md)。
 
 ### Reusable Approval
 
@@ -151,7 +151,7 @@ Reusable Approval 不设置过期时间，保持 active 直到 Project Owner 撤
 
 每次 Tool Call 都会重新匹配当前 active Reusable Approval，因此撤销后后续调用自然无法再匹配该 Approval。
 
-Reusable Approval 的 Scope、创建和匹配规则见 [Approval Scope 详细设计](../design/security-governance/approval-scope.md)。
+Reusable Approval 的 Scope、创建和匹配规则见 [Approval Scope 详细设计](./security-governance/approval-scope.md)。
 
 ### Runner Mount Point
 
@@ -251,11 +251,11 @@ Agent Management 只保存 `model_ref` 以及按所选 Model 能力配置的 `re
 
 删除仍被 Agent 引用的 chat Model 时，Model Management 必须要求用户先选择替代 chat Model，并在删除前批量更新受影响 Agent.model_ref；替换后还必须保证各 Agent 的 reasoning_effort 在新 Model 下合法，不能留下无效配置。
 
-实际模型调用由 Agent Loop 的 Model Adapter 处理。Provider / Model 配置、模型解析、Capability 与 Model Adapter 的完整设计见 [Model System 详细设计](../design/platform-infrastructure/model-system.md)。
+实际模型调用由 Agent Loop 的 Model Adapter 处理。Provider / Model 配置、模型解析、Capability 与 Model Adapter 的完整设计见 [Model System 详细设计](./platform-infrastructure/model-system.md)。
 
 ## 6. 权限边界
 
-Tool Capability、Execution Policy 和服务端授权的完整关系见 [统一工具系统架构](./tool-system.md)。
+Tool Capability、Execution Policy 和服务端授权的完整关系见 [统一工具系统架构](./tool-system/index.md)。
 
 Agent 的执行期 Tool 能力由长期 Capability 和单次 Execution Policy 共同收紧：
 

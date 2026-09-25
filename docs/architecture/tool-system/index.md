@@ -249,7 +249,7 @@ flowchart LR
 - Agent 只看到统一 ToolSpec 和 Tool Result，不感知具体 image_generation Provider / Model；
 - `generate-image` 与其他普通 Builtin Tool 一样受 Agent Capability、Execution Policy、Approval 与服务端授权约束。
 
-Model 选择和 Adapter 边界见 [Model System 详细设计](../design/platform-infrastructure/model-system.md)。
+Model 选择和 Adapter 边界见 [Model System 详细设计](../platform-infrastructure/model-system.md)。
 
 ### Scheduler
 
@@ -311,7 +311,7 @@ create-artifact 可以：
 
 用户预览 / 下载时，由 UI / API 在权限校验后生成短期 Signed URL；Agent 自身不创建或持有下载 URL。
 
-完整 contract 见 [Artifact Builtin Tools 详细设计](../design/tool-system/artifact-tools.md)。
+完整 contract 见 [Artifact Builtin Tools 详细设计](./artifact-tools.md)。
 
 ### Core Agent Tools
 
@@ -425,7 +425,7 @@ Agent Capability 默认按具体 MCP Tool 授权。新 discovery 出来的 Tool 
 
 MCP Server 的工具不能因为来自外部协议而跳过 agenteam 的权限和审计体系。
 
-MCP Server Config、System / Project scope、Credential、Tool stable identity、discovery / refresh、transport 与执行链路的完整设计见 [MCP 集成架构](./mcp-integration.md)。
+MCP Server Config、System / Project scope、Credential、Tool stable identity、discovery / refresh、transport 与执行链路的完整设计见 [MCP 集成架构](../mcp-integration/index.md)。
 
 ## 7. 权限模型
 
@@ -481,7 +481,7 @@ Security / Governance 只负责 Project、Agent、stable Tool ID、Approval stat
 
 Tool 不提供 Reusable Approval Scope 时，审批界面只允许“批准本次”或“拒绝”。
 
-详细规则见 [Approval Scope 详细设计](../design/security-governance/approval-scope.md)。
+详细规则见 [Approval Scope 详细设计](../security-governance/approval-scope.md)。
 
 ### 7.2 Tool Operation 与 Attempt
 
@@ -518,7 +518,7 @@ unknown + non-idempotent
 -> 不允许自动 retry
 ~~~
 
-完整设计见 [One-time Approval、Tool Retry 与 Idempotency 详细设计](../design/security-governance/one-time-approval-retry-idempotency.md)。
+完整设计见 [One-time Approval、Tool Retry 与 Idempotency 详细设计](../security-governance/one-time-approval-retry-idempotency.md)。
 
 ## 8. Tool Result 与审计
 
@@ -547,8 +547,8 @@ Project Secret Variable 的 value 不应展开到普通 Tool arguments。Runner 
 
 统一工具系统的详细设计按职责拆分为以下文档：
 
-- [Unified Tool Runtime 详细设计](../design/tool-system/tool-runtime.md)：总体职责、完整调用时序、Runtime 与 Agent Loop / Model Adapter / Security & Governance 的边界，以及第一阶段总体实现范围；
-- [Tool Definition & Registry 详细设计](../design/tool-system/tool-definition-registry.md)：Stable Tool Identity、ToolSpec、ToolBinding、ToolRuntimeState、Registry、Tool availability、spec_revision、Execution Tool Set 与 model-visible Tool Projection；
-- [Tool Execution 详细设计](../design/tool-system/tool-execution.md)：ToolCall、Arguments Validation、ToolOperation / ToolAttempt、Authorization、Dispatcher、timeout / cancellation、retry / idempotency、并发与持久化；
-- [Tool Result & Backend 详细设计](../design/tool-system/tool-result-backend.md)：Unified Tool Result、Tool Error / Runtime Failure、Artifact / StoredObject、Result Size、Backend Contract，以及 Builtin / Runner / MCP Backend；
-- [Artifact Builtin Tools 详细设计](../design/tool-system/artifact-tools.md)：Agent-facing Artifact list / create / read、source_ref、Object Storage 边界以及用户预览 / 下载。
+- [Unified Tool Runtime 详细设计](./tool-runtime.md)：总体职责、完整调用时序、Runtime 与 Agent Loop / Model Adapter / Security & Governance 的边界，以及第一阶段总体实现范围；
+- [Tool Definition & Registry 详细设计](./tool-definition-registry.md)：Stable Tool Identity、ToolSpec、ToolBinding、ToolRuntimeState、Registry、Tool availability、spec_revision、Execution Tool Set 与 model-visible Tool Projection；
+- [Tool Execution 详细设计](./tool-execution.md)：ToolCall、Arguments Validation、ToolOperation / ToolAttempt、Authorization、Dispatcher、timeout / cancellation、retry / idempotency、并发与持久化；
+- [Tool Result & Backend 详细设计](./tool-result-backend.md)：Unified Tool Result、Tool Error / Runtime Failure、Artifact / StoredObject、Result Size、Backend Contract，以及 Builtin / Runner / MCP Backend；
+- [Artifact Builtin Tools 详细设计](./artifact-tools.md)：Agent-facing Artifact list / create / read、source_ref、Object Storage 边界以及用户预览 / 下载。

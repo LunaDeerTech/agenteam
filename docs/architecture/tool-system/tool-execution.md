@@ -3,7 +3,7 @@
 > 状态：设计稿
 >
 > 上层架构：
-> - [统一工具系统架构](../../architecture/tool-system.md)
+> - [统一工具系统架构](./index.md)
 > > 总体设计：
 > > - [Unified Tool Runtime 详细设计](./tool-runtime.md)
 > > 相关详细设计：

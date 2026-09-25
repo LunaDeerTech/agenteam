@@ -3,7 +3,7 @@
 > 状态：初版设计稿
 >
 > 上层架构：
-> - [MCP 集成架构](../../architecture/mcp-integration.md)
+> - [MCP 集成架构](./index.md)
 >
 > 相关详细设计：
 > - [MCP Protocol Runtime](./mcp-protocol-runtime.md)

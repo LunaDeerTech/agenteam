@@ -2,7 +2,7 @@
 
 > 状态：设计稿
 >
-> 上层架构：[安全与治理架构](../../architecture/security-governance.md)
+> 上层架构：[安全与治理架构](./index.md)
 
 ## 1. 设计范围
 

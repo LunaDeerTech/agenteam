@@ -2,14 +2,14 @@
 
 > 状态：设计稿
 >
-> 上层架构：[平台基础设施与部署架构](../../architecture/platform-infrastructure.md)
+> 上层架构：[平台基础设施与部署架构](./index.md)
 >
 > 相关架构：
-> - [Agent 管理架构](../../architecture/agent-management.md)
-> - [Agent Executor 架构](../../architecture/agent-executor.md)
-> - [Agent Loop 架构](../../architecture/agent-loop.md)
-> - [统一工具系统架构](../../architecture/tool-system.md)
-> - [安全与治理架构](../../architecture/security-governance.md)
+> - [Agent 管理架构](../agent-management.md)
+> - [Agent Executor 架构](../agent-executor.md)
+> - [Agent Loop 架构](../agent-loop.md)
+> - [统一工具系统架构](../tool-system/index.md)
+> - [安全与治理架构](../security-governance/index.md)
 >
 > 相关详细设计：
 > - [Model Token Usage 详细设计](./model-token-usage.md)

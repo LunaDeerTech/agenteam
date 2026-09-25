@@ -3,7 +3,7 @@
 > 状态：设计稿
 >
 > 上层架构：
-> - [平台基础设施与部署架构](../../architecture/platform-infrastructure.md)
+> - [平台基础设施与部署架构](./index.md)
 >
 > 相关设计：
 > - [Unified Tool Runtime 详细设计](../tool-system/tool-runtime.md)

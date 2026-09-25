@@ -2,13 +2,13 @@
 
 > 状态：设计稿
 >
-> 上层架构：[安全与治理架构](../../architecture/security-governance.md)
+> 上层架构：[安全与治理架构](./index.md)
 >
 > 相关架构：
-> - [平台基础设施架构](../../architecture/platform-infrastructure.md)
-> - [统一工具系统架构](../../architecture/tool-system.md)
-> - [Agent Executor 架构](../../architecture/agent-executor.md)
-> - [Runner 架构](../../architecture/runner.md)
+> - [平台基础设施架构](../platform-infrastructure/index.md)
+> - [统一工具系统架构](../tool-system/index.md)
+> - [Agent Executor 架构](../agent-executor.md)
+> - [Runner 架构](../runner.md)
 > - [Approval Scope 详细设计](./approval-scope.md)
 > - [One-time Approval、Tool Retry 与 Idempotency 详细设计](./one-time-approval-retry-idempotency.md)
 

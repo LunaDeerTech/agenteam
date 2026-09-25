@@ -3,7 +3,7 @@
 > 状态：初版设计稿
 >
 > 上层架构：
-> - [平台基础设施与部署架构](../../architecture/platform-infrastructure.md)
+> - [平台基础设施与部署架构](./index.md)
 >
 > 相关设计：
 > - [MCP Server Config / Connection Lifecycle](../mcp-integration/mcp-server-config-lifecycle.md)

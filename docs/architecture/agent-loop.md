@@ -268,7 +268,7 @@ Agent Loop
         -> Anthropic Messages
 ```
 
-后续可以继续增加其他 Provider / Protocol Adapter。Provider 差异应尽量被 Model Adapter 屏蔽。Provider / Model 配置、Resolved Model Snapshot、统一请求 / 响应、streaming、usage 与错误标准化的完整设计见 [Model System 详细设计](../design/platform-infrastructure/model-system.md)。
+后续可以继续增加其他 Provider / Protocol Adapter。Provider 差异应尽量被 Model Adapter 屏蔽。Provider / Model 配置、Resolved Model Snapshot、统一请求 / 响应、streaming、usage 与错误标准化的完整设计见 [Model System 详细设计](./platform-infrastructure/model-system.md)。
 
 ## 9. Tool Calling
 
@@ -499,7 +499,7 @@ Retry 必须：
 - 写入 Agent Execution log；
 - 计入 usage / duration。
 
-完整设计见 [One-time Approval、Tool Retry 与 Idempotency 详细设计](../design/security-governance/one-time-approval-retry-idempotency.md)。
+完整设计见 [One-time Approval、Tool Retry 与 Idempotency 详细设计](./security-governance/one-time-approval-retry-idempotency.md)。
 
 ## 17. Loop Guard
 
@@ -585,7 +585,7 @@ Agent Loop 持续向当前 Agent Execution 写入运行事件。
 
 Task Event、Meeting message 和 Audit Log 只保存各自领域需要的信息，并可以引用 Agent Execution ID。
 
-每次真实 Provider invocation 的 Token Usage 记录、retry 统计以及按 Agent / Model / Project 聚合的完整设计见 [Model Token Usage 详细设计](../design/platform-infrastructure/model-token-usage.md)。
+每次真实 Provider invocation 的 Token Usage 记录、retry 统计以及按 Agent / Model / Project 聚合的完整设计见 [Model Token Usage 详细设计](./platform-infrastructure/model-token-usage.md)。
 
 ## 21. Harness 参考与实现策略
 

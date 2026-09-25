@@ -35,12 +35,12 @@ flowchart LR
 
 详细设计：
 
-- [MCP Protocol Runtime](../design/mcp-integration/mcp-protocol-runtime.md)
-- [MCP Server Config / Connection Lifecycle](../design/mcp-integration/mcp-server-config-lifecycle.md)
-- [MCP Tool Discovery](../design/mcp-integration/mcp-tool-discovery.md)
-- [MCP Tool Execution](../design/mcp-integration/mcp-tool-execution.md)
-- [MCP Resource Adapter](../design/mcp-integration/mcp-resource-adapter.md)
-- [MCP Tool 默认启用策略](../design/mcp-integration/mcp-tool-default-enable.md)
+- [MCP Protocol Runtime](./mcp-protocol-runtime.md)
+- [MCP Server Config / Connection Lifecycle](./mcp-server-config-lifecycle.md)
+- [MCP Tool Discovery](./mcp-tool-discovery.md)
+- [MCP Tool Execution](./mcp-tool-execution.md)
+- [MCP Resource Adapter](./mcp-resource-adapter.md)
+- [MCP Tool 默认启用策略](./mcp-tool-default-enable.md)
 
 ## 2. MCP Config 与 MCP Connection
 
@@ -124,7 +124,7 @@ Agent、Model 和 Agent Execution Context 不直接获得 MCP Credential plainte
 
 Config / Connection 的完整生命周期、删除语义与运行中 Execution binding 保留机制见：
 
-> [MCP Server Config / Connection Lifecycle](../design/mcp-integration/mcp-server-config-lifecycle.md)
+> [MCP Server Config / Connection Lifecycle](./mcp-server-config-lifecycle.md)
 
 ## 3. MCP Bridge
 
@@ -190,7 +190,7 @@ Protocol Runtime 不负责把 MCP capability 映射成 agenteam 业务模型。
 
 协议 revision、Streamable HTTP、现代 stateless protocol 与旧版兼容、subscription 等具体规则见：
 
-> [MCP Protocol Runtime 详细设计](../design/mcp-integration/mcp-protocol-runtime.md)
+> [MCP Protocol Runtime 详细设计](./mcp-protocol-runtime.md)
 
 ### 3.2 Capability Adapter
 
@@ -247,7 +247,7 @@ Agent 不直接调用 MCP protocol。Resource Adapter 对 Agent 提供 agenteam 
 
 完整设计见：
 
-> [MCP Resource Adapter 详细设计](../design/mcp-integration/mcp-resource-adapter.md)
+> [MCP Resource Adapter 详细设计](./mcp-resource-adapter.md)
 
 ## 4. MCP Tool 与 Unified Tool Runtime
 
@@ -277,10 +277,10 @@ MCP 不建立第二套 Tool Runtime。
 
 统一 Tool 设计见：
 
-- [Unified Tool Runtime](../design/tool-system/tool-runtime.md)
-- [Tool Definition & Registry](../design/tool-system/tool-definition-registry.md)
-- [Tool Execution & Operation](../design/tool-system/tool-execution.md)
-- [Tool Result & Backend](../design/tool-system/tool-result-backend.md)
+- [Unified Tool Runtime](../tool-system/tool-runtime.md)
+- [Tool Definition & Registry](../tool-system/tool-definition-registry.md)
+- [Tool Execution & Operation](../tool-system/tool-execution.md)
+- [Tool Result & Backend](../tool-system/tool-result-backend.md)
 
 ## 5. Stable Tool Identity
 
@@ -350,7 +350,7 @@ MCP Tool Discovery 的长期原则：
 
 完整 refresh、diff、atomic commit 与 schema 规则见：
 
-> [MCP Tool Discovery 详细设计](../design/mcp-integration/mcp-tool-discovery.md)
+> [MCP Tool Discovery 详细设计](./mcp-tool-discovery.md)
 
 ## 8. Tool 名称与冲突
 
@@ -405,7 +405,7 @@ MCP Server 不能直接绕过 Unified Tool Runtime 被 Agent Loop 调用。
 
 MCP content、structuredContent、`isError`、transport error、timeout、cancellation、unknown outcome 等映射规则见：
 
-> [MCP Tool Execution 详细设计](../design/mcp-integration/mcp-tool-execution.md)
+> [MCP Tool Execution 详细设计](./mcp-tool-execution.md)
 
 ## 10. MCP Authentication 与 Tool Authorization
 
@@ -460,7 +460,7 @@ default_enabled = (readOnlyHint === true)
 
 具体规则见：
 
-> [MCP Tool 默认启用策略](../design/mcp-integration/mcp-tool-default-enable.md)
+> [MCP Tool 默认启用策略](./mcp-tool-default-enable.md)
 
 其他 annotation 对 Unified ToolSpec 的映射由 MCP Tool Discovery / Execution detailed design 约束。
 
@@ -472,9 +472,9 @@ agenteam 的 MCP Integration 是 Central 后台对远程 MCP Server 的服务端
 
 Endpoint 的网络访问统一受平台 Outbound Network Policy 约束，具体规则见：
 
-> [MCP Server Config / Connection Lifecycle](../design/mcp-integration/mcp-server-config-lifecycle.md)
+> [MCP Server Config / Connection Lifecycle](./mcp-server-config-lifecycle.md)
 >
-> [Outbound Network Policy](../design/platform-infrastructure/outbound-network-policy.md)
+> [Outbound Network Policy](../platform-infrastructure/outbound-network-policy.md)
 
 ## 13. MCP Capability Integration 原则
 

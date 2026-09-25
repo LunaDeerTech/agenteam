@@ -2,12 +2,12 @@
 
 > 状态：设计稿
 >
-> 上层架构：[安全与治理架构](../../architecture/security-governance.md)
+> 上层架构：[安全与治理架构](./index.md)
 >
 > 相关架构：
-> - [统一工具系统架构](../../architecture/tool-system.md)
-> - [Agent Loop 架构](../../architecture/agent-loop.md)
-> - [Runner 架构](../../architecture/runner.md)
+> - [统一工具系统架构](../tool-system/index.md)
+> - [Agent Loop 架构](../agent-loop.md)
+> - [Runner 架构](../runner.md)
 > - [Approval Scope 详细设计](./approval-scope.md)
 
 ## 1. 设计目标

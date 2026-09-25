@@ -2,14 +2,14 @@
 
 > 状态：设计稿
 >
-> 上层架构：[项目与工作管理架构](../../architecture/project-work-management.md)
+> 上层架构：[项目与工作管理架构](./index.md)
 >
 > 相关架构：
-> - [Agent 管理架构](../../architecture/agent-management.md)
-> - [Agent Executor 架构](../../architecture/agent-executor.md)
-> - [Runner 架构](../../architecture/runner.md)
-> - [平台基础设施架构](../../architecture/platform-infrastructure.md)
-> - [安全与治理架构](../../architecture/security-governance.md)
+> - [Agent 管理架构](../agent-management.md)
+> - [Agent Executor 架构](../agent-executor.md)
+> - [Runner 架构](../runner.md)
+> - [平台基础设施架构](../platform-infrastructure/index.md)
+> - [安全与治理架构](../security-governance/index.md)
 
 ## 1. 设计目标
 

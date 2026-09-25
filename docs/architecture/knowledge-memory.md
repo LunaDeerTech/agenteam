@@ -161,7 +161,7 @@ Knowledge 和 Agent Memory 共用同一组平台级 embedding / reranker Model�
 
 `reranker_model_ref` 为空时，retrieval 可以继续使用 vector search / keyword / hybrid search，只跳过模型 reranking 阶段。
 
-完整 Model 选择和类型约束见 [Model System 详细设计](../design/platform-infrastructure/model-system.md)。
+完整 Model 选择和类型约束见 [Model System 详细设计](./platform-infrastructure/model-system.md)。
 
 ## 6. Agent Memory
 

@@ -3,14 +3,14 @@
 > 状态：设计稿
 >
 > 上层架构：
-> - [统一工具系统架构](../../architecture/tool-system.md)
-> - [MCP 集成架构](../../architecture/mcp-integration.md)
+> - [统一工具系统架构](./index.md)
+> - [MCP 集成架构](../mcp-integration/index.md)
 >
 > 相关架构：
-> - [Agent Executor 架构](../../architecture/agent-executor.md)
-> - [Agent Loop 架构](../../architecture/agent-loop.md)
-> - [Runner 架构](../../architecture/runner.md)
-> - [安全与治理架构](../../architecture/security-governance.md)
+> - [Agent Executor 架构](../agent-executor.md)
+> - [Agent Loop 架构](../agent-loop.md)
+> - [Runner 架构](../runner.md)
+> - [安全与治理架构](../security-governance/index.md)
 >
 > 相关详细设计：
 > - [Approval Scope 详细设计](../security-governance/approval-scope.md)
