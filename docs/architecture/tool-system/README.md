@@ -269,7 +269,7 @@ Model 选择和 Adapter 边界见 [Model System 详细设计](../platform-infras
 
 其中：
 
-- `request-decision` 创建 Meeting 自己的 `DecisionRequest`，用于 Agent 请求用户回答业务问题；
+- `request-decision` 创建 Meeting 自己的 `DecisionRequest`，用于 Agent 请求用户回答业务问题；当前 Agent Execution 进入 waiting，用户 answer / skip 后继续同一个 Agent Execution；
 - `request-execution-approval` 用于 Meeting 场景显式发起受限动作审批，但实际 Approval Request 由 Security / Governance 统一创建和持久化，Meeting 只保存引用并在 Timeline 中展示；
 - Approval Request 会进入 Human Inbox，用户可以从 Human Inbox 或对应业务页面处理同一个审批对象；
 - 用户对 DecisionRequest 的 answer / skip，以及对 Approval Request 的 approve / reject，都属于用户操作，不通过 Agent Tool 完成。
@@ -278,7 +278,7 @@ Approval 不是 Meeting 专属能力。Task Execution、Runner / MCP Tool 等其
 
 `create-meeting` 属于用户/UI 能力。
 
-Agent 使用 `request-meeting` 提交会议提案，不能直接绕过用户审批创建并启动正式会议。
+Agent 使用 `request-meeting` 直接创建 `status = proposed` 的 Meeting Session。该 Meeting 同时进入 Human Inbox 的待处理聚合视图；用户需要进入 Meeting 页面批准后，Meeting 才从 `proposed` 进入 `active` 并允许正常 Turn 执行。
 
 ### Memory
 

@@ -146,8 +146,9 @@ Meeting trigger 的 prepared context 可能包含：
 - meeting topic；
 - participants；
 - rolling summary；
-- necessary recent messages；
-- turn metadata。
+- Meeting References 的稳定 typed identity；
+- 当前 Execution 可见、按 Meeting Timeline 顺序排列的 MeetingMessage history；
+- Meeting policy。
 
 Context Assembly 只负责组织已有输入，不负责业务数据检索。
 
@@ -213,6 +214,7 @@ Agent Loop 内部可以维护类似以下逻辑状态：
 initializing
   -> calling_model
   -> executing_tools
+  -> waiting_external_input
   -> calling_model
   -> ...
   -> completing
@@ -235,11 +237,14 @@ Agent Execution 对外只暴露自身生命周期状态，例如：
 created
 preparing
 running
+waiting
 succeeded
 failed
 cancelled
 timed_out
 ```
+
+其中 `waiting_external_input` 用于 DecisionRequest、Approval Request 等 Human-in-the-loop 场景。它不会结束当前 Agent Loop；外部结果返回后继续原来的 Model → Tool → Model 循环。
 
 ## 8. Model Adapter
 
@@ -411,6 +416,8 @@ Streaming 可以产生：
 UI 可以消费 execution stream 展示实时输出。
 
 Streaming 事件属于 Agent Execution 的运行事件，不应直接成为 Task Event 或 Meeting message。
+
+Agent Loop 产生的 streaming / runtime events 统一交给 Agent Executor 的 Agent Execution Stream / Runtime View 对外提供。Task、Meeting、独立 Execution Detail 等消费者复用同一个 stream contract，不分别从 Agent Loop 建立业务专属 streaming 通道。
 
 Meeting 中最终公开消息应在本轮 Agent Execution 产生完整可发布输出后写入 Meeting。
 

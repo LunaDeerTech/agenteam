@@ -184,7 +184,7 @@ External Systems 包括模型 Provider、MCP Server、Git Repository 以及其�
 
 - [项目与工作管理](./project-work-management/index.md)
 - [Scheduler](./scheduler.md)
-- [Meeting](./meeting.md)
+- [Meeting](./meeting/README.md)
 - [Agent 管理](./agent-management.md)
 - [Agent Executor](./agent-executor.md)
 - [Agent Loop](./agent-loop.md)

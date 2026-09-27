@@ -134,7 +134,6 @@ Task 场景例如：
 Meeting 场景例如：
 
 - response；
-- approved_action。
 
 Agent Executor 不解释具体业务状态机，只把 purpose 交给对应 Trigger Context Provider。
 
@@ -142,8 +141,8 @@ Agent Executor 不解释具体业务状态机，只把 purpose 交给对应 Trig
 
 调用方可以进一步收紧本次执行权限，例如：
 
-- Meeting turn 默认限制为只读；
-- approved_action 仅允许用户批准范围内的写操作；
+- Meeting turn 可以进一步限制某类 Tool；
+- Meeting 中受限写操作仍通过统一 Tool Runtime / Approval Request 等待并在审批后继续同一个 Agent Execution；
 - 特定触发来源禁止某类 Tool。
 
 execution_policy 只能缩小 Agent Capability，不能扩大 Agent 的长期权限。
@@ -166,7 +165,7 @@ Builder 负责合并两类信息：
 Trigger Context Provider 是统一的领域适配接口。第一阶段至少包括：
 
 - `TaskContextProvider`：读取当前 Task、Sprint、Milestone 以及 work / review 语义，并提供 Task 场景 Prompt Template，使 Agent 明确当前任务阶段、可用操作，以及如何根据执行结果通过 `transfer-task` 请求下一步状态流转；实际合法性由 Task 状态机校验；
-- `MeetingContextProvider`：读取 meeting topic、participants、rolling summary、必要的 recent messages 和 meeting policy，并提供 Meeting 场景 Prompt Template，使 Agent 明确会议中的发言、DecisionRequest、Governance Approval Request、受限写操作和会议收尾方式；
+- `MeetingContextProvider`：读取 meeting topic、participants、rolling summary、当前 MeetingReference 的稳定 typed identity，以及当前 Execution 可见、按 Meeting Timeline 顺序排列的 MeetingMessage history；MeetingMessage 中的 `mention / task / knowledge / link / file` inline node 会被序列化成模型可识别的结构化标记。MeetingTurn、DecisionRequest、Approval Request 等 Runtime / 交互控制对象不进入模型可见的 Meeting Context；Meeting Context 本身不按 token budget 预先裁剪，超出模型窗口时由 Agent Loop 统一 Context Compaction；
 - 后续其他 trigger 可以按相同接口扩展，并定义各自的场景 Prompt Template。
 
 Scheduler、Meeting 等触发方只创建 Agent Launch Request，不直接构造 AgentExecutionContext，也不直接调用 Provider。Agent Executor 根据 `trigger.type` 选择对应 Provider，再由 Builder 合并为完整 AgentExecutionContext。
@@ -330,6 +329,8 @@ Agent Execution 可以被 Task、Meeting 或未来其他业务对象引用，但
 created
   -> preparing
   -> running
+  -> waiting
+  -> running
   -> succeeded
   -> failed
   -> cancelled
@@ -354,6 +355,23 @@ Agent Executor 正在准备：
 ### running
 
 AgentExecutionContext 已准备完成，Agent Loop 正在运行。
+
+### waiting
+
+Agent Loop 尚未结束，但当前需要外部输入后才能继续。
+
+第一阶段至少包括：
+
+- `waiting_reason = decision`：Meeting DecisionRequest 等待用户 answer / skip；
+- `waiting_reason = approval`：当前 ToolOperation 等待统一 Governance Approval Request。
+
+`waiting` 是非终态。外部输入解决后恢复同一个 Agent Execution：
+
+```text
+waiting -> running
+```
+
+Meeting 不因为 Decision / Approval 恢复而创建新的 follow-up / approved_action Agent Execution。
 
 ### succeeded
 
@@ -430,6 +448,45 @@ Agent Executor 负责“本次执行给 Agent Loop 提供哪些 Tool”，Tool S
 - final output。
 
 Task Event、Meeting message 和 Audit Log 可以引用 Agent Execution，但不复制完整 execution log。
+
+### 12.1 Agent Execution Stream / Runtime View
+
+Agent Executor 同时提供统一、可复用的 Agent Execution 实时查看能力，而不是由 Task、Meeting 等业务模块分别实现自己的 execution streaming。
+
+概念接口：
+
+```text
+AgentExecutionRuntimeView
+├── execution snapshot
+│   ├── status
+│   ├── current phase
+│   ├── waiting reason?
+│   ├── latest public-safe event
+│   └── timestamps
+├── execution event history
+└── realtime execution stream
+```
+
+这套能力由 Agent Executor / Agent Loop 的统一 execution events 驱动，可直接复用于：
+
+- Task / Review 的 Agent Execution Detail；
+- Meeting Timeline 中 Agent Execution 的可展开运行视图；
+- 独立 Agent Execution Detail；
+- 后续其他需要实时查看 Agent 运行过程的业务页面。
+
+业务模块只保存 / 持有 `execution_id`，不复制 token streaming、Tool Call、retry、waiting 等运行事件。
+
+Execution Stream 对 UI 暴露经过权限与敏感字段过滤的 runtime event。Provider private reasoning、Secret、受限 Tool 参数等不能因为进入实时流就绕过原有可见性规则。
+
+```text
+Agent Loop events
+    -> Agent Execution Runtime View / Stream
+        -> Task UI
+        -> Meeting UI
+        -> Execution Detail UI
+```
+
+Meeting 和 Task 可以采用不同的外层业务布局，但展开后的 Agent 运行详情复用同一个 Execution Stream contract。
 
 Agent Execution 的 usage summary 是可重建的派生汇总；每次真实模型调用的 Token Usage Source of Truth 见 [Model Token Usage 详细设计](./platform-infrastructure/model-token-usage.md)。
 

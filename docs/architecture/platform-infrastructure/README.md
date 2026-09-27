@@ -82,14 +82,23 @@ PlatformModelSelection
 
 三个 selector 都是平台级配置，不支持 Project override，也不在 selector 中重复配置 Model 参数。
 
-Agent Loop 只直接消费 chat Model，并通过统一 Model Adapter 调用模型，而不是让 Agent Management 或业务模块直接适配每家 Provider。embedding / reranker 由 Knowledge / Memory 内部消费；image_generation 由 Builtin image generation Tool 消费。
+Project Config 另外保存 Meeting Rolling Summary 使用的 chat Model：
+
+```text
+ProjectConfig
+└── meeting_summary_model_ref
+```
+
+它不是 PlatformModelSelection，而是每个 Project 自己的配置；候选项为该 Project 当前可用的 enabled chat Model。Meeting Summary Generator 只使用普通 text generation，不暴露 Tools。
+
+Agent Loop 直接消费 chat Model，并通过统一 Model Adapter 调用模型；Meeting Summary Generator 也通过同一套 Model Resolver / Unified Chat Model Contract 消费 Project 配置的 chat Model。业务模块不直接适配每家 Provider。embedding / reranker 由 Knowledge / Memory 内部消费；image_generation 由 Builtin image generation Tool 消费。
 
 第一阶段 Chat Provider Adapter 只实现：
 
 - OpenAI Chat Completions / OpenAI-compatible；
 - Anthropic Messages。
 
-Provider / ModelConfig 支持物理删除。删除仍被 Agent 引用的 chat Model 时，必须先在用户确认流程中选择替代 Model，并批量更新受影响 Agent；删除被 PlatformModelSelection 引用的平台 Model 时，必须先替换对应 selector，或在 reranker / image generation 场景清空 optional selector。Provider 只有在其 Models 已全部删除后才能删除。
+Provider / ModelConfig 支持物理删除。删除仍被 Agent 或 Project Meeting Summary 配置引用的 chat Model 时，必须先在用户确认流程中选择替代 Model，并批量更新受影响 Agent / Project Config；删除被 PlatformModelSelection 引用的平台 Model 时，必须先替换对应 selector，或在 reranker / image generation 场景清空 optional selector。Provider 只有在其 Models 已全部删除后才能删除。
 
 历史 Agent Execution / Model Invocation Usage 不阻止配置删除：live Provider / Model 外键可以通过 `ON DELETE SET NULL` 置空，但历史记录必须保留调用时的 Provider / Model snapshot。
 
@@ -277,7 +286,7 @@ read-artifact
 Human Inbox 可以聚合：
 
 - waiting_for_human；
-- meeting proposals；
+- proposed meetings；
 - pending decision requests；
 - pending approval requests；
 - review requests；
@@ -290,7 +299,7 @@ flowchart TB
     Inbox["Human Inbox"]
 
     Task["Task / Blocker"] --> Inbox
-    Meeting["Meeting Proposal / Decision"] --> Inbox
+    Meeting["Proposed Meeting / Decision"] --> Inbox
     Approval["Governance Approval Request"] --> Inbox
     Review["Review Request"] --> Inbox
     Runner["Runner / Technical Failure"] --> Inbox
@@ -301,6 +310,15 @@ flowchart TB
 Human Inbox 是统一的**人类待处理聚合视图**，不是这些业务对象的新 Source of Truth。
 
 特别是 Agent Execution 在执行过程中产生的权限审批需求，应由 Security / Governance 创建并持久化 Approval Request。Human Inbox 负责把 pending Approval Request 聚合给用户处理，而不是自己保存另一套审批状态。
+
+Approval Request 在 Human Inbox 中不是只能跳转查看的提醒，而是可直接操作的统一交互对象。Human Inbox 应复用平台 Approval Request 组件 / Action Contract，直接提供：
+
+- approve；
+- reject；
+- 查看 scope / resource / source execution；
+- 必要时跳转到对应 Task / Meeting / Execution 获取更多上下文。
+
+直接处理 Approval 时调用的仍然是 Security / Governance 的统一 Approval API。Human Inbox 不实现自己的审批逻辑。
 
 因此：
 
@@ -320,7 +338,7 @@ Approval Request 可以关联：
 - resource / scope；
 - Task / Meeting 等业务来源。
 
-如果审批来自 Meeting，Meeting Timeline 可以引用并展示同一个 Approval Request；如果审批来自 Task Execution，也可以从 Task / Execution 页面跳转到同一个 Approval Request。不同 UI 入口不能各自复制一套审批状态。
+如果审批来自 Meeting，Meeting Timeline 可以引用并展示同一个 Approval Request；如果审批来自 Task Execution，也可以在 Task / Execution 页面展示同一个 Approval Request。Human Inbox、Meeting Timeline、Task / Execution Detail 都可以直接处理它，但不同 UI 入口不能各自复制一套审批状态或审批逻辑。
 
 ## 7. Internal Domain Events
 
@@ -366,7 +384,7 @@ flowchart LR
 - BlockerAdded / Resolved；
 - AgentExecutionStarted / Finished；
 - ReviewRequested / Finished；
-- MeetingRequested / Approved；
+- MeetingProposed / Activated；
 - DecisionRequested / Answered / Skipped；
 - ApprovalRequested / Approved / Rejected；
 - DocumentUpdated；

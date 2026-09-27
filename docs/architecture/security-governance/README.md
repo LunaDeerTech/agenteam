@@ -179,10 +179,6 @@ Agent Capability 是权限上限，不是每次执行都自动获得全部能力
 
 默认以读取和讨论为主，写操作通常需要人工审批。
 
-#### approved_action
-
-只允许执行用户刚刚批准的明确动作。
-
 因此：
 
 ~~~text
@@ -577,9 +573,17 @@ Approval Request 至少需要能够关联：
 - 目标 Resource / Scope；
 - 触发审批的业务来源，例如 Task / Meeting。
 
-Human Inbox 只是 pending Approval Request 的统一聚合和处理入口，不保存另一套审批状态。
+Human Inbox 是 pending Approval Request 的统一聚合和直接处理入口，不保存另一套审批状态。
 
-如果审批来源于 Meeting，Meeting Timeline 可以引用并展示同一个 Approval Request；如果来源于 Task Execution，也可以从 Task / Agent Execution 页面引用同一个 Approval Request。
+平台应提供可复用的 Approval Request 交互组件 / Action Contract，使以下入口共享同一套 approve / reject 行为：
+
+- Human Inbox；
+- Meeting Timeline；
+- Task / Agent Execution Detail。
+
+这些 UI 都直接调用 Security / Governance 的统一 Approval API。业务页面只负责提供上下文和展示位置，不实现自己的审批状态机。
+
+如果审批来源于 Meeting，Meeting Timeline 可以引用、展示并直接处理同一个 Approval Request；如果来源于 Task Execution，也可以从 Task / Agent Execution 页面直接处理同一个 Approval Request。
 
 因此不同页面只是同一审批对象的不同入口：
 

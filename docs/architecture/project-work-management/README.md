@@ -41,16 +41,31 @@ flowchart TB
     Task --> AgentExecutions["Agent Execution References"]
 
     Meeting --> Participants["Participants"]
-    Meeting --> Messages["Meeting Messages"]
+    Meeting --> MeetingRefs["Meeting References"]
+    Meeting --> Turns["Meeting Turns"]
+    Turns --> Contributions["Turn Contributions"]
+    Contributions --> Messages["Meeting Messages"]
+    Messages --> MessageRefs["Message References"]
+    Contributions --> DecisionReq["Decision Requests"]
+    Contributions --> ApprovalRefs["Approval Request References"]
     Meeting --> Summary["Rolling Summary"]
-    Meeting --> DecisionReq["Decision Requests"]
-    Meeting --> ApprovalRefs["Approval Request References"]
 
     Agent --> AgentConfig["Agent Config"]
     Agent --> Capability["Capabilities"]
     Agent --> Memory["Memory"]
+    Config --> MeetingSummaryModel["Meeting Summary Model Ref"]
 
     KB --> Documents["Documents"]
+    Project --> Artifacts["Artifacts / Files"]
+    Links["External Links"]
+    MeetingRefs --> Task
+    MeetingRefs --> Documents
+    MeetingRefs --> Artifacts
+    MeetingRefs --> Links
+    MessageRefs --> Task
+    MessageRefs --> Documents
+    MessageRefs --> Artifacts
+    MessageRefs --> Links
     Documents --> Chunks["Chunks / Embeddings"]
 ```
 
@@ -69,6 +84,37 @@ Project Variables 是 Project 的长期配置对象，分为普通 Variable 和 
 远端 Runner 不主动读取 Project 配置或 Secret Store，而是在执行 command / process 时由 Central 通过 Runner Protocol 临时下发本次进程所需的 environment。
 
 完整数据模型、Agent 白名单、Prompt 注入、跨设备 Runner 传输和 Secret 生命周期见 [项目变量与 Secret 详细设计](./project-environment-variables.md)。
+
+### 2.2 Project Meeting Config
+
+Project Config 负责保存 Meeting 运行所需的项目级配置。
+
+第一阶段至少包含：
+
+```text
+ProjectConfig
+└── meeting_summary_model_ref
+```
+
+`meeting_summary_model_ref`：
+
+- 必填；
+- 引用当前 Project 可见的 enabled chat Model；
+- 可以选择 enabled System chat Model；
+- 也可以选择当前 Project Provider 下的 enabled chat Model；
+- 只用于 Meeting Rolling Summary Generator；
+- 不继承某个 Agent 的 `model_ref`；
+- 不配置 Agent Capability / Tools；
+- 不配置 reasoning effort。
+
+Project 配置页面对应：
+
+```text
+Meeting
+└── Summary Model
+```
+
+Summary Model 的解析、删除替换和调用边界见 [Model System 详细设计](../platform-infrastructure/model-system.md)；Rolling Summary 生成流程见 [Meeting Context & Summary](../meeting/meeting-context-summary.md)。
 
 ## 3. Task
 
@@ -212,7 +258,7 @@ flowchart LR
 
     B1 --> DepTask["Related Task"]
     B2 --> HumanRequest["Human Request"]
-    B3 --> MeetingProposal["Meeting Proposal"]
+    B3 --> ProposedMeeting["Proposed Meeting"]
     B4 --> TechnicalEvent["Technical Failure"]
 ```
 

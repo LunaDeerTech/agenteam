@@ -3,7 +3,7 @@
 > 状态：初版设计稿
 >
 > 上层架构：
-> - [统一工具系统架构](./index.md)
+> - [统一工具系统架构](./README.md)
 >
 > 相关详细设计：
 > - [Object Storage](../platform-infrastructure/object-storage.md)
@@ -60,16 +60,22 @@ ToolArtifact
 ├── project_id
 ├── stored_object_id
 ├── kind
+│   ├── generated
+│   ├── user_upload
+│   └── ...
 ├── name?
 ├── description?
 ├── media_type?
 ├── source_execution_id?
 ├── source_operation_id?
 ├── created_by_agent_id?
+├── created_by_user_id?
 └── created_at
 ~~~
 
 StoredObject 只负责 payload 与存储 metadata；ToolArtifact 负责表达文件对 Agent / 用户的业务语义、Project scope、来源、展示名称和访问权限。
+
+ToolArtifact 不要求一定由 Agent / Tool 创建。用户通过业务 UI 上传的文件也可以创建 `kind = user_upload` 的 ToolArtifact，使同一个 Artifact identity 能被 Meeting、Task、Tool Result 和 Agent Tools 复用。
 
 ## 4. list-artifacts
 
@@ -219,6 +225,35 @@ Tool Result / Message
 - 不写入长期 Tool Result；
 - 到期后由 UI / API 重新申请。
 
+### 7.1 Meeting File Reference
+
+Meeting 的 `file` Reference 统一指向 `artifact_id`，不直接指向 `stored_object_id`。
+
+```text
+MeetingReference / MeetingMessageReference
+-> artifact_id
+-> ToolArtifact
+-> StoredObject
+-> ObjectStorageService
+```
+
+用户在 Meeting Composer 上传文件时，由 Meeting / File Upload API：
+
+1. 使用 ObjectStorageService 写入 StoredObject；
+2. 创建 `ToolArtifact(kind = user_upload)`；
+3. 返回 `artifact_id`；
+4. Meeting 以该 `artifact_id` 创建 file inline node / Reference。
+
+Agent 侧继续复用：
+
+- `list-artifacts`：查询可访问文件 metadata；
+- `create-artifact`：创建 / 持久化文件；
+- `read-artifact`：读取已有文件。
+
+不新增 Meeting 专属 Object Storage Tool。
+
+完整 Meeting 侧语义见 [Meeting References & Inline Content](../meeting/meeting-references-inline-content.md)。
+
 ## 8. 不暴露的底层 Tool
 
 第一阶段不提供：
@@ -304,7 +339,9 @@ safe_error?
 7. source object 流式复制；
 8. file_ref / image_ref projection；
 9. UI / API 按权限生成短期下载 URL；
-10. Audit。
+10. User-uploaded ToolArtifact；
+11. Meeting file Reference 使用 artifact_id；
+12. Audit。
 
 第一阶段不实现：
 

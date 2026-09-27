@@ -123,6 +123,17 @@ flowchart LR
 
 原始文档内容是 canonical source，向量索引是派生数据，可以重建。
 
+Knowledge Document 可以被 Meeting 的长期 `MeetingReference` 或 Message 的 `MeetingMessageReference` 引用。
+
+这类引用必须指向稳定的 canonical `document_id`，不能指向：
+
+- chunk id；
+- vector id；
+- retrieval result；
+- 某次索引版本。
+
+Meeting Context 只自动注入 `knowledge + document_id` 这一引用身份，不自动读取文档正文。Agent 仍通过 Knowledge Tools 按需使用该文档。
+
 ## 5. Knowledge Retrieval
 
 Agent 通过 Tool 按需查询 Knowledge。

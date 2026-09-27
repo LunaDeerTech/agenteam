@@ -2,14 +2,14 @@
 
 > 状态：设计稿
 >
-> 上层架构：[平台基础设施与部署架构](./index.md)
+> 上层架构：[平台基础设施与部署架构](./README.md)
 >
 > 相关架构：
 > - [Agent 管理架构](../agent-management.md)
 > - [Agent Executor 架构](../agent-executor.md)
 > - [Agent Loop 架构](../agent-loop.md)
-> - [统一工具系统架构](../tool-system/index.md)
-> - [安全与治理架构](../security-governance/index.md)
+> - [统一工具系统架构](../tool-system/README.md)
+> - [安全与治理架构](../security-governance/README.md)
 >
 > 相关详细设计：
 > - [Model Token Usage 详细设计](./model-token-usage.md)
@@ -285,17 +285,17 @@ Provider 和 ModelConfig 支持物理删除，不要求长期保留 disabled 记
 
 #### 删除 chat Model
 
-如果待删除 chat Model 仍被 Agent.model_ref 引用，用户侧必须先通过删除确认弹窗选择替代 chat Model。
+如果待删除 chat Model 仍被 Agent.model_ref 或 ProjectConfig.meeting_summary_model_ref 引用，用户侧必须先通过删除确认弹窗选择替代 chat Model。
 
 确认删除时，服务端以一个事务性操作完成：
 
-1. 校验替代 Model 当前 enabled 且对所有受影响 Agent 可见；
+1. 校验替代 Model 当前 enabled 且对所有受影响 Agent / Project 可见；
 2. 校验替代 Model 的 type = chat；
 3. 校验受影响 Agent 的 reasoning_effort 在替代 Model 下仍然合法；存在不兼容配置时，删除流程必须先要求用户解决，不能留下无效 Agent 配置；
-4. 批量把所有受影响 Agent.model_ref 更新为替代 Model；
+4. 批量把所有受影响 Agent.model_ref 与 ProjectConfig.meeting_summary_model_ref 更新为替代 Model；
 5. 完成后物理删除原 ModelConfig。
 
-System chat Model 可能被多个 Project 的 Agent 引用，因此其替代 Model 必须是对全部受影响 Project 可见的 enabled System chat Model。
+System chat Model 可能被多个 Project 的 Agent / Meeting Summary 配置引用，因此其替代 Model 必须是对全部受影响 Project 可见的 enabled System chat Model。
 
 Project chat Model 只影响所属 Project，可以替换为该 Project 当前可见的 enabled System chat Model 或 Project chat Model。
 
@@ -478,6 +478,40 @@ Knowledge / Memory 共用同一组 embedding / reranker selector。
 
 如果 `image_generation_model_ref` 未配置，则平台没有可用的默认 image generation backend，`generate-image` Tool 不应作为可执行 Tool 暴露给 Agent。
 
+### 8.6 Project Meeting Summary Model
+
+Meeting Rolling Summary 使用 Project 级 chat Model selector，而不是 PlatformModelSelection。
+
+```text
+ProjectConfig
+└── meeting_summary_model_ref
+```
+
+`meeting_summary_model_ref`：
+
+- 必填；
+- 保存稳定 ModelConfig ID；
+- 必须引用当前 Project 可见的 enabled `type = chat` Model；
+- 可以引用 enabled System chat Model；
+- 也可以引用当前 Project Provider 下的 enabled chat Model。
+
+它不要求所选 Model 支持：
+
+- Tool Calling；
+- parallel Tool Calling；
+- structured output；
+- image / file input。
+
+Meeting Summary Generator 只执行普通 text generation，调用时：
+
+```text
+tools = []
+```
+
+并直接通过 Unified Chat Model Contract 调用所选 Model。
+
+完整 Summary 生成流程见 [Meeting Context & Summary](../meeting/meeting-context-summary.md)。
+
 ## 9. Agent Model Reference
 
 Agent 配置：
@@ -507,7 +541,7 @@ Agent 不保存：
 
 ## 10. Model Resolver
 
-Agent Executor 在构造 AgentExecutionContext 时通过 Model Resolver 解析当前模型。
+Model Resolver 是平台共享能力。Agent Executor 在构造 AgentExecutionContext 时使用它；MeetingSummaryUpdater 等平台内部 chat Model consumer 也通过同一个 Resolver 解析 Project 可见 Model。
 
 ~~~mermaid
 sequenceDiagram
@@ -541,6 +575,16 @@ Model Resolver 负责：
 - 生成 Resolved Model Snapshot。
 
 Model Resolver 不发起模型调用。
+
+MeetingSummaryUpdater 调用：
+
+```text
+resolve(project, meeting_summary_model_ref)
+-> ResolvedModel
+-> Unified Chat Model Contract
+```
+
+Summary 调用不创建 Agent Execution，因此其 resolved model identity 记录在 Summary generator metadata / Model Invocation Usage 中，而不是 AgentExecutionContext。
 
 ## 11. Resolved Model Snapshot
 
@@ -1234,6 +1278,23 @@ Image Generation Model -> optional System image_generation Model
 
 Agent 配置页只消费当前 Project 可用的 chat Model，并根据所选 Model 的 parameters.capabilities.reasoning_efforts 展示 reasoning_effort 选项。
 
+Project 配置页另外提供：
+
+```text
+Meeting
+└── Summary Model
+```
+
+它编辑 `ProjectConfig.meeting_summary_model_ref`，候选项与当前 Project 可用 chat Model 集合一致：
+
+```text
+all enabled System chat Models
++
+enabled chat Models from current Project Providers
+```
+
+该选择器不展示 Agent Capability、Tools 或 reasoning effort 配置；Meeting Summary Generator 只执行普通 text generation。
+
 ## 30. 第一阶段实现边界
 
 第一阶段建议实现：
@@ -1257,7 +1318,8 @@ Agent 配置页只消费当前 Project 可用的 chat Model，并根据所选 Mo
 17. embedding / reranker / image generation 的独立调用 Adapter 边界；
 18. image_generation 通过 Builtin generate-image Tool 消费；
 19. usage normalization，并把统计交给独立 Token Usage 模块；
-20. Provider / Model 物理删除、Agent model_ref 批量替换、PlatformModelSelection 引用处理，以及历史 snapshot 保留。
+20. ProjectConfig.meeting_summary_model_ref 与 Project 配置 UI；
+21. Provider / Model 物理删除、Agent model_ref / Project Meeting Summary Model 批量替换、PlatformModelSelection 引用处理，以及历史 snapshot 保留。
 
 第一阶段不要求：
 

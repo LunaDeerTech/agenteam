@@ -3,7 +3,7 @@
 > 状态：设计稿
 >
 > 上层架构：
-> - [平台基础设施与部署架构](./index.md)
+> - [平台基础设施与部署架构](./README.md)
 >
 > 相关设计：
 > - [Unified Tool Runtime 详细设计](../tool-system/tool-runtime.md)
@@ -324,6 +324,20 @@ Agent
 ~~~
 
 Artifact Tools 的输入输出、source_ref、读取和用户下载规则见 [Artifact Builtin Tools 详细设计](../tool-system/artifact-tools.md)。
+
+Meeting 的 `file` Reference 也复用这套边界：
+
+```text
+MeetingReference / MeetingMessageReference
+-> artifact_id
+-> ToolArtifact
+-> StoredObject
+-> ObjectStorageService
+```
+
+Meeting 不直接保存 `stored_object_id`、storage key、MinIO URL 或 Signed URL。用户在 Meeting Composer 上传的文件由业务 Upload API 创建 `ToolArtifact(kind = user_upload)`，Agent 再通过统一 Artifact Builtin Tools 查询 / 创建 / 读取。
+
+完整 Meeting 侧设计见 [Meeting References & Inline Content](../meeting/meeting-references-inline-content.md)。
 
 ### 10.2 Artifact from Existing Object
 

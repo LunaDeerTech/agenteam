@@ -259,6 +259,8 @@ Task Event 可以记录：
 
 完整 Agent Execution log 仍归 Agent Execution 自身。
 
+Task / Review 页面如果需要实时查看 Agent 当前运行状态、Tool Call、waiting、retry、streaming 等信息，直接通过 `execution_id` 复用 Agent Executor 提供的统一 **Agent Execution Stream / Runtime View**。Task 不建立自己的 Execution streaming 或 runtime event 模型。
+
 ## 9. 失败与恢复
 
 需要区分两类失败。
