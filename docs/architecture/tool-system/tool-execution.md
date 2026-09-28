@@ -219,37 +219,49 @@ Backend 仍然需要执行最后一层自己的业务或本地安全校验。
 
 ## 7. Timeout
 
-Timeout 应由 Tool Runtime 统一管理，并采用“平台默认值 + Agent 显式覆盖”的简单模型。
+Tool Operation 不使用统一的平台强制 timeout。
+
+是否为某次 Tool Call 设置 timeout，以及设置多长，由 Agent 根据当前任务和 Tool 语义决定。
 
 具体规则：
 
-- 平台提供统一默认 timeout，作为所有 Tool Operation 的兜底；
-- Agent 可以针对具体 Tool Operation 显式覆盖 timeout；
-- Project 不提供 timeout 配置，不要求人类参与这类运行时参数调整；
-- Agent 未显式覆盖时，直接使用平台默认 timeout；
-- timeout override 属于 Runtime 执行参数，不进入 ToolSpec，也不属于 Tool 的业务 arguments。
+- timeout 是可选 Runtime 调用参数；
+- Agent 可以针对具体 Tool Operation 指定 timeout；
+- Agent 未指定时，不由 Agent Executor / Tool Runtime 自动补一个统一 Operation deadline；
+- Project 不提供统一 timeout 配置，不要求人类为每个 Tool 预配置运行时间；
+- timeout 不进入 ToolSpec，也不属于 Tool 的业务 arguments；
+- Backend 自己为网络连接、RPC、进程管理设置的 transport / implementation timeout 属于 Backend 内部可靠性机制，不等同于 Agent 选择的 Tool Operation timeout。
 
 概念：
 
 ~~~text
-Tool Runtime timeout
-    ↓
+Agent decides optional operation timeout
+        ↓
+Tool Runtime
+        ↓
 Cancellation signal
-    ↓
+        ↓
 Tool Dispatcher
-    ↓
+        ↓
 Backend adapter
 ~~~
 
 原则：
 
-1. 每个 Tool Operation 必须存在有效 timeout，不能无限等待。
-2. Backend 支持 cancellation 时应向下传播。
-3. Runtime timeout 到达后，不代表 Backend 一定没有执行。
-4. 如果取消后无法确定 Backend outcome，应标记 unknown_outcome。
-5. timeout 是否可以 retry，仍取决于 idempotency 和 outcome。
+1. Tool 可以在没有 Agent-level timeout 的情况下持续运行。
+2. Agent 明确设置 timeout 后，Tool Runtime 负责计时并在到达时触发 cancellation。
+3. Backend 支持 cancellation 时应向下传播。
+4. timeout 到达不代表 Backend 一定没有执行。
+5. 如果取消后无法确定 Backend outcome，应标记 unknown_outcome。
+6. timeout 是否可以 retry，仍取决于 idempotency 和 outcome。
+7. Tool timeout 只影响当前 Tool Operation，不自动终止整个 Agent Execution。
 
-这样 Agent 在一次调用超时后，可以在后续新的 Tool Call / Operation 中选择更长的 timeout，而平台默认值仍保证任何 Tool 不会无限等待。
+Agent 在收到 timeout Tool Result 后，可以自行决定：
+
+- 使用更长 timeout 发起新的 Tool Call；
+- 改用其他方法；
+- 继续推理；
+- 放弃该操作。
 
 ## 8. Cancellation
 
@@ -257,7 +269,7 @@ Tool Operation cancellation 来源可能包括：
 
 - Agent Execution 被取消；
 - 用户取消当前 Execution；
-- Runtime timeout；
+- Agent 为当前 Tool Operation 设置的 timeout 到达；
 - Agent Loop 主动停止剩余并发调用；
 - Backend-specific cancel。
 

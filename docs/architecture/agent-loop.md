@@ -14,8 +14,8 @@ Agent Executor
       ├── Execution Context
       ├── Agent Loop
       ├── Model / Tools
-      ├── Logs / Usage
-      └── Result
+      ├── Runtime View
+      └── Logs / Usage
 ```
 
 Agent Executor 负责创建 Agent Execution 并准备 AgentExecutionContext；Agent Loop 只消费已经准备好的 Execution Context，完成实际的 Agent 推理与工具交互。
@@ -36,9 +36,12 @@ Agent Loop 负责：
 - 管理 context window；
 - 处理模型和 Tool 错误；
 - 支持 retry；
-- 响应 cancel / timeout；
-- 记录 usage 和 loop events；
-- 生成最终 Agent Execution Result。
+- 响应 cancel；
+- 实现单轮 Model generation watchdog；
+- 维护可 checkpoint 的 runtime state；
+- 记录 usage 和内部运行证据；
+- 产生 Runtime Item semantic update；
+- 向 Agent Executor 报告正常 completion 或不可恢复错误。
 
 Agent Loop 不负责：
 
@@ -191,7 +194,7 @@ flowchart TB
     ToolResults --> Continue{"Continue?"}
     Continue -->|Yes| Model
 
-    Result -->|"Final Response"| Output["Build Execution Result"]
+    Result -->|"Final Response"| Output["Complete Current Loop"]
 
     Model -->|"Error"| Error["Error Handling"]
     ToolCalls -->|"Error"| Error
@@ -224,7 +227,6 @@ or
 
   -> failed
   -> cancelled
-  -> timed_out
 ```
 
 这些状态主要用于当前 Agent Execution 内部的运行控制和 observability。
@@ -241,7 +243,6 @@ waiting
 succeeded
 failed
 cancelled
-timed_out
 ```
 
 其中 `waiting_external_input` 用于 DecisionRequest、Approval Request 等 Human-in-the-loop 场景。它不会结束当前 Agent Loop；外部结果返回后继续原来的 Model → Tool → Model 循环。
@@ -343,7 +344,7 @@ Agent Loop 需要根据 Tool Result 类型决定：
 - 自动 retry；
 - 等待 approval；
 - 终止执行；
-- 返回 failed result。
+- 向 Agent Executor 报告不可恢复错误。
 
 ## 12. 按需 Knowledge 与 Memory
 
@@ -401,25 +402,39 @@ Agent Loop 必须具备上下文窗口管理能力。
 
 具体 compaction 算法可在实现阶段继续设计。
 
-## 14. Streaming
+## 14. Streaming 与 Runtime Item
 
 Agent Loop 应支持模型 streaming。
 
-Streaming 可以产生：
+Model Adapter 可以标准化产生：
 
 - text delta；
-- reasoning / thinking metadata（仅当 Provider 明确支持且允许保存）；
-- tool call delta；
+- 可向上层展示的 reasoning / thinking delta 或 summary；
+- tool call metadata；
 - usage update；
-- completion event。
+- finish metadata。
 
-UI 可以消费 execution stream 展示实时输出。
+Agent Loop 不把这些原始增量直接当作持久化 Execution Event。
 
-Streaming 事件属于 Agent Execution 的运行事件，不应直接成为 Task Event 或 Meeting message。
+它们被转换为 Agent Executor Runtime View 使用的 semantic update：
 
-Agent Loop 产生的 streaming / runtime events 统一交给 Agent Executor 的 Agent Execution Stream / Runtime View 对外提供。Task、Meeting、独立 Execution Detail 等消费者复用同一个 stream contract，不分别从 Agent Loop 建立业务专属 streaming 通道。
+```text
+Model / Tool streaming
+        ↓
+Agent Loop semantic update
+        ↓
+Runtime Item Manager
+        ↓
+RuntimeItem Snapshot + RuntimeItemUpdate Stream
+```
 
-Meeting 中最终公开消息应在本轮 Agent Execution 产生完整可发布输出后写入 Meeting。
+Text 与 Reasoning 可以通过 RuntimeItemUpdate 流式更新同一个 Runtime Item；Tool Call 也持续更新同一个 Tool Runtime Item，而不是产生大量日志行。
+
+Task、Meeting、独立 Execution Detail 等消费者复用同一个 Runtime View contract。
+
+完整设计见 [Agent Executor Runtime View](./agent-executor/runtime-view.md)。
+
+Meeting 中最终公开消息仍由 Meeting Domain 在对应业务流程中写入，不能把 Runtime View 中的 Text Item 直接等同于 MeetingMessage。
 
 ## 15. Error Handling
 
@@ -458,11 +473,13 @@ Meeting 中最终公开消息应在本轮 Agent Execution 产生完整可发布�
 
 ## 16. Retry
 
-Agent Loop 可以对明确可恢复的底层错误进行有限 retry，例如：
+Agent Loop 可以对明确可恢复的底层错误进行 retry，但 Model retry 与 Tool retry 使用不同策略：
 
-- transient model network error；
-- provider rate limit；
-- Tool System 明确标记为 retryable 的 transient Tool transport error。
+- Model timeout / network / provider unavailable 等由 Model System 的 progressive timeout + retry policy 处理；
+- provider rate limit 等 retryable Model Error 可以结合 backoff；
+- Tool System 明确标记为 retryable 的 transient Tool transport error 按 Tool Operation / Attempt 规则处理。
+
+Model Request timeout 达到最大单次 timeout 后仍可继续使用该上限重试，只要 Execution 仍 active 且未被 cancel；它不受统一的“最大重试次数”规则约束。
 
 对于 Tool retry，Agent Loop 不自行根据“Tool 名称和 arguments 看起来相同”判断是否属于 retry。
 
@@ -497,102 +514,99 @@ unknown + non-idempotent
 - Tool System 未明确允许 retry 的 unknown outcome；
 - 无限重复的相同 Tool Operation。
 
-Retry 必须：
+Tool technical retry 必须：
 
-- 有次数上限；
+- 有明确次数上限；
 - 支持 backoff；
 - 保持同一 operation_id 与 operation fingerprint；
 - 为每次实际执行创建新的 attempt / backend request id；
 - 写入 Agent Execution log；
 - 计入 usage / duration。
 
+Model retry 的次数与 progressive timeout 规则不复用 Tool retry 上限，具体见 Model System。
+
 完整设计见 [One-time Approval、Tool Retry 与 Idempotency 详细设计](./security-governance/one-time-approval-retry-idempotency.md)。
 
-## 17. Loop Guard
+## 17. 单轮 Model Generation Watchdog
 
-需要防止 Agent Loop 无限运行。
+Agent Execution 不设置全局 wall-clock deadline，也不因为运行时间长自动停止。
 
-至少包括：
+为了防止某些模型在单次 generation 中陷入持续循环输出，每一轮 Model generation 需要有 watchdog。
 
-- max model turns；
-- max tool calls；
-- max wall-clock duration；
-- max token / cost budget（如果启用）；
-- repeated-call detection；
-- cancellation signal。
+当单轮持续时间超过配置阈值：
 
-达到 guard 后，Agent Execution 可以进入：
+1. 中止当前 generation；
+2. 保留已经允许上层使用的必要输出；
+3. 向当前 Agent conversation 插入系统提示，说明上一轮因持续时间过长 / 疑似循环输出被中止；
+4. 开始下一轮 Agent Loop。
 
-- failed；
-- timed_out；
-- 或返回结构化 incomplete result。
+watchdog 只终止当前轮，不结束 Agent Execution。
 
-具体映射由 Agent Executor 根据执行终止原因确定。
+阈值属于 Agent Loop 配置，不是 Agent Execution 总时长限制。
 
-## 18. Cancel 与 Timeout
+## 18. Cancel 与局部 Timeout 边界
 
-Agent Loop 必须能够响应 Agent Executor 对当前 Agent Execution 发出的：
+Agent Loop 必须响应 Agent Executor 发出的 cancel / shutdown。
 
-- cancel；
-- timeout；
-- shutdown。
+收到 cancel 后：
 
-收到终止信号后：
-
-1. 不再发起新的模型调用；
-2. 尽可能取消正在进行的模型请求；
+1. 不再发起新的 Model / Tool 工作；
+2. 尽可能取消正在进行的 Model Request；
 3. 尽可能取消可取消的 Tool Call；
 4. 释放执行资源；
-5. 输出明确的终止原因；
-6. 让 Agent Executor更新 Agent Execution 最终状态。
+5. 向 Agent Executor 报告已经停止。
+
+Agent Execution 本身没有自动 timeout 终止。
+
+不同局部 timeout 分别处理：
+
+- Tool timeout：由 Agent / Tool Contract 决定，作为 Tool Result 交回 Agent Loop；
+- Model timeout：由 Model Adapter 的渐进 timeout / retry 策略处理；
+- 单轮 generation timeout：由上一节 watchdog 处理，只进入下一轮。
 
 Agent Loop 本身不创建新的 Agent Execution 进行重试。
 
-## 19. Execution Result
+## 19. Completion
 
-Agent Loop 结束后返回标准化 Agent Execution Result。
+Agent Loop 不返回统一的业务 `Agent Execution Result`。
 
-可以包含：
+正常结束时只向 Agent Executor 报告：
 
-- final output；
-- completion status；
-- structured output；
-- usage；
-- generated artifact references；
-- error；
-- termination reason；
-- execution summary。
+```text
+completion = normal
+```
 
-Agent Execution Result 表示本次 Agent 运行结果，不直接等价于业务对象的最终状态。
+Agent Executor 据此将 Execution 标记为 succeeded。
 
-例如 Task 是否进入：
+Agent 的实际业务结果通过 Tool / Domain Service 写入相应领域。例如 Task 的 `in-review / done / blocked` 必须通过 Task Tool 和 Domain 状态机形成事实。
 
-- `in-review`；
-- `done`；
-- `blocked`
+如果 Agent 最后产生普通文本，它作为 Runtime View 的 TextRuntimeItem 保存，而不是额外复制成 `final_output` 业务结果。
 
-应通过 Agent 调用 Task Tools 和 Task Domain 状态校验完成，而不是根据 Agent Execution 是否 succeeded 自动推断。
+不可恢复错误则返回结构化失败原因，由 Agent Executor 进入 failed。
 
-## 20. Logs 与 Observability
+## 20. Logs、Runtime View 与 Observability
 
-Agent Loop 持续向当前 Agent Execution 写入运行事件。
+Agent Loop 同时产生两类不同信息：
 
-包括：
+```text
+Runtime semantic updates
+-> Runtime View
+-> 用户理解 Agent 做了什么
 
-- model request started / finished；
-- model usage；
-- tool call started / finished；
-- retry；
-- context compaction；
-- cancel / timeout；
-- error；
-- final result。
+Internal execution evidence
+-> Model Invocation / Tool Operation / Token Usage / Log
+-> 诊断与审计
+```
 
-完整 execution log 的归档边界是 Agent Execution。
+Runtime View 只保存 text、reasoning、tool、interaction、notice/error 等 UI-facing Runtime Item。
 
-Task Event、Meeting message 和 Audit Log 只保存各自领域需要的信息，并可以引用 Agent Execution ID。
+checkpoint tick、Provider request id、完整 ToolAttempt、内部 retry detail 等不应为了 UI 全部转成 Runtime Item。
 
-每次真实 Provider invocation 的 Token Usage 记录、retry 统计以及按 Agent / Model / Project 聚合的完整设计见 [Model Token Usage 详细设计](./platform-infrastructure/model-token-usage.md)。
+Task Event、MeetingMessage 和 Audit Log 仍保存各自领域事实，并可引用 Agent Execution ID。
+
+每次真实 Provider invocation 的 Token Usage Source of Truth 见 [Model Token Usage 详细设计](./platform-infrastructure/model-token-usage.md)。
+
+Runtime View 完整设计见 [Agent Executor Runtime View](./agent-executor/runtime-view.md)。
 
 ## 21. Harness 参考与实现策略
 

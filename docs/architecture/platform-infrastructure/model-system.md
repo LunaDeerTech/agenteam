@@ -6,7 +6,7 @@
 >
 > 相关架构：
 > - [Agent 管理架构](../agent-management.md)
-> - [Agent Executor 架构](../agent-executor.md)
+> - [Agent Executor 架构](../agent-executor/README.md)
 > - [Agent Loop 架构](../agent-loop.md)
 > - [统一工具系统架构](../tool-system/README.md)
 > - [安全与治理架构](../security-governance/README.md)
@@ -1169,6 +1169,53 @@ Adapter 去除 Credential / Secret 后返回标准化错误。
 Agent Loop 根据 retryable 和自己的 retry policy 决定是否重试。
 
 认证失败、model_not_found、unsupported_feature 等配置类错误默认不自动 retry。
+
+### 26.1 Model Request Progressive Timeout
+
+Model Request timeout 不等同于 Agent Execution timeout。
+
+Agent Execution 不因为单次或多次 Model timeout 自动结束。
+
+对于 retryable Model Request，采用渐进 timeout 策略：
+
+```text
+attempt 1
+  -> initial request timeout
+
+timeout / retryable failure
+  -> retry
+  -> increase request timeout
+
+...
+
+request timeout reaches configured maximum
+  -> stop increasing timeout
+  -> keep using maximum timeout for subsequent retries
+```
+
+原则：
+
+- timeout 只约束单次 Provider Request；
+- timeout-class failure 后，后续 attempt 逐步增加单次 request timeout；
+- 增长到合理上限后保持该上限，不再继续增长；
+- 只要 Agent Execution 仍 active 且没有 cancel，timeout 本身不构成 Execution terminal condition；
+- authentication、permission、model_not_found、invalid_request、unsupported_feature 等非 retryable 配置错误不进入无限 retry；
+- rate limit / provider unavailable / network 等 retryable error 可以结合 backoff；
+- Agent Loop 的单轮 generation watchdog 是更上层的防循环机制，不由 Model Adapter timeout 取代。
+
+初始 timeout、增长函数、最大 request timeout、backoff 参数属于实现配置，不写死在架构中。
+
+### 26.2 Cancel
+
+Agent Execution cancel 必须向当前 Model Request 传播 cancellation。
+
+Cancel 与 progressive retry 的优先级：
+
+```text
+cancel requested
+-> stop current request if possible
+-> do not start next retry
+```
 
 ## 27. Provider Request Metadata
 

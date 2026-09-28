@@ -158,7 +158,7 @@ DecisionRequest / Approval Request 使当前 Agent Execution 进入 waiting 时�
 
 Execution 的 retry / regenerate 不追加新的聊天位置，只更新该 Contribution 当前指向的 Execution / Message，并保留历史 generation 供展开查看。
 
-## 7. Execution Streaming
+## 7. Execution Runtime View
 
 Agent streaming 不 materialize 到 Meeting Timeline 数据表，也不由 Meeting 实现自己的 streaming backend。
 
@@ -166,7 +166,9 @@ Agent streaming 不 materialize 到 Meeting Timeline 数据表，也不由 Meeti
 
 ```text
 Meeting UI
-    -> reusable Agent Execution Runtime View / Stream
+    -> reusable Agent Execution Runtime View
+        -> Runtime Item Snapshot
+        -> RuntimeItemUpdate Stream
         -> Agent Executor
 ```
 
@@ -181,13 +183,14 @@ Timeline item 只保存：
 用户点击展开 Execution 行时：
 
 1. UI 通过 `execution_id` 打开平台统一 Agent Execution Runtime View；
-2. 订阅 / 获取对应 Agent Execution stream；
-3. 展示详细运行事件；
-4. 收起后立即断开 / 停止消费详细 Execution stream，只保留纯前端状态行。
+2. 加载当前 Runtime Item Snapshot；
+3. 如果 Execution 仍在运行，则订阅 RuntimeItemUpdate Stream；
+4. 展示结构化的 text / reasoning / tool / interaction / notice/error Runtime Item；
+5. 收起后停止消费 RuntimeItemUpdate Stream，只保留纯前端状态行。
 
 这样默认折叠状态完全不需要为了显示 Execution Row 额外请求 Agent Execution runtime data，也避免把 token delta、Tool logs 等复制到 Meeting 数据模型。
 
-Task / Review 的 Execution Detail、Meeting Timeline、独立 Execution Detail 使用同一个 Agent Execution Stream contract。Meeting 只负责决定“在哪个聊天位置展示这个 Execution”，不负责定义 Execution stream 本身。
+Task / Review 的 Execution Detail、Meeting Timeline、独立 Execution Detail 使用同一个 Agent Execution Runtime View contract。Meeting 只负责决定“在哪个聊天位置展示这个 Execution”，不负责定义 Runtime Item schema 或 streaming protocol。
 
 ## 8. Collapsed Execution Row
 
@@ -205,7 +208,7 @@ Contribution.id / generation
 因此默认折叠状态：
 
 - 不请求 Agent Execution Runtime View；
-- 不订阅 Agent Execution Stream；
+- 不订阅 RuntimeItemUpdate Stream；
 - 不需要 backend 生成 `collapsed_status_text`；
 - 不需要 Timeline Projector 投影 Execution current phase。
 
@@ -280,7 +283,7 @@ Agent A · 思考了 7.2s 后被停止
 Agent A · 等待发言
 ```
 
-真实 Execution 状态、Tool Call、waiting、retry 等细节只在用户主动展开 Execution Row 后，通过统一 Agent Execution Runtime View / Stream 获取。
+真实 Execution 状态、Tool Call、reasoning、waiting、retry 等细节只在用户主动展开 Execution Row 后，通过统一 Agent Execution Runtime View 获取。
 
 ## 9. DecisionRequest Card
 
@@ -365,7 +368,7 @@ Execution 行仍然保留，用户之后仍可以展开查看该次 Agent 工作
 
 ## 12. Failed / Cancelled Contribution
 
-当前 Execution failed / timed_out 且自动 retry 已耗尽：
+当前 Execution failed：
 
 ```text
 Contribution.status = failed
@@ -525,10 +528,10 @@ COMMIT
 
 - execution started：驱动 Contribution 进入 running，并写入当前 `started_at`；
 - succeeded：驱动 Contribution 进入 completed，并写入 `completed_at`；
-- failed / timed_out：驱动 Contribution 进入 failed，并写入 `completed_at`；
+- failed：驱动 Contribution 进入 failed，并写入 `completed_at`；
 - cancelled：驱动 Contribution 进入 cancelled，并写入 `completed_at`。
 
-Execution 的 current phase、waiting、retry、latest runtime event 不需要为了 Collapsed Execution Row 投影到 Meeting Timeline。
+Execution 的 current phase、waiting、retry、Runtime Item 等细节不需要为了 Collapsed Execution Row 投影到 Meeting Timeline。
 
 DecisionRequest / Approval Request 的 pending 状态仍通过各自领域对象 / reference 投影为独立交互卡片。
 
@@ -606,27 +609,29 @@ meeting.summary.updated
 
 Approval / Decision 的变化最终通过 Timeline item update 呈现。
 
-`agent.execution.stream` 不属于默认 Meeting Timeline subscription。只有用户展开某个 Execution Row 时，前端才单独订阅该 execution 的统一 runtime stream。
+`RuntimeItemUpdate` 不属于默认 Meeting Timeline subscription。只有用户展开某个 Execution Row 时，前端才单独加载该 execution 的 Runtime Item Snapshot，并在仍运行时订阅 RuntimeItemUpdate Stream。
 
 Transport 由 Platform Infrastructure 统一决定。
 
-## 22. Execution Streaming Channel
+## 22. Execution Runtime View Channel
 
-Execution streaming 与 Timeline projection 分开，并直接复用 Agent Executor 的统一 Agent Execution Stream / Runtime View。
+Execution Runtime View 与 Timeline projection 分开，并直接复用 Agent Executor 的统一 Runtime View。
 
 ```text
 Timeline channel
 -> item / state / message
 
-Agent Execution Runtime View / Stream
--> execution snapshot
--> historical runtime events
--> realtime running events
+Agent Execution Runtime View
+-> execution summary
+-> Runtime Item Snapshot
+-> RuntimeItemUpdate Stream
 ```
 
-只有用户展开某个 Agent Execution 时，前端才需要持续消费详细 stream。该能力和 Task / Review 页面查看 Agent 运行状态使用的是同一个后端接口和前端查看组件。
+只有用户展开某个 Agent Execution 时，前端才需要加载详细 Runtime View；如果 Execution 仍在运行，再持续消费 RuntimeItemUpdate Stream。
 
-这样可以避免多人并行 Agent 时主 Meeting channel 被大量 token delta 淹没。
+该能力与 Task / Review 页面查看 Agent 运行状态使用同一个后端接口和前端 Runtime Item renderer。
+
+这样可以避免多人并行 Agent 时主 Meeting channel 被大量 text / reasoning delta 淹没。
 
 ## 23. Reconnect
 

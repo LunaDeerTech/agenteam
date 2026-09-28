@@ -264,7 +264,7 @@ Agent Executor 负责：
 - Execution Context；
 - Agent Loop；
 - waiting / resume；
-- cancel / timeout；
+- cancel / checkpoint / recovery；
 - execution logs；
 - model / tools。
 
@@ -442,7 +442,7 @@ Execution 行默认折叠。折叠状态只根据 Contribution 的 `status + sta
 - failed：显示“xx 时间后失败”；
 - cancelled：显示“思考了 xx 时间后被停止”。
 
-折叠状态不请求 / 订阅 Agent Execution Runtime View。只有用户主动展开后才连接统一 Agent Execution Stream 查看真实 Tool Call、waiting、retry、streaming 等运行细节。
+折叠状态不请求 / 订阅 Agent Execution Runtime View。只有用户主动展开后才加载 Runtime Item Snapshot 并订阅统一 RuntimeItemUpdate Stream，查看真实的 text、reasoning、Tool Call、interaction、notice/error 等结构化运行细节。
 
 retry / regenerate 不创建新的聊天位置，而是在同一个 Contribution item 中切换当前 Execution / generation。
 
@@ -460,19 +460,20 @@ Meeting 不自己选择 WebSocket / SSE。
 
 统一复用 Platform Realtime Channel。
 
-Timeline realtime 与 Agent Execution streaming 分开。Agent Execution streaming 直接复用 Agent Executor 提供的统一 Execution Stream / Runtime View，而不是由 Meeting 再实现一套：
+Timeline realtime 与 Agent Execution Runtime View 分开。Meeting 不自己实现 Model / Tool streaming，而是直接复用 Agent Executor 的 Runtime View：
 
 ```text
 Meeting Timeline realtime
 -> Timeline item / Turn / Message state
 
-Reusable Agent Execution stream
--> detailed model / tool / execution events
+Reusable Agent Execution Runtime View
+-> Runtime Item Snapshot
+-> RuntimeItemUpdate Stream
 ```
 
-这套 Agent Execution stream 同时供 Task Execution、Meeting、独立 Execution Detail 等页面使用。
+这套 Runtime View 同时供 Task Execution、Meeting、独立 Execution Detail 等页面使用。
 
-断线后第一阶段直接重新加载完整 Meeting Timeline；只有当前仍处于展开状态的 Execution 需要重新连接统一 Agent Execution stream。
+断线后第一阶段直接重新加载完整 Meeting Timeline；只有当前仍处于展开状态的 Execution 需要重新加载 Runtime Item Snapshot 并重新订阅 RuntimeItemUpdate Stream。
 
 ## 14. Human Inbox
 

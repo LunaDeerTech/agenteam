@@ -7,7 +7,7 @@
 > - [MCP 集成架构](../mcp-integration/index.md)
 >
 > 相关架构：
-> - [Agent Executor 架构](../agent-executor.md)
+> - [Agent Executor 架构](../agent-executor/README.md)
 > - [Agent Loop 架构](../agent-loop.md)
 > - [Runner 架构](../runner.md)
 > - [安全与治理架构](../security-governance/index.md)

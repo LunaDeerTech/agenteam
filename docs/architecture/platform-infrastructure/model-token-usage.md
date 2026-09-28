@@ -5,7 +5,7 @@
 > 上层架构：[平台基础设施与部署架构](./index.md)
 >
 > 相关架构：
-> - [Agent Executor 架构](../agent-executor.md)
+> - [Agent Executor 架构](../agent-executor/README.md)
 > - [Agent Loop 架构](../agent-loop.md)
 >
 > 相关详细设计：

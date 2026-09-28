@@ -292,7 +292,7 @@ created
   -> running
   -> waiting
   -> running
-  -> succeeded / failed / cancelled / timed_out
+  -> succeeded / failed / cancelled
 ```
 
 其中：
@@ -310,7 +310,8 @@ waiting_reason
 - Execution 不是 succeeded；
 - 不创建最终 MeetingMessage；
 - Turn 仍视为 running；
-- execution timeout 是否暂停计时由 Agent Executor 的通用 timeout policy 定义；
+- Approval / Decision waiting 不设置自动 timeout，必须等待用户明确处理；
+- waiting 时间不计入 Agent Execution 主动运行时长；
 - UI 显示 pending interaction card。
 
 ## 10. DecisionRequest Suspension / Resume
@@ -441,8 +442,7 @@ regenerate 是新的 Execution，因此可以产生新的 Message。
 
 - succeeded；
 - failed；
-- cancelled；
-- timed_out。
+- cancelled。
 
 ### 13.1 Automatic Retry
 
@@ -466,7 +466,7 @@ regenerate 是新的 Execution，因此可以产生新的 Message。
 Turn.result = partial_failure
 ```
 
-如果至少一个目标 Agent failed / timed_out / cancelled，且不是整个 Turn 被用户取消，则可以形成 partial failure。
+如果至少一个目标 Agent failed / cancelled，且不是整个 Turn 被用户取消，则可以形成 partial failure。
 
 ## 14. Cancel
 
