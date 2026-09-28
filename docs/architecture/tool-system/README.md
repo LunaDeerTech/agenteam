@@ -129,19 +129,37 @@ Builtin Tools 暴露 agenteam 自身业务能力。
 - list-sprints；
 - create-sprint；
 - update-sprint；
-- delete-sprint。
+- delete-sprint；
+- start-sprint；
+- complete-sprint。
 
-Milestone / Sprint 的删除不支持强制删除。服务端必须在存在下级对象时拒绝删除，并返回明确、可处理的结构化错误原因，例如：
+Sprint lifecycle 使用显式：
+
+```text
+planned -> current -> completed
+```
+
+其中：
+
+- `start-sprint` 把 planned Sprint 设为 Project 唯一 Current Sprint；
+- `complete-sprint` 完成 Current Sprint，并在存在未完成 Task 时要求指定 planned rollover target；
+- complete 不自动启动下一 Sprint；
+- Current Sprint 存在 active Task Execution 或 pending SchedulerDispatch 时必须拒绝 complete；
+- completed Sprint 进入只读历史状态。
+
+Milestone / Sprint 的删除不支持强制删除：
 
 ```text
 delete-milestone
 -> rejected: milestone still contains Sprint(s)
 
 delete-sprint
--> rejected: sprint still contains Task(s)
+-> allowed only when sprint = planned and empty
 ```
 
-Agent 需要根据错误原因先迁移或处理下级对象，再重新发起删除。
+Current Sprint 与 Completed Sprint 都不能通过 delete 绕过 lifecycle。
+
+完整规则见 [Sprint Lifecycle 详细设计](../project-work-management/sprint-lifecycle.md)。
 
 ### Agent
 
@@ -163,7 +181,7 @@ Agent 需要根据错误原因先迁移或处理下级对象，再重新发起�
 Task Tool 按业务语义拆分，而不是为每个字段机械创建独立 Tool：
 
 - `update-task`：修改 title、description、priority、type 等普通属性，不直接承担 Task 状态机流转；
-- `move-task`：移动 Task 到目标 Sprint。调用方只需要指定 `target_sprint_id`，目标 Milestone 由 Sprint 归属自动确定；
+- `move-task`：移动 Task 到目标 Sprint。调用方只需要指定 `target_sprint_id`，目标 Milestone 由 Sprint 归属自动确定；Completed Sprint 禁止移入 / 移出，Current Sprint Task 存在 active Execution 或 pending Dispatch 时禁止移出；
 - `update-task-plan`：单独更新 Task Plan；
 - `transfer-task`：根据当前执行结果请求 Task 进入目标状态，并可以同时更新下一阶段 assignee、留下 comment，以及在进入 `blocked` 时增加 blocker。
 

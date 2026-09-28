@@ -1,5 +1,9 @@
 # 项目与工作管理架构
 
+> 详细设计：
+> - [Sprint Lifecycle](./sprint-lifecycle.md)
+> - [项目变量与 Secret](./project-environment-variables.md)
+
 ## 1. 模块职责
 
 项目与工作管理模块负责组织一个项目中的长期工作状态。
@@ -27,6 +31,8 @@ flowchart TB
     Project --> Milestone["Milestone<br/>Title / Description"]
     Milestone --> Sprint["Sprint<br/>Title / Description"]
     Sprint --> Task["Task"]
+    Project --> CurrentSprint["Current Sprint<br/>0..1"]
+    CurrentSprint --> Sprint
 
     Project --> Agent["Agents"]
     Project --> Meeting["Meetings"]
@@ -38,7 +44,6 @@ flowchart TB
     Task --> Plan["Plan"]
     Task --> Events["Task Events"]
     Task --> Blockers["Blockers<br/>including rely_on"]
-    Task --> AgentExecutions["Agent Execution References"]
 
     Meeting --> Participants["Participants"]
     Meeting --> MeetingRefs["Meeting References"]
@@ -130,13 +135,13 @@ Task 必须具有明确的 Milestone 与 Sprint 归属。创建或移动 Task �
 - `title`；
 - `state`；
 - `priority`；
+- `manual_rank`；
 - `type`；
 - `description`；
 - `assignee`；
 - `plan`；
 - `blockers`；
-- 关联的 `events`；
-- 关联的 Agent Execution references。
+- 关联的 `events`。
 
 建议的类型：
 
@@ -152,6 +157,8 @@ Task 必须具有明确的 Milestone 与 Sprint 归属。创建或移动 Task �
 - medium；
 - high；
 - critical。
+
+`manual_rank` 用于同一个 `sprint + state + priority` 分组内的稳定手工排序。前端可以拖拽调整，后端 Scheduler 与 Tasks View 使用同一套顺序。建议使用 fractional rank / 可插入排序键，避免普通拖拽导致整组 Task 大量重排。
 
 ## 4. Task 状态机
 
@@ -228,12 +235,20 @@ Task 使用统一事件时间线，而不是分别维护“评论列表”和“
 - `assignee_changed`；
 - `blocker_added`；
 - `blocker_resolved`；
-- `agent_execution_started`；
-- `agent_execution_finished`；
-- `agent_execution_failed`；
 - 后续可增加 `review_started`、`review_finished` 等审核事件。
 
-完整 execution log 不写入 Task Event。Task Event 只保留项目协作层有意义的事实、结果和证据，并可以引用对应的 Agent Execution ID。
+Task Event 只记录 Task Domain 自身的业务事实，不复制 Agent Execution lifecycle。
+
+Task 页面如果需要展示该 Task 触发过的 Agent Execution，直接通过：
+
+```text
+trigger_type = task
+trigger_reference = task_id
+```
+
+查询 Agent Execution 历史。
+
+完整 execution log、Runtime View、Tool Call 等仍归 Agent Execution / 对应运行模块所有。
 
 ## 7. Task Blocker
 
@@ -305,11 +320,41 @@ Milestone 和 Sprint 都应至少包含：
 - `title`；
 - `description`。
 
-它们都可以由 Agent 创建、更新和删除，但删除不允许强制执行：
+Project 额外保存：
+
+```text
+current_sprint_id?
+```
+
+一个 Project 同一时间最多只有一个 Current Sprint。
+
+Scheduler 只调度 Current Sprint 中的 Task；如果 Project 当前没有 Current Sprint，则 Scheduler 不调度任何 Sprint 的 Task。
+
+Sprint lifecycle 使用：
+
+```text
+planned -> current -> completed
+```
+
+Project 通过 `current_sprint_id` 持有唯一 Current Sprint。Sprint 不根据日期自动 start / complete，均通过显式领域操作完成。
+
+完成 Current Sprint 时：
+
+- 如果存在 active Task Execution 或 pending SchedulerDispatch，必须拒绝完成；
+- `done / cancelled` Task 保留在已完成 Sprint；
+- 其他未完成 Task 必须 rollover 到另一个 planned Sprint；
+- complete 后不会自动启动下一 Sprint；
+- completed Sprint membership 冻结并保持只读。
+
+完整生命周期、rollover、并发锁与 Tool Contract 见 [Sprint Lifecycle 详细设计](./sprint-lifecycle.md)。
+
+Milestone / Sprint 删除不支持强制执行：
 
 - Milestone 仍包含 Sprint 时必须拒绝删除；
-- Sprint 仍包含 Task 时必须拒绝删除；
-- 服务端需要返回明确的结构化错误原因，使 Agent 可以先迁移或处理下级对象后重试。
+- 只有 `planned + empty` 的 Sprint 可以删除；
+- Current Sprint 不能删除，只能通过 `complete-sprint` 结束；
+- Completed Sprint 不允许删除；
+- 服务端需要返回明确、可处理的结构化错误原因。
 
 它们不仅服务于项目规划和进度展示，也构成 Task 的上层任务语境：
 
@@ -319,7 +364,7 @@ Milestone 和 Sprint 都应至少包含：
 
 因此 Task 不允许脱离 Milestone / Sprint 独立存在。Agent 执行 Task 时，当前 Milestone 与 Sprint 的 `title`、`description` 应作为基础任务上下文的一部分提供给 Agent，使其不仅理解单个 Task，还能理解当前任务所属阶段的目标、边界和项目整体位置。
 
-Milestone / Sprint 归属是 Task 的结构性前置条件；在归属合法之后，Task 当前是否可以被 Scheduler 执行，再由它自身的 state、assignee 和未解除 blocker 决定。
+Milestone / Sprint 归属是 Task 的结构性前置条件；在归属合法之后，只有 Current Sprint 中的 Task 才进入 Scheduler traversal。具体调度规则见 [Scheduler](../scheduler/README.md)。
 
 ## 9. Tasks 页面与视图
 

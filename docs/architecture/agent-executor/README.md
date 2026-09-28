@@ -7,7 +7,7 @@
 > - [Runtime View](./runtime-view.md)
 >
 > 相关架构：
-> - [Scheduler](../scheduler.md)
+> - [Scheduler](../scheduler/README.md)
 > - [Meeting](../meeting/README.md)
 > - [Agent 管理](../agent-management.md)
 > - [Agent Loop](../agent-loop.md)

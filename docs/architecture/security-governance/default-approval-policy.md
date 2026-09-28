@@ -100,6 +100,8 @@ Sprint
 - list-sprints
 - create-sprint
 - update-sprint
+- start-sprint
+- complete-sprint
 
 Task
 - list-tasks
@@ -159,7 +161,9 @@ destructive
 服务端仍然必须执行已有领域约束：
 
 - Milestone 含有 Sprint 时禁止删除；
-- Sprint 含有 Task 时禁止删除。
+- Sprint 只有 `planned + empty` 时允许删除；
+- Current Sprint 禁止删除；
+- Completed Sprint 禁止删除。
 
 Approval 不能绕过这些约束。
 
