@@ -742,6 +742,7 @@ Agent Loop：
 - Execution schema / version / Error：[Agent Execution Domain Model](./execution-domain-model.md)
 - Context Builder：[Execution Context](./execution-context.md)
 - Runtime Item / Stream：[Runtime View](./runtime-view.md)
-- Agent Loop watchdog / Context management：[Agent Loop](../agent-loop.md)
+- Agent Loop watchdog / Turn runtime：[Agent Loop Runtime](../agent-loop/loop-runtime.md)
+- Context management / compaction：[Context Window 与 Compaction](../agent-loop/context-compaction.md)
 - Model progressive timeout：[Model System](../platform-infrastructure/model-system.md)
 - Tool timeout / retry：[Unified Tool Runtime](../tool-system/tool-runtime.md)

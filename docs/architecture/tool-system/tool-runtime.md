@@ -8,7 +8,7 @@
 >
 > 相关架构：
 > - [Agent Executor 架构](../agent-executor/README.md)
-> - [Agent Loop 架构](../agent-loop.md)
+> - [Agent Loop 架构](../agent-loop/README.md)
 > - [Runner 架构](../runner.md)
 > - [安全与治理架构](../security-governance/index.md)
 >

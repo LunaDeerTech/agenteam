@@ -639,4 +639,6 @@ Executor 只读取并 Snapshot。
 - AgentExecution persistence schema：[Agent Execution Domain Model](./execution-domain-model.md)
 -生命周期 / waiting / checkpoint / recovery：[Execution Lifecycle](./execution-lifecycle.md)
 - Runtime Item / realtime stream：[Runtime View](./runtime-view.md)
-- Context compaction / model-tool loop：[Agent Loop](../agent-loop.md)
+- Model / Tool Turn runtime：[Agent Loop Runtime](../agent-loop/loop-runtime.md)
+- Transcript / Model Context：[Transcript 与 Model Context](../agent-loop/transcript-context.md)
+- Context compaction：[Context Window 与 Compaction](../agent-loop/context-compaction.md)

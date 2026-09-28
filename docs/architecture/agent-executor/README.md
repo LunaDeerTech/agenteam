@@ -10,7 +10,7 @@
 > - [Scheduler](../scheduler/README.md)
 > - [Meeting](../meeting/README.md)
 > - [Agent 管理](../agent-management.md)
-> - [Agent Loop](../agent-loop.md)
+> - [Agent Loop](../agent-loop/README.md)
 > - [统一工具系统](../tool-system/README.md)
 > - [Model System](../platform-infrastructure/model-system.md)
 
@@ -288,7 +288,7 @@ Agent Loop 不负责：
 
 Agent 的业务效果通过 Tool / Domain Service 写入相应领域。
 
-完整设计见 [Agent Loop](../agent-loop.md)。
+完整设计见 [Agent Loop](../agent-loop/README.md)。
 
 ## 9. Tool Capability
 

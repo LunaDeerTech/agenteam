@@ -5,7 +5,7 @@
 > 相关详细设计：
 > - [Agent Execution Domain Model](./execution-domain-model.md)
 > - [Execution Lifecycle](./execution-lifecycle.md)
-> - [Agent Loop](../agent-loop.md)
+> - [Agent Loop](../agent-loop/README.md)
 > - [Unified Tool Runtime](../tool-system/tool-runtime.md)
 
 ## 1. 设计目标

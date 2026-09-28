@@ -6,7 +6,7 @@
 >
 > 相关架构：
 > - [统一工具系统架构](../tool-system/index.md)
-> - [Agent Loop 架构](../agent-loop.md)
+> - [Agent Loop 架构](../agent-loop/README.md)
 > - [Runner 架构](../runner.md)
 > - [Approval Scope 详细设计](./approval-scope.md)
 

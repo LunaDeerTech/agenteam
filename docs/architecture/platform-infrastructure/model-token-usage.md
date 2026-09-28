@@ -6,7 +6,7 @@
 >
 > 相关架构：
 > - [Agent Executor 架构](../agent-executor/README.md)
-> - [Agent Loop 架构](../agent-loop.md)
+> - [Agent Loop 架构](../agent-loop/README.md)
 >
 > 相关详细设计：
 > - [Model System 详细设计](./model-system.md)
