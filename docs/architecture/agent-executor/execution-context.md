@@ -376,6 +376,8 @@ Execution Context 只包含 Agent 需要理解运行环境的 metadata，例如�
 
 Runner 临时离线属于 preparing / runtime infrastructure condition，不改变 Context schema。
 
+Runner / Agent Mount 的物理 workspace 映射、路径语义与 trusted-host command 边界见 [Agent Workspace 详细设计](../runner/agent-workspace.md)。
+
 ## 14. Model Snapshot
 
 Builder 通过 Model System 解析 Agent 本次实际使用的 Model。
@@ -400,20 +402,20 @@ Agent Execution 运行中 Model 配置变化不影响本次 Snapshot。
 Builder 生成本次 Execution 可见 Tool Set：
 
 ```text
-Available Tools
+Registered Tools
   ∩ Agent Capability
   ∩ Execution Policy
 ```
 
 Snapshot 保存模型可见 Tool projection 所需稳定信息。
 
-Tool Runtime dynamic state 不应全部固化进 Snapshot。
+Backend 的临时在线 / 健康状态不固化进 Snapshot，也不作为统一 Tool availability 层参与 Execution Tool Set 过滤。
 
 Execution Tool Set 只回答：
 
 > 模型在这次 Execution 中可以尝试调用哪些 Tool。
 
-具体调用是否合法、是否需要 Approval、Backend 当前是否可执行，由 Tool Runtime 在每次调用时重新服务端校验。
+具体调用是否合法、是否需要 Approval、目标 Runner / MCP Backend 当前能否执行，由 Tool Runtime 在每次调用时重新服务端校验；临时离线直接形成标准 ToolError。
 
 ## 16. AgentExecutionContext
 

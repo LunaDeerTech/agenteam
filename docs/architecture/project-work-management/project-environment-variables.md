@@ -7,7 +7,7 @@
 > 相关架构：
 > - [Agent 管理架构](../agent-management.md)
 > - [Agent Executor 架构](../agent-executor/README.md)
-> - [Runner 架构](../runner.md)
+> - [Runner 架构](../runner/README.md)
 > - [平台基础设施架构](../platform-infrastructure/index.md)
 > - [安全与治理架构](../security-governance/index.md)
 
@@ -379,9 +379,10 @@ sequenceDiagram
 ~~~text
 RunnerRequest
 ├── project_id
+├── agent_id
 ├── mount_id
+├── workspace
 ├── execution_id
-├── effective_permissions
 ├── environment
 │   ├── variables
 │   │   └── NAME = value
@@ -397,6 +398,8 @@ RunnerRequest
 - `secrets` 只包含当前 Agent 白名单允许的 Secret；
 - `environment` 只发送给需要 process environment 的 operation；
 - Filesystem Tool 不需要携带环境变量。
+
+Runner 不通过 `effective_permissions` 接收并维护另一套本地权限系统。Tool Authorization、Agent Capability 与 Execution Policy 都在 Central 完成；Runner 只执行协议完整性、workspace/path 与实际 capability 校验。
 
 `environment.secrets` 是 Runner Protocol 的敏感字段：
 

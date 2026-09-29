@@ -164,7 +164,7 @@ Agent Loop 不应直接绕过业务服务修改 Project、Task、Meeting 等项�
 
 Runner 是远程资源执行节点，只向 Central 提供文件、命令、进程、桌面环境等能力。
 
-Runner 主动向 Central 建立出站 WSS Control Channel；Central 不需要能够反向访问 Runner。设备 enrollment、Ed25519 身份认证、Runner RPC、heartbeat、重连和可选 Data Channel 由自定义 Runner Protocol 负责。
+Runner 主动向 Central 建立出站连接；Control Channel 使用 WSS + JSON，Data Channel 作为第一阶段正式数据平面用于大文件 / binary 传输。Central 不需要能够反向访问 Runner。设备 enrollment、Ed25519 身份认证、Runner RPC、heartbeat、重连和数据通道均由自定义 Runner Protocol 负责。
 
 Runner 不拥有 Task、Meeting、Scheduler、Agent Memory 等项目业务模型，也不承担项目级调度决策。
 
@@ -190,7 +190,7 @@ External Systems 包括模型 Provider、MCP Server、Git Repository 以及其�
 - [Agent Loop](./agent-loop/README.md)
 - [统一工具系统](./tool-system/index.md)
 - [MCP 集成](./mcp-integration/index.md)
-- [Runner](./runner.md)
+- [Runner](./runner/README.md)
 - [Knowledge Base 与 Agent Memory](./knowledge-memory.md)
 - [安全与治理](./security-governance/index.md)
 - [平台基础设施与部署](./platform-infrastructure/index.md)

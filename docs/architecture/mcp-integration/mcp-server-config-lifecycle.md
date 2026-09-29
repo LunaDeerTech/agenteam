@@ -226,7 +226,7 @@ stateDiagram-v2
 
 各 Capability Adapter 独立维护自己的同步状态；同步失败本身不进入 Connection error 状态，只记录 Audit / diagnostics。
 
-`enabled` 只在 connected Connection 上决定该 Connection 是否有资格参与新的 Execution Tool Set；实际 Tool 是否能进入 Execution 还取决于 discovery / Tool availability。
+`enabled` 只在 connected Connection 上决定该 Connection 是否有资格向当前 Tool Registry 注册 Tool。Backend 的临时在线 / 健康状态不进入统一 Tool availability 层；实际调用失败由 MCP Backend 在执行时返回。
 
 ## 7. Connect
 
@@ -272,6 +272,7 @@ Disable：
 - 保留 MCP Connection；
 - 保留 Credential Binding；
 - 保留各 Capability Adapter 最近一次成功同步数据；
+- 从当前 Tool Registry 移除该 Connection 的 Tool registration；
 - 阻止其 Tool 进入新的 Execution Tool Set；
 - 不主动取消已有 Agent Execution；
 - 可以停止非必要 subscription / refresh runtime resource。
@@ -280,9 +281,9 @@ Enable：
 
 - 校验 Credential 仍可用；
 - 触发 protocol check / Tool Discovery / Resource Catalog refresh；
-- refresh 成功后恢复 Tool availability。
+- refresh 成功后把最新成功 Tool snapshot 注册回当前 Registry。
 
-如果 enable refresh 失败，不应该把旧数据误认为当前可用。
+如果 enable refresh 失败，则不把该 Connection 的旧 Tool snapshot 重新注册到当前 Registry；旧 snapshot 只作为历史同步数据保留。
 
 ## 9. Disconnect
 
@@ -293,7 +294,7 @@ Disconnect 表示 Project 主动解除对 Config 的实际连接。
 - Connection 不再参与新的 Execution；
 - 停止 runtime subscription / connection resource；
 - Credential Binding 与 Connection 的关联解除；
-- Tool Registry 中对应 Project Connection 的 Tool 标记 unavailable；
+- 从当前 Tool Registry 移除对应 Project Connection 的 Tool registration；
 - Agent Capability 的 stable tool reference 不删除；
 - 已运行 Execution 不主动中断。
 
@@ -312,7 +313,8 @@ MCP Config 采用 **hard delete + retained runtime shadow**。
 - 阻止新的 Connect；
 - 新 Execution 不再获得其 Tool；
 - Agent Capability stable reference 保留；
-- Tool Registry 中对应 Tool 进入 unavailable / removed source 状态；
+- 从当前 Tool Registry 移除对应 Tool registration；
+- stable identity、历史 ToolSpec revision 与 Agent Capability 引用保留；
 - 已运行 Execution 不主动中断。
 
 已经运行的 Execution 不依赖 live Config / Connection 继续解析，而是使用在 Execution 建立时保留的 runtime binding / shadow。

@@ -397,7 +397,7 @@ Approval Model 的输入上下文、输出 Schema 与失败处理等具体规则
 
 Agent Executor 在创建 Agent Execution 时，会根据：
 
-- 当前 Project / Execution 可用的 Tool Registry；
+- 当前 Tool Registry 中已经注册的 Tool；
 - Agent Capability；
 - Execution Policy；
 
@@ -472,9 +472,12 @@ in-progress -> done
 
 MCP 不能因为来自外部协议就绕过权限。
 
-Runner 也不能因为已经连接并受信任，就让 Agent 获得整个机器的能力。
+Runner 的本地安全边界按 Capability 区分：
 
-Runner 在 Central Authorization 之后，还需要执行本机的 Mount / Capability 校验。
+- Filesystem Tool 必须严格限制在当前 Agent Workspace 内，并执行 path / symlink containment；
+- Command / Managed Process 第一阶段采用 trusted-host 模式，只要求 cwd 位于当前 Workspace，进程本身拥有 Runner OS user 的实际系统权限。
+
+因此 Runner 不维护一套与 Central 重复的本地 Authorization Policy。Central 完成 Tool Authorization 后，Runner 只继续执行协议完整性、Workspace / path 和实际 Capability 等运行时校验。
 
 ## 5. Approval 与用户审批
 
@@ -821,9 +824,11 @@ Approval Request 本身由 Security / Governance 统一持久化，并同时进�
 负责：
 
 - Runner Device Identity；
-- Mount；
-- Runner Capability；
-- 本机最终校验。
+- Agent Mount / Workspace 解析；
+- Runner 实际 Capability；
+- 协议完整性、Workspace / path containment 与运行时 Capability 校验。
+
+Runner 不维护与 Central 重复的本地 Authorization Policy。Command / Managed Process 的宿主机访问边界采用 Runner 设计中已经确定的 trusted-host 语义。
 
 Runner Tool 与 Builtin / MCP Tool 使用同一套 Agent Capability、Approval Match、Approval Policy、Tool Authorization 和 Audit 流程。Security / Governance 不为某个具体 Runner Tool 建立独立授权模型。
 
@@ -851,7 +856,7 @@ Runner Tool 与 Builtin / MCP Tool 使用同一套 Agent Capability、Approval M
 9. Approval 支持 One-time Approval 与 Reusable Approval，并通过 Human Inbox 处理未命中的审批请求；
 10. Project Environment Variables 支持普通变量与 Secret；Secret 使用 Agent 白名单 + Backend Resolution；
 11. 敏感操作 Audit；
-12. Runner 执行本机 Mount / Capability 校验；
+12. Runner 执行协议完整性、Workspace / path containment 与实际 Capability 校验；Command / Managed Process 采用 trusted-host 边界；
 13. 结构化返回 authorization_denied / approval_required 等结果。
 
 第一阶段暂时不需要：

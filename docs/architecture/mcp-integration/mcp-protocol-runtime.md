@@ -298,7 +298,7 @@ Protocol Runtime 可以把这些 metadata 传给 Discovery 层，但不直接决
 
 - remote TTL 可以记录到 diagnostics / discovery metadata；
 - 第一阶段不根据 TTL 自动调度 refresh；
-- TTL 过期不自动把 Tool 标记 unavailable；
+- TTL 过期不自动从 Tool Registry 移除 Tool；
 - agenteam 自己的持久化 discovery 状态仍是 Tool Registry 的事实来源。
 
 后续如果增加自动 refresh，再考虑使用 remote TTL 作为调度提示。

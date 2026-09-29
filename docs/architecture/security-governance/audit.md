@@ -8,7 +8,7 @@
 > - [平台基础设施架构](../platform-infrastructure/index.md)
 > - [统一工具系统架构](../tool-system/index.md)
 > - [Agent Executor 架构](../agent-executor/README.md)
-> - [Runner 架构](../runner.md)
+> - [Runner 架构](../runner/README.md)
 > - [Approval Scope 详细设计](./approval-scope.md)
 > - [One-time Approval、Tool Retry 与 Idempotency 详细设计](./one-time-approval-retry-idempotency.md)
 

@@ -410,7 +410,17 @@ Runner backend 可以提供：
 - `browser-use`；
 - `computer-use`。
 
-Runner Tool 的所有文件、命令、进程和桌面能力都必须受 Agent mount point、Runner capability 和服务端策略限制。
+### Tunnel
+
+- `expose-port`。
+
+Tunnel 用于把 Runner 本地服务通过 Runner 主动出站建立的 tunnel 暴露成 Central 管理的临时外部入口。
+
+第一阶段 Runner 不增加 LSP / Code Navigation Tool。
+
+Runner Tool 的所有能力都受 Agent mount point、Runner 实际 capability 和 Central 服务端策略限制。Runner 本地不再维护一套与 Central 重复的权限策略。
+
+完整设计见 [Runner 架构](../runner/README.md)。
 
 ## 6. MCP Tools
 
@@ -425,7 +435,7 @@ MCP Bridge 负责：
 5. 注册到 Tool Registry；
 6. 调用时把统一请求转换为 MCP 请求；
 7. 将结果转换回统一 Tool Result；
-8. 维护 Tool availability / discovery 状态。
+8. 维护 MCP discovery 与当前 Registry 注册状态。
 
 MCP Bridge discovery 出来的每个 Tool 都是独立的 Unified Tool，不通过单一 `call_mcp` 间接承载。
 
@@ -566,7 +576,7 @@ Project Secret Variable 的 value 不应展开到普通 Tool arguments。Runner 
 统一工具系统的详细设计按职责拆分为以下文档：
 
 - [Unified Tool Runtime 详细设计](./tool-runtime.md)：总体职责、完整调用时序、Runtime 与 Agent Loop / Model Adapter / Security & Governance 的边界，以及第一阶段总体实现范围；
-- [Tool Definition & Registry 详细设计](./tool-definition-registry.md)：Stable Tool Identity、ToolSpec、ToolBinding、ToolRuntimeState、Registry、Tool availability、spec_revision、Execution Tool Set 与 model-visible Tool Projection；
+- [Tool Definition & Registry 详细设计](./tool-definition-registry.md)：Stable Tool Identity、ToolSpec、ToolBinding、Registry 注册生命周期、spec_revision、Execution Tool Set 与 model-visible Tool Projection；
 - [Tool Execution 详细设计](./tool-execution.md)：ToolCall、Arguments Validation、ToolOperation / ToolAttempt、Authorization、Dispatcher、timeout / cancellation、retry / idempotency、并发与持久化；
 - [Tool Result & Backend 详细设计](./tool-result-backend.md)：Unified Tool Result、Tool Error / Runtime Failure、Artifact / StoredObject、Result Size、Backend Contract，以及 Builtin / Runner / MCP Backend；
 - [Artifact Builtin Tools 详细设计](./artifact-tools.md)：Agent-facing Artifact list / create / read、source_ref、Object Storage 边界以及用户预览 / 下载。

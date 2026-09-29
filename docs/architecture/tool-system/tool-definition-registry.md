@@ -7,7 +7,7 @@
 > > 总体设计：
 > > - [Unified Tool Runtime 详细设计](./tool-runtime.md)
 
-本分册描述 Unified Tool Runtime 中 Tool 的稳定身份、定义、注册状态以及 Execution 级 Tool projection。
+本分册描述 Unified Tool Runtime 中 Tool 的稳定身份、定义、Backend 绑定、Registry 注册生命周期以及 Execution 级 Tool projection。
 
 ## 1. Stable Tool Identity
 
@@ -51,7 +51,7 @@ mcp:<mcp_server_config_id>:<remote_tool_name>
 
 Tool description、input schema、output schema、annotations 等 ToolSpec 内容可以随配置或 discovery 更新，并形成新的 ToolSpec revision。
 
-availability 属于 ToolRuntimeState，可以独立变化，不影响 stable tool id，也不要求 ToolSpec revision 随之变化。
+Backend 暂时离线、网络不可达或目标 Runner offline 都不改变 stable tool id，也不产生额外的 Tool availability 状态。
 
 但如果一个变化已经改变了 Tool 的授权语义或逻辑身份，则不应继续沿用原 stable identity 静默替换。
 
@@ -69,10 +69,10 @@ ToolSpec 是 Tool 的纯定义，回答的是：
 - 当前通过什么 adapter 执行；
 - MCP endpoint / Runner / RPC 地址；
 - credential reference；
-- 当前是否 online / available；
-- 当前健康状态。
+- Backend 当前是否在线；
+- 当前网络 / 连接健康状态。
 
-这些分别属于 ToolBinding 与 ToolRuntimeState。
+这些临时运行状态不进入 Tool Registry 的正式状态模型，而是在实际调用时由对应 Backend 直接返回运行结果或错误。
 
 建议概念结构：
 
@@ -103,13 +103,13 @@ ToolSpec
 timeout
 concurrency
 retry policy
-availability
 backend type
 credential
 model-visible name
+temporary backend health
 ~~~
 
-这些分别属于 ToolBinding、ToolRuntimeState、ExecutionTool 或 Runtime / Execution Policy。
+这些分别属于 ToolBinding、ExecutionTool、Runtime / Execution Policy 或具体 Backend 的调用时状态。
 
 `spec_hash` 可以作为 Registry / discovery 的内部实现字段生成，用于 diff，但不作为第一阶段 ToolSpec 的正式 contract 字段，也不作为版本号。
 
@@ -213,8 +213,28 @@ ToolBinding
 `backend_ref` 是统一抽象引用，具体 Backend 可以进一步解析为：
 
 - Builtin handler / service binding；
-- Runner capability / runner-side tool binding；
+- Runner adapter / operation binding；
 - MCP server config + remote tool name。
+
+Runner Tool 的 ToolBinding **不绑定某一台具体 Runner**。
+
+例如：
+
+~~~text
+runner:run-command
+-> Runner Executor / run_command operation
+~~~
+
+具体调用落到哪台设备，由 Tool Call 中选择的 Agent Mount 在执行时解析：
+
+~~~text
+mount_id
+-> Agent Mount
+-> runner_id + workspace
+-> current Runner connection / capability
+~~~
+
+因此某一台 Runner offline 不会改变 `runner:run-command` 的 Registry registration，也不会影响同一 Agent 挂载的其他 Runner。
 
 ToolBinding 不保存模型可见名称。
 
@@ -222,103 +242,64 @@ ToolBinding 也不应该把 credential plaintext 放入统一 Runtime 对象；C
 
 第一阶段不在 ToolBinding 中提供 tool-specific retry profile。Retry 使用统一 Tool Runtime 策略；只有未来确有 Backend 特殊需求时，才考虑允许 ToolBinding 增加内部 override。
 
-### 2.5 ToolRuntimeState
+### 2.5 RegisteredTool
 
-ToolRuntimeState 描述 Tool 当前的动态运行状态。
-
-建议概念结构：
-
-~~~text
-ToolRuntimeState
-├── availability
-├── health?
-├── last_checked_at?
-└── source_state?
-~~~
-
-其中 `availability` 至少区分：
-
-~~~text
-available
-unavailable
-disabled
-~~~
-
-ToolRuntimeState 的变化不代表 ToolSpec revision 必然变化。
-
-例如 Runner offline、MCP Server 暂时不可访问，只会改变 Runtime State，不应该修改 ToolSpec 的语义版本。
-
-### 2.6 RegisteredTool
-
-RegisteredTool 是 Tool Registry 中一个完整、当前可解析的 Tool 条目：
+RegisteredTool 是 Tool Registry 中一个当前已注册、可以解析定义与 Backend binding 的 Tool：
 
 ~~~text
 RegisteredTool
 ├── spec: ToolSpec
-├── binding: ToolBinding
-└── runtime_state: ToolRuntimeState
+└── binding: ToolBinding
 ~~~
 
 因此：
 
 ~~~text
 ToolSpec
-= Tool 的纯定义
+= Tool 的稳定定义
 
 ToolBinding
 = Tool 的执行绑定
 
-ToolRuntimeState
-= Tool 当前的动态状态
-
 RegisteredTool
-= Registry 中完整的 live tool view
+= 当前 Registry 中存在的 Tool 定义 + binding
 ~~~
 
-RegisteredTool 是平台当前状态，会随着：
+Registry 不再维护独立的 `ToolRuntimeState / availability` 层。
 
-- MCP rediscovery；
-- Runner online / offline；
-- Tool disable / enable；
-- ToolSpec `spec_revision` 更新；
-- Backend binding 更新；
-
-而发生变化。
-
-它不是 Agent Execution 的 immutable snapshot。
+Runner offline、MCP Server 暂时不可访问、网络故障、临时 backend health 变化等都不修改 RegisteredTool。真正执行时由 Backend 返回对应错误。
 
 ## 3. Tool Registry
 
-Tool Registry 是当前 Central 中所有 RegisteredTool 的统一索引。
+Tool Registry 是 Central 当前已经注册的 RegisteredTool 统一索引。
 
 概念上：
 
 ~~~text
 Tool Registry
-= RegisteredTool 的集合
+= 当前 RegisteredTool 的集合
 ~~~
 
 它需要支持：
 
 ~~~text
 get(stable_tool_id) -> RegisteredTool
-list(source / scope / availability)
+list(source / scope)
 resolve binding
 observe ToolSpec revision
-observe ToolRuntimeState
 ~~~
 
 Registry 的数据来源可以不同：
 
 - Builtin Tool：代码注册；
-- Runner Tool：Runner capability / platform definition；
-- MCP Tool：discovery 结果。
+- Runner Tool：平台 Runner Tool definition；
+- MCP Tool：最近一次成功 discovery 的当前注册结果。
 
 Registry 不等于 Agent 当前能使用的 Tool Set。
 
 ~~~text
 Tool Registry
-= 平台当前知道的 RegisteredTool live view
+= 平台当前已注册的 Tool 定义 / binding
 
 Agent Capability
 = 某 Agent 长期最多允许哪些 Tool
@@ -327,11 +308,9 @@ Execution Tool Set
 = 某次 Execution 实际向模型暴露哪些 Tool
 ~~~
 
-## 4. Tool Availability
+## 4. Registry 注册生命周期
 
-Tool availability 是 ToolRuntimeState 的核心字段，并与 Agent Capability 分离。
-
-统一 availability 至少区分：
+第一阶段不维护：
 
 ~~~text
 available
@@ -339,31 +318,61 @@ unavailable
 disabled
 ~~~
 
-建议语义：
+这样的统一 Tool availability 状态层。
 
-### available
+Registry 只回答：
 
-当前可以进入新的 Execution Tool Set，并且存在可解析 Backend。
+> 当前这个 Tool 是否仍然具有有效的平台注册定义与 Backend binding。
 
-### unavailable
+临时运行状态不改变 Registry：
 
-配置仍然存在，stable identity 保留，但当前 Backend 暂时不可用。
-
-例如：
-
-- MCP Server discovery 失败；
 - Runner offline；
-- image generation backend 当前不可用。
+- MCP Server 临时网络不可达；
+- MCP 调用 timeout；
+- Backend 短暂故障。
 
-已有 Agent Capability 不删除。
+这类情况统一在真正调用时形成：
 
-### disabled
+- backend_unavailable；
+- network；
+- timeout；
+- capability_unsupported；
+- 或其他标准 ToolError。
 
-管理员主动禁用该 Tool 来源或相关配置。
+### 4.1 从当前 Registry 移除
 
-disabled Tool 不进入新的 Execution Tool Set。
+以下控制面变化可以使 Tool 不再进入新的 Execution Tool Set：
 
-是否允许已经启动的 Execution 继续使用对应 snapshot，由具体 Provider / Backend 的配置生命周期设计决定，不由 Registry 自行决定。
+- Tool 来源被明确 disable；
+- MCP Connection disconnect；
+- MCP Config delete；
+- 一次完整、成功的 MCP discovery 明确确认远端 Tool 已消失；
+- 平台代码 / 配置明确移除某个 Tool definition。
+
+此时从当前 Registry 移除对应 RegisteredTool，但继续保留：
+
+- stable Tool identity；
+- 历史 ToolSpec revision；
+- Agent Capability 中的 stable Tool ID 引用；
+- Audit / historical Execution 引用。
+
+因此“未注册”不等于删除历史身份。
+
+### 4.2 重新注册
+
+来源恢复后，可以使用原 stable identity 重新注册：
+
+- definition 未变化：继续引用已有 ToolSpec revision；
+- definition 已变化：生成新 immutable spec_revision；
+- Agent Capability 不需要重新创建。
+
+### 4.3 已运行 Execution
+
+Execution 启动时已经保存自己的 ToolSpec revision 与 binding snapshot。
+
+后续 live Registry 中 Tool 被移除，不主动修改运行中的 Execution snapshot。
+
+实际调用如果 Backend 已经不存在、连接失败或目标资源不可执行，则自然形成 Backend error；Runtime 不偷偷切换到其他 Tool 或其他 Backend。
 
 ## 5. ToolSpec Revision
 
@@ -408,7 +417,6 @@ Agent Executor 在创建 Agent Execution 时，从 Tool Registry 的 RegisteredT
 RegisteredTool
 ∩ Agent Capability
 ∩ Execution Policy
-∩ current availability
 =
 Execution Tool Set
 ~~~
@@ -436,6 +444,8 @@ stable_tool_id + spec_revision
 
 `binding_snapshot` 固定本次 Execution 实际使用的执行绑定，credential plaintext 不进入 snapshot。
 
+对于 Runner Tool，`binding_snapshot` 固定的是 Runner Executor / operation contract，而不是某个具体 `runner_id` 的在线连接；目标设备仍由每次 Tool Call 的 Mount 参数解析。
+
 ### 6.1 为什么要 snapshot
 
 ExecutionTool 是从 RegisteredTool 派生出的 execution-scoped immutable projection。
@@ -452,7 +462,9 @@ ExecutionTool 是从 RegisteredTool 派生出的 execution-scoped immutable proj
 
 长期配置变化默认只影响新的 Execution。
 
-如果 Backend 本身已经被 disable / deleted / unreachable，Runtime 可以执行失败，但不能偷偷改成另一个 Tool。
+Execution Tool Set 构建时不因为 Runner offline、MCP 暂时不可达等瞬时状态过滤 Tool。真正调用时再检查目标 Backend / Runner / Connection，并把失败作为标准 ToolError 返回。
+
+如果 Tool 来源在 live Registry 中被明确移除，新的 Execution 不再获得它；已经运行的 Execution 仍保留自己的 binding snapshot，但实际调用可能失败，Runtime 不能偷偷改成另一个 Tool。
 
 ## 7. Model-visible Tool Projection
 

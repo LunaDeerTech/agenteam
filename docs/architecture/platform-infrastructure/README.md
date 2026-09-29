@@ -551,7 +551,7 @@ flowchart TB
     RunnerN -->|Outbound WSS Runner Protocol| API
 ```
 
-Runner 连接始终由远端 agenteam-runner 主动向 Central 建立出站 WSS Control Channel；Central 不需要能够反向访问 Runner。设备注册、认证、RPC、heartbeat、重连和可选 Data Channel 的完整设计见 [Runner 架构](../runner.md)。
+Runner 连接始终由远端 agenteam-runner 主动向 Central 建立出站连接；Central 不需要能够反向访问 Runner。Control Channel 使用 WSS + JSON，Data Channel 作为第一阶段正式数据平面用于大文件 / binary 传输。设备注册、认证、RPC、heartbeat、重连与数据通道的完整设计见 [Runner 架构](../runner/README.md)。
 
 第一阶段推荐：
 

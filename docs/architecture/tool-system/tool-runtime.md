@@ -9,7 +9,7 @@
 > 相关架构：
 > - [Agent Executor 架构](../agent-executor/README.md)
 > - [Agent Loop 架构](../agent-loop/README.md)
-> - [Runner 架构](../runner.md)
+> - [Runner 架构](../runner/README.md)
 > - [安全与治理架构](../security-governance/index.md)
 >
 > 相关详细设计：
@@ -82,7 +82,7 @@ Runtime / Integrity Error
 
 1. Agent Loop 只依赖 Unified Tool Runtime，不理解 Builtin / Runner / MCP 的具体执行协议。
 2. Tool 的长期身份使用 stable tool id；模型可见名称只是当前 Execution 的 projection。
-3. ToolSpec 只描述 Tool 本身的稳定语义定义；ToolBinding 描述如何执行，ToolRuntimeState 描述当前运行状态，三者组合为 Registry 中的 RegisteredTool；ExecutionTool 是当前 Execution 的不可变运行时 projection。
+3. ToolSpec 只描述 Tool 本身的稳定语义定义；ToolBinding 描述如何执行，二者组合为 Registry 中的 RegisteredTool；临时 Backend 在线状态不进入 Registry，而在实际调用时形成运行结果或错误；ExecutionTool 是当前 Execution 的不可变运行时 projection。
 4. 每个模型产生的 Tool Call 对应一个逻辑 Tool Operation。
 5. 一个 Tool Operation 可以有多个底层 Attempt，但不能通过 retry 变成新的逻辑操作。
 6. Approval 绑定 Operation；retry safety 由 Backend 的执行语义决定。
@@ -132,8 +132,7 @@ Definition
 Registration
 └── RegisteredTool
     ├── ToolSpec
-    ├── ToolBinding
-    └── ToolRuntimeState
+    └── ToolBinding
 
 Execution Resolution
 └── ExecutionTool
@@ -240,7 +239,7 @@ Security / Governance 自身的授权、审批和审计内部时序由对应详�
 
 Unified Tool Runtime 的详细设计按职责拆分为以下分册：
 
-- [Tool Definition & Registry 详细设计](./tool-definition-registry.md)：Stable Tool Identity、ToolSpec、ToolBinding、ToolRuntimeState、RegisteredTool、Registry、Availability、spec_revision、Execution Tool Set 与 model-visible projection；
+- [Tool Definition & Registry 详细设计](./tool-definition-registry.md)：Stable Tool Identity、ToolSpec、ToolBinding、RegisteredTool、Registry 注册生命周期、spec_revision、Execution Tool Set 与 model-visible projection；
 - [Tool Execution 详细设计](./tool-execution.md)：ToolCall、参数校验、ToolOperation / ToolAttempt、Authorization 接入、Dispatcher、timeout / cancellation、retry / idempotency、并发、Unknown Tool Call 与运行记录持久化；
 - [Tool Result & Backend 详细设计](./tool-result-backend.md)：Unified Tool Result、Tool Error、Runtime Failure、result size / truncation、Sensitive Data、Artifact / StoredObject、Backend Contract 以及 Builtin / Runner / MCP Backend。
 
@@ -301,7 +300,6 @@ Tool Runtime 不决定 Agent 的业务目标，也不决定 Task 是否完成。
 ~~~text
 ToolSpec
 ToolBinding
-ToolRuntimeState
 RegisteredTool
 ExecutionTool
 ToolCall
@@ -318,8 +316,8 @@ ToolArtifactRef
 
 - ToolSpec：保存或生成稳定 Tool 定义；
 - ToolBinding：保存或生成 Backend 执行绑定；
-- ToolRuntimeState：保存或计算当前动态状态；
 - RegisteredTool：作为 Registry 中的组合对象，不要求独立持久化；
+- Backend 临时在线 / 健康状态不持久化为统一 Tool state，实际调用时直接映射为 ToolError；
 - ExecutionTool：作为 Agent Execution context / snapshot 的一部分持久化；
 - ToolOperation：持久化；
 - ToolAttempt：持久化或作为 Operation 子记录；
@@ -333,23 +331,22 @@ ToolArtifactRef
 1. stable tool id；
 2. Unified ToolSpec；
 3. ToolBinding；
-4. ToolRuntimeState；
-5. RegisteredTool / Tool Registry；
-6. Tool availability；
-7. ToolSpec spec_revision；
-8. Execution Tool Set snapshot；
-9. model-visible name 映射；
-10. input schema validation；
-11. Tool Operation / Attempt；
-12. 统一 Authorization 接入；
-13. Builtin / Runner / MCP Dispatcher；
-14. Unified ToolResult；
-15. Unified ToolError；
-16. timeout / cancellation propagation；
-17. retry classification 与 unknown outcome；
-18. 同一 model turn 中 read-only Tool 的并行执行能力；
-19. Tool Artifact -> StoredObject 统一对象引用机制；
-20. Execution Log / Audit correlation。
+4. RegisteredTool / Tool Registry；
+5. Registry 注册 / 移除生命周期；
+6. ToolSpec spec_revision；
+7. Execution Tool Set snapshot；
+8. model-visible name 映射；
+9. input schema validation；
+10. Tool Operation / Attempt；
+11. 统一 Authorization 接入；
+12. Builtin / Runner / MCP Dispatcher；
+13. Unified ToolResult；
+14. Unified ToolError；
+15. timeout / cancellation propagation；
+16. retry classification 与 unknown outcome；
+17. 同一 model turn 中 read-only Tool 的并行执行能力；
+18. Tool Artifact -> StoredObject 统一对象引用机制；
+19. Execution Log / Audit correlation。
 
 第一阶段不要求：
 

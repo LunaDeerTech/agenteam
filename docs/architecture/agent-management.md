@@ -84,7 +84,7 @@ mcp:<mcp_server_config_id>:<remote_tool_name>
 因此：
 
 - MCP Server 新 discovery 出来的 Tool 不会自动加入已有 Agent Capability；
-- MCP Tool 暂时不可用时，长期 Capability 引用可以保留，但当前 Agent Execution 不暴露该 Tool；
+- MCP Tool 暂时网络不可达时不删除长期 Capability，也不通过统一 availability 状态隐藏 Tool；如果 Tool 仍在当前 Registry 中，Execution 可以继续暴露并在实际调用时得到 Backend error。只有来源被明确 disable / disconnect / delete，或成功 discovery 确认 Tool 已消失时，新的 Execution 才不再获得该 Tool；
 - Tool schema 更新不应因为 display name 变化而隐式改变 Agent 的权限身份。
 
 MCP Server 配置、Tool discovery、stable identity 和 Bridge 执行链路见 [MCP 集成架构](./mcp-integration/index.md)。
@@ -155,16 +155,27 @@ Reusable Approval 的 Scope、创建和匹配规则见 [Approval Scope 详细设
 
 ### Runner Mount Point
 
-Runner、mount、远程执行环境和安全边界的完整设计见 [Runner 架构](./runner.md)。
+Runner、Agent Mount、远程 workspace 与执行环境的完整设计见：
+
+- [Runner 架构](./runner/README.md)；
+- [Agent Workspace 详细设计](./runner/agent-workspace.md)。
 
 每个 mount point 至少包含：
 
 - name；
 - runner；
-- path；
+- workspace；
 - description。
 
-Runner 的 description、headless 属性以及 Agent 可见 mount 信息会作为执行环境元数据由 Agent Executor 解析，并写入 AgentExecutionContext。
+其中 `workspace` 只是逻辑目录名，不允许填写任意绝对路径。实际路径统一由 Runner 根据：
+
+```text
+<runner-root>/<project-id>/<agent-id>/<workspace>
+```
+
+计算。
+
+Runner 的 description、headless、实际 capability 以及 Agent 可见 mount 信息会作为执行环境元数据由 Agent Executor 解析，并写入 AgentExecutionContext。
 
 Agent 只看到被分配给自己的 mount，而不是 Runner 的完整文件系统。
 

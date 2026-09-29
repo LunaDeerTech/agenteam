@@ -29,7 +29,7 @@ Default Approval Rules 是平台固定规则，不提供 Project 级配置。
 判断发生在基础权限校验与已有 Approval 匹配之后：
 
 ~~~text
-Tool available
+Tool registered
   -> Agent Capability
       -> Execution Policy
           -> Project / Resource Scope
@@ -339,6 +339,19 @@ read-process-output
 
 默认直接执行。
 
+`start-process` 的 `scope` 必须参与参数级风险判断：
+
+~~~text
+scope = execution
+-> 沿用普通 start-process 的 arbitrary_execution 风险
+
+scope = persistent
+-> 在 arbitrary_execution 基础上额外标记 security_sensitive
+-> 需要 Approval
+~~~
+
+其中 `persistent` 表示该进程可以跨 creator Agent Execution 存活，因此不能被仅覆盖 `scope = execution` 的 Reusable Approval 自动放大授权范围。
+
 `stop-process` 根据目标进程来源判断：
 
 ~~~text
@@ -372,6 +385,18 @@ interactive_control
 ~~~
 
 因此默认需要 Approval。
+
+### 5.5 Tunnel
+
+`expose-port` 会改变 Runner 本地服务的网络暴露边界，因此默认标记：
+
+~~~text
+security_sensitive
+~~~
+
+并要求 Approval。
+
+如果未来支持 Reusable Approval，其 Scope 至少必须绑定到明确的 Runner / Mount / Workspace 与 local port；不能把一次端口暴露审批自动扩大成任意 Runner、任意 Workspace 或任意端口的长期授权。
 
 ## 6. Risk 的来源
 

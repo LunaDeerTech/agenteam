@@ -282,6 +282,41 @@ Tool 可以：
 
 Security / Governance 只执行统一的 Approval Scope 协议，不为某个具体 Tool 建立特殊匹配流程。
 
+## 7.1 Runner Tool Scope 约束
+
+Runner Tool 的 Reusable Approval Scope 必须保留会改变实际设备边界或生命周期的关键参数，不能只按 Tool 名称匹配。
+
+第一阶段至少明确：
+
+### start-process
+
+`start-process(scope = execution)` 与 `start-process(scope = persistent)` 是不同授权范围。
+
+从 execution-scoped 调用生成的 Reusable Approval：
+
+- 只能覆盖 `scope = execution`；
+- 不能自动匹配 `scope = persistent`。
+
+persistent 调用需要独立形成能够明确表达 persistent 生命周期的 Approval Scope。
+
+### expose-port
+
+如果 `expose-port` 支持 Reusable Approval，Scope 至少绑定：
+
+~~~text
+runner_id
+mount_id / workspace
+local_port
+~~~
+
+不能使用一个已有 Approval 自动覆盖：
+
+- 其他 Runner；
+- 其他 Agent Workspace；
+- 其他 local port。
+
+是否还需要绑定 Managed Process identity、TTL 上限等参数，可以由 `expose-port` 的 ApprovalScopeResolver 根据实际 Tool contract 进一步收紧。
+
 ## 8. Reusable Approval 数据模型
 
 概念结构：

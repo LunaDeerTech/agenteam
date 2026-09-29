@@ -128,10 +128,10 @@ McpToolListResult
 - 不提交 partial Registry state；
 - 保留上一次成功 discovery snapshot；
 - 不因为部分结果缺失把 Tool 标记 removed。
-- 不修改已有 ToolSpec / ToolBinding / ToolRuntimeState；
+- 不修改已有 ToolSpec / ToolBinding / 当前 Registry registration；
 - 只记录本次 Discovery failure 的 Audit / diagnostics。
 
-如果此前从未成功完成 discovery，则 Registry 继续保持没有该 Connection 的已发现 Tool；失败本身不额外构造 unavailable Tool。
+如果此前从未成功完成 discovery，则 Registry 继续保持没有该 Connection 的已发现 Tool；失败本身不构造占位 Tool 或 unavailable 状态。
 
 ## 6. MCP Tool Definition Validation
 
@@ -149,7 +149,7 @@ McpToolListResult
 
 - 不影响本次 discovery 中其他有效 Tool 的正常提交；
 - 如果这是一个此前从未成功注册的新 Tool，则忽略该 Tool，不创建可用 ToolSpec；
-- 如果同 stable identity 的 Tool 之前已有成功 ToolSpec，则保留上一版 ToolSpec / availability，不因为本次 definition invalid 将其标记 unavailable；
+- 如果同 stable identity 的 Tool 之前已有成功 ToolSpec 且当前仍注册，则保留上一版 ToolSpec / ToolBinding / registration，不因为本次 definition invalid 改写当前 Registry；
 - Audit / diagnostics 记录 invalid tool name、safe validation error 与 invalid tool count；
 - 不把无效 schema 投影给模型。
 
@@ -208,7 +208,7 @@ Provider 不支持的 JSON Schema feature 由 Model Adapter 处理。
 
 - 保留原定义用于 diagnostics / revision；
 - 不进行网络 dereference；
-- 如果因此无法形成可用 canonical input schema，则 Tool 标记 unavailable / invalid definition。
+- 如果因此无法形成可用 canonical input schema：新 Tool 本次不注册；已有 Tool 保留上一版成功 ToolSpec / ToolBinding，并记录 invalid definition diagnostics。
 
 ## 8. Annotation Mapping
 
@@ -251,10 +251,9 @@ mcp:<mcp_config_id>:<remote_tool_name>
 - description；
 - input schema；
 - output schema；
-- annotations；
-- availability。
+- annotations。
 
-这些变化通过 `spec_revision` 或 ToolRuntimeState 表达。
+definition 变化通过 `spec_revision` 表达。Tool 是否仍存在于当前 Registry 由最新一次成功 discovery 的 registration diff 决定，不使用 ToolRuntimeState。
 
 remote tool name 改名第一阶段按：
 
@@ -334,7 +333,7 @@ canonical ToolSpec 内容未变化：
 - 创建 stable Tool identity；
 - spec_revision = 1；
 - 注册 ToolBinding；
-- availability = available；
+- 加入当前 Registry；
 - 不自动加入已有 Agent Capability。
 
 `default_enabled` 只用于新 Agent / capability configuration 的建议值。
@@ -353,24 +352,25 @@ canonical ToolSpec 内容未变化：
 上次存在、本次完整 snapshot 中不存在：
 
 - stable identity 保留；
-- ToolRuntimeState -> unavailable；
+- 从当前 Registry 移除 RegisteredTool；
 - Agent Capability stable reference 保留；
-- 新 Execution 不暴露该 Tool；
+- 新 Execution 不再获得该 Tool；
 - 不删除历史 ToolSpec revision。
 
 ### 11.5 restored
 
-之前 unavailable 的 stable identity 再次出现：
+之前已经从当前 Registry 移除的 stable identity 再次出现：
 
-- 如果 definition 不变，恢复 available；
-- 如果 definition 改变，先生成新 spec_revision 再恢复 available；
+- 如果 definition 不变，使用已有 ToolSpec revision 重新注册；
+- 如果 definition 改变，先生成新 spec_revision 再注册；
 - Agent Capability 不需要重新创建。
 
 ### 11.6 invalid
 
 本次 list 中 remote tool name 仍存在，但 definition 无法通过 validation：
 
-- 已存在 Tool：保留上一版 ToolSpec / ToolBinding / ToolRuntimeState；
+- 已存在且当前已注册 Tool：保留上一版 ToolSpec / ToolBinding / registration；
+- 之前已移除的 Tool：保持未注册；
 - 新 Tool：本次忽略，不注册；
 - 不产生新 spec_revision；
 - 不视为 removed；
@@ -436,8 +436,8 @@ internal
 
 - failure 不删除长期 Agent Capability；
 - failure 不覆盖最后一次成功 snapshot；
-- failure 不修改已有 ToolSpec / ToolBinding / ToolRuntimeState；
-- failure 不把现有 Tool 标记 unavailable；
+- failure 不修改已有 ToolSpec / ToolBinding / Registry registration；
+- failure 不因为临时网络错误移除现有 RegisteredTool；
 - failure 不改变新 Execution 对上一版成功 Tool definition 的可见性；
 - 已运行 Execution 不受影响；
 - 只记录本次失败的 Audit / diagnostics。
@@ -486,7 +486,6 @@ Execution 创建时：
 ~~~text
 Registry current ToolSpec revision
 + current ToolBinding
-+ current availability
 -> ExecutionTool snapshot
 ~~~
 

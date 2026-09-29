@@ -181,7 +181,6 @@ ToolError
 ~~~text
 invalid_arguments
 tool_not_found
-tool_unavailable
 authorization_denied
 approval_required
 business_rule_violation
@@ -270,7 +269,7 @@ unknown_outcome + non-idempotent
 - not_found；
 - conflict；
 - authorization_denied；
-- tool_unavailable；
+- backend_unavailable；
 - 明确的 timeout；
 - Backend 返回的安全业务错误。
 
@@ -407,7 +406,7 @@ Runner Executor 负责：
 - 标准化 Runner offline / timeout / protocol error；
 - 把大文件、stdout 等转换为 Tool Result / Artifact。
 
-Runner 本地仍执行最终 Mount / Capability 校验。
+Runner 本地只执行协议完整性、Workspace / path containment 与实际 Capability 校验，不维护另一套 Tool Authorization。
 
 ## 9. MCP Backend
 

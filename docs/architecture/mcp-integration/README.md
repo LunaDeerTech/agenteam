@@ -266,7 +266,6 @@ github-mcp
 
 - ToolSpec；
 - ToolBinding；
-- ToolRuntimeState；
 - Tool Registry；
 - Agent Capability；
 - Execution Tool Set；
@@ -331,7 +330,7 @@ MCP Config
 -> Execution Tool Set
 ~~~
 
-MCP Connection 是否存在、Tool 当前是否 available，与 Agent 的长期 Capability 引用是不同状态。
+MCP Connection / Tool 当前是否仍在 Registry 中注册，与 Agent 的长期 Capability 引用是不同状态。Backend 暂时网络不可达不会改写 Registry，而是在实际调用时返回 Backend error。
 
 ## 7. Discovery 原则
 
@@ -340,10 +339,10 @@ MCP Tool Discovery 的长期原则：
 - 以 Project MCP Connection 为实际 discovery source；
 - `tools/list` 结果映射为 canonical Unified ToolSpec；
 - 新 Tool 不自动加入已有 Agent Capability；
-- Tool 消失时保留 stable identity / Agent Capability，引入 unavailable 状态；
+- 一次完整成功 discovery 确认 Tool 消失时，从当前 Registry 移除，但保留 stable identity、历史 ToolSpec 与 Agent Capability 引用；
 - definition 变化形成新的 immutable ToolSpec revision；
 - definition 变化不要求用户 reconfirmation；
-- refresh failure 不修改上一版成功 Tool definition / availability，只记录 Audit / diagnostics；
+- refresh failure 不修改上一版成功 Tool definition / Registry registration，只记录 Audit / diagnostics；
 - 单个 invalid Tool 不影响同次 discovery 中其他有效 Tool；
 - notification 只触发 discovery refresh，不直接旁路修改 Registry；
 - 已运行 Execution 保留自己的 ToolSpec / binding snapshot。

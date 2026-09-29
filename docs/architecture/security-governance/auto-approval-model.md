@@ -260,7 +260,7 @@ runner_id
 runner name
 mount_id
 mount description
-mount scope / path metadata
+workspace metadata / path semantics
 headless capability
 ~~~
 
