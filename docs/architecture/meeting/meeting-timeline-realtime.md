@@ -116,7 +116,7 @@ Timeline 只负责渲染这些结构化 node 和交互状态；完整 schema、�
 
 每个目标 Agent 在 Turn 创建时都有一个稳定的 `MeetingTurnContribution`。
 
-Timeline 不必在 Contribution 创建时立刻显示所有尚未启动的 Agent；当 Runtime 真正启动该 Contribution 的当前 Agent Execution 时，创建 / 激活该 Contribution 的 Timeline placeholder。
+Timeline 不必在 Contribution 创建时立刻显示所有普通 `pending` Agent；但当 Contribution 进入 `waiting_for_agent` 或真正启动当前 Agent Execution 时，必须创建 / 激活该 Contribution 的 Timeline placeholder。这样用户可以看到正在等待 busy Agent 的稳定发言位置。
 
 概念 projection：
 
@@ -126,6 +126,10 @@ AgentContributionTimelineProjection
 ├── participant_snapshot
 ├── contribution_status
 ├── current_execution_id?
+├── waiting_on_execution_id?
+├── busy_source?
+│   ├── trigger_type
+│   └── trigger_reference
 ├── active_decision_request_ids[]
 ├── active_approval_request_ids[]
 ├── current_message_id?
@@ -144,7 +148,10 @@ Timeline 不保存完整 Execution Log。
 ```mermaid
 stateDiagram-v2
     [*] --> Pending
+    Pending --> WaitingForAgent
     Pending --> Running
+    WaitingForAgent --> Running: agent slot acquired
+    WaitingForAgent --> Skipped: user skip
     Running --> Completed
     Running --> Failed
     Running --> Cancelled
@@ -153,6 +160,8 @@ stateDiagram-v2
 ```
 
 UI 上始终是同一个 Contribution item。
+
+`waiting_for_agent` 表示尚未创建当前 Contribution 的 Agent Execution；`waiting_on_execution_id / busy_source` 只是 Timeline projection 用于解释谁正在占用目标 Agent，不成为新的 Source of Truth。
 
 DecisionRequest / Approval Request 使当前 Agent Execution 进入 waiting 时，Contribution 仍保持 `running`。waiting 的具体原因由下方交互卡片表达，不为 Contribution 再复制一套 waiting 状态。
 
@@ -203,6 +212,7 @@ Contribution.status
 Contribution.started_at
 Contribution.completed_at
 Contribution.id / generation
+busy_source?               # only waiting_for_agent
 ```
 
 因此默认折叠状态：
@@ -212,7 +222,37 @@ Contribution.id / generation
 - 不需要 backend 生成 `collapsed_status_text`；
 - 不需要 Timeline Projector 投影 Execution current phase。
 
-### 8.1 running
+`waiting_for_agent` 是这一展示区的特例：此时还没有当前 Contribution 的 Agent Execution，因此展示的是明确的 Agent busy 状态，而不是虚构的 Execution phase。
+
+### 8.1 waiting_for_agent
+
+`Contribution.status = waiting_for_agent` 时，显示当前占用 Agent 的业务来源，例如：
+
+```text
+Agent B · 正在处理 Task #123                 [跳过]
+```
+
+busy 文案来自 `AgentBusy.active_trigger` 对应的结构化业务引用，而不是 Agent Execution Runtime View。常见映射例如：
+
+```text
+task     -> 正在处理 Task #123
+meeting  -> 正在参与 Meeting #456
+other    -> 正在执行其他工作
+```
+
+具体 Task 编号 / Meeting 标题等展示信息由对应业务 read model 解析；Agent Executor 不生成 UI 文案。
+
+“跳过”调用 Meeting Runtime 的 Skip Contribution command：
+
+```text
+waiting_for_agent -> skipped
+```
+
+它不 cancel 当前占用该 Agent 的 Execution，因为那个 Execution 属于其他 Task / Meeting / Trigger。
+
+`waiting_for_agent` 默认无限等待，因此 UI 不显示倒计时或自动 timeout。
+
+### 8.2 running
 
 `Contribution.status = running` 时，从前端内置趣味文案池中选择一条，例如：
 
@@ -241,7 +281,7 @@ contribution_id + current_generation
 
 如果希望文案周期性变化，也只能使用前端 timer 切换，不产生网络请求。
 
-### 8.2 completed
+### 8.3 completed
 
 `Contribution.status = completed`：
 
@@ -257,7 +297,7 @@ duration = completed_at - started_at
 
 纯前端格式化，不从 Execution Runtime 获取 duration。
 
-### 8.3 failed
+### 8.4 failed
 
 `Contribution.status = failed`：
 
@@ -267,7 +307,7 @@ Agent A · 18.4s 后失败
 
 同样只使用 Contribution timestamps。
 
-### 8.4 cancelled
+### 8.5 cancelled
 
 `Contribution.status = cancelled`：
 
@@ -275,7 +315,17 @@ Agent A · 18.4s 后失败
 Agent A · 思考了 7.2s 后被停止
 ```
 
-### 8.5 pending
+### 8.6 skipped
+
+`Contribution.status = skipped`：
+
+```text
+Agent B · 已跳过
+```
+
+不显示 Execution duration，因为该 Contribution 没有启动新的 Agent Execution。
+
+### 8.7 pending
 
 如果 UI 需要展示尚未启动的 Contribution：
 
@@ -460,10 +510,13 @@ occurred_at ASC
 
 Sequential 模式按 Contribution.`order_index` 逐个启动。
 
+如果当前顺序位置的 Agent busy，该 Contribution 先形成 `waiting_for_agent` placeholder；后续 Contribution 不启动，直到当前 Agent 成功 Launch 或用户 Skip。
+
 Parallel 模式：
 
 - Runtime 按 Contribution.`order_index` 发起 launch；
-- 每个 Contribution 的 Agent Execution 真正启动后形成 / 激活 placeholder；
+- busy Agent 的 Contribution 在 `waiting_for_agent` 时立即形成 / 激活 placeholder；
+- idle Agent 的 Contribution 在 Agent Execution 真正启动后形成 / 激活 placeholder；
 - 所有并行 Contribution 使用同一个 Message visibility boundary。
 
 这不要求所有 parallel Agent 真正同时开始，只要求它们使用相同的 MeetingMessage 可见边界。
@@ -504,6 +557,8 @@ flowchart LR
 - User MeetingMessage；
 - Agent final MeetingMessage；
 - Turn metadata；
+- Contribution `waiting_for_agent / skipped` 状态；
+- 当前 `waiting_on_execution_id` 与结构化 busy source projection；
 - DecisionRequest pending projection；
 - participant display snapshot；
 - archive / restore 对页面状态的影响。
@@ -530,6 +585,7 @@ COMMIT
 - succeeded：驱动 Contribution 进入 completed，并写入 `completed_at`；
 - failed：驱动 Contribution 进入 failed，并写入 `completed_at`；
 - cancelled：驱动 Contribution 进入 cancelled，并写入 `completed_at`。
+- 被 `waiting_on_execution_id` 引用的占用 Execution 进入 terminal：通知 Meeting Runtime 重新尝试该 Contribution Launch；若再次 `AgentBusy`，Meeting 本域更新新的 busy source。
 
 Execution 的 current phase、waiting、retry、Runtime Item 等细节不需要为了 Collapsed Execution Row 投影到 Meeting Timeline。
 

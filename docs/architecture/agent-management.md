@@ -220,6 +220,10 @@ Agent 是持久化配置；Agent Execution 是一次独立 Agent 运行的完整
 
 因此不存在“正在运行的 Agent 对象”长期持有上下文的设计。每次 Agent Execution 都创建独立的 Execution Context，并从新的 Agent Loop 开始运行。
 
+Agent 的 `busy / idle` 同样不作为 Agent Management 的持久状态保存。它由 Agent Executor 根据该 Agent 是否存在 `created / preparing / running / waiting` 的非终态 Agent Execution 实时派生。
+
+同一个 Agent 同一时刻最多一个非终态 Agent Execution；这个约束用于保护该 Agent 共享的 Runner / mount Workspace，避免来自 Task、Meeting 或其他 Trigger 的并发执行互相读写同一工作区。
+
 ## 4. Agent Preset
 
 系统级 Agent Preset 是创建项目 Agent 时使用的模板。

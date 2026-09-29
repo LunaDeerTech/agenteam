@@ -179,6 +179,8 @@ User Contribution 不需要 Agent Execution。
 
 Agent Contribution 是稳定发言位置。retry / regenerate 都继续发生在同一个 Contribution 下，只是关联新的 Agent Execution / generation。
 
+如果轮到某个 Agent 发言时该 Agent 已被其他非终态 Execution 占用，Contribution 先进入 `waiting_for_agent`，此时尚不创建新的 Agent Execution。默认无限等待；用户可以显式 Skip，使 Contribution 进入 `skipped`。
+
 用户没有显式选择 Agent：
 
 ```text
@@ -257,6 +259,7 @@ Meeting Runtime 决定：
 - 哪些 Agent 发言；
 - sequential / parallel；
 - queue / interrupt；
+- Agent busy 时的 `waiting_for_agent` / Skip 编排；
 - Turn completion。
 
 Agent Executor 负责：
@@ -268,9 +271,15 @@ Agent Executor 负责：
 - execution logs；
 - model / tools。
 
+同一个 Agent 同一时刻最多一个非终态 Agent Execution。Agent Executor 的 `launch()` 是最终并发裁决点；若返回 `AgentBusy`，Meeting Runtime 不把它视为失败，而是让当前 Contribution 等待该 Agent 的 execution slot。
+
+Sequential 模式会停在这个 Contribution；Parallel 模式只有该 Contribution 等待，其他 Agent 继续运行。目标 Agent 空闲后自动重试 Launch，且没有自动 timeout。
+
 ## 8. Waiting / Resume
 
 Meeting 中有两类主要 Human-in-the-loop wait。
+
+另有一种编排级等待 `Contribution.status = waiting_for_agent`：它发生在 Agent Execution 创建之前，用于等待 busy Agent 空闲，不属于下面的 Agent Execution `waiting` lifecycle。
 
 ### DecisionRequest
 
@@ -426,7 +435,7 @@ User Message 使用结构化 inline content，支持 `text / mention / task / kn
 
 ### Agent Contribution
 
-Agent Contribution 的当前 Agent Execution 启动后，在该 Contribution 的固定聊天位置展示 placeholder：
+Agent Contribution 进入 `waiting_for_agent` 或当前 Agent Execution 启动后，在该 Contribution 的固定聊天位置展示 placeholder：
 
 ```text
 Agent Contribution
@@ -437,10 +446,14 @@ Agent Contribution
 
 Execution 行默认折叠。折叠状态只根据 Contribution 的 `status + started_at + completed_at` 在前端生成展示内容：
 
+- waiting_for_agent：显示真实 busy 来源，例如“B 正在处理 Task #123”，并提供“跳过”按钮；
 - running：显示前端随机趣味文案；
 - completed：显示“思考了 xx 时间”；
 - failed：显示“xx 时间后失败”；
-- cancelled：显示“思考了 xx 时间后被停止”。
+- cancelled：显示“思考了 xx 时间后被停止”；
+- skipped：显示“已跳过”。
+
+`waiting_for_agent` 的 busy 来源由 `AgentBusy.active_execution / active_trigger` 派生；它不是随机文案，也不需要加载当前 Contribution 的 Execution Runtime View，因为此时新的 Execution 尚未创建。
 
 折叠状态不请求 / 订阅 Agent Execution Runtime View。只有用户主动展开后才加载 Runtime Item Snapshot 并订阅统一 RuntimeItemUpdate Stream，查看真实的 text、reasoning、Tool Call、interaction、notice/error 等结构化运行细节。
 

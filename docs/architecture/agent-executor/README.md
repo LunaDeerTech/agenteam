@@ -143,8 +143,16 @@ Launch 是异步创建语义：
 ```text
 launch(request)
     ↓
-Agent Execution persisted
-status = created
+resolve idempotency
+    ├── existing Execution -> return execution_id
+    └── new Launch
+            ↓
+      atomic acquire Agent execution slot
+            ├── occupied -> AgentBusy
+            └── acquired
+                    ↓
+              Agent Execution persisted
+              status = created
     ↓
 return execution_id
     ↓
@@ -152,6 +160,65 @@ background preparing
 ```
 
 Agent Executor 不等待 Execution 进入 running 后才返回。
+
+### 4.1 Agent Execution Slot
+
+同一个 Agent 同一时刻最多只能存在一个非终态 Agent Execution。
+
+以下状态都占用该 Agent 的 execution slot：
+
+```text
+created
+preparing
+running
+waiting
+```
+
+只有 Execution 进入：
+
+```text
+succeeded
+failed
+cancelled
+```
+
+后才释放 slot。
+
+因此 Agent 的 busy / idle 不是 Agent Management 上额外维护的持久状态，而是由 Agent Executor 根据 active Execution 派生：
+
+```text
+busy
+= exists AgentExecution
+  where agent_id = target_agent
+  and status in (created, preparing, running, waiting)
+```
+
+该约束跨所有 Trigger 生效。Task Scheduler、Meeting、Manual / Timer / Webhook 等来源不能分别占用不同的并发槽位。
+
+`waiting` 仍然保持 busy。即使 Agent Loop 正在等待 Approval / Decision，也不能启动该 Agent 的第二个 Execution，否则原 Execution resume 后仍会与新 Execution 共享同一个 Agent Workspace。
+
+Agent Executor 必须在持久化新 Execution 时原子执行 slot 校验，不能只依赖调用方先查询 busy 状态。并发 Launch 中只有一个请求可以成功获得 slot。
+
+如果 slot 已被其他 Execution 占用：
+
+```text
+launch(request)
+-> AgentBusy
+```
+
+并且**不创建新的 Agent Execution**。
+
+`AgentBusy` 至少返回结构化占用信息：
+
+```text
+agent_id
+active_execution_id
+active_trigger.type
+active_trigger.reference
+active_purpose
+```
+
+Agent Executor 不生成“正在处理 Task #123”之类业务展示文案。Scheduler、Meeting 等调用方根据结构化 Trigger reference 和对应领域数据形成用户可见描述。
 
 完整 Launch、idempotency 与 persistence contract 见 [Agent Execution Domain Model](./execution-domain-model.md)。
 
@@ -379,7 +446,9 @@ Scheduler：
 - 判断 Task 是否应该运行；
 - 确定 assignee；
 - 确定 work / review purpose；
+- 在正常调度路径中预检查 assignee Agent 是否 busy；
 - 创建 Agent Launch Request；
+- 将最终 `AgentBusy` 视为正常资源竞争，而不是 Execution failure；
 - 按 Task 自己的失败 / 重试策略处理 failed Execution。
 
 Agent Executor：
@@ -397,6 +466,7 @@ Meeting：
 - 创建 Meeting Trigger / Turn reference；
 - 设置 execution policy；
 - 创建 Agent Launch Request；
+- 当目标 Agent busy 时，让对应 Contribution 等待 Agent slot，并允许用户跳过；
 - 管理 Meeting Message / Decision 等领域对象。
 
 Agent Executor：
@@ -436,4 +506,5 @@ Agent Executor 保持以下原则：
 7. **业务结果由业务领域拥有**：Executor 不解析或复制业务结果；
 8. **Runtime View 与内部日志分离**：Runtime Item 是 UI projection，不替代 Tool / Model / Audit / Log Source of Truth；
 9. **可恢复但不盲目重放副作用**：无法安全恢复时失败并交由上层业务兜底；
-10. **保持可扩展**：新的 Trigger 通过 Provider Registry 接入。
+10. **单 Agent 串行执行**：同一个 Agent 同一时刻最多一个非终态 Execution，避免共享 Workspace 的并发读写冲突；
+11. **保持可扩展**：新的 Trigger 通过 Provider Registry 接入。

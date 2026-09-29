@@ -11,6 +11,7 @@
 
 本文定义 Agent Execution 从创建到结束的状态机，以及：
 
+- Agent active slot 占用与释放；
 - waiting / resume；
 - cancel；
 -周期性 checkpoint；
@@ -77,6 +78,15 @@ terminal：
 - cancelled。
 
 第一阶段不设置 Execution-level `timed_out` 主状态。
+
+同一个 Agent 的 active execution slot 从 Execution 进入 `created` 开始占用，直到进入 terminal 状态才释放。
+
+因此：
+
+- `created / preparing / running / waiting` 都表示 Agent busy；
+- `waiting` 不释放 slot；
+- 已收到 cancel request 但尚未真正进入 `cancelled` 时仍不释放 slot；
+- resume 不需要重新竞争 slot，因为它恢复的是原 Execution。
 
 ## 3. created
 

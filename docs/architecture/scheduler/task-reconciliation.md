@@ -49,6 +49,7 @@ Scheduler state
 ├── pending dispatch?
 ├── active scheduler execution?
 ├── latest scheduler execution?
+├── assignee agent busy?
 └── relaunch skip runtime
 ```
 
@@ -59,9 +60,9 @@ Scheduler 必须读取最新持久化 Task，而不能只使用 traversal snapsh
 | Task state | Scheduler 行为 |
 | --- | --- |
 | backlog | 不进入 traversal；不处理 |
-| todo | 满足条件时 claim 为 in-progress，并创建 work Dispatch |
-| in-progress | 有 active Execution 则 skip；无 active Execution 时按 cooldown / concurrency 决定是否创建 work Dispatch |
-| in-review | 有 active Execution 则 skip；无 active Execution 时按 cooldown / concurrency 决定是否创建 review Dispatch |
+| todo | 满足条件且 assignee Agent idle 时 claim 为 in-progress，并创建 work Dispatch；Agent busy 时保持 todo |
+| in-progress | 有 active Execution 或 assignee Agent busy 则 skip；否则按 cooldown / concurrency 决定是否创建 work Dispatch |
+| in-review | 有 active Execution 或 assignee Agent busy 则 skip；否则按 cooldown / concurrency 决定是否创建 review Dispatch |
 | blocked | 检查可自动解除 blocker；全部解除后转 todo |
 | done | 不进入 traversal；不处理 |
 | cancelled | 不进入 traversal；不处理 |
@@ -120,9 +121,29 @@ AND assignee exists
 AND no unresolved blocker
 AND no pending SchedulerDispatch
 AND no active Scheduler Execution
+AND assignee Agent idle
 AND project concurrency has capacity
 AND scheduler enabled
 AND task belongs to current sprint
+```
+
+这里的 Agent idle 检查不是只看当前 Task。只要 assignee 存在任意来源的非终态 Agent Execution：
+
+```text
+created
+preparing
+running
+waiting
+```
+
+都视为 busy。
+
+如果 busy：
+
+```text
+skip
+Task remains todo
+no new SchedulerDispatch
 ```
 
 ### 6.2 Claim 事务
@@ -146,6 +167,10 @@ SchedulerDispatch 不是 Task Event。
 ### 6.3 Claim 后 Launch
 
 事务提交后使用该 Dispatch 调用 Agent Executor。
+
+由于 busy 预检查与真正 Launch 之间仍可能发生竞争，`AgentExecutor.launch()` 是最终裁决点。如果其他 Trigger 抢先占用了 Agent slot，Launch 返回 `AgentBusy`。
+
+`AgentBusy` 不属于 temporary error，也不进入 Launch retry。Scheduler 必须把当前 Dispatch 终止为 `skipped(agent_busy)`；如果这是 `todo` claim，则通过补偿事务把 Task 恢复为 `todo`，不添加 technical blocker。下一轮 traversal 再重新判断。
 
 即使 Launch 暂时失败：
 
@@ -210,6 +235,8 @@ skip
 如果已经完成：
 
 继续检查 Project concurrency。
+
+随后还必须检查当前 assignee Agent 是否 busy。Agent busy 时本次直接 skip，Task 保持 `in-progress`，不创建新的 Dispatch。
 
 ### 7.5 Concurrency 有容量
 
@@ -286,6 +313,8 @@ Task state 始终保持：
 ```text
 in-review
 ```
+
+真正创建 review Dispatch 前同样检查当前 assignee Agent 是否 busy。busy 时本次 skip，Task 保持 `in-review`。
 
 ### 8.4 Reviewer assignee
 

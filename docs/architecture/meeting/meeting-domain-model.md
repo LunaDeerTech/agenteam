@@ -390,6 +390,15 @@ stateDiagram-v2
 
 当本轮所有目标 Agent Contribution 都进入 terminal contribution state 后，Turn 进入 `finalizing`。
 
+第一阶段 terminal contribution state 包括：
+
+```text
+completed
+failed
+cancelled
+skipped
+```
+
 finalizing 阶段同步更新 rolling summary。Summary 成功更新后才进入 `completed`。
 
 ### 6.4 partial failure
@@ -404,6 +413,8 @@ result = partial_failure
 ```
 
 用于表达“这一轮已经收尾，但不是所有 Agent Contribution 都成功”。
+
+用户主动将 `waiting_for_agent` Contribution 标记为 `skipped` 不视为 failure，本身不会把 Turn.result 变成 `partial_failure`。它表示用户明确接受本轮不等待该 Agent 发言。
 
 ## 7. MeetingTurnContribution
 
@@ -423,12 +434,15 @@ MeetingTurnContribution
 ├── order_index
 ├── status
 │   ├── pending
+│   ├── waiting_for_agent
 │   ├── running
 │   ├── completed
 │   ├── failed
-│   └── cancelled
+│   ├── cancelled
+│   └── skipped
 ├── current_generation
 ├── current_execution_id?
+├── waiting_on_execution_id?
 ├── current_message_id?
 ├── created_at
 ├── started_at?
@@ -467,9 +481,23 @@ Contribution 是 Agent 在这一 Turn 中的稳定“发言槽位”。
 pending -> running -> completed
 pending -> running -> failed
 pending -> running -> cancelled
+pending -> waiting_for_agent -> running
+pending -> waiting_for_agent -> skipped
 failed -> running            # user retry
 completed -> running         # user regenerate
 ```
+
+`waiting_for_agent` 表示当前 Contribution 轮到发言，但目标 Agent 的 active execution slot 正被其他 Execution 占用。此时：
+
+- 尚未创建本 Contribution 的 Agent Execution；
+- `current_execution_id = null`；
+- `waiting_on_execution_id` 指向当前占用该 Agent 的 active Execution；
+- 默认无限等待，不设置 timeout；
+- 用户可以显式 Skip，使 Contribution 进入 `skipped`。
+
+当占用 Execution terminal 后，Meeting Runtime 重新尝试 Launch。若此时又被另一个 Execution 抢占，则继续保持 `waiting_for_agent` 并更新 `waiting_on_execution_id`。
+
+`waiting_for_agent` 与 Agent Execution 自身的 `waiting` 完全不同：前者表示 Execution 尚未创建、正在等 Agent slot；后者表示 Execution 已经存在并等待 Approval / Decision。
 
 Execution 进入 `waiting` 时，Contribution 仍保持 `running`；waiting 是 Agent Execution 的运行状态，不复制成另一套 Contribution 状态。
 
@@ -481,6 +509,7 @@ Execution 进入 `waiting` 时，Contribution 仍保持 `running`；waiting 是 
 - retry 进入新的 attempt：重新写入 `started_at`，清空 `completed_at`；
 - regenerate 进入新的 generation：重新写入 `started_at`，清空 `completed_at`；
 - 当前 attempt 进入 `completed / failed / cancelled`：写入 `completed_at`。
+- `waiting_for_agent -> skipped`：`started_at` 保持 null，写入 `completed_at` 作为用户跳过时间，并清空 `waiting_on_execution_id`。
 
 历史每次 Execution 自己仍保留独立 timing；Contribution 只保留当前展示 attempt / generation 的时间，供 Timeline 等业务 UI 直接使用。
 

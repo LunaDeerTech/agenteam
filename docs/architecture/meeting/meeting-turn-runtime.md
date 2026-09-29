@@ -166,6 +166,8 @@ sequenceDiagram
 
 如果当前 Contribution 的 Agent Execution 正在 waiting Decision / Approval，后一个 Contribution 不启动，因为前序 Contribution 还没有完成。
 
+如果轮到当前 Contribution 时目标 Agent busy，则该 Contribution 进入 `waiting_for_agent`，Sequential Turn 同样停在这里，后续 Contribution 保持 `pending`。目标 Agent 空闲并成功 Launch，或用户显式 Skip 当前 Contribution 后，才继续推进下一个 Agent。
+
 ## 6. Parallel Mode
 
 Parallel Turn 中所有目标 Agent Contribution 基于同一个初始 Meeting snapshot 并行启动。
@@ -205,6 +207,8 @@ Turn 创建后记录统一 Message visibility boundary。
 - 同一 parallel Turn 中其他 Agent 尚未完成或随后完成的回复。
 
 Parallel 模式不自动创建额外汇总 Agent。
+
+Parallel Turn 中每个 Contribution 独立竞争自己的 Agent slot。某个目标 Agent busy 时，只让该 Contribution 进入 `waiting_for_agent`；其他 Agent Contribution 继续正常 Launch / 运行，不互相阻塞。
 
 用户如果希望汇总上一 Turn，应显式创建下一 Turn，并选择某个 Agent执行汇总。
 
@@ -270,6 +274,15 @@ AgentLaunchRequest
 
 Meeting Runtime 持久化 `MeetingContributionExecution` 关联，并把 Contribution 的 `current_execution_id` 指向当前 Execution。
 
+`AgentExecutor.launch()` 可能返回两种正常结果：
+
+```text
+execution_id
+AgentBusy
+```
+
+只有取得 `execution_id` 后才创建 / 更新 `MeetingContributionExecution` 并把 Contribution 置为 `running`。`AgentBusy` 不创建本 Contribution 的 Agent Execution。
+
 ### 8.1 Contribution Execution Idempotency
 
 推荐：
@@ -279,6 +292,62 @@ meeting:{meeting_id}:contribution:{contribution_id}:generation:{g}:attempt:{a}
 ```
 
 同一个 Contribution generation / attempt 无论 Runtime 因进程崩溃、事件重复还是 service retry 再次发起，都只能得到同一个 Agent Execution。
+
+如果前一次尝试只得到 `AgentBusy`，该 idempotency key 尚未对应任何新 Execution；后续等待结束后的 Launch retry 继续复用同一个 key。第一次成功创建后，再次重放才返回该稳定 Execution。
+
+### 8.2 Agent Busy / waiting_for_agent
+
+如果目标 Agent 当前已有非终态 Execution，Agent Executor 返回：
+
+```text
+AgentBusy
+├── agent_id
+├── active_execution_id
+├── active_trigger.type
+├── active_trigger.reference
+└── active_purpose
+```
+
+Meeting Runtime 更新：
+
+```text
+Contribution.status = waiting_for_agent
+Contribution.current_execution_id = null
+Contribution.waiting_on_execution_id = active_execution_id
+```
+
+`waiting_for_agent` 默认无限等待，不设置自动 timeout。
+
+恢复推进有两条路径：
+
+1. 收到 `waiting_on_execution_id` terminal 事件后重新尝试 Launch；
+2. Meeting Runtime restart recovery 时重新检查所有 `waiting_for_agent` Contribution，并幂等重试 Launch。
+
+如果重试时 Agent 又被新的 Execution 占用，则继续保持 `waiting_for_agent`，并更新 `waiting_on_execution_id`。
+
+### 8.3 Skip Busy Agent
+
+用户可以对 `waiting_for_agent` Contribution 执行 Skip。
+
+Skip 必须原子校验：
+
+```text
+status = waiting_for_agent
+AND current_execution_id is null
+```
+
+成功后：
+
+```text
+waiting_for_agent -> skipped
+waiting_on_execution_id = null
+```
+
+不创建 Agent Execution，也不生成 MeetingMessage。
+
+如果 Skip 与 Agent slot 释放 / Launch 竞争，已经成功进入 `running` 的 Contribution 不再接受 Skip；此时用户应使用现有 Stop / Cancel Agent Execution 操作。
+
+Sequential 模式在 Skip 后继续下一个 Contribution。Parallel 模式只结束该 Contribution，其他 Contribution 不受影响。
 
 ## 9. Agent Execution Waiting
 
@@ -475,11 +544,12 @@ Turn.result = partial_failure
 用户取消 Turn：
 
 1. Turn -> cancelling（可作为瞬时 runtime phase，不要求持久枚举）；
-2. cancel 所有非 terminal Agent Execution；
-3. pending DecisionRequest -> cancelled；
-4. pending Approval / Tool Operation 请求取消或失效；
-5. 已经生成的 MeetingMessage 保留；
-6. Turn -> cancelled。
+2. 将 `pending / waiting_for_agent` 且尚无 Execution 的 Agent Contribution -> cancelled；
+3. cancel 所有非 terminal Agent Execution；
+4. pending DecisionRequest -> cancelled；
+5. pending Approval / Tool Operation 请求取消或失效；
+6. 已经生成的 MeetingMessage 保留；
+7. Turn -> cancelled。
 
 取消不是 rollback。
 
@@ -553,11 +623,22 @@ Timeline 默认在同一个 Contribution item 中展示最新 generation，历�
 running -> finalizing
 ```
 
+terminal contribution state：
+
+```text
+completed
+failed
+cancelled
+skipped
+```
+
 Runtime 计算：
 
 ```text
 result = success | partial_failure
 ```
+
+`skipped` 是用户主动接受不再等待该 Agent 的结果，本身不计为 partial failure。只有 `failed / cancelled` Contribution 才使正常完成的 Turn 形成 `partial_failure`。
 
 然后同步调用 Meeting Summary Updater。
 
@@ -646,6 +727,11 @@ running sequential Turn
 + Contribution A completed
 + Contribution B pending / no execution
 => idempotently launch Contribution B execution
+
+running Turn
++ Contribution B waiting_for_agent
++ waiting_on_execution_id terminal / stale
+=> idempotently retry Contribution B launch
 
 finalizing Turn
 + summary not committed

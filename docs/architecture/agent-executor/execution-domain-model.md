@@ -192,6 +192,33 @@ Execution 不使用自动总时长 timeout，但需要统计主动运行时间�
 
 该值可以采用持久化累计值 + 当前 active segment 的方式计算，不要求每秒更新数据库。
 
+### 3.7 Agent Active Slot
+
+同一个 `agent_id` 同一时刻最多允许一个非终态 AgentExecution。
+
+占用 Agent slot 的状态：
+
+```text
+created
+preparing
+running
+waiting
+```
+
+释放 Agent slot 的状态：
+
+```text
+succeeded
+failed
+cancelled
+```
+
+`cancel_requested_at` 已写入但 status 仍未 terminal 时，Execution 继续占用 slot。
+
+`waiting` 也继续占用 slot。等待 Approval / Decision 只暂停当前 Agent Loop，不允许同一 Agent 在共享 Workspace 上启动第二个 Execution。
+
+Agent busy / idle 是从 AgentExecution 派生的运行态，不在 Agent 主记录上维护第二份可变状态。
+
 ## 4. AgentExecutionSnapshot
 
 AgentExecutionSnapshot 固化本次 Execution 真正使用的启动配置。
@@ -342,6 +369,18 @@ UNIQUE(idempotency_scope, idempotency_key)
 ```
 
 避免并发 Launch 重复创建。
+
+同时必须对 active Agent slot 建立数据库级并发保护。概念上可使用 partial unique constraint：
+
+```sql
+CREATE UNIQUE INDEX uniq_active_agent_execution
+ON agent_execution(agent_id)
+WHERE status IN ('created', 'preparing', 'running', 'waiting');
+```
+
+具体实现可以使用等价的事务锁 / slot 表，但必须保证“检查 busy + 创建新 Execution”是原子的，不能依赖调用方先查询再 Launch。
+
+Launch 处理顺序必须先解析 idempotency：如果同一 idempotency key 已经存在 Execution，直接返回该 Execution；只有真正的新 Launch 才竞争 Agent slot。这样调用方重试不会因为自己第一次创建的 Execution 正在占用 slot 而错误得到 `AgentBusy`。
 
 ## 7. Version 与并发控制
 
@@ -538,9 +577,27 @@ subscribe_runtime(execution_id)
 ### 12.1 launch
 
 - 做基础 request validation；
--基于 idempotency 创建或返回 Execution；
--返回 `execution_id`；
--异步进入 preparing。
+- 先基于 idempotency 查找是否已经存在本次 Launch 对应的 Execution；
+- 如果存在，直接返回原 `execution_id`；
+- 如果不存在，原子竞争目标 Agent 的 active execution slot；
+- slot 可用时创建 `status = created` 的 Execution 并返回 `execution_id`；
+- slot 已占用时返回结构化 `AgentBusy`，且不创建 Agent Execution；
+- 创建成功后异步进入 preparing。
+
+`AgentBusy` 是 Launch 层正常拒绝结果，不是 `AgentExecutionError`，因为被拒绝的请求没有对应的新 Execution。
+
+至少返回：
+
+```text
+code = agent_busy
+agent_id
+active_execution_id
+active_trigger.type
+active_trigger.reference
+active_purpose
+```
+
+其中 Trigger 信息用于调用方解释当前占用来源；Agent Executor 不负责把它格式化成 Task / Meeting 的业务 UI 文案。
 
 ### 12.2 get
 

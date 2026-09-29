@@ -137,9 +137,21 @@ blocked
 ```text
 todo
 + eligible
+ assignee Agent idle
     -> in-progress
     -> launch work Agent Execution
 ```
+
+如果 assignee Agent 当前 busy：
+
+```text
+todo
++ assignee Agent busy
+    -> skip this visit
+    -> keep todo
+```
+
+正常路径下不创建 SchedulerDispatch，也不消耗该 Agent 的 execution slot。
 
 对于已经处于执行阶段的 Task：
 
@@ -147,6 +159,7 @@ todo
 in-progress
 + no active Task Execution
 + relaunch cooldown exhausted
+ assignee Agent idle
     -> launch work Agent Execution
 ```
 
@@ -154,10 +167,13 @@ in-progress
 in-review
 + no active Task Execution
 + relaunch cooldown exhausted
+ assignee Agent idle
     -> launch review Agent Execution
 ```
 
 `in-progress / in-review` relaunch 不修改 Task state。
+
+如果 assignee Agent 因 Task、Meeting 或其他 Trigger 的非终态 Execution 正在 busy，则本次 relaunch 直接 skip，Task state 保持不变。
 
 `backlog / done / cancelled` 不产生 Scheduler Launch。
 
@@ -190,6 +206,15 @@ Agent 在 Execution 内通过 Task Tool / Domain Service 修改 Task。
 因此 Scheduler 的正确性依赖 Task 当前 Source of Truth，而不是依赖 Execution completion callback。
 
 ## 6. Active Execution 与 Project 并发
+
+Scheduler 需要区分两个概念：
+
+- **Task active Execution**：防止同一个 Task 被重复 Launch；
+- **Agent busy**：防止同一个 Agent 因任何 Trigger 同时存在两个非终态 Execution。
+
+Agent busy 由 Agent Executor 的 active slot 派生，范围跨 `task / meeting / ...` 全部 Trigger。Scheduler 在准备创建新的 Dispatch 前先做 busy 预检查。
+
+该预检查只是正常路径优化，最终并发裁决仍由 `AgentExecutor.launch()` 原子完成。如果预检查后 Agent 被其他调用方抢先占用，Launch 会返回 `AgentBusy`；Scheduler 必须把它作为正常资源竞争处理，而不是 technical failure。
 
 对单个 Task：
 
@@ -240,8 +265,13 @@ Scheduler 通过独立的 `SchedulerDispatch` 持久化对象管理可靠 Launch
 ```text
 pending
    ├──> launched
-   └──> failed
+   ├──> failed
+   └──> skipped
 ```
+
+`skipped` 用于 Dispatch 已创建后才发生的 `AgentBusy` 竞态兜底。它不创建 technical blocker，也不进入 Launch retry。
+
+对于原 `todo` claim，`AgentBusy` 兜底会把 Task 恢复为 `todo`；对于 `in-progress / in-review` relaunch，Task state 保持不变。后续 traversal 再重新判断 Agent 是否空闲并创建新的 Dispatch。
 
 每次需要新的 Agent Execution 时创建新的 `dispatch_id`。
 

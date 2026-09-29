@@ -156,6 +156,8 @@ Agent Executor 是统一 Agent 启动与运行管理服务。Scheduler、Meeting
 
 每次启动创建一个 Agent Execution；Agent Executor 为其准备 AgentExecutionContext，随后 Agent Execution 内部运行 Agent Loop。Agent Loop 负责模型调用、Tool Calling、错误处理、上下文管理并产生最终结果。
 
+同一个 Agent 同一时刻最多一个非终态 Agent Execution；`created / preparing / running / waiting` 都占用该 Agent 的 execution slot。该全局约束由 Agent Executor 原子保证，用于避免 Task、Meeting 等不同 Trigger 并发读写同一个 Agent Workspace。
+
 这一整套执行能力属于 Platform Services，不依赖 Task 或 Meeting 的内部状态机。业务触发上下文通过 Trigger Context Provider 提供。
 
 Agent Loop 不应直接绕过业务服务修改 Project、Task、Meeting 等项目状态。

@@ -16,7 +16,7 @@
 - SchedulerDispatch 领域模型；
 - Dispatch identity；
 - Agent Executor idempotency key；
-- pending / launched / failed；
+- pending / launched / failed / skipped；
 - todo claim 事务；
 - in-progress / in-review relaunch；
 - Launch retry / backoff；
@@ -65,10 +65,12 @@ SchedulerDispatch
 ├── attempt_count
 ├── next_retry_at?
 ├── last_error?
+├── skip_reason?
 ├── version
 ├── created_at
 ├── launched_at?
-└── failed_at?
+├── failed_at?
+└── skipped_at?
 ```
 
 ### 3.1 purpose
@@ -117,7 +119,8 @@ Sprint 后续切换不会重写历史 Dispatch。
 ```text
 pending
    ├──> launched
-   └──> failed
+   ├──> failed
+   └──> skipped
 ```
 
 ### 4.1 pending
@@ -153,6 +156,26 @@ pending
 failed 后不再复用该 Dispatch。
 
 如果 Task 后续重新可执行，需要新的 Dispatch。
+
+### 4.4 skipped
+
+`skipped` 表示 Dispatch 已经建立，但在真正 Launch 时发现目标 Agent slot 被其他 Trigger 抢先占用。
+
+第一阶段：
+
+```text
+skip_reason = agent_busy
+```
+
+该状态只用于 busy 预检查与实际 `AgentExecutor.launch()` 之间的竞态兜底。
+
+`skipped`：
+
+- 不创建 Agent Execution；
+- 不进入 Launch retry；
+- 不添加 technical blocker；
+- 不消耗 relaunch cooldown；
+- 后续 Scheduler traversal 可以在 Agent 空闲后创建新的 Dispatch。
 
 ## 5. Dispatch Identity
 
@@ -241,6 +264,7 @@ validate:
   belongs to current sprint
   no pending dispatch
   no active scheduler execution
+  assignee Agent idle
   project concurrency has capacity
 
 create SchedulerDispatch:
@@ -264,6 +288,10 @@ Task is in-progress
 there is a pending work Dispatch
 ```
 
+在进入该事务前，Scheduler 先通过 Agent Executor active slot 视图检查当前 assignee 是否 busy。busy 时本次 Task visit 直接结束：Task 保持 `todo`，不创建 Dispatch。
+
+该检查不能替代 `AgentExecutor.launch()` 自身的原子 slot 约束；它只用于避免大多数无意义的 claim。
+
 ## 9. in-progress / in-review Relaunch
 
 对于已经处于执行 phase 的 Task：
@@ -279,7 +307,10 @@ no pending dispatch
 relaunch skip exhausted
 project concurrency has capacity
 assignee exists
+assignee Agent idle
 ```
+
+如果 assignee busy，本次 relaunch 直接 skip，Task 保持原 `in-progress / in-review` 状态，也不创建 Dispatch。
 
 事务：
 
@@ -330,22 +361,34 @@ pending Dispatch
 build AgentLaunchRequest
       ↓
 AgentExecutor.launch()
-      ↓
-execution_id
-      ↓
-persist:
-  status = launched
-  execution_id = ...
-  launched_at = ...
+      ├── execution_id
+      │       ↓
+      │   persist:
+      │     status = launched
+      │     execution_id = ...
+      │     launched_at = ...
+      │
+      └── AgentBusy
+              ↓
+          persist:
+            status = skipped
+            skip_reason = agent_busy
+            skipped_at = ...
 ```
 
 Launch 是异步 Execution creation contract。
 
 Scheduler 只需要可靠拿到 execution_id，不等待 Execution 进入 preparing / running。
 
+`AgentBusy` 表示没有创建新的 Agent Execution，因此不属于 unknown outcome，也不需要用同一个 Dispatch 做 Launch retry。
+
+如果该 Dispatch 来自原 `todo` claim，Scheduler 同步执行补偿事务把 Task 从 `in-progress` 恢复为 `todo`。如果来自 `in-progress / in-review` relaunch，则 Task state 不变。
+
 ## 12. Retry
 
 Launch temporary error 使用有限 retry + backoff。
+
+`AgentBusy` 明确排除在 temporary error 之外：它直接使 Dispatch 进入 `skipped(agent_busy)`，不 retry、不 backoff、不添加 technical blocker。
 
 Dispatch 至少记录：
 
@@ -469,6 +512,8 @@ obtain execution_id
 这样可以避免 unknown outcome 下既丢失旧 Execution、又错误创建第二个 Dispatch。
 
 ## 15. Final Launch Failure
+
+本节只处理真正的 Launch technical failure / unknown outcome retry 耗尽；明确的 `AgentBusy` 已在前面进入 `skipped`，不进入本流程。
 
 当 retry 耗尽：
 
@@ -634,7 +679,7 @@ old sprint pending Dispatch exists
 
 Scheduler 必须把它视为异常恢复场景：不能直接丢弃 pending Dispatch，仍需使用同一个 idempotency key 把 unknown Launch outcome reconciliation 到确定状态，再按 Task 当前 Source of Truth 决定后续处理。
 
-历史 `launched / failed` Dispatch 不受 Sprint 切换影响，也不改写 `sprint_id`。
+历史 `launched / failed / skipped` Dispatch 不受 Sprint 切换影响，也不改写 `sprint_id`。
 
 完整 Sprint start / complete / rollover 见 [Sprint Lifecycle](../project-work-management/sprint-lifecycle.md)。
 
@@ -661,6 +706,10 @@ Scheduler traversal 访问 Task 时：
 ### failed
 
 无需处理。
+
+### skipped
+
+无需处理。它表示此前一次 Launch 意图因明确 `AgentBusy` 竞争而结束；后续是否创建新的 Dispatch 由当前 Task reconciliation 决定。
 
 如果 pending Dispatch 对应 Task 已经发生人工状态变化，仍然不能直接创建新 Dispatch。
 
@@ -697,6 +746,8 @@ Scheduler 只用它决定：
 
 它不代表 Agent Execution error。
 
+`AgentBusy` 不写入 `SchedulerDispatchError` 作为 Launch failure；它记录在 `status = skipped` 与 `skip_reason = agent_busy`。
+
 ## 23. Version 与并发控制
 
 SchedulerDispatch 使用 version：
@@ -721,6 +772,8 @@ AND version = ?
 ```
 
 避免 retry completion 与 concurrent recovery 互相覆盖。
+
+`pending -> skipped(agent_busy)` 使用同样的 compare-and-swap 规则，避免与迟到的 Launch success / recovery 互相覆盖。
 
 ## 24. Retention
 
