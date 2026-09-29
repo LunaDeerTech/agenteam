@@ -35,8 +35,8 @@ Project
 Scheduler 负责判断：
 
 - 当前 Task 是否需要自动解除 blocker；
-- 当前 Task 是否需要从 `todo` claim 为 `in-progress`；
-- 当前 `in-progress / in-review` Task 是否缺少一个活动 Agent Execution；
+- 当前 Task 是否需要从 `todo` claim 为 `in_progress`；
+- 当前 `in_progress / in_review` Task 是否缺少一个活动 Agent Execution；
 - 当前是否允许继续创建新的 Scheduler Agent Execution；
 - 某次 Launch 是否需要 retry / recovery。
 
@@ -63,9 +63,9 @@ Current Sprint Tasks
         ↓
 todo
         ↓
-in-progress
+in_progress
         ↓
-in-review
+in_review
         ↓
 blocked
         ↓
@@ -138,7 +138,7 @@ blocked
 todo
 + eligible
  assignee Agent idle
-    -> in-progress
+    -> in_progress
     -> launch work Agent Execution
 ```
 
@@ -156,7 +156,7 @@ todo
 对于已经处于执行阶段的 Task：
 
 ```text
-in-progress
+in_progress
 + no active Task Execution
 + relaunch cooldown exhausted
  assignee Agent idle
@@ -164,14 +164,14 @@ in-progress
 ```
 
 ```text
-in-review
+in_review
 + no active Task Execution
 + relaunch cooldown exhausted
  assignee Agent idle
     -> launch review Agent Execution
 ```
 
-`in-progress / in-review` relaunch 不修改 Task state。
+`in_progress / in_review` relaunch 不修改 Task state。
 
 如果 assignee Agent 因 Task、Meeting 或其他 Trigger 的非终态 Execution 正在 busy，则本次 relaunch 直接 skip，Task state 保持不变。
 
@@ -201,7 +201,7 @@ Agent 在 Execution 内通过 Task Tool / Domain Service 修改 Task。
 
 > terminal Execution 只表示该次执行已经退出，不再占用当前 Task 的活动执行槽位。
 
-如果 Execution 退出后 Task 仍然是 `in-progress` 或 `in-review`，Scheduler 在 relaunch cooldown 结束后会再次为当前 assignee 创建新的 Agent Execution。
+如果 Execution 退出后 Task 仍然是 `in_progress` 或 `in_review`，Scheduler 在 relaunch cooldown 结束后会再次为当前 assignee 创建新的 Agent Execution。
 
 因此 Scheduler 的正确性依赖 Task 当前 Source of Truth，而不是依赖 Execution completion callback。
 
@@ -214,7 +214,7 @@ Scheduler 需要区分两个概念：
 
 Agent busy 由 Agent Executor 的 active slot 派生，范围跨 `task / meeting / ...` 全部 Trigger。Scheduler 在准备创建新的 Dispatch 前先做 busy 预检查。
 
-该预检查只是正常路径优化，最终并发裁决仍由 `AgentExecutor.launch()` 原子完成。如果预检查后 Agent 被其他调用方抢先占用，Launch 会返回 `AgentBusy`；Scheduler 必须把它作为正常资源竞争处理，而不是 technical failure。
+该预检查是正常 claim 的前置条件：预检查已经 busy 时不 claim、不创建 Dispatch。最终并发裁决仍由 `AgentExecutor.launch()` 原子完成；如果 precheck 后 Agent 被其他 Trigger 抢先占用，Launch 返回 `AgentBusy`，Scheduler 将它作为极少数竞态补偿，而不是 technical failure。
 
 对单个 Task：
 
@@ -271,7 +271,7 @@ pending
 
 `skipped` 用于 Dispatch 已创建后才发生的 `AgentBusy` 竞态兜底。它不创建 technical blocker，也不进入 Launch retry。
 
-对于原 `todo` claim，`AgentBusy` 兜底会把 Task 恢复为 `todo`；对于 `in-progress / in-review` relaunch，Task state 保持不变。后续 traversal 再重新判断 Agent 是否空闲并创建新的 Dispatch。
+对于原 `todo` claim，`AgentBusy` 兜底执行 `scheduler_agent_busy_compensation`：Task 恢复为 `todo`，同时恢复 claim 前的 `manual_rank`，避免技术竞态改变用户排序；对于 `in_progress / in_review` relaunch，Task state / rank 保持不变。后续 traversal 再重新判断 Agent 是否空闲并创建新的 Dispatch。
 
 每次需要新的 Agent Execution 时创建新的 `dispatch_id`。
 
@@ -285,7 +285,7 @@ pending
 
 ## 8. Relaunch cooldown
 
-对于 `in-progress / in-review`：
+对于 `in_progress / in_review`：
 
 如果上一轮 Agent Execution 已经 terminal，但 Task 仍然需要继续执行，Scheduler 不立即 relaunch。
 
@@ -360,8 +360,8 @@ Scheduler pause 是 Project 级控制。
 暂停后：
 
 - 不创建新的 SchedulerDispatch；
-- 不执行新的 `todo -> in-progress`；
-- 不 relaunch `in-progress / in-review`；
+- 不执行新的 `todo -> in_progress`；
+- 不 relaunch `in_progress / in_review`；
 - 不自动执行 `blocked -> todo`；
 - 不 cancel 已经存在的 Agent Execution；
 - 不修改已运行 Task。
@@ -427,4 +427,4 @@ Scheduler 保持以下原则：
 7. **Deterministic ordering**：固定 state group 顺序 + priority + manual rank；
 8. **Reliable launch**：通过 SchedulerDispatch + Agent Executor idempotency 保证 Launch；
 9. **No duplicate Task execution**：同一个 Task 只允许一个 active Scheduler Execution；
-10. **Minimal business mutation**：只主动执行 `blocked -> todo` 与 `todo -> in-progress` 两类正常状态变化。
+10. **Minimal business mutation**：只主动执行 `blocked -> todo` 与 `todo -> in_progress` 两类正常状态变化。

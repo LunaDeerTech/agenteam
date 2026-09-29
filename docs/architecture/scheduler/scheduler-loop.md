@@ -112,8 +112,8 @@ Scheduler 固定按照：
 
 ```text
 todo
--> in-progress
--> in-review
+-> in_progress
+-> in_review
 -> blocked
 ```
 
@@ -164,7 +164,9 @@ manual_rank 使用 fractional rank。
 sprint + state + priority
 ```
 
-分组时，默认追加到该分组末尾。
+分组时，普通 state / priority 变化默认追加到该分组末尾。
+
+唯一例外是 `scheduler_agent_busy_compensation`：原 todo claim 因极少数 `AgentBusy` 竞态被补偿时，恢复 SchedulerDispatch 保存的 claim 前 `manual_rank`，不能追加到 todo group 末尾。
 
 用户可以通过前端拖拽重新排序。
 
@@ -412,8 +414,8 @@ relaunch_skip_count >= 0
 
 只适用于：
 
-- `in-progress`；
-- `in-review`；
+- `in_progress`；
+- `in_review`；
 
 并且只在上一轮 Scheduler Execution 已 terminal、Task 仍需要继续执行时生效。
 
@@ -496,13 +498,13 @@ remaining = 0
 如果 Task 从：
 
 ```text
-in-progress -> in-review
+in_progress -> in_review
 ```
 
 或者：
 
 ```text
-in-review -> todo
+in_review -> todo
 ```
 
 旧 purpose 的 cooldown 不继续继承。

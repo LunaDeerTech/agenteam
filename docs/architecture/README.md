@@ -34,7 +34,7 @@ Task
   -> Project State
 ```
 
-所有 Task 必须经过 `in-review` 审核阶段后才能进入 `done`。
+所有 Task 必须经过 `in_review` 审核阶段后才能进入 `done`。
 
 Meeting 是 Human-in-the-loop 的协作空间，用于讨论、分歧处理、决策和授权，不是 Task 的替代执行模型，也不是 Agent 之间默认的协作方式。
 

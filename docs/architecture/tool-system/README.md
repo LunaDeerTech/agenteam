@@ -171,6 +171,8 @@ Current Sprint 与 Completed Sprint 都不能通过 delete 绕过 lifecycle。
 ### Task
 
 - list-tasks；
+- read-task；
+- list-task-events；
 - create-task；
 - update-task；
 - move-task；
@@ -180,33 +182,61 @@ Current Sprint 与 Completed Sprint 都不能通过 delete 绕过 lifecycle。
 
 Task Tool 按业务语义拆分，而不是为每个字段机械创建独立 Tool：
 
+- `read-task`：按 `task_id` 精确读取当前 canonical Task，返回 `version`；
 - `update-task`：修改 title、description、priority、type 等普通属性，不直接承担 Task 状态机流转；
 - `move-task`：移动 Task 到目标 Sprint。调用方只需要指定 `target_sprint_id`，目标 Milestone 由 Sprint 归属自动确定；Completed Sprint 禁止移入 / 移出，Current Sprint Task 存在 active Execution 或 pending Dispatch 时禁止移出；
 - `update-task-plan`：单独更新 Task Plan；
-- `transfer-task`：根据当前执行结果请求 Task 进入目标状态，并可以同时更新下一阶段 assignee、留下 comment，以及在进入 `blocked` 时增加 blocker。
+- `transfer-task`：根据当前执行结果请求 Task 进入目标状态，并可以同时更新下一阶段 assignee、留下 comment、增加 blocker，或在 `blocked -> todo` 时原子 resolve 剩余 blocker。
 
 `transfer-task` 不重复定义一套工作流规则。Agent 只表达希望发生的状态流转和必要附带信息，例如：
 
 ```text
-in-progress -> in-review
+in_progress -> in_review
   + reviewer assignee
   + comment
 
-in-review -> done
+in_review -> done
   + review comment
 
-in-review -> todo
+in_review -> todo
   + next assignee
   + review comment
 
-in-progress / in-review -> blocked
+in_progress / in_review -> blocked
   + blocker
   + comment
+
+blocked -> todo
+  + resolve blocker(s)
+  + optional assignee change
 ```
 
 真正允许哪些状态之间流转、哪些目标状态必须提供 assignee、何时必须提供 blocker，以及当前操作是否合规，都由 Task Domain 的状态机和领域约束统一校验。非法流转必须返回明确、可处理的错误原因。
 
 因此 `transfer-task` 是状态机的调用入口，而不是状态机规则本身。后续即使 Task 状态机增加新的合法流转，也优先扩展领域规则，而不是为每种流转新增专用 Tool。
+
+`list-tasks` 与 `read-task` 返回的 Task projection 必须包含 `version`。Agent 在执行会修改 Task aggregate 的 Tool 前使用该值作为 `expected_version`。
+
+以下 Task mutation 必须携带 `expected_version`：
+
+```text
+update-task
+update-task-plan
+move-task
+transfer-task
+add-task-blocker
+resolve-task-blocker
+```
+
+`TASK_VERSION_CONFLICT` 后，Agent 应通过 `read-task(task_id)` 重新获取最新 Task，再决定新的业务操作；不能把 stale mutation 自动改成“覆盖最新值”。
+
+所有 Task 写 Tool（包括 create-task、comment-task 与 Blocker mutation）的 Builtin Backend 都使用 keyed idempotency。Unified Tool Runtime 将稳定 `operation_id`（或其派生 key）传给 Task Domain 作为 `request_id`。
+
+其中会修改 Task aggregate 的 mutation 还必须携带 `expected_version`；comment-task 不修改 Task 主记录时不要求为了 comment 人为推进 Task.version。Task Domain 必须先解析 idempotency，再校验 `expected_version`，从而保证“Attempt 1 已成功但响应丢失”时的 technical retry 能 replay 原结果。
+
+`list-task-events` 用于按 cursor 分页读取更早的 Task Timeline。Task Execution Runtime View / Tool Call 不通过这个 Tool 复制为 TaskEvent。
+
+完整 Task 领域规则见 [Task Domain Model](../project-work-management/task-domain-model.md)、[Task State Machine](../project-work-management/task-state-machine.md) 与 [Task Event Timeline](../project-work-management/task-event-timeline.md)。
 
 ### Task Blocker
 
@@ -219,7 +249,7 @@ in-progress / in-review -> blocked
 ```text
 Blocker
   type = rely_on
-  related_task_id = ...
+  metadata.related_task_id = ...
 ```
 
 `rely_on` 虽然通过统一 Blocker API 操作，但服务端仍必须执行依赖图专属规则，包括：
@@ -228,7 +258,13 @@ Blocker
 - Task 不能依赖自身；
 - 创建 / 修改时检查循环依赖；
 - 可以按关联 Task 查询依赖关系；
+- 只有 related Task = `done` 时才自动满足；
+- related Task = `cancelled` 时保持 unresolved；
 - 前置 Task 满足条件后，可以由 Scheduler 自动解除对应 `rely_on` blocker。
+
+如果 Task 当前为 `blocked`，独立 `resolve-task-blocker` 不允许单独解除最后一个 unresolved blocker；Human / Agent 应使用 `transfer-task(target_state = todo)` 将最后 blocker resolution 与状态恢复原子提交。Scheduler 自动 dependency recovery 同样遵守这一不变量。
+
+完整规则见 [Task Blocker / Dependency](../project-work-management/task-blocker-dependency.md)。
 
 ### Knowledge Base
 

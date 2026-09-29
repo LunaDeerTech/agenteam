@@ -18,7 +18,7 @@
 - Agent Executor idempotency key；
 - pending / launched / failed / skipped；
 - todo claim 事务；
-- in-progress / in-review relaunch；
+- in_progress / in_review relaunch；
 - Launch retry / backoff；
 - unknown outcome；
 - Central restart recovery；
@@ -59,6 +59,7 @@ SchedulerDispatch
 ├── task_id
 ├── purpose
 ├── agent_id
+├── claim_source_manual_rank?
 ├── status
 ├── idempotency_key
 ├── execution_id?
@@ -84,8 +85,8 @@ review
 
 对应：
 
-- work：todo / in-progress；
-- review：in-review。
+- work：todo / in_progress；
+- review：in_review。
 
 ### 3.2 agent_id
 
@@ -111,6 +112,14 @@ Dispatch retry 不重新解析 Task 当前 assignee。
 - 历史解释。
 
 Sprint 后续切换不会重写历史 Dispatch。
+
+### 3.4 claim_source_manual_rank
+
+仅 `todo` claim 创建的 Dispatch 保存该字段，用于记录 claim 前 Task 在 todo group 中的 `manual_rank`。
+
+它只服务于极少数 `AgentBusy` 竞态补偿：如果 Launch 最终明确没有创建 Execution，Scheduler 将 Task 从 `in_progress` 恢复到 `todo` 时恢复该 rank，避免技术竞态改变用户排序。
+
+普通 `in_progress / in_review` relaunch 不设置该字段。
 
 ## 4. Status
 
@@ -271,9 +280,12 @@ create SchedulerDispatch:
   purpose = work
   status = pending
   agent_id = current assignee
+  claim_source_manual_rank = Task.manual_rank
 
 Task:
-  todo -> in-progress
+  todo -> in_progress
+  manual_rank -> target in_progress group tail
+  version += 1
 
 write Task Domain state_changed event
 
@@ -283,16 +295,18 @@ COMMIT
 这两个核心事实必须原子：
 
 ```text
-Task is in-progress
+Task is in_progress
 +
 there is a pending work Dispatch
 ```
 
 在进入该事务前，Scheduler 先通过 Agent Executor active slot 视图检查当前 assignee 是否 busy。busy 时本次 Task visit 直接结束：Task 保持 `todo`，不创建 Dispatch。
 
-该检查不能替代 `AgentExecutor.launch()` 自身的原子 slot 约束；它只用于避免大多数无意义的 claim。
+因此正常路径不会出现“先 claim 再发现 Agent 明显 busy”。
 
-## 9. in-progress / in-review Relaunch
+但该检查不能替代 `AgentExecutor.launch()` 自身的原子 slot 约束：Meeting 或其他 Trigger 仍可能在 precheck 与 Launch 之间抢先占用 slot，所以保留后面的 `AgentBusy` 竞态补偿。
+
+## 9. in_progress / in_review Relaunch
 
 对于已经处于执行 phase 的 Task：
 
@@ -310,7 +324,7 @@ assignee exists
 assignee Agent idle
 ```
 
-如果 assignee busy，本次 relaunch 直接 skip，Task 保持原 `in-progress / in-review` 状态，也不创建 Dispatch。
+如果 assignee busy，本次 relaunch 直接 skip，Task 保持原 `in_progress / in_review` 状态，也不创建 Dispatch。
 
 事务：
 
@@ -328,8 +342,8 @@ COMMIT
 purpose：
 
 ```text
-in-progress -> work
-in-review   -> review
+in_progress -> work
+in_review   -> review
 ```
 
 ## 10. 防重复约束
@@ -382,7 +396,21 @@ Scheduler 只需要可靠拿到 execution_id，不等待 Execution 进入 prepar
 
 `AgentBusy` 表示没有创建新的 Agent Execution，因此不属于 unknown outcome，也不需要用同一个 Dispatch 做 Launch retry。
 
-如果该 Dispatch 来自原 `todo` claim，Scheduler 同步执行补偿事务把 Task 从 `in-progress` 恢复为 `todo`。如果来自 `in-progress / in-review` relaunch，则 Task state 不变。
+如果该 Dispatch 来自原 `todo` claim，Scheduler 执行内部补偿事务：
+
+```text
+lock Task + Dispatch
+Dispatch: pending -> skipped(agent_busy)
+Task: in_progress -> todo
+Task.manual_rank = Dispatch.claim_source_manual_rank
+Task.version += 1
+TaskEvent(state_changed, reason_code = scheduler_agent_busy_compensation)
+commit
+```
+
+这不是正常业务 transition，也不暴露给 `transfer-task`。恢复原 todo rank，避免一次纯技术竞态改变用户队列顺序。
+
+如果来自 `in_progress / in_review` relaunch，则只把 Dispatch 标记为 `skipped(agent_busy)`，Task state / rank 不变。
 
 ## 12. Retry
 
@@ -535,11 +563,11 @@ Task Event:
 
 对于原 todo claim：
 
-Task 此时通常已经是 in-progress。
+Task 此时通常已经是 in_progress。
 
 对于 work / review relaunch：
 
-Task 可能是 in-progress / in-review。
+Task 可能是 in_progress / in_review。
 
 无论来源，最终统一：
 
@@ -551,14 +579,15 @@ Scheduler 不保留“launch failed 但 Task 仍自动可执行”的状态。
 
 ## 16. Technical Blocker
 
-建议 blocker 至少引用：
+technical blocker 统一使用 Task Blocker schema：
 
 ```text
 type = technical
-source = scheduler_dispatch
-source_reference = dispatch_id
-description
-created_at
+description = safe user-facing summary
+metadata:
+  code = scheduler_launch_failed
+  source = scheduler_dispatch
+  reference_id = dispatch_id
 ```
 
 不要把完整 internal error stack 放进 blocker。

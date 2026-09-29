@@ -254,10 +254,10 @@ succeeded 只表示：
 例如：
 
 ```text
-Agent calls transfer-task(in-review)
+Agent calls transfer-task(in_review)
 Agent Loop exits normally
 Execution -> succeeded
-Task -> in-review
+Task -> in_review
 ```
 
 业务状态由业务 Tool / Domain Service 决定。

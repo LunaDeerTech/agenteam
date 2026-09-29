@@ -5,6 +5,8 @@
 > 相关详细设计：
 > - [Scheduler Loop](./scheduler-loop.md)
 > - [Scheduler Dispatch](./scheduler-dispatch.md)
+> - [Task State Machine](../project-work-management/task-state-machine.md)
+> - [Task Blocker / Dependency](../project-work-management/task-blocker-dependency.md)
 
 ## 1. 设计范围
 
@@ -16,7 +18,7 @@
 
 本文覆盖：
 
-- backlog / todo / in-progress / in-review / blocked / done / cancelled；
+- backlog / todo / in_progress / in_review / blocked / done / cancelled；
 - blocker 自动解除；
 - active Execution 判断；
 - relaunch skip；
@@ -60,9 +62,9 @@ Scheduler 必须读取最新持久化 Task，而不能只使用 traversal snapsh
 | Task state | Scheduler 行为 |
 | --- | --- |
 | backlog | 不进入 traversal；不处理 |
-| todo | 满足条件且 assignee Agent idle 时 claim 为 in-progress，并创建 work Dispatch；Agent busy 时保持 todo |
-| in-progress | 有 active Execution 或 assignee Agent busy 则 skip；否则按 cooldown / concurrency 决定是否创建 work Dispatch |
-| in-review | 有 active Execution 或 assignee Agent busy 则 skip；否则按 cooldown / concurrency 决定是否创建 review Dispatch |
+| todo | 满足条件且 assignee Agent idle 时 claim 为 in_progress，并创建 work Dispatch；Agent busy 时保持 todo |
+| in_progress | 有 active Execution 或 assignee Agent busy 则 skip；否则按 cooldown / concurrency 决定是否创建 work Dispatch |
+| in_review | 有 active Execution 或 assignee Agent busy 则 skip；否则按 cooldown / concurrency 决定是否创建 review Dispatch |
 | blocked | 检查可自动解除 blocker；全部解除后转 todo |
 | done | 不进入 traversal；不处理 |
 | cancelled | 不进入 traversal；不处理 |
@@ -151,15 +153,21 @@ no new SchedulerDispatch
 必须原子完成：
 
 ```text
-revalidate Task
-create work SchedulerDispatch(status=pending)
-Task: todo -> in-progress
+revalidate Task + current version
+create work SchedulerDispatch(
+  status = pending,
+  claim_source_manual_rank = Task.manual_rank
+)
+Task: todo -> in_progress
+Task.manual_rank -> target in_progress group tail
+Task.version += 1
 commit
 ```
 
 事务内还需要写 Task Domain 自己的：
 
 - state_changed Task Event；
+- Task.version 更新；
 - 其他必要审计字段。
 
 SchedulerDispatch 不是 Task Event。
@@ -168,11 +176,13 @@ SchedulerDispatch 不是 Task Event。
 
 事务提交后使用该 Dispatch 调用 Agent Executor。
 
-由于 busy 预检查与真正 Launch 之间仍可能发生竞争，`AgentExecutor.launch()` 是最终裁决点。如果其他 Trigger 抢先占用了 Agent slot，Launch 返回 `AgentBusy`。
+claim 前必须先检查当前 assignee 的 Agent active slot；如果已经 busy，本次 Task visit 直接结束，Task 保持 `todo`，不创建 Dispatch。
 
-`AgentBusy` 不属于 temporary error，也不进入 Launch retry。Scheduler 必须把当前 Dispatch 终止为 `skipped(agent_busy)`；如果这是 `todo` claim，则通过补偿事务把 Task 恢复为 `todo`，不添加 technical blocker。下一轮 traversal 再重新判断。
+busy precheck 与真正 Launch 之间仍可能发生跨 Trigger 竞态，因此 `AgentExecutor.launch()` 是最终裁决点。如果其他 Trigger 抢先占用了 Agent slot，Launch 返回 `AgentBusy`。
 
-即使 Launch 暂时失败：
+`AgentBusy` 不属于 temporary error，也不进入 Launch retry。Scheduler 必须把当前 Dispatch 终止为 `skipped(agent_busy)`；如果这是 `todo` claim，则执行内部 `scheduler_agent_busy_compensation`：Task `in_progress -> todo`、恢复 claim 前的 `manual_rank`、推进 Task.version，并写 reasoned `state_changed` TaskEvent。不添加 technical blocker。下一轮 traversal 再重新判断。
+
+对于除 `AgentBusy` 之外的 temporary Launch error：
 
 - Task 不回滚到 todo；
 - 同一个 pending Dispatch 按 retry policy 继续；
@@ -180,9 +190,9 @@ SchedulerDispatch 不是 Task Event。
 
 这样避免 Task 在 Launch retry 期间被其他 traversal 再次 claim。
 
-## 7. in-progress
+## 7. in_progress
 
-`in-progress` 表示 Task 当前处于普通工作阶段。
+`in_progress` 表示 Task 当前处于普通工作阶段。
 
 Scheduler 不判断上一轮 Agent 工作得是否正确。
 
@@ -217,7 +227,7 @@ skip
 
 如果当前 phase 从未存在过 Scheduler work Execution，则不需要 cooldown，直接继续检查 Project concurrency。
 
-如果最新 work Execution 已 terminal，但 Task 仍为 in-progress：
+如果最新 work Execution 已 terminal，但 Task 仍为 in_progress：
 
 Scheduler 不看 terminal status。
 
@@ -236,7 +246,7 @@ skip
 
 继续检查 Project concurrency。
 
-随后还必须检查当前 assignee Agent 是否 busy。Agent busy 时本次直接 skip，Task 保持 `in-progress`，不创建新的 Dispatch。
+随后还必须检查当前 assignee Agent 是否 busy。Agent busy 时本次直接 skip，Task 保持 `in_progress`，不创建新的 Dispatch。
 
 ### 7.5 Concurrency 有容量
 
@@ -250,37 +260,40 @@ SchedulerDispatch
 Task state 保持：
 
 ```text
-in-progress
+in_progress
 ```
 
 然后 Launch 当前 assignee。
 
 ### 7.6 Assignee 缺失
 
-按 Task Domain 约束，in-progress 应有 assignee。
+按 Task Domain 约束，in_progress 应有 assignee。
 
 如果出现：
 
 ```text
-in-progress + assignee = null
+in_progress + assignee = null
 ```
 
 属于状态不一致。
 
 Scheduler 不自行选择 Agent。
 
-建议：
+处理为：
 
 ```text
-add technical / state_inconsistency blocker
+add blocker(
+  type = technical,
+  metadata.code = state_inconsistency
+)
 Task -> blocked
 ```
 
 该动作属于保护性 reconciliation，不代表 Scheduler 在正常流程中负责分配 assignee。
 
-## 8. in-review
+## 8. in_review
 
-`in-review` 与 in-progress 使用相同的 Execution presence / cooldown / concurrency 逻辑，但 purpose 为：
+`in_review` 与 in_progress 使用相同的 Execution presence / cooldown / concurrency 逻辑，但 purpose 为：
 
 ```text
 review
@@ -311,10 +324,10 @@ skip
 Task state 始终保持：
 
 ```text
-in-review
+in_review
 ```
 
-真正创建 review Dispatch 前同样检查当前 assignee Agent 是否 busy。busy 时本次 skip，Task 保持 `in-review`。
+真正创建 review Dispatch 前同样检查当前 assignee Agent 是否 busy。busy 时本次 skip，Task 保持 `in_review`。
 
 ### 8.4 Reviewer assignee
 
@@ -343,7 +356,7 @@ type = rely_on
 ```text
 Blocker
 type = rely_on
-related_task_id
+metadata.related_task_id
 resolved_at?
 ```
 
@@ -382,7 +395,16 @@ Scheduler does nothing
 
 ### 9.3 全部 blocker resolved
 
-在同一次 reconciliation 中：
+Task Domain 保持：
+
+```text
+Task.state = blocked
+=> at least one unresolved blocker
+```
+
+因此 Scheduler 自动解除最后一个 blocker 时，必须在同一个 reconciliation transaction 中完成 blocker resolution 与后续状态处理，不能提交“blocked 但已经没有 unresolved blocker”的中间状态。
+
+流程：
 
 ```text
 resolve auto-resolvable blockers
@@ -391,10 +413,15 @@ check all blockers
         ↓
 all resolved
         ↓
-blocked -> todo
+current assignee valid?
+   ├── yes -> blocked -> todo
+   └── no  -> add technical blocker(code = state_inconsistency)
+              keep blocked
 ```
 
-Task 进入 todo 后，本次 reconciliation 结束。
+Scheduler 不恢复“进入 blocked 前的 assignee”，也不选择新的 assignee，只使用 Task 当前持久化 assignee。
+
+Task 成功进入 todo 后，本次 reconciliation 结束。
 
 因为 blocked group 位于 traversal 最后：
 
@@ -405,7 +432,7 @@ Task 进入 todo 后，本次 reconciliation 结束。
 这样可以避免一次 Task visit 内连续发生：
 
 ```text
-blocked -> todo -> in-progress -> launch
+blocked -> todo -> in_progress -> launch
 ```
 
 状态跨度过大。
@@ -488,14 +515,14 @@ skip
 对于 todo，只有真正拿到 concurrency slot 后才执行：
 
 ```text
-todo -> in-progress
+todo -> in_progress
 ```
 
 否则 Task 继续保持 todo。
 
 ## 15. Relaunch Skip Runtime
 
-对于 in-progress / in-review：
+对于 in_progress / in_review：
 
 Scheduler 使用 [Scheduler Loop](./scheduler-loop.md) 中定义的 SchedulerTaskRuntime 保存：
 
@@ -534,17 +561,17 @@ Task 的下一步只由 Task 自己当前 state 决定。
 
 示例：
 
-### 16.1 Execution succeeded，但 Task 仍 in-progress
+### 16.1 Execution succeeded，但 Task 仍 in_progress
 
 ```text
 cooldown
 -> relaunch work
 ```
 
-### 16.2 Execution failed，但 Agent 已经把 Task 改成 in-review
+### 16.2 Execution failed，但 Agent 已经把 Task 改成 in_review
 
 ```text
-Task Source of Truth = in-review
+Task Source of Truth = in_review
 -> review reconciliation
 ```
 
@@ -568,18 +595,17 @@ commit
 Agent Executor.cancel(execution_id)
 ```
 
-建议 blocker type：
+使用正式 Blocker schema：
 
 ```text
-user_cancelled_execution
+type = user_cancelled_execution
+metadata:
+  execution_id
+  cancelled_by
+  reason?
 ```
 
-至少保存：
-
-- execution_id；
-- cancelled_by；
-- reason?；
-- created_at。
+`created_at` 由 TaskBlocker 公共字段保存。
 
 Scheduler 不监听 Agent Executor cancel completion。
 
@@ -590,14 +616,17 @@ Scheduler 不监听 Agent Executor cancel completion。
 Scheduler 允许对明显违反 Task Domain invariant 的状态做保护性阻塞，例如：
 
 ```text
-todo / in-progress / in-review
+todo / in_progress / in_review
 AND assignee missing
 ```
 
-这类情况建议：
+这类情况处理为：
 
 ```text
-add blocker(type = technical/state_inconsistency)
+add blocker(
+  type = technical,
+  metadata.code = state_inconsistency
+)
 Task -> blocked
 ```
 

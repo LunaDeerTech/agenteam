@@ -359,7 +359,6 @@ flowchart LR
 
     Events["Domain Event Bus<br/>in-process / DB outbox"]
 
-    Scheduler["Scheduler"]
     Notification["Notification"]
     Realtime["Realtime UI"]
     Audit["Audit"]
@@ -370,7 +369,6 @@ flowchart LR
     Meeting --> Events
     Knowledge --> Events
 
-    Events --> Scheduler
     Events --> Notification
     Events --> Realtime
     Events --> Audit
@@ -391,6 +389,8 @@ flowchart LR
 - RunnerConnected / Disconnected。
 
 Domain Event 不能代替业务事务本身。需要强一致的状态变化仍在对应服务事务中完成。
+
+Scheduler 第一阶段不作为 Domain Event Bus consumer。Scheduler correctness 依赖 PostgreSQL 中的 Task / SchedulerDispatch Source of Truth 与固定 tick traversal；未来即使增加事件唤醒，也只能作为降低调度延迟的可选优化，不能成为任务是否会被调度的唯一触发条件。
 
 ## 8. Audit
 
@@ -507,8 +507,7 @@ flowchart TB
         Binary["agenteam Binary"]
         Frontend["Embedded Web Assets"]
         API["Go Backend"]
-        Scheduler["Scheduler"]
-        Executor["Agent Executor / Agent Execution"]
+            Executor["Agent Executor / Agent Execution"]
         ObjectStorage["Object Storage Service"]
         Outbound["Outbound Network Policy"]
     end

@@ -453,7 +453,7 @@ Tool System 负责：
 例如 Agent 有 transfer-task 权限，也不能执行：
 
 ~~~text
-in-progress -> done
+in_progress -> done
 ~~~
 
 因为 Task Domain 会根据状态机拒绝。

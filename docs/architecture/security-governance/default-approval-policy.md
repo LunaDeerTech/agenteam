@@ -57,7 +57,7 @@ Tool registered
 
 | Risk | 默认行为 | 含义 |
 | --- | --- | --- |
-| `destructive` | 需要 Approval | 删除、取消、不可逆终态或明显破坏性操作 |
+| `destructive` | 需要 Approval | 删除、取消、数据丢失，或明显破坏既有工作结果的不可逆操作；正常 workflow completion 不因“终态”本身被视为 destructive |
 | `arbitrary_execution` | 需要 Approval | 执行任意命令、启动任意进程等通用代码执行能力 |
 | `external_side_effect` | 需要 Approval | 对 agenteam 之外的第三方系统产生写入或状态变化 |
 | `security_sensitive` | 需要 Approval | 修改 Agent Capability、Runner Mount、Credential 等安全边界 |
@@ -105,6 +105,8 @@ Sprint
 
 Task
 - list-tasks
+- read-task
+- list-task-events
 - create-task
 - update-task
 - move-task
@@ -231,10 +233,11 @@ approval_model_ref
 普通工作流转：
 
 ~~~text
-in-progress -> in-review
-in-review -> done
-in-review -> todo
-in-progress / in-review -> blocked
+backlog -> todo
+in_progress -> in_review
+in_review -> done
+in_review -> todo
+todo / in_progress / in_review -> blocked
 blocked -> todo
 ~~~
 
@@ -255,6 +258,8 @@ destructive
 默认需要 Approval。
 
 Task Domain 仍然负责判断实际状态流转是否合法。
+
+`in_review -> done` 与 `complete-sprint` 都属于正常 workflow completion。虽然它们进入不可 reopen 的完成态，但不会因为“终态”本身自动获得 `destructive` Risk；只有取消、删除、数据丢失或破坏既有工作结果的操作才按 destructive 处理。
 
 ### 4.5 Scheduler
 

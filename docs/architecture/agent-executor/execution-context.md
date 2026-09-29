@@ -241,23 +241,35 @@ Agent Loop 可以按统一 schema 将其序列化进模型上下文，但不需�
 
 - Task identity；
 - Task title / description；
--当前状态；
--当前 assignee / reviewer context；
+- Task version；
+- 当前状态；
+- 当前 assignee / reviewer context；
+- Task Plan；
+- unresolved blockers；
+- 最近有限数量的 TaskEvent；
 - Sprint 必要信息；
 - Milestone 必要信息；
 - purpose = work / review；
 - Task 场景 Prompt component。
 
+Task version 随 Trigger Context 一并固化，供 Agent 首次 mutation 使用；如果后续发生 `TASK_VERSION_CONFLICT`，Agent 通过 `read-task(task_id)` 获取最新 Task 与 version，再决定新的 mutation。
+
+更早的 Task Timeline 不在 Provider 中全量展开，Agent 需要时通过 `list-task-events` Tool 按需分页读取。
+
+TaskContextProvider 不直接复制历史 Agent Execution Runtime View / transcript。历史 Execution 仍按 Agent Execution Source of Truth 查询。
+
 Task Prompt 负责告诉 Agent：
 
 - 当前阶段；
--本次职责；
--可用 Task Tool；
--需要通过 `transfer-task` 请求状态流转。
+- 本次职责；
+- 可用 Task Tool；
+- 需要通过 `transfer-task` 请求状态流转。
 
 真正状态合法性仍由 Task Domain 校验。
 
 Provider 不直接修改 Task。
+
+Task Context 的完整领域边界见 [Task Domain Model](../project-work-management/task-domain-model.md) 与 [Task Event Timeline](../project-work-management/task-event-timeline.md)。
 
 ## 9. MeetingContextProvider
 

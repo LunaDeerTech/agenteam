@@ -5,6 +5,8 @@
 > 相关架构：
 > - [Scheduler](../scheduler/README.md)
 > - [统一工具系统](../tool-system/README.md)
+> - [Task Domain Model](./task-domain-model.md)
+> - [Task Event Timeline](./task-event-timeline.md)
 
 ## 1. 设计范围
 
@@ -52,6 +54,7 @@ Sprint
 ├── milestone_id
 ├── title
 ├── description
+├── manual_rank
 ├── started_at?
 ├── started_by?
 ├── completed_at?
@@ -202,7 +205,7 @@ start-sprint
 
 - 空 Sprint；
 - 已经包含 Task 的 Sprint；
-- 包含 rollover 进入的 `in-progress / in-review / blocked` Task 的 Sprint。
+- 包含 rollover 进入的 `in_progress / in_review / blocked` Task 的 Sprint。
 
 Start 不要求：
 
@@ -357,8 +360,8 @@ cancelled
 ```text
 backlog
 todo
-in-progress
-in-review
+in_progress
+in_review
 blocked
 ```
 
@@ -532,7 +535,7 @@ SELECT Project ... FOR UPDATE
 - start-sprint；
 - complete-sprint；
 - Scheduler 创建新的 SchedulerDispatch / claim todo；
-- Scheduler relaunch in-progress / in-review。
+- Scheduler relaunch in_progress / in_review。
 
 目的：
 
@@ -714,7 +717,7 @@ Sprint Lifecycle 不复用 Task Event。
 - timestamp；
 - rollover Task count。
 
-Task 因 rollover 发生 Sprint / Milestone 归属变化时，应通过 Task Domain 记录对应结构变化事实。
+Task 因 rollover 发生 Sprint / Milestone 归属变化时，通过 Task Domain 写入 `task_moved` TaskEvent，并使用 `source = sprint_lifecycle` 区分其来源。
 
 不为 Sprint Lifecycle 建立通用 Event Sourcing。
 
