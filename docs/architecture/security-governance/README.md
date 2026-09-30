@@ -577,7 +577,9 @@ Approval Request 至少需要能够关联：
 - 目标 Resource / Scope；
 - 触发审批的业务来源，例如 Task / Meeting。
 
-Human Inbox 是 pending Approval Request 的统一聚合和直接处理入口，不保存另一套审批状态。
+Human Inbox 是 pending Approval Request 的统一聚合和直接处理入口。
+
+ApprovalRequest.status 仍由 Security / Governance 作为 Source of Truth 维护；Human Inbox 不复制 approval pending / approved / rejected 等业务状态。Human Inbox 只维护自己的 projection lifecycle（例如 open / resolved / dismissed），其中 Approval 属于必须处理型 Item，不允许 dismiss。
 
 平台应提供可复用的 Approval Request 交互组件 / Action Contract，使以下入口共享同一套 approve / reject 行为：
 
@@ -599,6 +601,29 @@ Governance Approval Request
 ~~~
 
 Approval Request 的最终状态仍由 Security / Governance 统一维护。
+
+Human Inbox projection、stable identity、dismiss policy、rebuild 与 Realtime 规则见 [Human Inbox 详细设计](../platform-infrastructure/human-inbox.md)。ApprovalRequestedEvent / ApprovalResolvedEvent 等跨模块通知统一使用 [Internal Domain Events](../platform-infrastructure/internal-domain-events.md)。
+
+Approval Request 与对应 Domain Event 必须遵守 Transactional Outbox contract：
+
+```text
+BEGIN
+  create ApprovalRequest(status = pending)
+  insert ApprovalRequestedEvent -> DomainEventOutbox
+COMMIT
+```
+
+用户完成审批时：
+
+```text
+BEGIN
+  ApprovalRequest: pending -> approved / rejected
+  write approval resolution / related Approval record
+  insert ApprovalResolvedEvent -> DomainEventOutbox
+COMMIT
+```
+
+ApprovalResolvedEvent 的 payload 必须能够表达最终 resolution outcome，但 Human Inbox 只使用它把对应 approval.resolve Item 从 open 投影为 resolved；Approval 的授权语义仍只由 Security / Governance 解释。
 
 ### 5.4 Approval Scope
 

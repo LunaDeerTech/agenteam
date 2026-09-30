@@ -325,6 +325,17 @@ Approval / Decision waiting 不设置自动过期，必须等待用户明确处�
 
 Execution terminal state 不可逆。需要重试时创建新的 Agent Execution。
 
+跨模块需要观察的稳定 lifecycle 事实通过 typed Internal Domain Event 暴露，例如：
+
+```text
+AgentExecutionStartedEvent
+AgentExecutionSucceededEvent
+AgentExecutionFailedEvent
+AgentExecutionCancelledEvent
+```
+
+对应 lifecycle 状态变更与 DomainEventOutbox 在同一 PostgreSQL transaction 中提交。这里不引入通用 AgentExecutionEvent Event Store，也不把 RuntimeItem / Model / Tool 细节事件化。
+
 完整 waiting、resume、cancel、checkpoint 与 crash recovery 设计见 [Execution Lifecycle](./execution-lifecycle.md)。
 
 ## 8. Agent Loop

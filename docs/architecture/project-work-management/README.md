@@ -223,7 +223,7 @@ comment
 
 一次领域命令产生多个事实时，各自写独立 TaskEvent，并共享 `operation_id / correlation_id`。
 
-TaskEvent 与 Task mutation 同事务写入，但与 Internal Domain Event / Outbox 分离。
+TaskEvent 与 Task mutation 同事务写入，但与 Internal Domain Event / Outbox 分离。Task Domain 一旦产生 Domain Event，该 Event 必须与业务状态在同一 PostgreSQL transaction 中写入统一 Outbox。
 
 Agent Execution Runtime View、Tool Call、Execution lifecycle 不复制成 TaskEvent。
 
@@ -355,3 +355,5 @@ Meeting 对 Task 的读取 / 修改仍通过统一 Tool 与 Work Management Serv
 ### Platform Events
 
 TaskEvent 是用户 Timeline；Internal Domain Event / Outbox 是模块集成机制，两者职责分离。
+
+所有 Domain Event 的 envelope、transactional outbox、at-least-once delivery、Handler 幂等与 retry 统一遵循 [Internal Domain Events](../platform-infrastructure/internal-domain-events.md)。

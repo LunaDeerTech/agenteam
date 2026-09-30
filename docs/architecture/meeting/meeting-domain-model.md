@@ -123,10 +123,9 @@ proposed Meeting 已经拥有自己的：
 - topic / purpose；
 - 建议 participants；
 - source execution；
-- source Task / reference；
-- Human Inbox reminder reference。
+- source Task / reference。
 
-Human Inbox 只聚合“该 Meeting 等待用户批准”这一待办，并提供跳转到 Meeting Session 页面的入口；Meeting 本身是 Source of Truth。
+Human Inbox 为“该 Meeting 等待用户批准”建立 HumanInboxItem projection，并提供跳转到 Meeting Session 页面的入口；Meeting 本身仍是 Source of Truth。HumanInboxItem 通过 `source_type = meeting + source_id = meeting_id` 单向引用 Meeting，Meeting Domain 不反向保存 Human Inbox projection reference。
 
 用户批准：
 
@@ -752,7 +751,7 @@ BEGIN
   insert User MeetingMessage
   insert MeetingMessageReference(s)
   insert MeetingTimelineItem
-  insert OutboxEvent
+  insert DomainEventOutbox row(s)
 COMMIT
 ```
 
@@ -765,6 +764,43 @@ Meeting 不尝试和 Agent Executor、Security / Governance 建立跨模块分�
 - PostgreSQL Outbox；
 
 实现最终一致。
+
+所有 Meeting Domain Event 都使用平台统一 typed Event + DomainEventEnvelope，并在产生业务事实的同一 transaction 中写 Outbox；完整 contract 见 [Internal Domain Events](../platform-infrastructure/internal-domain-events.md)。
+
+第一阶段跨模块使用的 canonical Event 名称与 Meeting 状态机保持一致：
+
+```text
+MeetingProposedEvent
+  -> Meeting 以 status = proposed 创建
+
+MeetingActivatedEvent
+  -> proposed -> active
+
+MeetingRestoredEvent
+  -> archive -> active
+
+MeetingArchivedEvent
+  -> proposed / active -> archive
+
+MeetingDeletedEvent
+  -> Meeting hard delete committed
+
+DecisionRequestedEvent
+  -> DecisionRequest 以 status = pending 创建
+
+DecisionAnsweredEvent
+  -> pending -> answered
+
+DecisionSkippedEvent
+  -> pending -> skipped
+
+DecisionCancelledEvent
+  -> pending -> cancelled
+```
+
+Meeting 没有 `rejected` 状态，因此不定义 MeetingRejectedEvent；用户拒绝 proposed Meeting 的 canonical 事实是 `proposed -> archive`，对应 MeetingArchivedEvent。
+
+DecisionRequest 没有 `invalidated` 状态，因此不定义 DecisionInvalidatedEvent；Execution / Contribution / Turn cancellation 导致的终止统一对应 DecisionCancelledEvent。
 
 ## 14. Archive 与 Hard Delete
 

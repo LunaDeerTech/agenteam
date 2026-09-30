@@ -287,7 +287,7 @@ Task:
   manual_rank -> target in_progress group tail
   version += 1
 
-write Task Domain state_changed event
+write TaskEvent(type = state_changed)
 
 COMMIT
 ```

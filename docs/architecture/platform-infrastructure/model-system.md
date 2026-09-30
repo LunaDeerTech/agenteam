@@ -867,6 +867,10 @@ Model Provider Credential 属于平台 Secret Management。
 
 长期配置只保存 credential_ref。
 
+Secret value 统一使用平台应用层 envelope encryption 保存为 PostgreSQL ciphertext；Central 通过 Deployment Config 注入的 master key 在运行时解析 credential_ref。master key 不进入数据库，也不进入 ModelConfig / ResolvedModel Snapshot。
+
+Secret storage 与 master key 边界见 [Deployment Runtime](./deployment-runtime.md)。
+
 ~~~mermaid
 sequenceDiagram
     participant L as Agent Loop

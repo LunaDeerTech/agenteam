@@ -339,6 +339,8 @@ TaskEvent async later
 - 模块间可靠通知；
 - consumer / retry / delivery 语义；
 - 不作为用户 Timeline Source of Truth。
+- 一旦 Task Domain 产生 Domain Event，该 Event 必须写入统一 PostgreSQL Outbox；
+- Event envelope、aggregate ordering、consumer idempotency 与 retry 使用平台统一 contract。
 
 同一数据库事务可以同时写：
 
@@ -349,6 +351,8 @@ Outbox event
 ```
 
 但 TaskEvent 与 Outbox Event 不共用一个 schema，也不互相作为 Source of Truth。
+
+完整 Event contract 见 [Internal Domain Events](../platform-infrastructure/internal-domain-events.md)。
 
 ## 19. Agent Execution Boundary
 

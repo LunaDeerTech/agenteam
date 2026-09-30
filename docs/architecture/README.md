@@ -81,7 +81,7 @@ flowchart TB
     end
 
     subgraph DATA["State & Storage"]
-        Storage["PostgreSQL / pgvector<br/>Redis<br/>MinIO"]
+        Storage["PostgreSQL / pgvector<br/>MinIO"]
     end
 
     subgraph RUNNER["agenteam Runner"]
@@ -109,7 +109,7 @@ flowchart TB
 - **Project Workspace**：项目级业务与协作边界；
 - **Platform Services**：跨项目或跨业务模块复用的平台能力；
 - **agenteam Runner**：部署在远程设备上的执行节点；
-- **State & Storage**：业务事实、向量、缓存和对象存储；
+- **State & Storage**：业务事实、向量和对象存储；
 - **External Systems**：模型 Provider、MCP、Git 和其他外部系统。
 
 随着后续模块文档被逐一审查和修改，本图只同步已经确认的一级边界，不把模块内部实现细节重复搬到 README。
@@ -146,6 +146,8 @@ Platform Services 提供多个业务模块共同依赖的系统能力，例如�
 - Runner Management；
 - Project Environment Variables / Secret Management；
 - Internal Events；
+- Human Inbox；
+- Realtime；
 - 系统级配置。
 
 这里是后端内部的架构分类，用于明确职责边界。
@@ -172,7 +174,9 @@ Runner 不拥有 Task、Meeting、Scheduler、Agent Memory 等项目业务模型
 
 ### State & Storage
 
-PostgreSQL 是主要业务 Source of Truth；pgvector 提供向量索引；Redis 用于缓存和短期协调；MinIO 保存附件、原始文档、Artifact 等对象数据。
+PostgreSQL 是主要业务 Source of Truth；pgvector 提供向量索引；MinIO 保存附件、原始文档、Artifact 等对象数据。
+
+当前架构固定为单个 agenteam Central，不引入 Redis。Realtime 在 Central 进程内 fan-out；correctness-critical coordination 统一依赖 PostgreSQL transaction、row lock、advisory lock、version 等数据库机制。
 
 存储技术不定义业务模块边界，具体数据归属由各模块文档说明。
 
@@ -204,7 +208,6 @@ External Systems 包括模型 Provider、MCP Server、Git Repository 以及其�
 - 主数据库：PostgreSQL；
 - 向量能力：pgvector；
 - 对象存储：MinIO；
-- 缓存与短期协调：Redis；
 - 部署：前后端一体二进制 + Docker Compose；
 - 执行拓扑：单个 agenteam Central + 多个远程 Runner。
 

@@ -363,9 +363,13 @@ Attempt 2
 Task mutation
 Task.version + 1
 TaskEvent(s)
-Internal Domain Event / Outbox entry (if needed)
+DomainEventOutbox row(s), if this mutation emits Domain Event
 idempotency result
 ```
+
+是否需要表达某个跨模块业务事实由 Task Domain 决定；但一旦 emit Domain Event，就必须按平台统一 Transactional Outbox contract 写入 Outbox，不存在“产生 Domain Event 但不持久化 Outbox”的分支。
+
+统一 Event contract 见 [Internal Domain Events](../platform-infrastructure/internal-domain-events.md)。
 
 状态转换的更严格 transaction contract 见 Task State Machine。
 

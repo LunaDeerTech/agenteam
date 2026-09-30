@@ -469,9 +469,9 @@ DecisionRequest / Approval Request：
 
 ## 13. Realtime
 
-Meeting 不自己选择 WebSocket / SSE。
+Meeting 不自己实现独立 Realtime transport。
 
-统一复用 Platform Realtime Channel。
+统一复用 Platform Realtime WebSocket Gateway。
 
 Timeline realtime 与 Agent Execution Runtime View 分开。Meeting 不自己实现 Model / Tool streaming，而是直接复用 Agent Executor 的 Runtime View：
 
@@ -490,7 +490,7 @@ Reusable Agent Execution Runtime View
 
 ## 14. Human Inbox
 
-Human Inbox 是统一的人类待处理聚合视图。
+Human Inbox 是统一的人类待处理 projection。
 
 Meeting 可以向 Human Inbox 暴露：
 
@@ -498,9 +498,11 @@ Meeting 可以向 Human Inbox 暴露：
 - pending DecisionRequest；
 - pending Approval Request。
 
-Human Inbox 不保存这些对象的第二份状态。
+Human Inbox 不复制这些对象的业务 Source of Truth。它只保存自己的 HumanInboxItem projection lifecycle，用于统一待办展示、排序和 resolved / dismissed 历史；proposed Meeting、DecisionRequest、Approval Request 的业务状态仍分别由原领域对象维护。
 
 其中 Approval Request 是平台级可复用交互对象。Human Inbox 必须能够直接使用统一 Approval UI / Action 完成 approve / reject，不要求用户跳转到 Task 或 Meeting 页面。Meeting Timeline、Task Execution Detail 和 Human Inbox 使用的是同一个 Governance Approval Request、同一套处理 API 和同一份状态。
+
+Human Inbox 的完整 projection 规则见 [Human Inbox 详细设计](../platform-infrastructure/human-inbox.md)。Meeting 的实时更新统一使用 [Realtime](../platform-infrastructure/realtime.md)，跨模块 durable notification 使用 [Internal Domain Events](../platform-infrastructure/internal-domain-events.md)。
 
 proposed Meeting reminder：
 

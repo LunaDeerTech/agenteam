@@ -219,6 +219,37 @@ cancelled
 
 Agent busy / idle 是从 AgentExecution 派生的运行态，不在 Agent 主记录上维护第二份可变状态。
 
+### 3.8 Lifecycle Domain Events
+
+AgentExecution lifecycle 仍由 AgentExecution 主记录作为 Source of Truth，但跨模块需要观察的稳定 lifecycle 事实通过平台 Internal Domain Events 暴露。
+
+第一阶段至少定义：
+
+```text
+AgentExecutionStartedEvent
+AgentExecutionSucceededEvent
+AgentExecutionFailedEvent
+AgentExecutionCancelledEvent
+```
+
+语义：
+
+- `AgentExecutionStartedEvent`：`preparing -> running` 已提交；
+- `AgentExecutionSucceededEvent`：`running -> succeeded` 已提交；
+- `AgentExecutionFailedEvent`：任意允许来源状态进入 `failed` 已提交；
+- `AgentExecutionCancelledEvent`：任意允许来源状态进入 terminal `cancelled` 已提交。
+
+这些 Event 只表达稳定 lifecycle 事实，不承载 token delta、reasoning、Tool Attempt、checkpoint、heartbeat 或 RuntimeItem。
+
+产生上述 Event 的 lifecycle mutation 必须在同一个 PostgreSQL transaction 中同时：
+
+```text
+update AgentExecution
+insert DomainEventOutbox
+```
+
+完整 typed Event、DomainEventEnvelope、at-least-once delivery 与 Handler 幂等规则见 [Internal Domain Events](../platform-infrastructure/internal-domain-events.md)。
+
 ## 4. AgentExecutionSnapshot
 
 AgentExecutionSnapshot 固化本次 Execution 真正使用的启动配置。

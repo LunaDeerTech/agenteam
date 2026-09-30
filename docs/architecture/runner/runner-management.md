@@ -304,6 +304,26 @@ Runner 可以到达 Central，但 protocol major version 或其他强制 compati
 
 Capability 的某一项不可用不改变顶层状态。
 
+### 9.1 与 Internal Domain Events 的边界
+
+Runner Control Protocol 中的 `RunnerStreamEvent`、`runner_status`、heartbeat 等都不是 Platform Internal Domain Event。
+
+它们首先进入 Runner Management：
+
+```text
+Runner protocol message / connection change
+    ↓
+Runner Management
+    ↓
+canonical Runner status / capability metadata
+```
+
+如果某个已提交的 Runner 状态事实确实需要被 Human Inbox、其他 projection 或未来平台模块可靠消费，Runner Management 再产生明确 typed Domain Event，并与对应持久化状态变更按平台 Transactional Outbox contract 提交。
+
+例如可以由 Source Domain 定义 RunnerStatusChangedEvent / RunnerUnavailableEvent 等稳定业务事件；具体是否需要这些 Event 由使用场景决定，不把每个 heartbeat 或 stream frame 事件化。
+
+因此 Human Inbox 如果未来暴露 Runner failure / unavailable 提醒，应消费 Runner Management 的 durable Domain Event 或其他 canonical failure object，而不是直接消费 Runner Protocol event。
+
 ## 10. Heartbeat 与 last_seen
 
 Control Channel 建立后 Runner 周期性发送 heartbeat。

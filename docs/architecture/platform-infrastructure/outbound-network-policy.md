@@ -340,6 +340,8 @@ policy_violation
 
 Outbound Network Policy 是平台部署级配置。
 
+private CIDR、TLS / trust store、网络安全上限等属于 Deployment Config，而不是 Runtime Platform Config。配置来源、启动依赖与运行时边界见 [Deployment Runtime](./deployment-runtime.md)。
+
 第一阶段不提供：
 
 - Project override；

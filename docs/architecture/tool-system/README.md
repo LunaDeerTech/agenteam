@@ -332,6 +332,8 @@ Model 选择和 Adapter 边界见 [Model System 详细设计](../platform-infras
 
 Approval 不是 Meeting 专属能力。Task Execution、Runner / MCP Tool 等其他场景产生的审批需求也统一进入 Security / Governance 的 Approval 机制，并由 Human Inbox 聚合。
 
+Human Inbox 只保存统一待办 projection；Approval Request 的权威状态仍由 Security / Governance 维护。完整 projection contract 见 [Human Inbox](../platform-infrastructure/human-inbox.md)。
+
 `create-meeting` 属于用户/UI 能力。
 
 Agent 使用 `request-meeting` 直接创建 `status = proposed` 的 Meeting Session。该 Meeting 同时进入 Human Inbox 的待处理聚合视图；用户需要进入 Meeting 页面批准后，Meeting 才从 `proposed` 进入 `active` 并允许正常 Turn 执行。

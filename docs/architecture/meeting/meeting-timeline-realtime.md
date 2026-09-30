@@ -59,7 +59,10 @@ Execution 行默认折叠。
 - cancel；
 - final execution status。
 
-具体 Execution Event schema 仍由 Agent Executor / Agent Loop 定义。
+Execution 相关接口分成两层：
+
+- AgentExecutionStartedEvent / AgentExecutionSucceededEvent / AgentExecutionFailedEvent / AgentExecutionCancelledEvent 等稳定 lifecycle Domain Event 由 Agent Executor 定义，并通过 Internal Domain Events 投影到 Meeting Timeline；
+- RuntimeItemUpdate 是 Execution Runtime View 的 transient Realtime payload，只在用户展开 Execution Row 时使用，不作为 Meeting Timeline 的 durable Domain Event。
 
 ## 3. Materialized Read Model
 
@@ -94,7 +97,7 @@ MeetingTimelineItem
 2. 创建 User `MeetingTurnContribution`；
 3. 写 User MeetingMessage，并关联该 Contribution；
 4. 创建对应 TimelineItem；
-5. 写 Outbox。
+5. 写对应 Domain Event，并在同一 transaction 中写统一 DomainEventOutbox。
 
 User Contribution 在 Timeline 中直接展示其 `current_message_id` 对应的 MeetingMessage。
 
@@ -534,7 +537,9 @@ flowchart LR
     Governance["Security / Governance"]
 
     LocalTx["Meeting DB Transaction"]
-    Outbox["Domain Event / Outbox"]
+    Outbox["PostgreSQL DomainEventOutbox"]
+    Dispatcher["Domain Event Dispatcher"]
+    Bus["In-process Event Bus"]
     Projector["Meeting Timeline Projector"]
     Timeline["Timeline Read Model"]
     UI["Meeting UI"]
@@ -544,7 +549,9 @@ flowchart LR
 
     Executor --> Outbox
     Governance --> Outbox
-    Outbox --> Projector
+    Outbox --> Dispatcher
+    Dispatcher --> Bus
+    Bus --> Projector
     Projector --> Timeline
 
     Timeline --> UI
@@ -569,7 +576,7 @@ flowchart LR
 BEGIN
   insert Agent MeetingMessage
   update MeetingTimelineItem.final_message_id
-  insert OutboxEvent
+  insert DomainEventOutbox row(s)
 COMMIT
 ```
 
@@ -601,15 +608,18 @@ Timeline Projector 幂等消费这些事件，更新对应 Agent item。
 
 ## 19. Projection 幂等
 
-外部事件必须包含稳定：
+外部事件统一使用 Platform DomainEventEnvelope。Meeting Timeline Projector 至少消费：
 
 ```text
 event_id
-source_id
-source_version / occurred_at
+event_type
+aggregate_type
+aggregate_id
+aggregate_version?
+occurred_at
 ```
 
-Timeline Projector 保存 processed event 或使用 projection version 防止重复应用。
+Timeline Projector 保存 processed event 或使用 aggregate_version / projection version 防止重复应用。
 
 典型唯一约束：
 
@@ -649,9 +659,9 @@ Meeting UI 在用户直接提交 Decision / Approval 后可以进行 optimistic 
 
 ## 21. Realtime Channel
 
-Meeting 不单独决定 WebSocket 或 SSE。
+Meeting 不实现独立 Realtime transport。
 
-统一复用平台 Realtime Channel。
+统一复用平台 [Realtime](../platform-infrastructure/realtime.md) 定义的 WebSocket Gateway。
 
 Meeting 需要的逻辑事件至少包括：
 
@@ -667,7 +677,7 @@ Approval / Decision 的变化最终通过 Timeline item update 呈现。
 
 `RuntimeItemUpdate` 不属于默认 Meeting Timeline subscription。只有用户展开某个 Execution Row 时，前端才单独加载该 execution 的 Runtime Item Snapshot，并在仍运行时订阅 RuntimeItemUpdate Stream。
 
-Transport 由 Platform Infrastructure 统一决定。
+Meeting Timeline Event 是 transient Realtime Event，不是 Domain Event；浏览器断线后仍以重新加载 Timeline Snapshot 恢复 authoritative view。
 
 ## 22. Execution Runtime View Channel
 
@@ -695,11 +705,12 @@ Meeting 不实现专属 sequence / cursor catch-up 协议。
 
 断线重连后：
 
-1. 重新读取完整 Meeting Timeline；
-2. 直接根据 Timeline 中的 Contribution status / timestamps 恢复所有默认折叠行；
-3. 重新获取 pending Decision / Approval；
-4. 恢复 Meeting Timeline realtime subscription；
-5. 只有仍处于展开状态的 execution 才重新连接 Agent Execution stream。
+1. 先恢复 Meeting Timeline realtime subscription，并在 subscription acknowledged 后开始缓冲 Timeline Realtime Event；
+2. 重新读取完整 Meeting Timeline；
+3. 直接根据 Timeline 中的 Contribution status / timestamps 恢复所有默认折叠行；
+4. 重新获取 pending Decision / Approval；
+5. 如果 Snapshot 加载期间收到 buffered Timeline Event，则把它们按 stable Timeline resource identity 合并为 invalidation，并刷新对应 authoritative Timeline read model，不能盲目用可能早于 Snapshot 的 payload 覆盖当前状态；
+6. 只有仍处于展开状态的 execution 才按 Agent Executor 的 subscribe-first + RuntimeItem.seq 规则重新连接 Runtime View stream。
 
 这是明确的第一阶段策略。
 
@@ -763,11 +774,13 @@ Human Inbox
 
 批准动作在 Meeting 页面完成。
 
-Human Inbox reminder 不是 MeetingProposal Source of Truth。
+Human Inbox reminder 不是 MeetingProposal Source of Truth。HumanInboxItem 只维护自己的 projection lifecycle；Meeting proposal 的业务状态仍由 Meeting Domain 维护。
 
 Approval Request 与 proposed Meeting 不同：Approval 是平台级可复用交互对象，Human Inbox 应直接渲染统一 Approval Request 卡片并允许 approve / reject，不要求跳转到 Meeting / Task 页面。Meeting Timeline、Task / Execution Detail 和 Human Inbox 使用同一个 Governance Approval Request 组件 / Action Contract。
 
 DecisionRequest 仍可以从 Human Inbox 跳转到对应 Meeting Execution 处理；无论入口在哪里，用户操作的始终是原领域对象。
+
+Human Inbox projection 规则见 [Human Inbox](../platform-infrastructure/human-inbox.md)；跨模块投影依赖的 durable Event contract 见 [Internal Domain Events](../platform-infrastructure/internal-domain-events.md)。
 
 ## 27. 权限
 

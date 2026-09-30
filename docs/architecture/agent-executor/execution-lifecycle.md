@@ -574,7 +574,8 @@ active_execution_duration
 超过配置阈值：
 
 ```text
--> Human Inbox warning
+-> AgentExecutionLongRunningWarningEvent
+-> Human Inbox warning projection
 ```
 
 警告只提示：
@@ -583,6 +584,18 @@ active_execution_duration
 -可能需要人工查看。
 
 不会改变 Execution status。
+
+该 warning 作为 typed Internal Domain Event 进入统一 DomainEventOutbox，再由 [Human Inbox](../platform-infrastructure/human-inbox.md) 投影成普通提醒型 HumanInboxItem。它可以是 non-blocking / dismissible projection。Execution lifecycle 仍是 Source of Truth，dismiss warning 不影响 Execution 继续运行。
+
+推荐稳定 Inbox identity：
+
+```text
+source_type = agent_execution
+source_id = execution_id
+action_type = execution.inspect_long_running
+```
+
+当同一 Execution 进入 succeeded / failed / cancelled 后，对应 terminal lifecycle Domain Event 应把仍 open 的 long-running warning Item 投影为 resolved。
 
 同一 Execution 的重复警告应支持去重 / 合理节流，避免 Inbox spam。
 
@@ -685,7 +698,28 @@ recover
 -使用 `version` 做乐观并发；
 -写必要 timestamps / metadata；
 -必要时产生 Runtime Item semantic update；
+-如果该 transition 属于对外稳定 lifecycle 事实，则在同一 PostgreSQL transaction 中写对应 typed Domain Event 到 DomainEventOutbox；
 -不允许业务模块直接 UPDATE AgentExecution status。
+
+第一阶段跨模块 lifecycle Event：
+
+```text
+preparing -> running
+  -> AgentExecutionStartedEvent
+
+* -> succeeded
+  -> AgentExecutionSucceededEvent
+
+* -> failed
+  -> AgentExecutionFailedEvent
+
+* -> cancelled
+  -> AgentExecutionCancelledEvent
+```
+
+这些 Event 不替代 AgentExecution Source of Truth，也不表示采用 Event Sourcing。Meeting Timeline 等外部 projection 只消费这些稳定 lifecycle 事实，不消费 RuntimeItemUpdate 作为 durable business event。
+
+统一 Event contract 见 [Internal Domain Events](../platform-infrastructure/internal-domain-events.md)。
 
 ## 28. 生命周期转换表
 

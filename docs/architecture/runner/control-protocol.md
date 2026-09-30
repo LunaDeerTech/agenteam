@@ -376,6 +376,8 @@ Runner 仍然可以因协议完整性或 workspace/path 校验拒绝请求，但
 
 长时间 command / process operation 可以在 terminal response 前产生 stream event。
 
+这里的 RunnerStreamEvent 是 Runner Control Protocol message，不是 Platform Internal Domain Event。它只表达当前 RPC / process stream 的协议级增量，不能直接写入 DomainEventOutbox，也不能直接作为 Human Inbox projection source。
+
 统一结构：
 
 ~~~text
@@ -571,6 +573,8 @@ data_channel_close
 ## 18. Runner Status Event
 
 Runner 可以在 active connection 上发送轻量 `runner_status` event，用于 capability / environment metadata 发生变化。
+
+`runner_status` 同样只是 Runner -> Central 的协议消息，不等于 Platform Domain Event。Central 收到后先由 Runner Management 更新 / 解释 canonical Runner runtime state；只有 Central 形成了需要跨模块传播的稳定业务事实时，才由 Runner Management 另行产生 typed Internal Domain Event。
 
 例如：
 

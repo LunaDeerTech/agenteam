@@ -106,6 +106,20 @@ AgentExecutionError     -> execution failure
 
 Runtime View 只维护 UI projection，不采用 Event Sourcing。
 
+这不排斥 Agent Executor 为少量稳定 lifecycle 事实产生 typed Internal Domain Event，例如 AgentExecutionStartedEvent、AgentExecutionSucceededEvent、AgentExecutionFailedEvent、AgentExecutionCancelledEvent。
+
+两者边界：
+
+```text
+Execution lifecycle Domain Event
+= durable cross-module business fact
+
+RuntimeItemUpdate
+= transient Runtime View realtime payload
+```
+
+Meeting Timeline 等后端 projection 可以消费前者；浏览器 Runtime View 消费后者。
+
 ## 4. RuntimeItem Base Schema
 
 概念结构：
@@ -311,19 +325,20 @@ Agent Executor Lifecycle 可以产生 interaction waiting、recovery notice、ca
 
 ## 13. RuntimeItemUpdate
 
-RuntimeItemUpdate 是实时 transport protocol，不是 durable Event Store。
+RuntimeItemUpdate 是 Agent Executor 定义的 Runtime View realtime payload contract，不是 WebSocket transport protocol，也不是 durable Event Store。
 
-第一阶段概念事件：
+平台 transport 统一包在 RealtimeEvent 中：
 
 ```text
-item.started
-item.delta
-item.updated
-item.completed
-item.failed
+RealtimeEvent
+├── event_type = execution.runtime.item.started / delta / updated / completed / failed
+├── project_id
+├── resource_type = agent_execution
+├── resource_id = execution_id
+└── payload = RuntimeItemUpdate
 ```
 
-通用 envelope：
+RuntimeItemUpdate 自身只描述 Agent Executor 领域内的增量：
 
 ```text
 RuntimeItemUpdate
@@ -334,6 +349,21 @@ RuntimeItemUpdate
 ├── timestamp
 └── payload
 ```
+
+因此：
+
+```text
+WebSocket
+= transport
+
+Platform RealtimeEvent
+= platform realtime envelope
+
+RuntimeItemUpdate
+= Agent Executor payload
+```
+
+具体 Platform envelope、subscription 和 backpressure 规则见 [Realtime](../platform-infrastructure/realtime.md)。
 
 ## 14. item.started / delta / updated
 
@@ -427,7 +457,7 @@ RuntimeItem[] ordered by seq
 
 如果 Execution 已 terminal，只需要 Snapshot。
 
-如果仍 non-terminal，加载 Snapshot 后再订阅 RuntimeItemUpdate Stream。
+如果仍 non-terminal，必须先建立 execution realtime subscription 并开始缓冲 update，再加载 Snapshot。
 
 ## 19. 断线重连
 
@@ -438,20 +468,39 @@ connection lost
     ↓
 reconnect
     ↓
+restore execution realtime subscription
+    ↓
+buffer RuntimeItemUpdate
+    ↓
 reload current Runtime View Snapshot
     ↓
-subscribe new RuntimeItemUpdate
+apply buffered update with seq > snapshot max_seq
+    ↓
+enter normal live consumption
 ```
 
 RuntimeItem.seq 保证重新加载后的顺序稳定。
 
 ## 20. Snapshot 与 Stream Race
 
-首次加载 Snapshot 与订阅 stream 之间存在 race，必须有一致性策略。
+首次加载 Snapshot 与订阅 stream 之间存在 race，第一阶段统一采用 subscribe-first + buffer。
 
-可以使用 snapshot revision，或者先订阅并 buffer update、再加载 Snapshot 并应用较新的 update。
+```text
+subscribe execution runtime
+    ↓
+subscription acknowledged
+    ↓
+buffer incoming RuntimeItemUpdate
+    ↓
+GET Runtime View Snapshot(max_seq)
+    ↓
+discard buffered seq <= max_seq
+apply buffered seq > max_seq
+    ↓
+live
+```
 
-具体机制由 Platform Realtime Channel 设计决定，但必须保证：
+具体传输统一使用 Platform [Realtime](../platform-infrastructure/realtime.md) 定义的 WebSocket Gateway。Snapshot 与 stream race 的处理仍必须保证：
 
 - 不重复创建 Item；
 - 不丢最终状态；
@@ -588,7 +637,7 @@ Realtime：
 subscribe_runtime(execution_id)
 ```
 
-Realtime 统一通过 Platform Realtime Channel 承载 RuntimeItemUpdate；具体 HTTP / WebSocket route 命名留到 API 设计阶段。
+Realtime 统一通过 Platform WebSocket Realtime Gateway 承载 RuntimeItemUpdate；具体 route / subscription wire format 留到 API 实现阶段。
 
 ## 32. 不在本文定义的内容
 
@@ -597,7 +646,7 @@ Realtime 统一通过 Platform Realtime Channel 承载 RuntimeItemUpdate；具�
 - Audit；
 - Token Usage；
 - checkpoint storage；
-- Platform Realtime transport implementation；
+- Platform Realtime transport implementation，见 [Realtime](../platform-infrastructure/realtime.md)；
 - Meeting Timeline 自身 realtime；
 - Approval / Decision 领域 schema。
 

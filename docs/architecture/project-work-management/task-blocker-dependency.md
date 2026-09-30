@@ -87,6 +87,16 @@ metadata
 └── reference_id?
 ```
 
+Human Inbox 去重边界：
+
+- 如果 `waiting_for_human` 只是引用一个已经拥有自己 Human Inbox projection 的 actionable object，例如 ApprovalRequest、DecisionRequest、proposed Meeting，则 Blocker 本身不再创建第二条 HumanInboxItem；
+- 这类 Blocker 只作为 Task 业务上下文和阻塞原因，Human Inbox 继续以原 actionable object 作为 `source_type / source_id`；
+- 只有 Blocker 本身就是独立的人类待处理对象、且没有另一个 canonical actionable object 承载该待办时，才允许以 `source_type = task_blocker` 建立独立 HumanInboxItem。
+
+这样避免同一个 Approval / Decision / Meeting 同时以“源对象 + Blocker”重复出现在 Human Inbox。
+
+完整 projection 规则见 [Human Inbox](../platform-infrastructure/human-inbox.md)。
+
 ### 5.3 waiting_for_meeting_approval
 
 ```text
@@ -348,7 +358,7 @@ else:
     add technical blocker(code = state_inconsistency)
     keep blocked
 
-write blocker_resolved / state_changed / blocker_added Events
+write TaskEvent(blocker_resolved / state_changed / blocker_added)
 Task.version += 1
 commit
 ```

@@ -595,6 +595,8 @@ Project Owner 创建 Variable / Secret。
 
 Secret 明文只在写入请求和加密过程短暂存在。
 
+Project Secret 的 encrypted_value 使用平台统一 Secret Management 的应用层 envelope encryption。部署级 master key 由 Central Deployment Config 注入，不属于 Project 配置，也不保存在业务数据库中。完整基础设施边界见 [Deployment Runtime](../platform-infrastructure/deployment-runtime.md)。
+
 ### 更新普通 Variable
 
 更新后：

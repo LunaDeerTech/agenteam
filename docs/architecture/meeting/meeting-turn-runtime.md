@@ -52,7 +52,9 @@ Meeting Turn Runtime 是 Meeting 模块内部逻辑，不是独立部署服务�
 5. 解析本轮 mode；
 6. 创建 MeetingTurn snapshot；
 7. 写入 Timeline User Message；
-8. 写出 Outbox Event。
+8. 写出对应 Domain Event，并在同一 PostgreSQL transaction 中写入统一 DomainEventOutbox。
+
+Domain Event envelope、transactional outbox、delivery 与 retry 统一遵循 [Internal Domain Events](../platform-infrastructure/internal-domain-events.md)。
 
 概念命令：
 
@@ -438,7 +440,7 @@ Agent 自己决定采用默认方案、提出其他问题或停止相关动作�
 DecisionRequest.pending -> cancelled
 ```
 
-该 Request 从 Human Inbox / active interaction UI 中移除。
+对应 HumanInboxItem 通过 DecisionCancelled Domain Event 从 `open -> resolved`。默认 open Inbox 与 active interaction UI 不再展示该 Request，但 resolved Inbox history 继续保留；这里不是物理删除 HumanInboxItem。
 
 ## 11. Approval Suspension / Resume
 
