@@ -1,7 +1,7 @@
 # Knowledge Indexing 详细设计
 
 > 上层架构：[Knowledge Base 与 Agent Memory](./README.md)  
-> 相关设计：[Knowledge Document Domain](./knowledge-document-domain.md)、[Retrieval Runtime](./retrieval-runtime.md)、[Model System](../platform-infrastructure/model-system.md)
+> 相关设计：[Knowledge Document Domain](./knowledge-document-domain.md)、[Retrieval Runtime](./retrieval-runtime.md)、[Model System](../platform-infrastructure/model-system/README.md)
 
 ## 1. 目标与边界
 

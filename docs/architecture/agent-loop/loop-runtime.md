@@ -7,7 +7,7 @@
 > - [Context Window 与 Compaction](./context-compaction.md)
 > - [Execution Lifecycle](../agent-executor/execution-lifecycle.md)
 > - [Runtime View](../agent-executor/runtime-view.md)
-> - [Model System](../platform-infrastructure/model-system.md)
+> - [Chat Model Runtime](../platform-infrastructure/model-system/chat-model-runtime.md)
 > - [Tool Execution](../tool-system/tool-execution.md)
 
 ## 1. 目标

@@ -7,7 +7,7 @@
 > - [Context Window 与 Compaction](./context-compaction.md)
 > - [Execution Context](../agent-executor/execution-context.md)
 > - [Runtime View](../agent-executor/runtime-view.md)
-> - [Model System](../platform-infrastructure/model-system.md)
+> - [Model System](../platform-infrastructure/model-system/README.md)
 > - [Tool Result & Backend](../tool-system/tool-result-backend.md)
 
 ## 1. 目标

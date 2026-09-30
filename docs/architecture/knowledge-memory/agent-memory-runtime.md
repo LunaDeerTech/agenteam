@@ -1,7 +1,7 @@
 # Agent Memory Runtime 详细设计
 
 > 上层架构：[Knowledge Base 与 Agent Memory](./README.md)  
-> 相关设计：[Agent Memory Domain](./agent-memory-domain.md)、[Retrieval Runtime](./retrieval-runtime.md)、[Model System](../platform-infrastructure/model-system.md)、[Agent Loop](../agent-loop/README.md)、[Security / Governance](../security-governance/README.md)
+> 相关设计：[Agent Memory Domain](./agent-memory-domain.md)、[Retrieval Runtime](./retrieval-runtime.md)、[Model System](../platform-infrastructure/model-system/README.md)、[Agent Loop](../agent-loop/README.md)、[Security / Governance](../security-governance/README.md)
 
 ## 1. 目标与边界
 

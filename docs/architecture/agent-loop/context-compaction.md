@@ -5,7 +5,7 @@
 > 相关设计：
 > - [Agent Loop Runtime](./loop-runtime.md)
 > - [Transcript 与 Model Context](./transcript-context.md)
-> - [Model System](../platform-infrastructure/model-system.md)
+> - [Model System](../platform-infrastructure/model-system/README.md)
 > - [Model Token Usage](../platform-infrastructure/model-token-usage.md)
 > - [Execution Lifecycle](../agent-executor/execution-lifecycle.md)
 

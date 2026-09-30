@@ -10,7 +10,7 @@
 > - [Execution Context](../agent-executor/execution-context.md)
 > - [Execution Lifecycle](../agent-executor/execution-lifecycle.md)
 > - [Runtime View](../agent-executor/runtime-view.md)
-> - [Model System](../platform-infrastructure/model-system.md)
+> - [Model System](../platform-infrastructure/model-system/README.md)
 > - [统一工具系统](../tool-system/README.md)
 > - [Knowledge Base 与 Agent Memory](../knowledge-memory/README.md)
 
@@ -339,7 +339,7 @@ Agent Loop 负责：
 - 消费统一 Model Response；
 - 根据 Response 决定 Tool Loop 或 completion。
 
-完整 Provider contract 见 [Model System](../platform-infrastructure/model-system.md)。
+完整 Provider contract 见 [Chat Model Runtime](../platform-infrastructure/model-system/chat-model-runtime.md)。
 
 ## 9. Tool System 边界
 

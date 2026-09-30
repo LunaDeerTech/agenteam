@@ -683,6 +683,6 @@ AgentExecution
 - Snapshot 如何构造：[Execution Context](./execution-context.md)
 -状态转换 / waiting / checkpoint / recovery：[Execution Lifecycle](./execution-lifecycle.md)
 - Runtime Item / Stream：[Runtime View](./runtime-view.md)
-- Model request / retry：[Model System](../platform-infrastructure/model-system.md)
+- Model request / retry：[Chat Model Runtime](../platform-infrastructure/model-system/chat-model-runtime.md)
 - Tool Operation / Attempt：[Unified Tool Runtime](../tool-system/tool-runtime.md)
 - Agent Loop 控制：[Agent Loop](../agent-loop/README.md)

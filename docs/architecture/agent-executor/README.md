@@ -12,7 +12,7 @@
 > - [Agent 管理](../agent-management.md)
 > - [Agent Loop](../agent-loop/README.md)
 > - [统一工具系统](../tool-system/README.md)
-> - [Model System](../platform-infrastructure/model-system.md)
+> - [Model System](../platform-infrastructure/model-system/README.md)
 
 ## 1. 定位
 

@@ -380,7 +380,7 @@ Approval Model 只是审批判断组件，不扩大 Agent Capability，也不能
 
 如果 Approval Model 调用失败、结果无效或无法形成可靠判断，应保守地进入用户审批，而不是默认放行。
 
-Approval Model 的输入上下文、输出 Schema 与失败处理等具体规则不属于架构层，见 [自动审批模型详细设计](./auto-approval-model.md)。
+Approval Model 的完整设计见 [自动审批模型详细设计](./auto-approval-model/README.md)；输入 / 输出协议、失败语义与 Audit 见 [Approval Model Contract](./auto-approval-model/approval-model-contract.md)，Prompt、消息组装与输入预算见 [Approval Model Prompt Context](./auto-approval-model/approval-model-prompt-context.md)。
 
 #### 完全允许
 

@@ -305,7 +305,7 @@ flowchart LR
 - Agent 只看到统一 ToolSpec 和 Tool Result，不感知具体 image_generation Provider / Model；
 - `generate-image` 与其他普通 Builtin Tool 一样受 Agent Capability、Execution Policy、Approval 与服务端授权约束。
 
-Model 选择和 Adapter 边界见 [Model System 详细设计](../platform-infrastructure/model-system.md)。
+Model 选择和 Adapter 边界见 [Chat Model Runtime 详细设计](../platform-infrastructure/model-system/chat-model-runtime.md)。
 
 ### Scheduler
 

@@ -11,7 +11,7 @@
 > - [Agent Management](../agent-management.md)
 > - [Agent Loop](../agent-loop/README.md)
 > - [统一工具系统](../tool-system/README.md)
-> - [Model System](../platform-infrastructure/model-system.md)
+> - [Model System](../platform-infrastructure/model-system/README.md)
 > - [Object Storage](../platform-infrastructure/object-storage.md)
 > - [Security / Governance](../security-governance/README.md)
 
@@ -254,7 +254,7 @@ Memory 不继承某个 Agent 当前 chat model。
 
 embedding_model_ref 变化会触发 Knowledge / Memory 新索引 generation 的重建；已经在 serving 的 generation 在切换前仍使用自身记录的 embedding Model snapshot，避免 query vector 与旧索引进入不同 embedding space。
 
-完整模型约束见 [Model System](../platform-infrastructure/model-system.md)。
+完整模型约束见 [Model System](../platform-infrastructure/model-system/README.md)。
 
 ## 9. Tool 与 Agent Loop 边界
 

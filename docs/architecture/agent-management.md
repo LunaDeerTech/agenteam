@@ -268,7 +268,7 @@ Agent Management 只保存 `model_ref` 以及按所选 Model 能力配置的 `re
 
 删除仍被 Agent 引用的 chat Model 时，Model Management 必须要求用户先选择替代 chat Model，并在删除前批量更新受影响 Agent.model_ref；替换后还必须保证各 Agent 的 reasoning_effort 在新 Model 下合法，不能留下无效配置。
 
-实际模型调用由 Agent Loop 的 Model Adapter 处理。Provider / Model 配置、模型解析、Capability 与 Model Adapter 的完整设计见 [Model System 详细设计](./platform-infrastructure/model-system.md)。
+实际模型调用由 Agent Loop 的 Model Adapter 处理。Provider / Model 配置、模型解析、Capability 与 Model Adapter 的完整设计见 [Model System 详细设计](./platform-infrastructure/model-system/README.md)。
 
 ## 6. 权限边界
 

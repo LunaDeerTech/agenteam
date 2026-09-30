@@ -788,5 +788,5 @@ Agent Loop：
 - Runtime Item / Stream：[Runtime View](./runtime-view.md)
 - Agent Loop watchdog / Turn runtime：[Agent Loop Runtime](../agent-loop/loop-runtime.md)
 - Context management / compaction：[Context Window 与 Compaction](../agent-loop/context-compaction.md)
-- Model progressive timeout：[Model System](../platform-infrastructure/model-system.md)
+- Model progressive timeout：[Chat Model Runtime](../platform-infrastructure/model-system/chat-model-runtime.md)
 - Tool timeout / retry：[Unified Tool Runtime](../tool-system/tool-runtime.md)

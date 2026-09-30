@@ -9,7 +9,7 @@
 > - [Agent Loop 架构](../agent-loop/README.md)
 >
 > 相关详细设计：
-> - [Model System 详细设计](./model-system.md)
+> - [Chat Model Runtime 详细设计](./model-system/chat-model-runtime.md)
 
 ## 1. 设计范围
 
@@ -36,7 +36,7 @@
 - Provider 对用户实际收取的费用；
 - Prompt / Response 内容存储。
 
-Model Provider 如何产生标准化 usage，见 [Model System 详细设计](./model-system.md)。
+Model Provider 如何产生标准化 usage，见 [Chat Model Runtime 详细设计](./model-system/chat-model-runtime.md)。
 
 ## 2. 核心原则
 

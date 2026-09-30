@@ -83,7 +83,7 @@ meeting_summary_model_ref
 
 用于 Meeting Rolling Summary Generator，不继承某个 Agent 的 model / capability。
 
-Model 解析见 [Model System](../platform-infrastructure/model-system.md)，Meeting Summary 见 [Meeting Context & Summary](../meeting/meeting-context-summary.md)。
+Model 解析见 [Model Resolution](../platform-infrastructure/model-system/model-resolution.md)，Meeting Summary 见 [Meeting Context & Summary](../meeting/meeting-context-summary.md)。
 
 ## 5. Task
 

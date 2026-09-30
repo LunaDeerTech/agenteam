@@ -135,7 +135,7 @@ Provider
 - OpenAI Chat Completions / OpenAI-compatible；
 - Anthropic Messages。
 
-完整 Provider、ModelConfig、Model Resolver、Snapshot、Unified Chat Model Contract、Streaming、Tool Calling 与错误归一化见 [Model System 详细设计](./model-system.md)。
+完整设计见 [Model System](./model-system/README.md)，其中长期配置、解析快照与 Chat Runtime 分别见 [Model Configuration](./model-system/model-configuration.md)、[Model Resolution](./model-system/model-resolution.md)、[Chat Model Runtime](./model-system/chat-model-runtime.md)。
 
 Model Invocation Token Usage 的事实模型与聚合见 [Model Token Usage 详细设计](./model-token-usage.md)。
 
@@ -529,7 +529,7 @@ Runner 的 Device、Protocol、Data Channel、Execution Runtime、Desktop / Tunn
 
 按本模块的设计关系：
 
-1. [Model System](./model-system.md)
+1. [Model System](./model-system/README.md)
 2. [Model Token Usage](./model-token-usage.md)
 3. [Object Storage](./object-storage.md)
 4. [Human Inbox](./human-inbox.md)

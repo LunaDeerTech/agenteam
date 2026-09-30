@@ -8,7 +8,7 @@
 > - [Agent 管理架构](../agent-management.md)
 > - [统一工具系统架构](../tool-system/README.md)
 > - [默认审批策略详细设计](./default-approval-policy.md)
-> - [自动审批模型详细设计](./auto-approval-model.md)
+> - [自动审批模型详细设计](./auto-approval-model/README.md)
 
 ## 1. 设计目标
 

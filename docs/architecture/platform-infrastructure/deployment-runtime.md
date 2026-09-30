@@ -9,7 +9,7 @@
 > - [Outbound Network Policy](./outbound-network-policy.md)
 > - [Internal Domain Events](./internal-domain-events.md)
 > - [Realtime](./realtime.md)
-> - [Model System](./model-system.md)
+> - [Model System](./model-system/README.md)
 
 ## 1. 定位
 
