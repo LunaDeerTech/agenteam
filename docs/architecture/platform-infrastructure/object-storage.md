@@ -377,9 +377,16 @@ Object Storage
 
 是否需要进入 Object Storage 可以由日志大小和类型决定，小型结构化日志仍可以保存在 PostgreSQL。
 
-## 12. Original Document 与 Knowledge
+## 12. Knowledge Document
 
-用户上传的原始文档同样使用 StoredObject。
+Knowledge Document 的 canonical content 统一使用 StoredObject。
+
+这包括：
+
+- Markdown；
+- plain text；
+- PDF；
+- DOCX。
 
 Knowledge 系统保存：
 
@@ -388,7 +395,9 @@ Knowledge 系统保存：
 - chunk / embedding 等派生数据；
 - `stored_object_id`。
 
-原始文件 payload 只保存在 Object Storage。
+KnowledgeDocument 不直接把 canonical 正文作为数据库大字段保存。Markdown / plain text 虽然支持网页直接编辑，也仍然通过 Knowledge Domain 写入新的 StoredObject 并更新 `stored_object_id`。
+
+原始 canonical payload 只保存在 Object Storage；parsed text、chunk、embedding 等仍是可重建派生数据。
 
 ## 13. 权限边界
 
@@ -461,7 +470,7 @@ ObjectStorageService 的读取 / 写入接口应支持 stream，不要求把完�
 5. 短期下载 URL；
 6. size / media_type / checksum metadata；
 7. pending / available / failed / deleted 状态；
-8. Attachment / Tool Artifact / Original Document / large Execution Log 使用 `stored_object_id` 引用；
+8. Attachment / Tool Artifact / Knowledge Document / large Execution Log 使用 `stored_object_id` 引用；
 9. 流式读取 / 写入接口；
 10. orphan object 的基础 cleanup 能力；
 11. Artifact Builtin Tools 通过 ToolArtifact 间接使用 Object Storage。

@@ -2,11 +2,11 @@
 
 > 状态：设计稿
 >
-> 上层架构：[安全与治理架构](./index.md)
+> 上层架构：[安全与治理架构](./README.md)
 >
 > 相关架构：
-> - [平台基础设施架构](../platform-infrastructure/index.md)
-> - [统一工具系统架构](../tool-system/index.md)
+> - [平台基础设施架构](../platform-infrastructure/README.md)
+> - [统一工具系统架构](../tool-system/README.md)
 > - [Agent Executor 架构](../agent-executor/README.md)
 > - [Runner 架构](../runner/README.md)
 > - [Approval Scope 详细设计](./approval-scope.md)

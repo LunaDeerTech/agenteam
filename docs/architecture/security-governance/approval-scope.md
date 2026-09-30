@@ -2,11 +2,11 @@
 
 > 状态：设计稿
 >
-> 上层架构：[安全与治理架构](./index.md)
+> 上层架构：[安全与治理架构](./README.md)
 >
 > 相关架构：
 > - [Agent 管理架构](../agent-management.md)
-> - [统一工具系统架构](../tool-system/index.md)
+> - [统一工具系统架构](../tool-system/README.md)
 > - [默认审批策略详细设计](./default-approval-policy.md)
 > - [自动审批模型详细设计](./auto-approval-model.md)
 

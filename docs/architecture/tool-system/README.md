@@ -269,8 +269,10 @@ Blocker
 ### Knowledge Base
 
 - list-docs；
+- read-doc；
 - create-doc；
 - update-doc；
+- delete-doc；
 - query-doc。
 
 ### Media
@@ -336,9 +338,9 @@ Agent 使用 `request-meeting` 直接创建 `status = proposed` 的 Meeting Sess
 
 ### Memory
 
-- retain；
-- recall；
-- reflect。
+- retain：写入长期 Memory，内部执行 extraction + consolidation；
+- recall：检索当前 Agent 自己的 Memory namespace；
+- reflect：基于 recall 结果进行只读综合推理，不自动创建、更新或删除 Memory。
 
 ### Artifact
 
@@ -374,6 +376,7 @@ create-artifact 可以：
 ```text
 Knowledge
 - query-doc
+- read-doc
 
 Memory
 - recall
@@ -392,13 +395,13 @@ Artifacts
 
 “不可关闭”不代表绕过权限：
 
-- `query-doc` 仍只能查询当前 Project 的 Knowledge Base；
+- `query-doc` / `read-doc` 仍只能访问当前 Project 的 Knowledge Base；
 - Memory Tools 仍只能访问当前 Agent 自己的 memory namespace；
 - MCP Resource Tools 仍只能访问当前 Project 中 enabled MCP Connection 的 Resource Catalog / Resource；
 - Artifact Tools 仍只能列举、创建和读取当前 Project 中当前调用方有权访问的 Artifact；
 - 所有调用仍经过 Project / Resource Scope、平台固定安全规则、服务端 Authorization 和审计。
 
-Knowledge Base 的 `list-docs / create-doc / update-doc` 仍属于普通可配置 Tool。
+Knowledge Base 的 `list-docs / create-doc / update-doc / delete-doc` 仍属于普通可配置 Tool。
 
 ## 5. Runner Tools
 
@@ -489,7 +492,7 @@ Agent Capability 默认按具体 MCP Tool 授权。新 discovery 出来的 Tool 
 
 MCP Server 的工具不能因为来自外部协议而跳过 agenteam 的权限和审计体系。
 
-MCP Server Config、System / Project scope、Credential、Tool stable identity、discovery / refresh、transport 与执行链路的完整设计见 [MCP 集成架构](../mcp-integration/index.md)。
+MCP Server Config、System / Project scope、Credential、Tool stable identity、discovery / refresh、transport 与执行链路的完整设计见 [MCP 集成架构](../mcp-integration/README.md)。
 
 ## 7. 权限模型
 

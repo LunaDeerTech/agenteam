@@ -2,14 +2,14 @@
 
 > 状态：设计稿
 >
-> 上层架构：[项目与工作管理架构](./index.md)
+> 上层架构：[项目与工作管理架构](./README.md)
 >
 > 相关架构：
 > - [Agent 管理架构](../agent-management.md)
 > - [Agent Executor 架构](../agent-executor/README.md)
 > - [Runner 架构](../runner/README.md)
-> - [平台基础设施架构](../platform-infrastructure/index.md)
-> - [安全与治理架构](../security-governance/index.md)
+> - [平台基础设施架构](../platform-infrastructure/README.md)
+> - [安全与治理架构](../security-governance/README.md)
 
 ## 1. 设计目标
 

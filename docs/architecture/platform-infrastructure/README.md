@@ -65,12 +65,13 @@ Model metadata 至少可以包含：
 - reranker；
 - 后续其他类型。
 
-平台另外保存三个只引用既有 System Model 的用途 selector：
+平台另外保存四个只引用既有 System Model 的用途 selector：
 
 ~~~text
 PlatformModelSelection
 ├── embedding_model_ref
 ├── reranker_model_ref?
+├── memory_model_ref
 └── image_generation_model_ref?
 ~~~
 
@@ -78,9 +79,10 @@ PlatformModelSelection
 
 - `embedding_model_ref`：Knowledge / Memory 使用的 embedding Model；
 - `reranker_model_ref`：Knowledge / Memory 可选的 reranker Model，可以为空；
+- `memory_model_ref`：Agent Memory extraction / consolidation / reflect 使用的 System chat Model，必填；
 - `image_generation_model_ref`：Builtin 图片生成 Tool 使用的 image_generation Model，可以为空。
 
-三个 selector 都是平台级配置，不支持 Project override，也不在 selector 中重复配置 Model 参数。
+四个 selector 都是平台级配置，不支持 Project override，也不在 selector 中重复配置 Model 参数。
 
 Project Config 另外保存 Meeting Rolling Summary 使用的 chat Model：
 
@@ -91,14 +93,14 @@ ProjectConfig
 
 它不是 PlatformModelSelection，而是每个 Project 自己的配置；候选项为该 Project 当前可用的 enabled chat Model。Meeting Summary Generator 只使用普通 text generation，不暴露 Tools。
 
-Agent Loop 直接消费 chat Model，并通过统一 Model Adapter 调用模型；Meeting Summary Generator 也通过同一套 Model Resolver / Unified Chat Model Contract 消费 Project 配置的 chat Model。业务模块不直接适配每家 Provider。embedding / reranker 由 Knowledge / Memory 内部消费；image_generation 由 Builtin image generation Tool 消费。
+Agent Loop 直接消费 chat Model，并通过统一 Model Adapter 调用模型；Meeting Summary Generator 也通过同一套 Model Resolver / Unified Chat Model Contract 消费 Project 配置的 chat Model。Agent Memory Runtime 通过同一套 Model Resolver / Unified Chat Model Contract 消费平台 `memory_model_ref`。业务模块不直接适配每家 Provider。embedding / reranker 由 Knowledge / Memory 内部消费；image_generation 由 Builtin image generation Tool 消费。
 
 第一阶段 Chat Provider Adapter 只实现：
 
 - OpenAI Chat Completions / OpenAI-compatible；
 - Anthropic Messages。
 
-Provider / ModelConfig 支持物理删除。删除仍被 Agent 或 Project Meeting Summary 配置引用的 chat Model 时，必须先在用户确认流程中选择替代 Model，并批量更新受影响 Agent / Project Config；删除被 PlatformModelSelection 引用的平台 Model 时，必须先替换对应 selector，或在 reranker / image generation 场景清空 optional selector。Provider 只有在其 Models 已全部删除后才能删除。
+Provider / ModelConfig 支持物理删除。删除仍被 Agent 或 Project Meeting Summary 配置引用的 chat Model 时，必须先在用户确认流程中选择替代 Model，并批量更新受影响 Agent / Project Config；删除被 PlatformModelSelection 引用的平台 Model 时，必须先替换 required 的 embedding / memory selector，或在 reranker / image generation 场景清空 optional selector。Provider 只有在其 Models 已全部删除后才能删除。
 
 历史 Agent Execution / Model Invocation Usage 不阻止配置删除：live Provider / Model 外键可以通过 `ON DELETE SET NULL` 置空，但历史记录必须保留调用时的 Provider / Model snapshot。
 

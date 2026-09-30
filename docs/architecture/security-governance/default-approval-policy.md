@@ -2,7 +2,7 @@
 
 > 状态：设计稿
 >
-> 上层架构：[安全与治理架构](./index.md)
+> 上层架构：[安全与治理架构](./README.md)
 
 ## 1. 设计范围
 
@@ -121,6 +121,7 @@ Task Blocker
 
 Knowledge
 - list-docs
+- read-doc
 - create-doc
 - update-doc
 - query-doc
@@ -145,11 +146,12 @@ Memory
 
 业务合法性仍由对应 Domain 在 Tool Backend 中校验。
 
-### 4.2 删除 Milestone / Sprint
+### 4.2 删除类项目对象
 
 ~~~text
 delete-milestone
 delete-sprint
+delete-doc
 ~~~
 
 默认 Risk：
@@ -165,7 +167,8 @@ destructive
 - Milestone 含有 Sprint 时禁止删除；
 - Sprint 只有 `planned + empty` 时允许删除；
 - Current Sprint 禁止删除；
-- Completed Sprint 禁止删除。
+- Completed Sprint 禁止删除；
+- Knowledge `delete-doc` 仍必须校验 Project scope，并按照 Knowledge Document Domain 的 tombstone / index invalidation / cleanup 规则执行。
 
 Approval 不能绕过这些约束。
 

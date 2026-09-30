@@ -8,7 +8,7 @@
 > - [Meeting Timeline & Realtime](./meeting-timeline-realtime.md)
 > - [Object Storage](../platform-infrastructure/object-storage.md)
 > - [Artifact Builtin Tools](../tool-system/artifact-tools.md)
-> - [Knowledge Base 与 Agent Memory](../knowledge-memory.md)
+> - [Knowledge Base 与 Agent Memory](../knowledge-memory/README.md)
 
 本文定义 Meeting 中长期 References、MeetingMessage Inline Content、资源选择、Pin to References，以及 file 与 Object Storage / Artifact Tools 的完整边界。
 

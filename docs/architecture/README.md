@@ -184,18 +184,18 @@ External Systems 包括模型 Provider、MCP Server、Git Repository 以及其�
 
 ## 5. 架构文档索引
 
-- [项目与工作管理](./project-work-management/index.md)
+- [项目与工作管理](./project-work-management/README.md)
 - [Scheduler](./scheduler/README.md)
 - [Meeting](./meeting/README.md)
 - [Agent 管理](./agent-management.md)
 - [Agent Executor](./agent-executor/README.md)
 - [Agent Loop](./agent-loop/README.md)
-- [统一工具系统](./tool-system/index.md)
-- [MCP 集成](./mcp-integration/index.md)
+- [统一工具系统](./tool-system/README.md)
+- [MCP 集成](./mcp-integration/README.md)
 - [Runner](./runner/README.md)
-- [Knowledge Base 与 Agent Memory](./knowledge-memory.md)
-- [安全与治理](./security-governance/index.md)
-- [平台基础设施与部署](./platform-infrastructure/index.md)
+- [Knowledge Base 与 Agent Memory](./knowledge-memory/README.md)
+- [安全与治理](./security-governance/README.md)
+- [平台基础设施与部署](./platform-infrastructure/README.md)
 
 ## 6. 当前技术基线
 

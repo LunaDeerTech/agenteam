@@ -38,7 +38,9 @@ Platform Prompt 至少应让所有 Agent 知道：
 
 - 当需要了解项目设计、规范或背景信息时，可以主动使用 Knowledge Retrieval；
 - 当遇到困难、重复问题或不确定如何处理时，可以尝试 Agent Memory recall，查询自己过去积累的经验；
-- 当解决了有复用价值的问题、踩过坑或形成经验时，可以使用 Agent Memory retain 保存到自己的 memory namespace；
+- 当 recall 没有已有记录，并且最终解决了有长期复用价值的问题、踩过坑或形成经验时，可以使用 Agent Memory retain 保存关键原因和解决方法；
+- 当需要基于多条已有 Memory 做综合归纳时，可以使用 reflect；reflect 是只读 reasoning，不会自动写入长期 Memory；
+- 不应把普通、一次性、低价值执行过程或 Secret / credential 写入 Memory；
 - Knowledge 与 Memory 都是按需能力，不代表其内容会自动出现在每次 Agent Execution 的上下文中。
 
 这些只是 Platform Prompt 应覆盖的能力方向。具体 Prompt 文案需要结合实际 Tool、Agent Loop 行为和使用效果持续设计与迭代，不在当前架构阶段提前固化成最终文本。
@@ -51,7 +53,7 @@ Platform Prompt 至少应让所有 Agent 知道：
 
 这些组件在 AgentExecutionContext 中保持独立，只有 Agent Loop 在真正准备模型输入时完成最终 Prompt Assembly。
 
-Knowledge Retrieval 与 Agent Memory 的具体机制见 [Knowledge Base 与 Agent Memory 架构](./knowledge-memory.md)。
+Knowledge Retrieval 与 Agent Memory 的具体机制见 [Knowledge Base 与 Agent Memory 架构](./knowledge-memory/README.md)。
 
 ### Capability
 
@@ -62,9 +64,9 @@ Capability 描述 Agent 被允许使用的资源和工具，包括：
 - Runner mount points；
 - allowed Secret Variables。
 
-其中 `allowed tools` 只控制普通可配置 Tool。平台定义的 Core Agent Tools（当前包括 `query-doc`、`recall`、`retain`、`reflect`、`list-mcp-resources`、`read-mcp-resource`、`list-artifacts`、`create-artifact`、`read-artifact`）始终可见，不能通过 Agent Capability 关闭，但仍受 Project / Agent scope 和服务端授权限制。
+其中 `allowed tools` 只控制普通可配置 Tool。平台定义的 Core Agent Tools（当前包括 `query-doc`、`read-doc`、`recall`、`retain`、`reflect`、`list-mcp-resources`、`read-mcp-resource`、`list-artifacts`、`create-artifact`、`read-artifact`）始终可见，不能通过 Agent Capability 关闭，但仍受 Project / Agent scope 和服务端授权限制。
 
-Tool 的统一抽象、来源、权限和调用链路见 [统一工具系统架构](./tool-system/index.md)。
+Tool 的统一抽象、来源、权限和调用链路见 [统一工具系统架构](./tool-system/README.md)。
 
 Tool 应支持按以下维度组织和展示：
 
@@ -87,7 +89,7 @@ mcp:<mcp_server_config_id>:<remote_tool_name>
 - MCP Tool 暂时网络不可达时不删除长期 Capability，也不通过统一 availability 状态隐藏 Tool；如果 Tool 仍在当前 Registry 中，Execution 可以继续暴露并在实际调用时得到 Backend error。只有来源被明确 disable / disconnect / delete，或成功 discovery 确认 Tool 已消失时，新的 Execution 才不再获得该 Tool；
 - Tool schema 更新不应因为 display name 变化而隐式改变 Agent 的权限身份。
 
-MCP Server 配置、Tool discovery、stable identity 和 Bridge 执行链路见 [MCP 集成架构](./mcp-integration/index.md)。
+MCP Server 配置、Tool discovery、stable identity 和 Bridge 执行链路见 [MCP 集成架构](./mcp-integration/README.md)。
 
 MCP Resource 不进入普通 `allowed tools` 列表。Agent 通过平台 Core Agent Tools 按需列举 / 读取当前 Project 已连接 MCP 的 Resource；真正读取后的 Resource 内容统一落入 Object Storage，并以 file / image / text projection 供 Agent 消费。
 
@@ -181,7 +183,7 @@ Agent 只看到被分配给自己的 mount，而不是 Runner 的完整文件系
 
 ### Memory
 
-Knowledge Base 与 Agent Memory 的职责边界、存储和按需访问机制见 [Knowledge Base 与 Agent Memory 架构](./knowledge-memory.md)。
+Knowledge Base 与 Agent Memory 的职责边界、存储和按需访问机制见 [Knowledge Base 与 Agent Memory 架构](./knowledge-memory/README.md)。
 
 每个项目级 Agent 拥有独立 memory namespace，用于沉淀该 Agent 在当前项目中的经验、知识和问题。
 
@@ -270,7 +272,7 @@ Agent Management 只保存 `model_ref` 以及按所选 Model 能力配置的 `re
 
 ## 6. 权限边界
 
-Tool Capability、Execution Policy 和服务端授权的完整关系见 [统一工具系统架构](./tool-system/index.md)。
+Tool Capability、Execution Policy 和服务端授权的完整关系见 [统一工具系统架构](./tool-system/README.md)。
 
 Agent 的执行期 Tool 能力由长期 Capability 和单次 Execution Policy 共同收紧：
 

@@ -12,7 +12,7 @@
 > - [Runtime View](../agent-executor/runtime-view.md)
 > - [Model System](../platform-infrastructure/model-system.md)
 > - [统一工具系统](../tool-system/README.md)
-> - [Knowledge Base 与 Agent Memory](../knowledge-memory.md)
+> - [Knowledge Base 与 Agent Memory](../knowledge-memory/README.md)
 
 ## 1. 定位
 
@@ -527,7 +527,14 @@ Agent 通过普通 Tool 按需：
 
 - query / read Knowledge；
 - recall Memory；
-- retain Memory。
+- retain Memory；
+- reflect Memory。
+
+其中：
+
+- recall / reflect 都是只读能力；
+- retain 才产生长期 Memory mutation；
+- reflect 基于当前 Agent namespace 中检索出的 Memory 做综合推理，不隐式写入新的 Memory。
 
 Tool Result 进入 Canonical Transcript 后，再受正常 Model Context Projection 与 compaction 规则管理。
 

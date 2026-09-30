@@ -305,6 +305,7 @@ Project chat Model 只影响所属 Project，可以替换为该 Project 当前�
 
 - embedding_model_ref：必须先选择另一个 enabled System embedding Model，不能清空；
 - reranker_model_ref：可以选择另一个 enabled System reranker Model，也可以清空；
+- memory_model_ref：必须先选择另一个 enabled System chat Model，不能清空；
 - image_generation_model_ref：可以选择另一个 enabled System image_generation Model，也可以清空。
 
 selector 更新完成后才能物理删除对应 ModelConfig。
@@ -342,6 +343,7 @@ flowchart TB
     Project["Project Model Config"]
 
     Chat["chat"]
+    MemoryChat["System chat<br/>memory_model_ref"]
     Emb["embedding"]
     Rank["reranker"]
     Image["image_generation"]
@@ -349,6 +351,7 @@ flowchart TB
     Agent["Agent.model_ref"]
     Select["PlatformModelSelection"]
     KM["Knowledge / Memory"]
+    MemoryRuntime["Agent Memory Runtime"]
     ImageTool["Builtin generate-image Tool"]
 
     ChatAdapter["Unified Chat Model Contract"]
@@ -357,6 +360,7 @@ flowchart TB
     ImageAdapter["Image Generation Adapter"]
 
     System --> Chat
+    System --> MemoryChat
     System --> Emb
     System --> Rank
     System --> Image
@@ -368,11 +372,15 @@ flowchart TB
 
     Emb --> Select
     Rank --> Select
+    MemoryChat --> Select
     Image --> Select
 
     Select --> KM
     KM --> EmbAdapter
     KM --> RankAdapter
+
+    Select --> MemoryRuntime
+    MemoryRuntime --> ChatAdapter
 
     Select --> ImageTool
     ImageTool --> ImageAdapter
@@ -380,9 +388,11 @@ flowchart TB
 
 ### 8.1 chat
 
-`chat` 是 Agent 的运行模型。
+`chat` 是统一文本生成 / Tool Calling 模型类型。
 
 Agent 通过 `model_ref` 选择当前 Project 可用的 chat Model，然后由 Agent Loop 通过 Unified Chat Model Contract 调用。
+
+此外，System chat Model 还可以作为平台内部用途 Model，例如 `memory_model_ref`；Project / System chat Model 也可以作为 Project Meeting Summary Model。不同 consumer 共用 Unified Chat Model Contract，但拥有各自独立的 selector、prompt、usage metadata 与业务生命周期。
 
 System Provider 和 Project Provider 都可以配置 chat Model。
 
@@ -443,12 +453,13 @@ image_generation Model 第一阶段只能由 System Provider 配置。
 
 ### 8.5 Platform Model Selection
 
-平台基础设施保存三个模型用途 selector：
+平台基础设施保存四个模型用途 selector：
 
 ~~~text
 PlatformModelSelection
 ├── embedding_model_ref
 ├── reranker_model_ref?
+├── memory_model_ref
 └── image_generation_model_ref?
 ~~~
 
@@ -466,15 +477,23 @@ reranker_model_ref
 -> type = reranker
 -> optional
 
+memory_model_ref
+-> System Model
+-> type = chat
+-> required
+-> 用于 Agent Memory extraction / consolidation / reflect
+
 image_generation_model_ref
 -> System Model
 -> type = image_generation
 -> optional
 ~~~
 
-这三个 selector 都是平台级配置，不支持 Project override。
+这四个 selector 都是平台级配置，不支持 Project override。
 
 Knowledge / Memory 共用同一组 embedding / reranker selector。
+
+Agent Memory 的 extraction / consolidation / reflect 使用 memory_model_ref，不继承当前 Agent 的 chat Model，也不支持 Project override。所选 Model 必须能够可靠满足 Memory Runtime 的 structured output contract。
 
 如果 `image_generation_model_ref` 未配置，则平台没有可用的默认 image generation backend，`generate-image` Tool 不应作为可执行 Tool 暴露给 Agent。
 
@@ -1318,10 +1337,13 @@ Project Provider 的 Model type 固定为 chat，UI 不允许选择其他类型�
 ~~~text
 Embedding Model        -> System embedding Model
 Reranker Model         -> optional System reranker Model
+Memory Model           -> System chat Model
 Image Generation Model -> optional System image_generation Model
 ~~~
 
 这些 selector 只选择已有 Model，不在这里编辑 Model 参数。
+
+其中 Memory Model 只允许选择 enabled System chat Model，并且该 Model 必须支持 Memory Runtime 所需的 structured output contract。
 
 Agent 配置页只消费当前 Project 可用的 chat Model，并根据所选 Model 的 parameters.capabilities.reasoning_efforts 展示 reasoning_effort 选项。
 
@@ -1350,7 +1372,7 @@ enabled chat Models from current Project Providers
 2. 一个 Provider 固定一个 Protocol；
 3. 显式 Provider + ModelConfig；
 4. System Provider 支持 chat / embedding / reranker / image_generation，Project Provider 只支持 chat；
-5. PlatformModelSelection：embedding / optional reranker / optional image_generation；
+5. PlatformModelSelection：embedding / optional reranker / memory / optional image_generation；
 6. Model Resolver；
 7. Resolved Model Snapshot；
 8. chat parameters.capabilities 与 Provider Adapter 职责分离；

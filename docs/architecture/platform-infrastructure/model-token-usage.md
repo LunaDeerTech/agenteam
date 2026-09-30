@@ -2,7 +2,7 @@
 
 > 状态：设计稿
 >
-> 上层架构：[平台基础设施与部署架构](./index.md)
+> 上层架构：[平台基础设施与部署架构](./README.md)
 >
 > 相关架构：
 > - [Agent Executor 架构](../agent-executor/README.md)

@@ -195,6 +195,7 @@ Execution Policy 只能收紧，不能扩大 Agent Capability。
 现有设计中的 Core Agent Tools：
 
 - query-doc；
+- read-doc；
 - recall；
 - retain；
 - reflect；
