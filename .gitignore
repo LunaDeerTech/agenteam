@@ -1,0 +1,26 @@
+# 系统与编辑器杂项
+.DS_Store
+._*
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# 前端依赖与生成产物
+/web/node_modules/
+/web/dist/
+/web/.vite/
+/web/coverage/
+
+# 构建与测试产物
+/bin/
+/build/
+/dist/
+/coverage/
+
+# 本地配置与敏感文件；保留示例配置
+.env
+.env.*
+!.env.example
+!.env.*.example
+/secrets/
