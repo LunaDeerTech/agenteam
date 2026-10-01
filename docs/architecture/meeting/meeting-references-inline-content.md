@@ -452,6 +452,18 @@ UI 展示文字只是 snapshot。
 
 ## 11. Composer 交互
 
+### 11.0 输入框底部资源菜单与新会议草稿
+
+新会议在内容区中央展示输入框，底部左侧依次为加号和并行 / 串行模式，右侧依次为参会 Agent 编排和发送。已开始会议的输入框移至聊天区底部，右侧只保留发送，左侧资源菜单与模式选择仍保留。
+
+加号展开分组悬浮列表：添加 / 附件上传 → file；知识库 / 文档选择 → knowledge；任务 / Task 选择 → task；Agent / Agent 选择 → mention。全部是已有结构化 inline node，不新增纯文本解析协议；text、link 及已有 @ / # 入口仍遵循本文。插入资源不自动 Pin 到 Meeting References。
+
+参会编排负责新会议成员与默认顺序；Agent 菜单只从已编排名单选择，既有会议只从 active Participants 选择。mention 与成员编排不同：mention 参与本轮目标选择，不自动邀请未参会 Agent。
+
+新会议尚无正式 Participant ID，草稿以所选项目 Agent identity 暂存引用，不冒充服务端 mention schema。提交时创建 Meeting 与 Participants，将草稿 Agent 引用转换为正式 participant_id，校验成员合法性后按首条消息命令写入。创建 / 首消息衔接必须幂等，失败保留草稿，不重复生成会话或消息。
+
+发送时固化 mode 和发言目标。编排名单变化使草稿 mention 不再合法时提示修正，不静默改指其他 Agent。
+
 ### 11.1 @ Mention
 
 输入：
@@ -685,7 +697,7 @@ Unpin：
 
 ## 17. Meeting Info References UI
 
-Meeting 页面提供：
+Meeting 开始后右上角的默认展开悬浮详情卡片提供（顶部仅显示标题）：
 
 ```text
 Meeting Info

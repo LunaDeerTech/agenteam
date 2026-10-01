@@ -57,8 +57,7 @@ MeetingContextProvider 是 Agent Executor 的 Trigger Context Provider。
 MeetingTriggerContext
 ├── meeting
 │   ├── id
-│   ├── title
-│   ├── topic
+│   ├── title?
 │   └── status
 ├── participants[]
 │   ├── participant_id
@@ -94,7 +93,7 @@ MeetingTriggerContext
 每次 Meeting Agent Execution 都需要知道：
 
 - 当前 Meeting；
-- Meeting title / topic；
+- Meeting title（生成前可空，展示占位不是模型事实）；讨论主题与目标来自 rolling summary.goals；
 - 当前 active participants；
 - 自己对应的 MeetingParticipant；
 - 当前 Meeting policy；
@@ -324,7 +323,7 @@ MeetingRollingSummary
 
 ### goals
 
-一段纯文本，总结当前 Meeting 的长期目标与当前讨论目标。
+一段纯文本，总结当前 Meeting 的讨论主题、长期目标与当前讨论目标。Meeting 不再保存独立主题字段；Summary 仍保持四个 text 维度。
 
 ### decisions
 
@@ -363,6 +362,8 @@ Turn.running
 
 Summary 更新仍属于 Turn Runtime 的 finalize 控制流程，但 Summary 内容只消费 MeetingMessage，不需要把 Turn 对象注入模型上下文。
 
+首轮 finalize 同时生成一次 Meeting.title 与四字段 Summary，使用同一个解析后的 `meeting_summary_model_ref`、同次普通文本模型调用和相同 Message 边界。服务端解析校验后在同一事务写入标题与 Summary；成功之前 Turn 保持 finalizing。生成前 UI 展示“新会议”，不阻断首轮 Agent 执行。后续 finalize 仅更新 Summary，不因讨论变化或 regenerate 改写已生成标题。
+
 Summary 更新是同步 finalize 步骤：
 
 - Summary 未成功更新，Turn 不进入 completed；
@@ -389,6 +390,7 @@ ordered as Meeting Timeline
 
 ```text
 new MeetingRollingSummary
++ initial Meeting.title if not yet generated
 ```
 
 Summary Generator 不做增量 summarization。
@@ -436,7 +438,7 @@ Summary 请求使用普通 Unified Chat Model Contract，并显式保持：
 tools = []
 ```
 
-模型输出约定为固定四字段文本 envelope：
+后续轮次模型输出约定为固定四字段文本 envelope：
 
 ```json
 {
@@ -448,6 +450,8 @@ tools = []
 ```
 
 这里的 JSON 只是普通文本输出格式，不要求 Model 具备 `structured_output` capability。
+
+首轮输出在上述 envelope 中额外包含非空 `title` string，服务端将其写入 `Meeting.title`，不向 `MeetingRollingSummary` 增加第五字段。首轮解析须同时验证标题与四个摘要文本；标题或摘要不合法时整步失败，不能只提交其中一部分。生成标题不创建 MeetingMessage 或 Agent Execution。
 
 服务端解析成功后，把四个 string 分别写入 `MeetingRollingSummary`。如果输出无法解析，可以按平台普通 Model retry policy 做有限 retry；不能把无法解析的文本直接写进四个字段。
 
@@ -529,9 +533,9 @@ Summary 更新使用 Message 边界作为幂等依据。
 
 重复 finalize：
 
-- 已存在对应成功 Summary version：直接复用；
+- 已存在对应成功 Summary version：直接复用；首轮标题与该 Summary 已共同提交，不再次生成；
 - 尚未成功：继续生成；
-- 不重复推进 version。
+- 不重复推进 version；首轮提交使用尚未生成标题的条件与 Summary version check，防止重试覆盖已提交标题。
 
 建议使用 optimistic version check：
 

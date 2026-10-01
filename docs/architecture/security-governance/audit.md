@@ -49,6 +49,8 @@ Audit 的目标是长期保留结构化安全证据，而不是复制完整运�
 8. 第一阶段不依赖 Elasticsearch / OpenSearch 等独立检索系统；
 9. Secret plaintext 永远不能进入 Audit。
 
+人类账号初始化密码和未配置 SMTP 时的邀请 / 重置链接属于 [认证后台恢复渠道](../platform-infrastructure/authentication/smtp-delivery.md)，只能输出到受限 Central 后台运行日志，不能进入 Audit。账号动作的 Audit 仅保留脱敏 identity / action / outcome，不包含密码、token 或完整恢复链接。
+
 ## 3. Audit Scope
 
 Audit 支持两种 scope：

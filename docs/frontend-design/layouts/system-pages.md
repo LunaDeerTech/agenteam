@@ -1,0 +1,52 @@
+# 系统首页、项目列表与 Inbox 布局
+
+> 上层：[应用框架](application-shell.md)。
+
+## 1. 页面职责与区域
+
+系统首页作为产品首页；项目列表作为当前用户进入自己项目的入口；Inbox 统一展示当前用户自己项目中需要人类处理的事项。
+
+```text
+系统导航
+系统首页：页面标题 + Dashboard 占位容器
+项目列表：页面标题 / 新建项目入口
+          项目列表（名称、描述、进入入口）
+Inbox：页面标题 / 项目与状态筛选
+       待处理列表（项目、事项、摘要、阻塞、优先级、更新时间、操作）
+```
+
+## 2. 主要栏目与字段
+
+首页只显示“首页”标题及待设计的 Dashboard 容器，不生成假数据、统计卡片或活动列表。
+
+项目页采用表格式列表，每行包含项目名称、描述和进入入口。名称也可点击进入；描述过长截断。Owner 为当前用户，列表不提供成员栏。项目名称与描述采用 Project 对应字段，具体 canonical 命名由后续 Project 契约补齐。
+
+页面顶部提供新建项目；弹窗填写名称和描述，提交成功进入新项目首页。名称必填，描述可空；不在此引入标签、日期或成员配置。Owner 由服务端绑定当前用户，不允许表单选择。
+
+## 3. Inbox 栏目与行为
+
+点击系统导航右侧 Inbox 进入独立系统页面，不保留项目导航。普通入口汇总本人所有项目，默认 `status = open`；可按项目、来源类型、blocking 及 open / resolved / dismissed 状态筛选历史。
+
+列表展示项目名称、title_snapshot、summary_snapshot、来源类型、blocking、priority、updated_at 和动作入口，采用 Human Inbox 的 `blocking DESC / priority DESC / updated_at DESC / id DESC` 稳定排序并分页。它是待处理投影，不是普通通知或未读消息中心。
+
+Approval 等直接动作复用统一来源领域操作；proposed Meeting、Decision 等导航动作打开对应项目的来源页面，重新进入该项目双导航。只有 `open` 且 `dismissible = true` 的事项显示忽略入口，必须处理型事项不能忽略。处理结果由 Source Domain 保存并更新 Inbox 投影，不由前端自行标记源对象已完成。
+
+事项加载失败就地重试；没有 open 事项显示“暂无待处理事项”，历史筛选无结果显示筛选空状态。来源已失效或被删除时提示不可用并刷新投影；Realtime 断线后恢复订阅并重新查询权威列表。窄屏列表改为堆叠行，筛选和操作允许换行。
+
+全项目聚合查询需在现有 Project-scoped Inbox 查询基础上补齐当前用户聚合 read model；服务端逐项目校验 Owner，系统管理员不能看到其他用户待办。
+
+## 4. 默认选择与导航
+
+点击 Logo 打开系统首页；点击项目打开列表。列表不自动打开第一项。点击项目进入其 Dashboard 首页。系统管理员也只列出自己拥有的项目。
+
+## 5. 加载及异常
+
+列表加载显示行骨架；没有项目显示创建引导。加载失败显示重试；创建失败保留输入并显示原因。创建提交中防止重复提交。对象已删除或失去访问权时刷新列表并显示说明。
+
+## 6. 窄屏
+
+列表行改为名称、描述、操作上下排列；页面操作区允许换行。创建弹窗适应可用宽度。复用[应用框架](application-shell.md)导航规则。
+
+## 7. 相关架构
+
+[项目与工作管理](../../architecture/project-work-management/README.md)、[安全与治理的 Project Owner](../../architecture/security-governance/README.md)、[Human Inbox](../../architecture/platform-infrastructure/human-inbox.md)。Project 表单与查询、Inbox 全项目聚合查询的缺失契约见[架构衔接](../architecture-follow-ups.md)。

@@ -673,6 +673,8 @@ meeting.turn.updated
 meeting.summary.updated
 ```
 
+首轮标题与 Summary 共同提交后，`meeting.summary.updated` 同时使会话基本信息及会话列表标题失效，客户端重新读取权威 Meeting read model；不从 Summary 文本猜测标题。后续摘要更新不改写已提交标题。
+
 Approval / Decision 的变化最终通过 Timeline item update 呈现。
 
 `RuntimeItemUpdate` 不属于默认 Meeting Timeline subscription。只有用户展开某个 Execution Row 时，前端才单独加载该 execution 的 Runtime Item Snapshot，并在仍运行时订阅 RuntimeItemUpdate Stream。
@@ -739,7 +741,7 @@ order by occurred_at, id
 
 ## 25. Meeting Info / References
 
-Meeting 页面提供侧边栏或悬浮信息区域：
+会话顶部只展示标题；生成前展示“新会议”。会议启动后在内容区右上角提供默认展开、可折叠的悬浮详情卡片。桌面为卡片保留阅读空间，卡片内部独立滚动；窄屏以可展开覆盖面板展示。卡片内容：
 
 ```text
 Meeting Info
@@ -751,6 +753,8 @@ Meeting Info
     ├── Links
     └── Files
 ```
+
+Participants 提供参会名单与默认顺序管理；Summary 展示四字段摘要及更新状态。标题和 Summary 成功提交后通过已有权威 Meeting read model 刷新，不从局部模型输出拼接标题。
 
 References 来自 `MeetingReference`，支持直接 Pin / Unpin / reorder / open，也可以从 Message inline resource chip 执行 **Pin to References**。
 

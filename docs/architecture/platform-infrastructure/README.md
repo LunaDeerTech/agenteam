@@ -12,7 +12,8 @@
 - Realtime；
 - Secret Management；
 - Outbound Network Policy；
-- Authentication / Authorization / Approval / Audit 的平台边界；
+- Authentication / SMTP Delivery；
+- Authorization / Approval / Audit 的平台边界；
 - Central Deployment Runtime。
 
 agenteam Central 是一个整体后端。
@@ -482,7 +483,8 @@ Private network allow policy 等属于 Deployment Config，Project / Agent / MCP
 
 - System Model Provider；
 - ModelConfig；
-- PlatformModelSelection。
+- PlatformModelSelection；
+- SMTP 配置（凭据由 Secret Management 保存）。
 
 Runtime Platform Config 不能扩大 Deployment Config 定义的基础设施安全边界。
 
@@ -525,7 +527,13 @@ Runner 是否在线不影响 Central readiness。
 
 Runner 的 Device、Protocol、Data Channel、Execution Runtime、Desktop / Tunnel 等完整设计见 [Runner 架构](../runner/README.md)。
 
-## 15. 详细设计索引
+## 15. Authentication 与 SMTP Delivery
+
+Authentication 负责人类账号初始化、邮箱密码登录、Web Session、邀请注册、资料与密码恢复；系统管理员与 Project Owner 授权分离。SMTP 是可选 Runtime Platform Config，未配置时邀请 / 重置链接输出受限后台日志，已配置发送失败不自动降级。密码和恢复链接不进入 Audit。
+
+完整设计见 [账号认证与邮件投递](./authentication/README.md)。首次初始化与 mandatory dependency 的关系见 Deployment Runtime。
+
+## 16. 详细设计索引
 
 按本模块的设计关系：
 
@@ -537,3 +545,4 @@ Runner 的 Device、Protocol、Data Channel、Execution Runtime、Desktop / Tunn
 6. [Realtime](./realtime.md)
 7. [Deployment Runtime](./deployment-runtime.md)
 8. [Outbound Network Policy](./outbound-network-policy.md)
+9. [账号认证与邮件投递](./authentication/README.md)

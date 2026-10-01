@@ -167,6 +167,7 @@ scheduler ownership
 - System Model Provider；
 - ModelConfig；
 - PlatformModelSelection；
+- SMTP 配置（认证凭据通过 Secret Management 保存）；
 - 其他属于产品行为而不是部署边界的平台配置。
 
 Runtime Platform Config 不能扩大 Deployment Config 定义的基础设施安全边界。
@@ -631,3 +632,9 @@ accept traffic
 - zero-downtime multi-instance rolling deploy；
 - Kubernetes operator；
 - KMS / Vault mandatory dependency。
+
+## 账号首次初始化与可选 SMTP
+
+必需基础设施与 migration 完成后，执行幂等的人类账号首次初始化，创建 admin@mail.com 并输出初始随机密码到 Central 后台日志。普通重启不覆盖账号或密码。详细事务与恢复边界见 [账号生命周期](./authentication/account-lifecycle.md)。
+
+SMTP 缺省不阻断 ready；未配置时邀请和密码重置链接输出后台日志。已配置但投递失败不切换渠道，不影响已提交账号 / 邀请的业务事实。该行为不改变 PostgreSQL / MinIO mandatory dependency，不引入 degraded mode。敏感后台日志与不含 Secret 的 Audit 分离，部署需明确日志访问范围；见 [SMTP Delivery](./authentication/smtp-delivery.md)。

@@ -74,6 +74,8 @@ SendMeetingMessageCommand
 └── idempotency_key
 ```
 
+Composer 新会议默认 `mode = parallel`，已有会话沿用该会话上次选择；用户可切换到 sequential。该选择在 SendMeetingMessageCommand 提交时固化为本轮 snapshot，不改变已有或正在执行的 Turn，不进入 Agent 模型业务上下文。
+
 ## 4. Agent Selection
 
 ### 4.1 默认规则
@@ -642,7 +644,7 @@ result = success | partial_failure
 
 `skipped` 是用户主动接受不再等待该 Agent 的结果，本身不计为 partial failure。只有 `failed / cancelled` Contribution 才使正常完成的 Turn 形成 `partial_failure`。
 
-然后同步调用 Meeting Summary Updater。
+然后同步调用 Meeting Summary Updater；首轮在同次模型调用中生成 Meeting.title，并与四字段 Summary 共同提交。提交前不进入 completed，后续只更新 Summary。已成功提交的首轮 finalize 重试直接复用结果，不重建会议、消息或标题。
 
 ```text
 finalizing

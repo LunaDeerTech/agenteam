@@ -277,7 +277,7 @@ Task Context 的完整领域边界见 [Task Domain Model](../project-work-manage
 
 - meeting identity；
 -当前 turn / contribution reference；
-- topic；
+- Meeting title（首轮 finalize 前可空）；主题由 rolling summary.goals 概括；
 - participants；
 - rolling summary；
 -当前 Execution 可见的 MeetingMessage history；

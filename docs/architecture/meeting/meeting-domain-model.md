@@ -77,8 +77,8 @@ Meeting
 │   ├── proposed
 │   ├── active
 │   └── archive
-├── title
-├── topic
+├── title?                 # 首轮 finalize 成功后生成
+├── proposal_content?      # 仅 Agent 提案内容，不是会议主题字段
 ├── origin?
 │   ├── type
 │   └── id
@@ -89,6 +89,10 @@ Meeting
 ├── archived_at?
 └── updated_at
 ```
+
+`title` 在首轮 finalize 时由 Meeting Summary Updater 使用当前 `meeting_summary_model_ref` 生成一次，并与首轮四字段 Summary 同事务提交。生成前 UI 使用“新会议”，该占位不写入生成标题。后续轮次、retry / regenerate 和恢复不重新生成已提交标题。标题不由用户在创建表单填写。
+
+Meeting 不独立保存讨论主题；Summary 的 `goals` 概括讨论主题和目标。`proposal_content` 只保存 request-meeting 的提案理由与期望用户动作，可在批准前展示，不作为独立会话主题注入 Context，也不允许 Summary 反写它。
 
 ### 3.1 status
 
@@ -120,7 +124,7 @@ Agent 调用 `request-meeting` 时直接创建 `status = proposed` 的 Meeting�
 proposed Meeting 已经拥有自己的：
 
 - Meeting ID；
-- topic / purpose；
+- proposal_content 中的提案内容与目的；
 - 建议 participants；
 - source execution；
 - source Task / reference。
@@ -398,7 +402,7 @@ cancelled
 skipped
 ```
 
-finalizing 阶段同步更新 rolling summary。Summary 成功更新后才进入 `completed`。
+finalizing 阶段同步更新 rolling summary；首轮还生成并共同提交 Meeting.title。该步骤成功后才进入 `completed`，详见 [Meeting Context & Summary](./meeting-context-summary.md)。
 
 ### 6.4 partial failure
 
@@ -697,6 +701,9 @@ regenerate_of_execution_id = previous current execution
 15. Turn 的 Contribution snapshot 创建后不可因 participant 后续变化而重写。
 
 ## 12. 写命令与幂等
+
+新会议从首条用户输入启动，不要求人工标题或独立主题字段。提交包括正文 content_nodes、参会 Agent identity 与顺序、mode 和幂等标识。创建 Meeting / Participants 后将草稿 Agent 引用转换为正式 mention.participant_id，并以合法首条消息建立 Turn。该启动边界须保证会话和首消息的可重试一致性：校验或事务失败不暴露已启动空会话；响应丢失后用同一幂等标识返回原会话 / 消息，不重复创建。正文资源、参会名单和顺序由服务端校验，客户端不能伪造 Participant identity。
+
 
 Meeting 的关键写操作统一支持 `idempotency_key`。
 

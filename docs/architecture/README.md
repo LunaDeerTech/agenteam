@@ -141,7 +141,7 @@ Platform Services 提供多个业务模块共同依赖的系统能力，例如�
 - Agent Loop；
 - Unified Tool System；
 - Model Management / Model Adapter；
-- Authentication / Authorization；
+- Authentication / Authorization（[账号与邮件投递](./platform-infrastructure/authentication/README.md)）；
 - Approval / Audit；
 - Runner Management；
 - Project Environment Variables / Secret Management；

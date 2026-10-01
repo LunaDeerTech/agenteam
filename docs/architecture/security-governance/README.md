@@ -66,6 +66,8 @@ flowchart LR
 - Agent Loop 的模型调用逻辑；
 - Runner 的具体 OS sandbox 实现。
 
+人类账号、Session、初始化、邀请注册及密码恢复由 [账号认证架构](../platform-infrastructure/authentication/README.md)负责；SMTP 及后台链接投递见其详细设计。Authentication 建立 identity，本文仍负责 Project Owner 与 System Scope Authorization。
+
 这些模块仍然需要遵守本文档定义的安全边界。
 
 ## 2. Project Owner

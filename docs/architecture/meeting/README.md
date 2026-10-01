@@ -132,6 +132,10 @@ archive -> active
 
 Hard delete 是删除命令，不是状态。
 
+### 标题与讨论主题
+
+创建会议不要求用户填写标题或讨论主题。首轮 finalize 使用当前会议摘要模型一次生成 Meeting.title 与四字段 rolling summary，成功后共同提交。生成前显示“新会议”；后续 Summary 更新不改写标题。讨论主题由 rolling summary.goals 概括，Meeting 不保存独立主题字段。Agent 提案理由保留在 proposal_content，不改变 proposed / active / archive 流程。
+
 ## 4. Participant
 
 User 与 Agent 统一使用 MeetingParticipant。
@@ -399,7 +403,7 @@ Summary 至少包含：
 - unresolved：text；
 - facts：text。
 
-四个字段都由 Meeting Summary Generator 使用 LLM 从当前全部 MeetingMessage 中重新生成，不使用上一版 Summary 做增量输入。
+四个字段都由 Meeting Summary Generator 使用 LLM 从当前全部 MeetingMessage 中重新生成，不使用上一版 Summary 做增量输入。goals 同时概括讨论主题与目标；首轮同次调用额外生成 Meeting.title 并共同提交，标题不属于 Summary 的第五字段，后续不重写标题。
 
 Summary Generator 使用 Project Config 中的：
 
