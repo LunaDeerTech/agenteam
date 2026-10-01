@@ -24,3 +24,7 @@ Thumbs.db
 !.env.example
 !.env.*.example
 /secrets/
+
+# 本地浏览器验证产物
+/.playwright-cli/
+/output/playwright/

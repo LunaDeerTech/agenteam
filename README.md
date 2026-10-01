@@ -9,7 +9,16 @@ agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期�
 - 存储：PostgreSQL / pgvector + MinIO。
 - 部署：前端资源嵌入 Central 二进制，Docker Compose 管理 Central 与基础设施。
 
-当前仓库包含设计文档和代码目录骨架，尚未初始化可运行工程或依赖清单。
+当前仓库已包含可运行的 Vue 前端基础、公共组件和开发环境 Debug 展示；后端仍为目录骨架。
+
+## 前端开发
+
+```sh
+npm ci --prefix web
+npm run dev --prefix web
+```
+
+访问 [Debug 组件展示](http://127.0.0.1:5173/debug)。公共组件独立于展示页，生产构建不包含 Debug。启动、检查及组件使用见[前端开发说明](docs/development/frontend/README.md)。
 
 ## 文档
 

@@ -47,7 +47,7 @@ agenteam 前端围绕用户自己的项目提供会议、工作规划、知识�
 | [个人设置](layouts/personal-settings.md) | 资料、偏好和账号安全 |
 | [账号入口](layouts/account-entry.md) | 初始化、邀请、认证与恢复流程 |
 
-独立展示：[组件控件前端](component-showcase/index.html)。集中查看已选样式的组件、状态与动效；展示骨架不作为正式布局依据，原业务试作页已移除。
+组件展示：[Vue Debug 与开发说明](../development/frontend/README.md)。集中查看已选样式的组件、状态与动效；展示骨架不作为正式布局依据，原业务试作页已移除。
 
 样式文档：[样式总览](styles/README.md)、[颜色与主题](styles/colors-and-themes.md)、[字体与密度](styles/typography-and-density.md)、[控件与交互](styles/components-and-interactions.md)。
 

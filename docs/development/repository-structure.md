@@ -36,7 +36,7 @@ agenteam/
 | `internal/central/` | Central 的项目业务、调度、Agent 执行、API 与平台能力，作为一个整体后端运行。 |
 | `internal/runner/` | Runner 的连接管理与文件、命令、进程、桌面等远程执行能力。 |
 | `internal/runnerprotocol/` | Central 与 Runner 共享的通信契约，不承载 Central 业务实现。 |
-| `web/src/` | Vue 前端源码；页面、组件等目录在实现时按需增加。 |
+| `web/src/` | Vue 前端源码；公共组件、应用骨架、主题与开发环境 Debug 已实现。 |
 | `db/migrations/` | Central 的全局数据库迁移序列，不按业务模块建立独立迁移序列。 |
 | `deploy/` | 部署配置与相关示例，后续承载 Docker Compose 等部署文件。 |
 | `scripts/` | 开发、构建与维护脚本。 |
@@ -52,4 +52,4 @@ agenteam/
 - 空目录使用 `.gitkeep` 保存到 Git；目录有实际文件后可移除占位文件。
 - 本地敏感配置不入库，示例配置可以入库。根目录的 `secrets/` 被忽略，同名源码目录不受该规则影响。
 
-当前阶段只建立目录与职责说明，不添加入口代码、依赖清单、构建配置、部署实现、API、协议类型或数据库表。
+前端已建立独立依赖清单、Vue 入口、路由骨架和组件库，见[前端开发说明](frontend/README.md)。后端、部署、API、协议类型和数据库实现仍待后续开发。

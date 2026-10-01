@@ -25,13 +25,13 @@
 | [字体与密度](typography-and-density.md) | 字体栈、字号与字重、行高、间距、密度和长内容 |
 | [控件与交互](components-and-interactions.md) | 尺寸、圆角、边界、控件状态、浮层、反馈、键盘和动效 |
 
-[独立组件展示](../component-showcase/index.html)是这套规范的可操作参考，无需构建。参数与视觉以 [styles.css](../component-showcase/styles.css) 为基线，基础规则在 [base.css](../component-showcase/base.css)，组件细节在 [showcase.css](../component-showcase/showcase.css)，交互示例在 [app.js](../component-showcase/app.js)，动效示例在 [motion.js](../component-showcase/motion.js)。参数面板读取实际 CSS 值。
+[Vue Debug 组件展示](../../development/frontend/README.md)是这套规范的可操作参考。参数以 [tokens.css](../../../web/src/styles/tokens.css) 为唯一来源，基础规则在 [base.css](../../../web/src/styles/base.css)，公共控件样式在 [components.css](../../../web/src/styles/components.css)。Debug 参数面板读取实际 CSS 值。
 
-`base.css` 保留了早期探索规则；其中未被选定方向使用的分支不属于正式规范。生产组件提取当前生效的 token 与规则，不照搬历史分支。前端技术基线仍为 Vue 3 + 自定义组件。
+公共组件位于 `web/src/components/ui/`，展示页仅引用组件，不定义组件。旧独立 HTML 展示及探索分支已移除；正式页面和 Debug 使用同一套 Vue 组件。
 
 ## 3. 样式与布局的边界
 
-组件展示保留的双导航、目录、展示卡片编排和断点只用于承载组件。它们不确定正式页面的区域划分、栏目位置、阅读宽度或业务流程；原会议、任务与设置试作页已移除。
+Debug 内部的目录、展示卡片编排和断点只用于承载组件。系统骨架仅包含系统级顶部导航和内容区，项目级导航仅在未来项目工作区内部出现。它们不确定正式页面的区域划分、栏目位置、阅读宽度或业务流程；原会议、任务与设置试作页已移除。
 
 正式页面布局以 [应用骨架及布局文档](../layouts/application-shell.md) 及领域文档为依据。组件内部的消息左右对齐、树缩进、控件尺寸、间距和反馈属于本样式规范；不能由此推导整页布局或新增 API、路由及产品功能。
 

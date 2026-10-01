@@ -1,0 +1,210 @@
+* {
+  box-sizing: border-box;
+}
+:root {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+body {
+  margin: 0;
+  font: var(--font-size)/var(--line-height) var(--font-sans);
+  background: var(--bg);
+  color: var(--text);
+}
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  cursor: pointer;
+}
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 3px;
+}
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+h1 {
+  font-size: 26px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+h2 {
+  font-size: 15px;
+  line-height: 1.5;
+  font-weight: 600;
+}
+h3 {
+  font-size: 14px;
+  font-weight: 600;
+}
+fieldset {
+  min-width: 0;
+}
+.meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+.error-text {
+  color: var(--danger);
+}
+.truncate {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ui-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ui-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--content-gap);
+  min-width: 0;
+}
+.app-shell {
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+.system-nav {
+  flex: none;
+  min-height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  flex: none;
+}
+.brand-mark {
+  width: 23px;
+  height: 23px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--control-border);
+  border-radius: 50%;
+  font-size: 17px;
+}
+.system-nav a:hover {
+  text-decoration: none;
+  color: var(--text);
+}
+.system-nav nav {
+  display: flex;
+  min-width: 0;
+  overflow-x: auto;
+  padding: 5px 3px;
+}
+.system-nav nav a {
+  padding: 3px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  transition:
+    background var(--motion) var(--ease),
+    color var(--motion) var(--ease);
+}
+.system-nav nav a:hover {
+  background: color-mix(in srgb, var(--nav-selected) 85%, var(--text));
+  color: var(--text);
+}
+.brand-mark {
+  transition:
+    background var(--motion) var(--ease),
+    border-color var(--motion) var(--ease),
+    color var(--motion) var(--ease);
+}
+.system-nav .brand:hover .brand-mark {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+.system-nav nav .router-link-active {
+  background: var(--nav-selected);
+  color: var(--text);
+}
+.app-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  outline: none;
+}
+.skip-link {
+  position: fixed;
+  top: 8px;
+  left: 8px;
+  transform: translateY(-200%);
+  z-index: 120;
+  padding: 8px;
+  background: var(--surface);
+}
+.skip-link:focus {
+  transform: none;
+}
+.not-found {
+  padding: var(--space);
+  display: grid;
+  gap: 12px;
+}
+@media (max-width: 650px) {
+  h1 {
+    font-size: 23px;
+  }
+  .system-nav {
+    padding: 0 12px;
+    gap: 16px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+    scroll-behavior: auto !important;
+  }
+}
