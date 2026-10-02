@@ -45,3 +45,17 @@ PRs should explain the problem, changed behavior, affected documents/modules, an
 ## Security & Agent Instructions
 
 Keep credentials in ignored `.env*` files or root `secrets/`; commit sanitized example configurations only. When asking the user to choose through a question tool, wait for their answer without an automatic timeout.
+
+## 串行子 agent 开发团队
+
+主线程负责用户讨论、规划、任务下发、复杂诊断、审查、必要集成和汇报；业务执行交给子 agent。固定使用 `backend_worker`（后端）、`frontend_worker`（前端）和 `verification_worker`（测试与文档）三个角色，全部使用 `gpt-6.1-sol`，推理级别为 `low`，权限与 sandbox 继承主线程，不使用 `luna_worker`。
+
+在 `main` 上每次只推进一个工作项，最多一个活动子 agent；子 agent 不得创建下级 agent。每个工作项可以拆成多张小任务卡，按开发 → 验证 → 返修 → 主线程审查 → 本地提交顺序推进，完成后再开始下一工作项。
+
+主线程维护完整任务卡，明确目标、授权文件范围、既定接口、执行步骤、必用 skill、验收命令及预期结果、停止条件和交付格式。子 agent 只执行完整任务卡，先检查 `main` 基线及用户改动，读取角色项目 skill，只修改授权文件；缺少决策、接口未定、需要未授权的新依赖或需要扩大范围时，停止受影响执行并返回主线程。
+
+子 agent 不得执行 `git add`、`git commit`、`git push`、`git reset`、`git clean`，不得切换分支或创建、切换 worktree，不得覆盖或回退他人改动。主线程验收后仅暂存当前工作项文件，自动创建本地 Conventional Commit；推送需要用户明确指令。
+
+用户调整需求时，暂停受影响执行并保留已有改动；主线程确认调整后更新任务卡。通过提问工具询问用户选择时等待答案，不设置自动超时。长时间工作中，主线程定期汇报进展、验证结果和阻塞。
+
+项目角色 skill 分别为 `.agents/skills/agenteam-go-development/SKILL.md`、`.agents/skills/agenteam-vue-development/SKILL.md` 和 `.agents/skills/agenteam-verification/SKILL.md`。Vue 测试任务还必须读取 `vue-testing-best-practices` 技能；浏览器任务使用可用的 `playwright` 技能。详细流程见 [串行子 agent 开发团队](docs/development/agent-team/README.md)。
