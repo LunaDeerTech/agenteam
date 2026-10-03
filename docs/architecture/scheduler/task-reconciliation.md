@@ -61,13 +61,13 @@ Scheduler 必须读取最新持久化 Task，而不能只使用 traversal snapsh
 
 | Task state | Scheduler 行为 |
 | --- | --- |
-| backlog | 不进入 traversal；不处理 |
+| backlog | 不创建新调度；已有 pending 仍核对 |
 | todo | 满足条件且 assignee Agent idle 时 claim 为 in_progress，并创建 work Dispatch；Agent busy 时保持 todo |
 | in_progress | 有 active Execution 或 assignee Agent busy 则 skip；否则按 cooldown / concurrency 决定是否创建 work Dispatch |
 | in_review | 有 active Execution 或 assignee Agent busy 则 skip；否则按 cooldown / concurrency 决定是否创建 review Dispatch |
 | blocked | 检查可自动解除 blocker；全部解除后转 todo |
-| done | 不进入 traversal；不处理 |
-| cancelled | 不进入 traversal；不处理 |
+| done | 不创建新调度或 reopen；已有 pending 仍核对 |
+| cancelled | 不创建新调度或改业务状态；已有 pending 仍核对 |
 
 Scheduler 不存在：
 
@@ -80,7 +80,7 @@ Execution failed -> Task state Y
 
 ## 4. 通用前置校验
 
-Traversal 已经限制 Current Sprint，但 reconciliation 仍应防御性校验：
+先处理仍关联的 pending Dispatch；其核对不能被 Task state/group/Current Sprint 的新调度过滤遗漏，且不授权新的 Launch 或任意 Task mutation。对真正的新调度，reconciliation 防御性校验：
 
 1. Project scheduler 仍 enabled；
 2. Task 仍属于当前 Project；
@@ -99,7 +99,7 @@ skip
 
 ## 5. backlog
 
-`backlog` 不参与 Scheduler traversal。
+`backlog` 不参与新的业务调度，已有 pending 仍按统一恢复规则核对。
 
 Scheduler 不负责：
 
@@ -180,13 +180,15 @@ claim 前必须先检查当前 assignee 的 Agent active slot；如果已经 bus
 
 busy precheck 与真正 Launch 之间仍可能发生跨 Trigger 竞态，因此 `AgentExecutor.launch()` 是最终裁决点。如果其他 Trigger 抢先占用了 Agent slot，Launch 返回 `AgentBusy`。
 
-`AgentBusy` 不属于 temporary error，也不进入 Launch retry。Scheduler 必须把当前 Dispatch 终止为 `skipped(agent_busy)`；如果这是 `todo` claim，则执行内部 `scheduler_agent_busy_compensation`：Task `in_progress -> todo`、恢复 claim 前的 `manual_rank`、推进 Task.version，并写 reasoned `state_changed` TaskEvent。不添加 technical blocker。下一轮 traversal 再重新判断。
+`AgentBusy` 不属于 temporary error，也不进入 Launch retry。当前 Dispatch 进入 `skipped(agent_busy)`；原 `todo` claim 只有在当前 Task 仍属于该 claim、事实/version 合法时才补偿 `in_progress -> todo`，恢复原逻辑位置、推进 Task.version 并写 reasoned TaskEvent。不覆盖用户后续修改，不添加 technical blocker；rank 重整后不能机械写回旧数值，按 D11/D23 的维护/位置契约恢复。relaunch Busy 只 skip，不改 Task。
 
-对于除 `AgentBusy` 之外的 temporary Launch error：
+对于已确认未创建 Execution 的 temporary Launch error：
 
 - Task 不回滚到 todo；
 - 同一个 pending Dispatch 按 retry policy 继续；
-- 最终 Launch 失败才进入 technical blocker + blocked。
+- 最终确认失败且当前 Task 仍允许该处理时才进入 technical blocker + blocked。
+
+Launch 结果未知则保留原 pending/key，沿串行恢复路径只读查询 Executor 事实。查不到/查询失败不是新建许可；不因有限 retry 耗尽而失败/阻塞 Task，不无限重复 launch，也不引入专门人工兜底。
 
 这样避免 Task 在 Launch retry 期间被其他 traversal 再次 claim。
 
@@ -439,13 +441,17 @@ blocked -> todo -> in_progress -> launch
 
 ## 10. done
 
-done 不进入 Scheduler traversal。
+done 不参与新业务调度。
+
+此限制针对新业务调度；仍有关联的 pending Dispatch 必须沿原串行恢复路径核对，不能覆盖已完成状态。
 
 Scheduler 不对 done Task 创建 Execution，也不自动 reopen。
 
 ## 11. cancelled
 
-cancelled 不进入 Scheduler traversal。
+cancelled 不参与新业务调度。
+
+此限制针对新业务调度；旧 pending 继续沿原串行路径核对，不把核对变成新 Launch，也不覆盖已取消状态。
 
 Scheduler 不因为依赖它的其他 Task 存在而修改 cancelled Task。
 
@@ -480,13 +486,15 @@ waiting
 
 ## 13. Pending Dispatch 优先级
 
-对任意可执行 Task，如果存在：
+对仍有关联的 Task（包括已 done/cancelled 或离开原 group），如果存在：
 
 ```text
 SchedulerDispatch.status = pending
 ```
 
 必须优先恢复它。
+
+unknown 只读核对原 key，已确认存在 Execution 后关联原 Dispatch，再按当前 Task 事实决定是否请求取消；没有结论就保持 pending。已知失败/Busy 补偿也必须重新验证 Task 的当前事实/version，不能强制覆盖用户变更。暂停期间不借核对发新 Launch 或 mutation Task。
 
 禁止：
 

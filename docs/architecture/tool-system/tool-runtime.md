@@ -228,7 +228,7 @@ sequenceDiagram
 - Tool Runtime 通过 Execution Tool Set 解析当前 Execution 固定的 Tool identity、schema 和 backend binding；
 - Tool Runtime 创建并维护 ToolOperation / ToolAttempt；
 - Security / Governance 作为独立系统负责 Tool Authorization，Runtime 只消费 `allow / waiting_for_approval / deny`；
-- `waiting_for_approval` 期间保持同一个 ToolOperation，审批完成后继续或结束该 Operation；
+- `waiting_for_approval` 期间持久化同一个 ToolOperation 及 waiting reference，不因时间自动结束；明确批准后继续、拒绝后返回拒绝结果，显式生命周期取消另行处理；
 - Tool Dispatcher 负责把已授权 Operation 路由到 Builtin / Runner / MCP Backend；
 - Backend technical retry 仍属于同一个 ToolOperation，只创建新的 ToolAttempt；
 - Tool Backend 返回的原始结果先由 Dispatcher / Runtime 标准化，再返回 Agent Loop。
@@ -312,6 +312,8 @@ ToolArtifactRef
 
 不要求这些对象全部一一对应独立数据库表。
 
+其中 ToolOperation 与 ToolAttempt 明确使用独立持久化实体/独立表，不属于可省略持久化的组合对象。
+
 建议：
 
 - ToolSpec：保存或生成稳定 Tool 定义；
@@ -320,7 +322,7 @@ ToolArtifactRef
 - Backend 临时在线 / 健康状态不持久化为统一 Tool state，实际调用时直接映射为 ToolError；
 - ExecutionTool：作为 Agent Execution context / snapshot 的一部分持久化；
 - ToolOperation：持久化；
-- ToolAttempt：持久化或作为 Operation 子记录；
+- ToolAttempt：独立表持久化，通过 `operation_id` 关联 Operation；“子记录”仅表示关系，不是内嵌 JSON 数组或可不持久化；
 - ToolResult：主体写 Execution Log；Tool Artifact 业务 metadata 与 StoredObject 引用持久化，实际 payload 由 ObjectStorageService 保存；
 - ToolError：随 Operation / Attempt 保存标准化 metadata。
 
@@ -342,7 +344,7 @@ ToolArtifactRef
 12. Builtin / Runner / MCP Dispatcher；
 13. Unified ToolResult；
 14. Unified ToolError；
-15. timeout / cancellation propagation；
+15. 按工具自身契约适配可选 timeout 与 cancellation，不增加平台统一 Operation deadline；
 16. retry classification 与 unknown outcome；
 17. 同一 model turn 中 read-only Tool 的并行执行能力；
 18. Tool Artifact -> StoredObject 统一对象引用机制；

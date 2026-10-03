@@ -305,7 +305,7 @@ flowchart LR
 - Agent 只看到统一 ToolSpec 和 Tool Result，不感知具体 image_generation Provider / Model；
 - `generate-image` 与其他普通 Builtin Tool 一样受 Agent Capability、Execution Policy、Approval 与服务端授权约束。
 
-Model 选择和 Adapter 边界见 [Chat Model Runtime 详细设计](../platform-infrastructure/model-system/chat-model-runtime.md)。
+首版图片生成支持 OpenAI 图片生成及经实际验证的兼容接口；具体 profile 与 conformance 由 D09/D21 落实，不表示已通过集成验收。结果经媒体校验存入 Object Storage，远端结果 URL 经受控出站取回，不作为永久对象。Model 选择和 Adapter 边界见 [Model Configuration](../platform-infrastructure/model-system/model-configuration.md#image_generation)。
 
 ### Scheduler
 
@@ -373,6 +373,8 @@ create-artifact 可以：
 
 ### Core Agent Tools
 
+技能能力见 [Skills](#skills)，不因新增技能而扩充下列不可关闭 Core 清单。
+
 以下 Tool 是所有 Agent 都必须具备的基础能力，不进入普通 Agent Capability 的开关列表，用户不能关闭：
 
 ```text
@@ -405,6 +407,21 @@ Artifacts
 
 Knowledge Base 的 `list-docs / create-doc / update-doc / delete-doc` 仍属于普通可配置 Tool。
 
+### Skills
+
+技能能力通过正式业务工具提供，以下名称表达职责，精确 schema/名称在 D18/D21 固定：
+
+| 能力 | 正式后端与授权边界 |
+| --- | --- |
+| read-skill | Skill Domain + ObjectStorageService；只读自身分配及本次有效绑定的固定 revision 文本 |
+| prepare-skill | Skill/Execution/Mount 校验后协调对象直传与 Runner 托管目录；返回相对路径，准备不等于脚本获批 |
+| install-skill | 与用户上传共用安装服务；默认启用、可按 Agent 禁用，只发布项目包，不自动分配 |
+| assign-skill | 普通可选管理工具，与后台勾选共用分配服务；可查询当前项目合法技能名称/简介并给同项目 Agent 分配，管理权不代替正文读取权 |
+
+读取/准备工具的首版暴露规则须让已分配技能有真实入口，但不在此新增不可关闭 Core Tool。Add Skills 是项目内置受保护引导技能，默认启用、可按 Agent 禁用；资源不可单独删除与使用开关分开，不能读取指引就重新开启已禁用工具。
+
+安装、分配分别留证与幂等，库中发布成功不代表分配成功。下一轮新增技能只应用持久化资源绑定，不热改已有 Tool Snapshot；移除不主动取消执行，后续调用检查当前资源与授权。搜索/获取/文件/命令/Artifact 等配套能力必须有真实 Backend，不能由技能提示词或私有旁路冒充。完整包、版本与恢复见 [Agent Skills](../agent-skills.md)。
+
 ## 5. Runner Tools
 
 Runner Tool 用于操作远程执行环境。第一阶段按以下能力组组织：
@@ -423,6 +440,8 @@ Runner Tool 用于操作远程执行环境。第一阶段按以下能力组组�
 ### Command
 
 - `run-command`。
+
+首期支持 Linux/macOS，shell 默认 Bash 并暴露实际解释器/版本，argv 直接执行。需要超时的工具可在自身 schema 声明可选参数，平台不统一包装所有工具，也不补统一 Operation/Execution 期限；具体参数、计时和取消见 [Tool Execution](tool-execution.md#7-timeout)。
 
 ### Managed Process
 
@@ -451,11 +470,15 @@ Runner backend 可以提供：
 - `browser-use`；
 - `computer-use`。
 
+macOS 原生桌面、Linux X11/Wayland 均在首期正式适配范围，后端与权限检查成功才上报细分能力；不因 headless=false 就声明全部可用，不扩展 headless browser-use。
+
 ### Tunnel
 
 - `expose-port`。
 
 Tunnel 用于把 Runner 本地服务通过 Runner 主动出站建立的 tunnel 暴露成 Central 管理的临时外部入口。
+
+入口访问复用平台 Session，仅当前 Project Owner 可用；HTTP 请求、WebSocket upgrade 及已有长连接的身份撤销由 Central/Gateway 处理。工具审批与访问者认证独立，URL 不授予访客权限。
 
 第一阶段 Runner 不增加 LSP / Code Navigation Tool。
 
@@ -469,7 +492,7 @@ MCP Server 通过 MCP Bridge 接入统一 Tool System。
 
 MCP Bridge 负责：
 
-1. 根据 MCP Server Config 建立 MCP Client；
+1. 根据 Project MCP Connection 的显式连接及 Credential Binding，结合 Config profile 建立 MCP Client；
 2. 发现 MCP Server tools；
 3. 为每个远端 Tool 生成稳定 Tool identity；
 4. 将 MCP schema 转为 Unified ToolSpec；
@@ -483,7 +506,7 @@ MCP Bridge discovery 出来的每个 Tool 都是独立的 Unified Tool，不通�
 这些 Tool 与 Builtin / Runner Tool 一样进入 Agent Capability：
 
 ```text
-MCP Server
+Project MCP Connection
   -> MCP Bridge discovery
       -> Unified ToolSpec
           -> Tool Registry
@@ -493,6 +516,8 @@ MCP Server
 Agent Capability 默认按具体 MCP Tool 授权。新 discovery 出来的 Tool 不自动加入已有 Agent Capability，避免 MCP Server 升级后隐式扩大 Agent 权限。
 
 MCP Server 的工具不能因为来自外部协议而跳过 agenteam 的权限和审计体系。
+
+System Config 不持有项目凭据或系统级已发现工具目录。MCP 保留第三方 input schema，不强加通用 timeout 包装/保留字段；同名原生业务字段不被平台剥离或解释为统一期限。
 
 MCP Server Config、System / Project scope、Credential、Tool stable identity、discovery / refresh、transport 与执行链路的完整设计见 [MCP 集成架构](../mcp-integration/README.md)。
 
@@ -613,6 +638,8 @@ Project Secret Variable 的 value 不应展开到普通 Tool arguments。Runner 
 无论 Agent 是由 Task Scheduler、Meeting 还是其他触发源启动，Tool Call 都统一归属于当前 Agent Execution，不再为 Meeting turn 单独建立另一套运行记录模型。
 
 ## 9. 详细设计
+
+上述目录是能力边界，不代表所有 Backend 已存在。D21 逐工具固定 schema、risk/scope、幂等、错误和结果预算，经所属 Domain 正式端口校验；未绑定不注册可执行入口。Scheduler/Meeting 工具随 D23/D24 服务完成绑定验收，不提前注册空 Backend。
 
 统一工具系统的详细设计按职责拆分为以下文档：
 

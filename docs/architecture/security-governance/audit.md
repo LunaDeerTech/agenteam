@@ -35,6 +35,8 @@ Audit
 
 Audit 的目标是长期保留结构化安全证据，而不是复制完整运行内容。
 
+Audit 聚焦关键配置修改、审批、Secret 使用、Runner 身份变更、授权拒绝以及高风险/结果未知的敏感操作。所有工具调用仍须保存正式 ToolOperation / ToolAttempt、Canonical Transcript 及对应运行证据；普通低风险调用不额外复制 Audit 摘要，不等于不保存工具记录。
+
 ## 2. 第一阶段原则
 
 第一阶段确定：
@@ -314,14 +316,14 @@ tool_source = "runner"
 
 ## 10. Audit 与 Execution Log 的边界
 
-例如 Agent 执行一个 Tool：
+例如 Agent 执行一个需要安全追溯的 Tool 操作：
 
 ~~~text
 tool = runner.run-command
 operation_id = op-123
 ~~~
 
-Execution / Tool Call Log 可以保存：
+正式 ToolOperation / ToolAttempt 与 Canonical Transcript 必须保存。运行证据按对应安全存储规则可包含以下内容，不由 Audit 规定完整敏感 payload 的保存策略：
 
 - 实际 Tool arguments；
 - command；
@@ -362,7 +364,7 @@ outcome = success
 ### Project / Agent
 
 - Project 创建；
-- Project 删除 / purge；
+- Project 归档、取消归档与永久删除；
 - Project 关键配置修改；
 - Agent 创建 / 删除；
 - Agent Capability 修改；
@@ -403,7 +405,7 @@ Secret 使用 Audit 只记录：
 - destructive / security-sensitive / arbitrary-execution / external-side-effect 等敏感 Tool 执行；
 - backend 返回 unknown outcome 的敏感操作。
 
-普通、低风险且已经完整记录在 Execution Log 的 Tool Call 不要求全部复制到 Audit。
+普通低风险 Tool Call 不额外复制 Audit 摘要，但正式调用记录与 Transcript 继续保存；不得用 Audit 选取范围放宽工具运行证据要求。
 
 ### Runner / System
 
@@ -451,17 +453,19 @@ approval.revoke
 
 等自动删除策略。
 
-### 13.1 Project soft delete
+### 13.1 Project 归档
 
-Project 被 soft delete 后，其 Audit 继续保留。
+Project 归档后只读且可恢复，项目数据及 Project-scoped Audit 继续保留。取消归档不改写历史 Audit。
 
-这样仍然可以追溯删除前后的安全事件。
+这与[项目归档及永久删除](../project-work-management/README.md#22-project-归档与永久删除)共享生命周期，不再提供可恢复软删除后另行 purge 的用户流程。
 
 ### 13.2 Project permanent purge
 
-当用户执行 Project 的永久数据 purge 时，Project-scoped Audit 与该 Project 的其他持久数据一起删除。
+用户明确永久删除 Project 时，先按项目生命周期停止活动，再通过正式清理端口删除 Project-scoped Audit 及其他项目数据。Project Owner 确认不等于停止/清理已完成，清理失败须保留可恢复进度并反馈真实状态。
 
 因此“无自动过期”不代表永久绕过用户主动的数据删除。
+
+系统级 Audit 不自动随项目删除。既有系统记录只保留其最小安全追溯信息，不把 Project-scoped Audit 或被清理的项目正文复制到系统 scope 绕过删除；也不把项目永久删除解释成删除所有平台日志或其他项目记录。各模块拥有的 Project-scoped 数据仍按正式清理矩阵处理，精确引用投影与事务/清理矩阵由 D01/D04/D08 落实。
 
 ### 13.3 System Audit
 
@@ -657,8 +661,8 @@ System Audit 由 System Configuration / 平台管理权限控制，不继承 Pro
 2. Audit 与 Task Event / Meeting Timeline / Execution Log 分离；
 3. Audit 不自动过期；
 4. Project 不提供 retention 配置；
-5. Project soft delete 后 Audit 保留；
-6. Project permanent purge 时删除对应 Project Audit；
+5. Project 归档后 Audit 保留；
+6. Project 永久删除时清理对应 Project-scoped Audit；
 7. System Audit 同样不自动过期；
 8. Audit 保存结构化安全 metadata 和关联 ID；
 9. 不复制完整 command、stdout、stderr、Tool Result、Model Prompt / Response；

@@ -42,7 +42,7 @@ Realtime 不承担业务状态持久化。
 4. Realtime Event 与 Domain Event 分离。
 5. Realtime Event 可以丢失。
 6. 业务正确性必须由普通 API + Source of Truth 恢复。
-7. 断线重连默认重新加载 Snapshot / Read Model，再恢复 subscription。
+7. 断线重连先恢复 subscription 并缓冲事件，再读取 Snapshot / Read Model，完成对齐后继续 live consumption。
 8. 浏览器不直接订阅内部 Domain Event schema。
 9. subscription 必须经过 Project / Resource scope 权限校验。
 10. Slow consumer 不能拖死 Central 或业务写路径。
@@ -347,12 +347,14 @@ enter normal live consumption
 
 Reconcile 由具体模块选择，但不能跳过：
 
-- 如果模块具有稳定 sequence / revision，例如 RuntimeItem.seq，则只应用 Snapshot 边界之后的 buffered update；
+- Execution Runtime View 使用每 Execution 独立更新进度，覆盖 started / delta / updated / completed / failed；Snapshot 返回实际已包含内容的水位，只对齐该边界之后的 buffered update。RuntimeItem.seq 仅用于条目创建排序，不能充当更新水位；
 - 如果 read model 没有可比较的 revision，例如第一阶段 Meeting Timeline / Human Inbox，可以把 buffered state event 视为 invalidation，按 stable resource identity 合并 dirty 标记并重新读取对应 authoritative read model，而不是盲目把可能早于 Snapshot 的 payload 覆盖到客户端状态；
 - 相同 resource update 必须能够幂等处理或安全转化为 refresh；
 - 任何时候客户端都能通过 Snapshot 校正最终状态。
 
-未来某个模块可以增加 snapshot revision / cursor 优化，但不是第一阶段平台前提。
+仅 subscribe-first 不能覆盖“订阅前已发送、Snapshot 批量持久化尚未 flush”的 Runtime delta。Executor 的 Snapshot / resync 契约必须让该内容实际进入返回视图，或在进入 live consumption 前完成相应恢复，不能用最新已发送编号冒充快照已包含水位。完整边界见 [Runtime View](../agent-executor/runtime-view.md)。
+
+Execution 更新进度的具体 revision/offset 编码、重复/乱序/缺口、终态完整性、分页/筛选与重启代际由 D01/D22/D25 固定；其他 read model 可保留 invalidation + refresh，不要求平台新增全局 cursor。
 
 ## 15. Reconnect
 
@@ -380,7 +382,7 @@ resume live consumption
 - 全局 cursor；
 - 任意历史 Realtime replay。
 
-具体模块可以拥有自己的 snapshot revision，例如 RuntimeItem.seq，但不改变平台 Realtime 的 transient 语义。
+Execution Runtime View 使用自身更新进度和实际快照水位；重启或无法证明连续时沿 Snapshot/resync 恢复，不拿 RuntimeItem.seq 推断丢失更新。这不改变平台 Realtime 的 transient 语义，也不新增持久 delta 日志或逐 token 写库。
 
 ## 16. Backpressure
 
@@ -435,12 +437,14 @@ Agent Executor Runtime View 使用统一 Realtime WebSocket。
 逻辑：
 
 ~~~text
-GET Runtime View Snapshot
-+
 subscribe execution runtime
+-> acknowledge and buffer
+-> GET Runtime View Snapshot with actual included progress
+-> reconcile / resync
+-> live updates
 ~~~
 
-RuntimeItem 自己的 seq / item_id / revision 仍由 Agent Executor 定义。
+RuntimeItem 的 item_id / 创建排序 seq、每 Execution 更新进度及 Snapshot 实际包含水位由 Agent Executor 定义。对终态 Execution，只有完整终态 Snapshot 才能直接只读；不能因状态已 terminal 就省略尚未入快照内容的恢复。
 
 Realtime 平台只负责：
 
@@ -479,10 +483,13 @@ Meeting 不单独维护 SSE / WebSocket 实现。
 Human Inbox 使用：
 
 ~~~text
-GET open inbox items
-+
-subscribe project inbox
+subscribe current user's inbox scope
+-> acknowledge and buffer
+-> GET current user's open inbox items
+-> reconcile invalidation / refresh
 ~~~
+
+Inbox 可聚合本人全部项目并按项目筛选；查询与订阅都以服务端 Project Owner 关系授权，管理员身份不越过该边界。具体跨本人项目的订阅/游标接口由 D01/D25/D26 固定，不扩为跨用户通知中心。
 
 Projection commit 后可以发布：
 
@@ -530,8 +537,8 @@ Central restart：
 - in-memory Hub 状态丢失；
 - 不需要恢复 in-memory Event queue；
 - Browser reconnect；
-- reload Snapshot；
-- restore subscriptions。
+- restore subscriptions 并缓冲；
+- reload Snapshot、对齐 / resync 后继续 live consumption。
 
 业务状态不受影响。
 

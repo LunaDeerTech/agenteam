@@ -79,6 +79,10 @@ flowchart TB
     RunnerN -->|Outbound WSS| API
 ~~~
 
+### 2.1 前端资源与 HTTP 入口
+
+正式构建将前端静态资源嵌入 Central，由同一应用提供页面与 API。前端 History 路由（包括 `/{username}/{project_name}` 深链接）在适用页面请求上回退到应用入口；API、缺失静态资源和服务端错误不得回退为前端 HTML。具体路径划分、缓存和构建方式由 D02/D26/D28 规格固定并用真实构建验收，Debug 不进入生产资源。
+
 ## 3. 必需基础设施
 
 Central 第一阶段要求：
@@ -141,22 +145,13 @@ scheduler ownership
 
 - PostgreSQL connection；
 - MinIO endpoint / credential / bucket 等 backend config；
-- Secret master key；
-- Outbound Network deployment policy；
-- allowed private CIDR；
+- Secret master key ring / 当前写入版本；
 - TLS / trust store；
 - server bind / public origin 等部署参数；
 - migration / health 相关运行参数；
 - Event retry / worker 等 implementation config。
 
-来源可以包括：
-
-- environment variable；
-- Docker secret；
-- secret file；
-- deployment config file。
-
-敏感值优先通过 secret mechanism 注入。
+技术部署配置从 Docker 部署环境的环境变量读取；原始主密钥与密钥环也只由环境注入，不保存到业务数据库或普通配置 UI。证书 / trust store 等文件的定位与加载方式由部署规格明确，敏感环境值不进入仓库、普通日志或诊断输出。
 
 ### 5.2 Runtime Platform Config
 
@@ -168,33 +163,40 @@ scheduler ownership
 - ModelConfig；
 - PlatformModelSelection；
 - SMTP 配置（认证凭据通过 Secret Management 保存）；
+- 管理员出站内网放行规则（网段、端口及显式允许 HTTP）；
+- 账号 Session / 密码重置期限、登录挑战阈值及 SMTP 重试参数；
 - 其他属于产品行为而不是部署边界的平台配置。
 
-Runtime Platform Config 不能扩大 Deployment Config 定义的基础设施安全边界。
-
-例如 Project / Runtime UI 不能绕过部署级 Outbound Network Policy。
+Runtime Platform Config 不保存原始主密钥，也不能绕过固定禁止地址、TLS 验证等平台安全约束。出站内网放行规则明确由管理员在系统 UI / 管理 API 维护并持久化数据库，更新无需重启；Project、Agent、MCP Config 不能自行扩大网络权限。技术配置使用环境变量的约定不把这些已定运行配置搬出数据库。
 
 ## 6. Secret Management 与 Envelope Encryption
 
-平台级 Secret 与 Project Secret 均采用应用层 envelope encryption。
+平台级 Secret 与 Project Secret 均采用 AES-256-GCM 的应用层 envelope encryption：数据密钥加密 Secret，部署主密钥保护数据密钥。优先使用 Go 标准加密库，不自行发明算法，并确保同一密钥下 nonce 不重复。
 
 数据库保存：
 
 ~~~text
-ciphertext
-encryption metadata / key version if needed
+Secret ciphertext
+wrapped data key
+algorithm / format / key version
+migration progress / state / safe error metadata
 ~~~
 
-Central 运行时通过部署级 master key 完成加解密。
+Central 运行时通过部署级 master key 解开受保护的数据密钥，再处理 Secret。数据库中用于分批迁移恢复的状态不包含明文主密钥或明文数据密钥。
 
 核心边界：
 
 ~~~text
 Plaintext Secret
-    ↓ application encryption
-Ciphertext in PostgreSQL
-    ↓
-Deployment master key
+    ↓ AES-256-GCM with data key
+Secret ciphertext in PostgreSQL
+
+Data key
+    ↓ protected by deployment master key
+Wrapped data key in PostgreSQL
+
+Deployment master key ring
+    ← environment only
 ~~~
 
 master key：
@@ -215,13 +217,7 @@ master key：
 
 ## 7. Master Key 来源
 
-第一阶段 master key 通过部署环境注入。
-
-允许：
-
-- environment variable；
-- Docker secret；
-- external secret file。
+第一阶段原始 master key ring 通过 Docker 部署环境变量注入，包含带版本的有效密钥及当前写入版本；不以数据库持久化替代环境配置。
 
 不允许：
 
@@ -229,11 +225,15 @@ master key：
 - 自动生成后写入普通可读项目配置；
 - 通过 Project Config 保存。
 
-Central 启动时必须能够读取有效 master key。
+Central 启动时必须能够读取有效密钥环，能够使用当前写入版本并解析仍需读取的旧版本。
 
 如果 Secret Management 需要 master key 而配置缺失 / 无效：
 
 > startup fail。
+
+轮换时新写入使用新版本，后台分批重新保护已有数据密钥，并在数据库持久化非敏感的迁移进度、状态和错误以便中断恢复。只有确认存量迁移完成、旧版本已无必要引用后，部署方才能移除旧主密钥。
+
+更新环境变量需要更新部署并重启 Central；启动后读取新的密钥配置并恢复迁移。自动分批迁移不生成、轮换或回写部署主密钥。密钥环编码、认证附加数据、nonce 生命周期、并发写入与迁移恢复检查点由 D04/D28 规格落实，不能仅凭算法和轮换方向宣称安全实现已验收。
 
 ## 8. Schema Migration
 
@@ -241,9 +241,11 @@ agenteam Central 只有一个后端应用和一个 PostgreSQL schema lifecycle�
 
 第一阶段采用：
 
-> 一个全局 migration 序列 / 目录 + 一个统一 migration runner。
+> Goose 管理的一个全局 SQL migration 序列 / 目录 + 一个统一 migration runner。
 
 不需要按 Domain 构建独立 migration runner。
+
+数据库访问采用 pgx + 显式 SQL，不由 ORM 自动修改生产表结构。常规迁移使用事务，不支持事务的 SQL 必须显式标记；Goose/pgx 固定版本、配套连接方式、文件规范、锁和失败恢复由 D03 通过真实 PostgreSQL 验证。不能由库默认行为推断所有迁移可安全自动回滚。
 
 某个 migration 可以同时调整多个模块相关表，只要 migration 本身：
 
@@ -259,7 +261,7 @@ agenteam Central 只有一个后端应用和一个 PostgreSQL schema lifecycle�
 ~~~text
 connect PostgreSQL
     ↓
-acquire migration guard if needed
+acquire migration guard
     ↓
 read schema version
     ↓
@@ -514,7 +516,7 @@ Graceful shutdown 不能依赖“所有 Agent 都必须自然执行完”。
 
 ## 23. Docker Compose 边界
 
-第一阶段推荐 Docker Compose 管理：
+第一阶段使用 Docker Compose 管理：
 
 ~~~text
 PostgreSQL + pgvector
@@ -529,7 +531,7 @@ Runner 通常位于远程设备，不要求与 Central Compose 同机。
 - service dependency；
 - volume；
 - network；
-- secret injection；
+- 环境变量与敏感部署配置注入；
 - health check；
 - persistent data path。
 
@@ -566,28 +568,7 @@ accept traffic
 
 升级期间 Browser / Runner 可以断线并在服务恢复后重连。
 
-## 26. Backup / Restore 边界
-
-完整 backup policy 后续可以单独设计，但基础边界必须明确：
-
-业务恢复至少同时考虑：
-
-- PostgreSQL；
-- MinIO。
-
-只恢复 PostgreSQL 但丢失 MinIO：
-
-- StoredObject metadata 可能指向不存在 payload。
-
-只恢复 MinIO 但丢失 PostgreSQL：
-
-- payload 缺少业务引用与 metadata。
-
-因此 backup / restore 需要一致性策略。
-
-第一阶段本文不展开具体 backup tooling。
-
-## 27. Observability
+## 26. Observability
 
 部署层至少需要：
 
@@ -602,7 +583,7 @@ accept traffic
 
 敏感配置必须 masking。
 
-## 28. 第一阶段实现边界
+## 27. 第一阶段实现边界
 
 第一阶段实现：
 
@@ -612,15 +593,16 @@ accept traffic
 4. no Redis；
 5. Deployment Config；
 6. Runtime Platform Config；
-7. envelope encryption master key injection；
-8. global migration runner；
+7. AES-256-GCM envelope encryption、环境主密钥环与可恢复迁移；
+8. Goose global SQL migration runner；
 9. startup dependency validation；
 10. mandatory dependency fail-fast；
 11. liveness；
 12. readiness；
 13. dependency diagnostics；
 14. graceful shutdown；
-15. Docker Compose deployment。
+15. Docker Compose deployment；
+16. embedded frontend assets 与受限 History fallback。
 
 第一阶段不实现：
 
@@ -635,6 +617,6 @@ accept traffic
 
 ## 账号首次初始化与可选 SMTP
 
-必需基础设施与 migration 完成后，执行幂等的人类账号首次初始化，创建 admin@mail.com 并输出初始随机密码到 Central 后台日志。普通重启不覆盖账号或密码。详细事务与恢复边界见 [账号生命周期](./authentication/account-lifecycle.md)。
+必需基础设施与 migration 完成后，执行幂等的人类账号首次初始化，创建邮箱 admin@mail.com、username 为 admin 的管理员，并输出初始随机密码到 Central 后台日志。普通重启不覆盖账号或密码；日志丢失沿统一忘记密码流程恢复，不提供专用管理员密码重设 CLI。详细事务与恢复边界见 [账号生命周期](./authentication/account-lifecycle.md)。
 
 SMTP 缺省不阻断 ready；未配置时邀请和密码重置链接输出后台日志。已配置但投递失败不切换渠道，不影响已提交账号 / 邀请的业务事实。该行为不改变 PostgreSQL / MinIO mandatory dependency，不引入 degraded mode。敏感后台日志与不含 Secret 的 Audit 分离，部署需明确日志访问范围；见 [SMTP Delivery](./authentication/smtp-delivery.md)。

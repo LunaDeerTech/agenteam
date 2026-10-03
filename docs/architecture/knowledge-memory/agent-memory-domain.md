@@ -1,6 +1,7 @@
 # Agent Memory Domain 详细设计
 
-> 上层架构：[Knowledge Base 与 Agent Memory](./README.md)  
+> 上层架构：[Knowledge Base 与 Agent Memory](./README.md)
+>
 > 相关设计：[Agent Memory Runtime](./agent-memory-runtime.md)、[Retrieval Runtime](./retrieval-runtime.md)、[Agent Management](../agent-management.md)
 
 ## 1. 目标与边界
@@ -411,6 +412,7 @@ NOOP
 Decision 由 Memory Runtime 产生，Domain Service 负责：
 
 - 校验 namespace；
+- 校验目标属于本次合法 consolidation 输入集合且当前仍 active；
 - 校验 expected current revision；
 - transaction；
 - revision history；
@@ -420,16 +422,15 @@ LLM 不能直接写数据库。
 
 ## 15. Concurrency
 
-Memory consolidation 可能同时发生。
-
-例如同一个 Agent 并行 Execution：
+同一 Agent 最多一个非终态 Execution；它发起的 retain 仍会与用户管理操作竞争。例如：
 
 ~~~text
-Execution A retain
-Execution B retain
+当前 Execution retain 读取 Memory #42 revision 3
+用户在 Memory 管理页删除 #42
+retain 尝试提交基于旧输入的 UPDATE
 ~~~
 
-都可能命中同一 existing Memory。
+提交必须检测目标已失效，不能仅因 revision 数字仍相等就更新已删除 Memory。
 
 UPDATE / DELETE 必须携带：
 
@@ -437,13 +438,9 @@ UPDATE / DELETE 必须携带：
 expected_revision
 ~~~
 
-如果 current revision 已变化：
+Domain 在同一原子批次中验证 namespace、合法目标集合、当前 active 状态和 expected revision；不假定删除一定递增 revision。任何相关冲突都使整批不提交，不允许 silent last-write-wins 或部分应用。
 
-- mutation conflict；
-- Memory Runtime 重新读取相关 Memory；
-- 重新执行 consolidation 或返回可恢复 Tool error。
-
-不允许 silent last-write-wins。
+若 revision/目标 active 冲突且明确本批未提交，Memory Runtime 重读当前合法 Memory、重新 consolidation 一次后再尝试原子提交；再次冲突返回结构化 ToolError。不能原样重放旧 proposal。提交结果未知时沿正式幂等/恢复契约核对，不能假定已回滚；非法 namespace/proposal、取消、权限或 Project/Agent 生命周期失效也不能通过冲突重试绕过。详细流程见 [Memory Runtime](agent-memory-runtime.md#19-batch-mutation)。
 
 ## 16. Retain Operation Evidence
 
@@ -473,6 +470,8 @@ RetainOperation
 Memory Domain 不要求把 raw retain Tool input 永久复制到每条 Memory。
 
 原始 Execution / Transcript 已经是运行事实来源。
+
+冲突恢复产生的新 proposal、输入版本及额外模型 invocation 须关联同一次 retain 证据，真实记录 usage，不能仅在普通日志记一条“重试”。D01/D14 明确证据字段、原子批次、幂等和索引刷新端口，并验证用户删除与 retain 等合法并发。
 
 ## 17. Recall Eligibility
 
@@ -544,6 +543,8 @@ Agent 不提供 delete-memory Tool。
 3. 立即停止 recall eligibility；
 4. 异步清理 lexical / dense index；
 5. 保留 revision history / audit evidence，除非安全删除规则要求物理清除。
+
+删除与 retain 的提交校验共享正式一致性边界：删除后的目标不能因陈旧 proposal 或未变化的 revision 数字重新成为 active。索引失败不撤销 canonical 删除，也不能继续 serving 旧内容。
 
 ## 21. Supersede 与 Delete 的区别
 
@@ -720,3 +721,5 @@ retain
 10. Agent 不能读取其他 Agent Memory。
 11. Agent 不直接删除 Memory。
 12. Memory 与 Knowledge 不共享业务表或 authorization。
+13. mutation 批次同时验证 namespace、目标集合、active 状态与 revision，不部分提交。
+14. 明确未提交的 revision/目标 active 冲突只内部重读重算一次，未知结果先核对幂等事实。

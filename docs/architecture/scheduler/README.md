@@ -54,7 +54,7 @@ Scheduler 不负责：
 
 每个 Project 最多有一个 Current Sprint。
 
-Scheduler 只遍历该 Current Sprint 中的 Task。
+新的 Task 调度只遍历该 Current Sprint；已有 pending Dispatch 的核对纳入同一串行 traversal/recovery 路径，即使 Task 已不在可派发状态也不能丢弃原请求。
 
 一个 Project 只有一条串行 Scheduler traversal：
 
@@ -100,15 +100,15 @@ Scheduler 逐个 Task 调度。
 
 一个 Project 同一时间最多只有一个 Current Sprint。
 
-Scheduler 只运行在：
+Scheduler 只为：
 
 ```text
 project.current_sprint
 ```
 
-中的 Task 上。
+中的 Task 发起新业务调度。
 
-如果 Project 当前没有 Current Sprint，则 Scheduler 保持 idle，不遍历其他 Sprint。
+如果 Project 当前没有 Current Sprint，则不创建新调度；没有待核对 Dispatch 时保持 idle，不转而调度其他 Sprint。异常遗留 pending 仍沿原串行恢复路径处理。
 
 Sprint 的 start / current / complete / rollover 由 Project / Work Management 的 [Sprint Lifecycle](../project-work-management/sprint-lifecycle.md) 定义。
 
@@ -256,6 +256,8 @@ waiting
 
 未完成 Launch 的 `pending SchedulerDispatch` 也预占一个并发 slot。
 
+可靠关联 Execution 后原子将 pending 转为 launched，再按 Execution 当前状态计额度，不能 pending 与 Execution 双计。Agent 全局 slot 另含 waiting，不能与本节 Scheduler 额度混用。
+
 ## 7. SchedulerDispatch
 
 Scheduler 通过独立的 `SchedulerDispatch` 持久化对象管理可靠 Launch。
@@ -271,13 +273,15 @@ pending
 
 `skipped` 用于 Dispatch 已创建后才发生的 `AgentBusy` 竞态兜底。它不创建 technical blocker，也不进入 Launch retry。
 
-对于原 `todo` claim，`AgentBusy` 兜底执行 `scheduler_agent_busy_compensation`：Task 恢复为 `todo`，同时恢复 claim 前的 `manual_rank`，避免技术竞态改变用户排序；对于 `in_progress / in_review` relaunch，Task state / rank 保持不变。后续 traversal 再重新判断 Agent 是否空闲并创建新的 Dispatch。
+对于原 `todo` claim，`AgentBusy` 兜底执行 `scheduler_agent_busy_compensation`：仅在 Task 仍属于该 claim、当前事实/version 允许时恢复为 `todo`，推进 version 并记录 reasoned TaskEvent，恢复原逻辑排序位置。rank 重整后不能机械写回旧数值，位置与维护协调由 D11/D23 落实；不覆盖用户后续状态/归属/排序修改。对于 `in_progress / in_review` relaunch，只 skip，Task state / rank 保持不变。
 
 每次需要新的 Agent Execution 时创建新的 `dispatch_id`。
 
 该 `dispatch_id` 派生 Agent Executor 的稳定 idempotency key。
 
 同一个 Dispatch 的 Launch retry 始终复用同一个 key。
+
+重试语义输入也须相同，不同输入由 Executor 拒绝。已确认暂时 Launch 失败仍有限 retry/backoff；结果未知则保留 pending 与原 key，按只读 Launch 结果端口继续核对，不以次数耗尽改成 failed/blocked，也不无限调用 launch。查不到/查询失败不证明可创建替代请求，不新增恢复服务、timer worker 或强制人工兜底。
 
 `launched` 以后，Agent Execution 的 succeeded / failed / cancelled 不再改变 SchedulerDispatch。
 
@@ -367,6 +371,8 @@ Scheduler pause 是 Project 级控制。
 - 不修改已运行 Task。
 
 恢复后继续从当前持久化状态进行 traversal。
+
+暂停不借 pending 核对发起新 Launch 或修改 Task；恢复后接续原 Dispatch/key。待确认是调度投影，不新增 Task 主状态。
 
 ## 12. 用户取消 Task Execution
 

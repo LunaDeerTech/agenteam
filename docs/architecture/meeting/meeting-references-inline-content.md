@@ -16,7 +16,7 @@
 
 Meeting 需要同时支持两类资源关联：
 
-1. **Meeting References**：长期固定到 Meeting 的资源，每次 Agent Execution 都能看到其稳定引用；
+1. **Meeting References**：长期固定到 Meeting 的资源，Agent Execution 按本次固定输入中的 references 集合看到稳定引用；
 2. **Message Inline References**：某条 MeetingMessage 中临时提到的资源，只随该 Message 进入后续会话 Context。
 
 同时，MeetingMessage 不能只依赖纯文本解析来表达结构化内容。至少需要支持：
@@ -722,7 +722,7 @@ References 可以：
 
 ## 18. Context Injection
 
-MeetingContextProvider 每次注入全部当前 MeetingReference，但只注入稳定 identity，不自动读取内容。
+MeetingContextProvider 注入本次 Meeting 输入已固定的全部 MeetingReference，但只注入稳定 identity，不自动读取内容。Parallel Contributions 共用相同集合、summary version 与实际 message/generation 输入；sequential 为后续发言建立输入时可以看到前序回复。之后 Pin / Unpin 不热改已建立的 Execution Context，也不让迟启动的 parallel Agent 改读另一份 references 集合，详见 [固定输入边界](./meeting-context-summary.md#9-parallel-可见性)。
 
 概念序列化：
 

@@ -71,6 +71,16 @@ anthropic-messages
 
 如果两个配置指向同一家外部服务，但分别使用不同 Protocol，则它们在 agenteam 中是两个独立 ModelProvider。
 
+非 chat 类型使用各自独立 Adapter，首版协议范围固定为：
+
+| Model type | 首版协议范围 | 不纳入首版的原生接口 |
+| --- | --- | --- |
+| embedding | OpenAI Embeddings 及经实际验证的兼容接口 | Ollama 原生向量接口 |
+| reranker | Jina Rerank 及经实际验证的兼容接口 | Cohere 原生 Rerank |
+| image_generation | OpenAI 图片生成及经实际验证的兼容接口 | ComfyUI 原生工作流 |
+
+Protocol profile 必须明确支持的请求、响应、错误和 usage；兼容标签或 endpoint 路径本身不是验证证据。例如 `/v1/rerank` 并不能唯一识别 Jina 协议。D09 固定 profile、Provider/type 兼容矩阵、测试服务及 conformance 场景，D13/D14/D21 验证真实消费；本文不声称已经实现这些 Adapter 或通过真实请求验收。
+
 ## System Provider 与 Project Provider
 
 ~~~mermaid
@@ -201,6 +211,8 @@ System chat Model 可能被多个 Project 的 Agent / Meeting Summary 配置引�
 
 Project chat Model 只影响所属 Project，可以替换为该 Project 当前可见的 enabled System chat Model 或 Project chat Model。
 
+系统管理员跨 Owner 的替换只获得受控配置替换能力，不因此读取其他用户的项目正文。D01/D09 固定引用扫描、并发新增引用、版本冲突、原子替换及调用 snapshot 的一致性；不能在扫描后漏掉新引用或留下部分替换成功。
+
 #### 删除平台内部 Model
 
 如果待删除 Model 正被 PlatformModelSelection 引用：
@@ -311,6 +323,8 @@ System Provider 和 Project Provider 都可以配置 chat Model。
 - 第一阶段只能由 System Provider 配置；
 - 由 PlatformModelSelection 的 `embedding_model_ref` 选择。
 
+Embedding Adapter 的批处理、输入限制、维度校验及错误/usage 归一化由 D09 明确。selector 变化创建新的索引 profile/generation 并后台重建；实际 serving 仍用旧 generation 的 embedding snapshot，完整新 generation 就绪后才原子切换，不能混合向量空间。见 [Knowledge Indexing](../../knowledge-memory/knowledge-indexing.md#35-embedding_model_ref)。
+
 ### reranker
 
 `reranker` 只用于 Knowledge / Memory retrieval 的可选 reranking 阶段。
@@ -322,6 +336,8 @@ System Provider 和 Project Provider 都可以配置 chat Model。
 - 第一阶段只能由 System Provider 配置；
 - 由 PlatformModelSelection 的 `reranker_model_ref` 选择；
 - selector 允许为空，表示 retrieval 不启用模型 reranking。
+
+首版按已验证的 Jina Rerank profile 处理 query、候选文档、返回索引/分数和 usage；具体字段与排序约束由 D09 conformance 固定，不因路径相同静默接受其他协议或切换模型。
 
 ### image_generation
 
@@ -352,6 +368,8 @@ flowchart LR
 因此 Agent 只感知图片生成 Tool，不感知背后的 image_generation Model。
 
 image_generation Model 第一阶段只能由 System Provider 配置。
+
+首版调用 OpenAI 图片生成及已验证兼容接口，典型路径为 `/v1/images/generations`；这不自动增加图片编辑或工作流能力。生成结果经媒体校验后进入平台 Object Storage；Provider 返回远端 URL 时，由正式出站能力安全取回，不能绕过网络策略，也不能把临时 Provider URL 当作永久平台对象。请求/返回 profile、错误/usage 和结果保存由 D09/D05/D18/D21 绑定验证。
 
 ### Platform Model Selection
 
@@ -431,6 +449,8 @@ tools = []
 
 并直接通过 Unified Chat Model Contract 调用所选 Model。
 
+这些会议辅助调用使用独立 `meeting` consumer 分类，保留 Project、Meeting 和具体用途；Agent 在 Meeting 中发言仍按 `agent` 记账，不能重复计量。每次真实请求单独记录，Provider 未返回 usage 时标记 unknown，见 [Model Token Usage](../model-token-usage.md#5-modelinvocationusage-数据模型)。
+
 完整 Summary 生成流程见 [Meeting Context & Summary](../../meeting/meeting-context-summary.md)。
 
 ## Agent Model Reference
@@ -466,7 +486,7 @@ Model Provider Credential 属于平台 Secret Management。
 
 长期配置只保存 credential_ref。
 
-Secret value 统一使用平台应用层 envelope encryption 保存为 PostgreSQL ciphertext；Central 通过 Deployment Config 注入的 master key 在运行时解析 credential_ref。master key 不进入数据库，也不进入 ModelConfig / ResolvedModel Snapshot。
+Secret value 统一使用 AES-256-GCM 信封加密，数据密钥加密 Secret、部署主密钥保护数据密钥。原始带版本主密钥环只从部署环境变量注入；数据库仅保存密文、受保护数据密钥和非敏感版本/迁移元数据。Central 通过 Secret Management 解析 credential_ref，原始密钥不进入数据库或 ModelConfig / ResolvedModel Snapshot；轮换与恢复沿用部署专题。
 
 Secret storage 与 master key 边界见 [Deployment Runtime](../deployment-runtime.md)。
 
@@ -585,7 +605,9 @@ enabled chat Models from current Project Providers
 - 一个 Provider 固定一个 Protocol；
 - 显式 Provider + ModelConfig；
 - System Provider 支持 chat / embedding / reranker / image_generation，Project Provider 只支持 chat；
+- 非 chat 首版分别采用已验证的 OpenAI Embeddings、Jina Rerank、OpenAI 图片生成 profile；
 - PlatformModelSelection：embedding / optional reranker / memory / optional image_generation；
 - Agent model_ref / reasoning_effort 与 Project meeting_summary_model_ref；
+- 会议辅助请求使用独立 meeting consumer，用途与关联 identity 由正式 usage 契约定义；
 - Provider Credential secret reference；
 - Provider / Model 物理删除、引用替换与历史 snapshot 保留约束。

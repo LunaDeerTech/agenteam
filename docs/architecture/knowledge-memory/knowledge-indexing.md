@@ -1,6 +1,7 @@
 # Knowledge Indexing 详细设计
 
-> 上层架构：[Knowledge Base 与 Agent Memory](./README.md)  
+> 上层架构：[Knowledge Base 与 Agent Memory](./README.md)
+>
 > 相关设计：[Knowledge Document Domain](./knowledge-document-domain.md)、[Retrieval Runtime](./retrieval-runtime.md)、[Model System](../platform-infrastructure/model-system/README.md)
 
 ## 1. 目标与边界
@@ -133,6 +134,8 @@ code_block_strategy
 
 这些是可调参数，不是架构常量。
 
+首期由管理员通过系统设置统一维护分块等索引参数的默认值和上限，作为 Runtime Platform Config 保存，不提供 Project override。具体值经中英混合评测确定；保存影响索引的配置生成目标 IndexProfile 与后台重建，不代表查询已经切换。配置字段、校验、持久化与生效 projection 由 D01/D13/D14/D26/D27 固定，管理参数不授予他人项目正文访问权。
+
 ### 3.4 contextualization_mode
 
 第一阶段固定支持 deterministic contextual prefix。
@@ -149,6 +152,8 @@ raw chunk text
 ~~~
 
 未来若实验 LLM contextualization，应作为新的 mode，而不是静默改变现有索引。
+
+这里的 heading_path 是文档内部章节路径，不是人类目录树的祖先路径。调整 parent 只改变人类归类，不修改文档标题/正文版本，也不触发索引重建；title 修改仍推进内容 version 并重建相应 representation。
 
 ### 3.5 embedding_model_ref
 
@@ -174,6 +179,8 @@ pg_search
 ~~~
 
 第一阶段实际 backend 在实现前通过中英混合 benchmark 决定。
+
+backend/数据库扩展是经评测和依赖审查后的工程选型，不是管理员 UI 可任意热切换的普通参数；候选名称不代表已安装、已选择或已完成兼容性验收。
 
 ### 3.7 reranker 不属于 IndexProfile
 
@@ -205,6 +212,8 @@ failed
 - failed：profile build 不可用。
 
 同一时刻只允许一个 active profile。
+
+管理 UI 区分配置保存、重建进度与实际 serving 生效。IndexProfile-only 变化期间继续使用同一 canonical 内容版本的旧 serving generation，完整新 generation 就绪后原子 activation；不能把新 selector 配置与旧索引空间混用。若标题/正文已变化，旧内容版本立即失去 serving 资格，不因重建继续保留旧正文召回。
 
 ## 5. Parser Registry
 

@@ -72,7 +72,8 @@ Turn 是 Agent Loop 内部的稳定推进单位。
 
 ~~~text
 Turn N
-├── Model Invocation
+├── Logical Model Request
+│   └── ModelInvocation attempt(s), owned by Model System
 ├── Assistant Response
 │   ├── text?
 │   ├── reasoning / continuation metadata?
@@ -112,6 +113,7 @@ Compaction、checkpoint 和 next-turn decision 默认只在稳定边界执行。
 loop:
     assert execution is active
     consume pending typed control input
+    establish next model input boundary with persisted, still-valid Skill bindings
 
     projection = build_model_context()
 
@@ -140,6 +142,8 @@ loop:
 ~~~
 
 Controller 不直接调用 Provider-native API 或 Backend-specific Tool executor。
+
+新增 Skill binding 必须在下一 Model Request 输入确定点反映此前已提交的有效分配，不仅消费可能迟到的通知。由 D01/D10/D22 固定提交、去重、启动/移除竞争和输入边界；初始绑定加已应用记录形成目录，固定 revision、Model/Tool Snapshot 均不热换。说明/素材按需读取，缺少原工具能力不自动授予；已发请求或 Tool Batch 不受改写。
 
 ## 6. TurnProcessor 输出
 
@@ -190,7 +194,7 @@ Unified Chat Model Request
 
 Agent Loop 不读取 Provider 配置。
 
-Provider 转换、streaming transport、usage、finish reason 与底层 retry 由 Model System 负责。
+Provider 转换、streaming transport、usage、finish reason 与同一逻辑调用的自动请求 retry 由 Model System 统一负责；SDK/Adapter 的实际尝试也进入该层策略与 Invocation/Usage，不能隐式叠加。
 
 ## 8. Model Streaming
 
@@ -215,6 +219,8 @@ Model Stream
 Canonical Transcript 不把每个 stream delta 保存成一条 TranscriptEntry。
 
 Assistant Response 结束后，才形成稳定 assistant entry。
+
+发生自动重试时，标准流必须明确 attempt 边界；失败尝试的已见 partial output 不能与新 attempt 盲拼成一个 Response。Loop/Runtime View 保留必要中止事实，Transcript 只接纳稳定可恢复语义，半截 Tool Call 不执行；模型请求重试不重放已执行或 outcome unknown 的工具副作用。具体流/累积器重置与终态契约由 D01/D09/D22 固定。
 
 这样避免：
 
@@ -424,6 +430,8 @@ Turn runtime 需要记录：
 - 当前稳定 Transcript position；
 - 可安全 resume 的位置。
 
+人工等待不自动到期，刷新、Session 失效和正常重启不丢失待办；只有来源领域的明确处理可按 resume 契约继续。显式停止/删除等生命周期取消另行收敛，新增技能不解决原 waiting_reference。
+
 ## 18. Resume Control Input
 
 外部 Approval / Decision resolve 后，必须经过 Agent Executor：
@@ -448,13 +456,16 @@ ControlInput
 │   ├── decision_result
 │   ├── watchdog_notice
 │   ├── resume_notice
-│   └── recovery_notice
+│   ├── recovery_notice
+│   └── skill_binding_added
 ├── reference?
 ├── payload
 └── source
 ~~~
 
 Control Input 进入 Canonical Transcript，并在下一轮 Model Context Projection 中转换成 model-visible message。
+
+`skill_binding_added` 是概念类型，表达固定资源版本与应用位置，不允许改模型/工具 schema 或其他长期配置。Executor 应验证当前分配仍有效；迟到新增不能恢复已移除权限。waiting 可保留待应用绑定但不自动 running，terminal 不接续；移除不主动清空上下文或停止脚本，后续调用返回正常资源/授权错误。精确类型及持久化端口见 D01/D10/D22。
 
 ## 19. 不提供通用 Steering Queue
 
@@ -475,11 +486,11 @@ Control Input 进入 Canonical Transcript，并在下一轮 Model Context Projec
 
 ## 20. Model Request Error
 
-Model error 的 Provider-specific retry 由 Model System 负责。
+同一次 Agent 逻辑模型调用的 Provider 自动请求 retry 仅由 Model System 负责。
 
 Model System最终返回给 Agent Loop 的错误至少应能区分：
 
-- retry 已耗尽的 transient failure；
+- 按当前 consumer/错误策略确认不再继续重试的 transient failure；
 - invalid request；
 - context overflow；
 - cancellation；
@@ -491,7 +502,9 @@ Agent Loop 处理：
 - context overflow：进入 compaction recovery；
 - cancellation：按 cancel flow；
 - 明确不可恢复 Model error：failed；
-- 已由 Model System retry 成功：对 Loop 无特殊语义。
+- 已由 Model System retry 成功：消费对应标准流/结果，不再启动第二层请求 retry。
+
+`retryable` 表达错误属性，不授权 Loop 重试同一请求。渐进单请求 timeout 达到上限后仍可按原策略继续，backoff 与取消优先保留，不新增统一固定 attempt 次数或 Execution 总期限。语义自修正、新输入的 compaction recovery 与用户/业务新 Execution 保留各自合法调用规则；不能借这些路径给原 logical call 叠加自动请求重试或盲目重放工具副作用。其他 consumer 的既定策略不因此改为 Agent 路径策略。
 
 ## 21. Tool Error
 
@@ -704,6 +717,7 @@ AgentLoopCheckpointState
 ├── last_stable_turn_id?
 ├── transcript_position
 ├── compaction_snapshot_id?
+├── applied_skill_bindings / binding_change_position
 ├── pending_control_state?
 ├── waiting_state?
 ├── model / tool correlation?

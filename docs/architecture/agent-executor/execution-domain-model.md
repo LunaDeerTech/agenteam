@@ -105,11 +105,13 @@ purpose = work
 
 ```text
 trigger_type = meeting
-trigger_reference = meeting_turn_id
+trigger_reference = { meeting_id, turn_id, contribution_id, participant_id }
 purpose = response
 ```
 
 这些字段只用于 identity / correlation。Agent Executor 不根据它们直接实现业务状态机。
+
+四项 Meeting 身份由 Meeting 领域经正式 Provider/校验端口确认同项目归属、关系、目标 Agent 与权限；Executor 不直接查 Meeting 表。Contribution 是稳定槽位，retry/regenerate 的 generation/attempt、独立 Execution 与幂等键保留本次尝试关联，不拿可变 current 指针代替历史。引用不包含可变正文，历史 Snapshot 不被新配置改写。
 
 ### 3.3 Status
 
@@ -273,6 +275,8 @@ AgentExecutionSnapshot
 
 Snapshot 在 preparing 完成后成为不可变事实。
 
+初始 Skill revision 绑定作为启动事实保存；运行中新增绑定作为独立持久化运行事实，在下一模型输入确定点应用。初始值与已应用变更共同支持目录、Transcript/checkpoint/compaction 恢复，不回写 Snapshot，不热换 Model/Tool Set。具体类型与事务由 D01/D10/D22 固定，见 [Execution Context](./execution-context.md#101-运行中的-skill-binding)。
+
 ### 4.1 为什么与主记录分离
 
 AgentExecution 主记录用于：
@@ -299,6 +303,7 @@ Snapshot 主要用于：
 - Agent description；
 - Agent instructions；
 - Agent capability；
+- 初始 Skill 固定 revision 绑定与目录 metadata；
 - resolved Model config；
 - reasoning effort；
 - Execution Tool Set；
@@ -383,13 +388,9 @@ idempotency_scope
 idempotency_key
 ```
 
-始终视为同一次 Launch。
+必须比较规范化后的语义输入：同键同语义返回第一次创建的 Agent Execution，不重复创建或竞争 slot；同键不同语义必须拒绝并返回幂等冲突，不静默使用首次参数。
 
-重复请求直接返回第一次创建的 Agent Execution。
-
-第一阶段不额外计算 request fingerprint，也不因为重复请求携带不同 payload 而产生 IdempotencyConflict。
-
-因此调用方必须保证自身 key 生成逻辑正确。
+语义覆盖目标 Agent、typed Trigger、purpose、execution policy 等实际启动含义；作用域、规范化/比较、非语义 trace metadata 排除、错误编码与持久化形式由 D01/D22 固定，不在此预选 fingerprint 算法。
 
 ### 6.2 持久化约束
 
@@ -411,7 +412,7 @@ WHERE status IN ('created', 'preparing', 'running', 'waiting');
 
 具体实现可以使用等价的事务锁 / slot 表，但必须保证“检查 busy + 创建新 Execution”是原子的，不能依赖调用方先查询再 Launch。
 
-Launch 处理顺序必须先解析 idempotency：如果同一 idempotency key 已经存在 Execution，直接返回该 Execution；只有真正的新 Launch 才竞争 Agent slot。这样调用方重试不会因为自己第一次创建的 Execution 正在占用 slot 而错误得到 `AgentBusy`。
+Launch 处理顺序必须先解析 idempotency 并校验语义一致性：一致重放返回原 Execution，不一致拒绝；只有真正的新 Launch 才竞争 Agent slot。这样同键重试不会因为首次创建的 Execution 正占用 slot 而错误得到 `AgentBusy`。
 
 ## 7. Version 与并发控制
 
@@ -599,6 +600,7 @@ Agent Executor 至少提供：
 ```text
 launch(request)
 get(execution_id)
+query_launch_result(idempotency_scope, idempotency_key)
 cancel(execution_id)
 resume(execution_id, waiting_reference)
 get_runtime_view(execution_id)
@@ -609,7 +611,7 @@ subscribe_runtime(execution_id)
 
 - 做基础 request validation；
 - 先基于 idempotency 查找是否已经存在本次 Launch 对应的 Execution；
-- 如果存在，直接返回原 `execution_id`；
+- 如果存在且语义一致，直接返回原 `execution_id`；语义不同则拒绝；
 - 如果不存在，原子竞争目标 Agent 的 active execution slot；
 - slot 可用时创建 `status = created` 的 Execution 并返回 `execution_id`；
 - slot 已占用时返回结构化 `AgentBusy`，且不创建 Agent Execution；
@@ -656,6 +658,12 @@ Resume 必须幂等。
 只提供 Runtime View projection 与 RuntimeItemUpdate Stream。
 
 内部 Tool / Model / Audit 诊断数据仍通过各自模块查询。
+
+### 12.6 按 Launch Key 查询
+
+`query_launch_result` 仅表示必需的只读端口方向，不是已冻结签名。它读取原 Launch 的持久化事实，不创建 Execution、不竞争 Agent slot；具体权限、作用域、结果/未知表示由 D01/D22/D23 固定。
+
+Scheduler 对结果未知的原 Dispatch/key 沿现有串行 traversal/recovery/pacing 查询。暂未查到或查询失败不能证明可换 key 新建，也不能用有创建副作用的 launch 冒充查询；未能确认时保留原 pending 关联，见 [Scheduler Dispatch](../scheduler/scheduler-dispatch.md)。
 
 ## 13. 数据关系概览
 

@@ -198,13 +198,13 @@ sequenceDiagram
     M->>M: finalize turn
 ```
 
-Turn 创建后记录统一 Message visibility boundary。
+启动本批 parallel Execution 前一次性固定共同 references 集合、summary version 及其覆盖、实际有序 immutable message/generation 输入；Timeline cutoff 只辅助可见性，不单独充当快照。具体固定时点/持久引用由 D24 明确。
 
 每个 parallel Agent 可以看到：
 
 - 当前 User Message；
 - Turn 开始前已经存在、并位于统一 visibility boundary 以内的 MeetingMessage；
-- rolling summary。
+- 固定版本的 rolling summary 与 references 集合。
 
 不能看到：
 
@@ -278,6 +278,8 @@ AgentLaunchRequest
 
 Meeting Runtime 持久化 `MeetingContributionExecution` 关联，并把 Contribution 的 `current_execution_id` 指向当前 Execution。
 
+Meeting 领域验证四项 Trigger identity 的同项目归属、关系、Participant 对应目标 Agent 与调用权限；Executor 经正式 Provider/校验端口消费，不直接查 Meeting 表。引用不附带可变正文，历史尝试仍通过稳定 Contribution + generation/attempt + 独立 Execution 关联，不被 current 指针覆盖。
+
 `AgentExecutor.launch()` 可能返回两种正常结果：
 
 ```text
@@ -296,6 +298,8 @@ meeting:{meeting_id}:contribution:{contribution_id}:generation:{g}:attempt:{a}
 ```
 
 同一个 Contribution generation / attempt 无论 Runtime 因进程崩溃、事件重复还是 service retry 再次发起，都只能得到同一个 Agent Execution。
+
+前提是同键同语义输入；不同语义由 Executor 拒绝，一致重放不重新竞争 slot。键格式只是概念示例，精确作用域/比较由 D01/D22/D24 固定。
 
 如果前一次尝试只得到 `AgentBusy`，该 idempotency key 尚未对应任何新 Execution；后续等待结束后的 Launch retry 继续复用同一个 key。第一次成功创建后，再次重放才返回该稳定 Execution。
 
@@ -398,17 +402,20 @@ sequenceDiagram
     participant L as Agent Loop
     participant T as Tool Runtime
     participant M as Meeting
+    participant E as Agent Executor
     participant U as User
 
     L->>T: request-decision(question, options)
     T->>M: create DecisionRequest
     M-->>T: pending DecisionRequest
     T-->>L: suspend operation
-    L->>L: execution -> waiting(decision)
+    L->>E: enter waiting(decision, reference)
 
     U->>M: answer / skip
-    M-->>L: resolved decision result
-    L->>L: execution -> running
+    M-->>E: decision resolution reference
+    E->>M: verify current resolved decision
+    E->>E: validate waiting_reference / idempotency / lifecycle
+    E-->>L: resume same execution with resolved input
     L->>L: continue Model -> Tool -> Model
 ```
 
@@ -453,13 +460,14 @@ sequenceDiagram
     participant L as Agent Loop
     participant T as Tool Runtime
     participant G as Governance
+    participant E as Agent Executor
     participant U as User
 
     L->>T: restricted Tool Call
     T->>G: authorization
     G-->>T: approval required
     T->>T: ToolOperation -> waiting_for_approval
-    L->>L: Execution -> waiting(approval)
+    L->>E: enter waiting(approval, reference)
 
     U->>G: approve / reject
     G-->>T: approval resolution
@@ -471,7 +479,9 @@ sequenceDiagram
         T-->>L: rejection ToolError / result
     end
 
-    L->>L: Execution -> running
+    T->>E: resolved waiting reference
+    E->>E: verify Governance fact / reference / lifecycle / idempotency
+    E-->>L: resume same Execution
 ```
 
 关键约束：
@@ -482,6 +492,8 @@ sequenceDiagram
 - reject 后同样恢复原 Agent Loop，让 Agent 消费拒绝结果。
 
 Meeting 只引用 Approval Request。
+
+人工等待持久化，不因时间、刷新、Session 失效或正常重启自动到期/放行；不可 dismiss。用户停止或会议删除按显式取消/来源失效处理，不伪装成自动批准、拒绝或到期。迟到 resolution 不能恢复终态。
 
 ## 12. Completion 与 Final Message
 
@@ -519,7 +531,7 @@ regenerate 是新的 Execution，因此可以产生新的 Message。
 
 ### 13.1 Automatic Retry
 
-模型 / Tool transient retry 由 Agent Loop、Tool Runtime 的通用策略处理。
+同一 Agent 逻辑模型调用的自动 Provider 请求 retry 仅由 Model System 管理，Loop 不叠加；Tool technical retry 由 Tool Runtime 管理，各真实 attempt 留证/计量，部分流不盲拼或重放副作用。
 
 它不会创建新的 Contribution 或新的 MeetingContributionExecution。
 
@@ -552,10 +564,13 @@ Turn.result = partial_failure
 3. cancel 所有非 terminal Agent Execution；
 4. pending DecisionRequest -> cancelled；
 5. pending Approval / Tool Operation 请求取消或失效；
-6. 已经生成的 MeetingMessage 保留；
-7. Turn -> cancelled。
+6. 若处于 finalizing，取消本次 Summary 请求并阻止迟到结果发布；
+7. 已经生成的 MeetingMessage 保留；
+8. 经正式端口确认停止后 Turn -> cancelled。
 
 取消不是 rollback。
+
+本路径适用于 queued/running/finalizing；停止确认、取消与摘要提交竞争由 D01/D22/D24 固定。Meeting 永久删除先阻断后续派生，再复用这些端口停止本会议活动；不停止相同 Agent 的无关 Task，失败/未知不伪报停止或删除完成。
 
 ### 14.2 Cancel Single Agent
 
@@ -581,7 +596,7 @@ completed + partial_failure
 - retryable Tool transport；
 - Provider retry。
 
-由 Agent Executor / Agent Loop / Tool Runtime 管理。
+Provider 请求自动 retry 由 Model System 统一拥有，工具 retry 归 Tool Runtime；Executor/Loop 负责生命周期、标准流与语义继续，不再重试同一逻辑请求。用户/业务新 Execution 的合法重试是另一层含义。
 
 ### 15.2 User Retry
 
@@ -619,9 +634,11 @@ Timeline 默认在同一个 Contribution item 中展示最新 generation，历�
 
 这样避免隐式重跑整个 Turn。
 
+对已完成历史 Turn，只有成功替换实际当前 Message 才使摘要显示待更新；等下一正常 Turn finalize 使用全部当前有效消息更新。不得立即刷新摘要、重开历史 finalize、增加 timer 或后台任务；无下一轮就保持待更新。失败/取消未改变输入时不无条件标记，重复事件幂等；不重生成标题，也不热改已有 Execution 或同轮固定 Context。
+
 ## 17. Turn Completion
 
-当所有目标 Agent Contribution 都进入 terminal contribution state：
+当前正常运行 Turn 的所有目标 Agent Contribution 都进入 terminal contribution state 时：
 
 ```text
 running -> finalizing
@@ -655,9 +672,11 @@ finalizing
 如果 Summary 更新失败：
 
 - Turn 保持 `finalizing`；
-- 使用平台级有限 retry；
+- 按 Meeting Summary consumer 的既定有限生成/校验 retry，耗尽仍等待明确处理，不转成 Agent 路径无限策略；
 - 不启动后续 queued Turn；
 - 不把旧 Summary 当作已经完成本轮 finalize 的结果。
+
+不新增跳过摘要或备用模型路径。重复 finalize 复用成功结果须匹配实际有序消息/有效 generation 输入；发布同时校验原 Summary version、输入与生命周期，见 [Summary 幂等](./meeting-context-summary.md#17-summary-update-幂等)。历史 regenerate 不重新触发本节正常 finalize。
 
 这样保证 rolling summary 和 Turn completion 有明确一致性边界。
 
@@ -669,23 +688,17 @@ finalizing
 
 ### Parallel
 
-Turn 启动时创建统一 Message visibility boundary。
-
-所有 Agent Context 必须基于同一个 MeetingMessage 截止点：
+本批 parallel 启动前固定共同 Meeting 输入，所有 Agent Context 复用：
 
 ```text
-visible MeetingMessages <= boundary
+same references set
+same summary version / coverage
+same ordered immutable MeetingMessage / generation identities
 ```
 
 不能因为某个 Agent 晚几毫秒启动而看到另一个 parallel Agent 已完成的回复。
 
-实现可以保存：
-
-```text
-turn.message_visibility_boundary
-```
-
-这个 boundary 只属于 Runtime 控制状态，用于约束 MeetingContextProvider 查询到哪一条 Timeline Message；它不会进入模型可见的 MeetingTriggerContext，也不承担 Timeline business sequence。
+单一 Timeline cutoff 无法冻结可变 current 指针或引用集合，不能作为完整快照。精确固定时点/持久关联由 D24 定义，不复制底层 Task/Knowledge/link/file 正文；控制 identity 不注入模型会话字段。Skills 下一轮窄绑定独立保留，不改变本轮 Meeting 输入。
 
 ## 19. Turn Runtime 状态图
 
@@ -702,6 +715,7 @@ stateDiagram-v2
 
     queued --> cancelled: user cancel
     running --> cancelled: cancel / interrupt
+    finalizing --> cancelled: explicit cancel / deletion after stopping finalize
 
     completed --> [*]
     cancelled --> [*]
@@ -721,6 +735,8 @@ Meeting Runtime 必须支持进程崩溃后的恢复。
 - pending DecisionRequest；
 - linked Approval Request；
 - summary finalize status。
+
+恢复共同 Meeting 输入的固定 references/summary/message generations，不按当前指针重造旧 Snapshot；待更新摘要不被重启触发独立刷新。删除/取消门禁优先于恢复，迟到完成事件或摘要不能重建会议或推进 queued Turn。
 
 恢复逻辑只能补发幂等命令，不能假设内存中的 orchestrator state 仍然存在。
 
@@ -755,7 +771,7 @@ Agent Executor
 ├── owns Agent Execution
 ├── owns waiting / resume runtime capability
 ├── owns Agent Loop
-└── owns cancel / timeout
+└── owns cancel / checkpoint / recovery; no Execution-wide timeout
 
 Tool Runtime
 ├── owns ToolOperation

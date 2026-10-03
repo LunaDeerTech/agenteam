@@ -71,6 +71,10 @@ resolve(project, meeting_summary_model_ref)
 
 Summary 调用不创建 Agent Execution，因此其 resolved model identity 记录在 Summary generator metadata / Model Invocation Usage 中，而不是 AgentExecutionContext。
 
+会议辅助请求的 Usage 归 `meeting` consumer，保留 Project、Meeting 和用途；会议中 Agent 发言仍归 `agent`，不按来源重复写一份 usage。具体用途字段与可空关联由 D01/D09/D24 固定。
+
+embedding、reranker、image_generation 使用各类型正式解析/调用端口，不套用 chat 的 reasoning_effort 或万能请求类型。Knowledge / Memory 查询绑定实际 serving profile/generation 的 embedding snapshot；切换平台 selector 只确定重建目标，不立即改写旧索引的查询模型。各类型 profile 与真实兼容验证要求见 [Model Configuration](model-configuration.md#model-provider)。
+
 ## Resolved Model Snapshot
 
 AgentExecutionContext 中的 model 是运行时快照，而不是裸 Model ID。
@@ -250,4 +254,6 @@ Provider / Model 即使之后被物理删除，历史 Execution 仍依赖 snapsh
 - chat parameters.capabilities 与 reasoning_effort 校验；
 - request_overwrite / header_overwrite 快照；
 - 显式 Model 不进行 silent fallback；
-- Provider / Model disabled 或删除后的新旧 Execution 一致性语义。
+- Provider / Model disabled 或删除后的新旧 Execution 一致性语义；
+- 平台非 chat consumer 的类型/协议校验和 serving embedding snapshot；
+- 会议辅助调用的独立用途与身份计量关联。

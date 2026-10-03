@@ -193,6 +193,16 @@ Runner 不负责：
 
 这些如果未来自动化，应作为独立 Workspace Provisioning 能力。
 
+### 7.1 技能版本包准备
+
+技能文件准备是独立的正式能力，不是创建 Workspace 时隐式执行安装脚本。Central 经 Skill/Agent/Execution/Mount 端口校验当前资源与权限，并确定本次绑定的不可变 revision；Runner 按需直接从对象存储获取该包，在当前 Agent Workspace 内建立平台管理的版本目录。
+
+版本目录保留包内相对关系，与普通工作文件分开；具体相对路径、保留名称及重复准备校验由 D16/D17 固定，不接受上传包指定宿主机绝对路径。临时接收、大小/摘要校验和受控解包成功后原子发布，拒绝越界、链接、特殊文件与路径碰撞；取消/断连/磁盘不足不把半套包当成功。
+
+返回 Skill revision、Mount identity 和工作区相对路径，不返回宿主机绝对路径或对象凭据。多个 Runner/Mount 各自准备同一固定版本，单 Agent 非终态 Execution 唯一约束保留。读取纯说明由 Central 完成，无需 Runner 在线。
+
+准备不执行脚本、不隐式安装依赖；实际命令继续走授权/审批与 trusted-host 边界。移除技能不主动收回已读内容或工作文件；缓存清理只处理已验证归属、没有活动使用的版本，不递归删除用户文件或共享挂载。Runner 离线或清理未知不报告已完成。业务版本与授权见 [Agent Skills](../agent-skills.md)。
+
 ## 8. Workspace 删除
 
 删除 Agent Mount 默认只删除 Central 中的配置关系。
@@ -430,4 +440,5 @@ Agent Workspace 只定义这些 Tool 在哪个逻辑 workspace 上工作。
 11. command cwd containment；
 12. trusted-host command semantics；
 13. Mount 变化只影响后续请求；
-14. immutable Execution mount snapshot + runtime current validation。
+14. immutable Execution mount snapshot + runtime current validation；
+15. Skill 固定 revision 的托管目录、完整性校验及受控清理，精确路径与真实传输由 D16/D17/D21 绑定。

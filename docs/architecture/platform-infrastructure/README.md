@@ -31,6 +31,8 @@ Single agenteam Central
 
 当前不引入 Redis，也不设计多个 Central 实例。
 
+跨模块的 ID、时间、错误、分页、版本、幂等、DTO、事务及生命周期约定见[基础契约约定](foundation-contracts.md)。HTTP 使用 net/http + ServeMux，数据库使用 pgx + 显式 SQL；这些已定方向仍须 D01 和责任模块完成具体规格及验收。
+
 ## 2. 总体结构
 
 ~~~mermaid
@@ -399,28 +401,32 @@ Audit 详细设计见 [Audit](../security-governance/audit.md)。
 
 Project Secret 与平台级 Credential 都通过统一 Secret Management abstraction 使用加密存储。
 
-第一阶段采用应用层 envelope encryption：
+第一阶段采用 AES-256-GCM 应用层 envelope encryption，数据密钥加密 Secret，环境主密钥保护数据密钥：
 
 ~~~text
 Secret plaintext
     ↓
-application encryption
+AES-256-GCM with data key
     ↓
 ciphertext in PostgreSQL
 
-deployment master key
+data key
     ↓
-Central decrypt at runtime
+protected by deployment master key
+    ↓
+wrapped data key + key version in PostgreSQL
 ~~~
 
 master key：
 
 - 不进入 PostgreSQL；
-- 通过环境变量、Docker secret 或外部 secret file 注入；
+- 仅通过部署环境变量注入带版本的密钥环和当前写入版本；
 - 不进入 Prompt / Tool argument / ordinary log；
 - 不暴露给 Agent。
 
 Model Provider Credential、Project Secret 等上层模型仍保存 credential_ref / Secret identity，而不是复制 plaintext。
+
+新写入使用当前主密钥版本，后台分批重新保护存量数据密钥。数据库只保存密文、受保护的数据密钥、版本及迁移进度/状态等元数据；迁移可中断恢复，旧主密钥在存量迁移完成后才退役。环境更新通过部署重启加载，不由平台自动生成或回写主密钥。
 
 Project Variable / Secret 的领域模型见 [Project Environment Variables 与 Secret](../project-work-management/project-environment-variables.md)。
 
@@ -434,6 +440,7 @@ Central 中由业务配置、用户输入或外部数据决定目标地址的出
 
 - MCP；
 - Model Provider；
+- SMTP（使用非 HTTP 安全拨号适配）；
 - 未来 Webhook / HTTP Integration。
 
 统一处理：
@@ -448,7 +455,7 @@ Central 中由业务配置、用户输入或外部数据决定目标地址的出
 - TLS；
 - timeout / response guardrail。
 
-Private network allow policy 等属于 Deployment Config，Project / Agent / MCP Config 第一阶段不能自行扩大网络访问范围。
+内网放行规则由系统管理员通过 UI / 管理 API 维护，保存在 PostgreSQL，按网段与可选端口限制，并可显式选择全部端口。默认不放行内网，固定禁止地址不能被规则解除；内网 HTTP 还须管理员显式允许。新请求、重试和重定向立即使用当前规则，已发出的在途请求继续，连接复用不能绕过校验。Project / Agent / MCP Config 不能自行扩大网络访问范围。
 
 完整设计见 [Outbound Network Policy 详细设计](./outbound-network-policy.md)。
 
@@ -462,18 +469,12 @@ Private network allow policy 等属于 Deployment Config，Project / Agent / MCP
 
 - PostgreSQL；
 - MinIO；
-- master key；
-- Outbound Network Policy；
+- master key ring / 当前写入版本；
 - TLS / trust store；
 - server runtime；
 - 其他基础设施与安全边界。
 
-来源：
-
-- environment；
-- Docker secret；
-- secret file；
-- deployment config file。
+技术部署配置从 Docker 部署环境变量读取；原始主密钥不进入数据库。受信任证书等文件的定位由部署规格明确，敏感环境值不在普通日志或 UI 回显。
 
 ### Runtime Platform Config
 
@@ -484,9 +485,11 @@ Private network allow policy 等属于 Deployment Config，Project / Agent / MCP
 - System Model Provider；
 - ModelConfig；
 - PlatformModelSelection；
-- SMTP 配置（凭据由 Secret Management 保存）。
+- SMTP 配置（凭据由 Secret Management 保存）；
+- 管理员出站内网放行规则；
+- Session / 密码重置期限、登录挑战阈值和 SMTP 重试参数。
 
-Runtime Platform Config 不能扩大 Deployment Config 定义的基础设施安全边界。
+运行配置不能绕过固定禁止地址、TLS 验证或原始主密钥的部署隔离。内网规则是明确授权的管理员运行配置，不再作为只可经部署修改的 CIDR 列表。
 
 ## 13. Deployment Runtime
 
@@ -505,7 +508,7 @@ PostgreSQL 和 MinIO 都是 mandatory dependency。
 
 > 任一必需基础设施依赖不可用，Central 不进入 ready 状态。
 
-数据库 migration 统一由一个 Central migration runner 管理一个全局、有序的 migration sequence。
+数据库 migration 统一由 Goose 在 Central 中管理一个全局、有序的 SQL migration sequence；锁、事务和失败恢复由 D03 真实验证。
 
 Health 分为：
 
@@ -546,3 +549,4 @@ Authentication 负责人类账号初始化、邮箱密码登录、Web Session、
 7. [Deployment Runtime](./deployment-runtime.md)
 8. [Outbound Network Policy](./outbound-network-policy.md)
 9. [账号认证与邮件投递](./authentication/README.md)
+10. [基础契约约定](./foundation-contracts.md)

@@ -61,6 +61,44 @@ flowchart TB
 
 图中的关联表示业务关系，不表示模块之间必须直接调用。Meeting、Scheduler、Agent 等对 Task 的修改都必须经过统一 Task Domain。
 
+### 2.1 Project 身份与路径
+
+Project 的 canonical 身份至少包括稳定 `id`、`owner_user_id`、名称、描述、生命周期状态与 `version`；精确字段和状态枚举由 D01/D08 规格固定。Project 只有一个 Owner，创建时由服务端绑定当前用户，不接收客户端伪造的 Owner。系统管理员身份不授予其他用户项目访问权。
+
+同一 Owner 下项目名不重复，不同用户可使用相同项目名。项目名使用英文字母、数字、`-`、`_`、`.`，唯一性不区分大小写，标准 URL 使用小写；描述可使用中文。长度、保留字和非法路径段（如 `.` / `..`）、编码与规范化由 D08 统一校验，不把允许的字符集合等同于所有组合均合法。
+
+项目主页为 `/{username}/{project_name}`。username 的全站唯一性和修改规则归[账号生命周期](../platform-infrastructure/authentication/account-lifecycle.md#11-username-与可读路径)。可读路径解析到稳定 User / Project ID 后，仍须服务端验证 Session 和 Project Owner；路径不意味着公开访问，也不替代不可变 ID。
+
+Owner 可以修改自己项目的名称。用户名或项目名修改后旧链接立即失效，不维护历史别名或自动跳转；旧名称可重新使用，复用后的相同文字路径解析到新对象并重新授权。内部引用、历史关联和后台清理始终以不可变 Project ID 定位。
+
+### 2.2 Project 归档与永久删除
+
+Project 区分可恢复归档和不可恢复永久删除，不提供“先软删除、再另行 purge”的用户流程。以下图只表达可观察阶段，具体状态编码、命令及竞争处理在 D08 规格固定：
+
+```mermaid
+flowchart LR
+    Active["可使用"] --> Archiving["归档处理中：禁止新执行并停止已有活动"]
+    Archiving -->|确认全部停止| Archived["已归档：数据保留、只读"]
+    Archived -->|Owner 取消归档| Active
+    Active --> Deleting["正在删除：禁止新执行并停止已有活动"]
+    Archived --> Deleting
+    Deleting -->|确认停止后清理| Removed["永久删除完成：释放名称、不可恢复"]
+```
+
+归档时禁止新执行并通过正式端口取消已有执行，确认全部停止后才进入归档状态。归档项目保留全部项目数据及 Project-scoped Audit，只读可查看，不能修改或运行；Owner 可取消归档恢复使用，已取消的 Execution 不自动重启。归档/取消归档/删除属于受控生命周期命令，不被普通业务只读门禁阻断；必要的内部停止收敛仍由事实所属模块完成。
+
+永久删除前，Owner 输入完整当前项目路径（如 `alice/demo`）并明确确认停止执行、永久清理且不可恢复。服务端同时校验当前规范化路径、不可变 Project ID、Owner 和 `expected_version`；遇并发改名或生命周期变化时拒绝陈旧确认，不能按可复用名称误删另一个项目。路径确认不能替代 Session / CSRF / Owner 授权。
+
+删除接受后进入可观察的处理中阶段，禁止新启动并自动取消已有项目执行。`waiting` 同样属于待停止占用；Task/Meeting 启动、SchedulerDispatch、恢复和重试须与生命周期门禁协调。取消请求已接受、Runner 断连或超时不等于实际停止；停止未知或清理失败时保留真实待处理/失败状态及可恢复进度，不宣称永久删除完成。停止不回滚外部副作用，也不自动把全部 Task 改为 cancelled。
+
+确认停止后，通过各数据拥有者的生命周期端口清理 Project 本域及其项目数据、索引、对象和派生投影；不跨模块直接改表，不用统一数据库级联替代领域清理。必要能力未绑定或失败时不能成功结束删除。永久删除包括 Project-scoped Audit，系统级 Audit 不自动随项目删除，保留范围见 [Audit](../security-governance/audit.md#13-retention)；不把最小安全追溯解释为保留项目 Audit 副本或全平台日志抹除。
+
+外部系统副作用和用户提供的共享挂载不能因永久删除一概递归删除；各责任模块与 Runner 资源须按正式清理矩阵处理。Runner 离线或清理结果未知时保留真实待处理状态和恢复责任，不伪报资源已清理。
+
+归档处理中、已归档和删除处理中都继续占用当前 Owner 命名空间中的项目名；归档保持原地址，永久清理完成后才释放名称。改名后的旧名可复用规则保留，不新增历史别名。后台清理按旧 Project ID 执行，不能误作用于后来复用名称的项目。
+
+D01/D08 明确生命周期端口、持久化进度、锁/幂等、归档与删除互斥、名称占用/释放和完整清理矩阵；D11/D22/D23/D24/D25 实际绑定工作占用、执行/调度/会议取消及订阅门禁。取消归档后的调度恢复、业务写入口/工具/审批规则和并发恢复须在责任模块规格验证，不将本文方向当作这些端口已经实现。
+
 ## 3. Project Variables
 
 Project Variables 是 Project 的长期配置对象，分为普通 Variable 和 Secret。
@@ -285,11 +323,13 @@ comment-task
 所有 mutation 共享：
 
 - Project scope authorization；
-- request / operation idempotency；
+- 业务 idempotency_key / operation 幂等，HTTP request_id 仅追踪；
 - Task version concurrency contract（适用时）；
 - TaskEvent transaction contract。
 
 Tool 只是 Domain command adapter，不拥有一套重复业务规则。
+
+公共版本与幂等遵循[基础契约约定](../platform-infrastructure/foundation-contracts.md)：适用修改提交 expected_version，同幂等键不同语义参数拒绝；Task 已有的幂等解析先于版本检查顺序保留。各命令精确字段由 D01/D11 规格归位。
 
 ## 11. Task Context
 

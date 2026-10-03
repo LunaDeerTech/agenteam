@@ -1,6 +1,7 @@
 # Agent Memory Runtime 详细设计
 
-> 上层架构：[Knowledge Base 与 Agent Memory](./README.md)  
+> 上层架构：[Knowledge Base 与 Agent Memory](./README.md)
+>
 > 相关设计：[Agent Memory Domain](./agent-memory-domain.md)、[Retrieval Runtime](./retrieval-runtime.md)、[Model System](../platform-infrastructure/model-system/README.md)、[Agent Loop](../agent-loop/README.md)、[Security / Governance](../security-governance/README.md)
 
 ## 1. 目标与边界
@@ -452,6 +453,7 @@ Memory Model 只能对 Runtime 提供的 related Memory 做 UPDATE / DELETE。
 
 - target memory 属于当前 namespace；
 - target 在 consolidation input set；
+- target 当前仍 active；
 - expected revision 一致；
 - action schema 有效。
 
@@ -461,25 +463,28 @@ LLM output 永远只是 mutation proposal。
 
 一次 retain 可能产生多个 actions。
 
-推荐：
+整批在同一一致性边界验证并原子提交：
 
 ~~~text
-validate all actions
-    ↓
 Memory Domain transaction
+    ↓
+validate namespace / input targets / active state / revisions / actions
     ↓
 apply ADD / UPDATE / DELETE
     ↓
 commit
 ~~~
 
-如果任一 UPDATE / DELETE 发生 revision conflict：
+如果任一 UPDATE / DELETE 发生 revision 冲突，或用户并发删除使输入目标不再 active，且确定本批尚未提交：
 
-- 整个 mutation batch 不部分提交；
-- 重新读取相关 active Memory；
-- consolidation 可以安全重试一次或按 Tool retry policy处理。
+1. 整个 batch 不部分提交；
+2. 按当前 canonical 状态重读合法 namespace 中的相关 active Memory 与最新 revision；
+3. 基于新输入重新进行一次 consolidation，不原样重放旧 proposal；
+4. 对新 proposal 再次完整校验并尝试原子提交；再次冲突返回结构化 ToolError，由 Agent 决定后续处理。
 
-这样 Agent 不会收到“retain 部分成功、部分未知”的混乱语义。
+这是一次领域冲突恢复，不是无限重试，也不改变 Model System 的网络/格式恢复责任。不能假定删除必然递增 revision；active 校验与 revision 校验同时执行。取消、权限失效及 Project/Agent 生命周期变化不属于可以绕过的冲突。
+
+提交结果未知时按正式业务幂等/恢复契约核对，不假定事务回滚后重算并再次写入。额外模型调用和新 proposal 关联同一次 retain 的输入版本与操作证据，每个真实请求计量，不能仅依靠普通日志追踪。原子接口、错误分类、幂等、索引刷新及合法并发/恢复验证由 D01/D14 落实。
 
 ## 20. Retain Result
 
@@ -681,9 +686,7 @@ Memory Model invocation 可以按 Model System 的技术 retry / structured-outp
 
 ### revision conflict
 
-不 silent overwrite。
-
-重新读取后安全重试，或返回 conflict。
+按 §19 执行：只有明确未提交的版本/输入目标失效冲突，才内部重读并重新 consolidation 一次；再次冲突返回结构化工具错误。提交未知先核对幂等事实，不 silent overwrite，不沿通用 Tool retry 原样重放旧 proposal。
 
 ## 29. 与 Agent Execution 的失败边界
 
@@ -871,8 +874,9 @@ Memory rebuild
 5. raw retain input 不复制成第二份长期事实库。
 6. extraction 可以产生 0..N candidates。
 7. consolidation 只允许操作提供给 Model 的 related Memories。
-8. UPDATE / DELETE 必须校验 expected revision。
+8. UPDATE / DELETE 必须同时校验 namespace、合法输入目标、当前 active 状态和 expected revision。
 9. retain batch 不部分提交。
 10. memory_model_ref 是平台级 System chat Model，不继承 Agent model。
 11. structured mutation 不用自由文本 regex 解析。
 12. Execution 结束不自动生成 Memory。
+13. 明确未提交的 revision/目标 active 冲突只内部重算一次，新增模型调用与 proposal 真实留证/计量；未知提交结果沿幂等恢复。

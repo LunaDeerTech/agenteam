@@ -144,7 +144,8 @@ Launch 是异步创建语义：
 launch(request)
     ↓
 resolve idempotency
-    ├── existing Execution -> return execution_id
+    ├── same key + same semantic input -> return original execution_id
+    ├── same key + different semantic input -> conflict
     └── new Launch
             ↓
       atomic acquire Agent execution slot
@@ -160,6 +161,8 @@ background preparing
 ```
 
 Agent Executor 不等待 Execution 进入 running 后才返回。
+
+同键重放先校验语义一致性，不重新竞争 slot；只有真正的新 Launch 才原子创建 Execution。调用结果未知时使用按 Launch key 的只读结果查询，不能把可能创建 Execution 的 launch 当作查询。作用域、语义比较和查询端口由 D01/D22 固定，见 [Execution Domain](./execution-domain-model.md#6-idempotency)。
 
 ### 4.1 Agent Execution Slot
 
@@ -242,6 +245,7 @@ Immutable AgentExecutionContext
 
 - Platform Prompt；
 - Agent Config Snapshot；
+- 初始 Skill 固定版本绑定与目录 metadata；
 - Project base context；
 - 可选 `AGENTS.md` Snapshot；
 - Project Environment Variables metadata；
@@ -261,6 +265,8 @@ Trigger-specific Context 由 `TriggerContextProviderRegistry` 中对应 Provider
 后续增加新的 Trigger 只需要注册新的 Provider，不需要在 Agent Executor 内持续堆积业务 `switch`。
 
 完整设计见 [Execution Context](./execution-context.md)。
+
+已运行 Execution 接收新增技能时，只在下一次模型输入确定点应用可靠持久化的窄范围 Skill binding；不改写启动 Snapshot、Model 或固定 Tool Set，不每轮重读全部配置。版本、移除与恢复规则见 [Agent Skills](../agent-skills.md)。
 
 ## 6. Agent Execution
 
@@ -350,7 +356,7 @@ Agent Loop 是 Agent Execution 内部的核心执行机制，不是独立 Platfo
 - Tool Result 回填；
 - 多轮 Model → Tool → Model 循环；
 - context window management；
-- retry / recovery；
+- 语义层的新调用与安全恢复；同一逻辑模型请求的自动 retry 由 Model System 统一负责；
 - 单轮 Model generation watchdog；
 - cancel signal 响应；
 - 产生 Runtime Item semantic update；
@@ -455,12 +461,13 @@ Central 重启后：
 Scheduler：
 
 - 判断 Task 是否应该运行；
-- 确定 assignee；
+- 读取当前 Task 已有的合法 assignee，不自行选择或恢复 assignee，也不推断 reviewer；
 - 确定 work / review purpose；
 - 在正常调度路径中预检查 assignee Agent 是否 busy；
 - 创建 Agent Launch Request；
 - 将最终 `AgentBusy` 视为正常资源竞争，而不是 Execution failure；
-- 按 Task 自己的失败 / 重试策略处理 failed Execution。
+- 依据当前 Task 状态与 cooldown 判断 work / review 派发，不从 Execution succeeded / failed / cancelled 推断 Task 结果或直接套用失败策略；
+- 保留正常 claim、blocker reconciliation 和已确认 Launch 失败处理；未知 Launch 按原 Dispatch/key 继续核对。
 
 Agent Executor：
 
@@ -474,7 +481,7 @@ Agent Executor：
 Meeting：
 
 - 决定当前轮到哪个 Agent；
-- 创建 Meeting Trigger / Turn reference；
+- 创建含 meeting_id / turn_id / contribution_id / participant_id 的结构化 Meeting Trigger reference；
 - 设置 execution policy；
 - 创建 Agent Launch Request；
 - 当目标 Agent busy 时，让对应 Contribution 等待 Agent slot，并允许用户跳过；
@@ -483,20 +490,20 @@ Meeting：
 Agent Executor：
 
 - 对 Meeting 使用与其他 Trigger 相同的启动机制；
-- 通过 `MeetingContextProvider` 准备 Trigger Context；
+- 通过 Meeting 领域的 `MeetingContextProvider` 校验来源关系、目标 Agent 与权限并准备 Trigger Context，不直接查询 Meeting 表；
 - 提供统一 Runtime View。
 
 ### Agent Management
 
 Agent Management 持有 Agent 长期配置。
 
-Agent Executor 在 preparing 时解析并固化本次 Execution 使用的 Agent Snapshot。
+Agent Executor 在 preparing 时解析并固化本次 Execution 使用的 Agent Snapshot；新增 Skill 走独立持久绑定端口，不把它扩大为 Agent 配置热更新。
 
 ### Model System
 
 Model System 持有 Provider / Model 配置并提供 Model Adapter。
 
-Agent Executor 固化本次 resolved Model Snapshot；Agent Loop 使用 Model Adapter 发起实际调用。
+Agent Executor 固化本次 resolved Model Snapshot；Agent Loop 调用统一 Model Contract。Model System 统一管理同一 Agent 逻辑调用的 Provider 自动重试及真实 attempt 记录，Loop 消费标准流、结果与最终错误。
 
 ### Tool System
 

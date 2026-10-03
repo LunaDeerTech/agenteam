@@ -19,7 +19,7 @@
 
 ## 设计范围
 
-Model System 是 agenteam 的平台基础能力，负责管理系统级 / 项目级 Model Provider 与 Model，并为 Agent Execution 以及 Knowledge / Memory / Builtin Tool 等平台内部能力提供稳定的模型调用边界。
+Model System 是 agenteam 的平台基础能力，负责管理系统级 / 项目级 Model Provider 与 Model，并为 Agent Execution 以及 Knowledge / Memory / Meeting / Builtin Tool 等平台内部能力提供稳定的模型调用边界。
 
 本文定义：
 
@@ -179,9 +179,9 @@ Model System
 14. Agent 级 reasoning_effort 选择与校验；
 15. Provider Credential secret reference；
 16. Provider Adapter Registry，第一阶段 Chat Adapter 只实现 OpenAI Chat Completions / OpenAI-compatible 与 Anthropic Messages；
-17. embedding / reranker / image generation 的独立调用 Adapter 边界；
+17. embedding / reranker / image generation 的独立 Adapter，首版分别支持 OpenAI Embeddings / Jina Rerank / OpenAI 图片生成及经实际验证的兼容 profile，不以兼容标签代替 conformance；
 18. image_generation 通过 Builtin generate-image Tool 消费；
-19. usage normalization，并把统计交给独立 Token Usage 模块；
+19. usage normalization，并把逐真实请求统计交给独立 Token Usage 模块；会议辅助调用使用 meeting consumer，Agent 发言仍归 Agent；
 20. ProjectConfig.meeting_summary_model_ref 与 Project 配置 UI；
 21. Provider / Model 物理删除、Agent model_ref / Project Meeting Summary Model 批量替换、PlatformModelSelection 引用处理，以及历史 snapshot 保留。
 

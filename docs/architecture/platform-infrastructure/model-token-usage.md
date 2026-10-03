@@ -22,6 +22,7 @@
 - 某个 Model 使用了多少 Token；
 - 某个 Provider 使用了多少 Token；
 - 某个 Project 总共使用了多少 Token；
+- 某个 Meeting 的摘要等辅助用途分别使用了多少 Token；
 - retry / failed request 实际消耗了多少 Token；
 - input / output / cached input / reasoning 等 Token 分别是多少。
 
@@ -44,7 +45,7 @@ Model Provider 如何产生标准化 usage，见 [Chat Model Runtime 详细设�
 2. retry 产生新的真实 Provider 请求，就产生新的 Usage Record。
 3. Token Usage 的 Source of Truth 是 invocation-level record，不是 Agent / Model 上的累计 counter。
 4. Agent Execution 保存可重建的 usage summary，但 summary 是派生结果。
-5. Agent / Model / Provider / Project 统计通过 invocation records 聚合得到。
+5. Agent / Model / Provider / Project / Meeting 辅助用途统计通过 invocation records 聚合得到。
 6. Provider 返回的 usage 与估算 usage 必须区分。
 7. Provider 没有可靠 usage 时不伪造精确值。
 8. Usage Record 不保存 Prompt、Response、Credential 或 Secret。
@@ -55,15 +56,17 @@ Model Provider 如何产生标准化 usage，见 [Chat Model Runtime 详细设�
 ~~~mermaid
 flowchart LR
     Loop["Agent Loop"]
+    Meeting["Meeting 辅助调用"]
     Adapter["Model Adapter"]
     Provider["Model Provider"]
     Usage["Normalized ModelUsage"]
     Record["ModelInvocationUsage"]
     Execution["Agent Execution Usage Summary"]
     Query["Usage Query"]
-    Dashboard["Agent / Model / Project Statistics"]
+    Dashboard["Agent / Model / Project / Meeting Statistics"]
 
     Loop --> Adapter
+    Meeting --> Adapter
     Adapter --> Provider
     Provider --> Adapter
     Adapter --> Usage
@@ -75,7 +78,7 @@ flowchart LR
 
 Model System 负责把 Provider 原始 usage 转成统一 ModelUsage。
 
-Token Usage 模块负责把这份 usage 与当前 invocation / Agent / Model / Project identity 一起持久化。
+Token Usage 模块负责把这份 usage 与当前 invocation / consumer / Model / Project 及适用的 Agent / Meeting identity 一起持久化。
 
 ## 4. 最小事实单位：Model Invocation
 
@@ -88,6 +91,7 @@ Token Usage 模块负责把这份 usage 与当前 invocation / Agent / Model / P
 - Agent Execution 的 chat Model；
 - Knowledge / Memory 的 embedding；
 - Knowledge / Memory 的 reranker；
+- Meeting 摘要等辅助 chat Model 调用；
 - Builtin Tool 使用的其他平台 Model，例如 image_generation。
 
 它不是：
@@ -122,9 +126,12 @@ ModelInvocationUsage
 │   ├── agent
 │   ├── knowledge
 │   ├── memory
-│   └── tool
+│   ├── tool
+│   └── meeting
 ├── agent_id?
 ├── execution_id?
+├── meeting_id?
+├── usage_purpose?
 ├── provider_id?
 ├── model_config_id?
 ├── provider_id_snapshot
@@ -163,6 +170,7 @@ ModelInvocationUsage
 - consumer_type：本次模型调用的消费方；
 - agent_id：由 Agent 发起或可归属到 Agent 时记录，否则为空；
 - execution_id：属于 Agent Execution 时记录，否则为空；
+- meeting_id / usage_purpose：会议辅助调用保留所属 Meeting 和具体用途；概念字段的正式名称、用途枚举、可空约束与历史关联由 D01/D09/D24 固定；
 - provider_id：当前 Provider 配置的可空外键引用；Provider 被物理删除后通过 `ON DELETE SET NULL` 置空；
 - model_config_id：当前 ModelConfig 的可空外键引用；Model 被物理删除后通过 `ON DELETE SET NULL` 置空；
 - provider_id_snapshot：调用发生时的 Provider stable ID 快照；
@@ -180,14 +188,18 @@ ModelInvocationUsage
 
 Usage Record 不依赖 Provider / ModelConfig 后续仍然存在。物理删除配置只会清空 live foreign key，不删除 Usage Record；长期统计和历史追溯使用 provider_id_snapshot / model_config_id_snapshot / model_id_snapshot 等字段。
 
+`consumer_type = meeting` 用于系统生成会议摘要等辅助请求，仍保留所属 Project。Agent 在 Meeting 中发言的请求继续归 `agent`，可以附带会议来源关联，但不能再写一条 meeting usage 重复记账。具体辅助用途由责任规格定义，不能因用途字段尚未确定遗漏真实请求。
+
+会议辅助请求同样逐真实 Provider attempt 计量，不能以消息数或摘要次数代替请求次数；Provider 未返回可靠 usage 时记录 unknown，不估算。会议删除后的历史关联投影由领域删除矩阵处理，不仅依赖仍存在的 Meeting 行。
+
 ## 6. Invocation Identity 与 Retry
 
-retry 必须独立记录。
+每个真实 Provider 请求/attempt 必须独立记录。同一 Agent 逻辑调用的自动请求 retry 统一由 Model System 管理，Loop 不重复发起相同请求；SDK/Adapter 尝试不得成为不可见的额外层。
 
 ~~~mermaid
 sequenceDiagram
     participant L as Agent Loop
-    participant A as Model Adapter
+    participant A as Model System / Adapter
     participant U as Usage Store
     participant P as Provider
 
@@ -196,14 +208,12 @@ sequenceDiagram
     A->>P: provider request
     P-->>A: partial response / error / usage
     A->>U: finalize attempt 1
-    A-->>L: retryable error
-
-    L->>A: retry same logical turn
+    A->>A: retry decision under the same logical call policy
     A->>U: create invocation attempt 2
     A->>P: provider request
     P-->>A: success + usage
     A->>U: finalize attempt 2
-    A-->>L: Model Response
+    A-->>L: normalized stream / final response or error
 ~~~
 
 如果 Provider 在失败请求中仍然报告 usage：
@@ -211,6 +221,8 @@ sequenceDiagram
 > 这些 Token 必须统计。
 
 因此不能只记录最终成功 attempt。
+
+尝试之间以 logical-call correlation 关联，分别保存真实 Invocation/Usage；partial streams 不跨 attempt 盲拼，Provider 未报告 usage 时保持 unknown。精确字段、SDK 重试配置和失败计量验证由 D01/D09/D22 固定。语义新调用、compaction、业务重新启动分别记录，其他 consumer 的策略不因本图改为 Agent 的渐进重试策略。
 
 ## 7. Usage Source
 
@@ -339,6 +351,7 @@ Agent
 Model
 Provider
 Agent Execution
+Meeting / Usage Purpose
 Time Range
 ~~~
 
@@ -352,6 +365,7 @@ Model + Time Range
 Provider + Time Range
 Agent + Model + Time Range
 Execution
+Project + Meeting + Usage Purpose + Time Range
 ~~~
 
 例如：
@@ -393,6 +407,7 @@ flowchart LR
     Project["By Project"]
     Provider["By Provider"]
     Consumer["By Consumer Type"]
+    Meeting["By Meeting / Purpose"]
 
     Records --> SQL
     SQL --> Agent
@@ -400,6 +415,7 @@ flowchart LR
     SQL --> Project
     SQL --> Provider
     SQL --> Consumer
+    SQL --> Meeting
 ~~~
 
 当数据量明显增长后，可以增加 daily rollup / materialized view，但 rollup 必须可以从 invocation records 重建。
@@ -435,6 +451,7 @@ flowchart TB
     Usage --> Model["By Model"]
     Usage --> Provider["By Provider"]
     Usage --> Execution["Execution Detail"]
+    Usage --> Meeting["Meeting Auxiliary Usage"]
 
     Agent --> AgentModel["Agent + Model"]
     Model --> ModelAgent["Model + Agent"]
@@ -560,8 +577,8 @@ Provider 实际账单与平台推算费用也可能存在差异，应继续区�
 4. provider / unknown usage source，不实现 tokenizer estimation；
 5. 标准 input / output / cached / reasoning Token 字段；
 6. 持久化可重建的 AgentExecution usage summary；
-7. Agent / Knowledge / Memory / Tool consumer_type；
-8. Project / Agent / Model / Provider / Execution 聚合；
+7. Agent / Knowledge / Memory / Tool / Meeting consumer_type，会议辅助用途与 Agent 发言不重复计量；
+8. Project / Agent / Model / Provider / Execution / Meeting 及辅助用途聚合；
 9. 时间范围查询；
 10. PostgreSQL aggregation；
 11. Usage API / UI 可区分 unknown。

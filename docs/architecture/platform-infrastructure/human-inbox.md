@@ -106,6 +106,8 @@ item.project_id
 -> current_user.id
 ~~~
 
+每条 Item 仍属于单个 Project；本人 Inbox 默认聚合本人全部项目，并允许按项目筛选。聚合与 Realtime 订阅均由服务端限定 Owner 范围，系统管理员身份不允许查看他人待办。
+
 ### 3.3 source_type / source_id
 
 指向真正拥有业务状态的源对象。
@@ -410,7 +412,7 @@ id DESC
 
 ## 12. Query
 
-默认 Inbox 只展示：
+默认 Inbox 聚合本人全部项目，只展示：
 
 ~~~text
 status = open
@@ -420,7 +422,7 @@ status = open
 
 ~~~text
 list_inbox_items(
-    project_id,
+    project_id?,
     status?,
     source_type?,
     blocking?,
@@ -428,7 +430,7 @@ list_inbox_items(
 )
 ~~~
 
-默认排序使用上一节规则。
+未提供 project_id 时只查询当前用户拥有的全部项目，提供时仍必须验证 Owner。默认排序使用上一节规则，并支持项目、来源、blocking 和状态筛选与分页。上述为概念接口，跨本人项目查询、稳定游标与订阅契约由 D01/D25/D26 固定。
 
 resolved / dismissed 历史可以通过筛选查看。
 
@@ -500,6 +502,8 @@ Approval Item：
 ~~~text
 dismissible = false
 ~~~
+
+人工 Approval 等待持久保存，直到来源领域明确处理；不会因 UI 关闭、Session 失效、服务重启或等待时长自动到期，也不能由 Inbox dismiss。执行停止、来源永久删除等显式取消/失效由 Governance 等来源领域收敛，Inbox 只反映结果，不伪造 approved / rejected / expired。
 
 ## 15. Meeting / Decision
 
@@ -580,6 +584,8 @@ resume normal event projection
 
 这样 Human Inbox 可以从当前业务事实恢复，而不需要从历史第一条 Domain Event 开始 replay。
 
+Rebuild 与迟到事件处理必须以来源当前生命周期和权限为准，不重新打开已经明确处理或来源已失效的事项；resolved 历史不因重建自动清理。
+
 ## 18. Realtime
 
 Human Inbox 使用平台统一 Realtime WebSocket Gateway。
@@ -602,7 +608,7 @@ inbox.item.dismissed
 ~~~text
 reconnect WebSocket
     ↓
-subscribe project inbox
+subscribe current user's inbox scope / selected project
     ↓
 buffer inbox realtime events
     ↓
@@ -616,6 +622,8 @@ live
 ~~~
 
 Human Inbox 第一阶段不要求单独引入全局 snapshot revision。缓冲的 inbox state event 主要作为 invalidation 使用，不能把一个无法证明比 Snapshot 更新的旧 payload 盲目覆盖当前 projection。
+
+跨本人项目订阅仍逐项遵守 Project Owner 边界；权限或来源失效后停止对应订阅，后续查询不得仅因已知 Item ID 而返回无权访问的内容。
 
 这样既遵循 Platform subscribe-first contract，又不改变 HumanInboxItem 的 Source of Truth / projection lifecycle。
 
@@ -657,13 +665,15 @@ Source Domain transaction 与 Human Inbox projection transaction 不要求是同
 open -> resolved
 ~~~
 
-保留历史。
+按来源领域的保留边界保存历史，不自动到期；迟到事件不能使已失效来源的事项重新 open。
 
-只有明确属于临时 projection、且产品不需要历史时，未来才考虑物理删除。
+这不阻止已经明确授权的 Project 永久删除按其 Project-scoped 清理边界删除对应 Inbox projection，详见 [项目生命周期](../project-work-management/README.md)。不能把首期不自动清理解读为禁止显式领域清理，也不能把一般留存讨论当作新增删除授权。
 
 ## 21. 权限
 
 Human Inbox 查询按 Project Owner boundary 校验。
+
+列表、详情、历史、Realtime 和聚合查询都只包含本人拥有的项目；系统管理员不获得他人 Inbox 读取或操作权。
 
 即使用户拥有某个 HumanInboxItem ID，也不能绕过：
 

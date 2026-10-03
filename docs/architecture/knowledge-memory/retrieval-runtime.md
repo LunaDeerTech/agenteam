@@ -1,6 +1,7 @@
 # Retrieval Runtime 详细设计
 
-> 上层架构：[Knowledge Base 与 Agent Memory](./README.md)  
+> 上层架构：[Knowledge Base 与 Agent Memory](./README.md)
+>
 > 相关设计：[Knowledge Indexing](./knowledge-indexing.md)、[Agent Memory Domain](./agent-memory-domain.md)、[Agent Memory Runtime](./agent-memory-runtime.md)、[Model System](../platform-infrastructure/model-system/README.md)
 
 ## 1. 目标与边界
@@ -791,7 +792,9 @@ Hybrid RRF + Reranker
 
 ## 28. 参数治理
 
-通过 eval 决定：
+首期由管理员通过系统设置统一维护分块大小、候选/返回数量等默认值与上限，持久化为平台 Runtime Config；Project 使用平台配置，没有项目覆盖。Knowledge / Memory 可有不同场景默认值，合法调用参数受对应预算约束；管理参数不授予管理员他人项目知识或 Memory 正文访问权。
+
+具体默认值通过中英混合 eval 决定，不在架构中提前固定经验数字。可调参数包括：
 
 ~~~text
 soft_chunk_size
@@ -800,12 +803,13 @@ forced_split_overlap
 lexical_candidate_k
 dense_candidate_k
 RRF constant
-RRF weights
 rerank_candidate_k
 result_k
 Memory importance weight
 Memory recency weight
 ~~~
+
+第一阶段 RRF 固定等权，不开放不等权配置；RRF constant 与 candidate 数量的调优不改变该规则。配置/API、合法范围、版本并发和 UI 由 D01/D13/D14/D26/D27 落实，不把本节视为参数已完成评测。
 
 参数变更分两类。
 
@@ -816,12 +820,16 @@ Memory recency weight
 - 需要新 IndexProfile；
 - 需要 rebuild。
 
+UI 分开展示保存配置、重建进度与实际 activation；旧 generation 仍 serving 时使用它记录的 embedding snapshot，不能仅因保存新配置立即切换查询模型。
+
 ### Query-time
 
 例如 candidate_k：
 
 - 不要求 reindex；
 - 可以通过 runtime config / rollout 调整。
+
+具体查询生效边界在正式配置契约明确。关键词 backend/数据库扩展仍按 §29 benchmark 选择，不作为普通管理员参数热切换。
 
 ## 29. Lexical Backend 选择流程
 

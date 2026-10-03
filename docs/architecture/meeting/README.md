@@ -210,7 +210,7 @@ Agent Contribution 按 `order_index` 顺序运行。
 
 ### parallel
 
-所有 Agent Contribution 基于同一个 MeetingMessage visibility boundary 并行执行。
+所有 Agent Contribution 基于同一固定 Meeting 输入并行执行：共同 references 集合、summary version 和实际有序 immutable message/generation。Timeline 截止点不足以冻结可变引用；底层引用资源正文仍按权限按需读取。
 
 同一 Turn 内 Agent 之间看不到其他并行 Contribution 随后产生的本轮回复。
 
@@ -277,6 +277,8 @@ Agent Executor 负责：
 
 同一个 Agent 同一时刻最多一个非终态 Agent Execution。Agent Executor 的 `launch()` 是最终并发裁决点；若返回 `AgentBusy`，Meeting Runtime 不把它视为失败，而是让当前 Contribution 等待该 Agent 的 execution slot。
 
+Meeting Trigger 使用 meeting_id/turn_id/contribution_id/participant_id 四项结构化身份，由 Meeting Provider 校验归属、目标 Agent 与权限；Executor 不直查 Meeting 表。Contribution 保持稳定，generation/attempt、独立 Execution 及幂等键区分尝试；同键同语义返回首次，不同语义拒绝。
+
 Sequential 模式会停在这个 Contribution；Parallel 模式只有该 Contribution 等待，其他 Agent 继续运行。目标 Agent 空闲后自动重试 Launch，且没有自动 timeout。
 
 ## 8. Waiting / Resume
@@ -330,6 +332,8 @@ Agent Execution -> waiting(approval)
 
 Meeting 不创建新的 `approved_action` Execution。
 
+人工等待持久化且不自动过期，不因刷新、Session 失效或正常重启丢失；必须处理项不能 dismiss。显式停止/删除按生命周期取消，不冒充审批到期，迟到结果不能恢复终态。
+
 ## 9. Retry / Regenerate
 
 retry 与 regenerate 分开。
@@ -338,7 +342,7 @@ retry 与 regenerate 分开。
 
 用于失败 Agent Execution。
 
-底层 transient retry 仍由 Agent Loop / Tool Runtime 自己完成。
+同一逻辑模型调用的自动 Provider retry 归 Model System，工具技术 retry 归 Tool Runtime；Loop/Meeting 不叠加第二层，语义新调用和用户重新执行另按各自规则处理。
 
 已经 terminal failed 后用户手动 Retry，创建新的关联 Agent Execution。
 
@@ -354,6 +358,8 @@ Regenerate：
 - Timeline 默认展示最新 generation；
 - 不自动级联重跑整个 Turn。
 
+已完成历史回复成功替换后，Summary 只显示待更新，等下一正常 Turn finalize 更新；没有下一轮就保持待更新，不立即/定时刷新，不重开历史 finalize 或重生成标题。
+
 ## 10. Meeting Context
 
 MeetingContextProvider 默认提供：
@@ -361,7 +367,7 @@ MeetingContextProvider 默认提供：
 - Meeting identity；
 - active participants；
 - rolling summary；
-- 当前 Meeting References，只注入稳定 typed identity；
+- 本次 Meeting 输入固定的 References 集合，只注入稳定 typed identity；
 - 当前 Execution 可见的 MeetingMessage，并按照 Meeting Timeline 的消息顺序排列；
 
 MeetingTurn 只属于 Runtime 编排控制，不进入模型可见的 Meeting Context。DecisionRequest / Approval Request 也不作为后续 Agent 的 Meeting Context 注入；它们在当前 Agent Execution 内通过 waiting / resume 和 Tool Result 完成闭环，最终用户可见结论通过 MeetingMessage 进入后续会话历史。
@@ -422,6 +428,8 @@ Summary 是派生语义摘要，不是：
 - Audit。
 
 Summary 更新成功前，不开始后续 queued Turn。
+
+Summary 生成/校验按既定有限 retry，耗尽仍保持 finalizing，不跳过或切备用模型。幂等关联实际有序消息及有效 generation，末条 ID 不足以识别早期替换；发布须同时检查输入、原 Summary version 与生命周期。旧 Summary 不冒称覆盖后来变更，具体投影与事务由 D24/D25 落实。
 
 ## 12. Timeline
 
@@ -614,9 +622,9 @@ Meeting 支持：
 - archive；
 - hard delete。
 
-Hard delete 直接删除 Meeting 本域拥有的数据。
+Meeting archive 仅组织/可见性变化，不套用 Project archive 的停止策略。Hard delete 先阻断本会议新工作，经正式端口停止尚未完成的 Execution/交互/finalizing，再清理 Meeting 本域；不停止 Agent 的无关 Task。
 
-Agent Execution、Approval、Audit 等其他模块拥有的数据仍按各自 retention policy 处理。
+外域 Execution、Approval、Audit 按各自归属保留，停止不承诺回滚副作用。取消/来源失效不等于人工审批自动到期；迟到事件/摘要不能复活已删除会议。失败或未知不得伪报清理完成，详见 [Meeting Domain](./meeting-domain-model.md#14-archive-与-hard-delete)。
 
 ## 20. 详细设计
 

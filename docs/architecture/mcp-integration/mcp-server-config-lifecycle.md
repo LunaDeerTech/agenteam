@@ -460,7 +460,7 @@ reconciliation 失败只影响对应 Connection，不应阻塞整个 Central 启
 
 ## 16. Security / Network Validation
 
-Project MCP endpoint 属于外部网络输入，必须统一经过平台 Outbound Network Policy。
+System / Project MCP endpoint 都属于运行时业务目标，必须统一经过平台 Outbound Network Policy。
 
 MCP 模块只遵循该平台能力，不自行维护第二套 SSRF / private-network 规则。
 
@@ -471,7 +471,9 @@ MCP 模块只遵循该平台能力，不自行维护第二套 SSRF / private-net
 - Credential 不跨 origin 自动转发；
 - response size、connect/read timeout、TLS validation 使用平台统一限制。
 
-完整的 URL validation、DNS / IP classification、loopback / link-local / cloud metadata、private CIDR、redirect、TLS 与平台部署策略见 [Outbound Network Policy 详细设计](../platform-infrastructure/outbound-network-policy.md)。
+允许的私网 CIDR / 端口及显式 HTTP 例外由管理员 UI 管理并持久化在 PostgreSQL，默认私网拒绝与不可放行目标沿用平台规则。新请求、重试和 redirect 读取当前策略，已发出的请求可完成；复用连接不能绕过重新校验。上述网络 timeout 不构成统一 ToolOperation deadline，也不使人工审批自动到期。
+
+完整的 URL validation、DNS / IP classification、loopback / link-local / cloud metadata、private CIDR、redirect、TLS 与管理员运行时策略见 [Outbound Network Policy 详细设计](../platform-infrastructure/outbound-network-policy.md)。
 
 ## 17. Audit
 

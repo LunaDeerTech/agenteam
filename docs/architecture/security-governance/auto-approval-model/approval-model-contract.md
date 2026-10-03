@@ -554,6 +554,8 @@ Auto Approval Module 第一阶段不在应用层自动重试 Approval Model。
 
 如果底层 Model Adapter 自身存在平台统一的透明网络重试机制，那属于 Model Adapter 的实现边界，不由 Auto Approval Module 再增加第二层重试。
 
+透明网络 attempts 仍受本次审批请求的有限 timeout 约束，并按每次真实 Provider 请求计量；不套用 Agent 逻辑模型调用的其他重试/渐进等待策略，不把“一次审批判断”误解为底层只能发出一次网络请求。
+
 ### 不切换备用 Approval Model
 
 第一阶段不做：
@@ -582,6 +584,8 @@ decision = needs_approval
 source = internal_error
 reason = "Approval model request timed out."
 ~~~
+
+此 timeout 只限制自动审批请求。转入人工后，ApprovalRequest 持续等待明确处理，不因等待时长、页面刷新、Session 过期或正常重启自动放行/失败；迟到的模型结果不得覆盖已进入人工或已完成的决议。用户停止及项目生命周期引起的显式取消另按正式状态契约处理，不能冒充人工审批到期。
 
 ## Audit
 
@@ -748,4 +752,3 @@ evaluation_context_hash
 但第一阶段不把该字段作为必须实现项。
 
 如果后续实现，应先定义稳定的 Context canonicalization 规则，再计算 hash，避免同一逻辑输入因为 JSON key 顺序等无意义差异产生不同结果。
-

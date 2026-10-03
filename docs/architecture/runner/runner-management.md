@@ -212,6 +212,8 @@ Central 身份由 TLS server certificate 保证。
 
 Runner 连接成功后第一条协议消息必须是 `hello`。
 
+首期支持 Linux/macOS，Windows 不进入支持矩阵；`os` / `arch` 和细分 capability 表达实际运行环境，不凭交叉编译或预设配置宣称支持。Bash 解释器与版本、桌面后端及权限探测由 D15–D17 正式字段承接；具体 CPU/最低系统版本仍需规格与真实验收。
+
 概念：
 
 ~~~text

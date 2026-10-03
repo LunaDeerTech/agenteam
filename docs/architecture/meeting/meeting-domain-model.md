@@ -344,7 +344,7 @@ MeetingTurn
 │   ├── partial_failure
 │   └── null
 ├── interrupted_by_turn_id?
-├── message_visibility_boundary?
+├── meeting_input_reference?  # parallel 的共同不可变输入，具体字段待 D24
 ├── created_at
 ├── started_at?
 ├── finalizing_at?
@@ -389,6 +389,7 @@ stateDiagram-v2
 
     queued --> cancelled
     running --> cancelled
+    finalizing --> cancelled
 ```
 
 当本轮所有目标 Agent Contribution 都进入 terminal contribution state 后，Turn 进入 `finalizing`。
@@ -403,6 +404,8 @@ skipped
 ```
 
 finalizing 阶段同步更新 rolling summary；首轮还生成并共同提交 Meeting.title。该步骤成功后才进入 `completed`，详见 [Meeting Context & Summary](./meeting-context-summary.md)。
+
+parallel 输入固定 references 集合、summary version 及实际有序 immutable message/generation；Timeline 截止点不足以替代它。sequential 在后续启动时纳入前序正式回复。finalizing 的有限失败重试不允许跳过摘要或启用备用模型；显式取消可停止收尾，迟到结果不得发布。
 
 ### 6.4 partial failure
 
@@ -653,6 +656,8 @@ current_message_id
 
 模型 / Tool 的 transient retry 继续发生在同一个 Agent Execution 内，不新增 `MeetingContributionExecution`。
 
+同一逻辑模型请求的自动 retry 由 Model System 唯一拥有；工具 retry 仍由 Tool Runtime 管理，Loop 与 Meeting 不叠加第二层。
+
 ### 10.2 User Retry
 
 如果当前 Agent Execution 已经 terminal failed，用户显式 Retry：
@@ -680,6 +685,8 @@ regenerate_of_execution_id = previous current execution
 - 更新 Contribution.`current_message_id`；
 - 旧 Execution / Message 继续作为该 Contribution 的 generation history 保留。
 
+若替换的是已完成历史回复，成功改变有效输入后仅使 Summary 待更新，等待下一正常 Turn finalize；不立即刷新、不重开历史 finalize、不设 timer、不重生成标题或级联重跑。失败/取消未变输入时不无条件标记；旧 Summary 保持原覆盖身份，已有 Execution/固定输入不热改。
+
 ## 11. 关键领域约束
 
 服务端至少保证：
@@ -688,7 +695,7 @@ regenerate_of_execution_id = previous current execution
 2. User / Agent message author 必须是该 Meeting 的 Participant；
 3. 每个 MeetingMessage 必须绑定一个同 Turn、同 Participant 的 MeetingTurnContribution；
 4. User trigger Contribution 不允许绑定 Agent Execution；
-5. Agent Execution 必须绑定具体 Agent Contribution，而不是只绑定 Turn；
+5. Agent Execution 的 Meeting Trigger 必须携带 meeting_id/turn_id/contribution_id/participant_id；由 Meeting 领域校验关系、项目、参与者目标 Agent 与权限，Executor 不直接查表；
 6. `reply_to_message_id` 必须引用同一个 Meeting；
 7. 第一阶段只有 User Participant 可以创建 reply；
 8. proposed Meeting 不能创建正常 Agent Turn，必须先变为 active；
@@ -825,24 +832,30 @@ Archive：
 - 默认不再出现在 active Meeting 列表；
 - 恢复后继续原会话。
 
+Meeting archive 与 Project archive 不同：前者是会话组织/可见性变化，不能套用 Project 的自动停止策略。
+
 ### Hard Delete
 
 Hard delete 是命令，不是 Meeting status。
 
-执行 hard delete 后：
+执行顺序：先阻断该 Meeting 后续 Turn/Contribution 派生，经正式取消/生命周期端口停止本会议尚未完成的 Execution、waiting 与 finalizing 活动，确认收敛后再清理本域：
 
 - 删除 Meeting 本域拥有的数据；
 - 删除 Participant / Message / Turn / Contribution / MeetingReference / MeetingMessageReference / Decision / Timeline projection / references；
 - 不负责删除其他模块拥有的 Agent Execution、Governance Approval、Audit 等数据；
 - 外部记录只能保留原 source id 或显示 source deleted。
 
-Hard delete 只需要校验当前用户是否为 Meeting 所属 Project 的 Owner：
+Hard delete 的用户授权按当前 Project Owner 校验：
 
 ```text
 project.owner_user_id == current_user.id
 ```
 
-通过后执行删除，并进入 Audit。
+授权通过后仍须完成停止与清理门禁。只处理属于该 Meeting 的活动，不停止这些 Agent 的无关 Task；外域 Execution/Approval/Audit 记录按各自归属保留，不能将“不删执行记录”误解为“不停执行”。
+
+删除操作按既有 [Audit 契约](../security-governance/audit.md) 记录结构化结果，不由 Meeting 另设日志类别或删除外域审计记录。
+
+pending Decision/Approval/ToolOperation 按显式取消与来源失效收敛，不伪造批准、拒绝或自动到期。停止/清理失败或未知返回明确失败/待处理，不提前宣称删除成功；不承诺回滚外部副作用。迟到完成事件/摘要不得复活会议、重写已删除来源或派生新 Turn。D01/D19/D22/D24/D25 固定事务、幂等、确认与恢复，不新增独立删除平台。
 
 ## 15. Source of Truth
 

@@ -32,7 +32,8 @@
 5. **历史 Execution 使用本次 Snapshot，不读取当前最新配置替代**；
 6. **Secret value 不进入 Context Snapshot**；
 7. **Agent Loop 不重新查询 Task / Meeting / Agent 配置补齐启动信息**；
-8. **Prompt component 与最终 System Prompt 分离**。
+8. **Prompt component 与最终 System Prompt 分离**；
+9. **新增技能采用窄持久绑定**，在下一模型输入边界应用，不重写启动 Context 或重新读取全部配置。
 
 ## 3. AgentLaunchRequest
 
@@ -75,10 +76,12 @@ Meeting：
 
 ```text
 type = meeting
-reference = meeting_turn_id
+reference = { meeting_id, turn_id, contribution_id, participant_id }
 ```
 
 `reference` 必须是稳定 typed identity，而不是临时 UI index。
+
+Meeting 领域校验同项目归属、Meeting/Turn/Contribution/Participant 关系、参与者对应目标 Agent 与调用权限。Executor 经正式 Provider/校验端口消费结果，不直接查 Meeting 表；引用不夹带可变正文。稳定 Contribution 的 retry/regenerate 通过 generation/attempt、独立 Execution 及幂等键区分，不以当前指针替换历史来源身份。
 
 ### 3.3 purpose
 
@@ -116,7 +119,7 @@ execution_policy 不能扩大 Agent 长期 Capability。
 
 ### 3.5 idempotency_key
 
-只用于 Agent Execution 创建幂等。
+只用于 Agent Execution 创建幂等。同一作用域内，同键同语义返回首次结果，同键不同语义拒绝；重放不再竞争 Agent slot。结果查询使用独立只读端口，不以 launch 代替。
 
 完整规则见 [Agent Execution Domain Model](./execution-domain-model.md)。
 
@@ -132,7 +135,7 @@ sequenceDiagram
     participant Builder as Context Builder
 
     Caller->>Executor: launch(request)
-    Executor->>DB: create AgentExecution(status=created)
+    Executor->>DB: resolve key + semantic input; only new Launch atomically acquires slot
     DB-->>Executor: execution_id
     Executor-->>Caller: execution_id
 
@@ -144,6 +147,8 @@ sequenceDiagram
 ```
 
 Launch 不等待 Builder 完成。
+
+图中后续 preparing 只适用于本次新建的 Execution；一致重放返回原结果，语义冲突或 AgentBusy 不进入创建分支。
 
 ## 5. AgentExecutionContextBuilder
 
@@ -276,7 +281,7 @@ Task Context 的完整领域边界见 [Task Domain Model](../project-work-manage
 第一阶段 Meeting Provider 至少准备：
 
 - meeting identity；
--当前 turn / contribution reference；
+- 当前四项结构化 Trigger reference 及本次有效 generation/attempt 关联；
 - Meeting title（首轮 finalize 前可空）；主题由 rolling summary.goals 概括；
 - participants；
 - rolling summary；
@@ -304,6 +309,8 @@ Meeting Context 不在 Provider 阶段按 token budget 预裁剪。
 
 超出模型 context window 时由 Agent Loop Context Management 统一处理。
 
+parallel Turn 使用 Meeting 领域已固定的同一 references 集合、summary version 和实际有效 immutable message/generation 输入；不能只凭 Timeline 截止点再读取可变 current 指针。sequential 则按启动顺序纳入前序正式回复。这里只固定 Meeting 输入引用，不复制所有 Task/Knowledge/link/file 正文，详见 [Meeting Context](../meeting/meeting-context-summary.md)。
+
 ## 10. Agent Snapshot
 
 Builder 读取 Agent Management 当前配置，并固化本次 Execution 实际使用的 Snapshot。
@@ -317,12 +324,21 @@ AgentSnapshot
 ├── instructions
 ├── inject_agents_md
 ├── capability
+├── initial skill revision bindings / catalog metadata
 ├── model selection metadata
 ├── reasoning effort
 └── relevant settings
 ```
 
-Execution 启动后 Agent 配置变化不影响当前 Execution。
+Execution 启动后一般 Agent 配置变化不替换当前 Snapshot。新增技能采用下述独立绑定规则；这不是模型、Tool、Mount、Secret 或审批策略的热更新。
+
+### 10.1 运行中的 Skill Binding
+
+初始技能固定 revision 随启动输入持久化。正式分配事务与 Executor 端口可靠提交新增绑定，在下一次 Model Request 输入确定点应用此前已提交的有效分配，并留下可追溯 typed control 记录；不能只依赖可能延迟的通知承诺下一轮可用。D01/D10/D22 明确启动竞争、持久化/去重及输入边界。
+
+本次目录由初始绑定与已应用变更重建；读取说明、素材与 Runner 包准备使用同一固定版本。发布新 revision 不替换旧绑定；完整正文仍按需读取，缺少当前固定 Tool Set 中所需工具时返回明确限制，不自动扩权。
+
+新增技能不改已发出的 Model Request 或 Tool Batch，不解除 waiting，也不复活 terminal Execution。移除/禁用只改变正式配置，不停止已开始工作或清除旧内容；后续读取/准备按当前资源与权限返回正常错误。新增绑定应用前须验证分配仍有效，迟到新增不能恢复已撤授权。完整规则见 [Agent Skills](../agent-skills.md#6-新分配技能的下一轮生效)。
 
 ## 11. Project Context Snapshot
 
@@ -449,6 +465,7 @@ AgentExecutionContext
 │   └── project_variables
 ├── model
 ├── tools
+├── initial_skill_bindings
 ├── execution_policy
 └── metadata
 ```
@@ -466,6 +483,7 @@ AgentExecutionContext 一旦 preparing 完成并进入 running，即不可修改
 - Tool Result；
 - Approval Result；
 - Decision Answer；
+- 已应用的 Skill binding 变更；
 - context compaction；
 - Runtime Item；
 - checkpoint
@@ -628,7 +646,7 @@ flowchart TB
 
 提供长期 Agent config。
 
-Executor 只读取并 Snapshot。
+Executor 读取并固化启动 Snapshot；运行期只通过正式端口接收与校验新增 Skill binding。
 
 ### Task / Meeting
 
@@ -646,7 +664,7 @@ Executor 只读取并 Snapshot。
 
 ### Agent Loop
 
-只消费准备完成的 immutable Context，不重新读取业务配置补齐启动信息。
+消费 immutable 启动 Context、已持久化的运行事实与窄 Skill binding，不重新读取全部业务配置补齐或替换启动信息。
 
 ## 24. 不在本文定义的内容
 

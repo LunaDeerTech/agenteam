@@ -311,12 +311,14 @@ Backend 必须尽量使用 Protocol Runtime 提供的 delivery metadata，而不
 
 ## 11. Timeout
 
-Unified Tool Runtime 产生 operation timeout / cancellation signal。
+平台不为所有 MCP Tool 强加统一 Operation timeout 或通用参数包装。MCP Server 原生 inputSchema 中的 timeout 参数保持原有语义，按校验后的 arguments 传给远端，不被平台剥离或自动解释为平台 deadline。
+
+可信调用 context / cancellation 与模型 arguments 分开传递；Protocol Runtime 的网络 / SDK timeout 属于内部可靠性边界。
 
 MCP Tool Backend：
 
-1. 传给 Protocol Runtime；
-2. 停止等待；
+1. 把可信 cancellation 以及内部请求选项传给 Protocol Runtime；
+2. 在网络 / SDK timeout 或取消发生时停止本地等待；
 3. 尝试协议级 cancellation；
 4. 根据 request delivery / server acknowledgement 构造 outcome。
 
@@ -327,6 +329,8 @@ outcome_known = true
 ~~~
 
 远端 Tool 可能已经执行。
+
+这些内部 timeout 不为人工审批等待设置期限，也不授权 Runtime 在 outcome unknown 时盲目重试。具体 SDK timeout / cancellation 选项及其 delivery 语义由 D20 规格与验证落实。
 
 ## 12. Cancellation
 
@@ -543,7 +547,7 @@ Audit 不复制完整 arguments / result payload。
 9. outputSchema validation；
 10. `isError`；
 11. protocol / transport error mapping；
-12. timeout / cancellation propagation；
+12. cancellation 与内部网络 / SDK timeout 传播；保留原生 timeout schema，不增加统一 Operation deadline；
 13. progress forwarding；
 14. unknown outcome；
 15. Artifact / StoredObject；

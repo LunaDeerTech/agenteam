@@ -100,7 +100,6 @@ ToolSpec
 第一阶段不把以下内容放入 ToolSpec：
 
 ~~~text
-timeout
 concurrency
 retry policy
 backend type
@@ -110,6 +109,8 @@ temporary backend health
 ~~~
 
 这些分别属于 ToolBinding、ExecutionTool、Runtime / Execution Policy 或具体 Backend 的调用时状态。
+
+平台不增加统一 ToolSpec timeout 元字段或全工具模型参数包装。命令等工具有需要时可在自己的 `input_schema` 定义可选 timeout，按该工具契约执行；MCP 原生同名业务字段保留，不统一注入、剥离或重解释。网络/SDK 的内部超时属于适配器可靠性，不能转成人工审批过期或平台统一 Operation deadline。
 
 `spec_hash` 可以作为 Registry / discovery 的内部实现字段生成，用于 diff，但不作为第一阶段 ToolSpec 的正式 contract 字段，也不作为版本号。
 
@@ -324,6 +325,8 @@ Registry 只回答：
 
 > 当前这个 Tool 是否仍然具有有效的平台注册定义与 Backend binding。
 
+注册必须有正式定义与真实 Backend/领域端口，未实现或未绑定能力不得以生产 stub、空实现或静默成功进入可执行 Registry。Scheduler/Meeting 等下游工具随所属领域服务完成绑定后注册；目录能力缺失不能当作引用校验通过。
+
 临时运行状态不改变 Registry：
 
 - Runner offline；
@@ -461,6 +464,8 @@ ExecutionTool 是从 RegisteredTool 派生出的 execution-scoped immutable proj
 其中 Tool 定义通过 immutable ToolSpec revision 固定，Backend 路由通过 `binding_snapshot` 固定。
 
 长期配置变化默认只影响新的 Execution。
+
+新增 Skill 的下一轮生效只追加持久化资源版本绑定，不修改 ToolSpec/schema 或本次 Execution Tool Set。当前执行须已有读取/准备/命令等必要工具；缺少时明确报限制，不因技能分配自动授权。见 [Agent Skills](../agent-skills.md#6-新分配技能的下一轮生效)。
 
 Execution Tool Set 构建时不因为 Runner offline、MCP 暂时不可达等瞬时状态过滤 Tool。真正调用时再检查目标 Backend / Runner / Connection，并把失败作为标准 ToolError 返回。
 

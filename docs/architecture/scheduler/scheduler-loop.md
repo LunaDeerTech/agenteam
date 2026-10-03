@@ -74,7 +74,7 @@ Project.current_sprint_id
 
 - 一个 Project 最多只有一个 Current Sprint；
 - Current Sprint 可以为空；
-- Scheduler 不调度非 Current Sprint Task。
+- Scheduler 不为非 Current Sprint Task 创建新的调度；已有 pending 的核对仍须纳入同一串行路径。
 
 如果：
 
@@ -82,7 +82,7 @@ Project.current_sprint_id
 current_sprint_id = null
 ```
 
-Scheduler 进入 idle。
+Scheduler 不创建新调度；若还有历史 pending，沿本节及 §12 的串行恢复路径核对，没有 pending 才 idle。
 
 Sprint 生命周期由 [Sprint Lifecycle](../project-work-management/sprint-lifecycle.md) 定义。
 
@@ -125,7 +125,7 @@ todo
 - done；
 - cancelled。
 
-这些状态不需要 Scheduler reconciliation。
+这些状态不创建新调度，也不自动 reopen；如果仍关联旧 pending Dispatch，必须沿同一串行路径核对它，不能被 state group 过滤永久遗漏。
 
 这个顺序是固定 contract，不根据当前 Task 数量动态改变。
 
@@ -166,7 +166,7 @@ sprint + state + priority
 
 分组时，普通 state / priority 变化默认追加到该分组末尾。
 
-唯一例外是 `scheduler_agent_busy_compensation`：原 todo claim 因极少数 `AgentBusy` 竞态被补偿时，恢复 SchedulerDispatch 保存的 claim 前 `manual_rank`，不能追加到 todo group 末尾。
+唯一例外是 `scheduler_agent_busy_compensation`：原 todo claim 因极少数 `AgentBusy` 竞态被补偿时，在当前事实/version 仍允许的前提下恢复原逻辑位置，不能追加到 todo group 末尾，也不能无条件写回已失效的旧 rank。
 
 用户可以通过前端拖拽重新排序。
 
@@ -180,6 +180,8 @@ rebalance：
 - 不产生 SchedulerDispatch；
 - 不改变用户可见顺序；
 - 可以批量更新同组 rank。
+
+纯排序维护不推进 Task 业务 version、不生成 TaskEvent；真实拖拽/移动仍是业务 mutation。D11/D23 以维护与 pending claim 的互斥或位置映射等正式契约保证 Busy 补偿恢复逻辑顺序，普通字段写入不能覆盖新 rank；具体机制不在此预选。
 
 ## 6. Traversal Snapshot
 
@@ -206,6 +208,8 @@ current_state != snapshot_group
 ```
 
 本次直接 skip。
+
+这只跳过新业务调度；已存在 pending Dispatch 的恢复检查先于该过滤。Task 已 done/cancelled、group/Sprint 改变时，原 pending identity 仍进入同一串行 traversal/recovery，去重与排位由 D23 固定，不另启 worker。
 
 它不会因为新状态重新插入本轮其他 group，而是等待下一轮 traversal。
 
@@ -279,11 +283,12 @@ while service_running:
 
     sprint = project.current_sprint
 
-    if sprint == null:
+    if sprint == null and no existing pending dispatch:
         wait tick_interval
         continue
 
     traversal = build_ordered_task_snapshot(sprint)
+    include existing pending dispatch identities in the same serial recovery path
 
     for entry in traversal:
         if scheduler_disabled:
@@ -294,7 +299,9 @@ while service_running:
 
         task = reload(entry.task_id)
 
-        if task.state != entry.expected_state:
+        if entry has pending dispatch:
+            reconcile original dispatch outcome without creating replacement
+        elif task.state != entry.expected_state:
             skip
         else:
             reconcile(task)
@@ -303,6 +310,8 @@ while service_running:
 ```
 
 真正的 Task decision tree 见 [Task Reconciliation](./task-reconciliation.md)。
+
+伪代码只表达既有串行路径的覆盖要求，不规定 pending 的具体插入顺序。无 Current Sprint、旧 Sprint 或终态 Task 的遗留 pending 都不得漏查；每次处理仍服从相同 pacing，不能用无间隔 query/launch 循环阻塞整条 traversal。
 
 ## 9. Pause / Resume
 
@@ -321,6 +330,8 @@ scheduler_enabled: boolean
 - 不创建 SchedulerDispatch。
 
 已存在的 Agent Execution 继续运行。
+
+暂停不借核对调用 launch 或 mutation Task，恢复时仍沿原 Dispatch/key 处理，不能换 key 绕过。
 
 Resume 后无需恢复旧 cursor。
 
@@ -369,6 +380,8 @@ SchedulerDispatch.status = pending
 ```
 
 也预占一个 concurrency slot。
+
+确认关联后原子转为 launched，额度从 pending 预占转按 Execution 状态计算，不能双计；waiting 仍占 Agent 全局 slot，和本节 Scheduler 额度分别判断。
 
 ### 10.2 Task active Execution 判断与并发不同
 
@@ -515,7 +528,7 @@ in_review -> todo
 
 Scheduler 不运行独立事件消费者。
 
-Pending Dispatch recovery 仍发生在 Task traversal 中。
+Pending Dispatch recovery 仍发生在原串行 traversal/recovery/pacing 中，包括 Task 已离开正常 group 或变为 done/cancelled 的旧 pending，不另建服务或 timer worker。
 
 当 Scheduler 访问一个 Task，发现存在：
 
@@ -525,9 +538,10 @@ pending SchedulerDispatch
 
 优先处理该 Dispatch：
 
-- retry 尚未到时间：skip；
-- retry 已到时间：继续同一 Dispatch launch；
-- retry 已耗尽：Dispatch -> failed，并把 Task 转 blocked。
+- 未到相应处理时机：skip 并保持正常 pacing；
+- 已确认暂时 Launch 失败且允许重试：按有限 retry/backoff 处理原 Dispatch/key，并重验当前合法性；
+- Launch 结果未知：只读查询原 key 的 Executor 持久事实，无法确认就保留 pending/待确认；查询失败或暂未找到不能解除防重复保护；
+- 只有已确认 Launch 失败才走最终失败事务，并检查当前 Task 是否仍允许 mutation；unknown 不因 retry 耗尽被改为 failed/blocked。
 
 绝不能在存在 pending Dispatch 时再创建第二个 Dispatch。
 
@@ -541,7 +555,7 @@ Central restart 后：
 2. 重新读取每个 Project 的 Current Sprint；
 3. 从 `todo` group 开始新 traversal；
 4. Task reconciliation 使用最新数据库状态；
-5. pending Dispatch 通过 idempotent launch 恢复；
+5. pending Dispatch 按已知暂时失败与 unknown 分流；unknown 用原 key 只读核对，不以 launch 冒充查询；
 6. SchedulerTaskRuntime 继续保存 relaunch skip progress。
 
 因此重启可能使某些 Task 比原计划更早再次被访问，但不会导致重复 Launch 或破坏 cooldown 语义。
@@ -575,6 +589,8 @@ SystemSchedulerDefaults
 ```
 
 具体默认秒数 / retry 次数可以作为部署配置，不需要写死在架构 contract 中。
+
+这些有限次数只控制已确认暂时 Launch 失败，不为 unknown 核对设置耗尽即失败规则；查询端口与节奏在 D01/D22/D23 固定，继续复用本 Loop。
 
 ## 15. Observability
 

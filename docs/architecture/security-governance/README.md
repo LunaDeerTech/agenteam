@@ -32,8 +32,8 @@ flowchart LR
     ApprovalPolicy -->|"需要用户审批"| Human["Human Inbox / 用户审批"]
     Human -->|"批准"| Execute
 
-    Execute --> Audit["Audit"]
-    UserBackend --> Audit
+    Execute -->|"敏感操作摘要"| Audit["Audit"]
+    UserBackend -->|"关键配置/敏感操作"| Audit
 ~~~
 
 这里有两条不同的权限路径：
@@ -42,6 +42,8 @@ flowchart LR
 - Agent 通过 Agent Capability 获得长期能力，再由单次 Agent Execution 的 Execution Policy 进一步收紧。
 
 两条路径最终都必须经过服务端 Authorization。
+
+所有正式 ToolOperation/Attempt 与 Canonical Transcript 仍保留运行事实；是否额外追加敏感 Audit 摘要是独立规则，不因普通低风险调用不写 Audit 而丢失正式工具记录。
 
 ### 1.1 基本原则
 
@@ -518,7 +520,7 @@ Approval 仍然不能绕过：
 flowchart TD
     NeedHuman["Approval Policy<br/>需要用户审批"]
 
-    Request["创建 Approval Request"]
+    Request["持久化 Approval Request<br/>持续等待明确处理"]
     Inbox["Human Inbox"]
     Decision{"用户处理"}
 
@@ -581,6 +583,10 @@ Approval Request 至少需要能够关联：
 
 Human Inbox 是 pending Approval Request 的统一聚合和直接处理入口。
 
+人工审批不设置自动过期或统一等待期限。未处理时持续显示“等待人工审批”，不能因时间自动失败、跳过、放行或绕过待审操作继续；只有有权用户明确批准/拒绝后按决议处理。刷新、用户离线、Session 过期或 Central 正常重启不把等待改成完成/失败，也不能丢失待办。
+
+等待是持久化状态及 waiting reference，不要求线程/数据库事务持续阻塞。合法 checkpoint 恢复后仍等待并占用既定执行槽；工具执行期限和模型/网络请求 timeout 不消耗或终结人工等待。用户主动停止及 Project 归档/删除等显式生命周期动作按取消规则处理，不属于审批到期；真实损坏/不可安全恢复按 recovery failure 报告。
+
 ApprovalRequest.status 仍由 Security / Governance 作为 Source of Truth 维护；Human Inbox 不复制 approval pending / approved / rejected 等业务状态。Human Inbox 只维护自己的 projection lifecycle（例如 open / resolved / dismissed），其中 Approval 属于必须处理型 Item，不允许 dismiss。
 
 平台应提供可复用的 Approval Request 交互组件 / Action Contract，使以下入口共享同一套 approve / reject 行为：
@@ -626,6 +632,8 @@ COMMIT
 ```
 
 ApprovalResolvedEvent 的 payload 必须能够表达最终 resolution outcome，但 Human Inbox 只使用它把对应 approval.resolve Item 从 open 投影为 resolved；Approval 的授权语义仍只由 Security / Governance 解释。
+
+并发批准/拒绝只提交一个决议。审批与取消、归档/删除或来源失效竞争时，由 D01/D19/D22/D25 明确状态/锁/幂等及事件契约；不把取消写成已拒绝或自动到期，也不让迟到批准、重复事件、迟到审批模型结果或重启复活终态。恢复须核对真实决议及 waiting_reference，继续同一次 Operation 并只注入一次结果。
 
 ### 5.4 Approval Scope
 
@@ -757,7 +765,7 @@ Secret value 不应出现在：
 
 Runner / Tool backend 对已知 Secret value 应执行日志 masking，但 masking 只降低意外泄漏风险，不替代 Agent Secret 白名单这一权限边界。
 
-Project-scoped MCP 等后端配置可以通过 credential reference 引用 Project Secret Variable；这类 backend binding 不等于把该 Secret 加入 Agent 的环境变量白名单。
+Project MCP Connection 的 Credential Binding 可引用 Project Secret Variable；MCP Config 只保存连接/认证 profile，不持有项目凭据。这类 backend binding 不等于把该 Secret 加入 Agent 的环境变量白名单。
 
 Runner 自己的 Device Private Key 只保存在 Runner 本地，不属于 Project Environment Variables。
 
@@ -775,8 +783,10 @@ Audit 与 Task Event、Meeting Timeline、Agent Execution Log 保持分离。
 
 - Audit 不自动过期；
 - 不提供 Project 级 retention 配置；
-- Project soft delete 后 Audit 保留；
-- Project permanent purge 时删除对应 Project Audit；
+- Project 归档后保留数据和 Project-scoped Audit，只读且可恢复；
+- Project 永久删除确认停止后按正式清理边界删除对应 Project-scoped Audit，不提供软删除后另行 purge 的恢复流程；
+- 系统级 Audit 不自动随项目删除，不保留项目 Audit 副本绕过清理，也不将项目删除扩大为全平台日志抹除；
+- Audit 聚焦关键配置、审批、Secret、Runner 身份、授权拒绝及高风险/结果未知的敏感操作；普通低风险调用不额外复制 Audit 摘要，正式工具记录仍保存；
 - Audit 只保存结构化安全 metadata 和关联 ID；
 - 完整 Tool arguments、command、stdout / stderr、Tool Result、Model Prompt / Response 不复制进 Audit；
 - Secret plaintext 永远不能进入 Audit；

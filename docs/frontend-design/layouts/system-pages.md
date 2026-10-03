@@ -19,9 +19,11 @@ Inbox：页面标题 / 项目与状态筛选
 
 首页只显示“首页”标题及待设计的 Dashboard 容器，不生成假数据、统计卡片或活动列表。
 
-项目页采用表格式列表，每行包含项目名称、描述和进入入口。名称也可点击进入；描述过长截断。Owner 为当前用户，列表不提供成员栏。项目名称与描述采用 Project 对应字段，具体 canonical 命名由后续 Project 契约补齐。
+项目页采用表格式列表，每行包含项目名称、描述、生命周期反馈和进入入口。名称也可点击进入；描述过长截断。Owner 为当前用户，列表不提供成员栏。已归档项目可识别并进入只读工作台；正在归档/删除或失败不混成已经完成，生命周期操作位于项目设置。
 
 页面顶部提供新建项目；弹窗填写名称和描述，提交成功进入新项目首页。名称必填，描述可空；不在此引入标签、日期或成员配置。Owner 由服务端绑定当前用户，不允许表单选择。
+
+同一 Owner 下项目名不区分大小写唯一，允许英文字母、数字、连字符、下划线和点，非法路径组合仍由服务端拒绝；描述可使用中文。主页使用小写 `/{username}/{project_name}`。归档及处理中项目继续占名，永久清理完成后才释放；名称冲突保留输入，不以重试创建绕过。
 
 ## 3. Inbox 栏目与行为
 
@@ -31,9 +33,11 @@ Inbox：页面标题 / 项目与状态筛选
 
 Approval 等直接动作复用统一来源领域操作；proposed Meeting、Decision 等导航动作打开对应项目的来源页面，重新进入该项目双导航。只有 `open` 且 `dismissible = true` 的事项显示忽略入口，必须处理型事项不能忽略。处理结果由 Source Domain 保存并更新 Inbox 投影，不由前端自行标记源对象已完成。
 
+人工审批持续等待明确处理，不因关闭页面、Session 失效、重启或等待时长自动到期；不提供自动消失或“忽略”路径。显式停止/来源删除后的取消或失效由来源领域决定，不能在 Inbox 伪造批准、拒绝或到期结果。
+
 事项加载失败就地重试；没有 open 事项显示“暂无待处理事项”，历史筛选无结果显示筛选空状态。来源已失效或被删除时提示不可用并刷新投影；Realtime 断线后恢复订阅并重新查询权威列表。窄屏列表改为堆叠行，筛选和操作允许换行。
 
-全项目聚合查询需在现有 Project-scoped Inbox 查询基础上补齐当前用户聚合 read model；服务端逐项目校验 Owner，系统管理员不能看到其他用户待办。
+本人全部项目聚合是既定范围，具体查询、游标和订阅接口由责任规格落实；服务端逐项目校验 Owner，系统管理员不能看到其他用户待办。
 
 ## 4. 默认选择与导航
 
@@ -49,4 +53,4 @@ Approval 等直接动作复用统一来源领域操作；proposed Meeting、Deci
 
 ## 7. 相关架构
 
-[项目与工作管理](../../architecture/project-work-management/README.md)、[安全与治理的 Project Owner](../../architecture/security-governance/README.md)、[Human Inbox](../../architecture/platform-infrastructure/human-inbox.md)。Project 表单与查询、Inbox 全项目聚合查询的缺失契约见[架构衔接](../architecture-follow-ups.md)。
+[项目与工作管理](../../architecture/project-work-management/README.md)、[安全与治理的 Project Owner](../../architecture/security-governance/README.md)、[Human Inbox](../../architecture/platform-infrastructure/human-inbox.md)。已定方向及查询/并发/订阅的工程落实见[架构衔接](../architecture-follow-ups.md)。

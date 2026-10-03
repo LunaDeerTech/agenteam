@@ -42,15 +42,21 @@
 
 点击搜索打开，输入框自动获得焦点；关闭按钮、Escape 或点击遮罩关闭并恢复触发按钮焦点。结果对象范围、跨项目规则、分组、排序和检索接口待搜索专题，不提前承诺检索会议正文等能力。
 
+全局搜索另立产品设计工作项；当前容器不显示虚构结果或冒充已可用搜索。知识库标题定位等已定页面内查找不受此范围限制。
+
 ## 4. 默认选择、导航与滚动
 
 登录后普通入口进入系统首页。显式对象链接通过身份和 Owner 校验后打开目标；未登录时先登录，再返回合法目标。无权限或不存在时显示可返回的错误页，不回退到另一个项目。
+
+项目主页为 `/{username}/{project_name}`，标准路径使用小写；每次读取和操作仍由服务端校验当前 Owner，管理员不绕过。用户名或项目名改变后旧链接不保留别名或自动跳转；文字路径被复用也不能当成原对象身份。其他叶子路由由页面规格确定。
 
 顶部系统导航固定可见；项目导航紧随其下。内容容器占剩余视口，按页面定义独立滚动。切换系统模块退出项目上下文；返回项目时由对应入口规则决定选择。
 
 ## 5. 加载及异常
 
 身份未解析时不短暂展示管理员菜单。页面加载保持导航稳定，内容显示骨架；失败显示重试；Session 失效提示重新登录。权限检查失败停止展示目标内容。
+
+项目归档/删除处理中及失败显示实际反馈，不因请求已接受就移除项目或宣称停止完成。归档项目保留只读查看，受控恢复/永久删除入口见项目设置；登录失效本身不表示后台执行已经停止。
 
 共享控件区分 hover、focus、selected、disabled、loading 和 error，具体视觉参数见[控件与交互样式](../styles/components-and-interactions.md)。
 
@@ -60,4 +66,4 @@
 
 ## 7. 相关架构
 
-[安全与治理](../../architecture/security-governance/README.md)、[Human Inbox](../../architecture/platform-infrastructure/human-inbox.md)、[Realtime](../../architecture/platform-infrastructure/realtime.md)。Inbox 页面见[系统页面](system-pages.md)；认证新增约定见[账号入口](account-entry.md)，路由语义见各页面文档，本文不指定最终 URL 命名。
+[安全与治理](../../architecture/security-governance/README.md)、[Human Inbox](../../architecture/platform-infrastructure/human-inbox.md)、[Realtime](../../architecture/platform-infrastructure/realtime.md)。Inbox 页面见[系统页面](system-pages.md)，认证见[账号入口](account-entry.md)，已定项目路径见[Project 身份](../../architecture/project-work-management/README.md#21-project-身份与路径)；叶子路由不在本文冻结。

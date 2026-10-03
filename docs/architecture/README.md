@@ -128,7 +128,7 @@ Project Workspace 是项目级协作与执行的核心边界，当前主要包�
 
 - Tasks / Work Management：以 `Milestone -> Sprint -> Task` 为强制工作层级，提供统一 Tasks 页面及 Explore、Kanban 等不同视图，并通过 Scheduler 决定何时派发 Task；
 - Meeting：Human-in-the-loop 讨论、决策和执行授权；
-- Agent Management：项目 Agent 的配置、能力和运行环境；
+- Agent Management / Skills：项目 Agent 的配置、能力、运行环境，以及项目技能库和按 Agent 分配；
 - Knowledge & Memory：项目知识库与 Agent 独立 Memory。
 
 这些模块之间通过明确的业务接口、Tool 和事件协作，不应因为都属于 Project Workspace 就共享无边界的内部状态。
@@ -156,7 +156,7 @@ Platform Services 提供多个业务模块共同依赖的系统能力，例如�
 
 Agent Executor 是统一 Agent 启动与运行管理服务。Scheduler、Meeting 等业务模块通过 Agent Launch Request 调用它。
 
-每次启动创建一个 Agent Execution；Agent Executor 为其准备 AgentExecutionContext，随后 Agent Execution 内部运行 Agent Loop。Agent Loop 负责模型调用、Tool Calling、错误处理、上下文管理并产生最终结果。
+每次新的 Launch 创建一个 Agent Execution；同键同语义重放返回首次结果，不同语义拒绝。Agent Executor 为新执行准备 AgentExecutionContext，随后 Agent Execution 内部运行 Agent Loop。Agent Loop 负责语义推进、Tool Calling、错误处理与上下文管理；同一逻辑模型请求的自动 Provider 重试统一归 Model System。
 
 同一个 Agent 同一时刻最多一个非终态 Agent Execution；`created / preparing / running / waiting` 都占用该 Agent 的 execution slot。该全局约束由 Agent Executor 原子保证，用于避免 Task、Meeting 等不同 Trigger 并发读写同一个 Agent Workspace。
 
@@ -188,10 +188,12 @@ External Systems 包括模型 Provider、MCP Server、Git Repository 以及其�
 
 ## 5. 架构文档索引
 
+- [基础契约约定](./platform-infrastructure/foundation-contracts.md)
 - [项目与工作管理](./project-work-management/README.md)
 - [Scheduler](./scheduler/README.md)
 - [Meeting](./meeting/README.md)
 - [Agent 管理](./agent-management.md)
+- [Agent Skills](./agent-skills.md)
 - [Agent Executor](./agent-executor/README.md)
 - [Agent Loop](./agent-loop/README.md)
 - [统一工具系统](./tool-system/README.md)

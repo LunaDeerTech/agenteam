@@ -185,6 +185,8 @@ Agent Loop 不重新查询：
 
 这些内容全部以本次 Execution Snapshot 为准。
 
+新增技能只通过正式持久化 Skill binding 在下一模型输入确定点进入运行目录，不重读全部 Agent 配置或扩展本次 Tool Set。初始绑定与已应用变更共同参与投影和恢复；当前请求/Tool Batch 不被改写，waiting 不因分配自动恢复，terminal 不复活。版本与移除的当前授权校验见 [Agent Skills](../agent-skills.md)。
+
 运行过程中产生的：
 
 - Model output；
@@ -223,6 +225,8 @@ Immutable AgentExecutionContext
 Canonical Transcript
         +
 Current Compaction Snapshot
+        +
+Persisted Skill bindings applied at the next model input boundary
         ↓
 Model Context Projector
         ↓
@@ -330,7 +334,7 @@ Model System 负责：
 - finish reason；
 - usage；
 - Provider error；
-- Model Request progressive timeout / retry。
+- 同一 Agent 逻辑调用的 Model Request progressive timeout / retry，统一纳入 SDK/Adapter 的真实 attempts。
 
 Agent Loop 负责：
 
@@ -338,6 +342,8 @@ Agent Loop 负责：
 - 提供本轮 model-visible messages；
 - 消费统一 Model Response；
 - 根据 Response 决定 Tool Loop 或 completion。
+
+Loop 消费标准化流、结果与最终错误，不根据 retryable 再重试相同请求。不同 attempt 的 partial output 必须隔离，不盲拼回答、执行半截 Tool Call 或重放已发生/unknown 的工具副作用；取消阻止下一自动 attempt。模型自我修复的新 Turn、压缩后新输入与用户 retry/Scheduler relaunch 不属于这一请求重试，参数仍按责任规格落实。
 
 完整 Provider contract 见 [Chat Model Runtime](../platform-infrastructure/model-system/chat-model-runtime.md)。
 
@@ -410,7 +416,8 @@ model self-correction
 - Decision result；
 - watchdog notice；
 - resume notice；
-- recovery notice。
+- recovery notice；
+- 经 Executor 验证、持久化并在输入边界应用的新增 Skill binding。
 
 Approval / Decision 导致 Execution：
 
@@ -420,7 +427,7 @@ running -> waiting -> running
 
 Resume 必须先经过 Agent Executor 的 waiting_reference 校验与幂等处理。
 
-Agent Loop 只消费已经由 Agent Executor 确认可注入的 resolved control input。
+Agent Loop 只消费已经由 Agent Executor 确认可注入的 typed control input；Approval/Decision 必须 resolved，Skill binding 只更新资源目录，不充当 resume。
 
 完整 waiting / resume lifecycle 见 [Execution Lifecycle](../agent-executor/execution-lifecycle.md)。
 
@@ -506,6 +513,7 @@ Checkpoint 至少能恢复：
 - 当前 Compaction Snapshot；
 - 最近稳定 Tool Call / Tool Result 边界；
 - waiting / control state；
+- 初始 Skill 固定版本与已应用绑定变更位置；
 - 必要 Model / Tool correlation；
 - 下一步安全继续位置。
 

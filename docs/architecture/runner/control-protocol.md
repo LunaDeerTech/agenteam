@@ -291,7 +291,7 @@ environment 是 sensitive payload：
 
 ### deadline
 
-Central 可以给当前 request 指定 absolute deadline。
+Central 可按具体工具或内部传输契约给当前 request 指定 optional absolute deadline；这不是每个 ToolOperation 都具有的统一期限。
 
 Runner 使用 deadline 驱动本次执行 cancellation。
 
@@ -422,7 +422,9 @@ Runner 收到 request 后：
 
 Deadline 是当前 Attempt 的 transport/runtime bound。
 
-Tool Operation 的完整 timeout 语义仍由 Unified Tool Runtime 决定。
+工具 input schema 显式支持 timeout 时，Central 按正式适配契约将其映射到请求；不从任意同名参数或 Provider metadata 猜测，也不向全部工具强加外层 execution 参数。未指定时不补统一 Operation deadline，同 Operation retry 不能刷新已经开始的工具期限。
+
+网络/heartbeat/RPC 的内部可靠性 timeout 仍可存在，不能消耗或终结人工审批等待。工具自己的计时、取消和 unknown outcome 由 [Tool Execution](../tool-system/tool-execution.md#7-timeout) 与工具规格定义。
 
 ## 13. Cancel
 

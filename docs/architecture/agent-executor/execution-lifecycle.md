@@ -277,7 +277,7 @@ failed 表示 Agent Execution 无法可靠继续。
 
 失败必须附结构化 AgentExecutionError。
 
-上层 Task / Meeting 使用各自失败处理机制兜底。
+上层读取各自领域事实继续处理：Task 按当前状态与 Scheduler 规则判断，不从 Execution failed 推断 Task 业务失败；Meeting 按 Contribution/Turn 的既定规则处理。
 
 Agent Executor 不自动创建 replacement Execution。
 
@@ -358,6 +358,7 @@ Checkpoint 至少需要足以重建：
 -最近稳定 Tool Call / Tool Result 边界；
 - waiting state；
 - Context Compaction state；
+- 初始 Skill 固定绑定、已应用绑定变更位置及尚待输入边界处理的控制状态；
 -当前 Runtime Item Snapshot 关联；
 -必要的 Model / Tool correlation；
 -下一步可安全继续的位置。
@@ -367,6 +368,8 @@ Checkpoint 不应直接保存：
 - Secret value；
 -无法安全持久化的 Provider private runtime object；
 -正在执行且 outcome unknown 的非幂等副作用操作的“假完成”状态。
+
+Skill binding 与相应 Transcript/control 事实必须先可靠持久化，checkpoint 才能引用；恢复不重新取最新技能版本或整份 Agent 配置。新增绑定在下一模型输入确定点应用，不中断已发出的请求/Tool Batch，不解除 waiting 或复活终态。移除不额外编排运行，后续读取/准备及迟到新增的当前授权校验见 [Execution Context](./execution-context.md#101-运行中的-skill-binding)。
 
 ## 16. Checkpoint Stable Identity
 
@@ -523,7 +526,7 @@ error.category = recovery_failed / infrastructure_error
 
 之后：
 
-- Task 按 Scheduler / Task 自己的失败策略处理；
+- Task 由 Scheduler 读取当前持久化状态，按既定 claim/reconciliation/cooldown 继续处理，不从 Execution failure 推断业务失败或直接改状态；
 - Meeting 按 Meeting 自己的失败逻辑处理；
 -用户可以人工重新启动；
 -未来业务 Retry Policy 可以创建新的 Execution。
@@ -610,13 +613,15 @@ Approval / Decision waiting：
 
 这是明确的人机交互语义。
 
+刷新、用户离线、Session 过期或 Central 正常重启不丢失等待，也不自动跳过/放行。状态与 waiting_reference 持久化，合法恢复继续同一次 Operation 并保留 Agent slot；用户停止、Project 归档/删除或 Meeting 来源删除按显式取消/来源失效处理，不冒充审批到期。迟到 resolve、模型结果或新增技能都不能恢复已终态的执行；真实不可安全恢复仍按 recovery failure 报告。
+
 ## 25. 下层 Timeout 与 Execution 的关系
 
 不同层的 timeout 不统一映射成 Execution timeout。
 
 ### 25.1 Tool Operation
 
-Tool 是否支持 timeout、多久 timeout，由 Agent / Tool Contract 决定。
+命令等确有需要的 Tool 在自身 input schema 声明可选 timeout，由 Agent 按该 Tool Contract 决定是否填写。
 
 如果 Tool 支持：
 
@@ -624,7 +629,7 @@ Tool 是否支持 timeout、多久 timeout，由 Agent / Tool Contract 决定。
 timeout?
 ```
 
-可以作为 Tool 参数或调用 policy 暴露给 Agent。
+保留工具自身参数结构，不增加全工具通用 wrapper、保留字段或平台统一 Operation deadline；MCP 原生同名业务字段不被剥离/重解释。内部网络/RPC/SDK timeout 仍用于可靠性，不消费或终结人工等待。
 
 Tool timeout 的结果由 Agent Loop 继续处理。
 
@@ -633,6 +638,8 @@ Tool timeout 的结果由 Agent Loop 继续处理。
 ### 25.2 Model Adapter
 
 Model Request 使用渐进 timeout / retry。
+
+同一 Agent 逻辑调用的自动 Provider 请求 retry 由 Model System 统一拥有，Loop 不叠加第二层；每次真实请求独立计量，部分流按 attempt 隔离。语义新调用、compaction 和业务重新启动分别按各自规则处理。
 
 初始 timeout、增长策略、最大单次 timeout 由 Model System 详细设计。
 

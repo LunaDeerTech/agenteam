@@ -195,14 +195,14 @@ Timeline item 只保存：
 用户点击展开 Execution 行时：
 
 1. UI 通过 `execution_id` 打开平台统一 Agent Execution Runtime View；
-2. 加载当前 Runtime Item Snapshot；
-3. 如果 Execution 仍在运行，则订阅 RuntimeItemUpdate Stream；
+2. 非终态 Execution 先完成 RuntimeItemUpdate subscription acknowledgement 并缓冲更新，再加载 Runtime Item Snapshot；
+3. 按 Snapshot 实际已包含的 Execution 更新水位对齐缓冲，并覆盖订阅前已发送但未 flush 的间隙；只有完整终态 Snapshot 可直接只读；
 4. 展示结构化的 text / reasoning / tool / interaction / notice/error Runtime Item；
 5. 收起后停止消费 RuntimeItemUpdate Stream，只保留纯前端状态行。
 
 这样默认折叠状态完全不需要为了显示 Execution Row 额外请求 Agent Execution runtime data，也避免把 token delta、Tool logs 等复制到 Meeting 数据模型。
 
-Task / Review 的 Execution Detail、Meeting Timeline、独立 Execution Detail 使用同一个 Agent Execution Runtime View contract。Meeting 只负责决定“在哪个聊天位置展示这个 Execution”，不负责定义 Runtime Item schema 或 streaming protocol。
+Task / Review 的 Execution Detail、Meeting Timeline、独立 Execution Detail 使用同一个 [Agent Execution Runtime View contract](../agent-executor/runtime-view.md)。Meeting 只负责决定“在哪个聊天位置展示这个 Execution”，不负责定义 Runtime Item schema 或 streaming protocol。
 
 ## 8. Collapsed Execution Row
 
@@ -485,6 +485,8 @@ Agent A Contribution
 
 主 Timeline 仍只有一个 Agent A Contribution item。
 
+已完成历史 Contribution 的 current Message 成功替换后，Summary 显示待更新，等下一正常 Turn finalize 才重新生成；没有下一轮就继续待更新。失败或取消且未替换 current Message 不改变摘要输入。Timeline 不发起即时刷新、定时刷新或历史 Turn 再 finalize，也不把旧摘要显示为已覆盖新 generation。
+
 ## 14. Timeline Ordering
 
 Timeline 主要使用：
@@ -520,9 +522,9 @@ Parallel 模式：
 - Runtime 按 Contribution.`order_index` 发起 launch；
 - busy Agent 的 Contribution 在 `waiting_for_agent` 时立即形成 / 激活 placeholder；
 - idle Agent 的 Contribution 在 Agent Execution 真正启动后形成 / 激活 placeholder；
-- 所有并行 Contribution 使用同一个 Message visibility boundary。
+- 所有并行 Contribution 使用同一固定 references 集合、summary version 和有序 immutable Message/generation 输入。
 
-这不要求所有 parallel Agent 真正同时开始，只要求它们使用相同的 MeetingMessage 可见边界。
+这不要求所有 parallel Agent 真正同时开始，但只保存 Timeline 截止点不足以固定输入；具体规则由 [Meeting Context & Summary](./meeting-context-summary.md) 拥有，不复制全部引用资源正文。
 
 ## 16. Projection 架构
 
@@ -621,6 +623,8 @@ occurred_at
 
 Timeline Projector 保存 processed event 或使用 aggregate_version / projection version 防止重复应用。
 
+投影还须核对 Meeting、Contribution 与 Execution/generation 的当前关联和生命周期。旧 attempt 或已取消/删除来源的迟到事件不能重新打开交互卡片、恢复当前发言或重建已删除 Meeting。
+
 典型唯一约束：
 
 ```text
@@ -677,7 +681,7 @@ meeting.summary.updated
 
 Approval / Decision 的变化最终通过 Timeline item update 呈现。
 
-`RuntimeItemUpdate` 不属于默认 Meeting Timeline subscription。只有用户展开某个 Execution Row 时，前端才单独加载该 execution 的 Runtime Item Snapshot，并在仍运行时订阅 RuntimeItemUpdate Stream。
+`RuntimeItemUpdate` 不属于默认 Meeting Timeline subscription。只有用户展开某个 Execution Row 时，前端才按 Runtime View 的 subscribe-first、实际快照水位及间隙恢复规则加载该 Execution 详情；终态读取完整终态 Snapshot。
 
 Meeting Timeline Event 是 transient Realtime Event，不是 Domain Event；浏览器断线后仍以重新加载 Timeline Snapshot 恢复 authoritative view。
 
@@ -695,7 +699,7 @@ Agent Execution Runtime View
 -> RuntimeItemUpdate Stream
 ```
 
-只有用户展开某个 Agent Execution 时，前端才需要加载详细 Runtime View；如果 Execution 仍在运行，再持续消费 RuntimeItemUpdate Stream。
+只有用户展开某个 Agent Execution 时，前端才需要加载详细 Runtime View；非终态按统一 contract 先订阅、缓冲并与 Snapshot 对齐，再持续消费 RuntimeItemUpdate Stream。
 
 该能力与 Task / Review 页面查看 Agent 运行状态使用同一个后端接口和前端 Runtime Item renderer。
 
@@ -712,9 +716,9 @@ Meeting 不实现专属 sequence / cursor catch-up 协议。
 3. 直接根据 Timeline 中的 Contribution status / timestamps 恢复所有默认折叠行；
 4. 重新获取 pending Decision / Approval；
 5. 如果 Snapshot 加载期间收到 buffered Timeline Event，则把它们按 stable Timeline resource identity 合并为 invalidation，并刷新对应 authoritative Timeline read model，不能盲目用可能早于 Snapshot 的 payload 覆盖当前状态；
-6. 只有仍处于展开状态的 execution 才按 Agent Executor 的 subscribe-first + RuntimeItem.seq 规则重新连接 Runtime View stream。
+6. 只有仍处于展开状态的非终态 execution 才按 Agent Executor 的 subscribe-first 与每 Execution 独立更新进度重新连接 Runtime View stream；Snapshot 返回实际已包含的水位，并覆盖订阅前已发送但尚未 flush 的内容，缺口沿 Snapshot/resync 收敛。RuntimeItem.seq 只用于条目创建排序。
 
-这是明确的第一阶段策略。
+具体重复、乱序、缺口、重启代际及分页/筛选边界由 D01/D22/D25 定义，Meeting 不另建 delta 日志或 cursor 协议。这是明确的第一阶段策略。
 
 它优先：
 
@@ -755,6 +759,8 @@ Meeting Info
 ```
 
 Participants 提供参会名单与默认顺序管理；Summary 展示四字段摘要及更新状态。标题和 Summary 成功提交后通过已有权威 Meeting read model 刷新，不从局部模型输出拼接标题。
+
+摘要 read model 须区分实际已覆盖的输入与待更新状态。历史回复替换后仍可展示旧摘要，但不得冒称覆盖新消息；下一正常 Turn finalize 提交后再反映新覆盖，精确投影由 D24/D25 固定。
 
 References 来自 `MeetingReference`，支持直接 Pin / Unpin / reorder / open，也可以从 Message inline resource chip 执行 **Pin to References**。
 
@@ -802,18 +808,18 @@ Project Owner 校验通过后，可以访问该 Meeting 的 Timeline、DecisionR
 
 Approval 的业务状态和处理流程仍由 Security / Governance 管理，但 Project 内不存在额外的人类审批角色。
 
-Execution Runtime View 仍然需要遵守平台统一的数据脱敏 / Secret masking / private reasoning 不暴露规则；这些属于数据暴露规则，不是 Meeting 的额外权限层。
+Execution Runtime View 仍然需要遵守平台统一的数据脱敏 / Secret masking / private reasoning 不暴露规则：只显示 Adapter 明确允许公开的 reasoning 内容或摘要；没有可展示内容时仅显示状态/耗时，不伪造。Tool 详情按需加载，摘要和详情都经授权与过滤。这些属于数据暴露规则，不是 Meeting 的额外权限层。
 
 ## 28. Hard Delete
 
-Meeting hard delete 后：
+Meeting Domain 先按正式生命周期端口停止本会议尚未完成的 Execution、waiting 与 finalizing 活动，确认后清理本域；Timeline 删除不能替代该门禁。Meeting hard delete 后：
 
 - Meeting Timeline read model 一并删除；
 - active realtime subscription 收到 resource deleted / access lost；
 - UI 返回 Meeting 列表；
-- Agent Execution / Audit / Governance 等外部记录按各自 retention 规则存在。
+- Agent Execution / Audit / Governance 等外部记录按各自归属保留。
 
-Timeline 不承担跨模块清理职责。
+Timeline 不承担跨模块清理职责，也不停止无关 Task。迟到事件/摘要或 projection rebuild 不得复活已删除 Meeting；权限丢失或删除通知漏收时，后续 API / reconnect 仍返回权威的不可访问结果。
 
 ## 29. Timeline 与 Audit
 
@@ -884,5 +890,7 @@ Rebuild 来源：
 - Governance Approval references。
 
 Rebuild 主要恢复当前 UI view。
+
+Rebuild 必须以仍有效的 Meeting 本域事实为前提，不能仅凭外域保留的 Execution / Approval 历史重建已删除 Meeting。
 
 完整 Execution streaming history 不复制到 Timeline；展开时仍从 Agent Execution 获取。

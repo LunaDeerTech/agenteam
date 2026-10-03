@@ -25,6 +25,8 @@ Runner 负责把远端设备能力提供给 Agent，包括：
 
 Runner 不运行完整的 agenteam 协作逻辑，也不维护一套独立的业务权限系统。
 
+首期正式支持 Linux 和 macOS 的身份/通信、Workspace、文件、命令及进程能力，Windows 延后。shell 模式默认 Bash，argv 模式仍直接执行 program + args；实际解释器/版本须探测上报，不假设两平台宿主工具一致。CPU 架构、最低系统版本、库与系统调用适配由 D15/D16/D28 固定，并分别做真实平台验证，交叉编译不等于运行验收。
+
 ## 2. 总体架构
 
 Runner 通过 Agent Mount 为 Agent 提供设备上的 workspace 与执行能力。
@@ -220,6 +222,8 @@ Data Channel
 
 Object Storage 是另一条独立的数据路径。Agent 通过 Artifact / Object Storage 能力把对象传入或传出 Runner 时，由 Control Channel 协商 metadata，然后 Runner 直接与 Object Storage 进行数据传输。
 
+Skill 固定 revision 的包准备也走此对象直传路径；Central 校验技能与 Mount 授权，Runner 在当前 Agent Workspace 按需校验并落地，模型只得到业务身份和相对路径。多 Runner 分别准备，不要求全部文件流量经 Central，见 [Agent Skills](../agent-skills.md)。
+
 协议设计见：
 
 - [Control Protocol 详细设计](./control-protocol.md)
@@ -247,9 +251,9 @@ Secret 由 Central 在具体 operation 执行前解析，并通过当前 RPC 的
 
 Desktop / Browser / Computer Use 能力直接实现在同一个 Runner 工程中，不拆成独立 Runner 插件。
 
-是否可用由设备实际环境决定。
+首期桌面适配范围为 macOS 原生桌面、Linux X11 和 Linux Wayland，覆盖截图与鼠标/键盘输入。各后端初始化及 OS 权限校验成功后才上报细分 capability；不能仅凭 headless=false、X11 或少数 XWayland 窗口测试就宣称完整桌面能力可用。具体系统/桌面矩阵与真实验收由 D17 固定，不扩展 headless browser-use。
 
-Tunnel 作为第一阶段正式 Capability，用于把 Runner 本地服务临时暴露给用户或其他调用方。
+Tunnel 作为第一阶段正式 Capability，通过 Runner 主动反向通道把本地服务代理到 Central 管理的临时地址；访问复用平台登录 Session，仅当前 Project Owner 可用。地址不是授权凭据，不开放访客分享，系统管理员身份不绕过 Owner。
 
 完整设计见 [Desktop & Tunnel 详细设计](./desktop-tunnel.md)。
 

@@ -4,6 +4,8 @@
 
 审计结论：现有交付为前端组件基础、工程与文档，全部业务模块仍仅有设计。全部 77 个架构 Markdown 已逐文件阅读，覆盖 12 个一级专题；下文给出每文件范围与归属。发现的冲突和未决项需在 D01 或对应模块开工前关闭；本报告不替架构作决定。D00-01 后已通过 D00-02 只读验收与主线程独立审查，完成状态和本地提交定位见任务卡与台账。
 
+后续处置：P01–P25、C01–C08 已经 AT-0005 逐项决定或按既有规则核对，当前进入[正式文档归位](d00-decision-sync.md)。§1–6 保留审计时的发现、行数与验证证据，不能再把其中“待定/冲突”直接视为当前未回答问题；最终方向见[决策记录](d00-audit-decisions.md)，归位与工程责任见文末处置映射。D01 和产品模块仍未验收。
+
 ## 1. 实现清单
 
 Git：实际分支 main，HEAD 80a9d31；五条历史为 80a9d31、b4a92fe、fe5b833、446f4c8、7b29850。开发计划 fe5b833 为规划基线，当前任务卡 80a9d31 为执行基线，属于时间差而非设计冲突。开始及结束前已有台账修改、work-items 未跟踪文件，保留主线程改动。
@@ -49,7 +51,7 @@ Git：实际分支 main，HEAD 80a9d31；五条历史为 80a9d31、b4a92fe、fe5
 | P21 | Summary 幂等键 meeting_id + summarized_through_message_id 与早期 Contribution regenerate 的关联：末条 ID 未变但当前内容变时，须证明旧结果不会被错误 replay 或补充输入 revision 契约 | D01/D24；风险待证明，不宣称确定产品 bug；首轮标题+四字段 summary 原子提交 |
 | P22 | Runtime snapshot/update watermark/revision、本人跨项目 Inbox 分页/授权订阅、系统运行信息 read model、reasoning/敏感 payload 展示 | D01/D25；见 C02；Realtime best effort 不能承载正确性 |
 | P23 | typed API client/URL/Session/theme persistence、真实页面和错误/loading/无权限/删除/冲突、Meeting inline editor adapter | D26/D27；不把 Debug fixture 接入生产 |
-| P24 | 嵌入资源/History fallback/Compose/startup/shutdown/migration/PG与MinIO一致恢复和真实组合验收 | D28；API/缺失资源不 fallback HTML；完整 backup tooling 未定范围 |
+| P24 | 嵌入资源/History fallback/Compose/startup/shutdown/migration 和真实组合验收 | D28；API/缺失资源不 fallback HTML |
 | P25 | Dashboard 仅容器、全局搜索只有浮层；搜索对象/权限/API 未定 | D27 保留边界，另立设计工作项后方可实现搜索业务 |
 
 已明确不做：Redis、多 Central、微服务、公开注册、项目成员权限矩阵、跨项目检索、Runner OS sandbox、MCP stdio/旧 SSE/Prompts/Elicitation/Tasks、Execution 总时长或 max-turns 强制终止、通用 steering queue、事件历史 Replay/Event Store、自动 Memory retain、Artifact 自动解析/共享对象 refcount、自动 Runner升级、durable RPC journal、断线续传、永久/raw TCP Tunnel。可选 Provider、SMTP、Runner/Desktop、reranker/image selector 缺省与调用失败分别处理；PostgreSQL/pgvector/MinIO 为 mandatory，不能降级为可选。
@@ -231,3 +233,43 @@ git diff --check
 本次结果：上述 80 文件相对目标检查通过；新增报告 trailing whitespace 无；git diff --check 通过（新增未跟踪报告另行检查）。这些只验证文档，不验证产品行为。
 
 未执行：Go/frontend产品测试、构建、浏览器、数据库/对象读写、并发/重启恢复及外部 Provider/MCP/Runner调用。原因：纯文档 D00 授权且产品模块尚不存在，不做无关测试、不接触未指定服务。D00-02 只读验收通过；主线程独立核对完整报告、77/77 覆盖与行数、源码和锁定版本及重要冲突原文，已集成台账，随本项创建本地提交（通过文件 Git 历史定位）。本轮止于 D00，不启动 D01。当前无阻止报告交付的决策阻塞；上述待定/冲突构成后续开工或验收门槛。
+
+## 7. AT-0005 决策处置映射
+
+下表为审计后的处置，不改变 §1–6 的历史证据。正式正文已归位并通过独立文档验收，完成状态与实际检查记录见[同步任务卡](d00-decision-sync.md)。表中“责任”是具体规格、真实绑定和验收的后续工作项，不表示模块已经实现。
+
+| 项 | 已确认方向与正式归属 | 后续责任 |
+| --- | --- | --- |
+| P01 | [基础契约](../../architecture/platform-infrastructure/foundation-contracts.md)：UUIDv7、UTC/微秒、Problem Details、cursor、expected_version、追踪/幂等分离、按职责契约包、事务/事件/生命周期端口 | D01 具体类型/签名/矩阵；各领域绑定 |
+| P02 | [仓库结构](../repository-structure.md)、[部署运行](../../architecture/platform-infrastructure/deployment-runtime.md)：net/http、pgx 显式 SQL、Goose、标准加密库优先、隔离测试容器；环境版本仅候选 | D02–D05/D28 固定版本及真实验证 |
+| P03 | [出站策略](../../architecture/platform-infrastructure/outbound-network-policy.md)、[项目变量/Secret](../../architecture/project-work-management/project-environment-variables.md)、[Audit](../../architecture/security-governance/audit.md)：环境主密钥、DB 迁移元数据、管理员网段/端口/HTTP 配置、敏感行为审计 | D01/D04/D07/D26/D27 |
+| P04 | [认证](../../architecture/platform-infrastructure/authentication/README.md)：Argon2id、可配置期限、内嵌 GoCaptcha、统一密码恢复、头像当前版本、SMTP 三模式/有限重试 | D05/D07/D25/D26/D27 |
+| P05 | [项目](../../architecture/project-work-management/README.md)：Owner 内名称唯一、用户名路径、归档可恢复/删除永久、自动停止后完成生命周期动作 | D01/D07/D08 及各资源清理端口、D26–D28 |
+| P06 | [模型](../../architecture/platform-infrastructure/model-system/README.md)、[用量](../../architecture/platform-infrastructure/model-token-usage.md)：明确非 chat profiles、会议辅助调用独立分类、不重复计量 | D01/D09/D13/D14/D21/D24/D27 |
+| P07 | [Agent](../../architecture/agent-management.md)、[Skills](../../architecture/agent-skills.md)：推荐模板、项目唯一标识名、项目技能库/按 Agent 分配、统一安装、下一轮新增绑定、移除不编排执行 | D01/D05/D08/D10/D17–D22/D27/D28 |
+| P08 | [Task](../../architecture/project-work-management/task-domain-model.md)：后台 rank 重整不改业务版本，真实排序操作推进版本，Busy 补偿保留并发编辑 | D01/D11/D22/D23 |
+| P09 | [Knowledge 文档](../../architecture/knowledge-memory/knowledge-document-domain.md)：仅当前目录关系、无结构历史/结构版本、移动不增内容版本或重建索引、按需目录/标题定位 | D01/D12/D27 |
+| P10 | [检索](../../architecture/knowledge-memory/retrieval-runtime.md)：管理员统一默认值/上限、无项目覆盖，词法选型先评测、RRF/IndexProfile 既定边界 | D09/D13/D14/D26/D27 |
+| P11 | [Memory Runtime](../../architecture/knowledge-memory/agent-memory-runtime.md)：已知未提交冲突重读重算一次，未知提交沿同幂等键查询，不自动 TTL | D01/D14 |
+| P12 | [Runner](../../architecture/runner/README.md)、[执行](../../architecture/runner/execution-runtime.md)：Linux/macOS、默认 Bash，argv 直接执行 | D15/D16/D28 |
+| P13 | [数据通道](../../architecture/runner/data-channel.md)、[Desktop/Tunnel](../../architecture/runner/desktop-tunnel.md)：Runner 直连受控对象存储、Central 反向代理、Owner Session、macOS/X11/Wayland | D05/D07/D15/D17/D25/D28 |
+| P14 | [Tool Runtime](../../architecture/tool-system/tool-runtime.md)、[Tool Execution](../../architecture/tool-system/tool-execution.md)：工具按需可选超时、无平台统一强制期限、人工等待不自动过期 | D01/D18/D19/D21/D22 |
+| P15 | [治理](../../architecture/security-governance/README.md)：沿用逐调用授权/ScopeResolver/审批恢复，自动审批请求 timeout 与人工持久等待分开 | D01/D19/D22/D25 |
+| P16 | [MCP](../../architecture/mcp-integration/README.md)：Config/Connection 分离、项目凭据与发现、显式连接、版本/协议 conformance 尚待验证 | D01/D10/D20 |
+| P17 | [工具目录](../../architecture/tool-system/README.md)：实际 backend、正式 schema/risk/scope/幂等，新增 Skills 工具，Core 仍授权 | D18–D21/D24 |
+| P18 | [Executor](../../architecture/agent-executor/README.md)、[Loop](../../architecture/agent-loop/README.md)：全局 Agent slot、固定 startup snapshot、可靠 transcript/checkpoint，来源与模型重试见 C03/C04 | D01/D22 |
+| P19 | [Dispatch](../../architecture/scheduler/scheduler-dispatch.md)：未知 Launch 继续现有流程按同 Dispatch/key 核对，不做耗尽即失败或专门恢复系统 | D01/D23 与 D22 查询端口 |
+| P20 | [Meeting Turn](../../architecture/meeting/meeting-turn-runtime.md)、[领域模型](../../architecture/meeting/meeting-domain-model.md)：固定同轮上下文边界、摘要失败仍 finalizing、删除先停止本会议活动 | D01/D22/D24/D25 |
+| P21 | [Meeting Summary](../../architecture/meeting/meeting-context-summary.md)：真实输入版本参与幂等；历史回复替换后等下一正常 Turn finalize 更新摘要 | D01/D09/D24/D27 |
+| P22 | [Runtime View](../../architecture/agent-executor/runtime-view.md)、[Realtime](../../architecture/platform-infrastructure/realtime.md)、[Inbox](../../architecture/platform-infrastructure/human-inbox.md)：安全展示/本人聚合/来源恢复，更新边界见 C02 | D01/D22/D25/D27 |
+| P23 | [前端设计](../../frontend-design/README.md)：账号主题持久化、typed 客户端、真实错误/权限/冲突、Meeting inline 适配 | D07/D24/D26/D27 |
+| P24 | [部署运行](../../architecture/platform-infrastructure/deployment-runtime.md)：按用户缩减后的部署范围与实际组合验收，保留启停/迁移/静态资源边界 | D02/D03/D28 |
+| P25 | [开发计划](../development-plan.md)：Dashboard 仅容器；全局搜索仍另立产品设计工作项，不伪造已确定业务 | D27 范围门槛 |
+| C01 | [Scheduler](../../architecture/scheduler/README.md)、[Executor](../../architecture/agent-executor/README.md)：读取现有 assignee，Execution 终态不解释 Task 结果 | D01/D11/D22/D23 |
+| C02 | [Runtime View](../../architecture/agent-executor/runtime-view.md)、[Realtime](../../architecture/platform-infrastructure/realtime.md)：Execution 更新进度与 item seq 分离，快照实际水位覆盖节流间隙 | D01/D22/D25；D24/D26/D27 消费 |
+| C03 | [Execution Context](../../architecture/agent-executor/execution-context.md)：Meeting reference 四项身份，Meeting 校验、Executor 通用端口 | D01/D22/D24 |
+| C04 | [Chat Runtime](../../architecture/platform-infrastructure/model-system/chat-model-runtime.md)、[Loop](../../architecture/agent-loop/loop-runtime.md)、[Usage](../../architecture/platform-infrastructure/model-token-usage.md)：Model System 唯一自动请求重试层，逐 attempt 计量 | D01/D09/D22 |
+| C05 | [项目变量](../../architecture/project-work-management/project-environment-variables.md)、[MCP Lifecycle](../../architecture/mcp-integration/mcp-server-config-lifecycle.md)：凭据绑定属于 Project Connection | D01/D10/D20 |
+| C06 | [衔接清单](../../frontend-design/architecture-follow-ups.md)、[样式](../../frontend-design/styles/README.md)：使用已确认基线与 tokens，无新样式选择 | D01/D26/D27 |
+| C07 | [Tool Runtime](../../architecture/tool-system/tool-runtime.md)、[Tool Execution](../../architecture/tool-system/tool-execution.md)：Attempt 为关联 Operation 的独立持久化实体 | D01/D18 |
+| C08 | [领域事件](../../architecture/platform-infrastructure/internal-domain-events.md)、[Audit](../../architecture/security-governance/audit.md)、[Dispatch](../../architecture/scheduler/scheduler-dispatch.md)：首期无自动过期/清理，保留显式领域删除 | D01/D04/D06/D08/D23 |

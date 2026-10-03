@@ -98,7 +98,7 @@ Dispatch retry 不重新解析 Task 当前 assignee。
 
 > 同一个 Dispatch 表示同一次 Launch 意图。
 
-如果业务后来修改了 assignee，应让当前 Dispatch先完成 / 失败，后续新的 reconciliation 创建新的 Dispatch。
+如果业务后来修改 assignee，不能改写原 Dispatch 的语义输入；先沿原关联核对结果，再按当前 Task 事实处理。结果未知可持续 pending，不能为了换人/换 key 强行宣告失败；重试或 Task mutation 前仍须校验当前合法性。
 
 ### 3.3 sprint_id
 
@@ -117,7 +117,9 @@ Sprint 后续切换不会重写历史 Dispatch。
 
 仅 `todo` claim 创建的 Dispatch 保存该字段，用于记录 claim 前 Task 在 todo group 中的 `manual_rank`。
 
-它只服务于极少数 `AgentBusy` 竞态补偿：如果 Launch 最终明确没有创建 Execution，Scheduler 将 Task 从 `in_progress` 恢复到 `todo` 时恢复该 rank，避免技术竞态改变用户排序。
+它是极少数 `AgentBusy` 竞态补偿的位置证据，不是可无条件写回的数值。补偿须确认 Task 仍属于原 claim、当前事实/version 合法，再恢复原 todo 逻辑位置；若 group 已 rebalance，直接使用旧 rank 可能改变顺序或破坏唯一性。
+
+D11/D23 明确 claim 关联/版本、排序维护互斥或位置映射，保证不覆盖用户后续状态/assignee/排序变化。纯 rebalance 不推进业务 version，因此不能只凭 version 未变就断定旧 rank 仍可用；具体字段与事务不在此冻结。
 
 普通 `in_progress / in_review` relaunch 不设置该字段。
 
@@ -158,13 +160,15 @@ pending
 
 表示：
 
-- Scheduler 已经过有限 Launch retry；
-- 仍无法可靠完成该 Launch；
+- Launch 已明确失败，没有未知的已创建 Execution 待核对；
+- 适用的有限 Launch retry 已结束，或错误明确不可重试；
 - Scheduler 放弃本次 Dispatch。
 
 failed 后不再复用该 Dispatch。
 
 如果 Task 后续重新可执行，需要新的 Dispatch。
+
+unknown 不进入该状态，不因 retry 次数耗尽直接 failed 或把 Task blocked。
 
 ### 4.4 skipped
 
@@ -216,19 +220,19 @@ idempotency_key = scheduler_dispatch:{dispatch_id}
 ```text
 same idempotency_scope
 same idempotency_key
+same normalized semantic input
 ```
 
 因此：
 
 ```text
-launch request sent
-response lost
-retry same dispatch
+known temporary Launch failure
+eligible retry of the same Dispatch/key/input
         ↓
-Agent Executor returns same execution_id
+Executor resolves idempotency before acquiring a new slot
 ```
 
-Scheduler 不需要自己实现“先查再创建”的分布式协议。
+同键同语义返回首次 Execution，不同语义被拒绝。若请求已发送而 response 丢失，使用 Executor 按原 Launch key 的只读结果查询；launch 可能创建 Execution，不能当成查询。此端口由 D01/D22/D23 固定，复用既有串行恢复路径，不新增通用恢复平台。
 
 ## 7. Agent Launch Request
 
@@ -401,20 +405,23 @@ Scheduler 只需要可靠拿到 execution_id，不等待 Execution 进入 prepar
 ```text
 lock Task + Dispatch
 Dispatch: pending -> skipped(agent_busy)
-Task: in_progress -> todo
-Task.manual_rank = Dispatch.claim_source_manual_rank
-Task.version += 1
-TaskEvent(state_changed, reason_code = scheduler_agent_busy_compensation)
+if Task still belongs to this claim and current facts/version allow compensation:
+  Task: in_progress -> todo
+  restore original logical position under the current rank-maintenance contract
+  Task.version += 1
+  TaskEvent(state_changed, reason_code = scheduler_agent_busy_compensation)
+else:
+  preserve current Task facts; do not overwrite user changes
 commit
 ```
 
-这不是正常业务 transition，也不暴露给 `transfer-task`。恢复原 todo rank，避免一次纯技术竞态改变用户队列顺序。
+这不是正常业务 transition，也不暴露给 `transfer-task`。恢复原 todo 逻辑位置，不机械写回失效 `claim_source_manual_rank`；和 rebalance、并发插入/拖拽的保护由 D11/D23 落实。
 
 如果来自 `in_progress / in_review` relaunch，则只把 Dispatch 标记为 `skipped(agent_busy)`，Task state / rank 不变。
 
 ## 12. Retry
 
-Launch temporary error 使用有限 retry + backoff。
+已确认未创建 Execution 的 Launch temporary error 使用有限 retry + backoff；结果未知按 §13 只读核对，不纳入“耗尽即失败”。
 
 `AgentBusy` 明确排除在 temporary error 之外：它直接使 Dispatch 进入 `skipped(agent_busy)`，不 retry、不 backoff、不添加 technical blocker。
 
@@ -430,7 +437,7 @@ last_error
 
 在发起 Launch 前递增或原子记录 attempt。
 
-失败后：
+确认暂时失败后：
 
 ```text
 attempt_count < max_attempts
@@ -438,11 +445,13 @@ attempt_count < max_attempts
     -> calculate next_retry_at
 ```
 
-达到上限：
+已知失败的 retry 达到上限：
 
 ```text
 pending -> failed
 ```
+
+只有仍可确认 Launch 失败才适用；期间变为 unknown 时保持 pending，不把查询失败/未找到计成可放弃的启动失败。attempt 与核对诊断的具体字段由 D23 固定，不能靠无限发起 launch 获得结果。
 
 ### 12.2 Backoff
 
@@ -477,11 +486,13 @@ Scheduler 看到的只是 Launch error / timeout。
 
 ```text
 keep same pending Dispatch
-wait retry backoff
-launch again with same idempotency_key
+follow the existing serial traversal/recovery pacing
+query Executor's persisted result by the original Launch key
+  -> known Execution: associate it with this Dispatch
+  -> still unknown: remain pending and check on a later visit
 ```
 
-Agent Executor 根据 idempotency 返回第一次创建的 Execution。
+查询不创建 Execution 或竞争 Agent slot。查不到、查询失败或正常重启都不能证明可更换 key/Dispatch；不新增独立核对服务、timer worker、多阶段救援系统或强制人工兜底。
 
 Scheduler 获得 execution_id 后：
 
@@ -491,9 +502,11 @@ pending -> launched
 
 不能因为 outcome unknown 创建新的 Dispatch。
 
+也不因有限启动 retry 用尽而将 Dispatch failed、把 Task blocked 或解除并发预占。待确认是 Dispatch/运行投影语义，不增加 Task 主状态；没有结论就保留真实 pending。
+
 ## 14. Retry 到期前的 Task Visit
 
-Scheduler traversal 再次访问该 Task 时，如果：
+Scheduler 原串行 traversal/recovery 再次处理原 Dispatch 时，如果已知失败的 retry 尚未到期：
 
 ```text
 pending Dispatch exists
@@ -518,6 +531,8 @@ now >= next_retry_at
 
 再继续同一 Dispatch。
 
+unknown 使用同一路径按原 key 只读核对，具体节奏由 D23 落实，不受有限 Launch attempt 耗尽终结；Task 已 done/cancelled、group 改变或遗留旧 Sprint 时也必须覆盖原 pending，不能因正常调度过滤漏掉它。
+
 因此 Dispatch retry 仍然服从 Project Scheduler 的串行 Task pacing。
 
 ### 14.1 Pending 期间 Task 状态变化
@@ -526,7 +541,7 @@ pending Dispatch 可能已经向 Agent Executor 发出过 Launch，只是 Schedu
 
 因此如果 pending 期间 Task 被用户或 Agent 改成 `blocked / cancelled / done` 等不再需要本次 Execution 的状态，Scheduler 也不能简单删除 pending Dispatch 或创建 replacement Dispatch。
 
-必须先继续使用同一个 idempotency key，把 Launch outcome reconciliation 到确定状态。
+必须保留同一 Dispatch/key，通过只读查询继续核对；无法确认时仍 pending，不能重发 launch 试探是否存在，也不强求底层流程自动结束未知情况。
 
 如果最终确认已经创建 Agent Execution：
 
@@ -541,9 +556,9 @@ obtain execution_id
 
 ## 15. Final Launch Failure
 
-本节只处理真正的 Launch technical failure / unknown outcome retry 耗尽；明确的 `AgentBusy` 已在前面进入 `skipped`，不进入本流程。
+本节只处理已确认 Launch 失败且适用 retry 已结束的情况；unknown 始终留在原 pending 核对路径，明确 `AgentBusy` 进入 skipped，都不适用本节。
 
-当 retry 耗尽：
+当已知失败的 retry 耗尽或明确不可重试：
 
 必须在一个事务中完成：
 
@@ -553,12 +568,15 @@ Dispatch:
   failed_at = now
 
 Task:
-  add technical blocker
-  -> blocked
+  reload current facts/version and verify this failure still applies
+  if domain rules still permit:
+    add technical blocker
+    -> blocked
+  otherwise preserve current Task state
 
 Task Event:
-  blocker_added
-  state_changed
+  blocker_added only when the blocker mutation commits
+  state_changed only when the state actually changes
 ```
 
 对于原 todo claim：
@@ -569,13 +587,13 @@ Task 此时通常已经是 in_progress。
 
 Task 可能是 in_progress / in_review。
 
-无论来源，最终统一：
+对于仍属于该派发意图且允许处理的 Task，统一：
 
 ```text
 Task -> blocked
 ```
 
-Scheduler 不保留“launch failed 但 Task 仍自动可执行”的状态。
+此既有失败策略不能覆盖用户已改变的 done/cancelled、assignee 或其他当前事实；Task mutation 经正式领域端口重验。失败 Dispatch 可记录真实失败，但不能为了配合记录强制回写过时 Task 状态。
 
 ## 16. Technical Blocker
 
@@ -675,17 +693,21 @@ concurrency_used
 =
 pending_dispatch_count
 +
-scheduler_executions(status in created, preparing, running)
+executions_reliably_associated_with_launched_dispatches(
+  status in created, preparing, running
+)
 ```
 
 注意避免双计数：
 
-如果 pending Dispatch 已经能可靠关联 execution_id，则应尽快原子更新为 launched。
+pending 预占与可靠关联 Execution 后的 launched 计数必须原子交接，不是两个独立查询结果简单相加。不能让同一实际 Execution 同时作为 pending slot 与活跃 Execution 双计。
 
 Project concurrency 查询应保证：
 
 - pending 无 execution_id：算 pending slot；
 - launched Execution：按 Execution status 计数。
+
+该额度不计 waiting；Agent 全局 slot 仍计 waiting，两者分别校验。
 
 ## 20. Current Sprint 切换
 
@@ -706,7 +728,7 @@ current_sprint_id changed
 old sprint pending Dispatch exists
 ```
 
-Scheduler 必须把它视为异常恢复场景：不能直接丢弃 pending Dispatch，仍需使用同一个 idempotency key 把 unknown Launch outcome reconciliation 到确定状态，再按 Task 当前 Source of Truth 决定后续处理。
+Scheduler 必须把它纳入原串行恢复路径：不能丢弃 pending，仍按同一 key 只读核对 unknown，无法确认就保留，再依据确认结果和当前 Task 事实处理。没有 Current Sprint 也不能因此永远遗漏旧 pending；不为旧 Sprint 发起新业务调度。
 
 历史 `launched / failed / skipped` Dispatch 不受 Sprint 切换影响，也不改写 `sprint_id`。
 
@@ -716,7 +738,7 @@ Scheduler 必须把它视为异常恢复场景：不能直接丢弃 pending Disp
 
 Central restart 后不需要独立 Dispatch recovery worker。
 
-Scheduler traversal 访问 Task 时：
+同一串行 traversal/recovery 覆盖已有 pending，包括已 done/cancelled、离开 group 或旧 Sprint 的 Task：
 
 ### pending
 
@@ -727,6 +749,8 @@ Scheduler traversal 访问 Task 时：
 - idempotency_key；
 
 继续同一 Dispatch。
+
+已确认暂时失败才按有限 retry 规则调用 Launch；unknown 只读核对 Executor 的持久化事实，保留原 key/语义与额度预占。暂停不借核对发新 Launch 或改 Task，恢复后继续原关联。
 
 ### launched
 
@@ -742,7 +766,7 @@ Scheduler traversal 访问 Task 时：
 
 如果 pending Dispatch 对应 Task 已经发生人工状态变化，仍然不能直接创建新 Dispatch。
 
-必须先完成 / 终结原 pending Dispatch，避免 unknown outcome。
+必须先核对原 pending；未知可以继续 pending，不能为达到“完成/终结”而猜测失败或替换请求。
 
 ## 22. Dispatch Error
 
@@ -770,8 +794,10 @@ unknown
 
 Scheduler 只用它决定：
 
-- 是否进入 retry；
-- 是否最终 failed。
+- 已确认失败是否允许 retry / 最终 failed；
+- 是否仍属 unknown、须保持 pending 并只读核对。
+
+不能仅凭 network_error、launch_timeout 或 retryable 字段推断“未创建 Execution”；必须结合真实发送/持久化结果。
 
 它不代表 Agent Execution error。
 
@@ -811,6 +837,8 @@ AND version = ?
 - SchedulerDispatch 不自动过期；
 - retry metadata 不自动清理；
 - error metadata 不自动清理。
+
+本节不授权自动 TTL/retention 删除任务。领域明确的 Project 永久删除仍经正式清理边界处理，不因“不自动过期”保留已授权清理的项目数据；其他领域证据各按其归属规则处理。
 
 历史 Dispatch 用于：
 

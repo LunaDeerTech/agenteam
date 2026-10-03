@@ -81,11 +81,14 @@ AgentExecutionContext 中已经固化：
 - resolved Model Snapshot；
 - Execution Tool Set Snapshot；
 - Execution Policy；
+- 初始 Skill 固定版本绑定与目录 metadata；
 - 其他启动 metadata。
 
 这些内容不需要在 Transcript 中再复制一遍。
 
 Final System Prompt 由这些 immutable components 组装，但仍属于 request fixed context，而不是 Transcript history。
+
+运行中新增技能采用独立持久化绑定与 control 事实，不改启动 Context；本轮有效目录由初始绑定与已应用变更重建，完整说明仍通过已有工具按需加载。
 
 ## 4. Canonical Transcript 定义
 
@@ -165,7 +168,7 @@ sequence 用于：
 
 sequence 不承担 Runtime View seq 的职责。
 
-Transcript sequence 与 RuntimeItemUpdate seq 是两个独立序列。
+Transcript sequence、Runtime Item 创建 seq 与单 Execution 的 Runtime 更新进度各有用途，不能用条目创建序号判定 stream 更新已包含在快照中。
 
 ## 7. turn_id
 
@@ -223,6 +226,7 @@ watchdog_notice
 resume_notice
 recovery_notice
 loop_warning
+skill_binding_added
 ~~~
 
 control 不是任意 user message queue。
@@ -245,6 +249,8 @@ source 必须能区分：
 - Meeting Decision；
 - Agent Loop internal guard。
 
+Skill control 来自 Executor 验证过的正式分配/绑定端口，记录固定 revision、来源与应用输入边界的稳定关联；具体字段由 D01/D10/D22 固定。应用前校验分配仍有效，延迟新增不能恢复已撤权限。控制记录不是通用配置热更新，也不解除 Approval/Decision waiting 或复活终态。
+
 ## 10. assistant entry
 
 Assistant entry 来自一次稳定 Model Response。
@@ -266,6 +272,8 @@ AssistantTranscriptEntry
 只保存后续 continuation / model context 真正需要的 provider metadata。
 
 完整 Provider request / response evidence 仍属于 Model Invocation 记录，不复制到 Transcript。
+
+同一逻辑模型调用可能由 Model System 产生多个实际 attempt；失败 partial stream 不与下一 attempt 盲拼成稳定 Assistant entry。保留必要关联/中止事实与完整 call/result pairing，不执行半截调用，也不把请求 retry 伪造成重复工具动作。
 
 ## 11. Tool Call
 
@@ -423,6 +431,7 @@ ModelContextProjectionInput
 ├── Immutable AgentExecutionContext
 ├── Canonical Transcript
 ├── current Compaction Snapshot?
+├── persisted Skill bindings effective at this model input boundary
 ├── context budget
 ├── current model capability
 └── projection policy
@@ -454,6 +463,8 @@ Projection 每个 Turn 都重新计算。
 
 但 immutable startup input 不重新查询。
 
+此前已提交且有效的新增 Skill binding 在本次输入确定点可靠应用；不靠每轮重读全部 Agent 配置、不改 Tool Snapshot。绑定版本不随包更新漂移，后续正文/文件读取仍校验当前资源与授权，移除不回写旧 Transcript 或强制清空已读内容。
+
 ## 19. Final System Prompt
 
 Final System Prompt 来自 AgentExecutionContext 中已固化的 Prompt components：
@@ -477,6 +488,8 @@ Final System Prompt
 Final System Prompt 可以在 Execution 内缓存。
 
 只要 AgentExecutionContext 不变，其语义不应漂移。
+
+缓存的是不可变启动 components。运行期技能目录从独立绑定状态投影，不能因缓存整个请求而漏掉下一轮已生效技能，也不能为更新目录重读并替换 Agent instructions、模型或工具集。
 
 ## 20. System Prompt 不进入 Rolling Transcript
 
@@ -621,6 +634,8 @@ Compaction Summary
 Recent Transcript Entries
 +
 Current Control Input
++
+Current fixed-revision Skill catalog from durable bindings
 +
 Tool Set
 ~~~
@@ -847,8 +862,9 @@ last stable sequence / entry_id
 1. 加载 AgentExecutionContext Snapshot；
 2. 加载 Transcript 到该 stable position；
 3. 加载当前 Compaction Snapshot；
-4. 恢复 pending control / waiting state；
-5. 重建 Model Context Projection。
+4. 根据初始 Skill 绑定和已持久化的应用位置重建绑定状态，不依赖 Summary 文本猜测；
+5. 恢复 pending control / waiting state；
+6. 重建 Model Context Projection。
 
 ## 41. Transcript 与 Checkpoint 一致性
 
@@ -864,6 +880,8 @@ but entries 98-100 not committed
 因此 stable Turn 写入与 checkpoint correlation 必须遵守明确 commit 顺序。
 
 具体事务边界由实现确定，但恢复不能依赖未持久化 message。
+
+同样不能让 checkpoint 声称某个 Skill binding 已应用，而其绑定/control 事实尚未提交。被 compaction 覆盖的技能控制记录仍可追溯，重建目录不重新解析库中最新 revision；精确位置与提交顺序由 D01/D10/D22 落实。
 
 ## 42. 数据安全
 

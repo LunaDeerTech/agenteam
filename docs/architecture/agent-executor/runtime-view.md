@@ -141,7 +141,9 @@ AgentExecutionRuntimeItem
 
 `id` 是当前 Runtime Item 的稳定 identity；所有增量更新通过 item_id 指向同一个 Item。
 
-`seq` 在每个 Execution 内单调递增，用于稳定排序、分页和 Snapshot 定位，不承担 Domain Event 语义。
+`seq` 在每个 Execution 内按 Item 创建单调递增，只用于条目稳定排序/分页；同一 Item 后续变化不改创建 seq。它不是更新进度、快照水位或 Domain Event 序号。
+
+每个 Execution 独立维护统一更新进度，所有可见 started/delta/updated/completed/failed 等变化都推进它。下文 `update_progress` / `included_update_progress` 仅为概念名；编码、必要 item revision/文本 offset、分页/筛选边界及重启代际由 D01/D22/D25 固定，不增加平台全局 cursor。
 
 第一阶段 type：
 
@@ -306,6 +308,7 @@ Agent Executor 内部维护 Runtime Item Manager。
 - 接收 Agent Loop / Model Adapter / Tool Runtime 的 semantic runtime update；
 - 创建 Runtime Item；
 - 分配 seq；
+- 推进当前 Execution 的统一更新进度，并维护快照实际包含的内容边界；
 - 更新 Item Snapshot；
 - 发布 RuntimeItemUpdate；
 - 执行 public-safe projection；
@@ -345,6 +348,7 @@ RuntimeItemUpdate
 ├── execution_id
 ├── item_id
 ├── seq
+├── update_progress
 ├── kind
 ├── timestamp
 └── payload
@@ -443,6 +447,8 @@ RuntimeItem Store
 - 不允许每个 token 都写数据库；
 - flush interval 属于实现参数。
 
+快照读取必须同时返回与其实际内容一致的 `included_update_progress`，不能直接标成“最新已发送进度”。存在已发送但尚未 flush 的内容时，读取/flush/resync 契约须补齐衔接，详见 §20；仅返回数据库旧快照与其旧水位并不足够。
+
 ## 18. 首次加载
 
 打开 Execution Detail：
@@ -455,7 +461,7 @@ Execution summary
 RuntimeItem[] ordered by seq
 ```
 
-如果 Execution 已 terminal，只需要 Snapshot。
+如果 Execution 已 terminal，可只读取已完整覆盖最终条目/终态的 Snapshot；不能因主状态已终态就把尚未保存的最终更新当作已经可读。
 
 如果仍 non-terminal，必须先建立 execution realtime subscription 并开始缓冲 update，再加载 Snapshot。
 
@@ -474,16 +480,18 @@ buffer RuntimeItemUpdate
     ↓
 reload current Runtime View Snapshot
     ↓
-apply buffered update with seq > snapshot max_seq
+verify snapshot coverage and its included_update_progress
+    ↓
+apply subsequent updates in this Execution's update progress order
     ↓
 enter normal live consumption
 ```
 
-RuntimeItem.seq 保证重新加载后的顺序稳定。
+RuntimeItem.seq 只保证条目顺序稳定；续接比较使用独立更新进度。无法确认基线、代际或增量连续性时，重新取得可完整衔接的 Snapshot/resync，不重放持久 delta 日志。
 
 ## 20. Snapshot 与 Stream Race
 
-首次加载 Snapshot 与订阅 stream 之间存在 race，第一阶段统一采用 subscribe-first + buffer。
+首次加载 Snapshot 与订阅 stream 之间存在 race，第一阶段使用 subscribe-first + buffer，并要求快照读取覆盖节流 flush 间隙。
 
 ```text
 subscribe execution runtime
@@ -492,33 +500,41 @@ subscription acknowledged
     ↓
 buffer incoming RuntimeItemUpdate
     ↓
-GET Runtime View Snapshot(max_seq)
+GET Runtime View Snapshot(actual included_update_progress)
     ↓
-discard buffered seq <= max_seq
-apply buffered seq > max_seq
+confirm all pre-subscription emitted changes are included or reconciled
+    ↓
+discard only updates confirmed included in the snapshot
+apply later updates with a valid content baseline / progress
     ↓
 live
 ```
 
-具体传输统一使用 Platform [Realtime](../platform-infrastructure/realtime.md) 定义的 WebSocket Gateway。Snapshot 与 stream race 的处理仍必须保证：
+例如订阅前某 text delta 已发送，但数据库快照尚未 flush：客户端既收不到旧帧，旧快照也没有该内容。只改为更新编号或只返回旧快照的真实水位都不能补上缺口。允许进入 live 的读取/flush/恢复契约必须保证这段内容纳入返回快照或沿同一 Snapshot/resync 路径补齐；覆盖不足时不能声称已衔接。具体同步机制由 D01/D22/D25 设计并真实验证，不在本文预选完整算法。
+
+具体传输统一使用 Platform [Realtime](../platform-infrastructure/realtime.md) 定义的 WebSocket Gateway。Snapshot 与 stream race 的处理必须保证：
 
 - 不重复创建 Item；
 - 不丢最终状态；
-- 相同 item_id 更新幂等。
+- 相同 item_id 更新幂等，已有 Item 的新 delta/终态不因创建 seq 较小而丢弃；
+- 水位只覆盖快照实际包含的内容，分页/筛选不得将未返回内容误认已同步；
+- 保持低延迟 delta 与批量快照，不逐 token 写库、不新增 durable delta log。
 
 ## 21. RuntimeItem Update 幂等
 
 客户端按 `execution_id + item_id` 识别 Item。
 
-重复 started 不重复插入；updated / delta / completed 只更新已有 Item。
+重复 started 不重复插入。updated/delta/completed/failed 按当前 Execution 更新进度及所需条目/文本基线应用；旧更新不覆盖新状态，重复 delta 不重复追加，不能把乱序/缺口直接当连续文本。缺少 Item、基线或连续性证据时走 Snapshot/resync。
 
-如实现需要，可以增加 item_revision 防止旧 patch 覆盖新状态。
+重启后的进度延续或代际、item revision/offset、终态与乱序规则由 D01/D22/D25 固定；不得重置编号后把旧帧应用到新状态，也不能宣称未持久化内容已包含。Runtime 更新进度用于当前投影衔接，不变成可靠历史回放服务。
 
 ## 22. Tool Detail 加载
 
 Tool Item 展开时优先展示 Snapshot 中已有的安全 projection。
 
 如果需要完整详情，通过 `tool_operation_id` 请求 Tool Runtime Detail API。
+
+摘要与按需详情都执行当前 Project/Execution 授权和敏感字段过滤，不能以“已展开 Item”替代详情授权；安全投影不削减 ToolOperation/Attempt 的必要持久证据。
 
 这样避免 Runtime Item 复制完整 Tool Operation、大型 Result 或敏感数据。
 

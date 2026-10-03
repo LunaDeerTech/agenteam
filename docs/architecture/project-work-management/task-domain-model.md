@@ -188,7 +188,7 @@ WHERE id = :task_id
 AND version = :expected_version
 ```
 
-成功后 `version = version + 1`。不匹配返回 `TASK_VERSION_CONFLICT`，调用方重新读取后再决定是否重试。
+业务 mutation 成功后 `version = version + 1`。不匹配返回 `TASK_VERSION_CONFLICT`，调用方重新读取后再决定是否重试；仅维护 rank 空间且相对顺序不变的内部重整按 §11 不推进业务 version。
 
 数据库事务 / 行锁负责事务内部一致性；`version` 负责跨请求 stale write 检测。
 
@@ -212,11 +212,15 @@ sprint_id + state + priority
 
 - 拖拽优先生成前后 rank 之间的新 rank；
 - rank 空间不足时只 rebalance 当前 group；
-- rebalance 不产生用户可见 TaskEvent；
+- 仅维持 rank 空间、保持实际相对顺序的 rebalance 不推进 Task 业务 version，不产生用户可见 TaskEvent；
 - 普通 state / priority 改变后自动追加到目标 group 末尾；
-- Scheduler 的 `scheduler_agent_busy_compensation` 例外：恢复 claim 前的 todo `manual_rank`；
+- Scheduler 的 `scheduler_agent_busy_compensation` 例外：恢复 claim 前的 todo 逻辑位置；若发生 rank 重整，不能直接写回已陈旧的 rank 字符串；
 - move 到其他 Sprint 后自动追加到目标 group 末尾；
 - rollover 多个 Task 时保持源 group 内相对顺序。
+
+实际拖拽、移动、字段或状态修改仍校验并推进 version，不能伪装成内部维护。rebalance 只更新当前 group 的 rank，普通字段更新不得用旧 rank 覆盖重整结果；不推进业务 version 不代表可以省略并发保护。
+
+D01/D11 明确重整与插入/拖拽/跨组移动的 SQL、锁、唯一性和稳定排序，以及 cursor/排序视图与业务更新时间的维护边界。D11/D23 必须协调 pending claim / busy compensation，通过与维护互斥或正式位置映射恢复原位置，避免重整后写回 `claim_source_manual_rank` 改变逻辑顺序或破坏唯一性；具体机制和真实并发验收在责任规格完成。
 
 ## 12. Create Task
 
@@ -309,7 +313,7 @@ AND no business TaskEvent except creation record
 
 ## 17. Command Idempotency
 
-Task Domain mutation 统一具有 `request_id`。来源可以是 Agent Tool Operation ID、UI request / command ID 或 API idempotency key。
+Task Domain mutation 统一具有业务幂等身份。下文既有领域示例中的 `request_id` 表示业务 `idempotency_key`，来源可以是 Agent Tool Operation ID 或稳定业务 command key；每次 HTTP 传输的追踪 `request_id` 独立生成，不可替代它。正式字段映射由 D01/D11 固定，遵循[基础契约](../platform-infrastructure/foundation-contracts.md#5-请求追踪与业务幂等)。
 
 ### 17.1 Idempotency 必须先于 version 校验
 

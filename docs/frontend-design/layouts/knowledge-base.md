@@ -1,6 +1,6 @@
 # 知识库页面布局
 
-> 上层：[项目工作台](project-workspace.md)。文档父子关系和子树删除为本次新增约定，现有 KnowledgeDocument 尚未定义它们。
+> 上层：[项目工作台](project-workspace.md)。文档父子关系、目录查询和子树删除遵循 [KnowledgeDocument](../../architecture/knowledge-memory/knowledge-document-domain.md)。
 
 ## 1. 页面职责与示意
 
@@ -33,9 +33,9 @@
 
 调整父文档使用显式选择器，可选根层或同项目 active 文档；禁止自己及后代作为父节点，禁止跨项目，服务端重新校验。移动后整个后代树随父节点位置移动，正文 identity 保持稳定。
 
-树默认按 title、id 稳定排序，不新增手工排序字段。查找按标题匹配，保留命中节点祖先路径；查找不触发全文语义检索。完整树加载 / 分页查询接口及结构并发控制需要领域专题补齐。
+树先加载根节点，展开时按需加载子节点，同层较多时使用游标继续加载；默认按 title、id 稳定排序，不新增手工排序字段。标题查找由服务端覆盖当前项目全部合法文档并返回命中及祖先路径，不限浏览器已加载分支；它不触发全文语义检索。正文仅在打开文档时加载。
 
-重命名编辑 title；正文保存按现有 version 并发契约。结构位置变更不在本文决定是否增加 content version，避免未经架构评审改变索引规则。
+重命名编辑 title；标题/正文修改按内容 version 契约保存。仅移动父节点不增加内容 version、不重建索引，只保留当前 parent，不展示结构版本或结构历史。移动与并发删除/编辑的冲突由服务端校验，失败保留输入和选择并刷新当前位置，不把旧目录位置写回覆盖新结果。
 
 ## 4. 子树删除
 
@@ -53,4 +53,4 @@
 
 ## 6. 相关架构
 
-[Knowledge Document Domain](../../architecture/knowledge-memory/knowledge-document-domain.md)、[Knowledge Indexing](../../architecture/knowledge-memory/knowledge-indexing.md)、[Object Storage](../../architecture/platform-infrastructure/object-storage.md)。新增 parent identity 和子树命令需求见[架构衔接](../architecture-follow-ups.md)。
+[Knowledge Document Domain](../../architecture/knowledge-memory/knowledge-document-domain.md)、[Knowledge Indexing](../../architecture/knowledge-memory/knowledge-indexing.md)、[Object Storage](../../architecture/platform-infrastructure/object-storage.md)。正式查询、并发和清理的工程落实见[架构衔接](../architecture-follow-ups.md)，不重复改变已定目录规则。

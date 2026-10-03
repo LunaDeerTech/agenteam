@@ -372,6 +372,8 @@ unknown_outcome
 
 Backend 不直接把结果写回模型。
 
+Backend 的业务参数、服务端可信执行 Context 与取消信号分开；不能把模型提供的字段当成授权身份。工具自己的可选 timeout 按其正式 schema/适配契约执行，网络/RPC/SDK 故障期限仍属内部可靠性，不新增全工具统一参数或人工等待到期。
+
 ## 7. Builtin Backend
 
 Builtin Tool 通常直接调用 agenteam Domain / Platform Service。
@@ -386,6 +388,8 @@ Backend 负责：
 - 避免泄漏内部 stack / database error。
 
 Tool Runtime 不直接访问业务数据库绕过 Domain Service。
+
+Skill 读取/安装/分配调用正式 Skill/Agent 服务；文件准备再协调对象与 Runner 端口，不能以提示词、任意对象 key 或未绑定成功 stub 替代实际后端。完整规则见 [Agent Skills](../agent-skills.md)。
 
 ## 8. Runner Backend
 
@@ -402,7 +406,7 @@ Runner Executor 负责：
 
 - 把 Unified Operation 转换为 Runner RPC；
 - 保持 operation / attempt correlation；
-- 传播 timeout / cancellation；
+- 依工具契约适配可选期限并传播 cancellation，区分网络/RPC timeout；
 - 标准化 Runner offline / timeout / protocol error；
 - 把大文件、stdout 等转换为 Tool Result / Artifact。
 
@@ -425,7 +429,7 @@ MCP Executor 负责：
 - 把 canonical arguments 转换为 MCP tools/call；
 - 映射 MCP content / structuredContent；
 - 处理 MCP protocol error 与 Tool error；
-- 传播 cancellation / timeout；
+- 传播 cancellation 并处理网络/SDK timeout，保留 MCP 原生 arguments，不强加统一运行参数；
 - 返回标准 BackendResult。
 
 MCP Protocol revision、discovery、schema compatibility 和 transport lifecycle 不属于本文，放入 MCP detailed design。

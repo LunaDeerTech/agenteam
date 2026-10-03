@@ -2,7 +2,7 @@
 
 agenteam 使用一个仓库维护 Central、Runner、前端及配套文档。目录以稳定的程序边界和职责划分，业务模块内部结构在实际实现时逐步增加。
 
-技术与部署边界以[系统架构](../architecture/README.md)为准。
+技术与部署边界以[系统架构](../architecture/README.md)为准。共同的 ID、时间、错误、分页、版本、幂等、事务与生命周期方向见[基础契约约定](../architecture/platform-infrastructure/foundation-contracts.md)，具体端口与依赖矩阵仍须在 D01 固定。
 
 ## 目录骨架
 
@@ -37,7 +37,7 @@ agenteam/
 | `internal/runner/` | Runner 的连接管理与文件、命令、进程、桌面等远程执行能力。 |
 | `internal/runnerprotocol/` | Central 与 Runner 共享的通信契约，不承载 Central 业务实现。 |
 | `web/src/` | Vue 前端源码；公共组件、应用骨架、主题与开发环境 Debug 已实现。 |
-| `db/migrations/` | Central 的全局数据库迁移序列，不按业务模块建立独立迁移序列。 |
+| `db/migrations/` | Central 由 Goose 管理的全局 SQL 迁移序列，不按业务模块建立独立迁移器，不由 ORM 自动修改生产结构。 |
 | `deploy/` | 部署配置与相关示例，后续承载 Docker Compose 等部署文件。 |
 | `scripts/` | 开发、构建与维护脚本。 |
 | `tests/` | 跨模块集成测试与端到端测试。Go 单元测试随被测源码放置。 |
@@ -48,6 +48,9 @@ agenteam/
 - Central 与 Runner 后续共用根目录的一个 Go module；前端在 `web/` 独立管理依赖。
 - Runner 不依赖 Central 业务包，也不拥有 Task、Meeting 等项目业务模型。
 - 共享通信契约放在 `internal/runnerprotocol/`，两端各自的实现留在各自目录。
+- Central 跨模块端口按稳定职责建立独立契约包，由调用方和实现方共同依赖；不包含业务实现、不循环引用，不建立万能 `contracts/shared` 包或大量无必要的空包。实际包路径由 D01 依赖矩阵明确后按需增加。
+- 各模块只经正式端口访问对方事实，不直接改对方表。需要原子性的跨模块端口显式接收统一事务上下文，业务契约不依赖 pgx 等驱动类型。
+- HTTP 采用 `net/http` + `ServeMux`，handler 与 HTTP DTO 转换按模块组织；数据库采用 pgx + 显式 SQL。版本与适配方式仍需正式工程核验，不将选型方向当作已有后端实现。
 - 开始实现某项能力时，再增加相应模块和内部目录，避免提前固定尚未验证的包结构。
 - 空目录使用 `.gitkeep` 保存到 Git；目录有实际文件后可移除占位文件。
 - 本地敏感配置不入库，示例配置可以入库。根目录的 `secrets/` 被忽略，同名源码目录不受该规则影响。

@@ -311,7 +311,7 @@ error
 ~~~mermaid
 sequenceDiagram
     participant L as Agent Loop
-    participant A as Provider Adapter
+    participant A as Model System / Provider Adapter
     participant P as Provider API
 
     L->>A: stream(ModelRequest)
@@ -333,6 +333,8 @@ Adapter 必须确认 Provider 的 terminal state，并明确输出：
 - cancelled。
 
 Partial Tool Call 必须在 Adapter 层完整组装后，才交给 Agent Loop / Tool System。
+
+同一逻辑调用自动重试时，标准流须表达实际 attempt 的边界和中止/完成归属。已向上层展示的 partial output 不能与后续 attempt 盲拼成一条完整回答，稳定 Transcript 只采用可恢复语义；半截 Tool Call 不执行，模型 retry 不重放已发生或 outcome unknown 的工具副作用。D01/D09/D22 固定 correlation、流重置/终态和持久化边界，不要求将每个 token 写入数据库。
 
 ## Reasoning / Thinking
 
@@ -434,7 +436,9 @@ safe_message
 
 Adapter 去除 Credential / Secret 后返回标准化错误。
 
-Agent Loop 根据 retryable 和自己的 retry policy 决定是否重试。
+同一 Agent 逻辑模型调用的自动 Provider 请求重试由 Model System 统一决定和执行。Agent Loop 消费标准化流、结果及最终错误，不根据 retryable 再叠加同一请求的 retry；该字段是错误属性，不是第二个重试 owner。
+
+SDK/Adapter 的真实 requests/attempts 须纳入这一策略与 Invocation/Usage 记录，不允许隐式重试叠加或只统计最终成功请求。上下文压缩后的新输入、模型自我修复的新 Turn、用户 retry/regenerate 与 Scheduler relaunch 分属语义/业务新调用，不迁入 Adapter；工具 retry 与副作用安全仍归 Tool Runtime。
 
 认证失败、model_not_found、unsupported_feature 等配置类错误默认不自动 retry。
 
@@ -444,7 +448,7 @@ Model Request timeout 不等同于 Agent Execution timeout。
 
 Agent Execution 不因为单次或多次 Model timeout 自动结束。
 
-对于 retryable Model Request，采用渐进 timeout 策略：
+对于 Agent 路径的 retryable Model Request，Model System 采用既定渐进 timeout 策略：
 
 ```text
 attempt 1
@@ -472,6 +476,8 @@ request timeout reaches configured maximum
 - Agent Loop 的单轮 generation watchdog 是更上层的防循环机制，不由 Model Adapter timeout 取代。
 
 初始 timeout、增长函数、最大 request timeout、backoff 参数属于实现配置，不写死在架构中。
+
+选择 Model System 为 owner 不增设统一固定重试次数或 Execution 总期限。其他 consumer 按自身既定规则调用；例如自动审批不增加模块应用层 retry/备用模型，但允许有限审批请求 timeout 内的 Adapter 透明网络重试，失败转人工后持续等待。完整规则见 [自动审批契约](../../security-governance/auto-approval-model/approval-model-contract.md#不自动-retry)。
 
 ### Cancel
 
@@ -521,5 +527,7 @@ cancel requested
 - finish reason / error normalization；
 - usage normalization；
 - progressive request timeout 与 cancellation 传播。
+
+上述重试、attempt 流边界与真实用量须由 D01/D09/D22 的正式契约和故障验收落实，不表示当前已实现或通过 Provider 集成。
 
 OpenAI Responses、Gemini 等其他 Chat Protocol Adapter 不属于第一阶段实现范围。

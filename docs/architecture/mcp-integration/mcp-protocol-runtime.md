@@ -108,6 +108,8 @@ Protocol Runtime 应把版本协商封装在内部。
 
 Protocol Runtime 第一阶段优先基于官方 Go MCP SDK 实现，而不是自行维护 MCP wire protocol。
 
+这是 SDK 采用方向，不表示某个 SDK 版本已选定或完成兼容性验证。D20 需落实实际版本，并验证主版本 / 兼容版本的 Streamable HTTP、Tools / Resources、取消、错误与认证行为；本专题不因此扩大到 stdio 或 legacy SSE 等接入范围。
+
 ~~~text
 MCP Protocol Runtime
 -> official Go MCP SDK
@@ -217,6 +219,10 @@ MCP Protocol Runtime
 ~~~
 
 URL / DNS / private network / redirect / TLS / timeout / response guardrail 由平台 Outbound Network Policy 统一处理，Protocol Runtime 不自行维护第二套网络安全逻辑。
+
+该策略由管理员 UI 管理并持久化在 PostgreSQL；新请求、重试和 redirect 使用当前策略，已发出的请求可完成，复用连接也须按新请求重新校验。MCP endpoint 属于运行时业务目标，不因来自系统级配置或环境变量而绕过该策略。
+
+网络 / SDK timeout 只约束相应传输或请求，不形成所有 ToolOperation 的统一期限，也不限制人工审批等待；Tool 原生 arguments 中的 timeout 保持远端定义的语义。
 
 HTTP connection pooling 属于普通网络资源复用，不具有 MCP 业务身份语义。
 

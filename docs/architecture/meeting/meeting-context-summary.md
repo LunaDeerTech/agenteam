@@ -27,7 +27,7 @@ flowchart LR
     Compact["Context Compaction"]
     Model["Model"]
 
-    Runtime -->|"message visibility boundary"| Provider
+    Runtime -->|"固定 references / summary version / message generations"| Provider
     Meeting --> Provider
     Provider --> Builder
     Builder --> Loop
@@ -36,6 +36,8 @@ flowchart LR
 ```
 
 MeetingContextProvider 是 Agent Executor 的 Trigger Context Provider。
+
+调用来源使用 `{meeting_id, turn_id, contribution_id, participant_id}`。Meeting 领域经正式端口校验 Project、四项关系、参与者对应目标 Agent 与权限，再准备 Context；Executor 不查 Meeting 内部表。来源身份与 generation/attempt 的历史关联保存在执行侧，不夹带可变正文，也不等于将这些运行控制字段注入下述模型会话内容。
 
 它不：
 
@@ -135,7 +137,7 @@ User participants 可以提供：
 
 MeetingContextProvider 提供的是 MeetingMessage，而不是 MeetingTurn history。
 
-另外，它会把 Meeting 当前被固定的 `MeetingReference` 全部作为轻量资源引用注入 Context。
+另外，它把本次 Meeting 输入快照固定的 `MeetingReference` 集合作为轻量资源引用注入 Context。
 
 ```text
 rolling summary
@@ -145,7 +147,7 @@ visible MeetingMessages ordered as Timeline
 
 Message 顺序必须与用户看到的 Meeting Timeline 中当前 Contribution 顺序一致。
 
-Provider 只抽取 Timeline 中当前可见的 MeetingMessage：
+构造新输入时，Provider 按 Timeline 顺序解析当时有效的 immutable MeetingMessage：
 
 - User Contribution 的 MeetingMessage；
 - Agent Contribution 当前 `current_message_id` 指向的 MeetingMessage。
@@ -160,7 +162,7 @@ Provider 只抽取 Timeline 中当前可见的 MeetingMessage：
 
 这些内容用于控制执行或 UI 展示，不属于会话 message history。
 
-同一个 Agent Contribution 因 regenerate 产生的旧 generation MeetingMessage 仍然长期保存，但不自动进入普通后续 Meeting Context；正常 Context 只使用 Timeline 当前展示的 `current_message_id`。这样模型看到的会话与用户主 Timeline 保持一致。
+同一个 Agent Contribution 的旧 generation 长期保存，但普通新输入使用构造时有效的 `current_message_id`，随后固定实际 message/generation identity。已建立的 Execution 或 parallel 共同输入不再次沿可变 current 指针替换消息；历史快照可重建。
 
 ## 7. Message Ordering
 
@@ -213,25 +215,29 @@ Agent C starts
 
 ## 9. Parallel 可见性
 
-Parallel 模式需要所有 Agent 使用同一个 Message 可见边界。
+Parallel 模式需要所有目标 Agent 使用同一份固定 Meeting 输入，包括 references 集合、rolling summary version 和按序的实际 immutable message/generation identity。
 
-Turn Runtime 在启动本轮 parallel executions 前记录一个内部边界，例如：
+Turn Runtime 在启动本批 parallel executions 前固定共同输入，概念上包括：
 
 ```text
-visible_through_timeline_item_id
+Meeting input reference
+  references set
+  summary version and its actual coverage
+  ordered immutable message / generation identities
+  timeline cutoff for ordering / visibility
 ```
 
 然后调用 MeetingContextProvider：
 
 ```text
 BuildMeetingContext(
-  meeting_id,
-  executing_participant_id,
-  visible_through_timeline_item_id
+  structured Meeting trigger reference,
+  target Agent,
+  fixed Meeting input reference
 )
 ```
 
-该边界只是 Provider 调用参数，不进入模型可见 MeetingTriggerContext。
+这是责任边界示例，不是冻结的服务签名。只记录 Timeline cutoff 不足以固定其中可变的 references、summary 或 current_message 指针；具体固定时点、引用/事务和错误由 D01/D24 落实。控制引用不作为模型业务字段注入。
 
 因此所有 parallel Agent 都看到：
 
@@ -244,7 +250,7 @@ through the same User trigger Message
 
 ## 10. Meeting References
 
-MeetingContextProvider 每次都注入全部当前 `MeetingReference` 的稳定 typed identity，但不自动加载资源内容。
+MeetingContextProvider 注入本次固定集合中的全部 `MeetingReference` typed identity；sequential 在后续 Agent 启动时准备新输入并纳入前序正式回复，parallel 复用共同集合。固定输入不复制 Task/Knowledge/link/file 底层正文，内容仍由具备权限的 Agent 按需加载。
 
 第一阶段 Reference 类型：
 
@@ -314,6 +320,7 @@ MeetingRollingSummary
 ├── unresolved
 ├── facts
 ├── summarized_through_message_id
+├── input_identity          # 实际有序消息/有效 generation 的概念身份
 ├── generated_at
 └── generator_metadata
     └── model_config_id_snapshot
@@ -339,18 +346,18 @@ MeetingRollingSummary
 
 ### summarized_through_message_id
 
-明确当前 Summary 是基于截至哪一条当前 MeetingMessage 的完整会话历史生成。
+标记本次生成输入的最后一条消息，便于定位；它不能独自证明 Summary 已覆盖当前输入。
 
 它用于：
 
-- finalize 恢复；
-- 幂等更新；
-- 防止重复 summarize；
+- 输入边界导航；
 - observability。
+
+恢复、幂等与是否待更新须比较实际有序消息/有效 generation 的输入身份。早期回复替换可能不改变末条 ID；具体输入 revision/确定性指纹或等价编码由 D01/D24 固定，不在此选择算法。
 
 ## 14. Summary Update
 
-每个 MeetingTurn 的目标 Agent Contributions 全部进入 terminal contribution state 后：
+正常运行的 MeetingTurn 中，目标 Agent Contributions 全部进入 terminal contribution state 后：
 
 ```text
 Turn.running
@@ -368,8 +375,10 @@ Summary 更新是同步 finalize 步骤：
 
 - Summary 未成功更新，Turn 不进入 completed；
 - queued Turn 不越过正在 finalizing 的前一 Turn；
-- Runtime 可以有限 retry；
-- crash 后可以根据 Summary version / message boundary 恢复。
+- Summary 生成/校验按既定有限 retry，耗尽仍保持 finalizing 并阻止 queued Turn，不跳过、不换备用模型；
+- crash 后依据 Summary version、实际输入身份与 finalize 状态恢复；显式取消/删除另按生命周期端口收敛，迟到提交不能复活。
+
+已完成历史 Contribution 的新回复成功替换当前 Message 后，只标记现有摘要待更新，沿下一正常 Turn finalize 读取全部当前有效消息重算。不立即调用摘要模型、不重开历史 Turn finalize、不增设 timer/后台刷新；没有下一轮就持续待更新。失败/取消未改变实际输入时不无条件标脏，重复事件幂等；不重生成标题、不级联重跑 Agent，也不热改已有 Execution/parallel 输入。
 
 ## 15. Summary Updater
 
@@ -395,14 +404,14 @@ new MeetingRollingSummary
 
 Summary Generator 不做增量 summarization。
 
-每次更新都重新读取当前 Meeting 主 Timeline 中全部有效 MeetingMessage，并重新生成四个维度的完整 Summary。
+每次正常更新都读取主 Timeline 下全部当前有效 MeetingMessage，固定本次实际有序 message/generation 输入，重新生成四个维度的完整 Summary；发布前仍须核对该输入是否允许提交。
 
 因此：
 
 - 不把上一版 Rolling Summary 作为输入；
 - 不只输入自上次 Summary 后新增的 Message；
 - regenerate 后已经不再是当前 generation 的历史 Message 不进入普通 Summary 输入；
-- Summary 始终是当前 Meeting 会话状态的完整派生结果。
+- Summary 是其实际生成输入的完整派生结果；输入改变而尚未正常 finalize 时保留旧版本并显示待更新，不能冒称覆盖新回复。
 
 Summary Updater：
 
@@ -453,7 +462,7 @@ tools = []
 
 首轮输出在上述 envelope 中额外包含非空 `title` string，服务端将其写入 `Meeting.title`，不向 `MeetingRollingSummary` 增加第五字段。首轮解析须同时验证标题与四个摘要文本；标题或摘要不合法时整步失败，不能只提交其中一部分。生成标题不创建 MeetingMessage 或 Agent Execution。
 
-服务端解析成功后，把四个 string 分别写入 `MeetingRollingSummary`。如果输出无法解析，可以按平台普通 Model retry policy 做有限 retry；不能把无法解析的文本直接写进四个字段。
+服务端解析成功且输入/版本提交校验通过后，把四个 string 写入 `MeetingRollingSummary`。输出无法解析按 Meeting 既定有限生成/校验重试，不把非法文本写入字段。同一逻辑 Provider 请求的自动 retry 统一由 Model System 按该 consumer 策略管理，Meeting 不叠加相同请求重试，也不套用 Agent 的渐进无限等待方向。每次真实 attempt 进入 meeting 用量分类。
 
 某个维度没有可总结内容时写空字符串：
 
@@ -523,26 +532,30 @@ Summary Generator 必须：
 
 ## 17. Summary Update 幂等
 
-Summary 更新使用 Message 边界作为幂等依据。
+Summary 幂等必须关联本次实际有序消息输入与有效 generation，而非只有末条消息 ID。
 
 例如：
 
 ```text
-(meeting_id, summarized_through_message_id)
+(meeting_id, identity_of_ordered_effective_messages_and_generations)
 ```
 
 重复 finalize：
 
-- 已存在对应成功 Summary version：直接复用；首轮标题与该 Summary 已共同提交，不再次生成；
+- 实际输入相同且已存在对应成功 Summary version：直接复用；首轮标题与该 Summary 已共同提交，不再次生成；
 - 尚未成功：继续生成；
 - 不重复推进 version；首轮提交使用尚未生成标题的条件与 Summary version check，防止重试覆盖已提交标题。
 
-建议使用 optimistic version check：
+发布必须同时验证 Summary version 与实际输入身份，概念上：
 
 ```text
 expected_previous_version = N
+current allowed input identity == request input identity
+Meeting / Turn lifecycle still permits finalize publication
 write version = N + 1
 ```
+
+仅比较旧 Summary version 不能发现生成期间早期回复已替换而摘要尚未提交的竞争。输入不匹配或会议/Turn 已取消删除时，迟到结果不得覆盖、复活或触发新 Turn；本次正常 finalize 的重试/状态仍按既定规则处理。具体事务、输入编码与待更新投影由 D01/D24/D25 固定。
 
 ## 18. Agent Loop Context Compaction
 
@@ -566,11 +579,13 @@ full Meeting Trigger Context
 
 Agent Loop 可以：
 
-- 使用 rolling summary 压缩远期 Message；
+- 仅在 rolling summary 的实际覆盖与本次固定输入匹配时，用它压缩已覆盖的远期 Message；
 - 压缩 Execution 内历史 Tool Results；
 - 外部化大内容；
 - 保留 artifact references；
 - 压缩旧 conversation messages。
+
+历史回复被成功替换而 Summary 待更新时，Provider 必须表达摘要的实际覆盖及待更新状态；不能借旧摘要丢弃被替换的 Message，或把旧摘要当作已覆盖新 generation。Loop compaction 同样遵守该边界，不因此即时刷新摘要。输入与覆盖投影由 D24/D22 固定。
 
 Meeting 不规定具体 token-budget 或 compaction 算法。
 
@@ -616,6 +631,8 @@ Decision / Approval 使 Agent Execution waiting 时，不重新调用 MeetingCon
 - 保留原 Execution conversation state；
 - 将 resolved Tool Result / Decision Result 追加到当前 Agent Loop；
 - 继续 Model → Tool → Model。
+
+Meeting 输入保持原快照，不重新抓取当前 messages/references/summary。运行中新增 Skill binding 仍按 Executor/Loop 的独立规则在下一模型输入边界应用，不扩大为 Meeting Context 或 Tool Set 热更新，也不因分配解除 waiting。
 
 最终公开回复写成 MeetingMessage 后，才会成为后续 Agent Execution 的 Meeting Context。
 

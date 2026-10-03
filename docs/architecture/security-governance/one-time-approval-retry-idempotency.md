@@ -163,6 +163,8 @@ canonicalize(
 )
 ~~~
 
+工具自身 schema 显式声明的 timeout 随 canonical arguments 校验、记录并参与调用完整性；技术 retry 不能修改该参数或刷新已经开始的工具期限。平台不添加全工具统一 timeout 字段，MCP 原生同名业务字段仍按第三方语义处理。
+
 retry 必须满足：
 
 ~~~text

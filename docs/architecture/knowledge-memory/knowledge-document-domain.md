@@ -1,6 +1,7 @@
 # Knowledge Document Domain 详细设计
 
-> 上层架构：[Knowledge Base 与 Agent Memory](./README.md)  
+> 上层架构：[Knowledge Base 与 Agent Memory](./README.md)
+>
 > 相关设计：[Knowledge Indexing](./knowledge-indexing.md)、[Retrieval Runtime](./retrieval-runtime.md)、[Object Storage](../platform-infrastructure/object-storage.md)、[统一工具系统](../tool-system/README.md)
 
 ## 1. 目标与边界
@@ -13,6 +14,7 @@ Knowledge Document Domain 负责 Project Knowledge Base 中 canonical document �
 - Project scope；
 - source kind / media type；
 - title 与业务 metadata；
+- 当前文档父子关系、人类目录查询与子树删除；
 - canonical payload 对 Object Storage 的引用；
 - document version；
 - create / update / delete；
@@ -42,6 +44,7 @@ Knowledge Document Domain 负责 Project Knowledge Base 中 canonical document �
 KnowledgeDocument
 ├── id
 ├── project_id
+├── parent_document_id?
 ├── title
 ├── source_kind
 ├── media_type
@@ -172,9 +175,11 @@ version 同时用于：
 
 因此 version 代表：
 
-> 当前 canonical content 曾发生过多少次有效替换。
+> 当前标题/正文等检索内容的版本；标题修改虽可复用 payload，也推进此版本。
 
 旧 canonical payload 在业务上不再是可读历史版本。
+
+仅移动目录位置不改变此 version，不触发索引重建，也不新增结构版本字段或结构变更历史。
 
 ### 2.8 status
 
@@ -216,6 +221,12 @@ failed
 - failed：当前 document version 的索引构建失败。
 
 IndexingJob / IndexProfile 是 Knowledge Indexing 自己的详细领域对象。
+
+### 2.10 当前父子关系
+
+根文档的 parent 为 null；非根文档只有一个同 Project 的 active 父文档。禁止把自己或后代设为父节点，也禁止跨 Project。后代随父节点位置移动，document_id、标题和正文不因移动而改变。
+
+文档树只用于人类阅读归类，不保存额外结构版本或用户可见结构历史，不增加手工排序字段；同层按 title、id 稳定排序。索引输入使用 document_title 和文档内部 heading_path 等信息，不包含树祖先位置。具体 parent 字段、查询/命令与锁由 D01/D12 规格固定。
 
 ## 3. Source Kind 与编辑能力
 
@@ -413,6 +424,12 @@ Caller 应重新 read-doc 后决定是否重试。
 
 第一阶段不提供旧 content version read API。
 
+### 6.4 目录移动
+
+移动只更新当前 parent 关系，不推进内容 version，不重建索引。服务端在事务/锁保护下重新校验同项目 active 父节点、单父、防环，以及与移动/删除/正文更新的竞争；不能仅靠内容 `expected_version` 检测结构变化。
+
+普通正文更新不得把陈旧 parent 一并写回覆盖已提交移动。移动结果、并发刷新与幂等由 D12 固定，不以“不保存结构版本”代替一致性保护，也不影响 Agent 按 document_id 读取/检索。
+
 ## 7. Document 更新时的 Retrieval 可见性
 
 必须保持：
@@ -462,7 +479,11 @@ delete_document(
 )
 ~~~
 
-删除流程：
+删除某篇文档包含其当前后代子树。确认阶段展示目标、后代清单和数量；提交前重新检查当前范围，范围变化须重新确认，不能静默扩大。内容 version 不随移动增加，因此不能只靠 expected_version 判断子树是否仍是已确认范围。
+
+Domain 在一致性边界内重新验证整个确认范围，防止确认后到提交之间的移动、删除或更新竞争，并对整个范围一致执行删除；失败不能把部分成功伪装为全部完成。具体确认凭据、锁序、幂等/事务和后台清理由 D01/D12 固定，前述概念签名尚未包含这些完整字段。
+
+对确认范围内每个文档的删除流程：
 
 1. authorization；
 2. 标记 status = deleted；
@@ -526,6 +547,12 @@ KnowledgeDocumentSummary
 ~~~
 
 list-docs 不返回完整 payload。
+
+### 9.1 人类目录与标题查找
+
+目录先读取根节点，展开某篇文档时再取子节点；同层数量较多时使用游标分页，不一次加载全项目完整树。返回节点元数据，正文只在打开文档时读取。服务端执行 Project 授权与当前 parent 校验，title/id 稳定排序，游标绑定筛选及排序，不承诺遍历期间的完整快照。
+
+标题查找由服务端覆盖当前 Project 的全部合法文档，并返回命中节点及所需祖先路径，不能只搜索浏览器已加载分支；它不是全文语义检索。直达文档链接同样可以取得祖先路径并定位。并发移动/重命名后的刷新、分页参数及响应类型由 D12/D27 固定，不新增结构历史，不改变 Agent 的 query-doc / read-doc 契约。
 
 ## 10. Read Document
 
@@ -729,6 +756,7 @@ StoredObject canonical payload
 
 - 完整历史 DocumentVersion 浏览；
 - diff / restore old version；
+- 文档树结构版本/变更历史及手工排序；
 - 协同实时编辑；
 - PDF / DOCX 在线正文编辑；
 - OCR correction UI；
@@ -749,3 +777,5 @@ StoredObject canonical payload
 8. index failure 不回滚 canonical write。
 9. indexing 派生数据可以全部重建。
 10. 跨模块长期引用只使用 document_id。
+11. 当前 parent 同项目、单父且无环；移动不推进内容 version、不参与索引输入。
+12. 子树删除重新确认范围并一致提交，不能只以内容 version 判断结构变化。

@@ -32,7 +32,8 @@ headless = true
 -> no desktop capability
 
 headless = false
-+ supported desktop backend available
++ supported desktop backend initialized
++ required OS permissions granted
 -> desktop
 -> screenshot
 -> automation
@@ -43,6 +44,16 @@ headless = false
 Central 不维护第二套 capability allowlist。
 
 Runner hello 上报当前实际 capability。
+
+首期适配与验收矩阵：
+
+| 环境 | 目标能力 | 必须有的实际证据 |
+| --- | --- | --- |
+| macOS 原生桌面 | 截图、鼠标/键盘输入等桌面能力 | 支持系统版本、实际后端及屏幕录制/辅助功能等授权 |
+| Linux X11 | 截图、鼠标/键盘输入等桌面能力 | display/session、后端初始化及实际动作 |
+| Linux Wayland | 截图、鼠标/键盘输入等桌面能力 | 明确 compositor/后端与交互授权条件、原生 Wayland 场景 |
+
+Windows 延后。D17 固定具体版本、后端与细分能力，缺桌面/权限/后端时返回明确不可用；不把 X11 或少数 XWayland 窗口验证等同于 Wayland 整桌面支持，也不承诺所有 compositor 无条件可用。交叉编译不能代替目标 OS 验收。
 
 ## 3. Desktop Capability 边界
 
@@ -93,6 +104,8 @@ Runner 只执行 operation，不在本地运行独立的 LLM planning loop。
 ## 6. browser-use
 
 当 Runner 当前环境具备 Browser Capability 时，可以提供 browser-use。
+
+首期仍要求实际桌面及相应后端，不因此新增 headless browser-use；具体动作/会话 schema 与浏览器后端在 D17/D21 正式规格确定，不在此选定库或宣称兼容性已验证。
 
 这属于 Runner 内置实现的一部分。
 
@@ -172,8 +185,8 @@ Tunnel 网络仍保持 Runner 主动出站。
 
 ~~~mermaid
 flowchart LR
-    User["User / External Client"]
-    Gateway["Central Tunnel Gateway"]
+    User["已登录的 Project Owner"]
+    Gateway["Central Tunnel Gateway<br/>Session / Owner / 生命周期校验"]
     Channel["Outbound Tunnel Channel"]
     Runner["Runner"]
     Local["127.0.0.1:port<br/>local service"]
@@ -185,6 +198,8 @@ flowchart LR
 ~~~
 
 Central 不反向拨号 Runner。
+
+访问地址和路由由 Central 创建管理，Runner 主动建立反向通道，仅负责本地代理。知道地址不授予访问权限，不提供访客分享入口。
 
 ## 12. 第一阶段 Tunnel 类型
 
@@ -255,7 +270,7 @@ expose-port
 - optional Managed Process ID；
 - TTL。
 
-Central Authorization 在 dispatch 前完成。
+创建 expose-port 的 Tool Authorization 在 dispatch 前完成；访问该入口的人类 Session 授权是另一条独立检查，工具获批不等于任何知道地址的人均可访问。
 
 `expose-port` 会改变 Runner 本地服务的网络暴露边界，因此默认审批规则将其标记为 `security_sensitive` 并要求 Approval。如果未来支持 Reusable Approval，Scope 至少绑定 Runner / Mount / Workspace 与 local port，不能自动扩大到其他设备、workspace 或端口。完整规则见 [默认审批策略](../security-governance/default-approval-policy.md) 与 [Approval Scope](../security-governance/approval-scope.md)。
 
@@ -333,7 +348,11 @@ credential：
 - 单次连接使用；
 - 不写普通日志。
 
-外部用户访问 public endpoint 的访问控制由 Central / Gateway 决定，不由 Runner 自己实现账户权限系统。
+外部访问复用平台现有登录 Session。Central/Gateway 从 Session 解析 User，按 Tunnel.project_id 校验当前 Project Owner，并检查 Tunnel/项目生命周期；每个 HTTP 请求和 WebSocket upgrade 都走相同正式授权端口。系统管理员身份不能绕过 Owner，不能以 URL 或 Runner 建连 credential 代替用户授权，也不新增访客账号体系。
+
+退出、过期、改密/重置撤销等沿用[账号生命周期](../platform-infrastructure/authentication/account-lifecycle.md#5-登录与-web-session)，已建立 WebSocket 也须响应 Session 失效；持续连接不能延长会话期限。Tunnel 自身 TTL、关闭和断连规则独立生效。D07/D08/D17/D25 明确路由、长连接撤销与生命周期竞争，不依赖缓存的旧授权无限访问。
+
+平台 Session/Cookie、CSRF 标识与内部 Tunnel 建连凭据不得透传给被代理本地服务。D17 固定网页 origin/cookie/响应隔离及代理头处理，防止本地服务获得平台认证信息；Runner 不维护另一套账户权限系统。
 
 ## 18. TTL
 
@@ -396,7 +415,7 @@ TunnelResult
 └── status
 ~~~
 
-URL 属于当前 TunnelSession 的外部入口。
+URL 属于当前 TunnelSession 的外部入口，由 Central 生成并管理；“public endpoint”只表示可路由地址，仍要求当前 Owner 的平台 Session，不代表匿名公开访问。
 
 不要把 Central 内部 tunnel credential 暴露给模型或用户。
 
@@ -463,7 +482,9 @@ Runner 负责：
 11. outbound Tunnel Channel；
 12. Runner disconnect closes tunnel；
 13. no automatic tunnel recovery；
-14. Central Audit correlation。
+14. Central Audit correlation；
+15. macOS 原生桌面 / Linux X11 / Wayland 分别适配与真实权限/动作验证；
+16. Owner Session 的逐请求/upgrade 授权、已建 WebSocket 撤销及平台凭据隔离。
 
 第一阶段不要求：
 

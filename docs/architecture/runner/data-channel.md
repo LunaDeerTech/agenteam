@@ -357,7 +357,7 @@ Filesystem containment 规则与普通 Filesystem Tool 相同。
 
 ## 16. Object Storage 是另一条路径
 
-平台 Artifact / Object Storage 场景不要求 payload 经过 Central Data Channel。
+平台 Artifact / Skill / Object Storage 场景使用 Runner 对象直传，payload 不要求经过 Central Data Channel。
 
 当 Agent 已经通过平台 Tool 获得 Object Storage object，并需要把它传到 Runner：
 
@@ -394,6 +394,10 @@ Runner <-> Object Storage object
 
 不把 Object Storage payload 绕回 Central Control Channel。
 
+技能准备由 Central 验证 Project、Agent、Execution、当前技能授权/固定 revision 和 Mount 后，协调指定 Runner 获取完整版本包；安装工具提交 Runner 中标准包时使用相反上传路径。业务发布仍由 Skill 安装服务完成，上传对象成功不等于安装成功。版本目录和校验见 [Agent Workspace](agent-workspace.md#71-技能版本包准备)，内容/分配规则见 [Agent Skills](../agent-skills.md)。
+
+对象存储端点由可信部署配置提供，须对 Runner 实际可达，可经内网/VPN 或受保护 HTTPS；不要求公开 bucket 或控制台。不可达时明确失败，不自动回退 Central 中转。端点/TLS、单次授权及真实上传下载由 D05/D15/D17/D28 验证。
+
 ## 17. Object Storage Credential
 
 Runner 不持久化 Object Storage credential。
@@ -411,6 +415,8 @@ credential 必须：
 - operation 完成后不缓存。
 
 Runner 不获得平台 Object Storage 的长期 access key。
+
+短期传输凭据也不进入模型、普通 Tool Result/Transcript 或长期缓存，只经受信任协议给指定 Runner；工具返回业务对象 identity 与 Mount 相对路径。
 
 ## 18. Desktop Data
 
@@ -447,6 +453,8 @@ Central 在创建 session 时可以下发：
 - deadline。
 
 Runner 根据当前 request 执行。
+
+这里的传输大小/期限与连接故障保护不构成全工具统一 Operation deadline，也不消耗或结束人工审批等待。字段和取消后的完整性/unknown 处理按正式传输契约验证。
 
 实际磁盘不足 / OS 错误作为明确 transfer failure 返回。
 

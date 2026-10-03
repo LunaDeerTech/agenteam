@@ -31,6 +31,8 @@ ToolCall
 - arguments：解析后的 JSON value；
 - provider_metadata：仅保留必要的 Provider transport metadata。
 
+模型输入保留工具自身参数结构。需要 Agent 控制超时的具体工具在自己的 input_schema 声明可选 timeout；平台不向所有工具/MCP 强加 `{arguments, execution}` 包装或 `__runtime` 保留字段，也不从 Provider metadata 猜测模型选择。可信运行 Context 和取消信号由服务端独立绑定。
+
 Tool Runtime 首先执行：
 
 ~~~text
@@ -118,6 +120,8 @@ fingerprint 至少覆盖：
 
 fingerprint 不能用来自动把两个独立 Model Tool Call 合并成同一个 Operation。
 
+工具原生 schema 声明的 timeout 与其他 canonical arguments 一起校验、留证并参与 fingerprint；不能从任意同名字段推断平台控制参数或在重试时静默修改它。
+
 即使两个调用 arguments 完全一致，只要是模型新产生的 Tool Call，就是新 operation_id。
 
 ## 4. Tool Attempt
@@ -188,6 +192,8 @@ Tool Runtime
 
 其中 `waiting_for_approval` 表示当前 ToolOperation 已经进入统一 Approval Request / Human Inbox 流程。用户批准后继续同一个 ToolOperation；拒绝则形成最终 ToolError。
 
+人工等待不自动过期、失败、跳过或放行，也不能绕过待审操作继续。Operation/Execution 与 waiting reference 持久化，刷新、离线、Session 到期或正常重启不丢待办；合法恢复后仍等待并占用执行槽，不要求线程或事务持续阻塞。显式停止、归档/删除沿正式取消规则；不可安全恢复属于真实 recovery failure，不伪装成审批到期。
+
 Authorization 必须基于：
 
 - 当前 Agent Execution；
@@ -221,44 +227,41 @@ Backend 仍然需要执行最后一层自己的业务或本地安全校验。
 
 Tool Operation 不使用统一的平台强制 timeout。
 
-是否为某次 Tool Call 设置 timeout，以及设置多长，由 Agent 根据当前任务和 Tool 语义决定。
+命令执行等确有需要的工具，可以在自身 input schema 声明模型可填写的可选超时；只对该工具正式支持的能力，由 Agent 根据任务决定是否填写。不承诺所有工具都有通用 Agent timeout。
 
 具体规则：
 
-- timeout 是可选 Runtime 调用参数；
-- Agent 可以针对具体 Tool Operation 指定 timeout；
-- Agent 未指定时，不由 Agent Executor / Tool Runtime 自动补一个统一 Operation deadline；
+- 保留工具自身参数结构，原生 timeout 经过该 schema 的校验与规范化，不增加全工具外层或保留字段；
+- MCP 维持远端业务输入语义，服务自己定义的 timeout 字段不能被剥离或冒充平台控制；
+- 未指定时，不由 Agent Executor / Tool Runtime 自动补一个统一 Operation deadline；
 - Project 不提供统一 timeout 配置，不要求人类为每个 Tool 预配置运行时间；
-- timeout 不进入 ToolSpec，也不属于 Tool 的业务 arguments；
-- Backend 自己为网络连接、RPC、进程管理设置的 transport / implementation timeout 属于 Backend 内部可靠性机制，不等同于 Agent 选择的 Tool Operation timeout。
+- 业务 arguments、可信 Context 和 cancellation 分开传递；期限只按具体工具已定义的适配契约执行，不从同名字段、自然语言或 metadata 猜测；
+- Backend 网络/RPC/SDK 的内部可靠性 timeout 保留，与平台统一 Operation 期限及人工等待期限不同。
 
 概念：
 
 ~~~text
-Agent decides optional operation timeout
+Tool input_schema 声明可选 timeout
         ↓
-Tool Runtime
+Agent arguments → schema validation / canonical arguments
         ↓
-Cancellation signal
+正式工具适配契约 / 可信 Context / cancellation
         ↓
-Tool Dispatcher
-        ↓
-Backend adapter
+Backend execution
 ~~~
 
 原则：
 
-1. Tool 可以在没有 Agent-level timeout 的情况下持续运行。
-2. Agent 明确设置 timeout 后，Tool Runtime 负责计时并在到达时触发 cancellation。
-3. Backend 支持 cancellation 时应向下传播。
-4. timeout 到达不代表 Backend 一定没有执行。
-5. 如果取消后无法确定 Backend outcome，应标记 unknown_outcome。
-6. timeout 是否可以 retry，仍取决于 idempotency 和 outcome。
-7. Tool timeout 只影响当前 Tool Operation，不自动终止整个 Agent Execution。
+1. 具体工具及 D18 明确字段、单位、合法值、计时 owner、执行前起算点和恢复状态，不把示例当作冻结接口。
+2. 工具期限不消耗或终结人工 Approval/Decision waiting；等待结果必须由有权用户明确处理，生命周期取消另行收敛。
+3. 同 Operation 技术 retry 不刷新已经开始的工具期限；等待输出或 yield 交还控制权不等于终止期限。
+4. 支持 cancellation 的 Backend 向下传播，timeout/cancel 不证明副作用未发生。
+5. 无法确认 outcome 时标记 unknown_outcome，重试仍受幂等/outcome 安全约束。
+6. 单次工具 timeout 不自动终止整个 Agent Execution。
 
 Agent 在收到 timeout Tool Result 后，可以自行决定：
 
-- 使用更长 timeout 发起新的 Tool Call；
+- 在该工具契约支持时使用更长 timeout 发起新的 Tool Call；
 - 改用其他方法；
 - 继续推理；
 - 放弃该操作。
@@ -269,7 +272,7 @@ Tool Operation cancellation 来源可能包括：
 
 - Agent Execution 被取消；
 - 用户取消当前 Execution；
-- Agent 为当前 Tool Operation 设置的 timeout 到达；
+- 按当前工具正式契约设置的执行 timeout 到达；
 - Agent Loop 主动停止剩余并发调用；
 - Backend-specific cancel。
 

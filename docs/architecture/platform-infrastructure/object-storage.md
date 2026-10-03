@@ -8,6 +8,7 @@
 > 相关设计：
 > - [Unified Tool Runtime 详细设计](../tool-system/tool-runtime.md)
 > - [Artifact Builtin Tools](../tool-system/artifact-tools.md)
+> - [Agent Skills](../agent-skills.md)
 
 ## 1. 设计目标
 
@@ -19,6 +20,7 @@ Object Storage 是 agenteam 的统一文件 / 大对象持久化层。
 - Tool Artifact；
 - MCP Resource Materialization；
 - Knowledge 原始文档；
+- Skill 不可变版本包及其派生文件；
 - Agent Execution / Runtime Log 的大段内容；
 - 导出文件；
 - 生成图片、生成文件；
@@ -41,7 +43,7 @@ MinIO
 ## 2. 核心原则
 
 1. `StoredObject` 是统一存储实体，只表达“一份对象已经被平台持久化”。
-2. Attachment、Artifact、Execution Log 等继续保留各自业务语义，不合并为一个业务对象。
+2. Attachment、Artifact、Knowledge、Skill、Execution Log 等继续保留各自业务语义，不合并为一个业务对象。
 3. 业务表通过 `stored_object_id` 引用统一对象，不保存 MinIO bucket / key。
 4. 所有对象访问统一经过 `ObjectStorageService`。
 5. PostgreSQL 保存对象 metadata、业务索引和引用；MinIO 保存实际 payload。
@@ -121,6 +123,12 @@ ExecutionLogObject
 ├── stored_object_id
 ├── log_kind
 └── ...
+
+SkillRevision（概念引用）
+├── skill_id
+├── revision
+├── package_stored_object_id
+└── verified file manifest / checksum
 ~~~
 
 业务实体负责表达“这份对象是什么”；StoredObject 负责表达“这份内容存在哪里、大小是多少、是否完整”。
@@ -399,6 +407,14 @@ KnowledgeDocument 不直接把 canonical 正文作为数据库大字段保存。
 
 原始 canonical payload 只保存在 Object Storage；parsed text、chunk、embedding 等仍是可重建派生数据。
 
+## 12a. Skill Package
+
+Skill Domain 通过 ObjectStorageService 保存不可变版本包，PostgreSQL 保存技能身份、版本、引用与经验证的文件清单。原始包是该 revision 的内容事实来源；单文件派生对象/缓存须绑定 revision 与校验值且可重建，不能独立修改成为另一套正文。Skill 保持独立业务授权和生命周期，不强制转成 Artifact 或 KnowledgeDocument。
+
+Central 经技能正式读取能力按需读取 `SKILL.md` 和参考文本，无需 Runner 在线。脚本/素材需要远程环境时，Central 校验业务权限并协调对象/操作限定的短期访问材料，指定 Runner 直连对象存储，在授权 Mount 中验证并准备固定 revision。Agent 不得到 MinIO 凭据、key 或 Signed URL；普通 Tool Result 仅包含业务身份与工作区相对路径。
+
+单次上传/下载授权、完整性、过期/取消/失败恢复及 Runner 可达存储端点由 D05/D15/D17/D21 正式绑定，不自动回退 Central 中转。安装服务的 UI/Tool 共用业务发布与失败清理，具体内容、权限和版本规则见 [Agent Skills](../agent-skills.md)。
+
 ## 13. 权限边界
 
 StoredObject 自身不是绕过业务权限的公共下载资源。
@@ -419,11 +435,13 @@ Caller
 - MinIO credential 不暴露给普通用户或 Agent；
 - Signed URL 必须短期有效；
 - Agent 不直接调用 ObjectStorageService 或创建 Signed URL；
-- Agent 只能通过有业务语义的 Artifact / Resource 等上层能力访问 StoredObject；
+- Agent 只能通过有业务语义的 Artifact / Resource / Skill 等上层能力访问 StoredObject；
 - 是否允许读取对象由引用它的业务实体决定；
 - Secret masking / sensitive data policy 在内容进入 Object Storage 前仍按对应业务规则执行。
 
 用户预览 / 下载应通过业务 API 校验权限后再调用 `create_download_url`，Signed URL 不进入 Agent Context 或长期 Tool Result。
+
+Runner 对象直传的短期访问材料仅经受信任协议下发给指定 Runner，不进入模型、普通日志或长期缓存；直连可使用内网/VPN 或受保护 HTTPS，不要求匿名公开 bucket。部署端点/TLS 配置和真实可达性由部署及 Runner 模块验收。
 
 ## 14. 删除与引用关系
 
@@ -442,6 +460,8 @@ ObjectStorageService / cleanup policy
 ~~~
 
 第一阶段可以采用显式删除策略，不要求实现自动 reference counting 或复杂 garbage collector。
+
+显式清理也必须检查业务正式引用，包括 Skill 运行绑定对固定 revision 的保护。技能更新、移除分配、包删除与 Project 永久删除分别按所属领域矩阵处理，不因发布新包或解除某条配置就删除仍有活动引用的对象；这不要求提前实现通用 GC。
 
 未来如果多个业务实体需要共享同一个 StoredObject，可以在 Object Storage 层增加引用追踪 / GC，而不改变业务引用方式。
 
@@ -470,10 +490,11 @@ ObjectStorageService 的读取 / 写入接口应支持 stream，不要求把完�
 5. 短期下载 URL；
 6. size / media_type / checksum metadata；
 7. pending / available / failed / deleted 状态；
-8. Attachment / Tool Artifact / Knowledge Document / large Execution Log 使用 `stored_object_id` 引用；
+8. Attachment / Tool Artifact / Knowledge Document / Skill revision / large Execution Log 使用 `stored_object_id` 引用；
 9. 流式读取 / 写入接口；
 10. orphan object 的基础 cleanup 能力；
-11. Artifact Builtin Tools 通过 ToolArtifact 间接使用 Object Storage。
+11. Artifact Builtin Tools 通过 ToolArtifact 间接使用 Object Storage；
+12. Skill 安装/读取通过业务服务访问版本包，Runner 对象直传的受控授权与完整性端口由后续模块真实绑定。
 
 第一阶段不要求：
 

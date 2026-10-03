@@ -19,6 +19,7 @@ Outbound Network Policy 是平台级基础设施能力，不属于 MCP 私有逻
 
 - MCP Server Endpoint；
 - Model Provider Base URL；
+- SMTP host / port；
 - 未来 Webhook；
 - 未来 HTTP / Fetch Tool；
 - 未来外部 Integration / Connector；
@@ -32,18 +33,23 @@ Outbound Network Policy 是平台级基础设施能力，不属于 MCP 私有逻
 flowchart LR
     MCP["MCP Protocol Runtime"]
     Model["Model Provider Adapter"]
+    SMTP["SMTP Delivery"]
     Future["Future HTTP Integration"]
 
     Policy["Outbound Network Policy"]
     Client["Controlled Outbound HTTP Client"]
+    MailDial["Controlled SMTP Dial"]
     Network["External / Allowed Private Network"]
 
     MCP --> Policy
     Model --> Policy
+    SMTP --> Policy
     Future --> Policy
 
     Policy --> Client
     Client --> Network
+    Policy --> MailDial
+    MailDial --> Network
 ~~~
 
 ## 2. 设计目标
@@ -70,7 +76,7 @@ Outbound Network Policy 解决：
 
 ## 3. 使用边界
 
-当 outbound target 来自以下来源之一时，必须经过该策略：
+当运行时业务 outbound target 来自以下来源之一时，必须经过该策略：
 
 ~~~text
 user configuration
@@ -80,7 +86,11 @@ external response / redirect
 tool / integration controlled target
 ~~~
 
-对于代码中固定、不可由用户或外部数据改变的基础设施地址，可以按平台实现直接管理；但如果后续变为可配置 endpoint，应接入 Outbound Network Policy。
+用于初始化和运行平台自身的可信 Deployment 基础连接，例如由环境变量配置的 PostgreSQL、MinIO，由部署层直接管理，独立于保存在 PostgreSQL 中的管理员运行时出站策略。它们仍须校验部署参数、凭据、TLS 与可达性；这里不增加新的管理 UI 或网络模式。
+
+边界取决于连接用途与控制来源，不取决于地址是否写在环境变量中。Model Provider、MCP、SMTP、HTTP 集成等用户或业务可配置目标，以及外部响应派生的目标，仍须执行本策略；不得借基础连接名义将其变成任意目标代理。
+
+该划分与 [Deployment Runtime 的配置分层](./deployment-runtime.md#5-deployment-config-与-runtime-platform-config) 一致：启动先建立 PostgreSQL / MinIO 基础连接，再加载管理员运行时策略，避免策略依赖数据库、连接数据库又先依赖该策略的循环。具体基础连接适配由 D02–D05 / D28 落实，运行时业务出口仍由 D04 的受控网络能力统一约束。
 
 ## 4. 平台接口
 
@@ -103,7 +113,7 @@ request URL
 -> URL validation
 -> DNS resolution
 -> address classification
--> deployment policy decision
+-> current platform policy decision
 -> controlled dial
 -> HTTP request
 -> redirect re-validation
@@ -113,6 +123,8 @@ request URL
 业务模块可以声明自己的 timeout / response size 等需求，但最终值不能突破平台安全上限。
 
 如果某些 SDK 必须接收原生 `http.Client`，平台应提供已经装配 Outbound Network Policy 的受控 Transport / Client，而不是允许 SDK 绕过策略。
+
+SMTP 等非 HTTP 协议复用目标地址、DNS/IP 和安全拨号边界，由自身 adapter 执行协议握手；不把 SMTP 包装成 HTTP 请求。精确端口与错误映射由 D04/D07 规格固定。
 
 ## 5. URL Validation
 
@@ -159,7 +171,7 @@ cloud-metadata-sensitive
 - cloud metadata / known metadata target：禁止；
 - unspecified / multicast / 明显保留地址：禁止；
 - public：允许；
-- private：由部署级配置决定。
+- private：默认拒绝，须命中管理员维护的系统内网放行规则。
 
 IPv4 与 IPv6 使用相同安全语义。
 
@@ -167,37 +179,43 @@ IPv4 与 IPv6 使用相同安全语义。
 
 private network 不能在各业务模块中单独配置。
 
-平台提供部署级策略，例如概念上：
+系统管理员通过系统 UI / 管理 API 维护统一内网规则，持久化 PostgreSQL，不要求重启 Central。概念结构如下，正式字段/编码由 D04 规格确定：
 
 ~~~text
 OutboundNetworkPolicy
-├── private_network_access
-│   ├── deny
-│   └── allow_selected
-└── allowed_private_cidrs[]
+├── version
+└── private_allow_rules[]
+    ├── CIDR
+    ├── selected ports / explicitly all ports
+    └── allow HTTP (default false)
 ~~~
 
-默认建议：
+默认不放行内网：
 
 ~~~text
-private_network_access = deny
+private_allow_rules = []
 ~~~
 
-自托管 / 企业内网部署可以显式配置：
+管理员可以显式允许内网服务，例如：
 
 ~~~text
-allowed_private_cidrs:
-  - 10.20.0.0/16
-  - 192.168.50.0/24
+10.20.0.0/16, ports = [443, 8443], allow HTTP = false
+192.168.50.0/24, ports = [8080], allow HTTP = true
 ~~~
 
-Project、Agent 或 MCP Config 第一阶段不能自行修改这套部署级边界。
+规则支持网段及可选端口限制；不限制端口时须管理员显式选择全部端口。命中网段/端口只表示地址授权，内网 HTTP 仍须独立开启允许项。loopback、link-local、metadata、unspecified/multicast 等固定禁止地址不能通过规则放行。Project、Agent 或 MCP Config 不能自行修改系统策略。
 
 这样：
 
-- SaaS 部署可以完全禁止访问 Central 内网；
-- 企业自托管可以显式允许内部 MCP / Provider；
+- 未配置规则时禁止访问 Central 内网；
+- 管理员可按网段和端口允许内部 MCP / Provider / SMTP；
 - 业务配置不能借由 endpoint 自行扩大 Central 的网络可达范围。
+
+### 7.1 更新生效边界
+
+数据库是策略权威来源。规则修改后新请求立即使用新规则；后续 retry 和每一跳 redirect 也重新检查当前策略，复用已有连接不能跳过校验。已发出的在途请求继续执行，不因修改规则主动中断，也不承诺撤回已经发生的外部副作用。
+
+保存操作仅限系统管理员，须校验网段/端口/HTTP 选项、version 冲突并记录安全 Audit。策略缓存/版本传播、实际发出边界、DNS/dial 与连接池竞争由 D04 规格及真实并发验收确定。
 
 ## 8. DNS Rebinding
 
@@ -284,6 +302,8 @@ https://mcp.example.com
 
 对于真正需要 streaming 的协议，例如 MCP streaming response，应该使用 streaming-aware 限制，而不是简单要求整个响应先读入内存。
 
+这些限制约束协议请求和网络资源，不新增统一 ToolOperation / Agent Execution 总期限，也不让人工审批因等待时间而自动过期。业务 timeout 与取消仍按各自已定契约执行。
+
 ## 12. TLS
 
 HTTPS 使用系统 / 平台受信任 CA 与标准 hostname verification。
@@ -294,14 +314,16 @@ HTTPS 使用系统 / 平台受信任 CA 与标准 hostname verification。
 - 任意信任所有证书；
 - 关闭 hostname verification。
 
-如果企业环境未来需要私有 CA，应通过平台部署级 trust store 扩展，而不是让 Project 单独关闭 TLS 校验。
+私有 CA 通过平台部署级受信任证书配置支持，不通过关闭证书或 hostname 校验实现。
 
-HTTP 是否允许由具体消费者和 deployment policy 共同决定。
+HTTP 是否允许由具体消费者和系统策略共同决定。
 
 例如：
 
 - 公网 endpoint 可以要求 HTTPS；
-- 明确允许的企业 private network 可以根据部署需求支持 HTTP。
+- 内网规则放行网段/端口后默认仍要求 HTTPS，管理员须在相应规则中显式允许 HTTP。
+
+SMTP 支持管理员明确选择 TLS / STARTTLS / none；加密失败不自动降级，none 不额外限定只能用于内网。该协议选择不绕过地址/端口授权，也不直接使用 HTTP 规则的 allow_http 作为 SMTP 开关。见 [SMTP Delivery](authentication/smtp-delivery.md)。
 
 ## 13. Policy Decision
 
@@ -338,9 +360,9 @@ policy_violation
 
 ## 14. 配置与作用域
 
-Outbound Network Policy 是平台部署级配置。
+Outbound Network Policy 是平台统一安全能力；内网放行部分是管理员维护的 Runtime Platform Config。
 
-private CIDR、TLS / trust store、网络安全上限等属于 Deployment Config，而不是 Runtime Platform Config。配置来源、启动依赖与运行时边界见 [Deployment Runtime](./deployment-runtime.md)。
+内网网段、端口和显式 HTTP 放行规则存数据库，可在系统 UI 修改；TLS / trust store 与网络实现参数仍按技术部署配置管理。固定禁止地址不是可编辑放行项。配置来源与启动边界见 [Deployment Runtime](./deployment-runtime.md)。
 
 第一阶段不提供：
 
@@ -420,10 +442,11 @@ Provider-specific headers 与 credentials 仍由 Model System 负责生成；Out
 4. IP classification；
 5. loopback / link-local / metadata / reserved address deny；
 6. public network allow；
-7. deployment-level private CIDR allow policy；
+7. 管理员 UI / API 维护的持久化 private CIDR / port / HTTP 放行规则与即时新请求生效；
 8. DNS rebinding 防护；
 9. redirect re-validation；
 10. cross-origin credential stripping；
 11. timeout / response / redirect guardrail；
 12. TLS verification；
-13. structured policy decision / safe diagnostics。
+13. structured policy decision / safe diagnostics；
+14. SMTP 等非 HTTP 消费者的正式安全拨号适配。

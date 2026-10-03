@@ -221,7 +221,7 @@ Runner 直接执行 program + args，不经过 shell 字符串解析。
 
 ## 11. shell mode
 
-shell mode 接收 command string，并通过当前目标平台约定 shell 执行。
+shell mode 接收 command string，Linux/macOS 首期默认统一通过 Bash 执行；argv mode 继续直接执行 program + args。
 
 用于：
 
@@ -231,9 +231,15 @@ shell mode 接收 command string，并通过当前目标平台约定 shell 执�
 - compound command；
 - shell-specific syntax。
 
-Runner 应在 capability / platform metadata 中暴露必要的 shell environment 信息。
+Runner 在 capability / platform metadata 中暴露实际 Bash 解释器与版本。统一默认不表示两平台 Bash 版本、GNU/BSD 命令或可用工具相同；缺少 Bash 时明确失败，不静默换解释器。定位、启动参数、初始化文件及环境注入顺序由 D16 固定，不默认继承用户交互终端的全部配置、别名或状态。
 
 第一阶段不尝试把 shell command 静态解析成权限规则。
+
+### 11.1 工具自己的可选超时
+
+命令工具按自身需要在 input schema 声明可选 timeout，Agent 只对正式契约支持的工具填写，保留工具原有参数结构。字段、单位、合法值、授权完成后的执行计时及 Runner deadline 适配在 D16/D18/D21 固定，不增加全工具统一包装、保留字段或 Operation 强制期限。
+
+未提供时不补平台统一终止期限；网络/RPC 故障检测仍有效。人工审批等待不消耗或终结该工具期限，同 Operation 技术 retry 不能刷新已经开始的期限。等待输出/交还控制权不等于终止进程，需继续运行的场景使用正式 Managed Process/查询/取消语义。超时或取消不能证明副作用未发生，也不自动终止整个 Execution。
 
 ## 12. Command Working Directory
 
@@ -394,7 +400,7 @@ child server remains
 
 会产生不可控后台进程。
 
-实现应使用当前 OS 可用的 process group / job object 等机制。
+首期分别使用 Linux/macOS 可用的 process group / child-tree 机制，并真实验证子进程取消；不把 Windows job object 当作首期已实现能力。
 
 如果无法确认 child tree 已终止，应在结果 metadata 中保留相应诊断信息。
 
@@ -654,13 +660,15 @@ INTERNAL_ERROR
 
 Central 可以在 request 中下发：
 
-- deadline；
+- 按工具或内部传输契约明确提供的可选 deadline；
 - max output；
 - max file size；
 - transfer size；
 - cancellation grace period。
 
 Runner 按 request 执行。
+
+没有 deadline 时不自加统一 ToolOperation/Execution 终止期限；内部连接故障处理不改变人工审批持久等待规则。
 
 实际 OS：
 
@@ -677,7 +685,7 @@ Runner 按 request 执行。
 
 1. Filesystem read/write/edit/list/grep/find；
 2. strict workspace path containment；
-3. argv + shell command；
+3. Linux/macOS argv + 默认 Bash shell command，实际解释器探测及缺失错误；
 4. trusted-host command semantics；
 5. Central-provided environment；
 6. stdout/stderr live stream；
@@ -689,4 +697,5 @@ Runner 按 request 执行。
 12. bounded ring buffer + cursor；
 13. lazy process reconciliation；
 14. no durable process recovery across Runner restart；
-15. Data Channel integration。
+15. Data Channel integration；
+16. 工具自身可选 timeout、人工等待与执行计时边界，以及实际平台进程树取消验证。

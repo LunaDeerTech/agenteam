@@ -119,7 +119,7 @@ Knowledge Base 保存 Project 的 canonical documents。
 
 所有原始内容统一落入 Object Storage；KnowledgeDocument 只保存业务 metadata 和 stored_object_id。
 
-Document 使用稳定 document_id 和递增 version。
+Document 使用稳定 document_id 和标题/正文递增 version。人类目录保存当前同项目 parent 关系：只移动位置不增加内容 version、不重建索引，不保存结构版本或历史；同层 title/id 排序。目录根节点/子节点按需分页，服务端标题查找及直达链接返回所需祖先路径。子树删除重新确认范围，并由 Domain 一致删除。
 
 详细 canonical model、CRUD、删除与 read contract 见 [Knowledge Document Domain](./knowledge-document-domain.md)。
 
@@ -180,7 +180,9 @@ Query
 - 第一阶段实现前通过中英混合项目文档 benchmark 选择 lexical backend；
 - RRF 第一阶段 equal-weight；
 - reranker 可选；
-- chunk size、candidate count、top-k、RRF 权重等通过 Retrieval Eval 调优，不作为架构常量。
+- chunk size、candidate count、top-k、RRF constant 等通过 Retrieval Eval 调优，不作为架构常量；首期保持等权 RRF，不开放不等权配置。
+
+参数默认值和上限由管理员通过系统设置统一维护，各 Project 不覆盖，Knowledge / Memory 可按场景采用不同默认值。索引期修改生成新 profile 并后台重建/原子切换，查询期参数无需重建；UI 区分保存、重建与实际生效。关键词 backend 仍经评测选型，不作为普通参数任意热切换。
 
 详细设计见 [Retrieval Runtime](./retrieval-runtime.md)。
 
@@ -231,6 +233,8 @@ Agent system prompt 应要求：
 - 不把 Secret / credential 写入 Memory。
 
 retain 的 Secret detection / masking 必须发生在任何 memory model、embedding 或索引调用之前。
+
+原子 mutation batch 在明确未提交的 revision/目标 active 冲突后，重读当前合法 Memory 并重新 consolidation 一次；再次冲突返回结构化 ToolError。未知提交结果沿幂等/恢复契约核对，不把旧 proposal 原样重放，不绕过权限或生命周期失效；额外模型调用真实计量。
 
 详细设计见 [Agent Memory Runtime](./agent-memory-runtime.md)。
 
@@ -288,7 +292,7 @@ Knowledge：
 
 - canonical Document 是事实来源；
 - chunk / vector / lexical index 都是派生数据；
-- Document 更新后，旧 document version 的索引不能继续 serving；
+- 标题/正文更新后，旧 document version 的索引不能继续 serving；目录移动不改变内容版本；
 - 仅 IndexProfile 变化时，可以在后台重建期间继续由旧 profile serving，再原子切换。
 
 Memory：
@@ -298,7 +302,7 @@ Memory：
 - consolidation 产生的 UPDATE / DELETE / NOOP 必须留下 revision / audit evidence；
 - reflect 不改变 Memory Source of Truth。
 
-任何删除或 supersede 都必须保证旧索引最终不可再检索。
+任何删除或 supersede 都必须立即取消旧内容的召回资格；派生索引的物理清理可以异步完成，失败不回滚 canonical 事实。
 
 ## 11. 第一阶段明确不做
 

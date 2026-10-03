@@ -90,4 +90,6 @@ Auto Approval Model
 7. Context 先结构化构造，再序列化进入单轮 Model Call；
 8. 安全关键字段不能为了塞入上下文而静默有损截断；
 9. 上下文超限时退回用户审批，不通过额外 Model summary 强行继续；
-10. Audit 只保存审批证据和版本信息，不重复复制完整高敏感 ApprovalEvaluationContext。
+10. Audit 只保存审批证据和版本信息，不重复复制完整高敏感 ApprovalEvaluationContext；
+11. 应用层一次判断，不增加重试或备用模型；Adapter 透明网络重试仍受本次有限请求 timeout 限制并逐真实请求计量；
+12. 转入人工后持久等待明确处理，不自动过期，不接受迟到模型结果覆盖人工流程。

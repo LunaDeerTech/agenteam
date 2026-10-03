@@ -186,10 +186,12 @@ compaction recovery
     ↓
 rebuild Model Context
     ↓
-retry Model Turn
+issue a new logical Model Request with the rebuilt input
 ~~~
 
 overflow recovery 是兜底，不是唯一触发机制。
+
+这里是输入变化后的语义新调用，不是 Loop 对同一 Provider 请求增加自动重试层；原请求 attempts 的 timeout/retry 与用量仍由 Model System 统一处理。
 
 ## 10. Compaction 只能在稳定边界执行
 
@@ -407,6 +409,8 @@ Compaction Summary 应优先保留：
 
 Summary input 来自 Canonical Transcript / previous Compaction Snapshot。
 
+新增技能的 control 事实可被摘要概括，但 Summary 不是 Skill 绑定的事实源。目录与固定 revision 必须从初始绑定和已应用持久化变更重建，不能因控制文本已压缩而忘记新技能、切到最新版本或恢复已撤授权。
+
 不直接总结：
 
 - Runtime View UI labels；
@@ -551,6 +555,8 @@ Fixed Context 包括：
 
 Compaction 不能减少这部分。
 
+本轮技能目录按已生效的独立持久绑定投影，不属于可随摘要丢失的权限/版本事实。正文仍按需读取，并按普通 Tool Result 参与上下文预算；不通过修改 startup Context 或 Tool schema 来腾空间/加入技能。
+
 ## 29. Fixed Context Too Large
 
 如果：
@@ -654,7 +660,7 @@ Summary Model invocation 可能：
 - invalid response；
 - output truncated。
 
-Model System 自身先执行其 retry policy。
+Model System 执行适用于该 consumer/错误类别的请求 retry policy，Loop 不叠加相同请求的自动重试。
 
 最终仍失败时：
 
@@ -704,6 +710,7 @@ transcript_position
 load checkpoint
 -> load active CompactionSnapshot
 -> load recent Transcript
+-> restore fixed Skill bindings and applied change position
 -> rebuild Model Context Projection
 ~~~
 
@@ -927,6 +934,8 @@ Central restart 后：
 如果仍接近阈值，可以产生下一版 compaction。
 
 不需要仅因为 restart 重新生成相同 Summary。
+
+恢复所需的 Skill binding 状态独立于已压缩正文，按 checkpoint 对应的持久事实重建，并在下一模型输入边界处理尚未应用且仍有效的新增分配；不重新读取全部 Agent 配置或解除原 waiting。
 
 ## 52. Snapshot Corruption
 

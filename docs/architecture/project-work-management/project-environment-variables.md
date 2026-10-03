@@ -567,10 +567,12 @@ base64 "$GITHUB_TOKEN"
 Project Secret 也可以作为 Project-scoped backend configuration 的 credential reference：
 
 ~~~text
-MCP Server Config
-  -> credential_ref
-      -> Project Secret
-          -> MCP Bridge resolve
+System / Project MCP Server Config
+  -> connection / authentication profile（不持有项目凭据）
+      -> Project MCP Connection
+          -> Credential Binding / credential_ref
+              -> Project Secret
+                  -> MCP Bridge resolve
 ~~~
 
 这个关系与 Agent Secret 白名单不同：
@@ -579,11 +581,13 @@ MCP Server Config
 Agent allowed_secret_variables
 = Agent 可以在自己的执行环境使用 Secret
 
-MCP credential_ref
+Project MCP Connection credential_ref
 = MCP Backend 自己使用 Secret
 ~~~
 
 MCP Backend 使用某个 Secret，不代表该 Secret 会进入 Agent Prompt 或 Runner environment。
+
+Config 只描述可复用连接与认证 profile；具体 Credential Binding、显式连接和工具发现归 Project MCP Connection，不存在系统级连接或全局已发现工具目录。引用、删除、轮换与运行 lease 通过 MCP/Secret 正式端口处理，不能直接删除仍受运行引用保护的 Secret。见 [MCP Config Lifecycle](../mcp-integration/mcp-server-config-lifecycle.md)。
 
 如果 Agent 还需要在 Runner command 中直接使用同一个 Secret，则仍然需要把该 Secret 加入 Agent 白名单。
 
@@ -595,7 +599,11 @@ Project Owner 创建 Variable / Secret。
 
 Secret 明文只在写入请求和加密过程短暂存在。
 
-Project Secret 的 encrypted_value 使用平台统一 Secret Management 的应用层 envelope encryption。部署级 master key 由 Central Deployment Config 注入，不属于 Project 配置，也不保存在业务数据库中。完整基础设施边界见 [Deployment Runtime](../platform-infrastructure/deployment-runtime.md)。
+Project Secret 使用平台统一 AES-256-GCM 信封加密：数据密钥加密值，部署主密钥保护数据密钥。带版本的原始主密钥环及当前写入版本只从 Docker 部署环境变量注入，不属于 Project 配置，不进入数据库、Prompt 或日志。
+
+数据库可持久化 ciphertext、受保护数据密钥、非敏感算法/格式/key version，以及轮换迁移状态、进度和安全错误；不能因迁移恢复需要而保存明文主密钥或数据密钥。新写入使用当前主密钥版本，后台分批重新保护数据密钥并支持中断恢复，确认存量迁移完成及无必要引用后才移除旧主密钥。
+
+环境变量更新需更新部署并重启 Central，随后读取新密钥环并恢复迁移；自动分批迁移不自动生成或回写部署主密钥。nonce/AAD、格式及并发恢复由 D04 规格落实，完整边界见 [Deployment Runtime](../platform-infrastructure/deployment-runtime.md#6-secret-management-与-envelope-encryption)。
 
 ### 更新普通 Variable
 
@@ -614,6 +622,8 @@ Agent 白名单继续引用同一个 Secret ID，因此无需重新配置。
 后续新 command / process 使用新值。
 
 ### 删除
+
+删除 Secret 前，通过所属模块正式端口检查 MCP Connection 的凭据绑定及运行引用/lease 等保护，按既有 MCP/Secret 删除契约拒绝或完成必要解绑；不能由变量删除直接绕过运行引用保护。
 
 删除 Variable / Secret 后：
 

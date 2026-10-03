@@ -2,7 +2,7 @@
 
 ## 1. 模块职责
 
-Agent Management 定义项目中“一个 Agent 是什么”，负责长期配置、能力边界和 Agent 模板。
+Agent Management 定义项目中“一个 Agent 是什么”，负责长期配置、能力边界和 Agent 模板。项目技能的业务资源、安装、分配及运行版本见独立的 [Agent Skills](agent-skills.md)；实现按职责拆分，不把存储、工具执行和 Runner 传输集中到 Agent Service。
 
 它不负责执行 Agent Loop。一次实际运行由 Agent Executor 根据某个 Agent 的配置创建 Agent Execution，Agent Execution 内部运行 Agent Loop。
 
@@ -12,7 +12,9 @@ Agent Management 定义项目中“一个 Agent 是什么”，负责长期配�
 
 ### 基础配置
 
-- name；
+- 稳定 Agent ID、所属 Project 与 version；
+- name（路由标识名）；
+- display_name（可选显示名）；
 - tag-color；
 - `model_ref`；
 - `reasoning_effort`；
@@ -22,6 +24,10 @@ Agent Management 定义项目中“一个 Agent 是什么”，负责长期配�
 
 其中：
 
+- Agent 标识名在当前 Project 内唯一，使用英文字母、数字和 `-`，唯一性不区分大小写，标准 URL 使用小写；不同 Project 的 Agent 可以同名，也允许与 User username 同名，两者不共享名称占用表；
+- display_name 可使用面向人类的显示文字，未配置时回退到标识名，不把显示名作为路由身份；
+- 内部 Task / Meeting / Execution 引用使用带类型的不可变 Agent ID。可读路由须明确资源类型和 Project scope，界面参与者须区分 User / Agent，不能根据裸名称推断身份或权限；
+- 创建/改名的规范化、长度与保留字、唯一约束、version 并发和正式路径由 D01/D10/D26/D27 固定，Preset 名称不预占实际 Agent 名称；
 - tag-color 只用于界面识别，不参与权限、角色或调度语义；
 - `description` 是面向用户和其他 Agent 的简短能力说明，用于快速判断该 Agent 是做什么的、是否适合作为 assignee / reviewer / Meeting participant；
 - `instructions` 是该 Agent 自身长期维护的 Prompt，描述其角色、职责、专业能力、工作方式和个性化约束；
@@ -98,6 +104,16 @@ Artifact 同样不直接暴露底层 StoredObject。Agent 通过 `list-artifacts
 Artifact 下载 URL 由用户侧 UI / API 在权限校验后按需生成，不进入 Agent Context。
 
 Capability 是 Agent 的长期最大权限，不代表任意运行上下文中都能无条件使用这些能力。Meeting 等上下文可以进一步收紧权限。
+
+### Skills
+
+Skill 是当前 Project 中以 `SKILL.md` 为入口的版本化技能包，可带脚本、参考资料和素材。Agent 只保存稳定技能引用，服务端按自身分配过滤可见目录与正文，不因同属 Project 就看到全库。Owner 的管理目录及获有效 `assign-skill` 权限的 Agent 管理目录另行授权；管理名称/简介和分配不自动获得正文读取权。
+
+项目内置 Add Skills 不可单独删除，默认向新 Agent 启用，但允许按 Agent 禁用。配套 `install-skill` 是默认启用、可禁用的普通 Builtin Tool；`assign-skill` 是普通可选工具，不新增不可关闭 Core 能力。技能与工具按各自配置管理，保存、重启、模板复制或读取指引不能重新开启用户已禁用的能力。
+
+安装只发布到项目技能库，不自动分配；UI 与工具共用安装及分配服务。分配给自己或同项目其他 Agent 须显式执行，并经过目标资源、版本、幂等、项目生命周期及执行授权校验。技能不授予新的模型、Tool、Mount、Secret 或审批权限。
+
+Execution 启动时固定初始技能版本。新分配通过持久化的窄范围技能绑定变更在下一 Model Request 输入确定点生效，不重写启动 Snapshot 或固定 Tool Set，也不每轮重读全部 Agent 配置。已绑定版本不会因包升级而变化；移除/禁用只改正式配置，不主动取消或改写运行中的执行，后续读取/准备按当前资源与授权返回正常结果或 ToolError。完整版本、投递、恢复和 Runner 准备规则见 [Agent Skills](agent-skills.md)。
 
 ### Project Environment Variables
 
@@ -201,6 +217,7 @@ flowchart LR
     Agent --> Approvals["Reusable Approvals"]
     Agent --> Mounts["Runner Mounts"]
     Agent --> MemoryNS["Memory Namespace"]
+    Agent --> SkillRefs["Assigned Skill References"]
 
     Trigger["Task Scheduler / Meeting Turn"] --> Executor["Agent Executor"]
     Executor --> Execution["Agent Execution"]
@@ -212,8 +229,11 @@ flowchart LR
 
     Execution --> Model["Configured Model"]
     Execution --> Tools["Allowed Tools"]
+    SkillRefs --> Bindings["初始 Skill 版本 + 已生效持久绑定变更"]
+    Execution --> Bindings
 
     Tools -.on demand.-> MemoryNS
+    Tools -.on demand.-> Bindings
 ```
 
 Agent 是持久化配置；Agent Execution 是一次独立 Agent 运行的完整执行实例和持久化记录。
@@ -234,24 +254,31 @@ Preset 可以包含：
 
 - name；
 - tag-color；
-- model_ref；
+- model_ref（可选，仅可预填系统 chat Model）；
 - reasoning_effort；
 - description；
 - instructions；
 - AGENTS.md 注入策略；
-- allowed tools；
-- skills。
+- allowed tools（仅平台内置的普通可配置工具推荐）。
 
 Preset 不包含：
 
 - 项目特定 Runner mount points；
 - 项目特定 Secret Variable 白名单；
 - Reusable Approval；
-- 项目特定 Agent Memory。
+- 项目特定 Agent Memory；
+- 项目 Skill 引用；
+- 具体 MCP Tool / Project MCP Connection。
 
 从 Preset 创建 Agent 时采用“复制配置”，不是引用。
 
 因此后续修改 Preset 不应自动影响已经创建的项目 Agent。
+
+模板可以只保存职责、instructions 和内置工具推荐，不必绑定默认模型。创建实际 Agent 时必须明确选定当前 Project 可见且可用的 chat Model，并验证 reasoning_effort；模型缺失、已删除或禁用时要求重新选择，不静默代选。
+
+模板工具只是推荐：复制仍有效且当前可授权的配置，自动跳过已删除、停用等失效推荐，直接完成满足实际约束的 Agent 创建；可非阻断提示未复制项，不要求先修模板或逐项确认。临时网络不可达不等于长期引用失效，不能据此删除稳定引用。
+
+系统 MCP Config 只有可复用连接/认证 profile，没有系统级已发现 Tool 列表；实际连接、Credential 与 discovery 都属于 Project。实际 Agent 可在项目连接后逐工具授权 MCP，模板不跨越该边界。现有 Core Tools 不作为模板可关闭的推荐。Add Skills / install-skill 的创建默认值与用户显式禁用按各自配置处理，不因模板复制扩大授权。
 
 ## 5. 模型选择
 
@@ -268,7 +295,7 @@ Agent Management 只保存 `model_ref` 以及按所选 Model 能力配置的 `re
 
 删除仍被 Agent 引用的 chat Model 时，Model Management 必须要求用户先选择替代 chat Model，并在删除前批量更新受影响 Agent.model_ref；替换后还必须保证各 Agent 的 reasoning_effort 在新 Model 下合法，不能留下无效配置。
 
-实际模型调用由 Agent Loop 的 Model Adapter 处理。Provider / Model 配置、模型解析、Capability 与 Model Adapter 的完整设计见 [Model System 详细设计](./platform-infrastructure/model-system/README.md)。
+实际模型调用由 Model System 的正式调用能力处理，Agent Loop 消费统一契约。Provider / Model 配置、模型解析、Capability 与 Adapter 的完整设计见 [Model System 详细设计](./platform-infrastructure/model-system/README.md)。
 
 ## 6. 权限边界
 
@@ -286,3 +313,5 @@ Agent Capability
 任何 Agent 配置都不能绕过服务端最终授权校验。
 
 Memory tools 虽然不需要由用户逐项配置权限，但服务端必须强制限制 Agent 只能访问自己的 memory namespace。
+
+模型、Tool、Skill、Mount/Workspace 和 Secret 引用均通过事实所属模块的正式查询/校验端口解析。目录能力未绑定或查询失败不能当作验证通过；Runner 暂时离线是实际调用可用性问题，不自动删除长期配置。D01/D10 固定 canonical 字段、版本/引用/删除矩阵和端口，D15/D18/D20 提供真实目录，D21/D22 完成技能工具及运行绑定，本文不代表这些能力已实现或验收。

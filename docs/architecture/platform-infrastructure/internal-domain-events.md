@@ -730,9 +730,11 @@ failed delivery 可以 retry / redelivery，但这不等于通用历史 replay�
 
 ## 25. Retention
 
-第一阶段不自动清理 Outbox / delivery 历史的具体 retention 规则。
+第一阶段 Outbox / delivery 历史不自动过期或清理，包括已经成功投递的记录；不引入 TTL、定时删除或以“留存规则”名义新增清理任务。
 
-如果未来事件规模要求归档 / cleanup，应单独增加 retention policy。
+这与领域明确定义的显式永久删除不同。Project 永久删除仍按正式 Project-scoped 清理边界处理所属数据/Audit，系统级 Audit 不自动随项目删除；具体归属、事务与最小追溯按 [项目生命周期](../project-work-management/README.md) 及 [Audit](../security-governance/audit.md) 契约落实。不能由事件投递完成或引用来源消失自行推导删除授权。
+
+如果未来事件规模要求自动归档 / cleanup，必须另行确认 retention policy；当前不预先实现。
 
 在引入 retention 前，必须确认：
 
