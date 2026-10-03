@@ -250,3 +250,12 @@
 
 
 - D04完整验收通过：V03入口独立及无过滤test-security最终exit0，postgres1.042/database36.063/app58.639/process51.828/security57.810s；完整日志SHA25607dd87e8c2bcad49f4baa1ea0483e54dc4646e8d3c75f699ac0e0986a5a95。入口24 manifest dcd8d93edcdc9415c4c3b7a7295b8b39ad54495799b7b14c54657fe5a42896f2、全59 manifest9de98ae356466157aa30d18f0e8bdeb61e5ddeb17811812480f5164100779bd0，源/独立副本一致；两轮资源exact确认全0，作者/验证者全部停止。root完成生产/说明/证据审查并精确提交入口，GitHub认证阻塞暂待推。未绑定真实授权/业务适配与ready=false限制不变；D04完成不代表平台/E01完成。下一步D05规格，无产品待定。
+
+
+- D04入口实际本地交付：`abf5c37`，提交后工作区干净。GitHub认证仍不可用，ee8ddb7/d6e92c8/6c2aea2/79af090/abf5c37共5提交待补推。
+
+## AT-0012：D05 对象存储与 Artifact
+
+- 状态：S01规格中；唯一活动模块D05；[主卡](../work-items/d05-object-storage-artifact.md)修订1，基线main@abf5c37。D04全范围与真实最终整组已独立验收，所有作者/验证者停止，资源全清后开工。
+- architecture_worker独占新增实施规格，root独占主卡/计划/台账；R01仅有界MinIO SDK/镜像/环境探针，不写仓库实现。按D01正式对象/引用/transfer边界落实表/状态/授权/stream/一致性/恢复/Artifact服务，S01确认后实施。未来身份/Project/Runner/Tool适配仍未绑定，禁止生产stub或匿名业务API。
+- Go1.27.1/local与owned PG固定环境继续复用；MinIO版本/真实fixture待核验，无产品待定；推送认证阻塞不冒称已远端同步。下一步完成设计及依赖核验。
