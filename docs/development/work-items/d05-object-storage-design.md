@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact 实施规格
 
-- 修订：2；业务输入 `main@abf5c37`、[D05 主卡修订 1](d05-object-storage-artifact.md)，复审时 `main@08accd3` 仅增加研究/进展记录；本文是 S01 设计，不是实现或验收通过声明。
+- 修订：3；业务输入 `main@abf5c37`、[D05 主卡修订 1](d05-object-storage-artifact.md)，复审时 `main@08accd3` 仅增加研究/进展记录；本文是 S01 设计，不是实现或验收通过声明。
 - 依据：[对象存储](../../architecture/platform-infrastructure/object-storage.md)、[Artifact](../../architecture/tool-system/artifact-tools.md)、[D01 资源](d01-contracts/resources-skills.md#对象与业务引用)、[生命周期](d01-contracts/domain-lifecycle.md)、[权限/幂等/Tx](d01-contracts/foundation.md)、[部署运行](../../architecture/platform-infrastructure/deployment-runtime.md)。
 - 已核对实际 [D03 Tx](../../../internal/central/postgres/transaction.go)、[identity](../../../internal/central/identity/contract/identity.go)、[Audit contract](../../../internal/central/audit/contract/types.go)/[授权](../../../internal/central/audit/service.go)、[cursor](../../../internal/central/cursor/cursor.go)、[Central](../../../internal/central/app/app.go)。复用 Go **1.27.1 / GOTOOLCHAIN=local**、pgx **5.11.0**、Goose **3.28.0**、既定 PG17.8/vector0.8.1 fixture。
 
@@ -81,6 +81,9 @@ DeleteUnreferenced(ctx, ObjectCleanupCause, object_id) -> completed | pending | 
 
 正式必需出口：`ResourceAuthority.AuthorizeOwner[InTx]` 验证真实 owner/调用 actor、prospective creation cause、可见性与 intent，并从持久实体/创建cause区分 existing/prospective，不能接受调用方boolean；`ProjectGate.CheckInTx` 校验同 Tx 生命周期；`SourceResolver.Resolve/ValidateInTx` 解析固定业务引用与版本；`RunnerTransferAuthority` 校验真实 Runner/Operation/当前 Project/取消及后续完成/停止证据。未绑定即 `DEPENDENCY_UNBOUND`，不能返回空引用、匿名 grant 或成功；只在测试构造可拒绝的替身。
 
+受保护固定版本读取增加专用 `ObjectReadAuthority.AuthorizeObjectReadInTx(ctx,tx,actor,owner,objectID) -> OwnerAuthorization`，必需绑定本次exact ObjectID、existing+Read；grant携ReadObjectID及可选ProtectedLease，后者仅execution/history/transfer稳定用途且ObjectID一致。opaque构造和Details均复制可变嵌套值，不能用外部pointer修改授权。canonical读取仍经ResourceAuthority；没有canonical时必须调用上述正式端口（缺失DEPENDENCY_UNBOUND），不能以任意active lease代替读取授权。对象服务在同Tx重读该exact lease ID/object/owner kind+ID/active状态及对象分区，当前主体/owner权限仍重验。请求已知的User/Project、业务owner和ObjectAggregate按全局序一次预收集；Acquire/ReleaseLease同持ObjectAggregate，核验lease不临时补低序锁。未来authority若还需其他低序资源须调用前收集，发现遗漏整体回滚重采集，不能在InTx中倒序加锁或新开事务。
+
+
 D07 绑定 Session/Avatar 当前用户，D08 绑定 Owner/gate/生命周期，D12/D18/D20 绑定 Knowledge/Execution/Runner-result/MCP source，D15/D17 绑定 Runner 身份与传输确认，D21 注册 Artifact Tools，D27 绑定 UI 下载入口。D17 将可信 material 映射到独立 Runner 协议，Runner 不 import Central；D05 不提前定义操作执行协议。浏览器 download URL 的服务/验证在 D05 完整实现，正式 HTTP 装配由 D07/D08 授权成熟后接入；本次不注册匿名业务路由。Agent 只拿业务 file_ref/image_ref，无 object 枚举/签名 Tool。
 
 ## 4. 表、状态与锁
@@ -134,7 +137,7 @@ CancelUpload覆盖pending及**available但仍reserved/未Attach**：原actor通�
 
 StatObject仅查询DB metadata：当前actor/owner/scope/read gate及canonical reference或受保护固定版本使用事实仍须核验，但不打开MinIO、不创建reader lease、不证明payload存在/可读；stored state=available不是本次存储健康结论。prospective reservation不授权普通Stat，其原actor经LookupPut查看上传状态。
 
-ReadObject在短Tx做相同当前读取授权，再验available/non-cleaning并持久reader lease，commit确认后才打开MinIO。真实GET的状态/headers/首段或空流必须在交付reader/HTTP成功头前验证，不能留下GetObject的惰性404尚未触发。返回 `ObjectReader{Meta,ResolvedRange,ReadCloser}`；EOF/错误/Close都先真正关闭并join源I/O，再释放lease，提交unknown则保留lease按ID重试。
+ReadObject在短Tx做相同当前读取授权，再验available/non-cleaning并持久reader lease，commit确认后才打开MinIO。真实GET的状态/headers/首段或空流必须在交付reader/HTTP成功头前验证，不能留下GetObject的惰性404尚未触发。返回 `ObjectReader{Meta,ResolvedRange,ReadCloser}`；reader与其他opaque handle一样显式拒绝JSON反序列化，构造器拒绝所有可nil动态类型的nil body；EOF/错误/Close都先真正关闭并join源I/O，再释放lease，提交unknown则保留lease按ID重试。
 
 OpenUploadSource仅供新建/恢复的内部复制：当前actor、原owner/cause、unconsumed receipt、available+reserved及non-cleaning全部核验后取得source lease，才开流。它不把reserved变为canonical、不开放普通Read/下载或raw-ID授权。源上传若被Cancel撤销，则阻止后续读取/发布，已有流的lease保留到实际Close/join；复制成功不隐式消费别的owner的reservation，原actor或可信cleanup仍可显式撤销该源上传。
 
@@ -212,7 +215,7 @@ B03 config/check-config验证固定endpoint、TLS/CA、凭据/独立签名keyrin
 | --- | --- |
 | B01 完整性/流 | 0字节、小文件与≥64MiB对象真实put/get/range；长于声明/短读/错SHA拒绝；固定buffer/spool预算/取消/遗留清理；seekable前缀陷阱拒绝；Stat在payload缺失/MinIO不可达时仍只查授权metadata、无I/O/lease，Read才真实报错；0/≤64KiB错SHA在首字节前失败，大流末尾损坏保留末段、送出字节少于Content-Length并中断；无完整body后才报错、无整块缓冲 |
 | B01 Tx/恢复 | 同key同长度不同body冲突，包括expectedSHA省略；权限先于重放；pending提交unknown不先外发；payload写成DB失败/COMMIT丢回包按原attempt恢复；成功重放不重写canonical；available缺payload/篡改明确失败；中断/late writer/cleanup gate/refs+lease竞争无误删；慢条件PUT与无条件零marker barrier、旧grant重放后仍空、marker提交unknown/重启恢复与永久保留；正式lease未知仍pending |
-| B01 绑定/撤销 | existing Put原子available+canonical；prospective available+reserved不允许普通Read/Stat/下载；内部source只由匹配receipt及当前权限开lease；Attach/消费同Tx与Cancel竞争仅一方成功，重复消费幂等；未Attach成功上传可撤销并最终清理，跨actor/owner/cause拒绝；取消后原Put/Lookup重放仅安全revoked结果、无可消费receipt/新写/复活；active reader仍阻止物理清理 |
+| B01 绑定/撤销 | existing Put原子available+canonical；prospective available+reserved不允许普通Read/Stat/下载；内部source只由匹配receipt及当前权限开lease；Attach/消费同Tx与Cancel竞争仅一方成功，重复消费幂等；未Attach成功上传可撤销并最终清理，跨actor/owner/cause拒绝；取消后原Put/Lookup重放仅安全revoked结果、无可消费receipt/新写/复活；active reader仍阻止物理清理；无canonical的固定版本须exact read grant和active稳定lease同Tx核实，错object/owner/类型/已释放lease拒绝，外部pointer变更不改变grant；Reader拒JSON及typed-nil body |
 | B01 公共兼容 | 全部D04旧Audit/Actor/迁移输入仍合法；新增action/resource/producer/cause拒绝错配；archived合法读可追加Read Audit且同Actor写被拒、admin不代Owner、缺Audit不返回未交付内容；对象维护不能冒充Artifact业务主体 |
 | B02 Artifact | inline/upload/source三路径真实payload与原子绑定；source复制后ObjectID/key不同；首次resolved事实持久化、未完成恢复重验当前源并沿原版本；completed后源删除/失权/receipt消费仍可按原输入重放且source resolver/存储调用0次，目标失权先拒绝、改ref/revision/展示参数冲突；commit unknown先查完成态，无双Artifact；cursor/UTF-8/binary/image安全投影 |
 | B02 下载 | 真stream/range、到期/改签名/kid/跨user/跨Project/Session撤销/Owner变化拒绝；每次授权/lease；HTML/SVG/MIME伪装不inline，header不可注入；敏感canary不泄漏；Audit失败前不交付；尾部SHA/写失败真实中断、HTTP状态不重写/不追加JSON，sent_bytes与实际Write一致，未join不释放lease，最终Audit失败不重发 |
