@@ -195,3 +195,12 @@
 
 - D03完成：B02经独立V02验收，30输入manifest `043a4e90eea13ff522173d24658b9facdad94997197676ebbce7e4f747c01023`。普通test/vet/race/build与完整真实integration通过；独立新增4组app边界及迁移取消/HTTP+DB/真实process选定集通过。启动取消后服务端迁移guard残留缺陷已最小修复，并以owned PID退出和repairing恢复证明；详细日志/时长/nonce/限制见D03规格。
 - 所有作者与验证者均停止；最终独立nonce资源为0，冻结指纹/格式通过，主线程代码/脚本/文档审查通过。数据库真实绑定而整体ready=false，其余业务仍未实现。不将D03完成当产品或E01完成。主线程按授权提交推送，提交通过本节历史定位；下一步D04 Secret/出站/Audit规格，无产品待定或环境阻塞。
+
+- D03实际交付：`9beaa7f`已成功推送origin/main（cd31f34→9beaa7f），工作区清洁。
+
+## AT-0011：D04 Secret、出站访问与 Audit
+
+- 状态：S01已确认，B01待开工；唯一活动模块D04；[规格](../work-items/d04-security-foundation.md)修订1，基线main@9beaa7f。D03数据库基础与入口全验收，未绑定Secret/对象/身份/协议及业务。
+- architecture_worker独占新增实施规格，root维护主规格/台账/计划；先固定密钥环/恢复、动态出站与Audit数据接口和真实验收，再按完整结果实施、独立验证、提交推送。无用户待定或环境阻塞；当前不创建测试资源、不提前实现D05+。
+
+- S01实施规格修订2已获主线程确认。独立静态审查发现的Audit重放/HTTP隐式重试/故障状态及旧策略receipt问题已集中明确化；按Audit/cursor→Secret/轮换→动态出站顺序实施，尚无D04产品行为验收。设计基线先按授权提交推送，再开工B01，范围见主规格/实施规格。
