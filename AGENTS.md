@@ -46,6 +46,20 @@ PRs should explain the problem, changed behavior, affected documents/modules, an
 
 Keep credentials in ignored `.env*` files or root `secrets/`; commit sanitized example configurations only. When asking the user to choose through a question tool, wait for their answer without an automatic timeout.
 
+## 基础先行的模块开发模式
+
+正式开发遵循[开发计划](docs/development/development-plan.md)，按依赖顺序推进，每次只有一个活动模块。先确定整体模块边界与跨模块契约；模块开工前明确数据结构、接口、状态规则、错误、事务、幂等和验收场景，再实现、调试及验收。不以提前出现界面或演示效果作为早期交付目标。
+
+一个模块可以拆成连续的小任务卡，但单张卡完成不代表模块完成。当前范围内的核心实现、异常处理及适用的并发和恢复验证全部通过后，才推进下一模块。未来模块的依赖使用已确定的正式端口，记录真实绑定与集成验收的责任工作项；不得以生产 stub、静默成功、演示数据或跨模块直接改表替代正式能力。
+
+架构专题保存业务规则，开发计划保存模块顺序与门槛，工作项规格保存具体接口与实现决策。设计调整先评估影响并同步相关文档和任务卡，再修改实现，避免在下游复制补丁。
+
+## 跨对话交接与恢复
+
+交接以仓库文档、实际代码和 Git 证据为依据，不依赖聊天 Memory、临时 ToDo 或上一会话的完成声明。新会话开工前必须读取本文件、[开发计划](docs/development/development-plan.md)、[任务台账](docs/development/agent-team/tasks.md)和当前工作项规格/任务卡，核对分支、提交、未提交改动与前置依赖验收证据，从首个未完成项恢复。
+
+模块完成或中途切换会话均须更新台账：工作项与计划编号、当前阶段、规格/任务卡路径及修订号、已完成与未完成内容、实际检查命令/结果及证据、未验证范围、阻塞与待定决策、未绑定端口、相关提交定位方式、未提交文件与明确的下一步。中途交接先确认子 agent 和命令已停止写入，保留已有改动；只有通过模块完成门槛才标记“已完成”，部分完成或未验证不得冒充已验收。
+
 ## 串行子 agent 开发团队
 
 主线程负责用户讨论、规划、任务下发、复杂诊断、审查、必要集成和汇报；业务执行交给子 agent。固定使用 `backend_worker`（后端）、`frontend_worker`（前端）和 `verification_worker`（测试与文档）三个角色，全部使用 `gpt-6.1-sol`，推理级别为 `low`，权限与 sandbox 继承主线程，不使用 `luna_worker`。
