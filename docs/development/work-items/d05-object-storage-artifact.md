@@ -8,9 +8,9 @@
 
 | 卡 | 依赖 | 角色 | 独占范围 | 状态 |
 | --- | --- | --- | --- | --- |
-| S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订3已验；仅设计解冻至修订4，补正式锁预收集 |
+| S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订4完整锁规划增量独立静态通过、root采纳并冻结 |
 | R01 依赖与隔离环境核验 | D04完成 | research_worker | 有界探针及新增d05-object-storage-research.md报告，不写实现源码 | R01/R02修订2完成并停写 |
-| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01核心解冻修4已复现缺陷；锁机制等修订4冻结后改；B02/B03未开始 |
+| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | 前4缺陷作者定向通过；正式锁计划/contract解冻实施第5项；B02/B03未开始 |
 | V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | 核心暂不通过：完整suite通过但4实际探针及1正式端口缺口阻塞；已停止读取/命令 |
 
 root独占本卡、开发计划和任务台账；架构作者仅新建实施规格。角色遵循AGENTS与agenteam-design/go-development/verification/documentation技能，禁止子agent再委派和Git写操作。常态至多两个活动子任务，Docker和测试资源顺序明确移交。设计稳定且root确认后才写实现，不提前D06+。
@@ -161,3 +161,9 @@ V最终另复现两项局部进展缺陷：101次真实Put且前100个有真实h
 V已全停读/命令并归还Docker，源/两副本35核心+175依赖+53全文件末次匹配；3轮共9nonce容器/网络独立核0、owned TMPDIR全清。证据索引/tmp/agenteam-d05-b01-independent-evidence.sha256 SHA82a05e660df66e51383c27358a102049d990edf612b3845c037e5e5213303ff2；原unknown/spool/progress probes均保留，后续不变复验。root采纳5项，解冻core/README给原backend先修4实测缺陷，公共13/contract4仍冻结；Docker由backend独占。
 
 root采纳正式非授权AccessLockPlan：可信authority预收集Actor/真实owner/精确read/lease/cleanup/source必要gate，对象服务合并自身command/quota/Object/reference，一次全批AcquireAll；锁后重读映射与当前权限，变化整Tx明确回滚，不补低序锁、不升级、不自动重试。InTx外层组合须有正式规划出口；不改D03、业务ownerID或未来业务表。architecture仅独占设计修订4，backend不得读活动设计或先改冻结contract；设计冻结并经root确认后再解冻相关契约/锁实现。该调整修复既有权限/锁语义，无新产品待定。
+
+审查记录已本地提交663cc51，仅主卡/台账2文档，业务未提前提交；认证阻塞仍在，共11本地提交待推。设计修订4已停写冻结SHA d79d7718c6816555cc813103867a98bac8ef2dd540dbb67b09733610707be39d：新增闭集AccessRequest、Discover/Validate、完整计划、一次组合取锁及Tx绑定LockedAccess，显式调整InTx/source调用签名。root读增量与17链接检查通过，V只读冻结设计及旧稳定副本做静态复核，不读作者活动core/Docker。必要新API迁移允许原探针最小机械适配并记录diff/SHA，保留原文件、断言、真实故障和竞争时序，不为兼容旧签名保留无plan旁路。
+
+作者前4项返修定向全部exit0：3个V原探针逐字/SHA不变，真实objects race21.060s、spool1.042s；新增正文/MIME/ExpectedVersion异义竞争及跨service重建的公平批次回归通过。日志/tmp/agenteam-d05-b01-repair-four.log SHA7b79d9aec36a257895ae2f30cd3f61aca422a175ef29c505e55cc1476b21249a；稳定输入副本/tmp/agenteam-d05-four-fixed-y9dhx9r_，input manifest9d5e2b109a580a746853f83baaf0b5818be2b6c3cecce0ea7e512d89daaa5538。MinIOb8d56290bafa41d6ae402203f6959364/outbound6510fd15249768539e66b2f3a1b30038/PG669a5c456ff42acb03629c157702e535资源全0，清理JSON SHA2617eed537d1ba1d9ec29c93179f95e565b03ad81ee04ad67c35685c5fa5d7dd。root核日志并只读稳定副本修复差异，采纳方向；这是作者定向结果，未替代最终独立复验。contract仍未解冻，等待设计rev4静态结论后修第5项。
+
+设计rev4独立增量静态通过，无阻塞；274行、17链接/4fragment、11稳定依赖指纹及rev3→4差异核验，证据/tmp/agenteam-d05-design-v4-review-b5m3w3dm/inputs.sha256 SHA9e2c9c69773b3b51e08f47739231055dc833262198c2c0f5175b2d8037e3d411。源/副本设计SHA d79d7718c6816555cc813103867a98bac8ef2dd540dbb67b09733610707be39d；D03接口可支持同live Tx/service/完整plan证明，无需改基础框架。V已停读命令0，无Docker/产品测试；root正式采纳，解冻object contract必要authority/source/types与新增access.go/测试、核心access与调用链给原backend修第5项，设计及D03/D04公共13冻结。五项实现后统一真实竞争/恢复、check-go与独立完整兼容复验，不把静态设计通过写成实现验收。

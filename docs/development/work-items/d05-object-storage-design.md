@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact 实施规格
 
-- 修订：3；业务输入 `main@abf5c37`、[D05 主卡修订 1](d05-object-storage-artifact.md)，复审时 `main@08accd3` 仅增加研究/进展记录；本文是 S01 设计，不是实现或验收通过声明。
+- 修订：4；业务输入 `main@abf5c37`、[D05 主卡修订 1](d05-object-storage-artifact.md)，B01 冻结审查补齐对象锁计划与恢复门槛；本文是 S01 设计，不是实现或验收通过声明。
 - 依据：[对象存储](../../architecture/platform-infrastructure/object-storage.md)、[Artifact](../../architecture/tool-system/artifact-tools.md)、[D01 资源](d01-contracts/resources-skills.md#对象与业务引用)、[生命周期](d01-contracts/domain-lifecycle.md)、[权限/幂等/Tx](d01-contracts/foundation.md)、[部署运行](../../architecture/platform-infrastructure/deployment-runtime.md)。
 - 已核对实际 [D03 Tx](../../../internal/central/postgres/transaction.go)、[identity](../../../internal/central/identity/contract/identity.go)、[Audit contract](../../../internal/central/audit/contract/types.go)/[授权](../../../internal/central/audit/service.go)、[cursor](../../../internal/central/cursor/cursor.go)、[Central](../../../internal/central/app/app.go)。复用 Go **1.27.1 / GOTOOLCHAIN=local**、pgx **5.11.0**、Goose **3.28.0**、既定 PG17.8/vector0.8.1 fixture。
 
@@ -64,24 +64,65 @@ PutObject(ctx, actor, owner, meta, media_type, length, expected_sha256?, io.Read
 LookupPut(ctx, actor, owner, command_key) -> not_observed | pending/unknown | failed | committed{ObjectMeta, UploadReceipt?} | revoked{object_id,cleanup_state}
 CancelUpload(ctx, actor_or_trusted_cleanup, owner, command_key) -> upload_result/cleanup_checkpoint
 PreparePayload(ctx, actor, owner, media_type, length, expected_sha256?, io.ReadCloser) -> PreparedPayload
-ReserveUploadInTx(ctx, tx, actor, owner, command, PreparedPayload) -> UploadAttempt
-PublishVerifiedInTx(ctx, tx, actor, owner, verified_attempt) -> ObjectMeta/UploadReceipt
-AttachObjectInTx(ctx, tx, actor, owner, object_id) -> ObjectReference
-ConsumeUploadInTx(ctx, tx, actor, owner, UploadReceipt) -> ObjectReference
+ReserveUploadInTx(ctx, tx, actor, owner, command, PreparedPayload, plan, locked) -> UploadAttempt
+PublishVerifiedInTx(ctx, tx, actor, owner, verified_attempt, plan, locked) -> ObjectMeta/UploadReceipt
+AttachObjectInTx(ctx, tx, actor, owner, object_id, plan, locked) -> ObjectReference
+ConsumeUploadInTx(ctx, tx, actor, owner, UploadReceipt, plan, locked) -> ObjectReference
 OpenUploadSource(ctx, actor, owner, UploadReceipt) -> ObjectReader // 仅内部复制准备，不是普通Read
-ReleaseObjectInTx(ctx, tx, actor, owner, object_id) -> error
+ReleaseObjectInTx(ctx, tx, actor, owner, object_id, plan, locked) -> error
 ReadObject(ctx, actor, owner, object_id, ByteRange?) -> ObjectReader
 StatObject(ctx, actor, owner, object_id) -> ObjectMeta
-AcquireLeaseInTx/ReleaseLeaseInTx(ctx, tx, trusted_actor, object_id, LeaseOwner) -> lease/result
+AcquireLeaseInTx/ReleaseLeaseInTx(ctx, tx, trusted_actor, object_id, LeaseOwner, plan, locked) -> lease/result
 InspectReferences(ctx, object_id) -> {references[], active_leases[]} // 内部清理端口
 DeleteUnreferenced(ctx, ObjectCleanupCause, object_id) -> completed | pending | failed
 ```
 
 `PutObject` 是事务外 wrapper，复用准备/预留/上传/发布流程；InTx 端口仅 DB metadata/ref，不隐藏外部 I/O、nested Tx 或 commit。低层组合端口供 Artifact 与未来领域把真实业务发布、object reference、成功 command receipt/Audit 放入同一 Tx；`verified_attempt` 只能由存储适配器生成，客户端不能提交布尔 verified。
 
-正式必需出口：`ResourceAuthority.AuthorizeOwner[InTx]` 验证真实 owner/调用 actor、prospective creation cause、可见性与 intent，并从持久实体/创建cause区分 existing/prospective，不能接受调用方boolean；`ProjectGate.CheckInTx` 校验同 Tx 生命周期；`SourceResolver.Resolve/ValidateInTx` 解析固定业务引用与版本；`RunnerTransferAuthority` 校验真实 Runner/Operation/当前 Project/取消及后续完成/停止证据。未绑定即 `DEPENDENCY_UNBOUND`，不能返回空引用、匿名 grant 或成功；只在测试构造可拒绝的替身。
+正式必需出口：`ResourceAuthority.AuthorizeOwner[InTx]` 验证真实 owner/调用 actor、prospective creation cause、可见性与 intent，并从持久实体/创建cause区分 existing/prospective，不能接受调用方boolean；`ProjectGate.CheckInTx` 校验同 Tx 生命周期；`SourceResolver.Resolve/ValidateInTx` 解析固定业务引用与版本；`RunnerTransferAuthority` 校验真实 Runner/Operation/当前 Project/取消及后续完成/停止证据。以下 AccessPlanner 提供全部实际 gate 的非授权预收集；缺任一必需端口即 `DEPENDENCY_UNBOUND`，不能默认空锁、空引用、匿名grant或成功；只在测试构造可拒绝的替身。
 
-受保护固定版本读取增加专用 `ObjectReadAuthority.AuthorizeObjectReadInTx(ctx,tx,actor,owner,objectID) -> OwnerAuthorization`，必需绑定本次exact ObjectID、existing+Read；grant携ReadObjectID及可选ProtectedLease，后者仅execution/history/transfer稳定用途且ObjectID一致。opaque构造和Details均复制可变嵌套值，不能用外部pointer修改授权。canonical读取仍经ResourceAuthority；没有canonical时必须调用上述正式端口（缺失DEPENDENCY_UNBOUND），不能以任意active lease代替读取授权。对象服务在同Tx重读该exact lease ID/object/owner kind+ID/active状态及对象分区，当前主体/owner权限仍重验。请求已知的User/Project、业务owner和ObjectAggregate按全局序一次预收集；Acquire/ReleaseLease同持ObjectAggregate，核验lease不临时补低序锁。未来authority若还需其他低序资源须调用前收集，发现遗漏整体回滚重采集，不能在InTx中倒序加锁或新开事务。
+受保护固定版本读取增加专用 `ObjectReadAuthority.AuthorizeObjectReadInTx(ctx,tx,actor,owner,objectID) -> OwnerAuthorization`，必需绑定本次exact ObjectID、existing+Read；grant携ReadObjectID及可选ProtectedLease，后者仅execution/history/transfer稳定用途且ObjectID一致。opaque构造和Details均复制可变嵌套值，不能用外部pointer修改授权。canonical读取仍经ResourceAuthority；没有canonical时必须调用上述正式端口（缺失DEPENDENCY_UNBOUND），不能以任意active lease代替读取授权。对象服务在同Tx重读该exact lease ID/object/owner kind+ID/active状态及对象分区，当前主体/owner权限仍重验；读取规划必须在取Object锁前覆盖可能使用的固定版本/lease保护方，不能失败后现场补父gate。
+
+### 对象操作的锁计划
+
+仅新增对象域的规划/组合端口，不扩展D03锁框架、owner ID含义或未来业务表。`AccessRequest` 为闭集opaque tagged union，由按用途的构造器校验必填/禁填字段；Kind固定为 `owner|object_read|lease|object_cleanup|project_cleanup|source|maintenance`，内部Operation再区分本域实际动作，不能用任意字符串选择未来能力。
+
+| Request Kind | 必须不可变绑定的请求与发现事实 |
+| --- | --- |
+| owner | Actor、ObjectOwner、Intent、具体操作；如有则exact ObjectID、CommandMeta/command identity、PreparedPayload、UploadAttempt或UploadReceipt的稳定身份。Reserve绑定原command实际ObjectID；新命令未见时绑定prepared的新ObjectID |
+| object_read | Actor、owner、Read、exact ObjectID、stat/read/open-source用途；open-source含receipt；覆盖canonical或protected-use的真实依赖，不以未知fallback补锁 |
+| lease | Actor、exact ObjectID、LeaseOwner kind+ID、acquire/release；不虚造一个caller owner |
+| object_cleanup / project_cleanup | 原typed cleanup cause及exact ObjectID，或Actor+ProjectCleanupCause；绑定稳定operation/project/version，不借普通Owner授权 |
+| source | Actor、原BusinessFileRef、ResolvedSource的owner/ObjectID/固定revision；ExecutionFile保留ExecutionID与PayloadID两个身份；只在新建/未完成命令规划来源 |
+| maintenance | 本实例/恢复职责、既有upload/attempt/cleanup等持久cause与目标身份；只允许已授权的技术收敛，不授予后台Service读取/发布Owner业务内容 |
+
+```text
+// 以下均在 object/contract；依赖只有既有 foundation/identity。
+AccessDependencies   // opaque: 真实依赖映射指纹 + []foundation.LockRequest 的复制投影
+AccessLockPlan       // opaque: service/完整请求绑定 + dependencies + 本域锁集合
+LockedAccess         // opaque: service + exact Tx + 完整plan集合/union/modes；不是授权grant
+
+AccessPlanner.Discover(ctx, AccessRequest) -> AccessDependencies
+AccessPlanner.ValidateInTx(ctx, tx, AccessRequest, AccessDependencies) -> error
+
+ObjectService.DiscoverAccess(ctx, AccessRequest) -> AccessLockPlan
+ObjectService.AcquireAccessPlansInTx(ctx, tx, []AccessLockPlan,
+                                    extraLocks: []foundation.LockRequest) -> LockedAccess
+ObjectService.ValidateAccessPlanInTx(ctx, tx, AccessRequest, AccessLockPlan, LockedAccess) -> error
+SourceResolver.ValidateInTx(ctx, tx, actor, ResolvedSource, plan, locked) -> error
+```
+
+Discover只读预扫描、不取得业务事务锁、不作最终授权、不持Tx等待外部I/O；端口由可信authority组合绑定，必须覆盖Actor的User/Agent/Execution gate、当前owner真实父实体、固定版本保护方及其他必要低序gate。AccessDependencies记录锁依赖身份而非缓存权限/owner existence；同Tx按既定creation cause创建prospective实体，只要父身份/所需锁未变，仍由实际授权检查决定existing。plan不进入command语义摘要、不作为持久AccessGrant；其构造/投影复制slice、pointer等可变值，拒绝JSON反序列化，通用fmt/日志不展开。
+
+DiscoverAccess在上述依赖上加入本域command、quota、User/Project、Object/record锁；每个plan是该操作的**完整集合及预定模式**，Read intent不等于全部shared，例如建立reader lease仍需Object exclusive。object service只从已明确身份构造锁：ExecutionPayload的owner.ID是PayloadID，ExecutionAggregate必须取真实ExecutionID；SkillRevision/MeetingFile不能假设owner.ID等于SkillID/MeetingID，须由持久映射/创建或清理cause提供。正式Meeting文件仍走Artifact链路，不新增Meeting存储实体。Actor gate也不能只用Project共享锁替代；父映射或planner缺失必须拒绝/保留pending，不猜空集合。
+
+AcquireAccessPlansInTx是唯一组合取锁入口：先核全部plan的service/请求绑定，合并其完整集合与外层extraLocks，重复key取最强模式，调用D03 AcquireAll **一次**后返回Tx绑定的LockedAccess。调用方不得先取得某个plan子集；extraLocks及每个plan原集合/模式都纳入token，不能只凭“其中一把锁相同”匹配。token由此入口铸造并校验同service、同live Tx，不能由调用方填held=true；零值、别的Tx/请求/plan、跨service token均拒绝。
+
+所有对象操作InTx显式追加 `plan, locked`，首先调用ValidateAccessPlanInTx核对**本次完整操作请求**及token，再由AccessPlanner.ValidateInTx在同Tx重读依赖映射。当前所需key/模式有新增或身份变更即 `RESOURCE_BUSY`（安全原因lock_plan_changed、not_committed），外层必须回滚整笔Tx；不补高/低序锁、不shared升级、不自动重试。依赖核验通过后才调用现有Resource/ObjectRead/Lease/Cleanup/Project等authority做当前权限与gate检查；这些回调不得自取遗漏锁、嵌套Tx或提前被调用。权限仍先于幂等结果及version，不因plan成功而跳过。
+
+普通Put/Lookup/Read/Stat/Cancel/恢复wrapper在每个DB阶段开Tx前DiscoverAccess，Tx内复用同一Acquire/Validate流程。外层Artifact/Skill等组合方先发现所有对象/source/lease计划和自身extraLocks，开Tx后一次AcquireAccessPlansInTx，再把匹配plan/token交各InTx；禁止在已开Tx中跑外部Discover来修补遗漏。Reserve预扫描若未见command而锁后发现其实际ObjectID不同，整体未提交并交调用方重采集，不能锁住prepared新对象却返回旧对象结果。Source的ValidateInTx消费同一组合token并重新授权原固定来源；completed重放只规划目标，保留§5不访问旧源的分支。
+
+这是一项明确的Go调用兼容调整：B01修改 `contract/authority.go`、新增 `contract/access.go`（上述请求/计划/端口）、`contract/source.go` 及契约测试；object service与现有InTx调用点同步。D03既有API、00001–00004迁移及业务owner ID不变。验证探针只机械补Discover/合并Acquire/plan/token参数和Authorizations.Planner，保留原断言、故障、时序与真实资源；不为兼容旧签名保留不安全旁路。
 
 
 D07 绑定 Session/Avatar 当前用户，D08 绑定 Owner/gate/生命周期，D12/D18/D20 绑定 Knowledge/Execution/Runner-result/MCP source，D15/D17 绑定 Runner 身份与传输确认，D21 注册 Artifact Tools，D27 绑定 UI 下载入口。D17 将可信 material 映射到独立 Runner 协议，Runner 不 import Central；D05 不提前定义操作执行协议。浏览器 download URL 的服务/验证在 D05 完整实现，正式 HTTP 装配由 D07/D08 授权成熟后接入；本次不注册匿名业务路由。Agent 只拿业务 file_ref/image_ref，无 object 枚举/签名 Tool。
@@ -105,7 +146,7 @@ B02 的 `agenteam_artifact.artifacts` 保存 artifact_id、独立业务 file_id�
 
 public state 严守 D01：pending→available/failed；明确清理且 payload 已删除才→deleted。available表示上传时已验证的存储事实，不表示已绑定业务或每次读取必成功；reference/receipt disposition单独表达绑定。available字节不可改写；更新业务内容创建新ObjectID，再在业务Tx中替换引用。外部损坏/缺失不改成空内容；Stat只读metadata，Read按真实payload返回错误。
 
-锁预收集并一次 `AcquireAll`：command→必要 User/Project gate→业务 owner 锁→object aggregate（多对象按 ID 排序）→reference/记录。Artifact 私有互斥使用 D03 `RecordLock(ReferenceRecordLock, "artifact:<id>")`，在所有 object aggregate 之后取得；不新增/伪装 foundation aggregate rank。任何 Attach/Release/AcquireLease/cleanup 准入都持同 object 锁；新发现低序资源整体回滚重采集，不升级 shared 锁。
+锁按§3计划完整预收集，并由AcquireAccessPlansInTx一次交D03 AcquireAll：command→system/User→Project及其他前序gate→Agent/真实父aggregate→object aggregate（多对象按ID排序）→reference/记录。Artifact私有互斥仍用 `RecordLock(ReferenceRecordLock, "artifact:<id>")`；不新增/伪装foundation rank。所有后续对象InTx消费同一组合token，不再各自AcquireAll；任何Attach/Release/AcquireLease/cleanup仍受同Object锁保护。映射、集合或所需模式变化整笔回滚，不逆序补锁或shared升级。
 
 外部 I/O 从不持 DB Tx/锁。删除先短 Tx 重验全部 references/leases/active writer 并持久 cleanup gate，此后新 attach/lease/publish 拒绝；再执行外部删除/内容清除与确认，最后短 Tx 持相同锁落终态。单个 abandoned attempt 的 gate 只禁止该 attempt 发布，不阻止同 ObjectID 的合法新 current attempt；整对象 cleanup gate 禁止全部尝试。引用不存在不是授权结论；缺真实 authority 或引用读取失败不能当“无引用”。
 
@@ -121,7 +162,7 @@ raw-body语义digest为canonical-v1：command/owner/scope/稳定Actor/expected_v
 
 source/upload-ref命令已completed时，先验证**当前目标结果可见权**，再核原request_digest一致，返回原结果；不重新解析、授权或读取source，不重新消费receipt。源后来删除/失权/receipt已消费不阻断该分支；输入ref/revision/展示参数变更仍 `IDEMPOTENCY_KEY_REUSED`。新建/未完成恢复则必须当前target/source授权及gate，短Tx持久首次resolved_source和source lease后才能复制；恢复沿原捕获事实重验，不静默改为最新源。最终发布前再验当前源权限，commit unknown先查目标命令是否已completed，不能先因源已消失误判失败。只读LookupPut不读正文，仍检查当前结果可见权。
 
-新命令在短 Tx 持久 pending object、原 command/owner reservation、唯一 attempt key 与必要 lease；确认 commit 后才向 MinIO 写。预留 commit unknown 先按原 command/attempt 查询，未核实时不开始外部写。普通失败允许原 key 同语义恢复，不生成新 ObjectID 假装另一命令；已发布成功返回原结果，不重传/覆盖 canonical。
+新命令在短Tx持久pending object、原command/owner reservation、唯一attempt key与必要lease；确认commit后才向MinIO写。预留commit unknown按原command/attempt查询，未核实不外发；即使查到committed，也须比较**本次请求的完整语义digest**再返同义成功，不能把只读LookupPut的“该key成功”当作另一份正文成功。异义仍IDEMPOTENCY_KEY_REUSED且不外发；普通失败沿原key/语义恢复，不另造ObjectID，已发布对象不重传/覆盖。
 
 从 sealed spool 向全新 private candidate key 做 **DisableMultipart + length + 完整 SHA header + If-None-Match:\*** 单 PUT。每个 physical attempt 独立 key、仅一次 SDK 尝试；412/丢响应均转原 attempt 核实，不能认为未提交或无条件覆盖。恢复重新发外部尝试必须仍当前授权、同 command/digest、独立 key并追踪旧 unknown key；每命令最多2个、全局64个未收敛 attempt，超限 `RESOURCE_BUSY`、只核实/清理旧尝试。读取 candidate 的完整流重新计算 SHA/实际长度（内存固定 buffer）并对照准备事实后，保存 verified 事实；HEAD metadata/ETag/checksum 不能代替这一校验，尤其不接受 composite checksum。
 
@@ -130,6 +171,8 @@ source/upload-ref命令已completed时，先验证**当前目标结果可见权*
 AttachObjectInTx先验证真实业务实体已在同Tx存在、exact owner/scope/cause、available/non-cleaning、当前授权；若本对象属于prospective上传，必须原子消费匹配reservation及receipt，转为canonical并记录消费目标。ConsumeUploadInTx是显式携receipt的同一逻辑入口，receipt绑定原稳定actor/owner/object/创建cause；裸object_id不能绕过此校验。重复同一已完成消费只返原reference，换owner/重复异义消费拒绝。与Cancel竞争共用object锁：Attach先提交则Cancel不得撤canonical；Cancel先提交则Attach拒绝，不能同时成功。
 
 spool不是唯一恢复依据。启动持目录锁后按自有manifest/DB attempt对应关系检查遗留；只清确属已终止进程且不再需要的owned文件。payload已在MinIO时按固定key/length/SHA核实后恢复；spool不在且payload不完整时需原调用方重交同语义输入，不能造空对象。自动恢复只推进存储核实/清理，失效业务权限不能被后台Service代替Owner来发布。
+
+正常Discard/关闭清理也可能在删除body与manifest/清理标记之间崩溃。必须凭owned身份、持久manifest/DB状态及实际终止或清理事实识别这些半完成状态，幂等删除残项、重复unlink的ENOENT按已完成该步处理；不能仅因“manifest在而body已删”永久拒绝启动。缺失仍必需的正文保持原attempt待重交/恢复，未知归属文件不批量删除；这是临时文件清理可恢复性，不放宽业务payload校验。
 
 CancelUpload覆盖pending及**available但仍reserved/未Attach**：原actor通过当前身份/上传归属核验，或可信cleanup通过持久cause核验后，在gate允许的短Tx撤销receipt、仅释放本上传reservation、禁止Attach/发布并创建可恢复cleanup operation；无TTL推断，也不能拒绝一切已存储对象而留下永久孤儿。活动source/read/transfer lease仍保护实际I/O，远端unknown按第6节收敛。原成功storage command仍保留committed历史；取消后LookupPut只返授权可见的revoked/object_id/cleanup_state，Put重放返回 `RESOURCE_DELETED`（原提交committed），不再交可消费receipt、不重传或复活。已有canonical者只能由真实业务生命周期Release，不能用Cancel越权撤回。
 
@@ -156,6 +199,8 @@ Release 只撤指定 owner 引用，不隐式删 payload；DeleteUnreferenced �
 可能存在迟到写/旧 grant 的技术 marker **首版永不自动删除**，不按 TTL、HEAD404、URL expiry 或一次成功 fence 移除。marker 只有原随机 key、固定技术 Content-Type/空payload，无 Project/Owner/名称/原checksum/业务 metadata；DB 项目事实清理后不保留项目关联，其不是用户 payload/归档副本。即使内容已清空，业务 deleted/Project completed 仍须正式 ref/lease 收敛；不能用 marker 跳过 D17 停止确认。已发出未终局的 marker PUT 只可能继续写相同空内容，不能使业务正文复活。
 
 取消/进程中断后，恢复程序按 persisted key/attempt/marker 逐项核实；清理成功而 DB commit unknown 时按原 cleanup operation 重读/重新验证空 marker，绝不重新发布该 key。未见对象只记 not_observed，不把未知归为已清空。健康/清理有界重试，无通用结果仓库或自动 TTL。若未来加入 multipart，须在新规格实现独立 fresh bounded ctx 的 abort/list-incomplete 恢复，本次禁用后仍应实测无残留 multipart。
+
+批处理必须在安全前提下公平前进：Project cleanup通过持久游标/checkpoint或等效轮转越过本批仍有lease/ref的对象，后续批可处理其后的可清对象，到尾后再检查先前阻塞项；不能反复LIMIT同一批阻塞前缀。Recover对其它活实例的ConfirmStopped返回RESOURCE_BUSY时，只保留该实例/条目pending并继续本实例和其它独立可收敛工作，不伪造死亡也不终止全轮。单项依赖失败保留可观察结果、不误报completed；全局DB不可用或本轮ctx到期可结束本轮。无论暂停或重启，checkpoint不能丢弃尚未处理项或把剩余计数当0。
 
 Project archive 保留内容，禁止新上传/Artifact创建/Runner grant；合法人类 read/下载及其 Read Audit 继续。Project permanent delete：D08停止各领域，Artifact释放本域引用，Object按原ProjectID清候选/对象/transfer/receipt，完成全部业务内容删除或经核实的零marker替换后才能清本域项目metadata；他域 protected reference/未知Runner transfer均阻止 completed。不删其他用户/项目对象，不在System scope保存项目正文或Audit副本；单域通过不代表全Project删除已绑定。
 
@@ -213,8 +258,10 @@ B03 config/check-config验证固定endpoint、TLS/CA、凭据/独立签名keyrin
 
 | 块 | 必须实际证明的场景 |
 | --- | --- |
-| B01 完整性/流 | 0字节、小文件与≥64MiB对象真实put/get/range；长于声明/短读/错SHA拒绝；固定buffer/spool预算/取消/遗留清理；seekable前缀陷阱拒绝；Stat在payload缺失/MinIO不可达时仍只查授权metadata、无I/O/lease，Read才真实报错；0/≤64KiB错SHA在首字节前失败，大流末尾损坏保留末段、送出字节少于Content-Length并中断；无完整body后才报错、无整块缓冲 |
-| B01 Tx/恢复 | 同key同长度不同body冲突，包括expectedSHA省略；权限先于重放；pending提交unknown不先外发；payload写成DB失败/COMMIT丢回包按原attempt恢复；成功重放不重写canonical；available缺payload/篡改明确失败；中断/late writer/cleanup gate/refs+lease竞争无误删；慢条件PUT与无条件零marker barrier、旧grant重放后仍空、marker提交unknown/重启恢复与永久保留；正式lease未知仍pending |
+| B01 完整性/流 | 0字节、小文件与≥64MiB对象真实put/get/range；长于声明/短读/错SHA拒绝；固定buffer/spool预算/取消/遗留清理，正常spool删除body后/删除manifest前crash与反复重启恢复；seekable前缀陷阱拒绝；Stat在payload缺失/MinIO不可达时仍只查授权metadata、无I/O/lease，Read才真实报错；0/≤64KiB错SHA在首字节前失败，大流末尾损坏保留末段、送出字节少于Content-Length并中断；无完整body后才报错、无整块缓冲 |
+| B01 Tx/恢复 | 同key同长度不同body冲突，包括expectedSHA省略；权限先于重放；Reserve COMMIT丢回复后查到旧成功，异义本次正文仍冲突且无外发；payload写成DB失败/unknown沿原attempt恢复；成功重放不重写canonical；available缺payload/篡改明确失败；late writer/refs+lease竞争无误删；慢条件PUT与零marker barrier、旧grant重放仍空、marker提交unknown/重启及永久保留；正式lease未知仍pending |
+| B01 完整锁计划 | ExecutionID≠PayloadID真实互斥，Skill/Meeting child ID不冒充父ID；Actor Agent/Execution gate实际挡住状态变更；规划后映射/command实际ObjectID改变整Tx未提交且不自动重试；owner/read/protected-use/lease/cleanup/maintenance全部覆盖；多plan+extra完整union一次AcquireAll、强模式预定；错误Actor/intent/object/cause/source/plan/Tx/service/token拒绝，不能只匹配subset；缺planner拒绝；阶段内不得补锁/升级/再Discover |
+| B01 公平恢复 | 第1–100对象长期lease阻挡时，第101个可清对象在后续有限批次真实清理，前100仍pending；重启checkpoint继续且解除lease后旧项可完成；其它活实例拒绝死亡确认时，本实例cleanup在同轮仍推进、活实例保护不变；单项失败不吞无关进展、总体不假completed |
 | B01 绑定/撤销 | existing Put原子available+canonical；prospective available+reserved不允许普通Read/Stat/下载；内部source只由匹配receipt及当前权限开lease；Attach/消费同Tx与Cancel竞争仅一方成功，重复消费幂等；未Attach成功上传可撤销并最终清理，跨actor/owner/cause拒绝；取消后原Put/Lookup重放仅安全revoked结果、无可消费receipt/新写/复活；active reader仍阻止物理清理；无canonical的固定版本须exact read grant和active稳定lease同Tx核实，错object/owner/类型/已释放lease拒绝，外部pointer变更不改变grant；Reader拒JSON及typed-nil body |
 | B01 公共兼容 | 全部D04旧Audit/Actor/迁移输入仍合法；新增action/resource/producer/cause拒绝错配；archived合法读可追加Read Audit且同Actor写被拒、admin不代Owner、缺Audit不返回未交付内容；对象维护不能冒充Artifact业务主体 |
 | B02 Artifact | inline/upload/source三路径真实payload与原子绑定；source复制后ObjectID/key不同；首次resolved事实持久化、未完成恢复重验当前源并沿原版本；completed后源删除/失权/receipt消费仍可按原输入重放且source resolver/存储调用0次，目标失权先拒绝、改ref/revision/展示参数冲突；commit unknown先查完成态，无双Artifact；cursor/UTF-8/binary/image安全投影 |
