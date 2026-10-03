@@ -221,3 +221,16 @@ Policy Reload唯一阻塞已闭环：进程exclusive内新短recovery Tx取得po
 作者受影响真实PG security4.989s通过，日志 `/tmp/agenteam-d04-b03-policy-repair.log`、noncec893c65935ae08ec90d55f90b78ea5db清理。独立原失败及replay/rollback/三unknown/同expected并发实际race security5.591s、exit0，日志 `/tmp/agenteam-d04-policy-review-recheck.log`；旧writer持锁时Reload不再提前available，原commit完成后DB/镜像同v3，unknown原cause保留。gate/00004/concurrent/pure5未变，复用原门禁独立race，vet/格式通过。
 
 最终policy7文件manifest `/tmp/agenteam-d04-b03-policy.sha256` SHA-256 `39e6b55cba77b2d82d1e2e8087f5e9974c487b5c9f4682457478552306be4322`，source/copy一致。nonce928c77669ccdad099df921c4f9c127f8两容器/网络/精确TMPDIR独立确认清理；验证者停止policy读取和命令，作者7文件停写，root已读生产/SQL/返修并认可存储/门禁小块，按授权精确提交推送。Docker交还作者进行真实网络fixture；DNS2仍由验证者无Docker复验，HTTP/入口未整体验收，B03/D04继续实施。
+
+
+- B03b实际提交：`ee8ddb7`已本地提交。此次push因HTTPS缺少可用认证失败，`gh auth status`报告当前GH_TOKEN无效；未输出凭据或修改认证配置，等待安全配置恢复后补推。远端仍为1898748，本地后续实施不受阻。
+
+## B03c DNS完整结果解析完成
+
+最终修正先解析并校验CNAME链，再以终局名称验证authority NS/SOA所属zone；合法跨zone CNAME与终局AAAA NODATA不再被误拒。SOA负响应可结束空family，畸形wire label、referral、不完整/无关SOA与NS继续拒绝，不返回另一family子集。
+
+作者race1.077s/vet通过；独立第三轮定向race1.075s、vet/gofmt通过，涵盖双family/NODATA/TCP fallback、压缩CNAME、格式错误、合法SOA mailbox与跨zone终局NODATA。原三份probe字节不变：review_dns_test.go SHA `07788e5a029b6e1a87172f9a8d9d0f8a1b641b1507e195473ebcf1af0a091850`、review_dns_soa_test.go SHA `9b6dec2f47af0ee69fcc730fcde5b97300c3b6af83f6853ce1c3f18517cacdfc`、review_dns_cname_zone_test.go SHA `ff057686294b3b95021cb8821126b7b94b8c90e32a8d2b90746c4f5577bf81ac`。此前64/65地址、总预算5s、取消及TCP剩余预算证据复用。
+
+最终2文件manifest `/tmp/agenteam-d04-b03-dns.sha256` SHA `238222cc10eed8d3e9d5c9c0349c4e058abca7ba5b05ef34a7a9d5e8f2537bef`，source/copy一致。独立验证曾被平台风险检测中断；确认原命令停止后，仅重跑用户授权仓库内自建127.0.0.1 UDP/TCP兼容性测试，未访问外部主机、未绕过安全限制，重跑正常完成。socket关闭/goroutine join及无残留进程已确认，验证者停读、作者2文件停写，root已审修正并精确提交该小块。
+
+HTTP真实网络fixture及入口仍活动，尚未整体验收；当前Docker internal bridge不发布控制端口，作者改为核验owned private IP与nonce的隔离控制通道后重跑。B03/D04继续实施，不提前D05。

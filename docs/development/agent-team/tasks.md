@@ -234,3 +234,7 @@
 - B03a实际交付：`1898748`已成功推送origin/main（fffd0dc→1898748）。纯出站边界5文件保持验收冻结，作者继续活动policy/gate/DNS/H1与隔离网络fixture；B03尚未整体验收。
 
 - B03b策略存储/门禁7文件独立通过：Reload未等待旧unknown writer的竞态以真实原probe闭环；原probe仅2处代理arming适配，断言未改，security race5.591s、vet/格式通过。manifest `39e6b55cba77b2d82d1e2e8087f5e9974c487b5c9f4682457478552306be4322`；nonce928c77669ccdad099df921c4f9c127f8资源清理，root按授权精确提交推送。DNS原label/referral/NS-SOA及跨zoneCNAME修复另行复验，HTTP实际网络/入口尚未通过，详见主卡。
+
+
+- B03b本地提交`ee8ddb7`；push因GitHub认证不可用失败，当前GH_TOKEN被报告无效。远端仍1898748，等待安全凭据配置恢复后补推，继续本地实施。
+- B03c DNS2文件完成独立定向race1.075s/vet/格式复验，三份原probe不变，跨zone CNAME终局NODATA及既有拒绝回归全部通过；manifest `238222cc10eed8d3e9d5c9c0349c4e058abca7ba5b05ef34a7a9d5e8f2537bef`。仅自建loopback UDP/TCP，无残留资源，root按授权精确本地提交；HTTP实际网络/入口继续，B03/D04未完成。完整证据及工具中断后安全恢复记录见主卡。
