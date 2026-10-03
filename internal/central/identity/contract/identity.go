@@ -56,6 +56,8 @@ const (
 	SecretService     ServiceName = "secret"
 	SecretMaintenance ServiceName = "secret-maintenance"
 	OutboundService   ServiceName = "outbound"
+	ObjectService     ServiceName = "object"
+	ObjectMaintenance ServiceName = "object-maintenance"
 	ProjectLifecycle  ServiceName = "project-lifecycle"
 )
 
@@ -160,7 +162,7 @@ type ServiceRegistration struct{ data func() ServiceName }
 
 func RegisterService(name ServiceName) (ServiceRegistration, error) {
 	switch name {
-	case SecretService, SecretMaintenance, OutboundService, ProjectLifecycle:
+	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle:
 	default:
 		return ServiceRegistration{}, invalid()
 	}

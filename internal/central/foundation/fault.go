@@ -12,34 +12,37 @@ import (
 type Code string
 
 const (
-	InvalidArgument       Code = "INVALID_ARGUMENT"
-	CursorInvalid         Code = "CURSOR_INVALID"
-	CursorStale           Code = "CURSOR_STALE"
-	Unauthenticated       Code = "UNAUTHENTICATED"
-	SessionRevoked        Code = "SESSION_REVOKED"
-	Forbidden             Code = "FORBIDDEN"
-	CSRFFailed            Code = "CSRF_FAILED"
-	OriginDenied          Code = "ORIGIN_DENIED"
-	NotFound              Code = "NOT_FOUND"
-	MethodNotAllowed      Code = "METHOD_NOT_ALLOWED"
-	ResourceDeleted       Code = "RESOURCE_DELETED"
-	VersionConflict       Code = "VERSION_CONFLICT"
-	IdempotencyKeyReused  Code = "IDEMPOTENCY_KEY_REUSED"
-	InvalidState          Code = "INVALID_STATE"
-	AgentBusy             Code = "AGENT_BUSY"
-	ResourceBusy          Code = "RESOURCE_BUSY"
-	ProjectNotActive      Code = "PROJECT_NOT_ACTIVE"
-	ConfirmationStale     Code = "CONFIRMATION_STALE"
-	SchemaUnsupported     Code = "SCHEMA_UNSUPPORTED"
-	CapabilityUnsupported Code = "CAPABILITY_UNSUPPORTED"
-	RateLimited           Code = "RATE_LIMITED"
-	DependencyUnbound     Code = "DEPENDENCY_UNBOUND"
-	DependencyUnavailable Code = "DEPENDENCY_UNAVAILABLE"
-	CommitUnknown         Code = "COMMIT_UNKNOWN"
-	InternalError         Code = "INTERNAL_ERROR"
-	PayloadTooLarge       Code = "PAYLOAD_TOO_LARGE"
-	UnsupportedMediaType  Code = "UNSUPPORTED_MEDIA_TYPE"
-	ShuttingDown          Code = "SHUTTING_DOWN"
+	InvalidArgument         Code = "INVALID_ARGUMENT"
+	CursorInvalid           Code = "CURSOR_INVALID"
+	CursorStale             Code = "CURSOR_STALE"
+	Unauthenticated         Code = "UNAUTHENTICATED"
+	SessionRevoked          Code = "SESSION_REVOKED"
+	Forbidden               Code = "FORBIDDEN"
+	CSRFFailed              Code = "CSRF_FAILED"
+	OriginDenied            Code = "ORIGIN_DENIED"
+	NotFound                Code = "NOT_FOUND"
+	MethodNotAllowed        Code = "METHOD_NOT_ALLOWED"
+	ResourceDeleted         Code = "RESOURCE_DELETED"
+	VersionConflict         Code = "VERSION_CONFLICT"
+	IdempotencyKeyReused    Code = "IDEMPOTENCY_KEY_REUSED"
+	InvalidState            Code = "INVALID_STATE"
+	AgentBusy               Code = "AGENT_BUSY"
+	ResourceBusy            Code = "RESOURCE_BUSY"
+	ProjectNotActive        Code = "PROJECT_NOT_ACTIVE"
+	ConfirmationStale       Code = "CONFIRMATION_STALE"
+	SchemaUnsupported       Code = "SCHEMA_UNSUPPORTED"
+	CapabilityUnsupported   Code = "CAPABILITY_UNSUPPORTED"
+	RateLimited             Code = "RATE_LIMITED"
+	DependencyUnbound       Code = "DEPENDENCY_UNBOUND"
+	DependencyUnavailable   Code = "DEPENDENCY_UNAVAILABLE"
+	CommitUnknown           Code = "COMMIT_UNKNOWN"
+	InternalError           Code = "INTERNAL_ERROR"
+	PayloadTooLarge         Code = "PAYLOAD_TOO_LARGE"
+	UnsupportedMediaType    Code = "UNSUPPORTED_MEDIA_TYPE"
+	ShuttingDown            Code = "SHUTTING_DOWN"
+	ObjectPayloadMissing    Code = "OBJECT_PAYLOAD_MISSING"
+	ObjectIntegrityMismatch Code = "OBJECT_INTEGRITY_MISMATCH"
+	RangeNotSatisfiable     Code = "RANGE_NOT_SATISFIABLE"
 )
 
 func (c Code) Known() bool {
@@ -49,7 +52,8 @@ func (c Code) Known() bool {
 		VersionConflict, IdempotencyKeyReused, InvalidState, AgentBusy, ResourceBusy,
 		ProjectNotActive, ConfirmationStale, SchemaUnsupported, CapabilityUnsupported,
 		RateLimited, DependencyUnbound, DependencyUnavailable, CommitUnknown, InternalError,
-		PayloadTooLarge, UnsupportedMediaType, ShuttingDown:
+		PayloadTooLarge, UnsupportedMediaType, ShuttingDown, ObjectPayloadMissing,
+		ObjectIntegrityMismatch, RangeNotSatisfiable:
 		return true
 	}
 	return false

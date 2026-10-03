@@ -15,6 +15,19 @@ import (
 
 type objectID struct{}
 
+func TestObjectFaultCodesPreserveSafeIdentity(t *testing.T) {
+	for _, code := range []Code{ObjectPayloadMissing, ObjectIntegrityMismatch, RangeNotSatisfiable} {
+		if !code.Known() || code.Safe() != code {
+			t.Fatal("object fault became an internal error")
+		}
+		f := NewFault(code, NotStarted).WithCause(errors.New("storage-url-with-credentials-canary"))
+		b, err := json.Marshal(f)
+		if err != nil || !bytes.Contains(b, []byte(code)) || bytes.Contains(b, []byte("credentials-canary")) {
+			t.Fatal("object fault projection changed")
+		}
+	}
+}
+
 func TestIDWireAndEntropy(t *testing.T) {
 	const valid = "01900000-0000-7000-8000-000000000001"
 	id, err := ParseID[objectID](valid)

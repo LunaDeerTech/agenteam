@@ -99,3 +99,13 @@ S01修订2独立静态门槛通过，4项问题全部闭环，root复核采纳�
 backend_worker独占B01：新增internal/central/object/及contract、00005_object_storage.sql、tests/objects对象场景、tests/testsupport/objectstore、scripts/test-objects.sh；依规格§1最小扩展identity/Audit/foundation/HTTP问题schema及相关测试；go.mod/go.sum仅固定已核验SDK及必要MVS依赖，记录旧依赖变化。可同步后端README的B01实际能力/命令；不提前实现Artifact、浏览器下载、Runner transfer或Central必填MinIO配置（B02/B03）。其他D03/D04生产代码冻结，新增共享改动先报告root授予所有权。root独占本卡/计划/台账，设计与研究保持验收冻结。
 
 作者负责完整B01自测与真实owned PG/MinIO异常、并发、COMMIT unknown、reference/lease、reservation撤销、marker恢复及流式完整性证据；Docker现交B01作者独占。缓存可按研究指纹复用，凭据新生成且清理资源；无现有基础设施访问。先形成可独立验证的稳定子范围后停写该范围并交V01，独立审查期间不改审查输入。整体B01通过之前不进入B02。具体接口/边界/验收以实施规格修订2为准，不复制另一套规则。
+
+- S01设计/开工实际本地提交：`c897653`，backend_worker已接管B01。GitHub认证未恢复，ee8ddb7起共8本地提交待补推；远端仍1898748。
+
+B01作者初始切分获root认可：先完成object正式contract与identity/Audit/错误schema纯兼容，局部行为/race/schema通过后冻结给V；00005 Audit约束真实兼容仍须随PG验证，不提前声称完整验收。spool/MinIO/持久状态机共同实现完整恢复，不把正常路径当模块交付；后续若需调整冻结公共接口须解冻并重验。
+
+B01a公共兼容13文件已冻结给独立V，manifest206054298969ef5c8f7a5bf1125cf9662eea20cfaec9048a1410cc3b62da9431；41未变依赖manifest608cc49dc7e873b0fc74f7cb72eb73da9ff0be44e43fb2179bf5b6a056c74db9。作者普通test/race/vet的identity/foundation/Audit/httpapi均exit0（race1.026–1.108s），00005真实兼容未验。V稳定副本/tmp/agenteam-d05-public-verify-f8x4ez8z已双重SHA核对54文件，作者只继续object活动范围并获准引入固定SDK；审查13禁写。
+
+V01a公共兼容暂不通过：Transfer/Artifact审计phase与outcome矛盾8例被接受；MIME的name/filename进入Audit JSON共4例；Problem.status schema缺502/416，真实WriteProblem响应被JSON Schema拒绝。15授权场景与服务禁浏览race1.059s、HTTP/Foundation/Identity安全投影race1.122/1.034/1.016s、旧Audit回归race1.029s及vet/格式通过；不能掩盖3阻塞。证据manifest SHA a5d97535d5130f22dfc61585c7cae064bc72f3e3899aea3c677782283bb21c0f。V已停读且无owned命令/Docker，root仅解冻metadata/types/schema及相关测试交原作者返修，其余公共范围保持；原probe须闭环，不改弱断言。
+
+B01a公共13返修独立通过：原3probe字节/断言未变，phase/outcome 8反例拒绝、MIME名称投影4反例闭环，真实503/502/416全部JSON Schema通过。完整相关race Audit1.026/contract1.037/HTTP1.103/Foundation1.037/Identity1.018s，vet/格式通过；原依赖无版本漂移。最终public manifest2b152004f06fc9d59248dbe40564835141f28d36d6b9920ae1295888f144f56a，依赖f6eb740c71164d32ab5ea8c7568d27d978be172914c17bc5ec6327cbe189298a，独立证据7ceb5be5d84717aa878233af846c46c28c8ba38cab02c79864935196f1a88c4f。V停读/命令0，root代码/schema/测试审查通过并精确提交公共13；活动object与SDK锁文件不纳入。00005真实DB兼容未验，B01仍实施中。

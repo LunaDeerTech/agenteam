@@ -19,21 +19,33 @@ type ID = foundation.ID[Record]
 type Action string
 
 const (
-	SecretCreate     Action = "secret.create"
-	SecretUpdate     Action = "secret.update"
-	SecretDelete     Action = "secret.delete"
-	SecretResolve    Action = "secret.resolve"
-	MasterRegister   Action = "secret.master.register"
-	RotationStart    Action = "secret.master.rotation.start"
-	RotationComplete Action = "secret.master.rotation.complete"
-	RotationFailed   Action = "secret.master.rotation.failed"
-	PolicyUpdate     Action = "outbound.policy.update"
-	AccessDeny       Action = "outbound.access.deny"
+	SecretCreate           Action = "secret.create"
+	SecretUpdate           Action = "secret.update"
+	SecretDelete           Action = "secret.delete"
+	SecretResolve          Action = "secret.resolve"
+	MasterRegister         Action = "secret.master.register"
+	RotationStart          Action = "secret.master.rotation.start"
+	RotationComplete       Action = "secret.master.rotation.complete"
+	RotationFailed         Action = "secret.master.rotation.failed"
+	PolicyUpdate           Action = "outbound.policy.update"
+	AccessDeny             Action = "outbound.access.deny"
+	ObjectUploadComplete   Action = "object.upload.complete"
+	ObjectUploadFailed     Action = "object.upload.failed"
+	ObjectDelete           Action = "object.delete"
+	ObjectTransferIssue    Action = "object.transfer.issue"
+	ObjectTransferComplete Action = "object.transfer.complete"
+	ObjectTransferRevoke   Action = "object.transfer.revoke"
+	ArtifactCreate         Action = "artifact.create"
+	ArtifactList           Action = "artifact.list"
+	ArtifactRead           Action = "artifact.read"
+	ArtifactDownload       Action = "artifact.download"
 )
 
 func (a Action) Valid() bool {
 	switch a {
 	case SecretCreate, SecretUpdate, SecretDelete, SecretResolve, MasterRegister, RotationStart, RotationComplete, RotationFailed, PolicyUpdate, AccessDeny:
+		return true
+	case ObjectUploadComplete, ObjectUploadFailed, ObjectDelete, ObjectTransferIssue, ObjectTransferComplete, ObjectTransferRevoke, ArtifactCreate, ArtifactList, ArtifactRead, ArtifactDownload:
 		return true
 	}
 	return false
@@ -53,16 +65,20 @@ func (o Outcome) Valid() bool { return o == Success || o == Denied || o == Faile
 type ResourceKind string
 
 const (
-	SecretResource   ResourceKind = "secret"
-	MasterResource   ResourceKind = "secret_master"
-	RotationResource ResourceKind = "secret_rotation"
-	PolicyResource   ResourceKind = "outbound_policy"
-	AgentResource    ResourceKind = "agent"
+	SecretResource             ResourceKind = "secret"
+	MasterResource             ResourceKind = "secret_master"
+	RotationResource           ResourceKind = "secret_rotation"
+	PolicyResource             ResourceKind = "outbound_policy"
+	AgentResource              ResourceKind = "agent"
+	ObjectResource             ResourceKind = "stored_object"
+	ObjectTransferResource     ResourceKind = "object_transfer"
+	ArtifactResource           ResourceKind = "artifact"
+	ArtifactCollectionResource ResourceKind = "artifact_collection"
 )
 
 func (k ResourceKind) Valid() bool {
 	switch k {
-	case SecretResource, MasterResource, RotationResource, PolicyResource, AgentResource:
+	case SecretResource, MasterResource, RotationResource, PolicyResource, AgentResource, ObjectResource, ObjectTransferResource, ArtifactResource, ArtifactCollectionResource:
 		return true
 	}
 	return false
@@ -178,6 +194,38 @@ func NewEntry(f EntryFields) (Entry, error) {
 		if f.Outcome != Denied || r.Kind != PolicyResource && r.Kind != AgentResource && r.Kind != SecretResource {
 			return Entry{}, invalid("entry")
 		}
+	case ObjectUploadComplete, ObjectUploadFailed, ObjectDelete:
+		if r.Kind != ObjectResource || r.ID != f.Metadata.objectID() || a.Kind != identity.Service || a.ServiceName != identity.ObjectService && a.ServiceName != identity.ObjectMaintenance {
+			return Entry{}, invalid("entry")
+		}
+		if f.Action == ObjectUploadFailed && f.Outcome != Failed && f.Outcome != Unknown || f.Action != ObjectUploadFailed && f.Outcome != Success {
+			return Entry{}, invalid("outcome")
+		}
+	case ObjectTransferIssue, ObjectTransferComplete, ObjectTransferRevoke:
+		if s.Kind != identity.ProjectScope || r.Kind != ObjectTransferResource || r.ID != f.Metadata.transferID() || a.Kind != identity.Service || a.ServiceName != identity.ObjectService && a.ServiceName != identity.ObjectMaintenance {
+			return Entry{}, invalid("entry")
+		}
+		if f.Outcome != Success {
+			return Entry{}, invalid("outcome")
+		}
+	case ArtifactCreate, ArtifactRead, ArtifactDownload, ArtifactList:
+		if s.Kind != identity.ProjectScope || a.Kind != identity.Human && a.Kind != identity.AgentRun {
+			return Entry{}, invalid("entry")
+		}
+		if f.Action == ArtifactList {
+			if r.Kind != ArtifactCollectionResource || r.ID != s.ProjectID {
+				return Entry{}, invalid("resource")
+			}
+		} else if r.Kind != ArtifactResource || r.ID != f.Metadata.artifactID() {
+			return Entry{}, invalid("resource")
+		}
+		if f.Metadata.contentPhase() == FailedPhase {
+			if f.Action != ArtifactDownload || f.Outcome != Failed {
+				return Entry{}, invalid("outcome")
+			}
+		} else if f.Outcome != Success {
+			return Entry{}, invalid("outcome")
+		}
 	}
 	return Entry{data: func() EntryFields { return f }}, nil
 }
@@ -201,14 +249,16 @@ func (e Entry) LogValue() slog.Value         { return slog.StringValue("audit_en
 type Producer string
 
 const (
-	SecretProducer Producer = "secret"
-	MasterProducer Producer = "secret.master"
-	PolicyProducer Producer = "outbound.policy"
-	AccessProducer Producer = "outbound.access"
+	SecretProducer   Producer = "secret"
+	MasterProducer   Producer = "secret.master"
+	PolicyProducer   Producer = "outbound.policy"
+	AccessProducer   Producer = "outbound.access"
+	ObjectProducer   Producer = "object"
+	ArtifactProducer Producer = "artifact"
 )
 
 func (p Producer) Valid() bool {
-	return p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer
+	return p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer
 }
 func ProducerFor(action Action) Producer {
 	switch action {
@@ -220,6 +270,10 @@ func ProducerFor(action Action) Producer {
 		return PolicyProducer
 	case AccessDeny:
 		return AccessProducer
+	case ObjectUploadComplete, ObjectUploadFailed, ObjectDelete, ObjectTransferIssue, ObjectTransferComplete, ObjectTransferRevoke:
+		return ObjectProducer
+	case ArtifactCreate, ArtifactList, ArtifactRead, ArtifactDownload:
+		return ArtifactProducer
 	}
 	return ""
 }

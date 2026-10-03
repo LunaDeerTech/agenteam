@@ -263,3 +263,5 @@
 - R01/R02真实MinIO单PUT/签名/完整性及零marker补证完成，研究修订2冻结；S01修订1停写并交独立静态审查。报告/规格指纹、资源清理和实际限制见主卡。root尚未批准实施，生产代码未改；推送认证仍待恢复。
 
 - S01修订2通过独立复验、root采纳，四项规格问题全部闭环；设计SHA4b3241bb37246386ad56bd5f613b2c63aaae673e7d2fea2afd7f806793e65a30，输入manifest3a1ffc916c1a81cbfd5f4c9e36fd029e52b552e710daa426049d43bb49bc3f65。B01对象可靠存储开工，独占文件/依赖/Docker与冻结边界见主卡；B02/B03未开始，产品未验收。
+
+- B01a公共13文件独立通过：审计phase/outcome、MIME名称参数和schema状态3缺陷用不变原probe闭环；manifest2b152004f06fc9d59248dbe40564835141f28d36d6b9920ae1295888f144f56a。相关5包race/vet/schema通过，root审查后精确本地提交；object/SDK活动范围与00005真实兼容不在此次验收。详见主卡。

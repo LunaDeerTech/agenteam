@@ -184,6 +184,8 @@ func serviceOwns(actor identity.Actor, scope identity.Scope, key contract.Append
 		return scope.Details().Kind == identity.System && k.Producer == contract.MasterProducer
 	case identity.OutboundService:
 		return k.Producer == contract.PolicyProducer && scope.Details().Kind == identity.System || k.Producer == contract.AccessProducer
+	case identity.ObjectService, identity.ObjectMaintenance:
+		return k.Producer == contract.ObjectProducer
 	}
 	return false
 }
@@ -195,11 +197,15 @@ func (s *Service) authorizeAppend(ctx context.Context, tx foundation.Tx, entry c
 	}
 	switch a.Kind {
 	case identity.Human:
-		if err := s.authorizeHuman(ctx, tx, f.Actor, f.Scope, identity.Mutate); err != nil {
+		intent := identity.Mutate
+		if f.Action == contract.ArtifactList || f.Action == contract.ArtifactRead || f.Action == contract.ArtifactDownload {
+			intent = identity.Read
+		}
+		if err := s.authorizeHuman(ctx, tx, f.Actor, f.Scope, intent); err != nil {
 			return err
 		}
 	case identity.AgentRun:
-		if f.Action != contract.SecretResolve && f.Action != contract.AccessDeny {
+		if f.Action != contract.SecretResolve && f.Action != contract.AccessDeny && f.Action != contract.ArtifactCreate && f.Action != contract.ArtifactList && f.Action != contract.ArtifactRead && f.Action != contract.ArtifactDownload {
 			return failure(foundation.Forbidden, "agent_action_rejected", nil)
 		}
 	case identity.Service:

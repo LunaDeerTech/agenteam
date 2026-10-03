@@ -13,6 +13,7 @@ import (
 	"log/slog"
 	"strings"
 	"testing"
+	"time"
 )
 
 func testEntry(t *testing.T, session, trace, attempt string) contract.Entry {
@@ -30,6 +31,113 @@ func testEntry(t *testing.T, session, trace, attempt string) contract.Entry {
 }
 
 type noQueryStore struct{ Store }
+type contentProjectPort struct {
+	contract.ProjectAuthority
+	user        string
+	appendCalls int
+}
+
+func (p *contentProjectPort) AuthorizeProject(_ context.Context, _ foundation.Tx, actor identity.Actor, project identity.ProjectID, intent identity.AccessIntent) (identity.AccessGrant, error) {
+	if actor.Details().UserID != p.user {
+		return identity.AccessGrant{}, foundation.NewFault(foundation.Forbidden, foundation.NotStarted)
+	}
+	if intent != identity.Read {
+		return identity.AccessGrant{}, foundation.NewFault(foundation.ProjectNotActive, foundation.NotStarted)
+	}
+	scope, _ := identity.InProject(project)
+	now, _ := foundation.NewInstant(time.Now())
+	return identity.NewAccessGrant(actor, scope, intent, now, 1)
+}
+func (p *contentProjectPort) CheckAppendInTx(_ context.Context, tx foundation.Tx, entry contract.Entry, _ contract.AppendKey) error {
+	if !tx.Valid() {
+		return foundation.NewFault(foundation.InvalidState, foundation.NotStarted)
+	}
+	p.appendCalls++
+	if entry.Fields().Action == contract.ArtifactCreate {
+		return foundation.NewFault(foundation.ProjectNotActive, foundation.NotStarted)
+	}
+	return nil
+}
+
+func TestArtifactReadAuditUsesCurrentOwnerReadIntentAndAppendGate(t *testing.T) {
+	ctx := context.Background()
+	id := "01900000-0000-7000-8000-000000000001"
+	project, _ := foundation.ParseID[identity.Project](id)
+	scope, _ := identity.InProject(project)
+	actor := testEntry(t, "01900000-0000-7000-8000-000000000002", "", "").Fields().Actor
+	port := &contentProjectPort{user: actor.Details().UserID}
+	sessionCalls := 0
+	s := &Service{auth: Authorizations{Sessions: sessionPort(func(context.Context, foundation.Tx, identity.Actor) error { sessionCalls++; return nil }), Projects: port}}
+	key, _ := contract.NewAppendKey(contract.ArtifactProducer, id, 0)
+	for _, action := range []contract.Action{contract.ArtifactList, contract.ArtifactRead, contract.ArtifactDownload} {
+		fields := contract.ArtifactMetadataFields{ArtifactID: id, ObjectID: id, MediaType: "text/plain", Phase: contract.ReadPhase}
+		resource, _ := contract.NewResource(contract.ArtifactResource, id)
+		if action == contract.ArtifactList {
+			fields = contract.ArtifactMetadataFields{Phase: contract.ListedPhase}
+			resource, _ = contract.NewResource(contract.ArtifactCollectionResource, id)
+		}
+		if action == contract.ArtifactDownload {
+			fields.Phase = contract.StartedPhase
+		}
+		metadata, e := contract.ArtifactMetadata(action, fields)
+		if e != nil {
+			t.Fatal(e)
+		}
+		entry, e := contract.NewEntry(contract.EntryFields{Scope: scope, Actor: actor, Action: action, Outcome: contract.Success, Resource: resource, Metadata: metadata})
+		if e != nil {
+			t.Fatal(e)
+		}
+		if e = s.authorizeAppend(ctx, foundation.NewTx(), entry, key); e != nil {
+			t.Fatal("archived read audit refused", e)
+		}
+	}
+	if sessionCalls != 3 || port.appendCalls != 3 {
+		t.Fatal("read audit skipped current Session/Owner or append gate")
+	}
+	metadata, _ := contract.ArtifactMetadata(contract.ArtifactCreate, contract.ArtifactMetadataFields{ArtifactID: id, ObjectID: id, MediaType: "text/plain", SourceKind: contract.InlineSource, Phase: contract.PublishedPhase})
+	resource, _ := contract.NewResource(contract.ArtifactResource, id)
+	entry, _ := contract.NewEntry(contract.EntryFields{Scope: scope, Actor: actor, Action: contract.ArtifactCreate, Outcome: contract.Success, Resource: resource, Metadata: metadata})
+	var fault *foundation.Fault
+	if err := s.authorizeAppend(ctx, foundation.NewTx(), entry, key); !errors.As(err, &fault) || fault.Code != foundation.ProjectNotActive {
+		t.Fatal("archived write acquired read permission")
+	}
+	port.user = "01900000-0000-7000-8000-000000000009"
+	if err := s.authorizeAppend(ctx, foundation.NewTx(), entry, key); !errors.As(err, &fault) || fault.Code != foundation.Forbidden {
+		t.Fatal("administrator implicitly replaced Owner")
+	}
+	wrong, _ := contract.NewAppendKey(contract.ObjectProducer, id, 0)
+	if err := s.authorizeAppend(ctx, foundation.NewTx(), entry, wrong); err == nil {
+		t.Fatal("producer crossed action")
+	}
+}
+
+func TestObjectServiceCauseMappingDoesNotRequireAvatarAdministrator(t *testing.T) {
+	id := "01900000-0000-7000-8000-000000000001"
+	metadata, _ := contract.ObjectMetadata(contract.ObjectDelete, contract.ObjectMetadataFields{ObjectID: id, InitiatorKind: identity.Human, InitiatorID: id, MediaType: "image/png", Phase: contract.DeletedPhase})
+	resource, _ := contract.NewResource(contract.ObjectResource, id)
+	key, _ := contract.NewAppendKey(contract.ObjectProducer, id, 0)
+	for _, name := range []identity.ServiceName{identity.ObjectService, identity.ObjectMaintenance} {
+		r, _ := identity.RegisterService(name)
+		actor, _ := r.Actor(id, identity.SystemScope())
+		entry, err := contract.NewEntry(contract.EntryFields{Scope: identity.SystemScope(), Actor: actor, Action: contract.ObjectDelete, Outcome: contract.Success, Resource: resource, Metadata: metadata})
+		if err != nil {
+			t.Fatal(err)
+		}
+		s := &Service{}
+		if err = s.authorizeAppend(context.Background(), foundation.NewTx(), entry, key); err != nil {
+			t.Fatal("Avatar technical audit required a nonexistent administrator", err)
+		}
+		wrong, _ := contract.NewAppendKey(contract.ObjectProducer, "01900000-0000-7000-8000-000000000002", 0)
+		if err = s.authorizeAppend(context.Background(), foundation.NewTx(), entry, wrong); err == nil {
+			t.Fatal("unrelated cause authorized")
+		}
+		artifact, _ := contract.NewAppendKey(contract.ArtifactProducer, id, 0)
+		if serviceOwns(actor, identity.SystemScope(), artifact) {
+			t.Fatal("object service acquired Artifact producer")
+		}
+	}
+}
+
 type sessionPort func(context.Context, foundation.Tx, identity.Actor) error
 
 func (f sessionPort) RequireCurrentSession(ctx context.Context, tx foundation.Tx, a identity.Actor) error {

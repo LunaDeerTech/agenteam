@@ -60,3 +60,26 @@ func TestTrustedIdentityCannotBeDeserializedOrUsedAsBearerGrant(t *testing.T) {
 		t.Fatal("zero identity granted access")
 	}
 }
+
+func TestObjectServicesRequireFixedRegistrationAndCause(t *testing.T) {
+	project, _ := foundation.ParseID[Project]("01900000-0000-7000-8000-000000000001")
+	scope, _ := InProject(project)
+	for _, name := range []ServiceName{ObjectService, ObjectMaintenance} {
+		r, err := RegisterService(name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		for _, s := range []Scope{SystemScope(), scope} {
+			a, err := r.Actor(project.String(), s)
+			if err != nil || a.Details().ServiceName != name || a.Details().ProjectID != s.Details().ProjectID {
+				t.Fatal("service scope changed")
+			}
+			if _, err = r.Actor("owner=true", s); err == nil {
+				t.Fatal("untrusted cause accepted")
+			}
+		}
+	}
+	if _, err := RegisterService("object-admin"); err == nil {
+		t.Fatal("object service granted an invented administrator role")
+	}
+}

@@ -27,7 +27,9 @@ func TestProblemMappings(t *testing.T) {
 		foundation.SchemaUnsupported: 422, foundation.CapabilityUnsupported: 422, foundation.RateLimited: 429,
 		foundation.DependencyUnbound: 503, foundation.DependencyUnavailable: 503, foundation.CommitUnknown: 503,
 		foundation.InternalError: 500, foundation.PayloadTooLarge: 413, foundation.UnsupportedMediaType: 415,
-		foundation.ShuttingDown: 503,
+		foundation.ShuttingDown:         503,
+		foundation.ObjectPayloadMissing: 503, foundation.ObjectIntegrityMismatch: 502,
+		foundation.RangeNotSatisfiable: 416,
 	} {
 		t.Run(string(code), func(t *testing.T) {
 			r := httptest.NewRequest(http.MethodGet, "/api/v1/items?secret=query-SENTINEL", nil)

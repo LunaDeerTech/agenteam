@@ -2,6 +2,7 @@ package httpapi
 
 import (
 	"encoding/json"
+	"net/http/httptest"
 	"os"
 	"regexp"
 	"strings"
@@ -46,6 +47,30 @@ func TestSharedSchemaMatchesImplementedBoundary(t *testing.T) {
 	if len(codes) != len(problemKinds) {
 		t.Fatal("schema code list drift")
 	}
+	var statusSchema struct {
+		Enum []int `json:"enum"`
+	}
+	if err := json.Unmarshal(problem.Properties["status"], &statusSchema); err != nil {
+		t.Fatal(err)
+	}
+	statuses := make(map[int]bool)
+	for _, status := range statusSchema.Enum {
+		if statuses[status] {
+			t.Fatal("duplicate schema status")
+		}
+		statuses[status] = true
+	}
+	// Render actual responses as well as comparing the registry: a code-only
+	// schema update must not silently exclude the corresponding HTTP status.
+	for code, kind := range problemKinds {
+		r := httptest.NewRequest("GET", "/objects?private=storage-canary", nil)
+		w := httptest.NewRecorder()
+		WriteProblem(w, r, foundation.NewFault(code, foundation.NotStarted))
+		var response Problem
+		if json.Unmarshal(w.Body.Bytes(), &response) != nil || response.Code != code || response.Status != kind.status || response.Status != w.Code || !statuses[response.Status] {
+			t.Fatalf("runtime Problem is outside shared schema: %s", code)
+		}
+	}
 	seen := make(map[foundation.Code]bool)
 	for _, code := range codes {
 		c := foundation.Code(code)
@@ -60,6 +85,11 @@ func TestSharedSchemaMatchesImplementedBoundary(t *testing.T) {
 	for _, example := range problem.Examples {
 		if example.Status != problemKinds[example.Code].status || example.RequestID.Validate() != nil || example.CommitState.Safe() != example.CommitState {
 			t.Fatal("Problem example disagrees with runtime")
+		}
+	}
+	for _, code := range []foundation.Code{foundation.ObjectPayloadMissing, foundation.ObjectIntegrityMismatch, foundation.RangeNotSatisfiable} {
+		if !seen[code] {
+			t.Fatal("object error missing from the shared wire schema")
 		}
 	}
 	for _, name := range []string{"ID", "Instant", "InstantInput", "PositiveInt64String", "NonnegativeInt64String", "Digest", "IdempotencyKey"} {

@@ -188,9 +188,11 @@
               410,
               413,
               415,
+              416,
               422,
               429,
               500,
+              502,
               503
             ]
           },
@@ -233,7 +235,10 @@
               "INTERNAL_ERROR",
               "PAYLOAD_TOO_LARGE",
               "UNSUPPORTED_MEDIA_TYPE",
-              "SHUTTING_DOWN"
+              "SHUTTING_DOWN",
+              "OBJECT_PAYLOAD_MISSING",
+              "OBJECT_INTEGRITY_MISMATCH",
+              "RANGE_NOT_SATISFIABLE"
             ]
           },
           "request_id": {
