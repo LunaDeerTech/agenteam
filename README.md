@@ -25,5 +25,5 @@ npm run dev --prefix web
 - [系统架构与模块设计](docs/architecture/README.md)
 - [仓库结构与代码归属](docs/development/repository-structure.md)
 - [正式开发计划与 AI 执行顺序](docs/development/development-plan.md)
-- [串行子 agent 开发团队](docs/development/agent-team/README.md)
+- [主线程统筹的开发团队](docs/development/agent-team/README.md)
 - [前端设计](docs/frontend-design/README.md)
