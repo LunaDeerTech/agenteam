@@ -240,3 +240,8 @@
 - B03c DNS2文件完成独立定向race1.075s/vet/格式复验，三份原probe不变，跨zone CNAME终局NODATA及既有拒绝回归全部通过；manifest `238222cc10eed8d3e9d5c9c0349c4e058abca7ba5b05ef34a7a9d5e8f2537bef`。仅自建loopback UDP/TCP，无残留资源，root按授权精确本地提交；HTTP实际网络/入口继续，B03/D04未完成。完整证据及工具中断后安全恢复记录见主卡。
 
 - B03c实际本地提交：`d6e92c8`；与ee8ddb7待认证恢复后补推。当前HTTP/入口仍由作者实施，独立验证者已停止。
+
+- V03 HTTP/SMTP独立真实race16.984s通过其余网络/SDK/协议与关闭场景，但3项明确阻塞待修：unsupported响应慢排空、SMTP并发deadline放宽2s首写、自动请求头漏计上限。原probe SHA7418af334367928c97bca5b84f2b1c6544678de39df51bc8b86b9ead2949c557；独立全部停读/资源清理后root精确解冻返修，Docker交还作者。入口普通/race通过但真实待验收；详见主卡。
+
+
+- B03d HTTP/SMTP核心21输入独立复验通过：原前两probe race5.046s、新实际头边界1.244s、真实受影响network/SMTP/Audit13.616s，无剩余阻塞。manifest0321829f3205d8fec989b3e6991ae7ca092e288434107108ef9e750cfa59caae；原helper测试替换原因/可逆diff/资源清理详见主卡。root精确本地提交，认证未恢复暂待推；入口23独立及无过滤test-security最终整组继续，D04仍未完成。

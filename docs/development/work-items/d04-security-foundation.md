@@ -238,3 +238,73 @@ HTTP真实网络fixture及入口仍活动，尚未整体验收；当前Docker in
 - B03c实际本地提交：`d6e92c8`。与ee8ddb7一并等待GitHub安全认证恢复后补推；作者继续HTTP真实网络及入口。
 
 B03 SMTP端口细化已由root确认并同步实施规格修订4：可信D07 adapter在AUTH凭据及每封邮件前BeginSend，重新DNS/固定peer/首写门禁；初始TLS协商不计邮件sent，失败不沿用旧attempt，串行发送及并发边界必须明确。D04不实现SMTP协议、不套用HTTP allow_http。HTTP真实首批4.138s通过，barrier组合仍由作者验证；不是完整B03验收。
+
+
+B03 HTTP作者首批真实网络通过：`scripts/test-security.sh`定向子集security4.138s/exit0，日志 `/tmp/agenteam-d04-b03-network-first.log`。owned172.19.0.2实际TLS/HTTP覆盖private默认拒绝及精确CIDR/port/HTTP开启、不信CA/错hostname拒绝、H1 keep-alive同连接重DNS并拒混合loopback、收到GET/Idempotency-Key后断响应仅1次命中且sent=true、103/chunked/trailer/Connection-close、header/body/idle限额、跨origin清caller认证及Location材料拒绝。网络nonce325e662a0b9f85e3d618002e6df2f5e5、PGnonce2150948a8906385f2684078d1bfd8eae作者确认清理。
+
+后续barrier组合首轮报告新建/复用首写前收紧、DNS阻塞后收紧无dial、已sent旧响应继续、pipe body取消/overall/force收敛、R1 EOF后取消不影响R2通过；唯一测试失败为zero-write场景在首次GotConn过早收紧，实际在首次Write前正确拒绝而DNS仅1次，尚未进入要验证的retry。作者将收紧移到第二GetConn，保留首次socket Close及第二fresh DNS/无新dial断言后重跑，日志 `/tmp/agenteam-d04-b03-network-barriers.log`。本组合尚未整体通过；核心仍活动，以上作者证据不替代冻结后的独立验收。
+
+
+B03 HTTP第三轮作者真实整组通过：security14.184s（race），日志 `/tmp/agenteam-d04-b03-network-third.log`；网络nonce427a9c6e9f90e6a107ed00e1c472dbca、PGnonce9f4134f0ee768bf5163cbb204395f972作者确认清理。零写最终以实际TCP CloseWrite半关闭触发Write n=0/EPIPE，fresh DNS/连接计数断言通过；修复自定义H1重复WroteRequest回调（Request.Write已触发），不再重复通知。普通outbound race3.076s、outbound/fixture vet与integration security vet通过。SMTP并发BeginSend/Write新增回归待执行后冻结，入口仍活动；尚无HTTP核心独立结论。
+
+
+## V03 HTTP/SMTP核心冻结
+
+作者冻结19输入（17新增核心/测试/网络fixture/脚本、2未变test-postgres及PG helper），manifest `/tmp/agenteam-d04-b03-http.sha256` SHA `7cd7292398f80313677e1429bc0302be3ce11b7080c4aee94c17e8429aa00450`，root逐文件核对一致。独立基线6c2aea2+manifest，不读活动app/config/process/说明，依赖为已提交pure/policy/DNS及Audit/Secret/D03，无新运行依赖。独立接管Docker，作者仅继续入口普通检查与文档。
+
+新增SMTP并发BeginSend/Write真实回归security1.750s通过，日志 `/tmp/agenteam-d04-b03-network-concurrent.log`；网络nonce2dcdcca630be6d4d4e2022dfae68876c、PGnoncef61d07edc11b3a68e0c93c3193795ba8作者确认清理，冻结时无运行命令或容器。14.184s整组及3.076s核心race/vet稳定输入证据复用。
+
+root已读profile/client/http/smtp/sdk/trace/安全错误及fixture启动清理，独立验证进行中；不支持HTTP协议分支关闭body的顺序候选已交独立有界探针，尚非确认缺陷。B03/D04继续实施，入口未冻结。GitHub认证未恢复，ee8ddb7/d6e92c8/6c2aea2三本地提交仍待补推。
+
+V03 SDK审查歧义已由root按原统一redirect规则澄清为实施规格修订5：原生CheckRedirect阻止标准库在受控层之外另行跳转；sdkTransport内部复用Client.Do的合法逐跳验证仍允许。不是要求SDK总返回源302，也不新增绕过；独立应验证SDK路径的跨origin凭据/每跳策略/跳数/方法边界。当前冻结实现不因文义歧义改动。
+
+
+V03独立实际确认三项阻塞，root采纳且保持核心冻结直到本轮审查结束：
+
+- unsupported HTTP/1.2+Content-Length:1完整头后不发body，因先Body.Close排空，InvalidTarget延至600ms头deadline（实测600.913ms）；应先关连接再关闭body。
+- SMTP首Write已进入net.Pipe并持shared时，并发SetDeadline(零)/SetWriteDeadline(零)都将2s上限放宽到overall；exclusive等待2.25s超时，主动Close后收敛。需要协调deadline，不能让合法net.Conn并发方法放宽固定首写上限。
+- POST Body=body并填X-Pad令requestHeaderSize=65536，实际Request.Write头为65545（Close=false）或65564（Close=true）；固定+64未准确涵盖自动Content-Length/Connection等，违反头硬上限。
+
+probe `/tmp/agenteam-d04-http-review-csvsj34o/internal/central/outbound/review_http_boundaries_test.go`；精确local Go `test ./internal/central/outbound -run '^TestReview' -count=1 -timeout=20s`实际exit1/5.119s。仅owned net.Pipe/内存测试，无外部网络；后续独立真实network/SDK/协议检查继续，结束后集中移交作者返修并原probe复验。当前不标HTTP通过。
+
+
+V03本轮独立收尾：既有核心race3.030s/vet通过；真实最终组合security race16.984s/exit0，新增framing/1xx/trailer、SDK受控跨origin清凭据/端口/POST/5跳、SMTP旧send取消和显式Close通过，无新增阻塞。原三缺陷probe SHA `7418af334367928c97bca5b84f2b1c6544678de39df51bc8b86b9ead2949c557`，再次-race实际exit1/5.125s且无race报告，保留待原样复验。临时raw-server扩展另存并恢复冻结副本，19源/副本末次匹配manifest7cd7292398f80313677e1429bc0302be3ce11b7080c4aee94c17e8429aa00450。
+
+两轮network nonce f7776baf376a4aa42e450fdf5f45e741/32c0aa1a12dca4eba173adacc7e24227，PG nonce fa37ab379f6373762be3151977ff3d95/7f7a21097809875ab2ca06848814da9f，独立逐exact name inspect容器/网络/临时目录均0，owned进程0，全部命令停止并停读。Docker交还作者。
+
+root精确解冻client.go/http.go/smtp.go/http_test.go与必要新增security回归文件给作者集中修复三项；profile/network_error/sdk/trace/既有5网络测试/fixture与脚本继续冻结，额外依赖变化先报。修后核心单独冻结、原probe定向复验；作者入口真实验证串行使用Docker。B03仍未通过，无新增产品待定。
+
+
+返修方案root确认：删除requestHeaderSize估算，Request.Write唯一实际序列化路径通过有界header writer，在首个CRLFCRLF之前最多缓冲cap+1，自动CL/Connection/chunked/UA均纳入；超限在任何socket首写之前拒绝，不为计数预读/关闭Body或重复GetBody。SMTP将caller deadline与固定首写cap分开协调取最早者，并发可以收紧不能放宽2s。
+
+测试适配边界：原第三probe仅调用已废估算helper及裸Request.Write而未经过生产exchange。保留原完整probe字节/SHA和失败证据，前两原样复验；第三改以相同自动字段超限输入，经实际exchange/owned server验证0首字节/0请求，明确为内部接口替换后的行为复验，不能冒称原文件全部原样通过。独立待最终冻结后审查改动与新行为测试。
+
+
+作者三项修复后核心race7.134s/vet通过；真实组合 `scripts/test-security.sh -run '^(TestOutboundNetwork|TestRealOutbound|TestCentralOutbound)'` exit0：security18.138s/app19.574s/process7.224s，日志 `/tmp/agenteam-d04-b03-entry-core-repair.log`；PGnonceba6f44608df177eadb763a3ad7d9506c、networknoncee2532315277b5f2f49515c3841d1d1c6作者确认清理。入口同时HTTP/SQL/Secret batch/出站stream在途的停止场景及启动锁取消已实际运行，独立入口结论仍待后续。
+
+重冻前作者发现SMTP已有Conn在Client.StopAdmission后仍可BeginSend开启下一AUTH/邮件。root确认属于停止准入契约遗漏，授权smtp.go和必要新回归一并最小修正：stopped/forced下拒绝新发送并关闭旧连接，已准入旧send可结束；BeginSend与StopAdmission的状态检查/发布须明确线性化并覆盖DNS期间停止。真实0请求/关闭回归后再冻结，不以已有组合通过掩盖新增缺口。
+
+
+核心返修重新冻结21输入，manifest `/tmp/agenteam-d04-b03-http.sha256` SHA `0321829f3205d8fec989b3e6991ae7ca092e288434107108ef9e750cfa59caae`，root逐文件确认。原19仅授权client/http/smtp/http_test改变，新增outbound_header_test.go/outbound_smtp_shutdown_test.go；其余依赖不变。核心race7.118s与integration outbound/security vet通过，真实 `scripts/test-security.sh -run '^(TestOutboundNetworkSMTP|TestOutboundNetworkSerializedHeader)'` security7.262s/exit0，日志 `/tmp/agenteam-d04-b03-smtp-stop-repair.log` SHA `e367f22ba24f8008ebd3c1afe570acebca1a0dded8f42c2f71ca3fea2c73fa26`。
+
+作者实际确认stop前/DNS期间新BeginSend关闭且0请求，已发布/已首写旧send继续；拒绝Audit成功/撤权/表锁阻塞均原reason+0请求，表锁等待时socket已先关闭。序列化头精确cap/cap+1含自动CL/Connection，超限底层0bytes且Body0reads/GetBody0。networknonceceb56349d80eeda5a42fa12820a55256、PGnonce34a3b124aa0b16f98ee3ef2bc487da23脚本确认清理，network额外exact过滤为空，作者停写/命令，Docker交独立定向复验。
+
+root已读deadline协调、实际header writer、unsupported先关闭和SMTP新准入/Audit分支，暂无新确认缺陷。独立按原前两probe及替换后的真实header行为、SMTP停止边界复验；作者仅继续入口/文档及普通完整Go检查。尚不标核心或B03通过。
+
+
+入口/文档23文件已冻结，manifest `/tmp/agenteam-d04-b03-entry.sha256` SHA `52d2b59371d89a9709f0c5ee108a89db0481a07c188ff36aa8004976000e3834`；B03并集58输入 `/tmp/agenteam-d04-b03-all.sha256` SHA `92a240900196ffd3473c926e224d90d3bbb2c0481249f37108432c337d9deb2d`（含2未变fixture依赖）。所有作者源码/文档/命令停止，root独占进度文档除外；未分类改动为空。
+
+作者完整 `AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/check-go.sh` exit0：普通test、普通/integration vet、race和两个bin构建，日志 `/tmp/agenteam-d04-b03-check-go.log` SHA `57fb06cab8e8e041d07b01bd67b2e77d71345180a8b6c04b601a3de186a5cd99`；app普通6.493s/race10.231s、config race1.216s、process race2.483s。入口自真实组合后未改；核心后续SMTP改动独立定向复验中。
+
+root已逐项核对入口23，阅读所有生产diff/配置/诊断/资源清理及关键入口测试和操作说明，8份文档71链接/格式通过，暂无新候选。核心复验通过后，同验证者再接管入口独立验收并运行无过滤test-security（内部包含完整test-postgres/进程/网络）；作者不重复跑同一稳定整组。当前入口及D04尚未最终验收。
+
+
+## B03d HTTP/SMTP核心完成
+
+独立返修复验通过，三项已知阻塞及SMTP停止遗漏全部闭环。原前两probe函数字节未改，仅从副本移除已废第三helper测试及未使用imports，适配diff保存且可逆；原SHA7418af334367928c97bca5b84f2b1c6544678de39df51bc8b86b9ead2949c557保留，适配SHA `0a79c93f146c0002f35c238c113317eff03c442ed4de1b939edb3c9fb8d50855`，race5.046s通过。独立新实际exchange cap/cap+1（CL/Close）、0字节/0BodyRead/0GetBody、分块头partial actual sent、首写并发收紧及保留caller期限/read独立race1.244s通过；受影响既有局部race1.062s、vet/格式通过。
+
+真实受影响SMTP/SerializedHeader/旧pool timer/body cancel/zero retry/commit-before-write/sent-stream及独立Audit锁超时组合security race13.616s/exit0。Audit超时仍private_not_allowed/sent=false，socket先关闭且未落deny记录；原scope与原拒绝保留。其余稳定网络/SDK/framing16.984s证据复用。
+
+最终21源/副本匹配manifest0321829f3205d8fec989b3e6991ae7ca092e288434107108ef9e750cfa59caae；netnonce7f44ad23ed1a5aa213c6346ad2713e0c、PGnoncebb8caed53734cf81eed25b709f80c327逐exact inspect容器/网络/TMPDIR全0，owned命令0。验证者停止核心读取和命令，作者核心停写，root审查修复及证据通过，精确提交此核心小块。GitHub认证仍待恢复，暂不声称已推送。
+
+入口23另行交独立审查与无过滤test-security完整PG/进程/网络验收，Docker顺序交接；B03/D04尚未完整通过。当前无产品待定，原生SDK及真实SMTP协议仍由后续D09/D20/D07绑定。
