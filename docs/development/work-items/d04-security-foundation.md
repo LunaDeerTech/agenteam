@@ -1,6 +1,6 @@
 # D04 Secret、出站访问与 Audit 基础
 
-- 修订：1；状态：B01已验收，B02待开工；唯一活动模块D04；基线 `main@9beaa7f`，已推送origin/main，开工工作区干净。
+- 修订：1；状态：B02实施中；唯一活动模块D04；基线 `main@9beaa7f`，已推送origin/main，开工工作区干净。
 - 前置：[D03](d03-postgresql-foundation.md) B01/B02真实数据库及进程独立验收完成；[D01契约](d01-contracts/README.md)已固定。
 - 目标：按[计划D04](../development-plan.md#d04-secret-出站与-audit)依次完成Secret envelope encryption/版本化环境密钥环/可恢复数据密钥重保护、数据库权威动态出站策略与受控HTTP、append-oriented Audit写入及分页查询基础。
 
@@ -10,7 +10,7 @@
 | --- | --- | --- | --- | --- |
 | S01 实施规格 | D03完成 | architecture_worker | 新增 `d04-security-design.md`；现有代码/根规格只读 | 已确认 |
 | B01 Audit/签名cursor与正式授权端口 | S01确认 | backend_worker | 实施规格§1与本卡补充范围 | 已验收 |
-| B02 Secret与密钥轮换 | B01及S01确认 | backend_worker | 具体加密/lease/轮换/测试范围由S01固定 | 待开始 |
+| B02 Secret与密钥轮换 | B01及S01确认 | backend_worker | 实施规格§1/5/6及本卡补充范围 | 进行中 |
 | B03 动态出站与入口整合 | 前置已验收小块 | backend_worker | 具体策略/受控网络/入口与完整验收范围由S01固定 | 待开始 |
 | V01–V03 独立验证 | 对应冻结范围 | verification_worker | 只读实现，独立临时探针与隔离资源 | 待开始 |
 
@@ -91,3 +91,23 @@ V01b独立真实选定security7.684s/process5.242s及局部关键race通过；�
 最终52文件manifest `/tmp/agenteam-d04-b01-all-v2.sha256` SHA-256 `3ec6ac44591b98ffb3e703727bcc82d6ccad7ede5f50f5fff306c84b95b978f4`；15core-v2 SHA-256 `0ccba2d0dfb0c1a3d12ae03b33a3afb2139b2783946597392fdd2e780585119c`。除授权3文件外其余49未变，复用原完整检查与独立真实证据，末次gofmt/空白/指纹通过。所有作者/验证者均停读写和命令，主线程审查通过，B01验收完成，按授权精确提交推送，通过本节Git历史定位。
 
 当前Central新增必填cursor keyring与30s安全初始化，真实Audit存储可用、无业务HTTP；D07/D08的Session/System/Owner/gate适配仍未绑定并拒绝调用，不把fixture权限当生产授权。B02 Secret和B03出站尚未实施，D04整体未完成；下一步按已确认规格B02实现环境主密钥环、envelope/lease与可恢复轮换，无用户待定或环境阻塞。
+
+## B02 开工
+
+B01 `088185e`已成功推送origin/main（d623004→088185e），开工工作区干净。backend_worker接管实施规格§1 B02新增/共享范围：secret及contract、00003_secret.sql、tests/security/secret_*与必要config/app/cmd/logging/process/fixturehelper/部署示例/说明。补授权新增 `docs/development/backend/secret.md`，后端README、根README、AGENTS、仓库结构的必要当前状态；必要测试helper仅限B02用途，scripts/test-postgres.sh仅suite接入。
+
+root独占主卡/实施规格/台账/计划；已验收Audit/cursor/identity与D03生产库保持冻结，若发现具体公共接口缺口或需返修先报告、移交再改。只追加00003，不修改00001/00002；旧数据库fixture已动态Target()+1，无需要不得改其既有覆盖。沿既定Go1.27.1/local与owned PG隔离机制，无新增运行依赖。
+
+按规格§5/6实际实现env master keyring、AAD/DEK/nonce独立预留、registry canary与epoch fence、Secret metadata/mutation receipt及reference/lease、合法读和Audit、100条可恢复重保护、最终完整反查与退休、Project生命周期正式端口及启动/健康/同预算停机。区间预留须在业务Tx前确认提交，unknown烧掉；不能借InTx另开Tx。生产未绑定的System/Project/执行引用权限明确拒绝，无HTTP或stub；内部维护真实装配，出站留B03。候选/密钥敏感投影与DB故障/并发/重启必须真实验证，稳定独立子集可先冻结审查。无用户待定或环境阻塞。
+
+## V02a 纯加密分段审查
+
+作者冻结6文件：secret/error.go、keyring.go、envelope.go及test、contract/material.go及test；manifest `/tmp/agenteam-d04-b02-crypto.sha256` SHA-256 `06bec83b821afd4b8c7301335fd741d60d9fa42af9d3f3e36a3cbeff9e94caa4`。严格keyring/跨cursor材料隔离、AES-GCM封装/AAD/rewrap/canary、ATK1 nonce编码与可销毁SecretMaterial已编译并局部race（secret1.074s/contract1.037s）/vet通过，独立Python cryptography完整向量已作作者自测。
+
+V02a只读此6文件及已验收依赖，使用临时独立module，不读仍在写的contract/types.go与SQL/轮换，不运行Docker。主线程已读此纯实现，尚未确定新缺陷；真实nonce预留/持久恢复/lease/轮换仍由作者实施，不能因纯加密通过标B02完成。
+
+## B02a 纯加密小块完成
+
+V02a独立通过，无阻塞。临时副本 `/tmp/agenteam-d04-v02a-fhcxltvb`，Python cryptography独立Project/receipt/AAD/fingerprint/GCM/canary及9007199254740993→MaxInt64重保护向量，证实业务ciphertext/data nonce不变；逐字节篡改、类型/长度/版本/counter/revision溢出拒绝；keyring16KiB/32-key与历史cursor材料隔离、材料panic/error清零及并发Use/Destroy、安全投影/cause身份通过。实际独立 `go test -race -count=1 -run '^TestReview' ./internal/central/secret ./internal/central/secret/contract` 1.066s/1.035s，原冻结测试也通过；精确Go1.27.1/local，13个已验收依赖未变。6文件末次指纹保持 `06bec83b821afd4b8c7301335fd741d60d9fa42af9d3f3e36a3cbeff9e94caa4`。
+
+作者停止这6文件写入，验证者停读/命令，无Docker/Git操作。主线程全部纯实现审查通过，精确提交推送B02a；活动contract/types.go与SQL/lease/轮换未纳入，不把纯加密当nonce持久唯一性或B02整体验收。内部envelope是包内持久载体，未发现通用输出路径；后续prepared/错误/DTO可达性仍需整批审查，禁止敏感材料泄漏。

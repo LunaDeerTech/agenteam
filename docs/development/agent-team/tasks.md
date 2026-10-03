@@ -200,7 +200,7 @@
 
 ## AT-0011：D04 Secret、出站访问与 Audit
 
-- 状态：B01已验收，B02待开工；唯一活动模块D04；[规格](../work-items/d04-security-foundation.md)修订1，基线main@9beaa7f。D03数据库基础与入口全验收，未绑定Secret/对象/身份/协议及业务。
+- 状态：B02实施中；唯一活动模块D04；[规格](../work-items/d04-security-foundation.md)修订1，基线main@9beaa7f。D03数据库基础与入口全验收，未绑定Secret/对象/身份/协议及业务。
 - architecture_worker独占新增实施规格，root维护主规格/台账/计划；先固定密钥环/恢复、动态出站与Audit数据接口和真实验收，再按完整结果实施、独立验证、提交推送。无用户待定或环境阻塞；当前不创建测试资源、不提前实现D05+。
 
 - S01实施规格修订2已获主线程确认。独立静态审查发现的Audit重放/HTTP隐式重试/故障状态及旧策略receipt问题已集中明确化；按Audit/cursor→Secret/轮换→动态出站顺序实施，尚无D04产品行为验收。设计基线先按授权提交推送，再开工B01，范围见主规格/实施规格。
@@ -212,3 +212,7 @@
 - B01a实际交付：`d623004`已推送origin/main（e34dfaf→d623004）。公共identity/cursor保持已验收冻结，作者继续B01 Audit/配置诊断/真实PG验收；活动Audit未纳入该提交。
 
 - B01完整验收通过：Audit核心、00002迁移、授权窄端口/分页/清理、必需cursor配置与入口真实验证完成；52最终manifest `3ec6ac44591b98ffb3e703727bcc82d6ccad7ede5f50f5fff306c84b95b978f4`。独立发现的cleanup unknown错误状态已以原真实探针闭环（security1.904s），其余完整test/vet/race/build/PG/进程证据复用，详见D04规格。最后nonce725c5bcf2ac1e88959ba89a0330f4607资源清理，作者/验证者全部停止。root审查通过并按授权提交推送。D04未整体完成，下一步B02 Secret，无产品待定；D07/D08授权仍未绑定。
+
+- B01实际交付：`088185e`已推送origin/main（d623004→088185e），工作区清洁后B02开工。Secret/contract/00003、真实轮换恢复与入口整合由backend_worker独占，补充文件范围见主卡；root仍维护规格/台账/计划，已验收Audit/cursor/identity及D03库冻结，B03未开工。
+
+- B02a纯加密6文件独立V02a通过，manifest `06bec83b821afd4b8c7301335fd741d60d9fa42af9d3f3e36a3cbeff9e94caa4`。独立Python向量/逐字节篡改/keyring材料隔离/销毁并发与安全输出、race通过；root已读实现并精确提交此小块。作者继续SQL registry/nonce、业务lease与轮换；B02/D04未整体完成，真实持久化验证未由此替代。
