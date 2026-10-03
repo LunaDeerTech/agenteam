@@ -1,0 +1,341 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "agenteam shared HTTP boundary",
+    "version": "0.1.0",
+    "description": "D02 foundation schemas only. No business endpoints, authorization, cursor signing, or durable idempotency are implemented here."
+  },
+  "paths": {},
+  "components": {
+    "schemas": {
+      "ID": {
+        "type": "string",
+        "description": "Nonzero UUIDv7 in lowercase canonical form. It does not grant authorization.",
+        "format": "uuid",
+        "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$",
+        "examples": [
+          "01900000-0000-7000-8000-000000000001"
+        ],
+        "minLength": 36,
+        "maxLength": 36
+      },
+      "Instant": {
+        "type": "string",
+        "description": "Canonical output: UTC with exactly six fractional second digits.",
+        "format": "date-time",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{6}Z$",
+        "examples": [
+          "2026-10-03T12:34:56.123456Z"
+        ],
+        "not": {
+          "pattern": "[^0-9TZ:.+-]"
+        }
+      },
+      "InstantInput": {
+        "type": "string",
+        "description": "RFC 3339 input may include an offset and zero to six fractional second digits; normalization must not lose precision. Dates must be valid and normalize to years 0000 through 9999.",
+        "format": "date-time",
+        "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,6})?(Z|[+-]([01][0-9]|2[0-3]):[0-5][0-9])$",
+        "examples": [
+          "2026-10-03T12:34:56+02:30",
+          "2026-10-03T12:34:56.123456Z"
+        ],
+        "not": {
+          "pattern": "[^0-9TZ:.+-]"
+        }
+      },
+      "PositiveInt64String": {
+        "type": "string",
+        "description": "Canonical decimal string, range 1 through 9223372036854775807. Numeric JSON tokens and null are invalid.",
+        "pattern": "^(?:[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[0-1][0-9]{17}|92[0-1][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[0-1][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-6]|9223372036854775807)$",
+        "minLength": 1,
+        "maxLength": 19,
+        "examples": [
+          "1",
+          "9007199254740993",
+          "9223372036854775807"
+        ],
+        "not": {
+          "pattern": "[^0-9]"
+        }
+      },
+      "NonnegativeInt64String": {
+        "type": "string",
+        "description": "Canonical decimal string, range 0 through 9223372036854775807. Numeric JSON tokens and null are invalid.",
+        "pattern": "^(?:0|[1-9][0-9]{0,17}|[1-8][0-9]{18}|9[0-1][0-9]{17}|92[0-1][0-9]{16}|922[0-2][0-9]{15}|9223[0-2][0-9]{14}|92233[0-6][0-9]{13}|922337[0-1][0-9]{12}|92233720[0-2][0-9]{10}|922337203[0-5][0-9]{9}|9223372036[0-7][0-9]{8}|92233720368[0-4][0-9]{7}|922337203685[0-3][0-9]{6}|9223372036854[0-6][0-9]{5}|92233720368547[0-6][0-9]{4}|922337203685477[0-4][0-9]{3}|9223372036854775[0-7][0-9]{2}|922337203685477580[0-6]|9223372036854775807)$",
+        "minLength": 1,
+        "maxLength": 19,
+        "examples": [
+          "0",
+          "9223372036854775807"
+        ],
+        "not": {
+          "pattern": "[^0-9]"
+        }
+      },
+      "Version": {
+        "$ref": "#/components/schemas/PositiveInt64String"
+      },
+      "Revision": {
+        "$ref": "#/components/schemas/PositiveInt64String"
+      },
+      "Sequence": {
+        "$ref": "#/components/schemas/PositiveInt64String"
+      },
+      "Progress": {
+        "$ref": "#/components/schemas/NonnegativeInt64String"
+      },
+      "DurationMS": {
+        "$ref": "#/components/schemas/NonnegativeInt64String"
+      },
+      "Digest": {
+        "type": "string",
+        "pattern": "^sha256:[0-9a-f]{64}$",
+        "examples": [
+          "sha256:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef"
+        ],
+        "minLength": 71,
+        "maxLength": 71
+      },
+      "IdempotencyKey": {
+        "type": "string",
+        "minLength": 1,
+        "maxLength": 128,
+        "pattern": "^[A-Za-z0-9._:/-]+$",
+        "description": "Case-sensitive business intent key. Do not include credentials or content.",
+        "examples": [
+          "create-task:01900000-0000-7000-8000-000000000001"
+        ],
+        "not": {
+          "pattern": "[^A-Za-z0-9._:/-]"
+        }
+      },
+      "CommitState": {
+        "type": "string",
+        "enum": [
+          "not_started",
+          "not_committed",
+          "committed",
+          "unknown"
+        ]
+      },
+      "FieldError": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "path",
+          "code"
+        ],
+        "properties": {
+          "path": {
+            "type": "string",
+            "description": "RFC 6901 JSON Pointer into the declared DTO, without an offending input value.",
+            "pattern": "^(?:/(?:[^~]|~[01])*)*$",
+            "anyOf": [
+              { "const": "" },
+              { "pattern": "^/" }
+            ]
+          },
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z][A-Z0-9_]*$",
+            "not": {
+              "pattern": "[^A-Z0-9_]"
+            }
+          }
+        },
+        "examples": [
+          {
+            "path": "/expected_version",
+            "code": "STALE_VERSION"
+          }
+        ]
+      },
+      "Problem": {
+        "type": "object",
+        "description": "RFC 9457 application/problem+json. Code determines HTTP status in the server. Unknown errors become INTERNAL_ERROR with commit_state unknown. All Problem responses have Cache-Control: no-store and a matching X-Request-ID.",
+        "additionalProperties": false,
+        "required": [
+          "type",
+          "title",
+          "status",
+          "detail",
+          "instance",
+          "code",
+          "request_id",
+          "commit_state"
+        ],
+        "properties": {
+          "type": {
+            "type": "string",
+            "pattern": "^urn:agenteam:problem:[a-z]+(?:-[a-z]+)*$",
+            "not": {
+              "pattern": "[^a-z:-]"
+            }
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "enum": [
+              400,
+              401,
+              403,
+              404,
+              405,
+              409,
+              410,
+              413,
+              415,
+              422,
+              429,
+              500,
+              503
+            ]
+          },
+          "detail": {
+            "type": "string",
+            "description": "Safe localized description. Client control flow uses code."
+          },
+          "instance": {
+            "type": "string",
+            "description": "Escaped absolute path only, excluding query and fragment.",
+            "pattern": "^/[^?#]*$"
+          },
+          "code": {
+            "type": "string",
+            "enum": [
+              "INVALID_ARGUMENT",
+              "CURSOR_INVALID",
+              "CURSOR_STALE",
+              "UNAUTHENTICATED",
+              "SESSION_REVOKED",
+              "FORBIDDEN",
+              "CSRF_FAILED",
+              "ORIGIN_DENIED",
+              "NOT_FOUND",
+              "METHOD_NOT_ALLOWED",
+              "RESOURCE_DELETED",
+              "VERSION_CONFLICT",
+              "IDEMPOTENCY_KEY_REUSED",
+              "INVALID_STATE",
+              "AGENT_BUSY",
+              "RESOURCE_BUSY",
+              "PROJECT_NOT_ACTIVE",
+              "CONFIRMATION_STALE",
+              "SCHEMA_UNSUPPORTED",
+              "CAPABILITY_UNSUPPORTED",
+              "RATE_LIMITED",
+              "DEPENDENCY_UNBOUND",
+              "DEPENDENCY_UNAVAILABLE",
+              "COMMIT_UNKNOWN",
+              "INTERNAL_ERROR",
+              "PAYLOAD_TOO_LARGE",
+              "UNSUPPORTED_MEDIA_TYPE",
+              "SHUTTING_DOWN"
+            ]
+          },
+          "request_id": {
+            "$ref": "#/components/schemas/ID"
+          },
+          "field_errors": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/FieldError"
+            },
+            "minItems": 1
+          },
+          "retry_hint": {
+            "type": "string",
+            "maxLength": 64,
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "description": "Stable action hint. COMMIT_UNKNOWN always uses lookup.",
+            "not": {
+              "pattern": "[^a-z0-9_]"
+            }
+          },
+          "commit_state": {
+            "$ref": "#/components/schemas/CommitState"
+          }
+        },
+        "examples": [
+          {
+            "type": "urn:agenteam:problem:version-conflict",
+            "title": "Version conflict",
+            "status": 409,
+            "detail": "The resource changed. Read it again before retrying.",
+            "instance": "/api/v1/tasks/01900000-0000-7000-8000-000000000001",
+            "code": "VERSION_CONFLICT",
+            "request_id": "01900000-0000-7000-8000-000000000001",
+            "field_errors": [
+              {
+                "path": "/expected_version",
+                "code": "STALE_VERSION"
+              }
+            ],
+            "retry_hint": "reread",
+            "commit_state": "not_committed"
+          }
+        ]
+      },
+      "PageRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "cursor": {
+            "type": "string",
+            "description": "Opaque cursor; signing and validation are implemented by its owning future module."
+          },
+          "limit": {
+            "type": "integer",
+            "default": 50,
+            "minimum": 1,
+            "maximum": 200
+          }
+        },
+        "examples": [
+          {},
+          {
+            "limit": 1
+          },
+          {
+            "cursor": "opaque",
+            "limit": 200
+          }
+        ]
+      },
+      "Page": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {},
+            "description": "The owning module specializes each item schema. Empty results encode as [], never null."
+          },
+          "next_cursor": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "examples": [
+          {
+            "items": []
+          },
+          {
+            "items": [
+              {
+                "id": "01900000-0000-7000-8000-000000000001"
+              }
+            ],
+            "next_cursor": "opaque"
+          }
+        ]
+      }
+    }
+  }
+}
