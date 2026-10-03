@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 )
 
@@ -26,6 +27,7 @@ type Config struct {
 	httpAddr        string
 	publicOrigin    string
 	database        postgres.Config
+	cursorKeys      cursor.Keyring
 }
 
 func (c Config) LogLevel() slog.Level           { return c.logLevel }
@@ -33,6 +35,7 @@ func (c Config) ShutdownTimeout() time.Duration { return c.shutdownTimeout }
 func (c Config) HTTPAddr() string               { return c.httpAddr }
 func (c Config) PublicOrigin() string           { return c.publicOrigin }
 func (c Config) Database() postgres.Config      { return c.database }
+func (c Config) CursorKeyring() cursor.Keyring  { return c.cursorKeys }
 
 // Error contains a declared field name and stable reason, never an input value.
 type Error struct {
@@ -61,7 +64,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 			continue
 		}
 		switch strings.TrimPrefix(key, Prefix) {
-		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN":
+		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "CURSOR_KEYRING":
 		case "DATABASE_URL", "DATABASE_TLS_MODE", "DATABASE_CA_FILE", "DATABASE_MAX_CONNS", "DATABASE_CONNECT_TIMEOUT", "DATABASE_STARTUP_TIMEOUT", "DATABASE_LOCK_TIMEOUT":
 		default:
 			return Config{}, &Error{field: Prefix + "*", reason: "unsupported"}
@@ -114,6 +117,10 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 		}
 		return Config{}, &Error{field: field, reason: "invalid", cause: func() error { return err }}
 	}
+	c.cursorKeys, err = cursor.LoadKeyring(value("CURSOR_KEYRING", ""))
+	if err != nil {
+		return Config{}, invalid("CURSOR_KEYRING")
+	}
 	return c, nil
 }
 
@@ -132,6 +139,9 @@ func (c Config) Validate() error {
 	}
 	if c.database.Validate() != nil {
 		return invalid("DATABASE_*")
+	}
+	if c.cursorKeys.Validate() != nil {
+		return invalid("CURSOR_KEYRING")
 	}
 	return nil
 }

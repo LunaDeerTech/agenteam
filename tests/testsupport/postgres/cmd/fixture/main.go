@@ -223,7 +223,7 @@ func run() (code int) {
 	if goBinary == "" {
 		return fail("exact Go binary required")
 	}
-	cmd := exec.CommandContext(ctx, goBinary, "test", "-tags=integration", "-race", "-count=1", "-timeout=6m", "-run="+*filter, "./internal/central/postgres/...", "./tests/database/...", "./internal/central/app/...", "./tests/process/...")
+	cmd := exec.CommandContext(ctx, goBinary, "test", "-tags=integration", "-race", "-count=1", "-timeout=6m", "-run="+*filter, "./internal/central/postgres/...", "./tests/database/...", "./internal/central/app/...", "./tests/process/...", "./tests/security/...")
 	// The Go command can create test executables and migration children. They
 	// all belong to this dedicated process group; cancel only this owned group.
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}

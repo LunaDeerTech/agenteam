@@ -163,7 +163,7 @@ func launchDatabaseApp(t *testing.T, db *pgfixture.Database, mode, timeout strin
 	}
 	p := &fixtureProcess{cmd: exec.Command(executable, "-test.run=^TestDatabaseAppProcessFixture$", "-test.timeout=30s"), stdout: newEventLog(), stderr: newEventLog(), done: make(chan struct{})}
 	p.cmd.Dir = t.TempDir()
-	p.cmd.Env = []string{"PATH=" + os.Getenv("PATH"), pgfixture.Env + "=" + os.Getenv(pgfixture.Env), "AGENTEAM_DATABASE_APP_FIXTURE=" + mode, "AGENTEAM_DATABASE_APP_DATABASE=" + db.Name, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=" + timeout, "AGENTEAM_CENTRAL_DATABASE_URL=" + db.Fixture.URL(db.Name), "AGENTEAM_CENTRAL_DATABASE_CA_FILE=" + db.Fixture.CAFile, "AGENTEAM_CENTRAL_DATABASE_STARTUP_TIMEOUT=20s"}
+	p.cmd.Env = []string{`AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "PATH=" + os.Getenv("PATH"), pgfixture.Env + "=" + os.Getenv(pgfixture.Env), "AGENTEAM_DATABASE_APP_FIXTURE=" + mode, "AGENTEAM_DATABASE_APP_DATABASE=" + db.Name, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=" + timeout, "AGENTEAM_CENTRAL_DATABASE_URL=" + db.Fixture.URL(db.Name), "AGENTEAM_CENTRAL_DATABASE_CA_FILE=" + db.Fixture.CAFile, "AGENTEAM_CENTRAL_DATABASE_STARTUP_TIMEOUT=20s"}
 	p.cmd.Stdout = p.stdout
 	p.cmd.Stderr = p.stderr
 	p.stdin, err = p.cmd.StdinPipe()

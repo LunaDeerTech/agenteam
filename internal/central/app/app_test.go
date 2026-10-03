@@ -80,7 +80,7 @@ func await(t *testing.T, ch <-chan struct{}) {
 
 func testConfig(t *testing.T, timeout string) config.Config {
 	t.Helper()
-	values := map[string]string{config.Prefix + "HTTP_ADDR": "127.0.0.1:0", config.Prefix + "SHUTDOWN_TIMEOUT": timeout, config.Prefix + "DATABASE_URL": "postgresql://unit:unit@127.0.0.1:1/unit", config.Prefix + "DATABASE_TLS_MODE": "disable"}
+	values := map[string]string{config.Prefix + "CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, config.Prefix + "HTTP_ADDR": "127.0.0.1:0", config.Prefix + "SHUTDOWN_TIMEOUT": timeout, config.Prefix + "DATABASE_URL": "postgresql://unit:unit@127.0.0.1:1/unit", config.Prefix + "DATABASE_TLS_MODE": "disable"}
 	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -169,7 +169,7 @@ func TestDiagnosticRoutes(t *testing.T) {
 			}
 			for _, c := range d.Capabilities {
 				want := "unbound"
-				if c.Name == "postgresql" || c.Name == "pgvector" || c.Name == "migrations" || c.Name == "read_write" {
+				if c.Name == "postgresql" || c.Name == "pgvector" || c.Name == "migrations" || c.Name == "read_write" || c.Name == "cursor" || c.Name == "audit_storage" {
 					want = "available"
 				}
 				if c.Status != want {
@@ -257,7 +257,7 @@ func TestGracefulDrainPreservesActiveContextAndRejectsLateRequest(t *testing.T) 
 	var shutdownOnce sync.Once
 	handoff := func() { shutdownOnce.Do(func() { close(shutdownRelease) }) }
 	defer handoff()
-	diagnostics := diagnosticRouter(newHealthMonitor(unitHealth(), healthTiming{}))
+	diagnostics := diagnosticRouter(newHealthMonitor(unitHealth(), healthTiming{}), true)
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/slow" {
 			diagnostics.ServeHTTP(w, r)

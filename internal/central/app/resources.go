@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"net"
 	"net/http"
 	"sync"
@@ -11,11 +12,20 @@ import (
 // still owned and immediately disposed using the original (possibly expired)
 // cleanup context, never a newly reset timeout.
 type resources struct {
-	mu        sync.Mutex
-	db        database
-	listening net.Listener
-	server    *http.Server
-	forced    context.Context
+	mu           sync.Mutex
+	db           database
+	listening    net.Listener
+	server       *http.Server
+	forced       context.Context
+	auditService *audit.Service
+}
+
+func (o *resources) setAudit(service *audit.Service) {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	if o.forced == nil {
+		o.auditService = service
+	}
 }
 
 func (o *resources) addStore(store database) bool {

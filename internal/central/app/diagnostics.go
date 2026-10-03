@@ -13,12 +13,13 @@ type capability struct {
 	Status string `json:"status"`
 }
 type diagnostics struct {
-	Ready        bool                     `json:"ready"`
-	Capabilities []capability             `json:"capabilities"`
-	Database     *postgres.DatabaseHealth `json:"database,omitempty"`
+	Ready         bool                     `json:"ready"`
+	Capabilities  []capability             `json:"capabilities"`
+	Database      *postgres.DatabaseHealth `json:"database,omitempty"`
+	SecurityStage string                   `json:"security_stage"`
 }
 
-func diagnosticRouter(monitor *healthMonitor) http.Handler {
+func diagnosticRouter(monitor *healthMonitor, securityInitialized bool) http.Handler {
 	router := httpapi.NewRouter()
 	router.HandleFunc("GET /livez", func(w http.ResponseWriter, r *http.Request) {
 		_ = httpapi.WriteJSON(w, r, http.StatusOK, struct {
@@ -34,14 +35,22 @@ func diagnosticRouter(monitor *healthMonitor) http.Handler {
 	})
 	router.HandleFunc("GET /diagnostics", func(w http.ResponseWriter, r *http.Request) {
 		health, available := monitor.snapshot()
+		securityStatus, stage := "unavailable", "unavailable"
+		if securityInitialized {
+			securityStatus, stage = "available", "initialized"
+		}
+		auditStatus := "unavailable"
+		if securityInitialized && available {
+			auditStatus = "available"
+		}
 		status := "unavailable"
 		var database *postgres.DatabaseHealth
 		if available {
 			status = "available"
 			database = &health
 		}
-		_ = httpapi.WriteJSON(w, r, http.StatusOK, diagnostics{Ready: false, Database: database, Capabilities: []capability{
-			{"postgresql", status}, {"pgvector", status}, {"migrations", status}, {"read_write", status}, {"secret", "unbound"}, {"object_storage", "unbound"}, {"identity", "unbound"}, {"runner_protocol", "unbound"},
+		_ = httpapi.WriteJSON(w, r, http.StatusOK, diagnostics{Ready: false, Database: database, SecurityStage: stage, Capabilities: []capability{
+			{"postgresql", status}, {"pgvector", status}, {"migrations", status}, {"read_write", status}, {"cursor", securityStatus}, {"audit_storage", auditStatus}, {"audit_authorization", "unbound"}, {"secret", "unbound"}, {"outbound", "unbound"}, {"object_storage", "unbound"}, {"identity", "unbound"}, {"runner_protocol", "unbound"},
 		}})
 	})
 	return router

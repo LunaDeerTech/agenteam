@@ -9,7 +9,7 @@ agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期�
 - 存储：PostgreSQL / pgvector + MinIO。
 - 部署：前端资源嵌入 Central 二进制，Docker Compose 管理 Central 与基础设施。
 
-当前仓库已包含可运行的 Vue 前端基础、公共组件和开发环境 Debug 展示，以及 Go 工程基础、PostgreSQL/pgvector 迁移与事务库、Central 诊断入口和 Runner 独立进程。Central 在真实数据库初始化后只提供诊断，Runner 保持未连接、未认证；完整产品尚未就绪。
+当前仓库已包含可运行的 Vue 前端基础、公共组件和开发环境 Debug 展示，以及 Go 工程基础、PostgreSQL/pgvector 迁移与事务库、Central 诊断入口和 Runner 独立进程。Central 在真实数据库及 Audit/cursor 初始化后只提供诊断，Runner 保持未连接、未认证；完整产品尚未就绪。
 
 ## 后端开发
 
@@ -22,9 +22,9 @@ AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/build-go.sh
 ./bin/agenteam
 ```
 
-运行 Central 前须显式配置 `AGENTEAM_CENTRAL_DATABASE_URL` 及部署所需 CA，见 [Central 环境示例](deploy/central.env.example)；程序不会自动加载示例文件。`--check-config` 只验证 D03 配置、不连接数据库；`--help/--version` 无需配置。普通 Go 检查无需 Docker；`AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-postgres.sh` 单独运行真实隔离数据库与 Central 进程验证。
+运行 Central 前须显式配置 `AGENTEAM_CENTRAL_DATABASE_URL`、独立随机签名密钥配置 `AGENTEAM_CENTRAL_CURSOR_KEYRING` 及部署所需 CA，见 [Central 环境示例](deploy/central.env.example)；程序不会自动加载示例文件。`--check-config` 只验证当前 D04 配置、不连接数据库；`--help/--version` 无需配置。普通 Go 检查无需 Docker；`AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-postgres.sh` 单独运行真实隔离数据库与 Central 进程验证。
 
-Central 默认监听 `127.0.0.1:8080`，连接、迁移和首次读写检查通过后才开始监听。`/livez` 仅报告进程存活，`/readyz` 始终返回 503；`/diagnostics` 报告定期采样的数据库子状态与其余未绑定能力。`./bin/agenteam-runner` 运行未连接的 Runner，接到 SIGINT/SIGTERM 后退出。配置、日志、停机边界与隔离测试见[后端开发说明](docs/development/backend/README.md)。
+Central 默认监听 `127.0.0.1:8080`，连接、迁移、首次读写检查和独立安全初始化通过后才开始监听。`/livez` 仅报告进程存活，`/readyz` 始终返回 503；`/diagnostics` 报告定期采样的数据库子状态、cursor/Audit 存储与仍未绑定的授权/业务能力。`./bin/agenteam-runner` 运行未连接的 Runner，接到 SIGINT/SIGTERM 后退出。配置、日志、停机边界与隔离测试见[后端开发说明](docs/development/backend/README.md)。
 
 ## 前端开发
 

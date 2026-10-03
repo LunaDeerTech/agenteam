@@ -4,6 +4,7 @@ package database_test
 
 import (
 	"context"
+	"fmt"
 	"io/fs"
 	"testing"
 	"testing/fstest"
@@ -49,20 +50,27 @@ func openStore(t *testing.T, cfg postgres.Config) *postgres.Store {
 }
 func fixtureSource(t *testing.T, sql string, mode postgres.MigrationMode, plan *postgres.RecoveryPlan) postgres.Source {
 	t.Helper()
-	first, err := fs.ReadFile(migrations.SQL, "00001_database_foundation.sql")
+	names, err := fs.Glob(migrations.SQL, "*.sql")
 	if err != nil {
 		t.Fatal(err)
 	}
-	files := fstest.MapFS{"00001_database_foundation.sql": {Data: first}}
+	files := fstest.MapFS{}
+	for _, name := range names {
+		data, err := fs.ReadFile(migrations.SQL, name)
+		if err != nil {
+			t.Fatal(err)
+		}
+		files[name] = &fstest.MapFile{Data: data}
+	}
 	plans := map[int64]postgres.RecoveryPlan{}
 	if sql != "" {
 		header := "-- agenteam:transaction " + string(mode) + "\n"
 		if mode == postgres.NonTransactional {
 			header += "-- +goose NO TRANSACTION\n"
 		}
-		files["00002_fixture.sql"] = &fstest.MapFile{Data: []byte(header + "-- +goose Up\n" + sql + "\n")}
+		files[fmt.Sprintf("%05d_fixture.sql", fixtureVersion(t))] = &fstest.MapFile{Data: []byte(header + "-- +goose Up\n" + sql + "\n")}
 		if plan != nil {
-			plans[2] = *plan
+			plans[fixtureVersion(t)] = *plan
 		}
 	}
 	source, err := postgres.NewSource(files, plans)
@@ -79,7 +87,7 @@ func TestEmptyRepeatUpgradeAndHealth(t *testing.T) {
 		t.Fatal("unmigrated database reported healthy")
 	}
 	m := migrate(t, cfg)
-	if state := m.Migrate(testContext(t)); !state.Migrated || state.Version != 1 {
+	if state := m.Migrate(testContext(t)); !state.Migrated || state.Version != fixtureVersion(t)-1 {
 		t.Fatalf("repeat migration: %v", state.Fault)
 	}
 	health, err := store.Check(testContext(t))
@@ -147,7 +155,7 @@ func TestMigrationRollbackAndHistoryMismatch(t *testing.T) {
 					t.Fatal("fixture mutation failed")
 				}
 			case "version_hole":
-				if _, err := conn.Exec(testContext(t), "INSERT INTO agenteam_meta.goose_db_version(version_id,is_applied) VALUES(3,true)"); err != nil {
+				if _, err := conn.Exec(testContext(t), "INSERT INTO agenteam_meta.goose_db_version(version_id,is_applied) VALUES($1,true)", fixtureVersion(t)+1); err != nil {
 					t.Fatal("fixture mutation failed")
 				}
 			case "metadata_format":
@@ -168,4 +176,13 @@ func TestMigrationRollbackAndHistoryMismatch(t *testing.T) {
 			}
 		})
 	}
+}
+
+func fixtureVersion(t *testing.T) int64 {
+	t.Helper()
+	source, err := postgres.EmbeddedSource()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return source.Target() + 1
 }

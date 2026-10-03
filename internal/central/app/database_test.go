@@ -12,6 +12,8 @@ import (
 	"testing"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/LunaDeerTech/agenteam/internal/platform/lifecycle"
@@ -53,6 +55,9 @@ func (d *unitDatabase) ForceClose(ctx context.Context) error {
 	return nil
 }
 func unitDependencies(deps dependencies) dependencies {
+	if deps.security == nil {
+		deps.security = func(context.Context, config.Config, database) (*audit.Service, error) { return nil, nil }
+	}
 	if deps.open == nil {
 		deps.open = func(context.Context, postgres.Config) (database, error) { return &unitDatabase{}, nil }
 	}

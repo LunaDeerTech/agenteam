@@ -61,4 +61,4 @@ agenteam/
 - 空目录使用 `.gitkeep` 保存到 Git；目录有实际文件后可移除占位文件。
 - 本地敏感配置不入库，示例配置可以入库。根目录的 `secrets/` 被忽略，同名源码目录不受该规则影响。
 
-前端已建立独立依赖清单、Vue 入口、路由骨架和组件库，见[前端开发说明](frontend/README.md)。后端已有基础类型、HTTP 边界、数据库连接/迁移/事务/锁、环境配置、两个独立入口和停机验证，见[后端开发说明](backend/README.md)和[数据库说明](backend/database.md)。Central 在数据库初始化后只提供非 ready 的诊断，Runner 未连接且未认证；Secret、协议、对象存储、身份和业务模块仍待后续实现。部署目录中的 Central 环境示例覆盖 D03，Runner 保持 D02。
+前端已建立独立依赖清单、Vue 入口、路由骨架和组件库，见[前端开发说明](frontend/README.md)。后端已有基础类型、HTTP 边界、数据库连接/迁移/事务/锁、环境配置、两个独立入口和停机验证，见[后端开发说明](backend/README.md)和[数据库说明](backend/database.md)。Central 在数据库与 Audit/cursor 初始化后只提供非 ready 的诊断，Runner 未连接且未认证；Secret、协议、对象存储、身份和业务模块仍待后续实现。部署目录中的 Central 环境示例覆盖 D04 B01，必需独立 CURSOR_KEYRING；Runner 保持 D02。Audit 同事务写入、授权读取/清理端口与签名 cursor 见 [Audit 说明](backend/audit.md)，身份/Project 授权适配仍未绑定。

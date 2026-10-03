@@ -298,8 +298,8 @@ func TestCLIScopeAndSafeFailures(t *testing.T) {
 			var checkedEnvironment []string
 			scope := "d02"
 			if service == "central" {
-				scope = "d03"
-				checkedEnvironment = []string{"AGENTEAM_CENTRAL_DATABASE_URL=postgresql://config:config-only@127.0.0.1:1/config_only", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"}
+				scope = "d04"
+				checkedEnvironment = []string{`AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_DATABASE_URL=postgresql://config:config-only@127.0.0.1:1/config_only", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"}
 			}
 			p := launch(t, name, []string{"--check-config"}, checkedEnvironment)
 			p.wait(t, 0)
@@ -374,7 +374,7 @@ func TestCentralCheckAndCompiledRepairNeverConnect(t *testing.T) {
 				args = []string{"--expected-checksum", string(source.Manifest()[0].Checksum), "--repair-migration", "1"}
 				want = 1
 			}
-			p := launch(t, "agenteam", args, []string{"AGENTEAM_CENTRAL_DATABASE_URL=postgresql://pure:password-SENTINEL@" + listener.Addr().String() + "/pure", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"})
+			p := launch(t, "agenteam", args, []string{`AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_DATABASE_URL=postgresql://pure:password-SENTINEL@" + listener.Addr().String() + "/pure", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"})
 			p.wait(t, want)
 			_ = listener.Close()
 			if <-accepted {

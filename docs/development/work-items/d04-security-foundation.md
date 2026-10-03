@@ -1,6 +1,6 @@
 # D04 Secret、出站访问与 Audit 基础
 
-- 修订：1；状态：B01实施中；唯一活动模块D04；基线 `main@9beaa7f`，已推送origin/main，开工工作区干净。
+- 修订：1；状态：B01已验收，B02待开工；唯一活动模块D04；基线 `main@9beaa7f`，已推送origin/main，开工工作区干净。
 - 前置：[D03](d03-postgresql-foundation.md) B01/B02真实数据库及进程独立验收完成；[D01契约](d01-contracts/README.md)已固定。
 - 目标：按[计划D04](../development-plan.md#d04-secret-出站与-audit)依次完成Secret envelope encryption/版本化环境密钥环/可恢复数据密钥重保护、数据库权威动态出站策略与受控HTTP、append-oriented Audit写入及分页查询基础。
 
@@ -9,7 +9,7 @@
 | 卡 | 依赖 | 角色 | 独占范围 | 状态 |
 | --- | --- | --- | --- | --- |
 | S01 实施规格 | D03完成 | architecture_worker | 新增 `d04-security-design.md`；现有代码/根规格只读 | 已确认 |
-| B01 Audit/签名cursor与正式授权端口 | S01确认 | backend_worker | 实施规格§1与本卡补充范围 | 进行中 |
+| B01 Audit/签名cursor与正式授权端口 | S01确认 | backend_worker | 实施规格§1与本卡补充范围 | 已验收 |
 | B02 Secret与密钥轮换 | B01及S01确认 | backend_worker | 具体加密/lease/轮换/测试范围由S01固定 | 待开始 |
 | B03 动态出站与入口整合 | 前置已验收小块 | backend_worker | 具体策略/受控网络/入口与完整验收范围由S01固定 | 待开始 |
 | V01–V03 独立验证 | 对应冻结范围 | verification_worker | 只读实现，独立临时探针与隔离资源 | 待开始 |
@@ -65,3 +65,29 @@ V01a独立探针已结束停读，仅上述generation编码需返修：超过2^5
 原6文件重新冻结，manifest `/tmp/agenteam-d04-b01-identity-cursor-v2.sha256` SHA-256 `18234b86451a5f843643cc25cbf0486bbe21232b4e40e26021bf6778e4d77bdc`。只cursor.go/test变化，wire generation改规范正十进制字符串，Go int64接口不变；作者race1.059s/vet通过。独立V01a复用原失败probe与Python MAC重算，两组>2^53/MaxInt64向量及number/前导零/0/负数/溢出/null/+1/1.0拒绝全部通过，定向race1.050s、格式通过；其余4文件指纹未变，复用前轮安全边界结论。
 
 验证者已停读/命令，作者停止本6文件写入，主线程已读全部实现并核对证据。将此完整类型与签名库作为B01a小块精确提交推送；不包含仍在写入的Audit，也不改变CLI/数据库启动配置。当前签名不代替授权，D07/D08仍未绑定；B01真实Audit存储/配置诊断与整体验收仍在实施，D04未完成。
+
+- B01a实际交付：`d623004`已推送origin/main（e34dfaf→d623004）。公共identity/cursor保持已验收冻结，作者继续B01 Audit/配置诊断/真实PG验收；活动Audit未纳入该提交。
+
+B01文档补授权：`docs/development/repository-structure.md` 与根 `README.md` 仅同步Audit/cursor、Central必填CURSOR_KEYRING/D04检查范围和既有未绑定能力的现状/链接；数据库说明当前无必要变化。backend_worker独占此范围。
+
+作者首轮真实TestAudit race4.348s通过同Tx回滚、12并发同义/异义、当前权限、同时间分页/过滤、EXPLAIN和501条分批清理/迟到append拒绝；第二轮5.887s通过COMMIT代理两个unknown方向与正式LookupAppend、cleanup unknown重读。nonce6b201157641349d0307d7fccc8fea18f、09b906c7a19ffc024235a558a65ff832已精确清理。配置/app/logging/cmd局部race通过；正在补真实入口及冻结，以上作者证据不代替独立验收。
+
+## B01 Audit全量冻结与V01b
+
+Audit核心15文件manifest `/tmp/agenteam-d04-b01-audit-core.sha256` SHA-256 `b5d2ddfc1a0f23f4a4f30f98b77e4e551b3ab98ee3dc3f055225d5a01a843147` 已冻结；全部B01含已提交B01a共52输入manifest `/tmp/agenteam-d04-b01-all.sha256` SHA-256 `002e0f365fada167133ca39571518e68e936b1fa177dd21a47bd8cb8bedd5fd1`。作者所有命令结束、源码停写。
+
+作者check-go.sh普通test/两种vet/race/双bin构建exit0；完整test-postgres.sh最终exit0：postgres1.037s、database21.093s、app12.967s、process38.590s、security8.126s。首轮仅旧recovery fixture两处动态版本替换失败，已在授权测试范围精确修正后重跑；没有修改D03生产库。最终日志 `/tmp/agenteam-d04-b01-postgres-final.log` SHA-256 `b1bd930bdb19bfeb4852f53408ad0029c734c211a1266831551aa68fc47f82f9`，nonce7d0a73b12db8d34b85af74a61a9f31a7及此前失败fixture精确清理；PG170008/160012、vector0.8.1。
+
+V01b已扩展独立整批审查，临时副本 `/tmp/agenteam-d04-v01b-v6hxfvcd`；其余61个依赖与d623004一致，无新增依赖。主线程已读生产核心/SQL/入口/脚本/说明，9文档147链接/格式通过，等待独立真实PG与进程结论。两候选不列当前阻塞：当前Human追加仍需Mutate，不凭denied放宽权限；后续D07/D19若要记录未获业务授权的Human动作，须在对应调用点明确trusted producer与安全Actor端口。audit_storage表示启动验证且随DB健康，security_stage仅初始化，不承诺运行时逐表DDL/权限变更巡检。以上限制不构成真实身份或后续模块验收。
+
+V01b独立真实选定security7.684s/process5.242s及局部关键race通过；另新增公开cleanup失败探针发现唯一阻塞：真实PG已提交DELETE（独立查询剩余0）、COMMIT响应丢失且同Store停止admission后核实不可用，`errors.As`获得COMMIT_UNKNOWN却commit_state=not_started。根因audit/error.go对所有code固定NotStarted。探针 `/tmp/agenteam-d04-v01b-v6hxfvcd/tests/security/review_audit_unknown_test.go`，日志 `/tmp/agenteam-d04-v01b-unknown.log`，实际失败exit1/0.86s。
+
+独立作者已停读和命令，52/15指纹末次未变；两nonce75eb1c790b239f4adb77ecf7ae71c052、6b0133ac2ed4b0b854513fb83f273296容器/网络/TMPDIR均确认0。主线程采纳并仅解冻audit/error.go及必要对应测试，要求COMMIT_UNKNOWN保留Unknown状态/安全cause，定向真实复验；其他范围冻结，B01仍未验收。
+
+## B01 完成与交接
+
+唯一unknown错误状态阻塞已闭环：仅audit/error.go、service_test.go、audit_cleanup_test.go变化，COMMIT_UNKNOWN明确保留foundation.Unknown及安全cause。作者定向race1.040s/integration vet、原独立probe原样纳入的真实cleanup3场景3.573s通过，nonce4ff49f7dc40b56abe0d9d95dd15beed5清理。独立再次使用未修改的原探针，真实提交删除+丢回包+核实不可用返回unknown，通过security1.904s；cause/As/Is/递归投影race1.018s通过。日志 `/tmp/agenteam-d04-v01b-unknown-recheck.log`，nonce725c5bcf2ac1e88959ba89a0330f4607两容器/网络/TMPDIR再次独立确认清理。
+
+最终52文件manifest `/tmp/agenteam-d04-b01-all-v2.sha256` SHA-256 `3ec6ac44591b98ffb3e703727bcc82d6ccad7ede5f50f5fff306c84b95b978f4`；15core-v2 SHA-256 `0ccba2d0dfb0c1a3d12ae03b33a3afb2139b2783946597392fdd2e780585119c`。除授权3文件外其余49未变，复用原完整检查与独立真实证据，末次gofmt/空白/指纹通过。所有作者/验证者均停读写和命令，主线程审查通过，B01验收完成，按授权精确提交推送，通过本节Git历史定位。
+
+当前Central新增必填cursor keyring与30s安全初始化，真实Audit存储可用、无业务HTTP；D07/D08的Session/System/Owner/gate适配仍未绑定并拒绝调用，不把fixture权限当生产授权。B02 Secret和B03出站尚未实施，D04整体未完成；下一步按已确认规格B02实现环境主密钥环、envelope/lease与可恢复轮换，无用户待定或环境阻塞。

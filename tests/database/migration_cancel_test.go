@@ -4,6 +4,7 @@ package database_test
 
 import (
 	"context"
+	"fmt"
 	"testing"
 	"time"
 
@@ -102,8 +103,8 @@ func TestMigrationCancellationClosesGuardAndSQLBackends(t *testing.T) {
 			repairContext, cancelRepair := context.WithCancel(testContext(t))
 			defer cancelRepair()
 			repairs := make(chan postgres.RepairResult, 1)
-			checksum := source.Manifest()[1].Checksum
-			go func() { repairs <- m.Repair(repairContext, 2, checksum) }()
+			checksum := source.Manifest()[len(source.Manifest())-1].Checksum
+			go func() { repairs <- m.Repair(repairContext, fixtureVersion(t), checksum) }()
 			pid = migrationWaiterPID(t, admin)
 			started = time.Now()
 			cancelRepair()
@@ -113,13 +114,13 @@ func TestMigrationCancellationClosesGuardAndSQLBackends(t *testing.T) {
 			}
 			assertMigrationBackendExited(t, admin, pid)
 			var journal string
-			if err := admin.QueryRow(testContext(t), "SELECT state FROM agenteam_meta.migration_journal WHERE version=2").Scan(&journal); err != nil || journal != "repairing" {
+			if err := admin.QueryRow(testContext(t), fmt.Sprintf("SELECT state FROM agenteam_meta.migration_journal WHERE version=%d", fixtureVersion(t))).Scan(&journal); err != nil || journal != "repairing" {
 				t.Fatal("repair interruption evidence was lost")
 			}
 			if _, err := admin.Exec(testContext(t), "SELECT pg_advisory_unlock(99126),pg_advisory_unlock(99127)"); err != nil {
 				t.Fatal("owned barriers did not release")
 			}
-			if repair := m.Repair(testContext(t), 2, checksum); !repair.RepairedToPending {
+			if repair := m.Repair(testContext(t), fixtureVersion(t), checksum); !repair.RepairedToPending {
 				t.Fatal("interrupted repair could not resume")
 			}
 			if state := m.Migrate(testContext(t)); !state.Migrated {

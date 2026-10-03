@@ -105,7 +105,7 @@ func TestTwoMigrationProcessesGuardCancellationAndOwnerDeath(t *testing.T) {
 		t.Fatal("surviving migration child failed")
 	}
 	var count, versions int
-	if err := admin.QueryRow(testContext(t), "SELECT (SELECT count(*) FROM guard_once),(SELECT count(*) FROM agenteam_meta.goose_db_version WHERE version_id=2)").Scan(&count, &versions); err != nil || count != 1 || versions != 1 {
+	if err := admin.QueryRow(testContext(t), fmt.Sprintf("SELECT (SELECT count(*) FROM guard_once),(SELECT count(*) FROM agenteam_meta.goose_db_version WHERE version_id=%d)", fixtureVersion(t))).Scan(&count, &versions); err != nil || count != 1 || versions != 1 {
 		t.Fatal("migration SQL or version repeated")
 	}
 }
@@ -150,11 +150,11 @@ func TestNonTransactionalInterruptionAndInterruptedRepair(t *testing.T) {
 		t.Fatalf("partial index rerun allowed: %v", state.Fault)
 	}
 	var journal string
-	if err := admin.QueryRow(testContext(t), "SELECT state FROM agenteam_meta.migration_journal WHERE version=2").Scan(&journal); err != nil || journal != "needs_repair" {
+	if err := admin.QueryRow(testContext(t), fmt.Sprintf("SELECT state FROM agenteam_meta.migration_journal WHERE version=%d", fixtureVersion(t))).Scan(&journal); err != nil || journal != "needs_repair" {
 		t.Fatal("needs_repair not persistent")
 	}
-	checksum := source.Manifest()[1].Checksum
-	if repair := m.Repair(testContext(t), 2, foundation.Digest("sha256:0000000000000000000000000000000000000000000000000000000000000000")); repair.RepairedToPending {
+	checksum := source.Manifest()[len(source.Manifest())-1].Checksum
+	if repair := m.Repair(testContext(t), fixtureVersion(t), foundation.Digest("sha256:0000000000000000000000000000000000000000000000000000000000000000")); repair.RepairedToPending {
 		t.Fatal("wrong checksum repair allowed")
 	}
 	tx, err = blocker.Begin(testContext(t))
@@ -166,8 +166,8 @@ func TestNonTransactionalInterruptionAndInterruptedRepair(t *testing.T) {
 		t.Fatal("repair barrier failed")
 	}
 	repairs := make(chan postgres.RepairResult, 1)
-	go func() { repairs <- m.Repair(testContext(t), 2, checksum) }()
-	waitDatabase(t, admin, `SELECT EXISTS(SELECT 1 FROM agenteam_meta.migration_journal WHERE version=2 AND state='repairing') AND EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND query LIKE 'DROP INDEX CONCURRENTLY IF EXISTS public.fixture_repair_index%' AND wait_event_type='Lock')`)
+	go func() { repairs <- m.Repair(testContext(t), fixtureVersion(t), checksum) }()
+	waitDatabase(t, admin, fmt.Sprintf(`SELECT EXISTS(SELECT 1 FROM agenteam_meta.migration_journal WHERE version=%d AND state='repairing') AND EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND query LIKE 'DROP INDEX CONCURRENTLY IF EXISTS public.fixture_repair_index%%' AND wait_event_type='Lock')`, fixtureVersion(t)))
 	if err := admin.QueryRow(testContext(t), `SELECT pid FROM pg_stat_activity WHERE datname=current_database() AND query LIKE 'DROP INDEX CONCURRENTLY IF EXISTS public.fixture_repair_index%' AND wait_event_type='Lock'`).Scan(&pid); err != nil {
 		t.Fatal("repair PID missing")
 	}
@@ -180,16 +180,16 @@ func TestNonTransactionalInterruptionAndInterruptedRepair(t *testing.T) {
 	if err := tx.Rollback(testContext(t)); err != nil {
 		t.Fatal("repair blocker release failed")
 	}
-	if err := admin.QueryRow(testContext(t), "SELECT state FROM agenteam_meta.migration_journal WHERE version=2").Scan(&journal); err != nil || journal != "repairing" {
+	if err := admin.QueryRow(testContext(t), fmt.Sprintf("SELECT state FROM agenteam_meta.migration_journal WHERE version=%d", fixtureVersion(t))).Scan(&journal); err != nil || journal != "repairing" {
 		t.Fatal("interrupted repair marker lost")
 	}
 	if state := m.Migrate(testContext(t)); state.Migrated || state.Fault.Code() != postgres.MigrationRepairRequired {
 		t.Fatal("interrupted repair auto-ran")
 	}
-	if repair := m.Repair(testContext(t), 2, checksum); !repair.RepairedToPending {
+	if repair := m.Repair(testContext(t), fixtureVersion(t), checksum); !repair.RepairedToPending {
 		t.Fatalf("registered repair failed: %v", repair.Fault)
 	}
-	if err := admin.QueryRow(testContext(t), "SELECT state FROM agenteam_meta.migration_journal WHERE version=2").Scan(&journal); err != nil || journal != "pending" {
+	if err := admin.QueryRow(testContext(t), fmt.Sprintf("SELECT state FROM agenteam_meta.migration_journal WHERE version=%d", fixtureVersion(t))).Scan(&journal); err != nil || journal != "pending" {
 		t.Fatal("repair did not restore pending")
 	}
 	if state := m.Migrate(testContext(t)); !state.Migrated {
@@ -197,7 +197,7 @@ func TestNonTransactionalInterruptionAndInterruptedRepair(t *testing.T) {
 	}
 	var valid bool
 	var versions int
-	if err := admin.QueryRow(testContext(t), "SELECT (SELECT indisvalid FROM pg_index WHERE indexrelid=to_regclass('public.fixture_repair_index')),(SELECT count(*) FROM agenteam_meta.goose_db_version WHERE version_id=2)").Scan(&valid, &versions); err != nil || !valid || versions != 1 {
+	if err := admin.QueryRow(testContext(t), fmt.Sprintf("SELECT (SELECT indisvalid FROM pg_index WHERE indexrelid=to_regclass('public.fixture_repair_index')),(SELECT count(*) FROM agenteam_meta.goose_db_version WHERE version_id=%d)", fixtureVersion(t))).Scan(&valid, &versions); err != nil || !valid || versions != 1 {
 		t.Fatal("repaired index or Goose fact invalid")
 	}
 	production, _ := postgres.NewMigrator(cfg)
@@ -230,12 +230,12 @@ func TestRepairVerifierRequiresOneTrueBooleanAndReadOnlyExecution(t *testing.T) 
 			if state := m.Migrate(testContext(t)); state.Migrated || state.Fault.Code() != postgres.MigrationRepairRequired {
 				t.Fatal("partial migration not recorded")
 			}
-			if result := m.Repair(testContext(t), 2, source.Manifest()[1].Checksum); result.RepairedToPending || result.Fault.Code() != postgres.MigrationRepairFailed {
+			if result := m.Repair(testContext(t), fixtureVersion(t), source.Manifest()[len(source.Manifest())-1].Checksum); result.RepairedToPending || result.Fault.Code() != postgres.MigrationRepairFailed {
 				t.Fatal("invalid verifier accepted")
 			}
 			var state string
 			var writes int
-			if err := admin.QueryRow(testContext(t), "SELECT (SELECT state FROM agenteam_meta.migration_journal WHERE version=2),(SELECT count(*) FROM repair_write)").Scan(&state, &writes); err != nil || state != "repairing" || writes != 0 {
+			if err := admin.QueryRow(testContext(t), fmt.Sprintf("SELECT (SELECT state FROM agenteam_meta.migration_journal WHERE version=%d),(SELECT count(*) FROM repair_write)", fixtureVersion(t))).Scan(&state, &writes); err != nil || state != "repairing" || writes != 0 {
 				t.Fatal("failed verifier cleared recovery state or wrote data")
 			}
 		})
@@ -249,7 +249,7 @@ func TestAppliedGooseFactConvergesInterruptedJournal(t *testing.T) {
 	m := migrate(t, cfg, source)
 	admin := db.Connect(t)
 	for _, interrupted := range []string{"running", "repairing"} {
-		if _, err := admin.Exec(testContext(t), "UPDATE agenteam_meta.migration_journal SET state=$1,finished_at=NULL WHERE version=2", interrupted); err != nil {
+		if _, err := admin.Exec(testContext(t), fmt.Sprintf("UPDATE agenteam_meta.migration_journal SET state=$1,finished_at=NULL WHERE version=%d", fixtureVersion(t)), interrupted); err != nil {
 			t.Fatal("journal fixture mutation failed")
 		}
 		if state := m.Migrate(testContext(t)); !state.Migrated {
@@ -257,7 +257,7 @@ func TestAppliedGooseFactConvergesInterruptedJournal(t *testing.T) {
 		}
 		var count int
 		var applied bool
-		if err := admin.QueryRow(testContext(t), "SELECT (SELECT count(*) FROM converge_once),(SELECT state='applied' AND finished_at IS NOT NULL FROM agenteam_meta.migration_journal WHERE version=2)").Scan(&count, &applied); err != nil || count != 1 || !applied {
+		if err := admin.QueryRow(testContext(t), fmt.Sprintf("SELECT (SELECT count(*) FROM converge_once),(SELECT state='applied' AND finished_at IS NOT NULL FROM agenteam_meta.migration_journal WHERE version=%d)", fixtureVersion(t))).Scan(&count, &applied); err != nil || count != 1 || !applied {
 			t.Fatal("migration reran or journal did not converge")
 		}
 	}

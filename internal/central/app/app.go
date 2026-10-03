@@ -13,6 +13,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
@@ -34,6 +35,7 @@ type processLogger interface {
 	Failed(logging.Phase, lifecycle.FailureCode)
 	ShutdownComplete(bool, lifecycle.FailureCode)
 	Database(logging.DatabasePhase, string, string, int64)
+	Security(logging.SecurityPhase)
 	HTTPLogger() *slog.Logger
 	ServerErrorLog() *log.Logger
 }
@@ -48,18 +50,20 @@ type database interface {
 // Only package-local tests can replace assembly. Production always uses Open,
 // the embedded migration source and the fixed health sampling intervals.
 type dependencies struct {
-	listen  func(context.Context, string, string) (net.Listener, error)
-	handler http.Handler
-	open    func(context.Context, postgres.Config) (database, error)
-	migrate func(context.Context, postgres.Config) postgres.MigrationState
-	health  healthTiming
+	listen   func(context.Context, string, string) (net.Listener, error)
+	handler  http.Handler
+	open     func(context.Context, postgres.Config) (database, error)
+	migrate  func(context.Context, postgres.Config) postgres.MigrationState
+	health   healthTiming
+	security func(context.Context, config.Config, database) (*audit.Service, error)
 }
 
 type startupResult struct {
-	health  postgres.DatabaseHealth
-	sampled time.Time
-	err     error
-	code    lifecycle.FailureCode
+	health          postgres.DatabaseHealth
+	sampled         time.Time
+	err             error
+	code            lifecycle.FailureCode
+	securityFailure bool
 }
 
 func run(ctx context.Context, cfg config.Config, logger processLogger, signals <-chan os.Signal, deps dependencies) error {
@@ -92,7 +96,10 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			return m.Migrate(ctx)
 		}
 	}
-	startup, cancelStartup := context.WithTimeout(control.StopContext(), cfg.Database().StartupTimeout())
+	if deps.security == nil {
+		deps.security = initializeSecurity
+	}
+	startup, cancelStartup := context.WithCancel(control.StopContext())
 	defer cancelStartup()
 	initialized := make(chan startupResult, 1)
 	go func() { initialized <- initialize(startup, cfg, logger, deps, owned) }()
@@ -109,7 +116,7 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 		return stopStartup(logger, control, owned, initialized)
 	}
 	if initial.err != nil {
-		if initial.code == lifecycle.InitializationFailed {
+		if initial.code == lifecycle.InitializationFailed && !initial.securityFailure {
 			databaseFailure(logger, initial.err)
 		}
 		logger.Failed(logging.Starting, initial.code)
@@ -126,7 +133,7 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	healthDone := make(chan struct{})
 	go func() { defer close(healthDone); monitor.run(healthContext, owned.store(), logger) }()
 	if deps.handler == nil {
-		deps.handler = diagnosticRouter(monitor)
+		deps.handler = diagnosticRouter(monitor, true)
 	}
 	serving, cancelServing := context.WithCancel(context.WithoutCancel(ctx))
 	defer cancelServing()
@@ -226,6 +233,9 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 }
 
 func initialize(ctx context.Context, cfg config.Config, logger processLogger, deps dependencies, owned *resources) startupResult {
+	parent := ctx
+	ctx, cancelDatabase := context.WithTimeout(parent, cfg.Database().StartupTimeout())
+	defer cancelDatabase()
 	failed := func(err error) startupResult { return startupResult{err: err, code: lifecycle.InitializationFailed} }
 	logger.Database(logging.DatabaseConnecting, "", "", 0)
 	store, err := deps.open(ctx, cfg.Database())
@@ -262,6 +272,21 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 	if err := ctx.Err(); err != nil {
 		return failed(err)
 	}
+	cancelDatabase()
+	ctx, cancelSecurity := context.WithTimeout(parent, SecurityStartupTimeout)
+	defer cancelSecurity()
+	logger.Security(logging.CursorInitializing)
+	logger.Security(logging.AuditInitializing)
+	auditService, err := deps.security(ctx, cfg, store)
+	if err == nil {
+		err = ctx.Err()
+	}
+	if err != nil {
+		logger.Security(logging.SecurityFailed)
+		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
+	}
+	owned.setAudit(auditService)
+	logger.Security(logging.SecurityInitialized)
 	listener, err := deps.listen(ctx, "tcp", cfg.HTTPAddr())
 	if listener != nil {
 		owned.addListener(listener)

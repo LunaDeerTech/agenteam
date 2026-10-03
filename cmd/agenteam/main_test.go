@@ -28,6 +28,8 @@ func TestInformationAndRepairArgumentsDoNotReadUnselectedInputs(t *testing.T) {
 func TestCheckConfigAndUnsupportedCompiledRepair(t *testing.T) {
 	lookup := func(key string) (string, bool) {
 		switch key {
+		case config.Prefix + "CURSOR_KEYRING":
+			return `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, true
 		case config.Prefix + "DATABASE_URL":
 			return "postgresql://check:private-sentinel@127.0.0.1:1/config_only", true
 		case config.Prefix + "DATABASE_TLS_MODE":
@@ -36,8 +38,8 @@ func TestCheckConfigAndUnsupportedCompiledRepair(t *testing.T) {
 		return "", false
 	}
 	var out, logs bytes.Buffer
-	if execute([]string{"--check-config"}, lookup, nil, &out, &logs, nil) != 0 || !strings.Contains(out.String(), `"scope":"d03"`) {
-		t.Fatal("pure D03 configuration check failed")
+	if execute([]string{"--check-config"}, lookup, nil, &out, &logs, nil) != 0 || !strings.Contains(out.String(), `"scope":"d04"`) {
+		t.Fatal("pure D04 configuration check failed")
 	}
 	source, err := postgres.EmbeddedSource()
 	if err != nil {
