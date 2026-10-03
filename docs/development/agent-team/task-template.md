@@ -33,4 +33,4 @@
 - 证据位置及未验证内容的记录方式：
 - 交付：实际修改文件、行为变化、命令及结果、证据、未完成项与阻塞。
 
-执行者固定为 `gpt-6.1-sol / low`，不得创建下级 agent、切换分支、建立 worktree 或执行 Git 暂存、提交、推送、reset、clean。主线程负责最终验收和 Git 交付。
+执行者固定为 `gpt-6-astra / max`，不得创建下级 agent、切换分支、建立 worktree 或执行 Git 暂存、提交、推送、reset、clean。主线程负责最终验收和 Git 交付。

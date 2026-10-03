@@ -62,7 +62,7 @@ Keep credentials in ignored `.env*` files or root `secrets/`; commit sanitized e
 
 ## 串行子 agent 开发团队
 
-主线程负责用户讨论、规划、任务下发、复杂诊断、审查、必要集成和汇报；业务执行交给子 agent。固定使用 `backend_worker`（后端）、`frontend_worker`（前端）和 `verification_worker`（测试与文档）三个角色，全部使用 `gpt-6.1-sol`，推理级别为 `low`，权限与 sandbox 继承主线程，不使用 `luna_worker`。
+主线程负责用户讨论、规划、任务下发、复杂诊断、审查、必要集成和汇报；业务执行交给子 agent。固定使用 `backend_worker`（后端）、`frontend_worker`（前端）和 `verification_worker`（测试与文档）三个角色，全部使用 `gpt-6-astra`，推理级别为 `max`，权限与 sandbox 继承主线程，不使用 `luna_worker`。
 
 在 `main` 上每次只推进一个工作项，最多一个活动子 agent；子 agent 不得创建下级 agent。每个工作项可以拆成多张小任务卡，按开发 → 验证 → 返修 → 主线程审查 → 本地提交顺序推进，完成后再开始下一工作项。
 

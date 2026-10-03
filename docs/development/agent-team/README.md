@@ -10,7 +10,7 @@
 | [frontend_worker](../../../.codex/agents/frontend-worker.toml) | 已确定的 Vue 页面、组件和样式小任务 | `agenteam-vue-development` |
 | [verification_worker](../../../.codex/agents/verification-worker.toml) | 测试、浏览器验收、必要测试补充及文档同步 | `agenteam-verification` |
 
-角色定义位于 [`.codex/agents/`](../../../.codex/agents/)，均固定 `model = "gpt-6.1-sol"`、`model_reasoning_effort = "low"`。[项目配置](../../../.codex/config.toml)设置最多一个子 agent；角色规则长期保留，实例按任务启动。主线程保持当前模型及思考强度。
+角色定义位于 [`.codex/agents/`](../../../.codex/agents/)，均固定 `model = "gpt-6-astra"`、`model_reasoning_effort = "max"`。[项目配置](../../../.codex/config.toml)将子 agent 默认模型和思考强度同样设置为 `gpt-6-astra / max`，最多一个子 agent；角色规则长期保留，实例按任务启动。主线程保持当前模型及思考强度。
 
 角色身份以 TOML 的 `name` 字段为准；本项目文件名使用连字符，角色名使用下划线。检查时枚举实际文件，不根据角色名猜测文件路径。
 
@@ -41,7 +41,7 @@
 
 外部技能固定版本及许可证记录见[技能来源](skill-sources.md)。版本更新作为独立工作项，由主线程先检查差异。技能可发现不等于浏览器、测试库或其他工具可用；实际不可用时明确报告。不能把 `flushPromises` 当作推进 fake timers 的替代。
 
-项目配置由支持自定义角色的 Codex 会话加载。当前会话的工具列表若尚未出现自定义角色，先重新加载角色；在需要继续执行时，可使用普通 `worker`，显式指定 `gpt-6.1-sol`、`low` 和本角色指令。创建时采用自包含任务卡；支持 `fork_turns` 的接口设置为 `none`，避免全量继承覆盖指定模型与强度。模型不可用时报告主线程，不自动替换模型。
+项目配置由支持自定义角色的 Codex 会话加载。当前会话的工具列表若尚未出现自定义角色，先重新加载角色；在需要继续执行时，可使用普通 `worker`，显式指定 `gpt-6-astra`、`max` 和本角色指令。创建时采用自包含任务卡；支持 `fork_turns` 的接口设置为 `none`，避免全量继承覆盖指定模型与强度。模型不可用时报告主线程，不自动替换模型。
 
 ## 验收与 Git 交付
 

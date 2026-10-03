@@ -388,7 +388,7 @@ Execution succeeded 不等于 Task done；Loop 不直接写项目领域表。执
 
 ## AI 如何执行和恢复
 
-沿用[串行团队](agent-team/README.md)：主线程负责设计、任务卡、诊断、审查与本地提交；每次最多一个活动子 agent，角色固定 `backend_worker`、`frontend_worker`、`verification_worker`，使用 `gpt-6.1-sol / low`，子 agent 不再委派。
+沿用[串行团队](agent-team/README.md)：主线程负责设计、任务卡、诊断、审查与本地提交；每次最多一个活动子 agent，角色固定 `backend_worker`、`frontend_worker`、`verification_worker`，使用 `gpt-6-astra / max`，子 agent 不再委派。
 
 每次恢复先读取 `AGENTS.md`、本计划、[台账](agent-team/tasks.md)、当前工作项规格与实际 Git 差异。计划编号 D00–D28 表示模块顺序，团队台账 AT 编号表示实际执行记录，两者关联，不互相替代。
 
