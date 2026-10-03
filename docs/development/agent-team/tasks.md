@@ -200,7 +200,7 @@
 
 ## AT-0011：D04 Secret、出站访问与 Audit
 
-- 状态：B03待开工；唯一活动模块D04；[规格](../work-items/d04-security-foundation.md)修订1，基线main@9beaa7f。D03数据库基础与入口全验收，未绑定Secret/对象/身份/协议及业务。
+- 状态：B03实施中；唯一活动模块D04；[规格](../work-items/d04-security-foundation.md)修订1，基线main@9beaa7f。D03数据库基础与入口全验收，未绑定Secret/对象/身份/协议及业务。
 - architecture_worker独占新增实施规格，root维护主规格/台账/计划；先固定密钥环/恢复、动态出站与Audit数据接口和真实验收，再按完整结果实施、独立验证、提交推送。无用户待定或环境阻塞；当前不创建测试资源、不提前实现D05+。
 
 - S01实施规格修订2已获主线程确认。独立静态审查发现的Audit重放/HTTP隐式重试/故障状态及旧策略receipt问题已集中明确化；按Audit/cursor→Secret/轮换→动态出站顺序实施，尚无D04产品行为验收。设计基线先按授权提交推送，再开工B01，范围见主规格/实施规格。
@@ -226,3 +226,7 @@
 - B02b实际交付：`6feda6b`已成功推送origin/main（33a61db→6feda6b）。持久化25核心文件继续冻结，作者正在验证Central入口/启动/信号与说明；本提交不包含活动入口，B02尚未整体验收。
 
 - B02完整验收通过：V02c定向race及真实app18.124s/process29.097s通过，新增真实worker损坏/不可用/恢复/移除旧key探针通过；52最终manifest `f7a8c2dbe80dd50c1fb3ec58a7b42e03736ca6e33d35ca7137878c72a64c8415`。作者完整Go/PG、V02a/V02b稳定证据复用，主线程审查通过；nonce12ebe47977ec1b6f6dd1668ff88e7865资源清理，全部作者/验证者停止。root按授权提交推送入口，B03待开工；D04未整体完成，未来授权仍未绑定。
+
+- B02入口实际交付：`fffd0dc`已推送origin/main（6feda6b→fffd0dc），工作区干净后B03开工。backend_worker接管动态出站/00004/真实网络fixture与必要入口，详细所有权见主卡；root维护规格/台账/计划，B01/B02和D03库冻结。先完成D04，不提前D05或E01。
+
+- B03a纯边界5文件独立通过：origin mapped身份/hex数字host两缺陷以原失败probe闭环，race1.075s/vet/格式通过，manifest `4993cd4047121664e58ce04e116a096d9619efb8ae79afa73876e3b811cfc166`。root精确提交推送；活动policy/gate/DNS/HTTP不纳入，B03/D04未整体完成。DNS严格partial-error与专用H1的工程选择、IANA在线403资料限制记录于主卡。

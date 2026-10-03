@@ -1,0 +1,255 @@
+package outbound
+
+import (
+	"fmt"
+	"io"
+	"log/slog"
+	"net"
+	"net/netip"
+	"net/url"
+	"strconv"
+	"strings"
+)
+
+type originData struct {
+	scheme, host string
+	port         uint16
+}
+
+// Origin is the credential boundary: scheme, canonical host and effective port.
+// Its String method is an explicit safe projection, without path or query.
+type Origin struct{ data func() originData }
+
+func (o Origin) Valid() bool { return o.data != nil }
+func (o Origin) Scheme() string {
+	if o.data == nil {
+		return ""
+	}
+	return o.data().scheme
+}
+func (o Origin) Host() string {
+	if o.data == nil {
+		return ""
+	}
+	return o.data().host
+}
+func (o Origin) Port() uint16 {
+	if o.data == nil {
+		return 0
+	}
+	return o.data().port
+}
+func (o Origin) String() string {
+	if !o.Valid() {
+		return ""
+	}
+	return o.Scheme() + "://" + net.JoinHostPort(o.Host(), strconv.Itoa(int(o.Port())))
+}
+func (o Origin) Equal(other Origin) bool {
+	return o.Valid() && other.Valid() && o.data() == other.data()
+}
+func (o Origin) Format(w fmt.State, _ rune) { _, _ = io.WriteString(w, o.String()) }
+func (o Origin) LogValue() slog.Value       { return slog.StringValue(o.String()) }
+
+// Implicit JSON never turns an origin object into a request DTO.
+func (o Origin) MarshalJSON() ([]byte, error) { return []byte(`"outbound_origin"`), nil }
+
+type targetData struct {
+	origin Origin
+	url    url.URL
+}
+type Target struct{ data func() targetData }
+
+func (t Target) Origin() Origin {
+	if t.data == nil {
+		return Origin{}
+	}
+	return t.data().origin
+}
+func (t Target) URL() *url.URL {
+	if t.data == nil {
+		return nil
+	}
+	u := t.data().url
+	return &u
+}
+func (t Target) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "outbound_target") }
+func (t Target) LogValue() slog.Value         { return slog.StringValue("outbound_target") }
+func (t Target) MarshalJSON() ([]byte, error) { return []byte(`"outbound_target"`), nil }
+
+// ParseTarget rejects ambiguous numeric/legacy host forms before a resolver can
+// interpret them. Only an already-ASCII DNS A-label representation is accepted.
+func ParseTarget(raw string) (Target, error) {
+	if len(raw) == 0 || len(raw) > 16384 || strings.ContainsAny(raw, "#\\") {
+		return Target{}, invalid()
+	}
+	u, err := url.Parse(raw)
+	if err != nil || u.Opaque != "" || u.User != nil || u.Fragment != "" || u.Host == "" || u.Scheme != "http" && u.Scheme != "https" {
+		return Target{}, invalid()
+	}
+	host, port, err := normalizeAuthority(u.Host, u.Scheme)
+	if err != nil {
+		return Target{}, err
+	}
+	d := originData{u.Scheme, host, port}
+	o := Origin{data: func() originData { return d }}
+	u.Host = net.JoinHostPort(host, strconv.Itoa(int(port)))
+	if u.Path == "" {
+		u.Path = "/"
+	}
+	td := targetData{o, *u}
+	return Target{data: func() targetData { return td }}, nil
+}
+func ParseOrigin(raw string) (Origin, error) {
+	t, e := ParseTarget(raw)
+	if e != nil {
+		return Origin{}, e
+	}
+	u := t.URL()
+	if u.Path != "/" || u.RawPath != "" || u.RawQuery != "" || u.ForceQuery {
+		return Origin{}, invalid()
+	}
+	return t.Origin(), nil
+}
+func normalizeAuthority(authority, scheme string) (string, uint16, error) {
+	if strings.Contains(authority, "%") {
+		return "", 0, invalid()
+	}
+	host := authority
+	portText := ""
+	explicit := false
+	if strings.HasPrefix(authority, "[") {
+		end := strings.IndexByte(authority, ']')
+		if end < 0 {
+			return "", 0, invalid()
+		}
+		host = authority[1:end]
+		suffix := authority[end+1:]
+		if suffix != "" {
+			if !strings.HasPrefix(suffix, ":") {
+				return "", 0, invalid()
+			}
+			explicit = true
+			portText = suffix[1:]
+		}
+		ip, e := netip.ParseAddr(host)
+		if e != nil || !ip.Is6() || ip.Zone() != "" {
+			return "", 0, invalid()
+		}
+		host = originIPv6(ip)
+	} else {
+		if strings.Count(authority, ":") > 1 || strings.ContainsAny(authority, "[]") {
+			return "", 0, invalid()
+		}
+		if i := strings.IndexByte(authority, ':'); i >= 0 {
+			host = authority[:i]
+			portText = authority[i+1:]
+			explicit = true
+		}
+		var e error
+		host, e = normalizeHost(host)
+		if e != nil {
+			return "", 0, e
+		}
+	}
+	port := uint16(443)
+	if scheme == "http" {
+		port = 80
+	}
+	if explicit {
+		if portText == "" || len(portText) > 5 {
+			return "", 0, invalid()
+		}
+		for _, c := range portText {
+			if c < '0' || c > '9' {
+				return "", 0, invalid()
+			}
+		}
+		p, e := strconv.ParseUint(portText, 10, 16)
+		if e != nil || p == 0 {
+			return "", 0, invalid()
+		}
+		port = uint16(p)
+	}
+	return host, port, nil
+}
+func normalizeHost(host string) (string, error) {
+	if ip, e := netip.ParseAddr(host); e == nil {
+		if !ip.Is4() || ip.Zone() != "" {
+			return "", invalid()
+		}
+		return ip.String(), nil
+	}
+	host = strings.ToLower(strings.TrimSuffix(host, "."))
+	if len(host) == 0 || len(host) > 253 {
+		return "", invalid()
+	}
+	labels := strings.Split(host, ".")
+	// A numeric final label is not an unambiguous DNS name (WHATWG parsers can
+	// instead interpret preceding decimal, octal or hexadecimal IP components).
+	last := labels[len(labels)-1]
+	if numericLabel(last) {
+		return "", invalid()
+	}
+	for _, label := range labels {
+		if len(label) == 0 || len(label) > 63 || label[0] == '-' || label[len(label)-1] == '-' {
+			return "", invalid()
+		}
+		for _, c := range label {
+			if !(c >= 'a' && c <= 'z' || c >= '0' && c <= '9' || c == '-') {
+				return "", invalid()
+			}
+		}
+	}
+	return host, nil
+}
+func numericLabel(label string) bool {
+	if label == "" {
+		return false
+	}
+	if strings.HasPrefix(label, "0x") {
+		// Recognize syntax, not a machine-sized integer. Empty 0x and an
+		// overflowing hexadecimal literal are still ambiguous numeric hosts.
+		for _, c := range label[2:] {
+			if !(c >= '0' && c <= '9' || c >= 'a' && c <= 'f') {
+				return false
+			}
+		}
+		return true
+	}
+	for _, c := range label {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
+}
+
+// Retain IPv6 origin identity, including mapped IPv4. URL serialization uses
+// hexadecimal pieces (unlike netip.String's dotted mapped suffix). Only address
+// classification and peer comparison unmap addresses; credentials never do.
+func originIPv6(ip netip.Addr) string {
+	b := ip.As16()
+	pieces := make([]string, 8)
+	bestStart, bestLength := -1, 1
+	for i := 0; i < 8; {
+		value := uint16(b[2*i])<<8 | uint16(b[2*i+1])
+		pieces[i] = strconv.FormatUint(uint64(value), 16)
+		if value != 0 {
+			i++
+			continue
+		}
+		start := i
+		for i < 8 && b[2*i] == 0 && b[2*i+1] == 0 {
+			pieces[i] = "0"
+			i++
+		}
+		if i-start > bestLength {
+			bestStart, bestLength = start, i-start
+		}
+	}
+	if bestStart < 0 {
+		return strings.Join(pieces, ":")
+	}
+	return strings.Join(pieces[:bestStart], ":") + "::" + strings.Join(pieces[bestStart+bestLength:], ":")
+}

@@ -1,6 +1,6 @@
 # D04 Secret、出站访问与 Audit 基础
 
-- 修订：1；状态：B03待开工；唯一活动模块D04；基线 `main@9beaa7f`，已推送origin/main，开工工作区干净。
+- 修订：1；状态：B03实施中；唯一活动模块D04；基线 `main@9beaa7f`，已推送origin/main，开工工作区干净。
 - 前置：[D03](d03-postgresql-foundation.md) B01/B02真实数据库及进程独立验收完成；[D01契约](d01-contracts/README.md)已固定。
 - 目标：按[计划D04](../development-plan.md#d04-secret-出站与-audit)依次完成Secret envelope encryption/版本化环境密钥环/可恢复数据密钥重保护、数据库权威动态出站策略与受控HTTP、append-oriented Audit写入及分页查询基础。
 
@@ -11,7 +11,7 @@
 | S01 实施规格 | D03完成 | architecture_worker | 新增 `d04-security-design.md`；现有代码/根规格只读 | 已确认 |
 | B01 Audit/签名cursor与正式授权端口 | S01确认 | backend_worker | 实施规格§1与本卡补充范围 | 已验收 |
 | B02 Secret与密钥轮换 | B01及S01确认 | backend_worker | 实施规格§1/5/6及本卡补充范围 | 已验收 |
-| B03 动态出站与入口整合 | 前置已验收小块 | backend_worker | 具体策略/受控网络/入口与完整验收范围由S01固定 | 待开始 |
+| B03 动态出站与入口整合 | B01/B02已验收 | backend_worker | 实施规格§1/7/8/9/10及本卡补充范围 | 进行中 |
 | V01–V03 独立验证 | 对应冻结范围 | verification_worker | 只读实现，独立临时探针与隔离资源 | V01/V02已通过；V03待开始 |
 
 任务拆分可由S01按完整结果的真实依赖调整，不机械分函数；安全日志/Audit写入需要避免以stub解决循环。root独占本规格、台账和开发计划；作者/验证者只在冻结的明确范围交接。遵守AGENTS、团队流程和对应design/go-development/verification技能，子agent不得再委派或Git写操作。
@@ -152,3 +152,38 @@ V02c独立入口/整合通过，无阻塞。定向race app4.184s/config1.029s/cm
 独立5份Markdown34链接/4fragment检查通过，主线程8文档138链接/格式通过；27入口、52全批、25核心最终指纹均保持原值。nonce12ebe47977ec1b6f6dd1668ff88e7865两个容器/网络/临时目录确认清理，验证者全部命令结束停读，作者全部停写。主线程已读入口生产/核心/SQL/关键测试和说明，结合V02a/V02b与作者完整回归，确认B02本范围完成，按授权提交推送入口小块。
 
 Central现强制独立Secret keyring，在30s安全阶段真实校验registry/canary/required DEK与epoch后启动维护worker，再监听HTTP；诊断状态真实，完整产品仍ready=false。Session/System/Project/Usage真实授权及Model/MCP/执行binding仍由D07/D08/D09/D20/D22后续绑定，无匿名业务HTTP或生产stub。D04整体未完成，下一步B03动态出站策略/受控HTTP及完整D04验收，无用户待定或环境阻塞。
+
+
+## B03 开工
+
+B02入口 `fffd0dc`已成功推送origin/main（6feda6b→fffd0dc），开工工作区干净。backend_worker接管已确认实施规格§1/7/8/9/10：新增`internal/central/outbound/`（含必要正式contract）、`00004_outbound.sql`、`tests/security/outbound_*`、`tests/testsupport/outbound/`、`scripts/test-security.sh`，及必要config/app/cmd/logging/process/shared fixture suite装配与测试。补授权新增`docs/development/backend/outbound.md`，后端README、根README、AGENTS、仓库结构和`deploy/central.env.example`只同步当前能力/配置/命令；既有test-postgres/fixturehelper仅必要suite接入。root独占主卡/实施规格/台账/计划。
+
+已验收Audit/cursor/identity/Secret、D03生产及00001–00003冻结，不改既有加密或事务公共接口；具体缺陷/接口缺口先报主线程移交。只追加00004，不引入运行依赖，不提前D05+或生产未授权业务API。沿Go1.27.1/local和owned PG固定digest；真实网络fixture仅owned隔离服务/网络、生成临时CA，以实际private容器地址跑允许路径，不篡改生产loopback禁令、不连接既有基础设施。
+
+按规格实现DB权威策略/同Tx Audit与receipt/旧重放不回退镜像，固定IP分类、全DNS结果/pinned dial、可取消writer优先准入门禁、真实HTTP首字节与policy提交线性化、跨Transport内部retry的sent身份/最多一次零写重试、H1 keep-alive逐次验证、TLS/credential origin/redirect/stream限额及安全输出。SMTP仅正式受控dial端口，协议留D07。装配启动/健康/停止和真实网络/PG/进程故障验收，不以stub替代安全能力。稳定完整子范围可先冻结独立验证并小块提交；D04整体完成后才D05。当前无用户待定或环境阻塞。
+
+B03资料核验限制：主线程尝试读取IANA IPv4/IPv6 special-registry CSV时，环境代理返回HTTP CONNECT 403，未获得在线最新清单；没有调整网络或把该读取记为通过。实现沿已确认规格的保守分类和固定禁用段，并引用权威登记入口；本限制不阻塞既定实现与隔离fixture验收，最新在线登记完整性不得据此宣称已核验。
+
+
+## V03a 纯出站边界冻结
+
+作者冻结outbound的classify.go/error.go/target.go/rules.go/boundary_test.go共5文件，manifest `/tmp/agenteam-d04-b03-pure.sha256` SHA-256 `bc8027b62e564234df93a22ed3e3836e2e66e8ed71286f56ce19d0c55c5aad24`，主线程指纹核验一致。作者精确Go1.27.1/local的test/race1.023s/vet通过，覆盖URL/origin、规则规范化/严格JSON、固定IPv4/IPv6/metadata分类及安全错误。V03a在fffd0dc稳定副本只覆盖5文件独立验证，依赖为已提交Audit contract/foundation，无Docker；不读作者活动gate/policy/网络实现。主线程已读5文件，暂未确认缺陷；此子范围不证明DNS/HTTP/策略存储已通过，B03继续实施。
+
+V03a发现origin候选：target.go对bracket IPv6执行Unmap，导致mapped IPv6与IPv4 origin被合并且URL authority改写。主线程复核D02已验收规则为保留mapped IPv6 origin身份；D04仅地址分类应Unmap，凭据origin/Host身份不得据此合并。等待独立实际探针与剩余审查停读后，集中移交target及对应test修正；当前5文件保持冻结，gate/policy无依赖部分可继续，不构成用户产品待定。
+
+V03a独立probe已实际复现两项失败：mapped IPv6/IPv4 origin错误Equal且Target.URL authority被改写；numericLabel以ParseUint成功作为hex数字条件，令空`0x`与超uint64全hex串（含域名最终label）误收为DNS。临时副本 `/tmp/agenteam-d04-v03a-8h0_c206` 的review_boundary_test.go保留失败探针，实际exit1；Node URL对照空0x解释为0.0.0.0、溢出数字拒绝。主线程采纳两项修正：分类仍Unmap而origin保持IPv6；疑似hex label按字符语法判定，空0x/溢出拒绝，0xg等非数字DNS不误拒。待验证者其余边界结束停读后集中移交，当前冻结不变。
+
+B03受控HTTP工程选择：作者采用包内专用HTTP/1.1 RoundTripper与受控keep-alive池，复用标准库Request.Write/ReadResponse语法，在实际conn.Write前实施门禁；主线程认可，规格不强制标准Transport。仍须验证同attempt sent跨借连接保持、已发GET/Idempotency-Key断响应只命中1次、零写至多1次并重DNS，以及1xx/final、chunked/trailer、Connection close、body EOF/Close、全限额/取消与并发连接所有权；不以换实现免除既定网络barrier验收。
+
+V03a本轮已结束停读/命令：原冻结包独立race1.037s；其余fixed deny/mapped/metadata、完整重叠规则/canonical/复制隔离/256与257容量、递归fmt/JSON/slog/cause探针race1.075s，vet/格式通过。两项失败probe SHA-256 `8e87a27d74cbeef177fb59c2731bf9ee67ce495ccceba2a2a1e20e0f6818ab33`，原5文件末次指纹不变；无Docker/外部网络。主线程仅解冻target.go及boundary_test.go给作者返修，其他3文件保持冻结，修后定向复验，不把当前V03a标通过。
+
+B03策略作者首轮真实PG/race security3.198s通过K1/K2/旧receipt不回退镜像、换Session重放、权限撤销/Audit回滚、真实COMMIT丢回复核实/不可用保持unknown等，日志 `/tmp/agenteam-d04-b03-policy-pg.log`；nonce35b539e8f6561f8c139f17a8f098a235报告精确清理。policy/gate仍活动，未冻结或独立验收；作者继续并发保存与门禁边界。
+
+B03 DNS实现深化：主线程复读固定Go1.27.1的net/dnsclient_unix.go，StrictErrors仅在temporary family error时丢弃全结果，坏answer/其他错误仍可能返回另一family子集；独立LookupIP的IsNotFound亦不足以区分NODATA与NXDOMAIN，不能据此满足原规格。认可作者采用包内有界DNS wire适配，标准库、无新增依赖；读取部署resolv.conf nameserver作为可信基础DNS通道，明确search/NSS/hosts支持边界，不能静默回退。合法NOERROR/NODATA可为空，任一family失败整体拒绝；实现须验证ID/question/type/class/rcode、压缩指针与CNAME链/记录归属、UDP截断转TCP、TCP长度、包/记录/64地址上限、5s总预算与取消，并以owned真实UDP/TCP fixture独立验证解析器，不仅替换解析接口。此为落实原有严格完整结果门槛，不改变产品规则。
+
+
+## B03a 纯出站边界完成
+
+V03a两项阻塞已以原失败probe原样复验闭环：mapped IPv6保留规范hex IPv6 origin与authority、与IPv4不Equal，分类继续Unmap；空0x/任意长度全hex数字主机拒绝，0xg等DNS仍接受。仅target.go/boundary_test.go改变，其余3文件与19份稳定依赖不变。作者race1.032s/vet通过；独立副本完整 `go test -race -count=1 -v ./internal/central/outbound` 1.075s、vet/gofmt/空白通过，原失败probe SHA仍 `8e87a27d74cbeef177fb59c2731bf9ee67ce495ccceba2a2a1e20e0f6818ab33`。
+
+最终5文件manifest `/tmp/agenteam-d04-b03-pure.sha256` SHA-256 `4993cd4047121664e58ce04e116a096d9619efb8ae79afa73876e3b811cfc166`，末次指纹一致。验证者命令结束停读，无Docker/外网；作者5文件停写，主线程已读修正，认可纯类型/分类/规范化小块，按授权精确提交推送。活动policy/gate/DNS/HTTP/fixture未纳入，尚无完整出站网络验收，B03/D04继续实施。
