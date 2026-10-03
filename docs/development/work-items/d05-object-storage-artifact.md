@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact
 
-- 修订：1；状态：B01实施中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
+- 修订：1；状态：B01独立审查5项缺陷集中返修；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
 - 前置：[D04](d04-security-foundation.md)全部独立验收和真实完整suite通过，入口本地提交abf5c37；GitHub认证失效，ee8ddb7起5个本地提交待恢复后补推，不冒称远端同步。
 - 目标：按[计划D05](../development-plan.md#d05-对象存储与-artifact)实现StoredObject/引用与lease、流式MinIO读写、跨DB/对象存储的一致性和恢复、Artifact服务、受控预览/下载及短期传输授权。
 
@@ -8,10 +8,10 @@
 
 | 卡 | 依赖 | 角色 | 独占范围 | 状态 |
 | --- | --- | --- | --- | --- |
-| S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订2独立静态通过，root采纳 |
+| S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订3已验；仅设计解冻至修订4，补正式锁预收集 |
 | R01 依赖与隔离环境核验 | D04完成 | research_worker | 有界探针及新增d05-object-storage-research.md报告，不写实现源码 | R01/R02修订2完成并停写 |
-| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01实施中，B02/B03未开始 |
-| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | 未开始 |
+| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01核心解冻修4已复现缺陷；锁机制等修订4冻结后改；B02/B03未开始 |
+| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | 核心暂不通过：完整suite通过但4实际探针及1正式端口缺口阻塞；已停止读取/命令 |
 
 root独占本卡、开发计划和任务台账；架构作者仅新建实施规格。角色遵循AGENTS与agenteam-design/go-development/verification/documentation技能，禁止子agent再委派和Git写操作。常态至多两个活动子任务，Docker和测试资源顺序明确移交。设计稳定且root确认后才写实现，不提前D06+。
 
@@ -31,11 +31,11 @@ S01需明确表与约束、Go接口/安全闭包、状态机、授权和Project 
 
 ## 环境与验收
 
-Linux/amd64、Docker28.4.0、精确Go1.27.1/local、既有PG17.8/vector0.8.1正例与PG16.12拒绝fixture继续复用。MinIO版本/镜像及SDK仍待R01核验；当前未创建对象存储资源，不访问现有服务或真实凭据。
+Linux/amd64、Docker28.4.0、精确Go1.27.1/local、既有PG17.8/vector0.8.1正例与PG16.12拒绝fixture继续复用。固定源码MinIO与SDK已由R01/R02核验，版本及输入指纹见研究报告；测试仅创建本任务隔离资源，不访问现有服务或真实凭据。
 
 验收至少实际覆盖中断上传、外部已写DB失败/unknown、缺payload明确错误、引用/lease阻止删除、跨scope拒绝、stream不全量缓冲、签名材料安全及有效期/完整性、恢复/清理幂等与Central资源关闭。只用nonce/标签/exact ID任务owned PG/MinIO/临时目录，缺真实fixture在专用套件中失败，不能skip充当通过。
 
-下一步S01+R01，冻结后独立静态审查并由root采纳；当前无新产品待定。D05及D06–D28/E01均未完成。
+下一步完成B01核心独立审查、缺陷闭环与root验收后进入B02；当前无新产品待定。D05及D06–D28/E01均未完成。
 
 
 ## S01/R01 进展
@@ -123,3 +123,41 @@ root已采纳exact ObjectReadAuthority补口：无canonical固定版本读取须
 B01b修订后4文件重新冻结：manifest399edce187a0a310de23acf10d1602350dbcb7422034429eeb72bfe5772df181，18依赖f15c434e98efc0478591279534e69d2404e70052e628c6a1772669efa4818894；仅authority/types/tests及设计rev3变化，source与其余17依赖不变。作者原probe不改、局部race1.018s/独立作者副本1.017s及vet通过。V稳定副本/tmp/agenteam-d05-contract-v2-verify-sv9ak_0o源/副本全SHA通过，开始原Reader两缺陷与exactRead新增闭集/深拷贝的独立复验；实际DB/lease生命周期未由此验收。
 
 B01b契约4与设计rev3增量独立通过，无剩余阻塞：原Reader probe303fe398…逐字不变、新exactRead/并发深拷贝/递归安全投影probe通过，完整contract race1.026s、vet/gofmt/diffcheck exit0。末次4+18源/副本一致，contract manifest399edce187a0a310de23acf10d1602350dbcb7422034429eeb72bfe5772df181，证据manifest42330a1bcedc02cce28a720359fff9319e31468b40bc5e12563d03f5464fe5c3；V停读且Go/test/Docker/socket均无运行。root审查通过，精确提交4契约与设计/进展；spool/adapter/SQL/service与SDK仍活动，真实DB active lease/授权/生命周期尚未验证。
+
+- B01b实际本地提交：`23d1cfa`。公共13/contract4/设计rev3保持已验收冻结，作者继续其余object、00005与真实fixture联调；SDK锁文件未提交。GitHub认证未恢复，ee8ddb7起共10提交待补推，远端仍1898748。
+
+B01作者首轮真实链路exit0：AGENTEAM_GO固定Go运行test-objects.sh -run ^TestObject(ExistingUpload|ProspectiveReceipt)，tests/objects race3.772s；00005实际迁移、固定MinIO TLS初始化、existing上传/原对象重放/审计仅1条/全文GET/Session撤销、prospective内部source/同Tx消费、reserved取消/清理/撤销后committed重放ResourceDeleted通过。日志/tmp/agenteam-d05-object-first.log SHA2160c9fc9c9969f2e23e84ae28977d534610cc8408c635ee16329a37e527c6d2；root核日志，其他包为no tests to run，不冒称完整回归。nonce MinIO7108ae4f40cd41e9096f2a04984b19ac/outbound32433530ff1e26d2ef5175bbbe9a2aaf/PG6184d9b1ada9c97f55dfa273f837c5a0均精确清理。输入仍活动，unknown/崩溃/竞争/准入未验，不冻结或提前完成B01。
+
+作者第二轮真实 ^TestObject exit0，objects race9.273s：64MiB fixed-buffer put/get/SHA、206末段与416、payload404且Stat仅metadata、大小损坏holdback、取消后active source仍完整读且cleanup pending→实际join后Recover完成、History exact lease旧版读取/用途撤销拒绝、Project cleanup被非terminal lease阻挡→可信释放后本域元数据归零。日志/tmp/agenteam-d05-object-second.log SHAcb042fa5cca1579a41a47f95efc5e3a9c73489179cb20e5c58c7de140e83db59；MinIOdc003a82e43fd45ad18b4dfb92c6ee71/outboundbb569602921a2856a7966dd8dc734712/PGf2ccdf0716becd29fef5e4bc9cfbf58d精确清理，root核日志。当前继续COMMIT/HTTP丢响应、迟到PUT和SIGKILL故障组，输入尚活动，未独立验收。
+
+第三轮网络故障组exit1未通过：丢PUT响应后原key核实成功，但测试proxy按HTTP ContentLength分类未命中zero marker/迟到半body barrier，后续marker unknown断言未生效。作者正在核SDK真实chunked/framing与代理命中，不放宽产品断言；日志/tmp/agenteam-d05-object-network.log。三层nonce061da98b06f347d338a2e16202dfb02c/b8205751af7cb5fc7be4e49dc35ae5fc/f36f280df47f8e613082e12498bfb894精确清理。该轮不记恢复通过，命中实际故障后须重跑。
+
+网络代理首因已确认：SDK HTTP StreamingSignV4让零业务body仍带非零aws-chunked签名envelope，测试需核decoded业务长度。network2修分类后仍exit1，marker/恢复503且迟到PUT未命中预期marker；作者继续只含method/编码及解码长度的安全观测，不输出签名头，并并入真实PG COMMIT组。每barrier≤5s、proxy总30s，network2三nonce a1aa3ac36cd97dd18c50d28fc9baf3a3/bcfc95296974f7e085a25e28cfd6475e/0ac466de544fa45be9d279d49154e57d清理0残留。当前仍明确失败，不能称未知结果恢复已通过。
+
+第三轮debug仍exit1并清理：zero marker在fixture长度检查中被拒，原因是Go已解外层chunked后ContentLength=-1而AWS envelope实际86字节；请求未达MinIO，正在修fixture支持该framing并保留签名字节。新增3个真实COMMIT场景其中2过，late-COMMIT尚未观测真实晚提交，仍改代理时序而不改产品断言；普通object race1.254s过。这些部分结果不替代完整故障组通过。
+
+第四轮故障组6真实场景全部exit0，objects race7.807s，日志/tmp/agenteam-d05-object-fault4.log SHAe076d142f24b1295889429dbdac3b9316633b786f19eda3c74a21228c796b06a：慢PUT取消gate→无条件zero→旧条件重放412、marker丢响应checkpoint恢复、Reserve held/丢响应与Publish COMMIT unknown核原事实通过。late-COMMIT代理此前过早关闭upstream，修为等实际COMMIT frame，产品断言不变。MinIOf4154b271ceb00e569126005b421bf9b/outboundb224f1aea7e5d8ca63e0b0e75299376a/PGbbeb8be37c17b38b1e411600d2b7d72f精确清理，root核日志。继续SIGKILL四阶段及并发/权限余下边界，尚未独立冻结。
+
+SIGKILL首轮4阶段实际命中但整组exit1：前三项测试cleanup在done与取消ctx同时ready时误报，marker项SQL查询误用physical_key而实际candidate_key；作者修测试保留/tmp/agenteam-d05-object-crash.log，资源已清。接着验证真实共享DB锁下全局64准入及每命令2个unknown attempt恢复，当前不计SIGKILL组通过。
+
+恢复第二轮exit0，objects race7.421s，日志/tmp/agenteam-d05-object-recovery2.log SHA686196d76398fd1be5572ae6f84713e61ca6394f7a9effafa031070fd42282f1：SIGKILL reserved/verified/reader/marker四阶段Wait证明exact旧进程死亡后恢复，不后台代Owner发布，保留ObjectID/精确spool回收/reader先阻删除/marker保留。全局64以3不同owner等待真实共享admission锁，剩余2名额仅2commit+1busy；每命令2 unknown上限与旧key marker恢复过。MinIO984a133e89f64e665435260a2ffae3db/outbound967bc8a0a8eb22ae0d519bfd1f688219/PGe7fd60b55bc701247988cc7d87860a92清理，root核日志。继续部署约束/权限竞争/force与完整兼容，不提前独立验收。
+
+部署/权限首轮发现真实产品缺陷（/tmp/agenteam-d05-object-boundaries.log）：取消后原成功Put返回ResourceDeleted，Reserve callback的历史Committed被D03按本次回滚事务正确归NotCommitted，object wrapper未保留原命令事实。root采纳仅object wrapper修复：当前授权后明确核原committed+revoked，且本次Tx确认NotCommitted才保留历史Committed；不改变unknown/其它错误，不改D03/foundation。其余bucket/TLS/identity、Session与archived重放、reader lease unknown不外发及checkpoint场景作者已过，整组仍待修复/force闭环后冻结。
+
+作者接入发现Avatar OwnerAuthorization只接受exact Human，与trusted maintenance撤销reservation不应混用。root确认仅活动cleanup实现专用ObjectMaintenance分支：actor.CauseRef绑定持久cleanup cause，内部discovery不返存在/结果、无记录或歧义统一拒绝；预收集command→User/Project→owner→Object锁，锁后重读原command/owner/object/state再CheckCleanupInTx和gate，成功前不修改。Human/Agent原授权保留，不放宽冻结contract，不授Avatar读取/admin。需真实合法维护/伪cause/错service/跨owner/无记录测试。
+
+作者历史Committed缺陷及4真实graceful/force场景通过，objects race6.107s，/tmp/agenteam-d05-object-lifecycle.log SHAce2873b18124eccef7627771c760732e37d274c2d98994a0a690e5bb3b8b563c；unknown/其它回滚原因不改写的纯投影回归补齐。MinIO835c8449f290672bb93c61b78cf7c2fc/outboundf133b2e4e2d39ef8cafc221f518d318f/PG84853273e196676e9a1cc3fd57cddb8d清理，root核日志。Avatar维护分支已落地，contract未变；目前全部TestObject真实组和完整check-go运行中，尚待结果/核心fixture正式冻结，不提前独立验收。
+
+B01核心35文件及README已停止写入，作者完整check-go exit0；最后全TestObject仅新增foreign writer场景的代理实例观测失败，修正测试实例后原断言定向通过，最终整体由独立无过滤运行验证。核心manifest SHA19eb670b311524bd8a2c4b1837700b34b74e5ec7958992bbab032577faa7a3bd，175依赖manifest847aecdd1aeb11c699eee2c590291304c9bb7b47c04ec7f6c7fac9de746ef09f；独立稳定副本/tmp/agenteam-d05-b01-full-verify-qpl2m9ks。作者资源与命令全清后，Docker独占交verification_worker；冻结输入审查期间不改代码。
+
+独立首轮无过滤test-objects.sh exit0：postgres1.028/database45.143/app63.214/process56.641/security72.927/objects54.707/object1.272/contract1.034s，实际PG17.8/vector0.8.1、PG16.12拒绝及固定源码MinIO/TLS。日志/tmp/agenteam-d05-b01-independent-full.log SHA570228f8d870e7d29f4382cdcd798cb2223e3c3bc1c1d7ca832d56d1f95a5d48，root核日志；三fixture报告nonce ab129424fb3b22e8c15bb5d5833922d6/977cd95e6d083d8720213b785a212d27/deda082999ba7a169f4a1598bef99122精确清理，V继续核零残留与独立缺陷探针。完整既有测试通过不替代审查：Reserve未知提交时的语义digest竞争、ExecutionPayload锁映射与spool删除崩溃窗口仍在核实，B01未验收，不进入B02。
+
+独立探针已复现两项阻塞：真实PG在Reserve COMMIT发出前断链使原Tx回滚，保留真实Unknown返回并暂停；同actor/key等长不同正文B提交后恢复A，A错误返回B的ObjectID/SHA与nil错误，违反异义幂等拒绝。日志/tmp/agenteam-d05-b01-independent-unknown.log SHA9c673a63034aacfc21025f7da65a37f56c6a452c643e32c70d22b11b011d67d2。另一owned目录探针复现Discard先unlink payload、未unlink sealed manifest时崩溃，下一Process OpenSpool直接INVALID_ARGUMENT，无法进入exact-death授权恢复；日志/tmp/agenteam-d05-b01-independent-spool.log SHAb740a0772b446b4edacc47e8841fcc5d3099f845ac5c8eb7d5eea94da35788b4。root核原日志并采纳，原探针保留供返修不变复验。
+
+ExecutionPayload锁缺口亦静态确认：Source契约owner.ID=PayloadID，而ownerLocks将其作为ExecutionAggregate ID，不能与真实ExecutionID gate互斥；现有authority无低序锁预收集出口，不能在Object锁后补锁。原architecture_worker获只读冻结范围分析最小正式修复，含同类owner映射与AgentRun必要gate；不写设计/实现，不并行改审查输入。V继续最后有界恢复进展探针，收束后集中解冻返修。
+
+V最终另复现两项局部进展缺陷：101次真实Put且前100个有真实history lease时，连续3次CleanupProject始终未处理第101个可清对象；另实例active source仍正常读取且lease未释放，本实例已授权清理在两次Recover中因前者ConfirmStopped返回ResourceBusy而始终available。日志/tmp/agenteam-d05-b01-independent-progress.log SHA03893221921d88afdf0cbea043b36a68eb426dd4db8d57a3f32e42090bb3fd68；exact旧版本读取、伪lease ID与实际released lease拒绝probe通过。root核日志，修复不得释放受保护lease或提前把Project报completed。
+
+V已全停读/命令并归还Docker，源/两副本35核心+175依赖+53全文件末次匹配；3轮共9nonce容器/网络独立核0、owned TMPDIR全清。证据索引/tmp/agenteam-d05-b01-independent-evidence.sha256 SHA82a05e660df66e51383c27358a102049d990edf612b3845c037e5e5213303ff2；原unknown/spool/progress probes均保留，后续不变复验。root采纳5项，解冻core/README给原backend先修4实测缺陷，公共13/contract4仍冻结；Docker由backend独占。
+
+root采纳正式非授权AccessLockPlan：可信authority预收集Actor/真实owner/精确read/lease/cleanup/source必要gate，对象服务合并自身command/quota/Object/reference，一次全批AcquireAll；锁后重读映射与当前权限，变化整Tx明确回滚，不补低序锁、不升级、不自动重试。InTx外层组合须有正式规划出口；不改D03、业务ownerID或未来业务表。architecture仅独占设计修订4，backend不得读活动设计或先改冻结contract；设计冻结并经root确认后再解冻相关契约/锁实现。该调整修复既有权限/锁语义，无新产品待定。

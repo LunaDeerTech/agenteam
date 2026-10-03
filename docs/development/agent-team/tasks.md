@@ -256,7 +256,7 @@
 
 ## AT-0012：D05 对象存储与 Artifact
 
-- 状态：B01实施中；唯一活动模块D05；[主卡](../work-items/d05-object-storage-artifact.md)修订1，基线main@abf5c37。D04全范围与真实最终整组已独立验收，所有作者/验证者停止，资源全清后开工。
+- 状态：B01独立审查5项缺陷集中返修；唯一活动模块D05；[主卡](../work-items/d05-object-storage-artifact.md)修订1，基线main@abf5c37。D04全范围与真实最终整组已独立验收，所有作者/验证者停止，资源全清后开工。
 - architecture_worker独占新增实施规格，root独占主卡/计划/台账；R01仅有界MinIO SDK/镜像/环境探针，不写仓库实现。按D01正式对象/引用/transfer边界落实表/状态/授权/stream/一致性/恢复/Artifact服务，S01确认后实施。未来身份/Project/Runner/Tool适配仍未绑定，禁止生产stub或匿名业务API。
 - Go1.27.1/local与owned PG固定环境继续复用；MinIO版本/真实fixture待核验，无产品待定；推送认证阻塞不冒称已远端同步。下一步完成设计及依赖核验。
 
@@ -267,3 +267,7 @@
 - B01a公共13文件独立通过：审计phase/outcome、MIME名称参数和schema状态3缺陷用不变原probe闭环；manifest2b152004f06fc9d59248dbe40564835141f28d36d6b9920ae1295888f144f56a。相关5包race/vet/schema通过，root审查后精确本地提交；object/SDK活动范围与00005真实兼容不在此次验收。详见主卡。
 
 - B01b object正式契约4文件及设计rev3增量独立通过，Reader原两缺陷probe不变闭环，exactRead object/稳定lease/深拷贝/race通过；manifest399edce187a0a310de23acf10d1602350dbcb7422034429eeb72bfe5772df181。root精确本地提交，活动持久化/SQL/SDK与真实存储恢复仍未验收，详见主卡。
+
+- B01核心35文件已停写，manifest19eb670b311524bd8a2c4b1837700b34b74e5ec7958992bbab032577faa7a3bd。独立首轮无过滤test-objects.sh全部exit0，含旧数据库/进程/安全兼容与真实MinIO对象场景，日志SHA570228f8d870e7d29f4382cdcd798cb2223e3c3bc1c1d7ca832d56d1f95a5d48；三nonce资源独立核零。独立审查仍在复现unknown语义竞争及spool崩溃候选；ExecutionPayload真实锁映射的正式端口缺口已交架构只读分析，未解冻实现。B01尚未验收，B02/B03不提前开工；main@23d1cfa，共10本地提交因既有GitHub认证失效待推。
+
+- V收束暂不通过：unknown异义误成功、spool删除崩溃窗口、Project受保护前100阻塞后续批次、外活实例阻断本地Recover，4项实际复现；真实owner/Actor锁预收集正式端口缺口静态确认。证据索引SHA82a05e660df66e51383c27358a102049d990edf612b3845c037e5e5213303ff2，原探针保留，9nonce资源全0且V全停。root解冻core/README给原backend修4项，Docker归backend；architecture仅设计rev4补AccessLockPlan，冻结并确认后再改contract/锁实现；公共13保持已验冻结。详细所有权、证据和复验要求见主卡。
