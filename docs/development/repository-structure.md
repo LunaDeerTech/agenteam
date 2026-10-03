@@ -61,6 +61,8 @@ agenteam/
 - 空目录使用 `.gitkeep` 保存到 Git；目录有实际文件后可移除占位文件。
 - 本地敏感配置不入库，示例配置可以入库。根目录的 `secrets/` 被忽略，同名源码目录不受该规则影响。
 
-前端已建立独立依赖清单、Vue 入口、路由骨架和组件库，见[前端开发说明](frontend/README.md)。后端已有基础类型、HTTP 边界、数据库连接/迁移/事务/锁、环境配置、两个独立入口和停机验证，见[后端开发说明](backend/README.md)和[数据库说明](backend/database.md)。Central 在数据库与 Audit/cursor/Secret 初始化后只提供非 ready 的诊断，Runner 未连接且未认证；出站访问、协议、对象存储、身份和业务模块仍待后续实现。部署目录中的 Central 环境示例覆盖 D04 B02，必需独立 CURSOR_KEYRING 与 SECRET_KEYRING；Runner 保持 D02。Audit 同事务写入、授权读取/清理端口与签名 cursor 见 [Audit 说明](backend/audit.md)，身份/Project 授权适配仍未绑定。
+前端已建立独立依赖清单、Vue 入口、路由骨架和组件库，见[前端开发说明](frontend/README.md)。后端已有基础类型、HTTP 边界、数据库连接/迁移/事务/锁、环境配置、两个独立入口和停机验证，见[后端开发说明](backend/README.md)和[数据库说明](backend/database.md)。Central 在数据库与 Audit/cursor/Secret/出站策略初始化后只提供非 ready 的诊断，Runner 未连接且未认证；业务协议、对象存储、身份和实际出站消费者仍待后续实现。Central 环境示例覆盖 D04，必需独立 CURSOR_KEYRING 与 SECRET_KEYRING，可选 OUTBOUND_CA_FILE；Runner 保持 D02。Audit 同事务写入、授权读取/清理端口与签名 cursor 见 [Audit 说明](backend/audit.md)，身份/Project 授权适配仍未绑定。
 
 Secret 的 envelope、稳定引用/lease、加密命令 receipt、nonce 预留、可恢复重保护及 gate 清理由 `internal/central/secret/` 拥有，使用全局迁移 `00003_secret.sql`。正式端口和后续绑定责任见 [Secret 说明](backend/secret.md)。维护 worker 已装配到 Central，业务读取/变更授权和实际执行 binding 仍未绑定。
+
+`internal/central/outbound/` 拥有 DB 策略/Audit/receipt、完整 DNS wire 解析、保守 IP 分类、提交/实际首写门禁、H1 keep-alive client 和 SMTP 受控 Conn，使用 `00004_outbound.sql`。`tests/testsupport/outbound/` 与 `scripts/test-security.sh` 拥有隔离网络 fixture；具体接口、SDK 错误包装、DNS 平台限制和未来 D07/D09/D20 责任见[出站说明](backend/outbound.md)。不提供未鉴权策略 HTTP 或已集成 SMTP/Provider 的假状态。

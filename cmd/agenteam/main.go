@@ -61,7 +61,7 @@ func execute(args []string, lookup config.LookupEnv, env []string, stdout, stder
 		action = "invalid"
 	}
 	if action == "help" {
-		_, _ = fmt.Fprintln(stdout, "Usage: agenteam [--help | --version | --check-config]\n       agenteam --repair-migration <version> --expected-checksum <sha256:...>\nD04 Audit/cursor/Secret and PostgreSQL diagnostics; product ready=false.")
+		_, _ = fmt.Fprintln(stdout, "Usage: agenteam [--help | --version | --check-config]\n       agenteam --repair-migration <version> --expected-checksum <sha256:...>\nD04 Audit/cursor/Secret/outbound and PostgreSQL diagnostics; product ready=false.")
 		return 0
 	}
 	if action == "version" {

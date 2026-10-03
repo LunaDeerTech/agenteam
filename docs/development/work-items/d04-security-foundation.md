@@ -1,6 +1,6 @@
 # D04 Secret、出站访问与 Audit 基础
 
-- 修订：1；状态：B03实施中；唯一活动模块D04；基线 `main@9beaa7f`，已推送origin/main，开工工作区干净。
+- 修订：1；状态：已完成；下一模块D05；基线 `main@9beaa7f`，已推送origin/main，开工工作区干净。
 - 前置：[D03](d03-postgresql-foundation.md) B01/B02真实数据库及进程独立验收完成；[D01契约](d01-contracts/README.md)已固定。
 - 目标：按[计划D04](../development-plan.md#d04-secret-出站与-audit)依次完成Secret envelope encryption/版本化环境密钥环/可恢复数据密钥重保护、数据库权威动态出站策略与受控HTTP、append-oriented Audit写入及分页查询基础。
 
@@ -11,8 +11,8 @@
 | S01 实施规格 | D03完成 | architecture_worker | 新增 `d04-security-design.md`；现有代码/根规格只读 | 已确认 |
 | B01 Audit/签名cursor与正式授权端口 | S01确认 | backend_worker | 实施规格§1与本卡补充范围 | 已验收 |
 | B02 Secret与密钥轮换 | B01及S01确认 | backend_worker | 实施规格§1/5/6及本卡补充范围 | 已验收 |
-| B03 动态出站与入口整合 | B01/B02已验收 | backend_worker | 实施规格§1/7/8/9/10及本卡补充范围 | 进行中 |
-| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 只读实现，独立临时探针与隔离资源 | V01/V02已通过；V03纯边界/策略/DNS通过，HTTP待验收 |
+| B03 动态出站与入口整合 | B01/B02已验收 | backend_worker | 实施规格§1/7/8/9/10及本卡补充范围 | 已验收 |
+| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 只读实现，独立临时探针与隔离资源 | V01/V02/V03已通过 |
 
 任务拆分可由S01按完整结果的真实依赖调整，不机械分函数；安全日志/Audit写入需要避免以stub解决循环。root独占本规格、台账和开发计划；作者/验证者只在冻结的明确范围交接。遵守AGENTS、团队流程和对应design/go-development/verification技能，子agent不得再委派或Git写操作。
 
@@ -308,3 +308,29 @@ root已逐项核对入口23，阅读所有生产diff/配置/诊断/资源清理�
 最终21源/副本匹配manifest0321829f3205d8fec989b3e6991ae7ca092e288434107108ef9e750cfa59caae；netnonce7f44ad23ed1a5aa213c6346ad2713e0c、PGnoncebb8caed53734cf81eed25b709f80c327逐exact inspect容器/网络/TMPDIR全0，owned命令0。验证者停止核心读取和命令，作者核心停写，root审查修复及证据通过，精确提交此核心小块。GitHub认证仍待恢复，暂不声称已推送。
 
 入口23另行交独立审查与无过滤test-security完整PG/进程/网络验收，Docker顺序交接；B03/D04尚未完整通过。当前无产品待定，原生SDK及真实SMTP协议仍由后续D09/D20/D07绑定。
+
+- B03d实际本地提交：`79af090`。GitHub认证仍不可用，与ee8ddb7/d6e92c8/6c2aea2共4提交待补推；入口23独立及完整无过滤suite继续。
+
+
+V03入口独立开始：副本 `/tmp/agenteam-d04-entry-review-nawuhj6z` 以79af090+23入口建立，58源/副本并集匹配92a240900196ffd3473c926e224d90d3bbb2c0481249f37108432c337d9deb2d。已读生产/测试/说明，无确认阻塞。新增共享安全deadline（Audit→Secret→outbound→listen同deadline且继承更短parent）、diagnostics策略unavailable/recovery、DB stale/recovery、持续ready503/授权unbound/无policy路由，独立race1.215s通过。无过滤test-security已启动，日志 `/tmp/agenteam-d04-entry-review-full.log`；此时仍运行，尚未计完整suite通过。
+
+
+无过滤最终suite首次exit1，唯一失败为既有`TestCentralSecurityMissingStoragePreventsListening`的fixture准备：tests/process/security_database_test.go裸DROP audit_records，00004新增outbound_receipts.audit_id FK令PG返回2BP01，尚未执行Central启动断言。postgres1.044s/database33.356s/app58.100s/security57.243s通过，process51.858s仅此失败；日志 `/tmp/agenteam-d04-entry-review-full.log`。不将完整suite标通过。
+
+root只读确认依赖并采纳最小fixture适配：任务owned DB的DROP TABLE添加CASCADE，保留完整migration history与原启动exit1/无listen/security failed/owned backend退出/安全日志断言。生产00004/既有核心不变，不skip、不删除断言。待独立资源清理停读后，仅解冻该旧test给作者，修后重冻入口及并集，再无过滤整组重跑。
+
+
+旧Audit缺表fixture单文件返修已冻结：仅DROP追加CASCADE及说明00004外键依赖，原断言逐字保留。作者gofmt/integration vet及compile(-run '^$')1.163s、diff-check通过，未用Docker。新入口24 `/tmp/agenteam-d04-b03-entry-final.sha256` SHA `dcd8d93edcdc9415c4c3b7a7295b8b39ad54495799b7b14c54657fe5a42896f2`，全59 `/tmp/agenteam-d04-b03-all-final.sha256` SHA `9de98ae356466157aa30d18f0e8bdeb61e5ddeb17811812480f5164100779bd0`；原23/58与全部文件哈希不变。
+
+root已核单文件diff与24指纹，认可最小适配，独立更新此单文件并重跑无过滤test-security；其他入口/core稳定验证证据复用。首次失败suite的networknoncee03fc48c87bb1a59442e98728fcba9cc/PGnonceae2205a7b8a624475979a4def101003f容器/网络/TMPDIR独立确认全0，命令已退出后才移交，无资源重叠。
+
+
+## D04 完成与交接
+
+入口独立及最终无过滤 `AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/test-security.sh` exit0：postgres1.042s/database36.063s/app58.639s/process51.828s/security57.810s。该命令包含完整test-postgres与真实网络fixture，不以定向子集或skip代替最终整组。日志 `/tmp/agenteam-d04-entry-review-full-final.log` SHA `25607dd87e8c2bcad49f4baa1ea0483e54dc4646e8d3c75f699ac0e0986a5a95`；旧Audit缺表fixture现进入并通过全部真实启动断言。
+
+最终入口24源/副本匹配dcd8d93edcdc9415c4c3b7a7295b8b39ad54495799b7b14c54657fe5a42896f2，全59匹配9de98ae356466157aa30d18f0e8bdeb61e5ddeb17811812480f5164100779bd0。networknonced514075bcc97fcc808664d55c3fa29ff、PGnonce742176a4f334dc0c15719223b5e6bfb5及前轮失败fixture，逐exact查询容器/网络/TMPDIR全0，owned命令0；作者与独立验证者全部停止读写/命令。root已审生产、迁移、关键测试、修复与说明；作者完整Go检查、V01/V02/V03独立证据和完整最终suite共同满足当前D04门槛，B01/B02/B03全部标完成。
+
+当前实现真实Audit/签名cursor、Secret加密存储/lease/可恢复轮换、DB出站策略/完整DNS/受控H1与SMTP连接端口，并在Central监听前初始化及统一关闭；完整产品仍ready=false。D07身份/系统管理员/SMTP协议、D08Owner/Project、D09/D20模型/MCP SDK、D22执行binding等真实适配仍按原责任后续绑定，无生产权限stub或匿名业务API。Linux/amd64及固定Go1.27.1/PG17.8/vector0.8.1实测，其他部署环境未声称已运行；IANA在线资料读取403限制保留。
+
+root按授权精确提交入口24及完成记录；GitHub认证仍不可用，本地提交待恢复后补推，不把本地提交描述成远端同步。下一模块D05对象存储与Artifact，先落实正式对象/引用/上传一致性/MinIO/签名授权与恢复规格；D05–D28及E01仍未完成。

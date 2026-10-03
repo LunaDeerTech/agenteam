@@ -169,7 +169,7 @@ func TestDiagnosticRoutes(t *testing.T) {
 			}
 			for _, c := range d.Capabilities {
 				want := "unbound"
-				if c.Name == "secret" {
+				if c.Name == "secret" || c.Name == "outbound" {
 					want = "unavailable"
 				}
 				if c.Name == "postgresql" || c.Name == "pgvector" || c.Name == "migrations" || c.Name == "read_write" || c.Name == "cursor" || c.Name == "audit_storage" {
@@ -260,7 +260,7 @@ func TestGracefulDrainPreservesActiveContextAndRejectsLateRequest(t *testing.T) 
 	var shutdownOnce sync.Once
 	handoff := func() { shutdownOnce.Do(func() { close(shutdownRelease) }) }
 	defer handoff()
-	diagnostics := diagnosticRouter(newHealthMonitor(unitHealth(), healthTiming{}), true, nil)
+	diagnostics := diagnosticRouter(newHealthMonitor(unitHealth(), healthTiming{}), true, nil, nil)
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/slow" {
 			diagnostics.ServeHTTP(w, r)

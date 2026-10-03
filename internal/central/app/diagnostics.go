@@ -5,6 +5,7 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 )
@@ -19,9 +20,10 @@ type diagnostics struct {
 	Database      *postgres.DatabaseHealth `json:"database,omitempty"`
 	SecurityStage string                   `json:"security_stage"`
 	Secret        *secret.Status           `json:"secret,omitempty"`
+	Outbound      *outbound.PolicyStatus   `json:"outbound,omitempty"`
 }
 
-func diagnosticRouter(monitor *healthMonitor, securityInitialized bool, secrets maintenance) http.Handler {
+func diagnosticRouter(monitor *healthMonitor, securityInitialized bool, secrets maintenance, outboundService egress) http.Handler {
 	router := httpapi.NewRouter()
 	router.HandleFunc("GET /livez", func(w http.ResponseWriter, r *http.Request) {
 		_ = httpapi.WriteJSON(w, r, http.StatusOK, struct {
@@ -34,6 +36,9 @@ func diagnosticRouter(monitor *healthMonitor, securityInitialized bool, secrets 
 			code = foundation.DependencyUnavailable
 		}
 		if secrets == nil || !secrets.Status().Available {
+			code = foundation.DependencyUnavailable
+		}
+		if outboundService == nil || !outboundService.Status().Available {
 			code = foundation.DependencyUnavailable
 		}
 		httpapi.WriteProblem(w, r, foundation.NewFault(code, foundation.NotStarted))
@@ -67,8 +72,21 @@ func diagnosticRouter(monitor *healthMonitor, securityInitialized bool, secrets 
 		if secretStatus != "available" {
 			stage = "unavailable"
 		}
-		_ = httpapi.WriteJSON(w, r, http.StatusOK, diagnostics{Ready: false, Database: database, SecurityStage: stage, Secret: secretState, Capabilities: []capability{
-			{"postgresql", status}, {"pgvector", status}, {"migrations", status}, {"read_write", status}, {"cursor", securityStatus}, {"audit_storage", auditStatus}, {"audit_authorization", "unbound"}, {"secret", secretStatus}, {"secret_authorization", "unbound"}, {"outbound", "unbound"}, {"object_storage", "unbound"}, {"identity", "unbound"}, {"runner_protocol", "unbound"},
+		outboundStatus := "unavailable"
+		var outboundState *outbound.PolicyStatus
+		if outboundService != nil {
+			snapshot := outboundService.Status()
+			snapshot.Available = snapshot.Available && available
+			outboundState = &snapshot
+			if snapshot.Available {
+				outboundStatus = "available"
+			}
+		}
+		if outboundStatus != "available" {
+			stage = "unavailable"
+		}
+		_ = httpapi.WriteJSON(w, r, http.StatusOK, diagnostics{Ready: false, Database: database, SecurityStage: stage, Secret: secretState, Outbound: outboundState, Capabilities: []capability{
+			{"postgresql", status}, {"pgvector", status}, {"migrations", status}, {"read_write", status}, {"cursor", securityStatus}, {"audit_storage", auditStatus}, {"audit_authorization", "unbound"}, {"secret", secretStatus}, {"secret_authorization", "unbound"}, {"outbound", outboundStatus}, {"outbound_authorization", "unbound"}, {"object_storage", "unbound"}, {"identity", "unbound"}, {"runner_protocol", "unbound"},
 		}})
 	})
 	return router

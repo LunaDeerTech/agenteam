@@ -150,6 +150,7 @@ func TestDatabaseAppProcessFixture(t *testing.T) {
 			return service, err
 		}
 	}
+	configureOutboundFixture(t, mode, cfg, &deps, release)
 	err = run(context.Background(), cfg, logger, signals, deps)
 	signal.Stop(signals)
 	if err != nil {

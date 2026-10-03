@@ -233,7 +233,7 @@ func waitDiagnosticState(t *testing.T, address, want string, timeout time.Durati
 		matched := 0
 		for _, capability := range d.Capabilities {
 			switch capability.Name {
-			case "postgresql", "pgvector", "migrations", "read_write", "audit_storage", "secret":
+			case "postgresql", "pgvector", "migrations", "read_write", "audit_storage", "secret", "outbound":
 				if capability.Status == want {
 					matched++
 				}
@@ -247,7 +247,7 @@ func waitDiagnosticState(t *testing.T, address, want string, timeout time.Durati
 				}
 			}
 		}
-		if matched == 6 {
+		if matched == 7 {
 			if want == "available" && (d.Database == nil || !d.Database.ReadWrite || d.Database.ExtensionVersion != "0.8.1") {
 				t.Fatal("database evidence absent")
 			}

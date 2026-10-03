@@ -20,7 +20,9 @@ func TestCentralSecurityMissingStoragePreventsListening(t *testing.T) {
 	}
 	// A real database with intact migration history but missing Audit storage
 	// must fail security initialization instead of advertising availability.
-	if _, err := db.Connect(t).Exec(databaseContext(t), `DROP TABLE agenteam_audit.audit_records`); err != nil {
+	// Migration 00004 adds an outbound receipt FK; remove that dependency only
+	// within this owned fixture so the intended missing-storage case is reached.
+	if _, err := db.Connect(t).Exec(databaseContext(t), `DROP TABLE agenteam_audit.audit_records CASCADE`); err != nil {
 		t.Fatal(err)
 	}
 	p := launch(t, "agenteam", nil, databaseEnvironment(db))

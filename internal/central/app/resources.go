@@ -23,6 +23,30 @@ type resources struct {
 	maintenanceCancel context.CancelFunc
 	maintenanceErr    error
 	stopping          bool
+	outboundService   egress
+}
+
+func (o *resources) addOutbound(ctx context.Context, service egress) bool {
+	o.mu.Lock()
+	forced, stopping := o.forced, o.stopping
+	if forced == nil && !stopping && ctx.Err() == nil {
+		o.outboundService = service
+		o.mu.Unlock()
+		return true
+	}
+	o.mu.Unlock()
+	if forced != nil {
+		ctx = forced
+	}
+	service.StopAdmission()
+	_ = service.ForceClose(ctx)
+	return false
+}
+func (o *resources) outbound() egress { o.mu.Lock(); defer o.mu.Unlock(); return o.outboundService }
+func (o *resources) stopOutbound() {
+	if service := o.outbound(); service != nil {
+		service.StopAdmission()
+	}
 }
 
 func (o *resources) startMaintenance(ctx context.Context, service maintenance) bool {
@@ -111,10 +135,12 @@ func (o *resources) closeHTTP() {
 }
 func cleanupResources(ctx context.Context, o *resources, cancelServing context.CancelFunc) {
 	o.stopMaintenance()
+	o.stopOutbound()
 	o.mu.Lock()
 	o.forced = ctx
 	store := o.db
 	cancelMaintenance := o.maintenanceCancel
+	outboundService := o.outboundService
 	o.mu.Unlock()
 	done := make(chan struct{})
 	go func() {
@@ -123,8 +149,19 @@ func cleanupResources(ctx context.Context, o *resources, cancelServing context.C
 			_ = store.ForceClose(ctx)
 		}
 	}()
+	outboundDone := make(chan struct{})
+	go func() {
+		defer close(outboundDone)
+		if outboundService != nil {
+			_ = outboundService.ForceClose(ctx)
+		}
+	}()
 	select {
 	case <-done:
+	case <-ctx.Done():
+	}
+	select {
+	case <-outboundDone:
 	case <-ctx.Done():
 	}
 	if cancelMaintenance != nil {

@@ -200,7 +200,7 @@
 
 ## AT-0011：D04 Secret、出站访问与 Audit
 
-- 状态：B03实施中；唯一活动模块D04；[规格](../work-items/d04-security-foundation.md)修订1，基线main@9beaa7f。D03数据库基础与入口全验收，未绑定Secret/对象/身份/协议及业务。
+- 状态：D04已完成；下一模块D05；[规格](../work-items/d04-security-foundation.md)修订1，基线main@9beaa7f。D03数据库基础与入口全验收，未绑定Secret/对象/身份/协议及业务。
 - architecture_worker独占新增实施规格，root维护主规格/台账/计划；先固定密钥环/恢复、动态出站与Audit数据接口和真实验收，再按完整结果实施、独立验证、提交推送。无用户待定或环境阻塞；当前不创建测试资源、不提前实现D05+。
 
 - S01实施规格修订2已获主线程确认。独立静态审查发现的Audit重放/HTTP隐式重试/故障状态及旧策略receipt问题已集中明确化；按Audit/cursor→Secret/轮换→动态出站顺序实施，尚无D04产品行为验收。设计基线先按授权提交推送，再开工B01，范围见主规格/实施规格。
@@ -245,3 +245,8 @@
 
 
 - B03d HTTP/SMTP核心21输入独立复验通过：原前两probe race5.046s、新实际头边界1.244s、真实受影响network/SMTP/Audit13.616s，无剩余阻塞。manifest0321829f3205d8fec989b3e6991ae7ca092e288434107108ef9e750cfa59caae；原helper测试替换原因/可逆diff/资源清理详见主卡。root精确本地提交，认证未恢复暂待推；入口23独立及无过滤test-security最终整组继续，D04仍未完成。
+
+- B03d实际本地提交：`79af090`。GitHub认证仍不可用，与ee8ddb7/d6e92c8/6c2aea2共4提交待补推；入口23独立及完整无过滤suite继续。
+
+
+- D04完整验收通过：V03入口独立及无过滤test-security最终exit0，postgres1.042/database36.063/app58.639/process51.828/security57.810s；完整日志SHA25607dd87e8c2bcad49f4baa1ea0483e54dc4646e8d3c75f699ac0e0986a5a95。入口24 manifest dcd8d93edcdc9415c4c3b7a7295b8b39ad54495799b7b14c54657fe5a42896f2、全59 manifest9de98ae356466157aa30d18f0e8bdeb61e5ddeb17811812480f5164100779bd0，源/独立副本一致；两轮资源exact确认全0，作者/验证者全部停止。root完成生产/说明/证据审查并精确提交入口，GitHub认证阻塞暂待推。未绑定真实授权/业务适配与ready=false限制不变；D04完成不代表平台/E01完成。下一步D05规格，无产品待定。

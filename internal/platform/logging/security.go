@@ -4,18 +4,19 @@ package logging
 type SecurityPhase string
 
 const (
-	CursorInitializing  SecurityPhase = "cursor_initializing"
-	AuditInitializing   SecurityPhase = "audit_initializing"
-	SecretInitializing  SecurityPhase = "secret_initializing"
-	SecretMaintaining   SecurityPhase = "secret_maintenance_starting"
-	SecretUnavailable   SecurityPhase = "secret_unavailable"
-	SecurityInitialized SecurityPhase = "initialized"
-	SecurityFailed      SecurityPhase = "failed"
+	CursorInitializing   SecurityPhase = "cursor_initializing"
+	AuditInitializing    SecurityPhase = "audit_initializing"
+	SecretInitializing   SecurityPhase = "secret_initializing"
+	SecretMaintaining    SecurityPhase = "secret_maintenance_starting"
+	SecretUnavailable    SecurityPhase = "secret_unavailable"
+	OutboundInitializing SecurityPhase = "outbound_initializing"
+	SecurityInitialized  SecurityPhase = "initialized"
+	SecurityFailed       SecurityPhase = "failed"
 )
 
 func (l *Logger) Security(phase SecurityPhase) {
 	switch phase {
-	case CursorInitializing, AuditInitializing, SecretInitializing, SecretMaintaining, SecretUnavailable, SecurityInitialized, SecurityFailed:
+	case CursorInitializing, AuditInitializing, SecretInitializing, SecretMaintaining, SecretUnavailable, OutboundInitializing, SecurityInitialized, SecurityFailed:
 	default:
 		phase = SecurityFailed
 	}

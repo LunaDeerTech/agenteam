@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 )
@@ -30,15 +31,17 @@ type Config struct {
 	database        postgres.Config
 	cursorKeys      cursor.Keyring
 	secretKeys      secret.Keyring
+	outboundTrust   outbound.TrustStore
 }
 
-func (c Config) LogLevel() slog.Level           { return c.logLevel }
-func (c Config) ShutdownTimeout() time.Duration { return c.shutdownTimeout }
-func (c Config) HTTPAddr() string               { return c.httpAddr }
-func (c Config) PublicOrigin() string           { return c.publicOrigin }
-func (c Config) Database() postgres.Config      { return c.database }
-func (c Config) CursorKeyring() cursor.Keyring  { return c.cursorKeys }
-func (c Config) SecretKeyring() secret.Keyring  { return c.secretKeys }
+func (c Config) LogLevel() slog.Level               { return c.logLevel }
+func (c Config) ShutdownTimeout() time.Duration     { return c.shutdownTimeout }
+func (c Config) HTTPAddr() string                   { return c.httpAddr }
+func (c Config) PublicOrigin() string               { return c.publicOrigin }
+func (c Config) Database() postgres.Config          { return c.database }
+func (c Config) CursorKeyring() cursor.Keyring      { return c.cursorKeys }
+func (c Config) SecretKeyring() secret.Keyring      { return c.secretKeys }
+func (c Config) OutboundTrust() outbound.TrustStore { return c.outboundTrust }
 
 // Error contains a declared field name and stable reason, never an input value.
 type Error struct {
@@ -67,7 +70,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 			continue
 		}
 		switch strings.TrimPrefix(key, Prefix) {
-		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "CURSOR_KEYRING", "SECRET_KEYRING":
+		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "CURSOR_KEYRING", "SECRET_KEYRING", "OUTBOUND_CA_FILE":
 		case "DATABASE_URL", "DATABASE_TLS_MODE", "DATABASE_CA_FILE", "DATABASE_MAX_CONNS", "DATABASE_CONNECT_TIMEOUT", "DATABASE_STARTUP_TIMEOUT", "DATABASE_LOCK_TIMEOUT":
 		default:
 			return Config{}, &Error{field: Prefix + "*", reason: "unsupported"}
@@ -128,6 +131,13 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 	if err != nil {
 		return Config{}, invalid("SECRET_KEYRING")
 	}
+	if raw, ok := lookup(Prefix + "OUTBOUND_CA_FILE"); ok && raw == "" {
+		return Config{}, invalid("OUTBOUND_CA_FILE")
+	}
+	c.outboundTrust, err = outbound.LoadTrustStore(value("OUTBOUND_CA_FILE", ""))
+	if err != nil {
+		return Config{}, invalid("OUTBOUND_CA_FILE")
+	}
 	return c, nil
 }
 
@@ -152,6 +162,9 @@ func (c Config) Validate() error {
 	}
 	if c.secretKeys.Validate() != nil {
 		return invalid("SECRET_KEYRING")
+	}
+	if c.outboundTrust.Validate() != nil {
+		return invalid("OUTBOUND_CA_FILE")
 	}
 	return nil
 }

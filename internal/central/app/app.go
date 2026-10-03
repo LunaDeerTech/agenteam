@@ -57,6 +57,7 @@ type dependencies struct {
 	health   healthTiming
 	security func(context.Context, config.Config, database) (*audit.Service, error)
 	secret   func(context.Context, config.Config, database, *audit.Service) (maintenance, error)
+	outbound func(context.Context, config.Config, database, *audit.Service) (egress, error)
 }
 
 type startupResult struct {
@@ -103,6 +104,9 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	if deps.secret == nil {
 		deps.secret = initializeSecret
 	}
+	if deps.outbound == nil {
+		deps.outbound = initializeOutbound
+	}
 	startup, cancelStartup := context.WithCancel(control.StopContext())
 	defer cancelStartup()
 	initialized := make(chan startupResult, 1)
@@ -137,7 +141,7 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	healthDone := make(chan struct{})
 	go func() { defer close(healthDone); monitor.run(healthContext, owned.store(), logger) }()
 	if deps.handler == nil {
-		deps.handler = diagnosticRouter(monitor, true, owned.secret())
+		deps.handler = diagnosticRouter(monitor, true, owned.secret(), owned.outbound())
 	}
 	serving, cancelServing := context.WithCancel(context.WithoutCancel(ctx))
 	defer cancelServing()
@@ -177,15 +181,24 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	}
 	logger.Transition(logging.Stopping)
 	owned.stopMaintenance()
+	owned.stopOutbound()
 	cancelHealth()
 	drain, cancelDrain := control.DrainContext()
 	defer cancelDrain()
 	httpDone := make(chan error, 1)
 	go func() { httpDone <- server.Shutdown(drain) }()
+	outboundDone := make(chan error, 1)
+	go func() {
+		if service := owned.outbound(); service != nil {
+			outboundDone <- service.Drain(drain)
+		} else {
+			outboundDone <- nil
+		}
+	}()
 	var databaseDone chan error
-	httpDrained, databaseDrained := false, false
+	httpDrained, databaseDrained, outboundDrained := false, false, false
 	for {
-		if httpDrained && maintenanceDone == nil && databaseDone == nil && !databaseDrained {
+		if httpDrained && outboundDrained && maintenanceDone == nil && databaseDone == nil && !databaseDrained {
 			databaseDone = make(chan error, 1)
 			go func() { store := owned.store(); store.StopAdmission(); databaseDone <- store.Drain(drain) }()
 		}
@@ -222,6 +235,13 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			} else {
 				code = lifecycle.ShutdownTimeout
 			}
+		case err := <-outboundDone:
+			outboundDone = nil
+			if err == nil {
+				outboundDrained = true
+			} else {
+				code = lifecycle.ShutdownTimeout
+			}
 		case <-healthDone:
 			healthDone = nil
 		case <-maintenanceDone:
@@ -241,6 +261,12 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 		// checkout. Every cleanup and join uses this single remaining force budget.
 		cleanupResources(forced, owned, cancelServing)
 		joinWorkers(forced, serveDone, httpDone, databaseDone, healthDone)
+		if outboundDone != nil {
+			select {
+			case <-outboundDone:
+			case <-forced.Done():
+			}
+		}
 		cancel()
 		logger.ShutdownComplete(true, code)
 		return lifecycle.NewFailure(code, nil)
@@ -314,6 +340,18 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 	if !owned.startMaintenance(ctx, secretService) {
 		return failed(context.Canceled)
 	}
+	logger.Security(logging.OutboundInitializing)
+	outboundService, err := deps.outbound(ctx, cfg, store, auditService)
+	if outboundService != nil && !owned.addOutbound(ctx, outboundService) {
+		err = context.Canceled
+	}
+	if err == nil {
+		err = ctx.Err()
+	}
+	if err != nil {
+		logger.Security(logging.SecurityFailed)
+		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
+	}
 	logger.Security(logging.SecurityInitialized)
 	listener, err := deps.listen(ctx, "tcp", cfg.HTTPAddr())
 	if listener != nil {
@@ -332,6 +370,7 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 func stopStartup(logger processLogger, control *lifecycle.Controller, owned *resources, initialized <-chan startupResult) error {
 	logger.Transition(logging.Stopping)
 	owned.stopMaintenance()
+	owned.stopOutbound()
 	drain, cancel := control.DrainContext()
 	defer cancel()
 	var drained chan error
@@ -345,6 +384,12 @@ func stopStartup(logger processLogger, control *lifecycle.Controller, owned *res
 					case <-worker:
 					case <-drain.Done():
 						drained <- drain.Err()
+						return
+					}
+				}
+				if service := owned.outbound(); service != nil {
+					if err := service.Drain(drain); err != nil {
+						drained <- err
 						return
 					}
 				}
