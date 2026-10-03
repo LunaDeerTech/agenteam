@@ -187,3 +187,37 @@ B03 DNS实现深化：主线程复读固定Go1.27.1的net/dnsclient_unix.go，St
 V03a两项阻塞已以原失败probe原样复验闭环：mapped IPv6保留规范hex IPv6 origin与authority、与IPv4不Equal，分类继续Unmap；空0x/任意长度全hex数字主机拒绝，0xg等DNS仍接受。仅target.go/boundary_test.go改变，其余3文件与19份稳定依赖不变。作者race1.032s/vet通过；独立副本完整 `go test -race -count=1 -v ./internal/central/outbound` 1.075s、vet/gofmt/空白通过，原失败probe SHA仍 `8e87a27d74cbeef177fb59c2731bf9ee67ce495ccceba2a2a1e20e0f6818ab33`。
 
 最终5文件manifest `/tmp/agenteam-d04-b03-pure.sha256` SHA-256 `4993cd4047121664e58ce04e116a096d9619efb8ae79afa73876e3b811cfc166`，末次指纹一致。验证者命令结束停读，无Docker/外网；作者5文件停写，主线程已读修正，认可纯类型/分类/规范化小块，按授权精确提交推送。活动policy/gate/DNS/HTTP/fixture未纳入，尚无完整出站网络验收，B03/D04继续实施。
+
+- B03a实际交付：`1898748`已成功推送origin/main（fffd0dc→1898748）。纯出站边界5文件保持验收冻结，作者继续活动policy/gate/DNS/H1与隔离网络fixture；B03尚未整体验收。
+
+
+## V03 DNS分段冻结
+
+作者冻结dns.go/dns_test.go共2文件，manifest `/tmp/agenteam-d04-b03-dns.sha256` SHA-256 `ee7563da811b54f9b7eb547403db2943f608e06d146559725ef214b52088ef10`，依赖仅1898748已验收pure；作者真实owned loopback UDP/TCP DNS测试/race1.054s/vet通过，覆盖双family/NODATA、TC转TCP、NXDOMAIN/SERVFAIL/FORMERR任一family拒绝、ID/question/type/class/包边界/压缩指针/owner/CNAME、64/65和取消。V03独立仅审此2文件及已提交依赖，不读活动policy/gate/H1，无Docker。主线程已读解析器，提出wire label内点可能被Join后误归一化的候选及NOERROR referral是否误作NODATA的语义候选，待独立证据；当前未解冻或标通过。
+
+DNS两个候选经独立真实UDP probe确认并由root采纳：Question/answer owner/CNAME RDATA的单wire label内点被Join后误当多label；A正常而AAAA NOERROR/0answer/authority NS referral（RA有无两种）均错误返回A子集。原失败probe `/tmp/agenteam-d04-dns-review-qzp07n5g/internal/central/outbound/review_dns_test.go`，TestReviewDNSRejectCollapsedWireLabels/TestReviewDNSRejectReferralFamily。修正应逐label验证、保守拒绝显式未完成referral并保留合法NODATA/SOA；待最后独立协议探针停读后移交，不在活动审查中改源码。
+
+B03 policy/gate另冻结6文件：gate.go/gate_test.go/policy.go/00004_outbound.sql/tests/security/outbound_policy_test.go及outbound_concurrent_test.go，manifest `/tmp/agenteam-d04-b03-policy.sha256` SHA-256 `27fc6f6032d4e1cdf6edee5fa69a48b98a832b7511cd8680406aaad357aa46cc`。作者并发保存真实PG security1.431s通过，同expected两命令恰好一提交一version_conflict、receipt1条；日志 `/tmp/agenteam-d04-b03-policy-concurrent.log`，noncea2ca89283f8a0717e7d4b0a5160bb354报告清理。root已读生产/SQL及gate/并发测试，指纹一致，暂未确认阻塞；独立验证待DNS本轮结束后串行接管，Docker当前空闲。
+
+DNS本轮独立已停读后仅解冻2文件给作者，余下协议/组合64地址/mapped去重/5s总预算实测5.00s/兄弟取消/TCP剩余预算race6.182s，压缩CNAME/倒序/SOA及畸形拒绝race1.028s通过，无其他确认阻塞；probe最终SHA `07788e5a029b6e1a87172f9a8d9d0f8a1b641b1507e195473ebcf1af0a091850`。作者修正后2文件重新冻结，新manifest SHA `2d65bbe2d458bf0ecdc08242b653b985171731c4aad51f8d95ca5733aefb996d`，作者race1.063s/vet通过。原失败probe待定向复验；root复读diff提出新增SOA判定是否验证真实RDATA的修复完整性候选，仍待证据。
+
+Policy/gate6文件已正式交独立验证及Docker资源，作者保持冻结仅继续DNS返修/HTTP无Docker范围。root读Reload时提出恢复竞态候选：仅进程门禁而无DB policy shared锁，可能在未知旧Tx仍持锁未结束时MVCC读旧row并提前恢复available；独立真实PG探针核实中，未先修改实现。
+
+独立Policy真实probe已证实Reload候选：driver实际发送COMMIT frame到owned proxy后client EOF，proxy保留原backend Tx；UpdatePolicy核实等待锁至600ms返回Unknown并保留原cause。Reload在150ms预算内却立即恢复available=v2，随后释放原COMMIT后DB=v3而镜像仍available/v2。TestReviewOutboundReloadWaitsForOriginalUnknownWriter失败，日志 `/tmp/agenteam-d04-policy-review-pg.log`；同轮其他作者policy用例通过，nonce4f9d2d0b28ae3dc2332ab869b6496b45等待末次清理核验。root采纳：Reload在进程exclusive门禁内，用新短Tx取得DB policy shared锁并确认读取完成后才publish，失败保持unavailable，不能MVCC提前恢复。
+
+DNS原两失败probe在返修上原样race1.027s通过，但修复完整性probe又实际复现畸形/无关SOA或NS被接受为negative：空SOA、少/多1字节、坏name、无关zone SOA、空NS RDATA都错误返回A子集。probe `/tmp/agenteam-d04-dns-review-qzp07n5g/internal/central/outbound/review_dns_soa_test.go`。合法SOA RNAME的hostmaster、host_master与单wire label host.master三正例通过，返修应保留。root采纳NS/SOA真实RDATA/zone结构校验，等待验证者全部停止后精确解冻，不把第一轮probe通过当DNS完成。
+
+两块独立最终已停读/命令：policy作者场景与unknown/cause探针security4.312s，唯一失败为Reload提前发布；gate新增queued writer先于16个late reader/并发双release/计数归零race1.021s，vet/格式通过。原latecommit probe `/tmp/agenteam-d04-policy-review-1v2839un/tests/security/review_outbound_policy_test.go` SHA `01837162260cabbe541e9b7ed91542fe0477def1434bee590623e6c960fe68eb`；DNS新增SOA probe SHA `9b6dec2f47af0ee69fcc730fcde5b97300c3b6af83f6853ce1c3f18517cacdfc`，原DNSprobe未改。policy6/DNS2/pure5末次指纹一致，nonce4f9d2d0b28ae3dc2332ab869b6496b45两容器/网络/临时目录独立确认不存在。
+
+主线程精确解冻dns.go/dns_test.go、policy.go及outbound_policy_test.go（必要可新增outbound_reload_test.go）给作者返修；gate/gate_test/00004/outbound_concurrent及pure5继续冻结。Docker交还作者自测，HTTP无依赖部分继续；修后分块冻结并用原失败probe复验。当前DNS/policy均不标通过。
+
+B03 SDK工程边界已由root明确并同步实施规格修订3 §9：原生`*http.Client.Do`不可避免地将RoundTripper错误包为携原URL的`*url.Error`，导出Transport/CheckRedirect也并非类型不可变。主Client.Do保持安全输出；原生实例仅可信adapter/组合根使用，固定受控RT、拒自动redirect/无cookies，禁止替换、不提供业务拨号/TLS开关；原生SDK错误必须经SafeNetworkError映射才跨业务/日志边界，D09/D20真实adapter负责组合验收。作者补工厂/mapper敏感投影测试与说明；不把标准库原始error安全或未来SDK已绑定作为当前结论，无用户待定。
+
+
+## B03b 策略存储与门禁完成
+
+Policy Reload唯一阻塞已闭环：进程exclusive内新短recovery Tx取得policy shared DB锁，读canonical并确认commit后才publish；失败unavailable。新增outbound_reload_test.go纳入原真实故障回归；原probe仅初始化前不armed、目标Update前armed两处fixture适配，因Reload新增只读COMMIT，反向还原SHA匹配原 `01837162260cabbe541e9b7ed91542fe0477def1434bee590623e6c960fe68eb`，故障顺序/断言逐字不变。
+
+作者受影响真实PG security4.989s通过，日志 `/tmp/agenteam-d04-b03-policy-repair.log`、noncec893c65935ae08ec90d55f90b78ea5db清理。独立原失败及replay/rollback/三unknown/同expected并发实际race security5.591s、exit0，日志 `/tmp/agenteam-d04-policy-review-recheck.log`；旧writer持锁时Reload不再提前available，原commit完成后DB/镜像同v3，unknown原cause保留。gate/00004/concurrent/pure5未变，复用原门禁独立race，vet/格式通过。
+
+最终policy7文件manifest `/tmp/agenteam-d04-b03-policy.sha256` SHA-256 `39e6b55cba77b2d82d1e2e8087f5e9974c487b5c9f4682457478552306be4322`，source/copy一致。nonce928c77669ccdad099df921c4f9c127f8两容器/网络/精确TMPDIR独立确认清理；验证者停止policy读取和命令，作者7文件停写，root已读生产/SQL/返修并认可存储/门禁小块，按授权精确提交推送。Docker交还作者进行真实网络fixture；DNS2仍由验证者无Docker复验，HTTP/入口未整体验收，B03/D04继续实施。

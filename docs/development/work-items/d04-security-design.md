@@ -1,6 +1,6 @@
 # D04 安全基础实施规格
 
-- 修订：2；输入：`main@9beaa7f`、[D04 主卡修订 1](d04-security-foundation.md)及已采纳的 S01 集中审查修正。本文是 S01 设计，尚未实现或运行验收。
+- 修订：3；输入：`main@9beaa7f`、[D04 主卡修订 1](d04-security-foundation.md)及已采纳的 S01 集中审查修正。本文记录 S01 已确认设计；修订 3 在 B03 实施时明确原生 SDK 的标准库错误包装边界。实现与验收进度以主卡为准。
 - 依据：[计划 D04](../development-plan.md#d04-secret-出站与-audit)、[部署密钥与恢复](../../architecture/platform-infrastructure/deployment-runtime.md#6-secret-management-与-envelope-encryption)、[出站规则](../../architecture/platform-infrastructure/outbound-network-policy.md)、[Audit](../../architecture/security-governance/audit.md)、[D01 基础](d01-contracts/foundation.md)、[生命周期](d01-contracts/domain-lifecycle.md)、[Model/MCP lease](d01-contracts/model-tool.md)。
 - 已核对实际 [D03 Store/Tx](../../../internal/central/postgres/transaction.go)、[SQLExecutor](../../../internal/central/postgres/sql.go)、[锁构造器](../../../internal/central/foundation/lock.go)、[Central 装配](../../../internal/central/app/app.go)；沿用 Go **1.27.1 / GOTOOLCHAIN=local**、pgx **5.11.0**、Goose **3.28.0**、PG **17.8** / vector **0.8.1** 的既有隔离 fixture。不加运行依赖，不改已验收 D03 机制。
 
@@ -155,6 +155,8 @@ TLS 最低 1.2，使用系统/部署 CA 验证 chain、有效期与原 hostname�
 平台上限固定：DNS **5s**、每次 connect **5s**、TLS handshake **10s**、response headers **15s / 64 KiB**、普通请求 overall **120s / 16 MiB 响应**、stream overall **30min / 256 MiB**、stream read idle **60s**、redirect **5**、request headers **64 KiB**、普通 request body **16 MiB**。Profile 只能收紧；stream 按块消费和计数，不整块 buffering，取消立即关闭/取消对应 request。平台总上限不是 Execution/Tool/Approval 期限；D09 可在此范围选择逐 attempt 渐进 timeout。
 
 关闭 Transport 自动解压，默认 `Accept-Encoding: identity`，首版拒绝非 identity Content-Encoding，不能让压缩炸弹逃过 decoded 限额；后续消费者确需压缩时在受控层补双重计数。body 超限/空闲超时/总期限都关闭响应和不可复用连接，不只对 Content-Length 检查；正常 EOF 后才允许复用。处置 101/CONNECT 为不支持，WebSocket/隧道协议留正式模块扩展。
+
+主 `Client.Do` 返回安全 `NetworkError/Response`。需要原生 `*http.Client` 的 SDK 仅由可信 adapter/组合根取得固定受控私有 RoundTripper、拒绝自动 redirect 且无 CookieJar 的实例；不提供业务可配置 dial/proxy/TLS/Transport 开关。Go 原生 Client 的导出字段本身可改，禁止替换属于受审查的 adapter 契约，不能声称类型强制不可变。标准库 `Client.Do` 会将 RoundTripper 错误包装为携原 URL 的 `*url.Error`，所以原生 SDK error/response 不属于安全投影；必须经显式 `SafeNetworkError` 提取或固定兜底映射后才能跨业务/日志边界。D09/D20 等实际 SDK adapter 绑定时验证这条路径；当前只验收工厂/受控 Transport/安全映射，不宣称 SDK 已集成，不通过篡改请求 URL 隐藏标准库行为。
 
 返回安全 `Decision/NetworkError`：reason、consumer、规范 origin（无 path/query/userinfo）、policy_version、地址分类、redirect_count、是否已发出及 trace ID；完整 IP 集合只作为包内审批事实，普通日志不写任意字段/原始 net/url/TLS 错误。沿正式 deny reason，补 `response_limit/timeout/cancelled/policy_unavailable`。安全拒绝按调用点写最小 Audit；普通网络错误不全量复制 Audit。Project Audit 不能写时保持原拒绝，不能改 scope 写项目正文到 System，也不能为补日志重新发请求。
 

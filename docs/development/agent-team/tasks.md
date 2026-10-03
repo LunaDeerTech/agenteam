@@ -230,3 +230,7 @@
 - B02入口实际交付：`fffd0dc`已推送origin/main（6feda6b→fffd0dc），工作区干净后B03开工。backend_worker接管动态出站/00004/真实网络fixture与必要入口，详细所有权见主卡；root维护规格/台账/计划，B01/B02和D03库冻结。先完成D04，不提前D05或E01。
 
 - B03a纯边界5文件独立通过：origin mapped身份/hex数字host两缺陷以原失败probe闭环，race1.075s/vet/格式通过，manifest `4993cd4047121664e58ce04e116a096d9619efb8ae79afa73876e3b811cfc166`。root精确提交推送；活动policy/gate/DNS/HTTP不纳入，B03/D04未整体完成。DNS严格partial-error与专用H1的工程选择、IANA在线403资料限制记录于主卡。
+
+- B03a实际交付：`1898748`已成功推送origin/main（fffd0dc→1898748）。纯出站边界5文件保持验收冻结，作者继续活动policy/gate/DNS/H1与隔离网络fixture；B03尚未整体验收。
+
+- B03b策略存储/门禁7文件独立通过：Reload未等待旧unknown writer的竞态以真实原probe闭环；原probe仅2处代理arming适配，断言未改，security race5.591s、vet/格式通过。manifest `39e6b55cba77b2d82d1e2e8087f5e9974c487b5c9f4682457478552306be4322`；nonce928c77669ccdad099df921c4f9c127f8资源清理，root按授权精确提交推送。DNS原label/referral/NS-SOA及跨zoneCNAME修复另行复验，HTTP实际网络/入口尚未通过，详见主卡。
