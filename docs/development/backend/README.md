@@ -1,6 +1,6 @@
 # 后端开发
 
-根 module 为 `github.com/LunaDeerTech/agenteam`，固定 Go 1.27.1，只使用标准库。Central 与 Runner 分别装配；Runner 不导入 Central。中立 `internal/platform` 只处理进程日志和关闭协调，不提供授权、业务幂等、数据库事务或 Runner 设备协议。
+根 module 为 `github.com/LunaDeerTech/agenteam`，固定 Go 1.27.1。D03 B01 已引入固定 pgx/Goose 数据库库，见[数据库说明](database.md)，Central 入口尚待 B02 装配。Central 与 Runner 分别装配；Runner 不导入 Central。中立 `internal/platform` 只处理进程日志和关闭协调，不提供授权、业务幂等、数据库事务或 Runner 设备协议。
 
 当前 Central 是诊断程序，Runner 是未连接进程。配置正确、程序存活与完整产品 ready 是不同状态。数据库/pgvector/迁移、Secret、对象存储、身份和 Runner 协议均未绑定；后续责任见 [D01 契约目录](../work-items/d01-contracts/README.md) 和 [D02 规格](../work-items/d02-engineering-foundation.md)。
 

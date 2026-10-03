@@ -51,7 +51,7 @@ agenteam/
 
 ## 依赖与演进约定
 
-- Central 与 Runner 共用根目录 Go module，固定 Go 1.27.1，目前仅依赖标准库；前端在 `web/` 独立管理依赖。
+- Central 与 Runner 共用根目录 Go module，固定 Go 1.27.1；D03 B01 已固定 pgx/Goose 数据库库依赖，入口绑定仍待 B02；前端在 `web/` 独立管理依赖。
 - Runner 不依赖 Central 业务包，也不拥有 Task、Meeting 等项目业务模型。
 - 共享通信契约放在 `internal/runnerprotocol/`，两端各自的实现留在各自目录。
 - Central 跨模块端口按稳定职责建立独立契约包，由调用方和实现方共同依赖；不包含业务实现、不循环引用，不建立万能 `contracts/shared` 包或大量无必要的空包。实际包路径按照 D01 依赖矩阵随消费模块按需增加。
