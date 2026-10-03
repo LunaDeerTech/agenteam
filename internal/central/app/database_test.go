@@ -55,6 +55,9 @@ func (d *unitDatabase) ForceClose(ctx context.Context) error {
 	return nil
 }
 func unitDependencies(deps dependencies) dependencies {
+	if deps.secret == nil {
+		deps.secret = func(context.Context, config.Config, database, *audit.Service) (maintenance, error) { return nil, nil }
+	}
 	if deps.security == nil {
 		deps.security = func(context.Context, config.Config, database) (*audit.Service, error) { return nil, nil }
 	}

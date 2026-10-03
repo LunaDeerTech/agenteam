@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-agenteam is an AI Agent collaboration platform with design documents, a Go foundation, PostgreSQL/pgvector migrations and transactions, diagnostic Central/unconnected Runner processes, and a runnable Vue frontend with shared components and a development-only Debug page. Central requires its database and an independent cursor signing keyring before serving diagnostics. Typed Audit append/query/cleanup ports and signed cursors are implemented; authorization adapters remain unbound. MinIO, identity, secrets and business capabilities are not yet bound; these processes do not indicate product readiness.
+agenteam is an AI Agent collaboration platform with design documents, a Go foundation, PostgreSQL/pgvector migrations and transactions, diagnostic Central/unconnected Runner processes, and a runnable Vue frontend with shared components and a development-only Debug page. Central requires its database, an independent cursor signing keyring and a Secret AES master keyring before serving diagnostics. Typed Audit ports, signed cursors, encrypted Secret storage/leases and recoverable master-key maintenance are implemented; identity, Project and execution/binding authorization adapters remain unbound. MinIO and business capabilities are not yet bound; these processes do not indicate product readiness.
 
 - `cmd/agenteam/` and `cmd/agenteam-runner/`: Central and Runner entry points.
 - `internal/central/` and `internal/runner/`: respective implementations; `internal/runnerprotocol/`: shared communication contracts. Runner must not import Central business packages.
@@ -18,9 +18,9 @@ Keep `.gitkeep` files until their directories contain real files.
 The frontend remains independently runnable. The root Go module requires exactly Go 1.27.1; backend scripts set `GOTOOLCHAIN=local` and reject a different toolchain. Set `AGENTEAM_GO` to the binary path if PATH does not select it.
 
 - `AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/check-go.sh`: Go tests, vet, race checks and both binary builds.
-- `AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-postgres.sh`: real PostgreSQL/pgvector, Audit and Central process integration tests using task-owned Docker fixtures; ordinary Go tests do not require Docker.
+- `AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-postgres.sh`: real PostgreSQL/pgvector, Audit/Secret and Central process integration tests using task-owned Docker fixtures; ordinary Go tests do not require Docker.
 - `AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/build-go.sh`: build `bin/agenteam` and `bin/agenteam-runner`.
-- `./bin/agenteam --check-config`: validate current D04 Central settings, including required `AGENTEAM_CENTRAL_DATABASE_URL`, `AGENTEAM_CENTRAL_CURSOR_KEYRING` and any explicit CA, without connecting. `./bin/agenteam-runner --check-config` validates D02 Runner settings. Both report `ready=false`; help/version need no configuration.
+- `./bin/agenteam --check-config`: validate current D04 Central settings, including required `AGENTEAM_CENTRAL_DATABASE_URL`, `AGENTEAM_CENTRAL_CURSOR_KEYRING`, `AGENTEAM_CENTRAL_SECRET_KEYRING` and any explicit CA, without connecting. `./bin/agenteam-runner --check-config` validates D02 Runner settings. Both report `ready=false`; help/version need no configuration.
 - `npm ci --prefix web`: install locked frontend dependencies.
 - `npm run dev --prefix web`: serve development-only Debug at localhost:5173/debug.
 - `npm run check --prefix web`: formatting check, unit tests, type check, and production build.

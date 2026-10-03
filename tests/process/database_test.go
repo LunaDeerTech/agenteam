@@ -20,7 +20,7 @@ import (
 )
 
 func databaseEnvironment(db *pgfixture.Database, extras ...string) []string {
-	return append([]string{`AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_DATABASE_URL=" + db.Fixture.URL(db.Name), "AGENTEAM_CENTRAL_DATABASE_CA_FILE=" + db.Fixture.CAFile, "AGENTEAM_CENTRAL_DATABASE_STARTUP_TIMEOUT=15s", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=3s"}, extras...)
+	return append([]string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_DATABASE_URL=" + db.Fixture.URL(db.Name), "AGENTEAM_CENTRAL_DATABASE_CA_FILE=" + db.Fixture.CAFile, "AGENTEAM_CENTRAL_DATABASE_STARTUP_TIMEOUT=15s", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=3s"}, extras...)
 }
 func databaseContext(t *testing.T) context.Context {
 	t.Helper()
@@ -233,7 +233,7 @@ func waitDiagnosticState(t *testing.T, address, want string, timeout time.Durati
 		matched := 0
 		for _, capability := range d.Capabilities {
 			switch capability.Name {
-			case "postgresql", "pgvector", "migrations", "read_write", "audit_storage":
+			case "postgresql", "pgvector", "migrations", "read_write", "audit_storage", "secret":
 				if capability.Status == want {
 					matched++
 				}
@@ -247,7 +247,7 @@ func waitDiagnosticState(t *testing.T, address, want string, timeout time.Durati
 				}
 			}
 		}
-		if matched == 5 {
+		if matched == 6 {
 			if want == "available" && (d.Database == nil || !d.Database.ReadWrite || d.Database.ExtensionVersion != "0.8.1") {
 				t.Fatal("database evidence absent")
 			}

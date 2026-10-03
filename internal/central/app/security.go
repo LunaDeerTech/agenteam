@@ -5,6 +5,7 @@ import (
 	"errors"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"time"
 )
 
@@ -25,6 +26,29 @@ func initializeSecurity(ctx context.Context, cfg config.Config, db database) (*a
 		return nil, err
 	}
 	if err = service.CheckStorage(ctx); err != nil {
+		return nil, err
+	}
+	return service, nil
+}
+
+type maintenance interface {
+	RunMaintenance(context.Context) error
+	StopMaintenance()
+	Status() secret.Status
+}
+
+func initializeSecret(ctx context.Context, cfg config.Config, db database, auditing *audit.Service) (maintenance, error) {
+	store, ok := db.(secret.Store)
+	if !ok {
+		return nil, errors.New("SECRET_STORE_UNAVAILABLE")
+	}
+	// Session, system/Project and execution/binding adapters remain unbound.
+	// Restricted maintenance Audit is real; ordinary business ports deny use.
+	service, err := secret.New(store, cfg.SecretKeyring(), auditing, secret.Authorizations{})
+	if err != nil {
+		return nil, err
+	}
+	if err = service.Initialize(ctx); err != nil {
 		return nil, err
 	}
 	return service, nil

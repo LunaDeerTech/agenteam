@@ -12,13 +12,59 @@ import (
 // still owned and immediately disposed using the original (possibly expired)
 // cleanup context, never a newly reset timeout.
 type resources struct {
-	mu           sync.Mutex
-	db           database
-	listening    net.Listener
-	server       *http.Server
-	forced       context.Context
-	auditService *audit.Service
+	mu                sync.Mutex
+	db                database
+	listening         net.Listener
+	server            *http.Server
+	forced            context.Context
+	auditService      *audit.Service
+	secretService     maintenance
+	maintenanceDone   chan struct{}
+	maintenanceCancel context.CancelFunc
+	maintenanceErr    error
+	stopping          bool
 }
+
+func (o *resources) startMaintenance(ctx context.Context, service maintenance) bool {
+	if service == nil {
+		return true // Only package-local unit assembly can omit the worker.
+	}
+	o.mu.Lock()
+	if o.forced != nil || o.stopping {
+		o.mu.Unlock()
+		service.StopMaintenance()
+		return false
+	}
+	worker, cancel := context.WithCancel(context.WithoutCancel(ctx))
+	done := make(chan struct{})
+	o.secretService, o.maintenanceCancel, o.maintenanceDone = service, cancel, done
+	o.mu.Unlock()
+	go func() {
+		defer cancel()
+		err := service.RunMaintenance(worker)
+		o.mu.Lock()
+		o.maintenanceErr = err
+		o.mu.Unlock()
+		close(done)
+	}()
+	return true
+}
+func (o *resources) stopMaintenance() {
+	o.mu.Lock()
+	o.stopping = true
+	service := o.secretService
+	o.mu.Unlock()
+	if service != nil {
+		service.StopMaintenance()
+	}
+}
+func (o *resources) workerDone() <-chan struct{} {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	return o.maintenanceDone
+}
+func (o *resources) workerError() error  { o.mu.Lock(); defer o.mu.Unlock(); return o.maintenanceErr }
+func (o *resources) secret() maintenance { o.mu.Lock(); defer o.mu.Unlock(); return o.secretService }
 
 func (o *resources) setAudit(service *audit.Service) {
 	o.mu.Lock()
@@ -64,9 +110,11 @@ func (o *resources) closeHTTP() {
 	}
 }
 func cleanupResources(ctx context.Context, o *resources, cancelServing context.CancelFunc) {
+	o.stopMaintenance()
 	o.mu.Lock()
 	o.forced = ctx
 	store := o.db
+	cancelMaintenance := o.maintenanceCancel
 	o.mu.Unlock()
 	done := make(chan struct{})
 	go func() {
@@ -79,10 +127,19 @@ func cleanupResources(ctx context.Context, o *resources, cancelServing context.C
 	case <-done:
 	case <-ctx.Done():
 	}
+	if cancelMaintenance != nil {
+		cancelMaintenance()
+	}
 	if cancelServing != nil {
 		cancelServing()
 	}
 	o.closeHTTP()
+	if done := o.workerDone(); done != nil {
+		select {
+		case <-done:
+		case <-ctx.Done():
+		}
+	}
 }
 func joinWorkers(ctx context.Context, serve, http, db <-chan error, health <-chan struct{}) {
 	for serve != nil || http != nil || db != nil || health != nil {

@@ -14,6 +14,7 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 )
 
 const Prefix = "AGENTEAM_CENTRAL_"
@@ -28,6 +29,7 @@ type Config struct {
 	publicOrigin    string
 	database        postgres.Config
 	cursorKeys      cursor.Keyring
+	secretKeys      secret.Keyring
 }
 
 func (c Config) LogLevel() slog.Level           { return c.logLevel }
@@ -36,6 +38,7 @@ func (c Config) HTTPAddr() string               { return c.httpAddr }
 func (c Config) PublicOrigin() string           { return c.publicOrigin }
 func (c Config) Database() postgres.Config      { return c.database }
 func (c Config) CursorKeyring() cursor.Keyring  { return c.cursorKeys }
+func (c Config) SecretKeyring() secret.Keyring  { return c.secretKeys }
 
 // Error contains a declared field name and stable reason, never an input value.
 type Error struct {
@@ -64,7 +67,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 			continue
 		}
 		switch strings.TrimPrefix(key, Prefix) {
-		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "CURSOR_KEYRING":
+		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "CURSOR_KEYRING", "SECRET_KEYRING":
 		case "DATABASE_URL", "DATABASE_TLS_MODE", "DATABASE_CA_FILE", "DATABASE_MAX_CONNS", "DATABASE_CONNECT_TIMEOUT", "DATABASE_STARTUP_TIMEOUT", "DATABASE_LOCK_TIMEOUT":
 		default:
 			return Config{}, &Error{field: Prefix + "*", reason: "unsupported"}
@@ -121,6 +124,10 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 	if err != nil {
 		return Config{}, invalid("CURSOR_KEYRING")
 	}
+	c.secretKeys, err = secret.LoadKeyring(value("SECRET_KEYRING", ""), c.cursorKeys)
+	if err != nil {
+		return Config{}, invalid("SECRET_KEYRING")
+	}
 	return c, nil
 }
 
@@ -142,6 +149,9 @@ func (c Config) Validate() error {
 	}
 	if c.cursorKeys.Validate() != nil {
 		return invalid("CURSOR_KEYRING")
+	}
+	if c.secretKeys.Validate() != nil {
+		return invalid("SECRET_KEYRING")
 	}
 	return nil
 }

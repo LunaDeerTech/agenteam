@@ -18,7 +18,7 @@ import (
 )
 
 func loadValues(values map[string]string) (Config, error) {
-	copy := map[string]string{Prefix + "CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, Prefix + "DATABASE_URL": "postgresql://config_user:config-password@127.0.0.1:1/config_only", Prefix + "DATABASE_TLS_MODE": "disable"}
+	copy := map[string]string{Prefix + "SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, Prefix + "CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, Prefix + "DATABASE_URL": "postgresql://config_user:config-password@127.0.0.1:1/config_only", Prefix + "DATABASE_TLS_MODE": "disable"}
 	for key, value := range values {
 		copy[key] = value
 	}
@@ -160,6 +160,9 @@ func TestLoadNeverReadsIgnoredValues(t *testing.T) {
 	_, err := Load(func(key string) (string, bool) {
 		if !strings.HasPrefix(key, Prefix) {
 			t.Fatalf("read unrelated field %s", key)
+		}
+		if key == Prefix+"SECRET_KEYRING" {
+			return `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, true
 		}
 		if key == Prefix+"CURSOR_KEYRING" {
 			return `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, true

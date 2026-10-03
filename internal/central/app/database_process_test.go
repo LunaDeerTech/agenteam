@@ -18,6 +18,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
@@ -141,6 +142,14 @@ func TestDatabaseAppProcessFixture(t *testing.T) {
 			return result
 		}
 	}
+	if mode == "secret_startup_second_signal" {
+		deps.secret = func(ctx context.Context, cfg config.Config, db database, auditing *audit.Service) (maintenance, error) {
+			service, err := initializeSecret(ctx, cfg, db, auditing)
+			fmt.Fprintln(os.Stdout, `{"event":"secret_initialization_returned"}`)
+			<-release // Only the test executable delays the real failed initializer.
+			return service, err
+		}
+	}
 	err = run(context.Background(), cfg, logger, signals, deps)
 	signal.Stop(signals)
 	if err != nil {
@@ -155,7 +164,7 @@ func databaseTestContext(t *testing.T) context.Context {
 	t.Cleanup(cancel)
 	return ctx
 }
-func launchDatabaseApp(t *testing.T, db *pgfixture.Database, mode, timeout string) *fixtureProcess {
+func launchDatabaseApp(t *testing.T, db *pgfixture.Database, mode, timeout string, extras ...string) *fixtureProcess {
 	t.Helper()
 	executable, err := os.Executable()
 	if err != nil {
@@ -163,7 +172,20 @@ func launchDatabaseApp(t *testing.T, db *pgfixture.Database, mode, timeout strin
 	}
 	p := &fixtureProcess{cmd: exec.Command(executable, "-test.run=^TestDatabaseAppProcessFixture$", "-test.timeout=30s"), stdout: newEventLog(), stderr: newEventLog(), done: make(chan struct{})}
 	p.cmd.Dir = t.TempDir()
-	p.cmd.Env = []string{`AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "PATH=" + os.Getenv("PATH"), pgfixture.Env + "=" + os.Getenv(pgfixture.Env), "AGENTEAM_DATABASE_APP_FIXTURE=" + mode, "AGENTEAM_DATABASE_APP_DATABASE=" + db.Name, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=" + timeout, "AGENTEAM_CENTRAL_DATABASE_URL=" + db.Fixture.URL(db.Name), "AGENTEAM_CENTRAL_DATABASE_CA_FILE=" + db.Fixture.CAFile, "AGENTEAM_CENTRAL_DATABASE_STARTUP_TIMEOUT=20s"}
+	p.cmd.Env = []string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "PATH=" + os.Getenv("PATH"), pgfixture.Env + "=" + os.Getenv(pgfixture.Env), "AGENTEAM_DATABASE_APP_FIXTURE=" + mode, "AGENTEAM_DATABASE_APP_DATABASE=" + db.Name, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=" + timeout, "AGENTEAM_CENTRAL_DATABASE_URL=" + db.Fixture.URL(db.Name), "AGENTEAM_CENTRAL_DATABASE_CA_FILE=" + db.Fixture.CAFile, "AGENTEAM_CENTRAL_DATABASE_STARTUP_TIMEOUT=20s"}
+	for _, extra := range extras {
+		key, _, _ := strings.Cut(extra, "=")
+		replaced := false
+		for i, entry := range p.cmd.Env {
+			if strings.HasPrefix(entry, key+"=") {
+				p.cmd.Env[i] = extra
+				replaced = true
+			}
+		}
+		if !replaced {
+			p.cmd.Env = append(p.cmd.Env, extra)
+		}
+	}
 	p.cmd.Stdout = p.stdout
 	p.cmd.Stderr = p.stderr
 	p.stdin, err = p.cmd.StdinPipe()

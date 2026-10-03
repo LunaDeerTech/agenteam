@@ -200,7 +200,7 @@
 
 ## AT-0011：D04 Secret、出站访问与 Audit
 
-- 状态：B02实施中；唯一活动模块D04；[规格](../work-items/d04-security-foundation.md)修订1，基线main@9beaa7f。D03数据库基础与入口全验收，未绑定Secret/对象/身份/协议及业务。
+- 状态：B03待开工；唯一活动模块D04；[规格](../work-items/d04-security-foundation.md)修订1，基线main@9beaa7f。D03数据库基础与入口全验收，未绑定Secret/对象/身份/协议及业务。
 - architecture_worker独占新增实施规格，root维护主规格/台账/计划；先固定密钥环/恢复、动态出站与Audit数据接口和真实验收，再按完整结果实施、独立验证、提交推送。无用户待定或环境阻塞；当前不创建测试资源、不提前实现D05+。
 
 - S01实施规格修订2已获主线程确认。独立静态审查发现的Audit重放/HTTP隐式重试/故障状态及旧策略receipt问题已集中明确化；按Audit/cursor→Secret/轮换→动态出站顺序实施，尚无D04产品行为验收。设计基线先按授权提交推送，再开工B01，范围见主规格/实施规格。
@@ -222,3 +222,7 @@
 - B02持久化25核心文件已冻结并交V02b独立验证，manifest `e7c145a9f26217ba8f47fb6fb80e141a0fc060898c5d70e61b41fe3a83bd6ea7`；作者真实PG/race全TestSecret13.402s及SIGKILL/unknown证据见主卡。验证在33a61db稳定副本进行，核心禁写；作者仅继续入口及说明，Docker资源顺序交接。主线程核心生产/SQL初审尚无确定阻塞；B02仍未整体验收。
 
 - B02b持久化核心独立V02b通过：security真实race18.846s、contract race1.020s，新增并发重放/pending canary/cleanup unknown/双进程nonce探针通过，25指纹未变；主线程审查通过，按授权精确提交推送。nonce04a7bba599c7b9bf84ee35da74b04e6f资源清理，验证者停止；作者继续入口真实验证及说明，B02/D04未整体完成，授权依赖仍未绑定，详见主卡。
+
+- B02b实际交付：`6feda6b`已成功推送origin/main（33a61db→6feda6b）。持久化25核心文件继续冻结，作者正在验证Central入口/启动/信号与说明；本提交不包含活动入口，B02尚未整体验收。
+
+- B02完整验收通过：V02c定向race及真实app18.124s/process29.097s通过，新增真实worker损坏/不可用/恢复/移除旧key探针通过；52最终manifest `f7a8c2dbe80dd50c1fb3ec58a7b42e03736ca6e33d35ca7137878c72a64c8415`。作者完整Go/PG、V02a/V02b稳定证据复用，主线程审查通过；nonce12ebe47977ec1b6f6dd1668ff88e7865资源清理，全部作者/验证者停止。root按授权提交推送入口，B03待开工；D04未整体完成，未来授权仍未绑定。

@@ -28,6 +28,8 @@ func TestInformationAndRepairArgumentsDoNotReadUnselectedInputs(t *testing.T) {
 func TestCheckConfigAndUnsupportedCompiledRepair(t *testing.T) {
 	lookup := func(key string) (string, bool) {
 		switch key {
+		case config.Prefix + "SECRET_KEYRING":
+			return `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, true
 		case config.Prefix + "CURSOR_KEYRING":
 			return `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, true
 		case config.Prefix + "DATABASE_URL":

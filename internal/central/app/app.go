@@ -56,6 +56,7 @@ type dependencies struct {
 	migrate  func(context.Context, postgres.Config) postgres.MigrationState
 	health   healthTiming
 	security func(context.Context, config.Config, database) (*audit.Service, error)
+	secret   func(context.Context, config.Config, database, *audit.Service) (maintenance, error)
 }
 
 type startupResult struct {
@@ -99,6 +100,9 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	if deps.security == nil {
 		deps.security = initializeSecurity
 	}
+	if deps.secret == nil {
+		deps.secret = initializeSecret
+	}
 	startup, cancelStartup := context.WithCancel(control.StopContext())
 	defer cancelStartup()
 	initialized := make(chan startupResult, 1)
@@ -133,7 +137,7 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	healthDone := make(chan struct{})
 	go func() { defer close(healthDone); monitor.run(healthContext, owned.store(), logger) }()
 	if deps.handler == nil {
-		deps.handler = diagnosticRouter(monitor, true)
+		deps.handler = diagnosticRouter(monitor, true, owned.secret())
 	}
 	serving, cancelServing := context.WithCancel(context.WithoutCancel(ctx))
 	defer cancelServing()
@@ -153,17 +157,26 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 		logger.Listening(address.AddrPort())
 	}
 	logger.Transition(logging.DiagnosticServing)
+	maintenanceDone := owned.workerDone()
 	var serveFailure error
-	select {
-	case <-control.StopContext().Done():
-	case err := <-serveDone:
-		serveDone = nil
-		if !control.Stopping() || !errors.Is(err, http.ErrServerClosed) {
-			serveFailure = lifecycle.NewFailure(lifecycle.ServeFailed, err)
+	for !control.Stopping() {
+		select {
+		case <-control.StopContext().Done():
+		case <-maintenanceDone:
+			maintenanceDone = nil
+			if owned.workerError() != nil {
+				logger.Security(logging.SecretUnavailable)
+			}
+		case err := <-serveDone:
+			serveDone = nil
+			if !control.Stopping() || !errors.Is(err, http.ErrServerClosed) {
+				serveFailure = lifecycle.NewFailure(lifecycle.ServeFailed, err)
+			}
+			control.Stop()
 		}
-		control.Stop()
 	}
 	logger.Transition(logging.Stopping)
+	owned.stopMaintenance()
 	cancelHealth()
 	drain, cancelDrain := control.DrainContext()
 	defer cancelDrain()
@@ -172,7 +185,7 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	var databaseDone chan error
 	httpDrained, databaseDrained := false, false
 	for {
-		if httpDrained && databaseDone == nil && !databaseDrained {
+		if httpDrained && maintenanceDone == nil && databaseDone == nil && !databaseDrained {
 			databaseDone = make(chan error, 1)
 			go func() { store := owned.store(); store.StopAdmission(); databaseDone <- store.Drain(drain) }()
 		}
@@ -211,6 +224,8 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			}
 		case <-healthDone:
 			healthDone = nil
+		case <-maintenanceDone:
+			maintenanceDone = nil
 		case <-drain.Done():
 			code = lifecycle.ShutdownTimeout
 		case <-control.ForceDone():
@@ -286,6 +301,19 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
 	}
 	owned.setAudit(auditService)
+	logger.Security(logging.SecretInitializing)
+	secretService, err := deps.secret(ctx, cfg, store, auditService)
+	if err == nil {
+		err = ctx.Err()
+	}
+	if err != nil {
+		logger.Security(logging.SecurityFailed)
+		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
+	}
+	logger.Security(logging.SecretMaintaining)
+	if !owned.startMaintenance(ctx, secretService) {
+		return failed(context.Canceled)
+	}
 	logger.Security(logging.SecurityInitialized)
 	listener, err := deps.listen(ctx, "tcp", cfg.HTTPAddr())
 	if listener != nil {
@@ -303,6 +331,7 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 
 func stopStartup(logger processLogger, control *lifecycle.Controller, owned *resources, initialized <-chan startupResult) error {
 	logger.Transition(logging.Stopping)
+	owned.stopMaintenance()
 	drain, cancel := control.DrainContext()
 	defer cancel()
 	var drained chan error
@@ -311,6 +340,14 @@ func stopStartup(logger processLogger, control *lifecycle.Controller, owned *res
 			owned.closeHTTP()
 			drained = make(chan error, 1)
 			go func() {
+				if worker := owned.workerDone(); worker != nil {
+					select {
+					case <-worker:
+					case <-drain.Done():
+						drained <- drain.Err()
+						return
+					}
+				}
 				if store := owned.store(); store != nil {
 					store.StopAdmission()
 					drained <- store.Drain(drain)

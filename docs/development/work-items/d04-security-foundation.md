@@ -1,6 +1,6 @@
 # D04 Secret、出站访问与 Audit 基础
 
-- 修订：1；状态：B02实施中；唯一活动模块D04；基线 `main@9beaa7f`，已推送origin/main，开工工作区干净。
+- 修订：1；状态：B03待开工；唯一活动模块D04；基线 `main@9beaa7f`，已推送origin/main，开工工作区干净。
 - 前置：[D03](d03-postgresql-foundation.md) B01/B02真实数据库及进程独立验收完成；[D01契约](d01-contracts/README.md)已固定。
 - 目标：按[计划D04](../development-plan.md#d04-secret-出站与-audit)依次完成Secret envelope encryption/版本化环境密钥环/可恢复数据密钥重保护、数据库权威动态出站策略与受控HTTP、append-oriented Audit写入及分页查询基础。
 
@@ -10,9 +10,9 @@
 | --- | --- | --- | --- | --- |
 | S01 实施规格 | D03完成 | architecture_worker | 新增 `d04-security-design.md`；现有代码/根规格只读 | 已确认 |
 | B01 Audit/签名cursor与正式授权端口 | S01确认 | backend_worker | 实施规格§1与本卡补充范围 | 已验收 |
-| B02 Secret与密钥轮换 | B01及S01确认 | backend_worker | 实施规格§1/5/6及本卡补充范围 | 进行中 |
+| B02 Secret与密钥轮换 | B01及S01确认 | backend_worker | 实施规格§1/5/6及本卡补充范围 | 已验收 |
 | B03 动态出站与入口整合 | 前置已验收小块 | backend_worker | 具体策略/受控网络/入口与完整验收范围由S01固定 | 待开始 |
-| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 只读实现，独立临时探针与隔离资源 | 待开始 |
+| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 只读实现，独立临时探针与隔离资源 | V01/V02已通过；V03待开始 |
 
 任务拆分可由S01按完整结果的真实依赖调整，不机械分函数；安全日志/Audit写入需要避免以stub解决循环。root独占本规格、台账和开发计划；作者/验证者只在冻结的明确范围交接。遵守AGENTS、团队流程和对应design/go-development/verification技能，子agent不得再委派或Git写操作。
 
@@ -132,3 +132,23 @@ V02b独立验证通过，无阻塞。临时副本 `/tmp/agenteam-d04-v02b-sqja0a
 冻结原有nonce unknown/SIGKILL、epoch fence、100条CAS/完整退休反查、lease当前值及Audit失败/unknown拒交材料、权限/清理用例亦独立通过；新增contract类型race1.020s。首次直接integration因缺fixture被门禁拒绝，专用脚本随后通过，不把缺fixture当成功。纯加密6文件未变复用V02a。最终25 manifest仍为 `e7c145a9f26217ba8f47fb6fb80e141a0fc060898c5d70e61b41fe3a83bd6ea7`，格式通过，nonce04a7bba599c7b9bf84ee35da74b04e6f的两个容器/网络/临时目录独立确认清理。验证者全部命令结束并停读；作者核心停写，Docker已交还作者完成入口真实验证。
 
 主线程已读全部核心生产/SQL及关键故障测试，最终逐文件指纹一致；3份进度文档104链接/格式检查通过。B02b作为独立存储库小块精确提交推送，不含仍在修改的config/app/logging/cmd/process/操作说明。当前Central尚未由本小块装配Secret；System/Session/Project/Usage真实授权仍待D07/D08/D09/D20/D22绑定，无业务HTTP或生产权限stub。B02入口与D04整体仍未完成，继续当前模块。
+
+- B02b实际交付：`6feda6b`已成功推送origin/main（33a61db→6feda6b）。持久化25核心文件继续冻结，作者正在验证Central入口/启动/信号与说明；本提交不包含活动入口，B02尚未整体验收。
+
+
+## V02c 入口冻结与整合验收
+
+作者全部B02范围停止写入及命令，入口27文件manifest `/tmp/agenteam-d04-b02-entry.sha256` SHA-256 `e6442c799793f3ddb96ff94f423d4c20d821d66b14c4ac9c86a85ca91f1d1234`；含核心52文件 `/tmp/agenteam-d04-b02-all.sha256` SHA-256 `f7a8c2dbe80dd50c1fb3ec58a7b42e03736ca6e33d35ca7137878c72a64c8415`。作者精确Go1.27.1/local完整check-go exit0（普通test、普通/integration vet、race、两个bin），日志 `/tmp/agenteam-d04-b02-check-go.log`；完整test-postgres exit0：postgres1.053s/database30.019s/app33.845s/process42.895s/security27.716s，日志 `/tmp/agenteam-d04-b02-postgres-full.log`，固定PG17.8/vector0.8.1及PG16.12拒绝fixture。最终nonced3b2e3bc92f9709bc20b772ca479d5a2报告清理。
+
+局部入口真实PG app20.752s/process9.381s，日志 `/tmp/agenteam-d04-b02-entry-pg.log`：canary/缺旧key在HTTP bind前拒绝、1→2及最终退休移除旧key重启、registry advisory等待处SIGINT/SIGTERM取消和owned backend退出，真实SQL rewrap+HTTP在途drain/deadline/second-force与startup第二信号共用预算。未改scripts/check-go/test-postgres/fixturehelper、运行依赖或核心。
+
+V02c已接管入口独立验证与Docker资源，基线6feda6b，复用V02a/V02b核心不变证据。主线程已读入口生产、配置、生命周期、诊断及操作说明，52文件指纹一致，8文档138链接/格式通过；尚无确定新阻塞。B02仍等待独立入口结论，B03未开工。
+
+
+## B02 完成与交接
+
+V02c独立入口/整合通过，无阻塞。定向race app4.184s/config1.029s/cmd1.024s；新增探针确认Audit/Secret同一30s deadline，bind失败停止并join已启动worker。实际 `AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/test-postgres.sh -run '^Test(RealSecret|CentralSecret|ReviewCentralSecret|CentralRealHealthTimeoutAndRecovery$|CentralCheckAndCompiledRepairNeverConnect$|CLIScopeAndSafeFailures$)'`，app18.124s/process29.097s、exit0，日志 `/tmp/agenteam-d04-v02c-independent.log`。真实首停HTTP/SQL drain、timeout/第二信号共用额外1s、启动取消、坏canary/缺key拒绝、诊断及DB健康恢复通过；新增真实Central探针在启动抽样之外的payload损坏时确认worker failed/diagnostics及ready unavailable/旧key不退休，修复仅owned fixture损坏字节后实际重启恢复，再移除旧key重启通过。
+
+独立5份Markdown34链接/4fragment检查通过，主线程8文档138链接/格式通过；27入口、52全批、25核心最终指纹均保持原值。nonce12ebe47977ec1b6f6dd1668ff88e7865两个容器/网络/临时目录确认清理，验证者全部命令结束停读，作者全部停写。主线程已读入口生产/核心/SQL/关键测试和说明，结合V02a/V02b与作者完整回归，确认B02本范围完成，按授权提交推送入口小块。
+
+Central现强制独立Secret keyring，在30s安全阶段真实校验registry/canary/required DEK与epoch后启动维护worker，再监听HTTP；诊断状态真实，完整产品仍ready=false。Session/System/Project/Usage真实授权及Model/MCP/执行binding仍由D07/D08/D09/D20/D22后续绑定，无匿名业务HTTP或生产stub。D04整体未完成，下一步B03动态出站策略/受控HTTP及完整D04验收，无用户待定或环境阻塞。
