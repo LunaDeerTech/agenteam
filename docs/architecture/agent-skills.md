@@ -1,6 +1,6 @@
 # Agent Skills 架构
 
-> 相关：[Agent Management](agent-management.md)、[Object Storage](platform-infrastructure/object-storage.md)、[Execution Context](agent-executor/execution-context.md)、[Runner Workspace](runner/agent-workspace.md)、[Data Channel](runner/data-channel.md)。本文承载已确认业务规则；具体 schema、工具名、路径、参数与库版本仍须 D01 及责任模块规格落实，尚未实现或验收。
+> 相关：[Agent Management](agent-management.md)、[Object Storage](platform-infrastructure/object-storage.md)、[Execution Context](agent-executor/execution-context.md)、[Runner Workspace](runner/agent-workspace.md)、[Data Channel](runner/data-channel.md)。本文承载已确认业务规则；具体类型、绑定序列与服务接口见 [D01 契约基线](../development/work-items/d01-contracts/README.md)，已通过静态契约验收；工具 schema、路径、参数与库版本由责任模块规格落实，不代表已实现或验收。
 
 ## 1. 职责与作用域
 
@@ -64,6 +64,8 @@ Add Skills 与 install-skill 按技能引用、allowed tools 分别管理；保�
 
 后台勾选与工具复用同一分配服务，验证目标 Agent/Skill 所属 Project、资源状态、Agent 配置版本、幂等与并发冲突，遵守归档/删除门禁。查询和写入均验证当前工具与 Execution Policy 权限，不能仅凭请求参数打开全库。分配不能顺带修改模型、Tool、Mount、Secret 或审批授权；添加/移除的精确命令在规格固定。
 
+Agent 配置保存稳定 Skill 引用，不把项目库当前 revision 永久固定在配置中。新 Execution 在 preparing 时解析当前合法分配与 Skill 当前 revision，形成该 Execution 的初始固定绑定；运行中新增绑定同样固定其形成时的对应 revision。
+
 ## 5. Central 按需读取
 
 Agent Loop 和模型上下文在 Central，技能说明通过 Skill Domain 与 ObjectStorageService 读取，无需 Runner 在线。Execution 初始目录由 Agent 合法分配解析，固定技能 ID/revision、名称、简介和入口引用；模型只获得摘要与读取方法，不预装全部正文。
@@ -78,7 +80,7 @@ Agent Loop 和模型上下文在 Central，技能说明通过 Skill Domain 与 O
 
 1. UI / assign-skill 经同一分配事务和正式执行端口可靠提交新增绑定，记录变更身份、目标、分配版本与固定 Skill revision。具体字段、事务/锁和启动竞争由 D01/D10/D22 明确，不能依靠易丢失或可能延迟的内存通知。
 2. 下一次 Model Request 的输入确定点应用此前已提交、尚未应用且仍有效的分配。确定点后提交的变更进入再下一轮；当前已发出的模型请求和 Tool Batch 不被改写，同批工具不会因完成先后获得不同新增集合。
-3. 应用前再次经正式端口确认分配未移除，防止延迟新增通知恢复已撤销授权。重复或乱序投递按版本/幂等契约处理，提交后响应丢失不能重复追加或漏绑定。
+3. 应用前再次经正式端口确认同一 assignment identity 的分配仍有效，防止延迟新增通知恢复已撤销授权。重复或乱序投递按版本/幂等契约处理，提交后响应丢失不能重复追加或漏绑定。
 4. Executor 生成正式 typed control input 并记录必要 Transcript 事实，下一轮显示新增技能名称/简介，正文仍按需读取。Checkpoint 保存绑定状态和变更位置，恢复与 Compaction 后可重建有效目录，不能只依赖一条可能被摘要遗漏的提示。
 5. 读取说明、素材和 Runner 准备均使用新增绑定的同一固定 revision。已有绑定不随库更新或恢复过程静默替换为最新版本。
 
@@ -110,9 +112,11 @@ Tool Result 只返回 Mount identity、Skill revision、工作区相对路径和
 
 ## 8. 更新、移除与清理
 
-同名安装默认冲突，只有显式更新且校验稳定目标与预期版本后才发布新 revision；不能仅凭包内名称覆盖已有技能。UI 与安装工具共用该规则和业务幂等语义，响应丢失重试不重复发布，更新失败保留原版本。已运行 Execution 保留固定旧 revision；Add Skills 的受保护身份不能被普通同名安装绕过，其版本维护由规格落实。
+同名安装默认冲突，只有显式更新且校验稳定目标与预期版本后才发布新 revision；不能仅凭包内名称覆盖已有技能。UI 与安装工具共用该规则和业务幂等语义，响应丢失重试不重复发布，更新失败保留原版本。已运行 Execution 保留固定旧 revision，库升级本身不撤销旧绑定的读取/准备授权，后续调用仍检查当前分配、资源与权限。Add Skills 的受保护身份不能被普通同名安装绕过，其版本维护由规格落实。
 
 移除/禁用只更新正式配置，不因此停止 Execution 或已开始的脚本，不改写历史 Snapshot/Transcript，不增加专用撤回通知或强制上下文清理。已读内容和落地文件不主动收回；后续读取/准备继续校验当前资源与权限，失效时返回正常 ToolError，由 Agent 处理，不保证旧权限持续到执行结束，也不因一次普通工具错误直接终止 Execution。
+
+移除后重分配同一 Skill 使用新的 assignment identity，不能仅凭 Skill ID 恢复旧分配授权；在下一轮输入确定点按新分配形成每个 Skill 唯一的当前有效绑定。旧轮次及其绑定继续保留为历史事实，不回写历史 Snapshot/Transcript；具体序列、幂等与竞争接口由 D01 契约基线承载。
 
 包版本、运行绑定及对象引用须持久化保护；新版本发布不覆盖活动旧版本。项目库技能删除、历史 payload 与缓存保留的精确矩阵仍须 D01/D10/D22 明确，不能把移除分配等同于包对象删除。缓存清理只处理已验证归属且没有活动使用的版本，不递归删除用户文件或共享挂载。
 
