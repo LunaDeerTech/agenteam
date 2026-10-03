@@ -14,7 +14,7 @@
 | B02 | Secret envelope、引用/lease、nonce 预留、启动验证、可恢复重保护与停机 | `internal/central/secret/`（含 `contract/`）；`db/migrations/00003_secret.sql`；`tests/security/secret_*` | 同下；消费 B01 真实 Audit |
 | B03 | DB 策略保存、即时发出门禁、受控 HTTP/安全拨号、真实网络 fixture、最终装配 | `internal/central/outbound/`；`db/migrations/00004_outbound.sql`；`tests/security/outbound_*`；`tests/testsupport/outbound/`；`scripts/test-security.sh` | 同下；消费 B01 Audit、B02 凭据边界 |
 
-共享写入按 B01→B02→B03 串行移交：`internal/central/config/`、`internal/central/app/`、`internal/platform/logging/` 中安全阶段的中立枚举/方法及测试、`tests/process/` 中 Central 配置/进程测试、`tests/testsupport/postgres/cmd/fixture/main.go` 的测试包选择、`docs/development/backend/README.md`、`AGENTS.md` 的已实现配置/命令说明。`db/migrations/embed.go` 仅在实际清单要求时修改；既有 `00001` 不回写。root 独占主卡/台账/计划；若需其他范围，先向 root 报具体原因。
+共享写入按 B01→B02→B03 串行移交：`internal/central/config/`、`internal/central/app/`、`cmd/agenteam/{main,main_test}.go` 的当前模块CLI配置适配、`internal/platform/logging/` 中安全阶段的中立枚举/方法及测试、`tests/process/` 中 Central 配置/进程测试、`tests/testsupport/postgres/cmd/fixture/main.go` 的测试包选择、`docs/development/backend/README.md`、`AGENTS.md` 的已实现配置/命令说明。`db/migrations/embed.go` 仅在实际清单要求时修改；既有 `00001` 不回写。root 独占主卡/台账/计划；若需其他范围，先向 root 报具体原因。
 
 所有 SQL migration 使用 D03 的事务标记与 Goose Up，追加同一序列；当前无非事务 SQL。不创建 User/Session/Project/Provider/Execution/Outbox/业务变量表，不添加后续模块 HTTP 路由。Runner 不 import Central；中立 logging 不接受 Secret/Actor/策略领域对象。
 

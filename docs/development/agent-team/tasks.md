@@ -200,7 +200,11 @@
 
 ## AT-0011：D04 Secret、出站访问与 Audit
 
-- 状态：S01已确认，B01待开工；唯一活动模块D04；[规格](../work-items/d04-security-foundation.md)修订1，基线main@9beaa7f。D03数据库基础与入口全验收，未绑定Secret/对象/身份/协议及业务。
+- 状态：B01实施中；唯一活动模块D04；[规格](../work-items/d04-security-foundation.md)修订1，基线main@9beaa7f。D03数据库基础与入口全验收，未绑定Secret/对象/身份/协议及业务。
 - architecture_worker独占新增实施规格，root维护主规格/台账/计划；先固定密钥环/恢复、动态出站与Audit数据接口和真实验收，再按完整结果实施、独立验证、提交推送。无用户待定或环境阻塞；当前不创建测试资源、不提前实现D05+。
 
 - S01实施规格修订2已获主线程确认。独立静态审查发现的Audit重放/HTTP隐式重试/故障状态及旧策略receipt问题已集中明确化；按Audit/cursor→Secret/轮换→动态出站顺序实施，尚无D04产品行为验收。设计基线先按授权提交推送，再开工B01，范围见主规格/实施规格。
+
+- S01实际交付：`e34dfaf`已推送origin/main，修订2 SHA `869f1fd0179dea0ecf2fe2099a47088af17e3fc90cd6514de121e171d1d55b98`；4文档117链接/格式通过。B01已开工，作者独占Audit/cursor/最小identity contract、00002与必要配置诊断测试，范围增补见主卡；root维护规格/台账/计划，D03生产库保持冻结。
+
+- B01a identity/cursor子范围通过独立V01a。6文件最终manifest `18234b86451a5f843643cc25cbf0486bbe21232b4e40e26021bf6778e4d77bdc`，generation字符串契约修正已以原失败probe/独立MAC/race闭环；其余权限类型/篡改/敏感输出检查通过。root精确提交此小块及规格记录，Audit活动范围不纳入；B01/D04仍实施中，D07/D08授权仍未绑定。
