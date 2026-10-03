@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact
 
-- 修订：1；状态：S01规格中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
+- 修订：1；状态：B01实施中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
 - 前置：[D04](d04-security-foundation.md)全部独立验收和真实完整suite通过，入口本地提交abf5c37；GitHub认证失效，ee8ddb7起5个本地提交待恢复后补推，不冒称远端同步。
 - 目标：按[计划D05](../development-plan.md#d05-对象存储与-artifact)实现StoredObject/引用与lease、流式MinIO读写、跨DB/对象存储的一致性和恢复、Artifact服务、受控预览/下载及短期传输授权。
 
@@ -8,9 +8,9 @@
 
 | 卡 | 依赖 | 角色 | 独占范围 | 状态 |
 | --- | --- | --- | --- | --- |
-| S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订1冻结，独立静态审查中 |
+| S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订2独立静态通过，root采纳 |
 | R01 依赖与隔离环境核验 | D04完成 | research_worker | 有界探针及新增d05-object-storage-research.md报告，不写实现源码 | R01/R02修订2完成并停写 |
-| B01–B03 实现分块 | S01确认 | backend_worker | 规格确认后另列完整结果/迁移/共享文件所有权 | 未开始 |
+| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01实施中，B02/B03未开始 |
 | V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | 未开始 |
 
 root独占本卡、开发计划和任务台账；架构作者仅新建实施规格。角色遵循AGENTS与agenteam-design/go-development/verification/documentation技能，禁止子agent再委派和Git写操作。常态至多两个活动子任务，Docker和测试资源顺序明确移交。设计稳定且root确认后才写实现，不提前D06+。
@@ -87,3 +87,15 @@ R02真实补证exit0：旧条件PUT写140000/280000字节暂停时，无条件ze
 
 
 R01/R02最终研究修订2冻结SHA `b4a0462d255910443cbed31abbaeee6d17c133b74a2d997357e37d938242f038`；root核对完整报告、R02日志/探针指纹及原始协议结果，2文档8链接检查通过。S01实施规格修订1冻结SHA `afca3f1002dd3aecb31f7fa8cb580aa8b58d7c1a09d388d0c647e62d21dc7c02`，17链接/格式通过；作者停止写入，V01独立静态审查开始。尚未确认实施规格或修改生产代码，Docker当前空闲。
+
+
+S01修订1独立静态审查暂不通过，4项规格澄清：prospective owner上传reservation在available但未Attach时的消费/显式撤销闭环；source型completed重放不依赖旧源仍存在而须当前目标结果可见与输入同义；Stat明确metadata-only而非reader lease；全文SHA流末尾失败采用有界末段holdback并区分已发送阶段。root全部采纳，验证者停读后仅解冻设计给原作者修订2；另补既有30s启动/共享额外1s force与健康陈旧规则。输入25项manifest SHA `e83d9513b09b6e7a69bd9e78b938216ddca539f7c6a59c1a57c324297ca3eb9a`，未运行产品/容器测试、无仓库实现改动。研究/进展本地提交08accd3，认证恢复后共7提交待推。
+
+
+## B01 开工与验收基线
+
+S01修订2独立静态门槛通过，4项问题全部闭环，root复核采纳。设计SHA `4b3241bb37246386ad56bd5f613b2c63aaae673e7d2fea2afd7f806793e65a30`，25输入manifest SHA `3a1ffc916c1a81cbfd5f4c9e36fd029e52b552e710daa426049d43bb49bc3f65`，其余24输入未变。只做静态规格验证，无产品测试；不能以此声称D05实现完成。
+
+backend_worker独占B01：新增internal/central/object/及contract、00005_object_storage.sql、tests/objects对象场景、tests/testsupport/objectstore、scripts/test-objects.sh；依规格§1最小扩展identity/Audit/foundation/HTTP问题schema及相关测试；go.mod/go.sum仅固定已核验SDK及必要MVS依赖，记录旧依赖变化。可同步后端README的B01实际能力/命令；不提前实现Artifact、浏览器下载、Runner transfer或Central必填MinIO配置（B02/B03）。其他D03/D04生产代码冻结，新增共享改动先报告root授予所有权。root独占本卡/计划/台账，设计与研究保持验收冻结。
+
+作者负责完整B01自测与真实owned PG/MinIO异常、并发、COMMIT unknown、reference/lease、reservation撤销、marker恢复及流式完整性证据；Docker现交B01作者独占。缓存可按研究指纹复用，凭据新生成且清理资源；无现有基础设施访问。先形成可独立验证的稳定子范围后停写该范围并交V01，独立审查期间不改审查输入。整体B01通过之前不进入B02。具体接口/边界/验收以实施规格修订2为准，不复制另一套规则。

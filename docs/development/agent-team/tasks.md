@@ -256,8 +256,10 @@
 
 ## AT-0012：D05 对象存储与 Artifact
 
-- 状态：S01规格中；唯一活动模块D05；[主卡](../work-items/d05-object-storage-artifact.md)修订1，基线main@abf5c37。D04全范围与真实最终整组已独立验收，所有作者/验证者停止，资源全清后开工。
+- 状态：B01实施中；唯一活动模块D05；[主卡](../work-items/d05-object-storage-artifact.md)修订1，基线main@abf5c37。D04全范围与真实最终整组已独立验收，所有作者/验证者停止，资源全清后开工。
 - architecture_worker独占新增实施规格，root独占主卡/计划/台账；R01仅有界MinIO SDK/镜像/环境探针，不写仓库实现。按D01正式对象/引用/transfer边界落实表/状态/授权/stream/一致性/恢复/Artifact服务，S01确认后实施。未来身份/Project/Runner/Tool适配仍未绑定，禁止生产stub或匿名业务API。
 - Go1.27.1/local与owned PG固定环境继续复用；MinIO版本/真实fixture待核验，无产品待定；推送认证阻塞不冒称已远端同步。下一步完成设计及依赖核验。
 
 - R01/R02真实MinIO单PUT/签名/完整性及零marker补证完成，研究修订2冻结；S01修订1停写并交独立静态审查。报告/规格指纹、资源清理和实际限制见主卡。root尚未批准实施，生产代码未改；推送认证仍待恢复。
+
+- S01修订2通过独立复验、root采纳，四项规格问题全部闭环；设计SHA4b3241bb37246386ad56bd5f613b2c63aaae673e7d2fea2afd7f806793e65a30，输入manifest3a1ffc916c1a81cbfd5f4c9e36fd029e52b552e710daa426049d43bb49bc3f65。B01对象可靠存储开工，独占文件/依赖/Docker与冻结边界见主卡；B02/B03未开始，产品未验收。
