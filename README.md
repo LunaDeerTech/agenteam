@@ -9,7 +9,20 @@ agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期�
 - 存储：PostgreSQL / pgvector + MinIO。
 - 部署：前端资源嵌入 Central 二进制，Docker Compose 管理 Central 与基础设施。
 
-当前仓库已包含可运行的 Vue 前端基础、公共组件和开发环境 Debug 展示；后端仍为目录骨架。
+当前仓库已包含可运行的 Vue 前端基础、公共组件和开发环境 Debug 展示，以及 Go 工程基础、Central 诊断入口和 Runner 独立进程。Central 只提供诊断，Runner 保持未连接、未认证；完整产品尚未就绪。
+
+## 后端开发
+
+使用 Go 1.27.1；脚本核对精确版本并禁止自动切换工具链。
+
+```sh
+AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/check-go.sh
+AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/build-go.sh
+./bin/agenteam --check-config
+./bin/agenteam
+```
+
+Central 默认监听 `127.0.0.1:8080`，`/livez` 仅报告进程存活，`/readyz` 始终返回 503；`/diagnostics` 列出尚未绑定的能力。`./bin/agenteam-runner` 运行未连接的 Runner，接到 SIGINT/SIGTERM 后退出。配置、日志、停机边界与隔离测试见[后端开发说明](docs/development/backend/README.md)。
 
 ## 前端开发
 

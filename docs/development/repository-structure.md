@@ -2,9 +2,9 @@
 
 agenteam 使用一个仓库维护 Central、Runner、前端及配套文档。目录以稳定的程序边界和职责划分，业务模块内部结构在实际实现时逐步增加。
 
-技术与部署边界以[系统架构](../architecture/README.md)为准。共同的 ID、时间、错误、分页、版本、幂等、事务与生命周期方向见[基础契约约定](../architecture/platform-infrastructure/foundation-contracts.md)，具体端口与依赖矩阵仍须在 D01 固定。
+技术与部署边界以[系统架构](../architecture/README.md)为准。共同的 ID、时间、错误、分页、版本、幂等、事务与生命周期方向见[基础契约约定](../architecture/platform-infrastructure/foundation-contracts.md)，具体端口与依赖矩阵已在 [D01](work-items/d01-contracts/README.md) 固定；后续模块逐项实现与绑定。
 
-## 目录骨架
+## 目录结构
 
 ```text
 agenteam/
@@ -14,7 +14,10 @@ agenteam/
 ├── internal/
 │   ├── central/
 │   ├── runner/
+│   ├── platform/
 │   └── runnerprotocol/
+├── api/
+│   └── openapi/
 ├── web/
 │   └── src/
 ├── db/
@@ -23,6 +26,7 @@ agenteam/
 ├── scripts/
 ├── tests/
 ├── docs/
+├── go.mod
 ├── README.md
 └── .gitignore
 ```
@@ -36,6 +40,8 @@ agenteam/
 | `internal/central/` | Central 的项目业务、调度、Agent 执行、API 与平台能力，作为一个整体后端运行。 |
 | `internal/runner/` | Runner 的连接管理与文件、命令、进程、桌面等远程执行能力。 |
 | `internal/runnerprotocol/` | Central 与 Runner 共享的通信契约，不承载 Central 业务实现。 |
+| `internal/platform/` | 无业务依赖的日志与生命周期工具，供两个独立组合根使用。 |
+| `api/openapi/` | 当前包含已实现的公共标量、Problem 与分页 schema；业务 API 片段随模块加入。 |
 | `web/src/` | Vue 前端源码；公共组件、应用骨架、主题与开发环境 Debug 已实现。 |
 | `db/migrations/` | Central 由 Goose 管理的全局 SQL 迁移序列，不按业务模块建立独立迁移器，不由 ORM 自动修改生产结构。 |
 | `deploy/` | 部署配置与相关示例，后续承载 Docker Compose 等部署文件。 |
@@ -45,14 +51,14 @@ agenteam/
 
 ## 依赖与演进约定
 
-- Central 与 Runner 后续共用根目录的一个 Go module；前端在 `web/` 独立管理依赖。
+- Central 与 Runner 共用根目录 Go module，固定 Go 1.27.1，目前仅依赖标准库；前端在 `web/` 独立管理依赖。
 - Runner 不依赖 Central 业务包，也不拥有 Task、Meeting 等项目业务模型。
 - 共享通信契约放在 `internal/runnerprotocol/`，两端各自的实现留在各自目录。
-- Central 跨模块端口按稳定职责建立独立契约包，由调用方和实现方共同依赖；不包含业务实现、不循环引用，不建立万能 `contracts/shared` 包或大量无必要的空包。实际包路径由 D01 依赖矩阵明确后按需增加。
+- Central 跨模块端口按稳定职责建立独立契约包，由调用方和实现方共同依赖；不包含业务实现、不循环引用，不建立万能 `contracts/shared` 包或大量无必要的空包。实际包路径按照 D01 依赖矩阵随消费模块按需增加。
 - 各模块只经正式端口访问对方事实，不直接改对方表。需要原子性的跨模块端口显式接收统一事务上下文，业务契约不依赖 pgx 等驱动类型。
 - HTTP 采用 `net/http` + `ServeMux`，handler 与 HTTP DTO 转换按模块组织；数据库采用 pgx + 显式 SQL。版本与适配方式仍需正式工程核验，不将选型方向当作已有后端实现。
 - 开始实现某项能力时，再增加相应模块和内部目录，避免提前固定尚未验证的包结构。
 - 空目录使用 `.gitkeep` 保存到 Git；目录有实际文件后可移除占位文件。
 - 本地敏感配置不入库，示例配置可以入库。根目录的 `secrets/` 被忽略，同名源码目录不受该规则影响。
 
-前端已建立独立依赖清单、Vue 入口、路由骨架和组件库，见[前端开发说明](frontend/README.md)。后端、部署、API、协议类型和数据库实现仍待后续开发。
+前端已建立独立依赖清单、Vue 入口、路由骨架和组件库，见[前端开发说明](frontend/README.md)。后端已有基础类型、HTTP 边界、环境配置、两个独立入口和停机验证，见[后端开发说明](backend/README.md)。Central 当前只提供非 ready 的诊断，Runner 未连接且未认证；协议、数据库、对象存储和业务模块仍待后续实现，部署目录中的环境示例也只覆盖 D02。

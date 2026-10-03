@@ -10,7 +10,7 @@ AT-0005 已逐项确认审计方向；正式文档归位和验收见[同步任�
 
 规划日期：2026-10-03。计划制定时核对基线为 `fe5b833`，环境检出分支为 `work`、工作区干净；D00 已由主线程建立 `main`，后续工作沿用该分支，当前提交与进度以任务台账和 Git 为准。恢复开发时核对真实分支与基线，由主线程处理环境差异，不让子 agent 自行切换分支或创建 worktree。
 
-已存在的成果：Vue 3、TypeScript、Vite、路由与应用壳、公共组件、主题、开发专用 Debug 展示，以及主线程统筹的开发团队和项目技能。后端、Runner、迁移、部署与集成测试目录仍是骨架；没有根 Go module 和正式业务 API。已有前端成果应复用，不把 Debug 演示状态当成业务实现。
+已存在的成果：Vue 3、TypeScript、Vite、路由与应用壳、公共组件、主题、开发专用 Debug 展示，以及主线程统筹的开发团队和项目技能。后端已完成 D02 B01 的根 Go module、基础标量、HTTP 边界和公共 schema；Central/Runner 独立入口、配置与生命周期也已完成 D02 验收；迁移与正式业务 API 尚未实现。已有前端成果应复用，不把 Debug 演示状态当成业务实现。
 
 范围覆盖现有架构文档规定的第一阶段：单 Central、多 Runner、PostgreSQL/pgvector、MinIO、账号与项目、工作管理、模型、Agent、Knowledge/Memory、统一工具、治理、MCP、执行、调度、会议、实时与 Inbox，以及正式前端和部署。Dashboard 仅保留设计规定的容器；全局搜索业务范围未定，不纳入已确定功能验收。首版不新增 Redis、多 Central、微服务、公开注册、项目成员矩阵、跨项目检索或 Runner OS sandbox。
 
@@ -460,6 +460,6 @@ E01 完成还要求平台任务、Agent 协作、Execution、审核、代码与�
 
 ## 当前启动点
 
-计划制定时 D00–D28 尚未执行，规划阅读不等于 D00 完整审计。当前 D00 已按 [规格](work-items/d00-baseline-audit.md)完成审计、独立验收与主线程审查，交付和验证边界见 [审计报告](work-items/d00-baseline-audit-report.md)及 [任务台账 AT-0004](agent-team/tasks.md#at-0004d00-设计与实现基线核对)。AT-0005 已完成 P01–P25、C01–C08 的决定归位、独立文档验收及开发门槛同步；讨论中的历史待定状态不再作为重问依据。D01 已按[规格](work-items/d01-cross-module-contracts.md)完成[跨模块契约](work-items/d01-contracts/README.md)、W01–W43 接口走查与独立验收；全部生产端口仍未实现。首个未完成项为 **D02 工程与程序生命周期**，从可构建的 Go 基础、配置、HTTP 与进程生命周期开始，不提前实现业务模块。
+计划制定时 D00–D28 尚未执行，规划阅读不等于 D00 完整审计。当前 D00 已按 [规格](work-items/d00-baseline-audit.md)完成审计、独立验收与主线程审查，交付和验证边界见 [审计报告](work-items/d00-baseline-audit-report.md)及 [任务台账 AT-0004](agent-team/tasks.md#at-0004d00-设计与实现基线核对)。AT-0005 已完成 P01–P25、C01–C08 的决定归位、独立文档验收及开发门槛同步；讨论中的历史待定状态不再作为重问依据。D01 已按[规格](work-items/d01-cross-module-contracts.md)完成[跨模块契约](work-items/d01-contracts/README.md)、W01–W43 接口走查与独立验收；全部生产端口仍未实现。D02 已按[规格](work-items/d02-engineering-foundation.md)完成 B01 基础与 HTTP、B02 配置/入口/生命周期，实现及真实进程独立验收通过。首个未完成项为 **D03 PostgreSQL 与迁移基础**，先设计并建立隔离真实数据库验证环境，不提前实现业务模块。
 
-E01 当前为待开始，仅完成最终目标与验收规则的持久记录。D01 已完成静态契约验收，下一模块 D02；新增 E01 不构成游戏开工、版本选择、清单冻结或任何产品能力已通过验收的证据。
+E01 当前为待开始，仅完成最终目标与验收规则的持久记录。D01 已完成静态契约验收，D02 已完整验收，下一模块 D03；新增 E01 不构成游戏开工、版本选择、清单冻结或任何产品能力已通过验收的证据。

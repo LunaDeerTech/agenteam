@@ -1,6 +1,6 @@
 # D02 工程基础实施规格
 
-- 修订：1；阶段：B01 已验收，B02 待开始；基线 `main@bb89da2`。
+- 修订：1；阶段：B01/B02 已验收，D02 已完成；基线 `main@bb89da2`。
 - 受 [D02 主规格](d02-engineering-foundation.md)修订 1 管理；本文件不表示 B01/B02 或产品行为已经验收。
 - 依据：[D01 基础](d01-contracts/foundation.md)、[依赖与责任](d01-contracts/README.md#代码依赖与运行时依赖)、[部署运行](../../architecture/platform-infrastructure/deployment-runtime.md)、[Runner Management](../../architecture/runner/runner-management.md)、[仓库结构](../repository-structure.md)。
 - 目标是两个可分别构建、测试、冻结并提交的结果；当前不引入数据库、对象 SDK、认证、业务 handler、Runner 协议或前端嵌入。
@@ -14,7 +14,7 @@
 | 卡 | 完整结果与验收边界 | 独占写入范围 |
 | --- | --- | --- |
 | B01 | 公共标量、HTTP Problem/JSON/追踪与 schema；可独立 `test/vet/build` 的真实库，无业务服务启动要求 | `go.mod`；`internal/central/foundation/`、`internal/central/httpapi/` 及同目录测试；`api/openapi/common.json`；`internal/central/.gitkeep` |
-| B02 | 两个真实入口、环境配置、诊断、日志与可停止进程；构建两二进制并验证真实信号 | `cmd/agenteam/`、`cmd/agenteam-runner/`；`internal/central/app/`、`internal/central/config/`；`internal/runner/app/`、`internal/runner/config/`；`internal/platform/logging/`、`internal/platform/lifecycle/`；`tests/process/`；`scripts/check-go.sh`、`scripts/build-go.sh`；`deploy/central.env.example`、`deploy/runner.env.example`；`docs/development/backend/README.md`、根 `README.md`、`AGENTS.md` 的现状/命令说明 |
+| B02 | 两个真实入口、环境配置、诊断、日志与可停止进程；构建两二进制并验证真实信号 | `cmd/agenteam/`、`cmd/agenteam-runner/`；`internal/central/app/`、`internal/central/config/`；`internal/runner/app/`、`internal/runner/config/`；`internal/platform/logging/`、`internal/platform/lifecycle/`；`tests/process/`；`scripts/check-go.sh`、`scripts/build-go.sh`；`deploy/central.env.example`、`deploy/runner.env.example`；`docs/development/backend/README.md`、根 `README.md`、`AGENTS.md` 的现状/命令说明；`docs/development/repository-structure.md` 必要工程现状同步 |
 
 B02 依赖 B01 独立验收提交，默认只消费其公共接口；需要改 B01 范围先由主线程移交，避免同文件双写。S01 文件、主规格、台账和计划由主线程维护后续修订。各卡只移除已有真实文件目录的 `.gitkeep`；B02 同步负责其替换的 cmd/internal/runner/scripts/deploy/tests 占位。`internal/runnerprotocol/.gitkeep` 保留。
 
@@ -131,7 +131,7 @@ exit 1: 初始化/监听/Serve 失败，drain 超时或第二信号导致强制�
 
 Central 正常停止的顺序必须可测试：
 
-1. 原子进入 stopping，使 readiness 仍为 false，拒绝新接入；已有连接新开始的请求返回 503 `SHUTTING_DOWN`。调用 `Server.Shutdown` 停止监听/keep-alive 接入。
+1. 原子进入 stopping，使 readiness 仍为 false，拒绝新接入；仍被交给 handler 的迟到新请求返回 503 `SHUTTING_DOWN`。调用 `Server.Shutdown` 停止监听/keep-alive 接入；Shutdown 接管后，net/http 可直接关闭连接或拒绝接入（客户端 EOF/连接失败），不承诺这类请求仍有 HTTP 503。
 2. 给 Shutdown 创建独立、未被停止信号取消的 deadline context；在途 handler 可在预算内结束。**不能把第一次 signal 的已取消 context 直接作为 HTTP BaseContext 或 Shutdown context。**
 3. HTTP serving context 与停止请求分开；成功 drain 后再取消/释放它。后台业务领取任务的停止端口未来由所属模块接入，不等待所有 Agent 自然运行完。
 4. deadline 到达或第二信号：取消 serving context、调用 `Server.Close` 并执行已注册资源的 force-close；额外等待最多 1s 后返回强制停止结果，不能被不合作 handler 永久卡住。
