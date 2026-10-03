@@ -1,6 +1,6 @@
 # D04 安全基础实施规格
 
-- 修订：3；输入：`main@9beaa7f`、[D04 主卡修订 1](d04-security-foundation.md)及已采纳的 S01 集中审查修正。本文记录 S01 已确认设计；修订 3 在 B03 实施时明确原生 SDK 的标准库错误包装边界。实现与验收进度以主卡为准。
+- 修订：4；输入：`main@9beaa7f`、[D04 主卡修订 1](d04-security-foundation.md)及已采纳的 S01 集中审查修正。本文记录 S01 已确认设计；修订 3 明确原生 SDK 的标准库错误包装边界，修订 4 明确 SMTP 可信 adapter 的逐发送准入责任。实现与验收进度以主卡为准。
 - 依据：[计划 D04](../development-plan.md#d04-secret-出站与-audit)、[部署密钥与恢复](../../architecture/platform-infrastructure/deployment-runtime.md#6-secret-management-与-envelope-encryption)、[出站规则](../../architecture/platform-infrastructure/outbound-network-policy.md)、[Audit](../../architecture/security-governance/audit.md)、[D01 基础](d01-contracts/foundation.md)、[生命周期](d01-contracts/domain-lifecycle.md)、[Model/MCP lease](d01-contracts/model-tool.md)。
 - 已核对实际 [D03 Store/Tx](../../../internal/central/postgres/transaction.go)、[SQLExecutor](../../../internal/central/postgres/sql.go)、[锁构造器](../../../internal/central/foundation/lock.go)、[Central 装配](../../../internal/central/app/app.go)；沿用 Go **1.27.1 / GOTOOLCHAIN=local**、pgx **5.11.0**、Goose **3.28.0**、PG **17.8** / vector **0.8.1** 的既有隔离 fixture。不加运行依赖，不改已验收 D03 机制。
 
@@ -123,6 +123,8 @@ Project 归档保留 Secret 与 Audit；重保护只变加密封装，是受限�
 `GetPolicy/UpdatePolicy(ctx,Human,CommandMeta,rules)` 是系统管理员服务；Update 在同 Tx 中持 `system-config:outbound-policy` exclusive、检查幂等与 expected_version、写规则/递增 version/receipt/Audit。无 D07 绑定不提供管理 HTTP。策略镜像只经此真实提交发布，不能依靠缓存 TTL/定时轮询。DB 载入失败或提交结果尚未核实，新的准入 fail closed，不沿旧策略继续。
 
 业务入口 `Do(ctx,request,Profile)->Response`；需要 `*http.Client` 的 SDK 只能取已封装 Transport/redirect 规则的实例，不暴露可配置 dial/proxy/TLS 跳过开关。Profile 指定 consumer、允许 scheme、流式标志、收紧的限额及有界安全上下文。SMTP 使用 `DialTarget(ctx,host,port,SMTPProfile)->受控Conn` 的同一 DNS/IP/发出门禁；D07 实现 TLS/STARTTLS/none 和逐发送准入，不在 D04 伪装 SMTP 已能发邮件。
+
+SMTP 的受控 Conn 可兼容 `net.Conn`，供可信 D07 adapter 执行初始 TLS/SMTP 协商；初始握手不计作邮件业务已发出。adapter 在每次 AUTH 凭据发送及每封邮件发送前调用 `BeginSend(ctx)`，建立新的 attempt、重新获取完整 DNS 并核验固定 peer，随后底层实际首 Write 按 §8 的当前策略/2s 门禁准入并记录 sent。上次发送须完成后才开始下一次，adapter 串行使用；并发 BeginSend/Write 须有明确拒绝或串行语义。BeginSend 失败不得继续沿用旧 attempt 写业务数据。TLS 包装之下的实际 socket Write 仍由受控 Conn 计数，D07 不得省略 BeginSend 或将凭据放入初始协商阶段。D04 只验收端口、限制和取消，D07 负责真实 AUTH/邮件/TLS 组合验收，不宣称当前已实现 SMTP。
 
 URL 只允许 http/https 与有效 ASCII hostname/IP、显式合法有效端口；拒绝 userinfo、fragment、zone ID、opaque URL、非网络 scheme、非规范 IPv4 数字缩写、空 hostname/port。DNS 名小写并规范尾点；首期非 ASCII 域名要求上层明确提供合法 ASCII A-label，不能用解析器差异猜地址。Host/SNI 固定来自规范 origin，拒绝 caller 另写 Host/连接控制 header；代理环境变量不生效。
 

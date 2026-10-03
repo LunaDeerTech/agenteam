@@ -12,7 +12,7 @@
 | B01 Audit/签名cursor与正式授权端口 | S01确认 | backend_worker | 实施规格§1与本卡补充范围 | 已验收 |
 | B02 Secret与密钥轮换 | B01及S01确认 | backend_worker | 实施规格§1/5/6及本卡补充范围 | 已验收 |
 | B03 动态出站与入口整合 | B01/B02已验收 | backend_worker | 实施规格§1/7/8/9/10及本卡补充范围 | 进行中 |
-| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 只读实现，独立临时探针与隔离资源 | V01/V02已通过；V03待开始 |
+| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 只读实现，独立临时探针与隔离资源 | V01/V02已通过；V03纯边界/策略/DNS通过，HTTP待验收 |
 
 任务拆分可由S01按完整结果的真实依赖调整，不机械分函数；安全日志/Audit写入需要避免以stub解决循环。root独占本规格、台账和开发计划；作者/验证者只在冻结的明确范围交接。遵守AGENTS、团队流程和对应design/go-development/verification技能，子agent不得再委派或Git写操作。
 
@@ -234,3 +234,7 @@ Policy Reload唯一阻塞已闭环：进程exclusive内新短recovery Tx取得po
 最终2文件manifest `/tmp/agenteam-d04-b03-dns.sha256` SHA `238222cc10eed8d3e9d5c9c0349c4e058abca7ba5b05ef34a7a9d5e8f2537bef`，source/copy一致。独立验证曾被平台风险检测中断；确认原命令停止后，仅重跑用户授权仓库内自建127.0.0.1 UDP/TCP兼容性测试，未访问外部主机、未绕过安全限制，重跑正常完成。socket关闭/goroutine join及无残留进程已确认，验证者停读、作者2文件停写，root已审修正并精确提交该小块。
 
 HTTP真实网络fixture及入口仍活动，尚未整体验收；当前Docker internal bridge不发布控制端口，作者改为核验owned private IP与nonce的隔离控制通道后重跑。B03/D04继续实施，不提前D05。
+
+- B03c实际本地提交：`d6e92c8`。与ee8ddb7一并等待GitHub安全认证恢复后补推；作者继续HTTP真实网络及入口。
+
+B03 SMTP端口细化已由root确认并同步实施规格修订4：可信D07 adapter在AUTH凭据及每封邮件前BeginSend，重新DNS/固定peer/首写门禁；初始TLS协商不计邮件sent，失败不沿用旧attempt，串行发送及并发边界必须明确。D04不实现SMTP协议、不套用HTTP allow_http。HTTP真实首批4.138s通过，barrier组合仍由作者验证；不是完整B03验收。
