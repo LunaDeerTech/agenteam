@@ -216,3 +216,9 @@
 - B01实际交付：`088185e`已推送origin/main（d623004→088185e），工作区清洁后B02开工。Secret/contract/00003、真实轮换恢复与入口整合由backend_worker独占，补充文件范围见主卡；root仍维护规格/台账/计划，已验收Audit/cursor/identity及D03库冻结，B03未开工。
 
 - B02a纯加密6文件独立V02a通过，manifest `06bec83b821afd4b8c7301335fd741d60d9fa42af9d3f3e36a3cbeff9e94caa4`。独立Python向量/逐字节篡改/keyring材料隔离/销毁并发与安全输出、race通过；root已读实现并精确提交此小块。作者继续SQL registry/nonce、业务lease与轮换；B02/D04未整体完成，真实持久化验证未由此替代。
+
+- B02a实际交付：`33a61db`已推送origin/main（088185e→33a61db）。纯加密6文件保持验收冻结，作者继续B02持久化/lease/轮换与入口，尚未整体验收。
+
+- B02持久化25核心文件已冻结并交V02b独立验证，manifest `e7c145a9f26217ba8f47fb6fb80e141a0fc060898c5d70e61b41fe3a83bd6ea7`；作者真实PG/race全TestSecret13.402s及SIGKILL/unknown证据见主卡。验证在33a61db稳定副本进行，核心禁写；作者仅继续入口及说明，Docker资源顺序交接。主线程核心生产/SQL初审尚无确定阻塞；B02仍未整体验收。
+
+- B02b持久化核心独立V02b通过：security真实race18.846s、contract race1.020s，新增并发重放/pending canary/cleanup unknown/双进程nonce探针通过，25指纹未变；主线程审查通过，按授权精确提交推送。nonce04a7bba599c7b9bf84ee35da74b04e6f资源清理，验证者停止；作者继续入口真实验证及说明，B02/D04未整体完成，授权依赖仍未绑定，详见主卡。

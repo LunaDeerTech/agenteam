@@ -111,3 +111,24 @@ V02a只读此6文件及已验收依赖，使用临时独立module，不读仍在
 V02a独立通过，无阻塞。临时副本 `/tmp/agenteam-d04-v02a-fhcxltvb`，Python cryptography独立Project/receipt/AAD/fingerprint/GCM/canary及9007199254740993→MaxInt64重保护向量，证实业务ciphertext/data nonce不变；逐字节篡改、类型/长度/版本/counter/revision溢出拒绝；keyring16KiB/32-key与历史cursor材料隔离、材料panic/error清零及并发Use/Destroy、安全投影/cause身份通过。实际独立 `go test -race -count=1 -run '^TestReview' ./internal/central/secret ./internal/central/secret/contract` 1.066s/1.035s，原冻结测试也通过；精确Go1.27.1/local，13个已验收依赖未变。6文件末次指纹保持 `06bec83b821afd4b8c7301335fd741d60d9fa42af9d3f3e36a3cbeff9e94caa4`。
 
 作者停止这6文件写入，验证者停读/命令，无Docker/Git操作。主线程全部纯实现审查通过，精确提交推送B02a；活动contract/types.go与SQL/lease/轮换未纳入，不把纯加密当nonce持久唯一性或B02整体验收。内部envelope是包内持久载体，未发现通用输出路径；后续prepared/错误/DTO可达性仍需整批审查，禁止敏感材料泄漏。
+
+- B02a实际交付：`33a61db`已推送origin/main（088185e→33a61db）。纯加密6文件保持验收冻结，作者继续B02持久化/lease/轮换与入口，尚未整体验收。
+
+B02持久化作者第二轮真实PG/race自测通过：原字节create/同义重放/异义冲突、lease读、更新后同lease读新值且已取material不变、lease阻止删除与原owner幂等释放；102 payload覆盖100条批次、覆盖后CAS丢弃、重复批次不重复计数、重启恢复/最终退休/移除旧key后值及receipt读取。损坏行测试报告failed/unavailable、拒绝新写且已授权无关值可读，日志 `/tmp/agenteam-d04-b02-core.log`。当前源码仍由作者写入，nonce/真实断连/kill/清理/入口未完整验证，未冻结指纹，以上仅作者阶段证据，不构成独立验收或B02完成。
+
+作者追加nonce/恢复真实race自测9.214s通过：4实例并发区间唯一、业务回滚烧nonce、实际COMMIT回包丢失整段不消费、尾段及2^32−1上限、坏canary/历史材料重用/缺旧key拒绝；实际SIGKILL在prepared、100条更新未提交、checkpoint已提交三边界终止子进程，等待owned backend退出后重启完成104条恢复。作者报告fixture精确清理，正在补read-unknown和引用/Project清理；核心仍未冻结，等待完整指纹及独立验证。
+
+## V02b 持久化核心冻结
+
+B02核心25文件冻结：`internal/central/secret/**`（含已验收6文件）、`00003_secret.sql`、`tests/security/secret_*`；manifest `/tmp/agenteam-d04-b02-core.sha256` SHA-256 `e7c145a9f26217ba8f47fb6fb80e141a0fc060898c5d70e61b41fe3a83bd6ea7`，主线程逐文件核验全OK。作者全TestSecret真实PG/race13.402s，日志 `/tmp/agenteam-d04-b02-core-final.log`，nonce/kill细证据 `/tmp/agenteam-d04-b02-security4.log`；追加read COMMIT-unknown不交material且下一次独立resolution、Audit回滚、权限撤销/MCP retained拒绝、101条Project分批清理/refs+lease pending/迟到候选拒绝、旧writer等待fence、rotation unknown核实及核实不可用保持Unknown。作者局部test/race/vet/build与空白通过；纯6文件未变。最终fixture nonce42df8e38696ddefba4e3eabc1dc6f46f报告container/network清理，命令全停止。
+
+V02b已接管冻结核心，在main@33a61db稳定临时副本覆盖精确25文件独立验证；既有Audit/cursor/identity/postgres/foundation与fixture依赖用已提交版本，不读取作者活动入口。Docker资源当前归验证者。作者仅继续未冻结app/config/logging/cmd/process及已授权说明，真实PG须顺序交接；主线程已开始核心代码/SQL审查。B02入口和整体验收仍未完成。
+
+
+## B02b 持久化核心完成
+
+V02b独立验证通过，无阻塞。临时副本 `/tmp/agenteam-d04-v02b-sqja0azv` 基于33a61db覆盖25冻结输入，实际 `AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/test-postgres.sh -run '^Test(Secret|ReviewSecret)'`，PG17.8/vector0.8.1、security race18.846s、exit0；日志 `/tmp/agenteam-d04-v02b-independent.log`。新增独立探针证明12个同命令并发与更换有效Session重放仅一条Secret/receipt/create Audit，异义拒绝；canary Audit回滚留下pending登记，新实例从新确认区间补齐且不提前推进write version；cleanup在COMMIT前/后丢响应均unknown，重试收敛且迟到rewrap Applied=0；两个独立进程64次写入产生128个payload nonce加1个canary全部唯一，high-water3072。
+
+冻结原有nonce unknown/SIGKILL、epoch fence、100条CAS/完整退休反查、lease当前值及Audit失败/unknown拒交材料、权限/清理用例亦独立通过；新增contract类型race1.020s。首次直接integration因缺fixture被门禁拒绝，专用脚本随后通过，不把缺fixture当成功。纯加密6文件未变复用V02a。最终25 manifest仍为 `e7c145a9f26217ba8f47fb6fb80e141a0fc060898c5d70e61b41fe3a83bd6ea7`，格式通过，nonce04a7bba599c7b9bf84ee35da74b04e6f的两个容器/网络/临时目录独立确认清理。验证者全部命令结束并停读；作者核心停写，Docker已交还作者完成入口真实验证。
+
+主线程已读全部核心生产/SQL及关键故障测试，最终逐文件指纹一致；3份进度文档104链接/格式检查通过。B02b作为独立存储库小块精确提交推送，不含仍在修改的config/app/logging/cmd/process/操作说明。当前Central尚未由本小块装配Secret；System/Session/Project/Usage真实授权仍待D07/D08/D09/D20/D22绑定，无业务HTTP或生产权限stub。B02入口与D04整体仍未完成，继续当前模块。
