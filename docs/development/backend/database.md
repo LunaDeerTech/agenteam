@@ -1,6 +1,6 @@
 # PostgreSQL 基础库
 
-`internal/central/postgres` 提供 D03 B01 的连接、迁移、事务、锁和数据库健康能力。当前 Central 命令尚未装配此库；数据库必需配置、诊断采样、进程关闭顺序和修复 CLI 由 D03 B02 接入。Runner 不依赖 Central 或数据库包。规则与所有权见 [D03 主规格](../work-items/d03-postgresql-foundation.md)、[实施规格](../work-items/d03-database-design.md)和 [D01 Tx/锁契约](../work-items/d01-contracts/foundation.md#tx-与锁顺序)。
+`internal/central/postgres` 提供 D03 的连接、迁移、事务、锁和数据库健康能力。Central 命令已装配必需数据库配置、诊断采样、进程关闭顺序和修复 CLI。Runner 不依赖 Central 或数据库包。规则与所有权见 [D03 主规格](../work-items/d03-postgresql-foundation.md)、[实施规格](../work-items/d03-database-design.md)和 [D01 Tx/锁契约](../work-items/d01-contracts/foundation.md#tx-与锁顺序)。
 
 ## 版本与配置
 
@@ -64,15 +64,17 @@ Goose 事实表为 `agenteam_meta.goose_db_version`；`migration_journal` 保存
 | non_tx 未应用，journal running/needs_repair/repairing | 明确要求修复，不自动重跑 |
 | journal applied 但 Goose 缺失、后续先应用或指纹不符 | history diverged，保留事实供明确恢复 |
 
-修复先停止该部署的 Central，保留备份和失败证据，再由部署装配调用 `Migrator.Repair(ctx, version, expectedChecksum)`。只接受已编译 non_tx 版本、精确 checksum、未应用且无后续版本的残留。取得同一 guard 后持久写 repairing，依次执行幂等 restore SQL；只读 verifier 必须恰返回一行、一列、类型为 bool 的 true。全部通过才转 pending，随后正常 Migrate 重新执行。修复失败/中断保留 repairing，重复修复从首步重做。
+修复先停止该部署的 Central，保留备份和失败证据，再以同一部署的显式数据库环境运行 `agenteam --repair-migration <version> --expected-checksum <sha256:...>`，调用 `Migrator.Repair(ctx, version, expectedChecksum)`。只接受已编译 non_tx 版本、精确 checksum、未应用且无后续版本的残留。取得同一 guard 后持久写 repairing，依次执行幂等 restore SQL；只读 verifier 必须恰返回一行、一列、类型为 bool 的 true。全部通过才转 pending，CLI 才输出 `status=repaired_to_pending`，随后正常启动 Migrate 重新执行。修复失败/中断保留 repairing，重复修复从首步重做。
 
-首个正式迁移仅安装/核验 vector 0.8.1 和 health_probe，是事务型，没有生产 non_tx 恢复计划，因此生产 Repair 明确返回 unsupported。真实 non_tx 验证使用独立测试 FS 的 `CREATE INDEX CONCURRENTLY`、`DROP INDEX CONCURRENTLY` 和 verifier。`--repair-migration` CLI 尚待 B02 接入。
+首个正式迁移仅安装/核验 vector 0.8.1 和 health_probe，是事务型，没有生产 non_tx 恢复计划，因此生产 Repair CLI 明确返回 `MIGRATION_REPAIR_UNSUPPORTED`、退出 1，不连接数据库或宣称修复成功。真实 non_tx 验证使用独立测试 FS 的 `CREATE INDEX CONCURRENTLY`、`DROP INDEX CONCURRENTLY` 和 verifier，生产入口没有选择测试源的参数。
 
 ## 资源关闭
 
 StopAdmission 先拒绝新的普通借用/事务；已经进入的事务和 Rows 继续使用其连接。Drain 使用调用者剩余预算等待所有 checkout 结束，再关池，不能在 handler 仍需要数据库时提前调用它。
 
 ForceClose 共用最多 1 秒总预算：取消已经登记的操作，向 owned 连接发出短时 PostgreSQL CancelRequest，关闭自己 DialFunc 登记的 socket，再等待池退出。关闭 TCP 本身不足以立即停止服务端 pg_sleep，因此真实测试同时验证 owned backend 退出。非合作 callback 可以超出逻辑 checkout 生命周期，但不能无限阻塞 ForceClose 返回；装配层仍须按进程关闭规则退出。force 不证明正在提交的事务已回滚。
+
+Central 首次停止先关闭 HTTP 接入和健康领取，在途请求仍可完成 Tx；HTTP drain 结束才停止数据库 admission，并按同一剩余截止时间 drain。超时/第二信号下 HTTP、数据库和 worker join 共用额外最多 1s。迁移连接另有取消 watcher：在关闭其 socket registry 前先有界发送该连接的 CancelRequest，握手最多 100ms，然后丢弃该连接；避免 pgx 异步取消尚未拨号就封闭 registry，导致客户端已退出而服务端仍卡在迁移 guard。此取消仍由装配层总 drain/force 预算约束，测试核对实际 owned PID 消失。
 
 ## 实际验证
 
@@ -88,5 +90,7 @@ sh scripts/build-go.sh
 普通 Go 测试不需要 Docker。数据库测试带 `integration` build tag；没有 fixture 时失败，不 skip。脚本核对精确工具链，创建一次性 nonce/label、专属 bridge 网络、tmpfs 容器、临时 CA/口令和 0600 描述文件，只发布随机 loopback 端口。固定镜像 digest 见实施规格。测试连接前核对容器 ID/name/label/image、network 和端口，每个测试单独建库；cleanup 只处理登记的本次资源 ID，并核验无残留。测试失败/信号仍清理且保留非零退出码。
 
 `tests/database` 覆盖空库/重复/升级、双迁移进程争锁与 kill 恢复、真实非事务中断及修复再次中断、事务 poison/并发 Rows/Serializable/死锁/延迟约束、有序共享/排他锁、提交未知 TCP 代理、TLS CA/hostname/认证、PG 环境来源、权限与错误安全投影、drain/force。PG16 反例使用另一个固定镜像实际运行；vector 0.8.0 反例仅修改隔离 fixture 的 extension catalog，证明版本门禁，不宣称运行了旧 vector 二进制。
+
+同一脚本还执行 Central app 与 `tests/process` 的 integration race suite：真实 cmd 启动/配置拒绝/失败、SIGINT/SIGTERM、迁移取消、默认 10s/2s 健康故障与恢复、在途 HTTP+Tx 和后台 Tx drain、阻塞 SQL/第二信号强停。它们同时核对所属数据库 backend 退出和安全日志；普通 test 不用 Docker。`test-postgres.sh -run '<Go test regex>'` 只用于改动后的相关子集检查，完整验收不带 filter。
 
 驱动 EOF 分类依据可定位到固定 pgx 的 `pgconn.MultiResultReader.NextResult`（忽略 peek 错误）、`peekMessage`（EOF 关闭连接）、`receiveMessage`（返回 closed connLockError）与 `connLockError.SafeToRetry`；提交分类回归以真实协议和另一连接的数据库事实为准。

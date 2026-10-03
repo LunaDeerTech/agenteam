@@ -18,6 +18,8 @@ import (
 	"syscall"
 	"testing"
 	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 )
 
 var binaries map[string]string
@@ -206,35 +208,21 @@ func assertLogRecords(t *testing.T, output, service string) {
 	}
 }
 
-func TestRealBinariesHandleSIGTERMAndSIGINT(t *testing.T) {
-	for _, name := range []string{"agenteam", "agenteam-runner"} {
-		for _, signal := range []os.Signal{syscall.SIGTERM, syscall.SIGINT} {
-			t.Run(name+"/"+signal.String(), func(t *testing.T) {
-				service := "runner"
-				var env []string
-				if name == "agenteam" {
-					service = "central"
-					env = []string{"AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0"}
-				}
-				p := launch(t, name, nil, env)
-				if service == "central" {
-					event := p.event(t, "event", "listening")
-					address := event["listen_address"].(string)
-					checkDiagnosticBinary(t, address)
-				} else {
-					p.event(t, "phase", "unconnected")
-					assertNoSockets(t, p.command.Process.Pid)
-				}
-				if err := p.command.Process.Signal(signal); err != nil {
-					t.Fatal(err)
-				}
-				p.wait(t, 0)
-				if !strings.Contains(p.stderr.String(), `"outcome":"drained"`) || p.stdout.Len() != 0 {
-					t.Fatal("clean process stop did not finish")
-				}
-				assertLogRecords(t, p.stderr.String(), service)
-			})
-		}
+func TestRunnerRealSIGTERMAndSIGINT(t *testing.T) {
+	for _, signal := range []os.Signal{syscall.SIGTERM, syscall.SIGINT} {
+		t.Run(signal.String(), func(t *testing.T) {
+			p := launch(t, "agenteam-runner", nil, nil)
+			p.event(t, "phase", "unconnected")
+			assertNoSockets(t, p.command.Process.Pid)
+			if err := p.command.Process.Signal(signal); err != nil {
+				t.Fatal(err)
+			}
+			p.wait(t, 0)
+			if !strings.Contains(p.stderr.String(), `"outcome":"drained"`) || p.stdout.Len() != 0 {
+				t.Fatal("clean Runner stop did not finish")
+			}
+			assertLogRecords(t, p.stderr.String(), "runner")
+		})
 	}
 }
 
@@ -307,10 +295,16 @@ func TestCLIScopeAndSafeFailures(t *testing.T) {
 					t.Fatal("informational CLI loaded configuration")
 				}
 			}
-			p := launch(t, name, []string{"--check-config"}, nil)
+			var checkedEnvironment []string
+			scope := "d02"
+			if service == "central" {
+				scope = "d03"
+				checkedEnvironment = []string{"AGENTEAM_CENTRAL_DATABASE_URL=postgresql://config:config-only@127.0.0.1:1/config_only", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"}
+			}
+			p := launch(t, name, []string{"--check-config"}, checkedEnvironment)
 			p.wait(t, 0)
 			var result map[string]any
-			if json.Unmarshal(p.stdout.Bytes(), &result) != nil || result["scope"] != "d02" || result["valid"] != true || result["ready"] != false {
+			if json.Unmarshal(p.stdout.Bytes(), &result) != nil || result["scope"] != scope || result["valid"] != true || result["ready"] != false {
 				t.Fatal("config check pretended to validate product dependencies")
 			}
 			if service == "runner" && (result["connected"] != false || result["authenticated"] != false) {
@@ -337,23 +331,62 @@ func TestCLIScopeAndSafeFailures(t *testing.T) {
 	}
 }
 
-func TestListenerConflictAndInvalidAddressExit(t *testing.T) {
-	listener, err := net.Listen("tcp", "127.0.0.1:0")
-	if err != nil {
-		t.Fatal(err)
+func TestCentralMissingDatabaseAndInvalidAddressExit(t *testing.T) {
+	p := launch(t, "agenteam", nil, nil)
+	p.wait(t, 2)
+	if !strings.Contains(p.stderr.String(), `"field":"AGENTEAM_CENTRAL_DATABASE_URL"`) || strings.Contains(p.stderr.String(), `"event":"listening"`) {
+		t.Fatal("required database configuration not enforced")
 	}
-	defer listener.Close()
-	p := launch(t, "agenteam", nil, []string{"AGENTEAM_CENTRAL_HTTP_ADDR=" + listener.Addr().String()})
-	p.wait(t, 1)
-	logs := p.stderr.String()
-	if !strings.Contains(logs, `"code":"LISTEN_FAILED"`) || strings.Contains(logs, `"event":"listening"`) || strings.Contains(logs, `"phase":"diagnostic_serving"`) {
-		t.Fatal("bind failure logged a false start")
-	}
-	assertLogRecords(t, logs, "central")
 	p = launch(t, "agenteam", nil, []string{"AGENTEAM_CENTRAL_HTTP_ADDR=credential-SENTINEL"})
 	p.wait(t, 2)
 	if strings.Contains(p.stderr.String(), "SENTINEL") {
 		t.Fatal("invalid address leaked")
+	}
+}
+
+func TestCentralCheckAndCompiledRepairNeverConnect(t *testing.T) {
+	source, err := postgres.EmbeddedSource()
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, repair := range []bool{false, true} {
+		name := "check"
+		if repair {
+			name = "unsupported_compiled_repair"
+		}
+		t.Run(name, func(t *testing.T) {
+			listener, err := net.Listen("tcp", "127.0.0.1:0")
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer listener.Close()
+			accepted := make(chan bool, 1)
+			go func() {
+				conn, err := listener.Accept()
+				if err == nil {
+					_ = conn.Close()
+				}
+				accepted <- err == nil
+			}()
+			args := []string{"--check-config"}
+			want := 0
+			if repair {
+				args = []string{"--expected-checksum", string(source.Manifest()[0].Checksum), "--repair-migration", "1"}
+				want = 1
+			}
+			p := launch(t, "agenteam", args, []string{"AGENTEAM_CENTRAL_DATABASE_URL=postgresql://pure:password-SENTINEL@" + listener.Addr().String() + "/pure", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"})
+			p.wait(t, want)
+			_ = listener.Close()
+			if <-accepted {
+				t.Fatal("pure check or unsupported repair opened a database connection")
+			}
+			if repair && (p.stdout.Len() != 0 || !strings.Contains(p.stderr.String(), "MIGRATION_REPAIR_UNSUPPORTED")) {
+				t.Fatal("compiled transactional migration repair claimed success")
+			}
+			if strings.Contains(p.stdout.String()+p.stderr.String(), "SENTINEL") {
+				t.Fatal("database URL credential leaked")
+			}
+		})
 	}
 }
 

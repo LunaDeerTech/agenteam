@@ -72,7 +72,7 @@ func TestAppProcessFixture(t *testing.T) {
 			return listener, nil
 		}
 	}
-	err = run(context.Background(), cfg, logger, signals, deps)
+	err = run(context.Background(), cfg, logger, signals, unitDependencies(deps))
 	signal.Stop(signals)
 	if err != nil {
 		os.Exit(1)
@@ -96,7 +96,7 @@ func launchFixture(t *testing.T, mode, timeout string) *fixtureProcess {
 	}
 	p := &fixtureProcess{cmd: exec.Command(executable, "-test.run=^TestAppProcessFixture$", "-test.timeout=15s"), stdout: newEventLog(), stderr: newEventLog(), done: make(chan struct{})}
 	p.cmd.Dir = t.TempDir()
-	p.cmd.Env = []string{"AGENTEAM_APP_PROCESS_FIXTURE=" + mode, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=" + timeout}
+	p.cmd.Env = []string{"AGENTEAM_APP_PROCESS_FIXTURE=" + mode, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=" + timeout, "AGENTEAM_CENTRAL_DATABASE_URL=postgresql://unit:unit@127.0.0.1:1/unit", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"}
 	p.cmd.Stdout = p.stdout
 	p.cmd.Stderr = p.stderr
 	p.stdin, err = p.cmd.StdinPipe()

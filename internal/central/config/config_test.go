@@ -1,20 +1,88 @@
 package config
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
 	"fmt"
 	"log/slog"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
 	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 )
 
 func loadValues(values map[string]string) (Config, error) {
+	copy := map[string]string{Prefix + "DATABASE_URL": "postgresql://config_user:config-password@127.0.0.1:1/config_only", Prefix + "DATABASE_TLS_MODE": "disable"}
+	for key, value := range values {
+		copy[key] = value
+	}
+	values = copy
 	var env []string
 	for k, v := range values {
 		env = append(env, k+"="+v)
 	}
 	return Load(func(key string) (string, bool) { v, ok := values[key]; return v, ok }, env)
+}
+
+func TestDatabaseConfigurationIsRequiredAndHasSafeCentralErrors(t *testing.T) {
+	_, err := Load(func(string) (string, bool) { return "", false }, nil)
+	var central *Error
+	var database *postgres.Error
+	if !errors.As(err, &central) || central.Field() != Prefix+"DATABASE_URL" || !errors.As(err, &database) || database.Code() != postgres.InvalidConfiguration {
+		t.Fatal("missing database configuration lost its field or cause")
+	}
+	temp := t.TempDir()
+	badCA := filepath.Join(temp, "CA-SENTINEL.pem")
+	if err := os.WriteFile(badCA, []byte("certificate-SENTINEL"), 0600); err != nil {
+		t.Fatal(err)
+	}
+	for _, test := range []struct {
+		values map[string]string
+		field  string
+		code   postgres.Code
+	}{
+		{map[string]string{Prefix + "DATABASE_URL": "postgresql://user:password-SENTINEL@localhost/database"}, Prefix + "DATABASE_URL", postgres.InvalidConfiguration},
+		{map[string]string{Prefix + "DATABASE_TLS_MODE": "verify-full", Prefix + "DATABASE_CA_FILE": badCA}, Prefix + "DATABASE_CA_FILE", postgres.InvalidConfiguration},
+		{map[string]string{"PGPASSWORD": "password-SENTINEL"}, "PG*", postgres.EnvironmentRejected},
+		{map[string]string{Prefix + "DATABASE_STARTUP_TIMEOUT": "0s"}, Prefix + "DATABASE_STARTUP_TIMEOUT", postgres.InvalidConfiguration},
+	} {
+		_, err := loadValues(test.values)
+		if !errors.As(err, &central) || central.Field() != test.field || !errors.As(err, &database) || database.Code() != test.code {
+			t.Fatalf("database error classification: field=%s", test.field)
+		}
+		assertConfigProjectionSafe(t, err)
+	}
+	cfg, err := loadValues(map[string]string{Prefix + "DATABASE_URL": "postgresql://user:password-SENTINEL@127.0.0.1:1/database", Prefix + "DATABASE_MAX_CONNS": "2", Prefix + "DATABASE_CONNECT_TIMEOUT": "100ms", Prefix + "DATABASE_STARTUP_TIMEOUT": "1s", Prefix + "DATABASE_LOCK_TIMEOUT": "100ms"})
+	if err != nil || cfg.Database().Validate() != nil || cfg.Database().MaxConns() != 2 || cfg.Database().ConnectTimeout() != 100*time.Millisecond || cfg.Database().StartupTimeout() != time.Second || cfg.Database().LockTimeout() != 100*time.Millisecond {
+		t.Fatal("Central did not pass explicit database configuration")
+	}
+	assertConfigProjectionSafe(t, cfg)
+}
+
+func assertConfigProjectionSafe(t *testing.T, value any) {
+	t.Helper()
+	for _, outer := range []any{value, struct{ private any }{value}} {
+		for _, format := range []string{"%v", "%+v", "%#v", "%s", "%q"} {
+			if strings.Contains(fmt.Sprintf(format, outer), "SENTINEL") {
+				t.Fatal("database configuration leaked through formatting")
+			}
+		}
+		encoded, _ := json.Marshal(outer)
+		if strings.Contains(string(encoded), "SENTINEL") {
+			t.Fatal("database configuration leaked through JSON")
+		}
+		var output bytes.Buffer
+		slog.New(slog.NewTextHandler(&output, nil)).LogAttrs(context.Background(), slog.LevelInfo, "test", slog.Any("value", outer))
+		if strings.Contains(output.String(), "SENTINEL") {
+			t.Fatal("database configuration leaked through logging")
+		}
+	}
 }
 func TestDefaultsAndImmutableConfig(t *testing.T) {
 	values := map[string]string{"AGENTEAM_RUNNER_FUTURE_SECRET": "ignored-SENTINEL", "UNRELATED_SECRET": "ignored-SENTINEL"}
@@ -60,7 +128,7 @@ func TestConfigurationBoundariesAndSafeErrors(t *testing.T) {
 			})
 		}
 	}
-	for _, key := range []string{Prefix + "DATABASE_URL", Prefix + "credential-SENTINEL"} {
+	for _, key := range []string{Prefix + "DATABASE_UNKNOWN", Prefix + "credential-SENTINEL"} {
 		_, err := loadValues(map[string]string{key: "credential-SENTINEL"})
 		if err == nil || strings.Contains(err.Error(), "SENTINEL") {
 			t.Fatal("unknown setting accepted/leaked")
@@ -92,6 +160,9 @@ func TestLoadNeverReadsIgnoredValues(t *testing.T) {
 	_, err := Load(func(key string) (string, bool) {
 		if !strings.HasPrefix(key, Prefix) {
 			t.Fatalf("read unrelated field %s", key)
+		}
+		if key == Prefix+"DATABASE_URL" {
+			return "postgresql://config_user:config-password@127.0.0.1:1/config_only", true
 		}
 		return "", false
 	}, []string{"AGENTEAM_RUNNER_SECRET=credential-SENTINEL", "CREDENTIAL=credential-SENTINEL"})

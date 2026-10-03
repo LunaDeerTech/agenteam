@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"encoding/pem"
 	"errors"
+	"flag"
 	"fmt"
 	"math/big"
 	"net"
@@ -25,6 +26,11 @@ import (
 
 func main() { os.Exit(run()) }
 func run() (code int) {
+	options := flag.NewFlagSet("postgres-fixture", flag.ContinueOnError)
+	filter := options.String("run", "", "Go test name filter for an affected integration subset")
+	if options.Parse(os.Args[1:]) != nil || options.NArg() != 0 {
+		return fail("invalid fixture arguments")
+	}
 	ctx, cancel := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer cancel()
 	nonce, err := pgfixture.RandomHex(16)
@@ -217,7 +223,7 @@ func run() (code int) {
 	if goBinary == "" {
 		return fail("exact Go binary required")
 	}
-	cmd := exec.CommandContext(ctx, goBinary, "test", "-tags=integration", "-race", "-count=1", "-timeout=6m", "./internal/central/postgres/...", "./tests/database/...")
+	cmd := exec.CommandContext(ctx, goBinary, "test", "-tags=integration", "-race", "-count=1", "-timeout=6m", "-run="+*filter, "./internal/central/postgres/...", "./tests/database/...", "./internal/central/app/...", "./tests/process/...")
 	// The Go command can create test executables and migration children. They
 	// all belong to this dedicated process group; cancel only this owned group.
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}

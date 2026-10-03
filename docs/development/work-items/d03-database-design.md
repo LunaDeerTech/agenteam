@@ -1,6 +1,6 @@
 # D03 数据库基础实施规格
 
-- 修订：1；B01 已验收，B02 待开始；基线 `main@c4e0320`。
+- 修订：1；B01/B02 已验收；基线 `main@c4e0320`。
 - 上层：[D03 主规格](d03-postgresql-foundation.md)修订 1；既定接口：[D01 Tx/锁](d01-contracts/foundation.md#tx-与锁顺序)、[部署运行](../../architecture/platform-infrastructure/deployment-runtime.md)、[计划 D03](../development-plan.md#d03-postgresql-与全局迁移)。
 - 本模块只拥有连接、数据库健康、事务/锁和迁移元数据；不创建业务事实表、Outbox、Secret、账号或通用事务结果库。独立可验收顺序为 B01 库与真实数据库→B02 入口集成。
 
@@ -26,7 +26,7 @@
 | 卡 | 独占实现/文档范围 | 完成结果 |
 | --- | --- | --- |
 | B01 | `go.mod/go.sum`；新增 `internal/central/foundation/{tx,cause,lock}.go` 及对应测试；`internal/central/postgres/`；`db/migrations/`（embed 与首个 SQL，替换占位）；`tests/database/`、`tests/testsupport/postgres/`；`scripts/test-postgres.sh`；`docs/development/backend/database.md` | 固定驱动/Goose、真实迁移/修复、opaque Tx/锁、健康与有界关闭；库可独立构建和真实 PG 验收提交 |
-| B02 | Central `config/`、`app/`、`cmd/agenteam/`；`internal/platform/logging/`、必要 lifecycle 错误适配；`tests/process/`；`scripts/check-go.sh`；`deploy/central.env.example`；后端 README、根 README、AGENTS 的当前命令/边界说明 | 必需 DB 真实启动、诊断与资源关闭、修复 CLI；完整进程验收后提交 |
+| B02 | Central `config/`、`app/`、`cmd/agenteam/`；`internal/platform/logging/`、必要 lifecycle 错误适配；`tests/process/`；`scripts/check-go.sh`；`deploy/central.env.example`；后端 README/数据库说明、仓库结构、根 README、AGENTS 的当前命令/边界说明；`scripts/test-postgres.sh`、`tests/testsupport/postgres/cmd/fixture/main.go` 接入 integration process suite | 必需 DB 真实启动、诊断与资源关闭、修复 CLI；完整进程验收后提交 |
 
 B02 在 B01 验收提交后开始；不直接改已验收 postgres/foundation 实现，需要返修先移交。现有 D02 scalar/HTTP 保持其已验收契约；公共 Tx 新文件仅依赖标准库。领域服务引用 foundation.Tx，SQL repository adapter 才依赖 postgres/pgx；Runner 依赖图不增加任何 Central/数据库包。主规格/台账/计划由主线程维护。
 
@@ -166,7 +166,7 @@ B02 启动在 D02 HTTP bind 之前执行数据库配置→带总预算连接→�
 
 Store拥有所有 checkout 与实际 socket：普通借用/Tx/Rows全部登记并受同一 admission gate 管理，不向调用者暴露 pool。force 时取消其操作 context，向已登记owned连接发送有界 PostgreSQL CancelRequest，再关闭自己 DialFunc 登记的 net.Conn，促使阻塞 I/O返回；取消握手、socket关闭与pool.Close/join共用 D02 最多额外1s总预算，不能按连接重复增加预算。只关闭TCP不保证服务端阻塞语句立即察觉EOF，因此须实测owned backend/query退出，不按PID遍历终止其他连接。commit在此时丢响应仍是unknown；不合作callback不能无限阻止进程退出。正常路径不得留下连接/worker；force关闭不宣称事务已rollback。
 
-启动中首信号取消连接/迁移等待并清已得资源；正在提交的迁移按 journal留下可恢复事实，不记录 migration completed。Runner配置/生命周期不改；日志只增加有限技术状态/错误白名单，中立包不导入数据库或业务实现。
+启动中首信号取消连接/迁移等待并清已得资源；迁移连接取消必须先完成最多100ms的owned CancelRequest握手尝试，再使其I/O立即到期并关闭丢弃，不依赖关闭TCP使服务端锁/SQL等待立即退出；相应等待受入口原drain/force总预算约束。正在提交的迁移按 journal留下可恢复事实，不记录 migration completed。Runner配置/生命周期不改；日志只增加有限技术状态/错误白名单，中立包不导入数据库或业务实现。
 
 ## 9. 隔离验收与命令
 
@@ -203,4 +203,4 @@ GOTOOLCHAIN=local "$AGENTEAM_GO" list -deps ./cmd/agenteam-runner
 git diff --check
 ```
 
-test-postgres.sh 在已核对fixture生命周期内实际执行 `go test -tags=integration -race -count=1 ./internal/central/postgres/... ./tests/database/...`；B02再加入 `./tests/process/...`。子命令exit/输出必须传播，整个脚本不因cleanup成功掩盖测试失败。B01/B02各记精确依赖、镜像/实际版本、命令、冻结指纹与未验证范围后交独立验证；D03通过才进入D04，不把镜像探针或静态API阅读当作本模块验收。
+test-postgres.sh 在已核对fixture生命周期内实际执行 `go test -tags=integration -race -count=1 ./internal/central/postgres/... ./tests/database/...`、`./internal/central/app/...` 和 `./tests/process/...`。子命令exit/输出必须传播，整个脚本不因cleanup成功掩盖测试失败。B01/B02各记精确依赖、镜像/实际版本、命令、冻结指纹与未验证范围后交独立验证；D03通过才进入D04，不把镜像探针或静态API阅读当作本模块验收。

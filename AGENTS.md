@@ -2,7 +2,7 @@
 
 ## Project Structure & Module Organization
 
-agenteam is an AI Agent collaboration platform with design documents, a Go foundation and diagnostic Central/unconnected Runner processes, and a runnable Vue frontend with shared components and a development-only Debug page. PostgreSQL/pgvector, MinIO, identity and business capabilities are not yet bound; these processes do not indicate product readiness.
+agenteam is an AI Agent collaboration platform with design documents, a Go foundation, PostgreSQL/pgvector migrations and transactions, diagnostic Central/unconnected Runner processes, and a runnable Vue frontend with shared components and a development-only Debug page. Central requires its database before serving diagnostics. MinIO, identity, secrets and business capabilities are not yet bound; these processes do not indicate product readiness.
 
 - `cmd/agenteam/` and `cmd/agenteam-runner/`: Central and Runner entry points.
 - `internal/central/` and `internal/runner/`: respective implementations; `internal/runnerprotocol/`: shared communication contracts. Runner must not import Central business packages.
@@ -18,15 +18,16 @@ Keep `.gitkeep` files until their directories contain real files.
 The frontend remains independently runnable. The root Go module requires exactly Go 1.27.1; backend scripts set `GOTOOLCHAIN=local` and reject a different toolchain. Set `AGENTEAM_GO` to the binary path if PATH does not select it.
 
 - `AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/check-go.sh`: Go tests, vet, race checks and both binary builds.
+- `AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-postgres.sh`: real PostgreSQL/pgvector and Central process integration tests using task-owned Docker fixtures; ordinary Go tests do not require Docker.
 - `AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/build-go.sh`: build `bin/agenteam` and `bin/agenteam-runner`.
-- `./bin/agenteam --check-config` / `./bin/agenteam-runner --check-config`: validate only D02 process settings; successful checks still report `ready=false`.
+- `./bin/agenteam --check-config`: validate D03 Central settings, including required `AGENTEAM_CENTRAL_DATABASE_URL` and any explicit CA, without connecting. `./bin/agenteam-runner --check-config` validates D02 Runner settings. Both report `ready=false`; help/version need no configuration.
 - `npm ci --prefix web`: install locked frontend dependencies.
 - `npm run dev --prefix web`: serve development-only Debug at localhost:5173/debug.
 - `npm run check --prefix web`: formatting check, unit tests, type check, and production build.
 - `npm run preview --prefix web`: inspect production build at localhost:4173; Debug is excluded.
 - `git diff --check`: check tracked changes for whitespace errors.
 
-See `docs/development/backend/README.md` and `docs/development/frontend/README.md` for commands, configuration and boundaries. Backend process tests use temporary directories and loopback ephemeral ports; they must not connect to existing infrastructure or read credentials.
+See `docs/development/backend/README.md` and `docs/development/frontend/README.md` for commands, configuration and boundaries. Backend process tests use temporary directories and loopback ephemeral ports; database tests verify the owned fixture's nonce, labels and exact resource IDs before connecting. They must not connect to existing infrastructure or read external credentials.
 
 ## Coding Style & Naming Conventions
 

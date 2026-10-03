@@ -29,7 +29,7 @@ agenteam_stop() {
 trap agenteam_cleanup EXIT
 trap agenteam_stop INT TERM
 "$AGENTEAM_GO" build -o "$agenteam_helper_dir/fixture" ./tests/testsupport/postgres/cmd/fixture
-"$agenteam_helper_dir/fixture" &
+"$agenteam_helper_dir/fixture" "$@" &
 agenteam_helper_pid=$!
 # wait can be interrupted by the forwarding trap. Keep waiting for the helper
 # to finish its exact-ID cleanup before removing its temporary executable.

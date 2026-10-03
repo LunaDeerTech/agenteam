@@ -178,7 +178,7 @@
 
 ## AT-0010：D03 PostgreSQL 与全局迁移
 
-- 状态：B01已验收，B02待开始；唯一活动模块D03；[规格](../work-items/d03-postgresql-foundation.md)修订1。前置D02全部验收，`c4e0320`已成功推送origin/main（896fa2e→c4e0320）；开工前工作区干净。
+- 状态：D03已完成；下一模块D04；[规格](../work-items/d03-postgresql-foundation.md)修订1。前置D02全部验收，`c4e0320`已成功推送origin/main（896fa2e→c4e0320）；开工前工作区干净。
 - S01固定真实PG/pgvector/pgx/Goose、事务锁和migration/恢复验证规格，再分B01/B02实施和独立验收，小块提交推送。Docker 28.4.0 client/server linux/amd64可用；未创建/访问任何数据库或容器，版本镜像待核验。Go继续1.27.1/local。
 - 主线程独占本台账/主规格/开发计划，架构者独占新增实施规格。仅允许任务专属隔离数据库与必要依赖；D04+未绑定，无用户待定产品问题。下一步完成S01并核验镜像，不能将D02非ready诊断当完整产品。
 
@@ -188,3 +188,10 @@
 
 - D03 B01已独立V01b验收：31文件manifest `ac1aa25a95b405e76cc65fa080ec5d788f46907a0e865ff01e48e76b570972a0`，普通test/vet/race/build及真实隔离PG17.8/vector0.8.1和PG16.12拒绝通过；事务/锁/unknown/迁移并发与non_tx恢复/TLS/force关键场景独立验证通过。最初公共类型两项缺陷已修复，COMMIT驱动误提示已据真实代理修正保守分类。详细命令/nonce/指纹/限制见D03规格。
 - 独立nonce2b890221af2952af7d2b07356a9911ba资源全清理，label容器网络计数0；所有作者/验证者已停止。主线程审查通过并将本小块提交推送。B02入口尚未实施，D03未整体完成，下一步必需数据库启动/健康/CLI/关闭整合，无用户待定或环境阻塞。
+
+- B01实际交付：`cd31f34`已推送origin/main（c4e0320→cd31f34）。B02已开工，范围包含Central必需DB装配/健康/repair CLI/同预算关闭与真实进程测试；详见规格增补所有权。B01库未解冻，root维护台账/规格/计划。
+
+- B02真实进程取消探针发现迁移guard等待backend在Central exit0后仍存活；已登记D03规格，授权最小返修migrate.go及回归测试，其他B01实现继续冻结。局部race通过不替代整批验收；当前仍B02，无用户待定，后续需实际确认owned backend退出及独立验证。
+
+- D03完成：B02经独立V02验收，30输入manifest `043a4e90eea13ff522173d24658b9facdad94997197676ebbce7e4f747c01023`。普通test/vet/race/build与完整真实integration通过；独立新增4组app边界及迁移取消/HTTP+DB/真实process选定集通过。启动取消后服务端迁移guard残留缺陷已最小修复，并以owned PID退出和repairing恢复证明；详细日志/时长/nonce/限制见D03规格。
+- 所有作者与验证者均停止；最终独立nonce资源为0，冻结指纹/格式通过，主线程代码/脚本/文档审查通过。数据库真实绑定而整体ready=false，其余业务仍未实现。不将D03完成当产品或E01完成。主线程按授权提交推送，提交通过本节历史定位；下一步D04 Secret/出站/Audit规格，无产品待定或环境阻塞。

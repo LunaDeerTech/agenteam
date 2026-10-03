@@ -1,8 +1,9 @@
-// Package config validates the Central process environment. It does not load
-// application settings, secrets, or future infrastructure configuration.
+// Package config validates Central process and explicit database settings.
+// It does not load files automatically or configure future product modules.
 package config
 
 import (
+	"errors"
 	"log/slog"
 	"net"
 	"net/netip"
@@ -10,6 +11,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 )
 
 const Prefix = "AGENTEAM_CENTRAL_"
@@ -22,19 +25,30 @@ type Config struct {
 	shutdownTimeout time.Duration
 	httpAddr        string
 	publicOrigin    string
+	database        postgres.Config
 }
 
 func (c Config) LogLevel() slog.Level           { return c.logLevel }
 func (c Config) ShutdownTimeout() time.Duration { return c.shutdownTimeout }
 func (c Config) HTTPAddr() string               { return c.httpAddr }
 func (c Config) PublicOrigin() string           { return c.publicOrigin }
+func (c Config) Database() postgres.Config      { return c.database }
 
 // Error contains a declared field name and stable reason, never an input value.
-type Error struct{ field, reason string }
+type Error struct {
+	field, reason string
+	cause         func() error
+}
 
 func (e *Error) Error() string  { return e.field + ": " + e.reason }
 func (e *Error) Field() string  { return e.field }
 func (e *Error) Reason() string { return e.reason }
+func (e *Error) Unwrap() error {
+	if e.cause == nil {
+		return nil
+	}
+	return e.cause()
+}
 
 func invalid(field string) error { return &Error{field: Prefix + field, reason: "invalid"} }
 
@@ -48,6 +62,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 		}
 		switch strings.TrimPrefix(key, Prefix) {
 		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN":
+		case "DATABASE_URL", "DATABASE_TLS_MODE", "DATABASE_CA_FILE", "DATABASE_MAX_CONNS", "DATABASE_CONNECT_TIMEOUT", "DATABASE_STARTUP_TIMEOUT", "DATABASE_LOCK_TIMEOUT":
 		default:
 			return Config{}, &Error{field: Prefix + "*", reason: "unsupported"}
 		}
@@ -86,6 +101,19 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 	if err != nil {
 		return Config{}, invalid("PUBLIC_ORIGIN")
 	}
+	c.database, err = postgres.LoadConfig(postgres.LookupEnv(lookup), env)
+	if err != nil {
+		field := Prefix + "DATABASE_*"
+		var issue *postgres.Error
+		if errors.As(err, &issue) {
+			if issue.Field() == "PG*" {
+				field = "PG*"
+			} else if issue.Field() != "" {
+				field = Prefix + issue.Field()
+			}
+		}
+		return Config{}, &Error{field: field, reason: "invalid", cause: func() error { return err }}
+	}
 	return c, nil
 }
 
@@ -101,6 +129,9 @@ func (c Config) Validate() error {
 	}
 	if normalized, err := normalizeOrigin(c.publicOrigin); err != nil || normalized != c.publicOrigin {
 		return invalid("PUBLIC_ORIGIN")
+	}
+	if c.database.Validate() != nil {
+		return invalid("DATABASE_*")
 	}
 	return nil
 }

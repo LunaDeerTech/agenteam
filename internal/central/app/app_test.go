@@ -80,7 +80,7 @@ func await(t *testing.T, ch <-chan struct{}) {
 
 func testConfig(t *testing.T, timeout string) config.Config {
 	t.Helper()
-	values := map[string]string{config.Prefix + "HTTP_ADDR": "127.0.0.1:0", config.Prefix + "SHUTDOWN_TIMEOUT": timeout}
+	values := map[string]string{config.Prefix + "HTTP_ADDR": "127.0.0.1:0", config.Prefix + "SHUTDOWN_TIMEOUT": timeout, config.Prefix + "DATABASE_URL": "postgresql://unit:unit@127.0.0.1:1/unit", config.Prefix + "DATABASE_TLS_MODE": "disable"}
 	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -118,6 +118,7 @@ func startApp(t *testing.T, timeout string, deps dependencies, hooks ...func(map
 		observer = observedLogger{logger, hooks[0]}
 	}
 	cfg := testConfig(t, timeout)
+	deps = unitDependencies(deps)
 	go func() { result.err = run(ctx, cfg, observer, result.signals, deps); close(result.done) }()
 	t.Cleanup(func() { cancel(); await(t, result.done) })
 	event := result.log.wait(t, func(e map[string]any) bool { return e["event"] == "listening" })
@@ -167,7 +168,11 @@ func TestDiagnosticRoutes(t *testing.T) {
 				t.Fatal("diagnostics invalid")
 			}
 			for _, c := range d.Capabilities {
-				if c.Status != "unbound" {
+				want := "unbound"
+				if c.Name == "postgresql" || c.Name == "pgvector" || c.Name == "migrations" || c.Name == "read_write" {
+					want = "available"
+				}
+				if c.Status != want {
 					t.Fatal("unbound dependency claimed usable")
 				}
 			}
@@ -252,7 +257,7 @@ func TestGracefulDrainPreservesActiveContextAndRejectsLateRequest(t *testing.T) 
 	var shutdownOnce sync.Once
 	handoff := func() { shutdownOnce.Do(func() { close(shutdownRelease) }) }
 	defer handoff()
-	diagnostics := diagnosticRouter()
+	diagnostics := diagnosticRouter(newHealthMonitor(unitHealth(), healthTiming{}))
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/slow" {
 			diagnostics.ServeHTTP(w, r)
@@ -393,7 +398,7 @@ func TestStartupStopAndUnexpectedServeFailure(t *testing.T) {
 			logger, _ := logging.New(logging.Central, slog.LevelInfo, logs)
 			var acquired net.Listener
 			cause := errors.New("credential-SENTINEL")
-			deps := dependencies{}
+			deps := unitDependencies(dependencies{})
 			switch mode {
 			case "already_cancelled":
 				cancel()

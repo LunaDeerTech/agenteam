@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgconn/ctxwatch"
 	"github.com/jackc/pgx/v5/stdlib"
 	"github.com/pressly/goose/v3"
 )
@@ -54,11 +56,31 @@ func (m *Migrator) database() (*sql.DB, func(), error) {
 	}
 	sockets := &socketSet{}
 	parsed.DialFunc = sockets.dial
+	parsed.BuildContextWatcherHandler = func(conn *pgconn.PgConn) ctxwatch.Handler {
+		return &migrationCancellation{conn: conn}
+	}
 	db := stdlib.OpenDB(*parsed)
 	db.SetMaxOpenConns(1)
 	db.SetMaxIdleConns(1)
 	return db, func() { sockets.close(); _ = db.Close() }, nil
 }
+
+// The default pgx watcher returns after expiring the socket and leaves its
+// CancelRequest in asyncClose. Closing our registry then prevents that request
+// from reaching a backend still blocked on a lock. Unwatch joins this handler,
+// so cancellation is attempted before database cleanup seals the registry.
+// A canceled migration connection is always discarded, including when the SQL
+// completed concurrently; a late cancellation cannot affect a later query.
+type migrationCancellation struct{ conn *pgconn.PgConn }
+
+func (h *migrationCancellation) HandleCancel(context.Context) {
+	ctx, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
+	defer cancel()
+	_ = h.conn.CancelRequest(ctx)
+	_ = h.conn.Conn().SetDeadline(time.Now())
+	_ = h.conn.Conn().Close()
+}
+func (*migrationCancellation) HandleUnwatchAfterCancel() {}
 
 type silentGoose struct{}
 

@@ -51,14 +51,14 @@ agenteam/
 
 ## 依赖与演进约定
 
-- Central 与 Runner 共用根目录 Go module，固定 Go 1.27.1；D03 B01 已固定 pgx/Goose 数据库库依赖，入口绑定仍待 B02；前端在 `web/` 独立管理依赖。
+- Central 与 Runner 共用根目录 Go module，固定 Go 1.27.1；D03 已固定 pgx/Goose 依赖，并将 PostgreSQL/pgvector 初始化、健康采样与关闭顺序绑定到 Central 入口；前端在 `web/` 独立管理依赖。
 - Runner 不依赖 Central 业务包，也不拥有 Task、Meeting 等项目业务模型。
 - 共享通信契约放在 `internal/runnerprotocol/`，两端各自的实现留在各自目录。
 - Central 跨模块端口按稳定职责建立独立契约包，由调用方和实现方共同依赖；不包含业务实现、不循环引用，不建立万能 `contracts/shared` 包或大量无必要的空包。实际包路径按照 D01 依赖矩阵随消费模块按需增加。
 - 各模块只经正式端口访问对方事实，不直接改对方表。需要原子性的跨模块端口显式接收统一事务上下文，业务契约不依赖 pgx 等驱动类型。
-- HTTP 采用 `net/http` + `ServeMux`，handler 与 HTTP DTO 转换按模块组织；数据库采用 pgx + 显式 SQL。版本与适配方式仍需正式工程核验，不将选型方向当作已有后端实现。
+- HTTP 采用 `net/http` + `ServeMux`，handler 与 HTTP DTO 转换按模块组织；数据库基础已采用固定 pgx + 显式 SQL，迁移为 Goose SQL-only Provider 和单一全局序列。后续 repository adapter 消费已有 Tx/锁端口，不暴露原始驱动事务给领域层。
 - 开始实现某项能力时，再增加相应模块和内部目录，避免提前固定尚未验证的包结构。
 - 空目录使用 `.gitkeep` 保存到 Git；目录有实际文件后可移除占位文件。
 - 本地敏感配置不入库，示例配置可以入库。根目录的 `secrets/` 被忽略，同名源码目录不受该规则影响。
 
-前端已建立独立依赖清单、Vue 入口、路由骨架和组件库，见[前端开发说明](frontend/README.md)。后端已有基础类型、HTTP 边界、环境配置、两个独立入口和停机验证，见[后端开发说明](backend/README.md)。Central 当前只提供非 ready 的诊断，Runner 未连接且未认证；协议、数据库、对象存储和业务模块仍待后续实现，部署目录中的环境示例也只覆盖 D02。
+前端已建立独立依赖清单、Vue 入口、路由骨架和组件库，见[前端开发说明](frontend/README.md)。后端已有基础类型、HTTP 边界、数据库连接/迁移/事务/锁、环境配置、两个独立入口和停机验证，见[后端开发说明](backend/README.md)和[数据库说明](backend/database.md)。Central 在数据库初始化后只提供非 ready 的诊断，Runner 未连接且未认证；Secret、协议、对象存储、身份和业务模块仍待后续实现。部署目录中的 Central 环境示例覆盖 D03，Runner 保持 D02。
