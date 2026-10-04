@@ -8,7 +8,6 @@ import (
 
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -22,6 +21,9 @@ type storeState struct {
 	mu         sync.Mutex
 	stopped    bool
 	operations map[*operation]struct{}
+	targets    map[*poolCancelTarget]struct{}
+	works      map[*poolCancelWork]struct{}
+	force      *poolForcePhase
 	txs        map[foundation.Tx]*transaction
 	changed    chan struct{}
 	closeOnce  sync.Once
@@ -30,8 +32,10 @@ type storeState struct {
 type operation struct {
 	owner  *storeState
 	ctx    context.Context
+	caller context.Context
 	cancel context.CancelFunc
 	conn   *pgxpool.Conn
+	target *poolCancelTarget
 	once   sync.Once
 }
 type socketSet struct {
@@ -51,13 +55,19 @@ func (s *ownedSocket) Close() error {
 	return err
 }
 func (s *socketSet) dial(ctx context.Context, network, address string) (net.Conn, error) {
+	s.mu.Lock()
+	closed := s.closed
+	s.mu.Unlock()
+	if closed {
+		return nil, net.ErrClosed
+	}
 	conn, err := (&net.Dialer{}).DialContext(ctx, network, address)
 	if err != nil {
 		return nil, err
 	}
 	s.mu.Lock()
-	defer s.mu.Unlock()
 	if s.closed {
+		s.mu.Unlock()
 		_ = conn.Close()
 		return nil, net.ErrClosed
 	}
@@ -66,6 +76,7 @@ func (s *socketSet) dial(ctx context.Context, network, address string) (net.Conn
 	}
 	owned := &ownedSocket{Conn: conn, owner: s}
 	s.sockets[owned] = struct{}{}
+	s.mu.Unlock()
 	return owned, nil
 }
 func (s *socketSet) close() {
@@ -92,6 +103,7 @@ func Open(ctx context.Context, cfg Config) (*Store, error) {
 	}
 	state := &storeState{config: cfg, operations: make(map[*operation]struct{}), txs: make(map[foundation.Tx]*transaction), changed: make(chan struct{}), closed: make(chan struct{})}
 	parsed.DialFunc = state.sockets.dial
+	parsed.BuildContextWatcherHandler = state.poolWatcher
 	poolConfig.ConnConfig = parsed
 	poolConfig.MaxConns = cfg.MaxConns()
 	poolConfig.MinConns = 0
@@ -122,7 +134,7 @@ func Open(ctx context.Context, cfg Config) (*Store, error) {
 func (s *Store) borrow(ctx context.Context) (*operation, error) {
 	state := s.state()
 	opCtx, cancel := context.WithCancel(ctx)
-	op := &operation{owner: state, ctx: opCtx, cancel: cancel}
+	op := &operation{owner: state, ctx: opCtx, caller: ctx, cancel: cancel}
 	state.mu.Lock()
 	if state.stopped {
 		state.mu.Unlock()
@@ -138,21 +150,55 @@ func (s *Store) borrow(ctx context.Context) (*operation, error) {
 	}
 	state.mu.Lock()
 	op.conn = conn
+	op.target = conn.Conn().PgConn().CustomData()[poolCancelTargetKey].(*poolCancelTarget)
+	op.target.retainLocked()
+	rejected := state.stopped || opCtx.Err() != nil
+	if rejected {
+		// Acquire may finish after its caller or admission was cancelled. Keep
+		// this checkout owned through discard; it must never reach business SQL.
+		op.target.workLocked()
+	}
 	state.mu.Unlock()
+	if rejected {
+		op.release()
+		return nil, failure(AdmissionStopped, nil)
+	}
 	return op, nil
 }
 func (o *operation) release() {
 	o.once.Do(func() {
-		o.cancel()
 		o.owner.mu.Lock()
-		delete(o.owner.operations, o)
-		close(o.owner.changed)
-		o.owner.changed = make(chan struct{})
+		var work *poolCancelWork
+		if o.target != nil && (o.caller.Err() != nil || o.owner.force != nil || o.target.work != nil) {
+			work = o.target.workLocked()
+		}
+		if work == nil {
+			// Linearize a normal release against selection by Force. Once this
+			// owner disappears there is no outstanding SQL or cancellation work.
+			o.unregisterLocked()
+		}
 		o.owner.mu.Unlock()
+		if work != nil {
+			work.runOrJoin()
+			o.target.discard()
+			o.owner.mu.Lock()
+			o.unregisterLocked()
+			o.owner.mu.Unlock()
+		}
+		// Normal Rows.Close cancels op.ctx before release. Only the original
+		// caller, a force phase or a selected cancellation work triggers discard.
+		o.cancel()
 		if o.conn != nil {
 			o.conn.Release()
 		}
 	})
+}
+func (o *operation) unregisterLocked() {
+	if o.target != nil {
+		o.target.releaseLocked()
+	}
+	delete(o.owner.operations, o)
+	o.owner.signalLocked()
 }
 func (s *Store) StopAdmission() {
 	state := s.state()
@@ -165,7 +211,7 @@ func (s *Store) Drain(ctx context.Context) error {
 	state := s.state()
 	for {
 		state.mu.Lock()
-		count, changed := len(state.operations), state.changed
+		count, changed := len(state.operations)+len(state.targets), state.changed
 		state.mu.Unlock()
 		if count == 0 {
 			state.startClose()
@@ -193,38 +239,7 @@ func (s *storeState) waitClose(ctx context.Context) error {
 // ForceClose cancels all borrowers and closes owned sockets before waiting at
 // most one second. A callback ignoring cancellation cannot delay this return.
 func (s *Store) ForceClose(ctx context.Context) error {
-	bounded, cancel := context.WithTimeout(ctx, time.Second)
-	defer cancel()
-	s.StopAdmission()
-	state := s.state()
-	state.mu.Lock()
-	connections := make([]*pgconn.PgConn, 0, len(state.operations))
-	for op := range state.operations {
-		op.cancel()
-		if op.conn != nil {
-			connections = append(connections, op.conn.Conn().PgConn())
-		}
-	}
-	state.mu.Unlock()
-	// EOF alone is not observed while PostgreSQL is inside a long statement.
-	// Best-effort cancellation uses each owned connection's backend secret, not
-	// a PID enumeration. All requests share a small part of the same total bound.
-	requestCtx, requestCancel := context.WithTimeout(bounded, 100*time.Millisecond)
-	var requests sync.WaitGroup
-	for _, conn := range connections {
-		requests.Add(1)
-		go func() { defer requests.Done(); _ = conn.CancelRequest(requestCtx) }()
-	}
-	requestsDone := make(chan struct{})
-	go func() { requests.Wait(); close(requestsDone) }()
-	select {
-	case <-requestsDone:
-	case <-requestCtx.Done():
-	}
-	requestCancel()
-	state.sockets.close()
-	state.startClose()
-	return state.waitClose(bounded)
+	return s.state().forceClose(ctx)
 }
 
 type compatibilityQuerier interface {
