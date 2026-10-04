@@ -41,6 +41,8 @@ rev2已按root工程裁决固定Create请求的稳定target ProjectID。所有�
 
 验收：T01及全部 enum/presence/错误variant/安全编码边界，包括Create必填合法target UUIDv7与按Project区分的command identity；固定 Go 单元、race、vet。Plan/Report不得成为可由任意JSON反序列化的权限令牌。冻结源码/依赖指纹交独立验证；没有对应实现的adapter保持 unbound。
 
+正式端口窄澄清：`RetryLifecycle` 返回已有 `LifecycleResult`（`Operation|Receipt`）；正常/归档路径返回 Operation，completed delete 的原重放仅返回最小 Receipt，不恢复旧 operation 或已删内容。
+
 升级条件：需要改已验公共契约、新增规范外状态、扩大名称规则、引入依赖或发现规格内在矛盾，停止受影响部分报 root/设计负责人。
 
 ## B02 Project 存储与 Owner 服务

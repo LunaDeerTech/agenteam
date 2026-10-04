@@ -137,13 +137,14 @@ BeginDeleteProject(ctx, Human, Meta, project_id,
   -> LifecycleOperation | ProjectDeletionReceipt
 GetLifecycle(ctx, Human, project_id, operation_id)
   -> LifecycleOperation | ProjectDeletionReceipt
-RetryLifecycle(ctx, Human, Meta, project_id, operation_id) -> LifecycleOperation
+RetryLifecycle(ctx, Human, Meta, project_id, operation_id)
+  -> LifecycleOperation | ProjectDeletionReceipt
 LookupCommand(ctx, Human, CommandLookupRequest) -> committed | in_progress | not_observed
 ```
 
 `CreationOperation` 含 id/project_id/state/version/固定 reason/created_at/updated_at，不含技能对象路径或私有输入。`LifecycleOperation` 沿 D01，参与者与 pending refs 为注册闭集和稳定安全 ID，最多 100 条，超过时 `pending_refs_truncated=true`；不能截断事实检查，仅截断 DTO。`ProjectListItem` 在 deleting 时只给 id/name/lifecycle/version/operation_id，不给 description。删除确认值按 §2 的两个独立段规则规范化为小写后比较，拒绝前后空白、前导/尾随斜杠、额外段和百分号；canonical路径进入语义摘要。
 
-Create 禁 expected_version；Update/Archive/Restore/Delete 必填 Project expected_version；RetryLifecycle 的 expected_version 明确针对 operation.version，响应同时给 Project.version。Retry 只把该 operation 的 failed/pending 步骤排入原 phase，不换 operation/cause，不撤门禁。completed archive 的原 retry 拒绝；Delete completed 重放仍按最小 receipt。
+Create 禁 expected_version；Update/Archive/Restore/Delete 必填 Project expected_version；RetryLifecycle 的 expected_version 明确针对 operation.version，未完成响应同时给 Project.version。Retry 只把该 operation 的 failed/pending 步骤排入原 phase，不换 operation/cause，不撤门禁。其 Go 返回类型统一为已有 `LifecycleResult`（`Operation|Receipt`）：正常/归档路径返回 Operation；completed archive 的原 retry 拒绝；completed delete 的原重放仅返回最小 Receipt，不恢复旧 operation、Project.version 或已删内容。
 
 普通已认证成功命令首次提交在同事务 TouchActivityInTx；读取、轮询、后台推进、幂等重放不刷新 idle。同 key 已接受的生命周期命令重放返回原 operation 的当前安全状态；不拿旧 expected_version 再拒绝已成功接受的事实。
 
@@ -301,7 +302,7 @@ Human 操作验当前 Session/Owner；完成动作只给 exact ProjectInitializa
 | POST `/projects/{id}/restore` | expected_version；key | 200 ProjectRef |
 | POST `/projects/{id}/delete` | expected_version、normalized_current_path、permanent:true；key | 202 operation 或原终态200最小receipt |
 | GET `/projects/{id}/lifecycle-operations/{operation_id}` | 当前Owner/原Owner | 200 operation/最小receipt；主记录已删仍可查 |
-| POST `/projects/{id}/lifecycle-operations/{operation_id}/retry` | operation expected_version；key | 202原operation |
+| POST `/projects/{id}/lifecycle-operations/{operation_id}/retry` | operation expected_version；key | 202原operation；completed delete原重放200最小receipt |
 
 LookupCommand 由 same-key 重放和以上稳定 status URL提供HTTP语义，不开放任意 namespace/key 枚举入口。错误沿 D01；名称竞争 RESOURCE_BUSY + `/name:NAME_TAKEN`，版本陈旧 VERSION_CONFLICT，当前路径不匹配 CONFIRMATION_STALE，非法状态 INVALID_STATE，非active PROJECT_NOT_ACTIVE，未绑定/不可用503，Unknown503+lookup。不同用户请求不得通过名称冲突、receipt或operation泄露私有数据。永久删除时先当前Owner/Session，再原幂等/receipt，再版本与路径，不让攻击者通过错误顺序枚举。
 
