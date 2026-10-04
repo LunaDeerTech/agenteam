@@ -17,6 +17,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/jackc/pgx/v5"
 )
@@ -248,17 +249,55 @@ func (d *Database) Connect(t *testing.T) *pgx.Conn {
 	return conn
 }
 func (d *Database) Terminate(ctx context.Context, pid int32) error {
+	fail := func(code foundation.Code, phase string, cause error) error {
+		// Fault keeps formatting safe while explicit inspection can distinguish
+		// the stage, caller cancellation, and a real PostgreSQL query error.
+		return foundation.NewFault(code, foundation.NotStarted).WithCause(errors.Join(errors.New("fixture termination "+phase), cause))
+	}
+	if err := ctx.Err(); err != nil {
+		return fail(foundation.DependencyUnavailable, "cancelled", err)
+	}
+	if d == nil || d.Fixture == nil || !d.Fixture.ownsDatabase(d.Name) || pid <= 0 {
+		return fail(foundation.InvalidArgument, "invalid target", nil)
+	}
 	if err := d.Fixture.Verify(); err != nil {
-		return err
+		return fail(foundation.DependencyUnavailable, "ownership verification failed", err)
 	}
 	conn, err := d.Fixture.Connect(ctx, "fixture_control")
 	if err != nil {
-		return err
+		return fail(foundation.DependencyUnavailable, "connection failed", errors.Join(err, ctx.Err()))
 	}
 	defer conn.Close(ctx)
-	var terminated bool
-	if err := conn.QueryRow(ctx, "SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname=$1 AND pid=$2", d.Name, pid).Scan(&terminated); err != nil || !terminated {
-		return errors.New("owned backend termination failed")
+	var owned, terminated bool
+	// Search the exact PID across databases. An absent PID is already cleaned;
+	// a present foreign PID must never execute the termination function.
+	err = conn.QueryRow(ctx, `SELECT datname IS NOT DISTINCT FROM $1,
+CASE WHEN datname IS NOT DISTINCT FROM $1 THEN pg_catalog.pg_terminate_backend(pid) ELSE false END
+FROM pg_catalog.pg_stat_activity WHERE pid=$2`, d.Name, pid).Scan(&owned, &terminated)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil
+	}
+	if err != nil {
+		return fail(foundation.DependencyUnavailable, "query failed", err)
+	}
+	if !owned {
+		return fail(foundation.Forbidden, "foreign database target", nil)
+	}
+	if !terminated {
+		// The backend can exit between pg_stat_activity and the signal attempt.
+		// Recheck absence with a fresh statement; false while still alive is not
+		// success and never authorizes another signal or a wider PID search.
+		err = conn.QueryRow(ctx, `SELECT datname IS NOT DISTINCT FROM $1 FROM pg_catalog.pg_stat_activity WHERE pid=$2`, d.Name, pid).Scan(&owned)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return nil
+		}
+		if err != nil {
+			return fail(foundation.DependencyUnavailable, "absence query failed", err)
+		}
+		if !owned {
+			return fail(foundation.Forbidden, "foreign database target", nil)
+		}
+		return fail(foundation.ResourceBusy, "signal declined for live owned backend", nil)
 	}
 	return nil
 }
