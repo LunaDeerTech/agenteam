@@ -1,6 +1,6 @@
 # D06 Transactional Outbox 工程规格
 
-- 修订：2；对应[主卡修订 1](d06-transactional-outbox.md)，设计基线 `main@671d95c`。本轮仅按独立审查修正契约分层、Sequence/cursor 兼容、删除 gate 优先级和 archive/Restore 语义；不声明 D06 已实现或验收。
+- 修订：3；对应[主卡](d06-transactional-outbox.md)，原设计基线 `main@671d95c`，本次增量基线 `main@f8dd8a9`。B01 已独立验收；本轮仅补 B02 的 LifecycleStep 与 DiagnosticsSummary 公共载体，不声明 B02 或 D06 整体已验收。
 - 依据：[事件架构](../../architecture/platform-infrastructure/internal-domain-events.md)、[D01 事件与注册屏障](d01-contracts/runtime-events.md)、[事务与锁](d01-contracts/foundation.md)、[生命周期](d01-contracts/domain-lifecycle.md)、[W40](d01-contracts/walkthroughs.md)、[开发计划 D06](../development-plan.md#d06-outbox-与事件投递)。
 - 复用 Go 1.27.1/local、现有 pgx/Goose、D03 事务、D04 身份/Audit/cursor 和 D05 真实 ProcessGuard；不增加依赖、broker、业务表、全历史 replay、匿名运维 HTTP 或成功 stub。
 
@@ -19,12 +19,13 @@
 | `internal/central/identity/contract/identity.go` 及测试 | B01 仅增加注册职责 `outbox-delivery`；由真实 claim 构造限定 Service cause，不授予 Session/Owner/Admin |
 | `internal/central/audit/contract/{types,metadata}.go` 及测试 | B01 增加 §8 唯一重投 Action/Resource/Producer/typed metadata；旧 action/metadata 含义不变，00008 扩展既有 CHECK |
 | `internal/central/audit/service.go` 及测试 | 仅在闭集校验确有需要时接入新 Producer；重投沿既有 Human 当前 Session/Owner/System + Mutate + `CheckAppendInTx`，不增加 Service 写 Audit 豁免 |
+| `internal/central/outbox/contract/authority.go`、`diagnostics.go`；新 `contract/lifecycle_step_test.go`、`contract/diagnostics_test.go` | B02 唯一公共补口：§3 增加 LifecycleStep/variant 校验及完整依赖 binding，§8 给 DiagnosticsPage 增加 typed Summary/数值与空值校验；测试跨 step/Actor/cause 复用拒绝和统计 DTO。`Stage`、生命周期方法签名、QueryDiagnostics 签名及其他已验 contract 不变；真实统计与 provider 场景在 B02 原授权测试范围实现 |
 | `internal/central/app/{app,object,resources,health,diagnostics}.go`、新 `app/outbox.go` 及测试 | B02 实施 §10 私有 assembly、真实初始化/检查/关闭；保留 process/service/guard/runtime，覆盖失败和晚到资源所有权 |
 | `internal/platform/logging/security.go` 及测试 | B02 仅增加 outbox 初始化/可用/不可用的固定安全 phase；中立包不 import Central |
 | `tests/testsupport/postgres/cmd/fixture/main.go`、新 `tests/database/outbox_migration_test.go`、新 `tests/process/outbox_test.go` | B01 增加迁移兼容测试、将 `tests/outbox/...` 和 `internal/central/outbox/...` 纳入既有真实 PG 测试命令；B02 增加进程场景。现有三条 integration scripts/MinIO 和 outbound fixture 链直接复用，无需修改 shell 脚本或另起基础设施 |
 | `docs/development/backend/README.md`、`AGENTS.md` | B02 局部同步实际入口、测试和仍未绑定的权限/领域边界；root 另行移交写权 |
 
-`00001–00007`、`go.mod/go.sum`、D05 object/Artifact/transfer 实现及 Runner 代码冻结。Outbox 不 import object；共享 ProcessGuard 只在 app 组合映射。迁移全局编号 00008 独占于 B01，Up-only、事务型，无非事务 DDL。
+`00001–00007`、`go.mod/go.sum`、D05 object/Artifact/transfer 实现及 Runner 代码冻结。Outbox 不 import object；共享 ProcessGuard 只在 app 组合映射。迁移全局编号 00008 独占于 B01，Up-only、事务型，无非事务 DDL；B01 验收后 00008 同样冻结，本次两个载体补口不增加表、字段、索引或迁移。
 
 ## 2. Typed 事件、注册目录与边界
 
@@ -75,6 +76,10 @@ RegisterHandler(ctx, HandlerDefinition) -> Registration
 ```
 
 ProjectRequest 是闭集 `append|deliver|inspect|requeue|lifecycle`，绑定 ProjectID、真实 Actor/限定 delivery Service cause、EventID/DeliveryID/AttemptID/fence、handler effect 或 LifecycleCause，不能用 caller bool 表示 owner/archived/已停止。append/requeue 明分 current_access 与首次 apply 阶段；Append 在幂等前额外执行 §2 本域不可逆删除 gate，首次业务 gate/version 仍在幂等之后，完成 receipt 不跳过当前权限。delivery cause_ref 为上述完整稳定身份的规范化 SHA-256，provider 仍须核当前持久 claim，hash 本身不授予权限。D08 适配器负责真实 Project/Owner/gate/cause；D07 Session/SystemAuthority 保持当前校验。System scope 的人工查询/重投只允许当前 System Admin；Project 只允许当前 Owner，Admin 不绕过 Owner。内部技术恢复只核本域已持久事实，不以后台 Service 冒充原 Actor 重新执行业务。
+
+在 `authority.go` 新增 `LifecycleStep` 字符串闭集 `stop|inspect|cleanup` 及 `ProjectRequestDetails.LifecycleStep`。`LifecycleProject` 必须带合法 step 且 `Stage` 仍为空；其余所有 variant 的 LifecycleStep 必须为空，原 Stage 规则不变，不把 step 塞入通用 Stage。RequestStop/InspectStop/Cleanup 分别固定构造 stop/inspect/cleanup，外部输入不能替换方法对应 step。
+
+lifecycle 的完整请求/Dependencies binding 显式包含 Kind、ProjectID、稳定 Actor（含注册职责/Project/cause_ref）、LifecycleStep 和 `Lifecycle.Details()` 的 operation_id/action/project_version；不能对只输出安全标签的 ProjectRequest/LifecycleCause JSON 求摘要。改 step、Actor 或任一 cause 字段后旧计划均不匹配，锁后仍须重验。actor 必须为同 Project 的真实 project-lifecycle Service，D08 在当前 Project 锁下验证其 cause_ref 确实对应该 operation/版本/动作和当前 gate；类型有效或哈希相等不替代授权。只有 cleanup 额外核其他参与者已收束；stop/inspect 只核本次操作合法及 Outbox 自身停止事实，不要求其他参与者先完成，不形成停止顺序循环。D08 未绑定时仍拒绝。
 
 HandlerPlan 是受信注册 handler 签发、绑定 EventID/handler/当前父身份的不可变计划；暴露完整业务锁集合，私有数据由该 handler 锁后重验。不接受运行时请求提供 handler/plan。`HandleInTx` 只能调用领域 InTx 端口；域内结果、processed marker 和成功 delivery 同一事务。调用普通 wrapper 嵌套 Tx、网络/模型/工具/SMTP I/O、返回 ack 后异步补业务写均禁止；需要外部工作的领域先在该 Tx 持久化自己的作业/输入，由正式执行模块负责。
 
@@ -174,11 +179,45 @@ Requeue 先当前 Session/Owner 或 SystemAdmin，随后查原稳定命令，再
 
 查询逐次当前授权并绑定 Scope/主体；安全投影含 IDs/type/schema/handler/state/attempt/next time/闭集 reason，无 payload、SQL、原错误或身份凭据。cursor 复用 D04 已验证 HMAC keyring，绑定 query kind、scope、稳定 user_id、规范化筛选、排序及水位，不能跨 Project/换筛选复用；匹配摘要不绑定 page size/limit，同一 cursor 可改变 limit，每次仍须为 1..100。详情查询不能用可猜 DeliveryID 绕过 scope。
 
-诊断必须真实提供 pending Event 去重数、oldest pending age、retry_wait/failed/dead_letter 数、每 handler 的实际已结束 attempt 延迟 count/sum/max、每 event_type 的产生/成功 delivery 吞吐、最近安全错误；时间窗固定 5m/1h/24h，按真实时间和事实定义分母。未知/未结束 latency 标 unknown，不伪 0；统计查询有同 2s 上限和索引，不扫/返回 payload。匿名 `/diagnostics` 只增加组件可用状态，不暴露上述租户明细；HTTP 业务绑定留 D07/D27。
+`diagnostics.go` 仅给既有 DiagnosticsPage 增加必有的 typed Summary，QueryDiagnostics 方法签名不变。最小载体如下，字段是公共安全投影，不含 payload/原错误；各数值必须通过既有标量校验。
+
+```text
+DiagnosticsPage {Items: []SafeDelivery, NextCursor: string, Summary: DiagnosticsSummary}
+DiagnosticsSummary {
+  Window: DiagnosticsWindow, AsOf/WindowStart: foundation.Instant,
+  WindowMS: foundation.DurationMS,
+  PendingEvents/RetryWaitDeliveries/FailedDeliveries/DeadLetterDeliveries: foundation.Progress,
+  OldestPendingAgeMS: *foundation.DurationMS,
+  HandlerLatency: []HandlerLatencySummary, EventThroughput: []EventTypeThroughputSummary,
+  HandlerLatencyTruncated/EventThroughputTruncated: bool,
+  RecentErrors: []DiagnosticSafeError
+}
+HandlerLatencySummary {HandlerID, Count/Unknown: foundation.Progress,
+                       SumMS: foundation.DurationMS, MaxMS: *foundation.DurationMS}
+EventTypeThroughputSummary {EventType, ProducedEvents/SucceededDeliveries: foundation.Progress}
+DiagnosticSafeError {At: foundation.Instant, DeliveryID, AttemptID?: AttemptID,
+                     HandlerID, EventType, Reason: SafeReason}
+```
+
+HandlerID/EventType 用既有 event.StableName，ID 沿现有专用类型。Window 仅为 `5m|1h|24h`，省略时规范化为 5m 后参与 cursor 筛选摘要；其他值拒绝。Summary 的 AsOf 来自本次 DB 读取时间，WindowStart=AsOf−Window，WindowMS 固定为 300000/3600000/86400000，区间为 `[WindowStart,AsOf)`。各 Summary 分量从同一个 DB statement 的 MVCC snapshot 取得；每页重新读取并返回真实 AsOf，不持有跨页事务/持久 snapshot。Items 的既定 cursor 水位独立于本次 Summary，不用新 AsOf 改写旧 cursor，也不从当页 Items 推算总量。
+
+Scope、HandlerID、EventType 精确筛选同时作用于 Items 和全部 Summary；Project 只算该 Project，System 只算 System，不把 Admin 查询解释为全租户。`DiagnosticsFilter.Phase` 只筛 Items，Summary 始终展示匹配 scope/handler/type 的各状态；PageRequest.limit/游标位置不裁剪 Summary。Window 规定 Summary 活动统计区间，当前 backlog 不受窗口起点裁掉；Items 仍按原筛选/水位分页。无 handler 筛选时，产生 Event 数包括无订阅的 Event；指定 handler 时，只统计存在该 handler delivery 的 Event，并按 EventID 去重。
+
+| Summary 字段 | 00008 既有事实与计量口径 |
+| --- | --- |
+| PendingEvents / OldestPendingAgeMS | 当前至少有一条匹配 delivery 为 pending/processing/retry_wait 的不同 EventID 数；age 是 AsOf 减最早这类 Event 的 created_at，非 next_attempt_at，也不因多个 handler 重复计数。无 pending 时 age 为 null；旧积压即使早于 WindowStart 仍计入 |
+| RetryWaitDeliveries / FailedDeliveries / DeadLetterDeliveries | 当前匹配 delivery 各 phase 的行数，不是重试 attempt 累计次数，也不包含其他 phase |
+| HandlerLatency | 对 started_at 在窗口内的匹配 attempts 分 handler；有真实 handler_returned_at 且时间有效的行计 Count，逐行 `handler_returned_at−started_at` 向下取整毫秒后求 SumMS/MaxMS。它是 claim 至 callback 返回延迟，不伪称纯 handler CPU 时间；没有实际返回时间（含运行中/崩溃无法还原）的行计 Unknown，不进入 Count/sum/max；commit unknown 不抹掉已经持久的真实返回时间 |
+| EventThroughput | 每 event_type 的 ProducedEvents 为窗口内 events.created_at 的不同 EventID 数；SucceededDeliveries 为窗口内 processed.processed_at 的不同 DeliveryID 数，跨 handler 可大于 Event 数，重投/重复核实不重复计 marker。只对当前仍保留且匹配 scope/handler/type 的事实统计，不重建已清理项目历史 |
+| RecentErrors | 匹配 deliveries 中当前持久 safe_reason 非空、last_at 在窗口内的最近 20 条，按 last_at DESC/DeliveryID DESC；At=last_at，AttemptID 仅有真实 current_attempt_id 时给出。表示每 delivery 最近持久安全理由，不宣称完整错误历史；Reason 只能是既有 SafeReason 闭集 |
+
+Count/Unknown/各总数用 foundation.Progress，所有时长用 foundation.DurationMS，JSON 均为规范十进制字符串，不能转浮点计数。无样本时 Count=0、SumMS=0、MaxMS=null；Unknown 明列，不能把未知时长放成 0 样本。已知不足 1ms 的样本可为真实取整 0。平均值分母为 Count，Count=0 无平均值；吞吐分母为明确的正 WindowMS，不用进程 uptime/页长或返回 float/NaN。COUNT/SUM 转换前检查 MaxInt64，负时差/结构损坏/溢出拒绝，不截断或伪空成功。
+
+HandlerLatency/EventThroughput 分别按稳定名称排序、最多 128 行；超过时对应 Truncated=true，行内统计仍完整、总计不裁剪，指定单 handler/type 可查询该项。空集合返回 `[]`，空数据库是已知零而非 unknown；RecentErrors 的 20 条上限不受 PageRequest.limit 影响。统计沿现有索引和同一总计 2s 上限（更短 parent 优先）执行；超时/DB 失败不返回部分 Summary 或成功零值，不扫描/返回 payload，真实 fixture 验证计划与预算。不加统计表/迁移或跨页缓存；匿名 `/diagnostics` 只增加组件可用状态，HTTP 租户诊断绑定仍留 D07/D27。
 
 ## 9. Project 停止、显式清理与 bootstrap
 
-实现 D01 `ProjectLifecycleParticipant` 的 Outbox 适配器：Name 固定 `outbox`，Project scope 的 RequestStop/InspectStop/Cleanup 使用真实 D08 LifecycleCause（operation_id/action/project_version）和注册 project-lifecycle actor。调用在 Tx 外预收集依赖，事务内当前校验并按 Project EX → Outbox records 锁序；不从可见名称找 Project，不接受 caller 声称已删除。Meeting scope 未绑定相应来源规划则明确拒绝，不假报全 Meeting 已清。
+实现 D01 `ProjectLifecycleParticipant` 的 Outbox 适配器：Name 固定 `outbox`，Project scope 的 RequestStop/InspectStop/Cleanup 使用真实 D08 LifecycleCause（operation_id/action/project_version）和注册 project-lifecycle actor，分别携带 §3 的 stop/inspect/cleanup step。调用在 Tx 外预收集依赖，事务内当前校验并按 Project EX → Outbox records 锁序；不从可见名称找 Project，不接受 caller 声称已删除。Meeting scope 未绑定相应来源规划则明确拒绝，不假报全 Meeting 已清。
 
 archive：阻止/取消 domain_ingress 的新业务入口，实际在途需 join 后才报告所需 business stop=stopped；未运行的该类 delivery 以 source_terminal/project_stopped 终局，不启动旧业务。canonical_converge 仅按正式 gate 收敛已提交事实，可在 archived 后继续；不将这些投影写等同执行复活。Restore 只恢复未来合法准入，不能自动重开已终局 delivery/旧 execution。
 
@@ -186,7 +225,7 @@ archive checkpoint 仅对应其精确旧 operation/project_version，不是永�
 
 delete 分两阶段。RequestStop 在 Project EX 下验证 D08 已持久 deleting gate，写本域 `stopping`，停止新 claim/requeue/业务回调；其他参与者仍可在当前 D08 Lifecycle/Converge 授权下把真实停止/失效事实与 Event 原子 Append，积累为待清理 delivery。普通 mutation 不能借此进入，也不因 Outbox 已 stopped 就声称所有事件生产者已停止。停止本实例回调时不持 DB Tx 等待；外实例仍须 exact Process 死亡证据 + 同 Delivery EX 终局核实，不能按超时强行删行。
 
-InspectStop 只在该 Project 所有已 admitted 回调已 join 或精确旧实例已死且各原事务终局已核实后返回 stopped。跨实例未知不能给成功报告；不影响其他 Project 的恢复。D08 负责在其他 Project 事件生产者的停止/清理阶段收束后，最后调用 Outbox Cleanup；`ProjectAuthority.ValidateInTx(lifecycle/cleanup)` 必须读取当前 operation/participant 进度验证这一前提，不能信任旧 cause 或 caller bool。
+InspectStop 只在该 Project 所有已 admitted 回调已 join 或精确旧实例已死且各原事务终局已核实后返回 stopped。跨实例未知不能给成功报告；不影响其他 Project 的恢复。D08 负责在其他 Project 事件生产者的停止/清理阶段收束后，最后调用 Outbox Cleanup；`ProjectAuthority.ValidateInTx` 在 Kind=lifecycle、LifecycleStep=cleanup 时必须读取当前 operation/participant 进度验证这一前提，不能信任旧 cause 或 caller bool。stop/inspect 不加此其他参与者前置条件，否则 Outbox 自身停止会等待尚需产生停止事件的参与者而循环；它们仍逐次验证当前 Actor/cause、Project gate 和本域事实。
 
 Cleanup 一次 Project EX 下重查当前 cause、阶段和终局事实，再将本域置 `cleaning`，原子封闭所有 Append；此前持 SH 的 writer 先真正 commit/rollback，新旧 producer 此后都不能补事件。每批最多 100 个 Event，在 Project gate 与全部该批 record locks 下删除 attempts/processed/deliveries/requeue_commands/events 并持久 checkpoint；公平轮转受阻批次，不能因前缀受保护永久跳不到后续对象。pending/failed 可清；processing/unknown 未终局不删 marker，不得允许迟到业务写入。
 
@@ -237,11 +276,11 @@ Start 的 worker 用独立 serving context，不继承随后 cancel 的短启动
 | T06 claim 与终局 | claim commit unknown 不执行；Apply unknown marker 核实不二次调用；超时但 callback 尚活不释放 slot/fence；SIGKILL 后 exact guard+同 Delivery 锁核实，跨 host/未知/活实例不能偷 claim |
 | T07 恢复公平 | 前 64 项长期被保护，第 65 项仍推进；一个 handler 持续失败其他正常；foreign live/unbound 项不阻断本实例可收敛项；次数/退避/dead-letter 无忙循环 |
 | T08 重投/Audit | 当前 Session/Owner/Admin 边界、归档 gate、同 key 异义/旧 version 成功重放、Audit 失败整体回滚；archive→Restore 后旧 checkpoint 仍在，新 Event/delivery 正常，旧 archive cause 不能再关门，旧 terminal 不重开；失败 delivery 只增新 cycle，succeeded/processed 不重做，旧 Audit 兼容 |
-| T09 Project 删除 | stopping 中真实停止事实仍原子 Append、普通 mutation 被拒；其他生产者收束后 cleaning 在 Project EX 封闭 Append，旧 Event 尚存时同 ID 同义 Append 仍拒绝；active/新 version 不能重置删除 gate；与 writer/handler commit 竞争、旧实例/unknown、分页前缀阻挡、旧 cause/receipt 重试、迟到回调均安全，最终清零且不复活，其他 Project/System 无变动 |
+| T09 Project 删除 | lifecycle step 必填/闭集，其他 variant 不准带 step；跨 step/Actor/cause 的 Dependencies 复用拒绝。fixture provider 允许其他参与者未完成时合法 stop/inspect，仅 cleanup 因未收束拒绝；错误 Actor/cause 和未绑定 D08 均拒绝。stopping 中真实停止事实仍原子 Append、普通 mutation 被拒；其他生产者收束后 cleaning 在 Project EX 封闭 Append，旧 Event 尚存时同 ID 同义 Append 仍拒绝；active/新 version 不能重置删除 gate；与 writer/handler commit 竞争、旧实例/unknown、分页前缀阻挡、旧 cause/receipt 重试、迟到回调均安全，最终清零且不复活，其他 Project/System 无变动 |
 | T10 canonical bootstrap | 晚注册扫描期间新事件/来源删除均进入 dirty，旧 baseline/v42 不覆盖新 canonical；无 generation 时不能 ack；不从历史 payload 重建已删源 |
 | T11 真实 Central | 必需迁移/存储/绑定失败不 listen；空 catalog 机制可用但 ready503；30s 共享耗尽/2s 采样/20s 陈旧、首停在途 append、第二信号与共享 1s、DB 最后关闭 |
 | T12 guard 全路径 | 初始化对象失败、Outbox 注册失败、启动取消/晚返回；未 join handler 时强停只 Service.Force、另一进程 ConfirmStopped 仍拒绝；真 join/实际退出后才可恢复；无多 worker/泄漏 |
-| T13 安全诊断 | 真实 pending age/retry/failed、handler latency/type throughput 与事实匹配；cursor 跨 Scope/主体/筛选失败，同 cursor 改 limit 可继续且逐次限 1..100；未知耗时不伪 0；payload/原 panic/SQL/凭据不出日志和 HTTP |
+| T13 安全诊断 | 多 handler 同 Event 去重、窗口外旧 pending age、retry/failed/dead_letter、已知与 unknown latency、无订阅 Event/多成功 delivery 的吞吐、最近安全理由均与真实事实匹配；空库/null/零、毫秒与窗口边界、计数超过 2^53/溢出拒绝、128 行截断和 2s 超时不伪成功。scope/handler/type 同时限定 Summary，其他租户绝不混入；Phase 只筛 Items，limit/页位置不裁剪总计，本次 AsOf 更新而旧 cursor 水位不改。cursor 跨 Scope/主体/筛选失败，同 cursor 改 limit 可继续且逐次限 1..100；payload/原 panic/SQL/凭据不出日志和 HTTP |
 
 预期命令（实现授权后执行并记录真实结果）：
 

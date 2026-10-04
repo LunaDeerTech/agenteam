@@ -101,3 +101,9 @@ B01最终独立验收通过，root采纳。报告`/tmp/agenteam-d06-cancel-verif
 沿设计修订2 §1/§6–11授权backend完整B02：新增或修改`internal/central/outbox/`的内部dispatcher/attempt/recovery/requeue/cleanup/diagnostics/runtime实现及相应测试，补`tests/outbox/`；仅为app私有assembly/初始化/健康/实际关闭修改`internal/central/app/{app,object,resources,health,diagnostics}.go`，新增`app/outbox.go`及相应测试；`internal/platform/logging/security.go`与测试仅增固定outbox phase；新`tests/process/outbox_test.go`。必要fixture纳入只限既有`tests/testsupport/postgres/cmd/fixture/main.go`。backend独占上述源及owned Docker，可在交付前最小同步`docs/development/backend/README.md`和`AGENTS.md`的已实现D06入口/命令/未绑定限制；root继续独占本卡/计划/台账。已验公共event/outbox契约、D03/D04其他核心、D05 object/Artifact/transfer核心、Runner、旧迁移与依赖冻结；公开契约变更或额外旧文件先报告具体组合缺口。
 
 B02须完整兑现：4全局/2每handler/64批次及公平进展、独立重试/8次cycle/unknown串行核实、精确进程死亡证据与本地callback真实join、当前Human授权重投和Audit同Tx、Project归档/Restore/不可逆显式清理、真实授权诊断和cursor、Central共享30s启动/2s健康/额外1s强停。共享ProcessGuard必须在Outbox实际join后释放，未join强停仅调用Object Service.Force关闭transport且保留guard，DB最后实际关闭；失败/晚到构造全部先登记owner。不使用生产允许stub/新增必填env/全历史replay。作者完成适用普通及真实故障/进程测试、check-go后冻结，独立V最终无过滤兼容再决定D06完成；D07–D28/E01不提前开工。GitHub认证既有阻塞未解除，仅本地提交，不重复请求或声称已推送。
+
+### B02公共载体窄补口
+
+backend核实两处既定行为缺少载体：LifecycleProject无法区分stop/inspect/cleanup；DiagnosticsPage无法承载已定统计。设计修订3 SHA `3c81bf8054c06f18eb0cc3dcd02bdf59324c3c11cd2eee9dc64b2988a339e704`已补专用LifecycleStep及完整Actor/cause/step binding，仅cleanup验证其他参与者收束；typed Summary明确当前backlog/固定窗口统计/本次AsOf、空值、精确整数、scope/handler/type过滤与2s总预算。00008及方法签名不变，不加统计表或跨页snapshot。合法>2^53且≤MaxInt64仍精确字符串往返，仅超MaxInt64或负数拒绝。
+
+独立窄审无阻塞，报告`/tmp/agenteam-d06-b02-rev3-verify-zm300m59/review-report.md`，索引`c37f2a522670843f9128f90c6c78fb5eb60ff1513519fa46f43673133cbda61b`；17依赖与冻结基线一致、8链接/2fragment/格式通过，作者/V全停且未读B02活动实现。root采纳并仅追加解冻`internal/central/outbox/contract/authority.go`、`diagnostics.go`及新`lifecycle_step_test.go`、`diagnostics_test.go`给backend；可在这两文件内增加规范化binding helper，不对安全标签JSON求摘要。其余公共契约继续冻结，相关真实provider/统计验收沿原B02授权测试完成，当前只是规格通过。
