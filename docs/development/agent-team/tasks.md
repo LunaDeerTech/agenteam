@@ -744,3 +744,10 @@ root已核归位报告及精确diff：有效rev6现SHA `d063e015e80dd4b0771c1cf6
 现正式授权backend完整落实该补遗A01–A06：00011在原增量外仅mail-retry命令CHECK、smtp.delivery.retry Audit CHECK/独立SQL分支、delivery_intents.origin_intent_id可信回填/NOT NULL/no DEFAULT/RESTRICT自表FK/index；旧SQL字节不变。旧account/events.go仅delivery retry规划分派、audit_authority.go仅当前Human admin的retry Audit委派；新delivery_retry/mail_retry_audit/origin私有helper及新contract请求和测试，已解冻delivery_intent/handler补显式origin与当前绑定。Audit account.go/account_test.go新增动作及闭集，原动作不放宽。其他冻结旧文件不因此解冻，recoverylog4源+26依赖仍V审查冻结。
 
 必须真实核exact根/原command/目标User区别admin、一跳不递归、完整Tx外规划+一次锁union、Claim同root串行、未enqueue占周期、当前授权先receipt、原version仅首次+1、新周期event/Audit/receipt原子、Unknown同writer事实确认、不造attempt或延长材料。实际升级含合法历史根/坏行全回滚，和权限/同key/异key/自动claim竞争按A01–A06完成，不以静态通过替代。所有此前红保留，最终受影响测试/源依赖重新冻结后独立验收；此授权不代表B03完成。
+
+
+### B03纯recoverylog子块采纳
+
+root全文核读独立 `/tmp/agenteam-d07-b03-sink-verify-kxlsknv3/review-report.md` SHA `21feaa785920b6b33a55126736b40dcc53f968eec18def82ed53888edce87c57`、22索引 `b0c2765832e7da9b2175b3dc32c8f7263a1795a85f8f935528b804695d55d58f`，并亲读4冻结源中admission/ticket与sink完整diff，采纳纯库子块。4源/26依赖/30联合沿前述指纹；原sink_test SHA `c4aa328af16c10f343ae91956a302525e7ccb8544e1d371dd976e55fdd485d20`不变。独立新4顶层probe含6错误/panic子例 SHA `7f53e7d6c45082fbe521dd55fa87c6ed6f1129c9536151c90cc72f700a40ff8b`，31执行manifest `a3a350c979235d2a436c461cb2ea115f87466c1939491dfe72ce5991d8f193e7`；normal0.078s/race1.121s/vet各首次exit0。
+
+已实际核队首同步GrantOnce授予不可撤回且非首字节、授予前后error/panic、真实Write/Sync panic不假Written、16/24多Wait同结果、Wait取消不当Done、33项Stop/Cancel容量/锁序、Done前私有材料销毁和编码buffer清零、Force同ctx/阻塞Close/全SinkJoined区别。原Bootstrap/0600目录文件/不截断/部分写Unknown/旧Force测试均执行。作者/V/仓库30末次匹配，V任务进程/资源0/all-stop。root将仅4源+行政记录做局部本地提交；这不验收Account adapter/DB/Secret lease/root ProcessGuard，完整B03仍实现中，正式worker须只消费新Submit且待真实组合验证。已通过纯库若后续必要修改须重开受影响独立检查，不机械重跑未变输入。

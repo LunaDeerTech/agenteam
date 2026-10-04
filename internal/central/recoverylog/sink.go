@@ -112,9 +112,15 @@ type fileWriter interface {
 	Close() error
 }
 type work struct {
-	ctx    context.Context
-	record recordData
-	done   chan outcome
+	ctx                             context.Context
+	record                          recordData
+	done                            chan struct{}
+	out                             outcome
+	mu                              sync.Mutex
+	admission                       FirstWriteAdmission
+	authorizing, granted, cancelled bool
+	cancel                          context.CancelFunc
+	stop                            func() bool
 }
 type outcome struct {
 	result Result
@@ -123,6 +129,7 @@ type outcome struct {
 type sinkState struct {
 	mu         sync.Mutex
 	stopped    bool
+	works      map[*work]bool
 	writer     fileWriter
 	queue      chan *work
 	workerDone chan struct{}
@@ -184,7 +191,7 @@ func Open(path string) (*Sink, error) {
 	return newSink(f), nil
 }
 func newSink(w fileWriter) *Sink {
-	s := &sinkState{writer: w, queue: make(chan *work, 32), workerDone: make(chan struct{}), closeStart: make(chan struct{}), closeDone: make(chan struct{})}
+	s := &sinkState{writer: w, works: map[*work]bool{}, queue: make(chan *work, 32), workerDone: make(chan struct{}), closeStart: make(chan struct{}), closeDone: make(chan struct{})}
 	sink := &Sink{func() *sinkState { return s }}
 	go func() {
 		<-s.closeStart
@@ -206,18 +213,42 @@ func (s *sinkState) run() {
 		stopped := s.stopped
 		s.mu.Unlock()
 		if stopped || w.ctx.Err() != nil {
-			w.record.material.Destroy()
-			w.done <- outcome{Result{NotWritten}, failure(foundation.ShuttingDown, w.ctx.Err())}
+			s.complete(w, Result{NotWritten}, failure(foundation.ShuttingDown, w.ctx.Err()))
 			continue
 		}
-		result, err := s.write(w.record)
-		w.record.material.Destroy()
-		w.done <- outcome{result, err}
+		result, err := s.write(w)
+		s.complete(w, result, err)
 	}
 }
-func (s *sinkState) write(d recordData) (Result, error) {
-	result := Result{NotWritten}
-	err := d.material.Use(func(secret []byte) error {
+func (s *sinkState) complete(w *work, result Result, err error) {
+	w.stop()
+	w.cancel()
+	w.record.material.Destroy()
+	w.mu.Lock()
+	w.authorizing = false
+	w.out = outcome{result, err}
+	w.mu.Unlock()
+	s.mu.Lock()
+	delete(s.works, w)
+	s.mu.Unlock()
+	close(w.done)
+}
+func (s *sinkState) write(w *work) (result Result, err error) {
+	result = Result{NotWritten}
+	defer func() {
+		if recover() != nil {
+			w.mu.Lock()
+			granted := w.granted
+			w.authorizing = false
+			w.mu.Unlock()
+			if granted || result.State != NotWritten {
+				result.State = Unknown
+			}
+			err = failure(foundation.InternalError, nil)
+		}
+	}()
+	d := w.record
+	err = d.material.Use(func(secret []byte) error {
 		if d.purpose == "bootstrap" {
 			if len(secret) != 24 {
 				return bad()
@@ -262,6 +293,9 @@ func (s *sinkState) write(d recordData) (Result, error) {
 		}
 		line = append(line, '\n')
 		defer clear(line)
+		if e = w.admit(); e != nil {
+			return e
+		}
 		result.State = Unknown
 		n, e := s.writer.Write(line)
 		if e != nil {
@@ -297,12 +331,12 @@ func urlField(p string, b []byte) string {
 	}
 	return ""
 }
-func (s *Sink) submit(ctx context.Context, d recordData) (Result, error) {
+func (s *Sink) enqueue(ctx context.Context, d recordData, admission FirstWriteAdmission) (WriteTicket, error) {
 	if s == nil || s.data == nil {
-		return Result{NotWritten}, bad()
+		return WriteTicket{}, bad()
 	}
 	if e := ctx.Err(); e != nil {
-		return Result{NotWritten}, failure(foundation.DependencyUnavailable, e)
+		return WriteTicket{}, failure(foundation.DependencyUnavailable, e)
 	}
 	var copy sc.SecretMaterial
 	e := d.material.Use(func(b []byte) error {
@@ -314,31 +348,41 @@ func (s *Sink) submit(ctx context.Context, d recordData) (Result, error) {
 		return e
 	})
 	if e != nil {
-		return Result{NotWritten}, failure(foundation.DependencyUnavailable, e)
+		return WriteTicket{}, failure(foundation.DependencyUnavailable, e)
 	}
 	d.material = copy
-	w := &work{ctx: ctx, record: d, done: make(chan outcome, 1)}
+	workCtx, cancel := context.WithCancel(ctx)
+	w := &work{ctx: workCtx, cancel: cancel, record: d, done: make(chan struct{}), admission: admission}
+	w.stop = context.AfterFunc(ctx, w.cancelBeforeGrant)
 	st := s.data()
 	st.mu.Lock()
 	if st.stopped {
 		st.mu.Unlock()
 		copy.Destroy()
-		return Result{NotWritten}, failure(foundation.ShuttingDown, nil)
+		w.stop()
+		w.cancel()
+		return WriteTicket{}, failure(foundation.ShuttingDown, nil)
 	}
+	st.works[w] = true
 	select {
 	case st.queue <- w:
 		st.mu.Unlock()
 	default:
+		delete(st.works, w)
 		st.mu.Unlock()
 		copy.Destroy()
-		return Result{NotWritten}, failure(foundation.RateLimited, nil)
+		w.stop()
+		w.cancel()
+		return WriteTicket{}, failure(foundation.RateLimited, nil)
 	}
-	select {
-	case out := <-w.done:
-		return out.result, out.err
-	case <-ctx.Done():
-		return Result{Unknown}, failure(foundation.DependencyUnavailable, ctx.Err())
+	return WriteTicket{func() *work { return w }}, nil
+}
+func (s *Sink) submit(ctx context.Context, d recordData) (Result, error) {
+	t, e := s.enqueue(ctx, d, nil)
+	if e != nil {
+		return Result{NotWritten}, e
 	}
+	return t.Wait(ctx)
 }
 func (s *Sink) WriteBootstrap(ctx context.Context, r BootstrapRecord) (Result, error) {
 	if r.data == nil {
@@ -363,6 +407,9 @@ func (s *Sink) StopAdmission() {
 	st.mu.Lock()
 	if !st.stopped {
 		st.stopped = true
+		for w := range st.works {
+			w.cancelBeforeGrant()
+		}
 		close(st.queue)
 	}
 	st.mu.Unlock()
