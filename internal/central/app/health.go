@@ -39,6 +39,8 @@ type healthMonitor struct {
 	timing          healthTiming
 	objectAvailable bool
 	objectReceived  time.Time
+	outboxAvailable bool
+	outboxReceived  time.Time
 }
 
 func healthy(h postgres.DatabaseHealth) bool {
@@ -62,7 +64,15 @@ func (h *healthMonitor) objectSnapshot() bool {
 	defer h.mu.RUnlock()
 	return h.objectAvailable && h.timing.now().Sub(h.objectReceived) <= h.timing.stale
 }
-func (h *healthMonitor) run(ctx context.Context, db database, logger processLogger, objects ...objectStorage) {
+
+type healthComponent interface{ Check(context.Context) error }
+
+func (h *healthMonitor) outboxSnapshot() bool {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	return h.outboxAvailable && h.timing.now().Sub(h.outboxReceived) <= h.timing.stale
+}
+func (h *healthMonitor) run(ctx context.Context, db database, logger processLogger, objects ...healthComponent) {
 	timer := time.NewTicker(h.timing.interval)
 	defer timer.Stop()
 	for {
@@ -85,7 +95,7 @@ func (h *healthMonitor) run(ctx context.Context, db database, logger processLogg
 			done <- databaseSample{next, err}
 		}(databaseDone)
 		objectDone := make(chan error, 1)
-		var objectService objectStorage
+		var objectService healthComponent
 		if len(objects) > 0 {
 			objectService = objects[0]
 		}
@@ -96,9 +106,21 @@ func (h *healthMonitor) run(ctx context.Context, db database, logger processLogg
 				done <- errors.New("OBJECT_UNBOUND")
 			}
 		}(objectDone)
+		outboxDone := make(chan error, 1)
+		var outboxService healthComponent
+		if len(objects) > 1 {
+			outboxService = objects[1]
+		}
+		go func(done chan error) {
+			if outboxService != nil {
+				done <- outboxService.Check(sample)
+			} else {
+				done <- errors.New("OUTBOX_UNBOUND")
+			}
+		}(outboxDone)
 		var next postgres.DatabaseHealth
-		var err, objectErr error
-		for databaseDone != nil || objectDone != nil {
+		var err, objectErr, outboxErr error
+		for databaseDone != nil || objectDone != nil || outboxDone != nil {
 			select {
 			case result := <-databaseDone:
 				next = result.health
@@ -107,7 +129,14 @@ func (h *healthMonitor) run(ctx context.Context, db database, logger processLogg
 			case result := <-objectDone:
 				objectErr = result
 				objectDone = nil
+			case result := <-outboxDone:
+				outboxErr = result
+				outboxDone = nil
 			case <-sample.Done():
+				if outboxDone != nil {
+					outboxErr = sample.Err()
+					outboxDone = nil
+				}
 				if databaseDone != nil {
 					err = sample.Err()
 					databaseDone = nil
@@ -124,6 +153,9 @@ func (h *healthMonitor) run(ctx context.Context, db database, logger processLogg
 		if objectErr == nil {
 			objectErr = sample.Err()
 		}
+		if outboxErr == nil {
+			outboxErr = sample.Err()
+		}
 		cancel()
 		if ctx.Err() != nil {
 			return
@@ -137,11 +169,23 @@ func (h *healthMonitor) run(ctx context.Context, db database, logger processLogg
 		if objectErr == nil {
 			h.objectReceived = h.timing.now()
 		}
+		outboxChanged := h.outboxAvailable != (outboxErr == nil)
+		h.outboxAvailable = outboxErr == nil
+		if outboxErr == nil {
+			h.outboxReceived = h.timing.now()
+		}
 		if available {
 			h.last = next
 			h.received = h.timing.now()
 		}
 		h.mu.Unlock()
+		if outboxChanged {
+			if outboxErr == nil {
+				logger.Security(logging.OutboxAvailable)
+			} else {
+				logger.Security(logging.OutboxUnavailable)
+			}
+		}
 		if objectChanged {
 			if objectErr == nil {
 				logger.Security(logging.ObjectAvailable)

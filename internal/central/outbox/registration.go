@@ -20,10 +20,27 @@ func (s *Service) RegisterHandler(ctx context.Context, input oc.HandlerDefinitio
 		return oc.Registration{}, err
 	}
 	r := s.state()
+	r.mu.RLock()
+	runtime := r.runtime
+	r.mu.RUnlock()
+	if runtime != nil {
+		var done func()
+		ctx, done, err = runtime.data().beginControl(ctx)
+		if err != nil {
+			return oc.Registration{}, err
+		}
+		defer done()
+	}
 	// Serialize local publication as well as DB registration: a slower caller
 	// must not replace a newer in-process declaration after its commit.
-	r.mu.Lock()
-	defer r.mu.Unlock()
+	r.registerMu.Lock()
+	defer r.registerMu.Unlock()
+	r.mu.RLock()
+	stopped := r.claimsStopped
+	r.mu.RUnlock()
+	if stopped {
+		return oc.Registration{}, failure(foundation.ShuttingDown, nil)
+	}
 	registrationID, err := foundation.NewID[foundation.TransactionAttempt]()
 	if err != nil {
 		return oc.Registration{}, unavailable(err)
@@ -67,6 +84,11 @@ func (s *Service) RegisterHandler(ctx context.Context, input oc.HandlerDefinitio
 		}
 	} else if err = commitError(commit); err != nil {
 		return oc.Registration{}, err
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if r.claimsStopped {
+		return oc.Registration{}, failure(foundation.ShuttingDown, nil)
 	}
 	r.handlers[def.ID] = def
 	return result, nil

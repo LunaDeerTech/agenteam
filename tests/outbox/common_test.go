@@ -267,6 +267,10 @@ func (a *authority) ValidateAppendInTx(ctx context.Context, tx foundation.Tx, ac
 	return nil
 }
 func projectBinding(r oc.ProjectRequest) foundation.Digest {
+	if r.Details().Kind == oc.RequeueProject {
+		b, _ := oc.RequeueBinding(r)
+		return b
+	}
 	d := r.Details()
 	a, _ := oc.StableActor(d.Actor)
 	b, _ := json.Marshal(struct {

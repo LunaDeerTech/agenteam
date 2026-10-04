@@ -320,7 +320,7 @@
 
 ## AT-0013：D06 Transactional Outbox 与事件投递
 
-- 状态：实现中；唯一活动模块D06，[主卡](../work-items/d06-transactional-outbox.md)修订1，基线main@6b2ca24，D05已完整独立验收并提交、工作区干净。
+- 状态：已完成；D06 S01/B01/B02独立验收与root采纳通过，[主卡](../work-items/d06-transactional-outbox.md)修订2/设计修订5；原基线main@6b2ca24，下一模块D07。
 - architecture_worker仅新增完整工程设计，明确注册屏障/typed事件/Tx组合/独立投递与重投/顺序/Project清理/Central生命周期，旧源码和契约只读；root拥有本卡/计划/台账，设计冻结后独立审查再授权实现。
 - 00008为候选新全局迁移，旧00001–00007和Go依赖冻结；真实环境沿D05固定owned PG/MinIO，当前不使用Docker。D07–D28/E01不提前实施，当前无新产品待定。
 - D05最终实现提交6b2ca24；31本地提交待既有GitHub认证恢复，未声称推送。
@@ -356,3 +356,7 @@
 - B02完整45源/345依赖已冻结，390 union7c2a7dfb7f7c34d535fd4c320f743771ac9de288c346ea28ccc7401ee19199dd逐项匹配；最终check-go/60真实顶层作者通过，51nonce清零且全停。V独占Docker在稳定副本独立审查与无过滤验收中，terminalProof错误分类疑点待验证；业务源码尚未采纳，详见主卡。
 
 - B02首轮V确认V-B02-01生命周期吞终止证明硬错误；原probe085815e19ec04320b79876980b9d1fea9b7d190412a95f10752d3f0f9c551563，索引b0eafff3e74f83d54984f27b0a99f16c0cfc97ab538a3dfe231ad2a139888669。9项独立真实风险通过但整体未通过；V全停/9nonce归零。root仅解冻cleanup.go及新lifecycle_errors_test.go，保留独立推进并返回硬错，修后原probe和无过滤最终验收，详主卡。
+
+- V-B02-01原probe修后逐字关闭，但无过滤exit1/440.813s唯一失败为旧database显式Terminate清理，具体底层分支未确证；其他app/process/security/outbox/objects过。索引41234373f5c6771a99ecf8fb8d61c99e58e2a59ede6885e79a5912b9dd10c997，391输入匹配/3nonce清零/V全停。root最小授权fixture.Terminate与新真实回归，先确定性旧红后修exact PID已消失幂等且foreign/真实错误拒绝，原产品行为/测试预算不改，完整门槛仍待。
+
+- D06最终完成：48源/344依赖稳定，单次无过滤exit0/422.711s全部包通过，原78449b/085815逐字闭环及新增真实42501探针过。最终索引b876565946459a7d24f3f53c8fbe209eb26579c96879559e274c6ad3b88f83cd，392冻结/395执行输入一致，3nonce清零/V全停，root审查采纳。helper提交1ac84e8，其余B02随最终提交；未绑定责任及历史失败根因限定见主卡。下一D07；D07–D28/E01待完成，既有推送认证阻塞不变。

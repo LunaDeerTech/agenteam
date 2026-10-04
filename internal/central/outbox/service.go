@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"sync"
 
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -24,14 +26,21 @@ type Authorizations struct {
 	Producers map[event.StableName]oc.ProducerAuthority
 	Projects  oc.ProjectAuthority
 	Processes oc.ProcessAuthority
+	Sessions  identity.SessionAuthority
+	System    identity.SystemAuthority
+	Audit     ac.Appender
+	Cursors   cursor.Keyring
 }
 type serviceState struct {
-	store    Store
-	catalog  *event.Catalog
-	auth     Authorizations
-	issuer   oc.PlanIssuer
-	mu       sync.RWMutex
-	handlers map[event.StableName]oc.HandlerDefinition
+	store         Store
+	catalog       *event.Catalog
+	auth          Authorizations
+	issuer        oc.PlanIssuer
+	mu            sync.RWMutex
+	registerMu    sync.Mutex
+	handlers      map[event.StableName]oc.HandlerDefinition
+	runtime       *Runtime
+	claimsStopped bool
 }
 type Service struct{ data func() *serviceState }
 
@@ -39,7 +48,7 @@ func New(store Store, catalog *event.Catalog, auth Authorizations) (*Service, er
 	if nilPort(store) || !catalog.Valid() {
 		return nil, invalid()
 	}
-	copyAuth := Authorizations{Projects: auth.Projects, Processes: auth.Processes, Producers: make(map[event.StableName]oc.ProducerAuthority)}
+	copyAuth := Authorizations{Projects: auth.Projects, Processes: auth.Processes, Sessions: auth.Sessions, System: auth.System, Audit: auth.Audit, Cursors: auth.Cursors, Producers: make(map[event.StableName]oc.ProducerAuthority)}
 	for name, provider := range auth.Producers {
 		if name.Validate() != nil || nilPort(provider) {
 			return nil, invalid()
@@ -140,6 +149,12 @@ func (s *Service) CheckStorage(ctx context.Context) error {
         EXISTS(SELECT event_id,format FROM agenteam_outbox.processed LIMIT 1),
         EXISTS(SELECT command_hash,format FROM agenteam_outbox.requeue_commands LIMIT 1),
         EXISTS(SELECT project_id,format FROM agenteam_outbox.project_lifecycle LIMIT 1)`).Scan(&tables[0], &tables[1], &tables[2], &tables[3], &tables[4], &tables[5]); err != nil {
+		return unavailable(err)
+	}
+	// Version nine is the transactional representation of a genuinely stopped
+	// but never claimed Project delivery. Do not start on the older CHECK.
+	var stopSchema bool
+	if err := s.state().store.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_meta.migration_journal WHERE version=9 AND filename='00009_outbox_unattempted_stop.sql' AND mode='tx' AND state='applied') AND EXISTS(SELECT 1 FROM pg_constraint WHERE conrelid='agenteam_outbox.deliveries'::regclass AND conname='outbox_deliveries_attempt_check' AND convalidated AND position('project_stopped' in pg_get_constraintdef(oid))>0)`).Scan(&stopSchema); err != nil || !stopSchema {
 		return unavailable(err)
 	}
 	var handlers, fanout int

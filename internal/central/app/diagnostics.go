@@ -41,6 +41,9 @@ func diagnosticRouter(monitor *healthMonitor, securityInitialized bool, secrets 
 		if outboundService == nil || !outboundService.Status().Available {
 			code = foundation.DependencyUnavailable
 		}
+		if !monitor.outboxSnapshot() {
+			code = foundation.DependencyUnavailable
+		}
 		if !monitor.objectSnapshot() {
 			code = foundation.DependencyUnavailable
 		}
@@ -94,8 +97,14 @@ func diagnosticRouter(monitor *healthMonitor, securityInitialized bool, secrets 
 		} else {
 			stage = "unavailable"
 		}
+		outboxStatus := "unavailable"
+		if monitor.outboxSnapshot() && available {
+			outboxStatus = "available"
+		} else {
+			stage = "unavailable"
+		}
 		_ = httpapi.WriteJSON(w, r, http.StatusOK, diagnostics{Ready: false, Database: database, SecurityStage: stage, Secret: secretState, Outbound: outboundState, Capabilities: []capability{
-			{"postgresql", status}, {"pgvector", status}, {"migrations", status}, {"read_write", status}, {"cursor", securityStatus}, {"audit_storage", auditStatus}, {"audit_authorization", "unbound"}, {"secret", secretStatus}, {"secret_authorization", "unbound"}, {"outbound", outboundStatus}, {"outbound_authorization", "unbound"}, {"object_storage", objectStatus}, {"object_authorization", "unbound"}, {"runner_transfer_authorization", "unbound"}, {"identity", "unbound"}, {"runner_protocol", "unbound"},
+			{"postgresql", status}, {"pgvector", status}, {"migrations", status}, {"read_write", status}, {"cursor", securityStatus}, {"audit_storage", auditStatus}, {"audit_authorization", "unbound"}, {"secret", secretStatus}, {"secret_authorization", "unbound"}, {"outbound", outboundStatus}, {"outbound_authorization", "unbound"}, {"object_storage", objectStatus}, {"outbox", outboxStatus}, {"outbox_authorization", "unbound"}, {"outbox_handlers", "unbound"}, {"object_authorization", "unbound"}, {"runner_transfer_authorization", "unbound"}, {"identity", "unbound"}, {"runner_protocol", "unbound"},
 		}})
 	})
 	return router

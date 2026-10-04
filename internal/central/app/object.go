@@ -19,6 +19,23 @@ type objectStorage interface {
 	Force(context.Context) error
 }
 
+// This is app-private ownership, not a domain capability or public guard lease.
+type objectAssembly struct {
+	process oc.ProcessID
+	service *object.Service
+	guard   *object.ProcessGuard
+	runtime *object.Runtime
+}
+
+func (a *objectAssembly) StartMaintenance(ctx context.Context) error {
+	return a.runtime.StartMaintenance(ctx)
+}
+func (a *objectAssembly) Check(ctx context.Context) error           { return a.runtime.Check(ctx) }
+func (a *objectAssembly) StopAdmission()                            { a.runtime.StopAdmission() }
+func (a *objectAssembly) Drain(ctx context.Context) error           { return a.runtime.Drain(ctx) }
+func (a *objectAssembly) Force(ctx context.Context) error           { return a.runtime.Force(ctx) }
+func (a *objectAssembly) forceTransports(ctx context.Context) error { return a.service.Force(ctx) }
+
 func initializeObjects(ctx context.Context, cfg config.Config, db database, auditing *audit.Service) (objectStorage, error) {
 	store, ok := db.(object.Store)
 	if !ok {
@@ -74,5 +91,6 @@ func initializeObjects(ctx context.Context, cfg config.Config, db database, audi
 		return nil, err
 	}
 	owned = true
-	return runtime, runtime.Initialize(ctx)
+	assembly := &objectAssembly{process: process, service: service, guard: guard, runtime: runtime}
+	return assembly, runtime.Initialize(ctx)
 }

@@ -59,6 +59,7 @@ type dependencies struct {
 	secret   func(context.Context, config.Config, database, *audit.Service) (maintenance, error)
 	outbound func(context.Context, config.Config, database, *audit.Service) (egress, error)
 	objects  func(context.Context, config.Config, database, *audit.Service) (objectStorage, error)
+	outbox   func(config.Config, database, *audit.Service, objectStorage) (outboxStorage, error)
 }
 
 type startupResult struct {
@@ -66,6 +67,8 @@ type startupResult struct {
 	sampled         time.Time
 	objectSampled   time.Time
 	objectAvailable bool
+	outboxSampled   time.Time
+	outboxAvailable bool
 	err             error
 	code            lifecycle.FailureCode
 	securityFailure bool
@@ -113,6 +116,9 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	if deps.objects == nil {
 		deps.objects = initializeObjects
 	}
+	if deps.outbox == nil {
+		deps.outbox = createOutbox
+	}
 	startup, cancelStartup := context.WithCancel(control.StopContext())
 	defer cancelStartup()
 	initialized := make(chan startupResult, 1)
@@ -144,10 +150,15 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	monitor.received = initial.sampled
 	monitor.objectReceived = initial.objectSampled
 	monitor.objectAvailable = initial.objectAvailable
+	monitor.outboxReceived = initial.outboxSampled
+	monitor.outboxAvailable = initial.outboxAvailable
 	healthContext, cancelHealth := context.WithCancel(context.Background())
 	defer cancelHealth()
 	healthDone := make(chan struct{})
-	go func() { defer close(healthDone); monitor.run(healthContext, owned.store(), logger, owned.objects()) }()
+	go func() {
+		defer close(healthDone)
+		monitor.run(healthContext, owned.store(), logger, owned.objects(), owned.outbox())
+	}()
 	if deps.handler == nil {
 		deps.handler = diagnosticRouter(monitor, true, owned.secret(), owned.outbound())
 	}
@@ -191,6 +202,7 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	owned.stopMaintenance()
 	owned.stopOutbound()
 	owned.stopObjects()
+	owned.stopOutbox()
 	cancelHealth()
 	drain, cancelDrain := control.DrainContext()
 	defer cancelDrain()
@@ -204,17 +216,33 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			outboundDone <- nil
 		}
 	}()
-	objectDone := make(chan error, 1)
+	outboxDone := make(chan error, 1)
 	go func() {
-		if service := owned.objects(); service != nil {
-			objectDone <- service.Drain(drain)
+		if service := owned.outbox(); service != nil {
+			outboxDone <- service.Drain(drain)
 		} else {
-			objectDone <- nil
+			outboxDone <- nil
 		}
 	}()
+	// The object guard stays held while HTTP producers or Outbox callbacks can
+	// still own work. Once both join, Runtime.Drain may retire it.
+	var objectDone chan error
+	objectStarted := false
+	outboxDrained := false
 	var databaseDone chan error
 	httpDrained, databaseDrained, outboundDrained, objectDrained := false, false, false, false
 	for {
+		if httpDrained && outboxDrained && !objectStarted {
+			objectStarted = true
+			objectDone = make(chan error, 1)
+			go func() {
+				if service := owned.objects(); service != nil {
+					objectDone <- service.Drain(drain)
+				} else {
+					objectDone <- nil
+				}
+			}()
+		}
 		if httpDrained && outboundDrained && objectDrained && maintenanceDone == nil && databaseDone == nil && !databaseDrained {
 			databaseDone = make(chan error, 1)
 			go func() { store := owned.store(); store.StopAdmission(); databaseDone <- store.Drain(drain) }()
@@ -259,6 +287,13 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			} else {
 				code = lifecycle.ShutdownTimeout
 			}
+		case err := <-outboxDone:
+			outboxDone = nil
+			if err == nil {
+				outboxDrained = true
+			} else {
+				code = lifecycle.ShutdownTimeout
+			}
 		case err := <-objectDone:
 			objectDone = nil
 			if err == nil {
@@ -288,6 +323,12 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 		if outboundDone != nil {
 			select {
 			case <-outboundDone:
+			case <-forced.Done():
+			}
+		}
+		if outboxDone != nil {
+			select {
+			case <-outboxDone:
 			case <-forced.Done():
 			}
 		}
@@ -402,6 +443,32 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 		logger.Security(logging.SecurityFailed)
 		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
 	}
+	logger.Security(logging.OutboxInitializing)
+	outboxService, err := deps.outbox(cfg, store, auditService, objectService)
+	if outboxService != nil && !owned.addOutbox(ctx, outboxService) {
+		err = context.Canceled
+	}
+	if err == nil {
+		err = ctx.Err()
+	}
+	if err == nil && outboxService != nil {
+		err = outboxService.Initialize(ctx)
+	}
+	if err == nil && outboxService != nil {
+		err = outboxService.Start(context.WithoutCancel(ctx))
+	}
+	if err == nil && outboxService != nil {
+		err = outboxService.Check(ctx)
+	}
+	outboxSampled := deps.health.now()
+	if err != nil {
+		logger.Security(logging.OutboxUnavailable)
+		logger.Security(logging.SecurityFailed)
+		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
+	}
+	if outboxService != nil {
+		logger.Security(logging.OutboxAvailable)
+	}
 	// Startup may spend most of its security budget on a real storage probe.
 	// Refresh an old DB sample within the remainder, never reset its age.
 	if deps.health.now().Sub(sampled) > deps.health.stale {
@@ -426,7 +493,7 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 		return failed(err)
 	}
 	logger.Database(logging.DatabaseHealthy, "", "", migration.Version)
-	return startupResult{health: health, sampled: sampled, objectSampled: objectSampled, objectAvailable: objectService != nil}
+	return startupResult{health: health, sampled: sampled, objectSampled: objectSampled, objectAvailable: objectService != nil, outboxSampled: outboxSampled, outboxAvailable: outboxService != nil}
 }
 
 func stopStartup(logger processLogger, control *lifecycle.Controller, owned *resources, initialized <-chan startupResult) error {
@@ -434,6 +501,7 @@ func stopStartup(logger processLogger, control *lifecycle.Controller, owned *res
 	owned.stopMaintenance()
 	owned.stopOutbound()
 	owned.stopObjects()
+	owned.stopOutbox()
 	drain, cancel := control.DrainContext()
 	defer cancel()
 	var drained chan error
@@ -451,6 +519,12 @@ func stopStartup(logger processLogger, control *lifecycle.Controller, owned *res
 					}
 				}
 				if service := owned.outbound(); service != nil {
+					if err := service.Drain(drain); err != nil {
+						drained <- err
+						return
+					}
+				}
+				if service := owned.outbox(); service != nil {
 					if err := service.Drain(drain); err != nil {
 						drained <- err
 						return

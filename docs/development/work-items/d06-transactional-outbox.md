@@ -1,6 +1,6 @@
 # D06 Transactional Outbox 与事件投递
 
-- 修订：1；状态：实现中；唯一活动模块D06，台账AT-0013。
+- 修订：2；状态：已完成；S01/B01/B02独立验收及root审查通过，台账AT-0013；下一模块D07。
 - 基线：`main@6b2ca24`，D05完整验收后工作区干净。D01–D05前置均通过；D05证据及未来绑定限制见[主卡](d05-object-storage-artifact.md)。31个本地提交因既有GitHub认证失效待推，不重复请求或冒称已同步。
 - 目标：同业务Tx的typed事件写入、持久handler注册与投递、幂等/顺序、失败退避/dead-letter/显式重投、重启恢复与Central生命周期；事件不作为业务Source of Truth。
 - 依据：[开发计划](../development-plan.md#d06-outbox-与事件投递)、[事件架构](../../architecture/platform-infrastructure/internal-domain-events.md)、[D01事实与实时](d01-contracts/runtime-events.md)、[生命周期](d01-contracts/domain-lifecycle.md)、[基础Tx/锁/幂等](d01-contracts/foundation.md)、[W40](d01-contracts/walkthroughs.md)。已确认规则不重复产品提问。
@@ -11,8 +11,8 @@
 | --- | --- | --- | --- |
 | S01 完整工程规格 | architecture_worker | 新增d06-transactional-outbox-design.md；已验源码/架构/契约只读；不使用Docker | rev5独立静态通过，冻结 |
 | B01 持久事件与可组合事务 | backend_worker | 已冻结B01源码/00008及取消必要返修 | 完整独立验收通过 |
-| B02 可运行投递与全生命周期 | backend_worker | 下文精确授权；45源已冻结 | 作者自测通过，独立验收中 |
-| V01 独立规格与业务验证 | verification_worker | 只读停写输入/独立副本，验证阶段独占owned PG/MinIO fixture | S01/B01通过；B02稳定副本验证中 |
+| B02 可运行投递与全生命周期 | backend_worker | 下文精确授权；45源已冻结 | 完整独立验收通过 |
+| V01 独立规格与业务验证 | verification_worker | 只读停写输入/独立副本，验证阶段独占owned PG/MinIO fixture | S01/B01/B02通过，全部停止 |
 
 root独占本卡、计划和台账，其他文档仅按授权移交。遵循AGENTS及agenteam-design/go-development/verification/documentation技能，禁止子agent再委派及任何Git写操作。不提前D07+，不在S01实施源码。设计冻结并经独立审查/root采纳才开工。
 
@@ -146,3 +146,33 @@ RequeueTarget两源独立通过，source `/tmp/agenteam-d06-b02-target-source.sh
 报告`verification/review-report.md` SHA `0c40228e71e3a2af0706d0944524cab1dc0a5c5803bd7229cc62db5117870d3a`、索引`b0eafff3e74f83d54984f27b0a99f16c0cfc97ab538a3dfe231ad2a139888669`。独立9项真实风险组exit0/database4.000/app3.891/outbox18.145s，局部race/vet通过；390输入末次匹配、9nonce及进程清零/V全停。无过滤留修后最终版本，B02未通过。
 
 root采纳，仅解冻`internal/central/outbox/cleanup.go`及新`tests/outbox/lifecycle_errors_test.go`给backend返修，其他44源及345依赖冻结；Docker顺序交backend。保首硬错并继续有预算独立项，未获终止证明项保持保护；当前授权/DB/commit unknown/parent取消依原语义，不能返回伪完成。正常拒绝和有明确信号的单项预算保护不误报硬故障。原probe逐字复验，补错误优先级/公平进展/原生命周期组合，再冻结增量+完整manifest交独立复核与无过滤最终门槛。无需新增产品或公共接口决定。
+
+
+V-B02-01窄修已冻结：delta2 `b9d5a09c8c0f72923e26f06b76646720b641751ef3b587f5483967b7d4f1091a`，完整46源`8dfaac248854f0cbc4ab37b30851c3d653517f038019ed913cfd60aa40b820b1`，345deps不变，391 union `f84f7d9800887b254d563f3945a44e591c133ef922dd6dc6a69eff2bfe09022d`；root逐项匹配并审cleanup差异。作者报告`/tmp/agenteam-d06-b02-repair-W3EG6mXS/repair-report.md` SHA `1468f430c3eef87ed4b28de8a2abfe85ff0299366825d89f1f9133bd52a27572`，索引`b8c7cc3a068abc24eac53acd6e361130a8b164f3d1d1ae23822017cd87346d3e`。原085815探针逐字三入口通过，新增错误优先级/硬错与item deadline竞争及全部受影响生命周期17顶层race41.840s通过，check-go全过；日志分别`b66933ffa5ff7f20410bdad309819001bb84a49eebf19b14b658f19e5f9d67ed`、`8946b57d3142f88ec0010c0179e84298481467a06d3d08aa1c47d8f8f3d9da02`。3nonce清零/作者全停。
+
+V新稳定副本`/tmp/agenteam-d06-b02-final-verify-o8r7bvhi`核391项一致，389旧输入逐字不变；窄修静态复核无新增阻塞，将原085815probe逐字加入无过滤总组，392执行manifest `f85e8adb5aafed2b974726e4dd44ea3903183c5b96dd233d18a635dc2f883774`。最终结果尚待返回，未先采纳业务源。
+
+
+修后独立原085815probe逐字通过3.27s，V-B02-01关闭。单次无过滤test-objects exit1/440.813s：仅database101.208s失败；app68.515/process139.889/security137.224/outbox143.193/objects306.186s及其余包通过。失败在旧`TestPoolCancellationFailureDoesNotClaimServerStopped/cancelled_parent`产品断言通过后的显式fixture清理，`Database.Terminate`报统一错误。PG确有exact PID204实际user-request cancel；helper把ErrNoRows/其他查询错误/false折叠，未记录底层分支，不能断言本次由退出竞态导致或归因负载。静态“观察仍存→helper调用前退出→ErrNoRows”可达，需确定性验证。
+
+V报告`/tmp/agenteam-d06-b02-final-verify-o8r7bvhi/verification/review-report.md` SHA `8665cafaea966217e6fe087e83086ac2557ca7f8e5d90f2e8161525c6cfbb36b`，索引`41234373f5c6771a99ecf8fb8d61c99e58e2a59ede6885e79a5912b9dd10c997`，full.log `6b7e498445e8ab569a5a4a24347ea7920f7f2ae19c23641246ddef031589f9e2`；391输入末次匹配，3nonce清零/V全停。保留此失败，完整B02门槛未通过。
+
+root仅追加授权backend `tests/testsupport/postgres/fixture.go`的Database.Terminate及新`tests/database/fixture_termination_test.go`，先稳定旧副本实际复现已观测owned PID随后退出的清理失败，再最小修为exact PID确已不存在时幂等成功。foreign数据库中仍存在PID必须拒绝且不触碰；真实连接/查询错误或仍存活且terminate=false不得伪成功，保留可区分的安全错误链。只改善测试清理，不改生产取消机制、旧cancellation_cases_test.go、原产品断言/预算、其他B02源码或迁移依赖。测gone重复、live-owned终止与实际gone、foreign拒绝及失败/取消边界后冻结，独立复核再单次无过滤最终门槛；实际此前失败分支未确证的限定继续保留。
+
+
+测试helper窄修已冻结：`/tmp/agenteam-d06-terminate-repair-66IF9SHP`的delta2 `6761d4d7cb7331c9910f313199a7ab4eb456427a6bc7d1226533905708191d97`，48源`1e6d37885ffa1bbd7a0df226d0b789ab18903b637f65d37f9b76d3a8cc6c6328`、344deps `f648653dfc736659348cae9e42426ba0605598f5f918f160219ec842c39bb351`、392union `8d96b37189cf57db378cb666f4aae786e82039feb4c27271ee5d16b175f5b2b3`；fixture.go从deps移source，其余390旧输入不变。root逐项匹配并审差异。
+
+旧稳定副本真实ownedPID先活→Close→waitgone→原Terminate确定性失败；原probe SHA `78449b47f79d3357501315f76c70a12685cef4670d52a64651cda5bc887c85cd`，red.log `7d212cf46ae12d752c0b5162d818be8097f4d9aaaaf69dbf9a1cf8bceaf1ebea`。修后原probe逐字绿、原PoolCancellation全组/新helper21顶层通过，database race11.364s，green.log `0dc322ceb5edaf0440a5ca27031f6c20fb4e15a4a438d8fb2577fe9292bf2dfb`；check-go通过`efe28922df0471ae24c7947b1702c2d1390cef5d131803a0169ada7784210189`。错误枚举误用仅编译失败已修，记录保留。报告SHA `cda7c19dd360c25e20d11a7d3ae703d4ece364fe0c7fc7694a7ea3697ae73874`，索引`e6b30d545864ebf4185ea6fa8e05a50f44fea2b30fb135760b1b4eb8b7e0abb7`；6nonce清零/作者全停。原全组PID204底层分支依旧未确证，不被本确定性红绿替代。
+
+V独立副本`/tmp/agenteam-d06-terminate-verify-kl997lh8`392匹配，将原78449b和085815probe逐字加入无过滤最终组，并补真实低权限PostgreSQL 42501错误不伪gone的探针。没有修改产品断言/预算；最终结果仍待返回。
+
+
+## D06最终采纳与后续绑定
+
+root已审全部增量主链、窄修和独立报告，采纳B02完整验收，D06完成。最终报告`/tmp/agenteam-d06-terminate-verify-kl997lh8/verification/review-report.md` SHA `3a9d1b7c1df941086d56ce9bcb00411007ba8c3f974c25e099fb9857f8998626`，29项索引`b876565946459a7d24f3f53c8fbe209eb26579c96879559e274c6ad3b88f83cd`。单次无过滤test-objects exit0/422.711s，日志`e88b9b58e0e8c26bff9dadf6a997ce1e1bd0db20a07ede620e13a99aceca54b1`；database100.960/app69.077/process140.244/security133.321/outbox142.676/objects302.159s及其余包全过。两个原78449b/085815probe逐字通过，新增真实42501探针验证查询错误保留安全链且target仍live。4个child入口预期skip的真实父场景已通过，不计作跳过能力。
+
+392冻结输入和395执行输入末次逐项一致，执行manifest `d335da3a3aa1a27984055afef3f900214296355361df6860f0419e10292a9d43`；cleanup `622e34620c91dc58f2e57d7f40841ddab0920417e9ff94a94a735518ccac314c`确认3nonce容器/network/runtime全0，V全部读写与命令已停。一次监测transport断连单独记录，原执行未重启。测试helper先独立提交`1ac84e8`；其余46源与本主卡/台账/计划随B02最终提交。没有未提交业务返修或已确认阻塞。
+
+当前完成的是事务事件、可靠投递、重投/诊断和生命周期机制：D07绑定真实Session/System身份；D08绑定Project当前授权、生命周期Actor解析与删除协调；各领域自行注册正式producer/handler，D24/D25完成真实canonical generation/dirty投影组合；没有全历史replay或生产成功stub。Central空catalog机制可运行而ready=false，Runner仍未连接。实际child SIGKILL+Wait证明精确进程死亡，未验证真实主机reboot；PG接受signal/本地join不代表server终止。此前PID204具体清理分支与历史B01启动失败原因仍未确证，原失败证据保留，不能以本次成功改写。
+
+后续按既有授权连续进入D07账号/Session/SMTP/个人资料；D07–D28/E01未完成。GitHub认证既有阻塞未解除，当前只完成本地main提交，不重试无效凭据、不声称已推送。

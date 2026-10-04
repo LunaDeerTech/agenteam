@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"time"
 
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -150,14 +151,19 @@ func deliveryProjectRequest(snap deliverySnapshot) (oc.ProjectRequest, error) {
 // Retry/Reject/panic rollback here; durable scheduling is the dispatcher's job.
 // Unknown never triggers another callback or an implicit transaction retry.
 func (s *Service) ApplyDelivery(ctx context.Context, plan DeliveryPlan) (foundation.CommitResult, oc.Result) {
+	commit, outcome, _ := s.applyDeliveryObserved(ctx, plan)
+	return commit, outcome
+}
+func (s *Service) applyDeliveryObserved(ctx context.Context, plan DeliveryPlan) (foundation.CommitResult, oc.Result, *time.Time) {
 	if plan.data == nil || plan.data().issuer != s.state() {
-		return foundation.NotCommittedResult(foundation.NewFault(foundation.InvalidArgument, foundation.NotCommitted)), oc.Result{}
+		return foundation.NotCommittedResult(foundation.NewFault(foundation.InvalidArgument, foundation.NotCommitted)), oc.Result{}, nil
 	}
 	d := plan.data()
 	ctx, cancel := context.WithDeadline(ctx, d.snapshot.deadline)
 	defer cancel()
 	cause, _ := foundation.NewDeliveryCause(d.snapshot.identity.EventID.String(), string(d.snapshot.identity.HandlerID))
 	var outcome oc.Result
+	var returned *time.Time
 	commit := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) (err error) {
 		defer func() {
 			if recover() != nil {
@@ -168,12 +174,12 @@ func (s *Service) ApplyDelivery(ctx context.Context, plan DeliveryPlan) (foundat
 		if err = s.state().store.AcquireAll(ctx, tx, d.locks); err != nil {
 			return unavailable(err)
 		}
-		outcome, err = s.applyDeliveryInTx(ctx, tx, d)
+		outcome, err = s.applyDeliveryInTx(ctx, tx, d, &returned)
 		return err
 	})
-	return commit, outcome
+	return commit, outcome, returned
 }
-func (s *Service) applyDeliveryInTx(ctx context.Context, tx foundation.Tx, d deliveryPlanData) (oc.Result, error) {
+func (s *Service) applyDeliveryInTx(ctx context.Context, tx foundation.Tx, d deliveryPlanData, returned **time.Time) (oc.Result, error) {
 	if err := s.state().store.RequireHeldLocks(ctx, tx, d.locks); err != nil {
 		return oc.Result{}, unavailable(err)
 	}
@@ -221,7 +227,10 @@ func (s *Service) applyDeliveryInTx(ctx context.Context, tx foundation.Tx, d del
 	if err = d.handler.Handler.ValidateInTx(ctx, tx, current.event, d.handlerPlan); err != nil {
 		return oc.Result{}, portError(err)
 	}
-	result := d.handler.Handler.HandleInTx(ctx, tx, current.event, d.handlerPlan)
+	result := func() oc.Result {
+		defer func() { at := time.Now().UTC().Truncate(time.Microsecond); *returned = &at }()
+		return d.handler.Handler.HandleInTx(ctx, tx, current.event, d.handlerPlan)
+	}()
 	if !result.Valid() {
 		return oc.Reject(oc.InvalidEvent), failure(foundation.InvalidState, nil)
 	}
@@ -232,13 +241,17 @@ func (s *Service) applyDeliveryInTx(ctx context.Context, tx foundation.Tx, d del
 	if _, err = x.Exec(ctx, `INSERT INTO agenteam_outbox.processed(event_id,handler_id,delivery_id,attempt_id,fence,result_digest) VALUES($1,$2,$3,$4,$5,$6)`, id.EventID.String(), string(id.HandlerID), id.DeliveryID.String(), id.AttemptID.String(), int64(id.Fence), result.Digest().String()); err != nil {
 		return oc.Result{}, unavailable(err)
 	}
-	if err = finishDeliveryInTx(ctx, x, id); err != nil {
+	if err = finishDeliveryInTx(ctx, x, id, *returned); err != nil {
 		return oc.Result{}, err
 	}
 	return result, nil
 }
-func finishDeliveryInTx(ctx context.Context, x postgres.SQLExecutor, id oc.DeliveryIdentity) error {
-	tag, err := x.Exec(ctx, `UPDATE agenteam_outbox.attempts SET handler_returned_at=coalesce(handler_returned_at,clock_timestamp()),finished_at=coalesce(finished_at,clock_timestamp()),checkpoint='succeeded',commit_unknown=false,safe_reason=NULL WHERE id=$1 AND delivery_id=$2 AND fence=$3`, id.AttemptID.String(), id.DeliveryID.String(), int64(id.Fence))
+func finishDeliveryInTx(ctx context.Context, x postgres.SQLExecutor, id oc.DeliveryIdentity, returned ...*time.Time) error {
+	var at any
+	if len(returned) > 0 && returned[0] != nil {
+		at = *returned[0]
+	}
+	tag, err := x.Exec(ctx, `UPDATE agenteam_outbox.attempts SET handler_returned_at=coalesce(handler_returned_at,$4::timestamptz),finished_at=coalesce(finished_at,clock_timestamp()),checkpoint='succeeded',commit_unknown=false,safe_reason=NULL WHERE id=$1 AND delivery_id=$2 AND fence=$3`, id.AttemptID.String(), id.DeliveryID.String(), int64(id.Fence), at)
 	if err != nil || tag.RowsAffected() != 1 {
 		return unavailable(err)
 	}

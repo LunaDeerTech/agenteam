@@ -25,6 +25,7 @@ type resources struct {
 	stopping          bool
 	outboundService   egress
 	objectService     objectStorage
+	outboxService     outboxStorage
 }
 
 func (o *resources) addObjects(ctx context.Context, service objectStorage) bool {
@@ -166,12 +167,14 @@ func cleanupResources(ctx context.Context, o *resources, cancelServing context.C
 	o.stopMaintenance()
 	o.stopOutbound()
 	o.stopObjects()
+	o.stopOutbox()
 	o.mu.Lock()
 	o.forced = ctx
 	store := o.db
 	cancelMaintenance := o.maintenanceCancel
 	outboundService := o.outboundService
 	objectService := o.objectService
+	outboxService := o.outboxService
 	o.mu.Unlock()
 	if cancelMaintenance != nil {
 		cancelMaintenance()
@@ -181,20 +184,16 @@ func cleanupResources(ctx context.Context, o *resources, cancelServing context.C
 	}
 	o.closeHTTP()
 	outboundDone := make(chan struct{})
-	objectDone := make(chan struct{})
 	go func() {
 		defer close(outboundDone)
 		if outboundService != nil {
 			_ = outboundService.ForceClose(ctx)
 		}
 	}()
-	go func() {
-		defer close(objectDone)
-		if objectService != nil {
-			_ = objectService.Force(ctx)
-		}
-	}()
-	for _, done := range []<-chan struct{}{outboundDone, objectDone, o.workerDone()} {
+	// Both real ports respect this already shared deadline, including an
+	// expired one. Initiation is synchronous so DB cannot overtake cleanup.
+	forceObjectAfterOutbox(ctx, objectService, outboxService)
+	for _, done := range []<-chan struct{}{outboundDone, o.workerDone()} {
 		if done != nil {
 			select {
 			case <-done:

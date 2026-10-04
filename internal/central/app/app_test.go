@@ -173,7 +173,7 @@ func TestDiagnosticRoutes(t *testing.T) {
 			}
 			for _, c := range d.Capabilities {
 				want := "unbound"
-				if c.Name == "secret" || c.Name == "outbound" || c.Name == "object_storage" {
+				if c.Name == "secret" || c.Name == "outbound" || c.Name == "object_storage" || c.Name == "outbox" {
 					want = "unavailable"
 				}
 				if c.Name == "postgresql" || c.Name == "pgvector" || c.Name == "migrations" || c.Name == "read_write" || c.Name == "cursor" || c.Name == "audit_storage" {
