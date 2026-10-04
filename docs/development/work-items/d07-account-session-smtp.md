@@ -13,7 +13,8 @@
 | R01 工程可行性与有界技术证据 | backend_worker，承担research_worker职责 | 仓库只读；只在任务自有`/tmp`作报告及隔离实验，不修改依赖锁/源码；不使用Docker | 已完成 |
 | V01 独立规格及实现审查 | verification_worker | 全部停止，Docker已交回 | B01完整独立验收通过 |
 | B01 身份与安全基础 | backend_worker | 90源/361依赖冻结，命令全停 | 已完成 |
-| B02–B04 后续完整结果 | backend_worker | 设计§1后续分块；当前不解冻 | 未开始 |
+| B02 邀请、恢复与挑战 | backend_worker | 下述精确授权；独占owned Docker与独立浏览器harness | 实现中 |
+| B03–B04 后续完整结果 | backend_worker | 设计§1后续分块；当前不解冻 | 未开始 |
 
 root独占本卡/计划/台账；设计规格独占给architecture，R01只交临时证据，不同写一文件。使用agenteam-design/go-development/verification/documentation技能，按AGENTS团队规则执行，子agent不得再委派或Git写。规格或活动实现未停写不审查；模块完成前不推进D08。
 
@@ -228,3 +229,16 @@ root核读最终独立报告并采纳B01（不代表D07整模块完成）：`/tm
 唯一包级串行无过滤`GOFLAGS=-p=1 sh scripts/test-objects.sh` exit0/wall998.911s，12包全过：postgres1.535、database60.616、app45.702、process112.646、security83.968、Outbox89.069、内部Outbox1.032/contract1.290、Account210.050、objects299.846、内部object2.291/contract1.029秒。日志SHA `64018fb35114a68fa56367d9f2b70fc138c95d1006c1d546101d12e4424f253a`；保原每包6m、内部并发与断言。默认并行历史两次累计超时/Outbox初始化错误仍保留，串行成功不证明负载或历史唯一根因，不宣称默认调度性能通过。
 
 清理SHA `8faa47232b84c6c12266dc96037e74fb4b46994e5282c6041081dc45af3ace16`：9自有nonce容器/网络/runtime及owned进程0。作者与V全部停止源码/报告写入及命令，Docker交回root。root再核90源与diff-check通过，按精确manifest提交B01及必要D03归因修复。HTTP/app装配、真实挑战、邀请/reset、SMTP及资料仍属B02–B04，当前诊断ready=false；下一步为B02精确授权。GitHub认证既有阻塞未解除，本次仅本地提交，不声称推送。
+
+
+## B02实施授权
+
+B01已提交`8b0261b`，本块基线为该提交；设计修订3不变。root授权backend完整B02，必读设计§1/3/4/6/7/8/9及T04–T07、T10适用项，沿go-development技能，Vue harness另读vue-development、vue-testing-best-practices及可用playwright技能。不得再委派或Git写；root独占本卡/计划/台账，V暂全停。Docker/owned fixture和harness资源独占backend，不连接既有基础设施或真实凭据。
+
+解冻新`internal/central/account/{invitation,reset,password_change,challenge,delivery_intent,delivery_handler,cleanup}.go`及对应私有辅助/测试，`account/contract/{challenge,invitation,recovery}.go`；已由B01建立的`account/events.go`、`contract/events.go`添加正式delivery-requested。为实际绑定B02允许同域`account/{service,repository,planning,authority,audit_authority,secret_authority,login,session,recovery,local_recovery,command_record,browser,response,logout}.go`及`contract/{types,commands,identity}.go`必要组合增量和对应测试；保留B01原回归/Unknown/lease/身份语义，不借此重写无关基础。新增`tests/account/`本块组合测试，可在既有common fixture作必要组合；新`tests/account-captcha-web/`独立锁定依赖与真实浏览器harness、平台自有生成素材。go.mod/go.sum仅引入设计§1固定GoCaptcha2.0.5、x/image0.45.0及指定freetype，保留旧模块版本。Vue/Playwright固定版本按设计核官方integrity和实际Chromium，不改产品web或根前端锁。
+
+00001–00010迁移、D03/D04/D05/D06旧域、recoverylog、HTTP/app/config与B03accountmail仍冻结；如现有契约确实缺必要口或表约束缺口，先报具体证据/最小范围，root裁决后再改。真实Outbox handler只在同Tx从合法intent幂等建job与marker，并实现canonical补齐；SMTP发送/日志首写门禁适配留B03，不用成功stub代替。B02需提供正式跨后块门禁/当前合法性能力，只有确有本块调用才实现。
+
+验收包含固定24h邀请/同链接重发不续期、管理员当前权限、并发兑换/撤销/到期与用户名邮箱唯一、reset公开202隐私与异步受理/限额/同链接、改密换当前Session撤他会话/reset全撤、Audit/Secret引用/Outbox/receipt原子性、未知提交查事实/异义拒绝/零材料、当前lease真实join与公平到期回收。挑战需真实GoCaptcha生成→官方Vue旋转/键盘→验证→登录一次消费，跨browser/email/key/replay/并发/重启拒绝与上限；不得用jsdom代替真实浏览器或声称视觉挑战完整无障碍。适用T10以真实Outbox晚注册/重启canonical/重复事件验证，不提前声称SMTP attempt已验。
+
+作者完成有意义普通/race/真实PG与浏览器检查、check-go，冻结精确source/dependency manifests，原失败完整保留、资源清理且所有写入命令停止后交独立V。最终兼容沿已明确包级串行编排、每包原6m及内部并发不改；新增测试若导致累计超时，先报分组证据再决定，禁止静默放宽预算或重复跑到绿。B02完成前不推进B03，D07仍唯一活动模块。现有GitHub认证阻塞未解除，后续提交继续本地记录。
