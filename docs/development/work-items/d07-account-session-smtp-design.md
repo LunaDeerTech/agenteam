@@ -1,6 +1,6 @@
 # D07 账号、Session、SMTP 与个人资料实施规格
 
-- 修订：3；S01 设计稿，实施基线 `57bfadb`，开工卡 `a116c85`；尚未代表实现或测试通过。
+- 修订：4；仅在修订3基础上补B02真实浏览器有限替代；S01 设计稿，实施基线 `57bfadb`，开工卡 `a116c85`；尚未代表实现或测试通过。
 - 范围与所有权：[D07 主卡](d07-account-session-smtp.md)。本规格落实已确认的[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)、[SMTP](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)、[D01 基础契约](d01-contracts/foundation.md)；不新增公开注册、角色管理、账号删除、设备管理或前端生产页面。
 - D07 交付真实后端、HTTP、账户安全和后台投递。D08 仍拥有 Project/Owner；D25 接 Session 撤销与 WS；D26 接账号/个人页面，D27 接系统设置。挑战 Vue 只交独立兼容测试 harness。
 
@@ -17,7 +17,7 @@
 
 表内 `account/`、`audit/`、`secret/`、`object/`、`outbound/`、`foundation/`、`httpapi/`、`app/`、`config/` 均为 `internal/central/` 下包路径；`db/`、`tests/`、`api/`、`scripts/`、`go.mod/go.sum` 相对仓库。同目录新增私有辅助文件可由所属 B 作者选择，不能因此改未列旧域。新 SQL 一次声明全 D07 持久结构，旧 `00001–00009` 字节不变。B01/B02 未装 HTTP 前，缺后块 capability 必须明确 unbound，不能在生产返回成功占位。
 
-固定 Go `1.27.1`/`GOTOOLCHAIN=local`；`golang.org/x/crypto v0.55.0` 从既有 indirect 转 direct，不升级旧版本。GoCaptcha 固定 `github.com/wenlng/go-captcha/v2 v2.0.5`（Apache-2.0），`golang.org/x/image v0.45.0`（BSD-3-Clause，用于 WebP 解码/缩放及 GoCaptcha），唯一额外间接模块为 `github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0`；不选会升级既有依赖的 x/image `v0.46.0`。Vue harness 固定 `go-captcha-vue 2.0.7`（MIT）、Vue 3.5.43、Vite 8.3.1、TypeScript 5.9.3、jsdom 27.4.0；不修改产品前端依赖。真实浏览器测试推荐固定 `@playwright/test 1.56.1`（Apache-2.0）及该发行对应Chromium，仅进入harness lock；此测试工具未由R01验证，B02先核官方integrity/实际浏览器可执行性并记录版本，再运行，不能以jsdom替代或安装浮动latest。引入前将 R01 的完整模块图、包校验和及 LICENSE 归档，拒绝无关 MVS 升级。
+固定 Go `1.27.1`/`GOTOOLCHAIN=local`；`golang.org/x/crypto v0.55.0` 从既有 indirect 转 direct，不升级旧版本。GoCaptcha 固定 `github.com/wenlng/go-captcha/v2 v2.0.5`（Apache-2.0），`golang.org/x/image v0.45.0`（BSD-3-Clause，用于 WebP 解码/缩放及 GoCaptcha），唯一额外间接模块为 `github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0`；不选会升级既有依赖的 x/image `v0.46.0`。Vue harness 固定 `go-captcha-vue 2.0.7`（MIT）、Vue 3.5.43、Vite 8.3.1、TypeScript 5.9.3、jsdom 27.4.0；不修改产品前端依赖。真实浏览器测试推荐固定 `@playwright/test 1.56.1`（Apache-2.0）及该发行对应Chromium，仅进入harness lock；此测试工具未由R01验证，B02先核官方integrity/实际浏览器可执行性并记录版本，再运行，不能以jsdom替代或安装浮动latest。引入前将 R01 的完整模块图、包校验和及 LICENSE 归档，拒绝无关 MVS 升级。B02实际固定1.56.1配套Chromium141.0.7390.37/build1194官方下载403后，允许使用现有系统Chromium151.0.7922.173执行真实harness：记录可执行路径、实际版本、SHA256与启动/交互结果，明确该组合不是Playwright发行配套；不改下载限制、不继续无界重试。若API或真实交互不兼容则停止相关验收报告，不以jsdom补足。
 
 弱密码仅离线嵌入 `@zxcvbn-ts/language-common@4.1.3` 的 `src/passwords.json`，49,233 项、486,625 bytes，SHA256 `f422773d94d630f27e08b26d7017e847bb1feb2a84809340e9c0b0c47b33e3f1`；保留 MIT 许可/来源，不引 zxcvbn JS runtime，不请求泄漏库。GoCaptcha assets 1.0.7 的字体/照片未取得逐素材权属证据，首版不用该包；程序生成平台自有的非对称图案，不引用系统字体或远端图片。SMTP 使用标准库 `net/smtp`、`crypto/tls`、`net/textproto`，不另引 SMTP SDK。
 

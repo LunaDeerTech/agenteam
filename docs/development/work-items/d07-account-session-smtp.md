@@ -242,3 +242,8 @@ B01已提交`8b0261b`，本块基线为该提交；设计修订3不变。root授
 验收包含固定24h邀请/同链接重发不续期、管理员当前权限、并发兑换/撤销/到期与用户名邮箱唯一、reset公开202隐私与异步受理/限额/同链接、改密换当前Session撤他会话/reset全撤、Audit/Secret引用/Outbox/receipt原子性、未知提交查事实/异义拒绝/零材料、当前lease真实join与公平到期回收。挑战需真实GoCaptcha生成→官方Vue旋转/键盘→验证→登录一次消费，跨browser/email/key/replay/并发/重启拒绝与上限；不得用jsdom代替真实浏览器或声称视觉挑战完整无障碍。适用T10以真实Outbox晚注册/重启canonical/重复事件验证，不提前声称SMTP attempt已验。
 
 作者完成有意义普通/race/真实PG与浏览器检查、check-go，冻结精确source/dependency manifests，原失败完整保留、资源清理且所有写入命令停止后交独立V。最终兼容沿已明确包级串行编排、每包原6m及内部并发不改；新增测试若导致累计超时，先报分组证据再决定，禁止静默放宽预算或重复跑到绿。B02完成前不推进B03，D07仍唯一活动模块。现有GitHub认证阻塞未解除，后续提交继续本地记录。
+
+
+### B02真实浏览器有限替代
+
+固定Playwright1.56.1已lock/ci；其配套Chromium141.0.7390.37/build1194官方安装在单次命令内返回403 Domain forbidden，原日志`/tmp/agenteam-d07-b02-wadjih16/evidence/browser-install.log`保留，不继续下载重试或修改访问限制。root批准使用已安装系统Chromium151.0.7922.173做真实harness，并在设计修订4的§1补精确工程例外：记录实际路径/版本/SHA/启动与交互结果，兼容失败则报告，不冒称发行配套验证，不降为jsdom。固定npm/Go依赖不变，产品规则与验收链路不变；这是实际浏览器组合替代，不代表已经通过。backend继续独占实现与测试。
