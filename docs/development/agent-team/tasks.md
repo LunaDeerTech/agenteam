@@ -320,7 +320,11 @@
 
 ## AT-0013：D06 Transactional Outbox 与事件投递
 
-- 状态：设计中；唯一活动模块D06，[主卡](../work-items/d06-transactional-outbox.md)修订1，基线main@6b2ca24，D05已完整独立验收并提交、工作区干净。
+- 状态：实现中；唯一活动模块D06，[主卡](../work-items/d06-transactional-outbox.md)修订1，基线main@6b2ca24，D05已完整独立验收并提交、工作区干净。
 - architecture_worker仅新增完整工程设计，明确注册屏障/typed事件/Tx组合/独立投递与重投/顺序/Project清理/Central生命周期，旧源码和契约只读；root拥有本卡/计划/台账，设计冻结后独立审查再授权实现。
 - 00008为候选新全局迁移，旧00001–00007和Go依赖冻结；真实环境沿D05固定owned PG/MinIO，当前不使用Docker。D07–D28/E01不提前实施，当前无新产品待定。
 - D05最终实现提交6b2ca24；31本地提交待既有GitHub认证恢复，未声称推送。
+
+- S01 rev1静态审查需5项窄修：契约分层、Sequence编码、cursor可变limit、永久删除gate/幂等顺序、Restore后新准入。原设计626cd2c95cf1b0cac42b5855a5c58056766ce584bf41052c1cf12f1f21b7c0aa；独立证据620dff76132d9374d1de569925c5ddb730b9496d937af5f87aca4b3d882477d7。V全停无资源，root仅解冻设计rev2和D01 README最小定位给architecture，源码未授权；主卡记录完整输入与边界。HEAD671d95c，32本地提交待原认证恢复。
+
+- S01 rev2独立静态通过，5项闭环，设计4703840c9216a7e9949549478bebfdcc266eab343302aec36e98069401e42f28，证据98172d8bdfa3cbc54004bee2fc305406c70ef258e3dee8aec6f2b1ccc733c58e；56输入匹配、52稳定依赖未变，所有执行者停写/资源0。root采纳§1最小增量，授权backend完整B01及owned Docker；app/D05核心/B02未解冻。详见主卡实施授权，D06产品未验收。

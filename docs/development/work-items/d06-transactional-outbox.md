@@ -1,6 +1,6 @@
 # D06 Transactional Outbox 与事件投递
 
-- 修订：1；状态：设计中；唯一活动模块D06，台账AT-0013。
+- 修订：1；状态：实现中；唯一活动模块D06，台账AT-0013。
 - 基线：`main@6b2ca24`，D05完整验收后工作区干净。D01–D05前置均通过；D05证据及未来绑定限制见[主卡](d05-object-storage-artifact.md)。31个本地提交因既有GitHub认证失效待推，不重复请求或冒称已同步。
 - 目标：同业务Tx的typed事件写入、持久handler注册与投递、幂等/顺序、失败退避/dead-letter/显式重投、重启恢复与Central生命周期；事件不作为业务Source of Truth。
 - 依据：[开发计划](../development-plan.md#d06-outbox-与事件投递)、[事件架构](../../architecture/platform-infrastructure/internal-domain-events.md)、[D01事实与实时](d01-contracts/runtime-events.md)、[生命周期](d01-contracts/domain-lifecycle.md)、[基础Tx/锁/幂等](d01-contracts/foundation.md)、[W40](d01-contracts/walkthroughs.md)。已确认规则不重复产品提问。
@@ -9,9 +9,9 @@
 
 | 任务 | 角色 | 独占范围与资源 | 状态 |
 | --- | --- | --- | --- |
-| S01 完整工程规格 | architecture_worker | 新增d06-transactional-outbox-design.md；已验源码/架构/契约只读；不使用Docker | 已下发，设计中 |
-| B01–Bn 完整结果实现 | backend_worker | 待S01确定新包/00008与最小旧文件增量后root移交；届时独占Docker | 待规格独立采纳 |
-| V01 独立规格与业务验证 | verification_worker | 只读停写输入/独立副本，验证阶段独占owned PG/MinIO fixture | 待设计冻结 |
+| S01 完整工程规格 | architecture_worker | 新增d06-transactional-outbox-design.md；已验源码/架构/契约只读；不使用Docker | rev2独立静态通过，冻结 |
+| B01–Bn 完整结果实现 | backend_worker | 待S01确定新包/00008与最小旧文件增量后root移交；届时独占Docker | B01已授权，B02待B01验收 |
+| V01 独立规格与业务验证 | verification_worker | 只读停写输入/独立副本，验证阶段独占owned PG/MinIO fixture | S01复验通过，B01待实现冻结 |
 
 root独占本卡、计划和台账，其他文档仅按授权移交。遵循AGENTS及agenteam-design/go-development/verification/documentation技能，禁止子agent再委派及任何Git写操作。不提前D07+，不在S01实施源码。设计冻结并经独立审查/root采纳才开工。
 
@@ -19,7 +19,7 @@ root独占本卡、计划和台账，其他文档仅按授权移交。遵循AGEN
 
 核实际D03 Store/Tx/锁顺序、D04 identity/Audit、D05后Central启动/健康/停机和迁移/fixture约束，制定可直接实施的Go端口、私有数据/SQL约束、状态机、错误/幂等/unknown及真实验收。建议独立event/outbox契约与实现，正式包名由核对依赖后确定；不得创建万能共享包。00008为下一个全局Up-only迁移，00001–00007/go.mod/go.sum冻结；必要共享修改逐项列现有文件、增量、兼容和单作者顺序，不擅自扩大旧API。
 
-必须落实D01注册屏障：Append分配内部sequence前取得shared直到commit；注册exclusive持久handler/已提交边界，不同Tx读取业务表、不漏晚提交。组合必须兼容D03一次完整AcquireAll与全局锁序，不能在调用者已持高阶锁后补低阶注册屏障。稳定handler ID、typed schema解码/未知schema失败、独立delivery结果、同aggregate version/sequence及同version sibling event不可误去重、handler失败不阻断他handler均有明确规则。
+必须落实D01注册屏障：Append分配内部sequence前取得shared直到commit；注册exclusive持久handler/已提交边界，不在注册事务读取业务表、不漏晚提交。组合必须兼容D03一次完整AcquireAll与全局锁序，不能在调用者已持高阶锁后补低阶注册屏障。稳定handler ID、typed schema解码/未知schema失败、独立delivery结果、同aggregate version/sequence及同version sibling event不可误去重、handler失败不阻断他handler均有明确规则。
 
 handler本域副作用与processed marker同Tx原子；不能宣称外部副作用exactly-once。定死执行claim/fence/lease的真实终局和重启语义、重试上限/退避/有界并发、unknown确认及取消/迟到handler防复活，运行时错误只保存稳定安全诊断不泄露payload。显式重投失败delivery需当前正式授权/稳定命令/Audit（如适用），缺provider拒绝，不新增匿名运维route。没有生产handler时可安全初始化机制但不造业务成功消费者。
 
@@ -30,3 +30,19 @@ Central真实启动、健康/维护、首停drain和共享额外1s force沿已�
 ## 完成与交接
 
 S01提交设计文件指纹、实际依赖输入/检查、未决工程项和停止写入声明。root确认后独立静态审查；产品决定缺失或公共契约矛盾报告root，范围内实现取舍由团队解决。当前仅工程设计，无产品能力或测试完成声明；D06–D28/E01全部仍未完成。
+
+## S01有界可行性核对
+
+backend已完成只读核对并停止，未写仓库、未运行Docker/产品测试。报告`/tmp/agenteam-d06-readonly-feasibility-eaa6gsk5/findings.md` SHA256 `e7e2f9db6f5be069efdcd808e0e11e26f51d02755c6ae33eacd0822209ae0bf7`；28输入manifest `inputs.sha256` SHA256 `9ba48fbe57bed604b17a212fe35b0609a64c032c801dbd3f164bcd0e83a2831d`，root逐项复核全部匹配。结论已交架构纳入规格，属于静态可行性，不是实现授权或验收。
+
+注册SH须纳入producer首次完整锁union；拟增加D03仅检查实际held、不取锁的RequireHeldLocks窄口。handler副作用和processed marker同Tx，失败先回滚再独立记录；COMMIT unknown须取得原writer串行化锁确认终局，不能裸SELECT未命中便重做。拟由app私有assembly复用D05真实ProcessGuard；正常与强制关闭均须保护未join的Outbox handler，不能提前释放共享guard。具体端口、旧文件增量与完整验收以冻结设计和独立审查为准。
+
+S01 rev1设计冻结SHA256 `626cd2c95cf1b0cac42b5855a5c58056766ce584bf41052c1cf12f1f21b7c0aa`，作者52输入manifest `f0d3443a32257b267338c910f3270f5cd8ba8e6ee3b12722e980727838d9de40`经root全部核对一致。独立静态审查`/tmp/agenteam-d06-s01-verify-fh_21nlv/verification-report.json`要求5项窄修：中立event/contract分层、Sequence正int64编码、cursor允许可变limit、删除gate在事件幂等前、archive checkpoint不永久阻断Restore后新准入。56输入manifest `7e3c7e671b9bfa549b4161d41776b523c2bc007a7e1decf8f03310523e965d2e`，证据索引SHA256 `620dff76132d9374d1de569925c5ddb730b9496d937af5f87aca4b3d882477d7`；格式链接通过，其余核心组合未见阻塞，未运行产品测试。V全停且无资源后root采纳修订方向，解冻设计及D01契约README的最小上层包定位给architecture，源码仍冻结。rev2冻结后独立复验才授权B01；无需新增产品决定。
+
+## S01采纳与B01实施授权
+
+设计rev2 SHA256 `4703840c9216a7e9949549478bebfdcc266eab343302aec36e98069401e42f28`与D01索引增量SHA256 `97a8c9fec33fdd28222d5c2c3ee5d44bd1bcc6d2a8517dc44e8aab3ee6cfc093`经root审查采纳。独立复验五项全部闭环，56输入manifest `f6ed906d60fbf0976f30b04064b53ea7c9f8b8c9ce3cd403715e2da996bdca93`全部匹配，52技术依赖未变；报告`/tmp/agenteam-d06-s01-rev2-verify-m2yln6gw/verification-report.json`，证据索引SHA256 `98172d8bdfa3cbc54004bee2fc305406c70ef258e3dee8aec6f2b1ccc733c58e`。所有设计/验证执行者已停，无运行资源；这是规格验收，尚无D06产品测试结果。
+
+root正式采纳设计§1 B01全部新包与精确旧文件增量：backend独占event/contract、outbox/contract及B01 outbox实现/测试、00008 Up-only迁移、tests/outbox、postgres持锁验证/error及测试、identity注册职责及测试、Audit typed闭集/必要服务校验及测试、PG fixture新增包纳入和outbox迁移测试。允许新包内按职责调整拆分，不增加依赖，不更改旧迁移/既有Tx语义；额外旧文件需求先报root。D05核心、app/Runtime、AGENTS和backend操作文档暂冻结，B02再授权。根主卡/计划/台账与设计仍由原所有者持有。
+
+B01目标是可独立构建与验证的持久typed事件、注册屏障、原子Append/delivery/marker组合；不装配半成品dispatcher。backend独占owned Docker/PG/MinIO fixture，自测含普通/race/vet及真实Tx回滚、注册晚提交/重启边界、一次完整锁与D05组合、幂等/当前权限/删除gate、Sequence/schema与Audit迁移兼容。使用固定Go1.27.1/local、nonce/labels/exact ID，只清本次资源。源码与实际依赖冻结、交付SHA/命令/日志/失败修复/清理和停止声明后独立V接管；root不读活动实现。B01独立验收前不进入B02，D06整体仍未完成。

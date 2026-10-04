@@ -53,6 +53,7 @@
 | 0 | `foundation`、`runnerprotocol` | 标准库；两者无领域依赖 |
 | 1 | `identity/contract`、`event/contract` | foundation |
 | 2 | `object/contract`、`project/contract`、`secret/contract` | 0–1；对象契约自己的清理结果由生命周期适配器转换，不反向 import Project；Secret 拥有稳定凭据引用及 lease DTO |
+| 2 | `outbox/contract` | 仅 foundation、event/contract、identity/contract；拥有需 Actor/授权的 Append、Producer、Project、Handler、投递/生命周期/诊断端口；中立 Header/Event/EventType、codec 与纯 typed schema catalog 仍在第 1 层 event/contract，仅依赖 foundation，不 import 领域实现；具体实施见 [D06](../d06-transactional-outbox-design.md) |
 | 3 | `model/contract`、`runner/contract` | 0–2；runner 可依赖 runnerprotocol；Model 自有消息 DTO 不 import Tool |
 | 4 | `agent/contract`、`skill/contract`、`knowledge/contract`、`retrieval/contract`、`memory/contract` | 0–3；本层之间仅传稳定 ID/本领域 DTO，跨类型转换在适配器 |
 | 5 | `tool/contract` | 0–4；包含 ToolAuthorization/ScopeResolver 与中立 WaitRef，不能 import Governance/Executor 实现 |
