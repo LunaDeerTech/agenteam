@@ -1,19 +1,19 @@
 # D07 账号、Session、SMTP 与个人资料实施规格
 
-- 修订：6（已采纳设计）；在修订5基础上补B03账户投递端口、共享准入门禁、真实Secret使用授权及00011增量。B02已独立验收，基线 `ebe87e7`；本稿不代表B03实现或测试通过。
+- 修订：7（已采纳设计，B04按§1分阶段实施）；基于固定 `c07ebcc` 的修订6及B03冻结接口核对，细化B04 Avatar/profile、最小公共接口、并行范围与根装配。B02已独立验收，基线 `ebe87e7`；B03最终验收与提交绑定由主卡登记，本稿不代表B03或B04实现、测试或验收通过。
 - 范围与所有权：[D07 主卡](d07-account-session-smtp.md)。本规格落实已确认的[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)、[SMTP](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)、[D01 基础契约](d01-contracts/foundation.md)；不新增公开注册、角色管理、账号删除、设备管理或前端生产页面。
 - D07 交付真实后端、HTTP、账户安全和后台投递。D08 仍拥有 Project/Owner；D25 接 Session 撤销与 WS；D26 接账号/个人页面，D27 接系统设置。挑战 Vue 只交独立兼容测试 harness。
 
 ## 1. 结果分块、文件所有权与固定依赖
 
-按 B01→B02→B03→B04 顺序实施、各自可构建及独立验证；后块只在前块冻结后读其源码。主线程下发精确授权并负责提交，不把本表当源码已解冻。
+B04按真实依赖分阶段推进，不等待B03全部旧兼容验收才开始独立新文件。C0（§10.1最小公共契约）可先行；C0冻结后，A先做新profile/CurrentUserRoute、头像容器纯库及自有新测试，B先做新HTTP/CSRF/OpenAPI及自有新facade，基于已验B01/B02和当前已通过A24/B32/Mail相关的冻结子能力。先行阶段不修改B03的566输入内任何旧文件或依赖、不写新迁移、不占独立V的Docker；D05旧access/reference/upload、app/config/共享fixture及真实PG/MinIO/进程组合，须等B03采纳、最终提交绑定和对应迁移/资源交接。生产根装配还须等待A的真实实现冻结；不造生产stub。完整后续范围保留，主线程按阶段下发精确授权并负责提交，不把本表当全部源码已解冻。
 
 | 块 | 完整结果 | 新增目录/文件与已有文件的限定增量 |
 | --- | --- | --- |
 | B01 身份与安全基础 | 真实 User/Session/System provider、初始化、登录/退出、密码与 keyring、受限 Secret/Audit 组合；无 HTTP 默认授权 | 新 `internal/central/account/contract/{types,identity,settings,commands}.go` 及对应测试；新 `account/{repository,authority,planning,keyring,password,bootstrap,session,login,audit_authority,secret_authority}.go` 及测试、`account/assets/weak-passwords.json`/许可；新 `internal/central/recoverylog/` 真实受限 Sink/测试；新 `db/migrations/00010_account_session_smtp.sql`；本节列明的 D04 补口、`go.mod/go.sum` 的必要依赖；新 `tests/account/` 基础/迁移测试 |
 | B02 邀请、恢复与挑战 | 一次性兑换/重置、改密、挑战、事务投递意图与真实 Outbox handler、到期回收 | 新 `account/{invitation,reset,password_change,challenge,events,delivery_intent,delivery_handler,cleanup}.go`、`contract/{challenge,invitation,recovery,events}.go` 及测试；自有生成挑战素材；新 `tests/account/` 对应组合测试、`tests/account-captcha-web/` 独立锁定依赖 harness |
-| B03 持久投递 | SMTP 配置/测试、三种协议、有限重试、受限恢复日志、claim/未知结果/重启与关闭 | 新 `internal/central/accountmail/` 与测试；新 `account/contract/delivery.go`、`account/{delivery,delivery_repository,delivery_usage,mail_admission,smtp_settings}.go` 及相邻测试；本节原八个旧account文件及[人工邮件重试补遗](d07-account-mail-retry-addendum.md)限定的 `events.go`、`audit_authority.go` 窄增量；新 `db/migrations/00011_account_mail_delivery.sql`；§9限定 `recoverylog/sink.go`、`sink_test.go`，可新增 `recoverylog/{admission,ticket}.go` 及测试，补队首资格与per-work ticket，不改B01 bootstrap；限定出站TLS补口；新 `tests/testsupport/smtp/`、`tests/accountmail/`、`scripts/test-accounts.sh`；限定 `tests/testsupport/postgres/cmd/fixture/main.go` 仅向固定go test包列表追加 `./tests/accountmail/...`、`./internal/central/accountmail/...`，原包列表、fixture生命周期/nonce/权限/参数/6m不变；`scripts/test-accounts.sh` 复用既有 `scripts/test-objects.sh` 路径，无新runtime route；限定 `audit/contract/account.go`、`audit/contract/account_test.go` 仅新增 `sender_name`、`auto_retry_count`、`retry_interval_seconds` 三项AccountChangedField枚举、SMTPSettingsUpdate允许集及对应闭集测试，不保存字段值/自由文本，其他既有action/metadata校验不变；人工retry另按[人工邮件重试补遗](d07-account-mail-retry-addendum.md)新增独立typed动作/闭集测试与私有helper；上述旧源码仍须root在B03正式解冻 |
-| B04 资料与正式入口 | 本人资料/头像/偏好、完整 API/OpenAPI、Central 生命周期与当前权限装配 | 新 `account/{profile,avatar,object_authority,runtime,http,csrf}.go`、`contract/profile.go` 及测试；新 `api/openapi/account.json`；新 `app/account.go` 及实际进程测试；限定 `app/{app,security,outbound,object,outbox,resources,health,diagnostics}.go`、`config/config.go` 及受影响测试/fixture；新账户配置示例与运行说明须由主线程另授权文档范围 |
+| B03 持久投递 | SMTP 配置/测试、三种协议、有限重试、受限恢复日志、claim/未知结果/重启与关闭 | 新 `internal/central/accountmail/` 与测试；新 `account/contract/delivery.go`、`account/{delivery,delivery_repository,delivery_usage,mail_admission,smtp_settings}.go` 及相邻测试；本节原八个旧account文件及[人工邮件重试补遗](d07-account-mail-retry-addendum.md)限定的 `events.go`、`audit_authority.go` 窄增量；新 `db/migrations/00011_account_mail_delivery.sql`；§9限定 `recoverylog/sink.go`、`sink_test.go`，可新增 `recoverylog/{admission,ticket}.go` 及测试，补队首资格与per-work ticket，不改B01 bootstrap；限定出站TLS补口；新 `tests/testsupport/smtp/`、`tests/accountmail/`、`scripts/test-accounts.sh`；新 `recoverylog/export_integration_test.go`、`recoverylog/mail_integration_test.go`，均仅integration-tag测试，用外部真实PG/Account/Worker核阻塞writer/Sync/lease/join，生产API及已验4源不改；限定 `tests/testsupport/postgres/cmd/fixture/main.go` 仅向固定go test包列表追加 `./tests/accountmail/...`、`./internal/central/accountmail/...`、`./internal/central/recoverylog/...` 三包，原包列表、fixture生命周期/nonce/权限/参数/6m/race不变；`scripts/test-accounts.sh` 复用既有 `scripts/test-objects.sh` 路径，无新runtime route；限定 `audit/contract/account.go`、`audit/contract/account_test.go` 仅新增 `sender_name`、`auto_retry_count`、`retry_interval_seconds` 三项AccountChangedField枚举、SMTPSettingsUpdate允许集及对应闭集测试，不保存字段值/自由文本，其他既有action/metadata校验不变；人工retry另按[人工邮件重试补遗](d07-account-mail-retry-addendum.md)新增独立typed动作/闭集测试与私有helper；上述旧源码仍须root在B03正式解冻 |
+| B04 资料与正式入口 | 本人资料/头像/偏好、完整 API/OpenAPI、Central 生命周期与当前权限装配 | 新 `account/{profile,avatar,object_authority,runtime,http,csrf}.go`、`contract/profile.go` 及测试；新 `api/openapi/account.json`；新 `app/account.go` 及实际进程测试；限定 `app/{app,security,outbound,object,outbox,resources,health,diagnostics}.go`、`config/config.go` 及受影响测试/fixture；新账户配置示例与运行说明须由主线程另授权文档范围；B04 新事务型Up-only迁移仅补§10头像操作恢复索引，后续编号待主线程分配，不预占迁移号、旧迁移不改 |
 
 表内 `account/`、`audit/`、`secret/`、`object/`、`outbound/`、`foundation/`、`httpapi/`、`app/`、`config/` 均为 `internal/central/` 下包路径；`db/`、`tests/`、`api/`、`scripts/`、`go.mod/go.sum` 相对仓库。同目录新增私有辅助文件可由所属 B 作者选择，不能因此改未列旧域。已提交 `00010` 声明D07基础结构；B03仅由新事务型Up-only `00011_account_mail_delivery.sql` 补§3已证缺口，旧 `00001–00010` 字节不变。B01/B02 未装 HTTP 前，缺后块 capability 必须明确 unbound，不能在生产返回成功占位。
 
@@ -30,7 +30,7 @@ B03额外旧account授权仅限下表、[人工邮件重试补遗](d07-account-m
 | `delivery_intent.go` | 正式test recipient variant/current producer校验；容量查询覆盖新job phases |
 | `delivery_handler.go` | 正式test enqueue/current配置检查；保持邀请/reset与canonical唯一job |
 | `events.go` | 仅delivery retry分支委派补遗的origin规划helper，Tx外完整收集、锁后重验；原session-revoked/其他命令路径不变 |
-| `audit_authority.go` | 仅新增当前Human admin的SMTPDeliveryRetry委派与exact命令/新intent校验；旧actions/Service分支不放宽 |
+| `audit_authority.go` | 新增当前Human admin的SMTPDeliveryRetry委派与exact命令/新intent校验；另仅收紧既有AccountMail/SMTPDelivery append分支，按§4核实际终局/result/fence与完整Audit投影，可新增私有共享投影helper及窄测试；其他actions/Service不放宽，无schema/公共接口变更 |
 
 人工retry的 `delivery_intent.go/delivery_handler.go` origin写入/规划，以及新helper与公开请求形状，仅按[人工邮件重试补遗](d07-account-mail-retry-addendum.md)补齐；原邀请/reset调用点不改。
 
@@ -126,6 +126,16 @@ authority/planner 先在 Tx 外只读收集真实身份/secret/ref/job 映射，
 Audit 新 producer `account`、`account.mail`；资源 `user`、`session`、`account_attempt`、`invitation`、`password_reset`、`account_settings`、`smtp_settings`、`mail_job`（singleton 也用真实稳定 ID）。`account.`前缀动作后缀闭集为 `bootstrap,login,logout,invite.create,invite.revoke,invite.redeem,password.change,password.reset.request,password.reset.complete,profile.update,avatar.update,settings.update`；`smtp.`前缀后缀为 `settings.update,test.request,delivery`。Metadata 仅稳定 User/Invite/Reset/Job/Attempt/Object IDs、version、变更字段闭集、channel/phase/固定 reason、真实发起者 ID；没有邮箱/username/显示名/地址/IP/hash/token/正文/SMTP 响应原文。
 
 新增 `audit.AccountAuthority`：`CheckAppendInTx(ctx,tx,Entry,AppendKey) error`、`CheckServiceLookup(ctx,Actor,AppendKey) error`，`audit.Authorizations.Accounts`显式注入。新contract提供 `AccountMetadata(action,AccountMetadataFields)` 与只读typed字段投影，不用任意map/raw JSON授权。仅分派上述动作及受限 account 服务产生的 Secret create/delete；Human 本人动作验当前 Session+资源归属，管理员动作验 System；Service 验持久 cause、动作/资源/结果及 key 一致。会撤销当前 Session 的 logout 在同 Tx 先合法 Audit 后撤销；改密可用新 Session 的同 User Actor 完成 Audit。匿名登录失败/不存在邮箱/reset 请求用实际 account_attempt 资源，不造 UserID；无条件审计成功时才提交安全事实。Audit 失败则整 Tx 回滚，公开 reset 仍按 §7 统一回执。
+
+AccountMail 的 `SMTPDelivery` append必须沿已有完整锁和同Tx当前事实核实：Actor为真实AccountMail服务，Actor cause及AppendKey cause均为exact AttemptID；key producer=`account.mail`、ordinal=0。Entry为System scope、MailJob资源；metadata JobID/AttemptID/原始InitiatorID/channel分别匹配持久job/attempt/该job所属intent的原发起者/真实channel；job.current_attempt_id与attempt.id相同、job.fence与attempt.fence相同，attempt.phase=closed且terminal=true、io_joined=true。不能由ctx返回、发送标记或年龄代替实际终局。metadata.Version固定等于正attempt.fence，不取Job业务version或调用方自报值。除既有闭集字段外，Outcome/Phase/Reason必须逐项匹配以下真实投影：
+
+| 实际attempt.result | Entry.Outcome | metadata.Phase | metadata.Reason |
+| --- | --- | --- | --- |
+| `sent` | `Success` | `AccountSent` | 空 |
+| `unknown` | `Unknown` | `AccountUnknown` | `DeliveryUnknown` |
+| `failed` 或 `cancelled` | `Failed` | `AccountFailed` | 真实job安全reason为`timeout`时`DeliveryTimeout`；`cancelled`或`token_invalid`时`DeliveryCancelled`；其余`DeliveryRejected` |
+
+正式deliveryAudit producer与AccountMail provider可共用新私有纯投影helper，输入只来自已核实持久事实；provider仍独立核当前归属、终局、key及全部字段，不能因调用方使用同helper就信任entry。错误result、phase/outcome/reason、version/fence、initiator/channel、current_attempt、key/cause/ordinal或terminal/io_joined一律拒绝；其他actions、Service权限与现有Audit公共载体不变，不追加schema。真实job/attempt终局与Audit仍同Tx，失败整Tx回滚，Commit Unknown先核原事实。
 
 原 Audit System 查询、Outbox 人工重投及 outbound policy 管理仍仅 admin；AccountAuthority 不是查询豁免。内部 Lookup 只核属于该服务 exact cause 的 append receipt，不泄漏别人的事件。密钥材料/初始密码/恢复 URL 属 §9 唯一受限日志例外，不写 Audit。
 
@@ -332,21 +342,89 @@ token消费/撤销/到期在原Tx删除live row并释放reference/建立material
 
 ## 10. 个人资料、头像与对象协议
 
-本人读/改 `username,display_name,theme`，email只读；每mutation带expected_version，User EX下当前Session→命令重放→version→唯一性/Audit/receipt。username提交后按当前DB映射解析，旧路径立即NotFound，无alias/redirect；D08从稳定UserID解析当前username，不以URL名字授权。
+本人读/改 `username,display_name,theme`，email只读；每mutation带expected_version，User EX下当前Session→命令重放→version→唯一性/Audit/receipt。username提交后按当前DB映射解析，旧路径立即NotFound，无alias/redirect；D08从稳定UserID解析当前username，不以URL名字授权。现有users字段/username唯一约束/version及commands摘要/结果版本承载这些事实；新profile/avatar文件在本账户域的已持锁Tx读取avatar_object_id，新contract/profile.go承载头像返回投影，不为此改旧repository/types或新增资料列。
 
-头像接单一原始image body（不允许multipart任意文件字段），Content-Type限定JPEG/PNG/WebP但不信header。压缩输入≤5MiB、宽/高各≤4096、总像素≤16,777,216；DecodeConfig先界限再Decode，最多2并发/16排队/2s准入；实际decoder消费bytes及容器检查拒尾随第二图片/拼接伪装、APNG `acTL/fcTL/fdAT`、WebP ANIM/ANMF/VP8X animation、SVG/GIF、坏CRC/截断。不能只读第一帧说静态。
+头像接单一原始image body（不允许multipart任意文件字段），Content-Type限定JPEG/PNG/WebP且与实际容器一致，不能信header。完整压缩输入≤5MiB、宽/高各≤4096、总像素≤16,777,216；DecodeConfig先以无溢出运算核界限再Decode，最多2并发/16排队/2s准入。容器解析必须证明单一完整静态图片和准确结束：PNG检查完整chunk边界/CRC/IEND并拒`acTL/fcTL/fdAT`；WebP检查RIFF声明总长/chunk边界及padding，拒ANIM/ANMF/VP8X animation；JPEG按真实marker/段长度/SOS熵编码规则及真正EOI识别边界，不能简单搜索结束字节，须兼容合法多扫描静态JPEG。拒SVG/GIF、坏CRC/截断、尾随字节/第二图片/拼接伪装；Decode成功或buffered reader已预读到EOF不证明无动画/无尾随，不能只解第一帧说静态。
 
-保持比例fit512×512、不放大，透明合成明确白底，统一JPEG quality85重新编码，丢EXIF/ICC/XMP及原文件名；只把新编码bytes以image/jpeg交D05。纯Go解码不可强杀但须实际join并受像素/并发上限；不以ctx取消假称内存任务已结束。响应声明服务端限制，D26不是上传验证主体。
+保持比例fit512×512、不放大，透明合成明确白底，统一JPEG quality85重新编码，丢EXIF/ICC/XMP及原文件名；只把新编码bytes以image/jpeg交D05。完整原bytes进入账户命令摘要，不用重编码后SHA替代原输入语义；同key异原bytes仍冲突。纯Go解码不可强杀但须实际join并受像素/并发上限，执行中取消不提前释放permit/共享guard；不以ctx取消假称内存任务已结束。复用已固定x/image和标准库，不新增图片依赖；响应声明服务端限制，D26不是上传验证主体。
 
-流程：先当前Session/容量预检→有界原bytes摘要/解码重编码→持久avatar_changes→真实PreparePayload→完整access plan/ReserveUploadInTx→Tx外UploadPrepared→原对象发布→User+新旧对象完整计划下，锁后重验当前User/version、Attach新/Release旧canonical、切User.avatar/Audit+receipt+avatar_cleanup同Tx。已有owner的D05发布会建立canonical，不等于头像已切换；其exactupload/command登记在avatar_changes，取消/恢复必须有明确“尚未被User选为当前”的持久事实。
+流程：先当前Session/容量预检→有界原bytes摘要/解码重编码→持久化未Reserve的preparing操作intent（对象/Upload/Attempt映射暂空）→真实PreparePayload→完整access plan/ReserveUploadInTx→Tx外UploadPrepared→原对象发布→User+新旧对象完整计划下锁后重验当前User/version。新引用、User.avatar切换、旧对象cleanup-release、Audit/receipt/avatar_cleanup在同Tx提交；旧对象的replacement cause先在该Tx持久建立，新User指向对本Tx可见后才核其非当前条件。已有owner的D05发布会建立canonical，不等于头像已切换；其exactupload/command登记在avatar_changes，取消/恢复必须有明确“尚未被User选为当前”的持久事实。
 
-成功只保当前头像；旧对象在切换同Tx已Release引用，后台以 `ObjectCleanupCause{ReplacedObject,UserOwner,operation}` 调 `DeleteUnreferenced`。失败/冲突的新对象也由真实cleanup协议回收；未attached走既有ObjectMaintenance CancelUpload专门分支。已有canonical尚未切换的窗口由新增 `ReferenceCleanup.ReleaseForCleanupInTx(ctx,tx,cause,ObjectID,plan,locked) error` 闭合：首版只Avatar且cause为ReplacedObject/CancelledUpload，不向Service发普通Avatar grant，不由account直接SQL改object表。
+准备失败或崩溃且经既定事实核实没有真实Reserve映射时，只收敛账户intent，不凭空调用对象删除。
 
-`avatar_changes` 必须在Publish前持久化 original command/User/Object/Upload/Attempt 映射（来自真实 Reserve结果），phase=`preparing|published|applied|cancelled|cleanup_pending|completed`。实际切换原User版本冲突、明确取消或exact本地死亡恢复后，在User EX下把尚未applied操作持久置cancelled+cleanup cause；不能仅凭avatar!=object授权，也不能据年龄判原活跃上传死。对象旧reference已成功被另一个头像替换则用持久replacement operation，不改变已applied事实。
+`avatar_changes` 必须在Publish前保存original command/User/Object/Upload/Attempt映射；Object/Upload/Attempt仅来自真实Reserve返回，和该Reserve同Tx写入并确认提交后才继续，禁止先Publish再补映射或预造handle。现有phase=`preparing|published|applied|cancelled|cleanup_pending|completed`、origin_process_id和cleanup_cause足够承载。实际切换原User版本冲突、明确取消或exact本地死亡恢复后，在User EX下把尚未applied操作持久置cancelled+cleanup cause；不能仅凭avatar!=object授权，也不能据年龄/Session撤销判原活跃上传死。已applied旧对象被后一次头像替换时使用后一次持久replacement operation，不把原applied事实改成未应用。
 
-新增 `CleanupReleaseAccess` 闭集request绑定完整cause/owner/object/originalupload；D05 Discover查其真实upload/command/object并经Avatar planner收集User EX，和原command/对象EX/引用record一次union。ReleaseForCleanupInTx验live token/当前mapping、对象确为已发布或原cleanup幂等状态，账户provider核exact cancelled/replaced cause与current avatar!=object、原User切换gate已关闭；同Tx删除该exactcanonical/reserved ref，把原upload.disposition置revoked并对象置不可逆cleaning，沿原cleanup_operations建立或复用checkpoint。原PublishVerified/Attach/Consume/Lookup及账户迟到切换都检查同一durablegate：旧成功receipt只能返回revoked安全结果，不能重新引用/发布/改User。其他owner/ref和current头像一律拒绝；若仍有reader lease仅保留payload待join，引用释放不等于物理删除。Unknown先同锁核原gate/receipt，之后仍由原DeleteUnreferenced完成I/O；不扩大普通对象删除权限。
+失败/冲突的新对象由真实cleanup协议回收；未attached走既有ObjectMaintenance CancelUpload专门分支。已有canonical的对象使用新增 `ReferenceCleanup.ReleaseForCleanupInTx(ctx,tx,cause,ObjectID,plan,locked) error`：首版只Avatar且cause为ReplacedObject/CancelledUpload，不向Service发普通Avatar grant，不由account直接SQL改object表。此口既用于“已Publish未切换”取消，也用于成功替换/删除旧头像的同Tx不可逆关门；不能只用普通Release删canonical后等待后台Delete，否则旧existing-owner Attach仍有重建引用的窗口。
 
-Avatar AccessPlanner 对全部Owner/Read/Release/Cleanup/Maintenance request真实映射UserID，计划含User SH或EX及actor Session的User gate；非Avatar/未知未来Project scope明确unbound。ObjectReadAuthority只允许本人当前头像exactObjectID；被替换对象不可按猜ID读取。`GET /api/v1/me/avatar`通过ReadObject实际reader lease流式发送，非匿名URL，无generic ArtifactDownload Audit；头像读本版不额外制造Artifact事件。D05缺payload/完整性错误、关闭join、range与lease语义保持。
+新增 `CleanupReleaseAccess` 闭集request绑定完整cause（operation/reason/Avatar owner）、ObjectID和original UploadID；不得混入其他variant字段或接受caller授权布尔。D05 Discover查其真实upload/command/object，账户Avatar planner从已持久avatar_changes提供真实User EX及账户command/cause依赖；Discover只规划，不要求replacement已经提交，预分配cleanup cause绑定该真实操作，当前替换/取消事实在锁后核实并可由同Tx建立；原对象command、Object EX、引用record与账户全部额外锁经现有AcquireAccessPlansInTx一次union。计划/LockedAccess仍绑定同Service issuer、live Tx、完整request/映射/锁集合；锁后只重读/Validate，映射变化整Tx回滚，不补锁、不嵌套Tx、不在Tx内Discover或外部I/O。
+
+ReleaseForCleanupInTx核真实upload/owner/object、exact canonical/reserved或同cause的已释放/cleaning幂等状态；账户provider核exact cancelled/replaced cause、current avatar!=object及原User应用gate已关闭，该不等式不单独授权。它可完成旧引用释放，也可紧接同Tx的普通Release；同Tx删除该exact引用、把原upload.disposition置revoked、调用既有gateObject置不可逆cleaning并建立/复用逐attempt cleanup_operations，不能删除其他owner/ref或当前头像。沿现有state/字段，不新增另一套gate；任一校验/持久化失败整体回滚。原Reserve/Send/Publish成功捷径、Attach/Consume/Lookup及账户迟到切换都重验同一durable gate；旧成功receipt只能返回revoked安全结果，不能重新引用/发布/改User，已应用账户receipt重放也不重新执行User切换。
+
+Unknown先以原账户/对象writer锁核真实operation/gate/receipt，未确认不得猜回滚、重发PUT或撤销cleanup；新Tx须重新取完整计划，不能复用旧Tx token。确认关门后后台仍以 `ObjectCleanupCause{ReplacedObject或CancelledUpload,UserOwner,operation}` 调原DeleteUnreferenced完成I/O；不扩大普通对象删除权限。引用释放不等于物理删除：reader/source等active lease仍保护负载，原claim/finalize判据保持pending，不能顺手释放lease或先记completed。Read/Close实际source终止并join后才允许原reader lease释放；lease释放Unknown同样不当已释放。
+
+Avatar AccessPlanner对全部Owner/Read/Release/Cleanup/Maintenance request真实映射UserID，计划含User SH或EX及actor Session的User gate；非Avatar/未知未来Project scope明确unbound。**当前头像校验须在Planner.ValidateInTx执行**：Avatar ObjectReadAccess的Read/Stat在User SH下逐次核当前Session及exact ObjectID==User.avatar_object_id；已Publish未切换的canonical与已替换对象同样拒绝。不能只在HTTP预查或只绑定ObjectReadAuthority，因为现有readRow有canonical会直接返回；现有request已绑定exact ObjectID，无须为此改read.go。ObjectReadAuthority仍按正式口只授权本人当前exact对象；无需求的Avatar Source/外部Lease variant明确拒绝。Maintenance按本域真实cleanup/process事实收敛，不误套“仍须当前头像”而堵住旧对象清理。
+
+`GET /api/v1/me/avatar`通过ReadObject实际reader lease流式发送，非匿名URL，无generic ArtifactDownload Audit；头像读本版不额外制造Artifact事件。替换先提交则新读拒旧对象，已建立reader允许实际结束且负载受保护；D05缺payload/完整性错误、range、关闭join和lease语义保持。origin_process_id沿正式ProcessAuthority/共享ProcessGuard验证exact旧实例死亡；活实例/本实例或未知host/deployment/spool不猜死。本块解码/账户操作须纳入既定实际join责任，本节不预判B03构造或更改根装配协议。
+
+恢复以持久pass+ID公平推进未应用操作；新B04事务型Up-only迁移仅给avatar_changes补 `(pass,id)` partial index，谓词固定 `phase IN ('preparing','published','cancelled','cleanup_pending')`，扫描使用同谓词并持久轮转pass，编号待主线程分配、旧迁移不改。applied/completed不进入失效上传扫描；已应用旧对象由既有avatar_cleanup及其pending公平索引推进。前批活操作/未join reader不能永远阻断后续可收敛对象；不凭扫描到一条记录就授权取消。
+
+## 10.1 B04并行边界与最小正式接口（已采纳契约）
+
+A单独拥有新 `account/contract/profile.go` 及测试，先提交可编译的类型/接口/参数矩阵，不交成功占位实现。以下为跨A/B的固定Go形状；`identity`、`foundation`、`object`分别指既有身份、基础和对象contract，正文中的 `User/Theme` 复用既有account contract：
+
+```go
+type AvatarMetadata struct {
+    MediaType string
+    ByteSize foundation.Progress
+    SHA256 foundation.Digest
+}
+type ProfileView struct { User User; Avatar *AvatarMetadata }
+type ProfileMutation struct {
+    Actor identity.Actor
+    Key foundation.IdempotencyKey
+    ExpectedVersion foundation.Version
+}
+type ProfileChange struct {
+    ProfileMutation
+    Username *string
+    DisplayName *string
+}
+type ThemeChange struct { ProfileMutation; Theme Theme }
+type AvatarUpload struct {
+    ProfileMutation
+    MediaType string
+    ByteSize int64
+    Body io.ReadCloser
+}
+type AvatarRangeKind string // all | closed | from | suffix
+// closed: Offset>=0, Length>0; from: Offset>=0, Length=0;
+// suffix: Offset=0, Length>0; all: both zero. Checked int64 arithmetic.
+type AvatarRange struct { Kind AvatarRangeKind; Offset, Length int64 }
+type ProfilePort interface {
+    GetProfile(context.Context, identity.Actor) (ProfileView, error)
+    UpdateProfile(context.Context, ProfileChange) (ProfileView, error)
+    SetTheme(context.Context, ThemeChange) (ProfileView, error)
+    PutAvatar(context.Context, AvatarUpload) (ProfileView, error)
+    DeleteAvatar(context.Context, ProfileMutation) (ProfileView, error)
+    ReadAvatar(context.Context, identity.Actor, AvatarRange) (*object.ObjectReader, error)
+}
+type UserRoute struct {
+    UserID identity.UserID
+    Username string
+    Version foundation.Version
+}
+type CurrentUserRoutes interface {
+    CurrentUserRouteInTx(context.Context, foundation.Tx, identity.Actor) (UserRoute, error)
+}
+```
+
+这些是服务载体，不直接规定HTTP JSON嵌套；B用显式DTO保持§11路由结果，不能把opaque值泛化序列化。ProfileChange至少一个字段非nil，值按§2；AvatarUpload.ByteSize为声明长度或未知的-1，真实读取仍严格≤5MiB/尾部检查、原bytes幂等，所有退出路径关闭Body。返回Avatar=nil明确无当前头像；metadata-only结果不证明负载可读。ReadAvatar由A捕获当前不可变ObjectID并在正式对象计划中重验当前映射，range按该对象长度解析后只读同一ID，映射变化整体拒绝/外层重新准备，不用先Stat旧头像再无声切到另一对象。返回Reader继续保留账户实际operation到真正Close/join，不在ReadAvatar函数返回时登记完成；完整SHA/holdback、取消和lease沿D05。
+
+新 `account/profile.go` 定义 `NewProfileService(core *Service, objects *object.Service) (*ProfileService,error)`，其 `*ProfileService` 实现上述ProfilePort；这里 `object.Service` 为既有实现包。它复用core的Authority、Process及真实begin/finish/Force登记，不创建第二身份provider、Hasher或mail gate。新 `profile.go` 同时为既有 `*Authority` 实现CurrentUserRouteInTx：拒zero/foreign/ended Tx，只RequireHeld User SH（EX可覆盖），同Tx当前Session及本人User重验，返回真实canonical username/version；不开Tx、不加/升级锁、不touch、不查他人。读取持久username不套创建保留字检查，bootstrap admin合法；改名在同User EX下使旧路由立即失效。D08在自己完整union中预持User锁，禁止跨域直查账户表。旧 `account/{service,authority,repository}.go` 不因此解冻。
+
+A的新 `account/runtime.go` 定义 `NewRuntime(core *Service, profiles *ProfileService) (*Runtime,error)`，以及 `Start(context.Context) error`、`Check(context.Context) error`、`StopAdmission()`、`Drain(context.Context) error`、`Force(context.Context) error`、`Joined() bool`。构造无I/O；Start一次性在传入启动预算内完成Bootstrap、既有Service.Recover及头像恢复，再启动唯一受跟踪的一般账户/头像维护loop；调用前根装配已完成Authority.Initialize及依赖Initialize。它不导入accountmail（后者已依赖account），不复制邮件worker。一般Recover内既有delivery reconcile保持正式幂等，不能为去重循环改冻结源码。StopAdmission关闭新一般工作并委托core；Drain等待loop、core及头像/reader实际工作，Force只使用传入共享ctx发起取消并等待；Joined须停止且全部实际join，含不可中断解码，不能只看scheduler已退出。Check在共享健康ctx内结合Authority.CheckStorage与自己的启动/维护状态，不新增预算、不把业务pending或SMTP未配置当全平台ready。
+
+B的新 `account/http.go` 定义 `HTTPOptions{PublicOrigin string}` 与 `NewHTTPHandler(core *Service, profiles contract.ProfilePort, options HTTPOptions) (http.Handler,error)`；profile口缺失明确unbound，生产绑定真实ProfileService。它复用现有Service公开账号/SMTP命令与Browser/Session/CSRF载体，自己不读账户表/补锁/生成权限；生产handler无AccountMail Runtime依赖。B可用仅测试用ProfilePort实现验证wire，生产装配须等待A冻结。A拥有上述contract/profile/profile-runtime和§10 D05窄补口；B独占http/csrf/OpenAPI/config及所有app文件，共享fixture/script修改只由B写。A不改B03、SMTP或根装配；B不改A领域/contract或D05。除本节冻结的函数形状，私有helper由各作者在自有范围决定。
 
 ## 11. HTTP wire 与正式服务表面
 
@@ -374,7 +452,7 @@ Avatar AccessPlanner 对全部Owner/Read/Release/Cleanup/Maintenance request真�
 
 system list用cursor现有签名keyring，每次当前admin验证；摘要绑定scope/filter/order但不绑定limit，默认25/max100，keyset按created_at+ID；role固定枚举无新管理API。密码弱/长度、username占用用400/409+安全FieldError；token失效410统一；容量429，基础设施503，Unknown503+lookup提示；公开reset不得把内部jobID、故障原因或已注册状态投影出去。
 
-`account.Service` 公开命令与表一一对应；`Authenticate(ctx,cookie)→Human`、`RequireCurrentSession`、`AuthorizeSystem`、`TouchActivityInTx`、`LookupCommand` 是正式后端端口，敏感返回为opaque Cookie/LinkMaterial，仅HTTP或受限Sink适配器消费。未来域不导入HTTP读取cookie。所有mutation facade封装完整plan/WithinTx；只有明列InTx组合口使用调用方Tx，不外部I/O。
+`account.Service` 与§10.1的 `ProfileService` 公开命令覆盖上表；`Authenticate(ctx,cookie)→Human`、`RequireCurrentSession`、`AuthorizeSystem`、`TouchActivityInTx`、`LookupCommand` 是正式后端端口，敏感返回为opaque Cookie/LinkMaterial，仅HTTP或受限Sink适配器消费。未来域不导入HTTP读取cookie。所有mutation facade封装完整plan/WithinTx；只有明列InTx组合口使用调用方Tx，不外部I/O。
 
 D07 绑定既有 Audit/Secret/outbound/Outbox 的 System权限但不提前安装它们全部D27管理HTTP。现有D05 Artifact/download和Runner Transfer保持其真实领域provider未绑定；无Project/Runner成功stub。管理员账户UI需要的列表不变成浏览项目内容的入口。
 
@@ -382,7 +460,11 @@ D07 绑定既有 Audit/Secret/outbound/Outbox 的 System权限但不提前安装
 
 延用[部署运行](../../architecture/platform-infrastructure/deployment-runtime.md)及[D05 生命周期](d05-object-storage-design.md#10-初始化健康关闭与验收)；DB自身预算后 Security/Objects/Outbox/Account共用已有30s启动预算或更短parent。SMTP未配置或远端不可达不是启动必需探测；必须验证账户schema/registry/bootstrap/恢复日志权限、Secret必需key、job引用/本地旧process证据及真实对象检查。不能以无HTTP业务端口为由跳过遗留安全恢复。
 
-app私有assembly保留真实 Authority、Secret/OutboundClient/ObjectService/ProcessGuard/OutboxService/AccountRuntime。construct无I/O，资源owner在Initialize之前登记，所有早退/late add都同owner关闭；不再只保留接口而丢掉需组合的实例。D07 mail/hash/avatar、response read/material use、recoverylog writer/Close清理工作和Outbox一起纳入guard退休条件：先StopAdmission/StopClaims，允许已准入HTTP与mail drain；这些真实join后才ObjectRuntime.Drain释放guard。
+app私有assembly保留同一真实Authority、Secret/OutboundClient/ObjectService/ProcessGuard/OutboxService/AccountService/ProfileService/账户Runtime、accountmail Runtime/WorkRegistry及Sink。Authority已有唯一mailAdmission，HTTP mutation与DeliveryPort必须共享它。共享ProcessAuthority把account的ProcessID映射到该objectAssembly真实Process及同一guard；ConfirmStopped仅在guard已Initialize后使用，不能因新Registry为空推断旧任务死亡。纯New构造无I/O；`recoverylog.Open` 是实际文件打开/worker资源取得，须立即登记owner，不能当纯构造遗漏关闭。
+
+根装配先建真实Authority及完整provider依赖，再完成Initialize；ObjectService从初建即绑定A的Avatar planner/authority，Secret/Audit/Outbound同样绑定真实当前身份，不能先以unbound跑遗留恢复再补provider。Outbox先建立account typed catalog和Service，AccountService引用该Appender，再由真实MailHandler构造Outbox Runtime后Initialize；不再先初始化空catalog/nil handlers。实际mail构造链固定为同ProcessAuthority→accountmail.NewWorkRegistry→account.NewDeliveryPort(core,registry)→accountmail.New（真实OutboundClient/Trust/Sink/PublicOrigin）→accountmail.NewRuntime。Authority.Initialize由根装配在任何Bootstrap/业务恢复前完成；ObjectRuntime/guard及其他必要基础Initialize完成后才启动账户Runtime与mail Runtime，并在它们启动/恢复确认后安装业务HTTP。mail Runtime.Start只做其delivery reconcile/recovery，不代替账户Runtime的Bootstrap/一般账户/头像恢复；mail Runtime.Check也不代替账户存储检查。
+
+资源owner在第一次Initialize/Start前登记；Sink打开后到Account/邮件Runtime构造失败、任何启动失败、超时后的late add均进入同一partial assembly关闭路径。停止先封闭HTTP/账户/邮件/Outbox新准入，再允许已准入工作drain。guard退休必须同时满足HTTP真实结束、Outbox.Joined、账户Runtime.Joined（含core/hash/response/avatar/reader）及mail Runtime.Joined（含Registry/loops/全Sink）；单个Service、Registry或Sink ticket的Joined/Done不能替代该联合条件。联合真实join后才ObjectRuntime.Drain/Force释放guard；未join只ObjectService.Force关闭transport。不得让现有addObjects早退或forceObjectAfterOutbox仅凭Outbox终局提前退休guard。所有分支仍最后实际调用DB ForceClose，保持原预算。
 
 首信号不直接取消全部HTTP BaseContext；原drain期限/第二信号/超时沿现有lifecycle。额外force总共1s，各socket关闭、worker取消/join、outbound/object force共用同ctx；即使Sink阻塞耗尽该预算，仍最后实际发起DB ForceClose，不跳过或重置期限；D03取消phase100ms不改。任何账户/SMTP/hash/回应读取/日志Write、Sync或Close工作尚未join时，只调用ObjectService.Force关闭transport，不能Runtime.Force释放ProcessGuard；保持到真实OS退出。它只证明本地进程死，不能证明SMTP未送达。
 
@@ -398,13 +480,14 @@ app私有assembly保留真实 Authority、Secret/OutboundClient/ObjectService/Pr
 | T04 公开隐私/挑战 | 存在/不存在同status/shape/channel/hash参数和队列；threshold/IP/成功重置；captcha replay/跨browser/换email/key/并发消费/重启失效；官方Vue真实旋转和键盘harness成功 |
 | T05 Session/CSRF | Cookie flags、伪Host/Origin/null/multiOrigin/CSRF/forwarded拒绝；固定issued期限、idle/absolute/touch排除poll；并发logout/reset/改密与System mutation由User锁序线性化；旧Session立即401，不停止执行；两次合法Cookie重放各自read-attempt/lease，一方Cancel须真实join后仅释放自身，另一仍受保护；5m/撤销/idle/absolute/改密后均不恢复Cookie或复活Session |
 | T06 邀请/reset | 唯一email/username并发；24h固定/同链接不续期；两次兑换/撤销/到期抢占；unknown同义查receipt/异义409；公开无投递泄漏；清理无Secret引用/lease孤儿 |
-| T07 权限/事务 | 普通本人Audit成功但System管理403；admin不能Avatar他人/Project Owner；Service伪cause/错误owner/fence/来源/issuer拒绝；account_response跨browser/command完整HMAC/User/Session/password_version/ref/Purpose/process/fence拒绝，不借SMTP字段；原登录/Acquire/Read提交Unknown及Audit失败零材料/Set-Cookie，exact核实及独立lease恢复；五项usage字段矩阵/结果匹配、Apply拒read、跨Service/改字段/缺计划拒绝；旧reference及lease口不能绕过account planning，非账户旧消费者兼容；Release/Read重验actual lease mapping，Acquire同owner异ID/终态不复活；全批锁缺低序/SH→EX/映射变更fail closed，InTx零Discover/补锁/nested/外部读；AccountDelivery exact job/current_attempt/process/fence/config/ref/Purpose/lease及reset User/password_version错配拒绝，源码无Tx内usage discover；失效后只凭实际join+exact cleanup/lease释放，不恢复读，AccountResponse兼容不退化 |
+| T07 权限/事务 | 普通本人Audit成功但System管理403；admin不能Avatar他人/Project Owner；Service伪cause/错误owner/fence/来源/issuer拒绝；account_response跨browser/command完整HMAC/User/Session/password_version/ref/Purpose/process/fence拒绝，不借SMTP字段；原登录/Acquire/Read提交Unknown及Audit失败零材料/Set-Cookie，exact核实及独立lease恢复；五项usage字段矩阵/结果匹配、Apply拒read、跨Service/改字段/缺计划拒绝；旧reference及lease口不能绕过account planning，非账户旧消费者兼容；Release/Read重验actual lease mapping，Acquire同owner异ID/终态不复活；全批锁缺低序/SH→EX/映射变更fail closed，InTx零Discover/补锁/nested/外部读；AccountDelivery exact job/current_attempt/process/fence/config/ref/Purpose/lease及reset User/password_version错配拒绝，源码无Tx内usage discover；失效后只凭实际join+exact cleanup/lease释放，不恢复读，AccountResponse兼容不退化；AccountMail实际sent/unknown/failed/cancelled及timeout/token_invalid等安全reason正向投影；伪Success/错误Outcome、Phase、Reason、fence版Version、originalInitiator/channel、非current_attempt、旧fence、非0 ordinal、错producer/cause、terminal=false或io_joined=false全部拒绝，producer/provider同映射且原其他actions/Service正反例不回退 |
 | T08 SMTP协议 | none、STARTTLS、TLS+私CA真实投递；证书host/链错及STARTTLS降级拒绝；AUTH与每MAIL单独BeginSend；policy更新/DNS全结果/pinning；大reply/slowpeer/CRLF不泄密且有界 |
 | T09 外发竞争 | 同一Authority gate下SMTP原首写前/后barrier与revoke/redeem/reset-complete/normal-password-change/expiry/config竞争；普通改密保留reset row仍拒后续发送，DB→内存反序/独立第二gate/取消等候泄锁/EX后SH插队拒绝；日志精确卡队首资格授予前/后：EX先提交零新资格/零Write，资格先则允许调度间隙后Write但链接已失效；不拿入队/标记称syscall已进入；无DB Tx跨I/O，日志Write/Sync不持SH；原lease直到实际join；DATA后断响应unknown可重复且从不假sent |
 | T10 durable jobs | handler业务+marker同Tx；晚注册/重启canonical补job；真实无link test意图/current admin/configured；重复event不重复意图；首次+5最多6次、降低预算不重置已用、人工新周期、retry_wait/到期公平100+1、foreign live不阻断；claim→discover/acquire两短Tx间crash/unknown无外部I/O，原fence核实；新attempt Ref不可变且与lease成对，legacy Ref=NULL在多次SMTP替换后只经正式exact lease核实补原值，无法核实保pending/unknown且保护cleanup不删；opaque跨issuer/process/attempt、未登记工作/假completion拒绝，Checkpoint/Finish未知不重发送，未证死亡不接管processing/旧attempt；Claim后零Prepare/从未Acquire、第二Tx明确回滚可终局且不先造lease；原Acquire晚COMMIT/Unknown与job+attempt锁串行，acquisition-stop自身Unknown未核实保cause，迟到旧prepared被join位/摘要拒；checkpoint后crash/restart续清；两材料槽存在/不存在组合、顶层SECRET_NOT_FOUND合法零Release，嵌套provider NotFound/依赖错/Apply内缺行不得吞；最终job/Audit/terminal原子且unknown不重发；Claim未移交Unknown/返回前取消、成功返回后登记前取消含Stop/Force、Recover与迟到返回抢同一私有决议：只一个终局责任且无丢handle/重移交；原DB未join不能清理，确证回滚/晚COMMIT经原writer确认，未确认保cause；私有待确认不假I/Ojoin或server终止，原共享预算不延长；人工retry另完整执行[人工邮件重试补遗](d07-account-mail-retry-addendum.md) A01–A06的闭集、原子/Unknown、claim竞争、单跳根与10→11回滚验收 |
 | T11 恢复日志 | 真实0600文件只在bootstrap/合法backend_log资格下出现capability；configured失败绝不降级；普通日志/Audit/API/异常fmt无明文；32等待+1active/串行完整行/先登记；A阻塞Sync、B排队时配置/revoke先提交，B出队当前校验零资格；GrantOnce迟到/跨ticket/重复拒绝，准入超时/提交Unknown零Write；授予后至真实Write暂停时EX可提交；分别阻塞Write/Sync，Wait先Unknown但Done/lease未终局，多Wait结果一致；完整Write+Sync才written，部分/Sync故障unknown，不自动重印bootstrap/截断或乱换path |
-| T12 Avatar/profile | 静态JPG/PNG/WebP成功且元数据去除；SVG/APNG/动画/伪MIME/像素炸弹/尾随拒绝；samekey不同原bytes冲突；Publish后切换前crash/Session撤销、两次替换交错、cleanup与迟到Publish/Consume竞争，无孤儿/复活；清理Unknown先核事实、current引用不删、真实reader关闭lease |
-| T13 根装配/停机 | 真正非stub System端口；SMTP空仍技术健康；所有Initialize早退/late add/blockedI/O/第二信号/hash在算及response read未join，sharedguard不早退；单ticket Done不代替全Sink Joined，Wait取消不当join；Sink Write/Sync/Close阻塞耗尽原共享1s仍实际发起DB最后force，不延长预算/重复Close任务，日志准入1s不成为新增停机预算；既有全套app/PG/安全/对象/Outbox断言不放宽 |
+| T12 Avatar/profile | profile唯一性/version并发、email只读、旧username失效、稳定幂等结果；CurrentUserRouteInTx零/错/终局Tx、缺User锁、失效Session/非本人拒绝，User EX改名与同锁路由读取真实竞争，bootstrap admin可读且无touch/加锁；静态JPG/PNG/WebP和合法多扫描JPEG成功且元数据去除，SVG/APNG/动画/伪MIME/坏CRC/截断/像素边界/尾随拒绝，不以Decode或预读EOF代替容器解析；samekey不同原bytes冲突；Reserve映射同Tx、Publish后切换前crash/Session撤销、A→B→C替换/删除交错，旧cleanup gate随User切换同Tx提交；cleanup与迟到Reserve/Send/Publish/Attach/Consume及账户receipt竞争，无孤儿/复活；exact cause/owner/Upload/issuer/plan错配拒绝，Unknown先原writer锁核事实、不重PUT；canonical存在但非current的Read/Stat由Planner拒绝，current引用不删、暂停真reader时pending且负载保留，真实Close/join后才释放lease；解码取消不提前释放运行permit/guard |
+| T13 根装配/停机 | A/B分别可构建验证且生产明确绑定真实ProfilePort，零/未绑不成功；真实typed catalog/handler在Outbox Initialize前就位、Authority.Initialize与一般Bootstrap/Recover不得被mail Start代替；Sink打开后各构造失败/late add同owner关闭，账户core未join但mail/Outbox已join时guard仍保留；真正非stub System端口；SMTP空仍技术健康；所有Initialize早退/late add/blockedI/O/第二信号/hash在算及response read未join，sharedguard不早退；单ticket Done不代替全Sink Joined，Wait取消不当join；Sink Write/Sync/Close阻塞耗尽原共享1s仍实际发起DB最后force，不延长预算/重复Close任务，日志准入1s不成为新增停机预算；既有全套app/PG/安全/对象/Outbox断言不放宽 |
+| T14 B04恢复索引 | 在B03提交的实际schema基线上验证fresh/升级保留avatar_changes各原阶段/映射及avatar_cleanup事实；新partial index覆盖/谓词与扫描一致、整迁移失败回滚、旧迁移字节不变；100条活操作/受保护前缀不饿死第101条可清项，exact死亡/foreign未知分别处理，无年龄接管或假join |
 
 执行门槛：`AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/check-go.sh`；真实模块测试 `AGENTEAM_GO=... sh scripts/test-accounts.sh`（脚本明确运行 `go test -tags=integration ./tests/account/... ./tests/accountmail/... ./internal/central/app/...` 普通及race）；模块最终沿现有 `scripts/test-postgres.sh`、`test-security.sh`、`test-objects.sh` 的**无过滤**兼容任务，加完整新HTTP/SMTP套件。harness执行其固定package lock的 `npm ci && npm run test`，包含真正浏览器，不把仅单测/类型检查当端到端。具体命令与耗时由实施/V记录，本S01没有运行这些产品测试。
 
