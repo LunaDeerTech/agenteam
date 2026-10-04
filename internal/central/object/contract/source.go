@@ -122,7 +122,9 @@ func (s ResolvedSource) LogValue() slog.Value         { return slog.StringValue(
 // A real provider resolves its own business entity/version and checks current
 // access. B02 consumes this port; unbound variants must fail explicitly. It is
 // not a raw-object-ID lookup and cannot silently substitute the latest revision.
+// ValidateInTx consumes the same complete outer access plan/token as object
+// mutations; it rechecks the exact source and cannot discover or add locks.
 type SourceResolver interface {
 	Resolve(context.Context, identity.Actor, BusinessFileRef) (ResolvedSource, error)
-	ValidateInTx(context.Context, foundation.Tx, identity.Actor, ResolvedSource) error
+	ValidateInTx(context.Context, foundation.Tx, identity.Actor, ResolvedSource, AccessLockPlan, LockedAccess) error
 }

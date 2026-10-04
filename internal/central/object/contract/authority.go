@@ -111,15 +111,17 @@ func (g OwnerAuthorization) LogValue() slog.Value {
 
 // Both calls must check the current Session/Owner or actual Agent/Execution.
 // System scope for Avatar means the exact owning user, not an administrator.
-// InTx consumes the caller's transaction and may not open or commit another.
+// InTx follows successful AccessPlanner validation under the complete locked
+// plan. It consumes the caller's transaction and must not add locks, open a
+// transaction, or commit one.
 type ResourceAuthority interface {
 	AuthorizeOwner(context.Context, identity.Actor, ObjectOwner, identity.AccessIntent) (OwnerAuthorization, error)
 	AuthorizeOwnerInTx(context.Context, foundation.Tx, identity.Actor, ObjectOwner, identity.AccessIntent) (OwnerAuthorization, error)
 }
 
 // ObjectReadAuthority proves a current fixed-version use of this exact object.
-// The caller holds the precollected User/Project, owner and ObjectAggregate
-// locks. The implementation must not open a transaction or acquire an omitted
+// The caller holds the validated Actor, actual parent, User/Project, owner and
+// ObjectAggregate locks. The implementation must not open a transaction or acquire an omitted
 // earlier lock. The object service rechecks the exact protected active lease
 // and partition in the same transaction; the returned grant alone is no lease.
 type ObjectReadAuthority interface {
@@ -198,19 +200,33 @@ type ProjectCleanupResult struct {
 // These interfaces are consumer ports, not implementations of future business
 // authorities. Unbound authorities are rejected by the object implementation.
 type Objects interface {
+	AccessPlanning
 	PutObject(context.Context, identity.Actor, ObjectOwner, foundation.CommandMeta, string, int64, *foundation.Digest, io.ReadCloser) (PutResult, error)
 	LookupPut(context.Context, identity.Actor, ObjectOwner, foundation.IdempotencyKey) (LookupResult, error)
 	CancelUpload(context.Context, identity.Actor, ObjectOwner, foundation.IdempotencyKey) (LookupResult, error)
-	AttachObjectInTx(context.Context, foundation.Tx, identity.Actor, ObjectOwner, ObjectID) (ObjectReference, error)
-	ConsumeUploadInTx(context.Context, foundation.Tx, identity.Actor, ObjectOwner, UploadReceipt) (ObjectReference, error)
-	ReleaseObjectInTx(context.Context, foundation.Tx, identity.Actor, ObjectOwner, ObjectID) error
+	AttachObjectInTx(context.Context, foundation.Tx, identity.Actor, ObjectOwner, ObjectID, AccessLockPlan, LockedAccess) (ObjectReference, error)
+	ConsumeUploadInTx(context.Context, foundation.Tx, identity.Actor, ObjectOwner, UploadReceipt, AccessLockPlan, LockedAccess) (ObjectReference, error)
+	ReleaseObjectInTx(context.Context, foundation.Tx, identity.Actor, ObjectOwner, ObjectID, AccessLockPlan, LockedAccess) error
 	StatObject(context.Context, identity.Actor, ObjectOwner, ObjectID) (ObjectMeta, error)
 	ReadObject(context.Context, identity.Actor, ObjectOwner, ObjectID, *ByteRange) (*ObjectReader, error)
 	OpenUploadSource(context.Context, identity.Actor, ObjectOwner, UploadReceipt) (*ObjectReader, error)
 }
 type Leases interface {
-	AcquireLeaseInTx(context.Context, foundation.Tx, identity.Actor, ObjectID, LeaseOwner) (ObjectLease, error)
-	ReleaseLeaseInTx(context.Context, foundation.Tx, identity.Actor, ObjectID, LeaseOwner) error
+	AccessPlanning
+	AcquireLeaseInTx(context.Context, foundation.Tx, identity.Actor, ObjectID, LeaseOwner, AccessLockPlan, LockedAccess) (ObjectLease, error)
+	ReleaseLeaseInTx(context.Context, foundation.Tx, identity.Actor, ObjectID, LeaseOwner, AccessLockPlan, LockedAccess) error
+}
+
+// Uploads exposes the implemented preparation/storage/publication composition.
+// Only the named InTx methods consume an outer transaction; the caller confirms
+// reservation before sending, and owns publication commit/unknown recovery.
+type Uploads interface {
+	AccessPlanning
+	PreparePayload(context.Context, identity.Actor, ObjectOwner, string, int64, *foundation.Digest, io.ReadCloser) (PreparedPayload, error)
+	DiscardPrepared(PreparedPayload) error
+	ReserveUploadInTx(context.Context, foundation.Tx, identity.Actor, ObjectOwner, foundation.CommandMeta, PreparedPayload, AccessLockPlan, LockedAccess) (UploadAttempt, error)
+	UploadPrepared(context.Context, identity.Actor, ObjectOwner, PreparedPayload, UploadAttempt) (UploadAttempt, error)
+	PublishVerifiedInTx(context.Context, foundation.Tx, identity.Actor, ObjectOwner, UploadAttempt, AccessLockPlan, LockedAccess) (PutResult, error)
 }
 type Cleaner interface {
 	InspectReferences(context.Context, ObjectID) (ReferenceInspection, error)
