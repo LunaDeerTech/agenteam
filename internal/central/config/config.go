@@ -4,14 +4,18 @@ package config
 
 import (
 	"errors"
+	"fmt"
+	"io"
 	"log/slog"
 	"net"
 	"net/netip"
 	"net/url"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
@@ -34,6 +38,8 @@ type Config struct {
 	secretKeys      secret.Keyring
 	outboundTrust   outbound.TrustStore
 	objectRuntime   object.RuntimeConfig
+	accountKeys     account.Keyring
+	accountLog      func() string
 }
 
 func (c Config) LogLevel() slog.Level               { return c.logLevel }
@@ -45,6 +51,17 @@ func (c Config) CursorKeyring() cursor.Keyring      { return c.cursorKeys }
 func (c Config) SecretKeyring() secret.Keyring      { return c.secretKeys }
 func (c Config) Objects() object.RuntimeConfig      { return c.objectRuntime }
 func (c Config) OutboundTrust() outbound.TrustStore { return c.outboundTrust }
+func (c Config) AccountKeyring() account.Keyring    { return c.accountKeys }
+func (c Config) AccountRecoveryLog() string {
+	if c.accountLog == nil {
+		return ""
+	}
+	return c.accountLog()
+}
+
+func (Config) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "central_config") }
+func (Config) MarshalJSON() ([]byte, error) { return []byte(`"central_config"`), nil }
+func (Config) LogValue() slog.Value         { return slog.StringValue("central_config") }
 
 // Error contains a declared field name and stable reason, never an input value.
 type Error struct {
@@ -74,6 +91,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 		}
 		switch strings.TrimPrefix(key, Prefix) {
 		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "CURSOR_KEYRING", "SECRET_KEYRING", "OUTBOUND_CA_FILE":
+		case "ACCOUNT_KEYRING", "ACCOUNT_RECOVERY_LOG":
 		case "OBJECT_DOWNLOAD_KEYRING", "OBJECT_ENDPOINT", "OBJECT_TRANSFER_ENDPOINT", "OBJECT_BUCKET", "OBJECT_ACCESS_KEY", "OBJECT_SECRET_KEY", "OBJECT_TLS_MODE", "OBJECT_CA_FILE", "OBJECT_SPOOL_DIR":
 		case "DATABASE_URL", "DATABASE_TLS_MODE", "DATABASE_CA_FILE", "DATABASE_MAX_CONNS", "DATABASE_CONNECT_TIMEOUT", "DATABASE_STARTUP_TIMEOUT", "DATABASE_LOCK_TIMEOUT":
 		default:
@@ -149,6 +167,18 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 	if err != nil {
 		return Config{}, invalid("OBJECT_*")
 	}
+	c.accountKeys, err = account.LoadKeyring(value("ACCOUNT_KEYRING", ""), c.cursorKeys, c.secretKeys, c.objectRuntime.DownloadKeyring())
+	if err != nil {
+		return Config{}, invalid("ACCOUNT_KEYRING")
+	}
+	accountLog := value("ACCOUNT_RECOVERY_LOG", "")
+	if !validAccountLogPath(accountLog) {
+		return Config{}, invalid("ACCOUNT_RECOVERY_LOG")
+	}
+	// Keep the fixed path out of reflection-based formatting, including when
+	// Config is nested in another type's private fields. Opening belongs to
+	// account initialization, never configuration validation.
+	c.accountLog = func() string { return accountLog }
 
 	return c, nil
 }
@@ -181,7 +211,17 @@ func (c Config) Validate() error {
 	if c.objectRuntime.Validate() != nil {
 		return invalid("OBJECT_*")
 	}
+	if c.accountKeys.Validate() != nil {
+		return invalid("ACCOUNT_KEYRING")
+	}
+	if !validAccountLogPath(c.AccountRecoveryLog()) {
+		return invalid("ACCOUNT_RECOVERY_LOG")
+	}
 	return nil
+}
+
+func validAccountLogPath(path string) bool {
+	return filepath.IsAbs(path) && filepath.Clean(path) == path && path != string(filepath.Separator) && !strings.ContainsRune(path, '\x00')
 }
 
 func portNumber(port string) (int, bool) {
@@ -245,6 +285,12 @@ func normalizeOrigin(raw string) (string, error) {
 		return "", invalid("PUBLIC_ORIGIN")
 	}
 	host := strings.ToLower(u.Hostname())
+	if scheme == "http" && host != "localhost" {
+		ip, err := netip.ParseAddr(host)
+		if err != nil || !ip.Unmap().IsLoopback() {
+			return "", invalid("PUBLIC_ORIGIN")
+		}
+	}
 	if ip, err := netip.ParseAddr(host); err == nil {
 		if ip.Is4() {
 			host = ip.String()

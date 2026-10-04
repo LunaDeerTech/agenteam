@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
 	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
 	"log/slog"
 	"os"
@@ -18,15 +19,31 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 )
 
-func loadValues(values map[string]string) (Config, error) {
+// Only config.Load consumes these inputs: it neither opens the absolute path
+// nor starts the account service. Real app/process tests use accountenv.New.
+func configOnlyAccountValues() map[string]string {
+	return map[string]string{
+		Prefix + "ACCOUNT_KEYRING":      `{"format":1,"current_kid":"config","keys":[{"kid":"config","key_b64":"YGFiY2RlZmdoaWprbG1ub3BxcnN0dXZ3eHl6e3x9fn8="}]}`,
+		Prefix + "ACCOUNT_RECOVERY_LOG": "/config-only/account-recovery.log",
+	}
+}
+
+func configValues(values map[string]string) map[string]string {
 	copy := map[string]string{Prefix + "SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, Prefix + "CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, Prefix + "DATABASE_URL": "postgresql://config_user:config-password@127.0.0.1:1/config_only", Prefix + "DATABASE_TLS_MODE": "disable"}
 	for key, value := range objectfixture.ConfigOnlyValues() {
+		copy[key] = value
+	}
+	for key, value := range configOnlyAccountValues() {
 		copy[key] = value
 	}
 	for key, value := range values {
 		copy[key] = value
 	}
-	values = copy
+	return copy
+}
+
+func loadValues(values map[string]string) (Config, error) {
+	values = configValues(values)
 	var env []string
 	for k, v := range values {
 		env = append(env, k+"="+v)
@@ -152,7 +169,7 @@ func TestConfigurationBoundariesAndSafeErrors(t *testing.T) {
 			}
 		}
 	}
-	for raw, want := range map[string]string{"HTTP://EXAMPLE.COM:80/": "http://example.com", "https://Example.com:443": "https://example.com", "http://[::1]:80/": "http://[::1]", "https://localhost:08443/": "https://localhost:8443"} {
+	for raw, want := range map[string]string{"HTTP://LOCALHOST:80/": "http://localhost", "https://Example.com:443": "https://example.com", "http://[::1]:80/": "http://[::1]", "https://localhost:08443/": "https://localhost:8443"} {
 		c, err := loadValues(map[string]string{Prefix + "PUBLIC_ORIGIN": raw})
 		if err != nil || c.PublicOrigin() != want {
 			t.Errorf("normalization %s: %s %v", raw, c.PublicOrigin(), err)
@@ -161,7 +178,11 @@ func TestConfigurationBoundariesAndSafeErrors(t *testing.T) {
 }
 
 func TestLoadNeverReadsIgnoredValues(t *testing.T) {
+	accountValues := accountenv.New(t).Values()
 	_, err := Load(func(key string) (string, bool) {
+		if value, ok := accountValues[key]; ok {
+			return value, true
+		}
 		if value, ok := objectfixture.ConfigOnlyValues()[key]; ok {
 			return value, true
 		}
@@ -188,11 +209,11 @@ func TestOriginCanonicalIPv6MatchesBrowserSerialization(t *testing.T) {
 	for raw, want := range map[string]string{
 		"HTTP://[0:0:0:0:0:0:0:1]:80/":                           "http://[::1]",
 		"https://[2001:0DB8:0000:0000:0000:0000:0000:0001]:443/": "https://[2001:db8::1]",
-		"http://[::ffff:192.0.2.1]":                              "http://[::ffff:c000:201]",
-		"http://[0:0:0:0:0:ffff:c000:0201]":                      "http://[::ffff:c000:201]",
-		"http://[2001:0:0:1:0:0:1:1]":                            "http://[2001::1:0:0:1:1]",
-		"http://[1:2:3:4:5:6:0:0]":                               "http://[1:2:3:4:5:6::]",
-		"http://[0:0:0:0:0:0:0:0]":                               "http://[::]",
+		"https://[::ffff:192.0.2.1]":                             "https://[::ffff:c000:201]",
+		"https://[0:0:0:0:0:ffff:c000:0201]":                     "https://[::ffff:c000:201]",
+		"https://[2001:0:0:1:0:0:1:1]":                           "https://[2001::1:0:0:1:1]",
+		"https://[1:2:3:4:5:6:0:0]":                              "https://[1:2:3:4:5:6::]",
+		"https://[0:0:0:0:0:0:0:0]":                              "https://[::]",
 	} {
 		cfg, err := loadValues(map[string]string{Prefix + "PUBLIC_ORIGIN": raw})
 		if err != nil || cfg.PublicOrigin() != want || cfg.Validate() != nil {
