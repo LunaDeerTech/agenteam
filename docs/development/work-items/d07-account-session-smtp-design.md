@@ -1,6 +1,6 @@
 # D07 账号、Session、SMTP 与个人资料实施规格
 
-- 修订：4；仅在修订3基础上补B02真实浏览器有限替代；S01 设计稿，实施基线 `57bfadb`，开工卡 `a116c85`；尚未代表实现或测试通过。
+- 修订：5；仅在修订4基础上明确B03普通文件日志准入及per-work终局；S01 设计稿，实施基线 `57bfadb`，开工卡 `a116c85`；尚未代表实现或测试通过。
 - 范围与所有权：[D07 主卡](d07-account-session-smtp.md)。本规格落实已确认的[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)、[SMTP](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)、[D01 基础契约](d01-contracts/foundation.md)；不新增公开注册、角色管理、账号删除、设备管理或前端生产页面。
 - D07 交付真实后端、HTTP、账户安全和后台投递。D08 仍拥有 Project/Owner；D25 接 Session 撤销与 WS；D26 接账号/个人页面，D27 接系统设置。挑战 Vue 只交独立兼容测试 harness。
 
@@ -12,7 +12,7 @@
 | --- | --- | --- |
 | B01 身份与安全基础 | 真实 User/Session/System provider、初始化、登录/退出、密码与 keyring、受限 Secret/Audit 组合；无 HTTP 默认授权 | 新 `internal/central/account/contract/{types,identity,settings,commands}.go` 及对应测试；新 `account/{repository,authority,planning,keyring,password,bootstrap,session,login,audit_authority,secret_authority}.go` 及测试、`account/assets/weak-passwords.json`/许可；新 `internal/central/recoverylog/` 真实受限 Sink/测试；新 `db/migrations/00010_account_session_smtp.sql`；本节列明的 D04 补口、`go.mod/go.sum` 的必要依赖；新 `tests/account/` 基础/迁移测试 |
 | B02 邀请、恢复与挑战 | 一次性兑换/重置、改密、挑战、事务投递意图与真实 Outbox handler、到期回收 | 新 `account/{invitation,reset,password_change,challenge,events,delivery_intent,delivery_handler,cleanup}.go`、`contract/{challenge,invitation,recovery,events}.go` 及测试；自有生成挑战素材；新 `tests/account/` 对应组合测试、`tests/account-captcha-web/` 独立锁定依赖 harness |
-| B03 持久投递 | SMTP 配置/测试、三种协议、有限重试、受限恢复日志、claim/未知结果/重启与关闭 | 新 `internal/central/accountmail/` 实现/契约/测试；消费 B01 recoverylog；新 `account/contract/delivery.go`；限定出站 TLS 补口；新 `tests/testsupport/smtp/`、`tests/accountmail/`、`scripts/test-accounts.sh` |
+| B03 持久投递 | SMTP 配置/测试、三种协议、有限重试、受限恢复日志、claim/未知结果/重启与关闭 | 新 `internal/central/accountmail/` 实现/契约/测试；§9限定 `recoverylog/sink.go`、`sink_test.go`，可新增 `recoverylog/{admission,ticket}.go` 及相邻测试，补队首资格与per-work ticket，不改B01 bootstrap输出规则；新 `account/contract/delivery.go`；限定出站 TLS 补口；新 `tests/testsupport/smtp/`、`tests/accountmail/`、`scripts/test-accounts.sh`；上述旧源码仍须root在B03正式解冻 |
 | B04 资料与正式入口 | 本人资料/头像/偏好、完整 API/OpenAPI、Central 生命周期与当前权限装配 | 新 `account/{profile,avatar,object_authority,runtime,http,csrf}.go`、`contract/profile.go` 及测试；新 `api/openapi/account.json`；新 `app/account.go` 及实际进程测试；限定 `app/{app,security,outbound,object,outbox,resources,health,diagnostics}.go`、`config/config.go` 及受影响测试/fixture；新账户配置示例与运行说明须由主线程另授权文档范围 |
 
 表内 `account/`、`audit/`、`secret/`、`object/`、`outbound/`、`foundation/`、`httpapi/`、`app/`、`config/` 均为 `internal/central/` 下包路径；`db/`、`tests/`、`api/`、`scripts/`、`go.mod/go.sum` 相对仓库。同目录新增私有辅助文件可由所属 B 作者选择，不能因此改未列旧域。新 SQL 一次声明全 D07 持久结构，旧 `00001–00009` 字节不变。B01/B02 未装 HTTP 前，缺后块 capability 必须明确 unbound，不能在生产返回成功占位。
@@ -21,7 +21,7 @@
 
 弱密码仅离线嵌入 `@zxcvbn-ts/language-common@4.1.3` 的 `src/passwords.json`，49,233 项、486,625 bytes，SHA256 `f422773d94d630f27e08b26d7017e847bb1feb2a84809340e9c0b0c47b33e3f1`；保留 MIT 许可/来源，不引 zxcvbn JS runtime，不请求泄漏库。GoCaptcha assets 1.0.7 的字体/照片未取得逐素材权属证据，首版不用该包；程序生成平台自有的非对称图案，不引用系统字体或远端图片。SMTP 使用标准库 `net/smtp`、`crypto/tls`、`net/textproto`，不另引 SMTP SDK。
 
-必要旧公共增量由 B01 一次完成，B03/B04 只绑定；旧消费者的拒绝行为须兼容验证：
+下表未单独标注所属块的旧公共增量由 B01 一次完成；B03另限本节Sink补口，B04按表内限定增量绑定；旧消费者的拒绝行为须兼容验证：
 
 | 旧文件/新补充文件 | 必要原因及最小口 |
 | --- | --- |
@@ -211,17 +211,27 @@ SMTP overall30s、dial5s、TLS10s、每读/写idle5s，响应行≤4KiB、单rep
 
 账户另有单Central `mailAdmission` 门禁，与token消费/撤销/到期、SMTP配置提交协调：worker已完成DNS/协商/BeginSend后，持门禁SH，短Tx验证exactattempt/token/currentconfig，确认提交，首个AUTH或MAIL实际写在≤1s有界期限内；首写n>0或失败即放开，不持门禁等待整个响应/body。相关mutation持门禁EX提交其DB新事实；不持DB Tx跨socket I/O、不用轮询cache替代。若校验提交Unknown，不发；DB权威，下次读不能用旧镜像放行。
 
+上述实际首写n>0/失败规则仅用于SMTP，保持不变。普通文件日志使用同一mailAdmission协调，但线性化点为 §9 的队首单次写入资格授予；不能把文件Write/Sync放进SMTP首写期限，或将入队当作获得资格。
+
 mutation先关闭准入则旧attempt不得新AUTH/MAIL；业务首写先发生则在途邮件可继续，撤销/消费返回后链接已立即无效，即使邮件随后到达也不能兑换。同一连接AUTH和MAIL分别准入，AUTH先发不代表MAIL永远获准。取消信号/断socket只代表发出了停止请求；worker实际返回、socket.Close/读写goroutine join后才释放credential/token lease、登记io_joined。Secret引用断开后已有lease保护只为收敛，不让旧token恢复授权。
 
 临时4xx/连接暂不可用按预算retry；5xx/auth/cert/配置/材料错误终止自动重试并给safe reason，管理员改配置后显式retry；DATA终止或最终reply丢失为unknown。原始server回复/recipient/host/password/MIME正文不能进入error/日志/Audit。可信失败不会变成sent，sent checkpoint unknown核实后才能展示；邮件有可能真实已发但DB仍unknown。
 
 ## 9. 受限恢复日志与材料清理
 
-专用 `recoverylog.Sink` 仅提供 typed `WriteBootstrap`、`WriteInvitation`、`WriteReset`，参数是私有敏感载体/SecretMaterial及安全cause，不提供普通字符串通用logger接口。固定一行版本化JSON（正常logger永远不调用），只含用途、时间、相关ID、必要邮箱及password或public-origin URL；严格JSON编码防注入，最大4KiB。文件Write/Sync属于受跟踪外部I/O；失败只记录固定安全code，不能把敏感行再次写stderr。
+专用 `recoverylog.Sink` 只接受typed bootstrap/invitation/reset记录，参数是私有敏感载体/SecretMaterial及安全cause，不提供普通字符串通用logger接口。B01 `WriteBootstrap`、`WriteInvitation`、`WriteReset`保留兼容；B03邀请/reset必须经下述带admission的Submit口，不绕过资格走旧Write口。固定一行版本化JSON（正常logger永远不调用），只含用途、时间、相关ID、必要邮箱及password或public-origin URL；严格JSON编码防注入，最大4KiB。文件Write/Sync属于受跟踪外部I/O；失败只记录固定安全code，不能把敏感行再次写stderr。
 
-Sink仅一个串行writer、最多32项等待（另1项active），每项接收前登记安全attempt及本Process实际工作；队列满返回可重试容量错误，不以无界goroutine等待。仅Write全部完成且Sync成功可标written；StopAdmission拒新项，尚未开始者取消并销毁材料，Drain等待实际active/清理join。普通文件Write/Sync/Close不保证响应context；Force不得同步无界等这些syscall，至多发起一个预登记的Close清理任务，不能每次Force再生后台任务或把Close请求当完成。共享额外1s到期即返回安全失败，未返回的Write/Sync/Close仍登记为未join并保留ProcessGuard，仍按 §12 实际发起DB ForceClose；不得另开预算。部分写/未知结果不触发bootstrap密码自动重印，排队/active材料仅在所属实际任务结束后销毁。
+Sink仅一个串行writer、最多32项等待（另1项active），每项接收前登记安全attempt及本Process实际工作；队列满返回可重试容量错误，不以无界goroutine等待。仅Write全部完成且Sync成功可标written；StopAdmission拒新项并取消尚未授予资格的日志工作，已授予项作为在途工作真实收敛，Drain等待实际active/清理join；B01 bootstrap仍沿原一次输出及真实join规则。普通文件Write/Sync/Close不保证响应context；Force不得同步无界等这些syscall，至多发起一个预登记的Close清理任务，不能每次Force再生后台任务或把Close请求当完成。共享额外1s到期即返回安全失败，未返回的Write/Sync/Close仍登记为未join并保留ProcessGuard，仍按 §12 实际发起DB ForceClose；不得另开预算。部分写/未知结果不触发bootstrap密码自动重印，排队/active材料仅在所属实际任务结束后销毁。
 
-invitation/reset只有发出时当前SMTP configured=false才选backend_log；门禁/当前token/lease/fence与SMTP同义。配置从无到有先提交则未发日志attempt关闭重规划到SMTP；日志已开始则可完成且如实channel=backend_log。配置已存在但坏配置/SMTP失败绝不进日志。每次明确重发沿原有效链接可产生新的日志投递，但公开API/Admin DTO均不返回该链接。
+最小正式口为 `SubmitInvitation(ctx,InvitationRecord,FirstWriteAdmission) (WriteTicket,error)`、对应 `SubmitReset`；成功只说明bounded work已登记，不说明准入或写入。Sink签发opaque ticket绑定本实例/exact purpose/resource/AttemptID/唯一work，提供 `Wait(waitCtx) (Result,error)`、`Done() <-chan struct{}`。work ctx控制未授予工作的取消，waitCtx只控制等待；Wait超时可返回Unknown但不关闭Done。Done只在该work不能再发起写、实际Write/Sync已结束、临时材料已销毁、不可变最终结果已发布后关闭；多Wait不能竞争消费一次性结果。全Sink Joined仍另外要求worker及Close终局，不能与单ticket Done互代。
+
+队列等待、Secret材料读取及≤4KiB记录校验/编码均不持mailAdmission。真实单writer已消费队首work并完成这些准备后，才同步调用受信B03 `FirstWriteAdmission.Authorize(ctx,RecordIdentity,GrantOnce) error`；RecordIdentity仅安全purpose/resource/AttemptID，adapter绑定真实job/attempt/process/fence及token/lease/配置。GrantOnce由Sink私有状态生成，只有本次同步回调期间可用，绑定该work且单次；不能由caller bool构造、保存后迟到使用、跨ticket使用或另起goroutine代授予。缺adapter拒绝，不把普通回调存在当已授权。
+
+adapter持mailAdmission SH，按完整初始锁短Tx重验exact claim/fence、当前token/lease与SMTP configured=false，确认同attempt的持久sending/fence检查点提交后，才在SH仍持有时同步消费GrantOnce。该操作在work互斥状态下与取消/停止竞争：取消先则不授予且零Write，授予先则该work取得不可撤回的写入资格并计为在途。**这次资格授予是普通文件日志的线性化点**；1s仅限制持SH开始当前校验至授予/失败的准入段，并不越更短parent或已验token有效期。校验/检查点提交Unknown、未Grant或Grant失败均不写；Grant成功后的错误只按该在途work的真实终局处理，不能把它重新称作未准入。
+
+授予后立即释放SH并回到同一writer，随后至多一次执行该已准备记录的文件Write及Sync，不再次排队、不换材料/目标/attempt；整个Write/Sync不持SH。授予与os.File.Write之间仍可被调度暂停，**不声称syscall已经进入或首字节已经可见**。EX先提交则旧work不能取得新资格；资格先授予则允许EX提交后才开始实际文件调用/出现字节，此时仍是已合法准入的在途工作。配置从无到有先提交则未获资格的日志attempt关闭并重规划到SMTP；已获资格者可完成且如实channel=backend_log。配置已存在但坏配置/SMTP失败绝不进日志；撤销/消费返回后链接立即无效，不因在途资格恢复合法性。每次明确重发沿原有效链接可产生新的日志投递，但公开API/Admin DTO均不返回该链接。
+
+Wait返回、取消请求、资格授予或Close请求都不代表io_joined；业务worker继续持有ticket与该attempt的Secret lease，Done后才按exactfence登记实际终局/释放lease，最终checkpoint Unknown先核原事实。重启不复用ticket，也不能因内存资格记录消失推断未写；已持久sending但缺可信完成结果按原unknown/ProcessGuard规则收敛。资格授予不是written，仍仅完整Write+Sync成功才written；不得在文件阻塞时为释放lease/guard或重试同job伪造完成。
 
 管理员恢复渠道须真实可读、权限受限、包含操作交接和轮转/留存说明。首次初始化明文只活在首次尝试内存，普通日志只说是否发生受限输出；链接重发Secret删除后不可再恢复。文件日志不能承诺DB事务exactly-once；部分写/Sync未知标unknown，重试可重复，写路径不截断既有文件。
 
@@ -297,11 +307,11 @@ app私有assembly保留真实 Authority、Secret/OutboundClient/ObjectService/Pr
 | T06 邀请/reset | 唯一email/username并发；24h固定/同链接不续期；两次兑换/撤销/到期抢占；unknown同义查receipt/异义409；公开无投递泄漏；清理无Secret引用/lease孤儿 |
 | T07 权限/事务 | 普通本人Audit成功但System管理403；admin不能Avatar他人/Project Owner；Service伪cause/错误owner/fence/来源/issuer拒绝；account_response跨browser/command完整HMAC/User/Session/password_version/ref/Purpose/process/fence拒绝，不借SMTP字段；原登录/Acquire/Read提交Unknown及Audit失败零材料/Set-Cookie，exact核实及独立lease恢复；五项usage字段矩阵/结果匹配、Apply拒read、跨Service/改字段/缺计划拒绝；旧reference及lease口不能绕过account planning，非账户旧消费者兼容；Release/Read重验actual lease mapping，Acquire同owner异ID/终态不复活；全批锁缺低序/SH→EX/映射变更fail closed，InTx零Discover/补锁/nested/外部读 |
 | T08 SMTP协议 | none、STARTTLS、TLS+私CA真实投递；证书host/链错及STARTTLS降级拒绝；AUTH与每MAIL单独BeginSend；policy更新/DNS全结果/pinning；大reply/slowpeer/CRLF不泄密且有界 |
-| T09 外发竞争 | barrier精确卡首写前/后，与revoke/consume/config竞争；前者0发出，后者邮件可达但链接无效；无DB Tx跨I/O；原lease直到Close/join；DATA后断响应unknown可重复且从不假sent |
+| T09 外发竞争 | SMTP原首写前/后barrier与revoke/consume/config竞争不变；日志精确卡队首资格授予前/后：EX先提交零新资格/零Write，资格先则允许调度间隙后Write但链接已失效；不拿入队/标记称syscall已进入；无DB Tx跨I/O，日志Write/Sync不持SH；原lease直到实际join；DATA后断响应unknown可重复且从不假sent |
 | T10 durable jobs | handler业务+marker同Tx；晚注册/重启canonical补job；重复event不重复意图；预算/人工retry/到期公平100+1、foreign live不阻断；claim未知/进程crash核exactfence，未证明死亡不抢占 |
-| T11 恢复日志 | 真实0600文件只在bootstrap/无SMTP路径出现capability；configured失败绝不写链接；普通日志/Audit/API/异常fmt均无明文；32等待+1active上限/串行完整行/先登记后I/O；分别阻塞Write、Sync及Close，Force有界返回且未join仍登记；部分写/Sync故障unknown、不自动重印bootstrap，不能截断或乱换path |
+| T11 恢复日志 | 真实0600文件只在bootstrap/合法backend_log资格下出现capability；configured失败绝不降级；普通日志/Audit/API/异常fmt无明文；32等待+1active/串行完整行/先登记；A阻塞Sync、B排队时配置/revoke先提交，B出队当前校验零资格；GrantOnce迟到/跨ticket/重复拒绝，准入超时/提交Unknown零Write；授予后至真实Write暂停时EX可提交；分别阻塞Write/Sync，Wait先Unknown但Done/lease未终局，多Wait结果一致；完整Write+Sync才written，部分/Sync故障unknown，不自动重印bootstrap/截断或乱换path |
 | T12 Avatar/profile | 静态JPG/PNG/WebP成功且元数据去除；SVG/APNG/动画/伪MIME/像素炸弹/尾随拒绝；samekey不同原bytes冲突；Publish后切换前crash/Session撤销、两次替换交错、cleanup与迟到Publish/Consume竞争，无孤儿/复活；清理Unknown先核事实、current引用不删、真实reader关闭lease |
-| T13 根装配/停机 | 真正非stub System端口；SMTP空仍技术健康；所有Initialize早退/late add/blockedI/O/第二信号/hash在算及response read未join，sharedguard不早退；Sink Write/Sync/Close阻塞耗尽原1s仍实际发起DB最后force，不延长预算/重复Close任务；既有全套app/PG/安全/对象/Outbox断言不放宽 |
+| T13 根装配/停机 | 真正非stub System端口；SMTP空仍技术健康；所有Initialize早退/late add/blockedI/O/第二信号/hash在算及response read未join，sharedguard不早退；单ticket Done不代替全Sink Joined，Wait取消不当join；Sink Write/Sync/Close阻塞耗尽原共享1s仍实际发起DB最后force，不延长预算/重复Close任务，日志准入1s不成为新增停机预算；既有全套app/PG/安全/对象/Outbox断言不放宽 |
 
 执行门槛：`AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/check-go.sh`；真实模块测试 `AGENTEAM_GO=... sh scripts/test-accounts.sh`（脚本明确运行 `go test -tags=integration ./tests/account/... ./tests/accountmail/... ./internal/central/app/...` 普通及race）；模块最终沿现有 `scripts/test-postgres.sh`、`test-security.sh`、`test-objects.sh` 的**无过滤**兼容任务，加完整新HTTP/SMTP套件。harness执行其固定package lock的 `npm ci && npm run test`，包含真正浏览器，不把仅单测/类型检查当端到端。具体命令与耗时由实施/V记录，本S01没有运行这些产品测试。
 

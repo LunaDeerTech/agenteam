@@ -247,3 +247,19 @@ B01已提交`8b0261b`，本块基线为该提交；设计修订3不变。root授
 ### B02真实浏览器有限替代
 
 固定Playwright1.56.1已lock/ci；其配套Chromium141.0.7390.37/build1194官方安装在单次命令内返回403 Domain forbidden，原日志`/tmp/agenteam-d07-b02-wadjih16/evidence/browser-install.log`保留，不继续下载重试或修改访问限制。root批准使用已安装系统Chromium151.0.7922.173做真实harness，并在设计修订4的§1补精确工程例外：记录实际路径/版本/SHA/启动与交互结果，兼容失败则报告，不冒称发行配套验证，不降为jsdom。固定npm/Go依赖不变，产品规则与验收链路不变；这是实际浏览器组合替代，不代表已经通过。backend继续独占实现与测试。
+
+
+### B03日志准入只读核对与设计窄修
+
+architecture只读冻结`8b0261b` Sink及`83ff63e`设计rev4，报告`/tmp/agenteam-d07-b03-sink-review-cuilxssn/report.md` SHA `405b6b109967f18b6526db18ad56dd5d6b5a1b2a1fd1f3f3472e5a019f7e0d83`，索引 `5168462032b57781fd2c4d5f7abde4413f2ddb60f4ffb10019ff737492dbb5c5`，3固定Git输入匹配/all-stop，无活动B02源码读取或测试资源。root全文核读：现Sink无per-attempt Done/队首授权，Wait取消可先于真实IO；普通不可取消文件Write无法同时证明实际发起后释放SH且SH≤1s，before-hook/started标志存在调度窗口。
+
+root采纳仅日志分支的可实施方向：真实单writer已消费队首并备好记录，在SH内短Tx当前校验确认后，为exactwork单次不可撤回授予写入资格，作为明确准入线性化；不称syscall已进入/首字节可见。EX先提交则零新资格；资格先授予则算在途，之后字节可迟到，但撤销/消费链接立即失效，完整Write+Sync才written，actual ticket Done前lease/guard保留。1s只限准入段，SMTP原首写规则与停机共享预算不改。
+
+当前仅授权architecture独占设计文件升rev5窄修§1/8/9和适用验收表，B03源码仍冻结；修订停写后独立静态复核再采纳。backend继续B02，双方不读取彼此活动源，Docker仍backend独占；root独占主卡/台账。此记录不是日志新能力通过证明。
+
+
+### 设计rev5独立采纳
+
+root全文核读并采纳rev5窄修：源SHA `99b20b04105ac41bbb685b7284ef631365988b703d7460d2557784514b75c4e7`；作者5输入匹配/格式链接通过/全停，索引`/tmp/agenteam-d07-s01-rev5-fpueqxaq/checksums.sha256` SHA `09b7233fce3ed3af5a34cea950fbee7b9ecbcbf75996c3f61b146c236b3737aa`。独立报告`/tmp/agenteam-d07-rev5-verify-_sv1o243/review-report.md` SHA `25a33b1bc039a298ae33ab2de4339a099e292ed1a7f0c38d06a96217581106f7`，17项索引 `b3a2e86a78a83682e0fa3c7f6b26e390ffd83580343eb0cc7fc2f71150520a73`、9输入manifest `121efe30e049f6a6fc0934b88ce28b3a60497cf25b367cc1a35611738c149684`，末次全匹配。只改页首/§1/8/9/T09/T11/T13；SMTP原规则、B01 bootstrap与共享停机预算保持，Grant/EX、Unknown零Write、ticket真实Done/lease/guard和重启语义静态闭环，无必修项。
+
+作者与V均未读活动B02、未运行产品测试或创建资源且all-stop。检查器首轮误识行内正则的准备错误已保留并修正，不计规格失败。此采纳仅为设计可实施性，不代表B03实现验收；recoverylog源码继续冻结，到B03再正式授权。当前有效设计为rev5，B02业务规则不变，backend只需知悉后续日志边界，不重跑未受影响检查。
