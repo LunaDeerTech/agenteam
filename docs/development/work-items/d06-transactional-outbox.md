@@ -10,8 +10,9 @@
 | 任务 | 角色 | 独占范围与资源 | 状态 |
 | --- | --- | --- | --- |
 | S01 完整工程规格 | architecture_worker | 新增d06-transactional-outbox-design.md；已验源码/架构/契约只读；不使用Docker | rev2独立静态通过，冻结 |
-| B01–Bn 完整结果实现 | backend_worker | 待S01确定新包/00008与最小旧文件增量后root移交；届时独占Docker | B01已授权，B02待B01验收 |
-| V01 独立规格与业务验证 | verification_worker | 只读停写输入/独立副本，验证阶段独占owned PG/MinIO fixture | S01复验通过，B01待实现冻结 |
+| B01 持久事件与可组合事务 | backend_worker | 已冻结B01源码/00008及取消必要返修 | 完整独立验收通过 |
+| B02 可运行投递与全生命周期 | backend_worker | 下文精确授权；实施阶段独占owned Docker | 已授权实施 |
+| V01 独立规格与业务验证 | verification_worker | 只读停写输入/独立副本，验证阶段独占owned PG/MinIO fixture | S01/B01通过；B02待冻结后验证 |
 
 root独占本卡、计划和台账，其他文档仅按授权移交。遵循AGENTS及agenteam-design/go-development/verification/documentation技能，禁止子agent再委派及任何Git写操作。不提前D07+，不在S01实施源码。设计冻结并经独立审查/root采纳才开工。
 
@@ -83,4 +84,20 @@ root保持源码冻结，授权architecture仅新增`d06-postgres-cancellation-r
 
 [取消修复规格](d06-postgres-cancellation-repair.md)修订2独立静态通过，SHA `ae1761dd12b5bca976dd1128351cb917be21875528349eeab9f639ff8e47a31a`。rev1唯一必修为Rows正常cleanup已先取消op.ctx，不能据此判用户取消；rev2保存原始caller来源，独立识别force/work，并补正常Query/QueryRow/Tx复用验收。原27依赖未变；独立报告`/tmp/agenteam-d06-cancel-design-rev2-verify-ku1h_yga/static-recheck.md`，索引SHA `884958a4feb7f442586faa384eebb072ee0cfe0b84c4ac36cfc4fb7b0929722d`。作者/V全停且资源0，root审查差异并采纳；仅规格通过，原PgSleep残留未关闭。
 
-root授权backend独占`internal/central/postgres/store.go`及新增`pool_cancellation.go`、`pool_cancellation_test.go`、`tests/database/cancellation_force_test.go`和必要同目录专用测试helper；Docker顺序移交backend。先在冻结旧实现独立副本跑真实确定性红probe，再同断言验证修复；完成定向真实取消/复用/预算/原app与check-go后冻结。其他B01源码、sql.go/transaction.go/migrate.go、app及原测试、迁移和依赖继续冻结，超范围先报告。最终由V执行原probe及无过滤test-objects；B01整体通过前B02不开始。本地提交继续，既有GitHub认证阻塞未解除，不声称推送。
+root授权backend独占`internal/central/postgres/store.go`及新增`pool_cancellation.go`、`pool_cancellation_test.go`、`tests/database/cancellation_force_test.go`、`cancellation_cases_test.go`和必要同目录专用测试helper；后者承载C02–C06以保留原红probe整文件逐字不变。Docker顺序移交backend。先在冻结旧实现独立副本跑真实确定性红probe，再同断言验证修复；完成定向真实取消/复用/预算/原app与check-go后冻结。其他B01源码、sql.go/transaction.go/migrate.go、app及原测试、迁移和依赖继续冻结，超范围先报告。最终由V执行原probe及无过滤test-objects；B01整体通过前B02不开始。本地提交继续，既有GitHub认证阻塞未解除，不声称推送。
+
+作者确定性红回归已在旧副本`/tmp/agenteam-d06-cancel-old-faqcx6q7`命中：exact PID124进入PgSleep后取消，owner在553.947µs返回，而扣留的第一control仍非EOF且未转发；日志`/tmp/agenteam-d06-cancel-red2.log` SHA `9cc699a249cf26cb00e97ced029ff1dcd022d867890fbb8fd568ef81fc8202aa`。原两probe manifest `f90f3f9f7218d6d9d5c1bf74e372523b5363a95003cf6757790a207733210dee`逐字保留，修复首轮真实race通过，日志`/tmp/agenteam-d06-cancel-green-first.log` SHA `5f17db5fa778fc7ed259237c54fb797f8f44f84d4bf2937555e7e2fcd2b3a091`，owner102.281ms后观测control EOF。probe在owner返回后才读control且最多等50ms，故green不独立证明EOF先于返回；作者另以包内data.Close barrier核work.done/owner注销顺序。红绿均放行后观察exact backend退出并join proxy，资源清理完成。首轮新fixture MaxConns=1配置无效不计红证据。当前作者仍收尾测试，尚无独立实现验收。
+
+取消修复最终6增量冻结，manifest `83becd6cb23b597cedf6ba9e9cb81b056263ede7cab60924f865ffe6c5dc79d4`；完整41 source `/tmp/agenteam-d06-cancel-source.sha256` SHA `69736e0107f572255be2ed4ed6ac254f42a4b77b196f66438e7d8c132630da89`，313依赖`d9a6f80981790c71fbaa3dfd92b6637b330b7636ad80a9a01d8e51a2b103e5d8`。root逐项核354输入匹配，并核读冻结生产及本地barrier；原35源和312旧依赖未变，store移入source、修复规格进入deps。作者报告`/tmp/agenteam-d06-cancel-repair-report.md` SHA `8c0772b614b5d8f91cd912fbcc18de0393950cd166d3d3870f33ac08d9ba2c96`，最终check-go SHA `f8ec18f9e27dfc7090dfd93fa9df1f2ae35fe2b95ec6d480d15fe53db48c84aa`通过。真实TCP/TLS取消、健康复用、完成/cancel竞争、共享预算、迟到constructor、32并发Force及原Tx/Outbox兼容定向均有通过记录；此前兼容组早于末次仅Force返回修正，最终完整组仍由V验证。
+
+保留作者末组失败`bb11cec84e9c5e703364b5b9ebb54e161b724989f34f49e4b8363e89c48ab8b7`：新增C05误禁止SDK asyncClose额外包已仅修测试，平台过期零dial直接断言保持；原app http_graceful等待listening超时，末阶段migrating，无现场根因未确证，不归因为负载。一轮有界复核`68c1b795ac36d6271ca62a6fe158b511fff0ca287267ade0d23c636795cd24f5`通过database3.386s/app12.199s，/tmp副本只增failure-only只读诊断、原断言/时限不变且未触发；未抹除历史失败。实际C05取消通道失败时PG仍PgSleep，fixture精确终止清理不冒充生产fallback或server-stop保证。
+
+作者所有产品/fixture命令结束、仓库停写，27nonce容器/网络/runtime全0，cleanup SHA `a54bc1f1edb020c6ff3374d7ecbc08abddc9a22bc10fd19d2887db7a89b5aada`。Docker交V，稳定副本`/tmp/agenteam-d06-cancel-verify-xw8wcjnj`、354并集`7a88d267f4c36211652e23e13a0d0dc8473d5f978a56699577802766bda4e152`。V执行冻结实现独立审查/原probe/必要风险和无过滤test-objects，原启动未明失败及blocked_io均保留检查。B01整体尚未通过，B02未开始。
+
+### B01独立完成与B02实施授权
+
+B01最终独立验收通过，root采纳。报告`/tmp/agenteam-d06-cancel-verify-xw8wcjnj/final-report.md` SHA `86e4bc6da177810df5599577bcde4c9f15e254d8201491342a2d9451e0609cea`，43项索引`90171448469612618f750d0035ebd937f3a12cc5421c76a2ce3767329c0b42da`。单次无过滤test-objects exit0/379.319s，日志`3b2f698dc97bc623f0133e6d3230c08102bf2dca44b6ec7c782ca11a25447831`；database85.393/app63.796/process109.118/security117.420/outbox42.200/objects286.009s全部通过。原Audit、SMTP、取消probe逐字通过，原app四模式及startup second signal通过，失败诊断未触发；独立postgres race1.084s、SMTP race5.592s及integration vet通过。354仓库/稳定输入与356执行文件（含已记录overlay/probes）末次匹配，cleanup `2ef5031c32f6166b7cbb8dd0c5881af8e619194bf1f33923bf42c824c2b0e6ba`确认3nonce容器/network/runtime及命令归零，V全停。历史启动超时原因未确证继续保留；不冒称穷尽网络故障或本地join证明server终止。取消修复提交`8a2a4a4`、SMTP修复提交`8b881a1`；其余B01精确源码随本节提交，未提交B02能力。
+
+沿设计修订2 §1/§6–11授权backend完整B02：新增或修改`internal/central/outbox/`的内部dispatcher/attempt/recovery/requeue/cleanup/diagnostics/runtime实现及相应测试，补`tests/outbox/`；仅为app私有assembly/初始化/健康/实际关闭修改`internal/central/app/{app,object,resources,health,diagnostics}.go`，新增`app/outbox.go`及相应测试；`internal/platform/logging/security.go`与测试仅增固定outbox phase；新`tests/process/outbox_test.go`。必要fixture纳入只限既有`tests/testsupport/postgres/cmd/fixture/main.go`。backend独占上述源及owned Docker，可在交付前最小同步`docs/development/backend/README.md`和`AGENTS.md`的已实现D06入口/命令/未绑定限制；root继续独占本卡/计划/台账。已验公共event/outbox契约、D03/D04其他核心、D05 object/Artifact/transfer核心、Runner、旧迁移与依赖冻结；公开契约变更或额外旧文件先报告具体组合缺口。
+
+B02须完整兑现：4全局/2每handler/64批次及公平进展、独立重试/8次cycle/unknown串行核实、精确进程死亡证据与本地callback真实join、当前Human授权重投和Audit同Tx、Project归档/Restore/不可逆显式清理、真实授权诊断和cursor、Central共享30s启动/2s健康/额外1s强停。共享ProcessGuard必须在Outbox实际join后释放，未join强停仅调用Object Service.Force关闭transport且保留guard，DB最后实际关闭；失败/晚到构造全部先登记owner。不使用生产允许stub/新增必填env/全历史replay。作者完成适用普通及真实故障/进程测试、check-go后冻结，独立V最终无过滤兼容再决定D06完成；D07–D28/E01不提前开工。GitHub认证既有阻塞未解除，仅本地提交，不重复请求或声称已推送。

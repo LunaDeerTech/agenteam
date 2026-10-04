@@ -33,6 +33,7 @@ const (
 	TransactionCommitFailed     Code = "TRANSACTION_COMMIT_FAILED"
 	LockOrderViolation          Code = "LOCK_ORDER_VIOLATION"
 	LockUpgradeForbidden        Code = "LOCK_UPGRADE_FORBIDDEN"
+	LockNotHeld                 Code = "LOCK_NOT_HELD"
 	InvalidLock                 Code = "INVALID_LOCK"
 	LockFailed                  Code = "DATABASE_LOCK_FAILED"
 	MigrationInvalid            Code = "MIGRATION_INVALID"

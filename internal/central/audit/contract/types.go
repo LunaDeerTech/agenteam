@@ -39,13 +39,14 @@ const (
 	ArtifactList           Action = "artifact.list"
 	ArtifactRead           Action = "artifact.read"
 	ArtifactDownload       Action = "artifact.download"
+	OutboxDeliveryRequeue  Action = "outbox.delivery.requeue"
 )
 
 func (a Action) Valid() bool {
 	switch a {
 	case SecretCreate, SecretUpdate, SecretDelete, SecretResolve, MasterRegister, RotationStart, RotationComplete, RotationFailed, PolicyUpdate, AccessDeny:
 		return true
-	case ObjectUploadComplete, ObjectUploadFailed, ObjectDelete, ObjectTransferIssue, ObjectTransferComplete, ObjectTransferRevoke, ArtifactCreate, ArtifactList, ArtifactRead, ArtifactDownload:
+	case ObjectUploadComplete, ObjectUploadFailed, ObjectDelete, ObjectTransferIssue, ObjectTransferComplete, ObjectTransferRevoke, ArtifactCreate, ArtifactList, ArtifactRead, ArtifactDownload, OutboxDeliveryRequeue:
 		return true
 	}
 	return false
@@ -74,11 +75,12 @@ const (
 	ObjectTransferResource     ResourceKind = "object_transfer"
 	ArtifactResource           ResourceKind = "artifact"
 	ArtifactCollectionResource ResourceKind = "artifact_collection"
+	OutboxDeliveryResource     ResourceKind = "outbox_delivery"
 )
 
 func (k ResourceKind) Valid() bool {
 	switch k {
-	case SecretResource, MasterResource, RotationResource, PolicyResource, AgentResource, ObjectResource, ObjectTransferResource, ArtifactResource, ArtifactCollectionResource:
+	case SecretResource, MasterResource, RotationResource, PolicyResource, AgentResource, ObjectResource, ObjectTransferResource, ArtifactResource, ArtifactCollectionResource, OutboxDeliveryResource:
 		return true
 	}
 	return false
@@ -171,6 +173,10 @@ func NewEntry(f EntryFields) (Entry, error) {
 		return Entry{}, invalid("scope")
 	}
 	switch f.Action {
+	case OutboxDeliveryRequeue:
+		if a.Kind != identity.Human || f.Outcome != Success || r.Kind != OutboxDeliveryResource || r.ID != f.Metadata.deliveryID() {
+			return Entry{}, invalid("entry")
+		}
 	case SecretCreate, SecretUpdate, SecretDelete, SecretResolve:
 		if r.Kind != SecretResource {
 			return Entry{}, invalid("resource")
@@ -255,13 +261,16 @@ const (
 	AccessProducer   Producer = "outbound.access"
 	ObjectProducer   Producer = "object"
 	ArtifactProducer Producer = "artifact"
+	OutboxProducer   Producer = "outbox"
 )
 
 func (p Producer) Valid() bool {
-	return p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer
+	return p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer || p == OutboxProducer
 }
 func ProducerFor(action Action) Producer {
 	switch action {
+	case OutboxDeliveryRequeue:
+		return OutboxProducer
 	case SecretCreate, SecretUpdate, SecretDelete, SecretResolve:
 		return SecretProducer
 	case MasterRegister, RotationStart, RotationComplete, RotationFailed:

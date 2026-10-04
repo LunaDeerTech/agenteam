@@ -101,12 +101,19 @@ type metadataWire struct {
 	SourceKind           SourceKind         `json:"source_kind,omitempty"`
 	SourceID             string             `json:"source_id,omitempty"`
 	SourceRevision       string             `json:"source_revision,omitempty"`
+	DeliveryID           string             `json:"delivery_id,omitempty"`
+	EventID              string             `json:"event_id,omitempty"`
+	HandlerID            string             `json:"handler_id,omitempty"`
+	FromState            string             `json:"from_state,omitempty"`
+	RedriveCycle         string             `json:"redrive_cycle,omitempty"`
+	ReasonCode           RequeueReason      `json:"reason_code,omitempty"`
 }
 type metadataData struct {
 	action                     Action
 	raw                        string
 	rotation                   string
 	object, transfer, artifact string
+	delivery                   string
 	phase                      ContentPhase
 }
 type Metadata struct{ data func() metadataData }
@@ -116,7 +123,7 @@ func metadata(action Action, w metadataWire) (Metadata, error) {
 	if err != nil || len(b) > 4096 {
 		return Metadata{}, invalid("metadata")
 	}
-	d := metadataData{action: action, raw: string(b), rotation: w.RotationID, object: w.ObjectID, transfer: w.TransferID, artifact: w.ArtifactID, phase: w.Phase}
+	d := metadataData{action: action, raw: string(b), rotation: w.RotationID, object: w.ObjectID, transfer: w.TransferID, artifact: w.ArtifactID, phase: w.Phase, delivery: w.DeliveryID}
 	return Metadata{data: func() metadataData { return d }}, nil
 }
 func SecretMutationMetadata(action Action, version foundation.Version, changed []ChangedField) (Metadata, error) {
@@ -354,6 +361,12 @@ func (m Metadata) rotationID() string {
 	}
 	return m.data().rotation
 }
+func (m Metadata) deliveryID() string {
+	if m.data == nil {
+		return ""
+	}
+	return m.data().delivery
+}
 func (m Metadata) MarshalJSON() ([]byte, error) { return m.JSON(), nil }
 func (m *Metadata) UnmarshalJSON([]byte) error  { return invalid("metadata") }
 func (m Metadata) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "audit_metadata") }
@@ -368,6 +381,8 @@ func DecodeMetadata(action Action, raw []byte) (Metadata, error) {
 	allowed := map[string]bool{}
 	var names []string
 	switch action {
+	case OutboxDeliveryRequeue:
+		names = []string{"delivery_id", "event_id", "handler_id", "from_state", "redrive_cycle", "reason_code"}
 	case SecretCreate, SecretUpdate:
 		names = []string{"version", "changed_fields"}
 	case SecretDelete:
@@ -424,6 +439,13 @@ func DecodeMetadata(action Action, raw []byte) (Metadata, error) {
 	if json.Unmarshal(raw, &w) != nil {
 		return Metadata{}, invalid("metadata")
 	}
+	if action == OutboxDeliveryRequeue {
+		cycle, err := foundation.ParseVersion(w.RedriveCycle)
+		if err != nil {
+			return Metadata{}, invalid("metadata")
+		}
+		return OutboxRequeueMetadata(OutboxRequeueFields{DeliveryID: w.DeliveryID, EventID: w.EventID, HandlerID: w.HandlerID, FromState: w.FromState, RedriveCycle: cycle, Reason: w.ReasonCode})
+	}
 	if ProducerFor(action) == ObjectProducer {
 		size, se := foundation.ParseProgress(w.ByteSize)
 		sent, te := foundation.ParseProgress(w.SentBytes)
@@ -479,4 +501,41 @@ func DecodeMetadata(action Action, raw []byte) (Metadata, error) {
 		return DenialMetadata(w.Consumer, w.Reason, version)
 	}
 	return Metadata{}, invalid("metadata")
+}
+
+type RequeueReason string
+
+const (
+	OperatorRetry      RequeueReason = "operator_retry"
+	SchemaAvailable    RequeueReason = "schema_available"
+	DependencyRestored RequeueReason = "dependency_restored"
+)
+
+func (r RequeueReason) Valid() bool {
+	return r == OperatorRetry || r == SchemaAvailable || r == DependencyRestored
+}
+
+type OutboxRequeueFields struct {
+	DeliveryID, EventID, HandlerID, FromState string
+	RedriveCycle                              foundation.Version
+	Reason                                    RequeueReason
+}
+
+func OutboxRequeueMetadata(f OutboxRequeueFields) (Metadata, error) {
+	if !validID(f.DeliveryID) || !validID(f.EventID) || !auditHandlerName(f.HandlerID) || (f.FromState != "failed" && f.FromState != "dead_letter") || f.RedriveCycle.Validate() != nil || !f.Reason.Valid() {
+		return Metadata{}, invalid("metadata")
+	}
+	return metadata(OutboxDeliveryRequeue, metadataWire{DeliveryID: f.DeliveryID, EventID: f.EventID, HandlerID: f.HandlerID, FromState: f.FromState, RedriveCycle: f.RedriveCycle.String(), ReasonCode: f.Reason})
+}
+
+func auditHandlerName(name string) bool {
+	if len(name) == 0 || len(name) > 128 {
+		return false
+	}
+	for i, c := range []byte(name) {
+		if !(c >= 'a' && c <= 'z' || i > 0 && (c >= '0' && c <= '9' || c == '_' || c == '-' || c == '.')) {
+			return false
+		}
+	}
+	return true
 }

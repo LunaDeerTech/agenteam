@@ -237,6 +237,34 @@ func (t *transaction) context(ctx context.Context) (context.Context, func()) {
 func (s *Store) Acquire(ctx context.Context, tx foundation.Tx, key foundation.LockKey, mode foundation.LockMode) error {
 	return s.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: key, Mode: mode}})
 }
+
+// RequireHeldLocks verifies the adapter's actual transaction locks. It never
+// acquires a missing lock or upgrades a shared one. A failed requirement poisons
+// the transaction even when a caller ignores the returned error.
+func (s *Store) RequireHeldLocks(ctx context.Context, tx foundation.Tx, requests []foundation.LockRequest) error {
+	t, err := s.find(tx)
+	if err != nil {
+		return err
+	}
+	if err := t.enter(); err != nil {
+		return err
+	}
+	defer t.leave()
+	if err := ctx.Err(); err != nil {
+		return t.poisonWith(failure(LockNotHeld, err))
+	}
+	for _, request := range requests {
+		if request.Key.Validate() != nil || !request.Mode.Valid() {
+			return t.poisonWith(failure(InvalidLock, nil))
+		}
+		held, ok := t.held[request.Key.Canonical()]
+		if !ok || held == foundation.Shared && request.Mode == foundation.Exclusive {
+			return t.poisonWith(failure(LockNotHeld, nil))
+		}
+	}
+	return nil
+}
+
 func (s *Store) AcquireAll(ctx context.Context, tx foundation.Tx, requests []foundation.LockRequest) error {
 	t, err := s.find(tx)
 	if err != nil {
