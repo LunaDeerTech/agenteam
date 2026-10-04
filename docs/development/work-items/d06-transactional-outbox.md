@@ -9,7 +9,7 @@
 
 | 任务 | 角色 | 独占范围与资源 | 状态 |
 | --- | --- | --- | --- |
-| S01 完整工程规格 | architecture_worker | 新增d06-transactional-outbox-design.md；已验源码/架构/契约只读；不使用Docker | rev2独立静态通过，冻结 |
+| S01 完整工程规格 | architecture_worker | 新增d06-transactional-outbox-design.md；已验源码/架构/契约只读；不使用Docker | rev5独立静态通过，冻结 |
 | B01 持久事件与可组合事务 | backend_worker | 已冻结B01源码/00008及取消必要返修 | 完整独立验收通过 |
 | B02 可运行投递与全生命周期 | backend_worker | 下文精确授权；实施阶段独占owned Docker | 已授权实施 |
 | V01 独立规格与业务验证 | verification_worker | 只读停写输入/独立副本，验证阶段独占owned PG/MinIO fixture | S01/B01通过；B02待冻结后验证 |
