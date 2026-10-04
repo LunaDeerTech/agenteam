@@ -675,3 +675,26 @@ root全文核读独立最终报告`/tmp/agenteam-d07-b02-three-verify-puy2r3zv/r
 最终71源/442依赖/513联合沿上段指纹，执行518 `17ca883ee2bb057464b4a867176ab244aed914b286642612fce41a83f5fc520b`，原runtime16 `4c04ed2b…210379b4`、实际runtime16 `9ec2b2ce45457369d226fde3ddfe3ea7fd3d0e052a2d44b039f47063a1d73680`末次匹配。root已核513、完整业务diff重点、验证码及唯一准备修正。组合兼容=本次61三组+前次无过滤其余11包+未变独立核心/39确定性/保留64/纯race-vet与修后check-go；原unfiltered及56组累计6m失败、stock57014、旧browser红与oracle限制全部保留，不称单次无过滤绿、不推定唯一历史原因。
 
 本块已实现邀请/兑换/撤销、公开恢复请求/异步材料、重置/改密Session安全、真实挑战/官方Vue独立harness、事务intent/Outbox handler和公平回收；mail job pending不冒称实际发送，当前没有正式HTTP/app绑定/SMTP/资料页，诊断ready=false。root按精确71源与3行政文档本地提交；GitHub认证既有阻塞未解除，不声称push。下一步把已独立静态通过的rev6临时稿归位并授权B03真实持久投递，B04及D08以后仍未完成。
+
+
+B02已本地提交`ebe87e7`（精确71源+3行政文档共74文件），提交后工作区干净；origin/main仍`1898748`，本地57个未推送提交，认证阻塞不重试/不声称push。root现仅授权architecture归位设计文件：采用最后已静态通过rev6临时稿`e9b41d90…2951c80f`，正文逐字保持，只更新页首B02基线/已采纳事实、删除/tmp待审措辞；22相关输入复核、格式/链接/页首diff后all-stop。无SQL/源码/其他文档解冻，不做产品测试；root继续持主卡/台账/计划，B03实施须归位后另下达。
+
+
+归位时追加已证测试集成缺口：root只读`tests/testsupport/postgres/cmd/fixture/main.go:227`，现固定test包列表不含未来accountmail；设计§1 B03仅增加该文件包列表两项`./tests/accountmail/...`/`./internal/central/accountmail/...`授权，原包/fixture生命周期/nonce/参数/6m不改。新test-accounts.sh复用既有test-objects路径，不建旁路。architecture仅更新设计这一范围行和原页首事实，精确diff单列供root核；不改测试driver或实现源码，此处不宣称新包已存在/已验证。
+
+
+## B03持久投递正式实施授权
+
+B02基线`ebe87e7`，已完成独立验收；有效设计现为rev6，SHA `32472be8f389137ee528206572b6cbb4d36e748e42a32c34710d3fc574f8b421`。归位报告`/tmp/agenteam-d07-rev6-install-final-iuj_klnu/report.md` SHA `7131cfeaa2c3d6e1f283d915b9308b61559bd3e9ee6459011e76252684abb826`、索引 `3420f9665b21d3b1c935203ac2fe359ebf3a3a7f2910f2b409a4f8c4186f1e62`，root全文核读两行差异 `cd60ec33938d049ef547303aa0d0ace93345f432a3383512f2a9df08a2b1eae9`；仅页首和root已证fixture两包授权，其他正文同独立闭环终稿。22归位前/其余21后输入一致、格式6链接通过，作者all-stop，无产品测试。
+
+root授权backend完整B03，独占源码/owned Docker/SMTP fixture；沿go-development、verification、documentation技能，先补读设计rev6§1/3/4/8/9与T01/T07–T11/T13适用项、既有正式端口，不再委派或Git写。root独占主卡/台账/计划；architecture/V全停，不读活动范围。
+
+精确范围：新`internal/central/accountmail/`完整正式Worker/Runtime/Registry及测试；新`account/contract/delivery.go`、`account/{delivery,delivery_repository,delivery_usage,mail_admission,smtp_settings}.go`及本域必要私有helper/新增测试；旧account仅`authority.go`、`secret_authority.go`、`cleanup.go`、`link_commands.go`、`reset_complete.go`、`password_change.go`、`delivery_intent.go`、`delivery_handler.go`按设计八项窄组合。`service.go/planning.go/invitation.go/reset.go/recovery.go/mutation_recovery.go/link_authority.go/audit_authority.go`继续冻结；新私有文件可复用已存在本包helper，缺口须报具体证据/最小范围后裁决，不静默扩权。
+
+新事务Up-only `db/migrations/00011_account_mail_delivery.sql`，只设计三表配置/job/attempt原Ref增量，00001–00010字节保持；fresh→11/10→11已有数据和rollback真实验证。`internal/central/recoverylog/sink.go`/`sink_test.go`及新admission/ticket/helpers测试解冻，仅新增真实队首单次资格/每work真实Done，不改bootstrap一次输出/原Force与DB最后关闭预算。既有`outbound/smtp_tls.go`正式TLS口已于B01存在，先消费现口，出站旧源码/权限/分类/策略不因本块泛化解冻；若确有不足先报，不自造allow或绕过受控Dial/BeginSend。
+
+新`tests/testsupport/smtp/`真实owned私有SMTP/生成CA fixture、`tests/accountmail/`与必要新`tests/account/`组合测试、新`scripts/test-accounts.sh`；既有PG fixture driver仅追加设计明确的两个accountmail包，原列表/6m/race/nonce/清理不变，新脚本复用test-objects路径。新`docs/development/backend/accountmail.md`及现backend README/account.md最小能力入口/状态同步归backend，沿documentation技能，不能声称正式HTTP/app/UI已接。Go/npm依赖锁、旧其它模块/迁移/测试断言、B04 HTTP/app/config/object-avatar、产品web全部冻结；必要测试适配或缺口先报，不改预算掩盖。
+
+核心门槛：account-owned正式DeliveryPort/SMTP管理授权；同Authority公平可取消SH/EX及普通改密失效；Claim前actual operation/不可逆handoff、两Tx正式Secret acquire、R6-01/02零lease与未移交Unknown收敛；不可变Ref/legacy候选真实lease核实、不猜当前配置/死亡/join；真实none/STARTTLS/TLS、固定信任/受控出站/有界协议、每AUTH/MAIL准入实际首写；未配置日志才准入、configured失败不降级；队首GrantOnce/EX竞争、ticket.Done和整个Sink/ProcessGuard actualjoin；持久重试/unknown可能重复/原fence、公平100+1及最大6次、真实配置测试job、Audit/result/lease原子，材料不进普通log/API/model。所有等待和清理沿既有有界预算，不做真实I/O跨DB Tx、不用取消请求冒充实际结束。
+
+按完整机制实现并自测，不为每个函数拆卡。先有意义纯/race与真实PG/SMTP/日志/竞争/崩溃恢复，再check-go和适用完整组；不机械重跑未变旧范围。最终独立验收采用明确包/精确顶层穷尽分组，Account已知61组计划可复用并纳入新增测试，不再把增长套件强塞单6m包后加时；每组预算/内部断言保持，完整兼容受影响范围按实际新迁移/旧八入口/日志/driver覆盖。先冻结精确source/dependency/runtime及测试集合，资源0/命令与读写all-stop后交V；原B01/B02缺陷探针/失败证据保留。任何新确定失败先定位修正，不跑到绿。此授权不代表B03通过，B04/D08–D28/E01仍未完成，当前产品ready=false。
