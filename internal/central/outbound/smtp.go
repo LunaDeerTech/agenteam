@@ -236,7 +236,17 @@ func (c *Conn) Read(b []byte) (int, error) {
 		s.viewMu.Lock()
 		a := s.a
 		s.viewMu.Unlock()
-		return n, networkError(c.Decision(), a.reason(err, ac.InternalError), err)
+		reason := a.reason(err, ac.InternalError)
+		// The operation owns this socket. Its cancellation can close the
+		// socket before the independent BeginSend AfterFunc cancels a.ctx.
+		// Read the owning context directly, including its deadline reason.
+		switch s.op.ctx.Err() {
+		case context.Canceled:
+			reason = ac.Cancelled
+		case context.DeadlineExceeded:
+			reason = ac.Timeout
+		}
+		return n, networkError(c.Decision(), reason, err)
 	}
 	return n, err
 }
