@@ -317,3 +317,10 @@
 - B03完整无过滤独立suite exit0（objects265.343s/旧兼容全过），但额外真实probe确认合法1s在原期限仍剩908ms时提前INVALID_STATE，原probe ae52f8d6dda0aefee4575d6af598ac5023aab9cf8165a15315e07365b8385482保留。V已停读停测/资源清零，root仅授权签名整秒计算及对应测试/单处文档名窄修；315输入原指纹保持，B03/D05未验收。详见主卡，HEAD fd83764，29本地提交待既有认证恢复。
 
 - D05最终验收通过：B03期限窄修原ae52探针逐字通过、真实objects18.333s/race1.853s/vet通过，65源329c2c54f9adde6daef8fa2e05658dfa1163105f9eebf695515d1bb2c1c7f140及251依赖匹配，独立索引fe1a3a9af210968952d9fc7b3dce8f8c661bf66354bc2bb6feb505fbec6a08e3。复用未变全量兼容exit0，V全停/资源0；root采纳并精确提交。B01/B02/B03全部完成，无剩余确认阻塞，后续正式绑定/未执行真实host reboot等限制见主卡；下一D06，D06–D28/E01仍待完成。
+
+## AT-0013：D06 Transactional Outbox 与事件投递
+
+- 状态：设计中；唯一活动模块D06，[主卡](../work-items/d06-transactional-outbox.md)修订1，基线main@6b2ca24，D05已完整独立验收并提交、工作区干净。
+- architecture_worker仅新增完整工程设计，明确注册屏障/typed事件/Tx组合/独立投递与重投/顺序/Project清理/Central生命周期，旧源码和契约只读；root拥有本卡/计划/台账，设计冻结后独立审查再授权实现。
+- 00008为候选新全局迁移，旧00001–00007和Go依赖冻结；真实环境沿D05固定owned PG/MinIO，当前不使用Docker。D07–D28/E01不提前实施，当前无新产品待定。
+- D05最终实现提交6b2ca24；31本地提交待既有GitHub认证恢复，未声称推送。
