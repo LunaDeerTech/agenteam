@@ -303,3 +303,5 @@
 - B02最终metadata清理窄修冻结，完整42源40b41ccd27c8db1e8c0298421d874772801c22efd06f39b441bbf607ce8ea1ac/窄10 eab8b5673c6e2f09a3010e0e8c383d2a85c1233070fd9c159a9f1bd1cc22721f，237依赖不变且等HEAD7281a6f。原probe逐字通过、finalTx真实rollback/unknown/迟到终局/新旧key防复活及batch两组27.753s/24.631s、完整check-go通过；作者全停6nonce资源0后Docker交V，最终无过滤与原probe独立复验中。root核冻结diff无新增确认问题，尚未验收，详见主卡。
 
 - B02最终独立验收通过：完整无过滤含原88fc probe exit0，objects171.296s，旧数据库/应用/进程/安全全过，日志336973288159d6a1c991c26e47353fb2b2668b262529c9e9f83a9028d2c5374d；metadata残留已闭环，101batch34.29s通过，finalTx真实rollback/unknown与迟到防复活通过。42源/237依赖三方匹配，V全停、3nonce资源0。root精确提交B02后继续B03，D05整体未完成；旧失败历史/未来未绑定边界保留，详见主卡。
+
+- B02实现提交2c1dca3，工作区干净；主卡修订3开始B03工程接口细化，architecture_worker仅设计rev6明确transfer端口/00007/锁及最小已验补口，源码暂冻结，规格采纳后再由backend实现。B03目标为Runner单对象直传与Central MinIO入口/生命周期，未绑定D17拒绝生产grant；当前24本地提交待既有认证恢复。

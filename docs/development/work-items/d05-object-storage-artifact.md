@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact
 
-- 修订：2；状态：B01/B02已独立验收，B03待开工；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
+- 修订：3；状态：B01/B02已独立验收，B03工程接口细化中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
 - 前置：[D04](d04-security-foundation.md)全部独立验收和真实完整suite通过，入口本地提交abf5c37；GitHub认证失效，ee8ddb7起5个本地提交待恢复后补推，不冒称远端同步。
 - 目标：按[计划D05](../development-plan.md#d05-对象存储与-artifact)实现StoredObject/引用与lease、流式MinIO读写、跨DB/对象存储的一致性和恢复、Artifact服务、受控预览/下载及短期传输授权。
 
@@ -10,7 +10,7 @@
 | --- | --- | --- | --- | --- |
 | S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订5含SourceReads/下载provider补口独立静态通过、root采纳并冻结 |
 | R01 依赖与隔离环境核验 | D04完成 | research_worker | 有界探针及新增d05-object-storage-research.md报告，不写实现源码 | R01/R02修订2完成并停写 |
-| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01/B02完整独立验收通过，B03待开工 |
+| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01/B02完整独立验收通过，B03工程接口细化中 |
 | V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | B02无过滤兼容及原probe全部通过；V全停、资源清零 |
 
 root独占本卡、开发计划和任务台账；架构作者仅新建实施规格。角色遵循AGENTS与agenteam-design/go-development/verification/documentation技能，禁止子agent再委派和Git写操作。常态至多两个活动子任务，Docker和测试资源顺序明确移交。设计稳定且root确认后才写实现，不提前D06+。
@@ -268,3 +268,13 @@ V最终证据索引/tmp/agenteam-d05-b02-verify-8yj7bvf1/verification-evidence.s
 最终清理窄修正式冻结：完整42源manifest40b41ccd27c8db1e8c0298421d874772801c22efd06f39b441bbf607ce8ea1ac，窄10（7改+3新增）eab8b5673c6e2f09a3010e0e8c383d2a85c1233070fd9c159a9f1bd1cc22721f，旧32逐字未改；237依赖575fa6a8a55b001d0a7b2e7a6ddbe5d4b47c6c2cebcd266ba1573bad7bb23b6c逐项等HEAD7281a6f。稳定实际测试副本/tmp/agenteam-d05-b02-purge-author-kjea3ip8，handoff/tmp/agenteam-d05-b02-purge-handoff.md。作者check-go全过，日志4899b736de8c47e1a6c80a254c640f25f2df7a65a9ae157c834eeaf2265e630e；真实首组27.753s日志85c3ef81ca0222e8f4f57392d344985d8809981a16a1ff3c60b2ee174952187b，原88fc probe逐字通过，finalTx rollback/实际COMMIT前回滚unknown/响应丢失/held迟到commit、晚到download终局不重建、新旧key/BeginUpload/Prepare不复活及101batch过。下载/source第二组24.631s日志4a022a69fe4ad3f826592ba7cae6c21ec679d6098052b915f80656dd17828134过；两轮6nonce精确资源0、作者全停，证据总索引/tmp/agenteam-d05-b02-purge-evidence.sha256 SHAf1d4dfa142db88f58edfc55940b7e34de7840e5c752262d72558bc1ade02d72f。root已核全部manifest和窄diff/21局部链接暂无新确认问题，Docker交V最终原probe闭环与无过滤完整兼容；旧全组失败及未证实原因保留，当前仍非B02通过。
 
 B02最终独立验收通过，无剩余确认阻塞。独立副本/tmp/agenteam-d05-b02-purge-verify-94yg6yta无过滤test-objects（含原88fc probe）exit0：postgres1.039/database54.979/app68.792/process63.936/security89.517/objects171.296s，日志full-test-objects.log SHA336973288159d6a1c991c26e47353fb2b2668b262529c9e9f83a9028d2c5374d。原metadata探针1.83s逐字通过，rollbackunknown1.90/midstream revoke0.97；101batch34.29s、purge前提1.27、finalTx rollback/三真实unknown5.27、latefinalize/newkey1.16s通过。旧31.25s失败保留且未宣称根因确定；本次完整成功关闭兼容门槛。独立窄修审查未新增问题，复用未变作者check-go及前轮完整审查。42源码/237依赖在workspace/作者/独立副本三方末次全同，原probe未变；D05 bcd0a6d25a53c81e18f4060e19e06ffa/D04 09d6dccca96109a8378d61c441a2b513/D03 e06f92487e8538d99424736675631190容器网络全0、runtime移除/自有进程0，V全部测试/源码读取停止。root采纳完整B02结论并仅暂存42冻结文件+进展文档；生产身份/HTTP路由/其他领域provider未绑定，不将库验收冒作这些未来能力完成。B03尚待独立实施验收，D05整体未完成。
+
+## B03 开工授权（修订3）
+
+B02正式提交2c1dca3，开工工作区干净。B01/B02库与全部旧迁移00001–00006、go.mod/go.sum保持冻结；当前24个本地提交仍待既有GitHub认证恢复，不重复尝试或声称推送成功。唯一活动模块仍D05，不提前D06。
+
+B03按设计§9/§10完成Runner单对象GET/PUT传输及Central MinIO配置、初始化/健康/关闭/真实进程集成。实现前由architecture_worker仅细化设计修订6的transfer Go端口/00007状态表、授权/完整锁规划组合及现有B01所需最小补口，给出真实代码依赖清单；产品规则、B01/B02已验行为不变。特别明确RunnerTransferAuthority当前Runner/Operation/manifest和可信完成/停止证明，独立staging/首次固定grant/逻辑取消与实际lease终局、一次完整源流生成private candidate、未知恢复及Project永久清理责任。缺真实D17绑定始终拒绝生产签发，不提前实现Runner身份领域。规格冻结审查采纳后再授权源码。
+
+后续backend独占新增object/transfer*.go及contract/测试、00007_object_transfer.sql、必要SDK签名适配新增文件、tests/objects直传/恢复；Central config/app、中立logging既有闭集最小扩展、tests/process与owned fixture/scripts、backend配置说明/AGENTS按既定B03共享范围串行移交。原Service/AccessPlanning/cleanup等已验文件若需改动，先由规格列最小精确补口并root确认，禁止顺手重构或修改旧迁移/依赖。Docker当前空闲，架构只读不使用资源。root独占主卡/台账/计划，相关源码在规格阶段保持冻结。
+
+验收须真实固定MinIO presign GET/条件PUT、完整length/SHA/方法/key绑定、旧grant重放及marker边界、staging到独立candidate无TOCTOU、真实完成/停止证据与活动lease清理、unknown/当前权限/锁竞争，不能仅SDK单测。Central对象初始化共用D04剩余30s安全启动、10s采样/同轮2s/20s陈旧、同一额外1s Force预算；真实进程与旧数据库/安全suite均带必需MinIO，不加跳过开关。B03及D05全部独立通过后才进入D06。
