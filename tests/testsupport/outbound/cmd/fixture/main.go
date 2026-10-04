@@ -29,6 +29,7 @@ func main()             { os.Exit(run()) }
 func fail(s string) int { fmt.Fprintln(os.Stderr, s); return 1 }
 func run() (code int) {
 	options := flag.NewFlagSet("outbound-fixture", flag.ContinueOnError)
+	objects := options.Bool("objects", false, "include owned object storage suite")
 	filter := options.String("run", "", "affected test filter")
 	if options.Parse(os.Args[1:]) != nil || options.NArg() != 0 {
 		return fail("invalid fixture arguments")
@@ -159,7 +160,11 @@ func run() (code int) {
 		return fail("outbound descriptor write failed")
 	}
 	fmt.Printf("D04 outbound fixture actual private_socket=%s image=%s nonce=%s\n", d.PrivateIP, pgfixture.Image, nonce)
-	cmd := exec.CommandContext(ctx, "sh", "scripts/test-postgres.sh", "-run", *filter)
+	arguments := []string{"scripts/test-postgres.sh", "-run", *filter}
+	if *objects {
+		arguments = append(arguments, "-objects")
+	}
+	cmd := exec.CommandContext(ctx, "sh", arguments...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGTERM) }
 	cmd.WaitDelay = 30 * time.Second
