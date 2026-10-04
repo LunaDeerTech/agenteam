@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact
 
-- 修订：1；状态：B01已独立验收，准备B02；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
+- 修订：2；状态：B01已独立验收，B02实施中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
 - 前置：[D04](d04-security-foundation.md)全部独立验收和真实完整suite通过，入口本地提交abf5c37；GitHub认证失效，ee8ddb7起5个本地提交待恢复后补推，不冒称远端同步。
 - 目标：按[计划D05](../development-plan.md#d05-对象存储与-artifact)实现StoredObject/引用与lease、流式MinIO读写、跨DB/对象存储的一致性和恢复、Artifact服务、受控预览/下载及短期传输授权。
 
@@ -10,7 +10,7 @@
 | --- | --- | --- | --- | --- |
 | S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订4完整锁规划增量独立静态通过、root采纳并冻结 |
 | R01 依赖与隔离环境核验 | D04完成 | research_worker | 有界探针及新增d05-object-storage-research.md报告，不写实现源码 | R01/R02修订2完成并停写 |
-| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01核心及契约独立验收通过；准备B02，B03未开始 |
+| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01核心及契约独立验收通过；B02实施中，B03未开始 |
 | V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | B01无剩余阻塞，完整及增量证据通过；已全停、资源清零 |
 
 root独占本卡、开发计划和任务台账；架构作者仅新建实施规格。角色遵循AGENTS与agenteam-design/go-development/verification/documentation技能，禁止子agent再委派和Git写操作。常态至多两个活动子任务，Docker和测试资源顺序明确移交。设计稳定且root确认后才写实现，不提前D06+。
@@ -195,3 +195,14 @@ V本轮结束，Session期望码更正后真实race3.075s通过（同Tx创建/Se
 单项恢复窄修作者完成并全停，只有recovery.go、新recovery_items_test.go、README一段共3文件；增量manifest c8f45e9913f03c943242353ef8359077221e54da3e1699ae36f4408f15c878dc，219依赖3b946198660d6cd1d078c593e744d740ae8a862ff80dab0f2325397d37301a5f。最终core42 manifest0cc639c48822ccece700e7cd0268382d64a602fd036de0d00de8c303c5503566/all62 cc3e894c582070b43585a34b6d7330bbb7fc6675b65eea074f59c974b6ed8296；其余输入不漂移。相关normal0.466/race1.527s/integration vet通过；原字节V探针与恢复专项真实race9.918s exit0，日志/tmp/agenteam-d05-b01-item-repair-real.log SHA4b006b02a0dd33f20b617e79c96a12623b7fb1d0b7484658ac03f926d5feb438。root核稳定diff/测试/日志及增量指纹，未发现新阻塞。三nonce资源全0，cleanup SHAbd7a4b1dddcf947ea7ae193e535d1bb3c4298474611487202a60587b0bade3c9；交付/tmp/agenteam-d05-b01-item-repair-evidence.json SHA4583231bc3f06a191a5f0915c96844a5e0d51a870efeb37cb4c52a109d558f44。源码重新冻结，Docker移交V定向独立闭环；复用先前未变完整兼容证据，仍待最终结论。
 
 B01最终独立验收通过，无剩余阻塞。窄修独立真实恢复race9.715s exit0，原busy probe逐字未改通过；新增三对象/两种失败/首错/预取消/解除后收敛亦过。相关normal/race/integration vet/gofmt通过，复用未变无过滤全量日志555247bb7468f3bd684533ca7bc7ffcdcba388118167cd52afbc60b269985474；窄修真实日志eb28b20d468cf9153353f1b5b1b152cf8b3d1d2446396f64c10313eb7df6361e。末次源/副本222文件逐项匹配，core42/all62沿上段指纹不变。证据/tmp/agenteam-d05-item-repair-verify-97uetah_/verification-evidence.sha256 SHA3793e5474aad3b1e4e482f8e95a8168e2017db25aaf3ef93bd164c4dba43be6e，完整报告同目录verification-report.json；3nonce容器/网络/本机测试进程0、runtime移除，V全部读写/命令停止。root采纳B01结论，精确提交42核心+README及本卡/台账/计划；B02/B03及未来真实业务适配不在本次验收，Central仍未绑定对象库且整体ready=false。
+
+## B02 执行授权（修订2）
+
+B01正式提交 `d31aecd`，开工工作区干净；D05设计仍为冻结修订4，本次不改变产品规则。backend_worker执行完整B02，独占Docker；root维护本卡/计划/台账，V待冻结输入后独立验收。现累计15本地提交待既有GitHub认证恢复，未声称推送成功。
+
+- 独占 `internal/central/artifact/`（含contract）、`internal/central/object/download*.go`及相应测试、必要新增object download契约文件、`tests/objects/` Artifact/download真实场景、`00006_artifact_download.sql`、backend README或新的Artifact说明。禁止修改旧迁移00001–00005、go.mod/go.sum、D03/D04基础实现、已冻结设计/研究。
+- 按设计§5/§7/§8及验收表落实inline/upload/source三路径、完整语义幂等/unknown、首次source事实持久化、completed重放不再访问源、同Tx真实Artifact与object reference/Audit、list cursor与有界UTF-8读取、安全图片/file投影及领域清理端口。对象跨域只用正式API，禁止Artifact直接改object表或共享payload。
+- 浏览器下载实现独立keyring/持久grant/严格token绑定、每次当前Human与业务Owner授权、真实stream/range/lease、内容sniff与安全header、Audit前置和实际sent_bytes/尾部失败中断。使用真实HTTP测试适配验证200/206/416及截断；生产HTTP身份绑定留D07/D27，当前不注册匿名业务入口。
+- 沿B01完整AccessPlanner/plan/token组合，所有object/source/业务锁Tx前预收集、一次Acquire、锁后当前权限，漂移回滚重规划，无自动Tx重试。B01如缺必要组合接口，先报告具体最小签名与调用点，经root确认才改冻结文件；不得用未授权访问内部表或unsafe绕过。
+- Artifact真实内部provider可按正式领域事实绑定；身份/Project/Knowledge/Execution未来provider仍用既定拒绝未绑定端口，不制造生产成功stub。共享Audit/identity/foundation若发现确需新增变体，先列精确增量与依据供root确认，不顺手放宽既有验证。
+- 复用固定PG/MinIO源码binary、nonce/标签/exact-ID隔离资源；作者执行有意义普通/race/vet和真实B02正反/并发/unknown/source删除重放/下载中断场景，保留失败证据并精确清理。完成后冻结输入/依赖清单交V独立验证，D05尚不以B02局部完成替代B03/整模块验收。
