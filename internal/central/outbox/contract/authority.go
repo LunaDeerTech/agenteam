@@ -109,6 +109,17 @@ type ProducerAuthority interface {
 	ValidateAppendInTx(context.Context, foundation.Tx, identity.Actor, event.Summary, Dependencies, Stage) error
 }
 type ProjectAction string
+type LifecycleStep string
+
+const (
+	LifecycleStop    LifecycleStep = "stop"
+	LifecycleInspect LifecycleStep = "inspect"
+	LifecycleCleanup LifecycleStep = "cleanup"
+)
+
+func (s LifecycleStep) Valid() bool {
+	return s == LifecycleStop || s == LifecycleInspect || s == LifecycleCleanup
+}
 
 const (
 	AppendProject    ProjectAction = "append"
@@ -119,18 +130,22 @@ const (
 )
 
 type ProjectRequestDetails struct {
-	Kind      ProjectAction
-	ProjectID identity.ProjectID
-	Actor     identity.Actor
-	Stage     Stage
-	Event     event.Summary
-	Delivery  DeliveryIdentity
-	Lifecycle LifecycleCause
+	Kind          ProjectAction
+	ProjectID     identity.ProjectID
+	Actor         identity.Actor
+	Stage         Stage
+	Event         event.Summary
+	Delivery      DeliveryIdentity
+	Lifecycle     LifecycleCause
+	LifecycleStep LifecycleStep
 }
 type ProjectRequest struct{ data func() ProjectRequestDetails }
 
 func NewProjectRequest(d ProjectRequestDetails) (ProjectRequest, error) {
 	if d.ProjectID.Validate() != nil || d.Actor.Validate() != nil {
+		return ProjectRequest{}, invalid()
+	}
+	if d.Kind != LifecycleProject && d.LifecycleStep != "" {
 		return ProjectRequest{}, invalid()
 	}
 	switch d.Kind {
@@ -151,7 +166,7 @@ func NewProjectRequest(d ProjectRequestDetails) (ProjectRequest, error) {
 			return ProjectRequest{}, invalid()
 		}
 	case LifecycleProject:
-		if d.Event != (event.Summary{}) || d.Delivery != (DeliveryIdentity{}) || d.Lifecycle.Validate() != nil || d.Lifecycle.Details().ProjectID != d.ProjectID || d.Stage != "" || d.Actor.Details().Kind != identity.Service || d.Actor.Details().ServiceName != identity.ProjectLifecycle {
+		if d.Event != (event.Summary{}) || d.Delivery != (DeliveryIdentity{}) || d.Lifecycle.Validate() != nil || d.Lifecycle.Details().ProjectID != d.ProjectID || !d.LifecycleStep.Valid() || d.Stage != "" || d.Actor.Details().Kind != identity.Service || d.Actor.Details().ServiceName != identity.ProjectLifecycle {
 			return ProjectRequest{}, invalid()
 		}
 	default:
@@ -189,6 +204,31 @@ func (r ProjectRequest) Format(w fmt.State, _ rune) {
 func (r ProjectRequest) MarshalJSON() ([]byte, error) { return []byte(`"outbox_project_request"`), nil }
 func (*ProjectRequest) UnmarshalJSON([]byte) error    { return invalid() }
 func (r ProjectRequest) LogValue() slog.Value         { return slog.StringValue("outbox_project_request") }
+
+// LifecycleBinding exposes a canonical request identity, never authorization.
+// It encodes explicit facts rather than the safe JSON labels on Actor/Cause.
+// The trusted provider still validates its issuer and current durable mapping.
+func LifecycleBinding(r ProjectRequest) (foundation.Digest, error) {
+	if r.Validate() != nil || r.Details().Kind != LifecycleProject {
+		return "", invalid()
+	}
+	d := r.Details()
+	actor, err := StableActor(d.Actor)
+	if err != nil {
+		return "", err
+	}
+	b, err := json.Marshal(struct {
+		Kind      ProjectAction
+		ProjectID string
+		Actor     string
+		Step      LifecycleStep
+		Cause     LifecycleDetails
+	}{d.Kind, d.ProjectID.String(), actor, d.LifecycleStep, d.Lifecycle.Details()})
+	if err != nil {
+		return "", invalid()
+	}
+	return DigestBytes(b), nil
+}
 
 type ProjectAuthority interface {
 	Discover(context.Context, ProjectRequest) (Dependencies, error)
