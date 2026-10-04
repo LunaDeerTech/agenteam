@@ -25,6 +25,7 @@ const (
 	ProjectCleanupAccess AccessKind = "project_cleanup"
 	SourceAccess         AccessKind = "source"
 	MaintenanceAccess    AccessKind = "maintenance"
+	TransferAccess       AccessKind = "transfer"
 )
 
 type AccessOperation string
@@ -91,6 +92,7 @@ type AccessRequestDetails struct {
 	CleanupID             CleanupID
 	WorkerID              CleanupID
 	Fence                 foundation.Version
+	Transfer              TransferAccessRequest
 }
 
 func NewOwnerAccess(d AccessRequestDetails) (AccessRequest, error) {
@@ -114,6 +116,12 @@ func NewSourceAccess(d AccessRequestDetails) (AccessRequest, error) {
 func NewMaintenanceAccess(d AccessRequestDetails) (AccessRequest, error) {
 	return newAccessRequest(MaintenanceAccess, d)
 }
+func NewTransferAccess(r TransferAccessRequest) (AccessRequest, error) {
+	if r.Validate() != nil {
+		return AccessRequest{}, bad()
+	}
+	return newAccessRequest(TransferAccess, AccessRequestDetails{Operation: AccessOperation("transfer_" + string(r.Details().Operation)), Transfer: r})
+}
 func newAccessRequest(kind AccessKind, d AccessRequestDetails) (AccessRequest, error) {
 	if d.Kind != "" && d.Kind != kind {
 		return AccessRequest{}, bad()
@@ -133,6 +141,9 @@ func newAccessRequest(kind AccessKind, d AccessRequestDetails) (AccessRequest, e
 	}
 	var err error
 	switch kind {
+	case TransferAccess:
+		allow("transfer")
+		err = require(d.Transfer.Validate() == nil && d.Operation == AccessOperation("transfer_"+string(d.Transfer.Details().Operation)))
 	case OwnerAccess:
 		allow("actor", "owner", "intent")
 		if d.Actor.Validate() != nil || d.Owner.Validate() != nil {
@@ -257,6 +268,7 @@ func newAccessRequest(kind AccessKind, d AccessRequestDetails) (AccessRequest, e
 		"project_cleanup": d.ProjectCleanup.Validate() == nil, "objects": len(d.Objects) > 0, "source": d.Source.Validate() == nil,
 		"instance": d.InstanceID != (ProcessID{}), "process": d.ProcessID != (ProcessID{}), "attempt_id": d.AttemptID != (AttemptID{}), "lease_id": d.LeaseID != (LeaseID{}),
 		"cleanup_id": d.CleanupID != (CleanupID{}), "worker_id": d.WorkerID != (CleanupID{}), "fence": d.Fence != 0,
+		"transfer": d.Transfer.Validate() == nil,
 	}
 	for name, p := range present {
 		if p && !allowed[name] {
@@ -328,7 +340,7 @@ func requestFingerprint(d AccessRequestDetails) string {
 	}
 	// Only primitive projections enter JSON: optional zero typed scalars must not
 	// make Marshal fail and collapse distinct requests into the same fingerprint.
-	b, err := json.Marshal([]any{d.Kind, d.Operation, d.Actor.Details(), d.Owner.Details(), d.Intent, d.ObjectID.String(), command, string(d.Key), prepared.ID.String(), prepared.MediaType, prepared.Length, prepared.SHA256.String(), attempt.ID.String(), attempt.UploadID.String(), attempt.ObjectID.String(), receiptProjection(d.Receipt), d.ExpectedSemantic.String(), d.Range, d.LeaseOwner.Details(), cleanup.OperationID.String(), cleanup.Owner.Details(), cleanup.Reason, project.ProjectID.String(), project.OperationID.String(), int64(project.Version), objects, sourceProjection(d.Source), d.InstanceID.String(), d.ProcessID.String(), d.AttemptID.String(), d.LeaseID.String(), d.CleanupID.String(), d.WorkerID.String(), int64(d.Fence)})
+	b, err := json.Marshal([]any{d.Kind, d.Operation, d.Actor.Details(), d.Owner.Details(), d.Intent, d.ObjectID.String(), command, string(d.Key), prepared.ID.String(), prepared.MediaType, prepared.Length, prepared.SHA256.String(), attempt.ID.String(), attempt.UploadID.String(), attempt.ObjectID.String(), receiptProjection(d.Receipt), d.ExpectedSemantic.String(), d.Range, d.LeaseOwner.Details(), cleanup.OperationID.String(), cleanup.Owner.Details(), cleanup.Reason, project.ProjectID.String(), project.OperationID.String(), int64(project.Version), objects, sourceProjection(d.Source), d.InstanceID.String(), d.ProcessID.String(), d.AttemptID.String(), d.LeaseID.String(), d.CleanupID.String(), d.WorkerID.String(), int64(d.Fence), d.Transfer.Fingerprint()})
 	if err != nil {
 		panic("primitive object access projection")
 	}
