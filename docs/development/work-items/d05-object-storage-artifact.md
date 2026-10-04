@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact
 
-- 修订：2；状态：B01已独立验收，B02实施中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
+- 修订：2；状态：B01已独立验收，B02主块冻结独立验收中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
 - 前置：[D04](d04-security-foundation.md)全部独立验收和真实完整suite通过，入口本地提交abf5c37；GitHub认证失效，ee8ddb7起5个本地提交待恢复后补推，不冒称远端同步。
 - 目标：按[计划D05](../development-plan.md#d05-对象存储与-artifact)实现StoredObject/引用与lease、流式MinIO读写、跨DB/对象存储的一致性和恢复、Artifact服务、受控预览/下载及短期传输授权。
 
@@ -8,10 +8,10 @@
 
 | 卡 | 依赖 | 角色 | 独占范围 | 状态 |
 | --- | --- | --- | --- | --- |
-| S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订4完整锁规划增量独立静态通过、root采纳并冻结 |
+| S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订5含SourceReads/下载provider补口独立静态通过、root采纳并冻结 |
 | R01 依赖与隔离环境核验 | D04完成 | research_worker | 有界探针及新增d05-object-storage-research.md报告，不写实现源码 | R01/R02修订2完成并停写 |
-| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01核心及契约独立验收通过；B02实施中，B03未开始 |
-| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | B01无剩余阻塞，完整及增量证据通过；已全停、资源清零 |
+| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01及B02 keyring/SourceReads已独立验收；B02主块冻结验证中，B03未开始 |
+| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | B02主块独立审查与无过滤兼容运行中；V独占Docker |
 
 root独占本卡、开发计划和任务台账；架构作者仅新建实施规格。角色遵循AGENTS与agenteam-design/go-development/verification/documentation技能，禁止子agent再委派和Git写操作。常态至多两个活动子任务，Docker和测试资源顺序明确移交。设计稳定且root确认后才写实现，不提前D06+。
 
@@ -35,7 +35,7 @@ Linux/amd64、Docker28.4.0、精确Go1.27.1/local、既有PG17.8/vector0.8.1正�
 
 验收至少实际覆盖中断上传、外部已写DB失败/unknown、缺payload明确错误、引用/lease阻止删除、跨scope拒绝、stream不全量缓冲、签名材料安全及有效期/完整性、恢复/清理幂等与Central资源关闭。只用nonce/标签/exact ID任务owned PG/MinIO/临时目录，缺真实fixture在专用套件中失败，不能skip充当通过。
 
-下一步完成B01核心独立审查、缺陷闭环与root验收后进入B02；当前无新产品待定。D05及D06–D28/E01均未完成。
+下一步完成B02主块独立审查、完整兼容与root验收后进入B03；当前无新产品待定。D05及D06–D28/E01均未完成。
 
 
 ## S01/R01 进展
@@ -254,3 +254,11 @@ B02真实COMMIT故障组通过，objects8.246s exit0，日志/tmp/agenteam-d05-b
 授权/批次首轮真实组objects20.263s exit1，日志/tmp/agenteam-d05-b02-authority-batch-first.log SHA5d0b505e2dbdd4739118ad4914b698980192ed5058a1439079a5645fbc9d46e8；下载User/Project gate竞争、Agent Execution gate/provenance、101业务批次+外实例actual reader保护作者报告通过。唯一失败为source测试把共享代理总GET（含target验证）当source GET计数，已实得撤权Forbidden；root允许仅区分实际SourceReads Open计数，若声称GET次数须按exact source key观测，保留I/O→撤权→不得发布与固定事实恢复断言，不削弱。三nonceabc3e5fd7afd0ff1069fae6fabf880f2/3ecd261eb92e3bbf2d0abcb94ca113b9/77138522a0a2ffd76e264d9fa41f6744 helper清理，root核日志；该组尚不记整组通过。
 
 projection/recovery真实组objects7.196s exit0，日志/tmp/agenteam-d05-b02-projection-recovery-first.log SHA6f9c7b2e81116841241915f806b595f7354b626bcef9c3c6e5328990998a511e。source原反例完整闭环：SourceReads实际Open1次+目标上传后真实Project EX撤权，发布Forbidden且业务/canonical0；fresh composition失权恢复0存储I/O，恢复权限沿原source JSON/目标ObjectID完成，completed再失权0Resolve/GET/PUT。真实TCP send-window填满且socket Write active=1时Force<1s/join、实际sent_bytes及lease0；cursor/literal、UTF8/file/image、prospective下载拒绝/消费后真实Artifact Uploaded provider Audit通过。三nonce11e39f5fd9f962f63cf8a8bb4184b451/720d24f58e94b4b68ed2d08dc2ec6a73/c933c959da3e8c948e1b9a1999769109 helper清理，root核日志。作者收尾完整check-go与全部TestArtifact/Download、文档/输入冻结；最终无过滤兼容留V独立一次运行，当前主实现仍未独立验收。
+
+B02主块正式冻结39文件，作者稳定副本/tmp/agenteam-d05-b02-final-qg7i8jxu；source manifest f7b2e64f8ffecb718665d7e3c8a97254a26de1902d2f21e19edc2dad21594338，237依赖575fa6a8a55b001d0a7b2e7a6ddbe5d4b47c6c2cebcd266ba1573bad7bb23b6c。root逐项核39源码匹配、237依赖等HEAD08e64e5，SourceReads/keyring保持已验输入。作者check-go全部通过，日志3f3a2508d5f81c06ddf1fb850a022cc2213e03bc9971f97eb94f3bc58f76e26a；全部TestArtifact/Download真实组objects44.832s/object1.287s/contract1.019s exit0，日志c3595ffea01e83ab369419aedd80a1578060d92b463245e0d2399d67c6aa1b36。20日志索引/tmp/agenteam-d05-b02-evidence.sha256 SHAe33a615286f3e1f9ab15054923eafc6e10c55a20031e045b3ea8edbe62ae6df2，保留此前失败。末轮nonce062cdac30458cfa59110641d7f4bd70c/c7d981f9e829efbe2c38eacab353005a/87f59eee9f0d6f1c05a3d49eec2b7e9c已清理、作者全停。Docker交V，独立副本/tmp/agenteam-d05-b02-verify-8yj7bvf1已核276输入及三类资源0，启动一次无过滤test-objects.sh与独立审查/边界探针；root只读冻结主块。B02尚未独立验收，B03未开工；重新组合恢复不冒称新增SIGKILL进程证据。
+
+B02独立无过滤组结束exit1，仅TestArtifactProjectCleanupBoundedBatchAndForeignReader在31.25s返回INTERNAL_ERROR（仍pending），objects153.758s；postgres1.093/database57.292/app69.254/process64.601/security89.466/object2.064/contract1.039均过。原日志/tmp/agenteam-d05-b02-verify-8yj7bvf1/full-test-objects.log SHA2e171b6ab19286b9118ada74b856496a115b6b6187067a3972507fa983233596，资源独立核零。101创建+清理共享30s调用ctx、fixture proxy也独立30s是候选原因，尚未凭耗时认定；V仅在独立副本加ctx/底层Fault诊断，保留预算和断言，定向确认而不重复全量。另静态发现cleanup completed仍可能保留command/intent展示参数和source、download binding.filename；D01生命周期矩阵及D05§6要求最终清本域项目metadata，最小回执不含名称/原参数，正在真实probe确认。原授权保留技术映射只适用于恢复/防复活，不豁免最终内容清理。主实现仍冻结，未解冻返修，B02不计通过。
+
+独立真实probe确认最终metadata残留：CleanupProject已completed且本Project objects/artifacts均0，仍command_display=4、intent_display=1、source_json=2、download_filename=3。此前外实例真实source lease active时pending/ResourceBusy且原source JSON逐字保留，exact release后才completed；他Project内容/未撤销grant/实际读取和被删key零I/O不复活均过。原probe/tmp/agenteam-d05-b02-probes-vpe5f6n1/tests/objects/verify_b02_boundaries_test.go SHA88fc221cf7814767e3e6686ec64977412b4a05bd459367ab6e0b9dbbd63a9ee9固定；真实日志independent-real-probes.log SHA59c85d097ad45e0761976ab6a243b7f2af412a8e457e01135e57d7972354c403，objects20.280s exit1仅此新probe。下载实际COMMIT前回滚的issued/started均unknown且0URL/GET/attempt；流中Revoke旧流可完成、新Open拒绝、Confirm不重发不重复Audit均过。batch原预算+诊断本次15.39s通过、4轮ctx/proxyctx均nil，所以原full31.25s失败根因尚未确证，不能把定向通过替代全量门槛。root采纳metadata残留为确认阻塞，待V全停/资源清理后授权最终清理窄修；原probe不改，旧依赖保持冻结。
+
+V已停止全部测试/源码读取，6nonce容器/网络均0、两处runtime移除、自有进程0，Docker交回（仅/tmp证据索引收尾）。root正式授权backend B02窄修：仅解冻Artifact cleanup及必要本域store/lookup/owner最终删除处理、00006（尚未提交的新迁移）、对应Artifact cleanup测试及局部artifact说明/README；如精确最终download清理必须新增object/download本域端口可在B02既有范围最小实现，禁止扩大B01/SourceReads/keyring/旧迁移/D03/D04/依赖。先完成实际source/reader/物理对象收敛，最终同Tx清本Project command/intent原展示参数/source/内容事实与download grants/attempts业务绑定；仅保最小稳定cleanup/必要命令完成事实，不能把原行换到新历史表或写假展示值留原数据。具体删除/最小receipt选择由作者按原契约实现；当前Project gate和精确cause仍须阻止迟到请求复活，其他Project/System不动，pending checkpoint不得提前擦除。原88fc221c探针逐字复验，并补最终Tx rollback/unknown及迟到下载终局不得重建数据。batch测试仅允许有界分阶段context与明确owned proxy生命周期预算，保留原断言/失败和诊断；不延长生产预算、不改全局旧fixture默认，不宣称根因已确证。作者先定向+check-go/冻结，V最终无过滤复验闭环，不能复用失败全量作通过。
