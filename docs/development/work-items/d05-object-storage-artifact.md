@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact
 
-- 修订：3；状态：B01/B02已独立验收，B03规格修订6已独立静态验收，完整实现进行中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
+- 修订：3；状态：B01/B02已独立验收，B03完整实现64文件已冻结，独立整体验证中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
 - 前置：[D04](d04-security-foundation.md)全部独立验收和真实完整suite通过，入口本地提交abf5c37；GitHub认证失效，ee8ddb7起5个本地提交待恢复后补推，不冒称远端同步。
 - 目标：按[计划D05](../development-plan.md#d05-对象存储与-artifact)实现StoredObject/引用与lease、流式MinIO读写、跨DB/对象存储的一致性和恢复、Artifact服务、受控预览/下载及短期传输授权。
 
@@ -10,8 +10,8 @@
 | --- | --- | --- | --- | --- |
 | S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订6独立静态复验通过并冻结，root已采纳 |
 | R01 依赖与隔离环境核验 | D04完成 | research_worker | 有界探针及新增d05-object-storage-research.md报告，不写实现源码 | R01/R02修订2完成并停写 |
-| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01/B02完整独立验收通过，B03完整实现已授权 |
-| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | B02无过滤兼容及原probe全部通过；V全停、资源清零 |
+| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01/B02及B03契约已独立验收，B03完整实现冻结待V |
+| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | B03独立副本无过滤兼容与风险审查进行中；V独占Docker |
 
 root独占本卡、开发计划和任务台账；架构作者仅新建实施规格。角色遵循AGENTS与agenteam-design/go-development/verification/documentation技能，禁止子agent再委派和Git写操作。常态至多两个活动子任务，Docker和测试资源顺序明确移交。设计稳定且root确认后才写实现，不提前D06+。
 
@@ -305,3 +305,44 @@ B03设计实际提交 `3e15bc3`，27本地提交待既有认证恢复。独立V�
 B03纯contract首块4文件已作者停写：`object/contract/access.go`、`transfer.go`、`transfer_authority.go`、`transfer_test.go`。源manifest `/tmp/agenteam-d05-b03-contract-source.sha256` SHA `362614c0976803232dbf3367fe65c8b685ff609481b687a87140df2c8dab0b58`；31依赖manifest SHA `c75cdabf738291b56eb7fcccdf60ed75d13ace79aacdc68553e2c6ed504baa74`，均冻结供V；作者局部race日志SHA `e5715b0e5f18ce24678e098a9dce437d3471e1a79876bbcb580a42d05db834de`。root逐项核指纹/初读通过，V仅读独立副本进行契约审查，尚未结论。其余core仍由backend活动写入，不能读取或暂存；五个服务方法已编译不构成真实DB/MinIO验收，ProcessGuard/Runtime/入口仍未完成。
 
 B03纯contract4独立验收通过，无该范围剩余阻塞。V目录 `/tmp/agenteam-d05-b03-contract-verify-5dfpd6wc`，证据索引SHA `647aea6adfa72961fd931bbfe631ab15c1bb39736bb382343b80b0024fb9755d`，独立probe SHA `d3f9e726993c97a6751e5a7ee496c2188b943aa9ad9ff8d2f2a1a90d4476a926`。29种请求变化及plan/token错配、独立completion/retirement、部分证明拒绝、并发深复制、递归安全投影/拒解码及边界通过；Go1.27.1/local原包0.006s、探针0.009s、全包race1.072s、vet/format通过。首次probe零值Status的UUID序列化拒绝为夹具错误，原文件/失败日志与仅补合法Status的diff保留，未改产品或弱化断言。源4/依赖31末次匹配，root核验并采纳；V全停、无运行资源。仅提交冻结4文件及root进度，不暂存活动core。后续core须明确排除语义摘要trace/session、逐操作要求真实Completed/Retirement，不能仅凭Matches完成/释放；真实SQL/MinIO/生命周期与B03整块未验收。
+
+纯contract4已提交 `a6c5329`，28本地提交待既有认证恢复。B03活动core作者第四轮真实组exit0、objects4.921s，日志 `/tmp/agenteam-d05-b03-transfer-fourth.log` SHA `1ad0143c4bd3a164b5beb046d06f3cd11fe993d69f0ecd440fd379a8c5036f11`：签名PUT/GET、签头/wire deadline、条件412、换Session/RequestID同义重放、stage→独立candidate完成仍保留lease、单独退休/marker阻断旧URL，以及Runtime空态probe/delete、单worker和遗留业务未绑定拒绝通过；作者报告3nonce清理。该轮输入未最终冻结，不能复用为最终完整验收。前三轮失败原文保留：00007不受支持Down段；fixture LookupAccess漏Key；新增Audit成功误用portError(nil)与SystemConfigLock冒号非法。修正只涉及活动B03/fixture，未放宽旧约束。
+
+继续补独立retirement证明先到但本地reader/marker未收敛的持久checkpoint，root确认属于rev6既定范围：worker重验当前authority、完整lease plan、本地join及marker后才能释放，不凭pending字段/TTL；Completed历史分列保留。核心仍活动，ProcessGuard死亡/boot、故障竞争、Central装配及完整独立验收未完成。
+
+Central接入后作者check-go第1轮发现force预算耗尽时DB关闭goroutine未实际调度，修为最后同步调用既有D03有界ForceClose，原ctx不续预算；root仅读store.go:195核实原保证，定向共享1s/迟到获取app3.127s通过。第2轮race发现新增健康采样闭包读databaseDone与主循环置nil竞争，改传独立channel值；原失败SHA `66a6dd5e333b76a8deb63b0c7c855a1fb300ed33151a46d75b2697a1dad5b609`保留。第3轮完整check-go exit0，日志 `/tmp/agenteam-d05-b03-check-go-third.log` SHA `d815791f97e42cdfbd994265f4c902a15f00d172d6924bb11b2a055efe82887c`。随后真实组app13.355s/objects8.718s通过含reader后退休/current authority；process33.264s因旧diagnostic断言object_storage仍future unbound失败，按真实available更新但保留授权unbound/ready=false及原信号/健康行为。3fixture作者已清零。输入仍活动，最终验收未完成。
+
+root授权旧recovery.go最小私有错误汇总增量：保留Recover公开签名/首错/公平继续和全部权限清理语义，内部另收firstNonBusy供Runtime/transfer/probe扫描，涵盖releaseStopped/spoolRecoveryAuthority实际回调而不改spool.go。仅首个ResourceBusy不能代表整轮安全；Runtime仍验证持久结构与保护，纯受保护pending可延后，任何后续硬错误拒启动/健康。须实际覆盖Busy后硬错误、纯安全pending仍推进无关项及旧Recover首错不变，修后重跑相关check-go。
+
+作者Central旧capability断言适配后真实SIGTERM/SIGINT与健康超时恢复通过，process25.769s，日志 `/tmp/agenteam-d05-b03-central-real-second.log` SHA `35dd561a7b1cb83dec086899822a6a7fcc2bc57685958c981b601b33f4569b64`，3nonce清零。恢复/ProcessGuard真实组：live exact flock→child SIGKILL/Wait→同host确认、历史boot记录正例与错host/篡改/缺claim反例通过，外部lease仍保护；历史boot测试不声称主机实际reboot。Runtime原首错测试初次误调用已初始化拒绝的Service，改由独立legacy Service验证原语义，未改生命周期拒绝。第二组objects12.703s exit0，Busy后Forbidden拒启动、第三无关对象删除、纯安全Busy可启动、worker硬错健康失败通过。日志 `/tmp/agenteam-d05-b03-recovery-guard-first.log` SHA `4a9646190de8452a88c253f4f3514342e416d319732a2e0cccdb0799fc409bfd`、`second.log` SHA `75b71fe553c20bf31bdf0517f632393b65e58eff60b1167326ceb705a3af6cee`，所有owned资源作者报告清零。
+
+当前待做：新Issue/material/capture真实COMMIT代理测试、Project最终清理、32grant/attempt配额与transfer公平恢复、probe故障重启、candidate失败重试、双Transport force及最终全量兼容。core仍未冻结，不计B03完成；backend继续独占。
+
+作者真实unknown组objects7.857s通过，`/tmp/agenteam-d05-b03-transfer-unknown-first.log` SHA `585ea95c90bef8a0633d7436711ce20be01c9462c2c54d9761d07ac3b6efc63a`：Issue持久/material两层丢COMMIT回复均无URL/0payload I/O；capture unknown无源GET，原lease确定收敛后重试单源流，completed replay零GET/PUT。协议/配额/Project组objects15.788s仅源SHA篡改错映射INVALID_ARGUMENT失败；固定可信manifest损坏应为OBJECT_INTEGRITY_MISMATCH，作者在新transfer_complete修正待复跑。原日志 `/tmp/agenteam-d05-b03-transfer-boundaries-first.log` SHA `d20b1253db12a7965c4173884bdc025ddbd3cec758c9adf264976b63cc13a4fe`；同组签头/method/key/length/body拒绝、实际到期、0/64MiB流、并发36限32/退休复用quota、Project最终facts0/迟到零I/O与空marker通过，作者报告资源清零。
+
+退休恢复自查发现仅cleanup重验不足以证明原证据当前仍充分，root确认按已定端口加ConfirmTerminal extra plan，与Cleanup/Lease Release完整union一次Acquire；私有00007持久证据kind/部分索引checkpoint，部分仅供复查不能当proof。当前Retirement缺失/撤销/错kind保留lease，不覆盖Completed；增加真实部分→齐备与当前proof撤销反例，4公开契约不改。probe两origin/claim与probe COMMIT unknown重启及源损坏修正仍在验证。
+
+作者probe/损坏组objects11.115s通过，`/tmp/agenteam-d05-b03-probe-corruption-first.log` SHA `70b8ce749a6d01231d37adb5bf4388b3f2f1e5e1fd5a9596ba56fe75ff03e9f1`：双origin实际probe、PUT丢回复/claim及probe预留/verified COMMIT unknown经旧guard join后重开按原key收敛；PUT失权不启动且他key不动；源损坏码已闭环，nonce全清。候选预留unknown发现PUT0但activewriter1残留，原 `/tmp/agenteam-d05-b03-candidate-terminal-first.log` SHA `e2d7e3d19bdbde2f36a3b1a3b67fa6d0725b10362e9ac1cf55be084deec01522`保留；作者新增私有“已确定无I/O”join checkpoint，在完整maintenance plan/原upload command锁下等原Tx终局后释放，失败保留checkpoint重核，不凭无锁miss推回滚。publish unknown零重发、部分→齐备/当前proof撤销保留lease已过，writer残留修复待定向复跑。
+
+root追加授权 `object/references.go` 仅metadataAdmission准入一处：关联Runtime但runtimeReady未成功时拒绝新元数据操作，与已有service.admit一致；未关联Runtime旧行为及同ctx已准入初始化/恢复保持。原因是Service.Initialize的initialized早于probe/recovery成功，原metadata入口可提前准入。不得修改其余reference业务规则；需真实probe barrier下Stat/Discover拒绝且无副作用、初始化成功后正常/失败后拒绝回归，纳入最终manifest及独立复验。
+
+候选unknown writer join/恢复、publish unknown重放及部分退休补齐定向objects6.774s通过，`/tmp/agenteam-d05-b03-candidate-terminal-second.log` SHA `fbe954e7181bc7a6aa7ca64dab824369853cce7399ccd29779f68eabc6c38c6d`。probe barrier中Stat/Discover拒绝/无新业务事实、成功后正常及失败仍拒、双transport真实I/O同force预算join objects4.518s通过，`/tmp/agenteam-d05-b03-runtime-force-first.log` SHA `a40369a9597dc07af936cdf916f1a21cb682ba4f2b9229689c9220bf94dc3a88`。作者报告两轮owned资源全清；最终输入仍活动。
+
+作者剩余清单：当前owner/Project权限先于Inspect/Complete/Cancel历史结果（已发现并补私有顺序，待真实gate竞争/Converge/缺端口回归）；原COMMIT未终局时原command等待与漂移拒绝；transfer公平恢复及staging实占旧64全局/2每upload配额；慢PUT/marker实际竞争、错双origin、剩余启动/健康预算。完成后受影响整组、最终check-go与说明/manifest冻结；完整无过滤suite交V最终副本一次执行，不机械重复。
+
+作者authority/quota第二真实组objects21.673s通过，`/tmp/agenteam-d05-b03-transfer-authority-quota-second.log` SHA `dac0a6e247cee7d5307fb63d908e80be201236263753ed81ee261e88c9d0efe2`：当前owner失权先于Inspect/Complete/Cancel/terminal/异义结果；归档仅terminal Converge；缺必需provider全回滚；真实Runner/Operation/Project advisory gate竞争；迟到原COMMIT持command重放阻塞，提交后漂移ResourceBusy再显式重采集；101历史终局不挡新代次、坏项保留错误而他项推进；staging计旧64限额/满额Complete无candidate。首轮fixture未允许archived terminal，新增fixture按真实state+terminal action修正，Audit生产未改；3nonce清零。
+
+root采纳私有stopped未完成PUT收敛分支：当前exact stopped且完整Retirement已证明所有在途join/新准入关闭，与Complete完整锁互斥、确认本地source/writer join后，仅gate本staging并标本grant failed，原upload/reserved输出身份保留。marker核实后正式release；新issue需当前授权/原ObjectID与2attempt上限。completed证明但尚未publish的PUT不走该擦除分支；旧grant迟到Complete/candidate不得发布。增加零正文、失败candidate、并发Complete反例，符合rev6既定停止收敛/新尝试规则，不改公共契约。剩余每upload2、慢PUT/marker、错双origin/真实Central故障与预算继续。
+
+慢PUT首轮 `/tmp/agenteam-d05-b03-transfer-two-late-first.log` 的fixture时序不成立：等待Cancel/marker后才放旧body，而MinIO同key锁使marker先等待，旧PUT15sdeadline终止后marker才成功。作者保留原失败，按已冻R02真实顺序改为观察持久gate/marker已发起→释放旧body→实际旧请求终局→marker全文空SHA/旧URL412/外部lease仍待证明；不宣称marker先于旧PUT终止。该轮每upload2限额与verified原candidate恢复通过。
+
+root授权cleanup.go仅增加Runtime恢复预算私有context分支：旧cleanupIOContext的WithoutCancel+15s会延长启动剩余预算；Runtime.recover标记后，cleanup I/O保留原parent更短截止/取消，预算耗尽不再额外2s noteCleanupFailure，保留原applying checkpoint供恢复。普通B01 wrapper补偿语义及已有Force共享cap不改，不新增公共签名/依赖。需真实gated candidate/marker barrier证明超时及时拒ready、worker同预算及原cleanup兼容。
+
+
+## B03完整冻结与独立验收
+
+作者64源/说明已全部停写，251依赖（含已验contract4/设计、go.mod/sum/00001–00006）不变，315项root重新核对匹配。源manifest `/tmp/agenteam-d05-b03-final-source.sha256` SHA `743417712e70b300c187fb3d4b99839bf416c4aa68fccebe2937ce8015bfe1a0`；依赖manifest SHA `b611aaeb7b37b3b8f14ddb5660cbb30a906e4fc432d8383c66af54913bab0e42`。完整交接 `/tmp/agenteam-d05-b03-handoff.md` SHA `0260959dfcd6b7433df2cd4a277f44e8fb3c7cec1608bcd5006a5feaf5f51d58`；41证据索引 `/tmp/agenteam-d05-b03-final-evidence.sha256` SHA `a04198b29171f353ec0ddc082867d22f309903dec3ef39b95dd768080e9288e3`。69作者nonce全部containers/networks0、runtime目录移除/本机测试进程0，清理日志SHA `e19d551b5300d314090a1aa5659d4744112b0aa6fd5b559e98c6d740d224b034`，固定非秘密MinIO cache保留。
+
+最终命名严格按设计为OBJECT_DOWNLOAD_KEYRING，无DOWNLOAD_KEYRING别名，旧名实际拒绝；root核旧提交没有另一正式env命名，不将设计当笔误。命名修后check-go（normal/vet/integrationvet/race/两build）通过，日志SHA `4aff428292f6ff21404d60ea80579dba421109d8496678d0c118a429dad1cef2`。相关对象组102.594s全部通过，SHA `4046b027a93c80fc0d0460b40720926a8d70bd3b9f595626d9a9a0788b0e6e5b`，此后仅env命名及反向worker测试变化；最终实际TestCentral全组83.270s和Service-first worker/旧Drain/force2.689s通过，SHA `fa872a5ef6a8e49ffe02b5ac81c0e4addfe2caa1659470a82bed3474b062242e`。未命中filter包不计兼容证据。慢PUT/停止退休、Runtime剩余预算、真Central存储故障与恢复、迟到启动首停stopped/第二信号未确认claimed均已过；具体失败历史与fixture纠正保留在交接。
+
+V已接独占Docker，在 `/tmp/agenteam-d05-b03-full-verify-wd8wxdxz` 独立315输入副本，combined manifest SHA `5a26b4ab113672d9d0dec297a70cfd6e55ca8bbfd1ffa85eb4249678e66f6056`。无过滤test-objects正在运行，另按M01–12风险矩阵审查/补probe。root仅读冻结代码，暂未确认产品缺陷；repository-structure.md仍残留DOWNLOAD_KEYRING文案，待V停读后单行修OBJECT_DOWNLOAD_KEYRING并查链接。当前B03/D05未验收，后续模块未开工；HEAD a6c5329，28本地提交仍待既有GitHub认证恢复。
