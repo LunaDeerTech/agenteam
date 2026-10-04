@@ -12,12 +12,12 @@
 | --- | --- | --- |
 | B01 身份与安全基础 | 真实 User/Session/System provider、初始化、登录/退出、密码与 keyring、受限 Secret/Audit 组合；无 HTTP 默认授权 | 新 `internal/central/account/contract/{types,identity,settings,commands}.go` 及对应测试；新 `account/{repository,authority,planning,keyring,password,bootstrap,session,login,audit_authority,secret_authority}.go` 及测试、`account/assets/weak-passwords.json`/许可；新 `internal/central/recoverylog/` 真实受限 Sink/测试；新 `db/migrations/00010_account_session_smtp.sql`；本节列明的 D04 补口、`go.mod/go.sum` 的必要依赖；新 `tests/account/` 基础/迁移测试 |
 | B02 邀请、恢复与挑战 | 一次性兑换/重置、改密、挑战、事务投递意图与真实 Outbox handler、到期回收 | 新 `account/{invitation,reset,password_change,challenge,events,delivery_intent,delivery_handler,cleanup}.go`、`contract/{challenge,invitation,recovery,events}.go` 及测试；自有生成挑战素材；新 `tests/account/` 对应组合测试、`tests/account-captcha-web/` 独立锁定依赖 harness |
-| B03 持久投递 | SMTP 配置/测试、三种协议、有限重试、受限恢复日志、claim/未知结果/重启与关闭 | 新 `internal/central/accountmail/` 与测试；新 `account/contract/delivery.go`、`account/{delivery,delivery_repository,delivery_usage,mail_admission,smtp_settings}.go` 及相邻测试；本节八个旧account文件窄增量；新 `db/migrations/00011_account_mail_delivery.sql`；§9限定 `recoverylog/sink.go`、`sink_test.go`，可新增 `recoverylog/{admission,ticket}.go` 及测试，补队首资格与per-work ticket，不改B01 bootstrap；限定出站TLS补口；新 `tests/testsupport/smtp/`、`tests/accountmail/`、`scripts/test-accounts.sh`；限定 `tests/testsupport/postgres/cmd/fixture/main.go` 仅向固定go test包列表追加 `./tests/accountmail/...`、`./internal/central/accountmail/...`，原包列表、fixture生命周期/nonce/权限/参数/6m不变；`scripts/test-accounts.sh` 复用既有 `scripts/test-objects.sh` 路径，无新runtime route；上述旧源码仍须root在B03正式解冻 |
+| B03 持久投递 | SMTP 配置/测试、三种协议、有限重试、受限恢复日志、claim/未知结果/重启与关闭 | 新 `internal/central/accountmail/` 与测试；新 `account/contract/delivery.go`、`account/{delivery,delivery_repository,delivery_usage,mail_admission,smtp_settings}.go` 及相邻测试；本节原八个旧account文件及[人工邮件重试补遗](d07-account-mail-retry-addendum.md)限定的 `events.go`、`audit_authority.go` 窄增量；新 `db/migrations/00011_account_mail_delivery.sql`；§9限定 `recoverylog/sink.go`、`sink_test.go`，可新增 `recoverylog/{admission,ticket}.go` 及测试，补队首资格与per-work ticket，不改B01 bootstrap；限定出站TLS补口；新 `tests/testsupport/smtp/`、`tests/accountmail/`、`scripts/test-accounts.sh`；限定 `tests/testsupport/postgres/cmd/fixture/main.go` 仅向固定go test包列表追加 `./tests/accountmail/...`、`./internal/central/accountmail/...`，原包列表、fixture生命周期/nonce/权限/参数/6m不变；`scripts/test-accounts.sh` 复用既有 `scripts/test-objects.sh` 路径，无新runtime route；限定 `audit/contract/account.go`、`audit/contract/account_test.go` 仅新增 `sender_name`、`auto_retry_count`、`retry_interval_seconds` 三项AccountChangedField枚举、SMTPSettingsUpdate允许集及对应闭集测试，不保存字段值/自由文本，其他既有action/metadata校验不变；人工retry另按[人工邮件重试补遗](d07-account-mail-retry-addendum.md)新增独立typed动作/闭集测试与私有helper；上述旧源码仍须root在B03正式解冻 |
 | B04 资料与正式入口 | 本人资料/头像/偏好、完整 API/OpenAPI、Central 生命周期与当前权限装配 | 新 `account/{profile,avatar,object_authority,runtime,http,csrf}.go`、`contract/profile.go` 及测试；新 `api/openapi/account.json`；新 `app/account.go` 及实际进程测试；限定 `app/{app,security,outbound,object,outbox,resources,health,diagnostics}.go`、`config/config.go` 及受影响测试/fixture；新账户配置示例与运行说明须由主线程另授权文档范围 |
 
 表内 `account/`、`audit/`、`secret/`、`object/`、`outbound/`、`foundation/`、`httpapi/`、`app/`、`config/` 均为 `internal/central/` 下包路径；`db/`、`tests/`、`api/`、`scripts/`、`go.mod/go.sum` 相对仓库。同目录新增私有辅助文件可由所属 B 作者选择，不能因此改未列旧域。已提交 `00010` 声明D07基础结构；B03仅由新事务型Up-only `00011_account_mail_delivery.sql` 补§3已证缺口，旧 `00001–00010` 字节不变。B01/B02 未装 HTTP 前，缺后块 capability 必须明确 unbound，不能在生产返回成功占位。
 
-B03额外旧account授权仅限下表及对应新增窄测试；均在 `internal/central/account/`。`service.go/planning.go/invitation.go/reset.go/recovery.go/mutation_recovery.go/link_authority.go/audit_authority.go` 不因此解冻；共同helper和新文件承载其余行为，不跨域直接更新Secret表。
+B03额外旧account授权仅限下表、[人工邮件重试补遗](d07-account-mail-retry-addendum.md)及对应新增窄测试；均在 `internal/central/account/`。`service.go/planning.go/invitation.go/reset.go/recovery.go/mutation_recovery.go/link_authority.go` 不因此解冻；共同helper和新文件承载其余行为，不跨域直接更新Secret表。
 
 | 旧文件 | B03精确增量 |
 | --- | --- |
@@ -29,12 +29,16 @@ B03额外旧account授权仅限下表及对应新增窄测试；均在 `internal
 | `password_change.go` | ChangePassword最终password_version/Session/Audit/事件Tx外EX |
 | `delivery_intent.go` | 正式test recipient variant/current producer校验；容量查询覆盖新job phases |
 | `delivery_handler.go` | 正式test enqueue/current配置检查；保持邀请/reset与canonical唯一job |
+| `events.go` | 仅delivery retry分支委派补遗的origin规划helper，Tx外完整收集、锁后重验；原session-revoked/其他命令路径不变 |
+| `audit_authority.go` | 仅新增当前Human admin的SMTPDeliveryRetry委派与exact命令/新intent校验；旧actions/Service分支不放宽 |
+
+人工retry的 `delivery_intent.go/delivery_handler.go` origin写入/规划，以及新helper与公开请求形状，仅按[人工邮件重试补遗](d07-account-mail-retry-addendum.md)补齐；原邀请/reset调用点不改。
 
 固定 Go `1.27.1`/`GOTOOLCHAIN=local`；`golang.org/x/crypto v0.55.0` 从既有 indirect 转 direct，不升级旧版本。GoCaptcha 固定 `github.com/wenlng/go-captcha/v2 v2.0.5`（Apache-2.0），`golang.org/x/image v0.45.0`（BSD-3-Clause，用于 WebP 解码/缩放及 GoCaptcha），唯一额外间接模块为 `github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0`；不选会升级既有依赖的 x/image `v0.46.0`。Vue harness 固定 `go-captcha-vue 2.0.7`（MIT）、Vue 3.5.43、Vite 8.3.1、TypeScript 5.9.3、jsdom 27.4.0；不修改产品前端依赖。真实浏览器测试推荐固定 `@playwright/test 1.56.1`（Apache-2.0）及该发行对应Chromium，仅进入harness lock；此测试工具未由R01验证，B02先核官方integrity/实际浏览器可执行性并记录版本，再运行，不能以jsdom替代或安装浮动latest。引入前将 R01 的完整模块图、包校验和及 LICENSE 归档，拒绝无关 MVS 升级。B02实际固定1.56.1配套Chromium141.0.7390.37/build1194官方下载403后，允许使用现有系统Chromium151.0.7922.173执行真实harness：记录可执行路径、实际版本、SHA256与启动/交互结果，明确该组合不是Playwright发行配套；不改下载限制、不继续无界重试。若API或真实交互不兼容则停止相关验收报告，不以jsdom补足。
 
 弱密码仅离线嵌入 `@zxcvbn-ts/language-common@4.1.3` 的 `src/passwords.json`，49,233 项、486,625 bytes，SHA256 `f422773d94d630f27e08b26d7017e847bb1feb2a84809340e9c0b0c47b33e3f1`；保留 MIT 许可/来源，不引 zxcvbn JS runtime，不请求泄漏库。GoCaptcha assets 1.0.7 的字体/照片未取得逐素材权属证据，首版不用该包；程序生成平台自有的非对称图案，不引用系统字体或远端图片。SMTP 使用标准库 `net/smtp`、`crypto/tls`、`net/textproto`，不另引 SMTP SDK。
 
-下表未单独标注所属块的旧公共增量由 B01 一次完成；B03另限本节八个account文件、Sink及出站TLS补口，B04按表内限定增量绑定；旧消费者的拒绝行为须兼容验证：
+下表未单独标注所属块的旧公共增量由 B01 一次完成；B03另限本节原八个account文件、人工retry补遗的两处窄分派、Sink及出站TLS补口，B04按表内限定增量绑定；旧消费者的拒绝行为须兼容验证：
 
 | 旧文件/新补充文件 | 必要原因及最小口 |
 | --- | --- |
@@ -92,7 +96,7 @@ HMAC-SHA256 输入有固定版本、用途前缀及长度编码：`command-v1`�
 
 `00010` 同时精确扩 Audit action/resource/producer/service CHECK 和 Secret lease owner CHECK，保留 00009 后所有合法值；新增分支显式处理 NULL，不能靠 SQL CHECK UNKNOWN 放行。Secret 仅追加 `account_delivery_attempt` 与 `account_response` owner（分别实际投递尝试ID和独立回应读取尝试ID，后者不是LoginCommandID）；不冒充 Execution，不改旧 scope/引用/密文/AAD 规则。账户邮箱/用户名冲突以命名 UNIQUE 转安全字段错误，不能输出 SQL/原值。
 
-`00011_account_mail_delivery.sql` 仅作以下事务型增量，所有历史行原业务事实、ID/ref/版本保持，不执行网络或补发：
+`00011_account_mail_delivery.sql` 作下表及[人工邮件重试补遗](d07-account-mail-retry-addendum.md)限定的事务型增量，所有历史行原业务事实、ID/ref/版本保持，不执行网络或补发。原三表增量之外，仅增加补遗指定的commands/Audit闭集及 `delivery_intents.origin_intent_id`、自表FK/索引；原00010字节不变，回填须核exact已提交source command，坏行整体回滚：
 
 | 表/索引 | 00011与B03固定语义 |
 | --- | --- |
@@ -220,6 +224,8 @@ reset 有效期取首次签发设置；已有未用有效 token重发同链接�
 SMTP singleton DTO：`configured,host,port,encryption:none|starttls|tls,username,sender_email,sender_name,credential_present,auto_retry_count,retry_interval_seconds,version`。host是规范DNS/IP，不含scheme/path/userinfo；port1–65535；username≤256bytes、sender_name≤80codepoints，全部头字段拒 CR/LF/control；邮箱沿 §2。认证 none（username空且无credential）或明确 PLAIN；空 password替换表示保持，删除凭据用显式 `credential_action:remove`；非空新值只进入 Secret。
 
 `auto_retry_count` 默认3、范围0–5，表示首次之外的最大自动次数；`retry_interval_seconds` 默认60、范围10–3600，指数 `base*2^(n-1)` cap1h，加确定性≤10% jitter并不越 token expiry。设置更改影响下次 attempt，已有job保留已用次数，不重置预算；降低上限立即禁止多余重试。授权手工 retry产生新 intent/周期，仍原token/expires，不与active attempt并行。
+
+人工retry的正式请求、单跳origin、当前admin→幂等→version、原Job版本推进及新intent/Outbox/Audit同Tx、Unknown核实和根事实保留，按[人工邮件重试补遗](d07-account-mail-retry-addendum.md)执行；不借用SMTPTestRequest/实际SMTPDelivery，也不创建虚假mail attempt。
 
 save 只保存配置/Secret ref/Audit，不连接或发信；unconfigure显式操作断旧ref并安全清理。test命令必须admin及明确recipient，创建无链接的测试job，配置必须已configured；失败不回滚配置、不创建邀请/reset。公开reset无论该配置是否可达仍只显示smtp渠道。配置后任何网络/认证/证书/材料失败均不降级日志。
 
@@ -395,7 +401,7 @@ app私有assembly保留真实 Authority、Secret/OutboundClient/ObjectService/Pr
 | T07 权限/事务 | 普通本人Audit成功但System管理403；admin不能Avatar他人/Project Owner；Service伪cause/错误owner/fence/来源/issuer拒绝；account_response跨browser/command完整HMAC/User/Session/password_version/ref/Purpose/process/fence拒绝，不借SMTP字段；原登录/Acquire/Read提交Unknown及Audit失败零材料/Set-Cookie，exact核实及独立lease恢复；五项usage字段矩阵/结果匹配、Apply拒read、跨Service/改字段/缺计划拒绝；旧reference及lease口不能绕过account planning，非账户旧消费者兼容；Release/Read重验actual lease mapping，Acquire同owner异ID/终态不复活；全批锁缺低序/SH→EX/映射变更fail closed，InTx零Discover/补锁/nested/外部读；AccountDelivery exact job/current_attempt/process/fence/config/ref/Purpose/lease及reset User/password_version错配拒绝，源码无Tx内usage discover；失效后只凭实际join+exact cleanup/lease释放，不恢复读，AccountResponse兼容不退化 |
 | T08 SMTP协议 | none、STARTTLS、TLS+私CA真实投递；证书host/链错及STARTTLS降级拒绝；AUTH与每MAIL单独BeginSend；policy更新/DNS全结果/pinning；大reply/slowpeer/CRLF不泄密且有界 |
 | T09 外发竞争 | 同一Authority gate下SMTP原首写前/后barrier与revoke/redeem/reset-complete/normal-password-change/expiry/config竞争；普通改密保留reset row仍拒后续发送，DB→内存反序/独立第二gate/取消等候泄锁/EX后SH插队拒绝；日志精确卡队首资格授予前/后：EX先提交零新资格/零Write，资格先则允许调度间隙后Write但链接已失效；不拿入队/标记称syscall已进入；无DB Tx跨I/O，日志Write/Sync不持SH；原lease直到实际join；DATA后断响应unknown可重复且从不假sent |
-| T10 durable jobs | handler业务+marker同Tx；晚注册/重启canonical补job；真实无link test意图/current admin/configured；重复event不重复意图；首次+5最多6次、降低预算不重置已用、人工新周期、retry_wait/到期公平100+1、foreign live不阻断；claim→discover/acquire两短Tx间crash/unknown无外部I/O，原fence核实；新attempt Ref不可变且与lease成对，legacy Ref=NULL在多次SMTP替换后只经正式exact lease核实补原值，无法核实保pending/unknown且保护cleanup不删；opaque跨issuer/process/attempt、未登记工作/假completion拒绝，Checkpoint/Finish未知不重发送，未证死亡不接管processing/旧attempt；Claim后零Prepare/从未Acquire、第二Tx明确回滚可终局且不先造lease；原Acquire晚COMMIT/Unknown与job+attempt锁串行，acquisition-stop自身Unknown未核实保cause，迟到旧prepared被join位/摘要拒；checkpoint后crash/restart续清；两材料槽存在/不存在组合、顶层SECRET_NOT_FOUND合法零Release，嵌套provider NotFound/依赖错/Apply内缺行不得吞；最终job/Audit/terminal原子且unknown不重发；Claim未移交Unknown/返回前取消、成功返回后登记前取消含Stop/Force、Recover与迟到返回抢同一私有决议：只一个终局责任且无丢handle/重移交；原DB未join不能清理，确证回滚/晚COMMIT经原writer确认，未确认保cause；私有待确认不假I/Ojoin或server终止，原共享预算不延长 |
+| T10 durable jobs | handler业务+marker同Tx；晚注册/重启canonical补job；真实无link test意图/current admin/configured；重复event不重复意图；首次+5最多6次、降低预算不重置已用、人工新周期、retry_wait/到期公平100+1、foreign live不阻断；claim→discover/acquire两短Tx间crash/unknown无外部I/O，原fence核实；新attempt Ref不可变且与lease成对，legacy Ref=NULL在多次SMTP替换后只经正式exact lease核实补原值，无法核实保pending/unknown且保护cleanup不删；opaque跨issuer/process/attempt、未登记工作/假completion拒绝，Checkpoint/Finish未知不重发送，未证死亡不接管processing/旧attempt；Claim后零Prepare/从未Acquire、第二Tx明确回滚可终局且不先造lease；原Acquire晚COMMIT/Unknown与job+attempt锁串行，acquisition-stop自身Unknown未核实保cause，迟到旧prepared被join位/摘要拒；checkpoint后crash/restart续清；两材料槽存在/不存在组合、顶层SECRET_NOT_FOUND合法零Release，嵌套provider NotFound/依赖错/Apply内缺行不得吞；最终job/Audit/terminal原子且unknown不重发；Claim未移交Unknown/返回前取消、成功返回后登记前取消含Stop/Force、Recover与迟到返回抢同一私有决议：只一个终局责任且无丢handle/重移交；原DB未join不能清理，确证回滚/晚COMMIT经原writer确认，未确认保cause；私有待确认不假I/Ojoin或server终止，原共享预算不延长；人工retry另完整执行[人工邮件重试补遗](d07-account-mail-retry-addendum.md) A01–A06的闭集、原子/Unknown、claim竞争、单跳根与10→11回滚验收 |
 | T11 恢复日志 | 真实0600文件只在bootstrap/合法backend_log资格下出现capability；configured失败绝不降级；普通日志/Audit/API/异常fmt无明文；32等待+1active/串行完整行/先登记；A阻塞Sync、B排队时配置/revoke先提交，B出队当前校验零资格；GrantOnce迟到/跨ticket/重复拒绝，准入超时/提交Unknown零Write；授予后至真实Write暂停时EX可提交；分别阻塞Write/Sync，Wait先Unknown但Done/lease未终局，多Wait结果一致；完整Write+Sync才written，部分/Sync故障unknown，不自动重印bootstrap/截断或乱换path |
 | T12 Avatar/profile | 静态JPG/PNG/WebP成功且元数据去除；SVG/APNG/动画/伪MIME/像素炸弹/尾随拒绝；samekey不同原bytes冲突；Publish后切换前crash/Session撤销、两次替换交错、cleanup与迟到Publish/Consume竞争，无孤儿/复活；清理Unknown先核事实、current引用不删、真实reader关闭lease |
 | T13 根装配/停机 | 真正非stub System端口；SMTP空仍技术健康；所有Initialize早退/late add/blockedI/O/第二信号/hash在算及response read未join，sharedguard不早退；单ticket Done不代替全Sink Joined，Wait取消不当join；Sink Write/Sync/Close阻塞耗尽原共享1s仍实际发起DB最后force，不延长预算/重复Close任务，日志准入1s不成为新增停机预算；既有全套app/PG/安全/对象/Outbox断言不放宽 |

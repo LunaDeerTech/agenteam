@@ -452,3 +452,49 @@ root授权backend完整B03，独占源码/owned Docker/SMTP fixture；沿go-deve
 核心门槛：account-owned正式DeliveryPort/SMTP管理授权；同Authority公平可取消SH/EX及普通改密失效；Claim前actual operation/不可逆handoff、两Tx正式Secret acquire、R6-01/02零lease与未移交Unknown收敛；不可变Ref/legacy候选真实lease核实、不猜当前配置/死亡/join；真实none/STARTTLS/TLS、固定信任/受控出站/有界协议、每AUTH/MAIL准入实际首写；未配置日志才准入、configured失败不降级；队首GrantOnce/EX竞争、ticket.Done和整个Sink/ProcessGuard actualjoin；持久重试/unknown可能重复/原fence、公平100+1及最大6次、真实配置测试job、Audit/result/lease原子，材料不进普通log/API/model。所有等待和清理沿既有有界预算，不做真实I/O跨DB Tx、不用取消请求冒充实际结束。
 
 按完整机制实现并自测，不为每个函数拆卡。先有意义纯/race与真实PG/SMTP/日志/竞争/崩溃恢复，再check-go和适用完整组；不机械重跑未变旧范围。最终独立验收采用明确包/精确顶层穷尽分组，Account已知61组计划可复用并纳入新增测试，不再把增长套件强塞单6m包后加时；每组预算/内部断言保持，完整兼容受影响范围按实际新迁移/旧八入口/日志/driver覆盖。先冻结精确source/dependency/runtime及测试集合，资源0/命令与读写all-stop后交V；原B01/B02缺陷探针/失败证据保留。任何新确定失败先定位修正，不跑到绿。此授权不代表B03通过，B04/D08–D28/E01仍未完成，当前产品ready=false。
+
+
+B03实施基线为`c07ebcc`（设计/授权提交），root追加隔离只读准备：architecture只用该固定Git快照及rev6§10/§1，预核B04 Avatar/profile数据与D05正式cleanup-release口的可实施性、已Publish未切换的不可逆gate/当前引用/actualreader/Unknown/迟到Publish-Consume边界；最少输入自有/tmp/hash，不读活动account/recoverylog，不全域审计、不改稿/仓库、不占Docker/测试。仅报告确定缺口/最小范围或未发现，B04没有实施授权；B03仍唯一实现任务，最多两个隔离活动子任务。
+
+
+B04隔离预核已由root全文核读：报告 `/tmp/agenteam-d07-b04-preflight-l8la6is0/report.md` SHA `77ef8344a991dcd3073e43056bd0d3db2ec9b13f3ffa029766b352acbee2f13d`，22固定Git输入 manifest `0ed53d71c1c824423dd83edfb214a39a97229250c6fce1bc58698738fb4e8cc8`，索引 `ec4fe35c23fe5cf13cd09beb57f384124529e668d73dd5651ec60fed07917852`。核心字段及D05状态足够；既定cleanup-release需在替换同Tx封闭旧重放，当前头像读取须由账户AccessPlanner在User锁下校验（canonical路径不调用ObjectReadAuthority），真实reader lease仍由实际join保护。建议B04新Up-only迁移仅补avatar_changes非终态(pass,id)索引，未占号；无依据扩大旧D05/read/process或账户repository/types范围。静态预核19链接通过、无仓库改动/测试/资源，非产品验收。
+
+root仅授权architecture在新/tmp编写rev7候选稿，将上述已证边界及严格图片容器校验落实到B04范围/§10/验收；固定c07ebcc输入，B03正文/契约/范围逐字保持，不读活动实现、不改仓库、不跑fixture。有效设计仍rev6，B03唯一实现；候选稿须精确diff/hash/链接检查后all-stop，归位及B04实施另行裁决。
+
+
+rev7候选已冻结于 `/tmp/agenteam-d07-s01-rev7-candidate-klkmuz7h/`，设计SHA `2f38c3d4d98d8e3dd6931ff2dab3e5ae1e23264a46446a45e7e3d29cb2b001f2`，精确diff `386053b3c00c7680a2f1b50effbb4bc387e1ac640968042d2cdf4283e6ec3ae1`，报告 `75553d1bbf10d085abaf46c2f98d7983403848c4e255e9b0bd4ece203cd2a661`，25输入manifest `4729e90a6d0564b32a1c67d052ff58e0f1eb6cb8e88841edf2da500f6c0aab09`、索引 `56192a76b16661abeaba1815c19075c102cd8c48ce8c36d275395abe05a2d6b9`。root全文核读报告/diff；仅页首、B04范围、§10/T12/T14，B03正文及八文件逐字不变，22继承输入匹配/6链接通过，作者全停。root交V隔离静态核候选新增组合是否可规划/同Tx校验及Reserve映射顺序措辞；只固定快照，不读活动B03、不跑产品测试/资源、不改仓库。此稿尚未采纳归位，B03继续rev6。
+
+
+rev7限定增量独立静态通过：`/tmp/agenteam-d07-rev7-verify-khrp2gx1/review-report.md` SHA `b1cfa353ecd89160a7746a18cd792f866e7185934a0496cccebfe4c4167db512`，32输入 `377f36d7b20096c3ee008bf66a7be4a8d2d26b955711471c92f5c828ff4619a3`、40索引 `2e8bbf2d0900ab28052a05ac8d6288f6c998685232185246dd404a9982d47a2e`，root全文核读。唯一非阻断措辞已在新/tmp最终稿补正：先持久未Reserve的preparing intent且映射暂空；经正式事实核实无Reserve映射时仅收敛账户intent，不凭空删对象。最终 `/tmp/agenteam-d07-s01-rev7-final-ijt7qt6d/d07-account-session-smtp-design.rev7.md` SHA `e86634b3ec3535396cb32cea6d83a3f8cb61fcf7178dac0366397cec05d1eeeb`，两处最小diff `9427b7b3f4fe5116a0659275cde9df88b50bcaa23d13139a3f03378055154dad`、报告 `1d4df70fa4a68746aa051af61d6bfc9ab1a4a8bb35a331d414642911a0d4f261`、4直接输入 `8893e65b8f9215883a2b7e83b8d0cb32be46a97aed6a9d3d7be493850f6abb95`、索引 `36f1d7a04f2ce6d68a63a6d042294c659858b5966ad1112e1161100067855dc2`。root核最小diff，其他正文逐字保持；继承25输入匹配/6链接通过，作者与V全停、无仓库写/产品测试/资源。候选静态采纳供B04后续使用，尚未归位/开工，迁移号未分配，B03继续有效rev6。
+
+
+B03首轮真实组合在迁移加载阶段因00011缺`-- agenteam:transaction tx`报MIGRATION_INVALID，尚未执行业务；作者仅补新迁移标记后重跑。第二轮进入业务，暴露新增SMTP save缺typed Audit changed_fields、delivery缺必需Version，调用方属已授权范围继续修正。另root只读冻结`audit/contract/account.go`确认SMTPSettingsUpdate闭集没有rev6新增sender_name/auto_retry_count/retry_interval_seconds，无法表达单独修改。裁决最小范围补遗：architecture先只补有效设计§1 B03范围行及新/tmp rev7候选同一行，随后解冻`audit/contract/account.go`与`account_test.go`仅三项AccountChangedField枚举、SMTPSettingsUpdate允许集与对应闭集测试；无配置值/自由文本/其他action或metadata规则放宽。当前设计补遗未完成前backend保持两旧文件不动，其他已授权实现继续；首两轮红与精确资源清理证据保留，未声称B03验收。
+
+
+Audit最小范围补遗现已归位有效rev6，设计SHA `a51ab5e4d8b11a4d9aba82229d585c1a41046440f9de7c013fc2a5b8be0d4f97`；root核唯一§1行diff后正式解冻上述两Audit文件给backend，三字段名单扩展以外规则冻结。源manifest须纳入两文件，单独三字段可接受/异action与未知字段拒绝/无值泄露及真实保存行为适用验证。B03其余设计正文逐字保持，B04候选仍未归位。
+
+
+范围补遗报告 `/tmp/agenteam-d07-audit-scope-addendum-o3nwrq_w/report.md` SHA `278050cbaa12fe4c7b26f5583586b5ce34c698e2fc6ab1113ca3ed641675f79b`、索引 `e13eccc40d6cfbc062d6fd788a4b0267b13550035328c28a81f8177c1b27ff00`已由root全文核读；两稿各只第15行变化/6链接通过/作者全停。供B04后续使用的最新rev7候选现为同目录设计文件，SHA `31ca6da6c43f51e9f5f241e9afb6bd55d293dbdf82305204c8a5b55e05a57c51`，同步diff `04cfc7b9a747a02ca6cb5ff0abb352446c254d1896584e5c31c162a60400459a`，保留此前冻结候选和独立静态证据。
+
+
+B03正常真实网络首组已由作者报告exit0（accountmail29.477s，none/STARTTLS/TLS实际AUTH/MAIL/DATA和未配置日志ticket），异常/竞争/恢复尚继续，未冻结未验收。后续发现人工mail retry无正式Audit动作：固定账户Audit provider仅test等Human动作，SMTPTestRequest限test，SMTPDelivery需真实attempt与AccountMail Service，不能伪记。root已核旧account/audit_authority.go，交architecture优先在/tmp拟最小smtp.delivery.retry补遗，明确Account producer/MailJob resource/accepted、JobID/InitiatorID/Version、当前admin与原job/新intent/exact retry command同Tx绑定及幂等；先静态审后归位解冻，不新增表或放宽旧action。backend继续其他授权实现，旧audit_authority.go仍冻结。此前新授权固定c07ebcc的B04 HTTP复用端口只读预核暂缓，未读活动实现/无实施授权。
+
+
+retry补遗固定源码发现：00010 commands.command_name与Audit action均为闭集，需在新00011最小扩mail-retry/smtp.delivery.retry，不能伪用smtp-test/reset-request。拟命令绑定id=newIntentID、attempt_id=newJobID、resource_id=原JobID、expected_version=原Jobversion。另同有效reset允许多条reset-request，resource_id无唯一约束，不能按LinkID任选原命令；retry-of-retry也不能取管理员作为reset target。root采纳/tmp设计方向：delivery_intents最小origin_intent_id单跳绑定原始intent（原始自指、retry直接继承），exact原intent/committed command核kind/link/目标User/password_version；禁止无限链/猜值。迁移旧事实、入口/保留、约束仍需完整补遗+V静态后才授权代码，00011目前不得提前改此范围；B03其他测试继续。
+
+
+人工retry补遗正文冻结 `/tmp/agenteam-d07-mail-retry-audit-design-xnsyci8p/mail-retry-addendum.md` SHA `64a0964dbfec2530998202c056cefa078c8dfbbc341634290ec12217854d0410`，root全文核读后交V只固定输入静态审。18项输入 `dc801f329ffd441ca2c96d9bcb68412a8a52c886424dad45c0ac12f0ed8c8b0a`，handoff `01fb7fab2e3ac30b3e4df7b0cc55cf37a5908f21ae54267837cb830f4c49ebab`，索引 `b0dc01342eec0f82510a61819b39d91a296ec2b270c4d7a009a602b142a0a8d6`；16固定Git输入匹配/4链接通过/作者全停。候选包含origin原始自指+一跳继承、正式mail-retry请求/HMAC/原job version+1与新周期receipt、SMTPDeliveryRetry指原job、当前admin+exact command授权、新00011命令/Audit CHECK与origin FK/index可信回填、events.go限定delivery规划helper及audit_authority.go单分派；旧其他入口不改。短暂第三活动仅作者封存证据与V冻结文档，均与backend隔离；现恢复backend+V。此候选未归位，相关旧文件/SQL增量尚未解冻。
+
+
+retry补遗独立静态通过报告 `/tmp/agenteam-d07-mail-retry-verify-se8i_iiw/review-report.md` SHA `3e8b31f03a67fcfe713d3a0ea0024fa29b956720f344b1bab4f3e6ed9f132953`、26输入 `208103021c0c8cb4715ca0a4a8bcb020be4a9f465659be5e1aa439bd1896261e`、32索引 `02986296187507388c07956308e615da8c2fe1db7f55f915bf0f7e2a6a30f190`，root全文读后授权architecture仅归位新 `d07-account-mail-retry-addendum.md` 及有效设计§1/3/8/T10引用/最小范围，并同步新/tmp rev7候选。尚未解冻源码。
+
+backend纯recoverylog块已冻结 `/tmp/agenteam-d07-b03-sink-freeze-617bq73r/`，root读报告 `09159ffc63aa360ce2aee1106c400a5e6fb0c7606cd11f2c53babe5a7a4cf8d2`；4源 `150266fefb9c1b6cd72fca854c936b66e4ebccf06a4b26887e21c70a87f9662e`、26deps `892975c6a68dc1ac1469205a9f1ddf340c8c1484087f8c3308ccc65722fdec57`、30all `37dc4d612134c1625bac1a81db6fa88767f643cbf44835718bd33cd0a673ede7`、索引 `b3f5aa66ea97d41ddb3220060aaaf397fcbc627cc83533bdc86b6d4d376d3656`，稳定repo含原sink_test逐字及实际编译依赖，不含活动Account/worker。作者race1.061s/vet通过且子块命令全停。root交V独立纯块静态/race及必要/tmp探针，核Grant/Cancel/Wait/actualDone/全SinkJoined/Bootstrap/Force；不得据此验收正式adapter/共享guard/整个B03。4源+26deps在审查结束前禁止写入，backend继续隔离Account/SMTP。root批准临时三任务：冻结日志V、文档归位architecture、后台实现，目录/资源完全隔离；Docker仍仅backend。
+
+
+### B03人工retry正式补充授权
+
+root已核归位报告及精确diff：有效rev6现SHA `d063e015e80dd4b0771c1cf6d0af4e4136c58d57b9b4f1402b385112754a7258`，新[人工retry补遗](d07-account-mail-retry-addendum.md) SHA `c72a0300b39bbbebffcfa5d78264f23577acfd6f5c3fe328fbd02f9042394b4a`（正文同独立已审稿，仅页首/正式链接变）。归位 `/tmp/agenteam-d07-mail-retry-placement-slo3p0mi/` 输入 `dd8864b97f5728b6e85bbde961fc57ee9e59b4fdf5053af1c162d793ec865d93`、索引 `3f3f58f62449ae87a0913a113f588cff9a9ef18399f54dd9528f0163fe1d9494`，作者all-stop；格式4/13/13链接通过。最新B04 rev7候选同目录SHA `0132e0e6129151bdd5f06304e6bcdea2284c62f53e2b4d9009cc68aa55c3a1ac`，同步已审retry范围，仍未归位B04。
+
+现正式授权backend完整落实该补遗A01–A06：00011在原增量外仅mail-retry命令CHECK、smtp.delivery.retry Audit CHECK/独立SQL分支、delivery_intents.origin_intent_id可信回填/NOT NULL/no DEFAULT/RESTRICT自表FK/index；旧SQL字节不变。旧account/events.go仅delivery retry规划分派、audit_authority.go仅当前Human admin的retry Audit委派；新delivery_retry/mail_retry_audit/origin私有helper及新contract请求和测试，已解冻delivery_intent/handler补显式origin与当前绑定。Audit account.go/account_test.go新增动作及闭集，原动作不放宽。其他冻结旧文件不因此解冻，recoverylog4源+26依赖仍V审查冻结。
+
+必须真实核exact根/原command/目标User区别admin、一跳不递归、完整Tx外规划+一次锁union、Claim同root串行、未enqueue占周期、当前授权先receipt、原version仅首次+1、新周期event/Audit/receipt原子、Unknown同writer事实确认、不造attempt或延长材料。实际升级含合法历史根/坏行全回滚，和权限/同key/异key/自动claim竞争按A01–A06完成，不以静态通过替代。所有此前红保留，最终受影响测试/源依赖重新冻结后独立验收；此授权不代表B03完成。
