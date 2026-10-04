@@ -19,14 +19,15 @@ import (
 )
 
 type Dependencies struct {
-	Authority       *Authority
-	Audit           ac.Appender
-	Secrets         *secret.Service
-	Events          oc.Appender
-	SessionsRevoked event.EventType[c.SessionsRevoked]
-	Processes       c.ProcessAuthority
-	RecoveryLog     *recoverylog.Sink
-	Challenges      c.ChallengeAuthority
+	Authority         *Authority
+	Audit             ac.Appender
+	Secrets           *secret.Service
+	Events            oc.Appender
+	SessionsRevoked   event.EventType[c.SessionsRevoked]
+	DeliveryRequested event.EventType[c.DeliveryRequested]
+	Processes         c.ProcessAuthority
+	RecoveryLog       *recoverylog.Sink
+	Challenges        c.ChallengeAuthority
 }
 type Service struct{ data func() *serviceState }
 type serviceState struct {
@@ -45,6 +46,8 @@ type serviceState struct {
 	logins           map[string]*loginOperation
 	bootstraps       map[string]*operation
 	localCursor      string
+	mutations        map[string]*mutationWork
+	mutationCursor   string
 	forceDone        chan struct{}
 	forceErr         error
 }
@@ -65,7 +68,7 @@ func New(d Dependencies) (*Service, error) {
 		return nil, invalid()
 	}
 	a := d.Authority.state()
-	s := &serviceState{deps: d, store: a.store, keys: a.keys, process: d.Processes.CurrentProcess(), browserIssuer: c.NewBrowserIssuer(), hasher: NewPasswordHasher(), operations: map[*operation]bool{}, changed: make(chan struct{}), responses: map[string]*responseState{}, logins: map[string]*loginOperation{}, bootstraps: map[string]*operation{}}
+	s := &serviceState{deps: d, store: a.store, keys: a.keys, process: d.Processes.CurrentProcess(), browserIssuer: c.NewBrowserIssuer(), hasher: NewPasswordHasher(), operations: map[*operation]bool{}, changed: make(chan struct{}), responses: map[string]*responseState{}, logins: map[string]*loginOperation{}, bootstraps: map[string]*operation{}, mutations: map[string]*mutationWork{}}
 	return &Service{func() *serviceState { return s }}, nil
 }
 func (s *Service) state() *serviceState { return s.data() }

@@ -46,10 +46,20 @@ func (s *Service) Recover(ctx context.Context) (RecoveryStatus, error) {
 		}
 	}
 	accept(s.recoverBootstrap(ctx))
+	if e := s.retireMutations(ctx, &status); e != nil && first == nil {
+		first = e
+	}
 	for _, stage := range []struct {
 		table, pass, where string
 		work               func(context.Context, string) error
 	}{
+		{"reset_requests", "pass", "phase='accepted'", s.processReset},
+		{"reset_requests", "pass", "phase='processed' AND completed_at<clock_timestamp()-interval '24 hours' AND EXISTS(SELECT 1 FROM agenteam_account.commands c WHERE c.id=agenteam_account.reset_requests.command_id AND c.browser_expires_at<clock_timestamp())", s.forgetResetRecipient},
+		{"commands", "cleanup_pass", "command_name IN ('invite-create','password-change','reset-complete') AND phase='planned'", s.recoverMutation},
+		{"commands", "cleanup_pass", "EXISTS(SELECT 1 FROM agenteam_account.delivery_intents i LEFT JOIN agenteam_account.mail_jobs j ON j.intent_id=i.id WHERE i.id=agenteam_account.commands.id AND j.id IS NULL)", s.reconcileDelivery},
+		{"commands", "cleanup_pass", "command_name='invite-create' AND EXISTS(SELECT 1 FROM agenteam_account.invitations i WHERE i.id=agenteam_account.commands.resource_id AND i.expires_at<=clock_timestamp())", func(ctx context.Context, id string) error { return s.expireCommandLink(ctx, id, c.InvitationToken) }},
+		{"commands", "cleanup_pass", "command_name='reset-request' AND EXISTS(SELECT 1 FROM agenteam_account.password_resets r JOIN agenteam_account.users u ON u.id=r.user_id WHERE r.id=agenteam_account.commands.resource_id AND (r.expires_at<=clock_timestamp() OR r.password_version<>u.password_version))", func(ctx context.Context, id string) error { return s.expireCommandLink(ctx, id, c.PasswordResetToken) }},
+		{"material_cleanup", "pass", "owner_kind IN ('invitation','password_reset') AND phase<>'completed'", s.cleanLinkMaterial},
 		{"response_plans", "pass", "true", s.recoverResponse},
 		{"commands", "cleanup_pass", "command_name='login' AND phase='planned'", s.recoverLogin},
 		{"commands", "cleanup_pass", "command_name='login' AND phase='committed' AND response_secret_ref IS NOT NULL AND (response_expires_at<=clock_timestamp() OR EXISTS(SELECT 1 FROM agenteam_account.sessions s JOIN agenteam_account.users u ON u.id=s.user_id WHERE s.id=agenteam_account.commands.session_id AND (s.revoked_at IS NOT NULL OR u.password_version<>agenteam_account.commands.password_version)))", s.expireResponse},
@@ -82,7 +92,29 @@ func (s *Service) Recover(ctx context.Context) (RecoveryStatus, error) {
 	if e := s.recoverExpiredCounters(ctx); e != nil && first == nil {
 		first = e
 	}
+	if e := s.recoverExpiredChallenges(ctx); e != nil && first == nil {
+		first = e
+	}
 	return status, first
+}
+
+func (s *Service) recoverExpiredChallenges(ctx context.Context) error {
+	cause, e := recoveryCause("challenge-expire")
+	if e != nil {
+		return e
+	}
+	r := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+		if e := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{challengeLock()}); e != nil {
+			return unavailable(e)
+		}
+		x, e := s.state().store.InTx(tx)
+		if e != nil {
+			return unavailable(e)
+		}
+		_, e = x.Exec(ctx, `DELETE FROM agenteam_account.challenges WHERE id IN (SELECT id FROM agenteam_account.challenges WHERE expires_at<=clock_timestamp() ORDER BY expires_at,id LIMIT 100)`)
+		return portError(e)
+	})
+	return resultError(r)
 }
 
 // Expired privacy counters have no I/O owner. Lock the exact same keys as
@@ -193,7 +225,7 @@ func (s *Service) recoveryBatch(ctx context.Context, table, pass, predicate stri
 		if e != nil {
 			return unavailable(e)
 		}
-		rows, e := x.Query(ctx, `WITH batch AS (SELECT id FROM agenteam_account.`+table+` WHERE `+predicate+` ORDER BY `+pass+`,id LIMIT 100 FOR UPDATE) UPDATE agenteam_account.`+table+` t SET `+pass+`=t.`+pass+`+1 FROM batch WHERE t.id=batch.id RETURNING t.id::text`)
+		rows, e := x.Query(ctx, `WITH batch AS (SELECT id FROM agenteam_account.`+table+` WHERE `+predicate+` ORDER BY `+pass+`,id LIMIT 100 FOR UPDATE), bumped AS (UPDATE agenteam_account.`+table+` t SET `+pass+`=t.`+pass+`+1 FROM batch WHERE t.id=batch.id RETURNING t.id,t.`+pass+` AS next_pass) SELECT id::text FROM bumped ORDER BY next_pass,id`)
 		if e != nil {
 			return unavailable(e)
 		}

@@ -104,7 +104,7 @@ func (a *Authority) CheckAppendInTx(ctx context.Context, tx foundation.Tx, entry
 			if e = a.state().store.RequireHeldLocks(ctx, tx, commandLocks(r)); e != nil {
 				return unavailable(e)
 			}
-			if r.attempt != m.AttemptID || r.user != m.UserID || f.Action == ac.AccountLogin && f.Outcome == ac.Success && r.session != m.SessionID {
+			if r.attempt != m.AttemptID || f.Action == ac.AccountLogin && r.user != m.UserID || f.Action == ac.AccountLogin && f.Outcome == ac.Success && r.session != m.SessionID {
 				return fault(foundation.Forbidden, nil)
 			}
 			return nil
@@ -146,7 +146,7 @@ func (a *Authority) checkHumanAuditResource(ctx context.Context, x postgres.SQLE
 	var e error
 	switch f.Action {
 	case ac.AccountInviteCreate:
-		e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.invitations WHERE id=$1 AND created_by=$2)`, m.InvitationID, f.Actor.Details().UserID).Scan(&exists)
+		e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.invitations i JOIN agenteam_account.commands c ON c.resource_id=i.id WHERE i.id=$1 AND c.user_id=$2 AND c.command_name='invite-create' AND c.phase='committed')`, m.InvitationID, f.Actor.Details().UserID).Scan(&exists)
 	case ac.AccountInviteRevoke:
 		e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.commands WHERE command_name='invite-revoke' AND resource_id=$1 AND user_id=$2 AND phase='committed')`, m.InvitationID, f.Actor.Details().UserID).Scan(&exists)
 	case ac.AccountSettingsUpdate:

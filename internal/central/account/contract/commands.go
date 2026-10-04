@@ -49,5 +49,6 @@ func (r LoginRequest) LogValue() slog.Value         { return slog.StringValue("a
 // ChallengeAuthority is the mandatory current challenge gate once a failure
 // counter requires it. B02 supplies the actual one-use implementation.
 type ChallengeAuthority interface {
+	PreviewLoginInTx(context.Context, foundation.Tx, LoginRequest) error
 	CheckLoginInTx(context.Context, foundation.Tx, LoginRequest) error
 }

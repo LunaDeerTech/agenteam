@@ -64,6 +64,16 @@ func (b BrowserIdentity) Validate() error {
 	}
 	return nil
 }
+
+// SameContext compares the original verified capability, including its private
+// issuer. A caller-minted browser ID never equals a service-issued context.
+func (b BrowserIdentity) SameContext(other BrowserIdentity) bool {
+	if b.data == nil || other.data == nil {
+		return false
+	}
+	x, y := b.data(), other.data()
+	return x.issuer == y.issuer && x.id == y.id && x.kid == y.kid && x.expires == y.expires
+}
 func (b BrowserIdentity) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "account_browser") }
 func (b BrowserIdentity) MarshalJSON() ([]byte, error) { return []byte(`"account_browser"`), nil }
 func (*BrowserIdentity) UnmarshalJSON([]byte) error    { return Invalid() }

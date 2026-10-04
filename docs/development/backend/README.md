@@ -6,6 +6,8 @@
 
 ## 构建与验证
 
+D07 当前提供账号、Session、邀请、密码恢复和挑战库，以及真实 Outbox 入队 handler；构造、恢复与独立浏览器检查见[账号库说明](account.md)。这些库尚未装配进 Central 生产 HTTP/启动入口；SMTP/log 发送也未实现，不改变当前 `ready=false` 和其它业务未绑定状态。
+
 ```sh
 # 指向实际 Go 1.27.1；该环境可使用 /workspace/toolchains/go1.27.1/bin/go。
 export AGENTEAM_GO=/path/to/go1.27.1/bin/go
@@ -58,7 +60,7 @@ Central 还必须配置 `AGENTEAM_CENTRAL_DATABASE_URL`；TLS 默认 verify-full
 
 两个二进制接受 `--help`、`--version`、`--check-config`，无参数启动进程。未知参数和多余位置参数返回 2，不回显输入。help/version 不加载配置或启动服务；Central check-config 只验证当前 D05 参数（包括三个独立 keyring、必需存储坐标/凭据、spool 路径和显式 CA），不连接或创建目录，输出 `scope=d05, valid=true, ready=false`；Runner 保持 `scope=d02`，另有 `connected=false, authenticated=false`。check-config 不证明 canary/策略/对象 Runtime 已初始化。出站策略由 DB 管理，不接受环境规则绕过；RunnerLocalConfig 仍未实现。
 
-Central 另接受成对的 `--repair-migration <version> --expected-checksum <sha256:...>`，只使用已编译迁移和精确指纹，不接受 SQL/文件路径。当前正式迁移 00001–00009 均为仅 Up 的 tx 迁移，不写 Down；修复明确失败为 `MIGRATION_REPAIR_UNSUPPORTED`；不得将 CLI 存在理解为任意版本都可强制修复。使用规则见[迁移与修复](database.md#迁移与修复)。
+Central 另接受成对的 `--repair-migration <version> --expected-checksum <sha256:...>`，只使用已编译迁移和精确指纹，不接受 SQL/文件路径。当前正式迁移 00001–00010 均为仅 Up 的 tx 迁移，不写 Down；修复明确失败为 `MIGRATION_REPAIR_UNSUPPORTED`；不得将 CLI 存在理解为任意版本都可强制修复。使用规则见[迁移与修复](database.md#迁移与修复)。
 
 ```sh
 ./bin/agenteam --check-config

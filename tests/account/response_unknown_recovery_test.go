@@ -18,6 +18,8 @@ import (
 
 // The actual response-plan COMMIT remains held past the confirmation's database
 // lock timeout. Neither the original Store outcome nor the proxy is replaced.
+// Prepare the successful login before the 3s fault window: this test targets a
+// response-plan replay, not the first password verification or Secret write.
 func TestAccountResponsePlanUnknownKeepsCauseAndConvergesAfterWriter(t *testing.T) {
 	for _, commit := range []bool{true, false} {
 		name := "late_commit"
@@ -28,6 +30,39 @@ func TestAccountResponsePlanUnknownKeepsCauseAndConvergesAfterWriter(t *testing.
 			f, wrapper, proxy := accountProxy(t, "response-plan", commit)
 			password := f.bootstrap(t)
 			request, _ := loginRequest(t, f, password, "admin@mail.com")
+			// Use the same original request while faults remain disabled. Close
+			// and Recover must actually retire its independent response read;
+			// clearing tables or inventing a committed command would hide bugs.
+			prepareCtx := ctxFor(t)
+			if wrapper.enabled.Load() || wrapper.fired.Load() {
+				t.Fatal("response-plan fault armed during preparation")
+			}
+			prepared, prepareErr := f.service.Login(prepareCtx, request)
+			if prepareErr != nil {
+				t.Fatal("prepare successful login", safeFailure(prepareErr))
+			}
+			preparedCookie := useCookie(t, prepared)
+			if prepareErr = prepared.Close(prepareCtx); prepareErr != nil || !prepared.Joined() {
+				t.Fatal("prepare response did not join", safeFailure(prepareErr))
+			}
+			if _, prepareErr = f.service.Recover(prepareCtx); prepareErr != nil {
+				t.Fatal("prepare response recovery", safeFailure(prepareErr))
+			}
+			_, prepareErr = f.service.Authenticate(prepareCtx, preparedCookie)
+			preparedCookie.Destroy()
+			if prepareErr != nil {
+				t.Fatal("prepared Session is not current", safeFailure(prepareErr))
+			}
+			var preparedPlans, preparedAttempts, preparedLeases, committedCommands, preparedSessions int
+			prepareErr = f.store.QueryRow(prepareCtx, `SELECT
+			 (SELECT count(*) FROM agenteam_account.response_plans),
+			 (SELECT count(*) FROM agenteam_account.auth_attempts WHERE kind='response_read'),
+			 (SELECT count(*) FROM agenteam_secret.secret_leases WHERE NOT released),
+			 (SELECT count(*) FROM agenteam_account.commands WHERE namespace='account.login' AND owner_id=$1 AND command_key=$2 AND command_name='login' AND phase='committed' AND user_id=$3 AND session_id=$4),
+			 (SELECT count(*) FROM agenteam_account.sessions)`, request.Fields().Browser.ID().String(), string(request.Fields().Key), prepared.User().ID.String(), prepared.Session().ID.String()).Scan(&preparedPlans, &preparedAttempts, &preparedLeases, &committedCommands, &preparedSessions)
+			if prepareErr != nil || preparedPlans != 0 || preparedAttempts != 0 || preparedLeases != 0 || committedCommands != 1 || preparedSessions != 1 {
+				t.Fatal("prepare login facts did not converge", preparedPlans, preparedAttempts, preparedLeases, committedCommands, preparedSessions, safeFailure(prepareErr))
+			}
 			wrapper.enabled.Store(true)
 			type outcome struct {
 				response account.LoginResponse

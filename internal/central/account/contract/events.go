@@ -61,3 +61,40 @@ func (p SessionsRevoked) LogValue() slog.Value { return slog.StringValue("accoun
 func DefineSessionsRevoked(catalog *event.Catalog) (event.EventType[SessionsRevoked], error) {
 	return event.DefineEvent(catalog, event.Definition[SessionsRevoked]{Schema: event.Schema{Producer: AccountProducer, EventType: SessionsRevokedType, AggregateType: UserAuthAggregate, Version: 1}, Codec: event.JSONCodec[SessionsRevoked]{}, Validate: func(v SessionsRevoked) error { return v.Validate() }})
 }
+
+const DeliveryRequestedType event.StableName = "account.delivery-requested"
+const DeliveryAggregate event.StableName = "account-delivery"
+const MailEnqueueHandler event.StableName = "account.mail-enqueue"
+
+type DeliveryKind string
+
+const (
+	InvitationDelivery DeliveryKind = "invitation"
+	ResetDelivery      DeliveryKind = "password_reset"
+	TestDelivery       DeliveryKind = "test"
+)
+
+func (k DeliveryKind) Valid() bool {
+	return k == InvitationDelivery || k == ResetDelivery || k == TestDelivery
+}
+
+type DeliveryRequested struct {
+	IntentID IntentID     `json:"intent_id"`
+	Kind     DeliveryKind `json:"kind"`
+}
+
+func (p DeliveryRequested) Validate() error {
+	if p.IntentID.Validate() != nil || !p.Kind.Valid() {
+		return Invalid()
+	}
+	return nil
+}
+func (p DeliveryRequested) Format(w fmt.State, _ rune) {
+	_, _ = io.WriteString(w, "account_delivery_requested")
+}
+func (p DeliveryRequested) LogValue() slog.Value {
+	return slog.StringValue("account_delivery_requested")
+}
+func DefineDeliveryRequested(catalog *event.Catalog) (event.EventType[DeliveryRequested], error) {
+	return event.DefineEvent(catalog, event.Definition[DeliveryRequested]{Schema: event.Schema{Producer: AccountProducer, EventType: DeliveryRequestedType, AggregateType: DeliveryAggregate, Version: 1}, Codec: event.JSONCodec[DeliveryRequested]{}, Validate: func(v DeliveryRequested) error { return v.Validate() }})
+}

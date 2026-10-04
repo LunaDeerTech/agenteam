@@ -215,23 +215,8 @@ func (a *Authority) usageMapping(ctx context.Context, x postgres.SQLExecutor, r 
 			}
 			return commandMapping(cmd), commandLocks(cmd), nil
 		}
-		// Future link/config owners have their own durable rows; no nonexistent
-		// request can manufacture a reference through this provider.
-		var ownerRef string
-		var locks []foundation.LockRequest
-		if r.Purpose == sc.System {
-			e = x.QueryRow(ctx, `SELECT material_ref::text FROM agenteam_account.invitations WHERE id=$1 UNION ALL SELECT material_ref::text FROM agenteam_account.password_resets WHERE id=$1`, r.ReferenceOwner).Scan(&ownerRef)
-		} else {
-			e = x.QueryRow(ctx, `SELECT password_ref::text FROM agenteam_account.smtp_settings WHERE id=$1 AND password_ref IS NOT NULL`, r.ReferenceOwner).Scan(&ownerRef)
-		}
-		if e != nil {
-			return "", nil, fault(foundation.Forbidden, e)
-		}
-		if ownerRef != r.Ref.Details().ID.String() {
-			return "", nil, fault(foundation.Forbidden, nil)
-		}
-		locks = []foundation.LockRequest{configLock("account-directory", foundation.Shared), configLock("account-mail", foundation.Shared), recordLock(r.ReferenceOwner)}
-		return digest([]byte(r.ReferenceOwner + "\x00" + ownerRef + "\x00" + string(r.Purpose))), locks, nil
+		return a.linkReferenceMapping(ctx, x, r)
+
 	}
 	if r.Actor.Details().CauseRef != r.LeaseOwner.Details().ID {
 		return "", nil, fault(foundation.Forbidden, nil)
@@ -320,7 +305,7 @@ func (a *Authority) ValidateUsageInTx(ctx context.Context, tx foundation.Tx, r s
 			}
 			return nil
 		}
-		return fault(foundation.DependencyUnbound, nil)
+		return a.validateLinkReference(ctx, tx, x, r)
 	}
 	action := sc.AcquireLease
 	if r.Action == sc.ReleaseLeaseUsage {

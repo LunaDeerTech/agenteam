@@ -32,12 +32,15 @@ func appendBinding(actor identity.Actor, summary event.Summary) (foundation.Dige
 }
 func (a *Authority) appendCommand(ctx context.Context, x postgres.SQLExecutor, actor identity.Actor, summary event.Summary) (commandRecord, error) {
 	h := summary.Header
-	if actor.Validate() != nil || actor.Details().Kind != identity.Human || summary.Producer != c.AccountProducer || h.EventType != c.SessionsRevokedType || h.SchemaVersion != 1 || h.AggregateType != c.UserAuthAggregate || h.Scope.Kind != event.SystemScope || h.AggregateID.String() != actor.Details().UserID || h.AggregateVersion == nil || h.AggregateSequence == nil || int64(*h.AggregateVersion) != int64(*h.AggregateSequence) {
+	if h.EventType == c.DeliveryRequestedType {
+		return a.deliveryCommand(ctx, x, actor, summary)
+	}
+	if actor.Validate() != nil || summary.Producer != c.AccountProducer || h.EventType != c.SessionsRevokedType || h.SchemaVersion != 1 || h.AggregateType != c.UserAuthAggregate || h.Scope.Kind != event.SystemScope || h.AggregateVersion == nil || h.AggregateSequence == nil || int64(*h.AggregateVersion) != int64(*h.AggregateSequence) {
 		return commandRecord{}, fault(foundation.Forbidden, nil)
 	}
 	var id, hash string
-	var header []byte
-	e := x.QueryRow(ctx, `SELECT id::text,event_digest,event_header FROM agenteam_account.commands WHERE event_id=$1`, h.EventID.String()).Scan(&id, &hash, &header)
+	var header, payload []byte
+	e := x.QueryRow(ctx, `SELECT id::text,event_digest,event_header,event_payload FROM agenteam_account.commands WHERE event_id=$1`, h.EventID.String()).Scan(&id, &hash, &header, &payload)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return commandRecord{}, fault(foundation.Forbidden, nil)
 	}
@@ -52,7 +55,27 @@ func (a *Authority) appendCommand(ctx context.Context, x postgres.SQLExecutor, a
 	if e != nil {
 		return cmd, e
 	}
-	if cmd.name != "logout" || cmd.actorKind != "human" || cmd.user != actor.Details().UserID || cmd.session != actor.Details().SessionID {
+	if cmd.user != h.AggregateID.String() || digest(payload) != summary.PayloadDigest {
+		return commandRecord{}, fault(foundation.Forbidden, nil)
+	}
+	var value c.SessionsRevoked
+	if json.Unmarshal(payload, &value) != nil || value.Validate() != nil || value.UserID.String() != cmd.user {
+		return commandRecord{}, fault(foundation.Forbidden, nil)
+	}
+	d := actor.Details()
+	switch cmd.name {
+	case "logout", "password-change":
+		if d.Kind != identity.Human || cmd.actorKind != "human" || cmd.user != d.UserID || cmd.session != d.SessionID {
+			return commandRecord{}, fault(foundation.Forbidden, nil)
+		}
+		if cmd.name == "logout" && (value.Scope != c.OneSession || value.Reason != c.LoggedOut || value.SessionID != cmd.session) || cmd.name == "password-change" && (value.Scope != c.AllSessions || value.Reason != c.PasswordChanged) {
+			return commandRecord{}, fault(foundation.Forbidden, nil)
+		}
+	case "reset-complete":
+		if d.Kind != identity.Service || d.ServiceName != identity.AccountAuth || d.CauseRef != cmd.id.String() || cmd.actorKind != "browser" || value.Scope != c.AllSessions || value.Reason != c.PasswordWasReset {
+			return commandRecord{}, fault(foundation.Forbidden, nil)
+		}
+	default:
 		return commandRecord{}, fault(foundation.Forbidden, nil)
 	}
 	return cmd, nil
@@ -66,7 +89,14 @@ func (a *Authority) DiscoverAppend(ctx context.Context, actor identity.Actor, su
 	if e != nil {
 		return oc.Dependencies{}, e
 	}
-	locks := append(commandLocks(cmd), userLock(cmd.user, foundation.Exclusive))
+	locks := commandLocks(cmd)
+	if cmd.user != "" {
+		locks = append(locks, userLock(cmd.user, foundation.Exclusive))
+	}
+	if summary.Header.EventType == c.DeliveryRequestedType {
+		locks = append(locks, configLock("account-mail", foundation.Shared))
+		return oc.NewDependencies(a.state().eventIssuer, binding, locks, []byte(commandMapping(cmd)))
+	}
 	return oc.NewDependencies(a.state().eventIssuer, binding, locks, []byte(cmd.id.String()))
 }
 func (a *Authority) ValidateAppendInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, summary event.Summary, deps oc.Dependencies, stage oc.Stage) error {
@@ -80,8 +110,8 @@ func (a *Authority) ValidateAppendInTx(ctx context.Context, tx foundation.Tx, ac
 	if e = a.state().store.RequireHeldLocks(ctx, tx, deps.Locks()); e != nil {
 		return unavailable(e)
 	}
-	if e = a.RequireCurrentSession(ctx, tx, actor); e != nil {
-		return e
+	if summary.Header.EventType == c.DeliveryRequestedType {
+		return a.validateDeliveryAppend(ctx, tx, actor, summary, deps, stage)
 	}
 	x, e := a.state().store.InTx(tx)
 	if e != nil {
@@ -93,6 +123,23 @@ func (a *Authority) ValidateAppendInTx(ctx context.Context, tx foundation.Tx, ac
 	}
 	if string(deps.Opaque()) != cmd.id.String() {
 		return fault(foundation.ResourceBusy, nil)
+	}
+	if actor.Details().Kind == identity.Human {
+		if e = a.RequireCurrentSession(ctx, tx, actor); e != nil {
+			return e
+		}
+	} else {
+		// A registered pre-auth service is not an authorization bypass. The
+		// exact command was established by the original browser/token proof;
+		// its browser, link and password generation must all remain current.
+		var valid bool
+		e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.password_resets r JOIN agenteam_account.users u ON u.id=r.user_id WHERE r.id=$1 AND r.user_id=$2 AND r.password_version=$3 AND u.password_version=r.password_version AND r.expires_at>clock_timestamp() AND $4::timestamptz>clock_timestamp())`, cmd.resource, cmd.user, cmd.passwordVersion, cmd.browserExpires).Scan(&valid)
+		if e != nil {
+			return unavailable(e)
+		}
+		if !valid {
+			return fault(foundation.ResourceDeleted, nil)
+		}
 	}
 	if stage == oc.NewFact {
 		if cmd.phase != "planned" {

@@ -1,0 +1,14 @@
+:root { color-scheme: light dark; font: 16px system-ui, sans-serif; background: Canvas; color: CanvasText; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 680px; margin: 0 auto; padding: 20px; }
+h1 { font-size: 1.35rem; }
+label { display: grid; gap: 6px; margin: 14px 0; }
+input { min-height: 38px; max-width: 100%; font: inherit; }
+input[type='range'] { width: 260px; }
+button { font: inherit; padding: 8px 12px; cursor: pointer; }
+.actions { display: flex; flex-wrap: wrap; gap: 10px; margin: 15px 0; }
+:focus-visible { outline: 3px solid #1b74d1; outline-offset: 3px; }
+.go-captcha { color-scheme: light; color: #242424; }
+section { max-width: 100%; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }

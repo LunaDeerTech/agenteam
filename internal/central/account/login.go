@@ -560,7 +560,7 @@ func (s *Service) requireChallenge(ctx context.Context, tx foundation.Tx, r c.Lo
 	// Only the final transaction consumes a one-use proof. The preflight has
 	// not authenticated the password and must not spend a proof prematurely.
 	if !consume {
-		return nil
+		return portError(s.state().deps.Challenges.PreviewLoginInTx(ctx, tx, r))
 	}
 	return portError(s.state().deps.Challenges.CheckLoginInTx(ctx, tx, r))
 }
@@ -631,7 +631,8 @@ func (s *Service) privacyLocks(r c.LoginRequest, email string) ([]foundation.Loc
 	if e != nil {
 		return nil, e
 	}
-	out := make([]foundation.LockRequest, 0, 2*len(keys))
+	out := make([]foundation.LockRequest, 0, 2*len(keys)+1)
+	out = append(out, challengeLock())
 	for _, k := range keys {
 		out = append(out, failureLock("subject", k.kid, k.subject), failureLock("ip", k.kid, k.ip))
 	}

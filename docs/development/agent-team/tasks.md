@@ -510,3 +510,168 @@ root采纳仅日志分支的可实施方向：真实单writer已消费队首并�
 root全文核读并采纳rev5窄修：源SHA `99b20b04105ac41bbb685b7284ef631365988b703d7460d2557784514b75c4e7`；作者5输入匹配/格式链接通过/全停，索引`/tmp/agenteam-d07-s01-rev5-fpueqxaq/checksums.sha256` SHA `09b7233fce3ed3af5a34cea950fbee7b9ecbcbf75996c3f61b146c236b3737aa`。独立报告`/tmp/agenteam-d07-rev5-verify-_sv1o243/review-report.md` SHA `25a33b1bc039a298ae33ab2de4339a099e292ed1a7f0c38d06a96217581106f7`，17项索引 `b3a2e86a78a83682e0fa3c7f6b26e390ffd83580343eb0cc7fc2f71150520a73`、9输入manifest `121efe30e049f6a6fc0934b88ce28b3a60497cf25b367cc1a35611738c149684`，末次全匹配。只改页首/§1/8/9/T09/T11/T13；SMTP原规则、B01 bootstrap与共享停机预算保持，Grant/EX、Unknown零Write、ticket真实Done/lease/guard和重启语义静态闭环，无必修项。
 
 作者与V均未读活动B02、未运行产品测试或创建资源且all-stop。检查器首轮误识行内正则的准备错误已保留并修正，不计规格失败。此采纳仅为设计可实施性，不代表B03实现验收；recoverylog源码继续冻结，到B03再正式授权。当前有效设计为rev5，B02业务规则不变，backend只需知悉后续日志边界，不重跑未受影响检查。
+
+
+### B02阶段进展（实现未冻结）
+
+作者目录`/tmp/agenteam-d07-b02-wadjih16`。固定Playwright1.56.1已实际驱动`/usr/bin/chromium`151.0.7922.173完成点击/关闭，npm官方metadata与lock integrity匹配，实际二进制SHA另存作者证据；配套下载403原日志SHA `a37ed1b21ad5fa56f1315adccfe19cb9a269e4a052eda94b211b8237b990a0a2`保留。此为浏览器smoke，官方Vue完整harness未验。
+
+作者首轮真实挑战组exit0/Account7.601s，日志SHA `88b0fcf46b26cbab23ac7efce2663d494fde64ff0066ad6eef12d5cfc1a8323e`：实际图片/校验/并发登录一次消费，重放与跨browser/email/key拒绝，3nonce已清。邀请首轮exit0/Account8.997s，日志SHA `d8b174f38efc99137e54dd3fdf3757c2ad5dd1226ebaadb93c797162c0b85076`：Secret/ref/intent/event/Audit同Tx、重放/异义、60s限制/同材料不续期、canonical enqueue与撤销pendingjob/引用通过，另3nonce已清。阶段性新增编译类型/import准备错误保留，不作产品通过。当前继续兑换/异步reset/改密及完整harness，源码仍活动、尚无冻结manifest或独立验收；上述为作者对应阶段结果，不冒充最终输入通过。
+
+
+B02阶段续：`links-real2.log` SHA `ff25ab9a51f83a3bc0760b20b218fba8150352241ff83ceaaf75c25364c40a63`，作者真实Account7.625s通过邀请proof/身份错配、消费后新key拒绝/原语义replay、普通User权限/材料cleanup、reset公开同shape且同步零token/intent/异步处理与60s节流。首轮新reset Audit遗漏必填Version为真实实现错误已修；独立解密测试helper列名错误是准备错误，原日志均保留。该轮3nonce已清。
+
+`harness-real3.log` SHA `94f9c3020bbb138c0d52e7b5af4454dc00b3db67e553ec785cbfff3bccde798f`，作者Account23.269s/exit0：固定Playwright1.56.1+系统Chromium151.0.7922.173，真实官方Vue rotate鼠标拖动与窄屏键盘生成→Verify→Login消费均通过，非发行配套。前两轮Socket path too long（改仅harness短owned TMPDIR）及测试Origin初始化竞态/strict locator歧义的记录保留，原断言未放宽；PG17070db2558a1999e5b19d0384e0a578/outbound94ace3c9db4ae401651d22c0df2faa8b/object277333b8439306791538fcbd1420792b精确清理。当前继续改密/reset提交和异常恢复，尚未冻结独立验收。
+
+
+B02改密/reset提交首轮`password-real1.log` exit1/Account12.932s，SHA `e8c042e51bd66245df47060fd50c264261a61efabfe5ad5a02b6f383b38c0d15`：新增planPasswordEvent保存json.Marshal非canonical字节却绑定canonical摘要，正式ProducerAuthority正确拒FORBIDDEN；旧Logout重规划对照通过。仅修本域为Event.PayloadBytes同一事实，不放宽权限/断言。`password-real2.log` exit0/Account15.890s，SHA `2c29b6759342d06856327e8375e4b85c34be97a70118e5a3e1b357b617d02fbf`，覆盖Session轮换/旧Session重放拒绝、reset无自动登录/消费后语义receipt/双命令单胜者及旧Logout对照。三nonce a0932ed1bf47eff46e519e4d0d2efc82/4e5b171bfd0e436abcad6fb4ccb10cb8/371c8461a6dd6ca83015b6ea083970ea已清；继续unknown、真实Outbox handler与公平清理，尚未冻结。
+
+
+B02真实Outbox `handler-real1.log` exit0/Account10.897s，SHA `a995352f98e9e7dea9c22b18d6ad8e3b71a0d500c7af77442b44747f3110be64`：正式MailHandler+Runtime，首次写job后Retry时job/processed均回滚，随后原子重试单job；注册前intent由canonical补齐，pending/attempts0不冒称发送；显式Resend版本及删除后安全receipt、Reset Recover相邻组通过，3nonce清。`b02-unknown-real1.log` exit0/Account28.991s，SHA `b2700960b01ec0dd20b05f4b10b85ae0879723e8f3f7d482e78ecf3870084231`：邀请创建/改密/reset完成各真实截留COMMIT的late-commit/rollback六场景，确认55P03且caller活时仍COMMIT_UNKNOWN/Unknown、改密零cookie；原writer实际结束后receipt/Session/Audit/event单次事实通过，3nonce fed5f89264c409de4b75895d873853b0/6092b35224f8a0fb8449f3bd772cd94f/2d8ec06c87e036b5614c4852f48fb335清。当前继续长期恢复/挑战/配额及100批公平边界，仍未冻结独立验收。
+
+
+### B02局部运行说明增量授权
+
+作者完成定向边界后请求同步真实使用与现状。root仅追加backend独占新`docs/development/backend/account.md`及`docs/development/backend/README.md`的必要入口链接/当前账号库说明，沿documentation技能；既有README其他模块事实不改。记录实际构造/依赖/验证命令、B01/B02能力与未绑定HTTP/app/SMTP边界，不能把pending job称已发送或当前ready=false称产品就绪；独立harness README仍在原授权目录内。不修改架构/设计/计划/主卡/台账，后者root持有。文档纳入冻结manifest并做链接/格式检查；此前产品通过结果不因说明编辑机械重跑。
+
+
+B02边界作者阶段结果：`fairness-real1.log` exit0/Account8.629s，SHA `41b0309ae46b502431ae466ee6db45a9b61b21cf225348cfa1b31a206d3d857a`，100真实重发命令受同一exact链接锁保护仍推进持久pass，第101独立到期链接下一Recover删除，保护行留存、holder join后材料清零。`challenge-boundaries1.log` exit0/6.476s，SHA `0f5bb1478dc62dcfc347f96ce6c98f0723a5ae4512db9072c43b98a0a189f695`，passed占3配额、消费rollback可用/commit释放、错误角度单次失效/跨进程proof拒绝；1024限制用合法持久配额准备，不冒称生成1024图。
+
+`recovery-lease-real1.log` exit0/11.705s，SHA `bb456898f47a182f742e2b4773c944783064ae1cc22d664615f257a63782e104`，真实Secret Read+阻塞Use时到期断链接/ref但保lease/bytes，actualjoin后Release及Recover清零；用exactref/owner隔离通用消费者，不冒称B03。planned lateCOMMIT/rollback等原writer终局后收敛。`competition-real1.log` exit0/14.374s，SHA `7e77e8a73e37cf4c67470c0993c495d91f5a50cfae5cc48c439e32dd2e168829`，旧reset准备不能越并发改密发布，邀请同链接/用户名/撤销单胜者。各组3nonce均作者确认清，当前进入最终自查/check-go/完整适用组，仍未冻结独立验收。
+
+
+### B02最终组发现actual Use join缺陷
+
+作者check-go-final已exit0，但最终21项真实组`/tmp/agenteam-d07-b02-wadjih16/evidence/b02-final-real.log` exit1/Account121.662s，唯一失败TestAccountChangedCookieForceWaitsActualUseJoin：Force提前nil。新PasswordChangeResponse.close仅Destroy SecretMaterial后finish，借出的独立Use副本callback仍运行；Destroy不构成实际join。其余20项含官方Vue通过不覆盖此失败，B02不验收。三nonce原清理记录保留。root采纳确定缺陷，现有授权内仅password_change.go本地使用计数/关闭fence修复及相应回归；实际callback返回前operation必须继续登记，Close/Force/并发Use准入一致，不改原测试/Force30ms。修后原红逐字闭环、受影响普通/race/check-go及最终21组重跑，重新冻结技术输入；当前作者继续实现，V不读活动源。
+
+
+B02 actualjoin窄修后`response-join-real.log` exit0/Account34.213s（wall94.099s），SHA `2c7751a051c7573c792fa83fbb7e023b4e446dd9ca677b80c17d9ea790e9f5ef`，原Force30ms测试逐字未改，含普通改密与六mutation COMMIT场景，3nonce清；新Close/Use/panic纯并发race4.296s通过。最终`check-go-join-final.log` exit0/12.647s，SHA `b8b3f22f303cd0f8444399c28d929b5b57d2f1dd82c3a8dfa346ac752428d2d9`，普通/vet/integration-vet/race/双构建通过。
+
+同一21项最终真实组`b02-final-real2.log` exit0/Account123.079s（wall175.022s），SHA `95330e5bd6c78c85fcf73563edeb4801150ee81e894160424fb5f8edba8beac3`；PG90659264cda9656fa85f8007f8694376/outboundf01f6cb166d89c4b46f036e37929943d/object2c6a7d1b418bb562d12c97ba73805d33精确cleanup。原失败日志SHA `78f28009cd82c294608b2b77c1229469f44f66520ccbc50805fa70309321e99f`保留，成功不覆盖历史。测试命令已全停，作者仅末次501技术输入/历史nonce与/tmp报告封存，待正式58源/443deps冻结和all-stop后交V；B02尚未独立验收。
+
+
+### B02冻结与独立验收启动
+
+作者正式全停：`/tmp/agenteam-d07-b02-wadjih16/author-report.md` SHA `84b4fdb4f6eb7c9a7ae07f12606c4d803800d326aea7103f88da5d09c821a893`，94项索引 `5475961aae1b072ff90fd8b900984012475df65eb982e32a6e3f2318a9adf352`，root全文核读。handoff/source58 SHA `04d7429a7db8c1d4538356b227cd55b2901754e9a9a270a08941d55e8c6f11de`、deps443 `758aef9adba7cd37a4d8b40eec2eaff22a183a448cd62a97c84a77dd6507a738`、union501 `b919997a281307bd2f18a459b0adaec39cb074ae75304a7c96bf0af9f742c8ba`；runtime8 `42de2c499b4958b337ffa5feb7c2ea7dd25858108dbbcb1e0c8e7aed645a6778`。root逐项501再核匹配。54历史nonce容器/网络/owned进程及浏览器临时目录0，作者所有源码/报告读写与命令全停；Docker交V。
+
+root授权V稳定副本先审完整当前权限/锁/HMAC/Secret usage/Outbox/挑战隐私/实际Use join并执行有意义独立风险探针、原Force测试及真实浏览器；无确定阻塞再一次GOFLAGS=-p=1无过滤test-objects，含原B01四probe逐字输入，不重复未变D03观察探针。原每包6m/内部并发/断言不变，若新增后累计超时保留具体证据并报告，不放宽或重跑到绿。B03/HTTP/app未实现不冒称；主卡台账行政变化不作为技术依赖。B02未验收，不授权B03源码。
+
+
+### B03正式组合口与schema承载预核（只读，未开工）
+
+B02冻结独立验收同时，root授权architecture仅基于501匹配快照和设计rev5核B03最小组合缺口，无源码/文档写、无Docker或测试，不影响V资源。阶段确认：accountmail尚无当前token/config/attempt正式口，AccountDeliveryOwner lease授权仍DependencyUnbound，reset User/link/ref gate未齐；只有DB account-mail锁，无内存mailAdmission，普通改密password_version失效也须参与EX。后块须明确最小account适配/契约与旧入口绑定，不能绕跨域直接改表。
+
+root另核已提交00010的B03承载缺口：smtp_settings没有sender_name/auto_retry_count/retry_interval；mail_jobs阶段pending/processing等不含设计claimed/sending/retry_wait，attempts上限5不足首次加5次自动重试。当前B02只构造pending/0，不因此改其冻结源。拟B03新增Up迁移补齐并验证10→11已有数据，00010字节保持；尚未授权SQL或后块实现，先等待精确报告/设计修订和独立静态采纳。不得将当前schema称为已支持完整SMTP配置/重试状态机。
+
+
+### B02独立浏览器红与有界定位
+
+V稳定副本`/tmp/agenteam-d07-b02-verify-i9k9qag_/repo`501仓库/8运行时匹配，443deps与7ac3cca一致，相对8b0261b为13修改+45新增；独立全diff SHA `03ad43f03270a7791271d8bb2717384866bd307eaaf332009e897330b3227eec`。首定向组`evidence/directed.log` exit1/Account36.934s：唯一顶层失败TestAccountCaptchaOfficialVueActualBrowser（21.27s），desktop drag Verify=CHALLENGE_INVALID；第二keyboard prepare预期UNAUTHENTICATED实CHALLENGE_REQUIRED，可能因前例未成功登录遗留计数，未证为独立产品缺陷。独立replan/currentSession三分支probe SHA `aff2c18c436827cad3ec032e5365f383fc75dd725358812e6264efe7bacbbd4b`和原Force/Use未失败；4份B01原probe字节匹配，3fixture清理已记。
+
+root暂停无过滤full，V只读现有log/trace/锁定组件与测试角度事件作有界定位，不改生产/原断言/5度阈值，不重跑到绿；若证据不足先交最小/tmp一次观测方案。当前尚未区分生成/组件映射/测试拖动计算，B02不验收，源码继续冻结。
+
+### B03组合报告与rev6临时草案准备
+
+root全文核读并采纳只读报告`/tmp/agenteam-d07-b03-account-review-s5lcu8i1/report.md` SHA `f448938bd1a3ae828c24f0f493efa37da673f3ed361e3c40ebbec3f54f638174`；22冻结输入匹配，inputs `5d72c33314fbaee923d828c25e0fd83854bf9b8cba9927fb782634315313f831`、索引 `67fa2ec06f23fe555b422ec05e0c970c9e6781791c815fa696c184527f230da6`，作者全停无资源。建议account自有DeliveryPort/真实AccountDelivery usage/同Authority内存gate、claim后正式discover/acquire两Tx，8旧文件窄绑及00011配置/job增量，00010不改。
+
+root仅授权architecture在/tmp生成rev6完整工程草案/diff/manifest，不修改仓库设计（仍属V冻结501输入）、SQL或源码。草案固定正式接口/锁序/actualjoin、门禁八旧文件、三个配置默认/边界、job新phase/旧processing仅恢复/attempt0..6/fair index和10→11既有数据验收。B02 gate结束后再独立静态复核归位，不提前B03实施。当前有效设计仍rev5。
+
+
+B02 V最终阶段报告`/tmp/agenteam-d07-b02-verify-i9k9qag_/review-report.md` SHA `f7dd448ebfe9b431503d656ad442e2227f5f46ebff7220c1312f965efa1fc33c`，54项索引 `68bcc7ccf714c8a92163fca02ffbd479e13c8aed781c3a1da1a21ba3fe4066a0`，root全文核读。原directed红SHA `9eb67d4e2e6e99406f7d5418f93adccf46b91dc1d93213f8dc3d7152edd78b42`；一次observed绿SHA `a0bdb02a6f8fcb5bcc4098fb0de50a5676fe7340dc47b80d41f0b8fd19877f34`（Account17.772s/wall140.280s），desktop公开Go/JS解144→POST143，keyboard130→130，phase passed。未解释旧红，故不验收、不跑full。纯执行506manifest `ff70d23bd612533108aafb11a4ae8c704de4eedaac28489bb2d4348eb3b92d8e`，诊断506 `0c52fd4b83c6821da277a2ee863754d9c6544dba05b66d43b9ca79c9897c160c`，diff `4a1839f4fdadc27f3d69790820da449e25645ab2c92ac8e529adf216375024c0`。6nonce及owned活跃进程/runtime/browser临时目录0，PID1已退出Chromium zombies单独记录；V全部读写/命令全停。501/506/诊断506/runtime8末次不变。
+
+root与V确认B02-V02：原generateChallenge无options，锁定GoCaptcha默认thumb140/150/160/170，设计及wrapper固定160，原unit只≤220。SDK4输入SHA `63ad659fdd42c1c42eaf82edea382176a703e82b54e97c4edc610c8d00eda0a9`；该配置不一致不能冒称V01首例根因。root仅授权backend在/tmp稳定副本一次固定64样本离线原生成器+原公开Go solver对照，测试内Validate只输出安全尺寸/solver角度/accept与公开图hash/失败样本，不输出私有answer或账号凭据，不Docker/browser、不改仓库/5度/原算法、不选绿重跑。另只读给harness两用例隔离最小方案；诊断后all-stop先报，再裁决修复。
+
+
+### B02验证码三项窄修授权
+
+离线报告`/tmp/agenteam-d07-captcha-offline-plcklab9/report.md` SHA `ada07cc03e983b2f75973dc47cb98da634bcfac71b9e8bf43e1966136b3dffcc`、146项索引 `ba0941de6e243f512fd4ffda5920bd7bb9524c01a33c93132727aa00fac1f571`，root全文核读。唯一64样本2.837s/exit1：61accept/3reject（39/44/58），thumb140:16、150:20、160:16、170:12，58为160仍失败；原709中心点在39/44全单色，外圈有纹理，原solver输出0/4不可能通过SDK30–330范围。58具体数值根因未定，原私有oracle/RNG输入未保存，不得声称修后原64再过Validate。公开128PNG/hash与原布尔冻结；501未改、无资源/all-stop。
+
+root采纳确定尺寸缺口、可达公开solver缺陷与用例隔离问题，解冻backend仅`internal/central/account/challenge.go`及原unit（显式master220/thumb160、精确尺寸断言），`tests/account/challenge_test.go`公开solver，`tests/account/captcha_web_test.go`，`tests/account-captcha-web/e2e/rotate.spec.ts`及必要case选择配置；允许同测试目录新增有界纯算法回归/helper/testdata和harness局部说明。其他58源与443deps、业务阈值/角度范围/挑战一次性/依赖与B03继续冻结。
+
+测试solver按公开完整有效区域与SDK裁剪中心做有界几何匹配/有效纹理检查，不能直接读取生产私有答案、重抽图、放宽5度或缩小随机角度范围。新确定性测试可在独立离线生成进程内用已知输入/oracle作断言，不导出生产答案接口；既有三失败公开图作原缺陷证据及几何回归，明确oracle已失限制。新真实生成取预先固定样本预算，一次全收集并保留失败，不跑到绿。保留真实pointer交互并核实际POST数值不偏离求解角；不能绕过鼠标直接verify冒充drag。
+
+两个Playwright case改为各自独立真实B02 fixture/server、每次唯一case选择，共享原顶层2min及各case45s/retries0、原登录/消费断言不变，不SQL清计数/新增生产reset后门/接受两种状态掩盖。修后覆盖原几何缺陷、固定尺寸、两case单独及组合、Go/JS公开算法一致、原实际Use join和受影响挑战/登录检查，最终check-go/适用组；技术manifest重新冻结/资源0/all-stop后V独立复验及未跑完整兼容。历史browser红仍未证唯一原因，保留不覆盖；如果出现未知新机制先报告，不无界扩展。
+
+
+rev6仅/tmp草案已全停：`/tmp/agenteam-d07-s01-rev6-draft-k5dt9nc7/d07-account-session-smtp-design.rev6.md` SHA `99b606f0d1ee4716313c1bcfec38f92c8477f786cfb3aab9bdd60037bad0cb43`，385行；相对rev5 diff `10b92c9989f6edd0430fea4705385dd52b64ad8156202e194ae652777141dbae`，24输入 `bcd48448a04f3c2971911cb6eed69cec0dfc375e3e50947e68a2328efe2bcd5d`、索引 `69fd6a15ce21e707845873c524fc253672700131afd4abe2556435766e00507a`。草案新增mail_attempts token_ref/credential_ref安全UUID用于新attempt固定原材料映射；旧10→11 NULL仅通过正式exact lease验证原候选，不能猜当前配置或假join。作者格式/6链接/范围检查通过，无仓库修改或产品测试。尚未root全文审查/独立静态采纳或归位；当前有效规格仍rev5，B03未开工。
+
+
+CAPTCHA窄修真实组合首轮`/tmp/agenteam-d07-captcha-repair-05hca_yu/evidence/captcha-real-combined2.log` exit1/Account48.536s，仅desktop新增POST精确断言失败：solver97、实际POST95；keyboard/原挑战登录/actual Use join未失败，作者确认3nonce清。此前加-v被fixture参数解析拒绝属准备错误，原log保留。作者按锁定SDK确认整数clientX与158px travel造成约2.28度/像素，原目标+0.5度对应42.79px实际截成42px。root采纳pointer离散映射补正，仍仅e2e授权内：用实际几何/SDK公式选最近可达整数像素，真实mouse起止整数坐标，POST必须精确等于计算可达角且与公开solver圆周差≤1度；原服务5度、solver、单次图片、真实pointer断言不变，不绕过verify或加随机样本。修后同组复验，旧红不覆盖；B02仍未验收。
+
+
+### B02验证码返修冻结与独立完整验收
+
+作者正式全停，报告`/tmp/agenteam-d07-captcha-repair-05hca_yu/author-report.md` SHA `1002af4a6605db791af3f44c05d83f53420c3a62ec9ce726610394037a7b234a`、178项索引 `2ea590024a53ade9ed1c76e4abd573adc43055f522b83db7e3f358b32611142c`，root全文核读。70源 `d62a4735a786bc253031ea613f2138e3ace22ac7fd9dc85103dc144045eec6f2`、443依赖原`758aef9a…6507a738`字节不变、513联合 `92707987f96f8a32c7dba6aabc563ab891ecd093048741bfa0b146e2f5818da0`、19delta `6ef4eedaa22f91c3391b8a9b0b86684518b7a575b5120c41c4fb84c9d6dc785b`、runtime16 `4c04ed2b5c5503c91a65821c667ecfe9ed0d1750d6d909e86f6b5646210379b4`。root513逐项匹配，审7旧文件diff及12新增/算法/确定性/真实pointer边界。生产仅固定220/160 options一行，原5度/随机范围/一次消费不变。
+
+39确定性Go/JS、纯race、唯一fresh64一次64/64（4.106s）、同64无生成重放及JS一致均通过。新64保独立0600离线oracle，不重构旧64已失答案。修后真实组合Account50.209s/浏览器32.86s通过，desktop99→可达POST100、keyboard150→150；单例desktop16.411s/197→198、keyboard19.836s/273→273均通过，各子进程只1case。最终check-go通过，log SHA `55f4b0ac3db44797a317825fe5c2e7603191978405d9399c4d25c85016f4a7b9`；12nonce资源、活跃fixture/account/Chromium及browser临时目录0，PID1已退出zombies单列。旧V红、原61/64与本轮97→95红均保留，不声称历史唯一根因。
+
+Docker交V：稳定副本先静态/确定性39+同保留64无生成复验，无阻塞则直接一次GOFLAGS=-p=1无过滤test-objects，含原B01四probe和新replan逐字5份，真实browser在完整组自然覆盖，不另重复定向browser。每包6m/内部并发/断言不变，失败先记录报告，不加随机预算/跑到绿。B02尚未验收，B03未实施；root行政文档非技术输入，作者全部读写/命令全停。
+
+
+### B03临时草案独立静态复核排程
+
+V独占Docker执行B02修后验收期间，root仅把原定gate后的B03 rev6独立静态复核提前并行：backend作者现已完成CAPTCHA且全停，作为非草案作者审查architecture已冻结/tmp草案与22相关稳定输入，另存/tmp报告/manifest，不改仓库/设计/源码、不用Docker/浏览器/产品测试、不读V运行产物。范围为DeliveryPort/Registry构造、sameAuthority gate/八旧入口锁序、两Tx/Secret当前与终局授权、00011及legacy原Ref恢复、日志资格/actualjoin/原停机预算，避免无关扩大。最多两个活动子任务、输入与运行资源隔离；B03采纳归位和实施仍在B02通过后，此排程不代表B03开工或产品通过。
+
+
+B03 rev6独立静态报告`/tmp/agenteam-d07-rev6-static-g87foaxd/review-report.md` SHA `c503720604dca9f3cd86056085abc98c046b36acd636910c3e182970c01d85d6`，38输入 `a8e6c96a5439011cf11dfee31d76c5f5c354230e09a8292fb019aa681904f07e`、13索引 `8a0ff96464b046de5f2a8b698189b98c7ae386fc2b65aa79eb40d649054627d3`；root全文核读，审查者all-stop/零资源/无产品测试。确定必修R6-01：Claim持久预分配leaseID但未Acquire/明确回滚时，现Finish先Discover release会因Secret实际loadLease NotFound无法终局；不能伪造lease或吞原Unknown。
+
+root采纳最小方案，仅授权architecture新/tmp草案窄修§4/§8/T10，旧稿不覆盖、仓库rev5保持：actualjoin/exactdeath后先共有jobEX+attemptEX完整锁确认io_joined=true/terminal=false关闭后续acquisition；usage摘要/Acquire/Read/Begin/Checkpoint拒该位，保原protocol/result/job。提交/同writer确认后才正式Release Discover，存在走正式lease释放，只有顶层SECRET_NOT_FOUND可信零lease，provider嵌套NotFound不吞；最终Tx核精确binding写terminal/job/Audit与真实release，Unknown保留cause。重启继续jointrue/terminalfalse，legacy缺Ref不猜；无需新列/Secret口或额外旧文件。新稿停写后独立闭环，B02完整组继续、不提前归位/实施B03。
+
+
+rev6 R6-01窄稿`/tmp/agenteam-d07-s01-rev6-r6-01-mzvl9krg/d07-account-session-smtp-design.rev6.md` SHA `ced21c25172f1f371c6a06c130ca5fc65a4ec861f5f4fb67606995fab05d994b`，窄diff `8049ddaefecbd820c947ef7ee47f4cebe6853aee0cc5c0b31e6f14d7dab0832e`，作者28输入/格式链接通过/all-stop。root核读增量；定向独立报告`/tmp/agenteam-d07-r6-01-recheck-37mmpuxt/review-report.md` SHA `a7b1bb3405ff4fa0703ecc511274f8ebf5317d4df9a4709700f4d7353dda9c15`，9输入 `f3aada07b7867236ee0d4ef4c3daf16133ef2f9342066d9d88263b4fd275ec95`、索引 `86363546b8029aed580fe90d4e4a97fbd7d36a70642970dfc1185f12a48970b4`，root全文核读，R6-01文字闭环。
+
+root补核Claim→Registry移交窗口确认R6-02：Unknown不交handle且缺登记不能证明join，草案未明确活进程未移交attempt正向终止记录。仅授权architecture另存/tmp窄补：Tx前私有claim-operation复用现account真实operation/Stop/Force/join；互斥单次移交或实际DBjoin后关闭移交；成功worker同步登记/finally接管，不ctx early-return丢handle，不由port凭缺Registry假join。未移交仅actualDBjoin+不可再移交+同writer canonical确认后可进入既定acquisition-stop；Unknown/cause保持，迟到返回/Recover不翻转，重启exactdeath，原预算。无需公共Runtime/Secret/schema/service.go扩权；补T10。审查者all-stop/无测试资源，草案仍未采纳归位，B02完整组输入不变。
+
+
+### B02完整组累计时限与穷尽分组补验
+
+独立V目录`/tmp/agenteam-d07-b02-repair-verify-tr12n6e4`，513/16runtime匹配，5原probe逐字加入形成518执行输入 `66c4af3e0ffae05a36d20b4b03f2edafe365e9aab00dfa42f57ae8386475a1c8`。39确定性Go race/JS、同保留64 Go race/JS无生成重放、220/160与integration vet均exit0。唯一无过滤完整组exit1/wall1148.069s，full.log SHA `6a0bab0a33ccb8d0f4ae7baf5d3bec0309d3c293e6f5e2901c5df9d01b6dbcbb`：其余11包通过，PG1.466/database56.617/app44.436/process106.102/security82.974/outbox89.626/internal-outbox1.030/contract1.268/objects328.623/internal-object2.392/contract1.046。Account原6m总时限360.105s失败，未见其他FAIL；不标完整绿。
+
+只读边界`evidence/account-order-boundary.json` SHA `9c5236457f1ca1d3477571c2b356f239a82853c96625bf87d86c9d993e6f87e3`：37文件61顶层，单package/no TestMain/no t.Parallel/no shuffle；按注册顺序和唯一running栈，59已返回无FAIL，第60原response-plan probe late_commit运行4s被截断、第61unknown分类未到。CrashHelper顶层skip单列为真实父进程子入口，不冒称普通产品场景通过。栈在原probe等Login/4s timer，response确认Tx等原writer锁；未触发自身断言，不证明单例死锁或唯一负载原因，无逐例时间采集不编造耗时。
+
+root据具体边界授权仅编排补验：V完成本次3nonce/owned资源清理与输入核对后，在同518稳定副本顺序各一次 `GOFLAGS=-p=1 sh scripts/test-objects.sh -run '^Test(Account|PublicRotation)'`（56）及 `-run '^Test(Verify|Review)'`（5）。root独立计算两集合61/无交集/无遗漏，5probe字节不变。每包原6m/内部并发/全部断言与fixture保持，不加时不改源；其它包no-tests不算新增通过，完整组已有11包有效证据复用。任一分组仍失败保原日志先报，不重复跑到绿。全部通过后可据穷尽分组+11包组合判断兼容门槛，但必须保留原unfiltered失败及分组限制。B02当前仍未验收，B03不实施。
+
+
+rev6 R6-02最终/tmp稿`/tmp/agenteam-d07-s01-rev6-r6-02-sx34466j/d07-account-session-smtp-design.rev6.md` SHA `e9b41d90dbcc5bac83ba14cff790c3b16c16199171a77b5b67eb3b1c2951c80f`；窄diff `1e20c7d881d4d0ec3fccec546f4485b6eda6b936d32802b895a74977134d263b`、相rev5整diff `5987c8c279d0037daaab6a8eb2009aaa5bbb14e7691f486d515317e73afd23f8`，32输入 `d4aae5a34236488f54724cd337c10a24a32b920d659f71fd29861130cd3a45c9`、索引 `d7c4586eaa53de68e2abd9b674c928755a1e3f4ca609c0933be9a4cbc9ff7e80`。root全文读窄diff，作者格式/6链接通过/all-stop。
+
+最终定向独立报告`/tmp/agenteam-d07-r6-02-recheck-u0ybhoq1/review-report.md` SHA `b7a8a3f055ba15d956e2cf0926c4b72f1f8100d90d7e4ef7d3ca5f6d4afca784`，9输入 `a978c9ac93e526168c87637d08b7c9fe688356a963958dcf63cf5ad7e5a1e5d5`、索引 `5c8130d8cf455705542232afaa7e0d02eda43bb0d0bb17ed656ccbdf62718398`，root全文核读。R6-01/R6-02规格层均闭环，核心Release/Unknown四段原字节保留，新增actualclaim/不可逆移交/workerfinally/未移交三证据一致，无新增公共口/schema/旧文件/预算。审查者all-stop、无产品测试/资源。该结果只接受临时草案静态可实施性；仓库rev5不变，归位及B03实施仍待B02分组兼容验收。
+
+
+### B02分组失败与一次时序观测授权
+
+V最终阶段报告`/tmp/agenteam-d07-b02-repair-verify-tr12n6e4/review-report.md` SHA `b680b108224924f172d14934a8c291caae89297693b6be57fd640916f35a7d54`、66项索引 `a7d47a2fd8797ec6842ed0376195b50747c67906af69b96e4b9bdb26b38529b0`，root全文核读。56组exit1/wall426.219s，Account360.072s再次原6m截断；log SHA `f27fc25028a6549e33ba7f61e5b2610d59a5a1cba0d5bf2ed313fa8cb5f82cd1`。另外原TestAccountResponsePlanUnknownKeepsCauseAndConvergesAfterWriter/late_commit（4.88s）断言期望55P03实57014，Unknown code/state已通过，caller活性及后续恢复未到；不能仅按累计超时处理，也不能把测试“cause lost”文字当确认产品缺陷。5probe组未启动。V6nonce/owned进程/browser目录0，513/518/16runtime/133重放末次匹配，报告全停。
+
+静态fixture lock_timeout=1s、原Login caller3s，confirmation复用ctx；无statement_timeout设置。原log缺确认开始/取消时点及ctx快照，剩余caller预算不足1s仅候选。root仅授权backend自有/tmp稳定副本一次原response-plan测试（两原子例），添加安全时序观察：Login起点、原COMMIT barrier、确认开始/返回剩余deadline、ctx错误类别、PgSQLSTATE与固定类别取消来源；不输出SQL/原始server message/参数/身份/凭据。原测试/3s/1s/4s/生产状态/断言不变，插桩只观察，不加延迟或放宽断言。封存diff/输入后一次运行，无论红绿都报告；新绿不解释旧红，不额外stress/full/改源。需要受控机制复现再报最小方案，当前无生产修复授权。backend独占Docker，精确清理/末次指纹/all-stop后裁决；B02/B03仍未通过/实施。
+
+
+单次时序报告`/tmp/agenteam-d07-response-cause-diagnostic-owtn6yni/review-report.md` SHA `b6a23b0a498f9ce32da36222741e9478e9e1fcecace569c8b365f5dc9d76ca87`、19索引 `a6ef2a764afd0c1cdb8077422360a6eac5f61ac8733a2d3037bb1bdf1eab7820`，root全文核读。唯一命令exit0/Account7.560s/wall86.182s，log `108c2481c80fae7608b0a7f8f56d440029058ec3f8ca2fb2778ae893aa7f0832`。late_commit确认起剩2.371136s/返回剩1.352284s，rollback起剩2.419153s/返剩1.399591s；两例server_lock_timeout/55P03且caller live、外层Unknown/cause及恢复原断言通过。未复现57014，不解释旧红。观察到barrier后CancelRequest但未绑定目标backend，不称caller取消。513/观察515末次匹配，3nonce/owned进程0/all-stop。
+
+root追加仅/tmp一个受控late_commit probe一次：保原测试/3s/4s/1s锁与代理；独立owned DB观察连接用pg_locks/pg_blocking_pids精确确认原writer Command EX与confirmation同锁真实holder/waiter且caller live，之后才显式取消caller，不能sleep猜/延时预算/伪SQLerror。安全绑定CancelRequest目标及实际ErrorResponse，只有确采57014才称覆盖；外层Unknown/cause、零材料、原writer未终局不误清，随后真实COMMIT和Recover收敛。原窗口未取得关系或未采57014则如实未覆盖停止，不追加重跑。该反例只证可达机制，不恢复旧历史因果。仍不改仓库/生产；严格55P03用例先真实Login+Close/Recover后历史重放的准备方案仅候选，尚未授权。backend继续独占Docker，最终封存清理全停后裁决。
+
+
+与受控诊断隔离，root仅授权V在原518冻结副本/61清单基础上只读准备三组穷尽Account编排，给精确顶层名/锚定regex、交集0遗漏0证明和输入hash；不执行测试、不占Docker、不读活动诊断或业务扩审、不改任何源码/probe。原56组已证仍累计6m不足，此准备不替代57014闭环；每组原6m、内部断言及真实CrashHelper父子覆盖保持。最终执行另待root授权，当前B02不通过。
+
+
+### B02取消机制证据与严格锁超时测试准备窄修
+
+受控报告`/tmp/agenteam-d07-response-controlled-6jk6vdb0/review-report.md` SHA `ce5a0f9d01672aa599161a814cbeba1fc3ab0c70539b0f3a18e43e019aca5662`，19索引 `61aa366898dad90f1c10e165074fc480dafa3d6481409c1ad28cf937e74f266e`，root全文核读。唯一新probe exit0/Account3.394s/wall80.260s，log `fc107a3055b79253f766310e8edf4943e941f1680892c7743ca565485cdcbc15`。真实Command EX holder133/waiter136、blocking_pids确认且caller剩2.429s后才cancel；CancelRequest PID+内存key匹配136，server136确返57014/user_request；最终Unknown/cause未丢、零材料、原writer仍活不误收敛、真实COMMIT后plans1及Recover归0均通过。仅证明可达取消机制，旧57014唯一原因仍未可恢复，不称原生产错误处理缺陷。513/观察516/原19观察证据不变，3nonce/owned进程0/all-stop。
+
+root授权唯一仓库测试准备增量`tests/account/response_unknown_recovery_test.go`（原B01文件，现明确纳入B02兼容修正）：wrapper disabled时以原同request/key/browser/password完成真实Login，Close实际response并正式Recover，显式核旧plans/attempts/liveleases已收敛、Session和committed command仍current，然后再开启原response-plan故障、启动原3s caller走合法历史Login。目标只聚焦response-plan Unknown同锁确认，避将首次Argon/Secret写入耗时混入严格55P03窗口。原3s/4s/1s、全部55P03/Unknown/caller-live/零材料/晚COMMIT-rollback/恢复/最终1Session断言保留；不得接受两种SQLSTATE、重抽或改生产/helper/proxy/依赖/预算。新前置真实有界，缺事实就失败，不直接SQL改状态。此用例不再声称首次Argon/Secret创建在目标3s内；首次路径保留原独立probe与既有登录Unknown测试。
+
+作者仅此文件+必要局部注释，检查原主体差异、定向两子例一次、编译/vet与适用Go检查后冻结（原文件从dependency转source纳入manifest），原所有红保留。无需作者重跑完整/浏览器，最终独立V按已有24+32+5穷尽计划执行；计划目录`/tmp/agenteam-d07-account-three-groups-djrjw9uw`，输入 `111eebfecab24dbd25a41973a5f99db64cf104fc2a1ac7e85ffa96bb8c11f72c`、索引 `5fd7465b8bfc86a6310600387f3127c0dfa83a412d4b41c7249f5b8afdf8880b`，root全文核读61无交集/遗漏。当前仅授权测试准备，不授权产品修改或B03实施；Docker继续backend独占，完成资源0/all-stop后交V。
+
+
+测试准备作者报告`/tmp/agenteam-d07-response-test-prep-rv2zwc8p/review-report.md` SHA `e7751e274b36febc6c57134ba192d40c99b7155802047ea322d8419171e69db3`、31索引 `05881a28b2996af46379a2ed0ba770976ea0e208a25301587e791dff9f96e5ed`，root全文核读diff/report并513逐项匹配。原fault-enable至EOF字节不变，新真实准备共用20s既有ctxFor上限，未改目标3s/4s/1s。唯一两子例exit0/Account8.398s，log `737d3a427591f0a83c73f209ad934743beb690490fab3a22ffb643913eed0d4d`；check-go exit0/44.940s，log `1fa6f241c41017e1731e9a228ba26b4a475436ab138a61aaf192452842dad3bf`。3nonce/owned进程0，全停。
+
+最终71source `d8f32892e637238342ed56ca990a84f537f6960c0aa1751567cc681ec6041a9a`，442deps `208a75cb11d42fa012a329aaac46dce2b36085b543d06917cea3d30ff3662c8d`，513all `42b48df023105addb7cb0ec48b6d384597194031a04b0e56653c5414ce1db14c`，delta1 `5b25246ce0f21737ce3d39b78a7e738db895db062f6d8cef90afe3aecd4b2d66`，runtime16原`4c04ed2b…210379b4`。文件新SHA `19d16b595541e23320f901be535e40761b6c4a7fcdcbe6d34015e02219e6bb81`，其余512不变；本次仅测试准备，不是生产错误分类修复，不解释旧红唯一原因。
+
+root正式交V独占Docker：稳定副本+5probe逐字，静态核delta及两次有界时序证据；不重复未变验证码纯检查/定向两子例。按已冻结精确regex A24→B32→C5各一次，原每包6m/内部断言不变；原11包无过滤通过复用，旧两次Account累计失败及stock57014保留，任何失败先停报告。最终513/执行518/runtime/清理all-stop后组合验收，不称单次unfiltered通过。B03设计仅/tmp静态通过，仍未归位或实施。
+
+
+### B02最终采纳
+
+root全文核读独立最终报告`/tmp/agenteam-d07-b02-three-verify-puy2r3zv/review-report.md` SHA `246aedfc00ebabc242deba9e5fe7d09d3eb8342188601c77fbc5aea96de052ea`、69项索引 `429f8e429d06f9930b65414bd41f9420c4f924555b80b48cf1e3e5f49f27cd8a`，采纳B02授权库范围完成。A24/B32/C5各一次exit0，Account146.283/173.535/45.429s，三log分别 `02105a3610889883e2b0b284e9958e91673c4c9da5f38e7c614e46517629db42`、`601d029ab7cba4060aa623f6b83b41e523fb2ac0940ad84f2555e6544424aed1`、`af7f353e7cab90ef12dc0dbd708099f64d5ff55680bb954fa64763be800eda3d`。61顶层穷尽互斥，原5probe逐字；9nonce容器/网络/runtime、owned进程/browser临时目录全0，作者/V读写及命令全停。
+
+最终71源/442依赖/513联合沿上段指纹，执行518 `17ca883ee2bb057464b4a867176ab244aed914b286642612fce41a83f5fc520b`，原runtime16 `4c04ed2b…210379b4`、实际runtime16 `9ec2b2ce45457369d226fde3ddfe3ea7fd3d0e052a2d44b039f47063a1d73680`末次匹配。root已核513、完整业务diff重点、验证码及唯一准备修正。组合兼容=本次61三组+前次无过滤其余11包+未变独立核心/39确定性/保留64/纯race-vet与修后check-go；原unfiltered及56组累计6m失败、stock57014、旧browser红与oracle限制全部保留，不称单次无过滤绿、不推定唯一历史原因。
+
+本块已实现邀请/兑换/撤销、公开恢复请求/异步材料、重置/改密Session安全、真实挑战/官方Vue独立harness、事务intent/Outbox handler和公平回收；mail job pending不冒称实际发送，当前没有正式HTTP/app绑定/SMTP/资料页，诊断ready=false。root按精确71源与3行政文档本地提交；GitHub认证既有阻塞未解除，不声称push。下一步把已独立静态通过的rev6临时稿归位并授权B03真实持久投递，B04及D08以后仍未完成。
