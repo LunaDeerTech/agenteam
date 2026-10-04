@@ -121,3 +121,12 @@ backend核实两处既定行为缺少载体：LifecycleProject无法区分stop/i
 Central兼容测试追加最小授权`tests/process/database_test.go`的capability闭集：仅把真实outbox纳入技术available/unavailable集合、matched由8改9；保Ready=false、cursor原规则、outbox_authorization/outbox_handlers及其他业务unbound，不放宽default/时限/进程行为。app对应测试增量沿原授权。当前管理真实回归已覆盖重投/Audit/诊断并通过作者测试，内部尚未冻结，最终真实进程/故障及无过滤验收仍待完成。
 
 RequeueTarget两源独立通过，source `/tmp/agenteam-d06-b02-target-source.sha256` SHA `50c07e5d80078884d9f2ced2816f374432a8d6d75167af2db7feba1711e5f099`，34deps `970d37fac2ff634698b28356927d37f0dbb8265d98f727fbe8721da19361e4df`，36输入末次匹配。normal0.031s/race1.366s/vet过，独立全字段/Actor/Stage/Project binding、其他variant夹带/错误Actor/旧Delivery拒绝、callback零或部分attempt/fence拒绝及递归安全通过；原Summary probe逐字通过，旧Lifecycle probe仅一行Requeue构造机械适配且保存diff/新旧SHA。报告`/tmp/agenteam-d06-b02-target-verify-zqxi9ska/review-report.md`，索引`e6334594e01f025ddc58f1e31baef74f48b5068caf33f7ce2edd94bc823b6332`。V全停无资源，root核冻结差异并采纳精确两源提交；真实迁移/重投留B02整体验收。RequeueBinding包含Stage，内部必须两阶段预收集依赖、一次完整锁union，不能复用current_access binding作new_fact或提前用new_fact gate阻止历史receipt读取，已交backend纳入组合测试。
+
+
+### B02可信生命周期恢复补口
+
+设计rev5 SHA `f295dd0dd98408efa0681016258ef8b0785f87e8492323e6637d1e3cd15e8865`独立静态通过，报告`/tmp/agenteam-d06-rev5-design-verify-q8fznme2/review-report.md`，索引`6a50926acbffcba3eab079e62c9c53ac4d9288cedc24be00cf4440368fea995f`。348行、18冻结输入及8链接/2fragment通过；作者/V全停，未读活动实现或执行产品测试。root核最小差异并采纳。
+
+追加授权backend新`internal/central/outbox/contract/lifecycle_recovery.go`及`lifecycle_recovery_test.go`，仅定义独立可选LifecycleActorResolver；既有ProjectAuthority/生命周期方法、schema及旧契约保持。已装配真实provider按exact持久LifecycleCause解析当前Actor，仍须Discover/完整锁/Validate，禁止猜cause_ref或持久化Actor。pending无resolver明确unbound，空态不造provider，失败保checkpoint并维持公平/原预算。RequestStop先SH完整只读授权并捕获精确run，确认commit才取消捕获目标，随后EX当前重验；保留provider最强锁，unknown不cancel，Restore新admission不被旧授权误取消。实现和T15真实恢复/拒绝/并发验证沿原B02范围完成，冻结后统一独立验收。
+
+作者定向真实测试已通过System空Project SQL修复、129类型截断/作用域隔离、自身2s及短parent预算、durable generation/dirty、00009旧claimed行保留、停止事实Append与最终子表清零；日志SHA `1191f3aeaa85dbc2661d5d4d1e90017e5df0f254e77a30632898b984fb139731`、`90720abce865fa96fd4355b700c110c2d0ee64e427d2c796f57cf865e3ce1e16`。仅作者自测，活动实现尚未冻结，完整check-go和最终独立无过滤门槛仍待完成。
