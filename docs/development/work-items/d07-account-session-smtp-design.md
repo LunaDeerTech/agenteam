@@ -1,6 +1,6 @@
 # D07 账号、Session、SMTP 与个人资料实施规格
 
-- 修订：2；S01 设计稿，实施基线 `57bfadb`，开工卡 `a116c85`；尚未代表实现或测试通过。
+- 修订：3；S01 设计稿，实施基线 `57bfadb`，开工卡 `a116c85`；尚未代表实现或测试通过。
 - 范围与所有权：[D07 主卡](d07-account-session-smtp.md)。本规格落实已确认的[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)、[SMTP](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)、[D01 基础契约](d01-contracts/foundation.md)；不新增公开注册、角色管理、账号删除、设备管理或前端生产页面。
 - D07 交付真实后端、HTTP、账户安全和后台投递。D08 仍拥有 Project/Owner；D25 接 Session 撤销与 WS；D26 接账号/个人页面，D27 接系统设置。挑战 Vue 只交独立兼容测试 harness。
 
@@ -27,7 +27,7 @@
 | --- | --- |
 | `identity/contract/identity.go` 及测试 | 封闭注册 `account-bootstrap`、`account-auth`、`account-maintenance`、`account-mail`；仍无匿名 Human、默认管理员或通用 Service 权限 |
 | `audit/contract/{types,metadata}.go`、新 `audit/contract/account.go`、`audit/service.go` 及对应测试 | 本节 §4 的封闭动作/资源/producer、typed metadata 与 optional `AccountAuthority`；本人动作不走系统管理员捷径；旧 append/query 权限不放宽 |
-| `secret/contract/types.go`、新 `secret/contract/account.go`；`secret/{service,write,lease}.go`、新 `secret/account_write.go` 及测试 | 受限服务写、Prepared 安全投影、账户用途 usage planning、新 lease owner；保留原 Human mutation 的意义、nonce/AAD/提交语义 |
+| `secret/contract/types.go`、新 `secret/contract/account.go`；`secret/{service,write,lease}.go`、新 `secret/{account_write,usage_plan}.go` 及测试 | 受限服务写、Prepared 安全投影、新 lease owner；§4 的正式 DiscoverUsage/ApplyUsageInTx 与闭集 request/result、opaque deps及legacy拒绝；`contract/account_test.go`、`usage_plan_test.go`及lease/账户组合测试覆盖计划消费，不扩迁移；保留原 Human mutation 的意义、nonce/AAD/提交语义 |
 | `outbound/policy.go` 及测试 | 正式 Human Session 绑定后，把 User SH 纳入 Get/Update/unknown lookup 的初始完整锁集合，不能授权时补低序锁 |
 | 新 `outbound/smtp_tls.go` 及测试 | `TrustStore.SMTPClientTLSConfig(host string) (*tls.Config,error)`：仅受信配置根、精确规范 host、TLS≥1.2、不可跳校验；返回克隆不导出 roots；D07 不接受 caller 的任意 TLS 配置 |
 | 新 `object/download_keyring_material.go` 及测试 | `DownloadKeyring.ContainsMaterial([]byte) bool` 常量时检查全部历史材料，不导出密钥；用于 ACCOUNT_KEYRING 四用途隔离 |
@@ -111,7 +111,19 @@ Secret 保持 `PrepareWrite/ApplyPreparedWriteInTx` Human-only；新增独立 `P
 
 新增 optional `secret.AccountWriteAuthority.DiscoverServiceWrite(ctx,request)→WriteDependencies`、`ValidateServiceWriteInTx(ctx,tx,request,dependencies) error`，通过 `secret.Authorizations.AccountWrites` 显式注入，由真实 account provider 核 request/token/配置 row 或已持久创建/cleanup cause；只给明列资源的 create/update/delete，删除须 ref/lease 归零。Dependencies在secret/contract本层定义，私有issuer+完整request摘要+mapping摘要+复制locks，不借用上层Outbox/对象实现，不能caller自证授权。D04 store 增 `RequireHeldLocks` 结构要求；缺 provider 返回 DependencyUnbound，原 Human API 不接受 Service。
 
-Account credential usage 增明确 `UsageRequest{Actor,Ref,Purpose,ReferenceOwner,LeaseOwner,LeaseID,Action,Retain}` 与 optional `UsagePlanner.DiscoverUsage(ctx,request) (UsageDependencies,error)`、`ValidateUsageInTx(ctx,tx,request,dependencies) error`；依赖从已显式注入Usage provider能力取得，不从context猜。Dependencies同样绑定私有issuer、全部请求及所选闭集variant的完整持久映射/locks，Ref/Lease由Secret自身补足；新owner必须真实绑定planner，旧D04 owner不因增加optional接口获得新权限。`ReadCredentialForRequest` 自开短 Tx 前先 discover 完整集合，锁后重验，不允许 UsageAuthority 在 credential 后补 User/job 锁。其结果仍为每次当前材料，绝不冻结 SMTP 旧明文。
+Account credential usage 增明确 `UsageRequest{Actor,Ref,Purpose,ReferenceOwner,LeaseOwner,LeaseID,Action,Retain}`；`UsageAction`仅 `retain_reference,release_reference,acquire_lease,release_lease,read_lease`。所有variant必填合法Actor/Ref/Purpose；reference两项只填ReferenceOwner，LeaseOwner/LeaseID必须空，Retain仅retain_reference为true；lease三项只填exact LeaseOwner/LeaseID，ReferenceOwner空且Retain=false。Acquire的LeaseID由调用方在Tx前预分配并绑定真实attempt，不由执行时另换ID；Release/Read使用实际已持久LeaseID。多余、缺失、冲突字段拒绝，不能把bool当授权。
+
+`secret/contract/account.go` 提供正式 `UsageOperations`：`DiscoverUsage(ctx,UsageRequest) (UsageDependencies,error)`、`ApplyUsageInTx(ctx,tx,UsageRequest,UsageDependencies) (UsageResult,error)`，由Secret Service实现。`UsageDependencies.RequiredLocks() []LockRequest`返回复制集合；`UsageResult`是闭集typed结果，Action匹配原请求，只有acquire_lease携exact `CredentialLease`，其余mutation不含Lease/材料。Apply明确拒read_lease；读取材料仍只能调用原 `ReadCredentialForRequest`，不新增能在外层未提交Tx取明文的口。Apply成功仅是callback结果，沿原WithinTx提交/Unknown核实规则。
+
+optional `UsagePlanner.DiscoverUsage(ctx,request) (UsageDependencies,error)`、`ValidateUsageInTx(ctx,tx,request,dependencies) error`仍为正式provider能力，从显式注入的Usage provider取得，不从context猜。外层只调用Service.DiscoverUsage：Service封装provider计划，最终opaque deps绑定本Service私有issuer、provider身份、全部请求字段（含Actor当前Session/cause、Action/Retain及显式空字段）、真实owner/attempt/ref/lease映射和完整锁模式；直接交provider原始结果、跨Service或自行构造deps不能Apply。Discover只读规划、不授权、不改业务事实；新ref/lease的预分配身份必须来自本章planned cause/Prepared.Ref，不能假称已存在。实际Release/Read在Tx外按LeaseID读真实记录，核预期ref/owner/consumer后收集父gate；不存在或不匹配明确拒绝，不把输入Ref当查到的事实。
+
+外层合并所有deps、PreparedWrite及其他参与者锁并唯一AcquireAll；Service补入Project适用gate、credential锁（四项mutation为EX、read为SH）及自身记录锁，provider给足User/job/attempt等早序锁。Apply只验live同Store Tx、issuer/完整request binding，`RequireHeldLocks`核完整集合，再在该Tx重读当前映射并 `ValidateUsageInTx`授权，最后调用私有reference/lease操作核；不得再Discover、Acquire/升级、另开Tx或做Tx外读取。Validate必须承担原reference权限、purpose/owner和lease当前用途检查，不只是比摘要；私有操作核再次验证真实metadata及exact记录，不能被旧公共wrapper当绕过授权的入口。映射变化整体回滚/RESOURCE_BUSY后外层重规划，缺锁按RequireHeldLocks poison；同Tx正式新建事实只接受原计划精确身份。
+
+Release在持锁后重新读取exact LeaseID，逐项核scope/ref/owner/consumer与request/deps；当前已released按合法幂等收敛，不因此得到读取权。Acquire只插入预分配LeaseID；若同ref+owner已有同ID，仍重验当前attempt并核原事实；已有不同ID整体回滚，不静默返回另一lease。已终局account attempt或released旧lease不得以冲突upsert清released来复活。实际Read同样锁后核exact当前lease、未released及原用途；新owner缺planner返回DependencyUnbound。
+
+旧 `RetainReferenceInTx/ReleaseReferenceInTx/AcquireCredentialLeaseInTx/ReleaseCredentialLeaseInTx`签名保留，不能在其Tx内补Discover。新account lease owner无计划调用旧Acquire直接PreparationRequired；旧Release按exact当前lease识别真实owner后同样拒绝，不能靠传伪owner降级。ReferenceOwner没有kind：正式Account provider的旧 `CheckReferenceInTx` 对其负责的账户reference返回PreparationRequired，以注册职责及真实owner/ref/cause分派，不按ID字符串前缀猜；未知/不匹配拒绝，不fallback旧授权。planned reference由ValidateUsageInTx完成当前授权后进私有操作核，不再回调这个legacy拒绝口。原非账户provider/owner保留既有接口和授权语义；optional planner不会默认授予权限。
+
+`ReadCredentialForRequest`保持原签名，在自己短Tx之前读exact lease映射、构造read_lease完整请求并调用Service.DiscoverUsage，唯一初始union后RequireHeld/当前Validate及原UsageAuthority/SecretResolve Audit；不能在credential后补User/job锁或把原lease读取当授权。其结果仍为每次当前材料，绝不冻结SMTP旧明文；提交未确认或Audit失败零材料，沿修订2的实际join与独立lease规则。
 
 保留既有 `UsageAuthority` 的真实 reference/lease 检查；内部基础设施 Actor 仍为合法 `secret` 服务且 CauseRef=实际 lease owner ID，UseGrant 的 consumer=SMTP/System。Account usage闭集分为 `account_delivery_attempt`（exact mail attempt/job、process/fence、有效token/当前配置、exact ref）和 `account_response`（下段独立response read attempt）；variant不接受另一分支字段，登录回应不要求或伪造SMTP job/config。cleanup可释放已终止lease，不因此取得正文读取权。Secret resolve Audit不伪装成失效的人类Session；业务SMTP Audit由AccountMail记录真实原发起者稳定ID。
 
@@ -283,7 +295,7 @@ app私有assembly保留真实 Authority、Secret/OutboundClient/ObjectService/Pr
 | T04 公开隐私/挑战 | 存在/不存在同status/shape/channel/hash参数和队列；threshold/IP/成功重置；captcha replay/跨browser/换email/key/并发消费/重启失效；官方Vue真实旋转和键盘harness成功 |
 | T05 Session/CSRF | Cookie flags、伪Host/Origin/null/multiOrigin/CSRF/forwarded拒绝；固定issued期限、idle/absolute/touch排除poll；并发logout/reset/改密与System mutation由User锁序线性化；旧Session立即401，不停止执行；两次合法Cookie重放各自read-attempt/lease，一方Cancel须真实join后仅释放自身，另一仍受保护；5m/撤销/idle/absolute/改密后均不恢复Cookie或复活Session |
 | T06 邀请/reset | 唯一email/username并发；24h固定/同链接不续期；两次兑换/撤销/到期抢占；unknown同义查receipt/异义409；公开无投递泄漏；清理无Secret引用/lease孤儿 |
-| T07 权限/事务 | 普通本人Audit成功但System管理403；admin不能Avatar他人/Project Owner；Service伪cause/错误owner/fence/来源/issuer拒绝；account_response跨browser/command完整HMAC/User/Session/password_version/ref/Purpose/process/fence拒绝，不借SMTP字段；原登录/Acquire/Read提交Unknown及Audit失败零材料/Set-Cookie，exact核实及独立lease恢复；全批锁缺低序/SH→EX/映射变更fail closed，InTx不nested、不网络 |
+| T07 权限/事务 | 普通本人Audit成功但System管理403；admin不能Avatar他人/Project Owner；Service伪cause/错误owner/fence/来源/issuer拒绝；account_response跨browser/command完整HMAC/User/Session/password_version/ref/Purpose/process/fence拒绝，不借SMTP字段；原登录/Acquire/Read提交Unknown及Audit失败零材料/Set-Cookie，exact核实及独立lease恢复；五项usage字段矩阵/结果匹配、Apply拒read、跨Service/改字段/缺计划拒绝；旧reference及lease口不能绕过account planning，非账户旧消费者兼容；Release/Read重验actual lease mapping，Acquire同owner异ID/终态不复活；全批锁缺低序/SH→EX/映射变更fail closed，InTx零Discover/补锁/nested/外部读 |
 | T08 SMTP协议 | none、STARTTLS、TLS+私CA真实投递；证书host/链错及STARTTLS降级拒绝；AUTH与每MAIL单独BeginSend；policy更新/DNS全结果/pinning；大reply/slowpeer/CRLF不泄密且有界 |
 | T09 外发竞争 | barrier精确卡首写前/后，与revoke/consume/config竞争；前者0发出，后者邮件可达但链接无效；无DB Tx跨I/O；原lease直到Close/join；DATA后断响应unknown可重复且从不假sent |
 | T10 durable jobs | handler业务+marker同Tx；晚注册/重启canonical补job；重复event不重复意图；预算/人工retry/到期公平100+1、foreign live不阻断；claim未知/进程crash核exactfence，未证明死亡不抢占 |

@@ -73,3 +73,17 @@ B02–B04源码、Avatar旧对象补口、HTTP/app/config装配及产品web均�
 验收覆盖设计T01–T03及T05/T07/T11本块适用项：真实PG迁移/约束、并发bootstrap/初始日志unknown不重印、密码/keyring/有界hash实际join、当前Session/System与旧Human端口完整锁、本人/预认证Audit、受限Secret写及独立response lease完整绑定、原登录/Acquire/Read unknown零材料、并发读取独立释放、撤销与期限不复活、日志队列/阻塞Write/Sync/Close及有界force。真正HTTP/组合根/SMTP和浏览器留后块，不将未做项写成已验。
 
 执行固定Go1.27.1 check-go和相应真实PG/race组合；沿用已验owned PG17.8/vector0.8.1、MinIO固定二进制与私有网络fixture，backend独占Docker，禁止既有基础设施/凭据/广域清理。测试需新共用fixture或旧迁移断言最小调整先报root。作者完整自测、冻结source/dependencies manifests、所有命令与资源停止后交独立V；根线程不读取仍活动实现。已有推送认证阻塞不重复尝试，无新产品待定。
+
+### B01必要事件子集提前绑定
+
+实现核对发现logout必须按设计§8与真实撤销同Tx写account.sessions-revoked，而原文件分块将events置于B02。root追加B01精确授权：新account/contract/events.go及account/events.go中仅sessions-revoked v1的typed codec、producer当前授权与同Tx append组合及对应测试；允许改同为B01所有的session/login/planning/authority以消费该正式口。事件payload/稳定UserID/auth_sequence/固定reason沿设计原规则，注册屏障纳入初始完整锁；无真实Outbox绑定时明确失败，不能先成功撤销再补事件。B02稍后接管同文件添加delivery-requested及相关实现，当前不实现其handler/邀请/reset。旧Outbox源码不解冻，D25消费者仍未绑定。仅调整实现分块，不改变公共契约或产品范围；B01真实logout验证包含撤销、Audit、事件、receipt原子性与unknown。
+
+### B01 usage计划传递补口
+
+基线91f1d87的secret/lease.go既有InTx reference/lease接口无UsageDependencies参数，不能在内部重新Discover或用context偷传完整计划。root采纳显式DiscoverUsage与ApplyUsageInTx闭集方案方向，暂冻结该新增公共形状/实现，architecture仅修设计rev3的§1/4/T07；只读git基线，不读B01活动源。其他无依赖基础由backend继续，Docker仍backend独占。新设计冻结经独立窄审采纳后再解冻补口，产品规则/原预算不变。
+
+### B01既有真实测试最小适配
+
+Human Prepared InTx按既定设计只核已持完整锁，原测试直接Apply的调用须在外层Tx首次AcquireAll。root追加backend独占tests/security/{secret_access_test.go,secret_fence_test.go,secret_rotation_test.go,secret_cleanup_test.go,secret_nonce_test.go}，仅相应调用按prepared.RequiredLocks()预收集（若同Tx已有其他锁先union为唯一次AcquireAll），不削弱nonce/rollback/epoch/cleanup或错误断言。追加tests/testsupport/postgres/cmd/fixture/main.go仅在现有包列表纳入./tests/account/...；无新依赖、不改预算/过滤语义，独立最终无过滤同时执行新旧组。无需改未发现的旧迁移断言。
+
+设计rev3已独立静态通过，源SHA `df7338362a074b535710918863cf97b0c23425ec5497a15ab1c78c3c6a7f5312`，报告`/tmp/agenteam-d07-s01-rev3-verify-icr3atrp/review-report.md` SHA `5aad08cce449fa253386ec789e0a4552f54e73701e2f444537ef3a261757ddc4`，30项证据索引`9fffad6747c241df37591200da839d3a08bc8e44076ef41e550e197a5ab63ad8`。11语义输入末次匹配，Git blob标签由git show核验（直接sha256sum把标签误作路径的工具准备错误已纠正）；活动源码零读取，作者/V全停无资源。root核读采纳，正式解冻设计§1/4/T07新增UsageOperations/UsageRequest/UsageResult/Dependencies与secret/usage_plan.go等最小实现/测试给backend，旧域仍限定原secret service/write/lease及contract types/account，不扩迁移或产品规则。真实实现尚待冻结独立验收。
