@@ -89,6 +89,9 @@ func (s *Service) ReserveUploadInTx(ctx context.Context, tx foundation.Tx, actor
 		if !found {
 			return oc.UploadAttempt{}, unavailable(nil)
 		}
+		if previous.kind != "private_candidate" {
+			return oc.UploadAttempt{}, failure(foundation.InvalidState, nil)
+		}
 		if current.state == "committed" || previous.phase == "verified" {
 			return attemptOf(previous), nil
 		}
@@ -130,26 +133,7 @@ func (s *Service) ReserveUploadInTx(ctx context.Context, tx foundation.Tx, actor
 		return oc.UploadAttempt{}, failure(foundation.ResourceBusy, nil)
 	}
 	if !exists {
-		d := p.Details()
-		od := owner.Details()
-		a := actor.Details()
-		initiator := a.UserID
-		if a.Kind == identity.AgentRun {
-			initiator = a.AgentID
-		}
-		_, err = e.Exec(ctx, `INSERT INTO agenteam_object.objects(id,scope,partition_id,project_id,media_type,byte_size,sha256,state) VALUES($1,$2,$3,$4,$5,$6,$7,'pending')`, object.String(), string(owner.Scope().Details().Kind), owner.Partition(), null(od.ProjectID), d.MediaType, d.Length, digestBytes(d.SHA256))
-		if err != nil {
-			return oc.UploadAttempt{}, unavailable(err)
-		}
-		_, err = e.Exec(ctx, `INSERT INTO agenteam_object.uploads(id,object_id,command_hash,command_key,semantic_digest,expected_version,owner_kind,owner_id,project_id,stable_actor,initiator_kind,initiator_id,initiator_execution_id,existence,creation_cause,state,disposition,receipt_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,'pending','reserved',$16)`, prepared.uploadID.String(), object.String(), commandHash(command), string(meta.IdempotencyKey), semantic, optionalVersion(meta.ExpectedVersion), string(od.Kind), od.ID, null(od.ProjectID), stableActor(actor), string(a.Kind), initiator, null(a.ExecutionID), string(grant.Details().Existence), null(grant.Details().CreationCause), prepared.receiptID.String())
-		if err != nil {
-			return oc.UploadAttempt{}, unavailable(err)
-		}
-		_, err = e.Exec(ctx, `INSERT INTO agenteam_object.object_references(object_id,owner_kind,owner_id,partition_id,kind,upload_id) VALUES($1,$2,$3,$4,'reserved',$5)`, object.String(), string(od.Kind), od.ID, owner.Partition(), prepared.uploadID.String())
-		if err != nil {
-			return oc.UploadAttempt{}, unavailable(err)
-		}
-		current, _, err = loadCommand(ctx, e, command)
+		current, err = s.reserveObjectCommand(ctx, e, actor, owner, meta, p.Details(), object, prepared.uploadID, prepared.receiptID, semantic, grant)
 		if err != nil {
 			return oc.UploadAttempt{}, err
 		}
@@ -160,33 +144,7 @@ func (s *Service) ReserveUploadInTx(ctx context.Context, tx foundation.Tx, actor
 			return oc.UploadAttempt{}, err
 		}
 	}
-	id, err := foundation.NewID[oc.Attempt]()
-	if err != nil {
-		return oc.UploadAttempt{}, unavailable(err)
-	}
-	leaseID, err := foundation.NewID[oc.Lease]()
-	if err != nil {
-		return oc.UploadAttempt{}, unavailable(err)
-	}
-	var ordinal int64
-	if err = e.QueryRow(ctx, `SELECT coalesce(max(ordinal),0)+1 FROM agenteam_object.upload_attempts WHERE upload_id=$1`, current.id.String()).Scan(&ordinal); err != nil {
-		return oc.UploadAttempt{}, unavailable(err)
-	}
-	d := p.Details()
-	key := "candidate/" + id.String()
-	_, err = e.Exec(ctx, `INSERT INTO agenteam_object.upload_attempts(id,upload_id,object_id,ordinal,candidate_key,phase,process_id,byte_size,sha256,spool_payload_id) VALUES($1,$2,$3,$4,$5,'reserved',$6,$7,$8,$9)`, id.String(), current.id.String(), object.String(), ordinal, key, s.state().process.String(), d.Length, digestBytes(d.SHA256), d.ID.String())
-	if err != nil {
-		return oc.UploadAttempt{}, unavailable(err)
-	}
-	_, err = e.Exec(ctx, `INSERT INTO agenteam_object.object_leases(id,object_id,attempt_id,owner_kind,owner_id,process_id,state) VALUES($1,$2,$3,'writer',$3,$4,'active')`, leaseID.String(), object.String(), id.String(), s.state().process.String())
-	if err != nil {
-		return oc.UploadAttempt{}, unavailable(err)
-	}
-	_, err = e.Exec(ctx, `UPDATE agenteam_object.uploads SET current_attempt_id=$1,state='pending' WHERE id=$2`, id.String(), current.id.String())
-	if err != nil {
-		return oc.UploadAttempt{}, unavailable(err)
-	}
-	return oc.NewUploadAttempt(oc.AttemptDetails{ID: id, UploadID: current.id, ObjectID: object})
+	return s.newPrivateCandidate(ctx, e, current, p)
 }
 
 // gateAttempt is called under the object and command locks. Even a never-sent
@@ -197,7 +155,7 @@ func (s *Service) gateAttempt(ctx context.Context, e postgres.SQLExecutor, a att
 		return unavailable(err)
 	}
 	mode := "delete"
-	if a.late || !a.closed || a.phase == "unknown" || a.phase == "sending" {
+	if a.kind == "runner_staging" || a.late || !a.closed || a.phase == "unknown" || a.phase == "sending" {
 		mode = "zero_marker"
 	}
 	_, err = e.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET cleanup_gate=true,phase=CASE WHEN phase='cleaned' THEN phase ELSE 'abandoned' END WHERE id=$1`, a.id.String())
@@ -217,6 +175,17 @@ func (s *Service) PublishVerifiedInTx(ctx context.Context, tx foundation.Tx, act
 		return oc.PutResult{}, err
 	}
 	d := handle.Details()
+	e0, err0 := executor(s, tx)
+	if err0 != nil {
+		return oc.PutResult{}, err0
+	}
+	physical, exists, err0 := loadAttempt(ctx, e0, d.ID)
+	if err0 != nil {
+		return oc.PutResult{}, err0
+	}
+	if !exists || physical.kind != "private_candidate" {
+		return oc.PutResult{}, failure(foundation.InvalidState, nil)
+	}
 	if _, err := s.authorize(ctx, tx, actor, owner, identity.Mutate); err != nil {
 		return oc.PutResult{}, err
 	}
@@ -511,6 +480,9 @@ func (s *Service) UploadPrepared(ctx context.Context, actor identity.Actor, owne
 			return err
 		}
 		if !ok || attempt.upload != u.id || attempt.object != u.object {
+			return failure(foundation.InvalidState, nil)
+		}
+		if attempt.kind != "private_candidate" {
 			return failure(foundation.InvalidState, nil)
 		}
 		if u.state == "committed" || attempt.phase == "verified" {

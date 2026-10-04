@@ -10,13 +10,16 @@ const (
 	SecretMaintaining    SecurityPhase = "secret_maintenance_starting"
 	SecretUnavailable    SecurityPhase = "secret_unavailable"
 	OutboundInitializing SecurityPhase = "outbound_initializing"
+	ObjectInitializing   SecurityPhase = "object_initializing"
+	ObjectAvailable      SecurityPhase = "object_available"
+	ObjectUnavailable    SecurityPhase = "object_unavailable"
 	SecurityInitialized  SecurityPhase = "initialized"
 	SecurityFailed       SecurityPhase = "failed"
 )
 
 func (l *Logger) Security(phase SecurityPhase) {
 	switch phase {
-	case CursorInitializing, AuditInitializing, SecretInitializing, SecretMaintaining, SecretUnavailable, OutboundInitializing, SecurityInitialized, SecurityFailed:
+	case ObjectInitializing, ObjectAvailable, ObjectUnavailable, CursorInitializing, AuditInitializing, SecretInitializing, SecretMaintaining, SecretUnavailable, OutboundInitializing, SecurityInitialized, SecurityFailed:
 	default:
 		phase = SecurityFailed
 	}

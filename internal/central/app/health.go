@@ -32,11 +32,13 @@ func (t healthTiming) defaults() healthTiming {
 }
 
 type healthMonitor struct {
-	mu        sync.RWMutex
-	last      postgres.DatabaseHealth
-	received  time.Time
-	available bool
-	timing    healthTiming
+	mu              sync.RWMutex
+	last            postgres.DatabaseHealth
+	received        time.Time
+	available       bool
+	timing          healthTiming
+	objectAvailable bool
+	objectReceived  time.Time
 }
 
 func healthy(h postgres.DatabaseHealth) bool {
@@ -55,7 +57,12 @@ func (h *healthMonitor) snapshot() (postgres.DatabaseHealth, bool) {
 	}
 	return h.last, true
 }
-func (h *healthMonitor) run(ctx context.Context, db database, logger processLogger) {
+func (h *healthMonitor) objectSnapshot() bool {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	return h.objectAvailable && h.timing.now().Sub(h.objectReceived) <= h.timing.stale
+}
+func (h *healthMonitor) run(ctx context.Context, db database, logger processLogger, objects ...objectStorage) {
 	timer := time.NewTicker(h.timing.interval)
 	defer timer.Stop()
 	for {
@@ -68,9 +75,54 @@ func (h *healthMonitor) run(ctx context.Context, db database, logger processLogg
 			return
 		}
 		sample, cancel := context.WithTimeout(ctx, h.timing.timeout)
-		next, err := db.Check(sample)
+		type databaseSample struct {
+			health postgres.DatabaseHealth
+			err    error
+		}
+		databaseDone := make(chan databaseSample, 1)
+		go func(done chan databaseSample) {
+			next, err := db.Check(sample)
+			done <- databaseSample{next, err}
+		}(databaseDone)
+		objectDone := make(chan error, 1)
+		var objectService objectStorage
+		if len(objects) > 0 {
+			objectService = objects[0]
+		}
+		go func(done chan error) {
+			if objectService != nil {
+				done <- objectService.Check(sample)
+			} else {
+				done <- errors.New("OBJECT_UNBOUND")
+			}
+		}(objectDone)
+		var next postgres.DatabaseHealth
+		var err, objectErr error
+		for databaseDone != nil || objectDone != nil {
+			select {
+			case result := <-databaseDone:
+				next = result.health
+				err = result.err
+				databaseDone = nil
+			case result := <-objectDone:
+				objectErr = result
+				objectDone = nil
+			case <-sample.Done():
+				if databaseDone != nil {
+					err = sample.Err()
+					databaseDone = nil
+				}
+				if objectDone != nil {
+					objectErr = sample.Err()
+					objectDone = nil
+				}
+			}
+		}
 		if err == nil {
 			err = sample.Err()
+		}
+		if objectErr == nil {
+			objectErr = sample.Err()
 		}
 		cancel()
 		if ctx.Err() != nil {
@@ -80,11 +132,23 @@ func (h *healthMonitor) run(ctx context.Context, db database, logger processLogg
 		h.mu.Lock()
 		changed := h.available != available
 		h.available = available
+		objectChanged := h.objectAvailable != (objectErr == nil)
+		h.objectAvailable = objectErr == nil
+		if objectErr == nil {
+			h.objectReceived = h.timing.now()
+		}
 		if available {
 			h.last = next
 			h.received = h.timing.now()
 		}
 		h.mu.Unlock()
+		if objectChanged {
+			if objectErr == nil {
+				logger.Security(logging.ObjectAvailable)
+			} else {
+				logger.Security(logging.ObjectUnavailable)
+			}
+		}
 		if changed {
 			if available {
 				logger.Database(logging.DatabaseHealthy, "", "", 0)

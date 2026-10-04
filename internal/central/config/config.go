@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
@@ -32,6 +33,7 @@ type Config struct {
 	cursorKeys      cursor.Keyring
 	secretKeys      secret.Keyring
 	outboundTrust   outbound.TrustStore
+	objectRuntime   object.RuntimeConfig
 }
 
 func (c Config) LogLevel() slog.Level               { return c.logLevel }
@@ -41,6 +43,7 @@ func (c Config) PublicOrigin() string               { return c.publicOrigin }
 func (c Config) Database() postgres.Config          { return c.database }
 func (c Config) CursorKeyring() cursor.Keyring      { return c.cursorKeys }
 func (c Config) SecretKeyring() secret.Keyring      { return c.secretKeys }
+func (c Config) Objects() object.RuntimeConfig      { return c.objectRuntime }
 func (c Config) OutboundTrust() outbound.TrustStore { return c.outboundTrust }
 
 // Error contains a declared field name and stable reason, never an input value.
@@ -71,6 +74,7 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 		}
 		switch strings.TrimPrefix(key, Prefix) {
 		case "LOG_LEVEL", "SHUTDOWN_TIMEOUT", "HTTP_ADDR", "PUBLIC_ORIGIN", "CURSOR_KEYRING", "SECRET_KEYRING", "OUTBOUND_CA_FILE":
+		case "OBJECT_DOWNLOAD_KEYRING", "OBJECT_ENDPOINT", "OBJECT_TRANSFER_ENDPOINT", "OBJECT_BUCKET", "OBJECT_ACCESS_KEY", "OBJECT_SECRET_KEY", "OBJECT_TLS_MODE", "OBJECT_CA_FILE", "OBJECT_SPOOL_DIR":
 		case "DATABASE_URL", "DATABASE_TLS_MODE", "DATABASE_CA_FILE", "DATABASE_MAX_CONNS", "DATABASE_CONNECT_TIMEOUT", "DATABASE_STARTUP_TIMEOUT", "DATABASE_LOCK_TIMEOUT":
 		default:
 			return Config{}, &Error{field: Prefix + "*", reason: "unsupported"}
@@ -138,6 +142,14 @@ func Load(lookup LookupEnv, env []string) (Config, error) {
 	if err != nil {
 		return Config{}, invalid("OUTBOUND_CA_FILE")
 	}
+	if _, err = object.LoadDownloadKeyring(value("OBJECT_DOWNLOAD_KEYRING", ""), c.cursorKeys, c.secretKeys); err != nil {
+		return Config{}, invalid("OBJECT_DOWNLOAD_KEYRING")
+	}
+	c.objectRuntime, err = object.LoadRuntimeConfig(lookup, c.cursorKeys, c.secretKeys)
+	if err != nil {
+		return Config{}, invalid("OBJECT_*")
+	}
+
 	return c, nil
 }
 
@@ -165,6 +177,9 @@ func (c Config) Validate() error {
 	}
 	if c.outboundTrust.Validate() != nil {
 		return invalid("OUTBOUND_CA_FILE")
+	}
+	if c.objectRuntime.Validate() != nil {
+		return invalid("OBJECT_*")
 	}
 	return nil
 }

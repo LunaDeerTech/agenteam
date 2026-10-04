@@ -9,6 +9,9 @@ if [ "$agenteam_version" != 'go1.27.1' ]; then
   printf '%s\n' 'Go go1.27.1 is required; set AGENTEAM_GO to that binary.' >&2
   exit 1
 fi
+if [ -z "${AGENTEAM_OBJECT_FIXTURE:-}" ]; then
+  exec sh scripts/test-objects.sh "$@"
+fi
 umask 077
 agenteam_helper_dir=$(mktemp -d "${TMPDIR:-/tmp}/agenteam-d04-security-helper.XXXXXX")
 agenteam_helper_pid=''

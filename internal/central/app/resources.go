@@ -24,6 +24,35 @@ type resources struct {
 	maintenanceErr    error
 	stopping          bool
 	outboundService   egress
+	objectService     objectStorage
+}
+
+func (o *resources) addObjects(ctx context.Context, service objectStorage) bool {
+	o.mu.Lock()
+	forced, stopping := o.forced, o.stopping
+	if forced == nil {
+		// Even an unsuccessful/cancelled constructor may own a ProcessGuard
+		// and joined probe checkpoints. Reject startup admission but retain
+		// cleanup ownership for the original drain/force group. The startup
+		// context is already cancelled and is not that group's budget.
+		o.objectService = service
+		o.mu.Unlock()
+		if !stopping && ctx.Err() == nil {
+			return true
+		}
+		service.StopAdmission()
+		return false
+	}
+	o.mu.Unlock()
+	service.StopAdmission()
+	_ = service.Force(forced)
+	return false
+}
+func (o *resources) objects() objectStorage { o.mu.Lock(); defer o.mu.Unlock(); return o.objectService }
+func (o *resources) stopObjects() {
+	if s := o.objects(); s != nil {
+		s.StopAdmission()
+	}
 }
 
 func (o *resources) addOutbound(ctx context.Context, service egress) bool {
@@ -136,34 +165,14 @@ func (o *resources) closeHTTP() {
 func cleanupResources(ctx context.Context, o *resources, cancelServing context.CancelFunc) {
 	o.stopMaintenance()
 	o.stopOutbound()
+	o.stopObjects()
 	o.mu.Lock()
 	o.forced = ctx
 	store := o.db
 	cancelMaintenance := o.maintenanceCancel
 	outboundService := o.outboundService
+	objectService := o.objectService
 	o.mu.Unlock()
-	done := make(chan struct{})
-	go func() {
-		defer close(done)
-		if store != nil {
-			_ = store.ForceClose(ctx)
-		}
-	}()
-	outboundDone := make(chan struct{})
-	go func() {
-		defer close(outboundDone)
-		if outboundService != nil {
-			_ = outboundService.ForceClose(ctx)
-		}
-	}()
-	select {
-	case <-done:
-	case <-ctx.Done():
-	}
-	select {
-	case <-outboundDone:
-	case <-ctx.Done():
-	}
 	if cancelMaintenance != nil {
 		cancelMaintenance()
 	}
@@ -171,13 +180,38 @@ func cleanupResources(ctx context.Context, o *resources, cancelServing context.C
 		cancelServing()
 	}
 	o.closeHTTP()
-	if done := o.workerDone(); done != nil {
-		select {
-		case <-done:
-		case <-ctx.Done():
+	outboundDone := make(chan struct{})
+	objectDone := make(chan struct{})
+	go func() {
+		defer close(outboundDone)
+		if outboundService != nil {
+			_ = outboundService.ForceClose(ctx)
+		}
+	}()
+	go func() {
+		defer close(objectDone)
+		if objectService != nil {
+			_ = objectService.Force(ctx)
+		}
+	}()
+	for _, done := range []<-chan struct{}{outboundDone, objectDone, o.workerDone()} {
+		if done != nil {
+			select {
+			case <-done:
+			case <-ctx.Done():
+			}
 		}
 	}
+	// DB admission and sockets stay available for already admitted object/HTTP
+	// cleanup until their shared force budget is consumed. Never renew it here.
+	// D03 ForceClose closes owned sockets before its bounded pool join, and
+	// uses this parent deadline even if it has already elapsed. Calling it
+	// synchronously guarantees initiation before reporting process shutdown.
+	if store != nil {
+		_ = store.ForceClose(ctx)
+	}
 }
+
 func joinWorkers(ctx context.Context, serve, http, db <-chan error, health <-chan struct{}) {
 	for serve != nil || http != nil || db != nil || health != nil {
 		select {

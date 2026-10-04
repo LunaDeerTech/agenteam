@@ -55,6 +55,9 @@ func (d *unitDatabase) ForceClose(ctx context.Context) error {
 	return nil
 }
 func unitDependencies(deps dependencies) dependencies {
+	if deps.objects == nil {
+		deps.objects = func(context.Context, config.Config, database, *audit.Service) (objectStorage, error) { return nil, nil }
+	}
 	if deps.outbound == nil {
 		deps.outbound = func(context.Context, config.Config, database, *audit.Service) (egress, error) { return nil, nil }
 	}

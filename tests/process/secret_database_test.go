@@ -22,8 +22,8 @@ const processMasterOne = `{"format":1,"current_version":"1","keys":[{"version":"
 const processMasterTwo = `{"format":1,"current_version":"2","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="},{"version":"2","key_b64":"QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8="}]}`
 const processMasterOnlyTwo = `{"format":1,"current_version":"2","keys":[{"version":"2","key_b64":"QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8="}]}`
 
-func secretEnvironment(db *pgfixture.Database, raw string, extras ...string) []string {
-	env := databaseEnvironment(db, extras...)
+func secretEnvironment(t *testing.T, db *pgfixture.Database, raw string, extras ...string) []string {
+	env := databaseEnvironment(t, db, extras...)
 	for i, v := range env {
 		if strings.HasPrefix(v, "AGENTEAM_CENTRAL_SECRET_KEYRING=") {
 			env[i] = "AGENTEAM_CENTRAL_SECRET_KEYRING=" + raw
@@ -50,7 +50,7 @@ func TestCentralSecretActualStartupRotationAndIndependentKeyRemoval(t *testing.T
 		raw    string
 		target int64
 	}{{processMasterOne, 1}, {processMasterTwo, 2}, {processMasterOnlyTwo, 2}} {
-		p := launch(t, "agenteam", nil, secretEnvironment(db, version.raw))
+		p := launch(t, "agenteam", nil, secretEnvironment(t, db, version.raw))
 		address := p.event(t, "event", "listening")["listen_address"].(string)
 		checkDiagnosticBinary(t, address)
 		waitSecretCompleted(t, db, version.target)
@@ -83,7 +83,7 @@ func TestCentralSecretCanaryAndMissingOldKeyFailBeforeHTTP(t *testing.T) {
 	for _, mode := range []string{"wrong_material", "missing_old_key", "bad_canary"} {
 		t.Run(mode, func(t *testing.T) {
 			db := pgfixture.NewDatabase(t)
-			p := launch(t, "agenteam", nil, secretEnvironment(db, processMasterOne))
+			p := launch(t, "agenteam", nil, secretEnvironment(t, db, processMasterOne))
 			p.event(t, "event", "listening")
 			waitSecretCompleted(t, db, 1)
 			stopSecretProcess(t, p, db)
@@ -98,7 +98,7 @@ func TestCentralSecretCanaryAndMissingOldKeyFailBeforeHTTP(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			p = launch(t, "agenteam", nil, secretEnvironment(db, raw))
+			p = launch(t, "agenteam", nil, secretEnvironment(t, db, raw))
 			p.wait(t, 1)
 			if strings.Contains(p.stderr.String(), `"event":"listening"`) || !strings.Contains(p.stderr.String(), `"phase":"failed"`) {
 				t.Fatal("failed canary/required key reached HTTP")
@@ -127,7 +127,7 @@ func TestCentralSecretStartupSignalCancelsOwnedRegistryLock(t *testing.T) {
 			if _, err = guard.Exec(databaseContext(t), `SELECT pg_advisory_lock($1)`, key.AdvisoryKey()); err != nil {
 				t.Fatal(err)
 			}
-			p := launch(t, "agenteam", nil, secretEnvironment(db, processMasterOne, "AGENTEAM_CENTRAL_DATABASE_LOCK_TIMEOUT=10s", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s"))
+			p := launch(t, "agenteam", nil, secretEnvironment(t, db, processMasterOne, "AGENTEAM_CENTRAL_DATABASE_LOCK_TIMEOUT=10s", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s"))
 			p.event(t, "phase", "secret_initializing")
 			waitDatabaseFact(t, db.Connect(t), `SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND application_name='agenteam' AND wait_event_type='Lock' AND wait_event='advisory')`)
 			started := time.Now()

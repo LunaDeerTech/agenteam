@@ -256,9 +256,9 @@
 
 ## AT-0012：D05 对象存储与 Artifact
 
-- 状态：B01已独立验收，B02实施中；唯一活动模块D05；[主卡](../work-items/d05-object-storage-artifact.md)修订1，基线main@abf5c37。D04全范围与真实最终整组已独立验收，所有作者/验证者停止，资源全清后开工。
+- 状态：已完成；B01/B02/B03独立验收及root审查通过，[主卡](../work-items/d05-object-storage-artifact.md)修订3/设计修订6，开工基线main@abf5c37。最终证据及后续未绑定端口见主卡末尾，下一模块D06。
 - architecture_worker独占新增实施规格，root独占主卡/计划/台账；R01仅有界MinIO SDK/镜像/环境探针，不写仓库实现。按D01正式对象/引用/transfer边界落实表/状态/授权/stream/一致性/恢复/Artifact服务，S01确认后实施。未来身份/Project/Runner/Tool适配仍未绑定，禁止生产stub或匿名业务API。
-- Go1.27.1/local与owned PG固定环境继续复用；MinIO版本/真实fixture待核验，无产品待定；推送认证阻塞不冒称已远端同步。下一步完成设计及依赖核验。
+- Go1.27.1/local与owned PG/固定源码MinIO/TLS真实验证已完成；所有执行者停写、资源清零。无产品待定，推送认证阻塞不冒称已远端同步。
 
 - R01/R02真实MinIO单PUT/签名/完整性及零marker补证完成，研究修订2冻结；S01修订1停写并交独立静态审查。报告/规格指纹、资源清理和实际限制见主卡。root尚未批准实施，生产代码未改；推送认证仍待恢复。
 
@@ -315,3 +315,5 @@
 - B03纯contract提交a6c5329；完整64源已停写，manifest743417712e70b300c187fb3d4b99839bf416c4aa68fccebe2937ce8015bfe1a0，251依赖b611aaeb7b37b3b8f14ddb5660cbb30a906e4fc432d8383c66af54913bab0e42。最终check-go/相关对象102.594s/全部Central83.270s/反向worker2.689s作者通过，69nonce资源0。V独立315输入副本开始无过滤完整兼容与风险探针，root只读审查；主卡记录全部实际修复及边界，B03/D05仍未验收，28本地提交待原认证恢复。
 
 - B03完整无过滤独立suite exit0（objects265.343s/旧兼容全过），但额外真实probe确认合法1s在原期限仍剩908ms时提前INVALID_STATE，原probe ae52f8d6dda0aefee4575d6af598ac5023aab9cf8165a15315e07365b8385482保留。V已停读停测/资源清零，root仅授权签名整秒计算及对应测试/单处文档名窄修；315输入原指纹保持，B03/D05未验收。详见主卡，HEAD fd83764，29本地提交待既有认证恢复。
+
+- D05最终验收通过：B03期限窄修原ae52探针逐字通过、真实objects18.333s/race1.853s/vet通过，65源329c2c54f9adde6daef8fa2e05658dfa1163105f9eebf695515d1bb2c1c7f140及251依赖匹配，独立索引fe1a3a9af210968952d9fc7b3dce8f8c661bf66354bc2bb6feb505fbec6a08e3。复用未变全量兼容exit0，V全停/资源0；root采纳并精确提交。B01/B02/B03全部完成，无剩余确认阻塞，后续正式绑定/未执行真实host reboot等限制见主卡；下一D06，D06–D28/E01仍待完成。

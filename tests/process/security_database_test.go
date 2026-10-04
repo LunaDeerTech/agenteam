@@ -25,7 +25,7 @@ func TestCentralSecurityMissingStoragePreventsListening(t *testing.T) {
 	if _, err := db.Connect(t).Exec(databaseContext(t), `DROP TABLE agenteam_audit.audit_records CASCADE`); err != nil {
 		t.Fatal(err)
 	}
-	p := launch(t, "agenteam", nil, databaseEnvironment(db))
+	p := launch(t, "agenteam", nil, databaseEnvironment(t, db))
 	p.wait(t, 1)
 	if strings.Contains(p.stderr.String(), `"event":"listening"`) || !strings.Contains(p.stderr.String(), `"event":"security","phase":"failed"`) {
 		t.Fatal("missing Audit storage reached HTTP or lost security stage")

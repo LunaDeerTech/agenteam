@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact
 
-- 修订：3；状态：B01/B02已独立验收，B03完整实现64文件已冻结，独立整体验证中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
+- 修订：3；状态：B01/B02已独立验收，D05全部已完成，B01/B02/B03独立验收通过；基线 `main@abf5c37`，开工工作区干净。
 - 前置：[D04](d04-security-foundation.md)全部独立验收和真实完整suite通过，入口本地提交abf5c37；GitHub认证失效，ee8ddb7起5个本地提交待恢复后补推，不冒称远端同步。
 - 目标：按[计划D05](../development-plan.md#d05-对象存储与-artifact)实现StoredObject/引用与lease、流式MinIO读写、跨DB/对象存储的一致性和恢复、Artifact服务、受控预览/下载及短期传输授权。
 
@@ -10,8 +10,8 @@
 | --- | --- | --- | --- | --- |
 | S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订6独立静态复验通过并冻结，root已采纳 |
 | R01 依赖与隔离环境核验 | D04完成 | research_worker | 有界探针及新增d05-object-storage-research.md报告，不写实现源码 | R01/R02修订2完成并停写 |
-| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01/B02及B03契约已独立验收，B03完整实现冻结待V |
-| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | B03独立副本无过滤兼容与风险审查进行中；V独占Docker |
+| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01/B02/B03完整独立验收通过，已全部停写 |
+| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | 完整无过滤及独立原探针/期限修复复验通过，V全停、资源清零 |
 
 root独占本卡、开发计划和任务台账；架构作者仅新建实施规格。角色遵循AGENTS与agenteam-design/go-development/verification/documentation技能，禁止子agent再委派和Git写操作。常态至多两个活动子任务，Docker和测试资源顺序明确移交。设计稳定且root确认后才写实现，不提前D06+。
 
@@ -35,7 +35,7 @@ Linux/amd64、Docker28.4.0、精确Go1.27.1/local、既有PG17.8/vector0.8.1正�
 
 验收至少实际覆盖中断上传、外部已写DB失败/unknown、缺payload明确错误、引用/lease阻止删除、跨scope拒绝、stream不全量缓冲、签名材料安全及有效期/完整性、恢复/清理幂等与Central资源关闭。只用nonce/标签/exact ID任务owned PG/MinIO/临时目录，缺真实fixture在专用套件中失败，不能skip充当通过。
 
-下一步进入B03 Runner transfer与Central对象存储入口集成；当前无新产品待定。D05及D06–D28/E01均未完成。
+D05已通过完整模块门槛；下一步D06 Outbox与事件投递。D06–D28/E01尚未完成，无新产品待定。
 
 
 ## S01/R01 进展
@@ -350,3 +350,12 @@ V已接独占Docker，在 `/tmp/agenteam-d05-b03-full-verify-wd8wxdxz` 独立315
 独立完整无过滤suite exit0，日志 `/tmp/agenteam-d05-b03-full-verify-wd8wxdxz/full-suite.log` SHA `0a709e72c9d76b885c59c207d66c97401119ca0efd3978262a1a7c8b01f5c008`：postgres1.036s/database62.970s/app75.468s/process105.336s/security95.958s/objects265.343s/object2.277s/contract1.069s，315输入末次匹配。独立额外真实probe确认1秒授权缺陷：合法1s、秒初Issue71.063913ms返回INVALID_STATE，此时DB原expires仍未来908.414822ms；源为sign的time.Until/Second下取整0，非真正到期。原probe SHA `ae52f8d6dda0aefee4575d6af598ac5023aab9cf8165a15315e07365b8385482`不改；失败日志 `/tmp/agenteam-d05-b03-full-verify-wd8wxdxz/independent-real.log` SHA `af2d9421e709f7d488419fe282f15fe3d19c07d9b05e9a1341762cbc50e314aa`，objects4.158s exit1；其它逐阶段Completed缺失及跨grant证据probe未失败。V已停读/停测，6nonce资源及本机进程独立清零；暂仅写/tmp最终索引。B03仍阻塞于该确认缺陷。
 
 root仅解冻backend窄修：`object/transfer_storage.go`按实际SigV4整秒时基计算候选duration，允许合法1s；继续严格检查生成后wire_expires<=原DB期限，跨秒/暂停超界丢弃，不延长持久deadline、不改1–300范围。对应新增/必要测试仅签名单位及真实1s/跨秒边界；保留独立原probe逐字复验。另`docs/development/repository-structure.md`单个配置名改OBJECT_DOWNLOAD_KEYRING。其余源文件/依赖不解冻，测试证据按受影响范围复跑，无新接口/产品决定。作者独占Docker移交后自测、冻结delta及全64manifest，再独立复验；无关完整兼容可按未变指纹复用。
+
+
+## D05最终验收与后续绑定
+
+B03期限窄修已独立验收，root审查采纳，无剩余确认阻塞。最终65源manifest SHA `329c2c54f9adde6daef8fa2e05658dfa1163105f9eebf695515d1bb2c1c7f140`，251依赖SHA `b611aaeb7b37b3b8f14ddb5660cbb30a906e4fc432d8383c66af54913bab0e42`，delta4 SHA `2828c26c7162218fc9fa2276fa95314e23007ab84d940d601c412d69f31feded`。原ae52探针逐字通过，Issue157.920242ms、原deadline尚余821.893069ms即成功并完成真实GET；GET/PUT1s均200，原deadline未改、到期拒绝、跨秒/篡改组过，objects18.333s，实际SDK跨秒race1.853s/vet通过。独立 `/tmp/agenteam-d05-b03-signing-verify-rgr9f881/verification-report.json` 与证据索引SHA `fe1a3a9af210968952d9fc7b3dce8f8c661bf66354bc2bb6feb505fbec6a08e3`；原完整验证索引SHA `54b89b628cb526e12d8f6c0ee2fcf1e45bf8170c1cf48d27ddb166d733e9ec56`。其余312输入未变，复用原无过滤完整suite exit0，作者修后check-go SHA `d8e964220f9cf40e926c7f4f17b08a541ba562f8d90a2b1bcf73071fc5a71937`。316项在仓库/作者/独立副本全部匹配，V本轮3nonce资源/目录/进程0且全停。root核实际工作区恰好最终65文件，无额外未授权文件，精确提交实现及三份进度文档。
+
+模块门槛：B01对象可靠存储/完整性/引用lease/公平恢复（d31aecd）、B02独立keyring/SourceReads及Artifact/浏览器下载（5516741/f400240/2c1dca3）、B03正式契约（a6c5329）与Runner transfer/Central运行时全部通过当前范围独立验收。真实PG/MinIO/TLS/进程和旧模块兼容证据齐全；所有确认缺陷均保留原失败与修复复验，没有核心TODO/生产stub/跳过必需依赖。历史工程笔误/夹具修正不抹除。设计rev6、研究rev2、操作说明与实际必填配置一致。D05标记已完成，可推进D06。
+
+后续绑定仍明确未完成：D07身份/Session、D08 Project/Owner生命周期、各资源域resolver/provider、D15–D17真实Runner注册/Operation/网络及可信终局证明、D21工具适配，D28部署镜像/升级。当前只开放诊断，无对象/Artifact/下载/transfer业务HTTP；授权缺失明确失败、ready=false。历史boot记录分支及真实SIGKILL已验证，未执行宿主真实重启；测试SQL authority不代表远端Runner产品集成。上述正式责任不能被本模块通过替代。GitHub认证仍未恢复，提交前HEAD08b05f4/30本地提交待推，继续本地提交并按已授权顺序推进，不冒称远端同步。

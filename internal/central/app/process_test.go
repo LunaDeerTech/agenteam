@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
 	"io"
 	"log/slog"
 	"net"
@@ -97,6 +98,7 @@ func launchFixture(t *testing.T, mode, timeout string) *fixtureProcess {
 	p := &fixtureProcess{cmd: exec.Command(executable, "-test.run=^TestAppProcessFixture$", "-test.timeout=15s"), stdout: newEventLog(), stderr: newEventLog(), done: make(chan struct{})}
 	p.cmd.Dir = t.TempDir()
 	p.cmd.Env = []string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_APP_PROCESS_FIXTURE=" + mode, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=" + timeout, "AGENTEAM_CENTRAL_DATABASE_URL=postgresql://unit:unit@127.0.0.1:1/unit", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"}
+	p.cmd.Env = append(p.cmd.Env, objectfixture.ConfigOnlyEnvironment()...)
 	p.cmd.Stdout = p.stdout
 	p.cmd.Stderr = p.stderr
 	p.stdin, err = p.cmd.StdinPipe()

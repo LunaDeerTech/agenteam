@@ -65,6 +65,9 @@ type serviceState struct {
 	accessTransactions           map[foundation.Tx]bool
 	store                        Store
 	backend                      *Backend
+	transferBackend              *Backend
+	runtime                      *Runtime
+	runtimeReady                 bool
 	spool                        *Spool
 	audit                        ac.Appender
 	auth                         Authorizations
@@ -131,7 +134,7 @@ func (s *Service) admit(ctx context.Context, initializing bool) (*operation, fun
 	if r.stopped || r.forced {
 		return nil, nil, failure(foundation.ShuttingDown, nil)
 	}
-	if !r.initialized && !initializing {
+	if (!r.initialized || r.runtime != nil && !r.runtimeReady) && !initializing {
 		return nil, nil, unavailable(nil)
 	}
 	if e := ctx.Err(); e != nil {
@@ -179,6 +182,9 @@ func (s *Service) Drain(ctx context.Context) error {
 			r.drained = true
 			r.mu.Unlock()
 			_ = r.backend.Close()
+			if r.transferBackend != nil {
+				_ = r.transferBackend.Close()
+			}
 			return r.spool.Close()
 		}
 		r.mu.Unlock()
@@ -211,6 +217,9 @@ func (s *Service) Force(ctx context.Context) error {
 		op.cancel()
 	}
 	_ = r.backend.Close()
+	if r.transferBackend != nil {
+		_ = r.transferBackend.Close()
+	}
 	return s.Drain(ctx)
 }
 func (s *Service) cleanupContext() (context.Context, context.CancelFunc) {
@@ -302,17 +311,20 @@ func stableActor(actor identity.Actor) string {
 	return string(canonical)
 }
 func semanticDigest(actor identity.Actor, owner oc.ObjectOwner, meta foundation.CommandMeta, p oc.PreparedPayload) ([]byte, error) {
+	d := p.Details()
+	return contentSemanticDigest(actor, owner, meta, d.MediaType, d.Length, d.SHA256)
+}
+func contentSemanticDigest(actor identity.Actor, owner oc.ObjectOwner, meta foundation.CommandMeta, media string, length int64, digest foundation.Digest) ([]byte, error) {
 	expected := ""
 	if meta.ExpectedVersion != nil {
 		expected = meta.ExpectedVersion.String()
 	}
-	d := p.Details()
 	raw, e := json.Marshal(struct {
 		Format                           string          `json:"format"`
 		Actor                            string          `json:"actor"`
 		Owner                            oc.OwnerDetails `json:"owner"`
 		Expected, MediaType, Length, SHA string
-	}{"canonical-v1", stableActor(actor), owner.Details(), expected, d.MediaType, foundation.Progress(d.Length).String(), d.SHA256.String()})
+	}{"canonical-v1", stableActor(actor), owner.Details(), expected, media, foundation.Progress(length).String(), digest.String()})
 	if e != nil {
 		return nil, invalid()
 	}

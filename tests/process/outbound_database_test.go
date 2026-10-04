@@ -19,7 +19,7 @@ func TestCentralOutboundActualStartupDiagnosticAndSignals(t *testing.T) {
 	for _, signal := range []os.Signal{syscall.SIGTERM, syscall.SIGINT} {
 		t.Run(signal.String(), func(t *testing.T) {
 			db := pgfixture.NewDatabase(t)
-			p := launch(t, "agenteam", nil, databaseEnvironment(db))
+			p := launch(t, "agenteam", nil, databaseEnvironment(t, db))
 			address := p.event(t, "event", "listening")["listen_address"].(string)
 			data := secretDiagnostic(t, address)
 			var d struct {
@@ -74,7 +74,7 @@ func TestCentralOutboundInvalidStoragePreventsListening(t *testing.T) {
 			if _, err := db.Connect(t).Exec(databaseContext(t), query); err != nil {
 				t.Fatal(err)
 			}
-			p := launch(t, "agenteam", nil, databaseEnvironment(db))
+			p := launch(t, "agenteam", nil, databaseEnvironment(t, db))
 			p.wait(t, 1)
 			logs := p.stderr.String()
 			if strings.Contains(logs, `"event":"listening"`) || !strings.Contains(logs, `"phase":"outbound_initializing"`) || !strings.Contains(logs, `"event":"security","phase":"failed"`) {
@@ -102,7 +102,7 @@ func TestCentralOutboundStartupCancellationStopsOwnedBackend(t *testing.T) {
 			if _, err := guard.Exec(databaseContext(t), `SELECT pg_advisory_lock($1)`, key.AdvisoryKey()); err != nil {
 				t.Fatal(err)
 			}
-			p := launch(t, "agenteam", nil, databaseEnvironment(db, "AGENTEAM_CENTRAL_DATABASE_LOCK_TIMEOUT=10s", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s"))
+			p := launch(t, "agenteam", nil, databaseEnvironment(t, db, "AGENTEAM_CENTRAL_DATABASE_LOCK_TIMEOUT=10s", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=5s"))
 			p.event(t, "phase", "outbound_initializing")
 			waitDatabaseFact(t, db.Connect(t), `SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND application_name='agenteam' AND wait_event_type='Lock' AND wait_event='advisory')`)
 			start := time.Now()

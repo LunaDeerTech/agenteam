@@ -138,6 +138,9 @@ type accessFacts struct {
 func (s *Service) accessFacts(ctx context.Context, e postgres.SQLExecutor, request oc.AccessRequest) (accessFacts, error) {
 	d := request.Details()
 	var out accessFacts
+	if d.Kind == oc.TransferAccess {
+		return s.transferAccessFacts(ctx, e, d.Transfer)
+	}
 	if d.Kind == oc.MaintenanceAccess && d.InstanceID != s.state().process {
 		return out, invalid()
 	}

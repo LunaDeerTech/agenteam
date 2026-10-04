@@ -6,6 +6,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
 	"io"
 	"net"
 	"net/http"
@@ -298,8 +299,11 @@ func TestCLIScopeAndSafeFailures(t *testing.T) {
 			var checkedEnvironment []string
 			scope := "d02"
 			if service == "central" {
-				scope = "d04"
+				scope = "d05"
 				checkedEnvironment = []string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_DATABASE_URL=postgresql://config:config-only@127.0.0.1:1/config_only", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"}
+			}
+			if service == "central" {
+				checkedEnvironment = append(checkedEnvironment, objectfixture.ConfigOnlyEnvironment()...)
 			}
 			p := launch(t, name, []string{"--check-config"}, checkedEnvironment)
 			p.wait(t, 0)
@@ -374,7 +378,7 @@ func TestCentralCheckAndCompiledRepairNeverConnect(t *testing.T) {
 				args = []string{"--expected-checksum", string(source.Manifest()[0].Checksum), "--repair-migration", "1"}
 				want = 1
 			}
-			p := launch(t, "agenteam", args, []string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_DATABASE_URL=postgresql://pure:password-SENTINEL@" + listener.Addr().String() + "/pure", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"})
+			p := launch(t, "agenteam", args, append(objectfixture.ConfigOnlyEnvironment(), []string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_DATABASE_URL=postgresql://pure:password-SENTINEL@" + listener.Addr().String() + "/pure", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"}...))
 			p.wait(t, want)
 			_ = listener.Close()
 			if <-accepted {

@@ -61,11 +61,11 @@ func execute(args []string, lookup config.LookupEnv, env []string, stdout, stder
 		action = "invalid"
 	}
 	if action == "help" {
-		_, _ = fmt.Fprintln(stdout, "Usage: agenteam [--help | --version | --check-config]\n       agenteam --repair-migration <version> --expected-checksum <sha256:...>\nD04 Audit/cursor/Secret/outbound and PostgreSQL diagnostics; product ready=false.")
+		_, _ = fmt.Fprintln(stdout, "Usage: agenteam [--help | --version | --check-config]\n       agenteam --repair-migration <version> --expected-checksum <sha256:...>\nD05 object storage/transfers and PostgreSQL/security diagnostics; product ready=false.")
 		return 0
 	}
 	if action == "version" {
-		_, _ = fmt.Fprintln(stdout, "agenteam development (D04)")
+		_, _ = fmt.Fprintln(stdout, "agenteam development (D05)")
 		return 0
 	}
 	if action == "invalid" {
@@ -98,7 +98,7 @@ func execute(args []string, lookup config.LookupEnv, env []string, stdout, stder
 			Scope string `json:"scope"`
 			Valid bool   `json:"valid"`
 			Ready bool   `json:"ready"`
-		}{Scope: "d04", Valid: true}
+		}{Scope: "d05", Valid: true}
 		if err := json.NewEncoder(stdout).Encode(result); err != nil {
 			return 1
 		}
@@ -114,7 +114,7 @@ func execute(args []string, lookup config.LookupEnv, env []string, stdout, stder
 			Status  string `json:"status"`
 			Version int64  `json:"version"`
 			Ready   bool   `json:"ready"`
-		}{"d04", "repaired_to_pending", result.Version, false}); err != nil {
+		}{"d05", "repaired_to_pending", result.Version, false}); err != nil {
 			return 1
 		}
 		return 0

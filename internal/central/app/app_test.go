@@ -6,6 +6,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
 	"io"
 	"log/slog"
 	"net"
@@ -81,6 +82,9 @@ func await(t *testing.T, ch <-chan struct{}) {
 func testConfig(t *testing.T, timeout string) config.Config {
 	t.Helper()
 	values := map[string]string{config.Prefix + "SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, config.Prefix + "CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, config.Prefix + "HTTP_ADDR": "127.0.0.1:0", config.Prefix + "SHUTDOWN_TIMEOUT": timeout, config.Prefix + "DATABASE_URL": "postgresql://unit:unit@127.0.0.1:1/unit", config.Prefix + "DATABASE_TLS_MODE": "disable"}
+	for key, value := range objectfixture.ConfigOnlyValues() {
+		values[key] = value
+	}
 	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -169,7 +173,7 @@ func TestDiagnosticRoutes(t *testing.T) {
 			}
 			for _, c := range d.Capabilities {
 				want := "unbound"
-				if c.Name == "secret" || c.Name == "outbound" {
+				if c.Name == "secret" || c.Name == "outbound" || c.Name == "object_storage" {
 					want = "unavailable"
 				}
 				if c.Name == "postgresql" || c.Name == "pgvector" || c.Name == "migrations" || c.Name == "read_write" || c.Name == "cursor" || c.Name == "audit_storage" {

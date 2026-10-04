@@ -11,11 +11,17 @@ import (
 
 // recoveryFailures preserves the first observable failure while independent
 // items advance. A failed item keeps its existing durable/in-memory checkpoint.
-type recoveryFailures struct{ first error }
+type recoveryFailures struct {
+	first        error
+	firstNonBusy error
+}
 
 func (f *recoveryFailures) remember(err error) error {
 	if f.first == nil {
 		f.first = err
+	}
+	if err != nil && !hasCode(err, foundation.ResourceBusy) && f.firstNonBusy == nil {
+		f.firstNonBusy = err
 	}
 	return f.first
 }
@@ -23,6 +29,13 @@ func (f *recoveryFailures) remember(err error) error {
 // Recover advances storage verification and already-authorized cleanup only.
 // It never uses a background Service actor to publish an Owner's business row.
 func (s *Service) Recover(ctx context.Context) error {
+	return s.recoverProgress(ctx, &recoveryFailures{})
+}
+
+// recoverProgress additionally reports every hard error to Runtime without
+// changing the public first-error result or any item's authorization.
+func (s *Service) recoverProgress(ctx context.Context, failures *recoveryFailures) (out error) {
+	defer func() { failures.remember(out) }()
 	if nilPort(s.state().auth.Planner) {
 		return failure(foundation.DependencyUnbound, nil)
 	}
@@ -33,7 +46,6 @@ func (s *Service) Recover(ctx context.Context) error {
 	defer finish()
 	ctx = op.ctx
 	r := s.state()
-	var failures recoveryFailures
 	r.mu.Lock()
 	closed := make(map[oc.AttemptID]bool, len(r.closedAttempts))
 	for id, v := range r.closedAttempts {
@@ -101,9 +113,9 @@ func (s *Service) Recover(ctx context.Context) error {
 			failures.remember(portError(err))
 			continue
 		}
-		failures.remember(s.releaseStopped(ctx, process))
+		failures.remember(s.releaseStopped(ctx, process, failures))
 	}
-	rows, err = r.store.Query(ctx, `SELECT id::text FROM agenteam_object.upload_attempts WHERE io_closed AND NOT cleanup_gate AND phase IN ('reserved','sending','unknown') ORDER BY created_at,id LIMIT 100`)
+	rows, err = r.store.Query(ctx, `SELECT id::text FROM agenteam_object.upload_attempts WHERE kind='private_candidate' AND io_closed AND NOT cleanup_gate AND phase IN ('reserved','sending','unknown') ORDER BY created_at,id LIMIT 100`)
 	if err != nil {
 		return failures.remember(unavailable(err))
 	}
@@ -165,7 +177,7 @@ func (s *Service) Recover(ctx context.Context) error {
 	if err = ctx.Err(); err != nil {
 		return failures.remember(unavailable(err))
 	}
-	return failures.remember(r.spool.RecoverOrphans(ctx, spoolRecoveryAuthority{s}))
+	return failures.remember(r.spool.RecoverOrphans(ctx, spoolRecoveryAuthority{s: s, failures: failures}))
 }
 func (s *Service) joinedAttempt(ctx context.Context, id oc.AttemptID, process oc.ProcessID) error {
 	a, found, err := loadAttempt(ctx, s.state().store, id)
@@ -175,12 +187,15 @@ func (s *Service) joinedAttempt(ctx context.Context, id oc.AttemptID, process oc
 	if !found {
 		return nil
 	}
+	if a.kind != "private_candidate" {
+		return failure(foundation.InvalidState, nil)
+	}
 	result := s.withinAccess(ctx, recoveryCause(), s.maintenanceRequest(oc.JoinAttemptAccess, a.object, oc.AccessRequestDetails{AttemptID: id, ProcessID: process}), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
 		e, err := executor(s, tx)
 		if err != nil {
 			return err
 		}
-		_, err = e.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET io_closed=true,phase=CASE WHEN phase IN ('reserved','sending') THEN 'unknown' ELSE phase END WHERE id=$1 AND process_id=$2`, id.String(), process.String())
+		_, err = e.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET io_closed=true,phase=CASE WHEN phase IN ('reserved','sending') THEN 'unknown' ELSE phase END WHERE id=$1 AND process_id=$2 AND kind='private_candidate'`, id.String(), process.String())
 		if err != nil {
 			return unavailable(err)
 		}
@@ -189,7 +204,8 @@ func (s *Service) joinedAttempt(ctx context.Context, id oc.AttemptID, process oc
 	})
 	return commitError(result)
 }
-func (s *Service) releaseStopped(ctx context.Context, process oc.ProcessID) error {
+func (s *Service) releaseStopped(ctx context.Context, process oc.ProcessID, failures *recoveryFailures) (out error) {
+	defer func() { failures.remember(out) }()
 	rows, err := s.state().store.Query(ctx, `SELECT DISTINCT object_id::text FROM agenteam_object.object_leases WHERE process_id=$1 AND state='active' ORDER BY object_id LIMIT 100`, process.String())
 	if err != nil {
 		return unavailable(err)
@@ -213,7 +229,6 @@ func (s *Service) releaseStopped(ctx context.Context, process oc.ProcessID) erro
 	if err != nil {
 		return unavailable(err)
 	}
-	var failures recoveryFailures
 	for _, id := range objects {
 		if err = ctx.Err(); err != nil {
 			return failures.remember(unavailable(err))
@@ -239,7 +254,7 @@ func (s *Service) recoverAttempt(ctx context.Context, id oc.AttemptID) error {
 	if err != nil {
 		return err
 	}
-	if !found || !a.closed || a.cleaning {
+	if !found || a.kind != "private_candidate" || !a.closed || a.cleaning {
 		return nil
 	}
 	verification := s.state().backend.verify(ctx, a.key, a.size, a.digest)
@@ -292,9 +307,17 @@ func (s *Service) recoverAttempt(ctx context.Context, id oc.AttemptID) error {
 	return commitError(result)
 }
 
-type spoolRecoveryAuthority struct{ s *Service }
+type spoolRecoveryAuthority struct {
+	s        *Service
+	failures *recoveryFailures
+}
 
-func (a spoolRecoveryAuthority) ConfirmStopped(ctx context.Context, id oc.ProcessID) error {
+func (a spoolRecoveryAuthority) ConfirmStopped(ctx context.Context, id oc.ProcessID) (out error) {
+	defer func() {
+		if a.failures != nil {
+			a.failures.remember(out)
+		}
+	}()
 	if nilPort(a.s.state().auth.Processes) {
 		return failure(foundation.DependencyUnbound, nil)
 	}
@@ -305,7 +328,7 @@ func (a spoolRecoveryAuthority) ConfirmStopped(ctx context.Context, id oc.Proces
 	// attempt. A pending, still-needed candidate prevents removal of that
 	// process's files; no expiry or failed socket is substituted for evidence.
 	var pending int64
-	if err := a.s.state().store.QueryRow(ctx, `SELECT count(*) FROM agenteam_object.upload_attempts WHERE process_id=$1 AND phase NOT IN ('verified','published','cleaned')`, id.String()).Scan(&pending); err != nil {
+	if err := a.s.state().store.QueryRow(ctx, `SELECT count(*) FROM agenteam_object.upload_attempts WHERE kind='private_candidate' AND process_id=$1 AND phase NOT IN ('verified','published','cleaned')`, id.String()).Scan(&pending); err != nil {
 		return unavailable(err)
 	}
 	if pending != 0 {

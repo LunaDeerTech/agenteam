@@ -40,6 +40,8 @@ type attemptRow struct {
 	ordinal, size          int64
 	digest                 foundation.Digest
 	late, closed, cleaning bool
+	kind                   string
+	transfer               oc.TransferID
 }
 
 func executor(s *Service, tx foundation.Tx) (postgres.SQLExecutor, error) {
@@ -132,9 +134,9 @@ func loadUpload(ctx context.Context, e postgres.SQLExecutor, id oc.UploadID) (up
 }
 func loadAttempt(ctx context.Context, e postgres.SQLExecutor, id oc.AttemptID) (attemptRow, bool, error) {
 	var r attemptRow
-	var aid, upload, obj, process string
+	var aid, upload, obj, process, transfer string
 	var digest []byte
-	err := e.QueryRow(ctx, `SELECT id::text,upload_id::text,object_id::text,process_id::text,candidate_key,phase,ordinal,byte_size,sha256,maybe_late,io_closed,cleanup_gate FROM agenteam_object.upload_attempts WHERE id=$1`, id.String()).Scan(&aid, &upload, &obj, &process, &r.key, &r.phase, &r.ordinal, &r.size, &digest, &r.late, &r.closed, &r.cleaning)
+	err := e.QueryRow(ctx, `SELECT id::text,upload_id::text,object_id::text,coalesce(process_id::text,''),candidate_key,phase,ordinal,byte_size,sha256,maybe_late,io_closed,cleanup_gate,kind,coalesce(transfer_id::text,'') FROM agenteam_object.upload_attempts WHERE id=$1`, id.String()).Scan(&aid, &upload, &obj, &process, &r.key, &r.phase, &r.ordinal, &r.size, &digest, &r.late, &r.closed, &r.cleaning, &r.kind, &transfer)
 	if errors.Is(err, pgx.ErrNoRows) {
 		return r, false, nil
 	}
@@ -153,9 +155,17 @@ func loadAttempt(ctx context.Context, e postgres.SQLExecutor, id oc.AttemptID) (
 	if err != nil {
 		return r, false, unavailable(err)
 	}
-	r.process, err = foundation.ParseID[oc.Process](process)
-	if err != nil {
-		return r, false, unavailable(err)
+	if process != "" {
+		r.process, err = foundation.ParseID[oc.Process](process)
+		if err != nil {
+			return r, false, unavailable(err)
+		}
+	}
+	if transfer != "" {
+		r.transfer, err = foundation.ParseID[oc.Transfer](transfer)
+		if err != nil {
+			return r, false, unavailable(err)
+		}
 	}
 	r.digest = newDigest(digest)
 	if r.digest.Validate() != nil {

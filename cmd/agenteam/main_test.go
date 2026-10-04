@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
 	"strings"
 	"testing"
 
@@ -27,6 +28,9 @@ func TestInformationAndRepairArgumentsDoNotReadUnselectedInputs(t *testing.T) {
 }
 func TestCheckConfigAndUnsupportedCompiledRepair(t *testing.T) {
 	lookup := func(key string) (string, bool) {
+		if value, ok := objectfixture.ConfigOnlyValues()[key]; ok {
+			return value, true
+		}
 		switch key {
 		case config.Prefix + "SECRET_KEYRING":
 			return `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, true
@@ -40,8 +44,8 @@ func TestCheckConfigAndUnsupportedCompiledRepair(t *testing.T) {
 		return "", false
 	}
 	var out, logs bytes.Buffer
-	if execute([]string{"--check-config"}, lookup, nil, &out, &logs, nil) != 0 || !strings.Contains(out.String(), `"scope":"d04"`) {
-		t.Fatal("pure D04 configuration check failed")
+	if execute([]string{"--check-config"}, lookup, nil, &out, &logs, nil) != 0 || !strings.Contains(out.String(), `"scope":"d05"`) {
+		t.Fatal("pure D05 configuration check failed")
 	}
 	source, err := postgres.EmbeddedSource()
 	if err != nil {

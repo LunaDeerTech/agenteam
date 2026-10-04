@@ -218,7 +218,7 @@ func (s *Service) stopWriters(ctx context.Context, object oc.ObjectID) error {
 		if err != nil {
 			return err
 		}
-		if !found || !a.cleaning || a.process != r.process || a.closed {
+		if !found || a.kind != "private_candidate" || !a.cleaning || a.process != r.process || a.closed {
 			continue
 		}
 		r.mu.Lock()
@@ -340,11 +340,21 @@ func (s *Service) claimCleanup(ctx context.Context, object oc.ObjectID, attemptI
 		if err != nil {
 			return err
 		}
+		if a.kind == "runner_staging" {
+			for _, lease := range remaining.ActiveLeases {
+				if lease.Owner.Details().Kind == oc.SourceOwner || lease.Owner.Details().Kind == oc.ReaderOwner {
+					return nil
+				}
+			}
+		}
 		if obj.cleaning || obj.key == a.key {
 			if len(remaining.References) > 0 {
 				return nil
 			}
 			for _, lease := range remaining.ActiveLeases {
+				if a.kind == "runner_staging" && lease.Owner.Details().Kind == oc.TransferOwner && lease.Owner.Details().ID == a.transfer.String() {
+					continue // Only this gated staging body; the external lease remains.
+				}
 				if lease.Owner.Details().Kind != oc.WriterOwner {
 					return nil
 				}
@@ -379,6 +389,9 @@ func (s *Service) cleanupIOContext(parent context.Context) (context.Context, con
 	if force != nil {
 		return context.WithTimeout(force, 15*time.Second)
 	}
+	if parent.Value(runtimeRecoveryBudgetKey{}) == true {
+		return context.WithTimeout(parent, 15*time.Second)
+	}
 	// A caller may cancel after the durable cleanup gate. Compensating storage
 	// I/O uses a fresh bounded context; force always substitutes its shared cap.
 	return context.WithTimeout(context.WithoutCancel(parent), 15*time.Second)
@@ -404,7 +417,9 @@ func (s *Service) cleanObject(ctx context.Context, object oc.ObjectID) (oc.Clean
 		}
 		cancel()
 		if err != nil {
-			_ = s.noteCleanupFailure(ctx, claim, err)
+			if ctx.Value(runtimeRecoveryBudgetKey{}) != true || ctx.Err() == nil {
+				_ = s.noteCleanupFailure(ctx, claim, err)
+			}
 			return oc.CleanupPending, err
 		}
 		result := s.withinAccess(ctx, recoveryCause(), s.checkpointRequest(claim), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
@@ -576,6 +591,9 @@ func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, caus
 			if err = s.gateObject(ctx, e, id, oc.ProjectDeleted, d.OperationID.String()); err != nil {
 				return err
 			}
+			if err = gateProjectTransfers(ctx, s, tx, id); err != nil {
+				return err
+			}
 		}
 		return nil
 	})
@@ -613,6 +631,9 @@ func (s *Service) CleanupProject(ctx context.Context, actor identity.Actor, caus
 			}
 			if len(remaining.References) > 0 || len(remaining.ActiveLeases) > 0 {
 				continue
+			}
+			if err = purgeObjectTransfers(ctx, e, id); err != nil {
+				return err
 			}
 			for _, query := range []string{
 				`UPDATE agenteam_object.uploads SET current_attempt_id=NULL WHERE object_id=$1`,

@@ -5,6 +5,7 @@ package process_test
 import (
 	"context"
 	"encoding/json"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
 	"io"
 	"net"
 	"net/http"
@@ -19,8 +20,14 @@ import (
 	"github.com/jackc/pgx/v5"
 )
 
-func databaseEnvironment(db *pgfixture.Database, extras ...string) []string {
-	return append([]string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_DATABASE_URL=" + db.Fixture.URL(db.Name), "AGENTEAM_CENTRAL_DATABASE_CA_FILE=" + db.Fixture.CAFile, "AGENTEAM_CENTRAL_DATABASE_STARTUP_TIMEOUT=15s", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=3s"}, extras...)
+func databaseEnvironment(t *testing.T, db *pgfixture.Database, extras ...string) []string {
+	t.Helper()
+	objects, err := objectfixture.Environment(databaseContext(t), db.Name)
+	if err != nil {
+		t.Fatal("owned MinIO configuration failed")
+	}
+	base := append(objects, []string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_DATABASE_URL=" + db.Fixture.URL(db.Name), "AGENTEAM_CENTRAL_DATABASE_CA_FILE=" + db.Fixture.CAFile, "AGENTEAM_CENTRAL_DATABASE_STARTUP_TIMEOUT=15s", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=3s"}...)
+	return append(base, extras...)
 }
 func databaseContext(t *testing.T) context.Context {
 	t.Helper()
@@ -91,7 +98,7 @@ func TestCentralRealDatabaseSIGTERMAndSIGINT(t *testing.T) {
 	for _, signal := range []os.Signal{syscall.SIGTERM, syscall.SIGINT} {
 		t.Run(signal.String(), func(t *testing.T) {
 			db := pgfixture.NewDatabase(t)
-			p := launch(t, "agenteam", nil, databaseEnvironment(db))
+			p := launch(t, "agenteam", nil, databaseEnvironment(t, db))
 			listening := p.event(t, "event", "listening")
 			address := listening["listen_address"].(string)
 			checkDiagnosticBinary(t, address)
@@ -114,7 +121,7 @@ func TestCentralDatabaseInitializationFailures(t *testing.T) {
 		t.Run(mode, func(t *testing.T) {
 			db := pgfixture.NewDatabase(t)
 			admin := db.Connect(t)
-			env := databaseEnvironment(db)
+			env := databaseEnvironment(t, db)
 			var listener net.Listener
 			switch mode {
 			case "history":
@@ -191,7 +198,7 @@ func TestCentralStartupSignalsCancelRealMigrationWait(t *testing.T) {
 			if _, err := admin.Exec(databaseContext(t), "SELECT pg_advisory_lock(1095193677,1)"); err != nil {
 				t.Fatal("fixture guard failed")
 			}
-			p := launch(t, "agenteam", nil, databaseEnvironment(db))
+			p := launch(t, "agenteam", nil, databaseEnvironment(t, db))
 			p.event(t, "database_phase", "migrating")
 			waitDatabaseFact(t, admin, "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND application_name='agenteam' AND wait_event_type='Lock')")
 			if err := p.command.Process.Signal(signal); err != nil {
@@ -233,7 +240,7 @@ func waitDiagnosticState(t *testing.T, address, want string, timeout time.Durati
 		matched := 0
 		for _, capability := range d.Capabilities {
 			switch capability.Name {
-			case "postgresql", "pgvector", "migrations", "read_write", "audit_storage", "secret", "outbound":
+			case "postgresql", "pgvector", "migrations", "read_write", "audit_storage", "secret", "outbound", "object_storage":
 				if capability.Status == want {
 					matched++
 				}
@@ -247,7 +254,7 @@ func waitDiagnosticState(t *testing.T, address, want string, timeout time.Durati
 				}
 			}
 		}
-		if matched == 7 {
+		if matched == 8 {
 			if want == "available" && (d.Database == nil || !d.Database.ReadWrite || d.Database.ExtensionVersion != "0.8.1") {
 				t.Fatal("database evidence absent")
 			}
@@ -265,7 +272,7 @@ func waitDiagnosticState(t *testing.T, address, want string, timeout time.Durati
 }
 func TestCentralRealHealthTimeoutAndRecovery(t *testing.T) {
 	db := pgfixture.NewDatabase(t)
-	p := launch(t, "agenteam", nil, databaseEnvironment(db))
+	p := launch(t, "agenteam", nil, databaseEnvironment(t, db))
 	address := p.event(t, "event", "listening")["listen_address"].(string)
 	admin := db.Connect(t)
 	tx, err := admin.Begin(databaseContext(t))
@@ -303,7 +310,7 @@ func TestCentralRealHealthTimeoutAndRecovery(t *testing.T) {
 }
 func TestCentralStopWhileHealthQueryIsBlocked(t *testing.T) {
 	db := pgfixture.NewDatabase(t)
-	p := launch(t, "agenteam", nil, databaseEnvironment(db))
+	p := launch(t, "agenteam", nil, databaseEnvironment(t, db))
 	p.event(t, "event", "listening")
 	admin := db.Connect(t)
 	tx, err := admin.Begin(databaseContext(t))

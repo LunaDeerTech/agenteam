@@ -7,6 +7,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
 	"io"
 	"log/slog"
 	"net/http"
@@ -174,6 +175,11 @@ func launchDatabaseApp(t *testing.T, db *pgfixture.Database, mode, timeout strin
 	p := &fixtureProcess{cmd: exec.Command(executable, "-test.run=^TestDatabaseAppProcessFixture$", "-test.timeout=30s"), stdout: newEventLog(), stderr: newEventLog(), done: make(chan struct{})}
 	p.cmd.Dir = t.TempDir()
 	p.cmd.Env = []string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "PATH=" + os.Getenv("PATH"), pgfixture.Env + "=" + os.Getenv(pgfixture.Env), "AGENTEAM_DATABASE_APP_FIXTURE=" + mode, "AGENTEAM_DATABASE_APP_DATABASE=" + db.Name, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=" + timeout, "AGENTEAM_CENTRAL_DATABASE_URL=" + db.Fixture.URL(db.Name), "AGENTEAM_CENTRAL_DATABASE_CA_FILE=" + db.Fixture.CAFile, "AGENTEAM_CENTRAL_DATABASE_STARTUP_TIMEOUT=20s"}
+	objects, err := objectfixture.Environment(context.Background(), db.Name)
+	if err != nil {
+		t.Fatal("owned MinIO configuration failed")
+	}
+	p.cmd.Env = append(p.cmd.Env, objects...)
 	for _, extra := range extras {
 		key, _, _ := strings.Cut(extra, "=")
 		replaced := false

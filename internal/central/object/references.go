@@ -171,7 +171,7 @@ func (s *Service) metadataAdmission(ctx context.Context) error {
 	if r.stopped || r.forced {
 		return failure(foundation.ShuttingDown, nil)
 	}
-	if !r.initialized {
+	if !r.initialized || r.runtime != nil && !r.runtimeReady {
 		return unavailable(nil)
 	}
 	return nil

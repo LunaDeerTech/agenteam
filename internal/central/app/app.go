@@ -58,11 +58,14 @@ type dependencies struct {
 	security func(context.Context, config.Config, database) (*audit.Service, error)
 	secret   func(context.Context, config.Config, database, *audit.Service) (maintenance, error)
 	outbound func(context.Context, config.Config, database, *audit.Service) (egress, error)
+	objects  func(context.Context, config.Config, database, *audit.Service) (objectStorage, error)
 }
 
 type startupResult struct {
 	health          postgres.DatabaseHealth
 	sampled         time.Time
+	objectSampled   time.Time
+	objectAvailable bool
 	err             error
 	code            lifecycle.FailureCode
 	securityFailure bool
@@ -107,6 +110,9 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	if deps.outbound == nil {
 		deps.outbound = initializeOutbound
 	}
+	if deps.objects == nil {
+		deps.objects = initializeObjects
+	}
 	startup, cancelStartup := context.WithCancel(control.StopContext())
 	defer cancelStartup()
 	initialized := make(chan startupResult, 1)
@@ -136,10 +142,12 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 
 	monitor := newHealthMonitor(initial.health, deps.health)
 	monitor.received = initial.sampled
+	monitor.objectReceived = initial.objectSampled
+	monitor.objectAvailable = initial.objectAvailable
 	healthContext, cancelHealth := context.WithCancel(context.Background())
 	defer cancelHealth()
 	healthDone := make(chan struct{})
-	go func() { defer close(healthDone); monitor.run(healthContext, owned.store(), logger) }()
+	go func() { defer close(healthDone); monitor.run(healthContext, owned.store(), logger, owned.objects()) }()
 	if deps.handler == nil {
 		deps.handler = diagnosticRouter(monitor, true, owned.secret(), owned.outbound())
 	}
@@ -182,6 +190,7 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	logger.Transition(logging.Stopping)
 	owned.stopMaintenance()
 	owned.stopOutbound()
+	owned.stopObjects()
 	cancelHealth()
 	drain, cancelDrain := control.DrainContext()
 	defer cancelDrain()
@@ -195,10 +204,18 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			outboundDone <- nil
 		}
 	}()
+	objectDone := make(chan error, 1)
+	go func() {
+		if service := owned.objects(); service != nil {
+			objectDone <- service.Drain(drain)
+		} else {
+			objectDone <- nil
+		}
+	}()
 	var databaseDone chan error
-	httpDrained, databaseDrained, outboundDrained := false, false, false
+	httpDrained, databaseDrained, outboundDrained, objectDrained := false, false, false, false
 	for {
-		if httpDrained && outboundDrained && maintenanceDone == nil && databaseDone == nil && !databaseDrained {
+		if httpDrained && outboundDrained && objectDrained && maintenanceDone == nil && databaseDone == nil && !databaseDrained {
 			databaseDone = make(chan error, 1)
 			go func() { store := owned.store(); store.StopAdmission(); databaseDone <- store.Drain(drain) }()
 		}
@@ -242,6 +259,13 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			} else {
 				code = lifecycle.ShutdownTimeout
 			}
+		case err := <-objectDone:
+			objectDone = nil
+			if err == nil {
+				objectDrained = true
+			} else {
+				code = lifecycle.ShutdownTimeout
+			}
 		case <-healthDone:
 			healthDone = nil
 		case <-maintenanceDone:
@@ -257,13 +281,19 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 		control.Force()
 		cancelDrain()
 		forced, cancel := context.WithTimeout(context.Background(), time.Second)
-		// Store captures/cancels owned SQL before HTTP cancellation can release a
-		// checkout. Every cleanup and join uses this single remaining force budget.
+		// Every HTTP/object/transport cleanup and join shares this force budget;
+		// DB is closed last so already admitted cleanup can checkpoint.
 		cleanupResources(forced, owned, cancelServing)
 		joinWorkers(forced, serveDone, httpDone, databaseDone, healthDone)
 		if outboundDone != nil {
 			select {
 			case <-outboundDone:
+			case <-forced.Done():
+			}
+		}
+		if objectDone != nil {
+			select {
+			case <-objectDone:
 			case <-forced.Done():
 			}
 		}
@@ -352,6 +382,38 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 		logger.Security(logging.SecurityFailed)
 		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
 	}
+	logger.Security(logging.ObjectInitializing)
+	objectService, err := deps.objects(ctx, cfg, store, auditService)
+	if objectService != nil && !owned.addObjects(ctx, objectService) {
+		err = context.Canceled
+	}
+	if err == nil {
+		err = ctx.Err()
+	}
+	if err == nil && objectService != nil {
+		err = objectService.StartMaintenance(context.WithoutCancel(ctx))
+	}
+	objectSampled := deps.health.now()
+	if err == nil && objectService != nil {
+		err = objectService.Check(ctx)
+		objectSampled = deps.health.now()
+	}
+	if err != nil {
+		logger.Security(logging.SecurityFailed)
+		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
+	}
+	// Startup may spend most of its security budget on a real storage probe.
+	// Refresh an old DB sample within the remainder, never reset its age.
+	if deps.health.now().Sub(sampled) > deps.health.stale {
+		health, err = store.Check(ctx)
+		if err == nil && !healthy(health) {
+			err = errors.New("DATABASE_HEALTH_FAILED")
+		}
+		if err != nil {
+			return failed(err)
+		}
+		sampled = deps.health.now()
+	}
 	logger.Security(logging.SecurityInitialized)
 	listener, err := deps.listen(ctx, "tcp", cfg.HTTPAddr())
 	if listener != nil {
@@ -364,13 +426,14 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 		return failed(err)
 	}
 	logger.Database(logging.DatabaseHealthy, "", "", migration.Version)
-	return startupResult{health: health, sampled: sampled}
+	return startupResult{health: health, sampled: sampled, objectSampled: objectSampled, objectAvailable: objectService != nil}
 }
 
 func stopStartup(logger processLogger, control *lifecycle.Controller, owned *resources, initialized <-chan startupResult) error {
 	logger.Transition(logging.Stopping)
 	owned.stopMaintenance()
 	owned.stopOutbound()
+	owned.stopObjects()
 	drain, cancel := control.DrainContext()
 	defer cancel()
 	var drained chan error
@@ -388,6 +451,12 @@ func stopStartup(logger processLogger, control *lifecycle.Controller, owned *res
 					}
 				}
 				if service := owned.outbound(); service != nil {
+					if err := service.Drain(drain); err != nil {
+						drained <- err
+						return
+					}
+				}
+				if service := owned.objects(); service != nil {
 					if err := service.Drain(drain); err != nil {
 						drained <- err
 						return

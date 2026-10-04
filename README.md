@@ -9,7 +9,7 @@ agenteam 是以项目为边界的 AI Agent 协作与执行平台，管理长期�
 - 存储：PostgreSQL / pgvector + MinIO。
 - 部署：前端资源嵌入 Central 二进制，Docker Compose 管理 Central 与基础设施。
 
-当前仓库已包含可运行的 Vue 前端基础、公共组件和开发环境 Debug 展示，以及 Go 工程基础、PostgreSQL/pgvector 迁移与事务库、Central 诊断入口和 Runner 独立进程。Central 在真实数据库及 Audit/cursor/Secret/动态出站策略初始化后只提供诊断，Runner 保持未连接、未认证；完整产品尚未就绪。
+当前仓库已包含可运行的 Vue 前端基础、公共组件和开发环境 Debug 展示，以及 Go 工程基础、PostgreSQL/pgvector、对象/Artifact/下载与 typed transfer 库、Central 诊断入口和 Runner 独立进程。Central 在真实数据库及 Audit/cursor/Secret/动态出站策略/MinIO Runtime 初始化后只提供诊断；对象业务授权与 Runner Operation 适配仍未绑定，Runner 保持未连接、未认证，完整产品尚未就绪。
 
 ## 后端开发
 
@@ -22,9 +22,9 @@ AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/build-go.sh
 ./bin/agenteam
 ```
 
-运行 Central 前须显式配置 `AGENTEAM_CENTRAL_DATABASE_URL`、独立随机签名密钥配置 `AGENTEAM_CENTRAL_CURSOR_KEYRING`、独立 AES 主密钥配置 `AGENTEAM_CENTRAL_SECRET_KEYRING` 及部署所需 CA，见 [Central 环境示例](deploy/central.env.example)；出站追加 CA 使用独立的可选 `AGENTEAM_CENTRAL_OUTBOUND_CA_FILE`。程序不会自动加载示例文件。`--check-config` 只验证当前 D04 配置、不连接数据库；`--help/--version` 无需配置。普通 Go 检查无需 Docker；`AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-postgres.sh` 运行真实隔离数据库与 Central 进程验证，`sh scripts/test-security.sh` 另组合 owned 私网 socket、TLS 和出站策略验证。
+运行 Central 前须显式配置数据库 URL、独立随机 cursor/Secret/download keyring、预建私有 MinIO bucket 的 endpoint/凭据及部署所需 CA，见 [Central 环境示例](deploy/central.env.example)。spool 默认 `/var/lib/agenteam/object-spool`，可指定本部署的绝对路径。程序不会自动加载示例文件。`--check-config` 只验证当前 D05 配置，不连接或创建目录；`--help/--version` 无需配置。普通 Go 检查无需 Docker；`scripts/test-postgres.sh`、`test-security.sh` 和 `test-objects.sh` 使用真实隔离 PostgreSQL、MinIO、私网 socket/TLS 与 Central 进程，均需要固定 MinIO binary，见[后端验证命令](docs/development/backend/README.md#构建与验证)。
 
-Central 默认监听 `127.0.0.1:8080`，连接、迁移、首次读写检查和独立安全初始化通过后才开始监听。`/livez` 仅报告进程存活，`/readyz` 始终返回 503；`/diagnostics` 报告定期采样的数据库子状态、cursor/Audit 存储、Secret 加密存储/维护、出站策略状态与仍未绑定的授权/业务能力。受控 HTTP 和 SMTP 拨号端口不代表 Provider/MCP/SMTP 业务协议已集成。`./bin/agenteam-runner` 运行未连接的 Runner，接到 SIGINT/SIGTERM 后退出。配置、日志、停机边界与隔离测试见[后端开发说明](docs/development/backend/README.md)。
+Central 默认监听 `127.0.0.1:8080`，连接、迁移、首次读写检查和独立安全初始化通过后才开始监听。`/livez` 仅报告进程存活，`/readyz` 始终返回 503；`/diagnostics` 报告数据库、安全组件及真实对象存储/维护健康与仍未绑定的授权能力。没有对象、Artifact、下载或 transfer 业务 HTTP 路由；受控网络端口也不代表 Provider/MCP/SMTP 业务协议已集成。`./bin/agenteam-runner` 运行未连接的 Runner，接到 SIGINT/SIGTERM 后退出。配置、日志、停机边界与隔离测试见[后端开发说明](docs/development/backend/README.md)。
 
 ## 前端开发
 
