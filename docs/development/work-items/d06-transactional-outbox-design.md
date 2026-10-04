@@ -1,6 +1,6 @@
 # D06 Transactional Outbox 工程规格
 
-- 修订：3；对应[主卡](d06-transactional-outbox.md)，原设计基线 `main@671d95c`，本次增量基线 `main@f8dd8a9`。B01 已独立验收；本轮仅补 B02 的 LifecycleStep 与 DiagnosticsSummary 公共载体，不声明 B02 或 D06 整体已验收。
+- 修订：4；对应[主卡](d06-transactional-outbox.md)，原设计基线 `main@671d95c`，本次增量基线 `main@d866d5c`。B01 及修订 3 公共载体已独立验收；本轮仅补未尝试 delivery 的 Project 停止终态、00009 窄迁移及 RequeueTarget，不声明 B02 或 D06 整体已验收。
 - 依据：[事件架构](../../architecture/platform-infrastructure/internal-domain-events.md)、[D01 事件与注册屏障](d01-contracts/runtime-events.md)、[事务与锁](d01-contracts/foundation.md)、[生命周期](d01-contracts/domain-lifecycle.md)、[W40](d01-contracts/walkthroughs.md)、[开发计划 D06](../development-plan.md#d06-outbox-与事件投递)。
 - 复用 Go 1.27.1/local、现有 pgx/Goose、D03 事务、D04 身份/Audit/cursor 和 D05 真实 ProcessGuard；不增加依赖、broker、业务表、全历史 replay、匿名运维 HTTP 或成功 stub。
 
@@ -19,13 +19,15 @@
 | `internal/central/identity/contract/identity.go` 及测试 | B01 仅增加注册职责 `outbox-delivery`；由真实 claim 构造限定 Service cause，不授予 Session/Owner/Admin |
 | `internal/central/audit/contract/{types,metadata}.go` 及测试 | B01 增加 §8 唯一重投 Action/Resource/Producer/typed metadata；旧 action/metadata 含义不变，00008 扩展既有 CHECK |
 | `internal/central/audit/service.go` 及测试 | 仅在闭集校验确有需要时接入新 Producer；重投沿既有 Human 当前 Session/Owner/System + Mutate + `CheckAppendInTx`，不增加 Service 写 Audit 豁免 |
-| `internal/central/outbox/contract/authority.go`、`diagnostics.go`；新 `contract/lifecycle_step_test.go`、`contract/diagnostics_test.go` | B02 唯一公共补口：§3 增加 LifecycleStep/variant 校验及完整依赖 binding，§8 给 DiagnosticsPage 增加 typed Summary/数值与空值校验；测试跨 step/Actor/cause 复用拒绝和统计 DTO。`Stage`、生命周期方法签名、QueryDiagnostics 签名及其他已验 contract 不变；真实统计与 provider 场景在 B02 原授权测试范围实现 |
+| `internal/central/outbox/contract/authority.go`、`diagnostics.go`；新 `contract/lifecycle_step_test.go`、`contract/diagnostics_test.go` | 修订 3 已交付的 B02 公共补口：§3 LifecycleStep/variant 校验及完整依赖 binding，§8 typed Summary/数值与空值校验。此次不再改 diagnostics.go；真实统计与 provider 场景仍在 B02 原授权测试范围实现 |
+| `internal/central/outbox/contract/authority.go`；新 `contract/requeue_target_test.go`；必要时 `contract/contract_test.go` 的既有 Requeue 样例 | 修订 4 仅新增 §3 RequeueTarget/字段与 variant 校验、完整 target binding；旧测试仅机械适配 Requeue 构造。未交付 B02 Requeue 调用同步适配；其他 variant 断言、`delivery.go` 的 DeliveryIdentity.Valid/CauseRef、Stage 和全部现有服务方法签名保持不变 |
+| 新 `db/migrations/00009_outbox_unattempted_stop.sql`、`tests/database/outbox_unattempted_stop_migration_test.go` | B02 独占 00009：§5 事务型 Up-only 窄 ALTER；fresh/8→9 升级、非法分支和 DDL 回滚验证。停止/恢复/人工重投/诊断的真实行为测试补入 B02 原授权范围，不改旧迁移或新增状态表 |
 | `internal/central/app/{app,object,resources,health,diagnostics}.go`、新 `app/outbox.go` 及测试 | B02 实施 §10 私有 assembly、真实初始化/检查/关闭；保留 process/service/guard/runtime，覆盖失败和晚到资源所有权 |
 | `internal/platform/logging/security.go` 及测试 | B02 仅增加 outbox 初始化/可用/不可用的固定安全 phase；中立包不 import Central |
 | `tests/testsupport/postgres/cmd/fixture/main.go`、新 `tests/database/outbox_migration_test.go`、新 `tests/process/outbox_test.go` | B01 增加迁移兼容测试、将 `tests/outbox/...` 和 `internal/central/outbox/...` 纳入既有真实 PG 测试命令；B02 增加进程场景。现有三条 integration scripts/MinIO 和 outbound fixture 链直接复用，无需修改 shell 脚本或另起基础设施 |
 | `docs/development/backend/README.md`、`AGENTS.md` | B02 局部同步实际入口、测试和仍未绑定的权限/领域边界；root 另行移交写权 |
 
-`00001–00007`、`go.mod/go.sum`、D05 object/Artifact/transfer 实现及 Runner 代码冻结。Outbox 不 import object；共享 ProcessGuard 只在 app 组合映射。迁移全局编号 00008 独占于 B01，Up-only、事务型，无非事务 DDL；B01 验收后 00008 同样冻结，本次两个载体补口不增加表、字段、索引或迁移。
+`00001–00008`、`go.mod/go.sum`、D05 object/Artifact/transfer 实现及 Runner 代码冻结。Outbox 不 import object；共享 ProcessGuard 只在 app 组合映射。00008 属于已验 B01，不能改任何字节；修订 3 载体补口不涉及迁移，修订 4 仅用新编号 00009 修正 §9 所需状态约束，不增加表、字段或索引。两份迁移均为事务型 Up-only，无非事务 DDL。
 
 ## 2. Typed 事件、注册目录与边界
 
@@ -77,6 +79,10 @@ RegisterHandler(ctx, HandlerDefinition) -> Registration
 
 ProjectRequest 是闭集 `append|deliver|inspect|requeue|lifecycle`，绑定 ProjectID、真实 Actor/限定 delivery Service cause、EventID/DeliveryID/AttemptID/fence、handler effect 或 LifecycleCause，不能用 caller bool 表示 owner/archived/已停止。append/requeue 明分 current_access 与首次 apply 阶段；Append 在幂等前额外执行 §2 本域不可逆删除 gate，首次业务 gate/version 仍在幂等之后，完成 receipt 不跳过当前权限。delivery cause_ref 为上述完整稳定身份的规范化 SHA-256，provider 仍须核当前持久 claim，hash 本身不授予权限。D08 适配器负责真实 Project/Owner/gate/cause；D07 Session/SystemAuthority 保持当前校验。System scope 的人工查询/重投只允许当前 System Admin；Project 只允许当前 Owner，Admin 不绕过 Owner。内部技术恢复只核本域已持久事实，不以后台 Service 冒充原 Actor 重新执行业务。
 
+在 `authority.go` 新增 `RequeueTarget{EventID,DeliveryID,HandlerID,Scope,Effect}`（沿既有 ID/StableName/Scope/HandlerEffect 类型），Valid 校验这些必需身份，不含 AttemptID/fence；`ProjectRequestDetails.Requeue` 使用此类型。RequeueProject 要求 Human、合法 Stage、有效且属于相同 Project 的 RequeueTarget，旧 Delivery 字段必须为空，Event/Lifecycle/LifecycleStep 沿原空值规则；其他所有 variant 必须 Requeue 为空。无论目标是否曾经 claim，人工重投都走该 target；正式 callback 仍用原 DeliveryIdentity，AttemptID/fence 必须真实且大于 0，绝不以 optional/假 ID 放宽 Valid/CauseRef。
+
+Requeue 的依赖 binding 必须覆盖 Kind、ProjectID、稳定 Actor 和完整 RequeueTarget，现有 current_access/new_fact 的分阶段验证保持；不能对 ProjectRequest 的安全标签 JSON 求摘要。锁后重读目标的 Event/handler/scope/effect 和当前权限，目标映射不符整 Tx 回滚，不替换目标或补锁。该结构只定位真实 delivery，不代表当前状态/version、授权成功或正式 claim；命令幂等及 expected_version 仍按 §8 验证。
+
 在 `authority.go` 新增 `LifecycleStep` 字符串闭集 `stop|inspect|cleanup` 及 `ProjectRequestDetails.LifecycleStep`。`LifecycleProject` 必须带合法 step 且 `Stage` 仍为空；其余所有 variant 的 LifecycleStep 必须为空，原 Stage 规则不变，不把 step 塞入通用 Stage。RequestStop/InspectStop/Cleanup 分别固定构造 stop/inspect/cleanup，外部输入不能替换方法对应 step。
 
 lifecycle 的完整请求/Dependencies binding 显式包含 Kind、ProjectID、稳定 Actor（含注册职责/Project/cause_ref）、LifecycleStep 和 `Lifecycle.Details()` 的 operation_id/action/project_version；不能对只输出安全标签的 ProjectRequest/LifecycleCause JSON 求摘要。改 step、Actor 或任一 cause 字段后旧计划均不匹配，锁后仍须重验。actor 必须为同 Project 的真实 project-lifecycle Service，D08 在当前 Project 锁下验证其 cause_ref 确实对应该 operation/版本/动作和当前 gate；类型有效或哈希相等不替代授权。只有 cleanup 额外核其他参与者已收束；stop/inspect 只核本次操作合法及 Outbox 自身停止事实，不要求其他参与者先完成，不形成停止顺序循环。D08 未绑定时仍拒绝。
@@ -117,6 +123,25 @@ Delivery 各阶段使用同一 `OutboxRecordLock("delivery:"+delivery_id)` EX；
 | `requeue_commands` | 命令身份 hash 唯一、稳定 Actor/digest、DeliveryID、原状态/版本、新 cycle、receipt；与重投和 Audit 原子提交 |
 | `project_lifecycle` | ProjectID PK、精确 operation/action/project_version、停止/清理 checkpoint、公平扫描位置、最小完成 receipt；archive checkpoint 只描述该旧 operation，delete 的 stopping/cleaning/completed 不可逆；完成后不保事件、handler payload 或其他项目业务内容 |
 
+00008 的 `outbox_deliveries_attempt_check` 不允许从未 claim 的 delivery 直接进入终态，与 §9 的停止要求不相容。新 00009 使用既定 `-- agenteam:transaction tx` / `-- +goose Up` 头，仅在同一事务执行以下 ALTER；旧两个分支保留，新分支只允许 Project 的零尝试 project_stopped 终态：
+
+```sql
+ALTER TABLE agenteam_outbox.deliveries
+  DROP CONSTRAINT outbox_deliveries_attempt_check;
+ALTER TABLE agenteam_outbox.deliveries
+  ADD CONSTRAINT outbox_deliveries_attempt_check CHECK (
+    (current_attempt_id IS NULL AND fence=0 AND phase='pending')
+    OR (current_attempt_id IS NOT NULL AND fence>0)
+    OR (scope='project' AND project_id IS NOT NULL
+        AND current_attempt_id IS NULL AND fence=0
+        AND cycle_attempts=0 AND lifetime_attempts=0
+        AND phase='dead_letter'
+        AND safe_reason IS NOT DISTINCT FROM 'project_stopped')
+  );
+```
+
+NULL reason 明确不命中新分支，不能由 CHECK 的 UNKNOWN 放行；不扩大到 System、其他 reason/phase 或非零尝试计数。redrive_cycle 不要求为 0，允许显式重投后尚未首 claim 再遇合法停止。旧合法 pending/claimed 数据继续满足原分支，失败整体回滚 DDL/迁移进度；不改 FK、其他 CHECK 或伪造历史 attempt。CHECK 不跨表证明授权或 handler effect，实际写入仍由 §9 在完整锁后验证当前 provider/注册事实。
+
 内部 `outbox_sequence` 使用 PostgreSQL bigint sequence，`CACHE 1 NO CYCLE`；Initialize 核实配置，禁止预缓存尚未使用的小序号破坏注册边界。回滚空洞合法，不将缺号当事件丢失；边界取 sequence 的 last_value/is_called（从未分配为 0），不用会随删除下降的 MAX(events)。
 
 RegisterHandler 使用独立短 Tx，一次获取注册 EX 和 handler record EX。EX 等此前 SH writer 实际 commit/rollback 终局；之后保存 handler/subscriptions 与当前边界，并提交后才发布到进程目录。注册 Tx 不读业务表、不调用 handler、不执行 canonical rebuild。Append 在 nextval 前 RequireHeldLocks(SH)，同 Tx 插入 Event **和所有当时已注册匹配 type 的 delivery**，省去第二个易漏的 fan-out checkpoint；任一写失败整体回滚。
@@ -134,9 +159,12 @@ pending -> processing -> succeeded
                   \-> retry_wait -> processing
                   \-> failed | dead_letter
 failed/dead_letter --已授权人工重投--> pending（新 cycle，同 DeliveryID/Event）
+pending（从未 claim）--已授权 Project stop--> dead_letter/project_stopped（无 attempt）
 ```
 
 `retry_wait` 是持久调度细节，对 D01 Delivery 投影为 pending + next_attempt_at；processing 包含运行中或提交待核实，不能因超时伪装 failed。failed 为本 cycle 自动次数耗尽；dead_letter 为未知 schema、固定契约/来源终局等不可自动重试原因。上述状态不取消已提交事实，也不支持修改原 payload。
+
+无 attempt 的 project_stopped 是已确认停止的 delivery 终态，不进入 due 调度或 processing/unknown 恢复，不需要虚构 Process/死亡证明，不增加 active callback/attempt 计数，也不插入 processed。若已经有真实 claim，则仍按原取消/join/marker/unknown 流程收敛，不能套用零尝试捷径。
 
 claim 先只读发现候选，再 Tx 取得完整 scope/Delivery locks，重读 phase/due/local cleanup gate、当前 handler 绑定，写 ProcessID、新 AttemptID/递增 fence、deadline 和 processing。commit 确认为 committed 后才进入回调；unknown 先核实相同 claim，绝不先运行。事件与 delivery 仅从已提交表可见，未提交 producer 无调用机会。
 
@@ -172,6 +200,8 @@ QueryDiagnostics(ctx, Human, Scope, DiagnosticsFilter, PageRequest) -> Diagnosti
 Requeue 先当前 Session/Owner 或 SystemAdmin，随后查原稳定命令，再查 expected_version 与 failed/dead_letter；完整命令 lock、User/Project/Delivery/Audit 所需 locks 一次取得。摘要绑定 scope、稳定 user_id、DeliveryID、期望版本、闭集 reason，不含 session/HTTP trace。同义重试返回原 receipt，异义冲突；原命令成功响应丢失后不再受旧 expected_version 阻断，但当前权限仍必须通过。processed 已存在禁止重做业务；禁止对 pending/processing/succeeded 重投、替换 payload、换 handler 或越过删除 gate。
 
 首次人工重投是新的管理命令，沿当前 Mutate gate；历史事件/失败状态不赋予归档项目新的业务写权限，已完成命令仍可在当前可见权限下读原 receipt。已经合法登记的 canonical_converge 自动重试/恢复仍按 §3 处理。RequeueReason 闭集为 `operator_retry|schema_available|dependency_restored`，不接受自由文本。没有人工权限 provider，或新重投所需 handler 当前未绑定时返回 `DEPENDENCY_UNBOUND`，不提供未鉴权 HTTP 路由。
+
+无 attempt 的 dead_letter/project_stopped 同样可成为显式 Human 重投目标；archived 中首次重投仍被 Mutate gate 拒绝，Restore 只恢复当前准入，不自动重开它。恢复 active 后，新的合法重投与 Audit/命令 receipt 同 Tx：redrive_cycle/version 递增、phase=pending、cycle_attempts/lifetime_attempts 保持 0、current_attempt_id=NULL/fence=0，不创建 attempt。之后首个实际 claim 才生成 AttemptID、fence=1、cycle/lifetime attempts=1；响应丢失沿原命令核实，不另建 cycle/attempt。该操作仅重新安排通知，不绕过 handler 当前来源校验或复活旧 Execution。
 
 公共失败复用既有 `INVALID_ARGUMENT/PAYLOAD_TOO_LARGE/UNAUTHENTICATED/SESSION_REVOKED/FORBIDDEN/NOT_FOUND/RESOURCE_DELETED/PROJECT_NOT_ACTIVE/VERSION_CONFLICT/IDEMPOTENCY_KEY_REUSED/INVALID_STATE/RESOURCE_BUSY/SCHEMA_UNSUPPORTED/DEPENDENCY_UNBOUND/DEPENDENCY_UNAVAILABLE/COMMIT_UNKNOWN/SHUTTING_DOWN` 及 cursor 错误，附真实 CommitState；不新增 HTTP 业务错误码。目录不兼容、元数据损坏或安全检查失败不是可返回成功的空队列。
 
@@ -211,6 +241,8 @@ Scope、HandlerID、EventType 精确筛选同时作用于 Items 和全部 Summar
 | EventThroughput | 每 event_type 的 ProducedEvents 为窗口内 events.created_at 的不同 EventID 数；SucceededDeliveries 为窗口内 processed.processed_at 的不同 DeliveryID 数，跨 handler 可大于 Event 数，重投/重复核实不重复计 marker。只对当前仍保留且匹配 scope/handler/type 的事实统计，不重建已清理项目历史 |
 | RecentErrors | 匹配 deliveries 中当前持久 safe_reason 非空、last_at 在窗口内的最近 20 条，按 last_at DESC/DeliveryID DESC；At=last_at，AttemptID 仅有真实 current_attempt_id 时给出。表示每 delivery 最近持久安全理由，不宣称完整错误历史；Reason 只能是既有 SafeReason 闭集 |
 
+零尝试 project_stopped 计入 DeadLetterDeliveries，且自身不贡献 PendingEvents；同 Event 的其他 pending delivery 仍按原规则计入。它没有 attempt，因此 latency 的 Count、Unknown、Sum/Max 均不因它增加，也不产生成功吞吐；最近安全理由可显示 project_stopped，但 AttemptID 必须为空。显式重投后仅当前 phase 统计改变，直到真实 claim 才出现 attempt/latency 事实，不修改已验 DiagnosticsSummary 载体。
+
 Count/Unknown/各总数用 foundation.Progress，所有时长用 foundation.DurationMS，JSON 均为规范十进制字符串，不能转浮点计数。无样本时 Count=0、SumMS=0、MaxMS=null；Unknown 明列，不能把未知时长放成 0 样本。已知不足 1ms 的样本可为真实取整 0。平均值分母为 Count，Count=0 无平均值；吞吐分母为明确的正 WindowMS，不用进程 uptime/页长或返回 float/NaN。COUNT/SUM 转换前检查 MaxInt64，负时差/结构损坏/溢出拒绝，不截断或伪空成功。
 
 HandlerLatency/EventThroughput 分别按稳定名称排序、最多 128 行；超过时对应 Truncated=true，行内统计仍完整、总计不裁剪，指定单 handler/type 可查询该项。空集合返回 `[]`，空数据库是已知零而非 unknown；RecentErrors 的 20 条上限不受 PageRequest.limit 影响。统计沿现有索引和同一总计 2s 上限（更短 parent 优先）执行；超时/DB 失败不返回部分 Summary 或成功零值，不扫描/返回 payload，真实 fixture 验证计划与预算。不加统计表/迁移或跨页缓存；匿名 `/diagnostics` 只增加组件可用状态，HTTP 租户诊断绑定仍留 D07/D27。
@@ -219,9 +251,9 @@ HandlerLatency/EventThroughput 分别按稳定名称排序、最多 128 行；�
 
 实现 D01 `ProjectLifecycleParticipant` 的 Outbox 适配器：Name 固定 `outbox`，Project scope 的 RequestStop/InspectStop/Cleanup 使用真实 D08 LifecycleCause（operation_id/action/project_version）和注册 project-lifecycle actor，分别携带 §3 的 stop/inspect/cleanup step。调用在 Tx 外预收集依赖，事务内当前校验并按 Project EX → Outbox records 锁序；不从可见名称找 Project，不接受 caller 声称已删除。Meeting scope 未绑定相应来源规划则明确拒绝，不假报全 Meeting 已清。
 
-archive：阻止/取消 domain_ingress 的新业务入口，实际在途需 join 后才报告所需 business stop=stopped；未运行的该类 delivery 以 source_terminal/project_stopped 终局，不启动旧业务。canonical_converge 仅按正式 gate 收敛已提交事实，可在 archived 后继续；不将这些投影写等同执行复活。Restore 只恢复未来合法准入，不能自动重开已终局 delivery/旧 execution。
+archive：阻止/取消 domain_ingress 的新业务入口，实际在途需 join 后才报告所需 business stop=stopped；从未 claim 的该类 delivery 直接置 dead_letter/project_stopped，不造 attempt。Project EX 与该批 Delivery EX 下重读当前正式 cause、注册 handler 的 domain_ingress effect、原 pending/current_attempt_id=NULL/fence=0 和两尝试计数为 0，才更新 phase/reason/version/last_at；新 CHECK 不替代这些跨表校验。claim 若先取得 gate 并提交，停止方必须处理真实 attempt 并等终局，不能按未开始覆盖。已有真实 attempt 的未运行待投项沿原终局规则保留 attempt/fence，不把历史改成零尝试或启动旧业务。canonical_converge 仅按正式 gate 收敛已提交事实，可在 archived 后继续；不将这些投影写等同执行复活。Restore 只恢复未来合法准入，不能自动重开已终局 delivery/旧 execution；另行显式 Human 重投遵循 §8。
 
-archive checkpoint 仅对应其精确旧 operation/project_version，不是永久关闭标志。Append/claim 在同一 Project 锁下由正式 provider 确认当前 active 且版本更新后，允许新 Event 和新 delivery；不因旧 archive checkpoint 仍在就继续拒绝。迟到旧 archive cause 不匹配当前 operation/版本，不能重新关门；旧 terminal delivery/旧 execution 不重开。无需新增 Restore 公共口。此规则绝不重置 delete 的 stopping/cleaning/completed：即便请求声称 active/新版本，本域删除 gate 仍不可逆；当前 cause 和 checkpoint 均锁后重查。
+archive checkpoint 仅对应其精确旧 operation/project_version，不是永久关闭标志。Append/claim 在同一 Project 锁下由正式 provider 确认当前 active 且版本更新后，允许新 Event 和新 delivery；不因旧 archive checkpoint 仍在就继续拒绝。迟到旧 archive cause 不匹配当前 operation/版本，不能重新关门；Restore 不自动重开旧 terminal delivery/旧 execution。无需新增 Restore 公共口。此规则绝不重置 delete 的 stopping/cleaning/completed：即便请求声称 active/新版本，本域删除 gate 仍不可逆；当前 cause 和 checkpoint 均锁后重查。
 
 delete 分两阶段。RequestStop 在 Project EX 下验证 D08 已持久 deleting gate，写本域 `stopping`，停止新 claim/requeue/业务回调；其他参与者仍可在当前 D08 Lifecycle/Converge 授权下把真实停止/失效事实与 Event 原子 Append，积累为待清理 delivery。普通 mutation 不能借此进入，也不因 Outbox 已 stopped 就声称所有事件生产者已停止。停止本实例回调时不持 DB Tx 等待；外实例仍须 exact Process 死亡证据 + 同 Delivery EX 终局核实，不能按超时强行删行。
 
@@ -246,7 +278,7 @@ Force(ctx) -> error                 // cancel + 同 deadline 有界 join，未�
 Joined() -> bool                   // 私有状态事实的安全投影，非 caller 声明
 ```
 
-DB Initialize 后沿既有**共享 30s** security startup budget（更短 parent 优先），先完成 D04 和 D05 Runtime.Initialize/guard.bind，再初始化 Outbox；不为 D06 重开 30s。核实 00008/schema/sequence 配置、真实 PG 查询、持久注册声明和必要恢复事实，再注册本进程 catalog，最后启动 dispatcher，检查成功后才 bind HTTP。零 catalog/空持久数据是合法技术空态；已存 handler 与当前绑定不兼容/缺 provider 的待执行数据必须明确 unavailable/pending，不静默 ack 或忽略必要恢复。
+DB Initialize 后沿既有**共享 30s** security startup budget（更短 parent 优先），先完成 D04 和 D05 Runtime.Initialize/guard.bind，再初始化 Outbox；不为 D06 重开 30s。核实 00008 及 00009/schema/sequence 配置、真实 PG 查询、持久注册声明和必要恢复事实，再注册本进程 catalog，最后启动 dispatcher，检查成功后才 bind HTTP。零 catalog/空持久数据是合法技术空态；已存 handler 与当前绑定不兼容/缺 provider 的待执行数据必须明确 unavailable/pending，不静默 ack 或忽略必要恢复。
 
 Initialize/Recover 至少真实检查所有既有 processing/unknown 的归属与 checkpoint（分页且共原预算）；预算内不能完成必要安全检查则初始化失败。外实例仍活/无法证明死可保留明确 unknown 并禁该项新执行，不以队列非空伪失败；结构损坏、缺必要绑定、不能核实 DB 则 unavailable。catalog 没有业务消费者不代表产品 ready，`/readyz` 仍 503。
 
@@ -275,12 +307,13 @@ Start 的 worker 用独立 serving context，不继承随后 cancel 的短启动
 | T05 回滚与 unknown | handler 写后 Retry/DeadLetter/panic 全回滚，再独立 checkpoint；真实代理丢 COMMIT 响应覆盖 committed/未提交/仍挂起，旧 writer 锁未终局不能因 SELECT 空而重做；Fault=nil unknown 同样处理 |
 | T06 claim 与终局 | claim commit unknown 不执行；Apply unknown marker 核实不二次调用；超时但 callback 尚活不释放 slot/fence；SIGKILL 后 exact guard+同 Delivery 锁核实，跨 host/未知/活实例不能偷 claim |
 | T07 恢复公平 | 前 64 项长期被保护，第 65 项仍推进；一个 handler 持续失败其他正常；foreign live/unbound 项不阻断本实例可收敛项；次数/退避/dead-letter 无忙循环 |
-| T08 重投/Audit | 当前 Session/Owner/Admin 边界、归档 gate、同 key 异义/旧 version 成功重放、Audit 失败整体回滚；archive→Restore 后旧 checkpoint 仍在，新 Event/delivery 正常，旧 archive cause 不能再关门，旧 terminal 不重开；失败 delivery 只增新 cycle，succeeded/processed 不重做，旧 Audit 兼容 |
+| T08 重投/Audit | 当前 Session/Owner/Admin 边界、归档 gate、同 key 异义/旧 version 成功重放、Audit 失败整体回滚；archive→Restore 后旧 checkpoint 仍在，新 Event/delivery 正常，旧 archive cause 不能再关门，旧 terminal 不自动重开。无 attempt 的合法 Human 重投只增 cycle/version，首个真实 claim 才有 AttemptID/fence1；Audit/commit unknown 不增伪 attempt。RequeueTarget 跨 scope/Actor/目标 binding 拒绝，Requeue 的旧 Delivery/其他 variant 的 Requeue 必须为空，callback 零 AttemptID/fence 仍拒绝；succeeded/processed 不重做，旧 Audit 兼容 |
 | T09 Project 删除 | lifecycle step 必填/闭集，其他 variant 不准带 step；跨 step/Actor/cause 的 Dependencies 复用拒绝。fixture provider 允许其他参与者未完成时合法 stop/inspect，仅 cleanup 因未收束拒绝；错误 Actor/cause 和未绑定 D08 均拒绝。stopping 中真实停止事实仍原子 Append、普通 mutation 被拒；其他生产者收束后 cleaning 在 Project EX 封闭 Append，旧 Event 尚存时同 ID 同义 Append 仍拒绝；active/新 version 不能重置删除 gate；与 writer/handler commit 竞争、旧实例/unknown、分页前缀阻挡、旧 cause/receipt 重试、迟到回调均安全，最终清零且不复活，其他 Project/System 无变动 |
 | T10 canonical bootstrap | 晚注册扫描期间新事件/来源删除均进入 dirty，旧 baseline/v42 不覆盖新 canonical；无 generation 时不能 ack；不从历史 payload 重建已删源 |
 | T11 真实 Central | 必需迁移/存储/绑定失败不 listen；空 catalog 机制可用但 ready503；30s 共享耗尽/2s 采样/20s 陈旧、首停在途 append、第二信号与共享 1s、DB 最后关闭 |
 | T12 guard 全路径 | 初始化对象失败、Outbox 注册失败、启动取消/晚返回；未 join handler 时强停只 Service.Force、另一进程 ConfirmStopped 仍拒绝；真 join/实际退出后才可恢复；无多 worker/泄漏 |
 | T13 安全诊断 | 多 handler 同 Event 去重、窗口外旧 pending age、retry/failed/dead_letter、已知与 unknown latency、无订阅 Event/多成功 delivery 的吞吐、最近安全理由均与真实事实匹配；空库/null/零、毫秒与窗口边界、计数超过 2^53/溢出拒绝、128 行截断和 2s 超时不伪成功。scope/handler/type 同时限定 Summary，其他租户绝不混入；Phase 只筛 Items，limit/页位置不裁剪总计，本次 AsOf 更新而旧 cursor 水位不改。cursor 跨 Scope/主体/筛选失败，同 cursor 改 limit 可继续且逐次限 1..100；payload/原 panic/SQL/凭据不出日志和 HTTP |
+| T14 零尝试停止与升级 | fresh/00008→00009 的真实升级保留旧 pending/claimed 数据且 00008 SHA 不变；新合法分支通过，NULL/错误 reason、System、非零计数和其他无 attempt phase 拒绝；故障注入证明两个 ALTER/迁移进度原子回滚。真实 archive 与首 claim 竞争按锁胜者收敛；未 claim 的 domain_ingress 终态无 attempt/processed、无未知 latency 样本、无自动恢复/Restore 重开，canonical_converge 不误终止；显式重投后未 claim 再停止仍合法，正式 cleanup 可清除且无迟到复活 |
 
 预期命令（实现授权后执行并记录真实结果）：
 
