@@ -450,6 +450,8 @@ B的新 `account/http_facade.go` 定义 `NewSystemHTTPFacade(core *Service, pagi
 | POST `/system/smtp/test` | admin；recipient | 202 test job ID，不改变保存配置 |
 | GET `/system/mail-jobs`、`/system/mail-jobs/{id}`；POST `/{id}/retry` | admin；分页或version | 安全状态/channel/尝试次数/固定reason；只对仍合法原材料重试 |
 
+`POST /system/smtp/unconfigure` 的严格请求只接必需 `version`、`auto_retry_count`、`retry_interval_seconds`，沿§8范围/编码且不接运输/密码字段；facade固定 `Configured=false`、`CredentialAction=remove` 并将显式retry值透传原 `UpdateSMTPSettings`，不从当前配置重建语义或隐式重置默认，same-key语义固定且每次仍先当前admin授权再处理幂等/version。
+
 system list用cursor现有签名keyring，每次当前admin验证；摘要绑定scope/filter/order但不绑定limit，默认25/max100，keyset按created_at+ID；role固定枚举无新管理API。密码弱/长度、username占用用400/409+安全FieldError；token失效410统一；容量429，基础设施503，Unknown503+lookup提示；公开reset不得把内部jobID、故障原因或已注册状态投影出去。
 
 `account.Service` 与§10.1的 `ProfileService` 公开命令覆盖上表；`Authenticate(ctx,cookie)→Human`、`RequireCurrentSession`、`AuthorizeSystem`、`TouchActivityInTx`、`LookupCommand` 是正式后端端口，敏感返回为opaque Cookie/LinkMaterial，仅HTTP或受限Sink适配器消费。未来域不导入HTTP读取cookie。所有mutation facade封装完整plan/WithinTx；只有明列InTx组合口使用调用方Tx，不外部I/O。

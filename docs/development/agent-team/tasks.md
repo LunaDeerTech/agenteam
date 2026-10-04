@@ -1,6 +1,6 @@
 # 团队任务台账
 
-每次仅有一个活动工作项；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
+按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
 ## AT-0001：建立串行开发团队与技能
 
@@ -751,3 +751,82 @@ root已核归位报告及精确diff：有效rev6现SHA `d063e015e80dd4b0771c1cf6
 root全文核读独立 `/tmp/agenteam-d07-b03-sink-verify-kxlsknv3/review-report.md` SHA `21feaa785920b6b33a55126736b40dcc53f968eec18def82ed53888edce87c57`、22索引 `b0c2765832e7da9b2175b3dc32c8f7263a1795a85f8f935528b804695d55d58f`，并亲读4冻结源中admission/ticket与sink完整diff，采纳纯库子块。4源/26依赖/30联合沿前述指纹；原sink_test SHA `c4aa328af16c10f343ae91956a302525e7ccb8544e1d371dd976e55fdd485d20`不变。独立新4顶层probe含6错误/panic子例 SHA `7f53e7d6c45082fbe521dd55fa87c6ed6f1129c9536151c90cc72f700a40ff8b`，31执行manifest `a3a350c979235d2a436c461cb2ea115f87466c1939491dfe72ce5991d8f193e7`；normal0.078s/race1.121s/vet各首次exit0。
 
 已实际核队首同步GrantOnce授予不可撤回且非首字节、授予前后error/panic、真实Write/Sync panic不假Written、16/24多Wait同结果、Wait取消不当Done、33项Stop/Cancel容量/锁序、Done前私有材料销毁和编码buffer清零、Force同ctx/阻塞Close/全SinkJoined区别。原Bootstrap/0600目录文件/不截断/部分写Unknown/旧Force测试均执行。作者/V/仓库30末次匹配，V任务进程/资源0/all-stop。root将仅4源+行政记录做局部本地提交；这不验收Account adapter/DB/Secret lease/root ProcessGuard，完整B03仍实现中，正式worker须只消费新Submit且待真实组合验证。已通过纯库若后续必要修改须重开受影响独立检查，不机械重跑未变输入。
+
+
+纯日志子块已精确提交 `062ae2c`（4源+2行政文档）；之前设计提交 `292033f`，活动B03其余源未暂存。B04 HTTP只读预核已结束：`/tmp/agenteam-d07-b04-http-preflight-e5wm232n/report.md` SHA `6db76c4b98fb6046c19e1b977190ba8ee4c6ce452c598807da7e27fdba6600db`，9输入 `ddf0536e1398f833a4885a8d3692ecfdb1894f6663871c1055071e8577738bf8`、索引 `c1bf6e2ed5c6e1db81585e76d9e251dc14bb9bea32219814d44ce4d448f6d1b6`，root全文核读；8固定Git源+有效设计匹配/8链接通过/all-stop，无活动域读取/仓库写/测试/资源。未发现超原B04 app/config范围的确定缺口，不解冻httpapi旧文件。后续新account HTTP/CSRF adapter复用严格JSON/Problem/ResponseController，须明确安全response先编码再Set-Cookie、成功no-store等headers、Origin/Host在账户路由规范化前检查、匿名/Session Cookie-CSRF隔离、raw头像限额与真实stream关闭/lease join。只是后续组合责任记录，不代表B04实现；当前B03唯一活动。
+
+
+### B03真实日志集成测试接缝授权
+
+作者报告T11需要真实Account/Secret lease/Worker下阻塞Sink.Write/Sync，而生产Sink仅Open普通文件、包内newSink私有。root采纳仅test seam：新 `internal/central/recoverylog/export_integration_test.go`（integration-tag，仅同包测试导出newSink适配）与外部包 `mail_integration_test.go`，通过真实PG/Account/Worker及阻塞file wrapper验证队首Grant前后、排队、实际lease/Force/join；不新增生产writer注入，不改已验4源/原sink_test。既有PG fixture driver固定测试包列表额外仅追加 `./internal/central/recoverylog/...`，复用唯一owned fixture路线，原包/参数/race/6m/nonce/生命周期不变。新测试只在integration test编译可见，生产构建不可导入；最终inventory/manifest/执行证据单列。此为已定T11验收的必要测试接缝，无产品语义变化；architecture同步设计范围与最新/tmp候选。backend可实施此最小增量，原纯库结论保持限定范围，新增真实组合仍须独立验收。
+
+
+T11测试接缝设计同步已由root核唯一行diff并通知backend：有效rev6 SHA `326d899b7b82dc79a73e26a2e84bebeb42c101b21f59b30ef33d667c88020b68`；同步报告 `/tmp/agenteam-d07-recoverylog-test-scope-_oyfofw3/handoff.md`，2输入 `f0bb0f5f90ef8d9b3c94303c2ad652388e5c440720e00dd34a1144992c73efae`、索引 `91b325dc8e50b8e14a3b88f6aaff46bad9479e89fbe447fc79e1f9fea0262730`，13链接各通过、作者全停。最新rev7候选在同目录，SHA `209b52c8d253a5978e6ef74642ac49cf31b6b29443c147a6d75c19f968b007ee`；其余正文和人工retry补遗逐字不变。
+
+
+### B03冻结后R01容量返修
+
+作者最终check-go normal/vet/integration-vet/race/双bin通过后冻结65源+498依赖，副本 `/tmp/agenteam-d07-b03-freeze-ci17ekzj/repo`，source `64662d254bc2738a416c9dc5d7f7e36de4e005681fa4a3e84ed6b5fdf0ebc315`、563all `164b583c9fc53791acbe73da2e506556c13392b20cef1f86280f621f94c7a7fd`。作者最后24+32+29分组/5probe证据未全收束，Docker仍作者。V已独立复制563到 `/tmp/agenteam-d07-b03-verify-wp843p7d/repo`，只读静态不占Docker。root也已读固定迁移/脚本、SMTP/Worker/Runtime/Registry、Claim/Acquire/准入/checkpoint、origin/retry/recovery重点。
+
+V发现并由root源码链确认B03-R01：RetryMailJob最终Tx直接INSERT新intent，retryEligible/NewFact/Audit均无既有insertDelivery的全局10000 pending检查，静态确定容量遗漏（尚非DB实测）。root授权最小原工作树返修：同account-mail EX下首次最终Tx复用统一pending口径、满额RateLimited，无source version/新intent/event/Audit；当前权限与同义receipt先于容量，历史receipt满额仍可重放。可在已授权delivery_intent.go抽私有capacity helper并新retry复用，新增满额/9999不同root并发/历史receipt真实用例。暂停未开始的最终probe与验收，保存所有已执行结果；旧冻结副本不改，V继续其他静态并准备独立容量probe，修后精确delta/hash再纳入。原源范围/产品规格无需扩大，不能把当前冻结版采纳通过。
+
+
+### B03-R02审计exact-fact范围补充准备
+
+V静态发现且root核冻结源码确认：既有AccountMail Audit provider只核closed attempt/job/initiator/channel/fence及result枚举，未将SMTPDelivery typed Outcome/Phase/Version与真实result/fence比较，也未核ordinal0及terminal/io_joined。真实failed事实可构造合法typed Success/Sent元数据过该分支的静态路径；尚未DB实测，不描述为匿名可利用。root将其纳入本块首次正式绑定的exact-fact门槛，交architecture仅同步有效设计范围/§4/T07及新/tmp rev7候选：AccountMail分支核exact current_attempt、job/fence、initiator/channel、actual terminal+io_joined、AccountMailProducer/cause=attempt/ordinal0；Version=fence，sent/unknown/failed-cancelled与既有deliveryAudit同一安全projection（含reason）。其他action/Service不放宽，无schema/公共接口变化。backend先等当前读主工作树all命令结束与此范围归位，再按正式通知修复；V保留旧冻结副本并准备真实正反probe，继续无关静态。
+
+
+R02规格归位已由root核精确三处diff，现有效rev6 SHA `36ce44ece8980b6f62a078a201ff7ecccf21489338e09128758fed20db43a96d`；报告 `/tmp/agenteam-d07-mail-audit-exact-fact-n5wwk0nf/handoff.md`，2输入 `77549ad58f7b5773961b0b3051c2497e26baf294e2f2a45db15194586fc0d0b2`、索引 `57956197ac2d4627f80b02122e57862c7f3b6e47520147dd45e4c4999b881d8f`，13链接/格式通过/作者全停。最新rev7候选同目录SHA `5cbf8e8f20dd614bdde1d52d2901cc9ca4a04bd7c9c4a9255ee35d80b6e16241`，旧稿保留。root正式授权backend在当前all命令退出/资源清理且读主工作树停止后，只修 `account/audit_authority.go` 的AccountMail分支及必要新私有共享投影helper/窄测试，既有delivery_finish.go生产者可复用同投影；核§4全事实/result/outcome/phase/reason/Version/ordinal/currentattempt/actualjoin，其他旧权限分支不放宽，无schema变化。与R01精确delta分别列出，V旧冻结副本及原红/未修行为保留，修后重新冻结受影响范围再验证。
+
+
+原冻结all三组已正常exit0：mutations Account131.336s、identity Account172.248s、mail Account99.471s/accountmail215.570s/recoverylog15.803s，log `797f194fed1d9ae04f50457b9f500ebb4bd1c67468185af786dd0e542648aead`，9nonce精确容器/网络0、源65末次匹配；记录 `/tmp/agenteam-d07-b03-r01-repair-Dt1JDV/pre-repair-all-result.json`。这是R01/R02未修冻结版的既有测试通过，不能覆盖新反例；旧5probe按root指示未启动，留最终V一次执行。作者现可窄修，先一次有界旧代码两反例实证，再同断言修后定向/Go检查，不重复作者整组。
+
+V静态最终 `/tmp/agenteam-d07-b03-verify-wp843p7d/static-review-report.md` SHA `2f4541bdf1830e512de6ed21f501a8321ad87c1e9230b29060b676ce63c9cf4e`、116索引 `1875d4b7a3979c269f34f9c6e1cb5a881b3e6c94afe21ce59943f00eddeeaaf5`，root全文核读；仅R01/R02阻塞。563源依赖及编译overlay565末次一致，deps498 `50176561fc5a337772e94816ed8a57418c43df78ebf3b37f00198b708bcc31b1`。独立R01 probe `a697b4eb51faf9249a98ac70f054bafaf43509228c87fb17b0e7310a1c19f5f8`、R02 probe `5136aa309115d7ca6c9a60be417ee799252de4501332227a32f3d39921487a51`仅编译通过、未DB执行。R02使用typed合法但不实Success/Sent实际进入provider，非构造器矛盾；R01容量seed是合法独立根，非10000次发送声明。legacy Ref候选唯一成功由全局唯一LeaseID证明，无第三项误释放；无found首个Forbidden可能掩盖后来依赖cause只记诊断限制。V无资源/all-stop。
+
+最终兼容计划：V固定Go AST/build tags枚举原11包372顶层，完整regex SHA `a5a3886b798bacc3af8f954cea67ad463a42b59f66649c55b756f28c4e59e292`，与Account/newMail无交叉；在修后最终输入上一次原fixture -run原6m，原24/32、新Mail（修前29须重枚举）、原5probe另组。不能用filter后的no-tests算旧包通过；child helper独立skip仍需真实父用例。Docker当前作者，正式移交后才执行。
+
+
+### B03修后冻结与最终独立验证授权
+
+作者一次旧码真实红已复现R01满10000新retry成功、R02真实closed/failed被typed Success/Sent接受，`/tmp/agenteam-d07-b03-r01-repair-Dt1JDV/red-real.log`（Account4.978s/exit1），nonce清零。修后同新回归字节不改，定向整条exit0：Account81.884s、accountmail43.825s、真实log adapter5.709s；最终check-go全0 log SHA `2a4dc1a54df36a516d13ce2d4c05e490c97fcc745257ddebcf77772bb3e278a0`。root全文读两diff，R01只统一capacity helper/首次retry最终Tx调用，R02只AccountMail事实provider+共享纯投影及两新增测试，无其他权限扩大。
+
+新冻结副本 `/tmp/agenteam-d07-b03-r01-repair-Dt1JDV/repo`：68source `61943373e1b0b41805b26dda0a09b07638df1ddf9d90a6dda1f27c6ecdd57340`、498deps `1bb43137d720c1ab5ad513f6a248702f1f367ad51e37ef616c16b6e3c67d001f`、566all `cc8a9049eab76d5dcb123405ae71fdfae384dc10db1bd5e38c03cdb5e06c5167`；R01 delta `6b2df787a6dd9263c60034fae945788a7e49700d8bbac116482137d26d230eb8`、R02 `f0a1a66da37b75b5f47af76b92831e1d8f0e1dc389eb1628f3400dca9f74f22f`。3新增+4变更源，root逐项比deps仅R02设计326d→36ce一项、其余497同。原563快照全保留；仓库顶层inventory87=24+32+29+R01/R02两新，待V独立重枚举。作者产品命令全停，66日志nonce容器/网络/owned runtime0，后续只/tmp报告整理。
+
+root正式Docker交V：独立复制新566/核delta及runtime；先旧563+V两probe仅R01 full_new_key_and_existing_receipt与R02 success_over_failed一次具体红，再最终566+同probe完整一次闭环。然后A24/B32、Mail31、原5不可变probe与旧11包372精确regex各一次，原fixture/6m/内部断言/串行包/nonce不变；不得把filter no-tests称旧兼容。已验纯Sink及修后作者check-go复用不机械重复。任何非预期失败先停报告；不改仓库或放宽断言/预算，准备工具修正保原红。最终全输入匹配/资源0/all-stop后才讨论采纳，当前B03仍未完成。
+
+
+B03作者最终报告已由root全文核读：`/tmp/agenteam-d07-b03-r01-repair-Dt1JDV/author-report.md` SHA `23f59a9d56e693f2889d8fc67cf6fd170ea7c910fadc3a0b903c3b03f06dcf0f`，52项证据索引 `b708154c9e414e426bcb3184047b04e862f120a2f10954d6e35e5a49faa409d6`；作者全停，68源/498依赖与87项inventory保持冻结。独立V在 `/tmp/agenteam-d07-b03-final-verify-r2cetr41/` 已以旧563+新两probe复现两项具体红（Account6.978s）：pending10000→10001及源version/intent/event/Audit各+1；真实failed被typed Success/Sent接受。旧反例3nonce已核零。修后566+同probe原字节完整Account12.175s PASS，覆盖满额新请求/历史重放/9999竞争及审计事实正反矩阵；整条fixture退出清理及随后A24/B32/Mail31/原5/旧372仍待V最终证据，未提前验收B03。
+
+
+用户最新调整：允许依赖已满足、正式契约稳定且文件/资源可隔离的任务或模块并行，增加子代理；主线程专注沟通、协调、范围决策与最终整合，测试结果分析和验收证据审查交专门 `gpt-6-astra / max` 验收负责人。现已下发独立acceptance_lead接收V结果，parallel_plan独占AGENTS/开发计划/团队README同步规则并识别并行任务；architecture继续B04固定B03输入只读组合复核。未降低验收门槛或授权未满足依赖的生产stub。
+
+按用户要求再次执行 `git push origin main` 成功，远端从 `1898748` 更新到 `062ae2c`，60个既有本地提交已同步；此前认证阻塞现已解除，不再沿用“无法推送”。后续已验小块及时提交推送。B03剩余64源与设计/行政文档仍待最终独立验收，未随本次推送。
+
+
+### 并行工作流规则提交与验收分工生效
+
+root已将规则六文件精确提交为 `4e7e865` 并成功推送 `main`：`AGENTS.md`、开发计划、团队README、任务模板、`.codex/config.toml` 与 `.agents/skills/agenteam-design/SKILL.md`；未包含活动B03业务源码。独立验收报告 `/tmp/agenteam-d07-b03-acceptance-akbuvp_l/workflow-acceptance-r2.md` SHA `417bad11611e805f4c22ff09201c2ad602a3903a55ce2e3aa65fa9862e18ca41`，六文件最终指纹匹配，模板旧限制及主线程职责两项窄修均已闭环；作者自查123链接/3fragment/6表、格式及TOML最小差异通过，未运行无关产品测试。
+
+现按[团队流程](README.md)和[开发计划](../development-plan.md)执行真实依赖、正式稳定契约及文件/全局迁移/共享资源唯一所有权下的并行；当前7总席位包含root，全部代理 `gpt-6-astra / max`，子agent不得再委派。主线程专注沟通、协调、范围决定、核验收结论、最终整合与Git交付；业务实现/返修交对应执行者，测试计划、证据分析、故障归因及独立验收交专门负责人。本记录替代此前单活动模块及常态2/最多3的调度限制，历史验收事实与模块完成门槛保持。
+
+D08独立设计已并行启动，由 `d08_design` 只读固定 `062ae2c` 与已验B01身份接口，草案位于 `/tmp/agenteam-d08-design-3hfI2W`，不改业务/迁移、不占Docker；B04正式接口与分工仍由architecture复核，业务实施须按真实前置和正式契约另行派发。B03保持修后最终独立验收未采纳状态，既有未提交记录全部保留；本次规则提交、D08设计开工均不代表B03、B04或D08能力已通过验收。
+
+
+### D07 B03最终采纳、提交与资源交还
+
+B03已由独立V及验收负责人采纳，无未决阻断；root将精确剩余64源提交并推送`ffa65f0`，不含C0/A/B/D08或行政文档，已验Sink4保持`062ae2c`。详细实际命令、分组覆盖、历史红与限制见[D07主卡](../work-items/d07-account-session-smtp.md)末尾。source68/deps498/all566沿既有冻结，all SHA `cc8a9049eab76d5dcb123405ae71fdfae384dc10db1bd5e38c03cdb5e06c5167`；执行573含原字节两新probe和原五probe。V封存 `/tmp/agenteam-d07-b03-final-verify-r2cetr41/final-report.md` SHA `c90b93fd889c699c8610f07b0f1293a75b1a4e862cafb4b44e07537ebdd70ae8`，87索引`c0da869d56551bd1f871ac604514f5c39b8427970b094d0f81da2284532c7e9e`；验收报告 `/tmp/agenteam-d07-b03-acceptance-akbuvp_l/b03-acceptance.md` SHA `2cebb84d545742623df1ce1967543a74f57bc549674cfe29350c8a12cfeb51f6`。
+
+旧R01/R02指定子例一次真实预期红，修后同两probe完整绿；A24/B32/Mail31/原五/旧372十一实际包各一次exit0，原`-race -count=1 -timeout=6m`、`-p=1`和内部断言不变。Mail为固定prefix选31，其他逐名regex；no-tests和裸child helper不当兼容通过。作者修后check-go/已验Sink证据复用；原整包6m/57014/浏览器及准备红保留，不把分组组合冒称单次无过滤全绿或唯一根因已知。七次fixture21外层nonce、SMTP/browser补充资源、owned进程全0，V已all-stop并交回Docker。
+
+本轮业务执行依据冻结rev6；AGENTS与后采纳B04 rev7的行政差异已单列，不声称主树566完全一致。root现将00012头像恢复索引与Docker独占交A后段，范围见已审A卡；A1八源仍在隔离V期间冻结，C0不漂移。B新HTTP/facade并行，生产Profile/Runtime/app联合装配尚未验收；D08纯契约不占迁移号/资源。D07仍未完成、ready=false。
+
+## AT-0015：D08 Project 与 Owner
+
+- 状态：S01 规格已独立静态审查通过并由 root 采纳；B01 正式契约与纯规则库实现中；D08 模块尚未完成。正式[主卡](../work-items/d08-project-owner.md)与[设计 rev2](../work-items/d08-project-owner-design.md)已由 root 提交并推送 `08d119d`。
+- 并行依据：D07 尚未完成不构成所有后续任务的统一等待门槛。B01 只消费已验 foundation/identity/event 的固定输入，不依赖活动 B03/B04 实现；按当前团队规则与唯一文件/资源所有权，和 D07 B03 独立验收、B04 阶段 1 并行。
+- 所有权：`d08_design` 独占主卡 B01 的 `internal/central/project/contract/` 下 12 个新文件（`types`、`commands`、`lifecycle`、`initialization`、`events`、`validation` 及各自测试）；不覆盖旧接口、不提前 schema/Service/HTTP、不改依赖/迁移/fixture，不使用 Docker。冻结后由 `parallel_plan` 接收固定源码、依赖与作者证据，独立验收；活动实现不作为已验事实。
+- 固定基线：`062ae2c050e2f6fa1549d2e67f924b4e5160d754` 的 15 项非测试编译输入，manifest `/tmp/agenteam-d08-placement-se1meE/b01-compile-inputs.json` SHA `b1b09e4dbbace98085b60787243948e9e1f26a658489e66a15f32716c379eaaa`；Go `1.27.1`。本条记录实施授权，不宣称 B01 测试通过。
+
+独立规格报告 `/tmp/agenteam-d08-independent-spec-review-cofn9wvo/review-report.md` SHA `287c4c85491f7574af0e8358efae7d77dbb5214d8b0d9f767ceb5118491808a7`，复核 49 项固定输入和 rev2 窄修；归位报告 `/tmp/agenteam-d08-placement-review-y3fgx_ed/review-report.md` SHA `329ad03358a459fa96d9bf69f087ec2e66e17bc2c4626f4b6c0a585143c75d79`，核两文件差异、9 链接/9 表及 15 项编译依赖，正文语义不变。以上只证明规格和归位通过，未运行产品测试。
+
+后续门槛保留：B02 真实 PG 验收等待连续已验迁移前缀和 root 分配迁移/共享资源；00011 仍归 D07 B03，不缺号、复用或填占位。当前 username 正式窄口归 D07 B04-A，HTTP/app 等对应稳定输入与所有权移交；D10 Skill 初始化真实绑定仍未完成，不用 fixture 或空成功实现冒充生产 Create。D07 B03现已独立采纳并提交推送`ffa65f0`；B04 A后段/B新HTTP与本卡纯契约并行，仍不改变D07/D08未完成事实。
