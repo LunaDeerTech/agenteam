@@ -6,7 +6,7 @@
 
 ## 构建与验证
 
-D07 当前提供账号、Session、邀请、密码恢复和挑战库，以及真实 Outbox 入队 handler；构造、恢复与独立浏览器检查见[账号库说明](account.md)。这些库尚未装配进 Central 生产 HTTP/启动入口；SMTP/log 发送也未实现，不改变当前 `ready=false` 和其它业务未绑定状态。
+D07 当前提供账号、Session、邀请、密码恢复和挑战库，以及真实 Outbox 入队 handler；构造、恢复与独立浏览器检查见[账号库说明](account.md)。SMTP 三模式、受限恢复日志、持久 attempt 与人工重试由[账号邮件库](accountmail.md)提供。这些库尚未装配进 Central 生产 HTTP/启动入口，不改变当前 `ready=false` 和其它业务未绑定状态。`scripts/test-accounts.sh` 沿原 fixture 路径分组运行账号及邮件测试，保留每组原 6m 包预算。
 
 ```sh
 # 指向实际 Go 1.27.1；该环境可使用 /workspace/toolchains/go1.27.1/bin/go。

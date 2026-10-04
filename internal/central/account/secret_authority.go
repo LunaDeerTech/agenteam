@@ -215,6 +215,9 @@ func (a *Authority) usageMapping(ctx context.Context, x postgres.SQLExecutor, r 
 			}
 			return commandMapping(cmd), commandLocks(cmd), nil
 		}
+		if r.Purpose == sc.SMTP {
+			return a.smtpReferenceMapping(ctx, x, r)
+		}
 		return a.linkReferenceMapping(ctx, x, r)
 
 	}
@@ -237,22 +240,7 @@ func (a *Authority) usageMapping(ctx context.Context, x postgres.SQLExecutor, r 
 		return responseMapping(p), locks, nil
 	}
 	if r.LeaseOwner.Details().Kind == sc.AccountDeliveryOwner {
-		var job, process string
-		var fence, version int64
-		var ref string
-		column := "token_lease_id"
-		if r.Purpose == sc.SMTP {
-			column = "credential_lease_id"
-		}
-		e := x.QueryRow(ctx, `SELECT a.job_id::text,a.process_id::text,a.fence,a.config_version,coalesce(`+column+`::text,'') FROM agenteam_account.mail_attempts a WHERE a.id=$1`, r.LeaseOwner.Details().ID).Scan(&job, &process, &fence, &version, &ref)
-		if e != nil {
-			return "", nil, fault(foundation.Forbidden, e)
-		}
-		if ref != r.LeaseID.String() {
-			return "", nil, fault(foundation.Forbidden, nil)
-		}
-		b, _ := json.Marshal([]any{r.LeaseOwner.Details().ID, job, process, fence, version, ref})
-		return digest(b), []foundation.LockRequest{configLock("account-mail", foundation.Shared), configLock("account-directory", foundation.Shared), recordLock(job), recordLock(r.LeaseOwner.Details().ID)}, nil
+		return a.deliveryUsageMapping(ctx, x, r)
 	}
 	return "", nil, fault(foundation.Forbidden, nil)
 }
@@ -305,6 +293,9 @@ func (a *Authority) ValidateUsageInTx(ctx context.Context, tx foundation.Tx, r s
 			}
 			return nil
 		}
+		if r.Purpose == sc.SMTP {
+			return a.validateSMTPReference(ctx, tx, x, r)
+		}
 		return a.validateLinkReference(ctx, tx, x, r)
 	}
 	action := sc.AcquireLease
@@ -356,6 +347,9 @@ func (a *Authority) AuthorizeLeaseInTx(ctx context.Context, tx foundation.Tx, ac
 	x, e := a.state().store.InTx(tx)
 	if e != nil {
 		return empty, unavailable(e)
+	}
+	if owner.Details().Kind == sc.AccountDeliveryOwner {
+		return a.authorizeDeliveryLease(ctx, tx, x, actor, ref, owner, action)
 	}
 	if owner.Details().Kind != sc.AccountResponseOwner {
 		return empty, fault(foundation.DependencyUnbound, nil)

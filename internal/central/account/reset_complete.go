@@ -205,6 +205,11 @@ func (s *Service) CompletePasswordReset(ctx context.Context, r c.ResetComplete) 
 	}
 	locks = append(locks, commandLocks(cmd)...)
 	locks = append(locks, plan.Locks()...)
+	guard, e := st.deps.Authority.mailExclusive(ctx)
+	if e != nil {
+		return c.RedemptionReceipt{}, e
+	}
+	defer guard.release()
 	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
 		if e := st.store.AcquireAll(ctx, tx, locks); e != nil {
 			return unavailable(e)
@@ -256,7 +261,7 @@ func (s *Service) CompletePasswordReset(ctx context.Context, r c.ResetComplete) 
 		if e = s.mutationAudit(ctx, tx, actor, ac.AccountPasswordResetComplete, ac.PasswordResetResource, linkID, cmd.id.String(), ac.AccountMetadataFields{UserID: cmd.user, ResetID: linkID, Version: u.user.Version + 1, Phase: ac.AccountRedeemed}); e != nil {
 			return e
 		}
-		if e = s.removeLinkInTx(ctx, tx, removal); e != nil {
+		if e = s.removeLinkInTx(ctx, tx, removal, guard); e != nil {
 			return e
 		}
 		if _, e = x.Exec(ctx, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='password_reset' WHERE user_id=$1 AND revoked_at IS NULL`, cmd.user); e != nil {

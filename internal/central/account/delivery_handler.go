@@ -13,12 +13,19 @@ import (
 )
 
 type deliveryHandler struct{ service *Service }
-type deliveryFact struct{ ID, Job, Kind, Link, User string }
+type deliveryFact struct {
+	ID, Job, Kind, Link, User, Recipient, Origin string
+	PasswordVersion                              int64
+	RootBinding                                  foundation.Digest
+	origin                                       deliveryOrigin
+}
 
 func loadDelivery(ctx context.Context, x postgres.SQLExecutor, id string) (deliveryFact, error) {
-	var f deliveryFact
-	e := x.QueryRow(ctx, `SELECT i.id::text,i.job_id::text,i.kind,coalesce(i.link_id::text,''),coalesce(r.user_id::text,'') FROM agenteam_account.delivery_intents i LEFT JOIN agenteam_account.password_resets r ON i.kind='password_reset' AND r.id=i.link_id WHERE i.id=$1`, id).Scan(&f.ID, &f.Job, &f.Kind, &f.Link, &f.User)
-	return f, portError(e)
+	o, e := loadDeliveryOrigin(ctx, x, id)
+	if e != nil {
+		return deliveryFact{}, e
+	}
+	return deliveryFact{ID: o.source.ID, Job: o.source.Job, Kind: o.source.Kind, Link: o.source.Link, User: o.user(), Recipient: o.source.Recipient, Origin: o.root.ID, PasswordVersion: o.rootCommand.passwordVersion, RootBinding: o.binding(), origin: o}, nil
 }
 func deliveryMapping(f deliveryFact) []byte { b, _ := json.Marshal(f); return b }
 func deliveryLocks(f deliveryFact) []foundation.LockRequest {
@@ -29,7 +36,7 @@ func deliveryLocks(f deliveryFact) []foundation.LockRequest {
 	if f.User != "" {
 		l = append(l, userLock(f.User, foundation.Shared))
 	}
-	return l
+	return append(l, f.origin.locks()...)
 }
 
 // MailHandler installs only the durable enqueue handler. SMTP/log delivery has
@@ -116,9 +123,15 @@ func enqueueDelivery(ctx context.Context, x postgres.SQLExecutor, f deliveryFact
 			return unavailable(e)
 		}
 	case c.ResetDelivery:
-		if e := x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.password_resets r JOIN agenteam_account.users u ON u.id=r.user_id WHERE r.id=$1 AND r.expires_at>clock_timestamp() AND r.password_version=u.password_version)`, f.Link).Scan(&live); e != nil {
+		if e := x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.password_resets r JOIN agenteam_account.users u ON u.id=r.user_id WHERE r.id=$1 AND r.user_id=$2 AND r.password_version=$3 AND r.expires_at>clock_timestamp() AND r.password_version=u.password_version)`, f.Link, f.User, f.PasswordVersion).Scan(&live); e != nil {
 			return unavailable(e)
 		}
+	case c.TestDelivery:
+		cfg, e := loadSMTP(ctx, x)
+		if e != nil {
+			return e
+		}
+		live = cfg.Configured
 	default:
 		return fault(foundation.DependencyUnbound, nil)
 	}
@@ -161,7 +174,7 @@ func (s *Service) ReconcileDeliveryIntents(ctx context.Context) (RecoveryStatus,
 			status.Advanced++
 		} else {
 			status.Pending++
-			if first == nil {
+			if first == nil || mailPending(first) && !mailPending(e) {
 				first = e
 			}
 		}

@@ -84,3 +84,78 @@ func TestAccountActionsResourcesAndProducers(t *testing.T) {
 		}
 	}
 }
+
+func TestSMTPDeliverySettingFieldNamesAreClosed(t *testing.T) {
+	for _, name := range []AccountChangedField{SMTPSenderNameChanged, SMTPAutoRetryCountChanged, SMTPRetryIntervalChanged} {
+		fields := AccountMetadataFields{Version: 2, Phase: AccountUpdated, ChangedFields: []AccountChangedField{name}}
+		metadata, err := AccountMetadata(SMTPSettingsUpdate, fields)
+		if err != nil {
+			t.Fatal(name, err)
+		}
+		if _, err := DecodeMetadata(SMTPSettingsUpdate, metadata.JSON()); err != nil {
+			t.Fatal(err)
+		}
+		for _, action := range []Action{AccountSettingsUpdate, AccountProfileUpdate, AccountPasswordChange, SMTPTestRequest, SMTPDelivery} {
+			fields.UserID = "01900000-0000-7000-8000-000000000001"
+			if _, err := AccountMetadata(action, fields); err == nil {
+				t.Fatal("field escaped SMTP update", name, action)
+			}
+		}
+	}
+	for _, name := range []AccountChangedField{"sender_name=private sender", "auto_retry_count=3", "retry_interval_seconds=60", "smtp_any"} {
+		if _, err := AccountMetadata(SMTPSettingsUpdate, AccountMetadataFields{Version: 2, Phase: AccountUpdated, ChangedFields: []AccountChangedField{name}}); err == nil {
+			t.Fatal("value or unknown field accepted")
+		}
+	}
+	raw := []byte(`{"version":"2","phase":"updated","changed_fields":["sender_name"],"sender_name":"private sender"}`)
+	if _, err := DecodeMetadata(SMTPSettingsUpdate, raw); err == nil {
+		t.Fatal("value-bearing metadata accepted")
+	}
+}
+
+func TestMailRetryMetadataOnlyRecordsOriginalJobAndCurrentInitiator(t *testing.T) {
+	user, _ := foundation.ParseID[identity.User]("01900000-0000-7000-8000-000000000001")
+	session, _ := foundation.ParseID[identity.Session]("01900000-0000-7000-8000-000000000002")
+	job := "01900000-0000-7000-8000-000000000003"
+	actor, _ := identity.NewHuman(user, session)
+	fields := AccountMetadataFields{Version: 3, JobID: job, InitiatorID: user.String(), Phase: AccountAccepted}
+	m, e := AccountMetadata(SMTPDeliveryRetry, fields)
+	if e != nil {
+		t.Fatal(e)
+	}
+	decoded, e := DecodeMetadata(SMTPDeliveryRetry, m.JSON())
+	if e != nil || string(decoded.JSON()) != string(m.JSON()) {
+		t.Fatal(e)
+	}
+	r, _ := NewResource(MailJobResource, job)
+	f := EntryFields{Scope: identity.SystemScope(), Actor: actor, Action: SMTPDeliveryRetry, Outcome: Success, Resource: r, Metadata: m}
+	if _, e = NewEntry(f); e != nil || ProducerFor(f.Action) != AccountProducer {
+		t.Fatal(e)
+	}
+	reg, _ := identity.RegisterService(identity.AccountMail)
+	service, _ := reg.Actor(job, identity.SystemScope())
+	bad := f
+	bad.Actor = service
+	if _, e = NewEntry(bad); e == nil {
+		t.Fatal("service manufactured an administrator retry")
+	}
+	bad = f
+	bad.Outcome = Unknown
+	if _, e = NewEntry(bad); e == nil {
+		t.Fatal("accepted retry is not unknown delivery")
+	}
+	for _, modify := range []func(*AccountMetadataFields){
+		func(x *AccountMetadataFields) { x.JobID = "" }, func(x *AccountMetadataFields) { x.InitiatorID = "" },
+		func(x *AccountMetadataFields) { x.AttemptID = job }, func(x *AccountMetadataFields) { x.UserID = user.String() }, func(x *AccountMetadataFields) { x.Channel = SMTPChannel },
+		func(x *AccountMetadataFields) { x.Phase = AccountSent }, func(x *AccountMetadataFields) { x.Reason = DeliveryUnknown }, func(x *AccountMetadataFields) { x.ChangedFields = []AccountChangedField{SMTPSenderNameChanged} },
+	} {
+		copy := fields
+		modify(&copy)
+		if _, e = AccountMetadata(SMTPDeliveryRetry, copy); e == nil {
+			t.Fatal("unrelated retry metadata accepted")
+		}
+	}
+	if _, e = DecodeMetadata(SMTPDeliveryRetry, []byte(strings.TrimSuffix(string(m.JSON()), "}")+`,"recipient":"private@example.test"}`)); e == nil {
+		t.Fatal("private value accepted")
+	}
+}

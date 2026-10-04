@@ -27,6 +27,7 @@ const (
 	SMTPSettingsUpdate           Action       = "smtp.settings.update"
 	SMTPTestRequest              Action       = "smtp.test.request"
 	SMTPDelivery                 Action       = "smtp.delivery"
+	SMTPDeliveryRetry            Action       = "smtp.delivery.retry"
 	AccountProducer              Producer     = "account"
 	AccountMailProducer          Producer     = "account.mail"
 	UserResource                 ResourceKind = "user"
@@ -41,7 +42,7 @@ const (
 
 func AccountAction(a Action) bool {
 	switch a {
-	case AccountBootstrap, AccountLogin, AccountLogout, AccountInviteCreate, AccountInviteRevoke, AccountInviteRedeem, AccountPasswordChange, AccountPasswordResetRequest, AccountPasswordResetComplete, AccountProfileUpdate, AccountAvatarUpdate, AccountSettingsUpdate, SMTPSettingsUpdate, SMTPTestRequest, SMTPDelivery:
+	case AccountBootstrap, AccountLogin, AccountLogout, AccountInviteCreate, AccountInviteRevoke, AccountInviteRedeem, AccountPasswordChange, AccountPasswordResetRequest, AccountPasswordResetComplete, AccountProfileUpdate, AccountAvatarUpdate, AccountSettingsUpdate, SMTPSettingsUpdate, SMTPTestRequest, SMTPDelivery, SMTPDeliveryRetry:
 		return true
 	}
 	return false
@@ -70,6 +71,9 @@ const (
 	SMTPPasswordChanged       AccountChangedField = "password"
 	SMTPFromChanged           AccountChangedField = "from"
 	SMTPEnabledChanged        AccountChangedField = "enabled"
+	SMTPSenderNameChanged     AccountChangedField = "sender_name"
+	SMTPAutoRetryCountChanged AccountChangedField = "auto_retry_count"
+	SMTPRetryIntervalChanged  AccountChangedField = "retry_interval_seconds"
 )
 
 type AccountPhase string
@@ -169,7 +173,7 @@ func AccountMetadata(action Action, f AccountMetadataFields) (Metadata, error) {
 		allow("user", "object")
 	case AccountSettingsUpdate, SMTPSettingsUpdate:
 		allow("initiator")
-	case SMTPTestRequest:
+	case SMTPTestRequest, SMTPDeliveryRetry:
 		allow("job", "initiator")
 	case SMTPDelivery:
 		allow("job", "attempt", "initiator")
@@ -252,12 +256,17 @@ func AccountMetadata(action Action, f AccountMetadataFields) (Metadata, error) {
 		}
 	case SMTPSettingsUpdate:
 		phase = AccountUpdated
-		for _, v := range []AccountChangedField{SMTPHostChanged, SMTPPortChanged, SMTPTLSChanged, SMTPUsernameChanged, SMTPPasswordChanged, SMTPFromChanged, SMTPEnabledChanged} {
+		for _, v := range []AccountChangedField{SMTPHostChanged, SMTPPortChanged, SMTPTLSChanged, SMTPUsernameChanged, SMTPPasswordChanged, SMTPFromChanged, SMTPEnabledChanged, SMTPSenderNameChanged, SMTPAutoRetryCountChanged, SMTPRetryIntervalChanged} {
 			allowedFields[v] = true
 		}
 	case SMTPTestRequest:
 		phase = AccountAccepted
 		if f.JobID == "" {
+			return Metadata{}, invalid("metadata")
+		}
+	case SMTPDeliveryRetry:
+		phase = AccountAccepted
+		if f.JobID == "" || f.InitiatorID == "" {
 			return Metadata{}, invalid("metadata")
 		}
 	case SMTPDelivery:
@@ -352,6 +361,9 @@ func validateAccountEntry(f EntryFields) error {
 	if a.Kind != identity.Human && a.Kind != identity.Service {
 		return invalid("entry")
 	}
+	if f.Action == SMTPDeliveryRetry && a.Kind != identity.Human {
+		return invalid("actor")
+	}
 	m, e := f.Metadata.AccountFields()
 	if e != nil {
 		return e
@@ -371,7 +383,7 @@ func validateAccountEntry(f EntryFields) error {
 		kind, id = AccountSettingsResource, r.ID
 	case SMTPSettingsUpdate:
 		kind, id = SMTPSettingsResource, r.ID
-	case SMTPTestRequest, SMTPDelivery:
+	case SMTPTestRequest, SMTPDelivery, SMTPDeliveryRetry:
 		kind, id = MailJobResource, m.JobID
 	}
 	if r.Kind != kind || r.ID != id {

@@ -175,6 +175,11 @@ func (s *Service) RedeemInvitation(ctx context.Context, r c.InvitationRedeem) (c
 		return c.RedemptionReceipt{}, e
 	}
 	locks := append(removal.locks(), commandLock(key), configLock("account-security", foundation.Shared), userLock(uid.String(), foundation.Exclusive), recordLock(id.String()))
+	guard, e := st.deps.Authority.mailExclusive(ctx)
+	if e != nil {
+		return c.RedemptionReceipt{}, e
+	}
+	defer guard.release()
 	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
 		if e := st.store.AcquireAll(ctx, tx, locks); e != nil {
 			return unavailable(e)
@@ -222,7 +227,7 @@ func (s *Service) RedeemInvitation(ctx context.Context, r c.InvitationRedeem) (c
 		if _, e = x.Exec(ctx, `INSERT INTO agenteam_account.commands(id,namespace,owner_id,command_key,command_name,identity_digest,semantic_kid,semantic_mac,actor_kind,user_id,browser_id,browser_expires_at,origin_process_id,resource_id,phase,result_code,result_version,completed_at) VALUES($1,'account.invitation',$2,$3,'invite-redeem',$4,$5,$6,'browser',$7,$2,$8,$9,$10,'committed','COMPLETED',1,clock_timestamp())`, id.String(), f.Browser.ID().String(), string(f.Key), string(digest([]byte(key.Canonical()))), st.keys.current(), mac, uid.String(), f.Browser.ExpiresAt().Time(), st.process.String(), linkID); e != nil {
 			return unavailable(e)
 		}
-		if e = s.removeLinkInTx(ctx, tx, removal); e != nil {
+		if e = s.removeLinkInTx(ctx, tx, removal, guard); e != nil {
 			return e
 		}
 		actor, e := serviceActor(identity.AccountAuth, id.String())

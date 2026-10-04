@@ -257,6 +257,11 @@ func (s *Service) ChangePassword(ctx context.Context, r c.PasswordChange) (Passw
 	}
 	locks = append(commandLocks(cmd), userLock(cmd.user, foundation.Exclusive), recordLock(cmd.resource))
 	locks = append(locks, plan.Locks()...)
+	guard, e := st.deps.Authority.mailExclusive(ctx)
+	if e != nil {
+		return PasswordChangeResponse{}, e
+	}
+	defer guard.release()
 	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
 		if e := st.store.AcquireAll(ctx, tx, locks); e != nil {
 			return unavailable(e)

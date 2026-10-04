@@ -54,7 +54,10 @@ func (p linkRemoval) locks() []foundation.LockRequest {
 	}
 	return locks
 }
-func (s *Service) removeLinkInTx(ctx context.Context, tx foundation.Tx, p linkRemoval) error {
+func (s *Service) removeLinkInTx(ctx context.Context, tx foundation.Tx, p linkRemoval, guard *mailGuard) error {
+	if e := s.state().deps.Authority.requireMailExclusive(guard); e != nil {
+		return e
+	}
 	st := s.state()
 	if e := st.store.RequireHeldLocks(ctx, tx, p.locks()); e != nil {
 		return unavailable(e)
@@ -79,7 +82,7 @@ func (s *Service) removeLinkInTx(ctx context.Context, tx foundation.Tx, p linkRe
 	}
 	// Pending work loses its admission in the same transaction. An actual future
 	// mail attempt is not guessed joined: its lease remains protected separately.
-	if _, e = x.Exec(ctx, `UPDATE agenteam_account.mail_jobs SET phase='cancelled',reason='token_invalid',version=version+1,completed_at=clock_timestamp() WHERE intent_id IN (SELECT id FROM agenteam_account.delivery_intents WHERE kind=$1 AND link_id=$2) AND phase='pending'`, p.link.kind, p.link.id); e != nil {
+	if _, e = x.Exec(ctx, `UPDATE agenteam_account.mail_jobs SET phase='cancelled',reason='token_invalid',version=version+1,completed_at=clock_timestamp() WHERE intent_id IN (SELECT id FROM agenteam_account.delivery_intents WHERE kind=$1 AND link_id=$2) AND phase IN ('pending','retry_wait')`, p.link.kind, p.link.id); e != nil {
 		return unavailable(e)
 	}
 	table := "invitations"
@@ -111,6 +114,11 @@ func (s *Service) expireLink(ctx context.Context, kind c.TokenKind, id string) e
 	if e != nil {
 		return e
 	}
+	guard, e := s.state().deps.Authority.mailExclusive(ctx)
+	if e != nil {
+		return e
+	}
+	defer guard.release()
 	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
 		if e := s.state().store.AcquireAll(ctx, tx, p.locks()); e != nil {
 			return unavailable(e)
@@ -129,7 +137,7 @@ func (s *Service) expireLink(ctx context.Context, kind c.TokenKind, id string) e
 		if current.live {
 			return fault(foundation.ResourceBusy, nil)
 		}
-		return s.removeLinkInTx(ctx, tx, p)
+		return s.removeLinkInTx(ctx, tx, p, guard)
 	})
 	return resultError(result)
 }
@@ -186,6 +194,11 @@ func (s *Service) RevokeInvitation(ctx context.Context, r c.InvitationRevoke) er
 		return e
 	}
 	locks := append(p.locks(), commandLock(key), userLock(r.Actor.Details().UserID, foundation.Shared), configLock("account-security", foundation.Shared), recordLock(id.String()))
+	guard, e := st.deps.Authority.mailExclusive(ctx)
+	if e != nil {
+		return e
+	}
+	defer guard.release()
 	result := st.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
 		if e := st.store.AcquireAll(ctx, tx, locks); e != nil {
 			return unavailable(e)
@@ -221,7 +234,7 @@ func (s *Service) RevokeInvitation(ctx context.Context, r c.InvitationRevoke) er
 		if e != nil {
 			return unavailable(e)
 		}
-		if e = s.removeLinkInTx(ctx, tx, p); e != nil {
+		if e = s.removeLinkInTx(ctx, tx, p, guard); e != nil {
 			return e
 		}
 		return s.mutationAudit(ctx, tx, r.Actor, ac.AccountInviteRevoke, ac.InvitationResource, r.ID.String(), id.String(), ac.AccountMetadataFields{InvitationID: r.ID.String(), InitiatorID: r.Actor.Details().UserID, Version: r.ExpectedVersion, Phase: ac.AccountRevoked})

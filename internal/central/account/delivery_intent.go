@@ -120,7 +120,7 @@ func (a *Authority) validateDeliveryAppend(ctx context.Context, tx foundation.Tx
 	}
 	if stage == oc.NewFact {
 		var exact bool
-		e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.delivery_intents WHERE id=$1 AND job_id=$2 AND link_id=$3)`, cmd.id.String(), cmd.attempt, cmd.resource).Scan(&exact)
+		e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.delivery_intents WHERE id=$1 AND job_id=$2 AND ((kind='test' AND link_id IS NULL) OR (kind<>'test' AND link_id=$3)))`, cmd.id.String(), cmd.attempt, cmd.resource).Scan(&exact)
 		if e != nil {
 			return unavailable(e)
 		}
@@ -132,7 +132,14 @@ func (a *Authority) validateDeliveryAppend(ctx context.Context, tx foundation.Tx
 			return e
 		}
 		if kind == c.TestDelivery {
-			return fault(foundation.DependencyUnbound, nil)
+			cfg, e := loadSMTP(ctx, x)
+			if e != nil {
+				return e
+			}
+			if !cfg.Configured || cfg.Version != cmd.expectedVersion {
+				return fault(foundation.ResourceBusy, nil)
+			}
+			return nil
 		}
 		link, e := loadLink(ctx, x, c.TokenKind(kind), cmd.resource)
 		if e != nil {
@@ -144,22 +151,40 @@ func (a *Authority) validateDeliveryAppend(ctx context.Context, tx foundation.Tx
 	}
 	return nil
 }
-func (s *Service) insertDelivery(ctx context.Context, x postgres.SQLExecutor, cmd commandRecord) error {
-	kind, e := commandDeliveryKind(cmd)
-	if e != nil {
-		return e
-	}
+func checkDeliveryCapacity(ctx context.Context, x postgres.SQLExecutor) error {
 	var pending int
-	if e = x.QueryRow(ctx, `SELECT count(*)::int FROM agenteam_account.delivery_intents i LEFT JOIN agenteam_account.mail_jobs j ON j.intent_id=i.id WHERE j.id IS NULL OR j.phase IN ('pending','processing','unknown')`).Scan(&pending); e != nil {
+	if e := x.QueryRow(ctx, `SELECT count(*)::int FROM agenteam_account.delivery_intents i LEFT JOIN agenteam_account.mail_jobs j ON j.intent_id=i.id WHERE j.id IS NULL OR j.phase IN ('pending','claimed','sending','retry_wait','processing','unknown')`).Scan(&pending); e != nil {
 		return unavailable(e)
 	}
 	if pending >= 10000 {
 		return fault(foundation.RateLimited, nil)
 	}
+	return nil
+}
+
+func (s *Service) insertDelivery(ctx context.Context, x postgres.SQLExecutor, cmd commandRecord, recipient ...string) error {
+	kind, e := commandDeliveryKind(cmd)
+	if e != nil {
+		return e
+	}
+	if e = checkDeliveryCapacity(ctx, x); e != nil {
+		return e
+	}
 	initiator := cmd.user
 	if cmd.actorKind != "human" {
 		initiator = cmd.browser
 	}
-	_, e = x.Exec(ctx, `INSERT INTO agenteam_account.delivery_intents(id,job_id,kind,link_id,initiator_id,created_at) VALUES($1,$2,$3,$4,$5,$6)`, cmd.id.String(), cmd.attempt, string(kind), cmd.resource, initiator, cmd.created)
+	if kind == c.TestDelivery {
+		if len(recipient) != 1 {
+			return invalid()
+		}
+		email, err := NormalizeEmail(recipient[0])
+		if err != nil || email != recipient[0] {
+			return invalid()
+		}
+		_, e = x.Exec(ctx, `INSERT INTO agenteam_account.delivery_intents(id,origin_intent_id,job_id,kind,initiator_id,recipient,created_at) VALUES($1,$1,$2,'test',$3,$4,$5)`, cmd.id.String(), cmd.attempt, initiator, email, cmd.created)
+		return portError(e)
+	}
+	_, e = x.Exec(ctx, `INSERT INTO agenteam_account.delivery_intents(id,origin_intent_id,job_id,kind,link_id,initiator_id,created_at) VALUES($1,$1,$2,$3,$4,$5,$6)`, cmd.id.String(), cmd.attempt, string(kind), cmd.resource, initiator, cmd.created)
 	return portError(e)
 }

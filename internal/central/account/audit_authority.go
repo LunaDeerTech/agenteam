@@ -36,6 +36,11 @@ func (a *Authority) CheckAppendInTx(ctx context.Context, tx foundation.Tx, entry
 			return fault(foundation.Forbidden, nil)
 		}
 		switch f.Action {
+		case ac.SMTPDeliveryRetry:
+			if _, e = a.AuthorizeSystem(ctx, tx, f.Actor, identity.Mutate); e != nil {
+				return e
+			}
+			return a.checkMailRetryAuditInTx(ctx, tx, entry, key)
 		case ac.AccountLogout:
 			if m.UserID != actor.UserID || m.SessionID != actor.SessionID {
 				return fault(foundation.Forbidden, nil)
@@ -124,18 +129,7 @@ func (a *Authority) CheckAppendInTx(ctx context.Context, tx foundation.Tx, entry
 		}
 		return nil
 	case identity.AccountMail:
-		if f.Action != ac.SMTPDelivery || actor.CauseRef != m.AttemptID {
-			return fault(foundation.Forbidden, nil)
-		}
-		var exists bool
-		e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.mail_attempts a JOIN agenteam_account.mail_jobs j ON j.id=a.job_id JOIN agenteam_account.delivery_intents i ON i.id=j.intent_id WHERE a.id=$1 AND a.job_id=$2 AND i.initiator_id=$3 AND a.channel=$4 AND a.fence=j.fence AND a.phase='closed' AND a.result IN ('sent','failed','unknown','cancelled'))`, m.AttemptID, m.JobID, m.InitiatorID, string(m.Channel)).Scan(&exists)
-		if e != nil {
-			return unavailable(e)
-		}
-		if !exists {
-			return fault(foundation.Forbidden, nil)
-		}
-		return a.state().store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{recordLock(m.JobID), recordLock(m.AttemptID)})
+		return a.checkMailDeliveryAuditInTx(ctx, tx, entry, key)
 	default:
 		return fault(foundation.Forbidden, nil)
 	}

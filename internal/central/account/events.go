@@ -81,6 +81,16 @@ func (a *Authority) appendCommand(ctx context.Context, x postgres.SQLExecutor, a
 	return cmd, nil
 }
 func (a *Authority) DiscoverAppend(ctx context.Context, actor identity.Actor, summary event.Summary) (oc.Dependencies, error) {
+	if summary.Header.EventType == c.DeliveryRequestedType {
+		cmd, e := loadCommand(ctx, a.state().store, summary.Header.AggregateID.String(), false)
+		if e != nil {
+			return oc.Dependencies{}, e
+		}
+		if cmd.name == "mail-retry" {
+			return a.discoverRetryDelivery(ctx, actor, summary)
+		}
+	}
+
 	cmd, e := a.appendCommand(ctx, a.state().store, actor, summary)
 	if e != nil {
 		return oc.Dependencies{}, e
@@ -111,6 +121,17 @@ func (a *Authority) ValidateAppendInTx(ctx context.Context, tx foundation.Tx, ac
 		return unavailable(e)
 	}
 	if summary.Header.EventType == c.DeliveryRequestedType {
+		x, e := a.state().store.InTx(tx)
+		if e != nil {
+			return unavailable(e)
+		}
+		cmd, e := loadCommand(ctx, x, summary.Header.AggregateID.String(), false)
+		if e != nil {
+			return e
+		}
+		if cmd.name == "mail-retry" {
+			return a.validateRetryDeliveryInTx(ctx, tx, actor, summary, deps, stage)
+		}
 		return a.validateDeliveryAppend(ctx, tx, actor, summary, deps, stage)
 	}
 	x, e := a.state().store.InTx(tx)

@@ -1,0 +1,36 @@
+#!/bin/sh
+# Fixed B01/B02 partitions retain the original six-minute per-package budget.
+# The mail group selects all checked-in B03 integration tests, including the
+# external recoverylog adapter tests. Independent review-only probes stay in
+# the verifier's separate immutable overlay and are not product source.
+set -eu
+cd "$(dirname "$0")/.."
+if [ "$#" -gt 1 ]; then
+  printf '%s\n' 'Usage: test-accounts.sh [all|mutations|identity|mail]' >&2
+  exit 2
+fi
+agenteam_group=${1:-all}
+case "$agenteam_group" in
+  all|mutations|identity|mail) ;;
+  *) printf '%s\n' 'Unknown account test group.' >&2; exit 2 ;;
+esac
+# Serialize package compilation; concurrency inside a test remains unchanged.
+GOFLAGS=${GOFLAGS:--p=1}
+export GOFLAGS
+agenteam_mutations='^(TestAccountResetPreparedBeforePasswordChangeCannotPublishOldVersion|TestAccountInvitationConcurrentUniquenessAndRevocation|TestAccountResetIPQuotaCountsBothExistenceClassesAndReplay|TestAccountChangedCookieForceWaitsActualUseJoin|TestAccountCleanupDurablePassDoesNotStarveTailBehindHundredProtectedCommands|TestAccountB02MutationUnknownKeepsOriginalStateAndFacts|TestAccountB02PlannedUnknownRecoveryWaitsOriginalWriter|TestAccountCaptchaOfficialVueActualBrowser|TestAccountChallengeQuotaRollbackAndRestart|TestAccountChallengeGlobalDatabaseQuota|TestPublicRotationKnownGeometry|TestPublicRotationOriginalCounterexamples|TestPublicRotationRejectsUnobservableGeometry|TestAccountChallengeRealGenerationConsumptionAndBinding|TestAccountDeliveryHandlerRealOutboxTransactionRollbackAndCanonical|TestAccountInvitationExplicitResendVersionAndHistoricalReceipt|TestAccountDeliveryPlanRejectsChangedSourceMapping|TestAccountInvitationAtomicSecretIntentEventAndRevocation|TestAccountInvitationRedeemCurrentProofAndCleanup|TestAccountExpiredLinkInvalidWhileActualMaterialUserKeepsLease|TestAccountPasswordChangeAtomicRevocationAndLostResponse|TestAccountPasswordResetConsumesTokenWithoutSessionAndSafeReplay|TestAccountPasswordResetDifferentCommandsHaveOneWinner|TestAccountResetPublicQueueAndAsynchronousMaterial)$'
+agenteam_identity='^(TestAccountCurrentSessionRequiresRealHeldUserAndCurrentRole|TestAccountCrashHelper|TestAccountRecoveryExactChildDeathAndNoBootstrapReprint|TestAccountSessionIssuedLimitsAndTouchRemainCurrent|TestAccountResponseWindowEndsWithoutRevivingOrExtendingSession|TestAccountRecoveryProtectedHundredPlansCannotStarveJoinedReader|TestAccountCurrentHumanBindsSecretAndOutboundWithoutLateLocks|TestAccountBootstrapLoginReplayAndIndependentResponseLeases|TestAccountBootstrapConcurrentSingleUserAndOutput|TestAccountLogoutReplansOnlyHeaderAndRejectsOldPrepared|TestAccountLogoutReplanKeepsCurrentRevocationGate|TestAccountLogoutReplanUnknownSerializesBeforeRetry|TestAccountMigrationFreshAndNineUpgrade|TestAccountMigrationDDLAndJournalRollback|TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead|TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed|TestAccountReadWaitsExactCurrentUserGateAndRejectsRevocation|TestAccountMissingChallengeProviderAndFailureReceiptPrivacy|TestAccountCurrentRegularHumanAuditDoesNotGrantSystem|TestAccountKeyRegistryRequiresOldReferencedKeysAndRejectsReuse|TestAccountResponseRecoveryPreservesActiveUseAndDeletesAfterJoin|TestAccountResponseForceKeepsRealUseRegistered|TestAccountResponseReleaseRejectsChangedExactFence|TestAccountResponsePlanUnknownKeepsCauseAndConvergesAfterWriter|TestAccountLogoutAuditEventAndCurrentRevocationAtomic|TestAccountResponseCloseWaitsActualUseAndKeepsOtherLease|TestAccountReadWindowCurrentPasswordAndActivity|TestAccountUnknownConfirmationRetainsState|TestAccountFailedLoginUnknownKeepsFailureFactsAtomic|TestAccountLogoutUnknownKeepsEventAuditAndRevocationAtomic|TestAccountBootstrapUnknownDoesNotReprint|TestAccountUnknownNeverExposesUnconfirmedLoginMaterial)$'
+agenteam_mail='^TestAccountMail'
+agenteam_run() {
+  printf 'Account integration group: %s\n' "$1"
+  sh scripts/test-objects.sh -run "$2"
+}
+case "$agenteam_group" in
+  mutations) agenteam_run mutations "$agenteam_mutations" ;;
+  identity) agenteam_run identity "$agenteam_identity" ;;
+  mail) agenteam_run mail "$agenteam_mail" ;;
+  all)
+    agenteam_run mutations "$agenteam_mutations"
+    agenteam_run identity "$agenteam_identity"
+    agenteam_run mail "$agenteam_mail"
+    ;;
+esac

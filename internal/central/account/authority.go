@@ -17,6 +17,7 @@ type authorityState struct {
 	keys         Keyring
 	secretIssuer sc.PlanIssuer
 	eventIssuer  oc.PlanIssuer
+	mail         *mailAdmission
 }
 type Authority struct{ data func() *authorityState }
 
@@ -24,7 +25,7 @@ func NewAuthority(store Store, keys Keyring) (*Authority, error) {
 	if nilPort(store) || keys.Validate() != nil {
 		return nil, invalid()
 	}
-	s := &authorityState{store: store, keys: keys, secretIssuer: sc.NewPlanIssuer(), eventIssuer: oc.NewPlanIssuer()}
+	s := &authorityState{store: store, keys: keys, secretIssuer: sc.NewPlanIssuer(), eventIssuer: oc.NewPlanIssuer(), mail: &mailAdmission{}}
 	return &Authority{func() *authorityState { return s }}, nil
 }
 func (a *Authority) state() *authorityState { return a.data() }
