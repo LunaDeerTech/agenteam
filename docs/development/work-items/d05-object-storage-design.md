@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact 实施规格
 
-- 修订：5；业务输入 `main@abf5c37`、[D05 主卡修订 2](d05-object-storage-artifact.md)；B01已验收提交 `d31aecd`，B02开工 `5baff54`。本次仅补SourceReads组合与typed Download provider，不改变已验B01行为；本文是S01设计，不是新增实现验收通过声明。
+- 修订：6；B03输入 `main@c950e35`、[D05 主卡修订 3](d05-object-storage-artifact.md)；B01 `d31aecd`、B02最终 `2c1dca3`已独立验收。本次只细化Runner transfer、必要对象协议补口和Central生命周期；本文是实施规格，不是B03实现通过声明。
 - 依据：[对象存储](../../architecture/platform-infrastructure/object-storage.md)、[Artifact](../../architecture/tool-system/artifact-tools.md)、[D01 资源](d01-contracts/resources-skills.md#对象与业务引用)、[生命周期](d01-contracts/domain-lifecycle.md)、[权限/幂等/Tx](d01-contracts/foundation.md)、[部署运行](../../architecture/platform-infrastructure/deployment-runtime.md)。
 - 已核对实际 [D03 Tx](../../../internal/central/postgres/transaction.go)、[identity](../../../internal/central/identity/contract/identity.go)、[Audit contract](../../../internal/central/audit/contract/types.go)/[授权](../../../internal/central/audit/service.go)、[cursor](../../../internal/central/cursor/cursor.go)、[Central](../../../internal/central/app/app.go)。复用 Go **1.27.1 / GOTOOLCHAIN=local**、pgx **5.11.0**、Goose **3.28.0**、既定 PG17.8/vector0.8.1 fixture。
 
@@ -16,7 +16,19 @@
 
 B02必要补口另含 `object/source*.go`、`object/contract/source_lease.go`及测试，`object/access.go`、`object/contract/access.go`及测试仅增Source acquire操作；新增download contract/provider仍归B02。独立 `object.NewSourceReads(service,resolver)` 持有已验Service和正式SourceResolver，不改Service.New/Authorizations、旧Objects/Leases及D03/D04既有行为；复用00005现有source lease，00001–00005不改，Artifact command的source LeaseID归00006。既定签名用途隔离仅增 `internal/central/secret/keyring_material.go`、`keyring_material_test.go`，不改旧Secret文件；下载keyring实现/测试仍为B02的 `object/download_keyring*.go`。
 
-共享文件按 B01→B02→B03 单作者移交：`internal/central/config/`、`internal/central/app/`、`internal/platform/logging/` 的中立阶段/错误枚举及测试、`tests/process/`、`tests/testsupport/postgres/cmd/fixture/main.go`、`tests/testsupport/outbound/cmd/fixture/main.go`、`docs/development/backend/README.md`、`AGENTS.md`。fixture 调度改动仅为给真实 Central 进程提供全部必需的 owned PG/MinIO；不回退 D04 入口验证。`00001–00004` 冻结，不改原 SQL/校验历史；新迁移均为 D03 的事务 migration。
+共享文件按 B01→B02→B03 单作者移交：`internal/central/config/`、`internal/central/app/`、`internal/platform/logging/` 的中立阶段/错误枚举及测试、`tests/process/`、`tests/testsupport/postgres/cmd/fixture/main.go`、`tests/testsupport/outbound/cmd/fixture/main.go`、`docs/development/backend/README.md`、`AGENTS.md`。fixture 调度改动仅为给真实 Central 进程提供全部必需的 owned PG/MinIO；不回退 D04 入口验证。B03时`00001–00006`及`go.mod/go.sum`均冻结，不改历史SQL；`00007`为D03事务migration。
+
+B03独占新增 `object/contract/transfer.go`、`transfer_authority.go`，`object/transfer.go`、`transfer_store.go`、`transfer_upload.go`、`transfer_storage.go`、`transfer_recovery.go`及对应测试；技术进程组合新增 `object/runtime.go`、`process.go`、`startup.go`及测试，不移入中立platform。旧文件仅作下表必需增量，不重构已验API；新增内部函数可按职责拆分同前缀文件，公共签名和下述边界保持。
+
+| 已验文件/接口 | B03最小兼容改动 |
+| --- | --- |
+| `object/contract/access.go`、`object/access.go`及测试 | 增加§9闭集TransferAccess、完整请求绑定/锁发现；旧Kind/操作不改语义；新的transfer planner组合器只分派正式端口，不默认授权 |
+| `object/service.go`、`object/upload.go`及测试 | 仅提取共用的规范内容digest/命令预约/private candidate创建；旧Reserve仍须真实Prepared registry；UploadPrepared和PublishVerified明确只接受private_candidate；公开Uploads签名不变 |
+| `object/repository.go`、`object/cleanup.go`、`object/recovery.go`及测试 | 读取typed attempt kind/nullable process，按kind处理恢复/清理；精确staging marker分支；Project最终删除前同Tx清本对象transfer事实；不放宽普通lease、reader或canonical保护 |
+| `object/initialize.go`及测试 | 保留Initialize的bucket/control绑定职责；由新startup端口补真实probe/恢复门禁，不能把旧Initialize成功当完整启动成功 |
+| `object/contract/authority.go`、`read.go`、`spool.go`、SourceReads、Artifact/download、Audit/Secret/D03 | 既有签名与业务行为保持；pending PUT的transfer lease走新专用事务代码，不放宽旧AcquireLeaseInTx的available条件；不新增Audit动作/通用结果库 |
+
+00007只追加本域transfer/process/probe事实及§9必要ALTER；全部旧attempt自动为private_candidate且原约束仍生效。D17以后适配Runner域与真实权限，不能借本次组合器写未来业务表。实现前root采纳本表移交，独立验证覆盖旧B01/B02兼容。
 
 必要公共扩展由 B01 同一作者完成，随后冻结，不能借已有 Secret/Outbound 身份替代对象职责：
 
@@ -92,7 +104,7 @@ DeleteUnreferenced(ctx, ObjectCleanupCause, object_id) -> completed | pending | 
 
 ### 对象操作的锁计划
 
-仅新增对象域的规划/组合端口，不扩展D03锁框架、owner ID含义或未来业务表。`AccessRequest` 为闭集opaque tagged union，由按用途的构造器校验必填/禁填字段；Kind固定为 `owner|object_read|lease|object_cleanup|project_cleanup|source|maintenance`，内部Operation再区分本域实际动作，不能用任意字符串选择未来能力。
+仅新增对象域的规划/组合端口，不扩展D03锁框架、owner ID含义或未来业务表。`AccessRequest` 为闭集opaque tagged union，由按用途的构造器校验必填/禁填字段；Kind固定为 `owner|object_read|lease|object_cleanup|project_cleanup|source|maintenance`，B03仅追加§9的`transfer`；内部Operation再区分本域实际动作，不能用任意字符串选择未来能力。
 
 | Request Kind | 必须不可变绑定的请求与发现事实 |
 | --- | --- |
@@ -275,25 +287,102 @@ preview必须依据服务端sniff/允许集，而非信用户MIME：首版text/M
 
 ## 9. B03：Runner 单对象传输
 
-实现 D01 `IssueTransfer/InspectTransfer`，另有 `CompleteTransfer/CancelTransfer/ConfirmStopped` 正式服务端口。所有输入先经真实 RunnerTransferAuthority 校验 actor/source、Runner/Operation归属、Project gate/取消；D17未绑定不得生成可用生产grant。grant绑定 transfer_id/runner_id/operation_id/object_id/direction/length/全文SHA/expiry，private material只经受信Runner通道。
+### 正式端口与授权事实
 
-GET 只签已 available immutable key，PUT 只签独立 staging key，绝不把canonical candidate写权限给Runner。PUT 必须先取得 D17 已核验输出manifest的length/全文SHA并形成pending metadata，缺任一拒绝，不在上传之后补猜。默认有效期60s、最大300s；`PresignHeader` 显式签Content-Length、全文SHA校验头和If-None-Match:*，不能使用仅签host的PresignedPutObject。预签名GET同样固定object/method；Runner收到后必须检查length/SHA，自己声称完成不代替D17的可信操作证据。单次直传≤1GiB，全局未收敛grant最多32个，超限拒绝，不无限占staging资源。
+`TransferService`消费真实Object Service、Audit及`RunnerTransferAuthority`，不实现Runner身份/Operation表。新增contract只依赖foundation/identity/object类型；RunnerID、OperationID、TransferID、EvidenceID为不同typed ID。最小公开形状如下，均返回既有Fault/commit_state：
 
-S3 URL是短期bearer，签名无法把存储端HTTP调用者密码学绑定为某一Runner；Runner/Operation绑定由受信通道、DBgrant、完成/停止校验执行。泄露者在存储仍接受签名时可能重放；条件PUT在key存在时拒绝覆盖，**key删除后原URL可能再次成功**，所以它不是one-time token。逻辑撤销立即禁止再签发/发布/接受不合法完成，但不宣称立即撤回已签URL或已发stream。
+```text
+TransferSpec {runner_id, operation_id, direction, target, expires_in_seconds?}
+target = Get {owner, object_id}
+       | Put {owner, upload_command: CommandMeta, manifest: TransferManifest}
+TransferManifest {media_type, length, sha256} // 规范MIME；0..1GiB；全文SHA必填
+TransferEvidenceRef {evidence_id, kind: completed|stopped} // 仅持久证据索引
+IssueTransfer(ctx, actor, issue_command: CommandMeta, TransferSpec) -> TransferGrant
+InspectTransfer(ctx, actor, TransferID) -> TransferStatusView
+CompleteTransfer(ctx, actor, TransferID, completed_evidence) -> TransferStatusView
+CancelTransfer(ctx, actor, TransferID, command: CommandMeta) -> TransferStatusView
+ConfirmStopped(ctx, actor, TransferID, stopped_evidence) -> TransferStatusView
+RunnerTransferAuthority.Discover(ctx, TransferAccessRequest) -> AccessDependencies
+RunnerTransferAuthority.ValidateInTx(ctx, tx, TransferAccessRequest, AccessDependencies)
+    -> TransferAuthorization
+```
 
-PUT完成：先验证可信Runner回执/当前授权，再将staging的**一次完整读取**写到owned spool或直接校验流并写全新private candidate，末尾对expected length/SHA确认，再依第5节验证/原子发布；不能先GET校验staging后无条件Copy该可变化源。旧grant最多影响staging，不能修改已发布对象。失败candidate/staging均有持久attempt进入恢复，不以外部200直接报complete。
+TransferGrant安全投影固定transfer/runner/operation/object/direction、manifest、原expires_at；私有`TransferMaterial`闭包只向受信D17适配器显式投影method/URL/必需headers/**实际wire_expires_at**，复制可变数据、拒JSON解码、fmt/log不展开。Inspect只返D01 `pending|complete|failed|unknown`及revoked/lease/cleanup安全状态、ID/稳定错误；不返回URL、key、证据正文。D17将material映射到独立Runner协议，Runner不得import Central。无真实authority时所有业务端口返回DEPENDENCY_UNBOUND，不装匿名HTTP或默认成功provider。
 
-GET只有D17确认对应实际传输完成且完整性匹配才complete；断连/缺确认为unknown，绝不自动重复Runner业务操作。过期仅关闭新传输资格，不自动expire Operation/业务等待。GET/PUT grant相关lease至少保留到**grant无法再用于新请求且已获得可信完成/停止、无实际在途**；未满足即pending/unknown，不能凭TTL、一次HEAD或Runner连接断开释放。PUT的staging marker保留/清理规则沿第6节；transfer complete与临时staging物理收敛分开记录，不把业务成功回执当所有旧HTTP请求结束。
+TransferAuthorization是当前回调的opaque结果，绑定完整请求摘要/Actor、真实Project/owner、Runner认证代次、Operation/Execution、允许的当前操作与版本；证据按用途分支：`completed`绑定exact完成evidence ID/digest及可信单次完整length/SHA，`lease_retirement`另绑定停止/准入核实的证据ID/digest，只有该grant全部在途已join且签名新请求准入已关闭才授予lease释放，部分证明只记待收敛checkpoint。前者不要求deadline已到或后者已成立，不能用前者替代释放lease的证明。服务逐项比对，不能缓存为长期bearer、接受调用方构造的“已授权/已停止”值。Resource/ObjectRead/Lease/Cleanup/Project/Audit等旧必需端口仍真实绑定，TransferAuthority不默认为这些端口授权。
 
-相同 Runner/Operation/object/direction 的 Issue 重试查原grant/事实；未过期同义返回原逻辑grant，签名材料重新生成不能扩大原expires_at；到期需要经过新的当前授权形成新的transfer attempt，不借旧key续期。Inspect只读且按当前可信身份授权；complete幂等须核实原digest与持久结果，冲突拒绝。Runner的目标endpoint不可达/TLS错明确失败，不fallback Central，也不产生空文件成功。
+authority必须从当前Runner注册/认证代次、Operation/Execution及其固定输入/输出事实核实本Actor、Project、指定Runner实际承接本Operation和目标用途；PUT的owner/manifest必须与可信输出声明逐项相同，不能凭调用方自报owner、boolean或“上传成功”字符串。GET另过当前exact ObjectRead/Resource授权及Project gate，目标须available、non-cleaning且有canonical或正式固定版本保护；pending/reserved不能读。PUT沿当前owner创建cause和Mutate gate，Avatar/System不是本Runner项目传输的旁路。已归档不签发新传输、不发布新payload；精确终局/取消证据可按注册Converge职责收敛，不复活Operation或授予后台读取权。
+
+EvidenceRef本身不可信。ValidateInTx须重读D17已认证、已持久且绑定**同Runner代次/Operation/Transfer/direction/object/manifest**的事实：completed证明实际单次对象传输完整length/SHA，可在deadline前驱动GET complete或PUT校验/业务发布；stopped证明该grant对应所有已启动请求确实结束/join且不再由该Runner继续，仍须另核签名新准入关闭才足以retire lease。两者均不能由RPC断线、超时、Central死亡或单个HTTP200推断。`ConfirmStopped`只登记停止/retirement事实，条件未齐保持lease，不把未传完对象标complete；GET Complete不由Central重复GET“证明Runner收到”。取消或权限变化后仍可验证限定终局证据，但不得继续读/发布业务内容。
+
+### 00007事实与完整锁
+
+| 事实 | 固定字段、约束与状态 |
+| --- | --- |
+| `object_transfers` | issue command identity/semantic_digest、原稳定Actor、Project/真实owner、Runner/Operation、direction、ObjectID/UploadID、固定manifest、原deadline、lease ID；PUT staging attempt ID及current private candidate ID；version、phase=`issued|completing|complete|failed|unknown`、revoked_at、分列的completed与lease_retirement证据ID/digest（后者不覆盖原完成事实）、cleanup checkpoint/公平扫描序；唯一issue identity及lease/staging关联，无URL/credential/业务正文 |
+| 既有`upload_attempts`追加kind | `private_candidate`为旧行default，仍要求真实process/spool、`candidate/<随机ID>`；`runner_staging`要求process/spool为NULL、`staging/<随机ID>`及exact transfer关联，禁止本地writer伪身份；旧phase/checkpoint沿用，但staging永不进入verified/published、永不成为objects.available locator。用分支CHECK替代原全局NOT NULL/key CHECK，旧分支约束不弱化；双向关联可用同Tx可延迟FK |
+| 清理/lease复用 | staging从首次Issue起即有原upload_attempt与cleanup_operations可用关系，不另造“无attempt预约”；PUT专用事务可为同Tx新pending对象建立`TransferOwner(TransferID)` lease，process为空；旧公共AcquireLeaseInTx仍只对available工作。GET复用旧available lease协议 |
+
+外部状态pending映射issued/completing，未知I/O映射unknown；明确失败/取消映射failed，已确认complete保留历史结果且可另标revoked。lease与storage cleanup单独记载，complete不等于物理清理完成。PUT的upload_command是D17同一输出的稳定对象命令；新的传输attempt不能换此命令另造ObjectID。原issue key相同但Actor/runner/operation/direction/owner/object/manifest/期限请求异义即IDEMPOTENCY_KEY_REUSED；trace/session不入摘要，当前授权仍先于幂等/version。旧key重放不换deadline/key/TransferID；已撤销、过期或不再允许传输的终局，Issue返回INVALID_STATE而Inspect保留安全原状态，无新material。新的传输尝试须新issue key、当前授权和原输出身份；已available输出不能再签PUT。
+
+`NewTransferAccess`闭集操作为issue/material/inspect/capture/reserve_candidate/publish/cancel/confirm_terminal/cleanup；完整绑定Actor、命令、spec或持久grant身份、证据/cleanup cause、exact object/upload/staging/candidate/lease。`NewTransferAccessPlanner(basePlanner,runnerAuthority)`把transfer请求交后者提供**完整owner/Actor父依赖及Runner/Operation依赖**，其余请求仍交base；真实authority实现负责通过各领域正式映射组成完整集合，不只返回Runner锁。Discover只收集锁与映射，Validate才授权。无相应provider拒绝，不能以空base替未来owner规划。维护请求绑定原持久技术cause，不能用后台Service替Owner通过读取授权。
+
+新增本域command和`SystemConfigLock("object-transfer-admission")` EX（32个未收敛grant）、原`object-attempt-admission` EX（64全局/每upload2个未清attempt），并合并真实Actor/User/Project/Agent/Execution/Operation、owner父gate、Object EX、transfer/lease/reference记录；inspect仅无写部分可SH。Runner注册变更与校验统一使用`SystemConfigLock("runner-transfer-authority")`，签发/核验SH、D15/D17变更EX；这是精确端口约定，不虚造Runner aggregate rank。所有plan和调用方extraLocks仍一次AcquireAccessPlansInTx，不在authority回调补锁。issue预扫未见而锁后出现原grant/不同ObjectID，或任何父映射/所需模式变化，整Tx RESOURCE_BUSY/not_committed并交外层重采集；不自动重试或偷补锁。
+
+### Issue、实际签名与PUT组合
+
+Issue的短Tx先当前授权、幂等、gate，再同Tx写grant/固定UTC整秒deadline/外部lease及`object.transfer.issue` Audit。PUT同时写原objects.pending/uploads/reserved reference与runner_staging attempt；GET捕获已available不可变candidate key及完整metadata。未确认commit不得交URL；unknown先等原command锁终局，按完整请求核实原事实，不能HEAD404后重建。默认60s、允许1–300整秒，deadline一次取DB时钟截秒加duration；等待/恢复耗时不续期。所有SDK签名/可能的region lookup均在Tx外，region固定us-east-1、path-style，无默认credential链。
+
+仅`transfer_storage.go`访问SDK私有backend：PUT用PresignHeader签**host、Content-Type、Content-Length、x-amz-checksum-sha256（32字节digest的base64）、If-None-Match:\***；GET固定available key/GET，响应部分读取不构成完整成功证据。不得用只签host的PresignedPutObject、暴露candidate PUT或COPY。SDK v7.3.0内部取time.Now并向下取整duration；生成后必须解析/严格核method、配置origin/bucket/exact key、签名header集合/值、X-Amz-Date与X-Amz-Expires，实际wire截止不得晚于原DB deadline。重放按剩余整秒签，只能缩短；跨秒/暂停导致超界的材料直接丢弃并失败，不能顺延DB expiry。返回前再短Tx重验当前授权、同grant未撤销/未到期及固定事实，提交unknown仍不公开material。
+
+OBJECT_TRANSFER_ENDPOINT和主endpoint均是固定部署origin，使用同bucket/region/credential/TLS策略；§10启动必须通过两origin读到同store identity及同一实际probe内容，拒绝误接不同后端。签名safe projection不允许调用方改host/path/header或任意endpoint。这里只验证Central到配置地址与存储同一性，不冒称真实Runner网络已验证；D17负责Runner可达性，失败不能fallback Central。
+
+PUT Complete先同Tx验证当前权限/可信completed证据、固定manifest、未撤销且可继续的原上传，取得本Process读取staging的真实source lease和恢复checkpoint（完整plan预含Object EX）；confirmed commit后才读。**一次实际GET流**进入原PreparePayload的有界spool，独立检测短/长读并确认全文SHA，然后创建全新private candidate。不存在先GET校验后再GET/Copy取另一版的路径；Preparing的本地reader须Close/join才释放source lease，外部transfer lease仍保留。组合的最小私有入口在新transfer_upload.go：
+
+```text
+reserveTransferPUTInTx(ctx,tx,transferBinding,manifest,plan,locked) -> UploadAttempt
+prepareTransferPUT(ctx,transferBinding,stagingAttempt) -> PreparedPayload
+reserveTransferCandidateInTx(ctx,tx,transferBinding,stagingAttempt,PreparedPayload,plan,locked)
+    -> UploadAttempt
+```
+
+transferBinding只能由TransferService从当前authority+持久grant构造，绑定原Actor/owner/两个command/ObjectID/manifest/lease；不是公开的authorized boolean。第一入口不伪造PreparedPayload/SpoolPayloadID；第三入口必须查真实Prepared registry且内容逐项匹配manifest，在**同原uploads/ObjectID**新增标准private candidate。其后复用原UploadPrepared→全文verify→PublishVerifiedInTx；最终外层Tx一次取得transfer publish、普通owner publish等完整plans，重验当前Runner/Operation/source/owner gate并同时提交原对象结果、transfer complete及Audit。内部InTx不另开Tx/取锁或外部I/O；普通wrapper只在外层调用，不能嵌进InTx。
+
+staging也计入原attempt限额，因此第二个candidate失败须先安全清理后才可再建；不得排除staging偷扩配额。Complete重试先查当前授权及原结果，已有verified/published candidate走原事实，**不再读staging/上传已发布对象**；还需读取时仍重新当前授权并沿原manifest，不自动改最新输出。完成/预留/lease checkpoint的unknown均先核实，不凭callback成功继续I/O。成功上传但prospective未绑定的receipt/canonical转换仍沿§5，transfer成功不代替D17业务实体的原子引用绑定。
+
+### 撤销、外部lease与恢复
+
+Cancel短Tx持久revoked/禁止后续签发与发布、同义幂等revoke Audit，并按真实cause撤销本PUT尚未附着的reservation/gate原attempt；已经canonical不借Cancel删除业务引用。S3 URL是bearer，不能密码学绑定HTTP调用者为该Runner；逻辑撤销/到期无法召回已发URL/stream。条件PUT在key存在时412，删除后原URL可能再成功，因此staging永远按§6零marker收敛，首版不自动DELETE marker，也不把Central本地writer结束误作远端已停。
+
+在持久staging cleanup gate下可清零该exact staging并完整读回空内容，即使其外部transfer lease尚active；这是**只清staging**的窄例外，仍保留lease和总体pending。不得绕过活动本地source reader、canonical或其他用途lease，也不得将该例外套到private candidate。原cleanup_operations的claim/fence/checkpoint继续防迟到worker；失败有界返回pending/unknown，不无限等慢Runner。原service gateAttempt对staging固定zero_marker；stopWriters/recoverAttempt/joinedAttempt/releaseStopped/spool恢复只处理真实private_candidate/本Process，不能把核实staging置verified或因Central死亡释放TransferOwner lease。
+
+外部lease释放使用独立lease_retirement授权，必须同时满足：原DB deadline及所有已签材料已不能发起新请求、D17可信证据确认该grant全部在途已结束、无本地source/writer I/O；PUT另需staging marker已核实。单次completed不自动证明以上条件；到期本身、一次HEAD/404、断连或“设置revoked”也不满足终局。为避免时钟推断，retirement证据还须明确按受信存储时钟/服务端拒绝结果确认签名不再接受新请求；D05未收到该证据时保留lease，不能只看Central wall clock。已complete但仅缺retirement证据时不降级业务结果，lease/cleanup仍pending；GET缺可信completed证据才保持pending/unknown，不重发Runner操作。staging长期marker无业务内容/Project/Owner/name，删除Project时只保留该随机空key。
+
+transfer恢复按有界公平批次读取原checkpoint，逐项推进已授权技术核实/清零/释放，单项活实例、未绑定或未知不阻断其它可收敛项；不自动续签、重发Runner命令或代Actor发布。Project cleanup持同Project EX/完整对象计划，先撤销本Project grants，尚active lease阻止对象/metadata完成；staging清零与可信外部终局分别验证。最终在旧CleanupProject删除本对象metadata的同Tx，先删除00007对应grant/证据关联/manifest等业务事实，再删原attempt/lease/object；FK拒绝漏清。最终门禁阻止迟到Complete重建行；最小项目清理回执不存原参数/manifest，其它Project/System不受影响。Inspect/Complete遇已清除事实不能复活，D08以后通过正式生命周期组合端口推进。
+
+Audit复用已验ObjectProducer、object/object-maintenance职责及ObjectTransferIssue/Complete/Revoke、真实TransferID资源；原initiator安全ID与Operation关联保留，cause绑定本次持久phase。issued/complete/revoke均与本域事实同Tx，权限仍走既有CheckAppendInTx；unknown不换AppendKey、失败不伪造sent/成功事件。PUT源码损坏返回OBJECT_INTEGRITY_MISMATCH，客户端错误声明为INVALID_ARGUMENT；存储不可用/缺payload及额度错误沿既有码，不泄漏URL、bucket/key或SDK原错误。
 
 ## 10. 初始化、健康、关闭与验收
 
-B03 config/check-config验证固定endpoint、TLS/CA、凭据/独立签名keyring、spool路径语义，不连接、不输出原值；help/version不依赖配置。DB阶段预算沿D03；DB完成后Audit/Secret/Outbound/对象初始化共用D04既有 **30s SecurityStartupTimeout** context，更短parent优先。对象不得再独立追加30s、15min I/O或恢复预算：在同一剩余context验证MinIO/bucket/control identity、spool，执行唯一probe的put/get+全文校验/delete并完成启动必需的有界恢复检查；失败/耗尽不监听。其余可恢复工作在已持久gate保护下交后台继续，不跳过必要门禁。probe只用control命名空间，不污染业务对象/Artifact/Audit。
+B03 config/check-config验证§2全部必需字段、两个固定endpoint/TLS/CA、独立下载keyring及spool绝对路径语义，未知OBJECT配置键拒绝；check-config不连接或创建目录、不输出原值，help/version无需配置。真实启动仍检查实际文件owner/mode/symlink/锁。`config`仅保存安全opaque配置，只有object组合拥有SDK/backend/spool；不会把存储凭据或下载签名环放进中立platform/Runner。
 
-健康沿D04 **10s采样间隔、同轮2s有界context、成功样本超过20s陈旧即unavailable**；DB/object可并行采样但不各自重置本轮预算，各组件保存自己的实际成功采样时间。任何检查错误立即置该组件unavailable；不得用旧成功或新建monitor重置时间。启动阶段较早的DB样本若已陈旧，须在剩余启动预算内重新核验；恢复healthy也须真实新成功。健康HTTP只读采样结果，object采样读control marker并核worker状态，不每请求新建payload；不可达/缺权限/marker错则ready503。授权/Runner等仍unbound，整体ready=false；清理积压/unknown保留安全可观察状态。
+新增`OpenProcessGuard(spool,ProcessID) -> *ProcessGuard`实现现有ProcessAuthority；组合根把它绑定进Service.Authorizations.Processes。`NewRuntime(service,guard,transferService) -> *Runtime`核同一Service/Spool/Process/Store绑定但只构造，随后`Runtime.Initialize(ctx)`完成下列真实初始化；`StartMaintenance/Check/StopAdmission/Drain/Force`分别承担后续worker、健康和生命周期。业务authority可保持未绑定，但构造成功绝非初始化/恢复成功；不注册业务HTTP，不把nil provider改为生产allow实现。
 
-第一信号停新对象操作/grant与新恢复batch，在途HTTP、对象stream/上传及已有短Tx按原全局shutdown budget drain；不直接cancel全部HTTP/reader BaseContext，已准入operation的后续阶段可继续。Object worker/Reader/Transport join及CloseIdleConnections完成后才停DB。超时/第二信号沿D04同一个**额外最多1s force context**执行cancel/socket close、对象/HTTP/健康/Secret/Outbound/DB清理与join，不能按资源、goroutine或迟到初始化结果各加1s；更短parent不延长，未join必须报告forced/unknown，不能假称drained。保留checkpoint，不删仍由writer使用的spool；Runner直传不会因Central退出自动获得停止证明。
+DB阶段预算沿D03；DB完成后Audit/Secret/Outbound/对象共用D04既有 **30s SecurityStartupTimeout** context，更短parent优先。Runtime按剩余预算完成Service.Initialize的bucket/control绑定、ProcessGuard的DB绑定、存储probe和恢复门禁；不能再追加30s、15min I/O或独立恢复预算。失败/耗尽不监听，迟到初始化得到的FD/Transport仍纳入同一次关闭。旧Initialize仅验证bucket/control身份，旧Check只检查该存储控制面；新增Runtime入口不得把二者当作已完成所有安全步骤。
+
+00007追加`process_claims`：ProcessID、store identity、专用spool deployment UUID、实际目录/claim文件身份、host/boot身份、claim nonce、`claimed|stopped`和终局时间。ProcessGuard在spool已取得排他目录锁后，于同一owned父目录的固定`OBJECT_SPOOL_DIR + ".processes"` sibling保存0700目录/0600单链接文件及deployment identity，不向旧spool manifest目录插入新格式；拒绝symlink、身份/权限不符，fsync后持每实例claim文件lifetime flock。DB绑定必须核已confirmed store identity与磁盘claim一致并确认commit，之后才准入业务I/O；ProcessID随机且不可复用，不能凭调用方ID新造“旧实例已死”证明。
+
+ConfirmStopped核原受信DB claim、同专用deployment/spool/file身份、可信稳定host身份，并非阻塞取得exact旧实例flock；当前boot ID必须读取真实kernel身份，不能来自调用方。相同boot下的旧锁释放可证明该本地实例终止；同一受信稳定host上的boot ID与原claim不同，则是旧kernel中该实例已终止的正向证据，可自动推进恢复，不要求人工删checkpoint。已持久的同实例真实join终局也可核实。缺claim、文件替换/失配、活锁、跨host或无法确认的host/boot身份均拒绝，不用可复用PID、TTL/心跳或仅目录锁；旧ProcessID不可重用。正常关闭须Runtime与Service全部本地准备/读写/probe/恢复I/O真实Close/join后才持久stopped并释放FD；未join的Force路径保留claim直到实际进程退出让OS释放。同host SIGKILL或受信boot变化只证明**本地进程**死，绝不证明远端MinIO请求或Runner已终止；旧unknown写沿marker策略，外部lease仍待§9证据。此机制不增加分布式进程判活平台。
+
+00007另有有界`startup_probes`技术checkpoint：随机ProbeID/ProcessID、`control/probe/<随机ID>`、固定length/SHA、`reserved|verified|cleaning|complete`及cleanup mode/fence，不含业务ID/正文。正式`Service.ProbeStorage(ctx,guard)`先短Tx预留并确认，再以32随机字节做条件single PUT，主/transfer两origin实际GET核同一全文SHA，最后删除并经两侧读回缺失确认；全过程无DB Tx跨网络。仅本地writer真实join且获得确定写终局、从未对外签发的probe可DELETE；丢响应/commit unknown保留原事实核实，可能迟到的写只能zero_marker并读回空，不能DELETE→重写空档。probe错误使本次启动失败，后续启动先按原checkpoint恢复；不列bucket删除未知key、不改control/store-identity、不追加业务Audit。正常路径必须实际证明put/get/delete权限，不能以bucket查询代替。
+
+恢复门禁先真实读DB、spool/claim及probe状态。已绑定正式Planner/authority时，启动完成有界必需恢复扫描：验证持久gate/引用/lease/attempt关系，按kind核实旧本地进程、候选与staging；已安全保护的活lease/远端unknown可保留pending交worker，结构/权限/存储错误不得伪称已恢复。当前生产Planner/D17未绑定时，只有真实证明**无业务objects/uploads/attempts/references/leases/transfer及待处理业务下载事实**，且spool无未决文件，才可完成技术空态启动；已有最小清理receipt不充作活动业务。可凭ProcessGuard与DB无引用事实收敛确属本域的空态孤儿/probe；任何需要未来域授权/父映射的遗留，或未知归属文件，均DEPENDENCY_UNBOUND/UNAVAILABLE拒绝启动并保留原数据。保持原Service.Recover对缺Planner的拒绝，不增加skip-recovery配置。
+
+Central只调用Runtime.StartMaintenance；Runtime与旧Service.StartMaintenance共用Service现有mu保护的workerDone/workerStop/maintenance.Running槽位，任一入口已占用即拒绝第二个worker，不并行启动两套循环。Runtime同步推进core与transfer/probe，全部本地I/O（含初始化及迟到结果）登记同Service的operation/cleanup生命周期，整个worker存续期保持Running，原Service.Drain不能漏见它。每10s、每轮最多100项/15s（更短ctx优先）复用公平checkpoint；未绑定业务依赖时实际重验技术空态并维护probe，不假调用Recover成功。异常/依赖错误可观测，安全pending与已完成有别；活实例/未决grant不吞其它进展。D07/D08/D17以后沿同一组合根绑定正式分派，不直接读写未来业务表。
+
+健康沿D04 **10s采样间隔、同轮2s有界context、成功样本超过20s陈旧即unavailable**；DB/object可并行但不重置本轮预算，各组件保存实际成功采样时间。Runtime.Check检查真实bucket/control、两个origin同backend及worker的运行/安全恢复状态，健康HTTP仅读样本、不每次造payload；错误立即unavailable，恢复须新真实成功。启动早期DB/对象样本若在listen前已陈旧，须在剩余启动预算内重验；不能新建monitor重置时间续命。诊断新增object_storage及object_authorization/runner_transfer_authorization的安全状态，不输出endpoint/bucket/路径或证据正文；后两者仍unbound，整体ready=false/503。
+
+第一信号停新对象操作/grant和新恢复batch，已准入HTTP/对象stream/上传/短Tx按原全局shutdown budget drain，不立即cancel全部HTTP/reader BaseContext。StopAdmission不得禁止同一已准入操作必要的后续DB checkpoint/join；持久外部transfer lease不是本地goroutine，不等待Runner的未来证据才让Central退出。先等待唯一Runtime worker及Service所有本地I/O真实join，再关闭idle连接/spool、释放ProcessGuard，最后关闭DB。超时/第二信号沿D04同一个**额外最多1s force context**取消全部登记操作并关闭主/transfer两套Transport，Runtime/Service都在此ctx内join；DB在剩余force预算最后关闭，不无界等未join资源，也不按资源/迟到初始化各加1s。未join报告forced/unknown，保留spool/checkpoint及claim直到实际进程退出；不能伪称drained或释放外部lease。
 
 普通 `check-go.sh` 不启Docker。`test-objects.sh` 用nonce/label/exact-ID生成owned PG+MinIO+临时CA/spool，只读固定源码/产物创建fixture；成功/中断最终删除owned资源并检查残留。真实Central进程测试必须带MinIO，`test-postgres.sh/test-security.sh` 复用或创建已验证owned descriptor，不能跳过旧入口测试或注入禁用MinIO开关。fixture credentials随机，不读现有服务/外部秘密；专用套件缺fixture/构建/网络条件即失败。
 
@@ -309,9 +398,13 @@ B03 config/check-config验证固定endpoint、TLS/CA、凭据/独立签名keyrin
 | B02 SourceReads组合 | 首次source事实/command/Process-source lease同Tx：rollback三者均无、Acquire无存储I/O；callback内/live或foreign Tx、伪issuer/Process/Actor/source/plan拒绝；原commit unknown以及Open核实Tx unknown均无GET，已提交exact lease/command核实后才可开；Acquire/Object EX与Validate共享计划不可替换；获取后来源撤销/映射漂移开流前拒绝、发布再重验；并发Open/Cancel至多一次GET，取消先胜零GET，真实Close/join前lease保护删除；未开流/失败Cancel、释放unknown、重启exact-death与当前授权重领，活旧实例不接管；不得用旧wrapper拆散原子步骤 |
 | B02 下载 | 真stream/range、到期/改签名/kid/跨user/跨Project/Session撤销/Owner变化拒绝；每次授权/lease；HTML/SVG/MIME伪装不inline，header不可注入；敏感canary不泄漏；Audit失败前不交付；尾部SHA/写失败真实中断、HTTP状态不重写/不追加JSON，sent_bytes与实际Write一致，未join不释放lease，最终Audit失败不重发 |
 | B02 下载provider | 真实ArtifactID/resource/producer及issued/started/sent/failed审计和grant/attempt同Tx；provider验证后权限变化仍锁后拒绝，归档Read合法；非Artifact Uploaded/Knowledge/Execution未绑定无URL/字节/伪Artifact Audit，prospective上传不授权下载；错ref/object/版本/filename/provider匹配拒绝；Audit rollback/unknown无未确认URL或前置字节，已发前缀只记录真实计数且不重发；纯核心provider替身不能充当真实Artifact绑定验收 |
-| B03 直传 | 真实presign PUT/GET、改method/key/length/SHA拒绝；重放条件PUT412、删除key后旧URL可重放的真实边界；上传校验期间重放staging也不能改变canonical；wrongbody/缺回执/断连unknown、过期不释放活动lease；可信停止与cleanup竞争；raw URL逻辑撤销不伪称存储即时撤回；endpoint/TLS不通无中转 |
-| 最终进程 | 空库/升级与MinIO/凭据/CA/marker/spool门禁；真实TLS成功/错误及显式HTTP；不安全bucket配置或查询无权拒绝；前序安全初始化已耗时后对象只用剩余30s/更短parent，不监听超时结果；健康真实故障/恢复/20s陈旧、无重置时间续命；真实上传/reader/恢复中首信号drain，第二信号/超时所有资源共享额外1s force、DB最后关闭，不按资源叠加；无owned残留，整体ready=false |
+| B03 权限/锁/unknown | 缺D17/owner/Lease/Audit provider无URL；错Runner代次/Operation/Actor/Project/output manifest/evidence拒绝；真实Runner变更/Operation取消/Project gate与issue、publish竞争；所有plan一次完整Acquire，漂移回滚；Issue/材料准入/Complete各真实COMMIT丢响应或回滚，未核实无URL/新I/O，异义冲突；完成重放零staging GET/PUT |
+| B03 直传/完整性 | 真实presign PUT/GET，改method/key/length/SHA/签头拒绝；32grant及原attempt配额；实际query到期精度、跨秒/暂停不延长deadline、旧issue key不续期换key；条件重放412及删除key后旧URL可重放的真实边界；一次staging流→真实spool→不同private candidate，注入读取期间替换/损坏仍不发布错误字节；空/大对象及wrongbody/断连unknown；canonical从未有对外PUT材料 |
+| B03 外部终局/清理 | 自报HTTP200/TTL/断线/Central SIGKILL不能release；deadline前可信单次completed可完成GET/PUT业务发布，即使其它在途/新准入终局尚未知，lease仍active；仅齐备独立retirement证据才释放，缺该证据不降级complete，wrong/重复证据不误收敛；staging源reader活动阻止清零，源join后外部lease仍在可清零但总体pending；慢旧PUT/zero marker真实barrier、旧URL重放仍空；staging不进入通用verify/publish或本地Process释放；Project最终事实清空、迟到Complete不复活，未决首批不阻断后续 |
+| B03 migration/兼容 | 00001–00006输入不变，已有private candidate/spool/ref/lease/Artifact/download完整回归；00007旧行kind迁移、staging NULL分支/FK/禁止canonical约束；Issue后尚无正文即取消可走原cleanup，不出现无attempt永久孤儿；每upload stage+candidate实占原2attempt限额 |
+| 最终初始化/恢复 | 真实空库/升级、主/transfer origin同identity+probe及错误alias；probe确实put/get/delete，任一步失权/故障与unknown重启保留精确key且不删他物；缺Planner真实空态可启动诊断，存在待授权事实/未知spool拒绝；claim创建/DB绑定unknown、活FD/伪造或缺失claim/跨host及未知身份拒绝判死；实际子进程SIGKILL同host恢复，受信同stable host的旧boot绑定/exact flock分支可恢复、错host/文件反例拒绝，两者均不释放外部lease；TLS/私有bucket/CA/目录门禁不省略 |
+| 最终预算/进程 | 前序安全初始化耗时后对象只用剩余30s/更短parent，超时不监听；健康同轮2s、真实故障/恢复/20s陈旧，旧DB样本不重置时间；Runtime/Service两入口任一先启动均拒第二worker，Runtime工作可被原Service.Drain观测；真实上传/reader/probe/恢复中首信号drain，第二信号/超时主与transfer Transport全部共享额外1s force、DB最后，不按资源叠加；全部本地I/O真实join或OS退出前claim不释放，checkpoint保留；无owned fixture残留，整体ready=false |
 
 每块从仓库根执行 `AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/check-go.sh` 和 `AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/test-objects.sh -run '<实际场景名>'`；最终无过滤 `test-objects.sh` 并覆盖D04 `test-security.sh` 受影响真实输入。网络/存储barrier检查服务端实际key/版本/请求计数与DB事实，不只检查客户端error；真MinIO证据、fixture指纹、命令exit和清理状态一并交接。
 
-技术输入为已冻结[研究修订2](d05-object-storage-research.md)，SHA256 `b4a0462d255910443cbed31abbaeee6d17c133b74a2d997357e37d938242f038`；其协议局部观察不是本模块实现验收。无新产品决定或设计阻塞；S01按冻结指纹独立静态审查，再由root采纳并下发实现。本文未实现业务、改动代码/迁移或创建运行资源。
+技术输入为已冻结[研究修订2](d05-object-storage-research.md)，SHA256 `b4a0462d255910443cbed31abbaeee6d17c133b74a2d997357e37d938242f038`；其协议局部观察不是本模块实现验收。rev6另核实际[Objects/Uploads/Process端口](../../../internal/central/object/contract/authority.go)、[Access](../../../internal/central/object/contract/access.go)、[上传](../../../internal/central/object/upload.go)、[恢复](../../../internal/central/object/recovery.go)、[初始化](../../../internal/central/object/initialize.go)及[00005](../../../db/migrations/00005_object_storage.sql)，SDK v7.3.0的api-presigned.go/api.go和signer源码仅作签名API证据。B03新增行为仍须上表真实验收；无新产品决定或设计阻塞。本文未实现业务、改动代码/迁移或创建运行资源，按冻结指纹独立静态审查后再由root下发实现。

@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact
 
-- 修订：3；状态：B01/B02已独立验收，B03规格修订6冻结审查中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
+- 修订：3；状态：B01/B02已独立验收，B03规格修订6已独立静态验收，完整实现进行中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
 - 前置：[D04](d04-security-foundation.md)全部独立验收和真实完整suite通过，入口本地提交abf5c37；GitHub认证失效，ee8ddb7起5个本地提交待恢复后补推，不冒称远端同步。
 - 目标：按[计划D05](../development-plan.md#d05-对象存储与-artifact)实现StoredObject/引用与lease、流式MinIO读写、跨DB/对象存储的一致性和恢复、Artifact服务、受控预览/下载及短期传输授权。
 
@@ -8,9 +8,9 @@
 
 | 卡 | 依赖 | 角色 | 独占范围 | 状态 |
 | --- | --- | --- | --- | --- |
-| S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订6已作者冻结，B03接口/初始化与最小补口静态审查中 |
+| S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订6独立静态复验通过并冻结，root已采纳 |
 | R01 依赖与隔离环境核验 | D04完成 | research_worker | 有界探针及新增d05-object-storage-research.md报告，不写实现源码 | R01/R02修订2完成并停写 |
-| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01/B02完整独立验收通过，B03待规格审查后实施 |
+| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01/B02完整独立验收通过，B03完整实现已授权 |
 | V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | B02无过滤兼容及原probe全部通过；V全停、资源清零 |
 
 root独占本卡、开发计划和任务台账；架构作者仅新建实施规格。角色遵循AGENTS与agenteam-design/go-development/verification/documentation技能，禁止子agent再委派和Git写操作。常态至多两个活动子任务，Docker和测试资源顺序明确移交。设计稳定且root确认后才写实现，不提前D06+。
@@ -290,3 +290,12 @@ B03设计rev6作者正式冻结410行，SHAd952a3de675ad44dd6e5a699d9ae07a038308
 rev6首轮静态审查确认三处需窄澄清，非实现测试失败：同稳定受信host真实reboot不能被一概unknown造成不可恢复，应以同DB claim/deployment/spool/file身份、可信stablehost、真实kernel异bootID和exactflock正向证明旧本地进程死；外部PUT/Runner仍不推终局。Runtime须与原Service共用唯一worker槽位/全部I/O登记，Central只Runtime.StartMaintenance，双入口不可各起worker，真实join后才释放claim。TransferAuthorization不得把可信单次completed（length/SHA、可发布）与externallease retirement（全部在途join且新签名准入关闭）合并为同一前提，complete+leasepending是既定合法状态。作者认可三项但保持d952冻结，待V最终停读后统一修订。作者39repo输入manifest47d7e3cf25016266a8fe852d68f835f3e7e897bcc600f42713f8b8eefed4a68b/3SDK输入904d05d2fe84bf71411d7b4010fadda8f3191f48f2ec2702bc2947a21550a104位于/tmp/agenteam-d05-rev6-design-ike81p1h；author-check.json SHA83af8e3b2954339c1e7a852d37d2edc2f5bc62d0b7d5b256e46532862ef5f7ae，23链接/fragment及格式通过，未跑产品测试或Docker。
 
 V首轮静态审查收束，仅上述三处需澄清，无第四阻塞；typedstaging/真实Prepared/配额/锁/Audit/actualwiredeadline/空态startup与预算其余规则可实施但未验产品。39repo/3SDK依赖逐项匹配，410行/10fence/23links/4fragments通过，全部源/依赖读取停止、无运行资源。root现仅解冻rev6三处统一窄修，修后冻结复验；不改实现、不提前B03代码。
+
+
+## B03 修订6采纳与完整实现授权
+
+三项规格修订已由独立V复验通过，root核对最终设计SHA `4ed8a62d70e71ecfde5bd2aafbcd5ad012ba1e2d6c30a38e55447268cad6abd6`及原39仓库/3SDK输入逐项未变。仅10行修订：同可信host真实boot变化和exact flock的本地死亡证明；Runtime/Service共享唯一worker及全部I/O真实join；业务completed与lease_retirement分离。410行、10fence、23links/4fragments通过。独立报告目录 `/tmp/agenteam-d05-b03-design-recheck-wy3txciu`，证据索引SHA `0d19dd7d8d728ffc6a440501a02e5ebb743aa5e53f76403481484867c4f7c4ed`。作者/V已全停、无运行资源；这是静态实施门槛，不是产品验收。
+
+root采纳设计§1全部B03移交范围：backend独占transfer contract/实现/测试、runtime/process/startup、00007，以及该节明确的旧access/service/upload/repository/cleanup/recovery/initialize最小兼容增量；独占Central config/app、中立logging阶段枚举、process与objects测试、owned fixture及scripts/test-{objects,postgres,security}.sh必要调度、backend README与AGENTS操作说明。root继续独占本卡/台账/计划；设计冻结。00001–00006、go.mod/go.sum及§1声明保持的旧公共签名/行为不得修改；其他公共扩展先报root。后续模块不提前实施。
+
+backend持唯一Docker资源时段，完成整个B03及有意义的真实自测：实际预签名GET/PUT与wire deadline、typed staging到真实sealed spool/private candidate、当前权限/unknown/竞争/配额、外部终局与marker/lease、Project最终清理、ProcessGuard死亡/重启、Central真实初始化probe/恢复门禁/健康/关闭及旧B01/B02兼容。全部真实Central fixture提供必需MinIO，不得skip或关闭校验。作者冻结完整文件/依赖manifest、命令日志和资源清零证据后，移交独立V；D05完整验收前不进入D06。既有GitHub认证仍阻塞推送，继续本地小块提交，无新产品待定。
