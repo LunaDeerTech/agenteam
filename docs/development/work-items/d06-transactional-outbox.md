@@ -11,8 +11,8 @@
 | --- | --- | --- | --- |
 | S01 完整工程规格 | architecture_worker | 新增d06-transactional-outbox-design.md；已验源码/架构/契约只读；不使用Docker | rev5独立静态通过，冻结 |
 | B01 持久事件与可组合事务 | backend_worker | 已冻结B01源码/00008及取消必要返修 | 完整独立验收通过 |
-| B02 可运行投递与全生命周期 | backend_worker | 下文精确授权；实施阶段独占owned Docker | 已授权实施 |
-| V01 独立规格与业务验证 | verification_worker | 只读停写输入/独立副本，验证阶段独占owned PG/MinIO fixture | S01/B01通过；B02待冻结后验证 |
+| B02 可运行投递与全生命周期 | backend_worker | 下文精确授权；45源已冻结 | 作者自测通过，独立验收中 |
+| V01 独立规格与业务验证 | verification_worker | 只读停写输入/独立副本，验证阶段独占owned PG/MinIO fixture | S01/B01通过；B02稳定副本验证中 |
 
 root独占本卡、计划和台账，其他文档仅按授权移交。遵循AGENTS及agenteam-design/go-development/verification/documentation技能，禁止子agent再委派及任何Git写操作。不提前D07+，不在S01实施源码。设计冻结并经独立审查/root采纳才开工。
 
@@ -130,3 +130,19 @@ RequeueTarget两源独立通过，source `/tmp/agenteam-d06-b02-target-source.sh
 追加授权backend新`internal/central/outbox/contract/lifecycle_recovery.go`及`lifecycle_recovery_test.go`，仅定义独立可选LifecycleActorResolver；既有ProjectAuthority/生命周期方法、schema及旧契约保持。已装配真实provider按exact持久LifecycleCause解析当前Actor，仍须Discover/完整锁/Validate，禁止猜cause_ref或持久化Actor。pending无resolver明确unbound，空态不造provider，失败保checkpoint并维持公平/原预算。RequestStop先SH完整只读授权并捕获精确run，确认commit才取消捕获目标，随后EX当前重验；保留provider最强锁，unknown不cancel，Restore新admission不被旧授权误取消。实现和T15真实恢复/拒绝/并发验证沿原B02范围完成，冻结后统一独立验收。
 
 作者定向真实测试已通过System空Project SQL修复、129类型截断/作用域隔离、自身2s及短parent预算、durable generation/dirty、00009旧claimed行保留、停止事实Append与最终子表清零；日志SHA `1191f3aeaa85dbc2661d5d4d1e90017e5df0f254e77a30632898b984fb139731`、`90720abce865fa96fd4355b700c110c2d0ee64e427d2c796f57cf865e3ce1e16`。仅作者自测，活动实现尚未冻结，完整check-go和最终独立无过滤门槛仍待完成。
+
+
+### B02完整冻结与独立验收
+
+作者正式全停，45 source `/tmp/agenteam-d06-b02-author-jysRRKxS/source.sha256` SHA `cdd53fbe5f60461ef5fd35fd62b97f300cbf69a0e607844661770bb3d01a09f3`，345 deps `6c7d03e459b7cc00edae8529a841def705d7947589e891c288e3c7b88900a43c`，390 union `7c2a7dfb7f7c34d535fd4c320f743771ac9de288c346ea28ccc7401ee19199dd`；root逐项核对0差，依赖等HEAD95f5de9。报告`author-report.md` SHA `66a1f19b0f1b3b93172e2a01e0ffa9736c3d96e5de6456d4d715d06f403a49c3`、证据索引`5ad49884a82b69ee9c3e573b7e0bc5c5259a87a0d37c82d4b72df81143c10814`均在该目录，包含T01–T15/22日志/全部失败修复及末次变更覆盖。
+
+最终check-go全过，日志SHA `6b1dab56216cfad58f74c2064e18c3682b29b49a044a87a9fb156af598be9ec6`；最终真实完整TestOutbox及受影响进程60顶层通过，database10.734/app39.924/process65.850/security3.034/outbox75.833s，日志`b9192d481c183e0d442bb94dbacf59acbc37d4bd89b55bb993f633f698124eba`。仅作者定向结果，不替代无过滤独立门槛。17轮51 nonce资源/凭据运行目录/测试进程清零，作者命令及读写全停；Docker移交V。
+
+独立副本`/tmp/agenteam-d06-b02-verify-idobb2r4`已逐390匹配，开始源码审查、必要风险探针及单次无过滤test-objects。root同步审查发现stop/Cleanup对terminalProof部分错误可能吞掉，交V独立判断/真实复现；尚无通过结论，不先提交业务源。真实D08 provider及领域handler仍后续绑定，当前ready=false；未验证真实主机重启不冒称通过。
+
+
+独立首轮确认唯一阻塞V-B02-01：cleanup.go的stopProject/Cleanup循环丢弃terminalProof硬错误，真实RequestStop/InspectStop/Cleanup收到InternalError却返回nil。foreign项仍受保护、同批独立项正常推进；不能首错早退修复。不可变probe `/tmp/agenteam-d06-b02-verify-idobb2r4/verification/verify_lifecycle_hard_error_test.go` SHA `085815e19ec04320b79876980b9d1fea9b7d190412a95f10752d3f0f9c551563`，失败日志`ded41cc39337feb31697377a575c5c01c08f91f0657011b158e628a4c79fef96`。首轮probe遗漏扫描回卷未命中provider，不计产品失败，原准备失败及适配diff均保留。
+
+报告`verification/review-report.md` SHA `0c40228e71e3a2af0706d0944524cab1dc0a5c5803bd7229cc62db5117870d3a`、索引`b0eafff3e74f83d54984f27b0a99f16c0cfc97ab538a3dfe231ad2a139888669`。独立9项真实风险组exit0/database4.000/app3.891/outbox18.145s，局部race/vet通过；390输入末次匹配、9nonce及进程清零/V全停。无过滤留修后最终版本，B02未通过。
+
+root采纳，仅解冻`internal/central/outbox/cleanup.go`及新`tests/outbox/lifecycle_errors_test.go`给backend返修，其他44源及345依赖冻结；Docker顺序交backend。保首硬错并继续有预算独立项，未获终止证明项保持保护；当前授权/DB/commit unknown/parent取消依原语义，不能返回伪完成。正常拒绝和有明确信号的单项预算保护不误报硬故障。原probe逐字复验，补错误优先级/公平进展/原生命周期组合，再冻结增量+完整manifest交独立复核与无过滤最终门槛。无需新增产品或公共接口决定。
