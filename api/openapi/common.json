@@ -213,6 +213,8 @@
               "CURSOR_STALE",
               "UNAUTHENTICATED",
               "SESSION_REVOKED",
+          "CHALLENGE_REQUIRED",
+          "CHALLENGE_INVALID",
               "FORBIDDEN",
               "CSRF_FAILED",
               "ORIGIN_DENIED",

@@ -18,14 +18,17 @@ type Store interface {
 	WithinTx(context.Context, foundation.TransactionCause, func(context.Context, foundation.Tx) error) foundation.CommitResult
 	Acquire(context.Context, foundation.Tx, foundation.LockKey, foundation.LockMode) error
 	AcquireAll(context.Context, foundation.Tx, []foundation.LockRequest) error
+	RequireHeldLocks(context.Context, foundation.Tx, []foundation.LockRequest) error
 }
 type Authorizations struct {
-	Sessions identity.SessionAuthority
-	System   identity.SystemAuthority
-	Projects sc.ProjectAuthority
-	Usage    sc.UsageAuthority
+	AccountWrites sc.AccountWriteAuthority
+	Sessions      identity.SessionAuthority
+	System        identity.SystemAuthority
+	Projects      sc.ProjectAuthority
+	Usage         sc.UsageAuthority
 }
 type serviceState struct {
+	usageIssuer   sc.PlanIssuer
 	store         Store
 	keys          Keyring
 	audit         ac.Appender
@@ -48,7 +51,7 @@ func New(store Store, keys Keyring, audit ac.Appender, auth Authorizations) (*Se
 	if nilPort(store) || nilPort(audit) || keys.Validate() != nil {
 		return nil, invalid()
 	}
-	state := &serviceState{store: store, keys: keys, audit: audit, auth: auth, nonces: map[foundation.Version]*nonceRange{}, stop: make(chan struct{})}
+	state := &serviceState{usageIssuer: sc.NewPlanIssuer(), store: store, keys: keys, audit: audit, auth: auth, nonces: map[foundation.Version]*nonceRange{}, stop: make(chan struct{})}
 	return &Service{data: func() *serviceState { return state }}, nil
 }
 func nilPort(v any) bool {
@@ -185,17 +188,31 @@ func (s *Service) mutationGate(ctx context.Context, tx foundation.Tx, actor iden
 	}
 	return nil
 }
-func (s *Service) acquireMutationLocks(ctx context.Context, tx foundation.Tx, command foundation.CommandIdentity, ref sc.CredentialRef) error {
+func mutationLocks(command foundation.CommandIdentity, ref sc.CredentialRef, actor identity.Actor) ([]foundation.LockRequest, error) {
 	commandKey, err := foundation.CommandLock(command)
-	if err != nil {
-		return invalid()
+	if err != nil || ref.Validate() != nil {
+		return nil, invalid()
 	}
 	aggregate, _ := foundation.AggregateLock(foundation.CredentialRefAggregate, ref.Details().ID.String())
 	locks := []foundation.LockRequest{{Key: commandKey, Mode: foundation.Exclusive}, {Key: writeLock(), Mode: foundation.Shared}}
+	if actor.Details().Kind == identity.Human {
+		key, err := foundation.UserLock(actor.Details().UserID)
+		if err != nil {
+			return nil, invalid()
+		}
+		locks = append(locks, foundation.LockRequest{Key: key, Mode: foundation.Shared})
+	}
 	if ref.Details().Scope.Details().Kind == identity.ProjectScope {
 		key, _ := foundation.ProjectLock(ref.Details().Scope.Details().ProjectID)
 		locks = append(locks, foundation.LockRequest{Key: key, Mode: foundation.Shared})
 	}
 	locks = append(locks, foundation.LockRequest{Key: aggregate, Mode: foundation.Exclusive})
+	return locks, nil
+}
+func (s *Service) acquireMutationLocks(ctx context.Context, tx foundation.Tx, command foundation.CommandIdentity, ref sc.CredentialRef, actor identity.Actor) error {
+	locks, e := mutationLocks(command, ref, actor)
+	if e != nil {
+		return e
+	}
 	return s.state().store.AcquireAll(ctx, tx, locks)
 }

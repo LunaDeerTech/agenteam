@@ -53,13 +53,17 @@ const (
 type ServiceName string
 
 const (
-	SecretService     ServiceName = "secret"
-	SecretMaintenance ServiceName = "secret-maintenance"
-	OutboundService   ServiceName = "outbound"
-	ObjectService     ServiceName = "object"
-	ObjectMaintenance ServiceName = "object-maintenance"
-	ProjectLifecycle  ServiceName = "project-lifecycle"
-	OutboxDelivery    ServiceName = "outbox-delivery"
+	SecretService      ServiceName = "secret"
+	SecretMaintenance  ServiceName = "secret-maintenance"
+	OutboundService    ServiceName = "outbound"
+	ObjectService      ServiceName = "object"
+	ObjectMaintenance  ServiceName = "object-maintenance"
+	ProjectLifecycle   ServiceName = "project-lifecycle"
+	OutboxDelivery     ServiceName = "outbox-delivery"
+	AccountBootstrap   ServiceName = "account-bootstrap"
+	AccountAuth        ServiceName = "account-auth"
+	AccountMaintenance ServiceName = "account-maintenance"
+	AccountMail        ServiceName = "account-mail"
 )
 
 func invalid() error { return foundation.NewFault(foundation.InvalidArgument, foundation.NotStarted) }
@@ -163,7 +167,7 @@ type ServiceRegistration struct{ data func() ServiceName }
 
 func RegisterService(name ServiceName) (ServiceRegistration, error) {
 	switch name {
-	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, OutboxDelivery:
+	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail:
 	default:
 		return ServiceRegistration{}, invalid()
 	}

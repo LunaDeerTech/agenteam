@@ -55,6 +55,9 @@ func TestSecretRotationCASReopenAndRetirement(t *testing.T) {
 	}
 	next := f.reopen(t, masterKeys(t, 2, 1, 2))
 	staleResult := f.store.WithinTx(auditContext(t), txCause(t), func(ctx context.Context, tx foundation.Tx) error {
+		if err := f.store.AcquireAll(ctx, tx, late.RequiredLocks()); err != nil {
+			return err
+		}
 		_, err := f.secret.ApplyPreparedWriteInTx(ctx, tx, late)
 		return err
 	})

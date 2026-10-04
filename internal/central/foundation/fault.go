@@ -17,6 +17,8 @@ const (
 	CursorStale             Code = "CURSOR_STALE"
 	Unauthenticated         Code = "UNAUTHENTICATED"
 	SessionRevoked          Code = "SESSION_REVOKED"
+	ChallengeRequired       Code = "CHALLENGE_REQUIRED"
+	ChallengeInvalid        Code = "CHALLENGE_INVALID"
 	Forbidden               Code = "FORBIDDEN"
 	CSRFFailed              Code = "CSRF_FAILED"
 	OriginDenied            Code = "ORIGIN_DENIED"
@@ -47,7 +49,7 @@ const (
 
 func (c Code) Known() bool {
 	switch c {
-	case InvalidArgument, CursorInvalid, CursorStale, Unauthenticated, SessionRevoked,
+	case InvalidArgument, CursorInvalid, CursorStale, Unauthenticated, SessionRevoked, ChallengeRequired, ChallengeInvalid,
 		Forbidden, CSRFFailed, OriginDenied, NotFound, MethodNotAllowed, ResourceDeleted,
 		VersionConflict, IdempotencyKeyReused, InvalidState, AgentBusy, ResourceBusy,
 		ProjectNotActive, ConfirmationStale, SchemaUnsupported, CapabilityUnsupported,

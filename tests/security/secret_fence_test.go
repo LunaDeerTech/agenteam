@@ -27,6 +27,9 @@ func TestSecretWriteEpochWaitsForOwnedOldWriter(t *testing.T) {
 	writer := make(chan foundation.CommitResult, 1)
 	go func() {
 		writer <- f.store.WithinTx(ctx, txCause(t), func(ctx context.Context, tx foundation.Tx) error {
+			if err := f.store.AcquireAll(ctx, tx, prepared.RequiredLocks()); err != nil {
+				return err
+			}
 			if _, err := f.secret.ApplyPreparedWriteInTx(ctx, tx, prepared); err != nil {
 				return err
 			}

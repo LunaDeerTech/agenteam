@@ -2,7 +2,9 @@ package postgres
 
 import (
 	"context"
+	"errors"
 	"net"
+	"reflect"
 	"sync"
 	"time"
 
@@ -18,11 +20,13 @@ const poolCancelLimit = 100 * time.Millisecond
 // targets live with that connection, not in the Store's active-owner registry.
 // No cancellation credential or driver connection escapes this package.
 type poolCancelTarget struct {
-	owner *storeState
-	pg    *pgconn.PgConn
-	data  net.Conn
-	refs  int // Store.mu
-	work  *poolCancelWork
+	owner    *storeState
+	pg       *pgconn.PgConn
+	data     net.Conn
+	refs     int // Store.mu
+	work     *poolCancelWork
+	sql      *poolSQLContext    // current SQL owner; Store.mu, cleared before owner release
+	closedBy *poolSQLCloseProof // immutable local terminal fact; Store.mu
 }
 
 type poolCancelOutcome uint8
@@ -137,6 +141,7 @@ func (t *poolCancelTarget) releaseLocked() {
 	t.refs--
 	if t.refs == 0 {
 		delete(t.owner.targets, t)
+		t.closedBy = nil
 	}
 	t.owner.signalLocked()
 }
@@ -206,20 +211,159 @@ func (w *poolCancelWork) run() {
 // driver's Terminate write cannot add another network wait.
 func (t *poolCancelTarget) discard() { _ = t.pg.Close(context.Background()) }
 
-type poolCancelWatcher struct{ target *poolCancelTarget }
+// Each pre-COMMIT SQL call carries its own private identity to the driver's
+// watcher. A later deadline, a different query, or a closed physical connection
+// alone cannot turn a hard driver error into cancellation. In particular,
+// internal Rows cleanup and Force are not caller cancellation provenance.
+type poolSQLContext struct {
+	context.Context
+	operation *operation
+	target    *poolCancelTarget
+	caller    context.Context
+	business  bool  // transaction business SQL; never initialization or COMMIT
+	reason    error // Store.mu; captured by the actual watcher, not on error return
+	cause     error
+	discarded bool // the SQL owner's matching Unwatch changed driver state to closed
+	internal  bool // an internal Rows/transaction abort preceded error normalization
+}
 
-func (h *poolCancelWatcher) HandleCancel(context.Context) {
+func (o *operation) sqlContext(ctx, caller context.Context) *poolSQLContext {
+	return o.newSQLContext(ctx, caller, false)
+}
+
+func (o *operation) businessSQLContext(ctx, caller context.Context) *poolSQLContext {
+	return o.newSQLContext(ctx, caller, true)
+}
+
+func (o *operation) newSQLContext(ctx, caller context.Context, business bool) *poolSQLContext {
+	call := &poolSQLContext{Context: ctx, operation: o, target: o.target, caller: caller, business: business}
+	o.owner.mu.Lock()
+	o.target.sql = call
+	o.owner.mu.Unlock()
+	return call
+}
+
+// A completed SQL can return nil after its Unwatch discarded the connection.
+// Retain that terminal local fact independently of the completed call's scope.
+// It grants no transaction access and is never server-stopped evidence.
+type poolSQLCloseProof struct {
+	target    *poolCancelTarget
+	operation *operation
+	caller    context.Context
+	reason    error
+	cause     error
+}
+
+// Contexts and explicit causes can contain slices, maps or interfaces holding
+// them. Unknown identities are not transferable; never compare them blindly.
+func poolSameIdentity(left, right any) bool {
+	return left != nil && right != nil &&
+		reflect.ValueOf(left).Comparable() && reflect.ValueOf(right).Comparable() && left == right
+}
+
+func (p *poolSQLCloseProof) matchesLocked(c *poolSQLContext) bool {
+	s := c.operation.owner
+	_, owned := s.operations[c.operation]
+	return p != nil && c.business && !c.internal && owned && s.force == nil &&
+		p.target == c.target && p.operation == c.operation && c.operation.target == c.target && c.target.sql == c &&
+		poolSameIdentity(p.caller, c.caller) && poolSameIdentity(p.reason, c.caller.Err()) &&
+		poolSameIdentity(p.reason, c.Err()) && poolSameIdentity(p.cause, context.Cause(c.caller)) &&
+		poolSameIdentity(p.cause, context.Cause(c)) &&
+		(c.operation.ctx.Err() == nil || c.operation.caller.Err() != nil)
+}
+
+func (c *poolSQLContext) finish() {
+	c.operation.owner.mu.Lock()
+	if c.target.sql == c {
+		c.target.sql = nil
+	}
+	c.operation.owner.mu.Unlock()
+}
+
+func (c *poolSQLContext) cancelInternal(cancel context.CancelFunc) {
+	c.operation.owner.mu.Lock()
+	c.internal = true
+	c.operation.owner.mu.Unlock()
+	cancel()
+}
+
+// Rows misuse and an escaped transaction callback cancel the operation for
+// local cleanup. Record that before cancelling, so a later caller deadline
+// cannot retroactively turn this abort into caller-origin cancellation.
+func (o *operation) cancelSQL() {
+	o.owner.mu.Lock()
+	if o.target != nil && o.target.sql != nil && o.target.sql.operation == o {
+		o.target.sql.internal = true
+	}
+	o.owner.mu.Unlock()
+	o.cancel()
+}
+
+func (c *poolSQLContext) sqlError(err error) error {
+	if c == nil || !errors.Is(err, pgconn.ErrConnClosed) {
+		return err
+	}
+	s := c.operation.owner
+	s.mu.Lock()
+	reason, cause, discarded, internal := c.reason, c.cause, c.discarded, c.internal
+	if !internal && (!discarded || reason == nil) && c.target.closedBy.matchesLocked(c) {
+		reason, cause, discarded = c.target.closedBy.reason, c.target.closedBy.cause, true
+	}
+	s.mu.Unlock()
+	if !discarded || reason == nil || internal {
+		return err
+	}
+	// Keep the original driver identity and any explicit cancellation cause.
+	// The existing safe Error wrapper owns their diagnostic projection.
+	return errors.Join(err, reason, cause)
+}
+
+type poolCancelWatcher struct {
+	target *poolCancelTarget
+	call   *poolSQLContext // Store.mu; only the actual Watch argument can supply it
+}
+
+func (h *poolCancelWatcher) HandleCancel(ctx context.Context) {
 	s := h.target.owner
 	s.mu.Lock()
+	h.call = nil
+	if call, ok := ctx.(*poolSQLContext); ok && call.target == h.target && call.operation.owner == s && call.operation.target == h.target {
+		_, owned := s.operations[call.operation]
+		// An already selected work belongs to Force/release or another watcher.
+		// op.ctx may also be cancelled internally to close escaped/concurrent
+		// Rows. Its original caller must have cancelled before we credit that.
+		if owned && !call.internal && s.force == nil && h.target.work == nil && ctx.Err() != nil && call.caller.Err() != nil &&
+			(call.operation.ctx.Err() == nil || call.operation.caller.Err() != nil) {
+			call.reason, call.cause = ctx.Err(), context.Cause(ctx)
+			h.call = call
+		}
+	}
 	h.target.retainLocked() // includes pre-checkout pool Ping/ValidateConnect
 	w := h.target.workLocked()
 	s.mu.Unlock()
 	w.runOrJoin()
 }
 func (h *poolCancelWatcher) HandleUnwatchAfterCancel() {
+	// Only this SQL-owner callback may inspect driver state. If pgx already
+	// closed it (for example after an independent read failure), our discard is
+	// not evidence that cancellation caused ErrConnClosed.
+	wasOpen := !h.target.pg.IsClosed()
 	h.target.discard()
+	closed := h.target.pg.IsClosed()
 	s := h.target.owner
 	s.mu.Lock()
+	if h.call != nil && wasOpen && closed && s.force == nil {
+		h.call.discarded = true
+		call := h.call
+		_, owned := s.operations[call.operation]
+		if h.target.closedBy == nil && call.business && !call.internal && owned && h.target.sql == call &&
+			poolSameIdentity(call.caller, call.caller) && poolSameIdentity(call.reason, call.caller.Err()) &&
+			poolSameIdentity(call.cause, context.Cause(call.caller)) {
+			h.target.closedBy = &poolSQLCloseProof{target: h.target, operation: call.operation,
+				caller: call.caller, reason: call.reason, cause: call.cause}
+		}
+	}
+	h.call = nil
 	h.target.releaseLocked()
 	s.mu.Unlock()
 }

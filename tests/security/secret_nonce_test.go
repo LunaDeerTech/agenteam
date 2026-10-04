@@ -90,6 +90,9 @@ func TestSecretNonceConcurrentRangesAndRollbackBurn(t *testing.T) {
 	}
 	var burned []byte
 	result := f.store.WithinTx(auditContext(t), txCause(t), func(ctx context.Context, tx foundation.Tx) error {
+		if err := f.store.AcquireAll(ctx, tx, prepared.RequiredLocks()); err != nil {
+			return err
+		}
 		result, err := f.secret.ApplyPreparedWriteInTx(ctx, tx, prepared)
 		if err != nil {
 			return err
@@ -125,6 +128,9 @@ func TestSecretNonceConcurrentRangesAndRollbackBurn(t *testing.T) {
 		t.Fatal("fixture did not hold its spare checkout")
 	}
 	result = one.WithinTx(auditContext(t), txCause(t), func(ctx context.Context, tx foundation.Tx) error {
+		if err := one.AcquireAll(ctx, tx, p.RequiredLocks()); err != nil {
+			return err
+		}
 		_, err := s.ApplyPreparedWriteInTx(ctx, tx, p)
 		return err
 	})
@@ -246,6 +252,9 @@ func TestSecretMutationUnknownLookupAndCurrentAuthorization(t *testing.T) {
 			done := make(chan foundation.CommitResult, 1)
 			go func() {
 				done <- store.WithinTx(ctx, txCause(t), func(ctx context.Context, tx foundation.Tx) error {
+					if err := store.AcquireAll(ctx, tx, prepared.RequiredLocks()); err != nil {
+						return err
+					}
 					_, err := service.ApplyPreparedWriteInTx(ctx, tx, prepared)
 					return err
 				})

@@ -224,7 +224,7 @@ func run() (code int) {
 	if goBinary == "" {
 		return fail("exact Go binary required")
 	}
-	arguments := []string{"test", "-tags=integration", "-race", "-count=1", "-timeout=6m", "-run=" + *filter, "./internal/central/postgres/...", "./tests/database/...", "./internal/central/app/...", "./tests/process/...", "./tests/security/...", "./tests/outbox/...", "./internal/central/outbox/..."}
+	arguments := []string{"test", "-tags=integration", "-race", "-count=1", "-timeout=6m", "-run=" + *filter, "./internal/central/postgres/...", "./tests/database/...", "./internal/central/app/...", "./tests/process/...", "./tests/security/...", "./tests/outbox/...", "./internal/central/outbox/...", "./tests/account/..."}
 	if *objects {
 		arguments = append(arguments, "./tests/objects/...", "./internal/central/object/...")
 	}

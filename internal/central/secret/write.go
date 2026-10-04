@@ -24,6 +24,9 @@ import (
 
 type receiptMarker struct{}
 type preparedWrite struct {
+	issuer         *serviceState
+	serviceRequest sc.ServiceWriteRequest
+	dependencies   sc.WriteDependencies
 	actor          identity.Actor
 	scope          identity.Scope
 	command        foundation.CommandIdentity
@@ -100,6 +103,9 @@ func (s *Service) PrepareWrite(ctx context.Context, r sc.WriteRequest) (Prepared
 	if err := validateWrite(r); err != nil {
 		return PreparedWrite{}, err
 	}
+	return s.prepareWrite(ctx, r, sc.ServiceWriteRequest{}, sc.WriteDependencies{})
+}
+func (s *Service) prepareWrite(ctx context.Context, r sc.WriteRequest, serviceRequest sc.ServiceWriteRequest, deps sc.WriteDependencies) (PreparedWrite, error) {
 	if err := s.writable(); err != nil {
 		return PreparedWrite{}, err
 	}
@@ -111,11 +117,27 @@ func (s *Service) PrepareWrite(ctx context.Context, r sc.WriteRequest) (Prepared
 	if version != state.keys.CurrentVersion() {
 		return PreparedWrite{}, failure(EpochChanged, foundation.InvalidState, nil)
 	}
+	commandDigest, err := cursor.Digest([]byte(r.Identity.Canonical()))
+	if err != nil {
+		return PreparedWrite{}, invalid()
+	}
 	ref := r.Ref
 	if r.Kind == sc.Create {
 		id, err := foundation.NewID[sc.Credential]()
 		if err != nil {
 			return PreparedWrite{}, unavailable(err)
+		}
+		// Existing command receipts choose the original stable reference. A
+		// concurrent first commit after this discovery is rejected under locks.
+		var saved string
+		re := state.store.QueryRow(ctx, `SELECT credential_id::text FROM agenteam_secret.secret_command_receipts WHERE scope=$1 AND scope_key=$2 AND command_digest=$3`, string(r.Scope.Details().Kind), scopeKey(r.Scope), string(commandDigest)).Scan(&saved)
+		if re == nil {
+			id, err = foundation.ParseID[sc.Credential](saved)
+			if err != nil {
+				return PreparedWrite{}, unavailable(err)
+			}
+		} else if !errors.Is(re, pgx.ErrNoRows) {
+			return PreparedWrite{}, unavailable(re)
 		}
 		ref, err = sc.NewCredentialRef(id, r.Scope)
 		if err != nil {
@@ -130,11 +152,11 @@ func (s *Service) PrepareWrite(ctx context.Context, r sc.WriteRequest) (Prepared
 	if err != nil {
 		return PreparedWrite{}, unavailable(err)
 	}
-	commandDigest, err := cursor.Digest([]byte(r.Identity.Canonical()))
+	commandDigest, err = cursor.Digest([]byte(r.Identity.Canonical()))
 	if err != nil {
 		return PreparedWrite{}, invalid()
 	}
-	p := preparedWrite{actor: r.Actor, scope: r.Scope, command: r.Identity, kind: r.Kind, ref: ref, expected: r.ExpectedVersion, purpose: r.Purpose, receiptID: receiptID, version: version, epoch: epoch, commandDigest: commandDigest}
+	p := preparedWrite{issuer: state, serviceRequest: serviceRequest.WithoutMaterial(), dependencies: deps, actor: r.Actor, scope: r.Scope, command: r.Identity, kind: r.Kind, ref: ref, expected: r.ExpectedVersion, purpose: r.Purpose, receiptID: receiptID, version: version, epoch: epoch, commandDigest: commandDigest}
 	receiptNonce, err := s.nextNonce(ctx, version)
 	if err != nil {
 		return PreparedWrite{}, err
@@ -153,6 +175,15 @@ func (s *Service) PrepareWrite(ctx context.Context, r sc.WriteRequest) (Prepared
 	}
 	prepare := func(value []byte) error {
 		digest, err := semanticWriteDigest(r, value)
+		if serviceRequest.Validate() == nil {
+			binding, e := sc.ServiceWriteBinding(serviceRequest)
+			err = e
+			if err == nil {
+				h := sha256.Sum256([]byte(binding))
+				clear(digest)
+				digest = append([]byte(nil), h[:]...)
+			}
+		}
 		if err != nil {
 			return err
 		}
@@ -195,6 +226,9 @@ func (s *Service) ExecuteWrite(ctx context.Context, r sc.WriteRequest) (sc.Mutat
 	}
 	var result sc.MutationResult
 	committed := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+		if err := s.state().store.AcquireAll(ctx, tx, prepared.RequiredLocks()); err != nil {
+			return unavailable(err)
+		}
 		var err error
 		result, err = s.ApplyPreparedWriteInTx(ctx, tx, prepared)
 		return err
@@ -206,21 +240,33 @@ func (s *Service) ExecuteWrite(ctx context.Context, r sc.WriteRequest) (sc.Mutat
 }
 func (s *Service) ApplyPreparedWriteInTx(ctx context.Context, tx foundation.Tx, prepared PreparedWrite) (sc.MutationResult, error) {
 	empty := sc.MutationResult{}
-	if prepared.data == nil {
+	if prepared.data == nil || prepared.data().issuer != s.state() || prepared.data().serviceRequest.Validate() == nil {
 		return empty, failure(PreparationRequired, foundation.ResourceBusy, nil)
 	}
-	p := prepared.data()
+	return s.applyWriteInTx(ctx, tx, prepared.data())
+}
+func (s *Service) applyWriteInTx(ctx context.Context, tx foundation.Tx, p preparedWrite) (sc.MutationResult, error) {
+	empty := sc.MutationResult{}
 	state := s.state()
 	e, err := state.store.InTx(tx)
 	if err != nil {
 		return empty, unavailable(err)
 	}
-	// This requests the complete set at once. Outer composite commands must
-	// precollect the same lower-order locks before acquiring any later resource.
-	if err = s.acquireMutationLocks(ctx, tx, p.command, p.ref); err != nil {
+	locks, err := preparedLocks(p)
+	if err != nil {
+		return empty, err
+	}
+	if err = state.store.RequireHeldLocks(ctx, tx, locks); err != nil {
 		return empty, unavailable(err)
 	}
-	if err = s.authorize(ctx, tx, p.actor, p.scope, identity.Mutate); err != nil {
+	if p.serviceRequest.Validate() == nil {
+		if nilPort(state.auth.AccountWrites) {
+			return empty, failure(AuthorizationUnbound, foundation.DependencyUnbound, nil)
+		}
+		if err = state.auth.AccountWrites.ValidateServiceWriteInTx(ctx, tx, p.serviceRequest, p.dependencies); err != nil {
+			return empty, plannedAuthorization(err)
+		}
+	} else if err = s.authorize(ctx, tx, p.actor, p.scope, identity.Mutate); err != nil {
 		return empty, err
 	}
 	saved, found, err := s.findReceipt(ctx, e, p)
@@ -228,13 +274,18 @@ func (s *Service) ApplyPreparedWriteInTx(ctx context.Context, tx foundation.Tx, 
 		return empty, err
 	}
 	if found {
+		if !saved.Metadata.CredentialRef.Equal(p.ref) {
+			return empty, failure(Busy, foundation.ResourceBusy, nil)
+		}
 		return saved, nil
 	}
 	if err = s.writable(); err != nil {
 		return empty, err
 	}
-	if err = s.mutationGate(ctx, tx, p.actor, p.ref); err != nil {
-		return empty, err
+	if p.serviceRequest.Validate() != nil {
+		if err = s.mutationGate(ctx, tx, p.actor, p.ref); err != nil {
+			return empty, err
+		}
 	}
 	version, epoch, err := s.control(ctx, e)
 	if err != nil {
@@ -384,7 +435,7 @@ type MutationLookup struct {
 }
 
 func (s *Service) LookupWrite(ctx context.Context, prepared PreparedWrite) (MutationLookup, error) {
-	if prepared.data == nil {
+	if prepared.data == nil || prepared.data().issuer != s.state() || prepared.data().serviceRequest.Validate() == nil {
 		return MutationLookup{}, invalid()
 	}
 	p := prepared.data()

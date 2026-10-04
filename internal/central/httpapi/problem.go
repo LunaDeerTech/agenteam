@@ -36,6 +36,8 @@ var problemKinds = map[foundation.Code]problemKind{
 	foundation.CursorStale:             {409, "Stale cursor", "The ordering changed. Restart pagination."},
 	foundation.Unauthenticated:         {401, "Authentication required", "Authentication is required."},
 	foundation.SessionRevoked:          {401, "Session revoked", "Sign in again."},
+	foundation.ChallengeRequired:       {401, "Challenge required", "A login challenge is required."},
+	foundation.ChallengeInvalid:        {400, "Challenge invalid", "The challenge could not be verified."},
 	foundation.Forbidden:               {403, "Forbidden", "This action is not permitted."},
 	foundation.CSRFFailed:              {403, "CSRF validation failed", "The request could not be verified."},
 	foundation.OriginDenied:            {403, "Origin denied", "The request origin is not permitted."},

@@ -160,6 +160,9 @@ func TestSecretPreparedAndDatabaseSensitiveProjection(t *testing.T) {
 	var result sc.MutationResult
 	r := f.store.WithinTx(auditContext(t), txCause(t), func(ctx context.Context, tx foundation.Tx) error {
 		var err error
+		if err := f.store.AcquireAll(ctx, tx, prepared.RequiredLocks()); err != nil {
+			return err
+		}
 		result, err = f.secret.ApplyPreparedWriteInTx(ctx, tx, prepared)
 		return err
 	})

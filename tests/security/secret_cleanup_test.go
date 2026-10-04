@@ -86,6 +86,9 @@ func TestSecretProjectCleanupPendingReferencesBatchesAndGate(t *testing.T) {
 		t.Fatal("final cleanup", err)
 	}
 	result = f.store.WithinTx(auditContext(t), txCause(t), func(ctx context.Context, tx foundation.Tx) error {
+		if err := f.store.AcquireAll(ctx, tx, late.RequiredLocks()); err != nil {
+			return err
+		}
 		_, err := f.secret.ApplyPreparedWriteInTx(ctx, tx, late)
 		return err
 	})

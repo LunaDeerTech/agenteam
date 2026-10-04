@@ -378,6 +378,9 @@ func DecodeMetadata(action Action, raw []byte) (Metadata, error) {
 	if len(raw) > 4096 {
 		return Metadata{}, invalid("metadata")
 	}
+	if AccountAction(action) {
+		return decodeAccountMetadata(action, raw)
+	}
 	allowed := map[string]bool{}
 	var names []string
 	switch action {

@@ -1,0 +1,36 @@
+package account
+
+import (
+	"strings"
+	"testing"
+)
+
+func TestCanonicalIdentityValidation(t *testing.T) {
+	v, e := NormalizeEmail("A.B+tag@EXAMPLE.COM")
+	if e != nil || v != "a.b+tag@example.com" {
+		t.Fatal(v, e)
+	}
+	for _, v := range []string{" User@example.com", "User@example.com ", "Display <user@example.com>", "é@example.com", "user@例子.test", "user@example.com\n"} {
+		if _, e := NormalizeEmail(v); e == nil {
+			t.Fatal("unsafe email")
+		}
+	}
+	for _, v := range []string{"one-two", "abc", "012"} {
+		if _, e := NormalizeUsername(v); e != nil {
+			t.Fatal(e)
+		}
+	}
+	for _, v := range []string{"admin", "root", "Admin", "-user", "user-", "aa", "a_b", "用户abc"} {
+		if _, e := NormalizeUsername(v); e == nil {
+			t.Fatal("username accepted")
+		}
+	}
+	if e := ValidateDisplayName("  中文名称  "); e != nil {
+		t.Fatal(e)
+	}
+	for _, v := range []string{"name\n", "name\u0085", strings.Repeat("界", 81), "\xff"} {
+		if e := ValidateDisplayName(v); e == nil {
+			t.Fatal("display accepted")
+		}
+	}
+}

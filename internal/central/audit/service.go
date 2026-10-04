@@ -24,7 +24,10 @@ type Store interface {
 	WithinTx(context.Context, foundation.TransactionCause, func(context.Context, foundation.Tx) error) foundation.CommitResult
 	Acquire(context.Context, foundation.Tx, foundation.LockKey, foundation.LockMode) error
 }
+type AccountAuthority = contract.AccountAuthority
+
 type Authorizations struct {
+	Accounts contract.AccountAuthority
 	Sessions identity.SessionAuthority
 	System   identity.SystemAuthority
 	Projects contract.ProjectAuthority
@@ -81,6 +84,7 @@ func scopeKey(s identity.Scope) string {
 func actorSummary(actor identity.Actor) contract.ActorSummary {
 	a := actor.Details()
 	s := contract.ActorSummary{Kind: a.Kind}
+
 	switch a.Kind {
 	case identity.Human:
 		s.ID = a.UserID
@@ -195,6 +199,12 @@ func (s *Service) authorizeAppend(ctx context.Context, tx foundation.Tx, entry c
 	if key.Details().Producer != contract.ProducerFor(f.Action) {
 		return invalid("producer_action_mismatch")
 	}
+	if contract.AccountAction(f.Action) || (a.Kind == identity.Service && (a.ServiceName == identity.AccountAuth || a.ServiceName == identity.AccountMaintenance) && (f.Action == contract.SecretCreate || f.Action == contract.SecretDelete)) {
+		if nilPort(s.auth.Accounts) {
+			return failure(foundation.DependencyUnbound, "account_authority_unbound", nil)
+		}
+		return portError(s.auth.Accounts.CheckAppendInTx(ctx, tx, entry, key))
+	}
 	switch a.Kind {
 	case identity.Human:
 		intent := identity.Mutate
@@ -279,7 +289,15 @@ func (s *Service) LookupAppend(ctx context.Context, actor identity.Actor, scope 
 		return contract.AppendLookup{}, invalid("lookup_input")
 	}
 	if actor.Details().Kind == identity.Service {
-		if !serviceOwns(actor, scope, key) {
+		account := actor.Details().ServiceName == identity.AccountBootstrap || actor.Details().ServiceName == identity.AccountAuth || actor.Details().ServiceName == identity.AccountMaintenance || actor.Details().ServiceName == identity.AccountMail
+		if account {
+			if scope.Details().Kind != identity.System || nilPort(s.auth.Accounts) {
+				return contract.AppendLookup{}, failure(foundation.DependencyUnbound, "account_authority_unbound", nil)
+			}
+			if err := s.auth.Accounts.CheckServiceLookup(ctx, actor, key); err != nil {
+				return contract.AppendLookup{}, portError(err)
+			}
+		} else if !serviceOwns(actor, scope, key) {
 			return contract.AppendLookup{}, failure(foundation.Forbidden, "service_cause_rejected", nil)
 		}
 		if scope.Details().Kind == identity.ProjectScope {

@@ -259,13 +259,17 @@ func resultError(r foundation.CommitResult) error {
 	return unavailable(nil)
 }
 func (s *PolicyService) GetPolicy(ctx context.Context, actor identity.Actor) (Policy, error) {
+	if actor.Validate() != nil || actor.Details().Kind != identity.Human {
+		return Policy{}, invalid()
+	}
+	userKey, _ := foundation.UserLock(actor.Details().UserID)
 	cause, err := recoveryCause()
 	if err != nil {
 		return Policy{}, err
 	}
 	var out Policy
 	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
-		if err := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: policyLock(), Mode: foundation.Shared}}); err != nil {
+		if err := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: policyLock(), Mode: foundation.Shared}, {Key: userKey, Mode: foundation.Shared}}); err != nil {
 			return err
 		}
 		if err := s.authorize(ctx, tx, actor, identity.Read); err != nil {
@@ -349,13 +353,14 @@ func (s *PolicyService) UpdatePolicy(ctx context.Context, actor identity.Actor, 
 	defer release()
 	cause, _ := foundation.NewCommandsCause(meta.Identity)
 	ck, _ := foundation.CommandLock(meta.Identity)
+	userKey, _ := foundation.UserLock(actor.Details().UserID)
 	key := digestBytes([]byte(meta.Identity.Canonical()))
 	digest := commandDigest(actor, meta, rules)
 	var out UpdateResult
 	var next Policy
 	var changed bool
 	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
-		if err := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: ck, Mode: foundation.Exclusive}, {Key: policyLock(), Mode: foundation.Exclusive}}); err != nil {
+		if err := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: ck, Mode: foundation.Exclusive}, {Key: policyLock(), Mode: foundation.Exclusive}, {Key: userKey, Mode: foundation.Shared}}); err != nil {
 			return err
 		}
 		if err := s.authorize(ctx, tx, actor, identity.Mutate); err != nil {
@@ -430,7 +435,7 @@ func (s *PolicyService) UpdatePolicy(ctx context.Context, actor identity.Actor, 
 	// failed verification into "not committed"; retain the original cause.
 	original := result.Cause()
 	verified := s.state().store.WithinTx(ctx, original, func(ctx context.Context, tx foundation.Tx) error {
-		if err := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: ck, Mode: foundation.Shared}, {Key: policyLock(), Mode: foundation.Shared}}); err != nil {
+		if err := s.state().store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: ck, Mode: foundation.Shared}, {Key: policyLock(), Mode: foundation.Shared}, {Key: userKey, Mode: foundation.Shared}}); err != nil {
 			return err
 		}
 		if err := s.authorize(ctx, tx, actor, identity.Mutate); err != nil {

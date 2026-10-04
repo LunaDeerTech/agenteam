@@ -379,3 +379,100 @@
 - usage补口设计rev3独立通过，源df7338362a074b535710918863cf97b0c23425ec5497a15ab1c78c3c6a7f5312、索引9fffad6747c241df37591200da839d3a08bc8e44076ef41e550e197a5ab63ad8；11稳定语义输入匹配、活动代码零读取、全停。root采纳并解冻最小公开口及实现给backend，B01继续，主卡记录旧5测试/fixture包列表最小适配。
 
 - B01 recoverylog独立两源通过，source c2fd8ad79232307d9cf2dc7c9df4313a40cd216e71f026e76a7bd81b55730688，索引c8f2d6caf63687c04c6b46b2782c1043caf8db75e5c70b1f9ec3a4e111324b3b；普通/race/vet与5风险probe过、全停。root另验旧提交基线+两源独立可编译测试过后精确提交，B01其余源码仍活动。Unknown非join及B03首写门禁组合限制见主卡，不算账号/投递完整验收。
+
+- B01作者第五轮真实账号现有组race通过18.322s，bootstrap/login/两独立回应lease/logout真实Outbox等局部过，前轮迁移夹具/新Audit约束/摘要/回应ctx错误及修复保留主卡。源码仍活动未独立验收；恢复、unknown与授权竞争继续，不能推进B02。
+
+- B01完整77源/364依赖已冻结，441union b4a1c9cf8606bf5f096e899b7d0a9b98e02e20937eda0fd7567f81bfc49d67c0匹配；最终check-go/Account真实race140.120s/integration vet作者过，42nonce归零全停。V独占Docker开始稳定副本完整独立验收及无过滤兼容，root同输入审查；源码尚未采纳，B02未开始，详主卡。
+
+- B01独立确认D07-B01-V01：response-plan原unknown被确认55P03掩盖，删除local join证据，原晚commit后计划不收敛；原probe a43110d41d3447e46fd3efe47215fb0b38916f00e60419ce8b3a60be85661bc2，索引9e23ed1521e986c63f2a9e96eb76a19c7e18cce4cc80b9e81226b2ee2c64f25a。441输入一致/6nonce0/V全停，root仅解冻response.go与新回归给backend，原probe/预算不变，修后独立完整门槛尚待。
+
+- V01窄修两增量已冻结，78源/364依赖442union 73644f824ff09ea9aff0106668d35684d9b3fdd3655c993d362120c8b4fb45df匹配，原a43110逐字作者green/邻组race/check-go过，索引2329a1145e871e17924d86b5e28721edb432df70871cb4347250f2384f11633a。6nonce0/全停，V独占Docker继续最终独立风险+无过滤全组，B01仍未验收。
+
+- V01原probe独立闭环，populated旧数据升级未失败；新增V02六phase真实55P03导致Unknown误标not_committed，分类probe29448f3d07bed7aed76855cb1eb059ead2c82d5afc97063d67226ce5012cdb88，索引5d63aafc2c9f454c728f1b318c75a24c6a03fe6200353efe94b17bad2d700cc0。442一致/3nonce0/中断后全停，root授权account五文件最小统一状态/cause修正及新回归，原预算不动。Logout并发仍未验候选，无过滤仍待，详主卡。
+
+- V02统一7增量作者原两probe/新分类与failed-login/邻组race162.684s/check-go过，80源444union8a6155cdf0d7a9e96e2e683ebe8e833dc5911357d7263366ef9034423bab8082匹配。另真实Logout内部序列竞争已确认，674caee24adc7f742723d147bb92415346351bdf4ee86d1b70a7ab562791d0a0同key持续Busy；9nonce0全停后root仅授权logout.go+新回归重规划尚未提交内部seq，已提交事实不改。V02/此修复待最终独立验收，无过滤未跑。
+
+- D07 B01 Logout两文件窄修冻结并交最终独立复验：81源b4b792b7/445union74182c10，root全匹配，原probe逐字作者green8.486s、新旧Logout真实race42.817s/check-go全过；6nonce资源0/所有命令停止。V独占Docker复验V01/V02/Logout原probe并单次无过滤test-objects；B01未验收、B02未授权。详见主卡末尾。
+
+最终V首个无过滤实际exit1/519.722s，日志SHA `22c4b153e3771795327ad0ed87f302171bf7b9e211a8b232760a96651af5355a`，目录`/tmp/agenteam-d07-b01-complete-verify-xn6_txkh`。Account真实race303.590s，三原缺陷probe及populated升级/全部正式回归通过；其它已过组含PG1.073s、database117.015s、app72.961s、process152.918s、security190.654s。未通过：Outbox TestOutboxRuntimeProtectedSixtyFourDoNotStarveTail 在startRuntime返回INTERNAL_ERROR（4.29s，包199.177s）；objects包原6m整体超时360.146s，栈在Transfer新fixture的Descriptor.Verify/owned docker inspect，不能据此断定产品或负载原因。完整原日志/栈保留，不以Account green标B01验收。root授权V先精确清理、在/tmp稳定副本仅增加失败cause日志作一次Outbox定向诊断，原源码/断言/ItemTimeout20ms/预算不变；对象尚不重跑，B02未授权。
+
+Outbox单次诊断在保持原20ms/断言下再次失败（用例8.55s、包8.610s/exit1）；日志`/tmp/agenteam-d07-b01-outbox-diagnostic-mf9008qi/evidence/outbox-diagnostic.log` SHA `6c7de1b5347a320bc4eacf3f968ea9475defdecec5ee69128dcb79fe1f3eddc3`。phase=initialize，cause为Fault(INTERNAL_ERROR/not_committed)→postgres.Error→pgconn.connLockError→errorString，无SQLSTATE且Is(Canceled/DeadlineExceeded)false。类型本身不能区分conn closed/busy或EOF包装，尚不认定根因；V停止新增测试，先清理并只读定位最小上游范围。首轮完整资源清理SHA `51792928fa60a0bb3ce48efbdaada8c2838fc63bebb9beffb8bed272c806645b`。objects总包6m报警时该传输子用例只运行1s，不能误称单项卡6m。
+
+### Outbox上游连接关闭诊断授权
+
+V核pinned pgx5.11.0的connLockError.Unwrap，cause尾部errorString只对应ErrConnClosed，不能称conn busy；本次未采postgres.Error.Code，尚不能区分Begin/set_config或Tx SQL。静态已排除批次Rows未关/QueryRow未关的相邻路径。pool watcher取消后关闭data、driver仅返ErrConnClosed可能丢取消归因，为待验解释而非确认根因；不得无条件吞connclosed、放宽20ms或把hard错误都改Busy。第二批3nonce/进程0，V不再测试、仅整理/tmp报告。
+
+root授权backend下一步仅只读冻结代码和自有/tmp诊断副本，不修改仓库/依赖/旧预算/断言。Docker独占移交backend；先对原Outbox公平性用例增加安全的postgres.Code及准确阶段/实际ctx与本地取消来源记录，有界复现以区分真实自有取消关闭、独立连接断开和提交后Unknown。必要时在/tmp增加受控真实PG/TCP探针取得确定性正反证，最多两轮诊断，仍无新证据则停止报告。原用例/日志/probe完整保留。当前没有授权生产修复；报告确认机制、最小文件范围、旧红与对照后由root下达窄修。对象整体超时仍未归因，暂不另跑对象/无过滤全组。B01与D07保持未验收，B02不解冻。
+
+最终独立阶段报告已全部停写：`/tmp/agenteam-d07-b01-complete-verify-xn6_txkh/review-report.md` SHA `a22943edada819f582ee19e37190e972321ddb9c203b7dfbd72bcdab5f355f6f`，36项证据索引 `bab07a08e9a491d947ca1f1c98bcc2d6aa475cbb874ce5de2b388cbef39557d9`。root全文核读，445根/副本、449完整执行、450诊断执行均末次无漂移，6nonce及测试进程0。Account三修独立闭环但完整兼容失败，B01不验收；backend仅/tmp诊断继续。
+
+诊断第一轮原公平性单项exit0/6.588s，64条正常保护记录，无watcher/connclosed，不能覆盖原失败。第二轮受控探针在Open前因临时MAX_CONNS=1低于冻结Config最小2而失败，未进入目标协议场景，属准备错误而非产品证据。root追加仅将/tmp探针MAX_CONNS改为2的机械修正并补跑原第二轮一次；不改生产/断言/时序/预算，不新增第三种场景，保留原失败日志。若修正后仍未达目标，停止汇报，不继续扩大。
+
+### D03取消归因确认缺陷与窄修授权
+
+纠正后第二轮真实旧红仅目标断言失败（database0.935s）：ownedPID129的20ms期限→实际watcher→真实CancelRequest ACK→Prepare阻在Unwatch→work关闭data→SQL owner discard→Exec返回ErrConnClosed/DATABASE_SQL_FAILED，却Is(DeadlineExceeded)=false、父ctx仍live，Outbox分类仍InternalError/not_committed。独立TCP先断开再到期对照保hard错误通过（该对照是EOF类，不冒称同ErrConnClosed）。日志SHA `ffebddafc0100878174dca4207cab3a3d09d6a9a9a40576fba3d2d99e9d2aeb1`，`/tmp/agenteam-d07-outbox-cancel-diagnostic-2l3l_tq3/evidence/round2-observations.json`保存真实顺序；原probe `round2-probe-frozen.go.txt` SHA `2aceacc33082fdddad7fe3785229782db71210a36539ae1c93243be3fb170320`。root核读原probe与完整观察，采纳为确认的上游取消原因丢失缺陷；并未证明它是历史公平性失败唯一原因。作者九nonce资源/进程0、445根输入不变、执行命令全停。
+
+root仅解冻backend的`internal/central/postgres/{pool_cancellation,sql,transaction}.go`，新增同包取消归因测试与`tests/database/`实际回归。目标：在精确physical target、实际watched context/取消原因、非Force/非cleanup且SQL owner确认由该次本地discard关闭driver的证据下，仅对精确ErrConnClosed保留原cause并补取消原因；不能依据ctx后来到期、连接closed或存在work泛化归因。SQL/Rows/BEGIN/set_config/AcquireAll等适用pre-COMMIT边界使用一致私有规则；COMMIT已经调用后原Unknown分支不改，不把取消当远端已停止。原Outbox recoveryBudgetError、所有旧断言/20ms/20s/6m、D03实际join/Force共享预算与nonce安全保持不变。store.go或额外旧文件如必要先报告。
+
+必须保留旧红探针逐字修后闭环（临时诊断helper仅作同语义观察），新增精确非watcher ErrConnClosed、无关watcher/后到期、Force与正常Rows清理不误归因等负例；不以原EOF对照冒充。运行适用普通/race/真实PG取消、unknown/原公平性与相邻恢复检查、check-go，冻结精确delta及扩大依赖manifest、命令全停/资源0后再独立验收。原公平性即使后续green也保留历史未采具体phase限制。objects累计超时另待组合验收处置，当前不修改其预算或断言。D07仍唯一活动模块，必要上游返修不代表D03整体重做；B01未验收、B02未授权。
+
+诊断最终报告`/tmp/agenteam-d07-outbox-cancel-diagnostic-2l3l_tq3/diagnostic-report.md` SHA `3a35aa1b9514a18478c10b9b2f477ba46e34597b123e583d82f6ec69c08583ae`，索引 `9d92f90ca3676c194b9551c9e0791f29c696f4e8c0c2ccfd5b757900ce4c99cb`；root全文核读。原观察不变副本`round2-observations-frozen.json` SHA `10e820d9c4ecf436ab3c39177fa8b4e6b3e6ec26c6b0200e5b6f58ee63c498d4`，逐字probe复跑可覆盖其固定raw输出路径，不能覆盖-frozen证据。真实独立断开时driver也可能自行发CancelRequest，故单凭取消包不构成平台watcher归因。cleanup/root-inputs SHA `63d45f1746d3883a677f07b8bf8e6404b05812d7af75d72aa21c259770586d04`，9nonce0/445不变。诊断全停后进入另行已授权三文件窄修。
+
+D03窄修首轮普通postgres0.065s通过；新增真实回归首轮begin探针只匹配begin而真实SQL为`begin isolation level read committed`，属新测试前置未命中，原real-first日志保留；其余6正例和2真实同ErrConnClosed独立关闭负例通过。机械匹配修正后真正命中BEGIN→ReadyForQuery→Unwatch本地关闭→BeginTx成功→set_config新scope丢原因，real-begin-second.log保留。root采纳该连续初始化阶段证据，允许授权transaction.go内BEGIN+set_config同一私有初始化scope，进业务callback前结束，不能跨独立业务SQL或COMMIT传播；补旧初始化scope不能复用负例，不扩源/预算。作者证据目录`/tmp/agenteam-d07-cancel-attribution-repair-vdga3kll`，仍活动未冻结。
+
+作者原2aceacc探针逐字修后green（overlay database9.982s，含原COMMIT unknown/相邻事务），但同组原公平性仍在startRuntime失败为DEPENDENCY_UNAVAILABLE（5.69s），未采cause不得推同根因或已修。日志`/tmp/agenteam-d07-cancel-attribution-repair-vdga3kll/evidence/repair-regression-first.log`保留、3nonce已清。该轮filter尾锚未包含新增七路径前缀，不计其通过。root授权先正确filter复核新增实际组，再最多一次/tmp原公平性失败安全cause/Code/SQLSTATE/phase诊断，原Outbox/预算/断言仍不改；超出三源的必要修复先报告。
+
+作者正确prefix真实取消组通过：postgres2.170s/database10.145s，覆盖七路径、真实同ErrConnClosed独立关闭先/后取消及原PoolCancellation的Force/join/Rows/失败边界，real-all-cancellation.log保留，3nonce0。获准一次公平性诊断随后exit0/outbox11.735s，fairness-state.json记录64项，其中SQL/AcquireAll/Rows实际三次ErrConnClosed经精确归因保留Deadline，parent live/初始化成功；3nonce0。先前DEPENDENCY_UNAVAILABLE未复现、具体分支仍未知，不能被本次green覆盖。停止新增诊断，作者进入最终check-go/冻结；B01完整门槛待独立检查。
+
+- D07必要D03取消归因窄修冻结450输入23f17dc7，root匹配/三源diff核读；最终check-go通过、15nonce0/命令全停。Docker交V独立原probe/归因正反及最终无过滤兼容，B01仍未验收。详见主卡最新记录。
+
+独立V定向真实组exit0（postgres4.223s/database16.239s），原2aceacc逐字通过；重建原453观察输入manifest `9988068c8a30f116a83ab08fea43ef376055e00d32999c4b694c9f74d3c28fa6`完全匹配。日志`/tmp/agenteam-d07-cancel-verify-6b_flvvy/evidence/targeted-real.log` SHA `c9d473901087af7ba9118a834ede7b6fdec0d63b98b269b2c23ff12b80a03c19`：实际watcher ErrConnClosed+Deadline→ResourceBusy/parent live，独立断开仍hard，原frozen观察不变。3nonce0，450根/副本、454纯源执行/453观察执行末次一致；V开始默认调度、原6m预算、纯源加四Account原probe的单次无过滤，完整门槛仍待。
+
+上游修后独立纯源无过滤再次出现旧公平性startRuntime DEPENDENCY_UNAVAILABLE（outbox包208.171s），其它包尚运行，不能提前判整组成功。root已授权V收齐全组/精确清理后最多一次/tmp安全Code/cause增强定向诊断，不改生产/预算/断言；只读候选是store.borrow在pool.Acquire成功但late ctx取消时AdmissionStopped(nil)丢原因，尚未证实该次分支，不作为根因结论。当前三源保持冻结，暂无额外生产授权。
+
+修后第二次独立无过滤完整exit1/525.343s，日志SHA `30889aa7e7aad43d18cecaf2c1d3f775554998feefabb09fcfbf6fcb25354c1d`。Outbox208.171s在启动DependencyUnavailable，objects360.077s原6m累计超时；其余10包通过，Account319.585s含四原probe。objects报警时TransferIssueWaitsForRealAuthorityAndProjectGates仅2s、operation子例1s，栈仍fixture→Descriptor.Client/Verify→owned docker inspect，不能推该子例卡6m或根因负载。3nonce全0/原命令及fixture/test PID消失，V继续既有一次安全cause诊断，不扩大预算或重跑full。
+
+修后V唯一诊断再次真实失败（test9.40s/package9.502s，exit1/84.128s），`/tmp/agenteam-d07-late-checkout-diagnostic-msusku69/evidence/diagnostic.log` SHA `9cdb786796e3c269493313fe054627a3a72d66f4d5df26bbad02a03c7a7762bc`。phase initialize，Fault InternalError/not_committed→DATABASE_SQL_FAILED(hasCause,无SQLSTATE)→ErrConnClosed，IsCanceled/Deadline均false；此轮不是borrow AdmissionStopped(nil)候选，亦不能解释前次full的DependencyUnavailable。归因机制原probe通过但实际公平性仍未闭环，V停止追加测试/清理/报告，root等待完整交接再下有界精确顺序诊断。不得因此放宽一般closed规则或预算。
+
+### 修后剩余ErrConnClosed有界诊断
+
+V本轮9nonce资源0/执行命令全停，final-cleanup SHA `26bef2ee7cc21b1d97705fdd97a41d26fc210d0433bbcc0c7183366578001a23`；仅/tmp阶段报告整理。root将Docker独占交backend，所有450仓库技术输入继续冻结。授权最多两轮仅/tmp观察诊断：对原公平性同一代码/20ms/20s/6m/断言记录每次SQL私有上下文、actualwatcher选择/拒绝原因、exacttarget/work/Force/internal标志、SQL-owner Unwatch前后driver状态、首次错误阶段和原Code/ErrConnClosed/ctx状态；不记录SQL值或凭据、不从异步watcher读driver可变状态。每轮保完整原probe/diff/trace，出现明确失败再据实选择第二轮受控复现或正反；无新证据则收束，不反复跑绿。此次可同时记录late checkout拒绝分类，但不把它预设为根因。
+
+不得在仓库修改/放宽归因规则、Outbox分类或预算；实际driver已先关闭、ctx不匹配、work已selected等只作候选，需真实时序。已通过原2aceacc及正反证据保留，不能用新机制否认旧修复有效，也不能用旧probe替代现实失败。取得确定机制与最小必要修复范围后再由root授权。objects累计超时不另跑，B01/D07未通过、B02不解冻。
+
+修后独立阶段报告全部停止，`/tmp/agenteam-d07-cancel-verify-6b_flvvy/review-report.md` SHA `1f79ef656ea450a4aff5e4d5bf01c608cc7ab8b81e3c8f5efd57f9265aa5c660`，45项索引 `03dce372da0dc219f17ab96cc69fe84494381e7553683d44e82bea05b610283c`；root全文核读，450/454/453/451各输入末次匹配。静态五类遗漏候选另存late-checkout诊断目录static-candidates.md，未裁定，已转作者有界观察；全部历史失败和独立通过范围保留。
+
+剩余路径首轮/tmp观察实际exit0/outbox7.554s，目录`/tmp/agenteam-d07-cancel-remaining-cf460kh_`，2099记录/65次BEGIN-set_config/339scope，但watcher/Unwatch/ErrConnClosed均0，因此无新失败顺序，不消除历史失败。作者遵守无进展收束停止随机原用例重跑，保持450输入冻结。root仅请求只读评估业务相邻SQL受控候选（SQL真实完成ReadyForQuery→取消Unwatch→第一SQL成功→同caller下一SQL ErrConnClosed），未经新授权不执行。
+
+### 业务相邻SQL确定时序补证
+
+作者只读pinned pgconn ResultReader.Close：真实ReadyForQuery分支先Unwatch再返回既有tag/err，可在本地取消关闭后仍返回nil；当前Exec仅err非nil提归因，defer结束scope后同caller下一Exec新scope可能失去原因。root采纳为值得一次确定时序检验的候选，追加仅/tmp一次受控探针授权，不重跑随机公平性：原代理放行Prepare第一个Z，在真实Execute第二个Z设置barrier，观察实际ResultReader.Close/Unwatch及CancelRequest ACK；同item/caller连续两Exec分别核第一nil/第二exactClosed及相同target。独立真实断开+当前ctx未取消/后来到期对照保持hard。不得伪造PG结果/扩大20ms等预算/修改生产，准备机械错误保留后可在同一目标范围修正；取得结果后冻结完整probe/trace/输入和资源0，报告机制与最小方案，不能冒称历史公平性唯一根因。
+
+业务相邻SQL受控补证真实命中旧红（database1.121s，仅预期归因断言失败）：`/tmp/agenteam-d07-adjacent-sql-829y6xy0`，原probe SHA `476d960eeea5cdbb1988c32a7720defdc22bbd40a6853c6c8406573abfb10af1`。same target1/operation3/caller：scope4实际watcher→ACK→Unwatch open→closed/discardedtrue→第一Exec nil；scope6下一Exec raw exactClosed但无reason/discard证明，IsDeadlinefalse、InternalError/not_committed。独立真实断开先于item到期对照保hard（该对照非exactClosed）。root采纳此新确定机制，不称历史唯一根因；等待完整清理冻结报告与最小方案，当前未授权源码。建议若保留物理连接终局证明，必须sameoperation/same原caller/同取消原因，不跨新caller/Force/internal/独立close；任意context接口身份比较不得panic，未知形状安全拒绝。
+
+### 业务相邻SQL终局关闭证明窄修
+
+补证执行已结束，仅预期正例归因断言红，三nonce/进程0，450仓库与453执行末次相同。root采纳最小方案并授权backend：仅解冻`postgres/pool_cancellation.go`、`postgres/transaction.go`；在新`pool_attribution_test.go`增量归因测试、新`tests/database/`相邻SQL真实回归，允许本块新`cancellation_attribution_proxy_test.go`仅添加Execute第二Z阶段，已有阶段/旧断言原样。其它源特别sql.go/store/Outbox/依赖/迁移/预算冻结，额外必要文件先报告。
+
+已证owner Unwatch open→closed时产生不可变本地终局证明，绑定exact physical target/operation/业务域原caller及原取消原因；后续业务scope只能在相同operation/caller与原取消仍匹配时对精确ErrConnClosed附原原因。它不是复活已结束scope权限，不跨初始化→业务、COMMIT、不同caller/operation、Force/internal清理或独立closed，不从晚到期反推原因。context身份先安全可比较检查，不可比较/未知形状拒继承不panic。sql.go现有精确错误边界可复用，COMMIT Unknown保持。
+
+新476d probe须逐字修后闭环，保原2aceacc与frozen观察；补同caller相邻正例、不同caller/op、后来到期、Force/internal、独立closed、初始化边界、不可比较context与COMMIT Unknown负例，保原七路径/真实exactClosed对照。完成有意义定向真实检查和check-go，冻结新delta/完整输入/资源0后交独立V；不随机反复公平性跑绿，未归因历史错误保留；objects超时另待完整验收，B01仍未完成。
+
+相邻SQL补证最终报告SHA `128f64839755740a4bd5a68359e429f0b088aa5a7ed666420d413ba014d32cf1`、15项索引 `745818bd4409722b566ec33b5202ab4edd2edac6b442785dbcc8150d785d2a1d`，root全文核读。执行453manifest `910b38cc22f5ea075df98756e1fc197ec062b717f8d8a7f733969c2359880d63`、原红日志 `acc775c1808d091777f33033e3411dfdb860708f8954a1305ead9dc74bec8208`、不可变观察 `832f57497f03c4113a38d71fc545fa678226fcc45cf3602015e3f4b49e9e0a82`、cleanup `d0c5cd7782921ee017e691ad00154c0d4df72f21e539ba6c3bb3580967ddf1bc`。首轮无取消报告 `ebe11c02526d40acbc341cc59631253132c48e5b580fb737dc1694275206c6ed`/12项索引 `f6dbce4204b40a4d1562501428a044e97d5a4328545245e7ab43357f11385e3a`亦已核读，两个诊断目录均停写，作者转已授权两源窄修。
+
+相邻SQL窄修冻结：`/tmp/agenteam-d07-adjacent-repair-afjky7am`，90源 `46ff1a820a235d6484e6967613686ae5bda363e3d265fde032c6ccff504fff43`、361deps仍 `a0a0c24522ae9f9546a4db24dc5170532507021b65e453431f0ba385cd82384a`、451union `2daa8e6714f365fd09678792eee442390826f5fcb1245f1fe0eb3af68ff93878`、delta5 `1fa5045842023b0c95b7dfd2077996e9c70b6127117eb74e1d584e0a45e294c4`，root全部匹配且已审源码；446旧项未变。两原probe作者逐字green（2aceacc database2.069s；476d相邻组），新增相邻持久race4.117s，最终check-go/integrationvet全过，15本轮诊断/修复nonce资源0，命令全停，仅/tmp报告收束。首轮新增rows/othercaller在ACK完成前的准备断言失败已保留，移动同断言到actualjoin后过，但未冒称准确原失败布尔已证。
+
+root下一独立完整运行改为显式包级串行`GOFLAGS=-p=1 sh scripts/test-objects.sh`，仍无过滤、原每包6m/测试内部并发/断言和生产预算不变：前两次默认跨包并行均在对象包累计6m中断，改编排以取得全部包的完整执行，而非再次同条件运行。保留默认调度失败，不能据串行通过反推负载根因已证明；若对象仍超时或新失败，保留分包/具体运行结果再定位，不自行放宽预算。先独立复验两取消原probe与直接正反，再只做该一次全套，不重跑同路由脚本。源码全部冻结，Docker交V。
+
+相邻窄修最终作者报告SHA `2ea0f24ee14b6296b6e6de6e547363b8610f67e6925fdf34ccd05fb9b2b4d560`、34项索引 `4d0ffc3aceb21d1cea40a55f22e278d136b93db6d2bb0ca15cee27bb5c678272`，root全文核读；check-go `4bd9411cee028a47969f716b615ed1379eeb154895aba2a12a8773798f29c29a`、final-cleanup `3c757cbca65e709613c43287d50a78260802bb7ada25faf2567ed8e7152b9c08`。15nonce含2诊断+3修复，修复本身9，均0；作者报告亦全停。V稳定副本`/tmp/agenteam-d07-adjacent-verify-izjj__3a/repo`匹配451输入，独立diff `ed93d33f852ee04336a1b58534fc1cbe86942cecf89e31b5dfad9b33ce7c842e`；两原probe因helper同名分别观察副本执行，纯源全组无插桩。
+
+相邻修复独立定向通过：476d原probe+5模式/七路径/真实exactClosed/旧PoolCancellation组合postgres2.047s/database19.110s，日志SHA `5a6ecc5678ee88b8f14ee607a42ab44e54ede95d73f8281d19545808fd617348`；2ace原probe database2.643s，日志 `38b8229099b33412fe4690fabda843b359d71ae3085571ca5155be2865b577ed`。局部race1.066s/vet过，两frozen旧红不变，6nonce资源0。V启动纯源455输入（451+4Account原probe），manifest `5f93d80990f954ca5161f00ddf1306d639fb1146d12a551d143bdd3d7d689938`；唯一`GOFLAGS=-p=1`无过滤日志`/tmp/agenteam-d07-adjacent-verify-izjj__3a/evidence/full-serial.log`，保原每包6m及内部并发。完整门槛仍待。
+
+
+## B01完整验收采纳
+
+root核读最终独立报告并采纳B01（不代表D07整模块完成）：`/tmp/agenteam-d07-adjacent-verify-izjj__3a/review-report.md` SHA `5f792a3b9e29ea18b5aa2e96fc6e65b52d5fadd7c06b50741e8510d088daf82b`，48项证据索引 `5ff98b8070886fbd1e8a45d43ab140a60eccccc827d2cf18605c40e2df32ebd7`。451正式输入及455纯源执行、两个观察副本末次全部匹配；六个原probe及两份冻结修前观察未变。两取消原probe逐字通过，四Account原probe随完整组通过；相同输入作者check-go普通/vet/integration-vet/race/双构建通过。
+
+唯一包级串行无过滤`GOFLAGS=-p=1 sh scripts/test-objects.sh` exit0/wall998.911s，12包全过：postgres1.535、database60.616、app45.702、process112.646、security83.968、Outbox89.069、内部Outbox1.032/contract1.290、Account210.050、objects299.846、内部object2.291/contract1.029秒。日志SHA `64018fb35114a68fa56367d9f2b70fc138c95d1006c1d546101d12e4424f253a`；保原每包6m、内部并发与断言。默认并行历史两次累计超时/Outbox初始化错误仍保留，串行成功不证明负载或历史唯一根因，不宣称默认调度性能通过。
+
+清理SHA `8faa47232b84c6c12266dc96037e74fb4b46994e5282c6041081dc45af3ace16`：9自有nonce容器/网络/runtime及owned进程0。作者与V全部停止源码/报告写入及命令，Docker交回root。root再核90源与diff-check通过，按精确manifest提交B01及必要D03归因修复。HTTP/app装配、真实挑战、邀请/reset、SMTP及资料仍属B02–B04，当前诊断ready=false；下一步为B02精确授权。GitHub认证既有阻塞未解除，本次仅本地提交，不声称推送。

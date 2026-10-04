@@ -43,6 +43,9 @@ const (
 )
 
 func (a Action) Valid() bool {
+	if AccountAction(a) {
+		return true
+	}
 	switch a {
 	case SecretCreate, SecretUpdate, SecretDelete, SecretResolve, MasterRegister, RotationStart, RotationComplete, RotationFailed, PolicyUpdate, AccessDeny:
 		return true
@@ -80,6 +83,8 @@ const (
 
 func (k ResourceKind) Valid() bool {
 	switch k {
+	case UserResource, SessionResource, AccountAttemptResource, InvitationResource, PasswordResetResource, AccountSettingsResource, SMTPSettingsResource, MailJobResource:
+		return true
 	case SecretResource, MasterResource, RotationResource, PolicyResource, AgentResource, ObjectResource, ObjectTransferResource, ArtifactResource, ArtifactCollectionResource, OutboxDeliveryResource:
 		return true
 	}
@@ -171,6 +176,11 @@ func NewEntry(f EntryFields) (Entry, error) {
 	}
 	if s.Kind == identity.System && (f.Associations.ExecutionID != "" || f.Associations.ToolCallID != "" || f.Associations.OperationID != "" || f.Associations.ApprovalID != "" || r.Kind == AgentResource) {
 		return Entry{}, invalid("scope")
+	}
+	if AccountAction(f.Action) {
+		if err := validateAccountEntry(f); err != nil {
+			return Entry{}, err
+		}
 	}
 	switch f.Action {
 	case OutboxDeliveryRequeue:
@@ -265,9 +275,15 @@ const (
 )
 
 func (p Producer) Valid() bool {
-	return p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer || p == OutboxProducer
+	return p == AccountProducer || p == AccountMailProducer || p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer || p == OutboxProducer
 }
 func ProducerFor(action Action) Producer {
+	if AccountAction(action) {
+		if action == SMTPDelivery {
+			return AccountMailProducer
+		}
+		return AccountProducer
+	}
 	switch action {
 	case OutboxDeliveryRequeue:
 		return OutboxProducer

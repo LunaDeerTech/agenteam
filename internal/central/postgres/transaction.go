@@ -80,9 +80,14 @@ func (s *Store) WithinTxOptions(ctx context.Context, cause foundation.Transactio
 		return rejected(err)
 	}
 	defer op.release()
-	raw, err := op.conn.BeginTx(op.ctx, pgx.TxOptions{IsoLevel: isolation})
+	// BEGIN can finish its server reply while its deferred Unwatch discards
+	// the connection. Keep that exact provenance through set_config, which is
+	// the next inseparable initialization step, then end it before user SQL.
+	initCtx := op.sqlContext(op.ctx, ctx)
+	defer initCtx.finish()
+	raw, err := op.conn.BeginTx(initCtx, pgx.TxOptions{IsoLevel: isolation})
 	if err != nil {
-		return rejected(failure(TransactionBeginFailed, err))
+		return rejected(failure(TransactionBeginFailed, initCtx.sqlError(err)))
 	}
 	t := &transaction{owner: s, op: op, raw: raw, token: foundation.NewTx(), active: true, gate: make(chan struct{}, 1), held: make(map[string]foundation.LockMode)}
 	t.gate <- struct{}{}
@@ -99,11 +104,12 @@ func (s *Store) WithinTxOptions(ctx context.Context, cause foundation.Transactio
 			panic(panicValue)
 		}
 	}()
-	if _, err := raw.Exec(op.ctx, "SELECT set_config('lock_timeout',$1,true)", s.state().config.LockTimeout().String()); err != nil {
+	if _, err := raw.Exec(initCtx, "SELECT set_config('lock_timeout',$1,true)", s.state().config.LockTimeout().String()); err != nil {
 		t.finishCallback()
 		t.rollback()
-		return rejected(failure(TransactionBeginFailed, err))
+		return rejected(failure(TransactionBeginFailed, initCtx.sqlError(err)))
 	}
+	initCtx.finish()
 	callbackErr := fn(context.WithValue(op.ctx, txContextKey{}, t), t.token)
 	t.finishCallback()
 	t.mu.Lock()
@@ -170,7 +176,7 @@ func (t *transaction) finishCallback() {
 	default:
 	}
 	t.poisonWith(failure(TransactionRowsOpen, nil))
-	t.op.cancel()
+	t.op.cancelSQL()
 	if rows != nil {
 		rows.Close()
 	}
@@ -228,10 +234,14 @@ func (t *transaction) enter() error {
 	}
 }
 func (t *transaction) leave() { t.gate <- struct{}{} }
-func (t *transaction) context(ctx context.Context) (context.Context, func()) {
+func (t *transaction) context(ctx context.Context) (*poolSQLContext, func()) {
 	op, cancel := context.WithCancel(ctx)
 	stop := context.AfterFunc(t.op.ctx, cancel)
-	return op, func() { stop(); cancel() }
+	call := t.op.businessSQLContext(op, ctx)
+	return call, func() {
+		call.cancelInternal(func() { stop(); cancel() })
+		call.finish()
+	}
 }
 
 func (s *Store) Acquire(ctx context.Context, tx foundation.Tx, key foundation.LockKey, mode foundation.LockMode) error {
@@ -311,7 +321,7 @@ func (s *Store) AcquireAll(ctx context.Context, tx foundation.Tx, requests []fou
 			query = "SELECT pg_advisory_xact_lock_shared($1)"
 		}
 		if _, err := t.raw.Exec(op, query, key.AdvisoryKey()); err != nil {
-			return t.poisonWith(failure(LockFailed, err))
+			return t.poisonWith(failure(LockFailed, op.sqlError(err)))
 		}
 		t.held[key.Canonical()] = merged[key.Canonical()].Mode
 		t.highest = key

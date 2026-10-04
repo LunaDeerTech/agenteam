@@ -63,6 +63,12 @@ func (s *Service) reference(ctx context.Context, tx foundation.Tx, actor identit
 		return err
 	}
 	if err = state.auth.Usage.CheckReferenceInTx(ctx, tx, actor, ref, consumer, owner, retain); err != nil {
+		if _, planned := state.auth.Usage.(sc.UsagePlanner); planned {
+			var f *foundation.Fault
+			if errors.As(err, &f) && f != nil && f.Code == foundation.ResourceBusy {
+				return failure(PreparationRequired, foundation.ResourceBusy, err)
+			}
+		}
 		return authorization(err)
 	}
 	metadata, _, err := loadMetadata(ctx, e, ref)
@@ -110,6 +116,9 @@ func (s *Service) AcquireCredentialLeaseInTx(ctx context.Context, tx foundation.
 	empty := sc.CredentialLease{}
 	if ref.Validate() != nil || owner.Validate() != nil {
 		return empty, invalid()
+	}
+	if accountOwner(owner) {
+		return empty, failure(PreparationRequired, foundation.ResourceBusy, nil)
 	}
 	state := s.state()
 	e, err := state.store.InTx(tx)
@@ -201,6 +210,9 @@ func (s *Service) ReleaseCredentialLeaseInTx(ctx context.Context, tx foundation.
 	if err != nil {
 		return err
 	}
+	if accountOwner(lease.owner) {
+		return failure(PreparationRequired, foundation.ResourceBusy, nil)
+	}
 	if err = s.referenceLocks(ctx, tx, lease.ref, foundation.Exclusive); err != nil {
 		return err
 	}
@@ -242,6 +254,20 @@ func (s *Service) ReadCredentialForRequest(ctx context.Context, actor identity.A
 	if err != nil {
 		return sc.SecretMaterial{}, invalid()
 	}
+	before, err := loadLease(ctx, state.store, id)
+	if err != nil {
+		return sc.SecretMaterial{}, err
+	}
+	var request sc.UsageRequest
+	var plan sc.UsageDependencies
+	planned := accountOwner(before.owner)
+	if planned {
+		request = sc.UsageRequest{Actor: actor, Ref: before.ref, Purpose: before.consumer, LeaseOwner: before.owner, LeaseID: id, Action: sc.ReadLeaseUsage}
+		plan, err = s.DiscoverUsage(ctx, request)
+		if err != nil {
+			return sc.SecretMaterial{}, err
+		}
+	}
 	var plaintext []byte
 	defer func() { clear(plaintext) }()
 	result := state.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
@@ -253,12 +279,22 @@ func (s *Service) ReadCredentialForRequest(ctx context.Context, actor identity.A
 		if err != nil {
 			return err
 		}
-		if err = s.referenceLocks(ctx, tx, lease.ref, foundation.Shared); err != nil {
+		if planned {
+			if err = state.store.AcquireAll(ctx, tx, plan.RequiredLocks()); err != nil {
+				return unavailable(err)
+			}
+			if err = s.validateUsage(ctx, tx, request, plan); err != nil {
+				return err
+			}
+		} else if err = s.referenceLocks(ctx, tx, lease.ref, foundation.Shared); err != nil {
 			return err
 		}
 		lease, err = loadLease(ctx, e, id)
 		if err != nil {
 			return err
+		}
+		if planned && (!lease.ref.Equal(request.Ref) || !lease.owner.Equal(request.LeaseOwner) || lease.consumer != request.Purpose) {
+			return failure(Busy, foundation.ResourceBusy, nil)
 		}
 		if lease.released {
 			return failure(AuthorizationRejected, foundation.Forbidden, nil)

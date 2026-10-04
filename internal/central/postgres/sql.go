@@ -34,7 +34,7 @@ func (e *txExecutor) Exec(ctx context.Context, sql string, args ...any) (pgconn.
 	defer cancel()
 	tag, err := t.raw.Exec(op, sql, args...)
 	if err != nil {
-		return tag, t.poisonWith(failure(SQLFailed, err))
+		return tag, t.poisonWith(failure(SQLFailed, op.sqlError(err)))
 	}
 	return tag, nil
 }
@@ -50,11 +50,12 @@ func (e *txExecutor) Query(ctx context.Context, sql string, args ...any) (*Rows,
 	op, cancel := t.context(ctx)
 	raw, err := t.raw.Query(op, sql, args...)
 	if err != nil {
+		err = op.sqlError(err)
 		cancel()
 		t.leave()
 		return nil, t.poisonWith(failure(SQLFailed, err))
 	}
-	rows := &Rows{raw: raw, transaction: t, ctx: op, cancel: cancel}
+	rows := &Rows{raw: raw, transaction: t, ctx: op, cancellation: op, cancel: cancel}
 	rows.release = func() { t.mu.Lock(); t.rows = nil; t.mu.Unlock(); t.leave() }
 	t.mu.Lock()
 	t.rows = rows
@@ -77,9 +78,11 @@ func (s *Store) Exec(ctx context.Context, sql string, args ...any) (pgconn.Comma
 		return pgconn.CommandTag{}, err
 	}
 	defer op.release()
-	tag, err := op.conn.Exec(op.ctx, sql, args...)
+	sqlCtx := op.sqlContext(op.ctx, ctx)
+	defer sqlCtx.finish()
+	tag, err := op.conn.Exec(sqlCtx, sql, args...)
 	if err != nil {
-		return tag, failure(SQLFailed, err)
+		return tag, failure(SQLFailed, sqlCtx.sqlError(err))
 	}
 	return tag, nil
 }
@@ -91,12 +94,17 @@ func (s *Store) Query(ctx context.Context, sql string, args ...any) (*Rows, erro
 	if err != nil {
 		return nil, err
 	}
-	raw, err := op.conn.Query(op.ctx, sql, args...)
+	sqlCtx := op.sqlContext(op.ctx, ctx)
+	raw, err := op.conn.Query(sqlCtx, sql, args...)
 	if err != nil {
+		err = sqlCtx.sqlError(err)
+		sqlCtx.finish()
 		op.release()
 		return nil, failure(SQLFailed, err)
 	}
-	return &Rows{raw: raw, ctx: op.ctx, cancel: op.cancel, release: op.release}, nil
+	return &Rows{raw: raw, ctx: sqlCtx, cancellation: sqlCtx,
+		cancel:  func() { sqlCtx.cancelInternal(op.cancel) },
+		release: func() { sqlCtx.finish(); op.release() }}, nil
 }
 func (s *Store) QueryRow(ctx context.Context, sql string, args ...any) Row {
 	rows, err := s.Query(ctx, sql, args...)
@@ -126,14 +134,15 @@ func (r oneRow) Scan(dest ...any) error {
 // access instead of racing the underlying connection. A live Rows reserves the
 // transaction's single SQL slot until Close/EOF.
 type Rows struct {
-	raw         pgx.Rows
-	transaction *transaction
-	ctx         context.Context
-	cancel      context.CancelFunc
-	release     func()
-	mu          sync.Mutex
-	closed      atomic.Bool
-	err         atomic.Pointer[Error]
+	raw          pgx.Rows
+	transaction  *transaction
+	ctx          context.Context
+	cancellation *poolSQLContext
+	cancel       context.CancelFunc
+	release      func()
+	mu           sync.Mutex
+	closed       atomic.Bool
+	err          atomic.Pointer[Error]
 }
 
 func (r *Rows) setError(err *Error) {
@@ -191,7 +200,7 @@ func (r *Rows) Scan(dest ...any) error {
 	}
 	defer r.leave()
 	if err := r.raw.Scan(dest...); err != nil {
-		safe := failure(SQLFailed, err)
+		safe := failure(SQLFailed, r.cancellation.sqlError(err))
 		r.setError(safe)
 		return safe
 	}
@@ -218,7 +227,7 @@ func (r *Rows) closeLocked() {
 	}
 	r.raw.Close()
 	if err := r.raw.Err(); err != nil && !errors.Is(err, pgx.ErrNoRows) {
-		r.setError(failure(SQLFailed, err))
+		r.setError(failure(SQLFailed, r.cancellation.sqlError(err)))
 	}
 	r.cancel()
 	r.release()
