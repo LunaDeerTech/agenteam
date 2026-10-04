@@ -360,3 +360,10 @@
 - V-B02-01原probe修后逐字关闭，但无过滤exit1/440.813s唯一失败为旧database显式Terminate清理，具体底层分支未确证；其他app/process/security/outbox/objects过。索引41234373f5c6771a99ecf8fb8d61c99e58e2a59ede6885e79a5912b9dd10c997，391输入匹配/3nonce清零/V全停。root最小授权fixture.Terminate与新真实回归，先确定性旧红后修exact PID已消失幂等且foreign/真实错误拒绝，原产品行为/测试预算不改，完整门槛仍待。
 
 - D06最终完成：48源/344依赖稳定，单次无过滤exit0/422.711s全部包通过，原78449b/085815逐字闭环及新增真实42501探针过。最终索引b876565946459a7d24f3f53c8fbe209eb26579c96879559e274c6ad3b88f83cd，392冻结/395执行输入一致，3nonce清零/V全停，root审查采纳。helper提交1ac84e8，其余B02随最终提交；未绑定责任及历史失败根因限定见主卡。下一D07；D07–D28/E01待完成，既有推送认证阻塞不变。
+
+
+## AT-0014：D07账号、Session、SMTP与个人资料
+
+- 状态：设计中；唯一活动模块D07，[主卡](../work-items/d07-account-session-smtp.md)修订1，基线main@57bfadb，D06已完整验收提交且工作区干净。
+- S01 architecture独占新工程规格；R01 backend仓库只读与/tmp有界技术证据，二者不使用Docker或改源码/依赖；root拥有主卡/计划/台账。采用既定GoCaptcha和账号/SMTP产品规则，不重复产品确认。
+- D07后端/HTTP/正式绑定先完成，D26统一客户端/账号个人页面、D27系统设置按计划后续接入；不提前业务UI或D08。00010候选、旧迁移与依赖冻结，新增口/依赖须先规格采纳。GitHub认证既有阻塞未解除，仅本地提交。
