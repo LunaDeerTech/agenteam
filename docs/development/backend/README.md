@@ -2,7 +2,7 @@
 
 根 module 为 `github.com/LunaDeerTech/agenteam`，固定 Go 1.27.1。Central 已装配固定 pgx/Goose 数据库库，见[数据库说明](database.md)。Audit 的同事务追加、授权查询/生命周期清理端口与独立签名 cursor 已实现，见[Audit 说明](audit.md)。Secret 的 envelope、引用/lease、加密 receipt 和可恢复主密钥维护见 [Secret 说明](secret.md)。动态策略、受控 HTTP 与 SMTP 拨号端口见[出站说明](outbound.md)。D05 B01 对象库提供受限流式存储、授权 reference/lease 与可恢复清理，接口与阶段见[对象实施规格](../work-items/d05-object-storage-design.md)。Central 与 Runner 分别装配；Runner 不导入 Central。中立 `internal/platform` 只处理进程日志和关闭协调，不提供授权、业务幂等、数据库事务或 Runner 设备协议。
 
-当前 Central 在真实数据库连接、迁移、首次读写检查及 Audit/cursor/Secret/出站策略安全初始化后提供诊断，Runner 是未连接进程。配置正确、程序存活与完整产品 ready 是不同状态。对象库尚未装配到 Central；Artifact、浏览器下载和 Runner transfer 留在 D05 B02/B03。身份、对象领域授权、Audit/Secret/出站管理授权、实际出站消费者和 Runner 协议仍未绑定；后续责任见 [D01 契约目录](../work-items/d01-contracts/README.md) 和 [D04 规格](../work-items/d04-security-foundation.md)。
+当前 Central 在真实数据库连接、迁移、首次读写检查及 Audit/cursor/Secret/出站策略安全初始化后提供诊断，Runner 是未连接进程。配置正确、程序存活与完整产品 ready 是不同状态。对象库尚未装配到 Central；Artifact 与浏览器下载库见 [Artifact 说明](artifact.md)，真实身份/HTTP adapter 仍未绑定，Runner transfer 和进程装配留在 D05 B03。身份、对象领域授权、Audit/Secret/出站管理授权、实际出站消费者和 Runner 协议仍未绑定；后续责任见 [D01 契约目录](../work-items/d01-contracts/README.md) 和 [D04 规格](../work-items/d04-security-foundation.md)。
 
 ## 构建与验证
 

@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact
 
-- 修订：2；状态：B01已独立验收，B02主块冻结独立验收中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
+- 修订：2；状态：B01/B02已独立验收，B03待开工；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
 - 前置：[D04](d04-security-foundation.md)全部独立验收和真实完整suite通过，入口本地提交abf5c37；GitHub认证失效，ee8ddb7起5个本地提交待恢复后补推，不冒称远端同步。
 - 目标：按[计划D05](../development-plan.md#d05-对象存储与-artifact)实现StoredObject/引用与lease、流式MinIO读写、跨DB/对象存储的一致性和恢复、Artifact服务、受控预览/下载及短期传输授权。
 
@@ -10,8 +10,8 @@
 | --- | --- | --- | --- | --- |
 | S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订5含SourceReads/下载provider补口独立静态通过、root采纳并冻结 |
 | R01 依赖与隔离环境核验 | D04完成 | research_worker | 有界探针及新增d05-object-storage-research.md报告，不写实现源码 | R01/R02修订2完成并停写 |
-| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01及B02 keyring/SourceReads已独立验收；B02主块冻结验证中，B03未开始 |
-| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | B02主块独立审查与无过滤兼容运行中；V独占Docker |
+| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01/B02完整独立验收通过，B03待开工 |
+| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | B02无过滤兼容及原probe全部通过；V全停、资源清零 |
 
 root独占本卡、开发计划和任务台账；架构作者仅新建实施规格。角色遵循AGENTS与agenteam-design/go-development/verification/documentation技能，禁止子agent再委派和Git写操作。常态至多两个活动子任务，Docker和测试资源顺序明确移交。设计稳定且root确认后才写实现，不提前D06+。
 
@@ -35,7 +35,7 @@ Linux/amd64、Docker28.4.0、精确Go1.27.1/local、既有PG17.8/vector0.8.1正�
 
 验收至少实际覆盖中断上传、外部已写DB失败/unknown、缺payload明确错误、引用/lease阻止删除、跨scope拒绝、stream不全量缓冲、签名材料安全及有效期/完整性、恢复/清理幂等与Central资源关闭。只用nonce/标签/exact ID任务owned PG/MinIO/临时目录，缺真实fixture在专用套件中失败，不能skip充当通过。
 
-下一步完成B02主块独立审查、完整兼容与root验收后进入B03；当前无新产品待定。D05及D06–D28/E01均未完成。
+下一步进入B03 Runner transfer与Central对象存储入口集成；当前无新产品待定。D05及D06–D28/E01均未完成。
 
 
 ## S01/R01 进展
@@ -264,3 +264,7 @@ B02独立无过滤组结束exit1，仅TestArtifactProjectCleanupBoundedBatchAndF
 V已停止全部测试/源码读取，6nonce容器/网络均0、两处runtime移除、自有进程0，Docker交回（仅/tmp证据索引收尾）。root正式授权backend B02窄修：仅解冻Artifact cleanup及必要本域store/lookup/owner最终删除处理、00006（尚未提交的新迁移）、对应Artifact cleanup测试及局部artifact说明/README；如精确最终download清理必须新增object/download本域端口可在B02既有范围最小实现，禁止扩大B01/SourceReads/keyring/旧迁移/D03/D04/依赖。先完成实际source/reader/物理对象收敛，最终同Tx清本Project command/intent原展示参数/source/内容事实与download grants/attempts业务绑定；仅保最小稳定cleanup/必要命令完成事实，不能把原行换到新历史表或写假展示值留原数据。具体删除/最小receipt选择由作者按原契约实现；当前Project gate和精确cause仍须阻止迟到请求复活，其他Project/System不动，pending checkpoint不得提前擦除。原88fc221c探针逐字复验，并补最终Tx rollback/unknown及迟到下载终局不得重建数据。batch测试仅允许有界分阶段context与明确owned proxy生命周期预算，保留原断言/失败和诊断；不延长生产预算、不改全局旧fixture默认，不宣称根因已确证。作者先定向+check-go/冻结，V最终无过滤复验闭环，不能复用失败全量作通过。
 
 V最终证据索引/tmp/agenteam-d05-b02-verify-8yj7bvf1/verification-evidence.sha256 SHAb59e889546cafc0c25e6e5239353ff302e02b0a05e9b6f8ffc07d26bca11e4cd，完整report同目录，276稳定输入515d5d4c57e82f98fc8915b4169c741d97b10506bdda994d4473185cef3f1e45；root核报告，V已待命。作者窄修方案root确认：最终物理删除command/intent整行，仅保既有cleanup(ProjectID/operation/version/state)最小门禁回执；OwnerProvider当前授权后查终局门禁覆盖新旧key/迟到发布。对象域新增contract/download_cleanup.go与download*.go正式PurgeProjectDownloadsInTx(ctx,tx,actor,cause,plan,locked)，复用FinishProjectAccess空对象计划/Project EX与当前CleanupAuthority，不改B01既有接口实现；Artifact通过已注入cleaner显式能力检查，未绑定明确DependencyUnbound。download checkpoint一次AcquireAll预含Project SH，与最终清理EX互斥，grant缺失即拒绝且不重建。最终清理Tx rollback/unknown必须保留可恢复事实；这些只是授权设计细化，仍待实际实现及独立复验。
+
+最终清理窄修正式冻结：完整42源manifest40b41ccd27c8db1e8c0298421d874772801c22efd06f39b441bbf607ce8ea1ac，窄10（7改+3新增）eab8b5673c6e2f09a3010e0e8c383d2a85c1233070fd9c159a9f1bd1cc22721f，旧32逐字未改；237依赖575fa6a8a55b001d0a7b2e7a6ddbe5d4b47c6c2cebcd266ba1573bad7bb23b6c逐项等HEAD7281a6f。稳定实际测试副本/tmp/agenteam-d05-b02-purge-author-kjea3ip8，handoff/tmp/agenteam-d05-b02-purge-handoff.md。作者check-go全过，日志4899b736de8c47e1a6c80a254c640f25f2df7a65a9ae157c834eeaf2265e630e；真实首组27.753s日志85c3ef81ca0222e8f4f57392d344985d8809981a16a1ff3c60b2ee174952187b，原88fc probe逐字通过，finalTx rollback/实际COMMIT前回滚unknown/响应丢失/held迟到commit、晚到download终局不重建、新旧key/BeginUpload/Prepare不复活及101batch过。下载/source第二组24.631s日志4a022a69fe4ad3f826592ba7cae6c21ec679d6098052b915f80656dd17828134过；两轮6nonce精确资源0、作者全停，证据总索引/tmp/agenteam-d05-b02-purge-evidence.sha256 SHAf1d4dfa142db88f58edfc55940b7e34de7840e5c752262d72558bc1ade02d72f。root已核全部manifest和窄diff/21局部链接暂无新确认问题，Docker交V最终原probe闭环与无过滤完整兼容；旧全组失败及未证实原因保留，当前仍非B02通过。
+
+B02最终独立验收通过，无剩余确认阻塞。独立副本/tmp/agenteam-d05-b02-purge-verify-94yg6yta无过滤test-objects（含原88fc probe）exit0：postgres1.039/database54.979/app68.792/process63.936/security89.517/objects171.296s，日志full-test-objects.log SHA336973288159d6a1c991c26e47353fb2b2668b262529c9e9f83a9028d2c5374d。原metadata探针1.83s逐字通过，rollbackunknown1.90/midstream revoke0.97；101batch34.29s、purge前提1.27、finalTx rollback/三真实unknown5.27、latefinalize/newkey1.16s通过。旧31.25s失败保留且未宣称根因确定；本次完整成功关闭兼容门槛。独立窄修审查未新增问题，复用未变作者check-go及前轮完整审查。42源码/237依赖在workspace/作者/独立副本三方末次全同，原probe未变；D05 bcd0a6d25a53c81e18f4060e19e06ffa/D04 09d6dccca96109a8378d61c441a2b513/D03 e06f92487e8538d99424736675631190容器网络全0、runtime移除/自有进程0，V全部测试/源码读取停止。root采纳完整B02结论并仅暂存42冻结文件+进展文档；生产身份/HTTP路由/其他领域provider未绑定，不将库验收冒作这些未来能力完成。B03尚待独立实施验收，D05整体未完成。

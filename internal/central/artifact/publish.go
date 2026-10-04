@@ -1,0 +1,180 @@
+package artifact
+
+import (
+	"context"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	au "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+)
+
+func (s *Service) publishPrepared(ctx context.Context, req createRequest, c commandRow, p oc.PreparedPayload) (ac.Metadata, error) {
+	r := s.state()
+	actor := req.invocation.Details().Actor
+	owner := artifactOwner(c.ref)
+	plan, err := s.ownerPlan(ctx, actor, owner, oc.ReserveAccess, oc.AccessRequestDetails{Command: &req.command, Prepared: p})
+	if err != nil {
+		return ac.Metadata{}, err
+	}
+	cause, _ := foundation.NewCommandsCause(req.identity)
+	var attempt oc.UploadAttempt
+	result := s.within(ctx, invocationSubject(req.invocation), identity.Mutate, cause, []oc.AccessLockPlan{plan}, createLocks(req.identity, c.ref.ArtifactID.String()), func(ctx context.Context, tx foundation.Tx, locked oc.LockedAccess) error {
+		e, err := r.store.InTx(tx)
+		if err != nil {
+			return portError(err)
+		}
+		current, found, err := loadCommand(ctx, e, req.identity)
+		if err != nil {
+			return err
+		}
+		if !found || current.ref != c.ref || current.state != "pending" {
+			return failure(foundation.ResourceBusy, nil)
+		}
+		if err = matchesCommand(current, req); err != nil {
+			return err
+		}
+		attempt, err = r.uploads.ReserveUploadInTx(ctx, tx, actor, owner, req.command, p, plan, locked)
+		if err != nil {
+			return err
+		}
+		d := attempt.Details()
+		_, err = e.Exec(ctx, `UPDATE agenteam_artifact.commands SET target_object_id=$2,target_upload_id=$3,target_attempt_id=$4 WHERE command_hash=$1`, digestRaw(digestBytes([]byte(req.identity.Canonical()))), d.ObjectID.String(), d.UploadID.String(), d.ID.String())
+		return portOrNil(err)
+	})
+	if err = commitError(result); err != nil {
+		return ac.Metadata{}, err
+	}
+	c.object = attempt.Details().ObjectID
+	c.upload = attempt.Details().UploadID
+	c.attempt = attempt.Details().ID
+	verified, err := r.uploads.UploadPrepared(ctx, actor, owner, p, attempt)
+	if err != nil {
+		return ac.Metadata{}, err
+	}
+	publish, err := s.ownerPlan(ctx, actor, owner, oc.PublishAccess, oc.AccessRequestDetails{Attempt: verified})
+	if err != nil {
+		return ac.Metadata{}, err
+	}
+	plans := []oc.AccessLockPlan{publish}
+	if c.source.Validate() == nil {
+		sourcePlan, err := s.sourcePlan(ctx, actor, c.source, oc.ValidateSourceAccess)
+		if err != nil {
+			return ac.Metadata{}, err
+		}
+		plans = append(plans, sourcePlan)
+	}
+	var out ac.Metadata
+	result = s.within(ctx, invocationSubject(req.invocation), identity.Mutate, cause, plans, createLocks(req.identity, c.ref.ArtifactID.String()), func(ctx context.Context, tx foundation.Tx, locked oc.LockedAccess) error {
+		e, err := r.store.InTx(tx)
+		if err != nil {
+			return portError(err)
+		}
+		current, found, err := loadCommand(ctx, e, req.identity)
+		if err != nil {
+			return err
+		}
+		if !found || current.ref != c.ref || current.state != "pending" || current.attempt != verified.Details().ID {
+			return failure(foundation.ResourceBusy, nil)
+		}
+		if err = matchesCommand(current, req); err != nil {
+			return err
+		}
+		if c.source.Validate() == nil {
+			if !sameSource(c.source, current.source) {
+				return failure(foundation.ResourceBusy, nil)
+			}
+			if err = r.resolver.ValidateInTx(ctx, tx, actor, c.source, plans[1], locked); err != nil {
+				return portError(err)
+			}
+		}
+		// The business row is still invisible outside this Tx. Its existence and
+		// original creation cause cause the object port to attach canonical here.
+		if err = insertArtifact(ctx, e, current); err != nil {
+			return err
+		}
+		stored, err := r.uploads.PublishVerifiedInTx(ctx, tx, actor, owner, verified, publish, locked)
+		if err != nil {
+			return err
+		}
+		if stored.Receipt.Validate() == nil {
+			return unavailable(nil)
+		}
+		if err = updateArtifactObject(ctx, e, current.ref, stored.Meta); err != nil {
+			return err
+		}
+		row, ok, err := loadArtifact(ctx, e, c.ref.ArtifactID.String())
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return unavailable(nil)
+		}
+		if err = s.appendCreate(ctx, tx, req, current, row.meta); err != nil {
+			return err
+		}
+		_, err = e.Exec(ctx, `UPDATE agenteam_artifact.commands SET state='completed',completed_at=clock_timestamp() WHERE command_hash=$1`, digestRaw(digestBytes([]byte(req.identity.Canonical()))))
+		if err != nil {
+			return unavailable(err)
+		}
+		out = row.meta
+		return nil
+	})
+	if err = commitError(result); err != nil {
+		return ac.Metadata{}, err
+	}
+	return out, nil
+}
+func insertArtifact(ctx context.Context, e postgres.SQLExecutor, c commandRow) error {
+	_, err := e.Exec(ctx, `INSERT INTO agenteam_artifact.artifacts(id,file_id,project_id,object_id,kind,name,description,media_type,byte_size,sha256,object_version,object_created_at,creator_kind,creator_id,creation_cause,execution_id,operation_id,tool_id,tool_call_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,1,clock_timestamp(),$11,$12,$13,$14,$15,$16,$17)`, c.ref.ArtifactID.String(), c.ref.FileID.String(), c.ref.ProjectID.String(), c.object.String(), string(c.kind), c.display.Name, c.display.Description, c.media, c.size, digestRaw(c.sha), string(c.creatorKind), c.creator, c.cause, null(c.execution), null(c.operation), null(c.tool), null(c.toolCall))
+	return portOrNil(err)
+}
+func updateArtifactObject(ctx context.Context, e postgres.SQLExecutor, ref ac.ArtifactRef, meta oc.ObjectMeta) error {
+	if meta.Validate() != nil || meta.State != oc.Available {
+		return unavailable(nil)
+	}
+	_, err := e.Exec(ctx, `UPDATE agenteam_artifact.artifacts SET object_version=$2,object_created_at=$3,media_type=$4,byte_size=$5,sha256=$6 WHERE id=$1 AND object_id=$7`, ref.ArtifactID.String(), int64(meta.Version), meta.CreatedAt.Time(), meta.MediaType, int64(meta.ByteSize), digestRaw(meta.SHA256), meta.ID.String())
+	return portOrNil(err)
+}
+func (s *Service) appendCreate(ctx context.Context, tx foundation.Tx, req createRequest, c commandRow, meta ac.Metadata) error {
+	m := meta.Details()
+	fields := au.ArtifactMetadataFields{ArtifactID: c.ref.ArtifactID.String(), ObjectID: m.Object.ID.String(), MediaType: auditMedia(m.Object.MediaType), ByteSize: m.Object.ByteSize, Phase: au.PublishedPhase, SourceKind: au.InlineSource}
+	if c.path == "source" {
+		r := c.source.Details().Reference.Details()
+		fields.SourceKind = au.SourceKind(r.Kind)
+		fields.SourceRevision = c.source.Details().Revision
+		switch r.Kind {
+		case oc.ArtifactFile:
+			fields.SourceID = r.ArtifactID
+		case oc.KnowledgeFile:
+			fields.SourceID = r.DocumentID
+		case oc.ExecutionFile:
+			fields.SourceID = r.PayloadID
+		case oc.UploadedObject:
+			fields.SourceID = r.Receipt.Details().ObjectID.String()
+		}
+	}
+	if c.path == "upload" {
+		fields.SourceKind = au.UploadSource
+		fields.SourceID = req.receipt.Details().ObjectID.String()
+	}
+	metadata, err := au.ArtifactMetadata(au.ArtifactCreate, fields)
+	if err != nil {
+		return err
+	}
+	resource, _ := au.NewResource(au.ArtifactResource, c.ref.ArtifactID.String())
+	d := req.invocation.Details()
+	entry, err := au.NewEntry(au.EntryFields{Scope: m.Object.Scope, Actor: d.Actor, Action: au.ArtifactCreate, Outcome: au.Success, Resource: resource, Metadata: metadata, Associations: au.Associations{ExecutionID: c.execution, OperationID: c.operation, ToolID: c.tool, ToolCallID: c.toolCall}})
+	if err != nil {
+		return err
+	}
+	key, err := audit.CommandAppendKey(au.ArtifactProducer, req.identity, 0)
+	if err != nil {
+		return err
+	}
+	_, err = s.state().audit.AppendInTx(ctx, tx, entry, key)
+	return portOrNil(err)
+}
