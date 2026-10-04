@@ -256,7 +256,7 @@
 
 ## AT-0012：D05 对象存储与 Artifact
 
-- 状态：B01独立审查5项缺陷集中返修；唯一活动模块D05；[主卡](../work-items/d05-object-storage-artifact.md)修订1，基线main@abf5c37。D04全范围与真实最终整组已独立验收，所有作者/验证者停止，资源全清后开工。
+- 状态：B01最终验证剩余1项恢复缺陷返修；唯一活动模块D05；[主卡](../work-items/d05-object-storage-artifact.md)修订1，基线main@abf5c37。D04全范围与真实最终整组已独立验收，所有作者/验证者停止，资源全清后开工。
 - architecture_worker独占新增实施规格，root独占主卡/计划/台账；R01仅有界MinIO SDK/镜像/环境探针，不写仓库实现。按D01正式对象/引用/transfer边界落实表/状态/授权/stream/一致性/恢复/Artifact服务，S01确认后实施。未来身份/Project/Runner/Tool适配仍未绑定，禁止生产stub或匿名业务API。
 - Go1.27.1/local与owned PG固定环境继续复用；MinIO版本/真实fixture待核验，无产品待定；推送认证阻塞不冒称已远端同步。下一步完成设计及依赖核验。
 
@@ -275,3 +275,7 @@
 - 前4缺陷作者原probe逐字复验exit0，真实objects21.060s/spool1.042s，新增异义语义与跨service公平进展通过，资源全清；root核稳定副本，最终独立复验待锁修订后完成。设计rev4 SHA d79d7718c6816555cc813103867a98bac8ef2dd540dbb67b09733610707be39d独立静态无阻塞（输入9e2c9c69773b3b51e08f47739231055dc833262198c2c0f5175b2d8037e3d411）；root采纳并解冻object契约/正式锁计划及调用链给backend修第5项。D03/D04公共13不改，设计冻结；B01仍未验收，当前仅本地提交，认证阻塞未解除。
 
 - rev4锁规划契约6文件独立通过，manifest7f44286d3a5b84b06bb0dc55add6291ca74f286abd481a9d30da708c8224c191，18依赖72e590045e6a7469fb1eaec2d84d76a000668d4cbe5c36e8b27707370ce3d4f9；普通test/race1.047s/vet及12请求替换、issuer/Tx/plan、最强union、深复制/安全投影probe通过，证据4ddd8e4a7c688b5d20385ebd28404b43c1572e98082b3937b8759eeb26c9dce0。V全停后root精确提交契约；核心作者真实gate组通过，整TestObject仅旧fixture锁等待位置观测失败待定向修正，check-go/最终core冻结与独立完整复验仍待完成。spool首次写入截断窗口已并入同类恢复修复，详见主卡。
+
+- B01最终修复41核心文件已冻结，manifest b947acd610a8452c2f41c427325e1bb54570baa11b786a6c218ead867d73db80；61全输入与160依赖均由独立副本逐项核验。作者check-go通过、Consume/Cancel精确锁观测修正定向通过，15nonce资源全清；V独占Docker运行无过滤test-objects与原探针/独立边界。root冻结审查未新增确定缺陷；Recover单项失败提前返回候选待真实行为验证。B01尚未验收，B02/B03未开始；main@cb531bc，13本地提交仍待既有认证恢复。详见主卡。
+
+- 最终独立全量兼容及原缺陷回归通过；新probe确认Recover单项RESOURCE_BUSY仍阻塞后续独立对象，唯一剩余阻塞。Session/真实User gate及整Tx回滚补证通过；证据索引b54ca84b5800de9ff87fe6f63751c6cf3d0a0289c44d027703b0196b9551619f。V12nonce资源全0并全停，root仅解冻recovery.go/对应测试/README最小说明给backend，Docker顺序移交；其它冻结，不提前B02。详见主卡。

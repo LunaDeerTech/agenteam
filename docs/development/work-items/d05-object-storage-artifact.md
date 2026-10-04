@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact
 
-- 修订：1；状态：B01独立审查5项缺陷集中返修；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
+- 修订：1；状态：B01最终验证剩余1项恢复缺陷返修；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
 - 前置：[D04](d04-security-foundation.md)全部独立验收和真实完整suite通过，入口本地提交abf5c37；GitHub认证失效，ee8ddb7起5个本地提交待恢复后补推，不冒称远端同步。
 - 目标：按[计划D05](../development-plan.md#d05-对象存储与-artifact)实现StoredObject/引用与lease、流式MinIO读写、跨DB/对象存储的一致性和恢复、Artifact服务、受控预览/下载及短期传输授权。
 
@@ -10,8 +10,8 @@
 | --- | --- | --- | --- | --- |
 | S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订4完整锁规划增量独立静态通过、root采纳并冻结 |
 | R01 依赖与隔离环境核验 | D04完成 | research_worker | 有界探针及新增d05-object-storage-research.md报告，不写实现源码 | R01/R02修订2完成并停写 |
-| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | 前4缺陷作者定向通过；正式锁计划/contract解冻实施第5项；B02/B03未开始 |
-| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | 核心暂不通过：完整suite通过但4实际探针及1正式端口缺口阻塞；已停止读取/命令 |
+| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | 仅Recover单项进展及对应测试解冻返修；其余冻结；B02/B03未开始 |
+| V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | 全量及原缺陷回归通过，剩1项busy进展阻塞；已停止并移交资源 |
 
 root独占本卡、开发计划和任务台账；架构作者仅新建实施规格。角色遵循AGENTS与agenteam-design/go-development/verification/documentation技能，禁止子agent再委派和Git写操作。常态至多两个活动子任务，Docker和测试资源顺序明确移交。设计稳定且root确认后才写实现，不提前D06+。
 
@@ -181,3 +181,13 @@ rev4契约全6文件（原4+access.go/access_test.go）已停写冻结交V，man
 rev4契约6文件独立通过，无阻塞：外部消费者探针12类请求替换、跨issuer/Tx/plan拒绝、真实父锁缺失/降级拒绝、完整union最强模式、并发深复制和递归安全投影通过；Actor/来源Execution与PayloadID独立绑定。普通test0.025s/race1.047s/vet/gofmt通过；首轮probe UUIDv4准备错误保留，更正v7后通过，非产品失败。末次6+18源/副本全匹配，原manifest不变；probe SHA c18acb82b230aae1e81f8448447dd7d28de0c31ff4bb9d00edb10f8290149e0b，证据/tmp/agenteam-d05-access-contract-verify-3s_3tn79/verification-evidence.sha256 SHA4ddd8e4a7c688b5d20385ebd28404b43c1572e98082b3937b8759eeb26c9dce0。V已停读命令0，无Docker；root审查采纳，精确提交契约增量，core仍未独立验收。
 
 作者全部TestObject/TestVerify/TestSpool首轮objects81.102s exit1，仅旧Consume/Cancel测试等待exact Object的观测失败：新完整union使两者先共持Command，Cancel先阻塞Command而未到Object；其余原缺陷探针、新gate与SIGKILL/unknown/清理无失败，不能把全轮写成通过。日志/tmp/agenteam-d05-b01-access-all1.log SHA f54173b6aadd3d047791b92e7ca23f253804b212c789a62643f22f2316f18966；root核日志。三nonce66b27d670a827968b321cf306e262d11/c2ca223b5df49f38c5963aea24cecbb6/1c8fa4eb64545fbbe898983f05d6dbe7报告清理。root采纳仅fixture观测修正：正向证明Consume同backend持exact Object EX及Command，再证Cancel阻塞该exact Command；保留取消/receipt/引用最终断言，不改为任意blocked。生产不改，仅定向重跑该项，最终V无过滤套件验证最终全输入；check-go尚在跑。
+
+rev4契约实际提交cb531bc（4契约增量+3进展文档），累计13本地提交待认证恢复。作者完整check-go exit0，日志/tmp/agenteam-d05-b01-access-check-go.log SHA1788ef9b7f6f4efd60284aeeadfe490014e082b400d0dd864b52de1cc864ba94；仅fixture观测调整后integration vet再过，Consume/Cancel定向真实race2.587s通过，生产不变。核心正式全停写/命令后交最终独立V，作者15nonce容器/网络/临时目录全0，清理JSON SHAb07b35bcd5d3f42c64f60aacbb14b4490b790cca83c32fd38289866366a2865e；交付索引/tmp/agenteam-d05-b01-repair-final-report.md。
+
+最终修订输入：41核心manifest b947acd610a8452c2f41c427325e1bb54570baa11b786a6c218ead867d73db80，全部61 manifest69c02960be217d2ba4c50dc19c4ef53ef37bce1d8290aafe400756954ed90a56，160稳定依赖manifest3657b1fd1c00a89a6d7e53fc05e6004dc5a34513866e70ca70b4f77c50c57a79；原公共13/新契约6均不漂移。V稳定副本/tmp/agenteam-d05-b01-repair-verify-_03cxujs共221文件与源逐项匹配，独占Docker准备最终无过滤test-objects及原probe/新锁与spool安全边界复验。root同步只读冻结改动，不写源码；B01仍未最终验收。
+
+最终修复副本无过滤test-objects exit0，postgres1.039/database44.627/app63.855/process59.037/security74.460/objects85.483/object1.702/contract1.055s，Consume/Cancel精确完整锁观测随整组通过；日志/tmp/agenteam-d05-b01-repair-verify-_03cxujs/full-test-objects.log SHA555247bb7468f3bd684533ca7bc7ffcdcba388118167cd52afbc60b269985474，root核日志/exit0。三个nonce容器/网络与owned runtime目录均0，full-cleanup.json SHAc0184952053cc521e8c60c41440e5af0ed27436e35d30c393db2f23f72f3ff1a。V继续原缺陷probe及独立live-Tx/权限/单项恢复进展检查；完整既有套件通过尚不替代最终审查闭环。
+
+独立最终边界发现剩余单项恢复缺陷：两个真实reserved对象经source lease保护下Cancel建立pending gate，再关闭reader；仅首对象Planner定点RESOURCE_BUSY，连续2轮Recover提前return，busy_calls=2且第二对象仍available，违反rev4单项失败不吞无关进展。日志/tmp/agenteam-d05-b01-repair-probes-uuoccs11/independent-real-probes.log SHA1bda57c6ebf2a2d25097e9add2535659366f61534ed4542426316ac0643fcc77，objects18.885s整组exit1，root核日志并采纳。原Unknown、protected-prefix、foreign-live-process、exact-lease均通过，同Tx创建正例过；另两Session probe预期误写FORBIDDEN，实际正确拒绝SESSION_REVOKED，已授权只纠正测试期望码后复跑以完成事务rollback断言，不列产品缺陷。V尚独占资源；结束清零后交backend仅修Recover单项进展，所有其它核心保持冻结。
+
+V本轮结束，Session期望码更正后真实race3.075s通过（同Tx创建/Session撤销整Tx回滚/实际User锁后重验），独立最终probe SHA2d0cdf99ca52f55eccb280fe5d85e4623980e29740118e1fed81565e0cdab2b3，busy函数不变；证据索引/tmp/agenteam-d05-b01-repair-probes-uuoccs11/verification-evidence.sha256 SHAb54ca84b5800de9ff87fe6f63751c6cf3d0a0289c44d027703b0196b9551619f。四轮12nonce资源全0、运行目录移除、命令/读写全停。root正式将Docker交backend，仅解冻recovery.go、对应恢复测试和README最小相关说明，修逐项错误累积/继续独立项，含closedLeases/closedAttempts/releaseStopped同类阶段；ctx/全局DB失败可结束，其余core/contract/公共/迁移/依赖/设计冻结。复用未变全量证据，修后相关race/vet与原字节probe独立复验，不提前B02。
