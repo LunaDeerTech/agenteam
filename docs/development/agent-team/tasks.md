@@ -364,6 +364,10 @@
 
 ## AT-0014：D07账号、Session、SMTP与个人资料
 
-- 状态：设计中；唯一活动模块D07，[主卡](../work-items/d07-account-session-smtp.md)修订1，基线main@57bfadb，D06已完整验收提交且工作区干净。
+- 状态：实现中；唯一活动模块D07，[主卡](../work-items/d07-account-session-smtp.md)修订2，基线main@57bfadb，D06已完整验收提交且工作区干净。
 - S01 architecture独占新工程规格；R01 backend仓库只读与/tmp有界技术证据，二者不使用Docker或改源码/依赖；root拥有主卡/计划/台账。采用既定GoCaptcha和账号/SMTP产品规则，不重复产品确认。
 - D07后端/HTTP/正式绑定先完成，D26统一客户端/账号个人页面、D27系统设置按计划后续接入；不提前业务UI或D08。00010候选、旧迁移与依赖冻结，新增口/依赖须先规格采纳。GitHub认证既有阻塞未解除，仅本地提交。
+
+- D07 R01只读研究完成，报告65f8ec602bb4a67f10fcfba10838a53a51c94ecb6e98eecc9cef06ed8c03ae01，具体版本/短基准/素材与未验边界见主卡。S01 rev1独立确认唯一response lease组合缺口，索引d06e47a1fa63745251dba5e31f7c465f1c01611c65997b7bcf0ede575413abe4；87输入一致/V全停。root仅解冻设计补真实独立读取attempt及有界file sink澄清，代码未授权、D07仍设计中。
+
+- S01设计rev2独立静态通过，源4e968882be968f79b00556032571645860ef9656816dc0494e68cb0f09b50321，索引29ac3d4cdd0000638281d4bbd1979f35db2687b3132948b47150ee1657085c4a；88输入稳定/作者与V全停。root采纳正式补口及固定依赖，主卡修订2授权backend完整B01身份/安全基础及独占owned Docker；B02–B04与app/HTTP/产品UI仍未解冻，D07产品尚未验收。
