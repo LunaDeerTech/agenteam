@@ -1,6 +1,6 @@
 # D05 对象存储与 Artifact
 
-- 修订：3；状态：B01/B02已独立验收，B03工程接口细化中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
+- 修订：3；状态：B01/B02已独立验收，B03规格修订6冻结审查中；唯一活动模块D05；基线 `main@abf5c37`，开工工作区干净。
 - 前置：[D04](d04-security-foundation.md)全部独立验收和真实完整suite通过，入口本地提交abf5c37；GitHub认证失效，ee8ddb7起5个本地提交待恢复后补推，不冒称远端同步。
 - 目标：按[计划D05](../development-plan.md#d05-对象存储与-artifact)实现StoredObject/引用与lease、流式MinIO读写、跨DB/对象存储的一致性和恢复、Artifact服务、受控预览/下载及短期传输授权。
 
@@ -8,9 +8,9 @@
 
 | 卡 | 依赖 | 角色 | 独占范围 | 状态 |
 | --- | --- | --- | --- | --- |
-| S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订5含SourceReads/下载provider补口独立静态通过、root采纳并冻结 |
+| S01 工程规格 | D04完成 | architecture_worker | 新增d05-object-storage-design.md；已验收代码/契约只读 | 修订6已作者冻结，B03接口/初始化与最小补口静态审查中 |
 | R01 依赖与隔离环境核验 | D04完成 | research_worker | 有界探针及新增d05-object-storage-research.md报告，不写实现源码 | R01/R02修订2完成并停写 |
-| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01/B02完整独立验收通过，B03工程接口细化中 |
+| B01–B03 实现分块 | S01确认 | backend_worker | 按实施规格§1与本卡B01授权，串行移交 | B01/B02完整独立验收通过，B03待规格审查后实施 |
 | V01–V03 独立验证 | 对应冻结范围 | verification_worker | 停写实现的独立副本及任务owned资源 | B02无过滤兼容及原probe全部通过；V全停、资源清零 |
 
 root独占本卡、开发计划和任务台账；架构作者仅新建实施规格。角色遵循AGENTS与agenteam-design/go-development/verification/documentation技能，禁止子agent再委派和Git写操作。常态至多两个活动子任务，Docker和测试资源顺序明确移交。设计稳定且root确认后才写实现，不提前D06+。
@@ -278,3 +278,15 @@ B03按设计§9/§10完成Runner单对象GET/PUT传输及Central MinIO配置、�
 后续backend独占新增object/transfer*.go及contract/测试、00007_object_transfer.sql、必要SDK签名适配新增文件、tests/objects直传/恢复；Central config/app、中立logging既有闭集最小扩展、tests/process与owned fixture/scripts、backend配置说明/AGENTS按既定B03共享范围串行移交。原Service/AccessPlanning/cleanup等已验文件若需改动，先由规格列最小精确补口并root确认，禁止顺手重构或修改旧迁移/依赖。Docker当前空闲，架构只读不使用资源。root独占主卡/台账/计划，相关源码在规格阶段保持冻结。
 
 验收须真实固定MinIO presign GET/条件PUT、完整length/SHA/方法/key绑定、旧grant重放及marker边界、staging到独立candidate无TOCTOU、真实完成/停止证据与活动lease清理、unknown/当前权限/锁竞争，不能仅SDK单测。Central对象初始化共用D04剩余30s安全启动、10s采样/同轮2s/20s陈旧、同一额外1s Force预算；真实进程与旧数据库/安全suite均带必需MinIO，不加跳过开关。B03及D05全部独立通过后才进入D06。
+
+B02最终V完整报告/tmp/agenteam-d05-b02-purge-verify-94yg6yta/verification-report.json，17项证据索引verification-evidence.sha256 SHAede336f558c6a571aad275b9c239d4f348a824a41377b3ee99e791b8b99f619d已固定；三个SKIP仅subprocess专用入口，对应真实父测试均通过，不是缺fixture跳过。B02提交2c1dca3后工作区干净，B03开工文档c950e35，当前累计25本地提交待既有认证恢复。architecture仅活动rev6设计，backend/V待命；源码冻结。
+
+B03规格阶段追加backend有界只读可行性核对：仅已冻结B01/B02源码，向architecture/root报告manifest-only PUT reservation与已有uploads/attempt/cleanup及同流spool发布所需最小接口和unknown/lease陷阱；不读取活动rev6设计、不写代码/文档、不用Docker。architecture继续唯一设计写入者，root/V不读活动设计。Process本地lifetime flock只证明exact本地进程终局，不能替代外部PUT/Runner停止证明，原unknown/marker规则不变。
+
+backend只读可行性核对已完成并全停：旧Reserve/ReserveAccess需要真实prepared registry，00005 attempt强制spool/candidate，旧TransferOwner lease仅available，不能直接复用为manifest-only PUT。建议00007追加attempt kind private_candidate(default)/runner_staging，后者不伪process/spool，仍沿同objects/uploads/cleanup；Complete同一实际stage GET→PreparePayload→同object/upload的新privatecandidate→原UploadPrepared/Publish，旧公开Uploads不放宽。旧Recover/Publish/cleanup/Process路径须精确kind分派，Central死亡不释放外部transfer lease，stage也计原64/每command2及另32grant配额。架构已接收并纳入活动rev6；该核对无源码/文档/Git/Docker写。SDK内部当前时间与秒级expiry须按实际X-Amz-Date/Expires核不超首次持久deadline，不能重放续期。
+
+B03设计rev6作者正式冻结410行，SHAd952a3de675ad44dd6e5a699d9ae07a0383083512dd64d671c099ae865364814；§1最小旧文件兼容补口、§9五正式端口/00007 typedstaging/锁/同流PUT/签名实际deadline/外部lease、§10 ProcessGuard/probe/空态未绑定门禁/生命周期与验收完整。作者只做只读依赖/格式链接收尾，root/V已开始静态审查，不用Docker，源码尚未解冻。root提出待核候选：同host真实reboot旧claim恢复机制、Runtime与Service worker统一join/claim释放，以及单次completed与全部外部终局lease释放证据须分开；仅待审问题，非产品实现失败。
+
+rev6首轮静态审查确认三处需窄澄清，非实现测试失败：同稳定受信host真实reboot不能被一概unknown造成不可恢复，应以同DB claim/deployment/spool/file身份、可信stablehost、真实kernel异bootID和exactflock正向证明旧本地进程死；外部PUT/Runner仍不推终局。Runtime须与原Service共用唯一worker槽位/全部I/O登记，Central只Runtime.StartMaintenance，双入口不可各起worker，真实join后才释放claim。TransferAuthorization不得把可信单次completed（length/SHA、可发布）与externallease retirement（全部在途join且新签名准入关闭）合并为同一前提，complete+leasepending是既定合法状态。作者认可三项但保持d952冻结，待V最终停读后统一修订。作者39repo输入manifest47d7e3cf25016266a8fe852d68f835f3e7e897bcc600f42713f8b8eefed4a68b/3SDK输入904d05d2fe84bf71411d7b4010fadda8f3191f48f2ec2702bc2947a21550a104位于/tmp/agenteam-d05-rev6-design-ike81p1h；author-check.json SHA83af8e3b2954339c1e7a852d37d2edc2f5bc62d0b7d5b256e46532862ef5f7ae，23链接/fragment及格式通过，未跑产品测试或Docker。
+
+V首轮静态审查收束，仅上述三处需澄清，无第四阻塞；typedstaging/真实Prepared/配额/锁/Audit/actualwiredeadline/空态startup与预算其余规则可实施但未验产品。39repo/3SDK依赖逐项匹配，410行/10fence/23links/4fragments通过，全部源/依赖读取停止、无运行资源。root现仅解冻rev6三处统一窄修，修后冻结复验；不改实现、不提前B03代码。
