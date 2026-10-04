@@ -129,6 +129,20 @@ const (
 	LifecycleProject ProjectAction = "lifecycle"
 )
 
+// RequeueTarget identifies the durable delivery without inventing a claim.
+// It is not a grant, a phase/version assertion, or a callback DeliveryIdentity.
+type RequeueTarget struct {
+	EventID    event.EventID
+	DeliveryID DeliveryID
+	HandlerID  event.StableName
+	Scope      event.Scope
+	Effect     HandlerEffect
+}
+
+func (t RequeueTarget) Valid() bool {
+	return t.EventID.Validate() == nil && t.DeliveryID.Validate() == nil && t.HandlerID.Validate() == nil && t.Scope.Validate() == nil && t.Effect.Valid()
+}
+
 type ProjectRequestDetails struct {
 	Kind          ProjectAction
 	ProjectID     identity.ProjectID
@@ -136,6 +150,7 @@ type ProjectRequestDetails struct {
 	Stage         Stage
 	Event         event.Summary
 	Delivery      DeliveryIdentity
+	Requeue       RequeueTarget
 	Lifecycle     LifecycleCause
 	LifecycleStep LifecycleStep
 }
@@ -143,6 +158,9 @@ type ProjectRequest struct{ data func() ProjectRequestDetails }
 
 func NewProjectRequest(d ProjectRequestDetails) (ProjectRequest, error) {
 	if d.ProjectID.Validate() != nil || d.Actor.Validate() != nil {
+		return ProjectRequest{}, invalid()
+	}
+	if d.Kind != RequeueProject && d.Requeue != (RequeueTarget{}) {
 		return ProjectRequest{}, invalid()
 	}
 	if d.Kind != LifecycleProject && d.LifecycleStep != "" {
@@ -162,7 +180,7 @@ func NewProjectRequest(d ProjectRequestDetails) (ProjectRequest, error) {
 			return ProjectRequest{}, invalid()
 		}
 	case RequeueProject:
-		if d.Actor.Details().Kind != identity.Human || d.Event != (event.Summary{}) || !d.Stage.Valid() || !d.Delivery.Valid() || d.Delivery.Scope.Kind != event.ProjectScope || d.Delivery.Scope.ProjectID.String() != d.ProjectID.String() || d.Lifecycle.Validate() == nil {
+		if d.Actor.Details().Kind != identity.Human || d.Event != (event.Summary{}) || !d.Stage.Valid() || d.Delivery != (DeliveryIdentity{}) || !d.Requeue.Valid() || d.Requeue.Scope.Kind != event.ProjectScope || d.Requeue.Scope.ProjectID.String() != d.ProjectID.String() || d.Lifecycle.Validate() == nil {
 			return ProjectRequest{}, invalid()
 		}
 	case LifecycleProject:
@@ -228,6 +246,30 @@ func LifecycleBinding(r ProjectRequest) (foundation.Digest, error) {
 		return "", invalid()
 	}
 	return DigestBytes(b), nil
+}
+
+// RequeueBinding is explicit canonical planning identity, never authorization.
+// Including Stage keeps a current-read plan distinct from a fresh write plan.
+func RequeueBinding(r ProjectRequest) (foundation.Digest, error) {
+	if r.Validate() != nil || r.Details().Kind != RequeueProject {
+		return "", invalid()
+	}
+	d := r.Details()
+	actor, err := StableActor(d.Actor)
+	if err != nil {
+		return "", err
+	}
+	raw, err := json.Marshal(struct {
+		Kind      ProjectAction
+		ProjectID string
+		Actor     string
+		Stage     Stage
+		Target    RequeueTarget
+	}{d.Kind, d.ProjectID.String(), actor, d.Stage, d.Requeue})
+	if err != nil {
+		return "", invalid()
+	}
+	return DigestBytes(raw), nil
 }
 
 type ProjectAuthority interface {
