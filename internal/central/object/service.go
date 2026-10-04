@@ -72,6 +72,7 @@ type serviceState struct {
 	process                      oc.ProcessID
 	mu                           sync.Mutex
 	initialized, stopped, forced bool
+	drained                      bool
 	operations                   map[*operation]bool
 	prepared                     map[oc.PayloadID]*preparation
 	writers                      map[oc.AttemptID]*writer
@@ -167,15 +168,20 @@ func (s *Service) Drain(ctx context.Context) error {
 	r := s.state()
 	for {
 		r.mu.Lock()
-		n, ch := len(r.operations), r.changed
+		n, ch := len(r.operations)+len(r.cleanupRequests), r.changed
 		if r.maintenance.Running {
 			n++
 		}
-		r.mu.Unlock()
 		if n == 0 {
+			// Fence technical cleanup admission under the same mutex as its
+			// registration. Once drain succeeds, a late Cancel keeps its durable
+			// checkpoint instead of starting work behind the closed service.
+			r.drained = true
+			r.mu.Unlock()
 			_ = r.backend.Close()
 			return r.spool.Close()
 		}
+		r.mu.Unlock()
 		select {
 		case <-ctx.Done():
 			return unavailable(ctx.Err())
@@ -210,6 +216,12 @@ func (s *Service) Force(ctx context.Context) error {
 func (s *Service) cleanupContext() (context.Context, context.CancelFunc) {
 	r := s.state()
 	r.mu.Lock()
+	if r.drained {
+		r.mu.Unlock()
+		ctx, cancel := context.WithCancel(context.Background())
+		cancel()
+		return ctx, func() {}
+	}
 	parent := r.forceContext
 	if parent == nil {
 		parent = context.Background()
@@ -218,7 +230,17 @@ func (s *Service) cleanupContext() (context.Context, context.CancelFunc) {
 	request := &cleanupRequest{cancel}
 	r.cleanupRequests[request] = true
 	r.mu.Unlock()
-	return ctx, func() { cancel(); r.mu.Lock(); delete(r.cleanupRequests, request); r.mu.Unlock() }
+	var once sync.Once
+	return ctx, func() {
+		once.Do(func() {
+			cancel()
+			r.mu.Lock()
+			delete(r.cleanupRequests, request)
+			close(r.changed)
+			r.changed = make(chan struct{})
+			r.mu.Unlock()
+		})
+	}
 }
 func (s *Service) authorize(ctx context.Context, tx foundation.Tx, actor identity.Actor, owner oc.ObjectOwner, intent identity.AccessIntent) (oc.OwnerAuthorization, error) {
 	if actor.Validate() != nil || owner.Validate() != nil {

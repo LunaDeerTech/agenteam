@@ -48,6 +48,7 @@ const (
 	GateProjectAccess       AccessOperation = "gate_project"
 	FinishProjectAccess     AccessOperation = "finish_project"
 	ValidateSourceAccess    AccessOperation = "validate_source"
+	AcquireSourceAccess     AccessOperation = "acquire_source"
 	FinishWriterAccess      AccessOperation = "finish_writer"
 	RecoverAttemptAccess    AccessOperation = "recover_attempt"
 	JoinAttemptAccess       AccessOperation = "join_attempt"
@@ -209,7 +210,7 @@ func newAccessRequest(kind AccessKind, d AccessRequestDetails) (AccessRequest, e
 		}
 	case SourceAccess:
 		allow("actor", "source")
-		err = require(d.Operation == ValidateSourceAccess && d.Actor.Validate() == nil && d.Source.Validate() == nil)
+		err = require((d.Operation == ValidateSourceAccess || d.Operation == AcquireSourceAccess) && d.Actor.Validate() == nil && d.Source.Validate() == nil)
 	case MaintenanceAccess:
 		allow("instance", "object")
 		err = require(d.InstanceID.Validate() == nil && d.ObjectID.Validate() == nil)

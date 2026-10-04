@@ -339,12 +339,19 @@ func (s *Service) openRead(ctx context.Context, actor identity.Actor, owner oc.O
 	return resultReader, nil
 }
 func (s *Service) releaseInternal(id oc.LeaseID, object oc.ObjectID) error {
+	ctx, cancel := s.cleanupContext()
+	defer cancel()
+	return s.releaseInternalContext(ctx, id, object)
+}
+
+// A caller which starts an asynchronous release registers cleanup before
+// launching it, and keeps that registration until its real join completes.
+// The supplied context is the one shared cleanup/force budget, not a fresh one.
+func (s *Service) releaseInternalContext(ctx context.Context, id oc.LeaseID, object oc.ObjectID) error {
 	r := s.state()
 	r.mu.Lock()
 	r.closedLeases[id] = object
 	r.mu.Unlock()
-	ctx, cancel := s.cleanupContext()
-	defer cancel()
 	result := s.withinAccess(ctx, recoveryCause(), s.maintenanceRequest(oc.ReleaseReaderAccess, object, oc.AccessRequestDetails{LeaseID: id}), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
 		e, err := executor(s, tx)
 		if err != nil {
