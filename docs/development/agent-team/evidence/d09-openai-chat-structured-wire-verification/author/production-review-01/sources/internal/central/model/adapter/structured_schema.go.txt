@@ -1,0 +1,500 @@
+package adapter
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"io"
+	"strconv"
+	"strings"
+	"unicode/utf8"
+
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+const (
+	maxSchemaBytes      = 64 << 10
+	maxSchemaNodes      = 1024
+	maxStructuredDepth  = 32
+	maxSchemaProperties = 256
+	maxSchemaEnum       = 128
+	maxStructuredNodes  = 65536
+	maxStructuredNumber = 128
+)
+
+// The native format and the verifier are made from the same private copy,
+// before admission. Neither caller mutation nor a second parse after dispatch
+// can replace the schema under which this exchange was accepted.
+type structuredWireFormat struct {
+	Type       string `json:"type"`
+	JSONSchema struct {
+		Name   string          `json:"name"`
+		Schema json.RawMessage `json:"schema"`
+		Strict bool            `json:"strict"`
+	} `json:"json_schema"`
+}
+
+type schemaNode struct {
+	kind       string
+	nullable   bool
+	properties map[string]*schemaNode
+	items      *schemaNode
+	hasEnum    bool
+	enumNull   bool
+	enum       map[string]bool
+}
+
+type structuredSchema struct{ root *schemaNode }
+type schemaCompiler struct {
+	ctx   context.Context
+	nodes int
+}
+
+func compileStructured(ctx context.Context, format mc.ResponseFormat) (*structuredSchema, *structuredWireFormat, error) {
+	if ctx == nil {
+		return nil, nil, invalid()
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, nil, contextFailure(err)
+	}
+	if format.Kind != "json_schema" || len(format.Name) == 0 || len(format.Name) > 64 || len(format.Schema) == 0 || len(format.Schema) > maxSchemaBytes {
+		return nil, nil, invalid()
+	}
+	for _, ch := range format.Name {
+		if !(ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '_' || ch == '-') {
+			return nil, nil, invalid()
+		}
+	}
+	raw := bytes.Clone(format.Schema)
+	if jsonShape(raw) != nil {
+		return nil, nil, invalid()
+	}
+	c := schemaCompiler{ctx: ctx}
+	root, err := c.node(raw, 1)
+	if err != nil {
+		return nil, nil, err
+	}
+	if root.kind != "object" || root.nullable {
+		return nil, nil, unsupported()
+	}
+	if err := ctx.Err(); err != nil {
+		return nil, nil, contextFailure(err)
+	}
+	wire := &structuredWireFormat{Type: "json_schema"}
+	wire.JSONSchema.Name, wire.JSONSchema.Schema, wire.JSONSchema.Strict = format.Name, raw, true
+	return &structuredSchema{root: root}, wire, nil
+}
+
+func (c *schemaCompiler) node(raw json.RawMessage, depth int) (*schemaNode, error) {
+	if err := c.ctx.Err(); err != nil {
+		return nil, contextFailure(err)
+	}
+	c.nodes++
+	if c.nodes > maxSchemaNodes || depth > maxStructuredDepth {
+		return nil, unsupported()
+	}
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(raw, &fields) != nil || fields == nil {
+		return nil, invalid()
+	}
+	for key := range fields {
+		switch key {
+		case "type", "properties", "required", "additionalProperties", "items", "enum", "title", "description":
+		default:
+			return nil, unsupported()
+		}
+	}
+	n := &schemaNode{}
+	if err := schemaType(fields["type"], n); err != nil {
+		return nil, err
+	}
+	for _, annotation := range []struct {
+		key string
+		max int
+	}{{"title", 128}, {"description", 4096}} {
+		if raw, ok := fields[annotation.key]; ok {
+			var text string
+			if null(raw) || json.Unmarshal(raw, &text) != nil {
+				return nil, invalid()
+			}
+			if len(text) > annotation.max {
+				return nil, unsupported()
+			}
+		}
+	}
+	if n.kind != "object" {
+		for _, key := range []string{"properties", "required", "additionalProperties"} {
+			if _, ok := fields[key]; ok {
+				return nil, invalid()
+			}
+		}
+	}
+	if _, ok := fields["items"]; ok && n.kind != "array" {
+		return nil, invalid()
+	}
+	if n.kind == "object" {
+		if err := c.properties(fields, n, depth); err != nil {
+			return nil, err
+		}
+	}
+	if n.kind == "array" {
+		items, ok := fields["items"]
+		if !ok {
+			return nil, unsupported()
+		}
+		var err error
+		n.items, err = c.node(items, depth+1)
+		if err != nil {
+			return nil, err
+		}
+	}
+	if raw, ok := fields["enum"]; ok {
+		if err := schemaEnum(raw, n); err != nil {
+			return nil, err
+		}
+	}
+	return n, nil
+}
+
+func schemaType(raw json.RawMessage, n *schemaNode) error {
+	if null(raw) {
+		return invalid()
+	}
+	if json.Unmarshal(raw, &n.kind) != nil {
+		var items []json.RawMessage
+		if json.Unmarshal(raw, &items) != nil || len(items) == 0 {
+			return invalid()
+		}
+		types := make([]string, len(items))
+		seen := make(map[string]bool, len(items))
+		for i, item := range items {
+			if null(item) || json.Unmarshal(item, &types[i]) != nil || !schemaTypeName(types[i]) || seen[types[i]] {
+				return invalid()
+			}
+			seen[types[i]] = true
+		}
+		if len(types) != 2 || types[0] != "null" && types[1] != "null" {
+			return unsupported()
+		}
+		n.nullable = true
+		n.kind = types[0]
+		if n.kind == "null" {
+			n.kind = types[1]
+		}
+	}
+	if !schemaTypeName(n.kind) {
+		return invalid()
+	}
+	return nil
+}
+
+func schemaTypeName(kind string) bool {
+	switch kind {
+	case "object", "array", "string", "number", "integer", "boolean", "null":
+		return true
+	default:
+		return false
+	}
+}
+
+func (c *schemaCompiler) properties(fields map[string]json.RawMessage, n *schemaNode, depth int) error {
+	for _, key := range []string{"properties", "required", "additionalProperties"} {
+		if _, ok := fields[key]; !ok {
+			return unsupported()
+		}
+	}
+	var additional bool
+	if null(fields["additionalProperties"]) || json.Unmarshal(fields["additionalProperties"], &additional) != nil {
+		return invalid()
+	}
+	if additional {
+		return unsupported()
+	}
+	var properties map[string]json.RawMessage
+	var required []json.RawMessage
+	if json.Unmarshal(fields["properties"], &properties) != nil || properties == nil || json.Unmarshal(fields["required"], &required) != nil || required == nil {
+		return invalid()
+	}
+	if len(properties) > maxSchemaProperties {
+		return unsupported()
+	}
+	seen := make(map[string]bool, len(required))
+	for _, raw := range required {
+		var name string
+		if null(raw) || json.Unmarshal(raw, &name) != nil {
+			return invalid()
+		}
+		if _, exists := properties[name]; !exists || seen[name] {
+			return invalid()
+		}
+		seen[name] = true
+	}
+	if len(required) != len(properties) {
+		return unsupported()
+	}
+	n.properties = make(map[string]*schemaNode, len(properties))
+	for name, raw := range properties {
+		if len(name) > 256 {
+			return unsupported()
+		}
+		child, err := c.node(raw, depth+1)
+		if err != nil {
+			return err
+		}
+		n.properties[name] = child
+	}
+	return nil
+}
+
+func schemaEnum(raw json.RawMessage, n *schemaNode) error {
+	if n.kind != "string" {
+		return unsupported()
+	}
+	var values []json.RawMessage
+	if json.Unmarshal(raw, &values) != nil || len(values) == 0 {
+		return invalid()
+	}
+	if len(values) > maxSchemaEnum {
+		return unsupported()
+	}
+	n.hasEnum, n.enum = true, make(map[string]bool, len(values))
+	for _, raw := range values {
+		if null(raw) {
+			if !n.nullable || n.enumNull {
+				return invalid()
+			}
+			n.enumNull = true
+			continue
+		}
+		var value string
+		if json.Unmarshal(raw, &value) != nil || n.enum[value] {
+			return invalid()
+		}
+		if len(value) > 1024 {
+			return unsupported()
+		}
+		n.enum[value] = true
+	}
+	return nil
+}
+
+func (s *structuredSchema) complete(ctx context.Context, text string, finish mc.FinishReason) error {
+	if err := ctx.Err(); err != nil {
+		return contextFailure(err)
+	}
+	switch finish {
+	case "content_filter":
+		return failure("content_filter", "")
+	case "stop":
+		return s.validate(ctx, text)
+	default:
+		return protocolFailure()
+	}
+}
+
+// Validation walks tokens against the small immutable schema. It retains only
+// depth-bounded object-key sets, not an output DOM or numeric big integers.
+func (s *structuredSchema) validate(ctx context.Context, text string) error {
+	if err := ctx.Err(); err != nil {
+		return contextFailure(err)
+	}
+	if len(text) > maxTextBytes {
+		return limitFailure()
+	}
+	if err := structuredUnicode(ctx, text); err != nil {
+		return err
+	}
+	d := json.NewDecoder(strings.NewReader(text))
+	d.UseNumber()
+	v := structuredValidator{ctx: ctx, decoder: d}
+	if err := v.value(s.root, 1); err != nil {
+		return err
+	}
+	if _, err := d.Token(); err != io.EOF {
+		return protocolFailure()
+	}
+	if err := ctx.Err(); err != nil {
+		return contextFailure(err)
+	}
+	return nil
+}
+
+type structuredValidator struct {
+	ctx     context.Context
+	decoder *json.Decoder
+	nodes   int
+}
+
+func (v *structuredValidator) value(n *schemaNode, depth int) error {
+	if err := v.ctx.Err(); err != nil {
+		return contextFailure(err)
+	}
+	v.nodes++
+	if depth > maxStructuredDepth || v.nodes > maxStructuredNodes {
+		return limitFailure()
+	}
+	token, err := v.decoder.Token()
+	if err != nil {
+		return protocolFailure()
+	}
+	if token == nil {
+		if (n.nullable || n.kind == "null") && (!n.hasEnum || n.enumNull) {
+			return nil
+		}
+		return protocolFailure()
+	}
+	switch value := token.(type) {
+	case string:
+		if n.kind == "string" && (!n.hasEnum || n.enum[value]) {
+			return nil
+		}
+	case bool:
+		if n.kind == "boolean" {
+			return nil
+		}
+	case json.Number:
+		if len(value) > maxStructuredNumber {
+			return limitFailure()
+		}
+		if n.kind == "number" || n.kind == "integer" && structuredInteger(string(value)) {
+			return nil
+		}
+	case json.Delim:
+		if value == '{' && n.kind == "object" {
+			seen := make(map[string]bool, len(n.properties))
+			for v.decoder.More() {
+				key, err := v.decoder.Token()
+				name, ok := key.(string)
+				if err != nil || !ok || seen[name] || n.properties[name] == nil {
+					return protocolFailure()
+				}
+				seen[name] = true
+				if err := v.value(n.properties[name], depth+1); err != nil {
+					return err
+				}
+			}
+			end, err := v.decoder.Token()
+			if err != nil || end != json.Delim('}') || len(seen) != len(n.properties) {
+				return protocolFailure()
+			}
+			return nil
+		}
+		if value == '[' && n.kind == "array" {
+			for v.decoder.More() {
+				if err := v.value(n.items, depth+1); err != nil {
+					return err
+				}
+			}
+			end, err := v.decoder.Token()
+			if err == nil && end == json.Delim(']') {
+				return nil
+			}
+		}
+	}
+	return protocolFailure()
+}
+
+// A <=128-byte JSON number is integral iff its decimal exponent moves every
+// nonzero fractional digit left of the point. Saturation at 256 suffices for
+// this bounded comparison; even a very long exponent is never expanded.
+func structuredInteger(number string) bool {
+	if strings.HasPrefix(number, "-") {
+		number = number[1:]
+	}
+	mantissa, exponent := number, ""
+	if i := strings.IndexAny(number, "eE"); i >= 0 {
+		mantissa, exponent = number[:i], number[i+1:]
+	}
+	fraction, trailing, nonzero := 0, 0, false
+	if dot := strings.IndexByte(mantissa, '.'); dot >= 0 {
+		fraction = len(mantissa) - dot - 1
+	}
+	for _, ch := range mantissa {
+		if ch == '.' {
+			continue
+		}
+		if ch == '0' {
+			trailing++
+		} else {
+			nonzero, trailing = true, 0
+		}
+	}
+	if !nonzero {
+		return true
+	}
+	negative := strings.HasPrefix(exponent, "-")
+	if len(exponent) > 0 && (exponent[0] == '+' || exponent[0] == '-') {
+		exponent = exponent[1:]
+	}
+	exp := 0
+	for _, digit := range exponent {
+		exp = min(256, exp*10+int(digit-'0'))
+	}
+	if negative {
+		exp = -exp
+	}
+	return exp >= fraction-trailing
+}
+
+// encoding/json repairs unmatched UTF-16 surrogates. Reject them without
+// converting the accumulated string to a second full byte buffer.
+func structuredUnicode(ctx context.Context, text string) error {
+	if !utf8.ValidString(text) {
+		return protocolFailure()
+	}
+	nextCheck := 0
+	check := func(i int) error {
+		if i >= nextCheck {
+			nextCheck = i + 4096
+			if err := ctx.Err(); err != nil {
+				return contextFailure(err)
+			}
+		}
+		return nil
+	}
+	for i := 0; i < len(text); i++ {
+		if err := check(i); err != nil {
+			return err
+		}
+		if text[i] != '"' {
+			continue
+		}
+		i++
+		for i < len(text) && text[i] != '"' {
+			if err := check(i); err != nil {
+				return err
+			}
+			if text[i] != '\\' {
+				i++
+				continue
+			}
+			i++
+			if i >= len(text) {
+				return protocolFailure()
+			}
+			if text[i] != 'u' {
+				i++
+				continue
+			}
+			if i+5 > len(text) {
+				return protocolFailure()
+			}
+			u, err := strconv.ParseUint(text[i+1:i+5], 16, 16)
+			if err != nil || u >= 0xdc00 && u <= 0xdfff {
+				return protocolFailure()
+			}
+			i += 5
+			if u >= 0xd800 && u <= 0xdbff {
+				if i+6 > len(text) || text[i] != '\\' || text[i+1] != 'u' {
+					return protocolFailure()
+				}
+				low, err := strconv.ParseUint(text[i+2:i+6], 16, 16)
+				if err != nil || low < 0xdc00 || low > 0xdfff {
+					return protocolFailure()
+				}
+				i += 6
+			}
+		}
+	}
+	return nil
+}

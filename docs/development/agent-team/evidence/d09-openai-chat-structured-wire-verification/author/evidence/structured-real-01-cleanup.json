@@ -1,0 +1,457 @@
+{
+  "observations": [
+    {
+      "utc": "2026-10-05T19:45:39.167844+00:00",
+      "created_resources": [
+        {
+          "id": "98cf1a2f4355eddc6cb54eb42786ce22c1736f9540b75c9f08ff82f0a090692f",
+          "kind": "network",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "98cf1a2f4355eddc6cb54eb42786ce22c1736f9540b75c9f08ff82f0a090692f",
+            "name": "agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a",
+            "labels": {
+              "agenteam.d05.objectfixture": "9d409deed2ba79fc2a1d928ca07f761a"
+            }
+          },
+          "inspect_argv": [
+            "network",
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "98cf1a2f4355eddc6cb54eb42786ce22c1736f9540b75c9f08ff82f0a090692f"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error response from daemon: network 98cf1a2f4355eddc6cb54eb42786ce22c1736f9540b75c9f08ff82f0a090692f not found",
+          "absent": true
+        },
+        {
+          "id": "532a8b6f1192e3448ae345f47c6e100d8f5178d1bcab507c05164e1ae2fdd3ed",
+          "kind": "container",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "532a8b6f1192e3448ae345f47c6e100d8f5178d1bcab507c05164e1ae2fdd3ed",
+            "name": "/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a",
+            "labels": {
+              "agenteam.d05.objectfixture": "9d409deed2ba79fc2a1d928ca07f761a"
+            }
+          },
+          "inspect_argv": [
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "532a8b6f1192e3448ae345f47c6e100d8f5178d1bcab507c05164e1ae2fdd3ed"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error: No such object: 532a8b6f1192e3448ae345f47c6e100d8f5178d1bcab507c05164e1ae2fdd3ed",
+          "absent": true
+        },
+        {
+          "id": "e55259d667d813d08a4aa42f36d651dddc843b3d55654c5556ab7621d94e1166",
+          "kind": "network",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "e55259d667d813d08a4aa42f36d651dddc843b3d55654c5556ab7621d94e1166",
+            "name": "agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0",
+            "labels": {
+              "agenteam.d04.networkfixture": "cd512dfd1dc2757d164a73c8fa26f9a0"
+            }
+          },
+          "inspect_argv": [
+            "network",
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "e55259d667d813d08a4aa42f36d651dddc843b3d55654c5556ab7621d94e1166"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error response from daemon: network e55259d667d813d08a4aa42f36d651dddc843b3d55654c5556ab7621d94e1166 not found",
+          "absent": true
+        },
+        {
+          "id": "23d82718649b90524fcb923357d3a455e23a48f2ee126651cc368a7d41d20822",
+          "kind": "container",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "23d82718649b90524fcb923357d3a455e23a48f2ee126651cc368a7d41d20822",
+            "name": "/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0",
+            "labels": {
+              "agenteam.d04.networkfixture": "cd512dfd1dc2757d164a73c8fa26f9a0"
+            }
+          },
+          "inspect_argv": [
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "23d82718649b90524fcb923357d3a455e23a48f2ee126651cc368a7d41d20822"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error: No such object: 23d82718649b90524fcb923357d3a455e23a48f2ee126651cc368a7d41d20822",
+          "absent": true
+        },
+        {
+          "id": "da4bf19b80e10b3f0727875831e99afb3a569bd41c707bbc6d026444b7042dbe",
+          "kind": "network",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "da4bf19b80e10b3f0727875831e99afb3a569bd41c707bbc6d026444b7042dbe",
+            "name": "agenteam-d03-96657210fef2fd2daa20c5605e55a1ca",
+            "labels": {
+              "agenteam.d03.fixture": "96657210fef2fd2daa20c5605e55a1ca"
+            }
+          },
+          "inspect_argv": [
+            "network",
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "da4bf19b80e10b3f0727875831e99afb3a569bd41c707bbc6d026444b7042dbe"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error response from daemon: network da4bf19b80e10b3f0727875831e99afb3a569bd41c707bbc6d026444b7042dbe not found",
+          "absent": true
+        },
+        {
+          "id": "ba5da6c85a4ec0eefa2ae7e6cd67b3c3165e6986ea4bfb5899239cf3a7746498",
+          "kind": "container",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "ba5da6c85a4ec0eefa2ae7e6cd67b3c3165e6986ea4bfb5899239cf3a7746498",
+            "name": "/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca",
+            "labels": {
+              "agenteam.d03.fixture": "96657210fef2fd2daa20c5605e55a1ca"
+            }
+          },
+          "inspect_argv": [
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "ba5da6c85a4ec0eefa2ae7e6cd67b3c3165e6986ea4bfb5899239cf3a7746498"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error: No such object: ba5da6c85a4ec0eefa2ae7e6cd67b3c3165e6986ea4bfb5899239cf3a7746498",
+          "absent": true
+        },
+        {
+          "id": "52293ac7842b37971ae20d7b5e9a5aa9978c8a390eddb7f0db1d78c4cb84c55f",
+          "kind": "container",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "52293ac7842b37971ae20d7b5e9a5aa9978c8a390eddb7f0db1d78c4cb84c55f",
+            "name": "/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-pg16",
+            "labels": {
+              "agenteam.d03.fixture": "96657210fef2fd2daa20c5605e55a1ca"
+            }
+          },
+          "inspect_argv": [
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "52293ac7842b37971ae20d7b5e9a5aa9978c8a390eddb7f0db1d78c4cb84c55f"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error: No such object: 52293ac7842b37971ae20d7b5e9a5aa9978c8a390eddb7f0db1d78c4cb84c55f",
+          "absent": true
+        }
+      ],
+      "owned_processes": [],
+      "runner_absent": true,
+      "runtime_entries": [],
+      "baseline": {
+        "utc": "2026-10-05T19:45:39.081306+00:00",
+        "containers": [
+          {
+            "id": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+            "name": "/agenteam-dev-infra-postgres-1",
+            "labels": {
+              "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+              "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+              "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+              "com.docker.compose.service": "postgres",
+              "com.docker.compose.version": "2.40.3"
+            }
+          },
+          {
+            "id": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+            "name": "/agenteam-dev-infra-minio-1",
+            "labels": {
+              "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+              "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+              "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+              "com.docker.compose.service": "minio",
+              "com.docker.compose.version": "2.40.3"
+            }
+          }
+        ],
+        "networks": [
+          {
+            "id": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+            "name": "agenteam-dev-infra_default",
+            "labels": {
+              "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+              "com.docker.compose.network": "default",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.version": "2.40.3"
+            }
+          },
+          {
+            "id": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+            "name": "none",
+            "labels": {}
+          },
+          {
+            "id": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+            "name": "host",
+            "labels": {}
+          },
+          {
+            "id": "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5",
+            "name": "bridge",
+            "labels": {}
+          }
+        ]
+      },
+      "baseline_exact_unchanged": true,
+      "complete": true
+    },
+    {
+      "utc": "2026-10-05T19:45:40.383258+00:00",
+      "created_resources": [
+        {
+          "id": "98cf1a2f4355eddc6cb54eb42786ce22c1736f9540b75c9f08ff82f0a090692f",
+          "kind": "network",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "98cf1a2f4355eddc6cb54eb42786ce22c1736f9540b75c9f08ff82f0a090692f",
+            "name": "agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a",
+            "labels": {
+              "agenteam.d05.objectfixture": "9d409deed2ba79fc2a1d928ca07f761a"
+            }
+          },
+          "inspect_argv": [
+            "network",
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "98cf1a2f4355eddc6cb54eb42786ce22c1736f9540b75c9f08ff82f0a090692f"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error response from daemon: network 98cf1a2f4355eddc6cb54eb42786ce22c1736f9540b75c9f08ff82f0a090692f not found",
+          "absent": true
+        },
+        {
+          "id": "532a8b6f1192e3448ae345f47c6e100d8f5178d1bcab507c05164e1ae2fdd3ed",
+          "kind": "container",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "532a8b6f1192e3448ae345f47c6e100d8f5178d1bcab507c05164e1ae2fdd3ed",
+            "name": "/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a",
+            "labels": {
+              "agenteam.d05.objectfixture": "9d409deed2ba79fc2a1d928ca07f761a"
+            }
+          },
+          "inspect_argv": [
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "532a8b6f1192e3448ae345f47c6e100d8f5178d1bcab507c05164e1ae2fdd3ed"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error: No such object: 532a8b6f1192e3448ae345f47c6e100d8f5178d1bcab507c05164e1ae2fdd3ed",
+          "absent": true
+        },
+        {
+          "id": "e55259d667d813d08a4aa42f36d651dddc843b3d55654c5556ab7621d94e1166",
+          "kind": "network",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "e55259d667d813d08a4aa42f36d651dddc843b3d55654c5556ab7621d94e1166",
+            "name": "agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0",
+            "labels": {
+              "agenteam.d04.networkfixture": "cd512dfd1dc2757d164a73c8fa26f9a0"
+            }
+          },
+          "inspect_argv": [
+            "network",
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "e55259d667d813d08a4aa42f36d651dddc843b3d55654c5556ab7621d94e1166"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error response from daemon: network e55259d667d813d08a4aa42f36d651dddc843b3d55654c5556ab7621d94e1166 not found",
+          "absent": true
+        },
+        {
+          "id": "23d82718649b90524fcb923357d3a455e23a48f2ee126651cc368a7d41d20822",
+          "kind": "container",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "23d82718649b90524fcb923357d3a455e23a48f2ee126651cc368a7d41d20822",
+            "name": "/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0",
+            "labels": {
+              "agenteam.d04.networkfixture": "cd512dfd1dc2757d164a73c8fa26f9a0"
+            }
+          },
+          "inspect_argv": [
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "23d82718649b90524fcb923357d3a455e23a48f2ee126651cc368a7d41d20822"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error: No such object: 23d82718649b90524fcb923357d3a455e23a48f2ee126651cc368a7d41d20822",
+          "absent": true
+        },
+        {
+          "id": "da4bf19b80e10b3f0727875831e99afb3a569bd41c707bbc6d026444b7042dbe",
+          "kind": "network",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "da4bf19b80e10b3f0727875831e99afb3a569bd41c707bbc6d026444b7042dbe",
+            "name": "agenteam-d03-96657210fef2fd2daa20c5605e55a1ca",
+            "labels": {
+              "agenteam.d03.fixture": "96657210fef2fd2daa20c5605e55a1ca"
+            }
+          },
+          "inspect_argv": [
+            "network",
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "da4bf19b80e10b3f0727875831e99afb3a569bd41c707bbc6d026444b7042dbe"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error response from daemon: network da4bf19b80e10b3f0727875831e99afb3a569bd41c707bbc6d026444b7042dbe not found",
+          "absent": true
+        },
+        {
+          "id": "ba5da6c85a4ec0eefa2ae7e6cd67b3c3165e6986ea4bfb5899239cf3a7746498",
+          "kind": "container",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "ba5da6c85a4ec0eefa2ae7e6cd67b3c3165e6986ea4bfb5899239cf3a7746498",
+            "name": "/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca",
+            "labels": {
+              "agenteam.d03.fixture": "96657210fef2fd2daa20c5605e55a1ca"
+            }
+          },
+          "inspect_argv": [
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "ba5da6c85a4ec0eefa2ae7e6cd67b3c3165e6986ea4bfb5899239cf3a7746498"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error: No such object: ba5da6c85a4ec0eefa2ae7e6cd67b3c3165e6986ea4bfb5899239cf3a7746498",
+          "absent": true
+        },
+        {
+          "id": "52293ac7842b37971ae20d7b5e9a5aa9978c8a390eddb7f0db1d78c4cb84c55f",
+          "kind": "container",
+          "actual_live_identity_verified": true,
+          "actual_resource": {
+            "id": "52293ac7842b37971ae20d7b5e9a5aa9978c8a390eddb7f0db1d78c4cb84c55f",
+            "name": "/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-pg16",
+            "labels": {
+              "agenteam.d03.fixture": "96657210fef2fd2daa20c5605e55a1ca"
+            }
+          },
+          "inspect_argv": [
+            "inspect",
+            "--format",
+            "{{.Id}}",
+            "52293ac7842b37971ae20d7b5e9a5aa9978c8a390eddb7f0db1d78c4cb84c55f"
+          ],
+          "inspect_exit": 1,
+          "stderr": "Error: No such object: 52293ac7842b37971ae20d7b5e9a5aa9978c8a390eddb7f0db1d78c4cb84c55f",
+          "absent": true
+        }
+      ],
+      "owned_processes": [],
+      "runner_absent": true,
+      "runtime_entries": [],
+      "baseline": {
+        "utc": "2026-10-05T19:45:40.283930+00:00",
+        "containers": [
+          {
+            "id": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+            "name": "/agenteam-dev-infra-postgres-1",
+            "labels": {
+              "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+              "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+              "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+              "com.docker.compose.service": "postgres",
+              "com.docker.compose.version": "2.40.3"
+            }
+          },
+          {
+            "id": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+            "name": "/agenteam-dev-infra-minio-1",
+            "labels": {
+              "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+              "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+              "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+              "com.docker.compose.service": "minio",
+              "com.docker.compose.version": "2.40.3"
+            }
+          }
+        ],
+        "networks": [
+          {
+            "id": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+            "name": "agenteam-dev-infra_default",
+            "labels": {
+              "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+              "com.docker.compose.network": "default",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.version": "2.40.3"
+            }
+          },
+          {
+            "id": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+            "name": "none",
+            "labels": {}
+          },
+          {
+            "id": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+            "name": "host",
+            "labels": {}
+          },
+          {
+            "id": "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5",
+            "name": "bridge",
+            "labels": {}
+          }
+        ]
+      },
+      "baseline_exact_unchanged": true,
+      "complete": true
+    }
+  ],
+  "complete": true
+}

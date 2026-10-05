@@ -1,0 +1,25 @@
+{
+  "top_level_tests": [
+    "TestModelOpenAIChatStructuredHTTP",
+    "TestModelOpenAIChatStructuredStream",
+    "TestModelOpenAIChatStructuredCloseAndBudget",
+    "TestModelOpenAIChatWireHTTP",
+    "TestModelOpenAIChatWireStream",
+    "TestModelOpenAIChatWireJoinAndBudget"
+  ],
+  "regex": "^(TestModelOpenAIChatStructuredHTTP|TestModelOpenAIChatStructuredStream|TestModelOpenAIChatStructuredCloseAndBudget|TestModelOpenAIChatWireHTTP|TestModelOpenAIChatWireStream|TestModelOpenAIChatWireJoinAndBudget)$",
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestModelOpenAIChatStructuredHTTP|TestModelOpenAIChatStructuredStream|TestModelOpenAIChatStructuredCloseAndBudget|TestModelOpenAIChatWireHTTP|TestModelOpenAIChatWireStream|TestModelOpenAIChatWireJoinAndBudget)$"
+  ],
+  "original_test_flags": [
+    "-tags=integration",
+    "-race",
+    "-count=1",
+    "-timeout=6m"
+  ],
+  "extra_Goflags": "-mod=readonly -v",
+  "candidate_sha256": "53d31b380ed5c214cb9e87fbf5450454b0f2e5935e0b92615dd3eb0b0389236c"
+}

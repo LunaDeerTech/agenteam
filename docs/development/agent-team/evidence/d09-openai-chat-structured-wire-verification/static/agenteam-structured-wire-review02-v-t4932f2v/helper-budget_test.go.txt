@@ -1,0 +1,22 @@
+package adapter
+
+import (
+	"context"
+	"sync"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+// Only local-work completion is synthesized here. The integration group holds
+// a real D04 request writer and verifies the additional Client.Drain condition.
+func finishLocal(x *Exchange, result Result, err error) {
+	x.mu.Lock()
+	x.result, x.err, x.done = result, err, true
+	close(x.ioDone)
+	x.notify()
+	x.mu.Unlock()
+}
+func TestWireBudgetGlobalProjectAndSealedAdmission(t *testing.T) {

@@ -1,0 +1,94 @@
+=== RUN   TestModelAuditPlanHasExactStableCauseAndCurrentActor
+--- PASS: TestModelAuditPlanHasExactStableCauseAndCurrentActor (0.00s)
+=== RUN   TestModelCurrentAuthorityRequiresHeldUserAndActualSessionBeforeGrant
+--- PASS: TestModelCurrentAuthorityRequiresHeldUserAndActualSessionBeforeGrant (0.00s)
+=== RUN   TestModelCommandDigestStableUserButCompleteMeaning
+--- PASS: TestModelCommandDigestStableUserButCompleteMeaning (0.00s)
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/same
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/different
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/absent
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/confirmation-error
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/revoked
+--- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/same (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/different (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/absent (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/confirmation-error (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/revoked (0.00s)
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/same
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/different
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/absent
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/revoked
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown-confirmation-failed
+--- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/same (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/different (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/absent (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/revoked (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown-confirmation-failed (0.00s)
+=== RUN   TestModelPolicyDoesNotClaimUnverifiedNativeSchemas
+--- PASS: TestModelPolicyDoesNotClaimUnverifiedNativeSchemas (0.00s)
+=== RUN   TestModelProjectCommandsAreExplicitlyUnboundWithoutIO
+--- PASS: TestModelProjectCommandsAreExplicitlyUnboundWithoutIO (0.00s)
+=== RUN   TestModelEventsUseExplicitCatalogAndWrongOwnerFailsBeforeSQL
+--- PASS: TestModelEventsUseExplicitCatalogAndWrongOwnerFailsBeforeSQL (0.00s)
+=== RUN   TestModelEventPlansBindFullActorAndExactRegisteredPayload
+--- PASS: TestModelEventPlansBindFullActorAndExactRegisteredPayload (0.00s)
+=== RUN   TestSystemHTTPDTORequiredNullAndExactScalars
+--- PASS: TestSystemHTTPDTORequiredNullAndExactScalars (0.00s)
+=== RUN   TestSystemHTTPListQueryCanonicalAndProjection
+--- PASS: TestSystemHTTPListQueryCanonicalAndProjection (0.00s)
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/observed
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/metadata
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/late-receipt
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/denied
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/lookup-error
+--- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/observed (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/metadata (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/late-receipt (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/denied (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/lookup-error (0.00s)
+=== RUN   TestSystemHTTPConstructionAndRoutesMatchOpenAPI
+--- PASS: TestSystemHTTPConstructionAndRoutesMatchOpenAPI (0.00s)
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/zero
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/actor
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/scope
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/intent
+--- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/zero (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/actor (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/scope (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/intent (0.00s)
+=== RUN   TestModelProjectCommandNamespacesPreserveOldSystemBytes
+--- PASS: TestModelProjectCommandNamespacesPreserveOldSystemBytes (0.00s)
+=== RUN   TestModelProjectReceiptAndUnknownUseReadAndExactScope
+--- PASS: TestModelProjectReceiptAndUnknownUseReadAndExactScope (0.00s)
+=== RUN   TestModelProjectViewsPolicyAndPrivateFactsCarryScope
+--- PASS: TestModelProjectViewsPolicyAndPrivateFactsCarryScope (0.00s)
+=== RUN   TestModelProjectCursorBindsProjectUserKindButNotLimitOrSession
+--- PASS: TestModelProjectCursorBindsProjectUserKindButNotLimitOrSession (0.01s)
+=== RUN   TestModelProjectAvailableDTOContainsOnlySelectionFields
+--- PASS: TestModelProjectAvailableDTOContainsOnlySelectionFields (0.00s)
+=== RUN   TestModelCursorBindsStableUserQueryAndOriginalWatermark
+--- PASS: TestModelCursorBindsStableUserQueryAndOriginalWatermark (0.00s)
+=== RUN   TestModelUnconfiguredSelectionIsExplicitAbsence
+--- PASS: TestModelUnconfiguredSelectionIsExplicitAbsence (0.00s)
+=== RUN   TestModelReplacementPreservesRequiredTypeAndMemoryCapability
+--- PASS: TestModelReplacementPreservesRequiredTypeAndMemoryCapability (0.00s)
+=== RUN   TestModelSecretReleaseRequiresExactBeforeAfterCommandPlan
+--- PASS: TestModelSecretReleaseRequiresExactBeforeAfterCommandPlan (0.00s)
+=== RUN   TestModelSecretRouterPreservesFallbackAndDoesNotGuessLeasePurpose
+--- PASS: TestModelSecretRouterPreservesFallbackAndDoesNotGuessLeasePurpose (0.00s)
+=== RUN   TestModelConstructorsArePureAndRejectMissingOwnership
+--- PASS: TestModelConstructorsArePureAndRejectMissingOwnership (0.00s)
+=== RUN   TestModelCommitStatesDoNotTreatUnknownAsZeroReceiptSuccess
+--- PASS: TestModelCommitStatesDoNotTreatUnknownAsZeroReceiptSuccess (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.052s

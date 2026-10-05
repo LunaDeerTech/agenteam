@@ -1,0 +1,45 @@
+{
+  "conclusion": "BLOCKED static review only",
+  "files": [
+    {
+      "path": "report.md",
+      "sha256": "de1f8913620aba6340e48381fe9ddf5debdc01396694451efacf8b29eaeef6b7",
+      "bytes": 5313
+    },
+    {
+      "path": "manifest.json",
+      "sha256": "50960486732000e7ad000db5f3b961ee861a11a21361b698639ea5e01b82bf68",
+      "bytes": 1278
+    },
+    {
+      "path": "source.patch",
+      "sha256": "f57bdf3324ec2423d3790c1e6fc9501dafb0d5da276e640f93193aa89e8f6f35",
+      "bytes": 19741
+    },
+    {
+      "path": "input-check.json",
+      "sha256": "27958ff039d5eb4b3bad5bcfcc2f699b671984e0272dc3bd097df14e833c85c5",
+      "bytes": 919
+    },
+    {
+      "path": "dependency-evidence/index.json",
+      "sha256": "c1a17ca4860d7abf1f7090bd6ce2dd7b9cb24f33193b289e6f59ab6ec2f7312a",
+      "bytes": 1529
+    },
+    {
+      "path": "dependency-evidence/stream.go.excerpt.txt",
+      "sha256": "fdaefe833542245645b68bdee46f02c709f8a2ea7a8c6eb4375d00b35ae674fc",
+      "bytes": 3323
+    },
+    {
+      "path": "dependency-evidence/decode.go.excerpt.txt",
+      "sha256": "2303b5fecb5d3dd8e37874f728f511b8ca76c564aad2cbfcfb7d4550a1560e6e",
+      "bytes": 1393
+    },
+    {
+      "path": "dependency-evidence/outbound-client-drain-ac5.txt",
+      "sha256": "4e2af587538ea2e42fca25357aebe14a493f21f500645d80683d8bda4d529bbb",
+      "bytes": 342
+    }
+  ]
+}

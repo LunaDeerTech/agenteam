@@ -1,0 +1,31 @@
+{
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "card_sha256": "747c879b4d930de949570a72ad6f3418bac3870f1ea23d639e19ce8a456799a0",
+  "files": [
+    {
+      "path": "internal/central/model/adapter/openai_chat.go",
+      "sha256": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556",
+      "bytes": 11254,
+      "baseline_sha256": "e1b3a23b5c792b71255de9c747cf13fe1e41700430167386041c7d22b5dc457a"
+    },
+    {
+      "path": "internal/central/model/adapter/transport.go",
+      "sha256": "75b73ebbc96927904524d9097ed8b5044c12368acf53970440614da10ddd72ef",
+      "bytes": 11747,
+      "baseline_sha256": "443f7b288e90c1ff8b0b5504005369f452e43fb55420e28f9794828037aeda42"
+    },
+    {
+      "path": "internal/central/model/adapter/sse.go",
+      "sha256": "2996e01864c0a0504a429e9bafb9e4305003bfe7a40270a1e75bf5aefec8f025",
+      "bytes": 3680,
+      "baseline_sha256": "53439e38f47a0f73876d8ae45315a8f932678cad15feab173ccb2e69f9e2ebe3"
+    },
+    {
+      "path": "internal/central/model/adapter/structured_schema.go",
+      "sha256": "791c472f9254cbb6ebf25b8db2ced87ba00400407a4592b50072d9ac94a4b48b",
+      "bytes": 12390,
+      "baseline_sha256": null
+    }
+  ],
+  "patch_sha256": "f57bdf3324ec2423d3790c1e6fc9501dafb0d5da276e640f93193aa89e8f6f35"
+}

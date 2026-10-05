@@ -1,0 +1,53 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestModelOpenAIChatStructuredHTTP|TestModelOpenAIChatStructuredStream|TestModelOpenAIChatStructuredCloseAndBudget|TestModelOpenAIChatWireHTTP|TestModelOpenAIChatWireStream|TestModelOpenAIChatWireJoinAndBudget)$"
+  ],
+  "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree",
+  "environment": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOTELEMETRY": "off",
+    "CGO_ENABLED": "1",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-d09-final-build-k1jf1jcx/gocache",
+    "TMPDIR": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime",
+    "GOFLAGS": "-mod=readonly -v",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "DOCKER_CONFIG": "/workspace/agenteam-structured-wire-author-2zomqtpx/docker-config",
+    "PATH": "/workspace/agenteam-structured-wire-author-2zomqtpx/docker-bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "removed_inherited_keys": [],
+  "candidate_manifest_sha256": "53d31b380ed5c214cb9e87fbf5450454b0f2e5935e0b92615dd3eb0b0389236c",
+  "baseline_manifest_sha256": "465092f6c6a4bf0797c2bc0f1feeda4acdaed6a22b12163d83bd30a3102d417c",
+  "asset_supplement_sha256": "168d81eadc07a9edbbc25304a87fa6e86ba7e5b2874905b074c5ea97d34d65cf",
+  "selection_sha256": "1822b6e52f0367eee044bf290b015a7dbd65b0aacfe4549c82950baf1d71c094",
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "minio_binary_sha256": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+  "resource_baseline": "structured-real-01-baseline.json",
+  "started_at": "2026-10-05T19:45:01.229586+00:00",
+  "log": "structured-real-01.log",
+  "driver_pid": 1118692,
+  "runner_process": {
+    "pid": 1118692,
+    "ppid": 842,
+    "start_ticks": "3271436",
+    "state": "R",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+    "cwd": "/workspace"
+  },
+  "owned_process_marker": "agenteam-structured-wire-author-2zomqtpx:structured-real-01",
+  "runner_sha256": "3448b5bf32e6e10af27b35f821a7414b09413e70283c7c1b44069eed45fdc0ae",
+  "observer_sha256": "51c764eac9eace8c49d122d42bd992549afa8b6dc004f34cccda5aae673f7695",
+  "trusted_baseline_sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+  "exit_code": 0,
+  "finished_at": "2026-10-05T19:45:35.977584+00:00",
+  "log_sha256": "a01719ccc27512d99320d33cc338590b9e6cc1595f6d25956ceb43fdf5b0111d"
+}

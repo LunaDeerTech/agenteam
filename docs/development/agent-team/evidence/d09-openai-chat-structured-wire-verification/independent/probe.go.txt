@@ -1,0 +1,248 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"io"
+	"net/http/httptrace"
+	"sync"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+)
+
+const independentStructuredSchema = `{"type":"object","properties":{"entries":{"type":"array","items":{"type":"object","properties":{"code":{"type":"string","enum":["accepted"]},"rank":{"type":"integer"}},"required":["code","rank"],"additionalProperties":false}}},"required":["entries"],"additionalProperties":false}`
+
+func independentStructuredRequest(r *wire.Request) {
+	r.Snapshot.Identity.AdapterRevision = wire.OpenAIChatStructuredRevision
+	r.Snapshot.Capabilities.StructuredOutputModes = []string{"text", "json_schema"}
+	r.ResponseFormat = mc.ResponseFormat{Kind: "json_schema", Name: "independent_result", Schema: json.RawMessage(independentStructuredSchema)}
+}
+
+func independentMaterialLive(t *testing.T, m sc.SecretMaterial) {
+	t.Helper()
+	called := false
+	err := m.Use(func(value []byte) error {
+		called = true
+		if string(value) != wireCredentialCanary {
+			return errors.New("borrowed fixture material changed")
+		}
+		return nil
+	})
+	if err != nil || !called {
+		t.Fatal("caller-owned material retired before explicit Destroy")
+	}
+}
+
+func independentDestroyAfterJoin(t *testing.T, x *wire.Exchange, m sc.SecretMaterial) {
+	t.Helper()
+	if !x.Joined() {
+		t.Fatal("refusing to destroy material before actual exchange join")
+	}
+	independentMaterialLive(t, m)
+	m.Destroy()
+	if err := m.Use(func([]byte) error { return nil }); err == nil {
+		t.Fatal("explicit material destruction did not invalidate Use")
+	}
+}
+
+func TestIndependentStructuredMismatchUsage(t *testing.T) {
+	v := newWireFixture(t)
+	v.allow(t, true)
+	prefix := `{"entries":[{"code":"`
+	suffix := wireBodyCanary + `","rank":9007199254740993}]}`
+	if !json.Valid([]byte(prefix + suffix)) {
+		t.Fatal("probe requires valid JSON that only violates the schema")
+	}
+	usage := json.RawMessage(`{"prompt_tokens":7,"completion_tokens":0,"total_tokens":9}`)
+	config := wireSSE(
+		wireChunk(map[string]any{"role": "assistant", "content": prefix}, nil, nil, nil, false),
+		wireChunk(map[string]any{"content": suffix}, "stop", nil, nil, false),
+		wireChunk(nil, nil, usage, nil, true),
+		[]byte("data: [DONE]\n\n"),
+	)
+	hold := 1
+	config.HoldAfter = &hold
+	key := v.scenario(t, config)
+	r, o := v.input(t, key, wire.SSEResponse)
+	independentStructuredRequest(&r)
+	x := v.start(t, testContext(t), v.adapter, r, o)
+	first, err := x.Next(testContext(t))
+	if err != nil || first.Kind != wire.TextDelta || first.Text != prefix {
+		t.Fatal("real held prefix was not delivered before schema failure", err)
+	}
+	state := v.state(t, key)
+	if len(state.Requests) != 1 || state.ActiveHandlers != 1 || x.Joined() {
+		t.Fatal("mismatch probe did not reach a live, held D04 response")
+	}
+	var body struct {
+		Format struct {
+			Type   string `json:"type"`
+			Schema struct {
+				Name   string          `json:"name"`
+				Strict bool            `json:"strict"`
+				Raw    json.RawMessage `json:"schema"`
+			} `json:"json_schema"`
+		} `json:"response_format"`
+	}
+	request := state.Requests[0]
+	if request.Method != "POST" || request.Headers.Get("Authorization") != "Bearer "+wireCredentialCanary || json.Unmarshal([]byte(request.Body), &body) != nil || body.Format.Type != "json_schema" || body.Format.Schema.Name != "independent_result" || !body.Format.Schema.Strict || string(body.Format.Schema.Raw) != independentStructuredSchema {
+		t.Fatal("real request did not contain the exact strict schema")
+	}
+	independentMaterialLive(t, o.Credential)
+	if err := v.net.Release(testContext(t), key); err != nil {
+		t.Fatal("release ordinary owned response", err)
+	}
+	text, updates := first.Text, 0
+	var terminal error
+	for count := 0; count < 16; count++ {
+		event, err := x.Next(testContext(t))
+		if err != nil {
+			terminal = err
+			break
+		}
+		switch event.Kind {
+		case wire.TextDelta:
+			text += event.Text
+		case wire.UsageUpdate:
+			updates++
+			if event.Usage == nil || event.Usage.TotalTokens == nil || *event.Usage.TotalTokens != 9 {
+				t.Fatal("real final usage was not delivered")
+			}
+		case wire.StreamEnd:
+			t.Fatal("valid JSON with an invalid nested enum succeeded")
+		default:
+			t.Fatal("unexpected event kind")
+		}
+	}
+	m := wireModelError(t, terminal, "provider_error", "wire_protocol_invalid", true, true)
+	if m.Retryable || m.ProviderRequestID != "req_stream-1" || text != prefix+suffix || updates != 1 {
+		t.Fatal("schema failure lost actual delivery or became retryable")
+	}
+	observed := x.Observe()
+	u := observed.Usage
+	if observed.Decision == nil || !observed.Decision.Sent || u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 7 || u.OutputTokens == nil || *u.OutputTokens != 0 || u.TotalTokens == nil || *u.TotalTokens != 9 {
+		t.Fatal("schema failure lost reliable observed usage")
+	}
+	if _, err := x.Next(testContext(t)); !errors.Is(err, io.EOF) {
+		t.Fatal("failure was not followed by EOF")
+	}
+	wireClose(t, x)
+	v.settled(t, key)
+	if len(v.state(t, key).Requests) != 1 {
+		t.Fatal("schema failure retried the provider request")
+	}
+	independentDestroyAfterJoin(t, x, o.Credential)
+	t.Log("actual strict POST=1; delivered JSON prefix and final usage 7/0/9; nested enum mismatch -> nonretryable protocol error, PartialOutput=true, EOF, no StreamEnd; D04 handler/connection and exchange joined")
+}
+
+func TestIndependentStructuredCancelActualJoin(t *testing.T) {
+	v := newWireFixture(t)
+	v.allow(t, true)
+	b := wire.NewBudget()
+	a := v.newAdapter(t, b)
+	other := v.newAdapter(t, b)
+	config := wireSSE(wireChunk(map[string]any{"content": `{"entries":[]}`}, "stop", nil, nil, false), []byte("data: [DONE]\n\n"))
+	hold := 0
+	config.HoldAfter = &hold
+	key := v.scenario(t, config)
+	entered, released, returned := make(chan struct{}), make(chan struct{}), make(chan struct{})
+	var once sync.Once
+	release := func() { once.Do(func() { close(released) }) }
+	defer release()
+	ctx, cancel := context.WithCancel(testContext(t))
+	defer cancel()
+	ctx = httptrace.WithClientTrace(ctx, &httptrace.ClientTrace{WroteRequest: func(httptrace.WroteRequestInfo) {
+		close(entered)
+		<-released
+		close(returned)
+	}})
+	r, o := v.input(t, key, wire.SSEResponse)
+	independentStructuredRequest(&r)
+	project, material := o.ProjectID, o.Credential
+	x := v.start(t, ctx, a, r, o)
+	waitSignal(t, entered)
+	wireWait(t, "controlled writer never reached actual server", func() bool { return len(v.state(t, key).Requests) == 1 })
+	cancel()
+	short, stop := context.WithTimeout(context.Background(), 30*time.Millisecond)
+	err := x.Close(short)
+	stop()
+	wireModelError(t, err, "timeout", "wire_transport_error", false, false)
+	wireWait(t, "cancelled actual Do returned no Decision", func() bool { return x.Observe().Decision != nil })
+	decision := x.Observe().Decision
+	if x.Joined() || b.Joined() || decision.Reason != ac.Cancelled || !decision.Sent {
+		t.Fatal("cancelled structured request falsely joined its held writer")
+	}
+	select {
+	case <-returned:
+		t.Fatal("writer barrier unexpectedly returned")
+	default:
+	}
+	independentMaterialLive(t, material)
+	_, err = x.Next(testContext(t))
+	wireModelError(t, err, "cancelled", "wire_cancelled", true, false)
+	if _, err := x.Next(testContext(t)); !errors.Is(err, io.EOF) {
+		t.Fatal("cancelled stream emitted a late event")
+	}
+	var held []*wire.Exchange
+	for i := 0; i < 7; i++ {
+		r, o = v.input(t, key, wire.SSEResponse)
+		o.ProjectID = project
+		if i%2 == 0 {
+			independentStructuredRequest(&r)
+		}
+		held = append(held, v.start(t, testContext(t), other, r, o))
+	}
+	wireWait(t, "seven additional mixed-revision requests were not observed", func() bool { return len(v.state(t, key).Requests) == 8 })
+	r, o = v.input(t, key, wire.SSEResponse)
+	o.ProjectID = project
+	independentStructuredRequest(&r)
+	if handle, err := a.Start(testContext(t), r, o); handle != nil {
+		t.Fatal("unjoined writer slot was replaced")
+	} else {
+		wireFault(t, err, f.ResourceBusy)
+	}
+	if len(v.state(t, key).Requests) != 8 {
+		t.Fatal("denied ninth request performed I/O")
+	}
+	noWait, noWaitCancel := context.WithCancel(context.Background())
+	noWaitCancel()
+	if err := b.Drain(noWait); err == nil || b.Joined() {
+		t.Fatal("Drain declared a held writer/body terminal")
+	}
+	release()
+	waitSignal(t, returned)
+	wireClose(t, x)
+	independentMaterialLive(t, material)
+	replacement := v.start(t, testContext(t), other, r, o)
+	held = append(held, replacement)
+	wireWait(t, "real join did not free exactly one slot", func() bool { return len(v.state(t, key).Requests) == 9 })
+	if replacement.Joined() {
+		t.Fatal("held replacement body falsely joined")
+	}
+	b.StopAdmission()
+	force, stopForce := context.WithTimeout(context.Background(), 5*time.Second)
+	defer stopForce()
+	if err := b.Force(force); err != nil || !b.Joined() {
+		t.Fatal("mixed structured/text owners did not actually join", err)
+	}
+	for _, handle := range held {
+		if !handle.Joined() {
+			t.Fatal("mixed-revision handle escaped actual join")
+		}
+	}
+	v.settled(t, key)
+	if len(v.state(t, key).Requests) != 9 {
+		t.Fatal("request count changed during shutdown")
+	}
+	independentDestroyAfterJoin(t, x, material)
+	t.Log("actual Sent/Cancelled with writer barrier held: Close timeout, Joined=false, material live, mixed Project slots=8 and ninth rejected; writer return+Drain frees one slot; Force joins all body/parser/client owners; 9 actual requests, handlers/connections closed before Destroy")
+}

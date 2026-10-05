@@ -1,0 +1,12 @@
+{
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "path": "api/openapi/model-system.json",
+  "sha256": "f18b5bfe747be21dbe34791dd08876f768d4271154ed5843dc338fdc6ac73334",
+  "bytes": 89872,
+  "source_argv": [
+    "git",
+    "show",
+    "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7:api/openapi/model-system.json"
+  ],
+  "reason": "pure-race-02 old HTTP route test runtime-read asset absent from initial lightweight snapshot; no source change"
+}

@@ -1,0 +1,259 @@
+{
+  "top_pass": 6,
+  "sub_pass": 48,
+  "tests": [
+    {
+      "test": "TestModelOpenAIChatStructuredHTTP",
+      "pass": true,
+      "duration": [
+        "2.40s"
+      ],
+      "sub_pass_count": 14,
+      "subtests": [
+        {
+          "name": "strict_native_request_and_immutable_schema",
+          "duration": "0.09s"
+        },
+        {
+          "name": "schema_errors_are_pre_admission_zero_send",
+          "duration": "0.08s"
+        },
+        {
+          "name": "valid_native_envelope_never_bypasses_schema",
+          "duration": "0.82s"
+        },
+        {
+          "name": "valid_native_envelope_never_bypasses_schema/missing",
+          "duration": "0.08s"
+        },
+        {
+          "name": "valid_native_envelope_never_bypasses_schema/extra",
+          "duration": "0.08s"
+        },
+        {
+          "name": "valid_native_envelope_never_bypasses_schema/nested_type",
+          "duration": "0.09s"
+        },
+        {
+          "name": "valid_native_envelope_never_bypasses_schema/enum",
+          "duration": "0.09s"
+        },
+        {
+          "name": "valid_native_envelope_never_bypasses_schema/duplicate",
+          "duration": "0.09s"
+        },
+        {
+          "name": "valid_native_envelope_never_bypasses_schema/trailing",
+          "duration": "0.07s"
+        },
+        {
+          "name": "valid_native_envelope_never_bypasses_schema/malformed",
+          "duration": "0.08s"
+        },
+        {
+          "name": "valid_native_envelope_never_bypasses_schema/length_even_valid",
+          "duration": "0.08s"
+        },
+        {
+          "name": "valid_native_envelope_never_bypasses_schema/content_filter",
+          "duration": "0.09s"
+        },
+        {
+          "name": "valid_native_envelope_never_bypasses_schema/refusal",
+          "duration": "0.07s"
+        },
+        {
+          "name": "new_revision_text_path_and_unknown_usage",
+          "duration": "0.16s"
+        }
+      ]
+    },
+    {
+      "test": "TestModelOpenAIChatStructuredStream",
+      "pass": true,
+      "duration": [
+        "1.98s"
+      ],
+      "sub_pass_count": 10,
+      "subtests": [
+        {
+          "name": "fragmented_strict_json_and_done_before_http_eof",
+          "duration": "0.08s"
+        },
+        {
+          "name": "schema_failure_preserves_delivered_prefix_and_final_usage",
+          "duration": "0.60s"
+        },
+        {
+          "name": "schema_failure_preserves_delivered_prefix_and_final_usage/mismatch",
+          "duration": "0.08s"
+        },
+        {
+          "name": "schema_failure_preserves_delivered_prefix_and_final_usage/trailing",
+          "duration": "0.09s"
+        },
+        {
+          "name": "schema_failure_preserves_delivered_prefix_and_final_usage/malformed",
+          "duration": "0.09s"
+        },
+        {
+          "name": "schema_failure_preserves_delivered_prefix_and_final_usage/length",
+          "duration": "0.08s"
+        },
+        {
+          "name": "schema_failure_preserves_delivered_prefix_and_final_usage/filtered",
+          "duration": "0.08s"
+        },
+        {
+          "name": "schema_failure_preserves_delivered_prefix_and_final_usage/missing_done",
+          "duration": "0.09s"
+        },
+        {
+          "name": "schema_failure_preserves_delivered_prefix_and_final_usage/refusal_after_prefix",
+          "duration": "0.09s"
+        },
+        {
+          "name": "no_usage_is_unknown_and_output_node_budget_is_real",
+          "duration": "0.28s"
+        }
+      ]
+    },
+    {
+      "test": "TestModelOpenAIChatStructuredCloseAndBudget",
+      "pass": true,
+      "duration": [
+        "1.40s"
+      ],
+      "sub_pass_count": 2,
+      "subtests": [
+        {
+          "name": "backpressured_parser_owns_slot_and_borrowed_material",
+          "duration": "0.16s"
+        },
+        {
+          "name": "text_and_structured_share_exact_global_and_project_budget",
+          "duration": "0.19s"
+        }
+      ]
+    },
+    {
+      "test": "TestModelOpenAIChatWireHTTP",
+      "pass": true,
+      "duration": [
+        "2.82s"
+      ],
+      "sub_pass_count": 6,
+      "subtests": [
+        {
+          "name": "real_policy_deny_then_allow_and_exact_native_request",
+          "duration": "0.10s"
+        },
+        {
+          "name": "unsupported_invalid_and_cancelled_admission_are_zero_do",
+          "duration": "0.08s"
+        },
+        {
+          "name": "native_refusal_is_safe_error_with_usage",
+          "duration": "0.08s"
+        },
+        {
+          "name": "status_mapping_discards_private_body_and_does_not_retry",
+          "duration": "0.77s"
+        },
+        {
+          "name": "tls_and_post_redirect_preserve_actual_decision",
+          "duration": "0.17s"
+        },
+        {
+          "name": "wire_control_rejects_outside_closed_profile",
+          "duration": "0.54s"
+        }
+      ]
+    },
+    {
+      "test": "TestModelOpenAIChatWireStream",
+      "pass": true,
+      "duration": [
+        "2.27s"
+      ],
+      "sub_pass_count": 14,
+      "subtests": [
+        {
+          "name": "fragmented_utf8_crlf_default_obfuscation_and_final_usage",
+          "duration": "0.08s"
+        },
+        {
+          "name": "no_usage_and_content_filter_finish_are_not_refusal",
+          "duration": "0.15s"
+        },
+        {
+          "name": "protocol_errors_and_interruption_never_emit_end",
+          "duration": "0.60s"
+        },
+        {
+          "name": "protocol_errors_and_interruption_never_emit_end/missing_done",
+          "duration": "0.07s"
+        },
+        {
+          "name": "protocol_errors_and_interruption_never_emit_end/premature_done",
+          "duration": "0.07s"
+        },
+        {
+          "name": "protocol_errors_and_interruption_never_emit_end/bad_event",
+          "duration": "0.08s"
+        },
+        {
+          "name": "protocol_errors_and_interruption_never_emit_end/unknown_finish",
+          "duration": "0.08s"
+        },
+        {
+          "name": "protocol_errors_and_interruption_never_emit_end/tools",
+          "duration": "0.07s"
+        },
+        {
+          "name": "protocol_errors_and_interruption_never_emit_end/obfuscation_type",
+          "duration": "0.08s"
+        },
+        {
+          "name": "protocol_errors_and_interruption_never_emit_end/duplicate_key",
+          "duration": "0.07s"
+        },
+        {
+          "name": "refusal_is_one_safe_error_with_actual_prefix",
+          "duration": "0.15s"
+        },
+        {
+          "name": "observed_usage_survives_later_bad_event",
+          "duration": "0.07s"
+        },
+        {
+          "name": "real_d04_body_cap_is_not_ignored_obfuscation",
+          "duration": "0.08s"
+        },
+        {
+          "name": "slow_consumer_backpressure_cancel_has_no_late_end",
+          "duration": "0.11s"
+        }
+      ]
+    },
+    {
+      "test": "TestModelOpenAIChatWireJoinAndBudget",
+      "pass": true,
+      "duration": [
+        "1.28s"
+      ],
+      "sub_pass_count": 2,
+      "subtests": [
+        {
+          "name": "real_writer_late_return_keeps_exact_slot",
+          "duration": "0.14s"
+        },
+        {
+          "name": "two_adapters_share_global64_project8_without_queue",
+          "duration": "0.16s"
+        }
+      ]
+    }
+  ],
+  "log_sha256": "a01719ccc27512d99320d33cc338590b9e6cc1595f6d25956ceb43fdf5b0111d"
+}

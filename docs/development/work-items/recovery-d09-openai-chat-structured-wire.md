@@ -1,6 +1,6 @@
 # D09 OpenAI Chat structured-output wire 恢复卡
 
-修订：rev1，规格已独立静审通过并获主线程采纳，业务实施待本卡提交后另授。固定代码输入为 `ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7`，仅消费其中已验 C0、D04 与 `openai-chat-text-v1`，不消费活动 root、Artifact 或 Object 源。当前 `d08_recovery_design` 仅有本卡状态修订权；后续由其转任 `backend_worker` 实施，独立验收者为 `skill_verification`，10 路径业务写权及真实 fixture 窗口仍由主线程另授。
+修订：rev1，库级实现已独立验收并获主线程采纳；精确 10 源已提交推送 `be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74`，主线程确认远端一致。固定业务输入仍为 `ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7`；实施者 `d08_recovery_design`、独立验收者 `skill_verification` 均已停写并交还资源。验收、原失败与未绑定边界见[正式报告](../agent-team/d09-openai-chat-structured-wire-verification.md)；完整 D09 尚未完成。
 
 必读 [AGENTS](../../../AGENTS.md)、[团队流程](../agent-team/README.md)、[设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[D09 主卡](d09-model-system-token-usage.md)、[D09 设计 §6–7](d09-model-system-token-usage-design.md#6-五种协议-profile固定源码事实与-conformance-边界)、[已验 text wire 卡](recovery-d09-openai-chat-wire.md)及其[验收证据](../agent-team/d09-openai-chat-wire-verification.md)。本卡只列增量，不重定 C0/出站权限/原 wire 生命周期。
 
@@ -72,7 +72,7 @@ schema 编译在接受前，本次输出累计/验证在原 parser worker 内，
 
 ## 6. 精确实施范围
 
-本卡提交后另授唯一实施者 `d08_recovery_design`（`backend_worker`）以下 **10 路径**；当前仍仅写本卡状态。三个旧生产文件与固定 ac5 逐 SHA 比较，有其他已提交变更时先定向核差量，不能读活动候选作为前置。
+以下 **10 路径**是本次唯一实施者 `d08_recovery_design`（`backend_worker`）的已验交付范围；当前源码已冻结提交，后续改动仍须另行授权。三个旧生产文件以固定 ac5 为输入，不消费活动候选；原技术范围保持。
 
 | 路径 | 允许内容 |
 | --- | --- |
@@ -116,10 +116,18 @@ schema 编译在接受前，本次输出累计/验证在原 parser worker 内，
 
 作者冻结精确 10 源、原始日志/命令/来源 manifest/首红与修复差量；独立 V 按风险选择真实反例，至少覆盖可解析但不匹配 schema 的失败终态/usage 与取消实际 join，不以 typed constructor 早拒冒充响应验证。最后资源 exactID 二次不存在、原基线不变、owned 进程/runtime 清零，立即交窗口；报告可随后整理。只有独立验收与主线程采纳才是此库修订交付，不代表完整 D09/Resolver/生产调用可用。
 
-当前仅完成规格独立静审、采纳与离线来源核查；无业务/迁移/Go/Docker/Provider 执行，也没有新的运行通过声明。
+上述门槛的实际通过、原红及证据复用见文末验收记录；本次没有迁移、SDK 执行或真实 Provider 账号验证。
 
-## 规格采纳与实施交接
+## 规格采纳与实施交接（历史）
 
 2026-10-05，主线程读核独立静审报告后采纳 rev1。被审卡 SHA-256 为 `103ef5b0d3e7451510d55d4bbf99986db59639ac309ab47ba9b9a8f2189f6eff`；独立报告为 `/tmp/agenteam-structured-wire-spec-v-zf97bw0x/report.md`，SHA-256 `d840b87853e1236423495c6751c921d508ccb36cbd25b16af20ca7e65e76c6f3`。结论为规格 STATIC PASS，不是实现或动态验收通过；本次仅更新状态/职责，固定 ac5、API、10 路径、技术规则及验收正文保持。
 
-业务实施待本卡提交后由主线程正式续派，实施者 `d08_recovery_design` 转任 `backend_worker`，开工须补读 [Go 开发技能](../../../.agents/skills/agenteam-go-development/SKILL.md)；独立验收由 `skill_verification` 负责。当前不启动业务、测试或真实资源，不再委派。
+当时业务实施待本卡提交后由主线程正式续派，实施者 `d08_recovery_design` 转任 `backend_worker`，开工须补读 [Go 开发技能](../../../.agents/skills/agenteam-go-development/SKILL.md)；独立验收由 `skill_verification` 负责。该段保留规格采纳时的交接事实，不表示当前仍待实施。
+
+## 库级验收与交付
+
+2026-10-05，主线程采纳独立最终 PASS，精确 10 源提交推送 `be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74`、远端一致。最终 manifest `53d31b380ed5c214cb9e87fbf5450454b0f2e5935e0b92615dd3eb0b0389236c` 与接受提交逐 SHA 相同。作者真实 **6 顶层/48 子例**（3 新/26 子例、3 旧/22 子例）及独立 **2 顶层、无子例**通过；两侧各 4 容器/3 网络双清零、原基线不变，所属进程/runtime 空。
+
+[正式报告与轻量证据](../agent-team/d09-openai-chat-structured-wire-verification.md)保留 F1/F2 静态 BLOCKED、纯测试原 **2/6 FAIL** 到同预算 **2/6 PASS**、review02 静审 PASS，以及原纯整条缺资产 FAIL 后 adapter/contract 按包复用与 Model 定向补验。F2 本地 owner 纯例不单独证明真实 D04 join；作者与独立真实关闭组合补足。最终 integration compile/vet、两 cmd build 均有实际 argv/env/exit。
+
+结果为保守 strict JSON Schema 子集的 wire 库，不新增 C0/迁移或生产装配，不放宽 text-v1；Resolver、Memory canonical consumer、Secret resolve grant、Invocation/Usage 和实际 Provider 调用仍由后继绑定。Summary 产品待决、Object/Artifact 阻断和 ready503 不变；完整 D09 未完成。

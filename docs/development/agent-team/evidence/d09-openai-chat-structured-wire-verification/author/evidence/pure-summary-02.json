@@ -1,0 +1,92 @@
+[
+  {
+    "label": "pure-race-02",
+    "exit": 1,
+    "top_pass": 75,
+    "sub_pass": 146,
+    "top_fail": 1,
+    "sub_fail": 0,
+    "metadata_sha256": "1a97a6c35112e6adff9a73efb08fe37a8e7a8e226e90cd328ef2f3aa296fbd74",
+    "log_sha256": "031bdb040fb97988148038e97d8548aee1c3aebb64a0f46133268e46a4e911c7"
+  },
+  {
+    "label": "model-pure-race-03",
+    "exit": 0,
+    "top_pass": 26,
+    "sub_pass": 20,
+    "top_fail": 0,
+    "sub_fail": 0,
+    "metadata_sha256": "4a3cafa4d5001fc55d413669e72ea0e000c81fff3b59c0bcbfafe3a59c26ffad",
+    "log_sha256": "25b49b0933076a06e1ffbc97ffb4f43debb31e8d85d7e527d13183062ea64956"
+  },
+  {
+    "label": "pure-f1-f2-red-01",
+    "exit": 1,
+    "top_pass": 0,
+    "sub_pass": 0,
+    "top_fail": 2,
+    "sub_fail": 6,
+    "metadata_sha256": "e3a266c15e0d54a22a81af9956311067476e544dc9d25f0e302b5451e69cb582",
+    "log_sha256": "b92c9107e330258751fbf0bda7c1a3d683c9ca2993897df20e1d05189c8e8849"
+  },
+  {
+    "label": "pure-f1-f2-fixed-01",
+    "exit": 0,
+    "top_pass": 2,
+    "sub_pass": 6,
+    "top_fail": 0,
+    "sub_fail": 0,
+    "metadata_sha256": "89198b0de07a755e91e36e3fdfc008c6e5a8063fe9f4f3622cd2e499341d97dc",
+    "log_sha256": "e4eb8ab13d8ba72f6f92a0026cc20d6d4df98f3f6caae83022755da5443790d6"
+  },
+  {
+    "label": "integration-vet-02",
+    "exit": 0,
+    "top_pass": 0,
+    "sub_pass": 0,
+    "top_fail": 0,
+    "sub_fail": 0,
+    "metadata_sha256": "e1b30f1d95074d269029033d7270396bc10d38eb4196bb6bde2d63e00a2c5a5a",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "integration-compile-02",
+    "exit": 0,
+    "top_pass": 0,
+    "sub_pass": 0,
+    "top_fail": 0,
+    "sub_fail": 0,
+    "metadata_sha256": "1371798dc15d2810e15d48a5a55045a411b22362d350d8cfbc60af3946f89e2b",
+    "log_sha256": "172e71998989d166148d2a5591c4f6ad29ca643752428da6436f65b5e336a645"
+  },
+  {
+    "label": "fixture-closure-compile-01",
+    "exit": 0,
+    "top_pass": 0,
+    "sub_pass": 0,
+    "top_fail": 0,
+    "sub_fail": 0,
+    "metadata_sha256": "d2e2892d868497f96527aab082dffbe91aa35b4da577d229e1c26a156ce1deab",
+    "log_sha256": "e55f3ce80da016fe8df87424cf57227b4e0335f74d0313592192b9985b694a72"
+  },
+  {
+    "label": "central-build-02",
+    "exit": 0,
+    "top_pass": 0,
+    "sub_pass": 0,
+    "top_fail": 0,
+    "sub_fail": 0,
+    "metadata_sha256": "8f4bce0d903e3d69283ac2cd61395fbe99a62616cd1b35ca58576875d56b59cf",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "runner-build-02",
+    "exit": 0,
+    "top_pass": 0,
+    "sub_pass": 0,
+    "top_fail": 0,
+    "sub_fail": 0,
+    "metadata_sha256": "e518d976a7a61109877e18c1f7b4263210d7768443a1f79722819d10d3a3ecf5",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

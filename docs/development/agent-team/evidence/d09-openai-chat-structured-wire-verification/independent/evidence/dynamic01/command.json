@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestIndependentStructured(MismatchUsage|CancelActualJoin)$"
+  ],
+  "cwd": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/tree",
+  "environment": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "GOCACHE": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/private-cache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTELEMETRY": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/runtime"
+  },
+  "go_version": "go version go1.27.1 linux/amd64",
+  "probe_sha256": "5bd36ca1b831a621fbfc53103c4d1212807dec8fe84bd6c836c4f5105016292f",
+  "production_manifest_sha256": "5d846a337a5b41b3e04621cfc51b6f2ebddf311f6974c98dd5b16264751f8351",
+  "ready_input_sha256": "edc9a5ab945cb9ae241ddf4269e0964a81abc34f09d38d98234de168357eaaa4",
+  "scope": "authorized unique fixture; fixed 2 tops/no subtests; no new network fault method",
+  "started_utc": "2026-10-05T19:50:44.953466+00:00"
+}

@@ -1,0 +1,17 @@
+func (c *Client) Drain(ctx context.Context) error {
+	s := c.state()
+	for {
+		s.mu.Lock()
+		if len(s.active) == 0 && s.writers == 0 && (!s.stopped || len(s.connections) == 0) {
+			s.mu.Unlock()
+			return nil
+		}
+		changed := s.changed
+		s.mu.Unlock()
+		select {
+		case <-changed:
+		case <-ctx.Done():
+			return unavailable(ctx.Err())
+		}
+	}
+}

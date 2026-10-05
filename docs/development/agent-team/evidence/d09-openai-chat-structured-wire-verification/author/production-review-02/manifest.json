@@ -1,0 +1,34 @@
+{
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "review01_manifest_sha256": "50960486732000e7ad000db5f3b961ee861a11a21361b698639ea5e01b82bf68",
+  "files": [
+    {
+      "path": "internal/central/model/adapter/openai_chat.go",
+      "sha256": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556",
+      "bytes": 11254,
+      "review01_sha256": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556"
+    },
+    {
+      "path": "internal/central/model/adapter/transport.go",
+      "sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf",
+      "bytes": 11948,
+      "review01_sha256": "75b73ebbc96927904524d9097ed8b5044c12368acf53970440614da10ddd72ef"
+    },
+    {
+      "path": "internal/central/model/adapter/sse.go",
+      "sha256": "2996e01864c0a0504a429e9bafb9e4305003bfe7a40270a1e75bf5aefec8f025",
+      "bytes": 3680,
+      "review01_sha256": "2996e01864c0a0504a429e9bafb9e4305003bfe7a40270a1e75bf5aefec8f025"
+    },
+    {
+      "path": "internal/central/model/adapter/structured_schema.go",
+      "sha256": "061e45a59fc575b8d7bdbcf9b1837bbe247b7e5ac9d382b32be9c7b77ebab575",
+      "bytes": 16676,
+      "review01_sha256": "791c472f9254cbb6ebf25b8db2ced87ba00400407a4592b50072d9ac94a4b48b"
+    }
+  ],
+  "delta_sha256": "e293b5d74550f0492686119d3d95e15b5063379d43d053ca02b8b7dba867a50a",
+  "red_metadata": "evidence/pure-f1-f2-red-01.json",
+  "green_metadata": "evidence/pure-f1-f2-fixed-01.json",
+  "static_blocker_report_sha256": "de1f8913620aba6340e48381fe9ddf5debdc01396694451efacf8b29eaeef6b7"
+}

@@ -4,6 +4,8 @@
 
 Central 已在真实数据库、安全初始化、Object/Outbox 注册恢复及 Account/Mail 启动后提供诊断、正式账户 HTTP 和 System Model 配置 HTTP。默认根已绑定 System Provider/Model CRUD、平台 selector、Model credential 独立写入及 Model 配置和 credential 两类原命令查证，使用真实 Account Session/admin、同一 Secret/Audit/Outbox；接口见 [System Model OpenAPI](../../../api/openapi/model-system.json)，装配边界见[根装配规格](../work-items/recovery-d09-system-model-root.md)。当前 Session/System 授权已接入 Audit、Secret、出站与 Outbox；Object 绑定本人当前头像，SMTP 使用受控出站和真实 Secret lease，Outbox 唯一生产 handler 仍为 `account.mail-enqueue`，没有 Model consumer。对象 Runtime 实际核 store identity、双 origin probe、ProcessGuard 与恢复门禁，见[对象 Runtime 说明](object-runtime.md)；已证实的 [Object runtime join 缺陷](../agent-team/object-runtime-join-regression.md)尚未修复，本次 System Model 根装配不解除该限制。Artifact/通用下载 HTTP、Project 生产授权、Runner/Operation、Model Resolver/Invocation/Usage 和实际 Provider/MCP 调用仍未绑定；Summary 初值待定，完整 D09 未完成。Runner 是未连接进程，整体 `ready=false`、`/readyz` 仍为 503。账户接口见 [OpenAPI](../../../api/openapi/account.json)，Artifact 与浏览器下载库边界见 [Artifact 说明](artifact.md)。
 
+OpenAI Chat wire 库已验 `openai-chat-text-v1` 与 `openai-chat-structured-v1`：后者支持有界 strict `json_schema` 的请求、普通响应及 SSE 完整结果验证，保留原文本、usage、安全错误、同一 Budget 和实际 join；text 修订闭集不放宽。子集、资源上限与拒绝语义见[structured 规格](../work-items/recovery-d09-openai-chat-structured-wire.md)，原失败及真实验收见[报告](../agent-team/d09-openai-chat-structured-wire-verification.md)。这是受控本地服务上的库能力，尚未绑定 Resolver/生产 consumer、Invocation/Usage 或真实 Provider 账号；不改变上述 root、Object 缺陷和 ready503 边界。
+
 ## 构建与验证
 
 D07 的账号、Session、邀请、密码恢复、挑战、Profile/Avatar/偏好和 System HTTP 已装配进 Central，构造、恢复与官方 Vue 浏览器 harness 见[账号说明](account.md)。SMTP 三模式、受限恢复日志、持久 attempt 与人工重试见[账号邮件说明](accountmail.md)。正式 D26/D27 页面仍未实现；独立测试 harness 不作为产品 UI。

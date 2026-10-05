@@ -1,0 +1,6 @@
+{
+  "command": "go version",
+  "resolved_executable": "/usr/bin/go",
+  "observed_output": "Go: Unknown option: version",
+  "classification": "PATH is not Go toolchain; no build/test executed; exact pinned Go will be used"
+}

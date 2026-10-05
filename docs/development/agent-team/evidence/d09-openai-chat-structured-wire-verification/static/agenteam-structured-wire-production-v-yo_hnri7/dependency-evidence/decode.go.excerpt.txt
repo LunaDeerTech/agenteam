@@ -1,0 +1,54 @@
+
+--- original lines 837-847 ---
+// convertNumber converts the number literal s to a float64 or a Number
+// depending on the setting of d.useNumber.
+func (d *decodeState) convertNumber(s string) (any, error) {
+	if d.useNumber {
+		return Number(s), nil
+	}
+	f, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return nil, &UnmarshalTypeError{Value: "number " + s, Type: reflect.TypeFor[float64](), Offset: int64(d.off)}
+	}
+	return f, nil
+
+--- original lines 1127-1165 ---
+// literalInterface consumes and returns a literal from d.data[d.off-1:] and
+// it reads the following byte ahead. The first byte of the literal has been
+// read already (that's how the caller knows it's a literal).
+func (d *decodeState) literalInterface() any {
+	// All bytes inside literal return scanContinue op code.
+	start := d.readIndex()
+	d.rescanLiteral()
+
+	item := d.data[start:d.readIndex()]
+
+	switch c := item[0]; c {
+	case 'n': // null
+		return nil
+
+	case 't', 'f': // true, false
+		return c == 't'
+
+	case '"': // string
+		s, ok := unquote(item)
+		if !ok {
+			panic(phasePanicMsg)
+		}
+		return s
+
+	default: // number
+		if c != '-' && (c < '0' || c > '9') {
+			panic(phasePanicMsg)
+		}
+		n, err := d.convertNumber(string(item))
+		if err != nil {
+			d.saveError(err)
+		}
+		return n
+	}
+}
+
+// getu4 decodes \uXXXX from the beginning of s, returning the hex value,
+// or it returns -1.
+func getu4(s []byte) rune {

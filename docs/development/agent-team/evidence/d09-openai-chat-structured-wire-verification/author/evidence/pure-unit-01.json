@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-count=1",
+    "-v",
+    "-timeout=6m",
+    "./internal/central/model/adapter"
+  ],
+  "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree",
+  "environment": {
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-d09-final-build-k1jf1jcx/gocache",
+    "TMPDIR": "/workspace/agenteam-structured-wire-author-2zomqtpx/tmp",
+    "GOFLAGS": "-mod=readonly",
+    "CGO_ENABLED": "1",
+    "GOTELEMETRY": "off"
+  },
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "owned_inputs": {
+    "internal/central/model/adapter/openai_chat.go": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556",
+    "internal/central/model/adapter/transport.go": "75b73ebbc96927904524d9097ed8b5044c12368acf53970440614da10ddd72ef",
+    "internal/central/model/adapter/sse.go": "2996e01864c0a0504a429e9bafb9e4305003bfe7a40270a1e75bf5aefec8f025",
+    "internal/central/model/adapter/structured_schema.go": "3c621472d755cf4afde8fc09d9a391dac7936c57db908ffd2f65184db3222390",
+    "internal/central/model/adapter/structured_schema_test.go": "9b4f27b14a12be8cdf7a8ca080a34d434ca1adf3cbcea46fac63ec5c8cc427a3",
+    "internal/central/model/adapter/openai_chat_structured_test.go": "adef9371a5a6305efc37d5bd3e0baf8b13a78e36d1a9710fd9577b8f5f835145",
+    "internal/central/model/adapter/structured_stream_test.go": "91de4917ffe76dd0239cd4272f22ce0b4725cdf9c156c9ee114afe92c28faa89",
+    "internal/central/model/adapter/testdata/openai-chat-structured-v1.json": "1bb8eb298b3b7583dd0faddc5a3a66e11a534d515a9c0dc64fd9685cb9e9c6eb"
+  },
+  "started_at": "2026-10-05T19:23:16.547621+00:00",
+  "log": "pure-unit-01.log",
+  "exit_code": 0,
+  "finished_at": "2026-10-05T19:23:22.753990+00:00",
+  "log_sha256": "3ac65723ec80b8ae8fb51ffb33f37ba82b3c0c9f6c1104dc1c0a4f05c28306f1"
+}

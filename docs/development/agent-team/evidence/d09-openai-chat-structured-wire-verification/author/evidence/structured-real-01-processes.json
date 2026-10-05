@@ -1,0 +1,1518 @@
+{
+  "marker": "agenteam-structured-wire-author-2zomqtpx:structured-real-01",
+  "observed_processes": [
+    {
+      "pid": 1118771,
+      "ppid": 1118692,
+      "start_ticks": "3271466",
+      "state": "S",
+      "executable": "/usr/bin/dash",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1118785,
+      "ppid": 1118771,
+      "start_ticks": "3271469",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/bin/go",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1118809,
+      "ppid": 1118785,
+      "start_ticks": "3271479",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/compile",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1118815,
+      "ppid": 1118785,
+      "start_ticks": "3271492",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/compile",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1118826,
+      "ppid": 1118785,
+      "start_ticks": "3271504",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1118833,
+      "ppid": 1118771,
+      "start_ticks": "3271558",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-helper.cO72Gz/fixture",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1118842,
+      "ppid": 1118833,
+      "start_ticks": "3271575",
+      "state": "R",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/minio",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1118898,
+      "ppid": 1118833,
+      "start_ticks": "3271606",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1118899,
+      "ppid": 1118898,
+      "start_ticks": "3271608",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1118980,
+      "ppid": 1118833,
+      "start_ticks": "3271721",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1118981,
+      "ppid": 1118980,
+      "start_ticks": "3271723",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119009,
+      "ppid": 1118833,
+      "start_ticks": "3271731",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119010,
+      "ppid": 1119009,
+      "start_ticks": "3271733",
+      "state": "R",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119023,
+      "ppid": 1118833,
+      "start_ticks": "3271755",
+      "state": "S",
+      "executable": "/usr/bin/dash",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119031,
+      "ppid": 1119023,
+      "start_ticks": "3271756",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/bin/go",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119056,
+      "ppid": 1119031,
+      "start_ticks": "3271763",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/compile",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119068,
+      "ppid": 1119031,
+      "start_ticks": "3271768",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119074,
+      "ppid": 1119023,
+      "start_ticks": "3271809",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-security-helper.jFHvyR/fixture",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119088,
+      "ppid": 1119074,
+      "start_ticks": "3271809",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/bin/go",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119123,
+      "ppid": 1119088,
+      "start_ticks": "3271818",
+      "state": "D",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/compile",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119134,
+      "ppid": 1119088,
+      "start_ticks": "3271825",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119172,
+      "ppid": 1119074,
+      "start_ticks": "3271858",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119173,
+      "ppid": 1119172,
+      "start_ticks": "3271860",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119283,
+      "ppid": 1119074,
+      "start_ticks": "3272063",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119304,
+      "ppid": 1119074,
+      "start_ticks": "3272070",
+      "state": "S",
+      "executable": "/usr/bin/dash",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119312,
+      "ppid": 1119304,
+      "start_ticks": "3272071",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/bin/go",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119337,
+      "ppid": 1119312,
+      "start_ticks": "3272078",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/compile",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119348,
+      "ppid": 1119312,
+      "start_ticks": "3272087",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119354,
+      "ppid": 1119304,
+      "start_ticks": "3272135",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-helper.DtJEK5/fixture",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119363,
+      "ppid": 1119354,
+      "start_ticks": "3272144",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119410,
+      "ppid": 1119354,
+      "start_ticks": "3272153",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119411,
+      "ppid": 1119410,
+      "start_ticks": "3272155",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119548,
+      "ppid": 1119354,
+      "start_ticks": "3272282",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119557,
+      "ppid": 1119548,
+      "start_ticks": "3272284",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119592,
+      "ppid": 1119354,
+      "start_ticks": "3272293",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119593,
+      "ppid": 1119592,
+      "start_ticks": "3272296",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119625,
+      "ppid": 1119354,
+      "start_ticks": "3272306",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119626,
+      "ppid": 1119625,
+      "start_ticks": "3272308",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119656,
+      "ppid": 1119354,
+      "start_ticks": "3272316",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119657,
+      "ppid": 1119656,
+      "start_ticks": "3272318",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119690,
+      "ppid": 1119354,
+      "start_ticks": "3272327",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119695,
+      "ppid": 1119690,
+      "start_ticks": "3272328",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119729,
+      "ppid": 1119354,
+      "start_ticks": "3272337",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119730,
+      "ppid": 1119729,
+      "start_ticks": "3272339",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119762,
+      "ppid": 1119354,
+      "start_ticks": "3272349",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119763,
+      "ppid": 1119762,
+      "start_ticks": "3272351",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119808,
+      "ppid": 1119354,
+      "start_ticks": "3272363",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119830,
+      "ppid": 1119354,
+      "start_ticks": "3272371",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119831,
+      "ppid": 1119830,
+      "start_ticks": "3272373",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119936,
+      "ppid": 1119830,
+      "start_ticks": "3272642",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119970,
+      "ppid": 1119354,
+      "start_ticks": "3272645",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1119978,
+      "ppid": 1119970,
+      "start_ticks": "3272647",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120030,
+      "ppid": 1119354,
+      "start_ticks": "3272656",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120032,
+      "ppid": 1120030,
+      "start_ticks": "3272658",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120063,
+      "ppid": 1119354,
+      "start_ticks": "3272667",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120066,
+      "ppid": 1120063,
+      "start_ticks": "3272670",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120095,
+      "ppid": 1119354,
+      "start_ticks": "3272681",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120097,
+      "ppid": 1120095,
+      "start_ticks": "3272683",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120136,
+      "ppid": 1119354,
+      "start_ticks": "3272692",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120137,
+      "ppid": 1120136,
+      "start_ticks": "3272694",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120169,
+      "ppid": 1119354,
+      "start_ticks": "3272703",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120171,
+      "ppid": 1120169,
+      "start_ticks": "3272704",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120199,
+      "ppid": 1119354,
+      "start_ticks": "3272713",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120200,
+      "ppid": 1120199,
+      "start_ticks": "3272715",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120247,
+      "ppid": 1119354,
+      "start_ticks": "3272727",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120248,
+      "ppid": 1120247,
+      "start_ticks": "3272729",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120269,
+      "ppid": 1119354,
+      "start_ticks": "3272737",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/bin/go",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120314,
+      "ppid": 1120269,
+      "start_ticks": "3272763",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120317,
+      "ppid": 1120269,
+      "start_ticks": "3272763",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120327,
+      "ppid": 1120269,
+      "start_ticks": "3272767",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120333,
+      "ppid": 1120269,
+      "start_ticks": "3272767",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120338,
+      "ppid": 1120269,
+      "start_ticks": "3272768",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120357,
+      "ppid": 1120269,
+      "start_ticks": "3272837",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b250/postgres.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/internal/central/postgres"
+    },
+    {
+      "pid": 1120362,
+      "ppid": 1120269,
+      "start_ticks": "3272840",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b269/database.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/database"
+    },
+    {
+      "pid": 1120370,
+      "ppid": 1120269,
+      "start_ticks": "3272855",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120395,
+      "ppid": 1120269,
+      "start_ticks": "3272861",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120407,
+      "ppid": 1120269,
+      "start_ticks": "3272889",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b272/app.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/internal/central/app"
+    },
+    {
+      "pid": 1120415,
+      "ppid": 1120269,
+      "start_ticks": "3272907",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b388/process.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/process"
+    },
+    {
+      "pid": 1120428,
+      "ppid": 1120415,
+      "start_ticks": "3272908",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/bin/go",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120459,
+      "ppid": 1120428,
+      "start_ticks": "3272918",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120465,
+      "ppid": 1120269,
+      "start_ticks": "3272929",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b394/security.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/security"
+    },
+    {
+      "pid": 1120471,
+      "ppid": 1120269,
+      "start_ticks": "3272941",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b396/outbox.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/outbox"
+    },
+    {
+      "pid": 1120477,
+      "ppid": 1120269,
+      "start_ticks": "3272941",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b399/outbox.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/internal/central/outbox"
+    },
+    {
+      "pid": 1120483,
+      "ppid": 1120269,
+      "start_ticks": "3272991",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120489,
+      "ppid": 1120415,
+      "start_ticks": "3272995",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/bin/go",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120516,
+      "ppid": 1120489,
+      "start_ticks": "3273001",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120524,
+      "ppid": 1120269,
+      "start_ticks": "3273015",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b401/contract.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/internal/central/outbox/contract"
+    },
+    {
+      "pid": 1120530,
+      "ppid": 1120269,
+      "start_ticks": "3273031",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120538,
+      "ppid": 1120269,
+      "start_ticks": "3273043",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120544,
+      "ppid": 1120269,
+      "start_ticks": "3273043",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120577,
+      "ppid": 1120269,
+      "start_ticks": "3273117",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120583,
+      "ppid": 1120269,
+      "start_ticks": "3273119",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120588,
+      "ppid": 1120269,
+      "start_ticks": "3273120",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120595,
+      "ppid": 1120269,
+      "start_ticks": "3273124",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b402/account.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/account"
+    },
+    {
+      "pid": 1120601,
+      "ppid": 1120269,
+      "start_ticks": "3273134",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b405/accountmail.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/accountmail"
+    },
+    {
+      "pid": 1120615,
+      "ppid": 1120269,
+      "start_ticks": "3273195",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b408/accountmail.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/internal/central/accountmail"
+    },
+    {
+      "pid": 1120621,
+      "ppid": 1120269,
+      "start_ticks": "3273206",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b410/recoverylog.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/internal/central/recoverylog"
+    },
+    {
+      "pid": 1120627,
+      "ppid": 1120269,
+      "start_ticks": "3273210",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b414/project.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/project"
+    },
+    {
+      "pid": 1120633,
+      "ppid": 1120269,
+      "start_ticks": "3273226",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b418/model.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/internal/central/model"
+    },
+    {
+      "pid": 1120640,
+      "ppid": 1120269,
+      "start_ticks": "3273236",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120668,
+      "ppid": 1120269,
+      "start_ticks": "3273286",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b421/adapter.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/internal/central/model/adapter"
+    },
+    {
+      "pid": 1120675,
+      "ppid": 1120269,
+      "start_ticks": "3273297",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120682,
+      "ppid": 1120269,
+      "start_ticks": "3273309",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120690,
+      "ppid": 1120269,
+      "start_ticks": "3273313",
+      "state": "R",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120696,
+      "ppid": 1120269,
+      "start_ticks": "3273329",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120705,
+      "ppid": 1120269,
+      "start_ticks": "3273340",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b424/contract.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/internal/central/model/contract"
+    },
+    {
+      "pid": 1120716,
+      "ppid": 1120269,
+      "start_ticks": "3273389",
+      "state": "S",
+      "executable": "/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1120723,
+      "ppid": 1120269,
+      "start_ticks": "3273410",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b429/objects.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/objects"
+    },
+    {
+      "pid": 1120724,
+      "ppid": 1120269,
+      "start_ticks": "3273410",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b425/model.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1120725,
+      "ppid": 1120269,
+      "start_ticks": "3273410",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b434/object.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/internal/central/object"
+    },
+    {
+      "pid": 1120765,
+      "ppid": 1120724,
+      "start_ticks": "3273420",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1120788,
+      "ppid": 1120269,
+      "start_ticks": "3273434",
+      "state": "S",
+      "executable": "/workspace/agenteam-structured-wire-author-2zomqtpx/runtime/agenteam-d05-object-9d409deed2ba79fc2a1d928ca07f761a/agenteam-d04-net-cd512dfd1dc2757d164a73c8fa26f9a0-176304746/agenteam-d03-96657210fef2fd2daa20c5605e55a1ca-2282474409/go-build1690051098/b436/contract.test",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/internal/central/object/contract"
+    },
+    {
+      "pid": 1120828,
+      "ppid": 1120724,
+      "start_ticks": "3273528",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1120848,
+      "ppid": 1120724,
+      "start_ticks": "3273537",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1120878,
+      "ppid": 1120724,
+      "start_ticks": "3273550",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1120898,
+      "ppid": 1120724,
+      "start_ticks": "3273558",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1120928,
+      "ppid": 1120724,
+      "start_ticks": "3273571",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1120949,
+      "ppid": 1120724,
+      "start_ticks": "3273579",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1120980,
+      "ppid": 1120724,
+      "start_ticks": "3273591",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121011,
+      "ppid": 1120724,
+      "start_ticks": "3273603",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121063,
+      "ppid": 1120724,
+      "start_ticks": "3273624",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121064,
+      "ppid": 1121063,
+      "start_ticks": "3273625",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121093,
+      "ppid": 1120724,
+      "start_ticks": "3273635",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121113,
+      "ppid": 1120724,
+      "start_ticks": "3273644",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121114,
+      "ppid": 1121113,
+      "start_ticks": "3273646",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121134,
+      "ppid": 1120724,
+      "start_ticks": "3273654",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121193,
+      "ppid": 1120724,
+      "start_ticks": "3273742",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121217,
+      "ppid": 1120724,
+      "start_ticks": "3273750",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121248,
+      "ppid": 1120724,
+      "start_ticks": "3273762",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121272,
+      "ppid": 1120724,
+      "start_ticks": "3273771",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121303,
+      "ppid": 1120724,
+      "start_ticks": "3273784",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121323,
+      "ppid": 1120724,
+      "start_ticks": "3273792",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121355,
+      "ppid": 1120724,
+      "start_ticks": "3273804",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121376,
+      "ppid": 1120724,
+      "start_ticks": "3273814",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121449,
+      "ppid": 1120724,
+      "start_ticks": "3273856",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121505,
+      "ppid": 1120724,
+      "start_ticks": "3273944",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121535,
+      "ppid": 1120724,
+      "start_ticks": "3273963",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121653,
+      "ppid": 1120724,
+      "start_ticks": "3274103",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121724,
+      "ppid": 1120724,
+      "start_ticks": "3274124",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121775,
+      "ppid": 1120724,
+      "start_ticks": "3274146",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121827,
+      "ppid": 1120724,
+      "start_ticks": "3274167",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121878,
+      "ppid": 1120724,
+      "start_ticks": "3274189",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121908,
+      "ppid": 1120724,
+      "start_ticks": "3274200",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121928,
+      "ppid": 1120724,
+      "start_ticks": "3274209",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121960,
+      "ppid": 1120724,
+      "start_ticks": "3274220",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121961,
+      "ppid": 1121960,
+      "start_ticks": "3274221",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121990,
+      "ppid": 1120724,
+      "start_ticks": "3274231",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1121991,
+      "ppid": 1121990,
+      "start_ticks": "3274232",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122029,
+      "ppid": 1120724,
+      "start_ticks": "3274242",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122060,
+      "ppid": 1120724,
+      "start_ticks": "3274252",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122078,
+      "ppid": 1120724,
+      "start_ticks": "3274262",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122109,
+      "ppid": 1120724,
+      "start_ticks": "3274274",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122187,
+      "ppid": 1120724,
+      "start_ticks": "3274369",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122216,
+      "ppid": 1120724,
+      "start_ticks": "3274380",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122246,
+      "ppid": 1120724,
+      "start_ticks": "3274391",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122276,
+      "ppid": 1120724,
+      "start_ticks": "3274402",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122343,
+      "ppid": 1120724,
+      "start_ticks": "3274422",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122344,
+      "ppid": 1122343,
+      "start_ticks": "3274423",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122374,
+      "ppid": 1120724,
+      "start_ticks": "3274433",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122375,
+      "ppid": 1122374,
+      "start_ticks": "3274434",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122404,
+      "ppid": 1120724,
+      "start_ticks": "3274444",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122405,
+      "ppid": 1122404,
+      "start_ticks": "3274445",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122434,
+      "ppid": 1120724,
+      "start_ticks": "3274454",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122435,
+      "ppid": 1122434,
+      "start_ticks": "3274456",
+      "state": "R",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122466,
+      "ppid": 1120724,
+      "start_ticks": "3274466",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122516,
+      "ppid": 1120724,
+      "start_ticks": "3274488",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122537,
+      "ppid": 1120724,
+      "start_ticks": "3274497",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122538,
+      "ppid": 1122537,
+      "start_ticks": "3274499",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122568,
+      "ppid": 1120724,
+      "start_ticks": "3274508",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122569,
+      "ppid": 1122568,
+      "start_ticks": "3274510",
+      "state": "R",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122603,
+      "ppid": 1120724,
+      "start_ticks": "3274585",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122643,
+      "ppid": 1120724,
+      "start_ticks": "3274616",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122644,
+      "ppid": 1122643,
+      "start_ticks": "3274618",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree/tests/model"
+    },
+    {
+      "pid": 1122676,
+      "ppid": 1119354,
+      "start_ticks": "3274731",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1122677,
+      "ppid": 1122676,
+      "start_ticks": "3274733",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1122744,
+      "ppid": 1119354,
+      "start_ticks": "3274766",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1122772,
+      "ppid": 1119354,
+      "start_ticks": "3274773",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1122773,
+      "ppid": 1122772,
+      "start_ticks": "3274775",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1122846,
+      "ppid": 1119354,
+      "start_ticks": "3274819",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1122876,
+      "ppid": 1119354,
+      "start_ticks": "3274830",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1122897,
+      "ppid": 1119074,
+      "start_ticks": "3274837",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1122898,
+      "ppid": 1122897,
+      "start_ticks": "3274839",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1122979,
+      "ppid": 1119074,
+      "start_ticks": "3274882",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1122980,
+      "ppid": 1122979,
+      "start_ticks": "3274884",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1123002,
+      "ppid": 1118833,
+      "start_ticks": "3274889",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1123003,
+      "ppid": 1123002,
+      "start_ticks": "3274891",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1123054,
+      "ppid": 1118833,
+      "start_ticks": "3274924",
+      "state": "S",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1123055,
+      "ppid": 1123054,
+      "start_ticks": "3274926",
+      "state": "S",
+      "executable": "/usr/local/bin/docker",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    },
+    {
+      "pid": 1123081,
+      "ppid": 1118833,
+      "start_ticks": "3274936",
+      "state": "R",
+      "executable": "/usr/bin/python3.13",
+      "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree"
+    }
+  ],
+  "remaining": []
+}

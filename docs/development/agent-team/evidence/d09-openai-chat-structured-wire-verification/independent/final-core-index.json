@@ -1,0 +1,243 @@
+{
+  "conclusion": "PASS exact structured-wire candidate10 library result; no full D09/root/Resolver completion",
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "candidate_manifest_sha256": "53d31b380ed5c214cb9e87fbf5450454b0f2e5935e0b92615dd3eb0b0389236c",
+  "files": [
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/final-report.md",
+      "sha256": "702c30f4da9a1e074205d9d9e10058b995c5ad00dab9cd5b732e9511f0a6ed6b",
+      "bytes": 6002,
+      "role": "independent frozen final recommendation"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-author-2zomqtpx/author-report.md",
+      "sha256": "2e9863e157df6fecbe832ed4fc1efc67a48cdd52b57a83d40e3802646579594b",
+      "bytes": 9675,
+      "role": "author frozen closure; author-evidence.json enumerates all 87 original payloads"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-author-2zomqtpx/author-evidence.json",
+      "sha256": "ebaa38378213af6b5ec5955a94eed69b6520c3128a7312ced530e1bd35789231",
+      "bytes": 16153,
+      "role": "author frozen closure; author-evidence.json enumerates all 87 original payloads"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-author-2zomqtpx/candidate-review-02/manifest.json",
+      "sha256": "53d31b380ed5c214cb9e87fbf5450454b0f2e5935e0b92615dd3eb0b0389236c",
+      "bytes": 2245,
+      "role": "author frozen closure; author-evidence.json enumerates all 87 original payloads"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-author-2zomqtpx/candidate-review-02/source.patch",
+      "sha256": "76d045760d3ddf3976ac8dd901d38a3e009b67007f735339eff3670addebdbef",
+      "bytes": 92483,
+      "role": "author frozen closure; author-evidence.json enumerates all 87 original payloads"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/author-evidence-check.json",
+      "sha256": "96df9e3ea1775fb9b3db014ea6d1f09efc57e66a5c4126aa5dec97e5ce13834a",
+      "bytes": 18171,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/base-go-closure.json",
+      "sha256": "a450a4202c949b9d0441d8bc19f2777b6d29789a6b329d721726ad20d55b98c2",
+      "bytes": 144524,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/compile-01.json",
+      "sha256": "ae594fc5ca799ce0c5527cec76b8641e453b0549273c375f4ecf6a9854f4c2c7",
+      "bytes": 1052,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/compile-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/dynamic01/baseline.json",
+      "sha256": "df85d23ef6ddd70d94ae477eed8fc3800a13d8149b3ae3244a73b4dd163f63f7",
+      "bytes": 3093,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/dynamic01/cleanup01.json",
+      "sha256": "23c90685567c13a16fd79eea0f68e279547b0da8fdabeb7946e705290f86a921",
+      "bytes": 6477,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/dynamic01/cleanup02.json",
+      "sha256": "58409a7af845b98a0316282c9f10d871454a1bd77c2759cc38fdb71925d82c34",
+      "bytes": 6477,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/dynamic01/command.json",
+      "sha256": "35f6e71dd59a37629cf971e2f61a0e61dd80e4062e4ed50a72f69c0cc26fbc05",
+      "bytes": 1453,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/dynamic01/owned-live.json",
+      "sha256": "a52cbd582e0cfb79f1be7646800e6f83d198230e76cce195555b58cff21d0f97",
+      "bytes": 3545,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/dynamic01/raw.log",
+      "sha256": "9030cec37e62eb174303a80a8948936419daf093b064d4ddb64e129f8a20d27a",
+      "bytes": 4909,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/dynamic01/result.json",
+      "sha256": "6d52ba25a43817185c892c6137c3002c90066cd54fe9e59666e528924be7478f",
+      "bytes": 1646,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/dynamic01/running.json",
+      "sha256": "c40eaf012a796440d39b1295b4790fe9b6d8e6a3b28e977a59b8e9ac93c94439",
+      "bytes": 1490,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/dynamic01/source-final.json",
+      "sha256": "f6f9af5e1ee28e9656b3ff3a8505c1f8c290472e26b62e6d10ee827dcacb7698",
+      "bytes": 145941,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/execution-authorization.json",
+      "sha256": "0ea891ec76ad67bfd4ddefaabb5eacbac266e897e909fee8a37161d4961b519c",
+      "bytes": 333,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/final-provenance-check.json",
+      "sha256": "3fe4343f64aaacd59d5b6cf5d6668867adb55a719e9560795f024e623e3c7147",
+      "bytes": 2288,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/independent-result-summary.json",
+      "sha256": "8444b76b0e212744e21640115c01172bb3477a440127ab5bb6fa50354c534864",
+      "bytes": 1137,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/preparation-rejection-01.json",
+      "sha256": "dcf1cfe34c15a46a98d46c394682a7bc6edf148f9905ab1ba014ca72602025c5",
+      "bytes": 284,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/production-review-02-manifest.json",
+      "sha256": "5d846a337a5b41b3e04621cfc51b6f2ebddf311f6974c98dd5b16264751f8351",
+      "bytes": 1565,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/ready-index.json",
+      "sha256": "3a8ef1b5055d12eee280883aefe1da1da828ad11f85bfe76cbaccbc86f1c5671",
+      "bytes": 1815,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/ready-input.json",
+      "sha256": "edc9a5ab945cb9ae241ddf4269e0964a81abc34f09d38d98234de168357eaaa4",
+      "bytes": 146209,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/trusted-baseline-preflight.json",
+      "sha256": "b9fb04b6909f407649d9256a1da2a048854d27f5fae14b165887fc25c01b5fd7",
+      "bytes": 6330,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/vet-01.json",
+      "sha256": "fa7c632eefd528980aa360455a750c1e968a2db8ec5630ca4f1b3dec773d765a",
+      "bytes": 935,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/evidence/vet-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "independent exact inputs, execution, raw or resource evidence"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/run_pure.py",
+      "sha256": "49cd4549682abfa35d641eea55e348ebcc052a62308bf2b9a5dbb099d83b03c6",
+      "bytes": 1486,
+      "role": "independent reproducible probe/runner"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/run-independent-fixture.py",
+      "sha256": "c7b8365d21cfde53e719d6efb65b48a3dbafd680f443aa037cf18b20181006a3",
+      "bytes": 6829,
+      "role": "independent reproducible probe/runner"
+    },
+    {
+      "path": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/tree/tests/model/independent_structured_wire_test.go",
+      "sha256": "5bd36ca1b831a621fbfc53103c4d1212807dec8fe84bd6c836c4f5105016292f",
+      "bytes": 9737,
+      "role": "independent reproducible probe/runner"
+    },
+    {
+      "path": "/tmp/agenteam-structured-wire-production-v-yo_hnri7/index.json",
+      "sha256": "4f835198c90cb3a117c86b26dc4475d7d85150b5c3a141ad0006f7549038bada",
+      "bytes": 1356,
+      "role": "frozen static review index; relative entries are original evidence closure"
+    },
+    {
+      "path": "/tmp/agenteam-structured-wire-production-v-yo_hnri7/report.md",
+      "sha256": "de1f8913620aba6340e48381fe9ddf5debdc01396694451efacf8b29eaeef6b7",
+      "bytes": 5313,
+      "role": "frozen static review conclusion, original bytes"
+    },
+    {
+      "path": "/tmp/agenteam-structured-wire-review02-v-t4932f2v/index.json",
+      "sha256": "30fa190b6a1ff873078592f09a0ac59135743f6ccf0df1258cae4f4277373b68",
+      "bytes": 2511,
+      "role": "frozen static review index; relative entries are original evidence closure"
+    },
+    {
+      "path": "/tmp/agenteam-structured-wire-review02-v-t4932f2v/report.md",
+      "sha256": "c433db64d206d1bf11575dad840fc7440a1fa66ccb48aa7747a3edf624c9ed6d",
+      "bytes": 4394,
+      "role": "frozen static review conclusion, original bytes"
+    },
+    {
+      "path": "/tmp/agenteam-structured-wire-spec-v-zf97bw0x/index.json",
+      "sha256": "5c752ba5d4d014ae4feca1243acab5b60b31f231b569452653c7c71079ec2ff6",
+      "bytes": 1287,
+      "role": "earlier spec/plan locator; final conclusion does not widen scope"
+    },
+    {
+      "path": "/tmp/agenteam-structured-wire-spec-v-zf97bw0x/report.md",
+      "sha256": "d840b87853e1236423495c6751c921d508ccb36cbd25b16af20ca7e65e76c6f3",
+      "bytes": 4340,
+      "role": "earlier spec/plan locator; final conclusion does not widen scope"
+    },
+    {
+      "path": "/tmp/agenteam-structured-wire-verification-prep-p9rm3zk8/index.json",
+      "sha256": "ca3bd78cbf17eb49f8a0d113dd6097ecf694a2b22a3f85fab79d43d13539c015",
+      "bytes": 666,
+      "role": "earlier spec/plan locator; final conclusion does not widen scope"
+    },
+    {
+      "path": "/tmp/agenteam-structured-wire-verification-prep-p9rm3zk8/plan.md",
+      "sha256": "32039bbab8d2d00820749b58d249770d4696718116acfa81997bddc5adac5c6c",
+      "bytes": 5034,
+      "role": "earlier spec/plan locator; final conclusion does not widen scope"
+    }
+  ],
+  "archive_selection": "Author 87 original payloads from author-evidence.json, independent listed inputs/probe/runner/raw/resource originals, two static review indexes and their small relative payloads. Retain historical red/repair versions and provenance. Use final patch+fixed baseline (or subsequently accepted commit) to rebuild candidate10; no full tree/cache/binary. Same-byte duplicate reports may be stored once with mapped reference.",
+  "all_stop": true
+}

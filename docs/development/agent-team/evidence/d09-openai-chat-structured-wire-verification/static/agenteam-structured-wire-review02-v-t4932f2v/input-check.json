@@ -1,0 +1,25 @@
+{
+  "author": "/workspace/agenteam-structured-wire-author-2zomqtpx",
+  "checks": [
+    {
+      "path": "internal/central/model/adapter/openai_chat.go",
+      "sha256": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556",
+      "review01_match": true
+    },
+    {
+      "path": "internal/central/model/adapter/transport.go",
+      "sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf",
+      "review01_match": true
+    },
+    {
+      "path": "internal/central/model/adapter/sse.go",
+      "sha256": "2996e01864c0a0504a429e9bafb9e4305003bfe7a40270a1e75bf5aefec8f025",
+      "review01_match": true
+    },
+    {
+      "path": "internal/central/model/adapter/structured_schema.go",
+      "sha256": "061e45a59fc575b8d7bdbcf9b1837bbe247b7e5ac9d382b32be9c7b77ebab575",
+      "review01_match": true
+    }
+  ]
+}

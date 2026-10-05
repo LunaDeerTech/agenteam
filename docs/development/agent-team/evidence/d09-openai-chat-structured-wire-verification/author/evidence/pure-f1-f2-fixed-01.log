@@ -1,0 +1,20 @@
+=== RUN   TestStructuredValidationAllocationBounds
+=== RUN   TestStructuredValidationAllocationBounds/string
+    structured_schema_test.go:304: verifier input_bytes=4194312 allocated_bytes=0 workspace_bound=1048576
+=== RUN   TestStructuredValidationAllocationBounds/number
+    structured_schema_test.go:304: verifier input_bytes=4194310 allocated_bytes=64 workspace_bound=1048576
+--- PASS: TestStructuredValidationAllocationBounds (0.28s)
+    --- PASS: TestStructuredValidationAllocationBounds/string (0.26s)
+    --- PASS: TestStructuredValidationAllocationBounds/number (0.02s)
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation/json_caller
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation/json_attempt
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation/sse_caller
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation/sse_attempt
+--- PASS: TestStructuredSuccessfulConsumptionRechecksCancellation (0.00s)
+    --- PASS: TestStructuredSuccessfulConsumptionRechecksCancellation/json_caller (0.00s)
+    --- PASS: TestStructuredSuccessfulConsumptionRechecksCancellation/json_attempt (0.00s)
+    --- PASS: TestStructuredSuccessfulConsumptionRechecksCancellation/sse_caller (0.00s)
+    --- PASS: TestStructuredSuccessfulConsumptionRechecksCancellation/sse_attempt (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.290s

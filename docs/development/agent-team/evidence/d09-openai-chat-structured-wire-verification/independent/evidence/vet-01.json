@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "vet",
+    "-tags=integration",
+    "./tests/model"
+  ],
+  "cwd": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/tree",
+  "environment": {
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/private-cache",
+    "TMPDIR": "/workspace/agenteam-structured-wire-independent-v-jmkxen5r/runtime",
+    "GOFLAGS": "-mod=readonly",
+    "CGO_ENABLED": "1",
+    "GOTELEMETRY": "off"
+  },
+  "kind": "offline compilation or vet only; no test binary execution",
+  "started_at": "2026-10-05T19:47:20.180388+00:00",
+  "exit_code": 0,
+  "finished_at": "2026-10-05T19:47:48.742650+00:00",
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

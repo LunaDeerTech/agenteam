@@ -1,0 +1,549 @@
+--- a/internal/central/model/adapter/transport.go
++++ b/internal/central/model/adapter/transport.go
+@@ -244,8 +244,13 @@
+ 		cancel()
+ 	}
+ 	err := x.waitJoined(wait)
+-	if err != nil && ctx.Err() != nil {
++	// An actually joined client may return nil even with a cancelled wait.
++	// Join still retires its real slot first; it never authorizes publication.
++	if ctx.Err() != nil {
+ 		return contextFailure(ctx.Err())
++	}
++	if x.ctx.Err() != nil {
++		return contextFailure(x.ctx.Err())
+ 	}
+ 	return err
+ }
+--- a/internal/central/model/adapter/structured_schema.go
++++ b/internal/central/model/adapter/structured_schema.go
+@@ -4,8 +4,6 @@
+ 	"bytes"
+ 	"context"
+ 	"encoding/json"
+-	"io"
+-	"strconv"
+ 	"strings"
+ 	"unicode/utf8"
+ 
+@@ -292,8 +290,9 @@
+ 	}
+ }
+ 
+-// Validation walks tokens against the small immutable schema. It retains only
+-// depth-bounded object-key sets, not an output DOM or numeric big integers.
++// Validation walks the original content directly. Strings without an enum are
++// never materialized; decoded keys/enums use a bounded scratch area. Numbers
++// stop at their 129th byte, before a decoder can scan or copy the whole value.
+ func (s *structuredSchema) validate(ctx context.Context, text string) error {
+ 	if err := ctx.Err(); err != nil {
+ 		return contextFailure(err)
+@@ -301,16 +300,14 @@
+ 	if len(text) > maxTextBytes {
+ 		return limitFailure()
+ 	}
+-	if err := structuredUnicode(ctx, text); err != nil {
+-		return err
+-	}
+-	d := json.NewDecoder(strings.NewReader(text))
+-	d.UseNumber()
+-	v := structuredValidator{ctx: ctx, decoder: d}
++	v := structuredValidator{ctx: ctx, text: text}
+ 	if err := v.value(s.root, 1); err != nil {
+ 		return err
+ 	}
+-	if _, err := d.Token(); err != io.EOF {
++	if err := v.space(); err != nil {
++		return err
++	}
++	if v.pos != len(text) {
+ 		return protocolFailure()
+ 	}
+ 	if err := ctx.Err(); err != nil {
+@@ -320,11 +317,46 @@
+ }
+ 
+ type structuredValidator struct {
+-	ctx     context.Context
+-	decoder *json.Decoder
+-	nodes   int
+-}
+-
++	ctx                   context.Context
++	text                  string
++	pos, nodes, nextCheck int
++}
++
++func (v *structuredValidator) advance(n int) error {
++	v.pos += n
++	if v.pos >= v.nextCheck {
++		v.nextCheck = v.pos + 1024
++		if err := v.ctx.Err(); err != nil {
++			return contextFailure(err)
++		}
++	}
++	return nil
++}
++func (v *structuredValidator) peek() byte {
++	if v.pos == len(v.text) {
++		return 0
++	}
++	return v.text[v.pos]
++}
++func (v *structuredValidator) space() error {
++	for v.pos < len(v.text) {
++		switch v.text[v.pos] {
++		case ' ', '\t', '\r', '\n':
++			if err := v.advance(1); err != nil {
++				return err
++			}
++		default:
++			return nil
++		}
++	}
++	return nil
++}
++func (v *structuredValidator) literal(want string) error {
++	if !strings.HasPrefix(v.text[v.pos:], want) {
++		return protocolFailure()
++	}
++	return v.advance(len(want))
++}
+ func (v *structuredValidator) value(n *schemaNode, depth int) error {
+ 	if err := v.ctx.Err(); err != nil {
+ 		return contextFailure(err)
+@@ -333,65 +365,318 @@
+ 	if depth > maxStructuredDepth || v.nodes > maxStructuredNodes {
+ 		return limitFailure()
+ 	}
+-	token, err := v.decoder.Token()
+-	if err != nil {
++	if err := v.space(); err != nil {
++		return err
++	}
++	if v.pos == len(v.text) {
+ 		return protocolFailure()
+ 	}
+-	if token == nil {
++	switch ch := v.peek(); {
++	case ch == 'n':
++		if err := v.literal("null"); err != nil {
++			return err
++		}
+ 		if (n.nullable || n.kind == "null") && (!n.hasEnum || n.enumNull) {
+ 			return nil
+ 		}
+-		return protocolFailure()
+-	}
+-	switch value := token.(type) {
+-	case string:
+-		if n.kind == "string" && (!n.hasEnum || n.enum[value]) {
+-			return nil
+-		}
+-	case bool:
++	case ch == 't' || ch == 'f':
++		want := "true"
++		if ch == 'f' {
++			want = "false"
++		}
++		if err := v.literal(want); err != nil {
++			return err
++		}
+ 		if n.kind == "boolean" {
+ 			return nil
+ 		}
+-	case json.Number:
+-		if len(value) > maxStructuredNumber {
++	case ch == '"':
++		if n.kind != "string" {
++			return protocolFailure()
++		}
++		bound := 0
++		if n.hasEnum {
++			bound = 1024
++		}
++		text, err := v.quoted(bound)
++		if err != nil {
++			return err
++		}
++		if !n.hasEnum || n.enum[text] {
++			return nil
++		}
++	case ch == '-' || ch >= '0' && ch <= '9':
++		number, err := v.number()
++		if err != nil {
++			return err
++		}
++		if n.kind == "number" || n.kind == "integer" && structuredInteger(number) {
++			return nil
++		}
++	case ch == '{' && n.kind == "object":
++		if err := v.advance(1); err != nil {
++			return err
++		}
++		if err := v.space(); err != nil {
++			return err
++		}
++		seen := make(map[string]bool, len(n.properties))
++		if v.peek() != '}' {
++			for {
++				name, err := v.quoted(256)
++				if err != nil {
++					return err
++				}
++				if seen[name] || n.properties[name] == nil {
++					return protocolFailure()
++				}
++				seen[name] = true
++				if err := v.space(); err != nil {
++					return err
++				}
++				if v.peek() != ':' {
++					return protocolFailure()
++				}
++				if err := v.advance(1); err != nil {
++					return err
++				}
++				if err := v.value(n.properties[name], depth+1); err != nil {
++					return err
++				}
++				if err := v.space(); err != nil {
++					return err
++				}
++				if v.peek() != ',' {
++					break
++				}
++				if err := v.advance(1); err != nil {
++					return err
++				}
++				if err := v.space(); err != nil {
++					return err
++				}
++			}
++		}
++		if v.peek() != '}' || len(seen) != len(n.properties) {
++			return protocolFailure()
++		}
++		return v.advance(1)
++	case ch == '[' && n.kind == "array":
++		if err := v.advance(1); err != nil {
++			return err
++		}
++		if err := v.space(); err != nil {
++			return err
++		}
++		if v.peek() != ']' {
++			for {
++				if err := v.value(n.items, depth+1); err != nil {
++					return err
++				}
++				if err := v.space(); err != nil {
++					return err
++				}
++				if v.peek() != ',' {
++					break
++				}
++				if err := v.advance(1); err != nil {
++					return err
++				}
++			}
++		}
++		if v.peek() != ']' {
++			return protocolFailure()
++		}
++		return v.advance(1)
++	}
++	return protocolFailure()
++}
++
++// bound==0 validates only; otherwise it decodes at most 256 key / 1024 enum
++// bytes. A long string cannot allocate a decoder buffer or decoded whole value.
++func (v *structuredValidator) quoted(bound int) (string, error) {
++	if v.peek() != '"' {
++		return "", protocolFailure()
++	}
++	if err := v.advance(1); err != nil {
++		return "", err
++	}
++	var scratch [1024]byte
++	decoded := scratch[:0]
++	for v.pos < len(v.text) {
++		ch := v.peek()
++		if ch == '"' {
++			if err := v.advance(1); err != nil {
++				return "", err
++			}
++			return string(decoded), nil
++		}
++		var r rune
++		if ch == '\\' {
++			if err := v.advance(1); err != nil {
++				return "", err
++			}
++			if v.pos == len(v.text) {
++				return "", protocolFailure()
++			}
++			escape := v.peek()
++			if err := v.advance(1); err != nil {
++				return "", err
++			}
++			switch escape {
++			case '"', '\\', '/':
++				r = rune(escape)
++			case 'b':
++				r = '\b'
++			case 'f':
++				r = '\f'
++			case 'n':
++				r = '\n'
++			case 'r':
++				r = '\r'
++			case 't':
++				r = '\t'
++			case 'u':
++				u, err := v.hex4()
++				if err != nil {
++					return "", err
++				}
++				if u >= 0xdc00 && u <= 0xdfff {
++					return "", protocolFailure()
++				}
++				if u >= 0xd800 && u <= 0xdbff {
++					if !strings.HasPrefix(v.text[v.pos:], `\u`) {
++						return "", protocolFailure()
++					}
++					if err := v.advance(2); err != nil {
++						return "", err
++					}
++					low, err := v.hex4()
++					if err != nil {
++						return "", err
++					}
++					if low < 0xdc00 || low > 0xdfff {
++						return "", protocolFailure()
++					}
++					u = 0x10000 + (u-0xd800)*0x400 + low - 0xdc00
++				}
++				r = u
++			default:
++				return "", protocolFailure()
++			}
++		} else {
++			if ch < 0x20 {
++				return "", protocolFailure()
++			}
++			var size int
++			r, size = utf8.DecodeRuneInString(v.text[v.pos:])
++			if r == utf8.RuneError && size == 1 {
++				return "", protocolFailure()
++			}
++			if err := v.advance(size); err != nil {
++				return "", err
++			}
++		}
++		if bound > 0 {
++			if len(decoded)+utf8.RuneLen(r) > bound {
++				return "", protocolFailure()
++			}
++			decoded = utf8.AppendRune(decoded, r)
++		}
++	}
++	return "", protocolFailure()
++}
++func (v *structuredValidator) hex4() (rune, error) {
++	var result rune
++	for i := 0; i < 4; i++ {
++		if v.pos == len(v.text) {
++			return 0, protocolFailure()
++		}
++		ch := v.peek()
++		var digit byte
++		switch {
++		case ch >= '0' && ch <= '9':
++			digit = ch - '0'
++		case ch >= 'a' && ch <= 'f':
++			digit = ch - 'a' + 10
++		case ch >= 'A' && ch <= 'F':
++			digit = ch - 'A' + 10
++		default:
++			return 0, protocolFailure()
++		}
++		result = result*16 + rune(digit)
++		if err := v.advance(1); err != nil {
++			return 0, err
++		}
++	}
++	return result, nil
++}
++func (v *structuredValidator) number() (string, error) {
++	start := v.pos
++	step := func() error {
++		if err := v.advance(1); err != nil {
++			return err
++		}
++		if v.pos-start > maxStructuredNumber {
+ 			return limitFailure()
+ 		}
+-		if n.kind == "number" || n.kind == "integer" && structuredInteger(string(value)) {
+-			return nil
+-		}
+-	case json.Delim:
+-		if value == '{' && n.kind == "object" {
+-			seen := make(map[string]bool, len(n.properties))
+-			for v.decoder.More() {
+-				key, err := v.decoder.Token()
+-				name, ok := key.(string)
+-				if err != nil || !ok || seen[name] || n.properties[name] == nil {
+-					return protocolFailure()
+-				}
+-				seen[name] = true
+-				if err := v.value(n.properties[name], depth+1); err != nil {
+-					return err
+-				}
+-			}
+-			end, err := v.decoder.Token()
+-			if err != nil || end != json.Delim('}') || len(seen) != len(n.properties) {
+-				return protocolFailure()
+-			}
+-			return nil
+-		}
+-		if value == '[' && n.kind == "array" {
+-			for v.decoder.More() {
+-				if err := v.value(n.items, depth+1); err != nil {
+-					return err
+-				}
+-			}
+-			end, err := v.decoder.Token()
+-			if err == nil && end == json.Delim(']') {
+-				return nil
+-			}
+-		}
+-	}
+-	return protocolFailure()
++		return nil
++	}
++	digit := func() bool { return v.pos < len(v.text) && v.peek() >= '0' && v.peek() <= '9' }
++	if v.peek() == '-' {
++		if err := step(); err != nil {
++			return "", err
++		}
++	}
++	if !digit() {
++		return "", protocolFailure()
++	}
++	if v.peek() == '0' {
++		if err := step(); err != nil {
++			return "", err
++		}
++		if digit() {
++			return "", protocolFailure()
++		}
++	} else {
++		for digit() {
++			if err := step(); err != nil {
++				return "", err
++			}
++		}
++	}
++	if v.peek() == '.' {
++		if err := step(); err != nil {
++			return "", err
++		}
++		if !digit() {
++			return "", protocolFailure()
++		}
++		for digit() {
++			if err := step(); err != nil {
++				return "", err
++			}
++		}
++	}
++	if v.peek() == 'e' || v.peek() == 'E' {
++		if err := step(); err != nil {
++			return "", err
++		}
++		if v.peek() == '+' || v.peek() == '-' {
++			if err := step(); err != nil {
++				return "", err
++			}
++		}
++		if !digit() {
++			return "", protocolFailure()
++		}
++		for digit() {
++			if err := step(); err != nil {
++				return "", err
++			}
++		}
++	}
++	return v.text[start:v.pos], nil
+ }
+ 
+ // A <=128-byte JSON number is integral iff its decimal exponent moves every
+@@ -435,66 +720,3 @@
+ 	}
+ 	return exp >= fraction-trailing
+ }
+-
+-// encoding/json repairs unmatched UTF-16 surrogates. Reject them without
+-// converting the accumulated string to a second full byte buffer.
+-func structuredUnicode(ctx context.Context, text string) error {
+-	if !utf8.ValidString(text) {
+-		return protocolFailure()
+-	}
+-	nextCheck := 0
+-	check := func(i int) error {
+-		if i >= nextCheck {
+-			nextCheck = i + 4096
+-			if err := ctx.Err(); err != nil {
+-				return contextFailure(err)
+-			}
+-		}
+-		return nil
+-	}
+-	for i := 0; i < len(text); i++ {
+-		if err := check(i); err != nil {
+-			return err
+-		}
+-		if text[i] != '"' {
+-			continue
+-		}
+-		i++
+-		for i < len(text) && text[i] != '"' {
+-			if err := check(i); err != nil {
+-				return err
+-			}
+-			if text[i] != '\\' {
+-				i++
+-				continue
+-			}
+-			i++
+-			if i >= len(text) {
+-				return protocolFailure()
+-			}
+-			if text[i] != 'u' {
+-				i++
+-				continue
+-			}
+-			if i+5 > len(text) {
+-				return protocolFailure()
+-			}
+-			u, err := strconv.ParseUint(text[i+1:i+5], 16, 16)
+-			if err != nil || u >= 0xdc00 && u <= 0xdfff {
+-				return protocolFailure()
+-			}
+-			i += 5
+-			if u >= 0xd800 && u <= 0xdbff {
+-				if i+6 > len(text) || text[i] != '\\' || text[i+1] != 'u' {
+-					return protocolFailure()
+-				}
+-				low, err := strconv.ParseUint(text[i+2:i+6], 16, 16)
+-				if err != nil || low < 0xdc00 || low > 0xdfff {
+-					return protocolFailure()
+-				}
+-				i += 6
+-			}
+-		}
+-	}
+-	return nil
+-}

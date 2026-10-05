@@ -1,0 +1,44 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-tags=integration",
+    "-race",
+    "-run=^$",
+    "-timeout=6m",
+    "./internal/central/model/...",
+    "./tests/model/..."
+  ],
+  "cwd": "/workspace/agenteam-structured-wire-author-2zomqtpx/tree",
+  "environment": {
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-d09-final-build-k1jf1jcx/gocache",
+    "TMPDIR": "/workspace/agenteam-structured-wire-author-2zomqtpx/tmp",
+    "GOFLAGS": "-mod=readonly",
+    "CGO_ENABLED": "1",
+    "GOTELEMETRY": "off"
+  },
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "owned_inputs": {
+    "internal/central/model/adapter/openai_chat.go": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556",
+    "internal/central/model/adapter/transport.go": "75b73ebbc96927904524d9097ed8b5044c12368acf53970440614da10ddd72ef",
+    "internal/central/model/adapter/sse.go": "2996e01864c0a0504a429e9bafb9e4305003bfe7a40270a1e75bf5aefec8f025",
+    "internal/central/model/adapter/structured_schema.go": "791c472f9254cbb6ebf25b8db2ced87ba00400407a4592b50072d9ac94a4b48b",
+    "internal/central/model/adapter/structured_schema_test.go": "2051f9fe377e8cf18c3dcf2817b7e551948256ea6c6613d323b4e89a295a8081",
+    "internal/central/model/adapter/openai_chat_structured_test.go": "adef9371a5a6305efc37d5bd3e0baf8b13a78e36d1a9710fd9577b8f5f835145",
+    "internal/central/model/adapter/structured_stream_test.go": "19e9fae0bdb39dce9d7567da7c80f1b64ab55d976c3abb753ab3eb53ffe959f9",
+    "internal/central/model/adapter/testdata/openai-chat-structured-v1.json": "2495cc0eaacb95e58cd61c584fb774d81c2786ab6a80a2053d8a0fa3d3ac9780",
+    "tests/model/openai_chat_structured_http_test.go": "3a1a1417b49a41843a8fbf6e65388878056905decce13470f28a2b57f3e50d02",
+    "tests/model/openai_chat_structured_stream_test.go": "f8f10b59a17ed24f3b62c1dd79da4c2d8cc8bfb38a5ce5e74e0cd0abdd13270a"
+  },
+  "started_at": "2026-10-05T19:29:38.199845+00:00",
+  "log": "integration-compile-01.log",
+  "exit_code": 0,
+  "finished_at": "2026-10-05T19:29:55.808131+00:00",
+  "log_sha256": "f609eddc02fce2fde5f43c072562a9e040670d1ff8348270472cc4b6aace78d8"
+}

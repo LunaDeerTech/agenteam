@@ -1,0 +1,143 @@
+
+--- original lines 51-80 ---
+func (dec *Decoder) Decode(v any) error {
+	if dec.err != nil {
+		return dec.err
+	}
+
+	if err := dec.tokenPrepareForDecode(); err != nil {
+		return err
+	}
+
+	if !dec.tokenValueAllowed() {
+		return &SyntaxError{msg: "not at beginning of value", Offset: dec.InputOffset()}
+	}
+
+	// Read whole value into buffer.
+	n, err := dec.readValue()
+	if err != nil {
+		return err
+	}
+	dec.d.init(dec.buf[dec.scanp : dec.scanp+n])
+	dec.scanp += n
+
+	// Don't save err from unmarshal into dec.err:
+	// the connection is still usable since we read a complete JSON
+	// object from it before the error happened.
+	err = dec.d.unmarshal(v)
+
+	// fixup token streaming state
+	dec.tokenValueEnd()
+
+	return err
+
+--- original lines 103-182 ---
+func (dec *Decoder) readValue() (int, error) {
+	dec.scan.reset()
+
+	scanp := dec.scanp
+	var err error
+Input:
+	// help the compiler see that scanp is never negative, so it can remove
+	// some bounds checks below.
+	for scanp >= 0 {
+
+		// Look in the buffer for a new value.
+		for ; scanp < len(dec.buf); scanp++ {
+			c := dec.buf[scanp]
+			dec.scan.bytes++
+			switch dec.scan.step(&dec.scan, c) {
+			case scanEnd:
+				// scanEnd is delayed one byte so we decrement
+				// the scanner bytes count by 1 to ensure that
+				// this value is correct in the next call of Decode.
+				dec.scan.bytes--
+				break Input
+			case scanEndObject, scanEndArray:
+				// scanEnd is delayed one byte.
+				// We might block trying to get that byte from src,
+				// so instead invent a space byte.
+				if stateEndValue(&dec.scan, ' ') == scanEnd {
+					scanp++
+					break Input
+				}
+			case scanError:
+				dec.err = dec.scan.err
+				return 0, dec.scan.err
+			}
+		}
+
+		// Did the last read have an error?
+		// Delayed until now to allow buffer scan.
+		if err != nil {
+			if err == io.EOF {
+				if dec.scan.step(&dec.scan, ' ') == scanEnd {
+					break Input
+				}
+				if nonSpace(dec.buf) {
+					err = io.ErrUnexpectedEOF
+				}
+			}
+			dec.err = err
+			return 0, err
+		}
+
+		n := scanp - dec.scanp
+		err = dec.refill()
+		scanp = dec.scanp + n
+	}
+	return scanp - dec.scanp, nil
+}
+
+func (dec *Decoder) refill() error {
+	// Make room to read more into the buffer.
+	// First slide down data already consumed.
+	if dec.scanp > 0 {
+		dec.scanned += int64(dec.scanp)
+		n := copy(dec.buf, dec.buf[dec.scanp:])
+		dec.buf = dec.buf[:n]
+		dec.scanp = 0
+	}
+
+	// Grow buffer if not large enough.
+	const minRead = 512
+	if cap(dec.buf)-len(dec.buf) < minRead {
+		newBuf := make([]byte, len(dec.buf), 2*cap(dec.buf)+minRead)
+		copy(newBuf, dec.buf)
+		dec.buf = newBuf
+	}
+
+	// Read. Delay error for next iteration (after scan).
+	n, err := dec.r.Read(dec.buf[len(dec.buf):cap(dec.buf)])
+	dec.buf = dec.buf[0 : len(dec.buf)+n]
+
+	return err
+
+--- original lines 445-471 ---
+			}
+			return dec.tokenError(c)
+
+		case '"':
+			if dec.tokenState == tokenObjectStart || dec.tokenState == tokenObjectKey {
+				var x string
+				old := dec.tokenState
+				dec.tokenState = tokenTopValue
+				err := dec.Decode(&x)
+				dec.tokenState = old
+				if err != nil {
+					return nil, err
+				}
+				dec.tokenState = tokenObjectColon
+				return x, nil
+			}
+			fallthrough
+
+		default:
+			if !dec.tokenValueAllowed() {
+				return dec.tokenError(c)
+			}
+			var x any
+			if err := dec.Decode(&x); err != nil {
+				return nil, err
+			}
+			return x, nil

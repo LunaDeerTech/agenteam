@@ -1,0 +1,67 @@
+{
+  "scope": "read-only final frozen evidence check; no test rerun",
+  "sdk_commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "sdk_original_git_objects_match": [
+    {
+      "path": "src/openai/types/shared_params/response_format_json_schema.py",
+      "bytes": 1815,
+      "sha256": "4a81522587ed5fa7571f376854c87870f8b0a5e7f6e473eb9fc2e297bfbd856a",
+      "git_blob": "2b6bbdc3e6def1601d9f0c9b4b12be103cb1139e"
+    },
+    {
+      "path": "src/openai/lib/_pydantic.py",
+      "bytes": 5623,
+      "sha256": "09fd2f1b0b9674d12e21483c58d4448d644602930e6e097c0e374b5387f98c07",
+      "git_blob": "3cfe224cb1e84ff721ecc814e3f6b134ba660b8f"
+    }
+  ],
+  "author_baseline_files_matched": 687,
+  "baseline_compare": "our independently frozen ac5 closure hashes, missing paths direct git show fixed commit",
+  "direct_git_fallback_paths": [
+    "scripts/test-models.sh"
+  ],
+  "final_pure_build_input_checks": [
+    {
+      "name": "pure-race-02",
+      "metadata_sha256": "1a97a6c35112e6adff9a73efb08fe37a8e7a8e226e90cd328ef2f3aa296fbd74",
+      "exit_code": 1,
+      "all_final10_match": true
+    },
+    {
+      "name": "model-pure-race-03",
+      "metadata_sha256": "4a3cafa4d5001fc55d413669e72ea0e000c81fff3b59c0bcbfafe3a59c26ffad",
+      "exit_code": 0,
+      "all_final10_match": true
+    },
+    {
+      "name": "integration-vet-02",
+      "metadata_sha256": "e1b30f1d95074d269029033d7270396bc10d38eb4196bb6bde2d63e00a2c5a5a",
+      "exit_code": 0,
+      "all_final10_match": true
+    },
+    {
+      "name": "integration-compile-02",
+      "metadata_sha256": "1371798dc15d2810e15d48a5a55045a411b22362d350d8cfbc60af3946f89e2b",
+      "exit_code": 0,
+      "all_final10_match": true
+    },
+    {
+      "name": "fixture-closure-compile-01",
+      "metadata_sha256": "d2e2892d868497f96527aab082dffbe91aa35b4da577d229e1c26a156ce1deab",
+      "exit_code": 0,
+      "all_final10_match": true
+    },
+    {
+      "name": "central-build-02",
+      "metadata_sha256": "8f4bce0d903e3d69283ac2cd61395fbe99a62616cd1b35ca58576875d56b59cf",
+      "exit_code": 0,
+      "all_final10_match": true
+    },
+    {
+      "name": "runner-build-02",
+      "metadata_sha256": "e518d976a7a61109877e18c1f7b4263210d7768443a1f79722819d10d3a3ecf5",
+      "exit_code": 0,
+      "all_final10_match": true
+    }
+  ]
+}

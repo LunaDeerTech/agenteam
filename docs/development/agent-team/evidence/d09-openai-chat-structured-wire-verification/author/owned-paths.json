@@ -1,0 +1,12 @@
+[
+  "internal/central/model/adapter/openai_chat.go",
+  "internal/central/model/adapter/transport.go",
+  "internal/central/model/adapter/sse.go",
+  "internal/central/model/adapter/structured_schema.go",
+  "internal/central/model/adapter/structured_schema_test.go",
+  "internal/central/model/adapter/openai_chat_structured_test.go",
+  "internal/central/model/adapter/structured_stream_test.go",
+  "internal/central/model/adapter/testdata/openai-chat-structured-v1.json",
+  "tests/model/openai_chat_structured_http_test.go",
+  "tests/model/openai_chat_structured_stream_test.go"
+]

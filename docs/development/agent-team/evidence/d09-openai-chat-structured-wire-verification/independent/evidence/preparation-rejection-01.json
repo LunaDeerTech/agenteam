@@ -1,0 +1,8 @@
+{
+  "phase": "read-only snapshot preparation, before Go or fixture",
+  "attempted_asset": "api/openapi.yaml",
+  "exit_code": 128,
+  "stderr": "fatal: pathspec 'api/openapi.yaml' did not match any files",
+  "actual_fixed_asset_directory": "api/openapi",
+  "resources_started": false
+}

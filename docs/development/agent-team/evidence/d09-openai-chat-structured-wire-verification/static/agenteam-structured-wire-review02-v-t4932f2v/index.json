@@ -1,0 +1,80 @@
+{
+  "conclusion": "PASS static delta and author fixed pure evidence review only",
+  "files": [
+    {
+      "path": "report.md",
+      "bytes": 4394,
+      "sha256": "c433db64d206d1bf11575dad840fc7440a1fa66ccb48aa7747a3edf624c9ed6d"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 1565,
+      "sha256": "5d846a337a5b41b3e04621cfc51b6f2ebddf311f6974c98dd5b16264751f8351"
+    },
+    {
+      "path": "delta.patch",
+      "bytes": 12688,
+      "sha256": "e293b5d74550f0492686119d3d95e15b5063379d43d053ca02b8b7dba867a50a"
+    },
+    {
+      "path": "input-check.json",
+      "bytes": 840,
+      "sha256": "eca89a03ef68a760f6e3a76c81eee199a2d0fa984ee3d0884a4bdb19eea8f77a"
+    },
+    {
+      "path": "red-manifest.json",
+      "bytes": 2112,
+      "sha256": "91dae500a9a2514acba36721d1c9e962488e3d5a31f40fb72d8785c4e308479f"
+    },
+    {
+      "path": "red-fixed-evidence-check.json",
+      "bytes": 1557,
+      "sha256": "612010b4362bb9ede59e576070c6a913d831608aa0804df9433bda39f53071f9"
+    },
+    {
+      "path": "pure-f1-f2-red-01.json",
+      "bytes": 2383,
+      "sha256": "e3a266c15e0d54a22a81af9956311067476e544dc9d25f0e302b5451e69cb582"
+    },
+    {
+      "path": "pure-f1-f2-red-01.log",
+      "bytes": 2000,
+      "sha256": "b92c9107e330258751fbf0bda7c1a3d683c9ca2993897df20e1d05189c8e8849"
+    },
+    {
+      "path": "pure-f1-f2-fixed-01.json",
+      "bytes": 2385,
+      "sha256": "89198b0de07a755e91e36e3fdfc008c6e5a8063fe9f4f3622cd2e499341d97dc"
+    },
+    {
+      "path": "pure-f1-f2-fixed-01.log",
+      "bytes": 1472,
+      "sha256": "e4eb8ab13d8ba72f6f92a0026cc20d6d4df98f3f6caae83022755da5443790d6"
+    },
+    {
+      "path": "helper-inputs.json",
+      "bytes": 609,
+      "sha256": "8345593e9f9aea6db2d3dd4a4335af2eceb9e6d29ffd10cdb6395cff12f4e401"
+    },
+    {
+      "path": "helper-budget_test.go.txt",
+      "bytes": 597,
+      "sha256": "02c7624802bd08b28460168c62334fb159d7d53e37837762bf80914879cdf96a"
+    },
+    {
+      "path": "helper-transport_test.go.txt",
+      "bytes": 704,
+      "sha256": "08774fdc1dcbcef72cc66179b14153ecccc13c36e7658b419d8928679461212c"
+    },
+    {
+      "path": "red-tests/internal/central/model/adapter/structured_schema_test.go",
+      "bytes": 14072,
+      "sha256": "254057f9847cec050f008a652a8f455330539d5267c544a9c8dd98570d2ae129"
+    },
+    {
+      "path": "red-tests/internal/central/model/adapter/structured_stream_test.go",
+      "bytes": 7980,
+      "sha256": "8974805b380447cdbc3b4b0872907c0876a8069672fdddb31f8f47e14a516426"
+    }
+  ]
+}

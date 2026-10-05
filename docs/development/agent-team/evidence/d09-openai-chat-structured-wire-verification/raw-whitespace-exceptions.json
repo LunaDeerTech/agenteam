@@ -1,0 +1,48 @@
+{
+  "scope": "exact archived original bytes only; generated Markdown/code remains checked normally",
+  "files": [
+    {
+      "path": "docs/development/agent-team/evidence/d09-openai-chat-structured-wire-verification/author/candidate-review-02/source.patch",
+      "sha256": "76d045760d3ddf3976ac8dd901d38a3e009b67007f735339eff3670addebdbef",
+      "issues": [
+        "original trailing whitespace"
+      ],
+      "lines": [
+        6,
+        9,
+        11,
+        29,
+        104,
+        115
+      ]
+    },
+    {
+      "path": "docs/development/agent-team/evidence/d09-openai-chat-structured-wire-verification/author/production-review-01/source.patch",
+      "sha256": "f57bdf3324ec2423d3790c1e6fc9501dafb0d5da276e640f93193aa89e8f6f35",
+      "issues": [
+        "original trailing whitespace"
+      ],
+      "lines": [
+        5,
+        8,
+        10,
+        28,
+        103,
+        113
+      ]
+    },
+    {
+      "path": "docs/development/agent-team/evidence/d09-openai-chat-structured-wire-verification/author/production-review-02/delta.patch",
+      "sha256": "e293b5d74550f0492686119d3d95e15b5063379d43d053ca02b8b7dba867a50a",
+      "issues": [
+        "original trailing whitespace"
+      ],
+      "lines": [
+        28,
+        32,
+        65,
+        481
+      ]
+    }
+  ]
+}

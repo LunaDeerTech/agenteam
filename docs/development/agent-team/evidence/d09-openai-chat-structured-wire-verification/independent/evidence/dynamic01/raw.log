@@ -1,0 +1,90 @@
+os/signal
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.43.253.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=88e059bf312be69158bcf408e76c805f
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+net
+vendor/golang.org/x/net/http/httpproxy
+net/textproto
+crypto/x509
+vendor/golang.org/x/net/http/httpguts
+mime/multipart
+crypto/tls
+net/http/httptrace
+net/http/internal/httpcommon
+net/http/internal/http2
+net/http
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=56c1ada7ffefb0ec0db13f32f55fb099
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.023s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.039s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	4.023s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.032s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.029s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.028s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.026s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.028s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.017s [no tests to run]
+=== RUN   TestIndependentStructuredMismatchUsage
+    independent_structured_wire_test.go:144: actual strict POST=1; delivered JSON prefix and final usage 7/0/9; nested enum mismatch -> nonretryable protocol error, PartialOutput=true, EOF, no StreamEnd; D04 handler/connection and exchange joined
+--- PASS: TestIndependentStructuredMismatchUsage (1.67s)
+=== RUN   TestIndependentStructuredCancelActualJoin
+    independent_structured_wire_test.go:247: actual Sent/Cancelled with writer barrier held: Close timeout, Joined=false, material live, mixed Project slots=8 and ninth rejected; writer return+Drain frees one slot; Force joins all body/parser/client owners; 9 actual requests, handlers/connections closed before Destroy
+--- PASS: TestIndependentStructuredCancelActualJoin (1.10s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	3.795s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.035s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.013s [no tests to run]
+D03 fixture cleanup checked for nonce 9ee305654e3efe3666c04efe3b06c9bd
+D04 outbound fixture cleanup checked for nonce 56c1ada7ffefb0ec0db13f32f55fb099
+D05 object fixture exact resource cleanup checked nonce=88e059bf312be69158bcf408e76c805f

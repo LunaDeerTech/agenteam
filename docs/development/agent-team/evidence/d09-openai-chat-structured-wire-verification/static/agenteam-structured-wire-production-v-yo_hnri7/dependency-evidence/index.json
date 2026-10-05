@@ -1,0 +1,55 @@
+[
+  {
+    "source": "/workspace/toolchains/go1.27.1/src/encoding/json/stream.go",
+    "source_sha256": "065501364e4954cf1c8f1887900248d4c0983593b8c058b2fe7997d9635b793d",
+    "bytes": 13862,
+    "ranges": [
+      [
+        51,
+        80
+      ],
+      [
+        103,
+        182
+      ],
+      [
+        445,
+        471
+      ]
+    ],
+    "excerpt": "dependency-evidence/stream.go.excerpt.txt",
+    "excerpt_sha256": "fdaefe833542245645b68bdee46f02c709f8a2ea7a8c6eb4375d00b35ae674fc",
+    "use": "static standard-library implementation, not runtime measurement"
+  },
+  {
+    "source": "/workspace/toolchains/go1.27.1/src/encoding/json/decode.go",
+    "source_sha256": "1632161a34c8286722716a48ba0b5e0c3d117a2e017e79ace676403808a16e6e",
+    "bytes": 36122,
+    "ranges": [
+      [
+        837,
+        847
+      ],
+      [
+        1127,
+        1165
+      ]
+    ],
+    "excerpt": "dependency-evidence/decode.go.excerpt.txt",
+    "excerpt_sha256": "2303b5fecb5d3dd8e37874f728f511b8ca76c564aad2cbfcfb7d4550a1560e6e",
+    "use": "static standard-library implementation, not runtime measurement"
+  },
+  {
+    "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+    "path": "internal/central/outbound/client.go",
+    "source_sha256": "127467315ed1798db92d4785d856880b46b7e2b723c2dc723d3fbf7b1dcc4816",
+    "ranges": [
+      [
+        156,
+        172
+      ]
+    ],
+    "excerpt": "dependency-evidence/outbound-client-drain-ac5.txt",
+    "excerpt_sha256": "4e2af587538ea2e42fca25357aebe14a493f21f500645d80683d8bda4d529bbb"
+  }
+]

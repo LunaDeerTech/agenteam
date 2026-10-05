@@ -1,0 +1,27 @@
+=== RUN   TestStructuredValidationAllocationBounds
+=== RUN   TestStructuredValidationAllocationBounds/string
+    structured_schema_test.go:304: verifier input_bytes=4194312 allocated_bytes=20972048 workspace_bound=1048576
+    structured_schema_test.go:306: verifier copied/expanded a whole long value
+=== RUN   TestStructuredValidationAllocationBounds/number
+    structured_schema_test.go:304: verifier input_bytes=4194310 allocated_bytes=20972128 workspace_bound=1048576
+    structured_schema_test.go:306: verifier copied/expanded a whole long value
+--- FAIL: TestStructuredValidationAllocationBounds (0.33s)
+    --- FAIL: TestStructuredValidationAllocationBounds/string (0.21s)
+    --- FAIL: TestStructuredValidationAllocationBounds/number (0.12s)
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation/json_caller
+    structured_stream_test.go:230: model error got <nil>, want cancelled/wire_cancelled
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation/json_attempt
+    structured_stream_test.go:230: model error got <nil>, want cancelled/wire_cancelled
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation/sse_caller
+    structured_stream_test.go:230: model error got <nil>, want cancelled/wire_cancelled
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation/sse_attempt
+    structured_stream_test.go:230: model error got <nil>, want cancelled/wire_cancelled
+--- FAIL: TestStructuredSuccessfulConsumptionRechecksCancellation (0.00s)
+    --- FAIL: TestStructuredSuccessfulConsumptionRechecksCancellation/json_caller (0.00s)
+    --- FAIL: TestStructuredSuccessfulConsumptionRechecksCancellation/json_attempt (0.00s)
+    --- FAIL: TestStructuredSuccessfulConsumptionRechecksCancellation/sse_caller (0.00s)
+    --- FAIL: TestStructuredSuccessfulConsumptionRechecksCancellation/sse_attempt (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	0.346s
+FAIL

@@ -1,0 +1,56 @@
+{
+  "same_argv": true,
+  "same_environment": true,
+  "checks": [
+    {
+      "path": "internal/central/model/adapter/openai_chat.go",
+      "red_source_match": true,
+      "same_fixed_run_hash": true
+    },
+    {
+      "path": "internal/central/model/adapter/transport.go",
+      "red_source_match": true,
+      "same_fixed_run_hash": false
+    },
+    {
+      "path": "internal/central/model/adapter/sse.go",
+      "red_source_match": true,
+      "same_fixed_run_hash": true
+    },
+    {
+      "path": "internal/central/model/adapter/structured_schema.go",
+      "red_source_match": true,
+      "same_fixed_run_hash": false
+    },
+    {
+      "path": "internal/central/model/adapter/structured_schema_test.go",
+      "red_source_match": true,
+      "same_fixed_run_hash": true
+    },
+    {
+      "path": "internal/central/model/adapter/openai_chat_structured_test.go",
+      "red_source_match": true,
+      "same_fixed_run_hash": true
+    },
+    {
+      "path": "internal/central/model/adapter/structured_stream_test.go",
+      "red_source_match": true,
+      "same_fixed_run_hash": true
+    },
+    {
+      "path": "internal/central/model/adapter/testdata/openai-chat-structured-v1.json",
+      "red_source_match": true,
+      "same_fixed_run_hash": true
+    },
+    {
+      "path": "tests/model/openai_chat_structured_http_test.go",
+      "red_source_match": true,
+      "same_fixed_run_hash": true
+    },
+    {
+      "path": "tests/model/openai_chat_structured_stream_test.go",
+      "red_source_match": true,
+      "same_fixed_run_hash": true
+    }
+  ]
+}

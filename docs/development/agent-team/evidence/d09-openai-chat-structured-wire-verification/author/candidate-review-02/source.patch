@@ -1,0 +1,2267 @@
+diff --git a/internal/central/model/adapter/openai_chat.go b/internal/central/model/adapter/openai_chat.go
+--- a/internal/central/model/adapter/openai_chat.go
++++ b/internal/central/model/adapter/openai_chat.go
+@@ -23,6 +23,7 @@
+ )
+ 
+ const OpenAIChatTextRevision = "openai-chat-text-v1"
++const OpenAIChatStructuredRevision = "openai-chat-structured-v1"
+ 
+ type ResponseMode string
+ 
+@@ -112,7 +113,7 @@
+ 	if err := ctx.Err(); err != nil {
+ 		return nil, contextFailure(err)
+ 	}
+-	req, profile, err := prepare(r, o)
++	req, profile, schema, err := prepareWithSchema(ctx, r, o)
+ 	if err != nil {
+ 		return nil, err
+ 	}
+@@ -120,12 +121,20 @@
+ 	if err != nil {
+ 		return nil, err
+ 	}
++	x.schema = schema
+ 	go x.run(a.transport, req, profile)
+ 	return x, nil
+ }
+ 
+ func prepare(r Request, o CallOptions) (*http.Request, outbound.Profile, error) {
+-	fail := func(err error) (*http.Request, outbound.Profile, error) { return nil, outbound.Profile{}, err }
++	req, profile, _, err := prepareWithSchema(context.Background(), r, o)
++	return req, profile, err
++}
++
++func prepareWithSchema(ctx context.Context, r Request, o CallOptions) (*http.Request, outbound.Profile, *structuredSchema, error) {
++	fail := func(err error) (*http.Request, outbound.Profile, *structuredSchema, error) {
++		return nil, outbound.Profile{}, nil, err
++	}
+ 	if r.Mode != JSONResponse && r.Mode != SSEResponse || r.Snapshot.Validate() != nil || r.ToolChoice.Validate() != nil || r.ResponseFormat.Validate() != nil || len(r.Messages) == 0 || len(r.Messages) > 256 || len(r.Tools) > 128 || o.ProjectID.Validate() != nil {
+ 		return fail(invalid())
+ 	}
+@@ -140,7 +149,32 @@
+ 		}
+ 	}
+ 	s, c := r.Snapshot.Identity, r.Snapshot.Capabilities
+-	if s.Profile != mc.OpenAIChatV1 || s.Protocol != mc.OpenAIChat || s.ModelType != mc.ChatModel || s.AdapterRevision != OpenAIChatTextRevision || !emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !onlyText(c.InputModalities) || !onlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !onlyText(c.StructuredOutputModes) || r.Mode == SSEResponse && !c.Streaming || len(r.Tools) != 0 || r.ToolChoice.Kind != "none" || r.ResponseFormat.Kind != "text" {
++	if s.Profile != mc.OpenAIChatV1 || s.Protocol != mc.OpenAIChat || s.ModelType != mc.ChatModel || !emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !onlyText(c.InputModalities) || !onlyText(c.OutputModalities) || r.Mode == SSEResponse && !c.Streaming || len(r.Tools) != 0 || r.ToolChoice.Kind != "none" {
++		return fail(unsupported())
++	}
++	var schema *structuredSchema
++	var format *structuredWireFormat
++	switch s.AdapterRevision {
++	case OpenAIChatTextRevision:
++		if len(c.StructuredOutputModes) > 0 && !onlyText(c.StructuredOutputModes) || r.ResponseFormat.Kind != "text" {
++			return fail(unsupported())
++		}
++	case OpenAIChatStructuredRevision:
++		hasSchema := false
++		for _, mode := range c.StructuredOutputModes {
++			hasSchema = hasSchema || mode == "json_schema"
++		}
++		if !hasSchema {
++			return fail(unsupported())
++		}
++		if r.ResponseFormat.Kind == "json_schema" {
++			var err error
++			schema, format, err = compileStructured(ctx, r.ResponseFormat)
++			if err != nil {
++				return fail(err)
++			}
++		}
++	default:
+ 		return fail(unsupported())
+ 	}
+ 	// Explicit wire tags prevent either public-contract JSON or logging methods
+@@ -169,12 +203,13 @@
+ 		maxOutput = &n
+ 	}
+ 	body := struct {
+-		Model     string          `json:"model"`
+-		Messages  []wireMessage   `json:"messages"`
+-		Stream    bool            `json:"stream"`
+-		Options   map[string]bool `json:"stream_options,omitempty"`
+-		MaxOutput *int64          `json:"max_completion_tokens,omitempty"`
+-	}{Model: s.ProviderModelID, Messages: messages, Stream: r.Mode == SSEResponse, MaxOutput: maxOutput}
++		Model     string                `json:"model"`
++		Messages  []wireMessage         `json:"messages"`
++		Stream    bool                  `json:"stream"`
++		Options   map[string]bool       `json:"stream_options,omitempty"`
++		MaxOutput *int64                `json:"max_completion_tokens,omitempty"`
++		Format    *structuredWireFormat `json:"response_format,omitempty"`
++	}{Model: s.ProviderModelID, Messages: messages, Stream: r.Mode == SSEResponse, MaxOutput: maxOutput, Format: format}
+ 	if body.Stream {
+ 		body.Options = map[string]bool{"include_usage": true}
+ 	}
+@@ -231,7 +266,7 @@
+ 		req.Header.Set("Accept", "text/event-stream")
+ 	}
+ 	req.Close = true
+-	return req, profile, nil
++	return req, profile, schema, nil
+ }
+ 
+ func onlyText(v []string) bool { return len(v) == 1 && v[0] == "text" }
+diff --git a/internal/central/model/adapter/transport.go b/internal/central/model/adapter/transport.go
+--- a/internal/central/model/adapter/transport.go
++++ b/internal/central/model/adapter/transport.go
+@@ -33,6 +33,7 @@
+ 	queueBytes                                 int
+ 	result                                     Result
+ 	err                                        error
++	schema                                     *structuredSchema
+ }
+ 
+ func newExchange(ctx context.Context, mode ResponseMode, overall time.Duration, budget *Budget) *Exchange {
+@@ -112,6 +113,11 @@
+ 	x.observeUsage(value.usage)
+ 	if value.refusal {
+ 		return Result{}, failure("content_filter", "")
++	}
++	if x.schema != nil {
++		if err := x.schema.complete(x.ctx, value.text, value.finish); err != nil {
++			return Result{}, err
++		}
+ 	}
+ 	return Result{Text: value.text, End: End{FinishReason: value.finish, Usage: value.usage.Clone(), ProviderRequestID: x.requestID}}, nil
+ }
+@@ -238,8 +244,13 @@
+ 		cancel()
+ 	}
+ 	err := x.waitJoined(wait)
+-	if err != nil && ctx.Err() != nil {
++	// An actually joined client may return nil even with a cancelled wait.
++	// Join still retires its real slot first; it never authorizes publication.
++	if ctx.Err() != nil {
+ 		return contextFailure(ctx.Err())
++	}
++	if x.ctx.Err() != nil {
++		return contextFailure(x.ctx.Err())
+ 	}
+ 	return err
+ }
+diff --git a/internal/central/model/adapter/sse.go b/internal/central/model/adapter/sse.go
+--- a/internal/central/model/adapter/sse.go
++++ b/internal/central/model/adapter/sse.go
+@@ -74,6 +74,9 @@
+ 	end := End{Usage: mc.Usage{Source: mc.UnknownUsage}}
+ 	finished, usageSeen := false, false
+ 	textBytes := 0
++	// Only structured output retains cumulative content. String() borrows this
++	// bounded builder; validation never makes a second whole-content copy/DOM.
++	var structuredText strings.Builder
+ 	for {
+ 		if err := x.ctx.Err(); err != nil {
+ 			return End{}, contextFailure(err)
+@@ -93,6 +96,11 @@
+ 		if bytes.Equal(raw, []byte("[DONE]")) {
+ 			if !finished {
+ 				return End{}, protocolFailure()
++			}
++			if x.schema != nil {
++				if err := x.schema.complete(x.ctx, structuredText.String(), end.FinishReason); err != nil {
++					return End{}, err
++				}
+ 			}
+ 			end.ProviderRequestID = x.requestID
+ 			return end, nil
+@@ -123,6 +131,9 @@
+ 		if textBytes > maxTextBytes {
+ 			return End{}, limitFailure()
+ 		}
++		if x.schema != nil {
++			structuredText.WriteString(value.text)
++		}
+ 		for remaining := value.text; remaining != ""; {
+ 			n := min(len(remaining), 64<<10)
+ 			if n < len(remaining) {
+diff --git a/internal/central/model/adapter/structured_schema.go b/internal/central/model/adapter/structured_schema.go
+--- /dev/null
++++ b/internal/central/model/adapter/structured_schema.go
+@@ -0,0 +1,722 @@
++package adapter
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"strings"
++	"unicode/utf8"
++
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++const (
++	maxSchemaBytes      = 64 << 10
++	maxSchemaNodes      = 1024
++	maxStructuredDepth  = 32
++	maxSchemaProperties = 256
++	maxSchemaEnum       = 128
++	maxStructuredNodes  = 65536
++	maxStructuredNumber = 128
++)
++
++// The native format and the verifier are made from the same private copy,
++// before admission. Neither caller mutation nor a second parse after dispatch
++// can replace the schema under which this exchange was accepted.
++type structuredWireFormat struct {
++	Type       string `json:"type"`
++	JSONSchema struct {
++		Name   string          `json:"name"`
++		Schema json.RawMessage `json:"schema"`
++		Strict bool            `json:"strict"`
++	} `json:"json_schema"`
++}
++
++type schemaNode struct {
++	kind       string
++	nullable   bool
++	properties map[string]*schemaNode
++	items      *schemaNode
++	hasEnum    bool
++	enumNull   bool
++	enum       map[string]bool
++}
++
++type structuredSchema struct{ root *schemaNode }
++type schemaCompiler struct {
++	ctx   context.Context
++	nodes int
++}
++
++func compileStructured(ctx context.Context, format mc.ResponseFormat) (*structuredSchema, *structuredWireFormat, error) {
++	if ctx == nil {
++		return nil, nil, invalid()
++	}
++	if err := ctx.Err(); err != nil {
++		return nil, nil, contextFailure(err)
++	}
++	if format.Kind != "json_schema" || len(format.Name) == 0 || len(format.Name) > 64 || len(format.Schema) == 0 || len(format.Schema) > maxSchemaBytes {
++		return nil, nil, invalid()
++	}
++	for _, ch := range format.Name {
++		if !(ch >= 'a' && ch <= 'z' || ch >= 'A' && ch <= 'Z' || ch >= '0' && ch <= '9' || ch == '_' || ch == '-') {
++			return nil, nil, invalid()
++		}
++	}
++	raw := bytes.Clone(format.Schema)
++	if jsonShape(raw) != nil {
++		return nil, nil, invalid()
++	}
++	c := schemaCompiler{ctx: ctx}
++	root, err := c.node(raw, 1)
++	if err != nil {
++		return nil, nil, err
++	}
++	if root.kind != "object" || root.nullable {
++		return nil, nil, unsupported()
++	}
++	if err := ctx.Err(); err != nil {
++		return nil, nil, contextFailure(err)
++	}
++	wire := &structuredWireFormat{Type: "json_schema"}
++	wire.JSONSchema.Name, wire.JSONSchema.Schema, wire.JSONSchema.Strict = format.Name, raw, true
++	return &structuredSchema{root: root}, wire, nil
++}
++
++func (c *schemaCompiler) node(raw json.RawMessage, depth int) (*schemaNode, error) {
++	if err := c.ctx.Err(); err != nil {
++		return nil, contextFailure(err)
++	}
++	c.nodes++
++	if c.nodes > maxSchemaNodes || depth > maxStructuredDepth {
++		return nil, unsupported()
++	}
++	var fields map[string]json.RawMessage
++	if json.Unmarshal(raw, &fields) != nil || fields == nil {
++		return nil, invalid()
++	}
++	for key := range fields {
++		switch key {
++		case "type", "properties", "required", "additionalProperties", "items", "enum", "title", "description":
++		default:
++			return nil, unsupported()
++		}
++	}
++	n := &schemaNode{}
++	if err := schemaType(fields["type"], n); err != nil {
++		return nil, err
++	}
++	for _, annotation := range []struct {
++		key string
++		max int
++	}{{"title", 128}, {"description", 4096}} {
++		if raw, ok := fields[annotation.key]; ok {
++			var text string
++			if null(raw) || json.Unmarshal(raw, &text) != nil {
++				return nil, invalid()
++			}
++			if len(text) > annotation.max {
++				return nil, unsupported()
++			}
++		}
++	}
++	if n.kind != "object" {
++		for _, key := range []string{"properties", "required", "additionalProperties"} {
++			if _, ok := fields[key]; ok {
++				return nil, invalid()
++			}
++		}
++	}
++	if _, ok := fields["items"]; ok && n.kind != "array" {
++		return nil, invalid()
++	}
++	if n.kind == "object" {
++		if err := c.properties(fields, n, depth); err != nil {
++			return nil, err
++		}
++	}
++	if n.kind == "array" {
++		items, ok := fields["items"]
++		if !ok {
++			return nil, unsupported()
++		}
++		var err error
++		n.items, err = c.node(items, depth+1)
++		if err != nil {
++			return nil, err
++		}
++	}
++	if raw, ok := fields["enum"]; ok {
++		if err := schemaEnum(raw, n); err != nil {
++			return nil, err
++		}
++	}
++	return n, nil
++}
++
++func schemaType(raw json.RawMessage, n *schemaNode) error {
++	if null(raw) {
++		return invalid()
++	}
++	if json.Unmarshal(raw, &n.kind) != nil {
++		var items []json.RawMessage
++		if json.Unmarshal(raw, &items) != nil || len(items) == 0 {
++			return invalid()
++		}
++		types := make([]string, len(items))
++		seen := make(map[string]bool, len(items))
++		for i, item := range items {
++			if null(item) || json.Unmarshal(item, &types[i]) != nil || !schemaTypeName(types[i]) || seen[types[i]] {
++				return invalid()
++			}
++			seen[types[i]] = true
++		}
++		if len(types) != 2 || types[0] != "null" && types[1] != "null" {
++			return unsupported()
++		}
++		n.nullable = true
++		n.kind = types[0]
++		if n.kind == "null" {
++			n.kind = types[1]
++		}
++	}
++	if !schemaTypeName(n.kind) {
++		return invalid()
++	}
++	return nil
++}
++
++func schemaTypeName(kind string) bool {
++	switch kind {
++	case "object", "array", "string", "number", "integer", "boolean", "null":
++		return true
++	default:
++		return false
++	}
++}
++
++func (c *schemaCompiler) properties(fields map[string]json.RawMessage, n *schemaNode, depth int) error {
++	for _, key := range []string{"properties", "required", "additionalProperties"} {
++		if _, ok := fields[key]; !ok {
++			return unsupported()
++		}
++	}
++	var additional bool
++	if null(fields["additionalProperties"]) || json.Unmarshal(fields["additionalProperties"], &additional) != nil {
++		return invalid()
++	}
++	if additional {
++		return unsupported()
++	}
++	var properties map[string]json.RawMessage
++	var required []json.RawMessage
++	if json.Unmarshal(fields["properties"], &properties) != nil || properties == nil || json.Unmarshal(fields["required"], &required) != nil || required == nil {
++		return invalid()
++	}
++	if len(properties) > maxSchemaProperties {
++		return unsupported()
++	}
++	seen := make(map[string]bool, len(required))
++	for _, raw := range required {
++		var name string
++		if null(raw) || json.Unmarshal(raw, &name) != nil {
++			return invalid()
++		}
++		if _, exists := properties[name]; !exists || seen[name] {
++			return invalid()
++		}
++		seen[name] = true
++	}
++	if len(required) != len(properties) {
++		return unsupported()
++	}
++	n.properties = make(map[string]*schemaNode, len(properties))
++	for name, raw := range properties {
++		if len(name) > 256 {
++			return unsupported()
++		}
++		child, err := c.node(raw, depth+1)
++		if err != nil {
++			return err
++		}
++		n.properties[name] = child
++	}
++	return nil
++}
++
++func schemaEnum(raw json.RawMessage, n *schemaNode) error {
++	if n.kind != "string" {
++		return unsupported()
++	}
++	var values []json.RawMessage
++	if json.Unmarshal(raw, &values) != nil || len(values) == 0 {
++		return invalid()
++	}
++	if len(values) > maxSchemaEnum {
++		return unsupported()
++	}
++	n.hasEnum, n.enum = true, make(map[string]bool, len(values))
++	for _, raw := range values {
++		if null(raw) {
++			if !n.nullable || n.enumNull {
++				return invalid()
++			}
++			n.enumNull = true
++			continue
++		}
++		var value string
++		if json.Unmarshal(raw, &value) != nil || n.enum[value] {
++			return invalid()
++		}
++		if len(value) > 1024 {
++			return unsupported()
++		}
++		n.enum[value] = true
++	}
++	return nil
++}
++
++func (s *structuredSchema) complete(ctx context.Context, text string, finish mc.FinishReason) error {
++	if err := ctx.Err(); err != nil {
++		return contextFailure(err)
++	}
++	switch finish {
++	case "content_filter":
++		return failure("content_filter", "")
++	case "stop":
++		return s.validate(ctx, text)
++	default:
++		return protocolFailure()
++	}
++}
++
++// Validation walks the original content directly. Strings without an enum are
++// never materialized; decoded keys/enums use a bounded scratch area. Numbers
++// stop at their 129th byte, before a decoder can scan or copy the whole value.
++func (s *structuredSchema) validate(ctx context.Context, text string) error {
++	if err := ctx.Err(); err != nil {
++		return contextFailure(err)
++	}
++	if len(text) > maxTextBytes {
++		return limitFailure()
++	}
++	v := structuredValidator{ctx: ctx, text: text}
++	if err := v.value(s.root, 1); err != nil {
++		return err
++	}
++	if err := v.space(); err != nil {
++		return err
++	}
++	if v.pos != len(text) {
++		return protocolFailure()
++	}
++	if err := ctx.Err(); err != nil {
++		return contextFailure(err)
++	}
++	return nil
++}
++
++type structuredValidator struct {
++	ctx                   context.Context
++	text                  string
++	pos, nodes, nextCheck int
++}
++
++func (v *structuredValidator) advance(n int) error {
++	v.pos += n
++	if v.pos >= v.nextCheck {
++		v.nextCheck = v.pos + 1024
++		if err := v.ctx.Err(); err != nil {
++			return contextFailure(err)
++		}
++	}
++	return nil
++}
++func (v *structuredValidator) peek() byte {
++	if v.pos == len(v.text) {
++		return 0
++	}
++	return v.text[v.pos]
++}
++func (v *structuredValidator) space() error {
++	for v.pos < len(v.text) {
++		switch v.text[v.pos] {
++		case ' ', '\t', '\r', '\n':
++			if err := v.advance(1); err != nil {
++				return err
++			}
++		default:
++			return nil
++		}
++	}
++	return nil
++}
++func (v *structuredValidator) literal(want string) error {
++	if !strings.HasPrefix(v.text[v.pos:], want) {
++		return protocolFailure()
++	}
++	return v.advance(len(want))
++}
++func (v *structuredValidator) value(n *schemaNode, depth int) error {
++	if err := v.ctx.Err(); err != nil {
++		return contextFailure(err)
++	}
++	v.nodes++
++	if depth > maxStructuredDepth || v.nodes > maxStructuredNodes {
++		return limitFailure()
++	}
++	if err := v.space(); err != nil {
++		return err
++	}
++	if v.pos == len(v.text) {
++		return protocolFailure()
++	}
++	switch ch := v.peek(); {
++	case ch == 'n':
++		if err := v.literal("null"); err != nil {
++			return err
++		}
++		if (n.nullable || n.kind == "null") && (!n.hasEnum || n.enumNull) {
++			return nil
++		}
++	case ch == 't' || ch == 'f':
++		want := "true"
++		if ch == 'f' {
++			want = "false"
++		}
++		if err := v.literal(want); err != nil {
++			return err
++		}
++		if n.kind == "boolean" {
++			return nil
++		}
++	case ch == '"':
++		if n.kind != "string" {
++			return protocolFailure()
++		}
++		bound := 0
++		if n.hasEnum {
++			bound = 1024
++		}
++		text, err := v.quoted(bound)
++		if err != nil {
++			return err
++		}
++		if !n.hasEnum || n.enum[text] {
++			return nil
++		}
++	case ch == '-' || ch >= '0' && ch <= '9':
++		number, err := v.number()
++		if err != nil {
++			return err
++		}
++		if n.kind == "number" || n.kind == "integer" && structuredInteger(number) {
++			return nil
++		}
++	case ch == '{' && n.kind == "object":
++		if err := v.advance(1); err != nil {
++			return err
++		}
++		if err := v.space(); err != nil {
++			return err
++		}
++		seen := make(map[string]bool, len(n.properties))
++		if v.peek() != '}' {
++			for {
++				name, err := v.quoted(256)
++				if err != nil {
++					return err
++				}
++				if seen[name] || n.properties[name] == nil {
++					return protocolFailure()
++				}
++				seen[name] = true
++				if err := v.space(); err != nil {
++					return err
++				}
++				if v.peek() != ':' {
++					return protocolFailure()
++				}
++				if err := v.advance(1); err != nil {
++					return err
++				}
++				if err := v.value(n.properties[name], depth+1); err != nil {
++					return err
++				}
++				if err := v.space(); err != nil {
++					return err
++				}
++				if v.peek() != ',' {
++					break
++				}
++				if err := v.advance(1); err != nil {
++					return err
++				}
++				if err := v.space(); err != nil {
++					return err
++				}
++			}
++		}
++		if v.peek() != '}' || len(seen) != len(n.properties) {
++			return protocolFailure()
++		}
++		return v.advance(1)
++	case ch == '[' && n.kind == "array":
++		if err := v.advance(1); err != nil {
++			return err
++		}
++		if err := v.space(); err != nil {
++			return err
++		}
++		if v.peek() != ']' {
++			for {
++				if err := v.value(n.items, depth+1); err != nil {
++					return err
++				}
++				if err := v.space(); err != nil {
++					return err
++				}
++				if v.peek() != ',' {
++					break
++				}
++				if err := v.advance(1); err != nil {
++					return err
++				}
++			}
++		}
++		if v.peek() != ']' {
++			return protocolFailure()
++		}
++		return v.advance(1)
++	}
++	return protocolFailure()
++}
++
++// bound==0 validates only; otherwise it decodes at most 256 key / 1024 enum
++// bytes. A long string cannot allocate a decoder buffer or decoded whole value.
++func (v *structuredValidator) quoted(bound int) (string, error) {
++	if v.peek() != '"' {
++		return "", protocolFailure()
++	}
++	if err := v.advance(1); err != nil {
++		return "", err
++	}
++	var scratch [1024]byte
++	decoded := scratch[:0]
++	for v.pos < len(v.text) {
++		ch := v.peek()
++		if ch == '"' {
++			if err := v.advance(1); err != nil {
++				return "", err
++			}
++			return string(decoded), nil
++		}
++		var r rune
++		if ch == '\\' {
++			if err := v.advance(1); err != nil {
++				return "", err
++			}
++			if v.pos == len(v.text) {
++				return "", protocolFailure()
++			}
++			escape := v.peek()
++			if err := v.advance(1); err != nil {
++				return "", err
++			}
++			switch escape {
++			case '"', '\\', '/':
++				r = rune(escape)
++			case 'b':
++				r = '\b'
++			case 'f':
++				r = '\f'
++			case 'n':
++				r = '\n'
++			case 'r':
++				r = '\r'
++			case 't':
++				r = '\t'
++			case 'u':
++				u, err := v.hex4()
++				if err != nil {
++					return "", err
++				}
++				if u >= 0xdc00 && u <= 0xdfff {
++					return "", protocolFailure()
++				}
++				if u >= 0xd800 && u <= 0xdbff {
++					if !strings.HasPrefix(v.text[v.pos:], `\u`) {
++						return "", protocolFailure()
++					}
++					if err := v.advance(2); err != nil {
++						return "", err
++					}
++					low, err := v.hex4()
++					if err != nil {
++						return "", err
++					}
++					if low < 0xdc00 || low > 0xdfff {
++						return "", protocolFailure()
++					}
++					u = 0x10000 + (u-0xd800)*0x400 + low - 0xdc00
++				}
++				r = u
++			default:
++				return "", protocolFailure()
++			}
++		} else {
++			if ch < 0x20 {
++				return "", protocolFailure()
++			}
++			var size int
++			r, size = utf8.DecodeRuneInString(v.text[v.pos:])
++			if r == utf8.RuneError && size == 1 {
++				return "", protocolFailure()
++			}
++			if err := v.advance(size); err != nil {
++				return "", err
++			}
++		}
++		if bound > 0 {
++			if len(decoded)+utf8.RuneLen(r) > bound {
++				return "", protocolFailure()
++			}
++			decoded = utf8.AppendRune(decoded, r)
++		}
++	}
++	return "", protocolFailure()
++}
++func (v *structuredValidator) hex4() (rune, error) {
++	var result rune
++	for i := 0; i < 4; i++ {
++		if v.pos == len(v.text) {
++			return 0, protocolFailure()
++		}
++		ch := v.peek()
++		var digit byte
++		switch {
++		case ch >= '0' && ch <= '9':
++			digit = ch - '0'
++		case ch >= 'a' && ch <= 'f':
++			digit = ch - 'a' + 10
++		case ch >= 'A' && ch <= 'F':
++			digit = ch - 'A' + 10
++		default:
++			return 0, protocolFailure()
++		}
++		result = result*16 + rune(digit)
++		if err := v.advance(1); err != nil {
++			return 0, err
++		}
++	}
++	return result, nil
++}
++func (v *structuredValidator) number() (string, error) {
++	start := v.pos
++	step := func() error {
++		if err := v.advance(1); err != nil {
++			return err
++		}
++		if v.pos-start > maxStructuredNumber {
++			return limitFailure()
++		}
++		return nil
++	}
++	digit := func() bool { return v.pos < len(v.text) && v.peek() >= '0' && v.peek() <= '9' }
++	if v.peek() == '-' {
++		if err := step(); err != nil {
++			return "", err
++		}
++	}
++	if !digit() {
++		return "", protocolFailure()
++	}
++	if v.peek() == '0' {
++		if err := step(); err != nil {
++			return "", err
++		}
++		if digit() {
++			return "", protocolFailure()
++		}
++	} else {
++		for digit() {
++			if err := step(); err != nil {
++				return "", err
++			}
++		}
++	}
++	if v.peek() == '.' {
++		if err := step(); err != nil {
++			return "", err
++		}
++		if !digit() {
++			return "", protocolFailure()
++		}
++		for digit() {
++			if err := step(); err != nil {
++				return "", err
++			}
++		}
++	}
++	if v.peek() == 'e' || v.peek() == 'E' {
++		if err := step(); err != nil {
++			return "", err
++		}
++		if v.peek() == '+' || v.peek() == '-' {
++			if err := step(); err != nil {
++				return "", err
++			}
++		}
++		if !digit() {
++			return "", protocolFailure()
++		}
++		for digit() {
++			if err := step(); err != nil {
++				return "", err
++			}
++		}
++	}
++	return v.text[start:v.pos], nil
++}
++
++// A <=128-byte JSON number is integral iff its decimal exponent moves every
++// nonzero fractional digit left of the point. Saturation at 256 suffices for
++// this bounded comparison; even a very long exponent is never expanded.
++func structuredInteger(number string) bool {
++	if strings.HasPrefix(number, "-") {
++		number = number[1:]
++	}
++	mantissa, exponent := number, ""
++	if i := strings.IndexAny(number, "eE"); i >= 0 {
++		mantissa, exponent = number[:i], number[i+1:]
++	}
++	fraction, trailing, nonzero := 0, 0, false
++	if dot := strings.IndexByte(mantissa, '.'); dot >= 0 {
++		fraction = len(mantissa) - dot - 1
++	}
++	for _, ch := range mantissa {
++		if ch == '.' {
++			continue
++		}
++		if ch == '0' {
++			trailing++
++		} else {
++			nonzero, trailing = true, 0
++		}
++	}
++	if !nonzero {
++		return true
++	}
++	negative := strings.HasPrefix(exponent, "-")
++	if len(exponent) > 0 && (exponent[0] == '+' || exponent[0] == '-') {
++		exponent = exponent[1:]
++	}
++	exp := 0
++	for _, digit := range exponent {
++		exp = min(256, exp*10+int(digit-'0'))
++	}
++	if negative {
++		exp = -exp
++	}
++	return exp >= fraction-trailing
++}
+diff --git a/internal/central/model/adapter/structured_schema_test.go b/internal/central/model/adapter/structured_schema_test.go
+--- /dev/null
++++ b/internal/central/model/adapter/structured_schema_test.go
+@@ -0,0 +1,342 @@
++package adapter
++
++import (
++	"context"
++	"encoding/json"
++	"fmt"
++	"runtime"
++	"strings"
++	"testing"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++func schemaObject(properties map[string]any) map[string]any {
++	required := make([]string, 0, len(properties))
++	for name := range properties {
++		required = append(required, name)
++	}
++	return map[string]any{"type": "object", "properties": properties, "required": required, "additionalProperties": false}
++}
++func schemaJSON(t *testing.T, value any) json.RawMessage {
++	t.Helper()
++	raw, err := json.Marshal(value)
++	if err != nil {
++		t.Fatal(err)
++	}
++	return raw
++}
++func compileSchemaTest(t *testing.T, raw string) *structuredSchema {
++	t.Helper()
++	s, _, err := compileStructured(context.Background(), mc.ResponseFormat{Kind: "json_schema", Name: "memory_result", Schema: json.RawMessage(raw)})
++	if err != nil {
++		t.Fatal("schema fixture", err)
++	}
++	return s
++}
++func singleSchema(t *testing.T, node any) *structuredSchema {
++	t.Helper()
++	return compileSchemaTest(t, string(schemaJSON(t, schemaObject(map[string]any{"v": node}))))
++}
++
++func TestStructuredSchemaSubsetAndFailures(t *testing.T) {
++	raw := `{"type":"object","title":"Memory","description":"fixture","properties":{"facts":{"type":"array","items":{"type":"object","properties":{"text":{"type":"string"},"kind":{"type":["null","string"],"enum":["fact",null]},"confidence":{"type":"number"},"ordinal":{"type":"integer"},"active":{"type":"boolean"},"absent":{"type":"null"}},"required":["text","kind","confidence","ordinal","active","absent"],"additionalProperties":false}},"maybe":{"type":["object","null"],"properties":{},"required":[],"additionalProperties":false}},"required":["maybe","facts"],"additionalProperties":false}`
++	s := compileSchemaTest(t, raw)
++	good := ` {"facts":[{"text":"世界\n\ud83d\ude00","kind":null,"confidence":0.25,"ordinal":9007199254740993,"active":true,"absent":null}],"maybe":{}} `
++	if err := s.complete(context.Background(), good, "stop"); err != nil {
++		t.Fatal("nested strict response", err)
++	}
++	for _, tc := range []struct{ name, body string }{
++		{"missing", `{"facts":[]}`}, {"extra", `{"facts":[],"maybe":null,"x":0}`},
++		{"nested_enum", strings.Replace(good, `"kind":null`, `"kind":"other"`, 1)},
++		{"nested_type", strings.Replace(good, `"active":true`, `"active":0`, 1)},
++		{"fractional_integer", strings.Replace(good, `9007199254740993`, `1.2`, 1)},
++		{"duplicate", `{"facts":[],"maybe":null,"maybe":{}}`},
++		{"escaped_duplicate", `{"facts":[],"maybe":null,"\u006daybe":{}}`},
++		{"trailing", good + `{}`}, {"root_null", `null`}, {"root_array", `[]`},
++		{"surrogate", strings.Replace(good, `世界\n\ud83d\ude00`, `\ud800`, 1)},
++		{"bad_utf8", strings.Replace(good, "世界", string([]byte{0xff}), 1)},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			requireModel(t, s.validate(context.Background(), tc.body), "provider_error", "wire_protocol_invalid")
++		})
++	}
++	for _, tc := range []struct {
++		name, schema string
++		unsupported  bool
++	}{
++		{"missing_required", `{"type":"object","properties":{},"additionalProperties":false}`, true},
++		{"optional_property", `{"type":"object","properties":{"x":{"type":"string"}},"required":[],"additionalProperties":false}`, true},
++		{"loose_object", `{"type":"object","properties":{},"required":[],"additionalProperties":true}`, true},
++		{"unknown_required", `{"type":"object","properties":{},"required":["x"],"additionalProperties":false}`, false},
++		{"duplicate_required", `{"type":"object","properties":{"x":{"type":"string"}},"required":["x","x"],"additionalProperties":false}`, false},
++		{"required_null", `{"type":"object","properties":{},"required":null,"additionalProperties":false}`, false},
++		{"required_null_item", `{"type":"object","properties":{"":{"type":"string"}},"required":[null],"additionalProperties":false}`, false},
++		{"duplicate_keyword", `{"type":"object","type":"object"}`, false},
++		{"bad_annotation", `{"type":"object","properties":{},"required":[],"additionalProperties":false,"title":null}`, false},
++		{"root_nullable", `{"type":["object","null"],"properties":{},"required":[],"additionalProperties":false}`, true},
++		{"root_string", `{"type":"string"}`, true},
++		{"boolean_schema", `true`, false},
++		{"nonnullable_union", `{"type":["string","number"]}`, true},
++		{"malformed_type", `{"type":42}`, false},
++		{"malformed_type_item", `{"type":["string",null]}`, false},
++		{"duplicate_type_item", `{"type":["string","string"]}`, false},
++		{"misplaced_items", `{"type":"object","properties":{},"required":[],"additionalProperties":false,"items":{"type":"string"}}`, false},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			_, _, err := compileStructured(context.Background(), mc.ResponseFormat{Kind: "json_schema", Name: "x", Schema: json.RawMessage(tc.schema)})
++			if tc.unsupported {
++				requireModel(t, err, "unsupported_feature", "wire_unsupported_feature")
++			} else {
++				requireFault(t, err, f.InvalidArgument)
++			}
++		})
++	}
++	for _, key := range []string{"$ref", "$defs", "definitions", "$schema", "$id", "anyOf", "oneOf", "allOf", "not", "if", "then", "else", "default", "pattern", "format", "minimum", "maximum", "multipleOf", "minLength", "maxLength", "minItems", "maxItems", "uniqueItems", "prefixItems", "patternProperties", "unknown"} {
++		t.Run("reject_keyword_"+key, func(t *testing.T) {
++			node := map[string]any{"type": "string", key: "synthetic-schema-canary"}
++			_, _, err := compileStructured(context.Background(), mc.ResponseFormat{Kind: "json_schema", Name: "x", Schema: schemaJSON(t, schemaObject(map[string]any{"v": node}))})
++			requireModel(t, err, "unsupported_feature", "wire_unsupported_feature")
++		})
++	}
++	for _, node := range []any{
++		map[string]any{"type": "integer", "enum": []int{1}},
++		map[string]any{"type": "array"},
++	} {
++		_, _, err := compileStructured(context.Background(), mc.ResponseFormat{Kind: "json_schema", Name: "x", Schema: schemaJSON(t, schemaObject(map[string]any{"v": node}))})
++		requireModel(t, err, "unsupported_feature", "wire_unsupported_feature")
++	}
++	for _, node := range []any{
++		map[string]any{"type": "string", "enum": []string{}},
++		map[string]any{"type": "string", "enum": []any{nil}},
++		map[string]any{"type": []string{"string", "null"}, "enum": []any{nil, nil}},
++		map[string]any{"type": "string", "enum": []string{"x", "x"}},
++		map[string]any{"type": "string", "enum": []any{true}},
++		map[string]any{"type": "string", "properties": map[string]any{}},
++	} {
++		_, _, err := compileStructured(context.Background(), mc.ResponseFormat{Kind: "json_schema", Name: "x", Schema: schemaJSON(t, schemaObject(map[string]any{"v": node}))})
++		requireFault(t, err, f.InvalidArgument)
++	}
++	withoutNull := singleSchema(t, map[string]any{"type": []string{"string", "null"}, "enum": []string{"x"}})
++	requireModel(t, withoutNull.validate(context.Background(), `{"v":null}`), "provider_error", "wire_protocol_invalid")
++	if err := withoutNull.validate(context.Background(), `{"v":"x"}`); err != nil {
++		t.Fatal(err)
++	}
++}
++
++func TestStructuredSchemaResourceBounds(t *testing.T) {
++	compile := func(raw []byte) error {
++		_, _, e := compileStructured(context.Background(), mc.ResponseFormat{Kind: "json_schema", Name: "x", Schema: raw})
++		return e
++	}
++	root := schemaJSON(t, schemaObject(map[string]any{}))
++	if err := compile(append(append([]byte{}, root...), []byte(strings.Repeat(" ", maxSchemaBytes-len(root)))...)); err != nil {
++		t.Fatal(err)
++	}
++	requireFault(t, compile(append(append([]byte{}, root...), []byte(strings.Repeat(" ", maxSchemaBytes-len(root)+1))...)), f.InvalidArgument)
++	properties := func(n int) map[string]any {
++		v := map[string]any{}
++		for i := 0; i < n; i++ {
++			v[fmt.Sprintf("p%d", i)] = map[string]any{"type": "string"}
++		}
++		return v
++	}
++	if err := compile(schemaJSON(t, schemaObject(properties(256)))); err != nil {
++		t.Fatal(err)
++	}
++	requireModel(t, compile(schemaJSON(t, schemaObject(properties(257)))), "unsupported_feature", "wire_unsupported_feature")
++	for _, last := range []int{251, 252} {
++		p := map[string]any{}
++		for i, count := range []int{256, 256, 256, last} {
++			p[fmt.Sprint(i)] = schemaObject(properties(count))
++		}
++		err := compile(schemaJSON(t, schemaObject(p)))
++		if last == 251 {
++			if err != nil {
++				t.Fatal("1024 schema nodes", err)
++			}
++		} else {
++			requireModel(t, err, "unsupported_feature", "wire_unsupported_feature")
++		}
++	}
++	for _, tc := range []struct {
++		name      string
++		good, bad any
++	}{
++		{"property_name", schemaObject(map[string]any{strings.Repeat("p", 256): map[string]any{"type": "string"}}), schemaObject(map[string]any{strings.Repeat("p", 257): map[string]any{"type": "string"}})},
++		{"enum_string", schemaObject(map[string]any{"v": map[string]any{"type": "string", "enum": []string{strings.Repeat("x", 1024)}}}), schemaObject(map[string]any{"v": map[string]any{"type": "string", "enum": []string{strings.Repeat("x", 1025)}}})},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			if err := compile(schemaJSON(t, tc.good)); err != nil {
++				t.Fatal(err)
++			}
++			requireModel(t, compile(schemaJSON(t, tc.bad)), "unsupported_feature", "wire_unsupported_feature")
++		})
++	}
++	for _, annotation := range []struct {
++		key string
++		max int
++	}{{"title", 128}, {"description", 4096}} {
++		v := schemaObject(map[string]any{})
++		v[annotation.key] = strings.Repeat("a", annotation.max)
++		if err := compile(schemaJSON(t, v)); err != nil {
++			t.Fatal(err)
++		}
++		v[annotation.key] = strings.Repeat("a", annotation.max+1)
++		requireModel(t, compile(schemaJSON(t, v)), "unsupported_feature", "wire_unsupported_feature")
++	}
++	for _, count := range []int{128, 129} {
++		values := make([]string, count)
++		for i := range values {
++			values[i] = fmt.Sprint(i)
++		}
++		err := compile(schemaJSON(t, schemaObject(map[string]any{"v": map[string]any{"type": "string", "enum": values}})))
++		if count == 128 {
++			if err != nil {
++				t.Fatal(err)
++			}
++		} else {
++			requireModel(t, err, "unsupported_feature", "wire_unsupported_feature")
++		}
++	}
++	for _, arrays := range []int{29, 30} {
++		var node any = map[string]any{"type": "string"}
++		for i := 0; i < arrays; i++ {
++			node = map[string]any{"type": "array", "items": node}
++		}
++		err := compile(schemaJSON(t, schemaObject(map[string]any{"v": node})))
++		if arrays == 29 {
++			if err != nil {
++				t.Fatal("schema JSON depth 32", err)
++			}
++		} else {
++			requireFault(t, err, f.InvalidArgument)
++		}
++	}
++	array := singleSchema(t, map[string]any{"type": "array", "items": map[string]any{"type": "integer"}})
++	for _, count := range []int{maxStructuredNodes - 2, maxStructuredNodes - 1} {
++		body := `{"v":[` + strings.Repeat("0,", count-1) + `0]}`
++		err := array.validate(context.Background(), body)
++		if count == maxStructuredNodes-2 {
++			if err != nil {
++				t.Fatal("65536 output nodes", err)
++			}
++		} else {
++			requireModel(t, err, "provider_error", "wire_limit_exceeded")
++		}
++	}
++	text := singleSchema(t, map[string]any{"type": "string"})
++	for _, extra := range []int{0, 1} {
++		body := `{"v":"` + strings.Repeat("x", maxTextBytes-len(`{"v":""}`)+extra) + `"}`
++		err := text.validate(context.Background(), body)
++		if extra == 0 {
++			if err != nil {
++				t.Fatal("exact content bound", err)
++			}
++		} else {
++			requireModel(t, err, "provider_error", "wire_limit_exceeded")
++		}
++	}
++	// Output depth is independently bounded, even for a future internal schema
++	// program not reachable through this revision's stricter schema JSON shape.
++	for _, depth := range []int{32, 33} {
++		n := &schemaNode{kind: "string"}
++		body := `"x"`
++		for i := 1; i < depth; i++ {
++			n = &schemaNode{kind: "array", items: n}
++			body = "[" + body + "]"
++		}
++		err := (&structuredSchema{root: n}).validate(context.Background(), body)
++		if depth == 32 {
++			if err != nil {
++				t.Fatal(err)
++			}
++		} else {
++			requireModel(t, err, "provider_error", "wire_limit_exceeded")
++		}
++	}
++}
++
++func TestStructuredExactNumericValues(t *testing.T) {
++	integer := singleSchema(t, map[string]any{"type": "integer"})
++	number := singleSchema(t, map[string]any{"type": "number"})
++	for _, value := range []string{"0", "-0", "1.0", "1e2", "100e-2", "1.20E+1", "9007199254740993", strings.Repeat("9", 128), "1e" + strings.Repeat("9", 126), "0e-" + strings.Repeat("9", 125)} {
++		if err := integer.validate(context.Background(), `{"v":`+value+`}`); err != nil {
++			t.Fatal("exact integer", len(value), err)
++		}
++	}
++	for _, value := range []string{"1.2", "1e-2", "1.20e0", "1e-" + strings.Repeat("9", 125)} {
++		requireModel(t, integer.validate(context.Background(), `{"v":`+value+`}`), "provider_error", "wire_protocol_invalid")
++		if err := number.validate(context.Background(), `{"v":`+value+`}`); err != nil {
++			t.Fatal("decimal number", err)
++		}
++	}
++	requireModel(t, integer.validate(context.Background(), `{"v":`+strings.Repeat("9", 129)+`}`), "provider_error", "wire_limit_exceeded")
++	for _, value := range []string{"NaN", "Infinity", "01", "+1", "1.", "1e"} {
++		requireModel(t, number.validate(context.Background(), `{"v":`+value+`}`), "provider_error", "wire_protocol_invalid")
++	}
++}
++
++func TestStructuredValidationAllocationBounds(t *testing.T) {
++	for _, kind := range []string{"string", "number"} {
++		t.Run(kind, func(t *testing.T) {
++			s := singleSchema(t, map[string]any{"type": kind})
++			body := `{"v":"` + strings.Repeat("x", 4<<20) + `"}`
++			if kind == "number" {
++				body = `{"v":` + strings.Repeat("9", 4<<20) + `}`
++			}
++			// Input/schema allocation is excluded. This checks the contract's
++			// bounded verifier workspace, not exact allocator implementation counts.
++			runtime.GC()
++			var before, after runtime.MemStats
++			runtime.ReadMemStats(&before)
++			err := s.validate(context.Background(), body)
++			runtime.ReadMemStats(&after)
++			if kind == "string" {
++				if err != nil {
++					t.Fatal(err)
++				}
++			} else {
++				requireModel(t, err, "provider_error", "wire_limit_exceeded")
++			}
++			allocated := after.TotalAlloc - before.TotalAlloc
++			t.Logf("verifier input_bytes=%d allocated_bytes=%d workspace_bound=%d", len(body), allocated, 1<<20)
++			if allocated > 1<<20 {
++				t.Fatal("verifier copied/expanded a whole long value")
++			}
++		})
++	}
++}
++
++func TestStructuredStringAndJSONLexing(t *testing.T) {
++	s := singleSchema(t, map[string]any{"type": "string"})
++	for _, value := range []string{"", "normal", "\"\\/\b\f\n\r\t\x00", "世界😀�"} {
++		body := schemaJSON(t, map[string]any{"v": value})
++		if err := s.validate(context.Background(), string(body)); err != nil {
++			t.Fatal("valid string encoding", err)
++		}
++	}
++	for _, body := range []string{`{"v":"\x"}`, `{"v":"\uZZZZ"}`, `{"v":"\ud800\ud800"}`, `{"v":"\udc00"}`, `{"v":"\ud800"}`, "{\"v\":\"raw\nline\"}", `{"v":"x",}`, `{"v" "x"}`, `{"v":"x" "v":"x"}`, `{"v":"x"}null`} {
++		requireModel(t, s.validate(context.Background(), body), "provider_error", "wire_protocol_invalid")
++	}
++	if err := s.validate(context.Background(), " \r\n{\t\"\\u0076\" : \"\\ud83d\\ude00\" }\t"); err != nil {
++		t.Fatal("escaped key/surrogate pair", err)
++	}
++	enum := singleSchema(t, map[string]any{"type": "string", "enum": []string{"\t世界😀"}})
++	if err := enum.validate(context.Background(), `{"v":"\t\u4e16界\ud83d\ude00"}`); err != nil {
++		t.Fatal("decoded enum", err)
++	}
++	requireModel(t, enum.validate(context.Background(), `{"v":"`+strings.Repeat("x", 1025)+`"}`), "provider_error", "wire_protocol_invalid")
++	array := singleSchema(t, map[string]any{"type": "array", "items": map[string]any{"type": "integer"}})
++	for _, body := range []string{`{"v":[1,]}`, `{"v":[,1]}`, `{"v":[1 2]}`, `{"v":[1}`, `{"v":[1}}`, `{"v":[1.0,1e2,100e-2]}`} {
++		err := array.validate(context.Background(), body)
++		if body == `{"v":[1.0,1e2,100e-2]}` {
++			if err != nil {
++				t.Fatal(err)
++			}
++		} else {
++			requireModel(t, err, "provider_error", "wire_protocol_invalid")
++		}
++	}
++}
+diff --git a/internal/central/model/adapter/openai_chat_structured_test.go b/internal/central/model/adapter/openai_chat_structured_test.go
+--- /dev/null
++++ b/internal/central/model/adapter/openai_chat_structured_test.go
+@@ -0,0 +1,162 @@
++package adapter
++
++import (
++	"bytes"
++	"context"
++	"crypto/sha1"
++	"crypto/sha256"
++	"encoding/base64"
++	"encoding/hex"
++	"encoding/json"
++	"fmt"
++	"io"
++	"os"
++	"strconv"
++	"strings"
++	"testing"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++func structuredInput(t *testing.T) (Request, CallOptions) {
++	t.Helper()
++	r, o := unitInput(t)
++	r.Snapshot.Identity.AdapterRevision = OpenAIChatStructuredRevision
++	r.Snapshot.Capabilities.StructuredOutputModes = []string{"json_schema", "text"}
++	r.ResponseFormat = mc.ResponseFormat{Kind: "json_schema", Name: "memory_result", Schema: schemaJSON(t, schemaObject(map[string]any{"v": map[string]any{"type": "integer"}}))}
++	return r, o
++}
++func TestStructuredWireRequestAndProfile(t *testing.T) {
++	r, o := structuredInput(t)
++	req, _, schema, err := prepareWithSchema(context.Background(), r, o)
++	if err != nil {
++		t.Fatal(err)
++	}
++	raw, _ := io.ReadAll(req.Body)
++	req.Body.Close()
++	var body struct {
++		Format struct {
++			Type   string `json:"type"`
++			Schema struct {
++				Name   string          `json:"name"`
++				Raw    json.RawMessage `json:"schema"`
++				Strict bool            `json:"strict"`
++			} `json:"json_schema"`
++		} `json:"response_format"`
++		Stream bool `json:"stream"`
++	}
++	if json.Unmarshal(raw, &body) != nil || body.Format.Type != "json_schema" || !body.Format.Schema.Strict || body.Format.Schema.Name != "memory_result" || body.Stream || !bytes.Equal(body.Format.Schema.Raw, r.ResponseFormat.Schema) {
++		t.Fatal("native strict format changed")
++	}
++	for i := range r.ResponseFormat.Schema {
++		r.ResponseFormat.Schema[i] = 'x'
++	}
++	if err := schema.complete(context.Background(), `{"v":9007199254740993}`, "stop"); err != nil {
++		t.Fatal("compiled schema alias", err)
++	}
++	requireModel(t, schema.complete(context.Background(), `{"v":"x"}`, "stop"), "provider_error", "wire_protocol_invalid")
++	for _, mode := range []ResponseMode{JSONResponse, SSEResponse} {
++		r, o := structuredInput(t)
++		r.Mode = mode
++		r.ResponseFormat = mc.ResponseFormat{Kind: "text"}
++		req, _, program, err := prepareWithSchema(context.Background(), r, o)
++		if err != nil || program != nil {
++			t.Fatal("new revision text path", err)
++		}
++		raw, _ := io.ReadAll(req.Body)
++		req.Body.Close()
++		if bytes.Contains(raw, []byte("response_format")) {
++			t.Fatal("text acquired structured wrapper")
++		}
++	}
++	for _, tc := range []struct {
++		name    string
++		edit    func(*Request)
++		invalid bool
++	}{
++		{"old_revision", func(r *Request) { r.Snapshot.Identity.AdapterRevision = OpenAIChatTextRevision }, false},
++		{"unknown_revision", func(r *Request) { r.Snapshot.Identity.AdapterRevision = "future" }, false},
++		{"missing_capability", func(r *Request) { r.Snapshot.Capabilities.StructuredOutputModes = []string{"text"} }, false},
++		{"invalid_native_name", func(r *Request) { r.ResponseFormat.Name = "c0.valid:native.invalid" }, true},
++		{"unsupported_keyword", func(r *Request) {
++			r.ResponseFormat.Schema = json.RawMessage(`{"type":"object","$ref":"https://example.invalid/schema"}`)
++		}, false},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			r, o := structuredInput(t)
++			tc.edit(&r)
++			budget := NewBudget()
++			budget.StopAdmission()
++			// No valid transport exists. A schema error must precede even the
++			// stopped admission check, with no accepted work or async client.
++			a := &OpenAIChat{budget: budget}
++			x, err := a.Start(context.Background(), r, o)
++			if x != nil || !budget.Joined() {
++				t.Fatal("rejected input accepted work")
++			}
++			if tc.invalid {
++				requireFault(t, err, f.InvalidArgument)
++			} else {
++				requireModel(t, err, "unsupported_feature", "wire_unsupported_feature")
++			}
++		})
++	}
++	r, o = structuredInput(t)
++	ctx, cancel := context.WithCancel(context.Background())
++	cancel()
++	x, err := (&OpenAIChat{budget: NewBudget()}).Start(ctx, r, o)
++	if x != nil {
++		t.Fatal("cancelled input accepted")
++	}
++	requireModel(t, err, "cancelled", "wire_cancelled")
++	for _, value := range []any{r, Result{Text: "synthetic-structured-private-canary"}, Event{Text: "synthetic-structured-private-canary"}, schema} {
++		if value == schema {
++			continue
++		} // The compiled program is private, never a public payload.
++		encoded, _ := json.Marshal(value)
++		if strings.Contains(fmt.Sprintf("%+v %#v %s", value, value, encoded), "synthetic-structured-private-canary") {
++			t.Fatal("unsafe public format")
++		}
++	}
++}
++
++func TestStructuredPinnedSources(t *testing.T) {
++	raw, err := os.ReadFile("testdata/openai-chat-structured-v1.json")
++	if err != nil {
++		t.Fatal(err)
++	}
++	var m struct {
++		Revision, Protocol, Profile, Commit string
++		Sources                             []struct {
++			Path, URL, SHA256 string
++			GitBlob           string `json:"git_blob"`
++			Source            string `json:"source_base64"`
++			Bytes             int
++		}
++		Reused struct{ SHA256 string } `json:"reused_text_manifest"`
++	}
++	if json.Unmarshal(raw, &m) != nil || m.Revision != OpenAIChatStructuredRevision || m.Protocol != string(mc.OpenAIChat) || m.Profile != string(mc.OpenAIChatV1) || m.Commit != "becc1d20eed83c1b8d85e15dc131a372d9dc7813" || len(m.Sources) != 2 {
++		t.Fatal("structured source identity")
++	}
++	expected := map[string]string{"src/openai/types/shared_params/response_format_json_schema.py": "4a81522587ed5fa7571f376854c87870f8b0a5e7f6e473eb9fc2e297bfbd856a", "src/openai/lib/_pydantic.py": "09fd2f1b0b9674d12e21483c58d4448d644602930e6e097c0e374b5387f98c07"}
++	for _, source := range m.Sources {
++		body, err := base64.StdEncoding.DecodeString(source.Source)
++		sum := sha256.Sum256(body)
++		git := sha1.New()
++		git.Write([]byte("blob " + strconv.Itoa(len(body)) + "\x00"))
++		git.Write(body)
++		if err != nil || len(body) != source.Bytes || expected[source.Path] != source.SHA256 || hex.EncodeToString(sum[:]) != source.SHA256 || hex.EncodeToString(git.Sum(nil)) != source.GitBlob || source.URL != "https://github.com/openai/openai-python/blob/"+m.Commit+"/"+source.Path {
++			t.Fatal("SDK source bytes do not match pinned identity")
++		}
++		delete(expected, source.Path)
++	}
++	if len(expected) != 0 {
++		t.Fatal("duplicate/missing source")
++	}
++	old, err := os.ReadFile("testdata/openai-chat-text-v1.json")
++	sum := sha256.Sum256(old)
++	if err != nil || hex.EncodeToString(sum[:]) != m.Reused.SHA256 {
++		t.Fatal("reused text provenance changed")
++	}
++}
+diff --git a/internal/central/model/adapter/structured_stream_test.go b/internal/central/model/adapter/structured_stream_test.go
+--- /dev/null
++++ b/internal/central/model/adapter/structured_stream_test.go
+@@ -0,0 +1,256 @@
++package adapter
++
++import (
++	"context"
++	"errors"
++	"io"
++	"strings"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++)
++
++func structuredStream(t *testing.T, stream string) ([]Event, error, *Exchange) {
++	t.Helper()
++	x := localExchange(t, SSEResponse)
++	x.schema = singleSchema(t, map[string]any{"type": "integer"})
++	x.observation.Decision = &outbound.Decision{Sent: true}
++	go func() {
++		end, err := x.stream(splitReader{strings.NewReader(stream)})
++		finishLocal(x, Result{End: end}, err)
++	}()
++	var events []Event
++	for {
++		e, err := x.Next(context.Background())
++		if err != nil {
++			if errors.Is(err, io.EOF) {
++				return events, nil, x
++			}
++			return events, err, x
++		}
++		events = append(events, e)
++	}
++}
++func TestStructuredStreamCompletion(t *testing.T) {
++	for _, tc := range []struct {
++		name, content, finish, tail, category string
++		success                               bool
++	}{
++		{"success", `{"v":9007199254740993}`, "stop", "data: [DONE]\n\n", "", true},
++		{"wrong_type", `{"v":"x"}`, "stop", "data: [DONE]\n\n", "provider_error", false},
++		{"extra_key", `{"v":1,"x":2}`, "stop", "data: [DONE]\n\n", "provider_error", false},
++		{"trailing_json", `{"v":1}{}`, "stop", "data: [DONE]\n\n", "provider_error", false},
++		{"length_even_valid", `{"v":1}`, "length", "data: [DONE]\n\n", "provider_error", false},
++		{"filtered", `{"v":1}`, "content_filter", "data: [DONE]\n\n", "content_filter", false},
++		{"missing_done", `{"v":1}`, "stop", "", "provider_error", false},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			stream := chunk(map[string]any{"role": "assistant", "content": tc.content[:3]}, nil, nil) + chunk(map[string]any{"content": tc.content[3:]}, tc.finish, nil) + chunk(nil, nil, map[string]any{"completion_tokens": 0, "total_tokens": 9}) + tc.tail
++			events, err, x := structuredStream(t, stream)
++			var text string
++			ends, usages := 0, 0
++			for _, e := range events {
++				switch e.Kind {
++				case TextDelta:
++					text += e.Text
++				case UsageUpdate:
++					usages++
++				case StreamEnd:
++					ends++
++				}
++			}
++			if text != tc.content || usages != 1 || x.Observe().Usage.TotalTokens == nil || *x.Observe().Usage.TotalTokens != 9 || x.Observe().Usage.OutputTokens == nil || *x.Observe().Usage.OutputTokens != 0 {
++				t.Fatal("prefix/usage lost")
++			}
++			if tc.success {
++				if err != nil || ends != 1 || !x.Joined() {
++					t.Fatal("valid strict stream", err)
++				}
++			} else {
++				code := "wire_protocol_invalid"
++				if tc.category == "content_filter" {
++					code = ""
++				}
++				m := requireModel(t, err, mc.ErrorCategory(tc.category), code)
++				if ends != 0 || !m.PartialOutput || !m.Dispatched || m.Retryable {
++					t.Fatal("false structured terminal")
++				}
++				if _, e := x.Next(context.Background()); e != io.EOF {
++					t.Fatal("error repeated")
++				}
++			}
++		})
++	}
++	s := singleSchema(t, map[string]any{"type": "integer"})
++	for _, finish := range []mc.FinishReason{"length", "content_filter"} {
++		err := s.complete(context.Background(), `{"v":1}`, finish)
++		if finish == "length" {
++			requireModel(t, err, "provider_error", "wire_protocol_invalid")
++		} else {
++			requireModel(t, err, "content_filter", "")
++		}
++	}
++	stream := chunk(map[string]any{"content": `{"v":1}`}, "stop", nil) + "data: [DONE]\n\n"
++	events, err, x := structuredStream(t, stream)
++	if err != nil || len(events) != 2 || x.Observe().Usage.Source != mc.UnknownUsage {
++		t.Fatal("unknown usage success", err)
++	}
++}
++
++type cancelAtStructuredCheck struct {
++	context.Context
++	cancel context.CancelFunc
++	checks atomic.Int32
++}
++
++func (c *cancelAtStructuredCheck) Err() error {
++	if c.checks.Add(1) == 64 {
++		c.cancel()
++	}
++	return c.Context.Err()
++}
++func TestStructuredValidationCancellation(t *testing.T) {
++	base, cancel := context.WithCancel(context.Background())
++	defer cancel()
++	ctx := &cancelAtStructuredCheck{Context: base, cancel: cancel}
++	s := singleSchema(t, map[string]any{"type": "array", "items": map[string]any{"type": "integer"}})
++	// The context wrapper triggers a real cancellation at a later parser check,
++	// not a fabricated provider error or a pre-cancelled entry-only case.
++	err := s.complete(ctx, `{"v":[`+strings.Repeat("0,", 1000)+`0]}`, "stop")
++	requireModel(t, err, "cancelled", "wire_cancelled")
++	if ctx.checks.Load() < 64 || base.Err() != context.Canceled {
++		t.Fatal("validation did not reach cancellation boundary")
++	}
++	x := localExchange(t, SSEResponse)
++	x.schema = s
++	x.cancel()
++	end, err := x.stream(strings.NewReader("data: [DONE]\n\n"))
++	finishLocal(x, Result{End: end}, err)
++	_, err = x.Next(context.Background())
++	requireModel(t, err, "cancelled", "wire_cancelled")
++	if _, err = x.Next(context.Background()); err != io.EOF {
++		t.Fatal("late terminal after cancellation")
++	}
++	if !x.Joined() {
++		t.Fatal("cancelled parser not terminal")
++	}
++	for _, kind := range []string{"string", "number"} {
++		base, cancel := context.WithCancel(context.Background())
++		ctx := &cancelAtStructuredCheck{Context: base, cancel: cancel}
++		schema := singleSchema(t, map[string]any{"type": kind})
++		body := `{"v":"` + strings.Repeat("x", 4<<20) + `"}`
++		if kind == "number" {
++			body = `{"v":` + strings.Repeat("9", 4<<20) + `}`
++		}
++		err := schema.validate(ctx, body)
++		if kind == "string" {
++			requireModel(t, err, "cancelled", "wire_cancelled")
++			if ctx.checks.Load() < 64 {
++				t.Fatal("long string lacked scan cancellation")
++			}
++		} else {
++			requireModel(t, err, "provider_error", "wire_limit_exceeded")
++			if ctx.checks.Load() >= 64 || base.Err() != nil {
++				t.Fatal("number limit waited for a whole-value scan")
++			}
++		}
++		cancel()
++	}
++}
++
++func TestStructuredStreamAccumulatedContentBound(t *testing.T) {
++	x := localExchange(t, SSEResponse)
++	x.schema = singleSchema(t, map[string]any{"type": "string"})
++	x.observation.Decision = &outbound.Decision{Sent: true}
++	part := chunk(map[string]any{"content": strings.Repeat("x", 64<<10)}, nil, nil)
++	input := io.MultiReader(strings.NewReader(chunk(map[string]any{"content": `{"v":"`}, nil, nil)), strings.NewReader(strings.Repeat(part, 256)))
++	go func() { end, err := x.stream(input); finishLocal(x, Result{End: end}, err) }()
++	var terminal error
++	for count := 0; count < 300; count++ {
++		event, err := x.Next(context.Background())
++		if err != nil {
++			terminal = err
++			break
++		}
++		if event.Kind != TextDelta {
++			t.Fatal("oversized structured stream completed")
++		}
++	}
++	m := requireModel(t, terminal, "provider_error", "wire_limit_exceeded")
++	if !m.PartialOutput || !x.Joined() {
++		t.Fatal("bounded collector lost prefix/join")
++	}
++	if _, err := x.Next(context.Background()); err != io.EOF {
++		t.Fatal("collector overflow did not terminate")
++	}
++	_, err, _ := structuredStream(t, "data: "+strings.Repeat(" ", 1<<20)+"\n\n")
++	requireModel(t, err, "provider_error", "wire_limit_exceeded")
++}
++
++type structuredJoinBarrier struct {
++	context.Context
++	checks           atomic.Int32
++	entered, release chan struct{}
++}
++
++func (c *structuredJoinBarrier) Err() error {
++	// First check is at the ordinary successful consumer path; the second is
++	// consumerJoin's existing check, after its wait context has been made.
++	if c.checks.Add(1) == 2 {
++		close(c.entered)
++		<-c.release
++	}
++	return c.Context.Err()
++}
++func TestStructuredSuccessfulConsumptionRechecksCancellation(t *testing.T) {
++	for _, mode := range []ResponseMode{JSONResponse, SSEResponse} {
++		for _, target := range []string{"caller", "attempt"} {
++			t.Run(string(mode)+"_"+target, func(t *testing.T) {
++				x := localExchange(t, mode)
++				x.schema = singleSchema(t, map[string]any{"type": "integer"})
++				finishLocal(x, Result{Text: `{"v":1}`, End: End{FinishReason: "stop", Usage: mc.Usage{Source: mc.UnknownUsage}}}, nil)
++				base, cancel := context.WithCancel(context.Background())
++				defer cancel()
++				ctx := &structuredJoinBarrier{Context: base, entered: make(chan struct{}), release: make(chan struct{})}
++				done := make(chan error, 1)
++				go func() {
++					if mode == JSONResponse {
++						_, err := x.Result(ctx)
++						done <- err
++					} else {
++						_, err := x.Next(ctx)
++						done <- err
++					}
++				}()
++				select {
++				case <-ctx.entered:
++				case <-time.After(time.Second):
++					close(ctx.release)
++					t.Fatal("consumer join barrier not reached")
++				}
++				if target == "caller" {
++					cancel()
++				} else {
++					x.cancel()
++				}
++				close(ctx.release)
++				var err error
++				select {
++				case err = <-done:
++				case <-time.After(time.Second):
++					t.Fatal("consumer did not return")
++				}
++				if !x.Joined() {
++					t.Fatal("cancellation probe displaced actual join")
++				}
++				if active, _ := x.budget.snapshot(); len(active) != 0 {
++					t.Fatal("already-terminal owner retained slot")
++				}
++				requireModel(t, err, "cancelled", "wire_cancelled")
++			})
++		}
++	}
++}
+diff --git a/internal/central/model/adapter/testdata/openai-chat-structured-v1.json b/internal/central/model/adapter/testdata/openai-chat-structured-v1.json
+--- /dev/null
++++ b/internal/central/model/adapter/testdata/openai-chat-structured-v1.json
+@@ -0,0 +1,87 @@
++{
++  "revision": "openai-chat-structured-v1",
++  "protocol": "openai-chat-completions",
++  "profile": "openai-chat-completions-v1",
++  "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
++  "version": "3.24.0",
++  "sources": [
++    {
++      "path": "src/openai/types/shared_params/response_format_json_schema.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/shared_params/response_format_json_schema.py",
++      "git_blob": "2b6bbdc3e6def1601d9f0c9b4b12be103cb1139e",
++      "sha256": "4a81522587ed5fa7571f376854c87870f8b0a5e7f6e473eb9fc2e297bfbd856a",
++      "bytes": 1815,
++      "source_base64": "IyBGaWxlIGdlbmVyYXRlZCBmcm9tIG91ciBPcGVuQVBJIHNwZWMgYnkgQ2FzdGlyb24uIFNlZSBDT05UUklCVVRJTkcubWQgZm9yIGRldGFpbHMuCgpmcm9tIF9fZnV0dXJlX18gaW1wb3J0IGFubm90YXRpb25zCgpmcm9tIHR5cGluZyBpbXBvcnQgRGljdCwgT3B0aW9uYWwKZnJvbSB0eXBpbmdfZXh0ZW5zaW9ucyBpbXBvcnQgTGl0ZXJhbCwgUmVxdWlyZWQsIFR5cGVkRGljdAoKX19hbGxfXyA9IFsiUmVzcG9uc2VGb3JtYXRKU09OU2NoZW1hIiwgIkpTT05TY2hlbWEiXQoKCmNsYXNzIEpTT05TY2hlbWEoVHlwZWREaWN0LCB0b3RhbD1GYWxzZSk6CiAgICAiIiJTdHJ1Y3R1cmVkIE91dHB1dHMgY29uZmlndXJhdGlvbiBvcHRpb25zLCBpbmNsdWRpbmcgYSBKU09OIFNjaGVtYS4iIiIKCiAgICBuYW1lOiBSZXF1aXJlZFtzdHJdCiAgICAiIiJUaGUgbmFtZSBvZiB0aGUgcmVzcG9uc2UgZm9ybWF0LgoKICAgIE11c3QgYmUgYS16LCBBLVosIDAtOSwgb3IgY29udGFpbiB1bmRlcnNjb3JlcyBhbmQgZGFzaGVzLCB3aXRoIGEgbWF4aW11bSBsZW5ndGgKICAgIG9mIDY0LgogICAgIiIiCgogICAgZGVzY3JpcHRpb246IHN0cgogICAgIiIiCiAgICBBIGRlc2NyaXB0aW9uIG9mIHdoYXQgdGhlIHJlc3BvbnNlIGZvcm1hdCBpcyBmb3IsIHVzZWQgYnkgdGhlIG1vZGVsIHRvIGRldGVybWluZQogICAgaG93IHRvIHJlc3BvbmQgaW4gdGhlIGZvcm1hdC4KICAgICIiIgoKICAgIHNjaGVtYTogRGljdFtzdHIsIG9iamVjdF0KICAgICIiIgogICAgVGhlIHNjaGVtYSBmb3IgdGhlIHJlc3BvbnNlIGZvcm1hdCwgZGVzY3JpYmVkIGFzIGEgSlNPTiBTY2hlbWEgb2JqZWN0LiBMZWFybiBob3cKICAgIHRvIGJ1aWxkIEpTT04gc2NoZW1hcyBbaGVyZV0oaHR0cHM6Ly9qc29uLXNjaGVtYS5vcmcvKS4KICAgICIiIgoKICAgIHN0cmljdDogT3B0aW9uYWxbYm9vbF0KICAgICIiIgogICAgV2hldGhlciB0byBlbmFibGUgc3RyaWN0IHNjaGVtYSBhZGhlcmVuY2Ugd2hlbiBnZW5lcmF0aW5nIHRoZSBvdXRwdXQuIElmIHNldCB0bwogICAgdHJ1ZSwgdGhlIG1vZGVsIHdpbGwgYWx3YXlzIGZvbGxvdyB0aGUgZXhhY3Qgc2NoZW1hIGRlZmluZWQgaW4gdGhlIGBzY2hlbWFgCiAgICBmaWVsZC4gT25seSBhIHN1YnNldCBvZiBKU09OIFNjaGVtYSBpcyBzdXBwb3J0ZWQgd2hlbiBgc3RyaWN0YCBpcyBgdHJ1ZWAuIFRvCiAgICBsZWFybiBtb3JlLCByZWFkIHRoZQogICAgW1N0cnVjdHVyZWQgT3V0cHV0cyBndWlkZV0oaHR0cHM6Ly9kZXZlbG9wZXJzLm9wZW5haS5jb20vYXBpL2RvY3MvZ3VpZGVzL3N0cnVjdHVyZWQtb3V0cHV0cykuCiAgICAiIiIKCgpjbGFzcyBSZXNwb25zZUZvcm1hdEpTT05TY2hlbWEoVHlwZWREaWN0LCB0b3RhbD1GYWxzZSk6CiAgICAiIiJKU09OIFNjaGVtYSByZXNwb25zZSBmb3JtYXQuCgogICAgVXNlZCB0byBnZW5lcmF0ZSBzdHJ1Y3R1cmVkIEpTT04gcmVzcG9uc2VzLgogICAgTGVhcm4gbW9yZSBhYm91dCBbU3RydWN0dXJlZCBPdXRwdXRzXShodHRwczovL2RldmVsb3BlcnMub3BlbmFpLmNvbS9hcGkvZG9jcy9ndWlkZXMvc3RydWN0dXJlZC1vdXRwdXRzKS4KICAgICIiIgoKICAgIGpzb25fc2NoZW1hOiBSZXF1aXJlZFtKU09OU2NoZW1hXQogICAgIiIiU3RydWN0dXJlZCBPdXRwdXRzIGNvbmZpZ3VyYXRpb24gb3B0aW9ucywgaW5jbHVkaW5nIGEgSlNPTiBTY2hlbWEuIiIiCgogICAgdHlwZTogUmVxdWlyZWRbTGl0ZXJhbFsianNvbl9zY2hlbWEiXV0KICAgICIiIlRoZSB0eXBlIG9mIHJlc3BvbnNlIGZvcm1hdCBiZWluZyBkZWZpbmVkLiBBbHdheXMgYGpzb25fc2NoZW1hYC4iIiIK"
++    },
++    {
++      "path": "src/openai/lib/_pydantic.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/lib/_pydantic.py",
++      "git_blob": "3cfe224cb1e84ff721ecc814e3f6b134ba660b8f",
++      "sha256": "09fd2f1b0b9674d12e21483c58d4448d644602930e6e097c0e374b5387f98c07",
++      "bytes": 5623,
++      "source_base64": "ZnJvbSBfX2Z1dHVyZV9fIGltcG9ydCBhbm5vdGF0aW9ucwoKaW1wb3J0IGluc3BlY3QKZnJvbSB0eXBpbmcgaW1wb3J0IEFueSwgVHlwZVZhcgpmcm9tIHR5cGluZ19leHRlbnNpb25zIGltcG9ydCBUeXBlR3VhcmQKCmltcG9ydCBweWRhbnRpYwoKZnJvbSAuLl90eXBlcyBpbXBvcnQgTk9UX0dJVkVOCmZyb20gLi5fdXRpbHMgaW1wb3J0IGlzX2RpY3QgYXMgX2lzX2RpY3QsIGlzX2xpc3QKZnJvbSAuLl9jb21wYXQgaW1wb3J0IFBZREFOVElDX1YxLCBtb2RlbF9qc29uX3NjaGVtYQoKX1QgPSBUeXBlVmFyKCJfVCIpCgoKZGVmIHRvX3N0cmljdF9qc29uX3NjaGVtYShtb2RlbDogdHlwZVtweWRhbnRpYy5CYXNlTW9kZWxdIHwgcHlkYW50aWMuVHlwZUFkYXB0ZXJbQW55XSkgLT4gZGljdFtzdHIsIEFueV06CiAgICBpZiBpbnNwZWN0LmlzY2xhc3MobW9kZWwpIGFuZCBpc19iYXNlbW9kZWxfdHlwZShtb2RlbCk6CiAgICAgICAgc2NoZW1hID0gbW9kZWxfanNvbl9zY2hlbWEobW9kZWwpCiAgICBlbGlmIChub3QgUFlEQU5USUNfVjEpIGFuZCBpc2luc3RhbmNlKG1vZGVsLCBweWRhbnRpYy5UeXBlQWRhcHRlcik6CiAgICAgICAgc2NoZW1hID0gbW9kZWwuanNvbl9zY2hlbWEoKQogICAgZWxzZToKICAgICAgICByYWlzZSBUeXBlRXJyb3IoZiJOb24gQmFzZU1vZGVsIHR5cGVzIGFyZSBvbmx5IHN1cHBvcnRlZCB3aXRoIFB5ZGFudGljIHYyIC0ge21vZGVsfSIpCgogICAgcmV0dXJuIF9lbnN1cmVfc3RyaWN0X2pzb25fc2NoZW1hKHNjaGVtYSwgcGF0aD0oKSwgcm9vdD1zY2hlbWEpCgoKZGVmIF9lbnN1cmVfc3RyaWN0X2pzb25fc2NoZW1hKAogICAganNvbl9zY2hlbWE6IG9iamVjdCwKICAgICosCiAgICBwYXRoOiB0dXBsZVtzdHIsIC4uLl0sCiAgICByb290OiBkaWN0W3N0ciwgb2JqZWN0XSwKKSAtPiBkaWN0W3N0ciwgQW55XToKICAgICIiIk11dGF0ZXMgdGhlIGdpdmVuIEpTT04gc2NoZW1hIHRvIGVuc3VyZSBpdCBjb25mb3JtcyB0byB0aGUgYHN0cmljdGAgc3RhbmRhcmQKICAgIHRoYXQgdGhlIEFQSSBleHBlY3RzLgogICAgIiIiCiAgICBpZiBub3QgaXNfZGljdChqc29uX3NjaGVtYSk6CiAgICAgICAgcmFpc2UgVHlwZUVycm9yKGYiRXhwZWN0ZWQge2pzb25fc2NoZW1hfSB0byBiZSBhIGRpY3Rpb25hcnk7IHBhdGg9e3BhdGh9IikKCiAgICBkZWZzID0ganNvbl9zY2hlbWEuZ2V0KCIkZGVmcyIpCiAgICBpZiBpc19kaWN0KGRlZnMpOgogICAgICAgIGZvciBkZWZfbmFtZSwgZGVmX3NjaGVtYSBpbiBkZWZzLml0ZW1zKCk6CiAgICAgICAgICAgIF9lbnN1cmVfc3RyaWN0X2pzb25fc2NoZW1hKGRlZl9zY2hlbWEsIHBhdGg9KCpwYXRoLCAiJGRlZnMiLCBkZWZfbmFtZSksIHJvb3Q9cm9vdCkKCiAgICBkZWZpbml0aW9ucyA9IGpzb25fc2NoZW1hLmdldCgiZGVmaW5pdGlvbnMiKQogICAgaWYgaXNfZGljdChkZWZpbml0aW9ucyk6CiAgICAgICAgZm9yIGRlZmluaXRpb25fbmFtZSwgZGVmaW5pdGlvbl9zY2hlbWEgaW4gZGVmaW5pdGlvbnMuaXRlbXMoKToKICAgICAgICAgICAgX2Vuc3VyZV9zdHJpY3RfanNvbl9zY2hlbWEoZGVmaW5pdGlvbl9zY2hlbWEsIHBhdGg9KCpwYXRoLCAiZGVmaW5pdGlvbnMiLCBkZWZpbml0aW9uX25hbWUpLCByb290PXJvb3QpCgogICAgdHlwID0ganNvbl9zY2hlbWEuZ2V0KCJ0eXBlIikKICAgIGlmIHR5cCA9PSAib2JqZWN0IiBhbmQgImFkZGl0aW9uYWxQcm9wZXJ0aWVzIiBub3QgaW4ganNvbl9zY2hlbWE6CiAgICAgICAganNvbl9zY2hlbWFbImFkZGl0aW9uYWxQcm9wZXJ0aWVzIl0gPSBGYWxzZQoKICAgICMgb2JqZWN0IHR5cGVzCiAgICAjIHsgJ3R5cGUnOiAnb2JqZWN0JywgJ3Byb3BlcnRpZXMnOiB7ICdhJzogIHsuLi59IH0gfQogICAgcHJvcGVydGllcyA9IGpzb25fc2NoZW1hLmdldCgicHJvcGVydGllcyIpCiAgICBpZiBpc19kaWN0KHByb3BlcnRpZXMpOgogICAgICAgIGpzb25fc2NoZW1hWyJyZXF1aXJlZCJdID0gW3Byb3AgZm9yIHByb3AgaW4gcHJvcGVydGllcy5rZXlzKCldCiAgICAgICAganNvbl9zY2hlbWFbInByb3BlcnRpZXMiXSA9IHsKICAgICAgICAgICAga2V5OiBfZW5zdXJlX3N0cmljdF9qc29uX3NjaGVtYShwcm9wX3NjaGVtYSwgcGF0aD0oKnBhdGgsICJwcm9wZXJ0aWVzIiwga2V5KSwgcm9vdD1yb290KQogICAgICAgICAgICBmb3Iga2V5LCBwcm9wX3NjaGVtYSBpbiBwcm9wZXJ0aWVzLml0ZW1zKCkKICAgICAgICB9CgogICAgIyBhcnJheXMKICAgICMgeyAndHlwZSc6ICdhcnJheScsICdpdGVtcyc6IHsuLi59IH0KICAgIGl0ZW1zID0ganNvbl9zY2hlbWEuZ2V0KCJpdGVtcyIpCiAgICBpZiBpc19kaWN0KGl0ZW1zKToKICAgICAgICBqc29uX3NjaGVtYVsiaXRlbXMiXSA9IF9lbnN1cmVfc3RyaWN0X2pzb25fc2NoZW1hKGl0ZW1zLCBwYXRoPSgqcGF0aCwgIml0ZW1zIiksIHJvb3Q9cm9vdCkKCiAgICAjIHVuaW9ucwogICAgYW55X29mID0ganNvbl9zY2hlbWEuZ2V0KCJhbnlPZiIpCiAgICBpZiBpc19saXN0KGFueV9vZik6CiAgICAgICAganNvbl9zY2hlbWFbImFueU9mIl0gPSBbCiAgICAgICAgICAgIF9lbnN1cmVfc3RyaWN0X2pzb25fc2NoZW1hKHZhcmlhbnQsIHBhdGg9KCpwYXRoLCAiYW55T2YiLCBzdHIoaSkpLCByb290PXJvb3QpCiAgICAgICAgICAgIGZvciBpLCB2YXJpYW50IGluIGVudW1lcmF0ZShhbnlfb2YpCiAgICAgICAgXQoKICAgICMgaW50ZXJzZWN0aW9ucwogICAgYWxsX29mID0ganNvbl9zY2hlbWEuZ2V0KCJhbGxPZiIpCiAgICBpZiBpc19saXN0KGFsbF9vZik6CiAgICAgICAgaWYgbGVuKGFsbF9vZikgPT0gMToKICAgICAgICAgICAganNvbl9zY2hlbWEudXBkYXRlKF9lbnN1cmVfc3RyaWN0X2pzb25fc2NoZW1hKGFsbF9vZlswXSwgcGF0aD0oKnBhdGgsICJhbGxPZiIsICIwIiksIHJvb3Q9cm9vdCkpCiAgICAgICAgICAgIGpzb25fc2NoZW1hLnBvcCgiYWxsT2YiKQogICAgICAgIGVsc2U6CiAgICAgICAgICAgIGpzb25fc2NoZW1hWyJhbGxPZiJdID0gWwogICAgICAgICAgICAgICAgX2Vuc3VyZV9zdHJpY3RfanNvbl9zY2hlbWEoZW50cnksIHBhdGg9KCpwYXRoLCAiYWxsT2YiLCBzdHIoaSkpLCByb290PXJvb3QpCiAgICAgICAgICAgICAgICBmb3IgaSwgZW50cnkgaW4gZW51bWVyYXRlKGFsbF9vZikKICAgICAgICAgICAgXQoKICAgICMgc3RyaXAgYE5vbmVgIGRlZmF1bHRzIGFzIHRoZXJlJ3Mgbm8gbWVhbmluZ2Z1bCBkaXN0aW5jdGlvbiBoZXJlCiAgICAjIHRoZSBzY2hlbWEgd2lsbCBzdGlsbCBiZSBgbnVsbGFibGVgIGFuZCB0aGUgbW9kZWwgd2lsbCBkZWZhdWx0CiAgICAjIHRvIHVzaW5nIGBOb25lYCBhbnl3YXkKICAgIGlmIGpzb25fc2NoZW1hLmdldCgiZGVmYXVsdCIsIE5PVF9HSVZFTikgaXMgTm9uZToKICAgICAgICBqc29uX3NjaGVtYS5wb3AoImRlZmF1bHQiKQoKICAgICMgd2UgY2FuJ3QgdXNlIGAkcmVmYHMgaWYgdGhlcmUgYXJlIGFsc28gb3RoZXIgcHJvcGVydGllcyBkZWZpbmVkLCBlLmcuCiAgICAjIGB7IiRyZWYiOiAiLi4uIiwgImRlc2NyaXB0aW9uIjogIm15IGRlc2NyaXB0aW9uIn1gCiAgICAjCiAgICAjIHNvIHdlIHVucmF2ZWwgdGhlIHJlZgogICAgIyBgeyJ0eXBlIjogInN0cmluZyIsICJkZXNjcmlwdGlvbiI6ICJteSBkZXNjcmlwdGlvbiJ9YAogICAgcmVmID0ganNvbl9zY2hlbWEuZ2V0KCIkcmVmIikKICAgIGlmIHJlZiBhbmQgaGFzX21vcmVfdGhhbl9uX2tleXMoanNvbl9zY2hlbWEsIDEpOgogICAgICAgIGFzc2VydCBpc2luc3RhbmNlKHJlZiwgc3RyKSwgZiJSZWNlaXZlZCBub24tc3RyaW5nICRyZWYgLSB7cmVmfSIKCiAgICAgICAgcmVzb2x2ZWQgPSByZXNvbHZlX3JlZihyb290PXJvb3QsIHJlZj1yZWYpCiAgICAgICAgaWYgbm90IGlzX2RpY3QocmVzb2x2ZWQpOgogICAgICAgICAgICByYWlzZSBWYWx1ZUVycm9yKGYiRXhwZWN0ZWQgYCRyZWY6IHtyZWZ9YCB0byByZXNvbHZlZCB0byBhIGRpY3Rpb25hcnkgYnV0IGdvdCB7cmVzb2x2ZWR9IikKCiAgICAgICAgIyBwcm9wZXJ0aWVzIGZyb20gdGhlIGpzb24gc2NoZW1hIHRha2UgcHJpb3JpdHkgb3ZlciB0aGUgb25lcyBvbiB0aGUgYCRyZWZgCiAgICAgICAganNvbl9zY2hlbWEudXBkYXRlKHsqKnJlc29sdmVkLCAqKmpzb25fc2NoZW1hfSkKICAgICAgICBqc29uX3NjaGVtYS5wb3AoIiRyZWYiKQogICAgICAgICMgU2luY2UgdGhlIHNjaGVtYSBleHBhbmRlZCBmcm9tIGAkcmVmYCBtaWdodCBub3QgaGF2ZSBgYWRkaXRpb25hbFByb3BlcnRpZXM6IGZhbHNlYCBhcHBsaWVkLAogICAgICAgICMgd2UgY2FsbCBgX2Vuc3VyZV9zdHJpY3RfanNvbl9zY2hlbWFgIGFnYWluIHRvIGZpeCB0aGUgaW5saW5lZCBzY2hlbWEgYW5kIGVuc3VyZSBpdCdzIHZhbGlkLgogICAgICAgIHJldHVybiBfZW5zdXJlX3N0cmljdF9qc29uX3NjaGVtYShqc29uX3NjaGVtYSwgcGF0aD1wYXRoLCByb290PXJvb3QpCgogICAgcmV0dXJuIGpzb25fc2NoZW1hCgoKZGVmIHJlc29sdmVfcmVmKCosIHJvb3Q6IGRpY3Rbc3RyLCBvYmplY3RdLCByZWY6IHN0cikgLT4gb2JqZWN0OgogICAgaWYgbm90IHJlZi5zdGFydHN3aXRoKCIjLyIpOgogICAgICAgIHJhaXNlIFZhbHVlRXJyb3IoZiJVbmV4cGVjdGVkICRyZWYgZm9ybWF0IHtyZWYhcn07IERvZXMgbm90IHN0YXJ0IHdpdGggIy8iKQoKICAgIHBhdGggPSByZWZbMjpdLnNwbGl0KCIvIikKICAgIHJlc29sdmVkID0gcm9vdAogICAgZm9yIGtleSBpbiBwYXRoOgogICAgICAgIHZhbHVlID0gcmVzb2x2ZWRba2V5XQogICAgICAgIGFzc2VydCBpc19kaWN0KHZhbHVlKSwgZiJlbmNvdW50ZXJlZCBub24tZGljdGlvbmFyeSBlbnRyeSB3aGlsZSByZXNvbHZpbmcge3JlZn0gLSB7cmVzb2x2ZWR9IgogICAgICAgIHJlc29sdmVkID0gdmFsdWUKCiAgICByZXR1cm4gcmVzb2x2ZWQKCgpkZWYgaXNfYmFzZW1vZGVsX3R5cGUodHlwOiB0eXBlKSAtPiBUeXBlR3VhcmRbdHlwZVtweWRhbnRpYy5CYXNlTW9kZWxdXToKICAgIGlmIG5vdCBpbnNwZWN0LmlzY2xhc3ModHlwKToKICAgICAgICByZXR1cm4gRmFsc2UKICAgIHJldHVybiBpc3N1YmNsYXNzKHR5cCwgcHlkYW50aWMuQmFzZU1vZGVsKQoKCmRlZiBpc19kYXRhY2xhc3NfbGlrZV90eXBlKHR5cDogdHlwZSkgLT4gYm9vbDoKICAgICIiIlJldHVybnMgVHJ1ZSBpZiB0aGUgZ2l2ZW4gdHlwZSBsaWtlbHkgdXNlZCBgQHB5ZGFudGljLmRhdGFjbGFzc2AiIiIKICAgIHJldHVybiBoYXNhdHRyKHR5cCwgIl9fcHlkYW50aWNfY29uZmlnX18iKQoKCmRlZiBpc19kaWN0KG9iajogb2JqZWN0KSAtPiBUeXBlR3VhcmRbZGljdFtzdHIsIG9iamVjdF1dOgogICAgIyBqdXN0IHByZXRlbmQgdGhhdCB3ZSBrbm93IHRoZXJlIGFyZSBvbmx5IGBzdHJgIGtleXMKICAgICMgYXMgdGhhdCBjaGVjayBpcyBub3Qgd29ydGggdGhlIHBlcmZvcm1hbmNlIGNvc3QKICAgIHJldHVybiBfaXNfZGljdChvYmopCgoKZGVmIGhhc19tb3JlX3RoYW5fbl9rZXlzKG9iajogZGljdFtzdHIsIG9iamVjdF0sIG46IGludCkgLT4gYm9vbDoKICAgIGkgPSAwCiAgICBmb3IgXyBpbiBvYmoua2V5cygpOgogICAgICAgIGkgKz0gMQogICAgICAgIGlmIGkgPiBuOgogICAgICAgICAgICByZXR1cm4gVHJ1ZQogICAgcmV0dXJuIEZhbHNlCg=="
++    }
++  ],
++  "reused_text_manifest": {
++    "path": "internal/central/model/adapter/testdata/openai-chat-text-v1.json",
++    "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
++    "sha256": "1f41dc008dcc5438da331b8426f83dbb6fcdb48a38bd57d277c6555746be941e"
++  },
++  "license": {
++    "spdx": "Apache-2.0",
++    "path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/LICENSE.openai",
++    "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4"
++  },
++  "wire_fields": {
++    "response_format.type": "json_schema",
++    "response_format.json_schema.name": "[A-Za-z0-9_-]{1,64}",
++    "response_format.json_schema.schema": "exact supported schema values; no added/dropped constraints",
++    "response_format.json_schema.strict": true
++  },
++  "local_limits": {
++    "schema_bytes": 65536,
++    "schema_nodes": 1024,
++    "depth": 32,
++    "properties": 256,
++    "property_name_bytes": 256,
++    "enum_items": 128,
++    "enum_string_bytes": 1024,
++    "title_bytes": 128,
++    "description_bytes": 4096,
++    "content_bytes": 16777216,
++    "sse_event_bytes": 1048576,
++    "output_nodes": 65536,
++    "number_token_bytes": 128,
++    "references": 0,
++    "combinator_branches": 0
++  },
++  "supported_keywords": [
++    "type",
++    "properties",
++    "required",
++    "additionalProperties",
++    "items",
++    "enum",
++    "title",
++    "description"
++  ],
++  "unsupported": "All other keywords, all references/combinators, non-string enums, tools/reasoning/media/overwrites",
++  "tests": [
++    "TestModelOpenAIChatStructuredCloseAndBudget",
++    "TestModelOpenAIChatStructuredHTTP",
++    "TestModelOpenAIChatStructuredStream",
++    "TestStructuredExactNumericValues",
++    "TestStructuredPinnedSources",
++    "TestStructuredSchemaResourceBounds",
++    "TestStructuredSchemaSubsetAndFailures",
++    "TestStructuredStreamAccumulatedContentBound",
++    "TestStructuredStreamCompletion",
++    "TestStructuredStringAndJSONLexing",
++    "TestStructuredSuccessfulConsumptionRechecksCancellation",
++    "TestStructuredValidationAllocationBounds",
++    "TestStructuredValidationCancellation",
++    "TestStructuredWireRequestAndProfile"
++  ],
++  "claims": "SDK field provenance and local conservative profile only; no live provider account, Resolver, Memory consumer, Invocation, Usage, or root binding",
++  "official_repository": "https://github.com/openai/openai-python"
++}
+diff --git a/tests/model/openai_chat_structured_http_test.go b/tests/model/openai_chat_structured_http_test.go
+--- /dev/null
++++ b/tests/model/openai_chat_structured_http_test.go
+@@ -0,0 +1,206 @@
++//go:build integration
++
++package model_test
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"strings"
++	"testing"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++const structuredMemorySchema = `{"type":"object","properties":{"facts":{"type":"array","items":{"type":"object","properties":{"text":{"type":"string"},"kind":{"type":["string","null"],"enum":["fact",null]},"ordinal":{"type":"integer"},"active":{"type":"boolean"}},"required":["text","kind","ordinal","active"],"additionalProperties":false}},"note":{"type":["string","null"]}},"required":["facts","note"],"additionalProperties":false}`
++const structuredMemoryResult = ` {"facts":[{"text":"世界\nquote:\"","kind":"fact","ordinal":9007199254740993,"active":true}],"note":null} `
++const structuredScalarSchema = `{"type":"object","properties":{"v":{"type":"integer"}},"required":["v"],"additionalProperties":false}`
++
++func structuredWireInput(t *testing.T, v *wireFixture, key string, mode wire.ResponseMode) (wire.Request, wire.CallOptions) {
++	t.Helper()
++	r, o := v.input(t, key, mode)
++	r.Snapshot.Identity.AdapterRevision = wire.OpenAIChatStructuredRevision
++	r.Snapshot.Capabilities.StructuredOutputModes = []string{"json_schema", "text"}
++	r.ResponseFormat = mc.ResponseFormat{Kind: "json_schema", Name: "memory_result", Schema: json.RawMessage(structuredMemorySchema)}
++	return r, o
++}
++
++func TestModelOpenAIChatStructuredHTTP(t *testing.T) {
++	v := newWireFixture(t)
++	v.allow(t, true)
++	t.Run("strict_native_request_and_immutable_schema", func(t *testing.T) {
++		cfg := wireJSON(wireReply(structuredMemoryResult, "stop", json.RawMessage(`{"prompt_tokens":9007199254740993,"completion_tokens":0,"total_tokens":null}`), nil))
++		hold := 0
++		cfg.HoldAfter = &hold
++		key := v.scenario(t, cfg)
++		r, o := structuredWireInput(t, v, key, wire.JSONResponse)
++		x := v.start(t, testContext(t), v.adapter, r, o)
++		wireWait(t, "structured request did not reach held response", func() bool { return len(v.state(t, key).Requests) == 1 })
++		for i := range r.ResponseFormat.Schema {
++			r.ResponseFormat.Schema[i] = 'x'
++		}
++		r.Messages[0].Parts[0].Text.Text = "changed after Start"
++		r.Snapshot.Capabilities.StructuredOutputModes[0] = "text"
++		if err := v.net.Release(testContext(t), key); err != nil {
++			t.Fatal(err)
++		}
++		result, err := x.Result(testContext(t))
++		if err != nil || result.Text != structuredMemoryResult || result.End.FinishReason != "stop" || !x.Joined() {
++			t.Fatal("strict result", err)
++		}
++		u := result.End.Usage
++		if u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 9007199254740993 || u.OutputTokens == nil || *u.OutputTokens != 0 || u.TotalTokens != nil {
++			t.Fatal("structured usage precision/unknown changed")
++		}
++		state := v.state(t, key)
++		if len(state.Requests) != 1 {
++			t.Fatal("structured request retried")
++		}
++		request := state.Requests[0]
++		if request.Method != "POST" || request.Headers.Get("Authorization") != "Bearer "+wireCredentialCanary || request.RequestURI != "/case/"+key+"/chat/completions" {
++			t.Fatal("structured request authority/origin/path")
++		}
++		var body map[string]json.RawMessage
++		if json.Unmarshal([]byte(request.Body), &body) != nil || len(body) != 4 || string(body["model"]) != `"fixture-native-model"` || string(body["stream"]) != "false" || strings.Contains(request.Body, "changed after Start") {
++			t.Fatal("unexpected structured native fields")
++		}
++		var format struct {
++			Type   string `json:"type"`
++			Schema struct {
++				Name   string          `json:"name"`
++				Schema json.RawMessage `json:"schema"`
++				Strict bool            `json:"strict"`
++			} `json:"json_schema"`
++		}
++		if json.Unmarshal(body["response_format"], &format) != nil || format.Type != "json_schema" || format.Schema.Name != "memory_result" || !format.Schema.Strict || !bytes.Equal(format.Schema.Schema, []byte(structuredMemorySchema)) {
++			t.Fatal("schema rewritten/aliased")
++		}
++		wireNoLeak(t, result)
++		wireNoLeak(t, x.Observe())
++		wireClose(t, x)
++		v.settled(t, key)
++	})
++	t.Run("schema_errors_are_pre_admission_zero_send", func(t *testing.T) {
++		key := v.scenario(t, wireJSON(wireReply("unused", "stop", nil, nil)))
++		b := wire.NewBudget()
++		a := v.newAdapter(t, b)
++		b.StopAdmission()
++		for _, kind := range []string{"old_revision", "unknown_keyword", "optional_property", "bad_name", "malformed_required", "too_many_properties", "cancelled"} {
++			r, o := structuredWireInput(t, v, key, wire.JSONResponse)
++			ctx := testContext(t)
++			switch kind {
++			case "old_revision":
++				r.Snapshot.Identity.AdapterRevision = wire.OpenAIChatTextRevision
++			case "unknown_keyword":
++				r.ResponseFormat.Schema = json.RawMessage(`{"type":"object","$ref":"https://example.invalid/schema"}`)
++			case "optional_property":
++				r.ResponseFormat.Schema = json.RawMessage(`{"type":"object","properties":{"v":{"type":"string"}},"required":[],"additionalProperties":false}`)
++			case "bad_name":
++				r.ResponseFormat.Name = "native.invalid:format"
++			case "malformed_required":
++				r.ResponseFormat.Schema = json.RawMessage(`{"type":"object","properties":{"":{"type":"string"}},"required":[null],"additionalProperties":false}`)
++			case "too_many_properties":
++				// Keep below C0's 64 KiB so this observes the profile bound.
++				properties := map[string]any{}
++				var required []string
++				for i := 0; i < 257; i++ {
++					name := string(rune(0x1000 + i))
++					properties[name] = map[string]any{"type": "string"}
++					required = append(required, name)
++				}
++				raw, err := json.Marshal(map[string]any{"type": "object", "properties": properties, "required": required, "additionalProperties": false})
++				if err != nil {
++					t.Fatal(err)
++				}
++				r.ResponseFormat.Schema = raw
++			case "cancelled":
++				c, cancel := context.WithCancel(ctx)
++				cancel()
++				ctx = c
++			}
++			if err := r.Snapshot.Validate(); err != nil {
++				t.Fatal("invalid fixture snapshot", err)
++			}
++			x, err := a.Start(ctx, r, o)
++			if x != nil || !b.Joined() {
++				t.Fatal("schema rejection acquired slot")
++			}
++			switch kind {
++			case "bad_name", "malformed_required":
++				wireFault(t, err, f.InvalidArgument)
++			case "cancelled":
++				wireModelError(t, err, "cancelled", "wire_cancelled", false, false)
++			default:
++				wireModelError(t, err, "unsupported_feature", "wire_unsupported_feature", false, false)
++			}
++		}
++		if len(v.state(t, key).Requests) != 0 {
++			t.Fatal("preflight failure reached server")
++		}
++	})
++	t.Run("valid_native_envelope_never_bypasses_schema", func(t *testing.T) {
++		for _, tc := range []struct {
++			name, body, finish, category string
++			refusal                      any
++		}{
++			{"missing", `{"facts":[]}`, "stop", "provider_error", nil},
++			{"extra", `{"facts":[],"note":null,"private":"` + wireBodyCanary + `"}`, "stop", "provider_error", nil},
++			{"nested_type", strings.Replace(structuredMemoryResult, `"active":true`, `"active":0`, 1), "stop", "provider_error", nil},
++			{"enum", strings.Replace(structuredMemoryResult, `"kind":"fact"`, `"kind":"other"`, 1), "stop", "provider_error", nil},
++			{"duplicate", `{"facts":[],"note":null,"note":"x"}`, "stop", "provider_error", nil},
++			{"trailing", structuredMemoryResult + `{}`, "stop", "provider_error", nil},
++			{"malformed", `{"facts":`, "stop", "provider_error", nil},
++			{"length_even_valid", structuredMemoryResult, "length", "provider_error", nil},
++			{"content_filter", structuredMemoryResult, "content_filter", "content_filter", nil},
++			{"refusal", wireBodyCanary, "stop", "content_filter", wireBodyCanary},
++		} {
++			t.Run(tc.name, func(t *testing.T) {
++				key := v.scenario(t, wireJSON(wireReply(tc.body, tc.finish, json.RawMessage(`{"prompt_tokens":0,"completion_tokens":2}`), tc.refusal)))
++				r, o := structuredWireInput(t, v, key, wire.JSONResponse)
++				x := v.start(t, testContext(t), v.adapter, r, o)
++				result, err := x.Result(testContext(t))
++				code := "wire_protocol_invalid"
++				if tc.category == "content_filter" {
++					code = ""
++				}
++				m := wireModelError(t, err, mc.ErrorCategory(tc.category), code, true, false)
++				if result.Text != "" || result.End.FinishReason != "" || m.Retryable || x.Observe().Usage.InputTokens == nil || *x.Observe().Usage.InputTokens != 0 || x.Observe().Usage.OutputTokens == nil || *x.Observe().Usage.OutputTokens != 2 {
++					t.Fatal("false success or dropped usage")
++				}
++				wireClose(t, x)
++				if len(v.state(t, key).Requests) != 1 {
++					t.Fatal("schema error retried")
++				}
++			})
++		}
++	})
++	t.Run("new_revision_text_path_and_unknown_usage", func(t *testing.T) {
++		for _, structured := range []bool{false, true} {
++			body, finish := "not JSON; old text semantics", "length"
++			if structured {
++				body, finish = structuredMemoryResult, "stop"
++			}
++			key := v.scenario(t, wireJSON(wireReply(body, finish, nil, nil)))
++			r, o := structuredWireInput(t, v, key, wire.JSONResponse)
++			if !structured {
++				r.ResponseFormat = mc.ResponseFormat{Kind: "text"}
++			}
++			x := v.start(t, testContext(t), v.adapter, r, o)
++			result, err := x.Result(testContext(t))
++			if err != nil || result.Text != body || string(result.End.FinishReason) != finish || result.End.Usage.Source != mc.UnknownUsage {
++				t.Fatal("new revision text/unknown compatibility", err)
++			}
++			var native map[string]json.RawMessage
++			if json.Unmarshal([]byte(v.state(t, key).Requests[0].Body), &native) != nil {
++				t.Fatal("request JSON")
++			}
++			_, format := native["response_format"]
++			if format != structured {
++				t.Fatal("response format appeared on text")
++			}
++			wireClose(t, x)
++		}
++	})
++}
+diff --git a/tests/model/openai_chat_structured_stream_test.go b/tests/model/openai_chat_structured_stream_test.go
+--- /dev/null
++++ b/tests/model/openai_chat_structured_stream_test.go
+@@ -0,0 +1,286 @@
++//go:build integration
++
++package model_test
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"errors"
++	"io"
++	"strings"
++	"testing"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++func structuredEvents(t *testing.T, events []wire.Event) (string, int, int) {
++	t.Helper()
++	var text strings.Builder
++	usages, ends := 0, 0
++	for _, e := range events {
++		switch e.Kind {
++		case wire.TextDelta:
++			text.WriteString(e.Text)
++		case wire.UsageUpdate:
++			usages++
++		case wire.StreamEnd:
++			ends++
++		default:
++			t.Fatal("unknown event")
++		}
++		wireNoLeak(t, e)
++	}
++	return text.String(), usages, ends
++}
++
++func TestModelOpenAIChatStructuredStream(t *testing.T) {
++	v := newWireFixture(t)
++	v.allow(t, true)
++	t.Run("fragmented_strict_json_and_done_before_http_eof", func(t *testing.T) {
++		parts := []string{` {"facts":[{"text":"世`, `界\nquote:\"","kind":"fact","ordinal":9007199`, `254740993,"active":true}],"note":null} `}
++		var raw []byte
++		raw = append(raw, []byte(": ping\n\n")...)
++		for _, part := range parts {
++			raw = append(raw, wireChunk(map[string]any{"content": part}, nil, nil, wireBodyCanary, false)...)
++		}
++		raw = append(raw, wireChunk(map[string]any{}, "stop", nil, nil, false)...)
++		raw = append(raw, wireChunk(nil, nil, json.RawMessage(`{"prompt_tokens":7,"completion_tokens":0,"total_tokens":9}`), nil, true)...)
++		raw = append(raw, []byte("data: [DONE]\n\n")...)
++		raw = bytes.ReplaceAll(raw, []byte("\n"), []byte("\r\n"))
++		var chunks [][]byte
++		for len(raw) > 0 {
++			n := min(11, len(raw))
++			chunks = append(chunks, bytes.Clone(raw[:n]))
++			raw = raw[n:]
++		}
++		cfg := wireSSE(chunks...)
++		hold := len(chunks)
++		cfg.HoldAfter = &hold
++		key := v.scenario(t, cfg)
++		r, o := structuredWireInput(t, v, key, wire.SSEResponse)
++		x := v.start(t, testContext(t), v.adapter, r, o)
++		events, err := wireDrain(t, x)
++		text, usages, ends := structuredEvents(t, events)
++		if err != nil || text != structuredMemoryResult || usages != 1 || ends != 1 || !x.Joined() || x.Observe().Usage.TotalTokens == nil || *x.Observe().Usage.TotalTokens != 9 {
++			t.Fatal("strict fragmented completion", err)
++		}
++		last := events[len(events)-1]
++		if last.End == nil || last.End.FinishReason != "stop" || last.End.ProviderRequestID != "req_stream-1" {
++			t.Fatal("strict terminal identity")
++		}
++		var native map[string]json.RawMessage
++		state := v.state(t, key)
++		if len(state.Requests) != 1 || json.Unmarshal([]byte(state.Requests[0].Body), &native) != nil || string(native["stream"]) != "true" || string(native["stream_options"]) != `{"include_usage":true}` {
++			t.Fatal("stream request mapping")
++		}
++		wireClose(t, x)
++		v.settled(t, key) // No Release: DONE must itself close the held body.
++	})
++	t.Run("schema_failure_preserves_delivered_prefix_and_final_usage", func(t *testing.T) {
++		for _, tc := range []struct {
++			name, body, finish, tail, category string
++			refusal                            bool
++		}{
++			{"mismatch", `{"v":"wrong"}`, "stop", "data: [DONE]\n\n", "provider_error", false},
++			{"trailing", `{"v":1}{}`, "stop", "data: [DONE]\n\n", "provider_error", false},
++			{"malformed", `{"v":`, "stop", "data: [DONE]\n\n", "provider_error", false},
++			{"length", `{"v":1}`, "length", "data: [DONE]\n\n", "provider_error", false},
++			{"filtered", `{"v":1}`, "content_filter", "data: [DONE]\n\n", "content_filter", false},
++			{"missing_done", `{"v":1}`, "stop", "", "provider_error", false},
++			{"refusal_after_prefix", `{"v":`, "stop", "", "content_filter", true},
++		} {
++			t.Run(tc.name, func(t *testing.T) {
++				chunks := [][]byte{wireChunk(map[string]any{"content": tc.body}, nil, nil, nil, false)}
++				if tc.refusal {
++					chunks = append(chunks, wireChunk(map[string]any{"refusal": wireBodyCanary}, nil, nil, nil, false))
++				} else {
++					chunks = append(chunks, wireChunk(map[string]any{}, tc.finish, nil, nil, false), wireChunk(nil, nil, json.RawMessage(`{"completion_tokens":0,"total_tokens":11}`), nil, true))
++					if tc.tail != "" {
++						chunks = append(chunks, []byte(tc.tail))
++					}
++				}
++				key := v.scenario(t, wireSSE(chunks...))
++				r, o := structuredWireInput(t, v, key, wire.SSEResponse)
++				r.ResponseFormat.Schema = json.RawMessage(structuredScalarSchema)
++				x := v.start(t, testContext(t), v.adapter, r, o)
++				events, err := wireDrain(t, x)
++				text, usages, ends := structuredEvents(t, events)
++				code := "wire_protocol_invalid"
++				if tc.category == "content_filter" {
++					code = ""
++				}
++				m := wireModelError(t, err, mc.ErrorCategory(tc.category), code, true, true)
++				if text != tc.body || ends != 0 || m.Retryable {
++					t.Fatal("schema error emitted success or lost prefix")
++				}
++				if !tc.refusal && (usages != 1 || x.Observe().Usage.TotalTokens == nil || *x.Observe().Usage.TotalTokens != 11 || x.Observe().Usage.OutputTokens == nil || *x.Observe().Usage.OutputTokens != 0) {
++					t.Fatal("final usage was lost")
++				}
++				wireClose(t, x)
++				if len(v.state(t, key).Requests) != 1 {
++					t.Fatal("stream failure retried")
++				}
++			})
++		}
++	})
++	t.Run("no_usage_is_unknown_and_output_node_budget_is_real", func(t *testing.T) {
++		for _, over := range []bool{false, true} {
++			body := `{"v":1}`
++			schema := structuredScalarSchema
++			if over {
++				body = `{"v":[` + strings.Repeat("0,", 65534) + `0]}`
++				schema = `{"type":"object","properties":{"v":{"type":"array","items":{"type":"integer"}}},"required":["v"],"additionalProperties":false}`
++			}
++			var chunks [][]byte
++			for remaining := body; remaining != ""; {
++				n := min(8192, len(remaining))
++				chunks = append(chunks, wireChunk(map[string]any{"content": remaining[:n]}, nil, nil, nil, false))
++				remaining = remaining[n:]
++			}
++			chunks = append(chunks, wireChunk(map[string]any{}, "stop", nil, nil, false), []byte("data: [DONE]\n\n"))
++			key := v.scenario(t, wireSSE(chunks...))
++			r, o := structuredWireInput(t, v, key, wire.SSEResponse)
++			r.ResponseFormat.Schema = json.RawMessage(schema)
++			x := v.start(t, testContext(t), v.adapter, r, o)
++			events, err := wireDrain(t, x)
++			text, usages, ends := structuredEvents(t, events)
++			if text != body || usages != 0 || x.Observe().Usage.Source != mc.UnknownUsage {
++				t.Fatal("unknown usage/prefix changed")
++			}
++			if over {
++				wireModelError(t, err, "provider_error", "wire_limit_exceeded", true, true)
++				if ends != 0 {
++					t.Fatal("node overflow completed")
++				}
++			} else if err != nil || ends != 1 {
++				t.Fatal("unknown usage success", err)
++			}
++			wireClose(t, x)
++		}
++	})
++}
++
++func TestModelOpenAIChatStructuredCloseAndBudget(t *testing.T) {
++	v := newWireFixture(t)
++	v.allow(t, true)
++	t.Run("backpressured_parser_owns_slot_and_borrowed_material", func(t *testing.T) {
++		body := `{"v":"` + strings.Repeat("x", 384<<10) + `"}`
++		var chunks [][]byte
++		for body != "" {
++			n := min(8192, len(body))
++			chunks = append(chunks, wireChunk(map[string]any{"content": body[:n]}, nil, nil, nil, false))
++			body = body[n:]
++		}
++		chunks = append(chunks, wireChunk(map[string]any{}, "stop", nil, nil, false), []byte("data: [DONE]\n\n"))
++		key := v.scenario(t, wireSSE(chunks...))
++		r, o := structuredWireInput(t, v, key, wire.SSEResponse)
++		r.ResponseFormat.Schema = json.RawMessage(`{"type":"object","properties":{"v":{"type":"string"}},"required":["v"],"additionalProperties":false}`)
++		b := wire.NewBudget()
++		a := v.newAdapter(t, b)
++		x := v.start(t, testContext(t), a, r, o)
++		wireWait(t, "server did not send bounded payload", func() bool { return v.state(t, key).CompletedHandlers == 1 })
++		if x.Joined() {
++			t.Fatal("unconsumed structured parser escaped backpressure")
++		}
++		short, cancel := context.WithTimeout(context.Background(), 30*time.Millisecond)
++		err := b.Drain(short)
++		cancel()
++		wireModelError(t, err, "timeout", "wire_transport_error", false, false)
++		if x.Joined() {
++			t.Fatal("timed out waiter joined parser")
++		}
++		if err := o.Credential.Use(func([]byte) error { return nil }); err != nil {
++			t.Fatal("borrowed material retired before parser", err)
++		}
++		wireClose(t, x)
++		_, err = x.Next(testContext(t))
++		wireModelError(t, err, "cancelled", "wire_cancelled", true, false)
++		if _, err = x.Next(testContext(t)); !errors.Is(err, io.EOF) {
++			t.Fatal("late structured end")
++		}
++		if err := o.Credential.Use(func([]byte) error { return nil }); err != nil {
++			t.Fatal("wire destroyed caller material", err)
++		}
++		b.StopAdmission()
++		if !b.Joined() {
++			t.Fatal("terminal parser slot remained")
++		}
++		v.settled(t, key)
++	})
++	t.Run("text_and_structured_share_exact_global_and_project_budget", func(t *testing.T) {
++		b := wire.NewBudget()
++		a := v.newAdapter(t, b)
++		other := v.newAdapter(t, b)
++		cfg := wireJSON(wireReply(`{"v":1}`, "stop", nil, nil))
++		hold := 0
++		cfg.HoldAfter = &hold
++		key := v.scenario(t, cfg)
++		var handles []*wire.Exchange
++		for p := 0; p < 8; p++ {
++			project := newID[id.Project](t)
++			for i := 0; i < 8; i++ {
++				r, o := structuredWireInput(t, v, key, wire.JSONResponse)
++				r.ResponseFormat.Schema = json.RawMessage(structuredScalarSchema)
++				adapter := a
++				if i%2 == 0 {
++					r.Snapshot.Identity.AdapterRevision = wire.OpenAIChatTextRevision
++					r.Snapshot.Capabilities.StructuredOutputModes = nil
++					r.ResponseFormat = mc.ResponseFormat{Kind: "text"}
++					adapter = other
++				}
++				o.ProjectID = project
++				o.Limits.Overall = 120 * time.Second
++				handles = append(handles, v.start(t, testContext(t), adapter, r, o))
++			}
++			r, o := structuredWireInput(t, v, key, wire.JSONResponse)
++			o.ProjectID = project
++			if x, err := a.Start(testContext(t), r, o); x != nil {
++				t.Fatal("mixed project ninth admitted")
++			} else {
++				wireFault(t, err, f.ResourceBusy)
++			}
++		}
++		r, o := structuredWireInput(t, v, key, wire.JSONResponse)
++		if x, err := a.Start(testContext(t), r, o); x != nil {
++			t.Fatal("mixed global 65th admitted")
++		} else {
++			wireFault(t, err, f.ResourceBusy)
++		}
++		wireWait(t, "mixed accepted requests not observed", func() bool { return len(v.state(t, key).Requests) == 64 })
++		for _, x := range handles {
++			if x.Joined() {
++				t.Fatal("held body released slot")
++			}
++		}
++		b.StopAdmission()
++		if x, err := other.Start(testContext(t), r, o); x != nil {
++			t.Fatal("mixed stopped admission accepted")
++		} else {
++			wireFault(t, err, f.ShuttingDown)
++		}
++		cancelled, stop := context.WithCancel(context.Background())
++		stop()
++		if err := b.Drain(cancelled); err == nil || b.Joined() {
++			t.Fatal("cancelled Drain declared held clients terminal")
++		}
++		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
++		defer cancel()
++		if err := b.Force(ctx); err != nil || !b.Joined() {
++			t.Fatal("mixed Force did not join actual clients", err)
++		}
++		for _, x := range handles {
++			if !x.Joined() {
++				t.Fatal("mixed handle escaped owner")
++			}
++		}
++		if len(v.state(t, key).Requests) != 64 {
++			t.Fatal("excess request sent/queued")
++		}
++		v.settled(t, key)
++	})
++}

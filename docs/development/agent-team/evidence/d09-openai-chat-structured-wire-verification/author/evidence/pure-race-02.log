@@ -1,0 +1,454 @@
+=== RUN   TestModelAuditPlanHasExactStableCauseAndCurrentActor
+--- PASS: TestModelAuditPlanHasExactStableCauseAndCurrentActor (0.00s)
+=== RUN   TestModelCurrentAuthorityRequiresHeldUserAndActualSessionBeforeGrant
+--- PASS: TestModelCurrentAuthorityRequiresHeldUserAndActualSessionBeforeGrant (0.00s)
+=== RUN   TestModelCommandDigestStableUserButCompleteMeaning
+--- PASS: TestModelCommandDigestStableUserButCompleteMeaning (0.00s)
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/same
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/different
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/absent
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/confirmation-error
+=== RUN   TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/revoked
+--- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/same (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/different (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/absent (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/confirmation-error (0.00s)
+    --- PASS: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/revoked (0.00s)
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/same
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/different
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/absent
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/revoked
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown
+=== RUN   TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown-confirmation-failed
+--- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/same (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/different (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/absent (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/revoked (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown (0.00s)
+    --- PASS: TestModelPreparationFailureRechecksConcurrentCanonicalReceipt/original-unknown-confirmation-failed (0.00s)
+=== RUN   TestModelPolicyDoesNotClaimUnverifiedNativeSchemas
+--- PASS: TestModelPolicyDoesNotClaimUnverifiedNativeSchemas (0.00s)
+=== RUN   TestModelProjectCommandsAreExplicitlyUnboundWithoutIO
+--- PASS: TestModelProjectCommandsAreExplicitlyUnboundWithoutIO (0.00s)
+=== RUN   TestModelEventsUseExplicitCatalogAndWrongOwnerFailsBeforeSQL
+--- PASS: TestModelEventsUseExplicitCatalogAndWrongOwnerFailsBeforeSQL (0.00s)
+=== RUN   TestModelEventPlansBindFullActorAndExactRegisteredPayload
+--- PASS: TestModelEventPlansBindFullActorAndExactRegisteredPayload (0.00s)
+=== RUN   TestSystemHTTPDTORequiredNullAndExactScalars
+--- PASS: TestSystemHTTPDTORequiredNullAndExactScalars (0.00s)
+=== RUN   TestSystemHTTPListQueryCanonicalAndProjection
+--- PASS: TestSystemHTTPListQueryCanonicalAndProjection (0.00s)
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/observed
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/metadata
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/late-receipt
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/denied
+=== RUN   TestSystemHTTPCredentialMaterialAndBoundedReplay/lookup-error
+--- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/observed (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/metadata (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/late-receipt (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/denied (0.00s)
+    --- PASS: TestSystemHTTPCredentialMaterialAndBoundedReplay/lookup-error (0.00s)
+=== RUN   TestSystemHTTPConstructionAndRoutesMatchOpenAPI
+    http_test.go:49: open ../../../api/openapi/model-system.json: no such file or directory
+--- FAIL: TestSystemHTTPConstructionAndRoutesMatchOpenAPI (0.00s)
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/zero
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/actor
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/scope
+=== RUN   TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/intent
+--- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/zero (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/actor (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/scope (0.00s)
+    --- PASS: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks/intent (0.00s)
+=== RUN   TestModelProjectCommandNamespacesPreserveOldSystemBytes
+--- PASS: TestModelProjectCommandNamespacesPreserveOldSystemBytes (0.00s)
+=== RUN   TestModelProjectReceiptAndUnknownUseReadAndExactScope
+--- PASS: TestModelProjectReceiptAndUnknownUseReadAndExactScope (0.00s)
+=== RUN   TestModelProjectViewsPolicyAndPrivateFactsCarryScope
+--- PASS: TestModelProjectViewsPolicyAndPrivateFactsCarryScope (0.00s)
+=== RUN   TestModelProjectCursorBindsProjectUserKindButNotLimitOrSession
+--- PASS: TestModelProjectCursorBindsProjectUserKindButNotLimitOrSession (0.00s)
+=== RUN   TestModelProjectAvailableDTOContainsOnlySelectionFields
+--- PASS: TestModelProjectAvailableDTOContainsOnlySelectionFields (0.00s)
+=== RUN   TestModelCursorBindsStableUserQueryAndOriginalWatermark
+--- PASS: TestModelCursorBindsStableUserQueryAndOriginalWatermark (0.00s)
+=== RUN   TestModelUnconfiguredSelectionIsExplicitAbsence
+--- PASS: TestModelUnconfiguredSelectionIsExplicitAbsence (0.00s)
+=== RUN   TestModelReplacementPreservesRequiredTypeAndMemoryCapability
+--- PASS: TestModelReplacementPreservesRequiredTypeAndMemoryCapability (0.00s)
+=== RUN   TestModelSecretReleaseRequiresExactBeforeAfterCommandPlan
+--- PASS: TestModelSecretReleaseRequiresExactBeforeAfterCommandPlan (0.00s)
+=== RUN   TestModelSecretRouterPreservesFallbackAndDoesNotGuessLeasePurpose
+--- PASS: TestModelSecretRouterPreservesFallbackAndDoesNotGuessLeasePurpose (0.00s)
+=== RUN   TestModelConstructorsArePureAndRejectMissingOwnership
+--- PASS: TestModelConstructorsArePureAndRejectMissingOwnership (0.00s)
+=== RUN   TestModelCommitStatesDoNotTreatUnknownAsZeroReceiptSuccess
+--- PASS: TestModelCommitStatesDoNotTreatUnknownAsZeroReceiptSuccess (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model	0.044s
+=== RUN   TestWireBudgetGlobalProjectAndSealedAdmission
+--- PASS: TestWireBudgetGlobalProjectAndSealedAdmission (0.00s)
+=== RUN   TestWireBudgetCancellationDoesNotRetireLocalWork
+--- PASS: TestWireBudgetCancellationDoesNotRetireLocalWork (0.00s)
+=== RUN   TestWireBudgetConcurrentAdmissionHasOneOwner
+--- PASS: TestWireBudgetConcurrentAdmissionHasOneOwner (0.00s)
+=== RUN   TestOpenAIChatNativeUsageExactAndUnknown
+--- PASS: TestOpenAIChatNativeUsageExactAndUnknown (0.00s)
+=== RUN   TestOpenAIChatNativeEnvelopeAndSafeErrors
+--- PASS: TestOpenAIChatNativeEnvelopeAndSafeErrors (0.00s)
+=== RUN   TestStructuredWireRequestAndProfile
+=== RUN   TestStructuredWireRequestAndProfile/old_revision
+=== RUN   TestStructuredWireRequestAndProfile/unknown_revision
+=== RUN   TestStructuredWireRequestAndProfile/missing_capability
+=== RUN   TestStructuredWireRequestAndProfile/invalid_native_name
+=== RUN   TestStructuredWireRequestAndProfile/unsupported_keyword
+--- PASS: TestStructuredWireRequestAndProfile (0.00s)
+    --- PASS: TestStructuredWireRequestAndProfile/old_revision (0.00s)
+    --- PASS: TestStructuredWireRequestAndProfile/unknown_revision (0.00s)
+    --- PASS: TestStructuredWireRequestAndProfile/missing_capability (0.00s)
+    --- PASS: TestStructuredWireRequestAndProfile/invalid_native_name (0.00s)
+    --- PASS: TestStructuredWireRequestAndProfile/unsupported_keyword (0.00s)
+=== RUN   TestStructuredPinnedSources
+--- PASS: TestStructuredPinnedSources (0.00s)
+=== RUN   TestOpenAIChatPinnedProfileManifest
+--- PASS: TestOpenAIChatPinnedProfileManifest (0.00s)
+=== RUN   TestOpenAIChatEncodedBodyBound
+--- PASS: TestOpenAIChatEncodedBodyBound (0.01s)
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/revision
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/tools
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/reasoning
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/parallel_tools
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/tool_choice
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/structured
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/structured_capability
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/image_modality
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/custom_header
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/media_part
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/tool_result
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/parameters
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/overwrite
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/multiple_parts
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/metadata
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/no_stream_capability
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/invalid_utf8
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/zero_budget
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/oversized_budget
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/idle_budget
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/unavailable_material
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/query
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/path=/base//inner/
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/path=/base/./inner/
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/path=/base/%2e/
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/path=
+--- PASS: TestOpenAIChatRequestEncodingAndClosedInputs (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/revision (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/tools (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/reasoning (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/parallel_tools (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/tool_choice (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/structured (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/structured_capability (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/image_modality (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/custom_header (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/media_part (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/tool_result (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/parameters (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/overwrite (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/multiple_parts (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/metadata (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/no_stream_capability (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/invalid_utf8 (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/zero_budget (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/oversized_budget (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/idle_budget (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/unavailable_material (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/query (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/path=/base//inner/ (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/path=/base/./inner/ (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/path=/base/%2e/ (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/path= (0.00s)
+=== RUN   TestOpenAIChatInvalidConstructorAndSafeViews
+--- PASS: TestOpenAIChatInvalidConstructorAndSafeViews (0.00s)
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/missing_done
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/premature_done
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/duplicate_finish
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/usage_before_finish
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/unknown_finish
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/empty_finish
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/empty_role
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/refusal
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/tool
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/bad_json
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/error_event
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/wrong_obfuscation
+--- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination (0.01s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/missing_done (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/premature_done (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/duplicate_finish (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/usage_before_finish (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/unknown_finish (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/empty_finish (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/empty_role (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/refusal (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/tool (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/bad_json (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/error_event (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/wrong_obfuscation (0.00s)
+=== RUN   TestOpenAIChatSSEUnknownUsageAndBoundedEvents
+--- PASS: TestOpenAIChatSSEUnknownUsageAndBoundedEvents (0.16s)
+=== RUN   TestOpenAIChatSSECumulativeTextBound
+--- PASS: TestOpenAIChatSSECumulativeTextBound (6.59s)
+=== RUN   TestStructuredSchemaSubsetAndFailures
+=== RUN   TestStructuredSchemaSubsetAndFailures/missing
+=== RUN   TestStructuredSchemaSubsetAndFailures/extra
+=== RUN   TestStructuredSchemaSubsetAndFailures/nested_enum
+=== RUN   TestStructuredSchemaSubsetAndFailures/nested_type
+=== RUN   TestStructuredSchemaSubsetAndFailures/fractional_integer
+=== RUN   TestStructuredSchemaSubsetAndFailures/duplicate
+=== RUN   TestStructuredSchemaSubsetAndFailures/escaped_duplicate
+=== RUN   TestStructuredSchemaSubsetAndFailures/trailing
+=== RUN   TestStructuredSchemaSubsetAndFailures/root_null
+=== RUN   TestStructuredSchemaSubsetAndFailures/root_array
+=== RUN   TestStructuredSchemaSubsetAndFailures/surrogate
+=== RUN   TestStructuredSchemaSubsetAndFailures/bad_utf8
+=== RUN   TestStructuredSchemaSubsetAndFailures/missing_required
+=== RUN   TestStructuredSchemaSubsetAndFailures/optional_property
+=== RUN   TestStructuredSchemaSubsetAndFailures/loose_object
+=== RUN   TestStructuredSchemaSubsetAndFailures/unknown_required
+=== RUN   TestStructuredSchemaSubsetAndFailures/duplicate_required
+=== RUN   TestStructuredSchemaSubsetAndFailures/required_null
+=== RUN   TestStructuredSchemaSubsetAndFailures/required_null_item
+=== RUN   TestStructuredSchemaSubsetAndFailures/duplicate_keyword
+=== RUN   TestStructuredSchemaSubsetAndFailures/bad_annotation
+=== RUN   TestStructuredSchemaSubsetAndFailures/root_nullable
+=== RUN   TestStructuredSchemaSubsetAndFailures/root_string
+=== RUN   TestStructuredSchemaSubsetAndFailures/boolean_schema
+=== RUN   TestStructuredSchemaSubsetAndFailures/nonnullable_union
+=== RUN   TestStructuredSchemaSubsetAndFailures/malformed_type
+=== RUN   TestStructuredSchemaSubsetAndFailures/malformed_type_item
+=== RUN   TestStructuredSchemaSubsetAndFailures/duplicate_type_item
+=== RUN   TestStructuredSchemaSubsetAndFailures/misplaced_items
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_$ref
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_$defs
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_definitions
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_$schema
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_$id
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_anyOf
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_oneOf
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_allOf
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_not
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_if
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_then
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_else
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_default
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_pattern
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_format
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_minimum
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_maximum
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_multipleOf
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_minLength
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_maxLength
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_minItems
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_maxItems
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_uniqueItems
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_prefixItems
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_patternProperties
+=== RUN   TestStructuredSchemaSubsetAndFailures/reject_keyword_unknown
+--- PASS: TestStructuredSchemaSubsetAndFailures (0.01s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/missing (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/extra (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/nested_enum (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/nested_type (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/fractional_integer (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/duplicate (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/escaped_duplicate (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/trailing (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/root_null (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/root_array (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/surrogate (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/bad_utf8 (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/missing_required (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/optional_property (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/loose_object (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/unknown_required (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/duplicate_required (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/required_null (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/required_null_item (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/duplicate_keyword (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/bad_annotation (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/root_nullable (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/root_string (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/boolean_schema (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/nonnullable_union (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/malformed_type (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/malformed_type_item (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/duplicate_type_item (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/misplaced_items (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_$ref (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_$defs (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_definitions (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_$schema (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_$id (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_anyOf (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_oneOf (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_allOf (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_not (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_if (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_then (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_else (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_default (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_pattern (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_format (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_minimum (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_maximum (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_multipleOf (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_minLength (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_maxLength (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_minItems (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_maxItems (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_uniqueItems (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_prefixItems (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_patternProperties (0.00s)
+    --- PASS: TestStructuredSchemaSubsetAndFailures/reject_keyword_unknown (0.00s)
+=== RUN   TestStructuredSchemaResourceBounds
+=== RUN   TestStructuredSchemaResourceBounds/property_name
+=== RUN   TestStructuredSchemaResourceBounds/enum_string
+--- PASS: TestStructuredSchemaResourceBounds (1.25s)
+    --- PASS: TestStructuredSchemaResourceBounds/property_name (0.00s)
+    --- PASS: TestStructuredSchemaResourceBounds/enum_string (0.00s)
+=== RUN   TestStructuredExactNumericValues
+--- PASS: TestStructuredExactNumericValues (0.00s)
+=== RUN   TestStructuredValidationAllocationBounds
+=== RUN   TestStructuredValidationAllocationBounds/string
+    structured_schema_test.go:304: verifier input_bytes=4194312 allocated_bytes=0 workspace_bound=1048576
+=== RUN   TestStructuredValidationAllocationBounds/number
+    structured_schema_test.go:304: verifier input_bytes=4194310 allocated_bytes=64 workspace_bound=1048576
+--- PASS: TestStructuredValidationAllocationBounds (0.30s)
+    --- PASS: TestStructuredValidationAllocationBounds/string (0.26s)
+    --- PASS: TestStructuredValidationAllocationBounds/number (0.03s)
+=== RUN   TestStructuredStringAndJSONLexing
+--- PASS: TestStructuredStringAndJSONLexing (0.00s)
+=== RUN   TestStructuredStreamCompletion
+=== RUN   TestStructuredStreamCompletion/success
+=== RUN   TestStructuredStreamCompletion/wrong_type
+=== RUN   TestStructuredStreamCompletion/extra_key
+=== RUN   TestStructuredStreamCompletion/trailing_json
+=== RUN   TestStructuredStreamCompletion/length_even_valid
+=== RUN   TestStructuredStreamCompletion/filtered
+=== RUN   TestStructuredStreamCompletion/missing_done
+--- PASS: TestStructuredStreamCompletion (0.01s)
+    --- PASS: TestStructuredStreamCompletion/success (0.00s)
+    --- PASS: TestStructuredStreamCompletion/wrong_type (0.00s)
+    --- PASS: TestStructuredStreamCompletion/extra_key (0.00s)
+    --- PASS: TestStructuredStreamCompletion/trailing_json (0.00s)
+    --- PASS: TestStructuredStreamCompletion/length_even_valid (0.00s)
+    --- PASS: TestStructuredStreamCompletion/filtered (0.00s)
+    --- PASS: TestStructuredStreamCompletion/missing_done (0.00s)
+=== RUN   TestStructuredValidationCancellation
+--- PASS: TestStructuredValidationCancellation (0.04s)
+=== RUN   TestStructuredStreamAccumulatedContentBound
+--- PASS: TestStructuredStreamAccumulatedContentBound (6.79s)
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation/json_caller
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation/json_attempt
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation/sse_caller
+=== RUN   TestStructuredSuccessfulConsumptionRechecksCancellation/sse_attempt
+--- PASS: TestStructuredSuccessfulConsumptionRechecksCancellation (0.00s)
+    --- PASS: TestStructuredSuccessfulConsumptionRechecksCancellation/json_caller (0.00s)
+    --- PASS: TestStructuredSuccessfulConsumptionRechecksCancellation/json_attempt (0.00s)
+    --- PASS: TestStructuredSuccessfulConsumptionRechecksCancellation/sse_caller (0.00s)
+    --- PASS: TestStructuredSuccessfulConsumptionRechecksCancellation/sse_attempt (0.00s)
+=== RUN   TestWireConsumerModesCopiesAndActualPrefix
+--- PASS: TestWireConsumerModesCopiesAndActualPrefix (0.00s)
+=== RUN   TestWireBackpressureCancellationAndConcurrentReader
+--- PASS: TestWireBackpressureCancellationAndConcurrentReader (0.00s)
+=== RUN   TestWireCancelledStartDoesNotAdmitOrCreateClient
+--- PASS: TestWireCancelledStartDoesNotAdmitOrCreateClient (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	16.213s
+=== RUN   TestExactInvocationAndSharedLeaseRetirement
+--- PASS: TestExactInvocationAndSharedLeaseRetirement (0.00s)
+=== RUN   TestOpaquePlanCopiesAndIssuerCannotBeForged
+--- PASS: TestOpaquePlanCopiesAndIssuerCannotBeForged (0.00s)
+=== RUN   TestPlanUnionMustCoverChildAndNormalizeStrongest
+--- PASS: TestPlanUnionMustCoverChildAndNormalizeStrongest (0.00s)
+=== RUN   TestFinitePolicyCannotBecomeAgentBudget
+--- PASS: TestFinitePolicyCannotBecomeAgentBudget (0.00s)
+=== RUN   TestConsumerActionBindingsRejectForeignFields
+--- PASS: TestConsumerActionBindingsRejectForeignFields (0.00s)
+=== RUN   TestChatClosedPartsAndImmutableCopy
+--- PASS: TestChatClosedPartsAndImmutableCopy (0.00s)
+=== RUN   TestFramePayloadAndExactAttemptIdentity
+--- PASS: TestFramePayloadAndExactAttemptIdentity (0.00s)
+=== RUN   TestSensitiveDTOFormattingDoesNotExposePayload
+--- PASS: TestSensitiveDTOFormattingDoesNotExposePayload (0.00s)
+=== RUN   TestEveryFrameVariantRequiresItsOwnPayload
+--- PASS: TestEveryFrameVariantRequiresItsOwnPayload (0.00s)
+=== RUN   TestConfigurationCannotHideTransportOrSecrets
+--- PASS: TestConfigurationCannotHideTransportOrSecrets (0.00s)
+=== RUN   TestSelectionIsClosedAndNoSummaryDefault
+--- PASS: TestSelectionIsClosedAndNoSummaryDefault (0.00s)
+=== RUN   TestEndpointPortAndFragmentStructure
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:1/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:443/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:65535/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example/v1%23literal
+=== RUN   TestEndpointPortAndFragmentStructure/https://[2001:db8::1]:443/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:0/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:65536/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:9999999999999999999999/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example:/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://[2001:db8::1]:/v1
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example/v1#
+=== RUN   TestEndpointPortAndFragmentStructure/https://provider.example/v1#fragment
+--- PASS: TestEndpointPortAndFragmentStructure (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:1/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:443/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:65535/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example/v1%23literal (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://[2001:db8::1]:443/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:0/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:65536/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:9999999999999999999999/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example:/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://[2001:db8::1]:/v1 (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example/v1# (0.00s)
+    --- PASS: TestEndpointPortAndFragmentStructure/https://provider.example/v1#fragment (0.00s)
+=== RUN   TestConfigurationEventsContainOnlyClosedSafeFields
+--- PASS: TestConfigurationEventsContainOnlyClosedSafeFields (0.00s)
+=== RUN   TestEmbeddingShapeAndFiniteValues
+--- PASS: TestEmbeddingShapeAndFiniteValues (0.00s)
+=== RUN   TestRerankerDoesNotInventProviderScoreBounds
+--- PASS: TestRerankerDoesNotInventProviderScoreBounds (0.00s)
+=== RUN   TestGeneratedFilesCarryBusinessReferenceOnly
+--- PASS: TestGeneratedFilesCarryBusinessReferenceOnly (0.00s)
+=== RUN   TestReferenceBindingAndReplacementClosure
+--- PASS: TestReferenceBindingAndReplacementClosure (0.00s)
+=== RUN   TestRequiredReferencesCannotBeSilentlyCleared
+--- PASS: TestRequiredReferencesCannotBeSilentlyCleared (0.00s)
+=== RUN   TestResolveBindingIncludesFullActorAndSource
+--- PASS: TestResolveBindingIncludesFullActorAndSource (0.00s)
+=== RUN   TestServingResolutionKeepsOldConfigAndNewCallOwner
+--- PASS: TestServingResolutionKeepsOldConfigAndNewCallOwner (0.00s)
+=== RUN   TestTokenCountAndUsageUnknown
+--- PASS: TestTokenCountAndUsageUnknown (0.00s)
+=== RUN   TestConsumerAndSnapshotNoImplicitAuthority
+--- PASS: TestConsumerAndSnapshotNoImplicitAuthority (0.00s)
+=== RUN   TestStructuralJSONRejectsAmbiguity
+--- PASS: TestStructuralJSONRejectsAmbiguity (0.00s)
+=== RUN   TestConsumerPurposeMatrixAndCredentialBinding
+--- PASS: TestConsumerPurposeMatrixAndCredentialBinding (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.025s
+FAIL

@@ -1,0 +1,43 @@
+{
+  "created_utc": "2026-10-05T19:11:19.733807+00:00",
+  "kind": "independent-static-spec-review",
+  "conclusion": "PASS specification only",
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "files": [
+    {
+      "path": "report.md",
+      "bytes": 4340,
+      "sha256": "d840b87853e1236423495c6751c921d508ccb36cbd25b16af20ca7e65e76c6f3"
+    },
+    {
+      "path": "card.md",
+      "bytes": 19564,
+      "sha256": "103ef5b0d3e7451510d55d4bbf99986db59639ac309ab47ba9b9a8f2189f6eff"
+    },
+    {
+      "path": "original-inputs.json",
+      "bytes": 3402,
+      "sha256": "e2b32523758f7058c6fc8f26fd92b2ae783e84326e2cdb500397daede9f79d38"
+    },
+    {
+      "path": "input-check.json",
+      "bytes": 2965,
+      "sha256": "1110ad23b53b6a5366405ec731f74b129fa12745d986ec062a28f85f3525e86f"
+    },
+    {
+      "path": "sdk-object-check.json",
+      "bytes": 1766,
+      "sha256": "438afd4ef3d09de13a027d2191c5c5bff61a04d7eb178ba3440058e86ad2e5e8"
+    },
+    {
+      "path": "response_format_json_schema.py.txt",
+      "bytes": 1815,
+      "sha256": "4a81522587ed5fa7571f376854c87870f8b0a5e7f6e473eb9fc2e297bfbd856a"
+    },
+    {
+      "path": "_pydantic.py.txt",
+      "bytes": 5623,
+      "sha256": "09fd2f1b0b9674d12e21483c58d4448d644602930e6e097c0e374b5387f98c07"
+    }
+  ]
+}

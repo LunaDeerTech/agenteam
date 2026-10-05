@@ -1,0 +1,48 @@
+{
+  "mode": "read-only archive verification; no Go/Docker/network/product execution",
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "accepted_commit": "be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74",
+  "original_records_verified": 124,
+  "stored_original_files": 93,
+  "author_final": {
+    "top_pass": 6,
+    "sub_pass": 48,
+    "model_seconds": 13.165,
+    "driver_exit": 0
+  },
+  "independent": {
+    "top_pass": 2,
+    "sub_pass": 0,
+    "model_seconds": 3.795,
+    "driver_exit": 0
+  },
+  "resource_originals": "Both sides actual identity observations, double exact absence, original baseline unchanged, owned process/runtime empty verified from frozen JSON; no Docker re-inspection",
+  "reconstruction": [
+    {
+      "mode": "final",
+      "files": 695,
+      "bytes": 6248157,
+      "all_hashes_match": true,
+      "exit": 0,
+      "output": null
+    },
+    {
+      "mode": "red",
+      "files": 694,
+      "bytes": 6151205,
+      "all_hashes_match": true,
+      "exit": 0,
+      "output": null
+    },
+    {
+      "mode": "independent",
+      "files": 823,
+      "bytes": 7115533,
+      "all_hashes_match": true,
+      "exit": 0,
+      "output": null
+    }
+  ],
+  "pure_scope": "pure-race-02 overall exit1 retained; only adapter/contract reused, Model exact ac5 asset supplement and model-pure-race-03 accepted; F1/F2 original2/6 FAIL and same-tests2/6 PASS retained",
+  "raw_whitespace_exception_count": 3
+}
