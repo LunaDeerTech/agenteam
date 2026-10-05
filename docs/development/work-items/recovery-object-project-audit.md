@@ -1,6 +1,6 @@
 # 恢复：Object 的 Project Audit 真实事实校验
 
-修订：rev1。状态：规格已通过独立静审并由主线程采纳；实施仍等待 S2 修复后完整独立验收及最终接缝 delta 核查，本卡尚不授权代码开写。
+修订：rev2，仅更新已验输入与实施交接，rev1 API/行为及13路径不变。S2已完整独立验收并提交，主线程已核最终接缝delta；本卡按文末固定输入开放实施，尚无Object Audit行为验收结论。
 
 ## 完整结果与固定输入
 
@@ -98,3 +98,11 @@ Object Store 当前没有 RequireHeldLocks，不扩旧 Store interface。只能�
 2026-10-05，独立 verification_worker 对原候选卡（SHA-256 `85898b95c246a00386257fc9da0660bf1297d8f7aa1b7c98f596d305c35064a7`）完成静审，未发现确定硬阻断；9 个链接/fragment、13 个实施路径、6 个 S2 重叠源与 7 阶段/6 actions 均核对通过。主线程复核 D08 §9.2 对 publication/delete 写前审计的明确规则，以及同一事务回滚边界后采纳。原审查报告 `/tmp/agenteam-object-audit-spec-review-gmi9y43k/review.md` SHA-256 `d9d85cf25abd0fb56ea691b64ba79081543c38ba5a438549cd711a2d799283b9`，检查结果 `checks.json` SHA-256 `c916e49f9f7d6faab7eba1ac2807895a30d3cdeba4b636cc40b9b00fa0854242`。临时文件仅为本次过程证据，以上结论及实施门槛以本卡持久记录为准。
 
 本次没有 Go、PG/MinIO 或产品行为通过声明。S2 两项实际缺陷已有作者修复和部分复验，尚未完成全部兼容回归及独立验收；不得用本次规格审查替代此前置。
+
+## 已验 S2 输入与实施授权
+
+S2 最终28源已独立验收并提交推送 `6658a6cb1f29299521773bc8dc86b2f607b8c809`，主线程确认远端同SHA。最终清单SHA-256 `c3dc0800bb7b4c2c7368186b42954f2ba8ac23d2cefd2d2d0ff6990f6c6320bd`；独立25顶层43子例全部通过，真实fixture及进程已清零。本块只消费这一固定提交，不从后续活动源码取输入。
+
+主线程逐字节比较原review01与该提交的六个重叠生产接缝：transfer/access/transfer_access/project_lifecycle/transfer_recovery五文件不变；upload.go唯一变化是UploadPrepared注册完整writer引用、与Discard互斥及返回时释放引用。PublishVerifiedInTx与集中Audit helper未变，原API、witness接缝及本卡唯一transfer撤销重排仍成立。已修真实join行为必须保持，不恢复旧writer生命周期。
+
+唯一实施者为`d08_recovery_design`，仅开放本卡13个源/测试路径；使用固定6658a6c加自己13源自测，不读取Artifact或D09活动稿。无迁移、无Project映射/组合根权限；真实fixture仍须主线程明确交接。先自测、冻结后交未参与实现者独立验收，不因S2通过宣称本块完成。
