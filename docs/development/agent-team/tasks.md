@@ -830,17 +830,25 @@ A2继续独占00012/已授权D05窄口/Docker，B2按41路径后段卡推进app/
 
 ## AT-0015：D08 Project 与 Owner
 
-- 状态：S01 规格已独立静态审查通过并由 root 采纳；B01 正式契约与纯规则库已独立验收，12新源及两项对应文档澄清提交并推送 `199554b`；D08 模块尚未完成。正式[主卡](../work-items/d08-project-owner.md)与[设计 rev2](../work-items/d08-project-owner-design.md)已由 root 提交并推送 `08d119d`。
+- 状态：S01 规格、B01 正式契约与纯规则库已验；B01 提交推送 `199554b`，B02 七个纯结果提交 `769ec8c`，其余 21 源与 00013/fixture 接缝已独立验收并提交推送 `6319d03`。D08 模块尚未完成，完整生命周期、HTTP/app 和 D10 真实初始化仍待集成。正式[主卡](../work-items/d08-project-owner.md)与[设计 rev2](../work-items/d08-project-owner-design.md)初次归位提交为 `08d119d`。
 - 并行依据：D07 尚未完成不构成所有后续任务的统一等待门槛。B01 只消费已验 foundation/identity/event 的固定输入，不依赖活动 B03/B04 实现；按当前团队规则与唯一文件/资源所有权，实施时与 D07 B03 独立验收、B04 阶段 1 并行；当前 B03/00011 已验，A1 窄口已提交 `59b38c8`。
-- 所有权：`d08_design` 独占主卡 B01 的 `internal/central/project/contract/` 下 12 个新文件（`types`、`commands`、`lifecycle`、`initialization`、`events`、`validation` 及各自测试）；不覆盖旧接口、不提前 schema/Service/HTTP、不改依赖/迁移/fixture，不使用 Docker。已由 `parallel_plan` 接收固定源码、依赖与作者证据完成独立验收，作者与验收者均 all-stop；后续任务不覆盖已验契约。
-- 固定基线：`062ae2c050e2f6fa1549d2e67f924b4e5160d754` 的 15 项非测试编译输入，manifest `/tmp/agenteam-d08-placement-se1meE/b01-compile-inputs.json` SHA `b1b09e4dbbace98085b60787243948e9e1f26a658489e66a15f32716c379eaaa`；Go `1.27.1`。此前静态编译基线不作执行证据；本次 B01 实际验收见下。
+- B01 交付时所有权：`d08_design` 独占主卡 B01 的 `internal/central/project/contract/` 下 12 个新文件（`types`、`commands`、`lifecycle`、`initialization`、`events`、`validation` 及各自测试）；不覆盖旧接口、不提前 schema/Service/HTTP、不改依赖/迁移/fixture，不使用 Docker。已由 `parallel_plan` 接收固定源码、依赖与作者证据完成独立验收，作者与验收者均 all-stop；后续任务不覆盖已验契约。
+- B01 固定基线：`062ae2c050e2f6fa1549d2e67f924b4e5160d754` 的 15 项非测试编译输入，manifest `/tmp/agenteam-d08-placement-se1meE/b01-compile-inputs.json` SHA `b1b09e4dbbace98085b60787243948e9e1f26a658489e66a15f32716c379eaaa`；Go `1.27.1`。此前静态编译基线不作执行证据；B01 实际验收见下。
 
 独立规格报告 `/tmp/agenteam-d08-independent-spec-review-cofn9wvo/review-report.md` SHA `287c4c85491f7574af0e8358efae7d77dbb5214d8b0d9f767ceb5118491808a7`，复核 49 项固定输入和 rev2 窄修；归位报告 `/tmp/agenteam-d08-placement-review-y3fgx_ed/review-report.md` SHA `329ad03358a459fa96d9bf69f087ec2e66e17bc2c4626f4b6c0a585143c75d79`，核两文件差异、9 链接/9 表及 15 项编译依赖，正文语义不变。以上只证明规格和归位通过，未运行产品测试。
 
-后续门槛保留：B02 真实 PG 验收等待连续已验迁移前缀和 root 分配迁移/共享资源；00011 已验；A2 仍独占未验 00012、旧 D05 窄文件和 Docker，00013 正式 schema/真实 PG 等冻结验收与 root 交接，不缺号、复用或填占位。当前 username 正式窄口已随 A1 `59b38c8` 验收，D08 尚待接入；HTTP/app 等对应稳定输入与所有权移交；D10 Skill 初始化真实绑定仍未完成，不用 fixture 或空成功实现冒充生产 Create。D07 B03现已独立采纳并提交推送`ffa65f0`；B04 A后段/B新HTTP与本卡纯契约并行，仍不改变D07/D08未完成事实。
+B01 交付时门槛（历史记录，后续进展见 B02 记录）：B02 真实 PG 验收等待连续已验迁移前缀和 root 分配迁移/共享资源；00011 已验；当时 A2 独占未验 00012、旧 D05 窄文件和 Docker，00013 正式 schema/真实 PG 等冻结验收与 root 交接，不缺号、复用或填占位。当前 username 正式窄口已随 A1 `59b38c8` 验收，当时 D08 尚待接入；HTTP/app 等对应稳定输入与所有权移交；D10 Skill 初始化真实绑定仍未完成，不用 fixture 或空成功实现冒充生产 Create。D07 B03已独立采纳并提交推送`ffa65f0`；当时 B04 A后段/B新HTTP与本卡纯契约并行，不改变各模块未完成事实。
 
 ### B01 修后独立验收与提交
 
 root 已采纳并提交推送 `199554b`；独立报告 `/tmp/agenteam-d08-b01-independent-70h8rbu6/final-report.md` SHA `b25aa8c3daf6ce259badf9accc557ea6549da41032ba181f9ec2bdb01db92e2d`，110 项索引 SHA `7c759b5b39525ab7af1c9f47a510d6449baaf9543b313dcf80e6b33871e5e4ec`。R01 RetryLifecycle 返回型歧义按现有 Operation|Receipt 闭环；R02 completed-delete 完整 Operation 对外暴露的三断言原红保留，以同字节探针修后复验通过，正常归档/未完成 delete/最小 receipt 正例保持，证据及日志指纹见[D08主卡验收记录](../work-items/d08-project-owner.md#b01-独立验收与提交)。
 
-作者最终 unit/race29主+15子、vet/build证据指纹匹配复用；独立4主+22 DTO子及576状态组合通过，最终2主定向race通过；12源/15依赖/2文档末次匹配，9链接/9表/格式通过。仅 B01 纯契约与规则库完成，未运行真实 PG/HTTP/Skill/Unknown/清理组合，D08整体未完成。下一步可由 root 派发独立新Project服务/repository代码与测试准备，正式schema/真实PG仍遵守上述迁移和资源前置。
+作者最终 unit/race29主+15子、vet/build证据指纹匹配复用；独立4主+22 DTO子及576状态组合通过，最终2主定向race通过；12源/15依赖/2文档末次匹配，9链接/9表/格式通过。这份 B01 结论仅覆盖纯契约与规则库，未运行真实 PG/HTTP/Skill/Unknown/清理组合，不代表 D08 整体完成；后续真实服务进展见下。
+
+### B02 真实服务独立验收与提交
+
+root 已采纳并提交推送 `6319d03` 的精确 21 路径；此前 7 个纯契约/角色/Audit 闭集结果为 `769ec8c`。独立报告 `/tmp/agenteam-d08-b02-pg-review-ty9oi72j/final-report.md` SHA `9ab034850a899ec58a9099e09f5b98f8d1c412bfc9172ed736f32e81c4e4f228`，1123 项索引 SHA `4caa4df9fcb054f5cf6c6a9b363d51b6b1cad6efa50406242212818f8da69e74`；完整边界见[D08 B02 记录](../work-items/d08-project-owner.md#b02-独立验收与提交)。
+
+固定输入 `da5caab` 已含验收的 A2/00012，最终运行 manifest SHA `85792fe1e261dd304f430de338eaaf34140418ace4fd2875ca3445062df520d2`。首轮 Project67.631s exit1 保留：两同名23505→INTERNAL_ERROR及一处撤销fixture缺reason；四文件最小修复保旧D03/DB唯一约束和授权/receipt/版本顺序。作者在唯一授权窗口运行完整原fixture组合，Go1.27.1 race/count1/每包6m 下 Project95.075s exit0，实际20业务主例+独立1主6子，owned child普通入口跳过，其他包no-tests。原探针由 `parallel_plan` 编写并冻结，执行由 `d08_design` 完成；不称两次独立执行。21源/516固定/644外部/probe末次匹配，精确资源清零并交回B。
+
+B03 主体/后段分阶段原则已由 root 采纳，精确 C0 Go 口仍是待审候选，尚未生效或授权业务开工；后续旧D05/Secret文件、迁移与Docker须独占交接。B02路径已绑定正式CurrentUserRoute；完整生命周期、HTTP/app及D10生产Skill初始化仍未完成，隔离provider/tombstone查询不冒称真实初始化/物理删除完成。D09未决创建模型字段不在本次范围。

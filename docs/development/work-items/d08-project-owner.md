@@ -1,6 +1,6 @@
 # D08 Project 与 Owner 工作项
 
-修订：rev2，已获独立静态审查通过并由 root 采纳，现正式归位。当前阶段：S01 规格完成；B01 正式契约/纯规则库已独立验收，提交并推送 `199554b`；B02–B04 保持各自真实依赖与所有权门槛。D08 模块仍未完成，Project Service、schema、HTTP 和真实 Skill 初始化尚未实施或验收。
+修订：rev2，已获独立静态审查通过并由 root 采纳，现正式归位。当前阶段：S01 规格完成；B01 正式契约/纯规则库已独立验收并提交推送 `199554b`；B02 存储与 Owner/创建/元数据服务、00013 和 fixture 接缝已独立验收并提交推送 `6319d03`。D08 模块仍未完成，B03 完整生命周期、B04 HTTP/app 与 D10 真实 Skill 初始化尚待实施和集成。
 
 共享规格：[D08 实施规格](d08-project-owner-design.md)。业务基线固定 `062ae2c050e2f6fa1549d2e67f924b4e5160d754`，49项输入指纹及冻结稿位于 `/tmp/agenteam-d08-design-rev2-nm2kwP/`；后续卡下发时须补足新采纳依赖的准确提交/manifest，不继承活动工作区为已验事实。独立报告 `/tmp/agenteam-d08-independent-spec-review-cofn9wvo/review-report.md` SHA-256为 `287c4c85491f7574af0e8358efae7d77dbb5214d8b0d9f767ceb5118491808a7`，121项证据索引为 `20efa17c2ae2c866ef55ba7cafa108f56cd1322a6f34e23825bf7359b51fdfa4`；仅证明定向静态规格通过，不代表业务已经运行。
 
@@ -9,8 +9,8 @@ rev2已按root工程裁决固定Create请求的稳定target ProjectID。所有�
 ## 开工状态
 
 - B01 已完成：12 个新 Project contract 文件独立验收并提交推送 `199554b`，只消费固定已验 foundation/identity/event；没有提前绑定生产服务。
-- B02 稳定 ID 服务不需要 SMTP、头像或完整账号 HTTP；D07 B03/00011 已验并提交 `ffa65f0`，A1 CurrentUserRoute 已验并提交 `59b38c8`。独立新 Project 服务/repository 代码和测试准备可由 root 分阶段派发；A2 仍独占未验 00012、旧 D05 窄文件及 Docker，00013 正式 schema 与真实 PG 运行须等 00012 冻结验收、root 编号确认和资源交接，不缺号、占位或抢占。
-- B03 的完整删除确认需要接入已验 A1 CurrentUserRouteInTx；D08 当前尚未绑定。对象范围停止口和 typed Audit cause验证仍由明确上游作者完成，不能以空实现代替。
+- B02 已完成：7 个纯契约/角色/Audit 闭集结果已提交 `769ec8c`；其余 21 源与 00013/fixture 接缝在固定 `da5caab`（含已验 A2/00012）上完成真实验收，提交推送 `6319d03`。稳定 ID 服务与已验 A1 CurrentUserRoute 的路径组合不依赖完整账号 HTTP。
+- B03 的完整删除确认仍须接入已验 A1 CurrentUserRouteInTx；B02 路径已真实接入。root 已采纳主体与后段分阶段推进；§9.1/9.2 的 C0 精确 Go 口正在形成最小候选，尚未审查生效或授权业务实现。对象范围停止口和 typed Audit cause 验证须由明确上游作者完成，不能以空实现代替。
 - B04 HTTP/app 等 D07 B04 稳定输入和共享文件交接。
 - D10 初始化真实绑定仍缺失；D08 正向 fixture 不意味着生产项目创建成功，D10/I28 继续承担真实集成。
 
@@ -55,19 +55,27 @@ R01 已由 root 裁决并闭环：RetryLifecycle 返回既有 Operation|Receipt 
 
 ## B02 Project 存储与 Owner 服务
 
-角色：backend_worker；状态：B01 与上述账号窄口/00011 已验；独立新文件准备待 root 派发，正式 schema/真实 PG 等 00012 冻结验收和共享资源交接。
+角色：backend_worker（`d08_design`）；独立验收：`parallel_plan`；状态：已验收，21 文件提交并推送 `6319d03`，此前 7 个纯结果已提交 `769ec8c`。
 
 目标：按稳定 ID 的 Owner读写、创建持久编排、名称唯一、版本/幂等/Unknown、typed Audit/Event 原子组合和恢复库。缺 D10 的生产 Create 按规格明确拒绝。
 
 授权建议：共享规格 §13 B02 行，迁移编号由 root 单独分配；精确旧文件窄增量仅在 D07 B03 冻结验收解除且单作者交接后实施。不得读取 account表、活动 B03/B04源码、复制CSRF、实现未来Skill服务或改旧SQL。
 
-依赖：已验 B01账号身份库、D03/D04/D06；已验连续迁移前缀；Project B01。Route窄口未绑定时路径/删除相关能力拒绝，本卡不以此声称全部D08完成。
+依赖：已验 B01 账号身份库、A1 CurrentUserRoute、D03/D04/D06、A2/00012 与 Project B01。实际组合绑定固定 `da5caab`，00013 已通过真实 fresh/populated 升级和失败回滚；本卡不以此声称全部 D08 完成。
 
 验收：T02–T05/T07/T11相关真实 PG/Audit/Outbox。真实初始化端口用隔离fixture验证成功、失败、竞争、Unknown和错误计划，生产unbound分支独立验证；已完成当前授权receipt不因后来初始化缺口/容量而失效。Audit failure原子回滚、同scope同key异义、同target异key/跨Owner冲突、当前撤权先于receipt、原writer未终局保持Unknown必须独立审查。
 
+### B02 独立验收与提交
+
+root 已采纳并提交推送 `6319d03`。独立报告 `/tmp/agenteam-d08-b02-pg-review-ty9oi72j/final-report.md` SHA `9ab034850a899ec58a9099e09f5b98f8d1c412bfc9172ed736f32e81c4e4f228`，1123 项证据索引 SHA `4caa4df9fcb054f5cf6c6a9b363d51b6b1cad6efa50406242212818f8da69e74`；精确 21 源指纹清单 SHA `fa88b1d73dc1ecf6c435b4748bd6c31ab91f243d16c8be058e78136996cfae23`，不含临时独立探针。
+
+首轮 Project `67.631s`、exit1 原日志 SHA `f9dea4ddc10c774cd04754eb1456508abbbd4f0c39672853449e315ab748f827` 保留：两处同名 23505 被 Store poison 投影为 INTERNAL_ERROR；另一处新 Session 撤销 fixture 缺 reason。原范围四文件窄修保留 D03、DB unique 与授权→receipt→版本/资格→名称顺序，并补两个已落库计划争新名的真实 barrier 场景。唯一修后原 fixture 组合在 Go1.27.1、race/count1/每包6m 下 exit0，Project `95.075s`；实际库存为 20 个业务主例、独立 1 主 6 子及普通入口跳过的 owned child helper，其他包均 no-tests，不计兼容通过。执行由作者完成，独立探针由验收者编写、冻结并在运行后核证，没有声称两次独立执行。
+
+真实运行 manifest `/tmp/agenteam-d08-b02-pg-r2-v05xxgbs/execution-input-manifest.json` SHA `85792fe1e261dd304f430de338eaaf34140418ace4fd2875ca3445062df520d2`，最终日志 SHA `0df455b76d59ee58697b281132fbbc4d058ddd3bfa77dd6776047236a599dd6f`；21 源、516 固定输入、644 外部源和原字节 probe 执行后均匹配。三 nonce 与全部 owned 资源/18 个捕获 PID 清零，Docker 已交回 B。B02 的初始化正向使用隔离 provider，生产新 Create 缺 D10 时明确拒绝；tombstone 查询不代表 B03 物理删除已经实现。
+
 ## B03 生命周期与现有领域集成
 
-角色：backend_worker；状态：等待 B02 及已验 CurrentUserRoutes 的 D08 接入，待root分配D05/Secret共享文件。
+角色：backend_worker；状态：B02 已验并提交 `6319d03`；精确 C0 候选待独立定向审查，后续实施待 root 分配 Project 主体、D05/Secret 共享文件与资源。候选不作已生效接口或业务完成证据。
 
 目标：真实归档/恢复/删除进度、对象项目停止、现有Secret/Object/Artifact/Outbox/Audit权限与清理完整组合。依赖未来领域的注册保持真实记录。
 
@@ -89,7 +97,7 @@ R01 已由 root 裁决并闭环：RetryLifecycle 返回既有 Operation|Receipt 
 
 | 能力 | 责任工作项 | 完成前行为 |
 | --- | --- | --- |
-| 本人当前username原子投影 | D07 B04-A1 已验 `59b38c8`；D08 待接入 | 未绑定时 Resolver/删除确认503，不读account表替代 |
+| 本人当前username原子投影 | D07 B04-A1 已验 `59b38c8`；B02 路径已接入，B03 删除确认待集成 | 未绑定的删除确认拒绝，不读account表替代 |
 | 受保护Add Skills真实初始化/确认 | D10 | Create503；隔离fixture成功不能作生产完成证据 |
 | Work/Agent/Memory/Execution/Scheduler/Meeting/Governance/MCP/Runner/Usage/View清理 | D10–D25对应事实owner | 启用模块前注册正式participant；缺必要adapter保留pending/failed |
 | D25真实订阅/断开与迟到事件不复活 | D25 | 不注册通用allow订阅；D08提供已验Owner/gate端口 |
