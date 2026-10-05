@@ -1,6 +1,6 @@
 # 恢复：Artifact 项目范围停止与真实 join
 
-修订：rev1。状态：规格已通过独立静审并由主线程采纳；没有代码实施授权。Object S2 尚待修复后的完整独立验收，本卡不得以候选实现或历史局部通过作为前置已验。
+修订：rev2，仅更新已验输入与实施交接，rev1 API/行为及16路径不变。Object S2已完整独立验收，主线程已采纳接缝核查并按文末固定输入开放实施；本卡尚无Artifact停止行为验收结论。
 
 ## 完整结果与固定输入
 
@@ -140,3 +140,11 @@ owner.go、sources.go、read.go、query.go、cleanup.go、store.go、source_wire
 2026-10-05，独立 verification_worker 对原候选 SHA-256 `31d8a52df71ba4020a2dbc8a963b55c11239d55f6111e488a1ad13cf9a5c6d77` 完成静审，未发现阻止采纳的硬缺陷；49 项固定输入、16 个本地链接/fragment 及 16 个实施路径核对通过。主线程已复核构造兼容、来源权限、双侧 join、共享 guard 与 Cleaner 后继边界并采纳。来源权限实现须消费 `OwnerAuthorization.Matches(originalActor, sourceOwner, Read)`，错配 grant 必须在 resolver 前拒绝；这是正文精确权限要求的实现检查，不扩接口或文件范围。
 
 审查报告 `/tmp/agenteam-artifact-stop-spec-review-t_nc4xj8/review.md` SHA-256 `fe4925a6fbbf2e14f84c023bce4a7113de4177afed2e2db63ca0b18c5e1deaeb`，检查结果 `checks.json` SHA-256 `5a956645340c60be7c8ef523d187ffbca27dc42c422439a8896b495dc147516b`；临时文件仅为本轮过程证据，本卡持久记录结论与门槛。没有 Go/PG/MinIO 行为验收声明；S2 完整独立验收及最终固定输入的接缝 delta 仍是开工前置，00017 未分配。
+
+## 已验 S2 输入与实施授权
+
+S2最终28源已独立25顶层43子例全部通过，提交推送 `6658a6cb1f29299521773bc8dc86b2f607b8c809`，主线程确认远端同SHA。实现者基于该固定提交核对原规格接缝，报告 `/tmp/agenteam-artifact-stop-author-y597q6vl/preparation.md` SHA-256 `df1e7ae8331e94da800203b4331a30b4cdb10047daed8f99b57d4efbe79cdf20`；主线程已阅读并采纳。原431fb53到该提交的Artifact包、Object contract与00014均未变，16文件范围仍成立，无新接口或迁移需求。
+
+S2已提供同Tx SourceLease/work、confirmed Open、真实release/join和完整writer引用。Artifact必须继续跟踪整次control、失败release和未知原writer；不能以既有defer调用已返回替代真实终局。service.go内为PrepareReadAccess补Read分派，并同Tx核SourceAuthority返回grant.Matches与ProjectGate，属于原授权接缝，不改Object端口。共享guard联合屏障仍由后继app绑定。
+
+唯一实施者`d08_registry_backend`仅可修改本卡16个源/测试路径；固定6658a6c加自己16源自测，不消费Object Audit或D09活动稿。当前无真实fixture权限，由主线程另行交接；无00017、无旧测试/contract/app扩权。自测冻结后须独立验收，不因S2通过宣称Artifact或完整D08完成。
