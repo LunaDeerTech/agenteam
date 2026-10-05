@@ -1,0 +1,40 @@
+{
+  "exit_code": 0,
+  "wall_seconds": 120.593,
+  "finished_at": "2026-10-05T11:52:13.731415+00:00",
+  "top_level_passes": [
+    "TestD05S1IndependentConstraintDiagnostics",
+    "TestD05S1IndependentConcurrentClaim",
+    "TestObjectProjectStopWorkMigrationFreshAndPopulatedFifteen",
+    "TestObjectProjectStopWorkMigrationMaintenanceConstraints",
+    "TestObjectProjectStopWorkMigrationPreservesPriorConstraints",
+    "TestObjectProjectStopWorkMigrationAtomicFailureAndRetry"
+  ],
+  "subtest_passes": [
+    "TestD05S1IndependentConstraintDiagnostics/cleanup-null-fence",
+    "TestD05S1IndependentConstraintDiagnostics/cleanup-zero-fence",
+    "TestD05S1IndependentConstraintDiagnostics/cleanup-negative-fence",
+    "TestD05S1IndependentConstraintDiagnostics/cleanup-null-object",
+    "TestD05S1IndependentConstraintDiagnostics/verification-null-object",
+    "TestD05S1IndependentConstraintDiagnostics/preparation-non-null-fence",
+    "TestD05S1IndependentConstraintDiagnostics/reader-non-null-fence",
+    "TestD05S1IndependentConstraintDiagnostics/source-non-null-fence",
+    "TestD05S1IndependentConstraintDiagnostics/download-non-null-fence",
+    "TestD05S1IndependentConstraintDiagnostics/transfer_get-non-null-fence",
+    "TestD05S1IndependentConstraintDiagnostics/transfer_put-non-null-fence",
+    "TestD05S1IndependentConstraintDiagnostics/verification-non-null-fence",
+    "TestD05S1IndependentConcurrentClaim/winner-commits",
+    "TestD05S1IndependentConcurrentClaim/winner-rolls-back",
+    "TestObjectProjectStopWorkMigrationFreshAndPopulatedFifteen/fresh",
+    "TestObjectProjectStopWorkMigrationFreshAndPopulatedFifteen/populated-fifteen"
+  ],
+  "objects_package_seconds": 9.126,
+  "other_packages_no_tests_to_run": 18,
+  "tests_failed": 0,
+  "tests_skipped": 0,
+  "race_report": false,
+  "fixture_log_sha256": "e81b7836a9374edb2b35fb4affd6aac56bee313730c449aa4e174f5382b6a3ce",
+  "probe_sha256": "cf0f4db8a747e6b6a7bc244f096acf939a1aee9ae31882fac37e3fa30b4fafa0",
+  "source_stop": true,
+  "docker_window_returned": true
+}

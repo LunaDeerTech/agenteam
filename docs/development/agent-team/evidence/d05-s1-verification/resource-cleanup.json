@@ -1,0 +1,104 @@
+{
+  "resources": [
+    {
+      "kind": "network",
+      "id": "0525c943b060ec6a6dba9202bbdfd163194b18d620d19623fad9798a71000972",
+      "name": "agenteam-d05-object-97cf73b4dfbf3b71b3eb398e814e0cef",
+      "labels": {},
+      "time_nano": 1791201031615927944,
+      "ownership": "exact create ID and same nonce/name as a labeled owned container; fixture driver verifies labels before cleanup",
+      "inspection_exit": 1,
+      "inspection_stderr": "Error response from daemon: network 0525c943b060ec6a6dba9202bbdfd163194b18d620d19623fad9798a71000972 not found",
+      "absent": true
+    },
+    {
+      "kind": "container",
+      "id": "41c3d3175eb87b2a447dd4ac15642041d1e94d40db71ed016866d0b3ffaaa095",
+      "name": "agenteam-d05-object-97cf73b4dfbf3b71b3eb398e814e0cef",
+      "labels": {
+        "agenteam.d05.objectfixture": "97cf73b4dfbf3b71b3eb398e814e0cef"
+      },
+      "time_nano": 1791201032526854676,
+      "inspection_exit": 1,
+      "inspection_stderr": "Error response from daemon: No such container: 41c3d3175eb87b2a447dd4ac15642041d1e94d40db71ed016866d0b3ffaaa095",
+      "absent": true
+    },
+    {
+      "kind": "network",
+      "id": "2ebd646dad32d5b4c9b9c8a71860e068db5cf5dddaf0fc964d18d7924e3e278c",
+      "name": "agenteam-d04-net-f882dd1cac697f6aefee370294b8840d",
+      "labels": {},
+      "time_nano": 1791201038096184252,
+      "ownership": "exact create ID and same nonce/name as a labeled owned container; fixture driver verifies labels before cleanup",
+      "inspection_exit": 1,
+      "inspection_stderr": "Error response from daemon: network 2ebd646dad32d5b4c9b9c8a71860e068db5cf5dddaf0fc964d18d7924e3e278c not found",
+      "absent": true
+    },
+    {
+      "kind": "container",
+      "id": "dc4446dcb9177850c8fa6f8377298288c66aca5af8f7512e8da0909eaf86b823",
+      "name": "agenteam-d04-net-f882dd1cac697f6aefee370294b8840d",
+      "labels": {
+        "agenteam.d04.networkfixture": "f882dd1cac697f6aefee370294b8840d"
+      },
+      "time_nano": 1791201039026302475,
+      "inspection_exit": 1,
+      "inspection_stderr": "Error response from daemon: No such container: dc4446dcb9177850c8fa6f8377298288c66aca5af8f7512e8da0909eaf86b823",
+      "absent": true
+    },
+    {
+      "kind": "network",
+      "id": "82187a188b6cf8b7b2767ce19187ef854f94bbfda765ee01499d55c8c7c4a37d",
+      "name": "agenteam-d03-244fb69b6af6aba562f6d2572e195f46",
+      "labels": {},
+      "time_nano": 1791201040036906395,
+      "ownership": "exact create ID and same nonce/name as a labeled owned container; fixture driver verifies labels before cleanup",
+      "inspection_exit": 1,
+      "inspection_stderr": "Error response from daemon: network 82187a188b6cf8b7b2767ce19187ef854f94bbfda765ee01499d55c8c7c4a37d not found",
+      "absent": true
+    },
+    {
+      "kind": "container",
+      "id": "b4318dcc391c61fb7b178aa56a67cac2d2c4545f67e115f953c2070fefa41781",
+      "name": "agenteam-d03-244fb69b6af6aba562f6d2572e195f46",
+      "labels": {
+        "agenteam.d03.fixture": "244fb69b6af6aba562f6d2572e195f46"
+      },
+      "time_nano": 1791201040999716155,
+      "inspection_exit": 1,
+      "inspection_stderr": "Error response from daemon: No such container: b4318dcc391c61fb7b178aa56a67cac2d2c4545f67e115f953c2070fefa41781",
+      "absent": true
+    },
+    {
+      "kind": "container",
+      "id": "99021e4b1d3f003da1d001ab9cf6a0ebe56bd1206399de6a31221c8808a0ef65",
+      "name": "agenteam-d03-244fb69b6af6aba562f6d2572e195f46-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "244fb69b6af6aba562f6d2572e195f46"
+      },
+      "time_nano": 1791201042998558066,
+      "inspection_exit": 1,
+      "inspection_stderr": "Error response from daemon: No such container: 99021e4b1d3f003da1d001ab9cf6a0ebe56bd1206399de6a31221c8808a0ef65",
+      "absent": true
+    }
+  ],
+  "owned_containers_remaining": 0,
+  "owned_networks_remaining": 0,
+  "owned_processes": {
+    "tracking_started_during_fixture": true,
+    "fixture_pid": 134300,
+    "observed_process_count": 159,
+    "observed_groups": [
+      134300,
+      137390,
+      137810,
+      138767
+    ],
+    "remaining_owned_pids": [],
+    "remaining_owned_groups": []
+  },
+  "runtime_tmp_entries_remaining": 0,
+  "baseline_preserved": true,
+  "baseline_containers": 2,
+  "baseline_networks": 4
+}

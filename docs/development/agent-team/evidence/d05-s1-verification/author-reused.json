@@ -1,0 +1,133 @@
+{
+  "scope": "Author execution is separate from independent verification. Reuse postgres unit, full integration vet/compile, and old ClosedStatesAndProjectIsolation; the four new tests were independently run again.",
+  "checks": {
+    "base": "70006762bd2b24f30ae075b335c17e644b623f3f",
+    "source_files": [
+      {
+        "path": "db/migrations/00016_object_project_work_maintenance.sql",
+        "sha256": "176ffc2d6bbaa9dbd1d1fb5fe7ea53692cb4d16d066aa82650baa2d49ebaa034",
+        "bytes": 1415
+      },
+      {
+        "path": "tests/objects/project_stop_work_migration_test.go",
+        "sha256": "8030e403f4d221bcd1527cf17acac2a09ce08fd177fb3c57e630dcf1b622b06b",
+        "bytes": 26327
+      }
+    ],
+    "compile": {
+      "command": "GOTOOLCHAIN=local GOPROXY=off GOMODCACHE=/workspace/agenteam-dependency-cache/modcache /workspace/toolchains/go1.27.1/bin/go test -mod=readonly -tags=integration -c -o /tmp/agenteam-d05-s1-author/objects.test ./tests/objects",
+      "exit_code": 0,
+      "log": "compile.log"
+    },
+    "unit": {
+      "command": "GOTOOLCHAIN=local GOPROXY=off GOMODCACHE=/workspace/agenteam-dependency-cache/modcache /workspace/toolchains/go1.27.1/bin/go test -mod=readonly -count=1 ./internal/central/postgres",
+      "exit_code": 0,
+      "log": "postgres-unit.log"
+    },
+    "vet": {
+      "command": "GOTOOLCHAIN=local GOPROXY=off GOMODCACHE=/workspace/agenteam-dependency-cache/modcache /workspace/toolchains/go1.27.1/bin/go vet -mod=readonly -tags=integration ./tests/objects",
+      "exit_code": 0,
+      "log": "objects-vet.log"
+    },
+    "fixture": {
+      "command_file": "fixture-command.json",
+      "exit_code": 0,
+      "log": "fixture-first.log",
+      "passed_top_level": [
+        "TestProjectLifecycleMigrationClosedStatesAndProjectIsolation",
+        "TestObjectProjectStopWorkMigrationFreshAndPopulatedFifteen",
+        "TestObjectProjectStopWorkMigrationMaintenanceConstraints",
+        "TestObjectProjectStopWorkMigrationPreservesPriorConstraints",
+        "TestObjectProjectStopWorkMigrationAtomicFailureAndRetry"
+      ],
+      "fresh_populated_subtests": 2,
+      "race": true,
+      "package_seconds": 7.247,
+      "other_no_tests_packages_are_not_evidence": true
+    },
+    "resource_cleanup": "resource-cleanup.json",
+    "resource_audit_helper_corrections": "resource-audit-note.json",
+    "implementation_test_failures": [],
+    "unverified": [
+      "independent verification",
+      "S2 runtime work registration and stop behavior",
+      "production ProjectStopAuthority integration"
+    ]
+  },
+  "command": {
+    "started_at": "2026-10-05T11:40:09.500658+00:00",
+    "cwd": "/workspace/agenteam",
+    "command": [
+      "sh",
+      "scripts/test-objects.sh",
+      "-run",
+      "^(TestObjectProjectStopWorkMigration.*|TestProjectLifecycleMigrationClosedStatesAndProjectIsolation)$"
+    ],
+    "env": {
+      "DOCKER_CONFIG": "/tmp/agenteam-d05-s1-author/docker-config",
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "GOTOOLCHAIN": "local",
+      "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+      "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+      "GOPROXY": "off",
+      "GOFLAGS": "-mod=readonly -v"
+    }
+  },
+  "inputs": {
+    "base": "70006762bd2b24f30ae075b335c17e644b623f3f",
+    "files": [
+      {
+        "path": "db/migrations/00016_object_project_work_maintenance.sql",
+        "sha256": "176ffc2d6bbaa9dbd1d1fb5fe7ea53692cb4d16d066aa82650baa2d49ebaa034",
+        "bytes": 1415
+      },
+      {
+        "path": "tests/objects/project_stop_work_migration_test.go",
+        "sha256": "8030e403f4d221bcd1527cf17acac2a09ce08fd177fb3c57e630dcf1b622b06b",
+        "bytes": 26327
+      },
+      {
+        "path": "tests/objects/project_lifecycle_migration_test.go",
+        "sha256": "a0305fed1bb016bae364dcf9e90338fa3d7977bc86c381c13cc5d7642470bcb0",
+        "bytes": 19906
+      },
+      {
+        "path": "docs/development/work-items/recovery-d05-object-stop.md",
+        "sha256": "962915706bfa49e46aba5c2399360dfdc96fdff96df3e1408da1d9e6ad712137",
+        "bytes": 38264
+      },
+      {
+        "path": "go.mod",
+        "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+        "bytes": 1468
+      },
+      {
+        "path": "go.sum",
+        "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+        "bytes": 8391
+      }
+    ]
+  },
+  "original_evidence_sha256": {
+    "checks.json": "fed6599ff9f83a78f5be08c03e5076c345c5d0963cb5536d43ad84bac075288d",
+    "inputs.json": "e38644e10e3fbde62f91949d64a303571bafc6ede97bdafef6c218d1108f84ef",
+    "fixture-first.log": "461d960c71ee18707da2732757ee105bc1666fbe5845f0af67f965d034e65121",
+    "fixture-command.json": "9221fb80c1eb75f26551014890a96a81bf55347e06264ea4873ce189143f55d7",
+    "resource-cleanup.json": "e300c07af0369483d188c4684e2ed2c8272d89f63887d932908651d161cac245",
+    "resource-audit-note.json": "f86aeec9b9848d6f746edb70355e08972ce48c99151e11ae61607bb11ed30378",
+    "compile.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "objects-vet.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "postgres-unit.log": "8441bf83721d1438df41bac2241bc3f68bd13ec2e7cce5a4184ceb9b29d0f610"
+  },
+  "resource_audit_helper_corrections": {
+    "first_helper_exit": 1,
+    "first_helper_failure": "AssertionError: expected 3 network create records after label filtering, observed 0",
+    "cause": "Docker 28 network create events contain name/type but omit label attributes. Original docker-events.jsonl retained.",
+    "correction": "Match the exact network create event to the same fixture nonce/name and independently inspect each exact ID; retain the 4-container/3-network assertions.",
+    "second_helper_exit": 1,
+    "second_helper_failure": "Absent network replies use network <exact ID> not found, rather than container-style No such object.",
+    "raw_network_inspections": "network-inspections.json",
+    "final_result": "4 containers and 3 networks confirmed absent by exact IDs and daemon absence replies; baseline ID sets unchanged; owned commands 0."
+  },
+  "independent_old_input_check": "All 00001-00015, old migration helper, migration drivers and fixtures match preparation baseline; current HEAD also contains 15 committed R2 Project Go changes, excluded from author-base equivalence."
+}

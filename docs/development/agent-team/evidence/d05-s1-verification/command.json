@@ -1,0 +1,32 @@
+{
+  "started_at": "2026-10-05T11:50:13.138159+00:00",
+  "cwd": "/workspace/agenteam",
+  "command": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestObjectProjectStopWorkMigration(FreshAndPopulatedFifteen|MaintenanceConstraints|PreservesPriorConstraints|AtomicFailureAndRetry)|TestD05S1Independent(ConstraintDiagnostics|ConcurrentClaim))$"
+  ],
+  "explicit_environment": {
+    "TZ": "UTC",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/tmp/agenteam-d05-s1-independent-3t_e4rql/gocache",
+    "TMPDIR": "/tmp/agenteam-d05-s1-independent-3t_e4rql/runtime-tmp",
+    "DOCKER_CONFIG": "/tmp/agenteam-d05-s1-independent-3t_e4rql/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "GOFLAGS": "-mod=readonly -v -p=2 -overlay=/tmp/agenteam-d05-s1-independent-3t_e4rql/overlay.json"
+  },
+  "probe_sha256": "cf0f4db8a747e6b6a7bc244f096acf939a1aee9ae31882fac37e3fa30b4fafa0",
+  "driver_preserved_flags": [
+    "-tags=integration",
+    "-race",
+    "-count=1",
+    "-timeout=6m"
+  ]
+}

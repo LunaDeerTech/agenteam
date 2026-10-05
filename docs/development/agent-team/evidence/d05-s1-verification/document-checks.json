@@ -1,0 +1,24 @@
+{
+  "scope": "only authorized report and evidence; no product/Docker/Go command rerun",
+  "whitespace_checks": [
+    "docs/development/agent-team/d05-s1-verification.md",
+    "docs/development/agent-team/evidence/d05-s1-verification/author-fixture.log",
+    "docs/development/agent-team/evidence/d05-s1-verification/author-postgres-unit.log",
+    "docs/development/agent-team/evidence/d05-s1-verification/author-reused.json",
+    "docs/development/agent-team/evidence/d05-s1-verification/command.json",
+    "docs/development/agent-team/evidence/d05-s1-verification/environment.json",
+    "docs/development/agent-team/evidence/d05-s1-verification/fixture.log",
+    "docs/development/agent-team/evidence/d05-s1-verification/inputs.json",
+    "docs/development/agent-team/evidence/d05-s1-verification/replay-probes.py",
+    "docs/development/agent-team/evidence/d05-s1-verification/resource-cleanup.json",
+    "docs/development/agent-team/evidence/d05-s1-verification/result.json",
+    "docs/development/agent-team/evidence/d05-s1-verification/s1_independent_probe.go.txt"
+  ],
+  "json_files": 6,
+  "local_links": 12,
+  "markdown_fences_balanced": true,
+  "replay_ast_parse": true,
+  "replay_executed": false,
+  "raw_log_and_probe_byte_identical": true,
+  "checker_note": "git diff --no-index --check returns 1 for a new-file difference without diagnostics; accepted 0/1 only when stdout and stderr are empty. No content failure."
+}

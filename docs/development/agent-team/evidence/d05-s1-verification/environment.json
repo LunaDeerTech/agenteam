@@ -1,0 +1,19 @@
+{
+  "go": "go1.27.1",
+  "docker": "28.4.0/28.4.0",
+  "minio_sha256": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+  "images": [
+    {
+      "reference": "pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc",
+      "id": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+      "os": "linux",
+      "architecture": "amd64"
+    },
+    {
+      "reference": "pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782",
+      "id": "sha256:4c0c0efbd40e8ff42363074292654a7831cac506fc01a1c89627f1b1040ba341",
+      "os": "linux",
+      "architecture": "amd64"
+    }
+  ]
+}

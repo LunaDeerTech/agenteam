@@ -1,0 +1,189 @@
+//go:build integration
+
+package objects_test
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"testing"
+	"time"
+
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+	"github.com/jackc/pgx/v5/pgconn"
+)
+
+func s1ProbeID(n int) string { return fmt.Sprintf("01900000-0000-7000-8000-%012d", n) }
+
+const s1ProbeInsert = `INSERT INTO agenteam_object.project_work
+(id,project_id,process_id,kind,resource_id,object_id,admission_version,cleanup_claim_fence)
+VALUES($1,$2,$3,$4,$5,$6,0,$7)`
+
+func s1ProbeError(t *testing.T, err error, state, constraint string) {
+	t.Helper()
+	var pg *pgconn.PgError
+	if !errors.As(err, &pg) || pg.Code != state || pg.ConstraintName != constraint {
+		t.Fatalf("want SQLSTATE %s constraint %s; got %v", state, constraint, err)
+	}
+}
+
+func TestD05S1IndependentConstraintDiagnostics(t *testing.T) {
+	ctx := projectMigrationContext(t)
+	db := pgfixture.NewDatabase(t)
+	projectMigrate(t, ctx, projectMigrationRunner(t, db, projectMigrationFiles(t, "00016")), 16)
+	c := db.Connect(t)
+	projectMigrationSeed(t, ctx, c)
+	var first, second string
+	var exact bool
+	err := c.QueryRow(ctx, `SELECT pg_get_indexdef(i.indexrelid,1,true),pg_get_indexdef(i.indexrelid,2,true),
+i.indisunique AND i.indisvalid AND i.indisready AND i.indnkeyatts=2 AND i.indnatts=2 AND i.indexprs IS NULL AND i.indpred IS NOT NULL
+FROM pg_index i WHERE i.indexrelid='agenteam_object.object_project_work_cleanup_claim'::regclass`).Scan(&first, &second, &exact)
+	if err != nil || first != "resource_id" || second != "cleanup_claim_fence" || !exact {
+		t.Fatal("cleanup unique index must have exactly the two claim keys", first, second, exact, err)
+	}
+	t.Log("unique index has exactly resource_id and cleanup_claim_fence as its two keys")
+	cases := []struct {
+		name, kind, constraint string
+		object, fence          any
+	}{
+		{"cleanup-null-fence", "cleanup", "project_work_cleanup_claim_check", s1ProbeID(5), nil},
+		{"cleanup-zero-fence", "cleanup", "project_work_cleanup_claim_check", s1ProbeID(5), int64(0)},
+		{"cleanup-negative-fence", "cleanup", "project_work_cleanup_claim_check", s1ProbeID(5), int64(-1)},
+		{"cleanup-null-object", "cleanup", "project_work_maintenance_object_check", nil, int64(1)},
+		{"verification-null-object", "verification", "project_work_maintenance_object_check", nil, nil},
+	}
+	for _, kind := range []string{"preparation", "reader", "source", "download", "transfer_get", "transfer_put", "verification"} {
+		cases = append(cases, struct {
+			name, kind, constraint string
+			object, fence          any
+		}{kind + "-non-null-fence", kind, "project_work_cleanup_claim_check", s1ProbeID(5), int64(1)})
+	}
+	for i, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			_, err := c.Exec(ctx, s1ProbeInsert, s1ProbeID(4000+i), s1ProbeID(1), s1ProbeID(9), tc.kind, s1ProbeID(4200), tc.object, tc.fence)
+			s1ProbeError(t, err, "23514", tc.constraint)
+		})
+	}
+	var rejected int
+	if err := c.QueryRow(ctx, `SELECT count(*) FROM agenteam_object.project_work`).Scan(&rejected); err != nil || rejected != 0 {
+		t.Fatal("invalid maintenance inserts left rows", rejected, err)
+	}
+	// Bigint's maximum positive value is legal; there is no unstated upper fence cap.
+	_, err = c.Exec(ctx, s1ProbeInsert, s1ProbeID(4100), s1ProbeID(1), s1ProbeID(9), "cleanup", s1ProbeID(4200), s1ProbeID(5), int64(9223372036854775807))
+	if err != nil {
+		t.Fatal("positive bigint fence rejected", err)
+	}
+	if _, err := c.Exec(ctx, `UPDATE agenteam_object.project_work SET joined_at=clock_timestamp() WHERE id=$1`, s1ProbeID(4100)); err != nil {
+		t.Fatal(err)
+	}
+	// Different project/process and a joined predecessor cannot bypass global tuple uniqueness.
+	_, err = c.Exec(ctx, s1ProbeInsert, s1ProbeID(4101), s1ProbeID(99), s1ProbeID(98), "cleanup", s1ProbeID(4200), s1ProbeID(5), int64(9223372036854775807))
+	s1ProbeError(t, err, "23505", "object_project_work_cleanup_claim")
+	for i := range 2 {
+		_, err = c.Exec(ctx, s1ProbeInsert, s1ProbeID(4110+i), s1ProbeID(1), s1ProbeID(9), "verification", s1ProbeID(4200), s1ProbeID(5), nil)
+		if err != nil {
+			t.Fatal("verification incorrectly conflicts with cleanup or another verifier", err)
+		}
+	}
+	t.Log("isolated NULL/zero/negative errors named the intended CHECK; joined/global claim remains unique; two verifiers coexist")
+}
+
+func TestD05S1IndependentConcurrentClaim(t *testing.T) {
+	ctx := projectMigrationContext(t)
+	db := pgfixture.NewDatabase(t)
+	projectMigrate(t, ctx, projectMigrationRunner(t, db, projectMigrationFiles(t, "00016")), 16)
+	observer := db.Connect(t)
+	projectMigrationSeed(t, ctx, observer)
+	for caseIndex, commit := range []bool{true, false} {
+		name := "winner-commits"
+		if !commit {
+			name = "winner-rolls-back"
+		}
+		t.Run(name, func(t *testing.T) {
+			first, second := db.Connect(t), db.Connect(t)
+			probeCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+			defer cancel()
+			tx, err := first.Begin(probeCtx)
+			if err != nil {
+				t.Fatal(err)
+			}
+			defer func() {
+				cleanupCtx, cleanupCancel := context.WithTimeout(context.Background(), time.Second)
+				defer cleanupCancel()
+				_ = tx.Rollback(cleanupCtx)
+			}()
+			resource, firstID, secondID := s1ProbeID(4300+caseIndex), s1ProbeID(4400+caseIndex), s1ProbeID(4500+caseIndex)
+			if _, err := tx.Exec(probeCtx, s1ProbeInsert, firstID, s1ProbeID(1), s1ProbeID(9), "cleanup", resource, s1ProbeID(5), int64(1)); err != nil {
+				t.Fatal(err)
+			}
+			done := make(chan error, 1)
+			go func() {
+				_, err := second.Exec(probeCtx, s1ProbeInsert, secondID, s1ProbeID(99), s1ProbeID(98), "cleanup", resource, s1ProbeID(5), int64(1))
+				done <- err
+			}()
+			consumed := false
+			defer func() {
+				cancel()
+				if !consumed {
+					select {
+					case <-done:
+					case <-time.After(2 * time.Second):
+						t.Error("owned contender did not stop")
+					}
+				}
+			}()
+			ticker := time.NewTicker(5 * time.Millisecond)
+			defer ticker.Stop()
+			for {
+				var blocked bool
+				err := observer.QueryRow(probeCtx, `SELECT $1::integer=ANY(pg_blocking_pids($2::integer))`, int32(first.PgConn().PID()), int32(second.PgConn().PID())).Scan(&blocked)
+				if err != nil {
+					t.Fatal("observe real unique-claim wait", err)
+				}
+				if blocked {
+					break
+				}
+				select {
+				case err := <-done:
+					consumed = true
+					t.Fatal("contender completed before the first claim resolved", err)
+				case <-probeCtx.Done():
+					t.Fatal("contender never waited on the actual claim transaction", probeCtx.Err())
+				case <-ticker.C:
+				}
+			}
+			if commit {
+				err = tx.Commit(probeCtx)
+			} else {
+				err = tx.Rollback(probeCtx)
+			}
+			if err != nil {
+				t.Fatal("resolve first claim", err)
+			}
+			select {
+			case err = <-done:
+				consumed = true
+			case <-probeCtx.Done():
+				t.Fatal("contender did not resolve", probeCtx.Err())
+			}
+			wantID := firstID
+			if commit {
+				s1ProbeError(t, err, "23505", "object_project_work_cleanup_claim")
+			} else {
+				wantID = secondID
+				if err != nil {
+					t.Fatal("rolled-back claim incorrectly remained unique", err)
+				}
+			}
+			var rows int
+			var id string
+			if err := observer.QueryRow(probeCtx, `SELECT count(*),min(id::text) FROM agenteam_object.project_work WHERE kind='cleanup' AND resource_id=$1 AND cleanup_claim_fence=1`, resource).Scan(&rows, &id); err != nil || rows != 1 || id != wantID {
+				t.Fatal("wrong durable claim after contention", rows, id, err)
+			}
+			t.Log("observed actual PostgreSQL blocker; final durable claim identity matches transaction outcome")
+		})
+	}
+}
+
+// The probe only exercises DDL. It does not assert runtime work identity updates,
+// authorization, remote process death, Object stop, or actual I/O completion.
