@@ -1,0 +1,607 @@
+{
+  "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "profile": "openai-chat-completions-v1",
+  "candidate_revision": "openai-chat-text-v1",
+  "source_manifest_sha256": "14de67c09ce263b11414505fcd52f125b48684dfafa23374281a6b066d317760",
+  "original_research": {
+    "path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+    "sha256": "66f49baf7dde34c3c2b39e68f793d670074ed3479afd8d0940ffa6288518bb13",
+    "lines": [
+      206,
+      210,
+      216,
+      223,
+      229
+    ]
+  },
+  "candidate_card": {
+    "path": "docs/development/work-items/recovery-d09-openai-chat-wire.md",
+    "sha256": "ea343789b5861bcc67193a7e7f91c4cae1ffeb9adfeb50f4d653d06f4e49dcbc"
+  },
+  "classes": [
+    {
+      "path": "src/openai/types/chat/completion_create_params.py",
+      "class": "CompletionCreateParamsBase",
+      "line": 42,
+      "fields": [
+        {
+          "name": "messages",
+          "line": 43,
+          "type": "Required[Iterable[ChatCompletionMessageParam]]"
+        },
+        {
+          "name": "model",
+          "line": 53,
+          "type": "Required[Union[str, ChatModel]]"
+        },
+        {
+          "name": "max_completion_tokens",
+          "line": 117,
+          "type": "Optional[int]"
+        },
+        {
+          "name": "response_format",
+          "line": 244,
+          "type": "ResponseFormat"
+        },
+        {
+          "name": "stream_options",
+          "line": 318,
+          "type": "Optional[ChatCompletionStreamOptionsParam]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/completion_create_params.py",
+      "class": "CompletionCreateParamsNonStreaming",
+      "line": 532,
+      "fields": [
+        {
+          "name": "stream",
+          "line": 533,
+          "type": "Optional[Literal[False]]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/completion_create_params.py",
+      "class": "CompletionCreateParamsStreaming",
+      "line": 546,
+      "fields": [
+        {
+          "name": "stream",
+          "line": 547,
+          "type": "Required[Literal[True]]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_system_message_param.py",
+      "class": "ChatCompletionSystemMessageParam",
+      "line": 13,
+      "fields": [
+        {
+          "name": "content",
+          "line": 20,
+          "type": "Required[Union[str, Iterable[ChatCompletionContentPartTextParam]]]"
+        },
+        {
+          "name": "role",
+          "line": 23,
+          "type": "Required[Literal[\"system\"]]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_user_message_param.py",
+      "class": "ChatCompletionUserMessageParam",
+      "line": 13,
+      "fields": [
+        {
+          "name": "content",
+          "line": 19,
+          "type": "Required[Union[str, Iterable[ChatCompletionContentPartParam]]]"
+        },
+        {
+          "name": "role",
+          "line": 22,
+          "type": "Required[Literal[\"user\"]]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_assistant_message_param.py",
+      "class": "ChatCompletionAssistantMessageParam",
+      "line": 46,
+      "fields": [
+        {
+          "name": "role",
+          "line": 49,
+          "type": "Required[Literal[\"assistant\"]]"
+        },
+        {
+          "name": "content",
+          "line": 58,
+          "type": "Union[str, Iterable[ContentArrayOfContentPart], None]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_content_part_text_param.py",
+      "class": "ChatCompletionContentPartTextParam",
+      "line": 20,
+      "fields": [
+        {
+          "name": "text",
+          "line": 23,
+          "type": "Required[str]"
+        },
+        {
+          "name": "type",
+          "line": 26,
+          "type": "Required[Literal[\"text\"]]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/shared_params/response_format_text.py",
+      "class": "ResponseFormatText",
+      "line": 10,
+      "fields": [
+        {
+          "name": "type",
+          "line": 13,
+          "type": "Required[Literal[\"text\"]]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion.py",
+      "class": "ChatCompletion",
+      "line": 192,
+      "fields": [
+        {
+          "name": "id",
+          "line": 197,
+          "type": "str"
+        },
+        {
+          "name": "choices",
+          "line": 200,
+          "type": "List[Choice]"
+        },
+        {
+          "name": "created",
+          "line": 206,
+          "type": "int"
+        },
+        {
+          "name": "model",
+          "line": 209,
+          "type": "str"
+        },
+        {
+          "name": "object",
+          "line": 212,
+          "type": "Literal[\"chat.completion\"]"
+        },
+        {
+          "name": "metadata",
+          "line": 215,
+          "type": "Optional[Metadata]"
+        },
+        {
+          "name": "moderation",
+          "line": 225,
+          "type": "Optional[Moderation]"
+        },
+        {
+          "name": "service_tier",
+          "line": 231,
+          "type": "Optional[Literal[\"auto\", \"default\", \"flex\", \"scale\", \"priority\", \"fast\"]]"
+        },
+        {
+          "name": "system_fingerprint",
+          "line": 256,
+          "type": "Optional[str]"
+        },
+        {
+          "name": "usage",
+          "line": 263,
+          "type": "Optional[CompletionUsage]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion.py",
+      "class": "Choice",
+      "line": 39,
+      "fields": [
+        {
+          "name": "finish_reason",
+          "line": 40,
+          "type": "Literal[\"stop\", \"length\", \"tool_calls\", \"content_filter\", \"function_call\"]"
+        },
+        {
+          "name": "index",
+          "line": 51,
+          "type": "int"
+        },
+        {
+          "name": "logprobs",
+          "line": 54,
+          "type": "Optional[ChoiceLogprobs]"
+        },
+        {
+          "name": "message",
+          "line": 57,
+          "type": "ChatCompletionMessage"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_message.py",
+      "class": "ChatCompletionMessage",
+      "line": 57,
+      "fields": [
+        {
+          "name": "content",
+          "line": 60,
+          "type": "Optional[str]"
+        },
+        {
+          "name": "refusal",
+          "line": 63,
+          "type": "Optional[str]"
+        },
+        {
+          "name": "role",
+          "line": 66,
+          "type": "Literal[\"assistant\"]"
+        },
+        {
+          "name": "annotations",
+          "line": 69,
+          "type": "Optional[List[Annotation]]"
+        },
+        {
+          "name": "audio",
+          "line": 75,
+          "type": "Optional[ChatCompletionAudio]"
+        },
+        {
+          "name": "function_call",
+          "line": 82,
+          "type": "Optional[FunctionCall]"
+        },
+        {
+          "name": "tool_calls",
+          "line": 89,
+          "type": "Optional[List[ChatCompletionMessageToolCallUnion]]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_chunk.py",
+      "class": "ChatCompletionChunk",
+      "line": 259,
+      "fields": [
+        {
+          "name": "id",
+          "line": 266,
+          "type": "str"
+        },
+        {
+          "name": "choices",
+          "line": 269,
+          "type": "List[Choice]"
+        },
+        {
+          "name": "created",
+          "line": 276,
+          "type": "int"
+        },
+        {
+          "name": "model",
+          "line": 282,
+          "type": "str"
+        },
+        {
+          "name": "object",
+          "line": 285,
+          "type": "Literal[\"chat.completion.chunk\"]"
+        },
+        {
+          "name": "moderation",
+          "line": 288,
+          "type": "Optional[Moderation]"
+        },
+        {
+          "name": "obfuscation",
+          "line": 294,
+          "type": "Optional[str]"
+        },
+        {
+          "name": "service_tier",
+          "line": 301,
+          "type": "Optional[Literal[\"auto\", \"default\", \"flex\", \"scale\", \"priority\", \"fast\"]]"
+        },
+        {
+          "name": "system_fingerprint",
+          "line": 326,
+          "type": "Optional[str]"
+        },
+        {
+          "name": "usage",
+          "line": 333,
+          "type": "Optional[CompletionUsage]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_chunk.py",
+      "class": "Choice",
+      "line": 106,
+      "fields": [
+        {
+          "name": "delta",
+          "line": 107,
+          "type": "ChoiceDelta"
+        },
+        {
+          "name": "finish_reason",
+          "line": 110,
+          "type": "Optional[Literal[\"stop\", \"length\", \"tool_calls\", \"content_filter\", \"function_call\"]]"
+        },
+        {
+          "name": "index",
+          "line": 120,
+          "type": "int"
+        },
+        {
+          "name": "logprobs",
+          "line": 123,
+          "type": "Optional[ChoiceLogprobs]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_chunk.py",
+      "class": "ChoiceDelta",
+      "line": 74,
+      "fields": [
+        {
+          "name": "content",
+          "line": 77,
+          "type": "Optional[str]"
+        },
+        {
+          "name": "function_call",
+          "line": 80,
+          "type": "Optional[ChoiceDeltaFunctionCall]"
+        },
+        {
+          "name": "refusal",
+          "line": 87,
+          "type": "Optional[str]"
+        },
+        {
+          "name": "role",
+          "line": 90,
+          "type": "Optional[Literal[\"developer\", \"system\", \"user\", \"assistant\", \"tool\"]]"
+        },
+        {
+          "name": "tool_calls",
+          "line": 93,
+          "type": "Optional[List[ChoiceDeltaToolCall]]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_stream_options_param.py",
+      "class": "ChatCompletionStreamOptionsParam",
+      "line": 10,
+      "fields": [
+        {
+          "name": "include_obfuscation",
+          "line": 13,
+          "type": "bool"
+        },
+        {
+          "name": "include_usage",
+          "line": 24,
+          "type": "bool"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/completion_usage.py",
+      "class": "CompletionUsage",
+      "line": 56,
+      "fields": [
+        {
+          "name": "completion_tokens",
+          "line": 59,
+          "type": "int"
+        },
+        {
+          "name": "prompt_tokens",
+          "line": 62,
+          "type": "int"
+        },
+        {
+          "name": "total_tokens",
+          "line": 65,
+          "type": "int"
+        },
+        {
+          "name": "completion_tokens_details",
+          "line": 68,
+          "type": "Optional[CompletionTokensDetails]"
+        },
+        {
+          "name": "prompt_tokens_details",
+          "line": 71,
+          "type": "Optional[PromptTokensDetails]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/completion_usage.py",
+      "class": "PromptTokensDetails",
+      "line": 37,
+      "fields": [
+        {
+          "name": "audio_tokens",
+          "line": 40,
+          "type": "Optional[int]"
+        },
+        {
+          "name": "cache_write_tokens",
+          "line": 43,
+          "type": "Optional[int]"
+        },
+        {
+          "name": "cached_tokens",
+          "line": 46,
+          "type": "Optional[int]"
+        },
+        {
+          "name": "image_tokens",
+          "line": 49,
+          "type": "Optional[int]"
+        },
+        {
+          "name": "text_tokens",
+          "line": 52,
+          "type": "Optional[int]"
+        }
+      ]
+    },
+    {
+      "path": "src/openai/types/completion_usage.py",
+      "class": "CompletionTokensDetails",
+      "line": 10,
+      "fields": [
+        {
+          "name": "accepted_prediction_tokens",
+          "line": 13,
+          "type": "Optional[int]"
+        },
+        {
+          "name": "audio_tokens",
+          "line": 19,
+          "type": "Optional[int]"
+        },
+        {
+          "name": "reasoning_tokens",
+          "line": 22,
+          "type": "Optional[int]"
+        },
+        {
+          "name": "rejected_prediction_tokens",
+          "line": 25,
+          "type": "Optional[int]"
+        },
+        {
+          "name": "text_tokens",
+          "line": 33,
+          "type": "Optional[int]"
+        }
+      ]
+    }
+  ],
+  "behavior_locators": [
+    {
+      "path": "src/openai/_client.py",
+      "lines": [
+        309,
+        310,
+        629,
+        636
+      ],
+      "fact": "Official default base includes /v1; api-key Authorization Bearer construction. Source is read, never executed; no env/credential values read."
+    },
+    {
+      "path": "src/openai/_base_client.py",
+      "lines": [
+        560,
+        569
+      ],
+      "fact": "Relative path is merged with base raw_path rather than replacing base path."
+    },
+    {
+      "path": "src/openai/resources/chat/completions/completions.py",
+      "lines": [
+        1317,
+        1374
+      ],
+      "fact": "POST /chat/completions; model/messages/stream/max_completion_tokens/stream_options; bearer_auth; stream cast."
+    },
+    {
+      "path": "src/openai/_streaming.py",
+      "lines": [
+        63,
+        109,
+        338,
+        426
+      ],
+      "fact": "DONE detection, error envelope and SSE line/data decoding. Card exact DONE, required finish and bounded parser are stricter local decisions, not copied SDK permissiveness."
+    },
+    {
+      "path": "src/openai/_client.py",
+      "lines": [
+        851,
+        882
+      ],
+      "fact": "HTTP status to SDK exception mapping. Wire closed safe code/category/body suppression remains repository policy, not full SDK behavior."
+    },
+    {
+      "path": "src/openai/_base_client.py",
+      "lines": [
+        1190
+      ],
+      "fact": "x-request-id is the actual response header used by SDK; no response body ID substitution."
+    }
+  ],
+  "findings": [
+    {
+      "id": "usage-cache-write-confirmed",
+      "status": "confirmed",
+      "evidence": "src/openai/types/completion_usage.py:43",
+      "finding": "PromptTokensDetails.cache_write_tokens exists as Optional[int]. Original D09 statement is consistent."
+    },
+    {
+      "id": "sse-obfuscation-default",
+      "status": "candidate-gap",
+      "evidence": "src/openai/types/chat/chat_completion_stream_options_param.py:13-21; src/openai/types/chat/chat_completion_chunk.py:294-298",
+      "finding": "Obfuscation is included by default. Candidate sends only include_usage and strict envelope does not list obfuscation; normal default SSE would be rejected. No candidate change or capability expansion made during recovery."
+    },
+    {
+      "id": "response-extra-optionals",
+      "status": "review-boundary",
+      "evidence": "src/openai/types/chat/chat_completion.py:215-228; src/openai/types/chat/chat_completion_chunk.py:288-291",
+      "finding": "SDK also defines JSON metadata and moderation and SSE moderation. These are outside candidate envelope. SDK source alone does not prove their presence on non-opt-in live responses; fixed-profile treatment must be explicit, not silently inferred."
+    },
+    {
+      "id": "usage-required-versus-partial",
+      "status": "intentional-platform-policy",
+      "evidence": "src/openai/types/completion_usage.py:59-71",
+      "finding": "SDK top counts are nonoptional int, while details are optional. Candidate accepts missing/null for unknown usage under D09 platform rules; do not claim this tolerance is the SDK declared required-field schema."
+    },
+    {
+      "id": "refusal-terminal",
+      "status": "spec-decision-not-source-fact",
+      "evidence": "src/openai/types/chat/chat_completion_message.py:63; src/openai/types/chat/chat_completion_chunk.py:87",
+      "finding": "Native refusal is Optional[str]. SDK field existence does not decide whether the local wire API emits safe ModelError or a successful Result/StreamEnd; independent reviewer is resolving candidate wording."
+    }
+  ],
+  "integrity": {
+    "all_selected_file_sha256_match": true,
+    "all_selected_git_blob_ids_match": true,
+    "commit_object_hash_matches": true,
+    "sdk_import_or_execution": false,
+    "dependencies_installed": false,
+    "provider_called": false
+  }
+}

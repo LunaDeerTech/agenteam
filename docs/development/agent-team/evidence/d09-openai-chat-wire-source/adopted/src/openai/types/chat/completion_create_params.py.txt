@@ -1,0 +1,145 @@
+# Evidence excerpt of src/openai/types/chat/completion_create_params.py
+# Exact official commit: becc1d20eed83c1b8d85e15dc131a372d9dc7813
+# Added evidence headings only; each identified source range is verbatim.
+
+# Original lines 1-62 (verbatim):
+# File generated from our OpenAPI spec by Castiron. See CONTRIBUTING.md for details.
+
+from __future__ import annotations
+
+from typing import Dict, List, Union, Iterable, Optional
+from typing_extensions import Literal, Required, TypeAlias, TypedDict
+
+from ..._types import SequenceNotStr
+from ..shared.chat_model import ChatModel
+from ..shared_params.metadata import Metadata
+from ..shared.reasoning_effort import ReasoningEffort
+from .chat_completion_audio_param import ChatCompletionAudioParam
+from .chat_completion_message_param import ChatCompletionMessageParam
+from .chat_completion_tool_union_param import ChatCompletionToolUnionParam
+from ..shared_params.function_parameters import FunctionParameters
+from ..shared_params.response_format_text import ResponseFormatText
+from .chat_completion_stream_options_param import ChatCompletionStreamOptionsParam
+from .chat_completion_prediction_content_param import ChatCompletionPredictionContentParam
+from .chat_completion_tool_choice_option_param import ChatCompletionToolChoiceOptionParam
+from ..shared_params.response_format_json_object import ResponseFormatJSONObject
+from ..shared_params.response_format_json_schema import ResponseFormatJSONSchema
+from .chat_completion_function_call_option_param import ChatCompletionFunctionCallOptionParam
+
+__all__ = [
+    "CompletionCreateParamsBase",
+    "FunctionCall",
+    "Function",
+    "Moderation",
+    "ModerationPolicy",
+    "ModerationPolicyInput",
+    "ModerationPolicyOutput",
+    "PromptCacheOptions",
+    "ResponseFormat",
+    "WebSearchOptions",
+    "WebSearchOptionsUserLocation",
+    "WebSearchOptionsUserLocationApproximate",
+    "CompletionCreateParamsNonStreaming",
+    "CompletionCreateParamsStreaming",
+]
+
+
+class CompletionCreateParamsBase(TypedDict, total=False):
+    messages: Required[Iterable[ChatCompletionMessageParam]]
+    """A list of messages comprising the conversation so far.
+
+    Depending on the [model](https://developers.openai.com/api/docs/models) you use,
+    different message types (modalities) are supported, like
+    [text](https://developers.openai.com/api/docs/guides/text),
+    [images](https://developers.openai.com/api/docs/guides/images-vision), and
+    [audio](https://developers.openai.com/api/docs/guides/audio).
+    """
+
+    model: Required[Union[str, ChatModel]]
+    """Model ID used to generate the response, like `gpt-6-astra` or `o3`.
+
+    OpenAI offers a wide range of models with different capabilities, performance
+    characteristics, and price points. Refer to the
+    [model guide](https://developers.openai.com/api/docs/models) to browse and
+    compare available models.
+    """
+
+    audio: Optional[ChatCompletionAudioParam]
+
+# Original lines 113-126 (verbatim):
+    If true, returns the log probabilities of each output token returned in the
+    `content` of `message`.
+    """
+
+    max_completion_tokens: Optional[int]
+    """
+    An upper bound for the number of tokens that can be generated for a completion,
+    including visible output tokens and
+    [reasoning tokens](https://developers.openai.com/api/docs/guides/reasoning).
+    """
+
+    max_tokens: Optional[int]
+    """
+    The maximum number of [tokens](https://platform.openai.com/tokenizer) that can
+
+# Original lines 244-256 (verbatim):
+    response_format: ResponseFormat
+    """An object specifying the format that the model must output.
+
+    Setting to `{ "type": "json_schema", "json_schema": {...} }` enables Structured
+    Outputs which ensures the model will match your supplied JSON schema. Learn more
+    in the
+    [Structured Outputs guide](https://developers.openai.com/api/docs/guides/structured-outputs).
+
+    Setting to `{ "type": "json_object" }` enables the older JSON mode, which
+    ensures the message the model generates is valid JSON. Using `json_schema` is
+    preferred for models that support it.
+    """
+
+
+# Original lines 314-326 (verbatim):
+
+    Supports text and image inputs. Note: image inputs over 8MB will be dropped.
+    """
+
+    stream_options: Optional[ChatCompletionStreamOptionsParam]
+    """Options for streaming response. Only set this when you set `stream: true`."""
+
+    temperature: Optional[float]
+    """What sampling temperature to use, between 0 and 2.
+
+    Higher values like 0.8 will make the output more random, while lower values like
+    0.2 will make it more focused and deterministic. We generally recommend altering
+    this or `top_p` but not both.
+
+# Original lines 532-560 (verbatim):
+class CompletionCreateParamsNonStreaming(CompletionCreateParamsBase, total=False):
+    stream: Optional[Literal[False]]
+    """
+    If set to true, the model response data will be streamed to the client as it is
+    generated using
+    [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format).
+    See the
+    [Streaming section below](https://developers.openai.com/api/reference/resources/chat/subresources/completions/streaming-events)
+    for more information, along with the
+    [streaming responses](https://developers.openai.com/api/docs/guides/streaming-responses)
+    guide for more information on how to handle the streaming events.
+    """
+
+
+class CompletionCreateParamsStreaming(CompletionCreateParamsBase):
+    stream: Required[Literal[True]]
+    """
+    If set to true, the model response data will be streamed to the client as it is
+    generated using
+    [server-sent events](https://developer.mozilla.org/en-US/docs/Web/API/Server-sent_events/Using_server-sent_events#Event_stream_format).
+    See the
+    [Streaming section below](https://developers.openai.com/api/reference/resources/chat/subresources/completions/streaming-events)
+    for more information, along with the
+    [streaming responses](https://developers.openai.com/api/docs/guides/streaming-responses)
+    guide for more information on how to handle the streaming events.
+    """
+
+
+CompletionCreateParams = Union[CompletionCreateParamsNonStreaming, CompletionCreateParamsStreaming]
+# End of evidence excerpt.

@@ -1,0 +1,112 @@
+{
+  "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "source_manifest_sha256": "14de67c09ce263b11414505fcd52f125b48684dfafa23374281a6b066d317760",
+  "actual_check": "Python hashlib SHA256 and Git blob SHA1 over exact local bytes; no network/SDK/Go execution",
+  "count": 17,
+  "files": [
+    {
+      "path": "src/openai/_version.py",
+      "sha256": "0359d19e96c6ef28c1b6a26fb1cd44a62e30819abbf02e4102bdccbd357fc738",
+      "git_blob": "0906b86257a4dcf8e3cf3e99eee599cfc5b12ff6",
+      "bytes": 72
+    },
+    {
+      "path": "src/openai/_client.py",
+      "sha256": "80bbf3452727bd46f136752b973a84869a2226ef2d75fcea090e888ba1007beb",
+      "git_blob": "47ae340317ef624f88ebd5e849e3d6ab5facc6c0",
+      "bytes": 94174
+    },
+    {
+      "path": "src/openai/_base_client.py",
+      "sha256": "7a0a173edf3fadb6b310895d5db6fa0b14264bdaa25b33dd4eb29d860a82639b",
+      "git_blob": "883bed6e19b9fd05126affe1e6ced56a309db164",
+      "bytes": 82260
+    },
+    {
+      "path": "src/openai/_streaming.py",
+      "sha256": "97f1eb3ddf6719aec25ae65928267d50c35a2623858f2714d63d7be5a4802fff",
+      "git_blob": "bb45a70f6aec83853c6fe6cec868bb1d8a52ed02",
+      "bytes": 15811
+    },
+    {
+      "path": "src/openai/resources/chat/completions/completions.py",
+      "sha256": "645f05019a0e2f4f3085141045f7349ab9283073679585abf96a044d0c559517",
+      "git_blob": "973c96226831d738ec484762a8189d02b63b9138",
+      "bytes": 184166
+    },
+    {
+      "path": "src/openai/types/chat/completion_create_params.py",
+      "sha256": "58306f650519787342a3fc10f5500e90a17a882834e4b571e1e2f2c3c55b4f9c",
+      "git_blob": "dacf217b379a89867e9e73b19459f980629d7dca",
+      "bytes": 23201
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion.py",
+      "sha256": "71b254f0b41d740bbbbc1a94a5298fec7fc58a9fccf2acec1948c2a1f2b62f16",
+      "git_blob": "9372c4a68c72cd6781bee9f77ba153cf22234b6d",
+      "bytes": 8770
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_message.py",
+      "sha256": "9fb369e540871b3a7ddd5e8acd73cfc03b6973a52245514d750f00a977c74a34",
+      "git_blob": "a3064da854e1cddc0ddc25e16fc2a2d0ae7d1dcc",
+      "bytes": 2826
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_chunk.py",
+      "sha256": "44bc28a96e088a6aa176b9426c495649d52b708fd7dab7f652cad75cf188bb08",
+      "git_blob": "fd23828cddc93876648cfd50f32546afddd6d959",
+      "bytes": 11435
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_stream_options_param.py",
+      "sha256": "e10203a63785037ce01835fdf3a6e924db27393a673a6084a55f4f386a4f6a67",
+      "git_blob": "3cd9441a43d502d53dc92481868a6de11f8c9075",
+      "bytes": 1396
+    },
+    {
+      "path": "src/openai/types/completion_usage.py",
+      "sha256": "505975694e13d13a3cac7e9b2eff707ef8b125f0de91e32ccc89fc4b7c2161a2",
+      "git_blob": "73bd2bccaa952780c70f516755c9a17daec33abb",
+      "bytes": 2281
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_system_message_param.py",
+      "sha256": "ce5bbeef8c5cdbf0a17250182d153ac97350266a7d142739b0ede146b79d87bb",
+      "git_blob": "cbdc841bf76581c4c7f04c26cd1774de01e954af",
+      "bytes": 1023
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_user_message_param.py",
+      "sha256": "35c87d6ae60aa7ed81d048fc8bb09a318d118ca29f53ecef55a280a79419fd03",
+      "git_blob": "bf9a5b292b159afe453e6672ed2259222f48707c",
+      "bytes": 900
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_assistant_message_param.py",
+      "sha256": "a435aae2c30ad1033fba3a053324c97060348acc709eaf47e7c3041027fc256f",
+      "git_blob": "0bf29fd77a157bce77f9a59f12fdd38bf3b7fb45",
+      "bytes": 2808
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_content_part_text_param.py",
+      "sha256": "06d1709d217212d5efb1030c53ae0b52fe3401be1d739fb0177bc04b08565a81",
+      "git_blob": "adee12ec16118d42a5f6507518285ab9f326ea49",
+      "bytes": 1133
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_message_param.py",
+      "sha256": "8526b8c5ed26e2afcccd6f28de49885b7ed3b62dcee9c61e50b07cb796947a8b",
+      "git_blob": "fc7a0b52c0b54d60ebf40add704ca7e00a5ce951",
+      "bytes": 1018
+    },
+    {
+      "path": "src/openai/types/shared_params/response_format_text.py",
+      "sha256": "e66fefe21b6805a9a2a083c55484cb8e7ac2c86061242c1cc6aede99454e8744",
+      "git_blob": "36895e4600fdcf7f5fbb4505b63b44a2c3102cce",
+      "bytes": 440
+    }
+  ],
+  "commit_object_sha1_verified": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "ls_tree_files_verified": 17
+}

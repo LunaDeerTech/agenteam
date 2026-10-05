@@ -1,0 +1,37 @@
+# Evidence excerpt of src/openai/_base_client.py
+# Exact official commit: becc1d20eed83c1b8d85e15dc131a372d9dc7813
+# Added evidence headings only; each identified source range is verbatim.
+
+# Original lines 1-4 (verbatim):
+from __future__ import annotations
+
+import sys
+import json
+
+# Original lines 477-481 (verbatim):
+    def _enforce_trailing_slash(self, url: URL) -> URL:
+        path, separator, query = url.raw_path.partition(b"?")
+        if path.endswith(b"/"):
+            return url
+        return url.copy_with(raw_path=path + b"/" + separator + query)
+
+# Original lines 560-570 (verbatim):
+    def _prepare_url(self, url: str) -> URL:
+        """
+        Merge a URL argument together with any 'base_url' on the client,
+        to create the URL used for the outgoing request.
+        """
+        # Copied from httpx's `_merge_url` method.
+        merge_url = URL(url)
+        if merge_url.is_relative_url:
+            merge_raw_path = self.base_url.raw_path + merge_url.raw_path.lstrip(b"/")
+            return self.base_url.copy_with(raw_path=merge_raw_path)
+
+
+# Original lines 1187-1191 (verbatim):
+                get_http_method_for_logging(request.method),
+                response.status_code,
+            )
+            log.debug("request_id: %s", response.headers.get("x-request-id"))
+
+# End of evidence excerpt.

@@ -1,0 +1,321 @@
+{
+  "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "original_source_manifest": "source-manifest.json",
+  "source_manifest_sha256": "14de67c09ce263b11414505fcd52f125b48684dfafa23374281a6b066d317760",
+  "excerpts": [
+    {
+      "source_path": "src/openai/_version.py",
+      "stored_path": "adopted/src/openai/_version.py.txt",
+      "full_file_sha256": "0359d19e96c6ef28c1b6a26fb1cd44a62e30819abbf02e4102bdccbd357fc738",
+      "stored_sha256": "8d482c6a02e60cdb7cdda2bf81b183c9181cddde616d2214ac86a2f45254193e",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 2,
+          "sha256": "0359d19e96c6ef28c1b6a26fb1cd44a62e30819abbf02e4102bdccbd357fc738"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/_client.py",
+      "stored_path": "adopted/src/openai/_client.py.txt",
+      "full_file_sha256": "80bbf3452727bd46f136752b973a84869a2226ef2d75fcea090e888ba1007beb",
+      "stored_sha256": "2dcd162ef40fc1b34e0820db0c704dbb14372a8cdb9829f440488368250c5c08",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 4,
+          "sha256": "e7c83c7cb1af1cc21575209764d03b6747d3ce16975dad6458da8268d4f25fef"
+        },
+        {
+          "first_line": 301,
+          "last_line": 311,
+          "sha256": "6b4875a3f55a3a7610bc435301ed71e886080799577e3595f6718f790ed4c017"
+        },
+        {
+          "first_line": 611,
+          "last_line": 644,
+          "sha256": "29a4965c8a41fc36f8165049d3a76796b34505c54c9169db0318a44432c3392f"
+        },
+        {
+          "first_line": 851,
+          "last_line": 884,
+          "sha256": "0967b44b324008a2ffa7dc9ab4c1c405e94267d5979194be7ae6b27ea237f51a"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/_base_client.py",
+      "stored_path": "adopted/src/openai/_base_client.py.txt",
+      "full_file_sha256": "7a0a173edf3fadb6b310895d5db6fa0b14264bdaa25b33dd4eb29d860a82639b",
+      "stored_sha256": "76e1d325c62f9c32f0cdb0ff5e9e31ae04c407f46575f630163b38c02752fd0d",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 4,
+          "sha256": "b75bf6a334459d51adede5ddef67f91fda8e99465336d0e48651429ba117f450"
+        },
+        {
+          "first_line": 477,
+          "last_line": 481,
+          "sha256": "25e9cec9a703d53bee94afd33ca56ff3012a0253847eb2da2cdd2c53aa65285c"
+        },
+        {
+          "first_line": 560,
+          "last_line": 570,
+          "sha256": "0e566892de9a391ef97d400f0906027da3a89422ea1d3405e07c7dcbd0de15aa"
+        },
+        {
+          "first_line": 1187,
+          "last_line": 1191,
+          "sha256": "2e05d45298a85312cdde5b15eaed9a7373b5b58e29505cf7d98703e7813b3901"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/_streaming.py",
+      "stored_path": "adopted/src/openai/_streaming.py.txt",
+      "full_file_sha256": "97f1eb3ddf6719aec25ae65928267d50c35a2623858f2714d63d7be5a4802fff",
+      "stored_sha256": "fac4d8fd9e45872cc7f2fdcce514c381bf06da9923093bd30eb363d88fa0777f",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 15,
+          "sha256": "c59a6ab890436bbd87df3816e3bdf2d0b778de28b7cc1372f5faf5b9ce7fa179"
+        },
+        {
+          "first_line": 63,
+          "last_line": 112,
+          "sha256": "01c774c5fe767ee9811ad0b25fc427bbe5ed65177bade252e406fc5c99dcc04d"
+        },
+        {
+          "first_line": 338,
+          "last_line": 426,
+          "sha256": "9348224aaba10f3534b63bbfa533eebfbda8909aa13b3c40126f5f777f8ed731"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/resources/chat/completions/completions.py",
+      "stored_path": "adopted/src/openai/resources/chat/completions/completions.py.txt",
+      "full_file_sha256": "645f05019a0e2f4f3085141045f7349ab9283073679585abf96a044d0c559517",
+      "stored_sha256": "edfea1f59ed76622271c49dadaae02e8c8f02bbbec4da080f5fdba3e4542fcf0",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 5,
+          "sha256": "d6c8d650643948a21e802ff1e6667e5bc422c4e45000906183b69bbdc0e83f60"
+        },
+        {
+          "first_line": 1269,
+          "last_line": 1374,
+          "sha256": "9656ff99b915c01283ab7b5e4c66024655c93ffa21221790a60c590455848b86"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/types/chat/completion_create_params.py",
+      "stored_path": "adopted/src/openai/types/chat/completion_create_params.py.txt",
+      "full_file_sha256": "58306f650519787342a3fc10f5500e90a17a882834e4b571e1e2f2c3c55b4f9c",
+      "stored_sha256": "16942d499fe9faaa9e0cbd154cbef14b506e67a1fe904ec8b8f38f0c54790a67",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 62,
+          "sha256": "c0453b18b0dfb193becc983d03b521dee99adb148d3f8ed86b2739b6965dd568"
+        },
+        {
+          "first_line": 113,
+          "last_line": 126,
+          "sha256": "ed3b6df92a8b6a9a244b390178f1cf7eee79c14af022c97e084e95a41fccdf7d"
+        },
+        {
+          "first_line": 244,
+          "last_line": 256,
+          "sha256": "d92c4ffe2f307816773a3a36aa15294c3efcce3dfd8dc17265cd865af588fa0c"
+        },
+        {
+          "first_line": 314,
+          "last_line": 326,
+          "sha256": "7d5c07468370d17eb809ee5a70ccb45d745c8e30e88fac6b243a79ae912778e5"
+        },
+        {
+          "first_line": 532,
+          "last_line": 560,
+          "sha256": "0177016a646ef8675bf36189adacce5b1a2bccc1a59d99bba03a6d29c6bd3dac"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/types/chat/chat_completion.py",
+      "stored_path": "adopted/src/openai/types/chat/chat_completion.py.txt",
+      "full_file_sha256": "71b254f0b41d740bbbbc1a94a5298fec7fc58a9fccf2acec1948c2a1f2b62f16",
+      "stored_sha256": "42eb49d16d79bbb76c9205732844ed7081bf3bc5b7f21faee7c7af787f6fc3ec",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 11,
+          "sha256": "c4975a817dbce5e47c7ce8f069a75e76f9d2fe0f6548f41063b06a9e98988858"
+        },
+        {
+          "first_line": 39,
+          "last_line": 58,
+          "sha256": "c53456957a36af5725244446640aca56eb7018194d16988932f29358f2fba841"
+        },
+        {
+          "first_line": 192,
+          "last_line": 264,
+          "sha256": "54284570cb4aa0cc2fc6bdc1c4ec4ec467ace98495053dccd257ed0a60bf355e"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/types/chat/chat_completion_message.py",
+      "stored_path": "adopted/src/openai/types/chat/chat_completion_message.py.txt",
+      "full_file_sha256": "9fb369e540871b3a7ddd5e8acd73cfc03b6973a52245514d750f00a977c74a34",
+      "stored_sha256": "eea5b689c7bc0ec4ebb5d9286cb4f087d615ee3926be606888cce4d75676bb6a",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 90,
+          "sha256": "9fb369e540871b3a7ddd5e8acd73cfc03b6973a52245514d750f00a977c74a34"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/types/chat/chat_completion_chunk.py",
+      "stored_path": "adopted/src/openai/types/chat/chat_completion_chunk.py.txt",
+      "full_file_sha256": "44bc28a96e088a6aa176b9426c495649d52b708fd7dab7f652cad75cf188bb08",
+      "stored_sha256": "5004d1ad10d781a495f16bc383f47910bb7ff498600b3b30566f8d14febb8654",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 9,
+          "sha256": "61656d9e1b01a5b691503144e704c727d348ed986c9f1f5659df533828b56678"
+        },
+        {
+          "first_line": 74,
+          "last_line": 124,
+          "sha256": "d4f7e4749cea9827f72ace587bfe4d955e6a27e31de1eb7b7435f772692ffda9"
+        },
+        {
+          "first_line": 259,
+          "last_line": 342,
+          "sha256": "fa6c9a86743811c4f5eba6db27628dff10a025b6977025e9d4190a8a29ac7178"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/types/chat/chat_completion_stream_options_param.py",
+      "stored_path": "adopted/src/openai/types/chat/chat_completion_stream_options_param.py.txt",
+      "full_file_sha256": "e10203a63785037ce01835fdf3a6e924db27393a673a6084a55f4f386a4f6a67",
+      "stored_sha256": "64df22ee0982fe03afed08dacc7346360956952f215039c26d60290c9c9c241e",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 33,
+          "sha256": "e10203a63785037ce01835fdf3a6e924db27393a673a6084a55f4f386a4f6a67"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/types/completion_usage.py",
+      "stored_path": "adopted/src/openai/types/completion_usage.py.txt",
+      "full_file_sha256": "505975694e13d13a3cac7e9b2eff707ef8b125f0de91e32ccc89fc4b7c2161a2",
+      "stored_sha256": "ade42ba5d36f829dfe1615c769fdd30ccf536da214d6be037eb00d7b669a1f9a",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 72,
+          "sha256": "505975694e13d13a3cac7e9b2eff707ef8b125f0de91e32ccc89fc4b7c2161a2"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/types/chat/chat_completion_system_message_param.py",
+      "stored_path": "adopted/src/openai/types/chat/chat_completion_system_message_param.py.txt",
+      "full_file_sha256": "ce5bbeef8c5cdbf0a17250182d153ac97350266a7d142739b0ede146b79d87bb",
+      "stored_sha256": "963c8ba07b7b399210339c3675e4212bcea5e6b2fc252ce8073464ea4abc0539",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 31,
+          "sha256": "ce5bbeef8c5cdbf0a17250182d153ac97350266a7d142739b0ede146b79d87bb"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/types/chat/chat_completion_user_message_param.py",
+      "stored_path": "adopted/src/openai/types/chat/chat_completion_user_message_param.py.txt",
+      "full_file_sha256": "35c87d6ae60aa7ed81d048fc8bb09a318d118ca29f53ecef55a280a79419fd03",
+      "stored_sha256": "bcfdeea46724d13737dccdfe275a206c42484a21c3d96f5e726ca13f44dae444",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 30,
+          "sha256": "35c87d6ae60aa7ed81d048fc8bb09a318d118ca29f53ecef55a280a79419fd03"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/types/chat/chat_completion_assistant_message_param.py",
+      "stored_path": "adopted/src/openai/types/chat/chat_completion_assistant_message_param.py.txt",
+      "full_file_sha256": "a435aae2c30ad1033fba3a053324c97060348acc709eaf47e7c3041027fc256f",
+      "stored_sha256": "4246d7e6022b96cd305ae33a00c934e456abce9cad69025c8a0c0a86fc17ccaf",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 82,
+          "sha256": "a435aae2c30ad1033fba3a053324c97060348acc709eaf47e7c3041027fc256f"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/types/chat/chat_completion_content_part_text_param.py",
+      "stored_path": "adopted/src/openai/types/chat/chat_completion_content_part_text_param.py.txt",
+      "full_file_sha256": "06d1709d217212d5efb1030c53ae0b52fe3401be1d739fb0177bc04b08565a81",
+      "stored_sha256": "596404db3fa87cf031bf6e786e85c578b8053a1d73a9920070d18b7696e990c5",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 34,
+          "sha256": "06d1709d217212d5efb1030c53ae0b52fe3401be1d739fb0177bc04b08565a81"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/types/chat/chat_completion_message_param.py",
+      "stored_path": "adopted/src/openai/types/chat/chat_completion_message_param.py.txt",
+      "full_file_sha256": "8526b8c5ed26e2afcccd6f28de49885b7ed3b62dcee9c61e50b07cb796947a8b",
+      "stored_sha256": "a0770e9295d88b1ff55392bcd7ed692e708d71c760f8f8b572936cc329218982",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 24,
+          "sha256": "8526b8c5ed26e2afcccd6f28de49885b7ed3b62dcee9c61e50b07cb796947a8b"
+        }
+      ]
+    },
+    {
+      "source_path": "src/openai/types/shared_params/response_format_text.py",
+      "stored_path": "adopted/src/openai/types/shared_params/response_format_text.py.txt",
+      "full_file_sha256": "e66fefe21b6805a9a2a083c55484cb8e7ac2c86061242c1cc6aede99454e8744",
+      "stored_sha256": "ba2892d617fa4e216ce1e1c2c0ad90444cb5a0caa48b8abe3c8d8a4355e43c24",
+      "ranges": [
+        {
+          "first_line": 1,
+          "last_line": 14,
+          "sha256": "e66fefe21b6805a9a2a083c55484cb8e7ac2c86061242c1cc6aede99454e8744"
+        }
+      ]
+    }
+  ],
+  "license": {
+    "source_path": "LICENSE",
+    "stored_path": "LICENSE.openai",
+    "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/LICENSE",
+    "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
+    "git_blob": "cbb5bb26e40dd13a02c7874298f70b9d68bab57e"
+  },
+  "scope": "Static excerpts of 17 adopted files; not installed SDK, not complete checkout. Root tree has LICENSE and no NOTICE."
+}

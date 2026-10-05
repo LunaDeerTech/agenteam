@@ -1,0 +1,119 @@
+# Evidence excerpt of src/openai/resources/chat/completions/completions.py
+# Exact official commit: becc1d20eed83c1b8d85e15dc131a372d9dc7813
+# Added evidence headings only; each identified source range is verbatim.
+
+# Original lines 1-5 (verbatim):
+# File generated from our OpenAPI spec by Castiron. See CONTRIBUTING.md for details.
+
+from __future__ import annotations
+
+import inspect
+
+# Original lines 1269-1374 (verbatim):
+    @required_args(["messages", "model"], ["messages", "model", "stream"])
+    def create(
+        self,
+        *,
+        messages: Iterable[ChatCompletionMessageParam],
+        model: Union[str, ChatModel],
+        audio: Optional[ChatCompletionAudioParam] | Omit = omit,
+        frequency_penalty: Optional[float] | Omit = omit,
+        function_call: completion_create_params.FunctionCall | Omit = omit,
+        functions: Iterable[completion_create_params.Function] | Omit = omit,
+        logit_bias: Optional[Dict[str, int]] | Omit = omit,
+        logprobs: Optional[bool] | Omit = omit,
+        max_completion_tokens: Optional[int] | Omit = omit,
+        max_tokens: Optional[int] | Omit = omit,
+        metadata: Optional[Metadata] | Omit = omit,
+        modalities: Optional[List[Literal["text", "audio"]]] | Omit = omit,
+        moderation: Optional[completion_create_params.Moderation] | Omit = omit,
+        n: Optional[int] | Omit = omit,
+        parallel_tool_calls: bool | Omit = omit,
+        prediction: Optional[ChatCompletionPredictionContentParam] | Omit = omit,
+        presence_penalty: Optional[float] | Omit = omit,
+        prompt_cache_key: Optional[str] | Omit = omit,
+        prompt_cache_options: completion_create_params.PromptCacheOptions | Omit = omit,
+        prompt_cache_retention: Optional[Literal["in_memory", "24h"]] | Omit = omit,
+        reasoning_effort: Optional[ReasoningEffort] | Omit = omit,
+        response_format: completion_create_params.ResponseFormat | Omit = omit,
+        safety_identifier: Optional[str] | Omit = omit,
+        seed: Optional[int] | Omit = omit,
+        service_tier: Optional[Literal["auto", "default", "flex", "scale", "priority", "fast"]] | Omit = omit,
+        stop: Union[Optional[str], SequenceNotStr[str], None] | Omit = omit,
+        store: Optional[bool] | Omit = omit,
+        stream: Optional[Literal[False]] | Literal[True] | Omit = omit,
+        stream_options: Optional[ChatCompletionStreamOptionsParam] | Omit = omit,
+        temperature: Optional[float] | Omit = omit,
+        tool_choice: ChatCompletionToolChoiceOptionParam | Omit = omit,
+        tools: Iterable[ChatCompletionToolUnionParam] | Omit = omit,
+        top_logprobs: Optional[int] | Omit = omit,
+        top_p: Optional[float] | Omit = omit,
+        user: str | Omit = omit,
+        verbosity: Optional[Literal["low", "medium", "high"]] | Omit = omit,
+        web_search_options: completion_create_params.WebSearchOptions | Omit = omit,
+        # Use the following arguments if you need to pass additional parameters to the API that aren't available via kwargs.
+        # The extra values given here take precedence over values defined on the client or passed to this method.
+        extra_headers: Headers | None = None,
+        extra_query: Query | None = None,
+        extra_body: Body | None = None,
+        timeout: float | httpx2.Timeout | None | NotGiven = not_given,
+    ) -> ChatCompletion | Stream[ChatCompletionChunk]:
+        validate_response_format(response_format)
+        return self._post(
+            "/chat/completions",
+            body=maybe_transform(
+                {
+                    "model": model,
+                    "stream": stream,
+                    "service_tier": service_tier,
+                    "messages": messages,
+                    "audio": audio,
+                    "frequency_penalty": frequency_penalty,
+                    "function_call": function_call,
+                    "functions": functions,
+                    "logit_bias": logit_bias,
+                    "logprobs": logprobs,
+                    "max_completion_tokens": max_completion_tokens,
+                    "max_tokens": max_tokens,
+                    "metadata": metadata,
+                    "modalities": modalities,
+                    "moderation": moderation,
+                    "n": n,
+                    "parallel_tool_calls": parallel_tool_calls,
+                    "prediction": prediction,
+                    "presence_penalty": presence_penalty,
+                    "prompt_cache_key": prompt_cache_key,
+                    "prompt_cache_options": prompt_cache_options,
+                    "prompt_cache_retention": prompt_cache_retention,
+                    "reasoning_effort": reasoning_effort,
+                    "response_format": response_format,
+                    "safety_identifier": safety_identifier,
+                    "seed": seed,
+                    "stop": stop,
+                    "store": store,
+                    "stream_options": stream_options,
+                    "temperature": temperature,
+                    "tool_choice": tool_choice,
+                    "tools": tools,
+                    "top_logprobs": top_logprobs,
+                    "top_p": top_p,
+                    "user": user,
+                    "verbosity": verbosity,
+                    "web_search_options": web_search_options,
+                },
+                completion_create_params.CompletionCreateParamsStreaming
+                if stream
+                else completion_create_params.CompletionCreateParamsNonStreaming,
+            ),
+            options=make_request_options(
+                extra_headers=extra_headers,
+                extra_query=extra_query,
+                extra_body=extra_body,
+                timeout=timeout,
+                security={"bearer_auth": True},
+            ),
+            cast_to=ChatCompletion,
+            stream=stream or False,
+            stream_cls=Stream[ChatCompletionChunk],
+        )
+# End of evidence excerpt.

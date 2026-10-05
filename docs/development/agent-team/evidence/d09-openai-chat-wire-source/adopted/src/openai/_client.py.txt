@@ -1,0 +1,95 @@
+# Evidence excerpt of src/openai/_client.py
+# Exact official commit: becc1d20eed83c1b8d85e15dc131a372d9dc7813
+# Added evidence headings only; each identified source range is verbatim.
+
+# Original lines 1-4 (verbatim):
+# File generated from our OpenAPI spec by Castiron. See CONTRIBUTING.md for details.
+
+from __future__ import annotations
+
+
+# Original lines 301-311 (verbatim):
+        else:
+            raise OpenAIError("Invalid `workload_identity` configuration: expected an X.509 or subject-token identity")
+        if provider_runtime is not None:
+            base_url = provider_runtime.base_url
+        elif base_url is None:
+            base_url = os.environ.get("OPENAI_BASE_URL")
+        self._base_url_was_default = provider_runtime is None and base_url is None
+        self._data_residency = data_residency
+        if base_url is None:
+            base_url = MTLS_API_BASE_URL if x509_identity is not None else "https://api.openai.com/v1"
+        if x509_identity is not None:
+
+# Original lines 611-644 (verbatim):
+        headers: dict[str, str] = {}
+        if security.get("bearer_auth", False):
+            for key, value in self._bearer_auth.items():
+                headers.setdefault(key, value)
+        if security.get("admin_api_key_auth", False):
+            for key, value in self._admin_api_key_auth.items():
+                headers.setdefault(key, value)
+        return headers
+
+    @property
+    def _bearer_auth(self) -> dict[str, str]:
+        api_key = self.api_key
+        if not api_key:
+            return {}
+        return {"Authorization": f"Bearer {api_key}"}
+
+    @property
+    @override
+    def auth_headers(self) -> dict[str, str]:
+        if self._provider_runtime is not None:
+            return {}
+
+        api_key = self.api_key
+        if not api_key or api_key == WORKLOAD_IDENTITY_API_KEY_PLACEHOLDER:
+            return {}
+        return {"Authorization": f"Bearer {api_key}"}
+
+    @property
+    def _admin_api_key_auth(self) -> dict[str, str]:
+        admin_api_key = self.admin_api_key
+        if admin_api_key is None:
+            return {}
+        return {"Authorization": f"Bearer {admin_api_key}"}
+
+
+# Original lines 851-884 (verbatim):
+    def _make_status_error(
+        self,
+        err_msg: str,
+        *,
+        body: object,
+        response: httpx2.Response,
+    ) -> APIStatusError:
+        data = body.get("error", body) if is_mapping(body) else body
+        if response.status_code == 400:
+            return _exceptions.BadRequestError(err_msg, response=response, body=data)
+
+        if response.status_code == 401:
+            return _exceptions.AuthenticationError(err_msg, response=response, body=data)
+
+        if response.status_code == 403:
+            return _exceptions.PermissionDeniedError(err_msg, response=response, body=data)
+
+        if response.status_code == 404:
+            return _exceptions.NotFoundError(err_msg, response=response, body=data)
+
+        if response.status_code == 409:
+            return _exceptions.ConflictError(err_msg, response=response, body=data)
+
+        if response.status_code == 422:
+            return _exceptions.UnprocessableEntityError(err_msg, response=response, body=data)
+
+        if response.status_code == 429:
+            return _exceptions.RateLimitError(err_msg, response=response, body=data)
+
+        if response.status_code >= 500:
+            return _exceptions.InternalServerError(err_msg, response=response, body=data)
+        return APIStatusError(err_msg, response=response, body=data)
+
+
+# End of evidence excerpt.

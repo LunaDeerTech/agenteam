@@ -1,0 +1,20 @@
+# Evidence excerpt of src/openai/types/shared_params/response_format_text.py
+# Exact official commit: becc1d20eed83c1b8d85e15dc131a372d9dc7813
+# Added evidence headings only; each identified source range is verbatim.
+
+# Original lines 1-14 (verbatim):
+# File generated from our OpenAPI spec by Castiron. See CONTRIBUTING.md for details.
+
+from __future__ import annotations
+
+from typing_extensions import Literal, Required, TypedDict
+
+__all__ = ["ResponseFormatText"]
+
+
+class ResponseFormatText(TypedDict, total=False):
+    """Default response format. Used to generate text responses."""
+
+    type: Required[Literal["text"]]
+    """The type of response format being defined. Always `text`."""
+# End of evidence excerpt.

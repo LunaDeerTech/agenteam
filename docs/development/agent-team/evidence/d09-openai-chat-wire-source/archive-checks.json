@@ -1,0 +1,51 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/restore-sources.py",
+        "/tmp/agenteam-openai-wire-rev2-u62vqiwd/restored-sources",
+        "--git-dir",
+        "/workspace/agenteam-openai-chat-source-5t6d72b5/objects.git"
+      ],
+      "started_at": "2026-10-05T15:41:18.163915+00:00",
+      "scope": "offline source-byte reconstruction; no SDK execution, no network, no Go/Docker",
+      "exit_code": 0,
+      "stdout": "{\"commit\": \"becc1d20eed83c1b8d85e15dc131a372d9dc7813\", \"source_files_verified\": 17, \"excerpt_files_verified\": 17, \"license_verified\": true, \"network_fetch\": false, \"sdk_executed\": false}\n",
+      "stderr": "",
+      "finished_at": "2026-10-05T15:41:18.234205+00:00"
+    },
+    {
+      "argv": [
+        "python3",
+        "/workspace/agenteam/docs/development/agent-team/evidence/d09-openai-chat-wire-source/restore-sources.py",
+        "/tmp/agenteam-openai-wire-rev2-u62vqiwd/restored-sources-final",
+        "--git-dir",
+        "/workspace/agenteam-openai-chat-source-5t6d72b5/objects.git"
+      ],
+      "started_at": "2026-10-05T15:43:23.982513+00:00",
+      "scope": "offline source-byte reconstruction; no SDK execution, no network, no Go/Docker",
+      "exit_code": 0,
+      "stdout": "{\"commit\": \"becc1d20eed83c1b8d85e15dc131a372d9dc7813\", \"source_files_verified\": 17, \"excerpt_files_verified\": 17, \"license_verified\": true, \"network_fetch\": false, \"sdk_executed\": false}\n",
+      "stderr": "",
+      "finished_at": "2026-10-05T15:43:24.052831+00:00"
+    }
+  ],
+  "document_checks": {
+    "files_checked": 35,
+    "relative_links_checked": 22,
+    "source_field_declarations_covered_by_excerpts": 73,
+    "api_and_fixture_dto_unchanged": true,
+    "sixteen_implementation_paths_unchanged": true,
+    "utf8_lf_whitespace_pass": true,
+    "diff_check_note": "new-file diff --no-index --check returned 1 with no diagnostic; not misreported as exit 0",
+    "card_sha256": "650cf36506951abc54bf44e7c84738e074238c28c65db3a770bfdc0a8157c508"
+  },
+  "sealed_review_input": {
+    "path": "reviewed-card.md.txt",
+    "sha256": "650cf36506951abc54bf44e7c84738e074238c28c65db3a770bfdc0a8157c508",
+    "matches_reviewed_rev2_bytes": true,
+    "original_path": "docs/development/work-items/recovery-d09-openai-chat-wire.md",
+    "validation_scope": "archive-local immutable copy; original path is provenance only"
+  }
+}

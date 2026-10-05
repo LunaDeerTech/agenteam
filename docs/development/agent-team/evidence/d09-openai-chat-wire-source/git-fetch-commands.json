@@ -1,0 +1,35 @@
+[
+  {
+    "argv": [
+      "git",
+      "init",
+      "--bare",
+      "/workspace/agenteam-openai-chat-source-5t6d72b5/objects.git"
+    ],
+    "started_at": "2026-10-05T15:32:22.163868+00:00",
+    "exit_code": 0,
+    "stdout": "git-0.stdout",
+    "stderr": "git-0.stderr",
+    "finished_at": "2026-10-05T15:32:22.178316+00:00"
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "credential.helper=",
+      "-c",
+      "http.extraHeader=",
+      "--git-dir=/workspace/agenteam-openai-chat-source-5t6d72b5/objects.git",
+      "fetch",
+      "--no-tags",
+      "--depth=1",
+      "https://github.com/openai/openai-python.git",
+      "becc1d20eed83c1b8d85e15dc131a372d9dc7813"
+    ],
+    "started_at": "2026-10-05T15:32:22.178580+00:00",
+    "exit_code": 0,
+    "stdout": "git-1.stdout",
+    "stderr": "git-1.stderr",
+    "finished_at": "2026-10-05T15:32:23.911608+00:00"
+  }
+]
