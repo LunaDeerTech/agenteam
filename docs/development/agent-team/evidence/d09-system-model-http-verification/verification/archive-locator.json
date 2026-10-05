@@ -1,0 +1,153 @@
+{
+  "accepted_commit": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "source_reconstruction": "Read only the 17 manifest paths from accepted commit; use fixed base9110686 plus accepted dependency8ad6759 for original test environment. Do not copy trees/caches/binaries.",
+  "final_candidate_manifest": {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-02/manifest.json",
+    "sha256": "caa5b3d485aaee6d07cec51a54915106d93c652f36ae5aea71bc7d8b4ee21a7a",
+    "purpose": "exact final17 paths/hashes"
+  },
+  "primary_independent_index": {
+    "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/final-core-index.json",
+    "sha256": "2c82a8617f8a64360595e3a82a6f860b4ac5b5543041803920ff082ed47e2366",
+    "purpose": "all core independent raw/report/probe/live-resource/cleanup/startup rejection originals"
+  },
+  "author_selection": {
+    "coverage_matrix": {
+      "path": "/workspace/agenteam-system-http-author-zyt918wl/coverage-matrix.json",
+      "sha256": "d5693830cc61c88f4d36ea8b99d252d751589371c3c4b4451b98c1965ecefe21",
+      "purpose": "recursively select each object with path+sha256; 79 references, hash checked, includes original failures, argv/env/exit/cleanup"
+    },
+    "rule": "preserve every unique referenced file exactly; no whole-directory recursion",
+    "additional": [
+      {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/author-report.md",
+        "sha256": "a5284098af5707420f0a61a8010f82e5a3f6f10ab69b28fbeb4d46480f6d9562",
+        "purpose": "author full scope and version reuse"
+      },
+      {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/production-review-01/manifest.json",
+        "sha256": "6b80a5bc05d9fa776938eaf78b12f0855d9f09e8ce6aea5c31936c7d166ce7a7",
+        "purpose": "original F1 production hash identity"
+      },
+      {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/manifest.json",
+        "sha256": "fb25c9d68e0468538d6bd79550902f058e9217262f7054a7b7e79fe1dd1d2a8f",
+        "purpose": "original real failing input"
+      }
+    ]
+  },
+  "additional_files": [
+    {
+      "path": "/tmp/agenteam-system-http-review01-v-1qhg_uw7/review.md",
+      "sha256": "74d8988680d7bc036427960ba314a531b28fa97b362ba3f4dc97841250bb80c2",
+      "purpose": "F1 original static finding or repair review; source bytes reconstruct from accepted17 plus F1 delta"
+    },
+    {
+      "path": "/tmp/agenteam-system-http-review01-v-1qhg_uw7/manifest.json",
+      "sha256": "6b80a5bc05d9fa776938eaf78b12f0855d9f09e8ce6aea5c31936c7d166ce7a7",
+      "purpose": "F1 original static finding or repair review; source bytes reconstruct from accepted17 plus F1 delta"
+    },
+    {
+      "path": "/tmp/agenteam-system-http-review01-v-1qhg_uw7/SHA256SUMS.json",
+      "sha256": "405eae3fb17b4a1155c1747a4edcaafeda41309862d946c9c2d2052df30a8732",
+      "purpose": "F1 original static finding or repair review; source bytes reconstruct from accepted17 plus F1 delta"
+    },
+    {
+      "path": "/tmp/agenteam-system-http-review02-v-nmlbhnkz/review.md",
+      "sha256": "684d6f0923cb5f830fdfb0e94cde6d249fb7d77e9412d2ba3f449e4362f13043",
+      "purpose": "F1 original static finding or repair review; source bytes reconstruct from accepted17 plus F1 delta"
+    },
+    {
+      "path": "/tmp/agenteam-system-http-review02-v-nmlbhnkz/manifest.json",
+      "sha256": "2a3099ad132d3cf0a39b7ff312167c2023f03f3a28c06344021e654cc8646715",
+      "purpose": "F1 original static finding or repair review; source bytes reconstruct from accepted17 plus F1 delta"
+    },
+    {
+      "path": "/tmp/agenteam-system-http-review02-v-nmlbhnkz/SHA256SUMS.json",
+      "sha256": "b513d37e1078ed110a3ac85d10bb4b45a26b2321c9232ad0b33624bdff788edc",
+      "purpose": "F1 original static finding or repair review; source bytes reconstruct from accepted17 plus F1 delta"
+    },
+    {
+      "path": "/tmp/agenteam-system-http-review02-v-nmlbhnkz/delta.patch",
+      "sha256": "d9b104b8b2c72f6faeb2663347f6c4c05e8aee1bdb182182170094efe3ccb9de",
+      "purpose": "F1 only 3-line production repair; reverse to original lookup"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/unit02-secret-write-lookup-test.go.txt",
+      "sha256": "0081405568994c177be87a8065cb377796dcc24402565019c9101dfa7131fe4c",
+      "purpose": "exact historical unit02/unit03/race01 test; reconstructed from final by reversing F1 additions, hash equals original input"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/ready.md",
+      "sha256": "3daee34525bd5fd8b1b2df2c27610049781039e62a437087e4d8d2cd006faa6d",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/ready-input.json",
+      "sha256": "b7bbc514c1faf81da7422400d24bf84620fb31b500975cfe4d6bab86b941d55b",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile-command.json",
+      "sha256": "532ab6d204137c9b94637b078266710796800a39ba87aab7eccaecb4e4965a47",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile-result.json",
+      "sha256": "2a00ad3e633c78a64138106380d33f2ca79d71e5817364fbea0bf1e1e19c87bc",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile02-command.json",
+      "sha256": "670f4aebf91f027ae5c5fd6f8e6189e4a3b9ceb25fd80865b523ba431a7b1460",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile02-result.json",
+      "sha256": "5c484f0318981ebe2da0903eb3132ac0022809c6493e494eb376d50c3d8dd915",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/run-compile.py",
+      "sha256": "aff844491cd7d3965bc0c93fd3a5ce94a1ce5f47b52c5181ad75d36bcc074f90",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/run-compile02.py",
+      "sha256": "153e02671810c5541ed2fa3941ed2d709d5b4fcb1c3dbe0b61f3856dfbb8e3ae",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/run-independent-fixture.py",
+      "sha256": "75c55281b98fd27ad6a0ba94542597413e653efbcb5e72c67f7c26aed2050668",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/check-author-evidence.py",
+      "sha256": "48422b9f2381ddeb08162d4f228649825b59781e53b85582ed5fe0cde0614644",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/author-final-checked.json",
+      "sha256": "c06803c53f83bc81768fbb118241d4400b17ced84b76187dc1ab91093aef5d98",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    },
+    {
+      "path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/accepted-commit.json",
+      "sha256": "16a6f16e92bdc669ca32f7831f6b9172be761eb9571d506b06a2dec014612b43",
+      "purpose": "independent preparation, exact compile/provenance, reusable audit script or accepted commit fact"
+    }
+  ],
+  "historical_reconstruction_note": "unit01-input has exact14 originals; unit02-input-delta/http_test.go plus recovered unit02 secret test and matching known frozen source versions reproduce original14 input hashes. Preserve input manifests and mark three integration files not yet present, without copying whole snapshot. F1 was static original finding, not an original dynamic red.",
+  "freeze": "all originals and locator fixed; no further Go/Docker; repo untouched"
+}

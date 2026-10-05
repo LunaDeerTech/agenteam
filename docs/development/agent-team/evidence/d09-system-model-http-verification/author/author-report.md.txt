@@ -1,0 +1,33 @@
+System Model HTTP 作者交付；17 路径已停写，全部作者命令结束，真实 fixture 窗口已归还 root。结果为库级 System 配置 HTTP 与被动 credential 查证，不表示生产 root 挂载、Provider 执行或 D09 整体完成。
+
+固定输入是 9110686a507716d8b4e042a5562a22507658adcb 的必要源码快照，仅叠加已验 Secret20 提交 8ad6759dbb499ae1cfec1d47bcab75f1abb2f56d 和本卡 17 路径。未消费活动 Artifact/Object 源。最终副本与指纹：
+
+- `fixture-input-02/manifest.json`：caa5b3d485aaee6d07cec51a54915106d93c652f36ae5aea71bc7d8b4ee21a7a。
+- `accepted-secret-delta.json`：f74392aa03f07818d75c4b7b2774cc93622b96cb535162ba2e1f83eee9e6b22b，完整 20 源均在私有快照末核一致，和本卡无交集。
+- `production-review-02/manifest.json`：2a3099ad132d3cf0a39b7ff312167c2023f03f3a28c06344021e654cc8646715；最终 8 Go 生产和 OpenAPI 均与该静审输入相同。
+- `source-final-check.json`：2bbaea9f047664d88ac2f0d85757118b971936ee39f48a8ba5e7f6e44065b019，shared17 / snapshot17 / frozen17 逐项相等、accepted20 与生产9 一致，授权路径 diff check exit 0。
+- `coverage-matrix.json`：d5693830cc61c88f4d36ea8b99d252d751589371c3c4b4451b98c1965ecefe21。此文件逐项关联实际 argv/env/exit、输入 SHA、原日志、首轮/二次清理和存活资源 ID/name/nonce label；包含保留的失败，不将其覆盖为成功。
+
+作者真实测试共 20 个不同顶层、48 个子例显式 PASS，无 Skip。原驱动 `sh scripts/test-objects.sh -run <精确 selector>`，GOFLAGS=`-mod=readonly -v`；脚本原 `-race -count=1 -timeout=6m` 未改变，四组顺序与精确 selector 见 `fixture-plan-01.json`。
+
+| 执行标签 | 通过范围 | 原包用时 | 输入关系 |
+| --- | --- | --- | --- |
+| new-configuration-01 | 新配置 5 top / 26 sub | model 13.477s | input01；root/V 限定复用，生产及本组测试未改，未声称 input02 重跑 |
+| new-credentials-02 | 新 credential 5 top / 17 sub | model 10.849s | input02；包括首红所在完整五组复验 |
+| compat-model-01 | 原 Model 5 top / 5 sub | model 8.596s | input02 + 已验 Secret20 |
+| compat-account-secret-01 | 原 Account 3 top / Secret 2 top | account 9.530s / security 4.253s | input02 + 已验 Secret20 |
+
+每次真实执行均记录自有 4 容器、3 网络的存活 ID/name/nonce label，原脚本清理后两次 exact-ID inspect absent；每次原 2 容器/4 网络基线一致，自有进程 0、runtime 空、17 源末核一致。最后记录 `cleanup-double-compat-account-secret-01.json` SHA 5d963f29a9509ec848442499521e7f7b5e864ddc42365955d9c826057a81b822。清理证据表示实际检查时刻；交窗后不自行再运行 Docker。
+
+纯检查均使用固定 Go 1.27.1、离线 readonly 环境和自有 /workspace cache/tmp。`race01` 覆盖 Account/Secret/contract/Model/httpapi；F1 修后 `race02` 重验 Secret/contract/Model。未变 Account/httpapi 复用 race01。非 race 的 unit02 相关 Account/Secret/contract/httpapi 通过，unit03 修正 Model 测试路径后通过。`vet01` 覆盖相关生产包及 integration 包；最终两个测试变化后 `compile-integration02`（race + integration、run '^$'，只编译）和 `vet-integration02` 均 exit 0。两个实际命令构建 build-central01 / build-runner01 均 exit 0，产物仅自有 bin 目录。OpenAPI JSON、124 引用、22 operations 和 schema 检查通过；相关文件未在后续变更。
+
+保留的发现与修复：
+
+1. unit01 首红为新测试自身的时间 helper 拼写及带 opaque 函数 LockKey 的 reflect.DeepEqual；改为真实 Canonical + mode 比较，未改变生产约束。unit02 的 Model OpenAPI 相对路径仍错误，unit03 修正。原输入和 raw 均保留在 unit01-input、unit02-input-delta 及对应 input/result/log 文件。
+2. F1 是独立 production01 静审发现的读 Tx Committed 后 caller 取消可能仍交付 observation。仅在新 lookup 成功尾部加 ctx.Err 检查，零 observation 且保留 Committed 的安全 Fault；原 production01 和修后 production02 均保留。原 F1 没有实际红运行，不作动态原红声明。修后 race02 及真实 new-credentials-02 的 present/absent Committed 后取消均通过，实际读授权锁和 receipt 查询有日志。
+3. new-credentials-01 是实际首轮失败：4 top / 17 sub 通过，UnknownAndHistoricalResults 中 Secret 预期 503 实得 200，后续删后历史段未执行。原因是测试 observer 用 raw CommandIdentity.Canonical 的 SHA 查询 receipt，而正式 cursor.Digest 会先排序 JSON；未命中 finalFact，未投影 Unknown。无生产吞 Unknown 的证据。原 17 副本为 fixture-input-01（fb25c9d68e0468538d6bd79550902f058e9217262f7054a7b7e79fe1dd1d2a8f），原 raw SHA 619ae50baf683df2cd66ffb1cb8564bef9fcc563106795134caad9e8eb06910e。
+4. 只改 fixture 和 credential 测试，使用正式 cursor.Digest 并检查错误，先断言语义命中/仅一次 ExecuteWrite，再维持原 503 与历史强断言。两测试 patch 位于 fixture-input-02/delta.patch（726b4e7acd3a5bfb96d3b6c506bbef5c0c56cc8182f5535fb6fddb84c17a7755）。修后真实组日志 109–111 记录实际两种安全 hash 不同、heldChecks=5、真正 final receipt Tx Committed→Store Unknown→Secret HTTP503，随后已删 create/update/delete 完整原材料重放通过、错材料 409。
+
+Unknown 证据严格分层：Model 实际 final canonical/receipt Committed 后装饰 Unknown，原 replayScope 确认成功则 HTTP200 原 receipt；另例正式 Store 拒绝确认后服务仍 Unknown/HTTP503。Secret 实际最终写 Tx Committed 后装饰 Unknown，直接 HTTP503 且没有自动再写。它们只证明正式 Store 结果处理，不是网络丢 ACK、ROLLBACK 干预或原 writer 悬挂证明。真正 HTTP 使用真实 Session/admin/CSRF 与 Account/Model/Secret/Audit/Outbox，passive 查证无 payload/digest 读取、nonce/Audit/receipt/Event 变动；Account 既有 Session 活跃更新不被算作 Secret 写。
+
+独立 production02 静审已通过（报告 SHA 684d6f0923cb5f830fdfb0e94cde6d249fb7d77e9412d2ba3f449e4362f13043）；最终独立动态检查由 root / skill_verification 继续，不以本作者报告代替。没有改动白名单之外的契约、SQL、旧测试、脚本、依赖或其他领域，没有执行 Git 写操作或暂停的协议方法。

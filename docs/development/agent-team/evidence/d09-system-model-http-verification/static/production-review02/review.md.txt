@@ -1,0 +1,17 @@
+# System Model HTTP production-review-02 独立差量静审
+
+结论：**F1 静态修复通过；本次固定 9 文件的生产静审无剩余确定阻断，可进入最终冻结后的动态验收。** 不代表测试、真实 HTTP/PG 或整卡已通过。
+
+- 基线 `9110686a507716d8b4e042a5562a22507658adcb`，已验 Secret 依赖 `8ad6759dbb499ae1cfec1d47bcab75f1abb2f56d`；采纳卡 `b4dd1e6c4275d7c98e1f52cc6ac24ae4bf798d82`。
+- prod02 manifest SHA256 `2a3099ad132d3cf0a39b7ff312167c2023f03f3a28c06344021e654cc8646715`；9 份固定副本均逐字节匹配。
+- 相对独立 prod01 副本，仅 `internal/central/secret/write_lookup.go` 改变，SHA256 `971e0e65373200a5b0653785e663a20a94da7d6682a765f950cd07414ef430e6`；完整差量见 `delta.patch`，仅新增 3 行。
+
+修复位置为新 lookup 第 100–102 行：`commitError` 成功后检查 caller `ctx.Err()`。present 与 absent 都经此公共尾部；已取消时返回零 observation 与 `DependencyUnavailable / Committed` 的 foundation Fault，保留原 context cause，既不交付历史结果，也不把读失败伪装成成功 absent。`commitError` 仍先处理原 NotCommitted/Unknown，不因后置检查改变其优先级。入口已拒绝 nil context。
+
+固定 foundation Fault 的 `WithCause`、安全格式/JSON 与 HTTP Problem 投影支持该直接 Fault，原 cause 不进入安全响应；无需再引入 Secret Error 包装，也没有修改旧共用 helper、legacy 读写路径或新增重试。真实 read Tx 已 Committed 的事实被保留，原历史写 receipt 不受重新判定。
+
+其余 8 文件与 prod01 完全一致，因此复用前轮的当前权限与锁、HTTP Origin/CSRF、严格 DTO、材料清理、purpose/version 约束、历史查证与完整材料重放区分、路由及 OpenAPI 静态结论。前轮原问题与证据未覆盖：`/tmp/agenteam-system-http-review01-v-1qhg_uw7/review.md` SHA256 `74d8988680d7bc036427960ba314a531b28fa97b362ba3f4dc97841250bb80c2`；其指纹清单 SHA256 `405eae3fb17b4a1155c1747a4edcaafeda41309862d946c9c2d2052df30a8732`。
+
+仍需最终实际验证的重点包括：底层真实读 Committed 后、Store 交回前取消的 present/absent 两案；同 Tx 当前授权和各读失败零结果；历史 receipt 不能绕过完整材料/当前限域；Model 自动确认成功与最终 Unknown 的区别；原子回滚。作者称已补的测试本轮未读取、未执行，不能记为独立通过。
+
+本轮只读作者固定 prod02、自有 prod01 副本与固定 Git 对象；未读活动测试，未 Go/Docker、未仓库或 Git 写操作。所有新增产物仅位于本目录。复核完成，all-stop。

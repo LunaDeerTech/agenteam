@@ -1,0 +1,459 @@
+{
+  "accepted_commit": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "format": "utf8-lines-v1; apply edits in reverse order to the accepted source",
+  "variants": {
+    "unit01": {
+      "input_metadata": "author/input-unit01.json",
+      "input_metadata_sha256": "a02514529a136a5507dca915e2f62f937130f66944f7d1f347f5bdcdb2087f4a",
+      "scope": "Only files declared by the original fixed input; absence outside this scope is not inferred.",
+      "files": {
+        "internal/central/account/http_boundary.go": {
+          "sha256": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/account/http_boundary.go",
+          "edits": []
+        },
+        "internal/central/secret/contract/write_lookup.go": {
+          "sha256": "805e1f99c643cd574e6f9a18c9b99d0fba2ff27ec9276116636896e127d84558",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/secret/contract/write_lookup.go",
+          "edits": []
+        },
+        "internal/central/secret/write_lookup.go": {
+          "sha256": "bde8b20916d75b5e39d93efd8dd849d4080e133c3e7c05c6dbd7d605b73a50bf",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/secret/write_lookup.go",
+          "edits": [
+            {
+              "start": 99,
+              "end": 102,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/secret/write.go": {
+          "sha256": "dcb0b87d84f310f7113d2749f22176cb75c3d9ad75f9aac759c22ec8072aecda",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/secret/write.go",
+          "edits": []
+        },
+        "internal/central/model/http.go": {
+          "sha256": "40bcbe3eab3fe9f542af4895a9c398a1eb715f549ae389112197c474278aabfd",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/model/http.go",
+          "edits": [
+            {
+              "start": 42,
+              "end": 46,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/model/http_configuration.go": {
+          "sha256": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/model/http_configuration.go",
+          "edits": []
+        },
+        "internal/central/model/http_credentials.go": {
+          "sha256": "86b3928ef9e0d2399dc4f83a53fd299aff13f9c019d69bbcc28a937e04c5e04b",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/model/http_credentials.go",
+          "edits": []
+        },
+        "internal/central/model/http_dto.go": {
+          "sha256": "6e910d66b4336b96017e166bc23515f5df4ff817f98c782a21affe1c221e5d35",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/model/http_dto.go",
+          "edits": []
+        },
+        "api/openapi/model-system.json": {
+          "sha256": "f18b5bfe747be21dbe34791dd08876f768d4271154ed5843dc338fdc6ac73334",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/api/openapi/model-system.json",
+          "edits": []
+        },
+        "internal/central/account/http_boundary_test.go": {
+          "sha256": "b06d9d913085c83a04e1614bdcc5b3d5ff07f2cbf87bdf5f4ab6583f9c0dd2b5",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/account/http_boundary_test.go",
+          "edits": []
+        },
+        "internal/central/secret/contract/write_lookup_test.go": {
+          "sha256": "2b275124816a7f468f42e9a06bd20b00fb2acf7a28f3e0d96c9508e524eb421e",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/secret/contract/write_lookup_test.go",
+          "edits": []
+        },
+        "internal/central/secret/write_lookup_test.go": {
+          "sha256": "4b0948a131009ef779e3a2b613a668b1da4a6108afe127ce0734e1c70082e163",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/secret/write_lookup_test.go",
+          "edits": [
+            {
+              "start": 26,
+              "end": 27,
+              "lines": []
+            },
+            {
+              "start": 45,
+              "end": 48,
+              "lines": []
+            },
+            {
+              "start": 60,
+              "end": 61,
+              "lines": [
+                "\tif tx != s.tx || !reflect.DeepEqual(locks, s.locks) {\n"
+              ]
+            },
+            {
+              "start": 64,
+              "end": 76,
+              "lines": []
+            },
+            {
+              "start": 175,
+              "end": 176,
+              "lines": [
+                "\t\t\t\tif !reflect.DeepEqual(store.locks, []f.LockRequest{{Key: command, Mode: f.Shared}, {Key: user, Mode: f.Shared}}) || store.acquires != 1 || store.held != 1 || store.queries != 1 {\n"
+              ]
+            },
+            {
+              "start": 251,
+              "end": 272,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/model/http_test.go": {
+          "sha256": "693f1548a1d8125ec504681d1908868a527a9efd1ba54efd6c2ad46ccfd2a33a",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/model/http_test.go",
+          "edits": [
+            {
+              "start": 46,
+              "end": 47,
+              "lines": [
+                "\tdata, err := os.ReadFile(\"../../../..//api/openapi/model-system.json\")\n"
+              ]
+            }
+          ]
+        },
+        "internal/central/model/http_dto_test.go": {
+          "sha256": "0c6796f9c05a19cf0d2ed35160039c9b9a42500d9c05b7a65a2062665b079846",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/model/http_dto_test.go",
+          "edits": [
+            {
+              "start": 11,
+              "end": 12,
+              "lines": []
+            },
+            {
+              "start": 98,
+              "end": 99,
+              "lines": [
+                "\tnow := instant(t)\n"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "unit02": {
+      "input_metadata": "author/input-unit02.json",
+      "input_metadata_sha256": "9203ddac59704425b506739b3068c311935e003093a2543e8f185240d3cc50a9",
+      "scope": "Only files declared by the original fixed input; absence outside this scope is not inferred.",
+      "files": {
+        "internal/central/account/http_boundary.go": {
+          "sha256": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/account/http_boundary.go",
+          "edits": []
+        },
+        "internal/central/secret/contract/write_lookup.go": {
+          "sha256": "805e1f99c643cd574e6f9a18c9b99d0fba2ff27ec9276116636896e127d84558",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/secret/contract/write_lookup.go",
+          "edits": []
+        },
+        "internal/central/secret/write_lookup.go": {
+          "sha256": "bde8b20916d75b5e39d93efd8dd849d4080e133c3e7c05c6dbd7d605b73a50bf",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/secret/write_lookup.go",
+          "edits": [
+            {
+              "start": 99,
+              "end": 102,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/secret/write.go": {
+          "sha256": "dcb0b87d84f310f7113d2749f22176cb75c3d9ad75f9aac759c22ec8072aecda",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/secret/write.go",
+          "edits": []
+        },
+        "internal/central/model/http.go": {
+          "sha256": "40bcbe3eab3fe9f542af4895a9c398a1eb715f549ae389112197c474278aabfd",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/model/http.go",
+          "edits": [
+            {
+              "start": 42,
+              "end": 46,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/model/http_configuration.go": {
+          "sha256": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/model/http_configuration.go",
+          "edits": []
+        },
+        "internal/central/model/http_credentials.go": {
+          "sha256": "86b3928ef9e0d2399dc4f83a53fd299aff13f9c019d69bbcc28a937e04c5e04b",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/model/http_credentials.go",
+          "edits": []
+        },
+        "internal/central/model/http_dto.go": {
+          "sha256": "6e910d66b4336b96017e166bc23515f5df4ff817f98c782a21affe1c221e5d35",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/model/http_dto.go",
+          "edits": []
+        },
+        "api/openapi/model-system.json": {
+          "sha256": "f18b5bfe747be21dbe34791dd08876f768d4271154ed5843dc338fdc6ac73334",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/api/openapi/model-system.json",
+          "edits": []
+        },
+        "internal/central/account/http_boundary_test.go": {
+          "sha256": "b06d9d913085c83a04e1614bdcc5b3d5ff07f2cbf87bdf5f4ab6583f9c0dd2b5",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/account/http_boundary_test.go",
+          "edits": []
+        },
+        "internal/central/secret/contract/write_lookup_test.go": {
+          "sha256": "2b275124816a7f468f42e9a06bd20b00fb2acf7a28f3e0d96c9508e524eb421e",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit01-input/internal/central/secret/contract/write_lookup_test.go",
+          "edits": []
+        },
+        "internal/central/secret/write_lookup_test.go": {
+          "sha256": "0081405568994c177be87a8065cb377796dcc24402565019c9101dfa7131fe4c",
+          "verified_original_copy": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/unit02-secret-write-lookup-test.go.txt",
+          "edits": [
+            {
+              "start": 26,
+              "end": 27,
+              "lines": []
+            },
+            {
+              "start": 44,
+              "end": 47,
+              "lines": []
+            },
+            {
+              "start": 251,
+              "end": 272,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/model/http_test.go": {
+          "sha256": "693f1548a1d8125ec504681d1908868a527a9efd1ba54efd6c2ad46ccfd2a33a",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/unit02-input-delta/http_test.go",
+          "edits": [
+            {
+              "start": 46,
+              "end": 47,
+              "lines": [
+                "\tdata, err := os.ReadFile(\"../../../..//api/openapi/model-system.json\")\n"
+              ]
+            }
+          ]
+        },
+        "internal/central/model/http_dto_test.go": {
+          "sha256": "f5de3a0869619c5ca2fe96e1d1b4220ccefd2867d9d7dae3486e6dcacf54ed17",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/model/http_dto_test.go",
+          "edits": []
+        }
+      }
+    },
+    "production01": {
+      "input_metadata": "author/production-review-01/manifest.json",
+      "input_metadata_sha256": "6b80a5bc05d9fa776938eaf78b12f0855d9f09e8ce6aea5c31936c7d166ce7a7",
+      "scope": "Only files declared by the original fixed input; absence outside this scope is not inferred.",
+      "files": {
+        "internal/central/account/http_boundary.go": {
+          "sha256": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/production-review-01/internal/central/account/http_boundary.go",
+          "edits": []
+        },
+        "internal/central/secret/contract/write_lookup.go": {
+          "sha256": "805e1f99c643cd574e6f9a18c9b99d0fba2ff27ec9276116636896e127d84558",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/production-review-01/internal/central/secret/contract/write_lookup.go",
+          "edits": []
+        },
+        "internal/central/secret/write_lookup.go": {
+          "sha256": "bde8b20916d75b5e39d93efd8dd849d4080e133c3e7c05c6dbd7d605b73a50bf",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/production-review-01/internal/central/secret/write_lookup.go",
+          "edits": [
+            {
+              "start": 99,
+              "end": 102,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/secret/write.go": {
+          "sha256": "dcb0b87d84f310f7113d2749f22176cb75c3d9ad75f9aac759c22ec8072aecda",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/production-review-01/internal/central/secret/write.go",
+          "edits": []
+        },
+        "internal/central/model/http.go": {
+          "sha256": "6d51d779dfde07dc136764fd98c4ed9bceca519b86bb24db2527c880c873b224",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/production-review-01/internal/central/model/http.go",
+          "edits": []
+        },
+        "internal/central/model/http_configuration.go": {
+          "sha256": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/production-review-01/internal/central/model/http_configuration.go",
+          "edits": []
+        },
+        "internal/central/model/http_credentials.go": {
+          "sha256": "86b3928ef9e0d2399dc4f83a53fd299aff13f9c019d69bbcc28a937e04c5e04b",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/production-review-01/internal/central/model/http_credentials.go",
+          "edits": []
+        },
+        "internal/central/model/http_dto.go": {
+          "sha256": "6e910d66b4336b96017e166bc23515f5df4ff817f98c782a21affe1c221e5d35",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/production-review-01/internal/central/model/http_dto.go",
+          "edits": []
+        },
+        "api/openapi/model-system.json": {
+          "sha256": "f18b5bfe747be21dbe34791dd08876f768d4271154ed5843dc338fdc6ac73334",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/production-review-01/api/openapi/model-system.json",
+          "edits": []
+        }
+      }
+    },
+    "fixture01": {
+      "input_metadata": "author/fixture-input-01/manifest.json",
+      "input_metadata_sha256": "fb25c9d68e0468538d6bd79550902f058e9217262f7054a7b7e79fe1dd1d2a8f",
+      "scope": "Only files declared by the original fixed input; absence outside this scope is not inferred.",
+      "files": {
+        "internal/central/account/http_boundary.go": {
+          "sha256": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/account/http_boundary.go",
+          "edits": []
+        },
+        "internal/central/secret/contract/write_lookup.go": {
+          "sha256": "805e1f99c643cd574e6f9a18c9b99d0fba2ff27ec9276116636896e127d84558",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/secret/contract/write_lookup.go",
+          "edits": []
+        },
+        "internal/central/secret/write_lookup.go": {
+          "sha256": "971e0e65373200a5b0653785e663a20a94da7d6682a765f950cd07414ef430e6",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/secret/write_lookup.go",
+          "edits": []
+        },
+        "internal/central/secret/write.go": {
+          "sha256": "dcb0b87d84f310f7113d2749f22176cb75c3d9ad75f9aac759c22ec8072aecda",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/secret/write.go",
+          "edits": []
+        },
+        "internal/central/model/http.go": {
+          "sha256": "6d51d779dfde07dc136764fd98c4ed9bceca519b86bb24db2527c880c873b224",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/model/http.go",
+          "edits": []
+        },
+        "internal/central/model/http_configuration.go": {
+          "sha256": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/model/http_configuration.go",
+          "edits": []
+        },
+        "internal/central/model/http_credentials.go": {
+          "sha256": "86b3928ef9e0d2399dc4f83a53fd299aff13f9c019d69bbcc28a937e04c5e04b",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/model/http_credentials.go",
+          "edits": []
+        },
+        "internal/central/model/http_dto.go": {
+          "sha256": "6e910d66b4336b96017e166bc23515f5df4ff817f98c782a21affe1c221e5d35",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/model/http_dto.go",
+          "edits": []
+        },
+        "api/openapi/model-system.json": {
+          "sha256": "f18b5bfe747be21dbe34791dd08876f768d4271154ed5843dc338fdc6ac73334",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/api/openapi/model-system.json",
+          "edits": []
+        },
+        "internal/central/account/http_boundary_test.go": {
+          "sha256": "b06d9d913085c83a04e1614bdcc5b3d5ff07f2cbf87bdf5f4ab6583f9c0dd2b5",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/account/http_boundary_test.go",
+          "edits": []
+        },
+        "internal/central/secret/contract/write_lookup_test.go": {
+          "sha256": "2b275124816a7f468f42e9a06bd20b00fb2acf7a28f3e0d96c9508e524eb421e",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/secret/contract/write_lookup_test.go",
+          "edits": []
+        },
+        "internal/central/secret/write_lookup_test.go": {
+          "sha256": "38f1b7a06e019e37ea93917e3e5b0ddba092589c42ae32f8b51157fcec82f5f7",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/secret/write_lookup_test.go",
+          "edits": []
+        },
+        "internal/central/model/http_test.go": {
+          "sha256": "2e3a05f244c3f2360234c9919da9aa9a3da5579e65922dddaad4e1efaf8e3fbd",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/model/http_test.go",
+          "edits": []
+        },
+        "internal/central/model/http_dto_test.go": {
+          "sha256": "f5de3a0869619c5ca2fe96e1d1b4220ccefd2867d9d7dae3486e6dcacf54ed17",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/internal/central/model/http_dto_test.go",
+          "edits": []
+        },
+        "tests/model/system_http_fixture_test.go": {
+          "sha256": "23a4d95d460c91a48baf8a4845f29b5a10caafa5e074bc1461ced7d09c05cce3",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/tests/model/system_http_fixture_test.go",
+          "edits": [
+            {
+              "start": 28,
+              "end": 29,
+              "lines": []
+            },
+            {
+              "start": 53,
+              "end": 54,
+              "lines": []
+            },
+            {
+              "start": 95,
+              "end": 103,
+              "lines": [
+                "\t\t\tdigest := sha256.Sum256([]byte(d.Primary.Canonical()))\n",
+                "\t\t\tkey := fmt.Sprintf(\"sha256:%x\", digest)\n",
+                "\t\t\terr = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_secret.secret_command_receipts WHERE scope='system' AND scope_key='system' AND command_digest=$1)`, key).Scan(&trace.finalFact)\n"
+              ]
+            }
+          ]
+        },
+        "tests/model/system_http_configuration_test.go": {
+          "sha256": "b8abc3d280b66115ccc8a1b676a4ce6c3e0ddfa32c04cf9783ae7b31eef3a168",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/tests/model/system_http_configuration_test.go",
+          "edits": []
+        },
+        "tests/model/system_http_credentials_test.go": {
+          "sha256": "7532124947b88382acf87ba4a272c1ba8ad112387b01124cb77f9ef63240a0ad",
+          "verified_original_copy": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/tests/model/system_http_credentials_test.go",
+          "edits": [
+            {
+              "start": 423,
+              "end": 425,
+              "lines": []
+            },
+            {
+              "start": 427,
+              "end": 431,
+              "lines": [
+                "\t\t\tt.Log(\"Secret final mutation/receipt Tx actual=committed -> formal Store Unknown -> no write replay\")\n"
+              ]
+            },
+            {
+              "start": 437,
+              "end": 437,
+              "lines": [
+                "\tresponse.problem(t, 503, f.CommitUnknown)\n"
+              ]
+            },
+            {
+              "start": 440,
+              "end": 445,
+              "lines": []
+            }
+          ]
+        }
+      }
+    }
+  }
+}

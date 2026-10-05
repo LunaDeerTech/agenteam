@@ -1,0 +1,87 @@
+{
+  "containers": {
+    "96e1e1d9210153c896cf934c97161af99ee24178b2e7129877025a3cc73afe0c": {
+      "first_seen_utc": "2026-10-05T18:24:48.744072+00:00",
+      "last_changed_utc": "2026-10-05T18:25:23.538343+00:00",
+      "resource": {
+        "id": "96e1e1d9210153c896cf934c97161af99ee24178b2e7129877025a3cc73afe0c",
+        "labels": {
+          "agenteam.d03.fixture": "8c990782761176a83edac37c916d9e68"
+        },
+        "name": "/agenteam-d03-8c990782761176a83edac37c916d9e68",
+        "running": false
+      }
+    },
+    "c963d3540d85edcbf3f569a8c4683ad541e231624fd5a3d8c0469975eab8e8aa": {
+      "first_seen_utc": "2026-10-05T18:24:39.284378+00:00",
+      "last_changed_utc": "2026-10-05T18:24:39.284394+00:00",
+      "resource": {
+        "id": "c963d3540d85edcbf3f569a8c4683ad541e231624fd5a3d8c0469975eab8e8aa",
+        "labels": {
+          "agenteam.d05.objectfixture": "f77d24de470d1ed828029a1fd6c3eb41"
+        },
+        "name": "/agenteam-d05-object-f77d24de470d1ed828029a1fd6c3eb41",
+        "running": true
+      }
+    },
+    "d2cb11904eb112366c42b8aab0161b6562ce377793ccc24a97fd5a4c7d30ab66": {
+      "first_seen_utc": "2026-10-05T18:24:46.645562+00:00",
+      "last_changed_utc": "2026-10-05T18:25:24.313719+00:00",
+      "resource": {
+        "id": "d2cb11904eb112366c42b8aab0161b6562ce377793ccc24a97fd5a4c7d30ab66",
+        "labels": {
+          "agenteam.d04.networkfixture": "f8b8d1b0008703a6b5c3395387c79316"
+        },
+        "name": "/agenteam-d04-net-f8b8d1b0008703a6b5c3395387c79316",
+        "running": false
+      }
+    },
+    "d8cc63dea1b6d78be86b90442917c3c10cd90767a33edb4eab1b5962291c52a4": {
+      "first_seen_utc": "2026-10-05T18:24:50.815086+00:00",
+      "last_changed_utc": "2026-10-05T18:25:23.925815+00:00",
+      "resource": {
+        "id": "d8cc63dea1b6d78be86b90442917c3c10cd90767a33edb4eab1b5962291c52a4",
+        "labels": {
+          "agenteam.d03.fixture": "8c990782761176a83edac37c916d9e68"
+        },
+        "name": "/agenteam-d03-8c990782761176a83edac37c916d9e68-pg16",
+        "running": false
+      }
+    }
+  },
+  "networks": {
+    "2b9da3981a0ccfa879033bdd996e8f162b4f52877e05e0264b99133f68dbf0d9": {
+      "first_seen_utc": "2026-10-05T18:24:45.179080+00:00",
+      "last_changed_utc": "2026-10-05T18:24:45.179097+00:00",
+      "resource": {
+        "id": "2b9da3981a0ccfa879033bdd996e8f162b4f52877e05e0264b99133f68dbf0d9",
+        "labels": {
+          "agenteam.d04.networkfixture": "f8b8d1b0008703a6b5c3395387c79316"
+        },
+        "name": "agenteam-d04-net-f8b8d1b0008703a6b5c3395387c79316"
+      }
+    },
+    "bb221ca1d7f4e3b6770511098a633ebbe033c5acc49e484c1be0ee73cc9c244f": {
+      "first_seen_utc": "2026-10-05T18:24:35.669656+00:00",
+      "last_changed_utc": "2026-10-05T18:24:35.669673+00:00",
+      "resource": {
+        "id": "bb221ca1d7f4e3b6770511098a633ebbe033c5acc49e484c1be0ee73cc9c244f",
+        "labels": {
+          "agenteam.d05.objectfixture": "f77d24de470d1ed828029a1fd6c3eb41"
+        },
+        "name": "agenteam-d05-object-f77d24de470d1ed828029a1fd6c3eb41"
+      }
+    },
+    "c88b1f9d6b5c184262a71d8edea60d97c4ad181dc76dda160b19c1b0322f08a4": {
+      "first_seen_utc": "2026-10-05T18:24:47.445454+00:00",
+      "last_changed_utc": "2026-10-05T18:24:47.445472+00:00",
+      "resource": {
+        "id": "c88b1f9d6b5c184262a71d8edea60d97c4ad181dc76dda160b19c1b0322f08a4",
+        "labels": {
+          "agenteam.d03.fixture": "8c990782761176a83edac37c916d9e68"
+        },
+        "name": "agenteam-d03-8c990782761176a83edac37c916d9e68"
+      }
+    }
+  }
+}

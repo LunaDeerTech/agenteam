@@ -1,0 +1,117 @@
+[
+  {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-configuration-01.log",
+    "sha256": "30d0c2b76236e55eafbabaa35793cdb8aeefd5c7392932c55b02929fc2c824e2",
+    "pass_tops": [
+      "TestModelSystemHTTPConfigurationCRUD",
+      "TestModelSystemHTTPSelectionAndReferenceDeletion",
+      "TestModelSystemHTTPCurrentAdministrator",
+      "TestModelSystemHTTPBoundaryAndStrictWire",
+      "TestModelSystemHTTPPaginationAndSafeProjection"
+    ],
+    "fail_tops": [],
+    "pass_subs": [
+      "TestModelSystemHTTPConfigurationCRUD/openai-chat-completions",
+      "TestModelSystemHTTPConfigurationCRUD/anthropic-messages",
+      "TestModelSystemHTTPConfigurationCRUD/openai-embeddings",
+      "TestModelSystemHTTPConfigurationCRUD/jina-rerank",
+      "TestModelSystemHTTPConfigurationCRUD/openai-images-generations",
+      "TestModelSystemHTTPCurrentAdministrator/role",
+      "TestModelSystemHTTPCurrentAdministrator/session",
+      "TestModelSystemHTTPBoundaryAndStrictWire/host",
+      "TestModelSystemHTTPBoundaryAndStrictWire/origin",
+      "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-origin",
+      "TestModelSystemHTTPBoundaryAndStrictWire/csrf",
+      "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-csrf",
+      "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-cookie",
+      "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-key",
+      "TestModelSystemHTTPBoundaryAndStrictWire/fetch",
+      "TestModelSystemHTTPBoundaryAndStrictWire/raw-path",
+      "TestModelSystemHTTPBoundaryAndStrictWire/unclean",
+      "TestModelSystemHTTPBoundaryAndStrictWire/query",
+      "TestModelSystemHTTPBoundaryAndStrictWire/nested-duplicate",
+      "TestModelSystemHTTPBoundaryAndStrictWire/unknown",
+      "TestModelSystemHTTPBoundaryAndStrictWire/null",
+      "TestModelSystemHTTPBoundaryAndStrictWire/trailing",
+      "TestModelSystemHTTPBoundaryAndStrictWire/utf8",
+      "TestModelSystemHTTPBoundaryAndStrictWire/media",
+      "TestModelSystemHTTPBoundaryAndStrictWire/encoding",
+      "TestModelSystemHTTPBoundaryAndStrictWire/large"
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/input-new-configuration-01.json",
+    "sha256": "e0f5f75606b19ed34a3afaacfbad8690acc48941be4072da8a7691bbb6213d91"
+  },
+  {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-credentials-01.log",
+    "sha256": "619ae50baf683df2cd66ffb1cb8564bef9fcc563106795134caad9e8eb06910e",
+    "pass_tops": [
+      "TestModelSystemHTTPAtomicEffects",
+      "TestModelSystemHTTPCredentialWritesAndBinding",
+      "TestModelSystemHTTPPassiveCredentialLookup",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures"
+    ],
+    "fail_tops": [
+      "TestModelSystemHTTPUnknownAndHistoricalResults"
+    ],
+    "pass_subs": [
+      "TestModelSystemHTTPAtomicEffects/model-audit",
+      "TestModelSystemHTTPAtomicEffects/model-event",
+      "TestModelSystemHTTPAtomicEffects/secret-audit",
+      "TestModelSystemHTTPCredentialWritesAndBinding/non-model-PUT",
+      "TestModelSystemHTTPCredentialWritesAndBinding/non-model-DELETE",
+      "TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-purpose",
+      "TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-version",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/uninitialized-read",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-command",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-user",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/not-committed",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/unknown",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-present",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-absent",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/current-after-entry",
+      "TestModelSystemHTTPUnknownAndHistoricalResults/model-confirmed",
+      "TestModelSystemHTTPUnknownAndHistoricalResults/model-still-unknown"
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/input-new-credentials-01.json",
+    "sha256": "ffc507f81cb114f505a509ad1919e1d59f48b6adc028e974809fff45b8b5f116"
+  },
+  {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-credentials-02.log",
+    "sha256": "43e15d3deb8999753cb52e57a291e89a03915fa71bcf098b6242d0a6bc176bf8",
+    "pass_tops": [
+      "TestModelSystemHTTPAtomicEffects",
+      "TestModelSystemHTTPCredentialWritesAndBinding",
+      "TestModelSystemHTTPPassiveCredentialLookup",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures",
+      "TestModelSystemHTTPUnknownAndHistoricalResults"
+    ],
+    "fail_tops": [],
+    "pass_subs": [
+      "TestModelSystemHTTPAtomicEffects/model-audit",
+      "TestModelSystemHTTPAtomicEffects/model-event",
+      "TestModelSystemHTTPAtomicEffects/secret-audit",
+      "TestModelSystemHTTPCredentialWritesAndBinding/non-model-PUT",
+      "TestModelSystemHTTPCredentialWritesAndBinding/non-model-DELETE",
+      "TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-purpose",
+      "TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-version",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/uninitialized-read",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-command",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-user",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/not-committed",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/unknown",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-present",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-absent",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/current-after-entry",
+      "TestModelSystemHTTPUnknownAndHistoricalResults/model-confirmed",
+      "TestModelSystemHTTPUnknownAndHistoricalResults/model-still-unknown"
+    ]
+  },
+  {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/input-new-credentials-02.json",
+    "sha256": "a77b152d6d66ee8c848d44b7f6694d80473e1a9c67452d7bba15540233f95a31"
+  }
+]

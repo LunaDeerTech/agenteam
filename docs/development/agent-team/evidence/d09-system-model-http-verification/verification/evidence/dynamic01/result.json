@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestIndependentSystemHTTPPassiveCurrentAuthorityAndReadFailure|TestIndependentSystemHTTPLateReceiptStillRequiresOriginalMaterial)$"
+  ],
+  "candidate_manifest_sha256": "caa5b3d485aaee6d07cec51a54915106d93c652f36ae5aea71bc7d8b4ee21a7a",
+  "cwd": "/workspace/agenteam-system-http-independent-v-3yb4qs32/tree",
+  "environment": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "DOCKER_CONFIG": "/workspace/agenteam-system-http-independent-v-3yb4qs32/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "GOCACHE": "/workspace/agenteam-system-http-independent-v-3yb4qs32/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/agenteam-system-http-independent-v-3yb4qs32/runtime"
+  },
+  "exit_code": 0,
+  "finished_utc": "2026-10-05T18:25:25.174109+00:00",
+  "go_version": "go version go1.27.1 linux/amd64",
+  "pgid": 1005460,
+  "pid": 1005460,
+  "probe_sha256": "4b61aaa880ef15caf99f7b710a75972d0dac62eb7f970cc796bd1d760229688c",
+  "raw_sha256": "703f9f714ff51dfc7a5ce3e9dc2f444be9e4027ce38089ff45d691c9d5028b47",
+  "ready_input_sha256": "b7bbc514c1faf81da7422400d24bf84620fb31b500975cfe4d6bab86b941d55b",
+  "scope": "authorized unique fixture; fixed 2 tops/4 subs; no new network fault method",
+  "started_utc": "2026-10-05T18:24:15.870377+00:00"
+}

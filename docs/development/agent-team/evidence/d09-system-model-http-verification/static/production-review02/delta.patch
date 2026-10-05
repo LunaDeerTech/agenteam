@@ -1,0 +1,12 @@
+--- review01/internal/central/secret/write_lookup.go
++++ review02/internal/central/secret/write_lookup.go
+@@ -97,6 +97,9 @@
+ 	if err = commitError(committed); err != nil {
+ 		return zero, err
+ 	}
++	if err = ctx.Err(); err != nil {
++		return zero, f.NewFault(f.DependencyUnavailable, f.Committed).WithCause(err)
++	}
+ 	return observed, nil
+ }
+ 

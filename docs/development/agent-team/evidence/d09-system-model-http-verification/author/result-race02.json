@@ -1,0 +1,98 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-count=1",
+    "./internal/central/secret/...",
+    "./internal/central/model"
+  ],
+  "cwd": "/workspace/agenteam-system-http-author-zyt918wl/snapshot",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-system-http-author-zyt918wl/go-build",
+    "TMPDIR": "/workspace/agenteam-system-http-author-zyt918wl/runtime",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go"
+  },
+  "base": "9110686a507716d8b4e042a5562a22507658adcb",
+  "accepted_secret_delta_sha256": "f74392aa03f07818d75c4b7b2774cc93622b96cb535162ba2e1f83eee9e6b22b",
+  "files": [
+    {
+      "path": "internal/central/account/http_boundary.go",
+      "sha256": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc"
+    },
+    {
+      "path": "internal/central/secret/contract/write_lookup.go",
+      "sha256": "805e1f99c643cd574e6f9a18c9b99d0fba2ff27ec9276116636896e127d84558"
+    },
+    {
+      "path": "internal/central/secret/write_lookup.go",
+      "sha256": "971e0e65373200a5b0653785e663a20a94da7d6682a765f950cd07414ef430e6"
+    },
+    {
+      "path": "internal/central/secret/write.go",
+      "sha256": "dcb0b87d84f310f7113d2749f22176cb75c3d9ad75f9aac759c22ec8072aecda"
+    },
+    {
+      "path": "internal/central/model/http.go",
+      "sha256": "6d51d779dfde07dc136764fd98c4ed9bceca519b86bb24db2527c880c873b224"
+    },
+    {
+      "path": "internal/central/model/http_configuration.go",
+      "sha256": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e"
+    },
+    {
+      "path": "internal/central/model/http_credentials.go",
+      "sha256": "86b3928ef9e0d2399dc4f83a53fd299aff13f9c019d69bbcc28a937e04c5e04b"
+    },
+    {
+      "path": "internal/central/model/http_dto.go",
+      "sha256": "6e910d66b4336b96017e166bc23515f5df4ff817f98c782a21affe1c221e5d35"
+    },
+    {
+      "path": "api/openapi/model-system.json",
+      "sha256": "f18b5bfe747be21dbe34791dd08876f768d4271154ed5843dc338fdc6ac73334"
+    },
+    {
+      "path": "internal/central/account/http_boundary_test.go",
+      "sha256": "b06d9d913085c83a04e1614bdcc5b3d5ff07f2cbf87bdf5f4ab6583f9c0dd2b5"
+    },
+    {
+      "path": "internal/central/secret/contract/write_lookup_test.go",
+      "sha256": "2b275124816a7f468f42e9a06bd20b00fb2acf7a28f3e0d96c9508e524eb421e"
+    },
+    {
+      "path": "internal/central/secret/write_lookup_test.go",
+      "sha256": "38f1b7a06e019e37ea93917e3e5b0ddba092589c42ae32f8b51157fcec82f5f7"
+    },
+    {
+      "path": "internal/central/model/http_test.go",
+      "sha256": "2e3a05f244c3f2360234c9919da9aa9a3da5579e65922dddaad4e1efaf8e3fbd"
+    },
+    {
+      "path": "internal/central/model/http_dto_test.go",
+      "sha256": "f5de3a0869619c5ca2fe96e1d1b4220ccefd2867d9d7dae3486e6dcacf54ed17"
+    },
+    {
+      "path": "tests/model/system_http_fixture_test.go",
+      "sha256": "23a4d95d460c91a48baf8a4845f29b5a10caafa5e074bc1461ced7d09c05cce3"
+    },
+    {
+      "path": "tests/model/system_http_configuration_test.go",
+      "sha256": "b8abc3d280b66115ccc8a1b676a4ce6c3e0ddfa32c04cf9783ae7b31eef3a168"
+    },
+    {
+      "path": "tests/model/system_http_credentials_test.go",
+      "sha256": "7532124947b88382acf87ba4a272c1ba8ad112387b01124cb77f9ef63240a0ad"
+    }
+  ],
+  "start": 1791223716.8628137,
+  "exit": 0,
+  "seconds": 12.888977766036987
+}

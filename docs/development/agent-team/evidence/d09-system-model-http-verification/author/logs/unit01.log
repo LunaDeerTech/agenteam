@@ -1,0 +1,32 @@
+# github.com/LunaDeerTech/agenteam/internal/central/model [github.com/LunaDeerTech/agenteam/internal/central/model.test]
+internal/central/model/http_dto_test.go:98:9: undefined: instant
+ok  	github.com/LunaDeerTech/agenteam/internal/central/account	3.571s
+--- FAIL: TestSecretPassiveLookupOnlyPublishesCommittedObservation (0.00s)
+    --- FAIL: TestSecretPassiveLookupOnlyPublishesCommittedObservation/committed/absent (0.00s)
+        write_lookup_test.go:58: unheld union
+    --- FAIL: TestSecretPassiveLookupOnlyPublishesCommittedObservation/committed/present (0.00s)
+        write_lookup_test.go:58: unheld union
+    --- FAIL: TestSecretPassiveLookupOnlyPublishesCommittedObservation/not_committed/absent (0.00s)
+        write_lookup_test.go:58: unheld union
+    --- FAIL: TestSecretPassiveLookupOnlyPublishesCommittedObservation/not_committed/present (0.00s)
+        write_lookup_test.go:58: unheld union
+    --- FAIL: TestSecretPassiveLookupOnlyPublishesCommittedObservation/unknown/absent (0.00s)
+        write_lookup_test.go:58: unheld union
+    --- FAIL: TestSecretPassiveLookupOnlyPublishesCommittedObservation/unknown/present (0.00s)
+        write_lookup_test.go:58: unheld union
+--- FAIL: TestSecretPassiveLookupRejectsDependenciesFactsAndFailures (0.00s)
+    --- FAIL: TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/held (0.00s)
+        write_lookup_test.go:58: unheld union
+    --- FAIL: TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/session (0.00s)
+        write_lookup_test.go:58: unheld union
+    --- FAIL: TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/grant (0.00s)
+        write_lookup_test.go:58: unheld union
+    --- FAIL: TestSecretPassiveLookupRejectsDependenciesFactsAndFailures/SQL (0.00s)
+        write_lookup_test.go:58: unheld union
+    write_lookup_test.go:58: unheld union
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/secret	0.011s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret/contract	0.006s
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model [build failed]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/httpapi	0.034s
+FAIL

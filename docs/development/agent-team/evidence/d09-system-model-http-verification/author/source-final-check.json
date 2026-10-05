@@ -1,0 +1,51 @@
+{
+  "at": "2026-10-05T18:21:51.652496+00:00",
+  "final_manifest": {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-02/manifest.json",
+    "sha256": "caa5b3d485aaee6d07cec51a54915106d93c652f36ae5aea71bc7d8b4ee21a7a"
+  },
+  "shared17_snapshot17_frozen17_equal": true,
+  "production9_equal_review02": true,
+  "accepted20_snapshot_matches": {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/accepted-secret-delta.json",
+    "sha256": "f74392aa03f07818d75c4b7b2774cc93622b96cb535162ba2e1f83eee9e6b22b"
+  },
+  "diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "internal/central/account/http_boundary.go",
+      "internal/central/secret/contract/write_lookup.go",
+      "internal/central/secret/write_lookup.go",
+      "internal/central/secret/write.go",
+      "internal/central/model/http.go",
+      "internal/central/model/http_configuration.go",
+      "internal/central/model/http_credentials.go",
+      "internal/central/model/http_dto.go",
+      "api/openapi/model-system.json",
+      "internal/central/account/http_boundary_test.go",
+      "internal/central/secret/contract/write_lookup_test.go",
+      "internal/central/secret/write_lookup_test.go",
+      "internal/central/model/http_test.go",
+      "internal/central/model/http_dto_test.go",
+      "tests/model/system_http_fixture_test.go",
+      "tests/model/system_http_configuration_test.go",
+      "tests/model/system_http_credentials_test.go"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "inputs": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "scripts/test-objects.sh": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+    "scripts/test-security.sh": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be",
+    "scripts/test-postgres.sh": "eddfb4f44288f8ec448400b02435f5fd6d6c44b0d80003fd34f7785e2980cdfe"
+  },
+  "source_writes_stopped": true,
+  "fixture_window_returned_after": "cleanup-double-compat-account-secret-01.json"
+}

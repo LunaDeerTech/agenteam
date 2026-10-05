@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-tags=integration",
+    "-c",
+    "-o",
+    "/workspace/agenteam-system-http-independent-v-3yb4qs32/probe/model.test",
+    "./tests/model"
+  ],
+  "cwd": "/workspace/agenteam-system-http-independent-v-3yb4qs32/tree",
+  "environment": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-system-http-independent-v-3yb4qs32/gocache",
+    "TMPDIR": "/workspace/agenteam-system-http-independent-v-3yb4qs32/runtime"
+  },
+  "go_version": "go version go1.27.1 linux/amd64",
+  "candidate_manifest_sha256": "fb25c9d68e0468538d6bd79550902f058e9217262f7054a7b7e79fe1dd1d2a8f",
+  "probe_sha256": "4b61aaa880ef15caf99f7b710a75972d0dac62eb7f970cc796bd1d760229688c",
+  "started_utc": "2026-10-05T18:16:46.741428+00:00",
+  "purpose": "compile-only; no test execution or Docker",
+  "pid": 985718
+}

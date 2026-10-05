@@ -1,0 +1,154 @@
+{
+  "actual_resources": {
+    "containers": [
+      {
+        "id": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+        "labels": {
+          "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "postgres",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "name": "/agenteam-dev-infra-postgres-1",
+        "running": true
+      },
+      {
+        "id": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+        "labels": {
+          "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "minio",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "name": "/agenteam-dev-infra-minio-1",
+        "running": true
+      }
+    ],
+    "networks": [
+      {
+        "id": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+        "labels": {
+          "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+          "com.docker.compose.network": "default",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "name": "agenteam-dev-infra_default"
+      },
+      {
+        "id": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+        "labels": {},
+        "name": "none"
+      },
+      {
+        "id": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+        "labels": {},
+        "name": "host"
+      },
+      {
+        "id": "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5",
+        "labels": {},
+        "name": "bridge"
+      }
+    ]
+  },
+  "baseline_unchanged": true,
+  "clean": true,
+  "exact_owned": {
+    "containers": [
+      {
+        "absent": true,
+        "id": "c963d3540d85edcbf3f569a8c4683ad541e231624fd5a3d8c0469975eab8e8aa",
+        "inspect_exit": 1,
+        "inspect_stderr": "Error: No such object: c963d3540d85edcbf3f569a8c4683ad541e231624fd5a3d8c0469975eab8e8aa",
+        "labels": {
+          "agenteam.d05.objectfixture": "f77d24de470d1ed828029a1fd6c3eb41"
+        },
+        "name": "/agenteam-d05-object-f77d24de470d1ed828029a1fd6c3eb41"
+      },
+      {
+        "absent": true,
+        "id": "d2cb11904eb112366c42b8aab0161b6562ce377793ccc24a97fd5a4c7d30ab66",
+        "inspect_exit": 1,
+        "inspect_stderr": "Error: No such object: d2cb11904eb112366c42b8aab0161b6562ce377793ccc24a97fd5a4c7d30ab66",
+        "labels": {
+          "agenteam.d04.networkfixture": "f8b8d1b0008703a6b5c3395387c79316"
+        },
+        "name": "/agenteam-d04-net-f8b8d1b0008703a6b5c3395387c79316"
+      },
+      {
+        "absent": true,
+        "id": "96e1e1d9210153c896cf934c97161af99ee24178b2e7129877025a3cc73afe0c",
+        "inspect_exit": 1,
+        "inspect_stderr": "Error: No such object: 96e1e1d9210153c896cf934c97161af99ee24178b2e7129877025a3cc73afe0c",
+        "labels": {
+          "agenteam.d03.fixture": "8c990782761176a83edac37c916d9e68"
+        },
+        "name": "/agenteam-d03-8c990782761176a83edac37c916d9e68"
+      },
+      {
+        "absent": true,
+        "id": "d8cc63dea1b6d78be86b90442917c3c10cd90767a33edb4eab1b5962291c52a4",
+        "inspect_exit": 1,
+        "inspect_stderr": "Error: No such object: d8cc63dea1b6d78be86b90442917c3c10cd90767a33edb4eab1b5962291c52a4",
+        "labels": {
+          "agenteam.d03.fixture": "8c990782761176a83edac37c916d9e68"
+        },
+        "name": "/agenteam-d03-8c990782761176a83edac37c916d9e68-pg16"
+      }
+    ],
+    "networks": [
+      {
+        "absent": true,
+        "id": "bb221ca1d7f4e3b6770511098a633ebbe033c5acc49e484c1be0ee73cc9c244f",
+        "inspect_exit": 1,
+        "inspect_stderr": "Error response from daemon: network bb221ca1d7f4e3b6770511098a633ebbe033c5acc49e484c1be0ee73cc9c244f not found",
+        "labels": {
+          "agenteam.d05.objectfixture": "f77d24de470d1ed828029a1fd6c3eb41"
+        },
+        "name": "agenteam-d05-object-f77d24de470d1ed828029a1fd6c3eb41"
+      },
+      {
+        "absent": true,
+        "id": "2b9da3981a0ccfa879033bdd996e8f162b4f52877e05e0264b99133f68dbf0d9",
+        "inspect_exit": 1,
+        "inspect_stderr": "Error response from daemon: network 2b9da3981a0ccfa879033bdd996e8f162b4f52877e05e0264b99133f68dbf0d9 not found",
+        "labels": {
+          "agenteam.d04.networkfixture": "f8b8d1b0008703a6b5c3395387c79316"
+        },
+        "name": "agenteam-d04-net-f8b8d1b0008703a6b5c3395387c79316"
+      },
+      {
+        "absent": true,
+        "id": "c88b1f9d6b5c184262a71d8edea60d97c4ad181dc76dda160b19c1b0322f08a4",
+        "inspect_exit": 1,
+        "inspect_stderr": "Error response from daemon: network c88b1f9d6b5c184262a71d8edea60d97c4ad181dc76dda160b19c1b0322f08a4 not found",
+        "labels": {
+          "agenteam.d03.fixture": "8c990782761176a83edac37c916d9e68"
+        },
+        "name": "agenteam-d03-8c990782761176a83edac37c916d9e68"
+      }
+    ]
+  },
+  "owned_counts": {
+    "containers": 4,
+    "networks": 3
+  },
+  "owned_processes": [],
+  "runtime_entries": [],
+  "time": "2026-10-05T18:25:25.365048+00:00"
+}

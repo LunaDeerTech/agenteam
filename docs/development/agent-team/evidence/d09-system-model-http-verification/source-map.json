@@ -1,0 +1,656 @@
+{
+  "raw_files": {
+    "author/author-report.md.txt": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/author-report.md",
+      "sha256": "a5284098af5707420f0a61a8010f82e5a3f6f10ab69b28fbeb4d46480f6d9562",
+      "bytes": 6380
+    },
+    "author/coverage-matrix.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/coverage-matrix.json",
+      "sha256": "d5693830cc61c88f4d36ea8b99d252d751589371c3c4b4451b98c1965ecefe21",
+      "bytes": 30067
+    },
+    "author/fixture-input-02/manifest.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-02/manifest.json",
+      "sha256": "caa5b3d485aaee6d07cec51a54915106d93c652f36ae5aea71bc7d8b4ee21a7a",
+      "bytes": 2869
+    },
+    "author/production-review-02/manifest.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/production-review-02/manifest.json",
+      "sha256": "2a3099ad132d3cf0a39b7ff312167c2023f03f3a28c06344021e654cc8646715",
+      "bytes": 1685
+    },
+    "author/accepted-secret-delta.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/accepted-secret-delta.json",
+      "sha256": "f74392aa03f07818d75c4b7b2774cc93622b96cb535162ba2e1f83eee9e6b22b",
+      "bytes": 3239
+    },
+    "author/fixture-plan-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/fixture-plan-01.json",
+      "sha256": "a2e20615430d00741157e106f9f5c22781917f852f646b5609190e143be0c64b",
+      "bytes": 2792
+    },
+    "author/input-new-configuration-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-new-configuration-01.json",
+      "sha256": "e0f5f75606b19ed34a3afaacfbad8690acc48941be4072da8a7691bbb6213d91",
+      "bytes": 3266
+    },
+    "author/logs/new-configuration-01.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-configuration-01.log",
+      "sha256": "30d0c2b76236e55eafbabaa35793cdb8aeefd5c7392932c55b02929fc2c824e2",
+      "bytes": 8175
+    },
+    "author/logs/new-configuration-01.exit": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-configuration-01.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "author/cleanup-new-configuration-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-new-configuration-01.json",
+      "sha256": "6810d25ca066f98f9bfc61968e3a798c62e0f6c52abf6b2070e2cb2d131d1c3a",
+      "bytes": 1910
+    },
+    "author/cleanup-double-new-configuration-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-double-new-configuration-01.json",
+      "sha256": "09586a4cb88995417ddefc9912de2e4c471d62693ca48dc77571e3b99865a436",
+      "bytes": 2058
+    },
+    "author/new-configuration-01-live-containers.txt": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/new-configuration-01-live-containers.txt",
+      "sha256": "6f6b920e2571c6cf6ae394b8b157d509dc5326560ac9f0847edb4011fb94920f",
+      "bytes": 2211
+    },
+    "author/new-configuration-01-live-networks.txt": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/new-configuration-01-live-networks.txt",
+      "sha256": "3012a76a506fb52b11a5700d7798d3723eb5b4ccd6c3fee2123a3902fea2449a",
+      "bytes": 1037
+    },
+    "author/input-new-credentials-02.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-new-credentials-02.json",
+      "sha256": "a77b152d6d66ee8c848d44b7f6694d80473e1a9c67452d7bba15540233f95a31",
+      "bytes": 3270
+    },
+    "author/logs/new-credentials-02.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-credentials-02.log",
+      "sha256": "43e15d3deb8999753cb52e57a291e89a03915fa71bcf098b6242d0a6bc176bf8",
+      "bytes": 9536
+    },
+    "author/logs/new-credentials-02.exit": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-credentials-02.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "author/cleanup-new-credentials-02.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-new-credentials-02.json",
+      "sha256": "d98df90e72e53029b1e09ecbaf64837a2e21d7edd82b2c2adb1cc0160abf896f",
+      "bytes": 1910
+    },
+    "author/cleanup-double-new-credentials-02.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-double-new-credentials-02.json",
+      "sha256": "bb49403cc33df11a1bc27939de46631c3b2592de9a0325e166ef9a3b91c45b22",
+      "bytes": 2056
+    },
+    "author/new-credentials-02-live-containers.txt": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/new-credentials-02-live-containers.txt",
+      "sha256": "0f8efc8a207fbd7dcf54e4e17db68f4c2a2271171dd97c5b761e3cf7026df92b",
+      "bytes": 2211
+    },
+    "author/new-credentials-02-live-networks.txt": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/new-credentials-02-live-networks.txt",
+      "sha256": "92ffcae0c96ea14baf31818d45c531ecf769888fc45f01a5d106a769b2b47a43",
+      "bytes": 1037
+    },
+    "author/input-compat-model-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-compat-model-01.json",
+      "sha256": "1ff5a25a9df51b42dfc48cc73b832c6721e44e32d70d6f1ff0e1862e0165dbfb",
+      "bytes": 3313
+    },
+    "author/logs/compat-model-01.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compat-model-01.log",
+      "sha256": "876655a74bfe8b9a8ba2052c39c5a41137400d06a8c554aaf39aaf753facfa92",
+      "bytes": 5032
+    },
+    "author/logs/compat-model-01.exit": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compat-model-01.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "author/cleanup-compat-model-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-compat-model-01.json",
+      "sha256": "ceb7013583f41a99e715f9deaebe435f48bbca318aa47ddfecaf2e41c524a03a",
+      "bytes": 1910
+    },
+    "author/cleanup-double-compat-model-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-double-compat-model-01.json",
+      "sha256": "581ce74ba8652985b74a3aac9524baf03ddcca9bd22b6c499ba41f9b019630cd",
+      "bytes": 2053
+    },
+    "author/compat-model-01-live-containers.txt": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/compat-model-01-live-containers.txt",
+      "sha256": "863a8fc503e34641ac68fbe9e8a7d65c26c4026623b7c692657efb74221b4ab8",
+      "bytes": 2211
+    },
+    "author/compat-model-01-live-networks.txt": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/compat-model-01-live-networks.txt",
+      "sha256": "7f1c6fa3fd808883eb87aed5f8cc536b1c9892f2e951e6c299651b292048adf6",
+      "bytes": 1037
+    },
+    "author/input-compat-account-secret-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-compat-account-secret-01.json",
+      "sha256": "6092dbf8bf53e60b401d1d2c88fdf5ec44b7a78058df3e3eaf26c106c6aaf7a4",
+      "bytes": 3299
+    },
+    "author/logs/compat-account-secret-01.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compat-account-secret-01.log",
+      "sha256": "493908557cddfb9cd4da38b8fa0dca949675cc23ab8cad16c280ccdadb64e824",
+      "bytes": 4130
+    },
+    "author/logs/compat-account-secret-01.exit": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compat-account-secret-01.exit",
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "author/cleanup-compat-account-secret-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-compat-account-secret-01.json",
+      "sha256": "e0ecafe86c43c72f3b49a08695473520f83c4d06ad36a5dc44904ee04d4bf1dd",
+      "bytes": 1910
+    },
+    "author/cleanup-double-compat-account-secret-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-double-compat-account-secret-01.json",
+      "sha256": "5d963f29a9509ec848442499521e7f7b5e864ddc42365955d9c826057a81b822",
+      "bytes": 2062
+    },
+    "author/compat-account-secret-01-live-containers.txt": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/compat-account-secret-01-live-containers.txt",
+      "sha256": "c08ca76b4ed2e1b7b32e733ea70f2f4f48517fe2f604cf64ebb89fdec6ba53f6",
+      "bytes": 2211
+    },
+    "author/compat-account-secret-01-live-networks.txt": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/compat-account-secret-01-live-networks.txt",
+      "sha256": "56cecc8489184fa86894f7d63d2521602260dd3a6db18da52d8eab0b15750512",
+      "bytes": 1037
+    },
+    "author/input-new-credentials-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-new-credentials-01.json",
+      "sha256": "ffc507f81cb114f505a509ad1919e1d59f48b6adc028e974809fff45b8b5f116",
+      "bytes": 3270
+    },
+    "author/logs/new-credentials-01.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-credentials-01.log",
+      "sha256": "619ae50baf683df2cd66ffb1cb8564bef9fcc563106795134caad9e8eb06910e",
+      "bytes": 8986
+    },
+    "author/logs/new-credentials-01.exit": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-credentials-01.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "author/cleanup-new-credentials-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-new-credentials-01.json",
+      "sha256": "8aef9629966236c200fd9bb6ba4257f9d0a6a8c3dcae22618e86e6e24904f2ea",
+      "bytes": 1910
+    },
+    "author/cleanup-double-new-credentials-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-double-new-credentials-01.json",
+      "sha256": "550bae70d0f4008fd8e3613573627ffc96a168b6a169ad3b2b081635187b44db",
+      "bytes": 2056
+    },
+    "author/new-credentials-01-live-containers.txt": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/new-credentials-01-live-containers.txt",
+      "sha256": "61f3347a8496fe38960f653db2dc9fed57a9c52fb234ac97a597eaf96a75b6fc",
+      "bytes": 2211
+    },
+    "author/new-credentials-01-live-networks.txt": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/new-credentials-01-live-networks.txt",
+      "sha256": "d090a3c81e2f7af8e6d0799305c6d0e81638c6a29abf935a12b6e9c21e098c7f",
+      "bytes": 1037
+    },
+    "author/input-build-central01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-build-central01.json",
+      "sha256": "74e734b0c8993efd1907f3066528f42aebd8b4a5464b16a57a6412ed4acb1d16",
+      "bytes": 3506
+    },
+    "author/result-build-central01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/result-build-central01.json",
+      "sha256": "7b8fd8652229773f0312ddee5a443ba579be40950abf00273389a4354d8d4630",
+      "bytes": 3552
+    },
+    "author/logs/build-central01.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/build-central01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "author/input-build-runner01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-build-runner01.json",
+      "sha256": "b08677347e26eb58a4e82eadcc9bbfeab3840167506008a467db200fe0247dd8",
+      "bytes": 3520
+    },
+    "author/result-build-runner01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/result-build-runner01.json",
+      "sha256": "2781e2b71422e0bc7be73b17a8deb5116106308d73cfebf3724f4bf9d54ce05d",
+      "bytes": 3566
+    },
+    "author/logs/build-runner01.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/build-runner01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "author/input-compile-integration01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-compile-integration01.json",
+      "sha256": "3d690523270345ba54dfc3306bcc1c2ea301769b87ec4429e146e5f0bfe433be",
+      "bytes": 3486
+    },
+    "author/result-compile-integration01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/result-compile-integration01.json",
+      "sha256": "ee081e5a0f979607c066cb31387771504800ee1cdf80069789efe72da01104af",
+      "bytes": 3531
+    },
+    "author/logs/compile-integration01.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compile-integration01.log",
+      "sha256": "1d8e7cb0890de9d660a0d302d4bb8e80474b49571a1da596a1b062f136c02bb4",
+      "bytes": 75
+    },
+    "author/input-compile-integration02.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-compile-integration02.json",
+      "sha256": "29c91c99253e8fa4546921dfc906656ecd1b6cbc29d20a03940160e9938e0be2",
+      "bytes": 3486
+    },
+    "author/result-compile-integration02.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/result-compile-integration02.json",
+      "sha256": "52660bd61bd4d0e130808a5cedafed76a63bda0497bbd2903f9c41a51d53a7c2",
+      "bytes": 3531
+    },
+    "author/logs/compile-integration02.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compile-integration02.log",
+      "sha256": "d859895391266f4280c184de78955e0995bbd7d3fcafcd698537f2dface7e2e5",
+      "bytes": 75
+    },
+    "author/input-compile01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-compile01.json",
+      "sha256": "aa2be6bf81327fa25dce770be3983d9ef621596b5b712f33d09a5ec5622d1745",
+      "bytes": 2165
+    },
+    "author/result-compile01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/result-compile01.json",
+      "sha256": "17e36d5c0a4ba228d6d2834355b868ddb19c3b74cb3072ae8edd43dc99840ac3",
+      "bytes": 2211
+    },
+    "author/logs/compile01.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compile01.log",
+      "sha256": "7be6c1231ba8baed732a9dcc75565dd8fcfe5534292dd0f29393c460148a95a6",
+      "bytes": 445
+    },
+    "author/input-race01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-race01.json",
+      "sha256": "0c9a7dbbacd643bdd323ead587eb9a82246f747bed4c02f83c059c5fdb6e1031",
+      "bytes": 3102
+    },
+    "author/result-race01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/result-race01.json",
+      "sha256": "fc79447fbb78079b137f85cedf98b59348f014bda5e0f245cbc7ae3ec4d14b67",
+      "bytes": 3146
+    },
+    "author/logs/race01.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/race01.log",
+      "sha256": "34aa23592b759d76dddb359cad6dc22878ea50eed87b614af761d942b8561644",
+      "bytes": 356
+    },
+    "author/input-race02.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-race02.json",
+      "sha256": "92faae63078456dd92f313ad2fd9800ee2d1ccad4d176f53842ae5c2ffbcaa4c",
+      "bytes": 3503
+    },
+    "author/result-race02.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/result-race02.json",
+      "sha256": "8905d51144fa26eef8219b6267b9559005070e892ef9445bd476ee004d4b3c36",
+      "bytes": 3549
+    },
+    "author/logs/race02.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/race02.log",
+      "sha256": "dcf73eea76f92b3adcd972a5e099d711517548ea3a212f3710bbd8862e2b553b",
+      "bytes": 215
+    },
+    "author/input-unit01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-unit01.json",
+      "sha256": "a02514529a136a5507dca915e2f62f937130f66944f7d1f347f5bdcdb2087f4a",
+      "bytes": 3089
+    },
+    "author/result-unit01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/result-unit01.json",
+      "sha256": "39de749f9e6100781ee5cf2163a9e042c28a481abc97e8b91d5788809851fec9",
+      "bytes": 3135
+    },
+    "author/logs/unit01.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/unit01.log",
+      "sha256": "1902e61d595ac3dae8b31045d60b2694753757db95c0fe369f4080f3bd783ec2",
+      "bytes": 2143
+    },
+    "author/input-unit02.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-unit02.json",
+      "sha256": "9203ddac59704425b506739b3068c311935e003093a2543e8f185240d3cc50a9",
+      "bytes": 3089
+    },
+    "author/result-unit02.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/result-unit02.json",
+      "sha256": "9e958e4ddc0e29d90e0ce33f866592e8c760ed1b4c12f00bd97e8420d4f6e0ef",
+      "bytes": 3134
+    },
+    "author/logs/unit02.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/unit02.log",
+      "sha256": "82387ad06cbe2fd36bbfdc2a8cfed362719191f5ed39b1b9276a6e8f67a9d4cc",
+      "bytes": 527
+    },
+    "author/input-unit03.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-unit03.json",
+      "sha256": "e86818d061b12bda32e9bd5d31266e025875a38e9d846dc64d91044adb2db736",
+      "bytes": 2983
+    },
+    "author/result-unit03.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/result-unit03.json",
+      "sha256": "8e7b78b35237f3a250d08d346108709dded0fb68a72c367868f245b83ce5f4c2",
+      "bytes": 3029
+    },
+    "author/logs/unit03.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/unit03.log",
+      "sha256": "2a6560e855d87ce26cee9428eb60a8c0ae695ec1860f1dc9d68b18685b7af64e",
+      "bytes": 68
+    },
+    "author/input-vet-integration02.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-vet-integration02.json",
+      "sha256": "6fde1d295d8a92fe4d130552ecb581b4e11bf417e0e120d2b119645359e62113",
+      "bytes": 3449
+    },
+    "author/result-vet-integration02.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/result-vet-integration02.json",
+      "sha256": "290aba866b93ac47249b32560618ece913b2abf8ee4077f368ca9f9c7651ffdd",
+      "bytes": 3494
+    },
+    "author/logs/vet-integration02.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/vet-integration02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "author/input-vet01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/input-vet01.json",
+      "sha256": "85d155fde320c3a25e6535053e6ce51294e7aad0943c8b91760da7ca33fa7550",
+      "bytes": 3587
+    },
+    "author/result-vet01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/result-vet01.json",
+      "sha256": "298da53458885a769c885809fa18670ee61714872ca6a34e7159870b24d053cd",
+      "bytes": 3632
+    },
+    "author/logs/vet01.log": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/logs/vet01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "author/openapi-check01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/openapi-check01.json",
+      "sha256": "3e8afa35e6b589b173a1fffc7ccdf60f8fc8c3f0f9039f401788396b526b715b",
+      "bytes": 224
+    },
+    "author/source-final-check.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/source-final-check.json",
+      "sha256": "2bbaea9f047664d88ac2f0d85757118b971936ee39f48a8ba5e7f6e44065b019",
+      "bytes": 2177
+    },
+    "author/fixture-input-02/delta.patch": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-02/delta.patch",
+      "sha256": "726b4e7acd3a5bfb96d3b6c506bbef5c0c56cc8182f5535fb6fddb84c17a7755",
+      "bytes": 4144
+    },
+    "author/secret-unknown-static-cause-01.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/secret-unknown-static-cause-01.json",
+      "sha256": "d1f743f34dc256e47eab2232b797ab56a2ac704cfdc6bb7dded824ad38b92df2",
+      "bytes": 893
+    },
+    "verification/final-core-index.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/final-core-index.json",
+      "sha256": "2c82a8617f8a64360595e3a82a6f860b4ac5b5543041803920ff082ed47e2366",
+      "bytes": 1571
+    },
+    "verification/archive-locator.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/archive-locator.json",
+      "sha256": "6d60d42474f6ac468981e0632e14a466515484a70b3d3f45d3470063da346ba7",
+      "bytes": 9301
+    },
+    "verification/evidence/author-final-checked.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/author-final-checked.json",
+      "sha256": "c06803c53f83bc81768fbb118241d4400b17ced84b76187dc1ab91093aef5d98",
+      "bytes": 6583
+    },
+    "verification/evidence/dynamic01/baseline.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/dynamic01/baseline.json",
+      "sha256": "3591cfc6275c1e02878210d3b1b7e47010852cfcf881316d0ab11d4b8b96ff14",
+      "bytes": 3093
+    },
+    "verification/evidence/dynamic01/cleanup01.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/dynamic01/cleanup01.json",
+      "sha256": "48cc8c910d63cff4219a31d5b9e13e24cf04dad0383a8aa8b4de00d64d6c79fe",
+      "bytes": 6477
+    },
+    "verification/evidence/dynamic01/cleanup02.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/dynamic01/cleanup02.json",
+      "sha256": "8e6540d0b486e8f6d032d60e259003f2c19b54053f58ba02fa1eec95df02ab7f",
+      "bytes": 6477
+    },
+    "verification/evidence/dynamic01/command.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/dynamic01/command.json",
+      "sha256": "695ac4e351a9120c2d6ae35e6325f962b6f66662c8ea27c873795bb44318e785",
+      "bytes": 1448
+    },
+    "verification/evidence/dynamic01/owned-live.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/dynamic01/owned-live.json",
+      "sha256": "e5c558947a862b5cd7e3ef25d0ce6ad510532c919cf738c2ee3af920b932773c",
+      "bytes": 3544
+    },
+    "verification/evidence/dynamic01/raw.log": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/dynamic01/raw.log",
+      "sha256": "703f9f714ff51dfc7a5ce3e9dc2f444be9e4027ce38089ff45d691c9d5028b47",
+      "bytes": 14095
+    },
+    "verification/evidence/dynamic01/result.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/dynamic01/result.json",
+      "sha256": "2ac44c2e2d97b9a7d51f71ade8d354d7187f2d4d97f78e6658616c0573c05cc6",
+      "bytes": 1641
+    },
+    "verification/evidence/dynamic01/source-final.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/dynamic01/source-final.json",
+      "sha256": "ad8cfb70b35acc1600c85a7ca864af34a007732dffbb344c76798a3c42d4c3b3",
+      "bytes": 3141
+    },
+    "verification/evidence/ready-input.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/ready-input.json",
+      "sha256": "b7bbc514c1faf81da7422400d24bf84620fb31b500975cfe4d6bab86b941d55b",
+      "bytes": 4484
+    },
+    "verification/evidence/startup01-result.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/startup01-result.json",
+      "sha256": "069c2eb228b3e288b3d73a14b216cde3637c9ac67847cb6e4c42c34e5f9a7208",
+      "bytes": 379
+    },
+    "verification/evidence/startup01-script.py.txt": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/startup01-script.py.txt",
+      "sha256": "cf595eca58273a2a9ce3b95986511b8b8d96c311ad98b048e378f06c8014e7b5",
+      "bytes": 6662
+    },
+    "verification/final-report.md.txt": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/final-report.md",
+      "sha256": "67c55b9cab5c285cd22cb55da8baf74972383632ae6943d43c5a4344218da20b",
+      "bytes": 5779
+    },
+    "verification/probe/independent_system_http_test.go.txt": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/probe/independent_system_http_test.go",
+      "sha256": "4b61aaa880ef15caf99f7b710a75972d0dac62eb7f970cc796bd1d760229688c",
+      "bytes": 11087
+    },
+    "verification/ready.md.txt": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/ready.md",
+      "sha256": "3daee34525bd5fd8b1b2df2c27610049781039e62a437087e4d8d2cd006faa6d",
+      "bytes": 7267
+    },
+    "verification/SHA256SUMS-ready.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/SHA256SUMS-ready.json",
+      "sha256": "1ae8ea7684fca7c104fe686d77e72c398dc9749cbd8a8e690374207bf027df84",
+      "bytes": 2667
+    },
+    "verification/run-compile.py": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/run-compile.py",
+      "sha256": "aff844491cd7d3965bc0c93fd3a5ce94a1ce5f47b52c5181ad75d36bcc074f90",
+      "bytes": 1975
+    },
+    "verification/run-compile02.py": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/run-compile02.py",
+      "sha256": "153e02671810c5541ed2fa3941ed2d709d5b4fcb1c3dbe0b61f3856dfbb8e3ae",
+      "bytes": 2005
+    },
+    "verification/run-independent-fixture.py": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/run-independent-fixture.py",
+      "sha256": "75c55281b98fd27ad6a0ba94542597413e653efbcb5e72c67f7c26aed2050668",
+      "bytes": 6664
+    },
+    "verification/check-author-evidence.py": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/check-author-evidence.py",
+      "sha256": "48422b9f2381ddeb08162d4f228649825b59781e53b85582ed5fe0cde0614644",
+      "bytes": 3593
+    },
+    "verification/evidence/accepted-commit.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/accepted-commit.json",
+      "sha256": "16a6f16e92bdc669ca32f7831f6b9172be761eb9571d506b06a2dec014612b43",
+      "bytes": 2978
+    },
+    "verification/evidence/accepted-secret-delta.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/accepted-secret-delta.json",
+      "sha256": "f74392aa03f07818d75c4b7b2774cc93622b96cb535162ba2e1f83eee9e6b22b",
+      "bytes": 3239
+    },
+    "verification/evidence/author-early-raw-checked.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/author-early-raw-checked.json",
+      "sha256": "4be0d870ad919ee40fed71e07b8e7295de72cc67779ca8fe50115f6c447fa1f7",
+      "bytes": 6091
+    },
+    "verification/evidence/compile-command.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile-command.json",
+      "sha256": "532ab6d204137c9b94637b078266710796800a39ba87aab7eccaecb4e4965a47",
+      "bytes": 1109
+    },
+    "verification/evidence/compile-result.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile-result.json",
+      "sha256": "2a00ad3e633c78a64138106380d33f2ca79d71e5817364fbea0bf1e1e19c87bc",
+      "bytes": 1282
+    },
+    "verification/evidence/compile-running.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile-running.json",
+      "sha256": "48d6aafbf98cd463fdaf749bc81b418e3267a2e2e1965c4fa52ebd700cc708df",
+      "bytes": 1126
+    },
+    "verification/evidence/compile.log": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "verification/evidence/compile02-command.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile02-command.json",
+      "sha256": "670f4aebf91f027ae5c5fd6f8e6189e4a3b9ceb25fd80865b523ba431a7b1460",
+      "bytes": 1109
+    },
+    "verification/evidence/compile02-result.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile02-result.json",
+      "sha256": "5c484f0318981ebe2da0903eb3132ac0022809c6493e494eb376d50c3d8dd915",
+      "bytes": 1282
+    },
+    "verification/evidence/compile02-running.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile02-running.json",
+      "sha256": "7d33b0827cfd217d38a06d492e63fe4912c7ca62e1d703145b35878be2f571af",
+      "bytes": 1126
+    },
+    "verification/evidence/compile02.log": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/compile02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "verification/evidence/dynamic01/running.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/dynamic01/running.json",
+      "sha256": "7fb85a8437aa6db017866e552f497eaf4669daf82870606b5f05b9b2f988aebe",
+      "bytes": 1485
+    },
+    "verification/evidence/fixture-plan-01.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/fixture-plan-01.json",
+      "sha256": "a2e20615430d00741157e106f9f5c22781917f852f646b5609190e143be0c64b",
+      "bytes": 2792
+    },
+    "verification/evidence/fixture02/delta.patch": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/fixture02/delta.patch",
+      "sha256": "726b4e7acd3a5bfb96d3b6c506bbef5c0c56cc8182f5535fb6fddb84c17a7755",
+      "bytes": 4144
+    },
+    "verification/evidence/fixture02/manifest.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/fixture02/manifest.json",
+      "sha256": "caa5b3d485aaee6d07cec51a54915106d93c652f36ae5aea71bc7d8b4ee21a7a",
+      "bytes": 2869
+    },
+    "verification/evidence/manifest.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/manifest.json",
+      "sha256": "fb25c9d68e0468538d6bd79550902f058e9217262f7054a7b7e79fe1dd1d2a8f",
+      "bytes": 2869
+    },
+    "verification/evidence/snapshot.json": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/snapshot.json",
+      "sha256": "a0d0c8e8333d64a1e9e250fef5014094c570680f5675995e424a70fff05069ae",
+      "bytes": 3038
+    },
+    "verification/evidence/unit02-secret-write-lookup-test.go.txt": {
+      "original_path": "/workspace/agenteam-system-http-independent-v-3yb4qs32/evidence/unit02-secret-write-lookup-test.go.txt",
+      "sha256": "0081405568994c177be87a8065cb377796dcc24402565019c9101dfa7131fe4c",
+      "bytes": 8873
+    },
+    "static/production-review01/review.md.txt": {
+      "original_path": "/tmp/agenteam-system-http-review01-v-1qhg_uw7/review.md",
+      "sha256": "74d8988680d7bc036427960ba314a531b28fa97b362ba3f4dc97841250bb80c2",
+      "bytes": 4666
+    },
+    "static/production-review01/manifest.json": {
+      "original_path": "/tmp/agenteam-system-http-review01-v-1qhg_uw7/manifest.json",
+      "sha256": "6b80a5bc05d9fa776938eaf78b12f0855d9f09e8ce6aea5c31936c7d166ce7a7",
+      "bytes": 1613
+    },
+    "static/production-review01/SHA256SUMS.json": {
+      "original_path": "/tmp/agenteam-system-http-review01-v-1qhg_uw7/SHA256SUMS.json",
+      "sha256": "405eae3fb17b4a1155c1747a4edcaafeda41309862d946c9c2d2052df30a8732",
+      "bytes": 1621
+    },
+    "static/production-review02/review.md.txt": {
+      "original_path": "/tmp/agenteam-system-http-review02-v-nmlbhnkz/review.md",
+      "sha256": "684d6f0923cb5f830fdfb0e94cde6d249fb7d77e9412d2ba3f449e4362f13043",
+      "bytes": 2660
+    },
+    "static/production-review02/manifest.json": {
+      "original_path": "/tmp/agenteam-system-http-review02-v-nmlbhnkz/manifest.json",
+      "sha256": "2a3099ad132d3cf0a39b7ff312167c2023f03f3a28c06344021e654cc8646715",
+      "bytes": 1685
+    },
+    "static/production-review02/SHA256SUMS.json": {
+      "original_path": "/tmp/agenteam-system-http-review02-v-nmlbhnkz/SHA256SUMS.json",
+      "sha256": "b513d37e1078ed110a3ac85d10bb4b45a26b2321c9232ad0b33624bdff788edc",
+      "bytes": 1422
+    },
+    "static/production-review02/delta.patch": {
+      "original_path": "/tmp/agenteam-system-http-review02-v-nmlbhnkz/delta.patch",
+      "sha256": "d9b104b8b2c72f6faeb2663347f6c4c05e8aee1bdb182182170094efe3ccb9de",
+      "bytes": 343
+    },
+    "author/production-review-01/manifest.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/production-review-01/manifest.json",
+      "sha256": "6b80a5bc05d9fa776938eaf78b12f0855d9f09e8ce6aea5c31936c7d166ce7a7",
+      "bytes": 1613
+    },
+    "author/fixture-input-01/manifest.json": {
+      "original_path": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-01/manifest.json",
+      "sha256": "fb25c9d68e0468538d6bd79550902f058e9217262f7054a7b7e79fe1dd1d2a8f",
+      "bytes": 2869
+    }
+  },
+  "renaming": "Raw .go and .md names have .txt suffix; bytes and SHA remain unchanged.",
+  "selection": "All79 author coverage references, V core and necessary small evidence retained. Final17 and duplicate fixture sources use accepted Git plus historical deltas; no tree/cache/binary."
+}

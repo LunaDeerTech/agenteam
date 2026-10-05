@@ -1,6 +1,6 @@
 # D09 System Model 配置 HTTP 与被动 credential 命令查证
 
-修订：rev1.1，2026-10-05。状态：**规格已独立静审通过并获主线程采纳；业务实施待本卡提交后由主线程另授，当前尚未授权。** 实施者为 `d08_registry_backend`，独立验收者为 `skill_verification`。固定代码输入为 `9110686a507716d8b4e042a5562a22507658adcb`。本卡只交付库级 HTTP 组合，不表示生产 root 已挂载或完整 D09 完成。零迁移，不分配或写入 `00017`。
+修订：rev1.1，2026-10-05；API、17 路径及验收规则不变。状态：**17 源已独立验收 PASS，主线程采纳并提交推送 `ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7`，远端一致已核。** [正式报告](../agent-team/d09-system-model-http-verification.md)保留作者 20 顶层/48 子例（首配置组 5/26 限定复用）、独立 2 顶层/4 子例及原失败。实施者 `d08_registry_backend`，独立验收者 `skill_verification`；本卡源码与 Go/Docker 已停止、资源交回。固定测试输入为 `9110686a507716d8b4e042a5562a22507658adcb` + 已验 Secret20 `8ad6759` + 最终 17 源。仅库级 HTTP；生产 root 尚未挂；根装配规格已授权制定，候选已冻结、独立静审中、尚无业务实施权。零迁移，不分配或写入 `00017`。
 
 独立规格审查：`/tmp/agenteam-d09-system-http-spec-v-sa0bp1n2/review.md`，SHA-256 `261683dce59f30b0ead5ecece9ced00a76cad0d67db8c9cc27797eda179b7bc6`，结论为规格 PASS。最终被审 rev1.1 SHA-256 为 `c8376a7d0670fcf3e657d0c6643a38bddcf1ef5deb9c87fb0c3cf83fd9aacd2c`；此次仅更新采纳状态与审查定位，API、17 路径及验收正文不变，不构成实现或动态通过声明。
 
@@ -210,3 +210,11 @@ Unknown 分支可用受控 Store 包装，**先实际执行底层最终业务 Tx
 ## 8. 冻结与交付边界
 
 作者冻结 17 源清单与小型原始证据后停止写入；报告区分纯检查、真实库组合、底层实际 commit 与向上层 Unknown、复用项、失败和未验证范围。库级通过只证明上述 System HTTP 和 Secret 被动观察，不能声称 Model 调用、Project/Summary、真实外部账号、生产根或整体 D09 已完成。主线程核独立结果后负责 Git 与状态页；本设计者自查不是独立验收。
+
+## 验收提交与持久归档
+
+主线程采纳独立报告 `67c55b9cab5c285cd22cb55da8baf74972383632ae6943d43c5a4344218da20b`，最终 manifest `caa5b3d485aaee6d07cec51a54915106d93c652f36ae5aea71bc7d8b4ee21a7a` 与提交 `ac5b4c6` 的 17 源逐项相同。见[正式报告](../agent-team/d09-system-model-http-verification.md)及[证据入口](../agent-team/evidence/d09-system-model-http-verification/README.md)。作者有效 20/48 中首配置组 5/26 按 input01 限定复用，其余有效组在 input02 实跑；独立真实 2/4 PASS，不声称最终版一次全跑。
+
+保留原 pure 失败、F1 修前仅静态发现、Secret Unknown 首红未命中及仅两测试修复、独立 Python 启动拒绝与随后真实结果。原命令/env/exit、源版本、4 容器/3 网络存活身份与双清理均已归档。Unknown 仅为正式 Store 结果处理，不改称网络丢 ACK 或未终局 writer 证明。
+
+生产 root 未挂载；根装配规格已授权制定，候选已冻结、独立静审中、尚无业务实施权；Provider/Invocation、Project/Summary 及完整 D09 不在本卡完成范围。Object/Artifact/Project 原阻断保持。本节仅同步验收与提交状态，不改上文 API、预算、17 路径、权限或零迁移规则。

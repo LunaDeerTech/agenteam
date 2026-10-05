@@ -1,0 +1,69 @@
+--- a/tests/model/system_http_fixture_test.go
++++ b/tests/model/system_http_fixture_test.go
+@@ -26,6 +26,7 @@
+ 	accountc "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+ 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+ 	ec "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+@@ -50,6 +51,7 @@
+ 	locks                            []f.LockRequest
+ 	held, receiptReads, payloadReads int
+ 	finalFact                        bool
++	commandRawHash, receiptDigest    string
+ 	actual, projected                f.CommitState
+ }
+ type systemHTTPStore struct {
+@@ -91,9 +93,14 @@
+ 		if trace.namespace == "model.system" {
+ 			err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_model.commands WHERE command_identity=$1 AND phase='committed' AND safe_receipt IS NOT NULL)`, d.Primary.Canonical()).Scan(&trace.finalFact)
+ 		} else if trace.namespace == "secret" {
+-			digest := sha256.Sum256([]byte(d.Primary.Canonical()))
+-			key := fmt.Sprintf("sha256:%x", digest)
+-			err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_secret.secret_command_receipts WHERE scope='system' AND scope_key='system' AND command_digest=$1)`, key).Scan(&trace.finalFact)
++			raw := []byte(d.Primary.Canonical())
++			digest, digestErr := cursor.Digest(raw)
++			if digestErr != nil {
++				return digestErr
++			}
++			trace.commandRawHash = fmt.Sprintf("sha256:%x", sha256.Sum256(raw))
++			trace.receiptDigest = string(digest)
++			err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_secret.secret_command_receipts WHERE scope='system' AND scope_key='system' AND command_digest=$1)`, string(digest)).Scan(&trace.finalFact)
+ 		}
+ 		return err
+ 	})
+--- a/tests/model/system_http_credentials_test.go
++++ b/tests/model/system_http_credentials_test.go
+@@ -421,19 +421,28 @@
+ 	}
+ 	createKey, updateKey, deleteKey := newID[struct{}](t).String(), newID[struct{}](t).String(), newID[struct{}](t).String()
+ 	var projected atomic.Bool
++	port := &systemHTTPWrites{HumanWriteCommands: v.secrets}
++	v.install(t, port)
+ 	v.tracked.setHooks(nil, func(_ context.Context, cause f.TransactionCause, trace systemHTTPTrace, r f.CommitResult) f.CommitResult {
+ 		if trace.namespace == "secret" && trace.command == "create" && string(cause.Details().Primary.Key()) == createKey && trace.finalFact && r.State() == f.Committed && projected.CompareAndSwap(false, true) {
+-			t.Log("Secret final mutation/receipt Tx actual=committed -> formal Store Unknown -> no write replay")
++			if trace.commandRawHash == trace.receiptDigest || trace.held == 0 {
++				t.Fatal("Secret final receipt digest/held-lock evidence missing")
++			}
++			t.Logf("Secret final mutation/receipt Tx actual=%s -> formal Store Unknown; raw identity hash=%s canonical receipt digest=%s heldChecks=%d", r.State(), trace.commandRawHash, trace.receiptDigest, trace.held)
+ 			return f.UnknownResult(newID[f.TransactionAttempt](t), cause)
+ 		}
+ 		return r
+ 	})
+ 	response := v.request(t, v.adminBrowser, "POST", "/api/v1/system/model-credentials", createKey, map[string]any{"value": "original-value"})
+ 	v.tracked.setHooks(nil, nil)
+-	response.problem(t, 503, f.CommitUnknown)
+ 	if !projected.Load() {
+ 		t.Fatal("Secret actual mutation not targeted")
+ 	}
++	if port.writes.Load() != 1 {
++		t.Fatal("Secret Unknown was automatically replayed")
++	}
++	response.problem(t, 503, f.CommitUnknown)
++	t.Log("Secret service/HTTP directly returned Unknown/503 with exactly one ExecuteWrite")
+ 	lookup := v.request(t, v.adminBrowser, "POST", "/api/v1/system/model-credential-commands/lookup", createKey, map[string]any{"kind": "create"}).want(t, 200).object(t)
+ 	credential := lookup["result"].(map[string]any)["credential_id"].(string)
+ 	update := v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-credentials/"+credential, updateKey, map[string]any{"expected_version": "1", "value": "updated-value"}).want(t, 200)

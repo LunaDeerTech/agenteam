@@ -1,0 +1,45 @@
+# System Model HTTP 独立测试审查与探针准备
+
+**准备完成，compile-only 通过；独立动态尚未运行。** 使用已审规格 b4dd1e6、固定 9110686 + 已验 Secret20 8ad6759 + 作者冻结17，未读取活动树。
+
+## 最终输入与编译
+
+- 当前作者 `fixture-input-02/manifest.json` SHA256 `caa5b3d485aaee6d07cec51a54915106d93c652f36ae5aea71bc7d8b4ee21a7a`；17文件全部匹配，9生产/契约文件与已通过静审 prod02 一致。
+- 初版 `fixture-input-01` manifest SHA256 `fb25c9d68e0468538d6bd79550902f058e9217262f7054a7b7e79fe1dd1d2a8f`；原始候选未覆盖。初次独立 probe compile exit0，之后只迁移作者冻结两测试差量（patch SHA256 `726b4e7acd3a5bfb96d3b6c506bbef5c0c56cc8182f5535fb6fddb84c17a7755`），再次 compile exit0。没有复制另一份树。
+- 自有源树 `tree/` 仅从固定 Git archive 的 go.mod/go.sum/internal/cmd/api/db/scripts/tests 重建，再叠加已验20与候选17；未复制 docs、web、repo evidence、缓存、二进制或活动源码。
+- 新独立文件 `probe/independent_system_http_test.go` 与 `tree/tests/model/independent_system_http_test.go` 同字节，SHA256 `4b61aaa880ef15caf99f7b710a75972d0dac62eb7f970cc796bd1d760229688c`。17个候选源未改。
+- 实际命令：`/workspace/toolchains/go1.27.1/bin/go test -race -tags=integration -c -o /workspace/agenteam-system-http-independent-v-3yb4qs32/probe/model.test ./tests/model`。
+- Go 为实际 `go1.27.1 linux/amd64`；GOTOOLCHAIN=local、GOENV/GOWORK=off、GOPROXY/GOSUMDB=off、GOFLAGS=-mod=readonly、共享锁定 module cache、自有 GOCACHE/TMPDIR。精确 argv/env/time/exit 在 `evidence/compile02-result.json`；原日志 `evidence/compile02.log` 为空、SHA256 `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`。这不是测试执行通过。
+
+## 作者八测试的审查结论
+
+全部八文件已读（初版合计 2059 行），区分纯测试桩与真实 fixture：
+
+- 五个纯测试文件核安全 wrapper、类型与身份约束、零依赖、查证失败零结果、F1 提交后取消、DTO/标量、材料销毁和有界调用。nil writes 测试先成功构造合法 Model core；拒绝点在 Account 构造前，不把无效 core 当有效覆盖。纯 Session/grant 返回器只用于单元测试，不计真实授权通过。
+- 三个真实测试文件从隔离数据库构造 Account Authority/Bootstrap/Login、Secret、Model Authority/Service、Audit 和 Outbox；HTTP actor 来自真实 cookie/CSRF。装饰器委派真实服务，不提供 allow。测试用 User EX 下 fixture role 变更验证当前管理员，以真实 Logout 验证当前 Session；这些是测试状态转换，不宣称增加正式管理员写接口。
+- 历史 receipt 精确身份、另一 admin/同 user 新 Session、未初始化 Secret 的纯读、Command/User 实际锁阻塞、无 nonce/材料读取均有明确断言。并发 purpose/version 用 Metadata 后真实 Human write，不改 target expected。
+- 原子失败在真实 Audit/Event Append 已成功的同 Tx 内注错，检查 canonical/reference/receipt/payload/Audit/Event 全行排序 JSON 哈希；技术 nonce 预留单列排除。没有用仅行数代替完整行内容。HTTP 前置校验不替代真实事务内授权。
+- Model 最终事务实际 Committed 后装饰 Unknown，原 replayScope 确认成功为200，确认失败为最终503；Secret直达最终返回保持503。未声称装饰 Unknown 是网络 ACK 丢失或存活 writer。真正网络/协议故障不在本计划。
+
+未发现需放宽契约或业务断言的测试问题。作者的未执行兼容组不计通过；完整验收等待作者后续冻结原日志及独立实际执行。
+
+## 首红与 fixture02 差量
+
+原 `new-credentials-01` 日志 SHA256 `619ae50baf683df2cd66ffb1cb8564bef9fcc563106795134caad9e8eb06910e`，实际 4 top +17 sub PASS、1 top FAIL；两个 Model 子例通过，Secret 503 前置失败后的历史段未执行。
+
+固定 fixture01 对 Secret receipt EXISTS 使用 raw CommandIdentity.Canonical() 的 SHA256；正式 cursor.Digest 先 CanonicalJSON，二者对象键序不同。原日志没有 Secret 最终事务武装行，不能据200声称生产吞 Unknown。fixture02 只改正式 Digest 与错误处理、记录两哈希、把语义命中和一次 Execute 断言放在原503断言前；生产与原预算/历史/材料断言均不变。原失败日志未改。
+
+修后 `new-credentials-02` 原日志 SHA256 `43e15d3deb8999753cb52e57a291e89a03915fa71bcf098b6242d0a6bc176bf8`：5 top/17 sub PASS。实际日志显示最终 receipt Tx Committed、不同 raw/canonical 哈希、heldChecks=5、正式 Store Unknown、一次 Execute→503，并完成删后历史重放/错材料拒绝。本次已核该固定原始日志，不仅引用作者声明。
+
+第一组 `new-configuration-01` 5 top/26 sub PASS 可复用（原日志 SHA256 `30d0c2b76236e55eafbabaa35793cdb8aeefd5c7392932c55b02929fc2c824e2`）：Model 分支/断言/授权 hooks 未改；Secret 新增 trace 观察没有被该组消费为授权或期望依据。完整固定日志/input 的已核定位在 `evidence/author-early-raw-checked.json`。
+
+## 两顶层／四子场景独立增量
+
+1. `TestIndependentSystemHTTPPassiveCurrentAuthorityAndReadFailure`（3 sub）：在 HTTP 当前 admin 检查之后、正式 Secret lookup 之前用真实 User EX 完成 role 撤权；同 Tx 正式 Account Authority 必须在 receipt SELECT 之前拒绝，真实 read NotCommitted、零 observation。另两案分别为实际 PostgreSQL read Committed 后明示 Store Unknown 的 absent HTTP，以及实际 Committed 后取消的 present HTTP；核503、安全 Problem、原 commit state/cancellation cause、无 observation、完整精确 Command/User SH、无 payload/digest SELECT、业务全行与 nonce 不变。
+2. `TestIndependentSystemHTTPLateReceiptStillRequiresOriginalMaterial`（1 sub）：第一个真实 lookup absent；在 Metadata 前由另一笔真实同 identity update 提交 v2、再独立 delete v3；真实 Metadata NotFound 后第二次 lookup 才见 v2历史receipt。原 HTTP 必须只执行一次原完整材料重放并返回历史v2；随后同身份不同材料仍409。核 canonical 已删除、两 lookup/一 metadata/一 Execute 的限定分支及无额外业务行变化，材料不进入响应/日志。
+
+这补充作者已有 Logout、直接 F1 present/absent、purpose/version 和删后重放的组合边界，不重跑其完整矩阵。Store 装饰仅在 `owner=secret-write-lookup`、实际 Committed、明确 receipt SELECT/held 证据命中；不按 Tx 次序，不依出错过的 finalFact 算法。没有新网络、协议或 ROLLBACK 干预。
+
+最终精确 selector/待授窗口的 driver argv/env 在 `evidence/ready-input.json`。测试源码已经物理加入自有 tree，driver Go 编译可直接见到，无 overlay 漏传问题。仍保持原 helper 的 `-race -count=1 -timeout=6m`；GOFLAGS 用 `-mod=readonly -v`，不向 driver 传 `-v`。
+
+无独立 Docker/fixture 操作；两次编译均已结束、实际 PID absent、自有 runtime 为空。源码/证据/此报告冻结，all-stop 等主线程正式窗口。准备结论不表示完整 D09、生产 root 挂载或其它未绑定 consumer 已完成。

@@ -1,0 +1,9 @@
+ok  	github.com/LunaDeerTech/agenteam/internal/central/account	3.858s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret	0.018s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret/contract	0.009s
+--- FAIL: TestSystemHTTPConstructionAndRoutesMatchOpenAPI (0.00s)
+    http_test.go:49: open ../../../..//api/openapi/model-system.json: no such file or directory
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model	0.014s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/httpapi	0.019s
+FAIL

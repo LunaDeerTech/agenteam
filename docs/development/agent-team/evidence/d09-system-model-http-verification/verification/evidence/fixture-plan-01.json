@@ -1,0 +1,57 @@
+{
+  "manifest_sha256": "fb25c9d68e0468538d6bd79550902f058e9217262f7054a7b7e79fe1dd1d2a8f",
+  "groups": [
+    {
+      "label": "new-configuration-01",
+      "tops": [
+        "TestModelSystemHTTPConfigurationCRUD",
+        "TestModelSystemHTTPSelectionAndReferenceDeletion",
+        "TestModelSystemHTTPCurrentAdministrator",
+        "TestModelSystemHTTPBoundaryAndStrictWire",
+        "TestModelSystemHTTPPaginationAndSafeProjection"
+      ],
+      "selector": "^(TestModelSystemHTTPConfigurationCRUD|TestModelSystemHTTPSelectionAndReferenceDeletion|TestModelSystemHTTPCurrentAdministrator|TestModelSystemHTTPBoundaryAndStrictWire|TestModelSystemHTTPPaginationAndSafeProjection)$"
+    },
+    {
+      "label": "new-credentials-01",
+      "tops": [
+        "TestModelSystemHTTPCredentialWritesAndBinding",
+        "TestModelSystemHTTPPassiveCredentialLookup",
+        "TestModelSystemHTTPPassiveLookupLocksAndFailures",
+        "TestModelSystemHTTPAtomicEffects",
+        "TestModelSystemHTTPUnknownAndHistoricalResults"
+      ],
+      "selector": "^(TestModelSystemHTTPCredentialWritesAndBinding|TestModelSystemHTTPPassiveCredentialLookup|TestModelSystemHTTPPassiveLookupLocksAndFailures|TestModelSystemHTTPAtomicEffects|TestModelSystemHTTPUnknownAndHistoricalResults)$"
+    },
+    {
+      "label": "compat-model-01",
+      "tops": [
+        "TestModelB01CRUDCurrentAuthorityAndCanonicalReplay",
+        "TestModelB01PlatformSelectionAndAtomicReplacement",
+        "TestModelB01SecretReferencesAndAllEffectsRollback",
+        "TestModelB01CursorAndScopeRemainCurrentlyAuthorized",
+        "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked"
+      ],
+      "selector": "^(TestModelB01CRUDCurrentAuthorityAndCanonicalReplay|TestModelB01PlatformSelectionAndAtomicReplacement|TestModelB01SecretReferencesAndAllEffectsRollback|TestModelB01CursorAndScopeRemainCurrentlyAuthorized|TestModelB01PreparedReferencesAndCurrentAdminAreRechecked)$"
+    },
+    {
+      "label": "compat-account-secret-01",
+      "tops": [
+        "TestAccountHTTPBoundaryAndProfile",
+        "TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority",
+        "TestAccountCurrentSessionRequiresRealHeldUserAndCurrentRole",
+        "TestSecretStorageReceiptAndCurrentLease",
+        "TestSecretBindingsAuthorizationAndReadAuditBoundary"
+      ],
+      "selector": "^(TestAccountHTTPBoundaryAndProfile|TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority|TestAccountCurrentSessionRequiresRealHeldUserAndCurrentRole|TestSecretStorageReceiptAndCurrentLease|TestSecretBindingsAuthorizationAndReadAuditBoundary)$"
+    }
+  ],
+  "driver": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "<selector>"
+  ],
+  "budget": "original -race -count=1 -timeout=6m per package",
+  "GOFLAGS": "-mod=readonly -v"
+}

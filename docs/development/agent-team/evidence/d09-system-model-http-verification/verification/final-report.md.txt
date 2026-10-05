@@ -1,0 +1,34 @@
+# System Model HTTP 最终独立验收
+
+**建议采纳固定候选17：本卡库级 System Model HTTP 与被动 credential 查证验收通过。** 无剩余确定阻断。结论不包含生产 root 挂载、Provider/Invocation 执行、Project/Summary 或整个 D09 完成。
+
+输入固定为 `9110686a507716d8b4e042a5562a22507658adcb` + 已验 Secret20 `8ad6759dbb499ae1cfec1d47bcab75f1abb2f56d` + `fixture-input-02/manifest.json`（SHA256 `caa5b3d485aaee6d07cec51a54915106d93c652f36ae5aea71bc7d8b4ee21a7a`）。9生产/契约文件与已通过静审 prod02 相同。独立运行前后17源、依赖20及 probe 均匹配；没有修改业务、作者测试、旧断言或预算。
+
+独立完成所有生产和8测试静审，并按风险运行 **2 top /4 sub**，全部显式 PASS，`tests/model` 包 **5.516s**，原 driver exit0，无 Skip。实际命令为 `sh scripts/test-objects.sh -run '^(TestIndependentSystemHTTPPassiveCurrentAuthorityAndReadFailure|TestIndependentSystemHTTPLateReceiptStillRequiresOriginalMaterial)$'`；原 `-race -count=1 -timeout=6m` 不变，GOFLAGS=`-mod=readonly -v`，Go1.27.1/离线只读依赖、自有cache/runtime、本机socket与空自有DockerConfig。
+
+独立关键结果：HTTP已核admin之后的真实User EX撤权，被正式Secret读事务中的当前Account Authority拒绝，receipt SELECT=0；实际PG只读Committed后装饰Unknown的absent和调用方取消的present都返回HTTP503、零observation且保留原状态/取消cause；两案精确Command SH/User SH、材料/摘要SELECT=0、全业务行及nonce不变。另一案完成真实首读absent→同identity update v2与独立delete v3提交→真实Metadata NotFound→第二次被动查到v2历史receipt→一次原Execute完整材料重放；同身份错材料仍409，无额外业务事实。
+
+核心独立证据位于本目录 `evidence/dynamic01/`：
+
+- `raw.log` SHA256 `703f9f714ff51dfc7a5ce3e9dc2f444be9e4027ce38089ff45d691c9d5028b47`。
+- `result.json` SHA256 `2ac44c2e2d97b9a7d51f71ade8d354d7187f2d4d97f78e6658616c0573c05cc6`，含真实argv/env/input/exit/时间。
+- `owned-live.json` SHA256 `e5c558947a862b5cd7e3ef25d0ce6ad510532c919cf738c2ee3af920b932773c`，4容器/3网络存活精确ID、name、nonce-label与原日志一致。
+- `cleanup01.json` SHA256 `48cc8c910d63cff4219a31d5b9e13e24cf04dad0383a8aa8b4de00d64d6c79fe`；`cleanup02.json` SHA256 `8e6540d0b486e8f6d032d60e259003f2c19b54053f58ba02fa1eec95df02ab7f`。每轮全部owned exactID实际absent，原2容器/4网络的ID/name/labels/状态一致，owned进程与runtime为空。driver PID1005460已实际消失，窗口已交回，不再运行fixture。
+- `source-final.json` SHA256 `ad8cfb70b35acc1600c85a7ca864af34a007732dffbb344c76798a3c42d4c3b3`。独立probe源码SHA256 `4b61aaa880ef15caf99f7b710a75972d0dac62eb7f970cc796bd1d760229688c`，源及两个版本的离线race compile证据保留。
+
+作者证据独立核对79个引用文件SHA、四组精确input/selector/exit与原日志，实际 **20 top /48 sub** 全部显式PASS（新10、旧10），无Skip：
+
+| 组 | 有效覆盖 | 版本与复用 |
+| --- | --- | --- |
+| new-configuration-01 | 5 top /26 sub | 从input01限定复用；生产、配置测试及Model分支未变。input02仅改变Secret receipt观察和credential测试，未以此声称配置组在02实际重跑。 |
+| new-credentials-02 | 5 top /17 sub | 完整input02；明确最终Secret Tx实际Committed、Store Unknown、一次Execute→503与删后历史材料重放。 |
+| compat-model-01 | 5 top /5 sub | input02 + accepted20，原Model权限/引用/rollback回归。 |
+| compat-account-secret-01 | 5 top /0 sub | input02 + accepted20，原Account3/Secret2回归。 |
+
+作者 `coverage-matrix.json` SHA256 `d5693830cc61c88f4d36ea8b99d252d751589371c3c4b4451b98c1965ecefe21`；`author-report.md` SHA256 `a5284098af5707420f0a61a8010f82e5a3f6f10ab69b28fbeb4d46480f6d9562`。各组实际两次资源清理、baseline不变、process/runtime0和源末核均已核。纯检查复用严格按输入：race02覆盖最终Secret/contract/Model；Account/httpapi复用race01不变部分。最终生产9与vet01、两cmd实际build输入一致；最终两测试经compile-integration02/vet-integration02。早期unit/compile不扩称最终版本通过。机器核对及纯检查版本差异在 `evidence/author-final-checked.json`，可用 `check-author-evidence.py` 复核。
+
+失败历史保留：独立prod01发现F1（读Committed后取消仍交observation），仅有静态原问题，没有伪称原动态红；prod02最小尾部修复后，作者真实present/absent与独立HTTP present均通过。作者unit01/unit02自身helper/opaque比较/相对路径红及输入仍在其矩阵；真实new-credentials-01原4 top/17 sub通过、1 top失败，Secret历史后段未执行。fixture错误使用raw Canonical SHA，正式Secret为CanonicalJSON后Digest，未命中Unknown；只修两测试、原503和材料/历史强断言不变，修后整组通过，未把原红改写为成功。
+
+独立执行包装器首次Python语法拒绝发生在所有Go/Docker操作前；原脚本和错误记录在 `evidence/startup01-script.py.txt` / `startup01-result.json`。修正后先通过Python内存compile语法检查再启动driver，随后py_compile同源通过；该启动拒绝不计测试行为失败。探针和17源未因此改变。
+
+Unknown证据均明确区分底层实际Committed与正式Store返回的合法Unknown；不声称发生网络COMMIT丢ACK、存活writer或ROLLBACK干预。完整HTTP组合、同Tx权限、材料、历史、读结果和原子回滚范围已由以上独立/作者有效证据闭合，不借未绑定能力宣告成功。全部动态和源写入已停；仅允许随后按主线程授权归档这些冻结材料。all-stop。

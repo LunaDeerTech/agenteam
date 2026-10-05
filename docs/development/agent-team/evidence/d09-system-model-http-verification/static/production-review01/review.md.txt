@@ -1,0 +1,34 @@
+# System Model HTTP production-review-01 独立静审
+
+结论：**需修复 F1，尚不能通过该固定生产候选**。除 F1 外，本次审查的 8 个 Go 文件和 1 个 OpenAPI 文件中未发现第二个确定阻断。这是静态结论，不是 HTTP、真实 PostgreSQL 或整卡验收通过。
+
+## 固定输入
+
+- 基线：`9110686a507716d8b4e042a5562a22507658adcb`。
+- 已验 Secret 依赖：`8ad6759dbb499ae1cfec1d47bcab75f1abb2f56d`；其 20 路径按固定 Git 对象逐字节核实，与本候选 9 路径无交集。
+- 采纳规格：`b4dd1e6c4275d7c98e1f52cc6ac24ae4bf798d82:docs/development/work-items/recovery-d09-system-model-http.md`（rev1.1）。
+- 作者固定 manifest：`/workspace/agenteam-system-http-author-zyt918wl/production-review-01/manifest.json`，SHA256 `6b80a5bc05d9fa776938eaf78b12f0855d9f09e8ce6aea5c31936c7d166ce7a7`。
+- 自有副本：本目录中相同相对路径，全部 9 文件与 manifest 一致。依赖描述 `accepted-secret-delta.json` SHA256 `f74392aa03f07818d75c4b7b2774cc93622b96cb535162ba2e1f83eee9e6b22b`。
+
+## F1：读事务已提交后的取消仍返回成功 observation
+
+位置：固定 `internal/central/secret/write_lookup.go:97–100`。`commitError(committed)` 成功后直接返回 `observed, nil`，未检查 caller `ctx.Err()`。规范 §2.2 第 4 条（固定卡第 68 行）要求取消错误返回零 observation + 错误，同时保留真实 commit state。
+
+精确可达情形：正式 Store 完成真实只读事务并取得 `Committed` 后，在 `WithinTx` 返回给新 lookup 前取消调用方 context。当前代码会返回已有的 `Observed=true, Result!=nil, nil`；若该读事务未观察到行，则返回 `Observed=false, nil`。两者都把已经发生的取消隐藏为成功读取。无需推翻或推测原写 receipt 状态，也不依赖网络故障。
+
+最小修订：仅在新 lookup 的成功提交返回边界检查 `ctx.Err()`，取消则返回零 `WriteCommandObservation` 与安全 typed Fault，**保留 `foundation.Committed`**。不要用现有通用 `unavailable()` 把实际读事务改记为 NotStarted，也不要改成 Unknown；无需修改旧公共 `commitError` 或不相关 legacy 路径。已验依赖 `secret/model_usage.go:121–137` 的取消返回策略可作为既有实现参照。
+
+后续必要验证：正式 Store 装饰层保留并记录底层真实 Committed，在交回结果前取消 context；分别覆盖已有 receipt 与 absent。断言零 observation、非 nil 错误、可追溯 context cancellation 和 Committed 状态。本轮仅静态确认此分支，未运行该反例。
+
+## 其余已核范围
+
+- 被动查证只读安全 receipt 列；精确 scope/command/User 身份、Kind/Purpose/Ref/expected/result/deleted 校验；一次 Command SH + User SH，同 Tx 当前 Session/admin Read 授权；未调用 nonce、材料解密、Prepare/Execute、Audit/Event 或写入。SQL/授权/事务失败返回零结果。
+- Account 窄包装复用原 Origin/Host/Fetch-Metadata、Cookie/CSRF、当前 Authority 和安全 Problem；POST lookup 虽为 Read，仍依 unsafe HTTP 方法检查 CSRF。handler 构造检查 nil/typed nil 依赖；原 ExecuteWrite 只有零 Service/state 入口防护差量。
+- HTTP 使用受信 actor/scope/purpose 和闭集命令，严格 DTO、query/key/path 校验与安全输出。Secret 暂存材料在 Execute 调用结束清理；历史 observation 不能替代完整材料幂等比较，最终仍调用原 ExecuteWrite；Metadata 预检与真实写事务版本/授权检查保持分工。Model 原自动查证成功可正常返回 200，最终 Unknown 不由 handler 自动重试。
+- 静态脚本核实 17 条 Go 逻辑路由与 OpenAPI 的 22 项操作（含 5 HEAD）集合一致；全部 124 个引用出现位置／30 个不同引用可解析；安全声明、HEAD 无成功 body、所有写方法与 POST lookup 的 Idempotency-Key 要求一致。未将这些结构检查当作运行时行为测试。
+
+## 重复核验与边界
+
+在本目录执行 `python3 static-check.py` 可重复源码、已验依赖字节及 OpenAPI 结构检查，结果为 `static-check.json`。固定源相对基线的唯一旧文件接缝另存 `write.delta.patch`。完整输入与产物指纹见 `SHA256SUMS.json`。
+
+没有读取作者活动 8 测试，没有运行 Go、Docker、HTTP/PG fixture，没有修改仓库或产品源码、没有 Git 写操作。作者纯测试结果不计为本轮独立动态证据。完整运行时权限、并发限域、真正 Unknown 和原子回滚仍按既定独立计划，在最终输入冻结和明确窗口授权后验收。报告与自有输入已冻结；本轮 all-stop。

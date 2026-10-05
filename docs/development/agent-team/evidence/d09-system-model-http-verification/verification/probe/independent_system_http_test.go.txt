@@ -1,0 +1,232 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"strings"
+	"sync/atomic"
+	"testing"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+)
+
+// All methods delegate to the fixed real Secret service. Hooks alter only this
+// fixture's current Account state or perform separate real Human commands.
+type independentHTTPWrites struct {
+	sc.HumanWriteCommands
+	beforeLookup   func()
+	beforeMetadata func(id.Actor, sc.CredentialRef)
+	lookups        int
+	metadata       int
+	writes         int
+	observations   []sc.WriteCommandObservation
+	lookupError    error
+	metadataError  error
+}
+
+func (w *independentHTTPWrites) LookupWriteCommand(ctx context.Context, r sc.WriteCommandLookupRequest) (sc.WriteCommandObservation, error) {
+	w.lookups++
+	if w.beforeLookup != nil {
+		w.beforeLookup()
+	}
+	out, err := w.HumanWriteCommands.LookupWriteCommand(ctx, r)
+	w.observations = append(w.observations, out)
+	w.lookupError = err
+	return out, err
+}
+func (w *independentHTTPWrites) Metadata(ctx context.Context, a id.Actor, r sc.CredentialRef) (sc.Metadata, error) {
+	w.metadata++
+	if w.beforeMetadata != nil {
+		w.beforeMetadata(a, r)
+	}
+	out, err := w.HumanWriteCommands.Metadata(ctx, a, r)
+	w.metadataError = err
+	return out, err
+}
+func (w *independentHTTPWrites) ExecuteWrite(ctx context.Context, r sc.WriteRequest) (sc.MutationResult, error) {
+	w.writes++
+	return w.HumanWriteCommands.ExecuteWrite(ctx, r)
+}
+
+func independentPassiveTrace(t *testing.T, v *systemHTTPFixture, start int, request sc.WriteCommandLookupRequest, actual, projected f.CommitState, reads int) {
+	t.Helper()
+	command, _ := f.CommandLock(request.Identity)
+	user, _ := f.UserLock(request.Actor.Details().UserID)
+	count := 0
+	for _, trace := range v.tracked.observations()[start:] {
+		if trace.owner != "secret-write-lookup" {
+			continue
+		}
+		count++
+		if trace.actual != actual || trace.projected != projected || trace.receiptReads != reads || trace.payloadReads != 0 || trace.held == 0 || len(trace.locks) != 2 {
+			t.Fatalf("passive trace actual=%s projected=%s reads=%d payload=%d held=%d locks=%d", trace.actual, trace.projected, trace.receiptReads, trace.payloadReads, trace.held, len(trace.locks))
+		}
+		if trace.locks[0].Key.Canonical() != command.Canonical() || trace.locks[1].Key.Canonical() != user.Canonical() || trace.locks[0].Mode != f.Shared || trace.locks[1].Mode != f.Shared {
+			t.Fatal("passive read did not own exact Command SH and User SH")
+		}
+	}
+	if count != 1 {
+		t.Fatalf("passive transaction count=%d want=1", count)
+	}
+}
+
+func independentNoObservation(t *testing.T, r systemHTTPResponse, p *independentHTTPWrites, state f.CommitState) {
+	t.Helper()
+	var problem httpapi.Problem
+	if json.Unmarshal(r.body, &problem) != nil || problem.CommitState != state {
+		t.Fatal("HTTP lost actual read outcome")
+	}
+	body := r.object(t)
+	if _, exists := body["observed"]; exists {
+		t.Fatal("HTTP error disguised as successful observation")
+	}
+	if _, exists := body["result"]; exists {
+		t.Fatal("HTTP error exposed partial result")
+	}
+	if p.lookups != 1 || p.metadata != 0 || p.writes != 0 || p.lookupError == nil || len(p.observations) != 1 || p.observations[0].Observed || p.observations[0].Result != nil {
+		t.Fatal("failed lookup returned data or invoked another operation")
+	}
+}
+
+func TestIndependentSystemHTTPPassiveCurrentAuthorityAndReadFailure(t *testing.T) {
+	v := newSystemHTTPFixture(t)
+	t.Run("current_admin_after_http_entry", func(t *testing.T) {
+		browser := v.addBrowser(t, "admin")
+		key := newID[struct{}](t).String()
+		v.request(t, browser, "POST", "/api/v1/system/model-credentials", key, map[string]any{"value": "independent-owned-history"}).want(t, 200)
+		request := systemLookup(t, browser, key, sc.Create, "", 0)
+		before, nonce := v.facts(t), v.nonce(t)
+		start := len(v.tracked.observations())
+		var fired atomic.Bool
+		port := &independentHTTPWrites{HumanWriteCommands: v.secrets}
+		port.beforeLookup = func() {
+			if !fired.CompareAndSwap(false, true) {
+				t.Fatal("lookup delegate repeated")
+			}
+			// Owned test-state transition uses the real User EX lock; the
+			// subsequent check is the unmodified Account authority in Secret's Tx.
+			v.role(t, browser, "user")
+		}
+		v.install(t, port)
+		defer v.install(t, v.secrets)
+		response := v.request(t, browser, "POST", "/api/v1/system/model-credential-commands/lookup", key, map[string]any{"kind": "create"})
+		response.problem(t, 403, f.Forbidden)
+		if !fired.Load() {
+			t.Fatal("request never reached post-HTTP-authority barrier")
+		}
+		independentNoObservation(t, response, port, f.NotCommitted)
+		independentPassiveTrace(t, v, start, request, f.NotCommitted, f.NotCommitted, 0)
+		httpSameFacts(t, before, v.facts(t))
+		if v.nonce(t) != nonce {
+			t.Fatal("rejected read consumed nonce reservation")
+		}
+		t.Log("HTTP admin check passed; owned User-EX role transition completed; real same-Tx current Account authority denied before receipt SELECT; zero observation and Secret writes")
+	})
+	for _, mode := range []string{"actual_committed_projected_unknown_absent", "actual_committed_cancelled_present"} {
+		t.Run(mode, func(t *testing.T) {
+			key := newID[struct{}](t).String()
+			present := strings.HasSuffix(mode, "present")
+			if present {
+				v.credential(t, key, "independent-present-history")
+			}
+			request := systemLookup(t, v.adminBrowser, key, sc.Create, "", 0)
+			before, nonce := v.facts(t), v.nonce(t)
+			start := len(v.tracked.observations())
+			ctx, cancel := context.WithCancel(testContext(t))
+			defer cancel()
+			var reached atomic.Bool
+			v.tracked.setHooks(nil, func(_ context.Context, cause f.TransactionCause, trace systemHTTPTrace, result f.CommitResult) f.CommitResult {
+				if trace.owner != "secret-write-lookup" {
+					return result
+				}
+				if !reached.CompareAndSwap(false, true) || result.State() != f.Committed || trace.receiptReads != 1 || trace.held == 0 {
+					t.Fatal("post-real-commit read boundary was not reached exactly once")
+				}
+				if present {
+					cancel()
+					return result
+				}
+				// The underlying PostgreSQL read really committed. Unknown is
+				// an explicit formal Store result, not a network failure claim.
+				return f.UnknownResult(newID[f.TransactionAttempt](t), cause)
+			})
+			defer v.tracked.setHooks(nil, nil)
+			port := &independentHTTPWrites{HumanWriteCommands: v.secrets}
+			v.install(t, port)
+			defer v.install(t, v.secrets)
+			response := v.rawRequest(ctx, v.adminBrowser, "POST", "/api/v1/system/model-credential-commands/lookup", key, []byte(`{"kind":"create"}`), nil)
+			if !reached.Load() {
+				t.Fatal("actual commit hook missed")
+			}
+			state := f.Unknown
+			code := f.CommitUnknown
+			if present {
+				state, code = f.Committed, f.DependencyUnavailable
+				if !errors.Is(port.lookupError, context.Canceled) {
+					t.Fatal("cancellation cause not retained")
+				}
+			}
+			response.problem(t, 503, code)
+			independentNoObservation(t, response, port, state)
+			independentPassiveTrace(t, v, start, request, f.Committed, state, 1)
+			httpSameFacts(t, before, v.facts(t))
+			if v.nonce(t) != nonce {
+				t.Fatal("failed passive read consumed nonce reservation")
+			}
+			t.Logf("underlying PostgreSQL read=committed; returned Store state=%s; HTTP=503 zero observation; present=%t; payload/digest SELECT=0; full business row hashes and nonce unchanged", state, present)
+		})
+	}
+}
+
+func TestIndependentSystemHTTPLateReceiptStillRequiresOriginalMaterial(t *testing.T) {
+	v := newSystemHTTPFixture(t)
+	t.Run("real_late_receipt_after_canonical_delete", func(t *testing.T) {
+		credential := v.credential(t, newID[struct{}](t).String(), "independent-initial-material")
+		key := newID[struct{}](t).String()
+		const original = "independent-late-original-material"
+		const changed = "independent-late-changed-material"
+		var expected sc.MutationResult
+		var afterOther map[string][32]byte
+		port := &independentHTTPWrites{HumanWriteCommands: v.secrets}
+		port.beforeMetadata = func(actor id.Actor, ref sc.CredentialRef) {
+			if port.lookups != 1 || port.metadata != 1 || len(port.observations) != 1 || port.observations[0].Observed || port.observations[0].Result != nil || actor.Details() != v.admin.Details() || ref.Details().ID.String() != credential {
+				t.Fatal("metadata barrier did not follow exact successful absent lookup")
+			}
+			expected = v.secretWrite(t, v.adminBrowser, key, sc.Update, credential, 1, sc.Model, original)
+			deleted := v.secretWrite(t, v.adminBrowser, newID[struct{}](t).String(), sc.Delete, credential, 2, sc.Model, "")
+			if expected.Metadata.Version != 2 || expected.Deleted || !deleted.Deleted || deleted.Metadata.Version != 3 {
+				t.Fatal("separate real update/delete did not commit expected facts")
+			}
+			afterOther = v.facts(t)
+		}
+		v.install(t, port)
+		defer v.install(t, v.secrets)
+		response := v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-credentials/"+credential, key, map[string]any{"expected_version": "1", "value": original}).want(t, 200)
+		var metadataFault *f.Fault
+		if !errors.As(port.metadataError, &metadataFault) || metadataFault.Code != f.NotFound || port.lookups != 2 || port.metadata != 1 || port.writes != 1 || len(port.observations) != 2 || !port.observations[1].Observed || port.observations[1].Result == nil || !port.observations[1].Result.Metadata.CredentialRef.Equal(expected.Metadata.CredentialRef) || port.observations[1].Result.Metadata.Purpose != expected.Metadata.Purpose || port.observations[1].Result.Metadata.Version != expected.Metadata.Version || port.observations[1].Result.Deleted != expected.Deleted {
+			t.Fatal("real Metadata failure / second historical lookup / exact single Execute replay not reached")
+		}
+		out := response.object(t)
+		if out["credential_id"] != credential || out["purpose"] != "model" || out["version"] != "2" || out["deleted"] != false || len(out) != 4 {
+			t.Fatal("late historical receipt projection changed")
+		}
+		httpSameFacts(t, afterOther, v.facts(t))
+		port.beforeMetadata = nil
+		response = v.request(t, v.adminBrowser, "PUT", "/api/v1/system/model-credentials/"+credential, key, map[string]any{"expected_version": "1", "value": changed})
+		response.problem(t, 409, f.IdempotencyKeyReused)
+		if port.lookups != 3 || port.metadata != 1 || port.writes != 2 {
+			t.Fatal("historical observation bypassed original Execute digest or retried write")
+		}
+		httpSameFacts(t, afterOther, v.facts(t))
+		if strings.Contains(v.log.text(), original) || strings.Contains(v.log.text(), changed) || strings.Contains(string(response.body), changed) {
+			t.Fatal("material leaked to response or HTTP log")
+		}
+		t.Log("first read truly absent; separate same-identity update v2 and delete v3 committed; Metadata truly NotFound; second read returned original v2 receipt; original Execute replayed once; changed material still409; no additional canonical/payload/receipt/Audit/Event facts")
+	})
+}

@@ -1,0 +1,683 @@
+{
+  "scope": "Author evidence for library System Model HTTP; independent acceptance pending",
+  "final_manifest": {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-02/manifest.json",
+    "sha256": "caa5b3d485aaee6d07cec51a54915106d93c652f36ae5aea71bc7d8b4ee21a7a"
+  },
+  "production_manifest": {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/production-review-02/manifest.json",
+    "sha256": "2a3099ad132d3cf0a39b7ff312167c2023f03f3a28c06344021e654cc8646715"
+  },
+  "dependency_manifest": {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/accepted-secret-delta.json",
+    "sha256": "f74392aa03f07818d75c4b7b2774cc93622b96cb535162ba2e1f83eee9e6b22b"
+  },
+  "selection_plan": {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/fixture-plan-01.json",
+    "sha256": "a2e20615430d00741157e106f9f5c22781917f852f646b5609190e143be0c64b"
+  },
+  "totals": {
+    "new_top": 10,
+    "compat_top": 10,
+    "top": 20,
+    "sub": 48,
+    "skipped": 0
+  },
+  "fixture_groups": [
+    {
+      "label": "new-configuration-01",
+      "exit": 0,
+      "driver_seconds": 48.232,
+      "top_pass": [
+        "TestModelSystemHTTPConfigurationCRUD",
+        "TestModelSystemHTTPSelectionAndReferenceDeletion",
+        "TestModelSystemHTTPCurrentAdministrator",
+        "TestModelSystemHTTPBoundaryAndStrictWire",
+        "TestModelSystemHTTPPaginationAndSafeProjection"
+      ],
+      "sub_pass": [
+        "TestModelSystemHTTPConfigurationCRUD/openai-chat-completions",
+        "TestModelSystemHTTPConfigurationCRUD/anthropic-messages",
+        "TestModelSystemHTTPConfigurationCRUD/openai-embeddings",
+        "TestModelSystemHTTPConfigurationCRUD/jina-rerank",
+        "TestModelSystemHTTPConfigurationCRUD/openai-images-generations",
+        "TestModelSystemHTTPCurrentAdministrator/role",
+        "TestModelSystemHTTPCurrentAdministrator/session",
+        "TestModelSystemHTTPBoundaryAndStrictWire/host",
+        "TestModelSystemHTTPBoundaryAndStrictWire/origin",
+        "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-origin",
+        "TestModelSystemHTTPBoundaryAndStrictWire/csrf",
+        "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-csrf",
+        "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-cookie",
+        "TestModelSystemHTTPBoundaryAndStrictWire/duplicate-key",
+        "TestModelSystemHTTPBoundaryAndStrictWire/fetch",
+        "TestModelSystemHTTPBoundaryAndStrictWire/raw-path",
+        "TestModelSystemHTTPBoundaryAndStrictWire/unclean",
+        "TestModelSystemHTTPBoundaryAndStrictWire/query",
+        "TestModelSystemHTTPBoundaryAndStrictWire/nested-duplicate",
+        "TestModelSystemHTTPBoundaryAndStrictWire/unknown",
+        "TestModelSystemHTTPBoundaryAndStrictWire/null",
+        "TestModelSystemHTTPBoundaryAndStrictWire/trailing",
+        "TestModelSystemHTTPBoundaryAndStrictWire/utf8",
+        "TestModelSystemHTTPBoundaryAndStrictWire/media",
+        "TestModelSystemHTTPBoundaryAndStrictWire/encoding",
+        "TestModelSystemHTTPBoundaryAndStrictWire/large"
+      ],
+      "fail": [],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-new-configuration-01.json",
+        "sha256": "e0f5f75606b19ed34a3afaacfbad8690acc48941be4072da8a7691bbb6213d91"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-configuration-01.log",
+        "sha256": "30d0c2b76236e55eafbabaa35793cdb8aeefd5c7392932c55b02929fc2c824e2"
+      },
+      "exit_file": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-configuration-01.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "cleanup_first": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-new-configuration-01.json",
+        "sha256": "6810d25ca066f98f9bfc61968e3a798c62e0f6c52abf6b2070e2cb2d131d1c3a"
+      },
+      "cleanup_double": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-double-new-configuration-01.json",
+        "sha256": "09586a4cb88995417ddefc9912de2e4c471d62693ca48dc77571e3b99865a436"
+      },
+      "resource_live_evidence": [
+        {
+          "path": "/workspace/agenteam-system-http-author-zyt918wl/new-configuration-01-live-containers.txt",
+          "sha256": "6f6b920e2571c6cf6ae394b8b157d509dc5326560ac9f0847edb4011fb94920f"
+        },
+        {
+          "path": "/workspace/agenteam-system-http-author-zyt918wl/new-configuration-01-live-networks.txt",
+          "sha256": "3012a76a506fb52b11a5700d7798d3723eb5b4ccd6c3fee2123a3902fea2449a"
+        }
+      ],
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelSystemHTTPConfigurationCRUD|TestModelSystemHTTPSelectionAndReferenceDeletion|TestModelSystemHTTPCurrentAdministrator|TestModelSystemHTTPBoundaryAndStrictWire|TestModelSystemHTTPPaginationAndSafeProjection)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v"
+    },
+    {
+      "label": "new-credentials-02",
+      "exit": 0,
+      "driver_seconds": 38.406,
+      "top_pass": [
+        "TestModelSystemHTTPAtomicEffects",
+        "TestModelSystemHTTPCredentialWritesAndBinding",
+        "TestModelSystemHTTPPassiveCredentialLookup",
+        "TestModelSystemHTTPPassiveLookupLocksAndFailures",
+        "TestModelSystemHTTPUnknownAndHistoricalResults"
+      ],
+      "sub_pass": [
+        "TestModelSystemHTTPAtomicEffects/model-audit",
+        "TestModelSystemHTTPAtomicEffects/model-event",
+        "TestModelSystemHTTPAtomicEffects/secret-audit",
+        "TestModelSystemHTTPCredentialWritesAndBinding/non-model-PUT",
+        "TestModelSystemHTTPCredentialWritesAndBinding/non-model-DELETE",
+        "TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-purpose",
+        "TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-version",
+        "TestModelSystemHTTPPassiveLookupLocksAndFailures/uninitialized-read",
+        "TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-command",
+        "TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-user",
+        "TestModelSystemHTTPPassiveLookupLocksAndFailures/not-committed",
+        "TestModelSystemHTTPPassiveLookupLocksAndFailures/unknown",
+        "TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-present",
+        "TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-absent",
+        "TestModelSystemHTTPPassiveLookupLocksAndFailures/current-after-entry",
+        "TestModelSystemHTTPUnknownAndHistoricalResults/model-confirmed",
+        "TestModelSystemHTTPUnknownAndHistoricalResults/model-still-unknown"
+      ],
+      "fail": [],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-new-credentials-02.json",
+        "sha256": "a77b152d6d66ee8c848d44b7f6694d80473e1a9c67452d7bba15540233f95a31"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-credentials-02.log",
+        "sha256": "43e15d3deb8999753cb52e57a291e89a03915fa71bcf098b6242d0a6bc176bf8"
+      },
+      "exit_file": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-credentials-02.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "cleanup_first": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-new-credentials-02.json",
+        "sha256": "d98df90e72e53029b1e09ecbaf64837a2e21d7edd82b2c2adb1cc0160abf896f"
+      },
+      "cleanup_double": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-double-new-credentials-02.json",
+        "sha256": "bb49403cc33df11a1bc27939de46631c3b2592de9a0325e166ef9a3b91c45b22"
+      },
+      "resource_live_evidence": [
+        {
+          "path": "/workspace/agenteam-system-http-author-zyt918wl/new-credentials-02-live-containers.txt",
+          "sha256": "0f8efc8a207fbd7dcf54e4e17db68f4c2a2271171dd97c5b761e3cf7026df92b"
+        },
+        {
+          "path": "/workspace/agenteam-system-http-author-zyt918wl/new-credentials-02-live-networks.txt",
+          "sha256": "92ffcae0c96ea14baf31818d45c531ecf769888fc45f01a5d106a769b2b47a43"
+        }
+      ],
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelSystemHTTPCredentialWritesAndBinding|TestModelSystemHTTPPassiveCredentialLookup|TestModelSystemHTTPPassiveLookupLocksAndFailures|TestModelSystemHTTPAtomicEffects|TestModelSystemHTTPUnknownAndHistoricalResults)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v"
+    },
+    {
+      "label": "compat-model-01",
+      "exit": 0,
+      "driver_seconds": 27.886,
+      "top_pass": [
+        "TestModelB01CRUDCurrentAuthorityAndCanonicalReplay",
+        "TestModelB01PlatformSelectionAndAtomicReplacement",
+        "TestModelB01SecretReferencesAndAllEffectsRollback",
+        "TestModelB01CursorAndScopeRemainCurrentlyAuthorized",
+        "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked"
+      ],
+      "sub_pass": [
+        "TestModelB01SecretReferencesAndAllEffectsRollback/audit",
+        "TestModelB01SecretReferencesAndAllEffectsRollback/event",
+        "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked/secret-deleted",
+        "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked/admin-revoked",
+        "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked/reference-added"
+      ],
+      "fail": [],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-compat-model-01.json",
+        "sha256": "1ff5a25a9df51b42dfc48cc73b832c6721e44e32d70d6f1ff0e1862e0165dbfb"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compat-model-01.log",
+        "sha256": "876655a74bfe8b9a8ba2052c39c5a41137400d06a8c554aaf39aaf753facfa92"
+      },
+      "exit_file": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compat-model-01.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "cleanup_first": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-compat-model-01.json",
+        "sha256": "ceb7013583f41a99e715f9deaebe435f48bbca318aa47ddfecaf2e41c524a03a"
+      },
+      "cleanup_double": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-double-compat-model-01.json",
+        "sha256": "581ce74ba8652985b74a3aac9524baf03ddcca9bd22b6c499ba41f9b019630cd"
+      },
+      "resource_live_evidence": [
+        {
+          "path": "/workspace/agenteam-system-http-author-zyt918wl/compat-model-01-live-containers.txt",
+          "sha256": "863a8fc503e34641ac68fbe9e8a7d65c26c4026623b7c692657efb74221b4ab8"
+        },
+        {
+          "path": "/workspace/agenteam-system-http-author-zyt918wl/compat-model-01-live-networks.txt",
+          "sha256": "7f1c6fa3fd808883eb87aed5f8cc536b1c9892f2e951e6c299651b292048adf6"
+        }
+      ],
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelB01CRUDCurrentAuthorityAndCanonicalReplay|TestModelB01PlatformSelectionAndAtomicReplacement|TestModelB01SecretReferencesAndAllEffectsRollback|TestModelB01CursorAndScopeRemainCurrentlyAuthorized|TestModelB01PreparedReferencesAndCurrentAdminAreRechecked)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v"
+    },
+    {
+      "label": "compat-account-secret-01",
+      "exit": 0,
+      "driver_seconds": 29.148,
+      "top_pass": [
+        "TestSecretBindingsAuthorizationAndReadAuditBoundary",
+        "TestSecretStorageReceiptAndCurrentLease",
+        "TestAccountCurrentSessionRequiresRealHeldUserAndCurrentRole",
+        "TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority",
+        "TestAccountHTTPBoundaryAndProfile"
+      ],
+      "sub_pass": [],
+      "fail": [],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-compat-account-secret-01.json",
+        "sha256": "6092dbf8bf53e60b401d1d2c88fdf5ec44b7a78058df3e3eaf26c106c6aaf7a4"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compat-account-secret-01.log",
+        "sha256": "493908557cddfb9cd4da38b8fa0dca949675cc23ab8cad16c280ccdadb64e824"
+      },
+      "exit_file": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compat-account-secret-01.exit",
+        "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa"
+      },
+      "cleanup_first": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-compat-account-secret-01.json",
+        "sha256": "e0ecafe86c43c72f3b49a08695473520f83c4d06ad36a5dc44904ee04d4bf1dd"
+      },
+      "cleanup_double": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-double-compat-account-secret-01.json",
+        "sha256": "5d963f29a9509ec848442499521e7f7b5e864ddc42365955d9c826057a81b822"
+      },
+      "resource_live_evidence": [
+        {
+          "path": "/workspace/agenteam-system-http-author-zyt918wl/compat-account-secret-01-live-containers.txt",
+          "sha256": "c08ca76b4ed2e1b7b32e733ea70f2f4f48517fe2f604cf64ebb89fdec6ba53f6"
+        },
+        {
+          "path": "/workspace/agenteam-system-http-author-zyt918wl/compat-account-secret-01-live-networks.txt",
+          "sha256": "56cecc8489184fa86894f7d63d2521602260dd3a6db18da52d8eab0b15750512"
+        }
+      ],
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestAccountHTTPBoundaryAndProfile|TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority|TestAccountCurrentSessionRequiresRealHeldUserAndCurrentRole|TestSecretStorageReceiptAndCurrentLease|TestSecretBindingsAuthorizationAndReadAuditBoundary)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v"
+    }
+  ],
+  "preserved_original_red": {
+    "label": "new-credentials-01",
+    "exit": 1,
+    "driver_seconds": 33.309,
+    "top_pass": [
+      "TestModelSystemHTTPAtomicEffects",
+      "TestModelSystemHTTPCredentialWritesAndBinding",
+      "TestModelSystemHTTPPassiveCredentialLookup",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures"
+    ],
+    "sub_pass": [
+      "TestModelSystemHTTPAtomicEffects/model-audit",
+      "TestModelSystemHTTPAtomicEffects/model-event",
+      "TestModelSystemHTTPAtomicEffects/secret-audit",
+      "TestModelSystemHTTPCredentialWritesAndBinding/non-model-PUT",
+      "TestModelSystemHTTPCredentialWritesAndBinding/non-model-DELETE",
+      "TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-purpose",
+      "TestModelSystemHTTPCredentialWritesAndBinding/metadata-race-version",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/uninitialized-read",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-command",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/real-lock-user",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/not-committed",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/unknown",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-present",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/cancel-committed-absent",
+      "TestModelSystemHTTPPassiveLookupLocksAndFailures/current-after-entry",
+      "TestModelSystemHTTPUnknownAndHistoricalResults/model-confirmed",
+      "TestModelSystemHTTPUnknownAndHistoricalResults/model-still-unknown"
+    ],
+    "fail": [
+      "TestModelSystemHTTPUnknownAndHistoricalResults"
+    ],
+    "input": {
+      "path": "/workspace/agenteam-system-http-author-zyt918wl/input-new-credentials-01.json",
+      "sha256": "ffc507f81cb114f505a509ad1919e1d59f48b6adc028e974809fff45b8b5f116"
+    },
+    "raw": {
+      "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-credentials-01.log",
+      "sha256": "619ae50baf683df2cd66ffb1cb8564bef9fcc563106795134caad9e8eb06910e"
+    },
+    "exit_file": {
+      "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/new-credentials-01.exit",
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865"
+    },
+    "cleanup_first": {
+      "path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-new-credentials-01.json",
+      "sha256": "8aef9629966236c200fd9bb6ba4257f9d0a6a8c3dcae22618e86e6e24904f2ea"
+    },
+    "cleanup_double": {
+      "path": "/workspace/agenteam-system-http-author-zyt918wl/cleanup-double-new-credentials-01.json",
+      "sha256": "550bae70d0f4008fd8e3613573627ffc96a168b6a169ad3b2b081635187b44db"
+    },
+    "resource_live_evidence": [
+      {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/new-credentials-01-live-containers.txt",
+        "sha256": "61f3347a8496fe38960f653db2dc9fed57a9c52fb234ac97a597eaf96a75b6fc"
+      },
+      {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/new-credentials-01-live-networks.txt",
+        "sha256": "d090a3c81e2f7af8e6d0799305c6d0e81638c6a29abf935a12b6e9c21e098c7f"
+      }
+    ],
+    "command": [
+      "sh",
+      "scripts/test-objects.sh",
+      "-run",
+      "^(TestModelSystemHTTPCredentialWritesAndBinding|TestModelSystemHTTPPassiveCredentialLookup|TestModelSystemHTTPPassiveLookupLocksAndFailures|TestModelSystemHTTPAtomicEffects|TestModelSystemHTTPUnknownAndHistoricalResults)$"
+    ],
+    "GOFLAGS": "-mod=readonly -v"
+  },
+  "pure_checks": [
+    {
+      "label": "build-central01",
+      "exit": 0,
+      "seconds": 1.6215267181396484,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/agenteam-system-http-author-zyt918wl/bin/agenteam",
+        "./cmd/agenteam"
+      ],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-build-central01.json",
+        "sha256": "74e734b0c8993efd1907f3066528f42aebd8b4a5464b16a57a6412ed4acb1d16"
+      },
+      "result": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/result-build-central01.json",
+        "sha256": "7b8fd8652229773f0312ddee5a443ba579be40950abf00273389a4354d8d4630"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/build-central01.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "build-runner01",
+      "exit": 0,
+      "seconds": 0.4365267753601074,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/agenteam-system-http-author-zyt918wl/bin/agenteam-runner",
+        "./cmd/agenteam-runner"
+      ],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-build-runner01.json",
+        "sha256": "b08677347e26eb58a4e82eadcc9bbfeab3840167506008a467db200fe0247dd8"
+      },
+      "result": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/result-build-runner01.json",
+        "sha256": "2781e2b71422e0bc7be73b17a8deb5116106308d73cfebf3724f4bf9d54ce05d"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/build-runner01.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "compile-integration01",
+      "exit": 0,
+      "seconds": 16.94564652442932,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/model"
+      ],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-compile-integration01.json",
+        "sha256": "3d690523270345ba54dfc3306bcc1c2ea301769b87ec4429e146e5f0bfe433be"
+      },
+      "result": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/result-compile-integration01.json",
+        "sha256": "ee081e5a0f979607c066cb31387771504800ee1cdf80069789efe72da01104af"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compile-integration01.log",
+        "sha256": "1d8e7cb0890de9d660a0d302d4bb8e80474b49571a1da596a1b062f136c02bb4"
+      }
+    },
+    {
+      "label": "compile-integration02",
+      "exit": 0,
+      "seconds": 5.820370197296143,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/model"
+      ],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-compile-integration02.json",
+        "sha256": "29c91c99253e8fa4546921dfc906656ecd1b6cbc29d20a03940160e9938e0be2"
+      },
+      "result": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/result-compile-integration02.json",
+        "sha256": "52660bd61bd4d0e130808a5cedafed76a63bda0497bbd2903f9c41a51d53a7c2"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compile-integration02.log",
+        "sha256": "d859895391266f4280c184de78955e0995bbd7d3fcafcd698537f2dface7e2e5"
+      }
+    },
+    {
+      "label": "compile01",
+      "exit": 0,
+      "seconds": 31.813238859176636,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-run",
+        "^$",
+        "./internal/central/account",
+        "./internal/central/secret/...",
+        "./internal/central/model",
+        "./internal/central/httpapi"
+      ],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-compile01.json",
+        "sha256": "aa2be6bf81327fa25dce770be3983d9ef621596b5b712f33d09a5ec5622d1745"
+      },
+      "result": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/result-compile01.json",
+        "sha256": "17e36d5c0a4ba228d6d2834355b868ddb19c3b74cb3072ae8edd43dc99840ac3"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compile01.log",
+        "sha256": "7be6c1231ba8baed732a9dcc75565dd8fcfe5534292dd0f29393c460148a95a6"
+      }
+    },
+    {
+      "label": "race01",
+      "exit": 0,
+      "seconds": 70.1508297920227,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/account",
+        "./internal/central/secret/...",
+        "./internal/central/model",
+        "./internal/central/httpapi"
+      ],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-race01.json",
+        "sha256": "0c9a7dbbacd643bdd323ead587eb9a82246f747bed4c02f83c059c5fdb6e1031"
+      },
+      "result": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/result-race01.json",
+        "sha256": "fc79447fbb78079b137f85cedf98b59348f014bda5e0f245cbc7ae3ec4d14b67"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/race01.log",
+        "sha256": "34aa23592b759d76dddb359cad6dc22878ea50eed87b614af761d942b8561644"
+      }
+    },
+    {
+      "label": "race02",
+      "exit": 0,
+      "seconds": 12.888977766036987,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/secret/...",
+        "./internal/central/model"
+      ],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-race02.json",
+        "sha256": "92faae63078456dd92f313ad2fd9800ee2d1ccad4d176f53842ae5c2ffbcaa4c"
+      },
+      "result": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/result-race02.json",
+        "sha256": "8905d51144fa26eef8219b6267b9559005070e892ef9445bd476ee004d4b3c36"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/race02.log",
+        "sha256": "dcf73eea76f92b3adcd972a5e099d711517548ea3a212f3710bbd8862e2b553b"
+      }
+    },
+    {
+      "label": "unit01",
+      "exit": 1,
+      "seconds": 13.373809099197388,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-count=1",
+        "./internal/central/account",
+        "./internal/central/secret/...",
+        "./internal/central/model",
+        "./internal/central/httpapi"
+      ],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-unit01.json",
+        "sha256": "a02514529a136a5507dca915e2f62f937130f66944f7d1f347f5bdcdb2087f4a"
+      },
+      "result": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/result-unit01.json",
+        "sha256": "39de749f9e6100781ee5cf2163a9e042c28a481abc97e8b91d5788809851fec9"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/unit01.log",
+        "sha256": "1902e61d595ac3dae8b31045d60b2694753757db95c0fe369f4080f3bd783ec2"
+      }
+    },
+    {
+      "label": "unit02",
+      "exit": 1,
+      "seconds": 4.722630977630615,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-count=1",
+        "./internal/central/account",
+        "./internal/central/secret/...",
+        "./internal/central/model",
+        "./internal/central/httpapi"
+      ],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-unit02.json",
+        "sha256": "9203ddac59704425b506739b3068c311935e003093a2543e8f185240d3cc50a9"
+      },
+      "result": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/result-unit02.json",
+        "sha256": "9e958e4ddc0e29d90e0ce33f866592e8c760ed1b4c12f00bd97e8420d4f6e0ef"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/unit02.log",
+        "sha256": "82387ad06cbe2fd36bbfdc2a8cfed362719191f5ed39b1b9276a6e8f67a9d4cc"
+      }
+    },
+    {
+      "label": "unit03",
+      "exit": 0,
+      "seconds": 1.3366165161132812,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-count=1",
+        "./internal/central/model"
+      ],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-unit03.json",
+        "sha256": "e86818d061b12bda32e9bd5d31266e025875a38e9d846dc64d91044adb2db736"
+      },
+      "result": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/result-unit03.json",
+        "sha256": "8e7b78b35237f3a250d08d346108709dded0fb68a72c367868f245b83ce5f4c2"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/unit03.log",
+        "sha256": "2a6560e855d87ce26cee9428eb60a8c0ae695ec1860f1dc9d68b18685b7af64e"
+      }
+    },
+    {
+      "label": "vet-integration02",
+      "exit": 0,
+      "seconds": 0.687436580657959,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./tests/model"
+      ],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-vet-integration02.json",
+        "sha256": "6fde1d295d8a92fe4d130552ecb581b4e11bf417e0e120d2b119645359e62113"
+      },
+      "result": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/result-vet-integration02.json",
+        "sha256": "290aba866b93ac47249b32560618ece913b2abf8ee4077f368ca9f9c7651ffdd"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/vet-integration02.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "vet01",
+      "exit": 0,
+      "seconds": 9.400479316711426,
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./internal/central/account",
+        "./internal/central/secret/...",
+        "./internal/central/model",
+        "./internal/central/httpapi",
+        "./tests/model"
+      ],
+      "input": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/input-vet01.json",
+        "sha256": "85d155fde320c3a25e6535053e6ce51294e7aad0943c8b91760da7ca33fa7550"
+      },
+      "result": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/result-vet01.json",
+        "sha256": "298da53458885a769c885809fa18670ee61714872ca6a34e7159870b24d053cd"
+      },
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/vet01.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "openapi": {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/openapi-check01.json",
+    "sha256": "3e8afa35e6b589b173a1fffc7ccdf60f8fc8c3f0f9039f401788396b526b715b"
+  },
+  "source_final_check": {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/source-final-check.json",
+    "sha256": "2bbaea9f047664d88ac2f0d85757118b971936ee39f48a8ba5e7f6e44065b019"
+  },
+  "test_delta": {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/fixture-input-02/delta.patch",
+    "sha256": "726b4e7acd3a5bfb96d3b6c506bbef5c0c56cc8182f5535fb6fddb84c17a7755"
+  },
+  "static_digest_diagnosis": {
+    "path": "/workspace/agenteam-system-http-author-zyt918wl/secret-unknown-static-cause-01.json",
+    "sha256": "d1f743f34dc256e47eab2232b797ab56a2ac704cfdc6bb7dded824ad38b92df2"
+  },
+  "reuse": {
+    "new-configuration-01": "Root/V accepted reuse from input01: nine production files and configuration tests unchanged; input02 only corrects Secret receipt instrumentation and credential Unknown assertions, not production/auth/config behavior. No claim that input02 itself reran this group.",
+    "pure": "race02 covers the F1 Secret lookup tail and related Model package; unchanged Account/httpapi reuse race01. Original vet01/cmd builds cover unchanged production02; changed integration tests recompiled and vetted in compile-integration02/vet-integration02."
+  },
+  "limitations": [
+    "Unknown is a formal Store result projection after real underlying final business Committed, not a network COMMIT-loss or held-writer experiment.",
+    "No root mounting, Project/Provider execution, production external credentials, whole D09 completion, or changes to paused Artifact/Object work."
+  ]
+}

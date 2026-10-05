@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "python3",
+    "run-independent-fixture.py"
+  ],
+  "exit_code": 1,
+  "error": "SyntaxError: '{' was never closed (line 25 formats)",
+  "source_sha256": "cf595eca58273a2a9ce3b95986511b8b8d96c311ad98b048e378f06c8014e7b5",
+  "driver_started": false,
+  "Go_or_Docker_commands_started": false,
+  "classification": "wrapper Python parse rejection before execution"
+}

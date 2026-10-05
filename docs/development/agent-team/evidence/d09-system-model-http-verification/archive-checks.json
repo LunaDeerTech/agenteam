@@ -1,0 +1,1760 @@
+{
+  "result": "PASS with eight exact original-file whitespace exceptions",
+  "phase": "documentation archive only; no new product verification",
+  "copy_checks": {
+    "raw_files": 130,
+    "raw_bytes": 399048,
+    "author_references": 79,
+    "accepted_source_files": 17,
+    "historical_variants": {
+      "unit01": 14,
+      "unit02": 14,
+      "production01": 9,
+      "fixture01": 17
+    },
+    "history_delta_bytes": 22586,
+    "result": "PASS",
+    "go_docker_network_git_writes": "not run"
+  },
+  "document_checks": {
+    "result": "PASS with exact raw-file whitespace exceptions",
+    "raw_originals_unchanged": 130,
+    "links": 174,
+    "fragments": 11,
+    "historical_sections_unchanged": "tasks AT-0001 onward; recovery sections 5-22; original HTTP card API and acceptance body",
+    "no_index_argv_template": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/dev/null",
+      "<path>"
+    ],
+    "no_index_exit_note": "Actual exit 1 with empty diagnostics is the expected difference status, not a whitespace failure.",
+    "full_new_file_checks": [
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/README.md",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/SHA256SUMS.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/accepted-input.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/archive-checks.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/accepted-secret-delta.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/author-report.md.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/cleanup-compat-account-secret-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/cleanup-compat-model-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/cleanup-double-compat-account-secret-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/cleanup-double-compat-model-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/cleanup-double-new-configuration-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/cleanup-double-new-credentials-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/cleanup-double-new-credentials-02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/cleanup-new-configuration-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/cleanup-new-credentials-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/cleanup-new-credentials-02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/compat-account-secret-01-live-containers.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/compat-account-secret-01-live-networks.txt",
+        "result": "exact raw exception; SHA verified"
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/compat-model-01-live-containers.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/compat-model-01-live-networks.txt",
+        "result": "exact raw exception; SHA verified"
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/coverage-matrix.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-01/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch",
+        "result": "exact raw exception; SHA verified"
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-plan-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-build-central01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-build-runner01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-compat-account-secret-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-compat-model-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-compile-integration01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-compile-integration02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-compile01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-new-configuration-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-new-credentials-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-new-credentials-02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-race01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-race02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-unit01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-unit02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-unit03.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-vet-integration02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/input-vet01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/build-central01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/build-runner01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/compat-account-secret-01.exit",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/compat-account-secret-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/compat-model-01.exit",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/compat-model-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/compile-integration01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/compile-integration02.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/compile01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/new-configuration-01.exit",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/new-configuration-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/new-credentials-01.exit",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/new-credentials-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/new-credentials-02.exit",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/new-credentials-02.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/race01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/race02.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/unit01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/unit02.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/unit03.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/vet-integration02.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/logs/vet01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/new-configuration-01-live-containers.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/new-configuration-01-live-networks.txt",
+        "result": "exact raw exception; SHA verified"
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/new-credentials-01-live-containers.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/new-credentials-01-live-networks.txt",
+        "result": "exact raw exception; SHA verified"
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/new-credentials-02-live-containers.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/new-credentials-02-live-networks.txt",
+        "result": "exact raw exception; SHA verified"
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/openapi-check01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/production-review-01/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/production-review-02/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/result-build-central01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/result-build-runner01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/result-compile-integration01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/result-compile-integration02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/result-compile01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/result-race01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/result-race02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/result-unit01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/result-unit02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/result-unit03.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/result-vet-integration02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/result-vet01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/secret-unknown-static-cause-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/source-final-check.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/history/omitted-duplicate-source-map.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/history/source-deltas.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/rebuild.py",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/source-map.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review01/SHA256SUMS.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review01/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review01/review.md.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review02/SHA256SUMS.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review02/delta.patch",
+        "result": "exact raw exception; SHA verified"
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review02/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review02/review.md.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/SHA256SUMS-ready.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/archive-locator.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/check-author-evidence.py",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/accepted-commit.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/accepted-secret-delta.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/author-early-raw-checked.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/author-final-checked.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/compile-command.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/compile-result.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/compile-running.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/compile.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/compile02-command.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/compile02-result.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/compile02-running.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/compile02.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/dynamic01/baseline.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/dynamic01/cleanup01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/dynamic01/cleanup02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/dynamic01/command.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/dynamic01/owned-live.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/dynamic01/raw.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/dynamic01/result.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/dynamic01/running.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/dynamic01/source-final.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture-plan-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch",
+        "result": "exact raw exception; SHA verified"
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/ready-input.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/snapshot.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/startup01-result.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/startup01-script.py.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/unit02-secret-write-lookup-test.go.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/final-core-index.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/final-report.md.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/probe/independent_system_http_test.go.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/ready.md.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/run-compile.py",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/run-compile02.py",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/run-independent-fixture.py",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-system-model-http-verification/whitespace-exceptions.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/d09-system-model-http-verification.md",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      }
+    ],
+    "tracked_diff_check": {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "docs/development/agent-team/tasks.md",
+        "docs/development/agent-team/recovery-2026-10-05.md",
+        "docs/development/work-items/recovery-d09-system-model-http.md"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "raw_exception_count": 8,
+    "product_execution": "No Go/Docker/network or Git write operations."
+  },
+  "source_reconstruction": {
+    "argv": [
+      "python3",
+      "docs/development/agent-team/evidence/d09-system-model-http-verification/rebuild.py",
+      "--repo",
+      ".",
+      "--out",
+      "/tmp/agenteam-system-http-archive-kHZvcnfS/reconstructed-final-with-probe",
+      "--with-probe"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit_code": 0,
+    "result": {
+      "result": "PASS",
+      "indexed_files": 138,
+      "raw_files": 130,
+      "source_variants": {
+        "final": 17,
+        "unit01": 14,
+        "unit02": 14,
+        "production01": 9,
+        "fixture01": 17
+      },
+      "accepted_secret_dependency_files": 20,
+      "scope": "SHA/source recovery using read-only git show; no Go/Docker/network/Git writes",
+      "materialized_files": 38
+    },
+    "stderr": ""
+  },
+  "initial_all_new_file_whitespace_check": {
+    "argv_template": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/dev/null",
+      "<archive path>"
+    ],
+    "checks": [
+      {
+        "path": "README.md",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "accepted-input.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/accepted-secret-delta.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/author-report.md.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/cleanup-compat-account-secret-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/cleanup-compat-model-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/cleanup-double-compat-account-secret-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/cleanup-double-compat-model-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/cleanup-double-new-configuration-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/cleanup-double-new-credentials-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/cleanup-double-new-credentials-02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/cleanup-new-configuration-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/cleanup-new-credentials-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/cleanup-new-credentials-02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/compat-account-secret-01-live-containers.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/compat-account-secret-01-live-networks.txt",
+        "exit_code": 3,
+        "stdout": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/compat-account-secret-01-live-networks.txt:2: trailing whitespace.\n+e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5 bridge \ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/compat-account-secret-01-live-networks.txt:3: trailing whitespace.\n+af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed host \ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/compat-account-secret-01-live-networks.txt:4: trailing whitespace.\n+9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96 none \n",
+        "stderr": ""
+      },
+      {
+        "path": "author/compat-model-01-live-containers.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/compat-model-01-live-networks.txt",
+        "exit_code": 3,
+        "stdout": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/compat-model-01-live-networks.txt:2: trailing whitespace.\n+e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5 bridge \ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/compat-model-01-live-networks.txt:3: trailing whitespace.\n+af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed host \ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/compat-model-01-live-networks.txt:4: trailing whitespace.\n+9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96 none \n",
+        "stderr": ""
+      },
+      {
+        "path": "author/coverage-matrix.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-input-01/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-input-02/delta.patch",
+        "exit_code": 3,
+        "stdout": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:4: space before tab in indent.\n+ \taccountc \"github.com/LunaDeerTech/agenteam/internal/central/account/contract\"\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:5: space before tab in indent.\n+ \t\"github.com/LunaDeerTech/agenteam/internal/central/audit\"\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:6: space before tab in indent.\n+ \tac \"github.com/LunaDeerTech/agenteam/internal/central/audit/contract\"\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:8: space before tab in indent.\n+ \tec \"github.com/LunaDeerTech/agenteam/internal/central/event/contract\"\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:9: space before tab in indent.\n+ \tf \"github.com/LunaDeerTech/agenteam/internal/central/foundation\"\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:10: space before tab in indent.\n+ \t\"github.com/LunaDeerTech/agenteam/internal/central/httpapi\"\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:12: space before tab in indent.\n+ \tlocks                            []f.LockRequest\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:13: space before tab in indent.\n+ \theld, receiptReads, payloadReads int\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:14: space before tab in indent.\n+ \tfinalFact                        bool\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:16: space before tab in indent.\n+ \tactual, projected                f.CommitState\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:20: space before tab in indent.\n+ \t\tif trace.namespace == \"model.system\" {\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:21: space before tab in indent.\n+ \t\t\terr = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_model.commands WHERE command_identity=$1 AND phase='committed' AND safe_receipt IS NOT NULL)`, d.Primary.Canonical()).Scan(&trace.finalFact)\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:22: space before tab in indent.\n+ \t\t} else if trace.namespace == \"secret\" {\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:34: space before tab in indent.\n+ \t\t}\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:35: space before tab in indent.\n+ \t\treturn err\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:36: space before tab in indent.\n+ \t})\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:40: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:41: space before tab in indent.\n+ \tcreateKey, updateKey, deleteKey := newID[struct{}](t).String(), newID[struct{}](t).String(), newID[struct{}](t).String()\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:42: space before tab in indent.\n+ \tvar projected atomic.Bool\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:45: space before tab in indent.\n+ \tv.tracked.setHooks(nil, func(_ context.Context, cause f.TransactionCause, trace systemHTTPTrace, r f.CommitResult) f.CommitResult {\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:46: space before tab in indent.\n+ \t\tif trace.namespace == \"secret\" && trace.command == \"create\" && string(cause.Details().Primary.Key()) == createKey && trace.finalFact && r.State() == f.Committed && projected.CompareAndSwap(false, true) {\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:52: space before tab in indent.\n+ \t\t\treturn f.UnknownResult(newID[f.TransactionAttempt](t), cause)\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:53: space before tab in indent.\n+ \t\t}\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:54: space before tab in indent.\n+ \t\treturn r\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:55: space before tab in indent.\n+ \t})\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:56: space before tab in indent.\n+ \tresponse := v.request(t, v.adminBrowser, \"POST\", \"/api/v1/system/model-credentials\", createKey, map[string]any{\"value\": \"original-value\"})\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:57: space before tab in indent.\n+ \tv.tracked.setHooks(nil, nil)\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:59: space before tab in indent.\n+ \tif !projected.Load() {\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:60: space before tab in indent.\n+ \t\tt.Fatal(\"Secret actual mutation not targeted\")\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:61: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:67: space before tab in indent.\n+ \tlookup := v.request(t, v.adminBrowser, \"POST\", \"/api/v1/system/model-credential-commands/lookup\", createKey, map[string]any{\"kind\": \"create\"}).want(t, 200).object(t)\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:68: space before tab in indent.\n+ \tcredential := lookup[\"result\"].(map[string]any)[\"credential_id\"].(string)\ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/fixture-input-02/delta.patch:69: space before tab in indent.\n+ \tupdate := v.request(t, v.adminBrowser, \"PUT\", \"/api/v1/system/model-credentials/\"+credential, updateKey, map[string]any{\"expected_version\": \"1\", \"value\": \"updated-value\"}).want(t, 200)\n",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-input-02/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-plan-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-build-central01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-build-runner01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-compat-account-secret-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-compat-model-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-compile-integration01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-compile-integration02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-compile01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-new-configuration-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-new-credentials-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-new-credentials-02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-race01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-race02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-unit01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-unit02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-unit03.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-vet-integration02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/input-vet01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/build-central01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/build-runner01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compat-account-secret-01.exit",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compat-account-secret-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compat-model-01.exit",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compat-model-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compile-integration01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compile-integration02.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compile01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/new-configuration-01.exit",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/new-configuration-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/new-credentials-01.exit",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/new-credentials-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/new-credentials-02.exit",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/new-credentials-02.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/race01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/race02.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/unit01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/unit02.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/unit03.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/vet-integration02.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/vet01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/new-configuration-01-live-containers.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/new-configuration-01-live-networks.txt",
+        "exit_code": 3,
+        "stdout": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/new-configuration-01-live-networks.txt:2: trailing whitespace.\n+e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5 bridge \ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/new-configuration-01-live-networks.txt:3: trailing whitespace.\n+af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed host \ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/new-configuration-01-live-networks.txt:4: trailing whitespace.\n+9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96 none \n",
+        "stderr": ""
+      },
+      {
+        "path": "author/new-credentials-01-live-containers.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/new-credentials-01-live-networks.txt",
+        "exit_code": 3,
+        "stdout": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/new-credentials-01-live-networks.txt:2: trailing whitespace.\n+e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5 bridge \ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/new-credentials-01-live-networks.txt:3: trailing whitespace.\n+af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed host \ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/new-credentials-01-live-networks.txt:4: trailing whitespace.\n+9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96 none \n",
+        "stderr": ""
+      },
+      {
+        "path": "author/new-credentials-02-live-containers.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/new-credentials-02-live-networks.txt",
+        "exit_code": 3,
+        "stdout": "docs/development/agent-team/evidence/d09-system-model-http-verification/author/new-credentials-02-live-networks.txt:2: trailing whitespace.\n+e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5 bridge \ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/new-credentials-02-live-networks.txt:3: trailing whitespace.\n+af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed host \ndocs/development/agent-team/evidence/d09-system-model-http-verification/author/new-credentials-02-live-networks.txt:4: trailing whitespace.\n+9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96 none \n",
+        "stderr": ""
+      },
+      {
+        "path": "author/openapi-check01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/production-review-01/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/production-review-02/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/result-build-central01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/result-build-runner01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/result-compile-integration01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/result-compile-integration02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/result-compile01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/result-race01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/result-race02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/result-unit01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/result-unit02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/result-unit03.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/result-vet-integration02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/result-vet01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/secret-unknown-static-cause-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/source-final-check.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "history/omitted-duplicate-source-map.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "history/source-deltas.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "rebuild.py",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "source-map.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "static/production-review01/SHA256SUMS.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "static/production-review01/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "static/production-review01/review.md.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "static/production-review02/SHA256SUMS.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "static/production-review02/delta.patch",
+        "exit_code": 3,
+        "stdout": "docs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review02/delta.patch:4: space before tab in indent.\n+ \tif err = commitError(committed); err != nil {\ndocs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review02/delta.patch:5: space before tab in indent.\n+ \t\treturn zero, err\ndocs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review02/delta.patch:6: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review02/delta.patch:10: space before tab in indent.\n+ \treturn observed, nil\ndocs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review02/delta.patch:12: trailing whitespace.\n+ \ndocs/development/agent-team/evidence/d09-system-model-http-verification/static/production-review02/delta.patch:12: new blank line at EOF.\n",
+        "stderr": ""
+      },
+      {
+        "path": "static/production-review02/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "static/production-review02/review.md.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/SHA256SUMS-ready.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/archive-locator.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/check-author-evidence.py",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/accepted-commit.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/accepted-secret-delta.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/author-early-raw-checked.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/author-final-checked.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/compile-command.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/compile-result.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/compile-running.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/compile.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/compile02-command.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/compile02-result.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/compile02-running.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/compile02.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/dynamic01/baseline.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/dynamic01/cleanup01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/dynamic01/cleanup02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/dynamic01/command.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/dynamic01/owned-live.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/dynamic01/raw.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/dynamic01/result.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/dynamic01/running.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/dynamic01/source-final.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/fixture-plan-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/fixture02/delta.patch",
+        "exit_code": 3,
+        "stdout": "docs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:4: space before tab in indent.\n+ \taccountc \"github.com/LunaDeerTech/agenteam/internal/central/account/contract\"\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:5: space before tab in indent.\n+ \t\"github.com/LunaDeerTech/agenteam/internal/central/audit\"\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:6: space before tab in indent.\n+ \tac \"github.com/LunaDeerTech/agenteam/internal/central/audit/contract\"\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:8: space before tab in indent.\n+ \tec \"github.com/LunaDeerTech/agenteam/internal/central/event/contract\"\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:9: space before tab in indent.\n+ \tf \"github.com/LunaDeerTech/agenteam/internal/central/foundation\"\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:10: space before tab in indent.\n+ \t\"github.com/LunaDeerTech/agenteam/internal/central/httpapi\"\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:12: space before tab in indent.\n+ \tlocks                            []f.LockRequest\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:13: space before tab in indent.\n+ \theld, receiptReads, payloadReads int\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:14: space before tab in indent.\n+ \tfinalFact                        bool\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:16: space before tab in indent.\n+ \tactual, projected                f.CommitState\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:20: space before tab in indent.\n+ \t\tif trace.namespace == \"model.system\" {\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:21: space before tab in indent.\n+ \t\t\terr = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_model.commands WHERE command_identity=$1 AND phase='committed' AND safe_receipt IS NOT NULL)`, d.Primary.Canonical()).Scan(&trace.finalFact)\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:22: space before tab in indent.\n+ \t\t} else if trace.namespace == \"secret\" {\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:34: space before tab in indent.\n+ \t\t}\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:35: space before tab in indent.\n+ \t\treturn err\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:36: space before tab in indent.\n+ \t})\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:40: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:41: space before tab in indent.\n+ \tcreateKey, updateKey, deleteKey := newID[struct{}](t).String(), newID[struct{}](t).String(), newID[struct{}](t).String()\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:42: space before tab in indent.\n+ \tvar projected atomic.Bool\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:45: space before tab in indent.\n+ \tv.tracked.setHooks(nil, func(_ context.Context, cause f.TransactionCause, trace systemHTTPTrace, r f.CommitResult) f.CommitResult {\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:46: space before tab in indent.\n+ \t\tif trace.namespace == \"secret\" && trace.command == \"create\" && string(cause.Details().Primary.Key()) == createKey && trace.finalFact && r.State() == f.Committed && projected.CompareAndSwap(false, true) {\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:52: space before tab in indent.\n+ \t\t\treturn f.UnknownResult(newID[f.TransactionAttempt](t), cause)\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:53: space before tab in indent.\n+ \t\t}\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:54: space before tab in indent.\n+ \t\treturn r\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:55: space before tab in indent.\n+ \t})\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:56: space before tab in indent.\n+ \tresponse := v.request(t, v.adminBrowser, \"POST\", \"/api/v1/system/model-credentials\", createKey, map[string]any{\"value\": \"original-value\"})\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:57: space before tab in indent.\n+ \tv.tracked.setHooks(nil, nil)\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:59: space before tab in indent.\n+ \tif !projected.Load() {\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:60: space before tab in indent.\n+ \t\tt.Fatal(\"Secret actual mutation not targeted\")\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:61: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:67: space before tab in indent.\n+ \tlookup := v.request(t, v.adminBrowser, \"POST\", \"/api/v1/system/model-credential-commands/lookup\", createKey, map[string]any{\"kind\": \"create\"}).want(t, 200).object(t)\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:68: space before tab in indent.\n+ \tcredential := lookup[\"result\"].(map[string]any)[\"credential_id\"].(string)\ndocs/development/agent-team/evidence/d09-system-model-http-verification/verification/evidence/fixture02/delta.patch:69: space before tab in indent.\n+ \tupdate := v.request(t, v.adminBrowser, \"PUT\", \"/api/v1/system/model-credentials/\"+credential, updateKey, map[string]any{\"expected_version\": \"1\", \"value\": \"updated-value\"}).want(t, 200)\n",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/fixture02/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/ready-input.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/snapshot.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/startup01-result.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/startup01-script.py.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence/unit02-secret-write-lookup-test.go.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/final-core-index.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/final-report.md.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/probe/independent_system_http_test.go.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/ready.md.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/run-compile.py",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/run-compile02.py",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/run-independent-fixture.py",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      }
+    ]
+  },
+  "history_note": "unit02 historical Secret test was recovered by V from final source and matches the exact original SHA; preserved as recovered bytes, not falsely labelled as an extant old physical copy. Historical pure source scope is14, static production scope9, original real fixture scope17.",
+  "scope": "All79 author coverage references retained. Final17 and acceptedSecret20 reconstructed by read-only git show; no tree/cache/binary copied, no Go/Docker/network/Git write operations.",
+  "current_status_update": {
+    "scope": "Current root-assembly status only; newly frozen root candidate was not read or changed.",
+    "files": {
+      "docs/development/agent-team/d09-system-model-http-verification.md": {
+        "before_sha256": "61fed43c1b847dd733d7fd8528f662d912c8e9a17443393a9264d29c6a3d560b",
+        "after_sha256": "5cdf794661aed92f70111e7eb341e8a1d23f10841c20682f05efc70b6bdc9f67"
+      },
+      "docs/development/agent-team/tasks.md": {
+        "before_sha256": "b4bf0c83368f358c3b38485a755bf0354137c3f5813f233750421b45ec9b22fa",
+        "after_sha256": "b884d3baec354b94dcd5c102a4afda4569455cfa8c70113a2e35de834db1e492"
+      },
+      "docs/development/agent-team/recovery-2026-10-05.md": {
+        "before_sha256": "02313039cb6362f8b9e8275f17fe012eea1ee4f839d8fe36228834e4bb822e00",
+        "after_sha256": "7c3728a624ac8b6f68200384350b675afdb2f1f018a5d47abaae3b81c369ddfd"
+      },
+      "docs/development/work-items/recovery-d09-system-model-http.md": {
+        "before_sha256": "c7735c79290c1ff945e72185b6d8ea7320b3287db7ee6d1450d04be5cde5e63d",
+        "after_sha256": "99ae797599277875b718c7f1465a79ac9a025b0db69d8c4610b41d0db58b64ea"
+      }
+    },
+    "current_status": "Root specification is authorized and frozen; independent static review by restore_test_dependencies has actually started. No business implementation authority. No candidate card link or advance adoption claim."
+  }
+}

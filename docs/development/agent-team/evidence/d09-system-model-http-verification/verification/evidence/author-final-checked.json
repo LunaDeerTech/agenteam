@@ -1,0 +1,186 @@
+{
+  "author_summary_hashes": {
+    "author-report.md": "a5284098af5707420f0a61a8010f82e5a3f6f10ab69b28fbeb4d46480f6d9562",
+    "coverage-matrix.json": "d5693830cc61c88f4d36ea8b99d252d751589371c3c4b4451b98c1965ecefe21",
+    "source-final-check.json": "2bbaea9f047664d88ac2f0d85757118b971936ee39f48a8ba5e7f6e44065b019"
+  },
+  "all_referenced_files_hash_matched": 79,
+  "groups": [
+    {
+      "label": "new-configuration-01",
+      "top_count": 5,
+      "sub_count": 26,
+      "exit": 0,
+      "different_from_final_files": [
+        "tests/model/system_http_fixture_test.go",
+        "tests/model/system_http_credentials_test.go"
+      ],
+      "double_cleanup_exact_ids_absent": true
+    },
+    {
+      "label": "new-credentials-02",
+      "top_count": 5,
+      "sub_count": 17,
+      "exit": 0,
+      "different_from_final_files": [],
+      "double_cleanup_exact_ids_absent": true
+    },
+    {
+      "label": "compat-model-01",
+      "top_count": 5,
+      "sub_count": 5,
+      "exit": 0,
+      "different_from_final_files": [],
+      "double_cleanup_exact_ids_absent": true
+    },
+    {
+      "label": "compat-account-secret-01",
+      "top_count": 5,
+      "sub_count": 0,
+      "exit": 0,
+      "different_from_final_files": [],
+      "double_cleanup_exact_ids_absent": true
+    }
+  ],
+  "top_count": 20,
+  "sub_count": 48,
+  "skip_count": 0,
+  "pure": [
+    {
+      "label": "build-central01",
+      "exit": 0,
+      "production_diff_from_final": [],
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/build-central01.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "build-runner01",
+      "exit": 0,
+      "production_diff_from_final": [],
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/build-runner01.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "compile-integration01",
+      "exit": 0,
+      "production_diff_from_final": [],
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compile-integration01.log",
+        "sha256": "1d8e7cb0890de9d660a0d302d4bb8e80474b49571a1da596a1b062f136c02bb4"
+      }
+    },
+    {
+      "label": "compile-integration02",
+      "exit": 0,
+      "production_diff_from_final": [],
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compile-integration02.log",
+        "sha256": "d859895391266f4280c184de78955e0995bbd7d3fcafcd698537f2dface7e2e5"
+      }
+    },
+    {
+      "label": "compile01",
+      "exit": 0,
+      "production_diff_from_final": [
+        "internal/central/secret/write_lookup.go",
+        "internal/central/model/http.go",
+        "internal/central/model/http_dto.go",
+        "api/openapi/model-system.json"
+      ],
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/compile01.log",
+        "sha256": "7be6c1231ba8baed732a9dcc75565dd8fcfe5534292dd0f29393c460148a95a6"
+      }
+    },
+    {
+      "label": "race01",
+      "exit": 0,
+      "production_diff_from_final": [
+        "internal/central/secret/write_lookup.go"
+      ],
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/race01.log",
+        "sha256": "34aa23592b759d76dddb359cad6dc22878ea50eed87b614af761d942b8561644"
+      }
+    },
+    {
+      "label": "race02",
+      "exit": 0,
+      "production_diff_from_final": [],
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/race02.log",
+        "sha256": "dcf73eea76f92b3adcd972a5e099d711517548ea3a212f3710bbd8862e2b553b"
+      }
+    },
+    {
+      "label": "unit01",
+      "exit": 1,
+      "production_diff_from_final": [
+        "internal/central/secret/write_lookup.go",
+        "internal/central/model/http.go"
+      ],
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/unit01.log",
+        "sha256": "1902e61d595ac3dae8b31045d60b2694753757db95c0fe369f4080f3bd783ec2"
+      }
+    },
+    {
+      "label": "unit02",
+      "exit": 1,
+      "production_diff_from_final": [
+        "internal/central/secret/write_lookup.go",
+        "internal/central/model/http.go"
+      ],
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/unit02.log",
+        "sha256": "82387ad06cbe2fd36bbfdc2a8cfed362719191f5ed39b1b9276a6e8f67a9d4cc"
+      }
+    },
+    {
+      "label": "unit03",
+      "exit": 0,
+      "production_diff_from_final": [
+        "internal/central/secret/write_lookup.go",
+        "internal/central/model/http.go"
+      ],
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/unit03.log",
+        "sha256": "2a6560e855d87ce26cee9428eb60a8c0ae695ec1860f1dc9d68b18685b7af64e"
+      }
+    },
+    {
+      "label": "vet-integration02",
+      "exit": 0,
+      "production_diff_from_final": [],
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/vet-integration02.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    },
+    {
+      "label": "vet01",
+      "exit": 0,
+      "production_diff_from_final": [],
+      "raw": {
+        "path": "/workspace/agenteam-system-http-author-zyt918wl/logs/vet01.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    }
+  ],
+  "fixed_production_final": {
+    "internal/central/account/http_boundary.go": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc",
+    "internal/central/secret/contract/write_lookup.go": "805e1f99c643cd574e6f9a18c9b99d0fba2ff27ec9276116636896e127d84558",
+    "internal/central/secret/write_lookup.go": "971e0e65373200a5b0653785e663a20a94da7d6682a765f950cd07414ef430e6",
+    "internal/central/secret/write.go": "dcb0b87d84f310f7113d2749f22176cb75c3d9ad75f9aac759c22ec8072aecda",
+    "internal/central/model/http.go": "6d51d779dfde07dc136764fd98c4ed9bceca519b86bb24db2527c880c873b224",
+    "internal/central/model/http_configuration.go": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e",
+    "internal/central/model/http_credentials.go": "86b3928ef9e0d2399dc4f83a53fd299aff13f9c019d69bbcc28a937e04c5e04b",
+    "internal/central/model/http_dto.go": "6e910d66b4336b96017e166bc23515f5df4ff817f98c782a21affe1c221e5d35",
+    "api/openapi/model-system.json": "f18b5bfe747be21dbe34791dd08876f768d4271154ed5843dc338fdc6ac73334"
+  },
+  "claim": "author evidence audited; not independent test execution"
+}
