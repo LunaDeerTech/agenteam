@@ -1,0 +1,20 @@
+{
+  "baseline": "be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74",
+  "source_commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+  "source_commit_remote_confirmation": "root reported matching remote SHA; archival task does not rerun Git",
+  "final20_manifest": "author/candidate-freeze-04/manifest.json",
+  "final20_sha256": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d",
+  "production10_manifest": "author/production-review-02/manifest.json",
+  "author_effective_coverage": {
+    "top": 26,
+    "sub": 109,
+    "single_final_full_run": false
+  },
+  "independent_coverage": {
+    "top": 2,
+    "sub": 4,
+    "first_run_pass": true
+  },
+  "no_production_consumer_binding": true,
+  "unknown_evidence": "actual Store post-state plus decorated CommitResult and ordinary writer mutex; not physical ACK loss"
+}

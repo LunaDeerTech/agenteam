@@ -1,0 +1,59 @@
+{
+  "label": "old-model-01",
+  "result": {
+    "driver_exit": 0,
+    "elapsed_seconds": 57.059,
+    "passed_top": [
+      "TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion",
+      "TestModelProjectSecretReferencesAndAtomicEffects",
+      "TestModelProjectReceiptReadGateAndLegacySystemPlan",
+      "TestModelProjectPreparedAuthorizationAndReferenceMapping",
+      "TestModelB01CRUDCurrentAuthorityAndCanonicalReplay",
+      "TestModelB01PlatformSelectionAndAtomicReplacement",
+      "TestModelB01SecretReferencesAndAllEffectsRollback",
+      "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked"
+    ],
+    "failed_top": [],
+    "skipped_top": [],
+    "missing_expected_top": [],
+    "resource_clean": true,
+    "owned_container_count": 4,
+    "owned_network_count": 3,
+    "expected_counts_match": true,
+    "tracked_process_count": 83,
+    "input_sha256": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d"
+  },
+  "passed_subtests": [
+    "TestModelProjectSecretReferencesAndAtomicEffects/secret",
+    "TestModelProjectSecretReferencesAndAtomicEffects/audit",
+    "TestModelProjectSecretReferencesAndAtomicEffects/event",
+    "TestModelProjectReceiptReadGateAndLegacySystemPlan/archiving",
+    "TestModelProjectReceiptReadGateAndLegacySystemPlan/archived",
+    "TestModelProjectReceiptReadGateAndLegacySystemPlan/deleting",
+    "TestModelProjectReceiptReadGateAndLegacySystemPlan/uninitialized",
+    "TestModelProjectReceiptReadGateAndLegacySystemPlan/legacy-system",
+    "TestModelProjectReceiptReadGateAndLegacySystemPlan/project-cannot-adopt-scope-less-plan",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping/session",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping/owner",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping/archiving",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping/secret-deleted",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping/reference-added",
+    "TestModelB01SecretReferencesAndAllEffectsRollback/audit",
+    "TestModelB01SecretReferencesAndAllEffectsRollback/event",
+    "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked/secret-deleted",
+    "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked/admin-revoked",
+    "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked/reference-added"
+  ],
+  "tested_packages": [
+    {
+      "package": "github.com/LunaDeerTech/agenteam/tests/model",
+      "seconds": "21.597s"
+    }
+  ],
+  "trusted_baseline_exact_both_rounds": true,
+  "source20_unchanged": true,
+  "network_live_label_count": 3,
+  "raw_log_sha256": "7381a8038a845ce27aaf63a7eed173624fa552939a6b51ae419c6d20fed31288",
+  "resource_handoff_sha256": "b190264acf3e7e8c6ab3c29aabc0607b81d3743a1fdff3b228abb0f23f840317",
+  "inputs_manifest_sha256": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d"
+}

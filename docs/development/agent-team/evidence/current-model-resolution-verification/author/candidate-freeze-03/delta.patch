@@ -1,0 +1,32 @@
+--- candidate02/tests/model/current_resolution_authorization_test.go
++++ candidate03/tests/model/current_resolution_authorization_test.go
+@@ -164,13 +164,16 @@
+ 			return value
+ 		}
+ 		before := facts()
+-		// Preserve only the stale private value for this negative probe. The
+-		// old callback's cancelled context must not preempt the witness check.
+-		probeCtx, cancel := context.WithTimeout(context.WithoutCancel(savedCtx), time.Second)
++		// Start the new Tx from a fresh bounded root: savedCtx still contains
++		// the old D03 transaction marker. Only Apply receives its stale values.
++		transactionCtx, cancel := context.WithTimeout(context.Background(), time.Second)
+ 		defer cancel()
++		deadline, _ := transactionCtx.Deadline()
++		probeCtx, cancelProbe := context.WithDeadline(context.WithoutCancel(savedCtx), deadline)
++		defer cancelProbe()
+ 		var inner error
+ 		held := false
+-		result = v.observed.WithinTx(probeCtx, recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
++		result = v.observed.WithinTx(transactionCtx, recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
+ 			if e := v.observed.AcquireAll(ctx, tx, p.RequiredLocks()); e != nil {
+ 				return e
+ 			}
+@@ -178,7 +181,7 @@
+ 				return e
+ 			}
+ 			held = true
+-			_, inner = v.resolutionSecrets.ApplyUsageInTx(ctx, tx, savedRequest, savedPlan)
++			_, inner = v.resolutionSecrets.ApplyUsageInTx(probeCtx, tx, savedRequest, savedPlan)
+ 			return inner
+ 		})
+ 		if !held || result.State() != f.NotCommitted {

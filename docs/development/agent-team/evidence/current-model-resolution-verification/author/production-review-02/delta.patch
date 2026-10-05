@@ -1,0 +1,107 @@
+--- review01/internal/central/model/resolver.go
++++ review02/internal/central/model/resolver.go
+@@ -159,7 +159,23 @@
+ 		if e := s.state().store.AcquireAll(ctx, tx, c.locks); e != nil {
+ 			return portError(e)
+ 		}
+-		return c.authority.validateResolutionConsumer(ctx, tx, c)
++		if e := c.authority.validateResolutionConsumer(ctx, tx, c); e != nil {
++			return e
++		}
++		x, e := s.state().store.InTx(tx)
++		if e != nil {
++			return portError(e)
++		}
++		current, e := loadResolutionPreparation(ctx, x, identity.Canonical())
++		if e != nil {
++			return e
++		}
++		// An original writer may have completed while this attempt collected
++		// candidates. Never expose an earlier live-config error over its result.
++		if !resolutionEqual(current, row) {
++			return fault(f.ResourceBusy)
++		}
++		return nil
+ 	})
+ 	if e = commitError(preflight); e != nil {
+ 		return empty, e
+--- review01/internal/central/model/resolution_plan.go
++++ review02/internal/central/model/resolution_plan.go
+@@ -39,21 +39,59 @@
+ 	return hash(raw)
+ }
+ func resolutionIdentity(r mc.ResolveRequest) (f.CommandIdentity, error) {
+-	o := r.LeaseOwner.Details()
++	return resolutionUnitIdentity(r.Consumer, r.Purpose, r.LeaseOwner.Details())
++}
++func resolutionUnitIdentity(consumer mc.Consumer, purpose mc.Purpose, o sc.OwnerDetails) (f.CommandIdentity, error) {
+ 	key := "current-v1"
+ 	if o.Kind == sc.ExecutionOwner {
+-		resource := r.Consumer.OperationID
+-		if r.Consumer.ExecutionID != nil && resource == "" {
+-			resource = r.Consumer.ExecutionID.String()
++		resource := consumer.OperationID
++		if consumer.ExecutionID != nil && resource == "" {
++			resource = consumer.ExecutionID.String()
+ 		}
+ 		v, _ := encoded(struct {
+ 			Kind     mc.ConsumerKind
+ 			Purpose  mc.Purpose
+ 			Resource string
+-		}{r.Consumer.Kind, r.Purpose, resource})
++		}{consumer.Kind, purpose, resource})
+ 		key = hash(v).String()
+ 	}
+-	return f.NewCommandIdentity("model.resolve", []string{r.Consumer.ProjectID.String(), o.ID}, "current."+string(o.Kind), f.IdempotencyKey(key))
++	return f.NewCommandIdentity("model.resolve", []string{consumer.ProjectID.String(), o.ID}, "current."+string(o.Kind), f.IdempotencyKey(key))
++}
++
++// Validate durable scalar identity without reconstructing an Actor or minting a
++// ServiceRegistration. Current authority always comes from the original caller.
++func (d resolutionRequestDTO) validate() error {
++	if d.Format != 1 || d.Consumer.Validate() != nil || d.Purpose != d.Consumer.Purpose || d.Source != mc.CurrentSelectionSource || d.Selection == nil || (mc.SelectionRequest{Consumer: d.Consumer, ModelRef: d.ModelRef, Selection: *d.Selection}).Validate() != nil || d.ReasoningEffort != "" {
++		return unavailable(nil)
++	}
++	owner, e := sc.NewCredentialLeaseOwner(d.Owner.Kind, d.Owner.ID)
++	if e != nil || owner.Details().Kind == sc.ExecutionOwner && (d.Consumer.ExecutionID == nil || d.Consumer.ExecutionID.String() != d.Owner.ID) {
++		return unavailable(e)
++	}
++	uuid := func(v string) bool { _, e := f.ParseID[struct{}](v); return e == nil }
++	a := d.Actor
++	switch a.Kind {
++	case id.Human:
++		if !uuid(a.UserID) || a.SessionID != "" || a.ProjectID != "" || a.AgentID != "" || a.ExecutionID != "" || a.ServiceName != "" || a.CauseRef != "" {
++			return unavailable(nil)
++		}
++	case id.AgentRun:
++		if a.UserID != "" || a.SessionID != "" || a.ServiceName != "" || a.CauseRef != "" || d.Consumer.AgentID == nil || d.Consumer.ExecutionID == nil || a.ProjectID != d.Consumer.ProjectID.String() || a.AgentID != d.Consumer.AgentID.String() || a.ExecutionID != d.Consumer.ExecutionID.String() {
++			return unavailable(nil)
++		}
++	case id.Service:
++		if a.UserID != "" || a.SessionID != "" || a.AgentID != "" || a.ExecutionID != "" || a.ProjectID != "" && a.ProjectID != d.Consumer.ProjectID.String() || !id.ValidCauseRef(a.CauseRef) {
++			return unavailable(nil)
++		}
++		switch a.ServiceName {
++		case id.SecretService, id.SecretMaintenance, id.OutboundService, id.ObjectService, id.ObjectMaintenance, id.ProjectLifecycle, id.ProjectInitialization, id.OutboxDelivery, id.AccountBootstrap, id.AccountAuth, id.AccountMaintenance, id.AccountMail:
++		default:
++			return unavailable(nil)
++		}
++	default:
++		return unavailable(nil)
++	}
++	return nil
+ }
+ 
+ type resolutionSnapshotDTO struct {
+--- review01/internal/central/model/resolution_store.go
++++ review02/internal/central/model/resolution_store.go
+@@ -47,7 +47,8 @@
+ 	}
+ 	_, idErr := f.ParseID[struct{}](r.ID)
+ 	raw, _ := encoded(r.Request)
+-	if idErr != nil || r.Identity != identity || r.Version.Validate() != nil || r.Request.Format != 1 || r.Request.Consumer.Validate() != nil || r.Request.Purpose != r.Request.Consumer.Purpose || r.Request.Source != mc.CurrentSelectionSource || r.Request.Selection == nil || (mc.SelectionRequest{Consumer: r.Request.Consumer, ModelRef: r.Request.ModelRef, Selection: *r.Request.Selection}).Validate() != nil || r.Request.ReasoningEffort != "" || r.Request.Consumer.ProjectID.String() != r.Project || string(r.Request.Owner.Kind) != r.OwnerKind || r.Request.Owner.ID != r.OwnerID || hash(raw) != r.Semantic || r.Draft.validate() != nil || r.Draft.Snapshot.ID != r.SnapshotID || r.Draft.Snapshot.ProjectID.String() != r.Project || updated.Before(created) || r.Phase != "prepared" && r.Phase != "committed" || (r.Phase == "committed") != (committed != nil) || committed != nil && committed.Before(created) {
++	unit, unitErr := resolutionUnitIdentity(r.Request.Consumer, r.Request.Purpose, r.Request.Owner)
++	if idErr != nil || unitErr != nil || unit.Canonical() != r.Identity || r.Request.validate() != nil || r.Identity != identity || r.Version.Validate() != nil || r.Request.Format != 1 || r.Request.Consumer.Validate() != nil || r.Request.Purpose != r.Request.Consumer.Purpose || r.Request.Source != mc.CurrentSelectionSource || r.Request.Selection == nil || (mc.SelectionRequest{Consumer: r.Request.Consumer, ModelRef: r.Request.ModelRef, Selection: *r.Request.Selection}).Validate() != nil || r.Request.ReasoningEffort != "" || r.Request.Consumer.ProjectID.String() != r.Project || string(r.Request.Owner.Kind) != r.OwnerKind || r.Request.Owner.ID != r.OwnerID || hash(raw) != r.Semantic || r.Draft.validate() != nil || r.Draft.Snapshot.ID != r.SnapshotID || r.Draft.Snapshot.ProjectID.String() != r.Project || updated.Before(created) || r.Phase != "prepared" && r.Phase != "committed" || (r.Phase == "committed") != (committed != nil) || committed != nil && committed.Before(created) {
+ 		return nil, unavailable(nil)
+ 	}
+ 	owner, e := sc.NewCredentialLeaseOwner(r.Request.Owner.Kind, r.Request.Owner.ID)

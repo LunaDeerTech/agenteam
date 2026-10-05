@@ -1,0 +1,31 @@
+{
+  "counts": {
+    "top_pass": 2,
+    "sub_pass": 4,
+    "fail": 0,
+    "skip": 0
+  },
+  "resource_checks": [
+    {
+      "round": 1,
+      "exact_absent": 7,
+      "original_2c4n_identical": true,
+      "processes": 0,
+      "runtime_files": 0,
+      "gotmp_files": 0
+    },
+    {
+      "round": 2,
+      "exact_absent": 7,
+      "original_2c4n_identical": true,
+      "processes": 0,
+      "runtime_files": 0,
+      "gotmp_files": 0
+    }
+  ],
+  "live_network_labels": 3,
+  "events_exit": 143,
+  "all_commands_finished": true,
+  "input_20_and_probe_unchanged": true,
+  "status": "independent 2top4sub passed, exclusive fixture window returned to root; no further Go/Docker actions"
+}

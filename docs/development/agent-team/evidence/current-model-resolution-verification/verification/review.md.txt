@@ -1,0 +1,30 @@
+# Current Model Resolution：最终独立验收
+
+**PASS，建议采纳本卡最终20路径。** 这是 current-selection Resolver 库的完整受限结果，不是生产 consumer/Model Runtime 装配。作者和本审查均已停止源写入；独立资源窗口已正式交回 root，无后续 Go/Docker。
+
+固定业务基线 `be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74`，规格 e81b029/rev1.1；最终20输入为作者 `candidate-freeze-04/manifest.json` SHA256 **60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d**。9生产+00017与独立 static PASS production-review-02（manifest 5cc06fdf…836e）逐项相同；本次20冻结原件、只读snapshot、仓库20路径均核同SHA。测试修订仅新测试，旧contract/SQL/D03/Secret/Account/Project不改。
+
+生产 review02 修正 P1（锁后、当前权限通过后重读完整 preparation，变化时 Tx 外重规划）和 P2（持久稳定Actor DTO与canonical identity重算）已静审闭合；最终candidate04 readiness PASS，全部报告与原候选保留。作者的 Model race/vet、原全fixture compile与两cmd build按输入未变复用，candidate04受影响compile/vet通过；已核实际argv/exit及raw指纹，不以空日志推断成功。
+
+| 有效真实证据 | 输入 | 顶层/子例 | 说明 |
+| --- | --- | --- | --- |
+| 作者新业务 | candidate03 | 6/35 | new-01中未改变的完整六业务top；排除失败Schema父组及其4个已有绿子例，避免重复计数 |
+| 作者完整Schema复验 | candidate04 | 1/5 | 原Source fresh、populated、同checksum失败原子/重试、完整旧行与catalog、P2坏事实 |
+| 作者旧Model | candidate04 | 8/19 | 原配置、Project、Secret refs、当前权限/receipt与旧plan兼容 |
+| 作者Secret+MCP | candidate04 | 7/43 | 6个Secret Model usage加原MCP边界 |
+| 作者Account | candidate04 | 4/7 | 原lease/read/权限兼容 |
+| 本次独立探针 | candidate04+私有overlay | 2/4 | 原driver、race/count1/6m；Model6.105s，driver61.992s，exit0，无FAIL/SKIP |
+
+作者有效合计 **26 distinct top / 109 sub**，分版本有依据复用，不称一次最终输入全组通过。原new-01 raw本身是6top/39sub PASS及Schema1top/1sub FAIL，其中4个绿sub在失败的Schema父组内；有效总数只复用六业务top的35sub。
+
+独立2top4sub补证：真实 Account 对 prepared、committed、缺失live Model均先返回精确SESSION_REVOKED，完整本域/lease/input事实不变；实际PG exact consumer record EX holder/waiter被观察到，放行后重读真实撤权，完整union仅一次、Forbidden、零Secret Apply和零四类副作用；真实Secret Apply完成后、Model私有witness仍active/verified期间，exact Tx grant成功，错owner/action及另一全新父context/不同物理backend的真实Tx精确Forbidden，负例明确结束outer rollback，随后另启新Tx合法提交；同Tx读取已存在input/snapshot/binding/lease及committed phase后才注错，四类事实全部回滚而prepared保留，再以同计划完成。全部通过真实Store/正式权限与Secret端口，未造生产allow。
+
+独立probe SHA256 **393effa5c3c91c87dd030500971dc4f1a68e16edb8a086bb3a33f5858ea38b2b**；overlay **4e40d777f0071f5a1236d936cef5ac4af1193591fd0f0fe72cb4ceb7f0e62ff4**。只读借用作者固定693个基线文件、overlay固定20源+私有probe，未复制全树。独立 race compile-only18.849s/exit0、vet10.616s/exit0，真实argv/env/exit均在 logs 元数据。实际动态 raw **f1d91df9be4472977152ab11220a332bc45020a79b243066ebf52932a0f3848e**，精确命令和环境见 fixture-runs/independent-01/command.json。
+
+原红及修订保留：P1/P2与T1/T2/T3均为静态发现，不追称动态原红；T1合法Project时间与恢复、T2保存context取消及旧txContextKey、T3旧约束catalog的中间候选全部保留。真实Schema首红为第二次Migrate的MIGRATION_HISTORY_DIVERGED，原因是测试失败后更换源码checksum；首个Fault未记录SQLSTATE，不追认为22012。改为精确缺函数42883、pending1/applied0/goose0/固定源checksum，只补测试依赖、同runner/Source重试；复验applied1/goose1、旧rows/catalog全等及三表完整。原生产SQL无变。本审查保留此前readiness静态遗漏该重试前置的记录。作者四次原设置/编译非零记录也由其冻结delivery索引保留。
+
+资源：作者5轮20容器/15网络及独立1轮4容器/3网络，各轮两遍actual exactID absent、原2容器4网络ID/name/labels一致，存活网络nonce标签已采。本轮独立130个跟踪进程/组无活跃残留，runtime/gotmp空，事件观察器及driver/observer均已退出；resource-window-handoff.json已交root。资源结论基于实际读出的两轮记录，无“仅按清理意图”推断。
+
+边界保持：生产root Resolution仍nil，实际AgentRun/Memory/Tool consumer尚未绑定；严格测试域consumer不代表这些业务已交付。本结果没有Invocation/Usage、Provider发送、凭据材料读取、lease retire/read或Project cleanup；`/readyz`仍503，Summary产品决定仍待定，暂停Object任务不触及。Unknown证据仅真实Store commit/rollback后结果装饰、原返回attempt/cause及实际后态/普通原锁屏障，不声称物理COMMIT ACK丢失或原ROLLBACK backend持锁已验证。
+
+准确小索引见 delivery-index.json：引用作者final-delivery、固定20和前序审查，不复制binary/cache/全仓。此报告冻结后保持all-stop；根线程执行最终Git交付。

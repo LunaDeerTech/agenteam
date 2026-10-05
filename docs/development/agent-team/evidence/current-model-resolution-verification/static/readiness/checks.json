@@ -1,0 +1,59 @@
+{
+  "mode": "read-only static readiness; no Go/Docker/network/Git command; no repository write",
+  "baseline": "be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74",
+  "inputs": {
+    "/workspace/agenteam-current-resolution-author-xtvs4_8b/candidate-freeze-01/manifest.json": {
+      "sha256": "3da3ef751c4fa63255e492bd4eedd011a084d5181235c8cbbad8ee823e210201",
+      "bytes": 4471
+    },
+    "/workspace/agenteam-current-resolution-author-xtvs4_8b/ready-selectors.json": {
+      "sha256": "42f0f5607e4130db3bae5a08102b7ce6431f33668ff24509a0017b21030de0f4",
+      "bytes": 6443
+    },
+    "/workspace/agenteam-current-resolution-author-xtvs4_8b/readiness-checks.json": {
+      "sha256": "dffe450ef78ed163cc0cfabda1de1e960187f1b118956b380b4823502bab18bd",
+      "bytes": 1137
+    },
+    "/workspace/agenteam-current-resolution-author-xtvs4_8b/production-review-02/manifest.json": {
+      "sha256": "5cc06fdfd6961ce7f1e0150abd7a7b1b4b78bb4bfd86c51764417648668a836e",
+      "bytes": 2512
+    },
+    "/workspace/agenteam-current-resolution-author-xtvs4_8b/run_fixture.py": {
+      "sha256": "4f8f5f128cb10f66797a91a8abbdb2c2b7ed1f9b5aca9d22c6bef69a10817fa4",
+      "bytes": 8676
+    }
+  },
+  "candidate_files_verified": 20,
+  "production_sql_equal_review02": 10,
+  "selector_counts": [
+    {
+      "group": "new",
+      "top": 7,
+      "expected_containers": 4,
+      "expected_networks": 3
+    },
+    {
+      "group": "old-model",
+      "top": 8,
+      "expected_containers": 4,
+      "expected_networks": 3
+    },
+    {
+      "group": "secret",
+      "top": 7,
+      "expected_containers": 4,
+      "expected_networks": 3
+    },
+    {
+      "group": "account",
+      "top": 4,
+      "expected_containers": 4,
+      "expected_networks": 3
+    }
+  ],
+  "findings": [
+    "T1_invalid_project_fixture",
+    "T2_cancelled_context_bypasses_witness_target",
+    "T3_missing_old_constraint_catalog"
+  ]
+}

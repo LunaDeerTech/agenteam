@@ -1,0 +1,18 @@
+{
+  "mode": "static delta only; no Go/Docker/SQL/network/Git/repository write",
+  "inputs": {
+    "candidate-freeze-03/manifest.json": "b2ed3ceede09b90480e5910904b909c1beaf86f25b8d3326f32cd4c3cc2e0a89",
+    "candidate-freeze-03/delta.patch": "ef26521058117891636f7b5a33345d588f61a728a0c0c73a8a0c146d39c2facf",
+    "ready-selectors-03.json": "10d9aad63f8c04e175a2a84515e4e601561ad3ec7aabc7699a73bc64380eca64",
+    "run_fixture_03.py": "3d919224932b8c4957958a957db129f1221ebe11fb340c2af566ddcce1eff320"
+  },
+  "candidate_files_verified": 20,
+  "changed": [
+    "tests/model/current_resolution_authorization_test.go"
+  ],
+  "unchanged_files": 19,
+  "T2": "PASS: fresh transaction root; preserved values only passed inside callback after full actual lock checks",
+  "T1_T3": "reuse accepted candidate02 static findings",
+  "selector_and_budget": "unchanged",
+  "observer_delta": "only selector file reference"
+}

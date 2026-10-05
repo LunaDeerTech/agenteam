@@ -1,0 +1,233 @@
+//go:build integration
+
+package model_test
+
+import (
+	"bytes"
+	"context"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+	"testing"
+)
+
+func (v *currentResolutionFixture) selectMemory(t *testing.T, m mc.ModelView) f.Version {
+	t.Helper()
+	state, e := v.service.GetPlatformSelection(testContext(t), v.admin)
+	if e != nil {
+		t.Fatal(e)
+	}
+	embed := v.model(t, v.provider(t, mc.OpenAIEmbeddings, nil), mc.EmbeddingModel)
+	receipt, e := v.service.UpdatePlatformSelection(testContext(t), mc.UpdatePlatformSelectionRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ExpectedVersion: state.Version, Selection: mc.PlatformSelection{ID: state.ID, Version: state.Version, Embedding: embed.ID, Memory: m.ID}})
+	if e != nil {
+		t.Fatal(e)
+	}
+	return receipt.Version
+}
+func TestModelCurrentResolutionSelection(t *testing.T) {
+	v := newCurrentResolutionFixture(t)
+	_, m, _ := v.config(t, false, false)
+	_, projectModel, _ := v.config(t, true, false)
+	r := v.request(t, m, true)
+	t.Run("safe-system-and-project-only", func(t *testing.T) {
+		for _, model := range []mc.ModelView{m, projectModel} {
+			q := mc.SelectionRequest{Consumer: r.Consumer, ModelRef: &model.ID, Selection: mc.SelectionRef{Kind: "direct"}}
+			out, e := v.resolving.SelectModel(testContext(t), v.owner, q)
+			if e != nil || out.Selected == nil || *out.Selected != model.ID {
+				t.Fatal("safe projection", e)
+			}
+		}
+		if v.count(t, "resolution_preparations") != 0 || v.tap.calls.Load() != 0 {
+			t.Fatal("Select performed resolve")
+		}
+	})
+	t.Run("current-permission-before-existence", func(t *testing.T) {
+		q := mc.SelectionRequest{Consumer: r.Consumer, ModelRef: &m.ID, Selection: *r.Selection}
+		_, visible := v.resolving.SelectModel(testContext(t), v.admin, q)
+		missing := newID[mc.Model](t)
+		q.ModelRef = &missing
+		_, absent := v.resolving.SelectModel(testContext(t), v.admin, q)
+		if visible == nil || absent == nil {
+			t.Fatal("nonowner selected")
+		}
+		var code1, code2 f.Code
+		for i, e := range []error{visible, absent} {
+			var ff interface{ Error() string }
+			_ = ff
+			if i == 0 {
+				code1 = resolutionFaultCode(e)
+			} else {
+				code2 = resolutionFaultCode(e)
+			}
+		}
+		if code1 != code2 {
+			t.Fatal("existence leaked before Owner")
+		}
+		t.Logf("nonowner existing/missing same code %s", code1)
+	})
+	t.Run("foreign-project-and-no-fallback", func(t *testing.T) {
+		other := *v.projectConfigurationFixture
+		other.project = v.createProject(t, v.owner)
+		other.scope, _ = id.InProject(other.project.ID)
+		p := other.projectProvider(t, nil)
+		foreign := other.projectModel(t, p)
+		for _, mid := range []mc.ModelID{foreign.ID, newID[mc.Model](t)} {
+			q := mc.SelectionRequest{Consumer: r.Consumer, ModelRef: &mid, Selection: *r.Selection}
+			_, e := v.resolving.SelectModel(testContext(t), v.owner, q)
+			requireCode(t, e, f.NotFound)
+		}
+	})
+	t.Run("nonhuman-select-unbound", func(t *testing.T) {
+		agent := v.request(t, m, false)
+		_, e := v.resolving.SelectModel(testContext(t), agent.Actor, mc.SelectionRequest{Consumer: agent.Consumer, ModelRef: agent.ModelRef, Selection: *agent.Selection})
+		requireCode(t, e, f.DependencyUnbound)
+	})
+	t.Run("required-memory-selector-current-version", func(t *testing.T) {
+		memory := v.memory(t, m)
+		p, e := v.resolving.DiscoverResolve(testContext(t), memory)
+		resolutionZeroPlan(t, p, e)
+		requireCode(t, e, f.InvalidState)
+		version := v.selectMemory(t, m)
+		out := v.resolve(t, memory)
+		if out.Snapshot.Identity.ModelID != m.ID || out.Snapshot.Identity.AdapterRevision != "openai-chat-structured-v1" || out.Snapshot.SelectionVersion == nil || *out.Snapshot.SelectionVersion != version {
+			t.Fatal("memory selector snapshot")
+		}
+		other := v.memory(t, m)
+		stale := version - 1
+		other.Selection.Version = &stale
+		v.bind(t, other)
+		p, e = v.resolving.DiscoverResolve(testContext(t), other)
+		resolutionZeroPlan(t, p, e)
+		requireCode(t, e, f.ResourceBusy)
+	})
+	t.Run("revoked-session", func(t *testing.T) {
+		uid, _ := f.ParseID[id.User](v.owner.Details().UserID)
+		actor := v.session(t, uid)
+		_, e := v.raw.Exec(testContext(t), `DELETE FROM agenteam_account.sessions WHERE id=$1`, actor.Details().SessionID)
+		if e != nil {
+			t.Fatal(e)
+		}
+		_, e = v.resolving.SelectModel(testContext(t), actor, mc.SelectionRequest{Consumer: r.Consumer, ModelRef: &m.ID, Selection: *r.Selection})
+		if e == nil {
+			t.Fatal("revoked Session selected")
+		}
+	})
+	t.Run("unimplemented-source-zero-effects", func(t *testing.T) {
+		before := v.count(t, "resolution_preparations")
+		other := v.memory(t, m)
+		other.Source = mc.ServingSnapshotSource
+		other.Selection = nil
+		other.Purpose = mc.MemoryEmbedding
+		other.Consumer.Purpose = mc.MemoryEmbedding
+		snap := newID[mc.Snapshot](t)
+		other.ServingSnapshotID = &snap
+		other.ServingGenerationID = newID[struct{}](t).String()
+		if other.Validate() != nil {
+			t.Fatal("negative input invalid")
+		}
+		out, e := v.resolving.ResolveModel(testContext(t), other)
+		resolutionNoResult(t, out, e)
+		requireCode(t, e, f.DependencyUnbound)
+		if before != v.count(t, "resolution_preparations") {
+			t.Fatal("unimplemented source wrote preparation")
+		}
+	})
+}
+func TestModelCurrentResolutionReplay(t *testing.T) {
+	v := newCurrentResolutionFixture(t)
+	provider, m, metadata := v.config(t, false, true)
+	r := v.request(t, m, true)
+	original := v.resolve(t, r)
+	frozen := resolutionJSON(original.Snapshot)
+	lease := original.CredentialLease.LeaseID
+	same := func(t *testing.T, snapshot mc.ResolvedModel) {
+		t.Helper()
+		if !bytes.Equal(frozen, resolutionJSON(snapshot.Snapshot)) || snapshot.CredentialLease.LeaseID != lease {
+			t.Fatal("immutable result changed")
+		}
+	}
+	t.Run("same-unit-new-session-and-restart", func(t *testing.T) {
+		same(t, v.resolve(t, r))
+		old := v.discover(t, r)
+		uid, _ := f.ParseID[id.User](r.Actor.Details().UserID)
+		r.Actor = v.session(t, uid)
+		_, result := v.final(t, r, old, false, false)
+		if result.State() != f.NotCommitted {
+			t.Fatal("old Session plan reused")
+		}
+		same(t, v.resolve(t, r))
+		restart := bindCurrentResolution(t, v.projectConfigurationFixture)
+		_, result = restart.final(t, r, old, false, false)
+		if result.State() != f.NotCommitted {
+			t.Fatal("foreign instance accepted plan")
+		}
+		same(t, restart.resolve(t, r))
+	})
+	t.Run("different-meaning-same-unit", func(t *testing.T) {
+		other := r.Clone()
+		missing := newID[mc.Model](t)
+		other.ModelRef = &missing
+		v.bind(t, other)
+		out, e := v.resolving.ResolveModel(testContext(t), other)
+		resolutionNoResult(t, out, e)
+		requireCode(t, e, f.IdempotencyKeyReused)
+		v.bind(t, r)
+	})
+	t.Run("rotation-stable-ref-no-material", func(t *testing.T) {
+		value, e := sc.NewSecretMaterial([]byte("rotated-resolver-metadata-only"))
+		if e != nil {
+			t.Fatal(e)
+		}
+		defer value.Destroy()
+		identity, _ := f.NewCommandIdentity("secret", []string{v.admin.Details().UserID}, string(sc.Update), f.IdempotencyKey(newID[struct{}](t).String()))
+		_, e = v.secrets.ExecuteWrite(testContext(t), sc.WriteRequest{Actor: v.admin, Scope: id.SystemScope(), Identity: identity, Kind: sc.Update, Purpose: sc.Model, Ref: metadata.CredentialRef, ExpectedVersion: metadata.Version, Value: value})
+		if e != nil {
+			t.Fatal(e)
+		}
+		same(t, v.resolve(t, r))
+		var n int
+		if e = v.raw.QueryRow(testContext(t), `SELECT count(*) FROM agenteam_audit.audit_records WHERE action='secret.resolve'`).Scan(&n); e != nil || n != 0 {
+			t.Fatal("resolver read credential material", e)
+		}
+	})
+	t.Run("live-disable-update-delete-do-not-rewrite", func(t *testing.T) {
+		input := provider.Input.Clone()
+		input.Enabled = false
+		input.BaseURL = "https://changed.example/new"
+		receipt, e := v.service.UpdateProvider(testContext(t), mc.UpdateProviderRequest{CommandMeta: v.meta(t, "resolution-disable"), ID: provider.ID, ExpectedVersion: provider.Version, Input: input})
+		if e != nil {
+			t.Fatal(e)
+		}
+		same(t, v.resolve(t, r))
+		fresh := v.request(t, m, false)
+		out, e := v.resolving.ResolveModel(testContext(t), fresh)
+		resolutionNoResult(t, out, e)
+		requireCode(t, e, f.InvalidState)
+		_, e = v.service.DeleteModel(testContext(t), mc.DeleteModelRequest{CommandMeta: v.meta(t, "resolution-delete-model"), ID: m.ID, ExpectedVersion: m.Version})
+		if e != nil {
+			t.Fatal(e)
+		}
+		_, e = v.service.DeleteProvider(testContext(t), mc.DeleteProviderRequest{CommandMeta: v.meta(t, "resolution-delete-provider"), ID: provider.ID, ExpectedVersion: receipt.Version})
+		if e != nil {
+			t.Fatal(e)
+		}
+		same(t, v.resolve(t, r))
+		var nulls bool
+		if e = v.raw.QueryRow(testContext(t), `SELECT live_provider_id IS NULL AND live_model_id IS NULL FROM agenteam_model.snapshots WHERE id=$1`, original.Snapshot.ID.String()).Scan(&nulls); e != nil || !nulls {
+			t.Fatal("live FK retirement", e)
+		}
+	})
+	t.Run("planned-read-release-unbound", func(t *testing.T) {
+		reg, _ := id.RegisterService(id.SecretService)
+		actor, _ := reg.Actor(r.LeaseOwner.Details().ID, id.SystemScope())
+		for _, action := range []sc.UsageAction{sc.ReadLeaseUsage, sc.ReleaseLeaseUsage} {
+			q := sc.UsageRequest{Actor: actor, Ref: metadata.CredentialRef, Purpose: sc.Model, LeaseOwner: r.LeaseOwner, LeaseID: lease, Action: action}
+			if action == sc.ReadLeaseUsage {
+				q.RequestID = newID[struct{}](t).String()
+			}
+			_, e := v.router.DiscoverUsage(context.Background(), q)
+			requireCode(t, e, f.DependencyUnbound)
+		}
+	})
+}

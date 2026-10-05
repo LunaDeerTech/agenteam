@@ -1,6 +1,6 @@
 # D09 Model System 与 Token Usage
 
-修订 4，2026-10-05 进度同步。C0 固定编译基线 `16595ad1e78e5283dfe85fb812095acde382edd1`，已独立验收并提交 `e6e94c4`；设计基线及来源见[工程规格修订 4](d09-model-system-token-usage-design.md)。状态：**B01/C0、[B01-K System 配置原子存储](d09-b01-system-configuration.md)及 [Project chat 配置与安全目录窄块](recovery-d09-project-configuration.md)均已独立验收；Audit 六源 `26622bc`、System 二十九源（含 00015）`543511c`、Project 配置二十一源 `de00c610` 已提交推送。完整 D09 未完成。** 下列 C0/B01-K 阶段记录保留当时事实；最新 Project 配置结果见文末及[正式报告](../agent-team/d09-project-configuration-verification.md)。Summary 初值/Settings、Resolver/Usage、Provider 调用和根 HTTP 仍未完成。
+修订 4，2026-10-05 进度同步。C0 固定编译基线 `16595ad1e78e5283dfe85fb812095acde382edd1`，已独立验收并提交 `e6e94c4`；设计基线及来源见[工程规格修订 4](d09-model-system-token-usage-design.md)。状态：**B01/C0、[B01-K System 配置原子存储](d09-b01-system-configuration.md)及 [Project chat 配置与安全目录窄块](recovery-d09-project-configuration.md)均已独立验收；Audit 六源 `26622bc`、System 二十九源（含 00015）`543511c`、Project 配置二十一源 `de00c610` 已提交推送。完整 D09 未完成。** 下列 C0/B01-K 阶段记录保留当时事实；后续 Project 配置、Secret planned usage、OpenAI text/structured wire、System 配置生产根及 [current-selection Resolver 库](../agent-team/current-model-resolution-verification.md)已有各自独立验收。Resolver 精确 20 路径与 00017 已以 `4295df7` 提交推送；生产 Resolution 仍 nil，Invocation/Usage、真实 consumer/Provider 调用及 Project HTTP/root 未交付，Summary 初值/Settings 仍待定。
 
 依据：[开发计划 D09](../development-plan.md)、[D01 模型契约](d01-contracts/model-tool.md)、[D08 规格](d08-project-owner-design.md)。必读 [AGENTS](../../../AGENTS.md)、[团队流程](../agent-team/README.md)、[设计技能](../../../.agents/skills/agenteam-design/SKILL.md)；实施/独立验收按团队角色与各自技能执行。root 持本卡、台账、计划、迁移编号及最终 Git 交付。
 
@@ -53,10 +53,16 @@ GOTOOLCHAIN=local /workspace/toolchains/go1.27.1/bin/go vet -mod=readonly ./inte
 GOTOOLCHAIN=local /workspace/toolchains/go1.27.1/bin/go build -mod=readonly ./internal/central/model/contract ./internal/central/usage/contract
 ```
 
-C0 首阶段通过仅表示类型与契约可供下游编译；现 [B01-K System 配置](d09-b01-system-configuration.md)已补齐真实 System 原子存储结果。作者 12 个真实顶层及独立跨 scope CredentialRef/receipt 提交后 Session 撤销 1 个顶层通过，独立报告 SHA `171c97cdb329e30dd08ccfc8db26e5192fe40b46400b92d560184644933da9b8`，位置及原始失败见 B01-K 卡。完整 B01 的 Project 配置/Usage、B02/B03 仍依工程规格验收；Summary/协议/生命周期/真实 consumer 条件不因该库提交而自动解除。
+C0 首阶段通过仅表示类型与契约可供下游编译；现 [B01-K System 配置](d09-b01-system-configuration.md)已补齐真实 System 原子存储结果。作者 12 个真实顶层及独立跨 scope CredentialRef/receipt 提交后 Session 撤销 1 个顶层通过，独立报告 SHA `171c97cdb329e30dd08ccfc8db26e5192fe40b46400b92d560184644933da9b8`，位置及原始失败见 B01-K 卡。这是当时 B01-K 的验收范围；后续 Project 配置与其他受限结果见文末，Usage 及完整 B02/B03 仍依工程规格验收。Summary/协议/生命周期/真实 consumer 条件不因该库提交而自动解除。
 
 ## Project 配置窄块验收接续
 
 [恢复卡修订 2](recovery-d09-project-configuration.md)仅同步已验状态，API 与产品规则保持原修订。Project chat Provider/Model CRUD、当前配置读、命令查证及安全目录以 `de00c610da62cb77cc03efe7c3cc842cf81f1ba5` 提交推送；作者第二轮 43 顶层/117 子例、独立 2 顶层/5 子例通过。[正式报告及持久证据](../agent-team/d09-project-configuration-verification.md)已随 `965da5d` 提交；首轮 FAIL、5 个未变新项的非 verbose 未失败结果复用、早期纯检查未单独持久化 exact argv/exit 的限制均保留，不改写成单次全绿。
 
-Summary 初值仍待用户决定，不新增默认值、NULL 完成声明或 Project 创建输入。真实 Agent/project_summary 引用替换、Resolver/Usage、Provider 调用与 HTTP/app/root 仍未交付；OpenAI wire 仅在规格准备，不能视作 Provider 能力已实现。完整 D09 继续未完成。
+Summary 初值仍待用户决定，不新增默认值、NULL 完成声明或 Project 创建输入。Project 配置验收不自动交付真实 Agent/project_summary 引用替换、Invocation/Usage、Provider 调用或 Project HTTP/root；其后已验结果如下，完整 D09 继续未完成。
+
+## 后继受限结果与当前边界
+
+[Secret Model planned usage](../agent-team/d09-secret-model-usage-verification.md) `8ad6759`、OpenAI text wire `9c72190` 与 structured wire `be0bd07` 已验；wire 的受控 server 结果不等于实际供应商账号 smoke 或 Runtime。System 配置默认生产根 `457b197` 的[正式报告](../agent-team/system-model-root-verification.md)已验真实 Session/admin、Secret/Audit/Outbox 与同步 HTTP；这不解除 Project 或调用链的未绑定边界。
+
+[current Model Resolution 库](recovery-d09-current-model-resolution.md)已独立 PASS，以 `4295df7d51c1f171df78ab3f0d9cef2fd241a505` 提交推送。测试输入为固定 `be0bd07` 加精确 20 路径；作者分版本 26 顶层/109 子例、独立 2 顶层/4 子例与原失败见[正式报告](../agent-team/current-model-resolution-verification.md)。00017、direct/platform.memory 当前选择、不可变 snapshot/binding 与同 Tx Secret planned Acquire 已验；默认生产根 Resolution=nil，严格 fixture 不代表实际 AgentRun/Memory/Tool consumer 已绑定。serving_snapshot、材料读取/退休、Invocation/Usage、Provider 发送和 Project cleanup 未交付，Summary 待决与 ready503 保持。

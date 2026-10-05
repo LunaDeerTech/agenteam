@@ -1,0 +1,76 @@
+{
+  "baseline": "be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74",
+  "spec_commit": "e81b029cd65fb26cc8598955e32b961dac35cb85",
+  "spec_sha256": "9413b70e0d524cc3223bf6aec9d1f761237ec22e96f988a99c9fa5e6827052b6",
+  "status": "author candidate; production+SQL stopped; no real PG run",
+  "frozen_utc": "2026-10-05T20:29:42.349245+00:00",
+  "files": [
+    {
+      "path": "internal/central/model/authority.go",
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba",
+      "bytes": 5004,
+      "baseline_sha256": "a841fdb3841be814fb18e29c5b910050e07ce8b51bea287512e43077fc03dbe6"
+    },
+    {
+      "path": "internal/central/model/service.go",
+      "sha256": "537c750a0cab179ec7b7e309b7325e26978d147224f580a6d5bb75bdb16e4d94",
+      "bytes": 3641,
+      "baseline_sha256": "eb51dcc1217b4496a266607653b596b5623967069e2dff887a1d3c4470f1fa0a"
+    },
+    {
+      "path": "internal/central/model/secret_authority.go",
+      "sha256": "e312daae6e6887e399ffb20f875fac79bd88c80164987a80bb81407fb794271e",
+      "bytes": 4823,
+      "baseline_sha256": "9275aa79a95f8245d284f1fd93d2fd79ea13c06f8fd1459e6b499db0ebef0605"
+    },
+    {
+      "path": "internal/central/model/secret_router.go",
+      "sha256": "ca3ef3327494fb8858cb39cc399326f398dac6f9da76b65c3ff3ed14d815712c",
+      "bytes": 2882,
+      "baseline_sha256": "136015f0965f21ebf010c907a987fc757f8ef7b6d9c120e7f5fe35ef1b6f3ed5"
+    },
+    {
+      "path": "internal/central/model/resolver.go",
+      "sha256": "8980b0fa6b7aeb3863153145d3e446912c54e7e03e05139f1ffc9020e8b1fa03",
+      "bytes": 13913,
+      "baseline_sha256": null
+    },
+    {
+      "path": "internal/central/model/resolution_plan.go",
+      "sha256": "6812b78bef8c5c4dac694be3bafbd6bd4b0ceec212e17e9179f877607dd18006",
+      "bytes": 8031,
+      "baseline_sha256": null
+    },
+    {
+      "path": "internal/central/model/resolution_store.go",
+      "sha256": "84e4f7b15e10c423475a517652c7b7ee140f6fa6975add72d100050377a6ba7d",
+      "bytes": 11045,
+      "baseline_sha256": null
+    },
+    {
+      "path": "internal/central/model/resolution_secret.go",
+      "sha256": "9eb73be32a0db3893e6850e2d8ad9c3ad16f693c2c10e9276177b2171640b3df",
+      "bytes": 6738,
+      "baseline_sha256": null
+    },
+    {
+      "path": "internal/central/model/resolution_policy.go",
+      "sha256": "538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee",
+      "bytes": 4230,
+      "baseline_sha256": null
+    },
+    {
+      "path": "db/migrations/00017_model_current_resolution.sql",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837",
+      "bytes": 4094,
+      "baseline_sha256": null
+    }
+  ],
+  "checks": [
+    "production-compile-03",
+    "pure-test-01",
+    "pure-race-01",
+    "pure-vet-01"
+  ],
+  "delta_sha256": "40d081d83e71e1086394eb27dfe0941d9913fea12d4ddc3ac3e4c7f4b29d468b"
+}

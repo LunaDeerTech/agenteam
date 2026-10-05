@@ -1,0 +1,709 @@
+{
+  "frozen_utc": "2026-10-05T21:15:09.769176+00:00",
+  "baseline": "be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74",
+  "spec_commit": "e81b029cd65fb26cc8598955e32b961dac35cb85",
+  "status": "author checks complete; awaiting independent dynamic acceptance; all source/tool writes stopped after this delivery",
+  "final20": {
+    "path": "candidate-freeze-04/manifest.json",
+    "sha256": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d",
+    "bytes": 4848
+  },
+  "production10": {
+    "path": "production-review-02/manifest.json",
+    "sha256": "5cc06fdfd6961ce7f1e0150abd7a7b1b4b78bb4bfd86c51764417648668a836e",
+    "bytes": 2512
+  },
+  "sources": [
+    {
+      "path": "internal/central/model/authority.go",
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba",
+      "bytes": 5004
+    },
+    {
+      "path": "internal/central/model/service.go",
+      "sha256": "537c750a0cab179ec7b7e309b7325e26978d147224f580a6d5bb75bdb16e4d94",
+      "bytes": 3641
+    },
+    {
+      "path": "internal/central/model/secret_authority.go",
+      "sha256": "e312daae6e6887e399ffb20f875fac79bd88c80164987a80bb81407fb794271e",
+      "bytes": 4823
+    },
+    {
+      "path": "internal/central/model/secret_router.go",
+      "sha256": "ca3ef3327494fb8858cb39cc399326f398dac6f9da76b65c3ff3ed14d815712c",
+      "bytes": 2882
+    },
+    {
+      "path": "internal/central/model/resolver.go",
+      "sha256": "0bdd3e30b286da45454b2930b3f2d6ed4a09e4f9ff15a3e8028f5880e5bdf13c",
+      "bytes": 14359
+    },
+    {
+      "path": "internal/central/model/resolution_plan.go",
+      "sha256": "728830cce301d98ddb3069ef8af5b599b74dc03e17cc02ad25c7872f3a3993c1",
+      "bytes": 10211
+    },
+    {
+      "path": "internal/central/model/resolution_store.go",
+      "sha256": "703c3f2d5676c3f9a3417a93a5f63aa70c43faff2c5d6321600b67bfca176e45",
+      "bytes": 11225
+    },
+    {
+      "path": "internal/central/model/resolution_secret.go",
+      "sha256": "9eb73be32a0db3893e6850e2d8ad9c3ad16f693c2c10e9276177b2171640b3df",
+      "bytes": 6738
+    },
+    {
+      "path": "internal/central/model/resolution_policy.go",
+      "sha256": "538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee",
+      "bytes": 4230
+    },
+    {
+      "path": "internal/central/model/resolver_test.go",
+      "sha256": "aaec5c7e17f79c0fe1f77b959992594ab782fa9b3f461bf0719889f3ef98c6d6",
+      "bytes": 4636
+    },
+    {
+      "path": "internal/central/model/resolution_plan_test.go",
+      "sha256": "01740478be113212df13c365862283f946a7809141e8d4edda933283da57de87",
+      "bytes": 6901
+    },
+    {
+      "path": "internal/central/model/resolution_secret_test.go",
+      "sha256": "f1ef7cda17e9ad806881f788343ad5b2dafa9539ab5a8a350a4bed50ebf98f13",
+      "bytes": 1942
+    },
+    {
+      "path": "internal/central/model/resolution_policy_test.go",
+      "sha256": "0923f551388e62c6d6513c9f8db8d472bc199889c1d8e097091ebd7b81888e2e",
+      "bytes": 2279
+    },
+    {
+      "path": "tests/model/current_resolution_fixture_test.go",
+      "sha256": "669ccb190ae3c5043c104305a3116e1fc39ab28316983984ec0b261653a423b6",
+      "bytes": 16271
+    },
+    {
+      "path": "tests/model/current_resolution_selection_test.go",
+      "sha256": "e87158298aee54a2ead5b5aa10f36fadb7c08add1849e4323ac0ec8e19184562",
+      "bytes": 10326
+    },
+    {
+      "path": "tests/model/current_resolution_atomicity_test.go",
+      "sha256": "d3a20c8bf68f609f9f2d3c34e0d27d92615a6a10b9d1824a1bcca78c2e12679f",
+      "bytes": 8230
+    },
+    {
+      "path": "tests/model/current_resolution_authorization_test.go",
+      "sha256": "d76e68d2c02306aecf9d5f20459ad8d775bcc6fda2cd420b97db03651f09e435",
+      "bytes": 8007
+    },
+    {
+      "path": "tests/model/current_resolution_unknown_test.go",
+      "sha256": "ccc2235ea76b078ef601488d95621b72787fbd342ea9908126bc7b324edc32fc",
+      "bytes": 6342
+    },
+    {
+      "path": "tests/model/current_resolution_schema_test.go",
+      "sha256": "742e9d98231bd449db7f90deeff2ea477163438fed9a48283f0f3237315174cd",
+      "bytes": 10472
+    },
+    {
+      "path": "db/migrations/00017_model_current_resolution.sql",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837",
+      "bytes": 4094
+    }
+  ],
+  "exact_repo_snapshot_and_frozen_match": true,
+  "ready_selectors": {
+    "path": "ready-selectors-04.json",
+    "sha256": "1f280cbf072791c35c848c4343bbad62b2a832b9cf91265d1a893462fa14f0be",
+    "bytes": 6655
+  },
+  "observer": {
+    "path": "run_fixture_04.py",
+    "sha256": "fc34ab044c1c4e90b86792920f35a5c5f04862f8924099da3eec61434c8b6618",
+    "bytes": 8679
+  },
+  "preflight": {
+    "path": "preflight-schema-01-inputs.json",
+    "sha256": "8cf1bcf7c0d06398bb0c4ca055f9059bf33d122c81b3d01562d61c5cbe698802",
+    "bytes": 8721
+  },
+  "original_new01": {
+    "raw": {
+      "path": "fixture-runs/new-01/driver.log",
+      "sha256": "9f3f2720a369902111ce1fafd6404034f1d51e60c400c2a87a3780860e807c0c",
+      "bytes": 13658
+    },
+    "resources": {
+      "path": "fixture-runs/new-01/resource-handoff.json",
+      "sha256": "af3804478309b60ed8efbe2b01776563b6fe57aaa5d1d5cc725a2f86b57a9d8b",
+      "bytes": 24428
+    },
+    "inputs": {
+      "path": "candidate-freeze-03/manifest.json",
+      "sha256": "b2ed3ceede09b90480e5910904b909c1beaf86f25b8d3326f32cd4c3cc2e0a89",
+      "bytes": 4922
+    },
+    "driver_exit": 1,
+    "reused_top": [
+      "TestModelCurrentResolutionAtomicity",
+      "TestModelCurrentResolutionCanonicalLease",
+      "TestModelCurrentResolutionAuthorization",
+      "TestModelCurrentResolutionSelection",
+      "TestModelCurrentResolutionReplay",
+      "TestModelCurrentResolutionUnknown"
+    ],
+    "reused_subtests": [
+      "TestModelCurrentResolutionAtomicity/system",
+      "TestModelCurrentResolutionAtomicity/project",
+      "TestModelCurrentResolutionAtomicity/secret-failure-rolls-every-effect-back",
+      "TestModelCurrentResolutionAtomicity/missing-and-weak-lock-poison-cannot-be-swallowed",
+      "TestModelCurrentResolutionAtomicity/no-ref-zero-secret-apply",
+      "TestModelCurrentResolutionCanonicalLease/concurrent-final-canonical-conflict-then-replan",
+      "TestModelCurrentResolutionCanonicalLease/model-call-distinct-and-stable",
+      "TestModelCurrentResolutionCanonicalLease/same-owner-ref-other-project-denied",
+      "TestModelCurrentResolutionCanonicalLease/released-canonical-never-resurrected",
+      "TestModelCurrentResolutionAuthorization/strict-agent-and-input-change",
+      "TestModelCurrentResolutionAuthorization/owner-execution-and-actor-tamper",
+      "TestModelCurrentResolutionAuthorization/permission-before-existing-and-missing-model",
+      "TestModelCurrentResolutionAuthorization/session-and-project-gate-current",
+      "TestModelCurrentResolutionAuthorization/wrong-issuer-and-foreign-store",
+      "TestModelCurrentResolutionAuthorization/exact-apply-witness-expires-and-never-reads",
+      "TestModelCurrentResolutionSelection/safe-system-and-project-only",
+      "TestModelCurrentResolutionSelection/current-permission-before-existence",
+      "TestModelCurrentResolutionSelection/foreign-project-and-no-fallback",
+      "TestModelCurrentResolutionSelection/nonhuman-select-unbound",
+      "TestModelCurrentResolutionSelection/required-memory-selector-current-version",
+      "TestModelCurrentResolutionSelection/unsupported-profile-does-not-default",
+      "TestModelCurrentResolutionSelection/revoked-session",
+      "TestModelCurrentResolutionSelection/unimplemented-source-zero-effects",
+      "TestModelCurrentResolutionReplay/same-unit-new-session-and-restart",
+      "TestModelCurrentResolutionReplay/different-meaning-same-unit",
+      "TestModelCurrentResolutionReplay/rotation-stable-ref-no-material",
+      "TestModelCurrentResolutionReplay/live-disable-update-delete-do-not-rewrite",
+      "TestModelCurrentResolutionReplay/planned-read-release-unbound",
+      "TestModelCurrentResolutionUnknown/result-decoration-stage-2-rollback-false",
+      "TestModelCurrentResolutionUnknown/result-decoration-stage-2-rollback-true",
+      "TestModelCurrentResolutionUnknown/result-decoration-stage-3-rollback-false",
+      "TestModelCurrentResolutionUnknown/result-decoration-stage-3-rollback-true",
+      "TestModelCurrentResolutionUnknown/committed-then-caller-cancelled-zero-publication",
+      "TestModelCurrentResolutionUnknown/ordinary-original-writer-mutex-before-reentry",
+      "TestModelCurrentResolutionUnknown/old-writer-completed-before-preflight-replans"
+    ],
+    "excluded_failed_top": "TestModelCurrentResolutionSchema",
+    "diagnosis": "Test changed source checksum after failed migration; D03 correctly reported MIGRATION_HISTORY_DIVERGED; first migration SQLSTATE was unobserved, not claimed as 22012"
+  },
+  "direct_final_runs": [
+    {
+      "label": "schema-01",
+      "direct_top_count": 1,
+      "direct_sub_count": 5,
+      "elapsed_seconds": 42.081,
+      "tested_packages": [
+        {
+          "package": "github.com/LunaDeerTech/agenteam/tests/model",
+          "seconds": "7.068s"
+        }
+      ],
+      "raw": {
+        "path": "fixture-runs/schema-01/driver.log",
+        "sha256": "571645bc831d14adef7ec4a4d33c53ec6326e8e18978fa40a5715459640aefb8",
+        "bytes": 4667
+      },
+      "resources": {
+        "path": "fixture-runs/schema-01/resource-handoff.json",
+        "sha256": "72f2b76be424b06a5737330d0807b8cc85f8cf4945368a3f056e1585c9fd6aec",
+        "bytes": 24168
+      },
+      "index": {
+        "path": "fixture-runs/schema-01/evidence-index.json",
+        "sha256": "6a59d00ec03cd74bcd56c91d562aeb968c23452a7f6f9e66cc74b6d319153462",
+        "bytes": 1655
+      }
+    },
+    {
+      "label": "old-model-01",
+      "direct_top_count": 8,
+      "direct_sub_count": 19,
+      "elapsed_seconds": 57.059,
+      "tested_packages": [
+        {
+          "package": "github.com/LunaDeerTech/agenteam/tests/model",
+          "seconds": "21.597s"
+        }
+      ],
+      "raw": {
+        "path": "fixture-runs/old-model-01/driver.log",
+        "sha256": "7381a8038a845ce27aaf63a7eed173624fa552939a6b51ae419c6d20fed31288",
+        "bytes": 7700
+      },
+      "resources": {
+        "path": "fixture-runs/old-model-01/resource-handoff.json",
+        "sha256": "b190264acf3e7e8c6ab3c29aabc0607b81d3743a1fdff3b228abb0f23f840317",
+        "bytes": 24818
+      },
+      "index": {
+        "path": "fixture-runs/old-model-01/evidence-index.json",
+        "sha256": "f967da94d4a37b8eaefdca0fdf8730d9e68efcb95e7be00af81ac5cb5a5adb70",
+        "bytes": 1685
+      }
+    },
+    {
+      "label": "secret-01",
+      "direct_top_count": 7,
+      "direct_sub_count": 43,
+      "elapsed_seconds": 64.401,
+      "tested_packages": [
+        {
+          "package": "github.com/LunaDeerTech/agenteam/tests/security",
+          "seconds": "39.355s"
+        }
+      ],
+      "raw": {
+        "path": "fixture-runs/secret-01/driver.log",
+        "sha256": "7bd1f9b0bdc8121449ea2456c176707d2fd4ab497a8f5116199f6f4fc7d2e710",
+        "bytes": 12301
+      },
+      "resources": {
+        "path": "fixture-runs/secret-01/resource-handoff.json",
+        "sha256": "847c5957f66960d8444452df479dbbf8fbbd542f812b5e903bf71a20f59311d3",
+        "bytes": 24298
+      },
+      "index": {
+        "path": "fixture-runs/secret-01/evidence-index.json",
+        "sha256": "62ee7e230275937447626b229b0712e5e9c2fea27252d0de4073ee7371570c84",
+        "bytes": 1656
+      }
+    },
+    {
+      "label": "account-01",
+      "direct_top_count": 4,
+      "direct_sub_count": 7,
+      "elapsed_seconds": 43.907,
+      "tested_packages": [
+        {
+          "package": "github.com/LunaDeerTech/agenteam/tests/account",
+          "seconds": "9.367s"
+        }
+      ],
+      "raw": {
+        "path": "fixture-runs/account-01/driver.log",
+        "sha256": "6ea71f8cdc483e957720ee3e170b561313d1c2bfee48b2c15a17cc75f84de6ce",
+        "bytes": 5381
+      },
+      "resources": {
+        "path": "fixture-runs/account-01/resource-handoff.json",
+        "sha256": "d426ee50ee2c9c90232d4a9f9d2615f065da4a8e726affca87d1d029bafa7684",
+        "bytes": 24038
+      },
+      "index": {
+        "path": "fixture-runs/account-01/evidence-index.json",
+        "sha256": "4556334c6a3d716d0af3c4ac848888ff2891adb4fc48731e5ac5e607bfb2e006",
+        "bytes": 1665
+      }
+    }
+  ],
+  "effective_author_coverage": {
+    "distinct_top_count": 26,
+    "distinct_sub_count": 109,
+    "top": [
+      "TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead",
+      "TestAccountExpiredLinkInvalidWhileActualMaterialUserKeepsLease",
+      "TestAccountReadWaitsExactCurrentUserGateAndRejectsRevocation",
+      "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed",
+      "TestModelB01CRUDCurrentAuthorityAndCanonicalReplay",
+      "TestModelB01PlatformSelectionAndAtomicReplacement",
+      "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked",
+      "TestModelB01SecretReferencesAndAllEffectsRollback",
+      "TestModelCurrentResolutionAtomicity",
+      "TestModelCurrentResolutionAuthorization",
+      "TestModelCurrentResolutionCanonicalLease",
+      "TestModelCurrentResolutionReplay",
+      "TestModelCurrentResolutionSchema",
+      "TestModelCurrentResolutionSelection",
+      "TestModelCurrentResolutionUnknown",
+      "TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion",
+      "TestModelProjectPreparedAuthorizationAndReferenceMapping",
+      "TestModelProjectReceiptReadGateAndLegacySystemPlan",
+      "TestModelProjectSecretReferencesAndAtomicEffects",
+      "TestSecretBindingsAuthorizationAndReadAuditBoundary",
+      "TestSecretModelUsageAuditWitnessAndNoMaterial",
+      "TestSecretModelUsageLegacyWrappersStayClosed",
+      "TestSecretModelUsageLockMappingAndRevocation",
+      "TestSecretModelUsageOutcomeAndCurrentValue",
+      "TestSecretModelUsagePlannedReadAndAudit",
+      "TestSecretModelUsageRequestAndPlanIsolation"
+    ],
+    "subtests": [
+      "TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead/account.login",
+      "TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead/secret.resolve",
+      "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed/changed_action",
+      "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed/changed_id",
+      "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed/missing_locks",
+      "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed/other_service",
+      "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed/provider_plan",
+      "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked/admin-revoked",
+      "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked/reference-added",
+      "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked/secret-deleted",
+      "TestModelB01SecretReferencesAndAllEffectsRollback/audit",
+      "TestModelB01SecretReferencesAndAllEffectsRollback/event",
+      "TestModelCurrentResolutionAtomicity/missing-and-weak-lock-poison-cannot-be-swallowed",
+      "TestModelCurrentResolutionAtomicity/no-ref-zero-secret-apply",
+      "TestModelCurrentResolutionAtomicity/project",
+      "TestModelCurrentResolutionAtomicity/secret-failure-rolls-every-effect-back",
+      "TestModelCurrentResolutionAtomicity/system",
+      "TestModelCurrentResolutionAuthorization/exact-apply-witness-expires-and-never-reads",
+      "TestModelCurrentResolutionAuthorization/owner-execution-and-actor-tamper",
+      "TestModelCurrentResolutionAuthorization/permission-before-existing-and-missing-model",
+      "TestModelCurrentResolutionAuthorization/session-and-project-gate-current",
+      "TestModelCurrentResolutionAuthorization/strict-agent-and-input-change",
+      "TestModelCurrentResolutionAuthorization/wrong-issuer-and-foreign-store",
+      "TestModelCurrentResolutionCanonicalLease/concurrent-final-canonical-conflict-then-replan",
+      "TestModelCurrentResolutionCanonicalLease/model-call-distinct-and-stable",
+      "TestModelCurrentResolutionCanonicalLease/released-canonical-never-resurrected",
+      "TestModelCurrentResolutionCanonicalLease/same-owner-ref-other-project-denied",
+      "TestModelCurrentResolutionReplay/different-meaning-same-unit",
+      "TestModelCurrentResolutionReplay/live-disable-update-delete-do-not-rewrite",
+      "TestModelCurrentResolutionReplay/planned-read-release-unbound",
+      "TestModelCurrentResolutionReplay/rotation-stable-ref-no-material",
+      "TestModelCurrentResolutionReplay/same-unit-new-session-and-restart",
+      "TestModelCurrentResolutionSchema/empty-actor-matching-digest",
+      "TestModelCurrentResolutionSchema/fresh-continuous-17",
+      "TestModelCurrentResolutionSchema/populated-16-failed-17-transaction-then-forward",
+      "TestModelCurrentResolutionSchema/sql-checks-and-strict-loaders",
+      "TestModelCurrentResolutionSchema/wrong-canonical-unit",
+      "TestModelCurrentResolutionSelection/current-permission-before-existence",
+      "TestModelCurrentResolutionSelection/foreign-project-and-no-fallback",
+      "TestModelCurrentResolutionSelection/nonhuman-select-unbound",
+      "TestModelCurrentResolutionSelection/required-memory-selector-current-version",
+      "TestModelCurrentResolutionSelection/revoked-session",
+      "TestModelCurrentResolutionSelection/safe-system-and-project-only",
+      "TestModelCurrentResolutionSelection/unimplemented-source-zero-effects",
+      "TestModelCurrentResolutionSelection/unsupported-profile-does-not-default",
+      "TestModelCurrentResolutionUnknown/committed-then-caller-cancelled-zero-publication",
+      "TestModelCurrentResolutionUnknown/old-writer-completed-before-preflight-replans",
+      "TestModelCurrentResolutionUnknown/ordinary-original-writer-mutex-before-reentry",
+      "TestModelCurrentResolutionUnknown/result-decoration-stage-2-rollback-false",
+      "TestModelCurrentResolutionUnknown/result-decoration-stage-2-rollback-true",
+      "TestModelCurrentResolutionUnknown/result-decoration-stage-3-rollback-false",
+      "TestModelCurrentResolutionUnknown/result-decoration-stage-3-rollback-true",
+      "TestModelProjectPreparedAuthorizationAndReferenceMapping/archiving",
+      "TestModelProjectPreparedAuthorizationAndReferenceMapping/owner",
+      "TestModelProjectPreparedAuthorizationAndReferenceMapping/reference-added",
+      "TestModelProjectPreparedAuthorizationAndReferenceMapping/secret-deleted",
+      "TestModelProjectPreparedAuthorizationAndReferenceMapping/session",
+      "TestModelProjectReceiptReadGateAndLegacySystemPlan/archived",
+      "TestModelProjectReceiptReadGateAndLegacySystemPlan/archiving",
+      "TestModelProjectReceiptReadGateAndLegacySystemPlan/deleting",
+      "TestModelProjectReceiptReadGateAndLegacySystemPlan/legacy-system",
+      "TestModelProjectReceiptReadGateAndLegacySystemPlan/project-cannot-adopt-scope-less-plan",
+      "TestModelProjectReceiptReadGateAndLegacySystemPlan/uninitialized",
+      "TestModelProjectSecretReferencesAndAtomicEffects/audit",
+      "TestModelProjectSecretReferencesAndAtomicEffects/event",
+      "TestModelProjectSecretReferencesAndAtomicEffects/secret",
+      "TestSecretModelUsageAuditWitnessAndNoMaterial/aead",
+      "TestSecretModelUsageAuditWitnessAndNoMaterial/audit-error",
+      "TestSecretModelUsageAuditWitnessAndNoMaterial/cross-store",
+      "TestSecretModelUsageAuditWitnessAndNoMaterial/cross-tx-old-witness",
+      "TestSecretModelUsageAuditWitnessAndNoMaterial/grant-request-id",
+      "TestSecretModelUsageAuditWitnessAndNoMaterial/missing-proof",
+      "TestSecretModelUsageAuditWitnessAndNoMaterial/request-association",
+      "TestSecretModelUsageAuditWitnessAndNoMaterial/system-human-subject",
+      "TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors",
+      "TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/grant-purpose",
+      "TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/human",
+      "TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/unbound",
+      "TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/uninitialized",
+      "TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/wrong-cause",
+      "TestSecretModelUsageLegacyWrappersStayClosed/mcp-execution-legacy-still-works",
+      "TestSecretModelUsageLegacyWrappersStayClosed/system=false/execution",
+      "TestSecretModelUsageLegacyWrappersStayClosed/system=false/model_call",
+      "TestSecretModelUsageLegacyWrappersStayClosed/system=true/execution",
+      "TestSecretModelUsageLegacyWrappersStayClosed/system=true/model_call",
+      "TestSecretModelUsageLockMappingAndRevocation/missing-provider-lock-poisons",
+      "TestSecretModelUsageLockMappingAndRevocation/real-lock-then-revocation",
+      "TestSecretModelUsageOutcomeAndCurrentValue/committed-then-cancelled",
+      "TestSecretModelUsageOutcomeAndCurrentValue/current-value-and-issued-material",
+      "TestSecretModelUsageOutcomeAndCurrentValue/decorated-unknown/rollback=false",
+      "TestSecretModelUsageOutcomeAndCurrentValue/decorated-unknown/rollback=true",
+      "TestSecretModelUsagePlannedReadAndAudit/system=false/execution",
+      "TestSecretModelUsagePlannedReadAndAudit/system=false/model_call",
+      "TestSecretModelUsagePlannedReadAndAudit/system=true/execution",
+      "TestSecretModelUsagePlannedReadAndAudit/system=true/model_call",
+      "TestSecretModelUsageRequestAndPlanIsolation/apply-read",
+      "TestSecretModelUsageRequestAndPlanIsolation/dispatch",
+      "TestSecretModelUsageRequestAndPlanIsolation/fence",
+      "TestSecretModelUsageRequestAndPlanIsolation/human-owner",
+      "TestSecretModelUsageRequestAndPlanIsolation/input",
+      "TestSecretModelUsageRequestAndPlanIsolation/issuer",
+      "TestSecretModelUsageRequestAndPlanIsolation/mapping",
+      "TestSecretModelUsageRequestAndPlanIsolation/other-invocation",
+      "TestSecretModelUsageRequestAndPlanIsolation/owner",
+      "TestSecretModelUsageRequestAndPlanIsolation/process",
+      "TestSecretModelUsageRequestAndPlanIsolation/ref",
+      "TestSecretModelUsageRequestAndPlanIsolation/retired",
+      "TestSecretModelUsageRequestAndPlanIsolation/snapshot",
+      "TestSecretModelUsageRequestAndPlanIsolation/zero-id"
+    ],
+    "distribution": "candidate04 direct20top/74sub + candidate03 unchanged new6top/35sub; not one final all-green run"
+  },
+  "checks": [
+    {
+      "label": "pure-test-01",
+      "record": {
+        "path": "logs/pure-test-01.json",
+        "sha256": "1ce206c58b54c508f4f01b9f9b1daf99cfdf9b8595585ff5b8a9b2c812eaa2c2",
+        "bytes": 3763
+      },
+      "log": {
+        "path": "logs/pure-test-01.log",
+        "sha256": "23ca8e5086c74922f0ceb2bf926f5d6a1a32835fe7eb76b3a88fbf6381c12c76",
+        "bytes": 68
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-count=1",
+        "./internal/central/model"
+      ],
+      "seconds": 1.631,
+      "exit_code": 0,
+      "reuse": true
+    },
+    {
+      "label": "pure-race-01",
+      "record": {
+        "path": "logs/pure-race-01.json",
+        "sha256": "8c70de931f3eedc1e1efbde1e7c9f79539afc607af6d6398355c9fa721d3dd31",
+        "bytes": 3777
+      },
+      "log": {
+        "path": "logs/pure-race-01.log",
+        "sha256": "4bd6b8065c48cf7a099789efe491aa835ee4c2e5986f4b1d0f62de730e07314d",
+        "bytes": 68
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/model"
+      ],
+      "seconds": 19.978,
+      "exit_code": 0,
+      "reuse": true
+    },
+    {
+      "label": "pure-vet-01",
+      "record": {
+        "path": "logs/pure-vet-01.json",
+        "sha256": "9fb66c5b501accc979499b3f0f4368f527f15f30e56d0d24f8c8f7ca5504fadc",
+        "bytes": 3750
+      },
+      "log": {
+        "path": "logs/pure-vet-01.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "./internal/central/model/..."
+      ],
+      "seconds": 6.646,
+      "exit_code": 0,
+      "reuse": true
+    },
+    {
+      "label": "review02-race-01",
+      "record": {
+        "path": "logs/review02-race-01.json",
+        "sha256": "f9178d272e9079eb3eb8f36d45f1982b07fab5d78cd86f3fdb50d2678a50e6c8",
+        "bytes": 4085
+      },
+      "log": {
+        "path": "logs/review02-race-01.log",
+        "sha256": "8dcf3ddf0166754a5fd2407b62017084fe25584b4c5012b7d4f19b252b65576e",
+        "bytes": 68
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/model"
+      ],
+      "seconds": 4.132,
+      "exit_code": 0,
+      "reuse": true
+    },
+    {
+      "label": "review02-vet-01",
+      "record": {
+        "path": "logs/review02-vet-01.json",
+        "sha256": "58af6c41002595c9da1f4845f276e71cc80fe0858869ba89eaa12cff175347bb",
+        "bytes": 4122
+      },
+      "log": {
+        "path": "logs/review02-vet-01.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "./internal/central/model/..."
+      ],
+      "seconds": 0.429,
+      "exit_code": 0,
+      "reuse": true
+    },
+    {
+      "label": "final-integration-compile-01",
+      "record": {
+        "path": "logs/final-integration-compile-01.json",
+        "sha256": "23cf376a9249f8d431c545fc3189187d3a9d5324bbb93c7a8ac8763bfe93552b",
+        "bytes": 4661
+      },
+      "log": {
+        "path": "logs/final-integration-compile-01.log",
+        "sha256": "4cdba83be0ca56b53b00c34084c91966f6c62f4238e1a9db2e8f7d62aa6ae7d5",
+        "bytes": 1694
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-race",
+        "-run",
+        "^$",
+        "./internal/central/postgres/...",
+        "./tests/database/...",
+        "./internal/central/app/...",
+        "./tests/process/...",
+        "./tests/security/...",
+        "./tests/outbox/...",
+        "./internal/central/outbox/...",
+        "./tests/account/...",
+        "./tests/accountmail/...",
+        "./internal/central/accountmail/...",
+        "./internal/central/recoverylog/...",
+        "./tests/project/...",
+        "./internal/central/model/...",
+        "./tests/model/...",
+        "./tests/objects/...",
+        "./internal/central/object/..."
+      ],
+      "seconds": 43.103,
+      "exit_code": 0,
+      "reuse": true
+    },
+    {
+      "label": "commands-build-01",
+      "record": {
+        "path": "logs/commands-build-01.json",
+        "sha256": "1812233be17643186fb2f284bb674300e1ca07b278993ae36cd5ff22aa7820c7",
+        "bytes": 4139
+      },
+      "log": {
+        "path": "logs/commands-build-01.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "./cmd/agenteam",
+        "./cmd/agenteam-runner"
+      ],
+      "seconds": 1.633,
+      "exit_code": 0,
+      "reuse": true
+    },
+    {
+      "label": "candidate04-integration-compile-01",
+      "record": {
+        "path": "logs/candidate04-integration-compile-01.json",
+        "sha256": "3bcb3dceafe07160fcee5807191ad296aaec0e957217436855a566b5176bb12a",
+        "bytes": 4168
+      },
+      "log": {
+        "path": "logs/candidate04-integration-compile-01.log",
+        "sha256": "a42e845c7b4868fc58cab81b9a33c4a7f56d6cb0d55edab027d5c870393dcc9d",
+        "bytes": 75
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-race",
+        "-run",
+        "^$",
+        "./tests/model"
+      ],
+      "seconds": 3.873,
+      "exit_code": 0,
+      "reuse": false
+    },
+    {
+      "label": "candidate04-integration-vet-01",
+      "record": {
+        "path": "logs/candidate04-integration-vet-01.json",
+        "sha256": "fefa93fc879df1bbdeef2ac5ba60bebe8176830ea3c8902d2c5253d170bd3638",
+        "bytes": 4132
+      },
+      "log": {
+        "path": "logs/candidate04-integration-vet-01.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "bytes": 0
+      },
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./tests/model"
+      ],
+      "seconds": 0.277,
+      "exit_code": 0,
+      "reuse": false
+    }
+  ],
+  "original_nonzero_setup_or_compile": [
+    "integration-compile-01",
+    "integration-compile-02",
+    "production-compile-01",
+    "production-compile-02"
+  ],
+  "static_findings": "P1/P2 production review01 and readiness T1/T2/T3 were static findings, not dynamic original reds; reports and all prior candidates remain",
+  "schema_repair": {
+    "path": "tests/model/current_resolution_schema_test.go",
+    "delta": {
+      "path": "candidate-freeze-04/delta.patch",
+      "sha256": "8c5ad0d53f2730e0aef48f32a2e5668b45919a0321e9d8b011b08b970615f802",
+      "bytes": 6797
+    },
+    "only_test_changed": true,
+    "observed_final": "SQLSTATE42883; pending1/applied0/goose0 exact source checksum; test dependency creation then same runner/source; applied1/goose1 same checksum; old canonical rows+full old constraint catalog unchanged after failure and success; three new tables complete"
+  },
+  "resource_handoff": {
+    "window_returned_to_root": true,
+    "all_five_runs_owned_containers": 20,
+    "all_five_runs_owned_networks": 15,
+    "unique_tracked_process_identities": 397,
+    "every_run_double_exact_absent": true,
+    "trusted2c4n_unchanged": true,
+    "runtime_empty": true,
+    "gotmp_empty": true,
+    "no_further_Go_or_Docker": true
+  },
+  "limits": [
+    "author verification is not independent dynamic acceptance",
+    "formal Store result decoration is not physical ACK-loss or rollback-held-backend evidence",
+    "no positive production ConsumerAuthority/root Resolution; ready503 unchanged",
+    "no Invocation/Usage/provider request/material read/release/retire/Project cleanup",
+    "Summary defaults remain undecided; blocked Object work and active Artifact/D26 inputs were not consumed"
+  ]
+}

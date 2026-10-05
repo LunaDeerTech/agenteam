@@ -1,0 +1,17 @@
+{
+  "changed": [
+    "tests/model/current_resolution_authorization_test.go",
+    "tests/model/current_resolution_schema_test.go"
+  ],
+  "unchanged_other_18": true,
+  "production_sql_review02_unchanged": true,
+  "inputs_match_repo_and_frozen": true,
+  "gofmt_clean": true,
+  "git_diff_check_exit": 0,
+  "compile": "logs/candidate02-integration-compile-01.json",
+  "vet": "logs/candidate02-integration-vet-01.json",
+  "runtime_empty": true,
+  "gotmp_empty": true,
+  "no_Docker": true,
+  "observer_changed_only_selectors_reference": true
+}

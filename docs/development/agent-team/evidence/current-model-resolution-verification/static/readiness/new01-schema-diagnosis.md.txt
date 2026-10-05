@@ -1,0 +1,15 @@
+# Resolver new-01 Schema 红例独立归因
+
+裁决：**认可仅新 schema 测试修订同 checksum 重试前置；没有要求改 00017、D03 或其他生产源的证据。** 修后仍需真实定向复验，不能把静态归因当动态通过。
+
+已独立核原 raw `fixture-runs/new-01/driver.log` SHA256 `9f3f2720a369902111ce1fafd6404034f1d51e60c400c2a87a3780860e807c0c`、candidate03 manifest `b2ed3ceede09b90480e5910904b909c1beaf86f25b8d3326f32cd4c3cc2e0a89`。日志第104行唯一错误为 `current_resolution_schema_test.go:84: migration result migrated=false version=0 fault=MIGRATION_HISTORY_DIVERGED`，位于第二次 Migrate。原6个业务 top/39子例通过、1 schema top/1子例失败，无 Skip；这都是作者真实运行，非我的动态执行。
+
+固定源码链明确：新测试先给00017原件追加 `SELECT 1/0;`，第一次失败后换用未追加的原件。D03 `migrate.go:186` 在执行迁移前写入 version/filename/checksum/mode journal；`journal.go:165–168` 对任何 journal row（包括失败后 pending）核对新 Source 的相同字节 checksum。换原件导致 checksum 不同，正式防篡改/错误重试保护会拒绝，不能将其当00017升级行为缺陷。第一次 Fault 在原测试和 raw 中未提取 SQLSTATE；不追认它已观测到22012，也不改写原失败。
+
+固定旧 `TestModelB01MigrationFreshUpgradeAndAtomicRetry/rollback-same-checksum`（system_configuration_integration_test.go:1275起）已有可复用范式：固定附加缺失测试函数调用，首轮精确断言 SQLSTATE42883，确认 pending1/applied0/goose0 和原 checksum，补同一自有库的测试函数依赖，再以同 runner/Source 重试成功并核 applied checksum 不变。
+
+建议仅 `tests/model/current_resolution_schema_test.go` 采用该范式：保留 fresh 原始00017、populated旧 canonical 行/完整旧约束 catalog、失败后无三半表/原事实不变、成功后原事实不变及无Down。重试源始终是同一个带测试依赖调用的 Source，不能写 journal/删除 pending/换 checksum/放宽Fault匹配。补入函数是测试专用依赖，不是产品迁移或新恢复API。可额外核成功后 applied/goose各1及checksum等于首次锁定源，以避免只是“非nil错误后又成功”的弱断言。
+
+此前 readiness-candidate03 的静态可运行结论未识别这项D03重试协议前置；原报告保留，本次动态红例补充该遗漏，不倒写成已预知或已动态验证。其余未变的实际绿例可以限定复用，修后优先运行完整 Schema top，随后原已定旧组；无需无差别重跑已过业务六top。运行授权与顺序由root安排。
+
+本次只读作者冻结原输入、原日志与固定D03/B01；只写本私有报告和 checks-new01-schema-diagnosis.json。无 Go/Docker/SQL/网络/Git执行，无仓库写。等待原作者获得授权并冻结唯一测试差量后窄审。

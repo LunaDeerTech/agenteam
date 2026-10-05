@@ -1,0 +1,101 @@
+{
+  "input_manifest": "candidate-freeze-04/manifest.json",
+  "input_sha256": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d",
+  "state": "candidate04 compile/vet ready; schema-only delta pending independent review; no Docker permission",
+  "groups": [
+    {
+      "name": "schema",
+      "expected_top": [
+        "TestModelCurrentResolutionSchema"
+      ],
+      "top_count": 1,
+      "selector": "^TestModelCurrentResolutionSchema$",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestModelCurrentResolutionSchema$"
+      ],
+      "expected_containers": 4,
+      "expected_networks": 3
+    },
+    {
+      "name": "old-model",
+      "expected_top": [
+        "TestModelB01CRUDCurrentAuthorityAndCanonicalReplay",
+        "TestModelB01PlatformSelectionAndAtomicReplacement",
+        "TestModelB01SecretReferencesAndAllEffectsRollback",
+        "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked",
+        "TestModelProjectSecretReferencesAndAtomicEffects",
+        "TestModelProjectPreparedAuthorizationAndReferenceMapping",
+        "TestModelProjectReceiptReadGateAndLegacySystemPlan",
+        "TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion"
+      ],
+      "top_count": 8,
+      "selector": "^(TestModelB01CRUDCurrentAuthorityAndCanonicalReplay|TestModelB01PlatformSelectionAndAtomicReplacement|TestModelB01SecretReferencesAndAllEffectsRollback|TestModelB01PreparedReferencesAndCurrentAdminAreRechecked|TestModelProjectSecretReferencesAndAtomicEffects|TestModelProjectPreparedAuthorizationAndReferenceMapping|TestModelProjectReceiptReadGateAndLegacySystemPlan|TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion)$",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelB01CRUDCurrentAuthorityAndCanonicalReplay|TestModelB01PlatformSelectionAndAtomicReplacement|TestModelB01SecretReferencesAndAllEffectsRollback|TestModelB01PreparedReferencesAndCurrentAdminAreRechecked|TestModelProjectSecretReferencesAndAtomicEffects|TestModelProjectPreparedAuthorizationAndReferenceMapping|TestModelProjectReceiptReadGateAndLegacySystemPlan|TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion)$"
+      ],
+      "expected_containers": 4,
+      "expected_networks": 3
+    },
+    {
+      "name": "secret",
+      "expected_top": [
+        "TestSecretModelUsagePlannedReadAndAudit",
+        "TestSecretModelUsageRequestAndPlanIsolation",
+        "TestSecretModelUsageLockMappingAndRevocation",
+        "TestSecretModelUsageLegacyWrappersStayClosed",
+        "TestSecretModelUsageAuditWitnessAndNoMaterial",
+        "TestSecretModelUsageOutcomeAndCurrentValue",
+        "TestSecretBindingsAuthorizationAndReadAuditBoundary"
+      ],
+      "top_count": 7,
+      "selector": "^(TestSecretModelUsagePlannedReadAndAudit|TestSecretModelUsageRequestAndPlanIsolation|TestSecretModelUsageLockMappingAndRevocation|TestSecretModelUsageLegacyWrappersStayClosed|TestSecretModelUsageAuditWitnessAndNoMaterial|TestSecretModelUsageOutcomeAndCurrentValue|TestSecretBindingsAuthorizationAndReadAuditBoundary)$",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestSecretModelUsagePlannedReadAndAudit|TestSecretModelUsageRequestAndPlanIsolation|TestSecretModelUsageLockMappingAndRevocation|TestSecretModelUsageLegacyWrappersStayClosed|TestSecretModelUsageAuditWitnessAndNoMaterial|TestSecretModelUsageOutcomeAndCurrentValue|TestSecretBindingsAuthorizationAndReadAuditBoundary)$"
+      ],
+      "expected_containers": 4,
+      "expected_networks": 3
+    },
+    {
+      "name": "account",
+      "expected_top": [
+        "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed",
+        "TestAccountReadWaitsExactCurrentUserGateAndRejectsRevocation",
+        "TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead",
+        "TestAccountExpiredLinkInvalidWhileActualMaterialUserKeepsLease"
+      ],
+      "top_count": 4,
+      "selector": "^(TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed|TestAccountReadWaitsExactCurrentUserGateAndRejectsRevocation|TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead|TestAccountExpiredLinkInvalidWhileActualMaterialUserKeepsLease)$",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed|TestAccountReadWaitsExactCurrentUserGateAndRejectsRevocation|TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead|TestAccountExpiredLinkInvalidWhileActualMaterialUserKeepsLease)$"
+      ],
+      "expected_containers": 4,
+      "expected_networks": 3
+    }
+  ],
+  "GOFLAGS": "-mod=readonly -buildvcs=false -p=2 -v",
+  "driver_budget": "unchanged -race -count=1 -timeout=6m",
+  "protocol": "stop on first nonzero group; preserve input/log/argv/exit; exact 4 containers+3 networks all nonce labels collected live and twice absent; existing 2 containers+4 networks unchanged; owned processes/gotmp/runtime empty before next group",
+  "P1": "TestModelCurrentResolutionUnknown/old-writer-completed-before-preflight-replans: normal Store candidate read barrier, real original final commit, formal Model/Provider delete, same writer preflight Busy then immutable replay",
+  "P2": "TestModelCurrentResolutionSchema/empty-actor-matching-digest and /wrong-canonical-unit: real bad durable facts plus matching scalar digest, reject canonical reuse; not an exploit claim",
+  "Unknown": "formal CommitResult decoration after actual real commit/rollback; record original returned attempt/cause and actual DB outcome; no network ACK or rollback-holding claim",
+  "static_findings": "review01 P1/P2 were static; do not describe them as dynamic original reds",
+  "test_corrections": [
+    "authorization: same PG timestamp bound to archived_at/updated_at, active cleanup clears archived_at, exact PROJECT_NOT_ACTIVE and zero effects",
+    "authorization: fresh bounded root ctx starts new Tx; separately bounded preserved-value context only enters Apply after actual full locks; exact expired witness FORBIDDEN and original facts unchanged",
+    "schema: exact old constraint catalog after failed and successful17, excluding only the3new tables",
+    "schema: exact missing-fixture-function SQLSTATE42883; pending1/applied0/goose0/source checksum; test-only dependency repair; SAME runner/source/checksum retries; all old rows+constraints preserved after failure and success; three new tables present"
+  ],
+  "reuse": "new-01 six unchanged tops passed; rerun complete Schema only, then original old-model8/secret7/account4 only after root explicit fixture handoff"
+}

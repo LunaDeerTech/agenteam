@@ -1,0 +1,870 @@
+{
+  "checks": [
+    {
+      "round": 1,
+      "resources": [
+        {
+          "kind": "network",
+          "id": "ba6d00154425bb79d7cacd35d0e15a4fc208eef984d62a3715076476bff55f4b",
+          "name": "agenteam-d05-object-a684baae308749e2e5cc1db9100e7e21",
+          "labels": {
+            "agenteam.d05.objectfixture": "a684baae308749e2e5cc1db9100e7e21"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: network ba6d00154425bb79d7cacd35d0e15a4fc208eef984d62a3715076476bff55f4b not found"
+        },
+        {
+          "kind": "container",
+          "id": "26ae984d8428a3eebae978885dc54e97647c69802750beab93aff591fdfa0e6f",
+          "name": "agenteam-d05-object-a684baae308749e2e5cc1db9100e7e21",
+          "labels": {
+            "agenteam.d05.objectfixture": "a684baae308749e2e5cc1db9100e7e21"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: 26ae984d8428a3eebae978885dc54e97647c69802750beab93aff591fdfa0e6f"
+        },
+        {
+          "kind": "network",
+          "id": "0cc40aa812d7c8bf274d5f9163b4a4fa55febd08ecc5ce2bb82569a2edb0b796",
+          "name": "agenteam-d04-net-8061f86466875fa6c8eeb24ca4018381",
+          "labels": {
+            "agenteam.d04.networkfixture": "8061f86466875fa6c8eeb24ca4018381"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: network 0cc40aa812d7c8bf274d5f9163b4a4fa55febd08ecc5ce2bb82569a2edb0b796 not found"
+        },
+        {
+          "kind": "container",
+          "id": "2d770dd5aeddb34815ff804f4c6a91c392e3932219a7629b11d7c326ef343292",
+          "name": "agenteam-d04-net-8061f86466875fa6c8eeb24ca4018381",
+          "labels": {
+            "agenteam.d04.networkfixture": "8061f86466875fa6c8eeb24ca4018381"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: 2d770dd5aeddb34815ff804f4c6a91c392e3932219a7629b11d7c326ef343292"
+        },
+        {
+          "kind": "network",
+          "id": "838cee6cebe3e307db385f2f0b69b3a6283ed02748859bf657d57552a46552e7",
+          "name": "agenteam-d03-77641814dd948c1acc3eaf9cdecadbb4",
+          "labels": {
+            "agenteam.d03.fixture": "77641814dd948c1acc3eaf9cdecadbb4"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: network 838cee6cebe3e307db385f2f0b69b3a6283ed02748859bf657d57552a46552e7 not found"
+        },
+        {
+          "kind": "container",
+          "id": "f079bd68d9bc9158af3cbedcd2bd5997e5c0a04c5174dfb67ac4c5339f89f194",
+          "name": "agenteam-d03-77641814dd948c1acc3eaf9cdecadbb4",
+          "labels": {
+            "agenteam.d03.fixture": "77641814dd948c1acc3eaf9cdecadbb4"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: f079bd68d9bc9158af3cbedcd2bd5997e5c0a04c5174dfb67ac4c5339f89f194"
+        },
+        {
+          "kind": "container",
+          "id": "10caefcf71dab5881b876729e7d57159e0235502d5856f5a11c35235433d9769",
+          "name": "agenteam-d03-77641814dd948c1acc3eaf9cdecadbb4-pg16",
+          "labels": {
+            "agenteam.d03.fixture": "77641814dd948c1acc3eaf9cdecadbb4"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: 10caefcf71dab5881b876729e7d57159e0235502d5856f5a11c35235433d9769"
+        }
+      ],
+      "current": {
+        "container": [
+          {
+            "ID": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+            "Name": "/agenteam-dev-infra-postgres-1",
+            "Labels": {
+              "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+              "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+              "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+              "com.docker.compose.service": "postgres",
+              "com.docker.compose.version": "2.40.3"
+            }
+          },
+          {
+            "ID": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+            "Name": "/agenteam-dev-infra-minio-1",
+            "Labels": {
+              "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+              "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+              "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+              "com.docker.compose.service": "minio",
+              "com.docker.compose.version": "2.40.3"
+            }
+          }
+        ],
+        "network": [
+          {
+            "ID": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+            "Name": "agenteam-dev-infra_default",
+            "Labels": {
+              "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+              "com.docker.compose.network": "default",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.version": "2.40.3"
+            }
+          },
+          {
+            "ID": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+            "Name": "none",
+            "Labels": {}
+          },
+          {
+            "ID": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+            "Name": "host",
+            "Labels": {}
+          },
+          {
+            "ID": "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5",
+            "Name": "bridge",
+            "Labels": {}
+          }
+        ]
+      },
+      "baseline_unchanged": true,
+      "tracked_live": [],
+      "owned_group_live": [],
+      "runtime": [],
+      "gotmp": []
+    },
+    {
+      "round": 2,
+      "resources": [
+        {
+          "kind": "network",
+          "id": "ba6d00154425bb79d7cacd35d0e15a4fc208eef984d62a3715076476bff55f4b",
+          "name": "agenteam-d05-object-a684baae308749e2e5cc1db9100e7e21",
+          "labels": {
+            "agenteam.d05.objectfixture": "a684baae308749e2e5cc1db9100e7e21"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: network ba6d00154425bb79d7cacd35d0e15a4fc208eef984d62a3715076476bff55f4b not found"
+        },
+        {
+          "kind": "container",
+          "id": "26ae984d8428a3eebae978885dc54e97647c69802750beab93aff591fdfa0e6f",
+          "name": "agenteam-d05-object-a684baae308749e2e5cc1db9100e7e21",
+          "labels": {
+            "agenteam.d05.objectfixture": "a684baae308749e2e5cc1db9100e7e21"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: 26ae984d8428a3eebae978885dc54e97647c69802750beab93aff591fdfa0e6f"
+        },
+        {
+          "kind": "network",
+          "id": "0cc40aa812d7c8bf274d5f9163b4a4fa55febd08ecc5ce2bb82569a2edb0b796",
+          "name": "agenteam-d04-net-8061f86466875fa6c8eeb24ca4018381",
+          "labels": {
+            "agenteam.d04.networkfixture": "8061f86466875fa6c8eeb24ca4018381"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: network 0cc40aa812d7c8bf274d5f9163b4a4fa55febd08ecc5ce2bb82569a2edb0b796 not found"
+        },
+        {
+          "kind": "container",
+          "id": "2d770dd5aeddb34815ff804f4c6a91c392e3932219a7629b11d7c326ef343292",
+          "name": "agenteam-d04-net-8061f86466875fa6c8eeb24ca4018381",
+          "labels": {
+            "agenteam.d04.networkfixture": "8061f86466875fa6c8eeb24ca4018381"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: 2d770dd5aeddb34815ff804f4c6a91c392e3932219a7629b11d7c326ef343292"
+        },
+        {
+          "kind": "network",
+          "id": "838cee6cebe3e307db385f2f0b69b3a6283ed02748859bf657d57552a46552e7",
+          "name": "agenteam-d03-77641814dd948c1acc3eaf9cdecadbb4",
+          "labels": {
+            "agenteam.d03.fixture": "77641814dd948c1acc3eaf9cdecadbb4"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: network 838cee6cebe3e307db385f2f0b69b3a6283ed02748859bf657d57552a46552e7 not found"
+        },
+        {
+          "kind": "container",
+          "id": "f079bd68d9bc9158af3cbedcd2bd5997e5c0a04c5174dfb67ac4c5339f89f194",
+          "name": "agenteam-d03-77641814dd948c1acc3eaf9cdecadbb4",
+          "labels": {
+            "agenteam.d03.fixture": "77641814dd948c1acc3eaf9cdecadbb4"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: f079bd68d9bc9158af3cbedcd2bd5997e5c0a04c5174dfb67ac4c5339f89f194"
+        },
+        {
+          "kind": "container",
+          "id": "10caefcf71dab5881b876729e7d57159e0235502d5856f5a11c35235433d9769",
+          "name": "agenteam-d03-77641814dd948c1acc3eaf9cdecadbb4-pg16",
+          "labels": {
+            "agenteam.d03.fixture": "77641814dd948c1acc3eaf9cdecadbb4"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: 10caefcf71dab5881b876729e7d57159e0235502d5856f5a11c35235433d9769"
+        }
+      ],
+      "current": {
+        "container": [
+          {
+            "ID": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+            "Name": "/agenteam-dev-infra-postgres-1",
+            "Labels": {
+              "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+              "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+              "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+              "com.docker.compose.service": "postgres",
+              "com.docker.compose.version": "2.40.3"
+            }
+          },
+          {
+            "ID": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+            "Name": "/agenteam-dev-infra-minio-1",
+            "Labels": {
+              "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+              "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+              "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+              "com.docker.compose.service": "minio",
+              "com.docker.compose.version": "2.40.3"
+            }
+          }
+        ],
+        "network": [
+          {
+            "ID": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+            "Name": "agenteam-dev-infra_default",
+            "Labels": {
+              "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+              "com.docker.compose.network": "default",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.version": "2.40.3"
+            }
+          },
+          {
+            "ID": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+            "Name": "none",
+            "Labels": {}
+          },
+          {
+            "ID": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+            "Name": "host",
+            "Labels": {}
+          },
+          {
+            "ID": "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5",
+            "Name": "bridge",
+            "Labels": {}
+          }
+        ]
+      },
+      "baseline_unchanged": true,
+      "tracked_live": [],
+      "owned_group_live": [],
+      "runtime": [],
+      "gotmp": []
+    }
+  ],
+  "tracked": [
+    {
+      "pid": 1280893,
+      "state": "Z",
+      "ppid": 1280824,
+      "pgrp": 1280893,
+      "start_ticks": 3792143
+    },
+    {
+      "pid": 1280938,
+      "state": "S",
+      "ppid": 1280907,
+      "pgrp": 1280893,
+      "start_ticks": 3792152
+    },
+    {
+      "pid": 1280907,
+      "state": "S",
+      "ppid": 1280893,
+      "pgrp": 1280893,
+      "start_ticks": 3792144
+    },
+    {
+      "pid": 1280943,
+      "state": "S",
+      "ppid": 1280893,
+      "pgrp": 1280893,
+      "start_ticks": 3792199
+    },
+    {
+      "pid": 1280973,
+      "state": "R",
+      "ppid": 1280943,
+      "pgrp": 1280893,
+      "start_ticks": 3792217
+    },
+    {
+      "pid": 1280981,
+      "state": "S",
+      "ppid": 1280943,
+      "pgrp": 1280893,
+      "start_ticks": 3792238
+    },
+    {
+      "pid": 1281000,
+      "state": "S",
+      "ppid": 1280943,
+      "pgrp": 1280893,
+      "start_ticks": 3792241
+    },
+    {
+      "pid": 1281197,
+      "state": "S",
+      "ppid": 1281147,
+      "pgrp": 1281139,
+      "start_ticks": 3792638
+    },
+    {
+      "pid": 1281139,
+      "state": "S",
+      "ppid": 1280943,
+      "pgrp": 1281139,
+      "start_ticks": 3792627
+    },
+    {
+      "pid": 1281147,
+      "state": "S",
+      "ppid": 1281139,
+      "pgrp": 1281139,
+      "start_ticks": 3792627
+    },
+    {
+      "pid": 1281202,
+      "state": "S",
+      "ppid": 1281139,
+      "pgrp": 1281139,
+      "start_ticks": 3792679
+    },
+    {
+      "pid": 1281234,
+      "state": "S",
+      "ppid": 1281211,
+      "pgrp": 1281139,
+      "start_ticks": 3792684
+    },
+    {
+      "pid": 1281211,
+      "state": "S",
+      "ppid": 1281202,
+      "pgrp": 1281139,
+      "start_ticks": 3792679
+    },
+    {
+      "pid": 1281258,
+      "state": "S",
+      "ppid": 1281202,
+      "pgrp": 1281139,
+      "start_ticks": 3792714
+    },
+    {
+      "pid": 1281382,
+      "state": "S",
+      "ppid": 1281202,
+      "pgrp": 1281382,
+      "start_ticks": 3793033
+    },
+    {
+      "pid": 1281417,
+      "state": "R",
+      "ppid": 1281390,
+      "pgrp": 1281382,
+      "start_ticks": 3793041
+    },
+    {
+      "pid": 1281390,
+      "state": "S",
+      "ppid": 1281382,
+      "pgrp": 1281382,
+      "start_ticks": 3793033
+    },
+    {
+      "pid": 1281444,
+      "state": "S",
+      "ppid": 1281382,
+      "pgrp": 1281382,
+      "start_ticks": 3793084
+    },
+    {
+      "pid": 1281490,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3793120
+    },
+    {
+      "pid": 1281690,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3793479
+    },
+    {
+      "pid": 1281746,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3793499
+    },
+    {
+      "pid": 1281774,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3793509
+    },
+    {
+      "pid": 1281846,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3793529
+    },
+    {
+      "pid": 1281935,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3793553
+    },
+    {
+      "pid": 1282040,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3793866
+    },
+    {
+      "pid": 1282152,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3793883
+    },
+    {
+      "pid": 1282212,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3793900
+    },
+    {
+      "pid": 1282278,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3793919
+    },
+    {
+      "pid": 1282401,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1282401,
+      "start_ticks": 3793954
+    },
+    {
+      "pid": 1282435,
+      "state": "R",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3793981
+    },
+    {
+      "pid": 1282440,
+      "state": "R",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3793983
+    },
+    {
+      "pid": 1282452,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794035
+    },
+    {
+      "pid": 1282459,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794036
+    },
+    {
+      "pid": 1282488,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794140
+    },
+    {
+      "pid": 1282493,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794141
+    },
+    {
+      "pid": 1282502,
+      "state": "R",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794214
+    },
+    {
+      "pid": 1282508,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794235
+    },
+    {
+      "pid": 1282516,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794281
+    },
+    {
+      "pid": 1282529,
+      "state": "S",
+      "ppid": 1282516,
+      "pgrp": 1282401,
+      "start_ticks": 3794283
+    },
+    {
+      "pid": 1282559,
+      "state": "S",
+      "ppid": 1282529,
+      "pgrp": 1282401,
+      "start_ticks": 3794293
+    },
+    {
+      "pid": 1282583,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794338
+    },
+    {
+      "pid": 1282610,
+      "state": "S",
+      "ppid": 1282516,
+      "pgrp": 1282401,
+      "start_ticks": 3794374
+    },
+    {
+      "pid": 1282633,
+      "state": "Z",
+      "ppid": 1282610,
+      "pgrp": 1282401,
+      "start_ticks": 3794379
+    },
+    {
+      "pid": 1282676,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794495
+    },
+    {
+      "pid": 1282741,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794573
+    },
+    {
+      "pid": 1282783,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794676
+    },
+    {
+      "pid": 1282830,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794726
+    },
+    {
+      "pid": 1282892,
+      "state": "R",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794828
+    },
+    {
+      "pid": 1282900,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794853
+    },
+    {
+      "pid": 1282964,
+      "state": "R",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3794955
+    },
+    {
+      "pid": 1283011,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3795052
+    },
+    {
+      "pid": 1283096,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3795154
+    },
+    {
+      "pid": 1283142,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3795236
+    },
+    {
+      "pid": 1283205,
+      "state": "Z",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3795338
+    },
+    {
+      "pid": 1283233,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3795405
+    },
+    {
+      "pid": 1283297,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3795508
+    },
+    {
+      "pid": 1283329,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3795600
+    },
+    {
+      "pid": 1283391,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3795702
+    },
+    {
+      "pid": 1283441,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3795796
+    },
+    {
+      "pid": 1283510,
+      "state": "R",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3795898
+    },
+    {
+      "pid": 1283551,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3795984
+    },
+    {
+      "pid": 1283597,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3796086
+    },
+    {
+      "pid": 1283642,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3796148
+    },
+    {
+      "pid": 1283705,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3796249
+    },
+    {
+      "pid": 1283712,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3796283
+    },
+    {
+      "pid": 1283777,
+      "state": "R",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3796385
+    },
+    {
+      "pid": 1283826,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3796482
+    },
+    {
+      "pid": 1283834,
+      "state": "Z",
+      "ppid": 1282583,
+      "pgrp": 1282401,
+      "start_ticks": 3796517
+    },
+    {
+      "pid": 1283870,
+      "state": "R",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3796585
+    },
+    {
+      "pid": 1283936,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3796669
+    },
+    {
+      "pid": 1283979,
+      "state": "R",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3796771
+    },
+    {
+      "pid": 1284044,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3796838
+    },
+    {
+      "pid": 1284087,
+      "state": "R",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3796940
+    },
+    {
+      "pid": 1284095,
+      "state": "S",
+      "ppid": 1282401,
+      "pgrp": 1282401,
+      "start_ticks": 3796975
+    },
+    {
+      "pid": 1284767,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3798277
+    },
+    {
+      "pid": 1284836,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3798320
+    },
+    {
+      "pid": 1284904,
+      "state": "S",
+      "ppid": 1281444,
+      "pgrp": 1281382,
+      "start_ticks": 3798358
+    },
+    {
+      "pid": 1284950,
+      "state": "S",
+      "ppid": 1281202,
+      "pgrp": 1281139,
+      "start_ticks": 3798369
+    },
+    {
+      "pid": 1285042,
+      "state": "S",
+      "ppid": 1280943,
+      "pgrp": 1280893,
+      "start_ticks": 3798413
+    }
+  ],
+  "groups": [
+    1280893,
+    1281139,
+    1281382,
+    1282401
+  ],
+  "events_exit": 143
+}

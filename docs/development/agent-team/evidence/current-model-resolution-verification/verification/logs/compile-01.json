@@ -1,0 +1,40 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-c",
+    "-race",
+    "-tags=integration",
+    "-o",
+    "/workspace/agenteam-current-resolution-v-ap8fa1e2/model-independent.test",
+    "./tests/model"
+  ],
+  "cwd": "/workspace/agenteam-current-resolution-author-xtvs4_8b/snapshot",
+  "environment": {
+    "GOROOT": "/workspace/toolchains/go1.27.1",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GONOPROXY": "",
+    "GONOSUMDB": "",
+    "GOPRIVATE": "",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-secret-model-v-thmobool/gocache",
+    "GOTMPDIR": "/workspace/agenteam-current-resolution-v-ap8fa1e2/gotmp",
+    "TMPDIR": "/workspace/agenteam-current-resolution-v-ap8fa1e2/runtime",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2 -overlay=/workspace/agenteam-current-resolution-v-ap8fa1e2/overlay.json",
+    "GOMAXPROCS": "4",
+    "CGO_ENABLED": "1"
+  },
+  "kind": "compile only; no fixture or test binary execution",
+  "candidate_manifest_sha256": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d",
+  "probe_sha256": "393effa5c3c91c87dd030500971dc4f1a68e16edb8a086bb3a33f5858ea38b2b",
+  "overlay_sha256": "4e40d777f0071f5a1236d936cef5ac4af1193591fd0f0fe72cb4ceb7f0e62ff4",
+  "started_utc": "2026-10-05T21:17:04.210826+00:00",
+  "exit_code": 0,
+  "elapsed_seconds": 18.849,
+  "finished_utc": "2026-10-05T21:17:23.060789+00:00",
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

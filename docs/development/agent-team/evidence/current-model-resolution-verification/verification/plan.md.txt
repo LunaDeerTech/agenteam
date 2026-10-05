@@ -1,0 +1,19 @@
+# Resolver 独立最小探针计划
+
+固定输入：业务 be0bd07 + candidate04 20源（manifest 60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d，生产review02不变）。以作者固定 snapshot 为只读 Go 根，私有 Go overlay 指向20冻结原件及本探针，不复制全树。真实 schema 作者修后通过可复用；未知结果、P1/P2、canonical并发/原业务全套不重复。
+
+预计 2 top / 4 sub，selector：
+`^(TestModelCurrentResolutionIndependentAuthorityRecheck|TestModelCurrentResolutionIndependentLiveAcquireWitness)$`
+
+1. AuthorityRecheck/current-session-before-prepared-committed-and-missing：同合法 Human 已发行 Session 建 prepared/committed 请求，再按实际 Account schema 撤销；存在、历史、缺失 live Model 三支都必须当前身份精确拒绝，完整本域与 Secret 事实不变。使用真实 Account+Project，不以 strict consumer 的预设错误替代当前身份。
+2. AuthorityRecheck/consumer-changes-while-final-waits：普通第二 PG Tx 持本次 fixture consumer 真正的 record EX，并更新 enabled/version；确认最终 Resolve 正在该实际 advisory lock 等待后提交撤权，要求完整 union 仅一次、最终真实重读 Forbidden、未到 Secret Apply/input等全回滚。使用普通 PG 锁与只读活动/锁旁证，不添加网络故障。
+3. LiveAcquireWitness/live-exact-tx-and-cross-tx：严格 fixture 装配只包装真实 Secret UsageOperations 的 Apply。先执行真实 Secret Apply，在 wrapper 尚未返回（Model私有 witness 仍active/verified）时，核当前 exact Tx 正式 router Acquire 成功；同现场错 owner/action 与另一全新父context建立的真实 Tx 精确 Forbidden，记录内层与最终CommitResult。新Tx与原Tx均用同真实Store，不能以旧context导致Nested替代guard命中。此跨Txguard应在缺锁前拒绝，不声称新Tx持有被原Tx占用的同一EX锁。
+4. LiveAcquireWitness/after-real-lease-error-rolls-back：真实 Secret Apply 已建立同Tx lease/Model snapshot+binding后才返回明确测试错误；核 input/snapshot/binding/lease 全回滚、prepared保留，移除错误包装后同计划合法完成。没有材料读取、伪消费/通用allow或生产consumer绑定声明。
+
+依赖：已固定真实模型测试fixture、Account当前Session/ProjectOwner gate、实际D03 Store、正式Model Authority+SecretUsageRouter+SecretService和SQL17。strict consumer只用其真实测试域行/签名mapping和真实锁，不修改C0或公共源码。首项会复用已合法构造的Session事实；所有拒绝需精确内外码，不能任意error计PASS。
+
+执行：现在只私有probe源码、Go1.27.1离线readonly race compile/vet。现有私有GOCACHE与共享只读modcache，GOENV/GOWORK/GOPROXY/GOSUMDB=off；保留真实argv/env/exit/raw。root审后再定最终probe/overlay/输入manifest；动态窗口另授。
+
+未来动态仍用原 test-objects.sh、race/count1/6m，GOFLAGS含-v与私有overlay；内部等待使用既有testContext/waitSignal量级（5秒观察界限、20秒事务上限），不延长预算。预期1轮4容器3网络，原2容器4网络ID/name/labels基线不变；observer采用已审标准存活网络exactID/nonce标签、两遍实际absent、子进程/进程组/runtime/gotmp清空后交窗。首红即停，保原输入与raw，不引入未知结果代理或外网调用。
+
+本计划不要求生产Root/AgentRun/Memory consumer已装配；Summary、Invocation/Usage/材料、retire/cleanup及暂停Object任务均不触及。

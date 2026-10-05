@@ -1,0 +1,33 @@
+{
+  "20_inputs_match": true,
+  "gofmt_clean": true,
+  "git_diff_check": {
+    "exit": 0,
+    "output": ""
+  },
+  "runtime_empty": true,
+  "gotmp_empty": true,
+  "inputs": {
+    "go": {
+      "path": "/workspace/toolchains/go1.27.1/bin/go",
+      "sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+      "bytes": 17142188
+    },
+    "minio": {
+      "path": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+      "sha256": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+      "bytes": 109289632
+    },
+    "original_driver": {
+      "path": "/workspace/agenteam-current-resolution-author-xtvs4_8b/snapshot/scripts/test-objects.sh",
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+      "bytes": 1029
+    },
+    "pg_fixture": {
+      "path": "/workspace/agenteam-current-resolution-author-xtvs4_8b/snapshot/tests/testsupport/postgres/fixture.go",
+      "sha256": "448c63e2986b823ac15ccda25b75f4c8ebc28e461b3c6dbfcbb49ae24bd89437",
+      "bytes": 10585
+    }
+  },
+  "status": "no Docker or network command executed; fixture handoff pending"
+}

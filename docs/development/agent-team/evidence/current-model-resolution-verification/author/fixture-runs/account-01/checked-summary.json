@@ -1,0 +1,43 @@
+{
+  "label": "account-01",
+  "result": {
+    "driver_exit": 0,
+    "elapsed_seconds": 43.907,
+    "passed_top": [
+      "TestAccountExpiredLinkInvalidWhileActualMaterialUserKeepsLease",
+      "TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead",
+      "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed",
+      "TestAccountReadWaitsExactCurrentUserGateAndRejectsRevocation"
+    ],
+    "failed_top": [],
+    "skipped_top": [],
+    "missing_expected_top": [],
+    "resource_clean": true,
+    "owned_container_count": 4,
+    "owned_network_count": 3,
+    "expected_counts_match": true,
+    "tracked_process_count": 77,
+    "input_sha256": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d"
+  },
+  "passed_subtests": [
+    "TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead/account.login",
+    "TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead/secret.resolve",
+    "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed/provider_plan",
+    "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed/other_service",
+    "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed/missing_locks",
+    "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed/changed_id",
+    "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed/changed_action"
+  ],
+  "tested_packages": [
+    {
+      "package": "github.com/LunaDeerTech/agenteam/tests/account",
+      "seconds": "9.367s"
+    }
+  ],
+  "trusted_baseline_exact_both_rounds": true,
+  "source20_unchanged": true,
+  "network_live_label_count": 3,
+  "raw_log_sha256": "6ea71f8cdc483e957720ee3e170b561313d1c2bfee48b2c15a17cc75f84de6ce",
+  "resource_handoff_sha256": "d426ee50ee2c9c90232d4a9f9d2615f065da4a8e726affca87d1d029bafa7684",
+  "inputs_manifest_sha256": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d"
+}

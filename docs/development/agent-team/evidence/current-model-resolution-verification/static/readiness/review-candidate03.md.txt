@@ -1,0 +1,11 @@
+# Resolver candidate03 readiness 最后窄差量
+
+结论：**PASS，可由 root 按原 selector/预算交接真实运行。** 仅静态 readiness 通过，尚无动态验收结论。
+
+固定输入 candidate-freeze-03/manifest.json SHA256 `b2ed3ceede09b90480e5910904b909c1beaf86f25b8d3326f32cd4c3cc2e0a89`；delta `ef26521058117891636f7b5a33345d588f61a728a0c0c73a8a0c146d39c2facf`。目录 `/workspace/agenteam-current-resolution-author-xtvs4_8b`。20 原件逐项 SHA/长度核过，仅 authorization 新测试改变；其余19（含9生产+SQL）不变。
+
+T2 已闭合：新事务使用 `context.WithTimeout(context.Background(), time.Second)`，没有旧 txContextKey；`context.WithDeadline(context.WithoutCancel(savedCtx), deadline)` 仅保留用于反例的旧 witness 值且使用同一本次 deadline。在新 callback 真实 AcquireAll+RequireHeldLocks 全量 plan 锁后，才把保值 context 传 Secret.ApplyUsageInTx。新事务不再被 Nested 前置拒绝，旧取消也不会冒充 witness 检查；精确 inner/最终 Forbidden、NotCommitted、原 preparation/snapshot/binding/lease 完整事实相等仍保留。若实际锁或 deadline 失败，held/精确码断言会使该场景失败，不会计为 witness 通过。
+
+T1 合法时间/gate/恢复及 T3 完整旧约束 catalog 结论复用 candidate02，无需重审。P1/P2、strict consumer、Unknown 限定、原 driver/observer 其余结论复用 candidate01。ready-selectors-03 仅变输入及说明，7→8→7→4 与原 race/count1/6m 不变；run_fixture_03 仅变 selector 文件引用。输入指纹见 checks-candidate03.json。
+
+此轮仅只读冻结差量并写本私有报告/checks；未运行 Go、Docker、SQL、网络或 Git，未改仓库。保留 candidate01/02 和全部静态阻断记录，不补称动态原红；作者 compile/vet 结果不是我的独立运行。已停止写入，实际动态窗口另由 root 授权。

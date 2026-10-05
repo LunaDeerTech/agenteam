@@ -1,0 +1,30 @@
+{
+  "candidate_count": 20,
+  "immutable_baseline_count": 693,
+  "probe_sha256": "393effa5c3c91c87dd030500971dc4f1a68e16edb8a086bb3a33f5858ea38b2b",
+  "overlay_sha256": "4e40d777f0071f5a1236d936cef5ac4af1193591fd0f0fe72cb4ceb7f0e62ff4",
+  "runtime_empty": true,
+  "gotmp_empty": true,
+  "Docker_commands_executed": 0,
+  "probe_files_stopped": true,
+  "pure_exit_codes": {
+    "compile": 0,
+    "vet": 0
+  },
+  "symbols": {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "tool",
+      "nm",
+      "/workspace/agenteam-current-resolution-v-ap8fa1e2/model-independent.test"
+    ],
+    "cwd": "/workspace",
+    "shell_filter": "rg 'TestModelCurrentResolutionIndependent(AuthorityRecheck|LiveAcquireWitness)$'",
+    "exit_code": 0,
+    "environment": "inherited for symbol inspection only; exact controlled compile/vet environment is separately recorded",
+    "output": [
+      "11826c0 T github.com/LunaDeerTech/agenteam/tests/model_test.TestModelCurrentResolutionIndependentAuthorityRecheck",
+      "1183b40 T github.com/LunaDeerTech/agenteam/tests/model_test.TestModelCurrentResolutionIndependentLiveAcquireWitness"
+    ]
+  }
+}

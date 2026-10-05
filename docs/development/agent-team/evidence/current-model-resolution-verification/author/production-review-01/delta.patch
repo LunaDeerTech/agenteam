@@ -1,0 +1,1425 @@
+--- a/internal/central/model/authority.go
++++ b/internal/central/model/authority.go
+@@ -6,6 +6,7 @@
+ 
+ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+ 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+ 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+ )
+@@ -15,16 +16,25 @@
+ }
+ 
+ type Authorizations struct {
+-	Sessions id.SessionAuthority
+-	System   id.SystemAuthority
+-	Projects ProjectAuthority
++	Sessions   id.SessionAuthority
++	System     id.SystemAuthority
++	Projects   ProjectAuthority
++	Resolution *ResolutionAuthorizations
++}
++
++// ResolutionAuthorizations is optional. Its consumer port must validate the
++// owning business facts; Project membership alone never grants a resolution.
++type ResolutionAuthorizations struct {
++	Consumers     mc.ConsumerAuthority
++	SecretService id.ServiceRegistration
+ }
+ type Authority struct{ data func() *authorityState }
+ type authorityState struct {
+-	store       Store
+-	auth        Authorizations
+-	usageIssuer sc.PlanIssuer
+-	eventIssuer oc.PlanIssuer
++	store            Store
++	auth             Authorizations
++	usageIssuer      sc.PlanIssuer
++	eventIssuer      oc.PlanIssuer
++	resolutionIssuer mc.PlanIssuer
+ }
+ 
+ func NewAuthority(store Store, d Authorizations) (*Authority, error) {
+@@ -37,7 +47,19 @@
+ 			return nil, fault(f.DependencyUnbound)
+ 		}
+ 	}
+-	s := &authorityState{store: store, auth: d, usageIssuer: sc.NewPlanIssuer(), eventIssuer: oc.NewPlanIssuer()}
++	if d.Resolution != nil {
++		if nilPort(d.Resolution.Consumers) {
++			return nil, fault(f.DependencyUnbound)
++		}
++		// Only project the public registration, never inspect its closure state.
++		probe, err := d.Resolution.SecretService.Actor("018f0000-0000-7000-8000-000000000001", id.SystemScope())
++		if err != nil || probe.Details().ServiceName != id.SecretService {
++			return nil, fault(f.DependencyUnbound)
++		}
++		copy := *d.Resolution
++		d.Resolution = &copy
++	}
++	s := &authorityState{store: store, auth: d, usageIssuer: sc.NewPlanIssuer(), eventIssuer: oc.NewPlanIssuer(), resolutionIssuer: mc.NewPlanIssuer()}
+ 	return &Authority{data: func() *authorityState { return s }}, nil
+ }
+ 
+--- a/internal/central/model/service.go
++++ b/internal/central/model/service.go
+@@ -1,5 +1,5 @@
+-// Package model implements System model configuration. It does not invoke a
+-// provider, resolve consumer snapshots, or grant Project access.
++// Package model implements model configuration and optionally bound current
++// resolution. It does not invoke providers or supply consumer business authority.
+ package model
+ 
+ import (
+@@ -50,7 +50,7 @@
+ 	}
+ 	r := reflect.ValueOf(v)
+ 	switch r.Kind() {
+-	case reflect.Pointer, reflect.Interface, reflect.Func, reflect.Map, reflect.Slice:
++	case reflect.Pointer, reflect.Interface, reflect.Func, reflect.Map, reflect.Slice, reflect.Chan:
+ 		return r.IsNil()
+ 	}
+ 	return false
+@@ -89,6 +89,11 @@
+ 		if err != nil {
+ 			return unavailable(err)
+ 		}
++		if s.state().authority.state().auth.Resolution != nil {
++			if err = x.QueryRow(ctx, `SELECT (SELECT count(*) FROM agenteam_model.resolution_preparations WHERE false)+(SELECT count(*) FROM agenteam_model.snapshots WHERE false)+(SELECT count(*) FROM agenteam_model.snapshot_bindings WHERE false)`).Scan(&count); err != nil {
++				return unavailable(err)
++			}
++		}
+ 		_, err = loadSelection(ctx, x)
+ 		return err
+ 	})
+--- a/internal/central/model/secret_authority.go
++++ b/internal/central/model/secret_authority.go
+@@ -73,6 +73,9 @@
+ 	if r.Validate() != nil {
+ 		return sc.UsageDependencies{}, fault(f.InvalidArgument)
+ 	}
++	if r.Purpose == sc.Model && r.Action == sc.AcquireLeaseUsage {
++		return a.discoverResolutionUsage(ctx, r)
++	}
+ 	if r.Purpose != sc.Model || r.Action != sc.RetainReferenceUsage && r.Action != sc.ReleaseReferenceUsage {
+ 		return sc.UsageDependencies{}, fault(f.DependencyUnbound)
+ 	}
+@@ -94,6 +97,9 @@
+ 	return sc.NewUsageDependencies(a.state().usageIssuer, binding, hash(raw), p.locks)
+ }
+ func (a *Authority) ValidateUsageInTx(ctx context.Context, tx f.Tx, r sc.UsageRequest, d sc.UsageDependencies) error {
++	if r.Purpose == sc.Model && r.Action == sc.AcquireLeaseUsage {
++		return a.validateResolutionUsage(ctx, tx, r, d)
++	}
+ 	p, e := a.contextPlan(ctx, r.Actor)
+ 	if e != nil {
+ 		return e
+@@ -133,8 +139,8 @@
+ 	// SECRET_PREPARATION_REQUIRED. No legacy path may mutate Model references.
+ 	return fault(f.ResourceBusy)
+ }
+-func (a *Authority) AuthorizeLeaseInTx(context.Context, f.Tx, id.Actor, sc.CredentialRef, sc.CredentialLeaseOwner, sc.LeaseAction) (sc.UseGrant, error) {
+-	return sc.UseGrant{}, fault(f.DependencyUnbound)
++func (a *Authority) AuthorizeLeaseInTx(ctx context.Context, tx f.Tx, actor id.Actor, ref sc.CredentialRef, owner sc.CredentialLeaseOwner, action sc.LeaseAction) (sc.UseGrant, error) {
++	return a.authorizeResolutionLease(ctx, tx, actor, ref, owner, action)
+ }
+ 
+ var _ sc.UsageAuthority = (*Authority)(nil)
+--- a/internal/central/model/secret_router.go
++++ b/internal/central/model/secret_router.go
+@@ -32,6 +32,9 @@
+ 	if r == nil || nilPort(r.fallback) {
+ 		return sc.UseGrant{}, fault(f.DependencyUnbound)
+ 	}
++	if resolutionHasApply(ctx) {
++		return r.model.AuthorizeLeaseInTx(ctx, tx, actor, ref, owner, action)
++	}
+ 	// No Purpose is present. Preserve the existing authority's decision and
+ 	// never guess Model versus MCP from an execution owner.
+ 	return r.fallback.AuthorizeLeaseInTx(ctx, tx, actor, ref, owner, action)
+@@ -42,6 +45,9 @@
+ 	}
+ 	if request.Purpose == sc.Model {
+ 		if request.Action == sc.RetainReferenceUsage || request.Action == sc.ReleaseReferenceUsage {
++			return r.model, nil
++		}
++		if request.Action == sc.AcquireLeaseUsage && r.model.state().auth.Resolution != nil {
+ 			return r.model, nil
+ 		}
+ 		return nil, fault(f.DependencyUnbound)
+--- /dev/null
++++ b/internal/central/model/resolver.go
+@@ -0,0 +1,432 @@
++package model
++
++import (
++	"context"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++var _ mc.Resolver = (*Service)(nil)
++
++func (s *Service) resolutionState(ctx context.Context, r mc.ResolveRequest) error {
++	if e := resolutionContextError(ctx); e != nil {
++		return e
++	}
++	if r.Validate() != nil {
++		return fault(f.InvalidArgument)
++	}
++	if s.state() == nil || s.state().authority.state() == nil || s.state().authority.state().auth.Resolution == nil {
++		return fault(f.DependencyUnbound)
++	}
++	return resolutionVariant(r)
++}
++func (s *Service) SelectModel(ctx context.Context, actor id.Actor, r mc.SelectionRequest) (mc.SelectionResult, error) {
++	empty := mc.SelectionResult{}
++	if e := resolutionContextError(ctx); e != nil {
++		return empty, e
++	}
++	r = r.Clone()
++	if r.Validate() != nil || actor.Validate() != nil {
++		return empty, fault(f.InvalidArgument)
++	}
++	if actor.Details().Kind != id.Human {
++		return empty, fault(f.DependencyUnbound)
++	}
++	if s.state() == nil {
++		return empty, fault(f.DependencyUnbound)
++	}
++	request := mc.ResolveRequest{Actor: actor, Consumer: r.Consumer, Purpose: r.Consumer.Purpose, Source: mc.CurrentSelectionSource, ModelRef: r.ModelRef, Selection: &r.Selection}
++	if e := resolutionVariant(request); e != nil {
++		return empty, e
++	}
++	snapshot, e := f.NewID[mc.Snapshot]()
++	if e != nil {
++		return empty, unavailable(e)
++	}
++	candidate, candidateErr := currentResolutionDraft(ctx, s.state().store, request, snapshot)
++	locks := []f.LockRequest{}
++	if r.ModelRef != nil {
++		locks = append(locks, aggregateLock(f.ModelConfigAggregate, r.ModelRef.String(), f.Shared))
++	}
++	if r.Selection.Kind == "platform" {
++		locks = append(locks, systemLock("model-platform-selection", f.Shared))
++	}
++	if candidate.Snapshot.Identity.ProviderID.Validate() == nil {
++		locks = append(locks, aggregateLock(f.ProviderAggregate, candidate.Snapshot.Identity.ProviderID.String(), f.Shared))
++	}
++	if candidate.Snapshot.Identity.ModelID.Validate() == nil {
++		locks = append(locks, aggregateLock(f.ModelConfigAggregate, candidate.Snapshot.Identity.ModelID.String(), f.Shared))
++	}
++	scope, _ := id.InProject(r.Consumer.ProjectID)
++	var out mc.SelectionResult
++	e = s.readScope(ctx, actor, scope, locks, func(ctx context.Context, x postgres.SQLExecutor) error {
++		draft, err := currentResolutionDraft(ctx, x, request, snapshot)
++		if err != nil {
++			return err
++		}
++		if candidateErr != nil || !resolutionEqual(draft, candidate) {
++			return fault(f.ResourceBusy)
++		}
++		mid, version := draft.Snapshot.Identity.ModelID, draft.ModelVersion
++		out = mc.SelectionResult{Selected: &mid, ModelVersion: &version, SelectionVersion: draft.Snapshot.SelectionVersion}
++		return out.ValidateFor(r)
++	})
++	if e != nil {
++		return empty, e
++	}
++	if e = ctx.Err(); e != nil {
++		return empty, e
++	}
++	return out.Clone(), nil
++}
++
++func (s *Service) DiscoverResolve(ctx context.Context, request mc.ResolveRequest) (mc.ResolutionPlan, error) {
++	empty := mc.ResolutionPlan{}
++	r := request.Clone()
++	if e := s.resolutionState(ctx, r); e != nil {
++		return empty, e
++	}
++	identity, e := resolutionIdentity(r)
++	if e != nil {
++		return empty, e
++	}
++	row, readErr := loadResolutionPreparation(ctx, s.state().store, identity.Canonical())
++	snapshot, e := f.NewID[mc.Snapshot]()
++	if e != nil {
++		return empty, unavailable(e)
++	}
++	if row != nil {
++		snapshot = row.SnapshotID
++	}
++	c := &resolutionCandidate{authority: s.state().authority, request: r, identity: identity, row: row, version: 1}
++	if row != nil && row.Phase == "committed" {
++		c.draft = row.Draft
++		if e = loadCommittedResolution(ctx, s.state().store, row); e != nil && readErr == nil {
++			readErr = e
++		}
++	} else {
++		c.draft, e = currentResolutionDraft(ctx, s.state().store, r, snapshot)
++		if e != nil && readErr == nil {
++			readErr = e
++		}
++	}
++	if readErr == nil && c.draft.Snapshot.CredentialID != "" {
++		canonical, err := canonicalResolutionLease(ctx, s.state().store, r, c.draft)
++		if err != nil {
++			readErr = err
++		} else if canonical != "" {
++			c.draft.LeaseID = canonical
++		} else if row != nil && row.Draft.Snapshot.CredentialID == c.draft.Snapshot.CredentialID && row.Draft.Snapshot.CredentialProject == c.draft.Snapshot.CredentialProject {
++			c.draft.LeaseID = row.Draft.LeaseID
++		} else {
++			lease, err := f.NewID[sc.Lease]()
++			if err != nil {
++				return empty, unavailable(err)
++			}
++			c.draft.LeaseID = lease.String()
++		}
++	}
++	lease := ""
++	if readErr == nil {
++		lease = c.draft.LeaseID
++	}
++	c.consumerRequest, e = resolutionConsumerRequest(r, snapshot, lease)
++	if e != nil {
++		return empty, portError(e)
++	}
++	c.consumer, e = s.state().authority.state().auth.Resolution.Consumers.Discover(ctx, c.consumerRequest)
++	if e != nil {
++		return empty, portError(e)
++	}
++	cb, e := mc.ConsumerBinding(c.consumerRequest)
++	if e != nil || c.consumer.Validate() != nil || c.consumer.Details().Binding != cb {
++		return empty, fault(f.Forbidden)
++	}
++	c.locks, e = resolutionUnion(resolutionBaseLocks(r, identity, snapshot, c.draft), c.consumer.RequiredLocks())
++	if e != nil {
++		return empty, e
++	}
++	cause, e := f.NewCommandsCause(identity)
++	if e != nil {
++		return empty, e
++	}
++	// Candidate reads cannot reveal existence before current business authority.
++	preflight := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
++		if e := s.state().store.AcquireAll(ctx, tx, c.locks); e != nil {
++			return portError(e)
++		}
++		return c.authority.validateResolutionConsumer(ctx, tx, c)
++	})
++	if e = commitError(preflight); e != nil {
++		return empty, e
++	}
++	if e = ctx.Err(); e != nil {
++		return empty, e
++	}
++	if readErr != nil {
++		return empty, readErr
++	}
++	if row != nil && row.Semantic != resolutionSemantic(r) {
++		return empty, fault(f.IdempotencyKeyReused)
++	}
++	if row == nil {
++		key, err := newID()
++		if err != nil {
++			return empty, err
++		}
++		c.row = &resolutionPreparation{ID: key, SnapshotID: snapshot}
++	} else {
++		c.version = row.Version
++		if row.Phase == "prepared" && !resolutionEqual(row.Draft, c.draft) {
++			c.version++
++			if c.version.Validate() != nil {
++				return empty, fault(f.InvalidState)
++			}
++		}
++	}
++	if e = s.prepareResolutionSecret(ctx, c); e != nil {
++		return empty, e
++	}
++	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
++		if e := s.state().store.AcquireAll(ctx, tx, c.locks); e != nil {
++			return portError(e)
++		}
++		if e := c.authority.validateResolutionConsumer(ctx, tx, c); e != nil {
++			return e
++		}
++		x, e := s.state().store.InTx(tx)
++		if e != nil {
++			return portError(e)
++		}
++		old, e := loadResolutionPreparation(ctx, x, identity.Canonical())
++		if e != nil {
++			return e
++		}
++		if old != nil && old.Semantic != resolutionSemantic(r) {
++			return fault(f.IdempotencyKeyReused)
++		}
++		if (old == nil) != (c.row.Phase == "") || old != nil && (old.ID != c.row.ID || old.Version != c.row.Version || !resolutionEqual(old.Draft, c.row.Draft) || old.Phase != c.row.Phase) {
++			return fault(f.ResourceBusy)
++		}
++		if old != nil && old.Phase == "committed" {
++			if e = loadCommittedResolution(ctx, x, old); e != nil {
++				return e
++			}
++		} else if e = checkCurrentResolution(ctx, x, c); e != nil {
++			return e
++		}
++		if e = checkCanonicalResolution(ctx, x, c); e != nil {
++			return e
++		}
++		if e = saveResolutionPreparation(ctx, x, c, old); e != nil {
++			return e
++		}
++		return nil
++	})
++	if e = commitError(result); e != nil {
++		return empty, e
++	}
++	if e = ctx.Err(); e != nil {
++		return empty, e
++	}
++	d, e := resolutionDetails(c)
++	if e != nil {
++		return empty, e
++	}
++	return mc.NewResolutionPlan(c.authority.state().resolutionIssuer, d)
++}
++func resolutionDetails(c *resolutionCandidate) (mc.ResolutionPlanDetails, error) {
++	if e := c.draft.validate(); e != nil {
++		return mc.ResolutionPlanDetails{}, e
++	}
++	b, e := mc.ResolveBinding(c.request)
++	if e != nil {
++		return mc.ResolutionPlanDetails{}, e
++	}
++	s, e := c.draft.Snapshot.snapshot()
++	if e != nil {
++		return mc.ResolutionPlanDetails{}, e
++	}
++	pv, mv := c.draft.ProviderVersion, c.draft.ModelVersion
++	d := mc.ResolutionPlanDetails{Binding: b, Mapping: c.mapping(), Locks: c.locks, SnapshotID: s.ID, ProviderID: s.Identity.ProviderID, ModelID: s.Identity.ModelID, ProviderVersion: &pv, ModelVersion: &mv, SelectionVersion: s.SelectionVersion, CredentialRef: s.CredentialRef, Consumer: c.consumer, Secret: c.secret}
++	if c.draft.LeaseID != "" {
++		v, e := f.ParseID[sc.Lease](c.draft.LeaseID)
++		if e != nil {
++			return d, unavailable(e)
++		}
++		d.LeaseID = &v
++	}
++	return d, nil
++}
++func (a *Authority) validateResolutionConsumer(ctx context.Context, tx f.Tx, c *resolutionCandidate) error {
++	if e := resolutionContextError(ctx); e != nil {
++		return e
++	}
++	if a.state() == nil || a.state().auth.Resolution == nil || c == nil || c.authority != a {
++		return fault(f.DependencyUnbound)
++	}
++	if _, e := a.state().store.InTx(tx); e != nil {
++		return portError(e)
++	}
++	if e := a.state().store.RequireHeldLocks(ctx, tx, c.locks); e != nil {
++		return portError(e)
++	}
++	return portError(a.state().auth.Resolution.Consumers.ValidateInTx(ctx, tx, c.consumerRequest, c.consumer))
++}
++func checkCurrentResolution(ctx context.Context, x postgres.SQLExecutor, c *resolutionCandidate) error {
++	d, e := currentResolutionDraft(ctx, x, c.request, c.draft.Snapshot.ID)
++	if e != nil {
++		return e
++	}
++	d.LeaseID = c.draft.LeaseID
++	if !resolutionEqual(d, c.draft) {
++		return fault(f.ResourceBusy)
++	}
++	return nil
++}
++func checkCanonicalResolution(ctx context.Context, x postgres.SQLExecutor, c *resolutionCandidate) error {
++	canonical, e := canonicalResolutionLease(ctx, x, c.request, c.draft)
++	if e != nil {
++		return e
++	}
++	if canonical != "" && canonical != c.draft.LeaseID {
++		return fault(f.ResourceBusy)
++	}
++	return nil
++}
++
++// ResolveModelInTx returns a provisional value. The caller must propagate all
++// errors and wait for its outer commit before publishing or using the value.
++func (s *Service) ResolveModelInTx(ctx context.Context, tx f.Tx, request mc.ResolveRequest, plan mc.ResolutionPlan) (mc.ResolvedModel, error) {
++	empty := mc.ResolvedModel{}
++	r := request.Clone()
++	if e := s.resolutionState(ctx, r); e != nil {
++		return empty, e
++	}
++	b, e := mc.ResolveBinding(r)
++	if e != nil {
++		return empty, e
++	}
++	d := plan.Details()
++	a := s.state().authority
++	if plan.Validate() != nil || !plan.Matches(a.state().resolutionIssuer, b, d.Mapping) {
++		return empty, fault(f.Forbidden)
++	}
++	identity, e := resolutionIdentity(r)
++	if e != nil {
++		return empty, e
++	}
++	lease := ""
++	if d.LeaseID != nil {
++		lease = d.LeaseID.String()
++	}
++	q, e := resolutionConsumerRequest(r, d.SnapshotID, lease)
++	if e != nil {
++		return empty, e
++	}
++	c := &resolutionCandidate{authority: a, request: r, identity: identity, consumerRequest: q, consumer: d.Consumer, locks: plan.RequiredLocks(), secret: d.Secret}
++	if e = a.validateResolutionConsumer(ctx, tx, c); e != nil {
++		return empty, e
++	}
++	x, e := s.state().store.InTx(tx)
++	if e != nil {
++		return empty, portError(e)
++	}
++	row, e := loadResolutionPreparation(ctx, x, identity.Canonical())
++	if e != nil {
++		return empty, e
++	}
++	if row == nil {
++		return empty, fault(f.ResourceBusy)
++	}
++	if row.Semantic != resolutionSemantic(r) {
++		return empty, fault(f.IdempotencyKeyReused)
++	}
++	c.row = row
++	c.draft = row.Draft
++	c.version = row.Version
++	if c.mapping() != d.Mapping || c.draft.Snapshot.ID != d.SnapshotID || c.draft.Snapshot.Identity.ProviderID != d.ProviderID || c.draft.Snapshot.Identity.ModelID != d.ModelID || d.ProviderVersion == nil || *d.ProviderVersion != c.draft.ProviderVersion || d.ModelVersion == nil || *d.ModelVersion != c.draft.ModelVersion || !resolutionEqual(d.SelectionVersion, c.draft.Snapshot.SelectionVersion) || c.draft.LeaseID != lease {
++		return empty, fault(f.ResourceBusy)
++	}
++	expected, e := resolutionUnion(resolutionBaseLocks(r, identity, d.SnapshotID, c.draft), c.consumer.RequiredLocks())
++	if e != nil {
++		return empty, e
++	}
++	if c.secret != nil {
++		expected, e = resolutionUnion(expected, c.secret.RequiredLocks())
++		if e != nil {
++			return empty, e
++		}
++	}
++	if e = s.state().store.RequireHeldLocks(ctx, tx, expected); e != nil {
++		return empty, portError(e)
++	}
++	if row.Phase == "committed" {
++		e = loadCommittedResolution(ctx, x, row)
++	} else {
++		e = checkCurrentResolution(ctx, x, c)
++	}
++	if e != nil {
++		return empty, e
++	}
++	if e = checkCanonicalResolution(ctx, x, c); e != nil {
++		return empty, e
++	}
++	if e = completeResolution(ctx, x, c); e != nil {
++		return empty, e
++	}
++	if e = s.applyResolutionSecret(ctx, tx, c); e != nil {
++		return empty, e
++	}
++	snapshot, e := c.draft.Snapshot.snapshot()
++	if e != nil {
++		return empty, e
++	}
++	out := mc.ResolvedModel{Snapshot: snapshot, Consumer: r.Consumer.Clone(), LeaseOwner: r.LeaseOwner}
++	if d.LeaseID != nil {
++		out.CredentialLease = &sc.CredentialLease{LeaseID: *d.LeaseID, CredentialRef: *snapshot.CredentialRef}
++	}
++	if out.Validate() != nil {
++		return empty, unavailable(nil)
++	}
++	if e = ctx.Err(); e != nil {
++		return empty, e
++	}
++	return out.Clone(), nil
++}
++func (s *Service) ResolveModel(ctx context.Context, r mc.ResolveRequest) (mc.ResolvedModel, error) {
++	empty := mc.ResolvedModel{}
++	r = r.Clone()
++	p, e := s.DiscoverResolve(ctx, r)
++	if e != nil {
++		return empty, e
++	}
++	identity, e := resolutionIdentity(r)
++	if e != nil {
++		return empty, e
++	}
++	cause, e := f.NewCommandsCause(identity)
++	if e != nil {
++		return empty, e
++	}
++	var out mc.ResolvedModel
++	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
++		if e := s.state().store.AcquireAll(ctx, tx, p.RequiredLocks()); e != nil {
++			return portError(e)
++		}
++		var err error
++		out, err = s.ResolveModelInTx(ctx, tx, r, p)
++		return err
++	})
++	if e = commitError(result); e != nil {
++		return empty, e
++	}
++	if e = ctx.Err(); e != nil {
++		return empty, e
++	}
++	return out.Clone(), nil
++}
+--- /dev/null
++++ b/internal/central/model/resolution_plan.go
+@@ -0,0 +1,230 @@
++package model
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"io"
++	"sort"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++// Durable DTOs contain scalar facts, not an issuer, an Actor capability or a
++// serialized public plan. In-memory plans separately bind the entire Actor.
++type resolutionRequestDTO struct {
++	Format          int `json:"format_version"`
++	Actor           id.ActorDetails
++	Consumer        mc.Consumer
++	Purpose         mc.Purpose
++	Source          mc.ResolutionSource
++	ModelRef        *mc.ModelID
++	Selection       *mc.SelectionRef
++	ReasoningEffort string
++	Owner           sc.OwnerDetails
++}
++
++func resolutionRequest(r mc.ResolveRequest) resolutionRequestDTO {
++	a := r.Actor.Details()
++	if a.Kind == id.Human {
++		a.SessionID = ""
++	}
++	return resolutionRequestDTO{1, a, r.Consumer.Clone(), r.Purpose, r.Source, r.Clone().ModelRef, r.Clone().Selection, r.ReasoningEffort, r.LeaseOwner.Details()}
++}
++func resolutionSemantic(r mc.ResolveRequest) f.Digest {
++	raw, _ := encoded(resolutionRequest(r))
++	return hash(raw)
++}
++func resolutionIdentity(r mc.ResolveRequest) (f.CommandIdentity, error) {
++	o := r.LeaseOwner.Details()
++	key := "current-v1"
++	if o.Kind == sc.ExecutionOwner {
++		resource := r.Consumer.OperationID
++		if r.Consumer.ExecutionID != nil && resource == "" {
++			resource = r.Consumer.ExecutionID.String()
++		}
++		v, _ := encoded(struct {
++			Kind     mc.ConsumerKind
++			Purpose  mc.Purpose
++			Resource string
++		}{r.Consumer.Kind, r.Purpose, resource})
++		key = hash(v).String()
++	}
++	return f.NewCommandIdentity("model.resolve", []string{r.Consumer.ProjectID.String(), o.ID}, "current."+string(o.Kind), f.IdempotencyKey(key))
++}
++
++type resolutionSnapshotDTO struct {
++	Format                          int `json:"format_version"`
++	ID                              mc.SnapshotID
++	ProjectID                       id.ProjectID
++	Identity                        mc.ModelIdentity
++	Endpoint                        string
++	Parameters, RequestOverwrite    json.RawMessage
++	HeaderOverwrite                 map[string]string
++	Capabilities                    mc.Capabilities
++	CredentialID, CredentialProject string
++	SelectionVersion                *f.Version
++}
++
++func (d resolutionSnapshotDTO) snapshot() (mc.ConfigSnapshot, error) {
++	s := mc.ConfigSnapshot{ID: d.ID, Identity: d.Identity, Endpoint: d.Endpoint, Parameters: bytes.Clone(d.Parameters), RequestOverwrite: bytes.Clone(d.RequestOverwrite), HeaderOverwrite: d.HeaderOverwrite, Capabilities: d.Capabilities.Clone(), SelectionVersion: d.SelectionVersion}
++	if d.Format != 1 || d.ProjectID.Validate() != nil || d.CredentialID == "" && d.CredentialProject != "" {
++		return s, unavailable(nil)
++	}
++	if d.CredentialID != "" {
++		cid, e := f.ParseID[sc.Credential](d.CredentialID)
++		if e != nil {
++			return s, unavailable(e)
++		}
++		ref, e := sc.NewCredentialRef(cid, configurationScope(d.CredentialProject))
++		if e != nil {
++			return s, unavailable(e)
++		}
++		if d.CredentialProject != "" && d.CredentialProject != d.ProjectID.String() {
++			return s, unavailable(nil)
++		}
++		s.CredentialRef = &ref
++	}
++	if s.Validate() != nil {
++		return s, unavailable(nil)
++	}
++	return s.Clone(), nil
++}
++
++type resolutionDraft struct {
++	Format                        int `json:"format_version"`
++	Snapshot                      resolutionSnapshotDTO
++	ProviderVersion, ModelVersion f.Version
++	LeaseID                       string
++}
++
++func (d resolutionDraft) validate() error {
++	s, e := d.Snapshot.snapshot()
++	if e != nil {
++		return e
++	}
++	if d.Format != 1 || d.ProviderVersion.Validate() != nil || d.ModelVersion.Validate() != nil || (d.LeaseID == "") != (s.CredentialRef == nil) {
++		return unavailable(nil)
++	}
++	if d.LeaseID != "" {
++		if _, e = f.ParseID[sc.Lease](d.LeaseID); e != nil {
++			return unavailable(e)
++		}
++	}
++	return nil
++}
++func resolutionEqual(a, b any) bool { x, _ := encoded(a); y, _ := encoded(b); return bytes.Equal(x, y) }
++func resolutionDecode(raw []byte, max int, target any) error {
++	if len(raw) == 0 || len(raw) > max {
++		return unavailable(nil)
++	}
++	d := json.NewDecoder(bytes.NewReader(raw))
++	d.DisallowUnknownFields()
++	if e := d.Decode(target); e != nil {
++		return unavailable(e)
++	}
++	if e := d.Decode(new(any)); e != io.EOF {
++		return unavailable(e)
++	}
++	return nil
++}
++func resolutionUnion(groups ...[]f.LockRequest) ([]f.LockRequest, error) {
++	m := map[string]f.LockRequest{}
++	for _, g := range groups {
++		for _, r := range g {
++			if r.Key.Validate() != nil || r.Mode != f.Shared && r.Mode != f.Exclusive {
++				return nil, fault(f.InvalidArgument)
++			}
++			k := r.Key.Canonical()
++			if old, ok := m[k]; !ok || old.Mode == f.Shared {
++				m[k] = r
++			}
++		}
++	}
++	out := make([]f.LockRequest, 0, len(m))
++	for _, r := range m {
++		out = append(out, r)
++	}
++	sort.Slice(out, func(i, j int) bool { return f.CompareLockKeys(out[i].Key, out[j].Key) < 0 })
++	return out, nil
++}
++func resolutionBaseLocks(r mc.ResolveRequest, identity f.CommandIdentity, snapshot mc.SnapshotID, draft resolutionDraft) []f.LockRequest {
++	locks := []f.LockRequest{commandLock(identity), systemLock("model-references", f.Shared), projectLock(r.Consumer.ProjectID.String()), recordLock(f.ReferenceRecordLock, "model-resolution:"+hash([]byte(identity.Canonical())).String()), recordLock(f.ReferenceRecordLock, "model-snapshot:"+snapshot.String())}
++	if r.Actor.Details().Kind == id.Human {
++		locks = append(locks, userLock(r.Actor.Details().UserID))
++	}
++	if r.Selection != nil && r.Selection.Kind == "platform" {
++		locks = append(locks, systemLock("model-platform-selection", f.Shared))
++	}
++	if r.ModelRef != nil {
++		locks = append(locks, aggregateLock(f.ModelConfigAggregate, r.ModelRef.String(), f.Shared))
++	}
++	if draft.Snapshot.Identity.ProviderID.Validate() == nil {
++		locks = append(locks, aggregateLock(f.ProviderAggregate, draft.Snapshot.Identity.ProviderID.String(), f.Shared))
++	}
++	if draft.Snapshot.Identity.ModelID.Validate() == nil {
++		locks = append(locks, aggregateLock(f.ModelConfigAggregate, draft.Snapshot.Identity.ModelID.String(), f.Shared))
++	}
++	if draft.Snapshot.CredentialID != "" {
++		raw, _ := encoded(struct {
++			Ref, Project string
++			Owner        sc.OwnerDetails
++		}{draft.Snapshot.CredentialID, draft.Snapshot.CredentialProject, r.LeaseOwner.Details()})
++		locks = append(locks, recordLock(f.ReferenceRecordLock, "model-resolution-owner:"+hash(raw).String()))
++	}
++	return locks
++}
++func resolutionConsumerRequest(r mc.ResolveRequest, snapshot mc.SnapshotID, lease string) (mc.ConsumerRequest, error) {
++	copy := r.Clone()
++	q := mc.ConsumerRequest{Action: mc.ResolveConsumer, Actor: r.Actor, Consumer: r.Consumer.Clone(), Resolve: &copy, SnapshotID: snapshot, LeaseOwner: r.LeaseOwner}
++	if r.LeaseOwner.Details().Kind == sc.ModelCallOwner {
++		call, e := f.ParseID[mc.Call](r.LeaseOwner.Details().ID)
++		if e != nil {
++			return q, e
++		}
++		q.CallID = &call
++	}
++	if lease != "" {
++		value, e := f.ParseID[sc.Lease](lease)
++		if e != nil {
++			return q, e
++		}
++		q.LeaseID = &value
++	}
++	return q, q.Validate()
++}
++
++type resolutionCandidate struct {
++	authority       *Authority
++	request         mc.ResolveRequest
++	identity        f.CommandIdentity
++	row             *resolutionPreparation
++	draft           resolutionDraft
++	version         f.Version
++	consumerRequest mc.ConsumerRequest
++	consumer        mc.ConsumerDependencies
++	locks           []f.LockRequest
++	usage           sc.UsageRequest
++	secret          *sc.UsageDependencies
++}
++
++func (c *resolutionCandidate) mapping() f.Digest {
++	raw, _ := encoded(struct {
++		Format   int
++		Identity string
++		Semantic f.Digest
++		Version  f.Version
++		Draft    resolutionDraft
++		Consumer f.Digest
++	}{1, c.identity.Canonical(), resolutionSemantic(c.request), c.version, c.draft, c.consumer.Details().Mapping})
++	return hash(raw)
++}
++func resolutionContextError(ctx context.Context) error {
++	if ctx == nil {
++		return fault(f.InvalidArgument)
++	}
++	return ctx.Err()
++}
+--- /dev/null
++++ b/internal/central/model/resolution_store.go
+@@ -0,0 +1,214 @@
++package model
++
++import (
++	"context"
++	"errors"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++	"github.com/jackc/pgx/v5"
++)
++
++type resolutionPreparation struct {
++	ID, Identity, Project, OwnerKind, OwnerID string
++	Semantic                                  f.Digest
++	Request                                   resolutionRequestDTO
++	SnapshotID                                mc.SnapshotID
++	Phase                                     string
++	Version                                   f.Version
++	Draft                                     resolutionDraft
++}
++
++func loadResolutionPreparation(ctx context.Context, x postgres.SQLExecutor, identity string) (*resolutionPreparation, error) {
++	r := &resolutionPreparation{}
++	var request, draft []byte
++	var snapshot string
++	var created, updated time.Time
++	var committed *time.Time
++	err := x.QueryRow(ctx, `SELECT id::text,resolution_identity,project_id::text,owner_kind,owner_id::text,semantic_digest,request_data,snapshot_id::text,phase,plan_version,draft_plan,created_at,updated_at,committed_at FROM agenteam_model.resolution_preparations WHERE resolution_identity=$1`, identity).Scan(&r.ID, &r.Identity, &r.Project, &r.OwnerKind, &r.OwnerID, &r.Semantic, &request, &snapshot, &r.Phase, &r.Version, &draft, &created, &updated, &committed)
++	if errors.Is(err, pgx.ErrNoRows) {
++		return nil, nil
++	}
++	if err != nil {
++		return nil, unavailable(err)
++	}
++	r.SnapshotID, err = f.ParseID[mc.Snapshot](snapshot)
++	if err != nil {
++		return nil, unavailable(err)
++	}
++	if err = resolutionDecode(request, 16<<10, &r.Request); err != nil {
++		return nil, err
++	}
++	if err = resolutionDecode(draft, 256<<10, &r.Draft); err != nil {
++		return nil, err
++	}
++	_, idErr := f.ParseID[struct{}](r.ID)
++	raw, _ := encoded(r.Request)
++	if idErr != nil || r.Identity != identity || r.Version.Validate() != nil || r.Request.Format != 1 || r.Request.Consumer.Validate() != nil || r.Request.Purpose != r.Request.Consumer.Purpose || r.Request.Source != mc.CurrentSelectionSource || r.Request.Selection == nil || (mc.SelectionRequest{Consumer: r.Request.Consumer, ModelRef: r.Request.ModelRef, Selection: *r.Request.Selection}).Validate() != nil || r.Request.ReasoningEffort != "" || r.Request.Consumer.ProjectID.String() != r.Project || string(r.Request.Owner.Kind) != r.OwnerKind || r.Request.Owner.ID != r.OwnerID || hash(raw) != r.Semantic || r.Draft.validate() != nil || r.Draft.Snapshot.ID != r.SnapshotID || r.Draft.Snapshot.ProjectID.String() != r.Project || updated.Before(created) || r.Phase != "prepared" && r.Phase != "committed" || (r.Phase == "committed") != (committed != nil) || committed != nil && committed.Before(created) {
++		return nil, unavailable(nil)
++	}
++	owner, e := sc.NewCredentialLeaseOwner(r.Request.Owner.Kind, r.Request.Owner.ID)
++	if e != nil || owner.Details().Kind == sc.ExecutionOwner && (r.Request.Consumer.ExecutionID == nil || r.Request.Consumer.ExecutionID.String() != owner.Details().ID) {
++		return nil, unavailable(e)
++	}
++	return r, nil
++}
++func canonicalResolutionLease(ctx context.Context, x postgres.SQLExecutor, r mc.ResolveRequest, d resolutionDraft) (string, error) {
++	if d.Snapshot.CredentialID == "" {
++		return "", nil
++	}
++	scope := "system"
++	if d.Snapshot.CredentialProject != "" {
++		scope = "project"
++	}
++	o := r.LeaseOwner.Details()
++	rows, e := x.Query(ctx, `SELECT preparation_id::text,resolution_identity,snapshot_id::text,lease_id::text,project_id::text FROM agenteam_model.snapshot_bindings WHERE credential_id=$1 AND credential_scope=$2 AND credential_project_id IS NOT DISTINCT FROM $3::uuid AND owner_kind=$4 AND owner_id=$5`, d.Snapshot.CredentialID, scope, null(d.Snapshot.CredentialProject), string(o.Kind), o.ID)
++	if e != nil {
++		return "", unavailable(e)
++	}
++	type candidate struct{ preparation, identity, snapshot, lease, project string }
++	candidates := []candidate{}
++	for rows.Next() {
++		var c candidate
++		if e = rows.Scan(&c.preparation, &c.identity, &c.snapshot, &c.lease, &c.project); e != nil {
++			rows.Close()
++			return "", unavailable(e)
++		}
++		candidates = append(candidates, c)
++	}
++	e = rows.Err()
++	rows.Close()
++	if e != nil {
++		return "", unavailable(e)
++	}
++	canonical := ""
++	// Close the query before loading the complete canonical facts on the same Tx.
++	// A matching owner/ref index entry alone is never lease authority.
++	for _, c := range candidates {
++		p, err := loadResolutionPreparation(ctx, x, c.identity)
++		if err != nil {
++			return "", err
++		}
++		if p == nil || p.Phase != "committed" || p.ID != c.preparation || p.SnapshotID.String() != c.snapshot || p.Project != c.project || p.Request.Owner != o || p.Draft.LeaseID != c.lease || p.Draft.Snapshot.CredentialID != d.Snapshot.CredentialID || p.Draft.Snapshot.CredentialProject != d.Snapshot.CredentialProject {
++			return "", unavailable(nil)
++		}
++		if err = loadCommittedResolution(ctx, x, p); err != nil {
++			return "", err
++		}
++		if p.Project != r.Consumer.ProjectID.String() || !resolutionEqual(p.Request.Consumer.AgentID, r.Consumer.AgentID) || !resolutionEqual(p.Request.Consumer.ExecutionID, r.Consumer.ExecutionID) {
++			return "", fault(f.Forbidden)
++		}
++		if canonical != "" && canonical != c.lease {
++			return "", unavailable(nil)
++		}
++		canonical = c.lease
++	}
++	return canonical, nil
++}
++func loadCommittedResolution(ctx context.Context, x postgres.SQLExecutor, p *resolutionPreparation) error {
++	if p == nil || p.Phase != "committed" {
++		return unavailable(nil)
++	}
++	var snap, request []byte
++	var digest f.Digest
++	var pv, mv f.Version
++	var identity, project, kind, owner string
++	var liveProvider, liveModel, credential, scope, credentialProject, lease *string
++	err := x.QueryRow(ctx, `SELECT s.snapshot_data,s.snapshot_digest,s.provider_version,s.model_version,s.live_provider_id::text,s.live_model_id::text,b.resolution_identity,b.project_id::text,b.owner_kind,b.owner_id::text,b.request_data,b.credential_id::text,b.credential_scope,b.credential_project_id::text,b.lease_id::text FROM agenteam_model.snapshot_bindings b JOIN agenteam_model.snapshots s ON s.id=b.snapshot_id AND s.project_id=b.project_id WHERE b.preparation_id=$1 AND b.snapshot_id=$2`, p.ID, p.SnapshotID.String()).Scan(&snap, &digest, &pv, &mv, &liveProvider, &liveModel, &identity, &project, &kind, &owner, &request, &credential, &scope, &credentialProject, &lease)
++	if err != nil {
++		return unavailable(err)
++	}
++	var snapshot resolutionSnapshotDTO
++	var req resolutionRequestDTO
++	if resolutionDecode(snap, 128<<10, &snapshot) != nil || resolutionDecode(request, 16<<10, &req) != nil {
++		return unavailable(nil)
++	}
++	raw, _ := encoded(snapshot)
++	if hash(raw) != digest || !resolutionEqual(snapshot, p.Draft.Snapshot) || !resolutionEqual(req, p.Request) || pv != p.Draft.ProviderVersion || mv != p.Draft.ModelVersion || identity != p.Identity || project != p.Project || kind != p.OwnerKind || owner != p.OwnerID || liveProvider != nil && *liveProvider != snapshot.Identity.ProviderID.String() || liveModel != nil && *liveModel != snapshot.Identity.ModelID.String() {
++		return unavailable(nil)
++	}
++	value := func(v *string) string {
++		if v == nil {
++			return ""
++		}
++		return *v
++	}
++	wantScope := ""
++	if snapshot.CredentialID != "" {
++		wantScope = "system"
++		if snapshot.CredentialProject != "" {
++			wantScope = "project"
++		}
++	}
++	if value(credential) != snapshot.CredentialID || value(scope) != wantScope || value(credentialProject) != snapshot.CredentialProject || value(lease) != p.Draft.LeaseID {
++		return unavailable(nil)
++	}
++	return nil
++}
++func saveResolutionPreparation(ctx context.Context, x postgres.SQLExecutor, c *resolutionCandidate, old *resolutionPreparation) error {
++	if c.draft.validate() != nil {
++		return unavailable(nil)
++	}
++	request, _ := encoded(resolutionRequest(c.request))
++	draft, _ := encoded(c.draft)
++	if len(request) > 16<<10 || len(draft) > 256<<10 {
++		return fault(f.PayloadTooLarge)
++	}
++	at, e := dbNow(ctx, x)
++	if e != nil {
++		return e
++	}
++	if old == nil {
++		_, e = x.Exec(ctx, `INSERT INTO agenteam_model.resolution_preparations(id,resolution_identity,project_id,owner_kind,owner_id,semantic_digest,request_data,snapshot_id,phase,plan_version,draft_plan,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,'prepared',$9,$10,$11,$11)`, c.row.ID, c.identity.Canonical(), c.request.Consumer.ProjectID.String(), string(c.request.LeaseOwner.Details().Kind), c.request.LeaseOwner.Details().ID, resolutionSemantic(c.request), request, c.draft.Snapshot.ID.String(), c.version, draft, at.Time())
++	} else {
++		if old.Phase == "committed" {
++			return nil
++		}
++		tag, err := x.Exec(ctx, `UPDATE agenteam_model.resolution_preparations SET plan_version=$2,draft_plan=$3,updated_at=$4 WHERE id=$1 AND phase='prepared' AND plan_version=$5`, old.ID, c.version, draft, at.Time(), old.Version)
++		e = err
++		if e == nil && tag.RowsAffected() != 1 {
++			return fault(f.ResourceBusy)
++		}
++	}
++	return portError(e)
++}
++func completeResolution(ctx context.Context, x postgres.SQLExecutor, c *resolutionCandidate) error {
++	if c.row.Phase == "committed" {
++		return loadCommittedResolution(ctx, x, c.row)
++	}
++	at, e := dbNow(ctx, x)
++	if e != nil {
++		return e
++	}
++	snapshot, _ := encoded(c.draft.Snapshot)
++	request, _ := encoded(resolutionRequest(c.request))
++	if len(snapshot) > 128<<10 {
++		return fault(f.PayloadTooLarge)
++	}
++	_, e = x.Exec(ctx, `INSERT INTO agenteam_model.snapshots(id,project_id,live_provider_id,live_model_id,snapshot_data,snapshot_digest,provider_version,model_version,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`, c.draft.Snapshot.ID.String(), c.request.Consumer.ProjectID.String(), c.draft.Snapshot.Identity.ProviderID.String(), c.draft.Snapshot.Identity.ModelID.String(), snapshot, hash(snapshot), c.draft.ProviderVersion, c.draft.ModelVersion, at.Time())
++	if e != nil {
++		return unavailable(e)
++	}
++	scope := ""
++	if c.draft.Snapshot.CredentialID != "" {
++		scope = "system"
++		if c.draft.Snapshot.CredentialProject != "" {
++			scope = "project"
++		}
++	}
++	_, e = x.Exec(ctx, `INSERT INTO agenteam_model.snapshot_bindings(preparation_id,snapshot_id,resolution_identity,project_id,owner_kind,owner_id,request_data,credential_id,credential_scope,credential_project_id,lease_id,created_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)`, c.row.ID, c.draft.Snapshot.ID.String(), c.identity.Canonical(), c.request.Consumer.ProjectID.String(), string(c.request.LeaseOwner.Details().Kind), c.request.LeaseOwner.Details().ID, request, null(c.draft.Snapshot.CredentialID), null(scope), null(c.draft.Snapshot.CredentialProject), null(c.draft.LeaseID), at.Time())
++	if e != nil {
++		return unavailable(e)
++	}
++	tag, e := x.Exec(ctx, `UPDATE agenteam_model.resolution_preparations SET phase='committed',committed_at=$2,updated_at=$2 WHERE id=$1 AND phase='prepared' AND plan_version=$3`, c.row.ID, at.Time(), c.version)
++	if e != nil {
++		return unavailable(e)
++	}
++	if tag.RowsAffected() != 1 {
++		return fault(f.ResourceBusy)
++	}
++	return nil
++}
+--- /dev/null
++++ b/internal/central/model/resolution_secret.go
+@@ -0,0 +1,211 @@
++package model
++
++import (
++	"context"
++	"sync"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++type resolutionCandidateKey struct{}
++type resolutionApplyKey struct{}
++
++// A candidate only permits discovery. This separate single-Apply witness is
++// initially unverified and can only be validated by the actual Secret callback.
++type resolutionApply struct {
++	mu               sync.Mutex
++	candidate        *resolutionCandidate
++	tx               f.Tx
++	active, verified bool
++}
++
++func resolutionHasApply(ctx context.Context) bool {
++	return ctx != nil && ctx.Value(resolutionApplyKey{}) != nil
++}
++func (a *Authority) resolutionUsage(c *resolutionCandidate) (sc.UsageRequest, error) {
++	empty := sc.UsageRequest{}
++	if a.state() == nil || a.state().auth.Resolution == nil || c == nil || c.authority != a {
++		return empty, fault(f.DependencyUnbound)
++	}
++	snapshot, e := c.draft.Snapshot.snapshot()
++	if e != nil {
++		return empty, e
++	}
++	if snapshot.CredentialRef == nil {
++		return empty, fault(f.InvalidArgument)
++	}
++	lease, e := f.ParseID[sc.Lease](c.draft.LeaseID)
++	if e != nil {
++		return empty, unavailable(e)
++	}
++	actor, e := a.state().auth.Resolution.SecretService.Actor(c.request.LeaseOwner.Details().ID, snapshot.CredentialRef.Details().Scope)
++	if e != nil || actor.Details().ServiceName != id.SecretService {
++		return empty, fault(f.DependencyUnbound)
++	}
++	r := sc.UsageRequest{Actor: actor, Ref: *snapshot.CredentialRef, Purpose: sc.Model, LeaseOwner: c.request.LeaseOwner, LeaseID: lease, Action: sc.AcquireLeaseUsage}
++	if e = r.Validate(); e != nil {
++		return empty, portError(e)
++	}
++	return r, nil
++}
++func (s *Service) prepareResolutionSecret(ctx context.Context, c *resolutionCandidate) error {
++	if c.draft.Snapshot.CredentialID == "" {
++		return nil
++	}
++	r, e := c.authority.resolutionUsage(c)
++	if e != nil {
++		return e
++	}
++	c.usage = r
++	plan, e := s.state().deps.Secret.DiscoverUsage(context.WithValue(ctx, resolutionCandidateKey{}, c), r)
++	if e != nil {
++		return portError(e)
++	}
++	b, e := sc.UsageBinding(r)
++	if e != nil || plan.Validate() != nil || plan.Binding() != b {
++		return fault(f.Forbidden)
++	}
++	c.secret = &plan
++	c.locks, e = resolutionUnion(c.locks, plan.RequiredLocks())
++	return e
++}
++func (a *Authority) discoverResolutionUsage(ctx context.Context, r sc.UsageRequest) (sc.UsageDependencies, error) {
++	empty := sc.UsageDependencies{}
++	if e := resolutionContextError(ctx); e != nil {
++		return empty, e
++	}
++	c, ok := ctx.Value(resolutionCandidateKey{}).(*resolutionCandidate)
++	if !ok || c == nil {
++		return empty, fault(f.DependencyUnbound)
++	}
++	expected, e := a.resolutionUsage(c)
++	if e != nil {
++		return empty, e
++	}
++	b, e := sc.UsageBinding(r)
++	want, err := sc.UsageBinding(expected)
++	if e != nil || err != nil || b != want {
++		return empty, fault(f.Forbidden)
++	}
++	return sc.NewUsageDependencies(a.state().usageIssuer, b, c.mapping(), c.locks)
++}
++func (a *Authority) resolutionApplyWitness(ctx context.Context, tx f.Tx, verified bool) (*resolutionApply, error) {
++	if e := resolutionContextError(ctx); e != nil {
++		return nil, e
++	}
++	w, ok := ctx.Value(resolutionApplyKey{}).(*resolutionApply)
++	if !ok || w == nil {
++		return nil, fault(f.DependencyUnbound)
++	}
++	w.mu.Lock()
++	valid := w.active && (!verified || w.verified) && w.tx == tx && w.candidate != nil && w.candidate.authority == a
++	w.mu.Unlock()
++	if !valid {
++		return nil, fault(f.Forbidden)
++	}
++	if a.state() == nil || a.state().auth.Resolution == nil {
++		return nil, fault(f.DependencyUnbound)
++	}
++	if _, e := a.state().store.InTx(tx); e != nil {
++		return nil, portError(e)
++	}
++	return w, nil
++}
++func (a *Authority) validateResolutionAcquireFact(ctx context.Context, tx f.Tx, c *resolutionCandidate) error {
++	if e := a.validateResolutionConsumer(ctx, tx, c); e != nil {
++		return e
++	}
++	x, e := a.state().store.InTx(tx)
++	if e != nil {
++		return portError(e)
++	}
++	p, e := loadResolutionPreparation(ctx, x, c.identity.Canonical())
++	if e != nil {
++		return e
++	}
++	if p == nil || p.Phase != "committed" || p.ID != c.row.ID || p.Semantic != resolutionSemantic(c.request) || p.Version != c.version || !resolutionEqual(p.Draft, c.draft) {
++		return fault(f.Forbidden)
++	}
++	if e = loadCommittedResolution(ctx, x, p); e != nil {
++		return e
++	}
++	return checkCanonicalResolution(ctx, x, c)
++}
++func (a *Authority) validateResolutionUsage(ctx context.Context, tx f.Tx, r sc.UsageRequest, d sc.UsageDependencies) error {
++	w, e := a.resolutionApplyWitness(ctx, tx, false)
++	if e != nil {
++		return e
++	}
++	c := w.candidate
++	expected, e := a.resolutionUsage(c)
++	if e != nil {
++		return e
++	}
++	binding, e := sc.UsageBinding(r)
++	want, err := sc.UsageBinding(expected)
++	if e != nil || err != nil || binding != want || !d.Matches(a.state().usageIssuer, binding, c.mapping()) {
++		return fault(f.Forbidden)
++	}
++	if e = a.state().store.RequireHeldLocks(ctx, tx, d.RequiredLocks()); e != nil {
++		return portError(e)
++	}
++	if e = a.validateResolutionAcquireFact(ctx, tx, c); e != nil {
++		return e
++	}
++	w.mu.Lock()
++	defer w.mu.Unlock()
++	if !w.active || w.tx != tx {
++		return fault(f.Forbidden)
++	}
++	w.verified = true
++	return nil
++}
++func (a *Authority) authorizeResolutionLease(ctx context.Context, tx f.Tx, actor id.Actor, ref sc.CredentialRef, owner sc.CredentialLeaseOwner, action sc.LeaseAction) (sc.UseGrant, error) {
++	empty := sc.UseGrant{}
++	w, e := a.resolutionApplyWitness(ctx, tx, true)
++	if e != nil {
++		return empty, e
++	}
++	r, e := a.resolutionUsage(w.candidate)
++	if e != nil {
++		return empty, e
++	}
++	if action != sc.AcquireLease || !actor.Equal(r.Actor) || !ref.Equal(r.Ref) || !owner.Equal(r.LeaseOwner) {
++		return empty, fault(f.Forbidden)
++	}
++	if e = a.validateResolutionAcquireFact(ctx, tx, w.candidate); e != nil {
++		return empty, e
++	}
++	return sc.UseGrant{Subject: actor, Consumer: sc.Model}, nil
++}
++func (s *Service) applyResolutionSecret(ctx context.Context, tx f.Tx, c *resolutionCandidate) error {
++	if c.draft.Snapshot.CredentialID == "" {
++		if c.secret != nil {
++			return fault(f.Forbidden)
++		}
++		return nil
++	}
++	if c.secret == nil {
++		return fault(f.Forbidden)
++	}
++	r, e := c.authority.resolutionUsage(c)
++	if e != nil {
++		return e
++	}
++	w := &resolutionApply{candidate: c, tx: tx, active: true}
++	defer func() { w.mu.Lock(); w.active = false; w.verified = false; w.mu.Unlock() }()
++	result, e := s.state().deps.Secret.ApplyUsageInTx(context.WithValue(ctx, resolutionApplyKey{}, w), tx, r, *c.secret)
++	if e != nil {
++		return portError(e)
++	}
++	if result.Action() != sc.AcquireLeaseUsage {
++		return unavailable(nil)
++	}
++	lease, ok := result.Lease()
++	if !ok || lease.LeaseID != r.LeaseID || !lease.CredentialRef.Equal(r.Ref) {
++		return unavailable(nil)
++	}
++	return nil
++}
+--- /dev/null
++++ b/internal/central/model/resolution_policy.go
+@@ -0,0 +1,112 @@
++package model
++
++import (
++	"context"
++	"slices"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++)
++
++func resolutionVariant(r mc.ResolveRequest) error {
++	if r.Source != mc.CurrentSelectionSource || r.Selection == nil || r.Selection.Kind == "project_summary" {
++		return fault(f.DependencyUnbound)
++	}
++	if r.Selection.Kind != "direct" && (r.Selection.Kind != "platform" || r.Selection.Selector != mc.MemorySelector) {
++		return fault(f.CapabilityUnsupported)
++	}
++	if r.ReasoningEffort != "" {
++		return fault(f.CapabilityUnsupported)
++	}
++	return nil
++}
++func resolutionProfile(p *providerRecord, m *modelRecord, selection mc.SelectionRef) (string, error) {
++	if !p.Input.Enabled || !m.Input.Enabled {
++		return "", fault(f.InvalidState)
++	}
++	c := m.Input.Capabilities
++	if p.Input.Protocol != mc.OpenAIChat || m.Input.Type != mc.ChatModel || !emptyObject(p.Input.Options) || !emptyObject(m.Input.Parameters) || !emptyObject(m.Input.RequestOverwrite) || len(m.Input.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !slices.Equal(c.InputModalities, []string{"text"}) || !slices.Equal(c.OutputModalities, []string{"text"}) {
++		return "", fault(f.CapabilityUnsupported)
++	}
++	if slices.Contains(c.StructuredOutputModes, "json_schema") {
++		return adapter.OpenAIChatStructuredRevision, nil
++	}
++	if selection.Kind == "platform" {
++		return "", fault(f.CapabilityUnsupported)
++	}
++	if len(c.StructuredOutputModes) != 0 && !slices.Equal(c.StructuredOutputModes, []string{"text"}) {
++		return "", fault(f.CapabilityUnsupported)
++	}
++	return adapter.OpenAIChatTextRevision, nil
++}
++
++// These reads collect candidates only. Callers authorize before exposing any
++// failure and re-read under the complete returned writer/reader union.
++func currentResolutionDraft(ctx context.Context, x postgres.SQLExecutor, r mc.ResolveRequest, snapshot mc.SnapshotID) (resolutionDraft, error) {
++	d := resolutionDraft{Format: 1, Snapshot: resolutionSnapshotDTO{Format: 1, ID: snapshot, ProjectID: r.Consumer.ProjectID}}
++	if e := resolutionVariant(r); e != nil {
++		return d, e
++	}
++	key := ""
++	if r.Selection.Kind == "direct" {
++		key = r.ModelRef.String()
++	} else {
++		selection, e := loadSelection(ctx, x)
++		if e != nil {
++			return d, e
++		}
++		v := selection.Version
++		d.Snapshot.SelectionVersion = &v
++		if !selection.Configured || selection.Memory == "" {
++			return d, fault(f.InvalidState)
++		}
++		if r.Selection.Version != nil && *r.Selection.Version != v {
++			return d, fault(f.ResourceBusy)
++		}
++		key = selection.Memory
++	}
++	m, e := loadModel(ctx, x, key)
++	if e != nil {
++		return d, e
++	}
++	if m == nil && r.Selection.Kind == "direct" {
++		scope, _ := id.InProject(r.Consumer.ProjectID)
++		m, e = loadModelScope(ctx, x, key, scope)
++		if e != nil {
++			return d, e
++		}
++	}
++	if m == nil {
++		return d, fault(f.NotFound)
++	}
++	p, e := loadProviderScope(ctx, x, m.ProviderID, configurationScope(m.Project))
++	if e != nil {
++		return d, e
++	}
++	if p == nil {
++		return d, unavailable(nil)
++	}
++	mid, _ := f.ParseID[mc.Model](m.ID)
++	pid, _ := f.ParseID[mc.Provider](p.ID)
++	d.ProviderVersion = p.Version
++	d.ModelVersion = m.Version
++	d.Snapshot.Identity = mc.ModelIdentity{ProviderID: pid, ModelID: mid, ProviderName: p.Input.Name, ModelName: m.Input.Name, ProviderModelID: m.Input.ProviderModelID, Protocol: p.Input.Protocol, Profile: p.Input.Protocol.Profile(), ModelType: m.Input.Type}
++	d.Snapshot.Endpoint = p.Input.BaseURL
++	d.Snapshot.Parameters = normalizedObject(m.Input.Parameters)
++	d.Snapshot.RequestOverwrite = normalizedObject(m.Input.RequestOverwrite)
++	d.Snapshot.HeaderOverwrite = m.Input.Clone().HeaderOverwrite
++	d.Snapshot.Capabilities = m.Input.Capabilities.Clone()
++	d.Snapshot.CredentialID = p.Input.CredentialID
++	if p.Input.CredentialID != "" {
++		d.Snapshot.CredentialProject = p.Project
++	}
++	revision, e := resolutionProfile(p, m, *r.Selection)
++	if e != nil {
++		return d, e
++	}
++	d.Snapshot.Identity.AdapterRevision = revision
++	return d, nil
++}
+--- /dev/null
++++ b/db/migrations/00017_model_current_resolution.sql
+@@ -0,0 +1,58 @@
++-- agenteam:transaction tx
++-- +goose Up
++-- Resolution identities are local Model facts. No Secret or consumer FK grants access.
++CREATE TABLE agenteam_model.resolution_preparations (
++ id agenteam_model.safe_id PRIMARY KEY,
++ resolution_identity text NOT NULL UNIQUE CHECK(octet_length(resolution_identity) BETWEEN 1 AND 4096),
++ project_id agenteam_model.safe_id NOT NULL,
++ owner_kind text NOT NULL CHECK(owner_kind IN ('execution','model_call')),
++ owner_id agenteam_model.safe_id NOT NULL,
++ semantic_digest text NOT NULL CHECK(semantic_digest ~ '^sha256:[0-9a-f]{64}$'),
++ request_data jsonb NOT NULL CHECK((jsonb_typeof(request_data)='object' AND request_data->'format_version'='1'::jsonb AND octet_length(request_data::text)<=16384) IS TRUE),
++ snapshot_id agenteam_model.safe_id NOT NULL UNIQUE,
++ phase text NOT NULL CHECK(phase IN ('prepared','committed')),
++ plan_version bigint NOT NULL CHECK(plan_version>0),
++ draft_plan jsonb NOT NULL CHECK((jsonb_typeof(draft_plan)='object' AND draft_plan->'format_version'='1'::jsonb AND octet_length(draft_plan::text)<=262144) IS TRUE),
++ created_at timestamptz(6) NOT NULL,
++ updated_at timestamptz(6) NOT NULL CHECK(updated_at>=created_at),
++ committed_at timestamptz(6),
++ CHECK((phase='prepared' AND committed_at IS NULL) OR (phase='committed' AND committed_at IS NOT NULL AND committed_at>=created_at)),
++ UNIQUE(id,snapshot_id,project_id,owner_kind,owner_id)
++);
++CREATE INDEX model_resolution_preparations_project ON agenteam_model.resolution_preparations(project_id,id);
++CREATE UNIQUE INDEX model_resolution_single_call ON agenteam_model.resolution_preparations(project_id,owner_id) WHERE owner_kind='model_call';
++
++CREATE TABLE agenteam_model.snapshots (
++ id agenteam_model.safe_id PRIMARY KEY,
++ project_id agenteam_model.safe_id NOT NULL,
++ live_provider_id agenteam_model.safe_id REFERENCES agenteam_model.providers(id) ON DELETE SET NULL,
++ live_model_id agenteam_model.safe_id REFERENCES agenteam_model.models(id) ON DELETE SET NULL,
++ snapshot_data jsonb NOT NULL CHECK((jsonb_typeof(snapshot_data)='object' AND snapshot_data->'format_version'='1'::jsonb AND octet_length(snapshot_data::text)<=131072) IS TRUE),
++ snapshot_digest text NOT NULL CHECK(snapshot_digest ~ '^sha256:[0-9a-f]{64}$'),
++ provider_version bigint NOT NULL CHECK(provider_version>0),
++ model_version bigint NOT NULL CHECK(model_version>0),
++ created_at timestamptz(6) NOT NULL,
++ UNIQUE(id,project_id)
++);
++CREATE INDEX model_snapshots_project ON agenteam_model.snapshots(project_id,id);
++
++CREATE TABLE agenteam_model.snapshot_bindings (
++ preparation_id agenteam_model.safe_id PRIMARY KEY,
++ snapshot_id agenteam_model.safe_id NOT NULL,
++ resolution_identity text NOT NULL UNIQUE,
++ project_id agenteam_model.safe_id NOT NULL,
++ owner_kind text NOT NULL CHECK(owner_kind IN ('execution','model_call')),
++ owner_id agenteam_model.safe_id NOT NULL,
++ request_data jsonb NOT NULL CHECK((jsonb_typeof(request_data)='object' AND request_data->'format_version'='1'::jsonb AND octet_length(request_data::text)<=16384) IS TRUE),
++ credential_id agenteam_model.safe_id,
++ credential_scope text CHECK(credential_scope IN ('system','project')),
++ credential_project_id agenteam_model.safe_id,
++ lease_id agenteam_model.safe_id,
++ created_at timestamptz(6) NOT NULL,
++ FOREIGN KEY(preparation_id,snapshot_id,project_id,owner_kind,owner_id) REFERENCES agenteam_model.resolution_preparations(id,snapshot_id,project_id,owner_kind,owner_id),
++ FOREIGN KEY(snapshot_id,project_id) REFERENCES agenteam_model.snapshots(id,project_id),
++ CHECK((credential_id IS NULL AND credential_scope IS NULL AND credential_project_id IS NULL AND lease_id IS NULL)
++ OR (credential_id IS NOT NULL AND lease_id IS NOT NULL AND ((credential_scope='system' AND credential_project_id IS NULL) OR (credential_scope='project' AND credential_project_id=project_id))) IS TRUE)
++);
++CREATE INDEX model_snapshot_bindings_owner ON agenteam_model.snapshot_bindings(credential_id,credential_scope,credential_project_id,owner_kind,owner_id);
++CREATE INDEX model_snapshot_bindings_project ON agenteam_model.snapshot_bindings(project_id,preparation_id);

@@ -1,0 +1,15 @@
+# github.com/LunaDeerTech/agenteam/tests/model_test [github.com/LunaDeerTech/agenteam/tests/model.test]
+tests/model/current_resolution_fixture_test.go:268:49: cannot use store (variable of type *currentResolutionStore) as model.Store value in struct literal: *currentResolutionStore does not implement model.Store (wrong type for method QueryRow)
+		have QueryRow(context.Context, string, ...any) pgx.Row
+		want QueryRow(context.Context, string, ...any) postgres.Row
+tests/model/current_resolution_fixture_test.go:270:37: cannot use store (variable of type *currentResolutionStore) as model.Store value in argument to model.NewAuthority: *currentResolutionStore does not implement model.Store (wrong type for method QueryRow)
+		have QueryRow(context.Context, string, ...any) pgx.Row
+		want QueryRow(context.Context, string, ...any) postgres.Row
+tests/model/current_resolution_fixture_test.go:282:27: cannot use store (variable of type *currentResolutionStore) as secret.Store value in argument to secret.New: *currentResolutionStore does not implement secret.Store (wrong type for method QueryRow)
+		have QueryRow(context.Context, string, ...any) pgx.Row
+		want QueryRow(context.Context, string, ...any) postgres.Row
+tests/model/current_resolution_fixture_test.go:293:22: cannot use store (variable of type *currentResolutionStore) as model.Store value in argument to model.New: *currentResolutionStore does not implement model.Store (wrong type for method QueryRow)
+		have QueryRow(context.Context, string, ...any) pgx.Row
+		want QueryRow(context.Context, string, ...any) postgres.Row
+FAIL	github.com/LunaDeerTech/agenteam/tests/model [build failed]
+FAIL

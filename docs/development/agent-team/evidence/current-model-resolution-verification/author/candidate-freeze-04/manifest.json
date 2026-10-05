@@ -1,0 +1,123 @@
+{
+  "baseline": "be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74",
+  "spec_commit": "e81b029cd65fb26cc8598955e32b961dac35cb85",
+  "spec_sha256": "9413b70e0d524cc3223bf6aec9d1f761237ec22e96f988a99c9fa5e6827052b6",
+  "production_manifest": "production-review-02/manifest.json",
+  "production_manifest_sha256": "5cc06fdfd6961ce7f1e0150abd7a7b1b4b78bb4bfd86c51764417648668a836e",
+  "status": "candidate04 frozen; only schema-test same-source retry corrected; compile/vet passed, dynamic rerun not executed",
+  "frozen_utc": "2026-10-05T21:07:43.481768+00:00",
+  "paths": [
+    {
+      "path": "internal/central/model/authority.go",
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba",
+      "bytes": 5004
+    },
+    {
+      "path": "internal/central/model/service.go",
+      "sha256": "537c750a0cab179ec7b7e309b7325e26978d147224f580a6d5bb75bdb16e4d94",
+      "bytes": 3641
+    },
+    {
+      "path": "internal/central/model/secret_authority.go",
+      "sha256": "e312daae6e6887e399ffb20f875fac79bd88c80164987a80bb81407fb794271e",
+      "bytes": 4823
+    },
+    {
+      "path": "internal/central/model/secret_router.go",
+      "sha256": "ca3ef3327494fb8858cb39cc399326f398dac6f9da76b65c3ff3ed14d815712c",
+      "bytes": 2882
+    },
+    {
+      "path": "internal/central/model/resolver.go",
+      "sha256": "0bdd3e30b286da45454b2930b3f2d6ed4a09e4f9ff15a3e8028f5880e5bdf13c",
+      "bytes": 14359
+    },
+    {
+      "path": "internal/central/model/resolution_plan.go",
+      "sha256": "728830cce301d98ddb3069ef8af5b599b74dc03e17cc02ad25c7872f3a3993c1",
+      "bytes": 10211
+    },
+    {
+      "path": "internal/central/model/resolution_store.go",
+      "sha256": "703c3f2d5676c3f9a3417a93a5f63aa70c43faff2c5d6321600b67bfca176e45",
+      "bytes": 11225
+    },
+    {
+      "path": "internal/central/model/resolution_secret.go",
+      "sha256": "9eb73be32a0db3893e6850e2d8ad9c3ad16f693c2c10e9276177b2171640b3df",
+      "bytes": 6738
+    },
+    {
+      "path": "internal/central/model/resolution_policy.go",
+      "sha256": "538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee",
+      "bytes": 4230
+    },
+    {
+      "path": "internal/central/model/resolver_test.go",
+      "sha256": "aaec5c7e17f79c0fe1f77b959992594ab782fa9b3f461bf0719889f3ef98c6d6",
+      "bytes": 4636
+    },
+    {
+      "path": "internal/central/model/resolution_plan_test.go",
+      "sha256": "01740478be113212df13c365862283f946a7809141e8d4edda933283da57de87",
+      "bytes": 6901
+    },
+    {
+      "path": "internal/central/model/resolution_secret_test.go",
+      "sha256": "f1ef7cda17e9ad806881f788343ad5b2dafa9539ab5a8a350a4bed50ebf98f13",
+      "bytes": 1942
+    },
+    {
+      "path": "internal/central/model/resolution_policy_test.go",
+      "sha256": "0923f551388e62c6d6513c9f8db8d472bc199889c1d8e097091ebd7b81888e2e",
+      "bytes": 2279
+    },
+    {
+      "path": "tests/model/current_resolution_fixture_test.go",
+      "sha256": "669ccb190ae3c5043c104305a3116e1fc39ab28316983984ec0b261653a423b6",
+      "bytes": 16271
+    },
+    {
+      "path": "tests/model/current_resolution_selection_test.go",
+      "sha256": "e87158298aee54a2ead5b5aa10f36fadb7c08add1849e4323ac0ec8e19184562",
+      "bytes": 10326
+    },
+    {
+      "path": "tests/model/current_resolution_atomicity_test.go",
+      "sha256": "d3a20c8bf68f609f9f2d3c34e0d27d92615a6a10b9d1824a1bcca78c2e12679f",
+      "bytes": 8230
+    },
+    {
+      "path": "tests/model/current_resolution_authorization_test.go",
+      "sha256": "d76e68d2c02306aecf9d5f20459ad8d775bcc6fda2cd420b97db03651f09e435",
+      "bytes": 8007
+    },
+    {
+      "path": "tests/model/current_resolution_unknown_test.go",
+      "sha256": "ccc2235ea76b078ef601488d95621b72787fbd342ea9908126bc7b324edc32fc",
+      "bytes": 6342
+    },
+    {
+      "path": "tests/model/current_resolution_schema_test.go",
+      "sha256": "742e9d98231bd449db7f90deeff2ea477163438fed9a48283f0f3237315174cd",
+      "bytes": 10472
+    },
+    {
+      "path": "db/migrations/00017_model_current_resolution.sql",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837",
+      "bytes": 4094
+    }
+  ],
+  "previous_manifest_sha256": "b2ed3ceede09b90480e5910904b909c1beaf86f25b8d3326f32cd4c3cc2e0a89",
+  "changed": [
+    "tests/model/current_resolution_schema_test.go"
+  ],
+  "delta_sha256": "8c5ad0d53f2730e0aef48f32a2e5668b45919a0321e9d8b011b08b970615f802",
+  "immutable_inputs": "../candidate-freeze-03/immutable-inputs.json",
+  "immutable_inputs_sha256": "f760b4ec71095e830df15e16794861194e9ee03aa4321d7899e9615d598043d1",
+  "checks": [
+    "candidate04-integration-compile-01",
+    "candidate04-integration-vet-01"
+  ],
+  "reuse": "production review02 and other19 candidate03 paths byte-identical; prior new6 passed; original new01 Schema failure/raw inputs remain unchanged; no single-run full-pass claim"
+}

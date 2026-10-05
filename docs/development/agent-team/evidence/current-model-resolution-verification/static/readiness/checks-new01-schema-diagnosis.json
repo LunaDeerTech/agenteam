@@ -1,0 +1,48 @@
+{
+  "mode": "independent read-only diagnosis of author real failure; no dynamic execution",
+  "files": {
+    "fixture-runs/new-01/driver.log": {
+      "sha256": "9f3f2720a369902111ce1fafd6404034f1d51e60c400c2a87a3780860e807c0c",
+      "bytes": 13658
+    },
+    "fixture-runs/new-01/result.json": {
+      "sha256": "164b3fa9fafa0fa8471f5ac532410392c870a1fc2d4f199b782be9718ed0e85e",
+      "bytes": 725
+    },
+    "fixture-runs/new-01/command.json": {
+      "sha256": "3cd5189eb32c8fbfd7d3f026537dacd93d760e2df72dc84bc69e7f4a5e113f38",
+      "bytes": 1804
+    },
+    "candidate-freeze-03/manifest.json": {
+      "sha256": "b2ed3ceede09b90480e5910904b909c1beaf86f25b8d3326f32cd4c3cc2e0a89",
+      "bytes": 4922
+    },
+    "candidate-freeze-03/files/tests/model/current_resolution_schema_test.go": {
+      "sha256": "efd760029372d7e816f0d63cd32aeb56827c74104bf3eee9e2eb862c08df27a7",
+      "bytes": 8867
+    },
+    "snapshot/internal/central/postgres/source.go": {
+      "sha256": "60bdd9ee3f8e0e166c10680c2cdcb88862bb85d9fd66d7aad3b695c1debb7662",
+      "bytes": 5314
+    },
+    "snapshot/internal/central/postgres/migrate.go": {
+      "sha256": "30ab4e935be2954c680bd1cb27a04ec8f9b234c0c3097131c0850695933a194b",
+      "bytes": 10417
+    },
+    "snapshot/internal/central/postgres/journal.go": {
+      "sha256": "33bad7f0b208d301e467bab9abc3f12fc0464880034e3664620da6a3a05e5f4e",
+      "bytes": 9739
+    },
+    "snapshot/tests/model/system_configuration_integration_test.go": {
+      "sha256": "7d46b46766659386f7d643be76ab56526d9c5e911cc14fbc2fd3b81967afab32",
+      "bytes": 53704
+    }
+  },
+  "actual_author_log_counts": {
+    "passed_top": 6,
+    "failed_top": 1,
+    "passed_sub": 39,
+    "failed_sub": 1,
+    "skipped": 0
+  }
+}

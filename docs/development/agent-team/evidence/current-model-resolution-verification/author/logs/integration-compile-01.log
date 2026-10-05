@@ -1,0 +1,5 @@
+# github.com/LunaDeerTech/agenteam/tests/model_test [github.com/LunaDeerTech/agenteam/tests/model.test]
+tests/model/current_resolution_fixture_test.go:219:71: cause.Details().Primary.Details undefined (type foundation.CommandIdentity has no field or method Details)
+tests/model/current_resolution_fixture_test.go:328:34: undefined: id.ModelService
+FAIL	github.com/LunaDeerTech/agenteam/tests/model [build failed]
+FAIL

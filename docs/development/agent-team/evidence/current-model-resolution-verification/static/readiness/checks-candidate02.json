@@ -1,0 +1,20 @@
+{
+  "mode": "static delta only; no Go/Docker/network/Git/repository write",
+  "inputs": {
+    "candidate-freeze-02/manifest.json": "5e5c576945e3c7369c1142bb3c317debc3f1edc1747ddbaa2df8df6b551d7ecb",
+    "candidate-freeze-02/delta.patch": "a3ff9e14b233d6982f6e4b2d028d09cd72faace20f679e9ebf05b8caccd477b3",
+    "ready-selectors-02.json": "04903710b3c05ce11c0f56ebe1cc3e4479cb9713cf788e91620f66c1007972cb",
+    "run_fixture_02.py": "c3db90d667b9052e83a72bb5a0b498376aa02574758a115ba3b9ed8e0d58dda8"
+  },
+  "candidate_files_verified": 20,
+  "changed": [
+    "tests/model/current_resolution_authorization_test.go",
+    "tests/model/current_resolution_schema_test.go"
+  ],
+  "unchanged_files": 18,
+  "T1": "PASS static delta",
+  "T2": "BLOCKED: stale txContextKey used as WithinTx parent",
+  "T3": "PASS static delta",
+  "selector_and_budget": "unchanged",
+  "observer_delta": "only selector file reference"
+}

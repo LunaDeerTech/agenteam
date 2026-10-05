@@ -1,0 +1,129 @@
+--- candidate01/tests/model/current_resolution_authorization_test.go
++++ candidate02/tests/model/current_resolution_authorization_test.go
+@@ -10,6 +10,7 @@
+ 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+ 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+ 	"testing"
++	"time"
+ )
+ 
+ func resolutionFaultCode(e error) f.Code {
+@@ -92,18 +93,32 @@
+ 		}
+ 		r = v.request(t, m, false)
+ 		p = v.discover(t, r)
+-		_, e = v.raw.Exec(testContext(t), `UPDATE agenteam_project.projects SET lifecycle='archived',archived_at=clock_timestamp(),version=version+1 WHERE id=$1`, v.project.ID.String())
+-		if e != nil {
+-			t.Fatal(e)
+-		}
++		var archivedAt time.Time
++		if e = v.raw.QueryRow(testContext(t), `SELECT clock_timestamp()`).Scan(&archivedAt); e != nil {
++			t.Fatal(e)
++		}
++		_, e = v.raw.Exec(testContext(t), `UPDATE agenteam_project.projects SET lifecycle='archived',archived_at=$2,updated_at=$2,version=version+1 WHERE id=$1`, v.project.ID.String(), archivedAt)
++		if e != nil {
++			t.Fatal(e)
++		}
++		t.Cleanup(func() {
++			ctx, cancel := context.WithTimeout(context.Background(), time.Second)
++			defer cancel()
++			if _, err := v.raw.Exec(ctx, `UPDATE agenteam_project.projects SET lifecycle='active',archived_at=NULL,updated_at=clock_timestamp(),version=version+1 WHERE id=$1`, v.project.ID.String()); err != nil {
++				t.Error(err)
++			}
++		})
++		beforeApply := v.tap.calls.Load()
+ 		_, result = v.final(t, r, p, false, false)
+ 		if result.State() != f.NotCommitted {
+ 			t.Fatal("archived gate accepted resolution")
+ 		}
+-		_, e = v.raw.Exec(testContext(t), `UPDATE agenteam_project.projects SET lifecycle='active',version=version+1 WHERE id=$1`, v.project.ID.String())
+-		if e != nil {
+-			t.Fatal(e)
+-		}
++		requireCode(t, result.Fault(), f.ProjectNotActive)
++		v.atomicFacts(t, r, p, 0)
++		if v.tap.calls.Load() != beforeApply {
++			t.Fatal("archived gate reached Secret Apply")
++		}
++		t.Log("valid archived ProjectRef; exact PROJECT_NOT_ACTIVE, prepared retained and zero input/snapshot/binding/lease effects")
+ 	})
+ 	t.Run("wrong-issuer-and-foreign-store", func(t *testing.T) {
+ 		r := v.request(t, m, false)
+@@ -141,18 +156,40 @@
+ 		v.tap.mu.Lock()
+ 		savedCtx, savedRequest, savedPlan := v.tap.ctx, v.tap.request, v.tap.plan
+ 		v.tap.mu.Unlock()
++		facts := func() string {
++			var value string
++			if e := v.raw.QueryRow(testContext(t), `SELECT jsonb_build_array((SELECT to_jsonb(p) FROM agenteam_model.resolution_preparations p WHERE snapshot_id=$1),(SELECT to_jsonb(s) FROM agenteam_model.snapshots s WHERE id=$1),(SELECT to_jsonb(b) FROM agenteam_model.snapshot_bindings b WHERE snapshot_id=$1),(SELECT to_jsonb(l) FROM agenteam_secret.secret_leases l WHERE id=$2))::text`, p.Details().SnapshotID.String(), p.Details().LeaseID.String()).Scan(&value); e != nil {
++				t.Fatal(e)
++			}
++			return value
++		}
++		before := facts()
++		// Preserve only the stale private value for this negative probe. The
++		// old callback's cancelled context must not preempt the witness check.
++		probeCtx, cancel := context.WithTimeout(context.WithoutCancel(savedCtx), time.Second)
++		defer cancel()
+ 		var inner error
+-		result = v.observed.WithinTx(testContext(t), recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
++		held := false
++		result = v.observed.WithinTx(probeCtx, recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
+ 			if e := v.observed.AcquireAll(ctx, tx, p.RequiredLocks()); e != nil {
+ 				return e
+ 			}
+-			_, inner = v.resolutionSecrets.ApplyUsageInTx(savedCtx, tx, savedRequest, savedPlan)
++			if e := v.observed.RequireHeldLocks(ctx, tx, p.RequiredLocks()); e != nil {
++				return e
++			}
++			held = true
++			_, inner = v.resolutionSecrets.ApplyUsageInTx(ctx, tx, savedRequest, savedPlan)
+ 			return inner
+ 		})
+-		if inner == nil || result.State() != f.NotCommitted {
+-			t.Fatal("expired/cross-Tx witness reused")
+-		}
+-		t.Logf("expired witness actual rejection=%v", inner)
++		if !held || result.State() != f.NotCommitted {
++			t.Fatal("expired witness target check not reached", inner, result.State())
++		}
++		requireCode(t, inner, f.Forbidden)
++		requireCode(t, result.Fault(), f.Forbidden)
++		if before != facts() {
++			t.Fatal("expired witness changed original preparation/snapshot/binding/lease")
++		}
++		t.Log("new exact Tx holds full union; preserved expired witness yields FORBIDDEN and rollback with original facts unchanged")
+ 	})
+ }
+ 
+--- candidate01/tests/model/current_resolution_schema_test.go
++++ candidate02/tests/model/current_resolution_schema_test.go
+@@ -58,6 +58,14 @@
+ 		if e := raw.QueryRow(testContext(t), `SELECT jsonb_build_array((SELECT to_jsonb(p) FROM agenteam_model.providers p WHERE id=$1),(SELECT to_jsonb(m) FROM agenteam_model.models m WHERE id=$2),(SELECT to_jsonb(s) FROM agenteam_secret.secrets s WHERE id=$3),(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$4))::text`, p.ID.String(), m.ID.String(), credential.CredentialRef.Details().ID.String(), base.project.ID.String()).Scan(&original); e != nil {
+ 			t.Fatal(e)
+ 		}
++		oldConstraints := func() string {
++			var value string
++			if e := raw.QueryRow(testContext(t), `SELECT coalesce(jsonb_agg(jsonb_build_object('namespace',n.nspname,'table',c.relname,'catalog',to_jsonb(k),'definition',pg_get_constraintdef(k.oid)) ORDER BY n.nspname,k.oid),'[]'::jsonb)::text FROM pg_constraint k JOIN pg_namespace n ON n.oid=k.connamespace LEFT JOIN pg_class c ON c.oid=k.conrelid WHERE n.nspname LIKE 'agenteam_%' AND NOT(n.nspname='agenteam_model' AND coalesce(c.relname,'') IN ('resolution_preparations','snapshots','snapshot_bindings'))`).Scan(&value); e != nil {
++				t.Fatal(e)
++			}
++			return value
++		}
++		constraintsBefore := oldConstraints()
+ 		files := modelMigrationFiles(t, "00017")
+ 		name := "00017_model_current_resolution.sql"
+ 		bad := modelMigrationFiles(t, "00017")
+@@ -70,7 +78,13 @@
+ 		if e := raw.QueryRow(testContext(t), `SELECT to_regclass('agenteam_model.resolution_preparations') IS NULL AND to_regclass('agenteam_model.snapshots') IS NULL AND to_regclass('agenteam_model.snapshot_bindings') IS NULL`).Scan(&absent); e != nil || !absent {
+ 			t.Fatal("failed migration left partial tables", e)
+ 		}
++		if oldConstraints() != constraintsBefore {
++			t.Fatal("failed 17 migration changed an old constraint")
++		}
+ 		migrateModel(t, modelMigrator(t, db, files), 17)
++		if oldConstraints() != constraintsBefore {
++			t.Fatal("successful 17 migration changed an old constraint")
++		}
+ 		var after string
+ 		if e := raw.QueryRow(testContext(t), `SELECT jsonb_build_array((SELECT to_jsonb(p) FROM agenteam_model.providers p WHERE id=$1),(SELECT to_jsonb(m) FROM agenteam_model.models m WHERE id=$2),(SELECT to_jsonb(s) FROM agenteam_secret.secrets s WHERE id=$3),(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$4))::text`, p.ID.String(), m.ID.String(), credential.CredentialRef.Details().ID.String(), base.project.ID.String()).Scan(&after); e != nil || original != after {
+ 			t.Fatal("preexisting canonical rows changed", e)

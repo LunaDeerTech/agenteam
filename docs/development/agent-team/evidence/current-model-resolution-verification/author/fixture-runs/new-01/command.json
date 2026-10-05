@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestModelCurrentResolutionSelection|TestModelCurrentResolutionAtomicity|TestModelCurrentResolutionCanonicalLease|TestModelCurrentResolutionAuthorization|TestModelCurrentResolutionReplay|TestModelCurrentResolutionUnknown|TestModelCurrentResolutionSchema)$"
+  ],
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2 -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-secret-model-usage-author-l4eactgz/gocache",
+    "GOTMPDIR": "/workspace/agenteam-current-resolution-author-xtvs4_8b/gotmp",
+    "TMPDIR": "/workspace/agenteam-current-resolution-author-xtvs4_8b/runtime",
+    "GOMAXPROCS": "4",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "CGO_ENABLED": "1",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "DOCKER_CONFIG": "/workspace/agenteam-current-resolution-author-xtvs4_8b/docker-config"
+  },
+  "cwd": "/workspace/agenteam-current-resolution-author-xtvs4_8b/snapshot",
+  "input_manifest": "/workspace/agenteam-current-resolution-author-xtvs4_8b/candidate-freeze-03/manifest.json",
+  "input_sha256": "b2ed3ceede09b90480e5910904b909c1beaf86f25b8d3326f32cd4c3cc2e0a89",
+  "start_unix": 1791234014.703904,
+  "expected_top": [
+    "TestModelCurrentResolutionSelection",
+    "TestModelCurrentResolutionAtomicity",
+    "TestModelCurrentResolutionCanonicalLease",
+    "TestModelCurrentResolutionAuthorization",
+    "TestModelCurrentResolutionReplay",
+    "TestModelCurrentResolutionUnknown",
+    "TestModelCurrentResolutionSchema"
+  ]
+}

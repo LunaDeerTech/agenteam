@@ -1,0 +1,219 @@
+{
+  "result": "independent PASS for final20 restricted library; no complete D09/production consumer claim",
+  "baseline": "be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74",
+  "final20": {
+    "path": "/workspace/agenteam-current-resolution-author-xtvs4_8b/candidate-freeze-04/manifest.json",
+    "sha256": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d",
+    "bytes": 4848
+  },
+  "author_effective_coverage": {
+    "top": 26,
+    "sub": 109,
+    "single_final_full_run": false
+  },
+  "independent_coverage": {
+    "top": 2,
+    "sub": 4,
+    "driver_exit": 0
+  },
+  "payloads": [
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/review.md",
+      "sha256": "10edadb6f3fe3453ad9b99c4c197251332f2192d8659a7a986eb145fc1652510",
+      "bytes": 5508
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/plan.md",
+      "sha256": "bedf2c46db53fd5739d7d99fcfa3778a4006ea6304093851c12f04af320b2c36",
+      "bytes": 3565
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/ready.json",
+      "sha256": "e63ac5f156f65d21b86b5d99b712ca5df17309b745ed770c70a9268df7be1420",
+      "bytes": 2849
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/current_resolution_independent_test.go",
+      "sha256": "393effa5c3c91c87dd030500971dc4f1a68e16edb8a086bb3a33f5858ea38b2b",
+      "bytes": 15061
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/overlay.json",
+      "sha256": "4e40d777f0071f5a1236d936cef5ac4af1193591fd0f0fe72cb4ceb7f0e62ff4",
+      "bytes": 5108
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/run_pure.py",
+      "sha256": "4290e1a3da853570b69a3f4bc4861502ada61361e5af9ebbb291eee7929602e7",
+      "bytes": 2403
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/run_fixture.py",
+      "sha256": "20fae914a3e106ef48cddd83a4fdc48e427819452e2ba233af011059e21f3c64",
+      "bytes": 9331
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/observer-from-author04.patch",
+      "sha256": "9b303f3bc543a1f4850362b92f4e4b9253dbaeddff27fd67da67efa0a590cc53",
+      "bytes": 5106
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/readiness-checks.json",
+      "sha256": "74b14f27f90e8462b4b0257ea0f99de06f58a1da3e7339606b1c6ddbf5aa4822",
+      "bytes": 1145
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/execution-authorization-preflight.json",
+      "sha256": "26dffbfabc39b4cb919f2b626cc1644f73f2e6172bf71e32116d4d7cb42a0287",
+      "bytes": 1251
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/trusted-baseline.json",
+      "sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+      "bytes": 2848
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/resource-window-handoff.json",
+      "sha256": "2803e7585b878355547f1acb296938b272f385b941c14de6b1d1f29c78820195",
+      "bytes": 687
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/logs/compile-01.input.json",
+      "sha256": "8030762fda6a90ace52407b67e3c194729f88015ec6f96d64fdafa20918eed50",
+      "bytes": 1406
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/logs/compile-01.json",
+      "sha256": "d707d740232224c181a5a80d5eddb93ffe184f468278db8379f66a9b75a9ace4",
+      "bytes": 1591
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/logs/compile-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/logs/vet-01.input.json",
+      "sha256": "114d63c9fbf3d76fb09861763939659df008f2271051db75227c17a7afd5b23c",
+      "bytes": 1288
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/logs/vet-01.json",
+      "sha256": "2fdc9c05a0f5f20e1bb0434753345a57dd278bfa5a660681420b64a78bab664b",
+      "bytes": 1473
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/logs/vet-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/fixture-runs/independent-01/command.json",
+      "sha256": "46551a0f29ad6ee1336335edf6e0cf3fa4c59ea4a09276cd9264bc6d529f79af",
+      "bytes": 1704
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/fixture-runs/independent-01/driver.log",
+      "sha256": "f1d91df9be4472977152ab11220a332bc45020a79b243066ebf52932a0f3848e",
+      "bytes": 6083
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/fixture-runs/independent-01/result.json",
+      "sha256": "3ebd99a1db33330857c36ba626817059713a49b64c4bb0a637d317c1f64a262e",
+      "bytes": 504
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/fixture-runs/independent-01/baseline.json",
+      "sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+      "bytes": 2848
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/fixture-runs/independent-01/docker-events.jsonl",
+      "sha256": "0fa7c09e4594aa62d68faa02c45ec3dd364b3cfde8059e9bab2fb61f15c575bf",
+      "bytes": 184695
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/fixture-runs/independent-01/docker-events.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/fixture-runs/independent-01/owned-network-live-labels.json",
+      "sha256": "3eacb083255a7bfc7db238b5d58a71acd3ed11c930c299bef3fe2bcfe7d5a7e8",
+      "bytes": 732
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/fixture-runs/independent-01/owned-created.json",
+      "sha256": "abf7dcc595873e7aaa1afd61b72b850c0046c19ea55a3db64005a59e275fead8",
+      "bytes": 1870
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-v-ap8fa1e2/fixture-runs/independent-01/resource-handoff.json",
+      "sha256": "7d2f58e142f1118b86f1a1b2ea722046020685a88f8d313c2575e32d1fdf6775",
+      "bytes": 30928
+    }
+  ],
+  "locators": [
+    {
+      "path": "/workspace/agenteam-current-resolution-author-xtvs4_8b/final-delivery.json",
+      "sha256": "8cc3a07963939b1d3b90134afa86ce4065ff3409896155e2b5763c8f4d18d193",
+      "bytes": 30292
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-author-xtvs4_8b/author-final-frozen.md",
+      "sha256": "0c70f6f53743a6d26310e9bbea9ce2fba54789ddb8fa759decadb4b4ee2b3a7d",
+      "bytes": 2150
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-author-xtvs4_8b/candidate-freeze-04/manifest.json",
+      "sha256": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d",
+      "bytes": 4848
+    },
+    {
+      "path": "/workspace/agenteam-current-resolution-author-xtvs4_8b/production-review-02/manifest.json",
+      "sha256": "5cc06fdfd6961ce7f1e0150abd7a7b1b4b78bb4bfd86c51764417648668a836e",
+      "bytes": 2512
+    },
+    {
+      "path": "/tmp/agenteam-current-resolution-production-review-3_53s829/review01.md",
+      "sha256": "a785ce3092394d5291ad793979f890b799e3e2eff43de19629abaca63e38e116",
+      "bytes": 6707
+    },
+    {
+      "path": "/tmp/agenteam-current-resolution-production-review-3_53s829/review02.md",
+      "sha256": "bf7af49dd21f8de4b7bf50fb22eed10f29e190bf63c0eaaf9ddabd480c356dee",
+      "bytes": 2570
+    },
+    {
+      "path": "/tmp/agenteam-current-resolution-readiness-_16qqnsb/review.md",
+      "sha256": "ab63c82291293b96c2e8a1d8219d6529de1ef3b3b9c717c01d0dcb1f958015d1",
+      "bytes": 6454
+    },
+    {
+      "path": "/tmp/agenteam-current-resolution-readiness-_16qqnsb/review-candidate02.md",
+      "sha256": "649d57bb77e1e9fd601fa4c0f0fd7dca0cc91966b2262fd773a39f9d5604fce6",
+      "bytes": 2662
+    },
+    {
+      "path": "/tmp/agenteam-current-resolution-readiness-_16qqnsb/review-candidate03.md",
+      "sha256": "681d3c9301dbfda0927e0971cee9f6106d31d06b827269a8bce70b034c86bd51",
+      "bytes": 1920
+    },
+    {
+      "path": "/tmp/agenteam-current-resolution-readiness-_16qqnsb/new01-schema-diagnosis.md",
+      "sha256": "2857cd5c97990d68137821672aad09501f703abee7a1dc32815308d6d49f4cbb",
+      "bytes": 2925
+    },
+    {
+      "path": "/tmp/agenteam-current-resolution-readiness-_16qqnsb/review-candidate04.md",
+      "sha256": "d841f230fcc0173e4e04b807a526ceba0c124dbad45910596e59077c52d5c782",
+      "bytes": 2012
+    }
+  ],
+  "excluded": [
+    "compiled binaries",
+    "Go caches",
+    "full source trees"
+  ],
+  "state": "all source/probe/Go/Docker stopped; only review and index were written after resource return"
+}

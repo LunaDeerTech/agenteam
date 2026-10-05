@@ -1,0 +1,77 @@
+{
+  "candidate_manifest_sha256": "b2ed3ceede09b90480e5910904b909c1beaf86f25b8d3326f32cd4c3cc2e0a89",
+  "result": {
+    "driver_exit": 1,
+    "elapsed_seconds": 42.516,
+    "passed_top": [
+      "TestModelCurrentResolutionAtomicity",
+      "TestModelCurrentResolutionCanonicalLease",
+      "TestModelCurrentResolutionAuthorization",
+      "TestModelCurrentResolutionSelection",
+      "TestModelCurrentResolutionReplay",
+      "TestModelCurrentResolutionUnknown"
+    ],
+    "failed_top": [
+      "TestModelCurrentResolutionSchema"
+    ],
+    "skipped_top": [],
+    "missing_expected_top": [
+      "TestModelCurrentResolutionSchema"
+    ],
+    "resource_clean": true,
+    "owned_container_count": 4,
+    "owned_network_count": 3,
+    "expected_counts_match": true,
+    "tracked_process_count": 80,
+    "input_sha256": "b2ed3ceede09b90480e5910904b909c1beaf86f25b8d3326f32cd4c3cc2e0a89"
+  },
+  "passed_subtests": [
+    "TestModelCurrentResolutionAtomicity/system",
+    "TestModelCurrentResolutionAtomicity/project",
+    "TestModelCurrentResolutionAtomicity/secret-failure-rolls-every-effect-back",
+    "TestModelCurrentResolutionAtomicity/missing-and-weak-lock-poison-cannot-be-swallowed",
+    "TestModelCurrentResolutionAtomicity/no-ref-zero-secret-apply",
+    "TestModelCurrentResolutionCanonicalLease/concurrent-final-canonical-conflict-then-replan",
+    "TestModelCurrentResolutionCanonicalLease/model-call-distinct-and-stable",
+    "TestModelCurrentResolutionCanonicalLease/same-owner-ref-other-project-denied",
+    "TestModelCurrentResolutionCanonicalLease/released-canonical-never-resurrected",
+    "TestModelCurrentResolutionAuthorization/strict-agent-and-input-change",
+    "TestModelCurrentResolutionAuthorization/owner-execution-and-actor-tamper",
+    "TestModelCurrentResolutionAuthorization/permission-before-existing-and-missing-model",
+    "TestModelCurrentResolutionAuthorization/session-and-project-gate-current",
+    "TestModelCurrentResolutionAuthorization/wrong-issuer-and-foreign-store",
+    "TestModelCurrentResolutionAuthorization/exact-apply-witness-expires-and-never-reads",
+    "TestModelCurrentResolutionSchema/fresh-continuous-17",
+    "TestModelCurrentResolutionSchema/sql-checks-and-strict-loaders",
+    "TestModelCurrentResolutionSchema/empty-actor-matching-digest",
+    "TestModelCurrentResolutionSchema/wrong-canonical-unit",
+    "TestModelCurrentResolutionSelection/safe-system-and-project-only",
+    "TestModelCurrentResolutionSelection/current-permission-before-existence",
+    "TestModelCurrentResolutionSelection/foreign-project-and-no-fallback",
+    "TestModelCurrentResolutionSelection/nonhuman-select-unbound",
+    "TestModelCurrentResolutionSelection/required-memory-selector-current-version",
+    "TestModelCurrentResolutionSelection/unsupported-profile-does-not-default",
+    "TestModelCurrentResolutionSelection/revoked-session",
+    "TestModelCurrentResolutionSelection/unimplemented-source-zero-effects",
+    "TestModelCurrentResolutionReplay/same-unit-new-session-and-restart",
+    "TestModelCurrentResolutionReplay/different-meaning-same-unit",
+    "TestModelCurrentResolutionReplay/rotation-stable-ref-no-material",
+    "TestModelCurrentResolutionReplay/live-disable-update-delete-do-not-rewrite",
+    "TestModelCurrentResolutionReplay/planned-read-release-unbound",
+    "TestModelCurrentResolutionUnknown/result-decoration-stage-2-rollback-false",
+    "TestModelCurrentResolutionUnknown/result-decoration-stage-2-rollback-true",
+    "TestModelCurrentResolutionUnknown/result-decoration-stage-3-rollback-false",
+    "TestModelCurrentResolutionUnknown/result-decoration-stage-3-rollback-true",
+    "TestModelCurrentResolutionUnknown/committed-then-caller-cancelled-zero-publication",
+    "TestModelCurrentResolutionUnknown/ordinary-original-writer-mutex-before-reentry",
+    "TestModelCurrentResolutionUnknown/old-writer-completed-before-preflight-replans"
+  ],
+  "failed_subtests": [
+    "TestModelCurrentResolutionSchema/populated-16-failed-17-transaction-then-forward"
+  ],
+  "source20_unchanged": true,
+  "trusted_baseline_sha256": "c3fde3481d423eaf1c97546b5549476ac98a992690bc2bee1c429407cbfff816",
+  "trusted_baseline_exact_both_rounds": true,
+  "window": "handed back to root after exact double cleanup; no subsequent Docker command",
+  "diagnosis": "Actual Schema line84 switches from failed fixture-augmented migration17 to original checksum; fixed D03 journal.go rejects checksum mismatch. Read-only test-precondition diagnosis submitted; no source repair or rerun."
+}

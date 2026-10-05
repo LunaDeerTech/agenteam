@@ -1,0 +1,366 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/model"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+)
+
+func independentResolutionFacts(t *testing.T, v *currentResolutionFixture) string {
+	t.Helper()
+	var out string
+	err := v.raw.QueryRow(testContext(t), `SELECT jsonb_build_array(
+ (SELECT coalesce(jsonb_agg(to_jsonb(p) ORDER BY id),'[]') FROM agenteam_model.resolution_preparations p),
+ (SELECT coalesce(jsonb_agg(to_jsonb(s) ORDER BY id),'[]') FROM agenteam_model.snapshots s),
+ (SELECT coalesce(jsonb_agg(to_jsonb(b) ORDER BY snapshot_id),'[]') FROM agenteam_model.snapshot_bindings b),
+ (SELECT coalesce(jsonb_agg(to_jsonb(l) ORDER BY id),'[]') FROM agenteam_secret.secret_leases l),
+ (SELECT coalesce(jsonb_agg(to_jsonb(i) ORDER BY unit),'[]') FROM model_resolution_fixture.inputs i))::text`).Scan(&out)
+	if err != nil {
+		t.Fatal("canonical facts", err)
+	}
+	return out
+}
+
+func independentResolutionOneUnion(t *testing.T, v *currentResolutionFixture, from int, plan mc.ResolutionPlan) {
+	t.Helper()
+	v.observed.mu.Lock()
+	got := append([][]f.LockRequest(nil), v.observed.unions[from:]...)
+	v.observed.mu.Unlock()
+	want := plan.RequiredLocks()
+	if len(got) != 1 || len(got[0]) != len(want) {
+		t.Fatalf("final transaction full union count=%d", len(got))
+	}
+	for i, lock := range want {
+		if got[0][i].Key.Canonical() != lock.Key.Canonical() || got[0][i].Mode != lock.Mode {
+			t.Fatal("final transaction changed lock union")
+		}
+	}
+}
+
+func TestModelCurrentResolutionIndependentAuthorityRecheck(t *testing.T) {
+	t.Run("current-session-before-prepared-committed-and-missing", func(t *testing.T) {
+		v := newCurrentResolutionFixture(t)
+		_, m, _ := v.config(t, false, true)
+		uid, err := f.ParseID[id.User](v.owner.Details().UserID)
+		if err != nil {
+			t.Fatal(err)
+		}
+		// The accepted strict fixture installs a legal Session row. The real
+		// Account authority, not a replacement Session port, checks its state.
+		actor := v.session(t, uid)
+		requests := make([]mc.ResolveRequest, 3)
+		for i := range requests {
+			requests[i] = v.request(t, m, true)
+			requests[i].Actor = actor
+			v.bind(t, requests[i])
+		}
+		v.discover(t, requests[0])
+		v.resolve(t, requests[1])
+		missing := newID[mc.Model](t)
+		requests[2].ModelRef = &missing
+		v.bind(t, requests[2])
+		before := independentResolutionFacts(t, v)
+		applyBefore := v.tap.calls.Load()
+		v.revokeSession(t, actor)
+		for i, label := range []string{"prepared", "committed", "missing-live-model"} {
+			plan, err := v.resolving.DiscoverResolve(testContext(t), requests[i])
+			resolutionZeroPlan(t, plan, err)
+			requireCode(t, err, f.SessionRevoked)
+			out, err := v.resolving.ResolveModel(testContext(t), requests[i])
+			resolutionNoResult(t, out, err)
+			requireCode(t, err, f.SessionRevoked)
+			if before != independentResolutionFacts(t, v) || applyBefore != v.tap.calls.Load() {
+				t.Fatal("current Session rejection changed resolution or Secret facts")
+			}
+			t.Logf("%s: actual Account SESSION_REVOKED precedes resolution outcome; exact durable facts unchanged", label)
+		}
+	})
+	t.Run("consumer-changes-while-final-waits", func(t *testing.T) {
+		v := newCurrentResolutionFixture(t)
+		_, m, _ := v.config(t, false, true)
+		r := v.request(t, m, false)
+		plan := v.discover(t, r)
+		var record f.LockRequest
+		for _, lock := range plan.RequiredLocks() {
+			if strings.Contains(lock.Key.Canonical(), "model-resolution-fixture:") {
+				record = lock
+			}
+		}
+		if record.Key.Validate() != nil || record.Mode != f.Exclusive {
+			t.Fatal("consumer record EX absent from signed complete union")
+		}
+		held := make(chan int, 1)
+		release := make(chan struct{})
+		var once sync.Once
+		unblock := func() { once.Do(func() { close(release) }) }
+		defer unblock()
+		holderDone := make(chan f.CommitResult, 1)
+		holderCtx, stopHolder := context.WithTimeout(context.Background(), 20*time.Second)
+		defer stopHolder()
+		cause := recoveryCause(t)
+		go func() {
+			holderDone <- v.raw.WithinTx(holderCtx, cause, func(ctx context.Context, tx f.Tx) error {
+				if err := v.raw.AcquireAll(ctx, tx, []f.LockRequest{record}); err != nil {
+					return err
+				}
+				x, err := v.raw.InTx(tx)
+				if err != nil {
+					return err
+				}
+				var pid int
+				if err = x.QueryRow(ctx, `SELECT pg_backend_pid()`).Scan(&pid); err != nil {
+					return err
+				}
+				tag, err := x.Exec(ctx, `UPDATE model_resolution_fixture.consumers SET enabled=false,version=version+1 WHERE unit=$1`, resolutionUnit(r))
+				if err != nil || tag.RowsAffected() != 1 {
+					return errors.New("consumer holder failed to install exact revocation")
+				}
+				held <- pid
+				select {
+				case <-release:
+					return nil
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			})
+		}()
+		var holder int
+		select {
+		case holder = <-held:
+		case result := <-holderDone:
+			t.Fatal("consumer holder did not reach actual EX", result.Fault())
+		case <-holderCtx.Done():
+			t.Fatal("consumer holder deadline")
+		}
+		v.observed.mu.Lock()
+		unionBefore := len(v.observed.unions)
+		v.observed.mu.Unlock()
+		applyBefore := v.tap.calls.Load()
+		type answer struct {
+			out    mc.ResolvedModel
+			commit f.CommitResult
+		}
+		done := make(chan answer, 1)
+		go func() {
+			out, result := v.final(t, r, plan, true, false)
+			done <- answer{out, result}
+		}()
+		observeCtx, cancelObserve := context.WithTimeout(context.Background(), 750*time.Millisecond)
+		defer cancelObserve()
+		tick := time.NewTicker(5 * time.Millisecond)
+		defer tick.Stop()
+		var waiter int
+		var observationError error
+		hash := uint64(record.Key.AdvisoryKey())
+		for waiter == 0 && observationError == nil {
+			observationError = v.raw.QueryRow(observeCtx, `SELECT coalesce((SELECT w.pid FROM pg_locks w JOIN pg_locks h ON h.locktype=w.locktype AND h.database=w.database AND h.classid=w.classid AND h.objid=w.objid AND h.objsubid=w.objsubid WHERE w.locktype='advisory' AND w.database=(SELECT oid FROM pg_database WHERE datname=current_database()) AND NOT w.granted AND w.mode='ExclusiveLock' AND h.granted AND h.mode='ExclusiveLock' AND h.pid=$1 AND h.pid=ANY(pg_blocking_pids(w.pid)) AND w.classid::bigint=$2 AND w.objid::bigint=$3 LIMIT 1),0)`, holder, int64(uint32(hash>>32)), int64(uint32(hash))).Scan(&waiter)
+			if waiter == 0 && observationError == nil {
+				select {
+				case <-tick.C:
+				case <-observeCtx.Done():
+					observationError = observeCtx.Err()
+				}
+			}
+		}
+		unblock()
+		holderResult := <-holderDone
+		result := <-done
+		if observationError != nil || waiter == 0 || waiter == holder {
+			t.Fatal("exact consumer holder/waiter was not observed", observationError)
+		}
+		if holderResult.State() != f.Committed {
+			t.Fatal("consumer revocation did not commit", holderResult.Fault())
+		}
+		if result.commit.State() != f.NotCommitted {
+			t.Fatal("post-wait consumer change committed")
+		}
+		requireCode(t, result.commit.Fault(), f.Forbidden)
+		resolutionNoResult(t, result.out, result.commit.Fault())
+		v.atomicFacts(t, r, plan, 0)
+		independentResolutionOneUnion(t, v, unionBefore, plan)
+		if v.tap.calls.Load() != applyBefore {
+			t.Fatal("revoked consumer reached Secret Apply")
+		}
+		t.Log("observed exact live PG EX holder and EX waiter; one complete union; committed revocation then FORBIDDEN and zero input/snapshot/binding/lease")
+	})
+}
+
+type independentResolutionUsage struct {
+	sc.UsageOperations
+	after func(context.Context, f.Tx, sc.UsageRequest, sc.UsageDependencies) error
+}
+
+func (u *independentResolutionUsage) ApplyUsageInTx(ctx context.Context, tx f.Tx, r sc.UsageRequest, plan sc.UsageDependencies) (sc.UsageResult, error) {
+	result, err := u.UsageOperations.ApplyUsageInTx(ctx, tx, r, plan)
+	if err != nil {
+		return result, err
+	}
+	if u.after != nil {
+		if err = u.after(ctx, tx, r, plan); err != nil {
+			return sc.UsageResult{}, err
+		}
+	}
+	return result, nil
+}
+
+func independentResolutionWrap(t *testing.T, v *currentResolutionFixture) *independentResolutionUsage {
+	t.Helper()
+	u := &independentResolutionUsage{UsageOperations: v.resolutionSecrets}
+	deps := v.deps
+	deps.Secret = u
+	svc, err := model.New(v.observed, v.resolutionAuthority, deps)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = svc.Initialize(testContext(t)); err != nil {
+		t.Fatal(err)
+	}
+	v.resolving = svc
+	return u
+}
+
+func independentResolutionProvisional(ctx context.Context, v *currentResolutionFixture, tx f.Tx, r mc.ResolveRequest, plan mc.ResolutionPlan) error {
+	x, err := v.observed.InTx(tx)
+	if err != nil {
+		return err
+	}
+	var phase string
+	var input, snapshot, binding, lease int
+	err = x.QueryRow(ctx, `SELECT phase,(SELECT count(*) FROM model_resolution_fixture.inputs WHERE unit=$1),(SELECT count(*) FROM agenteam_model.snapshots WHERE id=$2),(SELECT count(*) FROM agenteam_model.snapshot_bindings WHERE snapshot_id=$2),(SELECT count(*) FROM agenteam_secret.secret_leases WHERE id=$3) FROM agenteam_model.resolution_preparations WHERE snapshot_id=$2`, resolutionUnit(r), plan.Details().SnapshotID.String(), plan.Details().LeaseID.String()).Scan(&phase, &input, &snapshot, &binding, &lease)
+	if err != nil {
+		return err
+	}
+	if phase != "committed" || input != 1 || snapshot != 1 || binding != 1 || lease != 1 {
+		return fmt.Errorf("same-Tx post-Secret facts phase=%s input/snapshot/binding/lease=%d/%d/%d/%d", phase, input, snapshot, binding, lease)
+	}
+	return nil
+}
+
+func TestModelCurrentResolutionIndependentLiveAcquireWitness(t *testing.T) {
+	t.Run("live-exact-tx-and-cross-tx", func(t *testing.T) {
+		v := newCurrentResolutionFixture(t)
+		_, m, _ := v.config(t, false, true)
+		u := independentResolutionWrap(t, v)
+		r := v.request(t, m, false)
+		plan := v.discover(t, r)
+		wrongOwner, err := sc.NewCredentialLeaseOwner(sc.ExecutionOwner, newID[id.Execution](t).String())
+		if err != nil {
+			t.Fatal(err)
+		}
+		cause := recoveryCause(t)
+		positive, ownerDenied, actionDenied, crossed := false, false, false, false
+		var crossResult f.CommitResult
+		u.after = func(ctx context.Context, tx f.Tx, request sc.UsageRequest, _ sc.UsageDependencies) error {
+			if err := independentResolutionProvisional(ctx, v, tx, r, plan); err != nil {
+				return err
+			}
+			grant, err := v.router.AuthorizeLeaseInTx(ctx, tx, request.Actor, request.Ref, request.LeaseOwner, sc.AcquireLease)
+			if err != nil || grant.Consumer != sc.Model || !grant.Subject.Equal(request.Actor) {
+				return errors.New("live verified exact-Tx witness did not authorize actual Acquire")
+			}
+			positive = true
+			validations := v.consumers.validated.Load()
+			_, ownerErr := v.router.AuthorizeLeaseInTx(ctx, tx, request.Actor, request.Ref, wrongOwner, sc.AcquireLease)
+			_, actionErr := v.router.AuthorizeLeaseInTx(ctx, tx, request.Actor, request.Ref, request.LeaseOwner, sc.ReleaseLease)
+			ownerDenied = resolutionFaultCode(ownerErr) == f.Forbidden
+			actionDenied = resolutionFaultCode(actionErr) == f.Forbidden
+			if !ownerDenied || !actionDenied {
+				return errors.New("live witness owner/action guards did not yield exact Forbidden")
+			}
+			x, err := v.observed.InTx(tx)
+			if err != nil {
+				return err
+			}
+			var originalPID, newPID int
+			if err = x.QueryRow(ctx, `SELECT pg_backend_pid()`).Scan(&originalPID); err != nil {
+				return err
+			}
+			// A fresh root creates a genuinely distinct Tx. Only the direct
+			// guard call receives the still-live original private context values.
+			root, cancel := context.WithTimeout(context.Background(), time.Second)
+			defer cancel()
+			deadline, _ := root.Deadline()
+			guardCtx, cancelGuard := context.WithDeadline(context.WithoutCancel(ctx), deadline)
+			defer cancelGuard()
+			var crossErr error
+			crossResult = v.observed.WithinTx(root, cause, func(newCtx context.Context, other f.Tx) error {
+				if other == tx {
+					return errors.New("cross-Tx probe reused original handle")
+				}
+				y, err := v.observed.InTx(other)
+				if err != nil {
+					return err
+				}
+				if err = y.QueryRow(newCtx, `SELECT pg_backend_pid()`).Scan(&newPID); err != nil {
+					return err
+				}
+				_, crossErr = v.router.AuthorizeLeaseInTx(guardCtx, other, request.Actor, request.Ref, request.LeaseOwner, sc.AcquireLease)
+				return crossErr
+			})
+			crossed = newPID != 0 && newPID != originalPID && resolutionFaultCode(crossErr) == f.Forbidden && crossResult.State() == f.NotCommitted && resolutionFaultCode(crossResult.Fault()) == f.Forbidden
+			if !crossed || v.consumers.validated.Load() != validations {
+				return errors.New("active witness rejection did not precede consumer/lock validation")
+			}
+			// End this transaction explicitly with the real guard refusal. A
+			// later positive case starts a new transaction, never this one.
+			return ownerErr
+		}
+		_, result := v.final(t, r, plan, true, false)
+		if !positive || !ownerDenied || !actionDenied || !crossed || result.State() != f.NotCommitted {
+			t.Fatal("live witness probe did not reach all exact guards", result.Fault())
+		}
+		requireCode(t, result.Fault(), f.Forbidden)
+		v.atomicFacts(t, r, plan, 0)
+		u.after = nil
+		out, result := v.final(t, r, plan, true, false)
+		if result.State() != f.Committed || out.Validate() != nil {
+			t.Fatal("fresh legitimate transaction failed", result.Fault())
+		}
+		v.atomicFacts(t, r, plan, 1)
+		t.Log("actual Secret Apply then live exact-Tx grant; wrong owner/action and distinct physical Tx FORBIDDEN; negative outer rollback, fresh positive commit")
+	})
+	t.Run("after-real-lease-error-rolls-back", func(t *testing.T) {
+		v := newCurrentResolutionFixture(t)
+		_, m, _ := v.config(t, true, true)
+		u := independentResolutionWrap(t, v)
+		r := v.request(t, m, false)
+		plan := v.discover(t, r)
+		observed := false
+		u.after = func(ctx context.Context, tx f.Tx, _ sc.UsageRequest, _ sc.UsageDependencies) error {
+			if err := independentResolutionProvisional(ctx, v, tx, r, plan); err != nil {
+				return err
+			}
+			observed = true
+			return f.NewFault(f.DependencyUnavailable, f.NotStarted)
+		}
+		_, result := v.final(t, r, plan, true, false)
+		if !observed || result.State() != f.NotCommitted {
+			t.Fatal("post-real-lease error did not reach rollback", result.Fault())
+		}
+		requireCode(t, result.Fault(), f.DependencyUnavailable)
+		v.atomicFacts(t, r, plan, 0)
+		u.after = nil
+		out, result := v.final(t, r, plan, true, false)
+		if result.State() != f.Committed || out.Validate() != nil {
+			t.Fatal("same prepared plan did not recover", result.Fault())
+		}
+		v.atomicFacts(t, r, plan, 1)
+		var reads int
+		if err := v.raw.QueryRow(testContext(t), `SELECT count(*) FROM agenteam_audit.audit_records WHERE action='secret.resolve'`).Scan(&reads); err != nil || reads != 0 {
+			t.Fatal("unexpected material read", err)
+		}
+		t.Log("same actual Tx observed input/snapshot/binding/lease and committed phase before injected error; all rolled back; same prepared plan then truly committed")
+	})
+}

@@ -1,0 +1,38 @@
+{
+  "label": "schema-01",
+  "result": {
+    "driver_exit": 0,
+    "elapsed_seconds": 42.081,
+    "passed_top": [
+      "TestModelCurrentResolutionSchema"
+    ],
+    "failed_top": [],
+    "skipped_top": [],
+    "missing_expected_top": [],
+    "resource_clean": true,
+    "owned_container_count": 4,
+    "owned_network_count": 3,
+    "expected_counts_match": true,
+    "tracked_process_count": 78,
+    "input_sha256": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d"
+  },
+  "passed_subtests": [
+    "TestModelCurrentResolutionSchema/fresh-continuous-17",
+    "TestModelCurrentResolutionSchema/populated-16-failed-17-transaction-then-forward",
+    "TestModelCurrentResolutionSchema/sql-checks-and-strict-loaders",
+    "TestModelCurrentResolutionSchema/empty-actor-matching-digest",
+    "TestModelCurrentResolutionSchema/wrong-canonical-unit"
+  ],
+  "tested_packages": [
+    {
+      "package": "github.com/LunaDeerTech/agenteam/tests/model",
+      "seconds": "7.068s"
+    }
+  ],
+  "trusted_baseline_exact_both_rounds": true,
+  "source20_unchanged": true,
+  "network_live_label_count": 3,
+  "raw_log_sha256": "571645bc831d14adef7ec4a4d33c53ec6326e8e18978fa40a5715459640aefb8",
+  "resource_handoff_sha256": "72f2b76be424b06a5737330d0807b8cc85f8cf4945368a3f056e1585c9fd6aec",
+  "inputs_manifest_sha256": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d"
+}

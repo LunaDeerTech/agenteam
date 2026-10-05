@@ -1,0 +1,25 @@
+{
+  "driver_exit": 1,
+  "elapsed_seconds": 42.516,
+  "passed_top": [
+    "TestModelCurrentResolutionAtomicity",
+    "TestModelCurrentResolutionCanonicalLease",
+    "TestModelCurrentResolutionAuthorization",
+    "TestModelCurrentResolutionSelection",
+    "TestModelCurrentResolutionReplay",
+    "TestModelCurrentResolutionUnknown"
+  ],
+  "failed_top": [
+    "TestModelCurrentResolutionSchema"
+  ],
+  "skipped_top": [],
+  "missing_expected_top": [
+    "TestModelCurrentResolutionSchema"
+  ],
+  "resource_clean": true,
+  "owned_container_count": 4,
+  "owned_network_count": 3,
+  "expected_counts_match": true,
+  "tracked_process_count": 80,
+  "input_sha256": "b2ed3ceede09b90480e5910904b909c1beaf86f25b8d3326f32cd4c3cc2e0a89"
+}

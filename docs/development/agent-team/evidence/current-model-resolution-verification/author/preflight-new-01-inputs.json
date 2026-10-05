@@ -1,0 +1,200 @@
+{
+  "manifest_sha256": "b2ed3ceede09b90480e5910904b909c1beaf86f25b8d3326f32cd4c3cc2e0a89",
+  "ready_sha256": "10d9aad63f8c04e175a2a84515e4e601561ad3ec7aabc7699a73bc64380eca64",
+  "observer_sha256": "3d919224932b8c4957958a957db129f1221ebe11fb340c2af566ddcce1eff320",
+  "sources": [
+    {
+      "path": "internal/central/model/authority.go",
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba",
+      "bytes": 5004
+    },
+    {
+      "path": "internal/central/model/service.go",
+      "sha256": "537c750a0cab179ec7b7e309b7325e26978d147224f580a6d5bb75bdb16e4d94",
+      "bytes": 3641
+    },
+    {
+      "path": "internal/central/model/secret_authority.go",
+      "sha256": "e312daae6e6887e399ffb20f875fac79bd88c80164987a80bb81407fb794271e",
+      "bytes": 4823
+    },
+    {
+      "path": "internal/central/model/secret_router.go",
+      "sha256": "ca3ef3327494fb8858cb39cc399326f398dac6f9da76b65c3ff3ed14d815712c",
+      "bytes": 2882
+    },
+    {
+      "path": "internal/central/model/resolver.go",
+      "sha256": "0bdd3e30b286da45454b2930b3f2d6ed4a09e4f9ff15a3e8028f5880e5bdf13c",
+      "bytes": 14359
+    },
+    {
+      "path": "internal/central/model/resolution_plan.go",
+      "sha256": "728830cce301d98ddb3069ef8af5b599b74dc03e17cc02ad25c7872f3a3993c1",
+      "bytes": 10211
+    },
+    {
+      "path": "internal/central/model/resolution_store.go",
+      "sha256": "703c3f2d5676c3f9a3417a93a5f63aa70c43faff2c5d6321600b67bfca176e45",
+      "bytes": 11225
+    },
+    {
+      "path": "internal/central/model/resolution_secret.go",
+      "sha256": "9eb73be32a0db3893e6850e2d8ad9c3ad16f693c2c10e9276177b2171640b3df",
+      "bytes": 6738
+    },
+    {
+      "path": "internal/central/model/resolution_policy.go",
+      "sha256": "538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee",
+      "bytes": 4230
+    },
+    {
+      "path": "internal/central/model/resolver_test.go",
+      "sha256": "aaec5c7e17f79c0fe1f77b959992594ab782fa9b3f461bf0719889f3ef98c6d6",
+      "bytes": 4636
+    },
+    {
+      "path": "internal/central/model/resolution_plan_test.go",
+      "sha256": "01740478be113212df13c365862283f946a7809141e8d4edda933283da57de87",
+      "bytes": 6901
+    },
+    {
+      "path": "internal/central/model/resolution_secret_test.go",
+      "sha256": "f1ef7cda17e9ad806881f788343ad5b2dafa9539ab5a8a350a4bed50ebf98f13",
+      "bytes": 1942
+    },
+    {
+      "path": "internal/central/model/resolution_policy_test.go",
+      "sha256": "0923f551388e62c6d6513c9f8db8d472bc199889c1d8e097091ebd7b81888e2e",
+      "bytes": 2279
+    },
+    {
+      "path": "tests/model/current_resolution_fixture_test.go",
+      "sha256": "669ccb190ae3c5043c104305a3116e1fc39ab28316983984ec0b261653a423b6",
+      "bytes": 16271
+    },
+    {
+      "path": "tests/model/current_resolution_selection_test.go",
+      "sha256": "e87158298aee54a2ead5b5aa10f36fadb7c08add1849e4323ac0ec8e19184562",
+      "bytes": 10326
+    },
+    {
+      "path": "tests/model/current_resolution_atomicity_test.go",
+      "sha256": "d3a20c8bf68f609f9f2d3c34e0d27d92615a6a10b9d1824a1bcca78c2e12679f",
+      "bytes": 8230
+    },
+    {
+      "path": "tests/model/current_resolution_authorization_test.go",
+      "sha256": "d76e68d2c02306aecf9d5f20459ad8d775bcc6fda2cd420b97db03651f09e435",
+      "bytes": 8007
+    },
+    {
+      "path": "tests/model/current_resolution_unknown_test.go",
+      "sha256": "ccc2235ea76b078ef601488d95621b72787fbd342ea9908126bc7b324edc32fc",
+      "bytes": 6342
+    },
+    {
+      "path": "tests/model/current_resolution_schema_test.go",
+      "sha256": "efd760029372d7e816f0d63cd32aeb56827c74104bf3eee9e2eb862c08df27a7",
+      "bytes": 8867
+    },
+    {
+      "path": "db/migrations/00017_model_current_resolution.sql",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837",
+      "bytes": 4094
+    }
+  ],
+  "immutable_count": 693,
+  "assets_verified": {
+    "go": {
+      "path": "/workspace/toolchains/go1.27.1/bin/go",
+      "sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+      "bytes": 17142188
+    },
+    "minio": {
+      "path": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+      "sha256": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+      "bytes": 109289632
+    },
+    "original_driver": {
+      "path": "/workspace/agenteam-current-resolution-author-xtvs4_8b/snapshot/scripts/test-objects.sh",
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+      "bytes": 1029
+    },
+    "pg_fixture": {
+      "path": "/workspace/agenteam-current-resolution-author-xtvs4_8b/snapshot/tests/testsupport/postgres/fixture.go",
+      "sha256": "448c63e2986b823ac15ccda25b75f4c8ebc28e461b3c6dbfcbb49ae24bd89437",
+      "bytes": 10585
+    }
+  },
+  "current_docker": {
+    "container": [
+      {
+        "ID": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+        "Name": "/agenteam-dev-infra-postgres-1",
+        "Labels": {
+          "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "postgres",
+          "com.docker.compose.version": "2.40.3"
+        }
+      },
+      {
+        "ID": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+        "Name": "/agenteam-dev-infra-minio-1",
+        "Labels": {
+          "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "minio",
+          "com.docker.compose.version": "2.40.3"
+        }
+      }
+    ],
+    "network": [
+      {
+        "ID": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+        "Name": "agenteam-dev-infra_default",
+        "Labels": {
+          "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+          "com.docker.compose.network": "default",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.version": "2.40.3"
+        }
+      },
+      {
+        "ID": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+        "Name": "none",
+        "Labels": {}
+      },
+      {
+        "ID": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+        "Name": "host",
+        "Labels": {}
+      },
+      {
+        "ID": "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5",
+        "Name": "bridge",
+        "Labels": {}
+      }
+    ]
+  },
+  "trusted_baseline": "/workspace/agenteam-d26-root-baseline-before.json",
+  "no_source_changes": true,
+  "trusted_baseline_sha256": "c3fde3481d423eaf1c97546b5549476ac98a992690bc2bee1c429407cbfff816",
+  "trusted_baseline_exact_match": true,
+  "account_embed_verified": true
+}

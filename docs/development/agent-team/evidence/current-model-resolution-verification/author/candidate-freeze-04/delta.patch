@@ -1,0 +1,95 @@
+--- a/tests/model/current_resolution_schema_test.go
++++ b/tests/model/current_resolution_schema_test.go
+@@ -4,7 +4,10 @@
+ 
+ import (
+ 	"context"
++	"crypto/sha256"
+ 	"encoding/json"
++	"errors"
++	"fmt"
+ 	"strings"
+ 	"testing"
+ 	"testing/fstest"
+@@ -14,6 +17,7 @@
+ 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+ 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+ 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
++	"github.com/jackc/pgx/v5/pgconn"
+ )
+ 
+ // Exact scalar wire DTO used only to build corrupt durable facts with a matching
+@@ -54,10 +58,14 @@
+ 		credential := base.credential(t, sc.Model)
+ 		p := base.provider(t, mc.OpenAIChat, &credential.CredentialRef)
+ 		m := base.model(t, p, mc.ChatModel)
+-		var original string
+-		if e := raw.QueryRow(testContext(t), `SELECT jsonb_build_array((SELECT to_jsonb(p) FROM agenteam_model.providers p WHERE id=$1),(SELECT to_jsonb(m) FROM agenteam_model.models m WHERE id=$2),(SELECT to_jsonb(s) FROM agenteam_secret.secrets s WHERE id=$3),(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$4))::text`, p.ID.String(), m.ID.String(), credential.CredentialRef.Details().ID.String(), base.project.ID.String()).Scan(&original); e != nil {
+-			t.Fatal(e)
++		oldRows := func() string {
++			var value string
++			if e := raw.QueryRow(testContext(t), `SELECT jsonb_build_array((SELECT to_jsonb(p) FROM agenteam_model.providers p WHERE id=$1),(SELECT to_jsonb(m) FROM agenteam_model.models m WHERE id=$2),(SELECT to_jsonb(s) FROM agenteam_secret.secrets s WHERE id=$3),(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$4))::text`, p.ID.String(), m.ID.String(), credential.CredentialRef.Details().ID.String(), base.project.ID.String()).Scan(&value); e != nil {
++				t.Fatal(e)
++			}
++			return value
+ 		}
++		original := oldRows()
+ 		oldConstraints := func() string {
+ 			var value string
+ 			if e := raw.QueryRow(testContext(t), `SELECT coalesce(jsonb_agg(jsonb_build_object('namespace',n.nspname,'table',c.relname,'catalog',to_jsonb(k),'definition',pg_get_constraintdef(k.oid)) ORDER BY n.nspname,k.oid),'[]'::jsonb)::text FROM pg_constraint k JOIN pg_namespace n ON n.oid=k.connamespace LEFT JOIN pg_class c ON c.oid=k.conrelid WHERE n.nspname LIKE 'agenteam_%' AND NOT(n.nspname='agenteam_model' AND coalesce(c.relname,'') IN ('resolution_preparations','snapshots','snapshot_bindings'))`).Scan(&value); e != nil {
+@@ -68,26 +76,42 @@
+ 		constraintsBefore := oldConstraints()
+ 		files := modelMigrationFiles(t, "00017")
+ 		name := "00017_model_current_resolution.sql"
+-		bad := modelMigrationFiles(t, "00017")
+-		bad[name] = &fstest.MapFile{Data: append(append([]byte{}, bad[name].Data...), []byte("\nSELECT 1/0;\n")...)}
+-		result := modelMigrator(t, db, bad).Migrate(testContext(t))
+-		if result.Migrated || result.Fault == nil {
+-			t.Fatal("failed migration accepted")
++		files[name] = &fstest.MapFile{Data: append(append([]byte{}, files[name].Data...), []byte("\nSELECT public.model_current_resolution_migration_dependency();\n")...)}
++		expectedChecksum := fmt.Sprintf("sha256:%x", sha256.Sum256(files[name].Data))
++		runner := modelMigrator(t, db, files)
++		result := runner.Migrate(testContext(t))
++		var pg *pgconn.PgError
++		if result.Migrated || !errors.As(result.Fault, &pg) || pg.Code != "42883" {
++			t.Fatalf("expected missing fixture function SQLSTATE 42883, got %v", result.Fault)
+ 		}
+ 		var absent bool
+ 		if e := raw.QueryRow(testContext(t), `SELECT to_regclass('agenteam_model.resolution_preparations') IS NULL AND to_regclass('agenteam_model.snapshots') IS NULL AND to_regclass('agenteam_model.snapshot_bindings') IS NULL`).Scan(&absent); e != nil || !absent {
+ 			t.Fatal("failed migration left partial tables", e)
+ 		}
+-		if oldConstraints() != constraintsBefore {
+-			t.Fatal("failed 17 migration changed an old constraint")
++		if original != oldRows() || oldConstraints() != constraintsBefore {
++			t.Fatal("failed 17 migration changed an old canonical row or constraint")
+ 		}
+-		migrateModel(t, modelMigrator(t, db, files), 17)
+-		if oldConstraints() != constraintsBefore {
+-			t.Fatal("successful 17 migration changed an old constraint")
++		var pending, applied, goose int
++		var checksum string
++		const journalState = `SELECT (SELECT count(*) FROM agenteam_meta.migration_journal WHERE version=17 AND state='pending'),(SELECT count(*) FROM agenteam_meta.migration_journal WHERE version=17 AND state='applied'),(SELECT count(*) FROM agenteam_meta.goose_db_version WHERE version_id=17 AND is_applied),(SELECT checksum FROM agenteam_meta.migration_journal WHERE version=17)`
++		if e := raw.QueryRow(testContext(t), journalState).Scan(&pending, &applied, &goose, &checksum); e != nil || pending != 1 || applied != 0 || goose != 0 || checksum != expectedChecksum {
++			t.Fatalf("failed migration journal pending=%d applied=%d goose=%d checksum=%s want=%s: %v", pending, applied, goose, checksum, expectedChecksum, e)
+ 		}
+-		var after string
+-		if e := raw.QueryRow(testContext(t), `SELECT jsonb_build_array((SELECT to_jsonb(p) FROM agenteam_model.providers p WHERE id=$1),(SELECT to_jsonb(m) FROM agenteam_model.models m WHERE id=$2),(SELECT to_jsonb(s) FROM agenteam_secret.secrets s WHERE id=$3),(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$4))::text`, p.ID.String(), m.ID.String(), credential.CredentialRef.Details().ID.String(), base.project.ID.String()).Scan(&after); e != nil || original != after {
+-			t.Fatal("preexisting canonical rows changed", e)
++		// Repair only the test dependency. The migrator retains exactly the same
++		// source bytes and checksum across the failed transaction and retry.
++		if _, e := raw.Exec(testContext(t), `CREATE FUNCTION public.model_current_resolution_migration_dependency() RETURNS void LANGUAGE SQL AS 'SELECT NULL::void'`); e != nil {
++			t.Fatal(e)
++		}
++		migrateModel(t, runner, 17)
++		if e := raw.QueryRow(testContext(t), journalState).Scan(&pending, &applied, &goose, &checksum); e != nil || pending != 0 || applied != 1 || goose != 1 || checksum != expectedChecksum {
++			t.Fatalf("retry journal pending=%d applied=%d goose=%d checksum=%s want=%s: %v", pending, applied, goose, checksum, expectedChecksum, e)
++		}
++		var tables int
++		if e := raw.QueryRow(testContext(t), `SELECT count(*) FROM pg_tables WHERE schemaname='agenteam_model' AND tablename IN ('resolution_preparations','snapshots','snapshot_bindings')`).Scan(&tables); e != nil || tables != 3 {
++			t.Fatal("same-source retry schema", tables, e)
++		}
++		if original != oldRows() || oldConstraints() != constraintsBefore {
++			t.Fatal("successful 17 migration changed an old canonical row or constraint")
+ 		}
+ 		if strings.Contains(string(files[name].Data), "+goose Down") {
+ 			t.Fatal("forbidden Down")

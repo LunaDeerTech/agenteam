@@ -1,0 +1,24 @@
+{
+  "manifest": {
+    "path": "/workspace/agenteam-current-resolution-author-xtvs4_8b/production-review-02/manifest.json",
+    "sha256": "5cc06fdfd6961ce7f1e0150abd7a7b1b4b78bb4bfd86c51764417648668a836e"
+  },
+  "delta": {
+    "path": "/workspace/agenteam-current-resolution-author-xtvs4_8b/production-review-02/delta.patch",
+    "sha256": "9d583eb0221d9b6280d83d975ec60b621becacff06f598c46d8585fe020421a4"
+  },
+  "files_verified": 10,
+  "changed_files": [
+    "internal/central/model/resolver.go",
+    "internal/central/model/resolution_plan.go",
+    "internal/central/model/resolution_store.go"
+  ],
+  "remaining_identical_files": 7,
+  "P1": "static closure PASS; candidate re-read after original locks and current Consumer validation, changed fact exits ResourceBusy",
+  "P2": "static closure PASS; stable Actor scalar closure and rederived resolution identity checked by loader",
+  "service_scalar_names": "12, exact match to prior fixed formal identity.RegisterService closed set",
+  "new_public_authority_mint": "none",
+  "dynamic": "NOT_RUN",
+  "old_findings_evidence_kind": "static only; no original dynamic red claimed",
+  "new_static_blocker": "none"
+}

@@ -1,0 +1,20 @@
+{
+  "changed": [
+    "tests/model/current_resolution_schema_test.go"
+  ],
+  "unchanged_other19": true,
+  "production_sql_review02_unchanged": true,
+  "inputs_match_repo_and_frozen": true,
+  "gofmt_clean": true,
+  "new_file_whitespace_clean": true,
+  "compile": "logs/candidate04-integration-compile-01.json",
+  "vet": "logs/candidate04-integration-vet-01.json",
+  "runtime_empty": true,
+  "gotmp_empty": true,
+  "Docker_not_run_this_revision": true,
+  "observer_changed_only_selectors_reference": true,
+  "original_failure_log": "fixture-runs/new-01/driver.log",
+  "original_failure_log_sha256": "9f3f2720a369902111ce1fafd6404034f1d51e60c400c2a87a3780860e807c0c",
+  "first_migration_failure_SQLSTATE": "not observed in original raw; do not infer 22012",
+  "root_authorized_schema_repair": "fixture-only missing function; no production, SQL or D03 changes"
+}

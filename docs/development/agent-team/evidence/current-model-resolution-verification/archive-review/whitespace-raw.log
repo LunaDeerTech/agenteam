@@ -1,0 +1,412 @@
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:4: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:5: space before tab in indent.
++ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:6: space before tab in indent.
++ 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:8: space before tab in indent.
++ 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:9: space before tab in indent.
++ 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:13: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:42: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:45: space before tab in indent.
++ 			return nil, fault(f.DependencyUnbound)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:46: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:47: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:62: space before tab in indent.
++ 	return &Authority{data: func() *authorityState { return s }}, nil
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:64: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:73: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:76: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:77: space before tab in indent.
++ 	r := reflect.ValueOf(v)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:78: space before tab in indent.
++ 	switch r.Kind() {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:81: space before tab in indent.
++ 		return r.IsNil()
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:82: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:83: space before tab in indent.
++ 	return false
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:85: space before tab in indent.
++ 		if err != nil {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:86: space before tab in indent.
++ 			return unavailable(err)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:87: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:93: space before tab in indent.
++ 		_, err = loadSelection(ctx, x)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:94: space before tab in indent.
++ 		return err
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:95: space before tab in indent.
++ 	})
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:99: space before tab in indent.
++ 	if r.Validate() != nil {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:100: space before tab in indent.
++ 		return sc.UsageDependencies{}, fault(f.InvalidArgument)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:101: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:105: space before tab in indent.
++ 	if r.Purpose != sc.Model || r.Action != sc.RetainReferenceUsage && r.Action != sc.ReleaseReferenceUsage {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:106: space before tab in indent.
++ 		return sc.UsageDependencies{}, fault(f.DependencyUnbound)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:107: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:109: space before tab in indent.
++ 	return sc.NewUsageDependencies(a.state().usageIssuer, binding, hash(raw), p.locks)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:115: space before tab in indent.
++ 	p, e := a.contextPlan(ctx, r.Actor)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:116: space before tab in indent.
++ 	if e != nil {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:117: space before tab in indent.
++ 		return e
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:119: space before tab in indent.
++ 	// SECRET_PREPARATION_REQUIRED. No legacy path may mutate Model references.
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:120: space before tab in indent.
++ 	return fault(f.ResourceBusy)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:127: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:132: space before tab in indent.
++ 	if r == nil || nilPort(r.fallback) {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:133: space before tab in indent.
++ 		return sc.UseGrant{}, fault(f.DependencyUnbound)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:134: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:138: space before tab in indent.
++ 	// No Purpose is present. Preserve the existing authority's decision and
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:139: space before tab in indent.
++ 	// never guess Model versus MCP from an execution owner.
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:140: space before tab in indent.
++ 	return r.fallback.AuthorizeLeaseInTx(ctx, tx, actor, ref, owner, action)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:142: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:143: space before tab in indent.
++ 	if request.Purpose == sc.Model {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:144: space before tab in indent.
++ 		if request.Action == sc.RetainReferenceUsage || request.Action == sc.ReleaseReferenceUsage {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:148: space before tab in indent.
++ 			return r.model, nil
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:149: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-01/delta.patch:150: space before tab in indent.
++ 		return nil, fault(f.DependencyUnbound)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:4: space before tab in indent.
++ 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:5: space before tab in indent.
++ 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:6: space before tab in indent.
++ 	"testing"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:9: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:12: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:13: space before tab in indent.
++ 		r = v.request(t, m, false)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:14: space before tab in indent.
++ 		p = v.discover(t, r)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:35: space before tab in indent.
++ 		_, result = v.final(t, r, p, false, false)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:36: space before tab in indent.
++ 		if result.State() != f.NotCommitted {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:37: space before tab in indent.
++ 			t.Fatal("archived gate accepted resolution")
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:38: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:49: space before tab in indent.
++ 	})
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:50: space before tab in indent.
++ 	t.Run("wrong-issuer-and-foreign-store", func(t *testing.T) {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:51: space before tab in indent.
++ 		r := v.request(t, m, false)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:53: space before tab in indent.
++ 		v.tap.mu.Lock()
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:54: space before tab in indent.
++ 		savedCtx, savedRequest, savedPlan := v.tap.ctx, v.tap.request, v.tap.plan
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:55: space before tab in indent.
++ 		v.tap.mu.Unlock()
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:68: space before tab in indent.
++ 		var inner error
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:72: space before tab in indent.
++ 			if e := v.observed.AcquireAll(ctx, tx, p.RequiredLocks()); e != nil {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:73: space before tab in indent.
++ 				return e
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:74: space before tab in indent.
++ 			}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:81: space before tab in indent.
++ 			return inner
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:82: space before tab in indent.
++ 		})
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:96: space before tab in indent.
++ 	})
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:98: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:102: space before tab in indent.
++ 		if e := raw.QueryRow(testContext(t), `SELECT jsonb_build_array((SELECT to_jsonb(p) FROM agenteam_model.providers p WHERE id=$1),(SELECT to_jsonb(m) FROM agenteam_model.models m WHERE id=$2),(SELECT to_jsonb(s) FROM agenteam_secret.secrets s WHERE id=$3),(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$4))::text`, p.ID.String(), m.ID.String(), credential.CredentialRef.Details().ID.String(), base.project.ID.String()).Scan(&original); e != nil {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:103: space before tab in indent.
++ 			t.Fatal(e)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:104: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:113: space before tab in indent.
++ 		files := modelMigrationFiles(t, "00017")
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:114: space before tab in indent.
++ 		name := "00017_model_current_resolution.sql"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:115: space before tab in indent.
++ 		bad := modelMigrationFiles(t, "00017")
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:117: space before tab in indent.
++ 		if e := raw.QueryRow(testContext(t), `SELECT to_regclass('agenteam_model.resolution_preparations') IS NULL AND to_regclass('agenteam_model.snapshots') IS NULL AND to_regclass('agenteam_model.snapshot_bindings') IS NULL`).Scan(&absent); e != nil || !absent {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:118: space before tab in indent.
++ 			t.Fatal("failed migration left partial tables", e)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:119: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:123: space before tab in indent.
++ 		migrateModel(t, modelMigrator(t, db, files), 17)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:127: space before tab in indent.
++ 		var after string
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:128: space before tab in indent.
++ 		if e := raw.QueryRow(testContext(t), `SELECT jsonb_build_array((SELECT to_jsonb(p) FROM agenteam_model.providers p WHERE id=$1),(SELECT to_jsonb(m) FROM agenteam_model.models m WHERE id=$2),(SELECT to_jsonb(s) FROM agenteam_secret.secrets s WHERE id=$3),(SELECT to_jsonb(p) FROM agenteam_project.projects p WHERE id=$4))::text`, p.ID.String(), m.ID.String(), credential.CredentialRef.Details().ID.String(), base.project.ID.String()).Scan(&after); e != nil || original != after {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-02/delta.patch:129: space before tab in indent.
++ 			t.Fatal("preexisting canonical rows changed", e)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:4: space before tab in indent.
++ 			return value
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:5: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:6: space before tab in indent.
++ 		before := facts()
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:13: space before tab in indent.
++ 		defer cancel()
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:17: space before tab in indent.
++ 		var inner error
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:18: space before tab in indent.
++ 		held := false
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:21: space before tab in indent.
++ 			if e := v.observed.AcquireAll(ctx, tx, p.RequiredLocks()); e != nil {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:22: space before tab in indent.
++ 				return e
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:23: space before tab in indent.
++ 			}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:25: space before tab in indent.
++ 				return e
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:26: space before tab in indent.
++ 			}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:27: space before tab in indent.
++ 			held = true
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:30: space before tab in indent.
++ 			return inner
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:31: space before tab in indent.
++ 		})
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-03/delta.patch:32: space before tab in indent.
++ 		if !held || result.State() != f.NotCommitted {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:4: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:6: space before tab in indent.
++ 	"context"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:8: space before tab in indent.
++ 	"encoding/json"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:11: space before tab in indent.
++ 	"strings"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:12: space before tab in indent.
++ 	"testing"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:13: space before tab in indent.
++ 	"testing/fstest"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:15: space before tab in indent.
++ 	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:16: space before tab in indent.
++ 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:17: space before tab in indent.
++ 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:20: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:23: space before tab in indent.
++ 		credential := base.credential(t, sc.Model)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:24: space before tab in indent.
++ 		p := base.provider(t, mc.OpenAIChat, &credential.CredentialRef)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:25: space before tab in indent.
++ 		m := base.model(t, p, mc.ChatModel)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:35: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:37: space before tab in indent.
++ 		oldConstraints := func() string {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:38: space before tab in indent.
++ 			var value string
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:39: space before tab in indent.
++ 			if e := raw.QueryRow(testContext(t), `SELECT coalesce(jsonb_agg(jsonb_build_object('namespace',n.nspname,'table',c.relname,'catalog',to_jsonb(k),'definition',pg_get_constraintdef(k.oid)) ORDER BY n.nspname,k.oid),'[]'::jsonb)::text FROM pg_constraint k JOIN pg_namespace n ON n.oid=k.connamespace LEFT JOIN pg_class c ON c.oid=k.conrelid WHERE n.nspname LIKE 'agenteam_%' AND NOT(n.nspname='agenteam_model' AND coalesce(c.relname,'') IN ('resolution_preparations','snapshots','snapshot_bindings'))`).Scan(&value); e != nil {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:41: space before tab in indent.
++ 		constraintsBefore := oldConstraints()
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:42: space before tab in indent.
++ 		files := modelMigrationFiles(t, "00017")
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:43: space before tab in indent.
++ 		name := "00017_model_current_resolution.sql"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:56: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:57: space before tab in indent.
++ 		var absent bool
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:58: space before tab in indent.
++ 		if e := raw.QueryRow(testContext(t), `SELECT to_regclass('agenteam_model.resolution_preparations') IS NULL AND to_regclass('agenteam_model.snapshots') IS NULL AND to_regclass('agenteam_model.snapshot_bindings') IS NULL`).Scan(&absent); e != nil || !absent {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:59: space before tab in indent.
++ 			t.Fatal("failed migration left partial tables", e)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:60: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:65: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:74: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:93: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:94: space before tab in indent.
++ 		if strings.Contains(string(files[name].Data), "+goose Down") {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch:95: space before tab in indent.
++ 			t.Fatal("forbidden Down")
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:4: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:5: space before tab in indent.
++ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:6: space before tab in indent.
++ 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:8: space before tab in indent.
++ 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:9: space before tab in indent.
++ 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:13: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:42: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:45: space before tab in indent.
++ 			return nil, fault(f.DependencyUnbound)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:46: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:47: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:62: space before tab in indent.
++ 	return &Authority{data: func() *authorityState { return s }}, nil
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:64: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:73: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:76: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:77: space before tab in indent.
++ 	r := reflect.ValueOf(v)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:78: space before tab in indent.
++ 	switch r.Kind() {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:81: space before tab in indent.
++ 		return r.IsNil()
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:82: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:83: space before tab in indent.
++ 	return false
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:85: space before tab in indent.
++ 		if err != nil {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:86: space before tab in indent.
++ 			return unavailable(err)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:87: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:93: space before tab in indent.
++ 		_, err = loadSelection(ctx, x)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:94: space before tab in indent.
++ 		return err
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:95: space before tab in indent.
++ 	})
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:99: space before tab in indent.
++ 	if r.Validate() != nil {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:100: space before tab in indent.
++ 		return sc.UsageDependencies{}, fault(f.InvalidArgument)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:101: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:105: space before tab in indent.
++ 	if r.Purpose != sc.Model || r.Action != sc.RetainReferenceUsage && r.Action != sc.ReleaseReferenceUsage {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:106: space before tab in indent.
++ 		return sc.UsageDependencies{}, fault(f.DependencyUnbound)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:107: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:109: space before tab in indent.
++ 	return sc.NewUsageDependencies(a.state().usageIssuer, binding, hash(raw), p.locks)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:115: space before tab in indent.
++ 	p, e := a.contextPlan(ctx, r.Actor)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:116: space before tab in indent.
++ 	if e != nil {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:117: space before tab in indent.
++ 		return e
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:119: space before tab in indent.
++ 	// SECRET_PREPARATION_REQUIRED. No legacy path may mutate Model references.
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:120: space before tab in indent.
++ 	return fault(f.ResourceBusy)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:127: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:132: space before tab in indent.
++ 	if r == nil || nilPort(r.fallback) {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:133: space before tab in indent.
++ 		return sc.UseGrant{}, fault(f.DependencyUnbound)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:134: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:138: space before tab in indent.
++ 	// No Purpose is present. Preserve the existing authority's decision and
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:139: space before tab in indent.
++ 	// never guess Model versus MCP from an execution owner.
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:140: space before tab in indent.
++ 	return r.fallback.AuthorizeLeaseInTx(ctx, tx, actor, ref, owner, action)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:142: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:143: space before tab in indent.
++ 	if request.Purpose == sc.Model {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:144: space before tab in indent.
++ 		if request.Action == sc.RetainReferenceUsage || request.Action == sc.ReleaseReferenceUsage {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:148: space before tab in indent.
++ 			return r.model, nil
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:149: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-01/delta.patch:150: space before tab in indent.
++ 		return nil, fault(f.DependencyUnbound)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:4: space before tab in indent.
++ 		if e := s.state().store.AcquireAll(ctx, tx, c.locks); e != nil {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:5: space before tab in indent.
++ 			return portError(e)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:6: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:25: space before tab in indent.
++ 	})
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:26: space before tab in indent.
++ 	if e = commitError(preflight); e != nil {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:27: space before tab in indent.
++ 		return empty, e
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:31: space before tab in indent.
++ 	return hash(raw)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:38: space before tab in indent.
++ 	key := "current-v1"
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:39: space before tab in indent.
++ 	if o.Kind == sc.ExecutionOwner {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:46: space before tab in indent.
++ 		}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:47: space before tab in indent.
++ 		v, _ := encoded(struct {
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:48: space before tab in indent.
++ 			Kind     mc.ConsumerKind
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:49: space before tab in indent.
++ 			Purpose  mc.Purpose
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:50: space before tab in indent.
++ 			Resource string
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:53: space before tab in indent.
++ 		key = hash(v).String()
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:54: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:94: trailing whitespace.
++ 
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:99: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:100: space before tab in indent.
++ 	_, idErr := f.ParseID[struct{}](r.ID)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:101: space before tab in indent.
++ 	raw, _ := encoded(r.Request)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:105: space before tab in indent.
++ 		return nil, unavailable(nil)
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:106: space before tab in indent.
++ 	}
+/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/author/production-review-02/delta.patch:107: space before tab in indent.
++ 	owner, e := sc.NewCredentialLeaseOwner(r.Request.Owner.Kind, r.Request.Owner.ID)

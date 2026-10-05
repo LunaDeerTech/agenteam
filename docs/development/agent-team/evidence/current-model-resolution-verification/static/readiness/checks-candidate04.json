@@ -1,0 +1,18 @@
+{
+  "mode": "static schema-test delta only; no Go/Docker/SQL/network/Git/repository write",
+  "inputs": {
+    "candidate-freeze-04/manifest.json": "60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d",
+    "candidate-freeze-04/delta.patch": "8c5ad0d53f2730e0aef48f32a2e5668b45919a0321e9d8b011b08b970615f802",
+    "ready-selectors-04.json": "1f280cbf072791c35c848c4343bbad62b2a832b9cf91265d1a893462fa14f0be",
+    "run_fixture_04.py": "fc34ab044c1c4e90b86792920f35a5c5f04862f8924099da3eec61434c8b6618"
+  },
+  "candidate_files_verified": 20,
+  "changed": [
+    "tests/model/current_resolution_schema_test.go"
+  ],
+  "unchanged_files": 19,
+  "finding": "PASS same Source/checksum migration retry; exact first SQLSTATE 42883 assertions",
+  "selector": "complete Schema1 then original old-model8/Secret7/Account4",
+  "budget": "original race/count1/6m unchanged",
+  "observer_delta": "only selector file reference"
+}

@@ -1,0 +1,487 @@
+{
+  "kind": "documentation archive checks only; no business execution",
+  "raw_original_count": 185,
+  "raw_original_bytes": 2165272,
+  "all_raw_original_paths_and_bytes_verified": true,
+  "variant_input_counts": {
+    "production-review-01": 10,
+    "production-review-02": 10,
+    "candidate-freeze-01": 20,
+    "candidate-freeze-02": 20,
+    "candidate-freeze-03": 20,
+    "candidate-freeze-04": 20,
+    "integration-compile-01": 15,
+    "integration-compile-02": 20,
+    "production-compile-01": 10,
+    "production-compile-02": 10,
+    "pure-test-01": 14,
+    "pure-race-01": 14,
+    "pure-vet-01": 14,
+    "review02-race-01": 19,
+    "review02-vet-01": 18,
+    "independent": 21
+  },
+  "baseline_file_count": 693,
+  "rebuild": {
+    "argv": [
+      "python3",
+      "/workspace/agenteam/docs/development/agent-team/evidence/current-model-resolution-verification/rebuild.py",
+      "--accepted-files",
+      "/workspace/agenteam-current-resolution-author-xtvs4_8b/candidate-freeze-04/files",
+      "--baseline-root",
+      "/workspace/agenteam-current-resolution-author-xtvs4_8b/snapshot",
+      "--check"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"raw_payloads\": 185,\n  \"source_blobs\": 36,\n  \"variants\": 16,\n  \"baseline_files\": 693,\n  \"git_read\": false,\n  \"no_tests_network_or_git_write\": true\n}\n",
+    "log_sha256": "f1fef551479030da1c43dc84cf2d96c9b653e53ce0b88b1822084967aa310f1c",
+    "git_used": false
+  },
+  "unchanged_technical_text": {
+    "resolver_card_sections_1_through_11_sha256": "7d6d910ac5fef14803cbfc5afb6db62247b0e1bbd8a22469eb222d9e1d2d6348",
+    "design_changed_paragraph_indices": [
+      1,
+      2,
+      7
+    ]
+  },
+  "markdown_link_count": 106,
+  "markdown_links": [
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/author/candidate-freeze-04/manifest.json"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/author/production-review-02/manifest.json"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "../work-items/recovery-d09-current-model-resolution.md"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/README.md"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/author/final-delivery.json"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/verification/logs/compile-01.json"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/verification/logs/vet-01.json"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/verification/fixture-runs/independent-01/driver.log"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/static/production/review01.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/static/production/review02.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/static/readiness/review.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/static/readiness/review-candidate02.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/static/readiness/review-candidate03.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/author/fixture-runs/new-01/driver.log"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/static/readiness/new01-schema-diagnosis.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/author/candidate-freeze-04/delta.patch"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/author/fixture-runs/schema-01/driver.log"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/verification/fixture-runs/independent-01/resource-handoff.json"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/verification/resource-window-handoff.json"
+    },
+    {
+      "source": "docs/development/agent-team/current-model-resolution-verification.md",
+      "target": "evidence/current-model-resolution-verification/archive-checks.json"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "../agent-team/current-model-resolution-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "../../../.agents/skills/agenteam-go-development/SKILL.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "d09-model-system-token-usage-design.md#4-正式规划授权与-secret-组合"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "../../architecture/platform-infrastructure/model-system/model-resolution.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "recovery-d09-secret-model-usage.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "recovery-d09-openai-chat-structured-wire.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "recovery-d08-lifecycle-runtime.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "../../../internal/central/model/contract/resolution.go"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "../../../internal/central/model/secret_authority.go"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "../../../internal/central/model/secret_router.go"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "recovery-d09-secret-model-usage.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "../agent-team/current-model-resolution-spec-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "target": "../agent-team/current-model-resolution-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "d09-model-system-token-usage-design.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "d09-b01-system-configuration.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "recovery-d09-project-configuration.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "../agent-team/current-model-resolution-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "../development-plan.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "d01-contracts/model-tool.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "d08-project-owner-design.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "../../../AGENTS.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "../agent-team/README.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "d09-b01-system-configuration.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "d09-b01-system-configuration.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "recovery-d09-project-configuration.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "../agent-team/d09-project-configuration-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "../agent-team/d09-secret-model-usage-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "../agent-team/system-model-root-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "recovery-d09-current-model-resolution.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage.md",
+      "target": "../agent-team/current-model-resolution-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "d09-b01-system-configuration.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "d09-model-system-token-usage.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "recovery-d09-current-model-resolution.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../agent-team/current-model-resolution-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../development-plan.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../architecture/platform-infrastructure/model-system/README.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../architecture/platform-infrastructure/model-system/model-configuration.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../architecture/platform-infrastructure/model-system/model-resolution.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../architecture/platform-infrastructure/model-system/chat-model-runtime.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../architecture/platform-infrastructure/model-token-usage.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "d01-contracts/model-tool.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "d01-contracts/foundation.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "d01-contracts/domain-lifecycle.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "d01-contracts/walkthroughs.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "d08-project-owner-design.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "d09-b01-system-configuration.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../../internal/central/model/contract/types.go"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../../internal/central/model/contract/configuration.go"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../../internal/central/model/contract/resolution.go"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../../internal/central/model/contract/authority.go"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../../internal/central/model/contract/references.go"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../../internal/central/model/contract/chat.go"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../../internal/central/model/contract/nonchat.go"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../../internal/central/model/contract/events.go"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../../internal/central/usage/contract/types.go"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../../internal/central/usage/contract/query.go"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../frontend-design/layouts/system-pages.md"
+    },
+    {
+      "source": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "target": "../../frontend-design/layouts/project-settings.md"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "../../current-model-resolution-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "accepted-input.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "source-map.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "SHA256SUMS.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "author/author-final-frozen.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "author/final-delivery.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "author/candidate-freeze-04/manifest.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "author/inputs/immutable-inputs.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "static/production/review01.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "static/production/review02.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "static/readiness/review.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "static/readiness/review-candidate02.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "static/readiness/review-candidate03.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "author/fixture-runs/new-01/driver.log"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "static/readiness/new01-schema-diagnosis.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "author/candidate-freeze-04/delta.patch"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "author/fixture-runs/schema-01/driver.log"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "verification/review.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "verification/delivery-index.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "verification/current_resolution_independent_test.go.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "verification/overlay.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "verification/fixture-runs/independent-01/command.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "verification/fixture-runs/independent-01/driver.log"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "verification/fixture-runs/independent-01/resource-handoff.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "archive-checks.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/current-model-resolution-verification/README.md",
+      "target": "whitespace-exceptions.json"
+    }
+  ],
+  "markdown_format": "UTF-8/LF/single final newline/no trailing whitespace; code fences balanced",
+  "json_parsed_count": 105,
+  "python_ast_parsed_count": 10,
+  "original_whitespace_exception_files": 5,
+  "git_diff_check": "not executed: task prohibits Git; equivalent scoped text checks and exact original-byte exceptions recorded",
+  "no_Go_Docker_network_or_Git_execution": true,
+  "final20_direct_compile_vet_input_hashes_match": true,
+  "sensitive_literal_pattern_scan": {
+    "scope": "archived log/json/jsonl/stderr",
+    "private_key_uri_password_long_bearer_matches": 0,
+    "limits": "pattern check plus fixed-source selection; not an independent secret-scanner guarantee"
+  }
+}

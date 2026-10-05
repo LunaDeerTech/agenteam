@@ -1,0 +1,12 @@
+# Resolver candidate02 readiness 窄差量
+
+结论：**T1、T3 通过；T2 仍需一次仅新测试窄修，原 candidate02 暂不建议运行。** 不涉及生产修订。Root 已采纳剩余 T2，后续仅复审该差量。
+
+输入 `/workspace/agenteam-current-resolution-author-xtvs4_8b/candidate-freeze-02/manifest.json` SHA256 `5e5c576945e3c7369c1142bb3c317debc3f1edc1747ddbaa2df8df6b551d7ecb`，delta `a3ff9e14b233d6982f6e4b2d028d09cd72faace20f679e9ebf05b8caccd477b3`。独立逐项核20原件，仅 authorization/schema 两新测试改变，其余18项包含9生产+SQL逐字不变。复用 candidate01 其余静态结论。
+
+- **T1 闭合。** 原归档 SQL 改用 PG 读取的同一个时间参数设置 archived_at/updated_at；cleanup 以新 bounded context 恢复 active、清 archived_at、推进 updated_at/version。正式 gate 精确 PROJECT_NOT_ACTIVE；原子事实为零、Secret Apply 调用数不增。子测试 Cleanup 会在后继子例前完成，避免共用 Project 留坏状态。
+- **T2 剩余硬阻断：保值 context 不能成为新事务父 context。** `current_resolution_authorization_test.go` 新增 `probeCtx := context.WithTimeout(context.WithoutCancel(savedCtx), time.Second)` 后把 probeCtx 传入 `v.observed.WithinTx`。WithoutCancel 仅去掉取消/期限，不删除 context values。旧 `postgres.txContextKey` 仍存在；固定 D03 `WithinTxOptions` 的第一项检查发现任何该 key 即返回 TransactionNested，并不会进入新 callback。因此 held=false，新严格断言会失败，仍不能声称命中了 Model witness。修正仅此新测试：全新有界 root ctx 启动新 WithinTx；在新 callback 内取得并核全量实际锁后，才用带本次 deadline 的保值 ctx 调 ApplyUsageInTx。保留精确 Forbidden、NotCommitted、原 preparation/snapshot/binding/lease 完整 JSON 不变。不能将取消或 Nested 当作 witness 证据。
+- **T3 闭合。** 新 catalog 查询覆盖全部 agenteam 命名空间、Model、Audit、domain 约束，仅排除三张新表自身约束。比较完整 pg_constraint 行和定义，失败17/成功17均须等于原1..16；原 canonical 行与无半表断言保留。
+- ready-selectors-02 仅更新输入标识/说明；7→8→7→4、精确 argv、原 race/count1/6m 和资源门槛不变。run_fixture_02 仅切换 selector 文件引用；原 observer 可复用。
+
+没有 Go/Docker/SQL/网络/Git 执行，没有仓库写入；T1/T2/T3 均为静态判断，尚无动态原红。本次仅冻结此报告及 checks-candidate02.json。报告不将作者 compile/vet 声明冒充独立运行。停止写入，等待 candidate03 的单点差量。

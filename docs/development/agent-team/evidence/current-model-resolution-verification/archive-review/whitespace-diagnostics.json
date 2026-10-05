@@ -1,0 +1,867 @@
+{
+  "scope": "actual independent read-only git diff --no-index --check, immutable original evidence, not a product failure",
+  "files": [
+    {
+      "path": "author/candidate-freeze-01/delta.patch",
+      "sha256": "79f457f37c5d1329f45468724ea86cc49ba2a3893a0fba6d2fd6acb1ec123fc2",
+      "git_whitespace": [
+        {
+          "line": 4,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 5,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 6,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 8,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 9,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 13,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 42,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 45,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 46,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 47,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 62,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 64,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 73,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 76,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 77,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 78,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 81,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 82,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 83,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 85,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 86,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 87,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 93,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 94,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 95,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 99,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 100,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 101,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 105,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 106,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 107,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 109,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 115,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 116,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 117,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 119,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 120,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 127,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 132,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 133,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 134,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 138,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 139,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 140,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 142,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 143,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 144,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 148,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 149,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 150,
+          "reason": "space before tab in indent."
+        }
+      ]
+    },
+    {
+      "path": "author/candidate-freeze-02/delta.patch",
+      "sha256": "a3ff9e14b233d6982f6e4b2d028d09cd72faace20f679e9ebf05b8caccd477b3",
+      "git_whitespace": [
+        {
+          "line": 4,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 5,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 6,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 9,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 12,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 13,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 14,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 35,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 36,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 37,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 38,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 49,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 50,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 51,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 53,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 54,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 55,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 68,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 72,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 73,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 74,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 81,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 82,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 96,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 98,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 102,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 103,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 104,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 113,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 114,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 115,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 117,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 118,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 119,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 123,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 127,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 128,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 129,
+          "reason": "space before tab in indent."
+        }
+      ]
+    },
+    {
+      "path": "author/candidate-freeze-03/delta.patch",
+      "sha256": "ef26521058117891636f7b5a33345d588f61a728a0c0c73a8a0c146d39c2facf",
+      "git_whitespace": [
+        {
+          "line": 4,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 5,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 6,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 13,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 17,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 18,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 21,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 22,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 23,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 25,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 26,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 27,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 30,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 31,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 32,
+          "reason": "space before tab in indent."
+        }
+      ]
+    },
+    {
+      "path": "author/candidate-freeze-04/delta.patch",
+      "sha256": "8c5ad0d53f2730e0aef48f32a2e5668b45919a0321e9d8b011b08b970615f802",
+      "git_whitespace": [
+        {
+          "line": 4,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 6,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 8,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 11,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 12,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 13,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 15,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 16,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 17,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 20,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 23,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 24,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 25,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 35,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 37,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 38,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 39,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 41,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 42,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 43,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 56,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 57,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 58,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 59,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 60,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 65,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 74,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 93,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 94,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 95,
+          "reason": "space before tab in indent."
+        }
+      ]
+    },
+    {
+      "path": "author/production-review-01/delta.patch",
+      "sha256": "40d081d83e71e1086394eb27dfe0941d9913fea12d4ddc3ac3e4c7f4b29d468b",
+      "git_whitespace": [
+        {
+          "line": 4,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 5,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 6,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 8,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 9,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 13,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 42,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 45,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 46,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 47,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 62,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 64,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 73,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 76,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 77,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 78,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 81,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 82,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 83,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 85,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 86,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 87,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 93,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 94,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 95,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 99,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 100,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 101,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 105,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 106,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 107,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 109,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 115,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 116,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 117,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 119,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 120,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 127,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 132,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 133,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 134,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 138,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 139,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 140,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 142,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 143,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 144,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 148,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 149,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 150,
+          "reason": "space before tab in indent."
+        }
+      ]
+    },
+    {
+      "path": "author/production-review-02/delta.patch",
+      "sha256": "9d583eb0221d9b6280d83d975ec60b621becacff06f598c46d8585fe020421a4",
+      "git_whitespace": [
+        {
+          "line": 4,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 5,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 6,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 25,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 26,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 27,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 31,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 38,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 39,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 46,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 47,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 48,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 49,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 50,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 53,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 54,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 94,
+          "reason": "trailing whitespace."
+        },
+        {
+          "line": 99,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 100,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 101,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 105,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 106,
+          "reason": "space before tab in indent."
+        },
+        {
+          "line": 107,
+          "reason": "space before tab in indent."
+        }
+      ]
+    }
+  ],
+  "original_raw_sha256": "a17ca5fbe2f5a8240030d1e9f1f82e8d21093a7f9b171aa3520bc4fd9fd8835e",
+  "exit": 3
+}

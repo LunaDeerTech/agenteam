@@ -1,0 +1,112 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-tags=integration",
+    "-run",
+    "^$",
+    "./tests/model"
+  ],
+  "cwd": "/workspace/agenteam-current-resolution-author-xtvs4_8b/snapshot",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-secret-model-usage-author-l4eactgz/gocache",
+    "GOTMPDIR": "/workspace/agenteam-current-resolution-author-xtvs4_8b/gotmp",
+    "TMPDIR": "/workspace/agenteam-current-resolution-author-xtvs4_8b/runtime",
+    "GOMAXPROCS": "4",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "CGO_ENABLED": "1"
+  },
+  "inputs": [
+    {
+      "path": "internal/central/model/authority.go",
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba"
+    },
+    {
+      "path": "internal/central/model/service.go",
+      "sha256": "537c750a0cab179ec7b7e309b7325e26978d147224f580a6d5bb75bdb16e4d94"
+    },
+    {
+      "path": "internal/central/model/secret_authority.go",
+      "sha256": "e312daae6e6887e399ffb20f875fac79bd88c80164987a80bb81407fb794271e"
+    },
+    {
+      "path": "internal/central/model/secret_router.go",
+      "sha256": "ca3ef3327494fb8858cb39cc399326f398dac6f9da76b65c3ff3ed14d815712c"
+    },
+    {
+      "path": "internal/central/model/resolver.go",
+      "sha256": "0bdd3e30b286da45454b2930b3f2d6ed4a09e4f9ff15a3e8028f5880e5bdf13c"
+    },
+    {
+      "path": "internal/central/model/resolution_plan.go",
+      "sha256": "728830cce301d98ddb3069ef8af5b599b74dc03e17cc02ad25c7872f3a3993c1"
+    },
+    {
+      "path": "internal/central/model/resolution_store.go",
+      "sha256": "703c3f2d5676c3f9a3417a93a5f63aa70c43faff2c5d6321600b67bfca176e45"
+    },
+    {
+      "path": "internal/central/model/resolution_secret.go",
+      "sha256": "9eb73be32a0db3893e6850e2d8ad9c3ad16f693c2c10e9276177b2171640b3df"
+    },
+    {
+      "path": "internal/central/model/resolution_policy.go",
+      "sha256": "538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee"
+    },
+    {
+      "path": "internal/central/model/resolver_test.go",
+      "sha256": "aaec5c7e17f79c0fe1f77b959992594ab782fa9b3f461bf0719889f3ef98c6d6"
+    },
+    {
+      "path": "internal/central/model/resolution_plan_test.go",
+      "sha256": "01740478be113212df13c365862283f946a7809141e8d4edda933283da57de87"
+    },
+    {
+      "path": "internal/central/model/resolution_secret_test.go",
+      "sha256": "f1ef7cda17e9ad806881f788343ad5b2dafa9539ab5a8a350a4bed50ebf98f13"
+    },
+    {
+      "path": "internal/central/model/resolution_policy_test.go",
+      "sha256": "0923f551388e62c6d6513c9f8db8d472bc199889c1d8e097091ebd7b81888e2e"
+    },
+    {
+      "path": "tests/model/current_resolution_fixture_test.go",
+      "sha256": "48a751d4d7a60fdb4ac385426f3d9c35c750f723c82a33fc9fa3c58d74389f39"
+    },
+    {
+      "path": "tests/model/current_resolution_selection_test.go",
+      "sha256": "ff09c65f8602e02eb7201bbdb21e2f077287a7e15ecfa6548e1f44ec7d7148c4"
+    },
+    {
+      "path": "tests/model/current_resolution_atomicity_test.go",
+      "sha256": "7596a8ab8284802b79ee3ee82e3b67433fc7d8884fcbf3495e23f1c721ace80a"
+    },
+    {
+      "path": "tests/model/current_resolution_authorization_test.go",
+      "sha256": "74c582b285ddeb513d1cfa2b7d937eb4ee6c07caabf506f83df3e2a92b202bab"
+    },
+    {
+      "path": "tests/model/current_resolution_unknown_test.go",
+      "sha256": "ccc2235ea76b078ef601488d95621b72787fbd342ea9908126bc7b324edc32fc"
+    },
+    {
+      "path": "tests/model/current_resolution_schema_test.go",
+      "sha256": "fbf91800275d465be32f18054d3e55200c8bb589cfc1d981673b3560d0ca5564"
+    },
+    {
+      "path": "db/migrations/00017_model_current_resolution.sql",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837"
+    }
+  ],
+  "started_unix": 1791232837.0655088,
+  "exit_code": 0,
+  "elapsed_seconds": 1.886
+}

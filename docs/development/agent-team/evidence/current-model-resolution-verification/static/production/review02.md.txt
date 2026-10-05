@@ -1,0 +1,12 @@
+# current-resolution production-review-02 独立窄差量复审
+
+结论：静审 PASS，P1/P2 在固定代码中闭合，未见差量引入的新确定阻断。实现与 migration 的动态验收仍未完成；此结论不代替真实并发/事务/迁移验证。
+
+固定 manifest：`/workspace/agenteam-current-resolution-author-xtvs4_8b/production-review-02/manifest.json`，SHA `5cc06fdfd6961ce7f1e0150abd7a7b1b4b78bb4bfd86c51764417648668a836e`；delta SHA `9d583eb0221d9b6280d83d975ec60b621becacff06f598c46d8585fe020421a4`。10 文件 SHA/字节全核过，确实仅 resolver.go、resolution_plan.go、resolution_store.go 变化；其余 6 生产文件和 00017 SQL 原字节保持。基线 be0bd07、规格 e81b029 未变。
+
+- **P1：** resolver.go:158–180 现于 AcquireAll、当前 consumer Validate 之后，以同 Store/Tx 重读 preparation。完整加载 DTO 与原候选不等即 RESOURCE_BUSY，包括有无记录、ID、phase、version、request/draft 等变化；只有候选仍相同才可能交付先前 readErr。没有锁内 Discover、补锁或替换 ID，后续重规划必须发生在 Tx 外。它消除了 review01 指出的“穿过原 writer 屏障后仍返回已被 committed 事实取代的候选错误”路径。真实时序回归仍待作者固定测试及独立验收。
+- **P2：** resolutionRequestDTO.validate 只核持久标量：Human 的合法 UserID/空 Session/无异类身份字段，AgentRun 与实际 Consumer 的 Project/Agent/Execution 相等，Service 的合法 Cause/Project 与正式闭集。12 个 ServiceName 与固定 identity.RegisterService 闭集逐项相同，未从 DTO 构造 Actor 或注册能力。loader 再通过 resolutionUnitIdentity 重算 canonical 单位并与存储 identity 比较；原列投影、owner 关系、digest、C0/draft 和约束检查均保留。空 Actor/异类字段/错 unit 不能再仅凭摘要匹配通过。合法请求的 canonical identity 算法只是抽取公共私有 helper，原 key/owner/command 推导未变。
+
+复用同目录 review01.md（SHA `a785ce3092394d5291ad793979f890b799e3e2eff43de19629abaca63e38e116`）其余静审结论。P1/P2 原件与报告保留，两项均为静态发现；本次没有原动态红，也没有补称越权、网络 ACK 故障或 SQL writer join 已被验证。作者所报 race/vet/compile 与纯子例是作者证据，不写成本人运行。
+
+仅固定输入只读与自有 tmp 报告写入，无活动测试读取、Go/Docker/SQL/网络/Git 或仓库写。现已 all-stop，等待完整测试冻结与主线程后续验证授权。

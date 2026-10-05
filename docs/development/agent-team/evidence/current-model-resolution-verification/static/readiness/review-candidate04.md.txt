@@ -1,0 +1,13 @@
+# Resolver candidate04 schema 窄差量
+
+结论：**PASS，可由 root 按已冻结 Schema1→旧8/7/4 顺序交窗。** 当前只有静态修复通过，实际首红仍保留，受影响完整 Schema top 尚待复验。
+
+作者目录 `/workspace/agenteam-current-resolution-author-xtvs4_8b`；candidate-freeze-04/manifest.json SHA256 `60a278f7472cc62bad9a1d09c880d054e76c599ba97c9e56a0b1faa0e7a54a2d`，delta `8c5ad0d53f2730e0aef48f32a2e5668b45919a0321e9d8b011b08b970615f802`。独立核20原件，只修改新 schema 测试，其他19（9生产+SQL在内）不变。
+
+修订正确遵循既有 B01/D03 范式：测试 Source 从开始即固定追加缺失函数调用；以 errors.As(PgError) 精确要求首故障42883；确认无半表，原四类 canonical 行与完整旧约束未变，并要求 pending1/applied0/goose0 和 journal checksum 等于该固定 Source 原字节 SHA256。该计算与正式 Source 的 sha256.Sum256(body) 一致。仅在自有测试库补测试函数依赖，随后使用同一个 runner 重试，不改 SQL Source/校验值/journal。成功要求 pending0/applied1/goose1、原checksum、三张表完整存在及原行/旧约束仍相等；无Down断言保留。
+
+fresh 子例仍执行未附加测试函数调用的真实00017；populated恢复子例固定同一测试Source，两者证据范围须如实区分。修订不改变产品迁移、原始SQL、D03历史保护或公共恢复API；没有放宽错误匹配和回滚断言。
+
+ready-selectors-04 精确运行整个 TestModelCurrentResolutionSchema，再原8/7/4旧组。未变的六个业务新top可复用 new-01 实际通过证据；不把其中首Schema红抹除。run_fixture_04 仅更换 selector 文件引用，原 race/count1/6m、资源观察/双清零门槛不变。其余 readiness 结论按未变输入复用。
+
+未运行 Go/Docker/SQL/网络/Git，未改仓库；只写本私有报告和 checks-candidate04.json。作者 compile/vet 0 仍属作者结果。冻结停止，实际复验窗口由root另授。

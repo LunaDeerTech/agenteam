@@ -1,0 +1,111 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-run",
+    "^$",
+    "./internal/central/model"
+  ],
+  "cwd": "/workspace/agenteam-current-resolution-author-xtvs4_8b/snapshot",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-secret-model-usage-author-l4eactgz/gocache",
+    "GOTMPDIR": "/workspace/agenteam-current-resolution-author-xtvs4_8b/gotmp",
+    "TMPDIR": "/workspace/agenteam-current-resolution-author-xtvs4_8b/runtime",
+    "GOMAXPROCS": "4",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "CGO_ENABLED": "1"
+  },
+  "inputs": [
+    {
+      "path": "internal/central/model/authority.go",
+      "sha256": "ed99cd856f77fa605fb4cb49564e113b5219eb410f16cba5f5816b450ab6a8ba"
+    },
+    {
+      "path": "internal/central/model/service.go",
+      "sha256": "3d3819874633731e2477e5c78037f841e225d88874f8113bbad5a2218ae8b056"
+    },
+    {
+      "path": "internal/central/model/secret_authority.go",
+      "sha256": "e312daae6e6887e399ffb20f875fac79bd88c80164987a80bb81407fb794271e"
+    },
+    {
+      "path": "internal/central/model/secret_router.go",
+      "sha256": "ca3ef3327494fb8858cb39cc399326f398dac6f9da76b65c3ff3ed14d815712c"
+    },
+    {
+      "path": "internal/central/model/resolver.go",
+      "sha256": "8980b0fa6b7aeb3863153145d3e446912c54e7e03e05139f1ffc9020e8b1fa03"
+    },
+    {
+      "path": "internal/central/model/resolution_plan.go",
+      "sha256": "6812b78bef8c5c4dac694be3bafbd6bd4b0ceec212e17e9179f877607dd18006"
+    },
+    {
+      "path": "internal/central/model/resolution_store.go",
+      "sha256": "6afb85dcc8762339c4200ded8e51da0fe3ab7c379f3c1ca7e1af95020ce0f122"
+    },
+    {
+      "path": "internal/central/model/resolution_secret.go",
+      "sha256": "b1363d311b7d01118b68103f7e7c98f7fa31b49f8c469d920e10d17b03d2c263"
+    },
+    {
+      "path": "internal/central/model/resolution_policy.go",
+      "sha256": "538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee"
+    },
+    {
+      "path": "internal/central/model/resolver_test.go",
+      "sha256": null
+    },
+    {
+      "path": "internal/central/model/resolution_plan_test.go",
+      "sha256": null
+    },
+    {
+      "path": "internal/central/model/resolution_secret_test.go",
+      "sha256": null
+    },
+    {
+      "path": "internal/central/model/resolution_policy_test.go",
+      "sha256": null
+    },
+    {
+      "path": "tests/model/current_resolution_fixture_test.go",
+      "sha256": null
+    },
+    {
+      "path": "tests/model/current_resolution_selection_test.go",
+      "sha256": null
+    },
+    {
+      "path": "tests/model/current_resolution_atomicity_test.go",
+      "sha256": null
+    },
+    {
+      "path": "tests/model/current_resolution_authorization_test.go",
+      "sha256": null
+    },
+    {
+      "path": "tests/model/current_resolution_unknown_test.go",
+      "sha256": null
+    },
+    {
+      "path": "tests/model/current_resolution_schema_test.go",
+      "sha256": null
+    },
+    {
+      "path": "db/migrations/00017_model_current_resolution.sql",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837"
+    }
+  ],
+  "started_unix": 1791231799.8330894,
+  "exit_code": 1,
+  "elapsed_seconds": 7.89
+}

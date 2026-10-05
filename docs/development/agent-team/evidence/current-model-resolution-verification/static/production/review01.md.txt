@@ -1,0 +1,36 @@
+# current-resolution production-review-01 独立静审
+
+结论：NEEDS FIX，两项已报主线程并由其授权原范围窄修。其余固定生产/SQL 未发现新增确定阻断；尚无独立 Go 或真实数据库验收。review01 原件必须保留，修后只审固定 review02 差量并核针对性证据。
+
+输入：`/workspace/agenteam-current-resolution-author-xtvs4_8b/production-review-01/manifest.json` SHA `3e60a25879850715924cadc050d9788d5c521d7617b42a9980fc062bccb25dbf`；delta SHA `40d081d83e71e1086394eb27dfe0941d9913fea12d4ddc3ac3e4c7f4b29d468b`。基线 `be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74`、规格 `e81b029cd65fb26cc8598955e32b961dac35cb85` / 技术卡 SHA `9413b70e0d524cc3223bf6aec9d1f761237ec22e96f988a99c9fa5e6827052b6`。9 生产+SQL 的 10 项 SHA/字节全匹配，4 个旧源与既有固定基线全匹配；见同目录 checks-review01.json。以下行号均指这份停止写入的原件。
+
+## P1：原 writer 屏障后仍可交付锁前的陈旧配置错误
+
+定位：`resolver.go:97–115,157–174`。Discover 在 Tx 外读取 preparation、phase 与配置并缓存 readErr；preflight 获得原 Command EX 后只有当前 consumer Validate，没有重读 preparation。随后直接返回原 readErr 或做原 row 的 semantic 判断。
+
+静态可达时序：同单位已有 prepared；旧 final writer 正在将其完成，另一个 Discover 先读到旧 prepared；旧 writer 提交，合法配置修改将原 live Model/Provider 禁用或删除；该 Discover 的候选读取记下 INVALID_STATE/NOT_FOUND。它随后取得原 writer 锁并完成当前授权，却在 170–171 行交付陈旧错误，未发现同单位已经 committed 的不可变结果。普通真实 Tx/锁即可构造此窗口，本次没有运行该反例，也不声称模拟了网络 ACK 故障。
+
+这违反已接受卡 §5.3 的 committed 重放独立于 live 配置、以及 §8“取得同一原 writer 屏障后按 canonical preparation/binding/snapshot/lease 重验”的规则。当前权限检查本身存在；缺的是屏障后的本域状态确认。
+
+最小修正：preflight 在完整当前锁与 consumer 验证后重读 preparation，比较候选的存在/ID/版本/phase/实际内容。发现变化先 RESOURCE_BUSY，结束 Tx 后整轮重新规划；不在持锁 Tx 内 Discover、补锁、换 SnapshotID/LeaseID，也不能把缓存 readErr 当作确认后的不存在。原存在性错误仅可在原候选仍成立时交付。针对性回归应保留修前输入，明确实际 first read、旧 writer commit、live 配置变更、同一 Command 屏障及精确错误/重入结果。
+
+## P2：持久请求未完整验证稳定 Actor 与解析单位
+
+定位：`resolution_store.go:48–56`，以及 canonical 使用路径 `59–107`。loader 已检查 Consumer、Selection、Owner、digest、draft 和列投影，但没有验证 `Request.Actor` 的稳定身份闭集，也未由持久请求/owner 重新计算并核对 `resolution_identity`。
+
+具体坏事实边界：一个 schema 可容纳的 request JSON 将 Actor 设为 `{}`，同时 semantic_digest 与该 DTO 正常一致，其余 Consumer/Selection/Owner/draft 保持合法，现有条件仍可通过。另一个任意非空 identity 字符串只要等于查询 key，也不被重新派生检查拒绝。canonicalResolutionLease 对另一 committed binding 复用这份 loader，只核 owner/ref/Project/Agent/execution 与完整表关联，没有补这两项。
+
+这是卡 §4 要求“应用 loader 完整核 UUID/摘要/C0 类型/跨字段关系”和“坏事实拒绝”的确定缺口。正常入口已有 ResolveRequest.Validate，未发现正常请求能产生上述坏 Actor；该反例需要持久数据已不合法（例如专属 fixture 注入且摘要一致）。因此它不是已证越权、SQL 注入或任意用户可改数据库的声明，不能扩大成安全漏洞报告。
+
+最小修正：在新 DTO/store helper 验稳定 Human（合法 UserID、SessionID 为空、其他身份域为空）、AgentRun、Service 的合法完整字段组合；验证 Consumer/Actor/owner 对应；由同一规范规则重算单位 identity 与持久列相等。hash 一致仍必需，但不代替合法身份。只补既定坏事实纯/真实反例，不扩公共 Actor/Secret 契约、不恢复授权能力或把持久 DTO 当 witness。
+
+## 其余已核结论与动态待验
+
+- optional Resolution/SecretService 正式角色投影、配置拷贝和 nil Chan 拒绝已落在授权构造处；根 nil 分支未添新表初始化依赖。既有 Human Select 调用真实 Project Read/Session 后才交付配置错误，Resolve 前置也确有持锁 consumer Validate。
+- union 按 D03 排序、去重、取强模式；准备与 final 包含正式 Secret 返回的完整锁，InTx 只 RequireHeld/InTx、不补锁或嵌套 Tx。canonical 查询覆盖全部同 owner/ref binding，核 Project/Agent/execution、一致 LeaseID，并在变更后拒绝原候选 ID，未使用 ON CONFLICT 隐藏第二 lease。
+- Secret Apply 走先 validateUsage、再 metadata、再 leaseGrant 的真实顺序；包内载体初始未验证，exact Tx/Authority/Store/full mapping/实际 committed 本域行与 consumer 验证之后才置 verified，同次 Apply 退出即失效。无载体走原 Account/MCP fallback，错载体不回退；read/release 未开放，未按 execution owner 猜 Purpose。
+- snapshot/binding/phase 与 planned lease 的实际写入使用调用方同 Tx；必须由外层传播普通业务错误，D03 缺/弱锁 poison 另保证被吞后也不能提交。无 ref 分支零 Secret。历史 replay 不重读 live 配置，仍经 Secret 当前 metadata/exact lease/released 门禁；final 仅 Committed 且原 ctx 未取消才返回。
+- 00017 只建三张本域表/索引，同域 live FK 为 SET NULL；正版本、phase/time 和 ref/lease 全空或全有检查存在，nullable ref CHECK 不能靠 NULL 放行。未改旧 SQL、跨域表或引入 Down。其基本 SQL 约束不代替上述 P2 应用完整验证。
+- Unknown 使用原 CommitResult 的 cause/attempt 安全投影，未加后台确认、网络故障或 join 声明。普通结果装饰、原锁/真实后态、并发、outer input 与全部新行的回滚、fresh/populated 迁移及旧约束/回归，均仍须冻结测试与真实证据验证。
+
+本次仅读 review01、已固定规格/上游源并写自有 tmp 报告，没有读取作者活动测试，没有 Go/Docker/SQL/网络/Git 操作或仓库写。作者所报 unit/race/vet exit0 不标为本人的运行。Summary、生产 consumer、Invocation/Usage/材料/retire/cleanup/root 以及原 Object/Artifact 限制不变。现已 all-stop，等待固定 review02。

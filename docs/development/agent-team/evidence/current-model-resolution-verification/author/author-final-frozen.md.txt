@@ -1,0 +1,15 @@
+# Current Model Resolution 作者交付冻结
+
+固定业务基线 `be0bd07`，最终候选 `candidate-freeze-04`（20 路径）。9 个生产源和 00017 SQL 与独立静审通过的 `production-review-02` 完全一致；最终仓库、副本、冻结原件逐项相等。
+
+作者有效覆盖为 26 个不同顶层、109 个子例：最终 candidate04 直接运行 Schema 1/5、旧 Model 8/19、Secret 7/43、Account 4/7；复用 candidate03 首轮未改变的 6 个新顶层/35 子例。不是一次最终输入整组全绿。各轮真实 race/count1/6m 由原 driver 执行，no-tests 包不计覆盖。
+
+原 new-01 Schema 红完整保留。其失败路径在附加测试 SQL 的迁移失败后换回原 checksum，第二次 Migrate 实际返回 MIGRATION_HISTORY_DIVERGED；首个 Fault 未记录 SQLSTATE，不追认为 22012。唯一测试修正用精确缺函数 42883，核 pending/applied/goose/source checksum，再仅补 fixture 依赖并用同 runner/source 重试；失败、成功两阶段的旧 canonical 行和完整旧约束目录相等，成功三表完整。复验完整 Schema 顶层通过。生产、SQL、D03 和旧测试未改。
+
+纯 unit/race/vet、集成编译及两个 cmd build 的原始通过结果按输入未变复用；本轮单文件修正后仅受影响的 integration race compile 和 vet 再运行并通过。P1/P2 与早期 T1/T2/T3 是静态发现，不能追称动态原红；原准备/编译失败与所有中间候选也保留。
+
+五轮累计实际创建 20 容器/15 网络，每轮 nonce 标签/网络活体采集、两次 exact ID absent、原 2 容器/4 网络 ID/name/labels 不变；跟踪进程/组无残留，runtime/gotmp 空。窗口已交还 root；归位后不再 Go/Docker。
+
+这只是作者交付，独立动态验收尚待。未实现生产 consumer/root、Invocation/Usage、Provider 发送、材料读取/lease 退休/Project cleanup；ready503、Summary 待决及 Object 阻断维持。正式 Store 结果装饰不等于物理 ACK 丢失或原 ROLLBACK backend 持锁证明。
+
+完整原始记录、实际 argv/env/exit、源与资源指纹见 [final-delivery.json](final-delivery.json)。

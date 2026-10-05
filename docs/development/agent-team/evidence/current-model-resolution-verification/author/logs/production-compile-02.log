@@ -1,0 +1,5 @@
+# github.com/LunaDeerTech/agenteam/internal/central/model [github.com/LunaDeerTech/agenteam/internal/central/model.test]
+internal/central/model/resolution_secret.go:203:12: result.Validate undefined (type "github.com/LunaDeerTech/agenteam/internal/central/secret/contract".UsageResult has no field or method Validate)
+internal/central/model/resolution_secret.go:206:11: assignment mismatch: 1 variable but result.Lease returns 2 values
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model [build failed]
+FAIL
