@@ -230,8 +230,10 @@ Audit库与Secret库本身没有自主Project执行/外部业务worker：它们�
 3. 全部 stop=stopped 后，archive 在 Project EX 下复核 operation/cause 与所有进度，原子变 archived、Project.version+1、archived_at、完成 Event/Audit、operation completed。不运行 Cleanup。Restore 在当前 Human/Owner/expected_version 下原子变 active、version+1、清 archived_at并发事件/Audit；不重开旧 execution/delivery，不移除历史进度来冒充新动作。
 4. delete 全 stop 后持久进入 cleaning。清理依赖图按领域资源引用排序：业务资源拥有者释放引用/清本域 → Secret 与 Artifact/Object 清理 → Outbox → Audit → Project finalizer。清理中的内部 Audit/停止 Event 在各自最后清理屏障之前允许；其他生产者仍在清理时禁止 Outbox Cleanup。
 5. Outbox Cleanup 仅当除 Outbox/Audit/Project finalizer 外所有必要清理 completed 且无尚可派生事件的本域工作时授权。由 D06 在 Project EX 关闭所有 Append 并确认库内队列/marker/attempt 清零。不能把 stop/inspect 也绑到这个条件而造成循环。
-6. Audit Cleanup 仅在 Outbox 与所有会追加 Project Audit 的资源工作已 completed 后授权；D08 `CheckAppendInTx` 从 audit 清理屏障起拒绝新 Project Audit。System Audit 不动，不另外抄 Project Audit 到 System。
+6. Audit Cleanup 仅在 Outbox 与所有会追加 Project Audit 的资源工作已 completed 后授权；进入 audit 清理阶段即形成不可逆的新 Project Audit 写入屏障，D08 `CheckAppendInTx` 从此拒绝新 Project Audit。该清理轮失败、Unknown 或尚未写 completed checkpoint 均不能后移或重开屏障。System Audit 不动，不另外抄 Project Audit 到 System。
 7. 最终Project EX下复核exact operation及所有必要最终回执；除当前finalizer的exact(process,attempt,fence) claim之外，不得存在其他未actual joined/未获exact死亡+原writer终局证据的活claim。本次claim从进入finalize一直持有，不提前释放给另一worker；在写最小deletion receipt、删除本域commands/creation/participant/op/project的同一最终事务内原子退休/删除本次claim，释放unique name。最终事务不追加Project Event/Audit，不重新污染已清理领域。提交未知沿同原claim/Project锁和最小receipt核实，不重新claim再清一次；新同名项目有新ID，不被旧worker/cause影响。
+
+屏障后的 RetryLifecycle 仅豁免默认的 Project Audit 追加要求，不豁免当前 Session/Owner、exact Project/operation、既有同 key 摘要/重放与版本规则：按原幂等优先级核已完成 receipt，新接受 Retry 才比较 operation expected_version；原 phase 恢复、command receipt 和既定首次 Touch 仍同 Tx。重复同 key 不重复 Touch。只省略会重新污染项目的 Audit append，不换 cause、不撤 gate、不跳清理、不产生 Project Event；Outbox 清理屏障后的 Event 禁写也不因恢复而重开。屏障前 Retry 的 Audit 必须原子成功，失败回滚 receipt/phase/Touch；Unknown 仍须按原命令身份串行确认，不能因省略 Audit 直接成功。最终真实清理和最小 deletion receipt 保留规则不变；已物理删除后的只读 Retry 仍按 §5，无本域或 Activity 写入。
 
 停止/清理调用不持长 Tx。Worker 单进程公平有限并行，默认最多 4 个 work item，每 Project 同时一个，单 participant 调用预算 2s 或更短 parent；超时仍追踪真实任务完成，不释放 claim/fence谎称已 join。无法及时 join 的 item 保持 pending，有空闲槽时其他项目公平继续；四槽全部仍有真实活调用时报告容量受阻，不无界再开goroutine。退避 1s、2s、4s 至 30s capped，不按次数判 stopped。panic 记固定安全原因并保留当前 phase，不能跳过。失败需要同 operation 恢复，checkpoint 不由 UI 决定。
 

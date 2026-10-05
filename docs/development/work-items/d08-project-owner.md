@@ -83,6 +83,8 @@ root 已采纳并提交推送 `6319d03`。独立报告 `/tmp/agenteam-d08-b02-pg
 
 验收：T06/T08–T14，含实际在途 Object I/O与Outbox callback、cancel与join区分、旧cause竞态、COMMIT unknown、死亡证明、MinIO清理和最小receipt。所有 required stop确认前不得进入archived/cleaning；Outbox清理位于生产者收束之后，Audit清理随后，最终不能制造Project残留事件/Audit。迁移/安全/协议风险由独立实例验收。
 
+Audit 屏障后 Retry 窄澄清已由 root 采纳，正式规则见共享规格 §8：进入 audit 清理阶段即禁新 Project Audit，失败/Unknown/未写 completed 不后移或重开屏障。Retry 保留当前 Session/Owner、exact Project/operation、幂等重放优先级、新接受的 operation version、原 phase/command receipt 与首次 Touch 原子性，仅不追加 Audit；Outbox 后 Project Event 也不复活。验收须覆盖真实 audit failed/Unknown 后同 cause/phase 恢复、Audit/Event 数量为零或单调减少、同 key 重放零重复 Touch；foreign/撤销 Session/错 operation/新 Retry 的旧 version/同 key 异义拒绝，屏障前 Audit 失败整 Tx 回滚，Unknown 原身份串行确认与最终真实清理不能跳过。此为已采纳工程规则，P 实现与真实验收仍待完成。
+
 C0 候选修订与独立意见闭环：固定 `/tmp/agenteam-d08-b03-c0-r2-qu3_uo_7/`，正文 SHA `b07d902a1ff8995db4c7bf95a13fa64cc8fcaae820cdeeb370108930ed5baa9c`；两处精确 delta SHA `cf61173116fa138679c135026649e0b8c6af67ae71d0662acc85b45b8b5af852`。R01 补 P 的 commands.go/tests 生命周期 Lookup/Unknown 窄接缝，R02 明确 AccessDependencies 不是私有 issuer plan；没有新增公共类型或产品语义。完整精确口径现以共享规格 §9.1/9.2 为准。
 
 completed-delete Retry 窄澄清已由 root 采纳：当前授权与输入语法仍校验，删除后仅以精确 Project/Operation 只读确认最小 Receipt；不同合法 retry key 不产生写入/Touch/Event/Audit，不保留旧 retry 历史。无法辨识的 retry Lookup 返回 RESOURCE_DELETED，原 Delete key/digest 重放规则保持。已核 B01 结果联合型与 D01/§8 最小保留无明文冲突；真实验收须覆盖 foreign/撤销或到期 Session/错误 Operation/不同合法 key/原 Delete 异义，并核零复活、零新增保留。
