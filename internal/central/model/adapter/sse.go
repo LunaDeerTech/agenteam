@@ -74,6 +74,9 @@ func (x *Exchange) stream(body io.Reader) (End, error) {
 	end := End{Usage: mc.Usage{Source: mc.UnknownUsage}}
 	finished, usageSeen := false, false
 	textBytes := 0
+	// Only structured output retains cumulative content. String() borrows this
+	// bounded builder; validation never makes a second whole-content copy/DOM.
+	var structuredText strings.Builder
 	for {
 		if err := x.ctx.Err(); err != nil {
 			return End{}, contextFailure(err)
@@ -93,6 +96,11 @@ func (x *Exchange) stream(body io.Reader) (End, error) {
 		if bytes.Equal(raw, []byte("[DONE]")) {
 			if !finished {
 				return End{}, protocolFailure()
+			}
+			if x.schema != nil {
+				if err := x.schema.complete(x.ctx, structuredText.String(), end.FinishReason); err != nil {
+					return End{}, err
+				}
 			}
 			end.ProviderRequestID = x.requestID
 			return end, nil
@@ -122,6 +130,9 @@ func (x *Exchange) stream(body io.Reader) (End, error) {
 		textBytes += len(value.text)
 		if textBytes > maxTextBytes {
 			return End{}, limitFailure()
+		}
+		if x.schema != nil {
+			structuredText.WriteString(value.text)
 		}
 		for remaining := value.text; remaining != ""; {
 			n := min(len(remaining), 64<<10)

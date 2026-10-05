@@ -33,6 +33,7 @@ type Exchange struct {
 	queueBytes                                 int
 	result                                     Result
 	err                                        error
+	schema                                     *structuredSchema
 }
 
 func newExchange(ctx context.Context, mode ResponseMode, overall time.Duration, budget *Budget) *Exchange {
@@ -112,6 +113,11 @@ func (x *Exchange) perform(t Transport, req *http.Request, profile outbound.Prof
 	x.observeUsage(value.usage)
 	if value.refusal {
 		return Result{}, failure("content_filter", "")
+	}
+	if x.schema != nil {
+		if err := x.schema.complete(x.ctx, value.text, value.finish); err != nil {
+			return Result{}, err
+		}
 	}
 	return Result{Text: value.text, End: End{FinishReason: value.finish, Usage: value.usage.Clone(), ProviderRequestID: x.requestID}}, nil
 }
@@ -238,8 +244,13 @@ func (x *Exchange) consumerJoin(ctx context.Context) error {
 		cancel()
 	}
 	err := x.waitJoined(wait)
-	if err != nil && ctx.Err() != nil {
+	// An actually joined client may return nil even with a cancelled wait.
+	// Join still retires its real slot first; it never authorizes publication.
+	if ctx.Err() != nil {
 		return contextFailure(ctx.Err())
+	}
+	if x.ctx.Err() != nil {
+		return contextFailure(x.ctx.Err())
 	}
 	return err
 }

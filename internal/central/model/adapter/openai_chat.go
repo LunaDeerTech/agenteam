@@ -23,6 +23,7 @@ import (
 )
 
 const OpenAIChatTextRevision = "openai-chat-text-v1"
+const OpenAIChatStructuredRevision = "openai-chat-structured-v1"
 
 type ResponseMode string
 
@@ -112,7 +113,7 @@ func (a *OpenAIChat) Start(ctx context.Context, r Request, o CallOptions) (*Exch
 	if err := ctx.Err(); err != nil {
 		return nil, contextFailure(err)
 	}
-	req, profile, err := prepare(r, o)
+	req, profile, schema, err := prepareWithSchema(ctx, r, o)
 	if err != nil {
 		return nil, err
 	}
@@ -120,12 +121,20 @@ func (a *OpenAIChat) Start(ctx context.Context, r Request, o CallOptions) (*Exch
 	if err != nil {
 		return nil, err
 	}
+	x.schema = schema
 	go x.run(a.transport, req, profile)
 	return x, nil
 }
 
 func prepare(r Request, o CallOptions) (*http.Request, outbound.Profile, error) {
-	fail := func(err error) (*http.Request, outbound.Profile, error) { return nil, outbound.Profile{}, err }
+	req, profile, _, err := prepareWithSchema(context.Background(), r, o)
+	return req, profile, err
+}
+
+func prepareWithSchema(ctx context.Context, r Request, o CallOptions) (*http.Request, outbound.Profile, *structuredSchema, error) {
+	fail := func(err error) (*http.Request, outbound.Profile, *structuredSchema, error) {
+		return nil, outbound.Profile{}, nil, err
+	}
 	if r.Mode != JSONResponse && r.Mode != SSEResponse || r.Snapshot.Validate() != nil || r.ToolChoice.Validate() != nil || r.ResponseFormat.Validate() != nil || len(r.Messages) == 0 || len(r.Messages) > 256 || len(r.Tools) > 128 || o.ProjectID.Validate() != nil {
 		return fail(invalid())
 	}
@@ -140,7 +149,32 @@ func prepare(r Request, o CallOptions) (*http.Request, outbound.Profile, error) 
 		}
 	}
 	s, c := r.Snapshot.Identity, r.Snapshot.Capabilities
-	if s.Profile != mc.OpenAIChatV1 || s.Protocol != mc.OpenAIChat || s.ModelType != mc.ChatModel || s.AdapterRevision != OpenAIChatTextRevision || !emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !onlyText(c.InputModalities) || !onlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !onlyText(c.StructuredOutputModes) || r.Mode == SSEResponse && !c.Streaming || len(r.Tools) != 0 || r.ToolChoice.Kind != "none" || r.ResponseFormat.Kind != "text" {
+	if s.Profile != mc.OpenAIChatV1 || s.Protocol != mc.OpenAIChat || s.ModelType != mc.ChatModel || !emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !onlyText(c.InputModalities) || !onlyText(c.OutputModalities) || r.Mode == SSEResponse && !c.Streaming || len(r.Tools) != 0 || r.ToolChoice.Kind != "none" {
+		return fail(unsupported())
+	}
+	var schema *structuredSchema
+	var format *structuredWireFormat
+	switch s.AdapterRevision {
+	case OpenAIChatTextRevision:
+		if len(c.StructuredOutputModes) > 0 && !onlyText(c.StructuredOutputModes) || r.ResponseFormat.Kind != "text" {
+			return fail(unsupported())
+		}
+	case OpenAIChatStructuredRevision:
+		hasSchema := false
+		for _, mode := range c.StructuredOutputModes {
+			hasSchema = hasSchema || mode == "json_schema"
+		}
+		if !hasSchema {
+			return fail(unsupported())
+		}
+		if r.ResponseFormat.Kind == "json_schema" {
+			var err error
+			schema, format, err = compileStructured(ctx, r.ResponseFormat)
+			if err != nil {
+				return fail(err)
+			}
+		}
+	default:
 		return fail(unsupported())
 	}
 	// Explicit wire tags prevent either public-contract JSON or logging methods
@@ -169,12 +203,13 @@ func prepare(r Request, o CallOptions) (*http.Request, outbound.Profile, error) 
 		maxOutput = &n
 	}
 	body := struct {
-		Model     string          `json:"model"`
-		Messages  []wireMessage   `json:"messages"`
-		Stream    bool            `json:"stream"`
-		Options   map[string]bool `json:"stream_options,omitempty"`
-		MaxOutput *int64          `json:"max_completion_tokens,omitempty"`
-	}{Model: s.ProviderModelID, Messages: messages, Stream: r.Mode == SSEResponse, MaxOutput: maxOutput}
+		Model     string                `json:"model"`
+		Messages  []wireMessage         `json:"messages"`
+		Stream    bool                  `json:"stream"`
+		Options   map[string]bool       `json:"stream_options,omitempty"`
+		MaxOutput *int64                `json:"max_completion_tokens,omitempty"`
+		Format    *structuredWireFormat `json:"response_format,omitempty"`
+	}{Model: s.ProviderModelID, Messages: messages, Stream: r.Mode == SSEResponse, MaxOutput: maxOutput, Format: format}
 	if body.Stream {
 		body.Options = map[string]bool{"include_usage": true}
 	}
@@ -231,7 +266,7 @@ func prepare(r Request, o CallOptions) (*http.Request, outbound.Profile, error) 
 		req.Header.Set("Accept", "text/event-stream")
 	}
 	req.Close = true
-	return req, profile, nil
+	return req, profile, schema, nil
 }
 
 func onlyText(v []string) bool { return len(v) == 1 && v[0] == "text" }
