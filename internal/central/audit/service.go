@@ -27,6 +27,7 @@ type Store interface {
 type AccountAuthority = contract.AccountAuthority
 
 type Authorizations struct {
+	Models   contract.ModelAuthority
 	Accounts contract.AccountAuthority
 	Sessions identity.SessionAuthority
 	System   identity.SystemAuthority
@@ -210,6 +211,12 @@ func (s *Service) authorizeAppend(ctx context.Context, tx foundation.Tx, entry c
 			return failure(foundation.DependencyUnbound, "project_gate_unbound", nil)
 		}
 		return portError(s.auth.Projects.CheckAppendInTx(ctx, tx, entry, key))
+	}
+	if contract.ModelAction(f.Action) {
+		if nilPort(s.auth.Models) {
+			return failure(foundation.DependencyUnbound, "model_authority_unbound", nil)
+		}
+		return portError(s.auth.Models.CheckAppendInTx(ctx, tx, entry, key))
 	}
 	switch a.Kind {
 	case identity.Human:

@@ -43,7 +43,7 @@ const (
 )
 
 func (a Action) Valid() bool {
-	if AccountAction(a) || ProjectAction(a) {
+	if AccountAction(a) || ProjectAction(a) || ModelAction(a) {
 		return true
 	}
 	switch a {
@@ -84,6 +84,8 @@ const (
 func (k ResourceKind) Valid() bool {
 	switch k {
 	case ProjectResource, ProjectOperationResource, ProjectCreationResource:
+		return true
+	case ModelProviderResource, ModelConfigResource, ModelSelectionResource:
 		return true
 	case UserResource, SessionResource, AccountAttemptResource, InvitationResource, PasswordResetResource, AccountSettingsResource, SMTPSettingsResource, MailJobResource:
 		return true
@@ -189,6 +191,11 @@ func NewEntry(f EntryFields) (Entry, error) {
 			return Entry{}, err
 		}
 	}
+	if ModelAction(f.Action) {
+		if err := validateModelEntry(f); err != nil {
+			return Entry{}, err
+		}
+	}
 	switch f.Action {
 	case OutboxDeliveryRequeue:
 		if a.Kind != identity.Human || f.Outcome != Success || r.Kind != OutboxDeliveryResource || r.ID != f.Metadata.deliveryID() {
@@ -282,9 +289,12 @@ const (
 )
 
 func (p Producer) Valid() bool {
-	return p == ProjectProducer || p == AccountProducer || p == AccountMailProducer || p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer || p == OutboxProducer
+	return p == ModelProducer || p == ProjectProducer || p == AccountProducer || p == AccountMailProducer || p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer || p == OutboxProducer
 }
 func ProducerFor(action Action) Producer {
+	if ModelAction(action) {
+		return ModelProducer
+	}
 	if ProjectAction(action) {
 		return ProjectProducer
 	}
