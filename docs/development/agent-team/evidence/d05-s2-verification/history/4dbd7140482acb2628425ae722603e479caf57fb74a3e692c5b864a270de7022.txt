@@ -1,0 +1,635 @@
+package object
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"strings"
+	"sync"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/jackc/pgx/v5"
+)
+
+// Work is a technical lifetime, not an access grant. In particular one service
+// operation can own several independent source, destination and maintenance
+// relationships. Neither another relationship nor a new cleanup claim replaces
+// the identity or the join evidence of an existing one.
+type projectWork struct {
+	id, kind, resource, epochOperation, revoked string
+	project                                     identity.ProjectID
+	process                                     oc.ProcessID
+	object                                      oc.ObjectID
+	epoch, fence                                int64
+	joined                                      bool
+}
+
+type projectWorkHandle struct {
+	work              projectWork
+	operation         *operation
+	locks             []foundation.LockRequest
+	origin            foundation.Tx
+	registered, ended bool
+	cancel            context.CancelFunc
+	stop              func(context.Context) error
+}
+
+func newWorkIdentity() (string, error) {
+	id, err := foundation.NewID[struct{}]()
+	if err != nil {
+		return "", unavailable(err)
+	}
+	return id.String(), nil
+}
+
+func workCommand(id string) foundation.CommandIdentity {
+	c, _ := foundation.NewCommandIdentity("object", []string{id}, "project-work", "lifetime")
+	return c
+}
+
+func workLock(id string) foundation.LockRequest {
+	k, _ := foundation.CommandLock(workCommand(id))
+	return foundation.LockRequest{Key: k, Mode: foundation.Exclusive}
+}
+
+// The immutable, private-issuer plan itself carries its preallocated identity
+// as an ordinary command mutex. No mutable global plan-to-ID cache is needed.
+func (s *Service) plannedWorkID(plan oc.AccessLockPlan) (string, error) {
+	if !plan.IssuedBy(s.state().accessIssuer) {
+		return "", invalid()
+	}
+	var found string
+	for _, lock := range plan.Details().Locks {
+		raw := strings.TrimPrefix(lock.Key.Canonical(), "command:")
+		var value struct {
+			Namespace string   `json:"namespace"`
+			OwnerIDs  []string `json:"owner_ids"`
+			Command   string   `json:"command"`
+			Key       string   `json:"key"`
+		}
+		if json.Unmarshal([]byte(raw), &value) != nil || value.Namespace != "object" || value.Command != "project-work" || value.Key != "lifetime" {
+			continue
+		}
+		if len(value.OwnerIDs) != 1 || found != "" || lock.Mode != foundation.Exclusive {
+			return "", invalid()
+		}
+		if _, err := foundation.ParseID[struct{}](value.OwnerIDs[0]); err != nil {
+			return "", invalid()
+		}
+		found = value.OwnerIDs[0]
+	}
+	if found == "" {
+		return "", invalid()
+	}
+	return found, nil
+}
+
+func needsWorkIdentity(request oc.AccessRequest) bool {
+	d := request.Details()
+	if d.Kind == oc.SourceAccess && d.Operation == oc.AcquireSourceAccess || d.Kind == oc.OwnerAccess && d.Operation == oc.ReserveAccess {
+		return true
+	}
+	if d.Kind == oc.TransferAccess {
+		t := d.Transfer.Details()
+		return t.Operation == oc.TransferReserveCandidate || t.Operation == oc.TransferCapture && t.Spec.Details().Direction == oc.TransferPUT
+	}
+	return false
+}
+
+func workProject(owner oc.ObjectOwner) identity.ProjectID {
+	id, _ := foundation.ParseID[identity.Project](owner.Details().ProjectID)
+	return id
+}
+
+func (s *Service) newProjectWork(ctx context.Context, project identity.ProjectID, kind, resource string, object oc.ObjectID) (*projectWorkHandle, error) {
+	if project.Validate() != nil {
+		return nil, nil
+	} // System/Avatar have no Project.
+	id, err := newWorkIdentity()
+	if err != nil {
+		return nil, err
+	}
+	if resource == "" {
+		resource = id
+	}
+	return s.projectWorkHandle(ctx, projectWork{id: id, project: project, process: s.state().process, kind: kind, resource: resource, object: object}), nil
+}
+
+func (s *Service) projectWorkHandle(ctx context.Context, row projectWork) *projectWorkHandle {
+	h := &projectWorkHandle{work: row}
+	if op, ok := ctx.Value(operationKey{}).(*operation); ok && op != nil && op.service == s {
+		h.operation, h.cancel = op, op.cancel
+	}
+	return h
+}
+
+func workIdentityEqual(a, b projectWork) bool {
+	return a.id == b.id && a.project == b.project && a.process == b.process && a.kind == b.kind && a.resource == b.resource && a.object == b.object && a.epoch == b.epoch && a.epochOperation == b.epochOperation && a.fence == b.fence
+}
+
+func loadProjectWork(ctx context.Context, x postgres.SQLExecutor, id string) (*projectWork, error) {
+	var w projectWork
+	var project, process string
+	var object *string
+	err := x.QueryRow(ctx, `SELECT id::text,project_id::text,process_id::text,kind,resource_id::text,object_id::text,admission_version,COALESCE(admission_operation::text,''),COALESCE(revoked_by::text,''),COALESCE(cleanup_claim_fence,0),joined_at IS NOT NULL FROM agenteam_object.project_work WHERE id=$1`, id).Scan(&w.id, &project, &process, &w.kind, &w.resource, &object, &w.epoch, &w.epochOperation, &w.revoked, &w.fence, &w.joined)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, unavailable(err)
+	}
+	w.project, err = foundation.ParseID[identity.Project](project)
+	if err != nil {
+		return nil, unavailable(err)
+	}
+	w.process, err = foundation.ParseID[oc.Process](process)
+	if err != nil {
+		return nil, unavailable(err)
+	}
+	if object != nil {
+		w.object, err = foundation.ParseID[oc.StoredObject](*object)
+		if err != nil {
+			return nil, unavailable(err)
+		}
+	}
+	return &w, nil
+}
+
+func (s *Service) registerProjectWork(ctx context.Context, tx foundation.Tx, h *projectWorkHandle, locks []foundation.LockRequest) error {
+	if h == nil {
+		return nil
+	}
+	x, err := executor(s, tx)
+	if err != nil {
+		return err
+	}
+	var epoch int64
+	var operation string
+	err = x.QueryRow(ctx, `SELECT project_version,operation_id::text FROM agenteam_object.project_stops WHERE project_id=$1 ORDER BY project_version DESC LIMIT 1`, h.work.project.String()).Scan(&epoch, &operation)
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
+		return unavailable(err)
+	}
+	r := s.state()
+	r.mu.Lock()
+	if h.registered && (h.work.epoch != epoch || h.work.epochOperation != operation) {
+		r.mu.Unlock()
+		return failure(foundation.InvalidState, nil)
+	}
+	h.work.epoch, h.work.epochOperation = epoch, operation
+	h.registered = true
+	h.origin = tx
+	h.locks = append(h.locks, locks...)
+	if prior := r.projectWork[h.work.id]; prior != nil && prior != h {
+		r.mu.Unlock()
+		return failure(foundation.InvalidState, nil)
+	}
+	r.projectWork[h.work.id] = h
+	w := h.work
+	r.mu.Unlock()
+	var object, fence any
+	if w.object.Validate() == nil {
+		object = w.object.String()
+	}
+	if w.fence != 0 {
+		fence = w.fence
+	}
+	_, err = x.Exec(ctx, `INSERT INTO agenteam_object.project_work(id,project_id,process_id,kind,resource_id,object_id,admission_version,admission_operation,cleanup_claim_fence) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9) ON CONFLICT(id) DO NOTHING`, w.id, w.project.String(), w.process.String(), w.kind, w.resource, object, w.epoch, null(w.epochOperation), fence)
+	if err != nil {
+		return unavailable(err)
+	}
+	actual, err := loadProjectWork(ctx, x, w.id)
+	if err != nil {
+		return err
+	}
+	if actual == nil || !workIdentityEqual(w, *actual) || actual.revoked != "" || actual.joined {
+		return failure(foundation.InvalidState, nil)
+	}
+	return nil
+}
+
+// Every ordinary admission keeps the original work mutex in its first complete
+// lock plan. A lost COMMIT reply therefore never permits speculative I/O.
+func (s *Service) admitProjectWork(ctx context.Context, actor identity.Actor, owner oc.ObjectOwner, operation oc.AccessOperation, h *projectWorkHandle) error {
+	request := ownerRequest(actor, owner, operation, oc.AccessRequestDetails{})
+	plan, err := s.DiscoverAccess(ctx, request)
+	if err != nil {
+		return err
+	}
+	var extra []foundation.LockRequest
+	if h != nil {
+		extra = append(extra, workLock(h.work.id))
+	}
+	result := s.state().store.WithinTx(ctx, recoveryCause(), func(ctx context.Context, tx foundation.Tx) error {
+		locked, err := s.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, extra)
+		if err != nil {
+			return err
+		}
+		if err = s.ValidateAccessPlanInTx(ctx, tx, request, plan, locked); err != nil {
+			return err
+		}
+		intent := identity.Mutate
+		if operation == oc.PrepareReadAccess {
+			intent = identity.Read
+		}
+		if _, err = s.authorize(ctx, tx, actor, owner, intent); err != nil {
+			return err
+		}
+		if err = s.gate(ctx, tx, actor, owner, intent); err != nil {
+			return err
+		}
+		return s.registerProjectWork(ctx, tx, h, locked.Locks())
+	})
+	return commitError(result)
+}
+
+func (s *Service) requireProjectWork(ctx context.Context, tx foundation.Tx, h *projectWorkHandle) error {
+	if h == nil {
+		return nil
+	}
+	x, err := executor(s, tx)
+	if err != nil {
+		return err
+	}
+	w, err := loadProjectWork(ctx, x, h.work.id)
+	if err != nil {
+		return err
+	}
+	if w == nil || !workIdentityEqual(h.work, *w) || w.revoked != "" || w.joined {
+		return failure(foundation.InvalidState, nil)
+	}
+	return nil
+}
+
+func (s *Service) projectWorkLocks(ctx context.Context, e postgres.SQLExecutor, w projectWork, captured []foundation.LockRequest) ([]foundation.LockRequest, error) {
+	locks := append([]foundation.LockRequest{workLock(w.id)}, captured...)
+	project, _ := foundation.ProjectLock(w.project.String())
+	locks = append(locks, foundation.LockRequest{Key: project, Mode: foundation.Exclusive})
+	if w.object.Validate() == nil {
+		object, _ := foundation.AggregateLock(foundation.ObjectAggregate, w.object.String())
+		locks = append(locks, foundation.LockRequest{Key: object, Mode: foundation.Exclusive})
+		u, found, err := scanUpload(e.QueryRow(ctx, `SELECT `+uploadColumns+` FROM agenteam_object.uploads WHERE object_id=$1`, w.object.String()))
+		if err != nil {
+			return nil, err
+		}
+		if found {
+			command, err := commandIdentity(u.owner, u.command)
+			if err != nil {
+				return nil, err
+			}
+			key, _ := foundation.CommandLock(command)
+			locks = append(locks, foundation.LockRequest{Key: key, Mode: foundation.Exclusive})
+		}
+	}
+	// Join observes original writer termination, including originally shared
+	// read-validation transactions. Normalize once, never upgrade while holding.
+	for i := range locks {
+		locks[i].Mode = foundation.Exclusive
+	}
+	return oc.NormalizeAccessLocks(locks)
+}
+
+func (s *Service) joinProjectWork(ctx context.Context, h *projectWorkHandle) error {
+	r := s.state()
+	r.mu.Lock()
+	w, ended, origin := h.work, h.ended, h.origin
+	captured := append([]foundation.LockRequest(nil), h.locks...)
+	r.mu.Unlock()
+	if !ended {
+		return failure(foundation.ResourceBusy, nil)
+	}
+	if _, err := r.store.InTx(origin); err == nil {
+		return failure(foundation.ResourceBusy, nil)
+	}
+	locks, err := s.projectWorkLocks(ctx, r.store, w, captured)
+	if err != nil {
+		return err
+	}
+	result := r.store.WithinTx(ctx, recoveryCause(), func(ctx context.Context, tx foundation.Tx) error {
+		if err := r.store.AcquireAll(ctx, tx, locks); err != nil {
+			return unavailable(err)
+		}
+		x, err := executor(s, tx)
+		if err != nil {
+			return err
+		}
+		actual, err := loadProjectWork(ctx, x, w.id)
+		if err != nil {
+			return err
+		}
+		if actual == nil {
+			return nil
+		} // Serialized absence of the original admission.
+		if !workIdentityEqual(w, *actual) {
+			return failure(foundation.InvalidState, nil)
+		}
+		_, err = x.Exec(ctx, `UPDATE agenteam_object.project_work SET joined_at=COALESCE(joined_at,clock_timestamp()) WHERE id=$1`, w.id)
+		return unavailableIf(err)
+	})
+	if err = commitError(result); err != nil {
+		return err
+	}
+	r.mu.Lock()
+	if r.projectWork[w.id] == h {
+		delete(r.projectWork, w.id)
+	}
+	r.mu.Unlock()
+	return nil
+}
+
+func (s *Service) finishProjectWork(h *projectWorkHandle) {
+	if h == nil {
+		return
+	}
+	r := s.state()
+	r.mu.Lock()
+	h.ended = true
+	r.mu.Unlock()
+	ctx, done := s.cleanupContext()
+	defer done()
+	_ = s.joinProjectWork(ctx, h) // Failed/Unknown checkpoints remain recoverable.
+}
+
+func (s *Service) finishOperationWork(op *operation) {
+	r := s.state()
+	r.mu.Lock()
+	var handles []*projectWorkHandle
+	for _, h := range r.projectWork {
+		if h.operation == op && !h.ended {
+			h.ended = true
+			handles = append(handles, h)
+		}
+	}
+	r.mu.Unlock()
+	if len(handles) == 0 {
+		return
+	}
+	ctx, done := s.cleanupContext()
+	defer done()
+	for _, h := range handles {
+		if ctx.Err() != nil {
+			return
+		}
+		_ = s.joinProjectWork(ctx, h)
+	}
+}
+
+func (s *Service) childOperation(ctx context.Context) (*operation, func(), error) {
+	return s.begin(context.WithValue(ctx, operationKey{}, (*operation)(nil)))
+}
+
+// onceWorkFinish lets a reader's release callback and its enclosing operation
+// share one final lifetime without declaring cancellation to be completion.
+func onceWorkFinish(f func()) func() {
+	var once sync.Once
+	return func() { once.Do(f) }
+}
+
+// withinProjectWork includes the lifetime mutex in the same one-shot union as
+// the business plan. Registration and the native fact commit atomically.
+func (s *Service) withinProjectWork(ctx context.Context, request oc.AccessRequest, h *projectWorkHandle, fn func(context.Context, foundation.Tx, oc.AccessLockPlan, oc.LockedAccess) error) foundation.CommitResult {
+	plan, err := s.DiscoverAccess(ctx, request)
+	if err != nil {
+		return rejectedAccess(err)
+	}
+	var extra []foundation.LockRequest
+	if h != nil {
+		extra = append(extra, workLock(h.work.id))
+	}
+	return s.state().store.WithinTx(ctx, recoveryCause(), func(ctx context.Context, tx foundation.Tx) error {
+		locked, err := s.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, extra)
+		if err != nil {
+			return err
+		}
+		if err = s.ValidateAccessPlanInTx(ctx, tx, request, plan, locked); err != nil {
+			return err
+		}
+		if err = fn(ctx, tx, plan, locked); err != nil {
+			return err
+		}
+		return s.registerProjectWork(ctx, tx, h, locked.Locks())
+	})
+}
+
+// Revocation belongs to the original native identity and survives Restore.
+// Older native records with no registry row retain their existing rules.
+func requireNativeWork(ctx context.Context, e postgres.SQLExecutor, kind, resource string) error {
+	var revoked bool
+	if err := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.project_work WHERE kind=$1 AND resource_id=$2 AND revoked_by IS NOT NULL)`, kind, resource).Scan(&revoked); err != nil {
+		return unavailable(err)
+	}
+	if revoked {
+		return failure(foundation.InvalidState, nil)
+	}
+	return nil
+}
+
+func (s *Service) observeProjectWriter(h *projectWorkHandle, tx foundation.Tx, locks []foundation.LockRequest) {
+	if h == nil {
+		return
+	}
+	r := s.state()
+	r.mu.Lock()
+	h.origin = tx
+	h.locks = append(h.locks, locks...)
+	r.mu.Unlock()
+}
+
+func (s *Service) maintenanceAdmission(ctx context.Context, e postgres.SQLExecutor, object oc.ObjectID) error {
+	// A local gate is permanent for old native work. Only a formally admitted
+	// new command created after Restore may start maintenance in a new epoch.
+	var blocked bool
+	err := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.objects o JOIN agenteam_object.project_stops p ON p.project_id=o.project_id WHERE o.id=$1 AND NOT EXISTS(SELECT 1 FROM agenteam_object.project_work w WHERE w.object_id=o.id AND w.kind='preparation' AND w.admission_version>=p.project_version AND w.revoked_by IS NULL))`, object.String()).Scan(&blocked)
+	if err != nil {
+		return unavailable(err)
+	}
+	if blocked {
+		return failure(foundation.InvalidState, nil)
+	}
+	return nil
+}
+
+type cleanupWorkIdentity struct {
+	id, worker, phase string
+	fence             int64
+}
+
+func readCleanupWorkIdentity(ctx context.Context, e postgres.SQLExecutor, attempt oc.AttemptID) (cleanupWorkIdentity, error) {
+	var c cleanupWorkIdentity
+	err := e.QueryRow(ctx, `SELECT id::text,COALESCE(worker_id::text,''),phase,fence FROM agenteam_object.cleanup_operations WHERE attempt_id=$1`, attempt.String()).Scan(&c.id, &c.worker, &c.phase, &c.fence)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return c, nil
+	}
+	return c, unavailableIf(err)
+}
+func (s *Service) accessWorkBefore(ctx context.Context, tx foundation.Tx, request oc.AccessRequest, locked oc.LockedAccess) (cleanupWorkIdentity, error) {
+	d := request.Details()
+	e, err := executor(s, tx)
+	if err != nil {
+		return cleanupWorkIdentity{}, err
+	}
+	s.observeOperationWriters(ctx, tx, locked.Locks())
+	if d.AttemptID.Validate() == nil || d.LeaseID.Validate() == nil {
+		r := s.state()
+		r.mu.Lock()
+		var handles []*projectWorkHandle
+		for _, h := range r.projectWork {
+			if h.work.resource == d.AttemptID.String() || h.work.resource == d.LeaseID.String() {
+				handles = append(handles, h)
+			}
+		}
+		r.mu.Unlock()
+		for _, h := range handles {
+			s.observeProjectWriter(h, tx, locked.Locks())
+		}
+	}
+
+	if d.Operation == oc.ClaimCleanupAccess {
+		return readCleanupWorkIdentity(ctx, e, d.AttemptID)
+	}
+	if d.Operation == oc.CheckpointCleanupAccess {
+		r := s.state()
+		r.mu.Lock()
+		h := r.projectWork[d.WorkerID.String()]
+		r.mu.Unlock()
+		if h != nil {
+			if h.work.resource != d.CleanupID.String() || h.work.fence != int64(d.Fence) || h.work.object != d.ObjectID {
+				return cleanupWorkIdentity{}, invalid()
+			}
+			s.observeProjectWriter(h, tx, locked.Locks())
+		}
+	}
+	return cleanupWorkIdentity{}, nil
+}
+func (s *Service) accessWorkAfter(ctx context.Context, tx foundation.Tx, request oc.AccessRequest, locked oc.LockedAccess, before cleanupWorkIdentity) error {
+	d := request.Details()
+	if d.Operation != oc.ClaimCleanupAccess {
+		return nil
+	}
+	e, err := executor(s, tx)
+	if err != nil {
+		return err
+	}
+	after, err := readCleanupWorkIdentity(ctx, e, d.AttemptID)
+	if err != nil {
+		return err
+	}
+	if after.phase != "applying" || after.worker == "" || after == before {
+		return nil
+	}
+	if after.id != before.id || after.fence != before.fence+1 || after.worker == before.worker {
+		return invalid()
+	}
+	if err = s.maintenanceAdmission(ctx, e, d.ObjectID); err != nil {
+		// A real Runner retirement may already have authorized this exact staging
+		// cleanup. That protocol obligation must finish before its remote lease can
+		// retire; the Project stop itself supplies no cleanup authority.
+		var retirement bool
+		queryErr := e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations c JOIN agenteam_object.object_transfers t ON t.staging_id=c.attempt_id JOIN agenteam_object.project_stops p ON p.project_id=t.project_id WHERE c.id=$1 AND t.cleanup_gate AND t.retirement_evidence IS NOT NULL AND p.state='stopping')`, after.id).Scan(&retirement)
+		if queryErr != nil {
+			return unavailable(queryErr)
+		}
+		if !retirement {
+			return err
+		}
+	}
+	obj, found, err := loadObject(ctx, e, d.ObjectID)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return unavailable(nil)
+	}
+	project := obj.meta.Scope.Details().ProjectID
+	if project == "" {
+		return nil
+	}
+	pid, err := foundation.ParseID[identity.Project](project)
+	if err != nil {
+		return unavailable(err)
+	}
+	h := s.projectWorkHandle(ctx, projectWork{id: after.worker, project: pid, process: s.state().process, kind: "cleanup", resource: after.id, object: d.ObjectID, fence: after.fence})
+	return s.registerProjectWork(ctx, tx, h, locked.Locks())
+}
+
+type projectWorkContextKey struct{}
+
+func projectContextWork(ctx context.Context) *projectWorkHandle {
+	h, _ := ctx.Value(projectWorkContextKey{}).(*projectWorkHandle)
+	return h
+}
+func (s *Service) observeOperationWriters(ctx context.Context, tx foundation.Tx, locks []foundation.LockRequest) {
+	op, _ := ctx.Value(operationKey{}).(*operation)
+	if op == nil {
+		return
+	}
+	r := s.state()
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for _, h := range r.projectWork {
+		if h.operation == op {
+			h.origin = tx
+			h.locks = append(h.locks, locks...)
+		}
+	}
+}
+func downloadReferenceOwner(ref oc.BusinessFileRef) (oc.ObjectOwner, error) {
+	if ref.Validate() != nil {
+		return oc.ObjectOwner{}, invalid()
+	}
+	d := ref.Details()
+	switch d.Kind {
+	case oc.UploadedObject:
+		return d.Receipt.Details().Owner, nil
+	case oc.ArtifactFile:
+		return oc.NewObjectOwner(oc.Artifact, d.ArtifactID, d.ProjectID.String())
+	default:
+		return oc.ObjectOwner{}, failure(foundation.DependencyUnbound, nil)
+	}
+}
+
+// Recovery may confirm a technical lifetime without reauthorizing business
+// work. It never creates a new handle or resumes external I/O from these rows.
+func (s *Service) recoverProjectWork(ctx context.Context, failures *recoveryFailures) {
+	ids, err := queryStopIDs(ctx, s.state().store, `SELECT id::text FROM agenteam_object.project_work WHERE joined_at IS NULL ORDER BY id LIMIT 100`)
+	if err != nil {
+		failures.remember(err)
+		return
+	}
+	for _, id := range ids {
+		if ctx.Err() != nil {
+			return
+		}
+		w, err := loadProjectWork(ctx, s.state().store, id)
+		if err != nil {
+			failures.remember(err)
+			continue
+		}
+		if w == nil || w.joined {
+			continue
+		}
+		r := s.state()
+		r.mu.Lock()
+		h := r.projectWork[id]
+		ended := h != nil && h.ended
+		r.mu.Unlock()
+		if h != nil {
+			if ended {
+				failures.remember(s.joinProjectWork(ctx, h))
+			}
+			continue
+		}
+		if nilPort(r.auth.Processes) {
+			failures.remember(failure(foundation.DependencyUnbound, nil))
+			continue
+		}
+		if err = r.auth.Processes.ConfirmStopped(ctx, w.process); err != nil {
+			failures.remember(portError(err))
+			continue
+		}
+		h = &projectWorkHandle{work: *w, ended: true}
+		failures.remember(s.joinProjectWork(ctx, h))
+	}
+}

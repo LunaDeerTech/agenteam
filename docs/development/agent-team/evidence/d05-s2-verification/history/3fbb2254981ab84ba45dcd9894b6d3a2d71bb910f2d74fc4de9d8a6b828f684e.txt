@@ -1,0 +1,65 @@
+package object
+
+import (
+	"testing"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+)
+
+func TestProjectWorkImmutableCleanupIdentity(t *testing.T) {
+	project, _ := foundation.NewID[identity.Project]()
+	process, _ := foundation.NewID[oc.Process]()
+	object, _ := foundation.NewID[oc.StoredObject]()
+	id, _ := newWorkIdentity()
+	resource, _ := newWorkIdentity()
+	w := projectWork{id: id, project: project, process: process, kind: "cleanup", resource: resource, object: object, fence: 2}
+	changes := []func(*projectWork){func(v *projectWork) { v.resource = id }, func(v *projectWork) { v.fence++ }, func(v *projectWork) { v.process, _ = foundation.NewID[oc.Process]() }, func(v *projectWork) { v.project, _ = foundation.NewID[identity.Project]() }, func(v *projectWork) { v.object = oc.ObjectID{} }, func(v *projectWork) { v.epoch = 2; v.epochOperation = id }, func(v *projectWork) { v.kind = "verification" }}
+	for _, change := range changes {
+		other := w
+		change(&other)
+		if workIdentityEqual(w, other) {
+			t.Fatal("cleanup work was interchangeable with a different lifetime")
+		}
+	}
+	terminal := w
+	terminal.joined = true
+	terminal.revoked = id
+	if !workIdentityEqual(w, terminal) {
+		t.Fatal("terminal facts changed immutable identity")
+	}
+}
+
+func TestProjectWorkIdentityLivesInPrivatePlan(t *testing.T) {
+	user, _ := foundation.NewID[identity.User]()
+	session, _ := foundation.NewID[identity.Session]()
+	actor, _ := identity.NewHuman(user, session)
+	owner, _ := oc.NewObjectOwner(oc.Avatar, user.String(), "")
+	request := ownerRequest(actor, owner, oc.PrepareAccess, oc.AccessRequestDetails{})
+	issuer := oc.NewAccessIssuer()
+	state := &serviceState{accessIssuer: issuer}
+	service := &Service{func() *serviceState { return state }}
+	key, _ := foundation.UserLock(user.String())
+	dependencyLocks := []foundation.LockRequest{{Key: key, Mode: foundation.Shared}}
+	deps, _ := oc.NewAccessDependencies(newDigest(make([]byte, 32)), dependencyLocks)
+	id, _ := newWorkIdentity()
+	makePlan := func(i oc.AccessIssuer, locks []foundation.LockRequest) oc.AccessLockPlan {
+		p, err := oc.NewAccessLockPlan(i, oc.AccessPlanDetails{Request: request, DependencyRequest: request, Dependencies: deps, DomainBinding: newDigest(make([]byte, 32)), Locks: append(locks, dependencyLocks...)})
+		if err != nil {
+			t.Fatal(err)
+		}
+		return p
+	}
+	plan := makePlan(issuer, []foundation.LockRequest{workLock(id)})
+	if got, err := service.plannedWorkID(plan); err != nil || got != id {
+		t.Fatal("preallocated identity did not survive immutable plan", err)
+	}
+	if _, err := service.plannedWorkID(makePlan(oc.NewAccessIssuer(), []foundation.LockRequest{workLock(id)})); err == nil {
+		t.Fatal("foreign issuer accepted")
+	}
+	other, _ := newWorkIdentity()
+	if _, err := service.plannedWorkID(makePlan(issuer, []foundation.LockRequest{workLock(id), workLock(other)})); err == nil {
+		t.Fatal("ambiguous identity accepted")
+	}
+}

@@ -1,0 +1,175 @@
+{
+  "candidate_manifest_sha256": "dc258ae852d92dba1217ec651168635fc1431aa310533952d06003c9be036109",
+  "baseline": "49c6589c3919cad62a4bae2c993b5fd953d36b1e",
+  "state": "STATIC PREPARATION ONLY; updated for fixed production-review-03; no Go/Docker or fixture execution",
+  "first_execution": "One original driver invocation selecting 25 distinct tops: the previously prepared 23 plus both original runtime failures, with all original subtests and budgets. SR1 remains deduplicated within the 21 new tests.",
+  "selected_tests": [
+    "TestObjectProjectStopArchiveAndDeleteNormalObjectCompatibility",
+    "TestObjectProjectStopArchivePreservesPublishedReads",
+    "TestObjectProjectStopAuthorityAndReadOnlyInspect",
+    "TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker",
+    "TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks",
+    "TestObjectProjectStopDeleteWaitsForActualIO",
+    "TestObjectProjectStopIndependentGateUnknownKeepsLiveWork",
+    "TestObjectProjectStopNativeFactsAndFairBatches",
+    "TestObjectProjectStopOptionalBindingKeepsOrdinaryObjects",
+    "TestObjectProjectStopRecoveryDoesNotCancelOtherProject",
+    "TestObjectProjectStopRecoveryRequiresExactProcessAndJoin",
+    "TestObjectProjectStopRegistersBeforeResolver",
+    "TestObjectProjectStopRestoreKeepsRevocation",
+    "TestObjectProjectStopRuntimeRecoversOnlyTechnicalRows",
+    "TestObjectProjectStopTransferLatePUTCannotPublish",
+    "TestObjectProjectStopTransferRequiresRemoteRetirement",
+    "TestObjectProjectStopUnknownAdmissionNeverStartsIO",
+    "TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter",
+    "TestObjectProjectStopUnknownMaintenanceNeverStartsIO",
+    "TestObjectProjectStopUnknownPreflightNeverCancels",
+    "TestObjectProjectStopUnopenedSourceAndCrossProjectRelations",
+    "TestObjectProjectStopVerificationOwnsItsLifetime",
+    "TestObjectRuntimeBusyDoesNotMaskLaterRecoveryFailure",
+    "TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget",
+    "TestObjectSourceLeaseUnopenedCancellationSharesShutdown"
+  ],
+  "run": "^(TestObjectProjectStopArchiveAndDeleteNormalObjectCompatibility|TestObjectProjectStopArchivePreservesPublishedReads|TestObjectProjectStopAuthorityAndReadOnlyInspect|TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker|TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks|TestObjectProjectStopDeleteWaitsForActualIO|TestObjectProjectStopIndependentGateUnknownKeepsLiveWork|TestObjectProjectStopNativeFactsAndFairBatches|TestObjectProjectStopOptionalBindingKeepsOrdinaryObjects|TestObjectProjectStopRecoveryDoesNotCancelOtherProject|TestObjectProjectStopRecoveryRequiresExactProcessAndJoin|TestObjectProjectStopRegistersBeforeResolver|TestObjectProjectStopRestoreKeepsRevocation|TestObjectProjectStopRuntimeRecoversOnlyTechnicalRows|TestObjectProjectStopTransferLatePUTCannotPublish|TestObjectProjectStopTransferRequiresRemoteRetirement|TestObjectProjectStopUnknownAdmissionNeverStartsIO|TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter|TestObjectProjectStopUnknownMaintenanceNeverStartsIO|TestObjectProjectStopUnknownPreflightNeverCancels|TestObjectProjectStopUnopenedSourceAndCrossProjectRelations|TestObjectProjectStopVerificationOwnsItsLifetime|TestObjectRuntimeBusyDoesNotMaskLaterRecoveryFailure|TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|TestObjectSourceLeaseUnopenedCancellationSharesShutdown)$",
+  "author_evidence_reuse": {
+    "current_pure": "conditional on final matching compilation input; no repeat for formatting",
+    "old_core_passed": [
+      "TestObjectExistingUploadReadReplayAndCurrentPermission",
+      "TestObjectForceCancelsAlreadyFreshMarkerContext",
+      "TestObjectForceClosesRealReadAndSharesCleanupDeadline",
+      "TestObjectForceJoinsActualPreparationPipe",
+      "TestObjectGracefulDrainKeepsAdmittedReaderAlive",
+      "TestObjectProspectiveReceiptConsumeAndCancel",
+      "TestObjectSourceLeaseAtomicCommitAndSingleOpen",
+      "TestObjectSourceLeaseCurrentAuthorityAndCancelJoins",
+      "TestObjectSourceLeaseFailedReleaseRemainsObservableAndRetryable",
+      "TestObjectSourceLeaseParticipatesInServiceDrainAndForce",
+      "TestObjectSourceLeaseUnknownNeverSpeculatesGET",
+      "TestObjectSourceLeaseUnopenedCancellationSharesShutdown",
+      "TestObjectSourceLeaseUploadedReceiptAndSharedPlanRejection",
+      "TestObjectSourceLeaseWaitsForOriginalWriterTerminal",
+      "TestObjectStreamingRangeMissingAndIntegrity"
+    ],
+    "old_pending_groups": {
+      "object-runtime": {
+        "tests": [
+          "TestObjectProcessGuardExactFlockKillAndHistoricalBoot",
+          "TestObjectRuntimeBusyDoesNotMaskLaterRecoveryFailure",
+          "TestObjectRuntimeForceJoinsMainAndTransferIOInOneBudget",
+          "TestObjectRuntimeMetadataGateUntilActualProbeAndRecovery",
+          "TestObjectRuntimeProbeBothOriginsAndUnknownRecovery",
+          "TestObjectRuntimeProbeEmptyAndSingleWorker",
+          "TestObjectRuntimeProbeFailuresPreserveUnrelatedKey",
+          "TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget",
+          "TestObjectRuntimeSharesWorkerSlotWhenServiceStartsFirst",
+          "TestObjectRuntimeTransferOriginRejectsDifferentControlOrProbe",
+          "TestObjectRuntimeUnboundCannotAdoptBusinessFacts"
+        ],
+        "run": "^(TestObjectProcessGuardExactFlockKillAndHistoricalBoot|TestObjectRuntimeBusyDoesNotMaskLaterRecoveryFailure|TestObjectRuntimeForceJoinsMainAndTransferIOInOneBudget|TestObjectRuntimeMetadataGateUntilActualProbeAndRecovery|TestObjectRuntimeProbeBothOriginsAndUnknownRecovery|TestObjectRuntimeProbeEmptyAndSingleWorker|TestObjectRuntimeProbeFailuresPreserveUnrelatedKey|TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|TestObjectRuntimeSharesWorkerSlotWhenServiceStartsFirst|TestObjectRuntimeTransferOriginRejectsDifferentControlOrProbe|TestObjectRuntimeUnboundCannotAdoptBusinessFacts)$"
+      },
+      "transfer-core": {
+        "tests": [
+          "TestTransferActualSignedWireRejectsChangesAndExpiry",
+          "TestTransferArchivedTerminalConvergesWithoutNewMaterial",
+          "TestTransferConcurrentGrantQuotaAndTerminalReuse",
+          "TestTransferCrossSecondReplayPreservesDeadline",
+          "TestTransferCurrentOwnerPrecedesHistoricalReplay",
+          "TestTransferEmptyAndLargeSingleSnapshot",
+          "TestTransferFixedGETReplayRequiresCurrentProtectedUse",
+          "TestTransferGETCompletionAndCurrentAuthority",
+          "TestTransferIssueWaitsForRealAuthorityAndProjectGates",
+          "TestTransferMissingRequiredDomainPortsRollbackIssue",
+          "TestTransferOneSecondSignedWire",
+          "TestTransferPUTCompleteAndIndependentRetirement",
+          "TestTransferPartialTerminalCheckpointRevalidatesBeforeRetirement",
+          "TestTransferProjectArchiveDuringSourceReadPreventsNewCandidate",
+          "TestTransferRetirementCheckpointWaitsForReaderAndCurrentAuthority",
+          "TestTransferSourceCorruptionNeverPublishesAndRevocationJoins"
+        ],
+        "run": "^(TestTransferActualSignedWireRejectsChangesAndExpiry|TestTransferArchivedTerminalConvergesWithoutNewMaterial|TestTransferConcurrentGrantQuotaAndTerminalReuse|TestTransferCrossSecondReplayPreservesDeadline|TestTransferCurrentOwnerPrecedesHistoricalReplay|TestTransferEmptyAndLargeSingleSnapshot|TestTransferFixedGETReplayRequiresCurrentProtectedUse|TestTransferGETCompletionAndCurrentAuthority|TestTransferIssueWaitsForRealAuthorityAndProjectGates|TestTransferMissingRequiredDomainPortsRollbackIssue|TestTransferOneSecondSignedWire|TestTransferPUTCompleteAndIndependentRetirement|TestTransferPartialTerminalCheckpointRevalidatesBeforeRetirement|TestTransferProjectArchiveDuringSourceReadPreventsNewCandidate|TestTransferRetirementCheckpointWaitsForReaderAndCurrentAuthority|TestTransferSourceCorruptionNeverPublishesAndRevocationJoins)$"
+      },
+      "transfer-recovery": {
+        "tests": [
+          "TestTransferCandidateAndPublishUnknownKeepExactFacts",
+          "TestTransferCaptureUnknownHasZeroSourceGETAndResumes",
+          "TestTransferIssueUnknownNeverPublishesMaterial",
+          "TestTransferProjectCleanupRetainsRemoteLeaseThenErasesFacts",
+          "TestTransferRecoverySkipsClosedHistoryAndContinuesPastInvalidCurrent",
+          "TestTransferSlowOriginalPUTCannotRestoreMarker",
+          "TestTransferStagingAndCandidateShareTwoAttemptsAndResumeVerified",
+          "TestTransferStagingConsumesGlobalAttemptQuota",
+          "TestTransferStoppedPUTKeepsOutputIdentityForNewAttempt",
+          "TestTransferStoppedRetirementWaitsForConcurrentLocalComplete",
+          "TestTransferUnknownIssueWaitsForOriginalWriterTerminal"
+        ],
+        "run": "^(TestTransferCandidateAndPublishUnknownKeepExactFacts|TestTransferCaptureUnknownHasZeroSourceGETAndResumes|TestTransferIssueUnknownNeverPublishesMaterial|TestTransferProjectCleanupRetainsRemoteLeaseThenErasesFacts|TestTransferRecoverySkipsClosedHistoryAndContinuesPastInvalidCurrent|TestTransferSlowOriginalPUTCannotRestoreMarker|TestTransferStagingAndCandidateShareTwoAttemptsAndResumeVerified|TestTransferStagingConsumesGlobalAttemptQuota|TestTransferStoppedPUTKeepsOutputIdentityForNewAttempt|TestTransferStoppedRetirementWaitsForConcurrentLocalComplete|TestTransferUnknownIssueWaitsForOriginalWriterTerminal)$"
+      },
+      "download": {
+        "tests": [
+          "TestArtifactDownloadAuditFailureAndActualPartialWrite",
+          "TestArtifactDownloadCurrentAuthorizationWinsGateRace",
+          "TestArtifactDownloadDrainAndForceJoinActualStorage",
+          "TestArtifactDownloadForceInterruptsActualBlockedHTTPWrite",
+          "TestArtifactDownloadIntegrityNeverDeliversCorruptWholeBody",
+          "TestArtifactDownloadPreviewSniffAndUnboundProvider",
+          "TestArtifactDownloadPurgeRequiresPlansPhysicalCompletionAndBoundPort",
+          "TestArtifactDownloadRealStreamRangePermissionsAndAudit",
+          "TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending",
+          "TestArtifactDownloadUnopenedCloseAuditsZeroAndExpiryBlocksNew",
+          "TestArtifactFinalCleanupLateDownloadAndNewKeysCannotRevive",
+          "TestArtifactSourceUploadReceiptAndUnboundDownloadProviders"
+        ],
+        "run": "^(TestArtifactDownloadAuditFailureAndActualPartialWrite|TestArtifactDownloadCurrentAuthorizationWinsGateRace|TestArtifactDownloadDrainAndForceJoinActualStorage|TestArtifactDownloadForceInterruptsActualBlockedHTTPWrite|TestArtifactDownloadIntegrityNeverDeliversCorruptWholeBody|TestArtifactDownloadPreviewSniffAndUnboundProvider|TestArtifactDownloadPurgeRequiresPlansPhysicalCompletionAndBoundPort|TestArtifactDownloadRealStreamRangePermissionsAndAudit|TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending|TestArtifactDownloadUnopenedCloseAuditsZeroAndExpiryBlocksNew|TestArtifactFinalCleanupLateDownloadAndNewKeysCannotRevive|TestArtifactSourceUploadReceiptAndUnboundDownloadProviders)$"
+      },
+      "object-recovery": {
+        "tests": [
+          "TestObjectLateRealPUTCannotRestoreCancelledPayload",
+          "TestObjectLostPUTResponseVerifiesOriginalWithoutSecondWrite",
+          "TestObjectLostReserveResponseResolvesBeforeOnlyPUT",
+          "TestObjectRecoveryContinuesPastOtherLiveProcess",
+          "TestObjectRecoveryItemFailureKeepsIndependentCleanupMoving",
+          "TestObjectRecoveryStoppedProcessContinuesPastOneBusyObject",
+          "TestObjectRecoveryWriterCheckpointsAndVerificationAreIndependent",
+          "TestObjectUnknownReservationKeepsCompleteSemanticIdentity",
+          "TestObjectUnknownReservationWaitsForRealLateCommit"
+        ],
+        "run": "^(TestObjectLateRealPUTCannotRestoreCancelledPayload|TestObjectLostPUTResponseVerifiesOriginalWithoutSecondWrite|TestObjectLostReserveResponseResolvesBeforeOnlyPUT|TestObjectRecoveryContinuesPastOtherLiveProcess|TestObjectRecoveryItemFailureKeepsIndependentCleanupMoving|TestObjectRecoveryStoppedProcessContinuesPastOneBusyObject|TestObjectRecoveryWriterCheckpointsAndVerificationAreIndependent|TestObjectUnknownReservationKeepsCompleteSemanticIdentity|TestObjectUnknownReservationWaitsForRealLateCommit)$"
+      }
+    },
+    "requires": "author final all 74 old tests pass, immutable final compilation input, original driver and budgets, preserved failures and exact cleanup; author results are not described as independent runs",
+    "review03_delta": "review02 ordinary I/O/join evidence is retained for unchanged paths; review03 must independently close runtime failure through real fixtures, not through race/vet alone. Final author input and remaining legacy coverage must be checked."
+  },
+  "minimal_probe": {
+    "source": "project_stop_independent_gate_unknown_test.go",
+    "sha256": "1dfc3b7140e9a6f022f0f725d6338f8fa9851c591c950a0d1764edbd0b45ec16",
+    "status": "written, manually reviewed, UNCOMPILED and UNRUN",
+    "subtests": [
+      "lost_response",
+      "late_commit",
+      "rollback"
+    ],
+    "precondition": "one durably admitted preparation with original work/process identity, actual Read held by non-cooperating body; no joined/revoked state before Request",
+    "oracle": "semantic gate COMMIT hit; zero Close/cancel and no joined work for every Unknown result; delayed original writer retains Project EX and blocks subsequent stop; same original identity and exact gate/cause/revocation after confirmed terminal outcome; body release permits convergence without replacement cause",
+    "reuse_helpers": "strict ProjectStopAuthority and same-Tx semantic gate wrapper from the 28 fixed files; real PostgreSQL commitProxy from baseline; no fabricated commit result or fake storage"
+  },
+  "budgets": "Original script retains race, count=1, package 6m. SR2 Force stays 500ms with original 650ms elapsed bound. New probe uses bounded 3s channel awaits, 120ms same-lock probes and a 100ms post-Unknown observation; no production budget change.",
+  "required_handoff": [
+    "root explicitly grants sole Docker/PG/MinIO fixture window",
+    "author completes remaining 59 old tops and stops writes/background commands",
+    "hash final 28 plus actual compile dependencies, scripts and module locks; any delta gets targeted static review before run",
+    "bind exact script invocation, candidate overlay/isolated tree, probe SHA, toolchain/dependency cache and fixture versions",
+    "record actual tests/subtests, exits and original failures; other package no-tests entries do not count",
+    "owned resources exact-ID cleanup and pre-existing baseline unchanged before returning window"
+  ],
+  "out_of_scope": [
+    "Project adapter/root production wiring",
+    "Object audit binding implementation",
+    "S1 migration rerun",
+    "unrelated module test expansion"
+  ],
+  "candidate_basis": "expected-input-review03.json (review02 plus three verified delta files); must match later author final freeze",
+  "review03_runtime_oracles": {
+    "TestObjectRuntimeBusyDoesNotMaskLaterRecoveryFailure": "exact Forbidden from second item, first ResourceBusy preserved for public Recover, independent third object cleanup proceeds; safe pending startup may retry normally",
+    "TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget": "actual held cleanup reached in both startup and worker; cancelling original context joins within original one second and leaves applying checkpoint, no fresh budget"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "TZ": "UTC",
+  "GOTOOLCHAIN": "local",
+  "GOENV": "off",
+  "GOWORK": "off",
+  "GOPROXY": "off",
+  "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+  "GOCACHE": "/tmp/agenteam-d05-s1-independent-3t_e4rql/gocache",
+  "TMPDIR": "/tmp/agenteam-d05-s2-independent-final-h7wgzipw/runtime",
+  "DOCKER_CONFIG": "/tmp/agenteam-d05-s2-independent-final-h7wgzipw/docker-config",
+  "DOCKER_HOST": "unix:///var/run/docker.sock",
+  "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+  "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+  "GOFLAGS": "-mod=readonly -v -p=2"
+}

@@ -1,0 +1,138 @@
+import datetime
+import hashlib
+import json
+import os
+import pathlib
+import re
+import subprocess
+import threading
+import time
+
+owned = pathlib.Path(__file__).resolve().parent
+repo = owned / 'snapshot'
+env = {k: os.environ[k] for k in ['PATH', 'HOME', 'USER', 'LANG'] if k in os.environ}
+env.update(json.loads((owned / 'run-environment.json').read_text()))
+
+def save(name, value):
+    (owned / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+def call(args):
+    p = subprocess.run(args, cwd=repo, env=env, text=True, capture_output=True)
+    if p.returncode:
+        raise RuntimeError({'command': args, 'exit': p.returncode, 'stderr': p.stderr})
+    return p.stdout.strip()
+
+def baseline():
+    result = {'containers': [], 'networks': []}
+    for kind, args, fmt in [
+        ('containers', ['ps', '-aq', '--no-trunc'], '{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Config.Labels}}}'),
+        ('networks', ['network', 'ls', '--no-trunc', '--format', '{{.ID}}'], '{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Labels}}}'),
+    ]:
+        for identity in sorted(call(['docker'] + args).splitlines()):
+            inspect = ['docker', 'container' if kind == 'containers' else 'network', 'inspect', '--format', fmt, identity]
+            result[kind].append(json.loads(call(inspect)))
+    return result
+
+def processes():
+    rows = subprocess.check_output(['ps', '-eo', 'pid=,ppid=,pgid=,stat=,comm='], text=True).splitlines()
+    return {int(v[0]): {'ppid': int(v[1]), 'pgid': int(v[2]), 'stat': v[3], 'comm': v[4]}
+            for line in rows if len(v := line.split(maxsplit=4)) == 5}
+
+frozen = json.loads((owned / 'author-final-input.json').read_text())
+for name, digest in frozen['files'].items():
+    assert hashlib.sha256((repo / name).read_bytes()).hexdigest() == digest, name
+probe = repo / 'tests/objects/project_stop_independent_gate_unknown_test.go'
+assert hashlib.sha256(probe.read_bytes()).hexdigest() == '1dfc3b7140e9a6f022f0f725d6338f8fa9851c591c950a0d1764edbd0b45ec16'
+assert json.loads((owned / 'compile-result.json').read_text())['exit_code'] == 0
+assert call([env['AGENTEAM_GO'], 'env', 'GOVERSION']) == 'go1.27.1'
+images = []
+for digest in ['99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc', '16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782']:
+    ref = 'pgvector/pgvector@sha256:' + digest
+    facts = json.loads(call(['docker', 'image', 'inspect', '--format', '{"id":{{json .Id}},"digests":{{json .RepoDigests}},"os":{{json .Os}},"arch":{{json .Architecture}}}', ref]))
+    assert ref in facts['digests'] and facts['os'] == 'linux' and facts['arch'] == 'amd64'
+    images.append(facts)
+save('environment.json', {'go': 'go1.27.1', 'docker': call(['docker', 'version', '--format', '{{.Client.Version}}/{{.Server.Version}}']), 'images': images,
+    'minio_sha256': hashlib.sha256(pathlib.Path(env['AGENTEAM_MINIO_BINARY']).read_bytes()).hexdigest()})
+before = baseline()
+save('resources-before.json', before)
+assert len(before['containers']) == 2 and len(before['networks']) == 4, before
+plan = json.loads((owned / 'execution-plan-review03.json').read_text())
+cmd = ['sh', 'scripts/test-objects.sh', '-run', plan['run']]
+started = datetime.datetime.now(datetime.timezone.utc).isoformat()
+save('fixture-command.json', {'started_at': started, 'cwd': str(repo), 'command': cmd, 'environment': json.loads((owned / 'run-environment.json').read_text()),
+    'frozen_final_manifest_sha256': hashlib.sha256((owned / 'author-final-input.json').read_bytes()).hexdigest(),
+    'probe_sha256': hashlib.sha256(probe.read_bytes()).hexdigest(), 'driver_preserved_flags': ['-tags=integration', '-race', '-count=1', '-timeout=6m']})
+events_file = (owned / 'docker-events.jsonl').open('w')
+events = subprocess.Popen(['docker', 'events', '--since', started, '--format', '{{json .}}', '--filter', 'type=container', '--filter', 'type=network'],
+    cwd=repo, env=env, stdout=events_file, stderr=(owned / 'docker-events.stderr').open('w'), start_new_session=True)
+seen = set()
+groups = set()
+history = {}
+finished = threading.Event()
+
+def track():
+    while not finished.is_set():
+        current = processes()
+        growing = True
+        while growing:
+            children = {pid for pid, row in current.items() if row['ppid'] in seen or row['pgid'] in groups}
+            growing = not children.issubset(seen)
+            seen.update(children)
+            groups.update(current[pid]['pgid'] for pid in children)
+        history.update({pid: current[pid] for pid in seen if pid in current})
+        finished.wait(0.1)
+
+begin = time.monotonic()
+try:
+    with (owned / 'logs/fixture-25-01.log').open('w') as log:
+        fixture = subprocess.Popen(cmd, cwd=repo, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+        seen.add(fixture.pid)
+        groups.add(fixture.pid)
+        save('owned-processes.json', {'fixture_pid': fixture.pid, 'fixture_pgid': fixture.pid, 'events_pid': events.pid, 'events_pgid': events.pid})
+        watcher = threading.Thread(target=track)
+        watcher.start()
+        result = fixture.wait()
+finally:
+    finished.set()
+    if 'watcher' in globals():
+        watcher.join(timeout=5)
+    events.terminate()
+    events.wait(timeout=10)
+    events_file.close()
+save('fixture-result.json', {'exit_code': result, 'wall_seconds': round(time.monotonic()-begin, 3), 'finished_at': datetime.datetime.now(datetime.timezone.utc).isoformat()})
+current = processes()
+remaining = {pid: current[pid] for pid in seen if pid in current}
+save('process-cleanup.json', {'tracked_fixture_descendants': len(seen), 'groups': sorted(groups), 'observed': history, 'remaining': remaining, 'event_watcher_waited': True})
+after = baseline()
+save('resources-after.json', after)
+created = []
+for line in (owned / 'docker-events.jsonl').read_text().splitlines():
+    event = json.loads(line)
+    if event.get('Action') != 'create' or event.get('Type') not in ['container', 'network']:
+        continue
+    attrs = event.get('Actor', {}).get('Attributes', {})
+    name = attrs.get('name', '')
+    if re.fullmatch(r'agenteam-(d05-object|d04-net|d03)-[a-f0-9]{32}(-pg16)?', name):
+        created.append({'kind': event['Type'], 'id': event['Actor']['ID'], 'name': name,
+                        'labels': {k: v for k, v in attrs.items() if k.startswith('agenteam.')}, 'time_nano': event['timeNano']})
+containers = [r for r in created if r['kind'] == 'container']
+networks = [r for r in created if r['kind'] == 'network']
+for row in containers:
+    assert re.search(r'[a-f0-9]{32}', row['name']).group(0) in row['labels'].values(), row
+for row in networks:
+    assert any(c['name'] == row['name'] for c in containers), row
+    row['ownership'] = 'exact create ID and same nonce/name as a labeled owned container; original driver verifies labels before cleanup'
+for row in created:
+    p = subprocess.run(['docker', row['kind'], 'inspect', '--format', '{{.Id}}', row['id']], env=env, text=True, capture_output=True)
+    expected = ('No such container: ' + row['id']) if row['kind'] == 'container' else ('network ' + row['id'] + ' not found')
+    row.update({'inspect_exit': p.returncode, 'inspect_stderr': p.stderr.strip(), 'absent': p.returncode == 1 and expected in p.stderr})
+runtime = [str(p.relative_to(owned)) for p in (owned / 'runtime').iterdir()]
+changed = [name for name, digest in frozen['files'].items() if hashlib.sha256((repo / name).read_bytes()).hexdigest() != digest]
+summary = {'resources': created, 'created_containers': len(containers), 'created_networks': len(networks), 'all_exact_ids_absent': all(r['absent'] for r in created),
+    'baseline_unchanged': before == after, 'baseline_containers': len(before['containers']), 'baseline_networks': len(before['networks']),
+    'remaining_owned_processes': remaining, 'runtime_entries_remaining': runtime, 'changed_candidate_sources': changed}
+save('resource-cleanup.json', summary)
+assert len(containers) == 4 and len(networks) == 3, summary
+assert summary['all_exact_ids_absent'] and before == after and not remaining and not runtime and not changed, summary
+print(json.dumps({'fixture_exit': result, 'owned_containers_absent': 4, 'owned_networks_absent': 3, 'baseline_unchanged': True, 'owned_processes': 0, 'runtime_empty': True, 'frozen28_unchanged': True}), flush=True)
+raise SystemExit(result)

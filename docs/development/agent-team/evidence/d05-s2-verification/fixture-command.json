@@ -1,0 +1,33 @@
+{
+  "started_at": "2026-10-05T13:46:48.564073+00:00",
+  "cwd": "/tmp/agenteam-d05-s2-independent-final-h7wgzipw/snapshot",
+  "command": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestObjectProjectStopArchiveAndDeleteNormalObjectCompatibility|TestObjectProjectStopArchivePreservesPublishedReads|TestObjectProjectStopAuthorityAndReadOnlyInspect|TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker|TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks|TestObjectProjectStopDeleteWaitsForActualIO|TestObjectProjectStopIndependentGateUnknownKeepsLiveWork|TestObjectProjectStopNativeFactsAndFairBatches|TestObjectProjectStopOptionalBindingKeepsOrdinaryObjects|TestObjectProjectStopRecoveryDoesNotCancelOtherProject|TestObjectProjectStopRecoveryRequiresExactProcessAndJoin|TestObjectProjectStopRegistersBeforeResolver|TestObjectProjectStopRestoreKeepsRevocation|TestObjectProjectStopRuntimeRecoversOnlyTechnicalRows|TestObjectProjectStopTransferLatePUTCannotPublish|TestObjectProjectStopTransferRequiresRemoteRetirement|TestObjectProjectStopUnknownAdmissionNeverStartsIO|TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter|TestObjectProjectStopUnknownMaintenanceNeverStartsIO|TestObjectProjectStopUnknownPreflightNeverCancels|TestObjectProjectStopUnopenedSourceAndCrossProjectRelations|TestObjectProjectStopVerificationOwnsItsLifetime|TestObjectRuntimeBusyDoesNotMaskLaterRecoveryFailure|TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|TestObjectSourceLeaseUnopenedCancellationSharesShutdown)$"
+  ],
+  "environment": {
+    "TZ": "UTC",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/tmp/agenteam-d05-s1-independent-3t_e4rql/gocache",
+    "TMPDIR": "/tmp/agenteam-d05-s2-independent-final-h7wgzipw/runtime",
+    "DOCKER_CONFIG": "/tmp/agenteam-d05-s2-independent-final-h7wgzipw/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "GOFLAGS": "-mod=readonly -v -p=2"
+  },
+  "frozen_final_manifest_sha256": "c3dc0800bb7b4c2c7368186b42954f2ba8ac23d2cefd2d2d0ff6990f6c6320bd",
+  "probe_sha256": "1dfc3b7140e9a6f022f0f725d6338f8fa9851c591c950a0d1764edbd0b45ec16",
+  "driver_preserved_flags": [
+    "-tags=integration",
+    "-race",
+    "-count=1",
+    "-timeout=6m"
+  ]
+}

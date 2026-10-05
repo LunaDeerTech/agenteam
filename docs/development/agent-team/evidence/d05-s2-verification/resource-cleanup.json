@@ -1,0 +1,94 @@
+{
+  "resources": [
+    {
+      "kind": "network",
+      "id": "184eadb63e3c648c9752a619245bf78dcd2c61b585728f17f86824e178a5b5b0",
+      "name": "agenteam-d05-object-f4ce63392561d522644e298627e6394f",
+      "labels": {},
+      "time_nano": 1791208010571823553,
+      "ownership": "exact create ID and same nonce/name as a labeled owned container; original driver verifies labels before cleanup",
+      "inspect_exit": 1,
+      "inspect_stderr": "Error response from daemon: network 184eadb63e3c648c9752a619245bf78dcd2c61b585728f17f86824e178a5b5b0 not found",
+      "absent": true
+    },
+    {
+      "kind": "container",
+      "id": "9ecd966997c6ddec15d9cddbd5e93e812ad5ff13f91510e6bb0a270a47b93828",
+      "name": "agenteam-d05-object-f4ce63392561d522644e298627e6394f",
+      "labels": {
+        "agenteam.d05.objectfixture": "f4ce63392561d522644e298627e6394f"
+      },
+      "time_nano": 1791208011459111771,
+      "inspect_exit": 1,
+      "inspect_stderr": "Error response from daemon: No such container: 9ecd966997c6ddec15d9cddbd5e93e812ad5ff13f91510e6bb0a270a47b93828",
+      "absent": true
+    },
+    {
+      "kind": "network",
+      "id": "e935e93d6343c417bc658eebf199dc83ce6d31fd42c4c7db54a99f4571a93cc4",
+      "name": "agenteam-d04-net-5d8df7217fc4f27b634dabea29ecb11e",
+      "labels": {},
+      "time_nano": 1791208014048993747,
+      "ownership": "exact create ID and same nonce/name as a labeled owned container; original driver verifies labels before cleanup",
+      "inspect_exit": 1,
+      "inspect_stderr": "Error response from daemon: network e935e93d6343c417bc658eebf199dc83ce6d31fd42c4c7db54a99f4571a93cc4 not found",
+      "absent": true
+    },
+    {
+      "kind": "container",
+      "id": "bfbf30d9581a36dc5a451feab2840057eaa002bbac76d7d3942815d5ed6961ee",
+      "name": "agenteam-d04-net-5d8df7217fc4f27b634dabea29ecb11e",
+      "labels": {
+        "agenteam.d04.networkfixture": "5d8df7217fc4f27b634dabea29ecb11e"
+      },
+      "time_nano": 1791208015075263816,
+      "inspect_exit": 1,
+      "inspect_stderr": "Error response from daemon: No such container: bfbf30d9581a36dc5a451feab2840057eaa002bbac76d7d3942815d5ed6961ee",
+      "absent": true
+    },
+    {
+      "kind": "network",
+      "id": "a4a95ce1bbd4e091b0bd81d51a85e86acdbd36227e5751e7ff425655380021ac",
+      "name": "agenteam-d03-c8340426c15526a87466a837c051ebc2",
+      "labels": {},
+      "time_nano": 1791208016029167290,
+      "ownership": "exact create ID and same nonce/name as a labeled owned container; original driver verifies labels before cleanup",
+      "inspect_exit": 1,
+      "inspect_stderr": "Error response from daemon: network a4a95ce1bbd4e091b0bd81d51a85e86acdbd36227e5751e7ff425655380021ac not found",
+      "absent": true
+    },
+    {
+      "kind": "container",
+      "id": "0d0a3f2c6573e11e28d7b324562f8a9177d57ee471fc1a5b4e821c53b882df03",
+      "name": "agenteam-d03-c8340426c15526a87466a837c051ebc2",
+      "labels": {
+        "agenteam.d03.fixture": "c8340426c15526a87466a837c051ebc2"
+      },
+      "time_nano": 1791208017154184001,
+      "inspect_exit": 1,
+      "inspect_stderr": "Error response from daemon: No such container: 0d0a3f2c6573e11e28d7b324562f8a9177d57ee471fc1a5b4e821c53b882df03",
+      "absent": true
+    },
+    {
+      "kind": "container",
+      "id": "634c9a024458c5d1c8b4804010f13b69e858e3ccee1faa6d87ac802dd9306bfb",
+      "name": "agenteam-d03-c8340426c15526a87466a837c051ebc2-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "c8340426c15526a87466a837c051ebc2"
+      },
+      "time_nano": 1791208018896695856,
+      "inspect_exit": 1,
+      "inspect_stderr": "Error response from daemon: No such container: 634c9a024458c5d1c8b4804010f13b69e858e3ccee1faa6d87ac802dd9306bfb",
+      "absent": true
+    }
+  ],
+  "created_containers": 4,
+  "created_networks": 3,
+  "all_exact_ids_absent": true,
+  "baseline_unchanged": true,
+  "baseline_containers": 2,
+  "baseline_networks": 4,
+  "remaining_owned_processes": {},
+  "runtime_entries_remaining": [],
+  "changed_candidate_sources": []
+}

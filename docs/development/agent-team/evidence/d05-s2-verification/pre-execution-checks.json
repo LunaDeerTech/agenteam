@@ -1,0 +1,95 @@
+{
+  "scope": "preparation only",
+  "selected_tops": {
+    "TestObjectProjectStopArchiveAndDeleteNormalObjectCompatibility": "tests/objects/project_stop_compatibility_test.go",
+    "TestObjectProjectStopArchivePreservesPublishedReads": "tests/objects/project_stop_io_test.go",
+    "TestObjectProjectStopAuthorityAndReadOnlyInspect": "tests/objects/project_stop_authority_test.go",
+    "TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker": "tests/objects/project_stop_recovery_test.go",
+    "TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks": "tests/objects/project_stop_io_test.go",
+    "TestObjectProjectStopDeleteWaitsForActualIO": "tests/objects/project_stop_io_test.go",
+    "TestObjectProjectStopIndependentGateUnknownKeepsLiveWork": "tests/objects/project_stop_independent_gate_unknown_test.go",
+    "TestObjectProjectStopNativeFactsAndFairBatches": "tests/objects/project_stop_recovery_test.go",
+    "TestObjectProjectStopOptionalBindingKeepsOrdinaryObjects": "tests/objects/project_stop_compatibility_test.go",
+    "TestObjectProjectStopRecoveryDoesNotCancelOtherProject": "tests/objects/project_stop_recovery_test.go",
+    "TestObjectProjectStopRecoveryRequiresExactProcessAndJoin": "tests/objects/project_stop_recovery_test.go",
+    "TestObjectProjectStopRegistersBeforeResolver": "tests/objects/project_stop_io_test.go",
+    "TestObjectProjectStopRestoreKeepsRevocation": "tests/objects/project_stop_authority_test.go",
+    "TestObjectProjectStopRuntimeRecoversOnlyTechnicalRows": "tests/objects/project_stop_recovery_test.go",
+    "TestObjectProjectStopTransferLatePUTCannotPublish": "tests/objects/project_stop_transfer_test.go",
+    "TestObjectProjectStopTransferRequiresRemoteRetirement": "tests/objects/project_stop_transfer_test.go",
+    "TestObjectProjectStopUnknownAdmissionNeverStartsIO": "tests/objects/project_stop_unknown_test.go",
+    "TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter": "tests/objects/project_stop_unknown_test.go",
+    "TestObjectProjectStopUnknownMaintenanceNeverStartsIO": "tests/objects/project_stop_unknown_test.go",
+    "TestObjectProjectStopUnknownPreflightNeverCancels": "tests/objects/project_stop_unknown_test.go",
+    "TestObjectProjectStopUnopenedSourceAndCrossProjectRelations": "tests/objects/project_stop_io_test.go",
+    "TestObjectProjectStopVerificationOwnsItsLifetime": "tests/objects/project_stop_io_test.go",
+    "TestObjectRuntimeBusyDoesNotMaskLaterRecoveryFailure": "tests/objects/runtime_recovery_test.go",
+    "TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget": "tests/objects/runtime_shutdown_test.go",
+    "TestObjectSourceLeaseUnopenedCancellationSharesShutdown": "tests/objects/source_cleanup_test.go"
+  },
+  "counts": {
+    "selected": 25,
+    "new_card": 21,
+    "old_SourceForce": 1,
+    "old_Runtime": 2,
+    "independent_probe": 1
+  },
+  "original_driver_and_modules_match_base": true,
+  "author_raw_evidence": {
+    "logs/compat-core-01.log": {
+      "sha256": "1f9171ebe4d01a9cdda5a247ec306426e631acf8c3e28f155789384a0ab35f8d",
+      "bytes": 3635
+    },
+    "logs/writer-red-01.log": {
+      "sha256": "2b4851f973503d70bec0174503a18ac485071a54bf4917bc2ee4bdfa16d25231",
+      "bytes": 6761
+    },
+    "logs/compat-runtime-01.log": {
+      "sha256": "6294d5cf14920632711085af00689b87e6cfdce87193468cedbef6953b35a90e",
+      "bytes": 3112
+    },
+    "logs/join-fix-01.log": {
+      "sha256": "37a880e266754be735a1d86f2aec747d0a671ebcc1f21674bef141b1a9a85ae0",
+      "bytes": 2707
+    },
+    "logs/new-core-final-01.log": {
+      "sha256": "71cbf164c4cbb75c06777f4b00cdd93469f5693ad06deae33889f2fc6921fb7a",
+      "bytes": 2708
+    },
+    "input-compat-core-01.json": {
+      "sha256": "59832ac835f8585cc692edfc7869e511ee0bac1e9a60caf9326628f93e856370",
+      "bytes": 4869
+    },
+    "input-writer-red-01.json": {
+      "sha256": "ae7fa0b1d822d59b45f4cfd67a5d570b15be4087ffc0d941c77c19c29ceb3698",
+      "bytes": 4172
+    },
+    "input-compat-runtime-01.json": {
+      "sha256": "37dd9c76b0cf7b3fea3415049bd0646b0e0993f8dbda60746c1b11704fc23da5",
+      "bytes": 4693
+    },
+    "input-join-fix-01.json": {
+      "sha256": "5270b3d07ae6062ec22ddcf21e0dafe8863f93ec44c48c13a9afe9c463d0fcfc",
+      "bytes": 4195
+    },
+    "input-new-core-final-01.json": {
+      "sha256": "ad7f2f2d853a9f2404f9c0fd7366e5aea6ae9e517dc676a21fe7f3c757a4618a",
+      "bytes": 5016
+    }
+  },
+  "compile_command_planned": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-tags=integration",
+    "-run",
+    "^$",
+    "./tests/objects"
+  ],
+  "fixture_command_planned": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestObjectProjectStopArchiveAndDeleteNormalObjectCompatibility|TestObjectProjectStopArchivePreservesPublishedReads|TestObjectProjectStopAuthorityAndReadOnlyInspect|TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker|TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks|TestObjectProjectStopDeleteWaitsForActualIO|TestObjectProjectStopIndependentGateUnknownKeepsLiveWork|TestObjectProjectStopNativeFactsAndFairBatches|TestObjectProjectStopOptionalBindingKeepsOrdinaryObjects|TestObjectProjectStopRecoveryDoesNotCancelOtherProject|TestObjectProjectStopRecoveryRequiresExactProcessAndJoin|TestObjectProjectStopRegistersBeforeResolver|TestObjectProjectStopRestoreKeepsRevocation|TestObjectProjectStopRuntimeRecoversOnlyTechnicalRows|TestObjectProjectStopTransferLatePUTCannotPublish|TestObjectProjectStopTransferRequiresRemoteRetirement|TestObjectProjectStopUnknownAdmissionNeverStartsIO|TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter|TestObjectProjectStopUnknownMaintenanceNeverStartsIO|TestObjectProjectStopUnknownPreflightNeverCancels|TestObjectProjectStopUnopenedSourceAndCrossProjectRelations|TestObjectProjectStopVerificationOwnsItsLifetime|TestObjectRuntimeBusyDoesNotMaskLaterRecoveryFailure|TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|TestObjectSourceLeaseUnopenedCancellationSharesShutdown)$"
+  ],
+  "Go_or_Docker_executed": false
+}

@@ -1,0 +1,172 @@
+//go:build integration
+
+package objects_test
+
+import (
+	"context"
+	"sync"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+)
+
+// Independent addition: unlike the existing empty-project gate Unknown test,
+// this keeps a real admitted preparation blocked in Read and Close. The real
+// PostgreSQL COMMIT proxy is armed by the gate's same-Tx semantic delta.
+func TestObjectProjectStopIndependentGateUnknownKeepsLiveWork(t *testing.T) {
+	for _, outcome := range []string{"lost_response", "late_commit", "rollback"} {
+		t.Run(outcome, func(t *testing.T) {
+			f := newFixture(t, false)
+			raw, proxy := proxyStore(t, f, outcome == "lost_response")
+			proxy.late.Store(outcome == "late_commit")
+			var releaseCommit sync.Once
+			defer releaseCommit.Do(func() { close(proxy.release) })
+			a := newObjectStopAuthority(t, f, raw)
+			wrapped := &stopCommitStore{Store: raw, proxy: proxy, authority: a}
+			process := id[oc.Process](t)
+			s := newObjectStopService(t, f, a, stopServiceOptions{store: raw, wrapper: wrapped, process: process})
+			entered, release := make(chan struct{}), make(chan struct{})
+			var releaseBody sync.Once
+			defer releaseBody.Do(func() { close(release) })
+			body := &stopBlockedBody{entered: entered, release: release}
+			workDone := make(chan error, 1)
+			go func() {
+				_, err := s.PreparePayload(contextFor(t), f.actor, f.owner, "text/plain", 1, nil, body)
+				workDone <- err
+			}()
+			select {
+			case <-entered:
+			case <-time.After(3 * time.Second):
+				t.Fatal("actual preparation Read never entered")
+			}
+			var original string
+			if err := f.store.QueryRow(contextFor(t), `SELECT jsonb_build_array(id,project_id,process_id,kind,resource_id,object_id,cleanup_claim_fence,admission_version,admission_operation)::text FROM agenteam_object.project_work WHERE project_id=$1 AND process_id=$2 AND kind='preparation' AND joined_at IS NULL AND revoked_by IS NULL`, f.project.String(), process.String()).Scan(&original); err != nil {
+				t.Fatal("live work was not durably admitted before Read", err)
+			}
+			if projectWorkCount(t, f, "preparation", false) != 1 {
+				t.Fatal("expected one exact unjoined preparation before stop")
+			}
+			assertLive := func() {
+				t.Helper()
+				if body.closes.Load() != 0 {
+					t.Fatal("Unknown gate invoked the live work cancellation/Close callback")
+				}
+				select {
+				case err := <-workDone:
+					t.Fatal("Unknown gate joined non-cooperating preparation", err)
+				default:
+				}
+			}
+			assertLive()
+			actor, stopCause := activateObjectStop(t, f, oc.ProjectStopDelete)
+			wrapped.arm("gate")
+			type stopResult struct {
+				report oc.ObjectStopReport
+				err    error
+			}
+			done := make(chan stopResult, 1)
+			go func() {
+				report, err := s.RequestProjectStop(contextFor(t), actor, stopCause)
+				done <- stopResult{report: report, err: err}
+			}()
+			select {
+			case <-proxy.reached:
+			case <-time.After(3 * time.Second):
+				t.Fatal("actual gate COMMIT was not intercepted")
+			}
+			wrapped.assertHit(t, "gate")
+			assertLive()
+			key, _ := foundation.ProjectLock(f.project.String())
+			if outcome != "lost_response" {
+				ctx, cancel := context.WithTimeout(contextFor(t), 120*time.Millisecond)
+				r := f.store.WithinTx(ctx, cause(t), func(ctx context.Context, tx foundation.Tx) error {
+					return f.store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: key, Mode: foundation.Exclusive}})
+				})
+				cancel()
+				if r.State() == foundation.Committed {
+					t.Fatal("original gate writer did not retain its exact Project lock")
+				}
+				ctx, cancel = context.WithTimeout(contextFor(t), 120*time.Millisecond)
+				report, err := s.RequestProjectStop(ctx, actor, stopCause)
+				cancel()
+				if err == nil || report.Details().State == oc.ProjectStopped {
+					t.Fatal("stop inferred terminal through unresolved original gate writer", err)
+				}
+				assertLive()
+			}
+			// In lost_response PostgreSQL has already committed; a second stop is
+			// therefore allowed to cancel. Check the first Unknown call alone.
+			releaseCommit.Do(func() { close(proxy.release) })
+			select {
+			case result := <-done:
+				requireCode(t, result.err, foundation.CommitUnknown)
+				if result.report.Details().State == oc.ProjectStopped {
+					t.Fatal("Unknown gate reported Stopped")
+				}
+			case <-time.After(3 * time.Second):
+				t.Fatal("original Unknown gate did not return")
+			}
+			if outcome == "late_commit" {
+				select {
+				case <-proxy.committed:
+				case <-time.After(3 * time.Second):
+					t.Fatal("original gate never actually committed late")
+				}
+			}
+			assertLive()
+			select {
+			case err := <-workDone:
+				t.Fatal("Unknown gate finished live preparation", err)
+			case <-time.After(100 * time.Millisecond):
+			}
+			assertLive()
+			// Serialize on the original Project lock before interpreting absence.
+			// No stop/cancellation callback runs in this read-only observation.
+			var identity string
+			var gates, exactGates, pending, revoked int
+			r := f.store.WithinTx(contextFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+				if err := f.store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: key, Mode: foundation.Exclusive}}); err != nil {
+					return err
+				}
+				e, err := f.store.InTx(tx)
+				if err != nil {
+					return err
+				}
+				if err = e.QueryRow(ctx, `SELECT jsonb_build_array(id,project_id,process_id,kind,resource_id,object_id,cleanup_claim_fence,admission_version,admission_operation)::text FROM agenteam_object.project_work WHERE project_id=$1 AND kind='preparation'`, f.project.String()).Scan(&identity); err != nil {
+					return err
+				}
+				if err = e.QueryRow(ctx, `SELECT count(*),count(*) FILTER(WHERE operation_id=$2 AND action='delete' AND project_version=$3 AND state='stopping') FROM agenteam_object.project_stops WHERE project_id=$1`, f.project.String(), stopCause.Details().OperationID.String(), int64(stopCause.Details().ProjectVersion)).Scan(&gates, &exactGates); err != nil {
+					return err
+				}
+				return e.QueryRow(ctx, `SELECT count(*) FILTER(WHERE joined_at IS NULL),count(*) FILTER(WHERE revoked_by=$2) FROM agenteam_object.project_work WHERE project_id=$1 AND kind='preparation'`, f.project.String(), stopCause.Details().OperationID.String()).Scan(&pending, &revoked)
+			})
+			if r.State() != foundation.Committed || identity != original || pending != 1 {
+				t.Fatal("original writer resolution replaced or falsely joined live work", r.Fault(), original, identity, pending)
+			}
+			wantGates := 1
+			if outcome == "rollback" {
+				wantGates = 0
+			}
+			if gates != wantGates || exactGates != wantGates || revoked != wantGates {
+				t.Fatal("gate/revocation did not match original transaction outcome", outcome, gates, exactGates, revoked)
+			}
+			assertLive()
+			t.Log("confirmed original gate outcome without cancellation:", outcome, original)
+			releaseBody.Do(func() { close(release) })
+			select {
+			case err := <-workDone:
+				if err == nil {
+					t.Fatal("zero-byte body unexpectedly satisfied one-byte declaration")
+				}
+			case <-time.After(3 * time.Second):
+				t.Fatal("released preparation failed to return")
+			}
+			stopUntilSettled(t, s, actor, stopCause)
+			if err := f.store.QueryRow(contextFor(t), `SELECT count(*),count(*) FILTER(WHERE operation_id=$2 AND state='stopped') FROM agenteam_object.project_stops WHERE project_id=$1`, f.project.String(), stopCause.Details().OperationID.String()).Scan(&gates, &exactGates); err != nil || gates != 1 || exactGates != 1 {
+				t.Fatal("convergence replaced original stop cause", err, gates, exactGates)
+			}
+		})
+	}
+}

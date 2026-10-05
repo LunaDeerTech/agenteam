@@ -1,0 +1,33 @@
+{
+  "baseline": "49c6589c3919cad62a4bae2c993b5fd953d36b1e",
+  "files": {
+    "internal/central/object/service.go": "70e80d42a50a165360c37ac309a174065b045716e3bb829ff1f267e689946290",
+    "internal/central/object/access.go": "a94eae2a0b9749c11f8ece4f10b684cf437c16d182a2389731545b2ae47987c4",
+    "internal/central/object/upload.go": "a6acf51dbc38fa089d337bfd14ff9952fdad21bfb9f600a7863b342a48ca4804",
+    "internal/central/object/references.go": "2c96e85946d18215f9144f6c600eaa9f288149ee47a5aa58e5f2a1f39c856fd6",
+    "internal/central/object/read.go": "b31f594ad8b1be271dc86bc8ecba2f93d32c1eec2f24220244129028b8ed4c20",
+    "internal/central/object/source_reads.go": "ccc30daef6a10833b1490bd12ce026668a7ed1af92fac6e21883f26af2a7fefd",
+    "internal/central/object/download_service.go": "cd16af98d1d69c1794a549aee5d9869e05c073c686e4338e5501df64f3d68292",
+    "internal/central/object/download_stream.go": "b25ebcfd23e5312de22623c2591f33ceb23f83391fb2f1d0f29541d352d80345",
+    "internal/central/object/transfer.go": "a999aa9850422bf7eb9293bd03a6e892cc4e98be60ffc062fa202f5e74c44ff9",
+    "internal/central/object/transfer_access.go": "fc59c96ff8791117677aafa4b5eee5d559f30c2059a93c83455809067d0b3e49",
+    "internal/central/object/transfer_upload.go": "45ca4fdb9f2013067cfe9cdd4a5704e928b2ca26933f4eea9c330f3a6e37d079",
+    "internal/central/object/transfer_complete.go": "639587c2dddd8c7c749fddf35eb258d6d0a0f471fe452d40d5a12552049a4fa4",
+    "internal/central/object/transfer_recovery.go": "70742d776226d8301fc3ec805c91d14d4e998f0fcd07f61e077945503f78574f",
+    "internal/central/object/recovery.go": "0234cecc802ef06477cb4393fa016d42668b9cadbdd6b5bfe5a78e3468dce444",
+    "internal/central/object/runtime.go": "1c16810426b77c01ea230bcd0c8b56d532081e6851ad4f34dd6b2a5a47f13485",
+    "internal/central/object/project_lifecycle.go": "6ab812d3e956a54e127a3511b856dff5655c2610ff27f369a10caa07083b8724",
+    "internal/central/object/project_work.go": "4dbd7140482acb2628425ae722603e479caf57fb74a3e692c5b864a270de7022",
+    "internal/central/object/project_stop_store.go": "fa6e87c18fe30b87b5000cc40de1b6a6e481c873a18fa0a8677747dec24c7e87",
+    "internal/central/object/project_lifecycle_test.go": "00bdf2d03cb6fa3c449d6a0879e05a78b26df88a6a2bd2d11e88e7cc69cd1dd9",
+    "internal/central/object/project_work_test.go": "3fbb2254981ab84ba45dcd9894b6d3a2d71bb910f2d74fc4de9d8a6b828f684e",
+    "internal/central/object/project_stop_store_test.go": "8aa078ae83d7f46275f6098ec646fbb4db9daed32ac4087a20fe6dd2826c4140",
+    "tests/objects/project_stop_fixture_test.go": "7988d11d72503a8b93722d8e2c4b7380c82078c88c871285c83746680787be18",
+    "tests/objects/project_stop_authority_test.go": "45ea6b1a3996d98cc334ff7112f8523c3b35f1cc58a167989bafbc3953c53c05",
+    "tests/objects/project_stop_io_test.go": "ce9bbb5700076df40c50278fa7a1ded0ac0ce2f0948f95e4ae0fb92f42dd915a",
+    "tests/objects/project_stop_unknown_test.go": "7ce1ef405cb40ad308cad3eed1eed69b72d92b6392f123f9f96eaaad87c634ec",
+    "tests/objects/project_stop_recovery_test.go": "2643f0be3aea2310e87c8d3e93a981d0061f4a686425efe07ab8e87825816037",
+    "tests/objects/project_stop_transfer_test.go": "6172fe1c7e0047e58786ec1aa7469d8636236b61ef0ff52efbf0c2363ea1e345",
+    "tests/objects/project_stop_compatibility_test.go": "5fde04c8220ff50f41624fb12b2b82cd67af8d9c3a76777cfc66999ef680f5d9"
+  }
+}

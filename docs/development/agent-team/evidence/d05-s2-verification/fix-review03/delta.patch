@@ -1,0 +1,163 @@
+--- internal/central/object/service.go (review02)
++++ internal/central/object/service.go (review03)
+@@ -36,11 +36,12 @@
+ 	ProjectStop oc.ProjectStopAuthority
+ }
+ type operation struct {
+-	ctx     context.Context
+-	cancel  context.CancelFunc
+-	done    chan struct{}
+-	once    sync.Once
+-	service *Service
++	ctx          context.Context
++	cancel       context.CancelFunc
++	done         chan struct{}
++	once         sync.Once
++	service      *Service
++	initializing bool // Admission granted by this Service, never a context flag.
+ }
+ type operationKey struct{}
+ type preparation struct {
+@@ -155,7 +156,7 @@
+ 		return nil, nil, failure(foundation.RateLimited, nil)
+ 	}
+ 	opCtx, cancel := context.WithTimeout(ctx, 30*time.Minute)
+-	op := &operation{cancel: cancel, done: make(chan struct{}), service: s}
++	op := &operation{cancel: cancel, done: make(chan struct{}), service: s, initializing: initializing}
+ 	op.ctx = context.WithValue(opCtx, operationKey{}, op)
+ 	r.operations[op] = true
+ 	finish := func() {
+--- internal/central/object/project_work.go (review02)
++++ internal/central/object/project_work.go (review03)
+@@ -389,7 +389,23 @@
+ }
+ 
+ func (s *Service) childOperation(ctx context.Context) (*operation, func(), error) {
+-	return s.begin(context.WithValue(ctx, operationKey{}, (*operation)(nil)))
++	parent, _ := ctx.Value(operationKey{}).(*operation)
++	if parent == nil || parent.service != s {
++		return nil, nil, failure(foundation.InvalidState, nil)
++	}
++	r := s.state()
++	r.mu.Lock()
++	active := r.operations[parent]
++	r.mu.Unlock()
++	if !active || parent.ctx.Err() != nil {
++		return nil, nil, failure(foundation.ShuttingDown, nil)
++	}
++	// Startup recovery is already admitted while runtimeReady is false. Only
++	// its live private parent can pass that initialization admission onward;
++	// ordinary parents retain the normal ready gate. admit still checks the
++	// caller context, shutdown/force and quota, and gives this child its own
++	// cancellation and lifetime instead of cancelling the whole recovery round.
++	return s.admit(context.WithValue(ctx, operationKey{}, (*operation)(nil)), parent.initializing)
+ }
+ 
+ // onceWorkFinish lets a reader's release callback and its enclosing operation
+--- internal/central/object/project_work_test.go (review02)
++++ internal/central/object/project_work_test.go (review03)
+@@ -1,12 +1,104 @@
+ package object
+ 
+ import (
++	"context"
+ 	"testing"
+ 
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+ 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+ )
++
++func TestProjectWorkChildInheritsOnlyLiveInitialization(t *testing.T) {
++	newService := func() (*Service, *serviceState) {
++		r := &serviceState{initialized: true, runtime: &Runtime{}, operations: map[*operation]bool{}, changed: make(chan struct{})}
++		s := &Service{func() *serviceState { return r }}
++		return s, r
++	}
++	t.Run("initializing_parent_and_independent_cancel", func(t *testing.T) {
++		s, r := newService()
++		parent, finish, err := s.admit(context.Background(), true)
++		if err != nil {
++			t.Fatal(err)
++		}
++		defer finish()
++		child, done, err := s.childOperation(parent.ctx)
++		if err != nil || child == parent || !child.initializing || len(r.operations) != 2 {
++			t.Fatal("live initialization admission was not inherited", err)
++		}
++		child.cancel()
++		if parent.ctx.Err() != nil {
++			t.Fatal("child cancelled its parent recovery round")
++		}
++		done()
++		if len(r.operations) != 1 || !r.operations[parent] {
++			t.Fatal("child did not release exactly its own lifetime")
++		}
++	})
++	t.Run("ordinary_parent_still_needs_ready", func(t *testing.T) {
++		s, r := newService()
++		r.runtimeReady = true
++		parent, finish, err := s.admit(context.Background(), false)
++		if err != nil {
++			t.Fatal(err)
++		}
++		defer finish()
++		r.runtimeReady = false
++		if _, _, err = s.childOperation(parent.ctx); !hasCode(err, foundation.DependencyUnavailable) {
++			t.Fatal("ordinary parent bypassed runtimeReady", err)
++		}
++	})
++	for _, mode := range []string{"no_parent", "unregistered", "foreign_service", "done", "cancelled", "caller_cancelled", "stopped", "forced", "quota"} {
++		t.Run(mode, func(t *testing.T) {
++			s, r := newService()
++			parent, finish, err := s.admit(context.Background(), true)
++			if err != nil {
++				t.Fatal(err)
++			}
++			defer finish()
++			ctx := parent.ctx
++			switch mode {
++			case "no_parent":
++				ctx = context.Background()
++			case "unregistered":
++				fake := &operation{service: s, ctx: context.Background(), initializing: true}
++				ctx = context.WithValue(context.Background(), operationKey{}, fake)
++			case "foreign_service":
++				other, _ := newService()
++				foreign, end, e := other.admit(context.Background(), true)
++				if e != nil {
++					t.Fatal(e)
++				}
++				defer end()
++				ctx = foreign.ctx
++			case "done":
++				finish()
++			case "cancelled":
++				parent.cancel()
++			case "caller_cancelled":
++				var cancel context.CancelFunc
++				ctx, cancel = context.WithCancel(ctx)
++				cancel()
++			case "stopped":
++				r.stopped = true
++			case "forced":
++				r.forced = true
++			case "quota":
++				for range 63 {
++					r.operations[&operation{}] = true
++				}
++			}
++			before := len(r.operations)
++			if _, done, err := s.childOperation(ctx); err == nil {
++				done()
++				t.Fatal("invalid child admission succeeded", mode)
++			}
++			if len(r.operations) != before {
++				t.Fatal("rejected child leaked a lifetime")
++			}
++		})
++	}
++}
+ 
+ func TestProjectWorkImmutableCleanupIdentity(t *testing.T) {
+ 	project, _ := foundation.NewID[identity.Project]()

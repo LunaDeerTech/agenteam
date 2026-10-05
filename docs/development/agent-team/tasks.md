@@ -6,15 +6,15 @@
 
 2026-10-05 中断恢复以 `main = origin/main = 8872110099c84cf0600bb5b62cdcd6c0c6c843e3` 为初始基线，工作区当时干净、无未推送提交。主线程已实际核对远端并建立同提交的本地 `main`；详细现存源码、缺失产物和下一步见[本次恢复记录](recovery-2026-10-05.md)。
 
-恢复文档及此前已验结果按下文保留；Project+Secret八源窄绑定已独立验收并提交推送`81fe7427ceb4672247b3d30a51c10a2e2808ba04`，远端一致。原Outbox首红未复现、原因未知，保留为后续完整模块测试关注项。当前S2独占fixture复验review03 runtime11+2定向，再补余48旧项，独立25顶层计划待跑；Object Audit与Artifact stop规格已审未开写。已验迁移前缀至00016，完整D08/D28/E01仍未完成。
+恢复文档及此前已验结果按下文保留；S2 Object stop 28源已独立验收并提交推送`6658a6cb1f29299521773bc8dc86b2f607b8c809`，远端一致。当前fixture空闲；Artifact rev2 `fcb83fc`的16源、Object Audit rev2 `fcae355`的13源及已独立静审通过的D09 Project配置`6e0bda1`的21源均已开始实施，三线无Docker权。原Outbox首红未复现、原因未知，继续保留为完整模块测试关注项。已验迁移前缀至00016，完整D08/D28/E01仍未完成。
 
 以下为恢复后的摘要。下文旧阶段中的 `d02_backend`、`d08_design`、`parallel_plan`、`d01_verify`、acceptance 等所有权及“正在实施”描述保留为当时历史，不表示旧实例仍在运行或旧未提交源码已恢复。旧 `/tmp` 证据没有随仓库恢复；历史局部通过不能证明当前缺失实现已存在。本次实际分工见[恢复记录的所有权表](recovery-2026-10-05.md#4-本次所有权与下一步)。
 
 | 工作项 | 当前进度 | 所有权与下一步 |
 | --- | --- | --- |
 | D07 | 当前范围已关闭，文档提交 `0ed8085`；历史失败与组合验收边界保留 | 无活动 D07 实现；后续 UI、WS、Project/Runner 绑定按责任模块推进 |
-| D08 | R1 `98262b4`、R2 `73db0d4`、[R3](../work-items/recovery-d08-lifecycle-authority.md) `3e399c3`、D05 S1 `49c6589`、[Secret checker](../work-items/recovery-secret-project-audit.md) `7d7c50d`及[Project+Secret窄绑定](../work-items/recovery-project-secret-audit-binding.md) `81fe742`均已独立验收提交；完整B03未完成 | [S2](../work-items/recovery-d05-object-stop.md)当前独占fixture复验review03 runtime11+2定向，再补余48旧项，独立25顶层计划待跑。[Object Audit规格](../work-items/recovery-object-project-audit.md) `431fb53`与[Artifact stop规格](../work-items/recovery-artifact-project-stop.md) `8f5b900`已审未开写。绑定原Outbox首红原因未知，完整模块测试继续关注；详见[最新验收记录](recovery-2026-10-05.md#13-projectsecret-窄绑定验收与-s2-接续) |
-| D09 | C0 `e6e94c4`、B01-K System 配置及 00015 已独立验收，Audit 六源 `26622bc`、System 二十九源 `543511c` 已推送 | 本块不含 Project 配置、Resolver/Usage、Provider 调用或根 HTTP；后续范围另派，D09 模块未完成 |
+| D08 | R1 `98262b4`、R2 `73db0d4`、[R3](../work-items/recovery-d08-lifecycle-authority.md) `3e399c3`、D05 S1 `49c6589`、[Secret checker](../work-items/recovery-secret-project-audit.md) `7d7c50d`、[Project+Secret窄绑定](../work-items/recovery-project-secret-audit-binding.md) `81fe742`及[S2 Object stop](../work-items/recovery-d05-object-stop.md) `6658a6c`均已独立验收提交；完整B03未完成 | `d08_registry_backend`已按[Artifact stop rev2](../work-items/recovery-artifact-project-stop.md) `fcb83fc`启动16源实施；`d08_recovery_design`已按[Object Audit rev2](../work-items/recovery-object-project-audit.md) `fcae355`启动13源实施，固定`6658a6c`；两线无Docker权，`skill_verification`作Object Audit验收准备。当前fixture空闲；原Outbox未归因红继续关注，详见[最新验收记录](recovery-2026-10-05.md#14-s2-object-stop-验收与后继准备) |
+| D09 | C0 `e6e94c4`、B01-K System 配置及 00015 已独立验收，Audit 六源 `26622bc`、System 二十九源 `543511c` 已推送 | [Project配置规格](../work-items/recovery-d09-project-configuration.md) `6e0bda1`已独立静审通过，`restore_test_dependencies`已启动21源实施、无Docker权；Resolver/Usage、Provider调用或根HTTP仍未交付，D09模块未完成 |
 | D10 | P1 真实 builtin/包载体 11 路径及两份文档已在 `8872110` 提交，并通过本轮固定输入独立验收；[主卡 rev2](../work-items/d10-skills-initialization.md)仅同步状态 | `skill_verification` 已冻结报告及持久证据；Go unit/race/vet与7项独立race探针通过。生产初始化仍须真实D08/D05、Object fact checker与生命周期组合，D10模块未完成 |
 | D12 | B01 `914fd84`、正式 B02 卡及 C1 `71dc176`、C2 `f401c15`、C3 `231a384` 的提交仍在；Knowledge 主体未验收且本次未恢复 | 当前仅有 Knowledge contract 12 文件；B02 新领域 29 路径均缺，未编号 SQL 草案也未恢复。按真实上游与新文件所有权重新下发，不以共享口通过替代真实 Knowledge/A/P 组合 |
 
@@ -954,3 +954,9 @@ ProjectSecret八源固定在`/tmp/agenteam-project-secret-binding-ljibt5s3/candi
 八源已独立验收并由主线程逐SHA核对清单`019f871617e5c2f49df4af44bf6c9c9153043bde69708cb72d767a7fa79d5e6f`，提交推送`81fe7427ceb4672247b3d30a51c10a2e2808ba04`、远端一致。[正式报告](project-secret-audit-binding-verification.md)保留作者六新跨轮组合通过、旧49顶层通过/1原Outbox顶层失败/1 child-only skip；独立map race、compile/vet及真实PG 1顶层3子例通过（4.307s），覆盖Owner撤权、缺锁poison与最终writer pending→COMMIT后撤Session拒绝旧receipt。
 
 固定baseline与加八源各16次时间诊断均未观测逆序；原完整Outbox顶层按原断言单次通过（2.939s）。原首红未复现且原因未知，不称已修复，也不称原旧组一次全绿，继续列为完整模块测试关注项。独立四轮8容器4网络二次exact-ID absent、runtime空、所属进程0，八源末检匹配。采纳仅限八源窄绑定；当前S2独占fixture复验review03 runtime11+2定向，再补余48旧项，独立25顶层计划待跑。Artifact/Object Audit已审未开写，完整D08/D28/E01仍未完成。
+
+### S2 Object stop 采纳与后继准备
+
+S2 28源已独立验收并获采纳，提交推送`6658a6cb1f29299521773bc8dc86b2f607b8c809`、远端一致。[正式报告](d05-s2-verification.md)记录作者95个不同顶层（21新+74旧）：review03直接通过61项，review02未变证据复用34项；最终unit/race/vet/compile及两cmd构建通过。独立25顶层+43子例共68个命名结果全PASS、无skip（94.897s），包括SR1 writer尾部、SR2 SourceForce、review03 Runtime两旧红及活work gate Unknown三态零提前Close与原writer锁终局；原红及修复链保留。
+
+独立4容器3网络exact-ID absent，既有2容器4网络ID/name/labels不变、runtime空、所属进程0，28源末检匹配。本次通过Object库级停止，不替代Artifact stop、Object Audit、正式Project推进/参与者装配或生产root。当前fixture空闲；backend按Artifact rev2 `fcb83fc`实施16源，设计按Object Audit rev2 `fcae355`实施13源、固定`6658a6c`，`restore_test_dependencies`按已独立静审通过的D09 Project配置`6e0bda1`实施21源，三线均已开工、无Docker权；`skill_verification`转Object Audit验收准备。原Outbox首红未复现/原因未知的关注项继续保留；完整D08/D28/E01仍未完成。

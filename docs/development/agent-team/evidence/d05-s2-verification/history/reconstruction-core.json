@@ -1,0 +1,10 @@
+{
+  "source": "/tmp/agenteam-d05-s2-author-ufzmxn_g/writer-red-input-delta/tests/objects/project_stop_io_test.go",
+  "source_sha256": "b092651410345a25e2b0330e82f1afbf638e69dc5eeadaa93bcd05401dfe9b39",
+  "removed_exact_block": "\tfor _, action := range []string{\"archive\", \"delete\", \"discard\"} {\n\t\tt.Run(\"standalone_writer_tail_\"+action, func(t *testing.T) { testStopStandaloneWriterTail(t, action) })\n\t}\n",
+  "removed_trailing_from_marker": "\n// A separately prepared payload owns its operation without an enclosing\n",
+  "reconstructed_sha256": "356209c4155532c168ad3811d0d7b2f0b0b3b34ffdf87e9a937ae94c11bd1125",
+  "expected_original_sha256": "356209c4155532c168ad3811d0d7b2f0b0b3b34ffdf87e9a937ae94c11bd1125",
+  "byte_exact_hash_match": true,
+  "method": "Reconstruction from preserved later source; original manifest SHA independently confirms byte identity. No test rerun."
+}

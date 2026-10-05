@@ -1,0 +1,65 @@
+{
+  "author_report_sha256": "9644f21b94262866c7b305ef95c1883b6e0ab9c024ac242f6a7d0406c59ec8ea",
+  "author_final_manifest_sha256": "c3dc0800bb7b4c2c7368186b42954f2ba8ac23d2cefd2d2d0ff6990f6c6320bd",
+  "distinct_tops": 95,
+  "review03_direct_tops": 61,
+  "review02_reused_tops": 34,
+  "runs": [
+    {
+      "label": "new-core-final-01",
+      "revision": "review02",
+      "top_count": 36,
+      "input_sha256": "ad7f2f2d853a9f2404f9c0fd7366e5aea6ae9e517dc676a21fe7f3c757a4618a",
+      "log_sha256": "71cbf164c4cbb75c06777f4b00cdd93469f5693ad06deae33889f2fc6921fb7a",
+      "cleanup_sha256": "0fc1ea8e26abf91bfdc633abbdb6e13eb992f9706869375b69a6c1da681bb482",
+      "object_pass_line_matched": true
+    },
+    {
+      "label": "compat-runtime-02",
+      "revision": "review03",
+      "top_count": 13,
+      "input_sha256": "7a049eabf51399b44874e6160cddaba1cbdeec1696748ab41adbbdebc8af084b",
+      "log_sha256": "61baacfb41668fe49751cfec545a9e540862e475db12485ce26fbe4bff456d20",
+      "cleanup_sha256": "3c50cffb204c5009f802da6215f6ea4ce2f0033bae455341e1e41647b992fcc4",
+      "object_pass_line_matched": true
+    },
+    {
+      "label": "compat-transfer-core-01",
+      "revision": "review03",
+      "top_count": 16,
+      "input_sha256": "85bd306f3a06690f4379a98fb063f7031079c434c229b2b4cc06672fa66e1bf4",
+      "log_sha256": "3e8fc541d84237698615508428cadabb11b6e2a626d79fa31d125fecc63c1ce7",
+      "cleanup_sha256": "40ed587d9b78a93d99b28233ca16c267e4caf9320a3f773475175799e4f5be2f",
+      "object_pass_line_matched": true
+    },
+    {
+      "label": "compat-transfer-recovery-01",
+      "revision": "review03",
+      "top_count": 11,
+      "input_sha256": "ea4e398ad5036fd759878b7b0497b9a884b07d42b1ec575be74c0960a947e986",
+      "log_sha256": "870e6fca6bb3ad9941bbb66f3456c453eb7ffe3790b3f95aff02d1e4980ac36d",
+      "cleanup_sha256": "19cd45233096ddc5420af4b437b0ce49461363acce70e23c2e2cc44abc2b3569",
+      "object_pass_line_matched": true
+    },
+    {
+      "label": "compat-download-01",
+      "revision": "review03",
+      "top_count": 12,
+      "input_sha256": "cff26214fe865bfcfe602cb17434911cbeb1af0149de5859a7733491004a9d69",
+      "log_sha256": "44fc94e47198e37a1cdc3be8adff86f33eb27947870230af3af964c3e8142608",
+      "cleanup_sha256": "7f192e22d55091b62a8cc73812c5b9dee3a36906ba44b3f19007652c16e82365",
+      "object_pass_line_matched": true
+    },
+    {
+      "label": "compat-object-recovery-01",
+      "revision": "review03",
+      "top_count": 9,
+      "input_sha256": "c6441fe1156fe55506a95504521a2a04d83379ddc25b2ba4c22e6c6d15b7b58d",
+      "log_sha256": "92cf489bbc0e94446f49cc45558aa06b9f6939936bdae148de73c03afa3601e4",
+      "cleanup_sha256": "54cb1ffa6db69c3286678e402cc9ef5fd62f8ab6b17b9fd38373d4008b173c5c",
+      "object_pass_line_matched": true
+    }
+  ],
+  "author_index_entries_hash_checked": 44,
+  "interpretation": "Reused author evidence, not independent runs. Source inputs and raw object PASS lines checked; no-tests packages excluded. Dynamic independent25 currently running."
+}

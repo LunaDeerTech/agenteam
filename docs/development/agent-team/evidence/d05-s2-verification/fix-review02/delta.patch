@@ -1,0 +1,135 @@
+--- internal/central/object/service.go (review01)
++++ internal/central/object/service.go (review02)
+@@ -44,16 +44,18 @@
+ }
+ type operationKey struct{}
+ type preparation struct {
+-	payload   oc.PreparedPayload
+-	actor     string
+-	owner     oc.ObjectOwner
+-	objectID  oc.ObjectID
+-	uploadID  oc.UploadID
+-	receiptID oc.ReceiptID
+-	operation *operation
+-	release   func()
+-	stop      func() bool
+-	work      *projectWorkHandle
++	payload    oc.PreparedPayload
++	actor      string
++	owner      oc.ObjectOwner
++	objectID   oc.ObjectID
++	uploadID   oc.UploadID
++	receiptID  oc.ReceiptID
++	operation  *operation
++	release    func()
++	stop       func() bool
++	work       *projectWorkHandle
++	writers    int // Full UploadPrepared calls, including verification and DB tails.
++	discarding bool
+ }
+ type writer struct {
+ 	operation *operation
+@@ -422,11 +424,23 @@
+ 	r := s.state()
+ 	r.mu.Lock()
+ 	entry := r.prepared[p.Details().ID]
+-	r.mu.Unlock()
+ 	if entry == nil {
++		r.mu.Unlock()
+ 		return nil
+ 	}
++	// Closing the spool reader ends only its file ownership. A writer can
++	// still be verifying the remote body or finishing its native checkpoint.
++	// Serialize admission/discard around that complete lifetime, not busy.
++	if entry.writers != 0 || entry.discarding {
++		r.mu.Unlock()
++		return failure(foundation.ResourceBusy, nil)
++	}
++	entry.discarding = true
++	r.mu.Unlock()
+ 	if e := r.spool.Discard(p); e != nil {
++		r.mu.Lock()
++		entry.discarding = false
++		r.mu.Unlock()
+ 		return e
+ 	}
+ 	r.mu.Lock()
+--- internal/central/object/upload.go (review01)
++++ internal/central/object/upload.go (review02)
+@@ -441,13 +441,20 @@
+ 	r := s.state()
+ 	w := &writer{operation: &operation{ctx: opCtx, cancel: cancel}, attempt: d.ID, done: make(chan struct{})}
+ 	r.mu.Lock()
+-	if r.writers[d.ID] != nil || r.forced {
++	if r.writers[d.ID] != nil || r.forced || prepared.discarding || r.prepared[p.Details().ID] != prepared {
+ 		r.mu.Unlock()
+ 		return oc.UploadAttempt{}, failure(foundation.ResourceBusy, nil)
+ 	}
++	prepared.writers++
+ 	r.writers[d.ID] = w
+ 	r.mu.Unlock()
+-	defer func() { r.mu.Lock(); delete(r.writers, d.ID); close(w.done); r.mu.Unlock() }()
++	defer func() {
++		r.mu.Lock()
++		delete(r.writers, d.ID)
++		prepared.writers--
++		close(w.done)
++		r.mu.Unlock()
++	}()
+ 	var attempt attemptRow
+ 	var noIO bool
+ 	result := s.withinAccess(opCtx, recoveryCause(), ownerRequest(actor, owner, oc.SendAccess, oc.AccessRequestDetails{Prepared: p, Attempt: handle}), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
+--- internal/central/object/source_reads.go (review01)
++++ internal/central/object/source_reads.go (review02)
+@@ -213,9 +213,11 @@
+ 	// From this point the handle can never issue another GET, including after a
+ 	// transport failure. A new attempt requires a newly authorized lease.
+ 	release := func() error {
+-		err := s.releaseInternal(h.id, h.source.Details().Meta.ID)
++		cleanup, cleanupDone := s.cleanupContext()
++		defer cleanupDone()
++		err := s.releaseInternalContext(cleanup, h.id, h.source.Details().Meta.ID)
+ 		cancel()
+-		s.finishProjectWork(h.work)
++		s.finishProjectWorkContext(cleanup, h.work)
+ 		finish()
+ 		h.mu.Lock()
+ 		h.result = err
+@@ -323,7 +325,7 @@
+ 		go func() {
+ 			defer finished()
+ 			err := s.releaseInternalContext(cleanup, h.id, h.source.Details().Meta.ID)
+-			s.finishProjectWork(h.work)
++			s.finishProjectWorkContext(cleanup, h.work)
+ 			h.mu.Lock()
+ 			h.result = err
+ 			h.joined = true
+--- internal/central/object/project_work.go (review01)
++++ internal/central/object/project_work.go (review02)
+@@ -343,12 +343,24 @@
+ 	if h == nil {
+ 		return
+ 	}
++	ctx, done := s.cleanupContext()
++	defer done()
++	s.finishProjectWorkContext(ctx, h)
++}
++
++// A release already owns its cleanup budget. Cancellation leaves actual-ended
++// evidence for recovery; it must not start a fresh lock wait behind Force.
++func (s *Service) finishProjectWorkContext(ctx context.Context, h *projectWorkHandle) {
++	if h == nil {
++		return
++	}
+ 	r := s.state()
+ 	r.mu.Lock()
+ 	h.ended = true
+ 	r.mu.Unlock()
+-	ctx, done := s.cleanupContext()
+-	defer done()
++	if ctx.Err() != nil {
++		return
++	}
+ 	_ = s.joinProjectWork(ctx, h) // Failed/Unknown checkpoints remain recoverable.
+ }
+ 

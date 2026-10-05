@@ -1,0 +1,17 @@
+{
+  "cwd": "/tmp/agenteam-d05-s2-independent-final-h7wgzipw/snapshot",
+  "command": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-c",
+    "-tags=integration",
+    "-race",
+    "-o",
+    "/tmp/agenteam-d05-s2-independent-final-h7wgzipw/bin/objects.test",
+    "./tests/objects"
+  ],
+  "started_at": "2026-10-05T13:44:54.381113+00:00",
+  "frozen_final_manifest_sha256": "c3dc0800bb7b4c2c7368186b42954f2ba8ac23d2cefd2d2d0ff6990f6c6320bd",
+  "probe_sha256": "1dfc3b7140e9a6f022f0f725d6338f8fa9851c591c950a0d1764edbd0b45ec16",
+  "environment_file": "run-environment.json"
+}

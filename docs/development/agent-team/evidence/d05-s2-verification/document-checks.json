@@ -1,0 +1,48 @@
+{
+  "scope": "Archive-only checks; no Go/Docker, network, product mutation or Git write",
+  "tracked_diff_check_command": [
+    "git",
+    "diff",
+    "--check",
+    "--",
+    "docs/development/agent-team/d05-s2-verification.md",
+    "docs/development/agent-team/evidence/d05-s2-verification"
+  ],
+  "tracked_diff_check_exit": 0,
+  "new_editorial_files_noindex_check": [
+    {
+      "path": "docs/development/agent-team/d05-s2-verification.md",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "path": "docs/development/agent-team/evidence/d05-s2-verification/rebuild-inputs.py",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "noindex_interpretation": "--no-index uses exit status 1 for added content; both commands emitted no whitespace diagnostics. Initial archive checker expected 0 and stopped, then this expectation was corrected without altering source or evidence.",
+  "editorial_python_trailing_whitespace_CR_and_final_newline_check": true,
+  "report_local_links": 26,
+  "all_report_links_resolve": true,
+  "json_files_parsed": 40,
+  "python_scripts_ast_parsed": 2,
+  "offline_rebuild_verification": {
+    "verified_byte_exact_inputs": {
+      "final": 28,
+      "source_force_red": 28,
+      "writer_join_red": 28,
+      "runtime_red": 28,
+      "review02_green": 28
+    },
+    "probe_sha256": "1dfc3b7140e9a6f022f0f725d6338f8fa9851c591c950a0d1764edbd0b45ec16"
+  },
+  "input_check": "end-input-check.json",
+  "raw_log_actual_top_passes": 25,
+  "raw_log_actual_subtest_passes": 43,
+  "raw_log_run_pass_name_sets_match": true,
+  "raw_log_skip_fail_race": false,
+  "historical_records_note": "Preparation plans and author-evidence-review were recorded before completion; final outcomes are fixture-result.json and independent-result.json. Raw historical bytes preserved."
+}

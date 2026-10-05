@@ -1,0 +1,156 @@
+{
+  "baseline": "49c6589c3919cad62a4bae2c993b5fd953d36b1e",
+  "accepted_source_commit": "6658a6cb1f29299521773bc8dc86b2f607b8c809",
+  "accepted_source_commit_reported_by_root": "root confirmed exact28, push and ls-remote equality",
+  "revisions": {
+    "final": "author-final-input.json",
+    "source_force_red": "author/input-compat-core-01.json",
+    "writer_join_red": "author/input-writer-red-01.json",
+    "runtime_red": "author/input-compat-runtime-01.json",
+    "review02_green": "author/input-new-core-final-01.json"
+  },
+  "final_manifest_sha256": "c3dc0800bb7b4c2c7368186b42954f2ba8ac23d2cefd2d2d0ff6990f6c6320bd",
+  "probe": {
+    "path": "independent_gate_unknown.go.txt",
+    "destination": "tests/objects/project_stop_independent_gate_unknown_test.go",
+    "sha256": "1dfc3b7140e9a6f022f0f725d6338f8fa9851c591c950a0d1764edbd0b45ec16"
+  },
+  "historical_fragments": {
+    "70e80d42a50a165360c37ac309a174065b045716e3bb829ff1f267e689946290": {
+      "file": "history/70e80d42a50a165360c37ac309a174065b045716e3bb829ff1f267e689946290.txt",
+      "source_path": "/tmp/agenteam-d05-s2-author-ufzmxn_g/production-review-01/internal/central/object/service.go",
+      "bytes": 14540,
+      "uses": [
+        {
+          "revision": "source_force_red",
+          "path": "internal/central/object/service.go"
+        },
+        {
+          "revision": "writer_join_red",
+          "path": "internal/central/object/service.go"
+        }
+      ]
+    },
+    "a6acf51dbc38fa089d337bfd14ff9952fdad21bfb9f600a7863b342a48ca4804": {
+      "file": "history/a6acf51dbc38fa089d337bfd14ff9952fdad21bfb9f600a7863b342a48ca4804.txt",
+      "source_path": "/tmp/agenteam-d05-s2-author-ufzmxn_g/production-review-01/internal/central/object/upload.go",
+      "bytes": 23688,
+      "uses": [
+        {
+          "revision": "source_force_red",
+          "path": "internal/central/object/upload.go"
+        },
+        {
+          "revision": "writer_join_red",
+          "path": "internal/central/object/upload.go"
+        }
+      ]
+    },
+    "ccc30daef6a10833b1490bd12ce026668a7ed1af92fac6e21883f26af2a7fefd": {
+      "file": "history/ccc30daef6a10833b1490bd12ce026668a7ed1af92fac6e21883f26af2a7fefd.txt",
+      "source_path": "/tmp/agenteam-d05-s2-author-ufzmxn_g/production-review-01/internal/central/object/source_reads.go",
+      "bytes": 10347,
+      "uses": [
+        {
+          "revision": "source_force_red",
+          "path": "internal/central/object/source_reads.go"
+        },
+        {
+          "revision": "writer_join_red",
+          "path": "internal/central/object/source_reads.go"
+        }
+      ]
+    },
+    "4dbd7140482acb2628425ae722603e479caf57fb74a3e692c5b864a270de7022": {
+      "file": "history/4dbd7140482acb2628425ae722603e479caf57fb74a3e692c5b864a270de7022.txt",
+      "source_path": "/tmp/agenteam-d05-s2-author-ufzmxn_g/production-review-01/internal/central/object/project_work.go",
+      "bytes": 21420,
+      "uses": [
+        {
+          "revision": "source_force_red",
+          "path": "internal/central/object/project_work.go"
+        },
+        {
+          "revision": "writer_join_red",
+          "path": "internal/central/object/project_work.go"
+        }
+      ]
+    },
+    "3fbb2254981ab84ba45dcd9894b6d3a2d71bb910f2d74fc4de9d8a6b828f684e": {
+      "file": "history/3fbb2254981ab84ba45dcd9894b6d3a2d71bb910f2d74fc4de9d8a6b828f684e.txt",
+      "source_path": "/tmp/agenteam-d05-s2-author-ufzmxn_g/candidate-review02/internal/central/object/project_work_test.go",
+      "bytes": 3070,
+      "uses": [
+        {
+          "revision": "source_force_red",
+          "path": "internal/central/object/project_work_test.go"
+        },
+        {
+          "revision": "writer_join_red",
+          "path": "internal/central/object/project_work_test.go"
+        },
+        {
+          "revision": "runtime_red",
+          "path": "internal/central/object/project_work_test.go"
+        },
+        {
+          "revision": "review02_green",
+          "path": "internal/central/object/project_work_test.go"
+        }
+      ]
+    },
+    "356209c4155532c168ad3811d0d7b2f0b0b3b34ffdf87e9a937ae94c11bd1125": {
+      "file": "history/356209c4155532c168ad3811d0d7b2f0b0b3b34ffdf87e9a937ae94c11bd1125.txt",
+      "source_path": "/tmp/agenteam-d05-s2-independent-final-h7wgzipw/evidence/reconstruction/compat-core-01-project_stop_io_test.go.txt",
+      "bytes": 17976,
+      "uses": [
+        {
+          "revision": "source_force_red",
+          "path": "tests/objects/project_stop_io_test.go"
+        }
+      ]
+    },
+    "b092651410345a25e2b0330e82f1afbf638e69dc5eeadaa93bcd05401dfe9b39": {
+      "file": "history/b092651410345a25e2b0330e82f1afbf638e69dc5eeadaa93bcd05401dfe9b39.txt",
+      "source_path": "/tmp/agenteam-d05-s2-author-ufzmxn_g/writer-red-input-delta/tests/objects/project_stop_io_test.go",
+      "bytes": 22474,
+      "uses": [
+        {
+          "revision": "writer_join_red",
+          "path": "tests/objects/project_stop_io_test.go"
+        }
+      ]
+    },
+    "25ad423d54e95a991c801414a8de6799c3f1b11b952778511d4b2a283ed25584": {
+      "file": "history/25ad423d54e95a991c801414a8de6799c3f1b11b952778511d4b2a283ed25584.txt",
+      "source_path": "/tmp/agenteam-d05-s2-author-ufzmxn_g/production-review-02/internal/central/object/service.go",
+      "bytes": 15079,
+      "uses": [
+        {
+          "revision": "runtime_red",
+          "path": "internal/central/object/service.go"
+        },
+        {
+          "revision": "review02_green",
+          "path": "internal/central/object/service.go"
+        }
+      ]
+    },
+    "f83d324b7d7a876d53bdcfb9a75f109aba3db479ce4265ef6c9fed7f1fb50501": {
+      "file": "history/f83d324b7d7a876d53bdcfb9a75f109aba3db479ce4265ef6c9fed7f1fb50501.txt",
+      "source_path": "/tmp/agenteam-d05-s2-author-ufzmxn_g/production-review-02/internal/central/object/project_work.go",
+      "bytes": 21764,
+      "uses": [
+        {
+          "revision": "runtime_red",
+          "path": "internal/central/object/project_work.go"
+        },
+        {
+          "revision": "review02_green",
+          "path": "internal/central/object/project_work.go"
+        }
+      ]
+    }
+  },
+  "scope": "Only 28 Object candidate paths overlay the fixed baseline; do not use entire accepted commit as test tree, because unrelated Project changes are excluded."
+}

@@ -1,0 +1,447 @@
+github.com/LunaDeerTech/agenteam/internal/central/foundation
+github.com/LunaDeerTech/agenteam/db/migrations
+github.com/LunaDeerTech/agenteam/internal/central/postgres
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.233.166.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=f4ce63392561d522644e298627e6394f
+github.com/LunaDeerTech/agenteam/internal/central/identity/contract
+github.com/LunaDeerTech/agenteam/internal/central/audit/contract
+github.com/LunaDeerTech/agenteam/internal/central/cursor
+github.com/LunaDeerTech/agenteam/internal/central/secret/contract
+github.com/LunaDeerTech/agenteam/internal/central/audit
+github.com/LunaDeerTech/agenteam/internal/central/outbound
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=5d8df7217fc4f27b634dabea29ecb11e
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.023s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	10.842s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.062s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.030s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.037s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.026s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.016s [no tests to run]
+=== RUN   TestObjectProjectStopAuthorityAndReadOnlyInspect
+=== RUN   TestObjectProjectStopAuthorityAndReadOnlyInspect/manifest
+=== RUN   TestObjectProjectStopAuthorityAndReadOnlyInspect/phase
+=== RUN   TestObjectProjectStopAuthorityAndReadOnlyInspect/version
+=== RUN   TestObjectProjectStopAuthorityAndReadOnlyInspect/action
+--- PASS: TestObjectProjectStopAuthorityAndReadOnlyInspect (1.39s)
+    --- PASS: TestObjectProjectStopAuthorityAndReadOnlyInspect/manifest (0.01s)
+    --- PASS: TestObjectProjectStopAuthorityAndReadOnlyInspect/phase (0.01s)
+    --- PASS: TestObjectProjectStopAuthorityAndReadOnlyInspect/version (0.01s)
+    --- PASS: TestObjectProjectStopAuthorityAndReadOnlyInspect/action (0.01s)
+=== RUN   TestObjectProjectStopRestoreKeepsRevocation
+--- PASS: TestObjectProjectStopRestoreKeepsRevocation (1.64s)
+=== RUN   TestObjectProjectStopOptionalBindingKeepsOrdinaryObjects
+--- PASS: TestObjectProjectStopOptionalBindingKeepsOrdinaryObjects (1.44s)
+=== RUN   TestObjectProjectStopArchiveAndDeleteNormalObjectCompatibility
+--- PASS: TestObjectProjectStopArchiveAndDeleteNormalObjectCompatibility (1.56s)
+=== RUN   TestObjectProjectStopIndependentGateUnknownKeepsLiveWork
+=== RUN   TestObjectProjectStopIndependentGateUnknownKeepsLiveWork/lost_response
+    project_stop_independent_gate_unknown_test.go:79: actual PostgreSQL COMMIT intercepted: gate
+    project_stop_independent_gate_unknown_test.go:156: confirmed original gate outcome without cancellation: lost_response ["01a10c52-12c9-70d5-86d3-1b6213eda2e9", "01a10c52-1221-7b83-980b-0c79ddc650ac", "01a10c52-12ac-7c19-b743-941eb4d892bb", "preparation", "01a10c52-12c9-70d5-86d3-1b6213eda2e9", null, null, 0, null]
+=== RUN   TestObjectProjectStopIndependentGateUnknownKeepsLiveWork/late_commit
+    project_stop_independent_gate_unknown_test.go:79: actual PostgreSQL COMMIT intercepted: gate
+    project_stop_independent_gate_unknown_test.go:156: confirmed original gate outcome without cancellation: late_commit ["01a10c52-1941-7c44-be36-1ec40229c8e6", "01a10c52-188f-733a-9350-f315c0d547ed", "01a10c52-192b-7c12-884a-d4b17ef1e1b7", "preparation", "01a10c52-1941-7c44-be36-1ec40229c8e6", null, null, 0, null]
+=== RUN   TestObjectProjectStopIndependentGateUnknownKeepsLiveWork/rollback
+    project_stop_independent_gate_unknown_test.go:79: actual PostgreSQL COMMIT intercepted: gate
+    project_stop_independent_gate_unknown_test.go:156: confirmed original gate outcome without cancellation: rollback ["01a10c52-2079-733d-8c3a-7cfe8fbe90d9", "01a10c52-1fd8-7269-aad6-5b1e350d601e", "01a10c52-2060-7eba-b3c3-a329ad36876e", "preparation", "01a10c52-2079-733d-8c3a-7cfe8fbe90d9", null, null, 0, null]
+--- PASS: TestObjectProjectStopIndependentGateUnknownKeepsLiveWork (5.48s)
+    --- PASS: TestObjectProjectStopIndependentGateUnknownKeepsLiveWork/lost_response (1.75s)
+    --- PASS: TestObjectProjectStopIndependentGateUnknownKeepsLiveWork/late_commit (1.94s)
+    --- PASS: TestObjectProjectStopIndependentGateUnknownKeepsLiveWork/rollback (1.79s)
+=== RUN   TestObjectProjectStopArchivePreservesPublishedReads
+--- PASS: TestObjectProjectStopArchivePreservesPublishedReads (1.47s)
+=== RUN   TestObjectProjectStopDeleteWaitsForActualIO
+=== RUN   TestObjectProjectStopDeleteWaitsForActualIO/small_body_already_joined_before_return
+    project_stop_io_test.go:107: actual reader lifetime: active=false, native lease and work share exact process 01a10c52-2cba-7a16-805a-4c901a15d76f
+=== RUN   TestObjectProjectStopDeleteWaitsForActualIO/body_read_close
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestObjectProjectStopDeleteWaitsForActualIO/reader_release_callback
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=262590 decoded=262144 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_io_test.go:138: actual reader lifetime: active=true, native lease and work share exact process 01a10c52-355d-722d-9394-880ee2a4b9e8
+    project_stop_io_test.go:153: actual reader lifetime: active=true, native lease and work share exact process 01a10c52-355d-722d-9394-880ee2a4b9e8
+--- PASS: TestObjectProjectStopDeleteWaitsForActualIO (3.60s)
+    --- PASS: TestObjectProjectStopDeleteWaitsForActualIO/small_body_already_joined_before_return (1.35s)
+    --- PASS: TestObjectProjectStopDeleteWaitsForActualIO/body_read_close (1.05s)
+    --- PASS: TestObjectProjectStopDeleteWaitsForActualIO/reader_release_callback (1.20s)
+=== RUN   TestObjectProjectStopRegistersBeforeResolver
+--- PASS: TestObjectProjectStopRegistersBeforeResolver (1.18s)
+=== RUN   TestObjectProjectStopUnopenedSourceAndCrossProjectRelations
+--- PASS: TestObjectProjectStopUnopenedSourceAndCrossProjectRelations (1.10s)
+=== RUN   TestObjectProjectStopVerificationOwnsItsLifetime
+=== RUN   TestObjectProjectStopVerificationOwnsItsLifetime/standalone_writer_tail_archive
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=300535 decoded=300000 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestObjectProjectStopVerificationOwnsItsLifetime/standalone_writer_tail_delete
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=300535 decoded=300000 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestObjectProjectStopVerificationOwnsItsLifetime/standalone_writer_tail_discard
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=300535 decoded=300000 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+--- PASS: TestObjectProjectStopVerificationOwnsItsLifetime (5.20s)
+    --- PASS: TestObjectProjectStopVerificationOwnsItsLifetime/standalone_writer_tail_archive (1.47s)
+    --- PASS: TestObjectProjectStopVerificationOwnsItsLifetime/standalone_writer_tail_delete (1.51s)
+    --- PASS: TestObjectProjectStopVerificationOwnsItsLifetime/standalone_writer_tail_discard (1.10s)
+=== RUN   TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks
+=== RUN   TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks/zero
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=-1 decoded=0 payload=false marker=true
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks/remove
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=DELETE content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks/callback
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=DELETE content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+--- PASS: TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks (3.83s)
+    --- PASS: TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks/zero (1.39s)
+    --- PASS: TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks/remove (1.28s)
+    --- PASS: TestObjectProjectStopCleanupWaitsForActualIOAndCallbacks/callback (1.16s)
+=== RUN   TestObjectProjectStopRecoveryRequiresExactProcessAndJoin
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=262590 decoded=262144 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_recovery_test.go:38: actual reader lifetime: active=true, native lease and work share exact process 01a10c52-664c-79a1-8b7c-007b1c2643cf
+    project_stop_recovery_test.go:54: actual reader lifetime: active=false, native lease and work share exact process 01a10c52-664c-79a1-8b7c-007b1c2643cf
+=== RUN   TestObjectProjectStopRecoveryRequiresExactProcessAndJoin/real_process_guard
+--- PASS: TestObjectProjectStopRecoveryRequiresExactProcessAndJoin (2.84s)
+    --- PASS: TestObjectProjectStopRecoveryRequiresExactProcessAndJoin/real_process_guard (1.38s)
+=== RUN   TestObjectProjectStopNativeFactsAndFairBatches
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=262590 decoded=262144 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_recovery_test.go:75: actual reader lifetime: active=true, native lease and work share exact process 01a10c52-7156-77cf-8cf8-49f58473b844
+--- PASS: TestObjectProjectStopNativeFactsAndFairBatches (9.14s)
+=== RUN   TestObjectProjectStopRuntimeRecoversOnlyTechnicalRows
+=== RUN   TestObjectProjectStopRuntimeRecoversOnlyTechnicalRows/work
+=== RUN   TestObjectProjectStopRuntimeRecoversOnlyTechnicalRows/stopping
+--- PASS: TestObjectProjectStopRuntimeRecoversOnlyTechnicalRows (1.83s)
+    --- PASS: TestObjectProjectStopRuntimeRecoversOnlyTechnicalRows/work (0.87s)
+    --- PASS: TestObjectProjectStopRuntimeRecoversOnlyTechnicalRows/stopping (0.96s)
+=== RUN   TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker
+=== RUN   TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker/resource_id
+=== RUN   TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker/cleanup_claim_fence
+=== RUN   TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker/process_id
+--- PASS: TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker (1.24s)
+    --- PASS: TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker/resource_id (0.02s)
+    --- PASS: TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker/cleanup_claim_fence (0.02s)
+    --- PASS: TestObjectProjectStopCleanupClaimOverwriteKeepsOldWorker/process_id (0.02s)
+=== RUN   TestObjectProjectStopRecoveryDoesNotCancelOtherProject
+--- PASS: TestObjectProjectStopRecoveryDoesNotCancelOtherProject (1.17s)
+=== RUN   TestObjectProjectStopTransferRequiresRemoteRetirement
+--- PASS: TestObjectProjectStopTransferRequiresRemoteRetirement (1.72s)
+=== RUN   TestObjectProjectStopTransferLatePUTCannotPublish
+--- PASS: TestObjectProjectStopTransferLatePUTCannotPublish (1.48s)
+=== RUN   TestObjectProjectStopUnknownAdmissionNeverStartsIO
+=== RUN   TestObjectProjectStopUnknownAdmissionNeverStartsIO/preparation
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_unknown_test.go:205: actual PostgreSQL COMMIT intercepted: preparation
+=== RUN   TestObjectProjectStopUnknownAdmissionNeverStartsIO/reader
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_unknown_test.go:205: actual PostgreSQL COMMIT intercepted: reader
+=== RUN   TestObjectProjectStopUnknownAdmissionNeverStartsIO/source
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_unknown_test.go:205: actual PostgreSQL COMMIT intercepted: source
+=== RUN   TestObjectProjectStopUnknownAdmissionNeverStartsIO/download
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_unknown_test.go:205: actual PostgreSQL COMMIT intercepted: download
+--- PASS: TestObjectProjectStopUnknownAdmissionNeverStartsIO (4.41s)
+    --- PASS: TestObjectProjectStopUnknownAdmissionNeverStartsIO/preparation (1.05s)
+    --- PASS: TestObjectProjectStopUnknownAdmissionNeverStartsIO/reader (1.09s)
+    --- PASS: TestObjectProjectStopUnknownAdmissionNeverStartsIO/source (1.12s)
+    --- PASS: TestObjectProjectStopUnknownAdmissionNeverStartsIO/download (1.15s)
+=== RUN   TestObjectProjectStopUnknownPreflightNeverCancels
+    project_stop_unknown_test.go:255: actual PostgreSQL COMMIT intercepted: preflight
+--- PASS: TestObjectProjectStopUnknownPreflightNeverCancels (1.03s)
+=== RUN   TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter
+=== RUN   TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter/gate_rollback
+    project_stop_unknown_test.go:310: actual PostgreSQL COMMIT intercepted: gate
+=== RUN   TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter/gate_late_commit
+    project_stop_unknown_test.go:310: actual PostgreSQL COMMIT intercepted: gate
+=== RUN   TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter/join_rollback
+    project_stop_unknown_test.go:310: actual PostgreSQL COMMIT intercepted: join
+=== RUN   TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter/join_late_commit
+    project_stop_unknown_test.go:310: actual PostgreSQL COMMIT intercepted: join
+=== RUN   TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter/stopped_rollback
+    project_stop_unknown_test.go:310: actual PostgreSQL COMMIT intercepted: stopped
+=== RUN   TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter/stopped_late_commit
+    project_stop_unknown_test.go:310: actual PostgreSQL COMMIT intercepted: stopped
+--- PASS: TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter (6.78s)
+    --- PASS: TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter/gate_rollback (1.11s)
+    --- PASS: TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter/gate_late_commit (1.08s)
+    --- PASS: TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter/join_rollback (1.10s)
+    --- PASS: TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter/join_late_commit (1.22s)
+    --- PASS: TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter/stopped_rollback (1.11s)
+    --- PASS: TestObjectProjectStopUnknownCheckpointWaitsForOriginalWriter/stopped_late_commit (1.16s)
+=== RUN   TestObjectProjectStopUnknownMaintenanceNeverStartsIO
+=== RUN   TestObjectProjectStopUnknownMaintenanceNeverStartsIO/verification/lost_response
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_unknown_test.go:389: actual PostgreSQL COMMIT intercepted: verification
+    project_stop_unknown_test.go:453: confirmed original maintenance writer: lost_response [["01a10c52-e23f-7823-9399-c01906a1fcae", "01a10c52-e173-7100-ba30-add0b0f6acdc", "01a10c52-e1f2-71e9-8f4e-43c020e2126d", "verification", "01a10c52-e212-77b3-a1bf-da5e77d7d665", "01a10c52-e20f-7ed9-ba41-e1568fb4c974", null, 0, null]]
+=== RUN   TestObjectProjectStopUnknownMaintenanceNeverStartsIO/verification/late_commit
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_unknown_test.go:389: actual PostgreSQL COMMIT intercepted: verification
+    project_stop_unknown_test.go:453: confirmed original maintenance writer: late_commit [["01a10c52-e631-7a82-9bee-7125f7552622", "01a10c52-e55e-7fe0-b68a-dec5ebfbb200", "01a10c52-e5d4-7914-a489-69d68f97aad1", "verification", "01a10c52-e5f5-7c0b-8530-6b9dd2ec44d9", "01a10c52-e5f3-7b0f-a505-f383c5ee3851", null, 0, null]]
+=== RUN   TestObjectProjectStopUnknownMaintenanceNeverStartsIO/verification/rollback
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_unknown_test.go:389: actual PostgreSQL COMMIT intercepted: verification
+    project_stop_unknown_test.go:453: confirmed original maintenance writer: rollback []
+=== RUN   TestObjectProjectStopUnknownMaintenanceNeverStartsIO/cleanup/lost_response
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_unknown_test.go:389: actual PostgreSQL COMMIT intercepted: cleanup
+    project_stop_unknown_test.go:453: confirmed original maintenance writer: lost_response [["01a10c52-f0af-7ec9-89fd-2ac805da50f0", "01a10c52-efc1-7b7a-838b-6cd4406365ae", "01a10c52-f02f-763f-92c8-93a7439f27af", "cleanup", "01a10c52-f0ab-7cea-9fe9-ae46e2382a79", "01a10c52-f053-76f3-8309-61f2adf3990e", 2, 0, null]]
+=== RUN   TestObjectProjectStopUnknownMaintenanceNeverStartsIO/cleanup/late_commit
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_unknown_test.go:389: actual PostgreSQL COMMIT intercepted: cleanup
+    project_stop_unknown_test.go:453: confirmed original maintenance writer: late_commit [["01a10c52-f510-7f89-b198-31f96d3e0920", "01a10c52-f41e-790e-913a-1e2b914ec612", "01a10c52-f491-7ba1-877b-38b74b134e86", "cleanup", "01a10c52-f50c-734e-a16c-e08214ff5337", "01a10c52-f4af-7cc8-b43b-97e169d28430", 2, 0, null]]
+=== RUN   TestObjectProjectStopUnknownMaintenanceNeverStartsIO/cleanup/rollback
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    project_stop_unknown_test.go:389: actual PostgreSQL COMMIT intercepted: cleanup
+    project_stop_unknown_test.go:453: confirmed original maintenance writer: rollback []
+--- PASS: TestObjectProjectStopUnknownMaintenanceNeverStartsIO (7.31s)
+    --- PASS: TestObjectProjectStopUnknownMaintenanceNeverStartsIO/verification/lost_response (1.09s)
+    --- PASS: TestObjectProjectStopUnknownMaintenanceNeverStartsIO/verification/late_commit (1.14s)
+    --- PASS: TestObjectProjectStopUnknownMaintenanceNeverStartsIO/verification/rollback (1.40s)
+    --- PASS: TestObjectProjectStopUnknownMaintenanceNeverStartsIO/cleanup/lost_response (1.16s)
+    --- PASS: TestObjectProjectStopUnknownMaintenanceNeverStartsIO/cleanup/late_commit (1.24s)
+    --- PASS: TestObjectProjectStopUnknownMaintenanceNeverStartsIO/cleanup/rollback (1.27s)
+=== RUN   TestObjectRuntimeBusyDoesNotMaskLaterRecoveryFailure
+--- PASS: TestObjectRuntimeBusyDoesNotMaskLaterRecoveryFailure (11.45s)
+=== RUN   TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget
+=== RUN   TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget/startup
+=== RUN   TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget/worker
+--- PASS: TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget (12.27s)
+    --- PASS: TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget/startup (1.14s)
+    --- PASS: TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget/worker (11.13s)
+=== RUN   TestObjectSourceLeaseUnopenedCancellationSharesShutdown
+=== RUN   TestObjectSourceLeaseUnopenedCancellationSharesShutdown/drain
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestObjectSourceLeaseUnopenedCancellationSharesShutdown/force
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestObjectSourceLeaseUnopenedCancellationSharesShutdown/late_cancel
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+--- PASS: TestObjectSourceLeaseUnopenedCancellationSharesShutdown (3.33s)
+    --- PASS: TestObjectSourceLeaseUnopenedCancellationSharesShutdown/drain (1.17s)
+    --- PASS: TestObjectSourceLeaseUnopenedCancellationSharesShutdown/force (1.07s)
+    --- PASS: TestObjectSourceLeaseUnopenedCancellationSharesShutdown/late_cancel (1.08s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	94.897s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.017s [no tests to run]
+D03 fixture cleanup checked for nonce c8340426c15526a87466a837c051ebc2
+D04 outbound fixture cleanup checked for nonce 5d8df7217fc4f27b634dabea29ecb11e
+D05 object fixture exact resource cleanup checked nonce=f4ce63392561d522644e298627e6394f

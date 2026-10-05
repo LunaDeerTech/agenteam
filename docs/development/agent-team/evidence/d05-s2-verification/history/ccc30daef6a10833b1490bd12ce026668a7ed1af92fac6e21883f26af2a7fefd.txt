@@ -1,0 +1,349 @@
+package object
+
+import (
+	"context"
+	"fmt"
+	"io"
+	"log/slog"
+	"sync"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+)
+
+type sourceReadsState struct {
+	service  *Service
+	resolver oc.SourceResolver
+	issuer   oc.SourceIssuer
+	mu       sync.Mutex
+	leases   map[oc.LeaseID]*sourceLeaseState
+}
+type sourceLeaseState struct {
+	id                       oc.LeaseID
+	origin                   foundation.Tx
+	actor                    identity.Actor
+	source                   oc.ResolvedSource
+	process                  oc.ProcessID
+	mu                       sync.Mutex
+	busy, started, cancelled bool
+	joined, released         bool
+	cancel                   context.CancelFunc
+	done                     chan struct{}
+	reader                   *oc.ObjectReader
+	result                   error
+	work                     *projectWorkHandle
+}
+type SourceReads struct{ data func() *sourceReadsState }
+
+var _ oc.SourceReads = (*SourceReads)(nil)
+
+func NewSourceReads(service *Service, resolver oc.SourceResolver) (*SourceReads, error) {
+	if service == nil || service.data == nil || nilPort(resolver) {
+		return nil, failure(foundation.DependencyUnbound, nil)
+	}
+	r := &sourceReadsState{service: service, resolver: resolver, issuer: oc.NewSourceIssuer(), leases: map[oc.LeaseID]*sourceLeaseState{}}
+	return &SourceReads{func() *sourceReadsState { return r }}, nil
+}
+func (r SourceReads) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "object_source_reads") }
+func (r SourceReads) MarshalJSON() ([]byte, error) { return []byte(`"object_source_reads"`), nil }
+func (*SourceReads) UnmarshalJSON([]byte) error    { return invalid() }
+func (r SourceReads) LogValue() slog.Value         { return slog.StringValue("object_source_reads") }
+
+func sourceAccess(actor identity.Actor, source oc.ResolvedSource) (oc.AccessRequest, error) {
+	return oc.NewSourceAccess(oc.AccessRequestDetails{Operation: oc.AcquireSourceAccess, Actor: actor, Source: source})
+}
+func (r *SourceReads) AcquireSourceInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, source oc.ResolvedSource, plan oc.AccessLockPlan, locked oc.LockedAccess) (oc.SourceLease, error) {
+	state := r.data()
+	s := state.service
+	request, err := sourceAccess(actor, source)
+	if err != nil {
+		return oc.SourceLease{}, invalid()
+	}
+	if err = s.metadataAdmission(ctx); err != nil {
+		return oc.SourceLease{}, err
+	}
+	if err = s.ValidateAccessPlanInTx(ctx, tx, request, plan, locked); err != nil {
+		return oc.SourceLease{}, err
+	}
+	if err = state.resolver.ValidateInTx(ctx, tx, actor, source, plan, locked); err != nil {
+		return oc.SourceLease{}, portError(err)
+	}
+	if _, err = s.sourceRow(ctx, tx, actor, source); err != nil {
+		return oc.SourceLease{}, err
+	}
+	e, err := executor(s, tx)
+	if err != nil {
+		return oc.SourceLease{}, err
+	}
+	raw, err := s.plannedWorkID(plan)
+	if err != nil {
+		return oc.SourceLease{}, err
+	}
+	id, err := foundation.ParseID[oc.Lease](raw)
+	if err != nil {
+		return oc.SourceLease{}, unavailable(err)
+	}
+	_, err = e.Exec(ctx, `INSERT INTO agenteam_object.object_leases(id,object_id,owner_kind,owner_id,process_id,state) VALUES($1,$2,'source',$1,$3,'active')`, id.String(), source.Details().Meta.ID.String(), s.state().process.String())
+	if err != nil {
+		return oc.SourceLease{}, unavailable(err)
+	}
+	h := &sourceLeaseState{id: id, origin: tx, actor: actor, source: source, process: s.state().process}
+	project := workProject(source.Details().Owner)
+	if project.Validate() == nil {
+		h.work = s.projectWorkHandle(context.Background(), projectWork{id: raw, project: project, process: s.state().process, kind: "source", resource: raw, object: source.Details().Meta.ID})
+		handle, _ := oc.NewSourceLease(state.issuer, id)
+		h.work.stop = func(ctx context.Context) error { return r.CancelSourceLease(ctx, handle) }
+		if err = s.registerProjectWork(ctx, tx, h.work, locked.Locks()); err != nil {
+			return oc.SourceLease{}, err
+		}
+	}
+
+	state.mu.Lock()
+	state.leases[id] = h
+	state.mu.Unlock()
+	return oc.NewSourceLease(state.issuer, id)
+}
+func (r *SourceReads) registered(lease oc.SourceLease) (*sourceLeaseState, error) {
+	if r == nil || r.data == nil {
+		return nil, invalid()
+	}
+	state := r.data()
+	if !lease.IssuedBy(state.issuer) {
+		return nil, invalid()
+	}
+	state.mu.Lock()
+	h := state.leases[lease.ID()]
+	state.mu.Unlock()
+	return h, nil
+}
+func (r *SourceReads) forget(h *sourceLeaseState) {
+	state := r.data()
+	state.mu.Lock()
+	if state.leases[h.id] == h {
+		delete(state.leases, h.id)
+	}
+	state.mu.Unlock()
+}
+
+func (r *SourceReads) OpenLeasedSource(ctx context.Context, actor identity.Actor, lease oc.SourceLease) (*oc.ObjectReader, error) {
+	h, err := r.registered(lease)
+	if err != nil {
+		return nil, err
+	}
+	if h == nil {
+		return nil, failure(foundation.InvalidState, nil)
+	}
+	state := r.data()
+	s := state.service
+	if !actor.Equal(h.actor) || h.process != s.state().process {
+		return nil, failure(foundation.Forbidden, nil)
+	}
+	// A successful callback, or an opaque Tx value alone, says nothing about
+	// commit. Calling within the origin callback would also nest transactions.
+	if _, err = s.state().store.InTx(h.origin); err == nil {
+		return nil, failure(foundation.ResourceBusy, nil)
+	}
+	op, finish, err := s.begin(ctx)
+	if err != nil {
+		return nil, err
+	}
+	h.mu.Lock()
+	if h.cancelled || h.started || h.busy {
+		h.mu.Unlock()
+		finish()
+		return nil, failure(foundation.InvalidState, nil)
+	}
+	work, cancel := context.WithCancel(op.ctx)
+	h.busy = true
+	h.done = make(chan struct{})
+	h.cancel = cancel
+	h.mu.Unlock()
+	transferred := false
+	defer func() {
+		if !transferred {
+			cancel()
+			finish()
+			h.mu.Lock()
+			h.busy = false
+			h.cancel = nil
+			close(h.done)
+			h.mu.Unlock()
+		}
+	}()
+	request, _ := sourceAccess(actor, h.source)
+	var obj objectRow
+	result := s.withinAccess(work, recoveryCause(), request, func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
+		if err := state.resolver.ValidateInTx(ctx, tx, actor, h.source, plan, locked); err != nil {
+			return portError(err)
+		}
+		if err := s.requireProjectWork(ctx, tx, h.work); err != nil {
+			return err
+		}
+		s.observeProjectWriter(h.work, tx, locked.Locks())
+		var err error
+		obj, err = s.sourceRow(ctx, tx, actor, h.source)
+		if err != nil {
+			return err
+		}
+		e, err := executor(s, tx)
+		if err != nil {
+			return err
+		}
+		var active bool
+		err = e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.object_leases WHERE id=$1 AND object_id=$2 AND owner_kind='source' AND owner_id=$1 AND process_id=$3 AND state='active')`, h.id.String(), obj.meta.ID.String(), h.process.String()).Scan(&active)
+		if err != nil {
+			return unavailable(err)
+		}
+		if !active {
+			return failure(foundation.InvalidState, nil)
+		}
+		return nil
+	})
+	if err = commitError(result); err != nil {
+		return nil, err
+	}
+	h.mu.Lock()
+	if h.cancelled || work.Err() != nil {
+		h.mu.Unlock()
+		return nil, unavailable(work.Err())
+	}
+	h.started = true
+	h.mu.Unlock()
+	// From this point the handle can never issue another GET, including after a
+	// transport failure. A new attempt requires a newly authorized lease.
+	release := func() error {
+		err := s.releaseInternal(h.id, h.source.Details().Meta.ID)
+		cancel()
+		s.finishProjectWork(h.work)
+		finish()
+		h.mu.Lock()
+		h.result = err
+		h.joined = true
+		h.released = err == nil
+		h.busy = false
+		h.cancel = nil
+		h.reader = nil
+		close(h.done)
+		h.mu.Unlock()
+		if err == nil {
+			r.forget(h)
+		}
+		return err
+	}
+	body, err := s.state().backend.get(work, obj.key, int64(obj.meta.ByteSize), nil)
+	if err != nil {
+		transferred = true
+		_ = release()
+		return nil, err
+	}
+	transferred = true
+	reader, err := newIntegrityReader(work, body, int64(obj.meta.ByteSize), obj.meta.SHA256, release)
+	if err != nil {
+		return nil, err
+	}
+	out, err := oc.NewObjectReader(obj.meta, nil, reader)
+	if err != nil {
+		_ = reader.Close()
+		return nil, err
+	}
+	h.mu.Lock()
+	h.reader = out
+	cancelled := h.cancelled
+	h.mu.Unlock()
+	if cancelled {
+		_ = out.Close()
+		return nil, unavailable(context.Canceled)
+	}
+	return out, nil
+}
+
+func (r *SourceReads) CancelSourceLease(ctx context.Context, lease oc.SourceLease) error {
+	h, err := r.registered(lease)
+	if err != nil {
+		return err
+	}
+	if h == nil {
+		return nil
+	}
+	s := r.data().service
+	if _, err = s.state().store.InTx(h.origin); err == nil {
+		return failure(foundation.ResourceBusy, nil)
+	}
+	h.mu.Lock()
+	h.cancelled = true
+	if h.cancel != nil {
+		h.cancel()
+	}
+	reader, done, busy := h.reader, h.done, h.busy
+	h.mu.Unlock()
+	if busy {
+		// Close can be waiting for a real network read to return. Cancellation
+		// bounds this caller; the handle/DB lease remains until that work joins.
+		if reader != nil {
+			go func() { _ = reader.Close() }()
+		}
+		select {
+		case <-ctx.Done():
+			return unavailable(ctx.Err())
+		case <-done:
+		}
+	}
+	if err = ctx.Err(); err != nil {
+		return unavailable(err)
+	}
+	// A failed pre-GET commit check still owns an unopened technical lease.
+	// Serialize repeated Cancel calls around its single release operation.
+	h.mu.Lock()
+	if h.released {
+		h.mu.Unlock()
+		return nil
+	}
+	if h.started && !h.joined {
+		h.mu.Unlock()
+		return failure(foundation.ResourceBusy, nil)
+	}
+	if h.busy {
+		done = h.done
+		h.mu.Unlock()
+	} else {
+		// Register before the goroutine can race Drain's zero-work decision.
+		// Existing leases may converge after StopAdmission. After final Drain
+		// the cancelled context fences any new DB I/O, keeping the checkpoint.
+		cleanup, finished := s.cleanupContext()
+		if cleanup.Err() != nil {
+			finished()
+			h.mu.Unlock()
+			return failure(foundation.ShuttingDown, nil)
+		}
+		h.busy = true
+		h.done = make(chan struct{})
+		done = h.done
+		h.mu.Unlock()
+		go func() {
+			defer finished()
+			err := s.releaseInternalContext(cleanup, h.id, h.source.Details().Meta.ID)
+			s.finishProjectWork(h.work)
+			h.mu.Lock()
+			h.result = err
+			h.joined = true
+			h.released = err == nil
+			h.started = true
+			h.busy = false
+			close(h.done)
+			h.mu.Unlock()
+			if err == nil {
+				r.forget(h)
+			}
+		}()
+	}
+	select {
+	case <-ctx.Done():
+		return unavailable(ctx.Err())
+	case <-done:
+		h.mu.Lock()
+		err = h.result
+		h.mu.Unlock()
+		return err
+	}
+}

@@ -1,0 +1,657 @@
+package object
+
+import (
+	"bytes"
+	"context"
+	"encoding/hex"
+	"io"
+	"mime"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+)
+
+func digestBytes(d foundation.Digest) []byte {
+	if d.Validate() != nil {
+		return nil
+	}
+	b, _ := hex.DecodeString(d.String()[7:])
+	return b
+}
+func optionalVersion(v *foundation.Version) any {
+	if v == nil {
+		return nil
+	}
+	return int64(*v)
+}
+
+// ReserveUploadInTx performs only DB work. The caller must confirm its outer
+// commit before UploadPrepared can claim this exact persisted physical attempt.
+func (s *Service) ReserveUploadInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, owner oc.ObjectOwner, meta foundation.CommandMeta, p oc.PreparedPayload, plan oc.AccessLockPlan, locked oc.LockedAccess) (oc.UploadAttempt, error) {
+	if meta.Validate() != nil {
+		return oc.UploadAttempt{}, invalid()
+	}
+	prepared, err := s.prepared(p, actor, owner)
+	if err != nil {
+		return oc.UploadAttempt{}, err
+	}
+	request := ownerRequest(actor, owner, oc.ReserveAccess, oc.AccessRequestDetails{Command: &meta, Prepared: p})
+	if err = s.ValidateAccessPlanInTx(ctx, tx, request, plan, locked); err != nil {
+		return oc.UploadAttempt{}, err
+	}
+	if err = s.requireProjectWork(ctx, tx, prepared.work); err != nil {
+		return oc.UploadAttempt{}, err
+	}
+	e, err := executor(s, tx)
+	if err != nil {
+		return oc.UploadAttempt{}, err
+	}
+	command, err := commandIdentity(owner, meta.IdempotencyKey)
+	if err != nil {
+		return oc.UploadAttempt{}, err
+	}
+	objects := plan.Details().Objects
+	if len(objects) != 1 {
+		return oc.UploadAttempt{}, invalid()
+	}
+	object := objects[0]
+	var found bool
+	grant, err := s.authorize(ctx, tx, actor, owner, identity.Mutate)
+	if err != nil {
+		return oc.UploadAttempt{}, err
+	}
+	current, exists, err := loadCommand(ctx, e, command)
+	if err != nil {
+		return oc.UploadAttempt{}, err
+	}
+	if exists && current.object != object {
+		return oc.UploadAttempt{}, failure(foundation.ResourceBusy, nil)
+	}
+	semantic, err := semanticDigest(actor, owner, meta, p)
+	if err != nil {
+		return oc.UploadAttempt{}, err
+	}
+	var previous attemptRow
+	if exists {
+		if err = checkOriginal(current, actor, owner); err != nil {
+			return oc.UploadAttempt{}, err
+		}
+		if !bytes.Equal(current.digest, semantic) {
+			return oc.UploadAttempt{}, failure(foundation.IdempotencyKeyReused, nil)
+		}
+		if current.disposition == "revoked" {
+			return oc.UploadAttempt{}, deleted(current.state == "committed")
+		}
+		obj, ok, objectErr := loadObject(ctx, e, object)
+		if objectErr != nil {
+			return oc.UploadAttempt{}, objectErr
+		}
+		if !ok || obj.cleaning || obj.meta.State == oc.Deleted {
+			return oc.UploadAttempt{}, deleted(current.state == "committed")
+		}
+		previous, found, err = loadAttempt(ctx, e, current.attempt)
+		if err != nil {
+			return oc.UploadAttempt{}, err
+		}
+		if !found {
+			return oc.UploadAttempt{}, unavailable(nil)
+		}
+		if previous.kind != "private_candidate" {
+			return oc.UploadAttempt{}, failure(foundation.InvalidState, nil)
+		}
+		if current.state == "committed" || previous.phase == "verified" {
+			return attemptOf(previous), nil
+		}
+	}
+	if err = s.gate(ctx, tx, actor, owner, identity.Mutate); err != nil {
+		return oc.UploadAttempt{}, err
+	}
+	if meta.ExpectedVersion != nil && *meta.ExpectedVersion != grant.Details().Version {
+		return oc.UploadAttempt{}, failure(foundation.VersionConflict, nil)
+	}
+	if exists && current.existence == oc.ProspectiveOwner && current.creation != grant.Details().CreationCause {
+		return oc.UploadAttempt{}, failure(foundation.Forbidden, nil)
+	}
+	if exists {
+		obj, ok, err := loadObject(ctx, e, object)
+		if err != nil {
+			return oc.UploadAttempt{}, err
+		}
+		if !ok || obj.cleaning || obj.meta.State == oc.Deleted {
+			return oc.UploadAttempt{}, deleted(false)
+		}
+		if previous.phase == "reserved" && previous.process == s.state().process && !previous.closed && !previous.cleaning {
+			return attemptOf(previous), nil
+		}
+		if !previous.closed {
+			return oc.UploadAttempt{}, failure(foundation.ResourceBusy, nil)
+		}
+	}
+	var global, perCommand int64
+	if err = e.QueryRow(ctx, `SELECT count(*) FROM agenteam_object.upload_attempts WHERE phase NOT IN ('published','cleaned')`).Scan(&global); err != nil {
+		return oc.UploadAttempt{}, unavailable(err)
+	}
+	if exists {
+		if err = e.QueryRow(ctx, `SELECT count(*) FROM agenteam_object.upload_attempts WHERE upload_id=$1 AND phase NOT IN ('published','cleaned')`, current.id.String()).Scan(&perCommand); err != nil {
+			return oc.UploadAttempt{}, unavailable(err)
+		}
+	}
+	if global >= 64 || perCommand >= 2 {
+		return oc.UploadAttempt{}, failure(foundation.ResourceBusy, nil)
+	}
+	if !exists {
+		current, err = s.reserveObjectCommand(ctx, e, actor, owner, meta, p.Details(), object, prepared.uploadID, prepared.receiptID, semantic, grant)
+		if err != nil {
+			return oc.UploadAttempt{}, err
+		}
+	} else {
+		// Abandon only this candidate. Its marker checkpoint never blocks a later
+		// legitimate current candidate and never resurrects the old one.
+		if err = s.gateAttempt(ctx, e, previous, oc.AbandonedAttempt, current.id.String()); err != nil {
+			return oc.UploadAttempt{}, err
+		}
+	}
+	return s.newPrivateCandidate(ctx, tx, e, current, p, plan, locked)
+}
+
+// gateAttempt is called under the object and command locks. Even a never-sent
+// reserved candidate uses a marker if uncertainty was previously recorded.
+func (s *Service) gateAttempt(ctx context.Context, e postgres.SQLExecutor, a attemptRow, reason oc.CleanupReason, cause string) error {
+	id, err := foundation.NewID[oc.CleanupOperation]()
+	if err != nil {
+		return unavailable(err)
+	}
+	mode := "delete"
+	if a.kind == "runner_staging" || a.late || !a.closed || a.phase == "unknown" || a.phase == "sending" {
+		mode = "zero_marker"
+	}
+	_, err = e.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET cleanup_gate=true,phase=CASE WHEN phase='cleaned' THEN phase ELSE 'abandoned' END WHERE id=$1`, a.id.String())
+	if err != nil {
+		return unavailable(err)
+	}
+	_, err = e.Exec(ctx, `INSERT INTO agenteam_object.cleanup_operations(id,operation_id,object_id,attempt_id,reason,mode,phase) VALUES($1,$2,$3,$4,$5,$6,'gated') ON CONFLICT(attempt_id) DO UPDATE SET mode=CASE WHEN agenteam_object.cleanup_operations.mode='zero_marker' OR EXCLUDED.mode='zero_marker' THEN 'zero_marker' ELSE 'delete' END`, id.String(), cause, a.object.String(), a.id.String(), string(reason), mode)
+	return unavailableIf(err)
+}
+
+func (s *Service) PublishVerifiedInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, owner oc.ObjectOwner, handle oc.UploadAttempt, plan oc.AccessLockPlan, locked oc.LockedAccess) (oc.PutResult, error) {
+	if handle.Validate() != nil {
+		return oc.PutResult{}, invalid()
+	}
+	request := ownerRequest(actor, owner, oc.PublishAccess, oc.AccessRequestDetails{Attempt: handle})
+	if err := s.ValidateAccessPlanInTx(ctx, tx, request, plan, locked); err != nil {
+		return oc.PutResult{}, err
+	}
+	d := handle.Details()
+	e0, err0 := executor(s, tx)
+	if err0 != nil {
+		return oc.PutResult{}, err0
+	}
+	physical, exists, err0 := loadAttempt(ctx, e0, d.ID)
+	if err0 != nil {
+		return oc.PutResult{}, err0
+	}
+	if err0 = requireNativeWork(ctx, e0, "preparation", d.ID.String()); err0 != nil {
+		return oc.PutResult{}, err0
+	}
+	if !exists || physical.kind != "private_candidate" {
+		return oc.PutResult{}, failure(foundation.InvalidState, nil)
+	}
+	if _, err := s.authorize(ctx, tx, actor, owner, identity.Mutate); err != nil {
+		return oc.PutResult{}, err
+	}
+	e, err := executor(s, tx)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
+	u, found, err := loadUpload(ctx, e, d.UploadID)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
+	if !found || u.object != d.ObjectID {
+		return oc.PutResult{}, failure(foundation.NotFound, nil)
+	}
+	grant, err := s.authorize(ctx, tx, actor, owner, identity.Mutate)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
+	u, found, err = loadUpload(ctx, e, d.UploadID)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
+	if !found {
+		return oc.PutResult{}, unavailable(nil)
+	}
+	if err = checkOriginal(u, actor, owner); err != nil {
+		return oc.PutResult{}, err
+	}
+	if u.disposition == "revoked" {
+		return oc.PutResult{}, deleted(u.state == "committed")
+	}
+	obj, found, err := loadObject(ctx, e, u.object)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
+	if !found || !objectPartition(obj, owner) {
+		return oc.PutResult{}, failure(foundation.Forbidden, nil)
+	}
+	if obj.cleaning || obj.meta.State == oc.Deleted {
+		return oc.PutResult{}, deleted(u.state == "committed")
+	}
+	if u.state == "committed" {
+		return oc.PutResult{Meta: obj.meta, Receipt: receiptOf(u)}, nil
+	}
+	if err = s.gate(ctx, tx, actor, owner, identity.Mutate); err != nil {
+		return oc.PutResult{}, err
+	}
+	if u.expected != nil && int64(grant.Details().Version) != *u.expected {
+		return oc.PutResult{}, failure(foundation.VersionConflict, nil)
+	}
+	if u.existence == oc.ProspectiveOwner && u.creation != grant.Details().CreationCause {
+		return oc.PutResult{}, failure(foundation.Forbidden, nil)
+	}
+	a, found, err := loadAttempt(ctx, e, d.ID)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
+	if !found || a.upload != u.id || a.object != u.object || u.attempt != a.id || a.cleaning || a.phase != "verified" || a.size != int64(obj.meta.ByteSize) || a.digest != obj.meta.SHA256 {
+		return oc.PutResult{}, failure(foundation.InvalidState, nil)
+	}
+	auditID, err := s.appendAudit(ctx, tx, u, obj.meta, ac.ObjectUploadComplete, ac.Success, ac.PublishedPhase, "", u.id.String(), 0)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
+	disposition := "reserved"
+	if grant.Details().Existence == oc.ExistingOwner {
+		_, err = e.Exec(ctx, `UPDATE agenteam_object.object_references SET kind='canonical' WHERE object_id=$1 AND owner_kind=$2 AND owner_id=$3 AND upload_id=$4`, u.object.String(), string(owner.Details().Kind), owner.Details().ID, u.id.String())
+		if err != nil {
+			return oc.PutResult{}, unavailable(err)
+		}
+		disposition = "attached"
+	}
+	_, err = e.Exec(ctx, `UPDATE agenteam_object.objects SET state='available',candidate_key=$2,version=version+1 WHERE id=$1`, u.object.String(), a.key)
+	if err != nil {
+		return oc.PutResult{}, unavailable(err)
+	}
+	_, err = e.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET phase='published' WHERE id=$1`, a.id.String())
+	if err != nil {
+		return oc.PutResult{}, unavailable(err)
+	}
+	_, err = e.Exec(ctx, `UPDATE agenteam_object.uploads SET state='committed',disposition=$2,audit_id=$3 WHERE id=$1`, u.id.String(), disposition, auditID.String())
+	if err != nil {
+		return oc.PutResult{}, unavailable(err)
+	}
+	obj, _, err = loadObject(ctx, e, u.object)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
+	u.disposition = disposition
+	receipt := receiptOf(u)
+	if disposition == "attached" {
+		receipt = oc.UploadReceipt{}
+	}
+	return oc.PutResult{Meta: obj.meta, Receipt: receipt}, nil
+}
+func (s *Service) appendAudit(ctx context.Context, tx foundation.Tx, u uploadRow, meta oc.ObjectMeta, action ac.Action, outcome ac.Outcome, phase ac.ContentPhase, reason ac.Reason, cause string, ordinal int64) (ac.ID, error) {
+	media, _, err := mime.ParseMediaType(meta.MediaType)
+	if err != nil {
+		return ac.ID{}, unavailable(err)
+	}
+	metadata, err := ac.ObjectMetadata(action, ac.ObjectMetadataFields{ObjectID: meta.ID.String(), InitiatorKind: u.initiator, InitiatorID: u.initiatorID, InitiatorExecutionID: u.executionID, MediaType: media, ByteSize: meta.ByteSize, Phase: phase, Reason: reason})
+	if err != nil {
+		return ac.ID{}, unavailable(err)
+	}
+	actor, err := s.state().registration.Actor(cause, meta.Scope)
+	if err != nil {
+		return ac.ID{}, unavailable(err)
+	}
+	resource, err := ac.NewResource(ac.ObjectResource, meta.ID.String())
+	if err != nil {
+		return ac.ID{}, unavailable(err)
+	}
+	entry, err := ac.NewEntry(ac.EntryFields{Scope: meta.Scope, Actor: actor, Action: action, Outcome: outcome, Resource: resource, Metadata: metadata})
+	if err != nil {
+		return ac.ID{}, unavailable(err)
+	}
+	key, err := ac.NewAppendKey(ac.ObjectProducer, cause, ordinal)
+	if err != nil {
+		return ac.ID{}, unavailable(err)
+	}
+	receipt, err := s.state().audit.AppendInTx(ctx, tx, entry, key)
+	if err != nil {
+		return ac.ID{}, portError(err)
+	}
+	return receipt.AuditID, nil
+}
+
+func (s *Service) PutObject(ctx context.Context, actor identity.Actor, owner oc.ObjectOwner, meta foundation.CommandMeta, media string, length int64, expected *foundation.Digest, source io.ReadCloser) (oc.PutResult, error) {
+	if meta.Validate() != nil {
+		if !nilPort(source) {
+			_ = source.Close()
+		}
+		return oc.PutResult{}, invalid()
+	}
+	op, finish, err := s.begin(ctx)
+	if err != nil {
+		if !nilPort(source) {
+			_ = source.Close()
+		}
+		return oc.PutResult{}, err
+	}
+	defer finish()
+	p, err := s.PreparePayload(op.ctx, actor, owner, media, length, expected, source)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
+	defer s.DiscardPrepared(p)
+	semantic, err := semanticDigest(actor, owner, meta, p)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
+	command, err := commandIdentity(owner, meta.IdempotencyKey)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
+	cause, err := foundation.NewCommandsCause(command)
+	if err != nil {
+		return oc.PutResult{}, invalid()
+	}
+	var attempt oc.UploadAttempt
+	var domainError error
+	result := s.withinAccess(op.ctx, cause, ownerRequest(actor, owner, oc.ReserveAccess, oc.AccessRequestDetails{Command: &meta, Prepared: p}), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
+		var e error
+		attempt, e = s.ReserveUploadInTx(ctx, tx, actor, owner, meta, p, plan, locked)
+		domainError = e
+		return e
+	})
+	if err = commandCommitError(result, domainError); err != nil {
+		if result.State() != foundation.Unknown {
+			return oc.PutResult{}, err
+		}
+		// A failed lookup is not evidence that the original commit did not happen.
+		current, e := s.lookup(op.ctx, actor, owner, meta.IdempotencyKey, semantic)
+		if e != nil {
+			if hasCode(e, foundation.IdempotencyKeyReused) {
+				return oc.PutResult{}, e
+			}
+			return oc.PutResult{}, err
+		}
+		if current.State == oc.UploadCommitted {
+			return oc.PutResult{Meta: *current.Meta, Receipt: current.Receipt}, nil
+		}
+		// Reserve unknown is resolved by an exact locked row read, including digest.
+		result = s.withinAccess(op.ctx, cause, ownerRequest(actor, owner, oc.ReserveAccess, oc.AccessRequestDetails{Command: &meta, Prepared: p}), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
+			var e error
+			attempt, e = s.ReserveUploadInTx(ctx, tx, actor, owner, meta, p, plan, locked)
+			domainError = e
+			return e
+		})
+		if e = commandCommitError(result, domainError); e != nil {
+			return oc.PutResult{}, e
+		}
+	}
+	attempt, err = s.UploadPrepared(op.ctx, actor, owner, p, attempt)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
+	var published oc.PutResult
+	result = s.withinAccess(op.ctx, cause, ownerRequest(actor, owner, oc.PublishAccess, oc.AccessRequestDetails{Attempt: attempt}), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
+		var e error
+		published, e = s.PublishVerifiedInTx(ctx, tx, actor, owner, attempt, plan, locked)
+		domainError = e
+		return e
+	})
+	if err = commandCommitError(result, domainError); err != nil {
+		if result.State() == foundation.Unknown {
+			current, e := s.lookup(op.ctx, actor, owner, meta.IdempotencyKey, semantic)
+			if hasCode(e, foundation.IdempotencyKeyReused) {
+				return oc.PutResult{}, e
+			}
+			if e == nil && current.State == oc.UploadCommitted {
+				return oc.PutResult{Meta: *current.Meta, Receipt: current.Receipt}, nil
+			}
+		}
+		return oc.PutResult{}, err
+	}
+	return published, nil
+}
+
+// UploadPrepared claims one persisted attempt and performs at most one physical
+// conditional PUT. A published replay returns without opening the sealed file.
+func (s *Service) UploadPrepared(ctx context.Context, actor identity.Actor, owner oc.ObjectOwner, p oc.PreparedPayload, handle oc.UploadAttempt) (oc.UploadAttempt, error) {
+	prepared, err := s.prepared(p, actor, owner)
+	if err != nil {
+		return oc.UploadAttempt{}, err
+	}
+	if handle.Validate() != nil {
+		return oc.UploadAttempt{}, invalid()
+	}
+	opCtx, cancel := context.WithCancel(prepared.operation.ctx)
+	stop := context.AfterFunc(ctx, cancel)
+	defer stop()
+	defer cancel()
+	defer func() {
+		if prepared.operation.ctx.Err() != nil {
+			_ = s.DiscardPrepared(p)
+		}
+	}()
+	d := handle.Details()
+	r := s.state()
+	w := &writer{operation: &operation{ctx: opCtx, cancel: cancel}, attempt: d.ID, done: make(chan struct{})}
+	r.mu.Lock()
+	if r.writers[d.ID] != nil || r.forced {
+		r.mu.Unlock()
+		return oc.UploadAttempt{}, failure(foundation.ResourceBusy, nil)
+	}
+	r.writers[d.ID] = w
+	r.mu.Unlock()
+	defer func() { r.mu.Lock(); delete(r.writers, d.ID); close(w.done); r.mu.Unlock() }()
+	var attempt attemptRow
+	var noIO bool
+	result := s.withinAccess(opCtx, recoveryCause(), ownerRequest(actor, owner, oc.SendAccess, oc.AccessRequestDetails{Prepared: p, Attempt: handle}), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
+		if err := s.requireProjectWork(ctx, tx, prepared.work); err != nil {
+			return err
+		}
+		e0, err := executor(s, tx)
+		if err != nil {
+			return err
+		}
+		if err = requireNativeWork(ctx, e0, "preparation", handle.Details().ID.String()); err != nil {
+			return err
+		}
+		e, err := executor(s, tx)
+		if err != nil {
+			return err
+		}
+		u, ok, err := loadUpload(ctx, e, d.UploadID)
+		if err != nil {
+			return err
+		}
+		if !ok || u.object != d.ObjectID {
+			return failure(foundation.NotFound, nil)
+		}
+		if _, err = s.authorize(ctx, tx, actor, owner, identity.Mutate); err != nil {
+			return err
+		}
+		u, ok, err = loadUpload(ctx, e, d.UploadID)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return unavailable(nil)
+		}
+		if err = checkOriginal(u, actor, owner); err != nil {
+			return err
+		}
+		if u.disposition == "revoked" {
+			return deleted(u.state == "committed")
+		}
+		obj, ok, err := loadObject(ctx, e, u.object)
+		if err != nil {
+			return err
+		}
+		if !ok || !objectPartition(obj, owner) {
+			return failure(foundation.Forbidden, nil)
+		}
+		if obj.meta.MediaType != p.Details().MediaType || int64(obj.meta.ByteSize) != p.Details().Length || obj.meta.SHA256 != p.Details().SHA256 {
+			return failure(foundation.IdempotencyKeyReused, nil)
+		}
+		attempt, ok, err = loadAttempt(ctx, e, d.ID)
+		if err != nil {
+			return err
+		}
+		if !ok || attempt.upload != u.id || attempt.object != u.object {
+			return failure(foundation.InvalidState, nil)
+		}
+		if attempt.kind != "private_candidate" {
+			return failure(foundation.InvalidState, nil)
+		}
+		if obj.cleaning || obj.meta.State == oc.Deleted || attempt.cleaning || u.attempt != attempt.id {
+			return deleted(u.state == "committed")
+		}
+		if u.state == "committed" || attempt.phase == "verified" {
+			noIO = true
+			return nil
+		}
+		if err = s.gate(ctx, tx, actor, owner, identity.Mutate); err != nil {
+			return err
+		}
+		if obj.cleaning || attempt.cleaning || u.attempt != attempt.id {
+			return deleted(false)
+		}
+		if attempt.phase != "reserved" || attempt.process != r.process || attempt.closed {
+			return failure(foundation.ResourceBusy, nil)
+		}
+		_, err = e.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET phase='sending',maybe_late=true WHERE id=$1`, attempt.id.String())
+		return unavailableIf(err)
+	})
+	if err = commitError(result); err != nil {
+		if result.State() == foundation.Unknown && attempt.id.Validate() == nil && !noIO {
+			// The owned writer has not called storage. Persist its join proof;
+			// an unresolved claim never authorizes a speculative PUT.
+			_ = s.finishWriter(attempt, false, false, err)
+		}
+		return oc.UploadAttempt{}, err
+	}
+	if noIO {
+		return handle, nil
+	}
+	body, err := r.spool.open(p)
+	if err != nil {
+		_ = s.finishWriter(attempt, false, false, err)
+		return oc.UploadAttempt{}, err
+	}
+	putErr := r.backend.put(opCtx, attempt.key, p.Details().MediaType, attempt.size, attempt.digest, body, true)
+	closeErr := body.Close()
+	// Always verify the original physical key after an ambiguous response or
+	// precondition failure. No GET or failed HEAD triggers a second PUT here.
+	verifyErr := r.backend.verify(opCtx, attempt.key, attempt.size, attempt.digest)
+	if verifyErr == nil && closeErr != nil {
+		verifyErr = unavailable(closeErr)
+	}
+	finishErr := s.finishWriter(attempt, verifyErr == nil, putErr == nil, verifyErr)
+	if finishErr != nil {
+		return oc.UploadAttempt{}, finishErr
+	}
+	if verifyErr != nil {
+		return oc.UploadAttempt{}, verifyErr
+	}
+	return handle, nil
+}
+func (s *Service) finishWriter(a attemptRow, verified, terminal bool, ioErr error) error {
+	r := s.state()
+	r.mu.Lock()
+	r.closedAttempts[a.id] = true
+	r.mu.Unlock()
+	ctx, cancel := s.cleanupContext()
+	defer cancel()
+	result := s.withinAccess(ctx, recoveryCause(), s.maintenanceRequest(oc.FinishWriterAccess, a.object, oc.AccessRequestDetails{AttemptID: a.id}), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
+		e, err := executor(s, tx)
+		if err != nil {
+			return err
+		}
+		_, found, err := loadUpload(ctx, e, a.upload)
+		if err != nil {
+			return err
+		}
+		if !found {
+			return unavailable(nil)
+		}
+		current, ok, err := loadAttempt(ctx, e, a.id)
+		if err != nil {
+			return err
+		}
+		if !ok {
+			return failure(foundation.NotFound, nil)
+		}
+		phase := "unknown"
+		if verified {
+			phase = "verified"
+		}
+		if current.cleaning {
+			phase = current.phase
+		}
+		_, err = e.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET io_closed=true,maybe_late=NOT $2,phase=$3,fault_code=$4 WHERE id=$1`, a.id.String(), terminal, phase, errorCode(ioErr))
+		if err != nil {
+			return unavailable(err)
+		}
+		_, err = e.Exec(ctx, `UPDATE agenteam_object.object_leases SET state='released',released_at=clock_timestamp() WHERE attempt_id=$1 AND owner_kind='writer' AND process_id=$2 AND state='active'`, a.id.String(), r.process.String())
+		if err != nil {
+			return unavailable(err)
+		}
+		if !verified && !current.cleaning {
+			u, ok, err := loadUpload(ctx, e, a.upload)
+			if err != nil {
+				return err
+			}
+			if !ok {
+				return unavailable(nil)
+			}
+			_, err = e.Exec(ctx, `UPDATE agenteam_object.uploads SET state='unknown' WHERE id=$1 AND state<>'committed'`, u.id.String())
+			if err != nil {
+				return unavailable(err)
+			}
+			obj, ok, err := loadObject(ctx, e, a.object)
+			if err != nil {
+				return err
+			}
+			if !ok {
+				return unavailable(nil)
+			}
+			_, err = s.appendAudit(ctx, tx, u, obj.meta, ac.ObjectUploadFailed, ac.Unknown, ac.FailedPhase, reasonFor(ioErr), a.id.String(), 0)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	err := commitError(result)
+	if err == nil {
+		r.mu.Lock()
+		delete(r.closedAttempts, a.id)
+		r.mu.Unlock()
+	}
+	return err
+}
+func errorCode(err error) any {
+	if err == nil {
+		return nil
+	}
+	for _, code := range []foundation.Code{foundation.ObjectPayloadMissing, foundation.ObjectIntegrityMismatch, foundation.CommitUnknown, foundation.ShuttingDown} {
+		if hasCode(err, code) {
+			return string(code)
+		}
+	}
+	return string(foundation.DependencyUnavailable)
+}
+func reasonFor(err error) ac.Reason {
+	if hasCode(err, foundation.ObjectPayloadMissing) {
+		return ac.PayloadMissing
+	}
+	if hasCode(err, foundation.ObjectIntegrityMismatch) {
+		return ac.IntegrityMismatch
+	}
+	return ac.StorageUnavailable
+}

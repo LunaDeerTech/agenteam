@@ -1,6 +1,6 @@
 # D05 恢复：Object 项目停止闭环
 
-修订：rev3，仅同步阶段状态，rev2冻结行为不变。S1两源已独立验收通过并提交推送`49c6589c3919cad62a4bae2c993b5fd953d36b1e`，远端一致，已验迁移前缀至00016。S2运行闭环已按28源范围正式下发、尚未交付；当前Docker归R3，资源交接以文末新记录为准。
+修订：rev4，仅同步阶段状态，rev2冻结行为与既有历史记录不变。S1两源`49c6589`及S2 Object库级停止28源均已独立验收；S2已提交推送`6658a6cb1f29299521773bc8dc86b2f607b8c809`，远端一致。已验迁移前缀至00016，正式结果及后继边界见文末。
 
 ## 输入、结果与依赖
 
@@ -219,3 +219,11 @@ rev1 独立静审针对 SHA-256 `c09e0363e2a4c6665e04d3ec181f28e1128e6766d26a31d
 S1迁移与测试两源已获独立验收并由主线程采纳、提交推送`49c6589`。[正式报告](../agent-team/d05-s1-verification.md)记录作者4新+1旧真实race通过（7.247s），独立4卡定+2探针、共6顶层16子例真实race通过（9.126s）；两源及39项固定输入在R3/S2开写前末检匹配，4容器、3网络及所属进程清零。00016只证明schema约束、升级和原子性，不证明S2停止、work登记或实际join。
 
 主线程已将S2卡内28源交`d08_registry_backend`正式实施，无Docker权；已静审提交`ed7985a`的[R3 Authority卡](recovery-d08-lifecycle-authority.md)由`restore_test_dependencies`实施卡内16源并独占Docker。两者文件隔离，各自固定快照验收，不消费对方活动稿。真实运行、适配器组合及完整D05/D08仍须后续验收。
+
+## S2 独立验收与后继交接
+
+S2 28源已独立验收并由主线程采纳、提交推送`6658a6cb1f29299521773bc8dc86b2f607b8c809`，远端一致。[正式报告](../agent-team/d05-s2-verification.md)记录作者95个不同顶层（21新+74旧）：review03直接通过61项，review02未变证据复用34项；最终unit/race/vet/compile及两cmd构建通过。独立25顶层+43子例共68个命名结果全PASS、无skip（94.897s），包括SR1 writer尾部、SR2 SourceForce、review03 Runtime两旧红及活work gate Unknown三态零提前Close与原writer锁终局，原红和修复链均保留。
+
+独立4容器3网络exact-ID absent，既有2容器4网络ID/name/labels不变、runtime空、所属进程0，28源末检匹配。本次通过Object库级停止；Artifact stop、Object Audit facts checker、正式Project推进/参与者装配及生产root仍属后继，不据此宣告完整D05/D08或D28/E01完成。此前绑定验收的原Outbox首红未复现、原因未知，继续保留为完整模块测试关注项。
+
+当前fixture空闲；`d08_registry_backend`已按Artifact rev2 `fcb83fc`启动16源业务实施，设计负责人已按Object Audit rev2 `fcae355`启动13源业务实施、固定`6658a6c`，`restore_test_dependencies`已按独立静审通过的D09 Project配置`6e0bda1`启动21源业务实施；三线均无Docker权，`skill_verification`转Object Audit验收准备。后续验收与资源按主线程正式交接推进。

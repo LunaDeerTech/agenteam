@@ -1,0 +1,34 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.28.52.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=e81f8496eac91171b18c84a667675df4
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=c6417c2208d93fc2d3396b18eb72a25d
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.016s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.013s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.017s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.117s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.010s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.016s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.011s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.019s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.016s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.013s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.017s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.018s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.015s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.009s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.014s [no tests to run]
+--- FAIL: TestObjectRuntimeBusyDoesNotMaskLaterRecoveryFailure (1.24s)
+    runtime_recovery_test.go:53: expected FORBIDDEN, got DEPENDENCY_UNAVAILABLE
+--- FAIL: TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget (25.36s)
+    --- FAIL: TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget/startup (14.06s)
+        runtime_shutdown_test.go:116: actual recovery cleanup not reached
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/objects	41.236s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.015s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.009s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce 85897e1876c80cd2a27928667c3d8e03
+D04 outbound fixture cleanup checked for nonce c6417c2208d93fc2d3396b18eb72a25d
+D05 object fixture exact resource cleanup checked nonce=e81f8496eac91171b18c84a667675df4
