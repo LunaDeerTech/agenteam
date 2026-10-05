@@ -1,6 +1,6 @@
 # D09 B01-K：System 配置原子存储首块
 
-修订 1，2026-10-05。原实现依赖为 `e6e94c4`，C0 已独立验收；真实迁移组固定输入为已验连续前缀 `30f5c29` 加本块源码。状态：**System 配置实现与 00015 已完成作者验证，正在独立终验，未声明模块完成或根 HTTP 已绑定。** 复用[工程规格](d09-model-system-token-usage-design.md) §2–4/8/10，与[D09 主卡](d09-model-system-token-usage.md)共同限定范围。System 先行、Project 后接同一正式 P adapter；Summary/Jina/型号决定保持待定，不阻塞本块独立结果。
+修订 1，2026-10-05 进度同步。原实现依赖为 `e6e94c4`，C0 已独立验收；真实迁移组固定输入为已验连续前缀 `30f5c29` 加本块源码。状态：**System 配置与 00015 已完整独立验收，Audit 六源 `26622bc`、System 二十九源 `543511c` 已提交推送；本卡完成，不代表完整 D09 或根 HTTP 已绑定。** 复用[工程规格](d09-model-system-token-usage-design.md) §2–4/8/10，与[D09 主卡](d09-model-system-token-usage.md)共同限定范围。Project 后接同一正式 P adapter；Summary/Jina/型号决定保持待定。
 
 ## 1. 完整结果与边界
 
@@ -97,7 +97,7 @@ Authority 实现 sc.UsagePlanner/sc.UsageAuthority 的 **Model Provider referenc
 
 ## 6. Schema 与后续 Usage/Secret 完整块
 
-首块迁移只配置五表及 Audit 闭集。原未编号 DDL 候选保留在 `/tmp/agenteam-d09-b01-prep-q49oerfz/schema-candidate.sql`，SHA256 `ad828d0306f044d9bd133b0cb756cfca44f024c09cf086eb52835c1f987c67cf`；它仅是原准备输入。正式 `00015_model_configuration.sql` 已按 `30f5c29` 的连续已验前缀生成并归位，作者真实 fresh、已填充 00014 升级、非法 NULL/组合 CHECK、事务失败及同 checksum 重试均通过；旧 Audit 行与无关约束保留。既有 00001–00014 未改，00015 仍待本块独立终验采纳。
+首块迁移只配置五表及 Audit 闭集。原未编号 DDL 候选保留在 `/tmp/agenteam-d09-b01-prep-q49oerfz/schema-candidate.sql`，SHA256 `ad828d0306f044d9bd133b0cb756cfca44f024c09cf086eb52835c1f987c67cf`；它仅是原准备输入。正式 `00015_model_configuration.sql` 已按 `30f5c29` 的连续已验前缀生成并归位，真实 fresh、已填充 00014 升级、非法 NULL/组合 CHECK、事务失败及同 checksum 重试证据已独立采纳；旧 Audit 行与无关约束保留。既有 00001–00014 未改，00015 已随 System 块 `543511c` 提交。
 
 | 后续能力 | 可以先做的事实/查询 | 必须先行或同块的真实前置 |
 | --- | --- | --- |
@@ -115,6 +115,6 @@ Authority 实现 sc.UsagePlanner/sc.UsageAuthority 的 **Model Provider referenc
 
 必须真实验证：D07非admin/失效Session拒绝、同key换Session先授权再receipt、CRUD不可变字段、SecretRef wrong purpose/scope、引用释放与Secret删除竞争、Audit/Outbox故障整Tx回滚、commit丢回复三分支、模型替换与新增引用barrier、缺owner adapter不部分改写、首次platform配置/必需项不能清空、分页cursor改limit/撤权、Project分支unbound且不写任何域行。Schema fresh+前缀升级/非法NULL与组合CHECK/事务回滚，旧Audit行不破坏；无Provider请求计数伪实际模型执行。 另以真实提交故障验证 A rollback-unknown → 同稳定User/key/command的异义B先提交 → A确认：A不得返回B receipt，B仅一份Audit/Event；无行/确认失败保留原Unknown及cause，公开Lookup的历史结果不能当作A成功或回滚证明。
 
-命令由后续实施者实际执行：Go1.27.1/local/mod=readonly 的 model/audit相关unit/race/vet/build；新 tests/model 纳入现有真实隔离fixture原完整包列表。作者PASS与独立验收分开；本准备未执行Go/PG/Docker/网络。
+实际执行沿 Go1.27.1/local/mod=readonly 的 model/audit相关unit/race/vet/build；tests/model 纳入原真实隔离fixture包列表，原 race/count1/每包6m 不变。作者验证与独立验收分列；本卡最初准备阶段未执行Go/PG/Docker/网络的历史事实保持。
 
-本卡原准备沿 `e6e94c4` 的 22 项实际源码输入及独立静态审查，原清单 `/tmp/agenteam-d09-b01-prep-q49oerfz/inputs.sha256` 与历史“未实施”结论保留在原提交。实现期间未消费活动 A/P/D12 服务源码；首轮真实组使用 `30f5c29` 固定 Git 来源加本块 34 源，精确来源差异、实际 argv、原日志、清理和检查见 `/tmp/agenteam-d09-b01-system-mh2pkw62/`。`pg1-result.json` 记录整条 exit0/163.387s，tests/model 12 个真实顶层 32.308s、internal/model 16 个纯顶层 1.045s；其余包的 no-tests 不计兼容。原 pure1 生产摘要编码错误及新增测试准备错误、首次 integration 编译错误、误 cwd 的排除执行均保留，不称首次全绿。独立 ModelEvents 定点核与 R01 同义并发重放修复已采纳；当前真实成功是作者证据，最终独立验收及 Git 交付由 root 收束。Project 分支、Resolver/Usage、Provider 网络调用及根 HTTP 继续不在本块完成范围。
+本卡原准备沿 `e6e94c4` 的 22 项实际源码输入及独立静态审查，原清单 `/tmp/agenteam-d09-b01-prep-q49oerfz/inputs.sha256` 与历史“未实施”结论保留在原提交。实现期间未消费活动 A/P/D12 服务源码；首轮真实组使用 `30f5c29` 固定 Git 来源加本块 34 源，精确来源差异、实际 argv、原日志、清理和检查见 `/tmp/agenteam-d09-b01-system-mh2pkw62/`。`pg1-result.json` 记录整条 exit0/163.387s，tests/model 12 个真实顶层 32.308s、internal/model 16 个纯顶层 1.045s；其余包的 no-tests 不计兼容。原 pure1 生产摘要编码错误及新增测试准备错误、首次 integration 编译错误、误 cwd 的排除执行均保留，不称首次全绿。独立 ModelEvents 定点核与 R01 同义并发重放修复已采纳。最终独立验收复用上述固定作者证据，并单独运行 1 个顶层核 System 命令拒 Project CredentialRef、同义 receipt 提交后当前 Session 撤销仍先拒绝；报告 `/tmp/agenteam-d09-b01-acceptance-s2vk5c4h/final-report.md` SHA `171c97cdb329e30dd08ccfc8db26e5192fe40b46400b92d560184644933da9b8`。root 已采纳精确 35 源并拆为 `26622bc`/`543511c` 提交推送，不把作者与独立两次执行混称一轮。Project 分支、Resolver/Usage、Provider 网络调用及根 HTTP 继续不在本块完成范围。

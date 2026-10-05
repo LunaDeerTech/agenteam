@@ -9,9 +9,10 @@
 | 工作项 | 当前进度 | 所有权与下一步 |
 | --- | --- | --- |
 | D07 | 当前范围已关闭，文档提交 `0ed8085`；历史失败与组合验收边界保留 | 无活动 D07 实现；后续 UI、WS、Project/Runner 绑定按责任模块推进 |
-| D08 | B03 C0 `16595ad` 已验；A 的 4+2 项真实局部通过，P 的目标 Unknown 反例尚未复现 | A=`d02_backend` 独占授权 D05 接缝及 00014；P=`d08_design` 独占 Project 主体；Docker 只按 root/acceptance 明确交接 |
-| D09 | C0 `e6e94c4` 已验，B01-K 卡 `7a6fcd8` 已提交且实施中 | B=`d07_http` 独占该卡授权的 System 配置范围；015 仅 `/tmp` 候选，等待 A 的 00014 验收和连续迁移前缀 |
-| D12 | B01 纯契约 `914fd84` 已验；B02 候选卡准备中、尚未采纳 | `parallel_plan` 准备固定候选；真实 Knowledge 业务、Object/Audit 适配与生命周期绑定另行验收 |
+| D08 | B03 C0 `16595ad`、00014 独立迁移 `30f5c29` 已验；A/P 主体均未整体采纳 | A=`d02_backend` 继续 D05 stop/收敛验证；P=`d08_design` 继续 Project 组合，并独占 Object fact checker 新三文件及唯一旧 hook；Docker 由 acceptance 明确交接 |
+| D09 | C0 `e6e94c4`、B01-K System 配置及 00015 已独立验收，Audit 六源 `26622bc`、System 二十九源 `543511c` 已推送 | 本块不含 Project 配置、Resolver/Usage、Provider 调用或根 HTTP；后续范围另派，D09 模块未完成 |
+| D10 | S01 真实 builtin/包载体纯块已完成作者验证，待独立验收 | V=`d01_verify` 的固定纯块待审；生产初始化仍须真实 D08/D05、Object fact checker 与生命周期组合，不以空 Skill 解锁 |
+| D12 | B01 `914fd84`、正式 B02 卡及 C1 `71dc176`、C2 `f401c15`、C3 `231a384` 已验并提交；Knowledge 主体未验收 | `parallel_plan` 实施 Knowledge 主体；C3 原 fixture 红与修后四项/旧六项组合证据保留；不以共享口通过替代真实 Knowledge/A/P 组合 |
 
 ## AT-0001：建立串行开发团队与技能
 
@@ -872,6 +873,8 @@ root 已采纳并提交推送 `6319d03` 的精确 21 路径；此前 7 个纯契
 
 ### B03 当前局部验证与所有权
 
+2026-10-05 进度更新：00014 独立迁移两源已验收并提交 `30f5c29`，不再阻塞连续后继迁移。A 的 risk 原两处 InternalError 经 nullable 窄修越过，但后续固定 23 项中 Transfer 收敛后段仍失败，A 主体未整体采纳；P 原 11 项及新增 4 项边界按明确组合局部通过，实际 P+D/Object checker 仍待验。P 另按精确授权实施 Object fact checker 新三文件及一个旧 hook，不能视为已绑定。以下保留先前轮次的原始局部记录，不用新结果回写历史。
+
 B03 C0 契约已独立验收并提交推送 `16595ad`。P=`d08_design` 独占 Project 主体，15 个生产文件保持冻结；A=`d02_backend` 独占已授权 D05 15 个旧生产文件、新 helpers/tests 与 `00014_object_artifact_project_stop.sql`。A 第二轮固定 43 项输入下，原 4+2 项真实用例在 `tests/objects` 10.344s 通过，整条 fixture exit0/正常等待结束，精确三个 nonce 资源清零；这仅是局部结果，旧 fixture 适配与其余完整门槛未验。root 后续已授权 A 一次 16 个旧测试加 2 个新测试的真实装配适配，当前实施中，尚无运行结果。
 
 A 证据位于 `/tmp/agenteam-d08-b03-d05-implementation-9x51jy_i/second-input/inputs.json`、`second-real-result.json` 与 `second-cleanup.json`。P 的旧 r1 Unknown 确认缺口已静态确认，但首个单例仅在 checkpoint 前等待 5s 超时（整例 6.26s），未进入目标反例；原 exit1 日志 SHA `8f7f556096fab5233b654df000fdd3af747561f23f6f38d2c26a588e27b6476a` 和 `/tmp/agenteam-d08-b03-replaced-claim-red-9u0wipcf/` 的固定输入、命令、清理记录保留，精确三个 nonce 与 81 个 owned PID 已清零。仅加安全 Advance 结果观察的同 r1 单例已结束 exit1，目录 `/tmp/agenteam-d08-b03-replaced-claim-observe-i8z1cek_`，精确资源全部清零；Advance 正常返回 stopping，尚未触达 Unknown。静态定位为 Skills participant 排序先于 Artifact，且每次 Advance 只推进一项；正在修正测试准备顺序，仍未复现目标反例。
@@ -880,12 +883,12 @@ A/P 均未整体采纳。Docker 由 acceptance 唯一调度并明确交接；Sec
 
 ## AT-0016：D09 Model System 与 Token Usage
 
-正式[主卡](../work-items/d09-model-system-token-usage.md)与[设计](../work-items/d09-model-system-token-usage-design.md)初次归位提交为 `43b8886`；C0 纯契约已独立验收并提交推送 `e6e94c4`。[B01-K System 配置任务卡](../work-items/d09-b01-system-configuration.md)已提交推送 `7a6fcd8`，B=`d07_http` 已开始该卡授权范围内的实现；System 配置、Secret planned reference、typed Model Audit、Outbox 与 Unknown 边界尚待真实验收。
+正式[主卡](../work-items/d09-model-system-token-usage.md)与[设计](../work-items/d09-model-system-token-usage-design.md)初次归位提交为 `43b8886`；C0 已验 `e6e94c4`。[B01-K System 配置任务卡](../work-items/d09-b01-system-configuration.md)原提交为 `7a6fcd8`，现已完成独立验收并拆为 Audit 六源 `26622bc`、System 二十九源 `543511c` 提交推送。真实 System CRUD/selectors、Secret planned reference、typed Audit/Outbox 同 Tx、当前 admin 与幂等/Unknown 已交付；作者 12 个真实顶层及独立 1 个跨 scope CredentialRef/receipt 提交后 Session 撤销顶层均通过。
 
-015 目前仅是 `/tmp` schema 候选，须等待 A 的 00014 验收并核连续迁移前缀后才能正式落位或执行真实 PG；不能以占号或未验前缀代替依赖。Project 路径继续 unbound，等待 P 的真实生命周期 gate；后续 Resolver planned read、Usage 与 Provider 不混入首块。D09 模块未完成，C0 通过不代表生产能力已绑定。
+00015 已沿已验 `30f5c29` 连续前缀完成 fresh/已填充升级、CHECK、失败回滚及旧 Audit 兼容验证，并随 System 块采纳。独立结论 `/tmp/agenteam-d09-b01-acceptance-s2vk5c4h/final-report.md` SHA `171c97cdb329e30dd08ccfc8db26e5192fe40b46400b92d560184644933da9b8`；原始失败、作者与独立执行边界见 B01-K 卡。Project 分支、Resolver/Usage、Provider 网络调用和根 HTTP 不在本块完成范围，D09 模块未完成。
 
 ## AT-0017：D12 Knowledge 文档与文档树
 
 正式[主卡](../work-items/d12-knowledge-documents.md)与[设计](../work-items/d12-knowledge-documents-design.md)、B01 十二个新纯契约源/测试已独立验收并提交推送 `914fd84`。固定 `16595ad` 输入上的作者 unit/race/vet 证据已核；独立 Source 实际 Close 等待、严格 DTO 与签名边界三项定向 race 通过（包 3.169s），报告 `/tmp/agenteam-d12-b01-verify-49kvfiqa/report.md` SHA `b95a4e96a583b3e72097d027f9e372d3f7dc5b58d1a031ed5634d08fc5b6523e`。该结论仅覆盖纯载体和规则，不证明真实业务授权、持锁、事务或对象 lease 生命周期。
 
-`parallel_plan` 正准备 B02 固定候选卡，root 尚未采纳范围；须完整列明 Human CRUD 的事实来源、正式 Object/Audit 最小适配口与真实依赖，不因避开活动文件而默认拆成缺少创建能力的长期服务。尚未实现 Knowledge 业务/PG/provider、D08 生命周期接入、cursor.Text 补口或 Agent destructive 后段；D13 不作为 canonical 写的全局前置，D12 模块未完成。
+正式 [B02 实施卡](../work-items/d12-b02-knowledge-service.md)与 C1 `cursor.Text` 已独立验收并提交 `71dc176`；C2 Knowledge 删除 Audit 闭集已独立验收并提交 `f401c15`。`parallel_plan` 正实施 Knowledge 主体；C3 五路径共享清理已独立验收并提交 `231a384`，source5 `bd71be44e65fdc2072abb48ffcca28825ef07b4df294790b567ca2c8c886b4d6`。首轮新 fixture 漏 KnowledgeTree EX 的四项原红保留，修后仅原四 Knowledge 顶层通过，未变旧四 Avatar/对象及两预算顶层按原执行证据复用，不称原十项单次全绿。独立报告 `/tmp/agenteam-p-c3-prereview-rwhvkhjo/c3-final-report.md` SHA `ff39709e267483d2f9074b2f5696af64eb74b7bbb655c973e2c7458b63858d42`。A/P 与 Object fact checker 未整验，不能把闭集或库编译当成真实 Knowledge 授权、事务、对象 lease 与生命周期已绑定；Agent destructive 后段另验，D13 不作为 canonical 写的全局前置，D12 模块未完成。

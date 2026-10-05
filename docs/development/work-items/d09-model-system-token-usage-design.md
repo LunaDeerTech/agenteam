@@ -2,7 +2,7 @@
 
 修订 4，2026-10-05。设计部分已采纳；修订 2 的 R01/R02/C01 与官方 SDK 字段事实不变，C0 已独立验收并提交 `e6e94c4`；本轮仅同步 [B01-K System 配置首块](d09-b01-system-configuration.md)的范围与实施状态。继承设计基线 `da5caab58ad7b0b6c03f2120e3d8456d3d8b9613`、已验 D08 B02 `6319d033f089140b34de60374312ce57141e6fa2`；C0 固定编译基线为 `16595ad1e78e5283dfe85fb812095acde382edd1`。
 
-当前范围由[主卡](d09-model-system-token-usage.md)及[B01-K 卡](d09-b01-system-configuration.md)限定：B01/C0 的 8+2 纯契约及相邻测试已验；B01-K 规格已采纳、尚未实施；完整 D09 尚未具备全部开工条件、未完成。本文不证明 Provider 运行兼容，§13 的 Summary 初值、Jina/型号 conformance 及未来真实绑定继续待定。
+当前范围由[主卡](d09-model-system-token-usage.md)及[B01-K 卡](d09-b01-system-configuration.md)限定：B01/C0 的 8+2 纯契约及相邻测试已验；B01-K System 原子配置、00015 与真实 Secret/Audit/Outbox/Unknown 组合已独立验收，Audit 六源 `26622bc`、System 二十九源 `543511c` 已提交推送。作者 12 个真实顶层及独立跨 scope/撤销 Session 1 个顶层证据见 B01-K 卡。完整 D09 未完成；Project 配置、Resolver/Usage、Provider 调用及根 HTTP 未纳入本块，§13 的 Summary 初值、Jina/型号 conformance 及未来真实绑定继续待定。
 
 依据：[开发计划](../development-plan.md)、[Model 架构](../../architecture/platform-infrastructure/model-system/README.md)、[配置](../../architecture/platform-infrastructure/model-system/model-configuration.md)、[解析](../../architecture/platform-infrastructure/model-system/model-resolution.md)、[Chat Runtime](../../architecture/platform-infrastructure/model-system/chat-model-runtime.md)、[Usage](../../architecture/platform-infrastructure/model-token-usage.md)、[D01 Model 契约](d01-contracts/model-tool.md)、[事务](d01-contracts/foundation.md)、[生命周期](d01-contracts/domain-lifecycle.md)、[W17–19/W42](d01-contracts/walkthroughs.md)、[D08 规格](d08-project-owner-design.md)。本文只细化这些规则；未闭合事项见 §13。
 
@@ -20,7 +20,7 @@
 | B02 真实调用、协议及恢复 | `model/{runtime,call,stream,retry,recovery,lifecycle,media}.go`、`model/adapter/{openai_chat,anthropic_messages,openai_embeddings,jina_rerank,openai_images,sse}.go`、协议版本清单与合成 fixture；`tests/model` 独占新增测试文件 | B01 稳定端口、§6 官方 wire 补证；D04 真实私网 HTTP/TLS fixture；T09–T14/T16，真实未来 consumer 未绑定仍拒绝 |
 | B03 管理/用量 HTTP 与根组合 | `model/http.go`、`usage/http.go`、`app/model.go`；新 `scripts/test-models.sh` 与既有 fixture 最小包列表增量；OpenAPI 对应模型/用量片段 | B01/B02、D07/D08 实际最终提交，T17/T18；§13 创建初值规则闭合后才完成全部 D09；不提前生产前端 D27 页面 |
 
-B01 当前按独立完整结果推进：C0 已验，下一块仅[B01-K System 配置原子存储](d09-b01-system-configuration.md)，其精确文件、Audit 增量及未编号配置五表以该卡为准；不同时实现表中其余 Usage/Resolver/网络或根装配。Project 路径明确 unbound，后续统一消费 P 的正式 Human Secret/Outbox gate，不复制 Project adapter；本块不修改 Secret 源，也不依赖 Summary 初值、Jina/型号 conformance。
+B01 按独立完整结果推进：C0 与 [B01-K System 配置原子存储](d09-b01-system-configuration.md)均已验；本块精确文件、Audit 增量及正式 `00015_model_configuration.sql` 以该卡和已验提交为准。00015 基于已验 00014 `30f5c29` 的连续前缀，未改旧迁移；后续 Usage 迁移仍另配编号。Project 路径明确 unbound，后续统一消费 P 的正式 Human Secret/Outbox gate，不复制 Project adapter；本块没有 Secret 源变动，也未代决 Summary 初值、Jina/型号 conformance。
 
 相对路径的 Go 文件均位于 `internal/central/`。包分层：`model/contract` 可引用 foundation、identity/secret/object contract，不导入 Tool、Execution 或任何实现包；Usage DTO 引用 model/contract 的身份与 Usage 类型，Model 实现可依赖 Usage 服务，后者不反向导入 Model 实现。
 

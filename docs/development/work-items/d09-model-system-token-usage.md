@@ -1,6 +1,6 @@
 # D09 Model System 与 Token Usage
 
-修订 3，2026-10-05。C0 固定编译基线 `16595ad1e78e5283dfe85fb812095acde382edd1`，已独立验收并提交 `e6e94c4`；设计基线及来源见[工程规格修订 4](d09-model-system-token-usage-design.md)。状态：**设计部分采纳；B01/C0 已验，下一完整结果 [B01-K System 配置原子存储](d09-b01-system-configuration.md)规格已采纳、尚未实施；完整 D09 尚未具备全部开工条件、未完成。** C0 下列 20 源保持冻结；B01-K 的新源、旧 Audit 窄增量和待编号迁移仅按其卡由 root 另行指派，不授权网络实验或真实 Provider 调用。
+修订 3，2026-10-05 进度同步。C0 固定编译基线 `16595ad1e78e5283dfe85fb812095acde382edd1`，已独立验收并提交 `e6e94c4`；设计基线及来源见[工程规格修订 4](d09-model-system-token-usage-design.md)。状态：**B01/C0 与 [B01-K System 配置原子存储](d09-b01-system-configuration.md)均已独立验收；Audit 六源 `26622bc`、System 二十九源（含 00015）`543511c` 已提交推送。完整 D09 未完成。** 下列 C0 范围及 B01-K 的真实依赖保持明确；Project 配置、Resolver/Usage、Provider 调用和根 HTTP 仍是后续结果，不因 System 库通过而解锁。
 
 依据：[开发计划 D09](../development-plan.md)、[D01 模型契约](d01-contracts/model-tool.md)、[D08 规格](d08-project-owner-design.md)。必读 [AGENTS](../../../AGENTS.md)、[团队流程](../agent-team/README.md)、[设计技能](../../../.agents/skills/agenteam-design/SKILL.md)；实施/独立验收按团队角色与各自技能执行。root 持本卡、台账、计划、迁移编号及最终 Git 交付。
 
@@ -53,4 +53,4 @@ GOTOOLCHAIN=local /workspace/toolchains/go1.27.1/bin/go vet -mod=readonly ./inte
 GOTOOLCHAIN=local /workspace/toolchains/go1.27.1/bin/go build -mod=readonly ./internal/central/model/contract ./internal/central/usage/contract
 ```
 
-B01 首阶段通过仅表示类型与契约可供下游编译；完整 B01 尚需[B01-K System 配置](d09-b01-system-configuration.md)、Project 配置及用量原子存储和集成，B02/B03 仍依工程规格验收。未满足的 Summary/协议/生命周期/真实 consumer 条件不因纯契约提交而自动解除。
+C0 首阶段通过仅表示类型与契约可供下游编译；现 [B01-K System 配置](d09-b01-system-configuration.md)已补齐真实 System 原子存储结果。作者 12 个真实顶层及独立跨 scope CredentialRef/receipt 提交后 Session 撤销 1 个顶层通过，独立报告 SHA `171c97cdb329e30dd08ccfc8db26e5192fe40b46400b92d560184644933da9b8`，位置及原始失败见 B01-K 卡。完整 B01 的 Project 配置/Usage、B02/B03 仍依工程规格验收；Summary/协议/生命周期/真实 consumer 条件不因该库提交而自动解除。
