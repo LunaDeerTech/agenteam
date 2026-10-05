@@ -1,6 +1,6 @@
 # D05 恢复：Object Runtime 的真实 work join 屏障
 
-修订：rev1。状态：独立规格静审通过，主线程已采纳；业务实施由文末明确移交。本卡修复已经由普通 PG 锁竞争复现的全局退出遗漏，并补齐同一首次登记链的私有 writer 所有权，不代表 D05/D08 全模块验收完成。
+修订：rev2，仅更新执行状态，rev1 已审行为正文不变。规格已审并提交 `8bce2d9319f0b649b7c144ba14d9ee52f7dd09da`；随后业务执行被自动安全筛查中断，当前原实施任务停止，不改派或重试，缺陷仍未修。文末原实施移交保留为历史，现状以新增中断记录为准；不代表 D05/D08 全模块验收完成。
 
 ## 输入、证据与完整结果
 
@@ -107,3 +107,11 @@ Drain 在调用者原 context/截止时间内重试真正 ended 的本地 work �
 主线程已采纳独立静审报告 `/tmp/agenteam-object-runtime-join-static-22q1yt18/review.md`，SHA-256 `5e8c6a29242c4876a816d2a2007d3ad013331fcf18ea66ce1263be1bf2c6e03f`；审查输入为本卡候选 SHA-256 `ce689cfcad2ad211d05c7a77d552fe96c1053d924bfbf7f93a3b7ea2d5f6ceaa`。五路径范围与正文行为不变。普通锁原红及持久证据已提交 `696b523ae95b8bfcc1f6e5544888d9166d0bb45c`，不以规格通过声称产品修复完成。
 
 唯一实施者移交为 `d08_recovery_design`，仅开放本卡三生产加两新增测试；固定 `9d648575` 加自己五源，其他活动候选不混入。实施须覆盖外部恢复构造 handle 的确认所有权，以及最终 guard 停止事务被另一 Drain 等待时的原 context 预算；这些均属于正文共同屏障和并发预算要求，不增加接口或路径。独立验收由未参与实现者进行，准备计划由 `recovery_handoff` 冻结。现在无 Docker 权，真实执行前须正式交接唯一窗口；既定停止的网络探针不恢复。
+
+## 业务执行中断与当前状态
+
+规格 `8bce2d9319f0b649b7c144ba14d9ee52f7dd09da` 已获独立静审通过并采纳。随后该次业务执行被自动安全筛查中断，工具原文为 `possible cybersecurity risk`；此处只记录原文，不推断触发原因。当前原实施任务停止，不改派、不重试；本次状态归位不恢复实施或测试。
+
+中断时没有产品或测试源码改动，三个生产文件仍与固定 `9d648575` 一致，两个新增 `runtime_join_test.go` 未创建。未运行 Go/compile/test、Docker/SQL/网络，未启动 fixture 或产生自有运行资源，无未结束命令或关联后台进程。`/workspace/agenteam-object-runtime-join-prep-4t_us3q5/tree/` 保留 803 文件的固定私有准备快照；该目录的 `baseline/`、`spec-rev1.md`、`input.json`、`report.md` 原件保留，`bin/evidence/gocache/gotmp/runtime` 为空，没有运行日志或产品验证结果。
+
+[普通锁竞争原失败及持久证据](../agent-team/object-runtime-join-regression.md)已提交 `696b523ae95b8bfcc1f6e5544888d9166d0bb45c`，原红与旧 S2 验收不改写。退出缺陷仍未修，Artifact 最终共享 guard 采纳与依赖它的 Project 领域绑定当前被阻塞；Artifact 本域普通修复和 OpenAI wire 实施继续，不能据此宣布受阻依赖完成。原已停止的网络任务继续停止，本次没有新增方案、探针或业务代码。
