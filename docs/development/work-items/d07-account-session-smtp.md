@@ -1,9 +1,17 @@
 # D07 账号、Session、SMTP 与个人资料
 
 - 修订：2；状态：实现中（B01–B03已采纳，B04实施中）；台账AT-0014，按真实依赖与D08并行。
-- 基线：`main@57bfadb`，D06完整独立验收后工作区干净；D01–D06前置通过，最终证据见[D06主卡](d06-transactional-outbox.md)。此前GitHub认证阻塞已解除；B03交付为`ffa65f0`，B04已提交纯块与当前后段边界见[最新采纳记录](#b04纯块采纳与后段候选并行)，已验小块及时提交推送。
+- 基线：`main@57bfadb`，D06完整独立验收后工作区干净；D01–D06前置通过，最终证据见[D06主卡](d06-transactional-outbox.md)。此前GitHub认证阻塞已解除；B03交付为`ffa65f0`，B04已提交纯块与当前后段边界见[当前进度](#当前进度)，已验小块及时提交推送。
 - 目标：实现正式人类身份/Session与System授权、初始化/邀请/密码恢复、内嵌挑战、SMTP持久投递及资料/头像/偏好；通过真实HTTP、数据库/SMTP/对象组合验证，不以生产stub代替后续领域绑定。
 - 依据：[计划D07](../development-plan.md#d07-账号-session-smtp-与个人资料)、[账号](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)、[SMTP](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)、[D01契约](d01-contracts/README.md)、[账号页面](../../frontend-design/layouts/account-entry.md)、[个人设置](../../frontend-design/layouts/personal-settings.md)、[系统设置](../../frontend-design/layouts/system-settings.md)。已确认产品规则不重复询问。
+
+## 当前进度
+
+本段为当前状态；后文各阶段的候选、失败、授权与证据保留当时事实。00012 已验并提交推送 `61b4df4`；CAPTCHA artwork adapter 两源已独立验收并提交 `b9b0b86`；A2 Profile/Avatar/Runtime 与限定 D05 组合的 27 源已独立采纳并提交 `da5caab`。独立结论分别见 `/tmp/agenteam-d07-a2-business-acceptance-1javqkoe/acceptance.md` 与 `/tmp/agenteam-d07-artwork-repair-verify-_eei2ecm/report.md`；A2 分块通过不代表完整 B04 兼容通过。
+
+B04 app 的 B37 候选仍未提交、未整体验收；B 与 acceptance 按既定真实组顺序执行，Docker 不再归 A2。旧 legacy 结果为 8 包 PASS、3 包 FAIL；随后完整 process 29 顶层 PASS（130.147s），SMTP/D05 原失败用例各单次 PASS，但两项历史 setup 失败的原因仍未确定，不能据复跑成功反推唯一根因或称旧组全绿。
+
+health 观察器的独立对照已确认同一持锁事务的统计快照漏看 waiter；仅把原测试轮询连接从 admin 改为 db.Connect(t)，原 EX 锁、30s、Signal 与退出断言保留，未改生产 health。修后 process 组通过；工具 session 在运行时恢复后丢失，原 runner 未写终态，outer exit0 由内核 /proc/stat 恢复。observer 为 SIGKILL9、相关进程为 PPID1 zombie，未观察 owner wait，不能称原 runner 已 joined；exact3 所列资源核零、输入无漂移，也未为补终态数字重跑。D07/B04 整体保持未完成。
 
 ## 所有权与任务
 
@@ -11,11 +19,11 @@
 | --- | --- | --- | --- |
 | S01 完整可实施规格 | architecture_worker | 新`d07-account-session-smtp-design.md`；其余源码/契约只读；不使用Docker | 已完成 |
 | R01 工程可行性与有界技术证据 | backend_worker，承担research_worker职责 | 仓库只读；只在任务自有`/tmp`作报告及隔离实验，不修改依赖锁/源码；不使用Docker | 已完成 |
-| V01 独立规格及实现审查 | verification_worker / acceptance_lead | B03/A1/B1证据封存；A2不可变候选只读静审，不占Docker | B03及已列纯块已采纳，组合待验 |
+| V01 独立规格及实现审查 | verification_worker / acceptance_lead | 已验 B03/A1/B1/A2 证据封存；与 B 按固定输入顺序组织剩余真实组与资源交接 | A2 已采纳，B37 与 B04 整体待验 |
 | B01 身份与安全基础 | backend_worker | 90源/361依赖冻结，命令全停 | 已完成 |
 | B02 邀请、恢复与挑战 | backend_worker | 71源/442依赖冻结，作者/V全停 | 已完成 |
 | B03 持久投递 | backend_worker | 68源/498依赖冻结验收；原V资源已清零交回 | 已完成，`ffa65f0`已推送 |
-| B04 资料与正式入口 | A=d02_backend / B=d07_http | A后段独占00012/Docker和已审D05窄口；B独占app/共享fixture接缝，用固定候选隔离装配 | C0/A1/B1/config纯块已采纳，后段实施与验收中 |
+| B04 资料与正式入口 | A=d02_backend / B=d07_http | A2 与 00012 已验提交；B 独占 app/共享 fixture 接缝，Docker 与 acceptance 顺序交接 | 已列纯块、CAPTCHA 与 A2 已采纳；B37 未提交、整体验收中 |
 
 root安排本卡/计划/台账的唯一写者并负责最终整合；设计规格独占给architecture，业务实现与测试证据分析分别交执行者/独立验收负责人。使用agenteam-design/go-development/verification/documentation技能，按AGENTS团队规则执行，子agent不得再委派或Git写。只审固定停写副本，按真实依赖和文件/迁移/资源唯一所有权并行；D08已满足前置的纯契约可先行，不以整个D07完成作统一等待门槛。
 

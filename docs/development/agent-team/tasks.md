@@ -364,6 +364,12 @@
 
 ## AT-0014：D07账号、Session、SMTP与个人资料
 
+当前：B01–B03 及已列 B04 纯块已验；00012 `61b4df4`、CAPTCHA 两源 `b9b0b86`、A2 Profile/Avatar 27 源 `da5caab` 已独立验收并提交推送。B37 app 未提交、B04/D07 未整体验收；B/acceptance 顺序执行既定真实组和交接 Docker，不再由 A2 占有。legacy 8 PASS/3 FAIL 后 process29 与 SMTP/D05 原例单次通过；两项历史 setup 根因未定。health 仅修测试观察器快照，外层 session/原 runner 终态与未观察 owner wait 的限制保留，不能把局部通过称整组或实际 joined。简要事实与两份独立结论见 [D07 当前进度](../work-items/d07-account-session-smtp.md#当前进度)。
+
+### 立项与阶段历史记录
+
+以下保留各阶段当时状态，不作为当前所有权或验收结论。
+
 - 状态：实现中；唯一活动模块D07，[主卡](../work-items/d07-account-session-smtp.md)修订2，基线main@57bfadb，D06已完整验收提交且工作区干净。
 - S01 architecture独占新工程规格；R01 backend仓库只读与/tmp有界技术证据，二者不使用Docker或改源码/依赖；root拥有主卡/计划/台账。采用既定GoCaptcha和账号/SMTP产品规则，不重复产品确认。
 - D07后端/HTTP/正式绑定先完成，D26统一客户端/账号个人页面、D27系统设置按计划后续接入；不提前业务UI或D08。00010候选、旧迁移与依赖冻结，新增口/依赖须先规格采纳。GitHub认证既有阻塞未解除，仅本地提交。
@@ -830,7 +836,7 @@ A2继续独占00012/已授权D05窄口/Docker，B2按41路径后段卡推进app/
 
 ## AT-0015：D08 Project 与 Owner
 
-- 状态：S01 规格、B01 正式契约与纯规则库已验；B01 提交推送 `199554b`，B02 七个纯结果提交 `769ec8c`，其余 21 源与 00013/fixture 接缝已独立验收并提交推送 `6319d03`。D08 模块尚未完成，完整生命周期、HTTP/app 和 D10 真实初始化仍待集成。正式[主卡](../work-items/d08-project-owner.md)与[设计 rev2](../work-items/d08-project-owner-design.md)初次归位提交为 `08d119d`。
+- 状态：S01 规格、B01 正式契约与纯规则库已验；B01 提交推送 `199554b`，B02 七个纯结果提交 `769ec8c`，其余 21 源与 00013/fixture 接缝已独立验收并提交推送 `6319d03`。生命周期 C0 四源已独立验收并提交推送 `16595ad`；P 主体与 D05 stop/00014 实施中、未验。D08 模块尚未完成，完整生命周期、HTTP/app 和 D10 真实初始化仍待集成。正式[主卡](../work-items/d08-project-owner.md)与[设计 rev2](../work-items/d08-project-owner-design.md)初次归位提交为 `08d119d`。
 - 并行依据：D07 尚未完成不构成所有后续任务的统一等待门槛。B01 只消费已验 foundation/identity/event 的固定输入，不依赖活动 B03/B04 实现；按当前团队规则与唯一文件/资源所有权，实施时与 D07 B03 独立验收、B04 阶段 1 并行；当前 B03/00011 已验，A1 窄口已提交 `59b38c8`。
 - B01 交付时所有权：`d08_design` 独占主卡 B01 的 `internal/central/project/contract/` 下 12 个新文件（`types`、`commands`、`lifecycle`、`initialization`、`events`、`validation` 及各自测试）；不覆盖旧接口、不提前 schema/Service/HTTP、不改依赖/迁移/fixture，不使用 Docker。已由 `parallel_plan` 接收固定源码、依赖与作者证据完成独立验收，作者与验收者均 all-stop；后续任务不覆盖已验契约。
 - B01 固定基线：`062ae2c050e2f6fa1549d2e67f924b4e5160d754` 的 15 项非测试编译输入，manifest `/tmp/agenteam-d08-placement-se1meE/b01-compile-inputs.json` SHA `b1b09e4dbbace98085b60787243948e9e1f26a658489e66a15f32716c379eaaa`；Go `1.27.1`。此前静态编译基线不作执行证据；B01 实际验收见下。
@@ -851,4 +857,8 @@ root 已采纳并提交推送 `6319d03` 的精确 21 路径；此前 7 个纯契
 
 固定输入 `da5caab` 已含验收的 A2/00012，最终运行 manifest SHA `85792fe1e261dd304f430de338eaaf34140418ace4fd2875ca3445062df520d2`。首轮 Project67.631s exit1 保留：两同名23505→INTERNAL_ERROR及一处撤销fixture缺reason；四文件最小修复保旧D03/DB唯一约束和授权/receipt/版本顺序。作者在唯一授权窗口运行完整原fixture组合，Go1.27.1 race/count1/每包6m 下 Project95.075s exit0，实际20业务主例+独立1主6子，owned child普通入口跳过，其他包no-tests。原探针由 `parallel_plan` 编写并冻结，执行由 `d08_design` 完成；不称两次独立执行。21源/516固定/644外部/probe末次匹配，精确资源清零并交回B。
 
-B03 主体/后段分阶段原则已由 root 采纳，精确 C0 Go 口仍是待审候选，尚未生效或授权业务开工；后续旧D05/Secret文件、迁移与Docker须独占交接。B02路径已绑定正式CurrentUserRoute；完整生命周期、HTTP/app及D10生产Skill初始化仍未完成，隔离provider/tombstone查询不冒称真实初始化/物理删除完成。D09未决创建模型字段不在本次范围。
+B03 C0 契约已独立验收并提交推送 `16595ad`。P=`d08_design` 仅写 Project 主体；D05 第一段=`d02_backend` 独占已授权 Object/Artifact 接缝与 `00014_object_artifact_project_stop.sql`，两块实施中未验；Docker 由 root/acceptance 明确交接，Secret/Audit provider 后段仍须真实绑定。B02 路径已接入 CurrentUserRoute；完整生命周期、HTTP/app 和 D10 生产初始化仍未完成，契约或隔离 provider 不能冒称真实清理/初始化通过。
+
+## AT-0016：D09 Model System 与 Token Usage
+
+正式[主卡](../work-items/d09-model-system-token-usage.md)与[设计](../work-items/d09-model-system-token-usage-design.md)已归位并提交推送 `43b8886`。当前只到纯契约任务候选，尚无 D09 业务实现或模块验收；按正式稳定接口、真实依赖和独占范围另行派发，不因文档已归位视为能力已绑定。
