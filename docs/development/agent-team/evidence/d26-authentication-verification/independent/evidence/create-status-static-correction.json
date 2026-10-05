@@ -1,0 +1,10 @@
+{
+  "baseline": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "path": "internal/central/account/http_auth.go",
+  "sha256": "4a8f24dec41bb2dd7d94c3777ee8c80fe3b0ba4e9a799b9e07435c8989a5ba98",
+  "actual_git_show_exit": 0,
+  "line159": "httpJSON(w, r, http.StatusCreated, struct {",
+  "fixed_typed_path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-05/web/src/api/account.ts",
+  "fixed_typed_sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+  "correction": "Only firstQuestion/nextQuestion status 200 -> 201, before any browser; original v1 spec/ready/input/plan retained. Not a product failure."
+}

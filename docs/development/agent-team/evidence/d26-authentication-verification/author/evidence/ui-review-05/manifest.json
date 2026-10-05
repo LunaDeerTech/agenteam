@@ -1,0 +1,36 @@
+{
+  "previous_fixture_manifest": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-04/manifest.json",
+  "previous_sha256": "918ea0883bb77fab0beedcc48cfbbeaa4d38a32230525bdf2fb92090f5af0bdd",
+  "files_before": {
+    "web/src/App.vue": "4b387528ebd5880a8a8b1f747c913fbc0ebb4ac626b7fba44ae49f24bf33a065",
+    "tests/account-captcha-web/e2e/authentication.spec.ts": "8931ffc8e5334cca6847ba4bc24a7b107a0dd14cfca82abe90c05ef899c255df"
+  },
+  "files": {
+    "web/src/App.vue": "eb2e040336dba0664d58feb308c6d62364f1f9e34b239135730e1daa8446c51d",
+    "tests/account-captcha-web/e2e/authentication.spec.ts": "a87ba8393cd9702412725a1e41c4333bb7f9d00fa0af8e3a9a9f10841461f169"
+  },
+  "patch_sha256": "85a84b5108e1b9281e5121331ae36ea56e468123b6b580b306ac994e3bffd767",
+  "logs": {
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui05-app-format-01.log": "390608b9bc1ed3f96eb6a3dd3e52bd76359c5f31d2509bdd70e9f940e700e78f",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui05-app-format-01.result.json": "8c88707f4800851c392589bb51a7fa14eef87aec5b4501736f69176fa7026ceb",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui05-spec-format-01.log": "466c45fea3ec306a67e1265eea639acd9e6a75d9de6d31d1afb7ce2176b264d2",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui05-spec-format-01.result.json": "006392a16e62f73b6578b6a089ec82d3cddcec6f9a218fc040d309fd5a045ced",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui05-format-check-01.log": "9fdbf9363cc35b66e90a22016e7a027730f7374c1ebe97b8bcb767a606c6d517",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui05-format-check-01.result.json": "4c79ec25aacc6603d8b417e259b0f32c92ad1a2de9d99111065d6a6e9425188e",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui05-build-01.log": "5664df7f152e4358e95cb3f0b20ded8a194d55a097ad6f8ee3cbea7720a532e4",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui05-build-01.result.json": "86aff5e48047c614a9e32939c101f7a657e3f38a92a42e0a05c27a8d3a7c54d1",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/browser-spec-type-05.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/browser-spec-type-05.result.json": "d7a54de20eb16e0bd0b2d0b08624e7c481b8e8f7a9a37cf553961e40d247e510"
+  },
+  "retained_browser_red": {
+    "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/auth-revocation-layouts-01.log",
+    "sha256": "f9c5f9b1dc1f9400a59c2cf00f16823afb8ab44c9ac583aae4b819e173be8bf3"
+  },
+  "original_screenshots": {
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/browser-images-01/dark-1440.png": "1d9109e0f3ba7046841850d1e0da707ad7e21a3059a3f73c5945476e502dae79",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/browser-images-01/dark-390.png": "8bd5c896696bac72464c73c2346344aed1260ebc92dc0939c71031382bd0ac92",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/browser-images-01/light-1440.png": "973145e1c22eee12bf411d3d71dd7e02d4b83119941f73f0e0b7228df3182f58",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/browser-images-01/light-390.png": "7ec3b34fe2779ee674b8266e123f067ed41ff930312865d4daaa37089d68a7fb"
+  },
+  "boundary": "Only authenticated App shell class/local styles and failure-only safe geometry logging. No shared styles/components, core, LoginView, Go, timeout, selectors or assertions changed. No browser/Go/Docker execution for this revision."
+}

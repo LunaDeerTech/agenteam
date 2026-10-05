@@ -1,0 +1,14 @@
+--- ui-disabled-focus-red-01/web/src/tests/authentication.spec.ts
++++ ui-disabled-focus-red-02/web/src/tests/authentication.spec.ts
+@@ -355,6 +355,11 @@
+       // jsdom does not implement the browser's disabled-control focus loss.
+       // Explicitly model that native transition; this is pure, not browser evidence.
+       range.blur()
++      // jsdom also ignores blur() on disabled elements; move focus to the same
++      // native fallback explicitly without enabling or changing the control.
++      document.body.tabIndex = -1
++      document.body.focus()
++      document.body.removeAttribute('tabindex')
+       expect(document.activeElement === document.body).toBe(true)
+       if (outcome === 'rejected') reject()
+       else if (outcome === 'success') succeed()

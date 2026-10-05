@@ -1,0 +1,30 @@
+{
+  "baseline": "457b197",
+  "previous": "ui-review-02/e9fab84272bef87ad3438733fb2190d88b82b7a6211abdbb9e0399f9b55686e0",
+  "files": {
+    "web/src/components/account/RotateChallenge.vue": "bd2594511300bc45e17fb472d7e30ac95dd499619be27dc5f9abd81a6d9962e6",
+    "web/src/views/auth/LoginView.vue": "4604912fff36e2cc8ac336940beeb104b893cdcea60950401d9caef171615972",
+    "web/src/views/HomeView.vue": "666bb17e2cc42913f9a9c1a061480cd48add72e5b3d3256e3eca5cdf2eb0273f",
+    "web/src/router/auth.ts": "723e489ea5ad1fb501d573386b3df3b01bbb88aa12f739af62d35693e7fa3c4c",
+    "web/src/App.vue": "4b387528ebd5880a8a8b1f747c913fbc0ebb4ac626b7fba44ae49f24bf33a065",
+    "web/src/router/index.ts": "fb2ca02271811398a164ea7500ddb66585d9713b4302abf8694a75ca3653647b",
+    "web/src/components/layout/AppShell.vue": "02513aafc6dd78deccf300d7c12a6d0433919bc0baf1c844899ee3cdbf0ff88d",
+    "web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+    "web/src/tests/authentication.spec.ts": "9504335ff51e9a8cf3b048f006053afc0e815d46f4a6f1a9ac098e6a46075d7c",
+    "web/src/tests/rotate-challenge.spec.ts": "0a18ccebb6b6a267dc71696082031a04603c5b2fcd5f4cbb434afa89287bc540"
+  },
+  "logs": {
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-disabled-focus-red-01.log": "3be1e3fa5c60b1769c96a990eea55c036406ed394a4f469fc7f4006d17bd3942",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-disabled-focus-red-01.result.json": "6ad004b3d3c6f46c592cfcbd669d9c0f38e4b0c0680b27f4ab5878c1f5476ac6",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-disabled-focus-red-02.log": "f862051eedb65db408c78c0d958c922ab59bc2f06f511221aa5a4ae7838425c6",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-disabled-focus-red-02.result.json": "6ad004b3d3c6f46c592cfcbd669d9c0f38e4b0c0680b27f4ab5878c1f5476ac6",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui03-unit-01.log": "e7d7cd2492b44d74fa9d5330a0446b7e2a7c647eda78fbbeea9337688f1f536d",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui03-unit-01.result.json": "f92ced1f63647f9bea18d936c8e0d97164f1f564b2aced3098fbc5c31365993c"
+  },
+  "red_inputs": [
+    "../ui-disabled-focus-red-01/manifest.json",
+    "../ui-disabled-focus-red-02/manifest.json"
+  ],
+  "scope": "only LoginView+authentication.spec changed; core/RotateChallenge/fixture unchanged for this fix; original red01 hit jsdom disabled blur no-op, red02 explicit body fallback proved all three focus failures; pure simulation, no browser",
+  "ownership": "pre-flush same-question owner before disable, outside focusin cancels owner and pending handoff, nextTick exact handoff object rechecked, unmount cancels"
+}

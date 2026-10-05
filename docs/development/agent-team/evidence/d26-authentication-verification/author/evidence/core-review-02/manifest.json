@@ -1,0 +1,104 @@
+{
+  "base": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679"
+    },
+    {
+      "path": "web/src/tests/account-client.spec.ts",
+      "sha256": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "084bbdcc66fc15bf560b608a861792d73c9d712bd36f6ad5ca15a6b9aa5ec25c"
+    },
+    {
+      "path": "web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    }
+  ],
+  "delta_sha256": "fc70afbc15d26d68ce4c42c6fb9ad1e1157356fc54b84d26f6a9fdb5d33e0c31",
+  "logs": [
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core-f1-f2-red-01.log",
+      "sha256": "035dfad8b989cbcccec31fc9d012088b972147b571823e697abc8474c65ce2ad"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core-f1-f2-red-01.result.json",
+      "sha256": "2b74c13d48223718f0e6b9c176c5ad5a9bb4b1614754c611a21b1d1d39f0e9cf"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core-f3-f4-red-01.log",
+      "sha256": "38bcd03c180cb84de925b7ca89ed15de9c3d45aa8240439a05b6da363b7b6d0d"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core-f3-f4-red-01.result.json",
+      "sha256": "e73e6040d41cd9b8c18e3794c5310cb2c4a04bc51bfca3b631af5033e97810a9"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core-fix-unit-01.log",
+      "sha256": "8d570338384f89679e316106d0eab83b161929326ed7ae7bf9ee244241a3dd16"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core-fix-unit-01.result.json",
+      "sha256": "daa63d17b96c8e109107d868aa0ad3d742277631c1206a36e2e80e1dedc53132"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-type-01.log",
+      "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-type-01.result.json",
+      "sha256": "5a61ce420434a08367be4a31550645865bf1fb33b29f9cda7a0aa7712db63c0f"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-unit-01.log",
+      "sha256": "0ac7ec64d98d9b9f2e4544dc66ce1a40e5d5bacf6c04ff884ed6e45eb192a9a9"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-unit-01.result.json",
+      "sha256": "f048987a074f4d2c399588de17ecdf239e812197a3b3675707184d2727ce32cb"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-unit-02.log",
+      "sha256": "bb9059c45a866df206be4ec24c32a6e8bf7d19c6282daba3e128d62f1ee89793"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-unit-02.result.json",
+      "sha256": "daa63d17b96c8e109107d868aa0ad3d742277631c1206a36e2e80e1dedc53132"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-format-check-01.log",
+      "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-format-check-01.result.json",
+      "sha256": "88135828cb326d4b57725d182e372aff6ac525775761c5721f3ff67e349f87e3"
+    }
+  ],
+  "original_red_inputs": [
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f1-f2-red-01/manifest.json",
+      "sha256": "ec7454f056c63c8bc9b0edb37eb9c15f8500f21f700656d4f85780b6f2c781ed"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f3-f4-red-01/manifest.json",
+      "sha256": "7d59a849f2e0bdac84f6eaa2a7c4a7bc4b7e7328d931eb96866d35805b2414dc"
+    }
+  ],
+  "result": "29 core pure tests PASS; type0; format-check0; no browser/Go/Docker",
+  "fixed_attempt_note": "core02-unit-01 old late-tail fixture did not await first API entry after helper scheduling changed; explicit first/second API call barriers added, original busy/result assertions retained; all raw kept"
+}

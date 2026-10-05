@@ -1,0 +1,92 @@
+{
+  "source": [
+    {
+      "path": "/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/probe.cjs",
+      "sha256": "6e61737ccd9f4a17c2980ae373d46edade1b9ae6dce533cb2b517b09ad9da174"
+    },
+    {
+      "path": "/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/run.py",
+      "sha256": "5e38072066ede8c51e44935201388250ae9c604bb24c74ef001b2eac4ad68b64"
+    }
+  ],
+  "plan": {
+    "path": "/tmp/agenteam-d26-dom-focus-plan-u5cuud7j/plan.md",
+    "sha256": "de5b09fbb1a821779897e69e94369ba0a4e2bf05851d088fcee34a123633150e"
+  },
+  "dependency_identity": {
+    "scope": "read-only dependency identity; no browser/node execution",
+    "package_lock": {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/tests/account-captcha-web/package-lock.json",
+      "sha256": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+    },
+    "packages": [
+      {
+        "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/tests/account-captcha-web/node_modules/@playwright/test/package.json",
+        "sha256": "9074bc81ed5850b15ba1d99ccaa1a391476f8c552f57f564ddc8afad7049d662",
+        "version": "1.56.1",
+        "lock_entry": {
+          "version": "1.56.1",
+          "resolved": "https://registry.npmjs.org/@playwright/test/-/test-1.56.1.tgz",
+          "integrity": "sha512-vSMYtL/zOcFpvJCW71Q/OEGQb7KYBPAdKh35WNSkaZA75JlAO8ED8UN6GUNTm3drWomcbcqRPFqQbLae8yBTdg==",
+          "dev": true,
+          "license": "Apache-2.0",
+          "dependencies": {
+            "playwright": "1.56.1"
+          },
+          "bin": {
+            "playwright": "cli.js"
+          },
+          "engines": {
+            "node": ">=18"
+          }
+        }
+      },
+      {
+        "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/tests/account-captcha-web/node_modules/playwright/package.json",
+        "sha256": "388159d9169e9aa04bd24a92fb102321e7aca1af8c5ce9fc130f354af148587a",
+        "version": "1.56.1",
+        "lock_entry": {
+          "version": "1.56.1",
+          "resolved": "https://registry.npmjs.org/playwright/-/playwright-1.56.1.tgz",
+          "integrity": "sha512-aFi5B0WovBHTEvpM3DzXTUaeN6eN0qWnTkKx4NQaH4Wvcmc153PdaY2UBdSYKaGYw+UyWXSVyxDUg5DoPEttjw==",
+          "dev": true,
+          "license": "Apache-2.0",
+          "dependencies": {
+            "playwright-core": "1.56.1"
+          },
+          "bin": {
+            "playwright": "cli.js"
+          },
+          "engines": {
+            "node": ">=18"
+          },
+          "optionalDependencies": {
+            "fsevents": "2.3.2"
+          }
+        }
+      },
+      {
+        "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/tests/account-captcha-web/node_modules/playwright-core/package.json",
+        "sha256": "428ba2490bb4eec3a9bf62838207d35318ecfb6677801ae770445bfa52007c27",
+        "version": "1.56.1",
+        "lock_entry": {
+          "version": "1.56.1",
+          "resolved": "https://registry.npmjs.org/playwright-core/-/playwright-core-1.56.1.tgz",
+          "integrity": "sha512-hutraynyn31F+Bifme+Ps9Vq59hKuUCz7H1kDOcBs+2oGguKkWTU50bBWrtz34OUWmIwpBTWDxaRPXrIXkgvmQ==",
+          "dev": true,
+          "license": "Apache-2.0",
+          "bin": {
+            "playwright-core": "cli.js"
+          },
+          "engines": {
+            "node": ">=18"
+          }
+        }
+      }
+    ],
+    "chromium": {
+      "path": "/usr/lib/chromium/chromium",
+      "sha256": "d387400aaf740ccb75e5e996a34aa0940e6e97683a4eabd6ae34c1eed6804723"
+    }
+  }
+}

@@ -1,0 +1,138 @@
+{
+  "baseline": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "package_before": {
+    "name": "@agenteam/web",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "engines": {
+      "node": "^22.18.0 || >=24.12.0"
+    },
+    "scripts": {
+      "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
+      "build": "npm run type-check && vite build",
+      "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
+      "type-check": "vue-tsc --noEmit",
+      "test:unit": "vitest run",
+      "format": "prettier --write .",
+      "format:check": "prettier --check .",
+      "check": "npm run format:check && npm run test:unit && npm run build"
+    },
+    "dependencies": {
+      "vue": "^3.5.0",
+      "vue-router": "^4.6.0",
+      "@floating-ui/vue": "^1.1.0"
+    },
+    "devDependencies": {
+      "vite": "^8.0.0",
+      "@vitejs/plugin-vue": "^6.0.0",
+      "typescript": "~5.9.0",
+      "vue-tsc": "^3.1.0",
+      "vitest": "^4.0.0",
+      "@vue/test-utils": "^2.4.6",
+      "jsdom": "^27.0.0",
+      "prettier": "^3.6.0",
+      "@types/node": "^24.0.0"
+    }
+  },
+  "package_after": {
+    "name": "@agenteam/web",
+    "version": "0.0.0",
+    "private": true,
+    "type": "module",
+    "engines": {
+      "node": "^22.18.0 || >=24.12.0"
+    },
+    "scripts": {
+      "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
+      "build": "npm run type-check && vite build",
+      "preview": "vite preview --host 127.0.0.1 --port 4173 --strictPort",
+      "type-check": "vue-tsc --noEmit",
+      "test:unit": "vitest run",
+      "format": "prettier --write .",
+      "format:check": "prettier --check .",
+      "check": "npm run format:check && npm run test:unit && npm run build"
+    },
+    "dependencies": {
+      "vue": "^3.5.0",
+      "vue-router": "^4.6.0",
+      "@floating-ui/vue": "^1.1.0",
+      "go-captcha-vue": "2.0.7"
+    },
+    "devDependencies": {
+      "vite": "^8.0.0",
+      "@vitejs/plugin-vue": "^6.0.0",
+      "typescript": "~5.9.0",
+      "vue-tsc": "^3.1.0",
+      "vitest": "^4.0.0",
+      "@vue/test-utils": "^2.4.6",
+      "jsdom": "^27.0.0",
+      "prettier": "^3.6.0",
+      "@types/node": "^24.0.0"
+    }
+  },
+  "lock_top_changes": {},
+  "added": {
+    "node_modules/go-captcha-vue": {
+      "version": "2.0.7",
+      "resolved": "https://registry.npmjs.org/go-captcha-vue/-/go-captcha-vue-2.0.7.tgz",
+      "integrity": "sha512-ynlb/6CJiMdsqKe+79lIVpTsNXQTgOHDJ7BH+Gx6EZQZyHSwuyLZvQwjz9vQOYhyHpREW9tapBo8ZOTyVzIQew==",
+      "license": "MIT",
+      "peerDependencies": {
+        "vue": ">=3"
+      }
+    }
+  },
+  "removed": [],
+  "changed": {
+    "": {
+      "before": {
+        "name": "@agenteam/web",
+        "version": "0.0.0",
+        "dependencies": {
+          "@floating-ui/vue": "^1.1.0",
+          "vue": "^3.5.0",
+          "vue-router": "^4.6.0"
+        },
+        "devDependencies": {
+          "@types/node": "^24.0.0",
+          "@vitejs/plugin-vue": "^6.0.0",
+          "@vue/test-utils": "^2.4.6",
+          "jsdom": "^27.0.0",
+          "prettier": "^3.6.0",
+          "typescript": "~5.9.0",
+          "vite": "^8.0.0",
+          "vitest": "^4.0.0",
+          "vue-tsc": "^3.1.0"
+        },
+        "engines": {
+          "node": "^22.18.0 || >=24.12.0"
+        }
+      },
+      "after": {
+        "name": "@agenteam/web",
+        "version": "0.0.0",
+        "dependencies": {
+          "@floating-ui/vue": "^1.1.0",
+          "go-captcha-vue": "2.0.7",
+          "vue": "^3.5.0",
+          "vue-router": "^4.6.0"
+        },
+        "devDependencies": {
+          "@types/node": "^24.0.0",
+          "@vitejs/plugin-vue": "^6.0.0",
+          "@vue/test-utils": "^2.4.6",
+          "jsdom": "^27.0.0",
+          "prettier": "^3.6.0",
+          "typescript": "~5.9.0",
+          "vite": "^8.0.0",
+          "vitest": "^4.0.0",
+          "vue-tsc": "^3.1.0"
+        },
+        "engines": {
+          "node": "^22.18.0 || >=24.12.0"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,134 @@
+{
+  "commit": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "source_manifest": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-05/manifest.json",
+  "manifest_sha256": "2e0d63e1fabeaf4ba1ba808f2aa5e4a795b903516f6501b08d25517f16b37966",
+  "checked": [
+    {
+      "path": "web/src/api/client.ts",
+      "expected": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad",
+      "accepted_commit_sha256": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "expected": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+      "accepted_commit_sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "expected": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679",
+      "accepted_commit_sha256": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/components/account/RotateChallenge.vue",
+      "expected": "bd2594511300bc45e17fb472d7e30ac95dd499619be27dc5f9abd81a6d9962e6",
+      "accepted_commit_sha256": "bd2594511300bc45e17fb472d7e30ac95dd499619be27dc5f9abd81a6d9962e6",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "expected": "ff4f8706bfd1856bdbdddb2e894f637f4b5f4e225d32aea5b5e8c4146ed70223",
+      "accepted_commit_sha256": "ff4f8706bfd1856bdbdddb2e894f637f4b5f4e225d32aea5b5e8c4146ed70223",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/views/HomeView.vue",
+      "expected": "666bb17e2cc42913f9a9c1a061480cd48add72e5b3d3256e3eca5cdf2eb0273f",
+      "accepted_commit_sha256": "666bb17e2cc42913f9a9c1a061480cd48add72e5b3d3256e3eca5cdf2eb0273f",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "expected": "723e489ea5ad1fb501d573386b3df3b01bbb88aa12f739af62d35693e7fa3c4c",
+      "accepted_commit_sha256": "723e489ea5ad1fb501d573386b3df3b01bbb88aa12f739af62d35693e7fa3c4c",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/App.vue",
+      "expected": "eb2e040336dba0664d58feb308c6d62364f1f9e34b239135730e1daa8446c51d",
+      "accepted_commit_sha256": "eb2e040336dba0664d58feb308c6d62364f1f9e34b239135730e1daa8446c51d",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "expected": "fb2ca02271811398a164ea7500ddb66585d9713b4302abf8694a75ca3653647b",
+      "accepted_commit_sha256": "fb2ca02271811398a164ea7500ddb66585d9713b4302abf8694a75ca3653647b",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/components/layout/AppShell.vue",
+      "expected": "02513aafc6dd78deccf300d7c12a6d0433919bc0baf1c844899ee3cdbf0ff88d",
+      "accepted_commit_sha256": "02513aafc6dd78deccf300d7c12a6d0433919bc0baf1c844899ee3cdbf0ff88d",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/vite.config.ts",
+      "expected": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+      "accepted_commit_sha256": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/package.json",
+      "expected": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "accepted_commit_sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/package-lock.json",
+      "expected": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "accepted_commit_sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/tests/account-client.spec.ts",
+      "expected": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b",
+      "accepted_commit_sha256": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "expected": "084bbdcc66fc15bf560b608a861792d73c9d712bd36f6ad5ca15a6b9aa5ec25c",
+      "accepted_commit_sha256": "084bbdcc66fc15bf560b608a861792d73c9d712bd36f6ad5ca15a6b9aa5ec25c",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "expected": "90c9ef3fe2df6029fcc52ba8e72e78b8f686ea23b14896d0db31cc8ea3916e0d",
+      "accepted_commit_sha256": "90c9ef3fe2df6029fcc52ba8e72e78b8f686ea23b14896d0db31cc8ea3916e0d",
+      "git_show_exit": 0
+    },
+    {
+      "path": "web/src/tests/rotate-challenge.spec.ts",
+      "expected": "0a18ccebb6b6a267dc71696082031a04603c5b2fcd5f4cbb434afa89287bc540",
+      "accepted_commit_sha256": "0a18ccebb6b6a267dc71696082031a04603c5b2fcd5f4cbb434afa89287bc540",
+      "git_show_exit": 0
+    },
+    {
+      "path": "tests/account-captcha-web/authentication.config.js",
+      "expected": "2f2a2921142b53eb4fbb9b103f4e59e06ab1619bb31ccce3e7677aa2d0e410c1",
+      "accepted_commit_sha256": "2f2a2921142b53eb4fbb9b103f4e59e06ab1619bb31ccce3e7677aa2d0e410c1",
+      "git_show_exit": 0
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/authentication.spec.ts",
+      "expected": "a87ba8393cd9702412725a1e41c4333bb7f9d00fa0af8e3a9a9f10841461f169",
+      "accepted_commit_sha256": "a87ba8393cd9702412725a1e41c4333bb7f9d00fa0af8e3a9a9f10841461f169",
+      "git_show_exit": 0
+    },
+    {
+      "path": "tests/account/authentication_web_fixture_test.go",
+      "expected": "95a635c182b81b82b78d97d7574a432c1d0a371a5ae84396bc95d6880a6ea3b7",
+      "accepted_commit_sha256": "95a635c182b81b82b78d97d7574a432c1d0a371a5ae84396bc95d6880a6ea3b7",
+      "git_show_exit": 0
+    },
+    {
+      "path": "tests/account/authentication_web_test.go",
+      "expected": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76",
+      "accepted_commit_sha256": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76",
+      "git_show_exit": 0
+    }
+  ],
+  "remote": "Root reports push and ls-remote equality; this reviewer only checked local Git objects."
+}

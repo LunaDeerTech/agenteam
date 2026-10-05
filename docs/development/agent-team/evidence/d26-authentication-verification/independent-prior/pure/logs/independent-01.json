@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam-d26-pure-v-1z5m6v_m/input/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "vitest.config.mjs",
+    "--configLoader",
+    "native",
+    "--reporter",
+    "verbose",
+    "src/tests/d26-independent.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam-d26-pure-v-1z5m6v_m/input",
+  "selected_env": {
+    "NODE_ENV": "test",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "CI": "1",
+    "TMPDIR": "/workspace/agenteam-d26-pure-v-1z5m6v_m/runtime",
+    "npm_config_offline": "true",
+    "npm_config_ignore_scripts": "true"
+  },
+  "input_manifest_sha256": "33e27059549cd19c6c2e3f2c90f51c0463ece48d4191a6c49bc91d08db3cc715",
+  "started_unix": 1791230580.0570343,
+  "finished_unix": 1791230580.9187984,
+  "exit": 0,
+  "raw_sha256": "58335d1c575aba687f0df0cf7fe8abb0abc0a2b8b45722464f3a33f53aabf00c"
+}

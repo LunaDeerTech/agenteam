@@ -1,0 +1,81 @@
+--- fixture-input-02/tests/account-captcha-web/e2e/authentication.spec.ts
++++ fixture-input-03/tests/account-captcha-web/e2e/authentication.spec.ts
+@@ -16,7 +16,9 @@
+ }
+ async function fillPassword(page: Page, value: string) {
+   try {
+-    await page.getByLabel("密码", { exact: true }).fill(value);
++    const password = page.locator("#login-password");
++    await expect(password).toHaveAccessibleName("密码");
++    await password.fill(value);
+   } catch {
+     throw new Error("private password entry failed");
+   }
+@@ -26,7 +28,10 @@
+   await expect(
+     page.getByRole("heading", { name: "登录", exact: true }),
+   ).toBeFocused();
+-  await expect(page.getByLabel("邮箱", { exact: true })).toBeEditable();
++  await expect(
++    page.getByRole("textbox", { name: "邮箱", exact: true }),
++  ).toBeEditable();
++  await expect(page.locator("#login-password")).toHaveAccessibleName("密码");
+   await expect(page.getByRole("navigation")).toHaveCount(0);
+ }
+ async function identity(page: Page) {
+@@ -48,7 +53,9 @@
+ async function login(page: Page) {
+   await openLogin(page);
+   const material = credentials();
+-  await page.getByLabel("邮箱", { exact: true }).fill(material.email);
++  await page
++    .getByRole("textbox", { name: "邮箱", exact: true })
++    .fill(material.email);
+   await fillPassword(page, material.password);
+   material.password = "";
+   await page.getByRole("button", { name: "登录", exact: true }).click();
+@@ -127,7 +134,8 @@
+   );
+   await page.keyboard.press("Enter");
+   expect((await logout).status()).toBe(204);
+-  await expect(page.getByLabel("密码", { exact: true })).toHaveValue("");
++  await expect(page.locator("#login-password")).toHaveAccessibleName("密码");
++  await expect(page.locator("#login-password")).toHaveValue("");
+   await expect(page.getByLabel("Dashboard")).toHaveCount(0);
+   expect(
+     (await context.cookies()).some((c) => c.name === "agenteam_local_session"),
+@@ -188,7 +196,9 @@
+     });
+     await openLogin(page);
+     const material = credentials();
+-    await page.getByLabel("邮箱", { exact: true }).fill(material.email);
++    await page
++      .getByRole("textbox", { name: "邮箱", exact: true })
++      .fill(material.email);
+     await fillPassword(page, "Wrong-Authentication-Password-93!");
+     await page.getByRole("button", { name: "登录", exact: true }).click();
+     await expect(page.getByRole("alert")).toContainText("邮箱或密码不正确");
+@@ -414,11 +424,11 @@
+   await page.setViewportSize({ width: 390, height: 900 });
+   await openLogin(page);
+   await page
+-    .getByLabel("邮箱", { exact: true })
++    .getByRole("textbox", { name: "邮箱", exact: true })
+     .fill("long-authentication-email-for-layout-check@owned-example.invalid");
+-  await page.getByLabel("邮箱", { exact: true }).focus();
++  await page.getByRole("textbox", { name: "邮箱", exact: true }).focus();
+   await page.keyboard.press("Tab");
+-  await expect(page.getByLabel("密码", { exact: true })).toBeFocused();
++  await expect(page.locator("#login-password")).toBeFocused();
+   await noOverflow(page);
+   const current = await login(page);
+   const renamed = await page.evaluate(async () => {
+@@ -476,7 +486,7 @@
+         process.env.AGENTEAM_AUTH_WEB_IMAGES &&
+         (width === 1440 || width === 390)
+       ) {
+-        await expect(page.getByLabel("密码", { exact: true })).toHaveCount(0);
++        await expect(page.locator("#login-password")).toHaveCount(0);
+         await page.screenshot({
+           path: join(
+             process.env.AGENTEAM_AUTH_WEB_IMAGES,

@@ -1,0 +1,101 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.188.197.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=8bb2d90c0424fd9e9694656c483b935b
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=562784d8dbf19effae794fcd1042c19d
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.201s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.014s [no tests to run]
+=== RUN   TestAccountAuthenticationWebIndependent
+    authentication_independent_test.go:45: 
+        Running 1 test using 1 worker
+        
+        [1A[2K(node:1293747) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K(node:1293747) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+        (Use `node --trace-warnings ...` to show where the warning was created)
+        
+        
+        [1A[2K[1/1] e2e/independent.spec.ts:256:1 › real failed proof focus, fresh same-intent login, and Session-owned logout
+        [1A[2Ke2e/independent.spec.ts:256:1 › real failed proof focus, fresh same-intent login, and Session-owned logout
+        independent passive observation {"stage":"bootstrap","status":200,"cdp":"ok","request_finished":true,"request_failed":false,"finished_at_ms":1050.308651,"failed_at_ms":null,"navigation_delta":3,"clone_ok":true,"clone_bytes":122,"same_response":true}
+        
+        [1A[2Kindependent passive observation {"stage":"required","status":401,"cdp":"ok","request_finished":true,"request_failed":false,"finished_at_ms":1697.119775,"failed_at_ms":null,"navigation_delta":0,"clone_ok":true,"clone_bytes":266,"same_response":true}
+        
+        [1A[2Kindependent passive observation {"stage":"first_create","status":201,"cdp":"ok","request_finished":true,"request_failed":false,"finished_at_ms":2033.671202,"failed_at_ms":null,"navigation_delta":0,"clone_ok":true,"clone_bytes":16803,"same_response":true}
+        
+        [1A[2Kindependent passive observation {"stage":"wrong_verify","status":400,"cdp":"ok","request_finished":true,"request_failed":false,"finished_at_ms":4164.782369,"failed_at_ms":null,"navigation_delta":0,"clone_ok":true,"clone_bytes":267,"same_response":true}
+        
+        [1A[2Kindependent passive observation {"stage":"next_create","status":201,"cdp":"ok","request_finished":true,"request_failed":false,"finished_at_ms":4496.830632,"failed_at_ms":null,"navigation_delta":0,"clone_ok":true,"clone_bytes":16491,"same_response":true}
+        
+        [1A[2Kindependent passive observation {"stage":"correct_verify","status":200,"cdp":"ok","request_finished":true,"request_failed":false,"finished_at_ms":6884.527001,"failed_at_ms":null,"navigation_delta":0,"clone_ok":true,"clone_bytes":91,"same_response":true}
+        
+        [1A[2Kindependent passive observation {"stage":"login","status":200,"cdp":"ok","request_finished":true,"request_failed":false,"finished_at_ms":7254.397116,"failed_at_ms":null,"navigation_delta":0,"clone_ok":true,"clone_bytes":424,"same_response":true}
+        
+        [1A[2Kindependent passive observation {"stage":"session","status":200,"cdp":"ok","request_finished":true,"request_failed":false,"finished_at_ms":7270.604976,"failed_at_ms":null,"navigation_delta":0,"clone_ok":true,"clone_bytes":467,"same_response":true}
+        
+        [1A[2K  1 passed (7.8s)
+        
+    authentication_independent_test.go:87: independent real chain: wrong proof failed; native blur and failure focus; fresh proof consumed; exact intent/pass; Session identity and CSRF bound; logout=true audit=2
+--- PASS: TestAccountAuthenticationWebIndependent (10.99s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	12.035s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.026s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.034s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.025s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.032s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.025s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.013s [no tests to run]
+D03 fixture cleanup checked for nonce 2ffaab16bb49f4933769444d22ef105f
+D04 outbound fixture cleanup checked for nonce 562784d8dbf19effae794fcd1042c19d
+D05 object fixture exact resource cleanup checked nonce=8bb2d90c0424fd9e9694656c483b935b

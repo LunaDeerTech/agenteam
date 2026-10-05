@@ -1,0 +1,63 @@
+{
+  "fixed_manifest_sha256": "0bd7611e421549ef4d13a148b50e04359b3b53845fabfb6a6b597fdddf74eece",
+  "files": [
+    {
+      "path": "input/src/api/client.ts",
+      "source": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/web/src/api/client.ts",
+      "sha256": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad"
+    },
+    {
+      "path": "input/src/api/account.ts",
+      "source": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/web/src/api/account.ts",
+      "sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34"
+    },
+    {
+      "path": "input/src/composables/useSession.ts",
+      "source": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/web/src/composables/useSession.ts",
+      "sha256": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679"
+    },
+    {
+      "path": "input/package.json",
+      "source": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    {
+      "path": "input/package-lock.json",
+      "source": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    {
+      "path": "input/src/composables/useTheme.ts",
+      "argv": [
+        "git",
+        "show",
+        "457b1979c9d6563740543b2011eedc06cce34c71:web/src/composables/useTheme.ts"
+      ],
+      "exit": 0,
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13"
+    },
+    {
+      "path": "input/tsconfig.json",
+      "argv": [
+        "git",
+        "show",
+        "457b1979c9d6563740543b2011eedc06cce34c71:web/tsconfig.json"
+      ],
+      "exit": 0,
+      "sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18"
+    }
+  ],
+  "reused_node_modules": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/web/node_modules",
+  "installed_locked_entries_matched": 146,
+  "installed_lock_sha256": "7379119efe43957a33fb990b2d5725aa42299077bfa20908cd0118af080eeccc",
+  "node_version": {
+    "argv": [
+      "node",
+      "--version"
+    ],
+    "exit": 0,
+    "stdout": "v24.19.0\n",
+    "stderr": ""
+  },
+  "initial_read_note": "A read-only git show for optional web/tsconfig.app.json returned exit128: path absent at fixed baseline; actual web/tsconfig.json is used. No product execution happened in that failed lookup."
+}

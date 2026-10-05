@@ -1,0 +1,48 @@
+{
+  "input": "/workspace/agenteam-d26-independent-v-2wzub6ar/input-v2.json",
+  "input_sha256": "2c110cf32890f54d300c8535113c11a641dcf05908942e0d91cb6f942026417e",
+  "cwd": "/workspace/agenteam-d26-independent-v-2wzub6ar/input",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-d26-auth-author-jrfhr6h1/go-cache",
+    "TMPDIR": "/workspace/agenteam-d26-independent-v-2wzub6ar/tmp",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "DOCKER_CONFIG": "/workspace/agenteam-d26-independent-v-2wzub6ar/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/d26-v-2wzub6ar"
+  },
+  "groups": [
+    {
+      "name": "independent-real-01",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestAccountAuthenticationWebIndependent$"
+      ],
+      "tops": 1,
+      "browser_cases": [
+        "independent failed-proof/focus + same-intent + Session CSRF chain"
+      ]
+    }
+  ],
+  "budgets": {
+    "driver": "original race/count1/6m per package",
+    "go_top": "2m including browser and app shutdown",
+    "playwright": "45s workers1 retries0"
+  },
+  "observer": {
+    "path": "/workspace/agenteam-d26-independent-v-2wzub6ar/observe.py",
+    "sha256": "323da433bf56caaec5d01b5b701266a93d9f1854b04e8ce2322bdaafaf1d7fca",
+    "original_sha256": "9f9e0b562e8d2d678bac073eb3f2d98eafdbc0231e19f09e6120d61dbb00ff05",
+    "delta_path": "/workspace/agenteam-d26-independent-v-2wzub6ar/evidence/observer.delta.patch"
+  },
+  "cleanup": "Original v2 live nonce/labels, 4 containers/3 networks; preserved baseline exact IDs; owned browser PID/starttime and subreaper actual wait; twice exact absence and empty runtime/fixture tmp; no broad kill/removal.",
+  "boundary": "Prepared only; browser/Docker execution requires separate root window. No fake API, delay, commit/network fault, Provider, installation or original source edit. Baseline-linked fixed input05 with exact independent probe only."
+}

@@ -1,0 +1,179 @@
+{
+  "baseline_after": {
+    "containers": {
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c": {
+        "id": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+        "labels": {
+          "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "postgres",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "name": "/agenteam-dev-infra-postgres-1",
+        "running": true
+      },
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e": {
+        "id": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+        "labels": {
+          "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "minio",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "name": "/agenteam-dev-infra-minio-1",
+        "running": true
+      }
+    },
+    "networks": {
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468": {
+        "id": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+        "internal": false,
+        "labels": {
+          "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+          "com.docker.compose.network": "default",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "name": "agenteam-dev-infra_default"
+      },
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96": {
+        "id": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+        "internal": false,
+        "labels": {},
+        "name": "none"
+      },
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed": {
+        "id": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+        "internal": false,
+        "labels": {},
+        "name": "host"
+      },
+      "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5": {
+        "id": "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5",
+        "internal": false,
+        "labels": {},
+        "name": "bridge"
+      }
+    }
+  },
+  "baseline_unchanged": true,
+  "browser_runtime": [],
+  "fixture_tmp": [],
+  "remaining_observed_processes": [],
+  "remaining_owned_browser": [],
+  "resources": {
+    "containers": {
+      "1fa9af6b4d895dd903c7fa57f69e236662c1f27a30f0b196b49f67afe7563ce7": {
+        "absent": true,
+        "argv": [
+          "docker",
+          "inspect",
+          "--format",
+          "{{.Id}}",
+          "1fa9af6b4d895dd903c7fa57f69e236662c1f27a30f0b196b49f67afe7563ce7"
+        ],
+        "exit": 1,
+        "stderr": "Error: No such object: 1fa9af6b4d895dd903c7fa57f69e236662c1f27a30f0b196b49f67afe7563ce7",
+        "stdout": ""
+      },
+      "779be2cce2f5d82bbfd268f494159e2829849446cb983da3e71f0d0202fa6b6d": {
+        "absent": true,
+        "argv": [
+          "docker",
+          "inspect",
+          "--format",
+          "{{.Id}}",
+          "779be2cce2f5d82bbfd268f494159e2829849446cb983da3e71f0d0202fa6b6d"
+        ],
+        "exit": 1,
+        "stderr": "Error: No such object: 779be2cce2f5d82bbfd268f494159e2829849446cb983da3e71f0d0202fa6b6d",
+        "stdout": ""
+      },
+      "e2f36b002aee1e8797a9e829a8728498cee71eea40fe1ad726de4efce1402dd6": {
+        "absent": true,
+        "argv": [
+          "docker",
+          "inspect",
+          "--format",
+          "{{.Id}}",
+          "e2f36b002aee1e8797a9e829a8728498cee71eea40fe1ad726de4efce1402dd6"
+        ],
+        "exit": 1,
+        "stderr": "Error: No such object: e2f36b002aee1e8797a9e829a8728498cee71eea40fe1ad726de4efce1402dd6",
+        "stdout": ""
+      },
+      "e99dc9512aef268190ccbd2f6e1277207ad97a27b2c077dfb23cc5735664a311": {
+        "absent": true,
+        "argv": [
+          "docker",
+          "inspect",
+          "--format",
+          "{{.Id}}",
+          "e99dc9512aef268190ccbd2f6e1277207ad97a27b2c077dfb23cc5735664a311"
+        ],
+        "exit": 1,
+        "stderr": "Error: No such object: e99dc9512aef268190ccbd2f6e1277207ad97a27b2c077dfb23cc5735664a311",
+        "stdout": ""
+      }
+    },
+    "networks": {
+      "09935d9fac974f413941f2114b042e289acbdfcd6e90266c9c77aeefd59578bc": {
+        "absent": true,
+        "argv": [
+          "docker",
+          "network",
+          "inspect",
+          "--format",
+          "{{.Id}}",
+          "09935d9fac974f413941f2114b042e289acbdfcd6e90266c9c77aeefd59578bc"
+        ],
+        "exit": 1,
+        "stderr": "Error response from daemon: network 09935d9fac974f413941f2114b042e289acbdfcd6e90266c9c77aeefd59578bc not found",
+        "stdout": ""
+      },
+      "32f75ff538d465c5a718e5bf4c33c333a4e6f2d824c79ad8e76dac6176b1bb39": {
+        "absent": true,
+        "argv": [
+          "docker",
+          "network",
+          "inspect",
+          "--format",
+          "{{.Id}}",
+          "32f75ff538d465c5a718e5bf4c33c333a4e6f2d824c79ad8e76dac6176b1bb39"
+        ],
+        "exit": 1,
+        "stderr": "Error response from daemon: network 32f75ff538d465c5a718e5bf4c33c333a4e6f2d824c79ad8e76dac6176b1bb39 not found",
+        "stdout": ""
+      },
+      "fcf1591ba4bf5828beaeece6b2e09f70038e0efd5bc3035396ee0d6e4fe727a6": {
+        "absent": true,
+        "argv": [
+          "docker",
+          "network",
+          "inspect",
+          "--format",
+          "{{.Id}}",
+          "fcf1591ba4bf5828beaeece6b2e09f70038e0efd5bc3035396ee0d6e4fe727a6"
+        ],
+        "exit": 1,
+        "stderr": "Error response from daemon: network fcf1591ba4bf5828beaeece6b2e09f70038e0efd5bc3035396ee0d6e4fe727a6 not found",
+        "stdout": ""
+      }
+    }
+  },
+  "time": 1791234307.5500243
+}

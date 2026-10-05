@@ -1,0 +1,61 @@
+--- ui-disabled-focus-red-02/web/src/tests/authentication.spec.ts
++++ ui-review-03/web/src/tests/authentication.spec.ts
+@@ -331,7 +331,7 @@
+     expect(p.auth.state.challenge).toBe(null)
+     expect(p.auth.state.passReady).toBe(false)
+   })
+-  for (const outcome of ['rejected', 'timeout', 'success'])
++  for (const outcome of ['rejected', 'timeout', 'success', 'edited'])
+     it(`hands off focus after disabled controls lose browser focus: ${outcome}`, async () => {
+       const p = await page()
+       p.api.login.mockRejectedValueOnce(fault('CHALLENGE_REQUIRED', 403))
+@@ -343,10 +343,13 @@
+       await flushPromises()
+       expect(document.activeElement?.id).toBe('rotate-angle')
+       let succeed!: () => void, reject!: () => void
+-      p.api.verifyChallenge.mockImplementationOnce(() => new Promise((resolve, fail) => {
+-        succeed = () => resolve({ pass: id + '.' + 'P'.repeat(43) })
+-        reject = () => fail(fault('CHALLENGE_INVALID', 403))
+-      }))
++      p.api.verifyChallenge.mockImplementationOnce(
++        () =>
++          new Promise((resolve, fail) => {
++            succeed = () => resolve({ pass: id + '.' + 'P'.repeat(43) })
++            reject = () => fail(fault('CHALLENGE_INVALID', 403))
++          }),
++      )
+       if (outcome === 'timeout') vi.useFakeTimers()
+       await p.wrapper.get('#rotate-angle').trigger('keydown', { key: 'Enter' })
+       await flushPromises()
+@@ -361,13 +364,28 @@
+       document.body.focus()
+       document.body.removeAttribute('tabindex')
+       expect(document.activeElement === document.body).toBe(true)
+-      if (outcome === 'rejected') reject()
++      if (outcome === 'edited') {
++        const email = p.wrapper.get('#login-email').element as HTMLInputElement
++        email.focus()
++        email.blur()
++        expect(document.activeElement === document.body).toBe(true)
++        reject()
++      } else if (outcome === 'rejected') reject()
+       else if (outcome === 'success') succeed()
+       else await vi.advanceTimersByTimeAsync(30_000)
+       await flushPromises()
+       const target = outcome === 'success' ? 'login' : 'challenge'
+-      expect(document.activeElement === p.wrapper.get(`[data-action="${target}"]`).element).toBe(true)
++      expect(
++        document.activeElement ===
++          (outcome === 'edited'
++            ? document.body
++            : p.wrapper.get(`[data-action="${target}"]`).element),
++      ).toBe(true)
+       expect(p.auth.state.passReady).toBe(outcome === 'success')
+-      if (outcome === 'timeout') { succeed(); await flushPromises(); expect(p.auth.state.passReady).toBe(false) }
++      if (outcome === 'timeout') {
++        succeed()
++        await flushPromises()
++        expect(p.auth.state.passReady).toBe(false)
++      }
+     })
+ })

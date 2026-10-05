@@ -1,0 +1,4122 @@
+--- /dev/null
++++ b/web/src/api/client.ts
+@@ -0,0 +1,207 @@
++export type CommitState = 'not_started' | 'not_committed' | 'committed' | 'unknown'
++export interface Problem {
++  type: string
++  title: string
++  status: number
++  detail: string
++  instance: string
++  code: string
++  request_id: string
++  commit_state: CommitState
++  field_errors?: { path: string; code: string }[]
++  retry_hint?: string
++}
++export type FailureKind =
++  'problem' | 'transport' | 'invalid-response' | 'cancelled' | 'invalid-input' | 'busy'
++
++// No request, raw response, password, token or underlying exception is retained.
++export class AccountFailure extends Error {
++  constructor(
++    readonly kind: FailureKind,
++    readonly problem?: Problem,
++  ) {
++    super(kind)
++    this.name = 'AccountFailure'
++  }
++}
++
++export const uuid7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
++export function object(value: unknown): Record<string, unknown> {
++  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
++    throw new AccountFailure('invalid-response')
++  }
++  return value as Record<string, unknown>
++}
++export function shape(
++  value: unknown,
++  required: readonly string[],
++  optional: readonly string[] = [],
++) {
++  const result = object(value)
++  if (
++    required.some((key) => !Object.hasOwn(result, key)) ||
++    Object.keys(result).some((key) => !required.includes(key) && !optional.includes(key))
++  ) {
++    throw new AccountFailure('invalid-response')
++  }
++  return result
++}
++export function string(value: unknown, minimum: number, maximum: number): string {
++  if (typeof value !== 'string' || [...value].length < minimum || [...value].length > maximum) {
++    throw new AccountFailure('invalid-response')
++  }
++  return value
++}
++
++const endpoints = {
++  bootstrap: ['GET', '/api/v1/auth/bootstrap', 200],
++  session: ['GET', '/api/v1/session', 200],
++  login: ['POST', '/api/v1/sessions/login', 200],
++  logout: ['POST', '/api/v1/sessions/logout', 204],
++  challenge: ['POST', '/api/v1/auth/challenges', 201],
++  verify: ['POST', '/api/v1/auth/challenges/verify', 200],
++} as const
++export type Fetch = (input: string, init: RequestInit) => Promise<Response>
++
++function problem(value: unknown, status: number, requestID: string | null): Problem {
++  const p = shape(
++    value,
++    ['type', 'title', 'status', 'detail', 'instance', 'code', 'request_id', 'commit_state'],
++    ['field_errors', 'retry_hint'],
++  )
++  const fail = () => {
++    throw new AccountFailure('invalid-response')
++  }
++  if (
++    p.status !== status ||
++    ![400, 401, 403, 404, 405, 409, 410, 413, 415, 416, 422, 429, 500, 502, 503].includes(status) ||
++    !/^urn:agenteam:problem:[a-z]+(?:-[a-z]+)*$/.test(string(p.type, 1, 256)) ||
++    !/^\/[^?#]*$/.test(string(p.instance, 1, 2048)) ||
++    !/^[A-Z][A-Z0-9_]*$/.test(string(p.code, 1, 128)) ||
++    !uuid7.test(string(p.request_id, 36, 36)) ||
++    p.request_id !== requestID ||
++    typeof p.commit_state !== 'string' ||
++    !['not_started', 'not_committed', 'committed', 'unknown'].includes(p.commit_state)
++  )
++    fail()
++  const parsed: Problem = {
++    type: p.type as string,
++    title: string(p.title, 0, 1024),
++    status,
++    detail: string(p.detail, 0, 8192),
++    instance: p.instance as string,
++    code: p.code as string,
++    request_id: p.request_id as string,
++    commit_state: p.commit_state as CommitState,
++  }
++  if (p.retry_hint !== undefined) {
++    parsed.retry_hint = string(p.retry_hint, 1, 64)
++    if (!/^[a-z][a-z0-9_]*$/.test(parsed.retry_hint)) fail()
++  }
++  if (p.field_errors !== undefined) {
++    if (
++      !Array.isArray(p.field_errors) ||
++      p.field_errors.length === 0 ||
++      p.field_errors.length > 128
++    )
++      fail()
++    parsed.field_errors = (p.field_errors as unknown[]).map((entry) => {
++      const e = shape(entry, ['path', 'code'])
++      const path = string(e.path, 0, 1024),
++        code = string(e.code, 1, 128)
++      if (!/^(?:\/(?:[^~]|~[01])*)*$/.test(path) || !/^[A-Z][A-Z0-9_]*$/.test(code)) fail()
++      return { path, code }
++    })
++  }
++  return parsed
++}
++
++async function readJSON(response: Response, signal: AbortSignal): Promise<unknown> {
++  const reader = response.body?.getReader()
++  if (!reader) throw new AccountFailure('invalid-response')
++  const decoder = new TextDecoder('utf-8', { fatal: true })
++  let text = '',
++    bytes = 0
++  let cancelled: Promise<void> | undefined
++  const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined))
++  // The listener starts cancellation; the same promise is joined in finally.
++  const abort = () => {
++    void cancel()
++  }
++  signal.addEventListener('abort', abort, { once: true })
++  if (signal.aborted) abort()
++  try {
++    for (;;) {
++      const { done, value } = await reader.read()
++      if (done) break
++      bytes += value.byteLength
++      if (bytes > 600_000) throw new AccountFailure('invalid-response')
++      text += decoder.decode(value, { stream: true })
++    }
++    text += decoder.decode()
++    return JSON.parse(text) as unknown
++  } finally {
++    signal.removeEventListener('abort', abort)
++    await cancel()
++    reader.releaseLock()
++  }
++}
++
++export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
++  return async function request<T>(
++    endpoint: keyof typeof endpoints,
++    parse: (value: unknown) => T,
++    options: { body?: unknown; csrf?: string; key?: string; signal: AbortSignal },
++  ): Promise<T> {
++    const [method, path, status] = endpoints[endpoint]
++    const headers: Record<string, string> = { Accept: 'application/json, application/problem+json' }
++    if (method === 'POST') headers['Content-Type'] = 'application/json'
++    if (options.csrf !== undefined) headers['X-CSRF-Token'] = options.csrf
++    if (options.key !== undefined) headers['Idempotency-Key'] = options.key
++    let response: Response
++    try {
++      response = await fetcher(path, {
++        method,
++        headers,
++        credentials: 'same-origin',
++        cache: 'no-store',
++        redirect: 'error',
++        signal: options.signal,
++        ...(method === 'POST' ? { body: JSON.stringify(options.body) } : {}),
++      })
++    } catch {
++      throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'transport')
++    }
++    try {
++      if (options.signal.aborted) throw new AccountFailure('cancelled')
++      if (response.redirected || response.type === 'opaqueredirect')
++        throw new AccountFailure('invalid-response')
++      if (response.status === 204 && status === 204) return parse(undefined)
++      const contentType = response.headers.get('Content-Type')?.split(';')[0]?.trim().toLowerCase()
++      const success = response.status === status
++      if (contentType !== (success ? 'application/json' : 'application/problem+json'))
++        throw new AccountFailure('invalid-response')
++      let value: unknown
++      try {
++        value = await readJSON(response, options.signal)
++      } catch {
++        throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
++      }
++      if (options.signal.aborted) throw new AccountFailure('cancelled')
++      if (!success)
++        throw new AccountFailure(
++          'problem',
++          problem(value, response.status, response.headers.get('X-Request-ID')),
++        )
++      try {
++        return parse(value)
++      } catch {
++        throw new AccountFailure('invalid-response')
++      }
++    } finally {
++      // Includes aborted/redirected/wrong-media-type responses which never acquired a reader.
++      // The controller may finish its bounded UI wait, but owns us until this actually returns.
++      await response.body?.cancel().catch(() => undefined)
++    }
++  }
++}
+--- /dev/null
++++ b/web/src/api/account.ts
+@@ -0,0 +1,239 @@
++import { AccountFailure, accountTransport, shape, string, uuid7, type Fetch } from './client'
++
++export interface User {
++  id: string
++  email: string
++  username: string
++  display_name: string
++  role: 'admin' | 'user'
++  theme: 'system' | 'light' | 'dark'
++  version: string
++  initial_password_suggestion: boolean
++}
++export interface Session {
++  id: string
++  issued_at: string
++  absolute_expires_at: string
++  idle_expires_at: string
++}
++export interface SessionView {
++  user: User
++  session: Session
++  csrf_token: string
++}
++export interface LoginResult {
++  user: User
++  session: Session
++  next_path: '/'
++}
++export interface Bootstrap {
++  csrf_token: string
++  challenge_modes: ['rotate']
++  delivery_channel: 'smtp' | 'backend_log'
++}
++export interface LoginInput {
++  email: string
++  password: string
++  challenge_pass?: string
++}
++export interface Challenge {
++  id: string
++  mode: 'rotate'
++  master: string
++  thumb: string
++  expires_at: string
++}
++export interface ChallengeInput {
++  mode: 'rotate'
++  email: string
++  login_key: string
++}
++export interface VerifyInput {
++  email: string
++  login_key: string
++  challenge_id: string
++  proof: { angle: number }
++}
++
++function requireValue(condition: boolean) {
++  if (!condition) throw new AccountFailure('invalid-response')
++}
++function id(value: unknown) {
++  const result = string(value, 36, 36)
++  requireValue(uuid7.test(result))
++  return result
++}
++function instant(value: unknown) {
++  const result = string(value, 27, 27)
++  requireValue(
++    /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(result) &&
++      Number.isFinite(Date.parse(result)),
++  )
++  return result
++}
++function csrf(value: unknown) {
++  const result = string(value, 43, 43)
++  requireValue(/^[A-Za-z0-9_-]{43}$/.test(result))
++  return result
++}
++function pass(value: unknown) {
++  const result = string(value, 80, 80)
++  requireValue(/^[\x21-\x7e]{80}$/.test(result))
++  return result
++}
++function email(value: unknown) {
++  const result = string(value, 3, 254)
++  requireValue(/^[\x21-\x7e]+$/.test(result) && /^[^@<>(),;:]+@[^@<>(),;:]+$/.test(result))
++  return result
++}
++function user(value: unknown): User {
++  const u = shape(value, [
++    'id',
++    'email',
++    'username',
++    'display_name',
++    'role',
++    'theme',
++    'version',
++    'initial_password_suggestion',
++  ])
++  requireValue(u.role === 'admin' || u.role === 'user')
++  requireValue(u.theme === 'system' || u.theme === 'light' || u.theme === 'dark')
++  const version = string(u.version, 1, 19)
++  requireValue(/^[1-9][0-9]*$/.test(version) && BigInt(version) <= 9223372036854775807n)
++  const displayName = string(u.display_name, 0, 80)
++  requireValue(
++    !/[\x00-\x1f\x7f]/.test(displayName) && typeof u.initial_password_suggestion === 'boolean',
++  )
++  return {
++    id: id(u.id),
++    email: email(u.email),
++    username: string(u.username, 0, 32),
++    display_name: displayName,
++    role: u.role as User['role'],
++    theme: u.theme as User['theme'],
++    version,
++    initial_password_suggestion: u.initial_password_suggestion as boolean,
++  }
++}
++function session(value: unknown): Session {
++  const s = shape(value, ['id', 'issued_at', 'absolute_expires_at', 'idle_expires_at'])
++  return {
++    id: id(s.id),
++    issued_at: instant(s.issued_at),
++    absolute_expires_at: instant(s.absolute_expires_at),
++    idle_expires_at: instant(s.idle_expires_at),
++  }
++}
++function sessionView(value: unknown): SessionView {
++  const v = shape(value, ['user', 'session', 'csrf_token'])
++  return { user: user(v.user), session: session(v.session), csrf_token: csrf(v.csrf_token) }
++}
++function loginResult(value: unknown): LoginResult {
++  const v = shape(value, ['user', 'session', 'next_path'])
++  requireValue(v.next_path === '/')
++  return { user: user(v.user), session: session(v.session), next_path: '/' }
++}
++function challenge(value: unknown): Challenge {
++  const v = shape(value, ['id', 'mode', 'master', 'thumb', 'expires_at'])
++  requireValue(v.mode === 'rotate')
++  const master = string(v.master, 1, 262144),
++    thumb = string(v.thumb, 1, 262144)
++  requireValue(
++    master.length + thumb.length <= 262144 &&
++      [master, thumb].every((image) => /^data:image\/png;base64,[A-Za-z0-9+/]+={0,2}$/.test(image)),
++  )
++  return { id: id(v.id), mode: 'rotate', master, thumb, expires_at: instant(v.expires_at) }
++}
++function input<T>(validate: () => T): T {
++  try {
++    return validate()
++  } catch {
++    throw new AccountFailure('invalid-input')
++  }
++}
++function key(value: string) {
++  requireValue(/^[A-Za-z0-9._:/-]{1,128}$/.test(value))
++  return value
++}
++function loginInput(value: LoginInput): LoginInput {
++  const password = string(value.password, 15, 128)
++  requireValue(new TextEncoder().encode(password).byteLength <= 512)
++  return {
++    email: email(value.email),
++    password,
++    ...(value.challenge_pass === undefined ? {} : { challenge_pass: pass(value.challenge_pass) }),
++  }
++}
++
++export function createAccountAPI(fetcher?: Fetch) {
++  const request = accountTransport(fetcher)
++  return {
++    bootstrap(signal: AbortSignal): Promise<Bootstrap> {
++      return request(
++        'bootstrap',
++        (value) => {
++          const v = shape(value, ['csrf_token', 'challenge_modes', 'delivery_channel'])
++          requireValue(
++            Array.isArray(v.challenge_modes) &&
++              v.challenge_modes.length === 1 &&
++              v.challenge_modes[0] === 'rotate',
++          )
++          requireValue(v.delivery_channel === 'smtp' || v.delivery_channel === 'backend_log')
++          return {
++            csrf_token: csrf(v.csrf_token),
++            challenge_modes: ['rotate'],
++            delivery_channel: v.delivery_channel as Bootstrap['delivery_channel'],
++          }
++        },
++        { signal },
++      )
++    },
++    getSession(signal: AbortSignal) {
++      return request('session', sessionView, { signal })
++    },
++    login(value: LoginInput, token: string, commandKey: string, signal: AbortSignal) {
++      const options = input(() => ({
++        body: loginInput(value),
++        csrf: csrf(token),
++        key: key(commandKey),
++        signal,
++      }))
++      return request('login', loginResult, options)
++    },
++    logout(token: string, commandKey: string, signal: AbortSignal) {
++      const options = input(() => ({ body: {}, csrf: csrf(token), key: key(commandKey), signal }))
++      return request('logout', () => undefined, options)
++    },
++    createChallenge(value: ChallengeInput, token: string, signal: AbortSignal) {
++      const options = input(() => {
++        requireValue(value.mode === 'rotate')
++        return {
++          body: { mode: 'rotate', email: email(value.email), login_key: key(value.login_key) },
++          csrf: csrf(token),
++          signal,
++        }
++      })
++      return request('challenge', challenge, options)
++    },
++    verifyChallenge(value: VerifyInput, token: string, signal: AbortSignal) {
++      const options = input(() => {
++        requireValue(
++          Number.isInteger(value.proof.angle) && value.proof.angle >= 0 && value.proof.angle <= 360,
++        )
++        return {
++          body: {
++            email: email(value.email),
++            login_key: key(value.login_key),
++            challenge_id: id(value.challenge_id),
++            proof: { angle: value.proof.angle },
++          },
++          csrf: csrf(token),
++          signal,
++        }
++      })
++      return request('verify', (value) => ({ pass: pass(shape(value, ['pass']).pass) }), options)
++    },
++  }
++}
++export type AccountAPI = ReturnType<typeof createAccountAPI>
+--- /dev/null
++++ b/web/src/composables/useSession.ts
+@@ -0,0 +1,566 @@
++import { readonly, shallowReactive } from 'vue'
++import {
++  createAccountAPI,
++  type AccountAPI,
++  type Challenge,
++  type LoginResult,
++  type Session,
++  type SessionView,
++  type User,
++} from '../api/account'
++import { AccountFailure, type Problem } from '../api/client'
++import { useTheme } from './useTheme'
++
++export type SessionPhase =
++  | 'checking'
++  | 'anonymous'
++  | 'authenticating'
++  | 'authenticated'
++  | 'signing-out'
++  | 'uncertain'
++  | 'unavailable'
++interface PublicState {
++  phase: SessionPhase
++  user: User | null
++  session: Session | null
++  busy: boolean
++  challengeBusy: boolean
++  challengeRequired: boolean
++  challenge: Challenge | null
++  passReady: boolean
++  notice: string
++  fields: Record<string, string>
++  canRetryOriginal: boolean
++}
++interface LoginIntent {
++  kind: 'login'
++  key: string
++  browser: number
++  email: string
++  password: string
++  pass?: string
++}
++interface LogoutIntent {
++  kind: 'logout'
++  key: string
++  session: string
++  csrf: string
++}
++type Intent = LoginIntent | LogoutIntent
++type Action = 'restore' | 'login' | 'logout'
++interface Operation {
++  generation: number
++  kind: Action
++  abort: AbortController
++  expired: boolean
++  confirmed: boolean
++  visible: Promise<void>
++}
++
++const unavailableSession = (e: unknown) =>
++  e instanceof AccountFailure &&
++  e.kind === 'problem' &&
++  e.problem?.status === 401 &&
++  ['UNAUTHENTICATED', 'SESSION_REVOKED'].includes(e.problem.code)
++const isUnknown = (e: AccountFailure) =>
++  ['transport', 'cancelled', 'invalid-response'].includes(e.kind) ||
++  e.problem?.commit_state === 'unknown' ||
++  e.problem?.code === 'COMMIT_UNKNOWN' ||
++  e.problem?.code === 'RESOURCE_BUSY'
++
++// Only this controller owns authentication materials and the four Cookie-producing
++// endpoints. Its public state has no token, command key, password or retry body.
++export function createSessionController(api: AccountAPI = createAccountAPI()) {
++  const state = shallowReactive<PublicState>({
++    phase: 'checking',
++    user: null,
++    session: null,
++    busy: false,
++    challengeBusy: false,
++    challengeRequired: false,
++    challenge: null,
++    passReady: false,
++    notice: '',
++    fields: {},
++    canRetryOriginal: false,
++  })
++  let generation = 0,
++    browser = 0,
++    challengeGeneration = 0
++  let anonymousCSRF = '',
++    sessionCSRF = ''
++  let intent: Intent | null = null
++  let expectedSession: LoginResult | null = null
++  let owner: Operation | null = null
++  let challengeAbort: AbortController | null = null
++  const challengeTails = new Set<Promise<void>>()
++  let pending = false
++  const valid = (op: Operation) => generation === op.generation && !op.expired
++  function clearChallenge() {
++    ++challengeGeneration
++    challengeAbort?.abort()
++    challengeAbort = null
++    state.challengeBusy = false
++    state.challenge = null
++    state.passReady = false
++    if (intent?.kind === 'login') delete intent.pass
++  }
++  function clearIdentity() {
++    state.user = null
++    state.session = null
++    sessionCSRF = ''
++    useTheme().setTheme('system')
++  }
++  function forgetIntent() {
++    clearChallenge()
++    intent = null
++    pending = false
++    state.canRetryOriginal = false
++    state.challengeRequired = false
++  }
++  function clearBrowser() {
++    anonymousCSRF = ''
++    ++browser
++  }
++  function canRetry() {
++    return (
++      pending &&
++      !!intent &&
++      (intent.kind === 'login'
++        ? intent.browser === browser && anonymousCSRF !== ''
++        : intent.session === state.session?.id && intent.csrf === sessionCSRF && sessionCSRF !== '')
++    )
++  }
++  function publish(view: SessionView) {
++    state.user = view.user
++    state.session = view.session
++    sessionCSRF = view.csrf_token
++    clearBrowser()
++    forgetIntent()
++    expectedSession = null
++    state.phase = 'authenticated'
++    state.notice = ''
++    state.fields = {}
++    useTheme().setTheme(view.user.theme)
++  }
++  function fields(problem?: Problem) {
++    const result: Record<string, string> = {}
++    for (const field of problem?.field_errors ?? []) {
++      if (field.path === '/email') result.email = '请检查邮箱地址。'
++      if (field.path === '/password') result.password = '密码应为 15–128 个字符，最多 512 字节。'
++    }
++    return result
++  }
++  function failure(op: Operation, error: unknown) {
++    if (!valid(op)) return
++    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
++    state.fields = fields(e.problem)
++    if (op.kind === 'restore' || op.confirmed) {
++      clearIdentity()
++      state.phase = pending ? 'uncertain' : 'unavailable'
++      state.notice = op.confirmed
++        ? '登录响应已接收，但当前会话尚未确认。请检查当前会话。'
++        : '暂时无法确认当前会话，请重试检查。'
++    } else if (isUnknown(e)) {
++      pending = true
++      state.phase = 'uncertain'
++      state.notice = '请求结果尚未确认。可以检查当前会话，或在原上下文中重试原请求。'
++    } else if (pending) {
++      // A later rejected replay is not a negative observation of the earlier write.
++      if (e.problem?.code === 'CSRF_FAILED') {
++        clearBrowser()
++        clearIdentity()
++      }
++      if (op.kind === 'logout' && unavailableSession(e)) clearIdentity()
++      state.phase = 'uncertain'
++      state.notice =
++        '原请求结果仍未确认，当前上下文无法继续该次操作。可以检查当前会话或明确重新建立登录上下文。'
++    } else if (
++      ['CHALLENGE_REQUIRED', 'CHALLENGE_INVALID'].includes(e.problem?.code ?? '') &&
++      op.kind === 'login'
++    ) {
++      clearChallenge()
++      state.phase = 'anonymous'
++      state.challengeRequired = true
++      state.notice = '请完成旋转验证，再继续登录。'
++    } else if (e.problem?.code === 'CSRF_FAILED') {
++      clearBrowser()
++      clearIdentity()
++      forgetIntent()
++      state.phase = 'unavailable'
++      state.notice = '认证上下文已失效，请重新建立登录上下文。'
++    } else if (e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
++      state.phase = 'unavailable'
++      state.notice = '原请求标识与输入不一致。请检查后明确重新建立登录上下文。'
++    } else if (op.kind === 'logout') {
++      if (unavailableSession(e)) {
++        clearIdentity()
++        state.phase = 'unavailable'
++        state.notice = '当前会话不可用，请重新登录。此结果不确认原注销命令是否提交。'
++      } else {
++        state.phase = 'authenticated'
++        state.notice = e.problem?.detail || '退出登录未完成，请重试。'
++      }
++      forgetIntent()
++    } else {
++      forgetIntent()
++      state.phase = 'anonymous'
++      state.notice = unavailableSession(e)
++        ? '邮箱或密码不正确。'
++        : e.kind === 'invalid-input'
++          ? '请检查邮箱和密码格式。密码须保留原输入。'
++          : e.problem?.detail || '登录未完成，请重试。'
++    }
++    state.canRetryOriginal = canRetry()
++  }
++  function run(kind: Action, work: (op: Operation) => Promise<void>): Promise<void> {
++    if (owner) return owner.kind === kind ? owner.visible : Promise.resolve()
++    const op: Operation = {
++      generation: ++generation,
++      kind,
++      abort: new AbortController(),
++      expired: false,
++      confirmed: false,
++      visible: Promise.resolve(),
++    }
++    owner = op
++    state.busy = true
++    state.canRetryOriginal = false
++    let timer: ReturnType<typeof setTimeout>
++    const expired = new Promise<void>((resolve) => {
++      timer = setTimeout(() => {
++        if (valid(op)) {
++          failure(op, new AccountFailure('cancelled'))
++          op.expired = true
++        }
++        op.abort.abort()
++        resolve()
++      }, 30_000)
++    })
++    // Logical timeout can finish the caller's wait, but actual fetch/body completion
++    // still owns this lane. An abort-ignoring transport never frees the Cookie lane.
++    const actual = Promise.resolve()
++      .then(() => (valid(op) ? work(op) : undefined))
++      .catch((e: unknown) => failure(op, e))
++      .finally(() => {
++        clearTimeout(timer)
++        if (owner === op) {
++          owner = null
++          state.busy = false
++          state.canRetryOriginal = canRetry()
++        }
++      })
++    op.visible = Promise.race([actual, expired])
++    return op.visible
++  }
++  async function bootstrap(op: Operation) {
++    const result = await api.bootstrap(op.abort.signal)
++    if (!valid(op)) return
++    ++browser
++    anonymousCSRF = result.csrf_token
++    state.phase = 'anonymous'
++  }
++  function restore() {
++    return run('restore', async (op) => {
++      state.notice = ''
++      state.phase = 'checking'
++      // A restored identity is never displayed while its current authority is unknown.
++      const previous = state.session?.id
++      const previousCSRF = sessionCSRF
++      clearIdentity()
++      try {
++        const result = await api.getSession(op.abort.signal)
++        if (!valid(op)) return
++        if (
++          expectedSession &&
++          (expectedSession.user.id !== result.user.id ||
++            expectedSession.session.id !== result.session.id)
++        ) {
++          state.phase = 'unavailable'
++          state.notice = '当前身份与登录响应不同，请重新检查或建立登录上下文。'
++          return
++        }
++        if (
++          pending &&
++          intent?.kind === 'logout' &&
++          intent.session === result.session.id &&
++          previous === result.session.id &&
++          previousCSRF === result.csrf_token
++        ) {
++          state.user = result.user
++          state.session = result.session
++          sessionCSRF = result.csrf_token
++          state.phase = 'uncertain'
++          state.notice = '当前会话仍可用；原注销结果尚未确认。'
++          return
++        }
++        publish(result)
++      } catch (e) {
++        if (!valid(op)) return
++        if (!unavailableSession(e)) throw e
++        clearIdentity()
++        if (pending || expectedSession) {
++          state.phase = 'uncertain'
++          state.notice = '当前会话不可用；这不证明原请求未提交。'
++          return
++        }
++        forgetIntent()
++        await bootstrap(op)
++      }
++    })
++  }
++  function newKey() {
++    try {
++      return crypto.randomUUID()
++    } catch {
++      throw new AccountFailure('invalid-input')
++    }
++  }
++  function performLogin(original: LoginIntent) {
++    return run('login', async (op) => {
++      state.phase = 'authenticating'
++      state.notice = ''
++      state.fields = {}
++      const result = await api.login(
++        {
++          email: original.email,
++          password: original.password,
++          ...(original.pass === undefined ? {} : { challenge_pass: original.pass }),
++        },
++        anonymousCSRF,
++        original.key,
++        op.abort.signal,
++      )
++      if (!valid(op)) return
++      op.confirmed = true
++      expectedSession = result
++      forgetIntent()
++      clearBrowser()
++      const view = await api.getSession(op.abort.signal)
++      if (!valid(op)) return
++      if (view.user.id !== result.user.id || view.session.id !== result.session.id) {
++        clearIdentity()
++        state.phase = 'unavailable'
++        state.notice = '当前身份与登录响应不同，请重新检查。'
++        return
++      }
++      publish(view)
++    })
++  }
++  function login(email: string, password: string) {
++    if (owner || state.challengeBusy || pending) return Promise.resolve()
++    if (!anonymousCSRF) {
++      state.notice = '请先确认当前登录上下文。'
++      return Promise.resolve()
++    }
++    try {
++      if (!(
++        intent?.kind === 'login' &&
++        intent.browser === browser &&
++        intent.email === email &&
++        intent.password === password &&
++        state.challengeRequired
++      )) {
++        forgetIntent()
++        intent = { kind: 'login', key: newKey(), browser, email, password }
++      }
++      return performLogin(intent as LoginIntent)
++    } catch {
++      forgetIntent()
++      state.notice = '无法安全建立登录请求，请检查浏览器环境。'
++      return Promise.resolve()
++    }
++  }
++  function performLogout(original: LogoutIntent) {
++    return run('logout', async (op) => {
++      state.phase = 'signing-out'
++      state.notice = ''
++      state.fields = {}
++      await api.logout(original.csrf, original.key, op.abort.signal)
++      if (!valid(op)) return
++      clearIdentity()
++      clearBrowser()
++      forgetIntent()
++      expectedSession = null
++      state.phase = 'anonymous'
++      state.notice = '已退出登录。'
++    })
++  }
++  function logout() {
++    if (owner || pending || !state.session || !sessionCSRF) return Promise.resolve()
++    try {
++      intent = { kind: 'logout', key: newKey(), session: state.session.id, csrf: sessionCSRF }
++      return performLogout(intent)
++    } catch {
++      state.notice = '无法安全建立退出请求，请重试。'
++      return Promise.resolve()
++    }
++  }
++  function retryOriginal() {
++    if (owner || !canRetry() || !intent) return Promise.resolve()
++    return intent.kind === 'login' ? performLogin(intent) : performLogout(intent)
++  }
++  function inputChanged() {
++    if (owner || pending) return
++    forgetIntent()
++    state.notice = ''
++    state.fields = {}
++  }
++  function runChallenge<T>(
++    original: LoginIntent,
++    work: (signal: AbortSignal) => Promise<T>,
++    apply: (result: T) => void,
++    notice: string,
++  ) {
++    const captured = generation,
++      revision = challengeGeneration
++    const abort = new AbortController()
++    challengeAbort = abort
++    state.challengeBusy = true
++    const current = () =>
++      captured === generation &&
++      revision === challengeGeneration &&
++      intent === original &&
++      !abort.signal.aborted
++    let timeout: ReturnType<typeof setTimeout>
++    const expired = new Promise<void>((resolve) => {
++      timeout = setTimeout(() => {
++        if (current()) {
++          clearChallenge()
++          state.notice = notice
++        } else abort.abort()
++        resolve()
++      }, 30_000)
++    })
++    const actual = Promise.resolve()
++      .then(async () => {
++        if (!current()) return
++        const result = await work(abort.signal)
++        if (current()) apply(result)
++      })
++      .catch(() => {
++        if (current()) {
++          delete original.pass
++          state.passReady = false
++          state.challenge = null
++          state.notice = notice
++        }
++      })
++      .finally(() => {
++        clearTimeout(timeout)
++        challengeTails.delete(actual)
++        if (current()) {
++          state.challengeBusy = false
++          challengeAbort = null
++        }
++      })
++    // Non-Cookie requests may be logically replaced after timeout. Keep each actual
++    // API/body tail owned independently; stale results/finally cannot modify its successor.
++    challengeTails.add(actual)
++    return Promise.race([actual, expired])
++  }
++  async function createChallenge() {
++    if (
++      owner ||
++      pending ||
++      intent?.kind !== 'login' ||
++      intent.browser !== browser ||
++      !anonymousCSRF
++    )
++      return
++    const original = intent,
++      csrf = anonymousCSRF
++    clearChallenge()
++    await runChallenge(
++      original,
++      (signal) =>
++        api.createChallenge(
++          { mode: 'rotate', email: original.email, login_key: original.key },
++          csrf,
++          signal,
++        ),
++      (result) => {
++        state.challenge = result
++        state.notice = ''
++      },
++      '未取得有效挑战，请明确请求新题。',
++    )
++  }
++  async function verifyChallenge(angle: number) {
++    if (
++      owner ||
++      pending ||
++      state.challengeBusy ||
++      !state.challenge ||
++      intent?.kind !== 'login' ||
++      intent.browser !== browser ||
++      !anonymousCSRF
++    )
++      return
++    const original = intent,
++      question = state.challenge,
++      csrf = anonymousCSRF
++    await runChallenge(
++      original,
++      (signal) =>
++        api.verifyChallenge(
++          {
++            email: original.email,
++            login_key: original.key,
++            challenge_id: question.id,
++            proof: { angle },
++          },
++          csrf,
++          signal,
++        ),
++      (result) => {
++        original.pass = result.pass
++        state.passReady = true
++        state.challenge = null
++        state.notice = '验证已完成，请继续登录。'
++      },
++      '验证未确认，请请求新题。',
++    )
++  }
++  function leave() {
++    ++generation
++    forgetIntent()
++    expectedSession = null
++    clearBrowser()
++    clearIdentity()
++    state.phase = 'checking'
++    state.notice = ''
++    state.fields = {}
++    // The Cookie operation's private captured input remains owned until actual return.
++    // No abort, queue release or automatic opposite mutation occurs on unmount.
++  }
++  function restart() {
++    if (owner) return Promise.resolve()
++    leave()
++    return restore()
++  }
++  function dismissChallenge() {
++    if (owner || pending) return
++    clearChallenge()
++    state.notice = '验证尚未完成。'
++  }
++  return {
++    state: readonly(state),
++    restore,
++    login,
++    logout,
++    retryOriginal,
++    inputChanged,
++    createChallenge,
++    verifyChallenge,
++    dismissChallenge,
++    leave,
++    restart,
++  }
++}
++
++export type SessionController = ReturnType<typeof createSessionController>
++let instance: SessionController | undefined
++export function useSession() {
++  return (instance ??= createSessionController())
++}
+--- /dev/null
++++ b/web/src/components/account/RotateChallenge.vue
+@@ -0,0 +1,176 @@
++<script setup lang="ts">
++import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
++import { Rotate } from 'go-captcha-vue'
++import 'go-captcha-vue/dist/style.css'
++import type { Challenge } from '../../api/account'
++import UiButton from '../ui/UiButton.vue'
++
++const props = defineProps<{ challenge: Challenge; busy: boolean }>()
++const emit = defineEmits<{ verify: [angle: number]; refresh: []; close: [] }>()
++const root = ref<HTMLElement | null>(null)
++const range = ref<HTMLInputElement | null>(null)
++const angle = ref(0)
++// Keep the drag origin stable while the official component reports its angle.
++const keyboardOrigin = ref(0)
++const available = ref(258)
++const width = computed(() => Math.max(80, Math.min(240, available.value - 18)))
++const size = computed(() => Math.min(220, width.value))
++const data = computed(() => ({
++  image: props.challenge.master,
++  thumb: props.challenge.thumb,
++  angle: keyboardOrigin.value,
++  thumbSize: (160 * size.value) / 220,
++}))
++const config = computed(() => ({
++  width: width.value,
++  height: size.value,
++  size: size.value,
++  horizontalPadding: 8,
++  title: '旋转内圈，使图像对齐',
++  showTheme: true,
++}))
++function normalized(value: number) {
++  return Math.max(0, Math.min(360, Math.round(value)))
++}
++function verify(value: number) {
++  if (props.busy || !Number.isFinite(value)) return
++  angle.value = normalized(value)
++  emit('verify', angle.value)
++}
++const events = {
++  rotate(value: number) {
++    if (!props.busy) angle.value = normalized(value)
++  },
++  confirm: verify,
++  refresh() {
++    if (!props.busy) emit('refresh')
++  },
++  close() {
++    if (!props.busy) emit('close')
++  },
++}
++function keyboard(event: Event) {
++  angle.value = normalized(Number((event.target as HTMLInputElement).value))
++  keyboardOrigin.value = angle.value
++}
++let observer: ResizeObserver | undefined
++let focusRequest: { id: string; origin: Element | null } | null = null
++function focusEnabledQuestion() {
++  if (!focusRequest || props.busy || focusRequest.id !== props.challenge.id) return
++  const origin = focusRequest.origin
++  focusRequest = null
++  const active = document.activeElement
++  // A request owns one focus handoff. A user moving to another control or an
++  // editable field cancels it; verification becoming idle is not a new handoff.
++  if (active !== origin && active !== document.body) return
++  if (
++    active?.matches('input,textarea,select,[contenteditable="true"]') &&
++    !root.value?.contains(active)
++  )
++    return
++  range.value?.focus()
++}
++onMounted(() => {
++  if (root.value) {
++    const measured = root.value.getBoundingClientRect().width
++    if (measured > 0) available.value = measured
++    if (typeof ResizeObserver !== 'undefined') {
++      observer = new ResizeObserver((entries) => {
++        if (entries[0]?.contentRect.width) available.value = entries[0].contentRect.width
++      })
++      observer.observe(root.value)
++    }
++  }
++  focusRequest = { id: props.challenge.id, origin: document.activeElement }
++  focusEnabledQuestion()
++})
++watch(
++  () => [props.challenge.id, props.busy] as const,
++  ([id], [previous]) => {
++    if (id !== previous) {
++      angle.value = 0
++      keyboardOrigin.value = 0
++      focusRequest = { id, origin: document.activeElement }
++    }
++    focusEnabledQuestion()
++  },
++  { flush: 'post' },
++)
++onBeforeUnmount(() => {
++  focusRequest = null
++  observer?.disconnect()
++})
++</script>
++
++<template>
++  <section ref="root" class="rotate-challenge" aria-labelledby="rotate-title" :aria-busy="busy">
++    <h2 id="rotate-title">旋转验证</h2>
++    <p id="rotate-help" class="meta">
++      对齐内外图像。可拖动滑块，或用方向键调整角度后验证。判断图像仍需要视觉。
++    </p>
++    <div class="rotate-image" :data-disabled="busy">
++      <Rotate :key="challenge.id" :data="data" :config="config" :events="events" />
++    </div>
++    <label for="rotate-angle">旋转角度</label>
++    <input
++      id="rotate-angle"
++      ref="range"
++      type="range"
++      min="0"
++      max="360"
++      step="1"
++      :value="angle"
++      :disabled="busy"
++      :aria-valuetext="`${angle} 度`"
++      aria-describedby="rotate-help"
++      @input="keyboard"
++      @keydown.enter.prevent="verify(angle)"
++    />
++    <output for="rotate-angle" data-testid="rotate-angle">{{ angle }}°</output>
++    <div class="ui-row">
++      <UiButton :disabled="busy" @click="verify(angle)">验证角度</UiButton>
++      <UiButton :disabled="busy" @click="emit('refresh')">换一题</UiButton>
++      <UiButton variant="ghost" :disabled="busy" @click="emit('close')">关闭验证</UiButton>
++    </div>
++  </section>
++</template>
++
++<style scoped>
++.rotate-challenge {
++  display: grid;
++  gap: 10px;
++  min-width: 0;
++  width: 100%;
++  padding-block: 12px;
++}
++.rotate-challenge input {
++  width: 100%;
++  min-width: 0;
++}
++.rotate-image {
++  min-width: 0;
++  max-width: 100%;
++}
++.rotate-image[data-disabled='true'] {
++  pointer-events: none;
++  opacity: 0.65;
++}
++.rotate-image :deep(.gc-icon-block) {
++  display: none;
++}
++.rotate-image :deep(.gc-theme) {
++  background: var(--surface);
++  border-color: var(--border);
++  color: var(--text);
++}
++.rotate-image :deep(.gc-header) {
++  color: var(--text);
++  font-family: var(--font-sans);
++}
++@media (prefers-reduced-motion: reduce) {
++  .rotate-image :deep(*) {
++    transition: none !important;
++    animation: none !important;
++  }
++}
++</style>
+--- /dev/null
++++ b/web/src/views/auth/LoginView.vue
+@@ -0,0 +1,281 @@
++<script setup lang="ts">
++import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
++import { useRouter } from 'vue-router'
++import { useSession } from '../../composables/useSession'
++import UiButton from '../../components/ui/UiButton.vue'
++import UiInput from '../../components/ui/UiInput.vue'
++import UiField from '../../components/ui/UiField.vue'
++import UiState from '../../components/ui/UiState.vue'
++import RotateChallenge from '../../components/account/RotateChallenge.vue'
++
++const auth = useSession(),
++  state = auth.state,
++  router = useRouter()
++const email = ref(''),
++  password = ref('')
++const heading = ref<HTMLElement | null>(null),
++  form = ref<HTMLFormElement | null>(null)
++const inputLocked = computed(() => state.busy || state.challengeBusy || state.phase === 'uncertain')
++const showForm = computed(() => ['anonymous', 'authenticating', 'uncertain'].includes(state.phase))
++let navigating = false
++let clearingForm = false
++function clearForm() {
++  clearingForm = true
++  email.value = ''
++  password.value = ''
++  clearingForm = false
++}
++watch(
++  [email, password],
++  () => {
++    if (!clearingForm) auth.inputChanged()
++  },
++  { flush: 'sync' },
++)
++let challengeFocus: { id: string; action: 'login' | 'create' } | null = null
++let verificationFocus: string | null = null
++function focusedChallenge() {
++  return form.value?.querySelector('.rotate-challenge')?.contains(document.activeElement) ?? false
++}
++function focusMoved(event: FocusEvent) {
++  if (event.target !== document.body && !focusedChallenge()) {
++    verificationFocus = null
++    challengeFocus = null
++  }
++}
++function pointerStarted(event: PointerEvent) {
++  const question = state.challenge
++  const panel = form.value?.querySelector('.rotate-challenge')
++  if (!(event.target instanceof Element) || !panel?.contains(event.target)) {
++    verificationFocus = null
++    challengeFocus = null
++    return
++  }
++  // The official drag handle is not focusable. Own this question's actual
++  // pointer intent before the browser can move focus to the body.
++  if (
++    question &&
++    !state.busy &&
++    !state.challengeBusy &&
++    event.isPrimary &&
++    event.button === 0 &&
++    event.target.closest('.gc-drag-block')
++  )
++    verificationFocus = question.id
++}
++watch(
++  () => [state.challenge, state.challengeBusy, state.passReady] as const,
++  async ([question, busy, passed], [previous, wasBusy]) => {
++    if (question) {
++      challengeFocus = null
++      if (question !== previous) verificationFocus = null
++      // This pre-flush runs before the child disables the focused control.
++      if (busy && !wasBusy && focusedChallenge()) verificationFocus = question.id
++    } else if (previous) {
++      const ownedFocus =
++        focusedChallenge() ||
++        (verificationFocus === previous.id && document.activeElement === document.body)
++      challengeFocus = ownedFocus ? { id: previous.id, action: passed ? 'login' : 'create' } : null
++      verificationFocus = null
++    }
++    if (busy || !challengeFocus) return
++    const target = challengeFocus
++    await nextTick()
++    if (challengeFocus !== target || state.challenge || state.challengeBusy) return
++    challengeFocus = null
++    if (document.activeElement === document.body)
++      form.value
++        ?.querySelector<HTMLButtonElement>(
++          target.action === 'login' ? '[data-action="login"]' : '[data-action="challenge"]',
++        )
++        ?.focus()
++  },
++  { flush: 'pre' },
++)
++watch(
++  () => [state.phase, state.busy, state.canRetryOriginal] as const,
++  async ([phase, busy, retryable]) => {
++    if (phase === 'unavailable' || (phase === 'uncertain' && !busy && !retryable)) clearForm()
++    if (phase === 'authenticated' && !busy && !navigating) {
++      navigating = true
++      clearForm()
++      try {
++        await router.replace('/')
++      } finally {
++        navigating = false
++      }
++    }
++  },
++)
++async function login() {
++  await auth.login(email.value, password.value)
++}
++async function refreshChallenge() {
++  await auth.createChallenge()
++}
++async function restart() {
++  if (state.busy) return
++  clearForm()
++  await auth.restart()
++}
++async function closeChallenge() {
++  auth.dismissChallenge()
++  await nextTick()
++  form.value?.querySelector<HTMLButtonElement>('[data-action="challenge"]')?.focus()
++}
++onMounted(() => {
++  document.addEventListener('focusin', focusMoved)
++  document.addEventListener('pointerdown', pointerStarted, true)
++  heading.value?.focus()
++})
++onUnmounted(() => {
++  document.removeEventListener('focusin', focusMoved)
++  document.removeEventListener('pointerdown', pointerStarted, true)
++  verificationFocus = null
++  challengeFocus = null
++  clearForm()
++  if (state.phase !== 'authenticated') auth.leave()
++})
++</script>
++
++<template>
++  <main id="main-content" class="account-entry">
++    <section class="login-panel" aria-labelledby="login-title">
++      <RouterLink class="brand login-brand" to="/" aria-label="agenteam 入口"
++        ><span class="brand-mark" aria-hidden="true">a</span>agenteam</RouterLink
++      >
++      <h1 id="login-title" ref="heading" tabindex="-1">登录</h1>
++      <p class="login-description">使用邮箱和密码继续。</p>
++      <UiState
++        v-if="state.phase === 'checking'"
++        :kind="state.busy ? 'loading' : 'error'"
++        :title="state.busy ? '正在确认会话' : '请重新确认当前会话'"
++      >
++        <UiButton v-if="!state.busy" @click="auth.restore">检查当前会话</UiButton>
++      </UiState>
++      <form v-if="showForm" ref="form" class="ui-stack" @submit.prevent="login">
++        <UiField v-slot="field" label="邮箱" id="login-email" :error="state.fields.email" required>
++          <UiInput
++            :id="field.id"
++            v-model="email"
++            name="email"
++            type="email"
++            autocomplete="username"
++            required
++            :readonly="inputLocked"
++            :invalid="field.invalid"
++            :aria-describedby="field.describedby"
++          />
++        </UiField>
++        <UiField
++          v-slot="field"
++          label="密码"
++          id="login-password"
++          :error="state.fields.password"
++          required
++        >
++          <UiInput
++            :id="field.id"
++            v-model="password"
++            name="password"
++            type="password"
++            autocomplete="current-password"
++            required
++            :readonly="inputLocked"
++            :invalid="field.invalid"
++            :aria-describedby="field.describedby"
++          />
++        </UiField>
++        <RotateChallenge
++          v-if="state.challenge"
++          :challenge="state.challenge"
++          :busy="state.challengeBusy"
++          @verify="auth.verifyChallenge"
++          @refresh="refreshChallenge"
++          @close="closeChallenge"
++        />
++        <UiButton
++          v-if="state.challengeRequired && !state.challenge && !state.passReady"
++          data-action="challenge"
++          :state="state.challengeBusy ? 'loading' : 'idle'"
++          :disabled="state.busy || state.phase === 'uncertain'"
++          @click="refreshChallenge"
++          >开始旋转验证</UiButton
++        >
++        <UiButton
++          variant="primary"
++          type="submit"
++          data-action="login"
++          :state="state.phase === 'authenticating' ? 'loading' : 'idle'"
++          :disabled="
++            state.busy ||
++            state.challengeBusy ||
++            state.phase === 'uncertain' ||
++            (state.challengeRequired && !state.passReady)
++          "
++          >登录</UiButton
++        >
++      </form>
++      <p v-if="state.notice" role="alert" class="account-notice">{{ state.notice }}</p>
++      <div
++        v-if="state.phase === 'uncertain' || state.phase === 'unavailable'"
++        class="recovery-actions"
++      >
++        <UiButton :disabled="state.busy" @click="auth.restore">检查当前会话</UiButton>
++        <UiButton v-if="state.canRetryOriginal" :disabled="state.busy" @click="auth.retryOriginal"
++          >重试原请求</UiButton
++        >
++        <UiButton variant="ghost" :disabled="state.busy" @click="restart"
++          >放弃原请求，重新开始</UiButton
++        >
++      </div>
++    </section>
++  </main>
++</template>
++
++<style scoped>
++.account-entry {
++  min-height: 100dvh;
++  padding: 32px 16px;
++  display: grid;
++  place-items: center;
++}
++.login-panel {
++  width: min(100%, 400px);
++  min-width: 0;
++  padding: 28px;
++  border: 1px solid var(--border);
++  border-radius: var(--radius-lg);
++  background: var(--surface);
++  box-shadow: var(--panel-shadow);
++  display: grid;
++  gap: 20px;
++}
++.login-brand {
++  justify-self: start;
++}
++.login-description {
++  color: var(--muted);
++}
++.account-notice {
++  overflow-wrap: anywhere;
++}
++.recovery-actions {
++  display: flex;
++  gap: 8px;
++  flex-wrap: wrap;
++}
++@media (max-width: 450px) {
++  .login-panel {
++    padding: 20px;
++  }
++}
++@media (max-width: 280px) {
++  .account-entry {
++    padding-inline: 8px;
++  }
++  .login-panel {
++    padding: 12px;
++  }
++}
++</style>
+--- /dev/null
++++ b/web/src/views/HomeView.vue
+@@ -0,0 +1,27 @@
++<script setup lang="ts">
++import { onMounted, ref } from 'vue'
++import { useSession } from '../composables/useSession'
++const state = useSession().state
++const heading = ref<HTMLElement | null>(null)
++onMounted(() => heading.value?.focus())
++</script>
++<template>
++  <div class="home-view">
++    <h1 ref="heading" tabindex="-1">首页</h1>
++    <p v-if="state.user?.initial_password_suggestion" class="meta">
++      你正在使用初始密码。建议之后更换为自己的密码。
++    </p>
++    <section aria-label="Dashboard" class="dashboard" />
++  </div>
++</template>
++<style scoped>
++.home-view {
++  padding: var(--space);
++  display: grid;
++  gap: var(--content-gap);
++  min-width: 0;
++}
++.dashboard {
++  min-height: 200px;
++}
++</style>
+--- /dev/null
++++ b/web/src/router/auth.ts
+@@ -0,0 +1,23 @@
++import type { Router } from 'vue-router'
++import { useSession, type SessionController } from '../composables/useSession'
++
++// Only the currently implemented, protected homepage is a return destination.
++export function safeReturnTarget(value: unknown): '/' {
++  return value === '/' ? value : '/'
++}
++
++export function installAuthentication(router: Router, auth: SessionController = useSession()) {
++  router.beforeEach(async (to) => {
++    if (!to.meta.authentication) return true
++    await auth.restore()
++    if (to.meta.protected && auth.state.phase !== 'authenticated') {
++      return { name: 'login', query: { return: '/' }, replace: true }
++    }
++    if (to.name === 'login' && auth.state.phase === 'authenticated')
++      return safeReturnTarget(to.query.return)
++    return true
++  })
++  router.afterEach((to, from, failure) => {
++    if (!failure && from.meta.authentication && !to.meta.authentication) auth.leave()
++  })
++}
+--- a/web/src/App.vue
++++ b/web/src/App.vue
+@@ -1,6 +1,110 @@
+ <script setup lang="ts">
++import { onMounted, onUnmounted, watch } from 'vue'
++import { useRoute, useRouter } from 'vue-router'
+ import AppShell from './components/layout/AppShell.vue'
++import UiButton from './components/ui/UiButton.vue'
++import UiState from './components/ui/UiState.vue'
++import { useSession } from './composables/useSession'
++const auth = useSession(),
++  state = auth.state,
++  route = useRoute(),
++  router = useRouter()
++async function refreshVisible() {
++  if (document.visibilityState === 'hidden' || !route.meta.authentication || state.busy) return
++  await auth.restore()
++}
++let navigating = false
++watch(
++  () => [state.phase, state.busy] as const,
++  async ([phase, busy]) => {
++    if (phase === 'anonymous' && !busy && route.meta.protected && !navigating) {
++      navigating = true
++      try {
++        await router.replace('/login')
++      } finally {
++        navigating = false
++      }
++    }
++  },
++)
++onMounted(() => {
++  document.addEventListener('visibilitychange', refreshVisible)
++  window.addEventListener('pageshow', refreshVisible)
++})
++onUnmounted(() => {
++  document.removeEventListener('visibilitychange', refreshVisible)
++  window.removeEventListener('pageshow', refreshVisible)
++  auth.leave()
++})
+ </script>
+ <template>
+-  <AppShell><RouterView /></AppShell>
++  <AppShell v-if="route.meta.protected" class="authentication-shell">
++    <template #account>
++      <div class="account-actions">
++        <span
++          v-if="state.user"
++          class="account-name"
++          :title="state.user.display_name || state.user.email"
++          >{{ state.user.display_name || state.user.email }}</span
++        >
++        <UiButton
++          v-if="state.phase === 'authenticated' || state.phase === 'signing-out'"
++          variant="ghost"
++          :state="state.phase === 'signing-out' ? 'loading' : 'idle'"
++          :disabled="state.busy"
++          @click="auth.logout"
++          >退出登录</UiButton
++        >
++      </div>
++    </template>
++    <RouterView v-if="state.phase === 'authenticated'" />
++    <div v-else class="session-check">
++      <UiState
++        :kind="state.busy ? 'loading' : 'error'"
++        :title="state.busy ? '正在确认会话' : '会话尚未确认'"
++        :description="state.notice"
++      >
++        <div class="ui-row">
++          <UiButton :disabled="state.busy" @click="auth.restore">检查当前会话</UiButton>
++          <UiButton v-if="state.canRetryOriginal" :disabled="state.busy" @click="auth.retryOriginal"
++            >重试原请求</UiButton
++          >
++          <UiButton variant="ghost" :disabled="state.busy" @click="auth.restart"
++            >放弃原请求，重新开始</UiButton
++          >
++        </div>
++      </UiState>
++    </div>
++  </AppShell>
++  <RouterView v-else />
+ </template>
++<style scoped>
++.authentication-shell :deep(.system-nav) {
++  flex-wrap: wrap;
++  row-gap: 6px;
++  padding-block: 6px;
++}
++.account-actions {
++  display: flex;
++  align-items: center;
++  gap: 10px;
++  margin-inline-start: auto;
++  min-width: 0;
++  max-width: 100%;
++}
++.account-name {
++  min-width: 0;
++  overflow: hidden;
++  text-overflow: ellipsis;
++  white-space: nowrap;
++  max-width: 32ch;
++}
++.session-check {
++  padding: var(--space);
++}
++@media (max-width: 450px) {
++  .account-name {
++    max-width: 12ch;
++  }
++}
++</style>
+--- a/web/src/router/index.ts
++++ b/web/src/router/index.ts
+@@ -1,26 +1,36 @@
+ import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+-import EmptyView from '../views/EmptyView.vue'
++import HomeView from '../views/HomeView.vue'
++import LoginView from '../views/auth/LoginView.vue'
+ import NotFoundView from '../views/NotFoundView.vue'
++import { installAuthentication } from './auth'
+ export const pages: RouteRecordRaw[] = import.meta.env.DEV
+   ? [
+       {
+         path: '/debug',
+         name: 'debug',
+         component: () => import('../views/debug/DebugView.vue'),
+-        meta: { navigation: { label: 'Debug', order: 0 } },
+       },
+     ]
+   : []
+ export const router = createRouter({
+   history: createWebHistory(import.meta.env.BASE_URL),
+   routes: [
+-    { path: '/', ...(import.meta.env.DEV ? { redirect: '/debug' } : { component: EmptyView }) },
++    {
++      path: '/',
++      name: 'home',
++      component: HomeView,
++      meta: { authentication: true, protected: true },
++    },
++    { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+     ...pages,
+     { path: '/:pathMatch(.*)*', component: NotFoundView },
+   ],
+ })
++installAuthentication(router)
+ declare module 'vue-router' {
+   interface RouteMeta {
+     navigation?: { label: string; order: number }
++    authentication?: boolean
++    protected?: boolean
+   }
+ }
+--- a/web/src/components/layout/AppShell.vue
++++ b/web/src/components/layout/AppShell.vue
+@@ -3,7 +3,8 @@
+ </script>
+ <template>
+   <div class="app-shell">
+-    <a class="skip-link" href="#main-content">跳转到内容</a><SystemNav />
++    <a class="skip-link" href="#main-content">跳转到内容</a
++    ><SystemNav><slot name="account" /></SystemNav>
+     <main id="main-content" tabindex="-1" class="app-content"><slot /></main>
+   </div>
+ </template>
+--- a/web/vite.config.ts
++++ b/web/vite.config.ts
+@@ -1,6 +1,32 @@
+ import { defineConfig } from 'vitest/config'
+ import vue from '@vitejs/plugin-vue'
+-export default defineConfig({
+-  plugins: [vue()],
+-  test: { environment: 'jsdom', include: ['src/tests/**/*.spec.ts'], restoreMocks: true },
++export default defineConfig(({ command }) => {
++  const value = command === 'serve' ? process.env.AGENTEAM_DEV_API_TARGET : undefined
++  let target: string | undefined
++  if (value) {
++    const url = new URL(value)
++    if (
++      url.protocol !== 'http:' ||
++      !['127.0.0.1', '[::1]', 'localhost'].includes(url.hostname) ||
++      !url.port ||
++      url.username ||
++      url.password ||
++      url.search ||
++      url.hash ||
++      url.pathname !== '/'
++    ) {
++      throw new Error('AGENTEAM_DEV_API_TARGET must be an owned loopback HTTP origin')
++    }
++    target = url.origin
++  }
++  return {
++    plugins: [vue()],
++    server: {
++      host: '127.0.0.1',
++      port: 5173,
++      strictPort: true,
++      ...(target ? { proxy: { '/api/v1': { target, changeOrigin: false, ws: false } } } : {}),
++    },
++    test: { environment: 'jsdom', include: ['src/tests/**/*.spec.ts'], restoreMocks: true },
++  }
+ })
+--- a/web/package.json
++++ b/web/package.json
+@@ -19,7 +19,8 @@
+   "dependencies": {
+     "vue": "^3.5.0",
+     "vue-router": "^4.6.0",
+-    "@floating-ui/vue": "^1.1.0"
++    "@floating-ui/vue": "^1.1.0",
++    "go-captcha-vue": "2.0.7"
+   },
+   "devDependencies": {
+     "vite": "^8.0.0",
+--- a/web/package-lock.json
++++ b/web/package-lock.json
+@@ -9,6 +9,7 @@
+       "version": "0.0.0",
+       "dependencies": {
+         "@floating-ui/vue": "^1.1.0",
++        "go-captcha-vue": "2.0.7",
+         "vue": "^3.5.0",
+         "vue-router": "^4.6.0"
+       },
+@@ -1296,6 +1297,15 @@
+       },
+       "funding": {
+         "url": "https://github.com/sponsors/isaacs"
++      }
++    },
++    "node_modules/go-captcha-vue": {
++      "version": "2.0.7",
++      "resolved": "https://registry.npmjs.org/go-captcha-vue/-/go-captcha-vue-2.0.7.tgz",
++      "integrity": "sha512-ynlb/6CJiMdsqKe+79lIVpTsNXQTgOHDJ7BH+Gx6EZQZyHSwuyLZvQwjz9vQOYhyHpREW9tapBo8ZOTyVzIQew==",
++      "license": "MIT",
++      "peerDependencies": {
++        "vue": ">=3"
+       }
+     },
+     "node_modules/html-encoding-sniffer": {
+--- /dev/null
++++ b/web/src/tests/account-client.spec.ts
+@@ -0,0 +1,234 @@
++import { describe, expect, it, vi } from 'vitest'
++import { createAccountAPI } from '../api/account'
++import { AccountFailure } from '../api/client'
++
++const id = '01900000-0000-7000-8000-000000000001'
++const instant = '2026-10-05T12:34:56.123456Z'
++const token = 'A'.repeat(43)
++const pass = `${id}.${'B'.repeat(43)}`
++const user = {
++  id,
++  email: 'person@example.com',
++  username: '',
++  display_name: '',
++  role: 'user',
++  theme: 'system',
++  version: '9223372036854775807',
++  initial_password_suggestion: false,
++}
++const session = { id, issued_at: instant, absolute_expires_at: instant, idle_expires_at: instant }
++const controller = () => new AbortController()
++const response = (body: unknown, status = 200, contentType = 'application/json') =>
++  new Response(status === 204 ? null : JSON.stringify(body), {
++    status,
++    headers: { 'Content-Type': contentType, 'X-Request-ID': id },
++  })
++
++describe('the six Account wire contracts', () => {
++  it.each([[['unknown']], [{}], [null], [1]])(
++    'rejects non-string commit_state without converting it',
++    async (commit_state) => {
++      const malformed = {
++        type: 'urn:agenteam:problem:dependency-unavailable',
++        title: 'Unavailable',
++        status: 503,
++        detail: 'safe error',
++        instance: '/api/v1/sessions/login',
++        code: 'DEPENDENCY_UNAVAILABLE',
++        request_id: id,
++        commit_state,
++      }
++      const api = createAccountAPI(async () => response(malformed, 503, 'application/problem+json'))
++      await expect(api.getSession(controller().signal)).rejects.toMatchObject({
++        kind: 'invalid-response',
++        problem: undefined,
++      })
++    },
++  )
++  it('uses only relative exact paths, separate tokens, original input and the declared status/body', async () => {
++    const replies = [
++      response({ csrf_token: token, challenge_modes: ['rotate'], delivery_channel: 'backend_log' }),
++      response({ user, session, csrf_token: 'C'.repeat(43) }),
++      response({ user, session, next_path: '/' }),
++      response(null, 204),
++      response(
++        {
++          id,
++          mode: 'rotate',
++          master: 'data:image/png;base64,AA==',
++          thumb: 'data:image/png;base64,AA==',
++          expires_at: instant,
++        },
++        201,
++      ),
++      response({ pass }),
++    ]
++    const fetcher = vi.fn(async () => replies.shift()!)
++    const api = createAccountAPI(fetcher),
++      signal = controller().signal
++    await api.bootstrap(signal)
++    const view = await api.getSession(signal)
++    const password = '  Original 密码 12345  '
++    await api.login(
++      { email: user.email, password, challenge_pass: pass },
++      token,
++      'login:key-1',
++      signal,
++    )
++    await api.logout(view.csrf_token, 'logout:key-2', signal)
++    await api.createChallenge(
++      { mode: 'rotate', email: user.email, login_key: 'login:key-1' },
++      token,
++      signal,
++    )
++    expect(
++      (
++        await api.verifyChallenge(
++          { email: user.email, login_key: 'login:key-1', challenge_id: id, proof: { angle: 360 } },
++          token,
++          signal,
++        )
++      ).pass,
++    ).toBe(pass)
++    expect(view.user.version).toBe('9223372036854775807')
++    const calls = fetcher.mock.calls as unknown as [string, RequestInit][]
++    expect(calls.map(([url, init]) => [url, init.method])).toEqual([
++      ['/api/v1/auth/bootstrap', 'GET'],
++      ['/api/v1/session', 'GET'],
++      ['/api/v1/sessions/login', 'POST'],
++      ['/api/v1/sessions/logout', 'POST'],
++      ['/api/v1/auth/challenges', 'POST'],
++      ['/api/v1/auth/challenges/verify', 'POST'],
++    ])
++    for (const [, init] of calls)
++      expect(init).toMatchObject({
++        credentials: 'same-origin',
++        cache: 'no-store',
++        redirect: 'error',
++        signal,
++      })
++    expect(calls[0][1].body).toBeUndefined()
++    expect(calls[1][1].body).toBeUndefined()
++    expect(JSON.parse(calls[2][1].body as string)).toEqual({
++      email: user.email,
++      password,
++      challenge_pass: pass,
++    })
++    expect(calls[2][1].headers).toMatchObject({
++      'X-CSRF-Token': token,
++      'Idempotency-Key': 'login:key-1',
++    })
++    expect(calls[3][1].headers).toMatchObject({ 'X-CSRF-Token': 'C'.repeat(43) })
++    expect(calls[3][1].body).toBe('{}')
++    for (const n of [4, 5]) expect(calls[n][1].headers).not.toHaveProperty('Idempotency-Key')
++  })
++  it.each([43, 79, 81])(
++    'rejects a %i-character pass on both boundaries without transmitting invalid input',
++    async (length) => {
++      const fetcher = vi.fn(async () => response({ pass: 'X'.repeat(length) }))
++      const api = createAccountAPI(fetcher),
++        signal = controller().signal
++      await expect(
++        api.verifyChallenge(
++          { email: user.email, login_key: 'key', challenge_id: id, proof: { angle: 0 } },
++          token,
++          signal,
++        ),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++      expect(() =>
++        api.login(
++          {
++            email: user.email,
++            password: 'OriginalPassword123',
++            challenge_pass: 'X'.repeat(length),
++          },
++          token,
++          'key',
++          signal,
++        ),
++      ).toThrow(AccountFailure)
++      expect(fetcher).toHaveBeenCalledTimes(1)
++    },
++  )
++  it('accepts the same opaque 80-character pass, while keeping CSRF exactly 43', async () => {
++    const fetcher = vi.fn(async () => response({ user, session, next_path: '/' }))
++    const api = createAccountAPI(fetcher),
++      signal = controller().signal
++    await api.login(
++      { email: user.email, password: 'OriginalPassword123', challenge_pass: pass },
++      token,
++      'key',
++      signal,
++    )
++    expect(() => api.logout(pass, 'key', signal)).toThrow(AccountFailure)
++    expect(fetcher).toHaveBeenCalledTimes(1)
++  })
++  it.each([
++    { ...user, version: 9223372036854775807 },
++    { ...user, version: '9223372036854775808' },
++    { ...user, role: 'owner' },
++    { ...user, id: 'not-an-id' },
++  ])('refuses malformed complete session facts', async (badUser) => {
++    const api = createAccountAPI(async () =>
++      response({ user: badUser, session, csrf_token: token }),
++    )
++    await expect(api.getSession(controller().signal)).rejects.toMatchObject({
++      kind: 'invalid-response',
++    })
++  })
++  it('rejects off-origin puzzle images and excess combined image material', async () => {
++    for (const master of [
++      'https://example.com/image.png',
++      'data:image/png;base64,' + 'A'.repeat(262140),
++    ]) {
++      const api = createAccountAPI(async () =>
++        response(
++          { id, mode: 'rotate', master, thumb: 'data:image/png;base64,AA==', expires_at: instant },
++          201,
++        ),
++      )
++      await expect(
++        api.createChallenge(
++          { mode: 'rotate', email: user.email, login_key: 'key' },
++          token,
++          controller().signal,
++        ),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++    }
++  })
++  it('keeps a safe Problem separate from malformed, transport and cancellation failures', async () => {
++    const problem = {
++      type: 'urn:agenteam:problem:commit-unknown',
++      title: 'Unknown',
++      status: 503,
++      detail: '结果未确认',
++      instance: '/api/v1/sessions/login',
++      code: 'COMMIT_UNKNOWN',
++      request_id: id,
++      commit_state: 'unknown',
++      retry_hint: 'lookup',
++      field_errors: [{ path: '/email', code: 'INVALID_ARGUMENT' }],
++    }
++    const api = createAccountAPI(async () => response(problem, 503, 'application/problem+json'))
++    await expect(api.getSession(controller().signal)).rejects.toMatchObject({
++      kind: 'problem',
++      problem,
++    })
++    await expect(
++      createAccountAPI(async () => response('<secret>', 503, 'text/html')).getSession(
++        controller().signal,
++      ),
++    ).rejects.toMatchObject({ kind: 'invalid-response', problem: undefined })
++    const rejected = createAccountAPI(async () => {
++      throw new Error('must not escape')
++    })
++    await expect(rejected.getSession(controller().signal)).rejects.toMatchObject({
++      kind: 'transport',
++      message: 'transport',
++      problem: undefined,
++    })
++    const aborted = controller()
++    aborted.abort()
++    await expect(rejected.getSession(aborted.signal)).rejects.toMatchObject({ kind: 'cancelled' })
++  })
++})
+--- /dev/null
++++ b/web/src/tests/session.spec.ts
+@@ -0,0 +1,464 @@
++import { afterEach, describe, expect, it, vi } from 'vitest'
++import { createSessionController } from '../composables/useSession'
++import { AccountFailure, type Problem } from '../api/client'
++import { createAccountAPI, type AccountAPI, type SessionView } from '../api/account'
++
++const id = '01900000-0000-7000-8000-000000000001'
++const time = '2026-10-05T12:34:56.123456Z'
++const anonymous = 'A'.repeat(43),
++  sessionToken = 'S'.repeat(43)
++const password = '  Original 密码 12345  '
++const view: SessionView = {
++  user: {
++    id,
++    email: 'person@example.com',
++    username: '',
++    display_name: 'Person',
++    role: 'user',
++    theme: 'dark',
++    version: '1',
++    initial_password_suggestion: false,
++  },
++  session: { id, issued_at: time, absolute_expires_at: time, idle_expires_at: time },
++  csrf_token: sessionToken,
++}
++function problem(
++  code: string,
++  status = 401,
++  commit_state: Problem['commit_state'] = 'not_started',
++) {
++  return new AccountFailure('problem', {
++    type: 'urn:agenteam:problem:test',
++    title: 'Test',
++    status,
++    detail: 'safe error',
++    instance: '/api/v1/session',
++    code,
++    request_id: id,
++    commit_state,
++  })
++}
++function deferred<T>() {
++  let resolve!: (value: T) => void
++  let reject!: (error: unknown) => void
++  const promise = new Promise<T>((a, b) => {
++    resolve = a
++    reject = b
++  })
++  return { promise, resolve, reject }
++}
++function fixture() {
++  const api = {
++    bootstrap: vi.fn<AccountAPI['bootstrap']>(async () => ({
++      csrf_token: anonymous,
++      challenge_modes: ['rotate'] as ['rotate'],
++      delivery_channel: 'backend_log' as const,
++    })),
++    getSession: vi.fn<AccountAPI['getSession']>(async (): Promise<SessionView> => {
++      throw problem('UNAUTHENTICATED')
++    }),
++    login: vi.fn<AccountAPI['login']>(async () => ({
++      user: view.user,
++      session: view.session,
++      next_path: '/' as const,
++    })),
++    logout: vi.fn<AccountAPI['logout']>(async () => undefined),
++    createChallenge: vi.fn<AccountAPI['createChallenge']>(async () => ({
++      id,
++      mode: 'rotate' as const,
++      master: 'data:image/png;base64,AA==',
++      thumb: 'data:image/png;base64,AA==',
++      expires_at: time,
++    })),
++    verifyChallenge: vi.fn<AccountAPI['verifyChallenge']>(async () => ({
++      pass: id + '.' + 'P'.repeat(43),
++    })),
++  } satisfies AccountAPI
++  return { api, controller: createSessionController(api) }
++}
++afterEach(() => {
++  vi.useRealTimers()
++  vi.restoreAllMocks()
++})
++describe('Account Session ownership', () => {
++  it.each(['content-type', 'oversize'])(
++    'retains Cookie ownership until response body cancellation joins: %s',
++    async (mode) => {
++      vi.useFakeTimers()
++      const release = deferred<void>()
++      let cancellations = 0,
++        reads = 0,
++        returned = false
++      const json = (data: unknown, status = 200) =>
++        new Response(JSON.stringify(data), {
++          status,
++          headers: {
++            'Content-Type': status === 200 ? 'application/json' : 'application/problem+json',
++            'X-Request-ID': id,
++          },
++        })
++      const api = createAccountAPI(async (url) => {
++        if (url.endsWith('/bootstrap'))
++          return json({
++            csrf_token: anonymous,
++            challenge_modes: ['rotate'],
++            delivery_channel: 'backend_log',
++          })
++        if (url.endsWith('/session')) {
++          ++reads
++          return json(problem('UNAUTHENTICATED').problem, 401)
++        }
++        const stream = new ReadableStream<Uint8Array>({
++          start(stream) {
++            if (mode === 'oversize') stream.enqueue(new Uint8Array(600001))
++          },
++          cancel() {
++            ++cancellations
++            return release.promise
++          },
++        })
++        return new Response(stream, {
++          status: 200,
++          headers: { 'Content-Type': mode === 'content-type' ? 'text/html' : 'application/json' },
++        })
++      })
++      const c = createSessionController(api)
++      await c.restore()
++      const call = c.login(view.user.email, password).then(() => {
++        returned = true
++      })
++      try {
++        await vi.advanceTimersByTimeAsync(0)
++        expect(cancellations).toBe(1)
++        expect(c.state.busy).toBe(true)
++        await c.restore()
++        await c.logout()
++        expect(reads).toBe(1)
++        await vi.advanceTimersByTimeAsync(30000)
++        expect(returned).toBe(true)
++        expect(c.state.phase).toBe('uncertain')
++        expect(c.state.busy).toBe(true)
++      } finally {
++        release.resolve()
++        await call
++        await vi.advanceTimersByTimeAsync(0)
++      }
++      expect(c.state.busy).toBe(false)
++    },
++  )
++  it.each(['create', 'verify'])(
++    'bounds challenge user waiting while the real reader ignores abort: %s',
++    async (mode) => {
++      vi.useFakeTimers()
++      const cancelReturn = deferred<void>()
++      let stream!: ReadableStreamDefaultController<Uint8Array>
++      let cancelled = false,
++        held = true,
++        returned = false
++      const secondID = '01900000-0000-7000-8000-000000000002'
++      const question = (id: string) => ({
++        id,
++        mode: 'rotate',
++        master: 'data:image/png;base64,AA==',
++        thumb: 'data:image/png;base64,AA==',
++        expires_at: time,
++      })
++      const json = (body: unknown, status = 200) =>
++        new Response(JSON.stringify(body), {
++          status,
++          headers: {
++            'Content-Type': status < 400 ? 'application/json' : 'application/problem+json',
++            'X-Request-ID': id,
++          },
++        })
++      const api = createAccountAPI(async (url) => {
++        if (url.endsWith('/bootstrap'))
++          return json({
++            csrf_token: anonymous,
++            challenge_modes: ['rotate'],
++            delivery_channel: 'backend_log',
++          })
++        if (url.endsWith('/session')) return json(problem('UNAUTHENTICATED').problem, 401)
++        if (url.endsWith('/login')) return json(problem('CHALLENGE_REQUIRED').problem, 401)
++        if (held && url.endsWith(mode === 'create' ? '/challenges' : '/verify')) {
++          held = false
++          return new Response(
++            new ReadableStream<Uint8Array>({
++              start(c) {
++                stream = c
++              },
++              cancel() {
++                cancelled = true
++                return cancelReturn.promise
++              },
++            }),
++            {
++              status: mode === 'create' ? 201 : 200,
++              headers: { 'Content-Type': 'application/json' },
++            },
++          )
++        }
++        return url.endsWith('/challenges')
++          ? json(question(secondID), 201)
++          : json({ pass: secondID + '.' + 'N'.repeat(43) })
++      })
++      const c = createSessionController(api)
++      await c.restore()
++      await c.login(view.user.email, password)
++      if (mode === 'verify') await c.createChallenge()
++      const call = (mode === 'create' ? c.createChallenge() : c.verifyChallenge(60)).then(() => {
++        returned = true
++      })
++      try {
++        await vi.advanceTimersByTimeAsync(30000)
++        expect(returned).toBe(true)
++        expect(c.state.challengeBusy).toBe(false)
++        expect(c.state.passReady).toBe(false)
++        expect(c.state.challenge).toBeNull()
++        await c.createChallenge()
++        await c.verifyChallenge(12)
++        expect(c.state.passReady).toBe(true)
++      } finally {
++        if (!cancelled) {
++          stream.enqueue(
++            new TextEncoder().encode(
++              JSON.stringify(
++                mode === 'create' ? question(id) : { pass: id + '.' + 'O'.repeat(43) },
++              ),
++            ),
++          )
++          stream.close()
++        }
++        cancelReturn.resolve()
++        await call
++        await vi.advanceTimersByTimeAsync(0)
++      }
++      expect(c.state.passReady).toBe(true)
++      expect(c.state.challengeBusy).toBe(false)
++    },
++  )
++  it.each(['pending', 'unknown'])(
++    'dismiss cannot alter the complete original request after a pass-bearing login is %s',
++    async (timing) => {
++      const { api, controller: c } = fixture()
++      await c.restore()
++      api.login.mockRejectedValueOnce(problem('CHALLENGE_REQUIRED'))
++      await c.login(view.user.email, password)
++      await c.createChallenge()
++      await c.verifyChallenge(75)
++      const held = deferred<Awaited<ReturnType<AccountAPI['login']>>>()
++      api.login.mockImplementationOnce(() => held.promise)
++      const call = c.login(view.user.email, password)
++      await Promise.resolve()
++      const original = structuredClone(api.login.mock.calls[1].slice(0, 3))
++      if (timing === 'pending') c.dismissChallenge()
++      held.reject(problem('COMMIT_UNKNOWN', 503, 'unknown'))
++      await call
++      if (timing === 'unknown') c.dismissChallenge()
++      api.login.mockRejectedValueOnce(problem('COMMIT_UNKNOWN', 503, 'unknown'))
++      await c.retryOriginal()
++      expect(JSON.stringify(api.login.mock.calls[2].slice(0, 3)) === JSON.stringify(original)).toBe(
++        true,
++      )
++      expect(c.state.phase).toBe('uncertain')
++    },
++  )
++  it('the real client treats malformed commit_state as unconfirmed and retains the complete login request', async () => {
++    const writes: { body: BodyInit | null | undefined; csrf: string; key: string }[] = []
++    const api = createAccountAPI(async (url, init) => {
++      const headers = new Headers({ 'Content-Type': 'application/json', 'X-Request-ID': id })
++      if (url === '/api/v1/auth/bootstrap')
++        return new Response(
++          JSON.stringify({
++            csrf_token: anonymous,
++            challenge_modes: ['rotate'],
++            delivery_channel: 'backend_log',
++          }),
++          { status: 200, headers },
++        )
++      headers.set('Content-Type', 'application/problem+json')
++      if (url === '/api/v1/session')
++        return new Response(JSON.stringify(problem('UNAUTHENTICATED').problem), {
++          status: 401,
++          headers,
++        })
++      const sent = new Headers(init.headers)
++      writes.push({
++        body: init.body,
++        csrf: sent.get('X-CSRF-Token')!,
++        key: sent.get('Idempotency-Key')!,
++      })
++      return new Response(
++        JSON.stringify({
++          ...problem('DEPENDENCY_UNAVAILABLE', 503).problem,
++          commit_state: ['unknown'],
++        }),
++        { status: 503, headers },
++      )
++    })
++    const c = createSessionController(api)
++    await c.restore()
++    await c.login(view.user.email, password)
++    expect(c.state.phase).toBe('uncertain')
++    await c.retryOriginal()
++    expect(writes).toHaveLength(2)
++    expect(JSON.stringify(writes[0]) === JSON.stringify(writes[1])).toBe(true)
++  })
++  it('distinguishes actual anonymous from unavailable, then confirms Session CSRF after login', async () => {
++    const { api, controller: c } = fixture()
++    await c.restore()
++    expect(c.state.phase).toBe('anonymous')
++    api.getSession.mockRejectedValueOnce(problem('DEPENDENCY_UNAVAILABLE', 503))
++    await c.restore()
++    expect(c.state.phase).toBe('unavailable')
++    expect(api.bootstrap).toHaveBeenCalledTimes(1)
++    await c.restart()
++    api.getSession.mockResolvedValueOnce(view)
++    await c.login(view.user.email, password)
++    expect(c.state.phase).toBe('authenticated')
++    expect(api.login.mock.calls[0][0]).toEqual({ email: view.user.email, password })
++    expect(api.login.mock.calls[0][1]).toBe(anonymous)
++    await c.logout()
++    expect(api.logout.mock.calls[0][0]).toBe(sessionToken)
++    expect(c.state.phase).toBe('anonymous')
++    expect(JSON.stringify(c.state)).not.toContain(password)
++    expect(JSON.stringify(c.state)).not.toContain(sessionToken)
++  })
++  it('retains the exact key and password after Unknown and does not bootstrap after a negative current observation', async () => {
++    const { api, controller: c } = fixture()
++    await c.restore()
++    api.login.mockRejectedValue(problem('COMMIT_UNKNOWN', 503, 'unknown'))
++    await c.login(view.user.email, password)
++    expect(c.state.phase).toBe('uncertain')
++    await c.restore()
++    expect(c.state.phase).toBe('uncertain')
++    expect(api.bootstrap).toHaveBeenCalledTimes(1)
++    await c.retryOriginal()
++    expect(api.login.mock.calls).toHaveLength(2)
++    expect(api.login.mock.calls[1].slice(0, 3)).toEqual(api.login.mock.calls[0].slice(0, 3))
++    expect(c.state.canRetryOriginal).toBe(true)
++    api.login.mockRejectedValueOnce(problem('CSRF_FAILED', 403))
++    await c.retryOriginal()
++    expect(c.state.phase).toBe('uncertain')
++    expect(c.state.canRetryOriginal).toBe(false)
++    await c.restore()
++    expect(api.bootstrap).toHaveBeenCalledTimes(1)
++  })
++  it('adds a real verify pass to the same login intent and invalidates it on changed input', async () => {
++    const { api, controller: c } = fixture()
++    await c.restore()
++    api.login.mockRejectedValueOnce(problem('CHALLENGE_REQUIRED'))
++    await c.login(view.user.email, password)
++    await c.createChallenge()
++    await c.verifyChallenge(270)
++    expect(c.state.passReady).toBe(true)
++    api.getSession.mockResolvedValueOnce(view)
++    await c.login(view.user.email, password)
++    expect(api.login.mock.calls[1][2]).toBe(api.login.mock.calls[0][2])
++    expect(api.login.mock.calls[1][0]).toEqual({
++      email: view.user.email,
++      password,
++      challenge_pass: id + '.' + 'P'.repeat(43),
++    })
++    expect(api.verifyChallenge.mock.calls[0][0].proof.angle).toBe(270)
++    c.leave()
++    await c.restore()
++    api.login.mockRejectedValueOnce(problem('CHALLENGE_REQUIRED'))
++    await c.login(view.user.email, password)
++    await c.createChallenge()
++    await c.verifyChallenge(10)
++    c.inputChanged()
++    expect(c.state.passReady).toBe(false)
++    expect(c.state.challenge).toBeNull()
++  })
++  it('does not expose identity or send another Cookie request before the real login tail returns', async () => {
++    const { api, controller: c } = fixture()
++    await c.restore()
++    const held = deferred<Awaited<ReturnType<AccountAPI['login']>>>()
++    api.login.mockImplementationOnce(() => held.promise)
++    const first = c.login(view.user.email, password)
++    await Promise.resolve()
++    c.leave()
++    await c.restore()
++    expect(api.getSession).toHaveBeenCalledTimes(1)
++    expect(c.state.busy).toBe(true)
++    held.resolve({ user: view.user, session: view.session, next_path: '/' })
++    await first
++    expect(c.state.user).toBeNull()
++    expect(c.state.phase).toBe('checking')
++    expect(c.state.busy).toBe(false)
++    api.getSession.mockResolvedValueOnce(view)
++    await c.restore()
++    expect(c.state.phase).toBe('authenticated')
++  })
++  it('bounds UI waiting at 30s while an abort-ignoring fetch still owns the Cookie lane', async () => {
++    vi.useFakeTimers()
++    const { api, controller: c } = fixture()
++    await c.restore()
++    const held = deferred<Awaited<ReturnType<AccountAPI['login']>>>()
++    api.login.mockImplementationOnce(() => held.promise)
++    const first = c.login(view.user.email, password)
++    await vi.advanceTimersByTimeAsync(30_000)
++    await first
++    expect(c.state.phase).toBe('uncertain')
++    expect(c.state.busy).toBe(true)
++    expect(api.login.mock.calls[0][3].aborted).toBe(true)
++    await c.restore()
++    await c.retryOriginal()
++    await c.logout()
++    expect(api.getSession).toHaveBeenCalledTimes(1)
++    expect(api.login).toHaveBeenCalledTimes(1)
++    held.resolve({ user: view.user, session: view.session, next_path: '/' })
++    await vi.runAllTimersAsync()
++    expect(c.state.busy).toBe(false)
++    expect(c.state.user).toBeNull()
++    expect(c.state.phase).toBe('uncertain')
++  })
++  it('a late challenge/verify/finally cannot overwrite a newer question or release its busy state', async () => {
++    const { api, controller: c } = fixture()
++    await c.restore()
++    api.login.mockRejectedValueOnce(problem('CHALLENGE_REQUIRED'))
++    await c.login(view.user.email, password)
++    const older = deferred<Awaited<ReturnType<AccountAPI['createChallenge']>>>()
++    const newer = deferred<Awaited<ReturnType<AccountAPI['createChallenge']>>>()
++    api.createChallenge
++      .mockImplementationOnce(() => older.promise)
++      .mockImplementationOnce(() => newer.promise)
++    const first = c.createChallenge()
++    await Promise.resolve()
++    expect(api.createChallenge).toHaveBeenCalledTimes(1)
++    const second = c.createChallenge()
++    await Promise.resolve()
++    expect(api.createChallenge).toHaveBeenCalledTimes(2)
++    older.resolve({ id, mode: 'rotate', master: 'old', thumb: 'old', expires_at: time })
++    await first
++    expect(c.state.challengeBusy).toBe(true)
++    expect(c.state.challenge).toBeNull()
++    newer.resolve({ id, mode: 'rotate', master: 'new', thumb: 'new', expires_at: time })
++    await second
++    expect(c.state.challenge?.master).toBe('new')
++    const verify = deferred<{ pass: string }>()
++    api.verifyChallenge.mockImplementationOnce(() => verify.promise)
++    const pendingVerify = c.verifyChallenge(1)
++    await Promise.resolve()
++    expect(api.verifyChallenge).toHaveBeenCalledTimes(1)
++    c.inputChanged()
++    verify.resolve({ pass: id + '.' + 'P'.repeat(43) })
++    await pendingVerify
++    expect(c.state.passReady).toBe(false)
++    expect(c.state.challenge).toBeNull()
++  })
++  it('logout stays unconfirmed until the real 204 and preserves the original key on explicit replay', async () => {
++    const { api, controller: c } = fixture()
++    api.getSession.mockResolvedValue(view)
++    await c.restore()
++    api.logout.mockRejectedValueOnce(problem('COMMIT_UNKNOWN', 503, 'unknown'))
++    await c.logout()
++    expect(c.state.phase).toBe('uncertain')
++    await c.restore()
++    expect(c.state.phase).toBe('uncertain')
++    await c.retryOriginal()
++    expect(api.logout.mock.calls[1].slice(0, 2)).toEqual(api.logout.mock.calls[0].slice(0, 2))
++    expect(c.state.phase).toBe('anonymous')
++  })
++})
+--- /dev/null
++++ b/web/src/tests/authentication.spec.ts
+@@ -0,0 +1,458 @@
++import { afterEach, describe, expect, it, vi } from 'vitest'
++import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
++import { createMemoryHistory, createRouter } from 'vue-router'
++import { Rotate } from 'go-captcha-vue'
++import type { AccountAPI, SessionView } from '../api/account'
++import { AccountFailure } from '../api/client'
++import type { SessionController } from '../composables/useSession'
++const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
++vi.mock('../composables/useSession', async (original) => {
++  const actual = await original<typeof import('../composables/useSession')>()
++  return { ...actual, useSession: () => selected.auth! }
++})
++import { createSessionController } from '../composables/useSession'
++import { installAuthentication, safeReturnTarget } from '../router/auth'
++import App from '../App.vue'
++import LoginView from '../views/auth/LoginView.vue'
++import HomeView from '../views/HomeView.vue'
++import NotFoundView from '../views/NotFoundView.vue'
++
++const id = '01900000-0000-7000-8000-000000000001'
++const time = '2026-10-05T12:34:56.123456Z'
++const view: SessionView = {
++  user: {
++    id,
++    email: 'person@example.com',
++    username: '',
++    display_name: '',
++    role: 'user',
++    theme: 'dark',
++    version: '1',
++    initial_password_suggestion: true,
++  },
++  session: { id, issued_at: time, absolute_expires_at: time, idle_expires_at: time },
++  csrf_token: 'S'.repeat(43),
++}
++const fault = (code: string, status = 401) =>
++  new AccountFailure('problem', {
++    type: 'urn:agenteam:problem:test',
++    title: 'Test',
++    status,
++    detail: 'safe error',
++    instance: '/api/v1/session',
++    code,
++    request_id: id,
++    commit_state: code === 'COMMIT_UNKNOWN' ? 'unknown' : 'not_started',
++  })
++let wrapper: VueWrapper | undefined
++async function page(path = '/login', unavailable = false) {
++  let signedIn = false
++  const api = {
++    bootstrap: vi.fn<AccountAPI['bootstrap']>(async () => ({
++      csrf_token: 'A'.repeat(43),
++      challenge_modes: ['rotate'],
++      delivery_channel: 'backend_log',
++    })),
++    getSession: vi.fn<AccountAPI['getSession']>(async () => {
++      if (unavailable) throw fault('DEPENDENCY_UNAVAILABLE', 503)
++      if (!signedIn) throw fault('UNAUTHENTICATED')
++      return view
++    }),
++    login: vi.fn<AccountAPI['login']>(async () => {
++      signedIn = true
++      return { user: view.user, session: view.session, next_path: '/' }
++    }),
++    logout: vi.fn<AccountAPI['logout']>(async () => {
++      signedIn = false
++    }),
++    createChallenge: vi.fn<AccountAPI['createChallenge']>(async () => ({
++      id,
++      mode: 'rotate',
++      master: 'data:image/png;base64,AA==',
++      thumb: 'data:image/png;base64,AA==',
++      expires_at: time,
++    })),
++    verifyChallenge: vi.fn<AccountAPI['verifyChallenge']>(async () => ({
++      pass: id + '.' + 'P'.repeat(43),
++    })),
++  }
++  selected.auth = createSessionController(api)
++  const router = createRouter({
++    history: createMemoryHistory(),
++    routes: [
++      {
++        path: '/',
++        name: 'home',
++        component: HomeView,
++        meta: { authentication: true, protected: true },
++      },
++      { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
++      { path: '/debug', component: { template: '<p>Development</p>' } },
++      { path: '/:pathMatch(.*)*', component: NotFoundView },
++    ],
++  })
++  installAuthentication(router, selected.auth)
++  await router.push(path)
++  await router.isReady()
++  wrapper = mount(App, { attachTo: document.body, global: { plugins: [router] } })
++  await flushPromises()
++  return { api, router, auth: selected.auth, wrapper }
++}
++afterEach(() => {
++  wrapper?.unmount()
++  wrapper = undefined
++  document.body.innerHTML = ''
++  vi.useRealTimers()
++  vi.restoreAllMocks()
++})
++describe('formal authentication pages', () => {
++  it('has a real labelled form and protected home, preserves password bytes, confirms and logs out', async () => {
++    const p = await page()
++    expect(p.wrapper.find('.system-nav').exists()).toBe(false)
++    expect(p.wrapper.find('h1').text()).toBe('登录')
++    expect(document.activeElement?.id).toBe('login-title')
++    expect(p.wrapper.find('#login-password').attributes('autocomplete')).toBe('current-password')
++    expect(p.wrapper.find('#login-password').attributes('maxlength')).toBeUndefined()
++    const password = '  Original 密码 12345  '
++    await p.wrapper.get('#login-email').setValue(view.user.email)
++    await p.wrapper.get('#login-password').setValue(password)
++    await p.wrapper.get('form').trigger('submit')
++    await flushPromises()
++    expect(p.api.login).toHaveBeenCalledTimes(1)
++    expect(p.api.login.mock.calls[0][0].password === password).toBe(true)
++    expect(p.router.currentRoute.value.path).toBe('/')
++    expect(p.wrapper.get('h1').text()).toBe('首页')
++    expect(p.wrapper.get('.account-name').text()).toBe(view.user.email)
++    expect(p.wrapper.text()).toContain('建议之后更换')
++    expect(document.documentElement.dataset.theme).toBe('dark')
++    expect(p.wrapper.find('a[href*="settings"]').exists()).toBe(false)
++    expect(p.wrapper.find('a[href*="project"]').exists()).toBe(false)
++    // Initial restore, login confirmation, and the single protected navigation.
++    expect(p.api.getSession).toHaveBeenCalledTimes(3)
++    await p.wrapper.get('.account-actions button').trigger('click')
++    await flushPromises()
++    expect(p.router.currentRoute.value.path).toBe('/login')
++    expect(p.auth.state.phase).toBe('anonymous')
++    expect(p.api.logout).toHaveBeenCalledTimes(1)
++    expect(p.api.getSession).toHaveBeenCalledTimes(4)
++    // The logout Cookie owner must release before the new anonymous bootstrap.
++    expect(p.api.bootstrap.mock.calls.length).toBeGreaterThan(1)
++    expect(p.wrapper.get('#login-password').element).toHaveProperty('value', '')
++  })
++  it('hides protected contents when authority is unavailable and provides explicit recovery', async () => {
++    const p = await page('/', true)
++    expect(p.router.currentRoute.value.path).toBe('/login')
++    expect(p.wrapper.find('[aria-label="Dashboard"]').exists()).toBe(false)
++    expect(p.wrapper.find('#login-password').exists()).toBe(false)
++    expect(p.wrapper.text()).toContain('检查当前会话')
++    expect(p.api.bootstrap).not.toHaveBeenCalled()
++  })
++  it('keeps Unknown inputs locked and offers an explicit original-request retry without optimistic success', async () => {
++    const p = await page()
++    p.api.login.mockRejectedValue(fault('COMMIT_UNKNOWN', 503))
++    const local = vi.spyOn(Storage.prototype, 'setItem')
++    await p.wrapper.get('#login-email').setValue(view.user.email)
++    await p.wrapper.get('#login-password').setValue('OriginalPassword123')
++    await p.wrapper.get('form').trigger('submit')
++    await flushPromises()
++    expect(p.auth.state.phase).toBe('uncertain')
++    expect(p.wrapper.get('#login-password').attributes()).toHaveProperty('readonly')
++    expect(p.wrapper.find('[aria-label="Dashboard"]').exists()).toBe(false)
++    const retry = p.wrapper
++      .findAll('button')
++      .find((button) => button.text().includes('重试原请求'))!
++    await retry.trigger('click')
++    await flushPromises()
++    expect(p.api.login).toHaveBeenCalledTimes(2)
++    expect(
++      JSON.stringify(p.api.login.mock.calls[0].slice(0, 3)) ===
++        JSON.stringify(p.api.login.mock.calls[1].slice(0, 3)),
++    ).toBe(true)
++    expect(local).not.toHaveBeenCalled()
++    expect(p.router.currentRoute.value.path).toBe('/login')
++  })
++  it('keeps Debug and unknown routes independent and accepts only the implemented return path', async () => {
++    const p = await page('/debug')
++    expect(p.api.getSession).not.toHaveBeenCalled()
++    await p.router.push('/no-such-page')
++    await flushPromises()
++    expect(p.api.getSession).not.toHaveBeenCalled()
++    for (const target of [
++      'https://example.com/',
++      '//example.com',
++      '/projects/123',
++      ['/'],
++      '/#other',
++      undefined,
++    ])
++      expect(safeReturnTarget(target)).toBe('/')
++    expect(safeReturnTarget('/')).toBe('/')
++  })
++  for (const reason of ['abandon', 'csrf'])
++    it(`clears unnecessary form material after ${reason} while preserving ordinary credential failures`, async () => {
++      const p = await page()
++      p.api.login.mockRejectedValueOnce(
++        fault(
++          reason === 'abandon' ? 'COMMIT_UNKNOWN' : 'CSRF_FAILED',
++          reason === 'abandon' ? 503 : 403,
++        ),
++      )
++      await p.wrapper.get('#login-email').setValue(view.user.email)
++      await p.wrapper.get('#login-password').setValue('Old-Original-Password-83!')
++      await p.wrapper.get('form').trigger('submit')
++      await flushPromises()
++      const action = reason === 'abandon' ? '放弃原请求' : '检查当前会话'
++      await p.wrapper
++        .findAll('button')
++        .find((button) => button.text().includes(action))!
++        .trigger('click')
++      await flushPromises()
++      expect(p.auth.state.phase).toBe('anonymous')
++      expect(p.wrapper.get('#login-email').element).toHaveProperty('value', '')
++      expect(p.wrapper.get('#login-password').element).toHaveProperty('value', '')
++      expect(p.auth.state.canRetryOriginal).toBe(false)
++      await p.auth.retryOriginal()
++      expect(p.api.login).toHaveBeenCalledTimes(1)
++      p.api.login.mockRejectedValueOnce(fault('UNAUTHENTICATED'))
++      const replacement = 'New-Explicit-Password-92!'
++      await p.wrapper.get('#login-email').setValue('new@example.com')
++      await p.wrapper.get('#login-password').setValue(replacement)
++      await p.wrapper.get('form').trigger('submit')
++      await flushPromises()
++      expect(p.api.login).toHaveBeenCalledTimes(2)
++      expect(p.api.login.mock.calls[1][0].password === replacement).toBe(true)
++      expect(p.api.login.mock.calls[1][2] !== p.api.login.mock.calls[0][2]).toBe(true)
++      expect(
++        (p.wrapper.get('#login-password').element as HTMLInputElement).value === replacement,
++      ).toBe(true)
++    })
++  for (const cause of ['rejected', 'timeout'])
++    it(`restores the challenge action focus after ${cause} without claiming verification`, async () => {
++      const p = await page()
++      p.api.login.mockRejectedValueOnce(fault('CHALLENGE_REQUIRED', 403))
++      await p.wrapper.get('#login-email').setValue(view.user.email)
++      await p.wrapper.get('#login-password').setValue('Original-Password-92!')
++      await p.wrapper.get('form').trigger('submit')
++      await flushPromises()
++      await p.wrapper.get('[data-action="challenge"]').trigger('click')
++      await flushPromises()
++      expect(p.auth.state.challenge !== null && !p.auth.state.challengeBusy).toBe(true)
++      ;(p.wrapper.get('#rotate-angle').element as HTMLInputElement).focus()
++      expect(document.activeElement?.id).toBe('rotate-angle')
++      let release: (() => void) | undefined
++      if (cause === 'rejected')
++        p.api.verifyChallenge.mockRejectedValueOnce(fault('CHALLENGE_INVALID', 403))
++      else {
++        vi.useFakeTimers()
++        p.api.verifyChallenge.mockImplementationOnce(
++          () =>
++            new Promise((resolve) => {
++              release = () => resolve({ pass: id + '.' + 'P'.repeat(43) })
++            }),
++        )
++      }
++      await p.wrapper.get('#rotate-angle').trigger('keydown', { key: 'Enter' })
++      if (cause === 'timeout') await vi.advanceTimersByTimeAsync(30_000)
++      await flushPromises()
++      expect(p.auth.state.passReady).toBe(false)
++      expect(p.auth.state.challenge).toBe(null)
++      expect(document.activeElement === p.wrapper.get('[data-action="challenge"]').element).toBe(
++        true,
++      )
++      release?.()
++      await flushPromises()
++      expect(p.auth.state.passReady).toBe(false)
++    })
++  it('offers one explicit Session recovery after an old login tail settles on a returned auth route', async () => {
++    const p = await page()
++    let release!: (value: {
++      user: typeof view.user
++      session: typeof view.session
++      next_path: '/'
++    }) => void
++    p.api.login.mockImplementationOnce(
++      () =>
++        new Promise((resolve) => {
++          release = resolve
++        }),
++    )
++    await p.wrapper.get('#login-email').setValue(view.user.email)
++    await p.wrapper.get('#login-password').setValue('Original-Password-92!')
++    await p.wrapper.get('form').trigger('submit')
++    await flushPromises()
++    expect(p.api.login).toHaveBeenCalledTimes(1)
++    await p.router.push('/no-such-page')
++    await p.router.push('/login')
++    await flushPromises()
++    expect(p.auth.state.busy).toBe(true)
++    expect(p.api.getSession).toHaveBeenCalledTimes(1)
++    release({ user: view.user, session: view.session, next_path: '/' })
++    await flushPromises()
++    expect(p.auth.state.busy).toBe(false)
++    expect(p.auth.state.user).toBe(null)
++    expect(p.wrapper.find('[aria-label="Dashboard"]').exists()).toBe(false)
++    const recovery = p.wrapper
++      .findAll('button')
++      .find((button) => button.text().includes('检查当前会话'))
++    expect(recovery !== undefined).toBe(true)
++    p.api.getSession.mockResolvedValue(view)
++    await recovery!.trigger('click')
++    await flushPromises()
++    expect(p.router.currentRoute.value.path).toBe('/')
++    expect(p.api.getSession).toHaveBeenCalledTimes(3)
++    expect(p.api.login).toHaveBeenCalledTimes(1)
++  })
++  it('focuses an enabled new challenge, returns successful verification to login, and never steals edited-input focus', async () => {
++    const p = await page()
++    p.api.login.mockRejectedValueOnce(fault('CHALLENGE_REQUIRED', 403))
++    await p.wrapper.get('#login-email').setValue(view.user.email)
++    await p.wrapper.get('#login-password').setValue('Original-Password-92!')
++    await p.wrapper.get('form').trigger('submit')
++    await flushPromises()
++    await p.wrapper.get('[data-action="challenge"]').trigger('click')
++    await flushPromises()
++    expect(document.activeElement?.id).toBe('rotate-angle')
++    await p.wrapper.get('#rotate-angle').trigger('keydown', { key: 'Enter' })
++    await flushPromises()
++    expect(p.auth.state.passReady).toBe(true)
++    expect(document.activeElement === p.wrapper.get('[data-action="login"]').element).toBe(true)
++    await p.auth.createChallenge()
++    await flushPromises()
++    const close = p.wrapper.findAll('button').find((button) => button.text().includes('关闭验证'))!
++    ;(close.element as HTMLButtonElement).focus()
++    await close.trigger('click')
++    await flushPromises()
++    expect(document.activeElement === p.wrapper.get('[data-action="challenge"]').element).toBe(true)
++    await p.wrapper.get('[data-action="challenge"]').trigger('click')
++    await flushPromises()
++    ;(p.wrapper.get('#login-email').element as HTMLInputElement).focus()
++    await p.wrapper.get('#login-email').setValue('another@example.com')
++    await flushPromises()
++    expect(document.activeElement?.id).toBe('login-email')
++    expect(p.auth.state.challenge).toBe(null)
++    expect(p.auth.state.passReady).toBe(false)
++  })
++  for (const outcome of ['rejected', 'timeout', 'success', 'edited'])
++    it(`hands off focus after disabled controls lose browser focus: ${outcome}`, async () => {
++      const p = await page()
++      p.api.login.mockRejectedValueOnce(fault('CHALLENGE_REQUIRED', 403))
++      await p.wrapper.get('#login-email').setValue(view.user.email)
++      await p.wrapper.get('#login-password').setValue('Original-Password-92!')
++      await p.wrapper.get('form').trigger('submit')
++      await flushPromises()
++      await p.wrapper.get('[data-action="challenge"]').trigger('click')
++      await flushPromises()
++      expect(document.activeElement?.id).toBe('rotate-angle')
++      let succeed!: () => void, reject!: () => void
++      p.api.verifyChallenge.mockImplementationOnce(
++        () =>
++          new Promise((resolve, fail) => {
++            succeed = () => resolve({ pass: id + '.' + 'P'.repeat(43) })
++            reject = () => fail(fault('CHALLENGE_INVALID', 403))
++          }),
++      )
++      if (outcome === 'timeout') vi.useFakeTimers()
++      await p.wrapper.get('#rotate-angle').trigger('keydown', { key: 'Enter' })
++      await flushPromises()
++      const range = p.wrapper.get('#rotate-angle').element as HTMLInputElement
++      expect(range.disabled).toBe(true)
++      // jsdom does not implement the browser's disabled-control focus loss.
++      // Explicitly model that native transition; this is pure, not browser evidence.
++      range.blur()
++      // jsdom also ignores blur() on disabled elements; move focus to the same
++      // native fallback explicitly without enabling or changing the control.
++      document.body.tabIndex = -1
++      document.body.focus()
++      document.body.removeAttribute('tabindex')
++      expect(document.activeElement === document.body).toBe(true)
++      if (outcome === 'edited') {
++        const email = p.wrapper.get('#login-email').element as HTMLInputElement
++        email.focus()
++        email.blur()
++        expect(document.activeElement === document.body).toBe(true)
++        reject()
++      } else if (outcome === 'rejected') reject()
++      else if (outcome === 'success') succeed()
++      else await vi.advanceTimersByTimeAsync(30_000)
++      await flushPromises()
++      const target = outcome === 'success' ? 'login' : 'challenge'
++      expect(
++        document.activeElement ===
++          (outcome === 'edited'
++            ? document.body
++            : p.wrapper.get(`[data-action="${target}"]`).element),
++      ).toBe(true)
++      expect(p.auth.state.passReady).toBe(outcome === 'success')
++      if (outcome === 'timeout') {
++        succeed()
++        await flushPromises()
++        expect(p.auth.state.passReady).toBe(false)
++      }
++    })
++  for (const outcome of ['success', 'rejected', 'timeout', 'edited', 'outside-pointer'])
++    it(`remembers a current-question drag through body focus without stealing later interaction: ${outcome}`, async () => {
++      const p = await page()
++      p.api.login.mockRejectedValueOnce(fault('CHALLENGE_REQUIRED', 403))
++      await p.wrapper.get('#login-email').setValue(view.user.email)
++      await p.wrapper.get('#login-password').setValue('Original-Password-92!')
++      await p.wrapper.get('form').trigger('submit')
++      await flushPromises()
++      await p.wrapper.get('[data-action="challenge"]').trigger('click')
++      await flushPromises()
++      const range = p.wrapper.get('#rotate-angle').element as HTMLInputElement
++      expect(document.activeElement === range && !range.disabled).toBe(true)
++      const drag = p.wrapper.get('.gc-drag-block')
++      expect(drag.element.tagName).toBe('DIV')
++      expect(drag.attributes('tabindex')).toBeUndefined()
++      const pointerDown = (target: Element) => {
++        const event = new MouseEvent('pointerdown', { button: 0, bubbles: true })
++        Object.defineProperty(event, 'isPrimary', { value: true })
++        target.dispatchEvent(event)
++      }
++      pointerDown(drag.element)
++      // Model the non-focusable drag's native focus loss. jsdom does not
++      // perform that default pointer action; this is a pure interaction case.
++      range.blur()
++      expect(document.activeElement === document.body).toBe(true)
++      let succeed!: () => void, reject!: () => void
++      p.api.verifyChallenge.mockImplementationOnce(
++        () =>
++          new Promise((resolve, fail) => {
++            succeed = () => resolve({ pass: id + '.' + 'P'.repeat(43) })
++            reject = () => fail(fault('CHALLENGE_INVALID', 403))
++          }),
++      )
++      if (outcome === 'timeout') vi.useFakeTimers()
++      const events = p.wrapper.getComponent(Rotate).props('events') as {
++        confirm: (angle: number) => void
++      }
++      events.confirm(137)
++      await flushPromises()
++      expect(p.api.verifyChallenge).toHaveBeenCalledTimes(1)
++      expect(p.auth.state.challengeBusy && range.disabled).toBe(true)
++      if (outcome === 'edited') {
++        const email = p.wrapper.get('#login-email').element as HTMLInputElement
++        email.focus()
++        email.blur()
++      } else if (outcome === 'outside-pointer') {
++        pointerDown(p.wrapper.get('.login-description').element)
++      }
++      expect(document.activeElement === document.body).toBe(true)
++      if (outcome === 'timeout') await vi.advanceTimersByTimeAsync(30_000)
++      else if (outcome === 'success') succeed()
++      else reject()
++      await flushPromises()
++      const movedElsewhere = outcome === 'edited' || outcome === 'outside-pointer'
++      const target = outcome === 'success' ? 'login' : 'challenge'
++      expect(
++        document.activeElement ===
++          (movedElsewhere ? document.body : p.wrapper.get(`[data-action="${target}"]`).element),
++      ).toBe(true)
++      expect(p.auth.state.passReady).toBe(outcome === 'success')
++      if (outcome === 'timeout') {
++        succeed()
++        await flushPromises()
++        expect(p.auth.state.passReady).toBe(false)
++      }
++    })
++})
+--- /dev/null
++++ b/web/src/tests/rotate-challenge.spec.ts
+@@ -0,0 +1,88 @@
++import { afterEach, describe, expect, it } from 'vitest'
++import { mount, type VueWrapper } from '@vue/test-utils'
++import { Rotate } from 'go-captcha-vue'
++import RotateChallenge from '../components/account/RotateChallenge.vue'
++const question = {
++  id: '01900000-0000-7000-8000-000000000001',
++  mode: 'rotate' as const,
++  master: 'data:image/png;base64,AA==',
++  thumb: 'data:image/png;base64,AQ==',
++  expires_at: '2026-10-05T12:34:56.123456Z',
++}
++let wrapper: VueWrapper | undefined
++afterEach(() => {
++  wrapper?.unmount()
++  document.body.innerHTML = ''
++})
++describe('the official rotate wrapper', () => {
++  it('uses real public pictures and submits the same bounded angle from keyboard and official callbacks', async () => {
++    wrapper = mount(RotateChallenge, {
++      props: { challenge: question, busy: false },
++      attachTo: document.body,
++    })
++    expect(document.activeElement?.id).toBe('rotate-angle')
++    const official = wrapper.getComponent(Rotate)
++    expect(official.props('data')).toMatchObject({
++      image: question.master,
++      thumb: question.thumb,
++      angle: 0,
++    })
++    const range = wrapper.get('input[type="range"]')
++    await range.setValue('137')
++    await range.trigger('keydown', { key: 'Enter' })
++    expect(wrapper.emitted('verify')).toEqual([[137]])
++    expect(official.props('data')).toMatchObject({ angle: 137 })
++    const events = official.props('events') as {
++      rotate: (v: number) => void
++      confirm: (v: number) => void
++    }
++    events.rotate(222.8)
++    events.confirm(222.8)
++    expect(wrapper.emitted('verify')).toEqual([[137], [223]])
++    expect(official.props('data').angle).toBe(137)
++    expect(wrapper.text()).toContain('仍需要视觉')
++  })
++  it('keeps actual verification pending and invalidates the old angle on a new question', async () => {
++    wrapper = mount(RotateChallenge, {
++      props: { challenge: question, busy: false },
++      attachTo: document.body,
++    })
++    await wrapper.get('input').setValue('87')
++    await wrapper.setProps({ busy: true })
++    expect(wrapper.get('input').attributes()).toHaveProperty('disabled')
++    const events = wrapper.getComponent(Rotate).props('events') as { confirm: (v: number) => void }
++    events.confirm(87)
++    expect(wrapper.emitted('verify')).toBeUndefined()
++    await wrapper.setProps({
++      busy: false,
++      challenge: { ...question, id: '01900000-0000-7000-8000-000000000002' },
++    })
++    expect(wrapper.get('input').element).toHaveProperty('value', '0')
++    expect(document.activeElement?.id).toBe('rotate-angle')
++    const close = wrapper.findAll('button').find((b) => b.text().includes('关闭验证'))!
++    await close.trigger('click')
++    expect(wrapper.emitted('close')).toEqual([[]])
++    expect(wrapper.emitted('verify')).toBeUndefined()
++  })
++  it('hands focus to a newly enabled question once and preserves later external input focus', async () => {
++    wrapper = mount(RotateChallenge, {
++      props: { challenge: question, busy: true },
++      attachTo: document.body,
++    })
++    expect(document.activeElement?.id === 'rotate-angle').toBe(false)
++    await wrapper.setProps({ busy: false })
++    expect(document.activeElement?.id).toBe('rotate-angle')
++    const input = document.createElement('input')
++    document.body.append(input)
++    input.focus()
++    await wrapper.setProps({ busy: true })
++    await wrapper.setProps({ busy: false })
++    expect(document.activeElement === input).toBe(true)
++    await wrapper.setProps({
++      busy: true,
++      challenge: { ...question, id: '01900000-0000-7000-8000-000000000002' },
++    })
++    await wrapper.setProps({ busy: false })
++    expect(document.activeElement === input).toBe(true)
++  })
++})
+--- /dev/null
++++ b/tests/account-captcha-web/authentication.config.js
+@@ -0,0 +1,46 @@
++import { defineConfig } from "@playwright/test";
++
++const origin = process.env.AGENTEAM_AUTH_WEB_ORIGIN;
++const selected = process.env.AGENTEAM_AUTH_WEB_CASE;
++const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE;
++const executablePath = process.env.AGENTEAM_AUTH_WEB_CHROMIUM;
++if (!origin || !directory || !executablePath)
++  throw new Error("OWNED_AUTHENTICATION_FIXTURE_REQUIRED");
++const url = new URL(origin);
++if (
++  url.protocol !== "http:" ||
++  url.hostname !== "127.0.0.1" ||
++  !url.port ||
++  url.origin !== origin
++)
++  throw new Error("EXACT_OWNED_ORIGIN_REQUIRED");
++if (
++  ![
++    "lifecycle",
++    "desktop",
++    "keyboard",
++    "revocation",
++    "expiry",
++    "layouts",
++  ].includes(selected)
++)
++  throw new Error("EXACT_AUTHENTICATION_CASE_REQUIRED");
++
++export default defineConfig({
++  testDir: "./e2e",
++  testMatch: "authentication.spec.ts",
++  grep: new RegExp(`\\[${selected}\\]`),
++  timeout: 45_000,
++  workers: 1,
++  retries: 0,
++  reporter: "line",
++  outputDir: `${directory}/playwright-results`,
++  use: {
++    baseURL: origin,
++    browserName: "chromium",
++    launchOptions: { executablePath, args: ["--no-sandbox"] },
++    screenshot: "off",
++    video: "off",
++    trace: "off",
++  },
++});
+--- /dev/null
++++ b/tests/account-captcha-web/e2e/authentication.spec.ts
+@@ -0,0 +1,573 @@
++import { test, expect, type Page } from "@playwright/test";
++import { readFileSync, writeFileSync, existsSync } from "node:fs";
++import { join } from "node:path";
++import { solvePublicRotation } from "./public-solver";
++import { circularDistance, reachableDrag } from "./drag-geometry";
++
++const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
++function credentials(): { email: string; password: string } {
++  return JSON.parse(readFileSync(join(directory, "credentials.json"), "utf8"));
++}
++function result(value: Record<string, unknown>) {
++  // Only safe IDs and booleans/counts leave the browser worker.
++  writeFileSync(join(directory, "result.json"), JSON.stringify(value), {
++    mode: 0o600,
++  });
++}
++async function fillPassword(page: Page, value: string) {
++  try {
++    const password = page.locator("#login-password");
++    await expect(password).toHaveAccessibleName("密码");
++    await password.fill(value);
++  } catch {
++    throw new Error("private password entry failed");
++  }
++}
++async function openLogin(page: Page) {
++  await page.goto("/login");
++  await expect(
++    page.getByRole("heading", { name: "登录", exact: true }),
++  ).toBeFocused();
++  await expect(
++    page.getByRole("textbox", { name: "邮箱", exact: true }),
++  ).toBeEditable();
++  await expect(page.locator("#login-password")).toHaveAccessibleName("密码");
++  await expect(page.getByRole("navigation")).toHaveCount(0);
++}
++async function identity(page: Page) {
++  return page.evaluate(async () => {
++    const response = await fetch("/api/v1/session", {
++      credentials: "same-origin",
++      cache: "no-store",
++    });
++    if (response.status !== 200)
++      return { user_id: "", session_id: "", csrfLength: 0 };
++    const body = await response.json();
++    return {
++      user_id: body.user.id as string,
++      session_id: body.session.id as string,
++      csrfLength: body.csrf_token.length as number,
++    };
++  });
++}
++async function login(page: Page) {
++  await openLogin(page);
++  const material = credentials();
++  await page
++    .getByRole("textbox", { name: "邮箱", exact: true })
++    .fill(material.email);
++  await fillPassword(page, material.password);
++  material.password = "";
++  await page.getByRole("button", { name: "登录", exact: true }).click();
++  await expect(
++    page.getByRole("heading", { name: "首页", exact: true }),
++  ).toBeVisible();
++  await expect(
++    page.getByRole("heading", { name: "首页", exact: true }),
++  ).toBeFocused();
++  const current = await identity(page);
++  expect(current.csrfLength).toBe(43);
++  expect(
++    current.user_id.length === 36 && current.session_id.length === 36,
++  ).toBe(true);
++  return current;
++}
++async function noOverflow(page: Page) {
++  const fits = await page.evaluate(
++    () => document.documentElement.scrollWidth <= innerWidth,
++  );
++  if (!fits) {
++    const geometry = await page.evaluate(() => ({
++      viewport: { width: innerWidth, height: innerHeight },
++      zoom: getComputedStyle(document.documentElement).zoom,
++      elements: [
++        ...document.querySelectorAll(
++          "html,body,.app-shell,.system-nav,.brand,.account-actions,.account-name,.ui-button,.home-view,.app-content,.login-panel",
++        ),
++      ]
++        .slice(0, 24)
++        .map((element) => {
++          const rect = element.getBoundingClientRect();
++          return {
++            tag: element.tagName,
++            class: element.getAttribute("class") || "",
++            rect: {
++              x: rect.x,
++              y: rect.y,
++              width: rect.width,
++              height: rect.height,
++              right: rect.right,
++            },
++            client: element.clientWidth,
++            scroll: element.scrollWidth,
++          };
++        }),
++    }));
++    // Geometry only: no DOM text, inputs, URLs or authentication material.
++    console.info("overflow geometry", JSON.stringify(geometry));
++  }
++  expect(fits).toBe(true);
++}
++async function noStoredMaterials(page: Page) {
++  expect(
++    await page.evaluate(
++      () => localStorage.length === 0 && sessionStorage.length === 0,
++    ),
++  ).toBe(true);
++  expect(
++    new URL(page.url()).search === "" && new URL(page.url()).hash === "",
++  ).toBe(true);
++}
++
++test("[lifecycle] actual login, refresh, Session CSRF and logout in the production application", async ({
++  page,
++  context,
++}) => {
++  const current = await login(page);
++  await expect(page.getByLabel("Dashboard")).toBeEmpty();
++  expect(
++    (await page.locator("main").textContent())?.includes("建议之后更换"),
++  ).toBe(true);
++  expect(
++    (await context.cookies()).some(
++      (c) =>
++        c.name === "agenteam_local_session" &&
++        c.httpOnly &&
++        c.sameSite === "Lax" &&
++        c.path === "/",
++    ),
++  ).toBe(true);
++  const security = await page.evaluate(async () => {
++    const bad = await fetch("/api/v1/sessions/logout", {
++      method: "POST",
++      headers: {
++        "Content-Type": "application/json",
++        "Idempotency-Key": crypto.randomUUID(),
++        "X-CSRF-Token": "x".repeat(43),
++      },
++      body: "{}",
++    });
++    return { status: bad.status, code: (await bad.json()).code };
++  });
++  expect(security).toEqual({ status: 403, code: "CSRF_FAILED" });
++  await page.reload();
++  await expect(
++    page.getByRole("heading", { name: "首页", exact: true }),
++  ).toBeVisible();
++  expect((await identity(page)).session_id === current.session_id).toBe(true);
++  await page.getByRole("button", { name: "退出登录", exact: true }).focus();
++  const logout = page.waitForResponse(
++    (r) =>
++      r.request().method() === "POST" &&
++      new URL(r.url()).pathname === "/api/v1/sessions/logout",
++  );
++  await page.keyboard.press("Enter");
++  expect((await logout).status()).toBe(204);
++  await expect(page.locator("#login-password")).toHaveAccessibleName("密码");
++  await expect(page.locator("#login-password")).toHaveValue("");
++  await expect(page.getByLabel("Dashboard")).toHaveCount(0);
++  expect(
++    (await context.cookies()).some((c) => c.name === "agenteam_local_session"),
++  ).toBe(false);
++  await page.goto("/");
++  await expect(
++    page.getByRole("heading", { name: "登录", exact: true }),
++  ).toBeVisible();
++  await expect(page.getByLabel("Dashboard")).toHaveCount(0);
++  expect(
++    await page.evaluate(() => localStorage.length + sessionStorage.length),
++  ).toBe(0);
++  result({ ...current, logged_out: true });
++});
++
++async function solve(page: Page) {
++  const images = await page.evaluate(async () => {
++    const read = async (selector: string) => {
++      const image = document.querySelector<HTMLImageElement>(selector)!;
++      await image.decode();
++      const canvas = document.createElement("canvas");
++      canvas.width = image.naturalWidth;
++      canvas.height = image.naturalHeight;
++      const context = canvas.getContext("2d")!;
++      context.drawImage(image, 0, 0);
++      return {
++        rgba: Array.from(
++          context.getImageData(0, 0, canvas.width, canvas.height).data,
++        ),
++        width: canvas.width,
++        height: canvas.height,
++      };
++    };
++    return {
++      master: await read(".gc-rotate-picture img"),
++      thumb: await read(".gc-rotate-thumb-block img"),
++    };
++  });
++  expect([
++    images.master.width,
++    images.master.height,
++    images.thumb.width,
++    images.thumb.height,
++  ]).toEqual([220, 220, 160, 160]);
++  return (await page.evaluate(solvePublicRotation, images)).angle;
++}
++for (const mode of ["desktop", "keyboard"])
++  test(`[${mode}] real rotate verification and one-time login consumption`, async ({
++    page,
++  }) => {
++    await page.setViewportSize({
++      width: mode === "desktop" ? 1024 : 390,
++      height: 900,
++    });
++    await page.emulateMedia({
++      colorScheme: mode === "desktop" ? "light" : "dark",
++      reducedMotion: "reduce",
++    });
++    await openLogin(page);
++    const material = credentials();
++    await page
++      .getByRole("textbox", { name: "邮箱", exact: true })
++      .fill(material.email);
++    await fillPassword(page, "Wrong-Authentication-Password-93!");
++    await page.getByRole("button", { name: "登录", exact: true }).click();
++    await expect(page.getByRole("alert")).toContainText("邮箱或密码不正确");
++    await fillPassword(page, material.password);
++    material.password = "";
++    const challenged = page.waitForResponse(
++      (r) =>
++        r.request().method() === "POST" &&
++        new URL(r.url()).pathname === "/api/v1/sessions/login",
++    );
++    await page.getByRole("button", { name: "登录", exact: true }).click();
++    const first = await challenged;
++    expect((await first.json()).code).toBe("CHALLENGE_REQUIRED");
++    const originalKey = first.request().headers()["idempotency-key"];
++    const originalBody = first.request().postDataJSON();
++    await page
++      .getByRole("button", { name: "开始旋转验证", exact: true })
++      .click();
++    await expect(page.locator(".gc-rotate-picture img")).toBeVisible();
++    const reduced = await page.evaluate(() => {
++      const controls = [
++        ...document.querySelectorAll(".rotate-challenge, .rotate-challenge *"),
++      ];
++      return {
++        matched: matchMedia("(prefers-reduced-motion: reduce)").matches,
++        count: controls.length,
++        disabled: controls.every((element) => {
++          const style = getComputedStyle(element);
++          return (
++            [style.transitionDuration, style.animationDuration].every((value) =>
++              value
++                .split(",")
++                .every((duration) => Number.parseFloat(duration) === 0),
++            ) &&
++            style.animationName
++              .split(",")
++              .every((name) => name.trim() === "none")
++          );
++        }),
++      };
++    });
++    expect(reduced.matched && reduced.count > 20 && reduced.disabled).toBe(
++      true,
++    );
++    await expect(
++      page.getByRole("slider", { name: "旋转角度", exact: true }),
++    ).toBeFocused();
++    const angle = await solve(page);
++    const verification = page.waitForResponse(
++      (r) =>
++        r.request().method() === "POST" &&
++        new URL(r.url()).pathname === "/api/v1/auth/challenges/verify",
++    );
++    let expectedAngle = angle;
++    if (mode === "desktop") {
++      const handle = await page.locator(".gc-drag-block").boundingBox();
++      const geometry = await page
++        .locator(".gc-drag-slide-bar")
++        .evaluate((element) => {
++          const block = element.querySelector<HTMLElement>(".gc-drag-block")!;
++          return {
++            bar: (element as HTMLElement).offsetWidth,
++            handle: block.offsetWidth,
++            left: block.offsetLeft,
++          };
++        });
++      expect(handle !== null && geometry.left === 0).toBe(true);
++      const target = reachableDrag(angle, geometry.bar - geometry.handle);
++      expect(circularDistance(angle, target.angle)).toBeLessThanOrEqual(1);
++      expectedAngle = target.angle;
++      const x = Math.round(handle!.x + handle!.width / 2),
++        y = Math.round(handle!.y + handle!.height / 2);
++      await page.mouse.move(x, y);
++      await page.mouse.down();
++      await page.mouse.move(x + target.pixel, y, { steps: 18 });
++      await page.mouse.up();
++    } else {
++      const slider = page.getByRole("slider", {
++        name: "旋转角度",
++        exact: true,
++      });
++      await slider.press("Home");
++      for (let i = 0; i < angle; ++i) await slider.press("ArrowRight");
++      await expect(slider).toHaveValue(String(angle));
++      await slider.press("Enter");
++    }
++    const response = await verification;
++    expect(response.status()).toBe(200);
++    const submitted = response.request().postDataJSON();
++    expect(submitted.proof.angle).toBe(expectedAngle);
++    expect(submitted.login_key === originalKey).toBe(true);
++    let pass = (await response.json()).pass as string;
++    expect(typeof pass === "string" && pass.length === 80).toBe(true);
++    await expect(
++      page.getByRole("button", { name: "登录", exact: true }),
++    ).toBeFocused();
++    const completed = page.waitForResponse(
++      (r) =>
++        r.request().method() === "POST" &&
++        new URL(r.url()).pathname === "/api/v1/sessions/login",
++    );
++    await page.keyboard.press("Enter");
++    const final = await completed;
++    expect(final.status()).toBe(200);
++    const finalBody = final.request().postDataJSON();
++    const exactPass = finalBody.challenge_pass === pass;
++    const exactKey =
++      final.request().headers()["idempotency-key"] === originalKey &&
++      finalBody.email === originalBody.email &&
++      finalBody.password === originalBody.password;
++    expect(exactPass && exactKey).toBe(true);
++    pass = "";
++    originalBody.password = "";
++    finalBody.password = "";
++    finalBody.challenge_pass = "";
++    await expect(
++      page.getByRole("heading", { name: "首页", exact: true }),
++    ).toBeVisible();
++    await noOverflow(page);
++    await noStoredMaterials(page);
++    result({
++      ...(await identity(page)),
++      challenge_id: submitted.challenge_id,
++      verified: true,
++      exact_pass: exactPass,
++      exact_key: exactKey,
++    });
++  });
++
++test("[revocation] real password change revokes the other browser and hides old contents", async ({
++  page,
++  browser,
++}) => {
++  const original = await login(page);
++  const other = await browser.newContext({
++    baseURL: process.env.AGENTEAM_AUTH_WEB_ORIGIN,
++  });
++  try {
++    const peer = await other.newPage();
++    await login(peer);
++    const material = credentials();
++    const status = await peer.evaluate(
++      async ({ password }) => {
++        const session = await (await fetch("/api/v1/session")).json();
++        const profile = await (await fetch("/api/v1/me")).json();
++        const next = "Changed-Authentication-Password-84!";
++        const response = await fetch("/api/v1/me/change-password", {
++          method: "POST",
++          headers: {
++            "Content-Type": "application/json",
++            "Idempotency-Key": crypto.randomUUID(),
++            "X-CSRF-Token": session.csrf_token,
++          },
++          body: JSON.stringify({
++            version: profile.user.version,
++            current_password: password,
++            new_password: next,
++            confirmation: next,
++          }),
++        });
++        return response.status;
++      },
++      { password: material.password },
++    );
++    material.password = "";
++    expect(status).toBe(200);
++    const unavailable = page.waitForResponse(
++      (r) =>
++        new URL(r.url()).pathname === "/api/v1/session" && r.status() === 401,
++    );
++    await page.reload();
++    expect((await unavailable).status()).toBe(401);
++    await expect(
++      page.getByRole("heading", { name: "登录", exact: true }),
++    ).toBeVisible();
++    await expect(page.getByLabel("Dashboard")).toHaveCount(0);
++    expect(
++      (await page.context().cookies()).some(
++        (c) => c.name === "agenteam_local_session",
++      ),
++    ).toBe(false);
++    result({ ...original, unavailable: true });
++  } finally {
++    await other.close();
++  }
++});
++
++test("[expiry] exact owned database expiry is observed through the real Session route", async ({
++  page,
++}) => {
++  const original = await login(page);
++  writeFileSync(
++    join(directory, "expire.json"),
++    JSON.stringify({ session_id: original.session_id }),
++    { mode: 0o600 },
++  );
++  await expect
++    .poll(() => existsSync(join(directory, "expire-ack.json")), {
++      timeout: 10_000,
++    })
++    .toBe(true);
++  const unavailable = page.waitForResponse(
++    (r) =>
++      new URL(r.url()).pathname === "/api/v1/session" && r.status() === 401,
++  );
++  await page.reload();
++  expect((await unavailable).status()).toBe(401);
++  await expect(
++    page.getByRole("heading", { name: "登录", exact: true }),
++  ).toBeVisible();
++  await expect(page.getByLabel("Dashboard")).toHaveCount(0);
++  expect(
++    (await page.context().cookies()).some(
++      (c) => c.name === "agenteam_local_session",
++    ),
++  ).toBe(false);
++  result({ ...original, unavailable: true });
++});
++
++test("[layouts] formal dist, real saved themes, keyboard, narrow widths and safe fallback", async ({
++  page,
++}) => {
++  await page.setViewportSize({ width: 390, height: 900 });
++  await openLogin(page);
++  await page
++    .getByRole("textbox", { name: "邮箱", exact: true })
++    .fill("long-authentication-email-for-layout-check@owned-example.invalid");
++  await page.getByRole("textbox", { name: "邮箱", exact: true }).focus();
++  await page.keyboard.press("Tab");
++  await expect(page.locator("#login-password")).toBeFocused();
++  await noOverflow(page);
++  const current = await login(page);
++  const renamed = await page.evaluate(async () => {
++    const session = await (await fetch("/api/v1/session")).json();
++    const response = await fetch("/api/v1/me", {
++      method: "PATCH",
++      headers: {
++        "Content-Type": "application/json",
++        "Idempotency-Key": crypto.randomUUID(),
++        "X-CSRF-Token": session.csrf_token,
++      },
++      body: JSON.stringify({
++        version: session.user.version,
++        display_name: "很长的实际显示名称".repeat(8),
++      }),
++    });
++    return response.status;
++  });
++  expect(renamed).toBe(200);
++  let count = 0;
++  for (const theme of ["light", "dark"]) {
++    const saved = await page.evaluate(async (theme) => {
++      const session = await (await fetch("/api/v1/session")).json();
++      const response = await fetch("/api/v1/me/preferences", {
++        method: "PUT",
++        headers: {
++          "Content-Type": "application/json",
++          "Idempotency-Key": crypto.randomUUID(),
++          "X-CSRF-Token": session.csrf_token,
++        },
++        body: JSON.stringify({ version: session.user.version, theme }),
++      });
++      return response.status;
++    }, theme);
++    expect(saved).toBe(200);
++    await page.reload();
++    await expect(
++      page.getByRole("heading", { name: "首页", exact: true }),
++    ).toBeVisible();
++    await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
++    await expect(page.locator(".account-name")).toHaveText(
++      "很长的实际显示名称".repeat(8),
++    );
++    await page.emulateMedia({
++      reducedMotion: "reduce",
++      colorScheme: theme === "light" ? "dark" : "light",
++    });
++    for (const width of [1440, 1024, 834, 390]) {
++      await page.setViewportSize({ width, height: 900 });
++      await noOverflow(page);
++      await expect(
++        page.getByRole("button", { name: "退出登录", exact: true }),
++      ).toBeVisible();
++      if (
++        process.env.AGENTEAM_AUTH_WEB_IMAGES &&
++        (width === 1440 || width === 390)
++      ) {
++        await expect(page.locator("#login-password")).toHaveCount(0);
++        await page.screenshot({
++          path: join(
++            process.env.AGENTEAM_AUTH_WEB_IMAGES,
++            `${theme}-${width}.png`,
++          ),
++        });
++      }
++      count++;
++    }
++  }
++  // CSS zoom exercises a 200% content scale without changing the device scale
++  // factor (which alone is not a layout zoom).
++  await page.evaluate(() => {
++    document.documentElement.style.zoom = "2";
++  });
++  await noOverflow(page);
++  await page.getByRole("button", { name: "退出登录", exact: true }).focus();
++  await expect(
++    page.getByRole("button", { name: "退出登录", exact: true }),
++  ).toBeFocused();
++  await page.evaluate(() => {
++    document.documentElement.style.zoom = "";
++  });
++  await noStoredMaterials(page);
++  const responses = await page.evaluate(async () => {
++    const api = await fetch("/api/v1/not-a-real-authentication-route");
++    const asset = await fetch("/assets/not-a-real-authentication-file.js");
++    const scripts = [...document.scripts].map((s) => s.src).filter(Boolean);
++    const bodies = await Promise.all(
++      scripts.map(async (src) => (await fetch(src)).text()),
++    );
++    return {
++      apiStatus: api.status,
++      apiHTML: (api.headers.get("content-type") ?? "").includes("text/html"),
++      assetStatus: asset.status,
++      assetIndex: (await asset.text()).includes('<div id="app">'),
++      noDebug: bodies.every(
++        (s) => !s.includes("DebugView") && !s.includes("debugFixtures"),
++      ),
++    };
++  });
++  expect(responses).toEqual({
++    apiStatus: 404,
++    apiHTML: false,
++    assetStatus: 404,
++    assetIndex: false,
++    noDebug: true,
++  });
++  await page.goto("/debug");
++  await expect(
++    page.getByRole("heading", { name: "未找到页面", exact: true }),
++  ).toBeVisible();
++  await expect(page.getByLabel("Dashboard")).toHaveCount(0);
++  result({ ...current, layouts: count });
++});
+--- /dev/null
++++ b/tests/account/authentication_web_fixture_test.go
+@@ -0,0 +1,368 @@
++//go:build integration
++
++package account_test
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"errors"
++	"io"
++	"log/slog"
++	"net"
++	"net/http"
++	"net/http/cookiejar"
++	"net/http/httputil"
++	"net/url"
++	"os"
++	"os/exec"
++	"path/filepath"
++	"strings"
++	"syscall"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/app"
++	"github.com/LunaDeerTech/agenteam/internal/central/config"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
++	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
++	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
++	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
++)
++
++type authenticationWebFixture struct {
++	t                          *testing.T
++	db                         *pgfixture.Database
++	origin, directory, webRoot string
++	entry                      httpRecoveryRecord
++	log                        *httpFixtureLog
++}
++
++// Only this test server hosts the production dist. The production Central root
++// still owns every API response, Cookie, Origin check and CSRF decision.
++func newAuthenticationWebFixture(t *testing.T, ctx context.Context) *authenticationWebFixture {
++	t.Helper()
++	db := pgfixture.NewDatabase(t)
++	listener, err := net.Listen("tcp", "127.0.0.1:0")
++	if err != nil {
++		t.Fatal("owned frontend listener unavailable")
++	}
++	t.Cleanup(func() { _ = listener.Close() })
++	origin := "http://" + listener.Addr().String()
++	inputs := accountenv.New(t)
++	objects, err := objectfixture.Environment(ctx, db.Name)
++	if err != nil {
++		t.Fatal("owned object fixture unavailable")
++	}
++	values := inputs.Values()
++	for _, v := range objects {
++		k, value, _ := strings.Cut(v, "=")
++		values[k] = value
++	}
++	for k, v := range map[string]string{
++		"DATABASE_URL": db.Fixture.URL(db.Name), "DATABASE_CA_FILE": db.Fixture.CAFile,
++		"DATABASE_STARTUP_TIMEOUT": "15s", "HTTP_ADDR": "127.0.0.1:0", "PUBLIC_ORIGIN": origin, "SHUTDOWN_TIMEOUT": "2s",
++		"CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`,
++		"SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`,
++	} {
++		values[config.Prefix+k] = v
++	}
++	var environment []string
++	for k, v := range values {
++		environment = append(environment, k+"="+v)
++	}
++	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, environment)
++	if err != nil {
++		t.Fatal("owned root configuration invalid")
++	}
++	output := &httpFixtureLog{listening: make(chan string, 1)}
++	logger, err := logging.New(logging.Central, slog.LevelInfo, output)
++	if err != nil {
++		t.Fatal(err)
++	}
++	rootCtx, cancel := context.WithCancel(ctx)
++	rootDone := make(chan error, 1)
++	go func() { rootDone <- app.Run(rootCtx, cfg, logger, nil) }()
++	t.Cleanup(func() {
++		cancel()
++		select {
++		case err := <-rootDone:
++			if err != nil {
++				t.Error("full Account/Secret/Model root shutdown failed", err)
++			}
++		case <-time.After(5 * time.Second):
++			t.Error("full root did not join within its original shutdown budget")
++		}
++	})
++	var address string
++	select {
++	case address = <-output.listening:
++	case err := <-rootDone:
++		rootDone <- err
++		t.Fatal("full root initialization failed", err)
++	case <-ctx.Done():
++		t.Fatal("shared browser budget ended during root startup")
++	}
++	backend, err := url.Parse("http://" + address)
++	if err != nil {
++		t.Fatal(err)
++	}
++	transport := &http.Transport{Proxy: nil}
++	proxy := httputil.NewSingleHostReverseProxy(backend)
++	proxy.Transport = transport // NewSingleHostReverseProxy preserves the original Host.
++	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, _ error) { http.Error(w, "owned API unavailable", 502) }
++	root, err := filepath.Abs("../../web/dist")
++	if err != nil {
++		t.Fatal(err)
++	}
++	if _, err = os.Stat(filepath.Join(root, "index.html")); err != nil {
++		t.Fatal("formal production dist must be built before browser execution")
++	}
++	assets := http.FileServer(http.Dir(root))
++	server := &http.Server{ReadHeaderTimeout: 5 * time.Second, Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		if r.URL.Path == "/api/v1" || strings.HasPrefix(r.URL.Path, "/api/v1/") {
++			proxy.ServeHTTP(w, r)
++			return
++		}
++		if r.Method != http.MethodGet && r.Method != http.MethodHead {
++			http.Error(w, "method unavailable", 405)
++			return
++		}
++		clean := filepath.Clean("/" + r.URL.Path)
++		if info, e := os.Stat(filepath.Join(root, clean)); e == nil && !info.IsDir() {
++			assets.ServeHTTP(w, r)
++			return
++		}
++		if strings.HasPrefix(clean, "/assets/") || filepath.Ext(clean) != "" {
++			http.NotFound(w, r)
++			return
++		}
++		w.Header().Set("Cache-Control", "no-store")
++		http.ServeFile(w, r, filepath.Join(root, "index.html"))
++	})}
++	serverDone := make(chan error, 1)
++	go func() { serverDone <- server.Serve(listener) }()
++	t.Cleanup(func() {
++		shutdown, stop := context.WithTimeout(context.Background(), 2*time.Second)
++		defer stop()
++		if err := server.Shutdown(shutdown); err != nil {
++			t.Error("frontend server did not drain")
++			_ = server.Close()
++		}
++		if err := <-serverDone; !errors.Is(err, http.ErrServerClosed) {
++			t.Error("owned frontend server failed", err)
++		}
++		transport.CloseIdleConnections()
++	})
++	runtimeRoot := os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME")
++	if !filepath.IsAbs(runtimeRoot) || len(runtimeRoot) > 45 {
++		t.Fatal("explicit short task-owned browser runtime is required")
++	}
++	directory, err := os.MkdirTemp(runtimeRoot, "run-")
++	if err != nil {
++		t.Fatal("private browser runtime creation failed")
++	}
++	if err := os.Chmod(directory, 0700); err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(func() {
++		if err := os.RemoveAll(directory); err != nil {
++			t.Error("private browser runtime cleanup failed")
++		}
++		if _, err := os.Stat(directory); !errors.Is(err, os.ErrNotExist) {
++			t.Error("private browser runtime still exists")
++		}
++	})
++	old := &httpFixture{t: t, db: db, config: cfg, address: address, log: output}
++	entry := old.record("bootstrap", "admin@mail.com", "")
++	material, err := json.Marshal(map[string]string{"email": entry.Email, "password": entry.Password})
++	if err != nil {
++		t.Fatal("private bootstrap encoding failed")
++	}
++	defer clear(material)
++	if err := os.WriteFile(filepath.Join(directory, "credentials.json"), material, 0600); err != nil {
++		t.Fatal("private bootstrap transfer failed")
++	}
++	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output}
++	t.Cleanup(func() {
++		if output.contains(entry.Password) {
++			t.Error("bootstrap material escaped the restricted recovery log")
++		}
++	})
++	var configured bool
++	if err := db.Connect(t).QueryRow(ctx, `SELECT configured FROM agenteam_model.platform_selection WHERE singleton`).Scan(&configured); err != nil || configured {
++		t.Fatal("real Model Initialize technical singleton missing", err)
++	}
++	return f
++}
++
++// This precondition client uses only real Account HTTP with its own Cookie jar.
++// It never supplies a Session, CSRF value or challenge answer to the product.
++func (f *authenticationWebFixture) setChallengeThreshold(ctx context.Context) {
++	f.t.Helper()
++	jar, err := cookiejar.New(nil)
++	if err != nil {
++		f.t.Fatal(err)
++	}
++	transport := &http.Transport{Proxy: nil}
++	defer transport.CloseIdleConnections()
++	client := &http.Client{Jar: jar, Transport: transport, Timeout: 20 * time.Second}
++	request := func(method, path string, body any, csrf string) map[string]any {
++		raw, err := json.Marshal(body)
++		if err != nil {
++			f.t.Fatal("invalid setup body")
++		}
++		defer clear(raw)
++		var reader io.Reader
++		if body != nil {
++			reader = bytes.NewReader(raw)
++		}
++		r, err := http.NewRequestWithContext(ctx, method, f.origin+path, reader)
++		if err != nil {
++			f.t.Fatal(err)
++		}
++		r.Header.Set("Origin", f.origin)
++		r.Header.Set("Sec-Fetch-Site", "same-origin")
++		if body != nil {
++			r.Header.Set("Content-Type", "application/json")
++			r.Header.Set("Idempotency-Key", id[struct{}](f.t).String())
++		}
++		if csrf != "" {
++			r.Header.Set("X-CSRF-Token", csrf)
++		}
++		response, err := client.Do(r)
++		if err != nil {
++			f.t.Fatal("real setup HTTP failed")
++		}
++		defer response.Body.Close()
++		if response.StatusCode != 200 {
++			f.t.Fatalf("real setup HTTP status=%d", response.StatusCode)
++		}
++		var out map[string]any
++		if json.NewDecoder(io.LimitReader(response.Body, 1<<20)).Decode(&out) != nil {
++			f.t.Fatal("invalid real setup response")
++		}
++		return out
++	}
++	bootstrap := request("GET", "/api/v1/auth/bootstrap", nil, "")
++	request("POST", "/api/v1/sessions/login", map[string]string{"email": f.entry.Email, "password": f.entry.Password}, httpString(f.t, bootstrap, "csrf_token"))
++	session := request("GET", "/api/v1/session", nil, "")
++	settings := request("GET", "/api/v1/system/account-settings", nil, "")
++	request("PUT", "/api/v1/system/account-settings", map[string]any{"version": settings["version"], "session_idle_seconds": settings["session_idle_seconds"], "session_absolute_seconds": settings["session_absolute_seconds"], "password_reset_seconds": settings["password_reset_seconds"], "challenge_after_failures": "1"}, httpString(f.t, session, "csrf_token"))
++}
++
++type authenticationWebResult struct {
++	UserID      string `json:"user_id"`
++	SessionID   string `json:"session_id"`
++	ChallengeID string `json:"challenge_id"`
++	Verified    bool   `json:"verified"`
++	ExactPass   bool   `json:"exact_pass"`
++	ExactKey    bool   `json:"exact_key"`
++	LoggedOut   bool   `json:"logged_out"`
++	Unavailable bool   `json:"unavailable"`
++	Layouts     int    `json:"layouts"`
++}
++
++func (f *authenticationWebFixture) browser(ctx context.Context, name string) authenticationWebResult {
++	f.t.Helper()
++	root, err := filepath.Abs("../account-captcha-web")
++	if err != nil {
++		f.t.Fatal(err)
++	}
++	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "authentication.config.js"))
++	cmd.Dir = root
++	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
++	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
++	cmd.WaitDelay = time.Second
++	for _, v := range os.Environ() {
++		if !strings.HasPrefix(v, "TMPDIR=") && !strings.HasPrefix(v, "AGENTEAM_AUTH_WEB_") && !strings.HasPrefix(v, "PLAYWRIGHT_NO_COPY_PROMPT=") && !strings.HasPrefix(v, "DEBUG=") && !strings.HasPrefix(v, "PWDEBUG=") {
++			cmd.Env = append(cmd.Env, v)
++		}
++	}
++	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_AUTH_WEB_CASE="+name, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "PLAYWRIGHT_NO_COPY_PROMPT=1")
++	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
++		if !filepath.IsAbs(images) {
++			f.t.Fatal("task-owned layout image path must be absolute")
++		}
++		cmd.Env = append(cmd.Env, "AGENTEAM_AUTH_WEB_IMAGES="+images)
++	}
++	var output bytes.Buffer
++	cmd.Stdout = &output
++	cmd.Stderr = &output
++	if err = cmd.Start(); err != nil {
++		f.t.Fatal("locked browser runner could not start")
++	}
++	defer func() { _ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL); cmd.Env = nil }()
++	done := make(chan error, 1)
++	go func() { done <- cmd.Wait() }()
++	ticker := time.NewTicker(20 * time.Millisecond)
++	defer ticker.Stop()
++	var runErr error
++	finished := false
++	expired := false
++	for !finished {
++		select {
++		case runErr = <-done:
++			finished = true
++		case <-ticker.C:
++			if name == "expiry" && !expired {
++				raw, e := os.ReadFile(filepath.Join(f.directory, "expire.json"))
++				if errors.Is(e, os.ErrNotExist) {
++					continue
++				}
++				if e != nil {
++					f.t.Error("private expiry IPC failed")
++					_ = cmd.Cancel()
++					continue
++				}
++				var request struct {
++					SessionID string `json:"session_id"`
++				}
++				e = json.Unmarshal(raw, &request)
++				clear(raw)
++				if _, valid := foundation.ParseID[struct{}](request.SessionID); e != nil || valid != nil {
++					f.t.Error("expiry IPC contained no confirmed Session ID")
++					_ = cmd.Cancel()
++					continue
++				}
++				conn := f.db.Connect(f.t)
++				var issued, activity, absolute time.Time
++				if e = conn.QueryRow(ctx, `SELECT issued_at,last_activity_at,absolute_expires_at FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL`, request.SessionID, f.entry.ID).Scan(&issued, &activity, &absolute); e != nil {
++					f.t.Error("expiry target did not match confirmed owned user/session")
++					_ = cmd.Cancel()
++					continue
++				}
++				tag, e := conn.Exec(ctx, `UPDATE agenteam_account.sessions SET issued_at=clock_timestamp()-interval '2 days',last_activity_at=clock_timestamp()-interval '1 day',absolute_expires_at=clock_timestamp()-interval '1 hour' WHERE id=$1 AND user_id=$2 AND issued_at=$3 AND last_activity_at=$4 AND absolute_expires_at=$5 AND revoked_at IS NULL`, request.SessionID, f.entry.ID, issued, activity, absolute)
++				if e != nil || tag.RowsAffected() != 1 {
++					f.t.Error("exact owned expiry update failed")
++					_ = cmd.Cancel()
++					continue
++				}
++				f.t.Logf("expiry exact Session=%s prior issued=%s activity=%s absolute=%s; one owned row moved into past", request.SessionID, issued.UTC().Format(time.RFC3339Nano), activity.UTC().Format(time.RFC3339Nano), absolute.UTC().Format(time.RFC3339Nano))
++				if e = os.WriteFile(filepath.Join(f.directory, "expire-ack.json"), []byte(`{"expired":true}`), 0600); e != nil {
++					f.t.Error("private expiry acknowledgement failed")
++					_ = cmd.Cancel()
++				}
++				expired = true
++			}
++		}
++	}
++	// The runner receives sensitive material only from the restricted file. Its
++	// assertions report booleans/statuses; this final filter also protects fills.
++	safe := strings.ReplaceAll(output.String(), f.entry.Password, "[redacted]")
++	f.t.Log(safe)
++	if runErr != nil {
++		f.t.Fatalf("actual production browser failed: %v", runErr)
++	}
++	raw, err := os.ReadFile(filepath.Join(f.directory, "result.json"))
++	if err != nil {
++		f.t.Fatal("browser safe result missing")
++	}
++	defer clear(raw)
++	var result authenticationWebResult
++	if json.Unmarshal(raw, &result) != nil {
++		f.t.Fatal("browser safe result invalid")
++	}
++	return result
++}
+--- /dev/null
++++ b/tests/account/authentication_web_test.go
+@@ -0,0 +1,83 @@
++//go:build integration
++
++package account_test
++
++import (
++	"context"
++	"testing"
++	"time"
++)
++
++func TestAccountAuthenticationWebSessionLifecycle(t *testing.T) {
++	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
++	defer cancel()
++	f := newAuthenticationWebFixture(t, ctx)
++	r := f.browser(ctx, "lifecycle")
++	if !r.LoggedOut || r.UserID != f.entry.ID || r.SessionID == "" {
++		t.Fatal("browser did not complete real Session lifecycle")
++	}
++	var revoked bool
++	var audits int
++	conn := f.db.Connect(t)
++	if e := conn.QueryRow(ctx, `SELECT revoked_at IS NOT NULL AND revoked_reason='logout' FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2`, r.SessionID, r.UserID).Scan(&revoked); e != nil || !revoked {
++		t.Fatal("exact browser Session was not revoked by logout", e)
++	}
++	if e := conn.QueryRow(ctx, `SELECT count(*) FROM agenteam_audit.audit_records WHERE action IN ('account.login','account.logout') AND metadata->>'session_id'=$1 AND outcome='success'`, r.SessionID).Scan(&audits); e != nil || audits != 2 {
++		t.Fatal("real Session login/logout audit missing", e)
++	}
++	t.Logf("real user=%s session=%s logout=true successful Session audit=%d", r.UserID, r.SessionID, audits)
++}
++
++func TestAccountAuthenticationWebRotateChallenge(t *testing.T) {
++	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
++	defer cancel()
++	for _, name := range []string{"desktop", "keyboard"} {
++		t.Run(name, func(t *testing.T) {
++			f := newAuthenticationWebFixture(t, ctx)
++			f.setChallengeThreshold(ctx)
++			r := f.browser(ctx, name)
++			if !r.Verified || !r.ExactPass || !r.ExactKey || r.UserID != f.entry.ID {
++				t.Fatal("actual rotate did not preserve verified pass and login intent")
++			}
++			var phase string
++			if e := f.db.Connect(t).QueryRow(ctx, `SELECT phase FROM agenteam_account.challenges WHERE id=$1`, r.ChallengeID).Scan(&phase); e != nil || phase != "consumed" {
++				t.Fatal("real challenge was not atomically consumed", e)
++			}
++			t.Logf("%s actual challenge=%s consumed; pass length80/exact same login key checked in memory", name, r.ChallengeID)
++		})
++	}
++}
++
++func TestAccountAuthenticationWebRevocationAndExpiry(t *testing.T) {
++	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
++	defer cancel()
++	for _, name := range []string{"revocation", "expiry"} {
++		t.Run(name, func(t *testing.T) {
++			f := newAuthenticationWebFixture(t, ctx)
++			r := f.browser(ctx, name)
++			if !r.Unavailable || r.UserID != f.entry.ID || r.SessionID == "" {
++				t.Fatal("real Session invalidation did not remove protected content")
++			}
++			var invalid bool
++			query := `SELECT revoked_at IS NOT NULL AND revoked_reason='password_changed' FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2`
++			if name == "expiry" {
++				query = `SELECT absolute_expires_at<clock_timestamp() FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2`
++			}
++			if e := f.db.Connect(t).QueryRow(ctx, query, r.SessionID, r.UserID).Scan(&invalid); e != nil || !invalid {
++				t.Fatal("exact owned Session invalidation fact missing", e)
++			}
++			t.Logf("%s exact Session=%s confirmed unavailable through real GET/router", name, r.SessionID)
++		})
++	}
++}
++
++func TestAccountAuthenticationWebLayoutsAndProduction(t *testing.T) {
++	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
++	defer cancel()
++	f := newAuthenticationWebFixture(t, ctx)
++	r := f.browser(ctx, "layouts")
++	if r.Layouts != 8 || r.UserID != f.entry.ID {
++		t.Fatal("formal dist theme/viewport matrix incomplete")
++	}
++	t.Log("formal dist: eight theme/viewport pairs, 200% scale, keyboard/reduced motion, real saved theme, API/asset fallback and no Debug verified")
++}

@@ -1,0 +1,31 @@
+{
+  "conclusion": "STATIC PASS narrow F1-F4 repair review; no independent dynamic execution",
+  "fixed_manifest_sha256": "0bd7611e421549ef4d13a148b50e04359b3b53845fabfb6a6b597fdddf74eece",
+  "files": [
+    {
+      "path": "check-command.json",
+      "bytes": 977,
+      "sha256": "aa27d82ded1e01e0a452edfa76975416140f400590387e78cb7aeae76278fb66"
+    },
+    {
+      "path": "checks.json",
+      "bytes": 9763,
+      "sha256": "52a26800ed53b4d64eea4dbc4217a57d4d31c63e5402d34368b515e606f4f759"
+    },
+    {
+      "path": "review.md",
+      "bytes": 5186,
+      "sha256": "f75761121625c8d28035a1e902e1e147741b00a12dfa158e1fbbac3b478d85a5"
+    },
+    {
+      "path": "test-token-delta.json",
+      "bytes": 3930,
+      "sha256": "7930e82307ac513832a85b0bcd7820968216dfc91d2c74f435295302b1a91ca9"
+    },
+    {
+      "path": "verify_inputs.py",
+      "bytes": 3748,
+      "sha256": "b8b9355bd66f5273b5e17d4b65636bed9210e1699c8ec5a191caf0fb9d50dcbd"
+    }
+  ]
+}

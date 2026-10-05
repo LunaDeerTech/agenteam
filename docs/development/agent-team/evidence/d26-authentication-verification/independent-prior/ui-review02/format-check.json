@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "git",
+    "diff",
+    "--no-index",
+    "--check",
+    "/dev/null",
+    "/tmp/agenteam-d26-ui-review02-v-njf1nsfc/review.md"
+  ],
+  "cwd": "/tmp/agenteam-d26-ui-review02-v-njf1nsfc",
+  "exit": 1,
+  "stdout": "",
+  "stderr": "",
+  "note": "no-index exit1 with empty diagnostics represents new-file difference, no whitespace warning"
+}

@@ -1,0 +1,123 @@
+--- fixture-input-03/web/src/views/auth/LoginView.vue
++++ ui-review-04/web/src/views/auth/LoginView.vue
+@@ -42,6 +42,26 @@
+     verificationFocus = null
+     challengeFocus = null
+   }
++}
++function pointerStarted(event: PointerEvent) {
++  const question = state.challenge
++  const panel = form.value?.querySelector('.rotate-challenge')
++  if (!(event.target instanceof Element) || !panel?.contains(event.target)) {
++    verificationFocus = null
++    challengeFocus = null
++    return
++  }
++  // The official drag handle is not focusable. Own this question's actual
++  // pointer intent before the browser can move focus to the body.
++  if (
++    question &&
++    !state.busy &&
++    !state.challengeBusy &&
++    event.isPrimary &&
++    event.button === 0 &&
++    event.target.closest('.gc-drag-block')
++  )
++    verificationFocus = question.id
+ }
+ watch(
+   () => [state.challenge, state.challengeBusy, state.passReady] as const,
+@@ -105,10 +125,12 @@
+ }
+ onMounted(() => {
+   document.addEventListener('focusin', focusMoved)
++  document.addEventListener('pointerdown', pointerStarted, true)
+   heading.value?.focus()
+ })
+ onUnmounted(() => {
+   document.removeEventListener('focusin', focusMoved)
++  document.removeEventListener('pointerdown', pointerStarted, true)
+   verificationFocus = null
+   challengeFocus = null
+   clearForm()
+--- fixture-input-03/web/src/tests/authentication.spec.ts
++++ ui-review-04/web/src/tests/authentication.spec.ts
+@@ -1,6 +1,7 @@
+ import { afterEach, describe, expect, it, vi } from 'vitest'
+ import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+ import { createMemoryHistory, createRouter } from 'vue-router'
++import { Rotate } from 'go-captcha-vue'
+ import type { AccountAPI, SessionView } from '../api/account'
+ import { AccountFailure } from '../api/client'
+ import type { SessionController } from '../composables/useSession'
+@@ -388,4 +389,70 @@
+         expect(p.auth.state.passReady).toBe(false)
+       }
+     })
++  for (const outcome of ['success', 'rejected', 'timeout', 'edited', 'outside-pointer'])
++    it(`remembers a current-question drag through body focus without stealing later interaction: ${outcome}`, async () => {
++      const p = await page()
++      p.api.login.mockRejectedValueOnce(fault('CHALLENGE_REQUIRED', 403))
++      await p.wrapper.get('#login-email').setValue(view.user.email)
++      await p.wrapper.get('#login-password').setValue('Original-Password-92!')
++      await p.wrapper.get('form').trigger('submit')
++      await flushPromises()
++      await p.wrapper.get('[data-action="challenge"]').trigger('click')
++      await flushPromises()
++      const range = p.wrapper.get('#rotate-angle').element as HTMLInputElement
++      expect(document.activeElement === range && !range.disabled).toBe(true)
++      const drag = p.wrapper.get('.gc-drag-block')
++      expect(drag.element.tagName).toBe('DIV')
++      expect(drag.attributes('tabindex')).toBeUndefined()
++      const pointerDown = (target: Element) => {
++        const event = new MouseEvent('pointerdown', { button: 0, bubbles: true })
++        Object.defineProperty(event, 'isPrimary', { value: true })
++        target.dispatchEvent(event)
++      }
++      pointerDown(drag.element)
++      // Model the non-focusable drag's native focus loss. jsdom does not
++      // perform that default pointer action; this is a pure interaction case.
++      range.blur()
++      expect(document.activeElement === document.body).toBe(true)
++      let succeed!: () => void, reject!: () => void
++      p.api.verifyChallenge.mockImplementationOnce(
++        () =>
++          new Promise((resolve, fail) => {
++            succeed = () => resolve({ pass: id + '.' + 'P'.repeat(43) })
++            reject = () => fail(fault('CHALLENGE_INVALID', 403))
++          }),
++      )
++      if (outcome === 'timeout') vi.useFakeTimers()
++      const events = p.wrapper.getComponent(Rotate).props('events') as {
++        confirm: (angle: number) => void
++      }
++      events.confirm(137)
++      await flushPromises()
++      expect(p.api.verifyChallenge).toHaveBeenCalledTimes(1)
++      expect(p.auth.state.challengeBusy && range.disabled).toBe(true)
++      if (outcome === 'edited') {
++        const email = p.wrapper.get('#login-email').element as HTMLInputElement
++        email.focus()
++        email.blur()
++      } else if (outcome === 'outside-pointer') {
++        pointerDown(p.wrapper.get('.login-description').element)
++      }
++      expect(document.activeElement === document.body).toBe(true)
++      if (outcome === 'timeout') await vi.advanceTimersByTimeAsync(30_000)
++      else if (outcome === 'success') succeed()
++      else reject()
++      await flushPromises()
++      const movedElsewhere = outcome === 'edited' || outcome === 'outside-pointer'
++      const target = outcome === 'success' ? 'login' : 'challenge'
++      expect(
++        document.activeElement ===
++          (movedElsewhere ? document.body : p.wrapper.get(`[data-action="${target}"]`).element),
++      ).toBe(true)
++      expect(p.auth.state.passReady).toBe(outcome === 'success')
++      if (outcome === 'timeout') {
++        succeed()
++        await flushPromises()
++        expect(p.auth.state.passReady).toBe(false)
++      }
++    })
+ })

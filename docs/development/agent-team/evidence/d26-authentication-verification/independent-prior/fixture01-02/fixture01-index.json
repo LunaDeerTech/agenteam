@@ -1,0 +1,40 @@
+{
+  "conclusion": "BLOCKED fixture01 assertions; no reproduced product failure",
+  "files": [
+    {
+      "path": "fixture01/tests/account/authentication_web_fixture_test.go",
+      "sha256": "95a635c182b81b82b78d97d7574a432c1d0a371a5ae84396bc95d6880a6ea3b7",
+      "bytes": 14128
+    },
+    {
+      "path": "fixture01/tests/account/authentication_web_test.go",
+      "sha256": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76",
+      "bytes": 3639
+    },
+    {
+      "path": "fixture01/tests/account-captcha-web/authentication.config.js",
+      "sha256": "2f2a2921142b53eb4fbb9b103f4e59e06ab1619bb31ccce3e7677aa2d0e410c1",
+      "bytes": 1194
+    },
+    {
+      "path": "fixture01/tests/account-captcha-web/e2e/authentication.spec.ts",
+      "sha256": "1e63e2b15c67e1e67a7bfb9c36ccfbd864b5f27d2d8996a7da2d639415cb922b",
+      "bytes": 17901
+    },
+    {
+      "path": "fixture01-manifest.json",
+      "sha256": "57bb798533d623b67a1323f416c3cbaae15ffcf224720c82c73eeb1701ee740b",
+      "bytes": 5136
+    },
+    {
+      "path": "fixture01-plan.json",
+      "sha256": "6f890bbdcf3ebe4d021cf33178babd2178b33b191d311b7f1a30bd71cf6fb2c4",
+      "bytes": 2489
+    },
+    {
+      "path": "fixture01-report.md",
+      "sha256": "0fa741883462d00a6182cebf95490cc65a7f11427478d224bf30c0ec31e3ef46",
+      "bytes": 2694
+    }
+  ]
+}

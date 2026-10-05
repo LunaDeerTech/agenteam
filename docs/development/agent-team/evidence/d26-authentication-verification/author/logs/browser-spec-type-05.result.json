@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/web/node_modules/.bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--skipLibCheck",
+    "--types",
+    "node",
+    "--typeRoots",
+    "web/node_modules/@types",
+    "tests/account-captcha-web/e2e/authentication.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input",
+  "env": {},
+  "exit": 0,
+  "seconds": 0.9847426414489746
+}

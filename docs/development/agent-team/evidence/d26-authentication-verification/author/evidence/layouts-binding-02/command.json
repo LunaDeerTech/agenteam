@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/run_fixture_v2.py",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-plan-06.json",
+    "0"
+  ],
+  "cwd": "/workspace/agenteam-d26-auth-author-jrfhr6h1",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-d26-auth-author-jrfhr6h1/go-cache",
+    "TMPDIR": "/workspace/agenteam-d26-auth-author-jrfhr6h1/tmp",
+    "DOCKER_CONFIG": "/workspace/agenteam-d26-auth-author-jrfhr6h1/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/d26-auth-runtime-jrfhr6h1",
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/browser-images-02"
+  },
+  "runner_sha256": "9f9e0b562e8d2d678bac073eb3f2d98eafdbc0231e19f09e6120d61dbb00ff05",
+  "plan_sha256": "fd9e67ad70ca8b37b8a16a5f1e7b7cd5c629390609e5db6c194cc53661c99821",
+  "input_sha256": "2e0d63e1fabeaf4ba1ba808f2aa5e4a795b903516f6501b08d25517f16b37966",
+  "started": 1791233340.2611783
+}

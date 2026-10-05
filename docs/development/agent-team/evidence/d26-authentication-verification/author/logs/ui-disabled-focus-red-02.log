@@ -1,0 +1,49 @@
+
+ RUN  v4.1.11 /workspace/agenteam-d26-auth-author-jrfhr6h1/input/web
+
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > has a real labelled form and protected home, preserves password bytes, confirms and logs out
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hides protected contents when authority is unavailable and provides explicit recovery
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > keeps Unknown inputs locked and offers an explicit original-request retry without optimistic success
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > keeps Debug and unknown routes independent and accepts only the implemented return path
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after abandon while preserving ordinary credential failures
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after csrf while preserving ordinary credential failures
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > restores the challenge action focus after rejected without claiming verification
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > restores the challenge action focus after timeout without claiming verification
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > offers one explicit Session recovery after an old login tail settles on a returned auth route
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > focuses an enabled new challenge, returns successful verification to login, and never steals edited-input focus
+ × src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: rejected 106ms
+   → expected false to be true // Object.is equality
+ × src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: timeout 35ms
+   → expected false to be true // Object.is equality
+ × src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: success 23ms
+   → expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: rejected
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: timeout
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: success
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/tests/authentication.spec.ts:369:93
+    367|       await flushPromises()
+    368|       const target = outcome === 'success' ? 'login' : 'challenge'
+    369|       expect(document.activeElement === p.wrapper.get(`[data-action="$…
+       |                                                                                             ^
+    370|       expect(p.auth.state.passReady).toBe(outcome === 'success')
+    371|       if (outcome === 'timeout') { succeed(); await flushPromises(); e…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 10 skipped (13)
+   Start at  20:19:27
+   Duration  1.18s (transform 441ms, setup 0ms, import 530ms, tests 166ms, environment 368ms)
+

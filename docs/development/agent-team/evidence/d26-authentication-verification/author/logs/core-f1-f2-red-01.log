@@ -1,0 +1,90 @@
+
+ RUN  v4.1.11 /workspace/agenteam-d26-auth-author-jrfhr6h1/input/web
+
+ ❯ src/tests/account-client.spec.ts (15 tests | 1 failed | 11 skipped) 17ms
+     × rejects non-string commit_state without converting it 14ms
+ ❯ src/tests/session.spec.ts (10 tests | 3 failed | 7 skipped) 24ms
+     × dismiss cannot alter the complete original request after a pass-bearing login is pending 11ms
+     × dismiss cannot alter the complete original request after a pass-bearing login is unknown 2ms
+     × the real client treats malformed commit_state as unconfirmed and retains the complete login request 10ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/account-client.spec.ts > the six Account wire contracts > rejects non-string commit_state without converting it
+AssertionError: expected AccountFailure: problem { …(2) } to match object { kind: 'invalid-response', …(1) }
+(1 matching property omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "kind": "invalid-response",
+-   "problem": undefined,
++ AccountFailure {
++   "kind": "problem",
++   "problem": {
++     "code": "DEPENDENCY_UNAVAILABLE",
++     "commit_state": [
++       "unknown",
++     ],
++     "detail": "safe error",
++     "instance": "/api/v1/sessions/login",
++     "request_id": "01900000-0000-7000-8000-000000000001",
++     "status": 503,
++     "title": "Unavailable",
++     "type": "urn:agenteam:problem:dependency-unavailable",
++   },
+  }
+
+ ❯ src/tests/account-client.spec.ts:32:54
+     30|       detail: 'safe error', instance: '/api/v1/sessions/login', code: …
+     31|     const api = createAccountAPI(async () => response(malformed, 503, …
+     32|     await expect(api.getSession(controller().signal)).rejects.toMatchO…
+       |                                                      ^
+     33|   })
+     34|   it('uses only relative exact paths, separate tokens, original input …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/tests/session.spec.ts > Account Session ownership > dismiss cannot alter the complete original request after a pass-bearing login is pending
+ FAIL  src/tests/session.spec.ts > Account Session ownership > dismiss cannot alter the complete original request after a pass-bearing login is unknown
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/tests/session.spec.ts:99:94
+     97|     api.login.mockRejectedValueOnce(problem('COMMIT_UNKNOWN', 503, 'un…
+     98|     await c.retryOriginal()
+     99|     expect(JSON.stringify(api.login.mock.calls[2].slice(0, 3)) === JSO…
+       |                                                                                              ^
+    100|     expect(c.state.phase).toBe('uncertain')
+    101|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/tests/session.spec.ts > Account Session ownership > the real client treats malformed commit_state as unconfirmed and retains the complete login request
+AssertionError: expected 'anonymous' to be 'uncertain' // Object.is equality
+
+Expected: "uncertain"
+Received: "anonymous"
+
+ ❯ src/tests/session.spec.ts:114:27
+    112|     })
+    113|     const c = createSessionController(api); await c.restore(); await c…
+    114|     expect(c.state.phase).toBe('uncertain')
+       |                           ^
+    115|     await c.retryOriginal()
+    116|     expect(writes).toHaveLength(2)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  4 failed | 3 passed | 18 skipped (25)
+   Start at  19:48:55
+   Duration  630ms (transform 127ms, setup 0ms, import 211ms, tests 41ms, environment 734ms)
+

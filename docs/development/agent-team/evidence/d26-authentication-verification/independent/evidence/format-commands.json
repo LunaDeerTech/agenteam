@@ -1,0 +1,24 @@
+[
+  {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/gofmt",
+      "-w",
+      "/workspace/agenteam-d26-independent-v-2wzub6ar/input/tests/account/authentication_independent_test.go"
+    ],
+    "cwd": "/workspace/agenteam-d26-independent-v-2wzub6ar/input",
+    "env": {},
+    "exit": 0
+  },
+  {
+    "argv": [
+      "node",
+      "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/web/node_modules/prettier/bin/prettier.cjs",
+      "--write",
+      "/workspace/agenteam-d26-independent-v-2wzub6ar/input/tests/account-captcha-web/independent.config.js",
+      "/workspace/agenteam-d26-independent-v-2wzub6ar/input/tests/account-captcha-web/e2e/independent.spec.ts"
+    ],
+    "cwd": "/workspace/agenteam-d26-independent-v-2wzub6ar/input",
+    "env": {},
+    "exit": 0
+  }
+]

@@ -1,0 +1,65 @@
+{
+  "input": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/manifest.json",
+  "input_sha256": "75e43c7ddf26b9005c0ea0cde48a37e085221bd15a78f461315cd931f733743b",
+  "cwd": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-d26-auth-author-jrfhr6h1/go-cache",
+    "TMPDIR": "/workspace/agenteam-d26-auth-author-jrfhr6h1/tmp",
+    "DOCKER_CONFIG": "/workspace/agenteam-d26-auth-author-jrfhr6h1/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/d26-auth-runtime-jrfhr6h1",
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/browser-images-01"
+  },
+  "groups": [
+    {
+      "name": "auth-lifecycle-rotate-01",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestAccountAuthenticationWeb(SessionLifecycle|RotateChallenge)$"
+      ],
+      "tops": 2,
+      "browser_cases": [
+        "lifecycle",
+        "desktop",
+        "keyboard"
+      ]
+    },
+    {
+      "name": "auth-revocation-layouts-01",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestAccountAuthenticationWeb(RevocationAndExpiry|LayoutsAndProduction)$"
+      ],
+      "tops": 2,
+      "browser_cases": [
+        "revocation",
+        "expiry",
+        "layouts"
+      ]
+    }
+  ],
+  "budgets": {
+    "driver": "original race/count1/6m per package",
+    "go_top": "original2m including subcases",
+    "playwright": "45s workers1 retries0"
+  },
+  "cleanup": "task-owned labels/nonce/exact-ID live capture; two actual absence checks; original baseline unchanged; child processes waited; short runtime empty; first unexpected failure stops later group",
+  "boundary": "NO browser/Docker authorization yet; existing full root and formal dist; no fixture HTTP routes, no protocol/commit fault injection, no production CORS/cookie changes; API/unknown asset never index fallback; locked Playwright PLAYWRIGHT_NO_COPY_PROMPT=1 disables automatic page snapshot; trace/video/screenshots off except safe cleared-form layout captures",
+  "observer": {
+    "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/run_fixture.py",
+    "sha256": "8f9e88d787dcd7165a8d9eaefa2ff3d2ae6087d0cb9207709d4a1ac272b7398e",
+    "status": "syntax checked; not executed; no Docker/browser authorization yet"
+  }
+}

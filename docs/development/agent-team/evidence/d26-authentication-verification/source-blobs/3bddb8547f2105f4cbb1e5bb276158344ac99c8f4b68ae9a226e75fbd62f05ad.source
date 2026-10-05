@@ -1,0 +1,153 @@
+<script setup lang="ts">
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { Rotate } from 'go-captcha-vue'
+import 'go-captcha-vue/dist/style.css'
+import type { Challenge } from '../../api/account'
+import UiButton from '../ui/UiButton.vue'
+
+const props = defineProps<{ challenge: Challenge; busy: boolean }>()
+const emit = defineEmits<{ verify: [angle: number]; refresh: []; close: [] }>()
+const root = ref<HTMLElement | null>(null)
+const range = ref<HTMLInputElement | null>(null)
+const angle = ref(0)
+// Keep the drag origin stable while the official component reports its angle.
+const keyboardOrigin = ref(0)
+const available = ref(258)
+const width = computed(() => Math.max(80, Math.min(240, available.value - 18)))
+const size = computed(() => Math.min(220, width.value))
+const data = computed(() => ({
+  image: props.challenge.master,
+  thumb: props.challenge.thumb,
+  angle: keyboardOrigin.value,
+  thumbSize: (160 * size.value) / 220,
+}))
+const config = computed(() => ({
+  width: width.value,
+  height: size.value,
+  size: size.value,
+  horizontalPadding: 8,
+  title: '旋转内圈，使图像对齐',
+  showTheme: true,
+}))
+function normalized(value: number) {
+  return Math.max(0, Math.min(360, Math.round(value)))
+}
+function verify(value: number) {
+  if (props.busy || !Number.isFinite(value)) return
+  angle.value = normalized(value)
+  emit('verify', angle.value)
+}
+const events = {
+  rotate(value: number) {
+    if (!props.busy) angle.value = normalized(value)
+  },
+  confirm: verify,
+  refresh() {
+    if (!props.busy) emit('refresh')
+  },
+  close() {
+    if (!props.busy) emit('close')
+  },
+}
+function keyboard(event: Event) {
+  angle.value = normalized(Number((event.target as HTMLInputElement).value))
+  keyboardOrigin.value = angle.value
+}
+let observer: ResizeObserver | undefined
+onMounted(() => {
+  if (root.value) {
+    const measured = root.value.getBoundingClientRect().width
+    if (measured > 0) available.value = measured
+    if (typeof ResizeObserver !== 'undefined') {
+      observer = new ResizeObserver((entries) => {
+        if (entries[0]?.contentRect.width) available.value = entries[0].contentRect.width
+      })
+      observer.observe(root.value)
+    }
+  }
+  range.value?.focus()
+})
+watch(
+  () => props.challenge.id,
+  async () => {
+    angle.value = 0
+    keyboardOrigin.value = 0
+    await nextTick()
+    range.value?.focus()
+  },
+)
+onBeforeUnmount(() => observer?.disconnect())
+</script>
+
+<template>
+  <section ref="root" class="rotate-challenge" aria-labelledby="rotate-title" :aria-busy="busy">
+    <h2 id="rotate-title">旋转验证</h2>
+    <p id="rotate-help" class="meta">
+      对齐内外图像。可拖动滑块，或用方向键调整角度后验证。判断图像仍需要视觉。
+    </p>
+    <div class="rotate-image" :data-disabled="busy">
+      <Rotate :key="challenge.id" :data="data" :config="config" :events="events" />
+    </div>
+    <label for="rotate-angle">旋转角度</label>
+    <input
+      id="rotate-angle"
+      ref="range"
+      type="range"
+      min="0"
+      max="360"
+      step="1"
+      :value="angle"
+      :disabled="busy"
+      :aria-valuetext="`${angle} 度`"
+      aria-describedby="rotate-help"
+      @input="keyboard"
+      @keydown.enter.prevent="verify(angle)"
+    />
+    <output for="rotate-angle" data-testid="rotate-angle">{{ angle }}°</output>
+    <div class="ui-row">
+      <UiButton :disabled="busy" @click="verify(angle)">验证角度</UiButton>
+      <UiButton :disabled="busy" @click="emit('refresh')">换一题</UiButton>
+      <UiButton variant="ghost" :disabled="busy" @click="emit('close')">关闭验证</UiButton>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.rotate-challenge {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  width: 100%;
+  padding-block: 12px;
+}
+.rotate-challenge input {
+  width: 100%;
+  min-width: 0;
+}
+.rotate-image {
+  min-width: 0;
+  max-width: 100%;
+}
+.rotate-image[data-disabled='true'] {
+  pointer-events: none;
+  opacity: 0.65;
+}
+.rotate-image :deep(.gc-icon-block) {
+  display: none;
+}
+.rotate-image :deep(.gc-theme) {
+  background: var(--surface);
+  border-color: var(--border);
+  color: var(--text);
+}
+.rotate-image :deep(.gc-header) {
+  color: var(--text);
+  font-family: var(--font-sans);
+}
+@media (prefers-reduced-motion: reduce) {
+  .rotate-image :deep(*) {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+</style>

@@ -1,0 +1,58 @@
+
+ RUN  v4.1.11 /workspace/agenteam-d26-auth-author-jrfhr6h1/input/web
+
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > has a real labelled form and protected home, preserves password bytes, confirms and logs out
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hides protected contents when authority is unavailable and provides explicit recovery
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > keeps Unknown inputs locked and offers an explicit original-request retry without optimistic success
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > keeps Debug and unknown routes independent and accepts only the implemented return path
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after abandon while preserving ordinary credential failures
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after csrf while preserving ordinary credential failures
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > restores the challenge action focus after rejected without claiming verification
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > restores the challenge action focus after timeout without claiming verification
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > offers one explicit Session recovery after an old login tail settles on a returned auth route
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > focuses an enabled new challenge, returns successful verification to login, and never steals edited-input focus
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: rejected
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: timeout
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: success
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: edited
+ × src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: success 101ms
+   → Cannot set property button of #<MouseEvent> which has only a getter
+ × src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: rejected 40ms
+   → Cannot set property button of #<MouseEvent> which has only a getter
+ × src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: timeout 22ms
+   → Cannot set property button of #<MouseEvent> which has only a getter
+ × src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: edited 27ms
+   → Cannot set property button of #<MouseEvent> which has only a getter
+ × src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: outside-pointer 22ms
+   → Cannot set property button of #<MouseEvent> which has only a getter
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 5 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: success
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: rejected
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: timeout
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: edited
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: outside-pointer
+TypeError: Cannot set property button of #<MouseEvent> which has only a getter
+ ❯ node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:1255:28
+ ❯ createDOMEvent node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:1251:30
+ ❯ DOMWrapper.<anonymous> node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:7367:31
+ ❯ node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:56:71
+ ❯ __awaiter node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:52:12
+ ❯ DOMWrapper.trigger node_modules/@vue/test-utils/dist/vue-test-utils.cjs.js:7360:16
+ ❯ src/tests/authentication.spec.ts:407:18
+    405|       expect(drag.element.tagName).toBe('DIV')
+    406|       expect(drag.attributes('tabindex')).toBeUndefined()
+    407|       await drag.trigger('pointerdown', { button: 0, isPrimary: true })
+       |                  ^
+    408|       // Model the non-focusable drag's native focus loss. jsdom does …
+    409|       // perform that default pointer action; this is a pure interacti…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/5]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  5 failed | 14 skipped (19)
+   Start at  20:37:40
+   Duration  1.27s (transform 445ms, setup 0ms, import 535ms, tests 213ms, environment 378ms)
+

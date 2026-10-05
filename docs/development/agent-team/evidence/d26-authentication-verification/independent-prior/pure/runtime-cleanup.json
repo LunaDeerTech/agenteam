@@ -1,0 +1,12 @@
+{
+  "original_process_record": "process-final.json",
+  "note": "Only an owned Node compile cache remained; commands had exited and owned Node processes were already zero. Exact owned cache removed after recording bytes/SHA. No browser/Go/Docker resources existed.",
+  "removed": [
+    {
+      "path": "runtime/node-compile-cache/v24.19.0-x64-cf738c9d-1000/e23c389e",
+      "bytes": 1357764,
+      "sha256": "341c422dabf2b9f443884dd6bea3c1c0fb9ce915bcaaff94286fac083feaa72f"
+    }
+  ],
+  "runtime_remaining": []
+}

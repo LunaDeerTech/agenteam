@@ -1,0 +1,229 @@
+{
+  "kind": "static SHA and fixed-delta checks, no product execution",
+  "manifest_sha256": "0bd7611e421549ef4d13a148b50e04359b3b53845fabfb6a6b597fdddf74eece",
+  "matched": [
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/web/src/api/client.ts",
+      "sha256": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad",
+      "bytes": 7519
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/web/src/api/account.ts",
+      "sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+      "bytes": 7397
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/web/src/composables/useSession.ts",
+      "sha256": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679",
+      "bytes": 17260
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/web/src/tests/account-client.spec.ts",
+      "sha256": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b",
+      "bytes": 8232
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/web/src/tests/session.spec.ts",
+      "sha256": "084bbdcc66fc15bf560b608a861792d73c9d712bd36f6ad5ca15a6b9aa5ec25c",
+      "bytes": 17639
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "bytes": 984
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "bytes": 86893
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core-f1-f2-red-01.log",
+      "sha256": "035dfad8b989cbcccec31fc9d012088b972147b571823e697abc8474c65ce2ad",
+      "bytes": 3752
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core-f1-f2-red-01.result.json",
+      "sha256": "2b74c13d48223718f0e6b9c176c5ad5a9bb4b1614754c611a21b1d1d39f0e9cf",
+      "bytes": 409
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core-f3-f4-red-01.log",
+      "sha256": "38bcd03c180cb84de925b7ca89ed15de9c3d45aa8240439a05b6da363b7b6d0d",
+      "bytes": 2733
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core-f3-f4-red-01.result.json",
+      "sha256": "e73e6040d41cd9b8c18e3794c5310cb2c4a04bc51bfca3b631af5033e97810a9",
+      "bytes": 358
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core-fix-unit-01.log",
+      "sha256": "8d570338384f89679e316106d0eab83b161929326ed7ae7bf9ee244241a3dd16",
+      "bytes": 242
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core-fix-unit-01.result.json",
+      "sha256": "daa63d17b96c8e109107d868aa0ad3d742277631c1206a36e2e80e1dedc53132",
+      "bytes": 270
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-type-01.log",
+      "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+      "bytes": 54
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-type-01.result.json",
+      "sha256": "5a61ce420434a08367be4a31550645865bf1fb33b29f9cda7a0aa7712db63c0f",
+      "bytes": 217
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-unit-01.log",
+      "sha256": "0ac7ec64d98d9b9f2e4544dc66ce1a40e5d5bacf6c04ff884ed6e45eb192a9a9",
+      "bytes": 1207
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-unit-01.result.json",
+      "sha256": "f048987a074f4d2c399588de17ecdf239e812197a3b3675707184d2727ce32cb",
+      "bytes": 270
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-unit-02.log",
+      "sha256": "bb9059c45a866df206be4ec24c32a6e8bf7d19c6282daba3e128d62f1ee89793",
+      "bytes": 241
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-unit-02.result.json",
+      "sha256": "daa63d17b96c8e109107d868aa0ad3d742277631c1206a36e2e80e1dedc53132",
+      "bytes": 270
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-format-check-01.log",
+      "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "bytes": 66
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/core02-format-check-01.result.json",
+      "sha256": "88135828cb326d4b57725d182e372aff6ac525775761c5721f3ff67e349f87e3",
+      "bytes": 727
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f1-f2-red-01/manifest.json",
+      "sha256": "ec7454f056c63c8bc9b0edb37eb9c15f8500f21f700656d4f85780b6f2c781ed",
+      "bytes": 785
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f1-f2-red-01/web/src/api/client.ts",
+      "sha256": "0b4a4972977907f9e93a622af23f8a840d90ea870f0bbad3b6ff5105a4c7fe51",
+      "bytes": 6772
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f1-f2-red-01/web/src/api/account.ts",
+      "sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+      "bytes": 7397
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f1-f2-red-01/web/src/composables/useSession.ts",
+      "sha256": "10c8b28c119909102511c3e3a3a17808a97b29a98463d9a6b70b7677624c1667",
+      "bytes": 16860
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f1-f2-red-01/web/src/tests/account-client.spec.ts",
+      "sha256": "88fe987796a685a680ed02414614872a3fbd1abbcd94872ae4493defc7299369",
+      "bytes": 8123
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f1-f2-red-01/web/src/tests/session.spec.ts",
+      "sha256": "7aaa312f46fc17008d2cb795c43b063f1c8318fa144703d08ec676c134ce1bb8",
+      "bytes": 11769
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f3-f4-red-01/manifest.json",
+      "sha256": "7d59a849f2e0bdac84f6eaa2a7c4a7bc4b7e7328d931eb96866d35805b2414dc",
+      "bytes": 820
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f3-f4-red-01/web/src/api/client.ts",
+      "sha256": "bc369c696e776910be8f048066baf99bfbf0e4f516814ee5b862badef0bd7eb8",
+      "bytes": 6806
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f3-f4-red-01/web/src/api/account.ts",
+      "sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+      "bytes": 7397
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f3-f4-red-01/web/src/composables/useSession.ts",
+      "sha256": "4783291e4881c85a47f69fc524885b52b0deefd3e5fbc29669f84613a7daefc8",
+      "bytes": 16893
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f3-f4-red-01/web/src/tests/account-client.spec.ts",
+      "sha256": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b",
+      "bytes": 8232
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-f3-f4-red-01/web/src/tests/session.spec.ts",
+      "sha256": "8650ba0ea436b07d695a614cddaca7c971e748d3f8601d9d35f045cc0e6fa739",
+      "bytes": 16354
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-02/delta.patch",
+      "sha256": "fc70afbc15d26d68ce4c42c6fb9ad1e1157356fc54b84d26f6a9fdb5d33e0c31",
+      "bytes": 21511
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-01/web/src/api/client.ts",
+      "sha256": "0b4a4972977907f9e93a622af23f8a840d90ea870f0bbad3b6ff5105a4c7fe51",
+      "bytes": 6772
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-01/web/src/api/account.ts",
+      "sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+      "bytes": 7397
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-01/web/src/composables/useSession.ts",
+      "sha256": "10c8b28c119909102511c3e3a3a17808a97b29a98463d9a6b70b7677624c1667",
+      "bytes": 16860
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-01/web/src/tests/account-client.spec.ts",
+      "sha256": "b9327a716cd59f31fd89fa1d1dbfd36b3487e333008c46f896d3b3d850cac95e",
+      "bytes": 7525
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-01/web/src/tests/session.spec.ts",
+      "sha256": "2c3ad6b86fe977fdd489bcc93fd9d2e0d2f61907626ce04149d5bd86e46914a5",
+      "bytes": 9298
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-01/web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "bytes": 984
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/core-review-01/web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "bytes": 86893
+    }
+  ],
+  "changed_paths": [
+    "web/src/api/client.ts",
+    "web/src/composables/useSession.ts",
+    "web/src/tests/account-client.spec.ts",
+    "web/src/tests/session.spec.ts"
+  ],
+  "exact_delta_reconstructed": true,
+  "package_and_account_unchanged": true,
+  "original_F1_F2_production_identical_to_core01": true,
+  "author_final_tests": 29,
+  "not_run": [
+    "JavaScript",
+    "npm",
+    "browser",
+    "Go",
+    "Docker",
+    "network"
+  ]
+}

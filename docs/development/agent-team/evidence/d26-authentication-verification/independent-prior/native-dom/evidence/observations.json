@@ -1,0 +1,163 @@
+{
+  "scope": "native local DOM only; not Vue/application/API verification",
+  "playwright": "1.56.1",
+  "executable": "/usr/lib/chromium/chromium",
+  "pageRequests": [],
+  "cases": [
+    {
+      "mode": "range",
+      "events": [
+        {
+          "type": "focus",
+          "target": "angle",
+          "related": null
+        },
+        {
+          "type": "focusin",
+          "target": "angle",
+          "related": null
+        },
+        {
+          "type": "blur",
+          "target": "angle",
+          "related": null
+        },
+        {
+          "type": "focusout",
+          "target": "angle",
+          "related": null
+        }
+      ],
+      "snapshots": [
+        {
+          "stage": "before-disable",
+          "active": "angle",
+          "disabled": false,
+          "questionOwnsActive": true
+        },
+        {
+          "stage": "after-disable-sync",
+          "active": "body",
+          "disabled": true,
+          "questionOwnsActive": false
+        },
+        {
+          "stage": "after-disable-microtask",
+          "active": "body",
+          "disabled": true,
+          "questionOwnsActive": false
+        },
+        {
+          "stage": "after-disable-frame",
+          "active": "body",
+          "disabled": true,
+          "questionOwnsActive": false
+        }
+      ],
+      "done": true
+    },
+    {
+      "mode": "button",
+      "events": [
+        {
+          "type": "focus",
+          "target": "verify",
+          "related": null
+        },
+        {
+          "type": "focusin",
+          "target": "verify",
+          "related": null
+        },
+        {
+          "type": "blur",
+          "target": "verify",
+          "related": null
+        },
+        {
+          "type": "focusout",
+          "target": "verify",
+          "related": null
+        }
+      ],
+      "snapshots": [
+        {
+          "stage": "before-disable",
+          "active": "verify",
+          "disabled": false,
+          "questionOwnsActive": true
+        },
+        {
+          "stage": "after-disable-sync",
+          "active": "body",
+          "disabled": true,
+          "questionOwnsActive": false
+        },
+        {
+          "stage": "after-disable-microtask",
+          "active": "body",
+          "disabled": true,
+          "questionOwnsActive": false
+        },
+        {
+          "stage": "after-disable-frame",
+          "active": "body",
+          "disabled": true,
+          "questionOwnsActive": false
+        }
+      ],
+      "done": true
+    },
+    {
+      "mode": "external-control",
+      "events": [
+        {
+          "type": "focus",
+          "target": "external",
+          "related": null
+        },
+        {
+          "type": "focusin",
+          "target": "external",
+          "related": null
+        }
+      ],
+      "snapshots": [
+        {
+          "stage": "before-disable",
+          "active": "external",
+          "disabled": false,
+          "questionOwnsActive": false
+        },
+        {
+          "stage": "after-disable-sync",
+          "active": "external",
+          "disabled": true,
+          "questionOwnsActive": false
+        },
+        {
+          "stage": "after-disable-microtask",
+          "active": "external",
+          "disabled": true,
+          "questionOwnsActive": false
+        },
+        {
+          "stage": "after-disable-frame",
+          "active": "external",
+          "disabled": true,
+          "questionOwnsActive": false
+        }
+      ],
+      "done": true
+    }
+  ],
+  "contextCloseReturned": true,
+  "browserVersion": {
+    "protocolVersion": "1.3",
+    "product": "Chrome/151.0.7922.173",
+    "revision": "@a96602f30358e9b5d256a0464e7e4d4bec223004",
+    "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/151.0.0.0 Safari/537.36",
+    "jsVersion": "15.1.206.23"
+  },
+  "result": "PASS"
+}

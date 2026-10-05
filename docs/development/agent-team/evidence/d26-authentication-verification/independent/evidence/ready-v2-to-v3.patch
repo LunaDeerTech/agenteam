@@ -1,0 +1,386 @@
+--- ready-v2/independent.spec.ts
++++ ready-v3/independent.spec.ts
+@@ -1,9 +1,260 @@
+-import { test, expect, type Page, type Response } from "@playwright/test";
++import {
++  test,
++  expect,
++  type Page,
++  type Response,
++  type Request as PWRequest,
++} from "@playwright/test";
+ import { readFileSync, writeFileSync } from "node:fs";
+ import { join } from "node:path";
+ import { solvePublicRotation } from "./public-solver";
+ 
+ const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
++type CloneResult = {
++  ok: boolean;
++  status: number;
++  request_id: string;
++  bytes: number;
++  body?: unknown;
++  error?: string;
++};
++type ProbeWindow = Window & {
++  __d26IndependentObservation: {
++    arm(stage: string, method: string, path: string): void;
++    take(stage: string): Promise<CloneResult>;
++  };
++};
++const requestEvents = new WeakMap<
++  PWRequest,
++  { finished?: number; failed?: number }
++>();
++const armedNavigation = new Map<string, number>();
++let navigationCount = 0;
++const safeObservations: Record<string, unknown>[] = [];
++
++async function installObservation(page: Page) {
++  page.on("requestfinished", (request) => {
++    requestEvents.set(request, {
++      ...requestEvents.get(request),
++      finished: performance.now(),
++    });
++  });
++  page.on("requestfailed", (request) => {
++    requestEvents.set(request, {
++      ...requestEvents.get(request),
++      failed: performance.now(),
++    });
++  });
++  page.on("framenavigated", (frame) => {
++    if (frame === page.mainFrame()) navigationCount++;
++  });
++  armedNavigation.set("bootstrap", 0);
++  await page.addInitScript(() => {
++    const nativeFetch = window.fetch;
++    const records = new Map<
++      string,
++      { promise: Promise<CloneResult>; resolve(value: CloneResult): void }
++    >();
++    const armed = new Map<
++      string,
++      { stage: string; method: string; path: string }
++    >();
++    const arm = (stage: string, method: string, path: string) => {
++      if (
++        armed.size >= 2 ||
++        records.has(stage) ||
++        [...armed.values()].some(
++          (value) => value.method === method && value.path === path,
++        )
++      )
++        throw new Error("INDEPENDENT_ARM_ALREADY_ACTIVE");
++      let resolve!: (value: CloneResult) => void;
++      const promise = new Promise<CloneResult>((done) => {
++        resolve = done;
++      });
++      records.set(stage, { promise, resolve });
++      armed.set(stage, { stage, method, path });
++    };
++    const capture = async (copy: globalThis.Response): Promise<CloneResult> => {
++      const source = {
++        status: copy.status,
++        request_id: copy.headers.get("X-Request-ID") ?? "",
++      };
++      const reader = copy.body?.getReader();
++      if (!reader) return { ok: false, ...source, bytes: 0, error: "no_body" };
++      const decoder = new TextDecoder("utf-8", { fatal: true });
++      let text = "",
++        bytes = 0;
++      try {
++        for (;;) {
++          const chunk = await reader.read();
++          if (chunk.done) break;
++          bytes += chunk.value.byteLength;
++          if (bytes > 600_000)
++            return { ok: false, ...source, bytes, error: "limit" };
++          text += decoder.decode(chunk.value, { stream: true });
++        }
++        text += decoder.decode();
++        const body: unknown = JSON.parse(text);
++        text = "";
++        return { ok: true, ...source, bytes, body };
++      } catch {
++        return { ok: false, ...source, bytes, error: "clone_read" };
++      } finally {
++        await reader.cancel().catch(() => undefined);
++        reader.releaseLock();
++      }
++    };
++    window.fetch = function (this: Window, ...args: Parameters<typeof fetch>) {
++      const input = args[0],
++        init = args[1];
++      const url = new URL(
++        input instanceof Request ? input.url : String(input),
++        location.href,
++      );
++      const method =
++        init?.method || (input instanceof Request ? input.method : "GET");
++      const selected = [...armed.values()].find(
++        (value) =>
++          url.origin === location.origin &&
++          url.pathname === value.path &&
++          method.toUpperCase() === value.method,
++      );
++      if (selected) armed.delete(selected.stage);
++      const actual = Reflect.apply(
++        nativeFetch,
++        this,
++        args,
++      ) as Promise<globalThis.Response>;
++      if (!selected) return actual;
++      const record = records.get(selected.stage)!;
++      return actual.then(
++        (value) => {
++          try {
++            // Test-only tee: same Response immediately returned; no await of this reader.
++            void capture(value.clone()).then(record.resolve);
++          } catch {
++            record.resolve({
++              ok: false,
++              status: value.status,
++              request_id: value.headers.get("X-Request-ID") ?? "",
++              bytes: 0,
++              error: "clone",
++            });
++          }
++          return value;
++        },
++        (error) => {
++          record.resolve({
++            ok: false,
++            status: 0,
++            request_id: "",
++            bytes: 0,
++            error: "fetch",
++          });
++          throw error;
++        },
++      );
++    };
++    Object.defineProperty(window, "__d26IndependentObservation", {
++      value: {
++        arm,
++        async take(stage: string) {
++          const record = records.get(stage);
++          if (!record) throw new Error("INDEPENDENT_STAGE_MISSING");
++          try {
++            return await record.promise;
++          } finally {
++            records.delete(stage);
++          }
++        },
++      },
++      configurable: true,
++    });
++    arm("bootstrap", "GET", "/api/v1/auth/bootstrap");
++  });
++}
++async function armJSON(
++  page: Page,
++  stage: string,
++  path: string,
++  method = "POST",
++) {
++  armedNavigation.set(stage, navigationCount);
++  await page.evaluate(
++    ({ stage, path, method }) => {
++      (window as unknown as ProbeWindow).__d26IndependentObservation.arm(
++        stage,
++        method,
++        path,
++      );
++    },
++    { stage, path, method },
++  );
++}
++async function observedJSON(page: Page, stage: string, actual: Response) {
++  // Exactly one original CDP body read is retained, with its outcome separately recorded.
++  const cdp = await actual.json().then(
++    (body) => ({ ok: true as const, body }),
++    (error) => ({
++      ok: false as const,
++      known:
++        String(error).includes("Network.getResponseBody") &&
++        String(error).includes(
++          "No data found for resource with given identifier",
++        ),
++    }),
++  );
++  await actual.finished();
++  const event = requestEvents.get(actual.request());
++  const failed =
++    actual.request().failure() !== null || event?.failed !== undefined;
++  const clone = await page.evaluate(
++    async (stage) =>
++      (window as unknown as ProbeWindow).__d26IndependentObservation.take(
++        stage,
++      ),
++    stage,
++  );
++  const navigationDelta =
++    navigationCount - (armedNavigation.get(stage) ?? navigationCount);
++  const sameResponse =
++    clone.request_id.length === 36 &&
++    clone.request_id === actual.headers()["x-request-id"];
++  const safe = {
++    stage,
++    status: actual.status(),
++    cdp: cdp.ok
++      ? "ok"
++      : cdp.known
++        ? "protocol_body_unavailable"
++        : "other_error",
++    request_finished: event?.finished !== undefined,
++    request_failed: failed,
++    finished_at_ms: event?.finished ?? null,
++    failed_at_ms: event?.failed ?? null,
++    navigation_delta: navigationDelta,
++    clone_ok: clone.ok,
++    clone_bytes: clone.bytes,
++    same_response: sameResponse,
++  };
++  safeObservations.push(safe);
++  console.info("independent passive observation", JSON.stringify(safe));
++  expect(!failed && event?.finished !== undefined).toBe(true);
++  expect(cdp.ok || cdp.known).toBe(true);
++  expect(
++    clone.ok &&
++      clone.status === actual.status() &&
++      clone.bytes <= 600_000 &&
++      sameResponse,
++  ).toBe(true);
++  if (!["bootstrap", "login", "session"].includes(stage))
++    expect(navigationDelta).toBe(0);
++  if (cdp.ok)
++    expect(JSON.stringify(cdp.body) === JSON.stringify(clone.body)).toBe(true);
++  return clone.body as Record<string, any>;
++}
++
+ function response(page: Page, path: string, method = "POST") {
+   return page.waitForResponse(
+     (r) =>
+@@ -65,6 +316,7 @@
+   page,
+   context,
+ }) => {
++  await installObservation(page);
+   await page.setViewportSize({ width: 390, height: 900 });
+   const bootstrap = response(page, "/api/v1/auth/bootstrap", "GET");
+   await page.goto("/login");
+@@ -73,7 +325,8 @@
+   ).toBeFocused();
+   const anonymous = await bootstrap;
+   expect(anonymous.status()).toBe(200);
+-  let anonymousCSRF = (await anonymous.json()).csrf_token as string;
++  let anonymousCSRF = (await observedJSON(page, "bootstrap", anonymous))
++    .csrf_token as string;
+   expect(typeof anonymousCSRF === "string" && anonymousCSRF.length === 43).toBe(
+     true,
+   );
+@@ -88,11 +341,20 @@
+   await expect(page.getByRole("alert")).toContainText("邮箱或密码不正确");
+   await password(page, material.password);
+   material.password = "";
++  await armJSON(page, "required", "/api/v1/sessions/login");
+   const required = response(page, "/api/v1/sessions/login");
+   await page.getByRole("button", { name: "登录", exact: true }).click();
+   const original = await required;
+   expect(original.status()).toBe(401);
+-  expect((await original.json()).code).toBe("CHALLENGE_REQUIRED");
++  expect((await observedJSON(page, "required", original)).code).toBe(
++    "CHALLENGE_REQUIRED",
++  );
++  await expect(
++    page.getByRole("button", { name: "开始旋转验证", exact: true }),
++  ).toBeVisible();
++  await expect(
++    page.getByRole("button", { name: "登录", exact: true }),
++  ).toBeDisabled();
+   const originalKey = original.request().headers()["idempotency-key"];
+   const originalBody = original.request().postDataJSON();
+   expect(typeof originalKey === "string" && originalKey.length === 36).toBe(
+@@ -102,11 +364,13 @@
+     name: "开始旋转验证",
+     exact: true,
+   });
++  await armJSON(page, "first_create", "/api/v1/auth/challenges");
+   const firstCreate = response(page, "/api/v1/auth/challenges");
+   await create.click();
+   const firstQuestion = await firstCreate;
+   expect(firstQuestion.status()).toBe(201);
+-  const failedID = (await firstQuestion.json()).id as string;
++  const failedID = (await observedJSON(page, "first_create", firstQuestion))
++    .id as string;
+   expect(firstQuestion.request().postDataJSON().login_key === originalKey).toBe(
+     true,
+   );
+@@ -132,10 +396,13 @@
+       { once: true },
+     );
+   });
++  await armJSON(page, "wrong_verify", "/api/v1/auth/challenges/verify");
+   const rejected = await keyboardVerify(page, wrongAngle);
+   // Fixed D07 HTTP contract maps CHALLENGE_INVALID to 400, not the old plan typo 403.
+   expect(rejected.status()).toBe(400);
+-  expect((await rejected.json()).code).toBe("CHALLENGE_INVALID");
++  expect((await observedJSON(page, "wrong_verify", rejected)).code).toBe(
++    "CHALLENGE_INVALID",
++  );
+   const wrong = rejected.request().postDataJSON();
+   expect(
+     wrong.challenge_id === failedID &&
+@@ -161,11 +428,13 @@
+   );
+   expect(blur?.disabled === true && blur?.body === true).toBe(true);
+ 
++  await armJSON(page, "next_create", "/api/v1/auth/challenges");
+   const nextCreate = response(page, "/api/v1/auth/challenges");
+   await page.keyboard.press("Enter"); // The actual failed-proof handoff owns focus.
+   const nextQuestion = await nextCreate;
+   expect(nextQuestion.status()).toBe(201);
+-  const consumedID = (await nextQuestion.json()).id as string;
++  const consumedID = (await observedJSON(page, "next_create", nextQuestion))
++    .id as string;
+   const nextBody = nextQuestion.request().postDataJSON();
+   expect(
+     consumedID !== failedID &&
+@@ -174,6 +443,7 @@
+   ).toBe(true);
+   await expect(page.locator(".gc-rotate-picture img")).toBeVisible();
+   const correctAngle = await publicAngle(page);
++  await armJSON(page, "correct_verify", "/api/v1/auth/challenges/verify");
+   const verified = await keyboardVerify(page, correctAngle);
+   expect(verified.status()).toBe(200);
+   const proof = verified.request().postDataJSON();
+@@ -183,11 +453,14 @@
+       proof.email === originalBody.email &&
+       proof.proof.angle === correctAngle,
+   ).toBe(true);
+-  let pass = (await verified.json()).pass as string;
++  let pass = (await observedJSON(page, "correct_verify", verified))
++    .pass as string;
+   expect(typeof pass === "string" && pass.length === 80).toBe(true);
+   await expect(
+     page.getByRole("button", { name: "登录", exact: true }),
+   ).toBeFocused();
++  await armJSON(page, "login", "/api/v1/sessions/login");
++  await armJSON(page, "session", "/api/v1/session", "GET");
+   const login = response(page, "/api/v1/sessions/login");
+   const confirmation = response(page, "/api/v1/session", "GET");
+   await page.keyboard.press("Enter");
+@@ -205,10 +478,10 @@
+   originalBody.password = "";
+   finalBody.password = "";
+   finalBody.challenge_pass = "";
+-  const loginResult = await completed.json();
++  const loginResult = await observedJSON(page, "login", completed);
+   const sessionResponse = await confirmation;
+   expect(sessionResponse.status()).toBe(200);
+-  const session = await sessionResponse.json();
++  const session = await observedJSON(page, "session", sessionResponse);
+   const sameIdentity =
+     session.user.id === loginResult.user.id &&
+     session.session.id === loginResult.session.id;

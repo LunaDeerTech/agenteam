@@ -1,0 +1,26 @@
+--- fixed-author-observer-v2
++++ independent-observer
+@@ -7,7 +7,7 @@
+ plan_path = pathlib.Path(sys.argv[1]).resolve()
+ plan = json.loads(plan_path.read_text())
+ group = plan['groups'][int(sys.argv[2])]
+-base = pathlib.Path('/workspace/agenteam-d26-auth-author-jrfhr6h1')
++base = pathlib.Path(__file__).resolve().parent
+ record = base / 'evidence' / group['name']
+ record.mkdir(mode=0o700)
+ cwd = pathlib.Path(plan['cwd'])
+@@ -25,12 +25,11 @@
+     values = {}
+     for path, expected in manifest['files'].items():
+         actual = hashlib.sha256((cwd / path).read_bytes()).hexdigest()
+-        shared = hashlib.sha256((pathlib.Path('/workspace/agenteam') / path).read_bytes()).hexdigest()
+-        values[path] = {'expected': expected, 'private': actual, 'shared': shared}
++        values[path] = {'expected': expected, 'private': actual}
+     return values
+ 
+ before = source_state()
+-if any(v['expected'] != v['private'] or v['expected'] != v['shared'] for v in before.values()):
++if any(v['expected'] != v['private'] for v in before.values()):
+     raise SystemExit('candidate source drift')
+ save('source-before.json', before)
+ # Only descendants of this observer can be adopted. Other agents/process trees

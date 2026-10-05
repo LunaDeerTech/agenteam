@@ -1,0 +1,36 @@
+{
+  "checks": {
+    "argv": [
+      "python3",
+      "/tmp/agenteam-d26-core-review01-v-7uhn1hok/verify_inputs.py"
+    ],
+    "cwd": "/workspace/agenteam",
+    "result": {
+      "chunk_id": "ffcc92",
+      "wall_time_seconds": 0.000025251,
+      "exit_code": 0,
+      "original_token_count": 29,
+      "output": "{\"pass\": true, \"candidate_files\": 7, \"author_logs\": 8, \"git_materials\": 11, \"existing_lock_entries_unchanged\": 170}\n"
+    }
+  },
+  "whitespace": {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/dev/null",
+      "/tmp/agenteam-d26-core-review01-v-7uhn1hok/review.md"
+    ],
+    "cwd": "/workspace/agenteam",
+    "result": {
+      "chunk_id": "1cfe7e",
+      "wall_time_seconds": 0.00001917,
+      "exit_code": 1,
+      "original_token_count": 0,
+      "output": ""
+    },
+    "interpretation": "no-index exit 1 with empty output means content differs; no whitespace diagnostics"
+  }
+}

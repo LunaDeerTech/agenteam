@@ -1,0 +1,63 @@
+{
+  "base": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "core_manifest_sha256": "0bd7611e421549ef4d13a148b50e04359b3b53845fabfb6a6b597fdddf74eece",
+  "node_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+  "selected_env": {
+    "NODE_ENV": "test",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "CI": "1",
+    "TMPDIR": "/workspace/agenteam-d26-pure-v-1z5m6v_m/runtime",
+    "npm_config_offline": "true",
+    "npm_config_ignore_scripts": "true"
+  },
+  "environment_note": "Other environment inherited, not dumped; no external credentials read or used.",
+  "files": [
+    {
+      "path": "input/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "bytes": 86893
+    },
+    {
+      "path": "input/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "bytes": 984
+    },
+    {
+      "path": "input/src/api/account.ts",
+      "sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+      "bytes": 7397
+    },
+    {
+      "path": "input/src/api/client.ts",
+      "sha256": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad",
+      "bytes": 7519
+    },
+    {
+      "path": "input/src/composables/useSession.ts",
+      "sha256": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679",
+      "bytes": 17260
+    },
+    {
+      "path": "input/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+      "bytes": 740
+    },
+    {
+      "path": "input/src/tests/d26-independent.spec.ts",
+      "sha256": "1965407099911db7cbb5ca294dee135f37f39064a9b35eae992da80c7182af7d",
+      "bytes": 8619
+    },
+    {
+      "path": "input/tsconfig.json",
+      "sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+      "bytes": 390
+    },
+    {
+      "path": "input/vitest.config.mjs",
+      "sha256": "6c96e9f54c6f9b6e309cef3502d8f90edab69a85e8cbbe53533b7d5d12672b61",
+      "bytes": 318
+    }
+  ]
+}

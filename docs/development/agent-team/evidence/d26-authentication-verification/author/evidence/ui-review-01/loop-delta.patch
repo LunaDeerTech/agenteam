@@ -1,0 +1,77 @@
+--- loop-input/web/src/views/auth/LoginView.vue
++++ candidate/web/src/views/auth/LoginView.vue
+@@ -17,6 +17,7 @@
+   form = ref<HTMLFormElement | null>(null)
+ const inputLocked = computed(() => state.busy || state.challengeBusy || state.phase === 'uncertain')
+ const showForm = computed(() => ['anonymous', 'authenticating', 'uncertain'].includes(state.phase))
++let navigating = false
+ watch([email, password], () => auth.inputChanged(), { flush: 'sync' })
+ watch(
+   () => state.passReady,
+@@ -30,9 +31,14 @@
+ watch(
+   () => [state.phase, state.busy] as const,
+   async ([phase, busy]) => {
+-    if (phase === 'authenticated' && !busy) {
++    if (phase === 'authenticated' && !busy && !navigating) {
++      navigating = true
+       password.value = ''
+-      await router.replace('/')
++      try {
++        await router.replace('/')
++      } finally {
++        navigating = false
++      }
+     }
+   },
+ )
+--- loop-input/web/src/App.vue
++++ candidate/web/src/App.vue
+@@ -13,10 +13,18 @@
+   if (document.visibilityState === 'hidden' || !route.meta.authentication || state.busy) return
+   await auth.restore()
+ }
++let navigating = false
+ watch(
+   () => [state.phase, state.busy] as const,
+   async ([phase, busy]) => {
+-    if (phase === 'anonymous' && !busy && route.meta.protected) await router.replace('/login')
++    if (phase === 'anonymous' && !busy && route.meta.protected && !navigating) {
++      navigating = true
++      try {
++        await router.replace('/login')
++      } finally {
++        navigating = false
++      }
++    }
+   },
+ )
+ onMounted(() => {
+--- loop-input/web/src/tests/authentication.spec.ts
++++ candidate/web/src/tests/authentication.spec.ts
+@@ -125,11 +125,14 @@
+     expect(document.documentElement.dataset.theme).toBe('dark')
+     expect(p.wrapper.find('a[href*="settings"]').exists()).toBe(false)
+     expect(p.wrapper.find('a[href*="project"]').exists()).toBe(false)
++    // Initial restore, login confirmation, and the single protected navigation.
++    expect(p.api.getSession).toHaveBeenCalledTimes(3)
+     await p.wrapper.get('.account-actions button').trigger('click')
+     await flushPromises()
+     expect(p.router.currentRoute.value.path).toBe('/login')
+     expect(p.auth.state.phase).toBe('anonymous')
+     expect(p.api.logout).toHaveBeenCalledTimes(1)
++    expect(p.api.getSession).toHaveBeenCalledTimes(4)
+     // The logout Cookie owner must release before the new anonymous bootstrap.
+     expect(p.api.bootstrap.mock.calls.length).toBeGreaterThan(1)
+     expect(p.wrapper.get('#login-password').element).toHaveProperty('value', '')
+--- loop-input/web/src/tests/rotate-challenge.spec.ts
++++ candidate/web/src/tests/rotate-challenge.spec.ts
+@@ -59,7 +59,7 @@
+     })
+     expect(wrapper.get('input').element).toHaveProperty('value', '0')
+     expect(document.activeElement?.id).toBe('rotate-angle')
+-    const close = wrapper.findAll('button').find((b) => b.text() === '关闭验证')!
++    const close = wrapper.findAll('button').find((b) => b.text().includes('关闭验证'))!
+     await close.trigger('click')
+     expect(wrapper.emitted('close')).toEqual([[]])
+     expect(wrapper.emitted('verify')).toBeUndefined()

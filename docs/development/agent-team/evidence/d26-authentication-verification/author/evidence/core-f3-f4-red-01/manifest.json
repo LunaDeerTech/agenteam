@@ -1,0 +1,26 @@
+{
+  "base": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "bc369c696e776910be8f048066baf99bfbf0e4f516814ee5b862badef0bd7eb8"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "4783291e4881c85a47f69fc524885b52b0deefd3e5fbc29669f84613a7daefc8"
+    },
+    {
+      "path": "web/src/tests/account-client.spec.ts",
+      "sha256": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "8650ba0ea436b07d695a614cddaca7c971e748d3f8601d9d35f045cc0e6fa739"
+    }
+  ],
+  "preceding_fixes": "F1/F2 only"
+}

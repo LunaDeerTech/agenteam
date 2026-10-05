@@ -1,0 +1,35 @@
+{
+  "argv": [
+    "/workspace/agenteam-d26-independent-v-2wzub6ar/input/web/node_modules/.bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--skipLibCheck",
+    "--types",
+    "node",
+    "--typeRoots",
+    "web/node_modules/@types",
+    "tests/account-captcha-web/e2e/independent.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam-d26-independent-v-2wzub6ar/input",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-d26-auth-author-jrfhr6h1/go-cache",
+    "TMPDIR": "/workspace/agenteam-d26-independent-v-2wzub6ar/tmp"
+  },
+  "exit": 0,
+  "seconds": 0.9239961359999143
+}

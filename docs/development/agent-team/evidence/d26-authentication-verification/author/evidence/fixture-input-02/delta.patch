@@ -1,0 +1,183 @@
+--- fixture01/web/src/views/auth/LoginView.vue
++++ fixture02/web/src/views/auth/LoginView.vue
+@@ -32,28 +32,45 @@
+   },
+   { flush: 'sync' },
+ )
+-let challengeFocus: 'login' | 'create' | null = null
++let challengeFocus: { id: string; action: 'login' | 'create' } | null = null
++let verificationFocus: string | null = null
++function focusedChallenge() {
++  return form.value?.querySelector('.rotate-challenge')?.contains(document.activeElement) ?? false
++}
++function focusMoved(event: FocusEvent) {
++  if (event.target !== document.body && !focusedChallenge()) {
++    verificationFocus = null
++    challengeFocus = null
++  }
++}
+ watch(
+   () => [state.challenge, state.challengeBusy, state.passReady] as const,
+-  async ([question, busy, passed], [previous]) => {
+-    if (question) challengeFocus = null
+-    else if (previous) {
+-      const ownedFocus = form.value
+-        ?.querySelector('.rotate-challenge')
+-        ?.contains(document.activeElement)
+-      challengeFocus = ownedFocus ? (passed ? 'login' : 'create') : null
++  async ([question, busy, passed], [previous, wasBusy]) => {
++    if (question) {
++      challengeFocus = null
++      if (question !== previous) verificationFocus = null
++      // This pre-flush runs before the child disables the focused control.
++      if (busy && !wasBusy && focusedChallenge()) verificationFocus = question.id
++    } else if (previous) {
++      const ownedFocus =
++        focusedChallenge() ||
++        (verificationFocus === previous.id && document.activeElement === document.body)
++      challengeFocus = ownedFocus ? { id: previous.id, action: passed ? 'login' : 'create' } : null
++      verificationFocus = null
+     }
+     if (busy || !challengeFocus) return
+     const target = challengeFocus
++    await nextTick()
++    if (challengeFocus !== target || state.challenge || state.challengeBusy) return
+     challengeFocus = null
+-    await nextTick()
+-    if (!state.challenge && document.activeElement === document.body)
++    if (document.activeElement === document.body)
+       form.value
+         ?.querySelector<HTMLButtonElement>(
+-          target === 'login' ? '[data-action="login"]' : '[data-action="challenge"]',
++          target.action === 'login' ? '[data-action="login"]' : '[data-action="challenge"]',
+         )
+         ?.focus()
+   },
++  { flush: 'pre' },
+ )
+ watch(
+   () => [state.phase, state.busy, state.canRetryOriginal] as const,
+@@ -86,8 +103,14 @@
+   await nextTick()
+   form.value?.querySelector<HTMLButtonElement>('[data-action="challenge"]')?.focus()
+ }
+-onMounted(() => heading.value?.focus())
++onMounted(() => {
++  document.addEventListener('focusin', focusMoved)
++  heading.value?.focus()
++})
+ onUnmounted(() => {
++  document.removeEventListener('focusin', focusMoved)
++  verificationFocus = null
++  challengeFocus = null
+   clearForm()
+   if (state.phase !== 'authenticated') auth.leave()
+ })
+--- fixture01/web/src/tests/authentication.spec.ts
++++ fixture02/web/src/tests/authentication.spec.ts
+@@ -331,4 +331,61 @@
+     expect(p.auth.state.challenge).toBe(null)
+     expect(p.auth.state.passReady).toBe(false)
+   })
++  for (const outcome of ['rejected', 'timeout', 'success', 'edited'])
++    it(`hands off focus after disabled controls lose browser focus: ${outcome}`, async () => {
++      const p = await page()
++      p.api.login.mockRejectedValueOnce(fault('CHALLENGE_REQUIRED', 403))
++      await p.wrapper.get('#login-email').setValue(view.user.email)
++      await p.wrapper.get('#login-password').setValue('Original-Password-92!')
++      await p.wrapper.get('form').trigger('submit')
++      await flushPromises()
++      await p.wrapper.get('[data-action="challenge"]').trigger('click')
++      await flushPromises()
++      expect(document.activeElement?.id).toBe('rotate-angle')
++      let succeed!: () => void, reject!: () => void
++      p.api.verifyChallenge.mockImplementationOnce(
++        () =>
++          new Promise((resolve, fail) => {
++            succeed = () => resolve({ pass: id + '.' + 'P'.repeat(43) })
++            reject = () => fail(fault('CHALLENGE_INVALID', 403))
++          }),
++      )
++      if (outcome === 'timeout') vi.useFakeTimers()
++      await p.wrapper.get('#rotate-angle').trigger('keydown', { key: 'Enter' })
++      await flushPromises()
++      const range = p.wrapper.get('#rotate-angle').element as HTMLInputElement
++      expect(range.disabled).toBe(true)
++      // jsdom does not implement the browser's disabled-control focus loss.
++      // Explicitly model that native transition; this is pure, not browser evidence.
++      range.blur()
++      // jsdom also ignores blur() on disabled elements; move focus to the same
++      // native fallback explicitly without enabling or changing the control.
++      document.body.tabIndex = -1
++      document.body.focus()
++      document.body.removeAttribute('tabindex')
++      expect(document.activeElement === document.body).toBe(true)
++      if (outcome === 'edited') {
++        const email = p.wrapper.get('#login-email').element as HTMLInputElement
++        email.focus()
++        email.blur()
++        expect(document.activeElement === document.body).toBe(true)
++        reject()
++      } else if (outcome === 'rejected') reject()
++      else if (outcome === 'success') succeed()
++      else await vi.advanceTimersByTimeAsync(30_000)
++      await flushPromises()
++      const target = outcome === 'success' ? 'login' : 'challenge'
++      expect(
++        document.activeElement ===
++          (outcome === 'edited'
++            ? document.body
++            : p.wrapper.get(`[data-action="${target}"]`).element),
++      ).toBe(true)
++      expect(p.auth.state.passReady).toBe(outcome === 'success')
++      if (outcome === 'timeout') {
++        succeed()
++        await flushPromises()
++        expect(p.auth.state.passReady).toBe(false)
++      }
++    })
+ })
+--- fixture01/tests/account-captcha-web/e2e/authentication.spec.ts
++++ fixture02/tests/account-captcha-web/e2e/authentication.spec.ts
+@@ -208,6 +208,31 @@
+       .getByRole("button", { name: "开始旋转验证", exact: true })
+       .click();
+     await expect(page.locator(".gc-rotate-picture img")).toBeVisible();
++    const reduced = await page.evaluate(() => {
++      const controls = [
++        ...document.querySelectorAll(".rotate-challenge, .rotate-challenge *"),
++      ];
++      return {
++        matched: matchMedia("(prefers-reduced-motion: reduce)").matches,
++        count: controls.length,
++        disabled: controls.every((element) => {
++          const style = getComputedStyle(element);
++          return (
++            [style.transitionDuration, style.animationDuration].every((value) =>
++              value
++                .split(",")
++                .every((duration) => Number.parseFloat(duration) === 0),
++            ) &&
++            style.animationName
++              .split(",")
++              .every((name) => name.trim() === "none")
++          );
++        }),
++      };
++    });
++    expect(reduced.matched && reduced.count > 20 && reduced.disabled).toBe(
++      true,
++    );
+     await expect(
+       page.getByRole("slider", { name: "旋转角度", exact: true }),
+     ).toBeFocused();
+@@ -434,6 +459,9 @@
+       page.getByRole("heading", { name: "首页", exact: true }),
+     ).toBeVisible();
+     await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
++    await expect(page.locator(".account-name")).toHaveText(
++      "很长的实际显示名称".repeat(8),
++    );
+     await page.emulateMedia({
+       reducedMotion: "reduce",
+       colorScheme: theme === "light" ? "dark" : "light",

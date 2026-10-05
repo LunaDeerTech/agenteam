@@ -1,0 +1,20 @@
+--- ready-v1/independent.spec.ts
++++ ready-v2/independent.spec.ts
+@@ -105,7 +105,7 @@
+   const firstCreate = response(page, "/api/v1/auth/challenges");
+   await create.click();
+   const firstQuestion = await firstCreate;
+-  expect(firstQuestion.status()).toBe(200);
++  expect(firstQuestion.status()).toBe(201);
+   const failedID = (await firstQuestion.json()).id as string;
+   expect(firstQuestion.request().postDataJSON().login_key === originalKey).toBe(
+     true,
+@@ -164,7 +164,7 @@
+   const nextCreate = response(page, "/api/v1/auth/challenges");
+   await page.keyboard.press("Enter"); // The actual failed-proof handoff owns focus.
+   const nextQuestion = await nextCreate;
+-  expect(nextQuestion.status()).toBe(200);
++  expect(nextQuestion.status()).toBe(201);
+   const consumedID = (await nextQuestion.json()).id as string;
+   const nextBody = nextQuestion.request().postDataJSON();
+   expect(

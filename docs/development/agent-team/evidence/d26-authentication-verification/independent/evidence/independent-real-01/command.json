@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestAccountAuthenticationWebIndependent$"
+  ],
+  "cwd": "/workspace/agenteam-d26-independent-v-2wzub6ar/input",
+  "env": {
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/d26-v-2wzub6ar",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "DOCKER_CONFIG": "/workspace/agenteam-d26-independent-v-2wzub6ar/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "GOCACHE": "/workspace/agenteam-d26-auth-author-jrfhr6h1/go-cache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOPROXY": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/agenteam-d26-independent-v-2wzub6ar/tmp"
+  },
+  "input": "/workspace/agenteam-d26-independent-v-2wzub6ar/input-v2.json",
+  "input_sha256": "2c110cf32890f54d300c8535113c11a641dcf05908942e0d91cb6f942026417e",
+  "note": "only safe explicit environment; credentials remain inside original owned fixture",
+  "plan_sha256": "d82897b4cebb403134a29a62f1f74e0e927a6b9075ffa89b58bf8c9b52f7bf52"
+}

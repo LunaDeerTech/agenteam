@@ -1,0 +1,24 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/agenteam-d26-pure-v-1z5m6v_m/input/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "-p",
+    "tsconfig.json"
+  ],
+  "cwd": "/workspace/agenteam-d26-pure-v-1z5m6v_m/input",
+  "selected_env": {
+    "NODE_ENV": "test",
+    "TZ": "UTC",
+    "LANG": "C.UTF-8",
+    "CI": "1",
+    "TMPDIR": "/workspace/agenteam-d26-pure-v-1z5m6v_m/runtime",
+    "npm_config_offline": "true",
+    "npm_config_ignore_scripts": "true"
+  },
+  "input_manifest_sha256": "33e27059549cd19c6c2e3f2c90f51c0463ece48d4191a6c49bc91d08db3cc715",
+  "started_unix": 1791230578.9273708,
+  "finished_unix": 1791230580.056416,
+  "exit": 0,
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

@@ -1,0 +1,40 @@
+{
+  "time": "2026-10-05T21:17:27.408392+00:00",
+  "dynamic_verdict": "PASS limited independent1top1browser chain; first run remains failed",
+  "raw": "/workspace/agenteam-d26-independent-v-2wzub6ar/logs/independent-real-02.log",
+  "raw_sha256": "b7fa8aba0508e49c1e729890c6246570d7d5c6925defc5feda5279569aa95a6b",
+  "driver": {
+    "exit": 0,
+    "raw_log": "/workspace/agenteam-d26-independent-v-2wzub6ar/logs/independent-real-02.log",
+    "raw_sha256": "b7fa8aba0508e49c1e729890c6246570d7d5c6925defc5feda5279569aa95a6b",
+    "seconds": 36.45739269256592
+  },
+  "observer": {
+    "enabled": true,
+    "pid": 1289702
+  },
+  "exact_owned_counts": {
+    "containers": 4,
+    "networks": 3
+  },
+  "cleanups": [
+    {
+      "path": "/workspace/agenteam-d26-independent-v-2wzub6ar/evidence/independent-real-02/cleanup-01.json",
+      "sha256": "eadec87603d02aebf819217ba2f6506f15f3f963151fcd5c00508a032cb2edee",
+      "time": 1791234958.5064776
+    },
+    {
+      "path": "/workspace/agenteam-d26-independent-v-2wzub6ar/evidence/independent-real-02/cleanup-02.json",
+      "sha256": "b5c0381862a22e31cbfd36a8a612a90368c9fd5db30f29e31964d88a0cd95e8a",
+      "time": 1791234958.9386134
+    }
+  ],
+  "baseline_matches_trusted_preflight": true,
+  "observed_browser_pid_start_pairs": 11,
+  "adopted_actual_waits": 4,
+  "sources_unchanged": 567,
+  "owned_commands_remaining": [],
+  "window_returned": true,
+  "all_cdp_single_reads_succeeded": 8,
+  "tee_limit_retained": true
+}

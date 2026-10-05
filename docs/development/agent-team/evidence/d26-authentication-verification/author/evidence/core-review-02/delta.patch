@@ -1,0 +1,604 @@
+--- core01/web/src/api/client.ts
++++ core02/web/src/api/client.ts
+@@ -80,7 +80,8 @@
+     !/^[A-Z][A-Z0-9_]*$/.test(string(p.code, 1, 128)) ||
+     !uuid7.test(string(p.request_id, 36, 36)) ||
+     p.request_id !== requestID ||
+-    !['not_started', 'not_committed', 'committed', 'unknown'].includes(String(p.commit_state))
++    typeof p.commit_state !== 'string' ||
++    !['not_started', 'not_committed', 'committed', 'unknown'].includes(p.commit_state)
+   )
+     fail()
+   const parsed: Problem = {
+@@ -115,12 +116,20 @@
+   return parsed
+ }
+ 
+-async function readJSON(response: Response): Promise<unknown> {
++async function readJSON(response: Response, signal: AbortSignal): Promise<unknown> {
+   const reader = response.body?.getReader()
+   if (!reader) throw new AccountFailure('invalid-response')
+   const decoder = new TextDecoder('utf-8', { fatal: true })
+   let text = '',
+     bytes = 0
++  let cancelled: Promise<void> | undefined
++  const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined))
++  // The listener starts cancellation; the same promise is joined in finally.
++  const abort = () => {
++    void cancel()
++  }
++  signal.addEventListener('abort', abort, { once: true })
++  if (signal.aborted) abort()
+   try {
+     for (;;) {
+       const { done, value } = await reader.read()
+@@ -132,7 +141,8 @@
+     text += decoder.decode()
+     return JSON.parse(text) as unknown
+   } finally {
+-    void reader.cancel().catch(() => undefined)
++    signal.removeEventListener('abort', abort)
++    await cancel()
+     reader.releaseLock()
+   }
+ }
+@@ -162,31 +172,36 @@
+     } catch {
+       throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'transport')
+     }
+-    if (options.signal.aborted) throw new AccountFailure('cancelled')
+-    if (response.redirected || response.type === 'opaqueredirect')
+-      throw new AccountFailure('invalid-response')
+-    if (response.status === 204 && status === 204) return parse(undefined)
+-    const contentType = response.headers.get('Content-Type')?.split(';')[0]?.trim().toLowerCase()
+-    const success = response.status === status
+-    if (contentType !== (success ? 'application/json' : 'application/problem+json')) {
+-      throw new AccountFailure('invalid-response')
++    try {
++      if (options.signal.aborted) throw new AccountFailure('cancelled')
++      if (response.redirected || response.type === 'opaqueredirect')
++        throw new AccountFailure('invalid-response')
++      if (response.status === 204 && status === 204) return parse(undefined)
++      const contentType = response.headers.get('Content-Type')?.split(';')[0]?.trim().toLowerCase()
++      const success = response.status === status
++      if (contentType !== (success ? 'application/json' : 'application/problem+json'))
++        throw new AccountFailure('invalid-response')
++      let value: unknown
++      try {
++        value = await readJSON(response, options.signal)
++      } catch {
++        throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
++      }
++      if (options.signal.aborted) throw new AccountFailure('cancelled')
++      if (!success)
++        throw new AccountFailure(
++          'problem',
++          problem(value, response.status, response.headers.get('X-Request-ID')),
++        )
++      try {
++        return parse(value)
++      } catch {
++        throw new AccountFailure('invalid-response')
++      }
++    } finally {
++      // Includes aborted/redirected/wrong-media-type responses which never acquired a reader.
++      // The controller may finish its bounded UI wait, but owns us until this actually returns.
++      await response.body?.cancel().catch(() => undefined)
+     }
+-    let value: unknown
+-    try {
+-      value = await readJSON(response)
+-    } catch {
+-      throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
+-    }
+-    if (options.signal.aborted) throw new AccountFailure('cancelled')
+-    if (!success)
+-      throw new AccountFailure(
+-        'problem',
+-        problem(value, response.status, response.headers.get('X-Request-ID')),
+-      )
+-    try {
+-      return parse(value)
+-    } catch {
+-      throw new AccountFailure('invalid-response')
+-    }
+-  }
+-}
++  }
++}
+--- core01/web/src/composables/useSession.ts
++++ core02/web/src/composables/useSession.ts
+@@ -93,6 +93,7 @@
+   let expectedSession: LoginResult | null = null
+   let owner: Operation | null = null
+   let challengeAbort: AbortController | null = null
++  const challengeTails = new Set<Promise<void>>()
+   let pending = false
+   const valid = (op: Operation) => generation === op.generation && !op.expired
+   function clearChallenge() {
+@@ -405,6 +406,59 @@
+     state.notice = ''
+     state.fields = {}
+   }
++  function runChallenge<T>(
++    original: LoginIntent,
++    work: (signal: AbortSignal) => Promise<T>,
++    apply: (result: T) => void,
++    notice: string,
++  ) {
++    const captured = generation,
++      revision = challengeGeneration
++    const abort = new AbortController()
++    challengeAbort = abort
++    state.challengeBusy = true
++    const current = () =>
++      captured === generation &&
++      revision === challengeGeneration &&
++      intent === original &&
++      !abort.signal.aborted
++    let timeout: ReturnType<typeof setTimeout>
++    const expired = new Promise<void>((resolve) => {
++      timeout = setTimeout(() => {
++        if (current()) {
++          clearChallenge()
++          state.notice = notice
++        } else abort.abort()
++        resolve()
++      }, 30_000)
++    })
++    const actual = Promise.resolve()
++      .then(async () => {
++        if (!current()) return
++        const result = await work(abort.signal)
++        if (current()) apply(result)
++      })
++      .catch(() => {
++        if (current()) {
++          delete original.pass
++          state.passReady = false
++          state.challenge = null
++          state.notice = notice
++        }
++      })
++      .finally(() => {
++        clearTimeout(timeout)
++        challengeTails.delete(actual)
++        if (current()) {
++          state.challengeBusy = false
++          challengeAbort = null
++        }
++      })
++    // Non-Cookie requests may be logically replaced after timeout. Keep each actual
++    // API/body tail owned independently; stale results/finally cannot modify its successor.
++    challengeTails.add(actual)
++    return Promise.race([actual, expired])
++  }
+   async function createChallenge() {
+     if (
+       owner ||
+@@ -415,38 +469,22 @@
+     )
+       return
+     const original = intent,
+-      captured = generation
++      csrf = anonymousCSRF
+     clearChallenge()
+-    const revision = challengeGeneration
+-    const abort = new AbortController()
+-    challengeAbort = abort
+-    state.challengeBusy = true
+-    const timeout = setTimeout(() => abort.abort(), 30_000)
+-    try {
+-      const result = await api.createChallenge(
+-        { mode: 'rotate', email: original.email, login_key: original.key },
+-        anonymousCSRF,
+-        abort.signal,
+-      )
+-      if (
+-        captured !== generation ||
+-        revision !== challengeGeneration ||
+-        abort.signal.aborted ||
+-        intent !== original
+-      )
+-        return
+-      state.challenge = result
+-      state.notice = ''
+-    } catch {
+-      if (captured === generation && revision === challengeGeneration)
+-        state.notice = '未取得有效挑战，请明确请求新题。'
+-    } finally {
+-      clearTimeout(timeout)
+-      if (captured === generation && revision === challengeGeneration) {
+-        state.challengeBusy = false
+-        challengeAbort = null
+-      }
+-    }
++    await runChallenge(
++      original,
++      (signal) =>
++        api.createChallenge(
++          { mode: 'rotate', email: original.email, login_key: original.key },
++          csrf,
++          signal,
++        ),
++      (result) => {
++        state.challenge = result
++        state.notice = ''
++      },
++      '未取得有效挑战，请明确请求新题。',
++    )
+   }
+   async function verifyChallenge(angle: number) {
+     if (
+@@ -461,48 +499,28 @@
+       return
+     const original = intent,
+       question = state.challenge,
+-      captured = generation,
+-      revision = challengeGeneration
+-    const abort = new AbortController()
+-    challengeAbort = abort
+-    state.challengeBusy = true
+-    const timeout = setTimeout(() => abort.abort(), 30_000)
+-    try {
+-      const result = await api.verifyChallenge(
+-        {
+-          email: original.email,
+-          login_key: original.key,
+-          challenge_id: question.id,
+-          proof: { angle },
+-        },
+-        anonymousCSRF,
+-        abort.signal,
+-      )
+-      if (
+-        captured !== generation ||
+-        revision !== challengeGeneration ||
+-        abort.signal.aborted ||
+-        intent !== original
+-      )
+-        return
+-      original.pass = result.pass
+-      state.passReady = true
+-      state.challenge = null
+-      state.notice = '验证已完成，请继续登录。'
+-    } catch {
+-      if (captured === generation && revision === challengeGeneration) {
+-        delete original.pass
+-        state.passReady = false
++      csrf = anonymousCSRF
++    await runChallenge(
++      original,
++      (signal) =>
++        api.verifyChallenge(
++          {
++            email: original.email,
++            login_key: original.key,
++            challenge_id: question.id,
++            proof: { angle },
++          },
++          csrf,
++          signal,
++        ),
++      (result) => {
++        original.pass = result.pass
++        state.passReady = true
+         state.challenge = null
+-        state.notice = '验证未确认，请请求新题。'
+-      }
+-    } finally {
+-      clearTimeout(timeout)
+-      if (captured === generation && revision === challengeGeneration) {
+-        state.challengeBusy = false
+-        challengeAbort = null
+-      }
+-    }
++        state.notice = '验证已完成，请继续登录。'
++      },
++      '验证未确认，请请求新题。',
++    )
+   }
+   function leave() {
+     ++generation
+@@ -522,6 +540,7 @@
+     return restore()
+   }
+   function dismissChallenge() {
++    if (owner || pending) return
+     clearChallenge()
+     state.notice = '验证尚未完成。'
+   }
+--- core01/web/src/tests/account-client.spec.ts
++++ core02/web/src/tests/account-client.spec.ts
+@@ -25,6 +25,26 @@
+   })
+ 
+ describe('the six Account wire contracts', () => {
++  it.each([[['unknown']], [{}], [null], [1]])(
++    'rejects non-string commit_state without converting it',
++    async (commit_state) => {
++      const malformed = {
++        type: 'urn:agenteam:problem:dependency-unavailable',
++        title: 'Unavailable',
++        status: 503,
++        detail: 'safe error',
++        instance: '/api/v1/sessions/login',
++        code: 'DEPENDENCY_UNAVAILABLE',
++        request_id: id,
++        commit_state,
++      }
++      const api = createAccountAPI(async () => response(malformed, 503, 'application/problem+json'))
++      await expect(api.getSession(controller().signal)).rejects.toMatchObject({
++        kind: 'invalid-response',
++        problem: undefined,
++      })
++    },
++  )
+   it('uses only relative exact paths, separate tokens, original input and the declared status/body', async () => {
+     const replies = [
+       response({ csrf_token: token, challenge_modes: ['rotate'], delivery_channel: 'backend_log' }),
+--- core01/web/src/tests/session.spec.ts
++++ core02/web/src/tests/session.spec.ts
+@@ -1,7 +1,7 @@
+ import { afterEach, describe, expect, it, vi } from 'vitest'
+ import { createSessionController } from '../composables/useSession'
+ import { AccountFailure, type Problem } from '../api/client'
+-import type { AccountAPI, SessionView } from '../api/account'
++import { createAccountAPI, type AccountAPI, type SessionView } from '../api/account'
+ 
+ const id = '01900000-0000-7000-8000-000000000001'
+ const time = '2026-10-05T12:34:56.123456Z'
+@@ -81,6 +81,229 @@
+   vi.restoreAllMocks()
+ })
+ describe('Account Session ownership', () => {
++  it.each(['content-type', 'oversize'])(
++    'retains Cookie ownership until response body cancellation joins: %s',
++    async (mode) => {
++      vi.useFakeTimers()
++      const release = deferred<void>()
++      let cancellations = 0,
++        reads = 0,
++        returned = false
++      const json = (data: unknown, status = 200) =>
++        new Response(JSON.stringify(data), {
++          status,
++          headers: {
++            'Content-Type': status === 200 ? 'application/json' : 'application/problem+json',
++            'X-Request-ID': id,
++          },
++        })
++      const api = createAccountAPI(async (url) => {
++        if (url.endsWith('/bootstrap'))
++          return json({
++            csrf_token: anonymous,
++            challenge_modes: ['rotate'],
++            delivery_channel: 'backend_log',
++          })
++        if (url.endsWith('/session')) {
++          ++reads
++          return json(problem('UNAUTHENTICATED').problem, 401)
++        }
++        const stream = new ReadableStream<Uint8Array>({
++          start(stream) {
++            if (mode === 'oversize') stream.enqueue(new Uint8Array(600001))
++          },
++          cancel() {
++            ++cancellations
++            return release.promise
++          },
++        })
++        return new Response(stream, {
++          status: 200,
++          headers: { 'Content-Type': mode === 'content-type' ? 'text/html' : 'application/json' },
++        })
++      })
++      const c = createSessionController(api)
++      await c.restore()
++      const call = c.login(view.user.email, password).then(() => {
++        returned = true
++      })
++      try {
++        await vi.advanceTimersByTimeAsync(0)
++        expect(cancellations).toBe(1)
++        expect(c.state.busy).toBe(true)
++        await c.restore()
++        await c.logout()
++        expect(reads).toBe(1)
++        await vi.advanceTimersByTimeAsync(30000)
++        expect(returned).toBe(true)
++        expect(c.state.phase).toBe('uncertain')
++        expect(c.state.busy).toBe(true)
++      } finally {
++        release.resolve()
++        await call
++        await vi.advanceTimersByTimeAsync(0)
++      }
++      expect(c.state.busy).toBe(false)
++    },
++  )
++  it.each(['create', 'verify'])(
++    'bounds challenge user waiting while the real reader ignores abort: %s',
++    async (mode) => {
++      vi.useFakeTimers()
++      const cancelReturn = deferred<void>()
++      let stream!: ReadableStreamDefaultController<Uint8Array>
++      let cancelled = false,
++        held = true,
++        returned = false
++      const secondID = '01900000-0000-7000-8000-000000000002'
++      const question = (id: string) => ({
++        id,
++        mode: 'rotate',
++        master: 'data:image/png;base64,AA==',
++        thumb: 'data:image/png;base64,AA==',
++        expires_at: time,
++      })
++      const json = (body: unknown, status = 200) =>
++        new Response(JSON.stringify(body), {
++          status,
++          headers: {
++            'Content-Type': status < 400 ? 'application/json' : 'application/problem+json',
++            'X-Request-ID': id,
++          },
++        })
++      const api = createAccountAPI(async (url) => {
++        if (url.endsWith('/bootstrap'))
++          return json({
++            csrf_token: anonymous,
++            challenge_modes: ['rotate'],
++            delivery_channel: 'backend_log',
++          })
++        if (url.endsWith('/session')) return json(problem('UNAUTHENTICATED').problem, 401)
++        if (url.endsWith('/login')) return json(problem('CHALLENGE_REQUIRED').problem, 401)
++        if (held && url.endsWith(mode === 'create' ? '/challenges' : '/verify')) {
++          held = false
++          return new Response(
++            new ReadableStream<Uint8Array>({
++              start(c) {
++                stream = c
++              },
++              cancel() {
++                cancelled = true
++                return cancelReturn.promise
++              },
++            }),
++            {
++              status: mode === 'create' ? 201 : 200,
++              headers: { 'Content-Type': 'application/json' },
++            },
++          )
++        }
++        return url.endsWith('/challenges')
++          ? json(question(secondID), 201)
++          : json({ pass: secondID + '.' + 'N'.repeat(43) })
++      })
++      const c = createSessionController(api)
++      await c.restore()
++      await c.login(view.user.email, password)
++      if (mode === 'verify') await c.createChallenge()
++      const call = (mode === 'create' ? c.createChallenge() : c.verifyChallenge(60)).then(() => {
++        returned = true
++      })
++      try {
++        await vi.advanceTimersByTimeAsync(30000)
++        expect(returned).toBe(true)
++        expect(c.state.challengeBusy).toBe(false)
++        expect(c.state.passReady).toBe(false)
++        expect(c.state.challenge).toBeNull()
++        await c.createChallenge()
++        await c.verifyChallenge(12)
++        expect(c.state.passReady).toBe(true)
++      } finally {
++        if (!cancelled) {
++          stream.enqueue(
++            new TextEncoder().encode(
++              JSON.stringify(
++                mode === 'create' ? question(id) : { pass: id + '.' + 'O'.repeat(43) },
++              ),
++            ),
++          )
++          stream.close()
++        }
++        cancelReturn.resolve()
++        await call
++        await vi.advanceTimersByTimeAsync(0)
++      }
++      expect(c.state.passReady).toBe(true)
++      expect(c.state.challengeBusy).toBe(false)
++    },
++  )
++  it.each(['pending', 'unknown'])(
++    'dismiss cannot alter the complete original request after a pass-bearing login is %s',
++    async (timing) => {
++      const { api, controller: c } = fixture()
++      await c.restore()
++      api.login.mockRejectedValueOnce(problem('CHALLENGE_REQUIRED'))
++      await c.login(view.user.email, password)
++      await c.createChallenge()
++      await c.verifyChallenge(75)
++      const held = deferred<Awaited<ReturnType<AccountAPI['login']>>>()
++      api.login.mockImplementationOnce(() => held.promise)
++      const call = c.login(view.user.email, password)
++      await Promise.resolve()
++      const original = structuredClone(api.login.mock.calls[1].slice(0, 3))
++      if (timing === 'pending') c.dismissChallenge()
++      held.reject(problem('COMMIT_UNKNOWN', 503, 'unknown'))
++      await call
++      if (timing === 'unknown') c.dismissChallenge()
++      api.login.mockRejectedValueOnce(problem('COMMIT_UNKNOWN', 503, 'unknown'))
++      await c.retryOriginal()
++      expect(JSON.stringify(api.login.mock.calls[2].slice(0, 3)) === JSON.stringify(original)).toBe(
++        true,
++      )
++      expect(c.state.phase).toBe('uncertain')
++    },
++  )
++  it('the real client treats malformed commit_state as unconfirmed and retains the complete login request', async () => {
++    const writes: { body: BodyInit | null | undefined; csrf: string; key: string }[] = []
++    const api = createAccountAPI(async (url, init) => {
++      const headers = new Headers({ 'Content-Type': 'application/json', 'X-Request-ID': id })
++      if (url === '/api/v1/auth/bootstrap')
++        return new Response(
++          JSON.stringify({
++            csrf_token: anonymous,
++            challenge_modes: ['rotate'],
++            delivery_channel: 'backend_log',
++          }),
++          { status: 200, headers },
++        )
++      headers.set('Content-Type', 'application/problem+json')
++      if (url === '/api/v1/session')
++        return new Response(JSON.stringify(problem('UNAUTHENTICATED').problem), {
++          status: 401,
++          headers,
++        })
++      const sent = new Headers(init.headers)
++      writes.push({
++        body: init.body,
++        csrf: sent.get('X-CSRF-Token')!,
++        key: sent.get('Idempotency-Key')!,
++      })
++      return new Response(
++        JSON.stringify({
++          ...problem('DEPENDENCY_UNAVAILABLE', 503).problem,
++          commit_state: ['unknown'],
++        }),
++        { status: 503, headers },
++      )
++    })
++    const c = createSessionController(api)
++    await c.restore()
++    await c.login(view.user.email, password)
++    expect(c.state.phase).toBe('uncertain')
++    await c.retryOriginal()
++    expect(writes).toHaveLength(2)
++    expect(JSON.stringify(writes[0]) === JSON.stringify(writes[1])).toBe(true)
++  })
+   it('distinguishes actual anonymous from unavailable, then confirms Session CSRF after login', async () => {
+     const { api, controller: c } = fixture()
+     await c.restore()
+@@ -201,8 +424,12 @@
+     api.createChallenge
+       .mockImplementationOnce(() => older.promise)
+       .mockImplementationOnce(() => newer.promise)
+-    const first = c.createChallenge(),
+-      second = c.createChallenge()
++    const first = c.createChallenge()
++    await Promise.resolve()
++    expect(api.createChallenge).toHaveBeenCalledTimes(1)
++    const second = c.createChallenge()
++    await Promise.resolve()
++    expect(api.createChallenge).toHaveBeenCalledTimes(2)
+     older.resolve({ id, mode: 'rotate', master: 'old', thumb: 'old', expires_at: time })
+     await first
+     expect(c.state.challengeBusy).toBe(true)
+@@ -213,6 +440,8 @@
+     const verify = deferred<{ pass: string }>()
+     api.verifyChallenge.mockImplementationOnce(() => verify.promise)
+     const pendingVerify = c.verifyChallenge(1)
++    await Promise.resolve()
++    expect(api.verifyChallenge).toHaveBeenCalledTimes(1)
+     c.inputChanged()
+     verify.resolve({ pass: id + '.' + 'P'.repeat(43) })
+     await pendingVerify

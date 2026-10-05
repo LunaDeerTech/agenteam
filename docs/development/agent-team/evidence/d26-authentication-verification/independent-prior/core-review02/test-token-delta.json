@@ -1,0 +1,280 @@
+{
+  "web/src/tests/account-client.spec.ts": [],
+  "web/src/tests/session.spec.ts": [
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "delete",
+      "before": [
+        ";"
+      ],
+      "after": []
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ","
+      ]
+    },
+    {
+      "kind": "replace",
+      "before": [
+        ","
+      ],
+      "after": [
+        "await",
+        "Promise",
+        ".",
+        "resolve",
+        "(",
+        ")",
+        "expect",
+        "(",
+        "api",
+        ".",
+        "createChallenge",
+        ")",
+        ".",
+        "toHaveBeenCalledTimes",
+        "(",
+        "1",
+        ")",
+        "const"
+      ]
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        ")",
+        "await",
+        "Promise",
+        ".",
+        "resolve",
+        "(",
+        ")",
+        "expect",
+        "(",
+        "api",
+        ".",
+        "createChallenge",
+        ")",
+        ".",
+        "toHaveBeenCalledTimes",
+        "(",
+        "2"
+      ]
+    },
+    {
+      "kind": "insert",
+      "before": [],
+      "after": [
+        "(",
+        "1",
+        ")",
+        "await",
+        "Promise",
+        ".",
+        "resolve",
+        "(",
+        ")",
+        "expect",
+        "(",
+        "api",
+        ".",
+        "verifyChallenge",
+        ")",
+        ".",
+        "toHaveBeenCalledTimes"
+      ]
+    }
+  ]
+}

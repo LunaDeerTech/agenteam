@@ -1,0 +1,58 @@
+{
+  "scope": "D26 authentication immutable evidence+report and authorized current capability/state documentation only",
+  "source_checks": {
+    "author_snapshot_count": 23,
+    "author_source_entries_verified": 217,
+    "author_current21_git_equal": true,
+    "independent_input_count": 567,
+    "independent_git_source_count": 561,
+    "independent_probe_count": 3,
+    "derived_dist_original_hash_count": 3,
+    "derived_dist_not_rebuilt": true,
+    "provenance_records_verified": 426,
+    "Go_npm_browser_Docker_run": false,
+    "Git_writes": false
+  },
+  "document_checks": {
+    "documents": [
+      "AGENTS.md",
+      "docs/development/agent-team/tasks.md",
+      "docs/development/agent-team/recovery-2026-10-05.md",
+      "docs/development/agent-team/d26-authentication-verification.md",
+      "docs/development/agent-team/evidence/d26-authentication-verification/README.md"
+    ],
+    "links_checked": 206,
+    "fragments_checked": 11,
+    "errors": [],
+    "pending_generated_or_parallel": [
+      "docs/development/agent-team/current-model-resolution-verification.md"
+    ],
+    "tracked_diff_check_exit": 0,
+    "new_report_noindex_check_exit": 1,
+    "JSON_parsed": 248,
+    "new_helper_python_parsed": true,
+    "UTF8_LF_final_newline_trailing_blank_ok": true
+  },
+  "whitespace": {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/tmp/agenteam-d26-auth-archive-pgtxgof3/empty",
+      "/workspace/agenteam/docs/development/agent-team/evidence/d26-authentication-verification"
+    ],
+    "exit": 3,
+    "interpretation": "no-index reports content difference and exact original evidence whitespace (bit flags1+2); all diagnostics belong to immutable originals",
+    "original_files_with_exact_exceptions": 26,
+    "git_diagnostic_files": 26,
+    "unmatched_diagnostics": []
+  },
+  "historical_text_and_AGENTS_team_rules_unchanged": true,
+  "original_markdown_internal_link_count": 0,
+  "current_resolution_parallel_link": "current-model-resolution-verification.md is owned by restore_test_dependencies; existence check deferred until its report is created and before final commit per root instruction",
+  "raw_immutability": "Every provenance record matched original and archived bytes; 21 accepted source objects and217 author/564 independent source locators verified,3 dist original SHA checked without rebuilding",
+  "product_commands_run": false,
+  "Git_writes": false
+}

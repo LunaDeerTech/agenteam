@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/agenteam-d26-ui-review02-v-njf1nsfc/verify_inputs.py"
+  ],
+  "cwd": "/tmp/agenteam-d26-ui-review02-v-njf1nsfc",
+  "exit": 0,
+  "stdout": "{\"result\": \"PASS\", \"base\": \"457b1979c9d6563740543b2011eedc06cce34c71\", \"scope\": \"read fixed text and SHA-256 only; no product/runtime execution\", \"ui02_files\": 10, \"prior_ui01_files\": 10, \"author_logs\": 12, \"red_manifests\": 3, \"red_payloads\": 6, \"fixed_core02_entries\": 7, \"changed_paths\": [\"web/src/components/account/RotateChallenge.vue\", \"web/src/views/auth/LoginView.vue\", \"web/src/tests/authentication.spec.ts\", \"web/src/tests/rotate-challenge.spec.ts\"], \"unchanged_ui_paths\": [\"web/src/views/HomeView.vue\", \"web/src/router/auth.ts\", \"web/src/App.vue\", \"web/src/router/index.ts\", \"web/src/components/layout/AppShell.vue\", \"web/vite.config.ts\"], \"exact_delta_sha256\": \"9f36d4eb0c9522940e5c79de06276419bb7aaf7fa08fba8ceca818f02eca257a\", \"exact_delta_matches\": true}\n",
+  "stderr": ""
+}

@@ -1,0 +1,192 @@
+export type CommitState = 'not_started' | 'not_committed' | 'committed' | 'unknown'
+export interface Problem {
+  type: string
+  title: string
+  status: number
+  detail: string
+  instance: string
+  code: string
+  request_id: string
+  commit_state: CommitState
+  field_errors?: { path: string; code: string }[]
+  retry_hint?: string
+}
+export type FailureKind =
+  'problem' | 'transport' | 'invalid-response' | 'cancelled' | 'invalid-input' | 'busy'
+
+// No request, raw response, password, token or underlying exception is retained.
+export class AccountFailure extends Error {
+  constructor(
+    readonly kind: FailureKind,
+    readonly problem?: Problem,
+  ) {
+    super(kind)
+    this.name = 'AccountFailure'
+  }
+}
+
+export const uuid7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/
+export function object(value: unknown): Record<string, unknown> {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new AccountFailure('invalid-response')
+  }
+  return value as Record<string, unknown>
+}
+export function shape(
+  value: unknown,
+  required: readonly string[],
+  optional: readonly string[] = [],
+) {
+  const result = object(value)
+  if (
+    required.some((key) => !Object.hasOwn(result, key)) ||
+    Object.keys(result).some((key) => !required.includes(key) && !optional.includes(key))
+  ) {
+    throw new AccountFailure('invalid-response')
+  }
+  return result
+}
+export function string(value: unknown, minimum: number, maximum: number): string {
+  if (typeof value !== 'string' || [...value].length < minimum || [...value].length > maximum) {
+    throw new AccountFailure('invalid-response')
+  }
+  return value
+}
+
+const endpoints = {
+  bootstrap: ['GET', '/api/v1/auth/bootstrap', 200],
+  session: ['GET', '/api/v1/session', 200],
+  login: ['POST', '/api/v1/sessions/login', 200],
+  logout: ['POST', '/api/v1/sessions/logout', 204],
+  challenge: ['POST', '/api/v1/auth/challenges', 201],
+  verify: ['POST', '/api/v1/auth/challenges/verify', 200],
+} as const
+export type Fetch = (input: string, init: RequestInit) => Promise<Response>
+
+function problem(value: unknown, status: number, requestID: string | null): Problem {
+  const p = shape(
+    value,
+    ['type', 'title', 'status', 'detail', 'instance', 'code', 'request_id', 'commit_state'],
+    ['field_errors', 'retry_hint'],
+  )
+  const fail = () => {
+    throw new AccountFailure('invalid-response')
+  }
+  if (
+    p.status !== status ||
+    ![400, 401, 403, 404, 405, 409, 410, 413, 415, 416, 422, 429, 500, 502, 503].includes(status) ||
+    !/^urn:agenteam:problem:[a-z]+(?:-[a-z]+)*$/.test(string(p.type, 1, 256)) ||
+    !/^\/[^?#]*$/.test(string(p.instance, 1, 2048)) ||
+    !/^[A-Z][A-Z0-9_]*$/.test(string(p.code, 1, 128)) ||
+    !uuid7.test(string(p.request_id, 36, 36)) ||
+    p.request_id !== requestID ||
+    !['not_started', 'not_committed', 'committed', 'unknown'].includes(String(p.commit_state))
+  )
+    fail()
+  const parsed: Problem = {
+    type: p.type as string,
+    title: string(p.title, 0, 1024),
+    status,
+    detail: string(p.detail, 0, 8192),
+    instance: p.instance as string,
+    code: p.code as string,
+    request_id: p.request_id as string,
+    commit_state: p.commit_state as CommitState,
+  }
+  if (p.retry_hint !== undefined) {
+    parsed.retry_hint = string(p.retry_hint, 1, 64)
+    if (!/^[a-z][a-z0-9_]*$/.test(parsed.retry_hint)) fail()
+  }
+  if (p.field_errors !== undefined) {
+    if (
+      !Array.isArray(p.field_errors) ||
+      p.field_errors.length === 0 ||
+      p.field_errors.length > 128
+    )
+      fail()
+    parsed.field_errors = (p.field_errors as unknown[]).map((entry) => {
+      const e = shape(entry, ['path', 'code'])
+      const path = string(e.path, 0, 1024),
+        code = string(e.code, 1, 128)
+      if (!/^(?:\/(?:[^~]|~[01])*)*$/.test(path) || !/^[A-Z][A-Z0-9_]*$/.test(code)) fail()
+      return { path, code }
+    })
+  }
+  return parsed
+}
+
+async function readJSON(response: Response): Promise<unknown> {
+  const reader = response.body?.getReader()
+  if (!reader) throw new AccountFailure('invalid-response')
+  const decoder = new TextDecoder('utf-8', { fatal: true })
+  let text = '',
+    bytes = 0
+  try {
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      bytes += value.byteLength
+      if (bytes > 600_000) throw new AccountFailure('invalid-response')
+      text += decoder.decode(value, { stream: true })
+    }
+    text += decoder.decode()
+    return JSON.parse(text) as unknown
+  } finally {
+    void reader.cancel().catch(() => undefined)
+    reader.releaseLock()
+  }
+}
+
+export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  return async function request<T>(
+    endpoint: keyof typeof endpoints,
+    parse: (value: unknown) => T,
+    options: { body?: unknown; csrf?: string; key?: string; signal: AbortSignal },
+  ): Promise<T> {
+    const [method, path, status] = endpoints[endpoint]
+    const headers: Record<string, string> = { Accept: 'application/json, application/problem+json' }
+    if (method === 'POST') headers['Content-Type'] = 'application/json'
+    if (options.csrf !== undefined) headers['X-CSRF-Token'] = options.csrf
+    if (options.key !== undefined) headers['Idempotency-Key'] = options.key
+    let response: Response
+    try {
+      response = await fetcher(path, {
+        method,
+        headers,
+        credentials: 'same-origin',
+        cache: 'no-store',
+        redirect: 'error',
+        signal: options.signal,
+        ...(method === 'POST' ? { body: JSON.stringify(options.body) } : {}),
+      })
+    } catch {
+      throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'transport')
+    }
+    if (options.signal.aborted) throw new AccountFailure('cancelled')
+    if (response.redirected || response.type === 'opaqueredirect')
+      throw new AccountFailure('invalid-response')
+    if (response.status === 204 && status === 204) return parse(undefined)
+    const contentType = response.headers.get('Content-Type')?.split(';')[0]?.trim().toLowerCase()
+    const success = response.status === status
+    if (contentType !== (success ? 'application/json' : 'application/problem+json')) {
+      throw new AccountFailure('invalid-response')
+    }
+    let value: unknown
+    try {
+      value = await readJSON(response)
+    } catch {
+      throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'invalid-response')
+    }
+    if (options.signal.aborted) throw new AccountFailure('cancelled')
+    if (!success)
+      throw new AccountFailure(
+        'problem',
+        problem(value, response.status, response.headers.get('X-Request-ID')),
+      )
+    try {
+      return parse(value)
+    } catch {
+      throw new AccountFailure('invalid-response')
+    }
+  }
+}

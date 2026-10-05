@@ -1,0 +1,122 @@
+{
+  "conclusion": "PASS independent pure 2 tests only",
+  "files": [
+    {
+      "path": "input-manifest.json",
+      "sha256": "33e27059549cd19c6c2e3f2c90f51c0463ece48d4191a6c49bc91d08db3cc715",
+      "bytes": 2143
+    },
+    {
+      "path": "input/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "bytes": 86893
+    },
+    {
+      "path": "input/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "bytes": 984
+    },
+    {
+      "path": "input/src/api/account.ts",
+      "sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+      "bytes": 7397
+    },
+    {
+      "path": "input/src/api/client.ts",
+      "sha256": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad",
+      "bytes": 7519
+    },
+    {
+      "path": "input/src/composables/useSession.ts",
+      "sha256": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679",
+      "bytes": 17260
+    },
+    {
+      "path": "input/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+      "bytes": 740
+    },
+    {
+      "path": "input/src/tests/d26-independent.spec.ts",
+      "sha256": "1965407099911db7cbb5ca294dee135f37f39064a9b35eae992da80c7182af7d",
+      "bytes": 8619
+    },
+    {
+      "path": "input/tsconfig.json",
+      "sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+      "bytes": 390
+    },
+    {
+      "path": "input/vitest.config.mjs",
+      "sha256": "6c96e9f54c6f9b6e309cef3502d8f90edab69a85e8cbbe53533b7d5d12672b61",
+      "bytes": 318
+    },
+    {
+      "path": "logs/independent-01.json",
+      "sha256": "dd8f9e219982eea4cd0aac065fd1b5cd413d7fe6b421a22e1de6323f465206c1",
+      "bytes": 911
+    },
+    {
+      "path": "logs/independent-01.log",
+      "sha256": "58335d1c575aba687f0df0cf7fe8abb0abc0a2b8b45722464f3a33f53aabf00c",
+      "bytes": 561
+    },
+    {
+      "path": "logs/typecheck-01.json",
+      "sha256": "3c8178e7ff182c17f89bc0d2dd3940b47c11793b27364ad4443e7da4ac702f78",
+      "bytes": 796
+    },
+    {
+      "path": "logs/typecheck-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "post-input-check.json",
+      "sha256": "772f9be8f7a06d1887aaf0e2b2d7b723434ed1893c0cc02aeb646c8cbeae928d",
+      "bytes": 143
+    },
+    {
+      "path": "process-final.json",
+      "sha256": "61dd64cb97821ae6c3b74b16926602bcd1c01d6e575a038d0bdffecf56845116",
+      "bytes": 301
+    },
+    {
+      "path": "report.md",
+      "sha256": "a40a43bbe3f242f0fd50d9511ccad32a9217d418425072e808ab469f583d1f48",
+      "bytes": 3529
+    },
+    {
+      "path": "run.py",
+      "sha256": "6b2f47f08a646106e7bbe48ee262bef7a9eefa02716a91337b16b6b45ff0fa1a",
+      "bytes": 2946
+    },
+    {
+      "path": "runtime-cleanup.json",
+      "sha256": "005d7edd2ec08b7d93e57f859664fe7459e0dd5f61132e2d6f2e967df4cbaae7",
+      "bytes": 513
+    },
+    {
+      "path": "setup.json",
+      "sha256": "c21bdf29177e1df8d58f5bb18c0a9c5fa9d5e54cb539cab3c06e79d205774cf0",
+      "bytes": 2534
+    }
+  ],
+  "excluded": "shared node_modules symlink and private Vite cache; no copied dependencies or binary",
+  "report_whitespace_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/dev/null",
+      "/workspace/agenteam-d26-pure-v-1z5m6v_m/report.md"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 1,
+    "stdout": "",
+    "interpretation": "no-index content difference; no whitespace diagnostics"
+  },
+  "all_stop": true
+}

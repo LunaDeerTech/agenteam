@@ -1,0 +1,41 @@
+
+> @agenteam/web@0.0.0 check
+> npm run format:check && npm run test:unit && npm run build
+
+
+> @agenteam/web@0.0.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /workspace/agenteam-d26-auth-author-jrfhr6h1/input/web
+
+
+ Test Files  6 passed (6)
+      Tests  62 passed (62)
+   Start at  20:21:26
+   Duration  2.30s (transform 1.06s, setup 0ms, import 1.95s, tests 1.08s, environment 2.60s)
+
+
+> @agenteam/web@0.0.0 build
+> npm run type-check && vite build
+
+
+> @agenteam/web@0.0.0 type-check
+> vue-tsc --noEmit
+
+vite v8.3.1 building client environment for production...
+transforming...
+✓ 65 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.64 kB │ gzip:  0.38 kB
+dist/assets/index-BSZZbSjX.css   29.47 kB │ gzip:  6.59 kB
+dist/assets/index-KWp0FE48.js   152.26 kB │ gzip: 54.66 kB
+
+✓ built in 240ms

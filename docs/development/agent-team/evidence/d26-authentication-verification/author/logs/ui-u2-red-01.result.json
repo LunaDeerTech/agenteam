@@ -1,0 +1,12 @@
+{
+  "argv": [
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/web/node_modules/.bin/vitest",
+    "run",
+    "src/tests/authentication.spec.ts",
+    "-t",
+    "restores the challenge action focus",
+    "--reporter=verbose"
+  ],
+  "cwd": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/web",
+  "exit": 1
+}

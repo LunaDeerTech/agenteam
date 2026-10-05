@@ -1,0 +1,51 @@
+{
+  "scope": "static desktop first-product-red diagnosis only",
+  "manifest": {
+    "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-03/manifest.json",
+    "sha256": "34830f47406ccb2bc812e8c7cb30c5d0c8f8af93710e2cc7b5cf8caba8b91de9"
+  },
+  "inputs": [
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-03/web/src/components/account/RotateChallenge.vue",
+      "sha256": "bd2594511300bc45e17fb472d7e30ac95dd499619be27dc5f9abd81a6d9962e6",
+      "bytes": 5307
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-03/web/src/views/auth/LoginView.vue",
+      "sha256": "4604912fff36e2cc8ac336940beeb104b893cdcea60950401d9caef171615972",
+      "bytes": 8088
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-03/web/src/composables/useSession.ts",
+      "sha256": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679",
+      "bytes": 17260
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-03/tests/account-captcha-web/e2e/authentication.spec.ts",
+      "sha256": "8931ffc8e5334cca6847ba4bc24a7b107a0dd14cfca82abe90c05ef899c255df",
+      "bytes": 19203
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/auth-lifecycle-rotate-02.log",
+      "sha256": "dac555118672f65298a19aa21c686dc3e164c4f6efce38494bca834112fe3c7e",
+      "bytes": 7975
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/web/node_modules/go-captcha-vue/package.json",
+      "sha256": "f89886791ed99da82bc129e130aa0bdb0d8c9c459cee7a12c6a77a0de862e1ee",
+      "bytes": 2014
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/web/node_modules/go-captcha-vue/dist/go-captcha-vue.es.js",
+      "sha256": "3880426d9f971ca755f2a7f880b2532f0d67f47f188c47d11217b153f0c3b632",
+      "bytes": 38396
+    }
+  ],
+  "not_run": [
+    "npm",
+    "browser",
+    "Go",
+    "Docker",
+    "network"
+  ]
+}

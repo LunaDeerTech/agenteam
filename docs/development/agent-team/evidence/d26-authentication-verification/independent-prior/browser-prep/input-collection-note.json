@@ -1,0 +1,7 @@
+{
+  "first_static_collection_exit": 1,
+  "failure": "FileNotFoundError: fixture-input-02/go.mod",
+  "cause": "manifest dependencies are declarations, not all copied into the frozen directory",
+  "resolution": "read the 21 fixed candidate files and immutable raw; compare 5 baseline dependency declarations with fixed Git; do not read active build dist",
+  "product_execution": false
+}

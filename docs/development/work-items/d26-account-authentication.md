@@ -1,6 +1,6 @@
 # D26 正式 Account 认证客户端与页面
 
-修订：rev1.2，2026-10-05（仅采纳与实施授权状态归位，工程规则不变）。状态：**规格独立 STATIC PASS 并获采纳，21 路径已授权实施，业务尚未验收。** 设计及前端实施者为 `d08_registry_backend`，独立验收者为未参与业务实现的 `recovery_verification`；当前浏览器/Docker 窗口尚未授权。统一固定源码基线为已接受 `457b1979c9d6563740543b2011eedc06cce34c71`，包含原 `422e0c1d97d924e503ad816992b778e917599507`、已验 Account OpenAPI 修正 `df78a9215d1a0dd22f8b8fb26a24e329130fb034` 及 System Model root 装配；本卡无迁移。当前授权以 §9 为准，以下来源及 §1–8 保留规格制定时的记录。
+修订：rev1.2，2026-10-05（仅验后状态归位，工程规则不变）。状态：**本卡认证完整结果已独立验收并获主线程采纳，21 路径源码已提交推送 `9a710f272026b41ef69852bbeb41cb7670b500a8`。** 设计及前端实施者为 `d08_registry_backend`，独立验收者为未参与业务实现的 `recovery_verification`；实际浏览器/Go/Docker 验收已结束，命令及自有资源已清零，窗口已归还。统一固定源码基线为已接受 `457b1979c9d6563740543b2011eedc06cce34c71`，包含原 `422e0c1d97d924e503ad816992b778e917599507`、已验 Account OpenAPI 修正 `df78a9215d1a0dd22f8b8fb26a24e329130fb034` 及 System Model root 装配；本卡无迁移。实施与验收见 §9–10，以下来源及 §1–8 保留规格制定时的记录；完整 D26/D28 不因此完成。
 
 可行性依据：`/tmp/agenteam-d26-auth-feasibility-v-oqwi6632/report.md`，SHA-256 `923d56d639cbb335ce7a11a39b70bd755dc1dd15c65a3ace500b84a864fdf9e9`。该报告只做静态核对，不是 npm、浏览器或真实后端执行通过。活动 app/Model 装配及 Artifact 改动不进入本卡固定输入；后续消费新提交必须先核相关依赖差量。
 
@@ -167,8 +167,18 @@ rev1.1 已独立 **STATIC PASS** 并获主线程采纳：`/tmp/agenteam-d26-auth
 
 ## 9. 规格采纳与实施授权
 
-rev1.2 经独立差量审查 STATIC PASS 后，主线程已采纳并精确提交推送 `64e47fbc180a1fb2da385e7d4fabcc880699b0d5`。被审原卡 SHA `76745915d15c24dcd86ba061b0ff7bfada440d0a251f23f026166b971838edcd`，独立报告 SHA `339d6f5b32908e2e3efaaf8f9ca6f2fab8445cbdee79dfb835bf4beeca363182`；原 rev1 F1 阻断、正式 API 修正 `df78a92`、rev1.1、root 依赖差量、rev1.2 及环境只读准备均见[持久规格验收记录](../agent-team/d26-authentication-spec-verification.md)。此次状态归位不修改 §1–8 的工程语义，也不把规格通过写成前端动态通过。
+rev1.2 经独立差量审查 STATIC PASS 后，主线程已采纳并精确提交推送 `64e47fbc180a1fb2da385e7d4fabcc880699b0d5`。被审原卡 SHA `76745915d15c24dcd86ba061b0ff7bfada440d0a251f23f026166b971838edcd`，独立报告 SHA `339d6f5b32908e2e3efaaf8f9ca6f2fab8445cbdee79dfb835bf4beeca363182`；原 rev1 F1 阻断、正式 API 修正 `df78a92`、rev1.1、root 依赖差量、rev1.2 及环境只读准备均见[持久规格验收记录](../agent-team/d26-authentication-spec-verification.md)。当时的状态归位只记录规格通过；本次验后归位仍不修改 §1–8 的工程语义。
 
-主线程已授权 `d08_registry_backend` 对 §7 的 21 个代码/测试/配置路径实施，固定源码基线为 `457b197`；先冻结核心源码、锁及必要测试输入，再由 `recovery_verification` 独立静审。浏览器/Docker 及真实 fixture 窗口须另行明确交接，目前未授；验后三份文档写权也另行交接，不随业务授权自动扩大。当前本卡状态与规格报告/证据由文档执行者归位，不占用业务源码，也不代替独立验收。
+主线程分阶段授权 `d08_registry_backend` 对 §7 的 21 个代码/测试/配置路径实施，固定源码基线为 `457b197`；核心、UI、fixture 及实际资源观察方案分别冻结并独立审查后，再明确交接真实窗口。所有业务修改限定在这 21 路径，保留原失败及必要修复差量。独立总体结论获采纳后，主线程精确提交推送该 21 路径，并另行授权前端 README、验证记录和本卡三份验后文档；其他台账/状态及证据归档由独立所有者处理。
 
-[后续独立验收短计划](../agent-team/evidence/d26-authentication-spec/independent-plan.md)仅记录待验证风险，未运行新的 Go/npm/browser/Docker 检查。正式认证页面、完整 D26/D28、Provider 调用及已知 Object/Artifact/Project 阻断没有因此完成或解除。
+[后续独立验收短计划](../agent-team/evidence/d26-authentication-spec/independent-plan.md)保留为实施前风险计划，不将计划本身当作动态证据。实际结果见下节；完整 D26/D28、Provider 调用及已知 Object/Artifact/Project 阻断没有因此完成或解除。
+
+## 10. 本卡实现验收与交付
+
+主线程已采纳独立总体 PASS，源码提交 `9a710f272026b41ef69852bbeb41cb7670b500a8` 已推送并核远端一致。最终固定作者输入 `fixture-input-05` SHA-256 为 `2e0d63e1fabeaf4ba1ba808f2aa5e4a795b903516f6501b08d25517f16b37966`；21 源及八项锁/依赖/dist 指纹、实际 argv/env/exit、原红、修复差量、分版本覆盖和资源终局均见[持久认证验收记录](../agent-team/d26-authentication-verification.md)与[前端验证追加记录](../frontend/verification.md)。
+
+作者四个正式 Go 顶层、六个浏览器分支均有有效通过证据：lifecycle 复用 input03，完整 rotate 及 revocation/expiry 复用 input04，完整 layouts 使用最终 input05。原包含 desktop 焦点或缩放失败的 driver 仍保留失败状态，不改称全绿。完整 npm check 的 62 项与修后受影响 22 项分版本覆盖 67 个不同最终适用测试；最终格式、类型、构建及浏览器 spec 类型检查通过，未变 Go fixture 的 race integration compile/vet 结果复用。
+
+独立另验一顶层、一真实浏览器链：错 proof、真实失焦后的创建动作、换题、同 key/完整输入/pass、登录后 Session 一致、匿名与 Session CSRF 区分及正式注销，并核挑战/Session/Audit 后态。首次独立轮 CDP 取 body 失败原因仍未知，未进入后续目标；第二轮私有响应 tee 观测下八次原 CDP 读取均成功且业务链通过。tee 改变背压、取消传播及微任务时序，不将该结果称为无干预 transport 尾部证明或首轮原因已消失；原轮和具体限制均保留。
+
+作者五轮与独立两轮各自的四容器/三网络均两次 exact ID absent，原两容器/四网络基线不变，实际浏览器 PID/starttime、收养 wait、进程终局及 runtime/私有材料目录清理证据齐备，执行窗口已归还。纯 Unknown/迟到结果模拟不等于真实服务端 COMMIT/网络故障或 Cookie 竞争验收。本卡只交付所定认证与空首页；开发代理未单独做真实 dev-server 浏览器验收，Central 未托管生产 SPA，完整 D26/D28 及其它领域未完成边界保持。

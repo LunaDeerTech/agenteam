@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "list",
+    "-tags=integration",
+    "-deps",
+    "-test",
+    "-json",
+    "./tests/account"
+  ],
+  "cwd": "/workspace/agenteam-d26-independent-v-2wzub6ar/input",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-d26-auth-author-jrfhr6h1/go-cache",
+    "TMPDIR": "/workspace/agenteam-d26-independent-v-2wzub6ar/tmp"
+  },
+  "exit": 0,
+  "seconds": 0.1356168060010532,
+  "stdout_sha256": "3a7912e4b2ad0586bfaa3b1ed94d395731de7b404aa36549f338fe77585019df",
+  "stdout_bytes": 1144247,
+  "note": "Only selected local file inventory retained; dependency JSON not archived."
+}

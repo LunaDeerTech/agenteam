@@ -1,0 +1,15 @@
+D26 fixture02 + observer v2 独立窄审：STATIC PASS，可进入主线程授权的真实运行。
+
+固定 fixture02 manifest SHA75e43c7ddf26b9005c0ea0cde48a37e085221bd15a78f461315cd931f733743b，plan02 SHA2eb8257fc7bbb2108c535822de44f06ab0b602b6ddb7f4667c311ec24c28e21c；observer v2 SHA9f9e0b562e8d2d678bac073eb3f2d98eafdbc0231e19f09e6120d61dbb00ff05。基线457b197；原21冻结副本逐SHA匹配，两个Go fixture/config与01完全相同。本结论只审四fixture及observer，不代替另一V对UI03/core的结论，也不是D26浏览器行为已通过或授予窗口。
+
+fixture01报告0fa74188…的两项断言缺口已闭合。原两rotate分支新增真实matchMedia匹配、实际控件集合非空且>20、computed transition/animation时长为0、animationName为none；原拖拽/键盘角度、verify、80pass同key同输入及DB consumed断言保留。长display_name在每次主题reload后先toHaveText完整内容，再进入4宽度overflow循环。没有增加测试组或重试，没有放宽2min共享Go顶层、45s Playwright、driver race/count1/6m。fixture01原件保持，不能将其缺口倒写成UI产品故障；其他接线/材料/挑战静审结论复用。
+
+observer v2只对本Python进程启PR_SET_CHILD_SUBREAPER并GET复核；基于实际PID+starttime、当前PPID=自身、排除Popen driver的条件WNOHANG waitpid，记录实际收养和wait status。现存其它进程树不在收养范围；没有泛化kill/删除未知资源。driver结束后最多5s补等真实后代，是外层清理预算，不延长产品测试。仍保存nonce/label/exactID存活、原始输出/exit、两次absence/full baseline比较、实际进程/runtime/tmp末态和21前后指纹。静态没有新的确定阻断。
+
+运行时须落实的证据条件：
+1. 实际调用run_fixture_v2.py并单独记录其路径/SHA和argv。plan02的observer字段仍指v1；它不能充作v2已执行证据，原plan无需倒写。
+2. source_state仅覆盖21文件；运行前后另核manifest八项fixed_dependencies_and_dist。此轮只读检查当前八项全部匹配，包括新dist三文件；旧web-check03不能套到新稿，原16份声明pure日志SHA已匹配但本V未运行。最终UI03/全21采纳仍由原V/主线程负责。
+3. 根已实际核可信原2容器4网络，记录/workspace/agenteam-d26-root-baseline-before.json SHA c3fde3481d423eaf1c97546b5549476ac98a992690bc2bee1c429407cbfff816，本V不重复Docker。observer自身取当前baseline，运行方须把它与可信原身份核对，不能吞并别人的残留为新基线。
+4. Docker观察每调用可等待15s，会降低PID轮询密度；不称轮询必然捕获所有短命进程。cleanup_pass能在live集合为空时为true，最终必须读原活体PID/starttime/收养wait和4c3n ID/name/nonce-label覆盖、双absence/原baseline一致/实际所属进程与runtime空，不能只引用该布尔。少采集的项应明确限制并补实际末检，不能虚构capture。首红保留原件、先归因，不自动重跑或扩预算。
+
+没有运行Go/npm/browser/Docker/网络，未实际启动observer（仅读固定源码），未改业务、仓库或Git。此报告的可运行建议只覆盖fixture与观察方案；真实浏览器、Chromium兼容、布局视觉、资源清零均待正式运行证据。本实例all-stop。

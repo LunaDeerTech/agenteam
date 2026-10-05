@@ -1,0 +1,39 @@
+
+ RUN  v4.1.11 /workspace/agenteam-d26-auth-author-jrfhr6h1/input/web
+
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > has a real labelled form and protected home, preserves password bytes, confirms and logs out
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hides protected contents when authority is unavailable and provides explicit recovery
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > keeps Unknown inputs locked and offers an explicit original-request retry without optimistic success
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > keeps Debug and unknown routes independent and accepts only the implemented return path
+ × src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after abandon while preserving ordinary credential failures 80ms
+   → expected <input data-v-409777eb …(6)></input> to have property "value" with value ''
+ × src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after csrf while preserving ordinary credential failures 34ms
+   → expected <input data-v-409777eb …(6)></input> to have property "value" with value ''
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after abandon while preserving ordinary credential failures
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after csrf while preserving ordinary credential failures
+AssertionError: expected <input data-v-409777eb …(6)></input> to have property "value" with value ''
+
+- Expected
++ Received
+
++ person@example.com
+
+ ❯ src/tests/authentication.spec.ts:201:53
+    199|       await flushPromises()
+    200|       expect(p.auth.state.phase).toBe('anonymous')
+    201|       expect(p.wrapper.get('#login-email').element).toHaveProperty('va…
+       |                                                     ^
+    202|       expect(p.wrapper.get('#login-password').element).toHaveProperty(…
+    203|       expect(p.auth.state.canRetryOriginal).toBe(false)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 4 skipped (6)
+   Start at  20:07:12
+   Duration  1.18s (transform 417ms, setup 0ms, import 512ms, tests 116ms, environment 421ms)
+

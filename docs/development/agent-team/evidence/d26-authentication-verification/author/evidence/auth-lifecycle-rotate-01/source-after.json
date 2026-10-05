@@ -1,0 +1,107 @@
+{
+  "tests/account-captcha-web/authentication.config.js": {
+    "expected": "2f2a2921142b53eb4fbb9b103f4e59e06ab1619bb31ccce3e7677aa2d0e410c1",
+    "private": "2f2a2921142b53eb4fbb9b103f4e59e06ab1619bb31ccce3e7677aa2d0e410c1",
+    "shared": "2f2a2921142b53eb4fbb9b103f4e59e06ab1619bb31ccce3e7677aa2d0e410c1"
+  },
+  "tests/account-captcha-web/e2e/authentication.spec.ts": {
+    "expected": "d42c8b0ab925d7f6902947e92d66a12332a4bcc6fe6bae79bf0cc56634aae6f2",
+    "private": "d42c8b0ab925d7f6902947e92d66a12332a4bcc6fe6bae79bf0cc56634aae6f2",
+    "shared": "d42c8b0ab925d7f6902947e92d66a12332a4bcc6fe6bae79bf0cc56634aae6f2"
+  },
+  "tests/account/authentication_web_fixture_test.go": {
+    "expected": "95a635c182b81b82b78d97d7574a432c1d0a371a5ae84396bc95d6880a6ea3b7",
+    "private": "95a635c182b81b82b78d97d7574a432c1d0a371a5ae84396bc95d6880a6ea3b7",
+    "shared": "95a635c182b81b82b78d97d7574a432c1d0a371a5ae84396bc95d6880a6ea3b7"
+  },
+  "tests/account/authentication_web_test.go": {
+    "expected": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76",
+    "private": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76",
+    "shared": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76"
+  },
+  "web/package-lock.json": {
+    "expected": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "private": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "shared": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+  },
+  "web/package.json": {
+    "expected": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "private": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "shared": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+  },
+  "web/src/App.vue": {
+    "expected": "4b387528ebd5880a8a8b1f747c913fbc0ebb4ac626b7fba44ae49f24bf33a065",
+    "private": "4b387528ebd5880a8a8b1f747c913fbc0ebb4ac626b7fba44ae49f24bf33a065",
+    "shared": "4b387528ebd5880a8a8b1f747c913fbc0ebb4ac626b7fba44ae49f24bf33a065"
+  },
+  "web/src/api/account.ts": {
+    "expected": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+    "private": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+    "shared": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34"
+  },
+  "web/src/api/client.ts": {
+    "expected": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad",
+    "private": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad",
+    "shared": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad"
+  },
+  "web/src/components/account/RotateChallenge.vue": {
+    "expected": "bd2594511300bc45e17fb472d7e30ac95dd499619be27dc5f9abd81a6d9962e6",
+    "private": "bd2594511300bc45e17fb472d7e30ac95dd499619be27dc5f9abd81a6d9962e6",
+    "shared": "bd2594511300bc45e17fb472d7e30ac95dd499619be27dc5f9abd81a6d9962e6"
+  },
+  "web/src/components/layout/AppShell.vue": {
+    "expected": "02513aafc6dd78deccf300d7c12a6d0433919bc0baf1c844899ee3cdbf0ff88d",
+    "private": "02513aafc6dd78deccf300d7c12a6d0433919bc0baf1c844899ee3cdbf0ff88d",
+    "shared": "02513aafc6dd78deccf300d7c12a6d0433919bc0baf1c844899ee3cdbf0ff88d"
+  },
+  "web/src/composables/useSession.ts": {
+    "expected": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679",
+    "private": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679",
+    "shared": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679"
+  },
+  "web/src/router/auth.ts": {
+    "expected": "723e489ea5ad1fb501d573386b3df3b01bbb88aa12f739af62d35693e7fa3c4c",
+    "private": "723e489ea5ad1fb501d573386b3df3b01bbb88aa12f739af62d35693e7fa3c4c",
+    "shared": "723e489ea5ad1fb501d573386b3df3b01bbb88aa12f739af62d35693e7fa3c4c"
+  },
+  "web/src/router/index.ts": {
+    "expected": "fb2ca02271811398a164ea7500ddb66585d9713b4302abf8694a75ca3653647b",
+    "private": "fb2ca02271811398a164ea7500ddb66585d9713b4302abf8694a75ca3653647b",
+    "shared": "fb2ca02271811398a164ea7500ddb66585d9713b4302abf8694a75ca3653647b"
+  },
+  "web/src/tests/account-client.spec.ts": {
+    "expected": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b",
+    "private": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b",
+    "shared": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b"
+  },
+  "web/src/tests/authentication.spec.ts": {
+    "expected": "9504335ff51e9a8cf3b048f006053afc0e815d46f4a6f1a9ac098e6a46075d7c",
+    "private": "9504335ff51e9a8cf3b048f006053afc0e815d46f4a6f1a9ac098e6a46075d7c",
+    "shared": "9504335ff51e9a8cf3b048f006053afc0e815d46f4a6f1a9ac098e6a46075d7c"
+  },
+  "web/src/tests/rotate-challenge.spec.ts": {
+    "expected": "0a18ccebb6b6a267dc71696082031a04603c5b2fcd5f4cbb434afa89287bc540",
+    "private": "0a18ccebb6b6a267dc71696082031a04603c5b2fcd5f4cbb434afa89287bc540",
+    "shared": "0a18ccebb6b6a267dc71696082031a04603c5b2fcd5f4cbb434afa89287bc540"
+  },
+  "web/src/tests/session.spec.ts": {
+    "expected": "084bbdcc66fc15bf560b608a861792d73c9d712bd36f6ad5ca15a6b9aa5ec25c",
+    "private": "084bbdcc66fc15bf560b608a861792d73c9d712bd36f6ad5ca15a6b9aa5ec25c",
+    "shared": "084bbdcc66fc15bf560b608a861792d73c9d712bd36f6ad5ca15a6b9aa5ec25c"
+  },
+  "web/src/views/HomeView.vue": {
+    "expected": "666bb17e2cc42913f9a9c1a061480cd48add72e5b3d3256e3eca5cdf2eb0273f",
+    "private": "666bb17e2cc42913f9a9c1a061480cd48add72e5b3d3256e3eca5cdf2eb0273f",
+    "shared": "666bb17e2cc42913f9a9c1a061480cd48add72e5b3d3256e3eca5cdf2eb0273f"
+  },
+  "web/src/views/auth/LoginView.vue": {
+    "expected": "4604912fff36e2cc8ac336940beeb104b893cdcea60950401d9caef171615972",
+    "private": "4604912fff36e2cc8ac336940beeb104b893cdcea60950401d9caef171615972",
+    "shared": "4604912fff36e2cc8ac336940beeb104b893cdcea60950401d9caef171615972"
+  },
+  "web/vite.config.ts": {
+    "expected": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+    "private": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+    "shared": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+  }
+}

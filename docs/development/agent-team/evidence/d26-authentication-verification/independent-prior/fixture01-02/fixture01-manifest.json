@@ -1,0 +1,54 @@
+{
+  "baseline": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "card_original_sha256": "76745915d15c24dcd86ba061b0ff7bfada440d0a251f23f026166b971838edcd",
+  "files": {
+    "web/src/api/client.ts": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad",
+    "web/src/api/account.ts": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+    "web/src/composables/useSession.ts": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679",
+    "web/src/components/account/RotateChallenge.vue": "bd2594511300bc45e17fb472d7e30ac95dd499619be27dc5f9abd81a6d9962e6",
+    "web/src/views/auth/LoginView.vue": "78ae16dccefd878d6a46947335f4b10a36dcfb4b3f13be0c2a23cbb3b1c75c2f",
+    "web/src/views/HomeView.vue": "666bb17e2cc42913f9a9c1a061480cd48add72e5b3d3256e3eca5cdf2eb0273f",
+    "web/src/router/auth.ts": "723e489ea5ad1fb501d573386b3df3b01bbb88aa12f739af62d35693e7fa3c4c",
+    "web/src/App.vue": "4b387528ebd5880a8a8b1f747c913fbc0ebb4ac626b7fba44ae49f24bf33a065",
+    "web/src/router/index.ts": "fb2ca02271811398a164ea7500ddb66585d9713b4302abf8694a75ca3653647b",
+    "web/src/components/layout/AppShell.vue": "02513aafc6dd78deccf300d7c12a6d0433919bc0baf1c844899ee3cdbf0ff88d",
+    "web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "web/src/tests/account-client.spec.ts": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b",
+    "web/src/tests/session.spec.ts": "084bbdcc66fc15bf560b608a861792d73c9d712bd36f6ad5ca15a6b9aa5ec25c",
+    "web/src/tests/authentication.spec.ts": "60309f83541e939f7ca5023a9b4a4288116ba7b5a02b87fc5d713b64749e5a9b",
+    "web/src/tests/rotate-challenge.spec.ts": "0a18ccebb6b6a267dc71696082031a04603c5b2fcd5f4cbb434afa89287bc540",
+    "tests/account-captcha-web/authentication.config.js": "2f2a2921142b53eb4fbb9b103f4e59e06ab1619bb31ccce3e7677aa2d0e410c1",
+    "tests/account-captcha-web/e2e/authentication.spec.ts": "1e63e2b15c67e1e67a7bfb9c36ccfbd864b5f27d2d8996a7da2d639415cb922b",
+    "tests/account/authentication_web_fixture_test.go": "95a635c182b81b82b78d97d7574a432c1d0a371a5ae84396bc95d6880a6ea3b7",
+    "tests/account/authentication_web_test.go": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76"
+  },
+  "fixed_dependencies_and_dist": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "tests/account-captcha-web/package.json": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58",
+    "tests/account-captcha-web/package-lock.json": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534",
+    "docs/frontend-design/styles/colors-and-themes.md": "a670fbdeeed8768fca9aa7d4b4956be018fdc20b0fc3f7c405b61f9a4001aae8",
+    "web/dist/index.html": "0ac63c3828429c2fd076ad30db34bc7dfbc3439fbd328008bc96f1e1d5e21516",
+    "web/dist/assets/index-nLFbBgUA.css": "558e46e4f8f8f88cdb0fce2b87b415a72e3b450e42f8ddfec091592b3b28cd81",
+    "web/dist/assets/index-BJBkdgJg.js": "d7d0476d9c0933e432fec1fdbd2c27a8df121df44bcbeabb378da610cdcfc2b0"
+  },
+  "completed_pure_logs": {
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/web-check-03.log": "6263f9dda7ab0b130cbf561be7eb940f29b5ebdcc3b4858776d81e196ce47761",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/web-check-03.result.json": "c8b692690c2604e36d1480a6eeb7ded57718dae8eea47799333fe18da6fee4cf",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/go-integration-compile-02.log": "695a00a2e3c06db5727c46234772fb5e8e224393c620abb930d55e0960265eb6",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/go-integration-compile-02.result.json": "aa08b38d5e4a1b61f637b4cd02dab6e8ea7f52af0473bd55b38b7c0fc797d5e7",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/go-integration-vet-02.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/go-integration-vet-02.result.json": "e07417808df0a523d8d5c8de131e2e14f570166d923a4326053570ef7822b57b",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/browser-spec-type-02.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/browser-spec-type-02.result.json": "c75dfcd8c28b287949561bd4778735ecb5d6d639a856b64b891e9462bcd46ea0",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/browser-config-syntax-01.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/browser-config-syntax-01.result.json": "f85ffb5f663d462b4839ba278f209009416314c374873eb321907240abae5b42"
+  },
+  "source_note": "private git archive baseline plus exact21; one existing stylesheet-test document restored from same commit",
+  "not_run": [
+    "browser launch and Chromium151/Playwright1.56.1 compatibility",
+    "Docker/PG/MinIO actual HTTP groups"
+  ]
+}

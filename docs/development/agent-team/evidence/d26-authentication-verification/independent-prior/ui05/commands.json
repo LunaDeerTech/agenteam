@@ -1,0 +1,53 @@
+[
+  {
+    "argv": [
+      "python3",
+      "/workspace/agenteam-d26-ui05-static-v-oyw4hbmp/inspect.py"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 0,
+    "output": "checked_sources=44; exact changed App.vue/e2e helper; author metadata exit0=5; STATIC PASS"
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/dev/null",
+      "/workspace/agenteam-d26-ui05-static-v-oyw4hbmp/layout-failure.md"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "meaning": "No whitespace warnings; diff exit1 can mean new file."
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/dev/null",
+      "/workspace/agenteam-d26-ui05-static-v-oyw4hbmp/ui05-review.md"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "meaning": "No whitespace warnings; diff exit1 can mean new file."
+  },
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/dev/null",
+      "/workspace/agenteam-d26-ui05-static-v-oyw4hbmp/inspect.py"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "meaning": "No whitespace warnings; diff exit1 can mean new file."
+  }
+]

@@ -1,0 +1,500 @@
+{
+  "roots": [
+    {
+      "root": "/tmp/agenteam-d26-core-review01-v-7uhn1hok",
+      "scope": "core F1-F4 original static",
+      "top_level_frozen_files": {
+        "check-command.json": {
+          "sha256": "3cf46d3d1aea29bcc2978db73bacaa9b85ed56376bd284a346b7d27f3b5abf7d",
+          "bytes": 959
+        },
+        "checks.json": {
+          "sha256": "0c279bd59da91d3688d8ddb8e799dd016913fa5ddad4068c1a85dabf6389ae0d",
+          "bytes": 7359
+        },
+        "commands.txt": {
+          "sha256": "2d912a81bc7ccba7681190d94423860c403eb7fdf145ae00120ed9a04a57bca8",
+          "bytes": 85
+        },
+        "input-checks.json": {
+          "sha256": "cff4e7e8dc972f08f45ff70c1ae4f7e622660a2a49c9b1fe6d46bdd267084450",
+          "bytes": 3352
+        },
+        "lock-delta.json": {
+          "sha256": "2c254d7d244ea15ced7104cabcb27876de8ba1910d4fb64fba48e526eb37b752",
+          "bytes": 3945
+        },
+        "review-index.json": {
+          "sha256": "b2087f96072f95cdc81bfe2c823b02260c9a8182160cc0f9623ad52dbb0d3d0c",
+          "bytes": 1220
+        },
+        "review.md": {
+          "sha256": "b423a36a006cbbb5741ff9e1b66613f44601077757cb8dffa85b77c9debbc8d8",
+          "bytes": 9301
+        },
+        "verify_inputs.py": {
+          "sha256": "597e783a2cb3a33c306bacf39ce06fa7607973257202fa5e60ef2d71455f28d4",
+          "bytes": 3830
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/tmp/agenteam-d26-core-review02-v-1pwnsdm7",
+      "scope": "core narrow closure",
+      "top_level_frozen_files": {
+        "check-command.json": {
+          "sha256": "aa27d82ded1e01e0a452edfa76975416140f400590387e78cb7aeae76278fb66",
+          "bytes": 977
+        },
+        "checks.json": {
+          "sha256": "52a26800ed53b4d64eea4dbc4217a57d4d31c63e5402d34368b515e606f4f759",
+          "bytes": 9763
+        },
+        "review-index.json": {
+          "sha256": "599b449a440a17b517521a705b6e3a6cd2f0d54eacea981cb6215eeb79e33171",
+          "bytes": 956
+        },
+        "review.md": {
+          "sha256": "f75761121625c8d28035a1e902e1e147741b00a12dfa158e1fbbac3b478d85a5",
+          "bytes": 5186
+        },
+        "test-token-delta.json": {
+          "sha256": "7930e82307ac513832a85b0bcd7820968216dfc91d2c74f435295302b1a91ca9",
+          "bytes": 3930
+        },
+        "verify_inputs.py": {
+          "sha256": "b8b9355bd66f5273b5e17d4b65636bed9210e1699c8ec5a191caf0fb9d50dcbd",
+          "bytes": 3748
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/tmp/agenteam-d26-ui-review01-v-vgj2lp5h",
+      "scope": "UI U1-U4 original static",
+      "top_level_frozen_files": {
+        "check-command.json": {
+          "sha256": "f603682284beb576794fb84903009a01b4133ae2f38d52ba47058babafe23056",
+          "bytes": 967
+        },
+        "checks.json": {
+          "sha256": "7bb6b116a9bc322b4eb8096ed391ed207c14b03310be948bf06c6bf35b4e1e44",
+          "bytes": 12483
+        },
+        "input-checks.json": {
+          "sha256": "56c37b1532a8e48eb370ead74e034bcb1708500046b822cc3ebda71d8dc0359a",
+          "bytes": 8070
+        },
+        "loop-to-ui01.patch": {
+          "sha256": "594c3275cc583e6265849b04ee4ce51f4730fce8a9d3595847e698838fe334a1",
+          "bytes": 3183
+        },
+        "review-index.json": {
+          "sha256": "0bf4cb9eaf29e715e64b20913798be793e4166edc6485c6214243b252b026295",
+          "bytes": 1096
+        },
+        "review.md": {
+          "sha256": "cc1447263573e63b4f4add0abee1aa75b3f5c3ce51b24daddebd31b8d7935e89",
+          "bytes": 8713
+        },
+        "verify_inputs.py": {
+          "sha256": "1a2fa485b902c45ca3e2c3af9e27b7d4d0d7e50147bdba033f013fef10e4ed6a",
+          "bytes": 3909
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/tmp/agenteam-d26-ui-review02-v-njf1nsfc",
+      "scope": "UI02 retained U2 block",
+      "top_level_frozen_files": {
+        "check-command.json": {
+          "sha256": "6b7b74d64bd602a9e2e4c6f8228c4678f7f44aea16aaa8041c25cd5c7a650f21",
+          "bytes": 1087
+        },
+        "checks.json": {
+          "sha256": "b4c45976b3ae06f18e9299a49a392c795acaca1c1ec2d6bb2bfa081c4d8ea3de",
+          "bytes": 17903
+        },
+        "format-check.json": {
+          "sha256": "3cdb9d0c33d75d1ab68f3637bbd7412e0c2d8612d1be30fe66161b599ead68d3",
+          "bytes": 353
+        },
+        "review-index.json": {
+          "sha256": "26970b0548153efa83a1dfc78a10b7559a6105b4ffa706f2528345a15590d4e3",
+          "bytes": 864
+        },
+        "review.md": {
+          "sha256": "f1d1b74e8128d6fe48452d638810b3c50da787d3a76f5eccedb67ff35077fbd6",
+          "bytes": 6431
+        },
+        "verify_inputs.py": {
+          "sha256": "bfd0b874bc9eea42e085495356b8505e22380f1b547b5335de8648fb3de6b356",
+          "bytes": 3376
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/workspace/agenteam-d26-ui-review03-v-6n0oywcn",
+      "scope": "UI03 disabled focus memory",
+      "top_level_frozen_files": {
+        "check-command.json": {
+          "sha256": "2e6db6c6a503ab555df174ea501da800328614f1233ccb1246cd5c875351fc1d",
+          "bytes": 718
+        },
+        "checks.json": {
+          "sha256": "503b2f44a257787fae49dc8cd052a75eef5ff38228865e4c59c6ea6b285936ac",
+          "bytes": 13788
+        },
+        "format-check.json": {
+          "sha256": "cffe707ed7b5210e809b82bb89c1b55617079092bd0c2b18c78106a8aba1a798",
+          "bytes": 337
+        },
+        "red01-to-red02.patch": {
+          "sha256": "827b67a5ee5944c81d34559c1187172b22948559e67f4342475d3250192eb7fd",
+          "bytes": 771
+        },
+        "red02-to-final.patch": {
+          "sha256": "224de17a46ce45fb241d7fb71676650e366307b7dcb8954e86574e7a2d94901c",
+          "bytes": 2769
+        },
+        "review-index.json": {
+          "sha256": "b76db691e7b43ca5a822e510724c174dac33efa3472848be2d1d89744b81ede0",
+          "bytes": 1149
+        },
+        "review.md": {
+          "sha256": "53f4538735dd38d3e6053cf71675c4dd52938b34e49f9a78581acb6a803f03df",
+          "bytes": 4297
+        },
+        "verify_inputs.py": {
+          "sha256": "1fea397d55c282cfe2c927749446e7923c85957e24432ddb81385abb7849ff04",
+          "bytes": 3206
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/workspace/agenteam-d26-browser-prep-v-0oe2ckeb",
+      "scope": "selector first red and original independent plan",
+      "top_level_frozen_files": {
+        "UiField.vue": {
+          "sha256": "9e40a4c00994826f9a65ed0c1cf095f7e6d5e44b93a95a4788b82ab1b9f3e0a1",
+          "bytes": 747
+        },
+        "UiInput.vue": {
+          "sha256": "fd182981669131383f2a36fd422da461f94237a7ba019a469c05dcb9c5afcbaf",
+          "bytes": 283
+        },
+        "format-check.json": {
+          "sha256": "666ab5ce7bcdae5f1902344a51d5a8b111d7364979119b63aae154f73fd9f2e3",
+          "bytes": 607
+        },
+        "independent-plan.md": {
+          "sha256": "7a65c30cb5e2d7d2804927632b7adc8fafa395350d01f6cd3d6d448237567218",
+          "bytes": 3335
+        },
+        "index.json": {
+          "sha256": "228a9797a92a4909cddfd2520d316d819bc7e7fd8c35667f93d7d38e28ad6dbe",
+          "bytes": 1337
+        },
+        "input-collection-note.json": {
+          "sha256": "624c1ba2a63b66013502c9db6925fa4cd7ddcc3890f0517a9cac9e1b6333f6f3",
+          "bytes": 385
+        },
+        "inputs.json": {
+          "sha256": "618822207c31f1851b2f10bbae2c7f2d2c9185cea8ee5a5aa93d0098c77324a4",
+          "bytes": 13271
+        },
+        "pw-algorithm-excerpts.json": {
+          "sha256": "144badf60845a2089e7e65c038abfb9f15586fc984b399712495c8aa2e5c5c36",
+          "bytes": 7795
+        },
+        "selector-first-red.md": {
+          "sha256": "f1acb9b16c1e35828c1f4a59cbc3fb97a77f54590043376b81a5262b772ff2ca",
+          "bytes": 3682
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/workspace/agenteam-d26-fixture03-v-49st6ldx",
+      "scope": "fixture selector delta",
+      "top_level_frozen_files": {
+        "checks.json": {
+          "sha256": "bf25e21dd9218c0a2ec59fa3d90310cffcc346ba2823d4967133425e522d729e",
+          "bytes": 5773
+        },
+        "format-check.json": {
+          "sha256": "7791bd184c9e250818a2c21e8e492943166a8965d81d54b692b3a467a55a4250",
+          "bytes": 256
+        },
+        "index.json": {
+          "sha256": "e6b0fe367c303b84d5f503f2c6579723d7217294d7720372c6cc454ba74acbac",
+          "bytes": 517
+        },
+        "review.md": {
+          "sha256": "24308854a19a6dff1225d0f2781ccb43fa608dbdbfeadcda38a10d7bf507bead",
+          "bytes": 2415
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/workspace/agenteam-d26-desktop-focus-v-1kzsjmn4",
+      "scope": "real desktop first failure static trace",
+      "top_level_frozen_files": {
+        "format-check.json": {
+          "sha256": "8a716a1810df6d43b975bf281992df04b8301e4ba78ba46711f2c81bfb08972d",
+          "bytes": 264
+        },
+        "index.json": {
+          "sha256": "373817267998317340682f72b7e7460e2b0264873f0e5ed74fa32f159e373a37",
+          "bytes": 681
+        },
+        "inputs.json": {
+          "sha256": "316dd1566b84388b09f8fdc4a4714717a8657c1f6b03e6c1c7e05f7b40c506a3",
+          "bytes": 2045
+        },
+        "review.md": {
+          "sha256": "d743d48ecc5fe12582aa40e4b7a401b0d5d2ea0efde8d25787003395eb9697e2",
+          "bytes": 3516
+        },
+        "sdk-excerpts.json": {
+          "sha256": "00753965b7da6e147e4f5f1303a6e1416e4cd8f4ec7df02913b47aea1bbb5505",
+          "bytes": 3597
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/workspace/agenteam-d26-ui04-v-hhx0nghg",
+      "scope": "UI04 pointer focus delta",
+      "top_level_frozen_files": {
+        "checks.json": {
+          "sha256": "4b2569fd00f547fdd443c994a207cac1767cb8b98b574978ff782f535339c9a6",
+          "bytes": 11910
+        },
+        "format-check.json": {
+          "sha256": "5d2f9322520f9a0c5ba0fecd5affb647fc1487190bb3383ea7f01b10a841231e",
+          "bytes": 246
+        },
+        "index.json": {
+          "sha256": "e4d1903f10b44e5cf5b45e5c3dc98c89cf4d2f7d9ab4fa028185cce96895b010",
+          "bytes": 679
+        },
+        "red01-to-red02.patch": {
+          "sha256": "5800b373f5d1a5481b228600fe52bc6ad307d4576d3a8635c436a2c68e4bf4f9",
+          "bytes": 1247
+        },
+        "review.md": {
+          "sha256": "b8527b34b8754a2468907a7bd717200be52b4875fa83536f7e9cdad7d693307a",
+          "bytes": 3877
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/workspace/agenteam-d26-ui05-static-v-oyw4hbmp",
+      "scope": "real zoom first failure and UI05 static delta",
+      "top_level_frozen_files": {
+        "checks.json": {
+          "sha256": "c796538394e3d8f771ccfb343af337721d5f6947147f8fca57063b7d47ee6df4",
+          "bytes": 3290
+        },
+        "commands.json": {
+          "sha256": "377a2992cb6df645636b329fa5b2826d70b33a7d94ed53db040801194dd33d38",
+          "bytes": 1186
+        },
+        "index.json": {
+          "sha256": "76f78e733404a90f3281c4339d6ea49f64db90efba5c1c671835a08ed11108dc",
+          "bytes": 704
+        },
+        "inputs.json": {
+          "sha256": "3e80cb76012769c46f3680496bcd84112945a97847340d8081018b247046d837",
+          "bytes": 15804
+        },
+        "inspect.py": {
+          "sha256": "acd7ca6809a50d40f5a91d711c95044940e25a8f752eb95fe09e13d56d8ceebb",
+          "bytes": 5309
+        },
+        "layout-failure.md": {
+          "sha256": "115ede6009c9addd75f40630f94504be9b3d085820dc266b15965b78e705fb90",
+          "bytes": 2417
+        },
+        "read-commands.json": {
+          "sha256": "d545943399701e86cd4d3a8b44cc7e2712ed27eaae7801613db61740c7d3f41e",
+          "bytes": 928
+        },
+        "ui05-review.md": {
+          "sha256": "7c2fcfa30d9e926dcbdc667591de60e184e4194fec8d6fac2bc4c8f2f1a742c7",
+          "bytes": 2783
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/workspace/agenteam-d26-browser-fixture-v-nwnkiwi2",
+      "scope": "other independent verifier fixture01/02 observer static",
+      "top_level_frozen_files": {
+        "fixture01-index.json": {
+          "sha256": "417cafde9804c9b10acfa90b057f707139a5f847e5f3bc747184f5695064dfbd",
+          "bytes": 1337
+        },
+        "fixture01-manifest.json": {
+          "sha256": "57bb798533d623b67a1323f416c3cbaae15ffcf224720c82c73eeb1701ee740b",
+          "bytes": 5136
+        },
+        "fixture01-plan.json": {
+          "sha256": "6f890bbdcf3ebe4d021cf33178babd2178b33b191d311b7f1a30bd71cf6fb2c4",
+          "bytes": 2489
+        },
+        "fixture01-report.md": {
+          "sha256": "0fa741883462d00a6182cebf95490cc65a7f11427478d224bf30c0ec31e3ef46",
+          "bytes": 2694
+        },
+        "fixture02-browser-spec.patch": {
+          "sha256": "f000c9a8be9c1d684a73531dd92ed6b2f8d375ebf9730a04872283eeb4a80097",
+          "bytes": 1750
+        },
+        "fixture02-browser-spec.ts.txt": {
+          "sha256": "d42c8b0ab925d7f6902947e92d66a12332a4bcc6fe6bae79bf0cc56634aae6f2",
+          "bytes": 18884
+        },
+        "fixture02-check.json": {
+          "sha256": "c156803528205e8d88a1b285d1ae5685d30cbed7f259f9a342cd0c1346dfbb9b",
+          "bytes": 2781
+        },
+        "fixture02-index.json": {
+          "sha256": "c9cbc14e4a22fee07cfdbd0dd8c42c984ec6f8443d8781b4d539781213b2f2ff",
+          "bytes": 2357
+        },
+        "fixture02-manifest.json": {
+          "sha256": "75e43c7ddf26b9005c0ea0cde48a37e085221bd15a78f461315cd931f733743b",
+          "bytes": 6320
+        },
+        "fixture02-plan.json": {
+          "sha256": "2eb8257fc7bbb2108c535822de44f06ab0b602b6ddb7f4667c311ec24c28e21c",
+          "bytes": 2749
+        },
+        "fixture02-report.md": {
+          "sha256": "55eea99444de2024e9b07dba09c518dd37ac255cd0a6e216b09beaef26797678",
+          "bytes": 3333
+        },
+        "observer-v1.py.txt": {
+          "sha256": "8f9e88d787dcd7165a8d9eaefa2ff3d2ae6087d0cb9207709d4a1ac272b7398e",
+          "bytes": 9369
+        },
+        "observer-v2.patch": {
+          "sha256": "21c75d108dd3143ae236b3d8272b53b3016e42b0526fec88b46804a52aa84241",
+          "bytes": 5263
+        },
+        "observer-v2.py.txt": {
+          "sha256": "9f9e0b562e8d2d678bac073eb3f2d98eafdbc0231e19f09e6120d61dbb00ff05",
+          "bytes": 11273
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/workspace/agenteam-d26-pure-v-1z5m6v_m",
+      "scope": "independent pure2",
+      "top_level_frozen_files": {
+        "evidence-index.json": {
+          "sha256": "2bc559209a3b51c2ae61be8012945b557578f596a31e755d1d0225e497c0dbea",
+          "bytes": 3671
+        },
+        "input-manifest.json": {
+          "sha256": "33e27059549cd19c6c2e3f2c90f51c0463ece48d4191a6c49bc91d08db3cc715",
+          "bytes": 2143
+        },
+        "post-input-check.json": {
+          "sha256": "772f9be8f7a06d1887aaf0e2b2d7b723434ed1893c0cc02aeb646c8cbeae928d",
+          "bytes": 143
+        },
+        "process-final.json": {
+          "sha256": "61dd64cb97821ae6c3b74b16926602bcd1c01d6e575a038d0bdffecf56845116",
+          "bytes": 301
+        },
+        "report.md": {
+          "sha256": "a40a43bbe3f242f0fd50d9511ccad32a9217d418425072e808ab469f583d1f48",
+          "bytes": 3529
+        },
+        "run.py": {
+          "sha256": "6b2f47f08a646106e7bbe48ee262bef7a9eefa02716a91337b16b6b45ff0fa1a",
+          "bytes": 2946
+        },
+        "runtime-cleanup.json": {
+          "sha256": "005d7edd2ec08b7d93e57f859664fe7459e0dd5f61132e2d6f2e967df4cbaae7",
+          "bytes": 513
+        },
+        "setup.json": {
+          "sha256": "c21bdf29177e1df8d58f5bb18c0a9c5fa9d5e54cb539cab3c06e79d205774cf0",
+          "bytes": 2534
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/workspace/agenteam-d26-dom-focus-v-7k_tkbe3",
+      "scope": "independent native DOM1",
+      "top_level_frozen_files": {
+        "index.json": {
+          "sha256": "a7b37b9980be2e2ea8351d7e88c19551f51ec149e4ff0b24cc852a3c2381d840",
+          "bytes": 2618
+        },
+        "probe.cjs": {
+          "sha256": "6e61737ccd9f4a17c2980ae373d46edade1b9ae6dce533cb2b517b09ad9da174",
+          "bytes": 5499
+        },
+        "report.md": {
+          "sha256": "438868537e2a455bdfced0ffc9195ed9cdfda98b7aca375e9164df7e1378490f",
+          "bytes": 3086
+        },
+        "run.py": {
+          "sha256": "5e38072066ede8c51e44935201388250ae9c604bb24c74ef001b2eac4ad68b64",
+          "bytes": 7944
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    },
+    {
+      "root": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/author-final",
+      "scope": "author exact coverage/source/failure locator",
+      "top_level_frozen_files": {
+        "SHA256SUMS": {
+          "sha256": "b5ff54736a740d644236c13bd63c140dc56e528e1985e61fecb3e329fd3189ec",
+          "bytes": 25029
+        },
+        "candidate.patch": {
+          "sha256": "0fbbe36c933c2a7dc856b10c014ba43d8056813c69ede770d035981a7a67bf05",
+          "bytes": 150049
+        },
+        "coverage.json": {
+          "sha256": "97f08c3ab1c1faf2de18f37a6b78a44bd83b7943be922a28dae023c50fa8a7c1",
+          "bytes": 43671
+        },
+        "manifest.json": {
+          "sha256": "598b10dcbc7e65c7ec197947900cf0e28248ac5a83c7fbcbfb4523d7a9fc40c0",
+          "bytes": 3977
+        },
+        "report.md": {
+          "sha256": "d00fc06dd41133f72318f64a0ef4bf7d03d5de3479e79b5fd0002b6a14b98114",
+          "bytes": 5057
+        }
+      },
+      "note": "Use original index references for required nested raw/probe payload; do not copy full input/cache trees."
+    }
+  ],
+  "already_persisted_spec_evidence": "docs/development/agent-team/d26-authentication-spec-verification.md and evidence/d26-authentication-spec; reuse existing committed archive, do not duplicate",
+  "rebuild": "fixed457b197 + accepted9a710f2 only21 + final3 independent probe; do not substitute full accepted tree",
+  "large_exclusions": [
+    "input symlink tree",
+    "node_modules",
+    "go-cache",
+    "bin",
+    "tmp",
+    "browser profiles"
+  ]
+}

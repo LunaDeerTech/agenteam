@@ -1,0 +1,55 @@
+
+ RUN  v4.1.11 /workspace/agenteam-d26-auth-author-jrfhr6h1/input/web
+
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > has a real labelled form and protected home, preserves password bytes, confirms and logs out
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hides protected contents when authority is unavailable and provides explicit recovery
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > keeps Unknown inputs locked and offers an explicit original-request retry without optimistic success
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > keeps Debug and unknown routes independent and accepts only the implemented return path
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after abandon while preserving ordinary credential failures
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after csrf while preserving ordinary credential failures
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > restores the challenge action focus after rejected without claiming verification
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > restores the challenge action focus after timeout without claiming verification
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > offers one explicit Session recovery after an old login tail settles on a returned auth route
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > focuses an enabled new challenge, returns successful verification to login, and never steals edited-input focus
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: rejected
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: timeout
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: success
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: edited
+ × src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: success 120ms
+   → expected false to be true // Object.is equality
+ × src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: rejected 37ms
+   → expected false to be true // Object.is equality
+ × src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: timeout 29ms
+   → expected false to be true // Object.is equality
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: edited 35ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: outside-pointer 40ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: success
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: rejected
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: timeout
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/tests/authentication.spec.ts:450:9
+    448|         document.activeElement ===
+    449|           (movedElsewhere ? document.body : p.wrapper.get(`[data-actio…
+    450|       ).toBe(true)
+       |         ^
+    451|       expect(p.auth.state.passReady).toBe(outcome === 'success')
+    452|       if (outcome === 'timeout') {
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 2 passed | 14 skipped (19)
+   Start at  20:38:02
+   Duration  1.33s (transform 434ms, setup 0ms, import 537ms, tests 263ms, environment 405ms)
+

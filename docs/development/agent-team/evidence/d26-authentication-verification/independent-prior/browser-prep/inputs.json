@@ -1,0 +1,360 @@
+{
+  "scope": "static fixture/selector evidence only; no runtime execution",
+  "fixed_manifest": {
+    "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/manifest.json",
+    "sha256": "75e43c7ddf26b9005c0ea0cde48a37e085221bd15a78f461315cd931f733743b"
+  },
+  "records": [
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/api/client.ts",
+      "sha256": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad",
+      "bytes": 7519,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/api/account.ts",
+      "sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+      "bytes": 7397,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/composables/useSession.ts",
+      "sha256": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679",
+      "bytes": 17260,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/components/account/RotateChallenge.vue",
+      "sha256": "bd2594511300bc45e17fb472d7e30ac95dd499619be27dc5f9abd81a6d9962e6",
+      "bytes": 5307,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/views/auth/LoginView.vue",
+      "sha256": "4604912fff36e2cc8ac336940beeb104b893cdcea60950401d9caef171615972",
+      "bytes": 8088,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/views/HomeView.vue",
+      "sha256": "666bb17e2cc42913f9a9c1a061480cd48add72e5b3d3256e3eca5cdf2eb0273f",
+      "bytes": 722,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/router/auth.ts",
+      "sha256": "723e489ea5ad1fb501d573386b3df3b01bbb88aa12f739af62d35693e7fa3c4c",
+      "bytes": 917,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/App.vue",
+      "sha256": "4b387528ebd5880a8a8b1f747c913fbc0ebb4ac626b7fba44ae49f24bf33a065",
+      "bytes": 3059,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/router/index.ts",
+      "sha256": "fb2ca02271811398a164ea7500ddb66585d9713b4302abf8694a75ca3653647b",
+      "bytes": 1088,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/components/layout/AppShell.vue",
+      "sha256": "02513aafc6dd78deccf300d7c12a6d0433919bc0baf1c844899ee3cdbf0ff88d",
+      "bytes": 328,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/vite.config.ts",
+      "sha256": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+      "bytes": 979,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+      "bytes": 984,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+      "bytes": 86893,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/tests/account-client.spec.ts",
+      "sha256": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b",
+      "bytes": 8232,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/tests/session.spec.ts",
+      "sha256": "084bbdcc66fc15bf560b608a861792d73c9d712bd36f6ad5ca15a6b9aa5ec25c",
+      "bytes": 17639,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/tests/authentication.spec.ts",
+      "sha256": "9504335ff51e9a8cf3b048f006053afc0e815d46f4a6f1a9ac098e6a46075d7c",
+      "bytes": 17532,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/web/src/tests/rotate-challenge.spec.ts",
+      "sha256": "0a18ccebb6b6a267dc71696082031a04603c5b2fcd5f4cbb434afa89287bc540",
+      "bytes": 3660,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/tests/account-captcha-web/authentication.config.js",
+      "sha256": "2f2a2921142b53eb4fbb9b103f4e59e06ab1619bb31ccce3e7677aa2d0e410c1",
+      "bytes": 1194,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/tests/account-captcha-web/e2e/authentication.spec.ts",
+      "sha256": "d42c8b0ab925d7f6902947e92d66a12332a4bcc6fe6bae79bf0cc56634aae6f2",
+      "bytes": 18884,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/tests/account/authentication_web_fixture_test.go",
+      "sha256": "95a635c182b81b82b78d97d7574a432c1d0a371a5ae84396bc95d6880a6ea3b7",
+      "bytes": 14128,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-02/tests/account/authentication_web_test.go",
+      "sha256": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76",
+      "bytes": 3639,
+      "section": "files"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/web-check-03.log",
+      "sha256": "6263f9dda7ab0b130cbf561be7eb940f29b5ebdcc3b4858776d81e196ce47761",
+      "bytes": 972,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/web-check-03.result.json",
+      "sha256": "c8b692690c2604e36d1480a6eeb7ded57718dae8eea47799333fe18da6fee4cf",
+      "bytes": 212,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/go-integration-compile-02.log",
+      "sha256": "695a00a2e3c06db5727c46234772fb5e8e224393c620abb930d55e0960265eb6",
+      "bytes": 77,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/go-integration-compile-02.result.json",
+      "sha256": "aa08b38d5e4a1b61f637b4cd02dab6e8ea7f52af0473bd55b38b7c0fc797d5e7",
+      "bytes": 1089,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/go-integration-vet-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/go-integration-vet-02.result.json",
+      "sha256": "e07417808df0a523d8d5c8de131e2e14f570166d923a4326053570ef7822b57b",
+      "bytes": 1053,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/browser-spec-type-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/browser-spec-type-02.result.json",
+      "sha256": "c75dfcd8c28b287949561bd4778735ecb5d6d639a856b64b891e9462bcd46ea0",
+      "bytes": 1369,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/browser-config-syntax-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/browser-config-syntax-01.result.json",
+      "sha256": "f85ffb5f663d462b4839ba278f209009416314c374873eb321907240abae5b42",
+      "bytes": 180,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/web-check-04.log",
+      "sha256": "010717fc4a0bf05fa86d2c6c5339835f6ffc5c680ea56c6922e3c0ba807f349b",
+      "bytes": 972,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/web-check-04.result.json",
+      "sha256": "c8b692690c2604e36d1480a6eeb7ded57718dae8eea47799333fe18da6fee4cf",
+      "bytes": 212,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui03-unit-01.log",
+      "sha256": "e7d7cd2492b44d74fa9d5330a0446b7e2a7c647eda78fbbeea9337688f1f536d",
+      "bytes": 2978,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui03-unit-01.result.json",
+      "sha256": "f92ced1f63647f9bea18d936c8e0d97164f1f564b2aced3098fbc5c31365993c",
+      "bytes": 305,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/browser-spec-type-03.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "section": "completed_pure_logs"
+    },
+    {
+      "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/browser-spec-type-03.result.json",
+      "sha256": "a1581bb19b7d306f5a499631a9d56bba1a9473a9fee7ca0480cbba3eb93bcd5e",
+      "bytes": 515,
+      "section": "completed_pure_logs"
+    }
+  ],
+  "first_real_log": {
+    "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/auth-lifecycle-rotate-01.log",
+    "sha256": "99fa0fa02f82441744c369f1205eaa9f7aef44260b278f1879a042a9b7a845e7"
+  },
+  "git_inputs": [
+    {
+      "path": "web/src/components/ui/UiField.vue",
+      "sha256": "9e40a4c00994826f9a65ed0c1cf095f7e6d5e44b93a95a4788b82ab1b9f3e0a1",
+      "bytes": 747
+    },
+    {
+      "path": "web/src/components/ui/UiInput.vue",
+      "sha256": "fd182981669131383f2a36fd422da461f94237a7ba019a469c05dcb9c5afcbaf",
+      "bytes": 283
+    },
+    {
+      "path": "internal/central/account/challenge.go",
+      "sha256": "779aa885896b85edb96e6a5c34e55d8d52d6a8cc6a07933abf68cacdd77cbdb8",
+      "bytes": 15358
+    },
+    {
+      "path": "go.mod",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "bytes": 1468
+    },
+    {
+      "path": "go.sum",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "bytes": 8391
+    },
+    {
+      "path": "tests/account-captcha-web/package.json",
+      "sha256": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58",
+      "bytes": 429
+    },
+    {
+      "path": "tests/account-captcha-web/package-lock.json",
+      "sha256": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534",
+      "bytes": 57313
+    },
+    {
+      "path": "docs/frontend-design/styles/colors-and-themes.md",
+      "sha256": "a670fbdeeed8768fca9aa7d4b4956be018fdc20b0fc3f7c405b61f9a4001aae8",
+      "bytes": 5579
+    }
+  ],
+  "git_commands": [
+    {
+      "argv": [
+        "git",
+        "show",
+        "457b1979c9d6563740543b2011eedc06cce34c71:web/src/components/ui/UiField.vue"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "457b1979c9d6563740543b2011eedc06cce34c71:web/src/components/ui/UiInput.vue"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "457b1979c9d6563740543b2011eedc06cce34c71:internal/central/account/challenge.go"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "457b1979c9d6563740543b2011eedc06cce34c71:go.mod"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "457b1979c9d6563740543b2011eedc06cce34c71:go.sum"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "457b1979c9d6563740543b2011eedc06cce34c71:tests/account-captcha-web/package.json"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "457b1979c9d6563740543b2011eedc06cce34c71:tests/account-captcha-web/package-lock.json"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "show",
+        "457b1979c9d6563740543b2011eedc06cce34c71:docs/frontend-design/styles/colors-and-themes.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "stderr": ""
+    }
+  ],
+  "dist3": "manifest-declared hashes only; not reread from active input"
+}

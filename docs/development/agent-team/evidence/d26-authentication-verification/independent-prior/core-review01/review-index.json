@@ -1,0 +1,42 @@
+{
+  "fixed_input": "d58f18be1558b9e1493a40ec848070a32af92ed05037fb1c734aeff76b5aafbc",
+  "conclusion": "BLOCKED_STATIC_F1_F2_F3_F4",
+  "dynamic_executed": false,
+  "files": [
+    {
+      "path": "check-command.json",
+      "sha256": "3cf46d3d1aea29bcc2978db73bacaa9b85ed56376bd284a346b7d27f3b5abf7d",
+      "bytes": 959
+    },
+    {
+      "path": "checks.json",
+      "sha256": "0c279bd59da91d3688d8ddb8e799dd016913fa5ddad4068c1a85dabf6389ae0d",
+      "bytes": 7359
+    },
+    {
+      "path": "commands.txt",
+      "sha256": "2d912a81bc7ccba7681190d94423860c403eb7fdf145ae00120ed9a04a57bca8",
+      "bytes": 85
+    },
+    {
+      "path": "input-checks.json",
+      "sha256": "cff4e7e8dc972f08f45ff70c1ae4f7e622660a2a49c9b1fe6d46bdd267084450",
+      "bytes": 3352
+    },
+    {
+      "path": "lock-delta.json",
+      "sha256": "2c254d7d244ea15ced7104cabcb27876de8ba1910d4fb64fba48e526eb37b752",
+      "bytes": 3945
+    },
+    {
+      "path": "review.md",
+      "sha256": "b423a36a006cbbb5741ff9e1b66613f44601077757cb8dffa85b77c9debbc8d8",
+      "bytes": 9301
+    },
+    {
+      "path": "verify_inputs.py",
+      "sha256": "597e783a2cb3a33c306bacf39ce06fa7607973257202fa5e60ef2d71455f28d4",
+      "bytes": 3830
+    }
+  ]
+}

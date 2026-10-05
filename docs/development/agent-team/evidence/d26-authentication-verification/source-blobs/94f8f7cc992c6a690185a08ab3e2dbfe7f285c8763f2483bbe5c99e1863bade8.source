@@ -1,0 +1,216 @@
+<script setup lang="ts">
+import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { useSession } from '../../composables/useSession'
+import UiButton from '../../components/ui/UiButton.vue'
+import UiInput from '../../components/ui/UiInput.vue'
+import UiField from '../../components/ui/UiField.vue'
+import UiState from '../../components/ui/UiState.vue'
+import RotateChallenge from '../../components/account/RotateChallenge.vue'
+
+const auth = useSession(),
+  state = auth.state,
+  router = useRouter()
+const email = ref(''),
+  password = ref('')
+const heading = ref<HTMLElement | null>(null),
+  form = ref<HTMLFormElement | null>(null)
+const inputLocked = computed(() => state.busy || state.challengeBusy || state.phase === 'uncertain')
+const showForm = computed(() => ['anonymous', 'authenticating', 'uncertain'].includes(state.phase))
+let navigating = false
+let clearingForm = false
+function clearForm() {
+  clearingForm = true
+  email.value = ''
+  password.value = ''
+  clearingForm = false
+}
+watch(
+  [email, password],
+  () => {
+    if (!clearingForm) auth.inputChanged()
+  },
+  { flush: 'sync' },
+)
+watch(
+  () => state.passReady,
+  async (ready) => {
+    if (ready) {
+      await nextTick()
+      form.value?.querySelector<HTMLButtonElement>('[data-action="login"]')?.focus()
+    }
+  },
+)
+watch(
+  () => [state.phase, state.busy, state.canRetryOriginal] as const,
+  async ([phase, busy, retryable]) => {
+    if (phase === 'unavailable' || (phase === 'uncertain' && !busy && !retryable)) clearForm()
+    if (phase === 'authenticated' && !busy && !navigating) {
+      navigating = true
+      clearForm()
+      try {
+        await router.replace('/')
+      } finally {
+        navigating = false
+      }
+    }
+  },
+)
+async function login() {
+  await auth.login(email.value, password.value)
+}
+async function refreshChallenge() {
+  await auth.createChallenge()
+}
+async function restart() {
+  if (state.busy) return
+  clearForm()
+  await auth.restart()
+}
+async function closeChallenge() {
+  auth.dismissChallenge()
+  await nextTick()
+  form.value?.querySelector<HTMLButtonElement>('[data-action="challenge"]')?.focus()
+}
+onMounted(() => heading.value?.focus())
+onUnmounted(() => {
+  clearForm()
+  if (state.phase !== 'authenticated') auth.leave()
+})
+</script>
+
+<template>
+  <main id="main-content" class="account-entry">
+    <section class="login-panel" aria-labelledby="login-title">
+      <RouterLink class="brand login-brand" to="/" aria-label="agenteam 入口"
+        ><span class="brand-mark" aria-hidden="true">a</span>agenteam</RouterLink
+      >
+      <h1 id="login-title" ref="heading" tabindex="-1">登录</h1>
+      <p class="login-description">使用邮箱和密码继续。</p>
+      <UiState v-if="state.phase === 'checking'" kind="loading" title="正在确认会话" />
+      <form v-if="showForm" ref="form" class="ui-stack" @submit.prevent="login">
+        <UiField v-slot="field" label="邮箱" id="login-email" :error="state.fields.email" required>
+          <UiInput
+            :id="field.id"
+            v-model="email"
+            name="email"
+            type="email"
+            autocomplete="username"
+            required
+            :readonly="inputLocked"
+            :invalid="field.invalid"
+            :aria-describedby="field.describedby"
+          />
+        </UiField>
+        <UiField
+          v-slot="field"
+          label="密码"
+          id="login-password"
+          :error="state.fields.password"
+          required
+        >
+          <UiInput
+            :id="field.id"
+            v-model="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            :readonly="inputLocked"
+            :invalid="field.invalid"
+            :aria-describedby="field.describedby"
+          />
+        </UiField>
+        <RotateChallenge
+          v-if="state.challenge"
+          :challenge="state.challenge"
+          :busy="state.challengeBusy"
+          @verify="auth.verifyChallenge"
+          @refresh="refreshChallenge"
+          @close="closeChallenge"
+        />
+        <UiButton
+          v-if="state.challengeRequired && !state.challenge && !state.passReady"
+          data-action="challenge"
+          :state="state.challengeBusy ? 'loading' : 'idle'"
+          :disabled="state.busy || state.phase === 'uncertain'"
+          @click="refreshChallenge"
+          >开始旋转验证</UiButton
+        >
+        <UiButton
+          variant="primary"
+          type="submit"
+          data-action="login"
+          :state="state.phase === 'authenticating' ? 'loading' : 'idle'"
+          :disabled="
+            state.busy ||
+            state.challengeBusy ||
+            state.phase === 'uncertain' ||
+            (state.challengeRequired && !state.passReady)
+          "
+          >登录</UiButton
+        >
+      </form>
+      <p v-if="state.notice" role="alert" class="account-notice">{{ state.notice }}</p>
+      <div
+        v-if="state.phase === 'uncertain' || state.phase === 'unavailable'"
+        class="recovery-actions"
+      >
+        <UiButton :disabled="state.busy" @click="auth.restore">检查当前会话</UiButton>
+        <UiButton v-if="state.canRetryOriginal" :disabled="state.busy" @click="auth.retryOriginal"
+          >重试原请求</UiButton
+        >
+        <UiButton variant="ghost" :disabled="state.busy" @click="restart"
+          >放弃原请求，重新开始</UiButton
+        >
+      </div>
+    </section>
+  </main>
+</template>
+
+<style scoped>
+.account-entry {
+  min-height: 100dvh;
+  padding: 32px 16px;
+  display: grid;
+  place-items: center;
+}
+.login-panel {
+  width: min(100%, 400px);
+  min-width: 0;
+  padding: 28px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--panel-shadow);
+  display: grid;
+  gap: 20px;
+}
+.login-brand {
+  justify-self: start;
+}
+.login-description {
+  color: var(--muted);
+}
+.account-notice {
+  overflow-wrap: anywhere;
+}
+.recovery-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+@media (max-width: 450px) {
+  .login-panel {
+    padding: 20px;
+  }
+}
+@media (max-width: 280px) {
+  .account-entry {
+    padding-inline: 8px;
+  }
+  .login-panel {
+    padding: 12px;
+  }
+}
+</style>

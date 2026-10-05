@@ -1,0 +1,37 @@
+{
+  "conclusion": "BLOCKED STATIC U1-U4; no dynamic execution",
+  "input_manifest_sha256": "6e08def62ab40b7d4f6916467eeab1e3c425c07c05ebc30c7fe519555d7c669b",
+  "files": [
+    {
+      "path": "check-command.json",
+      "bytes": 967,
+      "sha256": "f603682284beb576794fb84903009a01b4133ae2f38d52ba47058babafe23056"
+    },
+    {
+      "path": "checks.json",
+      "bytes": 12483,
+      "sha256": "7bb6b116a9bc322b4eb8096ed391ed207c14b03310be948bf06c6bf35b4e1e44"
+    },
+    {
+      "path": "input-checks.json",
+      "bytes": 8070,
+      "sha256": "56c37b1532a8e48eb370ead74e034bcb1708500046b822cc3ebda71d8dc0359a"
+    },
+    {
+      "path": "loop-to-ui01.patch",
+      "bytes": 3183,
+      "sha256": "594c3275cc583e6265849b04ee4ce51f4730fce8a9d3595847e698838fe334a1"
+    },
+    {
+      "path": "review.md",
+      "bytes": 8713,
+      "sha256": "cc1447263573e63b4f4add0abee1aa75b3f5c3ce51b24daddebd31b8d7935e89"
+    },
+    {
+      "path": "verify_inputs.py",
+      "bytes": 3909,
+      "sha256": "1a2fa485b902c45ca3e2c3af9e27b7d4d0d7e50147bdba033f013fef10e4ed6a"
+    }
+  ],
+  "all_stop": true
+}

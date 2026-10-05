@@ -1,0 +1,40 @@
+{
+  "version": "1.56.1",
+  "injected_source_path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/tests/account-captcha-web/node_modules/playwright-core/lib/generated/injectedScriptSource.js",
+  "injected_source_sha256": "182c693b9391268858635866f97e3cc2f68939c42460e1407c3cd865837e282f",
+  "injected_source_excerpts": [
+    {
+      "marker": "function shouldSkipForTextMatching",
+      "character_offset": 163365,
+      "raw_source_excerpt": "function shouldSkipForTextMatching(element) {\\n  const document = element.ownerDocument;\\n  return element.nodeName === \"SCRIPT\" || element.nodeName === \"NOSCRIPT\" || element.nodeName === \"STYLE\" || document.head && document.head.contains(element);\\n}\\nfunctio"
+    },
+    {
+      "marker": "function elementText",
+      "character_offset": 163618,
+      "raw_source_excerpt": "function elementText(cache, root) {\\n  let value = cache.get(root);\\n  if (value === void 0) {\\n    value = { full: \"\", normalized: \"\", immediate: [] };\\n    if (!shouldSkipForTextMatching(root)) {\\n      let currentImmediate = \"\";\\n      if (root instanceof HTMLInputElement && (root.type === \"submit\" || root.type === \"button\")) {\\n        value = { full: root.value, normalized: normalizeWhiteSpace(root.value), immediate: [root.value] };\\n      } else {\\n        for (let child = root.firstChild; child; child = child.nextSibling) {\\n          if (child.nodeType === Node.TEXT_NODE) {\\n            value.full += child.nodeValue || \"\";\\n            currentImmediate += child.nodeValue || \"\";\\n          } else if (child.nodeType === Node.COMMENT_NODE) {\\n            continue;\\n          } else {\\n            if (currentImmediate)\\n              value.immediate.push(currentImmediate);\\n            currentImmediate = \"\";\\n            if (child.nodeType === Node.ELEMENT_NODE)\\n              value.full += elementText(cache, child).full;\\n          }\\n        }\\n        if (currentImmediate)\\n          value.immediate.push(currentImmediate);\\n        if (root.shadowRoot)\\n          value.full += elementText(cache, root.shadowRoot).full;\\n        if (value.full)\\n          value.normalized = normalizeWhiteSpace(value.full);\\n      }\\n    }\\n    cache.set(root, value);\\n  }\\n  return value;\\n}\\nfunction elementMatchesText(cache, e"
+    },
+    {
+      "marker": "function getElementLabels",
+      "character_offset": 165536,
+      "raw_source_excerpt": "function getElementLabels(textCache, element) {\\n  const labels = getAriaLabelledByElements(element);\\n  if (labels)\\n    return labels.map((label) => elementText(textCache, label));\\n  const ariaLabel = element.getAttribute(\"aria-label\");\\n  if (ariaLabel !== null && !!ariaLabel.trim())\\n    return [{ full: ariaLabel, normalized: normalizeWhiteSpace(ariaLabel), immediate: [ariaLabel] }];\\n  const isNonHiddenInput = element.nodeName === \"INPUT\" && element.type !== \"hidden\";\\n  if ([\"BUTTON\", \"METER\", \"OUTPUT\", \"PROGRESS\", \"SELECT\", \"TEXTAREA\"].includes(element.nodeName) || isNonHiddenInput) {\\n    const labels2 = element.labels;\\n    if (labels2)\\n      return [...labels2].map((label) => elementText(textCache, label));\\n  }\\n  ret"
+    },
+    {
+      "marker": "_createInternalLabelEngine() {",
+      "character_offset": 257631,
+      "raw_source_excerpt": "_createInternalLabelEngine() {\\n    return {\\n      queryAll: (root, selector) => {\\n        const { matcher } = createTextMatcher(selector, true);\\n        const allElements = this._evaluator._queryCSS({ scope: root, pierceShadow: true }, \"*\");\\n        return allElements.filter((element) => {\\n          return getElementLabels(this._evaluator._cacheText, element).some((label) => matcher(label));\\n        });\\n      }\\n    };\\n  }\\n  _createNamedAttribute"
+    },
+    {
+      "marker": "function createTextMatcher",
+      "character_offset": 301066,
+      "raw_source_excerpt": "function createTextMatcher(selector, internal) {\\n  if (selector[0] === \"/\" && selector.lastIndexOf(\"/\") > 0) {\\n    const lastSlash = selector.lastIndexOf(\"/\");\\n    const re = new RegExp(selector.substring(1, lastSlash), selector.substring(lastSlash + 1));\\n    return { matcher: (elementText2) => re.test(elementText2.full), kind: \"regex\" };\\n  }\\n  const unquote = internal ? JSON.parse.bind(JSON) : cssUnquote;\\n  let strict = false;\\n  if (selector.length > 1 && selector[0] === \\'\"\\' && selector[selector.length - 1] === \\'\"\\') {\\n    selector = unquote(selector);\\n    strict = true;\\n  } else if (internal && selector.length > 1 && selector[0] === \\'\"\\' && selector[selector.length - 2] === \\'\"\\' && selector[selector.length - 1] === \"i\") {\\n    selector = unquote(selector.substring(0, selector.length - 1));\\n    strict = false;\\n  } else if (internal && selector.length > 1 && selector[0] === \\'\"\\' && selector[selector.length - 2] === \\'\"\\' && selector[selector.length - 1] === \"s\") {\\n    selector = unquote(selector.substring(0, selector.length - 1));\\n    strict = true;\\n  } else if (selector.length > 1 && selector[0] === \"\\'\" && selector[selector.length - 1] === \"\\'\") {\\n    selector = unquote(selector);\\n    strict = true;\\n  }\\n  selector = normalizeWhiteSpace(selector);\\n  if (strict) {\\n    if (internal)\\n      return { kind: \"strict\", matcher: (elementText2) => elementText2.normalized === selector };\\n    const strictTextNodeMatcher = (elementText2) => {\\n      if (!selector && !elementText2.immediate.length)\\n        return true;\\n      return elementText2.immediate.some((s) => normalizeWhiteSpace(s) === selector);\\n    };\\n    return { matcher: strictTextNodeMatcher, kind: \"strict\" };\\n  }\\n  selector = selector.toLowerCase();\\n  return { kind: \"lax\", matcher: (elementText2) => elementText2.normalized.toLowerCase().includes(selector) };\\n}\\nvar ExpectedTextMatcher = class {\\n  constructor(expected) {\\n    this._normalizeWhiteSpace = expected.normalizeWhiteSpace;\\n    this._ignoreCase = expected.ignoreCase;\\"
+    },
+    {
+      "marker": "function getTextAlternativeInternal",
+      "character_offset": 106886,
+      "raw_source_excerpt": "function getTextAlternativeInternal(element, options) {\\n  var _a, _b, _c, _d;\\n  if (options.visitedElements.has(element))\\n    return \"\";\\n  const childOptions = {\\n    ...options,\\n    embeddedInTargetElement: options.embeddedInTargetElement === \"self\" ? \"descendant\" : options.embeddedInTargetElement\\n  };\\n  if (!options.includeHidden) {\\n    const isEmbeddedInHiddenReferenceTraversal = !!((_a = options.embeddedInLabelledBy) == null ? void 0 : _a.hidden) || !!((_b = options.embeddedInDescribedBy) == null ? void 0 : _b.hidden) || !!((_c = options.embeddedInNativeTextAlternative) == null ? void 0 : _c.hidden) || !!((_d = options.embeddedInLabel) == null ? void 0 : _d.hidden);\\n    if (isElementIgnoredForAria(element) || !isEmbeddedInHiddenReferenceTraversal && isElementHiddenForAria(element)) {\\n      options.visitedElements.add(element);\\n      return \"\";\\n    }\\n  }\\n  const labelledBy = getAriaLabelledByElements(element);\\n  if (!options.embeddedInLabelledBy) {\\n    const accessibleName = (labelledBy || []).map((ref) => getTextAlternativeInternal(ref, {\\n      ...options,\\n     "
+    }
+  ],
+  "locator_source_path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/tests/account-captcha-web/node_modules/playwright-core/lib/utils/isomorphic/locatorUtils.js",
+  "locator_source_sha256": "a82004d8937628c05bec84c61f245d7d027624b58c08abf91ed2319e63742670",
+  "locator_excerpt": "function getByLabelSelector(text, options) {\n  return \"internal:label=\" + (0, import_stringUtils.escapeForTextSelector)(text, !!options?.exact);\n}\n"
+}

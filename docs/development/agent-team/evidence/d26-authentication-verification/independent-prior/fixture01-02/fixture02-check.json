@@ -1,0 +1,60 @@
+{
+  "checked_at": "2026-10-05T20:28:06.189971+00:00",
+  "fixed21_sha_match": true,
+  "semantic_scope": "four fixture files only; UI03 belongs to other independent verifier",
+  "three_unchanged_fixture_files": [
+    "tests/account/authentication_web_fixture_test.go",
+    "tests/account/authentication_web_test.go",
+    "tests/account-captcha-web/authentication.config.js"
+  ],
+  "dependencies_and_dist_now_match": [
+    {
+      "path": "go.mod",
+      "expected": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "observed": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758"
+    },
+    {
+      "path": "go.sum",
+      "expected": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "observed": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+    },
+    {
+      "path": "tests/account-captcha-web/package.json",
+      "expected": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58",
+      "observed": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58"
+    },
+    {
+      "path": "tests/account-captcha-web/package-lock.json",
+      "expected": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534",
+      "observed": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+    },
+    {
+      "path": "docs/frontend-design/styles/colors-and-themes.md",
+      "expected": "a670fbdeeed8768fca9aa7d4b4956be018fdc20b0fc3f7c405b61f9a4001aae8",
+      "observed": "a670fbdeeed8768fca9aa7d4b4956be018fdc20b0fc3f7c405b61f9a4001aae8"
+    },
+    {
+      "path": "web/dist/index.html",
+      "expected": "40267c6a51d9c06bdda57aee38b973206f84611e3cbef0263991f47f0fa08d4e",
+      "observed": "40267c6a51d9c06bdda57aee38b973206f84611e3cbef0263991f47f0fa08d4e"
+    },
+    {
+      "path": "web/dist/assets/index-BSZZbSjX.css",
+      "expected": "764dc9f69fa44fff0cd60c1744b50fd68306679d8726fd24840e77c3b9285e59",
+      "observed": "764dc9f69fa44fff0cd60c1744b50fd68306679d8726fd24840e77c3b9285e59"
+    },
+    {
+      "path": "web/dist/assets/index-KWp0FE48.js",
+      "expected": "3431de7f5390fa8b5dea57b0fbd81ef44492e2af1f02d5c91b0c3849180cadff",
+      "observed": "3431de7f5390fa8b5dea57b0fbd81ef44492e2af1f02d5c91b0c3849180cadff"
+    }
+  ],
+  "root_trusted_baseline_record": {
+    "path": "/workspace/agenteam-d26-root-baseline-before.json",
+    "sha256": "c3fde3481d423eaf1c97546b5549476ac98a992690bc2bee1c429407cbfff816",
+    "reuse": "Root actual Docker read; this verifier no Docker operation"
+  },
+  "runner_sha256": "9f9e0b562e8d2d678bac073eb3f2d98eafdbc0231e19f09e6120d61dbb00ff05",
+  "plan02_old_runner_reference": "plan02 still records v1; actual v2 invocation/hash must be separately bound before running",
+  "no_test_or_resource_execution": true
+}

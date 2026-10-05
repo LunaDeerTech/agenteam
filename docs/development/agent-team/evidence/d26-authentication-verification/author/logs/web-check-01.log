@@ -1,0 +1,21 @@
+
+> @agenteam/web@0.0.0 check
+> npm run format:check && npm run test:unit && npm run build
+
+
+> @agenteam/web@0.0.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /workspace/agenteam-d26-auth-author-jrfhr6h1/input/web
+
+ ❯ src/tests/styles.spec.ts (4 tests | 1 failed) 13ms
+   × keeps every documented theme token in sync with the stylesheet 6ms
+ ❯ src/tests/rotate-challenge.spec.ts (2 tests | 1 failed) 86ms
+     × keeps actual verification pending and invalidates the old angle on a new question 25ms

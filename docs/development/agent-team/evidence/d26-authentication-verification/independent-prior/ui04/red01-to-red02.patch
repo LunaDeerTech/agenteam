@@ -1,0 +1,28 @@
+--- red01/authentication.spec.ts
++++ red02/authentication.spec.ts
+@@ -404,7 +404,12 @@
+       const drag = p.wrapper.get('.gc-drag-block')
+       expect(drag.element.tagName).toBe('DIV')
+       expect(drag.attributes('tabindex')).toBeUndefined()
+-      await drag.trigger('pointerdown', { button: 0, isPrimary: true })
++      const pointerDown = (target: Element) => {
++        const event = new MouseEvent('pointerdown', { button: 0, bubbles: true })
++        Object.defineProperty(event, 'isPrimary', { value: true })
++        target.dispatchEvent(event)
++      }
++      pointerDown(drag.element)
+       // Model the non-focusable drag's native focus loss. jsdom does not
+       // perform that default pointer action; this is a pure interaction case.
+       range.blur()
+@@ -430,10 +435,7 @@
+         email.focus()
+         email.blur()
+       } else if (outcome === 'outside-pointer') {
+-        await p.wrapper.get('.login-description').trigger('pointerdown', {
+-          button: 0,
+-          isPrimary: true,
+-        })
++        pointerDown(p.wrapper.get('.login-description').element)
+       }
+       expect(document.activeElement === document.body).toBe(true)
+       if (outcome === 'timeout') await vi.advanceTimersByTimeAsync(30_000)

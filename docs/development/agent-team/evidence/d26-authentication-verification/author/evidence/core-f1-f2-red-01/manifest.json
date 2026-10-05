@@ -1,0 +1,25 @@
+{
+  "base": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "0b4a4972977907f9e93a622af23f8a840d90ea870f0bbad3b6ff5105a4c7fe51"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "10c8b28c119909102511c3e3a3a17808a97b29a98463d9a6b70b7677624c1667"
+    },
+    {
+      "path": "web/src/tests/account-client.spec.ts",
+      "sha256": "88fe987796a685a680ed02414614872a3fbd1abbcd94872ae4493defc7299369"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "7aaa312f46fc17008d2cb795c43b063f1c8318fa144703d08ec676c134ce1bb8"
+    }
+  ]
+}

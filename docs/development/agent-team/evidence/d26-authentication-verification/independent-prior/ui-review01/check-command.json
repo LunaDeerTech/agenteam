@@ -1,0 +1,36 @@
+{
+  "check": {
+    "argv": [
+      "python3",
+      "/tmp/agenteam-d26-ui-review01-v-vgj2lp5h/verify_inputs.py"
+    ],
+    "cwd": "/workspace/agenteam",
+    "result": {
+      "chunk_id": "1eab13",
+      "wall_time_seconds": 0.00001826,
+      "exit_code": 0,
+      "original_token_count": 34,
+      "output": "{\"pass\": true, \"matched_payloads\": 35, \"core02_files_matched\": 7, \"fixed_git_reads\": 10, \"locked_sdk_reads\": 5, \"loop_delta_paths\": 4}\n"
+    }
+  },
+  "whitespace": {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/dev/null",
+      "/tmp/agenteam-d26-ui-review01-v-vgj2lp5h/review.md"
+    ],
+    "cwd": "/workspace/agenteam",
+    "result": {
+      "chunk_id": "08041c",
+      "wall_time_seconds": 0.000018228,
+      "exit_code": 1,
+      "original_token_count": 0,
+      "output": ""
+    },
+    "interpretation": "exit1 empty stdout: new-file content difference, no whitespace diagnostics"
+  }
+}

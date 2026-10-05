@@ -1,0 +1,18 @@
+
+> @agenteam/web@0.0.0 build
+> npm run type-check && vite build
+
+
+> @agenteam/web@0.0.0 type-check
+> vue-tsc --noEmit
+
+vite v8.3.1 building client environment for production...
+transforming...
+✓ 65 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                   0.64 kB │ gzip:  0.38 kB
+dist/assets/index-JJ0H5QuX.css   29.58 kB │ gzip:  6.62 kB
+dist/assets/index-CwgvI4k9.js   152.65 kB │ gzip: 54.78 kB
+
+✓ built in 267ms

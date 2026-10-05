@@ -1,0 +1,42 @@
+{
+  "base": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "previous": "ui-review-01/6e08def62ab40b7d4f6916467eeab1e3c425c07c05ebc30c7fe519555d7c669b",
+  "files": {
+    "web/src/components/account/RotateChallenge.vue": "bd2594511300bc45e17fb472d7e30ac95dd499619be27dc5f9abd81a6d9962e6",
+    "web/src/views/auth/LoginView.vue": "78ae16dccefd878d6a46947335f4b10a36dcfb4b3f13be0c2a23cbb3b1c75c2f",
+    "web/src/views/HomeView.vue": "666bb17e2cc42913f9a9c1a061480cd48add72e5b3d3256e3eca5cdf2eb0273f",
+    "web/src/router/auth.ts": "723e489ea5ad1fb501d573386b3df3b01bbb88aa12f739af62d35693e7fa3c4c",
+    "web/src/App.vue": "4b387528ebd5880a8a8b1f747c913fbc0ebb4ac626b7fba44ae49f24bf33a065",
+    "web/src/router/index.ts": "fb2ca02271811398a164ea7500ddb66585d9713b4302abf8694a75ca3653647b",
+    "web/src/components/layout/AppShell.vue": "02513aafc6dd78deccf300d7c12a6d0433919bc0baf1c844899ee3cdbf0ff88d",
+    "web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+    "web/src/tests/authentication.spec.ts": "60309f83541e939f7ca5023a9b4a4288116ba7b5a02b87fc5d713b64749e5a9b",
+    "web/src/tests/rotate-challenge.spec.ts": "0a18ccebb6b6a267dc71696082031a04603c5b2fcd5f4cbb434afa89287bc540"
+  },
+  "logs": {
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-u1-red-01.log": "0e55cc9bddbd882cdb7b7835ccff9229f8b6d7209aac28a49d54efa7c69805d7",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-u1-red-01.result.json": "9308d1b68e9424709c649ae5df0a7d2e4edb70c8f3a8cac46b745f0ca113700a",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-u1-fix-01.log": "19ffc4bae7e7c27f2e03d49d214fee8046d07bc6e48b21bc2b7d941e8cc01211",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-u1-fix-01.result.json": "f909f6315e66195e5c71713a96e22caa4f7b82ae6069525ca205541ff527e83d",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-u2-red-01.log": "08aac4189b3364656c3f7637118e408c581d5fc56c452715e4d1fcc7a2889835",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-u2-red-01.result.json": "ca06dc95d0cc10a03732fa83fdfcc9cb80b89660dcff964a2c04e449266f21b9",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-u2-u3-red-02.log": "84ebabf7bf58e739377f0ab7734988969356ffe4615180cbe6e5e1888c0621be",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-u2-u3-red-02.result.json": "46e57c275b000488f7593cf09027ef50a5d79f11318cd135cf7e47eef94c4f35",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui02-unit-01.log": "809c3f31f343528f142af6081003677784f4f12730e2f82b79acbe0e00d8a4de",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui02-unit-01.result.json": "f92ced1f63647f9bea18d936c8e0d97164f1f564b2aced3098fbc5c31365993c",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui02-unit-02.log": "c7d949c0aff4e1aea80af204271bfcd32e0adf00f8ae302b5f6c5f66b5095843",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui02-unit-02.result.json": "f92ced1f63647f9bea18d936c8e0d97164f1f564b2aced3098fbc5c31365993c"
+  },
+  "changes": [
+    "LoginView U1 clear unnecessary visible form without altering pending private intent",
+    "LoginView U2 focus after failed verification",
+    "LoginView U3 explicit single restore when checking with no Cookie owner",
+    "RotateChallenge U4 same-question once-enabled focus, no asynchronous stale focus and no external editing focus steal"
+  ],
+  "red_inputs": [
+    "../ui-u1-red-01/manifest.json",
+    "../ui-u2-red-01/manifest.json",
+    "../ui-u2-u3-red-02/manifest.json"
+  ],
+  "core_unchanged": true
+}

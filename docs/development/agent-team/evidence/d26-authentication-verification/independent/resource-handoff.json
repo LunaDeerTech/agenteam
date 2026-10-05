@@ -1,0 +1,38 @@
+{
+  "time": "2026-10-05T21:06:25.257227+00:00",
+  "dynamic_verdict": "FAIL before target: response.json CDP body unavailable at spec95; no retry",
+  "raw": "/workspace/agenteam-d26-independent-v-2wzub6ar/logs/independent-real-01.log",
+  "raw_sha256": "be61085f7beafadaf81ead1a18503d22196b8114b1b4629f4eac063c81163a50",
+  "driver": {
+    "exit": 1,
+    "raw_log": "/workspace/agenteam-d26-independent-v-2wzub6ar/logs/independent-real-01.log",
+    "raw_sha256": "be61085f7beafadaf81ead1a18503d22196b8114b1b4629f4eac063c81163a50",
+    "seconds": 44.85318732261658
+  },
+  "observer": {
+    "enabled": true,
+    "pid": 1263534
+  },
+  "exact_owned_counts": {
+    "containers": 4,
+    "networks": 3
+  },
+  "cleanups": [
+    {
+      "path": "/workspace/agenteam-d26-independent-v-2wzub6ar/evidence/independent-real-01/cleanup-01.json",
+      "sha256": "3bb59337b2c6b1d3aacfdfd13c8a630423086040c7a0e5defbcb47abcf97387b",
+      "time": 1791234307.5500243
+    },
+    {
+      "path": "/workspace/agenteam-d26-independent-v-2wzub6ar/evidence/independent-real-01/cleanup-02.json",
+      "sha256": "09b0632227f137463594f595e619eb842d2e6a37a21ad70b50f76dbb7358d1fd",
+      "time": 1791234307.9917145
+    }
+  ],
+  "baseline_matches_trusted_preflight": true,
+  "observed_browser_pid_start_pairs": 11,
+  "adopted_actual_waits": 4,
+  "sources_unchanged": 567,
+  "owned_commands_remaining": [],
+  "window_returned": true
+}

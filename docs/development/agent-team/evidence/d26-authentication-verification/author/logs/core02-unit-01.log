@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 /workspace/agenteam-d26-auth-author-jrfhr6h1/input/web
+
+ ❯ src/tests/session.spec.ts (14 tests | 1 failed) 42ms
+     × a late challenge/verify/finally cannot overwrite a newer question or release its busy state 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/session.spec.ts > Account Session ownership > a late challenge/verify/finally cannot overwrite a newer question or release its busy state
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/tests/session.spec.ts:431:35
+    429|     older.resolve({ id, mode: 'rotate', master: 'old', thumb: 'old', e…
+    430|     await first
+    431|     expect(c.state.challengeBusy).toBe(true)
+       |                                   ^
+    432|     expect(c.state.challenge).toBeNull()
+    433|     newer.resolve({ id, mode: 'rotate', master: 'new', thumb: 'new', e…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 28 passed (29)
+   Start at  19:52:58
+   Duration  720ms (transform 168ms, setup 0ms, import 255ms, tests 72ms, environment 807ms)
+

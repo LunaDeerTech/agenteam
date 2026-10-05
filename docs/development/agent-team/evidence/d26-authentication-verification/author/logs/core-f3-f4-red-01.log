@@ -1,0 +1,75 @@
+
+ RUN  v4.1.11 /workspace/agenteam-d26-auth-author-jrfhr6h1/input/web
+
+ ❯ src/tests/session.spec.ts (14 tests | 4 failed | 10 skipped) 28ms
+     × retains Cookie ownership until response body cancellation joins: content-type 19ms
+     × retains Cookie ownership until response body cancellation joins: oversize 2ms
+     × bounds challenge user waiting while the real reader ignores abort: create 3ms
+     × bounds challenge user waiting while the real reader ignores abort: verify 3ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/session.spec.ts > Account Session ownership > retains Cookie ownership until response body cancellation joins: content-type
+AssertionError: expected +0 to be 1 // Object.is equality
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/tests/session.spec.ts:102:29
+    100|     try {
+    101|       await vi.advanceTimersByTimeAsync(0)
+    102|       expect(cancellations).toBe(1)
+       |                             ^
+    103|       expect(c.state.busy).toBe(true)
+    104|       await c.restore(); await c.logout()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/tests/session.spec.ts > Account Session ownership > retains Cookie ownership until response body cancellation joins: oversize
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/tests/session.spec.ts:103:28
+    101|       await vi.advanceTimersByTimeAsync(0)
+    102|       expect(cancellations).toBe(1)
+    103|       expect(c.state.busy).toBe(true)
+       |                            ^
+    104|       await c.restore(); await c.logout()
+    105|       expect(reads).toBe(1)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/tests/session.spec.ts > Account Session ownership > bounds challenge user waiting while the real reader ignores abort: create
+ FAIL  src/tests/session.spec.ts > Account Session ownership > bounds challenge user waiting while the real reader ignores abort: verify
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/tests/session.spec.ts:136:24
+    134|     try {
+    135|       await vi.advanceTimersByTimeAsync(30000)
+    136|       expect(returned).toBe(true)
+       |                        ^
+    137|       expect(c.state.challengeBusy).toBe(false)
+    138|       expect(c.state.passReady).toBe(false)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 10 skipped (14)
+   Start at  19:51:58
+   Duration  667ms (transform 79ms, setup 0ms, import 131ms, tests 28ms, environment 388ms)
+

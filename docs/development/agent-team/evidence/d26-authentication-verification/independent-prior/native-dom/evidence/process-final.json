@@ -1,0 +1,242 @@
+{
+  "at": "2026-10-05T20:23:47.876378+00:00",
+  "owned": [
+    {
+      "pid": 1195918,
+      "state": "R",
+      "ppid": 1195907,
+      "pgrp": 1195918,
+      "starttime": 3503946,
+      "comm": "MainThread",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/probe.cjs"
+      ]
+    },
+    {
+      "pid": 1195930,
+      "state": "R",
+      "ppid": 1195918,
+      "pgrp": 1195930,
+      "starttime": 3503977,
+      "comm": "chromium",
+      "argv": [
+        "/usr/lib/chromium/chromium",
+        "--disable-field-trial-config",
+        "--disable-background-networking",
+        "--disable-background-timer-throttling",
+        "--disable-backgrounding-occluded-windows",
+        "--disable-back-forward-cache",
+        "--disable-breakpad",
+        "--disable-client-side-phishing-detection",
+        "--disable-component-extensions-with-background-pages",
+        "--disable-component-update",
+        "--no-default-browser-check",
+        "--disable-default-apps",
+        "--disable-dev-shm-usage",
+        "--disable-extensions",
+        "--disable-features=AcceptCHFrame,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument",
+        "--enable-features=CDPScreenshotNewSurface",
+        "--allow-pre-commit-input",
+        "--disable-hang-monitor",
+        "--disable-ipc-flooding-protection",
+        "--disable-popup-blocking",
+        "--disable-prompt-on-repost",
+        "--disable-renderer-backgrounding",
+        "--force-color-profile=srgb",
+        "--metrics-recording-only",
+        "--no-first-run",
+        "--password-store=basic",
+        "--use-mock-keychain",
+        "--no-service-autorun",
+        "--export-tagged-pdf",
+        "--disable-search-engine-choice-screen",
+        "--unsafely-disable-devtools-self-xss-warnings",
+        "--edge-skip-compat-layer-relaunch",
+        "--enable-automation",
+        "--headless",
+        "--hide-scrollbars",
+        "--mute-audio",
+        "--blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4",
+        "--no-sandbox",
+        "--disable-background-networking",
+        "--disable-component-update",
+        "--disable-domain-reliability",
+        "--user-data-dir=/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/runtime/profile",
+        "--remote-debugging-pipe",
+        "about:blank"
+      ]
+    },
+    {
+      "pid": 1195951,
+      "state": "S",
+      "ppid": 1195907,
+      "pgrp": 1195950,
+      "starttime": 3504006,
+      "comm": "chrome_crashpad",
+      "argv": [
+        "/usr/lib/chromium/chrome_crashpad_handler",
+        "--monitor-self",
+        "--monitor-self-annotation=ptype=crashpad-handler",
+        "--database=/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/runtime/config/chromium/Crash Reports",
+        "--annotation=lsb-release=Debian GNU/Linux 13 (trixie)",
+        "--annotation=plat=Linux",
+        "--annotation=prod=Chrome_Linux",
+        "--annotation=ver=151.0.7922.173",
+        "--initial-client-fd=7",
+        "--shared-client-connection"
+      ]
+    },
+    {
+      "pid": 1195953,
+      "state": "S",
+      "ppid": 1195907,
+      "pgrp": 1195952,
+      "starttime": 3504007,
+      "comm": "chrome_crashpad",
+      "argv": [
+        "/usr/lib/chromium/chrome_crashpad_handler",
+        "--no-periodic-tasks",
+        "--monitor-self-annotation=ptype=crashpad-handler",
+        "--database=/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/runtime/config/chromium/Crash Reports",
+        "--annotation=lsb-release=Debian GNU/Linux 13 (trixie)",
+        "--annotation=plat=Linux",
+        "--annotation=prod=Chrome_Linux",
+        "--annotation=ver=151.0.7922.173",
+        "--initial-client-fd=4",
+        "--shared-client-connection"
+      ]
+    },
+    {
+      "pid": 1195956,
+      "state": "S",
+      "ppid": 1195930,
+      "pgrp": 1195930,
+      "starttime": 3504007,
+      "comm": "chromium",
+      "argv": [
+        "/usr/lib/chromium/chromium --type=zygote --no-zygote-sandbox --no-sandbox --headless --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/runtime/profile --change-stack-guard-on-fork=enable --no-first-run --ozone-platform=headless --ozone-override-screen-size=800,600 --use-angle=swiftshader-webgl"
+      ]
+    },
+    {
+      "pid": 1195957,
+      "state": "S",
+      "ppid": 1195930,
+      "pgrp": 1195930,
+      "starttime": 3504007,
+      "comm": "chromium",
+      "argv": [
+        "/usr/lib/chromium/chromium --type=zygote --no-sandbox --headless --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/runtime/profile --change-stack-guard-on-fork=enable --no-first-run --ozone-platform=headless --ozone-override-screen-size=800,600 --use-angle=swiftshader-webgl"
+      ]
+    },
+    {
+      "pid": 1195978,
+      "state": "S",
+      "ppid": 1195956,
+      "pgrp": 1195930,
+      "starttime": 3504016,
+      "comm": "chromium",
+      "argv": [
+        "/usr/lib/chromium/chromium --type=gpu-process --no-sandbox --disable-dev-shm-usage --disable-breakpad --headless --ozone-platform=headless --use-angle=swiftshader-webgl --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/runtime/profile --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAAAEAAAAAAAAAAAAAGAASAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --field-trial-handle=3,i,6244802400334870105,17201975926517762326,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,11417106249054456941,17233098824183826195,4 --trace-process-track-uuid=3190708988185955192"
+      ]
+    },
+    {
+      "pid": 1195993,
+      "state": "R",
+      "ppid": 1195930,
+      "pgrp": 1195930,
+      "starttime": 3504077,
+      "comm": "exe",
+      "argv": [
+        "/proc/self/exe",
+        "--type=utility",
+        "--utility-sub-type=network.mojom.NetworkService",
+        "--lang=en-US",
+        "--service-sandbox-type=none",
+        "--no-sandbox",
+        "--disable-dev-shm-usage",
+        "--use-angle=swiftshader-webgl",
+        "--mute-audio",
+        "--crashpad-handler-pid=0",
+        "--enable-crash-reporter=,",
+        "--noerrdialogs",
+        "--user-data-dir=/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/runtime/profile",
+        "--change-stack-guard-on-fork=enable",
+        "--shared-files=v8_context_snapshot_data:100",
+        "--field-trial-handle=3,i,6244802400334870105,17201975926517762326,262144",
+        "--enable-features=CDPScreenshotNewSurface",
+        "--disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate",
+        "--variations-seed-version",
+        "--pseudonymization-salt-handle=7,i,11417106249054456941,17233098824183826195,4",
+        "--trace-process-track-uuid=3190708989122997041"
+      ]
+    },
+    {
+      "pid": 1196003,
+      "state": "S",
+      "ppid": 1195957,
+      "pgrp": 1195930,
+      "starttime": 3504082,
+      "comm": "chromium",
+      "argv": [
+        "/usr/lib/chromium/chromium --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=utility --no-sandbox --disable-dev-shm-usage --use-angle=swiftshader-webgl --mute-audio --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/runtime/profile --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,6244802400334870105,17201975926517762326,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,11417106249054456941,17233098824183826195,4 --trace-process-track-uuid=3190708990060038890"
+      ]
+    },
+    {
+      "pid": 1196027,
+      "state": "R",
+      "ppid": 1195957,
+      "pgrp": 1195930,
+      "starttime": 3504091,
+      "comm": "chromium",
+      "argv": [
+        "/usr/lib/chromium/chromium --type=renderer --top-chrome-webui --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/runtime/profile --disable-print-preview --change-stack-guard-on-fork=enable --no-sandbox --disable-dev-shm-usage --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --enable-automation --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --ozone-platform=headless --disable-gpu-compositing --lang=en-US --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=5 --time-ticks-at-unix-epoch=-1791196786563622 --launch-time-ticks=35040912165 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,6244802400334870105,17201975926517762326,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBr"
+      ]
+    },
+    {
+      "pid": 1196036,
+      "state": "S",
+      "ppid": 1195957,
+      "pgrp": 1195930,
+      "starttime": 3504096,
+      "comm": "chromium",
+      "argv": [
+        "/usr/lib/chromium/chromium --type=renderer --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/runtime/profile --disable-print-preview --change-stack-guard-on-fork=enable --no-sandbox --disable-dev-shm-usage --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --enable-automation --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --ozone-platform=headless --disable-gpu-compositing --lang=en-US --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=7 --time-ticks-at-unix-epoch=-1791196786563622 --launch-time-ticks=35040941903 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,6244802400334870105,17201975926517762326,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMedi"
+      ]
+    },
+    {
+      "pid": 1196037,
+      "state": "R",
+      "ppid": 1195957,
+      "pgrp": 1195930,
+      "starttime": 3504096,
+      "comm": "chromium",
+      "argv": [
+        "/usr/lib/chromium/chromium --type=renderer --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/workspace/agenteam-d26-dom-focus-v-7k_tkbe3/runtime/profile --disable-print-preview --change-stack-guard-on-fork=enable --no-sandbox --disable-dev-shm-usage --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --enable-automation --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --ozone-platform=headless --disable-gpu-compositing --lang=en-US --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=6 --time-ticks-at-unix-epoch=-1791196786563622 --launch-time-ticks=35040962060 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,6244802400334870105,17201975926517762326,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMedi"
+      ]
+    }
+  ],
+  "cleanup_signals": [],
+  "reaped": [
+    {
+      "pid": 1195953,
+      "wait_status": 0
+    },
+    {
+      "pid": 1195951,
+      "wait_status": 0
+    },
+    {
+      "pid": 1195956,
+      "wait_status": 0
+    },
+    {
+      "pid": 1195957,
+      "wait_status": 0
+    }
+  ],
+  "remaining_owned": [],
+  "live_remaining_owned": [],
+  "browser_processes_before": [],
+  "browser_processes_after": []
+}

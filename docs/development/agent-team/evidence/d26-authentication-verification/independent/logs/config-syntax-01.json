@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "node",
+    "--check",
+    "/workspace/agenteam-d26-independent-v-2wzub6ar/input/tests/account-captcha-web/independent.config.js"
+  ],
+  "cwd": "/workspace/agenteam-d26-independent-v-2wzub6ar/input",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-d26-auth-author-jrfhr6h1/go-cache",
+    "TMPDIR": "/workspace/agenteam-d26-independent-v-2wzub6ar/tmp"
+  },
+  "exit": 0,
+  "seconds": 0.20764973800396547
+}

@@ -1,0 +1,16 @@
+{
+  "argv": [
+    "npm",
+    "ci",
+    "--offline",
+    "--no-audit",
+    "--no-fund",
+    "--prefix",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/web"
+  ],
+  "exit": 0,
+  "env": {
+    "PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD": "1",
+    "npm_config_cache": "/workspace/agenteam-d26-auth-author-jrfhr6h1/npm-cache"
+  }
+}

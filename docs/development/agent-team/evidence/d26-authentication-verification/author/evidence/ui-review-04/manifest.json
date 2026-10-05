@@ -1,0 +1,37 @@
+{
+  "previous_fixture_manifest": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-03/manifest.json",
+  "previous_sha256": "34830f47406ccb2bc812e8c7cb30c5d0c8f8af93710e2cc7b5cf8caba8b91de9",
+  "files_before": {
+    "web/src/views/auth/LoginView.vue": "4604912fff36e2cc8ac336940beeb104b893cdcea60950401d9caef171615972",
+    "web/src/tests/authentication.spec.ts": "9504335ff51e9a8cf3b048f006053afc0e815d46f4a6f1a9ac098e6a46075d7c"
+  },
+  "files": {
+    "web/src/views/auth/LoginView.vue": "ff4f8706bfd1856bdbdddb2e894f637f4b5f4e225d32aea5b5e8c4146ed70223",
+    "web/src/tests/authentication.spec.ts": "90c9ef3fe2df6029fcc52ba8e72e78b8f686ea23b14896d0db31cc8ea3916e0d"
+  },
+  "patch_sha256": "99e37c1359eafbddaf532c76fa7abe49c0ead10c28a52d33faecb35b014558a6",
+  "logs": {
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-drag-focus-red-01.log": "589d65ad3dd53619d7bbbc20f2126ffad359679e9f50db00b362c70fa4a261c3",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-drag-focus-red-01.result.json": "b6b61181e4f797ab4c5699183995d0d53404192d7decda8b8958b281432a9372",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-drag-focus-red-02.log": "d8ce9540fd8e3c2e6809adc0aa3162f666b353b1e9af20d1aa1d8fa3c6933c68",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui-drag-focus-red-02.result.json": "70bb01869cce11eb7a71d1d0484f1eeaa1fad1f72689e5f3264af2c2e7c27cf1",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui04-unit-01.log": "d0825e87940cddd4d7d57ebc4d2cc8ba64b693036e0aea48106db913b5dab3ea",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui04-unit-01.result.json": "842ddde86a8cc3270cfffdfd0abb1a2ff0b6e1d4de41c5d4347567f83b13bf33",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui04-format-01.log": "43473ee243f49599072e539c5763a6cc93414d12156446bd92ac73f6c8a511cf",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui04-format-01.result.json": "cf72bfca4451bf70e4b5275b70c4b1e7a946b41a174dd998f19077560b256833",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui04-format-check-01.log": "9fdbf9363cc35b66e90a22016e7a027730f7374c1ebe97b8bcb767a606c6d517",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui04-format-check-01.result.json": "f8bd0a8d76862fcd3957fa133c36ea54afe66aebeeac2a2824268a958bd2427f",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui04-build-01.log": "5b8678c86b5c9b9d36e8c4628a2fcf8cd02e4860f7538450ae24f52f48d03f7a",
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/ui04-build-01.result.json": "87b4a2094b44d5b319cd93fd9410b0f3d3d7f488fc535752b94726f4cab6d845"
+  },
+  "retained_browser_red": {
+    "path": "/workspace/agenteam-d26-auth-author-jrfhr6h1/logs/auth-lifecycle-rotate-02.log",
+    "sha256": "dac555118672f65298a19aa21c686dc3e164c4f6efce38494bca834112fe3c7e"
+  },
+  "core_unchanged": {
+    "web/src/api/client.ts": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad",
+    "web/src/api/account.ts": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34",
+    "web/src/composables/useSession.ts": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679"
+  },
+  "boundary": "Only LoginView and existing authentication unit changed. Current-question actual primary drag pointer intent, external focus/pointer cancellation, original question/generation/unmount and body-only handoff preserved. No browser/Go/Docker run for this revision."
+}

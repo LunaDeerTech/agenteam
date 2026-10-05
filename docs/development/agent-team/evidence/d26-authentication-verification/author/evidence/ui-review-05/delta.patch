@@ -1,0 +1,78 @@
+--- fixture-input-04/web/src/App.vue
++++ ui-review-05/web/src/App.vue
+@@ -38,7 +38,7 @@
+ })
+ </script>
+ <template>
+-  <AppShell v-if="route.meta.protected">
++  <AppShell v-if="route.meta.protected" class="authentication-shell">
+     <template #account>
+       <div class="account-actions">
+         <span
+@@ -79,12 +79,18 @@
+   <RouterView v-else />
+ </template>
+ <style scoped>
++.authentication-shell :deep(.system-nav) {
++  flex-wrap: wrap;
++  row-gap: 6px;
++  padding-block: 6px;
++}
+ .account-actions {
+   display: flex;
+   align-items: center;
+   gap: 10px;
+   margin-inline-start: auto;
+   min-width: 0;
++  max-width: 100%;
+ }
+ .account-name {
+   min-width: 0;
+--- fixture-input-04/tests/account-captcha-web/e2e/authentication.spec.ts
++++ ui-review-05/tests/account-captcha-web/e2e/authentication.spec.ts
+@@ -73,11 +73,40 @@
+   return current;
+ }
+ async function noOverflow(page: Page) {
+-  expect(
+-    await page.evaluate(
+-      () => document.documentElement.scrollWidth <= innerWidth,
+-    ),
+-  ).toBe(true);
++  const fits = await page.evaluate(
++    () => document.documentElement.scrollWidth <= innerWidth,
++  );
++  if (!fits) {
++    const geometry = await page.evaluate(() => ({
++      viewport: { width: innerWidth, height: innerHeight },
++      zoom: getComputedStyle(document.documentElement).zoom,
++      elements: [
++        ...document.querySelectorAll(
++          "html,body,.app-shell,.system-nav,.brand,.account-actions,.account-name,.ui-button,.home-view,.app-content,.login-panel",
++        ),
++      ]
++        .slice(0, 24)
++        .map((element) => {
++          const rect = element.getBoundingClientRect();
++          return {
++            tag: element.tagName,
++            class: element.getAttribute("class") || "",
++            rect: {
++              x: rect.x,
++              y: rect.y,
++              width: rect.width,
++              height: rect.height,
++              right: rect.right,
++            },
++            client: element.clientWidth,
++            scroll: element.scrollWidth,
++          };
++        }),
++    }));
++    // Geometry only: no DOM text, inputs, URLs or authentication material.
++    console.info("overflow geometry", JSON.stringify(geometry));
++  }
++  expect(fits).toBe(true);
+ }
+ async function noStoredMaterials(page: Page) {
+   expect(

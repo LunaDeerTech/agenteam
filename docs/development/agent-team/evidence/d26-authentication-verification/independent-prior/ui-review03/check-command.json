@@ -1,0 +1,10 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/workspace/agenteam-d26-ui-review03-v-6n0oywcn/verify_inputs.py"
+  ],
+  "cwd": "/workspace/agenteam-d26-ui-review03-v-6n0oywcn",
+  "exit": 0,
+  "stdout": "{\"result\": \"PASS\", \"scope\": \"fixed static SHA/diff only; no product execution\", \"ui_before_files\": 10, \"ui_after_files\": 10, \"logs\": 6, \"red_manifests\": 2, \"red_payloads\": 4, \"fixed_core02_entries\": 7, \"changed_paths\": [\"web/src/views/auth/LoginView.vue\", \"web/src/tests/authentication.spec.ts\"], \"exact_delta_matches\": true, \"delta_sha256\": \"a2389ef3834099eb9bc311165123c74989f9fc14c2582120970e5ce0fb8c2966\"}\n",
+  "stderr": ""
+}

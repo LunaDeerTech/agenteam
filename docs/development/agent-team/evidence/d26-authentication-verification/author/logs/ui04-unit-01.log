@@ -1,0 +1,31 @@
+
+ RUN  v4.1.11 /workspace/agenteam-d26-auth-author-jrfhr6h1/input/web
+
+ ✓ src/tests/rotate-challenge.spec.ts > the official rotate wrapper > uses real public pictures and submits the same bounded angle from keyboard and official callbacks 66ms
+ ✓ src/tests/rotate-challenge.spec.ts > the official rotate wrapper > keeps actual verification pending and invalidates the old angle on a new question 26ms
+ ✓ src/tests/rotate-challenge.spec.ts > the official rotate wrapper > hands focus to a newly enabled question once and preserves later external input focus 19ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > has a real labelled form and protected home, preserves password bytes, confirms and logs out 92ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > hides protected contents when authority is unavailable and provides explicit recovery 10ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > keeps Unknown inputs locked and offers an explicit original-request retry without optimistic success 31ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > keeps Debug and unknown routes independent and accepts only the implemented return path 7ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after abandon while preserving ordinary credential failures 21ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after csrf while preserving ordinary credential failures 23ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > restores the challenge action focus after rejected without claiming verification 49ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > restores the challenge action focus after timeout without claiming verification 24ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > offers one explicit Session recovery after an old login tail settles on a returned auth route 16ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > focuses an enabled new challenge, returns successful verification to login, and never steals edited-input focus 39ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: rejected 27ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: timeout 21ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: success 19ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > hands off focus after disabled controls lose browser focus: edited 19ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: success 37ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: rejected 43ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: timeout 22ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: edited 20ms
+ ✓ src/tests/authentication.spec.ts > formal authentication pages > remembers a current-question drag through body focus without stealing later interaction: outside-pointer 22ms
+
+ Test Files  2 passed (2)
+      Tests  22 passed (22)
+   Start at  20:38:32
+   Duration  1.54s (transform 579ms, setup 0ms, import 958ms, tests 655ms, environment 734ms)
+

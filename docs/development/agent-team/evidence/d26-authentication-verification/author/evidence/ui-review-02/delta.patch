@@ -1,0 +1,361 @@
+--- ui01/web/src/components/account/RotateChallenge.vue
++++ ui02/web/src/components/account/RotateChallenge.vue
+@@ -1,5 +1,5 @@
+ <script setup lang="ts">
+-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
++import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+ import { Rotate } from 'go-captcha-vue'
+ import 'go-captcha-vue/dist/style.css'
+ import type { Challenge } from '../../api/account'
+@@ -54,6 +54,22 @@
+   keyboardOrigin.value = angle.value
+ }
+ let observer: ResizeObserver | undefined
++let focusRequest: { id: string; origin: Element | null } | null = null
++function focusEnabledQuestion() {
++  if (!focusRequest || props.busy || focusRequest.id !== props.challenge.id) return
++  const origin = focusRequest.origin
++  focusRequest = null
++  const active = document.activeElement
++  // A request owns one focus handoff. A user moving to another control or an
++  // editable field cancels it; verification becoming idle is not a new handoff.
++  if (active !== origin && active !== document.body) return
++  if (
++    active?.matches('input,textarea,select,[contenteditable="true"]') &&
++    !root.value?.contains(active)
++  )
++    return
++  range.value?.focus()
++}
+ onMounted(() => {
+   if (root.value) {
+     const measured = root.value.getBoundingClientRect().width
+@@ -65,18 +81,25 @@
+       observer.observe(root.value)
+     }
+   }
+-  range.value?.focus()
++  focusRequest = { id: props.challenge.id, origin: document.activeElement }
++  focusEnabledQuestion()
+ })
+ watch(
+-  () => props.challenge.id,
+-  async () => {
+-    angle.value = 0
+-    keyboardOrigin.value = 0
+-    await nextTick()
+-    range.value?.focus()
++  () => [props.challenge.id, props.busy] as const,
++  ([id], [previous]) => {
++    if (id !== previous) {
++      angle.value = 0
++      keyboardOrigin.value = 0
++      focusRequest = { id, origin: document.activeElement }
++    }
++    focusEnabledQuestion()
+   },
++  { flush: 'post' },
+ )
+-onBeforeUnmount(() => observer?.disconnect())
++onBeforeUnmount(() => {
++  focusRequest = null
++  observer?.disconnect()
++})
+ </script>
+ 
+ <template>
+--- ui01/web/src/views/auth/LoginView.vue
++++ ui02/web/src/views/auth/LoginView.vue
+@@ -18,22 +18,50 @@
+ const inputLocked = computed(() => state.busy || state.challengeBusy || state.phase === 'uncertain')
+ const showForm = computed(() => ['anonymous', 'authenticating', 'uncertain'].includes(state.phase))
+ let navigating = false
+-watch([email, password], () => auth.inputChanged(), { flush: 'sync' })
++let clearingForm = false
++function clearForm() {
++  clearingForm = true
++  email.value = ''
++  password.value = ''
++  clearingForm = false
++}
+ watch(
+-  () => state.passReady,
+-  async (ready) => {
+-    if (ready) {
+-      await nextTick()
+-      form.value?.querySelector<HTMLButtonElement>('[data-action="login"]')?.focus()
++  [email, password],
++  () => {
++    if (!clearingForm) auth.inputChanged()
++  },
++  { flush: 'sync' },
++)
++let challengeFocus: 'login' | 'create' | null = null
++watch(
++  () => [state.challenge, state.challengeBusy, state.passReady] as const,
++  async ([question, busy, passed], [previous]) => {
++    if (question) challengeFocus = null
++    else if (previous) {
++      const ownedFocus = form.value
++        ?.querySelector('.rotate-challenge')
++        ?.contains(document.activeElement)
++      challengeFocus = ownedFocus ? (passed ? 'login' : 'create') : null
+     }
++    if (busy || !challengeFocus) return
++    const target = challengeFocus
++    challengeFocus = null
++    await nextTick()
++    if (!state.challenge && document.activeElement === document.body)
++      form.value
++        ?.querySelector<HTMLButtonElement>(
++          target === 'login' ? '[data-action="login"]' : '[data-action="challenge"]',
++        )
++        ?.focus()
+   },
+ )
+ watch(
+-  () => [state.phase, state.busy] as const,
+-  async ([phase, busy]) => {
++  () => [state.phase, state.busy, state.canRetryOriginal] as const,
++  async ([phase, busy, retryable]) => {
++    if (phase === 'unavailable' || (phase === 'uncertain' && !busy && !retryable)) clearForm()
+     if (phase === 'authenticated' && !busy && !navigating) {
+       navigating = true
+-      password.value = ''
++      clearForm()
+       try {
+         await router.replace('/')
+       } finally {
+@@ -48,6 +76,11 @@
+ async function refreshChallenge() {
+   await auth.createChallenge()
+ }
++async function restart() {
++  if (state.busy) return
++  clearForm()
++  await auth.restart()
++}
+ async function closeChallenge() {
+   auth.dismissChallenge()
+   await nextTick()
+@@ -55,8 +88,7 @@
+ }
+ onMounted(() => heading.value?.focus())
+ onUnmounted(() => {
+-  password.value = ''
+-  email.value = ''
++  clearForm()
+   if (state.phase !== 'authenticated') auth.leave()
+ })
+ </script>
+@@ -69,7 +101,13 @@
+       >
+       <h1 id="login-title" ref="heading" tabindex="-1">登录</h1>
+       <p class="login-description">使用邮箱和密码继续。</p>
+-      <UiState v-if="state.phase === 'checking'" kind="loading" title="正在确认会话" />
++      <UiState
++        v-if="state.phase === 'checking'"
++        :kind="state.busy ? 'loading' : 'error'"
++        :title="state.busy ? '正在确认会话' : '请重新确认当前会话'"
++      >
++        <UiButton v-if="!state.busy" @click="auth.restore">检查当前会话</UiButton>
++      </UiState>
+       <form v-if="showForm" ref="form" class="ui-stack" @submit.prevent="login">
+         <UiField v-slot="field" label="邮箱" id="login-email" :error="state.fields.email" required>
+           <UiInput
+@@ -142,7 +180,7 @@
+         <UiButton v-if="state.canRetryOriginal" :disabled="state.busy" @click="auth.retryOriginal"
+           >重试原请求</UiButton
+         >
+-        <UiButton variant="ghost" :disabled="state.busy" @click="auth.restart"
++        <UiButton variant="ghost" :disabled="state.busy" @click="restart"
+           >放弃原请求，重新开始</UiButton
+         >
+       </div>
+--- ui01/web/src/tests/authentication.spec.ts
++++ ui02/web/src/tests/authentication.spec.ts
+@@ -101,6 +101,7 @@
+   wrapper?.unmount()
+   wrapper = undefined
+   document.body.innerHTML = ''
++  vi.useRealTimers()
+   vi.restoreAllMocks()
+ })
+ describe('formal authentication pages', () => {
+@@ -186,4 +187,148 @@
+       expect(safeReturnTarget(target)).toBe('/')
+     expect(safeReturnTarget('/')).toBe('/')
+   })
++  for (const reason of ['abandon', 'csrf'])
++    it(`clears unnecessary form material after ${reason} while preserving ordinary credential failures`, async () => {
++      const p = await page()
++      p.api.login.mockRejectedValueOnce(
++        fault(
++          reason === 'abandon' ? 'COMMIT_UNKNOWN' : 'CSRF_FAILED',
++          reason === 'abandon' ? 503 : 403,
++        ),
++      )
++      await p.wrapper.get('#login-email').setValue(view.user.email)
++      await p.wrapper.get('#login-password').setValue('Old-Original-Password-83!')
++      await p.wrapper.get('form').trigger('submit')
++      await flushPromises()
++      const action = reason === 'abandon' ? '放弃原请求' : '检查当前会话'
++      await p.wrapper
++        .findAll('button')
++        .find((button) => button.text().includes(action))!
++        .trigger('click')
++      await flushPromises()
++      expect(p.auth.state.phase).toBe('anonymous')
++      expect(p.wrapper.get('#login-email').element).toHaveProperty('value', '')
++      expect(p.wrapper.get('#login-password').element).toHaveProperty('value', '')
++      expect(p.auth.state.canRetryOriginal).toBe(false)
++      await p.auth.retryOriginal()
++      expect(p.api.login).toHaveBeenCalledTimes(1)
++      p.api.login.mockRejectedValueOnce(fault('UNAUTHENTICATED'))
++      const replacement = 'New-Explicit-Password-92!'
++      await p.wrapper.get('#login-email').setValue('new@example.com')
++      await p.wrapper.get('#login-password').setValue(replacement)
++      await p.wrapper.get('form').trigger('submit')
++      await flushPromises()
++      expect(p.api.login).toHaveBeenCalledTimes(2)
++      expect(p.api.login.mock.calls[1][0].password === replacement).toBe(true)
++      expect(p.api.login.mock.calls[1][2] !== p.api.login.mock.calls[0][2]).toBe(true)
++      expect(
++        (p.wrapper.get('#login-password').element as HTMLInputElement).value === replacement,
++      ).toBe(true)
++    })
++  for (const cause of ['rejected', 'timeout'])
++    it(`restores the challenge action focus after ${cause} without claiming verification`, async () => {
++      const p = await page()
++      p.api.login.mockRejectedValueOnce(fault('CHALLENGE_REQUIRED', 403))
++      await p.wrapper.get('#login-email').setValue(view.user.email)
++      await p.wrapper.get('#login-password').setValue('Original-Password-92!')
++      await p.wrapper.get('form').trigger('submit')
++      await flushPromises()
++      await p.wrapper.get('[data-action="challenge"]').trigger('click')
++      await flushPromises()
++      expect(p.auth.state.challenge !== null && !p.auth.state.challengeBusy).toBe(true)
++      ;(p.wrapper.get('#rotate-angle').element as HTMLInputElement).focus()
++      expect(document.activeElement?.id).toBe('rotate-angle')
++      let release: (() => void) | undefined
++      if (cause === 'rejected')
++        p.api.verifyChallenge.mockRejectedValueOnce(fault('CHALLENGE_INVALID', 403))
++      else {
++        vi.useFakeTimers()
++        p.api.verifyChallenge.mockImplementationOnce(
++          () =>
++            new Promise((resolve) => {
++              release = () => resolve({ pass: id + '.' + 'P'.repeat(43) })
++            }),
++        )
++      }
++      await p.wrapper.get('#rotate-angle').trigger('keydown', { key: 'Enter' })
++      if (cause === 'timeout') await vi.advanceTimersByTimeAsync(30_000)
++      await flushPromises()
++      expect(p.auth.state.passReady).toBe(false)
++      expect(p.auth.state.challenge).toBe(null)
++      expect(document.activeElement === p.wrapper.get('[data-action="challenge"]').element).toBe(
++        true,
++      )
++      release?.()
++      await flushPromises()
++      expect(p.auth.state.passReady).toBe(false)
++    })
++  it('offers one explicit Session recovery after an old login tail settles on a returned auth route', async () => {
++    const p = await page()
++    let release!: (value: {
++      user: typeof view.user
++      session: typeof view.session
++      next_path: '/'
++    }) => void
++    p.api.login.mockImplementationOnce(
++      () =>
++        new Promise((resolve) => {
++          release = resolve
++        }),
++    )
++    await p.wrapper.get('#login-email').setValue(view.user.email)
++    await p.wrapper.get('#login-password').setValue('Original-Password-92!')
++    await p.wrapper.get('form').trigger('submit')
++    await flushPromises()
++    expect(p.api.login).toHaveBeenCalledTimes(1)
++    await p.router.push('/no-such-page')
++    await p.router.push('/login')
++    await flushPromises()
++    expect(p.auth.state.busy).toBe(true)
++    expect(p.api.getSession).toHaveBeenCalledTimes(1)
++    release({ user: view.user, session: view.session, next_path: '/' })
++    await flushPromises()
++    expect(p.auth.state.busy).toBe(false)
++    expect(p.auth.state.user).toBe(null)
++    expect(p.wrapper.find('[aria-label="Dashboard"]').exists()).toBe(false)
++    const recovery = p.wrapper
++      .findAll('button')
++      .find((button) => button.text().includes('检查当前会话'))
++    expect(recovery !== undefined).toBe(true)
++    p.api.getSession.mockResolvedValue(view)
++    await recovery!.trigger('click')
++    await flushPromises()
++    expect(p.router.currentRoute.value.path).toBe('/')
++    expect(p.api.getSession).toHaveBeenCalledTimes(3)
++    expect(p.api.login).toHaveBeenCalledTimes(1)
++  })
++  it('focuses an enabled new challenge, returns successful verification to login, and never steals edited-input focus', async () => {
++    const p = await page()
++    p.api.login.mockRejectedValueOnce(fault('CHALLENGE_REQUIRED', 403))
++    await p.wrapper.get('#login-email').setValue(view.user.email)
++    await p.wrapper.get('#login-password').setValue('Original-Password-92!')
++    await p.wrapper.get('form').trigger('submit')
++    await flushPromises()
++    await p.wrapper.get('[data-action="challenge"]').trigger('click')
++    await flushPromises()
++    expect(document.activeElement?.id).toBe('rotate-angle')
++    await p.wrapper.get('#rotate-angle').trigger('keydown', { key: 'Enter' })
++    await flushPromises()
++    expect(p.auth.state.passReady).toBe(true)
++    expect(document.activeElement === p.wrapper.get('[data-action="login"]').element).toBe(true)
++    await p.auth.createChallenge()
++    await flushPromises()
++    const close = p.wrapper.findAll('button').find((button) => button.text().includes('关闭验证'))!
++    ;(close.element as HTMLButtonElement).focus()
++    await close.trigger('click')
++    await flushPromises()
++    expect(document.activeElement === p.wrapper.get('[data-action="challenge"]').element).toBe(true)
++    await p.wrapper.get('[data-action="challenge"]').trigger('click')
++    await flushPromises()
++    ;(p.wrapper.get('#login-email').element as HTMLInputElement).focus()
++    await p.wrapper.get('#login-email').setValue('another@example.com')
++    await flushPromises()
++    expect(document.activeElement?.id).toBe('login-email')
++    expect(p.auth.state.challenge).toBe(null)
++    expect(p.auth.state.passReady).toBe(false)
++  })
+ })
+--- ui01/web/src/tests/rotate-challenge.spec.ts
++++ ui02/web/src/tests/rotate-challenge.spec.ts
+@@ -64,4 +64,25 @@
+     expect(wrapper.emitted('close')).toEqual([[]])
+     expect(wrapper.emitted('verify')).toBeUndefined()
+   })
++  it('hands focus to a newly enabled question once and preserves later external input focus', async () => {
++    wrapper = mount(RotateChallenge, {
++      props: { challenge: question, busy: true },
++      attachTo: document.body,
++    })
++    expect(document.activeElement?.id === 'rotate-angle').toBe(false)
++    await wrapper.setProps({ busy: false })
++    expect(document.activeElement?.id).toBe('rotate-angle')
++    const input = document.createElement('input')
++    document.body.append(input)
++    input.focus()
++    await wrapper.setProps({ busy: true })
++    await wrapper.setProps({ busy: false })
++    expect(document.activeElement === input).toBe(true)
++    await wrapper.setProps({
++      busy: true,
++      challenge: { ...question, id: '01900000-0000-7000-8000-000000000002' },
++    })
++    await wrapper.setProps({ busy: false })
++    expect(document.activeElement === input).toBe(true)
++  })
+ })

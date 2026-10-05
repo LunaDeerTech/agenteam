@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestAccountAuthenticationWeb(SessionLifecycle|RotateChallenge)$"
+  ],
+  "cwd": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/browser-images-01",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/d26-auth-runtime-jrfhr6h1",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "DOCKER_CONFIG": "/workspace/agenteam-d26-auth-author-jrfhr6h1/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "GOCACHE": "/workspace/agenteam-d26-auth-author-jrfhr6h1/go-cache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOPROXY": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/agenteam-d26-auth-author-jrfhr6h1/tmp"
+  },
+  "input": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-03/manifest.json",
+  "input_sha256": "34830f47406ccb2bc812e8c7cb30c5d0c8f8af93710e2cc7b5cf8caba8b91de9",
+  "note": "only safe explicit environment; credentials remain inside original owned fixture",
+  "plan_sha256": "0fde1d8699f34b3f84bf65aa9440cd5253d27990722668426f7b29987ff4d887"
+}

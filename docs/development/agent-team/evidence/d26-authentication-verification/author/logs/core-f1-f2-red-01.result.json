@@ -1,0 +1,13 @@
+{
+  "argv": [
+    "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/web/node_modules/.bin/vitest",
+    "run",
+    "src/tests/account-client.spec.ts",
+    "src/tests/session.spec.ts",
+    "-t",
+    "non-string commit_state|dismiss cannot|real client treats malformed"
+  ],
+  "cwd": "/workspace/agenteam-d26-auth-author-jrfhr6h1/input/web",
+  "exit": 1,
+  "purpose": "original product red on frozen core01"
+}

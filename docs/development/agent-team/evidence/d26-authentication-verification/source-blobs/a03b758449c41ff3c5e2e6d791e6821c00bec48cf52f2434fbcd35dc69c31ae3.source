@@ -1,0 +1,189 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { createMemoryHistory, createRouter } from 'vue-router'
+import type { AccountAPI, SessionView } from '../api/account'
+import { AccountFailure } from '../api/client'
+import type { SessionController } from '../composables/useSession'
+const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
+vi.mock('../composables/useSession', async (original) => {
+  const actual = await original<typeof import('../composables/useSession')>()
+  return { ...actual, useSession: () => selected.auth! }
+})
+import { createSessionController } from '../composables/useSession'
+import { installAuthentication, safeReturnTarget } from '../router/auth'
+import App from '../App.vue'
+import LoginView from '../views/auth/LoginView.vue'
+import HomeView from '../views/HomeView.vue'
+import NotFoundView from '../views/NotFoundView.vue'
+
+const id = '01900000-0000-7000-8000-000000000001'
+const time = '2026-10-05T12:34:56.123456Z'
+const view: SessionView = {
+  user: {
+    id,
+    email: 'person@example.com',
+    username: '',
+    display_name: '',
+    role: 'user',
+    theme: 'dark',
+    version: '1',
+    initial_password_suggestion: true,
+  },
+  session: { id, issued_at: time, absolute_expires_at: time, idle_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+}
+const fault = (code: string, status = 401) =>
+  new AccountFailure('problem', {
+    type: 'urn:agenteam:problem:test',
+    title: 'Test',
+    status,
+    detail: 'safe error',
+    instance: '/api/v1/session',
+    code,
+    request_id: id,
+    commit_state: code === 'COMMIT_UNKNOWN' ? 'unknown' : 'not_started',
+  })
+let wrapper: VueWrapper | undefined
+async function page(path = '/login', unavailable = false) {
+  let signedIn = false
+  const api = {
+    bootstrap: vi.fn<AccountAPI['bootstrap']>(async () => ({
+      csrf_token: 'A'.repeat(43),
+      challenge_modes: ['rotate'],
+      delivery_channel: 'backend_log',
+    })),
+    getSession: vi.fn<AccountAPI['getSession']>(async () => {
+      if (unavailable) throw fault('DEPENDENCY_UNAVAILABLE', 503)
+      if (!signedIn) throw fault('UNAUTHENTICATED')
+      return view
+    }),
+    login: vi.fn<AccountAPI['login']>(async () => {
+      signedIn = true
+      return { user: view.user, session: view.session, next_path: '/' }
+    }),
+    logout: vi.fn<AccountAPI['logout']>(async () => {
+      signedIn = false
+    }),
+    createChallenge: vi.fn<AccountAPI['createChallenge']>(async () => ({
+      id,
+      mode: 'rotate',
+      master: 'data:image/png;base64,AA==',
+      thumb: 'data:image/png;base64,AA==',
+      expires_at: time,
+    })),
+    verifyChallenge: vi.fn<AccountAPI['verifyChallenge']>(async () => ({
+      pass: id + '.' + 'P'.repeat(43),
+    })),
+  }
+  selected.auth = createSessionController(api)
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      {
+        path: '/',
+        name: 'home',
+        component: HomeView,
+        meta: { authentication: true, protected: true },
+      },
+      { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+      { path: '/debug', component: { template: '<p>Development</p>' } },
+      { path: '/:pathMatch(.*)*', component: NotFoundView },
+    ],
+  })
+  installAuthentication(router, selected.auth)
+  await router.push(path)
+  await router.isReady()
+  wrapper = mount(App, { attachTo: document.body, global: { plugins: [router] } })
+  await flushPromises()
+  return { api, router, auth: selected.auth, wrapper }
+}
+afterEach(() => {
+  wrapper?.unmount()
+  wrapper = undefined
+  document.body.innerHTML = ''
+  vi.restoreAllMocks()
+})
+describe('formal authentication pages', () => {
+  it('has a real labelled form and protected home, preserves password bytes, confirms and logs out', async () => {
+    const p = await page()
+    expect(p.wrapper.find('.system-nav').exists()).toBe(false)
+    expect(p.wrapper.find('h1').text()).toBe('登录')
+    expect(document.activeElement?.id).toBe('login-title')
+    expect(p.wrapper.find('#login-password').attributes('autocomplete')).toBe('current-password')
+    expect(p.wrapper.find('#login-password').attributes('maxlength')).toBeUndefined()
+    const password = '  Original 密码 12345  '
+    await p.wrapper.get('#login-email').setValue(view.user.email)
+    await p.wrapper.get('#login-password').setValue(password)
+    await p.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(p.api.login).toHaveBeenCalledTimes(1)
+    expect(p.api.login.mock.calls[0][0].password === password).toBe(true)
+    expect(p.router.currentRoute.value.path).toBe('/')
+    expect(p.wrapper.get('h1').text()).toBe('首页')
+    expect(p.wrapper.get('.account-name').text()).toBe(view.user.email)
+    expect(p.wrapper.text()).toContain('建议之后更换')
+    expect(document.documentElement.dataset.theme).toBe('dark')
+    expect(p.wrapper.find('a[href*="settings"]').exists()).toBe(false)
+    expect(p.wrapper.find('a[href*="project"]').exists()).toBe(false)
+    // Initial restore, login confirmation, and the single protected navigation.
+    expect(p.api.getSession).toHaveBeenCalledTimes(3)
+    await p.wrapper.get('.account-actions button').trigger('click')
+    await flushPromises()
+    expect(p.router.currentRoute.value.path).toBe('/login')
+    expect(p.auth.state.phase).toBe('anonymous')
+    expect(p.api.logout).toHaveBeenCalledTimes(1)
+    expect(p.api.getSession).toHaveBeenCalledTimes(4)
+    // The logout Cookie owner must release before the new anonymous bootstrap.
+    expect(p.api.bootstrap.mock.calls.length).toBeGreaterThan(1)
+    expect(p.wrapper.get('#login-password').element).toHaveProperty('value', '')
+  })
+  it('hides protected contents when authority is unavailable and provides explicit recovery', async () => {
+    const p = await page('/', true)
+    expect(p.router.currentRoute.value.path).toBe('/login')
+    expect(p.wrapper.find('[aria-label="Dashboard"]').exists()).toBe(false)
+    expect(p.wrapper.find('#login-password').exists()).toBe(false)
+    expect(p.wrapper.text()).toContain('检查当前会话')
+    expect(p.api.bootstrap).not.toHaveBeenCalled()
+  })
+  it('keeps Unknown inputs locked and offers an explicit original-request retry without optimistic success', async () => {
+    const p = await page()
+    p.api.login.mockRejectedValue(fault('COMMIT_UNKNOWN', 503))
+    const local = vi.spyOn(Storage.prototype, 'setItem')
+    await p.wrapper.get('#login-email').setValue(view.user.email)
+    await p.wrapper.get('#login-password').setValue('OriginalPassword123')
+    await p.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(p.auth.state.phase).toBe('uncertain')
+    expect(p.wrapper.get('#login-password').attributes()).toHaveProperty('readonly')
+    expect(p.wrapper.find('[aria-label="Dashboard"]').exists()).toBe(false)
+    const retry = p.wrapper
+      .findAll('button')
+      .find((button) => button.text().includes('重试原请求'))!
+    await retry.trigger('click')
+    await flushPromises()
+    expect(p.api.login).toHaveBeenCalledTimes(2)
+    expect(
+      JSON.stringify(p.api.login.mock.calls[0].slice(0, 3)) ===
+        JSON.stringify(p.api.login.mock.calls[1].slice(0, 3)),
+    ).toBe(true)
+    expect(local).not.toHaveBeenCalled()
+    expect(p.router.currentRoute.value.path).toBe('/login')
+  })
+  it('keeps Debug and unknown routes independent and accepts only the implemented return path', async () => {
+    const p = await page('/debug')
+    expect(p.api.getSession).not.toHaveBeenCalled()
+    await p.router.push('/no-such-page')
+    await flushPromises()
+    expect(p.api.getSession).not.toHaveBeenCalled()
+    for (const target of [
+      'https://example.com/',
+      '//example.com',
+      '/projects/123',
+      ['/'],
+      '/#other',
+      undefined,
+    ])
+      expect(safeReturnTarget(target)).toBe('/')
+    expect(safeReturnTarget('/')).toBe('/')
+  })
+})

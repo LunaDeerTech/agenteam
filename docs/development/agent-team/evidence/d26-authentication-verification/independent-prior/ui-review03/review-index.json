@@ -1,0 +1,40 @@
+{
+  "scope": "D26 UI03 narrow STATIC PASS; not complete browser acceptance",
+  "files": [
+    {
+      "path": "check-command.json",
+      "sha256": "2e6db6c6a503ab555df174ea501da800328614f1233ccb1246cd5c875351fc1d",
+      "bytes": 718
+    },
+    {
+      "path": "checks.json",
+      "sha256": "503b2f44a257787fae49dc8cd052a75eef5ff38228865e4c59c6ea6b285936ac",
+      "bytes": 13788
+    },
+    {
+      "path": "format-check.json",
+      "sha256": "cffe707ed7b5210e809b82bb89c1b55617079092bd0c2b18c78106a8aba1a798",
+      "bytes": 337
+    },
+    {
+      "path": "red01-to-red02.patch",
+      "sha256": "827b67a5ee5944c81d34559c1187172b22948559e67f4342475d3250192eb7fd",
+      "bytes": 771
+    },
+    {
+      "path": "red02-to-final.patch",
+      "sha256": "224de17a46ce45fb241d7fb71676650e366307b7dcb8954e86574e7a2d94901c",
+      "bytes": 2769
+    },
+    {
+      "path": "review.md",
+      "sha256": "53f4538735dd38d3e6053cf71675c4dd52938b34e49f9a78581acb6a803f03df",
+      "bytes": 4297
+    },
+    {
+      "path": "verify_inputs.py",
+      "sha256": "1fea397d55c282cfe2c927749446e7923c85957e24432ddb81385abb7849ff04",
+      "bytes": 3206
+    }
+  ]
+}

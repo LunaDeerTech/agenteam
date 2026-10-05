@@ -1,0 +1,547 @@
+import { readonly, shallowReactive } from 'vue'
+import {
+  createAccountAPI,
+  type AccountAPI,
+  type Challenge,
+  type LoginResult,
+  type Session,
+  type SessionView,
+  type User,
+} from '../api/account'
+import { AccountFailure, type Problem } from '../api/client'
+import { useTheme } from './useTheme'
+
+export type SessionPhase =
+  | 'checking'
+  | 'anonymous'
+  | 'authenticating'
+  | 'authenticated'
+  | 'signing-out'
+  | 'uncertain'
+  | 'unavailable'
+interface PublicState {
+  phase: SessionPhase
+  user: User | null
+  session: Session | null
+  busy: boolean
+  challengeBusy: boolean
+  challengeRequired: boolean
+  challenge: Challenge | null
+  passReady: boolean
+  notice: string
+  fields: Record<string, string>
+  canRetryOriginal: boolean
+}
+interface LoginIntent {
+  kind: 'login'
+  key: string
+  browser: number
+  email: string
+  password: string
+  pass?: string
+}
+interface LogoutIntent {
+  kind: 'logout'
+  key: string
+  session: string
+  csrf: string
+}
+type Intent = LoginIntent | LogoutIntent
+type Action = 'restore' | 'login' | 'logout'
+interface Operation {
+  generation: number
+  kind: Action
+  abort: AbortController
+  expired: boolean
+  confirmed: boolean
+  visible: Promise<void>
+}
+
+const unavailableSession = (e: unknown) =>
+  e instanceof AccountFailure &&
+  e.kind === 'problem' &&
+  e.problem?.status === 401 &&
+  ['UNAUTHENTICATED', 'SESSION_REVOKED'].includes(e.problem.code)
+const isUnknown = (e: AccountFailure) =>
+  ['transport', 'cancelled', 'invalid-response'].includes(e.kind) ||
+  e.problem?.commit_state === 'unknown' ||
+  e.problem?.code === 'COMMIT_UNKNOWN' ||
+  e.problem?.code === 'RESOURCE_BUSY'
+
+// Only this controller owns authentication materials and the four Cookie-producing
+// endpoints. Its public state has no token, command key, password or retry body.
+export function createSessionController(api: AccountAPI = createAccountAPI()) {
+  const state = shallowReactive<PublicState>({
+    phase: 'checking',
+    user: null,
+    session: null,
+    busy: false,
+    challengeBusy: false,
+    challengeRequired: false,
+    challenge: null,
+    passReady: false,
+    notice: '',
+    fields: {},
+    canRetryOriginal: false,
+  })
+  let generation = 0,
+    browser = 0,
+    challengeGeneration = 0
+  let anonymousCSRF = '',
+    sessionCSRF = ''
+  let intent: Intent | null = null
+  let expectedSession: LoginResult | null = null
+  let owner: Operation | null = null
+  let challengeAbort: AbortController | null = null
+  let pending = false
+  const valid = (op: Operation) => generation === op.generation && !op.expired
+  function clearChallenge() {
+    ++challengeGeneration
+    challengeAbort?.abort()
+    challengeAbort = null
+    state.challengeBusy = false
+    state.challenge = null
+    state.passReady = false
+    if (intent?.kind === 'login') delete intent.pass
+  }
+  function clearIdentity() {
+    state.user = null
+    state.session = null
+    sessionCSRF = ''
+    useTheme().setTheme('system')
+  }
+  function forgetIntent() {
+    clearChallenge()
+    intent = null
+    pending = false
+    state.canRetryOriginal = false
+    state.challengeRequired = false
+  }
+  function clearBrowser() {
+    anonymousCSRF = ''
+    ++browser
+  }
+  function canRetry() {
+    return (
+      pending &&
+      !!intent &&
+      (intent.kind === 'login'
+        ? intent.browser === browser && anonymousCSRF !== ''
+        : intent.session === state.session?.id && intent.csrf === sessionCSRF && sessionCSRF !== '')
+    )
+  }
+  function publish(view: SessionView) {
+    state.user = view.user
+    state.session = view.session
+    sessionCSRF = view.csrf_token
+    clearBrowser()
+    forgetIntent()
+    expectedSession = null
+    state.phase = 'authenticated'
+    state.notice = ''
+    state.fields = {}
+    useTheme().setTheme(view.user.theme)
+  }
+  function fields(problem?: Problem) {
+    const result: Record<string, string> = {}
+    for (const field of problem?.field_errors ?? []) {
+      if (field.path === '/email') result.email = '请检查邮箱地址。'
+      if (field.path === '/password') result.password = '密码应为 15–128 个字符，最多 512 字节。'
+    }
+    return result
+  }
+  function failure(op: Operation, error: unknown) {
+    if (!valid(op)) return
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    state.fields = fields(e.problem)
+    if (op.kind === 'restore' || op.confirmed) {
+      clearIdentity()
+      state.phase = pending ? 'uncertain' : 'unavailable'
+      state.notice = op.confirmed
+        ? '登录响应已接收，但当前会话尚未确认。请检查当前会话。'
+        : '暂时无法确认当前会话，请重试检查。'
+    } else if (isUnknown(e)) {
+      pending = true
+      state.phase = 'uncertain'
+      state.notice = '请求结果尚未确认。可以检查当前会话，或在原上下文中重试原请求。'
+    } else if (pending) {
+      // A later rejected replay is not a negative observation of the earlier write.
+      if (e.problem?.code === 'CSRF_FAILED') {
+        clearBrowser()
+        clearIdentity()
+      }
+      if (op.kind === 'logout' && unavailableSession(e)) clearIdentity()
+      state.phase = 'uncertain'
+      state.notice =
+        '原请求结果仍未确认，当前上下文无法继续该次操作。可以检查当前会话或明确重新建立登录上下文。'
+    } else if (
+      ['CHALLENGE_REQUIRED', 'CHALLENGE_INVALID'].includes(e.problem?.code ?? '') &&
+      op.kind === 'login'
+    ) {
+      clearChallenge()
+      state.phase = 'anonymous'
+      state.challengeRequired = true
+      state.notice = '请完成旋转验证，再继续登录。'
+    } else if (e.problem?.code === 'CSRF_FAILED') {
+      clearBrowser()
+      clearIdentity()
+      forgetIntent()
+      state.phase = 'unavailable'
+      state.notice = '认证上下文已失效，请重新建立登录上下文。'
+    } else if (e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
+      state.phase = 'unavailable'
+      state.notice = '原请求标识与输入不一致。请检查后明确重新建立登录上下文。'
+    } else if (op.kind === 'logout') {
+      if (unavailableSession(e)) {
+        clearIdentity()
+        state.phase = 'unavailable'
+        state.notice = '当前会话不可用，请重新登录。此结果不确认原注销命令是否提交。'
+      } else {
+        state.phase = 'authenticated'
+        state.notice = e.problem?.detail || '退出登录未完成，请重试。'
+      }
+      forgetIntent()
+    } else {
+      forgetIntent()
+      state.phase = 'anonymous'
+      state.notice = unavailableSession(e)
+        ? '邮箱或密码不正确。'
+        : e.kind === 'invalid-input'
+          ? '请检查邮箱和密码格式。密码须保留原输入。'
+          : e.problem?.detail || '登录未完成，请重试。'
+    }
+    state.canRetryOriginal = canRetry()
+  }
+  function run(kind: Action, work: (op: Operation) => Promise<void>): Promise<void> {
+    if (owner) return owner.kind === kind ? owner.visible : Promise.resolve()
+    const op: Operation = {
+      generation: ++generation,
+      kind,
+      abort: new AbortController(),
+      expired: false,
+      confirmed: false,
+      visible: Promise.resolve(),
+    }
+    owner = op
+    state.busy = true
+    state.canRetryOriginal = false
+    let timer: ReturnType<typeof setTimeout>
+    const expired = new Promise<void>((resolve) => {
+      timer = setTimeout(() => {
+        if (valid(op)) {
+          failure(op, new AccountFailure('cancelled'))
+          op.expired = true
+        }
+        op.abort.abort()
+        resolve()
+      }, 30_000)
+    })
+    // Logical timeout can finish the caller's wait, but actual fetch/body completion
+    // still owns this lane. An abort-ignoring transport never frees the Cookie lane.
+    const actual = Promise.resolve()
+      .then(() => (valid(op) ? work(op) : undefined))
+      .catch((e: unknown) => failure(op, e))
+      .finally(() => {
+        clearTimeout(timer)
+        if (owner === op) {
+          owner = null
+          state.busy = false
+          state.canRetryOriginal = canRetry()
+        }
+      })
+    op.visible = Promise.race([actual, expired])
+    return op.visible
+  }
+  async function bootstrap(op: Operation) {
+    const result = await api.bootstrap(op.abort.signal)
+    if (!valid(op)) return
+    ++browser
+    anonymousCSRF = result.csrf_token
+    state.phase = 'anonymous'
+  }
+  function restore() {
+    return run('restore', async (op) => {
+      state.notice = ''
+      state.phase = 'checking'
+      // A restored identity is never displayed while its current authority is unknown.
+      const previous = state.session?.id
+      const previousCSRF = sessionCSRF
+      clearIdentity()
+      try {
+        const result = await api.getSession(op.abort.signal)
+        if (!valid(op)) return
+        if (
+          expectedSession &&
+          (expectedSession.user.id !== result.user.id ||
+            expectedSession.session.id !== result.session.id)
+        ) {
+          state.phase = 'unavailable'
+          state.notice = '当前身份与登录响应不同，请重新检查或建立登录上下文。'
+          return
+        }
+        if (
+          pending &&
+          intent?.kind === 'logout' &&
+          intent.session === result.session.id &&
+          previous === result.session.id &&
+          previousCSRF === result.csrf_token
+        ) {
+          state.user = result.user
+          state.session = result.session
+          sessionCSRF = result.csrf_token
+          state.phase = 'uncertain'
+          state.notice = '当前会话仍可用；原注销结果尚未确认。'
+          return
+        }
+        publish(result)
+      } catch (e) {
+        if (!valid(op)) return
+        if (!unavailableSession(e)) throw e
+        clearIdentity()
+        if (pending || expectedSession) {
+          state.phase = 'uncertain'
+          state.notice = '当前会话不可用；这不证明原请求未提交。'
+          return
+        }
+        forgetIntent()
+        await bootstrap(op)
+      }
+    })
+  }
+  function newKey() {
+    try {
+      return crypto.randomUUID()
+    } catch {
+      throw new AccountFailure('invalid-input')
+    }
+  }
+  function performLogin(original: LoginIntent) {
+    return run('login', async (op) => {
+      state.phase = 'authenticating'
+      state.notice = ''
+      state.fields = {}
+      const result = await api.login(
+        {
+          email: original.email,
+          password: original.password,
+          ...(original.pass === undefined ? {} : { challenge_pass: original.pass }),
+        },
+        anonymousCSRF,
+        original.key,
+        op.abort.signal,
+      )
+      if (!valid(op)) return
+      op.confirmed = true
+      expectedSession = result
+      forgetIntent()
+      clearBrowser()
+      const view = await api.getSession(op.abort.signal)
+      if (!valid(op)) return
+      if (view.user.id !== result.user.id || view.session.id !== result.session.id) {
+        clearIdentity()
+        state.phase = 'unavailable'
+        state.notice = '当前身份与登录响应不同，请重新检查。'
+        return
+      }
+      publish(view)
+    })
+  }
+  function login(email: string, password: string) {
+    if (owner || state.challengeBusy || pending) return Promise.resolve()
+    if (!anonymousCSRF) {
+      state.notice = '请先确认当前登录上下文。'
+      return Promise.resolve()
+    }
+    try {
+      if (!(
+        intent?.kind === 'login' &&
+        intent.browser === browser &&
+        intent.email === email &&
+        intent.password === password &&
+        state.challengeRequired
+      )) {
+        forgetIntent()
+        intent = { kind: 'login', key: newKey(), browser, email, password }
+      }
+      return performLogin(intent as LoginIntent)
+    } catch {
+      forgetIntent()
+      state.notice = '无法安全建立登录请求，请检查浏览器环境。'
+      return Promise.resolve()
+    }
+  }
+  function performLogout(original: LogoutIntent) {
+    return run('logout', async (op) => {
+      state.phase = 'signing-out'
+      state.notice = ''
+      state.fields = {}
+      await api.logout(original.csrf, original.key, op.abort.signal)
+      if (!valid(op)) return
+      clearIdentity()
+      clearBrowser()
+      forgetIntent()
+      expectedSession = null
+      state.phase = 'anonymous'
+      state.notice = '已退出登录。'
+    })
+  }
+  function logout() {
+    if (owner || pending || !state.session || !sessionCSRF) return Promise.resolve()
+    try {
+      intent = { kind: 'logout', key: newKey(), session: state.session.id, csrf: sessionCSRF }
+      return performLogout(intent)
+    } catch {
+      state.notice = '无法安全建立退出请求，请重试。'
+      return Promise.resolve()
+    }
+  }
+  function retryOriginal() {
+    if (owner || !canRetry() || !intent) return Promise.resolve()
+    return intent.kind === 'login' ? performLogin(intent) : performLogout(intent)
+  }
+  function inputChanged() {
+    if (owner || pending) return
+    forgetIntent()
+    state.notice = ''
+    state.fields = {}
+  }
+  async function createChallenge() {
+    if (
+      owner ||
+      pending ||
+      intent?.kind !== 'login' ||
+      intent.browser !== browser ||
+      !anonymousCSRF
+    )
+      return
+    const original = intent,
+      captured = generation
+    clearChallenge()
+    const revision = challengeGeneration
+    const abort = new AbortController()
+    challengeAbort = abort
+    state.challengeBusy = true
+    const timeout = setTimeout(() => abort.abort(), 30_000)
+    try {
+      const result = await api.createChallenge(
+        { mode: 'rotate', email: original.email, login_key: original.key },
+        anonymousCSRF,
+        abort.signal,
+      )
+      if (
+        captured !== generation ||
+        revision !== challengeGeneration ||
+        abort.signal.aborted ||
+        intent !== original
+      )
+        return
+      state.challenge = result
+      state.notice = ''
+    } catch {
+      if (captured === generation && revision === challengeGeneration)
+        state.notice = '未取得有效挑战，请明确请求新题。'
+    } finally {
+      clearTimeout(timeout)
+      if (captured === generation && revision === challengeGeneration) {
+        state.challengeBusy = false
+        challengeAbort = null
+      }
+    }
+  }
+  async function verifyChallenge(angle: number) {
+    if (
+      owner ||
+      pending ||
+      state.challengeBusy ||
+      !state.challenge ||
+      intent?.kind !== 'login' ||
+      intent.browser !== browser ||
+      !anonymousCSRF
+    )
+      return
+    const original = intent,
+      question = state.challenge,
+      captured = generation,
+      revision = challengeGeneration
+    const abort = new AbortController()
+    challengeAbort = abort
+    state.challengeBusy = true
+    const timeout = setTimeout(() => abort.abort(), 30_000)
+    try {
+      const result = await api.verifyChallenge(
+        {
+          email: original.email,
+          login_key: original.key,
+          challenge_id: question.id,
+          proof: { angle },
+        },
+        anonymousCSRF,
+        abort.signal,
+      )
+      if (
+        captured !== generation ||
+        revision !== challengeGeneration ||
+        abort.signal.aborted ||
+        intent !== original
+      )
+        return
+      original.pass = result.pass
+      state.passReady = true
+      state.challenge = null
+      state.notice = '验证已完成，请继续登录。'
+    } catch {
+      if (captured === generation && revision === challengeGeneration) {
+        delete original.pass
+        state.passReady = false
+        state.challenge = null
+        state.notice = '验证未确认，请请求新题。'
+      }
+    } finally {
+      clearTimeout(timeout)
+      if (captured === generation && revision === challengeGeneration) {
+        state.challengeBusy = false
+        challengeAbort = null
+      }
+    }
+  }
+  function leave() {
+    ++generation
+    forgetIntent()
+    expectedSession = null
+    clearBrowser()
+    clearIdentity()
+    state.phase = 'checking'
+    state.notice = ''
+    state.fields = {}
+    // The Cookie operation's private captured input remains owned until actual return.
+    // No abort, queue release or automatic opposite mutation occurs on unmount.
+  }
+  function restart() {
+    if (owner) return Promise.resolve()
+    leave()
+    return restore()
+  }
+  function dismissChallenge() {
+    clearChallenge()
+    state.notice = '验证尚未完成。'
+  }
+  return {
+    state: readonly(state),
+    restore,
+    login,
+    logout,
+    retryOriginal,
+    inputChanged,
+    createChallenge,
+    verifyChallenge,
+    dismissChallenge,
+    leave,
+    restart,
+  }
+}
+
+export type SessionController = ReturnType<typeof createSessionController>
+let instance: SessionController | undefined
+export function useSession() {
+  return (instance ??= createSessionController())
+}

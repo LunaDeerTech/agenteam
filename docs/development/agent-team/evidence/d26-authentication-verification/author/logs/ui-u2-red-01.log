@@ -1,0 +1,39 @@
+
+ RUN  v4.1.11 /workspace/agenteam-d26-auth-author-jrfhr6h1/input/web
+
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > has a real labelled form and protected home, preserves password bytes, confirms and logs out
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > hides protected contents when authority is unavailable and provides explicit recovery
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > keeps Unknown inputs locked and offers an explicit original-request retry without optimistic success
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > keeps Debug and unknown routes independent and accepts only the implemented return path
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after abandon while preserving ordinary credential failures
+ ↓ src/tests/authentication.spec.ts > formal authentication pages > clears unnecessary form material after csrf while preserving ordinary credential failures
+ × src/tests/authentication.spec.ts > formal authentication pages > restores the challenge action focus after rejected without claiming verification 98ms
+   → expected 'login-title' to be 'rotate-angle' // Object.is equality
+ × src/tests/authentication.spec.ts > formal authentication pages > restores the challenge action focus after timeout without claiming verification 35ms
+   → expected 'login-title' to be 'rotate-angle' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > restores the challenge action focus after rejected without claiming verification
+ FAIL  src/tests/authentication.spec.ts > formal authentication pages > restores the challenge action focus after timeout without claiming verification
+AssertionError: expected 'login-title' to be 'rotate-angle' // Object.is equality
+
+Expected: "rotate-angle"
+Received: "login-title"
+
+ ❯ src/tests/authentication.spec.ts:238:42
+    236|       await p.wrapper.get('[data-action="challenge"]').trigger('click')
+    237|       await flushPromises()
+    238|       expect(document.activeElement?.id).toBe('rotate-angle')
+       |                                          ^
+    239|       let release: (() => void) | undefined
+    240|       if (cause === 'rejected') p.api.verifyChallenge.mockRejectedValu…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 6 skipped (8)
+   Start at  20:08:47
+   Duration  1.21s (transform 419ms, setup 0ms, import 520ms, tests 134ms, environment 431ms)
+
