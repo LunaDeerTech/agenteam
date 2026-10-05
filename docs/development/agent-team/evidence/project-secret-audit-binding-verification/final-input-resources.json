@@ -1,0 +1,156 @@
+{
+  "at": "2026-10-05T13:33:12.941738+00:00",
+  "baseline_id_sets_unchanged": true,
+  "baseline": {
+    "containers": [
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e"
+    ],
+    "networks": [
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+      "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5"
+    ]
+  },
+  "current_baseline_identity_metadata": {
+    "containers": [
+      "\"9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c\" \"/agenteam-dev-infra-postgres-1\" {\"com.docker.compose.config-hash\":\"14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"postgres\",\"com.docker.compose.version\":\"2.40.3\"}",
+      "\"a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e\" \"/agenteam-dev-infra-minio-1\" {\"com.docker.compose.config-hash\":\"0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b\",\"com.docker.compose.container-number\":\"1\",\"com.docker.compose.depends_on\":\"\",\"com.docker.compose.image\":\"sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801\",\"com.docker.compose.oneoff\":\"False\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.project.config_files\":\"/workspace/agenteam-onboarding/infra/compose.yaml\",\"com.docker.compose.project.environment_file\":\"/workspace/agenteam-onboarding/infra/secrets.env\",\"com.docker.compose.project.working_dir\":\"/workspace/agenteam-onboarding/infra\",\"com.docker.compose.service\":\"minio\",\"com.docker.compose.version\":\"2.40.3\"}"
+    ],
+    "networks": [
+      "\"142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468\" \"agenteam-dev-infra_default\" {\"com.docker.compose.config-hash\":\"9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1\",\"com.docker.compose.network\":\"default\",\"com.docker.compose.project\":\"agenteam-dev-infra\",\"com.docker.compose.version\":\"2.40.3\"}",
+      "\"9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96\" \"none\" {}",
+      "\"af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed\" \"host\" {}",
+      "\"e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5\" \"bridge\" {}"
+    ]
+  },
+  "owned_exact_ids_second_absent": [
+    {
+      "run": "baseline-terminal-time",
+      "kind": "network",
+      "id": "a10cdb5465dd7c575bf1b280efa081189204f8ba0b4fa392d953e18d22660028",
+      "second_inspect_exit": 1
+    },
+    {
+      "run": "baseline-terminal-time",
+      "kind": "container",
+      "id": "e471b6cb22d218096ad827f3477d5997bb2c7ac88f2e0641067b92516705d61b",
+      "second_inspect_exit": 1
+    },
+    {
+      "run": "baseline-terminal-time",
+      "kind": "container",
+      "id": "ffb71ea996439b0a480ddb81367bc56d68eec466d46ec37c52d58963454d3f56",
+      "second_inspect_exit": 1
+    },
+    {
+      "run": "candidate-terminal-time",
+      "kind": "network",
+      "id": "0f91488ce2bc3a8ed4b7e6bf98a8be9f5945d5b6c50abf32d6adb59727b51ca2",
+      "second_inspect_exit": 1
+    },
+    {
+      "run": "candidate-terminal-time",
+      "kind": "container",
+      "id": "390fc6b79010ca74e8dd87462e2fba6acb7fad58a3c98b5755b384a2a630217f",
+      "second_inspect_exit": 1
+    },
+    {
+      "run": "candidate-terminal-time",
+      "kind": "container",
+      "id": "ac056cfaea5a179b1f1dc8325a3a7e1f4a5091863c4ec2ba98487d027d26548c",
+      "second_inspect_exit": 1
+    },
+    {
+      "run": "binding-independent",
+      "kind": "network",
+      "id": "e687f305e91a40c49642f30c7fc59fd6dfda35c3df9a2f50eb95350435738e73",
+      "second_inspect_exit": 1
+    },
+    {
+      "run": "binding-independent",
+      "kind": "container",
+      "id": "09df22ed8ee4d53296bda82a8efdc36e37db40506c18ab0830e17f867b028e81",
+      "second_inspect_exit": 1
+    },
+    {
+      "run": "binding-independent",
+      "kind": "container",
+      "id": "f4c692d7c1e56585925ed811c788e48fadc5e76bd819564254e013759e04bbf4",
+      "second_inspect_exit": 1
+    },
+    {
+      "run": "original-outbox-top-observed",
+      "kind": "network",
+      "id": "1559407ef80cc379927f9d8f9df5f6184e9974bba210425cae3780ebea3760fb",
+      "second_inspect_exit": 1
+    },
+    {
+      "run": "original-outbox-top-observed",
+      "kind": "container",
+      "id": "9d639d42b277c5b1ec1390718d4ae3de5cd93e08b43b9d86416d24532a2229e6",
+      "second_inspect_exit": 1
+    },
+    {
+      "run": "original-outbox-top-observed",
+      "kind": "container",
+      "id": "218ecc5635e293e155bb17ff4e2da70fd95fb948970b9b1c33213623663034b9",
+      "second_inspect_exit": 1
+    }
+  ],
+  "runtime_empty": true,
+  "runtime_processes": [],
+  "source_checks": {
+    "internal/central/project/authority.go": {
+      "expected": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "snapshot": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "repository": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "author_frozen": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321"
+    },
+    "internal/central/project/audit_authority.go": {
+      "expected": "3736a441bb6d49b48384069a1c0c014bd4df9278dd3b9b1713f2772fa4066a9b",
+      "snapshot": "3736a441bb6d49b48384069a1c0c014bd4df9278dd3b9b1713f2772fa4066a9b",
+      "repository": "3736a441bb6d49b48384069a1c0c014bd4df9278dd3b9b1713f2772fa4066a9b",
+      "author_frozen": "3736a441bb6d49b48384069a1c0c014bd4df9278dd3b9b1713f2772fa4066a9b"
+    },
+    "internal/central/project/audit_facts.go": {
+      "expected": "7347d52ff1d72cffebc3481a36a1fb77c46688900dcc5bc59e8eaac2bb8532e9",
+      "snapshot": "7347d52ff1d72cffebc3481a36a1fb77c46688900dcc5bc59e8eaac2bb8532e9",
+      "repository": "7347d52ff1d72cffebc3481a36a1fb77c46688900dcc5bc59e8eaac2bb8532e9",
+      "author_frozen": "7347d52ff1d72cffebc3481a36a1fb77c46688900dcc5bc59e8eaac2bb8532e9"
+    },
+    "internal/central/project/secret_authority.go": {
+      "expected": "5347e2937d6cabeef32ef171771d8aaeacc4855734eef8a665da9c9a3aa30d79",
+      "snapshot": "5347e2937d6cabeef32ef171771d8aaeacc4855734eef8a665da9c9a3aa30d79",
+      "repository": "5347e2937d6cabeef32ef171771d8aaeacc4855734eef8a665da9c9a3aa30d79",
+      "author_frozen": "5347e2937d6cabeef32ef171771d8aaeacc4855734eef8a665da9c9a3aa30d79"
+    },
+    "internal/central/project/audit_facts_test.go": {
+      "expected": "fb908fe8cd19bd22aad8ee334f1347a25001640b2f7e72eef54e3abc33b945ee",
+      "snapshot": "fb908fe8cd19bd22aad8ee334f1347a25001640b2f7e72eef54e3abc33b945ee",
+      "repository": "fb908fe8cd19bd22aad8ee334f1347a25001640b2f7e72eef54e3abc33b945ee",
+      "author_frozen": "fb908fe8cd19bd22aad8ee334f1347a25001640b2f7e72eef54e3abc33b945ee"
+    },
+    "internal/central/project/secret_authority_test.go": {
+      "expected": "2f582beebdf78a5d3bbd5120344cb087fcc28eba0d514bf62146657f08a2d004",
+      "snapshot": "2f582beebdf78a5d3bbd5120344cb087fcc28eba0d514bf62146657f08a2d004",
+      "repository": "2f582beebdf78a5d3bbd5120344cb087fcc28eba0d514bf62146657f08a2d004",
+      "author_frozen": "2f582beebdf78a5d3bbd5120344cb087fcc28eba0d514bf62146657f08a2d004"
+    },
+    "tests/project/b03_secret_audit_fixture_test.go": {
+      "expected": "cf3762c8fe031088b52d7d40142b195c889bc630dec22edfd584ee416ec140ba",
+      "snapshot": "cf3762c8fe031088b52d7d40142b195c889bc630dec22edfd584ee416ec140ba",
+      "repository": "cf3762c8fe031088b52d7d40142b195c889bc630dec22edfd584ee416ec140ba",
+      "author_frozen": "cf3762c8fe031088b52d7d40142b195c889bc630dec22edfd584ee416ec140ba"
+    },
+    "tests/project/b03_secret_audit_test.go": {
+      "expected": "33322aa796067aef092d287f790838a219fe95b7fa3959693066d60b04d0d289",
+      "snapshot": "33322aa796067aef092d287f790838a219fe95b7fa3959693066d60b04d0d289",
+      "repository": "33322aa796067aef092d287f790838a219fe95b7fa3959693066d60b04d0d289",
+      "author_frozen": "33322aa796067aef092d287f790838a219fe95b7fa3959693066d60b04d0d289"
+    }
+  },
+  "all_stop": true,
+  "observer_note": "Initial inline process enumeration matched its own bash command text; no fixture process was present. This persisted checker uses executable basename."
+}

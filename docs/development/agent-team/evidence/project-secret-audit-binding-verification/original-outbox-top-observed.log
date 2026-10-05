@@ -1,0 +1,119 @@
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.180s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.017s [no tests to run]
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/changed_after_Stop_plan/phase
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/changed_after_Stop_plan/pointer
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/current_stopping
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed/missing
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed/wrong_action
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed/wrong_version
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed/wrong_operation
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed/stopping
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed/stopped
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/missing
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/wrong_action
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/wrong_version
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/wrong_operation
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/stopping
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/stopped
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/completed
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed
+    b03_r3_outbox_inspection_test.go:105: original-top-completed-input={"accepted_project_version":"2","actual_authority":"nil","archived":"2026-10-05T13:32:10.995264Z","archived_after_updated":false,"complete_operation_validate":"nil","complete_project_ref_validate":"nil","completed":"2026-10-05T13:32:10.994622Z","completed_after_updated":false,"completed_participants":["artifact-object","audit","outbox","secret"],"operation":"01a10c43-c743-7c70-89e8-66758553699a","operation_created":"2026-10-05T13:32:10.947755Z","operation_updated":"2026-10-05T13:32:10.994622Z","operation_version":"2","pending_count":0,"project":"01a10c43-c711-7b81-9bbf-99071d6a41fc","project_created":"2026-10-05T13:32:10.900105Z","project_updated":"2026-10-05T13:32:10.995264Z","project_version":"3","required_participants":["artifact-object","audit","outbox","secret"]}
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed/missing
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed/wrong_action
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed/wrong_version
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed/wrong_operation
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed/stopping
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed/stopped
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/missing
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/wrong_action
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/wrong_version
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/wrong_operation
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/stopping
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/stopped
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/completed
+--- PASS: TestOutboxLifecycleInspectionAuthorityBoundary (1.92s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/changed_after_Stop_plan/phase (0.16s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/changed_after_Stop_plan/pointer (0.11s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/current_stopping (0.15s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed (0.16s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed/missing (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed/wrong_action (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed/wrong_version (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed/wrong_operation (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed/stopping (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed/stopped (0.01s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning (0.16s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/missing (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/wrong_action (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/wrong_version (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/wrong_operation (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/stopping (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/stopped (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/completed (0.01s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed (0.15s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed/missing (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed/wrong_action (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed/wrong_version (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed/wrong_operation (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed/stopping (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed/stopped (0.01s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted (0.04s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/missing (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/wrong_action (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/wrong_version (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/wrong_operation (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/stopping (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/stopped (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/completed (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	2.939s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.013s [no tests to run]
+D03 fixture cleanup checked for nonce 8ecad6c5ce0c3ee942515b49ac0a54b4

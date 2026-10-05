@@ -1,0 +1,57 @@
+{
+  "tests/project/b03_r3_fixture_test.go": {
+    "sha256": "08c648c44071db30f8635da8b526ca4f49858b240565045af3b23ee46c6273c8",
+    "matches_7d7c50d": true,
+    "matches_R3_author_frozen": true
+  },
+  "tests/project/b03_r3_outbox_inspection_test.go": {
+    "sha256": "8a1f8193270269ec7bad881cccfc2056d9027c438464187e28241773fe216272",
+    "matches_7d7c50d": true,
+    "matches_R3_author_frozen": true
+  },
+  "internal/central/project/lifecycle_authority.go": {
+    "sha256": "68991ca494de669782289bf07ea2dc34295420ce041219b20d301880602affc5",
+    "matches_7d7c50d": true,
+    "matches_R3_author_frozen": true
+  },
+  "internal/central/project/outbox_lifecycle_authority.go": {
+    "sha256": "baa179061cd51e6b1b4896f3957bfcb914eb8bb8b0eb37df91f6947969f772e3",
+    "matches_7d7c50d": true,
+    "matches_R3_author_frozen": true
+  },
+  "internal/central/outbox/lifecycle_inspection.go": {
+    "sha256": "05c7325f6e62ab01a0bc4400d7e921033770cb3b7314f7e9821bd9fa810f2c35",
+    "matches_7d7c50d": true,
+    "matches_R3_author_frozen": true
+  },
+  "internal/central/outbox/cleanup.go": {
+    "sha256": "4c46647768262cee346cdb2ceb275b8f1912211423b3484d739d712ae180cfef",
+    "matches_7d7c50d": true,
+    "matches_R3_author_frozen": true
+  },
+  "internal/central/project/repository.go": {
+    "sha256": "f89d5b582b79cb31434d70c03be43a99ac1b66261591850d141263c2af44ed55",
+    "matches_7d7c50d": true,
+    "matches_R3_author_frozen": null
+  },
+  "internal/central/project/lifecycle_store.go": {
+    "sha256": "2daaa3a8f8abae06f53a8547038ce91648443ea2da33fae8156165b07fb29ccc",
+    "matches_7d7c50d": true,
+    "matches_R3_author_frozen": null
+  },
+  "internal/central/project/contract/types.go": {
+    "sha256": "7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1",
+    "matches_7d7c50d": true,
+    "matches_R3_author_frozen": null
+  },
+  "internal/central/project/contract/lifecycle.go": {
+    "sha256": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6",
+    "matches_7d7c50d": true,
+    "matches_R3_author_frozen": null
+  },
+  "db/migrations/00013_project_owner.sql": {
+    "sha256": "6ec8c84b7fcedd538550ece134c2df3e35febfe13e4906c74aa91dd1fe878cc0",
+    "matches_7d7c50d": true,
+    "matches_R3_author_frozen": null
+  }
+}

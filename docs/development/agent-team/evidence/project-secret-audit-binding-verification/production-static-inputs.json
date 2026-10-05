@@ -1,0 +1,22 @@
+{
+  "production_manifest_sha256": "7dc05fe9f319e2631b88aac707c38ac2a04823a9afba7ca6d35654542d58d95b",
+  "four_sources_match_author_and_own_copy": true,
+  "base": "7d7c50df0dafcdeaaf700dc2662a6013245bbb6f",
+  "prior_preparation_inputs": "/tmp/agenteam-project-secret-binding-prep-4flfjaji/inputs.json",
+  "prior_preparation_inputs_sha256": "81e077b573ff6e5e704b9237f57b195422588d274988933f94a515241daee6f3",
+  "additional_inputs": {
+    "internal/central/secret/error.go": {
+      "commit": "7d7c50df0dafcdeaaf700dc2662a6013245bbb6f",
+      "sha256": "3935d74c6c49d00be8f942b72c15114c208c07c4855ef2e285bfbcf57572f651"
+    },
+    "internal/central/audit/error.go": {
+      "commit": "7d7c50df0dafcdeaaf700dc2662a6013245bbb6f",
+      "sha256": "ad980308d48166a978891ad999adbf4309dee28fe201bf40e3629192712a58d8"
+    }
+  },
+  "first_run_log_sha256": "9f3a28f7c3190bee735c7459a2d2291246ab171d32c6ddae62e74db2ce5beeb6",
+  "first_run_log_usage": "diagnosis only, not final acceptance",
+  "active_tests_read": false,
+  "go_docker_run": false,
+  "repository_or_git_write": false
+}

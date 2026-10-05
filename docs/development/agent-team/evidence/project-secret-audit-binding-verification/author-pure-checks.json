@@ -1,0 +1,10 @@
+{
+  "baseline": "7d7c50df0dafcdeaaf700dc2662a6013245bbb6f",
+  "unit1": "failed: missing archived_at in new unit fixture; fixed with original failure and patch retained",
+  "unit2": "passed Project/Secret/Audit",
+  "race1": "passed Project/Secret/Audit",
+  "compile2": "passed integration compile-only Project/security/Account; no real tests run",
+  "vet1": "passed selected unit/integration packages",
+  "eight_sources": "matches compile2-input.json",
+  "docker": "waiting for explicit handoff"
+}

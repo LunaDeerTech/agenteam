@@ -1,0 +1,146 @@
+//go:build integration
+
+package project_test
+
+import (
+	"encoding/json"
+	"errors"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+)
+
+// Observe only: the original phase SQL and original acceptance assertions remain
+// byte-for-byte unchanged. No retries, sleeps, timestamp correction or writes.
+func bindingObserveCompletedInput(t *testing.T, f *r3Fixture, accepted c.LifecycleOperation) {
+	t.Helper()
+	var p c.ProjectRef
+	var projectID, ownerID string
+	var sprintID *string
+	var pv int64
+	var pc, pu time.Time
+	var pa *time.Time
+	err := f.raw.QueryRow(ctxFor(t), `SELECT id::text,owner_user_id::text,name,normalized_name,description,lifecycle,version,current_sprint_id::text,created_at,updated_at,archived_at FROM agenteam_project.projects WHERE id=$1`, accepted.ProjectID.String()).Scan(&projectID, &ownerID, &p.Name, &p.NormalizedName, &p.Description, &p.Lifecycle, &pv, &sprintID, &pc, &pu, &pa)
+	if err != nil {
+		t.Logf("terminal-observer project-read=%s", bindingObserverFault(err))
+		return
+	}
+	p.ID, _ = foundation.ParseID[identity.Project](projectID)
+	p.OwnerUserID, _ = foundation.ParseID[identity.User](ownerID)
+	p.Version = foundation.Version(pv)
+	p.CreatedAt, _ = foundation.NewInstant(pc)
+	p.UpdatedAt, _ = foundation.NewInstant(pu)
+	if sprintID != nil {
+		v, _ := foundation.ParseID[c.Sprint](*sprintID)
+		p.CurrentSprintID = &v
+	}
+	if pa != nil {
+		v, _ := foundation.NewInstant(*pa)
+		p.ArchivedAt = &v
+	}
+
+	var o c.LifecycleOperation
+	var operationID, operationProjectID string
+	var opv, ov int64
+	var completedVersion *int64
+	var created, updated time.Time
+	var completed *time.Time
+	err = f.raw.QueryRow(ctxFor(t), `SELECT id::text,project_id::text,action,project_version,completed_project_version,state,version,COALESCE(safe_reason,''),created_at,updated_at,completed_at FROM agenteam_project.lifecycle_operations WHERE id=$1`, accepted.ID.String()).Scan(&operationID, &operationProjectID, &o.Action, &opv, &completedVersion, &o.State, &ov, &o.SafeReason, &created, &updated, &completed)
+	if err != nil {
+		t.Logf("terminal-observer operation-read=%s", bindingObserverFault(err))
+		return
+	}
+	o.ID, _ = foundation.ParseID[c.Operation](operationID)
+	o.ProjectID, _ = foundation.ParseID[identity.Project](operationProjectID)
+	o.ProjectVersion, o.Version = foundation.Version(opv), foundation.Version(ov)
+	o.CreatedAt, _ = foundation.NewInstant(created)
+	o.UpdatedAt, _ = foundation.NewInstant(updated)
+	if completed != nil {
+		v, _ := foundation.NewInstant(*completed)
+		o.CompletedAt = &v
+	}
+	if completedVersion != nil {
+		v := foundation.Version(*completedVersion)
+		o.CompletedProjectVersion = &v
+	}
+	o.RequiredParticipants, o.CompletedParticipants, o.PendingResources = []c.ParticipantName{}, []c.ParticipantName{}, []c.PendingRef{}
+	rows, err := f.raw.Query(ctxFor(t), `SELECT participant_name,stop_state,safe_pending_refs FROM agenteam_project.lifecycle_participants WHERE operation_id=$1 ORDER BY participant_name`, accepted.ID.String())
+	if err != nil {
+		t.Logf("terminal-observer participants-read=%s", bindingObserverFault(err))
+		return
+	}
+	for rows.Next() {
+		var name c.ParticipantName
+		var state string
+		var raw []byte
+		if err = rows.Scan(&name, &state, &raw); err != nil {
+			rows.Close()
+			t.Logf("terminal-observer participant-scan=%s", bindingObserverFault(err))
+			return
+		}
+		var refs []c.PendingRef
+		if err = json.Unmarshal(raw, &refs); err != nil {
+			rows.Close()
+			t.Logf("terminal-observer participant-decode=%s", bindingObserverFault(err))
+			return
+		}
+		o.RequiredParticipants = append(o.RequiredParticipants, name)
+		if state == "stopped" {
+			o.CompletedParticipants = append(o.CompletedParticipants, name)
+		}
+		o.PendingResources = append(o.PendingResources, refs...)
+	}
+	err = rows.Err()
+	rows.Close()
+	if err != nil {
+		t.Logf("terminal-observer participants-rows=%s", bindingObserverFault(err))
+		return
+	}
+	o.PendingRefsTruncated = len(o.PendingResources) > 100
+	if o.PendingRefsTruncated {
+		o.PendingResources = o.PendingResources[:100]
+	}
+	opID, _ := foundation.ParseID[oc.LifecycleOperation](accepted.ID.String())
+	cause, causeErr := oc.NewLifecycleCause(oc.LifecycleDetails{ProjectID: accepted.ProjectID, OperationID: opID, Action: oc.LifecycleAction(accepted.Action), ProjectVersion: accepted.ProjectVersion})
+	var authorityErr error
+	if causeErr == nil {
+		_, authorityErr = f.authority.ResolveLifecycleActor(ctxFor(t), cause)
+	} else {
+		authorityErr = causeErr
+	}
+	data := map[string]any{
+		"project": projectID, "operation": operationID,
+		"project_created": pc, "project_updated": pu, "archived": pa,
+		"operation_created": created, "operation_updated": updated, "completed": completed,
+		"archived_after_updated": pa != nil && pa.After(pu), "completed_after_updated": completed != nil && completed.After(updated),
+		"complete_project_ref_validate": bindingObserverFault(p.Validate()), "complete_operation_validate": bindingObserverFault(o.Validate()),
+		"actual_authority": bindingObserverFault(authorityErr),
+		"project_version":  p.Version, "operation_version": o.Version, "accepted_project_version": o.ProjectVersion,
+		"required_participants": o.RequiredParticipants, "completed_participants": o.CompletedParticipants, "pending_count": len(o.PendingResources),
+	}
+	raw, err := json.Marshal(data)
+	if err != nil {
+		t.Log("terminal-observer serialization failed")
+		return
+	}
+	t.Logf("original-top-completed-input=%s", raw)
+}
+
+func bindingObserverFault(err error) string {
+	if err == nil {
+		return "nil"
+	}
+	var fault *foundation.Fault
+	if errors.As(err, &fault) {
+		raw, _ := json.Marshal(struct {
+			Code   foundation.Code         `json:"code"`
+			Fields []foundation.FieldError `json:"fields"`
+		}{fault.Code, fault.FieldErrors})
+		return string(raw)
+	}
+	return "non-foundation-error"
+}

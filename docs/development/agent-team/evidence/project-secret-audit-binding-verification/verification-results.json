@@ -1,0 +1,41 @@
+{
+  "baseline": "7d7c50df0dafcdeaaf700dc2662a6013245bbb6f",
+  "source_commit": "81fe7427ceb4672247b3d30a51c10a2e2808ba04",
+  "probe_files": {
+    "b03_r3_fixture_observed_test.go.txt": "573f5781202e04d0160fb10216f5935c3f92869d703ff53edad75245fb6467d9",
+    "independent_terminal_observer_test.go.txt": "9019379b46d3088ba497f056eafea9a0f9d40881b7da05534d7ca8fb0df30f9d",
+    "independent_binding_map_test.go.txt": "6911d98dad80819cc88b7445c036771e305a7492aacb270aab79b6b4e1deb7fc",
+    "independent_binding_test.go.txt": "2f53fc452cb06ede3025897bbac72a62586df382d3ea6f6acc43415bb1ab874e",
+    "independent_terminal_time_test.go.txt": "dfdafd5b7a2295164aa5b88ba79a43b045de86dd3fe540eece82d7cc573623f8"
+  },
+  "pure": [
+    "map race count1 exit0",
+    "integration race compile-only exit0",
+    "probe unit/integration vet exit0",
+    "original-top observer race compile-only exit0"
+  ],
+  "real": {
+    "binding-independent": {
+      "top": 1,
+      "subcases": 3,
+      "project_package_seconds": 4.307,
+      "driver_seconds": 18.97159370600093,
+      "exit": 0
+    },
+    "baseline-terminal-time": {
+      "trials": 16,
+      "exit": 0
+    },
+    "candidate-terminal-time": {
+      "trials": 16,
+      "exit": 0
+    },
+    "original-outbox-top-observed": {
+      "top": 1,
+      "project_package_seconds": 2.939,
+      "exit": 0
+    }
+  },
+  "author_reuse": "real1 CRUD+CurrentAuthority unchanged; diagnostic1 Construction+FactRejection+ResolveGate unchanged; final confirmed-commit Unknown; author-test-evidence-reuse.json proves unchanged bodies",
+  "old_regression": "original author batch exit1: 49 pass, 1 fail, 1 child-only skip. Independent original full top once pass; original red remains unattributed."
+}

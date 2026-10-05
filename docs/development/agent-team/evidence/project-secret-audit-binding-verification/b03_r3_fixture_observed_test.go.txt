@@ -1,0 +1,150 @@
+//go:build integration
+
+package project_test
+
+import (
+	"context"
+	"testing"
+
+	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/project"
+	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+)
+
+type r3Fixture struct {
+	*r2Fixture
+	facts *project.LifecycleAuthority
+	owner identity.Actor
+}
+
+func newR3Fixture(t *testing.T) *r3Fixture {
+	t.Helper()
+	f := &r3Fixture{r2Fixture: newR2Fixture(t)}
+	manifest, _ := f.registry.Manifest()
+	var err error
+	f.facts, err = project.NewLifecycleAuthority(f.store, manifest, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.authority, err = project.NewAuthority(f.store, project.AuthorityDependencies{Sessions: f.accounts, Routes: f.accounts, Lifecycle: f.facts})
+	if err != nil {
+		t.Fatal(err)
+	}
+	catalog := event.NewCatalog()
+	f.typed, err = c.RegisterProjectEvents(catalog)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.events, err = outbox.New(f.store, catalog, outbox.Authorizations{Producers: map[event.StableName]oc.ProducerAuthority{c.ProjectProducer: f.authority}, Projects: f.authority, Sessions: f.accounts, System: f.accounts, Processes: f.process, Audit: f.aud, Cursors: f.keys})
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.service = f.lifecycleService(t, nil)
+	f.owner = f.human(t, "owner-alpha", "user")
+	return f
+}
+
+func (f *r3Fixture) accept(t *testing.T, action c.LifecycleAction) (c.LifecycleOperation, identity.Actor, oc.LifecycleCause) {
+	t.Helper()
+	p, _, _ := f.create(t, f.owner, "R3-"+id[struct{}](t).String())
+	command := c.ArchiveCommand
+	if action == c.Delete {
+		command = c.DeleteCommand
+	}
+	result, err := newR2Intent(t, p, command, id[struct{}](t).String()).invoke(ctxFor(t), f.service, f.owner)
+	if err != nil {
+		t.Fatal(err)
+	}
+	o := *result.Operation
+	op, _ := foundation.ParseID[oc.LifecycleOperation](o.ID.String())
+	cause, err := oc.NewLifecycleCause(oc.LifecycleDetails{ProjectID: o.ProjectID, OperationID: op, Action: oc.LifecycleAction(action), ProjectVersion: o.ProjectVersion})
+	if err != nil {
+		t.Fatal(err)
+	}
+	actor, err := f.authority.ResolveLifecycleActor(ctxFor(t), cause)
+	if err != nil {
+		t.Fatal("resolve accepted", err)
+	}
+	return o, actor, cause
+}
+
+func (f *r3Fixture) sql(t *testing.T, q string, args ...any) {
+	t.Helper()
+	if _, err := f.raw.Exec(ctxFor(t), q, args...); err != nil {
+		t.Fatal(err)
+	}
+}
+
+// These are test-owned Authority inputs, not participant/runtime completion.
+func (f *r3Fixture) phase(t *testing.T, o c.LifecycleOperation, state c.OperationState) {
+	t.Helper()
+	switch state {
+	case c.OperationStopping:
+		f.sql(t, `UPDATE agenteam_project.lifecycle_operations SET state='stopping',version=version+1,updated_at=clock_timestamp() WHERE id=$1`, o.ID.String())
+	case c.OperationFailed:
+		f.sql(t, `UPDATE agenteam_project.lifecycle_operations SET state='failed',resume_phase='stop',safe_reason='operation_failed',version=version+1,updated_at=clock_timestamp() WHERE id=$1`, o.ID.String())
+	case c.OperationCleaning:
+		f.sql(t, `UPDATE agenteam_project.lifecycle_participants SET stop_state='stopped' WHERE operation_id=$1`, o.ID.String())
+		f.sql(t, `UPDATE agenteam_project.lifecycle_operations SET state='cleaning',cleanup_stage='final',version=version+1,updated_at=clock_timestamp() WHERE id=$1`, o.ID.String())
+	case c.OperationCompleted:
+		f.sql(t, `UPDATE agenteam_project.lifecycle_participants SET stop_state='stopped' WHERE operation_id=$1`, o.ID.String())
+		f.sql(t, `UPDATE agenteam_project.lifecycle_operations SET state='completed',completed_project_version=project_version+1,completed_at=clock_timestamp(),updated_at=clock_timestamp(),version=version+1 WHERE id=$1`, o.ID.String())
+		f.sql(t, `UPDATE agenteam_project.projects SET lifecycle='archived',archived_at=clock_timestamp(),updated_at=clock_timestamp(),version=version+1 WHERE id=$1`, o.ProjectID.String())
+		bindingObserveCompletedInput(t, f, o)
+	default:
+		t.Fatal("unsupported phase fixture")
+	}
+}
+
+func r3Cause(o c.LifecycleOperation) c.LifecycleCause {
+	return c.LifecycleCause{OperationID: o.ID, Action: o.Action, ProjectVersion: o.ProjectVersion}
+}
+func r3Lock(project c.ProjectID, mode foundation.LockMode) foundation.LockRequest {
+	key, _ := foundation.ProjectLock(project.String())
+	return foundation.LockRequest{Key: key, Mode: mode}
+}
+func (f *r3Fixture) locked(t *testing.T, project c.ProjectID, fn func(context.Context, foundation.Tx) error) error {
+	t.Helper()
+	result := f.raw.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+		if err := f.raw.AcquireAll(ctx, tx, []foundation.LockRequest{r3Lock(project, foundation.Shared)}); err != nil {
+			return err
+		}
+		return fn(ctx, tx)
+	})
+	if result.State() != foundation.Committed {
+		return result.Fault()
+	}
+	return nil
+}
+
+func (f *r3Fixture) deletion(t *testing.T) (c.LifecycleOperation, identity.Actor, oc.LifecycleCause) {
+	t.Helper()
+	o := c.LifecycleOperation{ID: id[c.Operation](t), ProjectID: id[identity.Project](t), Action: c.Delete, ProjectVersion: 7}
+	user, _ := foundation.ParseID[identity.User](f.owner.Details().UserID)
+	f.sql(t, `INSERT INTO agenteam_project.deletion_receipts(operation_id,deleted_project_id,original_owner_user_id,command_key_hash,request_digest,completed_at) VALUES($1,$2,$3,$4,$4,clock_timestamp())`, o.ID.String(), o.ProjectID.String(), user.String(), "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")
+	op, _ := foundation.ParseID[oc.LifecycleOperation](o.ID.String())
+	cause, _ := oc.NewLifecycleCause(oc.LifecycleDetails{ProjectID: o.ProjectID, OperationID: op, Action: oc.DeleteProject, ProjectVersion: o.ProjectVersion})
+	actor, err := f.authority.ResolveLifecycleActor(ctxFor(t), cause)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return o, actor, cause
+}
+
+func (f *r3Fixture) outboxSnapshot(t *testing.T) string {
+	t.Helper()
+	var snapshot string
+	err := f.raw.QueryRow(ctxFor(t), `SELECT jsonb_build_array(
+(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY project_id),'[]') FROM agenteam_outbox.project_lifecycle t),
+(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY id),'[]') FROM agenteam_outbox.deliveries t),
+(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY id),'[]') FROM agenteam_outbox.attempts t),
+(SELECT coalesce(jsonb_agg(to_jsonb(t) ORDER BY delivery_id),'[]') FROM agenteam_outbox.processed t))::text`).Scan(&snapshot)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return snapshot
+}

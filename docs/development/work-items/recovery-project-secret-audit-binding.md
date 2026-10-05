@@ -1,6 +1,6 @@
 # 恢复：Project、Secret 与 Audit 的正式写入绑定
 
-修订：rev2，仅澄清一般 Project lease 的 Human subject resolve 尚未交付，不改 API、八路径或 Human CRUD 主目标。状态：独立静审通过，主线程已采纳规格，实施尚未开放。R3 已独立验收通过并提交推送；Secret checker 作者真实组已通过，仍待独立验收。两项前置均通过、冻结并由主线程给出正式输入提交后，才能下发本卡八文件实现；前置返修优先，本卡不能抢占其源码或 fixture。
+修订：rev3，仅同步阶段状态，rev2冻结API与行为不变。八源窄绑定已独立验收并由主线程采纳、提交推送`81fe7427ceb4672247b3d30a51c10a2e2808ba04`，远端一致。一般Project lease的Human subject正向resolve仍未交付；原规格与静审记录保留当时事实，正式验收及原Outbox首红边界见文末。
 
 ## 输入与完整结果
 
@@ -93,3 +93,11 @@ Secret delegate.CheckCleanupInTx 保持 DEPENDENCY_UNBOUND；原 Audit CheckClea
 2026-10-05，未参与编写的 `recovery_verification` 基于 R3 `3e399c3`、Secret 卡 `d57ce0b` 与 24 个固定输入完成独立静审。rev1 的 API、构造链与八路径无硬阻断，但一般 Project lease 当前仅取得 Project/Credential 锁，不能宣称 Human subject 正向 resolve 已具 User SH。rev2 以三处文字明确拒绝此未具备的路径，保留后继 UsagePlanner/消费者接缝责任；API、文件范围及其它行为不变。
 
 冻结 rev2 SHA-256 `cda8ee0e2758b8b8509b38af904659df2b6181e30f70a83842a7d26599727d3b` 的 delta 复核通过，无未决静审阻断；12 个链接/fragment 与格式检查通过，未读取活动实现或执行 Go/Docker。最终报告 `/tmp/agenteam-project-secret-binding-review-llr3pb_q/review-rev2.md` 的 SHA-256 为 `8d0cb2365b5525f1acf94ed606969d03a408af238732ca76f88d60cd043d49f4`。本节持久记录结论，不依赖临时文件存续；主线程采纳仅同步状态与本记录，不开放尚未满足前置的实施。
+
+## 八源窄绑定独立验收与后继交接
+
+八源已独立验收并由主线程逐SHA核对清单`019f871617e5c2f49df4af44bf6c9c9153043bde69708cb72d767a7fa79d5e6f`，提交推送`81fe7427ceb4672247b3d30a51c10a2e2808ba04`、远端一致。[正式报告](../agent-team/project-secret-audit-binding-verification.md)保留作者六新跨轮组合通过、旧49顶层通过/1原Outbox顶层失败/1 child-only skip；独立map race、compile/vet及真实PG 1顶层3子例通过（4.307s），覆盖Owner撤权、缺锁poison及最终writer pending→COMMIT后撤Session拒绝旧receipt。
+
+固定baseline与加八源各16次时间诊断均未观测逆序；原完整Outbox顶层按原断言单次通过（2.939s）。原首红未复现且原因未知，不称已修复或原旧组一次全绿，继续作为完整模块测试关注项。独立四轮8容器4网络二次exact-ID absent、runtime空、所属进程0，八源末检匹配。通过仅限本卡窄绑定；一般Human subject正向resolve、生产Usage/消费者、AgentRun、Object/Artifact事实checker、生命周期与root的未交付边界保持。
+
+当前S2独占fixture复验review03 runtime11+2定向，再补余48旧项，独立25顶层计划待跑；Artifact/Object Audit规格已审未开写。完整D08/D28/E01仍未完成，后续按正式交接独立验收。

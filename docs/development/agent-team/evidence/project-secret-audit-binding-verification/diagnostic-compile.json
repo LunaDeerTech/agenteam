@@ -1,0 +1,46 @@
+[
+  {
+    "name": "format-diagnostic",
+    "command": [
+      "/workspace/toolchains/go1.27.1/bin/gofmt",
+      "-w",
+      "/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/probe/independent_terminal_time_test.go"
+    ],
+    "cwd": "/tmp/agenteam-project-secret-binding-verification-rkfbnr1i",
+    "exit": 0,
+    "seconds": 0.0037290989985194756,
+    "GOFLAGS": "-mod=readonly"
+  },
+  {
+    "name": "baseline-diagnostic-compile",
+    "command": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-tags=integration",
+      "-race",
+      "-run",
+      "^$",
+      "./tests/project"
+    ],
+    "cwd": "/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/baseline",
+    "exit": 0,
+    "seconds": 15.945167239000511,
+    "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/baseline-diagnostic-overlay.json -v"
+  },
+  {
+    "name": "snapshot-diagnostic-compile",
+    "command": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-tags=integration",
+      "-race",
+      "-run",
+      "^$",
+      "./tests/project"
+    ],
+    "cwd": "/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/snapshot",
+    "exit": 0,
+    "seconds": 17.948570259000917,
+    "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/snapshot-diagnostic-overlay.json -v"
+  }
+]

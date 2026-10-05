@@ -1,0 +1,44 @@
+{
+  "real1": {
+    "PASS": [
+      "TestProjectSecretAuditBindingCRUD",
+      "TestProjectSecretAuditBindingCurrentAuthority"
+    ],
+    "FAIL": [
+      "TestProjectSecretAuditBindingConstruction",
+      "TestProjectSecretAuditBindingFactRejection",
+      "TestProjectSecretAuditBindingUnknown",
+      "TestProjectSecretAuditBindingResolveGate"
+    ],
+    "SKIP": [],
+    "package_results": [
+      "FAIL\tgithub.com/LunaDeerTech/agenteam/tests/project\t37.948s"
+    ],
+    "run_result": 1
+  },
+  "diagnostic1": {
+    "PASS": [
+      "TestProjectSecretAuditBindingConstruction",
+      "TestProjectSecretAuditBindingFactRejection",
+      "TestProjectSecretAuditBindingUnknown",
+      "TestProjectSecretAuditBindingResolveGate"
+    ],
+    "FAIL": [],
+    "SKIP": [],
+    "package_results": [
+      "ok  \tgithub.com/LunaDeerTech/agenteam/tests/project\t21.844s"
+    ],
+    "run_result": 0
+  },
+  "confirmed-commit": {
+    "PASS": [
+      "TestProjectSecretAuditBindingUnknown"
+    ],
+    "FAIL": [],
+    "SKIP": [],
+    "package_results": [
+      "ok  \tgithub.com/LunaDeerTech/agenteam/tests/project\t4.563s"
+    ],
+    "run_result": 0
+  }
+}

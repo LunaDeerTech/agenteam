@@ -1,0 +1,41 @@
+{
+  "command": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestProjectSecretAuditBinding(Construction|FactRejection|Unknown|ResolveGate)$"
+  ],
+  "cwd": "/tmp/agenteam-project-secret-binding-ljibt5s3/tree",
+  "base": "7d7c50df0dafcdeaaf700dc2662a6013245bbb6f",
+  "inputs": {
+    "internal/central/project/authority.go": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+    "internal/central/project/audit_authority.go": "3736a441bb6d49b48384069a1c0c014bd4df9278dd3b9b1713f2772fa4066a9b",
+    "internal/central/project/audit_facts.go": "7347d52ff1d72cffebc3481a36a1fb77c46688900dcc5bc59e8eaac2bb8532e9",
+    "internal/central/project/secret_authority.go": "5347e2937d6cabeef32ef171771d8aaeacc4855734eef8a665da9c9a3aa30d79",
+    "internal/central/project/audit_facts_test.go": "fb908fe8cd19bd22aad8ee334f1347a25001640b2f7e72eef54e3abc33b945ee",
+    "internal/central/project/secret_authority_test.go": "2f582beebdf78a5d3bbd5120344cb087fcc28eba0d514bf62146657f08a2d004",
+    "tests/project/b03_secret_audit_fixture_test.go": "1b605a8fcc0e7a516721a68d331cc9732a9d288c1d5fec1005629aecb493b4fa",
+    "tests/project/b03_secret_audit_test.go": "c16db1cb636dfafe9c27f1c3ee4672d44aa402af5e96e935bfc3f08b9d1beeae"
+  },
+  "environment": {
+    "DOCKER_CONFIG": "/tmp/agenteam-project-secret-binding-ljibt5s3/docker-config",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOPROXY": "off",
+    "GOTOOLCHAIN": "local",
+    "GOFLAGS": "-mod=readonly -v"
+  },
+  "before": {
+    "containers": [
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e"
+    ],
+    "networks": [
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+      "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5"
+    ]
+  }
+}

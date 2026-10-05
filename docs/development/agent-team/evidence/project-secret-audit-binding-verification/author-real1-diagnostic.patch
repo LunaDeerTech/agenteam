@@ -1,0 +1,269 @@
+--- real1/tests/project/b03_secret_audit_fixture_test.go
++++ diagnostic/tests/project/b03_secret_audit_fixture_test.go
+@@ -6,10 +6,14 @@
+ 	"bytes"
+ 	"context"
+ 	"encoding/base64"
++	"encoding/binary"
+ 	"errors"
+ 	"fmt"
++	"io"
+ 	"net"
+ 	"net/url"
++	"strings"
++	"sync"
+ 	"testing"
+ 
+ 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+@@ -357,3 +361,153 @@
+ }
+ 
+ var _ sc.UsageAuthority = (*bindingUsage)(nil)
++
++// A transparent owned protocol observer for COMMIT diagnostics. Only command
++// tags, SQLSTATE, backend PID and ReadyForQuery state are retained: no startup
++// credentials, cancellation keys, SQL statements, rows or Secret bytes.
++type bindingPGTrace struct {
++	listener    net.Listener
++	upstream    string
++	mu          sync.Mutex
++	connections map[net.Conn]bool
++	events      []string
++	next        int
++	wg          sync.WaitGroup
++}
++
++func newBindingPGTrace(t *testing.T, upstream string) *bindingPGTrace {
++	t.Helper()
++	listener, err := net.Listen("tcp", "127.0.0.1:0")
++	if err != nil {
++		t.Fatal(err)
++	}
++	p := &bindingPGTrace{listener: listener, upstream: upstream, connections: map[net.Conn]bool{}}
++	p.wg.Add(1)
++	go func() {
++		defer p.wg.Done()
++		for {
++			client, err := listener.Accept()
++			if err != nil {
++				return
++			}
++			p.mu.Lock()
++			p.next++
++			n := p.next
++			p.connections[client] = true
++			p.mu.Unlock()
++			p.wg.Add(1)
++			go p.serve(client, n)
++		}
++	}()
++	t.Cleanup(func() {
++		_ = listener.Close()
++		p.mu.Lock()
++		for conn := range p.connections {
++			_ = conn.Close()
++		}
++		p.mu.Unlock()
++		p.wg.Wait()
++	})
++	return p
++}
++
++func (p *bindingPGTrace) record(n int, event string) {
++	p.mu.Lock()
++	defer p.mu.Unlock()
++	p.events = append(p.events, fmt.Sprintf("%d:%s", n, event))
++}
++func (p *bindingPGTrace) snapshot() []string {
++	p.mu.Lock()
++	defer p.mu.Unlock()
++	return append([]string(nil), p.events...)
++}
++func (p *bindingPGTrace) serve(client net.Conn, n int) {
++	defer p.wg.Done()
++	defer func() { _ = client.Close(); p.mu.Lock(); delete(p.connections, client); p.mu.Unlock() }()
++	server, err := net.Dial("tcp", p.upstream)
++	if err != nil {
++		return
++	}
++	p.mu.Lock()
++	p.connections[server] = true
++	p.mu.Unlock()
++	defer func() { _ = server.Close(); p.mu.Lock(); delete(p.connections, server); p.mu.Unlock() }()
++	var header [4]byte
++	if _, err = io.ReadFull(client, header[:]); err != nil {
++		return
++	}
++	size := binary.BigEndian.Uint32(header[:])
++	if size < 8 || size > 1<<20 {
++		return
++	}
++	startup := make([]byte, int(size))
++	copy(startup, header[:])
++	if _, err = io.ReadFull(client, startup[4:]); err != nil {
++		return
++	}
++	if binary.BigEndian.Uint32(startup[4:8]) == 80877102 {
++		p.record(n, "cancel")
++	}
++	if _, err = server.Write(startup); err != nil {
++		return
++	}
++	done := make(chan struct{}, 2)
++	go func() {
++		defer func() { done <- struct{}{} }()
++		for {
++			frame, err := readPGFrame(client)
++			if err != nil {
++				return
++			}
++			if frame[0] == 'Q' {
++				q := strings.Trim(string(frame[5:]), "\x00; \t\r\n")
++				if strings.EqualFold(q, "COMMIT") || strings.EqualFold(q, "ROLLBACK") {
++					p.record(n, "send-"+strings.ToUpper(q))
++				}
++			}
++			if _, err = server.Write(frame); err != nil {
++				return
++			}
++		}
++	}()
++	go func() {
++		defer func() { done <- struct{}{} }()
++		for {
++			frame, err := readPGFrame(server)
++			if err != nil {
++				p.record(n, "backend-closed")
++				return
++			}
++			switch frame[0] {
++			case 'C':
++				if string(frame[5:]) == "COMMIT\x00" || string(frame[5:]) == "ROLLBACK\x00" {
++					p.record(n, "tag-"+strings.TrimRight(string(frame[5:]), "\x00"))
++				}
++			case 'E':
++				for fields := frame[5:]; len(fields) > 1; {
++					i := bytes.IndexByte(fields[1:], 0)
++					if i < 0 {
++						break
++					}
++					if fields[0] == 'C' {
++						p.record(n, "sqlstate-"+string(fields[1:1+i]))
++					}
++					fields = fields[i+2:]
++				}
++			case 'Z':
++				p.record(n, "ready-"+string(frame[5:]))
++			case 'K':
++				if len(frame) >= 9 {
++					p.record(n, fmt.Sprintf("backend-%d", binary.BigEndian.Uint32(frame[5:9])))
++				}
++			}
++			if _, err = client.Write(frame); err != nil {
++				return
++			}
++		}
++	}()
++	<-done
++	_ = client.Close()
++	_ = server.Close()
++	<-done
++}
+--- real1/tests/project/b03_secret_audit_test.go
++++ diagnostic/tests/project/b03_secret_audit_test.go
+@@ -25,7 +25,8 @@
+ 		// Real Secret's exact Service/checker provenance must still reject it.
+ 		b := f.bindStore(t, f.raw, other)
+ 		_, err := b.secret.ExecuteWrite(ctxFor(t), f.request(t, f.owner, sc.Create, "wrong-checker-store"))
+-		requireCode(t, err, foundation.Forbidden)
++		requireCode(t, b.tap.err, foundation.Forbidden)
++		requireCode(t, err, foundation.DependencyUnavailable)
+ 		f.unchanged(t, bindingCounts{})
+ 	})
+ 	t.Run("missing-provider-keeps-owner-but-rejects-secret", func(t *testing.T) {
+@@ -261,9 +262,9 @@
+ 	otherScope, _ := identity.InProject(other.ID)
+ 	for _, mode := range []string{"no-witness", "resource", "session", "metadata", "action", "cause", "ordinal", "producer", "association", "scope", "outcome"} {
+ 		t.Run(mode, func(t *testing.T) {
+-			code, final := foundation.Forbidden, foundation.Forbidden
++			code, final := foundation.Forbidden, foundation.DependencyUnavailable
+ 			if mode == "producer" {
+-				code, final = foundation.InvalidArgument, foundation.InvalidArgument
++				code = foundation.InvalidArgument
+ 			}
+ 			if mode == "scope" {
+ 				code, final = foundation.DependencyUnavailable, foundation.InternalError
+@@ -332,7 +333,12 @@
+ 					_, err := f.bundle.audit.AppendInTx(ctx, tx, originalEntry, originalKey)
+ 					return err
+ 				}
+-				return authority.CheckAppendInTx(originalCtx, tx, originalEntry, originalKey)
++				// Store cancels its callback context when the old operation is
++				// released. Keep the captured values but remove that cancellation
++				// to isolate witness identity from the expired-context rejection.
++				err := authority.CheckAppendInTx(context.WithoutCancel(originalCtx), tx, originalEntry, originalKey)
++				requireCode(t, err, foundation.Forbidden)
++				return err
+ 			})
+ 			bindingDenied(t, r, foundation.Forbidden)
+ 			f.unchanged(t, bindingCounts{1, 1, 1})
+@@ -344,7 +350,8 @@
+ 	for _, mode := range []string{"committed", "rollback", "pending"} {
+ 		t.Run(mode, func(t *testing.T) {
+ 			f := newBindingFixture(t)
+-			proxy := newCommitProxy(t, net.JoinHostPort("127.0.0.1", f.db.Fixture.Port), mode != "rollback")
++			trace := newBindingPGTrace(t, net.JoinHostPort("127.0.0.1", f.db.Fixture.Port))
++			proxy := newCommitProxy(t, trace.listener.Addr().String(), mode != "rollback")
+ 			store := f.proxyStore(t, proxy.listener.Addr())
+ 			b := f.bindStore(t, store, store)
+ 			request := f.request(t, f.owner, sc.Create, "unknown-final-command")
+@@ -404,7 +411,12 @@
+ 				}
+ 			}
+ 			close(proxy.release)
+-			await(t, proxy.completed)
++			select {
++			case <-proxy.completed:
++				t.Logf("final command protocol: %v", trace.snapshot())
++			case <-time.After(5 * time.Second):
++				t.Fatalf("original COMMIT completion missing: protocol=%v durable=%v", trace.snapshot(), f.counts(t))
++			}
+ 			joined := f.raw.WithinTx(ctx, cause(t), func(ctx context.Context, tx foundation.Tx) error {
+ 				return f.raw.AcquireAll(ctx, tx, prepared.RequiredLocks())
+ 			})
+@@ -453,6 +465,7 @@
+ 			created := f.credential(t)
+ 			lease, actor, owner := f.lease(t, created.Metadata.CredentialRef)
+ 			code := foundation.Forbidden
++			var auditCode foundation.Code
+ 			switch mode {
+ 			case "usage-revoked":
+ 				f.sql(t, `UPDATE project_fixture.secret_usage SET active=false WHERE owner_id=$1`, owner.Details().ID)
+@@ -465,7 +478,7 @@
+ 				}
+ 			case "archiving", "archived", "deleting":
+ 				f.gate(t, c.Lifecycle(mode))
+-				code = foundation.ProjectNotActive
++				code, auditCode = foundation.DependencyUnavailable, foundation.ProjectNotActive
+ 			case "wrong-role":
+ 				reg, _ := identity.RegisterService(identity.ObjectService)
+ 				actor, _ = reg.Actor(owner.Details().ID, f.scope)
+@@ -479,7 +492,7 @@
+ 				actor, _ = identity.NewAgentRun(f.project.ID, id[identity.Agent](t), id[identity.Execution](t))
+ 			case "agent-subject":
+ 				f.bundle.usage.subject, _ = identity.NewAgentRun(f.project.ID, id[identity.Agent](t), id[identity.Execution](t))
+-				code = foundation.DependencyUnbound
++				code, auditCode = foundation.DependencyUnavailable, foundation.DependencyUnbound
+ 			case "direct-service":
+ 				metadata, _ := ac.SecretResolveMetadata(lease.LeaseID.String(), ac.Model, "")
+ 				resource, _ := ac.NewResource(ac.SecretResource, created.Metadata.CredentialRef.Details().ID.String())
+@@ -498,6 +511,9 @@
+ 			}
+ 			material, err := f.bundle.secret.ReadCredentialForRequest(ctxFor(t), actor, lease.LeaseID)
+ 			bindingNoMaterial(t, material, err, code)
++			if auditCode != "" {
++				requireCode(t, f.bundle.tap.err, auditCode)
++			}
+ 			if mode == "human-no-user-plan" {
+ 				requireCode(t, f.bundle.tap.err, foundation.DependencyUnavailable)
+ 			}

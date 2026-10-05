@@ -1,0 +1,15 @@
+--- unit1/internal/central/project/audit_facts_test.go
++++ unit2/internal/central/project/audit_facts_test.go
+@@ -94,7 +94,11 @@
+ 		if q == "SELECT clock_timestamp()" {
+ 			return valuesRow(now)
+ 		}
+-		return valuesRow(f.project.String(), f.actor.Details().UserID, "Demo", "demo", "", string(f.lifecycle), int64(1), nil, now, now, nil, creation.String(), f.initialized, nil)
++		var archived *time.Time
++		if f.lifecycle == c.Archived {
++			archived = &now
++		}
++		return valuesRow(f.project.String(), f.actor.Details().UserID, "Demo", "demo", "", string(f.lifecycle), int64(1), nil, now, now, archived, creation.String(), f.initialized, nil)
+ 	}
+ 	sessions := sessionFunc(func(_ context.Context, tx foundation.Tx, actor identity.Actor) error {
+ 		f.order = append(f.order, "session")

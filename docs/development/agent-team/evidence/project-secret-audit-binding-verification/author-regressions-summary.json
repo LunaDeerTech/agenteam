@@ -1,0 +1,69 @@
+{
+  "PASS": [
+    "TestSecretBindingsAuthorizationAndReadAuditBoundary",
+    "TestSecretReadUnknownNeverReturnsMaterial",
+    "TestSecretProjectAuditRealMutationAndReplay",
+    "TestSecretProjectAuditRealForgeryRollsBack",
+    "TestSecretProjectAuditResolveFactsAndRejections",
+    "TestSecretProjectAuditCurrentAuthorityStillRequired",
+    "TestSecretProjectAuditLiveTxAndDirectAppend",
+    "TestSecretProjectAuditMutationCommitUnknown",
+    "TestSecretProjectAuditResolveCommitUnknown",
+    "TestSecretStorageReceiptAndCurrentLease",
+    "TestAccountCurrentHumanBindsSecretAndOutboundWithoutLateLocks",
+    "TestAccountMailSMTPSettingsAndPreparedLeaseCleanup",
+    "TestProjectB02MigrationFreshAndPopulatedUpgrade",
+    "TestProjectB02MigrationFailureRollsBackSchemaAndAudit",
+    "TestProjectB02DescriptionSchemaMatchesControlAndByteRules",
+    "TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts",
+    "TestProjectB02CreationClaimRequiresActualDeathAndFairRecovery",
+    "TestProjectB02OwnerSessionNamePathAndPaging",
+    "TestProjectB02TargetIdentityAndDeletionTombstone",
+    "TestProjectB02InitializerFailureUnknownUnboundAndReceiptOrder",
+    "TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp",
+    "TestProjectB02OwnerPortRequiresCallerTransactionLocks",
+    "TestProjectB02ConcurrentCreateKeepsOneReservationAndOriginalIdentity",
+    "TestProjectB02ConcurrentUpdateRejectsOldVersionWithoutExtraFacts",
+    "TestProjectB02TwoPlannedTargetsCompeteForOneCanonicalName",
+    "TestProjectB02CreateReservesNameAfterAnotherTargetWasPlanned",
+    "TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal",
+    "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts",
+    "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock",
+    "TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary",
+    "TestProjectB02UnknownWriterHeldThenCommitOrRollback",
+    "TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization",
+    "TestProjectB03R2AcceptReplayAndCurrentProgress",
+    "TestProjectB03R2AtomicRollbackAtAuditEventAndTouch",
+    "TestProjectB03R2OwnerSessionDependenciesAndGates",
+    "TestProjectB03R2RetainsPlannedVersionsAcrossServiceRebuild",
+    "TestProjectB03R2CorruptStoredManifestCannotShrinkProgress",
+    "TestProjectB03R2ConcurrentCommandsKeepOneOperation",
+    "TestProjectB03R2FinalAcceptanceRechecksPathAndSession",
+    "TestProjectB03R2MinimalReceiptIsCurrentOwnerReadOnly",
+    "TestProjectB03R2PlannedTypedFactsCannotForgeAcceptance",
+    "TestProjectB03R2ArchivedPrerequisiteAcceptsDelete",
+    "TestProjectB03R2SharedGateBlocksAcceptanceBeforeAnyFacts",
+    "TestProjectB03R2UnknownWriterHeldThenCommitOrRollback",
+    "TestProjectB03R2UnknownOriginalCallSerializesWriter",
+    "TestLifecycleAuthorityPersistedCauseMatrix",
+    "TestLifecycleAuthorityConstructionAndCompatibility",
+    "TestLifecycleAuthorityLocksAndActors",
+    "TestProjectStopAuthorityCurrentAndTerminal"
+  ],
+  "FAIL": [
+    "TestOutboxLifecycleInspectionAuthorityBoundary"
+  ],
+  "SKIP": [
+    "TestProjectB02ClaimChild"
+  ],
+  "package_results": [
+    "ok  \tgithub.com/LunaDeerTech/agenteam/tests/security\t47.324s",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/tests/account\t6.471s",
+    "FAIL\tgithub.com/LunaDeerTech/agenteam/tests/project\t121.348s"
+  ],
+  "counts": {
+    "PASS": 49,
+    "FAIL": 1,
+    "SKIP": 1
+  }
+}

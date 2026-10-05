@@ -1,0 +1,58 @@
+{
+  "baseline-terminal-time": {
+    "samples": 16,
+    "archived_after_updated": 0,
+    "completed_after_updated": 0,
+    "authority_nil": 16,
+    "inspect_nil_stopped": 16,
+    "timestamp_normalization_used": false,
+    "exit": 0
+  },
+  "candidate-terminal-time": {
+    "samples": 16,
+    "archived_after_updated": 0,
+    "completed_after_updated": 0,
+    "authority_nil": 16,
+    "inspect_nil_stopped": 16,
+    "timestamp_normalization_used": false,
+    "exit": 0
+  },
+  "original_full_top": {
+    "runs": 1,
+    "exit": 0,
+    "project_package_seconds": 2.939,
+    "completed_input": {
+      "accepted_project_version": "2",
+      "actual_authority": "nil",
+      "archived": "2026-10-05T13:32:10.995264Z",
+      "archived_after_updated": false,
+      "complete_operation_validate": "nil",
+      "complete_project_ref_validate": "nil",
+      "completed": "2026-10-05T13:32:10.994622Z",
+      "completed_after_updated": false,
+      "completed_participants": [
+        "artifact-object",
+        "audit",
+        "outbox",
+        "secret"
+      ],
+      "operation": "01a10c43-c743-7c70-89e8-66758553699a",
+      "operation_created": "2026-10-05T13:32:10.947755Z",
+      "operation_updated": "2026-10-05T13:32:10.994622Z",
+      "operation_version": "2",
+      "pending_count": 0,
+      "project": "01a10c43-c711-7b81-9bbf-99071d6a41fc",
+      "project_created": "2026-10-05T13:32:10.900105Z",
+      "project_updated": "2026-10-05T13:32:10.995264Z",
+      "project_version": "3",
+      "required_participants": [
+        "artifact-object",
+        "audit",
+        "outbox",
+        "secret"
+      ]
+    },
+    "only_overlay_change": "one read-only observer call after original completed phase; all original SQL and assertions unchanged"
+  },
+  "conclusion": "Original author old regression failure was not reproduced. No inverse timestamps observed, no normalization executed, no root cause established, no fixture or production fix applied."
+}

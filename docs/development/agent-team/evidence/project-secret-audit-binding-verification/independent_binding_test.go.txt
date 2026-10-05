@@ -1,0 +1,232 @@
+//go:build integration
+
+package project_test
+
+import (
+	"context"
+	"errors"
+	"net"
+	"sync"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+)
+
+func TestProjectBindingIndependentAuthorityAndOriginalWriter(t *testing.T) {
+	t.Run("pending-original-writer-then-session-revoked-before-receipt", func(t *testing.T) {
+		f := newBindingFixture(t)
+		trace := newBindingPGTrace(t, net.JoinHostPort("127.0.0.1", f.db.Fixture.Port))
+		proxy := newCommitProxy(t, trace.listener.Addr().String(), true)
+		var releaseOnce sync.Once
+		release := func() { releaseOnce.Do(func() { close(proxy.release) }) }
+		t.Cleanup(release)
+		store := f.proxyStore(t, proxy.listener.Addr())
+		b := f.bindStore(t, store, store)
+		request := f.request(t, f.owner, sc.Create, "independent-final-writer")
+		prepared, err := b.secret.PrepareWrite(ctxFor(t), request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		key, _ := audit.CommandAppendKey(ac.SecretProducer, request.Identity, 0)
+		command, _ := foundation.NewCommandsCause(request.Identity)
+		ctx := ctxFor(t)
+		done := make(chan foundation.CommitResult, 1)
+		backend := 0
+		go func() {
+			done <- store.WithinTx(ctx, command, func(ctx context.Context, tx foundation.Tx) error {
+				if err := store.AcquireAll(ctx, tx, prepared.RequiredLocks()); err != nil {
+					return err
+				}
+				if _, err := b.secret.ApplyPreparedWriteInTx(ctx, tx, prepared); err != nil {
+					return err
+				}
+				x, err := store.InTx(tx)
+				if err != nil {
+					return err
+				}
+				var exact bool
+				err = x.QueryRow(ctx, `SELECT pg_backend_pid(),EXISTS(SELECT 1 FROM agenteam_secret.secret_command_receipts r JOIN agenteam_secret.secrets s ON s.id=r.credential_id JOIN agenteam_audit.audit_records a ON a.cause_ref=r.command_digest AND a.resource_id=s.id WHERE r.project_id=$1 AND r.command_digest=$2 AND a.project_id=r.project_id AND a.producer='secret' AND a.action='secret.create' AND a.ordinal=0 AND a.session_id=$3)`, f.project.ID.String(), key.Details().CauseRef, f.owner.Details().SessionID).Scan(&backend, &exact)
+				if err != nil {
+					return err
+				}
+				if !exact {
+					return foundation.NewFault(foundation.InvalidState, foundation.NotStarted)
+				}
+				proxy.armed.Store(true)
+				return nil
+			})
+		}()
+		await(t, proxy.reached)
+		select {
+		case result := <-done:
+			if result.State() != foundation.Unknown {
+				t.Fatal("actual final writer did not return Unknown", result.State())
+			}
+		case <-ctx.Done():
+			t.Fatal("final writer client did not return")
+		}
+		userKey, _ := foundation.UserLock(f.owner.Details().UserID)
+		bits := uint64(userKey.AdvisoryKey())
+		var idle, exactUserSH bool
+		err = f.raw.QueryRow(ctx, `SELECT state='idle in transaction',EXISTS(SELECT 1 FROM pg_locks WHERE pid=$1 AND locktype='advisory' AND granted AND mode='ShareLock' AND classid::bigint=$2 AND objid::bigint=$3 AND objsubid=1) FROM pg_stat_activity WHERE pid=$1`, backend, int64(bits>>32), int64(bits&0xffffffff)).Scan(&idle, &exactUserSH)
+		if err != nil || !idle || !exactUserSH {
+			t.Fatal("Unknown was not the exact live final backend/User SH", backend, idle, exactUserSH, err)
+		}
+		f.unchanged(t, bindingCounts{})
+		probe, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+		blocked := f.raw.WithinTx(probe, cause(t), func(ctx context.Context, tx foundation.Tx) error {
+			return f.raw.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: userKey, Mode: foundation.Exclusive}})
+		})
+		expired := errors.Is(probe.Err(), context.DeadlineExceeded)
+		cancel()
+		if blocked.State() != foundation.NotCommitted || !expired {
+			t.Fatal("original User SH did not block current-session EX", blocked.State(), expired)
+		}
+		release()
+		select {
+		case <-proxy.completed:
+		case <-time.After(5 * time.Second):
+			t.Fatalf("original backend completion not joined: %v", trace.snapshot())
+		}
+		joined := f.raw.WithinTx(ctx, cause(t), func(ctx context.Context, tx foundation.Tx) error {
+			return f.raw.AcquireAll(ctx, tx, prepared.RequiredLocks())
+		})
+		if joined.State() != foundation.Committed {
+			t.Fatal("original final command locks did not serialize", joined.Fault())
+		}
+		lookup, err := b.secret.LookupWrite(ctx, prepared)
+		if err != nil || !lookup.Observed || lookup.Result == nil {
+			t.Fatal("committed original receipt absent", err)
+		}
+		f.unchanged(t, bindingCounts{1, 1, 1})
+		revoked := f.raw.WithinTx(ctx, cause(t), func(ctx context.Context, tx foundation.Tx) error {
+			if err := f.raw.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: userKey, Mode: foundation.Exclusive}}); err != nil {
+				return err
+			}
+			x, err := f.raw.InTx(tx)
+			if err != nil {
+				return err
+			}
+			_, err = x.Exec(ctx, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='administrative' WHERE id=$1`, f.owner.Details().SessionID)
+			return err
+		})
+		if revoked.State() != foundation.Committed {
+			t.Fatal("current session revocation failed", revoked.Fault())
+		}
+		calls := b.tap.calls
+		denied := store.WithinTx(ctx, command, func(ctx context.Context, tx foundation.Tx) error {
+			if err := store.AcquireAll(ctx, tx, prepared.RequiredLocks()); err != nil {
+				return err
+			}
+			_, err := b.secret.ApplyPreparedWriteInTx(ctx, tx, prepared)
+			requireCode(t, err, foundation.SessionRevoked)
+			return err
+		})
+		bindingDenied(t, denied, foundation.SessionRevoked)
+		_, err = b.secret.LookupWrite(ctx, prepared)
+		requireCode(t, err, foundation.SessionRevoked)
+		if b.tap.calls != calls {
+			t.Fatal("revoked replay appended Audit")
+		}
+		f.unchanged(t, bindingCounts{1, 1, 1})
+		request.Actor = f.renewedSession(t)
+		replay, err := b.secret.ExecuteWrite(ctx, request)
+		if err != nil || !replay.Metadata.CredentialRef.Equal(lookup.Result.Metadata.CredentialRef) || b.tap.calls != calls {
+			t.Fatal("current renewed Session did not recover original receipt", err)
+		}
+		f.unchanged(t, bindingCounts{1, 1, 1})
+		t.Logf("exact final backend=%d UserSH=true revoked replay rejected; protocol=%v", backend, trace.snapshot())
+	})
+
+	t.Run("committed-receipt-rechecks-changed-owner", func(t *testing.T) {
+		f := newBindingFixture(t)
+		request := f.request(t, f.owner, sc.Create, "independent-owner-replay")
+		created, err := f.bundle.secret.ExecuteWrite(ctxFor(t), request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		prepared, err := f.bundle.secret.PrepareWrite(ctxFor(t), request)
+		if err != nil {
+			t.Fatal(err)
+		}
+		other := f.human(t, "independent-owner-after-receipt", "user")
+		setOwner := func(user string) {
+			r := f.raw.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+				if err := f.raw.AcquireAll(ctx, tx, []foundation.LockRequest{r3Lock(f.project.ID, foundation.Exclusive)}); err != nil {
+					return err
+				}
+				x, err := f.raw.InTx(tx)
+				if err != nil {
+					return err
+				}
+				_, err = x.Exec(ctx, `UPDATE agenteam_project.projects SET owner_user_id=$2 WHERE id=$1`, f.project.ID.String(), user)
+				return err
+			})
+			if r.State() != foundation.Committed {
+				t.Fatal("test-owned current Owner input failed", r.Fault())
+			}
+		}
+		setOwner(other.Details().UserID)
+		calls := f.bundle.tap.calls
+		command, _ := foundation.NewCommandsCause(request.Identity)
+		denied := f.raw.WithinTx(ctxFor(t), command, func(ctx context.Context, tx foundation.Tx) error {
+			if err := f.raw.AcquireAll(ctx, tx, prepared.RequiredLocks()); err != nil {
+				return err
+			}
+			_, err := f.bundle.secret.ApplyPreparedWriteInTx(ctx, tx, prepared)
+			requireCode(t, err, foundation.NotFound)
+			return err
+		})
+		bindingDenied(t, denied, foundation.NotFound)
+		_, err = f.bundle.secret.LookupWrite(ctxFor(t), prepared)
+		requireCode(t, err, foundation.NotFound)
+		f.unchanged(t, bindingCounts{1, 1, 1})
+		setOwner(f.owner.Details().UserID)
+		replay, err := f.bundle.secret.ExecuteWrite(ctxFor(t), request)
+		if err != nil || !replay.Metadata.CredentialRef.Equal(created.Metadata.CredentialRef) || f.bundle.tap.calls != calls {
+			t.Fatal("restored current Owner did not replay original receipt", err)
+		}
+		f.unchanged(t, bindingCounts{1, 1, 1})
+	})
+
+	t.Run("delegate-missing-user-lock-poisons-ignored-error", func(t *testing.T) {
+		f := newBindingFixture(t)
+		created := f.credential(t)
+		f.sql(t, `CREATE TABLE project_fixture.independent_binding_marker(id integer PRIMARY KEY)`)
+		var callbackErr error
+		result := f.raw.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+			if err := f.raw.AcquireAll(ctx, tx, []foundation.LockRequest{r3Lock(f.project.ID, foundation.Shared)}); err != nil {
+				return err
+			}
+			x, err := f.raw.InTx(tx)
+			if err != nil {
+				return err
+			}
+			if _, err = x.Exec(ctx, `INSERT INTO project_fixture.independent_binding_marker(id) VALUES(1)`); err != nil {
+				return err
+			}
+			callbackErr = f.bundle.delegate.CheckMutationInTx(ctx, tx, f.owner, created.Metadata.CredentialRef)
+			return nil // Deliberately ignore the port error, not the real Store poison.
+		})
+		requireCode(t, callbackErr, foundation.DependencyUnavailable)
+		bindingDenied(t, result, foundation.InternalError)
+		var count int
+		if err := f.raw.QueryRow(ctxFor(t), `SELECT count(*) FROM project_fixture.independent_binding_marker`).Scan(&count); err != nil || count != 0 {
+			t.Fatal("ignored authority error committed prior writes", count, err)
+		}
+		positive := f.raw.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+			if err := f.raw.AcquireAll(ctx, tx, bindingLocks(f.owner, f.project.ID)); err != nil {
+				return err
+			}
+			return f.bundle.delegate.CheckMutationInTx(ctx, tx, f.owner, created.Metadata.CredentialRef)
+		})
+		if positive.State() != foundation.Committed {
+			t.Fatal("same delegate with complete locks was not usable", positive.Fault())
+		}
+		f.unchanged(t, bindingCounts{1, 1, 1})
+	})
+}

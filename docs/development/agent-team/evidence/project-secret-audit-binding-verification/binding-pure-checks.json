@@ -1,0 +1,48 @@
+[
+  {
+    "name": "binding-map-race",
+    "command": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-race",
+      "-count=1",
+      "-run",
+      "^TestProjectBindingIndependentCallerMapCannotChangeDispatch$",
+      "./internal/central/project"
+    ],
+    "cwd": "/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/snapshot",
+    "exit": 0,
+    "seconds": 3.747699620000276,
+    "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/binding-overlay.json -v"
+  },
+  {
+    "name": "binding-integration-compile",
+    "command": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-tags=integration",
+      "-race",
+      "-run",
+      "^$",
+      "./tests/project"
+    ],
+    "cwd": "/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/snapshot",
+    "exit": 0,
+    "seconds": 3.5734947660002945,
+    "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/binding-overlay.json -v"
+  },
+  {
+    "name": "binding-probe-vet",
+    "command": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "-tags=integration",
+      "./internal/central/project",
+      "./tests/project"
+    ],
+    "cwd": "/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/snapshot",
+    "exit": 0,
+    "seconds": 4.550823249001041,
+    "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/binding-overlay.json -v"
+  }
+]

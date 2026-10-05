@@ -1,0 +1,157 @@
+//go:build integration
+
+package project_test
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+)
+
+// This diagnostic must run with exactly the same bytes on baseline 7d7c50d and
+// the frozen candidate. Sixteen trials per input are fixed before execution.
+// It does not change the original phase helper or any acceptance assertion.
+func TestProjectBindingIndependentTerminalTimeDiagnostic(t *testing.T) {
+	f := newR3Fixture(t)
+	const trials = 16
+	inverted, valid := 0, 0
+	for trial := 0; trial < trials; trial++ {
+		t.Run(fmt.Sprintf("trial-%02d", trial), func(t *testing.T) {
+			o, actor, cause := f.accept(t, c.Archive)
+			f.phase(t, o, c.OperationCompleted)
+			var projectCreated, projectUpdated, archived, operationCreated, operationUpdated, completed time.Time
+			err := f.raw.QueryRow(ctxFor(t), `SELECT p.created_at,p.updated_at,p.archived_at,o.created_at,o.updated_at,o.completed_at FROM agenteam_project.projects p JOIN agenteam_project.lifecycle_operations o ON o.project_id=p.id WHERE p.id=$1 AND o.id=$2`, o.ProjectID.String(), o.ID.String()).Scan(&projectCreated, &projectUpdated, &archived, &operationCreated, &operationUpdated, &completed)
+			if err != nil {
+				t.Fatal(err)
+			}
+			projectInverted, operationInverted := archived.After(projectUpdated), completed.After(operationUpdated)
+			f.sql(t, `INSERT INTO agenteam_outbox.project_lifecycle(project_id,operation_id,action,project_version,phase) VALUES($1,$2,'archive',$3,'stopped')`, o.ProjectID.String(), o.ID.String(), int64(o.ProjectVersion))
+			resolved, authorityErr := f.authority.ResolveLifecycleActor(ctxFor(t), cause)
+			before := f.outboxSnapshot(t)
+			report, inspectErr := f.events.InspectStop(ctxFor(t), actor, cause)
+			evidence, _ := json.Marshal(struct {
+				Trial                 int       `json:"trial"`
+				Project               string    `json:"project"`
+				Operation             string    `json:"operation"`
+				ProjectCreated        time.Time `json:"project_created"`
+				ProjectUpdated        time.Time `json:"project_updated"`
+				Archived              time.Time `json:"archived"`
+				OperationCreated      time.Time `json:"operation_created"`
+				OperationUpdated      time.Time `json:"operation_updated"`
+				Completed             time.Time `json:"completed"`
+				ArchivedAfterUpdated  bool      `json:"archived_after_updated"`
+				CompletedAfterUpdated bool      `json:"completed_after_updated"`
+				AuthorityCode         string    `json:"authority_code"`
+				InspectCode           string    `json:"inspect_code"`
+				Stopped               bool      `json:"stopped"`
+			}{trial, o.ProjectID.String(), o.ID.String(), projectCreated, projectUpdated, archived, operationCreated, operationUpdated, completed, projectInverted, operationInverted, bindingDiagnosticCode(authorityErr), bindingDiagnosticCode(inspectErr), report.Stopped})
+			t.Logf("original-terminal-input=%s", evidence)
+			if f.outboxSnapshot(t) != before {
+				t.Fatal("diagnostic inspection changed Outbox facts")
+			}
+			if projectInverted || operationInverted {
+				inverted++
+				requireCode(t, authorityErr, foundation.DependencyUnavailable)
+				requireCode(t, inspectErr, foundation.DependencyUnavailable)
+				if report.Stopped {
+					t.Fatal("invalid terminal times were accepted")
+				}
+				// Only after retaining the exact invalid values, capture one DB
+				// instant for both terminal fields and both updated fields. This
+				// changes test-owned input, not a product path or original helper.
+				var fixed time.Time
+				if err = f.raw.QueryRow(ctxFor(t), `SELECT clock_timestamp()`).Scan(&fixed); err != nil {
+					t.Fatal(err)
+				}
+				f.sql(t, `UPDATE agenteam_project.lifecycle_operations SET completed_at=$2,updated_at=$2 WHERE id=$1`, o.ID.String(), fixed)
+				f.sql(t, `UPDATE agenteam_project.projects SET archived_at=$2,updated_at=$2 WHERE id=$1`, o.ProjectID.String(), fixed)
+				t.Logf("diagnostic-input-normalized operation=%s single_db_instant=%s", o.ID.String(), fixed.Format(time.RFC3339Nano))
+			} else {
+				valid++
+				if authorityErr != nil || !resolved.Equal(actor) || inspectErr != nil || !report.Stopped {
+					t.Fatalf("valid terminal input failed: authority=%s inspect=%s stopped=%v", bindingDiagnosticCode(authorityErr), bindingDiagnosticCode(inspectErr), report.Stopped)
+				}
+			}
+			resolved, err = f.authority.ResolveLifecycleActor(ctxFor(t), cause)
+			if err != nil || !resolved.Equal(actor) {
+				t.Fatal("Authority rejected final valid input", bindingDiagnosticCode(err))
+			}
+			bindingDiagnosticOriginalSix(t, f, o, actor, cause)
+		})
+	}
+	t.Logf("fixed-trial-summary trials=%d inverted=%d originally-valid=%d; zero inversions means not reproduced, not an attribution", trials, inverted, valid)
+}
+
+func bindingDiagnosticCode(err error) string {
+	if err == nil {
+		return "nil"
+	}
+	var fault *foundation.Fault
+	if errors.As(err, &fault) {
+		return string(fault.Code)
+	}
+	return "non-foundation-error"
+}
+
+func bindingDiagnosticOriginalSix(t *testing.T, f *r3Fixture, o c.LifecycleOperation, actor identity.Actor, cause oc.LifecycleCause) {
+	t.Helper()
+	for _, local := range []string{"missing", "wrong_action", "wrong_version", "wrong_operation", "stopping", "stopped"} {
+		t.Run(local, func(t *testing.T) {
+			f.sql(t, `DELETE FROM agenteam_outbox.project_lifecycle WHERE project_id=$1`, o.ProjectID.String())
+			if local != "missing" {
+				action, version, operation, state := o.Action, o.ProjectVersion, o.ID, "stopped"
+				switch local {
+				case "wrong_action":
+					action = c.Delete
+				case "wrong_version":
+					version++
+				case "wrong_operation":
+					operation = id[c.Operation](t)
+				case "stopping":
+					state = local
+				}
+				f.sql(t, `INSERT INTO agenteam_outbox.project_lifecycle(project_id,operation_id,action,project_version,phase,scan_sequence,recovery_pass) VALUES($1,$2,$3,$4,$5,17,3)`, o.ProjectID.String(), operation.String(), string(action), int64(version), state)
+			}
+			before := f.outboxSnapshot(t)
+			report, err := f.events.InspectStop(ctxFor(t), actor, cause)
+			if local == "stopped" {
+				if err != nil || !report.Stopped {
+					t.Fatal("exact terminal", report, bindingDiagnosticCode(err))
+				}
+			} else {
+				requireCode(t, err, foundation.InvalidState)
+				if report.Stopped {
+					t.Fatal("nonterminal/mismatched receipt reported stopped")
+				}
+			}
+			if f.outboxSnapshot(t) != before {
+				t.Fatal("readonly inspection mutated Outbox facts")
+			}
+			_, err = f.events.RequestStop(ctxFor(t), actor, cause)
+			requireCode(t, err, foundation.InvalidState)
+			if f.outboxSnapshot(t) != before {
+				t.Fatal("rejected stop mutated Outbox facts")
+			}
+		})
+	}
+	request, err := oc.NewProjectRequest(oc.ProjectRequestDetails{Kind: oc.LifecycleProject, ProjectID: o.ProjectID, Actor: actor, Lifecycle: cause, LifecycleStep: oc.LifecycleCleanup})
+	if err != nil {
+		t.Fatal(err)
+	}
+	plan, err := f.authority.Discover(ctxFor(t), request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = f.locked(t, o.ProjectID, func(ctx context.Context, tx foundation.Tx) error {
+		return f.authority.ValidateInTx(ctx, tx, request, plan)
+	})
+	requireCode(t, err, foundation.DependencyUnbound)
+}

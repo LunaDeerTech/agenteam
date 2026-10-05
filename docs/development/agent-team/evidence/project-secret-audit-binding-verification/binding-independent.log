@@ -1,0 +1,59 @@
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.024s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.139s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.013s [no tests to run]
+=== RUN   TestProjectBindingIndependentAuthorityAndOriginalWriter
+=== RUN   TestProjectBindingIndependentAuthorityAndOriginalWriter/pending-original-writer-then-session-revoked-before-receipt
+    independent_binding_test.go:142: exact final backend=133 UserSH=true revoked replay rejected; protocol=[1:backend-133 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:send-COMMIT 1:tag-COMMIT 1:ready-I 2:cancel 2:backend-closed 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:backend-closed 3:backend-138 3:send-COMMIT 3:tag-COMMIT 3:ready-I 3:send-COMMIT 3:tag-COMMIT 3:ready-I 3:send-ROLLBACK 3:tag-ROLLBACK 3:ready-I 3:send-ROLLBACK 3:tag-ROLLBACK 3:ready-I 3:send-COMMIT 3:tag-COMMIT 3:ready-I]
+=== RUN   TestProjectBindingIndependentAuthorityAndOriginalWriter/committed-receipt-rechecks-changed-owner
+=== RUN   TestProjectBindingIndependentAuthorityAndOriginalWriter/delegate-missing-user-lock-poisons-ignored-error
+--- PASS: TestProjectBindingIndependentAuthorityAndOriginalWriter (3.29s)
+    --- PASS: TestProjectBindingIndependentAuthorityAndOriginalWriter/pending-original-writer-then-session-revoked-before-receipt (1.32s)
+    --- PASS: TestProjectBindingIndependentAuthorityAndOriginalWriter/committed-receipt-rechecks-changed-owner (0.99s)
+    --- PASS: TestProjectBindingIndependentAuthorityAndOriginalWriter/delegate-missing-user-lock-poisons-ignored-error (0.97s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	4.307s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.016s [no tests to run]
+D03 fixture cleanup checked for nonce 9d8fcdc2ef384a339265795889812de7

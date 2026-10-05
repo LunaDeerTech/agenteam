@@ -1,0 +1,15 @@
+{
+  "command": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-tags=integration",
+    "-race",
+    "-run",
+    "^$",
+    "./tests/project"
+  ],
+  "cwd": "/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/snapshot",
+  "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-project-secret-binding-verification-rkfbnr1i/original-top-observer-overlay.json -v",
+  "exit": 0,
+  "seconds": 3.683634067001549
+}

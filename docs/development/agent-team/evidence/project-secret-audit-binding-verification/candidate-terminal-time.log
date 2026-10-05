@@ -1,0 +1,299 @@
+github.com/LunaDeerTech/agenteam/db/migrations
+github.com/LunaDeerTech/agenteam/internal/central/foundation
+github.com/LunaDeerTech/agenteam/internal/central/postgres
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.033s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	15.054s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.039s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.059s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.036s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.035s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.045s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.025s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.016s [no tests to run]
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":0,"project":"01a10c3d-4644-7e80-868e-6dfacfa2fba9","operation":"01a10c3d-468d-7987-86af-0d5c459d369a","project_created":"2026-10-05T13:25:04.713765Z","project_updated":"2026-10-05T13:25:04.837248Z","archived":"2026-10-05T13:25:04.837248Z","operation_created":"2026-10-05T13:25:04.781605Z","operation_updated":"2026-10-05T13:25:04.836644Z","completed":"2026-10-05T13:25:04.836644Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":1,"project":"01a10c3d-4703-768b-953a-09a6c546f5ca","operation":"01a10c3d-4739-7df2-9411-280c127f0a2b","project_created":"2026-10-05T13:25:04.901544Z","project_updated":"2026-10-05T13:25:05.006846Z","archived":"2026-10-05T13:25:05.006846Z","operation_created":"2026-10-05T13:25:04.953811Z","operation_updated":"2026-10-05T13:25:05.005956Z","completed":"2026-10-05T13:25:05.005956Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":2,"project":"01a10c3d-47b2-7057-a615-5947358b5e0c","operation":"01a10c3d-47e4-75f2-a185-fe549ff6ce28","project_created":"2026-10-05T13:25:05.07684Z","project_updated":"2026-10-05T13:25:05.172879Z","archived":"2026-10-05T13:25:05.172879Z","operation_created":"2026-10-05T13:25:05.124995Z","operation_updated":"2026-10-05T13:25:05.17256Z","completed":"2026-10-05T13:25:05.17256Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":3,"project":"01a10c3d-4857-7e74-93f3-d9b0e4f1adb8","operation":"01a10c3d-4894-751f-9c63-f9c76ebb9660","project_created":"2026-10-05T13:25:05.241841Z","project_updated":"2026-10-05T13:25:05.353522Z","archived":"2026-10-05T13:25:05.353522Z","operation_created":"2026-10-05T13:25:05.300633Z","operation_updated":"2026-10-05T13:25:05.353166Z","completed":"2026-10-05T13:25:05.353166Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":4,"project":"01a10c3d-4910-7ad8-bad7-26141803d52b","operation":"01a10c3d-4954-7eaf-9d0e-cf90929b40d3","project_created":"2026-10-05T13:25:05.427191Z","project_updated":"2026-10-05T13:25:05.563606Z","archived":"2026-10-05T13:25:05.563606Z","operation_created":"2026-10-05T13:25:05.492202Z","operation_updated":"2026-10-05T13:25:05.563056Z","completed":"2026-10-05T13:25:05.563056Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":5,"project":"01a10c3d-4a09-75d4-815c-69ddfa0ac42c","operation":"01a10c3d-4a65-734b-89f5-976059f7afbf","project_created":"2026-10-05T13:25:05.677162Z","project_updated":"2026-10-05T13:25:05.847893Z","archived":"2026-10-05T13:25:05.847893Z","operation_created":"2026-10-05T13:25:05.765243Z","operation_updated":"2026-10-05T13:25:05.847149Z","completed":"2026-10-05T13:25:05.847149Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":6,"project":"01a10c3d-4b13-7393-b608-c092845e83fc","operation":"01a10c3d-4b46-7197-b217-d81d41750829","project_created":"2026-10-05T13:25:05.941162Z","project_updated":"2026-10-05T13:25:06.058549Z","archived":"2026-10-05T13:25:06.058549Z","operation_created":"2026-10-05T13:25:05.990924Z","operation_updated":"2026-10-05T13:25:06.058094Z","completed":"2026-10-05T13:25:06.058094Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":7,"project":"01a10c3d-4bca-7d69-945e-0c465324f0ca","operation":"01a10c3d-4c05-7e02-89db-6e7706a50e58","project_created":"2026-10-05T13:25:06.125109Z","project_updated":"2026-10-05T13:25:06.227944Z","archived":"2026-10-05T13:25:06.227944Z","operation_created":"2026-10-05T13:25:06.181587Z","operation_updated":"2026-10-05T13:25:06.227613Z","completed":"2026-10-05T13:25:06.227613Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":8,"project":"01a10c3d-4c79-7a19-ba11-3ab31c9acc4f","operation":"01a10c3d-4cb7-7931-b7f5-b9201e13ff8a","project_created":"2026-10-05T13:25:06.300356Z","project_updated":"2026-10-05T13:25:06.418821Z","archived":"2026-10-05T13:25:06.418821Z","operation_created":"2026-10-05T13:25:06.359727Z","operation_updated":"2026-10-05T13:25:06.418252Z","completed":"2026-10-05T13:25:06.418252Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":9,"project":"01a10c3d-4d4b-70b3-8d5d-f1401475baf7","operation":"01a10c3d-4d8a-7597-94e3-5243ecae53d3","project_created":"2026-10-05T13:25:06.510229Z","project_updated":"2026-10-05T13:25:06.631159Z","archived":"2026-10-05T13:25:06.631159Z","operation_created":"2026-10-05T13:25:06.570476Z","operation_updated":"2026-10-05T13:25:06.630647Z","completed":"2026-10-05T13:25:06.630647Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":10,"project":"01a10c3d-4e1e-7b18-bc07-263684ec97f4","operation":"01a10c3d-4e57-73e8-882a-f15d5d91e029","project_created":"2026-10-05T13:25:06.720576Z","project_updated":"2026-10-05T13:25:06.830929Z","archived":"2026-10-05T13:25:06.830929Z","operation_created":"2026-10-05T13:25:06.775734Z","operation_updated":"2026-10-05T13:25:06.830636Z","completed":"2026-10-05T13:25:06.830636Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":11,"project":"01a10c3d-4ee2-77ea-b01d-40569dcd6362","operation":"01a10c3d-4f28-7239-8c8a-3c7a720feacd","project_created":"2026-10-05T13:25:06.924125Z","project_updated":"2026-10-05T13:25:07.053223Z","archived":"2026-10-05T13:25:07.053223Z","operation_created":"2026-10-05T13:25:06.984662Z","operation_updated":"2026-10-05T13:25:07.052835Z","completed":"2026-10-05T13:25:07.052835Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":12,"project":"01a10c3d-4fae-76bc-9cfa-17df5ce39476","operation":"01a10c3d-4fe7-7d26-abd2-3596f4538072","project_created":"2026-10-05T13:25:07.121352Z","project_updated":"2026-10-05T13:25:07.247358Z","archived":"2026-10-05T13:25:07.247358Z","operation_created":"2026-10-05T13:25:07.175294Z","operation_updated":"2026-10-05T13:25:07.247047Z","completed":"2026-10-05T13:25:07.247047Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":13,"project":"01a10c3d-5083-72f8-bcd0-fc2ae610477d","operation":"01a10c3d-50c4-7e8b-87d9-8344bac298a7","project_created":"2026-10-05T13:25:07.334491Z","project_updated":"2026-10-05T13:25:07.451602Z","archived":"2026-10-05T13:25:07.451602Z","operation_created":"2026-10-05T13:25:07.397047Z","operation_updated":"2026-10-05T13:25:07.451236Z","completed":"2026-10-05T13:25:07.451236Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":14,"project":"01a10c3d-513f-7e98-92e1-ce0d443131ec","operation":"01a10c3d-5173-7caa-8fdc-c08565f70f04","project_created":"2026-10-05T13:25:07.52193Z","project_updated":"2026-10-05T13:25:07.617162Z","archived":"2026-10-05T13:25:07.617162Z","operation_created":"2026-10-05T13:25:07.571141Z","operation_updated":"2026-10-05T13:25:07.616792Z","completed":"2026-10-05T13:25:07.616792Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14/stopped
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15
+    independent_terminal_time_test.go:56: original-terminal-input={"trial":15,"project":"01a10c3d-51e3-728d-9e5e-c0e84c1a9246","operation":"01a10c3d-5217-70fd-8617-5bd7825488e2","project_created":"2026-10-05T13:25:07.686034Z","project_updated":"2026-10-05T13:25:07.778492Z","archived":"2026-10-05T13:25:07.778492Z","operation_created":"2026-10-05T13:25:07.735948Z","operation_updated":"2026-10-05T13:25:07.778185Z","completed":"2026-10-05T13:25:07.778185Z","archived_after_updated":false,"completed_after_updated":false,"authority_code":"nil","inspect_code":"nil","stopped":true}
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15/missing
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15/wrong_action
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15/wrong_version
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15/wrong_operation
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15/stopping
+=== RUN   TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15/stopped
+=== NAME  TestProjectBindingIndependentTerminalTimeDiagnostic
+    independent_terminal_time_test.go:90: fixed-trial-summary trials=16 inverted=0 originally-valid=16; zero inversions means not reproduced, not an attribution
+--- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic (4.07s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00 (0.19s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00/stopping (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-00/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01 (0.17s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01/stopping (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-01/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02 (0.17s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02/stopping (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-02/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03 (0.18s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03/stopping (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-03/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04 (0.25s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04/missing (0.03s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04/stopping (0.02s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-04/stopped (0.02s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05 (0.27s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05/missing (0.02s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05/stopping (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-05/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06 (0.18s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06/stopping (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-06/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07 (0.18s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07/stopping (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-07/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08 (0.21s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08/stopping (0.03s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-08/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09 (0.21s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09/stopping (0.02s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-09/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10 (0.20s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10/stopping (0.02s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-10/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11 (0.20s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11/stopping (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-11/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12 (0.21s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12/stopping (0.02s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-12/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13 (0.19s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13/stopping (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-13/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14 (0.16s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14/stopping (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-14/stopped (0.01s)
+    --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15 (0.16s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15/missing (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15/wrong_action (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15/wrong_version (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15/wrong_operation (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15/stopping (0.01s)
+        --- PASS: TestProjectBindingIndependentTerminalTimeDiagnostic/trial-15/stopped (0.01s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	5.093s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.018s [no tests to run]
+D03 fixture cleanup checked for nonce 6919d9b9a30591f07ff65bc56bd6fa27

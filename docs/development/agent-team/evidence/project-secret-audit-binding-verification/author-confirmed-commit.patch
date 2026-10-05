@@ -1,0 +1,178 @@
+--- diagnostic1/tests/project/b03_secret_audit_fixture_test.go
++++ confirmed-commit/tests/project/b03_secret_audit_fixture_test.go
+@@ -14,6 +14,7 @@
+ 	"net/url"
+ 	"strings"
+ 	"sync"
++	"sync/atomic"
+ 	"testing"
+ 
+ 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+@@ -362,17 +363,19 @@
+ 
+ var _ sc.UsageAuthority = (*bindingUsage)(nil)
+ 
+-// A transparent owned protocol observer for COMMIT diagnostics. Only command
+-// tags, SQLSTATE, backend PID and ReadyForQuery state are retained: no startup
+-// credentials, cancellation keys, SQL statements, rows or Secret bytes.
++// An owned protocol observer and optional confirmed-COMMIT ACK fault. Only
++// command tags, SQLSTATE, backend PID and ReadyForQuery state are retained: no
++// startup credentials, cancellation keys, SQL statements, rows or Secret bytes.
+ type bindingPGTrace struct {
+-	listener    net.Listener
+-	upstream    string
+-	mu          sync.Mutex
+-	connections map[net.Conn]bool
+-	events      []string
+-	next        int
+-	wg          sync.WaitGroup
++	listener      net.Listener
++	upstream      string
++	mu            sync.Mutex
++	connections   map[net.Conn]bool
++	events        []string
++	next          int
++	wg            sync.WaitGroup
++	dropCommitACK atomic.Bool
++	ackDropped    chan struct{}
+ }
+ 
+ func newBindingPGTrace(t *testing.T, upstream string) *bindingPGTrace {
+@@ -381,7 +384,7 @@
+ 	if err != nil {
+ 		t.Fatal(err)
+ 	}
+-	p := &bindingPGTrace{listener: listener, upstream: upstream, connections: map[net.Conn]bool{}}
++	p := &bindingPGTrace{listener: listener, upstream: upstream, connections: map[net.Conn]bool{}, ackDropped: make(chan struct{})}
+ 	p.wg.Add(1)
+ 	go func() {
+ 		defer p.wg.Done()
+@@ -452,6 +455,7 @@
+ 		return
+ 	}
+ 	done := make(chan struct{}, 2)
++	var dropACK atomic.Bool
+ 	go func() {
+ 		defer func() { done <- struct{}{} }()
+ 		for {
+@@ -464,6 +468,9 @@
+ 				if strings.EqualFold(q, "COMMIT") || strings.EqualFold(q, "ROLLBACK") {
+ 					p.record(n, "send-"+strings.ToUpper(q))
+ 				}
++				if strings.EqualFold(q, "COMMIT") && p.dropCommitACK.CompareAndSwap(true, false) {
++					dropACK.Store(true)
++				}
+ 			}
+ 			if _, err = server.Write(frame); err != nil {
+ 				return
+@@ -472,6 +479,7 @@
+ 	}()
+ 	go func() {
+ 		defer func() { done <- struct{}{} }()
++		completion := false
+ 		for {
+ 			frame, err := readPGFrame(server)
+ 			if err != nil {
+@@ -482,6 +490,21 @@
+ 			case 'C':
+ 				if string(frame[5:]) == "COMMIT\x00" || string(frame[5:]) == "ROLLBACK\x00" {
+ 					p.record(n, "tag-"+strings.TrimRight(string(frame[5:]), "\x00"))
++					completion = true
++				}
++				if dropACK.Load() && string(frame[5:]) == "COMMIT\x00" {
++					ready, err := readPGFrame(server)
++					if err != nil || ready[0] != 'Z' || len(ready) != 6 || ready[5] != 'I' {
++						p.record(n, "commit-idle-unconfirmed")
++						return
++					}
++					// The committed case drops only a proven COMMIT + idle ACK.
++					// A later driver CancelRequest cannot race this transaction's
++					// commit. Pending/rollback use the unchanged held-writer proxy.
++					p.record(n, "commit-idle-ack-dropped")
++					_ = client.Close()
++					close(p.ackDropped)
++					return
+ 				}
+ 			case 'E':
+ 				for fields := frame[5:]; len(fields) > 1; {
+@@ -495,7 +518,10 @@
+ 					fields = fields[i+2:]
+ 				}
+ 			case 'Z':
+-				p.record(n, "ready-"+string(frame[5:]))
++				if completion {
++					p.record(n, "ready-"+string(frame[5:]))
++					completion = false
++				}
+ 			case 'K':
+ 				if len(frame) >= 9 {
+ 					p.record(n, fmt.Sprintf("backend-%d", binary.BigEndian.Uint32(frame[5:9])))
+--- diagnostic1/tests/project/b03_secret_audit_test.go
++++ confirmed-commit/tests/project/b03_secret_audit_test.go
+@@ -351,8 +351,13 @@
+ 		t.Run(mode, func(t *testing.T) {
+ 			f := newBindingFixture(t)
+ 			trace := newBindingPGTrace(t, net.JoinHostPort("127.0.0.1", f.db.Fixture.Port))
+-			proxy := newCommitProxy(t, trace.listener.Addr().String(), mode != "rollback")
+-			store := f.proxyStore(t, proxy.listener.Addr())
++			var proxy *commitProxy
++			address, reached := trace.listener.Addr(), (<-chan struct{})(trace.ackDropped)
++			if mode != "committed" {
++				proxy = newCommitProxy(t, trace.listener.Addr().String(), mode != "rollback")
++				address, reached = proxy.listener.Addr(), proxy.reached
++			}
++			store := f.proxyStore(t, address)
+ 			b := f.bindStore(t, store, store)
+ 			request := f.request(t, f.owner, sc.Create, "unknown-final-command")
+ 			prepared, err := b.secret.PrepareWrite(ctxFor(t), request)
+@@ -385,16 +390,24 @@
+ 					}
+ 					// Arm only the final original command COMMIT after the real
+ 					// canonical, receipt, checker and Audit ran in this very Tx.
+-					proxy.armed.Store(true)
++					if proxy == nil {
++						trace.dropCommitACK.Store(true)
++					} else {
++						proxy.armed.Store(true)
++					}
+ 					return nil
+ 				})
+ 			}()
+-			await(t, proxy.reached)
++			await(t, reached)
+ 			r := <-done
+ 			if r.State() != foundation.Unknown {
+ 				t.Fatal("lost final command ACK was not Unknown", r.State(), r.Fault())
+ 			}
+-			f.unchanged(t, bindingCounts{})
++			if mode == "committed" {
++				f.unchanged(t, bindingCounts{1, 1, 1})
++			} else {
++				f.unchanged(t, bindingCounts{})
++			}
+ 			if mode == "pending" {
+ 				probe, cancel := context.WithTimeout(context.Background(), 200*time.Millisecond)
+ 				locked := f.raw.WithinTx(probe, cause(t), func(ctx context.Context, tx foundation.Tx) error {
+@@ -410,13 +423,15 @@
+ 					t.Fatal("pending receipt observation", err)
+ 				}
+ 			}
+-			close(proxy.release)
+-			select {
+-			case <-proxy.completed:
+-				t.Logf("final command protocol: %v", trace.snapshot())
+-			case <-time.After(5 * time.Second):
+-				t.Fatalf("original COMMIT completion missing: protocol=%v durable=%v", trace.snapshot(), f.counts(t))
+-			}
++			if proxy != nil {
++				close(proxy.release)
++				select {
++				case <-proxy.completed:
++				case <-time.After(5 * time.Second):
++					t.Fatalf("original COMMIT completion missing: protocol=%v durable=%v", trace.snapshot(), f.counts(t))
++				}
++			}
++			t.Logf("final command protocol: %v", trace.snapshot())
+ 			joined := f.raw.WithinTx(ctx, cause(t), func(ctx context.Context, tx foundation.Tx) error {
+ 				return f.raw.AcquireAll(ctx, tx, prepared.RequiredLocks())
+ 			})

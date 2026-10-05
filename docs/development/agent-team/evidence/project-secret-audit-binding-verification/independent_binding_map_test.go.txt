@@ -1,0 +1,53 @@
+package project
+
+import (
+	"context"
+	"runtime"
+	"sync/atomic"
+	"testing"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+)
+
+func TestProjectBindingIndependentCallerMapCannotChangeDispatch(t *testing.T) {
+	f := newAuditGateFixture(t, nil)
+	var selected, replaced atomic.Int64
+	original := auditFactFunc(func(context.Context, foundation.Tx, ac.Entry, ac.AppendKey) error {
+		selected.Add(1)
+		return fault(foundation.Forbidden)
+	})
+	replacement := auditFactFunc(func(context.Context, foundation.Tx, ac.Entry, ac.AppendKey) error {
+		replaced.Add(1)
+		return nil
+	})
+	caller := map[ac.Producer]ac.ProjectFactAuthority{ac.SecretProducer: original}
+	a, err := NewAuthority(f.store, AuthorityDependencies{
+		Sessions:   sessionFunc(func(context.Context, foundation.Tx, identity.Actor) error { return nil }),
+		AuditFacts: caller,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	entry, key := auditGateEntry(t, f, f.actor, ac.SecretCreate)
+	start, finished := make(chan struct{}), make(chan struct{})
+	go func() {
+		defer close(finished)
+		<-start
+		for i := 0; i < 512; i++ {
+			caller[ac.SecretProducer] = replacement
+			caller[ac.ProjectProducer] = replacement
+			delete(caller, ac.SecretProducer)
+			runtime.Gosched()
+		}
+	}()
+	close(start)
+	for i := 0; i < 256; i++ {
+		hasCode(t, a.CheckAppendInTx(context.Background(), f.store.tx, entry, key), foundation.Forbidden)
+	}
+	<-finished
+	if selected.Load() != 256 || replaced.Load() != 0 {
+		t.Fatal("caller changed constructed authority selection", selected.Load(), replaced.Load())
+	}
+}

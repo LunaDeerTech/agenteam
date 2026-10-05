@@ -1,0 +1,31 @@
+{
+  "baseline": "7d7c50df0dafcdeaaf700dc2662a6013245bbb6f",
+  "candidate_manifest_sha256": "019f871617e5c2f49df4af44bf6c9c9153043bde69708cb72d767a7fa79d5e6f",
+  "sources": {
+    "internal/central/project/authority.go": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+    "internal/central/project/audit_authority.go": "3736a441bb6d49b48384069a1c0c014bd4df9278dd3b9b1713f2772fa4066a9b",
+    "internal/central/project/audit_facts.go": "7347d52ff1d72cffebc3481a36a1fb77c46688900dcc5bc59e8eaac2bb8532e9",
+    "internal/central/project/secret_authority.go": "5347e2937d6cabeef32ef171771d8aaeacc4855734eef8a665da9c9a3aa30d79",
+    "internal/central/project/audit_facts_test.go": "fb908fe8cd19bd22aad8ee334f1347a25001640b2f7e72eef54e3abc33b945ee",
+    "internal/central/project/secret_authority_test.go": "2f582beebdf78a5d3bbd5120344cb087fcc28eba0d514bf62146657f08a2d004",
+    "tests/project/b03_secret_audit_fixture_test.go": "cf3762c8fe031088b52d7d40142b195c889bc630dec22edfd584ee416ec140ba",
+    "tests/project/b03_secret_audit_test.go": "33322aa796067aef092d287f790838a219fe95b7fa3959693066d60b04d0d289"
+  },
+  "four_production_match_prior_static_review": true,
+  "archive_sha256": "8ae29647ff9ed1dbdbc788d416fb782c9fc2e4c4b5dd206fe79eddd2c6ab8a0c",
+  "go_mod_sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+  "go_sum_sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+  "copied_author_evidence": {
+    "pure-checks.json": "f3e70f52f011280b03bdc163fc01b7080e3ee63ab6b71de39a230a83566cb031",
+    "diagnostic1.log": "abf5ea055d50420b59778edb934b7f346cf8f418324071c50f4695db691c5df7",
+    "diagnostic1-command.json": "82ee9eed1f6cfe21372a7f8e77dd6c7394b58904d96dd34da3f90c20c3e1ccde",
+    "diagnostic1-result.json": "ddb6fe96d7840fb9905f34ad53b373cf267bfdd05d413530b2230fc7c36b5c8b",
+    "confirmed-commit.log": "76a70784e7d88fa05e9622c97d23e553ab7c24d8d457aa3f6efdabf40e7b040c",
+    "confirmed-commit-command.json": "463861e5a9b1d5b1236a17bb69beb461e761441f5987b5e017a3e161f582b7d5",
+    "confirmed-commit-result.json": "80a5fba863c3a95c2ff69196bccc0fbe892a9fe1f943312ea0f642fdd76e0ef5",
+    "real1.log": "9f3a28f7c3190bee735c7459a2d2291246ab171d32c6ddae62e74db2ce5beeb6",
+    "real1-diagnostic.patch": "11bde6fe708b0ce658c4d3be57b27f777aae07babcb662f76efe840c7476fb55",
+    "confirmed-commit.patch": "04315629f5c30a74c4e93595eccfd7f14eadc921670d61a022541469028d9d97",
+    "confirmed-commit-input.json": "2a916820c20d3aaeec17c77db385ac021212a85ecb9d26aac3a13fa588a52d3f"
+  }
+}

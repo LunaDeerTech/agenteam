@@ -1,0 +1,145 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.144.241.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=0b02ae53607a644c4472da5aee13bfba
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=e73980b82b23dc679456a75475646a46
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.257s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.021s [no tests to run]
+=== RUN   TestProjectSecretAuditBindingConstruction
+=== RUN   TestProjectSecretAuditBindingConstruction/opaque-checker-store-is-validated-at-use
+=== RUN   TestProjectSecretAuditBindingConstruction/missing-provider-keeps-owner-but-rejects-secret
+=== RUN   TestProjectSecretAuditBindingConstruction/same-store-official-chain-and-retired-tx
+--- PASS: TestProjectSecretAuditBindingConstruction (0.97s)
+    --- PASS: TestProjectSecretAuditBindingConstruction/opaque-checker-store-is-validated-at-use (0.04s)
+    --- PASS: TestProjectSecretAuditBindingConstruction/missing-provider-keeps-owner-but-rejects-secret (0.00s)
+    --- PASS: TestProjectSecretAuditBindingConstruction/same-store-official-chain-and-retired-tx (0.01s)
+=== RUN   TestProjectSecretAuditBindingFactRejection
+=== RUN   TestProjectSecretAuditBindingFactRejection/no-witness
+=== RUN   TestProjectSecretAuditBindingFactRejection/resource
+=== RUN   TestProjectSecretAuditBindingFactRejection/session
+=== RUN   TestProjectSecretAuditBindingFactRejection/metadata
+=== RUN   TestProjectSecretAuditBindingFactRejection/action
+=== RUN   TestProjectSecretAuditBindingFactRejection/cause
+=== RUN   TestProjectSecretAuditBindingFactRejection/ordinal
+=== RUN   TestProjectSecretAuditBindingFactRejection/producer
+=== RUN   TestProjectSecretAuditBindingFactRejection/association
+=== RUN   TestProjectSecretAuditBindingFactRejection/scope
+=== RUN   TestProjectSecretAuditBindingFactRejection/outcome
+=== RUN   TestProjectSecretAuditBindingFactRejection/direct-append
+=== RUN   TestProjectSecretAuditBindingFactRejection/captured-new-tx
+=== RUN   TestProjectSecretAuditBindingFactRejection/captured-other-store
+--- PASS: TestProjectSecretAuditBindingFactRejection (1.07s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/no-witness (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/resource (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/session (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/metadata (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/action (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/cause (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/ordinal (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/producer (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/association (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/scope (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/outcome (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/direct-append (0.00s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/captured-new-tx (0.00s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/captured-other-store (0.03s)
+=== RUN   TestProjectSecretAuditBindingUnknown
+=== RUN   TestProjectSecretAuditBindingUnknown/committed
+    b03_secret_audit_test.go:416: final command protocol: [1:backend-147 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 2:cancel 2:backend-closed 1:send-COMMIT 1:tag-COMMIT 1:ready-I]
+=== RUN   TestProjectSecretAuditBindingUnknown/rollback
+    b03_secret_audit_test.go:416: final command protocol: [1:backend-155 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 2:cancel 2:backend-closed]
+=== RUN   TestProjectSecretAuditBindingUnknown/pending
+    b03_secret_audit_test.go:416: final command protocol: [1:backend-163 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-I 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:send-COMMIT 1:tag-COMMIT 1:ready-I 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 1:ready-T 2:cancel 2:backend-closed 3:backend-166 3:ready-I 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:send-COMMIT 3:tag-COMMIT 3:ready-I 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:ready-T 3:send-COMMIT 3:tag-COMMIT 3:ready-I 3:ready-I 3:ready-I 1:send-COMMIT 1:tag-COMMIT 1:ready-I]
+--- PASS: TestProjectSecretAuditBindingUnknown (3.63s)
+    --- PASS: TestProjectSecretAuditBindingUnknown/committed (1.15s)
+    --- PASS: TestProjectSecretAuditBindingUnknown/rollback (1.11s)
+    --- PASS: TestProjectSecretAuditBindingUnknown/pending (1.37s)
+=== RUN   TestProjectSecretAuditBindingResolveGate
+=== RUN   TestProjectSecretAuditBindingResolveGate/strict-usage-service-resolve
+=== RUN   TestProjectSecretAuditBindingResolveGate/usage-revoked
+=== RUN   TestProjectSecretAuditBindingResolveGate/lease-released
+=== RUN   TestProjectSecretAuditBindingResolveGate/archiving
+=== RUN   TestProjectSecretAuditBindingResolveGate/archived
+=== RUN   TestProjectSecretAuditBindingResolveGate/deleting
+=== RUN   TestProjectSecretAuditBindingResolveGate/wrong-role
+=== RUN   TestProjectSecretAuditBindingResolveGate/wrong-cause
+=== RUN   TestProjectSecretAuditBindingResolveGate/human-no-user-plan
+=== RUN   TestProjectSecretAuditBindingResolveGate/agent-run
+=== RUN   TestProjectSecretAuditBindingResolveGate/agent-subject
+=== RUN   TestProjectSecretAuditBindingResolveGate/direct-service
+=== RUN   TestProjectSecretAuditBindingResolveGate/resolve-unknown-committed
+=== RUN   TestProjectSecretAuditBindingResolveGate/resolve-unknown-rollback
+=== RUN   TestProjectSecretAuditBindingResolveGate/resolve-unknown-pending
+--- PASS: TestProjectSecretAuditBindingResolveGate (15.16s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/strict-usage-service-resolve (0.99s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/usage-revoked (1.03s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/lease-released (1.09s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/archiving (1.08s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/archived (1.05s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/deleting (1.12s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/wrong-role (0.96s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/wrong-cause (0.98s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/human-no-user-plan (0.85s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/agent-run (0.95s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/agent-subject (0.91s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/direct-service (0.95s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/resolve-unknown-committed (1.00s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/resolve-unknown-rollback (0.98s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/resolve-unknown-pending (1.20s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	21.844s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+D03 fixture cleanup checked for nonce f0ae71686fb2d5c8335d9a566bf54f38
+D04 outbound fixture cleanup checked for nonce e73980b82b23dc679456a75475646a46
+D05 object fixture exact resource cleanup checked nonce=0b02ae53607a644c4472da5aee13bfba

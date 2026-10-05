@@ -1,0 +1,9 @@
+--- FAIL: TestAuditFactsChecksCurrentOwnerBeforeExactDispatch (0.00s)
+    audit_facts_test.go:166: code = DEPENDENCY_UNAVAILABLE, want PROJECT_NOT_ACTIVE
+--- FAIL: TestSecretAuthorityMutationUsesCurrentOwnerMutateGate (0.00s)
+    secret_authority_test.go:52: code = DEPENDENCY_UNAVAILABLE, want PROJECT_NOT_ACTIVE
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/project	0.065s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret	0.010s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit	0.006s
+FAIL

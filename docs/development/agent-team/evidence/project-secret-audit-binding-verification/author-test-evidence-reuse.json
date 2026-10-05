@@ -1,0 +1,31 @@
+{
+  "TestProjectSecretAuditBindingCRUD": {
+    "same_body": true,
+    "source": "real1-source",
+    "sha256": "376565865821e8af02bf4aeaceece5e3940f63a7a9b7307b5cc4055bb1611e5c"
+  },
+  "TestProjectSecretAuditBindingCurrentAuthority": {
+    "same_body": true,
+    "source": "real1-source",
+    "sha256": "6f18be2bcc7b7867ca22e62e3ccd21757b5cb612637fbc76832167b2386a1c3e"
+  },
+  "TestProjectSecretAuditBindingConstruction": {
+    "same_body": true,
+    "source": "diagnostic1-source",
+    "sha256": "88bff1cc289abd7bdfb994976f39a6249f1fe08498b288260618c52fc98571be"
+  },
+  "TestProjectSecretAuditBindingFactRejection": {
+    "same_body": true,
+    "source": "diagnostic1-source",
+    "sha256": "c2f722328e54c7dc58e393c50cb11e9b730e898efc959dc2f6944eabf06ed0ed"
+  },
+  "TestProjectSecretAuditBindingResolveGate": {
+    "same_body": true,
+    "source": "diagnostic1-source",
+    "sha256": "ab42aec4eab19e6aa07f8949747db4830ff071b50adc4ccd5ee219676528d796"
+  },
+  "shared_non_proxy_fixture": {
+    "same_body": true,
+    "sha256": "c46435b2cd05222aaa68c88e5b6b687be0f94312bfdfad79d03c649374dd7c93"
+  }
+}

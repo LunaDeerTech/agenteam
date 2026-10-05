@@ -1,0 +1,193 @@
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.54.154.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=b5493fecadf3dafcc4d42385e9f51cc0
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=98bbd58664a186b8b743980f1f92cd34
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.023s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.394s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.014s [no tests to run]
+=== RUN   TestProjectSecretAuditBindingConstruction
+=== RUN   TestProjectSecretAuditBindingConstruction/opaque-checker-store-is-validated-at-use
+    b03_secret_audit_test.go:28: error=DEPENDENCY_UNAVAILABLE want=FORBIDDEN
+=== RUN   TestProjectSecretAuditBindingConstruction/missing-provider-keeps-owner-but-rejects-secret
+=== RUN   TestProjectSecretAuditBindingConstruction/same-store-official-chain-and-retired-tx
+--- FAIL: TestProjectSecretAuditBindingConstruction (0.96s)
+    --- FAIL: TestProjectSecretAuditBindingConstruction/opaque-checker-store-is-validated-at-use (0.04s)
+    --- PASS: TestProjectSecretAuditBindingConstruction/missing-provider-keeps-owner-but-rejects-secret (0.00s)
+    --- PASS: TestProjectSecretAuditBindingConstruction/same-store-official-chain-and-retired-tx (0.02s)
+=== RUN   TestProjectSecretAuditBindingCRUD
+--- PASS: TestProjectSecretAuditBindingCRUD (1.00s)
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/revoked-session
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/foreign-owner
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/admin
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/owner-changed
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/archiving-after-prepare
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/archived-after-prepare
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/deleting-after-prepare
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/uninitialized
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/missing-lock
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/wrong-project-lock
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/foreign-tx
+=== RUN   TestProjectSecretAuditBindingCurrentAuthority/replay-rechecks-current-gate
+--- PASS: TestProjectSecretAuditBindingCurrentAuthority (11.32s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/revoked-session (0.87s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/foreign-owner (0.88s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/admin (0.83s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/owner-changed (0.88s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/archiving-after-prepare (1.03s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/archived-after-prepare (0.96s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/deleting-after-prepare (0.91s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/uninitialized (0.94s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/missing-lock (0.88s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/wrong-project-lock (1.01s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/foreign-tx (1.01s)
+    --- PASS: TestProjectSecretAuditBindingCurrentAuthority/replay-rechecks-current-gate (1.11s)
+=== RUN   TestProjectSecretAuditBindingFactRejection
+=== RUN   TestProjectSecretAuditBindingFactRejection/no-witness
+    b03_secret_audit_test.go:308: error=DEPENDENCY_UNAVAILABLE want=FORBIDDEN
+=== RUN   TestProjectSecretAuditBindingFactRejection/resource
+    b03_secret_audit_test.go:308: error=DEPENDENCY_UNAVAILABLE want=FORBIDDEN
+=== RUN   TestProjectSecretAuditBindingFactRejection/session
+    b03_secret_audit_test.go:308: error=DEPENDENCY_UNAVAILABLE want=FORBIDDEN
+=== RUN   TestProjectSecretAuditBindingFactRejection/metadata
+    b03_secret_audit_test.go:308: error=DEPENDENCY_UNAVAILABLE want=FORBIDDEN
+=== RUN   TestProjectSecretAuditBindingFactRejection/action
+    b03_secret_audit_test.go:308: error=DEPENDENCY_UNAVAILABLE want=FORBIDDEN
+=== RUN   TestProjectSecretAuditBindingFactRejection/cause
+    b03_secret_audit_test.go:308: error=DEPENDENCY_UNAVAILABLE want=FORBIDDEN
+=== RUN   TestProjectSecretAuditBindingFactRejection/ordinal
+    b03_secret_audit_test.go:308: error=DEPENDENCY_UNAVAILABLE want=FORBIDDEN
+=== RUN   TestProjectSecretAuditBindingFactRejection/producer
+    b03_secret_audit_test.go:308: error=DEPENDENCY_UNAVAILABLE want=INVALID_ARGUMENT
+=== RUN   TestProjectSecretAuditBindingFactRejection/association
+    b03_secret_audit_test.go:308: error=DEPENDENCY_UNAVAILABLE want=FORBIDDEN
+=== RUN   TestProjectSecretAuditBindingFactRejection/scope
+=== RUN   TestProjectSecretAuditBindingFactRejection/outcome
+    b03_secret_audit_test.go:308: error=DEPENDENCY_UNAVAILABLE want=FORBIDDEN
+=== RUN   TestProjectSecretAuditBindingFactRejection/direct-append
+=== RUN   TestProjectSecretAuditBindingFactRejection/captured-new-tx
+    b03_secret_audit_test.go:337: error=INTERNAL_ERROR want=FORBIDDEN
+=== RUN   TestProjectSecretAuditBindingFactRejection/captured-other-store
+    b03_secret_audit_test.go:337: error=INTERNAL_ERROR want=FORBIDDEN
+--- FAIL: TestProjectSecretAuditBindingFactRejection (1.29s)
+    --- FAIL: TestProjectSecretAuditBindingFactRejection/no-witness (0.01s)
+    --- FAIL: TestProjectSecretAuditBindingFactRejection/resource (0.01s)
+    --- FAIL: TestProjectSecretAuditBindingFactRejection/session (0.01s)
+    --- FAIL: TestProjectSecretAuditBindingFactRejection/metadata (0.01s)
+    --- FAIL: TestProjectSecretAuditBindingFactRejection/action (0.01s)
+    --- FAIL: TestProjectSecretAuditBindingFactRejection/cause (0.01s)
+    --- FAIL: TestProjectSecretAuditBindingFactRejection/ordinal (0.01s)
+    --- FAIL: TestProjectSecretAuditBindingFactRejection/producer (0.01s)
+    --- FAIL: TestProjectSecretAuditBindingFactRejection/association (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/scope (0.01s)
+    --- FAIL: TestProjectSecretAuditBindingFactRejection/outcome (0.01s)
+    --- PASS: TestProjectSecretAuditBindingFactRejection/direct-append (0.01s)
+    --- FAIL: TestProjectSecretAuditBindingFactRejection/captured-new-tx (0.00s)
+    --- FAIL: TestProjectSecretAuditBindingFactRejection/captured-other-store (0.04s)
+=== RUN   TestProjectSecretAuditBindingUnknown
+=== RUN   TestProjectSecretAuditBindingUnknown/committed
+    b03_secret_audit_test.go:407: owned asynchronous work did not reach checkpoint
+=== RUN   TestProjectSecretAuditBindingUnknown/rollback
+=== RUN   TestProjectSecretAuditBindingUnknown/pending
+--- FAIL: TestProjectSecretAuditBindingUnknown (8.44s)
+    --- FAIL: TestProjectSecretAuditBindingUnknown/committed (6.09s)
+    --- PASS: TestProjectSecretAuditBindingUnknown/rollback (1.10s)
+    --- PASS: TestProjectSecretAuditBindingUnknown/pending (1.24s)
+=== RUN   TestProjectSecretAuditBindingResolveGate
+=== RUN   TestProjectSecretAuditBindingResolveGate/strict-usage-service-resolve
+=== RUN   TestProjectSecretAuditBindingResolveGate/usage-revoked
+=== RUN   TestProjectSecretAuditBindingResolveGate/lease-released
+=== RUN   TestProjectSecretAuditBindingResolveGate/archiving
+    b03_secret_audit_test.go:500: error=DEPENDENCY_UNAVAILABLE want=PROJECT_NOT_ACTIVE
+=== RUN   TestProjectSecretAuditBindingResolveGate/archived
+    b03_secret_audit_test.go:500: error=DEPENDENCY_UNAVAILABLE want=PROJECT_NOT_ACTIVE
+=== RUN   TestProjectSecretAuditBindingResolveGate/deleting
+    b03_secret_audit_test.go:500: error=DEPENDENCY_UNAVAILABLE want=PROJECT_NOT_ACTIVE
+=== RUN   TestProjectSecretAuditBindingResolveGate/wrong-role
+=== RUN   TestProjectSecretAuditBindingResolveGate/wrong-cause
+=== RUN   TestProjectSecretAuditBindingResolveGate/human-no-user-plan
+=== RUN   TestProjectSecretAuditBindingResolveGate/agent-run
+=== RUN   TestProjectSecretAuditBindingResolveGate/agent-subject
+    b03_secret_audit_test.go:500: error=DEPENDENCY_UNAVAILABLE want=DEPENDENCY_UNBOUND
+=== RUN   TestProjectSecretAuditBindingResolveGate/direct-service
+=== RUN   TestProjectSecretAuditBindingResolveGate/resolve-unknown-committed
+=== RUN   TestProjectSecretAuditBindingResolveGate/resolve-unknown-rollback
+=== RUN   TestProjectSecretAuditBindingResolveGate/resolve-unknown-pending
+--- FAIL: TestProjectSecretAuditBindingResolveGate (14.92s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/strict-usage-service-resolve (1.09s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/usage-revoked (0.93s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/lease-released (0.98s)
+    --- FAIL: TestProjectSecretAuditBindingResolveGate/archiving (1.04s)
+    --- FAIL: TestProjectSecretAuditBindingResolveGate/archived (1.07s)
+    --- FAIL: TestProjectSecretAuditBindingResolveGate/deleting (0.98s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/wrong-role (0.95s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/wrong-cause (0.90s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/human-no-user-plan (0.98s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/agent-run (0.93s)
+    --- FAIL: TestProjectSecretAuditBindingResolveGate/agent-subject (0.95s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/direct-service (0.89s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/resolve-unknown-committed (0.94s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/resolve-unknown-rollback (1.07s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/resolve-unknown-pending (1.22s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/project	37.948s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.012s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce dd9db9007906ba542e1b2289c3b3ba03
+D04 outbound fixture cleanup checked for nonce 98bbd58664a186b8b743980f1f92cd34
+D05 object fixture exact resource cleanup checked nonce=b5493fecadf3dafcc4d42385e9f51cc0
