@@ -6,6 +6,7 @@ import (
 
 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
 )
@@ -15,16 +16,25 @@ type ProjectAuthority interface {
 }
 
 type Authorizations struct {
-	Sessions id.SessionAuthority
-	System   id.SystemAuthority
-	Projects ProjectAuthority
+	Sessions   id.SessionAuthority
+	System     id.SystemAuthority
+	Projects   ProjectAuthority
+	Resolution *ResolutionAuthorizations
+}
+
+// ResolutionAuthorizations is optional. Its consumer port must validate the
+// owning business facts; Project membership alone never grants a resolution.
+type ResolutionAuthorizations struct {
+	Consumers     mc.ConsumerAuthority
+	SecretService id.ServiceRegistration
 }
 type Authority struct{ data func() *authorityState }
 type authorityState struct {
-	store       Store
-	auth        Authorizations
-	usageIssuer sc.PlanIssuer
-	eventIssuer oc.PlanIssuer
+	store            Store
+	auth             Authorizations
+	usageIssuer      sc.PlanIssuer
+	eventIssuer      oc.PlanIssuer
+	resolutionIssuer mc.PlanIssuer
 }
 
 func NewAuthority(store Store, d Authorizations) (*Authority, error) {
@@ -37,7 +47,19 @@ func NewAuthority(store Store, d Authorizations) (*Authority, error) {
 			return nil, fault(f.DependencyUnbound)
 		}
 	}
-	s := &authorityState{store: store, auth: d, usageIssuer: sc.NewPlanIssuer(), eventIssuer: oc.NewPlanIssuer()}
+	if d.Resolution != nil {
+		if nilPort(d.Resolution.Consumers) {
+			return nil, fault(f.DependencyUnbound)
+		}
+		// Only project the public registration, never inspect its closure state.
+		probe, err := d.Resolution.SecretService.Actor("018f0000-0000-7000-8000-000000000001", id.SystemScope())
+		if err != nil || probe.Details().ServiceName != id.SecretService {
+			return nil, fault(f.DependencyUnbound)
+		}
+		copy := *d.Resolution
+		d.Resolution = &copy
+	}
+	s := &authorityState{store: store, auth: d, usageIssuer: sc.NewPlanIssuer(), eventIssuer: oc.NewPlanIssuer(), resolutionIssuer: mc.NewPlanIssuer()}
 	return &Authority{data: func() *authorityState { return s }}, nil
 }
 

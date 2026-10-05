@@ -1,5 +1,5 @@
-// Package model implements System model configuration. It does not invoke a
-// provider, resolve consumer snapshots, or grant Project access.
+// Package model implements model configuration and optionally bound current
+// resolution. It does not invoke providers or supply consumer business authority.
 package model
 
 import (
@@ -50,7 +50,7 @@ func nilPort(v any) bool {
 	}
 	r := reflect.ValueOf(v)
 	switch r.Kind() {
-	case reflect.Pointer, reflect.Interface, reflect.Func, reflect.Map, reflect.Slice:
+	case reflect.Pointer, reflect.Interface, reflect.Func, reflect.Map, reflect.Slice, reflect.Chan:
 		return r.IsNil()
 	}
 	return false
@@ -88,6 +88,11 @@ func (s *Service) Initialize(ctx context.Context) error {
 		_, err = x.Exec(ctx, `INSERT INTO agenteam_model.platform_selection(id,singleton,version,configured,updated_at) VALUES($1,true,1,false,clock_timestamp()) ON CONFLICT(singleton) DO NOTHING`, newID)
 		if err != nil {
 			return unavailable(err)
+		}
+		if s.state().authority.state().auth.Resolution != nil {
+			if err = x.QueryRow(ctx, `SELECT (SELECT count(*) FROM agenteam_model.resolution_preparations WHERE false)+(SELECT count(*) FROM agenteam_model.snapshots WHERE false)+(SELECT count(*) FROM agenteam_model.snapshot_bindings WHERE false)`).Scan(&count); err != nil {
+				return unavailable(err)
+			}
 		}
 		_, err = loadSelection(ctx, x)
 		return err

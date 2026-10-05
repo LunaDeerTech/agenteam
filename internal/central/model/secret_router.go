@@ -32,6 +32,9 @@ func (r *SecretUsageRouter) AuthorizeLeaseInTx(ctx context.Context, tx f.Tx, act
 	if r == nil || nilPort(r.fallback) {
 		return sc.UseGrant{}, fault(f.DependencyUnbound)
 	}
+	if resolutionHasApply(ctx) {
+		return r.model.AuthorizeLeaseInTx(ctx, tx, actor, ref, owner, action)
+	}
 	// No Purpose is present. Preserve the existing authority's decision and
 	// never guess Model versus MCP from an execution owner.
 	return r.fallback.AuthorizeLeaseInTx(ctx, tx, actor, ref, owner, action)
@@ -42,6 +45,9 @@ func (r *SecretUsageRouter) planner(request sc.UsageRequest) (sc.UsagePlanner, e
 	}
 	if request.Purpose == sc.Model {
 		if request.Action == sc.RetainReferenceUsage || request.Action == sc.ReleaseReferenceUsage {
+			return r.model, nil
+		}
+		if request.Action == sc.AcquireLeaseUsage && r.model.state().auth.Resolution != nil {
 			return r.model, nil
 		}
 		return nil, fault(f.DependencyUnbound)

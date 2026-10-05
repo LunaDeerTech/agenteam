@@ -73,6 +73,9 @@ func (a *Authority) DiscoverUsage(ctx context.Context, r sc.UsageRequest) (sc.Us
 	if r.Validate() != nil {
 		return sc.UsageDependencies{}, fault(f.InvalidArgument)
 	}
+	if r.Purpose == sc.Model && r.Action == sc.AcquireLeaseUsage {
+		return a.discoverResolutionUsage(ctx, r)
+	}
 	if r.Purpose != sc.Model || r.Action != sc.RetainReferenceUsage && r.Action != sc.ReleaseReferenceUsage {
 		return sc.UsageDependencies{}, fault(f.DependencyUnbound)
 	}
@@ -94,6 +97,9 @@ func (a *Authority) DiscoverUsage(ctx context.Context, r sc.UsageRequest) (sc.Us
 	return sc.NewUsageDependencies(a.state().usageIssuer, binding, hash(raw), p.locks)
 }
 func (a *Authority) ValidateUsageInTx(ctx context.Context, tx f.Tx, r sc.UsageRequest, d sc.UsageDependencies) error {
+	if r.Purpose == sc.Model && r.Action == sc.AcquireLeaseUsage {
+		return a.validateResolutionUsage(ctx, tx, r, d)
+	}
 	p, e := a.contextPlan(ctx, r.Actor)
 	if e != nil {
 		return e
@@ -133,8 +139,8 @@ func (a *Authority) CheckReferenceInTx(ctx context.Context, tx f.Tx, actor id.Ac
 	// SECRET_PREPARATION_REQUIRED. No legacy path may mutate Model references.
 	return fault(f.ResourceBusy)
 }
-func (a *Authority) AuthorizeLeaseInTx(context.Context, f.Tx, id.Actor, sc.CredentialRef, sc.CredentialLeaseOwner, sc.LeaseAction) (sc.UseGrant, error) {
-	return sc.UseGrant{}, fault(f.DependencyUnbound)
+func (a *Authority) AuthorizeLeaseInTx(ctx context.Context, tx f.Tx, actor id.Actor, ref sc.CredentialRef, owner sc.CredentialLeaseOwner, action sc.LeaseAction) (sc.UseGrant, error) {
+	return a.authorizeResolutionLease(ctx, tx, actor, ref, owner, action)
 }
 
 var _ sc.UsageAuthority = (*Authority)(nil)
