@@ -122,6 +122,8 @@ root 已采纳独立定向审查结论并授权 `d02_backend` 实施第一段：
 
 00014 只增加两个域各自的 `project_stops` 与 `project_work` 四张技术表，用于前置 I/O 登记、不可倒退 stop epoch、实际 join/原 writer 终局与最小 stopped receipt。永久删除必须清掉所有旧 archive receipts 和扫描游标/临时 work，仅留 current delete 的最小 stopped receipt；不能留已删内容或借 receipt 新建 phase。Artifact `source_project_id` 必须进入源 Project 的 delete 扫描与真实 join 判定，不能只扫描 target project 或只凭本机 map/TTL/取消响应成功。
 
+root 已授权 resolver 前只读工作规划窄口，精确规则见[共享规格 §9.2](d08-project-owner-design.md#92-当前权限对象与-audit-分派)：`OwnerAccess/PrepareReadAccess`（`prepare_read`）仅 Actor/Owner/Read，不含 key/Command/ObjectID/Source/Range；完整 SH 规划与同 Tx 当前授权、持久 work 确认提交后才调用 resolver。追加 `object/contract/access.go`、新 `object/contract/project_prepare_read_test.go` 由 P 定向审查；`object/access.go` 的 SH/Read 分派仍归 D05 作者。它不放宽旧 variant 或授予对象读取权，契约补口不证明 D1 实现及真实停止验收已经通过。
+
 第一段与 P 并行：A 唯一写 Object/Artifact 旧接缝，P 只写 Project 自有范围；C0 四新文件与本两份文档本轮只由 `parallel_plan` 写。具体构造绑定不得默默 allow nil port。D1 的真实 PG/MinIO/ProcessGuard、13→14/失败回滚、跨 Project source/旧 plan/真实 stop 验收尚未完成，Docker 仍等 root/acceptance 明确交接。
 
 §9.2 的 Object/Secret 同 Tx Audit checker 与私有见证属于后段，另列精确旧文件权限后实施，不阻塞当前停止 C0/P/D1。不能借第一段授权修改 Secret 或提前宣称 B03 全部 provider 已绑定。

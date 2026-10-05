@@ -407,6 +407,8 @@ D08 提供以下精确适配：Audit/Secret `AuthorizeProject` 与生命周期�
 
 Human Artifact 路径必须验证当前 User/Owner，Project SH 与资源实际父 ID 一致；Artifact/对象本域仍负责真实 artifact→object/receipt/lease 绑定。Avatar 继续交 account provider；Skill/Knowledge/Transcript 等未来 ObjectOwner 交对应领域，未绑定返回 unbound。Project 不能把“拥有项目”直接变成任意 ObjectID/历史 revision 的读取许可。AgentRun/Execution 来源适配留 D22，不能伪造执行身份。
 
+resolver 前工作登记的窄口：D05 追加封闭 `OwnerAccess` 操作 `PrepareReadAccess`（wire `prepare_read`），只含 Actor、ObjectOwner、Intent=Read；不接受业务 key、Command、ObjectID、Source、Range 或其他变体字段。它用于已知 business_ref 对应 owner、尚未 Resolve 出真实 ObjectID 时的前置只读 work 规划。当前正式 AccessPlanner 预收集真实 Actor/owner 父 gate，初始一次完整 AcquireAll 后 Validate，并在同 Tx 完成当前 ResourceAuthority Read 与 ProjectGate Read 授权；持久 work 确认提交后才调用外部 resolver。该 variant 不授权限、不替代后续精确 source/version/object 校验，archive 合法当前读不被误当 Mutate；旧 Prepare/Lookup/ObjectRead 规则不放宽。精确追加范围为 `object/contract/access.go` 与新 `object/contract/project_prepare_read_test.go`；`object/access.go` 只在既有 D05 作者范围加入 SH/Read 分派。本段是 root 已授权的规格补口，D05 实现与真实验收尚未完成。
+
 ```go
 type ProjectFactAuthority interface {
     CheckProjectAuditInTx(context.Context, foundation.Tx, Entry, AppendKey) error

@@ -33,6 +33,7 @@ type AccessOperation string
 
 const (
 	PrepareAccess           AccessOperation = "prepare"
+	PrepareReadAccess       AccessOperation = "prepare_read"
 	ReserveAccess           AccessOperation = "reserve"
 	SendAccess              AccessOperation = "send"
 	PublishAccess           AccessOperation = "publish"
@@ -158,6 +159,8 @@ func newAccessRequest(kind AccessKind, d AccessRequestDetails) (AccessRequest, e
 		intent := identity.Mutate
 		switch d.Operation {
 		case PrepareAccess:
+		case PrepareReadAccess:
+			intent = identity.Read
 		case ReserveAccess:
 			allow("command", "prepared")
 			err = require(d.Command != nil && d.Command.Validate() == nil && d.Prepared.Validate() == nil)
