@@ -1,0 +1,100 @@
+{
+  "review": "file evidence only, no new Docker inspection",
+  "created_containers": 4,
+  "created_networks": 3,
+  "created": [
+    {
+      "at": 1791217913.7857227,
+      "operation": [
+        "network",
+        "create"
+      ],
+      "exit_code": 0,
+      "created_id": "aede317f1ec624d6b35250d5ff307c8edc1512e8a4872e5e62f2f43fcb4d8193",
+      "kind": "network"
+    },
+    {
+      "at": 1791217917.342841,
+      "operation": [
+        "run",
+        "--detach"
+      ],
+      "exit_code": 0,
+      "created_id": "45f845d561ce99db7ca12a7477a11e5679b44b154e624500126b0af11bae94f6",
+      "kind": "container",
+      "name": "agenteam-d05-object-7df5b23588206f56a263f150cf1505f4"
+    },
+    {
+      "at": 1791217921.3594549,
+      "operation": [
+        "network",
+        "create"
+      ],
+      "exit_code": 0,
+      "created_id": "9b42c06ba78e9cff8e95ab2094cbc4354b9c84e3d87e9ce6a8c9833f923cf471",
+      "kind": "network"
+    },
+    {
+      "at": 1791217922.853496,
+      "operation": [
+        "run",
+        "--detach"
+      ],
+      "exit_code": 0,
+      "created_id": "372b6c9ae7a275aed170eeb4ad0b2cc79c48f51e6e000e8cf3dbd5000b96f473",
+      "kind": "container",
+      "name": "agenteam-d04-net-145cdbbab41380e44a803dd65b6376b5"
+    },
+    {
+      "at": 1791217923.8176415,
+      "operation": [
+        "network",
+        "create"
+      ],
+      "exit_code": 0,
+      "created_id": "385d303c0bf3ae1130729bc3744914a52e0a9d7286e514286729e669791151cf",
+      "kind": "network"
+    },
+    {
+      "at": 1791217925.172005,
+      "operation": [
+        "run",
+        "--detach"
+      ],
+      "exit_code": 0,
+      "created_id": "925d14562e4e37d34df64090470ee78e38320b48482dedc4093c5039141fcbb4",
+      "kind": "container",
+      "name": "agenteam-d03-177ea5c296e1a8c27cad855668485dd6"
+    },
+    {
+      "at": 1791217927.2648945,
+      "operation": [
+        "run",
+        "--detach"
+      ],
+      "exit_code": 0,
+      "created_id": "e8d75b0f9cdbf32fc708df015dbe665c91659de0c11e1b82572d7643caf19d23",
+      "kind": "container",
+      "name": "agenteam-d03-177ea5c296e1a8c27cad855668485dd6-pg16"
+    }
+  ],
+  "resource_source_sha256": "1c52778fe4b54ad1635427114162e8534e54ceb99385232697f8bf5b8071885e",
+  "baseline_container_count": 2,
+  "baseline_network_count": 4,
+  "passes": [
+    {
+      "pass": 1,
+      "exact_created_ids_all_absent": true,
+      "raw_baseline_unchanged_statement": true,
+      "owned_processes": 0,
+      "runtime_empty": true
+    },
+    {
+      "pass": 2,
+      "exact_created_ids_all_absent": true,
+      "raw_baseline_unchanged_statement": true,
+      "owned_processes": 0,
+      "runtime_empty": true
+    }
+  ]
+}

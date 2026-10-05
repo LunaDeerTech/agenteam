@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-count=1",
+    "-v",
+    "-timeout=6m",
+    "./internal/central/model/adapter"
+  ],
+  "cwd": "/workspace/agenteam-openai-wire-o11zl625/snapshot",
+  "environment": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "sum.golang.org",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-openai-wire-o11zl625/go-build",
+    "TMPDIR": "/workspace/agenteam-openai-wire-o11zl625/tmp",
+    "GOFLAGS": "-mod=readonly"
+  },
+  "baseline": "de00c610da62cb77cc03efe7c3cc842cf81f1ba5",
+  "started_at": "2026-10-05T16:13:08.635604+00:00",
+  "inputs": {
+    "internal/central/model/adapter/openai_chat.go": "e1b3a23b5c792b71255de9c747cf13fe1e41700430167386041c7d22b5dc457a",
+    "internal/central/model/adapter/transport.go": "443f7b288e90c1ff8b0b5504005369f452e43fb55420e28f9794828037aeda42",
+    "internal/central/model/adapter/sse.go": "53439e38f47a0f73876d8ae45315a8f932678cad15feab173ccb2e69f9e2ebe3",
+    "internal/central/model/adapter/errors.go": "b89a23622c4d9e270cc4e4273ff2e0e905ea29c146fdf177ed6de1a39680faa8",
+    "internal/central/model/adapter/budget.go": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a",
+    "internal/central/model/adapter/openai_chat_test.go": "9a254e0a0077fc0efdf4389f34e611974aeac068900f3ab2ae8d71ea7cdf9e2a",
+    "internal/central/model/adapter/transport_test.go": "c9be8f7f49bf6e460bad132cb55bf5567949d834c8060feb2527ebc6e824cc15",
+    "internal/central/model/adapter/sse_test.go": "d3d07a512fe35f86e03e38d59b494ec275690e04eb83ee802790e4c1620abb32",
+    "internal/central/model/adapter/errors_test.go": "85f426f06397a9e176ee123b89cdebab434264a8b9a2a84d037071cc1d39f31e",
+    "internal/central/model/adapter/budget_test.go": "4f2d0babcd7f67e65ca303a5a128756ac9f082b3500346512baea28a4e0d9b30",
+    "tests/testsupport/outbound/fixture.go": "3ca36f2786e143e677d4c51844f6649a55c6a4af3c815c8db1f72bbffc8d2920",
+    "tests/testsupport/outbound/cmd/server/main.go": "c2d2a0de367a49b5248696c1f6e1a8f91a8ae8bbb44979faa13c15ba751b278d"
+  },
+  "exit_code": 1,
+  "finished_at": "2026-10-05T16:13:10.329820+00:00",
+  "log": "first-unit.log"
+}

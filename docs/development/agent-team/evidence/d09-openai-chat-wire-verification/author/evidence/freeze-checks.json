@@ -1,0 +1,27 @@
+{
+  "manifest_sha256": "1ed6b19184fa2e3cec928ed01e3b651eadc1704718b8d0f7547e1949dbf03f80",
+  "source_count": 16,
+  "production5_unchanged": true,
+  "gofmt_argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-l",
+    "/workspace/agenteam/internal/central/model/adapter/openai_chat.go",
+    "/workspace/agenteam/internal/central/model/adapter/transport.go",
+    "/workspace/agenteam/internal/central/model/adapter/sse.go",
+    "/workspace/agenteam/internal/central/model/adapter/errors.go",
+    "/workspace/agenteam/internal/central/model/adapter/budget.go",
+    "/workspace/agenteam/internal/central/model/adapter/openai_chat_test.go",
+    "/workspace/agenteam/internal/central/model/adapter/transport_test.go",
+    "/workspace/agenteam/internal/central/model/adapter/sse_test.go",
+    "/workspace/agenteam/internal/central/model/adapter/errors_test.go",
+    "/workspace/agenteam/internal/central/model/adapter/budget_test.go",
+    "/workspace/agenteam/tests/model/openai_chat_wire_fixture_test.go",
+    "/workspace/agenteam/tests/model/openai_chat_wire_http_test.go",
+    "/workspace/agenteam/tests/model/openai_chat_wire_stream_test.go",
+    "/workspace/agenteam/tests/testsupport/outbound/fixture.go",
+    "/workspace/agenteam/tests/testsupport/outbound/cmd/server/main.go"
+  ],
+  "gofmt_exit": 0,
+  "gofmt_output": "",
+  "all_source_whitespace": "PASS"
+}

@@ -1,0 +1,58 @@
+import datetime,hashlib,json,os,pathlib,subprocess
+root=pathlib.Path('/workspace/agenteam-openai-wire-verification-acwx944n')
+real=json.loads((root/'evidence/independent-real.json').read_text())
+env=os.environ.copy();env.update(real['environment'])
+for k in ['DOCKER_CONTEXT','DOCKER_TLS_VERIFY','DOCKER_CERT_PATH']:env.pop(k,None)
+events=[json.loads(line) for line in (root/'evidence/docker-operations.jsonl').read_text().splitlines()]
+created={e['created_id']:e['kind'] for e in events if 'created_id' in e}
+assert len(created)==7 and list(created.values()).count('container')==4 and list(created.values()).count('network')==3,created
+before=json.loads((root/'evidence/resource-baseline.json').read_text())
+def run(args):
+ p=subprocess.run(['/usr/local/bin/docker',*args],env=env,capture_output=True)
+ return p
+
+def current_baseline():
+ result={'containers':[],'networks':[]}
+ for kind,listargs,inspectargs,formatstr in [
+ ('containers',['ps','-aq','--no-trunc'],['inspect'],'{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Config.Labels}}}'),
+ ('networks',['network','ls','-q','--no-trunc'],['network','inspect'],'{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Labels}}}')]:
+  p=run(listargs);assert p.returncode==0
+  for value in p.stdout.decode().split():
+   inspected=run([*inspectargs,'--format',formatstr,value]);assert inspected.returncode==0
+   result[kind].append(json.loads(inspected.stdout))
+  result[kind].sort(key=lambda x:x['id'])
+ return result
+
+def owned_processes():
+ excluded=set();pid=os.getpid()
+ while pid>1 and pid not in excluded:
+  excluded.add(pid)
+  try:pid=int((pathlib.Path('/proc')/str(pid)/'stat').read_text().rsplit(')',1)[1].split()[1])
+  except (FileNotFoundError,ProcessLookupError,PermissionError):break
+ found=[]
+ for proc in pathlib.Path('/proc').iterdir():
+  if not proc.name.isdecimal() or int(proc.name) in excluded:continue
+  try:raw=(proc/'cmdline').read_bytes()
+  except (FileNotFoundError,ProcessLookupError,PermissionError):continue
+  if str(root).encode() in raw:
+   found.append({'pid':int(proc.name),'executable':raw.split(b'\0')[0].decode(errors='replace')})
+ return found
+result={'input_manifest_sha256':real['input_manifest_sha256'],'driver_exit_code':real['exit_code'],'two_passes':[]}
+for n in [1,2]:
+ checks=[]
+ for value,kind in created.items():
+  args=['network','inspect',value] if kind=='network' else ['inspect',value]
+  p=run(args);error=p.stderr.decode().strip()
+  absent=p.returncode==1 and value in error and ('No such object:' in error if kind=='container' else 'not found' in error)
+  checks.append({'argv':['/usr/local/bin/docker',*args],'exit_code':p.returncode,'stderr':error,'absent':absent})
+ after=current_baseline();processes=owned_processes();runtime=sorted(str(p.relative_to(root/'runtime')) for p in (root/'runtime').rglob('*'))
+ identities=after=={k:before[k] for k in ['containers','networks']}
+ row={'pass':n,'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'checks':checks,'baseline_after':after,'baseline_unchanged':identities,'owned_processes':processes,'runtime_entries':runtime}
+ result['two_passes'].append(row)
+ assert all(c['absent'] for c in checks) and identities and not processes and not runtime,row
+manifest=json.loads((root/'verification-input.json').read_text())
+result['frozen_input_unchanged']=all(hashlib.sha256((root/'snapshot'/p).read_bytes()).hexdigest()==sha for p,sha in manifest['files'].items())
+result['module_locks_unchanged']=all(hashlib.sha256((root/'snapshot'/p).read_bytes()).hexdigest()==sha for p,sha in manifest['module_locks'].items())
+assert result['frozen_input_unchanged'] and result['module_locks_unchanged']
+(root/'evidence/resource-final-checks.json').write_text(json.dumps(result,indent=2)+'\n')
+print(json.dumps({'driver_exit_code':real['exit_code'],'containers_absent':4,'networks_absent':3,'passes':2,'baseline_containers':len(before['containers']),'baseline_networks':len(before['networks']),'baseline_unchanged':True,'owned_processes':0,'runtime_entries':0,'input_unchanged':True,'report_sha256':hashlib.sha256((root/'evidence/resource-final-checks.json').read_bytes()).hexdigest()},indent=2))

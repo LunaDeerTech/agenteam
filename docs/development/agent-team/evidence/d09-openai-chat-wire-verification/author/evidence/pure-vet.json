@@ -1,0 +1,42 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "vet",
+    "./..."
+  ],
+  "cwd": "/workspace/agenteam-openai-wire-o11zl625/snapshot",
+  "environment": {
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "sum.golang.org",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-openai-wire-o11zl625/go-build",
+    "TMPDIR": "/workspace/agenteam-openai-wire-o11zl625/tmp",
+    "GOFLAGS": "-mod=readonly"
+  },
+  "baseline": "de00c610da62cb77cc03efe7c3cc842cf81f1ba5",
+  "started_at": "2026-10-05T16:29:27.393894+00:00",
+  "inputs": {
+    "internal/central/model/adapter/openai_chat.go": "e1b3a23b5c792b71255de9c747cf13fe1e41700430167386041c7d22b5dc457a",
+    "internal/central/model/adapter/transport.go": "443f7b288e90c1ff8b0b5504005369f452e43fb55420e28f9794828037aeda42",
+    "internal/central/model/adapter/sse.go": "53439e38f47a0f73876d8ae45315a8f932678cad15feab173ccb2e69f9e2ebe3",
+    "internal/central/model/adapter/errors.go": "24f7aa4cf23f3835bd911a2bb9fedee129045abde698c21bb5711a2ed494e499",
+    "internal/central/model/adapter/budget.go": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a",
+    "internal/central/model/adapter/openai_chat_test.go": "a175e4aeb91c16a0ae28f7187351ddbf651b4c457ccb624ba141cd7a73523bc0",
+    "internal/central/model/adapter/transport_test.go": "c9be8f7f49bf6e460bad132cb55bf5567949d834c8060feb2527ebc6e824cc15",
+    "internal/central/model/adapter/sse_test.go": "fd72da07db261253e7fda1a257d8afede23602882eb68551f14de189e3698859",
+    "internal/central/model/adapter/errors_test.go": "e8e345373f8706abb13ec9866fe83fa9a40d13eb62f567d9dbfcd8f8063bafcd",
+    "internal/central/model/adapter/budget_test.go": "4f2d0babcd7f67e65ca303a5a128756ac9f082b3500346512baea28a4e0d9b30",
+    "internal/central/model/adapter/testdata/openai-chat-text-v1.json": "1f41dc008dcc5438da331b8426f83dbb6fcdb48a38bd57d277c6555746be941e",
+    "tests/model/openai_chat_wire_fixture_test.go": "cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8",
+    "tests/model/openai_chat_wire_http_test.go": "d8eb23185ca49431f58f2ba0faa336834f557f0b73343d24f361418874378d77",
+    "tests/model/openai_chat_wire_stream_test.go": "dc9106cf7f2b05c6d574dd627ce3614c5f8606ac6d468f39b0fae105953edbc3",
+    "tests/testsupport/outbound/fixture.go": "525e7cc33d887fb1d741a5c34fddd048c5827cdef1943bc9fae924ce4f754cbc",
+    "tests/testsupport/outbound/cmd/server/main.go": "2ca0951c43f5dede7defd35443b67c31aa7e910f36ecdfe9fbb8212070ef6071"
+  },
+  "exit_code": 0,
+  "finished_at": "2026-10-05T16:29:33.613557+00:00",
+  "log": "pure-vet.log"
+}

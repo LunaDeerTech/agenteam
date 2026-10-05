@@ -1,0 +1,91 @@
+[
+  {
+    "commit": "9d648575d07ce791dd623eb45eb6604cc6c908b5",
+    "path": "docs/development/work-items/recovery-d09-openai-chat-wire.md",
+    "argv": [
+      "git",
+      "show",
+      "9d648575d07ce791dd623eb45eb6604cc6c908b5:docs/development/work-items/recovery-d09-openai-chat-wire.md"
+    ],
+    "exit_code": 0,
+    "bytes": 27996,
+    "sha256": "e291b5fb90d047f9a2e3d502d0a853760fa8a2b047cce287785dc7021e35eedb"
+  },
+  {
+    "commit": "de00c610da62cb77cc03efe7c3cc842cf81f1ba5",
+    "path": "internal/central/outbound/client.go",
+    "argv": [
+      "git",
+      "show",
+      "de00c610da62cb77cc03efe7c3cc842cf81f1ba5:internal/central/outbound/client.go"
+    ],
+    "exit_code": 0,
+    "bytes": 13519,
+    "sha256": "127467315ed1798db92d4785d856880b46b7e2b723c2dc723d3fbf7b1dcc4816"
+  },
+  {
+    "commit": "de00c610da62cb77cc03efe7c3cc842cf81f1ba5",
+    "path": "internal/central/outbound/http.go",
+    "argv": [
+      "git",
+      "show",
+      "de00c610da62cb77cc03efe7c3cc842cf81f1ba5:internal/central/outbound/http.go"
+    ],
+    "exit_code": 0,
+    "bytes": 18294,
+    "sha256": "f55b178fef52c4ea19e897835c64679c703045ccb86ea3863959953152ff3eb6"
+  },
+  {
+    "commit": "de00c610da62cb77cc03efe7c3cc842cf81f1ba5",
+    "path": "internal/central/outbound/profile.go",
+    "argv": [
+      "git",
+      "show",
+      "de00c610da62cb77cc03efe7c3cc842cf81f1ba5:internal/central/outbound/profile.go"
+    ],
+    "exit_code": 0,
+    "bytes": 9282,
+    "sha256": "a2d9000c8cf1b8df4bf5450ab67cf4575b35763dd85765307b7e9f433d73dca0"
+  },
+  {
+    "commit": "de00c610da62cb77cc03efe7c3cc842cf81f1ba5",
+    "path": "internal/central/model/contract/types.go",
+    "argv": [
+      "git",
+      "show",
+      "de00c610da62cb77cc03efe7c3cc842cf81f1ba5:internal/central/model/contract/types.go"
+    ],
+    "exit_code": 0,
+    "bytes": 19439,
+    "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4"
+  },
+  {
+    "kind": "previously independently verified SDK source manifest",
+    "path": "/workspace/agenteam-openai-chat-source-5t6d72b5/source-manifest.json",
+    "sha256": "14de67c09ce263b11414505fcd52f125b48684dfafa23374281a6b066d317760"
+  },
+  {
+    "kind": "fixed SDK subset re-read",
+    "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+    "path": "src/openai/types/completion_usage.py",
+    "sha256": "505975694e13d13a3cac7e9b2eff707ef8b125f0de91e32ccc89fc4b7c2161a2"
+  },
+  {
+    "kind": "fixed SDK subset re-read",
+    "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+    "path": "src/openai/types/chat/chat_completion.py",
+    "sha256": "71b254f0b41d740bbbbc1a94a5298fec7fc58a9fccf2acec1948c2a1f2b62f16"
+  },
+  {
+    "kind": "fixed SDK subset re-read",
+    "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+    "path": "src/openai/types/chat/chat_completion_chunk.py",
+    "sha256": "44bc28a96e088a6aa176b9426c495649d52b708fd7dab7f652cad75cf188bb08"
+  },
+  {
+    "kind": "fixed SDK subset re-read",
+    "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+    "path": "src/openai/types/chat/chat_completion_message.py",
+    "sha256": "9fb369e540871b3a7ddd5e8acd73cfc03b6973a52245514d750f00a977c74a34"
+  }
+]

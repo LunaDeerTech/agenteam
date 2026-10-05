@@ -1,0 +1,58 @@
+ok  	github.com/LunaDeerTech/agenteam/cmd/agenteam	0.024s
+?   	github.com/LunaDeerTech/agenteam/cmd/agenteam-runner	[no test files]
+?   	github.com/LunaDeerTech/agenteam/db/migrations	[no test files]
+--- FAIL: TestB04HTTPOpenAPIRoutesAgree (0.00s)
+    http_test.go:702: open ../../../api/openapi/account.json: no such file or directory
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/account	4.094s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/account/contract	0.005s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	0.032s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	6.907s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/artifact	0.004s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/artifact/contract	0.004s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit	0.010s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit/contract	0.008s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/config	0.071s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/cursor	0.022s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/event/contract	0.020s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/foundation	0.010s
+--- FAIL: TestSharedSchemaMatchesImplementedBoundary (0.00s)
+    schema_test.go:17: open ../../../api/openapi/common.json: no such file or directory
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/httpapi	0.031s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/identity/contract	0.006s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract	0.010s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	0.006s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	0.404s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	0.004s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.227s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	0.010s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbound	6.610s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	0.020s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	0.016s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	0.059s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project	0.063s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project/contract	0.016s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	0.042s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret	0.008s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret/contract	0.003s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/skill	0.005s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/skill/contract	0.045s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/usage/contract	0.004s
+ok  	github.com/LunaDeerTech/agenteam/internal/platform/lifecycle	0.002s
+ok  	github.com/LunaDeerTech/agenteam/internal/platform/logging	0.002s
+ok  	github.com/LunaDeerTech/agenteam/internal/runner/app	0.002s
+ok  	github.com/LunaDeerTech/agenteam/internal/runner/config	0.002s
+ok  	github.com/LunaDeerTech/agenteam/tests/account	0.969s
+ok  	github.com/LunaDeerTech/agenteam/tests/process	1.578s
+ok  	github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv	0.006s
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/outbound	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/postgres	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/smtp	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/smtp/cmd/server	[no test files]
+FAIL

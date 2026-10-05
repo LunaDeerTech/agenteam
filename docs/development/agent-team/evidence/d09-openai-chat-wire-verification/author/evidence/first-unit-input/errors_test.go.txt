@@ -1,0 +1,88 @@
+package adapter
+
+import (
+	"encoding/json"
+	"fmt"
+	"math"
+	"strings"
+	"testing"
+
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+func nativeReply(text, finish string) string {
+	b, _ := json.Marshal(map[string]any{"id": "chat-1", "object": "chat.completion", "created": 1, "model": "native-model", "choices": []any{map[string]any{"index": 0, "message": map[string]any{"role": "assistant", "content": text}, "finish_reason": finish}}})
+	return string(b)
+}
+func TestOpenAIChatNativeUsageExactAndUnknown(t *testing.T) {
+	u, err := parseUsage([]byte(`{"prompt_tokens":9007199254740993,"completion_tokens":0,"total_tokens":9223372036854775807,"prompt_tokens_details":{"cached_tokens":3,"cache_write_tokens":2,"image_tokens":7},"completion_tokens_details":{"reasoning_tokens":4,"rejected_prediction_tokens":12,"text_tokens":0}}`))
+	if err != nil || u.Validate() != nil || *u.InputTokens != 9007199254740993 || *u.TotalTokens != mc.TokenCount(math.MaxInt64) || *u.OutputTokens != 0 || *u.CachedInputTokens != 3 || *u.CacheWriteTokens != 2 || *u.ReasoningTokens != 4 {
+		t.Fatal("exact provider counts", err)
+	}
+	for _, raw := range []string{`null`, `{}`, `{"prompt_tokens":null,"completion_tokens_details":{"reasoning_tokens":null}}`} {
+		u, err := parseUsage([]byte(raw))
+		if err != nil || u.Source != mc.UnknownUsage || u.TotalTokens != nil {
+			t.Fatal(raw, err)
+		}
+	}
+	for _, raw := range []string{`{"prompt_tokens":-1}`, `{"total_tokens":9223372036854775808}`, `{"total_tokens":1.2}`, `{"total_tokens":"1"}`, `{"total_tokens":1e3}`, `{"prompt_tokens_details":{"bogus":0}}`, `{"completion_tokens_details":{"text_tokens":-1}}`, `{"total_tokens":1,"total_tokens":2}`, `{"total_tokens completion_tokens":0}`} {
+		if _, err := parseUsage([]byte(raw)); err == nil {
+			t.Fatal("invalid usage accepted", raw)
+		}
+	}
+}
+func TestOpenAIChatNativeEnvelopeAndSafeErrors(t *testing.T) {
+	for _, finish := range []string{"stop", "length", "content_filter"} {
+		v, err := decodeNative([]byte(nativeReply("text", finish)), false)
+		if err != nil || v.text != "text" || string(v.finish) != finish {
+			t.Fatal(v, err)
+		}
+	}
+	for _, mutate := range []func(map[string]any){
+		func(v map[string]any) { v["unknown"] = true }, func(v map[string]any) { v["id object"] = "not a recognized key" },
+		func(v map[string]any) { v["choices"] = []any{} }, func(v map[string]any) { v["created"] = 1.5 },
+		func(v map[string]any) { v["service_tier"] = "unrecognized" }, func(v map[string]any) { v["obfuscation"] = "SSE only" },
+	} {
+		var value map[string]any
+		json.Unmarshal([]byte(nativeReply("text", "stop")), &value)
+		mutate(value)
+		raw, _ := json.Marshal(value)
+		if _, err := decodeNative(raw, false); err == nil {
+			t.Fatal("bad envelope accepted")
+		}
+	}
+	for _, raw := range []string{`{} {}`, `{"a":1,"a":2}`, `{"a":{"x":1,"x":2}}`, strings.Repeat(`{"a":`, 34) + `0` + strings.Repeat(`}`, 34), string([]byte{'"', 255, '"'})} {
+		if jsonShape([]byte(raw)) == nil {
+			t.Fatal("bad shape accepted")
+		}
+	}
+	for _, status := range []int{400, 401, 403, 404, 429, 500, 502, 503, 504} {
+		err := statusFailure(status)
+		var expected = mc.ErrorCategory("provider_error")
+		switch status {
+		case 401:
+			expected = "authentication"
+		case 403:
+			expected = "permission"
+		case 429:
+			expected = "rate_limited"
+		case 502, 503, 504:
+			expected = "provider_unavailable"
+		}
+		m := requireModel(t, err, expected, "wire_http_error")
+		if m.Retryable != (status == 429 || status == 502 || status == 503 || status == 504) {
+			t.Fatal("retry")
+		}
+	}
+	for _, s := range []string{"contains space", "private\nheader", strings.Repeat("a", 257), "中文", "https://secret.example"} {
+		if requestID(s) != "" {
+			t.Fatal("unsafe request id")
+		}
+	}
+	if requestID("req_safe-1:2.3") != "req_safe-1:2.3" {
+		t.Fatal("safe request id dropped")
+	}
+	if fmt.Sprint(protocolFailure()) != "model_provider_error" {
+		t.Fatal("unexpected safe error")
+	}
+}

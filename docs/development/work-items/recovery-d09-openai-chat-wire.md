@@ -1,6 +1,6 @@
 # D09 OpenAI Chat 文本 wire 库恢复卡
 
-修订 2，2026-10-05。状态：**规格及来源证据已独立复审通过并由主线程采纳，按文末授权实施；尚未验收业务行为。** 固定生产基线 `de00c610da62cb77cc03efe7c3cc842cf81f1ba5`，已含 Project 配置；本卡只消费已验 D04 与 C0，不消费活动 Artifact 或 Project Runtime 源。唯一规格写者为 `restore_test_dependencies`。
+修订 2，2026-10-05。状态：**OpenAI Chat 文本 wire 库已独立验收并获主线程采纳，16 源已提交推送 `9c72190fc1600f27c3607a3315854967ae008138`。** 验收及后继边界见文末与[正式报告](../agent-team/d09-openai-chat-wire-verification.md)。 固定生产基线 `de00c610da62cb77cc03efe7c3cc842cf81f1ba5`，已含 Project 配置；本卡只消费已验 D04 与 C0，不消费活动 Artifact 或 Project Runtime 源。唯一规格写者为 `restore_test_dependencies`。
 
 ## 1. 完整结果与依赖
 
@@ -194,3 +194,9 @@ Request 状态只新增 `RequestURI string`；State 只新增 `ActiveHandlers, C
 2026-10-05，主线程采纳冻结 rev2（SHA-256 `650cf36506951abc54bf44e7c84738e074238c28c65db3a770bfdc0a8157c508`）。独立差量报告 SHA-256 `eb8e04f77989be2540edc53e80c15d84b89d4bde86a54d5c4e4121482d772f96`；两处协议修订已闭合，API/DTO/16路径未扩。主线程核全部来源索引并实际离线重建17源/17摘录/许可证通过，未执行SDK或Provider。冻结卡副本位于来源证据目录，当前采纳页首不改变原审查输入。
 
 唯一实施者为 `restore_test_dependencies`，仅开放本卡16个源/测试/fixture路径。固定生产输入为 `de00c610da62cb77cc03efe7c3cc842cf81f1ba5` 加本卡自身变更；不消费活动Artifact/Project修复。已有两fixture接缝实施前核Git差量和唯一所有权；不得扩D04/C0核心、SQL/迁移/依赖/driver/生产root或业务Invocation。先纯测试与编译、冻结后独立验收；真实资源须主线程另行交窗。源代码、实际命令/环境/退出码/原日志及安全错误、实际join证据必须保留，真实供应商账号测试未执行不作通过声明。
+
+## 库级验收与提交
+
+2026-10-05，16 源已独立验收，主线程逐 SHA 核对后精确提交推送 `9c72190fc1600f27c3607a3315854967ae008138` 并确认远端一致。作者真实 13 顶层/36 子例（3 新 wire、10 旧 D04）及最终 adapter unit/race 15 顶层/38 子例通过；独立真实 1 顶层/2 子例通过，SSE 子例含 held-DONE 两分支。首 unit、集成编译及根纯测试失败原件保留；根纯测试按 38 个已过包、两包恢复基线输入后复验和最终 adapter 检查组合采用，不称单次整根全绿。
+
+[正式报告与轻量可重建证据](../agent-team/d09-openai-chat-wire-verification.md)记录静审、原始命令/输入/退出码、真实资源二次清零及证据复用边界。结果限于本卡库级能力；未使用真实 Provider 账号，Model consumer、Secret Model resolve、Invocation、Usage 持久化与生产 root 尚未绑定，Summary 初值/Settings 仍待用户决定。既定 API、产品规则、16 路径范围与上述实施阶段历史不变。

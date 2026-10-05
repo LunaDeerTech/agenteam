@@ -1,0 +1,173 @@
+{
+  "author_index_sha256": "955d2588d894ada2511e223320a04b2ec9a47ba84038c87501829f4d3885c52d",
+  "checked_commands": [
+    {
+      "label": "first-compile",
+      "exit_code": 0,
+      "candidate_mismatches": [
+        "internal/central/model/adapter/openai_chat.go",
+        "internal/central/model/adapter/transport.go",
+        "internal/central/model/adapter/errors.go",
+        "internal/central/model/adapter/openai_chat_test.go",
+        "internal/central/model/adapter/transport_test.go",
+        "internal/central/model/adapter/sse_test.go",
+        "internal/central/model/adapter/errors_test.go",
+        "internal/central/model/adapter/budget_test.go",
+        "internal/central/model/adapter/testdata/openai-chat-text-v1.json",
+        "tests/model/openai_chat_wire_fixture_test.go",
+        "tests/model/openai_chat_wire_http_test.go",
+        "tests/model/openai_chat_wire_stream_test.go",
+        "tests/testsupport/outbound/fixture.go",
+        "tests/testsupport/outbound/cmd/server/main.go"
+      ],
+      "hashes_checked": true
+    },
+    {
+      "label": "first-unit",
+      "exit_code": 1,
+      "candidate_mismatches": [
+        "internal/central/model/adapter/errors.go",
+        "internal/central/model/adapter/openai_chat_test.go",
+        "internal/central/model/adapter/sse_test.go",
+        "internal/central/model/adapter/errors_test.go",
+        "internal/central/model/adapter/testdata/openai-chat-text-v1.json",
+        "tests/model/openai_chat_wire_fixture_test.go",
+        "tests/model/openai_chat_wire_http_test.go",
+        "tests/model/openai_chat_wire_stream_test.go",
+        "tests/testsupport/outbound/fixture.go",
+        "tests/testsupport/outbound/cmd/server/main.go"
+      ],
+      "hashes_checked": true
+    },
+    {
+      "label": "pure-race-v1",
+      "exit_code": 0,
+      "candidate_mismatches": [
+        "internal/central/model/adapter/errors.go",
+        "internal/central/model/adapter/openai_chat_test.go",
+        "internal/central/model/adapter/sse_test.go",
+        "internal/central/model/adapter/errors_test.go",
+        "internal/central/model/adapter/testdata/openai-chat-text-v1.json",
+        "tests/model/openai_chat_wire_fixture_test.go",
+        "tests/model/openai_chat_wire_http_test.go",
+        "tests/model/openai_chat_wire_stream_test.go"
+      ],
+      "hashes_checked": true
+    },
+    {
+      "label": "pure-race-v2",
+      "exit_code": 0,
+      "candidate_mismatches": [
+        "internal/central/model/adapter/openai_chat_test.go",
+        "internal/central/model/adapter/sse_test.go",
+        "internal/central/model/adapter/testdata/openai-chat-text-v1.json",
+        "tests/model/openai_chat_wire_fixture_test.go",
+        "tests/model/openai_chat_wire_http_test.go"
+      ],
+      "hashes_checked": true
+    },
+    {
+      "label": "pure-final-race",
+      "exit_code": 0,
+      "candidate_mismatches": [
+        "internal/central/model/adapter/openai_chat_test.go",
+        "tests/model/openai_chat_wire_fixture_test.go",
+        "tests/model/openai_chat_wire_http_test.go"
+      ],
+      "hashes_checked": true
+    },
+    {
+      "label": "integration-compile-v1",
+      "exit_code": 1,
+      "candidate_mismatches": [
+        "internal/central/model/adapter/errors.go",
+        "internal/central/model/adapter/openai_chat_test.go",
+        "internal/central/model/adapter/sse_test.go",
+        "internal/central/model/adapter/errors_test.go",
+        "internal/central/model/adapter/testdata/openai-chat-text-v1.json",
+        "tests/model/openai_chat_wire_fixture_test.go",
+        "tests/model/openai_chat_wire_http_test.go"
+      ],
+      "hashes_checked": true
+    },
+    {
+      "label": "integration-compile-v2",
+      "exit_code": 0,
+      "candidate_mismatches": [
+        "internal/central/model/adapter/openai_chat_test.go",
+        "tests/model/openai_chat_wire_fixture_test.go",
+        "tests/model/openai_chat_wire_http_test.go"
+      ],
+      "hashes_checked": true
+    },
+    {
+      "label": "pure-root",
+      "exit_code": 1,
+      "candidate_mismatches": [
+        "internal/central/model/adapter/openai_chat_test.go",
+        "tests/model/openai_chat_wire_fixture_test.go",
+        "tests/model/openai_chat_wire_http_test.go"
+      ],
+      "hashes_checked": true
+    },
+    {
+      "label": "pure-root-api-recheck",
+      "exit_code": 0,
+      "candidate_mismatches": [],
+      "hashes_checked": true
+    },
+    {
+      "label": "pure-adapter-final",
+      "exit_code": 0,
+      "candidate_mismatches": [],
+      "hashes_checked": true
+    },
+    {
+      "label": "pure-vet",
+      "exit_code": 0,
+      "candidate_mismatches": [],
+      "hashes_checked": true
+    },
+    {
+      "label": "integration-compile-final",
+      "exit_code": 0,
+      "candidate_mismatches": [],
+      "hashes_checked": true
+    },
+    {
+      "label": "central-build",
+      "exit_code": 0,
+      "candidate_mismatches": [],
+      "hashes_checked": true
+    },
+    {
+      "label": "runner-build",
+      "exit_code": 0,
+      "candidate_mismatches": [],
+      "hashes_checked": true
+    },
+    {
+      "label": "first-real",
+      "exit_code": 0,
+      "candidate_mismatches": [],
+      "hashes_checked": true
+    }
+  ],
+  "real_top_pass": [
+    "TestOutboundNetworkSerializedHeaderLimitBeforeAnyRequestBytes",
+    "TestOutboundNetworkCancellationDrainAndForce",
+    "TestOutboundNetworkBlockedRequestBodyCancelledAndJoined",
+    "TestOutboundNetworkOldContextCannotCloseReusedConnection",
+    "TestOutboundNetworkHeaderTimeoutAndNativeClientMapping",
+    "TestOutboundNetworkRealPrivateRulesTLSAndKeepAlive",
+    "TestOutboundNetworkSentRequestsNeverRetry",
+    "TestOutboundNetworkHTTPFramingAndLimits",
+    "TestOutboundNetworkRedirectStripsAllCallerAuthentication",
+    "TestOutboundNetworkRedirectEachHopAndMethodBoundary",
+    "TestModelOpenAIChatWireHTTP",
+    "TestModelOpenAIChatWireStream",
+    "TestModelOpenAIChatWireJoinAndBudget"
+  ],
+  "real_subtest_pass": 36,
+  "real_fail_skip": []
+}

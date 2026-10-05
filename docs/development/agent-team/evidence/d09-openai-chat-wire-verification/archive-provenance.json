@@ -1,0 +1,605 @@
+{
+  "status": "library-level accepted; author, static and independent dynamic original evidence archived",
+  "baseline": "de00c610da62cb77cc03efe7c3cc842cf81f1ba5",
+  "candidate_manifest_sha256": "1ed6b19184fa2e3cec928ed01e3b651eadc1704718b8d0f7547e1949dbf03f80",
+  "candidate_patch_sha256": "3b7f9c71f7a8737b72bf7bd9b1a305cc3e73fb4e06cba9098d0055c5fe3d28ba",
+  "candidate_files": [
+    {
+      "path": "internal/central/model/adapter/openai_chat.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "e1b3a23b5c792b71255de9c747cf13fe1e41700430167386041c7d22b5dc457a",
+      "bytes": 10220
+    },
+    {
+      "path": "internal/central/model/adapter/transport.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "443f7b288e90c1ff8b0b5504005369f452e43fb55420e28f9794828037aeda42",
+      "bytes": 11555
+    },
+    {
+      "path": "internal/central/model/adapter/sse.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "53439e38f47a0f73876d8ae45315a8f932678cad15feab173ccb2e69f9e2ebe3",
+      "bytes": 3267
+    },
+    {
+      "path": "internal/central/model/adapter/errors.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "24f7aa4cf23f3835bd911a2bb9fedee129045abde698c21bb5711a2ed494e499",
+      "bytes": 11274
+    },
+    {
+      "path": "internal/central/model/adapter/budget.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a",
+      "bytes": 2607
+    },
+    {
+      "path": "internal/central/model/adapter/openai_chat_test.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "a175e4aeb91c16a0ae28f7187351ddbf651b4c457ccb624ba141cd7a73523bc0",
+      "bytes": 10686
+    },
+    {
+      "path": "internal/central/model/adapter/transport_test.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "c9be8f7f49bf6e460bad132cb55bf5567949d834c8060feb2527ebc6e824cc15",
+      "bytes": 4218
+    },
+    {
+      "path": "internal/central/model/adapter/sse_test.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "fd72da07db261253e7fda1a257d8afede23602882eb68551f14de189e3698859",
+      "bytes": 6539
+    },
+    {
+      "path": "internal/central/model/adapter/errors_test.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "e8e345373f8706abb13ec9866fe83fa9a40d13eb62f567d9dbfcd8f8063bafcd",
+      "bytes": 4281
+    },
+    {
+      "path": "internal/central/model/adapter/budget_test.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "4f2d0babcd7f67e65ca303a5a128756ac9f082b3500346512baea28a4e0d9b30",
+      "bytes": 3404
+    },
+    {
+      "path": "internal/central/model/adapter/testdata/openai-chat-text-v1.json",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "1f41dc008dcc5438da331b8426f83dbb6fcdb48a38bd57d277c6555746be941e",
+      "bytes": 21929
+    },
+    {
+      "path": "tests/model/openai_chat_wire_fixture_test.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8",
+      "bytes": 10655
+    },
+    {
+      "path": "tests/model/openai_chat_wire_http_test.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "d8eb23185ca49431f58f2ba0faa336834f557f0b73343d24f361418874378d77",
+      "bytes": 9025
+    },
+    {
+      "path": "tests/model/openai_chat_wire_stream_test.go",
+      "baseline_exists": false,
+      "baseline_sha256": null,
+      "candidate_sha256": "dc9106cf7f2b05c6d574dd627ce3614c5f8606ac6d468f39b0fae105953edbc3",
+      "bytes": 14545
+    },
+    {
+      "path": "tests/testsupport/outbound/fixture.go",
+      "baseline_exists": true,
+      "baseline_sha256": "3ca36f2786e143e677d4c51844f6649a55c6a4af3c815c8db1f72bbffc8d2920",
+      "candidate_sha256": "525e7cc33d887fb1d741a5c34fddd048c5827cdef1943bc9fae924ce4f754cbc",
+      "bytes": 5394
+    },
+    {
+      "path": "tests/testsupport/outbound/cmd/server/main.go",
+      "baseline_exists": true,
+      "baseline_sha256": "c2d2a0de367a49b5248696c1f6e1a8f91a8ae8bbb44979faa13c15ba751b278d",
+      "candidate_sha256": "2ca0951c43f5dede7defd35443b67c31aa7e910f36ecdfe9fbb8212070ef6071",
+      "bytes": 10592
+    }
+  ],
+  "copied_originals": [
+    {
+      "path": "author/author-report.md",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/author-report.md",
+      "sha256": "8a22186eeeb3e8d5800cfdf47356574a6be3b912d4722fac8939b7c29cbe9d37",
+      "bytes": 4882,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/author-evidence.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/author-evidence.json",
+      "sha256": "955d2588d894ada2511e223320a04b2ec9a47ba84038c87501829f4d3885c52d",
+      "bytes": 8254,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "candidate-manifest.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/candidate-rev1/manifest.json",
+      "sha256": "1ed6b19184fa2e3cec928ed01e3b651eadc1704718b8d0f7547e1949dbf03f80",
+      "bytes": 3270,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/first-compile.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-compile.json",
+      "sha256": "ec2f7d8b5b6bc2ef572ae617b04f65e2875880d34b0e88234c468ba4c68de8cc",
+      "bytes": 1561,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/first-compile.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-compile.log",
+      "sha256": "a4126256818571fba03b3d25cf9413edc2fa8caf4fae54ad038c84d130490ac4",
+      "bytes": 85,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/first-unit.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-unit.json",
+      "sha256": "6494a879bab4e2aba5909fb296edca4e173d5e71d007f8fe51b2ebc25f676378",
+      "bytes": 2213,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/first-unit.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-unit.log",
+      "sha256": "3bc7d98c062c2e4bbe380fc4da0723d6af78400b96986e8bce4343ebbaaef679",
+      "bytes": 5797,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-race-v1.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-race-v1.json",
+      "sha256": "7391c3d4b580156174f01a258172a78ff56ecc7bfd547484e0841437e253a8f8",
+      "bytes": 2268,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-race-v1.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-race-v1.log",
+      "sha256": "38013aed4eb6d74b335d27ddb6ce7a186137b265afe5eb5bf3f9a762bef56818",
+      "bytes": 6013,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-race-v2.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-race-v2.json",
+      "sha256": "fc56ce56edd03283b12769656997e59535304733435c9788c1f80b7ab0e75b01",
+      "bytes": 2799,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-race-v2.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-race-v2.log",
+      "sha256": "651cf707c9798e252c419093e2789c77672d4614fd445d5f3e6ecf4b9a6d923e",
+      "bytes": 24473,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-final-race.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-final-race.json",
+      "sha256": "158472d5d5eedadda18d0367108d47772024fb05aa5c7f8c6eaf7cb0df7805ae",
+      "bytes": 2843,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-final-race.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-final-race.log",
+      "sha256": "8999dec634a22ab7258c361fac7a7749c19e9536c499653551ea19adc00226f0",
+      "bytes": 25073,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/integration-compile-v1.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-v1.json",
+      "sha256": "f3c0209a31c8e80d9a357eb7ef64d10222cb4046c3e308d2794948c3c215566f",
+      "bytes": 2641,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/integration-compile-v1.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-v1.log",
+      "sha256": "a67f29960d753c8d38cc8575cd3a1d87de3ea8ffb1dad78a8bd4d1c9df7cb59e",
+      "bytes": 653,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/integration-compile-v2.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-v2.json",
+      "sha256": "18ca6b58dc5e5761113eece6da80a396070f9e4b1140db8cd37e814255569692",
+      "bytes": 2781,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/integration-compile-v2.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-v2.log",
+      "sha256": "06906d2768d2907ce13dff8f986d53caa0724c7fbfd7b991f9fb7de4863f67f9",
+      "bytes": 421,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-root.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-root.json",
+      "sha256": "39aacc085fb40eb0835f3bf4a0fb11478810e3324dcc403a251835ede5466632",
+      "bytes": 2712,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-root.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-root.log",
+      "sha256": "0ba98b014e4aa3d683caa2c10d815bce293e19afff0dc7a63f2d31845d949c6b",
+      "bytes": 4107,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-root-api-recheck.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-root-api-recheck.json",
+      "sha256": "7b0a45b1f42be743dba0bfd3521d59250e01cb71e21888d7e3aea3488b480e0b",
+      "bytes": 2779,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-root-api-recheck.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-root-api-recheck.log",
+      "sha256": "21947e7ae98090a672f9da2b1b2fd1b3b338429fd42628ea8b5261d0ea1200f1",
+      "bytes": 140,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-adapter-final.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-adapter-final.json",
+      "sha256": "46b879a46e23f75620159b8ab95c3772f422aa8c3b374d02daff5788f0dc8660",
+      "bytes": 2771,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-adapter-final.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-adapter-final.log",
+      "sha256": "860aa1b600f02265ac487af8fc238b5619a9bdc15e30ecc9e427921e937b06b5",
+      "bytes": 7547,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-vet.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-vet.json",
+      "sha256": "2c55ae9c03de099c2e9b813bea61858d4b267733362671d90501ff658f39262e",
+      "bytes": 2675,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/pure-vet.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-vet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/integration-compile-final.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-final.json",
+      "sha256": "9274290b87cb47e66dc5ac7ec828e79b894ddb0afae7dac0e488bc5b9129dbc8",
+      "bytes": 2825,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/integration-compile-final.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-final.log",
+      "sha256": "f2952b5a70d33488956aec8e073d8c3b430899ea0c29344ab9f846078f68320d",
+      "bytes": 421,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/central-build.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/central-build.json",
+      "sha256": "0dadef744facb23515aaad4806d77a524c6ce1bf427bfa82a31f125d19442f94",
+      "bytes": 2757,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/central-build.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/central-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/runner-build.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/runner-build.json",
+      "sha256": "5e436d436a97ec54ea8c42ac83e922f2f19b22f7079cd05dc763f7f550034e2e",
+      "bytes": 2762,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/runner-build.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/runner-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/first-real.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-real.json",
+      "sha256": "bda116bf04b6f8f81500d8880a0f73da205898ab5851eefc937e40b9524aed1d",
+      "bytes": 4509,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/first-real.log",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-real.log",
+      "sha256": "ee79900d356214c5ac7780b4faf3e3c1144279b3e2889af69fcdb75aa8db918d",
+      "bytes": 11835,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/baseline.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/baseline.json",
+      "sha256": "c6ba979bb45c748a94ccb3d3b8da78a7ffb62d813ab977a119cf6b6fb8b729c7",
+      "bytes": 269,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/freeze-checks.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/freeze-checks.json",
+      "sha256": "8710ca5c74826e8a466dea256e0ae9143105874648e512eb0861db13ff7369a6",
+      "bytes": 1368,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/provenance-checks.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/provenance-checks.json",
+      "sha256": "c3669ad503a4236755c20fc9e17b1c7ce57a143871dc6bf1382eb109f884a7d8",
+      "bytes": 340,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/snapshot-api-restoration.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/snapshot-api-restoration.json",
+      "sha256": "b58664d6e9bb87192ea45c0f3aabcc3d0779bbb232252e04c8081487345c9867",
+      "bytes": 491,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/real-baseline.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/real-baseline.json",
+      "sha256": "c3fb77ab5e173c422a0b24f7b188898a6cf7559fd4f582cb8142b05cb81c717f",
+      "bytes": 2850,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/resource-final-checks.json",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/resource-final-checks.json",
+      "sha256": "1c52778fe4b54ad1635427114162e8534e54ceb99385232697f8bf5b8071885e",
+      "bytes": 5661,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/docker-operations.jsonl",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/docker-operations.jsonl",
+      "sha256": "462d4ab7d602bbe788107e814211f06987b7ad05b60b1251bde791d87c1a2b9a",
+      "bytes": 29363,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/first-unit-input/errors_test.go.txt",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-unit-input/errors_test.go",
+      "sha256": "85f426f06397a9e176ee123b89cdebab434264a8b9a2a84d037071cc1d39f31e",
+      "bytes": 3938,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "author/evidence/integration-compile-v1-input/openai_chat_wire_http_test.go.txt",
+      "original": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-v1-input/openai_chat_wire_http_test.go",
+      "sha256": "1cc8107a5fd5682ef3b235d66c46e260225c9c3d8f887a01bd31c033b5f27da2",
+      "bytes": 8975,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "static/review.md",
+      "original": "/tmp/agenteam-openai-wire-production-static-qy10y8yp/review.md",
+      "sha256": "786800ca930deffdf8c7a1a23551b85136e7340edbc51fa01a83f8e8a6cc9860",
+      "bytes": 7834,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "static/manifest.json",
+      "original": "/tmp/agenteam-openai-wire-production-static-qy10y8yp/manifest.json",
+      "sha256": "df11905c95ee6009011db6a3c7426ffe3be49d9bac61349137a5c5d092e09df9",
+      "bytes": 901,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "static/checks.json",
+      "original": "/tmp/agenteam-openai-wire-production-static-qy10y8yp/checks.json",
+      "sha256": "c2f903d77bfb624a3eeb15f4136ee5358d11f72ab803500ece0bc2aed0f2f1cc",
+      "bytes": 627,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "static/initial-check.json",
+      "original": "/tmp/agenteam-openai-wire-production-static-qy10y8yp/initial-check.json",
+      "sha256": "e0614c8ebd1dfcc6b085e9d8fd56ca64d6d517f836690657d803d3758e99c76a",
+      "bytes": 1152,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "static/dependency-inputs.json",
+      "original": "/tmp/agenteam-openai-wire-production-static-qy10y8yp/dependency-inputs.json",
+      "sha256": "daf5c2e189b4b85a992ebb42b9c030c8f57583c54dddf02d9285ee840b7925b3",
+      "bytes": 3149,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "static/SHA256SUMS.json",
+      "original": "/tmp/agenteam-openai-wire-production-static-qy10y8yp/SHA256SUMS.json",
+      "sha256": "b9de090007bf16a73a81c01637fc628d501005384c834f64fa3361c6f4949292",
+      "bytes": 1306,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/audit-independent.py.txt",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/audit-independent.py",
+      "sha256": "f8d4034a0cd44e7524c96dc42b731af422391046ea01cf833affa92e2bf1ee7a",
+      "bytes": 4156,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/evidence/author-reuse-checks.json",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/evidence/author-reuse-checks.json",
+      "sha256": "63a1737f948b457bbb820740d915815e03a0c74fd369b6bd3c8ed8c0b3da2b72",
+      "bytes": 5988,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/evidence/compile-input.json",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/evidence/compile-input.json",
+      "sha256": "7197582f4f156866c1607dced0c95b0f646448e5b7d601cf16d52d9504672c05",
+      "bytes": 1102,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/evidence/compile.json",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/evidence/compile.json",
+      "sha256": "746fcd29bca707e676e27dc01f9e4b53ecba620d818edf2bed23a725e93186bd",
+      "bytes": 1344,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/evidence/compile.log",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/evidence/compile.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/evidence/docker-operations.jsonl",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/evidence/docker-operations.jsonl",
+      "sha256": "cb963e755f990d1224bf19ff8f18ed0f5d36f6c39ba496f1422eb322130e14ea",
+      "bytes": 7761,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/evidence/final-source-evidence-checks.json",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/evidence/final-source-evidence-checks.json",
+      "sha256": "7bc618e8de720eefad82bca45fc05095800b888c6ee249f85850192e4002b147",
+      "bytes": 1106,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/evidence/independent-input.json",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/evidence/independent-input.json",
+      "sha256": "d98b4ee361eb6b7808720c84b263c26f5285c38b855675dd1c0b2c991758fa14",
+      "bytes": 3988,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/evidence/independent-real.json",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/evidence/independent-real.json",
+      "sha256": "928ff884f77e44c849a6be7f5bc40b855ec7832beabf571a78a0cd3cd3f38866",
+      "bytes": 4143,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/evidence/independent-real.log",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/evidence/independent-real.log",
+      "sha256": "75298b0bc3fe902003fe57ed86f9dde12e8384d1c8cfa27601063e2898daf20a",
+      "bytes": 12795,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/evidence/resource-baseline.json",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/evidence/resource-baseline.json",
+      "sha256": "f4d9c27523f078849a201012fa5f5d1bc0358f568138c3357edfbc5cea4e090c",
+      "bytes": 2895,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/evidence/resource-final-checks.json",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/evidence/resource-final-checks.json",
+      "sha256": "fb86f6253829aca86e6194d99fe0663acb23ff1e2de29baac36f6f18147a67f0",
+      "bytes": 12369,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/evidence/static-production-checks.json",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/evidence/static-production-checks.json",
+      "sha256": "c2f903d77bfb624a3eeb15f4136ee5358d11f72ab803500ece0bc2aed0f2f1cc",
+      "bytes": 627,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/probe.go.txt",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/probe.go.txt",
+      "sha256": "be61b134824ea022384c92834e53c0cd668484c1ebd182935b93c81e2f7565d4",
+      "bytes": 7607,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/ready.md",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/ready.md",
+      "sha256": "9e906b66de1a60a815701217b33467f78d867ff034ca20b5c7130669c0ec0451",
+      "bytes": 2993,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/run-independent.py.txt",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/run-independent.py",
+      "sha256": "b047779e4a8da61b26a10d682fbb4302d6e513e80df99b324d3a7514ec9bc614",
+      "bytes": 4947,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/verification-input.json",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/verification-input.json",
+      "sha256": "eb84622d9afe9f1701df014ce8a834c4d2549d56a7eb4f996ee499f534c31857",
+      "bytes": 2837,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/verification-report.md",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/verification-report.md",
+      "sha256": "0a229c310fb5d8a45fe25037b5ff5bb1a95364131560168294ea80f215c2fd6b",
+      "bytes": 7991,
+      "mode": "unchanged original bytes"
+    },
+    {
+      "path": "independent/verification-evidence.json",
+      "original": "/workspace/agenteam-openai-wire-verification-acwx944n/verification-evidence.json",
+      "sha256": "4841784d7f8edd02f4d0497ae2dda2c3f0ffb9404d5a11b200e9cbf81d701d7b",
+      "bytes": 8401,
+      "mode": "unchanged original bytes"
+    }
+  ],
+  "sdk_source_reference": {
+    "commit": "9d648575d07ce791dd623eb45eb6604cc6c908b5",
+    "path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/source-manifest.json",
+    "sha256": "14de67c09ce263b11414505fcd52f125b48684dfafa23374281a6b066d317760",
+    "sdk_commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813"
+  },
+  "scope": "no full snapshot/cache/credentials; no product commands run for archiving",
+  "accepted_source_commit": "9c72190fc1600f27c3607a3315854967ae008138",
+  "accepted_source_check_sha256": "6992697703552633f127823d6295aff31d46eb757c002bcd1de52fc829e2e224",
+  "independent_verification_report_sha256": "0a229c310fb5d8a45fe25037b5ff5bb1a95364131560168294ea80f215c2fd6b",
+  "independent_original_index_sha256": "4841784d7f8edd02f4d0497ae2dda2c3f0ffb9404d5a11b200e9cbf81d701d7b",
+  "independent_input_sha256": "eb84622d9afe9f1701df014ce8a834c4d2549d56a7eb4f996ee499f534c31857",
+  "independent_probe_sha256": "be61b134824ea022384c92834e53c0cd668484c1ebd182935b93c81e2f7565d4",
+  "archive_go_source_policy": "original Go failure inputs and independent probe stored with .go.txt suffix; original bytes and original path retained in provenance"
+}

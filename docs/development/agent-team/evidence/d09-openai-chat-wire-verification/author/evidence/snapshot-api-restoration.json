@@ -1,0 +1,15 @@
+{
+  "reason": "pure-root two tests require exact baseline API fixtures omitted from minimal snapshot",
+  "argv": [
+    "git",
+    "archive",
+    "de00c610da62cb77cc03efe7c3cc842cf81f1ba5",
+    "api/openapi/account.json",
+    "api/openapi/common.json"
+  ],
+  "exit_code": 0,
+  "files": {
+    "api/openapi/account.json": "d5c519649e1f31871aa166ea5349d65a7d830d70a5d29654ee98a0f79cbfeb44",
+    "api/openapi/common.json": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+  }
+}

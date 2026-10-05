@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "./internal/central/model/adapter"
+  ],
+  "cwd": "/workspace/agenteam-openai-wire-o11zl625/snapshot",
+  "environment": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "sum.golang.org",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-openai-wire-o11zl625/go-build",
+    "TMPDIR": "/workspace/agenteam-openai-wire-o11zl625/tmp",
+    "GOFLAGS": "-mod=readonly"
+  },
+  "baseline": "de00c610da62cb77cc03efe7c3cc842cf81f1ba5",
+  "started_at": "2026-10-05T16:05:53.052429+00:00",
+  "inputs": {
+    "internal/central/model/adapter/openai_chat.go": "936c2b139b62efbfd0500e0ee9d60a9056cd7ab1800bb81756ab24b1f48e41ce",
+    "internal/central/model/adapter/transport.go": "69dac7d1ce254ec0760ee66f7a50ed3b199cddb8ee90c4100bafb5ee4743d039",
+    "internal/central/model/adapter/sse.go": "53439e38f47a0f73876d8ae45315a8f932678cad15feab173ccb2e69f9e2ebe3",
+    "internal/central/model/adapter/errors.go": "84ba82e3b420c3a7886aed7181d8bfb9ebc63bc471ec1e4383b603d951d259a2",
+    "internal/central/model/adapter/budget.go": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a",
+    "tests/testsupport/outbound/fixture.go": "3ca36f2786e143e677d4c51844f6649a55c6a4af3c815c8db1f72bbffc8d2920",
+    "tests/testsupport/outbound/cmd/server/main.go": "c2d2a0de367a49b5248696c1f6e1a8f91a8ae8bbb44979faa13c15ba751b278d"
+  },
+  "exit_code": 0,
+  "finished_at": "2026-10-05T16:06:10.764864+00:00",
+  "log": "first-compile.log"
+}

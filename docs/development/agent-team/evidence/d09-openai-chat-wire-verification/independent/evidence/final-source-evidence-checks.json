@@ -1,0 +1,29 @@
+{
+  "failure_original_sources_match_first_metadata": true,
+  "official_commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "manifest_sdk_source_count": 17,
+  "all_source_sha256_and_git_blob_match": true,
+  "extra_evidence": [
+    {
+      "path": "evidence/author/snapshot-api-restoration.json",
+      "sha256": "b58664d6e9bb87192ea45c0f3aabcc3d0779bbb232252e04c8081487345c9867"
+    },
+    {
+      "path": "evidence/author/provenance-checks.json",
+      "sha256": "c3669ad503a4236755c20fc9e17b1c7ce57a143871dc6bf1382eb109f884a7d8"
+    },
+    {
+      "path": "evidence/author/resource-final-checks.json",
+      "sha256": "1c52778fe4b54ad1635427114162e8534e54ceb99385232697f8bf5b8071885e"
+    },
+    {
+      "path": "evidence/author/first-unit-input/errors_test.go",
+      "sha256": "85f426f06397a9e176ee123b89cdebab434264a8b9a2a84d037071cc1d39f31e"
+    },
+    {
+      "path": "evidence/author/integration-compile-v1-input/openai_chat_wire_http_test.go",
+      "sha256": "1cc8107a5fd5682ef3b235d66c46e260225c9c3d8f887a01bd31c033b5f27da2"
+    }
+  ],
+  "this_source_check_executed_no_sdk_or_network": true
+}

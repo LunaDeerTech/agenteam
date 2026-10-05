@@ -1,0 +1,4069 @@
+diff --git a/internal/central/model/adapter/openai_chat.go b/internal/central/model/adapter/openai_chat.go
+new file mode 100644
+--- /dev/null
++++ b/internal/central/model/adapter/openai_chat.go
+@@ -0,0 +1,295 @@
++// Package adapter implements bounded wire exchanges, not Model business calls.
++package adapter
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"fmt"
++	"io"
++	"log/slog"
++	"net/http"
++	"net/url"
++	"reflect"
++	"strings"
++	"time"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++const OpenAIChatTextRevision = "openai-chat-text-v1"
++
++type ResponseMode string
++
++const (
++	JSONResponse ResponseMode = "json"
++	SSEResponse  ResponseMode = "sse"
++)
++
++type Transport struct {
++	Policy   *outbound.PolicyService
++	Trust    outbound.TrustStore
++	Resolver outbound.Resolver
++}
++type Request struct {
++	Snapshot       mc.ConfigSnapshot
++	Messages       []mc.Message
++	Tools          []mc.Tool
++	ToolChoice     mc.ToolChoice
++	ResponseFormat mc.ResponseFormat
++	Mode           ResponseMode
++}
++type CallOptions struct {
++	ProjectID  identity.ProjectID
++	Context    outbound.CallContext
++	Credential sc.SecretMaterial
++	AllowHTTP  bool
++	Limits     outbound.Limits
++}
++type End struct {
++	FinishReason      mc.FinishReason
++	Usage             mc.Usage
++	ProviderRequestID string
++}
++type Result struct {
++	Text string
++	End  End
++}
++type EventKind string
++
++const (
++	TextDelta   EventKind = "text_delta"
++	UsageUpdate EventKind = "usage_update"
++	StreamEnd   EventKind = "stream_end"
++)
++
++type Event struct {
++	Kind  EventKind
++	Text  string
++	Usage *mc.Usage
++	End   *End
++}
++type Observation struct {
++	DoStarted bool
++	Decision  *outbound.Decision
++	Usage     mc.Usage
++}
++
++type OpenAIChat struct {
++	transport Transport
++	budget    *Budget
++}
++
++func NewOpenAIChat(t Transport, b *Budget) (*OpenAIChat, error) {
++	if b == nil || b.state == nil || t.Resolver != nil && nilPort(t.Resolver) {
++		return nil, invalid()
++	}
++	if t.Resolver == nil {
++		var err error
++		t.Resolver, err = outbound.SystemResolver()
++		if err != nil {
++			return nil, invalid()
++		}
++	}
++	// Use the formal constructor, without inspecting private dependency state.
++	probe, err := outbound.NewClient(t.Policy, t.Trust, t.Resolver)
++	if err != nil {
++		return nil, invalid()
++	}
++	probe.StopAdmission()
++	return &OpenAIChat{transport: t, budget: b}, nil
++}
++
++func (a *OpenAIChat) Start(ctx context.Context, r Request, o CallOptions) (*Exchange, error) {
++	if a == nil || a.budget == nil || ctx == nil {
++		return nil, invalid()
++	}
++	if err := ctx.Err(); err != nil {
++		return nil, contextFailure(err)
++	}
++	req, profile, err := prepare(r, o)
++	if err != nil {
++		return nil, err
++	}
++	x, err := a.budget.accept(ctx, o.ProjectID, r.Mode, o.Limits.Overall)
++	if err != nil {
++		return nil, err
++	}
++	go x.run(a.transport, req, profile)
++	return x, nil
++}
++
++func prepare(r Request, o CallOptions) (*http.Request, outbound.Profile, error) {
++	fail := func(err error) (*http.Request, outbound.Profile, error) { return nil, outbound.Profile{}, err }
++	if r.Mode != JSONResponse && r.Mode != SSEResponse || r.Snapshot.Validate() != nil || r.ToolChoice.Validate() != nil || r.ResponseFormat.Validate() != nil || len(r.Messages) == 0 || len(r.Messages) > 256 || len(r.Tools) > 128 || o.ProjectID.Validate() != nil {
++		return fail(invalid())
++	}
++	for _, m := range r.Messages {
++		if m.Validate() != nil {
++			return fail(invalid())
++		}
++	}
++	for _, t := range r.Tools {
++		if t.Validate() != nil {
++			return fail(invalid())
++		}
++	}
++	s, c := r.Snapshot.Identity, r.Snapshot.Capabilities
++	if s.Profile != mc.OpenAIChatV1 || s.Protocol != mc.OpenAIChat || s.ModelType != mc.ChatModel || s.AdapterRevision != OpenAIChatTextRevision || !emptyObject(r.Snapshot.Parameters) || !emptyObject(r.Snapshot.RequestOverwrite) || len(r.Snapshot.HeaderOverwrite) != 0 || c.ToolCalls || c.ParallelToolCalls || c.Reasoning || len(c.ReasoningEfforts) != 0 || !onlyText(c.InputModalities) || !onlyText(c.OutputModalities) || len(c.StructuredOutputModes) > 0 && !onlyText(c.StructuredOutputModes) || r.Mode == SSEResponse && !c.Streaming || len(r.Tools) != 0 || r.ToolChoice.Kind != "none" || r.ResponseFormat.Kind != "text" {
++		return fail(unsupported())
++	}
++	// Explicit wire tags prevent either public-contract JSON or logging methods
++	// from becoming an alternative encoding of the provider request.
++	type wireMessage struct {
++		Role    string `json:"role"`
++		Content string `json:"content"`
++	}
++	messages := make([]wireMessage, 0, len(r.Messages))
++	encodedSize := 128 + 6*len(s.ProviderModelID)
++	for _, m := range r.Messages {
++		if m.Role == "tool" || len(m.Parts) != 1 || m.Parts[0].Text == nil {
++			return fail(unsupported())
++		}
++		// Bound allocation before json.Marshal; up to 256 individually valid
++		// 16 MiB parts must not allocate a multi-gigabyte temporary encoding.
++		encodedSize += quotedSize(m.Parts[0].Text.Text) + len(m.Role) + 32
++		if encodedSize > maxTextBytes+8192 {
++			return fail(limitFailure())
++		}
++		messages = append(messages, wireMessage{m.Role, m.Parts[0].Text.Text})
++	}
++	var maxOutput *int64
++	if c.MaxOutput != nil {
++		n := int64(*c.MaxOutput)
++		maxOutput = &n
++	}
++	body := struct {
++		Model     string          `json:"model"`
++		Messages  []wireMessage   `json:"messages"`
++		Stream    bool            `json:"stream"`
++		Options   map[string]bool `json:"stream_options,omitempty"`
++		MaxOutput *int64          `json:"max_completion_tokens,omitempty"`
++	}{Model: s.ProviderModelID, Messages: messages, Stream: r.Mode == SSEResponse, MaxOutput: maxOutput}
++	if body.Stream {
++		body.Options = map[string]bool{"include_usage": true}
++	}
++	raw, err := json.Marshal(body)
++	if err != nil || len(raw) > maxTextBytes {
++		return fail(limitFailure())
++	}
++	u, err := url.Parse(r.Snapshot.Endpoint)
++	if err != nil || u.User != nil || u.RawQuery != "" || u.ForceQuery || u.Fragment != "" {
++		return fail(invalid())
++	}
++	path := strings.TrimSuffix(u.EscapedPath(), "/") + "/chat/completions"
++	u.Path, err = url.PathUnescape(path)
++	if err != nil {
++		return fail(invalid())
++	}
++	u.RawPath = path
++	target, err := outbound.ParseTarget(u.String())
++	if err != nil {
++		return fail(invalid())
++	}
++	if o.Limits.Overall <= 0 || o.Limits.Overall > 120*time.Second {
++		return fail(invalid())
++	}
++	idle := min(60*time.Second, o.Limits.Overall)
++	if o.Limits.ReadIdle == 0 {
++		o.Limits.ReadIdle = idle
++	} else if o.Limits.ReadIdle < 0 || o.Limits.ReadIdle > idle {
++		return fail(invalid())
++	}
++	// Validate availability without retaining or converting borrowed plaintext.
++	if o.Credential.Use(func([]byte) error { return nil }) != nil {
++		return fail(invalid())
++	}
++	field, err := outbound.HeaderCredential("Authorization", "Bearer ", o.Credential)
++	if err != nil {
++		return fail(invalid())
++	}
++	binding, err := outbound.NewCredentialBinding(target.Origin(), field)
++	if err != nil {
++		return fail(invalid())
++	}
++	profile, err := outbound.NewProfile(outbound.ProfileOptions{Consumer: ac.Model, AllowHTTP: o.AllowHTTP, Streaming: body.Stream, Limits: o.Limits, Context: o.Context, Credentials: binding})
++	if err != nil {
++		return fail(invalid())
++	}
++	req, err := http.NewRequest(http.MethodPost, target.URL().String(), bytes.NewReader(raw))
++	if err != nil {
++		return fail(invalid())
++	}
++	req.Header.Set("Content-Type", "application/json")
++	req.Header.Set("Accept", "application/json")
++	if body.Stream {
++		req.Header.Set("Accept", "text/event-stream")
++	}
++	req.Close = true
++	return req, profile, nil
++}
++
++func onlyText(v []string) bool { return len(v) == 1 && v[0] == "text" }
++func quotedSize(s string) int {
++	n := 2
++	for _, c := range s {
++		switch {
++		case c == '"' || c == '\\' || c == '\n' || c == '\r' || c == '\t' || c == '\b' || c == '\f':
++			n += 2
++		case c < 32 || c == '<' || c == '>' || c == '&' || c == '\u2028' || c == '\u2029':
++			n += 6
++		default:
++			if c < 0x80 {
++				n++
++			} else if c < 0x800 {
++				n += 2
++			} else if c < 0x10000 {
++				n += 3
++			} else {
++				n += 4
++			}
++		}
++	}
++	return n
++}
++func emptyObject(raw []byte) bool {
++	var v map[string]json.RawMessage
++	return json.Unmarshal(raw, &v) == nil && v != nil && len(v) == 0
++}
++func invalid() error { return f.NewFault(f.InvalidArgument, f.NotStarted) }
++func nilPort(v any) bool {
++	if v == nil {
++		return true
++	}
++	r := reflect.ValueOf(v)
++	switch r.Kind() {
++	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
++		return r.IsNil()
++	}
++	return false
++}
++
++func safeFormat(w fmt.State, label string)       { _, _ = io.WriteString(w, label) }
++func (Request) Format(w fmt.State, _ rune)       { safeFormat(w, "model_wire_request") }
++func (Request) MarshalJSON() ([]byte, error)     { return []byte(`"model_wire_request"`), nil }
++func (Request) LogValue() slog.Value             { return slog.StringValue("model_wire_request") }
++func (CallOptions) Format(w fmt.State, _ rune)   { safeFormat(w, "model_wire_options") }
++func (CallOptions) MarshalJSON() ([]byte, error) { return []byte(`"model_wire_options"`), nil }
++func (CallOptions) LogValue() slog.Value         { return slog.StringValue("model_wire_options") }
++func (Result) Format(w fmt.State, _ rune)        { safeFormat(w, "model_wire_result") }
++func (Result) MarshalJSON() ([]byte, error)      { return []byte(`"model_wire_result"`), nil }
++func (Result) LogValue() slog.Value              { return slog.StringValue("model_wire_result") }
++func (Event) Format(w fmt.State, _ rune)         { safeFormat(w, "model_wire_event") }
++func (Event) MarshalJSON() ([]byte, error)       { return []byte(`"model_wire_event"`), nil }
++func (Event) LogValue() slog.Value               { return slog.StringValue("model_wire_event") }
++func (Observation) Format(w fmt.State, _ rune)   { safeFormat(w, "model_wire_observation") }
++func (Observation) MarshalJSON() ([]byte, error) { return []byte(`"model_wire_observation"`), nil }
++func (Observation) LogValue() slog.Value         { return slog.StringValue("model_wire_observation") }
++func (End) Format(w fmt.State, _ rune)           { safeFormat(w, "model_wire_end") }
++func (End) MarshalJSON() ([]byte, error)         { return []byte(`"model_wire_end"`), nil }
++func (End) LogValue() slog.Value                 { return slog.StringValue("model_wire_end") }
+diff --git a/internal/central/model/adapter/transport.go b/internal/central/model/adapter/transport.go
+new file mode 100644
+--- /dev/null
++++ b/internal/central/model/adapter/transport.go
+@@ -0,0 +1,417 @@
++package adapter
++
++import (
++	"context"
++	"errors"
++	"fmt"
++	"io"
++	"log/slog"
++	"mime"
++	"net/http"
++	"strings"
++	"sync"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++)
++
++type Exchange struct {
++	mu                                         sync.Mutex
++	ctx                                        context.Context
++	cancel                                     context.CancelFunc
++	budget                                     *Budget
++	mode                                       ResponseMode
++	client                                     *outbound.Client
++	ioDone                                     chan struct{}
++	changed                                    chan struct{}
++	done, joined, reading, consumed, delivered bool
++	observation                                Observation
++	requestID                                  string
++	queue                                      []Event
++	queueBytes                                 int
++	result                                     Result
++	err                                        error
++}
++
++func newExchange(ctx context.Context, mode ResponseMode, overall time.Duration, budget *Budget) *Exchange {
++	ctx, cancel := context.WithTimeout(ctx, overall)
++	return &Exchange{ctx: ctx, cancel: cancel, budget: budget, mode: mode, ioDone: make(chan struct{}), changed: make(chan struct{}), observation: Observation{Usage: mc.Usage{Source: mc.UnknownUsage}}}
++}
++func (x *Exchange) notify() { close(x.changed); x.changed = make(chan struct{}) }
++func (x *Exchange) run(t Transport, req *http.Request, profile outbound.Profile) {
++	result, err := x.perform(t, req, profile)
++	// perform has returned from Do, parser and every body Close. Cancellation
++	// can still leave a D04 writer: only the formal Drain below can retire it.
++	x.mu.Lock()
++	client := x.client
++	x.mu.Unlock()
++	if client != nil {
++		client.StopAdmission()
++	}
++	x.mu.Lock()
++	x.result, x.err, x.done = result, err, true
++	close(x.ioDone)
++	x.notify()
++	x.mu.Unlock()
++	// This uses the original attempt budget. A late writer is retained, never
++	// handed to an unbounded background waiter or given a fresh timeout.
++	_ = x.waitJoined(x.ctx)
++}
++func (x *Exchange) perform(t Transport, req *http.Request, profile outbound.Profile) (Result, error) {
++	defer req.Body.Close()
++	client, err := outbound.NewClient(t.Policy, t.Trust, t.Resolver)
++	if err != nil {
++		return Result{}, failure("unknown", "wire_transport_error")
++	}
++	x.mu.Lock()
++	x.client = client
++	x.observation.DoStarted = true
++	x.mu.Unlock()
++	response, err := client.Do(x.ctx, req, profile)
++	if err != nil {
++		x.observeNetworkError(err)
++		return Result{}, transportFailure(err)
++	}
++	defer response.Close()
++	d := response.Decision()
++	x.mu.Lock()
++	x.observation.Decision = &d
++	x.requestID = requestID(response.Headers().Get("X-Request-Id"))
++	x.mu.Unlock()
++	if response.StatusCode() != http.StatusOK {
++		// Even malformed errors are discarded, never carried by an error cause.
++		_, _ = io.Copy(io.Discard, io.LimitReader(response.Body(), 64<<10))
++		return Result{}, statusFailure(response.StatusCode())
++	}
++	contentType, _, err := mime.ParseMediaType(response.Headers().Get("Content-Type"))
++	want := "application/json"
++	if x.mode == SSEResponse {
++		want = "text/event-stream"
++	}
++	if err != nil || contentType != want {
++		return Result{}, protocolFailure()
++	}
++	if x.mode == SSEResponse {
++		end, err := x.stream(response.Body())
++		return Result{End: end}, err
++	}
++	raw, err := io.ReadAll(io.LimitReader(response.Body(), maxTextBytes+1))
++	if err != nil {
++		x.observeNetworkError(err)
++		return Result{}, transportFailure(err)
++	}
++	if len(raw) > maxTextBytes {
++		return Result{}, limitFailure()
++	}
++	value, err := decodeNative(raw, false)
++	if err != nil {
++		return Result{}, err
++	}
++	x.observeUsage(value.usage)
++	if value.refusal {
++		return Result{}, failure("content_filter", "")
++	}
++	return Result{Text: value.text, End: End{FinishReason: value.finish, Usage: value.usage.Clone(), ProviderRequestID: x.requestID}}, nil
++}
++func (x *Exchange) observeNetworkError(err error) {
++	var n *outbound.NetworkError
++	if !errors.As(err, &n) {
++		return
++	}
++	d := n.Decision()
++	x.mu.Lock()
++	x.observation.Decision = &d
++	x.mu.Unlock()
++}
++func (x *Exchange) observeUsage(u mc.Usage) {
++	x.mu.Lock()
++	x.observation.Usage = u.Clone()
++	x.mu.Unlock()
++}
++func (x *Exchange) Observe() Observation {
++	if x == nil {
++		return Observation{Usage: mc.Usage{Source: mc.UnknownUsage}}
++	}
++	x.mu.Lock()
++	defer x.mu.Unlock()
++	o := x.observation
++	o.Usage = o.Usage.Clone()
++	if o.Decision != nil {
++		d := *o.Decision
++		if d.PolicyVersion != nil {
++			v := *d.PolicyVersion
++			d.PolicyVersion = &v
++		}
++		o.Decision = &d
++	}
++	return o
++}
++func (x *Exchange) waitJoined(ctx context.Context) error {
++	if x == nil || ctx == nil {
++		return invalid()
++	}
++	select {
++	case <-x.ioDone:
++	default:
++		select {
++		case <-x.ioDone:
++		case <-ctx.Done():
++			return contextFailure(ctx.Err())
++		}
++	}
++	x.mu.Lock()
++	client, joined := x.client, x.joined
++	x.mu.Unlock()
++	if joined {
++		return nil
++	}
++	if client != nil {
++		if err := client.Drain(ctx); err != nil {
++			if ctx.Err() != nil {
++				return contextFailure(ctx.Err())
++			}
++			return failure("unknown", "wire_transport_error")
++		}
++	}
++	x.mu.Lock()
++	if !x.joined {
++		x.joined = true
++		x.budget.release(x)
++		x.notify()
++	}
++	x.mu.Unlock()
++	return nil
++}
++func (x *Exchange) Joined() bool {
++	if x == nil {
++		return false
++	}
++	// Drain checks its actual sets before examining cancellation. A cancelled
++	// probe has no waiting budget and cannot pretend unfinished work joined.
++	ctx, cancel := context.WithCancel(context.Background())
++	cancel()
++	return x.waitJoined(ctx) == nil
++}
++func (x *Exchange) Close(ctx context.Context) error {
++	if x == nil || ctx == nil {
++		return invalid()
++	}
++	x.cancel()
++	return x.waitJoined(ctx)
++}
++func (x *Exchange) beginRead(mode ResponseMode) error {
++	if x == nil {
++		return invalid()
++	}
++	x.mu.Lock()
++	defer x.mu.Unlock()
++	if x.mode != mode || x.reading {
++		return f.NewFault(f.InvalidState, f.NotStarted)
++	}
++	x.reading = true
++	return nil
++}
++func (x *Exchange) endRead() { x.mu.Lock(); x.reading = false; x.mu.Unlock() }
++func (x *Exchange) readError(err error) error {
++	x.mu.Lock()
++	defer x.mu.Unlock()
++	var model *mc.ModelError
++	if !errors.As(err, &model) {
++		model = failure("unknown", "wire_transport_error")
++	}
++	v := *model
++	v.ProviderRequestID = x.requestID
++	v.Dispatched = x.observation.Decision != nil && x.observation.Decision.Sent
++	v.PartialOutput = x.delivered && v.Dispatched
++	return &v
++}
++func (x *Exchange) consumerJoin(ctx context.Context) error {
++	// Both the original attempt and this consumer's wait can cancel. This is a
++	// result-consumer control, not new I/O, and never extends either deadline.
++	wait, cancel := context.WithCancel(x.ctx)
++	stop := context.AfterFunc(ctx, cancel)
++	defer stop()
++	defer cancel()
++	if ctx.Err() != nil {
++		cancel()
++	}
++	err := x.waitJoined(wait)
++	if err != nil && ctx.Err() != nil {
++		return contextFailure(ctx.Err())
++	}
++	return err
++}
++func (x *Exchange) Result(ctx context.Context) (Result, error) {
++	if ctx == nil {
++		return Result{}, invalid()
++	}
++	if err := x.beginRead(JSONResponse); err != nil {
++		return Result{}, err
++	}
++	defer x.endRead()
++	x.mu.Lock()
++	if x.consumed {
++		x.mu.Unlock()
++		return Result{}, f.NewFault(f.InvalidState, f.NotStarted)
++	}
++	x.consumed = true
++	x.mu.Unlock()
++	defer x.cancel()
++	select {
++	case <-x.ioDone:
++	case <-ctx.Done():
++		x.cancel()
++		return Result{}, x.readError(contextFailure(ctx.Err()))
++	case <-x.ctx.Done():
++		return Result{}, x.readError(contextFailure(x.ctx.Err()))
++	}
++	x.mu.Lock()
++	result, err := x.result, x.err
++	x.result = Result{}
++	x.mu.Unlock()
++	if err != nil {
++		return Result{}, x.readError(err)
++	}
++	if ctx.Err() != nil {
++		x.cancel()
++		return Result{}, x.readError(contextFailure(ctx.Err()))
++	}
++	if x.ctx.Err() != nil {
++		return Result{}, x.readError(contextFailure(x.ctx.Err()))
++	}
++	if err := x.consumerJoin(ctx); err != nil {
++		x.cancel()
++		return Result{}, x.readError(err)
++	}
++	result.End.Usage = result.End.Usage.Clone()
++	return result, nil
++}
++
++func cloneEvent(e Event) Event {
++	if e.Usage != nil {
++		u := e.Usage.Clone()
++		e.Usage = &u
++	}
++	if e.End != nil {
++		end := *e.End
++		end.Usage = end.Usage.Clone()
++		e.End = &end
++	}
++	return e
++}
++func eventBytes(e Event) int {
++	n := len(e.Text) + len(e.Kind)
++	if e.Usage != nil {
++		n += 6*8 + len(e.Usage.Source)
++	}
++	if e.End != nil {
++		n += 6*8 + len(e.End.Usage.Source) + len(e.End.FinishReason) + len(e.End.ProviderRequestID)
++	}
++	return n
++}
++func (x *Exchange) emit(e Event) error {
++	e = cloneEvent(e)
++	e.Text = strings.Clone(e.Text)
++	n := eventBytes(e)
++	if n > 256<<10 {
++		return limitFailure()
++	}
++	for {
++		if err := x.ctx.Err(); err != nil {
++			return contextFailure(err)
++		}
++		x.mu.Lock()
++		if len(x.queue) < 32 && x.queueBytes+n <= 256<<10 {
++			x.queue = append(x.queue, e)
++			x.queueBytes += n
++			x.notify()
++			x.mu.Unlock()
++			return nil
++		}
++		changed := x.changed
++		x.mu.Unlock()
++		select {
++		case <-changed:
++		case <-x.ctx.Done():
++			return contextFailure(x.ctx.Err())
++		}
++	}
++}
++func (x *Exchange) Next(ctx context.Context) (Event, error) {
++	if ctx == nil {
++		return Event{}, invalid()
++	}
++	if err := x.beginRead(SSEResponse); err != nil {
++		return Event{}, err
++	}
++	defer x.endRead()
++	for {
++		x.mu.Lock()
++		if x.consumed {
++			x.mu.Unlock()
++			return Event{}, io.EOF
++		}
++		if ctx.Err() != nil || x.ctx.Err() != nil {
++			x.consumed = true
++			x.queue, x.queueBytes = nil, 0
++			x.notify()
++			x.mu.Unlock()
++			err := ctx.Err()
++			if err == nil {
++				err = x.ctx.Err()
++			}
++			x.cancel()
++			return Event{}, x.readError(contextFailure(err))
++		}
++		if len(x.queue) > 0 {
++			e := x.queue[0]
++			x.queue[0] = Event{}
++			x.queue = x.queue[1:]
++			x.queueBytes -= eventBytes(e)
++			if e.Kind == TextDelta && e.Text != "" {
++				x.delivered = true
++			}
++			x.notify()
++			x.mu.Unlock()
++			return cloneEvent(e), nil
++		}
++		if x.done {
++			x.consumed = true
++			end, err := x.result.End, x.err
++			x.result = Result{}
++			x.mu.Unlock()
++			defer x.cancel()
++			if err != nil {
++				return Event{}, x.readError(err)
++			}
++			if err := x.consumerJoin(ctx); err != nil {
++				x.cancel()
++				return Event{}, x.readError(err)
++			}
++			end.Usage = end.Usage.Clone()
++			return Event{Kind: StreamEnd, End: &end}, nil
++		}
++		changed := x.changed
++		x.mu.Unlock()
++		select {
++		case <-changed:
++		case <-ctx.Done():
++		case <-x.ctx.Done():
++		}
++	}
++}
++
++func (*Exchange) Format(w fmt.State, _ rune)     { safeFormat(w, "model_wire_exchange") }
++func (*Exchange) MarshalJSON() ([]byte, error)   { return []byte(`"model_wire_exchange"`), nil }
++func (*Exchange) LogValue() slog.Value           { return slog.StringValue("model_wire_exchange") }
++func (*OpenAIChat) Format(w fmt.State, _ rune)   { safeFormat(w, "model_wire_adapter") }
++func (*OpenAIChat) MarshalJSON() ([]byte, error) { return []byte(`"model_wire_adapter"`), nil }
++func (*OpenAIChat) LogValue() slog.Value         { return slog.StringValue("model_wire_adapter") }
++func (*Budget) Format(w fmt.State, _ rune)       { safeFormat(w, "model_wire_budget") }
++func (*Budget) MarshalJSON() ([]byte, error)     { return []byte(`"model_wire_budget"`), nil }
++func (*Budget) LogValue() slog.Value             { return slog.StringValue("model_wire_budget") }
++func (Transport) Format(w fmt.State, _ rune)     { safeFormat(w, "model_wire_transport") }
++func (Transport) MarshalJSON() ([]byte, error)   { return []byte(`"model_wire_transport"`), nil }
++func (Transport) LogValue() slog.Value           { return slog.StringValue("model_wire_transport") }
+diff --git a/internal/central/model/adapter/sse.go b/internal/central/model/adapter/sse.go
+new file mode 100644
+--- /dev/null
++++ b/internal/central/model/adapter/sse.go
+@@ -0,0 +1,146 @@
++package adapter
++
++import (
++	"bufio"
++	"bytes"
++	"errors"
++	"io"
++	"strings"
++	"unicode/utf8"
++
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++type sseReader struct {
++	reader *bufio.Reader
++}
++
++func (s *sseReader) next() ([]byte, error) {
++	var data []byte
++	size := 0
++	event := ""
++	for {
++		var line []byte
++		for {
++			part, err := s.reader.ReadSlice('\n')
++			size += len(part)
++			if size > maxEventBytes {
++				return nil, limitFailure()
++			}
++			line = append(line, part...)
++			if errors.Is(err, bufio.ErrBufferFull) {
++				continue
++			}
++			if err != nil {
++				return nil, err
++			}
++			break
++		}
++		line = bytes.TrimSuffix(line, []byte{'\n'})
++		line = bytes.TrimSuffix(line, []byte{'\r'})
++		if !utf8.Valid(line) {
++			return nil, protocolFailure()
++		}
++		if len(line) == 0 {
++			if event != "" && event != "message" {
++				return nil, protocolFailure()
++			}
++			if len(data) != 0 {
++				return bytes.TrimSuffix(data, []byte{'\n'}), nil
++			}
++			size, event = 0, ""
++			continue
++		}
++		if line[0] == ':' {
++			continue
++		}
++		field, value, _ := bytes.Cut(line, []byte{':'})
++		value = bytes.TrimPrefix(value, []byte{' '})
++		switch string(field) {
++		case "data":
++			data = append(data, value...)
++			data = append(data, '\n')
++		case "event":
++			event = string(value)
++		case "id", "retry": // Transport metadata is not a Model call identity.
++		default:
++			return nil, protocolFailure()
++		}
++	}
++}
++
++func (x *Exchange) stream(body io.Reader) (End, error) {
++	r := sseReader{reader: bufio.NewReaderSize(body, 32<<10)}
++	end := End{Usage: mc.Usage{Source: mc.UnknownUsage}}
++	finished, usageSeen := false, false
++	textBytes := 0
++	for {
++		if err := x.ctx.Err(); err != nil {
++			return End{}, contextFailure(err)
++		}
++		raw, err := r.next()
++		if err != nil {
++			x.observeNetworkError(err)
++			if err == io.EOF {
++				return End{}, protocolFailure()
++			}
++			var protocol *mc.ModelError
++			if errors.As(err, &protocol) {
++				return End{}, err
++			}
++			return End{}, transportFailure(err)
++		}
++		if bytes.Equal(raw, []byte("[DONE]")) {
++			if !finished {
++				return End{}, protocolFailure()
++			}
++			end.ProviderRequestID = x.requestID
++			return end, nil
++		}
++		value, err := decodeNative(raw, true)
++		if err != nil {
++			return End{}, err
++		}
++		if value.emptyChoices {
++			if !finished || usageSeen || !value.hasUsage {
++				return End{}, protocolFailure()
++			}
++			usageSeen = true
++			end.Usage = value.usage.Clone()
++			x.observeUsage(value.usage)
++			if err := x.emit(Event{Kind: UsageUpdate, Usage: &value.usage}); err != nil {
++				return End{}, err
++			}
++			continue
++		}
++		if finished || value.hasUsage {
++			return End{}, protocolFailure()
++		}
++		if value.refusal {
++			return End{}, failure("content_filter", "")
++		}
++		textBytes += len(value.text)
++		if textBytes > maxTextBytes {
++			return End{}, limitFailure()
++		}
++		for remaining := value.text; remaining != ""; {
++			n := min(len(remaining), 64<<10)
++			if n < len(remaining) {
++				for n > 0 && !utf8.RuneStart(remaining[n]) {
++					n--
++				}
++			}
++			if n == 0 {
++				return End{}, protocolFailure()
++			}
++			if err := x.emit(Event{Kind: TextDelta, Text: strings.Clone(remaining[:n])}); err != nil {
++				return End{}, err
++			}
++			remaining = remaining[n:]
++		}
++		if value.finish != "" {
++			finished = true
++			end.FinishReason = value.finish
++		}
++	}
++}
+diff --git a/internal/central/model/adapter/errors.go b/internal/central/model/adapter/errors.go
+new file mode 100644
+--- /dev/null
++++ b/internal/central/model/adapter/errors.go
+@@ -0,0 +1,432 @@
++package adapter
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"errors"
++	"io"
++	"strconv"
++	"strings"
++	"unicode/utf8"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++)
++
++const (
++	maxTextBytes  = 16 << 20
++	maxEventBytes = 1 << 20
++)
++
++func failure(category mc.ErrorCategory, code string) *mc.ModelError {
++	return &mc.ModelError{Category: category, Code: code}
++}
++func protocolFailure() error { return failure("provider_error", "wire_protocol_invalid") }
++func unsupported() error     { return failure("unsupported_feature", "wire_unsupported_feature") }
++func limitFailure() error    { return failure("provider_error", "wire_limit_exceeded") }
++func contextFailure(err error) error {
++	if errors.Is(err, context.DeadlineExceeded) {
++		return &mc.ModelError{Category: "timeout", Code: "wire_transport_error", Retryable: true}
++	}
++	return failure("cancelled", "wire_cancelled")
++}
++func transportFailure(err error) error {
++	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
++		return contextFailure(err)
++	}
++	var n *outbound.NetworkError
++	if errors.As(err, &n) {
++		switch n.Decision().Reason {
++		case ac.Timeout:
++			return contextFailure(context.DeadlineExceeded)
++		case ac.Cancelled:
++			return contextFailure(context.Canceled)
++		case ac.ResponseLimit:
++			return limitFailure()
++		case ac.CredentialDenied, ac.ConsumerDenied, ac.AddressForbidden, ac.HTTPDenied, ac.PrivateNotAllowed, ac.PortDenied, ac.OriginDenied, ac.BindingInvalid, ac.PermissionDenied, ac.RedirectDenied:
++			return failure("permission", "wire_transport_error")
++		}
++	}
++	return failure("network", "wire_transport_error")
++}
++func statusFailure(status int) error {
++	e := failure("provider_error", "wire_http_error")
++	switch status {
++	case 401:
++		e.Category = "authentication"
++	case 403:
++		e.Category = "permission"
++	case 429:
++		e.Category, e.Retryable = "rate_limited", true
++	case 502, 503, 504:
++		e.Category, e.Retryable = "provider_unavailable", true
++	}
++	return e
++}
++func requestID(s string) string {
++	if len(s) == 0 || len(s) > 256 {
++		return ""
++	}
++	for _, c := range s {
++		if !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || strings.ContainsRune("-_.:", c)) {
++			return ""
++		}
++	}
++	return s
++}
++
++// jsonShape checks duplicate keys and depth without constructing a second
++// object tree. Numeric tokens stay json.Number, never float64.
++func jsonShape(raw []byte) error {
++	if !utf8.Valid(raw) || !unicodeEscapes(raw) {
++		return protocolFailure()
++	}
++	d := json.NewDecoder(bytes.NewReader(raw))
++	d.UseNumber()
++	var value func(int) error
++	value = func(depth int) error {
++		if depth > 32 {
++			return limitFailure()
++		}
++		t, err := d.Token()
++		if err != nil {
++			return protocolFailure()
++		}
++		delim, ok := t.(json.Delim)
++		if !ok {
++			return nil
++		}
++		switch delim {
++		case '{':
++			seen := map[string]bool{}
++			for d.More() {
++				key, err := d.Token()
++				name, ok := key.(string)
++				if err != nil || !ok || seen[name] {
++					return protocolFailure()
++				}
++				seen[name] = true
++				if err := value(depth + 1); err != nil {
++					return err
++				}
++			}
++		case '[':
++			for d.More() {
++				if err := value(depth + 1); err != nil {
++					return err
++				}
++			}
++		default:
++			return protocolFailure()
++		}
++		end, err := d.Token()
++		if err != nil || delim == '{' && end != json.Delim('}') || delim == '[' && end != json.Delim(']') {
++			return protocolFailure()
++		}
++		return nil
++	}
++	if err := value(0); err != nil {
++		return err
++	}
++	if _, err := d.Token(); err != io.EOF {
++		return protocolFailure()
++	}
++	return nil
++}
++
++// encoding/json replaces unmatched UTF-16 surrogates. This profile rejects
++// them instead of silently changing provider text (including object keys).
++func unicodeEscapes(raw []byte) bool {
++	for i := 0; i < len(raw); i++ {
++		if raw[i] != '"' {
++			continue
++		}
++		i++
++		for i < len(raw) && raw[i] != '"' {
++			if raw[i] != '\\' {
++				i++
++				continue
++			}
++			i++
++			if i >= len(raw) {
++				return false
++			}
++			if raw[i] != 'u' {
++				i++
++				continue
++			}
++			if i+5 > len(raw) {
++				return false
++			}
++			u, err := strconv.ParseUint(string(raw[i+1:i+5]), 16, 16)
++			if err != nil || u >= 0xdc00 && u <= 0xdfff {
++				return false
++			}
++			i += 5
++			if u >= 0xd800 && u <= 0xdbff {
++				if i+6 > len(raw) || raw[i] != '\\' || raw[i+1] != 'u' {
++					return false
++				}
++				low, err := strconv.ParseUint(string(raw[i+2:i+6]), 16, 16)
++				if err != nil || low < 0xdc00 || low > 0xdfff {
++					return false
++				}
++				i += 6
++			}
++		}
++	}
++	return true
++}
++
++type nativeObject map[string]json.RawMessage
++
++func object(raw []byte, keys string) (nativeObject, error) {
++	if err := jsonShape(raw); err != nil {
++		return nil, err
++	}
++	var obj nativeObject
++	if json.Unmarshal(raw, &obj) != nil || obj == nil {
++		return nil, protocolFailure()
++	}
++	allowed := make(map[string]bool)
++	for _, key := range strings.Fields(keys) {
++		allowed[key] = true
++	}
++	for key := range obj {
++		if !allowed[key] {
++			return nil, protocolFailure()
++		}
++	}
++	return obj, nil
++}
++func null(raw []byte) bool { return len(raw) == 0 || bytes.Equal(bytes.TrimSpace(raw), []byte("null")) }
++func nativeString(raw []byte, cap int, required bool) (string, error) {
++	if null(raw) {
++		if required {
++			return "", protocolFailure()
++		}
++		return "", nil
++	}
++	var s string
++	if json.Unmarshal(raw, &s) != nil || !utf8.ValidString(s) {
++		return "", protocolFailure()
++	}
++	if len(s) > cap {
++		return "", limitFailure()
++	}
++	return s, nil
++}
++func count(raw []byte) (*mc.TokenCount, error) {
++	if null(raw) {
++		return nil, nil
++	}
++	s := string(bytes.TrimSpace(raw))
++	if s == "" {
++		return nil, protocolFailure()
++	}
++	for _, c := range s {
++		if c < '0' || c > '9' {
++			return nil, protocolFailure()
++		}
++	}
++	v, err := strconv.ParseInt(s, 10, 64)
++	if err != nil {
++		return nil, protocolFailure()
++	}
++	n := mc.TokenCount(v)
++	return &n, nil
++}
++func parseUsage(raw []byte) (mc.Usage, error) {
++	u := mc.Usage{Source: mc.UnknownUsage}
++	if null(raw) {
++		return u, nil
++	}
++	o, err := object(raw, "prompt_tokens completion_tokens total_tokens prompt_tokens_details completion_tokens_details")
++	if err != nil {
++		return u, err
++	}
++	for _, item := range []struct {
++		name string
++		dst  **mc.TokenCount
++	}{{"prompt_tokens", &u.InputTokens}, {"completion_tokens", &u.OutputTokens}, {"total_tokens", &u.TotalTokens}} {
++		*item.dst, err = count(o[item.name])
++		if err != nil {
++			return mc.Usage{}, err
++		}
++	}
++	for _, detail := range []struct {
++		name, keys string
++		targets    map[string]**mc.TokenCount
++	}{
++		{"prompt_tokens_details", "audio_tokens cache_write_tokens cached_tokens image_tokens text_tokens", map[string]**mc.TokenCount{"cached_tokens": &u.CachedInputTokens, "cache_write_tokens": &u.CacheWriteTokens}},
++		{"completion_tokens_details", "accepted_prediction_tokens audio_tokens reasoning_tokens rejected_prediction_tokens text_tokens", map[string]**mc.TokenCount{"reasoning_tokens": &u.ReasoningTokens}},
++	} {
++		if null(o[detail.name]) {
++			continue
++		}
++		d, e := object(o[detail.name], detail.keys)
++		if e != nil {
++			return mc.Usage{}, e
++		}
++		for key, raw := range d {
++			n, e := count(raw)
++			if e != nil {
++				return mc.Usage{}, e
++			}
++			if dst := detail.targets[key]; dst != nil {
++				*dst = n
++			}
++		}
++	}
++	for _, n := range []*mc.TokenCount{u.InputTokens, u.OutputTokens, u.TotalTokens, u.CachedInputTokens, u.CacheWriteTokens, u.ReasoningTokens} {
++		if n != nil {
++			u.Source = mc.ProviderUsage
++			break
++		}
++	}
++	return u, nil
++}
++
++type decoded struct {
++	text                            string
++	finish                          mc.FinishReason
++	usage                           mc.Usage
++	hasUsage, emptyChoices, refusal bool
++}
++
++func decodeNative(raw []byte, streaming bool) (decoded, error) {
++	v := decoded{usage: mc.Usage{Source: mc.UnknownUsage}}
++	keys := "id object created model choices usage system_fingerprint service_tier"
++	if streaming {
++		keys += " obfuscation"
++	}
++	o, err := object(raw, keys)
++	if err != nil {
++		return v, err
++	}
++	for _, name := range []string{"id", "model"} {
++		s, e := nativeString(o[name], 256, true)
++		if e != nil {
++			return v, e
++		}
++		if s == "" {
++			return v, protocolFailure()
++		}
++	}
++	obj, err := nativeString(o["object"], 64, true)
++	if err != nil || !streaming && obj != "chat.completion" || streaming && obj != "chat.completion.chunk" {
++		return v, protocolFailure()
++	}
++	created, err := count(o["created"])
++	if err != nil || created == nil {
++		return v, protocolFailure()
++	}
++	if _, err = nativeString(o["system_fingerprint"], 256, false); err != nil {
++		return v, err
++	}
++	tier, err := nativeString(o["service_tier"], 32, false)
++	if err != nil {
++		return v, err
++	}
++	if !null(o["service_tier"]) {
++		switch tier {
++		case "auto", "default", "flex", "scale", "priority", "fast":
++		default:
++			return v, protocolFailure()
++		}
++	}
++	if streaming {
++		if _, err := nativeString(o["obfuscation"], maxEventBytes, false); err != nil {
++			return v, err
++		}
++	}
++	v.usage, err = parseUsage(o["usage"])
++	if err != nil {
++		return v, err
++	}
++	v.hasUsage = !null(o["usage"])
++	d := json.NewDecoder(bytes.NewReader(o["choices"]))
++	if token, err := d.Token(); err != nil || token != json.Delim('[') {
++		return v, protocolFailure()
++	}
++	if !d.More() {
++		v.emptyChoices = true
++		if !streaming {
++			return v, protocolFailure()
++		}
++		return v, nil
++	}
++	var choiceRaw json.RawMessage
++	if d.Decode(&choiceRaw) != nil || d.More() {
++		return v, protocolFailure()
++	}
++	choiceKeys := "index finish_reason logprobs message"
++	if streaming {
++		choiceKeys = "index finish_reason logprobs delta"
++	}
++	c, err := object(choiceRaw, choiceKeys)
++	if err != nil {
++		return v, err
++	}
++	index, err := count(c["index"])
++	if err != nil || index == nil || *index != 0 {
++		return v, protocolFailure()
++	}
++	if !null(c["logprobs"]) {
++		return v, unsupported()
++	}
++	finish, err := nativeString(c["finish_reason"], 32, !streaming)
++	if err != nil {
++		return v, err
++	}
++	switch finish {
++	case "":
++		if !streaming || !null(c["finish_reason"]) {
++			return v, protocolFailure()
++		}
++	case "stop", "length", "content_filter":
++		v.finish = mc.FinishReason(finish)
++	case "tool_calls", "function_call":
++		return v, unsupported()
++	default:
++		return v, protocolFailure()
++	}
++	name, messageKeys := "message", "role content refusal tool_calls function_call annotations audio"
++	if streaming {
++		name, messageKeys = "delta", "role content refusal tool_calls function_call"
++	}
++	m, err := object(c[name], messageKeys)
++	if err != nil {
++		return v, err
++	}
++	role, err := nativeString(m["role"], 32, !streaming)
++	if err != nil || !null(m["role"]) && role != "assistant" || !streaming && role != "assistant" {
++		return v, protocolFailure()
++	}
++	refusal, err := nativeString(m["refusal"], maxTextBytes, false)
++	if err != nil {
++		return v, err
++	}
++	v.refusal = refusal != ""
++	for _, key := range []string{"function_call", "audio"} {
++		if !null(m[key]) {
++			return v, unsupported()
++		}
++	}
++	for _, key := range []string{"tool_calls", "annotations"} {
++		if null(m[key]) {
++			continue
++		}
++		var items []json.RawMessage
++		if json.Unmarshal(m[key], &items) != nil {
++			return v, protocolFailure()
++		}
++		if len(items) != 0 {
++			return v, unsupported()
++		}
++	}
++	v.text, err = nativeString(m["content"], maxTextBytes, !streaming && !v.refusal)
++	return v, err
++}
+diff --git a/internal/central/model/adapter/budget.go b/internal/central/model/adapter/budget.go
+new file mode 100644
+--- /dev/null
++++ b/internal/central/model/adapter/budget.go
+@@ -0,0 +1,116 @@
++package adapter
++
++import (
++	"context"
++	"sync"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++)
++
++type budgetState struct {
++	mu       sync.Mutex
++	stopped  bool
++	active   map[*Exchange]identity.ProjectID
++	projects map[identity.ProjectID]int
++}
++type Budget struct{ state *budgetState }
++
++func NewBudget() *Budget {
++	return &Budget{state: &budgetState{active: make(map[*Exchange]identity.ProjectID), projects: make(map[identity.ProjectID]int)}}
++}
++func (b *Budget) accept(ctx context.Context, project identity.ProjectID, mode ResponseMode, overall time.Duration) (*Exchange, error) {
++	if b == nil || b.state == nil || project.Validate() != nil {
++		return nil, invalid()
++	}
++	s := b.state
++	s.mu.Lock()
++	defer s.mu.Unlock()
++	if err := ctx.Err(); err != nil {
++		return nil, contextFailure(err)
++	}
++	if s.stopped {
++		return nil, f.NewFault(f.ShuttingDown, f.NotStarted)
++	}
++	if len(s.active) >= 64 || s.projects[project] >= 8 {
++		return nil, f.NewFault(f.ResourceBusy, f.NotStarted)
++	}
++	x := newExchange(ctx, mode, overall, b)
++	s.active[x] = project
++	s.projects[project]++
++	return x, nil
++}
++func (b *Budget) release(x *Exchange) {
++	s := b.state
++	s.mu.Lock()
++	defer s.mu.Unlock()
++	if project, ok := s.active[x]; ok {
++		delete(s.active, x)
++		s.projects[project]--
++		if s.projects[project] == 0 {
++			delete(s.projects, project)
++		}
++	}
++}
++func (b *Budget) StopAdmission() {
++	if b == nil || b.state == nil {
++		return
++	}
++	b.state.mu.Lock()
++	b.state.stopped = true
++	b.state.mu.Unlock()
++}
++func (b *Budget) snapshot() ([]*Exchange, bool) {
++	if b == nil || b.state == nil {
++		return nil, false
++	}
++	s := b.state
++	s.mu.Lock()
++	defer s.mu.Unlock()
++	list := make([]*Exchange, 0, len(s.active))
++	for x := range s.active {
++		list = append(list, x)
++	}
++	return list, s.stopped
++}
++func (b *Budget) Drain(ctx context.Context) error {
++	if b == nil || b.state == nil || ctx == nil {
++		return invalid()
++	}
++	for {
++		list, _ := b.snapshot()
++		if len(list) == 0 {
++			return nil
++		}
++		for _, x := range list {
++			if err := x.waitJoined(ctx); err != nil {
++				return err
++			}
++		}
++	}
++}
++func (b *Budget) Force(ctx context.Context) error {
++	if b == nil || b.state == nil || ctx == nil {
++		return invalid()
++	}
++	b.StopAdmission()
++	list, _ := b.snapshot()
++	for _, x := range list {
++		x.cancel()
++	}
++	return b.Drain(ctx)
++}
++func (b *Budget) Joined() bool {
++	list, stopped := b.snapshot()
++	if !stopped {
++		return false
++	}
++	for _, x := range list {
++		if !x.Joined() {
++			return false
++		}
++	}
++	list, stopped = b.snapshot()
++	return stopped && len(list) == 0
++}
+diff --git a/internal/central/model/adapter/openai_chat_test.go b/internal/central/model/adapter/openai_chat_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/central/model/adapter/openai_chat_test.go
+@@ -0,0 +1,243 @@
++package adapter
++
++import (
++	"context"
++	"encoding/json"
++	"errors"
++	"fmt"
++	"io"
++	"log/slog"
++	"net/netip"
++	"os"
++	"strings"
++	"testing"
++	"time"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++func fresh[T any](t *testing.T) f.ID[T] {
++	t.Helper()
++	v, e := f.NewID[T]()
++	if e != nil {
++		t.Fatal(e)
++	}
++	return v
++}
++
++func TestOpenAIChatPinnedProfileManifest(t *testing.T) {
++	raw, err := os.ReadFile("testdata/openai-chat-text-v1.json")
++	if err != nil {
++		t.Fatal(err)
++	}
++	var p struct {
++		Revision, Protocol, Profile, Commit string
++		Sources                             []struct{ Path, URL, SHA256, GitBlob string }
++		UsageProjection                     map[string]string `json:"usage_projection"`
++	}
++	if err := json.Unmarshal(raw, &p); err != nil {
++		t.Fatal(err)
++	}
++	if p.Revision != OpenAIChatTextRevision || p.Protocol != string(mc.OpenAIChat) || p.Profile != string(mc.OpenAIChatV1) || p.Commit != "becc1d20eed83c1b8d85e15dc131a372d9dc7813" || len(p.Sources) != 17 || p.UsageProjection["prompt_tokens_details.cache_write_tokens"] != "cache_write_tokens" {
++		t.Fatal("profile lost its exact adopted source identity")
++	}
++	seen := map[string]bool{}
++	for _, source := range p.Sources {
++		if seen[source.Path] || len(source.SHA256) != 64 || !strings.Contains(source.URL, "/blob/"+p.Commit+"/"+source.Path) {
++			t.Fatal("invalid source provenance")
++		}
++		seen[source.Path] = true
++	}
++}
++
++func TestOpenAIChatEncodedBodyBound(t *testing.T) {
++	r, o := unitInput(t)
++	r.Messages[0].Parts[0].Text.Text = strings.Repeat("<", 3<<20)
++	if req, _, err := prepare(r, o); req != nil {
++		t.Fatal("escaped body bypassed encoded byte cap")
++	} else {
++		requireModel(t, err, "provider_error", "wire_limit_exceeded")
++	}
++}
++func unitInput(t *testing.T) (Request, CallOptions) {
++	t.Helper()
++	actor, err := id.NewHuman(fresh[id.User](t), fresh[id.Session](t))
++	if err != nil {
++		t.Fatal(err)
++	}
++	key, err := ac.NewAppendKey(ac.AccessProducer, fresh[struct{}](t).String(), 0)
++	if err != nil {
++		t.Fatal(err)
++	}
++	call, err := outbound.NewCallContext(actor, id.SystemScope(), key, ac.Associations{})
++	if err != nil {
++		t.Fatal(err)
++	}
++	material, err := sc.NewSecretMaterial([]byte("wire-material-canary"))
++	if err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(material.Destroy)
++	r := Request{Snapshot: mc.ConfigSnapshot{ID: fresh[mc.Snapshot](t), Identity: mc.ModelIdentity{ProviderID: fresh[mc.Provider](t), ModelID: fresh[mc.Model](t), ProviderName: "provider", ModelName: "chat", ProviderModelID: "native-model", Protocol: mc.OpenAIChat, Profile: mc.OpenAIChatV1, ModelType: mc.ChatModel, AdapterRevision: OpenAIChatTextRevision}, Endpoint: "https://provider.example/base%2Fsegment/", Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, Streaming: true}}, Messages: []mc.Message{{Role: "user", Parts: []mc.MessagePart{{Text: &mc.TextPart{Text: "  text & 世界\n"}}}}}, ToolChoice: mc.ToolChoice{Kind: "none"}, ResponseFormat: mc.ResponseFormat{Kind: "text"}, Mode: JSONResponse}
++	return r, CallOptions{ProjectID: fresh[id.Project](t), Context: call, Credential: material, Limits: outbound.Limits{Overall: time.Second}}
++}
++func requireModel(t *testing.T, err error, category mc.ErrorCategory, code string) *mc.ModelError {
++	t.Helper()
++	var m *mc.ModelError
++	if !errors.As(err, &m) || m.Category != category || m.Code != code || m.Validate() != nil {
++		t.Fatalf("model error got %v, want %s/%s", err, category, code)
++	}
++	return m
++}
++func requireFault(t *testing.T, err error, code f.Code) {
++	t.Helper()
++	var v *f.Fault
++	if !errors.As(err, &v) || v.Code != code || v.CommitState != f.NotStarted {
++		t.Fatalf("fault got %v, want %s/not_started", err, code)
++	}
++}
++
++func TestOpenAIChatRequestEncodingAndClosedInputs(t *testing.T) {
++	r, o := unitInput(t)
++	r.Mode = SSEResponse
++	max := mc.TokenCount(9007199254740993)
++	r.Snapshot.Capabilities.MaxOutput = &max
++	req, _, err := prepare(r, o)
++	if err != nil {
++		t.Fatal(err)
++	}
++	r.Messages[0].Parts[0].Text.Text = "mutated"
++	*r.Snapshot.Capabilities.MaxOutput = 1
++	raw, err := io.ReadAll(req.Body)
++	if err != nil {
++		t.Fatal(err)
++	}
++	req.Body.Close()
++	var body map[string]json.RawMessage
++	if json.Unmarshal(raw, &body) != nil {
++		t.Fatal("body")
++	}
++	if req.URL.RequestURI() != "/base%2Fsegment/chat/completions" || req.Method != "POST" || req.Header.Get("Authorization") != "" || req.Header.Get("Accept") != "text/event-stream" || len(body) != 5 || string(body["max_completion_tokens"]) != "9007199254740993" || string(body["stream_options"]) != `{"include_usage":true}` || strings.Contains(string(raw), "mutated") {
++		t.Fatalf("incorrect wire request %s", raw)
++	}
++	for _, tc := range []struct {
++		name        string
++		mutate      func(*Request, *CallOptions)
++		unsupported bool
++	}{
++		{"revision", func(r *Request, _ *CallOptions) { r.Snapshot.Identity.AdapterRevision = "other" }, true},
++		{"tools", func(r *Request, _ *CallOptions) {
++			r.Tools = []mc.Tool{{Name: "tool", InputSchema: json.RawMessage(`{}`)}}
++		}, true},
++		{"reasoning", func(r *Request, _ *CallOptions) { r.Snapshot.Capabilities.Reasoning = true }, true},
++		{"parallel_tools", func(r *Request, _ *CallOptions) {
++			r.Snapshot.Capabilities.ToolCalls = true
++			r.Snapshot.Capabilities.ParallelToolCalls = true
++		}, true},
++		{"tool_choice", func(r *Request, _ *CallOptions) { r.ToolChoice.Kind = "auto" }, true},
++		{"structured", func(r *Request, _ *CallOptions) {
++			r.ResponseFormat = mc.ResponseFormat{Kind: "json_schema", Name: "typed", Schema: json.RawMessage(`{}`)}
++		}, true},
++		{"structured_capability", func(r *Request, _ *CallOptions) {
++			r.Snapshot.Capabilities.StructuredOutputModes = []string{"text", "json_schema"}
++		}, true},
++		{"image_modality", func(r *Request, _ *CallOptions) { r.Snapshot.Capabilities.InputModalities = []string{"text", "image"} }, true},
++		{"custom_header", func(r *Request, _ *CallOptions) {
++			r.Snapshot.HeaderOverwrite = map[string]string{"X-Custom": "unsupported"}
++		}, true},
++		{"media_part", func(r *Request, o *CallOptions) {
++			ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.ArtifactFile, ProjectID: o.ProjectID, ArtifactID: fresh[struct{}](t).String(), FileID: fresh[struct{}](t).String()})
++			if err != nil {
++				t.Fatal(err)
++			}
++			r.Messages[0].Parts[0] = mc.MessagePart{Image: &mc.MediaPart{Ref: ref, MediaType: "image/png"}}
++		}, true},
++		{"tool_result", func(r *Request, _ *CallOptions) {
++			r.Messages[0] = mc.Message{Role: "tool", Parts: []mc.MessagePart{{ToolResult: &mc.ToolResultPart{CallID: "call1", Parts: []mc.ResultPart{{Text: &mc.TextPart{Text: "value"}}}}}}}
++		}, true},
++		{"parameters", func(r *Request, _ *CallOptions) { r.Snapshot.Parameters = json.RawMessage(`{"temperature":0}`) }, true},
++		{"overwrite", func(r *Request, _ *CallOptions) { r.Snapshot.RequestOverwrite = json.RawMessage(`{"custom":1}`) }, true},
++		{"multiple_parts", func(r *Request, _ *CallOptions) {
++			r.Messages[0].Parts = append(r.Messages[0].Parts, mc.MessagePart{Text: &mc.TextPart{Text: "other"}})
++		}, true},
++		{"metadata", func(r *Request, _ *CallOptions) {
++			r.Messages[0] = mc.Message{Role: "assistant", Parts: []mc.MessagePart{{Metadata: &mc.ProviderMetadataPart{AdapterID: "a", Version: "v", OpaqueRef: "r"}}}}
++		}, true},
++		{"no_stream_capability", func(r *Request, _ *CallOptions) { r.Mode = SSEResponse; r.Snapshot.Capabilities.Streaming = false }, true},
++		{"invalid_utf8", func(r *Request, _ *CallOptions) { r.Messages[0].Parts[0].Text.Text = string([]byte{255}) }, false},
++		{"zero_budget", func(_ *Request, o *CallOptions) { o.Limits.Overall = 0 }, false},
++		{"oversized_budget", func(_ *Request, o *CallOptions) { o.Limits.Overall = 121 * time.Second }, false},
++		{"idle_budget", func(_ *Request, o *CallOptions) { o.Limits.ReadIdle = 2 * time.Second }, false},
++		{"unavailable_material", func(_ *Request, o *CallOptions) { o.Credential = sc.SecretMaterial{} }, false},
++		{"query", func(r *Request, _ *CallOptions) { r.Snapshot.Endpoint += "?key=hidden" }, false},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			r, o := unitInput(t)
++			tc.mutate(&r, &o)
++			req, _, err := prepare(r, o)
++			if req != nil {
++				t.Fatal("unsupported/invalid request created")
++			}
++			if tc.unsupported {
++				requireModel(t, err, "unsupported_feature", "wire_unsupported_feature")
++			} else {
++				requireFault(t, err, f.InvalidArgument)
++			}
++		})
++	}
++	for _, path := range []string{"/base//inner/", "/base/./inner/", "/base/%2e/", ""} {
++		t.Run("path="+path, func(t *testing.T) {
++			r, o := unitInput(t)
++			r.Snapshot.Endpoint = "https://provider.example" + path
++			req, _, err := prepare(r, o)
++			if err != nil {
++				t.Fatal(err)
++			}
++			defer req.Body.Close()
++			if req.URL.RequestURI() != strings.TrimSuffix(path, "/")+"/chat/completions" {
++				t.Fatal(req.URL.RequestURI())
++			}
++		})
++	}
++}
++
++type nilResolver chan struct{}
++
++func (nilResolver) Lookup(context.Context, string) ([]netip.Addr, error) {
++	panic("nil resolver must not be called")
++}
++func TestOpenAIChatInvalidConstructorAndSafeViews(t *testing.T) {
++	var ch nilResolver
++	for _, tc := range []struct {
++		transport Transport
++		budget    *Budget
++	}{{Transport{}, nil}, {Transport{}, &Budget{}}, {Transport{Resolver: ch}, NewBudget()}, {Transport{Policy: &outbound.PolicyService{}}, NewBudget()}} {
++		if _, err := NewOpenAIChat(tc.transport, tc.budget); err == nil {
++			t.Fatal("invalid constructor accepted")
++		}
++	}
++	r, o := unitInput(t)
++	r.Messages[0].Parts[0].Text.Text = "wire-secret-answer-canary"
++	for _, value := range []any{r, o, Result{Text: "wire-secret-answer-canary"}, Event{Text: "wire-secret-answer-canary"}, Observation{Decision: &outbound.Decision{Origin: "wire-secret-answer-canary"}}, &Exchange{result: Result{Text: "wire-secret-answer-canary"}}} {
++		for _, format := range []string{"%v", "%+v", "%#v", "%s", "%q", "%x"} {
++			if strings.Contains(fmt.Sprintf(format, value), "canary") {
++				t.Fatal("format leak")
++			}
++		}
++		raw, err := json.Marshal(value)
++		if err != nil || strings.Contains(string(raw), "canary") {
++			t.Fatal("JSON leak", err)
++		}
++		var out strings.Builder
++		slog.New(slog.NewJSONHandler(&out, nil)).Info("test", "value", value)
++		if strings.Contains(out.String(), "canary") {
++			t.Fatal("log leak")
++		}
++	}
++}
+diff --git a/internal/central/model/adapter/transport_test.go b/internal/central/model/adapter/transport_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/central/model/adapter/transport_test.go
+@@ -0,0 +1,136 @@
++package adapter
++
++import (
++	"context"
++	"errors"
++	"io"
++	"strings"
++	"testing"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++)
++
++func localExchange(t *testing.T, mode ResponseMode) *Exchange {
++	t.Helper()
++	b := NewBudget()
++	x, err := b.accept(context.Background(), fresh[id.Project](t), mode, 10*time.Second)
++	if err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(func() { x.cancel(); b.StopAdmission() })
++	return x
++}
++func TestWireConsumerModesCopiesAndActualPrefix(t *testing.T) {
++	x := localExchange(t, SSEResponse)
++	version := f.Version(7)
++	n := mc.TokenCount(9)
++	x.observation.Decision = &outbound.Decision{Sent: true, PolicyVersion: &version}
++	x.observation.Usage = mc.Usage{TotalTokens: &n, Source: mc.ProviderUsage}
++	copy := x.Observe()
++	*copy.Decision.PolicyVersion = 100
++	*copy.Usage.TotalTokens = 100
++	if *x.Observe().Decision.PolicyVersion != 7 || *x.Observe().Usage.TotalTokens != 9 {
++		t.Fatal("observation alias")
++	}
++	if _, err := x.Result(context.Background()); err == nil {
++		t.Fatal("wrong mode accepted")
++	} else {
++		requireFault(t, err, f.InvalidState)
++	}
++	if err := x.emit(Event{Kind: TextDelta, Text: "prefix"}); err != nil {
++		t.Fatal(err)
++	}
++	finishLocal(x, Result{}, failure("content_filter", ""))
++	e, err := x.Next(context.Background())
++	if err != nil || e.Kind != TextDelta || e.Text != "prefix" {
++		t.Fatal(e, err)
++	}
++	_, err = x.Next(context.Background())
++	m := requireModel(t, err, "content_filter", "")
++	if !m.Dispatched || !m.PartialOutput || m.Retryable {
++		t.Fatal("wrong actual prefix")
++	}
++	if _, err = x.Next(context.Background()); err != io.EOF {
++		t.Fatal("more than one error")
++	}
++	if !x.Joined() {
++		t.Fatal("local work not joined")
++	}
++	y := localExchange(t, JSONResponse)
++	finishLocal(y, Result{Text: "answer", End: End{Usage: mc.Usage{Source: mc.UnknownUsage}, FinishReason: "stop"}}, nil)
++	result, err := y.Result(context.Background())
++	if err != nil || result.Text != "answer" || !y.Joined() {
++		t.Fatal(result, err)
++	}
++	if _, err := y.Result(context.Background()); err == nil {
++		t.Fatal("wire result silently replayed")
++	} else {
++		requireFault(t, err, f.InvalidState)
++	}
++}
++func TestWireBackpressureCancellationAndConcurrentReader(t *testing.T) {
++	x := localExchange(t, SSEResponse)
++	x.observation.Decision = &outbound.Decision{Sent: true}
++	for n := 0; n < 3; n++ {
++		if err := x.emit(Event{Kind: TextDelta, Text: strings.Repeat("x", 64<<10)}); err != nil {
++			t.Fatal(err)
++		}
++	}
++	blocked, done := make(chan struct{}), make(chan error, 1)
++	go func() { close(blocked); done <- x.emit(Event{Kind: TextDelta, Text: strings.Repeat("y", 64<<10)}) }()
++	<-blocked
++	select {
++	case err := <-done:
++		t.Fatal("payload limit did not backpressure", err)
++	default:
++	}
++	x.mu.Lock()
++	if x.queueBytes > 256<<10 || len(x.queue) > 32 {
++		t.Fatal("unbounded queue")
++	}
++	x.reading = true
++	x.mu.Unlock()
++	if _, err := x.Next(context.Background()); err == nil {
++		t.Fatal("concurrent reader accepted")
++	} else {
++		requireFault(t, err, f.InvalidState)
++	}
++	x.mu.Lock()
++	x.reading = false
++	x.mu.Unlock()
++	x.cancel()
++	select {
++	case err := <-done:
++		requireModel(t, err, "cancelled", "wire_cancelled")
++	case <-time.After(time.Second):
++		t.Fatal("backpressured producer did not stop")
++	}
++	finishLocal(x, Result{}, contextFailure(context.Canceled))
++	_, err := x.Next(context.Background())
++	m := requireModel(t, err, "cancelled", "wire_cancelled")
++	if m.PartialOutput {
++		t.Fatal("queued text is not delivered prefix")
++	}
++	if _, err = x.Next(context.Background()); !errors.Is(err, io.EOF) {
++		t.Fatal("cancelled reader did not end")
++	}
++}
++func TestWireCancelledStartDoesNotAdmitOrCreateClient(t *testing.T) {
++	r, o := unitInput(t)
++	a := &OpenAIChat{budget: NewBudget()}
++	ctx, cancel := context.WithCancel(context.Background())
++	cancel()
++	x, err := a.Start(ctx, r, o)
++	if x != nil {
++		t.Fatal("cancelled admission handle")
++	}
++	requireModel(t, err, "cancelled", "wire_cancelled")
++	active, _ := a.budget.snapshot()
++	if len(active) != 0 {
++		t.Fatal("cancelled request owns slot")
++	}
++}
+diff --git a/internal/central/model/adapter/sse_test.go b/internal/central/model/adapter/sse_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/central/model/adapter/sse_test.go
+@@ -0,0 +1,163 @@
++package adapter
++
++import (
++	"context"
++	"encoding/json"
++	"errors"
++	"io"
++	"strings"
++	"testing"
++
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++)
++
++func chunk(delta map[string]any, finish any, usage any) string {
++	choices := []any{map[string]any{"index": 0, "delta": delta, "finish_reason": finish}}
++	if delta == nil {
++		choices = []any{}
++	}
++	b, _ := json.Marshal(map[string]any{"id": "chat-1", "object": "chat.completion.chunk", "created": 1, "model": "native-model", "choices": choices, "usage": usage, "obfuscation": "default-padding"})
++	return "data: " + string(b) + "\n\n"
++}
++
++type splitReader struct{ io.Reader }
++
++func (r splitReader) Read(p []byte) (int, error) { return r.Reader.Read(p[:min(1, len(p))]) }
++func parseStream(t *testing.T, r io.Reader) ([]Event, error, *Exchange) {
++	t.Helper()
++	x := localExchange(t, SSEResponse)
++	x.observation.Decision = &outbound.Decision{Sent: true}
++	go func() { end, err := x.stream(r); finishLocal(x, Result{End: end}, err) }()
++	var events []Event
++	for {
++		e, err := x.Next(context.Background())
++		if err != nil {
++			if err == io.EOF {
++				return events, nil, x
++			}
++			return events, err, x
++		}
++		events = append(events, e)
++	}
++}
++func TestOpenAIChatSSETextUsageAndRequiredTermination(t *testing.T) {
++	stream := ": comment\r\n\r\n" + chunk(map[string]any{"role": "assistant", "content": "世"}, nil, nil) + chunk(map[string]any{"content": "界"}, "length", nil) + chunk(nil, nil, map[string]any{"prompt_tokens": json.Number("9007199254740993"), "completion_tokens": 0}) + "data: [DONE]\n\n"
++	events, err, x := parseStream(t, splitReader{strings.NewReader(stream)})
++	if err != nil {
++		t.Fatal(err)
++	}
++	var text string
++	var final *End
++	var usage *mc.Usage
++	for _, e := range events {
++		switch e.Kind {
++		case TextDelta:
++			text += e.Text
++		case UsageUpdate:
++			usage = e.Usage
++		case StreamEnd:
++			if final != nil {
++				t.Fatal("duplicate end")
++			}
++			final = e.End
++		}
++	}
++	if text != "世界" || final == nil || final.FinishReason != "length" || usage == nil || *usage.InputTokens != 9007199254740993 || *usage.OutputTokens != 0 || *x.Observe().Usage.InputTokens != 9007199254740993 {
++		t.Fatal("wrong text/usage/end")
++	}
++	if _, err := x.Next(context.Background()); err != io.EOF || !x.Joined() {
++		t.Fatal("terminal/join", err)
++	}
++	for _, tc := range []struct {
++		name, stream string
++		category     mc.ErrorCategory
++	}{
++		{"missing_done", chunk(map[string]any{"content": "prefix"}, "stop", nil), "provider_error"},
++		{"premature_done", "data: [DONE]\n\n", "provider_error"},
++		{"duplicate_finish", chunk(map[string]any{}, "stop", nil) + chunk(map[string]any{}, "stop", nil) + "data: [DONE]\n\n", "provider_error"},
++		{"usage_before_finish", chunk(nil, nil, map[string]any{"total_tokens": 1}), "provider_error"},
++		{"unknown_finish", chunk(map[string]any{}, "future_reason", nil), "provider_error"},
++		{"empty_finish", chunk(map[string]any{}, "", nil), "provider_error"},
++		{"empty_role", chunk(map[string]any{"role": ""}, nil, nil), "provider_error"},
++		{"refusal", chunk(map[string]any{"content": "prefix"}, nil, nil) + chunk(map[string]any{"refusal": "private-refusal-canary"}, nil, nil), "content_filter"},
++		{"tool", chunk(map[string]any{"tool_calls": []any{map[string]any{"index": 0}}}, nil, nil), "unsupported_feature"},
++		{"bad_json", "data: {\"id\":\"x\",\"id\":\"y\"}\n\n", "provider_error"},
++		{"error_event", "event: error\ndata: {\"error\":{\"message\":\"private-canary\"}}\n\n", "provider_error"},
++		{"wrong_obfuscation", strings.Replace(chunk(map[string]any{}, "stop", nil), `"obfuscation":"default-padding"`, `"obfuscation":2`, 1), "provider_error"},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			events, err, x := parseStream(t, strings.NewReader(tc.stream))
++			var model *mc.ModelError
++			if !errors.As(err, &model) || model.Category != tc.category || strings.Contains(err.Error(), "canary") {
++				t.Fatal("wrong failure", err)
++			}
++			for _, e := range events {
++				if e.Kind == StreamEnd {
++					t.Fatal("false successful terminal")
++				}
++			}
++			if _, err := x.Next(context.Background()); err != io.EOF {
++				t.Fatal("more than one error")
++			}
++		})
++	}
++}
++func TestOpenAIChatSSEUnknownUsageAndBoundedEvents(t *testing.T) {
++	for _, obfuscation := range []string{`null`, `"padding"`} {
++		input := strings.Replace(chunk(map[string]any{"content": ""}, "content_filter", nil), `"obfuscation":"default-padding"`, `"obfuscation":`+obfuscation, 1) + "data: [DONE]\n\n"
++		events, err, _ := parseStream(t, strings.NewReader(input))
++		if err != nil || len(events) != 1 || events[0].End.Usage.Source != mc.UnknownUsage || events[0].End.FinishReason != "content_filter" {
++			t.Fatal(events, err)
++		}
++	}
++	input := chunk(map[string]any{}, "stop", nil) + chunk(nil, nil, map[string]any{"total_tokens": 7}) + "data: not-json\n\n"
++	_, err, x := parseStream(t, strings.NewReader(input))
++	if err == nil || *x.Observe().Usage.TotalTokens != 7 {
++		t.Fatal("observed reliable usage lost", err)
++	}
++	input = "data: " + strings.Repeat(" ", maxEventBytes) + "\n\n"
++	_, err, _ = parseStream(t, strings.NewReader(input))
++	requireModel(t, err, "provider_error", "wire_limit_exceeded")
++	input = strings.Replace(chunk(map[string]any{}, "stop", nil), "default-padding", strings.Repeat("x", maxEventBytes), 1)
++	_, err, _ = parseStream(t, strings.NewReader(input))
++	requireModel(t, err, "provider_error", "wire_limit_exceeded")
++	big := strings.Repeat("世界", 40000)
++	input = chunk(map[string]any{"content": big}, "stop", nil) + "data: [DONE]\n\n"
++	events, err, _ := parseStream(t, strings.NewReader(input))
++	if err != nil {
++		t.Fatal(err)
++	}
++	var parts []string
++	for _, e := range events {
++		if e.Kind == TextDelta {
++			if len(e.Text) > 64<<10 {
++				t.Fatal("oversized delta")
++			}
++			parts = append(parts, e.Text)
++		}
++	}
++	if strings.Join(parts, "") != big {
++		t.Fatal("UTF8 splitting changed text")
++	}
++}
++
++func TestOpenAIChatSSECumulativeTextBound(t *testing.T) {
++	part := chunk(map[string]any{"content": strings.Repeat("x", 512<<10)}, nil, nil)
++	readers := make([]io.Reader, 33)
++	for i := range readers {
++		readers[i] = strings.NewReader(part)
++	}
++	events, err, _ := parseStream(t, io.MultiReader(readers...))
++	requireModel(t, err, "provider_error", "wire_limit_exceeded")
++	n := 0
++	for _, event := range events {
++		if event.Kind != TextDelta {
++			t.Fatal("oversized stream produced terminal")
++		}
++		n += len(event.Text)
++	}
++	if n != maxTextBytes {
++		t.Fatal("cumulative text limit did not preserve exact accepted prefix", n)
++	}
++}
+diff --git a/internal/central/model/adapter/errors_test.go b/internal/central/model/adapter/errors_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/central/model/adapter/errors_test.go
+@@ -0,0 +1,94 @@
++package adapter
++
++import (
++	"encoding/json"
++	"fmt"
++	"math"
++	"strings"
++	"testing"
++
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++func nativeReply(text, finish string) string {
++	b, _ := json.Marshal(map[string]any{"id": "chat-1", "object": "chat.completion", "created": 1, "model": "native-model", "choices": []any{map[string]any{"index": 0, "message": map[string]any{"role": "assistant", "content": text}, "finish_reason": finish}}})
++	return string(b)
++}
++func TestOpenAIChatNativeUsageExactAndUnknown(t *testing.T) {
++	u, err := parseUsage([]byte(`{"prompt_tokens":9007199254740993,"completion_tokens":0,"total_tokens":9223372036854775807,"prompt_tokens_details":{"cached_tokens":3,"cache_write_tokens":2,"image_tokens":7},"completion_tokens_details":{"reasoning_tokens":4,"rejected_prediction_tokens":12,"text_tokens":0}}`))
++	if err != nil || u.Validate() != nil || *u.InputTokens != 9007199254740993 || *u.TotalTokens != mc.TokenCount(math.MaxInt64) || *u.OutputTokens != 0 || *u.CachedInputTokens != 3 || *u.CacheWriteTokens != 2 || *u.ReasoningTokens != 4 {
++		t.Fatal("exact provider counts", err)
++	}
++	for _, raw := range []string{`null`, `{}`, `{"prompt_tokens":null,"completion_tokens_details":{"reasoning_tokens":null}}`} {
++		u, err := parseUsage([]byte(raw))
++		if err != nil || u.Source != mc.UnknownUsage || u.TotalTokens != nil {
++			t.Fatal(raw, err)
++		}
++	}
++	for _, raw := range []string{`{"prompt_tokens":-1}`, `{"total_tokens":9223372036854775808}`, `{"total_tokens":1.2}`, `{"total_tokens":"1"}`, `{"total_tokens":1e3}`, `{"prompt_tokens_details":{"bogus":0}}`, `{"completion_tokens_details":{"text_tokens":-1}}`, `{"total_tokens":1,"total_tokens":2}`, `{"total_tokens completion_tokens":0}`} {
++		if _, err := parseUsage([]byte(raw)); err == nil {
++			t.Fatal("invalid usage accepted", raw)
++		}
++	}
++}
++func TestOpenAIChatNativeEnvelopeAndSafeErrors(t *testing.T) {
++	for _, finish := range []string{"stop", "length", "content_filter"} {
++		v, err := decodeNative([]byte(nativeReply("text", finish)), false)
++		if err != nil || v.text != "text" || string(v.finish) != finish {
++			t.Fatal(v, err)
++		}
++	}
++	for _, mutate := range []func(map[string]any){
++		func(v map[string]any) { v["unknown"] = true }, func(v map[string]any) { v["id object"] = "not a recognized key" },
++		func(v map[string]any) { v["choices"] = []any{} }, func(v map[string]any) { v["created"] = 1.5 },
++		func(v map[string]any) { v["service_tier"] = "unrecognized" }, func(v map[string]any) { v["obfuscation"] = "SSE only" },
++		func(v map[string]any) { v["service_tier"] = "auto default" }, func(v map[string]any) { v["service_tier"] = "" },
++	} {
++		var value map[string]any
++		json.Unmarshal([]byte(nativeReply("text", "stop")), &value)
++		mutate(value)
++		raw, _ := json.Marshal(value)
++		if _, err := decodeNative(raw, false); err == nil {
++			t.Fatal("bad envelope accepted")
++		}
++	}
++	for _, raw := range []string{`{} {}`, `{"a":1,"a":2}`, `{"a":{"x":1,"x":2}}`, `"\ud800"`, `"\udfff"`, `"\ud800\u1234"`, strings.Repeat(`{"a":`, 34) + `0` + strings.Repeat(`}`, 34), string([]byte{'"', 255, '"'})} {
++		if jsonShape([]byte(raw)) == nil {
++			t.Fatal("bad shape accepted")
++		}
++	}
++	for _, raw := range []string{`"\ud83d\ude00"`, `"\\ud800"`, `"escaped\"quote"`} {
++		if err := jsonShape([]byte(raw)); err != nil {
++			t.Fatal("valid unicode escape rejected", err)
++		}
++	}
++	for _, status := range []int{400, 401, 403, 404, 429, 500, 502, 503, 504} {
++		err := statusFailure(status)
++		var expected = mc.ErrorCategory("provider_error")
++		switch status {
++		case 401:
++			expected = "authentication"
++		case 403:
++			expected = "permission"
++		case 429:
++			expected = "rate_limited"
++		case 502, 503, 504:
++			expected = "provider_unavailable"
++		}
++		m := requireModel(t, err, expected, "wire_http_error")
++		if m.Retryable != (status == 429 || status == 502 || status == 503 || status == 504) {
++			t.Fatal("retry")
++		}
++	}
++	for _, s := range []string{"contains space", "private\nheader", strings.Repeat("a", 257), "中文", "https://secret.example"} {
++		if requestID(s) != "" {
++			t.Fatal("unsafe request id")
++		}
++	}
++	if requestID("req_safe-1:2.3") != "req_safe-1:2.3" {
++		t.Fatal("safe request id dropped")
++	}
++	if fmt.Sprint(protocolFailure()) != "model_model_error" {
++		t.Fatal("unexpected safe error")
++	}
++}
+diff --git a/internal/central/model/adapter/budget_test.go b/internal/central/model/adapter/budget_test.go
+new file mode 100644
+--- /dev/null
++++ b/internal/central/model/adapter/budget_test.go
+@@ -0,0 +1,126 @@
++package adapter
++
++import (
++	"context"
++	"sync"
++	"testing"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++)
++
++// Only local-work completion is synthesized here. The integration group holds
++// a real D04 request writer and verifies the additional Client.Drain condition.
++func finishLocal(x *Exchange, result Result, err error) {
++	x.mu.Lock()
++	x.result, x.err, x.done = result, err, true
++	close(x.ioDone)
++	x.notify()
++	x.mu.Unlock()
++}
++func TestWireBudgetGlobalProjectAndSealedAdmission(t *testing.T) {
++	b := NewBudget()
++	ctx := context.Background()
++	var handles []*Exchange
++	for p := 0; p < 8; p++ {
++		project := fresh[id.Project](t)
++		for n := 0; n < 8; n++ {
++			x, err := b.accept(ctx, project, JSONResponse, time.Minute)
++			if err != nil {
++				t.Fatal(err)
++			}
++			handles = append(handles, x)
++		}
++		if _, err := b.accept(ctx, project, JSONResponse, time.Minute); err == nil {
++			t.Fatal("project limit exceeded")
++		} else {
++			requireFault(t, err, f.ResourceBusy)
++		}
++	}
++	if _, err := b.accept(ctx, fresh[id.Project](t), JSONResponse, time.Minute); err == nil {
++		t.Fatal("global limit exceeded")
++	} else {
++		requireFault(t, err, f.ResourceBusy)
++	}
++	b.StopAdmission()
++	if b.Joined() {
++		t.Fatal("active work claimed joined")
++	}
++	if _, err := b.accept(ctx, fresh[id.Project](t), JSONResponse, time.Minute); err == nil {
++		t.Fatal("accepted after stop")
++	} else {
++		requireFault(t, err, f.ShuttingDown)
++	}
++	for _, x := range handles {
++		finishLocal(x, Result{}, nil)
++		x.cancel()
++	}
++	if err := b.Drain(ctx); err != nil || !b.Joined() {
++		t.Fatal("drain", err)
++	}
++}
++func TestWireBudgetCancellationDoesNotRetireLocalWork(t *testing.T) {
++	b := NewBudget()
++	project := fresh[id.Project](t)
++	x, err := b.accept(context.Background(), project, JSONResponse, time.Minute)
++	if err != nil {
++		t.Fatal(err)
++	}
++	entered, release, returned := make(chan struct{}), make(chan struct{}), make(chan struct{})
++	go func() { close(entered); <-release; finishLocal(x, Result{}, nil); close(returned) }()
++	<-entered
++	ctx, cancel := context.WithCancel(context.Background())
++	cancel()
++	if err := b.Force(ctx); err == nil || x.Joined() || b.Joined() {
++		t.Fatal("cancellation forged actual completion")
++	}
++	list, _ := b.snapshot()
++	if len(list) != 1 {
++		t.Fatal("live slot lost")
++	}
++	close(release)
++	<-returned
++	if err := x.Close(ctx); err != nil || !x.Joined() || !b.Joined() {
++		t.Fatal("already-cancelled probe must observe real completion", err)
++	}
++}
++func TestWireBudgetConcurrentAdmissionHasOneOwner(t *testing.T) {
++	b := NewBudget()
++	project := fresh[id.Project](t)
++	start := make(chan struct{})
++	var wg sync.WaitGroup
++	results := make(chan *Exchange, 80)
++	failures := make(chan error, 80)
++	for i := 0; i < 80; i++ {
++		wg.Add(1)
++		go func() {
++			defer wg.Done()
++			<-start
++			x, e := b.accept(context.Background(), project, SSEResponse, time.Minute)
++			if e != nil {
++				failures <- e
++			} else {
++				results <- x
++			}
++		}()
++	}
++	close(start)
++	wg.Wait()
++	close(results)
++	close(failures)
++	if len(results) != 8 || len(failures) != 72 {
++		t.Fatalf("admission count %d/%d", len(results), len(failures))
++	}
++	for err := range failures {
++		requireFault(t, err, f.ResourceBusy)
++	}
++	b.StopAdmission()
++	for x := range results {
++		finishLocal(x, Result{}, nil)
++		x.cancel()
++	}
++	if !b.Joined() {
++		t.Fatal("joined slots not retired")
++	}
++}
+diff --git a/internal/central/model/adapter/testdata/openai-chat-text-v1.json b/internal/central/model/adapter/testdata/openai-chat-text-v1.json
+new file mode 100644
+--- /dev/null
++++ b/internal/central/model/adapter/testdata/openai-chat-text-v1.json
+@@ -0,0 +1,706 @@
++{
++  "revision": "openai-chat-text-v1",
++  "protocol": "openai-chat-completions",
++  "profile": "openai-chat-completions-v1",
++  "official_repository": "https://github.com/openai/openai-python",
++  "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
++  "sdk_version": "3.24.0",
++  "license": {
++    "spdx": "Apache-2.0",
++    "path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/LICENSE.openai",
++    "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4"
++  },
++  "evidence": {
++    "source-manifest.json": {
++      "path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/source-manifest.json",
++      "sha256": "14de67c09ce263b11414505fcd52f125b48684dfafa23374281a6b066d317760"
++    },
++    "field-manifest.json": {
++      "path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/field-manifest.json",
++      "sha256": "15784f0d4e30c4770680a314564e7546e8220766277488a02a290e9db4934cb3"
++    },
++    "reviewed-card.md.txt": {
++      "path": "docs/development/agent-team/evidence/d09-openai-chat-wire-source/reviewed-card.md.txt",
++      "sha256": "650cf36506951abc54bf44e7c84738e074238c28c65db3a770bfdc0a8157c508"
++    }
++  },
++  "sources": [
++    {
++      "path": "src/openai/_version.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/_version.py",
++      "sha256": "0359d19e96c6ef28c1b6a26fb1cd44a62e30819abbf02e4102bdccbd357fc738",
++      "git_blob": "0906b86257a4dcf8e3cf3e99eee599cfc5b12ff6"
++    },
++    {
++      "path": "src/openai/_client.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/_client.py",
++      "sha256": "80bbf3452727bd46f136752b973a84869a2226ef2d75fcea090e888ba1007beb",
++      "git_blob": "47ae340317ef624f88ebd5e849e3d6ab5facc6c0"
++    },
++    {
++      "path": "src/openai/_base_client.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/_base_client.py",
++      "sha256": "7a0a173edf3fadb6b310895d5db6fa0b14264bdaa25b33dd4eb29d860a82639b",
++      "git_blob": "883bed6e19b9fd05126affe1e6ced56a309db164"
++    },
++    {
++      "path": "src/openai/_streaming.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/_streaming.py",
++      "sha256": "97f1eb3ddf6719aec25ae65928267d50c35a2623858f2714d63d7be5a4802fff",
++      "git_blob": "bb45a70f6aec83853c6fe6cec868bb1d8a52ed02"
++    },
++    {
++      "path": "src/openai/resources/chat/completions/completions.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/resources/chat/completions/completions.py",
++      "sha256": "645f05019a0e2f4f3085141045f7349ab9283073679585abf96a044d0c559517",
++      "git_blob": "973c96226831d738ec484762a8189d02b63b9138"
++    },
++    {
++      "path": "src/openai/types/chat/completion_create_params.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/completion_create_params.py",
++      "sha256": "58306f650519787342a3fc10f5500e90a17a882834e4b571e1e2f2c3c55b4f9c",
++      "git_blob": "dacf217b379a89867e9e73b19459f980629d7dca"
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion.py",
++      "sha256": "71b254f0b41d740bbbbc1a94a5298fec7fc58a9fccf2acec1948c2a1f2b62f16",
++      "git_blob": "9372c4a68c72cd6781bee9f77ba153cf22234b6d"
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_message.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_message.py",
++      "sha256": "9fb369e540871b3a7ddd5e8acd73cfc03b6973a52245514d750f00a977c74a34",
++      "git_blob": "a3064da854e1cddc0ddc25e16fc2a2d0ae7d1dcc"
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_chunk.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_chunk.py",
++      "sha256": "44bc28a96e088a6aa176b9426c495649d52b708fd7dab7f652cad75cf188bb08",
++      "git_blob": "fd23828cddc93876648cfd50f32546afddd6d959"
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_stream_options_param.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_stream_options_param.py",
++      "sha256": "e10203a63785037ce01835fdf3a6e924db27393a673a6084a55f4f386a4f6a67",
++      "git_blob": "3cd9441a43d502d53dc92481868a6de11f8c9075"
++    },
++    {
++      "path": "src/openai/types/completion_usage.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/completion_usage.py",
++      "sha256": "505975694e13d13a3cac7e9b2eff707ef8b125f0de91e32ccc89fc4b7c2161a2",
++      "git_blob": "73bd2bccaa952780c70f516755c9a17daec33abb"
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_system_message_param.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_system_message_param.py",
++      "sha256": "ce5bbeef8c5cdbf0a17250182d153ac97350266a7d142739b0ede146b79d87bb",
++      "git_blob": "cbdc841bf76581c4c7f04c26cd1774de01e954af"
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_user_message_param.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_user_message_param.py",
++      "sha256": "35c87d6ae60aa7ed81d048fc8bb09a318d118ca29f53ecef55a280a79419fd03",
++      "git_blob": "bf9a5b292b159afe453e6672ed2259222f48707c"
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_assistant_message_param.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_assistant_message_param.py",
++      "sha256": "a435aae2c30ad1033fba3a053324c97060348acc709eaf47e7c3041027fc256f",
++      "git_blob": "0bf29fd77a157bce77f9a59f12fdd38bf3b7fb45"
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_content_part_text_param.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_content_part_text_param.py",
++      "sha256": "06d1709d217212d5efb1030c53ae0b52fe3401be1d739fb0177bc04b08565a81",
++      "git_blob": "adee12ec16118d42a5f6507518285ab9f326ea49"
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_message_param.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_message_param.py",
++      "sha256": "8526b8c5ed26e2afcccd6f28de49885b7ed3b62dcee9c61e50b07cb796947a8b",
++      "git_blob": "fc7a0b52c0b54d60ebf40add704ca7e00a5ce951"
++    },
++    {
++      "path": "src/openai/types/shared_params/response_format_text.py",
++      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/shared_params/response_format_text.py",
++      "sha256": "e66fefe21b6805a9a2a083c55484cb8e7ac2c86061242c1cc6aede99454e8744",
++      "git_blob": "36895e4600fdcf7f5fbb4505b63b44a2c3102cce"
++    }
++  ],
++  "field_declarations": [
++    {
++      "path": "src/openai/types/chat/completion_create_params.py",
++      "class": "CompletionCreateParamsBase",
++      "line": 42,
++      "fields": [
++        {
++          "name": "messages",
++          "line": 43,
++          "type": "Required[Iterable[ChatCompletionMessageParam]]"
++        },
++        {
++          "name": "model",
++          "line": 53,
++          "type": "Required[Union[str, ChatModel]]"
++        },
++        {
++          "name": "max_completion_tokens",
++          "line": 117,
++          "type": "Optional[int]"
++        },
++        {
++          "name": "response_format",
++          "line": 244,
++          "type": "ResponseFormat"
++        },
++        {
++          "name": "stream_options",
++          "line": 318,
++          "type": "Optional[ChatCompletionStreamOptionsParam]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/completion_create_params.py",
++      "class": "CompletionCreateParamsNonStreaming",
++      "line": 532,
++      "fields": [
++        {
++          "name": "stream",
++          "line": 533,
++          "type": "Optional[Literal[False]]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/completion_create_params.py",
++      "class": "CompletionCreateParamsStreaming",
++      "line": 546,
++      "fields": [
++        {
++          "name": "stream",
++          "line": 547,
++          "type": "Required[Literal[True]]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_system_message_param.py",
++      "class": "ChatCompletionSystemMessageParam",
++      "line": 13,
++      "fields": [
++        {
++          "name": "content",
++          "line": 20,
++          "type": "Required[Union[str, Iterable[ChatCompletionContentPartTextParam]]]"
++        },
++        {
++          "name": "role",
++          "line": 23,
++          "type": "Required[Literal[\"system\"]]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_user_message_param.py",
++      "class": "ChatCompletionUserMessageParam",
++      "line": 13,
++      "fields": [
++        {
++          "name": "content",
++          "line": 19,
++          "type": "Required[Union[str, Iterable[ChatCompletionContentPartParam]]]"
++        },
++        {
++          "name": "role",
++          "line": 22,
++          "type": "Required[Literal[\"user\"]]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_assistant_message_param.py",
++      "class": "ChatCompletionAssistantMessageParam",
++      "line": 46,
++      "fields": [
++        {
++          "name": "role",
++          "line": 49,
++          "type": "Required[Literal[\"assistant\"]]"
++        },
++        {
++          "name": "content",
++          "line": 58,
++          "type": "Union[str, Iterable[ContentArrayOfContentPart], None]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_content_part_text_param.py",
++      "class": "ChatCompletionContentPartTextParam",
++      "line": 20,
++      "fields": [
++        {
++          "name": "text",
++          "line": 23,
++          "type": "Required[str]"
++        },
++        {
++          "name": "type",
++          "line": 26,
++          "type": "Required[Literal[\"text\"]]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/shared_params/response_format_text.py",
++      "class": "ResponseFormatText",
++      "line": 10,
++      "fields": [
++        {
++          "name": "type",
++          "line": 13,
++          "type": "Required[Literal[\"text\"]]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion.py",
++      "class": "ChatCompletion",
++      "line": 192,
++      "fields": [
++        {
++          "name": "id",
++          "line": 197,
++          "type": "str"
++        },
++        {
++          "name": "choices",
++          "line": 200,
++          "type": "List[Choice]"
++        },
++        {
++          "name": "created",
++          "line": 206,
++          "type": "int"
++        },
++        {
++          "name": "model",
++          "line": 209,
++          "type": "str"
++        },
++        {
++          "name": "object",
++          "line": 212,
++          "type": "Literal[\"chat.completion\"]"
++        },
++        {
++          "name": "metadata",
++          "line": 215,
++          "type": "Optional[Metadata]"
++        },
++        {
++          "name": "moderation",
++          "line": 225,
++          "type": "Optional[Moderation]"
++        },
++        {
++          "name": "service_tier",
++          "line": 231,
++          "type": "Optional[Literal[\"auto\", \"default\", \"flex\", \"scale\", \"priority\", \"fast\"]]"
++        },
++        {
++          "name": "system_fingerprint",
++          "line": 256,
++          "type": "Optional[str]"
++        },
++        {
++          "name": "usage",
++          "line": 263,
++          "type": "Optional[CompletionUsage]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion.py",
++      "class": "Choice",
++      "line": 39,
++      "fields": [
++        {
++          "name": "finish_reason",
++          "line": 40,
++          "type": "Literal[\"stop\", \"length\", \"tool_calls\", \"content_filter\", \"function_call\"]"
++        },
++        {
++          "name": "index",
++          "line": 51,
++          "type": "int"
++        },
++        {
++          "name": "logprobs",
++          "line": 54,
++          "type": "Optional[ChoiceLogprobs]"
++        },
++        {
++          "name": "message",
++          "line": 57,
++          "type": "ChatCompletionMessage"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_message.py",
++      "class": "ChatCompletionMessage",
++      "line": 57,
++      "fields": [
++        {
++          "name": "content",
++          "line": 60,
++          "type": "Optional[str]"
++        },
++        {
++          "name": "refusal",
++          "line": 63,
++          "type": "Optional[str]"
++        },
++        {
++          "name": "role",
++          "line": 66,
++          "type": "Literal[\"assistant\"]"
++        },
++        {
++          "name": "annotations",
++          "line": 69,
++          "type": "Optional[List[Annotation]]"
++        },
++        {
++          "name": "audio",
++          "line": 75,
++          "type": "Optional[ChatCompletionAudio]"
++        },
++        {
++          "name": "function_call",
++          "line": 82,
++          "type": "Optional[FunctionCall]"
++        },
++        {
++          "name": "tool_calls",
++          "line": 89,
++          "type": "Optional[List[ChatCompletionMessageToolCallUnion]]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_chunk.py",
++      "class": "ChatCompletionChunk",
++      "line": 259,
++      "fields": [
++        {
++          "name": "id",
++          "line": 266,
++          "type": "str"
++        },
++        {
++          "name": "choices",
++          "line": 269,
++          "type": "List[Choice]"
++        },
++        {
++          "name": "created",
++          "line": 276,
++          "type": "int"
++        },
++        {
++          "name": "model",
++          "line": 282,
++          "type": "str"
++        },
++        {
++          "name": "object",
++          "line": 285,
++          "type": "Literal[\"chat.completion.chunk\"]"
++        },
++        {
++          "name": "moderation",
++          "line": 288,
++          "type": "Optional[Moderation]"
++        },
++        {
++          "name": "obfuscation",
++          "line": 294,
++          "type": "Optional[str]"
++        },
++        {
++          "name": "service_tier",
++          "line": 301,
++          "type": "Optional[Literal[\"auto\", \"default\", \"flex\", \"scale\", \"priority\", \"fast\"]]"
++        },
++        {
++          "name": "system_fingerprint",
++          "line": 326,
++          "type": "Optional[str]"
++        },
++        {
++          "name": "usage",
++          "line": 333,
++          "type": "Optional[CompletionUsage]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_chunk.py",
++      "class": "Choice",
++      "line": 106,
++      "fields": [
++        {
++          "name": "delta",
++          "line": 107,
++          "type": "ChoiceDelta"
++        },
++        {
++          "name": "finish_reason",
++          "line": 110,
++          "type": "Optional[Literal[\"stop\", \"length\", \"tool_calls\", \"content_filter\", \"function_call\"]]"
++        },
++        {
++          "name": "index",
++          "line": 120,
++          "type": "int"
++        },
++        {
++          "name": "logprobs",
++          "line": 123,
++          "type": "Optional[ChoiceLogprobs]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_chunk.py",
++      "class": "ChoiceDelta",
++      "line": 74,
++      "fields": [
++        {
++          "name": "content",
++          "line": 77,
++          "type": "Optional[str]"
++        },
++        {
++          "name": "function_call",
++          "line": 80,
++          "type": "Optional[ChoiceDeltaFunctionCall]"
++        },
++        {
++          "name": "refusal",
++          "line": 87,
++          "type": "Optional[str]"
++        },
++        {
++          "name": "role",
++          "line": 90,
++          "type": "Optional[Literal[\"developer\", \"system\", \"user\", \"assistant\", \"tool\"]]"
++        },
++        {
++          "name": "tool_calls",
++          "line": 93,
++          "type": "Optional[List[ChoiceDeltaToolCall]]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/chat/chat_completion_stream_options_param.py",
++      "class": "ChatCompletionStreamOptionsParam",
++      "line": 10,
++      "fields": [
++        {
++          "name": "include_obfuscation",
++          "line": 13,
++          "type": "bool"
++        },
++        {
++          "name": "include_usage",
++          "line": 24,
++          "type": "bool"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/completion_usage.py",
++      "class": "CompletionUsage",
++      "line": 56,
++      "fields": [
++        {
++          "name": "completion_tokens",
++          "line": 59,
++          "type": "int"
++        },
++        {
++          "name": "prompt_tokens",
++          "line": 62,
++          "type": "int"
++        },
++        {
++          "name": "total_tokens",
++          "line": 65,
++          "type": "int"
++        },
++        {
++          "name": "completion_tokens_details",
++          "line": 68,
++          "type": "Optional[CompletionTokensDetails]"
++        },
++        {
++          "name": "prompt_tokens_details",
++          "line": 71,
++          "type": "Optional[PromptTokensDetails]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/completion_usage.py",
++      "class": "PromptTokensDetails",
++      "line": 37,
++      "fields": [
++        {
++          "name": "audio_tokens",
++          "line": 40,
++          "type": "Optional[int]"
++        },
++        {
++          "name": "cache_write_tokens",
++          "line": 43,
++          "type": "Optional[int]"
++        },
++        {
++          "name": "cached_tokens",
++          "line": 46,
++          "type": "Optional[int]"
++        },
++        {
++          "name": "image_tokens",
++          "line": 49,
++          "type": "Optional[int]"
++        },
++        {
++          "name": "text_tokens",
++          "line": 52,
++          "type": "Optional[int]"
++        }
++      ]
++    },
++    {
++      "path": "src/openai/types/completion_usage.py",
++      "class": "CompletionTokensDetails",
++      "line": 10,
++      "fields": [
++        {
++          "name": "accepted_prediction_tokens",
++          "line": 13,
++          "type": "Optional[int]"
++        },
++        {
++          "name": "audio_tokens",
++          "line": 19,
++          "type": "Optional[int]"
++        },
++        {
++          "name": "reasoning_tokens",
++          "line": 22,
++          "type": "Optional[int]"
++        },
++        {
++          "name": "rejected_prediction_tokens",
++          "line": 25,
++          "type": "Optional[int]"
++        },
++        {
++          "name": "text_tokens",
++          "line": 33,
++          "type": "Optional[int]"
++        }
++      ]
++    }
++  ],
++  "conformance": [
++    {
++      "area": "request/path/credential/snapshot/copy",
++      "unit": "TestOpenAIChatRequestEncodingAndClosedInputs",
++      "real": "TestModelOpenAIChatWireHTTP/real_policy_deny_then_allow_and_exact_native_request"
++    },
++    {
++      "area": "native usage int64/null/zero/closed detail fields",
++      "unit": "TestOpenAIChatNativeUsageExactAndUnknown",
++      "real": "TestModelOpenAIChatWireStream/fragmented_utf8_crlf_default_obfuscation_and_final_usage"
++    },
++    {
++      "area": "refusal/status/safe errors",
++      "unit": "TestOpenAIChatNativeEnvelopeAndSafeErrors",
++      "real": "TestModelOpenAIChatWireHTTP/native_refusal_is_safe_error_with_usage"
++    },
++    {
++      "area": "SSE finish/DONE/refusal/obfuscation/UTF8",
++      "unit": "TestOpenAIChatSSETextUsageAndRequiredTermination",
++      "real": "TestModelOpenAIChatWireStream"
++    },
++    {
++      "area": "SSE event and text limits/backpressure",
++      "unit": "TestOpenAIChatSSEUnknownUsageAndBoundedEvents",
++      "real": "TestModelOpenAIChatWireStream/slow_consumer_backpressure_cancel_has_no_late_end"
++    },
++    {
++      "area": "64 global / 8 Project, actual Client.Drain",
++      "unit": "TestWireBudgetGlobalProjectAndSealedAdmission",
++      "real": "TestModelOpenAIChatWireJoinAndBudget"
++    }
++  ],
++  "validated_not_projected": {
++    "envelope": [
++      "id",
++      "model",
++      "created",
++      "object",
++      "system_fingerprint",
++      "service_tier"
++    ],
++    "sse_only": [
++      "obfuscation"
++    ],
++    "prompt_tokens_details": [
++      "audio_tokens",
++      "image_tokens",
++      "text_tokens"
++    ],
++    "completion_tokens_details": [
++      "accepted_prediction_tokens",
++      "audio_tokens",
++      "rejected_prediction_tokens",
++      "text_tokens"
++    ]
++  },
++  "usage_projection": {
++    "prompt_tokens": "input_tokens",
++    "completion_tokens": "output_tokens",
++    "total_tokens": "total_tokens",
++    "prompt_tokens_details.cached_tokens": "cached_input_tokens",
++    "prompt_tokens_details.cache_write_tokens": "cache_write_tokens",
++    "completion_tokens_details.reasoning_tokens": "reasoning_tokens"
++  },
++  "unsupported": [
++    "tools/tool_calls/function_call",
++    "non-text content",
++    "non-null audio/logprobs",
++    "nonempty annotations",
++    "reasoning",
++    "structured output",
++    "parameters/request_overwrite/header_overwrite",
++    "unknown native fields or finish reasons"
++  ],
++  "not_claimed": [
++    "actual Provider account smoke",
++    "Model Runtime binding",
++    "consumer/Project authorization",
++    "Secret Model resolve",
++    "Invocation/Usage persistence",
++    "SDK installed or executed"
++  ]
++}
+diff --git a/tests/model/openai_chat_wire_fixture_test.go b/tests/model/openai_chat_wire_fixture_test.go
+new file mode 100644
+--- /dev/null
++++ b/tests/model/openai_chat_wire_fixture_test.go
+@@ -0,0 +1,299 @@
++//go:build integration
++
++package model_test
++
++import (
++	"context"
++	"encoding/json"
++	"errors"
++	"fmt"
++	"log/slog"
++	"net/netip"
++	"strings"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/account"
++	"github.com/LunaDeerTech/agenteam/internal/central/audit"
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
++)
++
++const wireCredentialCanary = "synthetic-wire-credential-canary"
++const wireBodyCanary = "synthetic-provider-private-body-canary"
++
++type wireResolver struct{ ip netip.Addr }
++
++func (r wireResolver) Lookup(ctx context.Context, _ string) ([]netip.Addr, error) {
++	return []netip.Addr{r.ip}, ctx.Err()
++}
++
++type wireNilResolver chan struct{}
++
++func (wireNilResolver) Lookup(context.Context, string) ([]netip.Addr, error) {
++	panic("typed nil must be rejected")
++}
++
++type wireFixture struct {
++	net       *netfixture.Descriptor
++	policy    *outbound.PolicyService
++	transport wire.Transport
++	actor     id.Actor
++	adapter   *wire.OpenAIChat
++	budget    *wire.Budget
++	budgets   []*wire.Budget
++	materials []sc.SecretMaterial
++	cases     []string
++}
++
++// SQL only seeds owned User/Session facts. Real Account Authority, Audit and
++// PolicyService decide policy mutations and network denials. These synthetic
++// materials are protocol inputs, not Model Secret resolve or Invocation grants.
++func newWireFixture(t *testing.T) *wireFixture {
++	t.Helper()
++	descriptor, err := netfixture.Load()
++	if err != nil {
++		t.Fatal("mandatory owned outbound fixture", err)
++	}
++	db := newDatabase(t)
++	store := openStore(t, db.Config(t, nil))
++	ak, ck, _ := testKeys(t)
++	accounts, err := account.NewAuthority(store, ak)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err = accounts.Initialize(testContext(t)); err != nil {
++		t.Fatal(err)
++	}
++	aud, err := audit.New(store, ck, audit.Authorizations{Sessions: accounts, System: accounts, Accounts: accounts})
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err = aud.CheckStorage(testContext(t)); err != nil {
++		t.Fatal(err)
++	}
++	policy, err := outbound.NewPolicyService(store, aud, outbound.Authorizations{Sessions: accounts, System: accounts})
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err = policy.Reload(testContext(t)); err != nil {
++		t.Fatal(err)
++	}
++	trust, err := outbound.LoadTrustStore(descriptor.CAFile)
++	if err != nil {
++		t.Fatal(err)
++	}
++	v := &wireFixture{net: descriptor, policy: policy, actor: (&fixture{raw: store}).human(t, "admin")}
++	v.transport = wire.Transport{Policy: policy, Trust: trust, Resolver: wireResolver{netip.MustParseAddr(descriptor.PrivateIP)}}
++	v.budget = wire.NewBudget()
++	v.adapter = v.newAdapter(t, v.budget)
++	t.Cleanup(func() {
++		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
++		defer cancel()
++		joined := true
++		for _, b := range v.budgets {
++			if err := b.Force(ctx); err != nil || !b.Joined() {
++				joined = false
++				t.Errorf("wire cleanup not joined: %v", err)
++			}
++		}
++		// Borrowed materials stay live through every actual client/parser join.
++		if joined {
++			for _, m := range v.materials {
++				m.Destroy()
++			}
++		}
++		for _, key := range v.cases {
++			v.settled(t, key)
++		}
++	})
++	return v
++}
++func (v *wireFixture) newAdapter(t *testing.T, b *wire.Budget) *wire.OpenAIChat {
++	t.Helper()
++	a, e := wire.NewOpenAIChat(v.transport, b)
++	if e != nil {
++		t.Fatal(e)
++	}
++	v.budgets = append(v.budgets, b)
++	return a
++}
++func (v *wireFixture) allow(t *testing.T, allowed bool) {
++	t.Helper()
++	rules, _ := outbound.NewRules()
++	if allowed {
++		ports, e := outbound.SelectedPorts(8443, 8080)
++		if e != nil {
++			t.Fatal(e)
++		}
++		rule, e := outbound.NewRule(v.net.PrivateIP+"/32", ports, false)
++		if e != nil {
++			t.Fatal(e)
++		}
++		rules, e = outbound.NewRules(rule)
++		if e != nil {
++			t.Fatal(e)
++		}
++	}
++	command, e := f.NewCommandIdentity("outbound-policy", []string{v.actor.Details().UserID}, "update", f.IdempotencyKey(newID[struct{}](t).String()))
++	if e != nil {
++		t.Fatal(e)
++	}
++	status := v.policy.Status()
++	if status.Version == nil {
++		t.Fatal("missing policy version")
++	}
++	_, e = v.policy.UpdatePolicy(testContext(t), v.actor, outbound.CommandMeta{Identity: command, ExpectedVersion: *status.Version, HTTPTraceID: newID[struct{}](t).String()}, rules)
++	if e != nil {
++		t.Fatal(e)
++	}
++}
++func (v *wireFixture) scenario(t *testing.T, s netfixture.WireScenario) string {
++	t.Helper()
++	key, e := v.net.Create(testContext(t), netfixture.ScenarioConfig{Mode: "openai_chat_wire", Wire: &s})
++	if e != nil {
++		t.Fatal("wire control", e)
++	}
++	v.cases = append(v.cases, key)
++	return key
++}
++func (v *wireFixture) state(t *testing.T, key string) netfixture.State {
++	t.Helper()
++	s, e := v.net.State(testContext(t), key)
++	if e != nil {
++		t.Fatal(e)
++	}
++	return s
++}
++func wireWait(t *testing.T, description string, fn func() bool) {
++	t.Helper()
++	deadline := time.NewTimer(5 * time.Second)
++	defer deadline.Stop()
++	tick := time.NewTicker(10 * time.Millisecond)
++	defer tick.Stop()
++	for {
++		if fn() {
++			return
++		}
++		select {
++		case <-tick.C:
++		case <-deadline.C:
++			t.Fatal(description)
++		}
++	}
++}
++func (v *wireFixture) settled(t *testing.T, key string) {
++	t.Helper()
++	wireWait(t, "wire handlers/connections not terminal", func() bool {
++		s := v.state(t, key)
++		if s.ActiveHandlers != 0 || s.CompletedHandlers != len(s.Requests) {
++			return false
++		}
++		for _, r := range s.Requests {
++			if !s.Closed[r.Connection] {
++				return false
++			}
++		}
++		return true
++	})
++}
++func (v *wireFixture) input(t *testing.T, key string, mode wire.ResponseMode) (wire.Request, wire.CallOptions) {
++	t.Helper()
++	material, e := sc.NewSecretMaterial([]byte(wireCredentialCanary))
++	if e != nil {
++		t.Fatal(e)
++	}
++	v.materials = append(v.materials, material)
++	keyCause, e := ac.NewAppendKey(ac.AccessProducer, newID[struct{}](t).String(), 0)
++	if e != nil {
++		t.Fatal(e)
++	}
++	call, e := outbound.NewCallContext(v.actor, id.SystemScope(), keyCause, ac.Associations{HTTPTraceID: newID[struct{}](t).String()})
++	if e != nil {
++		t.Fatal(e)
++	}
++	req := wire.Request{Snapshot: mc.ConfigSnapshot{ID: newID[mc.Snapshot](t), Identity: mc.ModelIdentity{ProviderID: newID[mc.Provider](t), ModelID: newID[mc.Model](t), ProviderName: "wire fixture", ModelName: "text fixture", ProviderModelID: "fixture-native-model", Protocol: mc.OpenAIChat, Profile: mc.OpenAIChatV1, ModelType: mc.ChatModel, AdapterRevision: wire.OpenAIChatTextRevision}, Endpoint: "https://fixture.test:8443/case/" + key, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, Streaming: true}}, Messages: []mc.Message{{Role: "system", Parts: []mc.MessagePart{{Text: &mc.TextPart{Text: "  exact 系统\n"}}}}, {Role: "user", Parts: []mc.MessagePart{{Text: &mc.TextPart{Text: "wire input"}}}}}, ToolChoice: mc.ToolChoice{Kind: "none"}, ResponseFormat: mc.ResponseFormat{Kind: "text"}, Mode: mode}
++	return req, wire.CallOptions{ProjectID: newID[id.Project](t), Context: call, Credential: material, Limits: outbound.Limits{Overall: 20 * time.Second}}
++}
++func (v *wireFixture) start(t *testing.T, ctx context.Context, a *wire.OpenAIChat, r wire.Request, o wire.CallOptions) *wire.Exchange {
++	t.Helper()
++	x, e := a.Start(ctx, r, o)
++	if e != nil {
++		t.Fatal("wire Start", e)
++	}
++	return x
++}
++func wireClose(t *testing.T, x *wire.Exchange) {
++	t.Helper()
++	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
++	defer cancel()
++	if e := x.Close(ctx); e != nil || !x.Joined() {
++		t.Fatal("wire Close/join", e)
++	}
++}
++func wireModelError(t *testing.T, e error, category mc.ErrorCategory, code string, sent, partial bool) *mc.ModelError {
++	t.Helper()
++	var m *mc.ModelError
++	if !errors.As(e, &m) || m.Validate() != nil || m.Category != category || m.Code != code || m.Dispatched != sent || m.PartialOutput != partial {
++		t.Fatalf("safe wire error got %v, expected %s/%s sent=%v partial=%v", e, category, code, sent, partial)
++	}
++	wireNoLeak(t, m)
++	return m
++}
++func wireFault(t *testing.T, e error, code f.Code) {
++	t.Helper()
++	var fault *f.Fault
++	if !errors.As(e, &fault) || fault.Code != code || fault.CommitState != f.NotStarted {
++		t.Fatalf("admission fault got %v expected %s/not_started", e, code)
++	}
++}
++func wireNoLeak(t *testing.T, value any) {
++	t.Helper()
++	for _, format := range []string{"%v", "%+v", "%#v", "%s", "%q"} {
++		s := fmt.Sprintf(format, value)
++		if strings.Contains(s, wireCredentialCanary) || strings.Contains(s, wireBodyCanary) {
++			t.Fatal("unsafe format")
++		}
++	}
++	raw, e := json.Marshal(value)
++	if e != nil || strings.Contains(string(raw), "canary") {
++		t.Fatal("unsafe JSON view", e)
++	}
++	var out strings.Builder
++	slog.New(slog.NewJSONHandler(&out, nil)).Info("wire-test", "value", value)
++	if strings.Contains(out.String(), "canary") {
++		t.Fatal("unsafe log view")
++	}
++}
++func wireReply(text, finish string, usage json.RawMessage, refusal any) []byte {
++	value := map[string]any{"id": "chat-native-id", "object": "chat.completion", "created": 1, "model": "fixture-native-model", "choices": []any{map[string]any{"index": 0, "message": map[string]any{"role": "assistant", "content": text, "refusal": refusal}, "finish_reason": finish}}}
++	if usage != nil {
++		value["usage"] = usage
++	}
++	b, _ := json.Marshal(value)
++	return b
++}
++func wireJSON(body []byte) netfixture.WireScenario {
++	return netfixture.WireScenario{Status: 200, Headers: map[string]string{"Content-Type": "application/json; charset=utf-8", "X-Request-Id": "req_wire:1"}, Chunks: [][]byte{body}}
++}
++func wireChunk(delta map[string]any, finish any, usage json.RawMessage, obfuscation any, empty bool) []byte {
++	choices := []any{map[string]any{"index": 0, "delta": delta, "finish_reason": finish}}
++	if empty {
++		choices = []any{}
++	}
++	value := map[string]any{"id": "chat-stream-id", "object": "chat.completion.chunk", "created": 1, "model": "fixture-native-model", "choices": choices, "usage": usage}
++	if obfuscation != nil {
++		value["obfuscation"] = obfuscation
++	}
++	raw, _ := json.Marshal(value)
++	return append(append([]byte("data: "), raw...), []byte("\n\n")...)
++}
++func wireSSE(chunks ...[]byte) netfixture.WireScenario {
++	return netfixture.WireScenario{Status: 200, Headers: map[string]string{"Content-Type": "text/event-stream; charset=utf-8", "X-Request-Id": "req_stream-1"}, Chunks: chunks}
++}
+diff --git a/tests/model/openai_chat_wire_http_test.go b/tests/model/openai_chat_wire_http_test.go
+new file mode 100644
+--- /dev/null
++++ b/tests/model/openai_chat_wire_http_test.go
+@@ -0,0 +1,178 @@
++//go:build integration
++
++package model_test
++
++import (
++	"context"
++	"encoding/json"
++	"strings"
++	"testing"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
++)
++
++func TestModelOpenAIChatWireHTTP(t *testing.T) {
++	v := newWireFixture(t)
++	t.Run("real_policy_deny_then_allow_and_exact_native_request", func(t *testing.T) {
++		cfg := wireJSON(wireReply("answer 世界", "length", json.RawMessage(`{"prompt_tokens":9007199254740993,"completion_tokens":0,"total_tokens":null,"prompt_tokens_details":{"cached_tokens":0,"cache_write_tokens":2},"completion_tokens_details":{"reasoning_tokens":3}}`), nil))
++		cfg.Suffix = "/base%2Fkeep//./inner/chat/completions"
++		key := v.scenario(t, cfg)
++		r, o := v.input(t, key, wire.JSONResponse)
++		r.Snapshot.Endpoint += "/base%2Fkeep//./inner/"
++		max := mc.TokenCount(9007199254740993)
++		r.Snapshot.Capabilities.MaxOutput = &max
++		denied := v.start(t, testContext(t), v.adapter, r, o)
++		_, e := denied.Result(testContext(t))
++		wireModelError(t, e, "permission", "wire_transport_error", false, false)
++		wireClose(t, denied)
++		d := denied.Observe()
++		if !d.DoStarted || d.Decision == nil || d.Decision.Sent || d.Decision.Reason != ac.PrivateNotAllowed || len(v.state(t, key).Requests) != 0 {
++			t.Fatal("denial did not preserve real zero-send Decision")
++		}
++		v.allow(t, true)
++		x := v.start(t, testContext(t), v.adapter, r, o)
++		r.Messages[0].Parts[0].Text.Text = "mutated after Start"
++		*r.Snapshot.Capabilities.MaxOutput = 1
++		result, e := x.Result(testContext(t))
++		if e != nil || result.Text != "answer 世界" || result.End.FinishReason != "length" || result.End.ProviderRequestID != "req_wire:1" || !x.Joined() {
++			t.Fatal("wire JSON result", e)
++		}
++		u := result.End.Usage
++		if u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 9007199254740993 || u.OutputTokens == nil || *u.OutputTokens != 0 || u.TotalTokens != nil || u.CachedInputTokens == nil || *u.CachedInputTokens != 0 || u.CacheWriteTokens == nil || *u.CacheWriteTokens != 2 || u.ReasoningTokens == nil || *u.ReasoningTokens != 3 {
++			t.Fatal("native usage projection")
++		}
++		*u.InputTokens = 1
++		if *x.Observe().Usage.InputTokens != 9007199254740993 {
++			t.Fatal("observation aliases result")
++		}
++		state := v.state(t, key)
++		if len(state.Requests) != 1 {
++			t.Fatal("adapter retried")
++		}
++		got := state.Requests[0]
++		if got.Method != "POST" || got.Host != "fixture.test:8443" || got.RequestURI != "/case/"+key+cfg.Suffix || got.Query != "" || got.Headers.Get("Authorization") != "Bearer "+wireCredentialCanary || got.Headers.Get("Content-Type") != "application/json" || got.Headers.Get("Accept") != "application/json" {
++			t.Fatal("origin/path/header binding")
++		}
++		var body map[string]json.RawMessage
++		if json.Unmarshal([]byte(got.Body), &body) != nil || len(body) != 4 || string(body["model"]) != `"fixture-native-model"` || string(body["stream"]) != "false" || string(body["max_completion_tokens"]) != "9007199254740993" || strings.Contains(got.Body, "mutated") || strings.Contains(got.Body, "canary") {
++			t.Fatal("request encoding/ownership")
++		}
++		var messages []struct{ Role, Content string }
++		if json.Unmarshal(body["messages"], &messages) != nil || len(messages) != 2 || messages[0].Role != "system" || messages[0].Content != "  exact 系统\n" {
++			t.Fatal("native messages changed")
++		}
++		if d := x.Observe(); d.Decision == nil || !d.Decision.Sent || d.Decision.Reason != "" {
++			t.Fatal("success real Decision")
++		}
++		wireClose(t, x)
++		v.settled(t, key)
++	})
++	t.Run("unsupported_invalid_and_cancelled_admission_are_zero_do", func(t *testing.T) {
++		key := v.scenario(t, wireJSON(wireReply("must not send", "stop", nil, nil)))
++		for _, kind := range []string{"tools", "revision", "format", "invalid", "cancelled"} {
++			r, o := v.input(t, key, wire.JSONResponse)
++			ctx := testContext(t)
++			switch kind {
++			case "tools":
++				r.Tools = []mc.Tool{{Name: "x", InputSchema: json.RawMessage(`{}`)}}
++			case "revision":
++				r.Snapshot.Identity.AdapterRevision = "unknown"
++			case "format":
++				r.ResponseFormat = mc.ResponseFormat{Kind: "json_schema", Name: "typed", Schema: json.RawMessage(`{}`)}
++			case "invalid":
++				o.Limits.Overall = 0
++			case "cancelled":
++				c, cancel := context.WithCancel(ctx)
++				cancel()
++				ctx = c
++			}
++			x, e := v.adapter.Start(ctx, r, o)
++			if x != nil {
++				t.Fatal("rejected call owns handle")
++			}
++			switch kind {
++			case "invalid":
++				wireFault(t, e, f.InvalidArgument)
++			case "cancelled":
++				wireModelError(t, e, "cancelled", "wire_cancelled", false, false)
++			default:
++				wireModelError(t, e, "unsupported_feature", "wire_unsupported_feature", false, false)
++			}
++		}
++		if len(v.state(t, key).Requests) != 0 {
++			t.Fatal("rejected request reached server")
++		}
++		var nilResolver wireNilResolver
++		transport := v.transport
++		transport.Resolver = nilResolver
++		if _, e := wire.NewOpenAIChat(transport, wire.NewBudget()); e == nil {
++			t.Fatal("typed nil resolver accepted with valid real policy/trust")
++		}
++	})
++	t.Run("native_refusal_is_safe_error_with_usage", func(t *testing.T) {
++		key := v.scenario(t, wireJSON(wireReply(wireBodyCanary, "stop", json.RawMessage(`{"prompt_tokens":0}`), wireBodyCanary)))
++		r, o := v.input(t, key, wire.JSONResponse)
++		x := v.start(t, testContext(t), v.adapter, r, o)
++		result, e := x.Result(testContext(t))
++		m := wireModelError(t, e, "content_filter", "", true, false)
++		if result.Text != "" || result.End.FinishReason != "" || m.Retryable || x.Observe().Usage.InputTokens == nil || *x.Observe().Usage.InputTokens != 0 {
++			t.Fatal("refusal leaked success/dropped usage")
++		}
++		wireClose(t, x)
++	})
++	t.Run("status_mapping_discards_private_body_and_does_not_retry", func(t *testing.T) {
++		for _, tc := range []struct {
++			status   int
++			category mc.ErrorCategory
++			retry    bool
++		}{{400, "provider_error", false}, {401, "authentication", false}, {403, "permission", false}, {404, "provider_error", false}, {429, "rate_limited", true}, {500, "provider_error", false}, {502, "provider_unavailable", true}, {503, "provider_unavailable", true}, {504, "provider_unavailable", true}} {
++			cfg := wireJSON([]byte(strings.Repeat(wireBodyCanary, 3000)))
++			cfg.Status = tc.status
++			cfg.Headers["X-Request-Id"] = "not a safe token"
++			key := v.scenario(t, cfg)
++			r, o := v.input(t, key, wire.JSONResponse)
++			x := v.start(t, testContext(t), v.adapter, r, o)
++			_, e := x.Result(testContext(t))
++			m := wireModelError(t, e, tc.category, "wire_http_error", true, false)
++			if m.Retryable != tc.retry || m.ProviderRequestID != "" || len(v.state(t, key).Requests) != 1 {
++				t.Fatal("status retry/request id")
++			}
++			wireClose(t, x)
++		}
++	})
++	t.Run("tls_and_post_redirect_preserve_actual_decision", func(t *testing.T) {
++		key := v.scenario(t, wireJSON(wireReply("unused", "stop", nil, nil)))
++		r, o := v.input(t, key, wire.JSONResponse)
++		r.Snapshot.Endpoint = strings.Replace(r.Snapshot.Endpoint, "fixture.test", "wrong.fixture.test", 1)
++		x := v.start(t, testContext(t), v.adapter, r, o)
++		_, e := x.Result(testContext(t))
++		wireModelError(t, e, "network", "wire_transport_error", false, false)
++		if d := x.Observe().Decision; d == nil || d.Reason != ac.TLSFailed || len(v.state(t, key).Requests) != 0 {
++			t.Fatal("TLS incorrectly sent")
++		}
++		wireClose(t, x)
++		cfg := wireJSON(nil)
++		cfg.Status = 307
++		cfg.Headers["Location"] = "https://other.fixture.test:8443/case/" + key + "/chat/completions"
++		redirect := v.scenario(t, cfg)
++		r, o = v.input(t, redirect, wire.JSONResponse)
++		x = v.start(t, testContext(t), v.adapter, r, o)
++		_, e = x.Result(testContext(t))
++		wireModelError(t, e, "permission", "wire_transport_error", true, false)
++		if d := x.Observe().Decision; d == nil || d.Reason != ac.RedirectDenied || len(v.state(t, redirect).Requests) != 1 || len(v.state(t, key).Requests) != 0 {
++			t.Fatal("POST redirect emitted second request")
++		}
++		wireClose(t, x)
++	})
++	t.Run("wire_control_rejects_outside_closed_profile", func(t *testing.T) {
++		for _, cfg := range []netfixture.ScenarioConfig{{Mode: "openai_chat_wire"}, {Mode: "stream", Wire: &netfixture.WireScenario{Status: 200}}, {Mode: "openai_chat_wire", Body: "legacy", Wire: &netfixture.WireScenario{Status: 200}}, {Mode: "openai_chat_wire", Wire: &netfixture.WireScenario{Status: 201}}, {Mode: "openai_chat_wire", Wire: &netfixture.WireScenario{Status: 200, Suffix: "/bad?query/chat/completions"}}, {Mode: "openai_chat_wire", Wire: &netfixture.WireScenario{Status: 200, Headers: map[string]string{"Set-Cookie": "forbidden"}}}, {Mode: "openai_chat_wire", Wire: &netfixture.WireScenario{Status: 200, Chunks: [][]byte{make([]byte, 512<<10+1)}}}} {
++			if _, e := v.net.Create(testContext(t), cfg); e == nil {
++				t.Fatal("invalid wire scenario accepted")
++			}
++		}
++	})
++}
+diff --git a/tests/model/openai_chat_wire_stream_test.go b/tests/model/openai_chat_wire_stream_test.go
+new file mode 100644
+--- /dev/null
++++ b/tests/model/openai_chat_wire_stream_test.go
+@@ -0,0 +1,374 @@
++//go:build integration
++
++package model_test
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"errors"
++	"io"
++	"net/http/httptrace"
++	"strings"
++	"sync"
++	"testing"
++	"time"
++	"unicode/utf8"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++func wireDrain(t *testing.T, x *wire.Exchange) ([]wire.Event, error) {
++	t.Helper()
++	var events []wire.Event
++	for i := 0; i < 1024; i++ {
++		event, e := x.Next(testContext(t))
++		if errors.Is(e, io.EOF) {
++			return events, nil
++		}
++		if e != nil {
++			if _, again := x.Next(testContext(t)); !errors.Is(again, io.EOF) {
++				t.Fatal("wire error did not terminate once")
++			}
++			return events, e
++		}
++		events = append(events, event)
++	}
++	t.Fatal("unbounded event count")
++	return nil, nil
++}
++func wireStreamStart(t *testing.T, v *wireFixture, chunks ...[]byte) (*wire.Exchange, string) {
++	t.Helper()
++	key := v.scenario(t, wireSSE(chunks...))
++	r, o := v.input(t, key, wire.SSEResponse)
++	return v.start(t, testContext(t), v.adapter, r, o), key
++}
++
++func TestModelOpenAIChatWireStream(t *testing.T) {
++	v := newWireFixture(t)
++	v.allow(t, true)
++	t.Run("fragmented_utf8_crlf_default_obfuscation_and_final_usage", func(t *testing.T) {
++		first := wireChunk(map[string]any{"role": "assistant", "content": "世界"}, nil, nil, wireBodyCanary, false)
++		first = bytes.Replace(first, []byte(`,"choices"`), []byte(",\ndata: \"choices\""), 1)
++		// JSON produced by the helper has deterministic map-key order. Add a second
++		// data line at an existing object comma, then split arbitrary network bytes.
++		if !bytes.Contains(first, []byte("\ndata: ")) {
++			first = bytes.Replace(first, []byte(`,"created"`), []byte(",\ndata: \"created\""), 1)
++		}
++		raw := append([]byte(": keepalive\n\n"), first...)
++		raw = append(raw, wireChunk(map[string]any{"content": " text"}, nil, nil, json.RawMessage(`null`), false)...)
++		raw = append(raw, wireChunk(map[string]any{}, "length", nil, nil, false)...)
++		raw = append(raw, wireChunk(nil, nil, json.RawMessage(`{"prompt_tokens":7,"completion_tokens":0,"total_tokens":9,"prompt_tokens_details":{"cached_tokens":2,"cache_write_tokens":3},"completion_tokens_details":{"reasoning_tokens":4}}`), wireBodyCanary, true)...)
++		raw = append(raw, []byte("data: [DONE]\n\n")...)
++		raw = bytes.ReplaceAll(raw, []byte("\n"), []byte("\r\n"))
++		var chunks [][]byte
++		for len(raw) > 0 {
++			n := min(11, len(raw))
++			chunks = append(chunks, bytes.Clone(raw[:n]))
++			raw = raw[n:]
++		}
++		x, key := wireStreamStart(t, v, chunks...)
++		events, e := wireDrain(t, x)
++		if e != nil {
++			t.Fatal(e)
++		}
++		var text string
++		updates, ends := 0, 0
++		for _, event := range events {
++			switch event.Kind {
++			case wire.TextDelta:
++				if !utf8.ValidString(event.Text) || len(event.Text) > 64<<10 {
++					t.Fatal("invalid text delta")
++				}
++				text += event.Text
++			case wire.UsageUpdate:
++				updates++
++				if event.Usage == nil || event.Usage.TotalTokens == nil || *event.Usage.TotalTokens != 9 {
++					t.Fatal("usage update")
++				}
++				*event.Usage.TotalTokens = 1
++			case wire.StreamEnd:
++				ends++
++				if event.End == nil || event.End.FinishReason != "length" || event.End.Usage.TotalTokens == nil || *event.End.Usage.TotalTokens != 9 || event.End.ProviderRequestID != "req_stream-1" {
++					t.Fatal("stream end")
++				}
++			default:
++				t.Fatal("unknown event")
++			}
++			wireNoLeak(t, event)
++		}
++		if text != "世界 text" || updates != 1 || ends != 1 || !x.Joined() || *x.Observe().Usage.TotalTokens != 9 {
++			t.Fatal("stream projection/copies/join")
++		}
++		state := v.state(t, key)
++		if len(state.Requests) != 1 {
++			t.Fatal("SSE sent more than once")
++		}
++		var body map[string]json.RawMessage
++		if json.Unmarshal([]byte(state.Requests[0].Body), &body) != nil || string(body["stream"]) != "true" || string(body["stream_options"]) != `{"include_usage":true}` || strings.Contains(state.Requests[0].Body, "include_obfuscation") {
++			t.Fatal("SSE native request")
++		}
++		wireClose(t, x)
++	})
++	t.Run("no_usage_and_content_filter_finish_are_not_refusal", func(t *testing.T) {
++		for _, finish := range []string{"stop", "content_filter"} {
++			x, _ := wireStreamStart(t, v, wireChunk(map[string]any{"content": "ok"}, finish, nil, nil, false), []byte("data: [DONE]\n\n"))
++			events, e := wireDrain(t, x)
++			if e != nil || len(events) != 2 || events[1].Kind != wire.StreamEnd || events[1].End.FinishReason != mc.FinishReason(finish) || events[1].End.Usage.Source != mc.UnknownUsage || !x.Joined() {
++				t.Fatal("unknown usage/finish", e)
++			}
++			wireClose(t, x)
++		}
++	})
++	t.Run("protocol_errors_and_interruption_never_emit_end", func(t *testing.T) {
++		for _, tc := range []struct {
++			name     string
++			chunks   [][]byte
++			category mc.ErrorCategory
++			code     string
++		}{
++			{"missing_done", [][]byte{wireChunk(map[string]any{}, "stop", nil, nil, false)}, "provider_error", "wire_protocol_invalid"},
++			{"premature_done", [][]byte{[]byte("data: [DONE]\n\n")}, "provider_error", "wire_protocol_invalid"},
++			{"bad_event", [][]byte{[]byte("event: error\ndata: {}\n\n")}, "provider_error", "wire_protocol_invalid"},
++			{"unknown_finish", [][]byte{wireChunk(map[string]any{}, "unexpected", nil, nil, false)}, "provider_error", "wire_protocol_invalid"},
++			{"tools", [][]byte{wireChunk(map[string]any{"tool_calls": []any{map[string]any{"index": 0}}}, nil, nil, nil, false)}, "unsupported_feature", "wire_unsupported_feature"},
++			{"obfuscation_type", [][]byte{wireChunk(map[string]any{}, nil, nil, 123, false)}, "provider_error", "wire_protocol_invalid"},
++			{"duplicate_key", [][]byte{[]byte("data: {\"id\":\"a\",\"id\":\"b\"}\n\n")}, "provider_error", "wire_protocol_invalid"},
++		} {
++			t.Run(tc.name, func(t *testing.T) {
++				x, _ := wireStreamStart(t, v, tc.chunks...)
++				events, e := wireDrain(t, x)
++				wireModelError(t, e, tc.category, tc.code, true, false)
++				for _, event := range events {
++					if event.Kind == wire.StreamEnd {
++						t.Fatal("error stream ended successfully")
++					}
++				}
++				wireClose(t, x)
++			})
++		}
++		cfg := wireSSE(wireChunk(map[string]any{"content": "prefix"}, nil, nil, nil, false))
++		n := 1
++		cfg.DisconnectAfter = &n
++		key := v.scenario(t, cfg)
++		r, o := v.input(t, key, wire.SSEResponse)
++		x := v.start(t, testContext(t), v.adapter, r, o)
++		events, e := wireDrain(t, x)
++		wireModelError(t, e, "network", "wire_transport_error", true, true)
++		if len(events) != 1 || events[0].Text != "prefix" {
++			t.Fatal("disconnect prefix")
++		}
++		wireClose(t, x)
++	})
++	t.Run("refusal_is_one_safe_error_with_actual_prefix", func(t *testing.T) {
++		for _, prefix := range []bool{false, true} {
++			var chunks [][]byte
++			if prefix {
++				chunks = append(chunks, wireChunk(map[string]any{"content": "delivered"}, nil, nil, nil, false))
++			}
++			chunks = append(chunks, wireChunk(map[string]any{"refusal": wireBodyCanary}, nil, nil, nil, false))
++			x, _ := wireStreamStart(t, v, chunks...)
++			events, e := wireDrain(t, x)
++			m := wireModelError(t, e, "content_filter", "", true, prefix)
++			if m.Retryable {
++				t.Fatal("retry refusal")
++			}
++			for _, event := range events {
++				if event.Kind != wire.TextDelta || event.Text != "delivered" {
++					t.Fatal("refusal produced extra event")
++				}
++			}
++			wireClose(t, x)
++		}
++	})
++	t.Run("observed_usage_survives_later_bad_event", func(t *testing.T) {
++		x, _ := wireStreamStart(t, v, wireChunk(map[string]any{}, "stop", nil, nil, false), wireChunk(nil, nil, json.RawMessage(`{"completion_tokens":0}`), nil, true), []byte("event: error\ndata: {}\n\n"))
++		events, e := wireDrain(t, x)
++		wireModelError(t, e, "provider_error", "wire_protocol_invalid", true, false)
++		if len(events) != 1 || events[0].Kind != wire.UsageUpdate || x.Observe().Usage.OutputTokens == nil || *x.Observe().Usage.OutputTokens != 0 {
++			t.Fatal("lost known usage")
++		}
++		wireClose(t, x)
++	})
++	t.Run("real_d04_body_cap_is_not_ignored_obfuscation", func(t *testing.T) {
++		cfg := wireSSE(wireChunk(map[string]any{}, "stop", nil, strings.Repeat("x", 2048), false), []byte("data: [DONE]\n\n"))
++		key := v.scenario(t, cfg)
++		r, o := v.input(t, key, wire.SSEResponse)
++		o.Limits.ResponseBodyBytes = 512
++		x := v.start(t, testContext(t), v.adapter, r, o)
++		events, e := wireDrain(t, x)
++		wireModelError(t, e, "provider_error", "wire_limit_exceeded", true, false)
++		if len(events) != 0 || x.Observe().Decision == nil || x.Observe().Decision.Reason != ac.ResponseLimit {
++			t.Fatal("D04 response cap bypassed")
++		}
++		wireClose(t, x)
++	})
++	t.Run("slow_consumer_backpressure_cancel_has_no_late_end", func(t *testing.T) {
++		var chunks [][]byte
++		for i := 0; i < 40; i++ {
++			chunks = append(chunks, wireChunk(map[string]any{"content": strings.Repeat("x", 8000)}, nil, nil, nil, false))
++		}
++		chunks = append(chunks, wireChunk(map[string]any{}, "stop", nil, nil, false), []byte("data: [DONE]\n\n"))
++		x, key := wireStreamStart(t, v, chunks...)
++		wireWait(t, "server did not finish bounded stream", func() bool { return v.state(t, key).CompletedHandlers == 1 })
++		// More than both queue limits has been sent. Without a consumer the parser
++		// cannot reach terminal; server completion alone is not client join.
++		if x.Joined() {
++			t.Fatal("parser bypassed bounded backpressure")
++		}
++		event, e := x.Next(testContext(t))
++		if e != nil || event.Kind != wire.TextDelta {
++			t.Fatal("prefix", e)
++		}
++		cancelCtx, cancel := context.WithCancel(context.Background())
++		cancel()
++		_, e = x.Next(cancelCtx)
++		wireModelError(t, e, "cancelled", "wire_cancelled", true, true)
++		wireClose(t, x)
++		if _, e = x.Next(testContext(t)); !errors.Is(e, io.EOF) {
++			t.Fatal("late event after cancellation")
++		}
++	})
++}
++
++func TestModelOpenAIChatWireJoinAndBudget(t *testing.T) {
++	v := newWireFixture(t)
++	v.allow(t, true)
++	t.Run("real_writer_late_return_keeps_exact_slot", func(t *testing.T) {
++		b := wire.NewBudget()
++		a := v.newAdapter(t, b)
++		other := v.newAdapter(t, b)
++		n := 0
++		cfg := wireJSON(wireReply("held", "stop", nil, nil))
++		cfg.HoldAfter = &n
++		key := v.scenario(t, cfg)
++		entered, released, returned := make(chan struct{}), make(chan struct{}), make(chan struct{})
++		var once sync.Once
++		release := func() { once.Do(func() { close(released) }) }
++		defer release()
++		ctx, cancel := context.WithCancel(testContext(t))
++		defer cancel()
++		ctx = httptrace.WithClientTrace(ctx, &httptrace.ClientTrace{WroteRequest: func(httptrace.WroteRequestInfo) { close(entered); <-released; close(returned) }})
++		r, o := v.input(t, key, wire.JSONResponse)
++		project := o.ProjectID
++		x := v.start(t, ctx, a, r, o)
++		waitSignal(t, entered)
++		wireWait(t, "late writer has not reached actual server", func() bool { return len(v.state(t, key).Requests) == 1 })
++		cancel()
++		short, stop := context.WithTimeout(context.Background(), 30*time.Millisecond)
++		e := x.Close(short)
++		stop()
++		wireModelError(t, e, "timeout", "wire_transport_error", false, false)
++		// Close's own control error is not a Result and makes no Sent claim. The
++		// actual Do has independently returned cancelled with its real Decision.
++		wireWait(t, "cancelled Do has not produced Decision", func() bool { return x.Observe().Decision != nil })
++		if x.Joined() || x.Observe().Decision.Reason != ac.Cancelled || !x.Observe().Decision.Sent {
++			t.Fatal("cancellation falsely joined real writer")
++		}
++		for i := 0; i < 7; i++ {
++			r, o = v.input(t, key, wire.JSONResponse)
++			o.ProjectID = project
++			v.start(t, testContext(t), other, r, o)
++		}
++		r, o = v.input(t, key, wire.JSONResponse)
++		o.ProjectID = project
++		if handle, e := a.Start(testContext(t), r, o); handle != nil {
++			t.Fatal("unjoined writer slot replaced")
++		} else {
++			wireFault(t, e, f.ResourceBusy)
++		}
++		wireWait(t, "accepted same-project calls not sent", func() bool { return len(v.state(t, key).Requests) == 8 })
++		release()
++		waitSignal(t, returned)
++		wireClose(t, x)
++		replacement := v.start(t, testContext(t), other, r, o)
++		wireWait(t, "joined slot not reused", func() bool { return len(v.state(t, key).Requests) == 9 })
++		if replacement.Joined() {
++			t.Fatal("held body considered done")
++		}
++		b.StopAdmission()
++		if handle, e := a.Start(testContext(t), r, o); handle != nil {
++			t.Fatal("sealed admitted")
++		} else {
++			wireFault(t, e, f.ShuttingDown)
++		}
++		cancelled, cancelledStop := context.WithCancel(context.Background())
++		cancelledStop()
++		if e := b.Drain(cancelled); e == nil || b.Joined() {
++			t.Fatal("Drain falsely joined held bodies")
++		}
++		force, forceStop := context.WithTimeout(context.Background(), 5*time.Second)
++		defer forceStop()
++		if e := b.Force(force); e != nil || !b.Joined() {
++			t.Fatal("force/join", e)
++		}
++		v.settled(t, key)
++	})
++	t.Run("two_adapters_share_global64_project8_without_queue", func(t *testing.T) {
++		b := wire.NewBudget()
++		a := v.newAdapter(t, b)
++		other := v.newAdapter(t, b)
++		n := 0
++		cfg := wireJSON(wireReply("hold", "stop", nil, nil))
++		cfg.HoldAfter = &n
++		key := v.scenario(t, cfg)
++		var first id.ProjectID
++		var handles []*wire.Exchange
++		for p := 0; p < 8; p++ {
++			project := newID[id.Project](t)
++			if p == 0 {
++				first = project
++			}
++			for i := 0; i < 8; i++ {
++				r, o := v.input(t, key, wire.JSONResponse)
++				o.ProjectID = project
++				o.Limits.Overall = 120 * time.Second
++				adapter := a
++				if i%2 == 1 {
++					adapter = other
++				}
++				handles = append(handles, v.start(t, testContext(t), adapter, r, o))
++			}
++			if p == 0 {
++				r, o := v.input(t, key, wire.JSONResponse)
++				o.ProjectID = first
++				if x, e := other.Start(testContext(t), r, o); x != nil {
++					t.Fatal("project 9 admitted")
++				} else {
++					wireFault(t, e, f.ResourceBusy)
++				}
++			}
++		}
++		r, o := v.input(t, key, wire.JSONResponse)
++		if x, e := a.Start(testContext(t), r, o); x != nil {
++			t.Fatal("global65 admitted")
++		} else {
++			wireFault(t, e, f.ResourceBusy)
++		}
++		wireWait(t, "64 accepted calls not observed", func() bool { return len(v.state(t, key).Requests) == 64 })
++		for _, x := range handles {
++			if x.Joined() {
++				t.Fatal("held response retired")
++			}
++		}
++		b.StopAdmission()
++		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
++		defer cancel()
++		if e := b.Force(ctx); e != nil || !b.Joined() {
++			t.Fatal("global force", e)
++		}
++		for _, x := range handles {
++			if !x.Joined() {
++				t.Fatal("accepted handle escaped owner")
++			}
++		}
++		if len(v.state(t, key).Requests) != 64 {
++			t.Fatal("excess/queued request sent")
++		}
++		v.settled(t, key)
++	})
++}
+diff --git a/tests/testsupport/outbound/fixture.go b/tests/testsupport/outbound/fixture.go
+--- a/tests/testsupport/outbound/fixture.go
++++ b/tests/testsupport/outbound/fixture.go
+@@ -99,16 +99,27 @@
+ type ScenarioConfig struct {
+ 	Mode, Redirect, Body string
+ 	Size, HeaderBytes    int
++	Wire                 *WireScenario
++}
++type WireScenario struct {
++	Suffix          string
++	Status          int
++	Headers         map[string]string
++	Chunks          [][]byte
++	HoldAfter       *int
++	DisconnectAfter *int
+ }
+ type Request struct {
+ 	Connection                      int64
+ 	Method, Host, Path, Query, Body string
+ 	Headers                         http.Header
++	RequestURI                      string
+ }
+ type State struct {
+-	Requests    []Request
+-	Closed      map[int64]bool
+-	Connections map[int64]string
++	Requests                          []Request
++	Closed                            map[int64]bool
++	Connections                       map[int64]string
++	ActiveHandlers, CompletedHandlers int
+ }
+ 
+ func (d *Descriptor) control(ctx context.Context, method, path string, input any, output any) error {
+diff --git a/tests/testsupport/outbound/cmd/server/main.go b/tests/testsupport/outbound/cmd/server/main.go
+--- a/tests/testsupport/outbound/cmd/server/main.go
++++ b/tests/testsupport/outbound/cmd/server/main.go
+@@ -4,12 +4,14 @@
+ 
+ import (
+ 	"context"
++	"encoding/hex"
+ 	"encoding/json"
+ 	"flag"
+ 	"io"
+ 	"log"
+ 	"net"
+ 	"net/http"
++	"net/url"
+ 	"os"
+ 	"os/signal"
+ 	"strings"
+@@ -22,17 +24,28 @@
+ type config struct {
+ 	Mode, Redirect, Body string
+ 	Size, HeaderBytes    int
++	Wire                 *wireScenario
++}
++type wireScenario struct {
++	Suffix          string
++	Status          int
++	Headers         map[string]string
++	Chunks          [][]byte
++	HoldAfter       *int
++	DisconnectAfter *int
+ }
+ type request struct {
+ 	Connection                      int64
+ 	Method, Host, Path, Query, Body string
+ 	Headers                         http.Header
++	RequestURI                      string
+ }
+ type scenario struct {
+-	Config   config
+-	Requests []request
+-	Released bool
+-	release  chan struct{}
++	Config                            config
++	Requests                          []request
++	Released                          bool
++	ActiveHandlers, CompletedHandlers int
++	release                           chan struct{}
+ }
+ type serverState struct {
+ 	mu          sync.Mutex
+@@ -121,7 +134,7 @@
+ 	switch parts[0] {
+ 	case "create":
+ 		var cfg config
+-		if r.Method != "POST" || json.NewDecoder(io.LimitReader(r.Body, 1<<20)).Decode(&cfg) != nil || cfg.Size < 0 || cfg.Size > 300<<20 || cfg.HeaderBytes < 0 || cfg.HeaderBytes > 1<<20 {
++		if r.Method != "POST" || json.NewDecoder(io.LimitReader(r.Body, 1<<20)).Decode(&cfg) != nil || cfg.Size < 0 || cfg.Size > 300<<20 || cfg.HeaderBytes < 0 || cfg.HeaderBytes > 1<<20 || !validWire(&cfg, id) {
+ 			w.WriteHeader(400)
+ 			return
+ 		}
+@@ -149,10 +162,11 @@
+ 			return
+ 		}
+ 		_ = json.NewEncoder(w).Encode(struct {
+-			Requests    []request
+-			Closed      map[int64]bool
+-			Connections map[int64]string
+-		}{v.Requests, s.closed, s.connections})
++			Requests                          []request
++			Closed                            map[int64]bool
++			Connections                       map[int64]string
++			ActiveHandlers, CompletedHandlers int
++		}{v.Requests, s.closed, s.connections, v.ActiveHandlers, v.CompletedHandlers})
+ 	default:
+ 		w.WriteHeader(404)
+ 	}
+@@ -160,8 +174,14 @@
+ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
+ 	id := strings.TrimPrefix(r.URL.Path, "/case/")
+ 	if len(id) != 32 {
+-		w.WriteHeader(404)
+-		return
++		// Only the new wire scenario admits a suffix. Legacy modes retain their
++		// exact decoded /case/<id> route below, including existing defaults.
++		raw := strings.TrimPrefix(r.URL.EscapedPath(), "/case/")
++		if !strings.HasPrefix(r.URL.EscapedPath(), "/case/") || len(raw) < 33 {
++			w.WriteHeader(404)
++			return
++		}
++		id = raw[:32]
+ 	}
+ 	s.mu.Lock()
+ 	v := s.cases[id]
+@@ -171,18 +191,39 @@
+ 		return
+ 	}
+ 	cfg := v.Config
++	if cfg.Mode == "openai_chat_wire" {
++		if r.URL.EscapedPath() != "/case/"+id+cfg.Wire.Suffix || r.URL.RawQuery != "" || r.URL.ForceQuery {
++			s.mu.Unlock()
++			w.WriteHeader(404)
++			return
++		}
++	} else if strings.TrimPrefix(r.URL.Path, "/case/") != id {
++		s.mu.Unlock()
++		w.WriteHeader(404)
++		return
++	}
+ 	release := v.release
++	v.ActiveHandlers++
+ 	s.mu.Unlock()
++	defer func() { s.mu.Lock(); v.ActiveHandlers--; v.CompletedHandlers++; s.mu.Unlock() }()
+ 	body, e := io.ReadAll(io.LimitReader(r.Body, 16<<20+1))
+ 	if e != nil {
+ 		w.WriteHeader(400)
+ 		return
+ 	}
+ 	_ = r.Body.Close()
+-	record := request{r.Context().Value(connectionKey{}).(int64), r.Method, r.Host, r.URL.Path, r.URL.RawQuery, string(body), r.Header.Clone()}
++	if cfg.Mode == "openai_chat_wire" && len(body) > 16<<20 {
++		w.WriteHeader(413)
++		return
++	}
++	record := request{Connection: r.Context().Value(connectionKey{}).(int64), Method: r.Method, Host: r.Host, Path: r.URL.Path, Query: r.URL.RawQuery, Body: string(body), Headers: r.Header.Clone(), RequestURI: r.RequestURI}
+ 	s.mu.Lock()
+ 	v.Requests = append(v.Requests, record)
+ 	s.mu.Unlock()
++	if cfg.Mode == "openai_chat_wire" {
++		serveWire(w, r, cfg.Wire, release)
++		return
++	}
+ 	switch cfg.Mode {
+ 	case "drop":
+ 		conn, _, e := w.(http.Hijacker).Hijack()
+@@ -260,3 +301,105 @@
+ 		w.Header().Set("X-Fixture-Trailer", "complete")
+ 	}
+ }
++
++func validWire(cfg *config, id string) bool {
++	if cfg.Mode != "openai_chat_wire" {
++		return cfg.Wire == nil
++	}
++	v := cfg.Wire
++	if v == nil || cfg.Redirect != "" || cfg.Body != "" || cfg.Size != 0 || cfg.HeaderBytes != 0 {
++		return false
++	}
++	if raw, err := hex.DecodeString(id); err != nil || len(raw) != 16 {
++		return false
++	}
++	if v.Suffix == "" {
++		v.Suffix = "/chat/completions"
++	}
++	if len(v.Suffix) > 2048 || !strings.HasPrefix(v.Suffix, "/") || !strings.HasSuffix(v.Suffix, "/chat/completions") || strings.ContainsAny(v.Suffix, "?#") {
++		return false
++	}
++	u, err := url.ParseRequestURI(v.Suffix)
++	if err != nil || u.EscapedPath() != v.Suffix || u.RawQuery != "" || u.ForceQuery {
++		return false
++	}
++	switch v.Status {
++	case 200, 302, 307, 308, 400, 401, 403, 404, 408, 409, 429, 500, 502, 503, 504:
++	default:
++		return false
++	}
++	seen := map[string]bool{}
++	headerBytes := 0
++	for key, value := range v.Headers {
++		name := http.CanonicalHeaderKey(key)
++		switch name {
++		case "Content-Type", "X-Request-Id", "Retry-After", "Location":
++		default:
++			return false
++		}
++		if seen[name] {
++			return false
++		}
++		seen[name] = true
++		for _, c := range value {
++			if c < 32 && c != '\t' || c == 127 {
++				return false
++			}
++		}
++		headerBytes += len(key) + len(value)
++		if headerBytes > 16<<10 {
++			return false
++		}
++	}
++	if len(v.Chunks) > 512 {
++		return false
++	}
++	total := 0
++	for _, chunk := range v.Chunks {
++		total += len(chunk)
++		if total > 512<<10 {
++			return false
++		}
++	}
++	for _, n := range []*int{v.HoldAfter, v.DisconnectAfter} {
++		if n != nil && (*n < 0 || *n > len(v.Chunks)) {
++			return false
++		}
++	}
++	return true
++}
++func serveWire(w http.ResponseWriter, r *http.Request, v *wireScenario, release <-chan struct{}) {
++	for key, value := range v.Headers {
++		w.Header().Set(key, value)
++	}
++	w.WriteHeader(v.Status)
++	w.(http.Flusher).Flush()
++	for sent := 0; sent <= len(v.Chunks); sent++ {
++		if v.HoldAfter != nil && sent == *v.HoldAfter {
++			select {
++			case <-release:
++			case <-r.Context().Done():
++				return
++			}
++		}
++		if v.DisconnectAfter != nil && sent == *v.DisconnectAfter {
++			conn, _, err := w.(http.Hijacker).Hijack()
++			if err == nil {
++				_ = conn.Close()
++			}
++			return
++		}
++		if sent == len(v.Chunks) {
++			return
++		}
++		select {
++		case <-r.Context().Done():
++			return
++		default:
++		}
++		if _, err := w.Write(v.Chunks[sent]); err != nil {
++			return
++		}
++		w.(http.Flusher).Flush()
++	}
++}

@@ -1,0 +1,16 @@
+{
+  "baseline": "de00c610da62cb77cc03efe7c3cc842cf81f1ba5",
+  "revision": "production-rev1",
+  "files": {
+    "internal/central/model/adapter/openai_chat.go": "e1b3a23b5c792b71255de9c747cf13fe1e41700430167386041c7d22b5dc457a",
+    "internal/central/model/adapter/transport.go": "443f7b288e90c1ff8b0b5504005369f452e43fb55420e28f9794828037aeda42",
+    "internal/central/model/adapter/sse.go": "53439e38f47a0f73876d8ae45315a8f932678cad15feab173ccb2e69f9e2ebe3",
+    "internal/central/model/adapter/errors.go": "24f7aa4cf23f3835bd911a2bb9fedee129045abde698c21bb5711a2ed494e499",
+    "internal/central/model/adapter/budget.go": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a"
+  },
+  "check": {
+    "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-race-v2.json",
+    "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-race-v2.log",
+    "exit_code": 0
+  }
+}

@@ -1,0 +1,59 @@
+import datetime,hashlib,json,os,pathlib,subprocess,sys
+root=pathlib.Path('/workspace/agenteam-openai-wire-verification-acwx944n')
+for name in ['docker-config','docker-bin','runtime']:(root/name).mkdir(exist_ok=True)
+wrapper='''#!/usr/bin/python3
+import json,os,re,signal,subprocess,sys,time
+args=sys.argv[1:]
+p=subprocess.Popen(['/usr/local/bin/docker',*args],stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+def forward(sig,frame):
+ try:p.send_signal(sig)
+ except ProcessLookupError:pass
+signal.signal(signal.SIGTERM,forward);signal.signal(signal.SIGINT,forward)
+out,err=p.communicate()
+entry={'at':time.time(),'operation':args[:2],'exit_code':p.returncode}
+if args and (args[0]=='run' or args[:2]==['network','create']):
+ value=out.decode('utf-8',errors='replace').strip()
+ if re.fullmatch('[0-9a-f]{64}',value):
+  entry['created_id']=value;entry['kind']='network' if args[0]=='network' else 'container'
+ if '--name' in args:entry['name']=args[args.index('--name')+1]
+ entry['labels']=[args[i+1] for i,v in enumerate(args[:-1]) if v=='--label']
+fd=os.open('/workspace/agenteam-openai-wire-verification-acwx944n/evidence/docker-operations.jsonl',os.O_WRONLY|os.O_CREAT|os.O_APPEND,0o600)
+os.write(fd,(json.dumps(entry)+'\\n').encode());os.close(fd)
+os.write(1,out);os.write(2,err);sys.exit(p.returncode)
+'''
+(root/'docker-bin/docker').write_text(wrapper);(root/'docker-bin/docker').chmod(0o700)
+env=os.environ.copy();removed=[]
+for name in ['AGENTEAM_PG_FIXTURE','AGENTEAM_PG_UNSUPPORTED_FIXTURE','AGENTEAM_OBJECT_FIXTURE','AGENTEAM_OUTBOUND_FIXTURE','DOCKER_CONTEXT','DOCKER_TLS_VERIFY','DOCKER_CERT_PATH']:
+ if name in env:removed.append(name);env.pop(name)
+overrides={'GOTOOLCHAIN':'local','GOPROXY':'off','GOSUMDB':'off','GOENV':'off','GOWORK':'off','GOMODCACHE':'/workspace/agenteam-dependency-cache/modcache','GOCACHE':str(root/'go-build'),'TMPDIR':str(root/'runtime'),'GOFLAGS':'-mod=readonly -v','AGENTEAM_GO':'/workspace/toolchains/go1.27.1/bin/go','AGENTEAM_MINIO_BINARY':'/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio','DOCKER_HOST':'unix:///var/run/docker.sock','DOCKER_CONFIG':str(root/'docker-config'),'PATH':str(root/'docker-bin')+':'+env['PATH']}
+env.update(overrides)
+def docker(*args):
+ p=subprocess.run(['/usr/local/bin/docker',*args],env=env,capture_output=True,check=True)
+ return p.stdout.decode()
+def baseline():
+ cs=docker('ps','-aq','--no-trunc').split();ns=docker('network','ls','-q','--no-trunc').split()
+ result={'utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'containers':[],'networks':[]}
+ for value in cs:
+  line=docker('inspect','--format','{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Config.Labels}}}',value)
+  result['containers'].append(json.loads(line))
+ for value in ns:
+  line=docker('network','inspect','--format','{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Labels}}}',value)
+  result['networks'].append(json.loads(line))
+ result['containers'].sort(key=lambda x:x['id']);result['networks'].sort(key=lambda x:x['id'])
+ return result
+before=baseline();(root/'evidence/resource-baseline.json').write_text(json.dumps(before,indent=2)+'\n')
+assert len(before['containers'])==2 and len(before['networks'])==4,'unexpected resource baseline; no fixture started'
+m=json.loads((root/'verification-input.json').read_text())
+for path,want in m['files'].items():assert hashlib.sha256((root/'snapshot'/path).read_bytes()).hexdigest()==want,path
+minio=hashlib.sha256(pathlib.Path(overrides['AGENTEAM_MINIO_BINARY']).read_bytes()).hexdigest()
+assert minio=='dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8'
+argv=['sh','scripts/test-security.sh','-run','^TestModelOpenAIChatWireIndependent$']
+record={'argv':argv,'cwd':str(root/'snapshot'),'environment':overrides,'removed_inherited_keys':removed,'input_manifest_sha256':hashlib.sha256((root/'verification-input.json').read_bytes()).hexdigest(),'candidate_manifest_sha256':hashlib.sha256((root/'candidate-manifest.json').read_bytes()).hexdigest(),'inputs':m['files'],'baseline':m['baseline'],'minio_binary_sha256':minio,'resource_baseline':'resource-baseline.json','started_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'log':'independent-real.log'}
+(root/'evidence/independent-input.json').write_text(json.dumps(record,indent=2)+'\n')
+with (root/'evidence/independent-real.log').open('wb') as log:
+ p=subprocess.run(argv,cwd=root/'snapshot',env=env,stdout=log,stderr=subprocess.STDOUT)
+record['exit_code']=p.returncode;record['finished_at']=datetime.datetime.now(datetime.timezone.utc).isoformat();record['log_sha256']=hashlib.sha256((root/'evidence/independent-real.log').read_bytes()).hexdigest()
+(root/'evidence/independent-real.json').write_text(json.dumps(record,indent=2)+'\n')
+print(json.dumps({k:record[k] for k in ['argv','exit_code','started_at','finished_at','log_sha256']},indent=2))
+print((root/'evidence/independent-real.log').read_text()[-6500:])
+sys.exit(p.returncode)

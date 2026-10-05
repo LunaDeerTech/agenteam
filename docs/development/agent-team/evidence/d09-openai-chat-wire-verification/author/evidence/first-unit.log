@@ -1,0 +1,84 @@
+=== RUN   TestWireBudgetGlobalProjectAndSealedAdmission
+--- PASS: TestWireBudgetGlobalProjectAndSealedAdmission (0.00s)
+=== RUN   TestWireBudgetCancellationDoesNotRetireLocalWork
+--- PASS: TestWireBudgetCancellationDoesNotRetireLocalWork (0.00s)
+=== RUN   TestWireBudgetConcurrentAdmissionHasOneOwner
+--- PASS: TestWireBudgetConcurrentAdmissionHasOneOwner (0.00s)
+=== RUN   TestOpenAIChatNativeUsageExactAndUnknown
+--- PASS: TestOpenAIChatNativeUsageExactAndUnknown (0.00s)
+=== RUN   TestOpenAIChatNativeEnvelopeAndSafeErrors
+    errors_test.go:86: unexpected safe error
+--- FAIL: TestOpenAIChatNativeEnvelopeAndSafeErrors (0.00s)
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/revision
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/tools
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/reasoning
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/parameters
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/overwrite
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/multiple_parts
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/metadata
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/no_stream_capability
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/invalid_utf8
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/zero_budget
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/oversized_budget
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/idle_budget
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/unavailable_material
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/query
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/path=/base//inner/
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/path=/base/./inner/
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/path=/base/%2e/
+=== RUN   TestOpenAIChatRequestEncodingAndClosedInputs/path=
+--- PASS: TestOpenAIChatRequestEncodingAndClosedInputs (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/revision (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/tools (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/reasoning (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/parameters (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/overwrite (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/multiple_parts (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/metadata (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/no_stream_capability (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/invalid_utf8 (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/zero_budget (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/oversized_budget (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/idle_budget (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/unavailable_material (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/query (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/path=/base//inner/ (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/path=/base/./inner/ (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/path=/base/%2e/ (0.00s)
+    --- PASS: TestOpenAIChatRequestEncodingAndClosedInputs/path= (0.00s)
+=== RUN   TestOpenAIChatInvalidConstructorAndSafeViews
+--- PASS: TestOpenAIChatInvalidConstructorAndSafeViews (0.00s)
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/missing_done
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/premature_done
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/duplicate_finish
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/usage_before_finish
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/unknown_finish
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/refusal
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/tool
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/bad_json
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/error_event
+=== RUN   TestOpenAIChatSSETextUsageAndRequiredTermination/wrong_obfuscation
+--- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/missing_done (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/premature_done (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/duplicate_finish (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/usage_before_finish (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/unknown_finish (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/refusal (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/tool (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/bad_json (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/error_event (0.00s)
+    --- PASS: TestOpenAIChatSSETextUsageAndRequiredTermination/wrong_obfuscation (0.00s)
+=== RUN   TestOpenAIChatSSEUnknownUsageAndBoundedEvents
+--- PASS: TestOpenAIChatSSEUnknownUsageAndBoundedEvents (0.02s)
+=== RUN   TestWireConsumerModesCopiesAndActualPrefix
+--- PASS: TestWireConsumerModesCopiesAndActualPrefix (0.00s)
+=== RUN   TestWireBackpressureCancellationAndConcurrentReader
+--- PASS: TestWireBackpressureCancellationAndConcurrentReader (0.00s)
+=== RUN   TestWireCancelledStartDoesNotAdmitOrCreateClient
+--- PASS: TestWireCancelledStartDoesNotAdmitOrCreateClient (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	0.025s
+FAIL

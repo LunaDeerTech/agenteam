@@ -1,0 +1,191 @@
+{
+  "fixed_baseline": "de00c610da62cb77cc03efe7c3cc842cf81f1ba5",
+  "fixed_candidate": "/workspace/agenteam-openai-wire-o11zl625/candidate-rev1/manifest.json",
+  "candidate_manifest_sha256": "1ed6b19184fa2e3cec928ed01e3b651eadc1704718b8d0f7547e1949dbf03f80",
+  "checks": [
+    {
+      "label": "first-compile",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-compile.json",
+      "metadata_sha256": "ec2f7d8b5b6bc2ef572ae617b04f65e2875880d34b0e88234c468ba4c68de8cc",
+      "exit_code": 0,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-compile.log",
+      "log_sha256": "a4126256818571fba03b3d25cf9413edc2fa8caf4fae54ad038c84d130490ac4"
+    },
+    {
+      "label": "first-unit",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-unit.json",
+      "metadata_sha256": "6494a879bab4e2aba5909fb296edca4e173d5e71d007f8fe51b2ebc25f676378",
+      "exit_code": 1,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-unit.log",
+      "log_sha256": "3bc7d98c062c2e4bbe380fc4da0723d6af78400b96986e8bce4343ebbaaef679"
+    },
+    {
+      "label": "pure-race-v1",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-race-v1.json",
+      "metadata_sha256": "7391c3d4b580156174f01a258172a78ff56ecc7bfd547484e0841437e253a8f8",
+      "exit_code": 0,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-race-v1.log",
+      "log_sha256": "38013aed4eb6d74b335d27ddb6ce7a186137b265afe5eb5bf3f9a762bef56818"
+    },
+    {
+      "label": "pure-race-v2",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-race-v2.json",
+      "metadata_sha256": "fc56ce56edd03283b12769656997e59535304733435c9788c1f80b7ab0e75b01",
+      "exit_code": 0,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-race-v2.log",
+      "log_sha256": "651cf707c9798e252c419093e2789c77672d4614fd445d5f3e6ecf4b9a6d923e"
+    },
+    {
+      "label": "pure-final-race",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-final-race.json",
+      "metadata_sha256": "158472d5d5eedadda18d0367108d47772024fb05aa5c7f8c6eaf7cb0df7805ae",
+      "exit_code": 0,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-final-race.log",
+      "log_sha256": "8999dec634a22ab7258c361fac7a7749c19e9536c499653551ea19adc00226f0"
+    },
+    {
+      "label": "integration-compile-v1",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-v1.json",
+      "metadata_sha256": "f3c0209a31c8e80d9a357eb7ef64d10222cb4046c3e308d2794948c3c215566f",
+      "exit_code": 1,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-v1.log",
+      "log_sha256": "a67f29960d753c8d38cc8575cd3a1d87de3ea8ffb1dad78a8bd4d1c9df7cb59e"
+    },
+    {
+      "label": "integration-compile-v2",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-v2.json",
+      "metadata_sha256": "18ca6b58dc5e5761113eece6da80a396070f9e4b1140db8cd37e814255569692",
+      "exit_code": 0,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-v2.log",
+      "log_sha256": "06906d2768d2907ce13dff8f986d53caa0724c7fbfd7b991f9fb7de4863f67f9"
+    },
+    {
+      "label": "pure-root",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-root.json",
+      "metadata_sha256": "39aacc085fb40eb0835f3bf4a0fb11478810e3324dcc403a251835ede5466632",
+      "exit_code": 1,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-root.log",
+      "log_sha256": "0ba98b014e4aa3d683caa2c10d815bce293e19afff0dc7a63f2d31845d949c6b"
+    },
+    {
+      "label": "pure-root-api-recheck",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-root-api-recheck.json",
+      "metadata_sha256": "7b0a45b1f42be743dba0bfd3521d59250e01cb71e21888d7e3aea3488b480e0b",
+      "exit_code": 0,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-root-api-recheck.log",
+      "log_sha256": "21947e7ae98090a672f9da2b1b2fd1b3b338429fd42628ea8b5261d0ea1200f1"
+    },
+    {
+      "label": "pure-adapter-final",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-adapter-final.json",
+      "metadata_sha256": "46b879a46e23f75620159b8ab95c3772f422aa8c3b374d02daff5788f0dc8660",
+      "exit_code": 0,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-adapter-final.log",
+      "log_sha256": "860aa1b600f02265ac487af8fc238b5619a9bdc15e30ecc9e427921e937b06b5"
+    },
+    {
+      "label": "pure-vet",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-vet.json",
+      "metadata_sha256": "2c55ae9c03de099c2e9b813bea61858d4b267733362671d90501ff658f39262e",
+      "exit_code": 0,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/pure-vet.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "integration-compile-final",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-final.json",
+      "metadata_sha256": "9274290b87cb47e66dc5ac7ec828e79b894ddb0afae7dac0e488bc5b9129dbc8",
+      "exit_code": 0,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/integration-compile-final.log",
+      "log_sha256": "f2952b5a70d33488956aec8e073d8c3b430899ea0c29344ab9f846078f68320d"
+    },
+    {
+      "label": "central-build",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/central-build.json",
+      "metadata_sha256": "0dadef744facb23515aaad4806d77a524c6ce1bf427bfa82a31f125d19442f94",
+      "exit_code": 0,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/central-build.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "runner-build",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/runner-build.json",
+      "metadata_sha256": "5e436d436a97ec54ea8c42ac83e922f2f19b22f7079cd05dc763f7f550034e2e",
+      "exit_code": 0,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/runner-build.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "first-real",
+      "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-real.json",
+      "metadata_sha256": "bda116bf04b6f8f81500d8880a0f73da205898ab5851eefc937e40b9524aed1d",
+      "exit_code": 0,
+      "log": "/workspace/agenteam-openai-wire-o11zl625/evidence/first-real.log",
+      "log_sha256": "ee79900d356214c5ac7780b4faf3e3c1144279b3e2889af69fcdb75aa8db918d"
+    }
+  ],
+  "real_summary": {
+    "top": 13,
+    "sub": 36,
+    "fail_skip": [],
+    "top_results": [
+      [
+        "TestOutboundNetworkSerializedHeaderLimitBeforeAnyRequestBytes",
+        "1.82s"
+      ],
+      [
+        "TestOutboundNetworkCancellationDrainAndForce",
+        "6.44s"
+      ],
+      [
+        "TestOutboundNetworkBlockedRequestBodyCancelledAndJoined",
+        "8.22s"
+      ],
+      [
+        "TestOutboundNetworkOldContextCannotCloseReusedConnection",
+        "2.01s"
+      ],
+      [
+        "TestOutboundNetworkHeaderTimeoutAndNativeClientMapping",
+        "1.42s"
+      ],
+      [
+        "TestOutboundNetworkRealPrivateRulesTLSAndKeepAlive",
+        "1.55s"
+      ],
+      [
+        "TestOutboundNetworkSentRequestsNeverRetry",
+        "2.71s"
+      ],
+      [
+        "TestOutboundNetworkHTTPFramingAndLimits",
+        "1.74s"
+      ],
+      [
+        "TestOutboundNetworkRedirectStripsAllCallerAuthentication",
+        "1.20s"
+      ],
+      [
+        "TestOutboundNetworkRedirectEachHopAndMethodBoundary",
+        "2.10s"
+      ],
+      [
+        "TestModelOpenAIChatWireHTTP",
+        "4.11s"
+      ],
+      [
+        "TestModelOpenAIChatWireStream",
+        "2.67s"
+      ],
+      [
+        "TestModelOpenAIChatWireJoinAndBudget",
+        "1.66s"
+      ]
+    ]
+  },
+  "resources": {
+    "metadata": "/workspace/agenteam-openai-wire-o11zl625/evidence/resource-final-checks.json",
+    "sha256": "1c52778fe4b54ad1635427114162e8534e54ceb99385232697f8bf5b8071885e"
+  },
+  "source_checks": "/workspace/agenteam-openai-wire-o11zl625/evidence/provenance-checks.json"
+}

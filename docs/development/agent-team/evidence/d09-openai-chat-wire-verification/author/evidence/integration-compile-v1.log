@@ -1,0 +1,8 @@
+# github.com/LunaDeerTech/agenteam/tests/model_test [github.com/LunaDeerTech/agenteam/tests/model.test]
+tests/model/openai_chat_wire_http_test.go:68:77: d.Decision.Allowed undefined (type *outbound.Decision has no field or method Allowed)
+FAIL	github.com/LunaDeerTech/agenteam/tests/model [build failed]
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/outbound	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server	[no test files]
+FAIL

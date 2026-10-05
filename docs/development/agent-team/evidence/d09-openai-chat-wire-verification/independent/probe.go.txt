@@ -1,0 +1,179 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"errors"
+	"io"
+	"net/netip"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+// This is a formal injected resolver, not a replacement Do or a fake Decision.
+// Only its first Lookup deliberately ignores cancellation until owned release.
+// The other calls use the same real private policy, TLS, and fixture server.
+type independentWireResolver struct {
+	ip                         netip.Addr
+	calls                      atomic.Int64
+	entered, release, returned chan struct{}
+	once                       sync.Once
+}
+
+func (r *independentWireResolver) Lookup(ctx context.Context, _ string) ([]netip.Addr, error) {
+	if r.calls.Add(1) == 1 {
+		close(r.entered)
+		<-r.release
+		close(r.returned)
+	}
+	return []netip.Addr{r.ip}, ctx.Err()
+}
+func (r *independentWireResolver) unblock() { r.once.Do(func() { close(r.release) }) }
+
+func TestModelOpenAIChatWireIndependent(t *testing.T) {
+	v := newWireFixture(t)
+	v.allow(t, true)
+	t.Run("late_do_unknown_decision_preserves_project_slot", func(t *testing.T) {
+		budget := wire.NewBudget()
+		gate := &independentWireResolver{ip: netip.MustParseAddr(v.net.PrivateIP), entered: make(chan struct{}), release: make(chan struct{}), returned: make(chan struct{})}
+		defer gate.unblock()
+		transport := v.transport
+		transport.Resolver = gate
+		adapter, err := wire.NewOpenAIChat(transport, budget)
+		if err != nil {
+			t.Fatal(err)
+		}
+		v.budgets = append(v.budgets, budget)
+		hold := 0
+		cfg := wireJSON(wireReply("held until cancellation", "stop", nil, nil))
+		cfg.HoldAfter = &hold
+		key := v.scenario(t, cfg)
+		r, o := v.input(t, key, wire.JSONResponse)
+		project, borrowed := o.ProjectID, o.Credential
+		ctx, cancel := context.WithCancel(testContext(t))
+		defer cancel()
+		x := v.start(t, ctx, adapter, r, o)
+		waitSignal(t, gate.entered)
+		cancel()
+		cancelled, stop := context.WithCancel(context.Background())
+		stop()
+		wireModelError(t, x.Close(cancelled), "cancelled", "wire_cancelled", false, false)
+		_, err = x.Result(cancelled)
+		wireModelError(t, err, "cancelled", "wire_cancelled", false, false)
+		if d := x.Observe(); !d.DoStarted || d.Decision != nil || x.Joined() {
+			t.Fatal("unfinished real Do lost its unknown Decision/owner")
+		}
+		if err := borrowed.Use(func([]byte) error { return nil }); err != nil {
+			t.Fatal("borrowed material was retired before actual Do returned")
+		}
+		for i := 0; i < 7; i++ {
+			r, o = v.input(t, key, wire.JSONResponse)
+			o.ProjectID = project
+			v.start(t, testContext(t), adapter, r, o)
+		}
+		wireWait(t, "seven other accepted calls did not reach real server", func() bool { return len(v.state(t, key).Requests) == 7 && gate.calls.Load() == 8 })
+		r, o = v.input(t, key, wire.JSONResponse)
+		o.ProjectID = project
+		if rejected, err := adapter.Start(testContext(t), r, o); rejected != nil {
+			t.Fatal("Do without Decision relinquished its eighth slot")
+		} else {
+			wireFault(t, err, f.ResourceBusy)
+		}
+		if gate.calls.Load() != 8 || len(v.state(t, key).Requests) != 7 || x.Joined() || x.Observe().Decision != nil {
+			t.Fatal("rejected admission queued work or unknown Do retired")
+		}
+		gate.unblock()
+		waitSignal(t, gate.returned)
+		wireClose(t, x)
+		if d := x.Observe(); d.Decision == nil || d.Decision.Sent {
+			t.Fatal("late cancelled Do did not publish its actual zero-send Decision")
+		}
+		replacement := v.start(t, testContext(t), adapter, r, o)
+		wireWait(t, "only actual joined slot should be replaced", func() bool { return len(v.state(t, key).Requests) == 8 && gate.calls.Load() == 9 })
+		if replacement.Joined() {
+			t.Fatal("replacement with held response falsely joined")
+		}
+		budget.StopAdmission()
+		cleanup, finish := context.WithTimeout(context.Background(), 5*time.Second)
+		defer finish()
+		if err := budget.Force(cleanup); err != nil || !budget.Joined() {
+			t.Fatal("owned exchanges did not join", err)
+		}
+		v.settled(t, key)
+		if len(v.state(t, key).Requests) != 8 {
+			t.Fatal("a denied request later reached the server")
+		}
+		t.Log("real Do unknown window retained slot; after original return exact replacement admitted; requests=8 Lookups=9")
+	})
+	t.Run("finish_usage_stays_live_until_done_or_consumer_deadline", func(t *testing.T) {
+		for _, releaseBeforeRead := range []bool{true, false} {
+			cfg := wireSSE(
+				wireChunk(map[string]any{"content": "prefix 世"}, nil, nil, wireBodyCanary, false),
+				wireChunk(map[string]any{}, "length", nil, json.RawMessage(`null`), false),
+				wireChunk(nil, nil, json.RawMessage(`{"prompt_tokens":0,"completion_tokens":0,"total_tokens":7}`), wireBodyCanary, true),
+				[]byte("data: [DONE]\n\n"),
+			)
+			hold := 3
+			cfg.HoldAfter = &hold
+			key := v.scenario(t, cfg)
+			r, o := v.input(t, key, wire.SSEResponse)
+			x := v.start(t, testContext(t), v.adapter, r, o)
+			first, err := x.Next(testContext(t))
+			if err != nil || first.Kind != wire.TextDelta || first.Text != "prefix 世" {
+				t.Fatal("held stream prefix", err)
+			}
+			usage, err := x.Next(testContext(t))
+			if err != nil || usage.Kind != wire.UsageUpdate || usage.Usage == nil || usage.Usage.InputTokens == nil || *usage.Usage.InputTokens != 0 || usage.Usage.OutputTokens == nil || *usage.Usage.OutputTokens != 0 || usage.Usage.TotalTokens == nil || *usage.Usage.TotalTokens != 7 {
+				t.Fatal("held stream exact zero usage", err)
+			}
+			wireNoLeak(t, first)
+			wireNoLeak(t, usage)
+			state := v.state(t, key)
+			observation := x.Observe()
+			if len(state.Requests) != 1 || state.ActiveHandlers != 1 || state.CompletedHandlers != 0 || x.Joined() || observation.Decision == nil || !observation.Decision.Sent || observation.Usage.TotalTokens == nil || *observation.Usage.TotalTokens != 7 {
+				t.Fatal("finish/usage falsely completed the actual held parser/connection")
+			}
+			*usage.Usage.TotalTokens = 1
+			if releaseBeforeRead {
+				if err := v.net.Release(testContext(t), key); err != nil {
+					t.Fatal(err)
+				}
+				end, err := x.Next(testContext(t))
+				if err != nil || end.Kind != wire.StreamEnd || end.End == nil || end.End.FinishReason != mc.FinishReason("length") || end.End.Usage.TotalTokens == nil || *end.End.Usage.TotalTokens != 7 || !x.Joined() {
+					t.Fatal("released DONE did not produce one joined End", err)
+				}
+				wireNoLeak(t, end)
+			} else {
+				// This is an actual consumer waiting deadline, not sleep-based proof.
+				// With finish+usage already observed, an early End would fail this call.
+				wait, cancel := context.WithTimeout(context.Background(), 40*time.Millisecond)
+				event, err := x.Next(wait)
+				cancel()
+				wireModelError(t, err, "timeout", "wire_transport_error", true, true)
+				if event.Kind != "" {
+					t.Fatal("terminal was emitted before DONE")
+				}
+				if err := v.net.Release(testContext(t), key); err != nil {
+					t.Fatal(err)
+				}
+			}
+			wireClose(t, x)
+			if _, err := x.Next(testContext(t)); !errors.Is(err, io.EOF) {
+				t.Fatal("extra End/error after the sole terminal", err)
+			}
+			if observed := x.Observe().Usage; observed.InputTokens == nil || *observed.InputTokens != 0 || observed.OutputTokens == nil || *observed.OutputTokens != 0 || observed.TotalTokens == nil || *observed.TotalTokens != 7 {
+				t.Fatal("known zero usage changed after terminal or alias mutation")
+			}
+			v.settled(t, key)
+			t.Logf("held-DONE branch release=%v preserved observed zero usage and actual join", releaseBeforeRead)
+		}
+	})
+}

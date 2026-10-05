@@ -1,0 +1,67 @@
+{"at": 1791218421.454588, "operation": ["network", "create"], "exit_code": 0, "created_id": "de3c4449b2a0e90fbf4e8f354a1860fe8d7b44ebf18c356accd2dba64e11cdf6", "kind": "network", "labels": ["agenteam.d05.objectfixture=bca9ae6b5ca328b7cbbaa276a58b4177"]}
+{"at": 1791218425.0918057, "operation": ["run", "--detach"], "exit_code": 0, "created_id": "d1fd31ae2ca5f0297c41700f932c5a612147124f3cc69e06981d21a37905e28c", "kind": "container", "name": "agenteam-d05-object-bca9ae6b5ca328b7cbbaa276a58b4177", "labels": ["agenteam.d05.objectfixture=bca9ae6b5ca328b7cbbaa276a58b4177"]}
+{"at": 1791218425.127895, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218425.1648903, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218425.2057543, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218425.2461932, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218430.7458403, "operation": ["network", "create"], "exit_code": 0, "created_id": "cdc9efcccc20ea6c2170badcf0dc2a1fbc1e06532ee4525236456019a04c4a12", "kind": "network", "labels": ["agenteam.d04.networkfixture=fd94e2356d01a7e223ac7954849c87b1"]}
+{"at": 1791218432.1306777, "operation": ["run", "--detach"], "exit_code": 0, "created_id": "d675facf3a3f6217a67fd612ef1945656bed5348120ee6c821f36f55f16567c5", "kind": "container", "name": "agenteam-d04-net-fd94e2356d01a7e223ac7954849c87b1", "labels": ["agenteam.d04.networkfixture=fd94e2356d01a7e223ac7954849c87b1"]}
+{"at": 1791218432.1646335, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218432.2005503, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218432.236074, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218433.0333183, "operation": ["network", "create"], "exit_code": 0, "created_id": "90a77e8d912926aa82b2bf3cf9c12f7e08ae8c9733626d4f7284eb663f9f4e24", "kind": "network", "labels": ["agenteam.d03.fixture=5d59a3360552dbd6a521e4ca0e3166fc"]}
+{"at": 1791218434.3116097, "operation": ["run", "--detach"], "exit_code": 0, "created_id": "06e1720d84bf63f8ec063cab49bc233e341b072f3b9807e5d8a196a01d6ca5c2", "kind": "container", "name": "agenteam-d03-5d59a3360552dbd6a521e4ca0e3166fc", "labels": ["agenteam.d03.fixture=5d59a3360552dbd6a521e4ca0e3166fc"]}
+{"at": 1791218434.4207695, "operation": ["exec", "06e1720d84bf63f8ec063cab49bc233e341b072f3b9807e5d8a196a01d6ca5c2"], "exit_code": 2}
+{"at": 1791218434.5538785, "operation": ["exec", "06e1720d84bf63f8ec063cab49bc233e341b072f3b9807e5d8a196a01d6ca5c2"], "exit_code": 2}
+{"at": 1791218434.672729, "operation": ["exec", "06e1720d84bf63f8ec063cab49bc233e341b072f3b9807e5d8a196a01d6ca5c2"], "exit_code": 2}
+{"at": 1791218434.7952826, "operation": ["exec", "06e1720d84bf63f8ec063cab49bc233e341b072f3b9807e5d8a196a01d6ca5c2"], "exit_code": 2}
+{"at": 1791218434.8971267, "operation": ["exec", "06e1720d84bf63f8ec063cab49bc233e341b072f3b9807e5d8a196a01d6ca5c2"], "exit_code": 2}
+{"at": 1791218435.0164263, "operation": ["exec", "06e1720d84bf63f8ec063cab49bc233e341b072f3b9807e5d8a196a01d6ca5c2"], "exit_code": 2}
+{"at": 1791218435.1359985, "operation": ["exec", "06e1720d84bf63f8ec063cab49bc233e341b072f3b9807e5d8a196a01d6ca5c2"], "exit_code": 0}
+{"at": 1791218435.1731772, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218435.2108293, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218435.244996, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218436.5424917, "operation": ["run", "--detach"], "exit_code": 0, "created_id": "a52a9e835051e0fd7cd7b63560a8401044d6609b6b496ca4e87144b17680659d", "kind": "container", "name": "agenteam-d03-5d59a3360552dbd6a521e4ca0e3166fc-pg16", "labels": ["agenteam.d03.fixture=5d59a3360552dbd6a521e4ca0e3166fc"]}
+{"at": 1791218436.672304, "operation": ["exec", "a52a9e835051e0fd7cd7b63560a8401044d6609b6b496ca4e87144b17680659d"], "exit_code": 2}
+{"at": 1791218436.7869964, "operation": ["exec", "a52a9e835051e0fd7cd7b63560a8401044d6609b6b496ca4e87144b17680659d"], "exit_code": 2}
+{"at": 1791218436.8948243, "operation": ["exec", "a52a9e835051e0fd7cd7b63560a8401044d6609b6b496ca4e87144b17680659d"], "exit_code": 2}
+{"at": 1791218437.0267997, "operation": ["exec", "a52a9e835051e0fd7cd7b63560a8401044d6609b6b496ca4e87144b17680659d"], "exit_code": 2}
+{"at": 1791218437.1616676, "operation": ["exec", "a52a9e835051e0fd7cd7b63560a8401044d6609b6b496ca4e87144b17680659d"], "exit_code": 2}
+{"at": 1791218437.2784648, "operation": ["exec", "a52a9e835051e0fd7cd7b63560a8401044d6609b6b496ca4e87144b17680659d"], "exit_code": 2}
+{"at": 1791218437.420345, "operation": ["exec", "a52a9e835051e0fd7cd7b63560a8401044d6609b6b496ca4e87144b17680659d"], "exit_code": 0}
+{"at": 1791218437.465077, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218437.5036829, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218437.5439248, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218465.474608, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218465.520686, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218465.5694547, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218465.6199532, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218466.8904443, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218466.9356182, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218467.021785, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218467.0575612, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218467.1012003, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218467.1345325, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218467.234992, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218467.2790787, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218468.3940122, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218468.7293906, "operation": ["rm", "--force"], "exit_code": 0}
+{"at": 1791218468.775614, "operation": ["inspect", "06e1720d84bf63f8ec063cab49bc233e341b072f3b9807e5d8a196a01d6ca5c2"], "exit_code": 1}
+{"at": 1791218468.8087385, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218469.130967, "operation": ["rm", "--force"], "exit_code": 0}
+{"at": 1791218469.1734147, "operation": ["inspect", "a52a9e835051e0fd7cd7b63560a8401044d6609b6b496ca4e87144b17680659d"], "exit_code": 1}
+{"at": 1791218469.210147, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218469.3176746, "operation": ["network", "rm"], "exit_code": 0}
+{"at": 1791218469.3557253, "operation": ["network", "inspect"], "exit_code": 1}
+{"at": 1791218469.399478, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218469.6962583, "operation": ["rm", "--force"], "exit_code": 0}
+{"at": 1791218469.7414796, "operation": ["inspect", "d675facf3a3f6217a67fd612ef1945656bed5348120ee6c821f36f55f16567c5"], "exit_code": 1}
+{"at": 1791218469.7776642, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218469.8672755, "operation": ["network", "rm"], "exit_code": 0}
+{"at": 1791218469.9026392, "operation": ["network", "inspect"], "exit_code": 1}
+{"at": 1791218469.944917, "operation": ["inspect", "--format"], "exit_code": 0}
+{"at": 1791218470.2868142, "operation": ["rm", "--force"], "exit_code": 0}
+{"at": 1791218470.3303506, "operation": ["inspect", "d1fd31ae2ca5f0297c41700f932c5a612147124f3cc69e06981d21a37905e28c"], "exit_code": 1}
+{"at": 1791218470.365729, "operation": ["network", "inspect"], "exit_code": 0}
+{"at": 1791218470.453359, "operation": ["network", "rm"], "exit_code": 0}
+{"at": 1791218470.4915323, "operation": ["network", "inspect"], "exit_code": 1}
