@@ -387,6 +387,9 @@ func DecodeMetadata(action Action, raw []byte) (Metadata, error) {
 	if ModelAction(action) {
 		return decodeModelMetadata(action, raw)
 	}
+	if KnowledgeAction(action) {
+		return decodeKnowledgeMetadata(action, raw)
+	}
 	allowed := map[string]bool{}
 	var names []string
 	switch action {

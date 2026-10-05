@@ -43,7 +43,7 @@ const (
 )
 
 func (a Action) Valid() bool {
-	if AccountAction(a) || ProjectAction(a) || ModelAction(a) {
+	if AccountAction(a) || ProjectAction(a) || ModelAction(a) || KnowledgeAction(a) {
 		return true
 	}
 	switch a {
@@ -86,6 +86,8 @@ func (k ResourceKind) Valid() bool {
 	case ProjectResource, ProjectOperationResource, ProjectCreationResource:
 		return true
 	case ModelProviderResource, ModelConfigResource, ModelSelectionResource:
+		return true
+	case KnowledgeDocumentResource:
 		return true
 	case UserResource, SessionResource, AccountAttemptResource, InvitationResource, PasswordResetResource, AccountSettingsResource, SMTPSettingsResource, MailJobResource:
 		return true
@@ -196,6 +198,11 @@ func NewEntry(f EntryFields) (Entry, error) {
 			return Entry{}, err
 		}
 	}
+	if KnowledgeAction(f.Action) {
+		if err := validateKnowledgeEntry(f); err != nil {
+			return Entry{}, err
+		}
+	}
 	switch f.Action {
 	case OutboxDeliveryRequeue:
 		if a.Kind != identity.Human || f.Outcome != Success || r.Kind != OutboxDeliveryResource || r.ID != f.Metadata.deliveryID() {
@@ -289,9 +296,12 @@ const (
 )
 
 func (p Producer) Valid() bool {
-	return p == ModelProducer || p == ProjectProducer || p == AccountProducer || p == AccountMailProducer || p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer || p == OutboxProducer
+	return p == KnowledgeProducer || p == ModelProducer || p == ProjectProducer || p == AccountProducer || p == AccountMailProducer || p == SecretProducer || p == MasterProducer || p == PolicyProducer || p == AccessProducer || p == ObjectProducer || p == ArtifactProducer || p == OutboxProducer
 }
 func ProducerFor(action Action) Producer {
+	if KnowledgeAction(action) {
+		return KnowledgeProducer
+	}
 	if ModelAction(action) {
 		return ModelProducer
 	}
@@ -331,7 +341,7 @@ type AppendKeyDetails struct {
 }
 
 func NewAppendKey(producer Producer, causeRef string, ordinal int64) (AppendKey, error) {
-	if !producer.Valid() || !identity.ValidCauseRef(causeRef) || ordinal < 0 {
+	if !producer.Valid() || !identity.ValidCauseRef(causeRef) || ordinal < 0 || producer == KnowledgeProducer && (ordinal != 0 || foundation.Digest(causeRef).Validate() != nil) {
 		return AppendKey{}, invalid("append_key")
 	}
 	d := AppendKeyDetails{producer, causeRef, ordinal}
