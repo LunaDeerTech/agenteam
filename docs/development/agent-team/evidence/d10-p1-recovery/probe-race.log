@@ -1,0 +1,18 @@
+=== RUN   TestRecoveryIndependentWireAndHeaderMutations
+    recovery_independent_test.go:117: rejected 912 independent one-bit local/central/EOCD mutations
+--- PASS: TestRecoveryIndependentWireAndHeaderMutations (0.17s)
+=== RUN   TestRecoveryOversizedActualDirectoryAndArchivePaths
+--- PASS: TestRecoveryOversizedActualDirectoryAndArchivePaths (0.08s)
+=== RUN   TestRecoveryExactLimitsPreservationAndCancellation
+--- PASS: TestRecoveryExactLimitsPreservationAndCancellation (1.07s)
+=== RUN   TestRecoveryOpaqueHandlesAndStrictManifest
+--- PASS: TestRecoveryOpaqueHandlesAndStrictManifest (0.01s)
+=== RUN   TestRecoveryMaximumCanonicalRoundTrip
+    recovery_independent_test.go:274: maximum: files=128 total=33554432 archive=33824294 build=664.313619ms parse=1.892692197s
+--- PASS: TestRecoveryMaximumCanonicalRoundTrip (3.06s)
+=== RUN   TestRecoveryReaderReadFinishesBeforeClose
+--- PASS: TestRecoveryReaderReadFinishesBeforeClose (0.02s)
+=== RUN   TestRecoveryReaderMismatchRetainsCallerOwnership
+--- PASS: TestRecoveryReaderMismatchRetainsCallerOwnership (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/skill	5.529s

@@ -6,6 +6,8 @@
 
 2026-10-05 中断恢复以 `main = origin/main = 8872110099c84cf0600bb5b62cdcd6c0c6c843e3` 为初始基线，工作区当时干净、无未推送提交。主线程已实际核对远端并建立同提交的本地 `main`；详细现存源码、缺失产物和下一步见[本次恢复记录](recovery-2026-10-05.md)。
 
+恢复文档、D08 恢复卡与独立核查的四份文档及19份证据已提交并成功推送 `a9cf0de222ce846f40784472e3d3dbce43a0d3e5`，主线程已确认远端同 SHA；不包含新业务实现。D10 P1 随后通过[本轮独立验收](d10-p1-recovery-verification.md)，D08 B03-R1 仍由作者实现、尚未验收。
+
 以下为恢复后的摘要。下文旧阶段中的 `d02_backend`、`d08_design`、`parallel_plan`、`d01_verify`、acceptance 等所有权及“正在实施”描述保留为当时历史，不表示旧实例仍在运行或旧未提交源码已恢复。旧 `/tmp` 证据没有随仓库恢复；历史局部通过不能证明当前缺失实现已存在。本次实际分工见[恢复记录的所有权表](recovery-2026-10-05.md#4-本次所有权与下一步)。
 
 | 工作项 | 当前进度 | 所有权与下一步 |
@@ -13,7 +15,7 @@
 | D07 | 当前范围已关闭，文档提交 `0ed8085`；历史失败与组合验收边界保留 | 无活动 D07 实现；后续 UI、WS、Project/Runner 绑定按责任模块推进 |
 | D08 | B01/B02、B03 C0 `16595ad`、PrepareRead 契约 `d2f46d6`、00014 独立迁移 `30f5c29` 的提交仍在；A/P 主体未整体采纳，旧未提交主体本次未恢复 | 从[恢复卡](../work-items/recovery-d08-b03.md)重新明确实现与验收范围；真实 stop、生命周期、Object/Secret fact checker、HTTP/app 和 D10 绑定仍未完成；资源由主线程重新分配 |
 | D09 | C0 `e6e94c4`、B01-K System 配置及 00015 已独立验收，Audit 六源 `26622bc`、System 二十九源 `543511c` 已推送 | 本块不含 Project 配置、Resolver/Usage、Provider 调用或根 HTTP；后续范围另派，D09 模块未完成 |
-| D10 | P1 真实 builtin/包载体 11 路径及两份文档已在 `8872110` 提交；旧主卡仍写待独立验收，本次独立结论尚待返回 | `skill_verification` 针对固定提交独立审查；提交存在不补造旧验收，生产初始化仍须真实 D08/D05、Object fact checker 与生命周期组合 |
+| D10 | P1 真实 builtin/包载体 11 路径及两份文档已在 `8872110` 提交，并通过本轮固定输入独立验收；[主卡 rev2](../work-items/d10-skills-initialization.md)仅同步状态 | `skill_verification` 已冻结报告及持久证据；Go unit/race/vet与7项独立race探针通过。生产初始化仍须真实D08/D05、Object fact checker与生命周期组合，D10模块未完成 |
 | D12 | B01 `914fd84`、正式 B02 卡及 C1 `71dc176`、C2 `f401c15`、C3 `231a384` 的提交仍在；Knowledge 主体未验收且本次未恢复 | 当前仅有 Knowledge contract 12 文件；B02 新领域 29 路径均缺，未编号 SQL 草案也未恢复。按真实上游与新文件所有权重新下发，不以共享口通过替代真实 Knowledge/A/P 组合 |
 
 ## AT-0001：建立串行开发团队与技能
@@ -902,3 +904,9 @@ A/P 均未整体采纳。Docker 由 acceptance 唯一调度并明确交接；Sec
 - 实际代码：D08 B01/B02、C0、PrepareRead 契约和 00014、D09 C0/System/00015、D12 B01/C1/C2/C3 均有已提交结果；D08 A/P stop/生命周期主体与 Object/Secret fact checker、D12 B02 新领域 29 路径均未恢复。00014 schema 存在不代表 stop runtime 存在。D10 P1 的 13 路径已在 `8872110` 提交，旧卡“待独立验收”与提交状态分开记录；本次独立结论尚待 `skill_verification` 返回。
 - 下一步：主线程已采纳新 [D08 B03 恢复卡](../work-items/recovery-d08-b03.md)的 B03-R1 不可变 adapter registry/精确版本恢复解析首块及独立静审结论，`d08_registry_backend` 已正式取得 `project/participants.go` 与 `participants_test.go` 两源写权并开始实现，尚未验收。`recovery_verification` 核环境与代码缺口，`restore_test_dependencies` 独占固定镜像/MinIO 源码与自有缓存恢复、不启动容器；真实 fixture 由主线程随后交接。D12 和各真实绑定按重新确定的依赖与所有权接续，不沿旧代理名自动恢复写权。
 - 本次文档执行者只写上述两份文档；58 个本地链接、9 个 fragment、7 张表及 UTF-8/LF/末尾换行/尾空格检查通过，限定 diff 与新增文件 whitespace 检查通过。未改开发计划、旧卡或代码，未运行产品测试或 Git 写操作。命令、最终文件指纹与限制见恢复记录；后续验收、实现和提交结果由主线程另行接续，不能预先标模块完成。
+
+### 恢复文档提交与 D10 P1 独立验收接续
+
+以上初核记录已随 `a9cf0de` 提交并成功推送，主线程实际确认远端为 `a9cf0de222ce846f40784472e3d3dbce43a0d3e5`。该提交精确包含恢复相关四文档和19份轻量证据；不包含 R1 新源码，也不以文档交付改变 D08 未完成状态。
+
+D10 P1 随后由未参与实现的 `skill_verification` 对固定 `8872110` 独立验收通过，[报告与持久证据](d10-p1-recovery-verification.md)记录Go1.27.1 unit/race各13顶层16子例、vet及7项独立race探针全部exit0；首次缓存缺失setup失败保留，恢复后通过。两份D10文档rev2仅同步状态，原作者历史和后段门槛不变；D10完整模块未完成，D08 B03-R1仍由作者实现、尚未验收。

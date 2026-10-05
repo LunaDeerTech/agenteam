@@ -1,0 +1,11 @@
+go: downloading golang.org/x/text v0.41.0
+# github.com/LunaDeerTech/agenteam/internal/central/skill
+internal/central/skill/contract/package.go:17:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/skill
+internal/central/skill/contract/package.go:18:2: module lookup disabled by GOPROXY=off
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/skill [setup failed]
+# github.com/LunaDeerTech/agenteam/internal/central/skill/contract
+internal/central/skill/contract/package.go:17:2: module lookup disabled by GOPROXY=off
+# github.com/LunaDeerTech/agenteam/internal/central/skill/contract
+internal/central/skill/contract/package.go:18:2: module lookup disabled by GOPROXY=off
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/skill/contract [setup failed]

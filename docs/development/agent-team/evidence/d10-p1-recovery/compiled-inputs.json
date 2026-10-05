@@ -1,0 +1,110 @@
+{
+  "github.com/LunaDeerTech/agenteam/internal/central/foundation": {
+    "cause.go": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+    "fault.go": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+    "id.go": "40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54",
+    "instant.go": "95a37fb81d71f90626a92bd3318d675d69b7750204c34bd54cc614332a951d47",
+    "integer.go": "6b415d63e04d63e46428bf3b19f545f5a289575c0f375192875a40405b39d215",
+    "lock.go": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+    "page.go": "3be782a4c61729a5a2b13e195e5653ad1070e883765035b5cbb1f4f9e85c3c52",
+    "scalar.go": "f8ab17246a3aab12b4dfe781283d3489d5b8ba7bbfb3ec7c13a48b38c1a51198",
+    "tx.go": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f"
+  },
+  "github.com/LunaDeerTech/agenteam/internal/central/identity/contract": {
+    "identity.go": "845794400c185b5f00ef673007661ec1382d19b54ec82329d565567daa073ef4"
+  },
+  "github.com/LunaDeerTech/agenteam/internal/central/object/contract": {
+    "access.go": "6257b7bb96b7f83c39b322c75a66ea66c4865194d4c637029c57a8b518a7f6a4",
+    "authority.go": "96e2e54596e7d9302a5733e3eeee746eaae5434b718d905703ca36055534fdfe",
+    "download.go": "8986309ca500a3c0df2f3f141357ef3c7e692edbc26e6d145fcb724f123fec17",
+    "download_cleanup.go": "3c08add16b506d64d2ecc4226581d3def2b27a9d0c797e6c44780865f51977c7",
+    "project_lifecycle.go": "91c600a0600f26d23570d73ab5ec47839e0e6e2c11338a75b950e9a94500fe0e",
+    "reference_cleanup.go": "4cc8aeff4d0278f64ef5d3cd2ea75a350314d89af02ad072bdf36c04b7f0b196",
+    "source.go": "444c04fc677d88d026a2211812757ce15108527786ea5ba0c874457c398d5e82",
+    "source_lease.go": "0669b5bd38d3cc9ff80d7af8519f36d66f76916ebb506775a7ad11e4c7c2fce3",
+    "transfer.go": "ce8169c2626e6e9a4879a34fcf74a42c2c1a1ba5b7226c69c7babdd34dbb2c31",
+    "transfer_authority.go": "3806be2183c1f7c299f30c27b7c9bf0db152b3400721d5e6165c8f6d82d5a05e",
+    "types.go": "9021d1aefe210a84677497e02297791b0eb980c30c8be4a2330e27198c24f194"
+  },
+  "github.com/LunaDeerTech/agenteam/internal/central/event/contract": {
+    "catalog.go": "55a5b24a36eec5409385a72f9be342d568eb8ca4651921bed4b25a13b2eb8742",
+    "codec.go": "40fdf79cae96194439adc5e84c047e78682d5b46f251d4ff3eacd19f1faf5a88",
+    "event.go": "0f1934a31b04706bead116552775c0b4e824dd6f3fc593f3a32808f3e22436ea"
+  },
+  "github.com/LunaDeerTech/agenteam/internal/central/project/contract": {
+    "commands.go": "30af1efac3ed5230ac06b1795e086fcf21840246243e293bcd46bbea335886fa",
+    "events.go": "ea9303956127b0734583b1f5e0c0ef4f7b3649d8bf1f843df0b0b7cf0973b07e",
+    "initialization.go": "0ed3217342ee10f3f0406f0576b0c63d4cac32c060da3b6c0bb9c62ee80303ee",
+    "lifecycle.go": "5b74f0a959bbcffde811b11d207f9ed6928bded9d51c965772d34763520ddea6",
+    "types.go": "7465815c5da4e1bf24b6958d1aa1c93959ffece4256883bd343199c3ed9cfbf1",
+    "validation.go": "73db8aeb4db685433279cdeeb119fe12a231d7193d9b93e97305b7f30445c64b"
+  },
+  "golang.org/x/text/internal/tag": {
+    "tag.go": "97a27a6bfdd26d872e07d051fc27e622e1cd764943350e8bfa9cf0e2e13cc474"
+  },
+  "golang.org/x/text/internal/language": {
+    "common.go": "68089abad3eed7b2559bb97510355e900a6ef2e1fac7ff89364bda9c50a2acba",
+    "compact.go": "2d121c703729c5fbd5f3f13fd568af142ca8fde0f01a07e1874df22dbaadde98",
+    "compose.go": "7657b95eac8448d5d2273c048d316dde3ac0e49ac058487a69b2b990ebc7f8ef",
+    "coverage.go": "8c8238012deb1b3c42820c755343db1bc326dc5cbddfcc24f97abbb7e0c6cee1",
+    "language.go": "19a0ccf7635fd3dbad3766d953996df5d1c24a367e44c49200ab6ec3023fc871",
+    "lookup.go": "8f0ac8780f89d5c2b29b98fd599269b445d7bb612a7948c9e97d425424b5ea38",
+    "match.go": "711e9c548516929762f0636a69788ba6eed6ed10bfb47634f3b5d5a1f26a1547",
+    "parse.go": "0c884b51bb83d3633a51f16e90c7dbaf45c301a449e366df591eda11a3000972",
+    "tables.go": "876a73fb8b8fffd239efa592ffdf903c25757b4d17b715fc80d7aee8db2b985e",
+    "tags.go": "21041c1c1982b12db6f523a4feb58746dac3e2c71e8dcf9f76ac5807cd809099"
+  },
+  "golang.org/x/text/internal/language/compact": {
+    "compact.go": "e154aa511d328fd47a9c9fc1115d9c92be2d385e885ae65c5e348ec1d5844ead",
+    "language.go": "1d49845ec8c93b000391718e3127c0979c054186570805fce27f7fe167ad2c5d",
+    "parents.go": "57dc7b46cb5b6df81ed5764b338e1b463c183e3561427307c9d25fa876d9bdc7",
+    "tables.go": "99415fb6642ebd291f825497d32e70ae32da8569815d8f4ef587664c6c5ce7d5",
+    "tags.go": "e6f98b11ee9c2d5d4d51a5d810d4ea2eff0872a8d11b962979744899e020e12c"
+  },
+  "golang.org/x/text/language": {
+    "coverage.go": "d12716948854471a3536a04dc48736b0db0318ea6df61db236bc4ee0fe725375",
+    "doc.go": "4b97559b103832f3c5f22e80f2df0dd7394a469d945f79afad1654eb179fa63b",
+    "language.go": "3f2032f0367d83fb14772384d47119d27c2c427b277aa0a02913db59abe32bb0",
+    "match.go": "b8a6b973391cba46899d079173cf0b1d3064f28bb79a11c3fdc65c089cbe23d3",
+    "parse.go": "3552f8fba45f310216182d167ba1da8e0c02212ad1896eeb66b194dd546b7bc2",
+    "tables.go": "cb3c6aa474902c2728c47bcdebd5fcac0c6aa0f7e29934e984d46434c98ce716",
+    "tags.go": "247c5ce419821c135a2751029c078cc6e1472c9896dd581d67a277449e54d968"
+  },
+  "golang.org/x/text/internal": {
+    "internal.go": "cf0cafa0e1c996fedce38d955344a905cfd62711efa78e9d90d615d738e084fe",
+    "match.go": "44fba33275128b0a885cb737eee4765567a35a1d2656de873680534bb37f7243"
+  },
+  "golang.org/x/text/transform": {
+    "transform.go": "7716301e210f42b764ec78f4adffb05075f1d5103446a40b8a38043f5a7abd88"
+  },
+  "golang.org/x/text/unicode/norm": {
+    "composition.go": "3d1be52960f2693926472819b747646e7d2371d2bb5f53097cf9d46c913052df",
+    "forminfo.go": "844dadc7a0dc991a4b87a195699476a90655292d302abe2d2f7ddff5968f74bc",
+    "input.go": "965b431790bb139543d71a9c497920ef7d9a15af417456a2bbd0cdb629330e8d",
+    "iter.go": "4d580123776d78ff862131bd8c99fa5758f3cb70530619edc80ed4ee173cd83a",
+    "normalize.go": "9e4fdc543d3b7aabf046ead80f2ef60746f579a7a4691c3c7d6bf69f4c4fa713",
+    "readwriter.go": "d600d1f6cff2536dbb49a0f6bb8c06f6fc05f2754dad2dc05f1d44f9e8e48a35",
+    "tables17.0.0.go": "26784025eb1881a4452f101a7ef34b33c8ca02bd0603bfec41d2c823494ff7cb",
+    "transform.go": "6f8014595643e2acae76d47ed6abe8ace969a0c9070dbfa5a89c86bebcec812d",
+    "trie.go": "d87793d558251ee8824954f0b7bc5564803e4c9d59a8c4eebb4c3c5cfbd19492"
+  },
+  "golang.org/x/text/cases": {
+    "cases.go": "052af64ba88e6e5275195a544c59d14de78cdc3a659e2f4be4c7070d929b376f",
+    "context.go": "dd93d0dfbbc4513731b6ba5f865d7e7022e237fcbdac405a38981df53fa77f4e",
+    "fold.go": "14ff03fda441587198ce6f3e59e6dde979fc21b2db9e248c15b43da497c594ac",
+    "info.go": "282c97fc424f7cdbcc817d06b2ef34d53d8404a803087a08b9d7d31f65c9dabe",
+    "map.go": "2e7f128e208198348b041d4e32f5bad8884ea5246a0d24fdcb8c02f06391cbe6",
+    "tables17.0.0.go": "1298c8c19141f894f8b6ab79c23b7e31df554bf14492d1dae3d279f6d4a37419",
+    "trieval.go": "d4c24dfd1a49e8f9a1110c6a93da7aee4366671d8f15614617d1d57962505e8b"
+  },
+  "github.com/LunaDeerTech/agenteam/internal/central/skill/contract": {
+    "package.go": "15360c26f79ec5c5a4ae877eeef367a251afaa1d6240ad88e76d65b05cb11519",
+    "read.go": "d90dde0edfdaae9ae34dfe3c580f46aa12020def0f38ce6b59a718471e563460",
+    "types.go": "64f60865bdacf61b0244f0e880534c7e3884d2900ab826cdcc34fad6de496c33"
+  },
+  "github.com/LunaDeerTech/agenteam/internal/central/skill": {
+    "builtin.go": "07f8b9d09e7b525c3b419b88b796a4e1d7dd7a950baf10737a00d717c08cfdde",
+    "builtin/add-skills/v1/SKILL.md": "a5f2416d9531ca0d450d97fd9d7064187c3d865573b9b20d874d146f1ee9663d",
+    "package.go": "a530b35597feb11f317dc76df3264d4b50239a0c8f92f7962c1bef25a656f34c"
+  }
+}

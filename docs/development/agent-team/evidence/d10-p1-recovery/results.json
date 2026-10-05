@@ -1,0 +1,109 @@
+{
+  "fixed_commit": "8872110099c84cf0600bb5b62cdcd6c0c6c843e3",
+  "completion_head": "a9cf0de222ce846f40784472e3d3dbce43a0d3e5",
+  "cwd": "/workspace/agenteam",
+  "go_version": "go version go1.27.1 linux/amd64",
+  "CGO_ENABLED": "1",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOMODCACHE": "/tmp/agenteam-d10-p1-recovery-r53114d7/modcache",
+    "GOCACHE": "/tmp/agenteam-d10-p1-recovery-r53114d7/cache",
+    "GOTMPDIR": "/tmp/agenteam-d10-p1-recovery-r53114d7/tmp",
+    "GOPROXY": "off",
+    "GOSUMDB": "off"
+  },
+  "commands": [
+    {
+      "name": "unit",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-count=1",
+        "-json",
+        "./internal/central/skill/..."
+      ],
+      "exit": 0,
+      "original_log": "/tmp/agenteam-d10-p1-recovery-r53114d7/unit-current.jsonl",
+      "original_log_sha256": "d03f74770ee7fa3b92ac8ed7b2712b408ccb61306f95643ea33653a440c44c0e",
+      "preserved_output_log": "unit.log",
+      "preserved_output_log_sha256": "5935c024f31ac2a42357b91d68f38f21eae8a84037fecad61c32145e746ade76"
+    },
+    {
+      "name": "race",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "-json",
+        "./internal/central/skill/..."
+      ],
+      "exit": 0,
+      "original_log": "/tmp/agenteam-d10-p1-recovery-r53114d7/race-current.jsonl",
+      "original_log_sha256": "7a0c250ed4676d752b873d0df4ab0b026df235ed50ac8921e2a4dff3ee174917",
+      "preserved_output_log": "race.log",
+      "preserved_output_log_sha256": "903c8f827df938f65ffb1df07d283267799d51a2340907a3a3d7ad0bce831fce"
+    },
+    {
+      "name": "vet",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "./internal/central/skill/..."
+      ],
+      "exit": 0,
+      "original_log": "/tmp/agenteam-d10-p1-recovery-r53114d7/vet.log",
+      "original_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "preserved_output_log": "vet.log",
+      "preserved_output_log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "probe-race",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-overlay=/tmp/agenteam-d10-p1-recovery-r53114d7/overlay.json",
+        "-race",
+        "-count=1",
+        "-json",
+        "-run",
+        "^TestRecovery",
+        "./internal/central/skill"
+      ],
+      "exit": 0,
+      "original_log": "/tmp/agenteam-d10-p1-recovery-r53114d7/probes-final-race.jsonl",
+      "original_log_sha256": "a94ba573af477ef15ffdec4f0b20e00f34044999545b6bca590691968dd5b930",
+      "preserved_output_log": "probe-race.log",
+      "preserved_output_log_sha256": "f4c95317609a9931ff14b21b71c18a92beb8a17b7e6d30ffa6fdab1f95357e29"
+    }
+  ],
+  "initial_environment_failure": {
+    "exit": 1,
+    "cause": "Pinned golang.org/x/text v0.41.0 was absent from the default module cache while GOPROXY=off; neither package reached tests.",
+    "preserved_log": "initial-setup-failure.log",
+    "original_log_sha256": "c39235eba0e1a913f1f1c8dd0d8b77f7aa11b4ae50232171cc6db60c2d470f86"
+  },
+  "dependency_recovery": {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "mod",
+      "download",
+      "-json",
+      "golang.org/x/text@v0.41.0"
+    ],
+    "GOPROXY": "https://proxy.golang.org",
+    "GOSUMDB": "sum.golang.org",
+    "exit": 0,
+    "evidence": "dependency.json"
+  },
+  "final_compiled_repository_sources_match_fixed_commit": true,
+  "owned_running_tool_or_test_pids": [],
+  "probe_sha256": "e360642615f5e614e85e23d2dddbb1c32d77516f5972b96bfa8575c04f571602",
+  "counts": {
+    "unit_top_level": 13,
+    "unit_subtest": 16,
+    "race_top_level": 13,
+    "race_subtest": 16,
+    "independent_probe_top_level": 7
+  }
+}

@@ -1,0 +1,405 @@
+package skill_test
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/binary"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"hash/crc32"
+	"io"
+	"log/slog"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	skill "github.com/LunaDeerTech/agenteam/internal/central/skill"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/skill/contract"
+)
+
+const probeEntry = "---\nname: Independent Probe\ndescription: Independent verification of a pure package.\n---\nprivate-probe-body\n"
+
+// This encoder uses the frozen ZIP wire fields directly, without archive/zip or
+// BuildPackage. It deliberately also permits malformed names and file sets.
+func probeArchive(files []sc.TextFile) []byte {
+	var local, central bytes.Buffer
+	u16 := func(b *bytes.Buffer, v uint16) { _ = binary.Write(b, binary.LittleEndian, v) }
+	u32 := func(b *bytes.Buffer, v uint32) { _ = binary.Write(b, binary.LittleEndian, v) }
+	for _, file := range files {
+		offset := uint32(local.Len())
+		size := uint32(len(file.UTF8Text))
+		crc := crc32.ChecksumIEEE([]byte(file.UTF8Text))
+		u32(&local, 0x04034b50)
+		for _, n := range []uint16{20, 0x800, 0, 0, 33} {
+			u16(&local, n)
+		}
+		for _, n := range []uint32{crc, size, size} {
+			u32(&local, n)
+		}
+		u16(&local, uint16(len(file.Path)))
+		u16(&local, 0)
+		local.WriteString(file.Path)
+		local.WriteString(file.UTF8Text)
+		u32(&central, 0x02014b50)
+		for _, n := range []uint16{3<<8 | 20, 20, 0x800, 0, 0, 33} {
+			u16(&central, n)
+		}
+		for _, n := range []uint32{crc, size, size} {
+			u32(&central, n)
+		}
+		for _, n := range []uint16{uint16(len(file.Path)), 0, 0, 0, 0} {
+			u16(&central, n)
+		}
+		u32(&central, 0100644<<16)
+		u32(&central, offset)
+		central.WriteString(file.Path)
+	}
+	offset, size := uint32(local.Len()), uint32(central.Len())
+	local.Write(central.Bytes())
+	u32(&local, 0x06054b50)
+	for _, n := range []uint16{0, 0, uint16(len(files)), uint16(len(files))} {
+		u16(&local, n)
+	}
+	u32(&local, size)
+	u32(&local, offset)
+	u16(&local, 0)
+	return local.Bytes()
+}
+
+func TestRecoveryIndependentWireAndHeaderMutations(t *testing.T) {
+	files := []sc.TextFile{{Path: sc.EntryPath, UTF8Text: probeEntry}}
+	raw := probeArchive(files)
+	p, err := skill.ParseCanonicalPackage(context.Background(), raw)
+	if err != nil {
+		t.Fatal("independent canonical wire rejected", err)
+	}
+	in, err := sc.NewTextFiles(files)
+	if err != nil {
+		t.Fatal(err)
+	}
+	built, err := skill.BuildPackage(context.Background(), in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got, _ := built.Bytes()
+	if !bytes.Equal(got, raw) {
+		t.Fatal("wire encoder disagrees")
+	}
+	h := sha256.Sum256(raw)
+	digest, _ := p.Digest()
+	if digest != f.Digest("sha256:"+hex.EncodeToString(h[:])) {
+		t.Fatal("digest mismatch")
+	}
+	central := 30 + len(sc.EntryPath) + len(probeEntry)
+	mutations := 0
+	for pos := range raw {
+		if pos >= 30+len(sc.EntryPath) && pos < central {
+			continue
+		}
+		for bit := 0; bit < 8; bit++ {
+			bad := bytes.Clone(raw)
+			bad[pos] ^= byte(1 << bit)
+			if _, err := skill.ParseCanonicalPackage(context.Background(), bad); err == nil {
+				t.Fatalf("accepted header mutation byte=%d bit=%d", pos, bit)
+			}
+			mutations++
+		}
+	}
+	t.Logf("rejected %d independent one-bit local/central/EOCD mutations", mutations)
+}
+
+func TestRecoveryOversizedActualDirectoryAndArchivePaths(t *testing.T) {
+	base := probeArchive([]sc.TextFile{{Path: sc.EntryPath, UTF8Text: probeEntry}})
+	start := int(binary.LittleEndian.Uint32(base[len(base)-6:]))
+	record := base[start : len(base)-22]
+	for _, actual := range []int{129, 65537} {
+		bad := append(bytes.Clone(base[:start]), bytes.Repeat(record, actual)...)
+		end := bytes.Clone(base[len(base)-22:])
+		binary.LittleEndian.PutUint16(end[8:], 1)
+		binary.LittleEndian.PutUint16(end[10:], 1)
+		binary.LittleEndian.PutUint32(end[12:], uint32(len(record)*actual))
+		bad = append(bad, end...)
+		if len(bad) >= sc.MaxArchiveBytes {
+			t.Fatal("test did not reach directory guard")
+		}
+		if _, err := skill.ParseCanonicalPackage(context.Background(), bad); err == nil {
+			t.Fatalf("accepted %d actual records with count=1", actual)
+		}
+	}
+	for _, paths := range [][]string{{"A", "a"}, {"café", "cafe\u0301"}, {"Straße", "STRASSE"}, {"A", "a/b"}, {"../escape"}, {"a//b"}, {"C:/escape"}, {"a\\b"}, {"\xff"}} {
+		files := []sc.TextFile{{Path: sc.EntryPath, UTF8Text: probeEntry}}
+		for _, name := range paths {
+			files = append(files, sc.TextFile{Path: name, UTF8Text: "x"})
+		}
+		if _, err := skill.ParseCanonicalPackage(context.Background(), probeArchive(files)); err == nil {
+			t.Fatalf("accepted malformed paths %q", paths)
+		}
+	}
+}
+
+func TestRecoveryExactLimitsPreservationAndCancellation(t *testing.T) {
+	entry := probeEntry + strings.Repeat("x", sc.MaxEntryBytes-len(probeEntry))
+	files := []sc.TextFile{{Path: sc.EntryPath, UTF8Text: entry}, {Path: "a", UTF8Text: strings.Repeat("x", sc.MaxFileBytes)}, {Path: "b", UTF8Text: strings.Repeat("x", sc.MaxFileBytes)}, {Path: "c", UTF8Text: strings.Repeat("x", sc.MaxFileBytes)}, {Path: "d", UTF8Text: strings.Repeat("x", sc.MaxFileBytes-sc.MaxEntryBytes)}}
+	in, err := sc.NewTextFiles(files)
+	if err != nil {
+		t.Fatal("exact 32 MiB / 8 MiB / 256 KiB limits rejected", err)
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	timer := time.AfterFunc(time.Millisecond, cancel)
+	defer timer.Stop()
+	defer cancel()
+	p, err := skill.BuildPackage(ctx, in)
+	if !errors.Is(err, context.Canceled) || p.Validate() == nil {
+		t.Fatal("in-flight cancellation yielded package", err)
+	}
+	files[4].UTF8Text += "x"
+	if _, err := sc.NewTextFiles(files); err == nil {
+		t.Fatal("32 MiB + 1 accepted")
+	}
+	path := "refs/" + strings.Repeat("x", sc.MaxPathBytes-len("refs/"))
+	files = []sc.TextFile{{Path: sc.EntryPath, UTF8Text: probeEntry}, {Path: path, UTF8Text: ""}, {Path: "cafe\u0301.txt", UTF8Text: "e\u0301\nno-final-newline"}}
+	in, err = sc.NewTextFiles(files)
+	if err != nil {
+		t.Fatal("exact path length rejected", err)
+	}
+	p, err = skill.BuildPackage(context.Background(), in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	raw, _ := p.Bytes()
+	if !bytes.Contains(raw, []byte(files[2].Path)) || !bytes.Contains(raw, []byte(files[2].UTF8Text)) {
+		t.Fatal("rewrote UTF-8 or final byte")
+	}
+	if _, err = skill.ParseCanonicalPackage(context.Background(), raw); err != nil {
+		t.Fatal(err)
+	}
+	ctx, cancelDeadline := context.WithDeadline(context.Background(), time.Unix(1, 0))
+	defer cancelDeadline()
+	if _, err = skill.ParseCanonicalPackage(ctx, raw); !errors.Is(err, context.DeadlineExceeded) {
+		t.Fatal("lost caller deadline", err)
+	}
+}
+
+func TestRecoveryOpaqueHandlesAndStrictManifest(t *testing.T) {
+	in, _ := sc.NewTextFiles([]sc.TextFile{{Path: sc.EntryPath, UTF8Text: probeEntry}})
+	p, err := skill.BuildPackage(context.Background(), in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	m, _ := p.Manifest()
+	original, _ := m.Digest()
+	details, _ := m.Details()
+	details.Files[0].Path = "changed"
+	details, _ = m.Details()
+	if details.Files[0].Path != sc.EntryPath {
+		t.Fatal("manifest alias")
+	}
+	raw, _ := json.Marshal(m)
+	for _, bad := range []string{strings.Replace(string(raw), `"files":`, `"files":null,"files":`, 1), strings.Replace(string(raw), `"path":`, `"Path":`, 1), strings.Replace(string(raw), `"sha256":`, `"unknown":`, 1), strings.Replace(string(raw), `"byte_size":"`, `"byte_size":"0`, 1), string(raw) + `{}`} {
+		if _, err := sc.DecodeManifest([]byte(bad)); err == nil {
+			t.Fatal("non-strict manifest accepted", bad)
+		}
+	}
+	if json.Unmarshal(raw, &m) == nil {
+		t.Fatal("generic JSON overwrote handle")
+	}
+	after, _ := m.Digest()
+	if original != after {
+		t.Fatal("failed decode changed handle")
+	}
+	b, err := skill.AddSkills(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, v := range []any{in, p, b} {
+		wire, err := json.Marshal(v)
+		if err != nil {
+			t.Fatal(err)
+		}
+		var logs bytes.Buffer
+		slog.New(slog.NewJSONHandler(&logs, nil)).Info("probe", "value", v)
+		all := string(wire) + fmt.Sprintf("%v %+v %#v", v, v, v) + logs.String()
+		if strings.Contains(all, "private-probe-body") || strings.Contains(all, "This guide grants") {
+			t.Fatal("automatic projection leaked body")
+		}
+	}
+}
+
+func TestRecoveryMaximumCanonicalRoundTrip(t *testing.T) {
+	files := []sc.TextFile{{Path: sc.EntryPath, UTF8Text: probeEntry}}
+	remaining := sc.MaxTotalBytes - len(probeEntry)
+	for i := 1; i < sc.MaxFiles; i++ {
+		size := min(remaining, sc.MaxFileBytes)
+		name := fmt.Sprintf("r/%03d/", i)
+		name += strings.Repeat("x", sc.MaxPathBytes-len(name))
+		files = append(files, sc.TextFile{Path: name, UTF8Text: strings.Repeat("x", size)})
+		remaining -= size
+	}
+	in, err := sc.NewTextFiles(files)
+	if err != nil || remaining != 0 {
+		t.Fatal("maximum valid input", err, remaining)
+	}
+	start := time.Now()
+	p, err := skill.BuildPackage(context.Background(), in)
+	if err != nil {
+		t.Fatal("maximum canonical build", err)
+	}
+	buildElapsed := time.Since(start)
+	raw, _ := p.Bytes()
+	start = time.Now()
+	parsed, err := skill.ParseCanonicalPackage(context.Background(), raw)
+	if err != nil {
+		t.Fatal("maximum canonical parse", err)
+	}
+	parseElapsed := time.Since(start)
+	digest, _ := p.Digest()
+	other, _ := parsed.Digest()
+	if digest != other {
+		t.Fatal("maximum roundtrip digest mismatch")
+	}
+	m, _ := parsed.Manifest()
+	details, _ := m.Details()
+	if len(details.Files) != sc.MaxFiles {
+		t.Fatal("maximum file count changed")
+	}
+	t.Logf("maximum: files=%d total=%d archive=%d build=%s parse=%s", len(files), sc.MaxTotalBytes, len(raw), buildElapsed, parseElapsed)
+}
+
+func probeRevision(t *testing.T) sc.RevisionMetadata {
+	t.Helper()
+	project, _ := f.ParseID[id.Project]("01900000-0000-7000-8000-000000000001")
+	skillID, _ := f.ParseID[pc.Skill]("01900000-0000-7000-8000-000000000002")
+	revision, _ := f.ParseID[sc.Revision]("01900000-0000-7000-8000-000000000003")
+	object, _ := f.ParseID[oc.StoredObject]("01900000-0000-7000-8000-000000000004")
+	scope, _ := id.InProject(project)
+	now, _ := f.NewInstant(time.Unix(1700000000, 0))
+	in, _ := sc.NewTextFiles([]sc.TextFile{{Path: sc.EntryPath, UTF8Text: probeEntry}})
+	p, err := skill.BuildPackage(context.Background(), in)
+	if err != nil {
+		t.Fatal(err)
+	}
+	manifest, _ := p.Manifest()
+	digest, _ := p.Digest()
+	size, _ := p.Size()
+	v, err := sc.NewRevisionMetadata(sc.RevisionMetadata{ID: revision, SkillID: skillID, ProjectID: project, Revision: 1, Name: "Independent Probe", Description: "Independent verification of a pure package.", EntryPath: sc.EntryPath, Object: oc.ObjectMeta{ID: object, Scope: scope, MediaType: sc.PackageMediaType, ByteSize: size, SHA256: digest, State: oc.Available, Version: 1, CreatedAt: now}, Manifest: manifest, PackageSHA256: digest, PublishedAt: now})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return v
+}
+
+type probeBody struct {
+	readEntered, closeEntered, readRelease, closeRelease chan struct{}
+	readOnce                                             sync.Once
+	reads, closes                                        atomic.Int32
+	closeError                                           error
+}
+
+func newProbeBody() *probeBody {
+	return &probeBody{readEntered: make(chan struct{}), closeEntered: make(chan struct{}), readRelease: make(chan struct{}), closeRelease: make(chan struct{}), closeError: errors.New("independent close error")}
+}
+func (b *probeBody) Read([]byte) (int, error) {
+	b.reads.Add(1)
+	b.readOnce.Do(func() { close(b.readEntered) })
+	<-b.readRelease
+	return 0, io.EOF
+}
+func (b *probeBody) Close() error {
+	b.closes.Add(1)
+	close(b.closeEntered)
+	<-b.closeRelease
+	return b.closeError
+}
+func probeWait(t *testing.T, ch <-chan struct{}) {
+	t.Helper()
+	select {
+	case <-ch:
+	case <-time.After(3 * time.Second):
+		t.Fatal("independent barrier timeout")
+	}
+}
+
+func TestRecoveryReaderReadFinishesBeforeClose(t *testing.T) {
+	for iteration := 0; iteration < 40; iteration++ {
+		meta := probeRevision(t)
+		body := newProbeBody()
+		object, _ := oc.NewObjectReader(meta.Object, nil, body)
+		r, err := sc.NewPackageReader(meta, object)
+		if err != nil {
+			t.Fatal(err)
+		}
+		copyOfReader := *r
+		firstDone := make(chan struct{})
+		go func() { _, _ = r.Read(nil); close(firstDone) }()
+		probeWait(t, body.readEntered)
+		var readers sync.WaitGroup
+		for i := 0; i < 16; i++ {
+			readers.Add(1)
+			go func() { defer readers.Done(); _, _ = copyOfReader.Read(nil) }()
+		}
+		closeDone := make(chan struct{})
+		go func() {
+			if !errors.Is(r.Close(), body.closeError) {
+				t.Error("close error changed")
+			}
+			close(closeDone)
+		}()
+		probeWait(t, body.closeEntered)
+		close(body.readRelease)
+		probeWait(t, firstDone)
+		readers.Wait()
+		if r.Joined() || copyOfReader.Joined() {
+			t.Fatal("joined before actual Close returned")
+		}
+		if body.reads.Load() != 1 {
+			t.Fatal("admitted simultaneous body reads or reopened closed gate")
+		}
+		close(body.closeRelease)
+		probeWait(t, closeDone)
+		if !r.Joined() || !copyOfReader.Joined() {
+			t.Fatal("copied handle lost shared completion")
+		}
+		if !errors.Is(copyOfReader.Close(), body.closeError) || body.closes.Load() != 1 {
+			t.Fatal("Close was repeated")
+		}
+	}
+}
+
+func TestRecoveryReaderMismatchRetainsCallerOwnership(t *testing.T) {
+	meta := probeRevision(t)
+	for _, mutate := range []func(*oc.ObjectMeta){
+		func(m *oc.ObjectMeta) { m.ID, _ = f.ParseID[oc.StoredObject]("01900000-0000-7000-8000-000000000005") },
+		func(m *oc.ObjectMeta) {
+			other, _ := f.ParseID[id.Project]("01900000-0000-7000-8000-000000000006")
+			m.Scope, _ = id.InProject(other)
+		},
+		func(m *oc.ObjectMeta) { m.MediaType = "text/plain" },
+		func(m *oc.ObjectMeta) { m.ByteSize++ },
+		func(m *oc.ObjectMeta) { m.SHA256 = f.Digest("sha256:" + strings.Repeat("2", 64)) },
+		func(m *oc.ObjectMeta) { m.Version++ },
+		func(m *oc.ObjectMeta) { m.CreatedAt, _ = f.NewInstant(m.CreatedAt.Time().Add(time.Second)) },
+	} {
+		other := meta.Object
+		mutate(&other)
+		body := newProbeBody()
+		object, err := oc.NewObjectReader(other, nil, body)
+		if err != nil {
+			t.Fatal("bad mismatch fixture", err)
+		}
+		if _, err = sc.NewPackageReader(meta, object); err == nil {
+			t.Fatal("accepted mismatched object")
+		}
+		if body.reads.Load() != 0 || body.closes.Load() != 0 {
+			t.Fatal("failed constructor took body ownership")
+		}
+	}
+}

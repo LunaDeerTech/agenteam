@@ -1,0 +1,62 @@
+=== RUN   TestAddSkillsRealPinnedBundle
+--- PASS: TestAddSkillsRealPinnedBundle (0.00s)
+=== RUN   TestAddSkillsConcurrentReadsAreIndependent
+--- PASS: TestAddSkillsConcurrentReadsAreIndependent (0.00s)
+=== RUN   TestCanonicalPackageDeterminismAndExactContent
+--- PASS: TestCanonicalPackageDeterminismAndExactContent (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/prefix
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/prefix (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/concat
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/concat (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/crc
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/crc (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/local-name
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/local-name (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/declared-size
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/declared-size (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/truncated
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/truncated (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/tail
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/tail (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/device
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/device (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/extra
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/extra (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/comment
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/comment (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/escape
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/escape (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/directory
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/directory (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/symlink
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/symlink (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/date
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/date (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/flags
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/flags (0.00s)
+=== RUN   TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/deflate
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers/deflate (0.00s)
+--- PASS: TestCanonicalPackageRejectsNoncanonicalAndCorruptContainers (0.00s)
+=== RUN   TestPackageCancellationAndZeroHandles
+--- PASS: TestPackageCancellationAndZeroHandles (0.00s)
+=== RUN   TestCanonicalDirectoryCountIsBoundedBeforeZIPReader
+--- PASS: TestCanonicalDirectoryCountIsBoundedBeforeZIPReader (0.00s)
+PASS
+=== RUN   TestTextFilesRejectUnsafePathsAndCollisions
+--- PASS: TestTextFilesRejectUnsafePathsAndCollisions (0.00s)
+=== RUN   TestTextFilesContentAndLimits
+--- PASS: TestTextFilesContentAndLimits (0.17s)
+=== RUN   TestManifestImmutableAndStrictRepositoryDecode
+--- PASS: TestManifestImmutableAndStrictRepositoryDecode (0.00s)
+=== RUN   TestPackageReaderActualReadAndCloseJoin
+--- PASS: TestPackageReaderActualReadAndCloseJoin (0.00s)
+=== RUN   TestPackageReaderRejectsMismatchAndCannotClaimPanickedClose
+--- PASS: TestPackageReaderRejectsMismatchAndCannotClaimPanickedClose (0.00s)
+=== RUN   TestMetadataShapeAndExactStrings
+--- PASS: TestMetadataShapeAndExactStrings (0.01s)
+=== RUN   TestRevisionMetadataExactObjectBinding
+--- PASS: TestRevisionMetadataExactObjectBinding (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/skill	1.016s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/skill/contract	1.195s

@@ -1,6 +1,8 @@
 # D10 Skills 初始化与内容规格
 
-状态：rev1，S01 主卡已独立审查并采纳；当前仅 [主卡](d10-skills-initialization.md) P1 纯块获实现授权。§§1–8 保留完整后段目标与未实现前置；不能把工程规格当真实业务验收。S01 固定基线 `71dc17671631632bb26e251ad8491e74092ac975`，P1 实现基线 `f401c15a5187690889eaea9ba9672ca8bdc85460`。
+状态：rev2，2026-10-05 仅同步 P1 提交与验收进度，正式契约与后段门槛不变。S01 主卡已独立审查并采纳；[主卡](d10-skills-initialization.md) P1 纯块已提交 `8872110099c84cf0600bb5b62cdcd6c0c6c843e3`，并通过[本轮独立验收](../agent-team/d10-p1-recovery-verification.md)。§§1–8 保留完整后段目标与未实现前置；不能把 P1 通过扩为真实初始化链路完成。S01 固定基线 `71dc17671631632bb26e251ad8491e74092ac975`，P1 原实现基线 `f401c15a5187690889eaea9ba9672ca8bdc85460`；本次独立输入为 `8872110` 的源码及 rev1 规格。
+
+§2 的上游状态及 §7 的候选路径保留原 S01 输入；旧 P r4/A 冻结首段和 `/tmp` 草案不是本轮已恢复实现，现存范围见[恢复记录](../agent-team/recovery-2026-10-05.md#3-未恢复的实现与临时证据)。后段仍须逐项授权、实现和验收。
 
 ## 1. 完整结果与边界
 
@@ -73,7 +75,7 @@ Start/Check/停止复用现root共享30s启动、2s健康round及同一停机dea
 
 ## 7. 候选文件所有权 / 分阶段完整结果
 
-独立可先行：`internal/central/skill/contract/{types,package,read}.go`及各同名test；`skill/{builtin,package}.go`及同名test；`skill/builtin/add-skills/v1/SKILL.md`。真实body+纯规则是可审结果，仍不解除生产unbound。
+P1 已提交并通过本轮独立验收的范围：`internal/central/skill/contract/{types,package,read}.go`及各同名test；`skill/{builtin,package}.go`及同名test；`skill/builtin/add-skills/v1/SKILL.md`。真实body+纯规则通过仍不解除生产unbound，实际验证与限制见[主卡记录](d10-skills-initialization.md#p1-本轮独立验收)。
 
 完整库候选新源：`skill/{service,store,initialization,object_authority,audit_authority,read,recovery,lifecycle,runtime}.go`及同名适用test；`tests/skills/{fixture,initialization,recovery,authorization,lifecycle}_test.go`。`skill/contract`只发实现真正消费的口，不提前生成Agent/Tool空实现。
 
