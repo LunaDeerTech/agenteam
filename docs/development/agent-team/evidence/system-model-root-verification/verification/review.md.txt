@@ -1,0 +1,42 @@
+# System Model 默认根独立验收
+
+**PASS。建议采纳固定 candidate02 的六个源码/测试文件；无待修业务阻断。两份能力文档仍为旧字节，采纳后的状态归位应限定于本次已验能力。**
+
+固定基线 `ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7`，规格 `2eb1e633f604aa3078db156c5d5b1a65ab08c2c3`。作者 candidate02 manifest：`8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab`；三生产始终是 production-review-01（manifest `b0b89ce3e899563db1ec52c8094c3c89189aea511255543fe3a7424845c1f38f`）。所有审查仅读停止写入的副本，没有读取活动实现。
+
+## 生产结论
+
+独立三源静审通过，详见 `/workspace/agenteam-system-model-root-production-static-fjswjdsh/review.md`（SHA `81247ef4f855b6367d61c08254ed0474c3e1cc1de73b6ce5dc2b9f8fe4659a58`）。默认根用同一个实际 Store、Account Authority、SecretUsageRouter、Model Authority/Service、Audit.Models 和 Outbox 实例；先在同 catalog 定义 Model 事件，再由唯一 Outbox Seal。没有另建放行权限或消费者。
+
+原 Secret.Initialize 成功且原 context 未取消后，在同一 context 中完成 Model.Initialize；失败发生在 maintenance/listen 前并沿原资源清理路径返回。六个完整 HTTP 根及 root+slash 的私有分派保留原请求/一次 middleware/HTTP gate，原正常 httpActive→producersJoined→DB-last 及 force 预算未变。typed nil 在真实默认构造路径的检查成立。没有修改 Account/Model 领域核心、公共契约、迁移或被暂停 Object 工作。
+
+## 验证与复用
+
+| 固定证据 | 结果与边界 |
+| --- | --- |
+| 作者纯 race、最终 integration compile/vet、两命令 build | 实际 argv/env/exit/log 全核；均 exit 0。纯/build 仅复用其实际编译的生产/普通单元输入，不把未参与编译的 integration 元数据当作覆盖。 |
+| 作者新组 | 6 个不同顶层 / 13 子例。candidate02 直接验证新 HTTP 4top6sub、binary 初始化 1top2sub；仅未变 app 初始化 1top5sub 复用 candidate01。 |
+| 作者受影响旧组 | old-app 3top4sub、old-binary 6top4sub 全通过；合计作者 15 个不同顶层 / 21 子例。旧 Account、Secret、mail/catalog、原 HTTP/后台 drain 和启动中断保留。 |
+| 独立真实默认 binary | 最终有效 2top4sub；ac5 加仅三冻结生产源及自有 probe，未叠加作者新测试。定向修正后根/当前身份 1top2sub 通过，初始化 1top2sub 复用首轮不变正文与 helpers 的通过结果。 |
+
+作者新 HTTP 正常 drain 实际观察 receipt 200、canonical 与事务 `[committed]`、DB-last；force deadline/second-signal 实际为 `[not_committed]`、`INTERNAL_ERROR`、unreturned=0。这些是已命中观察，不能据此宣称所有未知 writer 或 Object 生命周期已终局。
+
+独立 `same-root-rebind-durable-facts` 用真实 bootstrap/login/session 创建两个 Model credential、Provider create/update 切换引用，读取真实 SQL 完整关系、Model/Secret receipts、typed Audit、Outbox events、零伪 delivery、原 mail 订阅并核 HTTP canonical/lookup。`revoked-session-replay-and-both-lookups` 用实际 logout 前原 issued Cookie，在每次发送前核单一原 session 且 Jar=nil；原 update 重放及 Model/Secret 两类 lookup 均精确 `401/SESSION_REVOKED`，完整相关旧行事实不变。
+
+独立初始化两子例通过真实 Store 的正式 Model SystemConfig 锁及精确 backend blocking 事实，证明 Secret 已初始化、Model selection 尚未落库且未维护/监听；持锁取消在 holder 仍活着时退出，release 分支随后只创建 technical empty selection 并监听，没有模型业务初值。正常停止后确认应用 backend 退出。没有未知结果代理或新增网络故障手段。
+
+## 原始失败与修正
+
+作者原 pure-01 是固定 snapshot 漏原 embedded weak-passwords.json 的 setup failure，补相同 baseline 资产后通过，原日志保留。作者 new-http-01 的三顶层失败（错误 observer namespace、live stdout 缓冲区读 race、匿名清 Cookie 污染后续负例）和独立发现的 phase literal 均只修两份新测试；原失败/input01、精确 delta、candidate02 和受影响复验完整保留，生产三源没有因此改动。
+
+独立 independent-01 原 revoked 子例失败，原 raw 未记录 actual code，不追认原动态 code。固定 Go 1.27.1 Client 按 `req.Host` 处理 CookieJar，原 probe 却按连接 IP 取 Cookie，漏取真实 issued session。经 root 明确授权，probe02 仅改有效 Host 取样、显式单一原 session/逐次真实请求验证及 safe-code 诊断，精确 `401/SESSION_REVOKED`、完整 facts 与预算断言未降低。原 1top2sub 定向复验 exit0，driver 33.990s；初始化 top 与 guard/helpers 原字节不变。诊断/源码依据/精确 patch 在 `probe-freeze-02/`，首红原件在 `fixture-runs/independent-01/`。
+
+## 输入、环境和清零
+
+作者冻结索引的 114 payload SHA/size 全核；最终 692 输入逐一对照 ac5 Git 对象与六候选原字节，无额外文件。独立输入是 840 个原 baseline 文件加新 Model helper/独立 probe；初始闭包已核，两个实际命令记录生产/probe SHA，末检三生产与 probe 未变。所有空纯检查日志都有实际 argv/exit 元数据，不从空文件推成功。
+
+实际工具链 Go1.27.1，GOENV/GOWORK/GOPROXY/GOSUMDB=off、GOTOOLCHAIN=local、readonly module、私有 workspace cache/TMPDIR、独占本机 Docker socket/空自有 config；固定 PG17/PG16 digest 与 MinIO SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`。原 driver 保持 `-race -count=1 -timeout=6m`，未增加预算。
+
+独立两轮各 4c3n：存活 network exact ID/name/nonce-label 已核，两遍实际 exact-ID absent，原 2c4n ID/name/labels 不变，全部 tracked 进程/组、runtime/gotmp 为空。作者各组同样核过，old-app 额外 SMTP 自有资源按 5c4n 核查。最后独立轮 `resource-handoff.json` SHA `988aa12e019ea27a575e843bbab1b4b5ab2b25acbb7d868dfae9987bc5213df5`，已正式交回窗口，不再 Go/Docker。
+
+本结论仅覆盖 System 同步配置默认 HTTP 根。没有交付 Model Invocation/Usage/consumer/Provider 账户调用、Project 配置根、Summary 产品初值，`/readyz` 的原限制不改变；不声称修复或验证被暂停的 Object 问题。全部业务源码不由本验收者修改，无仓库/Git 写入或再委派。独立报告及原件冻结，all-stop。

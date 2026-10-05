@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestIndependentSystemModelRootCurrentSessionAndFacts|TestIndependentSystemModelInitializationStage)$"
+  ],
+  "env": {
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOCACHE": "/workspace/agenteam-secret-model-v-thmobool/gocache",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "TMPDIR": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/runtime",
+    "GOTMPDIR": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/gotmp",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2 -v",
+    "GOMAXPROCS": "4",
+    "CGO_ENABLED": "1",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "DOCKER_CONFIG": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/docker-config"
+  },
+  "cwd": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/src",
+  "input_manifest": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/probe-freeze-01/manifest.json",
+  "input_sha256": "4057c1e7353d03c46b83391183d4e056b8449d2f769af68fd5e42f1fffd8bb3b",
+  "start_unix": 1791227561.836091,
+  "expected_top": [
+    "TestIndependentSystemModelRootCurrentSessionAndFacts",
+    "TestIndependentSystemModelInitializationStage"
+  ],
+  "ready_sha256": "331e5fca08623e2c15de7fef69ba2775f729df32762ec87d2f64a732b0433a9e",
+  "probe_sha256": "8e5f78974c06c2e845c3d81124b766771de20f83b32798e46bd007089eb5e7e3",
+  "authorization_sha256": "f6eaac4b739aba607aa9b545097ec9ca394bf564e798ec540849d7e96c52ad27",
+  "runner_sha256": "822c8922a6b765a2cbe7af53f701a878391f9cfebf6138b82f684cef8af1b473"
+}

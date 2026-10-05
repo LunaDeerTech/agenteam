@@ -1,0 +1,184 @@
+--- a/internal/central/app/model_process_test.go
++++ b/internal/central/app/model_process_test.go
+@@ -38,7 +38,9 @@
+ 	trace         []string
+ 	modelContexts []context.Context
+ 	secretContext context.Context
++	modelStarted  int
+ 	modelResults  []foundation.CommitState
++	modelFaults   []foundation.Code
+ 	beforeExec    func(context.Context, string)
+ 	request       context.Context
+ 	activeAtStop  []int
+@@ -55,10 +57,21 @@
+ 		s.trace = append(s.trace, "model.initialize")
+ 		s.mu.Unlock()
+ 	}
++	modelCommand := d.Kind == foundation.CommandsCause && d.Primary.Namespace() == "model.system"
++	if modelCommand {
++		s.mu.Lock()
++		s.modelStarted++
++		s.mu.Unlock()
++	}
+ 	r := s.Store.WithinTx(ctx, cause, fn)
+-	if d.Kind == foundation.CommandsCause && d.Primary.Namespace() == "model" {
++	if modelCommand {
+ 		s.mu.Lock()
+ 		s.modelResults = append(s.modelResults, r.State())
++		var code foundation.Code
++		if fault := r.Fault(); fault != nil {
++			code = fault.Code
++		}
++		s.modelFaults = append(s.modelFaults, code)
+ 		s.mu.Unlock()
+ 	}
+ 	return r
+@@ -459,7 +472,7 @@
+ 	if len(a.store.modelResults) == 0 || a.store.modelResults[len(a.store.modelResults)-1] != foundation.Committed {
+ 		t.Fatal("actual command commit missing")
+ 	}
+-	t.Logf("normal drain trace=%v actual model Tx states=%v", a.store.trace, a.store.modelResults)
++	t.Logf("normal drain trace=%v actual model Tx states=%v faults=%v unreturned=%d", a.store.trace, a.store.modelResults, a.store.modelFaults, a.store.modelStarted-len(a.store.modelResults))
+ }
+ 
+ func TestModelRootHTTPForceUsesOriginalBudget(t *testing.T) {
+@@ -500,7 +513,7 @@
+ 			if strings.Contains(a.logs.String(), `"outcome":"drained"`) {
+ 				t.Fatal("forced path claimed drained")
+ 			}
+-			t.Logf("force mode=%s trace=%v actual model Tx states=%v; forced exit is not an all-writer join or rollback claim", mode, a.store.trace, a.store.modelResults)
++			t.Logf("force mode=%s trace=%v actual model Tx states=%v faults=%v unreturned=%d; forced exit is not an all-writer join or rollback claim", mode, a.store.trace, a.store.modelResults, a.store.modelFaults, a.store.modelStarted-len(a.store.modelResults))
+ 		})
+ 	}
+ }
+--- a/tests/process/model_system_database_test.go
++++ b/tests/process/model_system_database_test.go
+@@ -22,14 +22,15 @@
+ )
+ 
+ type modelSystemBinary struct {
+-	p       *process
+-	db      *pgfixture.Database
+-	env     []string
+-	address string
+-	client  *http.Client
+-	cookies map[string]*http.Cookie
+-	csrf    string
+-	logPath string
++	p          *process
++	db         *pgfixture.Database
++	env        []string
++	address    string
++	client     *http.Client
++	cookies    map[string]*http.Cookie
++	csrf       string
++	logPath    string
++	logSecrets []string
+ }
+ type modelSystemResponse struct {
+ 	status int
+@@ -57,7 +58,7 @@
+ 	}
+ 	v.start(t)
+ 	t.Cleanup(v.client.CloseIdleConnections)
+-	t.Cleanup(func() { clear(v.cookies); v.csrf = "" })
++	t.Cleanup(func() { clear(v.cookies); v.csrf = ""; clear(v.logSecrets) })
+ 	v.login(t)
+ 	return v
+ }
+@@ -164,9 +165,9 @@
+ 	input := map[string]any{"email": email, "password": password}
+ 	v.request(t, "POST", "/api/v1/sessions/login", modelSystemKey(t), input, nil).want(t, 200)
+ 	delete(input, "password")
+-	if strings.Contains(v.p.stderr.String()+v.p.stdout.String(), password) {
+-		t.Fatal("ordinary process log leaked bootstrap material")
+-	}
++	// The old process helper's stdout buffer is read only after p.wait. Keep
++	// this owned value for that check; never print it in the test report.
++	v.logSecrets = append(v.logSecrets, password)
+ 	password = ""
+ 	session := v.request(t, "GET", "/api/v1/session", "", nil, nil).want(t, 200).object(t)
+ 	v.csrf = session["csrf_token"].(string)
+@@ -177,6 +178,11 @@
+ 		t.Fatal(err)
+ 	}
+ 	v.p.wait(t, 0)
++	for _, value := range v.logSecrets {
++		if strings.Contains(v.p.stderr.String()+v.p.stdout.String(), value) {
++			t.Fatal("ordinary process log leaked bootstrap material")
++		}
++	}
+ 	noCentralBackends(t, v.db)
+ 	assertDatabaseLogsSafe(t, v.p, v.db)
+ }
+@@ -286,12 +292,12 @@
+ 	if err != nil || !bytes.Equal(privateLog, after) {
+ 		t.Fatal("restart changed restricted bootstrap log")
+ 	}
++	v.stop(t, syscall.SIGINT)
+ 	for _, sentinel := range []string{"root-model-credential-sentinel", "root-model-updated-sentinel", "temporary-root-value"} {
+ 		if strings.Contains(v.p.stderr.String()+v.p.stdout.String(), sentinel) {
+ 			t.Fatal("ordinary root output leaked credential")
+ 		}
+ 	}
+-	v.stop(t, syscall.SIGINT)
+ }
+ 
+ func TestCentralModelSystemCurrentAuthorityAndRouting(t *testing.T) {
+@@ -301,6 +307,18 @@
+ 	v.request(t, "POST", "/api/v1/system/model-credentials", credentialKey, credentialBody, nil).want(t, 200)
+ 	providerBody := modelSystemProvider("openai-chat-completions", nil)
+ 	v.request(t, "POST", "/api/v1/system/model-providers", providerKey, providerBody, nil).want(t, 200)
++	sessionCookies := map[string]*http.Cookie{}
++	for name, c := range v.cookies {
++		copyCookie := *c
++		sessionCookies[name] = &copyCookie
++	}
++	restoreCookies := func() {
++		v.cookies = map[string]*http.Cookie{}
++		for name, c := range sessionCookies {
++			copyCookie := *c
++			v.cookies[name] = &copyCookie
++		}
++	}
+ 	for _, tc := range []struct {
+ 		name   string
+ 		change func(*http.Request)
+@@ -312,7 +330,27 @@
+ 		{"missing-csrf", func(r *http.Request) { r.Header.Del("X-CSRF-Token") }, 403},
+ 	} {
+ 		t.Run(tc.name, func(t *testing.T) {
+-			v.request(t, "POST", "/api/v1/system/model-commands/lookup", providerKey, map[string]any{"command": "provider.create"}, tc.change).want(t, tc.status)
++			restoreCookies()
++			defer restoreCookies()
++			// Each case starts with the actual issued, still-current Session.
++			// An anonymous response legitimately clears a browser's cookie;
++			// that must not turn the next CSRF case into another anonymous one.
++			session := v.request(t, "GET", "/api/v1/session", "", nil, nil).want(t, 200).object(t)
++			if session["csrf_token"] != v.csrf {
++				t.Fatal("negative case lost current Session/CSRF prerequisite")
++			}
++			response := v.request(t, "POST", "/api/v1/system/model-commands/lookup", providerKey, map[string]any{"command": "provider.create"}, tc.change).want(t, tc.status)
++			if tc.name == "anonymous" {
++				cleared := false
++				for _, c := range (&http.Response{Header: response.header}).Cookies() {
++					if c.Name == "agenteam_local_session" && c.MaxAge < 0 {
++						cleared = true
++					}
++				}
++				if !cleared {
++					t.Fatal("anonymous response did not clear the actual session cookie")
++				}
++			}
+ 		})
+ 	}
+ 	head := v.request(t, "HEAD", "/api/v1/system/model-providers", "", nil, nil).want(t, 200)
+@@ -399,7 +437,7 @@
+ 				}
+ 				p := launch(t, "agenteam", nil, databaseEnvironment(t, db))
+ 				p.wait(t, 1)
+-				if strings.Contains(p.stderr.String(), `"event":"listening"`) || strings.Contains(p.stderr.String(), `"phase":"secret_maintaining"`) {
++				if strings.Contains(p.stderr.String(), `"event":"listening"`) || strings.Contains(p.stderr.String(), `"phase":"secret_maintenance_starting"`) {
+ 					t.Fatal("Model initialization failure reached later stage")
+ 				}
+ 				var secretRows, selectionRows, claims int

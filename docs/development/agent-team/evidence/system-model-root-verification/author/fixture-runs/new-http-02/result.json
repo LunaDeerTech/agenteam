@@ -1,0 +1,19 @@
+{
+  "driver_exit": 0,
+  "elapsed_seconds": 38.772,
+  "passed_top": [
+    "TestModelRootHTTPActiveDrainAndDatabaseLast",
+    "TestModelRootHTTPForceUsesOriginalBudget",
+    "TestCentralModelSystemConfigurationAndRestart",
+    "TestCentralModelSystemCurrentAuthorityAndRouting"
+  ],
+  "failed_top": [],
+  "skipped_top": [],
+  "missing_expected_top": [],
+  "resource_clean": true,
+  "owned_container_count": 4,
+  "owned_network_count": 3,
+  "expected_counts_match": true,
+  "tracked_process_count": 83,
+  "input_sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab"
+}

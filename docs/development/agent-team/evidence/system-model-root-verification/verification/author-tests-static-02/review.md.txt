@@ -1,0 +1,15 @@
+# System Model root candidate02 窄差量独立复核
+
+结论：PASS，可以按已授权 selector 进行受影响真实复验。不是动态验收通过。
+
+固定 candidate02 manifest SHA 8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab；8/8 文件 SHA 独立一致。仅 model_process_test.go、model_system_database_test.go 两新测试改变，三生产仍原 review01；纯 model_test、两暂未改能力文档不变。由 candidate01/02 原字节重建 patch 与作者 0f9435b64f7184cf8adb4b137652737d109467c2f68410b29133ed5adc65c303 精确一致。
+
+- 观察器精确识别正式 model.system CommandsCause，在真实 WithinTx 调用前计 started，仅实际返回后记录原 CommitState/Fault.Code；同步访问受原 mutex 保护。unreturned 是尚未返回的调用数，没有将 HTTP/context/force 伪装成交易终局。正常 Committed、canonical/receipt、httpActive/DB-last 原强断言保留。
+- 所有新增 stdout.String 均在对应 p.wait 后；bootstrap password 在私有测试内保留至 stop 时检查并在 cleanup 清 slice引用，未输出材料。原 stdout+stderr 的密码和三哨兵断言仍在（现在无活态 bytes.Buffer 读取）。没有修改旧 helper 或降低 race 检查。
+- 每个权限负例恢复从真实登录取得的深复制 Cookie，开始先真实 GET/session=200 且 CSRF 与当前值相等；匿名响应仍按真实服务语义验证 session cookie MaxAge<0，再 defer 恢复原已发行 Cookie用于下一独立反例。没有伪造服务授权、重新造 Session、关清 Cookie 或接受错误401。后续实际 logout 的原 cookie 重放测试保持。
+- 禁止 maintenance 阶段改为真实 secret_maintenance_starting，no-listen、真实 Secret/selection/process_claim 事实和后端退出断言不变。
+- force 原 deadline/second-signal、取消、ForceClose、原 bounded budget、不宣称 drained/join/rollback 等断言未减。修后动态须保留 state/fault/unreturned 原观察，未返回仍显式未知。
+
+建议按既定复验 new-http 四 top（force观察也变）及 TestCentralModelInitializationFailureBeforeListen，然后原计划旧组。未变 app 初始化原实际结果可复用；已记录首红和最小修复，不把原 force 的空 state 数组追认为有效底层结果。
+
+本轮仅固定差量/哈希静审，无 Go/Docker/网络、仓库/Git写入；独立 probe 仍原 8e5f78974c06c2e845c3d81124b766771de20f83b32798e46bd007089eb5e7e3。等待作者冻结动态及主线程授权独立窗口。

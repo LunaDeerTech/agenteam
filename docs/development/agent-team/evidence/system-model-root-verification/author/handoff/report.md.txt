@@ -1,0 +1,28 @@
+# System Model production root author handoff
+
+Fixed source baseline `ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7`. Candidate02 manifest SHA-256 `8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab`; all six implementation/test paths are frozen and equal in the repository, candidate, and private snapshot. The two allowed capability documents remain unchanged until independent dynamic acceptance. Production review01 had independent STATIC PASS and its three files were never revised.
+
+Author coverage: **15 distinct real top-level tests / 21 distinct subcases** have valid passing evidence. Candidate02 directly ran 14 tops; only `TestModelRootInitializationAndFailureOwnership` is reused from candidate01, whose initialization semantics are unchanged by the exact command-result observer fix. This is not a claim that all tests ran once on final bytes. All real runs used the original driver, race/count1/6m, fixed Go/PG17/PG16/MinIO, offline readonly modules, and owned runtime/cache. Other packages with no tests are excluded.
+
+| Run | Input | Result | Wall seconds | Resources |
+| --- | --- | --- | --- | --- |
+| new-init-01 | candidate01 | PASS 2 tops | 55.902 | 4 containers / 3 networks, twice absent |
+| new-http-01 | candidate01 | FAIL: 3 tops, 1 top passed; retained | 38.006 | 4 containers / 3 networks, twice absent |
+| new-http-02 | candidate02 | PASS 4 tops | 38.772 | 4 containers / 3 networks, twice absent |
+| new-init-02 | candidate02 | PASS 1 tops | 39.087 | 4 containers / 3 networks, twice absent |
+| old-app-01 | candidate02 | PASS 3 tops | 43.958 | 5 containers / 4 networks, twice absent |
+| old-binary-01 | candidate02 | PASS 6 tops | 52.02 | 4 containers / 3 networks, twice absent |
+
+Pure app/process race/count1 passed in pure-02 (26.955s). The initial pure-01 failure was preparation only: the selective fixed snapshot omitted the Account embedded password asset; the exact baseline asset and original failing log/input are preserved. Candidate02 integration/race compile-only passed (5.029s) and integration vet passed (0.295s). Both cmd binaries built successfully on unchanged production inputs. Compile-only and vet are not counted as dynamic test passes.
+
+The first HTTP run is retained in full. Its observer filtered `model` while real System command identities use `model.system`; actual normal response/receipt/canonical/DB-last assertions had already passed before the empty-observation assertion failed. Two live stdout reads raced the existing unsynchronized process buffer. The anonymous negative response correctly cleared the session cookie, which the new shared test cookie map then incorrectly reused for later cases. Four accepted corrections changed only two new test files: exact namespace with actual states/fault codes/unreturned counts; wait-before-stdout checks; independent real issued-cookie snapshots with GET/session and CSRF prerequisites plus actual anonymous clear-cookie assertion; and the independently found `secret_maintenance_starting` literal. Original candidate01, logs, triage, precise delta and all rechecks remain available. No production fix or old-test assertion change was needed.
+
+On the successful HTTP recheck, normal drain recorded `[committed]` and also verified HTTP 200 receipt, canonical Provider row and DB-last behavior. Each force branch recorded `[not_committed]`, `[INTERNAL_ERROR]`, `unreturned=0`, original cancellation and bounded ForceClose initiation. The list records returned model.system transactions, not a universally phase-specific final business outcome or original writer/lock termination proof. Forced exit is not treated as join or rollback.
+
+All six runs together created 25 containers and 19 networks. Exact IDs plus nonce labels, including the original SMTP network, were observed and each was checked absent twice. Baseline 2 containers / 4 networks with ID/name/labels remained unchanged in every round; 560 tracked process instances and all owned groups had no residuals. Runtime and Go TMP are empty. The sole fixture window was returned to root before this handoff; no further Go/Docker action is planned.
+
+Final private closure: 692 files / 6347957 bytes, no extra files, all baseline sources and required embedded/SMTP assets exact except the six owned candidate paths. See `final-source-closure.json` and `summary.json`. `candidate-freeze-02/from-baseline.patch` provides the complete implementation/test delta; `from-candidate01.patch` preserves only the test correction delta.
+
+Implemented scope is the default real Central System Model configuration/credential/receipt routes, shared Authority/Store/Secret/Audit/catalog and synchronous initialization/HTTP ownership. No Model invocation, Resolver/Usage consumer, Provider I/O, Project bindings, Model event consumer, Summary defaults or new runtime/migration is added. Ready remains false/503. The existing Object guard defect and stopped Object/network work remain untouched and unverified by this task.
+
+Independent dynamic acceptance remains pending. No commit/push, capability-document update, repository evidence archive, or claim of complete D09 is made by this author handoff.

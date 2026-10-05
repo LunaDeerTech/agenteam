@@ -1,0 +1,74 @@
+[
+  {
+    "kind": "network",
+    "id": "59ae162e4595d896e2735bd0575a830343243dd9b3e5094ad151addee747433b",
+    "name": "agenteam-d05-object-949ac8eae6153f57f50a3ebcf6051c89",
+    "labels": {
+      "agenteam.d05.objectfixture": "949ac8eae6153f57f50a3ebcf6051c89"
+    }
+  },
+  {
+    "kind": "container",
+    "id": "edbb4aece2940b0945905120cc967ea8d76194c9e88f99567b5ada64dc6fcd19",
+    "name": "agenteam-d05-object-949ac8eae6153f57f50a3ebcf6051c89",
+    "labels": {
+      "agenteam.d05.objectfixture": "949ac8eae6153f57f50a3ebcf6051c89"
+    }
+  },
+  {
+    "kind": "network",
+    "id": "4b93ef1e366b7b29fd990cfff628578837986c29232112e85bbbc8a75b334950",
+    "name": "agenteam-d04-net-15dcc424d065b0156dd3a6a00d221531",
+    "labels": {
+      "agenteam.d04.networkfixture": "15dcc424d065b0156dd3a6a00d221531"
+    }
+  },
+  {
+    "kind": "container",
+    "id": "05f3c13157c01fb18f14916515351e59b4fafcf57605c748aaa1409f4dd63db9",
+    "name": "agenteam-d04-net-15dcc424d065b0156dd3a6a00d221531",
+    "labels": {
+      "agenteam.d04.networkfixture": "15dcc424d065b0156dd3a6a00d221531"
+    }
+  },
+  {
+    "kind": "network",
+    "id": "37e21092c931b7b8a20b3b6460ef86bfd7590030a1ae47d8e612dad2ac8a125c",
+    "name": "agenteam-d03-8287c501394a3b9135895b8306adbb07",
+    "labels": {
+      "agenteam.d03.fixture": "8287c501394a3b9135895b8306adbb07"
+    }
+  },
+  {
+    "kind": "container",
+    "id": "50c7d8c14df7d9c3a9ccddf4994234edb10ac06c16750d80767ab39bb6e23742",
+    "name": "agenteam-d03-8287c501394a3b9135895b8306adbb07",
+    "labels": {
+      "agenteam.d03.fixture": "8287c501394a3b9135895b8306adbb07"
+    }
+  },
+  {
+    "kind": "container",
+    "id": "5ae18c172ec8127fd86e3cca8c952b07ecee039ec64a438401209c6252063fde",
+    "name": "agenteam-d03-8287c501394a3b9135895b8306adbb07-pg16",
+    "labels": {
+      "agenteam.d03.fixture": "8287c501394a3b9135895b8306adbb07"
+    }
+  },
+  {
+    "kind": "network",
+    "id": "00d11d015203fb63e131094617e5032bbdf104126a6ccd62a5e990b120e4308a",
+    "name": "agenteam-d07-smtp-e73b25ae9876c4215c7ca14cc81225e9",
+    "labels": {
+      "agenteam.d07.smtpfixture": "e73b25ae9876c4215c7ca14cc81225e9"
+    }
+  },
+  {
+    "kind": "container",
+    "id": "c9a1e686fe3bcefdd8b6696b0e60b00f853468105f44cf8dabbfb756f2336be1",
+    "name": "agenteam-d07-smtp-e73b25ae9876c4215c7ca14cc81225e9",
+    "labels": {
+      "agenteam.d07.smtpfixture": "e73b25ae9876c4215c7ca14cc81225e9"
+    }
+  }
+]

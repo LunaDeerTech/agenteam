@@ -1,0 +1,458 @@
+{
+  "handoff/final-source-closure.json": {
+    "sha256": "ff29f8948d554de0bef01d127fe511ef597cecdda141f8e7eb7e0fe4c283e11e",
+    "bytes": 166611
+  },
+  "handoff/report.md": {
+    "sha256": "7320a593bd5c4c1d1996404663661a922416dd7a3a2230bcf2753b586ae6ea66",
+    "bytes": 5162
+  },
+  "handoff/summary.json": {
+    "sha256": "8e3e1c4edb6a2b5ff6645cc04d640ccee016c6686c882aa2fbb07e43eafacdb9",
+    "bytes": 16410
+  },
+  "candidate-freeze-01/delta.patch": {
+    "sha256": "7760dfc52983debab7469775c6dee75dccaab690ca940f4e75ec0d30c36b55d6",
+    "bytes": 51856
+  },
+  "candidate-freeze-01/manifest.json": {
+    "sha256": "11e21b8845c6c884398453130dbd05383528f6477387e98e7439aa6e3e5d99c8",
+    "bytes": 2320
+  },
+  "candidate-freeze-01/AGENTS.md": {
+    "sha256": "eb35f7ba3abd85bb13cc27cc84b330f50ae24309f6f1319330dfa1d914b97fe9",
+    "bytes": 14612
+  },
+  "candidate-freeze-01/docs/development/backend/README.md": {
+    "sha256": "cdb3625e4643a9f96f46c0a3b373eb7be1c212cbf19e8fa5f3a6420d8f4f51be",
+    "bytes": 29297
+  },
+  "candidate-freeze-01/internal/central/app/model.go": {
+    "sha256": "88921c967e1a70509c169e4461e7f73c9f0b76429c85c2fdb29d59ae5e10c799",
+    "bytes": 837
+  },
+  "candidate-freeze-01/internal/central/app/model_test.go": {
+    "sha256": "e89d795350b31362b02d1181d8c22facde06ddae32b0c1b394cf0706429bff54",
+    "bytes": 5517
+  },
+  "candidate-freeze-01/internal/central/app/model_process_test.go": {
+    "sha256": "1d056bed0e8ecbb74f10909a9a6529949728bd69e91f342f35c690a4560ea0cd",
+    "bytes": 17148
+  },
+  "candidate-freeze-01/internal/central/app/account.go": {
+    "sha256": "a855a5320b3fbbd5f34cdb3781ce34299a12d86b80e14cafc8d37c03734944c5",
+    "bytes": 13332
+  },
+  "candidate-freeze-01/internal/central/app/security.go": {
+    "sha256": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7",
+    "bytes": 1510
+  },
+  "candidate-freeze-01/tests/process/model_system_database_test.go": {
+    "sha256": "0d741fc7d9aafa876d84f9b68ee32d4772456cfb9121cd1b69ff249913bbcd28",
+    "bytes": 20850
+  },
+  "candidate-freeze-02/from-candidate01.patch": {
+    "sha256": "0f9435b64f7184cf8adb4b137652737d109467c2f68410b29133ed5adc65c303",
+    "bytes": 7119
+  },
+  "candidate-freeze-02/delta.json": {
+    "sha256": "b8f2ce27548306d8db2b1087d39f7b6745d19c5ca8671b4b595576b8e0eeb475",
+    "bytes": 947
+  },
+  "candidate-freeze-02/from-baseline.patch": {
+    "sha256": "cb676e1173c4c1f8033ca384274fb0d20f8c14d5b32a2a70493e3e59eb6eb825",
+    "bytes": 53805
+  },
+  "candidate-freeze-02/manifest.json": {
+    "sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab",
+    "bytes": 2420
+  },
+  "candidate-freeze-02/AGENTS.md": {
+    "sha256": "eb35f7ba3abd85bb13cc27cc84b330f50ae24309f6f1319330dfa1d914b97fe9",
+    "bytes": 14612
+  },
+  "candidate-freeze-02/docs/development/backend/README.md": {
+    "sha256": "cdb3625e4643a9f96f46c0a3b373eb7be1c212cbf19e8fa5f3a6420d8f4f51be",
+    "bytes": 29297
+  },
+  "candidate-freeze-02/internal/central/app/model.go": {
+    "sha256": "88921c967e1a70509c169e4461e7f73c9f0b76429c85c2fdb29d59ae5e10c799",
+    "bytes": 837
+  },
+  "candidate-freeze-02/internal/central/app/model_test.go": {
+    "sha256": "e89d795350b31362b02d1181d8c22facde06ddae32b0c1b394cf0706429bff54",
+    "bytes": 5517
+  },
+  "candidate-freeze-02/internal/central/app/model_process_test.go": {
+    "sha256": "d0da84b5ba533cbfae206caeac0b4631aa62e0b41b9bc8b343b1c0e649c8f1db",
+    "bytes": 17632
+  },
+  "candidate-freeze-02/internal/central/app/account.go": {
+    "sha256": "a855a5320b3fbbd5f34cdb3781ce34299a12d86b80e14cafc8d37c03734944c5",
+    "bytes": 13332
+  },
+  "candidate-freeze-02/internal/central/app/security.go": {
+    "sha256": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7",
+    "bytes": 1510
+  },
+  "candidate-freeze-02/tests/process/model_system_database_test.go": {
+    "sha256": "04ec22070af57711696b5bb1538fc61a5d64f4bae303ca9d3c551df0a89fd3a6",
+    "bytes": 22264
+  },
+  "production-review-01/delta.patch": {
+    "sha256": "07b6201a90b6dac6759c9aa4708edd282d21b6f857fb0ee9b09d64c608727458",
+    "bytes": 7026
+  },
+  "production-review-01/manifest.json": {
+    "sha256": "b0b89ce3e899563db1ec52c8094c3c89189aea511255543fe3a7424845c1f38f",
+    "bytes": 826
+  },
+  "production-review-01/internal/central/app/model.go": {
+    "sha256": "88921c967e1a70509c169e4461e7f73c9f0b76429c85c2fdb29d59ae5e10c799",
+    "bytes": 837
+  },
+  "production-review-01/internal/central/app/account.go": {
+    "sha256": "a855a5320b3fbbd5f34cdb3781ce34299a12d86b80e14cafc8d37c03734944c5",
+    "bytes": 13332
+  },
+  "production-review-01/internal/central/app/security.go": {
+    "sha256": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7",
+    "bytes": 1510
+  },
+  "failure-review-01/original-evidence.json": {
+    "sha256": "249ab1f5da7299e344b8cb6aca4f1bac6ec36d93e4811ead0ed7fe2c87afeab4",
+    "bytes": 779
+  },
+  "failure-review-01/triage.md": {
+    "sha256": "dfb4a77354df74540f80e5388fa908ecc9b0f96d8bfb039f3070d68bacdf3f93",
+    "bytes": 2743
+  },
+  "logs/compile-real-02.log": {
+    "sha256": "cb9bd9abdbf40fb3422a7f62e9b84f88b2aeb657c6ade0a2558c6738aaf9ef59",
+    "bytes": 163
+  },
+  "logs/compile-app-01.json": {
+    "sha256": "55a5e25dae88a5522b318386c82ae398d7d46478dc85b761895f1982186475cc",
+    "bytes": 1859
+  },
+  "logs/build-01.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "logs/compile-real-03.json": {
+    "sha256": "009d978e643d05513f6731df39d4a6107b041d8f73540922817c9a4a67769ef3",
+    "bytes": 1946
+  },
+  "logs/compile-real-02.json": {
+    "sha256": "fa2f6c603af1fc2edb47d823fd3b31dc8bf3d9853fea598d7df0b295413a0076",
+    "bytes": 1944
+  },
+  "logs/vet-real-02.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "logs/vet-real-01.log": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "logs/pure-01.json": {
+    "sha256": "249837d3d178e3e4d060662a754cd2deeae8bfb83015639305a4ad0f68005d74",
+    "bytes": 1791
+  },
+  "logs/vet-real-01.json": {
+    "sha256": "b67fb47195e9393a0732d3c59ca6532de531e665acb4c0e4358e5561461a6cbb",
+    "bytes": 1909
+  },
+  "logs/build-01.json": {
+    "sha256": "fc993e48c42bc55180c2e0f0e0e223ec327e4dc241cd36b8cdb17cc2eca92c35",
+    "bytes": 1961
+  },
+  "logs/compile-real-01.json": {
+    "sha256": "edbd12b0bd1809243ee44d71119a1ba9227b375a8fccf448c632df9ede1af603",
+    "bytes": 1946
+  },
+  "logs/pure-02.log": {
+    "sha256": "da97429febc489160ee4b54096f32cc93e1b740e448583808d2578632a7a8eca",
+    "bytes": 127
+  },
+  "logs/compile-app-01.log": {
+    "sha256": "77b7e86cdb45ea91a583e2741a156f3b36d51989051f0158c9432dfda31074e2",
+    "bytes": 84
+  },
+  "logs/compile-real-03.log": {
+    "sha256": "fa6c476a241cadfbbb039f890506a709aaa2eb9227ef63fddffdfae04605a0ec",
+    "bytes": 161
+  },
+  "logs/pure-01.log": {
+    "sha256": "b3add424e3883c5818b4d055e65538a4139121d840bdd814b360015767a43523",
+    "bytes": 442
+  },
+  "logs/vet-real-02.json": {
+    "sha256": "4683f1562faedb6f91488496a017fe67d571eced63a7297a2478f46e0ea74ac8",
+    "bytes": 1910
+  },
+  "logs/compile-real-01.log": {
+    "sha256": "825b39c0ea0169c7aa08d367f530892c9bd5b72c0a564a038158fd83a5375d2d",
+    "bytes": 161
+  },
+  "logs/pure-02.json": {
+    "sha256": "9b738f51f4c24bd5bc9c2f79adee273c9f9a6740b05aab4b9c8238c55c044044",
+    "bytes": 1791
+  },
+  "fixture-runs/new-init-02/docker-events.jsonl": {
+    "sha256": "5034477f18c6866b4f20a0597ca0dbe0a4d19552d3253728206551467933bafd",
+    "bytes": 133371
+  },
+  "fixture-runs/new-init-02/owned-network-live-labels.json": {
+    "sha256": "c8799294a053da41b4c572059aa29a8e7bc2b6713e2a1f745c2f66f7e8c30aa3",
+    "bytes": 732
+  },
+  "fixture-runs/new-init-02/command.json": {
+    "sha256": "bfb0345591a2aa344226ed8acaae021abec8ac6e32581da2aed807f0419f1993",
+    "bytes": 1350
+  },
+  "fixture-runs/new-init-02/resource-handoff.json": {
+    "sha256": "f35f41cbdc4aa0916dab3ca214e81a222759bf5532c806282367edbccd5be939",
+    "bytes": 24428
+  },
+  "fixture-runs/new-init-02/baseline.json": {
+    "sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+    "bytes": 2848
+  },
+  "fixture-runs/new-init-02/driver.log": {
+    "sha256": "d29184a4b887ced3df3c1ae94e151f5beeb978a67fffb2db35a8a23be7dee830",
+    "bytes": 3997
+  },
+  "fixture-runs/new-init-02/docker-events.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "fixture-runs/new-init-02/result.json": {
+    "sha256": "75a9ee53cd994c9a95764c82ee1cfb5dc50b8400de2e83700552eb363eff0a23",
+    "bytes": 436
+  },
+  "fixture-runs/new-init-02/owned-created.json": {
+    "sha256": "3a3d17c35a7171fc25bcbbfc5dbc1fbda1bf6e6471c9c420070fe18ba0e7e99a",
+    "bytes": 1870
+  },
+  "fixture-runs/new-init-01/docker-events.jsonl": {
+    "sha256": "a1a9731b429f8015f73af71d10aec9e4243989a2b7a284e257d652f6dbfcdc9d",
+    "bytes": 171849
+  },
+  "fixture-runs/new-init-01/owned-network-live-labels.json": {
+    "sha256": "3933af040f71827f98c230de311122de1f0c4539f808d65fc215ff1ead5aab04",
+    "bytes": 732
+  },
+  "fixture-runs/new-init-01/command.json": {
+    "sha256": "ea661d9b45a9d8878e92c6c6c4bcff9ad38623485d46db1f1b6898629b29cc0d",
+    "bytes": 1453
+  },
+  "fixture-runs/new-init-01/resource-handoff.json": {
+    "sha256": "af97c004e5918586c9556787da0526a4bc1259f869b5189426d6d667ca568ada",
+    "bytes": 30668
+  },
+  "fixture-runs/new-init-01/baseline.json": {
+    "sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+    "bytes": 2848
+  },
+  "fixture-runs/new-init-01/driver.log": {
+    "sha256": "11f17625429f776cfc591aca4f90839b717f23d9b55bb11ce9938ee0276c85d3",
+    "bytes": 5727
+  },
+  "fixture-runs/new-init-01/docker-events.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "fixture-runs/new-init-01/result.json": {
+    "sha256": "fe55b6ff1809d51963e322bf96cd09e8b65d928a4875e805192b9db1115843ab",
+    "bytes": 491
+  },
+  "fixture-runs/new-init-01/owned-created.json": {
+    "sha256": "eb2e9629ade39dacc4a3ea07e5f30759700e14090de295f7ef90c6f7a658114d",
+    "bytes": 1870
+  },
+  "fixture-runs/new-http-02/docker-events.jsonl": {
+    "sha256": "3373981c0e2b247975ccd9dbf5411bc5510f58f5654c2093329eeba41211b951",
+    "bytes": 139981
+  },
+  "fixture-runs/new-http-02/owned-network-live-labels.json": {
+    "sha256": "179d46a661a3a316f1513cced227b6ed36e1e334ac9455cdaa608163f6dac06b",
+    "bytes": 732
+  },
+  "fixture-runs/new-http-02/command.json": {
+    "sha256": "2096dfd277e69ee6e259908565b24464286d8478e2975f095d60df2d254a4c02",
+    "bytes": 1633
+  },
+  "fixture-runs/new-http-02/resource-handoff.json": {
+    "sha256": "46796460d1ff6bcf1c32d3954d699403cc0346bb2de7ad4341465365dce2bb37",
+    "bytes": 24818
+  },
+  "fixture-runs/new-http-02/baseline.json": {
+    "sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+    "bytes": 2848
+  },
+  "fixture-runs/new-http-02/driver.log": {
+    "sha256": "f15316feccd93a3da8c230a2cc19d5b442751d8d9edaa7a3bdd2c023c8693a42",
+    "bytes": 5597
+  },
+  "fixture-runs/new-http-02/docker-events.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "fixture-runs/new-http-02/result.json": {
+    "sha256": "185a302eff85321bf47479a401964f20574a64e9a4fd4250de30f94031f58ffe",
+    "bytes": 587
+  },
+  "fixture-runs/new-http-02/owned-created.json": {
+    "sha256": "d50e5e4cbf75bfb4e206183c07724e589cd33bfd739832d817a345374a0a0c07",
+    "bytes": 1870
+  },
+  "fixture-runs/old-binary-01/docker-events.jsonl": {
+    "sha256": "1f9f90080ff158ca839bcb04e555f12a04690d2d01d9f5ff8eca0aa262b28b61",
+    "bytes": 159033
+  },
+  "fixture-runs/old-binary-01/owned-network-live-labels.json": {
+    "sha256": "17df292e75dd57e7c109c886ab42f1c54bc7bc2ad85340c7310cf4a9f5e4c41a",
+    "bytes": 732
+  },
+  "fixture-runs/old-binary-01/command.json": {
+    "sha256": "89360fa3b21e854d420bfba4d2c1d79c33ad2658e83527c2f7cdde0cab90b28b",
+    "bytes": 1949
+  },
+  "fixture-runs/old-binary-01/resource-handoff.json": {
+    "sha256": "a10227b899045910e86e7954348750f2910d48d1ae8b3a4654d8f24462cb11b9",
+    "bytes": 25598
+  },
+  "fixture-runs/old-binary-01/baseline.json": {
+    "sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+    "bytes": 2848
+  },
+  "fixture-runs/old-binary-01/driver.log": {
+    "sha256": "96cf081e397a6214e689ad24037ab47667ac627a34590c04a1250b68032d0dd9",
+    "bytes": 4973
+  },
+  "fixture-runs/old-binary-01/docker-events.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "fixture-runs/old-binary-01/result.json": {
+    "sha256": "fe557e8afe96da03610f9e2361be3a05b81b05a2fb702b1fa43cb7e7f701db28",
+    "bytes": 751
+  },
+  "fixture-runs/old-binary-01/owned-created.json": {
+    "sha256": "a1a9c90b3f72cc508aae932274edfed6be8a694c72dd4eb19109ae8311449f99",
+    "bytes": 1870
+  },
+  "fixture-runs/old-app-01/docker-events.jsonl": {
+    "sha256": "5f4712d56dc7078bb67b0721778a6e6d28790d479f6942a67e372d6eaa4f457c",
+    "bytes": 150565
+  },
+  "fixture-runs/old-app-01/owned-network-live-labels.json": {
+    "sha256": "8e65115c5bb1ccc358ba0fac12b490c8b069aa703e2018820173dac608f81e7d",
+    "bytes": 976
+  },
+  "fixture-runs/old-app-01/command.json": {
+    "sha256": "636b13cdcc5328eea54446b3807fa19e57ae5470fa937c4021176106fca7ac94",
+    "bytes": 1555
+  },
+  "fixture-runs/old-app-01/resource-handoff.json": {
+    "sha256": "d65191d481561eb449b79c7ea0e48d59fd9dd4d43a6cd76dec579c0a73dac9ed",
+    "bytes": 28648
+  },
+  "fixture-runs/old-app-01/baseline.json": {
+    "sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+    "bytes": 2848
+  },
+  "fixture-runs/old-app-01/driver.log": {
+    "sha256": "c1b480c01e6385b42419a15e14fbdfba44bf73328da475dc4491c1c4cca6318d",
+    "bytes": 4766
+  },
+  "fixture-runs/old-app-01/docker-events.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "fixture-runs/old-app-01/result.json": {
+    "sha256": "9fbd3d12ef299a90adabbe3d3ee0004736da9a06f59d0acece177b22c72d0390",
+    "bytes": 545
+  },
+  "fixture-runs/old-app-01/owned-created.json": {
+    "sha256": "bba38c19a788c2e1b2c645ff80eaf8e85299dec2da8ebdb9407a8798eb130445",
+    "bytes": 2406
+  },
+  "fixture-runs/new-http-01/docker-events.jsonl": {
+    "sha256": "76e8bd4c968786eb4ce5e3df378bb8ed8f8a199b4f8e40fd0045ba243b325e86",
+    "bytes": 129094
+  },
+  "fixture-runs/new-http-01/owned-network-live-labels.json": {
+    "sha256": "0c5435711d4e4ba70ab6ae16ffea8baa4937ee0b78f160d75657c3440b096c01",
+    "bytes": 732
+  },
+  "fixture-runs/new-http-01/command.json": {
+    "sha256": "7c65d5522ff559a52cd0046aeba743cbfd30c4e8154de5e4ede074b0ff83715d",
+    "bytes": 1633
+  },
+  "fixture-runs/new-http-01/resource-handoff.json": {
+    "sha256": "61db05b1de6438a9b7e953122c375cf9ed030f3daf75b4a4b76532161a646528",
+    "bytes": 24818
+  },
+  "fixture-runs/new-http-01/baseline.json": {
+    "sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+    "bytes": 2848
+  },
+  "fixture-runs/new-http-01/driver.log": {
+    "sha256": "d4da83b678462e967f1bc85d38764152ae53740ad17a118f89fd32d098351e55",
+    "bytes": 33988
+  },
+  "fixture-runs/new-http-01/docker-events.stderr": {
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "bytes": 0
+  },
+  "fixture-runs/new-http-01/result.json": {
+    "sha256": "7e927638e2dd3a4ad6d366631aa01aa3129d7938d7c75283743726c8344c25bb",
+    "bytes": 751
+  },
+  "fixture-runs/new-http-01/owned-created.json": {
+    "sha256": "6d3b0ac7c2ead192f1c788af7f0715e18ac64e3957d627369168cc4dc6500297",
+    "bytes": 1870
+  },
+  "ready-selectors.json": {
+    "sha256": "befe57b050a23c11ea6dd4bd1032c9b1eebe709ebb31ee79187bb6b6a3d09a3f",
+    "bytes": 4006
+  },
+  "ready-selectors-02.json": {
+    "sha256": "1416c7a99be764e49fce0133051af8613e9084a7d5aa8916e08d7a251556dc79",
+    "bytes": 4128
+  },
+  "run.py": {
+    "sha256": "b32816da85f6cb1ed509a6538495aba3aed4805de84149c1172c3e7b6a13e3e8",
+    "bytes": 2107
+  },
+  "run_fixture.py": {
+    "sha256": "d4c61d3cc8728f29e200b67565d8b6ffbf19f8446bfc118aeac1d999bcd622dd",
+    "bytes": 8669
+  },
+  "run_fixture_02.py": {
+    "sha256": "b69407e4469eb157bcceff70cc18c27355de78eb63d46b88bea1a55834aadd2a",
+    "bytes": 8672
+  },
+  "baseline.json": {
+    "sha256": "bcf00a29343dea2bb2c59ffedee1d704a9d0345e7592d9ce75a2571f37d8bf2f",
+    "bytes": 573
+  },
+  "paths.json": {
+    "sha256": "341d307f0e05383b0f47a4d36fcb528e06b8a8d453194d2f0e168bec9f92accd",
+    "bytes": 305
+  },
+  "inputs/fixed-closure.json": {
+    "sha256": "4171e6ef0fcc12eecf4906978d655cd6e03839abe97f7fe21ae7eeffbefce1f8",
+    "bytes": 121721
+  },
+  "inputs/embedded-assets-recovery.json": {
+    "sha256": "5bac0af9de39960a1ec04398c2e73ea157ae08e7a3d463ecdd8d62ae64ee1ed9",
+    "bytes": 347
+  },
+  "inputs/smtp-runtime-asset.json": {
+    "sha256": "10524764869121045ec9424e6cde5c38d6ba0144216463fc2450ebe96b028cd8",
+    "bytes": 287
+  }
+}

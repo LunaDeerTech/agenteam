@@ -1,0 +1,17 @@
+{
+  "from_manifest_sha256": "11e21b8845c6c884398453130dbd05383528f6477387e98e7439aa6e3e5d99c8",
+  "to_manifest_sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab",
+  "changed_paths": [
+    "internal/central/app/model_process_test.go",
+    "tests/process/model_system_database_test.go"
+  ],
+  "patch_sha256": "0f9435b64f7184cf8adb4b137652737d109467c2f68410b29133ed5adc65c303",
+  "unchanged_production_manifest": "production-review-01/manifest.json",
+  "original_failure": "fixture-runs/new-http-01/driver.log",
+  "corrections": [
+    "exact model.system command namespace with actual return states/fault codes and unreturned count",
+    "live stdout reads deferred until process wait; all original secret/sentinel assertions preserved",
+    "per-negative-case issued-cookie snapshot and GET session/CSRF precondition; explicit anonymous clear-cookie observation",
+    "exact secret_maintenance_starting phase literal"
+  ]
+}

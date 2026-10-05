@@ -1,0 +1,74 @@
+{
+  "state": "probe-only Host correction compiled/frozen; root explicitly authorized one-top rerun",
+  "expected_top": 1,
+  "expected_subtests": 2,
+  "selector": "^TestIndependentSystemModelRootCurrentSessionAndFacts$",
+  "planned_argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^TestIndependentSystemModelRootCurrentSessionAndFacts$"
+  ],
+  "planned_cwd": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/src",
+  "planned_environment": {
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOCACHE": "/workspace/agenteam-secret-model-v-thmobool/gocache",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "TMPDIR": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/runtime",
+    "GOTMPDIR": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/gotmp",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2 -v",
+    "GOMAXPROCS": "4",
+    "CGO_ENABLED": "1",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "DOCKER_CONFIG": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/docker-config"
+  },
+  "budget": "original driver -race -count=1 -timeout=6m; no increase",
+  "manifest": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/probe-freeze-02/manifest.json",
+  "manifest_sha256": "81cb4dd8affe0f5265e1a4308af7c15ddc37ee1e4c6212692bf7413049676969",
+  "probe_sha256": "6dc12d68d336e1db1226084d207f264c03003e935738d87fb7084412015a4a40",
+  "pure_checks": [
+    {
+      "metadata": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/logs/compile-02.json",
+      "metadata_sha256": "2210fae6a3c59f23d33f9b2e50bca3022437581a31cfc313d06517bd97e3a435",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-c",
+        "-race",
+        "-tags=integration",
+        "-o",
+        "/workspace/agenteam-system-model-root-acceptance-ci965cuv/bin/process-independent-02.test",
+        "./tests/process"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 1.682,
+      "log": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/logs/compile-02.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "metadata": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/logs/vet-02.json",
+      "metadata_sha256": "f94cc229f8f119c94e1fcc032551568e9151d57770015a29c9e030800a8ba28d",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./tests/process"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 0.353,
+      "log": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/logs/vet-02.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "limits": [
+    "Only original affected top; no assertion or timeout relaxed",
+    "Initialization top/two subcases reuse independent-01 unchanged function/helpers",
+    "No Provider invocation, network fault, Unknown proxy, or paused Object task"
+  ]
+}

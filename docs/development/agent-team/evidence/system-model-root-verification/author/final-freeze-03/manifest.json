@@ -1,0 +1,66 @@
+{
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "spec_commit": "2eb1e633f604aa3078db156c5d5b1a65ab08c2c3",
+  "revision": "final-freeze-03",
+  "note": "Root adopted final independent dynamic PASS. Only the two authorized capability documents changed after candidate02; all six source paths remain byte-identical and reuse the complete frozen acceptance chain. No Go or Docker rerun for documentation.",
+  "source_candidate_manifest_sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab",
+  "author_handoff_report_sha256": "7320a593bd5c4c1d1996404663661a922416dd7a3a2230bcf2753b586ae6ea66",
+  "paths": [
+    {
+      "path": "internal/central/app/account.go",
+      "sha256": "a855a5320b3fbbd5f34cdb3781ce34299a12d86b80e14cafc8d37c03734944c5",
+      "baseline_sha256": "f2c608bf97687198dd90444623c2b5611f1433de78e9482155cd772b42b29662",
+      "capability_document_deferred": false,
+      "unchanged_source_candidate02": true
+    },
+    {
+      "path": "internal/central/app/security.go",
+      "sha256": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7",
+      "baseline_sha256": "38cfdf17be802be521c966c349b9660aaed3adc4967e141c947ca22c4631dfde",
+      "capability_document_deferred": false,
+      "unchanged_source_candidate02": true
+    },
+    {
+      "path": "internal/central/app/model.go",
+      "sha256": "88921c967e1a70509c169e4461e7f73c9f0b76429c85c2fdb29d59ae5e10c799",
+      "baseline_sha256": null,
+      "capability_document_deferred": false,
+      "unchanged_source_candidate02": true
+    },
+    {
+      "path": "internal/central/app/model_test.go",
+      "sha256": "e89d795350b31362b02d1181d8c22facde06ddae32b0c1b394cf0706429bff54",
+      "baseline_sha256": null,
+      "capability_document_deferred": false,
+      "unchanged_source_candidate02": true
+    },
+    {
+      "path": "internal/central/app/model_process_test.go",
+      "sha256": "d0da84b5ba533cbfae206caeac0b4631aa62e0b41b9bc8b343b1c0e649c8f1db",
+      "baseline_sha256": null,
+      "capability_document_deferred": false,
+      "unchanged_source_candidate02": true
+    },
+    {
+      "path": "tests/process/model_system_database_test.go",
+      "sha256": "04ec22070af57711696b5bb1538fc61a5d64f4bae303ca9d3c551df0a89fd3a6",
+      "baseline_sha256": null,
+      "capability_document_deferred": false,
+      "unchanged_source_candidate02": true
+    },
+    {
+      "path": "AGENTS.md",
+      "sha256": "e4c9c329e3818afd4ef01d01cc882255e301ae1b06617b5376b984c0ba8667ff",
+      "baseline_sha256": "eb35f7ba3abd85bb13cc27cc84b330f50ae24309f6f1319330dfa1d914b97fe9",
+      "capability_document_deferred": false,
+      "unchanged_source_candidate02": false
+    },
+    {
+      "path": "docs/development/backend/README.md",
+      "sha256": "e7c9b90e8e9ee81b315a9f79f88ccb490baf68be77d2f0e05f866238df877ed0",
+      "baseline_sha256": "cdb3625e4643a9f96f46c0a3b373eb7be1c212cbf19e8fa5f3a6420d8f4f51be",
+      "capability_document_deferred": false,
+      "unchanged_source_candidate02": false
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+独立首红诊断与授权修正（probe-only）
+
+independent-01 的 revoked-session 子例只记录 exact SESSION_REVOKED 断言失败，未记录 actual code；不事后追认具体动态错误码。首轮输入、日志、两遍资源检查均保持原字节。
+
+固定 Go 1.27.1 net/http/client.go:177–196 会用 req.Host 覆盖 CookieJar 的 URL.Host。probe 每个请求的 Host=localhost:8080，但原快照用 browser.base 的 127.0.0.1:临时端口；Account csrfMakeCookie 为 host-only/Path=/，所以原 issued session 不在该 IP jar 中。原 stale client 的 Jar=nil，未携带原 session。此处是取样 host 错误，不是后一 401 更新 Jar 所致。
+
+固定 Account csrfCookie:93 对缺 cookie 返回 Unauthenticated；合法原 token 经 session.go Authenticate、Authority.current、repository.go:117 命中 revoked 后保留 SessionRevoked。HTTPBoundary.WriteProblem 仅清 cookie，httpapi.WriteProblem 保留 code，HTTP 映射为 401/SESSION_REVOKED。没有依据把真正撤销会话的精确断言降为任意 401。
+
+Root 明确授权后，仅私有 probe 改成有效 Host 取 Cookie，按 session 名称检查恰一非空原 issued 值（其它合法 Cookie 不当作重复）。每次真实发送前核 req.Cookies 恰一 session 且等于原值、Jar=nil，因此前次 401 的删除响应不能改变后次身份。失败只打印 safe code；所有 401/SESSION_REVOKED、完整 facts 不变及预算断言保留。
+
+probe02 离线 race 编译/vet 通过，再按原 driver 定向执行原受影响 top：1 top/2 subcases 全 PASS，实际三次旧身份拒绝和完整旧 facts 不变断言闭合。三生产无变更。初始化 top 的正文及 guard/helpers 与 probe01 字节相同，复用首轮两个真实通过子例，不重跑。精确 SHA、delta、实际 argv/env/exit/log 和资源末检在相邻 manifest/checks 与 fixture-runs/independent-02。

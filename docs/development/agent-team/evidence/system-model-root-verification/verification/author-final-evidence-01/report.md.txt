@@ -1,0 +1,5 @@
+Author final evidence read-only audit: PASS.
+
+114 archive payloads verified against the frozen SHA/size index; all 692 snapshot files match fixed ac5 Git objects except exactly six candidate02 source files, with no extras. The previous independent new-group audit remains applicable. Completed old-app 3 top/4 subcases and old-binary 6 top/4 subcases pass, with exact command/input/offline environment, 5c4n and 4c3n live identity, two actual exact-ID absence rounds, baseline 2c4n unchanged and tracked-process/runtime/gotmp empty.
+
+Pure/race, final integration compilation/vet and two command builds have actual argv/exit/log mappings. Reuse of pure/build is limited to compiled inputs: production and ordinary unit inputs match final; integration test metadata is not treated as a compiled build input. The original missing embedded asset setup failure remains preserved. No Go/Docker execution was performed by this read-only audit.

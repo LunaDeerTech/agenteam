@@ -1,0 +1,1272 @@
+--- a/internal/central/app/account.go
++++ b/internal/central/app/account.go
+@@ -13,6 +13,7 @@
+ 	"github.com/LunaDeerTech/agenteam/internal/central/config"
+ 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	"github.com/LunaDeerTech/agenteam/internal/central/model"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/object"
+ 	objectcontract "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
+@@ -232,6 +233,18 @@
+ 	if err != nil {
+ 		return err
+ 	}
++	modelStore, ok := db.(model.Store)
++	if !ok {
++		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
++	}
++	modelAuthority, err := model.NewAuthority(modelStore, model.Authorizations{Sessions: authority, System: authority})
++	if err != nil {
++		return err
++	}
++	usage, err := model.NewSecretUsageRouter(modelAuthority, authority)
++	if err != nil {
++		return err
++	}
+ 	accounts := &accountAssembly{constructing: true}
+ 	if !owned.addAccounts(ctx, accounts) {
+ 		accounts.constructionDone()
+@@ -247,11 +260,11 @@
+ 		return err
+ 	}
+ 	processes := accountProcessAuthority{process: process, guard: objects.guard}
+-	auditor, err := createSecurity(cfg, db, authority)
+-	if err != nil {
+-		return err
+-	}
+-	secrets, err := createSecret(cfg, db, auditor, authority)
++	auditor, err := createSecurity(cfg, db, authority, modelAuthority)
++	if err != nil {
++		return err
++	}
++	secrets, err := createSecret(cfg, db, auditor, authority, usage)
+ 	if err != nil {
+ 		return err
+ 	}
+@@ -284,18 +297,26 @@
+ 	if err != nil {
+ 		return err
+ 	}
++	modelEvents, err := model.DefineEvents(catalog)
++	if err != nil {
++		return err
++	}
+ 	journalStore, ok := db.(outbox.Store)
+ 	if !ok {
+ 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+ 	}
+ 	journal, err := outbox.New(journalStore, catalog, outbox.Authorizations{
+-		Producers: map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority},
++		Producers: map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority, model.ModelProducer: modelAuthority},
+ 		Processes: outboxProcessAuthority{process: objects.process, guard: objects.guard},
+ 		Sessions:  authority, System: authority, Audit: auditor, Cursors: cfg.CursorKeyring(),
+ 	})
+ 	if err != nil {
+ 		return err
+ 	}
++	models, err := model.New(modelStore, modelAuthority, model.Dependencies{Secret: secrets, Audit: auditor, Events: journal, ConfigurationEvents: modelEvents, Cursors: cfg.CursorKeyring()})
++	if err != nil {
++		return err
++	}
+ 	challenges, err := account.NewChallenges(authority, process)
+ 	if err != nil {
+ 		return err
+@@ -366,7 +387,11 @@
+ 	if err != nil {
+ 		return err
+ 	}
+-	if !accounts.install(ctx, func() { accounts.handler = httpHandler }) {
++	modelHandler, err := model.NewSystemHTTPHandler(models, core, secrets, model.SystemHTTPOptions{PublicOrigin: cfg.PublicOrigin()})
++	if err != nil {
++		return err
++	}
++	if !accounts.install(ctx, func() { accounts.handler = systemModelRoutes(httpHandler, modelHandler) }) {
+ 		return context.Canceled
+ 	}
+ 	deps.security = func(ctx context.Context, _ config.Config, _ database) (*audit.Service, error) {
+@@ -376,10 +401,19 @@
+ 		return auditor, auditor.CheckStorage(ctx)
+ 	}
+ 	deps.secret = func(ctx context.Context, _ config.Config, _ database, _ *audit.Service) (maintenance, error) {
++		var err error
+ 		if deps.secretInitialize != nil {
+-			return secrets, deps.secretInitialize(ctx, secrets)
+-		}
+-		return secrets, secrets.Initialize(ctx)
++			err = deps.secretInitialize(ctx, secrets)
++		} else {
++			err = secrets.Initialize(ctx)
++		}
++		if err != nil {
++			return secrets, err
++		}
++		if err = ctx.Err(); err != nil {
++			return secrets, err
++		}
++		return secrets, models.Initialize(ctx)
+ 	}
+ 	deps.outbound = func(ctx context.Context, _ config.Config, _ database, _ *audit.Service) (egress, error) {
+ 		if deps.outboundInitialize != nil {
+--- a/internal/central/app/security.go
++++ b/internal/central/app/security.go
+@@ -6,18 +6,22 @@
+ 	"github.com/LunaDeerTech/agenteam/internal/central/account"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/config"
++	"github.com/LunaDeerTech/agenteam/internal/central/model"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+ 	"time"
+ )
+ 
+ const SecurityStartupTimeout = 30 * time.Second
+ 
+-func createSecurity(cfg config.Config, db database, authority *account.Authority) (*audit.Service, error) {
++func createSecurity(cfg config.Config, db database, authority *account.Authority, models *model.Authority) (*audit.Service, error) {
+ 	store, ok := db.(audit.Store)
+ 	if !ok || authority == nil {
+ 		return nil, errors.New("AUDIT_STORE_UNAVAILABLE")
+ 	}
+-	return audit.New(store, cfg.CursorKeyring(), audit.Authorizations{Accounts: authority, Sessions: authority, System: authority})
++	if models == nil {
++		return nil, errors.New("MODEL_AUTHORITY_UNAVAILABLE")
++	}
++	return audit.New(store, cfg.CursorKeyring(), audit.Authorizations{Accounts: authority, Sessions: authority, System: authority, Models: models})
+ }
+ 
+ type maintenance interface {
+@@ -26,10 +30,13 @@
+ 	Status() secret.Status
+ }
+ 
+-func createSecret(cfg config.Config, db database, auditing *audit.Service, authority *account.Authority) (*secret.Service, error) {
++func createSecret(cfg config.Config, db database, auditing *audit.Service, authority *account.Authority, usage *model.SecretUsageRouter) (*secret.Service, error) {
+ 	store, ok := db.(secret.Store)
+ 	if !ok || authority == nil {
+ 		return nil, errors.New("SECRET_STORE_UNAVAILABLE")
+ 	}
+-	return secret.New(store, cfg.SecretKeyring(), auditing, secret.Authorizations{AccountWrites: authority, Sessions: authority, System: authority, Usage: authority})
++	if usage == nil {
++		return nil, errors.New("MODEL_USAGE_UNAVAILABLE")
++	}
++	return secret.New(store, cfg.SecretKeyring(), auditing, secret.Authorizations{AccountWrites: authority, Sessions: authority, System: authority, Usage: usage})
+ }
+--- /dev/null
++++ b/internal/central/app/model.go
+@@ -0,0 +1,28 @@
++package app
++
++import (
++	"net/http"
++	"strings"
++)
++
++// Only these complete path roots belong to the System Model boundary. Keep
++// the request untouched so the existing child boundaries validate its original
++// path, Host, Origin, method and body under the one outer HTTP middleware.
++func systemModelRoutes(accounts, models http.Handler) http.Handler {
++	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		for _, root := range [...]string{
++			"/api/v1/system/model-providers",
++			"/api/v1/system/models",
++			"/api/v1/system/model-selection",
++			"/api/v1/system/model-commands",
++			"/api/v1/system/model-credentials",
++			"/api/v1/system/model-credential-commands",
++		} {
++			if r.URL.Path == root || strings.HasPrefix(r.URL.Path, root+"/") {
++				models.ServeHTTP(w, r)
++				return
++			}
++		}
++		accounts.ServeHTTP(w, r)
++	})
++}
+--- /dev/null
++++ b/internal/central/app/model_test.go
+@@ -0,0 +1,136 @@
++package app
++
++import (
++	"bytes"
++	"context"
++	"io"
++	"log/slog"
++	"net/http"
++	"net/http/httptest"
++	"strings"
++	"testing"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/account"
++	"github.com/LunaDeerTech/agenteam/internal/central/audit"
++	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
++	"github.com/LunaDeerTech/agenteam/internal/central/model"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++)
++
++func TestModelRootRouteOwnershipAndRequestPreservation(t *testing.T) {
++	roots := []string{"model-providers", "models", "model-selection", "model-commands", "model-credentials", "model-credential-commands"}
++	type routeCase struct {
++		path, raw string
++		model     bool
++	}
++	var cases []routeCase
++	for _, root := range roots {
++		path := "/api/v1/system/" + root
++		for _, suffix := range []string{"", "/", "/lookup", "/../session", "//opaque"} {
++			cases = append(cases, routeCase{path: path + suffix, model: true})
++		}
++		cases = append(cases, routeCase{path: path + "-other"}, routeCase{path: path + "x"})
++	}
++	cases = append(cases, routeCase{path: "/api/v1/session"}, routeCase{path: "/diagnostics"}, routeCase{path: "/api/v1/system/model"}, routeCase{path: "/api/v1/system/models/opaque", raw: "/api/v1/system/models%2fopaque", model: true})
++	for _, tc := range cases {
++		t.Run(tc.path+tc.raw, func(t *testing.T) {
++			r := httptest.NewRequest(http.MethodPatch, "http://localhost:8080"+tc.path+"?private=query", strings.NewReader("body-sentinel"))
++			r.URL.RawPath = tc.raw
++			r.Header.Set("Origin", "http://localhost:8080")
++			originalURL, originalBody, originalURI := r.URL, r.Body, r.RequestURI
++			calls := 0
++			child := func(isModel bool) http.Handler {
++				return http.HandlerFunc(func(w http.ResponseWriter, got *http.Request) {
++					calls++
++					if isModel != tc.model || got.URL != originalURL || got.Body != originalBody || got.Method != http.MethodPatch || got.RequestURI != originalURI || got.URL.Path != tc.path || got.URL.RawPath != tc.raw || got.Host != "localhost:8080" || got.Header.Get("Origin") != "http://localhost:8080" {
++						t.Error("composition changed request or selected wrong child")
++					}
++					data, err := io.ReadAll(got.Body)
++					if err != nil || string(data) != "body-sentinel" || httpapi.RequestID(got.Context()).Validate() != nil {
++						t.Error("body consumed or missing outer request ID")
++					}
++					w.WriteHeader(http.StatusNoContent)
++				})
++			}
++			var logs bytes.Buffer
++			logger := slog.New(slog.NewJSONHandler(&logs, nil))
++			w := httptest.NewRecorder()
++			httpapi.Handler(logger, systemModelRoutes(child(false), child(true))).ServeHTTP(w, r)
++			if calls != 1 || w.Code != http.StatusNoContent || w.Header().Get("Location") != "" || w.Header().Get("X-Request-ID") == "" || strings.Count(logs.String(), `"event":"http_request"`) != 1 {
++				t.Fatal("route redirected, duplicated dispatch or middleware")
++			}
++			if strings.Contains(logs.String(), "body-sentinel") || strings.Contains(logs.String(), "private=query") {
++				t.Fatal("ordinary log exposed request material")
++			}
++		})
++	}
++}
++
++// The embedded pointer is deliberately nil: any database method called during
++// these real constructors panics instead of silently supplying a SQL result.
++type modelRootConstructionStore struct{ *postgres.Store }
++
++func TestModelRootRequiredConstructionDependencies(t *testing.T) {
++	cfg := testConfig(t, "1s")
++	store := &modelRootConstructionStore{}
++	accounts, err := account.NewAuthority(store, cfg.AccountKeyring())
++	if err != nil {
++		t.Fatal(err)
++	}
++	models, err := model.NewAuthority(store, model.Authorizations{Sessions: accounts, System: accounts})
++	if err != nil {
++		t.Fatal(err)
++	}
++	usage, err := model.NewSecretUsageRouter(models, accounts)
++	if err != nil {
++		t.Fatal(err)
++	}
++	auditor, err := createSecurity(cfg, store, accounts, models)
++	if err != nil || auditor == nil {
++		t.Fatal("valid Audit construction", err)
++	}
++	secrets, err := createSecret(cfg, store, auditor, accounts, usage)
++	if err != nil || secrets == nil || secrets.Status().Available {
++		t.Fatal("valid Secret construction or premature initialized state", err)
++	}
++	for _, tc := range []struct {
++		name     string
++		db       database
++		accounts *account.Authority
++		models   *model.Authority
++	}{
++		{"missing-store", nil, accounts, models},
++		{"wrong-store", &unitDatabase{}, accounts, models},
++		{"missing-account", store, nil, models},
++		{"missing-model", store, accounts, nil},
++	} {
++		t.Run("audit/"+tc.name, func(t *testing.T) {
++			if got, err := createSecurity(cfg, tc.db, tc.accounts, tc.models); err == nil || got != nil {
++				t.Fatal("missing graph dependency produced Audit service")
++			}
++		})
++	}
++	for _, tc := range []struct {
++		name     string
++		db       database
++		audit    *audit.Service
++		accounts *account.Authority
++		usage    *model.SecretUsageRouter
++	}{
++		{"missing-store", nil, auditor, accounts, usage},
++		{"wrong-store", &unitDatabase{}, auditor, accounts, usage},
++		{"missing-account", store, auditor, nil, usage},
++		{"missing-audit", store, nil, accounts, usage},
++		{"missing-router", store, auditor, accounts, nil},
++	} {
++		t.Run("secret/"+tc.name, func(t *testing.T) {
++			if got, err := createSecret(cfg, tc.db, tc.audit, tc.accounts, tc.usage); err == nil || got != nil {
++				t.Fatal("missing graph dependency produced Secret service")
++			}
++		})
++	}
++	owned := &resources{}
++	if err := bindAccounts(context.Background(), cfg, &unitDatabase{}, owned, &dependencies{}); err == nil || owned.accounts() != nil {
++		t.Fatal("invalid store published a partial handler or owner")
++	}
++}
+--- /dev/null
++++ b/internal/central/app/model_process_test.go
+@@ -0,0 +1,506 @@
++//go:build integration
++
++package app
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"io"
++	"log/slog"
++	"net"
++	"net/http"
++	"os"
++	"strings"
++	"sync"
++	"syscall"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/account"
++	"github.com/LunaDeerTech/agenteam/internal/central/config"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++	"github.com/LunaDeerTech/agenteam/internal/central/secret"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++	"github.com/LunaDeerTech/agenteam/internal/platform/lifecycle"
++	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
++	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
++	"github.com/jackc/pgx/v5/pgconn"
++)
++
++// Every operation delegates to the one actual Store. Observations and the
++// bounded pre-Exec barrier neither replace authority nor manufacture outcomes.
++type modelRootStore struct {
++	*postgres.Store
++	mu            sync.Mutex
++	owned         *resources
++	trace         []string
++	modelContexts []context.Context
++	secretContext context.Context
++	modelResults  []foundation.CommitState
++	beforeExec    func(context.Context, string)
++	request       context.Context
++	activeAtStop  []int
++	forceDeadline []time.Time
++	forceCanceled []bool
++}
++
++func (s *modelRootStore) record(v string) { s.mu.Lock(); s.trace = append(s.trace, v); s.mu.Unlock() }
++func (s *modelRootStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
++	d := cause.Details()
++	if d.Owner == "model.initialize" {
++		s.mu.Lock()
++		s.modelContexts = append(s.modelContexts, ctx)
++		s.trace = append(s.trace, "model.initialize")
++		s.mu.Unlock()
++	}
++	r := s.Store.WithinTx(ctx, cause, fn)
++	if d.Kind == foundation.CommandsCause && d.Primary.Namespace() == "model" {
++		s.mu.Lock()
++		s.modelResults = append(s.modelResults, r.State())
++		s.mu.Unlock()
++	}
++	return r
++}
++func (s *modelRootStore) InTx(tx foundation.Tx) (postgres.SQLExecutor, error) {
++	e, err := s.Store.InTx(tx)
++	if err != nil {
++		return nil, err
++	}
++	return modelRootSQL{SQLExecutor: e, store: s}, nil
++}
++
++type modelRootSQL struct {
++	postgres.SQLExecutor
++	store *modelRootStore
++}
++
++func (e modelRootSQL) Exec(ctx context.Context, query string, args ...any) (pgconn.CommandTag, error) {
++	e.store.mu.Lock()
++	hook := e.store.beforeExec
++	e.store.mu.Unlock()
++	if hook != nil {
++		hook(ctx, query)
++	}
++	return e.SQLExecutor.Exec(ctx, query, args...)
++}
++func (s *modelRootStore) StopAdmission() {
++	active := 0
++	if s.owned != nil {
++		s.owned.mu.Lock()
++		active = s.owned.httpActive
++		s.owned.mu.Unlock()
++	}
++	s.mu.Lock()
++	s.activeAtStop = append(s.activeAtStop, active)
++	s.trace = append(s.trace, "db.stop")
++	s.mu.Unlock()
++	s.Store.StopAdmission()
++}
++func (s *modelRootStore) Drain(ctx context.Context) error {
++	s.record("db.drain")
++	return s.Store.Drain(ctx)
++}
++func (s *modelRootStore) ForceClose(ctx context.Context) error {
++	s.mu.Lock()
++	d, _ := ctx.Deadline()
++	s.forceDeadline = append(s.forceDeadline, d)
++	s.forceCanceled = append(s.forceCanceled, s.request == nil || s.request.Err() != nil)
++	s.trace = append(s.trace, "db.force")
++	s.mu.Unlock()
++	return s.Store.ForceClose(ctx)
++}
++
++type modelRootApp struct {
++	db      *pgfixture.Database
++	cfg     config.Config
++	store   *modelRootStore
++	core    *account.Service
++	owned   *resources
++	logs    *eventLog
++	signals chan os.Signal
++	done    chan struct{}
++	err     error
++	cancel  context.CancelFunc
++}
++
++func newModelRootApp(t *testing.T, timeout string, setup func(*modelRootApp, *dependencies)) *modelRootApp {
++	t.Helper()
++	db := pgfixture.NewDatabase(t)
++	env := append(guardEnvironment(t, db), "AGENTEAM_CENTRAL_PUBLIC_ORIGIN=http://localhost:8080", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT="+timeout)
++	a := &modelRootApp{db: db, cfg: guardConfiguration(t, env), store: &modelRootStore{}, logs: newEventLog(), signals: make(chan os.Signal, 4), done: make(chan struct{})}
++	ctx, cancel := context.WithCancel(context.Background())
++	a.cancel = cancel
++	deps := dependencies{
++		open: func(ctx context.Context, cfg postgres.Config) (database, error) {
++			store, err := postgres.Open(ctx, cfg)
++			if err != nil {
++				return nil, err
++			}
++			a.store.Store = store
++			return a.store, nil
++		},
++		bind: func(ctx context.Context, cfg config.Config, db database, owned *resources, d *dependencies) error {
++			a.owned, a.store.owned = owned, owned
++			return bindAccounts(ctx, cfg, db, owned, d)
++		},
++		observeAccount: func(core *account.Service) { a.core = core },
++		listen: func(ctx context.Context, network, address string) (net.Listener, error) {
++			a.store.record("listen")
++			return (&net.ListenConfig{}).Listen(ctx, network, address)
++		},
++	}
++	if setup != nil {
++		setup(a, &deps)
++	}
++	logger, err := logging.New(logging.Central, slog.LevelInfo, a.logs)
++	if err != nil {
++		t.Fatal(err)
++	}
++	go func() { a.err = run(ctx, a.cfg, logger, a.signals, deps); close(a.done) }()
++	t.Cleanup(func() { cancel(); await(t, a.done) })
++	return a
++}
++func (a *modelRootApp) address(t *testing.T) string {
++	t.Helper()
++	return "http://" + a.logs.wait(t, func(e map[string]any) bool { return e["event"] == "listening" })["listen_address"].(string)
++}
++
++func TestModelRootInitializationAndFailureOwnership(t *testing.T) {
++	for _, mode := range []string{"success", "model-storage", "secret-storage", "secret-cancel", "model-lock-cancel"} {
++		t.Run(mode, func(t *testing.T) {
++			var holder *postgres.Store
++			held, release, holderDone := make(chan struct{}), make(chan struct{}), make(chan struct{})
++			var releaseOnce sync.Once
++			releaseHolder := func() { releaseOnce.Do(func() { close(release) }) }
++			defer releaseHolder()
++			a := newModelRootApp(t, "2s", func(a *modelRootApp, d *dependencies) {
++				d.secretInitialize = func(ctx context.Context, service *secret.Service) error {
++					a.store.mu.Lock()
++					a.store.secretContext = ctx
++					a.store.mu.Unlock()
++					if mode == "secret-storage" {
++						if _, err := a.store.Exec(ctx, `ALTER TABLE agenteam_secret.secret_master_registry RENAME TO unavailable_registry`); err != nil {
++							return err
++						}
++					}
++					if err := service.Initialize(ctx); err != nil {
++						return err
++					}
++					a.store.record("secret.success")
++					if mode == "secret-cancel" {
++						a.cancel()
++						<-ctx.Done()
++						return nil
++					}
++					if mode == "model-storage" {
++						_, err := a.store.Exec(ctx, `ALTER TABLE agenteam_model.providers RENAME TO unavailable_providers`)
++						return err
++					}
++					if mode == "model-lock-cancel" {
++						var err error
++						holder, err = postgres.Open(ctx, a.cfg.Database())
++						if err != nil {
++							return err
++						}
++						cause, _ := foundation.NewRecoveryCause("model-root-lock", guardID[struct{}](t).String(), "")
++						go func() {
++							defer close(holderDone)
++							r := holder.WithinTx(context.Background(), cause, func(ctx context.Context, tx foundation.Tx) error {
++								key, _ := foundation.SystemConfigLock("model-platform-selection")
++								if err := holder.Acquire(ctx, tx, key, foundation.Exclusive); err != nil {
++									return err
++								}
++								close(held)
++								<-release
++								return nil
++							})
++							if r.State() != foundation.Committed {
++								t.Error("normal lock holder failed")
++							}
++						}()
++						<-held
++					}
++					return nil
++				}
++			})
++			if mode == "success" {
++				a.address(t)
++				a.signals <- syscall.SIGTERM
++			} else if mode == "model-lock-cancel" {
++				await(t, held)
++				waitModelRootFact(t, a.db, `SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND application_name='agenteam' AND cardinality(pg_blocking_pids(pid))>0)`)
++				a.signals <- syscall.SIGTERM
++			}
++			await(t, a.done)
++			if holder != nil {
++				releaseHolder()
++				await(t, holderDone)
++				closeCtx, cancel := context.WithTimeout(context.Background(), time.Second)
++				if err := holder.ForceClose(closeCtx); err != nil {
++					t.Error(err)
++				}
++				cancel()
++			}
++			a.store.mu.Lock()
++			count := len(a.store.modelContexts)
++			trace := append([]string(nil), a.store.trace...)
++			if count > 0 {
++				if count != 1 || a.store.modelContexts[0] != a.store.secretContext {
++					t.Error("Model did not inherit exact original Secret ctx once")
++				}
++				deadline, ok := a.store.modelContexts[0].Deadline()
++				if !ok || deadline.IsZero() {
++					t.Error("security deadline missing")
++				}
++			}
++			a.store.mu.Unlock()
++			wantModel := mode != "secret-storage" && mode != "secret-cancel"
++			if (count == 1) != wantModel {
++				t.Fatal("wrong initialization stage", count, trace)
++			}
++			if mode == "success" {
++				if a.err != nil || strings.Index(strings.Join(trace, ","), "secret.success") > strings.Index(strings.Join(trace, ","), "model.initialize") {
++					t.Fatal("startup order", a.err, trace)
++				}
++				var version int64
++				var configured bool
++				if err := a.db.Connect(t).QueryRow(databaseTestContext(t), `SELECT version,configured FROM agenteam_model.platform_selection WHERE singleton`).Scan(&version, &configured); err != nil || version != 1 || configured {
++					t.Fatal("technical singleton", err)
++				}
++			} else {
++				if strings.Contains(a.logs.String(), `"event":"listening"`) {
++					t.Fatal("failed/cancelled initialize listened")
++				}
++				if (mode == "model-storage" || mode == "secret-storage") && lifecycle.CodeOf(a.err) != lifecycle.InitializationFailed {
++					t.Fatal("storage error swallowed", a.err)
++				}
++				if a.owned == nil || !a.owned.accounts().Joined() {
++					t.Fatal("partial Account/log owner not joined")
++				}
++			}
++			waitModelRootFact(t, a.db, `SELECT NOT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND application_name='agenteam')`)
++			t.Logf("mode=%s Model initialize calls=%d trace=%v", mode, count, trace)
++		})
++	}
++}
++
++func waitModelRootFact(t *testing.T, db *pgfixture.Database, query string) {
++	t.Helper()
++	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
++	defer cancel()
++	conn := db.Connect(t)
++	for {
++		var ok bool
++		if err := conn.QueryRow(ctx, query).Scan(&ok); err != nil {
++			t.Fatal("root fact query failed", err)
++		}
++		if ok {
++			return
++		}
++		select {
++		case <-ctx.Done():
++			t.Fatal("root fact did not converge")
++		case <-time.After(5 * time.Millisecond):
++		}
++	}
++}
++
++func modelRootRequest(t *testing.T, a *modelRootApp, address string) <-chan responseResult {
++	t.Helper()
++	response, err := fixtureAccountLoginResponse(databaseTestContext(t), a.cfg, a.core)
++	if err != nil {
++		t.Fatal("actual Account login failed", err)
++	}
++	var cookie string
++	if err = response.UseCookie(func(b []byte) error { cookie = string(b); return nil }); err != nil {
++		t.Fatal(err)
++	}
++	if err = response.Close(databaseTestContext(t)); err != nil {
++		t.Fatal(err)
++	}
++	material, err := sc.NewSecretMaterial([]byte(cookie))
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer material.Destroy()
++	session, err := a.core.GetSession(databaseTestContext(t), material)
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer session.CSRF.Destroy()
++	var csrf string
++	if err = session.CSRF.Use(func(b []byte) error { csrf = string(b); return nil }); err != nil {
++		t.Fatal(err)
++	}
++	body := []byte(`{"input":{"name":"root-drain","protocol":"openai-chat-completions","base_url":"https://never-contacted.example/v1","enabled":true,"credential_ref":null,"options":{}}}`)
++	r, err := http.NewRequest(http.MethodPost, address+"/api/v1/system/model-providers", bytes.NewReader(body))
++	if err != nil {
++		t.Fatal(err)
++	}
++	r.Host = "localhost:8080"
++	r.Header.Set("Origin", "http://localhost:8080")
++	r.Header.Set("Content-Type", "application/json")
++	r.Header.Set("X-CSRF-Token", csrf)
++	r.Header.Set("Idempotency-Key", guardID[struct{}](t).String())
++	r.AddCookie(&http.Cookie{Name: "agenteam_local_session", Value: cookie})
++	client := &http.Client{Timeout: 8 * time.Second}
++	t.Cleanup(client.CloseIdleConnections)
++	done := make(chan responseResult, 1)
++	go func() {
++		result, err := client.Do(r)
++		if err != nil {
++			done <- responseResult{err: err}
++			return
++		}
++		raw, err := io.ReadAll(result.Body)
++		_ = result.Body.Close()
++		done <- responseResult{status: result.StatusCode, body: raw, err: err}
++	}()
++	return done
++}
++func modelRootFlight(t *testing.T, timeout string) (*modelRootApp, context.Context, func(), <-chan responseResult, string) {
++	t.Helper()
++	entered := make(chan context.Context, 1)
++	release := make(chan struct{})
++	var once sync.Once
++	a := newModelRootApp(t, timeout, func(a *modelRootApp, _ *dependencies) {
++		a.store.beforeExec = func(ctx context.Context, query string) {
++			if !strings.HasPrefix(query, "INSERT INTO agenteam_model.providers(") {
++				return
++			}
++			a.store.mu.Lock()
++			a.store.request = ctx
++			a.store.trace = append(a.store.trace, "provider.exec.entered")
++			a.store.mu.Unlock()
++			entered <- ctx
++			select {
++			case <-release:
++			case <-ctx.Done():
++			}
++			a.store.record("provider.exec.released")
++		}
++	})
++	finish := func() { once.Do(func() { close(release) }) }
++	t.Cleanup(finish)
++	address := a.address(t)
++	result := modelRootRequest(t, a, address)
++	var ctx context.Context
++	select {
++	case ctx = <-entered:
++	case r := <-result:
++		t.Fatalf("real Model request did not enter provider write: status=%d error=%v", r.status, r.err)
++	case <-time.After(5 * time.Second):
++		t.Fatal("provider write barrier not reached")
++	}
++	a.owned.mu.Lock()
++	active := a.owned.httpActive
++	a.owned.mu.Unlock()
++	if active != 1 {
++		t.Fatal("new actual route missing HTTP ownership", active)
++	}
++	return a, ctx, finish, result, address
++}
++
++func TestModelRootHTTPActiveDrainAndDatabaseLast(t *testing.T) {
++	a, ctx, release, result, address := modelRootFlight(t, "3s")
++	a.signals <- syscall.SIGTERM
++	a.logs.wait(t, func(e map[string]any) bool { return e["phase"] == "stopping" })
++	if ctx.Err() != nil {
++		t.Fatal("first signal cancelled admitted request")
++	}
++	a.store.mu.Lock()
++	stopped := len(a.store.activeAtStop)
++	a.store.mu.Unlock()
++	if stopped != 0 {
++		t.Fatal("database stopped before actual HTTP completion")
++	}
++	client := &http.Client{Timeout: time.Second}
++	defer client.CloseIdleConnections()
++	r, _ := http.NewRequest("GET", address+"/api/v1/system/model-selection", nil)
++	r.Host = "localhost:8080"
++	if response, err := client.Do(r); err == nil {
++		raw, _ := io.ReadAll(response.Body)
++		_ = response.Body.Close()
++		if response.StatusCode != 503 || !bytes.Contains(raw, []byte("SHUTTING_DOWN")) {
++			t.Fatal("late request admitted")
++		}
++	}
++	release()
++	response := receiveResponse(t, result)
++	if response.err != nil || response.status != 200 {
++		t.Fatal("admitted Model write did not finish", response.status, response.err)
++	}
++	var receipt struct {
++		ID string `json:"resource_id"`
++	}
++	if json.Unmarshal(response.body, &receipt) != nil || receipt.ID == "" {
++		t.Fatal("missing Model receipt")
++	}
++	await(t, a.done)
++	if a.err != nil {
++		t.Fatal(a.err)
++	}
++	var count int
++	if err := a.db.Connect(t).QueryRow(databaseTestContext(t), `SELECT count(*) FROM agenteam_model.providers WHERE id=$1`, receipt.ID).Scan(&count); err != nil || count != 1 {
++		t.Fatal("receipt/canonical mismatch", err)
++	}
++	a.store.mu.Lock()
++	defer a.store.mu.Unlock()
++	if len(a.store.activeAtStop) == 0 || len(a.store.forceDeadline) != 0 {
++		t.Fatal("normal drain did not close DB normally", a.store.trace)
++	}
++	for _, n := range a.store.activeAtStop {
++		if n != 0 {
++			t.Fatal("DB stop overtook httpActive")
++		}
++	}
++	if len(a.store.modelResults) == 0 || a.store.modelResults[len(a.store.modelResults)-1] != foundation.Committed {
++		t.Fatal("actual command commit missing")
++	}
++	t.Logf("normal drain trace=%v actual model Tx states=%v", a.store.trace, a.store.modelResults)
++}
++
++func TestModelRootHTTPForceUsesOriginalBudget(t *testing.T) {
++	for _, mode := range []string{"deadline", "second-signal"} {
++		t.Run(mode, func(t *testing.T) {
++			timeout := "120ms"
++			want := lifecycle.ShutdownTimeout
++			if mode == "second-signal" {
++				timeout = "3s"
++				want = lifecycle.ForcedShutdown
++			}
++			a, ctx, release, result, _ := modelRootFlight(t, timeout)
++			defer release()
++			start := time.Now()
++			a.signals <- syscall.SIGTERM
++			a.logs.wait(t, func(e map[string]any) bool { return e["phase"] == "stopping" })
++			if mode == "second-signal" {
++				a.signals <- syscall.SIGINT
++			}
++			await(t, a.done)
++			if time.Since(start) > 3*time.Second || lifecycle.CodeOf(a.err) != want || ctx.Err() == nil {
++				t.Fatal("force budget/outcome/context", a.err)
++			}
++			response := receiveResponse(t, result)
++			if response.err == nil && response.status == 200 {
++				t.Fatal("blocked forced write claimed success")
++			}
++			a.store.mu.Lock()
++			defer a.store.mu.Unlock()
++			if len(a.store.forceDeadline) == 0 {
++				t.Fatal("DB ForceClose was not initiated")
++			}
++			for i, d := range a.store.forceDeadline {
++				if d.IsZero() || d.After(start.Add(2*time.Second)) || !a.store.forceCanceled[i] {
++					t.Fatal("force renewed budget or ran DB before serving cancellation")
++				}
++			}
++			if strings.Contains(a.logs.String(), `"outcome":"drained"`) {
++				t.Fatal("forced path claimed drained")
++			}
++			t.Logf("force mode=%s trace=%v actual model Tx states=%v; forced exit is not an all-writer join or rollback claim", mode, a.store.trace, a.store.modelResults)
++		})
++	}
++}
+--- /dev/null
++++ b/tests/process/model_system_database_test.go
+@@ -0,0 +1,437 @@
++//go:build integration
++
++package process_test
++
++import (
++	"bufio"
++	"bytes"
++	"context"
++	"encoding/json"
++	"io"
++	"net/http"
++	"os"
++	"reflect"
++	"strings"
++	"syscall"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
++)
++
++type modelSystemBinary struct {
++	p       *process
++	db      *pgfixture.Database
++	env     []string
++	address string
++	client  *http.Client
++	cookies map[string]*http.Cookie
++	csrf    string
++	logPath string
++}
++type modelSystemResponse struct {
++	status int
++	body   []byte
++	header http.Header
++}
++
++func modelSystemKey(t *testing.T) string {
++	t.Helper()
++	id, err := foundation.NewID[struct{}]()
++	if err != nil {
++		t.Fatal(err)
++	}
++	return id.String()
++}
++func newModelSystemBinary(t *testing.T) *modelSystemBinary {
++	t.Helper()
++	db := pgfixture.NewDatabase(t)
++	env := databaseEnvironment(t, db, "AGENTEAM_CENTRAL_PUBLIC_ORIGIN=http://localhost:8080")
++	v := &modelSystemBinary{db: db, env: env, client: &http.Client{Timeout: 5 * time.Second}, cookies: map[string]*http.Cookie{}}
++	for _, e := range env {
++		if strings.HasPrefix(e, "AGENTEAM_CENTRAL_ACCOUNT_RECOVERY_LOG=") {
++			v.logPath = strings.TrimPrefix(e, "AGENTEAM_CENTRAL_ACCOUNT_RECOVERY_LOG=")
++		}
++	}
++	v.start(t)
++	t.Cleanup(v.client.CloseIdleConnections)
++	t.Cleanup(func() { clear(v.cookies); v.csrf = "" })
++	v.login(t)
++	return v
++}
++func (v *modelSystemBinary) start(t *testing.T) {
++	t.Helper()
++	v.p = launch(t, "agenteam", nil, v.env)
++	v.address = "http://" + v.p.event(t, "event", "listening")["listen_address"].(string)
++}
++func (v *modelSystemBinary) request(t *testing.T, method, path, key string, input any, change func(*http.Request)) modelSystemResponse {
++	t.Helper()
++	var raw []byte
++	var err error
++	if input != nil {
++		raw, err = json.Marshal(input)
++		if err != nil {
++			t.Fatal(err)
++		}
++	}
++	defer clear(raw)
++	r, err := http.NewRequest(method, v.address+path, bytes.NewReader(raw))
++	if err != nil {
++		t.Fatal(err)
++	}
++	r.Host = "localhost:8080"
++	r.Header.Set("Origin", "http://localhost:8080")
++	r.Header.Set("Sec-Fetch-Site", "same-origin")
++	r.Header.Set("Content-Type", "application/json")
++	if v.csrf != "" {
++		r.Header.Set("X-CSRF-Token", v.csrf)
++	}
++	if key != "" {
++		r.Header.Set("Idempotency-Key", key)
++	}
++	for _, c := range v.cookies {
++		r.AddCookie(c)
++	}
++	if change != nil {
++		change(r)
++	}
++	response, err := v.client.Do(r)
++	if err != nil {
++		t.Fatal("owned root HTTP request failed", err)
++	}
++	body, err := io.ReadAll(response.Body)
++	_ = response.Body.Close()
++	if err != nil {
++		t.Fatal(err)
++	}
++	for _, c := range response.Cookies() {
++		if c.MaxAge < 0 {
++			delete(v.cookies, c.Name)
++		} else {
++			v.cookies[c.Name] = c
++		}
++	}
++	return modelSystemResponse{response.StatusCode, body, response.Header.Clone()}
++}
++func (r modelSystemResponse) want(t *testing.T, status int) modelSystemResponse {
++	t.Helper()
++	if r.status != status {
++		var p struct {
++			Code string `json:"code"`
++		}
++		_ = json.Unmarshal(r.body, &p)
++		t.Fatalf("root HTTP status=%d want=%d safe_code=%s", r.status, status, p.Code)
++	}
++	return r
++}
++func (r modelSystemResponse) object(t *testing.T) map[string]any {
++	t.Helper()
++	var out map[string]any
++	if json.Unmarshal(r.body, &out) != nil {
++		t.Fatal("root response was not JSON object")
++	}
++	return out
++}
++func (v *modelSystemBinary) login(t *testing.T) {
++	t.Helper()
++	bootstrap := v.request(t, "GET", "/api/v1/auth/bootstrap", "", nil, nil).want(t, 200).object(t)
++	v.csrf = bootstrap["csrf_token"].(string)
++	raw, err := os.ReadFile(v.logPath)
++	if err != nil {
++		t.Fatal("owned bootstrap log unavailable")
++	}
++	defer clear(raw)
++	var email, password string
++	scan := bufio.NewScanner(bytes.NewReader(raw))
++	for scan.Scan() {
++		var record struct {
++			Purpose  string `json:"purpose"`
++			Email    string `json:"email"`
++			Password string `json:"initial_password"`
++		}
++		if json.Unmarshal(scan.Bytes(), &record) != nil {
++			t.Fatal("private record malformed")
++		}
++		if record.Purpose == "bootstrap" {
++			email, password = record.Email, record.Password
++		}
++	}
++	if scan.Err() != nil || email == "" || password == "" {
++		t.Fatal("owned bootstrap record missing")
++	}
++	input := map[string]any{"email": email, "password": password}
++	v.request(t, "POST", "/api/v1/sessions/login", modelSystemKey(t), input, nil).want(t, 200)
++	delete(input, "password")
++	if strings.Contains(v.p.stderr.String()+v.p.stdout.String(), password) {
++		t.Fatal("ordinary process log leaked bootstrap material")
++	}
++	password = ""
++	session := v.request(t, "GET", "/api/v1/session", "", nil, nil).want(t, 200).object(t)
++	v.csrf = session["csrf_token"].(string)
++}
++func (v *modelSystemBinary) stop(t *testing.T, signal syscall.Signal) {
++	t.Helper()
++	if err := v.p.command.Process.Signal(signal); err != nil {
++		t.Fatal(err)
++	}
++	v.p.wait(t, 0)
++	noCentralBackends(t, v.db)
++	assertDatabaseLogsSafe(t, v.p, v.db)
++}
++func modelSystemProvider(protocol string, credential any) map[string]any {
++	return map[string]any{"input": map[string]any{"name": "root provider", "protocol": protocol, "base_url": "https://never-contacted.example/v1", "enabled": true, "credential_ref": credential, "options": map[string]any{}}}
++}
++func modelSystemModel(provider, kind string) map[string]any {
++	output := "text"
++	structured := []string{"text", "json_schema"}
++	if kind == "embedding" {
++		output = "vector"
++		structured = []string{}
++	}
++	return map[string]any{"provider_id": provider, "input": map[string]any{"name": "root model", "provider_model_id": "owned-test-model", "type": kind, "enabled": true, "parameters": map[string]any{}, "request_overwrite": map[string]any{}, "header_overwrite": map[string]string{}, "capabilities": map[string]any{"tool_calls": false, "parallel_tool_calls": false, "streaming": kind == "chat", "reasoning": false, "input_modalities": []string{"text"}, "output_modalities": []string{output}, "reasoning_efforts": []string{}, "structured_output_modes": structured, "context_length": nil, "max_output": nil}}}
++}
++func modelSystemSame(t *testing.T, a, b any) {
++	t.Helper()
++	if !reflect.DeepEqual(a, b) {
++		t.Fatal("historical receipt/configuration changed")
++	}
++}
++
++func TestCentralModelSystemConfigurationAndRestart(t *testing.T) {
++	v := newModelSystemBinary(t)
++	selection := v.request(t, "GET", "/api/v1/system/model-selection", "", nil, nil).want(t, 200).object(t)
++	if selection["configured"] != nil || selection["version"] != "1" {
++		t.Fatal("root invented model defaults")
++	}
++	credentialKey, providerKey := modelSystemKey(t), modelSystemKey(t)
++	credentialBody := map[string]any{"value": "root-model-credential-sentinel"}
++	credential := v.request(t, "POST", "/api/v1/system/model-credentials", credentialKey, credentialBody, nil).want(t, 200).object(t)["credential_id"].(string)
++	providerBody := modelSystemProvider("openai-chat-completions", credential)
++	providerReceipt := v.request(t, "POST", "/api/v1/system/model-providers", providerKey, providerBody, nil).want(t, 200).object(t)
++	provider := providerReceipt["resource_id"].(string)
++	modelSystemSame(t, providerReceipt, v.request(t, "POST", "/api/v1/system/model-providers", providerKey, providerBody, nil).want(t, 200).object(t))
++	lookup := v.request(t, "POST", "/api/v1/system/model-commands/lookup", providerKey, map[string]any{"command": "provider.create"}, nil).want(t, 200).object(t)
++	if lookup["found"] != true {
++		t.Fatal("Model receipt missing")
++	}
++	modelSystemSame(t, lookup["receipt"], providerReceipt)
++	secretLookup := v.request(t, "POST", "/api/v1/system/model-credential-commands/lookup", credentialKey, map[string]any{"kind": "create"}, nil).want(t, 200).object(t)
++	if secretLookup["observed"] != true || secretLookup["result"].(map[string]any)["credential_id"] != credential {
++		t.Fatal("Secret receipt missing")
++	}
++	v.request(t, "PUT", "/api/v1/system/model-credentials/"+credential, modelSystemKey(t), map[string]any{"expected_version": "1", "value": "root-model-updated-sentinel"}, nil).want(t, 200)
++	v.request(t, "DELETE", "/api/v1/system/model-credentials/"+credential, modelSystemKey(t), map[string]any{"expected_version": "2"}, nil).want(t, 409)
++	updateProvider := modelSystemProvider("openai-chat-completions", credential)["input"].(map[string]any)
++	updateProvider["name"] = "root provider updated"
++	v.request(t, "PUT", "/api/v1/system/model-providers/"+provider, modelSystemKey(t), map[string]any{"expected_version": "1", "input": updateProvider}, nil).want(t, 200)
++	if v.request(t, "GET", "/api/v1/system/model-providers/"+provider, "", nil, nil).want(t, 200).object(t)["version"] != "2" {
++		t.Fatal("Provider update absent")
++	}
++	chat := v.request(t, "POST", "/api/v1/system/models", modelSystemKey(t), modelSystemModel(provider, "chat"), nil).want(t, 200).object(t)["resource_id"].(string)
++	embedProvider := v.request(t, "POST", "/api/v1/system/model-providers", modelSystemKey(t), modelSystemProvider("openai-embeddings", nil), nil).want(t, 200).object(t)["resource_id"].(string)
++	embed := v.request(t, "POST", "/api/v1/system/models", modelSystemKey(t), modelSystemModel(embedProvider, "embedding"), nil).want(t, 200).object(t)["resource_id"].(string)
++	v.request(t, "PUT", "/api/v1/system/model-selection", modelSystemKey(t), map[string]any{"id": selection["id"], "expected_version": "1", "embedding": embed, "memory": chat, "reranker": nil, "image": nil}, nil).want(t, 200)
++	configured := v.request(t, "GET", "/api/v1/system/model-selection", "", nil, nil).want(t, 200).object(t)
++	if configured["id"] != selection["id"] || configured["version"] != "2" {
++		t.Fatal("selector identity/version changed incorrectly")
++	}
++	// Independently exercise deletions without discarding the configured state
++	// which the real process restart below must preserve.
++	spareProvider := v.request(t, "POST", "/api/v1/system/model-providers", modelSystemKey(t), modelSystemProvider("openai-chat-completions", nil), nil).want(t, 200).object(t)["resource_id"].(string)
++	body := modelSystemModel(spareProvider, "chat")
++	spare := v.request(t, "POST", "/api/v1/system/models", modelSystemKey(t), body, nil).want(t, 200).object(t)["resource_id"].(string)
++	body["input"].(map[string]any)["name"] = "updated spare"
++	v.request(t, "PUT", "/api/v1/system/models/"+spare, modelSystemKey(t), map[string]any{"expected_version": "1", "input": body["input"]}, nil).want(t, 200)
++	v.request(t, "GET", "/api/v1/system/models/"+spare, "", nil, nil).want(t, 200)
++	v.request(t, "DELETE", "/api/v1/system/models/"+spare, modelSystemKey(t), map[string]any{"expected_version": "2", "replacement": nil}, nil).want(t, 200)
++	v.request(t, "DELETE", "/api/v1/system/model-providers/"+spareProvider, modelSystemKey(t), map[string]any{"expected_version": "1"}, nil).want(t, 200)
++	v.request(t, "GET", "/api/v1/system/models/"+spare, "", nil, nil).want(t, 404)
++	spareCredential := v.request(t, "POST", "/api/v1/system/model-credentials", modelSystemKey(t), map[string]any{"value": "temporary-root-value"}, nil).want(t, 200).object(t)["credential_id"].(string)
++	v.request(t, "DELETE", "/api/v1/system/model-credentials/"+spareCredential, modelSystemKey(t), map[string]any{"expected_version": "1"}, nil).want(t, 200)
++	conn := v.db.Connect(t)
++	var refs, broken, deliveries, handlers, subscriptions, embeddingEvents int
++	if err := conn.QueryRow(databaseContext(t), `SELECT
++ (SELECT count(*) FROM agenteam_secret.secret_references WHERE credential_id=$1 AND consumer='model' AND owner_id=$2),
++ (SELECT count(*) FROM agenteam_model.commands c WHERE phase<>'committed' OR NOT EXISTS(SELECT 1 FROM agenteam_audit.audit_records a WHERE a.producer='model' AND a.action=c.command_name AND a.resource_id=c.resource_id AND a.metadata->>'version'=c.safe_receipt->>'version') OR NOT EXISTS(SELECT 1 FROM agenteam_outbox.events e WHERE e.id=c.event_id AND e.producer='model')),
++ (SELECT count(*) FROM agenteam_outbox.deliveries d JOIN agenteam_outbox.events e ON e.id=d.event_id WHERE e.producer='model'),
++ (SELECT count(*) FROM agenteam_outbox.handlers WHERE id='account.mail-enqueue'),
++ (SELECT count(*) FROM agenteam_outbox.subscriptions),
++ (SELECT count(*) FROM agenteam_outbox.events WHERE event_type='model.embedding_selection_changed')`, credential, provider).Scan(&refs, &broken, &deliveries, &handlers, &subscriptions, &embeddingEvents); err != nil || refs != 1 || broken != 0 || deliveries != 0 || handlers != 1 || subscriptions != 1 || embeddingEvents != 1 {
++		t.Fatal("root graph durable facts", err, refs, broken, deliveries, handlers, subscriptions, embeddingEvents)
++	}
++	var countBefore int
++	if err := conn.QueryRow(databaseContext(t), `SELECT count(*) FROM agenteam_model.commands`).Scan(&countBefore); err != nil {
++		t.Fatal(err)
++	}
++	privateLog, err := os.ReadFile(v.logPath)
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer clear(privateLog)
++	v.stop(t, syscall.SIGTERM)
++	v.start(t)
++	modelSystemSame(t, configured, v.request(t, "GET", "/api/v1/system/model-selection", "", nil, nil).want(t, 200).object(t))
++	modelSystemSame(t, lookup, v.request(t, "POST", "/api/v1/system/model-commands/lookup", providerKey, map[string]any{"command": "provider.create"}, nil).want(t, 200).object(t))
++	modelSystemSame(t, secretLookup, v.request(t, "POST", "/api/v1/system/model-credential-commands/lookup", credentialKey, map[string]any{"kind": "create"}, nil).want(t, 200).object(t))
++	modelSystemSame(t, providerReceipt, v.request(t, "POST", "/api/v1/system/model-providers", providerKey, providerBody, nil).want(t, 200).object(t))
++	v.request(t, "POST", "/api/v1/system/model-credentials", credentialKey, credentialBody, nil).want(t, 200)
++	var countAfter int
++	if err := conn.QueryRow(databaseContext(t), `SELECT count(*) FROM agenteam_model.commands`).Scan(&countAfter); err != nil || countAfter != countBefore {
++		t.Fatal("restart/replay created commands", err)
++	}
++	after, err := os.ReadFile(v.logPath)
++	defer clear(after)
++	if err != nil || !bytes.Equal(privateLog, after) {
++		t.Fatal("restart changed restricted bootstrap log")
++	}
++	for _, sentinel := range []string{"root-model-credential-sentinel", "root-model-updated-sentinel", "temporary-root-value"} {
++		if strings.Contains(v.p.stderr.String()+v.p.stdout.String(), sentinel) {
++			t.Fatal("ordinary root output leaked credential")
++		}
++	}
++	v.stop(t, syscall.SIGINT)
++}
++
++func TestCentralModelSystemCurrentAuthorityAndRouting(t *testing.T) {
++	v := newModelSystemBinary(t)
++	credentialKey, providerKey := modelSystemKey(t), modelSystemKey(t)
++	credentialBody := map[string]any{"value": "root-current-authority-value"}
++	v.request(t, "POST", "/api/v1/system/model-credentials", credentialKey, credentialBody, nil).want(t, 200)
++	providerBody := modelSystemProvider("openai-chat-completions", nil)
++	v.request(t, "POST", "/api/v1/system/model-providers", providerKey, providerBody, nil).want(t, 200)
++	for _, tc := range []struct {
++		name   string
++		change func(*http.Request)
++		status int
++	}{
++		{"anonymous", func(r *http.Request) { r.Header.Del("Cookie") }, 401},
++		{"wrong-host", func(r *http.Request) { r.Host = "untrusted.invalid" }, 403},
++		{"wrong-origin", func(r *http.Request) { r.Header.Set("Origin", "https://untrusted.invalid") }, 403},
++		{"missing-csrf", func(r *http.Request) { r.Header.Del("X-CSRF-Token") }, 403},
++	} {
++		t.Run(tc.name, func(t *testing.T) {
++			v.request(t, "POST", "/api/v1/system/model-commands/lookup", providerKey, map[string]any{"command": "provider.create"}, tc.change).want(t, tc.status)
++		})
++	}
++	head := v.request(t, "HEAD", "/api/v1/system/model-providers", "", nil, nil).want(t, 200)
++	if len(head.body) != 0 {
++		t.Fatal("HEAD returned body")
++	}
++	v.request(t, "PATCH", "/api/v1/system/model-providers", "", nil, nil).want(t, 405)
++	for _, path := range []string{"/api/v1/system/model-providers-extra", "/api/v1/system/model-call", "/api/v1/model-invocations", "/api/v1/projects"} {
++		v.request(t, "GET", path, "", nil, nil).want(t, 404)
++	}
++	v.request(t, "GET", "/api/v1/session", "", nil, nil).want(t, 200)
++	ready := v.request(t, "GET", "/readyz", "", nil, nil).want(t, 503)
++	if !bytes.Contains(ready.body, []byte("DEPENDENCY_UNBOUND")) {
++		t.Fatal("false root ready")
++	}
++	diagnostic := v.request(t, "GET", "/diagnostics", "", nil, nil).want(t, 200).object(t)
++	if diagnostic["ready"] != false {
++		t.Fatal("diagnostics claimed ready")
++	}
++	response := v.request(t, "GET", "/api/v1/system/model-selection", "", nil, nil).want(t, 200)
++	requestID := response.header.Get("X-Request-ID")
++	count := 0
++	for _, line := range strings.Split(v.p.stderr.String(), "\n") {
++		var e map[string]any
++		if json.Unmarshal([]byte(line), &e) == nil && e["event"] == "http_request" && e["request_id"] == requestID {
++			count++
++		}
++	}
++	if requestID == "" || count != 1 {
++		t.Fatal("root added duplicate middleware", count)
++	}
++	oldCookies := map[string]*http.Cookie{}
++	for k, c := range v.cookies {
++		x := *c
++		oldCookies[k] = &x
++	}
++	oldCSRF := v.csrf
++	v.request(t, "POST", "/api/v1/sessions/logout", modelSystemKey(t), map[string]any{}, nil).want(t, 204)
++	// Keep the old cookie snapshot independent of Set-Cookie clearing on each
++	// rejection, so all four probes really replay the same revoked Session.
++	v.cookies, v.csrf = map[string]*http.Cookie{}, oldCSRF
++	var before int
++	if err := v.db.Connect(t).QueryRow(databaseContext(t), `SELECT (SELECT count(*) FROM agenteam_model.commands)+(SELECT count(*) FROM agenteam_secret.secret_command_receipts)`).Scan(&before); err != nil {
++		t.Fatal(err)
++	}
++	for _, tc := range []struct {
++		path, key string
++		body      any
++	}{
++		{"/api/v1/system/model-providers", providerKey, providerBody},
++		{"/api/v1/system/model-commands/lookup", providerKey, map[string]any{"command": "provider.create"}},
++		{"/api/v1/system/model-credentials", credentialKey, credentialBody},
++		{"/api/v1/system/model-credential-commands/lookup", credentialKey, map[string]any{"kind": "create"}},
++	} {
++		v.request(t, "POST", tc.path, tc.key, tc.body, func(r *http.Request) {
++			r.Header.Del("Cookie")
++			for _, c := range oldCookies {
++				r.AddCookie(c)
++			}
++		}).want(t, 401)
++	}
++	var after int
++	if err := v.db.Connect(t).QueryRow(databaseContext(t), `SELECT (SELECT count(*) FROM agenteam_model.commands)+(SELECT count(*) FROM agenteam_secret.secret_command_receipts)`).Scan(&after); err != nil || after != before {
++		t.Fatal("revoked session changed historical facts", err)
++	}
++	v.stop(t, syscall.SIGTERM)
++}
++
++func TestCentralModelInitializationFailureBeforeListen(t *testing.T) {
++	for _, mode := range []string{"storage", "ordinary-lock-cancel"} {
++		t.Run(mode, func(t *testing.T) {
++			db := pgfixture.NewDatabase(t)
++			m, err := postgres.NewMigrator(db.Config(t, nil))
++			if err != nil {
++				t.Fatal(err)
++			}
++			if r := m.Migrate(databaseContext(t)); !r.Migrated {
++				t.Fatal(r.Fault)
++			}
++			conn := db.Connect(t)
++			if mode == "storage" {
++				if _, err = conn.Exec(databaseContext(t), `ALTER TABLE agenteam_model.providers RENAME TO unavailable_providers`); err != nil {
++					t.Fatal(err)
++				}
++				p := launch(t, "agenteam", nil, databaseEnvironment(t, db))
++				p.wait(t, 1)
++				if strings.Contains(p.stderr.String(), `"event":"listening"`) || strings.Contains(p.stderr.String(), `"phase":"secret_maintaining"`) {
++					t.Fatal("Model initialization failure reached later stage")
++				}
++				var secretRows, selectionRows, claims int
++				if err = conn.QueryRow(databaseContext(t), `SELECT (SELECT count(*) FROM agenteam_secret.secret_master_registry WHERE canary_ciphertext IS NOT NULL),(SELECT count(*) FROM agenteam_model.platform_selection),(SELECT count(*) FROM agenteam_object.process_claims)`).Scan(&secretRows, &selectionRows, &claims); err != nil || secretRows != 1 || selectionRows != 0 || claims != 0 {
++					t.Fatal("failure was not after real Secret/before Model and Object init", err, secretRows, selectionRows, claims)
++				}
++				noCentralBackends(t, db)
++				assertDatabaseLogsSafe(t, p, db)
++				return
++			}
++			tx, err := conn.Begin(databaseContext(t))
++			if err != nil {
++				t.Fatal(err)
++			}
++			defer tx.Rollback(context.Background())
++			if _, err = tx.Exec(databaseContext(t), `LOCK TABLE agenteam_model.platform_selection IN ACCESS EXCLUSIVE MODE`); err != nil {
++				t.Fatal(err)
++			}
++			p := launch(t, "agenteam", nil, databaseEnvironment(t, db, "AGENTEAM_CENTRAL_DATABASE_LOCK_TIMEOUT=10s"))
++			waitDatabaseFact(t, db.Connect(t), `SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND application_name='agenteam' AND $1=ANY(pg_blocking_pids(pid)) AND position('agenteam_model.platform_selection' in query)>0)`, int32(conn.PgConn().PID()))
++			if strings.Contains(p.stderr.String(), `"event":"listening"`) {
++				t.Fatal("Model startup lock wait listened")
++			}
++			if err = p.command.Process.Signal(syscall.SIGTERM); err != nil {
++				t.Fatal(err)
++			}
++			p.wait(t, 0)
++			if err = tx.Rollback(databaseContext(t)); err != nil {
++				t.Fatal(err)
++			}
++			noCentralBackends(t, db)
++			assertDatabaseLogsSafe(t, p, db)
++		})
++	}
++}

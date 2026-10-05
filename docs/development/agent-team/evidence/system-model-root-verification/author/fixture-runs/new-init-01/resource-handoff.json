@@ -1,0 +1,1213 @@
+{
+  "checks": [
+    {
+      "round": 1,
+      "resources": [
+        {
+          "kind": "network",
+          "id": "a2124082204083c40c9c19ef041295ef978e0551cca2b89c676f3320ad35aff6",
+          "name": "agenteam-d05-object-ca477b07c1fa8fdb0f8425c6082c77b3",
+          "labels": {
+            "agenteam.d05.objectfixture": "ca477b07c1fa8fdb0f8425c6082c77b3"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: network a2124082204083c40c9c19ef041295ef978e0551cca2b89c676f3320ad35aff6 not found"
+        },
+        {
+          "kind": "container",
+          "id": "3798284f088f9ee58e93098ad79e8f17c000e82d75049a42b6e017edfa21815b",
+          "name": "agenteam-d05-object-ca477b07c1fa8fdb0f8425c6082c77b3",
+          "labels": {
+            "agenteam.d05.objectfixture": "ca477b07c1fa8fdb0f8425c6082c77b3"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: 3798284f088f9ee58e93098ad79e8f17c000e82d75049a42b6e017edfa21815b"
+        },
+        {
+          "kind": "network",
+          "id": "7c7a0cc94f5bc8c8f5185d05cf20cce27db0fad8df4ec476ef6db6bfe93f9c20",
+          "name": "agenteam-d04-net-f21708279662d546f4d0f6c77af931c7",
+          "labels": {
+            "agenteam.d04.networkfixture": "f21708279662d546f4d0f6c77af931c7"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: network 7c7a0cc94f5bc8c8f5185d05cf20cce27db0fad8df4ec476ef6db6bfe93f9c20 not found"
+        },
+        {
+          "kind": "container",
+          "id": "cbe68a7d8293bcd1c4eafa75ddc51f55166f1925e141498a0913af4822909048",
+          "name": "agenteam-d04-net-f21708279662d546f4d0f6c77af931c7",
+          "labels": {
+            "agenteam.d04.networkfixture": "f21708279662d546f4d0f6c77af931c7"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: cbe68a7d8293bcd1c4eafa75ddc51f55166f1925e141498a0913af4822909048"
+        },
+        {
+          "kind": "network",
+          "id": "9decb86913b966542ad03381fed5bc4b5707e96d377712473db5fa0dc3e33865",
+          "name": "agenteam-d03-39a75865e28ef54b5e97d1985e85bddb",
+          "labels": {
+            "agenteam.d03.fixture": "39a75865e28ef54b5e97d1985e85bddb"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: network 9decb86913b966542ad03381fed5bc4b5707e96d377712473db5fa0dc3e33865 not found"
+        },
+        {
+          "kind": "container",
+          "id": "0aa79d04eff551b5128659f33df09c2410400e12fad2e506484113d26b2ed3be",
+          "name": "agenteam-d03-39a75865e28ef54b5e97d1985e85bddb",
+          "labels": {
+            "agenteam.d03.fixture": "39a75865e28ef54b5e97d1985e85bddb"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: 0aa79d04eff551b5128659f33df09c2410400e12fad2e506484113d26b2ed3be"
+        },
+        {
+          "kind": "container",
+          "id": "406ea159c0093047b065b82f3c0ade38759890abd0f02b82de0fb8599ef34180",
+          "name": "agenteam-d03-39a75865e28ef54b5e97d1985e85bddb-pg16",
+          "labels": {
+            "agenteam.d03.fixture": "39a75865e28ef54b5e97d1985e85bddb"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: 406ea159c0093047b065b82f3c0ade38759890abd0f02b82de0fb8599ef34180"
+        }
+      ],
+      "current": {
+        "container": [
+          {
+            "ID": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+            "Name": "/agenteam-dev-infra-postgres-1",
+            "Labels": {
+              "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+              "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+              "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+              "com.docker.compose.service": "postgres",
+              "com.docker.compose.version": "2.40.3"
+            }
+          },
+          {
+            "ID": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+            "Name": "/agenteam-dev-infra-minio-1",
+            "Labels": {
+              "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+              "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+              "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+              "com.docker.compose.service": "minio",
+              "com.docker.compose.version": "2.40.3"
+            }
+          }
+        ],
+        "network": [
+          {
+            "ID": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+            "Name": "agenteam-dev-infra_default",
+            "Labels": {
+              "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+              "com.docker.compose.network": "default",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.version": "2.40.3"
+            }
+          },
+          {
+            "ID": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+            "Name": "none",
+            "Labels": {}
+          },
+          {
+            "ID": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+            "Name": "host",
+            "Labels": {}
+          },
+          {
+            "ID": "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5",
+            "Name": "bridge",
+            "Labels": {}
+          }
+        ]
+      },
+      "baseline_unchanged": true,
+      "tracked_live": [],
+      "owned_group_live": [],
+      "runtime": [],
+      "gotmp": []
+    },
+    {
+      "round": 2,
+      "resources": [
+        {
+          "kind": "network",
+          "id": "a2124082204083c40c9c19ef041295ef978e0551cca2b89c676f3320ad35aff6",
+          "name": "agenteam-d05-object-ca477b07c1fa8fdb0f8425c6082c77b3",
+          "labels": {
+            "agenteam.d05.objectfixture": "ca477b07c1fa8fdb0f8425c6082c77b3"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: network a2124082204083c40c9c19ef041295ef978e0551cca2b89c676f3320ad35aff6 not found"
+        },
+        {
+          "kind": "container",
+          "id": "3798284f088f9ee58e93098ad79e8f17c000e82d75049a42b6e017edfa21815b",
+          "name": "agenteam-d05-object-ca477b07c1fa8fdb0f8425c6082c77b3",
+          "labels": {
+            "agenteam.d05.objectfixture": "ca477b07c1fa8fdb0f8425c6082c77b3"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: 3798284f088f9ee58e93098ad79e8f17c000e82d75049a42b6e017edfa21815b"
+        },
+        {
+          "kind": "network",
+          "id": "7c7a0cc94f5bc8c8f5185d05cf20cce27db0fad8df4ec476ef6db6bfe93f9c20",
+          "name": "agenteam-d04-net-f21708279662d546f4d0f6c77af931c7",
+          "labels": {
+            "agenteam.d04.networkfixture": "f21708279662d546f4d0f6c77af931c7"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: network 7c7a0cc94f5bc8c8f5185d05cf20cce27db0fad8df4ec476ef6db6bfe93f9c20 not found"
+        },
+        {
+          "kind": "container",
+          "id": "cbe68a7d8293bcd1c4eafa75ddc51f55166f1925e141498a0913af4822909048",
+          "name": "agenteam-d04-net-f21708279662d546f4d0f6c77af931c7",
+          "labels": {
+            "agenteam.d04.networkfixture": "f21708279662d546f4d0f6c77af931c7"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: cbe68a7d8293bcd1c4eafa75ddc51f55166f1925e141498a0913af4822909048"
+        },
+        {
+          "kind": "network",
+          "id": "9decb86913b966542ad03381fed5bc4b5707e96d377712473db5fa0dc3e33865",
+          "name": "agenteam-d03-39a75865e28ef54b5e97d1985e85bddb",
+          "labels": {
+            "agenteam.d03.fixture": "39a75865e28ef54b5e97d1985e85bddb"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: network 9decb86913b966542ad03381fed5bc4b5707e96d377712473db5fa0dc3e33865 not found"
+        },
+        {
+          "kind": "container",
+          "id": "0aa79d04eff551b5128659f33df09c2410400e12fad2e506484113d26b2ed3be",
+          "name": "agenteam-d03-39a75865e28ef54b5e97d1985e85bddb",
+          "labels": {
+            "agenteam.d03.fixture": "39a75865e28ef54b5e97d1985e85bddb"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: 0aa79d04eff551b5128659f33df09c2410400e12fad2e506484113d26b2ed3be"
+        },
+        {
+          "kind": "container",
+          "id": "406ea159c0093047b065b82f3c0ade38759890abd0f02b82de0fb8599ef34180",
+          "name": "agenteam-d03-39a75865e28ef54b5e97d1985e85bddb-pg16",
+          "labels": {
+            "agenteam.d03.fixture": "39a75865e28ef54b5e97d1985e85bddb"
+          },
+          "exit_code": 1,
+          "absent": true,
+          "stderr": "Error response from daemon: No such container: 406ea159c0093047b065b82f3c0ade38759890abd0f02b82de0fb8599ef34180"
+        }
+      ],
+      "current": {
+        "container": [
+          {
+            "ID": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+            "Name": "/agenteam-dev-infra-postgres-1",
+            "Labels": {
+              "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+              "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+              "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+              "com.docker.compose.service": "postgres",
+              "com.docker.compose.version": "2.40.3"
+            }
+          },
+          {
+            "ID": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+            "Name": "/agenteam-dev-infra-minio-1",
+            "Labels": {
+              "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+              "com.docker.compose.container-number": "1",
+              "com.docker.compose.depends_on": "",
+              "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+              "com.docker.compose.oneoff": "False",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+              "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+              "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+              "com.docker.compose.service": "minio",
+              "com.docker.compose.version": "2.40.3"
+            }
+          }
+        ],
+        "network": [
+          {
+            "ID": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+            "Name": "agenteam-dev-infra_default",
+            "Labels": {
+              "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+              "com.docker.compose.network": "default",
+              "com.docker.compose.project": "agenteam-dev-infra",
+              "com.docker.compose.version": "2.40.3"
+            }
+          },
+          {
+            "ID": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+            "Name": "none",
+            "Labels": {}
+          },
+          {
+            "ID": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+            "Name": "host",
+            "Labels": {}
+          },
+          {
+            "ID": "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5",
+            "Name": "bridge",
+            "Labels": {}
+          }
+        ]
+      },
+      "baseline_unchanged": true,
+      "tracked_live": [],
+      "owned_group_live": [],
+      "runtime": [],
+      "gotmp": []
+    }
+  ],
+  "tracked": [
+    {
+      "pid": 1054175,
+      "state": "Z",
+      "ppid": 1054103,
+      "pgrp": 1054175,
+      "start_ticks": 3001015
+    },
+    {
+      "pid": 1054215,
+      "state": "R",
+      "ppid": 1054188,
+      "pgrp": 1054175,
+      "start_ticks": 3001025
+    },
+    {
+      "pid": 1054188,
+      "state": "S",
+      "ppid": 1054175,
+      "pgrp": 1054175,
+      "start_ticks": 3001016
+    },
+    {
+      "pid": 1054225,
+      "state": "R",
+      "ppid": 1054188,
+      "pgrp": 1054175,
+      "start_ticks": 3001036
+    },
+    {
+      "pid": 1054230,
+      "state": "S",
+      "ppid": 1054175,
+      "pgrp": 1054175,
+      "start_ticks": 3001079
+    },
+    {
+      "pid": 1054239,
+      "state": "R",
+      "ppid": 1054230,
+      "pgrp": 1054175,
+      "start_ticks": 3001097
+    },
+    {
+      "pid": 1054266,
+      "state": "S",
+      "ppid": 1054230,
+      "pgrp": 1054175,
+      "start_ticks": 3001119
+    },
+    {
+      "pid": 1054400,
+      "state": "S",
+      "ppid": 1054230,
+      "pgrp": 1054400,
+      "start_ticks": 3001260
+    },
+    {
+      "pid": 1054432,
+      "state": "R",
+      "ppid": 1054408,
+      "pgrp": 1054400,
+      "start_ticks": 3001269
+    },
+    {
+      "pid": 1054408,
+      "state": "S",
+      "ppid": 1054400,
+      "pgrp": 1054400,
+      "start_ticks": 3001260
+    },
+    {
+      "pid": 1054442,
+      "state": "S",
+      "ppid": 1054408,
+      "pgrp": 1054400,
+      "start_ticks": 3001274
+    },
+    {
+      "pid": 1054447,
+      "state": "S",
+      "ppid": 1054400,
+      "pgrp": 1054400,
+      "start_ticks": 3001314
+    },
+    {
+      "pid": 1054455,
+      "state": "S",
+      "ppid": 1054447,
+      "pgrp": 1054400,
+      "start_ticks": 3001315
+    },
+    {
+      "pid": 1054484,
+      "state": "S",
+      "ppid": 1054455,
+      "pgrp": 1054400,
+      "start_ticks": 3001327
+    },
+    {
+      "pid": 1054510,
+      "state": "S",
+      "ppid": 1054447,
+      "pgrp": 1054400,
+      "start_ticks": 3001355
+    },
+    {
+      "pid": 1054633,
+      "state": "S",
+      "ppid": 1054447,
+      "pgrp": 1054633,
+      "start_ticks": 3001516
+    },
+    {
+      "pid": 1054665,
+      "state": "R",
+      "ppid": 1054641,
+      "pgrp": 1054633,
+      "start_ticks": 3001525
+    },
+    {
+      "pid": 1054641,
+      "state": "S",
+      "ppid": 1054633,
+      "pgrp": 1054633,
+      "start_ticks": 3001517
+    },
+    {
+      "pid": 1054675,
+      "state": "S",
+      "ppid": 1054641,
+      "pgrp": 1054633,
+      "start_ticks": 3001534
+    },
+    {
+      "pid": 1054688,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3001589
+    },
+    {
+      "pid": 1054680,
+      "state": "S",
+      "ppid": 1054633,
+      "pgrp": 1054633,
+      "start_ticks": 3001578
+    },
+    {
+      "pid": 1054726,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3001594
+    },
+    {
+      "pid": 1054906,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3001738
+    },
+    {
+      "pid": 1054989,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3001768
+    },
+    {
+      "pid": 1055086,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3001798
+    },
+    {
+      "pid": 1055194,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3001820
+    },
+    {
+      "pid": 1055279,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3001929
+    },
+    {
+      "pid": 1055342,
+      "state": "Z",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3001938
+    },
+    {
+      "pid": 1055401,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3001959
+    },
+    {
+      "pid": 1055467,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3001978
+    },
+    {
+      "pid": 1055610,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1055610,
+      "start_ticks": 3002012
+    },
+    {
+      "pid": 1055642,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002039
+    },
+    {
+      "pid": 1055647,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002041
+    },
+    {
+      "pid": 1055664,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002119
+    },
+    {
+      "pid": 1055669,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002127
+    },
+    {
+      "pid": 1055676,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002141
+    },
+    {
+      "pid": 1055687,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002148
+    },
+    {
+      "pid": 1055694,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002174
+    },
+    {
+      "pid": 1055710,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002189
+    },
+    {
+      "pid": 1055716,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002200
+    },
+    {
+      "pid": 1055717,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002200
+    },
+    {
+      "pid": 1055751,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002302
+    },
+    {
+      "pid": 1055757,
+      "state": "Z",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002303
+    },
+    {
+      "pid": 1055767,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002372
+    },
+    {
+      "pid": 1055772,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002402
+    },
+    {
+      "pid": 1055876,
+      "state": "S",
+      "ppid": 1055862,
+      "pgrp": 1055610,
+      "start_ticks": 3002541
+    },
+    {
+      "pid": 1055862,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3002538
+    },
+    {
+      "pid": 1055906,
+      "state": "R",
+      "ppid": 1055876,
+      "pgrp": 1055610,
+      "start_ticks": 3002559
+    },
+    {
+      "pid": 1055925,
+      "state": "Z",
+      "ppid": 1055772,
+      "pgrp": 1055610,
+      "start_ticks": 3002580
+    },
+    {
+      "pid": 1056010,
+      "state": "S",
+      "ppid": 1055862,
+      "pgrp": 1055610,
+      "start_ticks": 3002655
+    },
+    {
+      "pid": 1056034,
+      "state": "S",
+      "ppid": 1056010,
+      "pgrp": 1055610,
+      "start_ticks": 3002661
+    },
+    {
+      "pid": 1056112,
+      "state": "S",
+      "ppid": 1055772,
+      "pgrp": 1055610,
+      "start_ticks": 3002712
+    },
+    {
+      "pid": 1056167,
+      "state": "S",
+      "ppid": 1055862,
+      "pgrp": 1055610,
+      "start_ticks": 3002779
+    },
+    {
+      "pid": 1056345,
+      "state": "S",
+      "ppid": 1055862,
+      "pgrp": 1055610,
+      "start_ticks": 3002915
+    },
+    {
+      "pid": 1056474,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003049
+    },
+    {
+      "pid": 1056479,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003052
+    },
+    {
+      "pid": 1056511,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003115
+    },
+    {
+      "pid": 1056519,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003142
+    },
+    {
+      "pid": 1056525,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003216
+    },
+    {
+      "pid": 1056541,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003264
+    },
+    {
+      "pid": 1056564,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003339
+    },
+    {
+      "pid": 1056580,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003354
+    },
+    {
+      "pid": 1056569,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003348
+    },
+    {
+      "pid": 1056594,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003398
+    },
+    {
+      "pid": 1056600,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003450
+    },
+    {
+      "pid": 1056627,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003500
+    },
+    {
+      "pid": 1056639,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003505
+    },
+    {
+      "pid": 1056651,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003530
+    },
+    {
+      "pid": 1056657,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003571
+    },
+    {
+      "pid": 1056693,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003637
+    },
+    {
+      "pid": 1056719,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003691
+    },
+    {
+      "pid": 1056725,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003695
+    },
+    {
+      "pid": 1056738,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003773
+    },
+    {
+      "pid": 1056748,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003820
+    },
+    {
+      "pid": 1056754,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003822
+    },
+    {
+      "pid": 1056759,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003837
+    },
+    {
+      "pid": 1056764,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003840
+    },
+    {
+      "pid": 1056793,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003899
+    },
+    {
+      "pid": 1056798,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003901
+    },
+    {
+      "pid": 1056805,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3003905
+    },
+    {
+      "pid": 1056811,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004003
+    },
+    {
+      "pid": 1056817,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004007
+    },
+    {
+      "pid": 1056823,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004035
+    },
+    {
+      "pid": 1056855,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004108
+    },
+    {
+      "pid": 1056882,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004236
+    },
+    {
+      "pid": 1056907,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004406
+    },
+    {
+      "pid": 1056938,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004583
+    },
+    {
+      "pid": 1056943,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004597
+    },
+    {
+      "pid": 1056951,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004645
+    },
+    {
+      "pid": 1056956,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004663
+    },
+    {
+      "pid": 1056982,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004698
+    },
+    {
+      "pid": 1056992,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004705
+    },
+    {
+      "pid": 1056998,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004716
+    },
+    {
+      "pid": 1057026,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004779
+    },
+    {
+      "pid": 1057033,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004881
+    },
+    {
+      "pid": 1057044,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004893
+    },
+    {
+      "pid": 1057074,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004962
+    },
+    {
+      "pid": 1057079,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004971
+    },
+    {
+      "pid": 1057086,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3004983
+    },
+    {
+      "pid": 1057097,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005041
+    },
+    {
+      "pid": 1057111,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005078
+    },
+    {
+      "pid": 1057117,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005092
+    },
+    {
+      "pid": 1057149,
+      "state": "Z",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005188
+    },
+    {
+      "pid": 1057159,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005199
+    },
+    {
+      "pid": 1057167,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005225
+    },
+    {
+      "pid": 1057173,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005238
+    },
+    {
+      "pid": 1057185,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005331
+    },
+    {
+      "pid": 1057190,
+      "state": "Z",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005348
+    },
+    {
+      "pid": 1057221,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005395
+    },
+    {
+      "pid": 1057229,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005478
+    },
+    {
+      "pid": 1057234,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005483
+    },
+    {
+      "pid": 1057239,
+      "state": "Z",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005492
+    },
+    {
+      "pid": 1057277,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005604
+    },
+    {
+      "pid": 1057310,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005814
+    },
+    {
+      "pid": 1057317,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005887
+    },
+    {
+      "pid": 1057323,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3005906
+    },
+    {
+      "pid": 1057350,
+      "state": "R",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3006008
+    },
+    {
+      "pid": 1057360,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3006089
+    },
+    {
+      "pid": 1057409,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3006155
+    },
+    {
+      "pid": 1057420,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3006166
+    },
+    {
+      "pid": 1057426,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3006172
+    },
+    {
+      "pid": 1057460,
+      "state": "S",
+      "ppid": 1055610,
+      "pgrp": 1055610,
+      "start_ticks": 3006206
+    },
+    {
+      "pid": 1057474,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3006311
+    },
+    {
+      "pid": 1057544,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3006345
+    },
+    {
+      "pid": 1057615,
+      "state": "S",
+      "ppid": 1054680,
+      "pgrp": 1054633,
+      "start_ticks": 3006382
+    },
+    {
+      "pid": 1057680,
+      "state": "S",
+      "ppid": 1054447,
+      "pgrp": 1054400,
+      "start_ticks": 3006392
+    },
+    {
+      "pid": 1057773,
+      "state": "S",
+      "ppid": 1054230,
+      "pgrp": 1054175,
+      "start_ticks": 3006433
+    },
+    {
+      "pid": 1057822,
+      "state": "S",
+      "ppid": 1054230,
+      "pgrp": 1054175,
+      "start_ticks": 3006464
+    }
+  ],
+  "groups": [
+    1054175,
+    1054400,
+    1054633,
+    1055610
+  ],
+  "events_exit": 143
+}

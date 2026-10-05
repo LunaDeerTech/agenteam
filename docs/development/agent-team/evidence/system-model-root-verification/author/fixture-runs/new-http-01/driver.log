@@ -1,0 +1,608 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.175.60.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=5e378582f1b5c98105b38a68d30f57a9
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=54b6379365f4668f26758ba712050511
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.011s [no tests to run]
+=== RUN   TestModelRootHTTPActiveDrainAndDatabaseLast
+    model_process_test.go:460: actual command commit missing
+--- FAIL: TestModelRootHTTPActiveDrainAndDatabaseLast (2.48s)
+=== RUN   TestModelRootHTTPForceUsesOriginalBudget
+=== RUN   TestModelRootHTTPForceUsesOriginalBudget/deadline
+    model_process_test.go:503: force mode=deadline trace=[model.initialize listen provider.exec.entered provider.exec.released db.force] actual model Tx states=[]; forced exit is not an all-writer join or rollback claim
+=== RUN   TestModelRootHTTPForceUsesOriginalBudget/second-signal
+    model_process_test.go:503: force mode=second-signal trace=[model.initialize listen provider.exec.entered provider.exec.released db.force] actual model Tx states=[]; forced exit is not an all-writer join or rollback claim
+--- PASS: TestModelRootHTTPForceUsesOriginalBudget (4.18s)
+    --- PASS: TestModelRootHTTPForceUsesOriginalBudget/deadline (2.26s)
+    --- PASS: TestModelRootHTTPForceUsesOriginalBudget/second-signal (1.92s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/app	6.696s
+=== RUN   TestCentralModelSystemConfigurationAndRestart
+==================
+WARNING: DATA RACE
+Read at 0x00c00012c2a0 by goroutine 13:
+  bytes.(*Buffer).String()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:77 +0xcee
+  github.com/LunaDeerTech/agenteam/tests/process_test.(*modelSystemBinary).login()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:167 +0xc65
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:61 +0x504
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:51 +0xa4
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:203 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+
+Previous write at 0x00c00012c2a0 by goroutine 42:
+  bytes.(*Buffer).grow()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:172 +0x3b1
+  bytes.(*Buffer).ReadFrom()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:227 +0x5e
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:415 +0x20e
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x49
+  os.genericWriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:295 +0xe
+  os.(*File).WriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:273 +0xd4
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:411 +0xd3
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x5a
+  os/exec.(*Cmd).writerDescriptor.func1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:613 +0x37
+  os/exec.(*Cmd).Start.func2()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:768 +0x3c
+  os/exec.(*Cmd).Start.gowrap1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:780 +0x38
+
+Goroutine 13 (running) created at:
+  testing.(*T).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0xb12
+  testing.runTests.func1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2742 +0x84
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.runTests()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2740 +0x9e9
+  testing.(*M).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2600 +0xf44
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestMain()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:67 +0xbe6
+  main.main()
+      _testmain.go:110 +0x171
+
+Goroutine 42 (running) created at:
+  os/exec.(*Cmd).Start()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:767 +0x10f1
+  github.com/LunaDeerTech/agenteam/tests/process_test.launch()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:118 +0x4ab
+  github.com/LunaDeerTech/agenteam/tests/process_test.(*modelSystemBinary).start()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:66 +0x84
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:58 +0x3de
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:51 +0xa4
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:203 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+==================
+==================
+WARNING: DATA RACE
+Read at 0x00c00012c288 by goroutine 13:
+  bytes.(*Buffer).String()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:77 +0xd0f
+  github.com/LunaDeerTech/agenteam/tests/process_test.(*modelSystemBinary).login()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:167 +0xc65
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:61 +0x504
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:51 +0xa4
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:203 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+
+Previous write at 0x00c00012c288 by goroutine 42:
+  bytes.(*Buffer).grow()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:169 +0x2cc
+  bytes.(*Buffer).ReadFrom()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:227 +0x5e
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:415 +0x20e
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x49
+  os.genericWriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:295 +0xe
+  os.(*File).WriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:273 +0xd4
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:411 +0xd3
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x5a
+  os/exec.(*Cmd).writerDescriptor.func1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:613 +0x37
+  os/exec.(*Cmd).Start.func2()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:768 +0x3c
+  os/exec.(*Cmd).Start.gowrap1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:780 +0x38
+
+Goroutine 13 (running) created at:
+  testing.(*T).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0xb12
+  testing.runTests.func1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2742 +0x84
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.runTests()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2740 +0x9e9
+  testing.(*M).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2600 +0xf44
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestMain()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:67 +0xbe6
+  main.main()
+      _testmain.go:110 +0x171
+
+Goroutine 42 (running) created at:
+  os/exec.(*Cmd).Start()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:767 +0x10f1
+  github.com/LunaDeerTech/agenteam/tests/process_test.launch()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:118 +0x4ab
+  github.com/LunaDeerTech/agenteam/tests/process_test.(*modelSystemBinary).start()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:66 +0x84
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:58 +0x3de
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:51 +0xa4
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:203 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+==================
+==================
+WARNING: DATA RACE
+Read at 0x00c0004e2890 by goroutine 13:
+  bytes.(*Buffer).String()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:77 +0x501c
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:290 +0x4f97
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:203 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+
+Previous write at 0x00c0004e2890 by goroutine 48:
+  bytes.(*Buffer).grow()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:172 +0x3b1
+  bytes.(*Buffer).ReadFrom()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:227 +0x5e
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:415 +0x20e
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x49
+  os.genericWriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:295 +0xe
+  os.(*File).WriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:273 +0xd4
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:411 +0xd3
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x5a
+  os/exec.(*Cmd).writerDescriptor.func1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:613 +0x37
+  os/exec.(*Cmd).Start.func2()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:768 +0x3c
+  os/exec.(*Cmd).Start.gowrap1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:780 +0x38
+
+Goroutine 13 (running) created at:
+  testing.(*T).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0xb12
+  testing.runTests.func1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2742 +0x84
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.runTests()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2740 +0x9e9
+  testing.(*M).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2600 +0xf44
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestMain()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:67 +0xbe6
+  main.main()
+      _testmain.go:110 +0x171
+
+Goroutine 48 (running) created at:
+  os/exec.(*Cmd).Start()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:767 +0x10f1
+  github.com/LunaDeerTech/agenteam/tests/process_test.launch()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:118 +0x4ab
+  github.com/LunaDeerTech/agenteam/tests/process_test.(*modelSystemBinary).start()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:66 +0x84
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:274 +0x44ad
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:203 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+==================
+==================
+WARNING: DATA RACE
+Read at 0x00c0004e2878 by goroutine 13:
+  bytes.(*Buffer).String()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:77 +0x503d
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:290 +0x4f97
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:203 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+
+Previous write at 0x00c0004e2878 by goroutine 48:
+  bytes.(*Buffer).grow()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:169 +0x2cc
+  bytes.(*Buffer).ReadFrom()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:227 +0x5e
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:415 +0x20e
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x49
+  os.genericWriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:295 +0xe
+  os.(*File).WriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:273 +0xd4
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:411 +0xd3
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x5a
+  os/exec.(*Cmd).writerDescriptor.func1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:613 +0x37
+  os/exec.(*Cmd).Start.func2()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:768 +0x3c
+  os/exec.(*Cmd).Start.gowrap1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:780 +0x38
+
+Goroutine 13 (running) created at:
+  testing.(*T).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0xb12
+  testing.runTests.func1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2742 +0x84
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.runTests()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2740 +0x9e9
+  testing.(*M).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2600 +0xf44
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestMain()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:67 +0xbe6
+  main.main()
+      _testmain.go:110 +0x171
+
+Goroutine 48 (running) created at:
+  os/exec.(*Cmd).Start()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:767 +0x10f1
+  github.com/LunaDeerTech/agenteam/tests/process_test.launch()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:118 +0x4ab
+  github.com/LunaDeerTech/agenteam/tests/process_test.(*modelSystemBinary).start()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:66 +0x84
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:274 +0x44ad
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:203 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+==================
+==================
+WARNING: DATA RACE
+Write at 0x00c0004e2878 by goroutine 48:
+  bytes.(*Buffer).ReadFrom()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:234 +0x158
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:415 +0x20e
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x49
+  os.genericWriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:295 +0xe
+  os.(*File).WriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:273 +0xd4
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:411 +0xd3
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x5a
+  os/exec.(*Cmd).writerDescriptor.func1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:613 +0x37
+  os/exec.(*Cmd).Start.func2()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:768 +0x3c
+  os/exec.(*Cmd).Start.gowrap1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:780 +0x38
+
+Previous read at 0x00c0004e2878 by goroutine 13:
+  bytes.(*Buffer).String()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:77 +0x503d
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:290 +0x4f97
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:203 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+
+Goroutine 48 (running) created at:
+  os/exec.(*Cmd).Start()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:767 +0x10f1
+  github.com/LunaDeerTech/agenteam/tests/process_test.launch()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:118 +0x4ab
+  github.com/LunaDeerTech/agenteam/tests/process_test.(*modelSystemBinary).start()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:66 +0x84
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:274 +0x44ad
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemConfigurationAndRestart()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:203 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+
+Goroutine 13 (running) created at:
+  testing.(*T).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0xb12
+  testing.runTests.func1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2742 +0x84
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.runTests()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2740 +0x9e9
+  testing.(*M).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2600 +0xf44
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestMain()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:67 +0xbe6
+  main.main()
+      _testmain.go:110 +0x171
+==================
+    testing.go:1865: race detected during execution of test
+--- FAIL: TestCentralModelSystemConfigurationAndRestart (2.30s)
+=== RUN   TestCentralModelSystemCurrentAuthorityAndRouting
+==================
+WARNING: DATA RACE
+Read at 0x00c00012c5c0 by goroutine 61:
+  bytes.(*Buffer).String()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:77 +0xcee
+  github.com/LunaDeerTech/agenteam/tests/process_test.(*modelSystemBinary).login()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:167 +0xc65
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:61 +0x504
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:51 +0xa4
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemCurrentAuthorityAndRouting()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:298 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+
+Previous write at 0x00c00012c5c0 by goroutine 86:
+  bytes.(*Buffer).grow()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:172 +0x3b1
+  bytes.(*Buffer).ReadFrom()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:227 +0x5e
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:415 +0x20e
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x49
+  os.genericWriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:295 +0xe
+  os.(*File).WriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:273 +0xd4
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:411 +0xd3
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x5a
+  os/exec.(*Cmd).writerDescriptor.func1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:613 +0x37
+  os/exec.(*Cmd).Start.func2()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:768 +0x3c
+  os/exec.(*Cmd).Start.gowrap1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:780 +0x38
+
+Goroutine 61 (running) created at:
+  testing.(*T).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0xb12
+  testing.runTests.func1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2742 +0x84
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.runTests()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2740 +0x9e9
+  testing.(*M).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2600 +0xf44
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestMain()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:67 +0xbe6
+  main.main()
+      _testmain.go:110 +0x171
+
+Goroutine 86 (running) created at:
+  os/exec.(*Cmd).Start()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:767 +0x10f1
+  github.com/LunaDeerTech/agenteam/tests/process_test.launch()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:118 +0x4ab
+  github.com/LunaDeerTech/agenteam/tests/process_test.(*modelSystemBinary).start()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:66 +0x84
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:58 +0x3de
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:51 +0xa4
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemCurrentAuthorityAndRouting()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:298 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+==================
+==================
+WARNING: DATA RACE
+Read at 0x00c00012c5a8 by goroutine 61:
+  bytes.(*Buffer).String()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:77 +0xd0f
+  github.com/LunaDeerTech/agenteam/tests/process_test.(*modelSystemBinary).login()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:167 +0xc65
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:61 +0x504
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:51 +0xa4
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemCurrentAuthorityAndRouting()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:298 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+
+Previous write at 0x00c00012c5a8 by goroutine 86:
+  bytes.(*Buffer).grow()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:169 +0x2cc
+  bytes.(*Buffer).ReadFrom()
+      /workspace/toolchains/go1.27.1/src/bytes/buffer.go:227 +0x5e
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:415 +0x20e
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x49
+  os.genericWriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:295 +0xe
+  os.(*File).WriteTo()
+      /workspace/toolchains/go1.27.1/src/os/file.go:273 +0xd4
+  io.copyBuffer()
+      /workspace/toolchains/go1.27.1/src/io/io.go:411 +0xd3
+  io.Copy()
+      /workspace/toolchains/go1.27.1/src/io/io.go:388 +0x5a
+  os/exec.(*Cmd).writerDescriptor.func1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:613 +0x37
+  os/exec.(*Cmd).Start.func2()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:768 +0x3c
+  os/exec.(*Cmd).Start.gowrap1()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:780 +0x38
+
+Goroutine 61 (running) created at:
+  testing.(*T).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0xb12
+  testing.runTests.func1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2742 +0x84
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.runTests()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2740 +0x9e9
+  testing.(*M).Run()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2600 +0xf44
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestMain()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:67 +0xbe6
+  main.main()
+      _testmain.go:110 +0x171
+
+Goroutine 86 (running) created at:
+  os/exec.(*Cmd).Start()
+      /workspace/toolchains/go1.27.1/src/os/exec/exec.go:767 +0x10f1
+  github.com/LunaDeerTech/agenteam/tests/process_test.launch()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/process_test.go:118 +0x4ab
+  github.com/LunaDeerTech/agenteam/tests/process_test.(*modelSystemBinary).start()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:66 +0x84
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:58 +0x3de
+  github.com/LunaDeerTech/agenteam/tests/process_test.newModelSystemBinary()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:51 +0xa4
+  github.com/LunaDeerTech/agenteam/tests/process_test.TestCentralModelSystemCurrentAuthorityAndRouting()
+      /workspace/agenteam-system-model-root-author-7jypt_ik/snapshot/tests/process/model_system_database_test.go:298 +0x3e
+  testing.tRunner()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0x21c
+  testing.(*T).Run.gowrap1()
+      /workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x38
+==================
+=== RUN   TestCentralModelSystemCurrentAuthorityAndRouting/anonymous
+=== NAME  TestCentralModelSystemCurrentAuthorityAndRouting
+    testing.go:1865: race detected during execution of test
+=== RUN   TestCentralModelSystemCurrentAuthorityAndRouting/wrong-host
+=== RUN   TestCentralModelSystemCurrentAuthorityAndRouting/wrong-origin
+=== RUN   TestCentralModelSystemCurrentAuthorityAndRouting/missing-csrf
+    model_system_database_test.go:315: root HTTP status=401 want=403 safe_code=UNAUTHENTICATED
+=== NAME  TestCentralModelSystemCurrentAuthorityAndRouting
+    model_system_database_test.go:318: root HTTP status=401 want=200 safe_code=
+--- FAIL: TestCentralModelSystemCurrentAuthorityAndRouting (1.42s)
+    --- PASS: TestCentralModelSystemCurrentAuthorityAndRouting/anonymous (0.00s)
+    --- PASS: TestCentralModelSystemCurrentAuthorityAndRouting/wrong-host (0.00s)
+    --- PASS: TestCentralModelSystemCurrentAuthorityAndRouting/wrong-origin (0.00s)
+    --- FAIL: TestCentralModelSystemCurrentAuthorityAndRouting/missing-csrf (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/process	5.105s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.009s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce 6968c07f128ada3fce0fdb293e0dee01
+D04 outbound fixture cleanup checked for nonce 54b6379365f4668f26758ba712050511
+D05 object fixture exact resource cleanup checked nonce=5e378582f1b5c98105b38a68d30f57a9

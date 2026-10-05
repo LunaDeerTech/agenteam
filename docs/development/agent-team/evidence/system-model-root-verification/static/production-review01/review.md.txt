@@ -1,0 +1,24 @@
+# System Model root 三生产源独立静审
+
+**结论：生产静态 PASS；无确定阻断或必需返修。动态、测试覆盖与最终 8 路径验收待执行。**
+
+固定业务基线 `ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7`；已采纳规格 `2eb1e633f604aa3078db156c5d5b1a65ab08c2c3`（行为同前轮已审卡）。只读作者 `/workspace/agenteam-system-model-root-author-7jypt_ik/production-review-01`；manifest SHA `b0b89ce3e899563db1ec52c8094c3c89189aea511255543fe3a7424845c1f38f`。三个候选与两个 baseline 原件 SHA 已逐项核，delta.patch 与从原字节重建的完整差量一致。未读取作者活动测试。
+
+## 核查结论
+
+- `account.go:bindAccounts` 在原 Account Authority 后创建唯一 Model Authority 和 SecretUsageRouter；仍从同一 `db` 得到 `modelStore`，同一值传 Model Authority/Service。Audit.Models、Secret.Usage、两类 Outbox Producers、Model 依赖与 HTTP handler 都绑定该批实际实例。没有 locator、第二 Secret/Outbox、通用 service allow 或 Project/consumer 注入。
+- 同一 catalog 先定义原 Account 两事件，再定义 Model 两事件，随后唯一 outbox.New Seal；ModelEvents、journal 和模型命令使用同 catalog。原唯一 mail handler/runtime 没有增加 Model 空订阅。原派发与类型授权的业务实现未改。
+- typed nil 的**实际默认根可达边界**成立：传入 db 先过 account.NewAuthority；固定 Account nilPort 显式包含 Chan，拒绝 nil pointer/channel 等 Store（未依赖 Model 旧 nilPort 的能力）。新增 Model Authority/router 为具体指针，两个 helper 的 nil 检查不会遭遇接口包装掩盖；它们在正式根均来自已检查错误的真实构造器。原 Store 接口断言/Account nil 拒绝分支在新指针检查之前。原 audit/secret 构造器继续检查实际 Store/Audit 参数。
+- `systemModelRoutes` 是私有分派 helper，不是接收任意依赖的公共构造器；其唯一生产调用的两个 handler 都由真实 Account/Model 构造器成功返回非 nil HandlerFunc，再由原 accounts.install 安装。不会把人为直接向 helper 传 nil child、nil request/URL 的测试调用当作默认根可达漏洞或要求扩公共 API。
+- 原 security 闭包不变。secret 闭包只增加序列：原 hook 或真实 Secret.Initialize → 原错误先返回 → 原 ctx.Err → 同一 Model.Initialize(ctx)。没有 Background/WithoutCancel、续期、异步或二次构造；Model 返回错误/Unknown 原样传出，父 initialize 仍在 maintenance、下游 owners 启动和 listen 之前处理失败。Model成功后的取消仍由原父流程检查。
+- 构造初期新调用都是零 I/O。accountAssembly 的 constructing/install/constructionDone、partial Sink/core/runtime/mail 和原 resources 登记/晚返回处理未改；Model 无新独立资源。早失败不能发布 handler，后初始化失败沿原清理路径；未要求尚未登记的 Object process 有 stopped 行。
+- 六个完整路径根及 root+`/` 精确分派，每次至多调用一个 child；不改写 method/URL/RawPath/Host/Origin/body，不做路径清洗、重定向、身份缓存或第二 middleware。既有 Account/Model boundary 仍在各自 ServeMux 之前拒绝危险路径；app.go 的诊断优先分流、一次 HTTP gate/finishHTTP 和原 middleware 不变。
+- 只增加同步配置 HTTP 调用，没有 provider I/O、credential material read、worker 或独立 lifecycle owner。原 httpActive/producersJoined、正常 DB-last 和 force 原预算语义可直接覆盖新增路径；本静审不把既有 Object 问题标为修复或终局通过。
+
+## 动态待验
+
+本轮未运行 Go/编译/测试，故不声明纯或真实通过，也未审作者活动测试的断言质量。沿已冻结独立计划，最终需用默认根验证：Secret成功后Model初始化同deadline/失败不监听；实际二进制 credential/Provider/Model/selector 与 refs/Audit/events/receipt及重启；当前Session撤销后的旧命令查证；真实新增路由在途的正常drain和原force边界；适用原Account/Secret/mail/catalog回归。
+
+需要记录实际命中阶段和底层结果，不能把更早初始化失败当作Model失败，或把HTTP返回/取消/force当作writer join。最终 8 路径、原始失败/修订及资源双清零须另核。Model consumers/Invocation/Usage/provider调用、Summary产品决定、Project/Artifact/R4与Object已知缺陷仍未交付。
+
+本报告只读固定 3 源/固定上游，未写仓库/Git、未运行Go/Docker/SQL/网络或暂停探针，未再委派。报告和私有原件冻结，all-stop。

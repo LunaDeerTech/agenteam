@@ -1,0 +1,15 @@
+{
+  "authorized_by": "root explicit message after first-red Host diagnosis",
+  "utc_recorded": "2026-10-05T19:19:04Z",
+  "scope": "private probe Host snapshot + per-request original session identity check; original one-top rerun with Docker exclusively assigned",
+  "ready_sha256": "fdd6da591bed3a1e09033c624c3edafc0d77f8fab2320d25b5a6b53f8018b9d1",
+  "probe_sha256": "6dc12d68d336e1db1226084d207f264c03003e935738d87fb7084412015a4a40",
+  "original_failure_retained": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/fixture-runs/independent-01",
+  "constraints": [
+    "exact original 2-container/4-network baseline before run",
+    "original driver race/count1/6m",
+    "exact owned IDs twice absent, baseline unchanged, tracked groups/runtime/gotmp empty before return"
+  ],
+  "prior_probe_manifest_sha256": "4057c1e7353d03c46b83391183d4e056b8449d2f769af68fd5e42f1fffd8bb3b",
+  "production_manifest_sha256": "b0b89ce3e899563db1ec52c8094c3c89189aea511255543fe3a7424845c1f38f"
+}

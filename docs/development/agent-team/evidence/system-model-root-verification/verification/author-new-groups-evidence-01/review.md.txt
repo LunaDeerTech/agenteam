@@ -1,0 +1,15 @@
+# System Model root 已结束新组证据独立复核
+
+结论：作者新组证据核查 PASS；原三红与 F1 的受影响修复已闭合。此为固定证据复核，不是本验收者的独立动态执行；最终验收仍需旧回归证据及获授权后的独立 probe。
+
+- candidate02 8eb080f9…8cab 的 new-http-02：4 top / 6 sub 全 PASS，driver exit0、38.772s。正常新增 Provider 请求真实200/receipt/canonical/DB-last断言已过，delegate记录 [committed]、unreturned=0。force两支观察到 [not_committed]、[INTERNAL_ERROR]、unreturned=0；仅说明这次 Model WithinTx 的真实返回，不外推其它 writer、Object guard 或所有资源已经 join/rollback。原初轮 states=[] 不追认为有效终局证据。
+- 同 candidate02 的 new-init-02：binary 初始化 1 top / 2 sub 全 PASS，driver exit0、39.087s，tests/process包4.344s。F1 已改为真实 maintenance phase，两个原缺表/普通锁取消分支命中其原强断言。
+- candidate01 11e21b88…99c8 的 new-init-01 只复用未变 app 初始化 1 top / 5 sub：success、model-storage、secret-storage、secret-cancel、model-lock-cancel，Model调用数依次1/1/0/0/1，same context/deadline和真实 owner/backend检查通过。该组原binary初始化不再作为修正F1的最终证明。由两个已审测试差量确认新增 model.system command观察不改变 RecoveryCause初始化分支。
+
+新组最终去重为6 top / 13 sub。旧库完整矩阵不重复；既定独立2 top / 4 sub维持原冻结输入，补实际二进制双credential换绑、精确撤销错误+完整行零变化，以及正式Store初始化锁的正向释放/取消阶段观察。
+
+机械核对每组实际 command.json/env/input、原 driver.log 的 RUN/PASS/无FAIL/SKIP/race和 result.json：工具链路径固定Go1.27.1、GOENV/GOWORK off、offline readonly、原fixture selector和原driver race/count1/6m。日志没有把 no-tests-to-run 包算作测试。
+
+每组 owned-created 4 container/3 network的 exactID/name/nonce-label 与3份 live network inspect一致；resource-handoff两轮各7项exit1+包含该exactID的实际 absent响应；当前全量ID/name/labels与各组相同的原2 container/4 network baseline逐字一致，tracked_live/owned_group_live/runtime/gotmp均空。此处核查原冻结工具响应，未自行运行Docker。三轮证据/指纹列表在source-index.json，逐项核对结果在checks.json。
+
+范围限制：未读当时活动 old-app/old-binary 日志；作者后来报告其结束，但该报告不替代旧组最终证据核查。没有运行Go/Docker/网络、修改源码/probe/仓库/Git、恢复暂停Object任务。生产仍原review01，能力文档未作为已验更新。报告冻结，等待主线程后续交接。

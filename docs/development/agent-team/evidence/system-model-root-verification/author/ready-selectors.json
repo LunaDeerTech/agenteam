@@ -1,0 +1,81 @@
+{
+  "input_manifest": "candidate-freeze-01/manifest.json",
+  "input_sha256": "11e21b8845c6c884398453130dbd05383528f6477387e98e7439aa6e3e5d99c8",
+  "state": "author compile/vet/build passed; Docker permission pending",
+  "groups": [
+    {
+      "name": "new-init",
+      "expected_top": [
+        "TestModelRootInitializationAndFailureOwnership",
+        "TestCentralModelInitializationFailureBeforeListen"
+      ],
+      "selector": "^(TestModelRootInitializationAndFailureOwnership|TestCentralModelInitializationFailureBeforeListen)$",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelRootInitializationAndFailureOwnership|TestCentralModelInitializationFailureBeforeListen)$"
+      ],
+      "expected_containers": 4,
+      "expected_networks": 3
+    },
+    {
+      "name": "new-http",
+      "expected_top": [
+        "TestModelRootHTTPActiveDrainAndDatabaseLast",
+        "TestModelRootHTTPForceUsesOriginalBudget",
+        "TestCentralModelSystemConfigurationAndRestart",
+        "TestCentralModelSystemCurrentAuthorityAndRouting"
+      ],
+      "selector": "^(TestModelRootHTTPActiveDrainAndDatabaseLast|TestModelRootHTTPForceUsesOriginalBudget|TestCentralModelSystemConfigurationAndRestart|TestCentralModelSystemCurrentAuthorityAndRouting)$",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestModelRootHTTPActiveDrainAndDatabaseLast|TestModelRootHTTPForceUsesOriginalBudget|TestCentralModelSystemConfigurationAndRestart|TestCentralModelSystemCurrentAuthorityAndRouting)$"
+      ],
+      "expected_containers": 4,
+      "expected_networks": 3
+    },
+    {
+      "name": "old-app",
+      "expected_top": [
+        "TestRealSecretStartupSecondSignalSingleForceBudget",
+        "TestB04AppSMTPFinalReplyDrainsBeforeCoreAndGuard",
+        "TestRealDatabaseHTTPTransactionDrainAndForce"
+      ],
+      "selector": "^(TestRealSecretStartupSecondSignalSingleForceBudget|TestB04AppSMTPFinalReplyDrainsBeforeCoreAndGuard|TestRealDatabaseHTTPTransactionDrainAndForce)$",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestRealSecretStartupSecondSignalSingleForceBudget|TestB04AppSMTPFinalReplyDrainsBeforeCoreAndGuard|TestRealDatabaseHTTPTransactionDrainAndForce)$"
+      ],
+      "expected_containers": 5,
+      "expected_networks": 4
+    },
+    {
+      "name": "old-binary",
+      "expected_top": [
+        "TestAccountProcessBootstrapRecoveryLogAndBoundCapabilities",
+        "TestAccountProcessUnsafeRecoveryLogFailsBeforeListening",
+        "TestCentralRealDatabaseSIGTERMAndSIGINT",
+        "TestCentralSecretActualStartupRotationAndIndependentKeyRemoval",
+        "TestCentralOutboxEmptyMechanismHealthRecoveryAndSignal",
+        "TestCentralOutboxInvalidStorageAndCatalogPreventListening"
+      ],
+      "selector": "^(TestAccountProcessBootstrapRecoveryLogAndBoundCapabilities|TestAccountProcessUnsafeRecoveryLogFailsBeforeListening|TestCentralRealDatabaseSIGTERMAndSIGINT|TestCentralSecretActualStartupRotationAndIndependentKeyRemoval|TestCentralOutboxEmptyMechanismHealthRecoveryAndSignal|TestCentralOutboxInvalidStorageAndCatalogPreventListening)$",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestAccountProcessBootstrapRecoveryLogAndBoundCapabilities|TestAccountProcessUnsafeRecoveryLogFailsBeforeListening|TestCentralRealDatabaseSIGTERMAndSIGINT|TestCentralSecretActualStartupRotationAndIndependentKeyRemoval|TestCentralOutboxEmptyMechanismHealthRecoveryAndSignal|TestCentralOutboxInvalidStorageAndCatalogPreventListening)$"
+      ],
+      "expected_containers": 4,
+      "expected_networks": 3
+    }
+  ],
+  "GOFLAGS": "-mod=readonly -buildvcs=false -p=2 -v",
+  "driver_budget": "original -race -count=1 -timeout=6m",
+  "protocol": "stop on first failed group; preserve original input/log/result; exact live labels and double absence including required original SMTP fixture; no new network fault method"
+}

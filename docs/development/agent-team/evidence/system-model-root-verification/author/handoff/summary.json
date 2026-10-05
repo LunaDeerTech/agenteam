@@ -1,0 +1,400 @@
+{
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "candidate_manifest": "/workspace/agenteam-system-model-root-author-7jypt_ik/candidate-freeze-02/manifest.json",
+  "candidate_sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab",
+  "production_sha256": "b0b89ce3e899563db1ec52c8094c3c89189aea511255543fe3a7424845c1f38f",
+  "status": "author complete, independent dynamic acceptance pending; capability docs untouched",
+  "real_distinct_tops": [
+    "TestAccountProcessBootstrapRecoveryLogAndBoundCapabilities",
+    "TestAccountProcessUnsafeRecoveryLogFailsBeforeListening",
+    "TestB04AppSMTPFinalReplyDrainsBeforeCoreAndGuard",
+    "TestCentralModelInitializationFailureBeforeListen",
+    "TestCentralModelSystemConfigurationAndRestart",
+    "TestCentralModelSystemCurrentAuthorityAndRouting",
+    "TestCentralOutboxEmptyMechanismHealthRecoveryAndSignal",
+    "TestCentralOutboxInvalidStorageAndCatalogPreventListening",
+    "TestCentralRealDatabaseSIGTERMAndSIGINT",
+    "TestCentralSecretActualStartupRotationAndIndependentKeyRemoval",
+    "TestModelRootHTTPActiveDrainAndDatabaseLast",
+    "TestModelRootHTTPForceUsesOriginalBudget",
+    "TestModelRootInitializationAndFailureOwnership",
+    "TestRealDatabaseHTTPTransactionDrainAndForce",
+    "TestRealSecretStartupSecondSignalSingleForceBudget"
+  ],
+  "real_distinct_subcases": [
+    "TestCentralModelInitializationFailureBeforeListen/ordinary-lock-cancel",
+    "TestCentralModelInitializationFailureBeforeListen/storage",
+    "TestCentralModelSystemCurrentAuthorityAndRouting/anonymous",
+    "TestCentralModelSystemCurrentAuthorityAndRouting/missing-csrf",
+    "TestCentralModelSystemCurrentAuthorityAndRouting/wrong-host",
+    "TestCentralModelSystemCurrentAuthorityAndRouting/wrong-origin",
+    "TestCentralOutboxInvalidStorageAndCatalogPreventListening/catalog",
+    "TestCentralOutboxInvalidStorageAndCatalogPreventListening/storage",
+    "TestCentralRealDatabaseSIGTERMAndSIGINT/interrupt",
+    "TestCentralRealDatabaseSIGTERMAndSIGINT/terminated",
+    "TestModelRootHTTPForceUsesOriginalBudget/deadline",
+    "TestModelRootHTTPForceUsesOriginalBudget/second-signal",
+    "TestModelRootInitializationAndFailureOwnership/model-lock-cancel",
+    "TestModelRootInitializationAndFailureOwnership/model-storage",
+    "TestModelRootInitializationAndFailureOwnership/secret-cancel",
+    "TestModelRootInitializationAndFailureOwnership/secret-storage",
+    "TestModelRootInitializationAndFailureOwnership/success",
+    "TestRealDatabaseHTTPTransactionDrainAndForce/background",
+    "TestRealDatabaseHTTPTransactionDrainAndForce/blocked_io",
+    "TestRealDatabaseHTTPTransactionDrainAndForce/http_graceful",
+    "TestRealDatabaseHTTPTransactionDrainAndForce/second_signal"
+  ],
+  "final_candidate_direct_tops": [
+    "TestAccountProcessBootstrapRecoveryLogAndBoundCapabilities",
+    "TestAccountProcessUnsafeRecoveryLogFailsBeforeListening",
+    "TestB04AppSMTPFinalReplyDrainsBeforeCoreAndGuard",
+    "TestCentralModelInitializationFailureBeforeListen",
+    "TestCentralModelSystemConfigurationAndRestart",
+    "TestCentralModelSystemCurrentAuthorityAndRouting",
+    "TestCentralOutboxEmptyMechanismHealthRecoveryAndSignal",
+    "TestCentralOutboxInvalidStorageAndCatalogPreventListening",
+    "TestCentralRealDatabaseSIGTERMAndSIGINT",
+    "TestCentralSecretActualStartupRotationAndIndependentKeyRemoval",
+    "TestModelRootHTTPActiveDrainAndDatabaseLast",
+    "TestModelRootHTTPForceUsesOriginalBudget",
+    "TestRealDatabaseHTTPTransactionDrainAndForce",
+    "TestRealSecretStartupSecondSignalSingleForceBudget"
+  ],
+  "reused_from_candidate01": [
+    "TestModelRootInitializationAndFailureOwnership"
+  ],
+  "runs": [
+    {
+      "label": "new-init-01",
+      "driver_exit": 0,
+      "elapsed_seconds": 55.902,
+      "passed_top": [
+        "TestModelRootInitializationAndFailureOwnership",
+        "TestCentralModelInitializationFailureBeforeListen"
+      ],
+      "failed_top": [],
+      "skipped_top": [],
+      "missing_expected_top": [],
+      "resource_clean": true,
+      "owned_container_count": 4,
+      "owned_network_count": 3,
+      "expected_counts_match": true,
+      "tracked_process_count": 128,
+      "input_sha256": "11e21b8845c6c884398453130dbd05383528f6477387e98e7439aa6e3e5d99c8",
+      "passed_subcases": [
+        "TestModelRootInitializationAndFailureOwnership/success",
+        "TestModelRootInitializationAndFailureOwnership/model-storage",
+        "TestModelRootInitializationAndFailureOwnership/secret-storage",
+        "TestModelRootInitializationAndFailureOwnership/secret-cancel",
+        "TestModelRootInitializationAndFailureOwnership/model-lock-cancel",
+        "TestCentralModelInitializationFailureBeforeListen/storage",
+        "TestCentralModelInitializationFailureBeforeListen/ordinary-lock-cancel"
+      ],
+      "log_sha256": "11f17625429f776cfc591aca4f90839b717f23d9b55bb11ce9938ee0276c85d3",
+      "result_sha256": "fe55b6ff1809d51963e322bf96cd09e8b65d928a4875e805192b9db1115843ab",
+      "resource_sha256": "af97c004e5918586c9556787da0526a4bc1259f869b5189426d6d667ca568ada"
+    },
+    {
+      "label": "new-http-01",
+      "driver_exit": 1,
+      "elapsed_seconds": 38.006,
+      "passed_top": [
+        "TestModelRootHTTPForceUsesOriginalBudget"
+      ],
+      "failed_top": [
+        "TestModelRootHTTPActiveDrainAndDatabaseLast",
+        "TestCentralModelSystemConfigurationAndRestart",
+        "TestCentralModelSystemCurrentAuthorityAndRouting"
+      ],
+      "skipped_top": [],
+      "missing_expected_top": [
+        "TestCentralModelSystemConfigurationAndRestart",
+        "TestCentralModelSystemCurrentAuthorityAndRouting",
+        "TestModelRootHTTPActiveDrainAndDatabaseLast"
+      ],
+      "resource_clean": true,
+      "owned_container_count": 4,
+      "owned_network_count": 3,
+      "expected_counts_match": true,
+      "tracked_process_count": 83,
+      "input_sha256": "11e21b8845c6c884398453130dbd05383528f6477387e98e7439aa6e3e5d99c8",
+      "passed_subcases": [
+        "TestModelRootHTTPForceUsesOriginalBudget/deadline",
+        "TestModelRootHTTPForceUsesOriginalBudget/second-signal",
+        "TestCentralModelSystemCurrentAuthorityAndRouting/anonymous",
+        "TestCentralModelSystemCurrentAuthorityAndRouting/wrong-host",
+        "TestCentralModelSystemCurrentAuthorityAndRouting/wrong-origin"
+      ],
+      "log_sha256": "d4da83b678462e967f1bc85d38764152ae53740ad17a118f89fd32d098351e55",
+      "result_sha256": "7e927638e2dd3a4ad6d366631aa01aa3129d7938d7c75283743726c8344c25bb",
+      "resource_sha256": "61db05b1de6438a9b7e953122c375cf9ed030f3daf75b4a4b76532161a646528"
+    },
+    {
+      "label": "new-http-02",
+      "driver_exit": 0,
+      "elapsed_seconds": 38.772,
+      "passed_top": [
+        "TestModelRootHTTPActiveDrainAndDatabaseLast",
+        "TestModelRootHTTPForceUsesOriginalBudget",
+        "TestCentralModelSystemConfigurationAndRestart",
+        "TestCentralModelSystemCurrentAuthorityAndRouting"
+      ],
+      "failed_top": [],
+      "skipped_top": [],
+      "missing_expected_top": [],
+      "resource_clean": true,
+      "owned_container_count": 4,
+      "owned_network_count": 3,
+      "expected_counts_match": true,
+      "tracked_process_count": 83,
+      "input_sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab",
+      "passed_subcases": [
+        "TestModelRootHTTPForceUsesOriginalBudget/deadline",
+        "TestModelRootHTTPForceUsesOriginalBudget/second-signal",
+        "TestCentralModelSystemCurrentAuthorityAndRouting/anonymous",
+        "TestCentralModelSystemCurrentAuthorityAndRouting/wrong-host",
+        "TestCentralModelSystemCurrentAuthorityAndRouting/wrong-origin",
+        "TestCentralModelSystemCurrentAuthorityAndRouting/missing-csrf"
+      ],
+      "log_sha256": "f15316feccd93a3da8c230a2cc19d5b442751d8d9edaa7a3bdd2c023c8693a42",
+      "result_sha256": "185a302eff85321bf47479a401964f20574a64e9a4fd4250de30f94031f58ffe",
+      "resource_sha256": "46796460d1ff6bcf1c32d3954d699403cc0346bb2de7ad4341465365dce2bb37"
+    },
+    {
+      "label": "new-init-02",
+      "driver_exit": 0,
+      "elapsed_seconds": 39.087,
+      "passed_top": [
+        "TestCentralModelInitializationFailureBeforeListen"
+      ],
+      "failed_top": [],
+      "skipped_top": [],
+      "missing_expected_top": [],
+      "resource_clean": true,
+      "owned_container_count": 4,
+      "owned_network_count": 3,
+      "expected_counts_match": true,
+      "tracked_process_count": 80,
+      "input_sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab",
+      "passed_subcases": [
+        "TestCentralModelInitializationFailureBeforeListen/storage",
+        "TestCentralModelInitializationFailureBeforeListen/ordinary-lock-cancel"
+      ],
+      "log_sha256": "d29184a4b887ced3df3c1ae94e151f5beeb978a67fffb2db35a8a23be7dee830",
+      "result_sha256": "75a9ee53cd994c9a95764c82ee1cfb5dc50b8400de2e83700552eb363eff0a23",
+      "resource_sha256": "f35f41cbdc4aa0916dab3ca214e81a222759bf5532c806282367edbccd5be939"
+    },
+    {
+      "label": "old-app-01",
+      "driver_exit": 0,
+      "elapsed_seconds": 43.958,
+      "passed_top": [
+        "TestB04AppSMTPFinalReplyDrainsBeforeCoreAndGuard",
+        "TestRealDatabaseHTTPTransactionDrainAndForce",
+        "TestRealSecretStartupSecondSignalSingleForceBudget"
+      ],
+      "failed_top": [],
+      "skipped_top": [],
+      "missing_expected_top": [],
+      "resource_clean": true,
+      "owned_container_count": 5,
+      "owned_network_count": 4,
+      "expected_counts_match": true,
+      "tracked_process_count": 97,
+      "input_sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab",
+      "passed_subcases": [
+        "TestRealDatabaseHTTPTransactionDrainAndForce/http_graceful",
+        "TestRealDatabaseHTTPTransactionDrainAndForce/background",
+        "TestRealDatabaseHTTPTransactionDrainAndForce/blocked_io",
+        "TestRealDatabaseHTTPTransactionDrainAndForce/second_signal"
+      ],
+      "log_sha256": "c1b480c01e6385b42419a15e14fbdfba44bf73328da475dc4491c1c4cca6318d",
+      "result_sha256": "9fbd3d12ef299a90adabbe3d3ee0004736da9a06f59d0acece177b22c72d0390",
+      "resource_sha256": "d65191d481561eb449b79c7ea0e48d59fd9dd4d43a6cd76dec579c0a73dac9ed"
+    },
+    {
+      "label": "old-binary-01",
+      "driver_exit": 0,
+      "elapsed_seconds": 52.02,
+      "passed_top": [
+        "TestAccountProcessBootstrapRecoveryLogAndBoundCapabilities",
+        "TestAccountProcessUnsafeRecoveryLogFailsBeforeListening",
+        "TestCentralRealDatabaseSIGTERMAndSIGINT",
+        "TestCentralOutboxEmptyMechanismHealthRecoveryAndSignal",
+        "TestCentralOutboxInvalidStorageAndCatalogPreventListening",
+        "TestCentralSecretActualStartupRotationAndIndependentKeyRemoval"
+      ],
+      "failed_top": [],
+      "skipped_top": [],
+      "missing_expected_top": [],
+      "resource_clean": true,
+      "owned_container_count": 4,
+      "owned_network_count": 3,
+      "expected_counts_match": true,
+      "tracked_process_count": 89,
+      "input_sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab",
+      "passed_subcases": [
+        "TestCentralRealDatabaseSIGTERMAndSIGINT/terminated",
+        "TestCentralRealDatabaseSIGTERMAndSIGINT/interrupt",
+        "TestCentralOutboxInvalidStorageAndCatalogPreventListening/storage",
+        "TestCentralOutboxInvalidStorageAndCatalogPreventListening/catalog"
+      ],
+      "log_sha256": "96cf081e397a6214e689ad24037ab47667ac627a34590c04a1250b68032d0dd9",
+      "result_sha256": "fe557e8afe96da03610f9e2361be3a05b81b05a2fb702b1fa43cb7e7f701db28",
+      "resource_sha256": "a10227b899045910e86e7954348750f2910d48d1ae8b3a4654d8f24462cb11b9"
+    }
+  ],
+  "checks": [
+    {
+      "label": "pure-01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/app",
+        "./tests/process"
+      ],
+      "exit": 1,
+      "wall_seconds": 2.209,
+      "record_sha256": "249837d3d178e3e4d060662a754cd2deeae8bfb83015639305a4ad0f68005d74",
+      "log_sha256": "b3add424e3883c5818b4d055e65538a4139121d840bdd814b360015767a43523"
+    },
+    {
+      "label": "pure-02",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/app",
+        "./tests/process"
+      ],
+      "exit": 0,
+      "wall_seconds": 26.955,
+      "record_sha256": "9b738f51f4c24bd5bc9c2f79adee273c9f9a6740b05aab4b9c8238c55c044044",
+      "log_sha256": "da97429febc489160ee4b54096f32cc93e1b740e448583808d2578632a7a8eca"
+    },
+    {
+      "label": "compile-app-01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./internal/central/app"
+      ],
+      "exit": 0,
+      "wall_seconds": 3.53,
+      "record_sha256": "55a5e25dae88a5522b318386c82ae398d7d46478dc85b761895f1982186475cc",
+      "log_sha256": "77b7e86cdb45ea91a583e2741a156f3b36d51989051f0158c9432dfda31074e2"
+    },
+    {
+      "label": "compile-real-01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./internal/central/app",
+        "./tests/process"
+      ],
+      "exit": 0,
+      "wall_seconds": 4.653,
+      "record_sha256": "edbd12b0bd1809243ee44d71119a1ba9227b375a8fccf448c632df9ede1af603",
+      "log_sha256": "825b39c0ea0169c7aa08d367f530892c9bd5b72c0a564a038158fd83a5375d2d"
+    },
+    {
+      "label": "compile-real-02",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./internal/central/app",
+        "./tests/process"
+      ],
+      "exit": 0,
+      "wall_seconds": 3.312,
+      "record_sha256": "fa2f6c603af1fc2edb47d823fd3b31dc8bf3d9853fea598d7df0b295413a0076",
+      "log_sha256": "cb9bd9abdbf40fb3422a7f62e9b84f88b2aeb657c6ade0a2558c6738aaf9ef59"
+    },
+    {
+      "label": "compile-real-03",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./internal/central/app",
+        "./tests/process"
+      ],
+      "exit": 0,
+      "wall_seconds": 5.029,
+      "record_sha256": "009d978e643d05513f6731df39d4a6107b041d8f73540922817c9a4a67769ef3",
+      "log_sha256": "fa6c476a241cadfbbb039f890506a709aaa2eb9227ef63fddffdfae04605a0ec"
+    },
+    {
+      "label": "vet-real-01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./internal/central/app",
+        "./tests/process"
+      ],
+      "exit": 0,
+      "wall_seconds": 1.444,
+      "record_sha256": "b67fb47195e9393a0732d3c59ca6532de531e665acb4c0e4358e5561461a6cbb",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "vet-real-02",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./internal/central/app",
+        "./tests/process"
+      ],
+      "exit": 0,
+      "wall_seconds": 0.295,
+      "record_sha256": "4683f1562faedb6f91488496a017fe67d571eced63a7297a2478f46e0ea74ac8",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "label": "build-01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/agenteam-system-model-root-author-7jypt_ik/bin/",
+        "./cmd/agenteam",
+        "./cmd/agenteam-runner"
+      ],
+      "exit": 0,
+      "wall_seconds": 1.128,
+      "record_sha256": "fc993e48c42bc55180c2e0f0e0e223ec327e4dc241cd36b8cdb17cc2eca92c35",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "resources": {
+    "owned_containers": 25,
+    "owned_networks": 19,
+    "unique_tracked_process_instances": 560,
+    "all_owned_exact_ids_twice_absent": true,
+    "baseline_2_containers_4_networks_unchanged": true,
+    "runtime_empty": true,
+    "gotmp_empty": true,
+    "window_returned_to_root": true
+  },
+  "final_source_closure_sha256": "ff29f8948d554de0bef01d127fe511ef597cecdda141f8e7eb7e0fe4c283e11e"
+}

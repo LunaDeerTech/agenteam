@@ -1,0 +1,23 @@
+{
+  "driver_exit": 0,
+  "driver_log_sha256": "a93833ed24cdb8f8796e3b0aa5aed493e0e88d38a3e8d0867e93d6c339b4d945",
+  "passed_child": [
+    "TestIndependentSystemModelRootCurrentSessionAndFacts/same-root-rebind-durable-facts",
+    "TestIndependentSystemModelRootCurrentSessionAndFacts/revoked-session-replay-and-both-lookups"
+  ],
+  "failed_all": [],
+  "skipped_all": [],
+  "expected_children": 2,
+  "elapsed_seconds": 33.99,
+  "passed_top": [
+    "TestIndependentSystemModelRootCurrentSessionAndFacts"
+  ],
+  "failed_top": [],
+  "skipped_top": [],
+  "missing_expected_top": [],
+  "resource_clean": true,
+  "owned_container_count": 4,
+  "owned_network_count": 3,
+  "tracked_process_count": 82,
+  "input_sha256": "81cb4dd8affe0f5265e1a4308af7c15ddc37ee1e4c6212692bf7413049676969"
+}

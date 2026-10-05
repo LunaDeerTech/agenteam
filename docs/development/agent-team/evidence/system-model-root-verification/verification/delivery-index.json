@@ -1,0 +1,350 @@
+{
+  "status": "independent acceptance PASS; raw failure retained; all-stop",
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "root": "/workspace/agenteam-system-model-root-acceptance-ci965cuv",
+  "payloads": [
+    {
+      "path": "author-final-evidence-01/audit-attempt01-note.txt",
+      "sha256": "524d1dac714e5c1f110595bf081748f3f32fe671487b2afd91b47aadb76eb1c8",
+      "bytes": 438
+    },
+    {
+      "path": "author-final-evidence-01/checks.json",
+      "sha256": "4a8392d1ea78bcff8b05224f6a00f0333e7934cd995c055a8d90f76a8a73d4bb",
+      "bytes": 6200
+    },
+    {
+      "path": "author-final-evidence-01/report.md",
+      "sha256": "be367bc9607047d1bc0637dee1ccb7a183e69287ebc7c4275f3c37c0fe9810b2",
+      "bytes": 937
+    },
+    {
+      "path": "author-new-groups-evidence-01/checks.json",
+      "sha256": "d1d3f1a8e3a284626d3794147b8a04a088ce7dcb1f7c50571bdc9eb0dab2d22a",
+      "bytes": 4439
+    },
+    {
+      "path": "author-new-groups-evidence-01/review.md",
+      "sha256": "2757743792a16fa8ccbd2b83f08215f3a431f233a69b0a41e3d3926901357ed4",
+      "bytes": 2770
+    },
+    {
+      "path": "author-new-groups-evidence-01/source-index.json",
+      "sha256": "ea099bae1d6372861f94530c0b3d85d98910f93a6e9d56f6fba53870c3209810",
+      "bytes": 5967
+    },
+    {
+      "path": "author-tests-static-01/first-red-review.md",
+      "sha256": "4c25f97b8c697f4ba212ef805e596d82d7649275f8876ef1e964638ea14ccb29",
+      "bytes": 3470
+    },
+    {
+      "path": "author-tests-static-01/review.md",
+      "sha256": "6481823822e5f666b82e8d7a86e9a3056cb7753afc387a3ecb7e13de8dc00d23",
+      "bytes": 4891
+    },
+    {
+      "path": "author-tests-static-02/review.md",
+      "sha256": "58e276888d3c35a26d5792fae27eeb135fbcf749050dff855aac152f5a7eccf1",
+      "bytes": 2533
+    },
+    {
+      "path": "expected-baseline.json",
+      "sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+      "bytes": 2848
+    },
+    {
+      "path": "fixture-runs/independent-01/baseline.json",
+      "sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+      "bytes": 2848
+    },
+    {
+      "path": "fixture-runs/independent-01/command.json",
+      "sha256": "0e824c6cd536ad0af0df54f9203b1c4a22a5eefec41c5e52bc9b4d7d8c0061b2",
+      "bytes": 1810
+    },
+    {
+      "path": "fixture-runs/independent-01/docker-events.jsonl",
+      "sha256": "01758cfac1aeb06fabb4e874fae5aff32a8ecc95e2171c37d0880285061112d4",
+      "bytes": 210357
+    },
+    {
+      "path": "fixture-runs/independent-01/docker-events.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "fixture-runs/independent-01/driver.log",
+      "sha256": "e0b9db02c41f34c9ec5ea43a9414ca46e550a94924b5605892aa17f0a1303ae1",
+      "bytes": 5378
+    },
+    {
+      "path": "fixture-runs/independent-01/input-after.json",
+      "sha256": "5a4d1e06ab769d92f235ab1acec46b8e1b496191d1accbbe7adb937a5493a5e3",
+      "bytes": 482
+    },
+    {
+      "path": "fixture-runs/independent-01/owned-created.json",
+      "sha256": "6ca25b4338da93e180dc817be2be8c9cd990feeeb63ad98f87f6d61067109e36",
+      "bytes": 1870
+    },
+    {
+      "path": "fixture-runs/independent-01/owned-network-live-labels.json",
+      "sha256": "e6ff7d48ae7bbd7108132d11f252eea6729217bb7557458b3a12702edd2f50fc",
+      "bytes": 732
+    },
+    {
+      "path": "fixture-runs/independent-01/resource-handoff.json",
+      "sha256": "771b0ad623f6d9f001ac0086f14412201f3aa2f222985d47ad20f08d809b9754",
+      "bytes": 36518
+    },
+    {
+      "path": "fixture-runs/independent-01/result.json",
+      "sha256": "66885d43642a3f6ba46f600a9d06697d6f2790d531dc0401372d0b2e5289f442",
+      "bytes": 1106
+    },
+    {
+      "path": "fixture-runs/independent-02/baseline.json",
+      "sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+      "bytes": 2848
+    },
+    {
+      "path": "fixture-runs/independent-02/command.json",
+      "sha256": "67d6d8fcd2c64bcfe16a9c2aa752e5275c123d297b78c1f0dcce2d9f4792ec80",
+      "bytes": 1709
+    },
+    {
+      "path": "fixture-runs/independent-02/docker-events.jsonl",
+      "sha256": "eca6e8be04ad20a67ac428b61538185e8aa7c6bb0a6efe5660efa1fb5a813d58",
+      "bytes": 124817
+    },
+    {
+      "path": "fixture-runs/independent-02/docker-events.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "fixture-runs/independent-02/driver.log",
+      "sha256": "a93833ed24cdb8f8796e3b0aa5aed493e0e88d38a3e8d0867e93d6c339b4d945",
+      "bytes": 4098
+    },
+    {
+      "path": "fixture-runs/independent-02/input-after.json",
+      "sha256": "5a4d1e06ab769d92f235ab1acec46b8e1b496191d1accbbe7adb937a5493a5e3",
+      "bytes": 482
+    },
+    {
+      "path": "fixture-runs/independent-02/owned-created.json",
+      "sha256": "1b57ec7eecbe09d25cd8ec4da0a7127625eeb47231d96f79a9d531f987cb05ce",
+      "bytes": 1870
+    },
+    {
+      "path": "fixture-runs/independent-02/owned-network-live-labels.json",
+      "sha256": "52fc7be70732299aeb0f2664e9ce55f9504486ce46799f86b7d42673a7a44a6f",
+      "bytes": 732
+    },
+    {
+      "path": "fixture-runs/independent-02/resource-handoff.json",
+      "sha256": "988aa12e019ea27a575e843bbab1b4b5ab2b25acbb7d868dfae9987bc5213df5",
+      "bytes": 24688
+    },
+    {
+      "path": "fixture-runs/independent-02/result.json",
+      "sha256": "f5855d301eb54291fd9b38dbb9965f68fd14be6c3c1798f659416648e88ab0be",
+      "bytes": 778
+    },
+    {
+      "path": "input-checks.json",
+      "sha256": "62f7805fb21e09d9871cb1264a51a5fcb81815fbec54133f625e7478a4419c4f",
+      "bytes": 448
+    },
+    {
+      "path": "input.json",
+      "sha256": "140a6184c744b05442bab59009f5995443d6d8160cbae180cf3a34838f26adf2",
+      "bytes": 743
+    },
+    {
+      "path": "logs/compile-01.json",
+      "sha256": "9c5c31770575c21a4d486c48136f9199f578c0130b15667369bedaf3a0089ba8",
+      "bytes": 2016
+    },
+    {
+      "path": "logs/compile-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/compile-02.json",
+      "sha256": "2210fae6a3c59f23d33f9b2e50bca3022437581a31cfc313d06517bd97e3a435",
+      "bytes": 2019
+    },
+    {
+      "path": "logs/compile-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/gofmt-probe02.json",
+      "sha256": "0db08795043d6f6f4c8e2cd69cd2f7bb33872f75d155d81d6265634ac1d3d65c",
+      "bytes": 326
+    },
+    {
+      "path": "logs/gofmt-probe02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/vet-01.json",
+      "sha256": "a139dee09cc2d3b894c57640dde67b1e50dc75611fba9dfb5f7fd9d19b7bcb4c",
+      "bytes": 1884
+    },
+    {
+      "path": "logs/vet-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "logs/vet-02.json",
+      "sha256": "f94cc229f8f119c94e1fcc032551568e9151d57770015a29c9e030800a8ba28d",
+      "bytes": 1884
+    },
+    {
+      "path": "logs/vet-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "probe-freeze-01/manifest.json",
+      "sha256": "4057c1e7353d03c46b83391183d4e056b8449d2f769af68fd5e42f1fffd8bb3b",
+      "bytes": 1272
+    },
+    {
+      "path": "probe-freeze-01/model_root_independent_test.go",
+      "sha256": "8e5f78974c06c2e845c3d81124b766771de20f83b32798e46bd007089eb5e7e3",
+      "bytes": 17706
+    },
+    {
+      "path": "probe-freeze-02/diagnosis.md",
+      "sha256": "3dadf624ce9e8cc79de888f7eba92f27bf60cdc87f041930527eb8fac7498877",
+      "bytes": 1907
+    },
+    {
+      "path": "probe-freeze-02/diagnostic-checks.json",
+      "sha256": "e55da017d42fa51b537617b2cec43adb98eda8e2f54d05711caa6cad913a7ddb",
+      "bytes": 1712
+    },
+    {
+      "path": "probe-freeze-02/from-probe01.patch",
+      "sha256": "9e00e46d77bc83aa3523fc7457da3c03cd6da05d0497528ae87daad7afe99452",
+      "bytes": 2519
+    },
+    {
+      "path": "probe-freeze-02/manifest.json",
+      "sha256": "81cb4dd8affe0f5265e1a4308af7c15ddc37ee1e4c6212692bf7413049676969",
+      "bytes": 1450
+    },
+    {
+      "path": "probe-freeze-02/model_root_independent_test.go",
+      "sha256": "6dc12d68d336e1db1226084d207f264c03003e935738d87fb7084412015a4a40",
+      "bytes": 18657
+    },
+    {
+      "path": "production-manifest.json",
+      "sha256": "b0b89ce3e899563db1ec52c8094c3c89189aea511255543fe3a7424845c1f38f",
+      "bytes": 826
+    },
+    {
+      "path": "ready-02.json",
+      "sha256": "fdd6da591bed3a1e09033c624c3edafc0d77f8fab2320d25b5a6b53f8018b9d1",
+      "bytes": 3228
+    },
+    {
+      "path": "ready.json",
+      "sha256": "331e5fca08623e2c15de7fef69ba2775f729df32762ec87d2f64a732b0433a9e",
+      "bytes": 2936
+    },
+    {
+      "path": "review.md",
+      "sha256": "e65c5036bf4ce3da683712b545ddcc9ce9ec75f3ee8af7e7c5f6e0971753a55a",
+      "bytes": 6526
+    },
+    {
+      "path": "run-authorization-02.json",
+      "sha256": "4ec37b05ecf55ecdd4407ce4471157da9ae0e217cd99bc6fd7d3360c88da7a3e",
+      "bytes": 989
+    },
+    {
+      "path": "run-authorization.json",
+      "sha256": "f6eaac4b739aba607aa9b545097ec9ca394bf564e798ec540849d7e96c52ad27",
+      "bytes": 1000
+    },
+    {
+      "path": "run-pure-02.py",
+      "sha256": "1900a786c7d34a7f86e203640f3cbc22e8faf4988e233d4b63e6f2594a909676",
+      "bytes": 2288
+    },
+    {
+      "path": "run-pure.py",
+      "sha256": "12002b85d7edddede622f0bd367e784be1ae7a937413bd4da34a9fa3c4bc916d",
+      "bytes": 2285
+    },
+    {
+      "path": "run_independent.py",
+      "sha256": "822c8922a6b765a2cbe7af53f701a878391f9cfebf6138b82f684cef8af1b473",
+      "bytes": 10227
+    },
+    {
+      "path": "run_independent_02.py",
+      "sha256": "1ecd9e34ea3d58bd0cdc653c0a3cc2d6c3819299f55b8c2ffe8bfad68eb62778",
+      "bytes": 10188
+    },
+    {
+      "path": "verification-input.json",
+      "sha256": "16eee9187c08be5e86b84eb021e674c5994c03e2072ac979c88c01879bd8825d",
+      "bytes": 625
+    }
+  ],
+  "external_frozen_locator": [
+    {
+      "path": "/workspace/agenteam-system-model-root-author-7jypt_ik/handoff/report.md",
+      "sha256": "7320a593bd5c4c1d1996404663661a922416dd7a3a2230bcf2753b586ae6ea66",
+      "bytes": 5162
+    },
+    {
+      "path": "/workspace/agenteam-system-model-root-author-7jypt_ik/handoff/summary.json",
+      "sha256": "8e3e1c4edb6a2b5ff6645cc04d640ccee016c6686c882aa2fbb07e43eafacdb9",
+      "bytes": 16410
+    },
+    {
+      "path": "/workspace/agenteam-system-model-root-author-7jypt_ik/handoff/SHA256SUMS.json",
+      "sha256": "36bdd0bb0263e3056c2d7fba2d604fbd024b5f95b99874fc1d8ac78daa03b73f",
+      "bytes": 17114
+    },
+    {
+      "path": "/workspace/agenteam-system-model-root-author-7jypt_ik/handoff/final-source-closure.json",
+      "sha256": "ff29f8948d554de0bef01d127fe511ef597cecdda141f8e7eb7e0fe4c283e11e",
+      "bytes": 166611
+    },
+    {
+      "path": "/workspace/agenteam-system-model-root-author-7jypt_ik/candidate-freeze-02/manifest.json",
+      "sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab",
+      "bytes": 2420
+    },
+    {
+      "path": "/workspace/agenteam-system-model-root-author-7jypt_ik/production-review-01/manifest.json",
+      "sha256": "b0b89ce3e899563db1ec52c8094c3c89189aea511255543fe3a7424845c1f38f",
+      "bytes": 826
+    },
+    {
+      "path": "/workspace/agenteam-system-model-root-production-static-fjswjdsh/review.md",
+      "sha256": "81247ef4f855b6367d61c08254ed0474c3e1cc1de73b6ce5dc2b9f8fe4659a58",
+      "bytes": 4645
+    }
+  ],
+  "independent_unique_top": 2,
+  "independent_unique_subcases": 4,
+  "author_unique_top": 15,
+  "author_unique_subcases": 21,
+  "source_acceptance_scope": "six candidate02 source/test files; two capability docs remain unchanged pending truthful accepted status update",
+  "no_more_go_docker": true
+}

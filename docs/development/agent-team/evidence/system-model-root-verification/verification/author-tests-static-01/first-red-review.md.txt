@@ -1,0 +1,17 @@
+# new-http-01 首红独立归因及窄修意见
+
+结论：作者提出的仅两新测试修复方向 PASS；生产三源不需因这些失败而修改。待固定 delta 和实际复验，当前动态整体仍未通过。原静审报告保持原字节；本补充在新原始动态证据到达后确认三个此前静审未闭合的问题。
+
+固定源仍 candidate01 manifest 11e21b8845c6c884398453130dbd05383528f6477387e98e7439aa6e3e5d99c8，基线 ac5b4c65。原 driver.log SHA d4da83b678462e967f1bc85d38764152ae53740ad17a118f89fd32d098351e55；result.json SHA 7e927638e2dd3a4ad6d366631aa01aa3129d7938d7c75283743726c8344c25bb。实际 exit 1、38.006s、3 top FAIL/1 top PASS，原日志完整保留。
+
+1. model_process_test.go:59 的观察器以 CommandsCause + Namespace()=="model" 过滤；固定 model/commands.go:88 创建 System identity 使用 "model.system"，且 :137 的加载约束再次核同值。因此观察数组始终漏采，而非证明没有真实交易。日志 :13 只在正常 drain 最后的 commit-state 断言失败，控制流此前已经通过 HTTP 200、receipt/canonical 对应、实际 DB StopAdmission 点 httpActive=0、无 ForceClose。force 两分支 raw :17/:19 也显示 states=[]；其有界取消/退出观察可保留，不能把该空列表当作底层 terminal-state 证据。只改过滤为精确 "model.system"，保留全部原强断言；修后须保留正常/force 实际 states。
+
+2. binary 新测试 :167（login）与 :290（restart 后哨兵扫描）在进程未 wait 时读 p.stdout.String。原 process helper 的 stdout 为无锁 bytes.Buffer，exec 管道 writer 在 Cmd.Wait 之前可并发 ReadFrom/grow；raw race 栈准确给出这两读点与 exec.writerDescriptor 写点。只改新测试：活态只读已有加锁 stderr；凭据/哨兵 stdout 检查放对应 p.wait 成功之后，且必须保留首进程及重启进程应检查的材料，不能只删泄漏断言或改旧 helper。
+
+3. 当前权限组的 anonymous 反例显式删 Cookie 后，真实 HTTPBoundary.WriteProblem 对 Unauthenticated 会调用 csrfClearSession，固定 csrf.go:158 发 MaxAge=-1。新测试 helper :110 应用该响应到共享 v.cookies，删掉后续用的有效 Session。raw :547 显示 missing-CSRF 实为 401/UNAUTHENTICATED 而非预期403，:549 后继 HEAD 也401；这与原顺序和实际清 Cookie 代码一致。建议每个负例从已发行的真实登录 cookie 独立副本开始，先 GET/session 证明前提，观察匿名响应确实清 cookie 后再恢复原有效 cookie 供另一独立 case；不要改变服务端清 Cookie 或接受401来降低CSRF断言。
+
+4. 先前 F1 phase 断言仍需 secret_maintaining→secret_maintenance_starting（新 binary :402）。其原 no-listen、Secret canary、selection/claim 零行等断言保留。
+
+根因定位范围明确：以上逐项对应已见失败/空观察，不推断未执行后的所有权限/重启行为已通过，不把 production 三源未改当作无回归的理由。适用复验是修后 new-http 四 top（force 亦因漏采改动重跑）及受 F1 影响的 TestCentralModelInitializationFailureBeforeListen；新 app 初始化五分支原来源/语义不变可复用 new-init 原实际证据。后续旧组仍按原范围。
+
+本轮只读冻结输入及已结束原日志；未运行 Go/Docker/网络、未改源码/探针/仓库/Git。独立 probe 仍原 8e5f7897…5e7e3；等待 candidate02 差量和主线程资源调度。

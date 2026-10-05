@@ -1,0 +1,21 @@
+# System Model root 冻结测试独立静审
+
+结论：三个新测试具备真实根与真实权限的验证路径；发现且 root 已采纳一处需修正的阶段日志字面量 F1。未见其它确定静态阻断。生产三源仍与已 PASS review01 完全相同；本报告不声明动态通过。
+
+输入：ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7 + candidate-freeze-01；manifest SHA 11e21b8845c6c884398453130dbd05383528f6477387e98e7439aa6e3e5d99c8。8/8 原字节 SHA 独立核对，能力文档两项仍为基线且验后再写。只读取冻结三测试，未读作者活动工作树或活动日志。四组 15 top 的 ready-selectors.json SHA befe57b050a23c11ea6dd4bd1032c9b1eebe709ebb31ee79187bb6b6a3d09a3f 已核；预计结果待冻结动态证据。
+
+F1：tests/process/model_system_database_test.go:402 检查 `"phase":"secret_maintaining"`，固定 internal/platform/logging/security.go:10 实值为 `secret_maintenance_starting`，故该半句无法检测错误进入 maintenance。建议只换字面量，保留 no-listen、Secret registry=1、selection=0、process_claims=0 和后端退出原强断言。root 已通知作者在当前组结束/清零后冻结 candidate02，定向重验 TestCentralModelInitializationFailureBeforeListen；本审查不改作者代码。此项不证明生产阶段顺序有缺陷。
+
+核查：
+
+- model_test.go 的 child 只用于允许的纯分派观察；逐个完整根/子路径、相似 prefix、RawPath、原 request/body 身份及一次 middleware 均有断言。有效构造使用真实 authority/router/audit/secret，嵌入 nil Store 保证构造阶段不能偷偷访问 SQL；缺必要实例拒绝且不发布 handler。未将纯构造测试当作数据库权限证明。
+- model_process_test.go 的 open/WithinTx/InTx/Exec/Drain/ForceClose 全部委托同一真实 Store；bind 只观察 owner 后调用正式 bindAccounts，未替换 handler、Session/Admin/Audit/Secret 或交易结果。app HTTP 身份通过既有真实 Account bootstrap/Login/GetSession helper，不铸造 Actor 或写权限表。
+- 五初始化分支执行真实 Secret.Initialize，随后才注入 task-owned 的存储不可用/普通 Model 锁。比较同一个原 context（含 deadline）及精确 Model 调用次数；Secret 错误/取消为零次、Model 分支为一次。模型失败不监听、partial Account/log owner Joined、Store 后端消失；存储失败不能被更早未命中阶段冒充。binary 的缺表分支还核真实 Secret canary 已写、selection/尚未启动的 Object claim 为零。
+- normal drain 在真正 Provider INSERT 之前的同 Tx delegate barrier 观察 httpActive=1。首信号后 request ctx 尚未取消、DB StopAdmission 未发生；迟到请求为 SHUTTING_DOWN/连接关闭。释放后取得成功 receipt、真实 canonical、实际 Model Committed，并在所有 DB StopAdmission 点检查 httpActive=0、无 ForceClose。足以证明新增同步请求的 normal 路径；不据此证明已有 Object 问题已修。
+- force 的 deadline/second-signal 分支沿相同实际请求；检查原终态、request cancel、有界退出、DB ForceClose 已发起且观察到取消、deadline 未明显续期、无 drained 声明。允许 HTTP 失败，明确不由此推出所有 writer join 或回滚。动态仍须核其原 trace/modelResults：实际观察到多少 transaction states 就记录多少，不以 HTTP response 或 ctx cancellation 补造底层终局。
+- binary 组通过真实 cmd/agenteam、bootstrap/login/session/CSRF，完成 credential 写/绑定、Provider/Model CRUD、selector 配置与两类 lookup/replay；SQL 对 Model committed receipt、Audit action/resource/version、event ID、Secret reference、零 Model delivery、唯一原 mail subscription 做旁证。相同输入重启比较 selector、两 receipt、重放、命令计数和 restricted bootstrap log；普通退出分别 SIGTERM/SIGINT。
+- 当前授权组实际 logout 并为每次请求重放原 cookie 副本，不被首个 Set-Cookie 清除后退化成匿名反例。作者断言为 401+两类 receipt 计数不变；精确 SESSION_REVOKED 与完整行零变化由已冻结独立 probe 补充。其他 Host/Origin/CSRF、路由/HEAD/405、一次日志、ready503 和未注册能力覆盖符合 root 范围，不机械重跑全部 HTTP 库矩阵。
+
+独立选择保持 2 top/4 sub，probe SHA 8e5f78974c06c2e845c3d81124b766771de20f83b32798e46bd007089eb5e7e3，不改 probe：真实二进制两 credential 换绑及完整行/精确撤销错误；formal Store 初始化锁的释放正向与持锁取消、maintenance/listener 边界。作者 normal/force、全 CRUD/selector/restart 在动态实际通过后可复用。
+
+本轮没有运行 Go/Docker/网络、没有写仓库/Git、没有恢复暂停 Object 任务。动态结果与 F1 修订仍待冻结原件；本静审报告和私有测试副本停止写入。

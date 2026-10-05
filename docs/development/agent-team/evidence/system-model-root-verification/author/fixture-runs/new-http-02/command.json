@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestModelRootHTTPActiveDrainAndDatabaseLast|TestModelRootHTTPForceUsesOriginalBudget|TestCentralModelSystemConfigurationAndRestart|TestCentralModelSystemCurrentAuthorityAndRouting)$"
+  ],
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2 -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-secret-model-usage-author-l4eactgz/gocache",
+    "GOTMPDIR": "/workspace/agenteam-system-model-root-author-7jypt_ik/gotmp",
+    "TMPDIR": "/workspace/agenteam-system-model-root-author-7jypt_ik/runtime",
+    "GOMAXPROCS": "4",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "CGO_ENABLED": "1",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "DOCKER_CONFIG": "/workspace/agenteam-system-model-root-author-7jypt_ik/docker-config"
+  },
+  "cwd": "/workspace/agenteam-system-model-root-author-7jypt_ik/snapshot",
+  "input_manifest": "/workspace/agenteam-system-model-root-author-7jypt_ik/candidate-freeze-02/manifest.json",
+  "input_sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab",
+  "start_unix": 1791227221.9070294,
+  "expected_top": [
+    "TestModelRootHTTPActiveDrainAndDatabaseLast",
+    "TestModelRootHTTPForceUsesOriginalBudget",
+    "TestCentralModelSystemConfigurationAndRestart",
+    "TestCentralModelSystemCurrentAuthorityAndRouting"
+  ]
+}

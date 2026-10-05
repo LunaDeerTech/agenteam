@@ -1,0 +1,826 @@
+{
+  "status": "PASS",
+  "precheck_note": "The first archive-only checker rejected README.md because it treated no-index difference exit1 with empty diagnostics as failure. No evidence bytes changed. The corrected checker accepts exit0/1 with empty diagnostics and records actual raw whitespace warnings per path.",
+  "source_originals_sha_size_verified": {
+    "author_payloads": 114,
+    "final_payloads": 13,
+    "independent_payloads": 60,
+    "independent_external_locators": 7
+  },
+  "archived_raw_files": 176,
+  "archived_raw_bytes": 2334104,
+  "omitted_exact_git_sources": 25,
+  "accepted_commit": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "accepted_paths_equal_manifest": 8,
+  "source6_unchanged_from_candidate02": true,
+  "protected_history_and_api_body_bytes_unchanged": true,
+  "relative_links_fragments": [
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/author/final-freeze-03/manifest.json"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/author/candidate-freeze-02/manifest.json"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/static/production-review01/review.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/verification/review.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/verification/delivery-index.json"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/author/handoff/summary.json"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/author/handoff/report.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/author/failure-review-01/triage.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/author/candidate-freeze-02/from-candidate01.patch"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/verification/fixture-runs/independent-01/result.json"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/verification/fixture-runs/independent-02/result.json"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/verification/probe-freeze-02/diagnosis.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/verification/probe-freeze-02/from-probe01.patch"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/README.md"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/source-map.json"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/SHA256SUMS.json"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/whitespace-exceptions.json"
+    },
+    {
+      "source": "docs/development/agent-team/system-model-root-verification.md",
+      "target": "evidence/system-model-root-verification/archive-checks.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "../../system-model-root-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "source-map.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "SHA256SUMS.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "accepted-input.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "author/final-freeze-03/manifest.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "author/handoff/report.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "author/handoff/summary.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "author/candidate-freeze-02/from-candidate01.patch"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "author/failure-review-01/triage.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "verification/review.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "verification/delivery-index.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "verification/probe-freeze-01/model_root_independent_test.go.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "verification/probe-freeze-02/model_root_independent_test.go.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "static/production-review01/review.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "static/spec-review01/review.md.txt"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "archive-checks.json"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "target": "whitespace-exceptions.json"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "recovery-2026-10-05.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-project-domain-bindings.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d09-project-configuration-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "object-runtime-join-regression.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-object-runtime-join.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "artifact-project-stop-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-openai-chat-wire.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d09-openai-chat-wire-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "recovery-2026-10-05.md#4-本次所有权与下一步"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d08-lifecycle-authority.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-secret-project-audit.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-project-secret-audit-binding.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d05-object-stop.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-object-project-audit.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "artifact-project-stop-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "recovery-2026-10-05.md#19-object-修复业务执行中断"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-project-configuration.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d09-project-configuration-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d09-openai-chat-wire-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-secret-model-usage.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d09-secret-model-usage-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-system-model-http.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d09-system-model-http-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-system-model-root.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "system-model-root-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d10-skills-initialization.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../development-plan.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-baseline-audit.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-baseline-audit-report.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-decision-sync.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-audit-decisions.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-baseline-audit-report.md#7-at-0005-决策处置映射"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-skills-design-proposal.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-tool-call-harness-research.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "model-update.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "workflow-upgrade.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d01-cross-module-contracts.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d02-engineering-foundation.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d03-postgresql-foundation.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d04-security-foundation.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d05-object-storage-artifact.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d06-transactional-outbox.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d07-account-session-smtp.md#b04-终局采纳与文档关闭"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d07-account-session-smtp.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d07-account-mail-retry-addendum.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "README.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../development-plan.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d07-account-session-smtp.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d07-account-session-smtp.md#b04纯块采纳与后段候选并行"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d08-project-owner.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d08-project-owner-design.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d08-project-owner.md#b01-独立验收与提交"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d08-project-owner.md#b02-独立验收与提交"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d09-model-system-token-usage.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d09-model-system-token-usage-design.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d09-b01-system-configuration.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d12-knowledge-documents.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d12-knowledge-documents-design.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d12-b02-knowledge-service.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "recovery-2026-10-05.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d08-b03.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d10-p1-recovery-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d08-r1-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d08-b03-acceptance.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d08-r2-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d05-s1-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d08-r3-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "secret-project-audit-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-object-project-audit.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "project-secret-audit-binding-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d05-s2-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "object-project-audit-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-project-configuration.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d09-project-configuration-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "object-runtime-join-regression.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-object-runtime-join.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "recovery-2026-10-05.md#19-object-修复业务执行中断"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-openai-chat-wire.md"
+    },
+    {
+      "source": "docs/development/agent-team/tasks.md",
+      "target": "d09-openai-chat-wire-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "tasks.md#当前恢复点与并行所有权"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../../../AGENTS.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "README.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../../../.agents/skills/agenteam-documentation/SKILL.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../development-plan.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "tasks.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../development-plan.md#当前启动点"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/d08-project-owner.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/d08-project-owner-design.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/recovery-project-domain-bindings.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "object-runtime-join-regression.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "artifact-project-stop-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/d09-model-system-token-usage.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/d09-model-system-token-usage-design.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/d09-b01-system-configuration.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/recovery-d09-project-configuration.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d09-project-configuration-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d09-openai-chat-wire-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/recovery-d09-secret-model-usage.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d09-secret-model-usage-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d09-system-model-http-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/recovery-d09-system-model-root.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "system-model-root-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/d10-skills-initialization.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/d10-skills-initialization-design.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/d12-knowledge-documents.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/d12-knowledge-documents-design.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/d12-b02-knowledge-service.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "tasks.md#b03-当前局部验证与所有权"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/recovery-d08-b03.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d10-p1-recovery-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d08-r1-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/recovery-d08-b03-acceptance.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d08-r2-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d05-s1-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d08-r3-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "secret-project-audit-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/recovery-object-project-audit.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "project-secret-audit-binding-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d05-s2-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "object-project-audit-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/recovery-project-domain-bindings.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d09-project-configuration-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "object-runtime-join-regression.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/recovery-object-runtime-join.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d09-openai-chat-wire-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "artifact-project-stop-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "evidence/artifact-project-stop-verification/README.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/recovery-d09-secret-model-usage.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d09-secret-model-usage-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "evidence/d09-secret-model-usage-verification/README.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/recovery-d09-system-model-http.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "d09-system-model-http-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "evidence/d09-system-model-http-verification/README.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "../work-items/recovery-d09-system-model-root.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "system-model-root-verification.md"
+    },
+    {
+      "source": "docs/development/agent-team/recovery-2026-10-05.md",
+      "target": "evidence/system-model-root-verification/README.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../agent-team/system-model-root-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "d09-model-system-token-usage.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "d09-b01-system-configuration.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "recovery-d09-system-model-http.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../../../api/openapi/model-system.json"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../../../AGENTS.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../agent-team/README.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../development-plan.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../../../.agents/skills/agenteam-go-development/SKILL.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../../../.agents/skills/agenteam-verification/SKILL.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../agent-team/d09-secret-model-usage-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../agent-team/object-runtime-join-regression.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "recovery-object-runtime-join.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../../../internal/central/app/account.go"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../../../internal/central/app/app.go"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../agent-team/system-model-root-verification.md"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "target": "../agent-team/evidence/system-model-root-verification/README.md"
+    }
+  ],
+  "json_files_parsed_before_final_index": 111,
+  "jsonl_files_parsed": 8,
+  "python_syntax_files": 8,
+  "document_format": "UTF8 LF final newline, no trailing whitespace, balanced code fences",
+  "scoped_git_diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "docs/development/agent-team/system-model-root-verification.md",
+      "docs/development/agent-team/evidence/system-model-root-verification/README.md",
+      "docs/development/agent-team/tasks.md",
+      "docs/development/agent-team/recovery-2026-10-05.md",
+      "docs/development/work-items/recovery-d09-system-model-root.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "raw_whitespace_exception_files": 7,
+  "no_go_docker_network_git_writes": true,
+  "rebuild_check": {
+    "argv": [
+      "python3",
+      "/workspace/agenteam/docs/development/agent-team/evidence/system-model-root-verification/rebuild.py",
+      "--repo",
+      "/workspace/agenteam",
+      "--check"
+    ],
+    "exit": 0,
+    "stdout": "{\"raw_files_verified\": 176, \"git_source_locators_verified\": 25, \"variant_path_counts\": {\"accepted\": 8, \"candidate01\": 8, \"candidate02\": 8, \"production01\": 3, \"pure01\": 4, \"independent01\": 4, \"independent02\": 4}, \"output_variant\": null, \"no_go_docker_network\": true}\n",
+    "stderr": ""
+  },
+  "created_overlay_checks": {
+    "candidate01": {
+      "paths": 8,
+      "all_sha_match": true,
+      "created_outside_repository": "/workspace/agenteam-system-model-root-author-7jypt_ik/archive-rebuilt-candidate01"
+    },
+    "independent02": {
+      "paths": 4,
+      "all_sha_match": true,
+      "created_outside_repository": "/workspace/agenteam-system-model-root-author-7jypt_ik/archive-rebuilt-independent02"
+    }
+  },
+  "author_original_test_delta_exact_rebuilt": true
+}

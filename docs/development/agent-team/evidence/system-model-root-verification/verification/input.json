@@ -1,0 +1,16 @@
+{
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "card_sha256": "c0a42b34b39cc6640b08f4d36c3cde28253b181f4aea4b0ac72909dccf544b46",
+  "static_report": "/tmp/agenteam-system-model-root-static-ig_oqjb5/review.md",
+  "static_report_sha256": "6c146abeddb264fcc4b93146187f89539f3e3292986add56a190d1188b0f5a6b",
+  "author": "recovery_handoff",
+  "scope_paths": 8,
+  "production_paths": [
+    "internal/central/app/account.go",
+    "internal/central/app/security.go",
+    "internal/central/app/model.go"
+  ],
+  "plan_sha256": "e159829333abefc82b44a9286357d4c53f42cecf340f42dc47e1ceb963ed7f6d",
+  "activity": "private plan only; no active input/no Go/Docker/network/SQL/repo/Git writes",
+  "state": "all-stop; await frozen production3"
+}

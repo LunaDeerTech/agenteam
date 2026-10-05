@@ -1,0 +1,31 @@
+# System Model 默认根装配规格独立静审
+
+**结论：静态 PASS，建议采纳 rev1；无确定硬阻断，无必须的规格窄修订。8 路径足以承载本卡限定结果，尚未实施或动态验收。** 不把本结论解释为 Object 退出问题已修、共享 guard 已验或完整 D09 已完成。
+
+输入为冻结卡 `docs/development/work-items/recovery-d09-system-model-root.md`，SHA-256 `c0a42b34b39cc6640b08f4d36c3cde28253b181f4aea4b0ac72909dccf544b46`；固定已提交源码 `ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7`。卡原字节保存在 `card.md`；36 个有界相关源码/上游规格原字节与路径 SHA 见 `source-manifest.json`，未复制全树、读取活动产品或恢复暂停 Object 任务。
+
+## 关键结论
+
+1. **实际构造图无循环或新增域端口缺口。** `app/account.go:bindAccounts` 是两个私有 security helper 的唯一生产调用点。Account Authority 可先于 Model Authority 建立；Model Authority 无 Service locator，适合注入真实 Audit.Models、SecretUsageRouter 和 Outbox Producers。固定 `account.Store` 与 `model.Store` 的方法集相同；由同一个 `db` 动态实例做各接口断言，不引入另一个包装实例，即可满足 `model.New` 的真实 Store 身份比较与各域 InTx 检查。新 Model/router 构造本身零 I/O；不把既有根打开对象/日志的行为误称为全根零 I/O。
+2. **真实权限/事务可以保持同源。** Model.Authorizations 的 Sessions/System 指向原 Account Authority，Projects 不绑定；Audit 原 Accounts/Sessions/System 和 Secret 原 AccountWrites/Sessions/System 保留。SecretUsageRouter 只把 Model reference retain/release 的 Discover/Validate 委派给 Model，其余用途和无 Purpose 的 lease 口保留 Account fallback，Model 新 read/lease 仍未绑定。Model 命令的 prepared fact、完整锁、Secret reference、typed Audit、事件沿同一原业务 Tx，不需改领域实现或公共 contract。
+3. **单 catalog 与 Seal 次序正确。** `outbox.New` 复制 Producers map 后调用 catalog.Seal；`event.DefineEvent` 在 sealed 或同名定义重复时拒绝。故本卡把两项 Model DefineEvents 放在该 New 之前并传递同一个 opaque ModelEvents 是必要且可实现的。Outbox Append 先落事件，再按真实 subscriptions 生成 deliveries；没有 Model subscriber 允许事件持久且零 Model deliveries，不需空 handler。原 Account 唯一 mail handler/subscription 不受新增事件定义数量影响。
+4. **初始化接缝充分。** `app.initialize` 已在迁移/DB 健康后创建同一 30s security ctx，并顺序调用 bind、security、secret、maintenance、outbound/Object/Outbox/Account，最后 listen。扩原捕获闭包即可在真实 Secret 成功且 ctx 仍有效后调用一次已构造 Model.Initialize，不需改 app.go/dependencies 公共形态或续期。Model.Initialize 本身只验证关系并幂等创建/读取技术 singleton；不创建默认业务配置或 Audit/Event。Secret hook 的错误/取消必须优先，符合原唯一延迟失败测试。Model 无独立资源 owner；已有 accountAssembly 和 resources 仍拥有部分 Sink/transport/Object/Store，失败不要求尚未 Initialize 的 Object process 已登记 stopped。
+5. **六路组合与既有 HTTP 边界吻合。** 固定 Model handler 的 17 method/path 恰分布于卡列六完整根。组合层可只按根相等或根后 `/` 分派，保持整个 request；危险 RawPath/非规范 path 由实际 Account HTTPBoundary 在 ServeMux 之前拒绝，不需要新增清理/重定向或二次中间件。app.go 先保留三诊断路由，其余给缓存的 accounts handler；一次 httpapi.Handler、一次 gate/finishHTTP、当前真实 cookie Session/admin 和 Tx 内重新授权均可保留。lookup 的 Read 意图不取消 POST CSRF，root 不重写 receipt/Unknown。
+6. **同步新增路径适用原 drain 协议。** 原 gate 在放行后计 httpActive，并 defer finishHTTP；producersJoined 需要 active==0 及原 owners Joined，正常 DB Drain 晚于 HTTP 与其它 owners。新增配置命令没有 Provider I/O、material lease 或 detached worker，因此无需新的 Model Runtime/Joined 端口。force 的 serving cancel/HTTP close、已有 owners 发起及最后 DB ForceClose 共用原预算；卡明确只要求观察发起顺序和实际结果，不把取消/返回/force 冒称 join 或 rollback。此处只审核原根如何覆盖新增同步 handler，未审修或重开 Object 问题。
+
+## 8 路径与旧兼容可执行性
+
+3 生产路径可以完成全部接线：`app/account.go` 负责原 bind 的有向依赖、单 catalog/producer、闭包顺序和 handler 安装；`app/security.go` 仅改两个私有签名及注入；新 `app/model.go` 可容纳无状态路由及有限私有构造辅助。无已知必要修改 cmd/config、app.go/resources、迁移、领域 service 或已验 HTTP/OpenAPI。3 新测试文件允许 package-local 真实委派观察器与实际 cmd 二进制组合；2 文档只在动态验收后同步能力边界。
+
+已核旧 `unitDependencies` 明确替换 bind，仅测试旧纯编排；不会因为新增默认根依赖而必然失效。`secret_startup_second_signal` 是唯一 secretInitialize hook，先执行真实 Initialize 再延迟返回原错误，卡已要求保留其优先级。`guardAccountAssembly` 使用实际完整迁移和原两个初始化闭包。旧 Outbox process test 断言的是 1 handler/1 subscription 与实际 mail 声明，不限制 catalog 只有两个事件。因此当前没有证据要求扩大旧测试写权；实施中的真实兼容失败仍须保留并报告最小 delta，静审不保证动态无红。
+
+验收表覆盖默认 bind、构造拒绝、Secret→Model 同预算初始化/失败前不监听、六路原请求与当前权限、真实命令/Secret refs/Audit/events/receipt及重启、正常 drain 和原 force 两分支。已有 deps.bind 可仅委派真实 bind 并观察 resources；同一个真实 Store 包装观察器可用于记录 context、业务进入和 DB stop/force，不必替换生产 handler、授权 provider 或底层结果。实际二进制测试可使用既有 launch/databaseEnvironment/受限 bootstrap log 与正式 HTTP 登录接口，在一个新 tests/process 文件内完成；无需造 Session/Actor 或新测试生产入口。
+
+## 实施/动态验收仍须留意的既定门槛
+
+- 初始化失败必须证明进入的是 Model 阶段，不能把提前迁移/Secret 失败误计；普通锁竞争需有实际等待/阶段旁证，不靠时间猜测。Secret 失败与取消不得继续创建 Model singleton。
+- drain 场景应先确认新增真实路由通过 Account boundary 并进入 Model 调用，再停止；观察正常实际结果和 receipt/canonical 后态。force 只在原预算内报告实际 commit/error，不承诺所有 writer 已 join 或回滚。
+- 校验同一个 Secret 实例同时支撑 HTTP HumanWriteCommands 与 Model UsageOperations；同 catalog 事件能落库、零 Model delivery、旧 mail 声明不增不变。当前权限检查不得因历史 receipt 绕开。
+- 真实组和适用旧回归须另授独占窗口，使用原 driver/race/count1/6m；按有意义组分预算，首红保留。生产 Model consumer/Invocation/Provider 调用、Summary 产品决定、Project/Artifact/R4 和 Object 已知缺陷仍不在本卡交付。
+
+本次只读静审，使用既有 verification 规则；未运行 Go、Docker、SQL、网络、二进制或任何探针，未写仓库/Git，未再委派。静态 PASS 不是运行验收。报告及输入冻结，all-stop。

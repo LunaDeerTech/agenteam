@@ -1,0 +1,73 @@
+--- probe01/model_root_independent_test.go
++++ probe02/model_root_independent_test.go
+@@ -94,11 +94,25 @@
+ 	}
+ 	t.Run("revoked-session-replay-and-both-lookups", func(t *testing.T) {
+ 		before := independentModelFacts(t, conn, provider, credentialOne, credentialTwo)
+-		oldCookies := browser.client.Jar.Cookies(browser.base)
++		cookieURL := *browser.base
++		cookieURL.Host = processPublicHost
++		oldCookies := browser.client.Jar.Cookies(&cookieURL)
++		var originalSession string
++		var sessionCount int
++		for _, cookie := range oldCookies {
++			if cookie.Name == "agenteam_local_session" {
++				sessionCount++
++				originalSession = cookie.Value
++			}
++		}
++		if sessionCount != 1 || originalSession == "" {
++			t.Fatal("effective public Host jar did not retain exactly one issued session")
++		}
+ 		browser.request(t, "POST", "/api/v1/sessions/logout", map[string]any{}, independentModelID(t), csrf, 204)
+ 		stale := independentModelBrowser(t, address)
+ 		stale.client.Jar = nil
+ 		stale.cookies = oldCookies
++		stale.originalSession = originalSession
+ 		for _, request := range []struct {
+ 			method, path, key string
+ 			body              any
+@@ -109,7 +123,7 @@
+ 		} {
+ 			problem := stale.request(t, request.method, request.path, request.body, request.key, csrf, 401)
+ 			if problem["code"] != "SESSION_REVOKED" {
+-				t.Fatal("revoked original session did not produce exact SESSION_REVOKED")
++				t.Fatalf("revoked original session did not produce exact SESSION_REVOKED: code=%v", problem["code"])
+ 			}
+ 		}
+ 		if before != independentModelFacts(t, conn, provider, credentialOne, credentialTwo) {
+@@ -187,9 +201,10 @@
+ }
+ 
+ type independentHTTP struct {
+-	client  *http.Client
+-	base    *url.URL
+-	cookies []*http.Cookie
++	client          *http.Client
++	base            *url.URL
++	cookies         []*http.Cookie
++	originalSession string
+ }
+ 
+ func independentModelBrowser(t *testing.T, address string) *independentHTTP {
+@@ -236,6 +251,20 @@
+ 	}
+ 	for _, cookie := range b.cookies {
+ 		req.AddCookie(cookie)
++	}
++	if b.originalSession != "" {
++		var sessionCount int
++		for _, cookie := range req.Cookies() {
++			if cookie.Name == "agenteam_local_session" {
++				sessionCount++
++				if cookie.Value != b.originalSession {
++					t.Fatal("old identity request changed the original issued session")
++				}
++			}
++		}
++		if sessionCount != 1 || b.client.Jar != nil {
++			t.Fatal("old identity request must send one original session without mutable jar")
++		}
+ 	}
+ 	response, err := b.client.Do(req)
+ 	if err != nil {

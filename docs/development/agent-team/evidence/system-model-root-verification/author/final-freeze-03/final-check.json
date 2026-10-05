@@ -1,0 +1,24 @@
+{
+  "six_sources_match_candidate02": true,
+  "repository_matches_all_eight_frozen_paths": true,
+  "git_diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "AGENTS.md",
+      "docs/development/backend/README.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "docs_only_scope": [
+    "AGENTS.md",
+    "docs/development/backend/README.md"
+  ],
+  "AGENTS_all_after_capability_paragraph_unchanged": true,
+  "existing_author_and_independent_code_validation_reused": true,
+  "no_new_go_docker_git_writes": true
+}

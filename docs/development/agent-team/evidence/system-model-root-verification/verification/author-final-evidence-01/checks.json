@@ -1,0 +1,159 @@
+{
+  "archive_payloads_sha_and_size_verified": 114,
+  "fixed_closure_files": 692,
+  "fixed_closure_source": "ac5 baseline Git objects, plus exactly six candidate02 source files",
+  "closure_no_extra_files": true,
+  "old_groups": [
+    {
+      "group": "old-app-01",
+      "tops": [
+        "TestB04AppSMTPFinalReplyDrainsBeforeCoreAndGuard",
+        "TestRealDatabaseHTTPTransactionDrainAndForce",
+        "TestRealSecretStartupSecondSignalSingleForceBudget"
+      ],
+      "subcases": [
+        "TestRealDatabaseHTTPTransactionDrainAndForce/http_graceful",
+        "TestRealDatabaseHTTPTransactionDrainAndForce/background",
+        "TestRealDatabaseHTTPTransactionDrainAndForce/blocked_io",
+        "TestRealDatabaseHTTPTransactionDrainAndForce/second_signal"
+      ],
+      "driver_exit": 0,
+      "containers": 5,
+      "networks": 4,
+      "live_network_identity_verified": true,
+      "actual_absence_rounds": 2,
+      "baseline_unchanged": true,
+      "process_runtime_gotmp_empty": true,
+      "command_sha256": "636b13cdcc5328eea54446b3807fa19e57ae5470fa937c4021176106fca7ac94",
+      "result_sha256": "9fbd3d12ef299a90adabbe3d3ee0004736da9a06f59d0acece177b22c72d0390",
+      "log_sha256": "c1b480c01e6385b42419a15e14fbdfba44bf73328da475dc4491c1c4cca6318d",
+      "handoff_sha256": "d65191d481561eb449b79c7ea0e48d59fd9dd4d43a6cd76dec579c0a73dac9ed"
+    },
+    {
+      "group": "old-binary-01",
+      "tops": [
+        "TestAccountProcessBootstrapRecoveryLogAndBoundCapabilities",
+        "TestAccountProcessUnsafeRecoveryLogFailsBeforeListening",
+        "TestCentralRealDatabaseSIGTERMAndSIGINT",
+        "TestCentralOutboxEmptyMechanismHealthRecoveryAndSignal",
+        "TestCentralOutboxInvalidStorageAndCatalogPreventListening",
+        "TestCentralSecretActualStartupRotationAndIndependentKeyRemoval"
+      ],
+      "subcases": [
+        "TestCentralRealDatabaseSIGTERMAndSIGINT/terminated",
+        "TestCentralRealDatabaseSIGTERMAndSIGINT/interrupt",
+        "TestCentralOutboxInvalidStorageAndCatalogPreventListening/storage",
+        "TestCentralOutboxInvalidStorageAndCatalogPreventListening/catalog"
+      ],
+      "driver_exit": 0,
+      "containers": 4,
+      "networks": 3,
+      "live_network_identity_verified": true,
+      "actual_absence_rounds": 2,
+      "baseline_unchanged": true,
+      "process_runtime_gotmp_empty": true,
+      "command_sha256": "89360fa3b21e854d420bfba4d2c1d79c33ad2658e83527c2f7cdde0cab90b28b",
+      "result_sha256": "fe557e8afe96da03610f9e2361be3a05b81b05a2fb702b1fa43cb7e7f701db28",
+      "log_sha256": "96cf081e397a6214e689ad24037ab47667ac627a34590c04a1250b68032d0dd9",
+      "handoff_sha256": "a10227b899045910e86e7954348750f2910d48d1ae8b3a4654d8f24462cb11b9"
+    }
+  ],
+  "pure": [
+    {
+      "label": "pure-02",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/app",
+        "./tests/process"
+      ],
+      "exit_code": 0,
+      "metadata_sha256": "9b738f51f4c24bd5bc9c2f79adee273c9f9a6740b05aab4b9c8238c55c044044",
+      "log_sha256": "da97429febc489160ee4b54096f32cc93e1b740e448583808d2578632a7a8eca",
+      "exact_final_applied_inputs": [
+        "internal/central/app/account.go",
+        "internal/central/app/security.go",
+        "internal/central/app/model.go",
+        "internal/central/app/model_test.go"
+      ],
+      "noncompiled_metadata_entries": [
+        "internal/central/app/model_process_test.go",
+        "tests/process/model_system_database_test.go"
+      ]
+    },
+    {
+      "label": "compile-real-03",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./internal/central/app",
+        "./tests/process"
+      ],
+      "exit_code": 0,
+      "metadata_sha256": "009d978e643d05513f6731df39d4a6107b041d8f73540922817c9a4a67769ef3",
+      "log_sha256": "fa6c476a241cadfbbb039f890506a709aaa2eb9227ef63fddffdfae04605a0ec",
+      "exact_final_applied_inputs": [
+        "internal/central/app/account.go",
+        "internal/central/app/security.go",
+        "internal/central/app/model.go",
+        "internal/central/app/model_test.go",
+        "internal/central/app/model_process_test.go",
+        "tests/process/model_system_database_test.go"
+      ],
+      "noncompiled_metadata_entries": []
+    },
+    {
+      "label": "vet-real-02",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./internal/central/app",
+        "./tests/process"
+      ],
+      "exit_code": 0,
+      "metadata_sha256": "4683f1562faedb6f91488496a017fe67d571eced63a7297a2478f46e0ea74ac8",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exact_final_applied_inputs": [
+        "internal/central/app/account.go",
+        "internal/central/app/security.go",
+        "internal/central/app/model.go",
+        "internal/central/app/model_test.go",
+        "internal/central/app/model_process_test.go",
+        "tests/process/model_system_database_test.go"
+      ],
+      "noncompiled_metadata_entries": []
+    },
+    {
+      "label": "build-01",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/agenteam-system-model-root-author-7jypt_ik/bin/",
+        "./cmd/agenteam",
+        "./cmd/agenteam-runner"
+      ],
+      "exit_code": 0,
+      "metadata_sha256": "fc993e48c42bc55180c2e0f0e0e223ec327e4dc241cd36b8cdb17cc2eca92c35",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exact_final_applied_inputs": [
+        "internal/central/app/account.go",
+        "internal/central/app/security.go",
+        "internal/central/app/model.go"
+      ],
+      "noncompiled_metadata_entries": [
+        "internal/central/app/model_test.go",
+        "internal/central/app/model_process_test.go",
+        "tests/process/model_system_database_test.go"
+      ]
+    }
+  ],
+  "preparation_failure": "pure-01 exit1: snapshot lacked original fixed account/assets/weak-passwords.json; original raw and asset recovery metadata preserved"
+}

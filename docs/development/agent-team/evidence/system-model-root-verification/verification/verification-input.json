@@ -1,0 +1,20 @@
+{
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "archive_paths": [
+    "go.mod",
+    "go.sum",
+    "internal",
+    "tests",
+    "db",
+    "cmd",
+    "scripts",
+    "api/openapi"
+  ],
+  "baseline_file_count": 840,
+  "baseline_bytes": 7174262,
+  "production_manifest_sha256": "b0b89ce3e899563db1ec52c8094c3c89189aea511255543fe3a7424845c1f38f",
+  "gocache": "/workspace/agenteam-secret-model-v-thmobool/gocache",
+  "gomodcache": "/workspace/agenteam-dependency-cache/modcache",
+  "omit": "No docs/evidence/web/assets/cache/module copy/.git; original fixture driver Go closure only",
+  "docker_authorized": false
+}

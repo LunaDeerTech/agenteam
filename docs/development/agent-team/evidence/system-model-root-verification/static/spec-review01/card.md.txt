@@ -1,8 +1,6 @@
 # D09 恢复：System Model 生产根装配
 
-修订 1，2026-10-05（验收状态归位，技术规则不变）。状态：**默认生产根已独立验收通过、主线程采纳，8 路径已提交推送 `457b1979c9d6563740543b2011eedc06cce34c71`，远端一致。** 固定源码基线为已验 System Model HTTP 的 `ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7`。设计者 `d08_recovery_design`、实施者 `recovery_handoff`、独立验收者 `restore_test_dependencies`；源码及 fixture 均已停止，验收后两能力文档已随提交归位。§1–8 保留已审实施规则与当时门槛，当前结果见 §9 及[正式报告](../agent-team/system-model-root-verification.md)；不表示完整 D09 或实际 Model 调用链完成。
-
-独立静审报告：`/tmp/agenteam-system-model-root-static-ig_oqjb5/review.md`，SHA-256 `6c146abeddb264fcc4b93146187f89539f3e3292986add56a190d1188b0f5a6b`；被审 rev1 卡 SHA-256 为 `c0a42b34b39cc6640b08f4d36c3cde28253b181f4aea4b0ac72909dccf544b46`。主线程已采纳 PASS，无业务范围修订；此处仅记录定位，不复制原报告，也不代表产品动态验收。
+修订 1，2026-10-05。状态：**候选规格，待独立静审及主线程采纳；尚未授权业务实施。** 固定源码基线 `ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7`，其 17 路径 System Model HTTP 已独立 PASS 并提交推送；本卡不将源码提交当作根装配已经实现。设计者为 `d08_recovery_design`，当前唯一仓库写权为本卡；实施者、独立验收者及 fixture 窗口由主线程另行指派。
 
 本卡引用 [D09 主卡](d09-model-system-token-usage.md)、[B01-K System 配置](d09-b01-system-configuration.md)、[System HTTP 规格](recovery-d09-system-model-http.md)及其 [OpenAPI](../../../api/openapi/model-system.json)，不重定义 DTO、授权、幂等或产品规则。必读 [AGENTS](../../../AGENTS.md)、[团队流程](../agent-team/README.md)、[开发计划](../development-plan.md)；设计、实施、独立验收分别使用 [design](../../../.agents/skills/agenteam-design/SKILL.md)、[Go](../../../.agents/skills/agenteam-go-development/SKILL.md)、[verification](../../../.agents/skills/agenteam-verification/SKILL.md) 技能。实施前核同一固定输入及本卡最终修订，不读其他活动候选作为依赖。
 
@@ -97,7 +95,7 @@ Model 路由选择只覆盖以下六个**完整路径根及紧随 `/` 的子路�
 
 ## 6. 精确实施范围与旧测试核查
 
-规格已获采纳；本卡提交后由主线程另授下列 **8 路径：3 生产、3 新测试、2 验后能力文档**。当前本卡不授业务写权。
+静审采纳后由主线程另授下列 **8 路径：3 生产、3 新测试、2 验后能力文档**。当前本卡不授业务写权。
 
 | 路径 | 唯一变化范围 |
 | --- | --- |
@@ -141,12 +139,4 @@ Model 路由选择只覆盖以下六个**完整路径根及紧随 `/` 的子路�
 
 作者冻结 8 路径清单及基线、纯/真实原始证据，明确新结果/旧复用/失败与未验部分；动态窗口结束须核 task-owned exact ID 两遍 absent、原资源基线不变、所属进程 0/runtime 空再交还。轻量报告不保存凭据、完整快照或 cache。独立结论通过后只同步白名单两份能力文档；主线程负责状态页、精确 Git 提交推送与最终移交。
 
-本卡后续实施验收完成只表示 System 配置已在真实 Central 默认根对外服务。完整 D09、Summary、Model 调用/usage/消费者、Project/R4/Artifact 与 Object 已知缺陷均保持上述边界。规格静审不是产品验收；当前设计者未运行 Go/Docker/SQL 或任何动态探针。
-
-## 9. 独立验收与提交记录
-
-默认根已独立 PASS，提交推送 `457b1979c9d6563740543b2011eedc06cce34c71`、远端同 SHA；最终 8 路径清单 `726c697245d540edc52f96f1d28323065405c82b7847b4af95e2f6b6852144ba`。三生产静审通过后未返修；六源码保持 candidate02 `8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab`，两能力文档只在独立动态通过后更新。完整输入、原红及资源见[验收报告](../agent-team/system-model-root-verification.md)和[持久证据](../agent-team/evidence/system-model-root-verification/README.md)。
-
-作者有效 15 顶层/21 子例：新组 6/13、旧组 9/8；最终输入直接 14 顶层，未变 app 初始化 1/5 复用。独立有效 2 顶层/4 子例：修后默认 binary 根/当前身份 1/2 通过，初始化 1/2 复用首轮未变部分。作者纯检查/最终 compile/vet/两 cmd、原 fixture 参数、失败与修正均保留；原 namespace 漏采、stdout race、Cookie 前置、phase 字面量和独立 probe Host 取样只改新测试/私有 probe，未降低强断言。独立原报告 SHA `e65c5036bf4ce3da683712b545ddcc9ce9ec75f3ee8af7e7c5f6e0971753a55a`，不包装为最终版一次全量通过。
-
-每轮 task-owned 容器/网络 exact ID 双 absent、原 2 容器/4 网络不变，所属进程与 runtime 清零、窗口交回。本结果仅 System 同步配置根，保持单 mail handler/无 Model consumer、ready=false/503；Project/Resolver/Invocation/Usage、实际 Provider 调用、Summary 初值和 Object 已知退出缺陷仍不由本卡交付。§1–8 API、白名单、预算和验收规则未改。
+本卡完成只表示 System 配置已在真实 Central 默认根对外服务。完整 D09、Summary、Model 调用/usage/消费者、Project/R4/Artifact 与 Object 已知缺陷均保持上述边界。规格静审不是产品验收；当前设计者未运行 Go/Docker/SQL 或任何动态探针。

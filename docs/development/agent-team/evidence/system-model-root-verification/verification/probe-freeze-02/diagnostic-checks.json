@@ -1,0 +1,22 @@
+{
+  "original_probe_sha256": "8e5f78974c06c2e845c3d81124b766771de20f83b32798e46bd007089eb5e7e3",
+  "corrected_probe_sha256": "6dc12d68d336e1db1226084d207f264c03003e935738d87fb7084412015a4a40",
+  "delta_sha256": "9e00e46d77bc83aa3523fc7457da3c03cd6da05d0497528ae87daad7afe99452",
+  "original_actual_wire_code": "not recorded; not retroactively asserted",
+  "initialization_test_body_sha256": "d949e5bafcd9c5b49d839db2b0abf0187cfd6014220c1c99141307639ae741c7",
+  "initialization_test_body_unchanged": true,
+  "initialization_guard_and_later_helpers_unchanged": true,
+  "fixed_baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "fixed_source_sha256": {
+    "internal/central/account/csrf.go": "7081e08ba956c81daa1051a3f57e0792600cc12e71f4dddeeb3277e675a59e94",
+    "internal/central/account/session.go": "4df72697b0e66dd372be859099e7d813960d36402ca540c2a01576ff68adb0e5",
+    "internal/central/account/authority.go": "4ee6365489ff21bfd629313b658f46f03495fe38a27e640ed4897a43547f14d5",
+    "internal/central/account/repository.go": "56f1e009468c07ca84d41377787f9e502c06ca4a5bfc34a895fbcef5953279d1",
+    "internal/central/account/http_boundary.go": "9ce3ed7a7015c2e24ad528e8f0a62b9d3b1cdca21a928c2ec9951757b8403cdc",
+    "internal/central/account/http_wire.go": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095",
+    "internal/central/httpapi/problem.go": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde"
+  },
+  "go_client_path": "/workspace/toolchains/go1.27.1/src/net/http/client.go",
+  "go_client_sha256": "ced3428a85206de8de79c10de38d34951e0b9823c0ccb68ff51329d048a1f7b9",
+  "toolchain_binary_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624"
+}

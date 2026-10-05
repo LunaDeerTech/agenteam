@@ -1,0 +1,58 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-tags=integration",
+    "-run",
+    "^$",
+    "./internal/central/app",
+    "./tests/process"
+  ],
+  "cwd": "/workspace/agenteam-system-model-root-author-7jypt_ik/snapshot",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-secret-model-usage-author-l4eactgz/gocache",
+    "GOTMPDIR": "/workspace/agenteam-system-model-root-author-7jypt_ik/gotmp",
+    "TMPDIR": "/workspace/agenteam-system-model-root-author-7jypt_ik/runtime",
+    "GOMAXPROCS": "4",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "CGO_ENABLED": "1"
+  },
+  "inputs": [
+    {
+      "path": "internal/central/app/account.go",
+      "sha256": "a855a5320b3fbbd5f34cdb3781ce34299a12d86b80e14cafc8d37c03734944c5"
+    },
+    {
+      "path": "internal/central/app/security.go",
+      "sha256": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7"
+    },
+    {
+      "path": "internal/central/app/model.go",
+      "sha256": "88921c967e1a70509c169e4461e7f73c9f0b76429c85c2fdb29d59ae5e10c799"
+    },
+    {
+      "path": "internal/central/app/model_test.go",
+      "sha256": "e89d795350b31362b02d1181d8c22facde06ddae32b0c1b394cf0706429bff54"
+    },
+    {
+      "path": "internal/central/app/model_process_test.go",
+      "sha256": "d0da84b5ba533cbfae206caeac0b4631aa62e0b41b9bc8b343b1c0e649c8f1db"
+    },
+    {
+      "path": "tests/process/model_system_database_test.go",
+      "sha256": "04ec22070af57711696b5bb1538fc61a5d64f4bae303ca9d3c551df0a89fd3a6"
+    }
+  ],
+  "started_unix": 1791227124.4519787,
+  "exit_code": 0,
+  "elapsed_seconds": 5.029
+}

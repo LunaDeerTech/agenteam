@@ -1,0 +1,440 @@
+//go:build integration
+
+package process_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"io"
+	"net/http"
+	"net/http/cookiejar"
+	"net/url"
+	"os"
+	"strings"
+	"sync"
+	"syscall"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+	"github.com/jackc/pgx/v5"
+)
+
+// Independent probes only. The production input is ac5b4c6 plus the three
+// frozen app files; no author test source or injected permission is used.
+func TestIndependentSystemModelRootCurrentSessionAndFacts(t *testing.T) {
+	db := pgfixture.NewDatabase(t)
+	env := databaseEnvironment(t, db, "AGENTEAM_CENTRAL_PUBLIC_ORIGIN=http://"+processPublicHost)
+	p := launch(t, "agenteam", nil, env)
+	address := p.event(t, "event", "listening")["listen_address"].(string)
+	browser := independentModelBrowser(t, address)
+	bootstrap := browser.request(t, "GET", "/api/v1/auth/bootstrap", nil, "", "", 200)
+	email, password := independentBootstrap(t, env)
+	browser.request(t, "POST", "/api/v1/sessions/login", map[string]any{"email": email, "password": password}, independentModelID(t), independentString(t, bootstrap, "csrf_token"), 200)
+	session := browser.request(t, "GET", "/api/v1/session", nil, "", "", 200)
+	csrf := independentString(t, session, "csrf_token")
+	const materialOne = "independent-model-credential-one-private"
+	const materialTwo = "independent-model-credential-two-private"
+	credentialKey := independentModelID(t)
+	first := browser.request(t, "POST", "/api/v1/system/model-credentials", map[string]any{"value": materialOne}, credentialKey, csrf, 200)
+	second := browser.request(t, "POST", "/api/v1/system/model-credentials", map[string]any{"value": materialTwo}, independentModelID(t), csrf, 200)
+	credentialOne, credentialTwo := independentString(t, first, "credential_id"), independentString(t, second, "credential_id")
+	if credentialOne == credentialTwo || first["purpose"] != "model" || second["purpose"] != "model" || first["version"] != "1" || second["version"] != "1" {
+		t.Fatal("default root did not create distinct System Model credentials")
+	}
+	input := func(name, credential string) map[string]any {
+		return map[string]any{"name": name, "protocol": "openai-chat-completions", "base_url": "https://model.example.invalid/v1", "enabled": true, "credential_ref": credential, "options": map[string]any{}}
+	}
+	created := browser.request(t, "POST", "/api/v1/system/model-providers", map[string]any{"input": input("independent before", credentialOne)}, independentModelID(t), csrf, 200)
+	provider := independentString(t, created, "resource_id")
+	if created["kind"] != "provider.create" || created["version"] != "1" {
+		t.Fatal("default root returned an invalid create receipt")
+	}
+	updateKey := independentModelID(t)
+	updateBody := map[string]any{"expected_version": "1", "input": input("independent after", credentialTwo)}
+	updated := browser.request(t, "PUT", "/api/v1/system/model-providers/"+provider, updateBody, updateKey, csrf, 200)
+	if updated["kind"] != "provider.update" || updated["version"] != "2" || updated["resource_id"] != provider {
+		t.Fatal("default root returned an invalid update receipt")
+	}
+	conn := db.Connect(t)
+	t.Run("same-root-rebind-durable-facts", func(t *testing.T) {
+		var correct bool
+		err := conn.QueryRow(databaseContext(t), `SELECT
+		 (SELECT count(*)=1 FROM agenteam_model.providers WHERE id=$1 AND scope='system' AND project_id IS NULL AND credential_id=$3 AND name='independent after' AND version=2)
+		 AND (SELECT count(*)=1 FROM agenteam_secret.secret_references WHERE owner_id=$1 AND consumer='model' AND scope='system' AND credential_id=$3)
+		 AND NOT EXISTS(SELECT 1 FROM agenteam_secret.secret_references WHERE owner_id=$1 AND credential_id=$2)
+		 AND (SELECT count(*)=2 FROM agenteam_model.commands WHERE resource_id=$1 AND scope='system' AND phase='committed' AND command_name IN ('provider.create','provider.update') AND safe_receipt IS NOT NULL)
+		 AND (SELECT count(*)=2 FROM agenteam_audit.audit_records WHERE resource_id=$1 AND producer='model' AND actor_kind='human' AND action IN ('provider.create','provider.update') AND outcome='success')
+		 AND (SELECT count(*)=2 FROM agenteam_outbox.events WHERE aggregate_id=$1 AND producer='model' AND event_type='model.configuration_changed' AND scope='system' AND aggregate_version IN (1,2))
+		 AND NOT EXISTS(SELECT 1 FROM agenteam_outbox.deliveries d JOIN agenteam_outbox.events e ON e.id=d.event_id WHERE e.aggregate_id=$1)
+		 AND (SELECT count(*)=2 FROM agenteam_secret.secret_command_receipts WHERE credential_id IN ($2,$3) AND mutation_kind='create' AND purpose='model' AND scope='system')
+		 AND (SELECT count(*)=1 FROM agenteam_outbox.handlers WHERE id='account.mail-enqueue')
+		 AND (SELECT count(*)=1 FROM agenteam_outbox.subscriptions WHERE handler_id='account.mail-enqueue')`, provider, credentialOne, credentialTwo).Scan(&correct)
+		if err != nil || !correct {
+			t.Fatal("real Model/Secret/Audit/Outbox reference and command facts do not agree")
+		}
+		lookup := browser.request(t, "POST", "/api/v1/system/model-commands/lookup", map[string]any{"command": "provider.update"}, updateKey, csrf, 200)
+		if lookup["found"] != true || !independentJSONEqual(lookup["receipt"], updated) {
+			t.Fatal("Model lookup did not return the original durable receipt")
+		}
+		secretLookup := browser.request(t, "POST", "/api/v1/system/model-credential-commands/lookup", map[string]any{"kind": "create"}, credentialKey, csrf, 200)
+		if secretLookup["observed"] != true || !independentJSONEqual(secretLookup["result"], first) {
+			t.Fatal("Secret lookup did not return the original durable receipt")
+		}
+		view := browser.request(t, "GET", "/api/v1/system/model-providers/"+provider, nil, "", "", 200)
+		if view["version"] != "2" || !independentJSONEqual(view["input"], updateBody["input"]) {
+			t.Fatal("current HTTP read differs from the committed Provider")
+		}
+	})
+	if t.Failed() {
+		return
+	}
+	t.Run("revoked-session-replay-and-both-lookups", func(t *testing.T) {
+		before := independentModelFacts(t, conn, provider, credentialOne, credentialTwo)
+		cookieURL := *browser.base
+		cookieURL.Host = processPublicHost
+		oldCookies := browser.client.Jar.Cookies(&cookieURL)
+		var originalSession string
+		var sessionCount int
+		for _, cookie := range oldCookies {
+			if cookie.Name == "agenteam_local_session" {
+				sessionCount++
+				originalSession = cookie.Value
+			}
+		}
+		if sessionCount != 1 || originalSession == "" {
+			t.Fatal("effective public Host jar did not retain exactly one issued session")
+		}
+		browser.request(t, "POST", "/api/v1/sessions/logout", map[string]any{}, independentModelID(t), csrf, 204)
+		stale := independentModelBrowser(t, address)
+		stale.client.Jar = nil
+		stale.cookies = oldCookies
+		stale.originalSession = originalSession
+		for _, request := range []struct {
+			method, path, key string
+			body              any
+		}{
+			{"PUT", "/api/v1/system/model-providers/" + provider, updateKey, updateBody},
+			{"POST", "/api/v1/system/model-commands/lookup", updateKey, map[string]any{"command": "provider.update"}},
+			{"POST", "/api/v1/system/model-credential-commands/lookup", credentialKey, map[string]any{"kind": "create"}},
+		} {
+			problem := stale.request(t, request.method, request.path, request.body, request.key, csrf, 401)
+			if problem["code"] != "SESSION_REVOKED" {
+				t.Fatalf("revoked original session did not produce exact SESSION_REVOKED: code=%v", problem["code"])
+			}
+		}
+		if before != independentModelFacts(t, conn, provider, credentialOne, credentialTwo) {
+			t.Fatal("denied replay/lookup changed complete Model, Secret reference, receipt, Audit or event rows")
+		}
+	})
+	if err := p.command.Process.Signal(syscall.SIGTERM); err != nil {
+		t.Fatal("failed to signal owned Central")
+	}
+	p.wait(t, 0)
+	noCentralBackends(t, db)
+	assertDatabaseLogsSafe(t, p, db)
+	for _, value := range []string{password, csrf, materialOne, materialTwo} {
+		if strings.Contains(p.stderr.String()+p.stdout.String(), value) {
+			t.Fatal("private test material escaped to process logs")
+		}
+	}
+}
+
+func TestIndependentSystemModelInitializationStage(t *testing.T) {
+	for _, cancelStartup := range []bool{false, true} {
+		name := "release-then-listen"
+		if cancelStartup {
+			name = "cancel-before-listen"
+		}
+		t.Run(name, func(t *testing.T) {
+			db := pgfixture.NewDatabase(t)
+			m, err := postgres.NewMigrator(db.Config(t, nil))
+			if err != nil || !m.Migrate(databaseContext(t)).Migrated {
+				t.Fatal("owned migration failed")
+			}
+			guard := independentModelInitGuard(t, db)
+			p := launch(t, "agenteam", nil, databaseEnvironment(t, db, "AGENTEAM_CENTRAL_DATABASE_LOCK_TIMEOUT=10s"))
+			conn := db.Connect(t)
+			waitDatabaseFact(t, conn, `SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND application_name='agenteam' AND pid<>$1 AND wait_event_type='Lock' AND $1=ANY(pg_blocking_pids(pid)))`, guard.pid)
+			var staged bool
+			if err := conn.QueryRow(databaseContext(t), `SELECT (SELECT count(*)=1 FROM agenteam_secret.secret_control) AND NOT EXISTS(SELECT 1 FROM agenteam_model.platform_selection)`).Scan(&staged); err != nil || !staged {
+				t.Fatal("Model initialization did not wait after real Secret initialization")
+			}
+			if strings.Contains(p.stderr.String(), `"event":"listening"`) || strings.Contains(p.stderr.String(), `"phase":"secret_maintenance_starting"`) {
+				t.Fatal("root advanced past the held Model initialization gate")
+			}
+			if cancelStartup {
+				if err := p.command.Process.Signal(syscall.SIGTERM); err != nil {
+					t.Fatal("failed to cancel owned startup")
+				}
+				p.wait(t, 0)
+				// The real holder is still live: release cannot explain cancellation.
+				select {
+				case <-guard.done:
+					t.Fatal("independent lock holder ended before startup cancellation")
+				default:
+				}
+				waitDatabaseFact(t, conn, `SELECT NOT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND application_name='agenteam' AND pid<>$1) AND NOT EXISTS(SELECT 1 FROM agenteam_model.platform_selection)`, guard.pid)
+				if strings.Contains(p.stderr.String(), `"event":"listening"`) {
+					t.Fatal("cancelled Model initialization listened")
+				}
+				guard.close(t)
+			} else {
+				guard.close(t)
+				p.event(t, "event", "listening")
+				var initialized bool
+				if err := conn.QueryRow(databaseContext(t), `SELECT (SELECT count(*)=1 FROM agenteam_model.platform_selection WHERE version=1 AND NOT configured) AND NOT EXISTS(SELECT 1 FROM agenteam_model.providers) AND NOT EXISTS(SELECT 1 FROM agenteam_model.models) AND NOT EXISTS(SELECT 1 FROM agenteam_model.commands) AND NOT EXISTS(SELECT 1 FROM agenteam_audit.audit_records WHERE producer='model') AND NOT EXISTS(SELECT 1 FROM agenteam_outbox.events WHERE producer='model')`).Scan(&initialized); err != nil || !initialized {
+					t.Fatal("Model initialization did not create exactly the technical empty selection")
+				}
+				if err := p.command.Process.Signal(syscall.SIGTERM); err != nil {
+					t.Fatal("failed to signal owned Central")
+				}
+				p.wait(t, 0)
+			}
+			noCentralBackends(t, db)
+			assertDatabaseLogsSafe(t, p, db)
+		})
+	}
+}
+
+type independentHTTP struct {
+	client          *http.Client
+	base            *url.URL
+	cookies         []*http.Cookie
+	originalSession string
+}
+
+func independentModelBrowser(t *testing.T, address string) *independentHTTP {
+	t.Helper()
+	jar, err := cookiejar.New(nil)
+	if err != nil {
+		t.Fatal("cookie jar creation failed")
+	}
+	base, err := url.Parse("http://" + address)
+	if err != nil {
+		t.Fatal("owned listener URL invalid")
+	}
+	transport := &http.Transport{}
+	t.Cleanup(transport.CloseIdleConnections)
+	return &independentHTTP{client: &http.Client{Transport: transport, Jar: jar, Timeout: 3 * time.Second, CheckRedirect: func(*http.Request, []*http.Request) error { return http.ErrUseLastResponse }}, base: base}
+}
+
+func (b *independentHTTP) request(t *testing.T, method, path string, body any, key, csrf string, status int) map[string]any {
+	t.Helper()
+	var encoded []byte
+	var err error
+	if body != nil {
+		encoded, err = json.Marshal(body)
+		if err != nil {
+			t.Fatal("test request encoding failed")
+		}
+		defer clear(encoded)
+	}
+	req, err := http.NewRequestWithContext(databaseContext(t), method, b.base.String()+path, bytes.NewReader(encoded))
+	if err != nil {
+		t.Fatal("test request construction failed")
+	}
+	req.Host = processPublicHost
+	req.Header.Set("Origin", "http://"+processPublicHost)
+	req.Header.Set("Sec-Fetch-Site", "same-origin")
+	if body != nil {
+		req.Header.Set("Content-Type", "application/json")
+	}
+	if key != "" {
+		req.Header.Set("Idempotency-Key", key)
+	}
+	if csrf != "" {
+		req.Header.Set("X-CSRF-Token", csrf)
+	}
+	for _, cookie := range b.cookies {
+		req.AddCookie(cookie)
+	}
+	if b.originalSession != "" {
+		var sessionCount int
+		for _, cookie := range req.Cookies() {
+			if cookie.Name == "agenteam_local_session" {
+				sessionCount++
+				if cookie.Value != b.originalSession {
+					t.Fatal("old identity request changed the original issued session")
+				}
+			}
+		}
+		if sessionCount != 1 || b.client.Jar != nil {
+			t.Fatal("old identity request must send one original session without mutable jar")
+		}
+	}
+	response, err := b.client.Do(req)
+	if err != nil {
+		t.Fatal("owned HTTP request failed")
+	}
+	defer response.Body.Close()
+	data, err := io.ReadAll(io.LimitReader(response.Body, 1<<20+1))
+	defer clear(data)
+	if err != nil || len(data) > 1<<20 {
+		t.Fatal("bounded response read failed")
+	}
+	var output map[string]any
+	if len(data) > 0 && json.Unmarshal(data, &output) != nil {
+		t.Fatal("HTTP response is not a JSON object")
+	}
+	if response.StatusCode != status {
+		t.Fatalf("HTTP %s %s status=%d want=%d code=%v", method, path, response.StatusCode, status, output["code"])
+	}
+	return output
+}
+
+func independentBootstrap(t *testing.T, env []string) (string, string) {
+	t.Helper()
+	var path string
+	for _, entry := range env {
+		if value, ok := strings.CutPrefix(entry, "AGENTEAM_CENTRAL_ACCOUNT_RECOVERY_LOG="); ok {
+			path = value
+		}
+	}
+	data, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal("owned bootstrap recovery log unavailable")
+	}
+	defer clear(data)
+	for _, line := range bytes.Split(data, []byte("\n")) {
+		var record struct {
+			Purpose  string `json:"purpose"`
+			Email    string `json:"email"`
+			Password string `json:"initial_password"`
+		}
+		if json.Unmarshal(line, &record) == nil && record.Purpose == "bootstrap" && record.Email != "" && record.Password != "" {
+			return record.Email, record.Password
+		}
+	}
+	t.Fatal("owned bootstrap record missing")
+	return "", ""
+}
+
+func independentModelID(t *testing.T) string {
+	t.Helper()
+	id, err := f.NewID[struct{}]()
+	if err != nil {
+		t.Fatal("test identity entropy failed")
+	}
+	return id.String()
+}
+
+func independentString(t *testing.T, object map[string]any, key string) string {
+	t.Helper()
+	value, ok := object[key].(string)
+	if !ok || value == "" {
+		t.Fatalf("required response field %s missing", key)
+	}
+	return value
+}
+
+func independentJSONEqual(a, b any) bool {
+	x, ex := json.Marshal(a)
+	y, ey := json.Marshal(b)
+	return ex == nil && ey == nil && bytes.Equal(x, y)
+}
+
+func independentModelFacts(t *testing.T, conn *pgx.Conn, provider, first, second string) string {
+	t.Helper()
+	var snapshot string
+	err := conn.QueryRow(databaseContext(t), `SELECT jsonb_build_object(
+	 'provider',(SELECT jsonb_agg(to_jsonb(p) ORDER BY id) FROM agenteam_model.providers p WHERE id=$1),
+	 'refs',(SELECT jsonb_agg(to_jsonb(r) ORDER BY credential_id,consumer,owner_id) FROM agenteam_secret.secret_references r WHERE owner_id=$1),
+	 'secret',(SELECT jsonb_agg(to_jsonb(s) ORDER BY id) FROM agenteam_secret.secrets s WHERE id IN ($2,$3)),
+	 'secret_receipts',(SELECT jsonb_agg(to_jsonb(r) ORDER BY id) FROM agenteam_secret.secret_command_receipts r WHERE credential_id IN ($2,$3)),
+	 'commands',(SELECT jsonb_agg(to_jsonb(c) ORDER BY id) FROM agenteam_model.commands c WHERE resource_id=$1),
+	 'audit',(SELECT jsonb_agg(to_jsonb(a) ORDER BY id) FROM agenteam_audit.audit_records a WHERE resource_id IN ($1,$2,$3)),
+	 'events',(SELECT jsonb_agg(to_jsonb(e) ORDER BY id) FROM agenteam_outbox.events e WHERE aggregate_id=$1)
+	)::text`, provider, first, second).Scan(&snapshot)
+	if err != nil {
+		t.Fatal("read-only full-row domain snapshot failed")
+	}
+	return snapshot
+}
+
+type independentInitGuard struct {
+	pid     int32
+	done    chan struct{}
+	release chan struct{}
+	result  f.CommitResult
+	store   *postgres.Store
+	once    sync.Once
+	closeDB sync.Once
+}
+
+func independentModelInitGuard(t *testing.T, db *pgfixture.Database) *independentInitGuard {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	store, err := postgres.Open(ctx, db.Config(t, nil))
+	if err != nil {
+		cancel()
+		t.Fatal("owned lock Store unavailable")
+	}
+	g := &independentInitGuard{done: make(chan struct{}), release: make(chan struct{}), store: store}
+	t.Cleanup(func() { g.close(t); cancel() })
+	locked := make(chan int32, 1)
+	key, err := f.SystemConfigLock("model-platform-selection")
+	if err != nil {
+		t.Fatal("formal Model lock invalid")
+	}
+	cause, err := f.NewRecoveryCause("independent-model-initialize", independentModelID(t), "")
+	if err != nil {
+		t.Fatal("lock cause invalid")
+	}
+	go func() {
+		g.result = store.WithinTx(ctx, cause, func(txctx context.Context, tx f.Tx) error {
+			if err := store.AcquireAll(txctx, tx, []f.LockRequest{{Key: key, Mode: f.Exclusive}}); err != nil {
+				return err
+			}
+			x, err := store.InTx(tx)
+			if err != nil {
+				return err
+			}
+			var pid int32
+			if err := x.QueryRow(txctx, "SELECT pg_backend_pid()").Scan(&pid); err != nil {
+				return err
+			}
+			locked <- pid
+			select {
+			case <-g.release:
+				return nil
+			case <-txctx.Done():
+				return txctx.Err()
+			}
+		})
+		close(g.done)
+	}()
+	select {
+	case g.pid = <-locked:
+		return g
+	case <-g.done:
+		t.Fatal("formal lock holder failed before acquisition")
+	case <-ctx.Done():
+		t.Fatal("formal lock holder deadline exceeded")
+	}
+	return nil
+}
+
+func (g *independentInitGuard) close(t *testing.T) {
+	t.Helper()
+	g.once.Do(func() { close(g.release) })
+	select {
+	case <-g.done:
+		if g.result.State() != f.Committed {
+			t.Errorf("independent formal lock transaction ended %s", g.result.State())
+		}
+	case <-time.After(3 * time.Second):
+		t.Error("independent lock holder did not join")
+		return
+	}
+	g.closeDB.Do(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		if err := g.store.Drain(ctx); err != nil {
+			t.Error("independent lock Store did not drain")
+		}
+	})
+}

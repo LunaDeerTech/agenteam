@@ -1,0 +1,10 @@
+{
+  "reason": "pure-01 preparation failure: fixed closure omitted account go:embed weak-passwords asset",
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "added": [
+    {
+      "path": "internal/central/account/assets/weak-passwords.json",
+      "sha256": "f422773d94d630f27e08b26d7017e847bb1feb2a84809340e9c0b0c47b33e3f1"
+    }
+  ]
+}

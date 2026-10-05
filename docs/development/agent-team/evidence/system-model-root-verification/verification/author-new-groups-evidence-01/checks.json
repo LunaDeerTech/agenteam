@@ -1,0 +1,94 @@
+[
+  {
+    "group": "new-http-02",
+    "input_sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab",
+    "driver_exit": 0,
+    "elapsed_seconds": 38.772,
+    "top": [
+      "TestModelRootHTTPActiveDrainAndDatabaseLast",
+      "TestModelRootHTTPForceUsesOriginalBudget",
+      "TestCentralModelSystemConfigurationAndRestart",
+      "TestCentralModelSystemCurrentAuthorityAndRouting"
+    ],
+    "subtests": [
+      "TestModelRootHTTPForceUsesOriginalBudget/deadline",
+      "TestModelRootHTTPForceUsesOriginalBudget/second-signal",
+      "TestCentralModelSystemCurrentAuthorityAndRouting/anonymous",
+      "TestCentralModelSystemCurrentAuthorityAndRouting/wrong-host",
+      "TestCentralModelSystemCurrentAuthorityAndRouting/wrong-origin",
+      "TestCentralModelSystemCurrentAuthorityAndRouting/missing-csrf"
+    ],
+    "top_count": 4,
+    "sub_count": 6,
+    "trace": [
+      "model_process_test.go:475: normal drain trace=[model.initialize listen provider.exec.entered provider.exec.released db.stop db.drain] actual model Tx states=[committed] faults=[] unreturned=0",
+      "model_process_test.go:516: force mode=deadline trace=[model.initialize listen provider.exec.entered provider.exec.released db.force] actual model Tx states=[not_committed] faults=[INTERNAL_ERROR] unreturned=0; forced exit is not an all-writer join or rollback claim",
+      "model_process_test.go:516: force mode=second-signal trace=[model.initialize listen provider.exec.entered provider.exec.released db.force] actual model Tx states=[not_committed] faults=[INTERNAL_ERROR] unreturned=0; forced exit is not an all-writer join or rollback claim"
+    ],
+    "owned_containers": 4,
+    "owned_networks": 3,
+    "double_exact_absent": true,
+    "live_network_identity_verified": true,
+    "baseline_exact_unchanged": true,
+    "tracked_and_group_process_empty": true,
+    "runtime_gotmp_empty_at_both_checks": true
+  },
+  {
+    "group": "new-init-02",
+    "input_sha256": "8eb080f9b51a62cbca9d6045f72f0a1789fbc0bc1b7a5dc0daec0e9cf27b8cab",
+    "driver_exit": 0,
+    "elapsed_seconds": 39.087,
+    "top": [
+      "TestCentralModelInitializationFailureBeforeListen"
+    ],
+    "subtests": [
+      "TestCentralModelInitializationFailureBeforeListen/storage",
+      "TestCentralModelInitializationFailureBeforeListen/ordinary-lock-cancel"
+    ],
+    "top_count": 1,
+    "sub_count": 2,
+    "trace": [],
+    "owned_containers": 4,
+    "owned_networks": 3,
+    "double_exact_absent": true,
+    "live_network_identity_verified": true,
+    "baseline_exact_unchanged": true,
+    "tracked_and_group_process_empty": true,
+    "runtime_gotmp_empty_at_both_checks": true
+  },
+  {
+    "group": "new-init-01",
+    "input_sha256": "11e21b8845c6c884398453130dbd05383528f6477387e98e7439aa6e3e5d99c8",
+    "driver_exit": 0,
+    "elapsed_seconds": 55.902,
+    "top": [
+      "TestModelRootInitializationAndFailureOwnership",
+      "TestCentralModelInitializationFailureBeforeListen"
+    ],
+    "subtests": [
+      "TestModelRootInitializationAndFailureOwnership/success",
+      "TestModelRootInitializationAndFailureOwnership/model-storage",
+      "TestModelRootInitializationAndFailureOwnership/secret-storage",
+      "TestModelRootInitializationAndFailureOwnership/secret-cancel",
+      "TestModelRootInitializationAndFailureOwnership/model-lock-cancel",
+      "TestCentralModelInitializationFailureBeforeListen/storage",
+      "TestCentralModelInitializationFailureBeforeListen/ordinary-lock-cancel"
+    ],
+    "top_count": 2,
+    "sub_count": 7,
+    "trace": [
+      "model_process_test.go:284: mode=success Model initialize calls=1 trace=[secret.success model.initialize listen db.stop db.drain]",
+      "model_process_test.go:284: mode=model-storage Model initialize calls=1 trace=[secret.success model.initialize db.force]",
+      "model_process_test.go:284: mode=secret-storage Model initialize calls=0 trace=[db.force]",
+      "model_process_test.go:284: mode=secret-cancel Model initialize calls=0 trace=[secret.success db.stop db.drain]",
+      "model_process_test.go:284: mode=model-lock-cancel Model initialize calls=1 trace=[secret.success model.initialize db.stop db.drain]"
+    ],
+    "owned_containers": 4,
+    "owned_networks": 3,
+    "double_exact_absent": true,
+    "live_network_identity_verified": true,
+    "baseline_exact_unchanged": true,
+    "tracked_and_group_process_empty": true,
+    "runtime_gotmp_empty_at_both_checks": true
+  }
+]

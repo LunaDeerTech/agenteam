@@ -1,0 +1,41 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "vet",
+    "-tags=integration",
+    "./tests/process"
+  ],
+  "cwd": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/src",
+  "environment": {
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOCACHE": "/workspace/agenteam-secret-model-v-thmobool/gocache",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "TMPDIR": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/gotmp",
+    "GOTMPDIR": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/gotmp",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOMAXPROCS": "4",
+    "CGO_ENABLED": "1",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go"
+  },
+  "baseline": "ac5b4c65e88ed0ec1813fbf341035c88ca9a38c7",
+  "input": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "internal/central/app/account.go": "a855a5320b3fbbd5f34cdb3781ce34299a12d86b80e14cafc8d37c03734944c5",
+    "internal/central/app/security.go": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7",
+    "internal/central/app/model.go": "88921c967e1a70509c169e4461e7f73c9f0b76429c85c2fdb29d59ae5e10c799",
+    "tests/process/model_root_independent_test.go": "6dc12d68d336e1db1226084d207f264c03003e935738d87fb7084412015a4a40"
+  },
+  "tool_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "started_utc": "2026-10-05T19:18:39Z",
+  "docker_authorized": false,
+  "exit_code": 0,
+  "elapsed_seconds": 0.353,
+  "ended_utc": "2026-10-05T19:18:39Z",
+  "log": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/logs/vet-02.log",
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
