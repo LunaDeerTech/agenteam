@@ -181,7 +181,10 @@ func TestSecretReadSnapshotHoldsReferenceUntilAuditCommit(t *testing.T) {
 		err      error
 	}
 	read := make(chan readResult, 1)
-	go func() { m, err := s.ReadCredentialForRequest(ctx, actor, lease.LeaseID); read <- readResult{m, err} }()
+	go func() {
+		m, err := s.ReadCredentialForUsage(ctx, f.modelReadRequest(t, actor, lease.LeaseID))
+		read <- readResult{m, err}
+	}()
 	select {
 	case <-held.entered:
 	case <-ctx.Done():
@@ -236,7 +239,7 @@ func TestSecretReadSnapshotHoldsReferenceUntilAuditCommit(t *testing.T) {
 	case <-ctx.Done():
 		t.Fatal("update hung")
 	}
-	if got := readMaterial(t, f.secret, actor, lease.LeaseID); string(got) != "later value" {
+	if got := readMaterial(t, f, f.secret, actor, lease.LeaseID); string(got) != "later value" {
 		t.Fatal("next read did not observe update")
 	}
 }

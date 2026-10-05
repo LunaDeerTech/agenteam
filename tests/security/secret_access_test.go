@@ -35,13 +35,10 @@ func TestSecretBindingsAuthorizationAndReadAuditBoundary(t *testing.T) {
 	if _, err := f.store.Exec(auditContext(t), `UPDATE audit_fixture.secret_bindings SET active=false,retained=true WHERE owner_id=$1`, owner.Details().ID); err != nil {
 		t.Fatal(err)
 	}
-	if got := readMaterial(t, f.secret, actor, lease.LeaseID); string(got) != "private value" {
+	if got := readMaterial(t, f, f.secret, actor, lease.LeaseID); string(got) != "private value" {
 		t.Fatal("retained Model read")
 	}
-	r := f.store.WithinTx(auditContext(t), txCause(t), func(ctx context.Context, tx foundation.Tx) error {
-		_, err := f.secret.AcquireCredentialLeaseInTx(ctx, tx, actor, ref, owner)
-		return err
-	})
+	_, r := f.applyModelUsage(t, f.secret, f.modelLeaseRequest(actor, lease, owner, sc.AcquireLeaseUsage))
 	requireCode(t, r.Fault(), foundation.Forbidden)
 	mcpRequest := f.request(t, sc.Create, []byte("mcp material"))
 	mcpRequest.Purpose = sc.MCP
@@ -59,7 +56,7 @@ func TestSecretBindingsAuthorizationAndReadAuditBoundary(t *testing.T) {
 	if _, err = f.store.Exec(auditContext(t), `UPDATE audit_fixture.projects SET state='archived'`); err != nil {
 		t.Fatal(err)
 	}
-	_, err = f.secret.ReadCredentialForRequest(auditContext(t), actor, lease.LeaseID)
+	_, err = f.secret.ReadCredentialForUsage(auditContext(t), f.modelReadRequest(t, actor, lease.LeaseID))
 	requireCode(t, err, foundation.ProjectNotActive)
 	if _, err = f.store.Exec(auditContext(t), `UPDATE audit_fixture.projects SET state='active'`); err != nil {
 		t.Fatal(err)
@@ -73,7 +70,7 @@ func TestSecretBindingsAuthorizationAndReadAuditBoundary(t *testing.T) {
 	if err = denied.Initialize(auditContext(t)); err != nil {
 		t.Fatal(err)
 	}
-	material, err := denied.ReadCredentialForRequest(auditContext(t), actor, lease.LeaseID)
+	material, err := denied.ReadCredentialForUsage(auditContext(t), f.modelReadRequest(t, actor, lease.LeaseID))
 	if err == nil {
 		t.Fatal("failed Audit returned material")
 	}
@@ -122,7 +119,7 @@ func TestSecretReadUnknownNeverReturnsMaterial(t *testing.T) {
 	}
 	done := make(chan result, 1)
 	go func() {
-		material, err := service.ReadCredentialForRequest(ctx, actor, lease.LeaseID)
+		material, err := service.ReadCredentialForUsage(ctx, f.modelReadRequest(t, actor, lease.LeaseID))
 		done <- result{material, err}
 	}()
 	select {
@@ -144,7 +141,7 @@ func TestSecretReadUnknownNeverReturnsMaterial(t *testing.T) {
 	case <-ctx.Done():
 		t.Fatal("unknown read hung")
 	}
-	readMaterial(t, service, actor, lease.LeaseID)
+	readMaterial(t, f, service, actor, lease.LeaseID)
 	if err := f.store.QueryRow(ctx, `SELECT count(*) FROM agenteam_audit.audit_records WHERE action='secret.resolve'`).Scan(&count); err != nil || count != 2 {
 		t.Fatal("new resolution reused unknown Audit identity", err)
 	}

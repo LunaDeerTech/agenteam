@@ -166,6 +166,30 @@ func checkResolutionAudit(ctx context.Context, store Store, tx foundation.Tx, x 
 	if err = store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{{Key: project, Mode: foundation.Shared}, {Key: credential, Mode: foundation.Shared}}); err != nil {
 		return unavailable(err)
 	}
+	requestID := w.grant.RequestID
+	if modelLeaseUsage(w.lease.consumer, owner) {
+		proof := w.modelRead
+		if proof == nil || w.grant.RequestID != "" {
+			return projectAuditDenied()
+		}
+		r := proof.request
+		binding, bindErr := sc.UsageBinding(r)
+		if bindErr != nil || r.Action != sc.ReadLeaseUsage || r.Purpose != sc.Model ||
+			!r.Actor.Equal(w.caller) || !r.Ref.Equal(ref) || !r.LeaseOwner.Equal(owner) || r.LeaseID != w.leaseID ||
+			binding != proof.binding || proof.mapping.Validate() != nil || len(proof.locks) == 0 {
+			return projectAuditDenied()
+		}
+		if err = store.RequireHeldLocks(ctx, tx, proof.locks); err != nil {
+			return unavailable(err)
+		}
+		leaseLock, _ := foundation.RecordLock(foundation.ReferenceRecordLock, "secret-lease:"+w.leaseID.String())
+		if err = store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{{Key: leaseLock, Mode: foundation.Shared}}); err != nil {
+			return unavailable(err)
+		}
+		requestID = r.RequestID
+	} else if w.modelRead != nil {
+		return projectAuditDenied()
+	}
 	subject := w.grant.Subject
 	if subject.Details().Kind == identity.Service {
 		registration, _ := identity.RegisterService(identity.SecretService)
@@ -179,7 +203,7 @@ func checkResolutionAudit(ctx context.Context, store Store, tx foundation.Tx, x 
 		return projectAuditDenied()
 	}
 	resource, _ := ac.NewResource(ac.SecretResource, ref.Details().ID.String())
-	expected, err := ac.NewEntry(ac.EntryFields{Scope: ref.Details().Scope, Actor: subject, Action: ac.SecretResolve, Outcome: ac.Success, Resource: resource, Metadata: metadata, Associations: ac.Associations{RequestID: w.grant.RequestID, OperationID: w.grant.OperationID, ToolID: w.grant.ToolID, RunnerID: w.grant.RunnerID}})
+	expected, err := ac.NewEntry(ac.EntryFields{Scope: ref.Details().Scope, Actor: subject, Action: ac.SecretResolve, Outcome: ac.Success, Resource: resource, Metadata: metadata, Associations: ac.Associations{RequestID: requestID, OperationID: w.grant.OperationID, ToolID: w.grant.ToolID, RunnerID: w.grant.RunnerID}})
 	if err != nil || !sameProjectAuditEntry(expected, entry) {
 		return projectAuditDenied()
 	}

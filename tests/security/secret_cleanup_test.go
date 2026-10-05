@@ -53,9 +53,7 @@ func TestSecretProjectCleanupPendingReferencesBatchesAndGate(t *testing.T) {
 	if err != nil || report.Completed {
 		t.Fatal("live references reported cleared", err)
 	}
-	result = f.store.WithinTx(auditContext(t), txCause(t), func(ctx context.Context, tx foundation.Tx) error {
-		return f.secret.ReleaseCredentialLeaseInTx(ctx, tx, serviceActor, lease.LeaseID)
-	})
+	_, result = f.applyModelUsage(t, f.secret, f.modelLeaseRequest(serviceActor, lease, owner, sc.ReleaseLeaseUsage))
 	if result.State() != foundation.Committed {
 		t.Fatal(result.Fault())
 	}

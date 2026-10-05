@@ -458,8 +458,9 @@ func TestProjectSecretAuditBindingResolveGate(t *testing.T) {
 	t.Run("strict-usage-service-resolve", func(t *testing.T) {
 		f := newBindingFixture(t)
 		created := f.credential(t)
-		lease, actor, _ := f.lease(t, created.Metadata.CredentialRef)
-		material, err := f.bundle.secret.ReadCredentialForRequest(ctxFor(t), actor, lease.LeaseID)
+		lease, actor, owner := f.lease(t, created.Metadata.CredentialRef)
+		request := f.modelReadRequest(t, actor, lease, owner)
+		material, err := f.bundle.secret.ReadCredentialForUsage(ctxFor(t), request)
 		if err != nil {
 			t.Fatal("strict Usage + real Project/Secret/Audit resolve", err)
 		}
@@ -479,15 +480,14 @@ func TestProjectSecretAuditBindingResolveGate(t *testing.T) {
 			f := newBindingFixture(t)
 			created := f.credential(t)
 			lease, actor, owner := f.lease(t, created.Metadata.CredentialRef)
+			request := f.modelReadRequest(t, actor, lease, owner)
 			code := foundation.Forbidden
 			var auditCode foundation.Code
 			switch mode {
 			case "usage-revoked":
 				f.sql(t, `UPDATE project_fixture.secret_usage SET active=false WHERE owner_id=$1`, owner.Details().ID)
 			case "lease-released":
-				r := f.raw.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
-					return f.bundle.secret.ReleaseCredentialLeaseInTx(ctx, tx, actor, lease.LeaseID)
-				})
+				_, r := f.applyModelUsage(t, sc.UsageRequest{Actor: actor, Ref: lease.CredentialRef, Purpose: sc.Model, LeaseOwner: owner, LeaseID: lease.LeaseID, Action: sc.ReleaseLeaseUsage})
 				if r.State() != foundation.Committed {
 					t.Fatal("lease release", r.Fault())
 				}
@@ -524,7 +524,8 @@ func TestProjectSecretAuditBindingResolveGate(t *testing.T) {
 				f.unchanged(t, bindingCounts{1, 1, 1})
 				return
 			}
-			material, err := f.bundle.secret.ReadCredentialForRequest(ctxFor(t), actor, lease.LeaseID)
+			request.Actor = actor
+			material, err := f.bundle.secret.ReadCredentialForUsage(ctxFor(t), request)
 			bindingNoMaterial(t, material, err, code)
 			if auditCode != "" {
 				requireCode(t, f.bundle.tap.err, auditCode)
@@ -539,7 +540,8 @@ func TestProjectSecretAuditBindingResolveGate(t *testing.T) {
 		t.Run("resolve-unknown-"+mode, func(t *testing.T) {
 			f := newBindingFixture(t)
 			created := f.credential(t)
-			lease, actor, _ := f.lease(t, created.Metadata.CredentialRef)
+			lease, actor, owner := f.lease(t, created.Metadata.CredentialRef)
+			request := f.modelReadRequest(t, actor, lease, owner)
 			proxy := newCommitProxy(t, net.JoinHostPort("127.0.0.1", f.db.Fixture.Port), mode != "rollback")
 			store := f.proxyStore(t, proxy.listener.Addr())
 			b := f.bindStore(t, store, store)
@@ -555,7 +557,7 @@ func TestProjectSecretAuditBindingResolveGate(t *testing.T) {
 			done := make(chan readResult, 1)
 			ctx := ctxFor(t)
 			go func() {
-				material, err := b.secret.ReadCredentialForRequest(ctx, actor, lease.LeaseID)
+				material, err := b.secret.ReadCredentialForUsage(ctx, request)
 				done <- readResult{material, err}
 			}()
 			await(t, proxy.reached)

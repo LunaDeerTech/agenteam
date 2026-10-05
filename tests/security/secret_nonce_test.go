@@ -23,7 +23,7 @@ import (
 func secretOnStore(t *testing.T, f *secretFixture, store *postgres.Store, keys secret.Keyring) *secret.Service {
 	t.Helper()
 	auth := &auditAuthority{store: store}
-	usage := &secretAuthority{auth}
+	usage := &secretAuthority{auditAuthority: auth}
 	auditing, err := audit.New(store, auditKeys(t), audit.Authorizations{Sessions: auth, System: auth, Projects: auth})
 	if err != nil {
 		t.Fatal(err)

@@ -139,6 +139,7 @@ func TestSecretProjectAuditResolveFactsAndRejections(t *testing.T) {
 			created := f.create(t, []byte("only-after-real-aead-and-audit"))
 			owner, actor := f.bind(t, created.Metadata.CredentialRef, sc.Model)
 			lease := f.acquire(t, created.Metadata.CredentialRef, owner, actor)
+			request := f.modelReadRequest(t, actor, lease.LeaseID)
 			switch mode {
 			case "released":
 				f.exec(t, `UPDATE agenteam_secret.secret_leases SET released=true WHERE id=$1`, lease.LeaseID.String())
@@ -195,7 +196,7 @@ func TestSecretProjectAuditResolveFactsAndRejections(t *testing.T) {
 				}
 			}
 			before := f.counts(t)
-			material, err := f.secret.ReadCredentialForRequest(auditContext(t), actor, lease.LeaseID)
+			material, err := f.secret.ReadCredentialForUsage(auditContext(t), request)
 			if mode == "success" {
 				if err != nil {
 					t.Fatal(err)
@@ -441,7 +442,7 @@ func TestSecretProjectAuditResolveCommitUnknown(t *testing.T) {
 			}
 			done := make(chan readResult, 1)
 			go func() {
-				m, err := service.ReadCredentialForRequest(ctx, actor, lease.LeaseID)
+				m, err := service.ReadCredentialForUsage(ctx, f.modelReadRequest(t, actor, lease.LeaseID))
 				done <- readResult{m, err}
 			}()
 			select {
@@ -484,7 +485,7 @@ func TestSecretProjectAuditResolveCommitUnknown(t *testing.T) {
 			project, _ := foundation.ProjectLock(f.project.String())
 			credential, _ := foundation.AggregateLock(foundation.CredentialRefAggregate, created.Metadata.CredentialRef.Details().ID.String())
 			projectAuditJoinWriter(t, f.store, []foundation.LockRequest{{Key: project, Mode: foundation.Shared}, {Key: credential, Mode: foundation.Exclusive}})
-			if string(readMaterial(t, service, actor, lease.LeaseID)) != "unknown-must-not-escape" {
+			if string(readMaterial(t, f.secretFixture, service, actor, lease.LeaseID)) != "unknown-must-not-escape" {
 				t.Fatal("confirmed fresh read failed")
 			}
 			want = 3

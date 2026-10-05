@@ -250,6 +250,7 @@ type UsageRequest struct {
 	LeaseID        LeaseID
 	Action         UsageAction
 	Retain         bool
+	RequestID      string // Exact Model Invocation UUID; not a transport trace or lease owner.
 }
 
 func (r UsageRequest) Validate() error {
@@ -266,6 +267,11 @@ func (r UsageRequest) Validate() error {
 			return bad()
 		}
 	default:
+		return bad()
+	}
+	modelRead := r.Action == ReadLeaseUsage && r.Purpose == Model &&
+		(r.LeaseOwner.Details().Kind == ExecutionOwner || r.LeaseOwner.Details().Kind == ModelCallOwner)
+	if modelRead && !validID(r.RequestID) || !modelRead && r.RequestID != "" {
 		return bad()
 	}
 	return nil
@@ -291,7 +297,8 @@ func UsageBinding(r UsageRequest) (foundation.Digest, error) {
 		LeaseID        string
 		Action         UsageAction
 		Retain         bool
-	}{a, scope, r.Ref.Details().ID.String(), r.Purpose, r.ReferenceOwner, owner, id, r.Action, r.Retain})
+		RequestID      string `json:",omitempty"`
+	}{a, scope, r.Ref.Details().ID.String(), r.Purpose, r.ReferenceOwner, owner, id, r.Action, r.Retain, r.RequestID})
 	if e != nil {
 		return "", bad()
 	}

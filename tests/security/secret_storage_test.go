@@ -4,7 +4,6 @@ package security_test
 
 import (
 	"bytes"
-	"context"
 	"testing"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
@@ -34,7 +33,7 @@ func TestSecretStorageReceiptAndCurrentLease(t *testing.T) {
 	if again := f.acquire(t, created.Metadata.CredentialRef, owner, actor); again.LeaseID != lease.LeaseID {
 		t.Fatal("lease duplicated")
 	}
-	material, err := f.secret.ReadCredentialForRequest(auditContext(t), actor, lease.LeaseID)
+	material, err := f.secret.ReadCredentialForUsage(auditContext(t), f.modelReadRequest(t, actor, lease.LeaseID))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +45,7 @@ func TestSecretStorageReceiptAndCurrentLease(t *testing.T) {
 	if err != nil || changed.Metadata.Version != 2 {
 		t.Fatalf("update %v", err)
 	}
-	if got := readMaterial(t, f.secret, actor, lease.LeaseID); string(got) != "next value" {
+	if got := readMaterial(t, f, f.secret, actor, lease.LeaseID); string(got) != "next value" {
 		t.Fatal("lease pinned obsolete value")
 	}
 	if err = material.Use(func(v []byte) error {
@@ -67,19 +66,15 @@ func TestSecretStorageReceiptAndCurrentLease(t *testing.T) {
 	requireCode(t, err, foundation.ResourceBusy)
 	registration, _ := identity.RegisterService(identity.SecretService)
 	wrong, _ := registration.Actor(newID[struct{}](t).String(), f.scope)
-	result := f.store.WithinTx(auditContext(t), txCause(t), func(ctx context.Context, tx foundation.Tx) error {
-		return f.secret.ReleaseCredentialLeaseInTx(ctx, tx, wrong, lease.LeaseID)
-	})
+	_, result := f.applyModelUsage(t, f.secret, f.modelLeaseRequest(wrong, lease, owner, sc.ReleaseLeaseUsage))
 	requireCode(t, result.Fault(), foundation.Forbidden)
 	for range 2 {
-		result = f.store.WithinTx(auditContext(t), txCause(t), func(ctx context.Context, tx foundation.Tx) error {
-			return f.secret.ReleaseCredentialLeaseInTx(ctx, tx, actor, lease.LeaseID)
-		})
+		_, result = f.applyModelUsage(t, f.secret, f.modelLeaseRequest(actor, lease, owner, sc.ReleaseLeaseUsage))
 		if result.State() != foundation.Committed {
 			t.Fatal(result.Fault())
 		}
 	}
-	if _, err = f.secret.ReadCredentialForRequest(auditContext(t), actor, lease.LeaseID); err == nil {
+	if _, err = f.secret.ReadCredentialForUsage(auditContext(t), f.modelReadRequest(t, actor, lease.LeaseID)); err == nil {
 		t.Fatal("released lease read")
 	}
 	deleted, err := f.secret.ExecuteWrite(auditContext(t), del)

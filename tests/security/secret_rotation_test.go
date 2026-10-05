@@ -117,7 +117,7 @@ func TestSecretRotationCASReopenAndRetirement(t *testing.T) {
 	withoutOld := f.reopen(t, masterKeys(t, 2, 2))
 	owner, actor := f.bind(t, refs[0], sc.Model)
 	lease := f.acquire(t, refs[0], owner, actor)
-	if got := readMaterial(t, withoutOld, actor, lease.LeaseID); string(got) != "new current value" {
+	if got := readMaterial(t, f, withoutOld, actor, lease.LeaseID); string(got) != "new current value" {
 		t.Fatal("removed-key restart value")
 	}
 	// Old command receipts also rewrap and remain replayable without key 1.
@@ -149,12 +149,12 @@ func TestSecretRotationCorruptionStopsWritesButKeepsUnrelatedAuthorizedRead(t *t
 	}
 	owner, actor := f.bind(t, other.Metadata.CredentialRef, sc.Model)
 	lease := f.acquire(t, other.Metadata.CredentialRef, owner, actor)
-	if got := readMaterial(t, next, actor, lease.LeaseID); string(got) != "unrelated" {
+	if got := readMaterial(t, f, next, actor, lease.LeaseID); string(got) != "unrelated" {
 		t.Fatal("unrelated authorized read")
 	}
 	owner, actor = f.bind(t, bad.Metadata.CredentialRef, sc.Model)
 	lease = f.acquire(t, bad.Metadata.CredentialRef, owner, actor)
-	if _, err := next.ReadCredentialForRequest(auditContext(t), actor, lease.LeaseID); err == nil {
+	if _, err := next.ReadCredentialForUsage(auditContext(t), f.modelReadRequest(t, actor, lease.LeaseID)); err == nil {
 		t.Fatal("corrupted value read")
 	}
 	var retired bool

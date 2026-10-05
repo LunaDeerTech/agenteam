@@ -49,6 +49,7 @@ type projectResolutionAudit struct {
 	metadata   sc.Metadata
 	payload    payloadID
 	grant      sc.UseGrant
+	modelRead  *modelUsageReadProof
 }
 
 func (projectAuditWitness) Format(w fmt.State, _ rune) {
@@ -66,14 +67,18 @@ func mutationAuditContext(ctx context.Context, store Store, tx foundation.Tx, p 
 	return context.WithValue(ctx, projectAuditWitnessKey{}, w)
 }
 
-// Only the successful lease/grant/metadata/AEAD path in ReadCredentialForRequest
-// calls this. A resolution UUID or a persisted lease alone cannot mint it.
-func resolutionAuditContext(ctx context.Context, store Store, tx foundation.Tx, resolution string, caller identity.Actor, id sc.LeaseID, lease leaseRecord, metadata sc.Metadata, payload payloadID, grant sc.UseGrant, entry ac.Entry, key ac.AppendKey) context.Context {
+// Only the successful lease/grant/metadata/AEAD tail of an actual read calls
+// this. Model reads must also have completed exact usage validation in this Tx.
+// A resolution UUID or a persisted lease alone cannot mint either proof.
+func resolutionAuditContext(ctx context.Context, store Store, tx foundation.Tx, resolution string, caller identity.Actor, id sc.LeaseID, lease leaseRecord, metadata sc.Metadata, payload payloadID, grant sc.UseGrant, entry ac.Entry, key ac.AppendKey, modelRead *modelUsageReadProof) context.Context {
 	if lease.ref.Details().Scope.Details().Kind != identity.ProjectScope {
 		return ctx
 	}
+	if modelRead != nil {
+		modelRead = modelRead.copy()
+	}
 	w := projectAuditWitness{store: store, tx: tx, entry: entry, key: key,
-		resolution: &projectResolutionAudit{resolution, caller, id, lease, metadata, payload, grant}}
+		resolution: &projectResolutionAudit{resolution, caller, id, lease, metadata, payload, grant, modelRead}}
 	return context.WithValue(ctx, projectAuditWitnessKey{}, w)
 }
 

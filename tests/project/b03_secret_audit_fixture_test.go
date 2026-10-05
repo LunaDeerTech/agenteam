@@ -5,8 +5,11 @@ package project_test
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/binary"
+	"encoding/hex"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -101,6 +104,8 @@ func newBindingFixture(t *testing.T) *bindingFixture {
 	// Only the unavailable consumption domain is isolated. Project, Account,
 	// Secret and Audit use their real tables and formal authorities.
 	f.sql(t, `CREATE TABLE project_fixture.secret_usage(owner_id uuid PRIMARY KEY,project_id uuid NOT NULL,credential_id uuid NOT NULL,owner_kind text NOT NULL,purpose text NOT NULL,active boolean NOT NULL DEFAULT true,subject_user uuid,subject_session uuid,CHECK((subject_user IS NULL)=(subject_session IS NULL)))`)
+	f.sql(t, `CREATE TABLE project_fixture.secret_calls(id uuid PRIMARY KEY,owner_id uuid NOT NULL,credential_id uuid NOT NULL,snapshot_id uuid NOT NULL,input_digest text NOT NULL,process_id uuid NOT NULL,fence bigint NOT NULL,current_invocation uuid NOT NULL,active boolean NOT NULL DEFAULT true);
+CREATE TABLE project_fixture.secret_invocations(id uuid PRIMARY KEY,call_id uuid NOT NULL,snapshot_id uuid NOT NULL,input_digest text NOT NULL,process_id uuid NOT NULL,fence bigint NOT NULL,ordinal bigint NOT NULL,dispatch text NOT NULL,active boolean NOT NULL DEFAULT true);`)
 	f.bundle = f.bindStore(t, f.raw, f.raw)
 	return f
 }
@@ -268,7 +273,9 @@ func (f *bindingFixture) gate(t *testing.T, state c.Lifecycle) c.LifecycleOperat
 // in these tests. It is not a production Project Usage/AgentRun provider. It
 // never lends Human locks; the generic lease path must fail closed for Human.
 type bindingUsage struct {
-	store *postgres.Store
+	store      *postgres.Store
+	planOnce   sync.Once
+	planIssuer sc.PlanIssuer
 	// Only negative protocol probes override the already persisted binding's
 	// subject, to prove a well-formed AgentRun grant is still not authority.
 	subject identity.Actor
@@ -349,12 +356,12 @@ func (f *bindingFixture) lease(t *testing.T, ref sc.CredentialRef) (sc.Credentia
 	if err != nil {
 		t.Fatal(err)
 	}
-	var lease sc.CredentialLease
-	r := f.raw.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
-		var err error
-		lease, err = f.bundle.secret.AcquireCredentialLeaseInTx(ctx, tx, actor, ref, owner)
-		return err
-	})
+	request := sc.UsageRequest{Actor: actor, Ref: ref, Purpose: sc.Model, LeaseOwner: owner, LeaseID: id[sc.Lease](t), Action: sc.AcquireLeaseUsage}
+	result, r := f.applyModelUsage(t, request)
+	lease, ok := result.Lease()
+	if r.State() == foundation.Committed && !ok {
+		t.Fatal("planned acquire omitted lease")
+	}
 	if r.State() != foundation.Committed {
 		t.Fatal("real lease acquisition", r.Fault())
 	}
@@ -362,6 +369,114 @@ func (f *bindingFixture) lease(t *testing.T, ref sc.CredentialRef) (sc.Credentia
 }
 
 var _ sc.UsageAuthority = (*bindingUsage)(nil)
+
+// These facts remain fixture-owned; no production Model consumer is bound.
+func (u *bindingUsage) modelFacts(ctx context.Context, tx foundation.Tx, r sc.UsageRequest) (foundation.Digest, []foundation.LockRequest, error) {
+	if r.Validate() != nil || r.Purpose != sc.Model || (r.Action != sc.AcquireLeaseUsage && r.Action != sc.ReleaseLeaseUsage && r.Action != sc.ReadLeaseUsage) {
+		return "", nil, foundation.NewFault(foundation.InvalidArgument, foundation.NotStarted)
+	}
+	var x postgres.SQLExecutor = u.store
+	if tx.Valid() {
+		var err error
+		x, err = u.store.InTx(tx)
+		if err != nil {
+			return "", nil, err
+		}
+	}
+	var credential, project, kind, purpose, subject, session string
+	var active bool
+	err := x.QueryRow(ctx, `SELECT credential_id::text,project_id::text,owner_kind,purpose,active,coalesce(subject_user::text,''),coalesce(subject_session::text,'') FROM project_fixture.secret_usage WHERE owner_id=$1`, r.LeaseOwner.Details().ID).Scan(&credential, &project, &kind, &purpose, &active, &subject, &session)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return "", nil, foundation.NewFault(foundation.Forbidden, foundation.NotStarted)
+	}
+	if err != nil {
+		return "", nil, err
+	}
+	if credential != r.Ref.Details().ID.String() || project != r.Ref.Details().Scope.Details().ProjectID || kind != string(r.LeaseOwner.Details().Kind) || purpose != string(r.Purpose) {
+		return "", nil, foundation.NewFault(foundation.Forbidden, foundation.NotStarted)
+	}
+	values := []any{credential, project, kind, purpose, active, subject, session}
+	key, _ := foundation.ProjectLock(project)
+	gate, _ := foundation.RecordLock(foundation.ReferenceRecordLock, "binding-usage:"+r.LeaseOwner.Details().ID)
+	locks := []foundation.LockRequest{{Key: key, Mode: foundation.Shared}, {Key: gate, Mode: foundation.Shared}}
+	// Human subject is deliberately NOT a user-plan grant. The original
+	// human-no-user-plan case must poison at the real Audit/Session boundary.
+	if r.Action == sc.ReadLeaseUsage {
+		var call, snapshot, input, process, dispatch, cOwner, cRef, cSnapshot, cInput, cProcess, current string
+		var fence, ordinal, cFence int64
+		var live, cLive bool
+		err = x.QueryRow(ctx, `SELECT i.call_id::text,i.snapshot_id::text,i.input_digest,i.process_id::text,i.fence,i.ordinal,i.dispatch,i.active,c.owner_id::text,c.credential_id::text,c.snapshot_id::text,c.input_digest,c.process_id::text,c.fence,c.current_invocation::text,c.active FROM project_fixture.secret_invocations i JOIN project_fixture.secret_calls c ON c.id=i.call_id WHERE i.id=$1`, r.RequestID).Scan(&call, &snapshot, &input, &process, &fence, &ordinal, &dispatch, &live, &cOwner, &cRef, &cSnapshot, &cInput, &cProcess, &cFence, &current, &cLive)
+		if errors.Is(err, pgx.ErrNoRows) {
+			return "", nil, foundation.NewFault(foundation.Forbidden, foundation.NotStarted)
+		}
+		if err != nil {
+			return "", nil, err
+		}
+		if call != r.LeaseOwner.Details().ID || cOwner != call || cRef != credential || snapshot != cSnapshot || input != cInput || process != cProcess || fence != cFence || fence < 1 || ordinal < 1 || current != r.RequestID || !live || !cLive || dispatch != "reserved" {
+			return "", nil, foundation.NewFault(foundation.Forbidden, foundation.NotStarted)
+		}
+		values = append(values, call, snapshot, input, process, fence, ordinal, dispatch, live, cOwner, cRef, cSnapshot, cInput, cProcess, cFence, current, cLive)
+		callGate, _ := foundation.AggregateLock(foundation.OperationAggregate, call)
+		invocation, _ := foundation.RecordLock(foundation.ReferenceRecordLock, "binding-invocation:"+r.RequestID)
+		locks = append(locks, foundation.LockRequest{Key: callGate, Mode: foundation.Shared}, foundation.LockRequest{Key: invocation, Mode: foundation.Shared})
+	}
+	b, _ := json.Marshal(values)
+	h := sha256.Sum256(b)
+	return foundation.Digest("sha256:" + hex.EncodeToString(h[:])), locks, nil
+}
+func (u *bindingUsage) DiscoverUsage(ctx context.Context, r sc.UsageRequest) (sc.UsageDependencies, error) {
+	mapping, locks, err := u.modelFacts(ctx, foundation.Tx{}, r)
+	if err != nil {
+		return sc.UsageDependencies{}, err
+	}
+	u.planOnce.Do(func() { u.planIssuer = sc.NewPlanIssuer() })
+	binding, err := sc.UsageBinding(r)
+	if err != nil {
+		return sc.UsageDependencies{}, err
+	}
+	return sc.NewUsageDependencies(u.planIssuer, binding, mapping, locks)
+}
+func (u *bindingUsage) ValidateUsageInTx(ctx context.Context, tx foundation.Tx, r sc.UsageRequest, d sc.UsageDependencies) error {
+	mapping, locks, err := u.modelFacts(ctx, tx, r)
+	if err != nil {
+		return err
+	}
+	binding, err := sc.UsageBinding(r)
+	if err != nil {
+		return err
+	}
+	if !d.Matches(u.planIssuer, binding, mapping) {
+		return foundation.NewFault(foundation.ResourceBusy, foundation.NotStarted)
+	}
+	return u.store.RequireHeldLocks(ctx, tx, locks)
+}
+func (f *bindingFixture) applyModelUsage(t *testing.T, r sc.UsageRequest) (sc.UsageResult, foundation.CommitResult) {
+	t.Helper()
+	plan, err := f.bundle.secret.DiscoverUsage(ctxFor(t), r)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var result sc.UsageResult
+	commit := f.raw.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+		if err := f.raw.AcquireAll(ctx, tx, plan.RequiredLocks()); err != nil {
+			return err
+		}
+		var err error
+		result, err = f.bundle.secret.ApplyUsageInTx(ctx, tx, r, plan)
+		return err
+	})
+	return result, commit
+}
+func (f *bindingFixture) modelReadRequest(t *testing.T, actor identity.Actor, lease sc.CredentialLease, owner sc.CredentialLeaseOwner) sc.UsageRequest {
+	t.Helper()
+	r := sc.UsageRequest{Actor: actor, Ref: lease.CredentialRef, Purpose: sc.Model, LeaseOwner: owner, LeaseID: lease.LeaseID, Action: sc.ReadLeaseUsage, RequestID: id[struct{}](t).String()}
+	snapshot, process := id[struct{}](t).String(), id[struct{}](t).String()
+	input := "sha256:" + strings.Repeat("b", 64)
+	call := owner.Details().ID
+	f.sql(t, `INSERT INTO project_fixture.secret_calls(id,owner_id,credential_id,snapshot_id,input_digest,process_id,fence,current_invocation) VALUES($1,$1,$2,$3,$4,$5,1,$6) ON CONFLICT(id) DO UPDATE SET snapshot_id=excluded.snapshot_id,process_id=excluded.process_id,current_invocation=excluded.current_invocation`, call, lease.CredentialRef.Details().ID.String(), snapshot, input, process, r.RequestID)
+	f.sql(t, `INSERT INTO project_fixture.secret_invocations(id,call_id,snapshot_id,input_digest,process_id,fence,ordinal,dispatch) VALUES($1,$2,$3,$4,$5,1,1,'reserved')`, r.RequestID, call, snapshot, input, process)
+	return r
+}
 
 // An owned protocol observer and optional confirmed-COMMIT ACK fault. Only
 // command tags, SQLSTATE, backend PID and ReadyForQuery state are retained: no

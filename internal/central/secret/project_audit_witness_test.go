@@ -131,15 +131,20 @@ func TestSecretProjectAuditResolutionEvidence(t *testing.T) {
 	resolution := projectAuditID[struct{}](t).String()
 	subject, _ := registration.Actor(resolution, ref.Details().Scope)
 	lease := leaseRecord{ref: ref, owner: owner, consumer: sc.Model}
-	grant := sc.UseGrant{Subject: caller, Consumer: sc.Model, RequestID: projectAuditID[struct{}](t).String(), OperationID: projectAuditID[struct{}](t).String(), ToolID: projectAuditID[struct{}](t).String(), RunnerID: projectAuditID[struct{}](t).String()}
+	grant := sc.UseGrant{Subject: caller, Consumer: sc.Model, OperationID: projectAuditID[struct{}](t).String(), ToolID: projectAuditID[struct{}](t).String(), RunnerID: projectAuditID[struct{}](t).String()}
+	request := sc.UsageRequest{Actor: caller, Ref: ref, Purpose: sc.Model, LeaseOwner: owner, LeaseID: id, Action: sc.ReadLeaseUsage, RequestID: projectAuditID[struct{}](t).String()}
+	binding, _ := sc.UsageBinding(request)
+	leaseKey, _ := foundation.RecordLock(foundation.ReferenceRecordLock, "secret-lease:"+id.String())
+	f.store.locks = append(f.store.locks, foundation.LockRequest{Key: leaseKey, Mode: foundation.Shared})
+	proof := modelUsageReadProof{request: request, binding: binding, mapping: binding, locks: append([]foundation.LockRequest(nil), f.store.locks...)}
 	metadata, _ := ac.SecretResolveMetadata(id.String(), ac.Consumer(sc.Model), "")
 	resource, _ := ac.NewResource(ac.SecretResource, ref.Details().ID.String())
-	entry, err := ac.NewEntry(ac.EntryFields{Scope: ref.Details().Scope, Actor: subject, Action: ac.SecretResolve, Outcome: ac.Success, Resource: resource, Metadata: metadata, Associations: ac.Associations{RequestID: grant.RequestID, OperationID: grant.OperationID, ToolID: grant.ToolID, RunnerID: grant.RunnerID}})
+	entry, err := ac.NewEntry(ac.EntryFields{Scope: ref.Details().Scope, Actor: subject, Action: ac.SecretResolve, Outcome: ac.Success, Resource: resource, Metadata: metadata, Associations: ac.Associations{RequestID: request.RequestID, OperationID: grant.OperationID, ToolID: grant.ToolID, RunnerID: grant.RunnerID}})
 	if err != nil {
 		t.Fatal(err)
 	}
 	key, _ := ac.NewAppendKey(ac.SecretProducer, resolution, 0)
-	ctx := resolutionAuditContext(context.Background(), f.store, f.store.tx, resolution, caller, id, lease, f.result.Metadata, f.p.value.id, grant, entry, key)
+	ctx := resolutionAuditContext(context.Background(), f.store, f.store.tx, resolution, caller, id, lease, f.result.Metadata, f.p.value.id, grant, entry, key, &proof)
 	read := f.store.read
 	f.store.read = func(sql string, args []any) postgres.Row {
 		if strings.Contains(sql, "FROM agenteam_secret.secret_leases") {
@@ -150,10 +155,11 @@ func TestSecretProjectAuditResolutionEvidence(t *testing.T) {
 	if err := f.checker.CheckProjectAuditInTx(ctx, f.store.tx, entry, key); err != nil {
 		t.Fatal(err)
 	}
-	for _, name := range []string{"resolution", "caller", "lease-owner", "grant-consumer", "grant-association", "metadata-version", "payload", "released"} {
+	for _, name := range []string{"resolution", "caller", "lease-owner", "grant-consumer", "grant-association", "metadata-version", "payload", "released", "missing-model-proof", "request-id", "request-owner", "binding", "mapping", "locks"} {
 		t.Run(name, func(t *testing.T) {
 			w := ctx.Value(projectAuditWitnessKey{}).(projectAuditWitness)
 			r := *w.resolution
+			r.modelRead = r.modelRead.copy()
 			w.resolution = &r
 			switch name {
 			case "resolution":
@@ -172,6 +178,19 @@ func TestSecretProjectAuditResolutionEvidence(t *testing.T) {
 				r.payload = projectAuditID[payloadMarker](t)
 			case "released":
 				r.lease.released = true
+			case "missing-model-proof":
+				r.modelRead = nil
+			case "request-id":
+				r.modelRead.request.RequestID = projectAuditID[struct{}](t).String()
+			case "request-owner":
+				r.modelRead.request.LeaseOwner, _ = sc.NewCredentialLeaseOwner(sc.ExecutionOwner, projectAuditID[struct{}](t).String())
+			case "binding":
+				r.modelRead.binding = ""
+			case "mapping":
+				r.modelRead.mapping = ""
+			case "locks":
+				key, _ := foundation.UserLock(projectAuditID[struct{}](t).String())
+				r.modelRead.locks = append(r.modelRead.locks, foundation.LockRequest{Key: key, Mode: foundation.Exclusive})
 			}
 			badCtx := context.WithValue(ctx, projectAuditWitnessKey{}, w)
 			if err := f.checker.CheckProjectAuditInTx(badCtx, f.store.tx, entry, key); err == nil {

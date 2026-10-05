@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 
-	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
@@ -142,6 +141,11 @@ func (s *Service) AcquireCredentialLeaseInTx(ctx context.Context, tx foundation.
 	if err = s.writable(); err != nil {
 		return empty, err
 	}
+	// Keep the original dependency, authority and availability errors first.
+	// Model owners must still use the planned mutation before any lease write.
+	if modelLeaseUsage(metadata.Purpose, owner) {
+		return empty, failure(PreparationRequired, foundation.ResourceBusy, nil)
+	}
 	id, err := foundation.NewID[sc.Lease]()
 	if err != nil {
 		return empty, unavailable(err)
@@ -210,7 +214,7 @@ func (s *Service) ReleaseCredentialLeaseInTx(ctx context.Context, tx foundation.
 	if err != nil {
 		return err
 	}
-	if accountOwner(lease.owner) {
+	if accountOwner(lease.owner) || modelLeaseUsage(lease.consumer, lease.owner) {
 		return failure(PreparationRequired, foundation.ResourceBusy, nil)
 	}
 	if err = s.referenceLocks(ctx, tx, lease.ref, foundation.Exclusive); err != nil {
@@ -220,6 +224,9 @@ func (s *Service) ReleaseCredentialLeaseInTx(ctx context.Context, tx foundation.
 	lease, err = loadLease(ctx, e, id)
 	if err != nil {
 		return err
+	}
+	if modelLeaseUsage(lease.consumer, lease.owner) {
+		return failure(PreparationRequired, foundation.ResourceBusy, nil)
 	}
 	g, err := s.leaseGrant(ctx, tx, actor, lease.ref, lease.owner, sc.ReleaseLease)
 	if err != nil {
@@ -257,6 +264,9 @@ func (s *Service) ReadCredentialForRequest(ctx context.Context, actor identity.A
 	before, err := loadLease(ctx, state.store, id)
 	if err != nil {
 		return sc.SecretMaterial{}, err
+	}
+	if modelLeaseUsage(before.consumer, before.owner) {
+		return sc.SecretMaterial{}, failure(PreparationRequired, foundation.ResourceBusy, nil)
 	}
 	var request sc.UsageRequest
 	var plan sc.UsageDependencies
@@ -296,6 +306,9 @@ func (s *Service) ReadCredentialForRequest(ctx context.Context, actor identity.A
 		if planned && (!lease.ref.Equal(request.Ref) || !lease.owner.Equal(request.LeaseOwner) || lease.consumer != request.Purpose) {
 			return failure(Busy, foundation.ResourceBusy, nil)
 		}
+		if modelLeaseUsage(lease.consumer, lease.owner) {
+			return failure(PreparationRequired, foundation.ResourceBusy, nil)
+		}
 		if lease.released {
 			return failure(AuthorizationRejected, foundation.Forbidden, nil)
 		}
@@ -303,50 +316,8 @@ func (s *Service) ReadCredentialForRequest(ctx context.Context, actor identity.A
 		if err != nil {
 			return err
 		}
-		metadata, payloadID, err := loadMetadata(ctx, e, lease.ref)
-		if err != nil {
-			return err
-		}
-		if metadata.Purpose != g.Consumer || g.Consumer != lease.consumer {
-			return failure(AuthorizationRejected, foundation.Forbidden, nil)
-		}
-		p, err := loadPayload(ctx, e, payloadID)
-		if err != nil {
-			return err
-		}
-		if p.ownerKind != valueOwner || p.ownerID != lease.ref.Details().ID.String() || !p.scope.Equal(lease.ref.Details().Scope) {
-			return failure(DecryptFailed, foundation.DependencyUnavailable, nil)
-		}
-		plaintext, err = openEnvelope(state.keys, p)
-		if err != nil {
-			return err
-		}
-		subject := g.Subject
-		if subject.Details().Kind == identity.Service {
-			registration, _ := identity.RegisterService(identity.SecretService)
-			subject, err = registration.Actor(resolution.String(), p.scope)
-			if err != nil {
-				return unavailable(err)
-			}
-		}
-		resource, _ := ac.NewResource(ac.SecretResource, p.ownerID)
-		auditMetadata, err := ac.SecretResolveMetadata(id.String(), ac.Consumer(g.Consumer), "")
-		if err != nil {
-			return unavailable(err)
-		}
-		entry, err := ac.NewEntry(ac.EntryFields{Scope: p.scope, Actor: subject, Action: ac.SecretResolve, Outcome: ac.Success, Resource: resource, Metadata: auditMetadata, Associations: ac.Associations{RequestID: g.RequestID, OperationID: g.OperationID, ToolID: g.ToolID, RunnerID: g.RunnerID}})
-		if err != nil {
-			return unavailable(err)
-		}
-		key, err := ac.NewAppendKey(ac.SecretProducer, resolution.String(), 0)
-		if err != nil {
-			return unavailable(err)
-		}
-		auditCtx := resolutionAuditContext(ctx, state.store, tx, resolution.String(), actor, id, lease, metadata, payloadID, g, entry, key)
-		if _, err = state.audit.AppendInTx(auditCtx, tx, entry, key); err != nil {
-			return unavailable(err)
-		}
-		return nil
+		plaintext, err = s.resolveCredentialInTx(ctx, tx, e, resolution.String(), actor, id, lease, g, nil)
+		return err
 	})
 	if err = commitError(result); err != nil {
 		return sc.SecretMaterial{}, err
