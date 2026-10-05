@@ -6,15 +6,15 @@
 
 生产核查固定 `fda0a35`，复用已验 R1 registry、R2 durable acceptance、R3 facts Authority、Object S2、Secret checker 与 Project Secret 绑定。必读 [AGENTS](../../../AGENTS.md)、[团队流程](../agent-team/README.md)、[设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[D08 设计](d08-project-owner-design.md)、[R3 卡](recovery-d08-lifecycle-authority.md)、[S2 验收](../agent-team/d05-s2-verification.md)及 [Project Secret 验收](../agent-team/project-secret-audit-binding-verification.md)。本卡不改变既有命令摘要、版本、完成重放与 Unknown 规则。
 
-以下只读的是已提交正式规格，不是活动实现，也不是通过证明：
+以下保留原固定规格来源，并同步已验能力；前置已验不代表本卡已实施：
 
-| 前置规格 | 固定提交 | 本卡消费的接缝与开写门槛 |
+| 前置规格 | 原规格与已验提交 | 本卡消费的接缝与开写门槛 |
 | --- | --- | --- |
-| [Object Audit rev2](recovery-object-project-audit.md) | `fcae355` | Store-only checker、真实私有同 Tx witness、六类动作及 revoke UPDATE→Audit 顺序；须独立验收并逐 SHA 固定最终 13 源 |
+| [Object Audit rev2](recovery-object-project-audit.md) | 原规格 `fcae355`；已验 `a716ae2` | Store-only checker、真实私有同 Tx witness、六类动作及 revoke UPDATE→Audit 顺序；13 源已独立验收，实际接缝已完成本轮有界静态相容性核对 |
 | [Artifact stop rev2](recovery-artifact-project-stop.md) | `fcb83fc` | `NewWithProjectStop`、真实 source 权限、整次 lifetime/join、`ObjectProjectStop` 与 Artifact component 报告；须独立验收并固定最终 16 源 |
-| [D09 Project 配置](recovery-d09-project-configuration.md) | `6e0bda1` | `events.go` 的 Model Append 分派及独立 issuer/purpose 校验；须独立验收、冻结并正式交还该旧文件 |
+| [D09 Project 配置](recovery-d09-project-configuration.md) | 原规格 `6e0bda1`；已验 `de00c610` | `events.go` 的 Model Append 分派及独立 issuer/purpose 校验；21 源已独立验收，实际接缝已完成本轮有界静态相容性核对，旧文件写权仍由主线程另授 |
 
-三项均未因本卡引用而获验收结论。实施者只能在主线程确认上述结果后，对本卡涉及的 authority/owner/access/Audit/stop/events 接缝作最终 delta 静审，再冻结实施快照和精确写权。出现签名、锁集合、当前 gate 或 witness 差异须先修订本卡，不沿规格预设虚构已存在 API。Artifact 当前 16 源、Object 当前 13 源和 D09 当前 21 源仍属其作者。本卡无需迁移，不分配 `00017`；未来 operation completion plan 留给 R4 正式卡。
+Object Audit 与 D09 的已验接缝相容性已由主线程采纳，Artifact stop 最终验收与接缝 delta 仍未闭合。[Object Runtime join 修复](recovery-object-runtime-join.md)按 `2ca7d86` 的中断记录保持停止，退出缺陷尚未修复，本卡实施仍被阻塞。实施者只能在主线程确认剩余前置后，对本卡涉及的 authority/owner/access/Audit/stop/events 接缝作最终 delta 静审，再冻结实施快照和精确写权。出现签名、锁集合、当前 gate 或 witness 差异须先修订本卡，不沿规格预设虚构已存在 API。原初查时 Artifact 16 源、Object 13 源和 D09 21 源各属其作者；已提交不等于本卡获得旧文件写权，实际写权仍由主线程逐项另授。本卡无需迁移，不分配 `00017`；未来 operation completion plan 留给 R4 正式卡。
 
 ## 结果与非目标
 
@@ -159,7 +159,7 @@ Secret/Audit 在 stopping 可依据上述真实屏障报告 stopped；在 failed
 | `internal/central/project/outbox_authority.go`、`internal/central/project/outbox_authority_test.go` | 新三个普通路由的 private plan/当前 gate |
 | `internal/central/project/domain_participants.go`、`internal/central/project/domain_participants_test.go` | 新四个 stop adapter；不改 R1/R3 或增加 worker |
 | `internal/central/project/audit_facts.go` | 仅开放 Object map key、精确 producer 分派并调用共同 domain 屏障；Secret 原权限/事实语义保持 |
-| `internal/central/project/events.go` | 仅普通 Deliver/Inspect/Requeue 分派到新 helper；等 D09 交还，保留 Project/Model Append 与 R3 Lifecycle 行为 |
+| `internal/central/project/events.go` | 仅普通 Deliver/Inspect/Requeue 分派到新 helper；实际写权由主线程另授，保留 Project/Model Append 与 R3 Lifecycle 行为 |
 | `tests/project/domain_bindings_fixture_test.go` | 新真实组合 fixture、可跟踪预算/资源/原 writer 协议工具；不改旧 fixture |
 | `tests/project/artifact_domain_bindings_test.go` | Artifact 权限、取消事实、真实上传/来源/读取/Download Audit |
 | `tests/project/object_audit_domain_bindings_test.go` | 真实 Object 六类动作/当前 gate/witness 与原子性/Unknown |
@@ -191,4 +191,6 @@ Secret/Audit 在 stopping 可依据上述真实屏障报告 stopped；在 failed
 
 2026-10-05，独立 verification_worker 对 rev2 原候选 SHA-256 `5a41d0cccff9c44166db2d0cae9506105a4d62c234caaee0d09f761dcb7c0cb6` 完成静审，未发现规格硬阻断；22 路径、11 链接、构造与完整持锁关系均已核。主线程复核实际取消调用链后，采纳仅针对精确持久取消的 ObjectMaintenance Converge 在 archiving 收尾的工程澄清；deleting、Project Cleanup 和普通读写权限不变。报告 `/tmp/agenteam-project-domain-bindings-static-x58klrdr/review.md` SHA-256 `0f757cd006279945a8de1f67fda96e91c85815deb9d29d4f1beb4f5c4be07077`，输入清单 SHA-256 `322f9e9c689f624b0c3ee41a7ee3303cb8cea86ef5cad0bcb092710ade0afccb`。本节持久记录结论，不依赖临时文件存续。
 
-Object Audit 的13源已独立验收并提交推送 `a716ae2a16bc24c115d0207557cada96a30f1049`，最终源清单 SHA-256 `061a4c19791e812e68a0755059a171984bc3bf8070197ae6f034f7943f119558`；独立2顶层6子例通过，真实资源已清零。其通过不代表本卡的 Project 映射已绑定。Artifact stop 与 D09 Project 配置仍待最终验收；本卡仍须等待其余前置、全部实际接缝 delta 和文件所有权交还，再由主线程单独授权实施。本次没有本卡 Go、PG/MinIO 或产品行为通过声明。
+Object Audit 的13源已独立验收并提交推送 `a716ae2a16bc24c115d0207557cada96a30f1049`，最终源清单 SHA-256 `061a4c19791e812e68a0755059a171984bc3bf8070197ae6f034f7943f119558`；独立2顶层6子例通过，真实资源已清零。其通过不代表本卡的 Project 映射已绑定。D09 Project 配置21源已独立验收并提交 `de00c610da62cb77cc03efe7c3cc842cf81f1ba5`。Artifact stop 最终验收、受阻的 Object Runtime join 修复及后续组合接缝 delta 尚未闭合；本卡仍须等待这些前置和文件所有权交还，再由主线程单独授权实施。本次状态归位不恢复 Object 修复任务，没有本卡 Go、PG/MinIO 或产品行为通过声明。
+
+主线程采纳本轮有界静态报告 `/tmp/agenteam-project-domain-prereq-delta-t7gyhkzz/review.md`，SHA-256 `6ef0db9394550cd695efeaaa439b44d7894c5c70bf71a7a7bc621b4e0a970742`：固定 `8bce2d9319f0b649b7c144ba14d9ee52f7dd09da` 核对上述 D09/Object Audit 已验接缝相容，保留 Model Append 的完整绑定、不同 stage 计划及 Object 同 Tx witness/真实事实消费。该核对不改本卡 API、22 路径或行为，不覆盖 Artifact 最终实现或 Object 修复，也不授予任何文件写权；原 `fda0a35` 核查与规格来源仍按当时历史保留。
