@@ -10,7 +10,7 @@ rev2已按root工程裁决固定Create请求的稳定target ProjectID。所有�
 
 - B01 已完成：12 个新 Project contract 文件独立验收并提交推送 `199554b`，只消费固定已验 foundation/identity/event；没有提前绑定生产服务。
 - B02 已完成：7 个纯契约/角色/Audit 闭集结果已提交 `769ec8c`；其余 21 源与 00013/fixture 接缝在固定 `da5caab`（含已验 A2/00012）上完成真实验收，提交推送 `6319d03`。稳定 ID 服务与已验 A1 CurrentUserRoute 的路径组合不依赖完整账号 HTTP。
-- B03 的完整删除确认仍须接入已验 A1 CurrentUserRouteInTx；B02 路径已真实接入。root 已采纳主体与后段分阶段推进；§9.1/9.2 的 C0 精确 Go 口正在形成最小候选，尚未审查生效或授权业务实现。对象范围停止口和 typed Audit cause 验证须由明确上游作者完成，不能以空实现代替。
+- B03 的完整删除确认仍须接入已验 A1 CurrentUserRouteInTx；B02 路径已真实接入。root 已采纳主体与后段分阶段推进；§9.1/9.2 的 C0 精确 Go 口已独立定向审查并由 root 采纳，四个新契约/测试文件作者实现及 unit/race/vet 已完成，待独立验收；Project 主体按下面 P 卡独立推进。对象范围停止口和 typed Audit cause 验证须由明确上游作者完成，不能以空实现代替。
 - B04 HTTP/app 等 D07 B04 稳定输入和共享文件交接。
 - D10 初始化真实绑定仍缺失；D08 正向 fixture 不意味着生产项目创建成功，D10/I28 继续承担真实集成。
 
@@ -41,7 +41,7 @@ rev2已按root工程裁决固定Create请求的稳定target ProjectID。所有�
 
 验收：T01及全部 enum/presence/错误variant/安全编码边界，包括Create必填合法target UUIDv7与按Project区分的command identity；固定 Go 单元、race、vet。Plan/Report不得成为可由任意JSON反序列化的权限令牌。冻结源码/依赖指纹交独立验证；没有对应实现的adapter保持 unbound。
 
-正式端口窄澄清：`RetryLifecycle` 返回已有 `LifecycleResult`（`Operation|Receipt`）；正常/归档路径返回 Operation，completed delete 的原重放仅返回最小 Receipt，不恢复旧 operation 或已删内容。
+正式端口窄澄清：`RetryLifecycle` 返回已有 `LifecycleResult`（`Operation|Receipt`）；正常/归档路径返回 Operation，completed delete 在当前 Session/原 Owner/精确 Project与Operation 下仅只读确认最小 Receipt，不声称已证明 retry-key 同义，不恢复旧 operation 或已删内容；原 Delete 重放仍严格匹配原 key/digest。
 
 升级条件：需要改已验公共契约、新增规范外状态、扩大名称规则、引入依赖或发现规格内在矛盾，停止受影响部分报 root/设计负责人。
 
@@ -75,13 +75,54 @@ root 已采纳并提交推送 `6319d03`。独立报告 `/tmp/agenteam-d08-b02-pg
 
 ## B03 生命周期与现有领域集成
 
-角色：backend_worker；状态：B02 已验并提交 `6319d03`；精确 C0 候选待独立定向审查，后续实施待 root 分配 Project 主体、D05/Secret 共享文件与资源。候选不作已生效接口或业务完成证据。
+角色：backend_worker；状态：B02 已验并提交 `6319d03`；C0 规格已独立定向审查并由 root 采纳，四源作者纯检查通过、待独立验收；P 主体已派 `d08_design`，D05/Secret 文件与资源由 root 独占交接。契约或阶段准备不作 B03 业务完成证据。
 
 目标：真实归档/恢复/删除进度、对象项目停止、现有Secret/Object/Artifact/Outbox/Audit权限与清理完整组合。依赖未来领域的注册保持真实记录。
 
 授权建议：共享规格 §9/13；范围外必要旧入口改动先列精确文件/方法/理由，主线程在冻结输入中统一授权。Object与D07 B04头像补口可能共文件，必须串行交接或同作者整合，不能并写。
 
 验收：T06/T08–T14，含实际在途 Object I/O与Outbox callback、cancel与join区分、旧cause竞态、COMMIT unknown、死亡证明、MinIO清理和最小receipt。所有 required stop确认前不得进入archived/cleaning；Outbox清理位于生产者收束之后，Audit清理随后，最终不能制造Project残留事件/Audit。迁移/安全/协议风险由独立实例验收。
+
+C0 候选修订与独立意见闭环：固定 `/tmp/agenteam-d08-b03-c0-r2-qu3_uo_7/`，正文 SHA `b07d902a1ff8995db4c7bf95a13fa64cc8fcaae820cdeeb370108930ed5baa9c`；两处精确 delta SHA `cf61173116fa138679c135026649e0b8c6af67ae71d0662acc85b45b8b5af852`。R01 补 P 的 commands.go/tests 生命周期 Lookup/Unknown 窄接缝，R02 明确 AccessDependencies 不是私有 issuer plan；没有新增公共类型或产品语义。完整精确口径现以共享规格 §9.1/9.2 为准。
+
+completed-delete Retry 窄澄清已由 root 采纳：当前授权与输入语法仍校验，删除后仅以精确 Project/Operation 只读确认最小 Receipt；不同合法 retry key 不产生写入/Touch/Event/Audit，不保留旧 retry 历史。无法辨识的 retry Lookup 返回 RESOURCE_DELETED，原 Delete key/digest 重放规则保持。已核 B01 结果联合型与 D01/§8 最小保留无明文冲突；真实验收须覆盖 foreign/撤销或到期 Session/错误 Operation/不同合法 key/原 Delete 异义，并核零复活、零新增保留。
+
+### B03-C0：可独立完成的 typed 新口
+
+唯一作者 `parallel_plan`；独立审查 `d08_design`。新文件白名单：
+
+1. `internal/central/object/contract/project_lifecycle.go`
+2. `internal/central/object/contract/project_lifecycle_test.go`
+3. `internal/central/audit/contract/project_fact_authority.go`
+4. `internal/central/audit/contract/project_fact_authority_test.go`
+
+第 4 个文件仅作真实外部消费接口的编译闭包检查，不写镜像运行测试。不得改旧 contract、identity、D03、迁移、go.mod/sum。以固定真实依赖编译，unit/race/vet，给精确 manifest；独立审核后可以单独提交这个完整契约结果，不能称停止能力已经可用。
+
+### B03-P：Project 真实生命周期主体与适配
+
+接收冻结 C0 后独立开工。唯一作者预授范围为正式卡已定的五个新生产文件及同名 `_test.go`：
+
+- `internal/central/project/lifecycle.go`
+- `internal/central/project/participants.go`
+- `internal/central/project/object_authority.go`
+- `internal/central/project/outbox_authority.go`
+- `internal/central/project/secret_authority.go`
+
+必须触及的既有 Project 接缝，仅同一作者：`service.go`（deps/生命周期服务接入及真实 Stop/Drain）、`authority.go`（当前 cause/phase 与新 stop authority/producer 注册）、`events.go`（现有 lifecycle event）、`audit_authority.go`（既定生命周期动作与 provider 分派）、`commands.go`（仅生命周期 Lookup 分派与 Unknown 串行确认；Create/Update 路径保持已验行为）。上述同名旧测试（含 `commands_test.go`）允许增加本次回归；B02 行为和生产 contract 保持已验。若新 helper 需要拆文件，作者先列精确新文件再由 root 授权，不自行覆盖旧文件。
+
+当前可完整实现/审查的结果：Begin/Retry/Get/Lookup/Restore 与真实持久 claim/fence/checkpoint/recovery，冻结 manifest、停止/清理顺序和 Project 最终 receipt 原子退休；正式 Outbox/Secret/Audit/Object/Artifact authority 适配。使用已提交 00013 Project schema。不得实现目录之外的上游能力，也不能在生产注册空 participant。P 可以先给编译与纯规则/故障注入准备结果，真实生命周期成功必须等待 D 的实际 stop/inspect 和 PG/MinIO 组合；test provider 只作局部验证，不当生产绑定。
+
+Project 稳定 ID/当前 Session/Owner/确认路径来自已验正式口；不碰 D09 创建模型、Project create 初始字段或 D10 AddSkills 产品决定。若 00013 缺支持既定 lifecycle 的必要字段，先交事实/最小迁移候选，不改旧 SQL、不私占下一编号。
+
+### B03-D：D05 停止第一段与后段 Audit provider
+
+root 已采纳独立定向审查结论并授权 `d02_backend` 实施第一段：精确范围见固定 `/tmp/agenteam-d08-b03-d05-scope-pvns68a1/proposal.md`，SHA `39a505d98307bedf832b3dea8e14b88f18e03742342a4847a01648824c0ebc00`。第一段拥有 Object/Artifact 已列旧接缝、新 project_lifecycle/project_work 实现与专项测试，以及唯一新迁移 `00014_object_artifact_project_stop.sql`；旧迁移 00001–13、旧 D03、Secret/Audit runtime、app/fixture driver 均不在本段写权。方案是授权依据，不是实现或验收通过证据。
+
+00014 只增加两个域各自的 `project_stops` 与 `project_work` 四张技术表，用于前置 I/O 登记、不可倒退 stop epoch、实际 join/原 writer 终局与最小 stopped receipt。永久删除必须清掉所有旧 archive receipts 和扫描游标/临时 work，仅留 current delete 的最小 stopped receipt；不能留已删内容或借 receipt 新建 phase。Artifact `source_project_id` 必须进入源 Project 的 delete 扫描与真实 join 判定，不能只扫描 target project 或只凭本机 map/TTL/取消响应成功。
+
+第一段与 P 并行：A 唯一写 Object/Artifact 旧接缝，P 只写 Project 自有范围；C0 四新文件与本两份文档本轮只由 `parallel_plan` 写。具体构造绑定不得默默 allow nil port。D1 的真实 PG/MinIO/ProcessGuard、13→14/失败回滚、跨 Project source/旧 plan/真实 stop 验收尚未完成，Docker 仍等 root/acceptance 明确交接。
+
+§9.2 的 Object/Secret 同 Tx Audit checker 与私有见证属于后段，另列精确旧文件权限后实施，不阻塞当前停止 C0/P/D1。不能借第一段授权修改 Secret 或提前宣称 B03 全部 provider 已绑定。
 
 ## B04 正式 HTTP 与 Central
 

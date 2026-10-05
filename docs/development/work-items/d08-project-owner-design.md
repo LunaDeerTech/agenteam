@@ -2,7 +2,7 @@
 
 修订：rev2 / 已经独立静态审查并由主线程采纳，现正式归位。B01 契约/纯规则库已独立验收并提交推送 `199554b`；B02 存储与 Owner/创建/元数据服务、00013 和 fixture 接缝已独立验收并提交推送 `6319d03`。D08 整体仍未完成，B03 完整生命周期、B04 HTTP/app 和 D10 真实 Skill 初始化尚待实施和集成。设计输入固定为 `062ae2c050e2f6fa1549d2e67f924b4e5160d754`；49项输入及作者冻结证据位于 `/tmp/agenteam-d08-design-rev2-nm2kwP/`，审查证据见[工作项](d08-project-owner.md)。原设计与归位阶段未读取活动 B03/B04 业务源码；B01 修复闭环与 B02 的首轮三红、修后真实组合证据分别见[主卡 B01 记录](d08-project-owner.md#b01-独立验收与提交)和[B02 记录](d08-project-owner.md#b02-独立验收与提交)。
 
-当前依赖进度补记：D07 B03/00011 `ffa65f0`、A1 CurrentUserRoute `59b38c8` 与 A2/00012 `da5caab` 均已验；B02 在固定 `da5caab` 上完成真实 PG/初始化消费/Owner/Audit/Outbox 组合，21 文件与 00013 提交推送 `6319d03`，路径已接入正式 Route。§1 表保留原固定设计输入的历史状态，当前开工以本段及主卡为准。B03 主体与后段可按真实依赖分阶段，§9.1/9.2 精确 Go 口仅在形成 C0 候选，尚未审查生效；旧 D05/Secret 文件、可能的新迁移与 Docker 仍由 root/验收负责人逐项交接。此状态补记不改变下述产品规则与正式契约，也不涉及 D09 未决创建模型字段。
+当前依赖进度补记：D07 B03/00011 `ffa65f0`、A1 CurrentUserRoute `59b38c8` 与 A2/00012 `da5caab` 均已验；B02 在固定 `da5caab` 上完成真实 PG/初始化消费/Owner/Audit/Outbox 组合，21 文件与 00013 提交推送 `6319d03`，路径已接入正式 Route。§1 表保留原固定设计输入的历史状态，当前开工以本段及主卡为准。B03 主体与后段可按真实依赖分阶段，§9.1/9.2 的 C0 精确 Go 口已获独立定向审查并由 root 采纳，四个新契约/测试文件作者实现及 unit/race/vet 已完成、待独立验收；旧 D05/Secret 文件、可能的新迁移与 Docker 仍由 root/验收负责人逐项交接。此状态补记不改变下述产品规则与正式契约，也不涉及 D09 未决创建模型字段。
 
 用户最新授权允许按真实依赖并行；固定提交内旧“全局单模块/最多三个”规则不再决定本次排程。本文不把设计、纯契约库或测试替身等同于正式生产绑定。
 
@@ -146,7 +146,7 @@ LookupCommand(ctx, Human, CommandLookupRequest) -> committed | in_progress | not
 
 `CreationOperation` 含 id/project_id/state/version/固定 reason/created_at/updated_at，不含技能对象路径或私有输入。`LifecycleOperation` 沿 D01，参与者与 pending refs 为注册闭集和稳定安全 ID，最多 100 条，超过时 `pending_refs_truncated=true`；不能截断事实检查，仅截断 DTO。`ProjectListItem` 在 deleting 时只给 id/name/lifecycle/version/operation_id，不给 description。删除确认值按 §2 的两个独立段规则规范化为小写后比较，拒绝前后空白、前导/尾随斜杠、额外段和百分号；canonical路径进入语义摘要。
 
-Create 禁 expected_version；Update/Archive/Restore/Delete 必填 Project expected_version；RetryLifecycle 的 expected_version 明确针对 operation.version，未完成响应同时给 Project.version。Retry 只把该 operation 的 failed/pending 步骤排入原 phase，不换 operation/cause，不撤门禁。其 Go 返回类型统一为已有 `LifecycleResult`（`Operation|Receipt`）：正常/归档路径返回 Operation；completed archive 的原 retry 拒绝；completed delete 的原重放仅返回最小 Receipt，不恢复旧 operation、Project.version 或已删内容。
+Create 禁 expected_version；Update/Archive/Restore/Delete 必填 Project expected_version；RetryLifecycle 的 expected_version 明确针对 operation.version，未完成响应同时给 Project.version。Retry 只把该 operation 的 failed/pending 步骤排入原 phase，不换 operation/cause，不撤门禁。其 Go 返回类型统一为已有 `LifecycleResult`（`Operation|Receipt`）：正常/归档路径返回 Operation；completed archive 的原 retry 拒绝；completed delete 仅在当前 Session、原 Owner 和精确 ProjectID/OperationID 下只读确认最小 Receipt，不声称已证明 retry key 同义，不恢复旧 operation、Project.version 或已删内容。输入仍须通过既有 Meta/key/正 expected_version 的语法校验，但不验证已删除的 retry 历史；不执行新 phase、Touch、Event/Audit 或任何写入，不增加保留字段。
 
 普通已认证成功命令首次提交在同事务 TouchActivityInTx；读取、轮询、后台推进、幂等重放不刷新 idle。同 key 已接受的生命周期命令重放返回原 operation 的当前安全状态；不拿旧 expected_version 再拒绝已成功接受的事实。
 
@@ -158,7 +158,7 @@ Create冲突闭集：同target/同key/同义在当前Owner校验后重放或恢�
 
 同raw key但**不同target**属于不同Project scope，可独立接受；它是明确的新创建意图，不是原命令同key异义或Unknown重试，不承诺全账号跨Project永久key历史。这避免在删除后额外保留Create key；同scope的同key不同业务参数仍严格拒绝。服务/API调用方必须把target与key一起保存和重试；Lookup/恢复/内部job绝不自行生成另一target。
 
-每次先当前身份及结果可见性，然后同 identity 锁下比较摘要；同 key 异义 IDEMPOTENCY_KEY_REUSED。已成功同义返回安全历史结果，不重新执行、不重验旧 version。删除后只认最小 delete receipt，不恢复旧 Project 内容；receipt 的 key hash 对 `project_id,original_owner_user_id,key` 使用固定 domain-separated SHA-256，输入是非秘密业务 key，HTTP 不输出 hash/digest。
+每次先当前身份及结果可见性，然后同 identity 锁下比较摘要；同 key 异义 IDEMPOTENCY_KEY_REUSED。已成功同义返回安全历史结果，不重新执行、不重验旧 version。删除后只认最小 delete receipt，不恢复旧 Project 内容；completed-delete Retry 按 §5 作只读状态确认，不适用已删除 retry 历史的同义重放声明；receipt 的 key hash 对 `project_id,original_owner_user_id,key` 使用固定 domain-separated SHA-256，输入是非秘密业务 key，HTTP 不输出 hash/digest。
 
 普通 update/restore 的 Project、version、Audit、typed Event、command receipt 和首次 Touch 同事务。Archive/Delete 的 gate、operation、required participants、Audit、接受事件、command receipt 和首次 Touch 同事务；任何一个写失败全回滚，不返回已接受。
 
@@ -219,7 +219,7 @@ CleanupReport {state: completed|pending|failed,checkpoint?,remaining_refs[],safe
 
 D08 只编排 Project Scope；Meeting variant 保留正式 type，由 D24 绑定，未绑定拒绝。参与者每次从 Project 正式授权口验证当前 exact cause/phase；不得直接读取 Project 私有表。幂等身份固定 `(operation_id,participant,phase,resource_id)`，checkpoint 每次单独短 Tx 持久化。报表签名/类型不代替真实领域事实。
 
-`LifecycleCause.project_version` 始终是接受 gate 时的固定版本，progress 更新只推进 operation.version。归档完成推进 Project.version 后把新值记入 completed_project_version，保留当前operation指针供有限终态检查；不改旧cause或重新执行stop。Restore或新delete接受后，旧operation不再是当前pointer，迟到旧cause不能取消/清理新工作。最小删除receipt按D01不增加project_version字段；已删项目的下游终态检查仅凭匹配的operation/project/delete身份定位，各下游再核自身技术receipt里的原version，不能借这一只读分支执行新phase。
+`LifecycleCause.project_version` 始终是接受 gate 时的固定版本，progress 更新只推进 operation.version。归档完成推进 Project.version 后把新值记入 completed_project_version，保留当前operation指针供有限终态检查；不改旧cause或重新执行stop。Restore或新delete接受后，旧operation不再是当前pointer，迟到旧cause不能取消/清理新工作。永久删除后 retry command/key/operation version 历史一并删除；RetryLifecycle 仅作 §5 的当前授权终态确认，使用不同合法 retry key 也只返回同一最小 Receipt，不能证明旧 retry 同义。原 Delete 重放仍严格匹配保留的 command_key_hash/request_digest；无法辨识的 LookupCommand(retry-lifecycle) 返回 RESOURCE_DELETED。最小删除receipt按D01不增加project_version字段；已删项目的下游终态检查仅凭匹配的operation/project/delete身份定位，各下游再核自身技术receipt里的原version，不能借这一只读分支执行新phase。
 
 Audit库与Secret库本身没有自主Project执行/外部业务worker：它们的普通canonical写入均在同Project gate内，生命周期接受EX屏障已等此前短事务结束，后续普通写由当前gate拒绝。其archive Stop适配器因此在同gate重验exact cause及冻结能力声明后可报告stopped，不调用清理、不把Secret lease视作业务已经停止；lease的实际使用者仍由执行/对象等所有者的Stop及后续Secret Cleaner核实。若后续版本给这些库引入自主异步Project工作，必须同时升级自己的Stop实现和manifest版本，不能沿用此屏障证明。此特例不适用于已有真实在途写入的Object/Artifact或Outbox。
 
@@ -239,22 +239,165 @@ Audit库与Secret库本身没有自主Project执行/外部业务worker：它们�
 
 ### 9.1 D05 项目停止能力
 
-固定 D05 只有 CleanupProject，没有项目范围 RequestStop/InspectStop。因此本稿明确将下列**新正式消费/实现口**作为 D08 B03 上游补口，拥有者为 D05 Object/Artifact；Project 不越域查表推断空闲：
+固定 D05 只有 CleanupProject，没有项目范围 RequestStop/InspectStop。下列 C0 已经独立定向审查并由 root 采纳，代码依据为 `6319d03`；typed 口实现与真实 D05 stop/inspect 分阶段交付，契约成立不代表停止能力已绑定。Project 不越域查表推断空闲。
 
-```text
-ObjectProjectStopCause {project_id,operation_id,action:archive|delete,project_version}
-ObjectProjectStop.RequestProjectStop(ctx,registeredService,cause) -> ObjectStopReport
-ObjectProjectStop.InspectProjectStop(ctx,registeredService,cause) -> ObjectStopReport
-ObjectStopReport {state:stopped|pending|failed,active_writer_ids[],unknown_ids[],reason?}
+D05 第一段已由 root 授权 `d02_backend` 按固定 `/tmp/agenteam-d08-b03-d05-scope-pvns68a1/proposal.md`（SHA `39a505d98307bedf832b3dea8e14b88f18e03742342a4847a01648824c0ebc00`）实施，唯一新迁移为 `00014_object_artifact_project_stop.sql`，两个域各自拥有 project_stops/project_work 四张技术表；具体旧文件权限见主卡，不扩本节公开口。delete 必须清掉所有旧 archive receipts、扫描游标及临时 work，只留 current delete 最小 stopped receipt；source_project_id 必须纳入源 Project delete 扫描和真实 join。此为实施授权，真实停止与迁移验收尚未完成；Secret/Audit checker 后段独立推进。
+
+以下均位于既有 `object/contract` 包；依赖仅 `context`、既有 `foundation`、`identity/contract` 及标准库。不得 import Project 包。opaque 类型的内部字段由实现者选择，零值无效。
+
+```go
+type ProjectStopOperation struct{}
+type ProjectStopOperationID = foundation.ID[ProjectStopOperation]
+type ProjectStopAction string
+const (
+    ProjectStopArchive ProjectStopAction = "archive"
+    ProjectStopDelete  ProjectStopAction = "delete"
+)
+type ProjectStopCauseDetails struct {
+    ProjectID      identity.ProjectID
+    OperationID    ProjectStopOperationID
+    Action         ProjectStopAction
+    ProjectVersion foundation.Version
+}
+type ProjectStopCause struct { /* private immutable data */ }
+func NewProjectStopCause(ProjectStopCauseDetails) (ProjectStopCause, error)
+func (ProjectStopCause) Validate() error
+func (ProjectStopCause) Details() ProjectStopCauseDetails
+func (ProjectStopCause) Equal(ProjectStopCause) bool
+
+type ProjectStopComponent string
+const (
+    ObjectStopComponent   ProjectStopComponent = "object"
+    ArtifactStopComponent ProjectStopComponent = "artifact"
+)
+type ProjectStopStep string
+const (
+    RequestProjectStopStep ProjectStopStep = "request_stop"
+    InspectProjectStopStep ProjectStopStep = "inspect_stop"
+)
+type ProjectStopRequestDetails struct {
+    Actor     identity.Actor
+    Cause     ProjectStopCause
+    Component ProjectStopComponent
+    Step      ProjectStopStep
+}
+type ProjectStopRequest struct { /* private immutable data */ }
+func NewProjectStopRequest(ProjectStopRequestDetails) (ProjectStopRequest, error)
+func (ProjectStopRequest) Validate() error
+func (ProjectStopRequest) Details() ProjectStopRequestDetails
+func (ProjectStopRequest) Equal(ProjectStopRequest) bool
+func ProjectStopBinding(ProjectStopRequest) (foundation.Digest, error)
+
+type ProjectStopAuthorizationMode string
+const (
+    ContinueProjectStop ProjectStopAuthorizationMode = "continue"
+    ReadProjectStop     ProjectStopAuthorizationMode = "read_only"
+)
+type ProjectStopAuthorization struct { /* private immutable data */ }
+func NewProjectStopAuthorization(
+    foundation.Tx, ProjectStopRequest, AccessDependencies,
+    ProjectStopAuthorizationMode,
+) (ProjectStopAuthorization, error)
+func (ProjectStopAuthorization) Validate() error
+func (ProjectStopAuthorization) Mode() ProjectStopAuthorizationMode
+func (ProjectStopAuthorization) Matches(
+    foundation.Tx, ProjectStopRequest, AccessDependencies,
+) bool
+
+type ProjectStopAuthority interface {
+    DiscoverProjectStop(context.Context, ProjectStopRequest) (AccessDependencies, error)
+    ValidateProjectStopInTx(
+        context.Context, foundation.Tx, ProjectStopRequest, AccessDependencies,
+    ) (ProjectStopAuthorization, error)
+}
+
+type ProjectStopState string
+const (
+    ProjectStopped     ProjectStopState = "stopped"
+    ProjectStopPending ProjectStopState = "pending"
+    ProjectStopFailed  ProjectStopState = "failed"
+)
+type ProjectStopReason string
+const (
+    ProjectStopDependencyUnbound     ProjectStopReason = "dependency_unbound"
+    ProjectStopDependencyUnavailable ProjectStopReason = "dependency_unavailable"
+    ProjectStopWorkPending           ProjectStopReason = "work_pending"
+    ProjectStopOutcomeUnknown        ProjectStopReason = "outcome_unknown"
+    ProjectStopOperationFailed       ProjectStopReason = "operation_failed"
+)
+type ProjectStopRefKind string
+const (
+    StopObjectPreparation ProjectStopRefKind = "object_preparation"
+    StopObjectUpload      ProjectStopRefKind = "object_upload"
+    StopObjectAttempt     ProjectStopRefKind = "object_attempt"
+    StopObjectLease       ProjectStopRefKind = "object_lease"
+    StopObjectTransfer    ProjectStopRefKind = "object_transfer"
+    StopObjectDownload    ProjectStopRefKind = "object_download"
+    StopArtifactUpload    ProjectStopRefKind = "artifact_upload"
+    StopArtifactCreation  ProjectStopRefKind = "artifact_creation"
+)
+type ProjectStopResource struct{}
+type ProjectStopResourceID = foundation.ID[ProjectStopResource]
+type ProjectStopRef struct {
+    Kind ProjectStopRefKind
+    ID   ProjectStopResourceID
+}
+type ObjectStopDetails struct {
+    State                   ProjectStopState
+    ActiveRefs, UnknownRefs []ProjectStopRef
+    SafeReason              ProjectStopReason
+}
+type ObjectStopReport struct { /* private immutable data */ }
+func NewObjectStopReport(
+    ProjectStopComponent, ProjectStopCause, ObjectStopDetails,
+) (ObjectStopReport, error)
+func (ObjectStopReport) Validate() error
+func (ObjectStopReport) Matches(ProjectStopComponent, ProjectStopCause) bool
+func (ObjectStopReport) Details() ObjectStopDetails
+
+type ObjectProjectStop interface {
+    RequestProjectStop(context.Context, identity.Actor, ProjectStopCause) (ObjectStopReport, error)
+    InspectProjectStop(context.Context, identity.Actor, ProjectStopCause) (ObjectStopReport, error)
+}
 ```
 
-此口在 `object/contract/project_lifecycle.go` 定义，由 Object Service 和 Artifact Service 各实现同一消费契约；Artifact实现核其自身 prospective/source工作并调用Object正式口，Project组合适配不查任一外域表。Project 将既有 cause 同稳定 UUID 显式转换，不借 string cast 混淆类型。
+#### 9.1.1 纯类型规则
 
-archive 只停止此 Project 已准入的 mutation/upload/source-writer 工作，持久撤其未完成 publish/attach 资格，取消精确 work handle 并等实际终局；不删除已发布 payload、canonical reference 或历史，不全局停止别的项目，不阻断合法只读下载。delete 除禁新写外还停止本项目传输/reader/source I/O；未能证明终局仍 pending，由后续正式 Cleaner 处理受保护 lease 与物理对象。跨进程只接受现有 ProcessGuard exact death，不能以连接消失或 lease 到期替代。
+- 每个 enum 具有 `Validate() error`、校验后的 `MarshalJSON() ([]byte,error)` 与严格 `UnmarshalJSON([]byte) error`：拒绝未知值、null 和非字符串；失败不污染旧值。Restore 不属于 stop action。
+- Cause 的四字段都必填并严格验证 UUIDv7/正版本；Project 与既有 `project.OperationID`、`CleanupID` 之间仅经 `ParseID[K](id.String())` 显式转换同 UUID，不生成新 ID。
+- Request 构造只接受 `identity.Service`、`identity.ProjectLifecycle`，Actor 的 ProjectID/CauseRef 分别精确等于 Cause 的 ProjectID/OperationID；没有 User/Session/Execution 变体。Component 由 Object 或 Artifact 实现者固定，Step 由所调方法固定。语法成立不表示有权限。
+- Binding 使用域分隔 `object.project-stop.request.v1`，明确编码完整 ActorDetails、Cause 四字段、Component 与 Step。不能 hash opaque 类型的固定安全 JSON 标签。项目、operation、版本、action、actor、component、step 任一变化均改变绑定。
+- Authorization 绑定同一个非零 `foundation.Tx`、完整 Request 和完整 AccessDependencies；只接收配置的 Authority 在本次调用返回的结果。`ReadProjectStop` 只可用于 Inspect；它不含取消、写入 stop gate、推进 phase 或创建回执的许可。授权构造器与其它既有 typed grant 一样只供可信 adapter 使用，不能作为任意业务调用的权限入口。
+- Report 绑定 Component 与完整 Cause；构造/Details 均复制 slices。Ref ID 必须 UUIDv7，kind 为闭集；同一 `(kind,id)` 不得重复或同时出现在 active/unknown。Object 报告不能含 Artifact ref，Artifact 报告允许包含其调用 Object 返回的 Object refs。组合适配做保守合并，unknown 优先，不把两个不同 kind 的 ID 混成一个资源。
+- stopped 必须无 active/unknown、无 reason；failed 必须有固定安全 reason；pending reason 可空或来自闭集。Unknown 永远不能投影为 stopped/failed；failed + outcome_unknown 的组合必须拒绝。列表是有界轮次的诊断投影，空列表从来不单独证明 stopped；实现者必须有完整扫描/终局证据。只有接到真实 stopped 报告才允许 Project 记录 stop 完成。
+- opaque Cause/Request/Authorization/Report 的 `Format`、`MarshalJSON`、`LogValue` 仅输出固定安全标签；`UnmarshalJSON` 一律拒绝。显式 Details 只供可信 adapter 使用。错误不得包含原 SQL、对象 key、payload、名称或未清洗异常。
 
-调用协议复用 D06 已验模式：先完整只读授权 Tx，在 gate 下捕获 exact handle/Project/operation/attempt/fence；提交后仅 cancel仍匹配目标，随后新 Tx 核 cause/原事务终局并落 checkpoint。不得持 Project EX 等待一个正在持 SH 的 callback join；旧 archive 延迟返回不能取消 Restore 后新工作。原 Object API 的 reserve/send/publish/consume/attach 对同 durable stop gate 重验；Restore 仅允许新 key 的新操作，不复活原已撤销 attempt。
+#### 9.1.2 Project Authority 的实际授权
 
-`artifact-object` 的 Cleanup 调用现有 Artifact.CleanupProject，再在所有其他对象 owning participant 完成后核 Object.CleanupProject；既有对象 lease、source use、download cleanup 的真实 pending 不改为 completed。封装转换只转换类型，不使用 noop 停止。上游补口实施前，此 participant 的 archive stop 明确 unbound，Project 必须保留门禁/进度，不能通过空 fixture 生产归档完成。
+`DiscoverProjectStop` 只输出计划。当前生命周期 actor 无额外 User 锁；至少规划 Cause.ProjectID 的 Project SH，mapping 必须绑定完整 Request。Object/Artifact 在 Tx 外预扫描各自本域对象/command/attempt 等映射，将其所需锁与 authority 依赖组成一次完整 union。每个物理 Tx 恰好一次 AcquireAll，不调用旧 ProjectCleanupAccess 来替代 stop，不在拿到 Project 锁后逐步补 Object/Command 锁。
+
+`ValidateProjectStopInTx` 消费调用者 Tx；Project 实现先 `RequireHeldLocks` 核对自己的依赖，再重读当前 Project、operation、已冻结 manifest/participant/原接受版本。不能从 actor 字符串构造权限。Object/Artifact 同 Tx 重读自己的资源映射并核完整 union；映射改变则整 Tx 回滚，Tx 外重新规划。私有 issuer 指 D05 自己的本域批次计划/handle，不是 AccessDependencies：后者只有 mapping+locks 和公开构造器，不是不可伪造授权。配置的 Authority 必须按完整 Request 与当前映射重算依赖、核等并核已持锁；D05 私有批次计划另核自己的 issuer/完整绑定，不能消费其它服务或调用的计划。
+
+| Project 当前事实 | 可返回的授权 |
+| --- | --- |
+| 当前 exact operation 正在接受后的 stopping phase，manifest 含对应版本的 artifact-object | Request/Inspect 可 continue；Request 幂等创建/推进本域同 cause gate，Inspect 只查看或收敛已有本域 gate，不能凭 Inspect 创建新 cause |
+| 当前 exact operation 已越过 stop，进入 cleaning/finalizing，或尚未 Retry 的失败状态 | 仅 Inspect 对已有本域 stop 事实只读；不重新 cancel 或开启 stop phase |
+| archive 已 completed，仍为当前 operation pointer 且 Project.version 与 completed_project_version 对应 | 仅 Inspect read_only；下游必须已有原 cause 的终态事实 |
+| Project 已删，最小 delete receipt 精确匹配 Project/operation/delete | 仅 Inspect read_only；Project 不臆造 receipt 没有的版本，下游自己核原技术 receipt 的 action/version |
+| Restore、新 operation、错误 cause/版本/manifest、无当前事实 | 拒绝；无取消、无新 gate、无新 phase |
+
+终态只读没有本域匹配回执时不能凭“表为空”成功，不创建补偿回执；返回不匹配/不可用并保持 Project 查询边界。D05 的具体错误码沿既有固定 Fault 闭集，缺 Authority 返回 DEPENDENCY_UNBOUND。
+
+#### 9.1.3 实际停止协议与生命周期
+
+1. 初始 Project Begin 仍是正式 §8 的 EX 原子接受。预算内拿不到 EX 就是未接受/未提交，零 cancel；本口不绕过该屏障。
+2. 接受后，D05 用第一只读短 Tx 在 Project SH 与本域完整锁 union 下验当前 cause，捕获确切本地 handle、真实 Project 关联、process/attempt/fence；只有该 Tx 确认 committed 后才在锁外取消。Unknown 不足以启动取消。
+3. 取消只作用于仍等于捕获对象的原 handle；不能按项目名、后来扫描的宽范围或全局 Force 取消。Registry 的 Project/读写类别来自已验证 owner/source/transfer 映射；同一因果流程涉及目标写入与另一 Project source 时应分别登记实际关系，不能只靠一个可覆盖的 Project tag。
+4. 实际等待位于 Tx 外。后续每个 checkpoint Tx 再独立一次完整 union，核 exact cause、原 writer Tx 终局、本地真实 join 或 exact ProcessGuard 死亡。停止请求超时、进程连接消失或取消返回均只算 pending。不能持 EX 等持 SH 的 callback join。
+5. archive 撤销未完成 publish/attach 资格并持久保留同 attempt 的撤销事实；保存已发布 canonical payload/reference/history，允许合法只读下载。delete 还必须真实收束本 Project reader/source/transfer I/O；未打开但已持有的 lease/handle 也不能在 stop 后开启新 I/O。
+6. Restore 只允许新 command/key；旧已撤销 upload/attempt/Artifact command 不复活。既有 reserve/send/publish/consume/attach 的真实状态检查继续生效，本轮不得通过 archive 物理清理 published 内容来“证明”停止。
+7. Artifact 先处理自身 prospective/source 操作，再调用配置的 ObjectProjectStop；只有自己的真实工作与 Object 都 stopped 才返回 artifact stopped。缺任一真实 port 明确 unbound/pending，不能以 fake 生产 adapter 完成归档。
+8. 本口不替代 Cleaner；删除清理顺序和最终 receipt/claim 原子退休完全沿正式 §8。只读终态分支不能获得 CleanupProject、新 Audit/Event 或新资源写权限。
 
 ### 9.2 当前权限、对象与 Audit 分派
 
@@ -262,7 +405,41 @@ D08 提供以下精确适配：Audit/Secret `AuthorizeProject` 与生命周期�
 
 Human Artifact 路径必须验证当前 User/Owner，Project SH 与资源实际父 ID 一致；Artifact/对象本域仍负责真实 artifact→object/receipt/lease 绑定。Avatar 继续交 account provider；Skill/Knowledge/Transcript 等未来 ObjectOwner 交对应领域，未绑定返回 unbound。Project 不能把“拥有项目”直接变成任意 ObjectID/历史 revision 的读取许可。AgentRun/Execution 来源适配留 D22，不能伪造执行身份。
 
-Audit 的 ProjectAuthority 仅验证 Project gate/Owner 及本域 Project action exact command；既有 Secret/Object Service Audit cause 仍须由这些事实拥有者给出同 Tx 校验。新增窄 `CheckProjectAuditInTx(ctx,tx,entry,key)` provider：Secret/Object 各仅消费自己已有 typed action/metadata 和真实持久 cause，不授权别的 producer，不读取 Project 私有表。Project adapter 先核 Project gate，再按已注册 producer 委派；缺 provider 的服务 append 明确 unbound。本域不得根据 Actor.ServiceName+任意 cause UUID 就允许全部 Audit。
+```go
+type ProjectFactAuthority interface {
+    CheckProjectAuditInTx(context.Context, foundation.Tx, Entry, AppendKey) error
+}
+```
+
+该 interface 复用现有 typed Entry/AppendKey，只有这一方法，不接受原始 map、bool 或通用 cause “证明”。C0 不扩 Audit Action/Producer/schema，也不改已验 Audit Service。
+
+Project Authority 增加只允许 SecretProducer/ObjectProducer 的配置映射并复制；仍先按 Actor/AccessIntent 检查当前 Project gate，然后按 producer 分派。Human 路径当前 Session/Owner 不省略；Service 路径必须通过选中 producer 的真实事实校验，不能仅凭 ServiceName+UUID。缺 provider 拒绝，交叉 producer/action/scope/不匹配 cause 拒绝。Project 自有 action 继续由 Project 当前 Tx 内真实 command/creation/lifecycle 行检查；Artifact Human typed Audit 沿其正式权限/本域映射，不偷归 Secret/Object provider。
+
+#### 9.2.1 构造关系与同 Tx 事实
+
+Object/Secret 分别新增独立 checker：
+
+```go
+// 位于各自 object / secret 包；返回值实现上面的 audit contract。
+type ProjectAuditAuthority struct { /* private store */ }
+func NewProjectAuditAuthority(Store) (*ProjectAuditAuthority, error)
+func (*ProjectAuditAuthority) CheckProjectAuditInTx(
+    context.Context, foundation.Tx, audit.Entry, audit.AppendKey,
+) error
+```
+
+先用 Store 构造两个 checker，再构造 Project Authority → Audit Service → Object/Secret Service；checker 不能依赖后构造的业务 Service，也不使用运行时可变全局注册表。它用本域 Store.InTx 验同一活 Tx，不打开嵌套 Tx，不重新 Acquire。当前 Object Store 没有 RequireHeldLocks；不能为方便新增旧 Store 方法。锁/本域阶段证据应由既有 validated access 与私有同 Tx 见证配合实际行检查完成。
+
+| 现有动作 | 固定代码事实与必须校验内容 |
+| --- | --- |
+| Secret create/update/delete | `secret/write.go` 已在同 Tx 写入 secret_command_receipts；核 receipt/command digest、credential、scope/purpose/result version、typed metadata/key，而非仅服务名称 |
+| Secret resolve | `secret/lease.go` 的 resolution UUID 只在本次调用生成，没有单独持久 resolution 行；必须在已授权真实 lease/metadata/解密步骤之后、实际 Append 前生成包内私有见证，绑定活 Tx、完整 Entry/Key、lease/ref/purpose/consumer，并由 checker 重验真实 lease/metadata |
+| Object upload complete/failed/delete | `object/upload.go` 的集中 append helper；complete 的 Audit 在 objects available UPDATE 前，delete 的 Audit 在 deleted UPDATE 前，不能要求不存在的后态。核真实 upload/attempt/cleanup cause、typed metadata、对应已检查的阶段前置；包内私有同 Tx 见证证明本次真实调用点 |
+| Object transfer issue/complete/revoke | `object/transfer.go` 集中 helper，核真实 transfer 行、ordinal/action/phase/object/owner/typed metadata，配合相同 Tx 的实际阶段见证 |
+
+见证不是公开 API：只可由本包真实持久/授权步骤后的 helper 创建；不得导出 mint/register/WithWitness 给 caller。见证由私有 context key 携带到当前 Append 调用，绑定同一 Tx 及完整 Entry/Key；checker 的 Store.InTx 必须证明 Tx 归属。不能跨 Tx、跨 Store、跨 action/ordinal/Entry/producer 重用；不含 secret 明文或对象 payload，不延长其生命，不新增 resolution 留存表。此 Secret 临时事实实现属于 D05 provider 后段；它不阻塞 stop C0 的独立纯契约或 Project 主体开工。没有真实领域步骤的外部直接 Audit.Append 必须失败。
+
+**已采纳的工程澄清：**本节的原因事实指“本域真实事实；有持久 cause 的检查原行，现有短事务临时 Audit cause 以包内同 Tx 见证和真实 lease/阶段事实共同校验”。这是适配现有 Secret resolve/写前 Object Audit 的工程口径；不改变用户产品行为，不扩大服务权限或数据留存。此后段实现不得退为任意 UUID allow。
 
 ### 9.3 Outbox
 
@@ -304,7 +481,7 @@ Human 操作验当前 Session/Owner；完成动作只给 exact ProjectInitializa
 | POST `/projects/{id}/restore` | expected_version；key | 200 ProjectRef |
 | POST `/projects/{id}/delete` | expected_version、normalized_current_path、permanent:true；key | 202 operation 或原终态200最小receipt |
 | GET `/projects/{id}/lifecycle-operations/{operation_id}` | 当前Owner/原Owner | 200 operation/最小receipt；主记录已删仍可查 |
-| POST `/projects/{id}/lifecycle-operations/{operation_id}/retry` | operation expected_version；key | 202原operation；completed delete原重放200最小receipt |
+| POST `/projects/{id}/lifecycle-operations/{operation_id}/retry` | operation expected_version；key | 202原operation；completed delete当前授权只读确认200最小receipt |
 
 LookupCommand 由 same-key 重放和以上稳定 status URL提供HTTP语义，不开放任意 namespace/key 枚举入口。错误沿 D01；名称竞争 RESOURCE_BUSY + `/name:NAME_TAKEN`，版本陈旧 VERSION_CONFLICT，当前路径不匹配 CONFIRMATION_STALE，非法状态 INVALID_STATE，非active PROJECT_NOT_ACTIVE，未绑定/不可用503，Unknown503+lookup。不同用户请求不得通过名称冲突、receipt或operation泄露私有数据。永久删除时先当前Owner/Session，再原幂等/receipt，再版本与路径，不让攻击者通过错误顺序枚举。
 
