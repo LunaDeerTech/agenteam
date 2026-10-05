@@ -1,0 +1,86 @@
+{
+  "status": "PASS document archive author checks",
+  "source_and_original_check": {
+    "argv": [
+      "python3",
+      "docs/development/agent-team/evidence/public-account-entry-spec-verification/verify_inputs.py",
+      "--repo",
+      "."
+    ],
+    "cwd": "/workspace/agenteam",
+    "environment": "Python standard library and read-only Git; no product/network/resource commands",
+    "exit": 0,
+    "stdout": "{\"status\": \"PASS\", \"original_locations\": 13, \"original_payloads\": 12, \"git_inputs\": 31, \"declared_payload_references\": 11, \"accepted_card_commit_matches\": true, \"technical_sections_1_to_9_unchanged\": true, \"technical_bytes_slice\": \"inclusive ## 1. through exclusive ## 10.\", \"technical_bytes_sha256\": \"52205ab815eba64f93ae8d2372a6f6914545f90153ca46def146347fdf5d0559\", \"business_or_resource_execution\": false}\n",
+    "stderr": ""
+  },
+  "links": {
+    "checked": 210,
+    "fragments": 14,
+    "errors": [],
+    "scope": "new report, active card, current three state files and archive README; frozen raw card retains original work-item-relative link context"
+  },
+  "unchanged": {
+    "technical_sections_1_to_9": true,
+    "chronological_history": true,
+    "AGENTS_rules": true
+  },
+  "tracked_diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "docs/development/work-items/d26-public-account-entry.md",
+      "AGENTS.md",
+      "docs/development/agent-team/tasks.md",
+      "docs/development/agent-team/recovery-2026-10-05.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "new_file_whitespace_checked": 16,
+  "exact_original_patch_exceptions": 1,
+  "business_execution": false,
+  "git_mutation": false,
+  "dynamic_claim": "specification PASS and future plan only; implementation has separately started, no accepted product result and no Docker/browser grant",
+  "accepted_spec_commit": "e5a5ccf5343fe9f17aced6e9ee0d633fbfe3c5aa",
+  "accepted_personal_archive_commit": "71a0df31f616e4701d98d84676f7471bc2b3ac2f",
+  "ledger_pg_correction_commit": "3b28254",
+  "original_absolute_paths_retained": true,
+  "revision_02_attribution_correction": {
+    "kind": "rev02 attribution-only correction; no new product verification",
+    "changed_prose": [
+      "docs/development/agent-team/tasks.md",
+      "docs/development/agent-team/recovery-2026-10-05.md"
+    ],
+    "exact_replacements": {
+      "docs/development/agent-team/tasks.md": {
+        "before": "个人设置320路径归档已独立文档审 PASS、主线程采纳提交推送",
+        "after": "个人设置归档的317路径已独立文档审 PASS，另3份作者验后文档经主线程审查后合并320路径，主线程采纳提交推送"
+      },
+      "docs/development/agent-team/recovery-2026-10-05.md": {
+        "before": "个人设置320路径归档已独立文档复核 PASS，主线程精确提交推送",
+        "after": "个人设置归档的317路径已独立文档复核 PASS，另3份作者验后文档经主线程审查后合并320路径，主线程精确提交推送"
+      }
+    },
+    "links_unchanged": true,
+    "check": {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "docs/development/agent-team/tasks.md",
+        "docs/development/agent-team/recovery-2026-10-05.md"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "scope": "317 independent document PASS + 3 author afterdocs reviewed by root, combined320; original payloads, card and technical/history paragraphs unchanged",
+    "prior_private_freeze_sha256": "8fe97326672bba778d753f2fe55ab18f51768d845c6efcaf214a9c41513f6e76",
+    "private_delta_sha256": "a9cbfcbb8ea8ccdc5d54aa8368ee9fa306a685711edd5e3e2ad3e290e35809f8",
+    "note": "Prior freeze and exact delta remain in the task-owned private freeze directory; inline replacements above fully describe this administrative correction."
+  }
+}

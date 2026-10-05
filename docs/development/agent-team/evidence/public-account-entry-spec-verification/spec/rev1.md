@@ -1,6 +1,6 @@
 # D26 邀请兑换与找回、重置密码公开入口
 
-修订：rev1，2026-10-05，已独立规格静审通过并获主线程采纳；被审原卡 SHA-256 `3f3e3a9624af7b73ed8a5082d74e85c6a7f3631286892352e209c2e0b05008d2`。设计者 `d08_recovery_design`；规格已采纳提交推送 `e5a5ccf5343fe9f17aced6e9ee0d633fbfe3c5aa`，远端一致由主线程确认，原件见[规格持久记录](../agent-team/public-account-entry-spec-verification.md)。主线程现已正式授权 `d08_registry_backend` 按 §8 精确23路径实施，`skill_verification` 独立验收；作者仅获私有 offline/pure/type/build 权，未获 Docker/browser 运行权。固定业务基线为已验个人设置提交 `c54f73f3324caa11608d84e5d207141985eb6074`；认证前置为 `9a710f272026b41ef69852bbeb41cb7670b500a8`。已采纳精确23条实施范围，无后端生产、SQL、包依赖或迁移。本次仅归位规格归档与正式实施授权，不新增资源授权；§1–9 技术正文逐字保持，其中候选/待另授表述保留规格冻结时含义，当前行政状态见本段及 §10。
+修订：rev1，2026-10-05，候选规格，待独立静审及主线程采纳；没有业务实施授权。设计者 `d08_recovery_design`，实施者与独立验收者由主线程另授。固定业务基线为已验个人设置提交 `c54f73f3324caa11608d84e5d207141985eb6074`；认证前置为 `9a710f272026b41ef69852bbeb41cb7670b500a8`。本卡拟定精确23条实施路径，无后端生产、SQL、包依赖或迁移。当前只授权新增本规格，不授权运行 Go、浏览器或 Docker。
 
 依据为 [D07 Account](d07-account-session-smtp.md)、[D07 工程规格](d07-account-session-smtp-design.md)、[认证卡](d26-account-authentication.md)、[个人设置卡](d26-personal-settings.md)、[账号入口布局](../../frontend-design/layouts/account-entry.md)、[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)及 [SMTP Delivery](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)。主线程已采纳静态可行性报告 `/workspace/agenteam-public-account-entry-feasibility-06zo4kp2/report.md`，SHA-256 `814f5a368c802567d3eb9571120284493a7a0aad10fe941050b2a704e33da829`；本卡已用个人设置最终源码核定其待定接缝，不沿用估算范围。固定31项 Git 输入定位见 `/workspace/agenteam-public-account-entry-spec-shkumzgp/inputs.json`，SHA-256 `913cc43664f17c151f7a6fa4c58837858ef412494b17875eea3491f18d8a6c6f`，仅为静态输入。
 
@@ -231,6 +231,4 @@ backend_log为本卡真实浏览器交付渠道。smtp UI分支在严格DTO/组�
 
 ## 10. 当前状态
 
-个人设置与认证前置已接受，本卡已按最终提交 `c54f73f3324caa11608d84e5d207141985eb6074` 核定。独立规格报告 `/workspace/agenteam-public-account-entry-spec-v-spp78bu_/report.md`，SHA-256 `e69b4e4d70ba780b7deb7e10a41034690cf25da1eef63a93d34cd5966ae2c160`，结论为 STATIC PASS；主线程已完整读取并采纳 rev1 及精确23路径范围，无技术修订。此为规格可实施性结论，不是页面、pure、browser或完整D26验收。
-
-规格已采纳提交推送 `e5a5ccf5343fe9f17aced6e9ee0d633fbfe3c5aa`；主线程现已正式授权 `d08_registry_backend` 在固定 `c54f73f` 与本卡被审技术正文上实施 §8 精确23路径，`skill_verification` 独立验收。作者仅可在私有环境进行 offline/pure/type/build；Docker/browser 窗口仍须另授，尚无本卡业务验收结论。[规格持久记录](../agent-team/public-account-entry-spec-verification.md)保存可行性、rev1、31项Git定位、独立STATIC PASS、原行政差量及[独立后续计划](../agent-team/evidence/public-account-entry-spec-verification/plan/plan.md)，计划不等于测试已执行。§1–9 技术正文、固定基线和23路径保持不变。完整D26、生产SPA托管及原模块阻断不因规格采纳或实施授权改变。
+个人设置与认证前置已接受且本卡按最终提交核定；本卡仍只有候选规格及静态源码核对，无业务修改、pure/browser/Go/Docker运行或新页面验收结论。待独立规格审查、主线程采纳及提交后，再指定实施者、独立验收者和精确23路径写权。完整D26、生产SPA托管及原模块阻断不因本卡改变。

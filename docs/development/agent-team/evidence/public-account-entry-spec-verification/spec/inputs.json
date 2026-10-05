@@ -1,0 +1,224 @@
+{
+  "kind": "read-only specification input locators; not business verification",
+  "baseline": "c54f73f3324caa11608d84e5d207141985eb6074",
+  "sources": [
+    {
+      "path": "web/src/api/client.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/api/client.ts",
+      "blob": "d91e2a3d0b6457d10b249057164eb879a4075385",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "bytes": 10399
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/api/account.ts",
+      "blob": "5bd0a83abc028cae681f76d24bcb663acc77dbb1",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "bytes": 13982
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/composables/useSession.ts",
+      "blob": "66b31dffe043935dc904b80509c17879245a85cf",
+      "sha256": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+      "bytes": 34983
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/composables/usePersonalSettings.ts",
+      "blob": "2be5694438b1e4d7d2569d424ec83b8cbdce7c84",
+      "sha256": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679",
+      "bytes": 25993
+    },
+    {
+      "path": "web/src/App.vue",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/App.vue",
+      "blob": "019b803facd7d860ec36110fff712d5e30c7578f",
+      "sha256": "dccbda0b9349180d8a6dc8155fa5151856c5d77d992b86d8a314810259984ae4",
+      "bytes": 4236
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/router/auth.ts",
+      "blob": "63b632e257e3e0dff879e375d2d68f976819a3be",
+      "sha256": "25099e3fb4b37e734274a10d8fccf7b9abb38a04105317f3f2a087db45030391",
+      "bytes": 1969
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/router/index.ts",
+      "blob": "b39451b2fe01a994ab107497d2a030d1805c7ecd",
+      "sha256": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278",
+      "bytes": 1615
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/views/auth/LoginView.vue",
+      "blob": "c8fde598864d5842153ff81ca219ef5137ea8f1e",
+      "sha256": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd",
+      "bytes": 8978
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/tests/session.spec.ts",
+      "blob": "c242682621343d63038ed2e305d443b005f18540",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "bytes": 18655
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/tests/authentication.spec.ts",
+      "blob": "ed1b81dec0719ccb30b31a4bce773b46aca2f985",
+      "sha256": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38",
+      "bytes": 21867
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/tests/personal-settings-state.spec.ts",
+      "blob": "5c83dbfb99235bda63378d5d8d5dc5d123c2e2d0",
+      "sha256": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a",
+      "bytes": 22900
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/tests/personal-settings.spec.ts",
+      "blob": "1e37afb386d98444ec1d601bffd5bd8a07ea0659",
+      "sha256": "b897cbb1e1c09b64190a668fb2da94bf56a61ff43d5b9246205807a1b339a04f",
+      "bytes": 21492
+    },
+    {
+      "path": "tests/account/authentication_web_fixture_test.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:tests/account/authentication_web_fixture_test.go",
+      "blob": "becf12f150347fd821ef7778f7d8d57170692b01",
+      "sha256": "f91d23edb01dbc82f228c659288626529e68a1dfcf742b7d1f2961fa4f56c319",
+      "bytes": 14232
+    },
+    {
+      "path": "tests/account/personal_settings_web_fixture_test.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:tests/account/personal_settings_web_fixture_test.go",
+      "blob": "efcf93ad2893e80078a5c97fb1cc5e8326890587",
+      "sha256": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b",
+      "bytes": 12476
+    },
+    {
+      "path": "tests/account/personal_settings_web_test.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:tests/account/personal_settings_web_test.go",
+      "blob": "c9055060ea3cb853087d826b39b5e64c9cf6029d",
+      "sha256": "bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b",
+      "bytes": 6059
+    },
+    {
+      "path": "internal/central/account/http.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/http.go",
+      "blob": "a4f3c0924afcd02bb7de8fb2b051391c6ed065b2",
+      "sha256": "5c57879f54f7a56f7a6a3b3f64059da7315b4275b1fa93422b79de4707dc6b78",
+      "bytes": 7386
+    },
+    {
+      "path": "internal/central/account/http_auth.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/http_auth.go",
+      "blob": "f3d049eda31a1d3b97bb3ceff4b430ce69fd21f3",
+      "sha256": "4a8f24dec41bb2dd7d94c3777ee8c80fe3b0ba4e9a799b9e07435c8989a5ba98",
+      "bytes": 13528
+    },
+    {
+      "path": "internal/central/account/csrf.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/csrf.go",
+      "blob": "b5e951ab3ad0cb6b3bbbe4678aae9c645c9603ec",
+      "sha256": "7081e08ba956c81daa1051a3f57e0792600cc12e71f4dddeeb3277e675a59e94",
+      "bytes": 5731
+    },
+    {
+      "path": "internal/central/account/browser.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/browser.go",
+      "blob": "aa12bc5bc2011e92d798e45e5e3f72d97574b1ff",
+      "sha256": "fefcb989d08e22eb73863826396c892c033c14dbdd905a09eb28c98ec6375400",
+      "bytes": 6145
+    },
+    {
+      "path": "internal/central/account/http_wire.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/http_wire.go",
+      "blob": "de3e5c3966428657e4825063a089522f83348675",
+      "sha256": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095",
+      "bytes": 7376
+    },
+    {
+      "path": "internal/central/account/link_commands.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/link_commands.go",
+      "blob": "c356a45b6b47f7dfda717676a92d4e7701a91383",
+      "sha256": "b46fa2744e4491a9160bf07915d68b6b1db14bf6df7e96f1e12e7ecb4a19396c",
+      "bytes": 8791
+    },
+    {
+      "path": "internal/central/account/reset.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/reset.go",
+      "blob": "2b92709521ef88e6062a192cb7349847cf4e3a38",
+      "sha256": "c228fb40df0b11889cc7e911c4abd3865358473683123b265d12f30c6b8928df",
+      "bytes": 15148
+    },
+    {
+      "path": "internal/central/account/reset_complete.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/reset_complete.go",
+      "blob": "5ab1784efe8a0c942de27d89ca957efdec32464e",
+      "sha256": "43f43d2235e31eec3e0ea8f936826a3aa02533d0990920ae6c3e99cd40d46160",
+      "bytes": 9600
+    },
+    {
+      "path": "internal/central/app/account.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/app/account.go",
+      "blob": "74e33c5d5b10010224e72cf5fe445c299b7699de",
+      "sha256": "a855a5320b3fbbd5f34cdb3781ce34299a12d86b80e14cafc8d37c03734944c5",
+      "bytes": 13332
+    },
+    {
+      "path": "api/openapi/account.json",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:api/openapi/account.json",
+      "blob": "4194fa5bcc7edec3c976611753e1d07b91069e85",
+      "sha256": "583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797",
+      "bytes": 127500
+    },
+    {
+      "path": "api/openapi/common.json",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:api/openapi/common.json",
+      "blob": "22f7d8e5f560f05380ca9c8031260f2d941ad273",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "bytes": 11091
+    },
+    {
+      "path": "docs/frontend-design/layouts/account-entry.md",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:docs/frontend-design/layouts/account-entry.md",
+      "blob": "2f5e8382f0da6f64d82b26d0ea92ec8334b7a69e",
+      "sha256": "6e6eea53bf8c0a4b032dabac0d8e2f14f1becc7c71541bdc7d062a632ad490be",
+      "bytes": 3669
+    },
+    {
+      "path": "docs/architecture/platform-infrastructure/authentication/account-lifecycle.md",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:docs/architecture/platform-infrastructure/authentication/account-lifecycle.md",
+      "blob": "40c113f4050834902557a11b430c16f9c7267a41",
+      "sha256": "d8bbe8ac8055d4ee775489ea03876ce9bbe32e9df7b1ac22b0a659fe5884319d",
+      "bytes": 10350
+    },
+    {
+      "path": "docs/development/work-items/d07-account-session-smtp-design.md",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/work-items/d07-account-session-smtp-design.md",
+      "blob": "3e42cdcc337ef533f3a57a2350820181de96fcc2",
+      "sha256": "b7c4669921a404585948bd59b0db4c3d7a9e29f293fb57a7754efea55ef33fac",
+      "bytes": 121690
+    },
+    {
+      "path": "docs/development/work-items/d26-account-authentication.md",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/work-items/d26-account-authentication.md",
+      "blob": "04beb7179f4f66cbffeeab5d3a03ab340e3f12d3",
+      "sha256": "591772ce5ae75fd3e10e3ec5ff6f77fa94847cd2d825e7a65af3c4ee8d9b0f80",
+      "bytes": 35497
+    },
+    {
+      "path": "docs/development/work-items/d26-personal-settings.md",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/work-items/d26-personal-settings.md",
+      "blob": "a793277bd390dbc6dc5c096f41d86409f9e0ae41",
+      "sha256": "dbe0d5afadf475c0e81faa9249450254b0c71f07890f1a18c936784b7fc71e37",
+      "bytes": 41528
+    }
+  ],
+  "backend_delta_from_auth": "git diff --name-only 9a710f272026b41ef69852bbeb41cb7670b500a8 c54f73f3324caa11608d84e5d207141985eb6074 -- internal/central/account internal/central/app api/openapi/account.json api/openapi/common.json tests/testsupport/accountenv returned empty"
+}

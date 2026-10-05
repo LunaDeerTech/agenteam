@@ -1,0 +1,16 @@
+[
+  {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/dev/null",
+      "/workspace/agenteam/docs/development/agent-team/evidence/public-account-entry-spec-verification/acceptance/administrative.patch"
+    ],
+    "exit": 3,
+    "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/public-account-entry-spec-verification/acceptance/administrative.patch:5: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/public-account-entry-spec-verification/acceptance/administrative.patch:8: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/public-account-entry-spec-verification/acceptance/administrative.patch:10: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/public-account-entry-spec-verification/acceptance/administrative.patch:12: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/public-account-entry-spec-verification/acceptance/administrative.patch:14: trailing whitespace.\n+ \n",
+    "stderr": ""
+  }
+]

@@ -1,0 +1,293 @@
+{
+  "kind": "independent read-only specification check; not implementation or runtime validation",
+  "baseline": "c54f73f3324caa11608d84e5d207141985eb6074",
+  "source_count": 31,
+  "sources": [
+    {
+      "path": "web/src/api/client.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/api/client.ts",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "bytes": 10399,
+      "matched": true
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/api/account.ts",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "bytes": 13982,
+      "matched": true
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/composables/useSession.ts",
+      "sha256": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+      "bytes": 34983,
+      "matched": true
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/composables/usePersonalSettings.ts",
+      "sha256": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679",
+      "bytes": 25993,
+      "matched": true
+    },
+    {
+      "path": "web/src/App.vue",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/App.vue",
+      "sha256": "dccbda0b9349180d8a6dc8155fa5151856c5d77d992b86d8a314810259984ae4",
+      "bytes": 4236,
+      "matched": true
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/router/auth.ts",
+      "sha256": "25099e3fb4b37e734274a10d8fccf7b9abb38a04105317f3f2a087db45030391",
+      "bytes": 1969,
+      "matched": true
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/router/index.ts",
+      "sha256": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278",
+      "bytes": 1615,
+      "matched": true
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/views/auth/LoginView.vue",
+      "sha256": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd",
+      "bytes": 8978,
+      "matched": true
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/tests/session.spec.ts",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "bytes": 18655,
+      "matched": true
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/tests/authentication.spec.ts",
+      "sha256": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38",
+      "bytes": 21867,
+      "matched": true
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a",
+      "bytes": 22900,
+      "matched": true
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:web/src/tests/personal-settings.spec.ts",
+      "sha256": "b897cbb1e1c09b64190a668fb2da94bf56a61ff43d5b9246205807a1b339a04f",
+      "bytes": 21492,
+      "matched": true
+    },
+    {
+      "path": "tests/account/authentication_web_fixture_test.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:tests/account/authentication_web_fixture_test.go",
+      "sha256": "f91d23edb01dbc82f228c659288626529e68a1dfcf742b7d1f2961fa4f56c319",
+      "bytes": 14232,
+      "matched": true
+    },
+    {
+      "path": "tests/account/personal_settings_web_fixture_test.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:tests/account/personal_settings_web_fixture_test.go",
+      "sha256": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b",
+      "bytes": 12476,
+      "matched": true
+    },
+    {
+      "path": "tests/account/personal_settings_web_test.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:tests/account/personal_settings_web_test.go",
+      "sha256": "bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b",
+      "bytes": 6059,
+      "matched": true
+    },
+    {
+      "path": "internal/central/account/http.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/http.go",
+      "sha256": "5c57879f54f7a56f7a6a3b3f64059da7315b4275b1fa93422b79de4707dc6b78",
+      "bytes": 7386,
+      "matched": true
+    },
+    {
+      "path": "internal/central/account/http_auth.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/http_auth.go",
+      "sha256": "4a8f24dec41bb2dd7d94c3777ee8c80fe3b0ba4e9a799b9e07435c8989a5ba98",
+      "bytes": 13528,
+      "matched": true
+    },
+    {
+      "path": "internal/central/account/csrf.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/csrf.go",
+      "sha256": "7081e08ba956c81daa1051a3f57e0792600cc12e71f4dddeeb3277e675a59e94",
+      "bytes": 5731,
+      "matched": true
+    },
+    {
+      "path": "internal/central/account/browser.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/browser.go",
+      "sha256": "fefcb989d08e22eb73863826396c892c033c14dbdd905a09eb28c98ec6375400",
+      "bytes": 6145,
+      "matched": true
+    },
+    {
+      "path": "internal/central/account/http_wire.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/http_wire.go",
+      "sha256": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095",
+      "bytes": 7376,
+      "matched": true
+    },
+    {
+      "path": "internal/central/account/link_commands.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/link_commands.go",
+      "sha256": "b46fa2744e4491a9160bf07915d68b6b1db14bf6df7e96f1e12e7ecb4a19396c",
+      "bytes": 8791,
+      "matched": true
+    },
+    {
+      "path": "internal/central/account/reset.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/reset.go",
+      "sha256": "c228fb40df0b11889cc7e911c4abd3865358473683123b265d12f30c6b8928df",
+      "bytes": 15148,
+      "matched": true
+    },
+    {
+      "path": "internal/central/account/reset_complete.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/account/reset_complete.go",
+      "sha256": "43f43d2235e31eec3e0ea8f936826a3aa02533d0990920ae6c3e99cd40d46160",
+      "bytes": 9600,
+      "matched": true
+    },
+    {
+      "path": "internal/central/app/account.go",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/app/account.go",
+      "sha256": "a855a5320b3fbbd5f34cdb3781ce34299a12d86b80e14cafc8d37c03734944c5",
+      "bytes": 13332,
+      "matched": true
+    },
+    {
+      "path": "api/openapi/account.json",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:api/openapi/account.json",
+      "sha256": "583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797",
+      "bytes": 127500,
+      "matched": true
+    },
+    {
+      "path": "api/openapi/common.json",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:api/openapi/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "bytes": 11091,
+      "matched": true
+    },
+    {
+      "path": "docs/frontend-design/layouts/account-entry.md",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:docs/frontend-design/layouts/account-entry.md",
+      "sha256": "6e6eea53bf8c0a4b032dabac0d8e2f14f1becc7c71541bdc7d062a632ad490be",
+      "bytes": 3669,
+      "matched": true
+    },
+    {
+      "path": "docs/architecture/platform-infrastructure/authentication/account-lifecycle.md",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:docs/architecture/platform-infrastructure/authentication/account-lifecycle.md",
+      "sha256": "d8bbe8ac8055d4ee775489ea03876ce9bbe32e9df7b1ac22b0a659fe5884319d",
+      "bytes": 10350,
+      "matched": true
+    },
+    {
+      "path": "docs/development/work-items/d07-account-session-smtp-design.md",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/work-items/d07-account-session-smtp-design.md",
+      "sha256": "b7c4669921a404585948bd59b0db4c3d7a9e29f293fb57a7754efea55ef33fac",
+      "bytes": 121690,
+      "matched": true
+    },
+    {
+      "path": "docs/development/work-items/d26-account-authentication.md",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/work-items/d26-account-authentication.md",
+      "sha256": "591772ce5ae75fd3e10e3ec5ff6f77fa94847cd2d825e7a65af3c4ee8d9b0f80",
+      "bytes": 35497,
+      "matched": true
+    },
+    {
+      "path": "docs/development/work-items/d26-personal-settings.md",
+      "git_locator": "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/work-items/d26-personal-settings.md",
+      "sha256": "dbe0d5afadf475c0e81faa9249450254b0c71f07890f1a18c936784b7fc71e37",
+      "bytes": 41528,
+      "matched": true
+    }
+  ],
+  "implementation_paths": [
+    "web/src/api/client.ts",
+    "web/src/api/account.ts",
+    "web/src/composables/useSession.ts",
+    "web/src/router/auth.ts",
+    "web/src/router/index.ts",
+    "web/src/App.vue",
+    "web/src/views/auth/LoginView.vue",
+    "web/src/router/account-link.ts",
+    "web/src/composables/useAccountEntry.ts",
+    "web/src/views/auth/InvitationView.vue",
+    "web/src/views/auth/ForgotPasswordView.vue",
+    "web/src/views/auth/ResetPasswordView.vue",
+    "web/src/tests/session.spec.ts",
+    "web/src/tests/authentication.spec.ts",
+    "web/src/tests/personal-settings-state.spec.ts",
+    "web/src/tests/personal-settings.spec.ts",
+    "web/src/tests/account-entry-client.spec.ts",
+    "web/src/tests/account-entry-state.spec.ts",
+    "web/src/tests/account-entry.spec.ts",
+    "tests/account-captcha-web/account-entry.config.js",
+    "tests/account-captcha-web/e2e/account-entry.spec.ts",
+    "tests/account/account_entry_web_fixture_test.go",
+    "tests/account/account_entry_web_test.go"
+  ],
+  "existing_paths": [
+    "web/src/api/client.ts",
+    "web/src/api/account.ts",
+    "web/src/composables/useSession.ts",
+    "web/src/router/auth.ts",
+    "web/src/router/index.ts",
+    "web/src/App.vue",
+    "web/src/views/auth/LoginView.vue",
+    "web/src/tests/session.spec.ts",
+    "web/src/tests/authentication.spec.ts",
+    "web/src/tests/personal-settings-state.spec.ts",
+    "web/src/tests/personal-settings.spec.ts"
+  ],
+  "new_paths": [
+    "web/src/router/account-link.ts",
+    "web/src/composables/useAccountEntry.ts",
+    "web/src/views/auth/InvitationView.vue",
+    "web/src/views/auth/ForgotPasswordView.vue",
+    "web/src/views/auth/ResetPasswordView.vue",
+    "web/src/tests/account-entry-client.spec.ts",
+    "web/src/tests/account-entry-state.spec.ts",
+    "web/src/tests/account-entry.spec.ts",
+    "tests/account-captcha-web/account-entry.config.js",
+    "tests/account-captcha-web/e2e/account-entry.spec.ts",
+    "tests/account/account_entry_web_fixture_test.go",
+    "tests/account/account_entry_web_test.go"
+  ],
+  "backend_closure_diff": {
+    "argv": [
+      "git",
+      "diff",
+      "--name-only",
+      "9a710f272026b41ef69852bbeb41cb7670b500a8",
+      "c54f73f3324caa11608d84e5d207141985eb6074",
+      "--",
+      "internal/central/account",
+      "internal/central/app",
+      "api/openapi/account.json",
+      "api/openapi/common.json",
+      "tests/testsupport/accountenv"
+    ],
+    "changed_paths": []
+  },
+  "no_go_npm_browser_docker_network_or_git_mutation": true
+}
