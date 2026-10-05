@@ -1,0 +1,272 @@
+//go:build integration
+
+package objects_test
+
+import (
+	"context"
+	"io"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+)
+
+// This is an actual source of PreparePayload. The only way to unblock its Read
+// is to call Close; observing that call is independent of a DB joined flag.
+type independentAuditBlockedSource struct {
+	entered chan struct{}
+	closed  chan struct{}
+	read    sync.Once
+	close   sync.Once
+	calls   atomic.Int64
+}
+
+func (b *independentAuditBlockedSource) Read([]byte) (int, error) {
+	b.read.Do(func() { close(b.entered) })
+	<-b.closed
+	return 0, io.ErrClosedPipe
+}
+func (b *independentAuditBlockedSource) Close() error {
+	b.calls.Add(1)
+	b.close.Do(func() { close(b.closed) })
+	return nil
+}
+
+func TestObjectAuditIndependentStopDirectCancel(t *testing.T) {
+	for _, mode := range []string{"audit-rejected", "committed", "rollback", "pending"} {
+		t.Run(mode, func(t *testing.T) {
+			base := newTransferFixture(t)
+			raw, proxy := proxyStore(t, base.fixture, mode == "committed")
+			proxy.late.Store(mode == "pending")
+			stop := newObjectStopAuthority(t, base.fixture, raw)
+			wrapped := &objectAuditCommitStore{Store: raw, proxy: proxy}
+			f := objectAuditOn(t, base.fixture, objectAuditOptions{pg: raw, store: wrapped, stop: stop, transfer: base})
+			var releaseOnce sync.Once
+			release := func() { releaseOnce.Do(func() { close(proxy.release) }) }
+			t.Cleanup(release)
+			grant, err := f.transfer.transfers.IssueTransfer(contextFor(t), f.actor, command(t, "independent-stop"), f.transfer.spec(t, []byte("independent remote lease")))
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			body := &independentAuditBlockedSource{entered: make(chan struct{}), closed: make(chan struct{})}
+			prepareCtx, cancelPreparation := context.WithCancel(context.Background())
+			preparedDone := make(chan error, 1)
+			var prepareWG sync.WaitGroup
+			prepareWG.Add(1)
+			go func() {
+				defer prepareWG.Done()
+				p, er := f.service.PreparePayload(prepareCtx, f.actor, f.owner, "text/plain", 4, nil, body)
+				if er == nil {
+					_ = f.service.DiscardPrepared(p)
+				}
+				preparedDone <- er
+			}()
+			t.Cleanup(func() {
+				release()
+				cancelPreparation()
+				_ = body.Close()
+				done := make(chan struct{})
+				go func() { prepareWG.Wait(); close(done) }()
+				select {
+				case <-done:
+				case <-time.After(3 * time.Second):
+					t.Error("independent source goroutine did not actually return")
+				}
+			})
+			select {
+			case <-body.entered:
+			case er := <-preparedDone:
+				t.Fatal("preparation never reached actual blocked Read", er)
+			case <-time.After(3 * time.Second):
+				t.Fatal("actual source Read did not start")
+			}
+			assertNotCancelled := func(phase string) {
+				t.Helper()
+				if n := body.calls.Load(); n != 0 {
+					t.Fatalf("source Close was called before confirmed authorization: phase=%s calls=%d", phase, n)
+				}
+				select {
+				case er := <-preparedDone:
+					t.Fatal("preparation returned before explicit cancellation", phase, er)
+				default:
+				}
+				t.Logf("direct cancellation observation: mode=%s phase=%s Close=0 blocked Read remains active", mode, phase)
+			}
+			assertNotCancelled("before-stop")
+			actor, cause := activateObjectStop(t, f.fixture, oc.ProjectStopArchive)
+
+			if mode == "audit-rejected" {
+				var reached bool
+				f.tap.set(func(ctx context.Context, tx foundation.Tx, entry ac.Entry, key ac.AppendKey) error {
+					if entry.Fields().Action != ac.ObjectTransferRevoke {
+						return nil
+					}
+					if er := f.checker.CheckProjectAuditInTx(ctx, tx, entry, key); er != nil {
+						return er
+					}
+					reached = true
+					return fault(foundation.Forbidden)
+				})
+				_, err = f.service.RequestProjectStop(contextFor(t), actor, cause)
+				requireCode(t, err, foundation.Forbidden)
+				if !reached {
+					t.Fatal("ordinary rejection did not reach the real revoke checker")
+				}
+				var stops, revoked int
+				if err = base.store.QueryRow(contextFor(t), `SELECT (SELECT count(*) FROM agenteam_object.project_stops),(SELECT count(*) FROM agenteam_object.object_transfers WHERE revoked_at IS NOT NULL)`).Scan(&stops, &revoked); err != nil || stops != 0 || revoked != 0 || objectAuditCount(t, f.fixture, ac.ObjectTransferRevoke) != 0 {
+					t.Fatal("rejected Audit escaped the original gate transaction", err, stops, revoked)
+				}
+			} else {
+				wrapped.arm(ac.ObjectTransferRevoke, grant.Status.ID.String(), true)
+				stopDone := make(chan error, 1)
+				go func() {
+					ctx, cancel := context.WithTimeout(context.Background(), 800*time.Millisecond)
+					defer cancel()
+					_, er := f.service.RequestProjectStop(ctx, actor, cause)
+					stopDone <- er
+				}()
+				select {
+				case <-proxy.reached:
+				case <-time.After(3 * time.Second):
+					t.Fatal("actual stop/revoke/Audit COMMIT was not intercepted")
+				}
+				wrapped.assertHit(t, base.fixture, mode == "pending")
+				if mode != "pending" {
+					release()
+				}
+				select {
+				case err = <-stopDone:
+					requireCode(t, err, foundation.CommitUnknown)
+				case <-time.After(3 * time.Second):
+					t.Fatal("Unknown stop call did not return")
+				}
+				assertNotCancelled("Unknown-returned")
+				var revoked int
+				if err = base.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_object.object_transfers WHERE revoked_at IS NOT NULL`).Scan(&revoked); err != nil {
+					t.Fatal(err)
+				}
+				want := 0
+				if mode == "committed" {
+					want = 1
+				}
+				if revoked != want || objectAuditCount(t, f.fixture, ac.ObjectTransferRevoke) != want {
+					t.Fatal("actual commit outcome disagrees with selected protocol branch", mode, revoked, want)
+				}
+				if mode == "pending" {
+					release()
+					select {
+					case <-proxy.committed:
+					case <-time.After(3 * time.Second):
+						t.Fatal("original pending COMMIT did not complete")
+					}
+				}
+				wrapped.waitWriter(t, base.fixture)
+			}
+			assertNotCancelled("original-writer-ended")
+			f.tap.set(nil)
+			f.sql(t, `UPDATE object_fixture.stop_causes SET manifest=false`)
+			if _, err = f.service.RequestProjectStop(contextFor(t), actor, cause); err == nil {
+				t.Fatal("current stop authorization was bypassed")
+			}
+			assertNotCancelled("current-authority-denied")
+			f.sql(t, `UPDATE object_fixture.stop_causes SET manifest=true`)
+			report, err := f.service.RequestProjectStop(contextFor(t), actor, cause)
+			if err != nil && codeOf(err) != foundation.ResourceBusy || report.Details().State != oc.ProjectStopPending {
+				t.Fatal("confirmed stop should still await remote retirement", err, report.Details())
+			}
+			select {
+			case <-body.closed:
+			case <-time.After(3 * time.Second):
+				t.Fatal("confirmed gate never called the actual source Close")
+			}
+			select {
+			case err = <-preparedDone:
+				if err == nil {
+					t.Fatal("cancelled incomplete preparation succeeded")
+				}
+			case <-time.After(3 * time.Second):
+				t.Fatal("closed source did not actually return")
+			}
+			t.Logf("direct cancellation observation: mode=%s confirmed gate Close=%d and PreparePayload returned", mode, body.calls.Load())
+			auditRetireTransfer(t, f.transfer, grant)
+			stopUntilSettled(t, f.service, actor, cause)
+			if objectAuditCount(t, f.fixture, ac.ObjectTransferRevoke) != 1 {
+				t.Fatal("same-cause retry duplicated revoke Audit")
+			}
+		})
+	}
+}
+
+func TestObjectAuditIndependentRetiredGETCanonicalFacts(t *testing.T) {
+	for _, change := range []string{"missing-retirement", "wrong-lease-owner"} {
+		t.Run(change, func(t *testing.T) {
+			base := newTransferFixture(t)
+			f := objectAuditOn(t, base.fixture, objectAuditOptions{transfer: base})
+			tf := f.transfer
+			put := f.put(t, "independent-retired-source", "body")
+			grant, err := tf.transfers.IssueTransfer(contextFor(t), f.actor, command(t, "independent-retired-get"), auditGETSpec(t, tf, put.Meta.ID))
+			if err != nil {
+				t.Fatal(err)
+			}
+			material, err := grant.Material.ForRunner(tf.runner, grant.Status.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			if status, b := transferRequest(t, tf, material, nil); status != 200 || string(b) != "body" {
+				t.Fatal("real source GET prerequisite failed", status)
+			}
+			evidence := tf.evidence(t, grant, oc.TransferCompletedEvidence, true)
+			retired, err := tf.transfers.ConfirmStopped(contextFor(t), f.actor, grant.Status.ID, evidence)
+			if err != nil || retired.LeaseActive || retired.State == oc.TransferComplete {
+				t.Fatal("retirement did not precede completion", err, retired)
+			}
+			var actualMutation bool
+			f.tap.set(func(ctx context.Context, tx foundation.Tx, entry ac.Entry, key ac.AppendKey) error {
+				if entry.Fields().Action != ac.ObjectTransferComplete {
+					return nil
+				}
+				if er := f.checker.CheckProjectAuditInTx(ctx, tx, entry, key); er != nil {
+					return er
+				}
+				x, er := f.dbstore.InTx(tx)
+				if er != nil {
+					return er
+				}
+				if change == "missing-retirement" {
+					_, er = x.Exec(ctx, `UPDATE agenteam_object.object_transfers SET retirement_evidence=NULL,retirement_kind=NULL,retirement_digest=NULL WHERE id=$1`, grant.Status.ID.String())
+				} else {
+					_, er = x.Exec(ctx, `UPDATE agenteam_object.object_leases SET owner_id=$2 WHERE id=(SELECT lease_id FROM agenteam_object.object_transfers WHERE id=$1)`, grant.Status.ID.String(), id[struct{}](t).String())
+				}
+				if er != nil {
+					return er
+				}
+				actualMutation = true
+				return f.checker.CheckProjectAuditInTx(ctx, tx, entry, key)
+			})
+			_, err = tf.transfers.CompleteTransfer(contextFor(t), f.actor, grant.Status.ID, evidence)
+			requireCode(t, err, foundation.Forbidden)
+			if !actualMutation || objectAuditCount(t, f.fixture, ac.ObjectTransferComplete) != 0 {
+				t.Fatal("canonical negative did not reach the checker or escaped rollback")
+			}
+			var intact bool
+			if err = f.store.QueryRow(contextFor(t), `SELECT t.phase='issued' AND t.retirement_evidence IS NOT NULL AND l.state='released' AND l.owner_id=t.id FROM agenteam_object.object_transfers t JOIN agenteam_object.object_leases l ON l.id=t.lease_id WHERE t.id=$1`, grant.Status.ID.String()).Scan(&intact); err != nil || !intact {
+				t.Fatal("negative callback failed to roll back the exact original facts", err)
+			}
+			f.tap.set(nil)
+			f.sql(t, `UPDATE object_fixture.sessions SET active=false`)
+			_, err = tf.transfers.CompleteTransfer(contextFor(t), f.actor, grant.Status.ID, evidence)
+			requireCode(t, err, foundation.SessionRevoked)
+			f.sql(t, `UPDATE object_fixture.sessions SET active=true`)
+			state, err := tf.transfers.CompleteTransfer(contextFor(t), f.actor, grant.Status.ID, evidence)
+			if err != nil || state.State != oc.TransferComplete || state.LeaseActive || objectAuditCount(t, f.fixture, ac.ObjectTransferComplete) != 1 {
+				t.Fatal("authorized retired GET did not complete exactly once", err, state)
+			}
+			t.Logf("retired GET canonical fact rejected and restored: %s; current Session enforced before positive retry", change)
+		})
+	}
+}

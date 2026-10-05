@@ -1,6 +1,6 @@
 # 恢复：Object 的 Project Audit 真实事实校验
 
-修订：rev2，仅更新已验输入与实施交接，rev1 API/行为及13路径不变。S2已完整独立验收并提交，主线程已核最终接缝delta；本卡按文末固定输入开放实施，尚无Object Audit行为验收结论。
+修订：rev3，仅同步独立验收与提交，rev2 API、行为及13路径不变。Object Audit已独立验收并提交推送`a716ae2a16bc24c115d0207557cada96a30f1049`，主线程确认远端一致，最新结果见[验收与提交记录](#独立验收与提交记录)。以下早期规格、风险和开写记录保留当时事实，不再表示当前仍未验收；本块通过不代表Project生产映射、Artifact stop或完整生命周期已绑定。
 
 ## 完整结果与固定输入
 
@@ -106,3 +106,11 @@ S2 最终28源已独立验收并提交推送 `6658a6cb1f29299521773bc8dc86b2f607
 主线程逐字节比较原review01与该提交的六个重叠生产接缝：transfer/access/transfer_access/project_lifecycle/transfer_recovery五文件不变；upload.go唯一变化是UploadPrepared注册完整writer引用、与Discard互斥及返回时释放引用。PublishVerifiedInTx与集中Audit helper未变，原API、witness接缝及本卡唯一transfer撤销重排仍成立。已修真实join行为必须保持，不恢复旧writer生命周期。
 
 唯一实施者为`d08_recovery_design`，仅开放本卡13个源/测试路径；使用固定6658a6c加自己13源自测，不读取Artifact或D09活动稿。无迁移、无Project映射/组合根权限；真实fixture仍须主线程明确交接。先自测、冻结后交未参与实现者独立验收，不因S2通过宣称本块完成。
+
+## 独立验收与提交记录
+
+2026-10-05，主线程采纳Object Audit 13源独立验收，逐SHA核最终manifest `061a4c19791e812e68a0755059a171984bc3bf8070197ae6f034f7943f119558`，精确提交推送`a716ae2a16bc24c115d0207557cada96a30f1049`并确认远端一致。[正式报告与证据入口](../agent-team/object-project-audit-verification.md)由独立验收负责人归档，保留固定输入、实际命令、原始红例与复用边界。
+
+作者10个新顶层19子例、17个旧顶层17子例及纯检查43顶层231子例通过；新组采用明确分段证据复用，原new2两处FAIL保留，不宣称单次全绿。独立真实2顶层6子例通过（Objects 9.816s），直接观察未确认时ctx未取消、Close=0，确认后才实际取消与join。独立4容器3网络二次exact-ID absent，既有2容器4网络基线不变，所属进程0、runtime空。独立前轮6子例的OBJECT_PAYLOAD_MISSING发生在fixture初始化，未到目标行为；与no-space并存但未唯一归因，同源迁缓存后通过不追认已修初始化故障。作者第三短轮历史资源ID采集不完整的限制见报告，最终独立完整清零不替代该历史限制。
+
+结论仅覆盖Object本域事实checker、私有同Tx witness及真实调用点，未包含Project生产ObjectProducer映射或应用root。[领域绑定rev2](recovery-project-domain-bindings.md)已静审采纳并提交`086f984eeadadebddcbcaab2868af96f8dfe5ce7`；该块仍须Artifact/D09最终验收、接缝delta及文件交还，尚不开业务。原Outbox未知首红仍保留为完整模块关注项；完整D08/D09/D28/E01未完成。本次rev3仅归位状态，不改正文API、行为或迁移，不重跑产品测试。

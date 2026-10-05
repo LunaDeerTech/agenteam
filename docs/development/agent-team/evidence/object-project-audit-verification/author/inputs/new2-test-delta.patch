@@ -1,0 +1,157 @@
+--- new1/tests/objects/project_audit_transfer_test.go
++++ new2/tests/objects/project_audit_transfer_test.go
+@@ -27,7 +27,7 @@
+ 	t.Run("put-two-audits-one-tx", func(t *testing.T) {
+ 		base := newTransferFixture(t)
+ 		proxy := newTransferProxy(t, base.fixture)
+-		cfg := proxy.config(t, base.fixture)
++		cfg, payloadPUTs := auditPayloadProxy(t, base.fixture, proxy.server.URL)
+ 		f := objectAuditOn(t, base.fixture, objectAuditOptions{config: &cfg, transfer: base})
+ 		tf := f.transfer
+ 		body := []byte("audit private candidate")
+@@ -84,13 +84,13 @@
+ 		if err = f.store.QueryRow(contextFor(t), `SELECT a.phase='verified' AND o.state<>'available' AND t.phase<>'complete' FROM agenteam_object.object_transfers t JOIN agenteam_object.upload_attempts a ON a.id=t.candidate_id JOIN agenteam_object.objects o ON o.id=t.object_id WHERE t.id=$1`, grant.Status.ID.String()).Scan(&verified); err != nil || !verified {
+ 			t.Fatal("independent verified candidate lost", err)
+ 		}
+-		gets, puts := proxy.stageGET.Load(), proxy.candidatePUT.Load()
++		gets, puts := proxy.stageGET.Load(), payloadPUTs.Load()
+ 		f.tap.set(nil)
+ 		state, err := tf.transfers.CompleteTransfer(contextFor(t), f.actor, grant.Status.ID, evidence)
+ 		if err != nil || state.State != oc.TransferComplete {
+ 			t.Fatal("real candidate retry", err)
+ 		}
+-		if proxy.stageGET.Load() != gets || proxy.candidatePUT.Load() != puts {
++		if proxy.stageGET.Load() != gets || payloadPUTs.Load() != puts {
+ 			t.Fatal("verified retry repeated actual bytes")
+ 		}
+ 		if objectAuditCount(t, f.fixture, ac.ObjectUploadComplete) != 1 || objectAuditCount(t, f.fixture, ac.ObjectTransferComplete) != 1 {
+@@ -259,16 +259,13 @@
+ 			}
+ 			f.tap.set(nil)
+ 			report, err := f.service.RequestProjectStop(contextFor(t), actor, c)
+-			if err != nil || report.Details().State != oc.ProjectStopPending {
++			if err != nil && codeOf(err) != foundation.ResourceBusy || report.Details().State != oc.ProjectStopPending {
+ 				t.Fatal("remote lease inferred stopped", err)
+ 			}
+ 			if err = f.service.DiscardPrepared(prepared); err != nil {
+ 				t.Fatal(err)
+ 			}
+-			ev := tf.evidence(t, grant, oc.TransferStoppedEvidence, true)
+-			if _, err = tf.transfers.ConfirmStopped(contextFor(t), f.actor, grant.Status.ID, ev); err != nil {
+-				t.Fatal(err)
+-			}
++			auditRetireTransfer(t, tf, grant)
+ 			stopUntilSettled(t, f.service, actor, c)
+ 			f.sql(t, `UPDATE object_fixture.stop_causes SET phase='complete'`)
+ 			before := objectAuditCount(t, f.fixture, ac.ObjectTransferRevoke)
+@@ -352,16 +349,13 @@
+ 			}
+ 			f.sql(t, `UPDATE object_fixture.stop_causes SET manifest=true`)
+ 			report, err := f.service.RequestProjectStop(contextFor(t), actor, c)
+-			if err != nil || report.Details().State != oc.ProjectStopPending {
++			if err != nil && codeOf(err) != foundation.ResourceBusy || report.Details().State != oc.ProjectStopPending {
+ 				t.Fatal("confirmed retry", err)
+ 			}
+ 			if err = f.service.DiscardPrepared(prepared); err != nil {
+ 				t.Fatal(err)
+ 			}
+-			ev := tf.evidence(t, grant, oc.TransferStoppedEvidence, true)
+-			if _, err = tf.transfers.ConfirmStopped(contextFor(t), f.actor, grant.Status.ID, ev); err != nil {
+-				t.Fatal(err)
+-			}
++			auditRetireTransfer(t, tf, grant)
+ 			stopUntilSettled(t, f.service, actor, c)
+ 			if objectAuditCount(t, f.fixture, ac.ObjectTransferRevoke) != 1 {
+ 				t.Fatal("Unknown retry duplicated revoke Audit")
+--- new1/tests/objects/project_audit_fixture_test.go
++++ new2/tests/objects/project_audit_fixture_test.go
+@@ -4,9 +4,15 @@
+ 
+ import (
+ 	"context"
++	"io"
++	"net/http"
++	"net/http/httptest"
++	"net/url"
+ 	"path/filepath"
++	"strconv"
+ 	"strings"
+ 	"sync"
++	"sync/atomic"
+ 	"testing"
+ 	"time"
+ 
+@@ -326,7 +332,11 @@
+ }
+ func auditStorageConfig(t *testing.T, f *fixture, endpoint string) object.StorageConfig {
+ 	t.Helper()
+-	values := map[string]string{"ENDPOINT": endpoint, "BUCKET": f.bucket, "ACCESS_KEY": f.remote.AccessKey, "SECRET_KEY": f.remote.SecretKey, "TLS_MODE": "verify-full", "CA_FILE": f.remote.CAFile}
++	values := map[string]string{"ENDPOINT": endpoint, "BUCKET": f.bucket, "ACCESS_KEY": f.remote.AccessKey, "SECRET_KEY": f.remote.SecretKey, "TLS_MODE": "disable"}
++	if strings.HasPrefix(endpoint, "https:") {
++		values["TLS_MODE"] = "verify-full"
++		values["CA_FILE"] = f.remote.CAFile
++	}
+ 	c, err := object.LoadStorageConfig(func(n string) (string, bool) {
+ 		v, ok := values[strings.TrimPrefix(n, object.EnvironmentPrefix)]
+ 		return v, ok
+@@ -474,3 +484,60 @@
+ 	a.planner.mu.Unlock()
+ 	return grant, nil
+ }
++
++// Count actual nonempty wire PUTs, excluding the required zero markers sent by
++// post-publication cleanup. The existing proxy's candidatePUT counts both.
++func auditPayloadProxy(t *testing.T, f *fixture, upstream string) (object.StorageConfig, *atomic.Int64) {
++	t.Helper()
++	target, err := url.Parse(upstream)
++	if err != nil {
++		t.Fatal(err)
++	}
++	transport := &http.Transport{}
++	count := &atomic.Int64{}
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		size := r.ContentLength
++		if raw := r.Header.Get("X-Amz-Decoded-Content-Length"); raw != "" {
++			var err error
++			size, err = strconv.ParseInt(raw, 10, 64)
++			if err != nil {
++				http.Error(w, "invalid fixture length", 400)
++				return
++			}
++		}
++		if r.Method == http.MethodPut && strings.Contains(r.URL.Path, "/candidate/") && size > 0 {
++			count.Add(1)
++		}
++		req := r.Clone(r.Context())
++		req.URL.Scheme = target.Scheme
++		req.URL.Host = target.Host
++		req.RequestURI = ""
++		response, err := transport.RoundTrip(req)
++		if err != nil {
++			http.Error(w, "fixture upstream unavailable", 503)
++			return
++		}
++		defer response.Body.Close()
++		for k, v := range response.Header {
++			w.Header()[k] = v
++		}
++		w.WriteHeader(response.StatusCode)
++		_, _ = io.Copy(w, response.Body)
++	}))
++	t.Cleanup(func() { server.CloseClientConnections(); server.Close(); transport.CloseIdleConnections() })
++	return auditStorageConfig(t, f, server.URL), count
++}
++func auditRetireTransfer(t *testing.T, tf *transferFixture, grant oc.TransferGrant) {
++	t.Helper()
++	evidence := tf.evidence(t, grant, oc.TransferStoppedEvidence, true)
++	for range 3 {
++		state, err := tf.transfers.ConfirmStopped(contextFor(t), tf.actor, grant.Status.ID, evidence)
++		if err != nil {
++			t.Fatal(err)
++		}
++		if !state.LeaseActive {
++			return
++		}
++	}
++	t.Fatal("actual independent transfer retirement did not release original lease")
++}

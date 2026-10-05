@@ -1,0 +1,2537 @@
+--- a/internal/central/object/upload.go
++++ b/internal/central/object/upload.go
+@@ -259,6 +259,10 @@
+ 	if !found || a.upload != u.id || a.object != u.object || u.attempt != a.id || a.cleaning || a.phase != "verified" || a.size != int64(obj.meta.ByteSize) || a.digest != obj.meta.SHA256 {
+ 		return oc.PutResult{}, failure(foundation.InvalidState, nil)
+ 	}
++	ctx, err = s.projectAuditAccessContext(ctx, tx, request, plan, locked)
++	if err != nil {
++		return oc.PutResult{}, err
++	}
+ 	auditID, err := s.appendAudit(ctx, tx, u, obj.meta, ac.ObjectUploadComplete, ac.Success, ac.PublishedPhase, "", u.id.String(), 0)
+ 	if err != nil {
+ 		return oc.PutResult{}, err
+@@ -318,6 +322,10 @@
+ 	key, err := ac.NewAppendKey(ac.ObjectProducer, cause, ordinal)
+ 	if err != nil {
+ 		return ac.ID{}, unavailable(err)
++	}
++	ctx, err = s.projectAuditWitnessContext(ctx, tx, projectAuditWitness{entry: entry, key: key, upload: u.id, meta: meta, reason: reason})
++	if err != nil {
++		return ac.ID{}, err
+ 	}
+ 	receipt, err := s.state().audit.AppendInTx(ctx, tx, entry, key)
+ 	if err != nil {
+--- a/internal/central/object/transfer.go
++++ b/internal/central/object/transfer.go
+@@ -438,6 +438,10 @@
+ 	if err != nil {
+ 		return unavailable(err)
+ 	}
++	ctx, err = s.projectAuditWitnessContext(ctx, tx, projectAuditWitness{entry: entry, key: key, transfer: transferAuditFact(r)})
++	if err != nil {
++		return err
++	}
+ 	_, err = s.state().audit.AppendInTx(ctx, tx, entry, key)
+ 	if err != nil {
+ 		return portError(err)
+--- a/internal/central/object/access.go
++++ b/internal/central/object/access.go
+@@ -378,7 +378,11 @@
+ 		if err != nil {
+ 			return err
+ 		}
+-		if err = fn(ctx, tx, plan, locked); err != nil {
++		auditCtx, err := s.projectAuditAccessContext(ctx, tx, request, plan, locked)
++		if err != nil {
++			return err
++		}
++		if err = fn(auditCtx, tx, plan, locked); err != nil {
+ 			return err
+ 		}
+ 		return s.accessWorkAfter(ctx, tx, request, locked, before)
+--- a/internal/central/object/transfer_access.go
++++ b/internal/central/object/transfer_access.go
+@@ -263,7 +263,11 @@
+ 				return err
+ 			}
+ 		}
+-		return fn(ctx, tx, plans, locked, a)
++		auditCtx, err := t.projectAuditTransferContext(ctx, tx, request, plans[0], locked, a)
++		if err != nil {
++			return err
++		}
++		return fn(auditCtx, tx, plans, locked, a)
+ 	})
+ }
+ func transferReadRequest(actor identity.Actor, owner oc.ObjectOwner, id oc.ObjectID) oc.AccessRequest {
+--- a/internal/central/object/project_lifecycle.go
++++ b/internal/central/object/project_lifecycle.go
+@@ -138,7 +138,11 @@
+ 			}
+ 		}
+ 		if !f.overflow {
+-			if err = s.revokeProjectBatch(ctx, tx, e, cause, f); err != nil {
++			auditCtx, err := s.projectAuditStopContext(ctx, tx, gatePlan, a, f)
++			if err != nil {
++				return err
++			}
++			if err = s.revokeProjectBatch(auditCtx, tx, e, cause, f); err != nil {
+ 				return err
+ 			}
+ 		}
+--- a/internal/central/object/transfer_recovery.go
++++ b/internal/central/object/transfer_recovery.go
+@@ -454,6 +454,7 @@
+ 	if err != nil {
+ 		return unavailable(err)
+ 	}
++	var pending []transferRow
+ 	for _, id := range ids {
+ 		r, found, err := loadTransfer(ctx, e, id)
+ 		if err != nil {
+@@ -462,12 +463,20 @@
+ 		if !found {
+ 			return unavailable(nil)
+ 		}
++		pending = append(pending, r)
++	}
++	// Keep the original predicate, locks and metadata in this transaction.
++	// Every revoke audit now observes the same canonical revoked post-state.
++	_, err = e.Exec(ctx, `UPDATE agenteam_object.object_transfers SET revoked_at=coalesce(revoked_at,clock_timestamp()),cleanup_gate=true,version=version+1 WHERE object_id=$1 AND revoked_at IS NULL`, id.String())
++	if err != nil {
++		return unavailable(err)
++	}
++	for _, r := range pending {
+ 		if err = appendTransferAudit(ctx, s, tx, r, ac.ObjectTransferRevoke); err != nil {
+ 			return err
+ 		}
+ 	}
+-	_, err = e.Exec(ctx, `UPDATE agenteam_object.object_transfers SET revoked_at=coalesce(revoked_at,clock_timestamp()),cleanup_gate=true,version=version+1 WHERE object_id=$1 AND revoked_at IS NULL`, id.String())
+-	return unavailableIf(err)
++	return nil
+ }
+ func purgeObjectTransfers(ctx context.Context, e postgres.SQLExecutor, id oc.ObjectID) error {
+ 	var remaining bool
+--- /dev/null
++++ b/internal/central/object/project_audit.go
+@@ -0,0 +1,377 @@
++package object
++
++import (
++	"bytes"
++	"context"
++	"crypto/sha256"
++	"mime"
++	"reflect"
++	"slices"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++)
++
++// ProjectAuditAuthority owns only Object facts. The Project composition must
++// authorize its current actor/gate before calling it. Construction performs no
++// SQL and does not depend on a Service, backend, or mutable registry.
++type ProjectAuditAuthority struct{ data func() Store }
++
++func NewProjectAuditAuthority(store Store) (*ProjectAuditAuthority, error) {
++	if nilPort(store) {
++		return nil, failure(foundation.DependencyUnbound, nil)
++	}
++	if !reflect.ValueOf(store).Comparable() {
++		return nil, invalid()
++	}
++	return &ProjectAuditAuthority{data: func() Store { return store }}, nil
++}
++func projectAuditDenied() error { return failure(foundation.Forbidden, nil) }
++
++func (a *ProjectAuditAuthority) CheckProjectAuditInTx(ctx context.Context, tx foundation.Tx, entry ac.Entry, key ac.AppendKey) error {
++	if a == nil || a.data == nil || nilPort(a.data()) {
++		return failure(foundation.DependencyUnbound, nil)
++	}
++	if !tx.Valid() || entry.Validate() != nil || key.Validate() != nil {
++		return invalid()
++	}
++	f, k := entry.Fields(), key.Details()
++	actor := f.Actor.Details()
++	if f.Scope.Details().Kind != identity.ProjectScope || k.Producer != ac.ObjectProducer || actor.Kind != identity.Service || actor.ServiceName != identity.ObjectService || actor.CauseRef != k.CauseRef || actor.ProjectID != f.Scope.Details().ProjectID {
++		return projectAuditDenied()
++	}
++	w, ok := ctx.Value(projectAuditWitnessKey{}).(projectAuditWitness)
++	if !ok || w.stage.tx != tx || !sameProjectAuditStore(a.data(), w.stage.store) || !sameProjectAuditEntry(w.entry, entry) || w.key.Validate() != nil || w.key.Details() != k {
++		return projectAuditDenied()
++	}
++	x, err := a.data().InTx(tx)
++	if err != nil {
++		return unavailable(err)
++	}
++	switch f.Action {
++	case ac.ObjectUploadComplete, ac.ObjectUploadFailed, ac.ObjectDelete:
++		if f.Resource.Details().Kind != ac.ObjectResource || f.Resource.Details().ID != w.meta.ID.String() {
++			return projectAuditDenied()
++		}
++		return checkProjectObjectAudit(ctx, x, w)
++	case ac.ObjectTransferIssue, ac.ObjectTransferComplete, ac.ObjectTransferRevoke:
++		if f.Resource.Details().Kind != ac.ObjectTransferResource || f.Resource.Details().ID != w.transfer.id.String() {
++			return projectAuditDenied()
++		}
++		return checkProjectTransferAudit(ctx, x, w)
++	default:
++		return projectAuditDenied()
++	}
++}
++
++func sameAuditObjectMeta(a, b oc.ObjectMeta) bool {
++	return a.Validate() == nil && b.Validate() == nil && a.ID == b.ID && a.Scope.Equal(b.Scope) && a.MediaType == b.MediaType && a.ByteSize == b.ByteSize && a.SHA256 == b.SHA256 && a.State == b.State && a.Version == b.Version && a.CreatedAt == b.CreatedAt
++}
++func auditExpectedEntry(scope identity.Scope, key ac.AppendKey, action ac.Action, outcome ac.Outcome, kind ac.ResourceKind, resource string, metadata ac.Metadata) (ac.Entry, error) {
++	registration, err := identity.RegisterService(identity.ObjectService)
++	if err != nil {
++		return ac.Entry{}, invalid()
++	}
++	actor, err := registration.Actor(key.Details().CauseRef, scope)
++	if err != nil {
++		return ac.Entry{}, invalid()
++	}
++	ref, err := ac.NewResource(kind, resource)
++	if err != nil {
++		return ac.Entry{}, invalid()
++	}
++	return ac.NewEntry(ac.EntryFields{Scope: scope, Actor: actor, Action: action, Outcome: outcome, Resource: ref, Metadata: metadata})
++}
++
++func checkProjectObjectAudit(ctx context.Context, x postgres.SQLExecutor, w projectAuditWitness) error {
++	p, f, k := w.stage, w.entry.Fields(), w.key.Details()
++	u, found, err := loadUpload(ctx, x, w.upload)
++	if err != nil {
++		return err
++	}
++	if !found || u.object != w.meta.ID || !u.owner.Scope().Equal(f.Scope) {
++		return projectAuditDenied()
++	}
++	o, found, err := loadObject(ctx, x, u.object)
++	if err != nil {
++		return err
++	}
++	if !found || !objectPartition(o, u.owner) || !sameAuditObjectMeta(o.meta, w.meta) || !auditObjectLocks(p, f.Scope.Details().ProjectID, u.object) {
++		return projectAuditDenied()
++	}
++	phase, outcome := ac.PublishedPhase, ac.Success
++	switch f.Action {
++	case ac.ObjectUploadComplete:
++		if p.kind != auditPublish || p.object != u.object || p.upload != u.id || !p.owner.Equal(u.owner) || checkOriginal(u, p.actor, p.owner) != nil || k.CauseRef != u.id.String() || k.Ordinal != 0 || u.disposition == "revoked" || u.state == "committed" || o.cleaning || o.meta.State == oc.Deleted || u.attempt != p.attempt || w.reason != "" {
++			return projectAuditDenied()
++		}
++		a, ok, err := loadAttempt(ctx, x, p.attempt)
++		if err != nil {
++			return err
++		}
++		if !ok || a.kind != "private_candidate" || a.upload != u.id || a.object != u.object || a.phase != "verified" || a.cleaning || !a.closed || a.size != int64(o.meta.ByteSize) || a.digest != o.meta.SHA256 {
++			return projectAuditDenied()
++		}
++		if err = requireNativeWork(ctx, x, "preparation", a.id.String()); err != nil {
++			return err
++		}
++	case ac.ObjectUploadFailed:
++		phase, outcome = ac.FailedPhase, ac.Unknown
++		if p.object != u.object || p.attempt.Validate() != nil || k.CauseRef != p.attempt.String() || w.reason != ac.PayloadMissing && w.reason != ac.IntegrityMismatch && w.reason != ac.StorageUnavailable {
++			return projectAuditDenied()
++		}
++		a, ok, err := loadAttempt(ctx, x, p.attempt)
++		if err != nil {
++			return err
++		}
++		if !ok || a.kind != "private_candidate" || a.upload != u.id || a.object != u.object || !a.closed {
++			return projectAuditDenied()
++		}
++		if k.Ordinal == 0 && p.kind == auditWriterFailure {
++			if a.process != p.process || a.phase != "unknown" || a.cleaning || u.state != "unknown" && u.state != "committed" {
++				return projectAuditDenied()
++			}
++			var released, active bool
++			err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.object_leases WHERE object_id=$1 AND attempt_id=$2 AND owner_kind='writer' AND process_id=$3 AND state='released'),EXISTS(SELECT 1 FROM agenteam_object.object_leases WHERE attempt_id=$2 AND owner_kind='writer' AND process_id=$3 AND state='active')`, u.object.String(), a.id.String(), p.process.String()).Scan(&released, &active)
++			if err != nil {
++				return unavailable(err)
++			}
++			if !released || active {
++				return projectAuditDenied()
++			}
++		} else if k.Ordinal == 1 && p.kind == auditRecoveryFailure {
++			if !a.cleaning || a.phase != "abandoned" {
++				return projectAuditDenied()
++			}
++			var exists bool
++			err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations WHERE object_id=$1 AND attempt_id=$2 AND operation_id=$3 AND id=$4)`, u.object.String(), a.id.String(), w.cleanupOperation, w.cleanupID).Scan(&exists)
++			if err != nil {
++				return unavailable(err)
++			}
++			if !exists {
++				return projectAuditDenied()
++			}
++		} else {
++			return projectAuditDenied()
++		}
++	case ac.ObjectDelete:
++		phase = ac.DeletedPhase
++		if p.kind != auditDelete || p.object != u.object || k.Ordinal != 1 || !o.cleaning || o.meta.State == oc.Deleted || w.reason != "" {
++			return projectAuditDenied()
++		}
++		var blocked bool
++		err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.object_references WHERE object_id=$1) OR EXISTS(SELECT 1 FROM agenteam_object.object_leases WHERE object_id=$1 AND state='active') OR EXISTS(SELECT 1 FROM agenteam_object.upload_attempts WHERE object_id=$1 AND phase<>'cleaned')`, u.object.String()).Scan(&blocked)
++		if err != nil {
++			return unavailable(err)
++		}
++		if blocked {
++			return projectAuditDenied()
++		}
++		var cause string
++		if err = x.QueryRow(ctx, `SELECT operation_id::text FROM agenteam_object.cleanup_operations WHERE object_id=$1 ORDER BY created_at,id LIMIT 1`, u.object.String()).Scan(&cause); err != nil {
++			return unavailable(err)
++		}
++		digest := sha256.Sum256([]byte("object.delete.v1\x00" + cause + "\x00" + u.object.String()))
++		if k.CauseRef != newDigest(digest[:]).String() {
++			return projectAuditDenied()
++		}
++	default:
++		return projectAuditDenied()
++	}
++	media, _, err := mime.ParseMediaType(o.meta.MediaType)
++	if err != nil {
++		return unavailable(err)
++	}
++	metadata, err := ac.ObjectMetadata(f.Action, ac.ObjectMetadataFields{ObjectID: u.object.String(), InitiatorKind: u.initiator, InitiatorID: u.initiatorID, InitiatorExecutionID: u.executionID, MediaType: media, ByteSize: o.meta.ByteSize, Phase: phase, Reason: w.reason})
++	if err != nil {
++		return projectAuditDenied()
++	}
++	expected, err := auditExpectedEntry(f.Scope, w.key, f.Action, outcome, ac.ObjectResource, u.object.String(), metadata)
++	if err != nil || !sameProjectAuditEntry(expected, w.entry) {
++		return projectAuditDenied()
++	}
++	return nil
++}
++
++func sameTransferAuditFact(a, b projectAuditTransferFact) bool {
++	return a.id == b.id && a.actor.Details() == b.actor.Details() && a.owner.Equal(b.owner) && a.object == b.object && a.upload == b.upload && a.staging == b.staging && a.candidate == b.candidate && a.lease == b.lease && a.runner == b.runner && a.operation == b.operation && a.direction == b.direction && a.manifest.Equal(b.manifest) && a.runnerGeneration == b.runnerGeneration && a.operationVersion == b.operationVersion && a.execution == b.execution
++}
++func checkProjectTransferAudit(ctx context.Context, x postgres.SQLExecutor, w projectAuditWitness) error {
++	p, f, k := w.stage, w.entry.Fields(), w.key.Details()
++	r, found, err := loadTransfer(ctx, x, w.transfer.id)
++	if err != nil {
++		return err
++	}
++	if !found || !r.spec.Details().Owner.Scope().Equal(f.Scope) || !sameTransferAuditFact(transferAuditFact(r), w.transfer) || k.CauseRef != r.id.String() || !auditObjectLocks(p, f.Scope.Details().ProjectID, r.object) {
++		return projectAuditDenied()
++	}
++	if p.kind == auditTransfer {
++		v, d := p.transfer, r.spec.Details()
++		if v.id != r.id || v.object != r.object || !p.owner.Equal(d.Owner) || stableActor(p.actor) != r.stable || v.runner != d.RunnerID || v.operationID != d.OperationID || v.direction != d.Direction || !v.manifest.Equal(r.manifest) || v.runnerGeneration != r.runnerGeneration || v.operationVersion != r.operationVersion || v.execution != r.execution {
++			return projectAuditDenied()
++		}
++		// GET Issue assigns the actual lease in its already-validated extra
++		// AcquireUseAccess plan. Other phases preserve the persisted lease.
++		if (v.operation != oc.TransferIssue || d.Direction == oc.TransferPUT) && v.lease != r.lease {
++			return projectAuditDenied()
++		}
++		if d.Direction == oc.TransferPUT && (v.upload != r.upload || v.staging != r.staging) {
++			return projectAuditDenied()
++		}
++	}
++	phase, ordinal := ac.IssuedPhase, int64(0)
++	var sent foundation.Progress
++	switch f.Action {
++	case ac.ObjectTransferIssue:
++		if p.kind != auditTransfer || p.transfer.operation != oc.TransferIssue || r.phase != "issued" || r.revoked || r.completed.Validate() == nil {
++			return projectAuditDenied()
++		}
++		if err = checkTransferAuditLease(ctx, x, r, true); err != nil {
++			return err
++		}
++		if err = checkTransferAuditContent(ctx, x, r, false); err != nil {
++			return err
++		}
++	case ac.ObjectTransferComplete:
++		phase, ordinal, sent = ac.SentPhase, 1, foundation.Progress(r.manifest.Details().Length)
++		if p.kind != auditTransfer || r.phase != "complete" || r.revoked {
++			return projectAuditDenied()
++		}
++		v, proof := p.transfer, p.transfer.completed
++		if proof == nil || r.completed != proof.Evidence.ID || proof.Evidence.Kind != oc.TransferCompletedEvidence || !bytes.Equal(r.completedDigest, digestBytes(proof.Digest)) || proof.Length != r.manifest.Details().Length || proof.SHA256 != r.manifest.Details().SHA256 {
++			return projectAuditDenied()
++		}
++		if r.spec.Details().Direction == oc.TransferGET && v.operation != oc.TransferCapture || r.spec.Details().Direction == oc.TransferPUT && (v.operation != oc.TransferPublish || v.candidate != r.candidate) {
++			return projectAuditDenied()
++		}
++		// A GET completion reports historical, already-authorized I/O. Its
++		// independent retirement may have released the original lease first.
++		if err = checkTransferAuditLease(ctx, x, r, r.spec.Details().Direction != oc.TransferGET); err != nil {
++			return err
++		}
++		if err = checkTransferAuditContent(ctx, x, r, true); err != nil {
++			return err
++		}
++	case ac.ObjectTransferRevoke:
++		phase, ordinal = ac.RevokedPhase, 2
++		if !r.revoked {
++			return projectAuditDenied()
++		}
++		switch p.kind {
++		case auditTransfer:
++			if p.transfer.operation != oc.TransferCancel {
++				return projectAuditDenied()
++			}
++		case auditProjectCleanup:
++			if p.cleanup.Validate() != nil || p.cleanup.Details().ProjectID.String() != f.Scope.Details().ProjectID || !slices.Contains(p.objects, r.object) {
++				return projectAuditDenied()
++			}
++		case auditProjectStop:
++			if p.stop.Validate() != nil || p.stop.Details().ProjectID.String() != f.Scope.Details().ProjectID || !slices.Contains(p.objects, r.object) && !slices.Contains(p.stopIDs, r.id.String()) || p.stop.Details().Action == oc.ProjectStopArchive && r.spec.Details().Direction != oc.TransferPUT {
++				return projectAuditDenied()
++			}
++			current, err := readProjectStop(ctx, x, p.stop)
++			if err != nil {
++				return err
++			}
++			if current == nil || current.state == "stopped" {
++				return projectAuditDenied()
++			}
++		default:
++			return projectAuditDenied()
++		}
++	default:
++		return projectAuditDenied()
++	}
++	if k.Ordinal != ordinal {
++		return projectAuditDenied()
++	}
++	media, _, err := mime.ParseMediaType(r.manifest.Details().MediaType)
++	if err != nil {
++		return unavailable(err)
++	}
++	a := r.actor.Details()
++	initiator := a.UserID
++	if a.Kind == identity.AgentRun {
++		initiator = a.AgentID
++	}
++	metadata, err := ac.ObjectMetadata(f.Action, ac.ObjectMetadataFields{ObjectID: r.object.String(), TransferID: r.id.String(), InitiatorKind: a.Kind, InitiatorID: initiator, InitiatorExecutionID: a.ExecutionID, MediaType: media, ByteSize: foundation.Progress(r.manifest.Details().Length), SentBytes: sent, Phase: phase})
++	if err != nil {
++		return projectAuditDenied()
++	}
++	expected, err := auditExpectedEntry(f.Scope, w.key, f.Action, ac.Success, ac.ObjectTransferResource, r.id.String(), metadata)
++	if err != nil || !sameProjectAuditEntry(expected, w.entry) {
++		return projectAuditDenied()
++	}
++	return nil
++}
++func checkTransferAuditLease(ctx context.Context, x postgres.SQLExecutor, r transferRow, active bool) error {
++	var object, owner, kind, state, attempt string
++	var released bool
++	err := x.QueryRow(ctx, `SELECT object_id::text,owner_kind,owner_id::text,state,coalesce(attempt_id::text,''),released_at IS NOT NULL FROM agenteam_object.object_leases WHERE id=$1`, r.lease.String()).Scan(&object, &kind, &owner, &state, &attempt, &released)
++	if err != nil {
++		return unavailable(err)
++	}
++	if object != r.object.String() || kind != "transfer" || owner != r.id.String() || active && state != "active" || attempt != "" {
++		return projectAuditDenied()
++	}
++	if state != "active" && (state != "released" || !released || r.retirement.Validate() != nil || len(r.retirementDigest) != 32 || r.retirementKind != oc.TransferStoppedEvidence && r.retirementKind != oc.TransferCompletedEvidence) {
++		return projectAuditDenied()
++	}
++	return nil
++}
++func checkTransferAuditContent(ctx context.Context, x postgres.SQLExecutor, r transferRow, completed bool) error {
++	o, found, err := loadObject(ctx, x, r.object)
++	if err != nil {
++		return err
++	}
++	m := r.manifest.Details()
++	if !found || !objectPartition(o, r.spec.Details().Owner) || o.meta.MediaType != m.MediaType || int64(o.meta.ByteSize) != m.Length || o.meta.SHA256 != m.SHA256 {
++		return projectAuditDenied()
++	}
++	if r.spec.Details().Direction == oc.TransferGET {
++		if !completed && (o.meta.State != oc.Available || o.cleaning) {
++			return projectAuditDenied()
++		}
++		return nil
++	}
++	if o.cleaning || o.meta.State == oc.Deleted {
++		return projectAuditDenied()
++	}
++	u, found, err := loadUpload(ctx, x, r.upload)
++	if err != nil {
++		return err
++	}
++	if !found || u.object != r.object || !u.owner.Equal(r.spec.Details().Owner) || u.actor != r.stable || u.disposition == "revoked" {
++		return projectAuditDenied()
++	}
++	a, found, err := loadAttempt(ctx, x, r.staging)
++	if err != nil {
++		return err
++	}
++	if !found || a.kind != "runner_staging" || a.transfer != r.id || a.upload != r.upload || a.object != r.object || a.size != m.Length || a.digest != m.SHA256 {
++		return projectAuditDenied()
++	}
++	if !completed {
++		if a.cleaning || a.phase != "reserved" || u.attempt != a.id {
++			return projectAuditDenied()
++		}
++		return nil
++	}
++	if u.state != "committed" || o.meta.State != oc.Available || u.attempt != r.candidate {
++		return projectAuditDenied()
++	}
++	a, found, err = loadAttempt(ctx, x, r.candidate)
++	if err != nil {
++		return err
++	}
++	if !found || a.kind != "private_candidate" || a.upload != r.upload || a.object != r.object || a.phase != "published" || a.cleaning || !a.closed || a.size != m.Length || a.digest != m.SHA256 {
++		return projectAuditDenied()
++	}
++	return nil
++}
++
++var _ ac.ProjectFactAuthority = (*ProjectAuditAuthority)(nil)
+--- /dev/null
++++ b/internal/central/object/project_audit_witness.go
+@@ -0,0 +1,256 @@
++package object
++
++import (
++	"bytes"
++	"context"
++	"fmt"
++	"io"
++	"reflect"
++	"slices"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
++)
++
++type projectAuditStageKey struct{}
++type projectAuditWitnessKey struct{}
++
++type projectAuditStageKind uint8
++
++const (
++	auditPublish projectAuditStageKind = iota + 1
++	auditWriterFailure
++	auditRecoveryFailure
++	auditDelete
++	auditTransfer
++	auditProjectCleanup
++	auditProjectStop
++)
++
++// A stage is minted only after the existing full Acquire/Validate path. It
++// retains safe identities, never a Service, AccessPlan/PreparedPayload, backend
++// key, source, signed URL, or a provider's mutable authorization object.
++type projectAuditStage struct {
++	store    Store
++	tx       foundation.Tx
++	kind     projectAuditStageKind
++	locks    []foundation.LockRequest
++	actor    identity.Actor
++	owner    oc.ObjectOwner
++	object   oc.ObjectID
++	upload   oc.UploadID
++	attempt  oc.AttemptID
++	process  oc.ProcessID
++	objects  []oc.ObjectID
++	cleanup  oc.ProjectCleanupCause
++	stop     oc.ProjectStopCause
++	stopIDs  []string
++	transfer projectAuditTransferStage
++}
++
++type projectAuditTransferStage struct {
++	operation                          oc.TransferOperation
++	id                                 oc.TransferID
++	object                             oc.ObjectID
++	upload                             oc.UploadID
++	staging, candidate                 oc.AttemptID
++	lease                              oc.LeaseID
++	runner                             oc.RunnerID
++	operationID                        oc.OperationID
++	direction                          oc.TransferDirection
++	manifest                           oc.TransferManifest
++	runnerGeneration, operationVersion foundation.Version
++	execution                          identity.ExecutionID
++	completed                          *oc.TransferCompletion
++}
++
++// The final witness is exact-call evidence, not a durable receipt or an
++// authorization. The checker independently rereads canonical Object facts.
++type projectAuditWitness struct {
++	stage                       projectAuditStage
++	entry                       ac.Entry
++	key                         ac.AppendKey
++	upload                      oc.UploadID
++	meta                        oc.ObjectMeta
++	reason                      ac.Reason
++	transfer                    projectAuditTransferFact
++	cleanupID, cleanupOperation string
++}
++
++type projectAuditTransferFact struct {
++	id                                 oc.TransferID
++	actor                              identity.Actor
++	owner                              oc.ObjectOwner
++	object                             oc.ObjectID
++	upload                             oc.UploadID
++	staging, candidate                 oc.AttemptID
++	lease                              oc.LeaseID
++	runner                             oc.RunnerID
++	operation                          oc.OperationID
++	direction                          oc.TransferDirection
++	manifest                           oc.TransferManifest
++	runnerGeneration, operationVersion foundation.Version
++	execution                          identity.ExecutionID
++}
++
++func (projectAuditStage) Format(w fmt.State, _ rune) {
++	_, _ = io.WriteString(w, "object_project_audit_stage")
++}
++func (projectAuditWitness) Format(w fmt.State, _ rune) {
++	_, _ = io.WriteString(w, "object_project_audit_witness")
++}
++
++func sameProjectAuditStore(a, b Store) bool {
++	return !nilPort(a) && !nilPort(b) && reflect.TypeOf(a) == reflect.TypeOf(b) &&
++		reflect.ValueOf(a).Comparable() && reflect.ValueOf(b).Comparable() && a == b
++}
++func sameProjectAuditEntry(a, b ac.Entry) bool {
++	if a.Validate() != nil || b.Validate() != nil {
++		return false
++	}
++	x, y := a.Fields(), b.Fields()
++	return x.Scope.Equal(y.Scope) && x.Actor.Details() == y.Actor.Details() && x.Action == y.Action &&
++		x.Outcome == y.Outcome && x.Resource.Details() == y.Resource.Details() &&
++		bytes.Equal(x.Metadata.JSON(), y.Metadata.JSON()) && x.Associations == y.Associations
++}
++
++func (s *Service) checkedProjectAuditAccess(tx foundation.Tx, request oc.AccessRequest, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
++	r := s.state()
++	r.accessMu.Lock()
++	acquired := r.accessTransactions[tx]
++	r.accessMu.Unlock()
++	if !acquired || request.Validate() != nil || !locked.Matches(r.accessIssuer, tx, plan, request) {
++		return projectAuditDenied()
++	}
++	if _, err := r.store.InTx(tx); err != nil {
++		return unavailable(err)
++	}
++	return nil
++}
++
++// Callers have just completed Acquire, Validate and accessWorkBefore. Publish
++// calls this explicitly after its owner/gate/verified checks, including when
++// the enclosing transaction belongs to another domain.
++func (s *Service) projectAuditAccessContext(ctx context.Context, tx foundation.Tx, request oc.AccessRequest, plan oc.AccessLockPlan, locked oc.LockedAccess) (context.Context, error) {
++	d := request.Details()
++	var kind projectAuditStageKind
++	switch d.Operation {
++	case oc.PublishAccess:
++		kind = auditPublish
++	case oc.FinishWriterAccess:
++		kind = auditWriterFailure
++	case oc.RecoverAttemptAccess:
++		kind = auditRecoveryFailure
++	case oc.FinalizeCleanupAccess:
++		kind = auditDelete
++	case oc.GateProjectAccess:
++		kind = auditProjectCleanup
++	default:
++		return ctx, nil
++	}
++	if err := s.checkedProjectAuditAccess(tx, request, plan, locked); err != nil {
++		return ctx, err
++	}
++	p := projectAuditStage{store: s.state().store, tx: tx, kind: kind, locks: locked.Locks(), actor: d.Actor,
++		owner: d.Owner, object: d.ObjectID, attempt: d.AttemptID, process: d.InstanceID,
++		objects: append([]oc.ObjectID(nil), plan.Details().Objects...), cleanup: d.ProjectCleanup}
++	if kind == auditPublish {
++		a := d.Attempt.Details()
++		p.object, p.upload, p.attempt = a.ObjectID, a.UploadID, a.ID
++	}
++	return context.WithValue(ctx, projectAuditStageKey{}, p), nil
++}
++
++func (t *TransferService) projectAuditTransferContext(ctx context.Context, tx foundation.Tx, request oc.AccessRequest, plan oc.AccessLockPlan, locked oc.LockedAccess, authorization oc.TransferAuthorization) (context.Context, error) {
++	d := request.Details().Transfer.Details()
++	if d.Operation != oc.TransferIssue && d.Operation != oc.TransferCapture && d.Operation != oc.TransferPublish && d.Operation != oc.TransferCancel {
++		return ctx, nil
++	}
++	s := t.state().objects
++	if err := s.checkedProjectAuditAccess(tx, request, plan, locked); err != nil {
++		return ctx, err
++	}
++	if !authorization.Matches(request.Details().Transfer) {
++		return ctx, projectAuditDenied()
++	}
++	a, spec := authorization.Details(), d.Spec.Details()
++	p := projectAuditStage{store: s.state().store, tx: tx, kind: auditTransfer, locks: locked.Locks(), actor: d.Actor, owner: spec.Owner, object: d.ObjectID}
++	p.transfer = projectAuditTransferStage{operation: d.Operation, id: d.ID, object: d.ObjectID, upload: d.UploadID, staging: d.StagingID, candidate: d.CandidateID, lease: d.LeaseID,
++		runner: spec.RunnerID, operationID: spec.OperationID, direction: spec.Direction, manifest: d.Manifest,
++		runnerGeneration: a.RunnerGeneration, operationVersion: a.OperationVersion, execution: a.ExecutionID}
++	if a.Completed != nil {
++		c := *a.Completed
++		p.transfer.completed = &c
++	}
++	return context.WithValue(ctx, projectAuditStageKey{}, p), nil
++}
++
++// Called only by the gated Continue callback after projectStopTransaction has
++// acquired the complete plan, revalidated the current cause and reread facts.
++func (s *Service) projectAuditStopContext(ctx context.Context, tx foundation.Tx, plan projectStopPlan, authorization oc.ProjectStopAuthorization, facts projectStopFacts) (context.Context, error) {
++	if plan.service != s || !authorization.Matches(tx, plan.request, plan.dependencies) || authorization.Mode() != oc.ContinueProjectStop || facts.binding != plan.facts.binding {
++		return ctx, projectAuditDenied()
++	}
++	p := projectAuditStage{store: s.state().store, tx: tx, kind: auditProjectStop, locks: append([]foundation.LockRequest(nil), plan.locks...), actor: plan.request.Details().Actor, stop: plan.request.Details().Cause, stopIDs: append([]string(nil), facts.ids...)}
++	for _, raw := range facts.objects {
++		id, err := foundation.ParseID[oc.StoredObject](raw)
++		if err != nil {
++			return ctx, unavailable(err)
++		}
++		p.objects = append(p.objects, id)
++	}
++	return context.WithValue(ctx, projectAuditStageKey{}, p), nil
++}
++
++func (s *Service) projectAuditWitnessContext(ctx context.Context, tx foundation.Tx, w projectAuditWitness) (context.Context, error) {
++	if w.entry.Fields().Scope.Details().Kind != identity.ProjectScope {
++		return ctx, nil
++	}
++	p, ok := ctx.Value(projectAuditStageKey{}).(projectAuditStage)
++	if !ok || p.tx != tx || !sameProjectAuditStore(p.store, s.state().store) {
++		return ctx, projectAuditDenied()
++	}
++	w.stage = p
++	if w.entry.Fields().Action == ac.ObjectUploadFailed && w.key.Details().Ordinal == 1 {
++		x, err := p.store.InTx(tx)
++		if err != nil {
++			return ctx, unavailable(err)
++		}
++		// gateAttempt preserves an existing operation on conflict. Capture that
++		// actual identity, rather than replacing it with this recovery's UUID.
++		if err = x.QueryRow(ctx, `SELECT id::text,operation_id::text FROM agenteam_object.cleanup_operations WHERE attempt_id=$1 AND object_id=$2`, p.attempt.String(), w.meta.ID.String()).Scan(&w.cleanupID, &w.cleanupOperation); err != nil {
++			return ctx, unavailable(err)
++		}
++	}
++	return context.WithValue(ctx, projectAuditWitnessKey{}, w), nil
++}
++
++func transferAuditFact(r transferRow) projectAuditTransferFact {
++	d := r.spec.Details()
++	return projectAuditTransferFact{id: r.id, actor: r.actor, owner: d.Owner, object: r.object, upload: r.upload, staging: r.staging, candidate: r.candidate, lease: r.lease,
++		runner: d.RunnerID, operation: d.OperationID, direction: d.Direction, manifest: r.manifest,
++		runnerGeneration: r.runnerGeneration, operationVersion: r.operationVersion, execution: r.execution}
++}
++
++func auditLockCovers(locks []foundation.LockRequest, key foundation.LockKey, mode foundation.LockMode) bool {
++	return slices.ContainsFunc(locks, func(v foundation.LockRequest) bool {
++		return v.Key.Canonical() == key.Canonical() && (v.Mode == mode || v.Mode == foundation.Exclusive)
++	})
++}
++func auditObjectLocks(p projectAuditStage, project string, object oc.ObjectID) bool {
++	pk, err := foundation.ProjectLock(project)
++	if err != nil {
++		return false
++	}
++	ok, err := foundation.AggregateLock(foundation.ObjectAggregate, object.String())
++	if err != nil {
++		return false
++	}
++	mode := foundation.Shared
++	if p.kind == auditProjectCleanup || p.kind == auditProjectStop {
++		mode = foundation.Exclusive
++	}
++	return auditLockCovers(p.locks, pk, mode) && auditLockCovers(p.locks, ok, foundation.Exclusive)
++}
+--- /dev/null
++++ b/internal/central/object/project_audit_test.go
+@@ -0,0 +1,201 @@
++package object
++
++import (
++	"context"
++	"errors"
++	"reflect"
++	"strings"
++	"testing"
++	"time"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++)
++
++type auditTestStore struct {
++	Store
++	tx      foundation.Tx
++	queries int
++	row     func(string, ...any) postgres.Row
++}
++
++func (s *auditTestStore) InTx(tx foundation.Tx) (postgres.SQLExecutor, error) {
++	if tx != s.tx || !tx.Valid() {
++		return nil, errors.New("closed or foreign transaction")
++	}
++	return s, nil
++}
++func (s *auditTestStore) QueryRow(_ context.Context, q string, args ...any) postgres.Row {
++	s.queries++
++	return s.row(q, args...)
++}
++
++type auditUncomparableStore struct {
++	Store
++	values []string
++}
++type auditDynamicStore struct {
++	Store
++	value any
++}
++type auditTestRow func(...any) error
++
++func (r auditTestRow) Scan(v ...any) error { return r(v...) }
++func auditValues(values ...any) postgres.Row {
++	return auditTestRow(func(out ...any) error {
++		if len(out) != len(values) {
++			return errors.New("wrong scan count")
++		}
++		for i, v := range values {
++			d := reflect.ValueOf(out[i]).Elem()
++			if v == nil {
++				d.SetZero()
++			} else {
++				value := reflect.ValueOf(v)
++				if !value.Type().ConvertibleTo(d.Type()) {
++					return errors.New("wrong scan type")
++				}
++				d.Set(value.Convert(d.Type()))
++			}
++		}
++		return nil
++	})
++}
++func auditID[K any](t *testing.T) foundation.ID[K] {
++	t.Helper()
++	v, e := foundation.NewID[K]()
++	if e != nil {
++		t.Fatal(e)
++	}
++	return v
++}
++func auditCode(t *testing.T, err error, want foundation.Code) {
++	t.Helper()
++	var f *foundation.Fault
++	if !errors.As(err, &f) || f.Code != want {
++		t.Fatalf("got %v, want %s", err, want)
++	}
++}
++func TestObjectProjectAuditConstructionHasNoIOAndChecksDynamicIdentity(t *testing.T) {
++	var typed *auditTestStore
++	for _, s := range []Store{nil, typed} {
++		_, err := NewProjectAuditAuthority(s)
++		auditCode(t, err, foundation.DependencyUnbound)
++	}
++	for _, s := range []Store{auditUncomparableStore{}, auditDynamicStore{value: []string{"not-comparable"}}} {
++		_, err := NewProjectAuditAuthority(s)
++		auditCode(t, err, foundation.InvalidArgument)
++	}
++	for _, s := range []Store{&auditTestStore{}, auditDynamicStore{value: "comparable"}} {
++		if _, err := NewProjectAuditAuthority(s); err != nil {
++			t.Fatal(err)
++		}
++	}
++	var zero ProjectAuditAuthority
++	auditCode(t, zero.CheckProjectAuditInTx(context.Background(), foundation.Tx{}, ac.Entry{}, ac.AppendKey{}), foundation.DependencyUnbound)
++	var nilChecker *ProjectAuditAuthority
++	auditCode(t, nilChecker.CheckProjectAuditInTx(context.Background(), foundation.Tx{}, ac.Entry{}, ac.AppendKey{}), foundation.DependencyUnbound)
++}
++
++type auditPublishFixture struct {
++	store   *auditTestStore
++	checker *ProjectAuditAuthority
++	w       projectAuditWitness
++	u       uploadRow
++	a       attemptRow
++	o       objectRow
++}
++
++func newAuditPublishFixture(t *testing.T) *auditPublishFixture {
++	t.Helper()
++	p := auditID[identity.Project](t)
++	scope, _ := identity.InProject(p)
++	owner, _ := oc.NewObjectOwner(oc.Artifact, auditID[struct{}](t).String(), p.String())
++	actor, _ := identity.NewHuman(auditID[identity.User](t), auditID[identity.Session](t))
++	at, _ := foundation.NewInstant(time.Now())
++	v := &auditPublishFixture{store: &auditTestStore{tx: foundation.NewTx()}}
++	v.u = uploadRow{id: auditID[oc.Upload](t), object: auditID[oc.StoredObject](t), receipt: auditID[oc.Receipt](t), owner: owner, actor: stableActor(actor), state: "pending", disposition: "attached", existence: oc.ExistingOwner, initiator: identity.Human, initiatorID: actor.Details().UserID}
++	v.a = attemptRow{id: auditID[oc.Attempt](t), upload: v.u.id, object: v.u.object, process: auditID[oc.Process](t), phase: "verified", size: 4, digest: foundation.Digest("sha256:" + strings.Repeat("a", 64)), closed: true, kind: "private_candidate"}
++	v.u.attempt = v.a.id
++	v.o = objectRow{meta: oc.ObjectMeta{ID: v.u.object, Scope: scope, MediaType: "text/plain; charset=utf-8", ByteSize: 4, SHA256: v.a.digest, State: oc.Pending, Version: 1, CreatedAt: at}, partition: p.String()}
++	key, _ := ac.NewAppendKey(ac.ObjectProducer, v.u.id.String(), 0)
++	metadata, _ := ac.ObjectMetadata(ac.ObjectUploadComplete, ac.ObjectMetadataFields{ObjectID: v.u.object.String(), InitiatorKind: identity.Human, InitiatorID: v.u.initiatorID, MediaType: "text/plain", ByteSize: 4, Phase: ac.PublishedPhase})
++	entry, err := auditExpectedEntry(scope, key, ac.ObjectUploadComplete, ac.Success, ac.ObjectResource, v.u.object.String(), metadata)
++	if err != nil {
++		t.Fatal(err)
++	}
++	pk, _ := foundation.ProjectLock(p.String())
++	ok, _ := foundation.AggregateLock(foundation.ObjectAggregate, v.u.object.String())
++	v.w = projectAuditWitness{stage: projectAuditStage{store: v.store, tx: v.store.tx, kind: auditPublish, actor: actor, owner: owner, object: v.u.object, upload: v.u.id, attempt: v.a.id, locks: []foundation.LockRequest{{Key: pk, Mode: foundation.Shared}, {Key: ok, Mode: foundation.Exclusive}}}, entry: entry, key: key, upload: v.u.id, meta: v.o.meta}
++	v.store.row = func(q string, args ...any) postgres.Row {
++		switch {
++		case strings.Contains(q, "FROM agenteam_object.uploads"):
++			u := v.u
++			d := u.owner.Details()
++			return auditValues(u.id.String(), u.object.String(), u.receipt.String(), u.attempt.String(), d.Kind, d.ID, d.ProjectID, string(u.command), u.digest, u.actor, u.state, u.disposition, u.creation, u.existence, u.initiator, u.initiatorID, u.executionID, u.expected)
++		case strings.Contains(q, "FROM agenteam_object.objects"):
++			o := v.o
++			return auditValues(o.meta.ID.String(), "project", o.partition, o.meta.Scope.Details().ProjectID, o.meta.MediaType, int64(o.meta.ByteSize), digestBytes(o.meta.SHA256), o.meta.State, int64(o.meta.Version), o.key, o.cleaning, o.meta.CreatedAt.Time())
++		case strings.Contains(q, "FROM agenteam_object.upload_attempts"):
++			a := v.a
++			return auditValues(a.id.String(), a.upload.String(), a.object.String(), a.process.String(), a.key, a.phase, a.ordinal, a.size, digestBytes(a.digest), a.late, a.closed, a.cleaning, a.kind, "")
++		case strings.Contains(q, "FROM agenteam_object.project_work"):
++			return auditValues(false)
++		default:
++			t.Fatalf("checker performed unexpected SQL: %s", q)
++			return nil
++		}
++	}
++	v.checker, err = NewProjectAuditAuthority(v.store)
++	if err != nil {
++		t.Fatal(err)
++	}
++	return v
++}
++func (v *auditPublishFixture) check(ctx context.Context, tx foundation.Tx, entry ac.Entry, key ac.AppendKey) error {
++	return v.checker.CheckProjectAuditInTx(ctx, tx, entry, key)
++}
++func (v *auditPublishFixture) context() context.Context {
++	return context.WithValue(context.Background(), projectAuditWitnessKey{}, v.w)
++}
++func TestObjectProjectAuditPublicationReadsCanonicalPrestate(t *testing.T) {
++	for _, name := range []string{"valid-repeat", "wrong-owner", "wrong-attempt", "wrong-digest", "not-verified", "not-closed", "revoked", "cleaning", "published-already", "wrong-process-witness"} {
++		t.Run(name, func(t *testing.T) {
++			v := newAuditPublishFixture(t)
++			switch name {
++			case "wrong-owner":
++				v.u.owner, _ = oc.NewObjectOwner(oc.Artifact, auditID[struct{}](t).String(), v.o.meta.Scope.Details().ProjectID)
++			case "wrong-attempt":
++				v.u.attempt = auditID[oc.Attempt](t)
++			case "wrong-digest":
++				v.a.digest = foundation.Digest("sha256:" + strings.Repeat("b", 64))
++			case "not-verified":
++				v.a.phase = "unknown"
++			case "not-closed":
++				v.a.closed = false
++			case "revoked":
++				v.u.disposition = "revoked"
++			case "cleaning":
++				v.o.cleaning = true
++			case "published-already":
++				v.u.state = "committed"
++			case "wrong-process-witness":
++				v.w.stage.kind = auditWriterFailure
++			}
++			err := v.check(v.context(), v.store.tx, v.w.entry, v.w.key)
++			if name == "valid-repeat" {
++				if err != nil {
++					t.Fatal(err)
++				}
++				if err = v.check(v.context(), v.store.tx, v.w.entry, v.w.key); err != nil {
++					t.Fatal(err)
++				}
++			} else {
++				auditCode(t, err, foundation.Forbidden)
++			}
++		})
++	}
++}
+--- /dev/null
++++ b/internal/central/object/project_audit_witness_test.go
+@@ -0,0 +1,111 @@
++package object
++
++import (
++	"context"
++	"reflect"
++	"testing"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
++)
++
++func TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction(t *testing.T) {
++	for _, name := range []string{"no-witness", "wrong-store", "wrong-tx", "expired-tx", "wrong-producer", "wrong-cause", "wrong-ordinal", "wrong-resource", "wrong-metadata", "wrong-actor", "missing-lock"} {
++		t.Run(name, func(t *testing.T) {
++			v := newAuditPublishFixture(t)
++			ctx := v.context()
++			tx := v.store.tx
++			entry, key := v.w.entry, v.w.key
++			f := entry.Fields()
++			switch name {
++			case "no-witness":
++				ctx = context.Background()
++			case "wrong-store":
++				v.checker, _ = NewProjectAuditAuthority(&auditTestStore{tx: tx})
++			case "wrong-tx":
++				tx = foundation.NewTx()
++			case "expired-tx":
++				v.store.tx = foundation.NewTx()
++			case "wrong-producer":
++				key, _ = ac.NewAppendKey(ac.ArtifactProducer, key.Details().CauseRef, 0)
++			case "wrong-cause":
++				key, _ = ac.NewAppendKey(ac.ObjectProducer, auditID[struct{}](t).String(), 0)
++			case "wrong-ordinal":
++				key, _ = ac.NewAppendKey(ac.ObjectProducer, key.Details().CauseRef, 1)
++			case "wrong-resource":
++				f.Resource, _ = ac.NewResource(ac.ObjectResource, auditID[struct{}](t).String())
++				entry, _ = ac.NewEntry(f)
++			case "wrong-metadata":
++				f.Metadata, _ = ac.ObjectMetadata(ac.ObjectUploadComplete, ac.ObjectMetadataFields{ObjectID: v.u.object.String(), InitiatorKind: identity.Human, InitiatorID: v.u.initiatorID, MediaType: "application/json", ByteSize: 4, Phase: ac.PublishedPhase})
++				entry, _ = ac.NewEntry(f)
++			case "wrong-actor":
++				reg, _ := identity.RegisterService(identity.ObjectMaintenance)
++				f.Actor, _ = reg.Actor(key.Details().CauseRef, f.Scope)
++				entry, _ = ac.NewEntry(f)
++			case "missing-lock":
++				v.w.stage.locks = nil
++				ctx = v.context()
++			}
++			if err := v.check(ctx, tx, entry, key); err == nil {
++				t.Fatal("forged call accepted")
++			}
++			if name != "missing-lock" && v.store.queries != 0 {
++				t.Fatal("unbound envelope read canonical rows")
++			}
++		})
++	}
++	for i := 0; i < 9; i++ {
++		t.Run(reflect.TypeOf(ac.Associations{}).Field(i).Name, func(t *testing.T) {
++			v := newAuditPublishFixture(t)
++			f := v.w.entry.Fields()
++			reflect.ValueOf(&f.Associations).Elem().Field(i).SetString(auditID[struct{}](t).String())
++			entry, err := ac.NewEntry(f)
++			if err != nil {
++				t.Fatal(err)
++			}
++			auditCode(t, v.check(v.context(), v.store.tx, entry, v.w.key), foundation.Forbidden)
++			if v.store.queries != 0 {
++				t.Fatal("altered association reached SQL")
++			}
++		})
++	}
++}
++func TestObjectProjectAuditStageRequiresRealPrivateAcquire(t *testing.T) {
++	v := newAuditPublishFixture(t)
++	r := &serviceState{store: v.store, accessIssuer: oc.NewAccessIssuer(), accessTransactions: map[foundation.Tx]bool{}}
++	s := &Service{data: func() *serviceState { return r }}
++	attempt, _ := oc.NewUploadAttempt(oc.AttemptDetails{ID: v.a.id, UploadID: v.u.id, ObjectID: v.u.object})
++	request := ownerRequest(v.w.stage.actor, v.u.owner, oc.PublishAccess, oc.AccessRequestDetails{Attempt: attempt})
++	deps, err := oc.NewAccessDependencies(v.o.meta.SHA256, v.w.stage.locks)
++	if err != nil {
++		t.Fatal(err)
++	}
++	plan, err := oc.NewAccessLockPlan(r.accessIssuer, oc.AccessPlanDetails{Request: request, DependencyRequest: request, Dependencies: deps, DomainBinding: v.o.meta.SHA256, Objects: []oc.ObjectID{v.u.object}, Locks: v.w.stage.locks})
++	if err != nil {
++		t.Fatal(err)
++	}
++	locked, err := oc.NewLockedAccess(r.accessIssuer, v.store.tx, []oc.AccessLockPlan{plan}, nil)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if _, err = s.projectAuditAccessContext(context.Background(), v.store.tx, request, plan, locked); err == nil {
++		t.Fatal("token without actual acquisition minted stage")
++	}
++	r.accessTransactions[v.store.tx] = true
++	foreign, _ := oc.NewLockedAccess(oc.NewAccessIssuer(), v.store.tx, []oc.AccessLockPlan{plan}, nil)
++	if _, err = s.projectAuditAccessContext(context.Background(), v.store.tx, request, plan, foreign); err == nil {
++		t.Fatal("foreign issuer minted stage")
++	}
++	ctx, err := s.projectAuditAccessContext(context.Background(), v.store.tx, request, plan, locked)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if _, err = s.projectAuditWitnessContext(ctx, foundation.NewTx(), v.w); err == nil {
++		t.Fatal("stage moved to another Tx")
++	}
++	if _, err = s.projectAuditWitnessContext(ctx, v.store.tx, v.w); err != nil {
++		t.Fatal(err)
++	}
++}
+--- /dev/null
++++ b/tests/objects/project_audit_test.go
+@@ -0,0 +1,333 @@
++//go:build integration
++
++package objects_test
++
++import (
++	"context"
++	"io"
++	"reflect"
++	"strings"
++	"testing"
++	"time"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	"github.com/LunaDeerTech/agenteam/internal/central/object"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
++	"github.com/minio/minio-go/v7"
++)
++
++func auditVerified(t *testing.T, f *objectAuditFixture, key, body string) (oc.PreparedPayload, oc.UploadAttempt) {
++	t.Helper()
++	ctx := contextFor(t)
++	prepared, err := f.service.PreparePayload(ctx, f.actor, f.owner, "text/plain", int64(len(body)), nil, io.NopCloser(strings.NewReader(body)))
++	if err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(func() {
++		if err := f.service.DiscardPrepared(prepared); err != nil {
++			t.Error(err)
++		}
++	})
++	cmd := command(t, key)
++	plan := ownerPlan(t, f.service, f.actor, f.owner, oc.ReserveAccess, oc.AccessRequestDetails{Command: &cmd, Prepared: prepared})
++	var attempt oc.UploadAttempt
++	r := plannedTx(f.dbstore, f.service, ctx, cause(t), plan, func(ctx context.Context, tx foundation.Tx, p oc.AccessLockPlan, l oc.LockedAccess) error {
++		var err error
++		attempt, err = f.service.ReserveUploadInTx(ctx, tx, f.actor, f.owner, cmd, prepared, p, l)
++		return err
++	})
++	if r.State() != foundation.Committed {
++		t.Fatal(r.Fault())
++	}
++	attempt, err = f.service.UploadPrepared(ctx, f.actor, f.owner, prepared, attempt)
++	if err != nil {
++		t.Fatal(err)
++	}
++	return prepared, attempt
++}
++func auditPublish(t *testing.T, f *objectAuditFixture, attempt oc.UploadAttempt) foundation.CommitResult {
++	t.Helper()
++	plan := ownerPlan(t, f.service, f.actor, f.owner, oc.PublishAccess, oc.AccessRequestDetails{Attempt: attempt})
++	return plannedTx(f.dbstore, f.service, contextFor(t), cause(t), plan, func(ctx context.Context, tx foundation.Tx, p oc.AccessLockPlan, l oc.LockedAccess) error {
++		e, err := f.dbstore.InTx(tx)
++		if err != nil {
++			return err
++		}
++		if _, err = e.Exec(ctx, `INSERT INTO object_fixture.audit_business_marker VALUES(1)`); err != nil {
++			return err
++		}
++		_, err = f.service.PublishVerifiedInTx(ctx, tx, f.actor, f.owner, attempt, p, l)
++		return err
++	})
++}
++func TestObjectProjectAuditExternalPublicationExactWitnessAndRollback(t *testing.T) {
++	base := newFixture(t, true)
++	proxy := newStorageProxy(t, base)
++	cfg := auditStorageConfig(t, base, proxy.server.URL)
++	f := objectAuditOn(t, base, objectAuditOptions{config: &cfg})
++	f.sql(t, `CREATE TABLE object_fixture.audit_business_marker(id int PRIMARY KEY)`)
++	_, attempt := auditVerified(t, f, "external-audit", "body")
++	var captured context.Context
++	var originalTx foundation.Tx
++	var originalEntry ac.Entry
++	var originalKey ac.AppendKey
++	f.tap.set(func(ctx context.Context, tx foundation.Tx, entry ac.Entry, key ac.AppendKey) error {
++		if entry.Fields().Action != ac.ObjectUploadComplete {
++			return fault(foundation.InvalidState)
++		}
++		e, err := f.dbstore.InTx(tx)
++		if err != nil {
++			return err
++		}
++		var actual bool
++		err = e.QueryRow(ctx, `SELECT a.phase='verified' AND a.io_closed AND u.state<>'committed' AND o.state<>'available' FROM agenteam_object.uploads u JOIN agenteam_object.upload_attempts a ON a.id=u.current_attempt_id JOIN agenteam_object.objects o ON o.id=u.object_id WHERE u.id=$1`, attempt.Details().UploadID.String()).Scan(&actual)
++		if err != nil {
++			return err
++		}
++		if !actual {
++			t.Error("checker was not called before actual publication")
++			return fault(foundation.InvalidState)
++		}
++		if err = f.checker.CheckProjectAuditInTx(ctx, tx, entry, key); err != nil {
++			return err
++		}
++		if err = f.checker.CheckProjectAuditInTx(context.Background(), tx, entry, key); err == nil {
++			t.Error("history without witness accepted")
++		}
++		other, _ := object.NewProjectAuditAuthority(&objectAuditDistinctStore{f.store})
++		if err = other.CheckProjectAuditInTx(ctx, tx, entry, key); err == nil {
++			t.Error("different Store accepted")
++		}
++		for i := 0; i < 9; i++ {
++			fields := entry.Fields()
++			reflect.ValueOf(&fields.Associations).Elem().Field(i).SetString(id[struct{}](t).String())
++			changed, er := ac.NewEntry(fields)
++			if er != nil {
++				return er
++			}
++			if er = f.checker.CheckProjectAuditInTx(ctx, tx, changed, key); er == nil {
++				t.Error("changed association accepted", i)
++			}
++		}
++		changedKey, _ := ac.NewAppendKey(ac.ObjectProducer, key.Details().CauseRef, key.Details().Ordinal+1)
++		if err = f.checker.CheckProjectAuditInTx(ctx, tx, entry, changedKey); err == nil {
++			t.Error("changed ordinal accepted")
++		}
++		captured, originalTx, originalEntry, originalKey = ctx, tx, entry, key
++		return fault(foundation.Forbidden)
++	})
++	r := auditPublish(t, f, attempt)
++	if r.State() != foundation.NotCommitted {
++		t.Fatal("denied Audit committed")
++	}
++	requireCode(t, r.Fault(), foundation.Forbidden)
++	var n int
++	if err := f.store.QueryRow(contextFor(t), `SELECT count(*) FROM object_fixture.audit_business_marker`).Scan(&n); err != nil || n != 0 {
++		t.Fatal("business marker escaped rollback", err, n)
++	}
++	if objectAuditCount(t, f.fixture, ac.ObjectUploadComplete) != 0 {
++		t.Fatal("denied publication Audit persisted")
++	}
++	if err := f.checker.CheckProjectAuditInTx(captured, originalTx, originalEntry, originalKey); err == nil {
++		t.Fatal("expired Tx accepted")
++	}
++	for _, change := range []string{"owner", "current-attempt", "digest", "phase"} {
++		t.Run(change, func(t *testing.T) {
++			f.tap.set(func(ctx context.Context, tx foundation.Tx, e ac.Entry, k ac.AppendKey) error {
++				x, err := f.dbstore.InTx(tx)
++				if err != nil {
++					return err
++				}
++				switch change {
++				case "owner":
++					_, err = x.Exec(ctx, `UPDATE agenteam_object.uploads SET owner_id=$2 WHERE id=$1`, attempt.Details().UploadID.String(), id[struct{}](t).String())
++				case "current-attempt":
++					_, err = x.Exec(ctx, `UPDATE agenteam_object.uploads SET current_attempt_id=NULL WHERE id=$1`, attempt.Details().UploadID.String())
++				case "digest":
++					_, err = x.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET sha256=decode($2,'hex') WHERE id=$1`, attempt.Details().ID.String(), digest([]byte("evil")).String()[7:])
++				case "phase":
++					_, err = x.Exec(ctx, `UPDATE agenteam_object.upload_attempts SET phase='unknown' WHERE id=$1`, attempt.Details().ID.String())
++				}
++				if err != nil {
++					return err
++				}
++				return f.checker.CheckProjectAuditInTx(ctx, tx, e, k)
++			})
++			r := auditPublish(t, f, attempt)
++			if r.State() != foundation.NotCommitted {
++				t.Fatal("changed canonical facts accepted", change)
++			}
++			requireCode(t, r.Fault(), foundation.Forbidden)
++		})
++	}
++	f.tap.set(nil)
++	r = auditPublish(t, f, attempt)
++	if r.State() != foundation.Committed {
++		t.Fatal(r.Fault())
++	}
++	if proxy.puts.Load() != 1 || objectAuditCount(t, f.fixture, ac.ObjectUploadComplete) != 1 {
++		t.Fatal("publication retry repeated bytes/Audit")
++	}
++	// Current authorization is independent of retained facts and witness.
++	f.sql(t, `UPDATE object_fixture.sessions SET active=false`)
++	_, err := f.service.LookupPut(contextFor(t), f.actor, f.owner, "external-audit")
++	requireCode(t, err, foundation.SessionRevoked)
++}
++
++type objectAuditDistinctStore struct{ objectAuditStore }
++
++func TestObjectProjectAuditWriterRecoveryAndDeleteFacts(t *testing.T) {
++	t.Run("writer-and-real-verification", func(t *testing.T) {
++		base := newFixture(t, true)
++		proxy := newStorageProxy(t, base)
++		cfg := auditStorageConfig(t, base, proxy.server.URL)
++		f := objectAuditOn(t, base, objectAuditOptions{config: &cfg})
++		proxy.mode.Store(proxyRejectCandidateRead)
++		_, err := f.service.PutObject(contextFor(t), f.actor, f.owner, command(t, "failed-writer"), "text/plain", 4, nil, io.NopCloser(strings.NewReader("body")))
++		if err == nil {
++			t.Fatal("verification failure accepted")
++		}
++		var attempt, key string
++		var closed bool
++		if err = f.store.QueryRow(contextFor(t), `SELECT id::text,candidate_key,io_closed FROM agenteam_object.upload_attempts`).Scan(&attempt, &key, &closed); err != nil || !closed {
++			t.Fatal("writer did not close", err)
++		}
++		if objectAuditCount(t, f.fixture, ac.ObjectUploadFailed) != 1 {
++			t.Fatal("writer failure Audit missing")
++		}
++		var ordinal int64
++		if err = f.store.QueryRow(contextFor(t), `SELECT ordinal FROM agenteam_audit.audit_records WHERE cause_ref=$1`, attempt).Scan(&ordinal); err != nil || ordinal != 0 {
++			t.Fatal("writer original cause/ordinal", err, ordinal)
++		}
++		// The recovery branch must obtain a real backend absence, not JSON or an
++		// inserted receipt. The original failed candidate was genuinely written.
++		if err = f.s3.RemoveObject(contextFor(t), f.bucket, key, minio.RemoveObjectOptions{}); err != nil {
++			t.Fatal(err)
++		}
++		proxy.mode.Store(proxyPass)
++		seen := false
++		f.tap.set(func(ctx context.Context, tx foundation.Tx, e ac.Entry, k ac.AppendKey) error {
++			if e.Fields().Action != ac.ObjectUploadFailed {
++				return nil
++			}
++			if k.Details().CauseRef != attempt || k.Details().Ordinal != 1 {
++				return fault(foundation.InvalidState)
++			}
++			x, er := f.dbstore.InTx(tx)
++			if er != nil {
++				return er
++			}
++			var ok bool
++			er = x.QueryRow(ctx, `SELECT a.phase='abandoned' AND a.cleanup_gate AND EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations c WHERE c.attempt_id=a.id) FROM agenteam_object.upload_attempts a WHERE a.id=$1`, attempt).Scan(&ok)
++			if er != nil {
++				return er
++			}
++			if !ok {
++				return fault(foundation.InvalidState)
++			}
++			seen = true
++			return nil
++		})
++		if err = f.service.Recover(contextFor(t)); err != nil {
++			t.Fatal(err)
++		}
++		if !seen || objectAuditCount(t, f.fixture, ac.ObjectUploadFailed) != 2 {
++			t.Fatal("recovery failure original ordinal missing")
++		}
++	})
++	t.Run("delete-prestate-and-earliest-cause", func(t *testing.T) {
++		f := newObjectAuditFixture(t, true)
++		put := f.put(t, "delete-audit", "body")
++		seen := 0
++		f.tap.set(func(ctx context.Context, tx foundation.Tx, e ac.Entry, k ac.AppendKey) error {
++			if e.Fields().Action != ac.ObjectDelete {
++				return nil
++			}
++			seen++
++			x, err := f.dbstore.InTx(tx)
++			if err != nil {
++				return err
++			}
++			var valid bool
++			if err = x.QueryRow(ctx, `SELECT cleaning AND state<>'deleted' AND NOT EXISTS(SELECT 1 FROM agenteam_object.upload_attempts WHERE object_id=o.id AND phase<>'cleaned') FROM agenteam_object.objects o WHERE id=$1`, put.Meta.ID.String()).Scan(&valid); err != nil {
++				return err
++			}
++			if !valid {
++				return fault(foundation.InvalidState)
++			}
++			if err = f.checker.CheckProjectAuditInTx(ctx, tx, e, k); err != nil {
++				return err
++			}
++			if _, err = x.Exec(ctx, `UPDATE agenteam_object.cleanup_operations SET operation_id=$2 WHERE object_id=$1`, put.Meta.ID.String(), id[oc.CleanupOperation](t).String()); err != nil {
++				return err
++			}
++			err = f.checker.CheckProjectAuditInTx(ctx, tx, e, k)
++			if err == nil {
++				t.Error("replacement cleanup cause accepted")
++				return fault(foundation.InvalidState)
++			}
++			return err
++		})
++		_, err := f.service.CancelUpload(contextFor(t), f.actor, f.owner, "delete-audit")
++		requireCode(t, err, foundation.Forbidden)
++		if seen != 1 || objectAuditCount(t, f.fixture, ac.ObjectDelete) != 0 {
++			t.Fatal("delete rejection did not roll back")
++		}
++		var state string
++		if err = f.store.QueryRow(contextFor(t), `SELECT state FROM agenteam_object.objects WHERE id=$1`, put.Meta.ID.String()).Scan(&state); err != nil || state == "deleted" {
++			t.Fatal("deleted UPDATE escaped rollback", err, state)
++		}
++		f.tap.set(nil)
++		if err = f.service.Recover(contextFor(t)); err != nil {
++			t.Fatal(err)
++		}
++		if objectAuditCount(t, f.fixture, ac.ObjectDelete) != 1 {
++			t.Fatal("delete Audit missing")
++		}
++		if err = f.service.Recover(contextFor(t)); err != nil {
++			t.Fatal(err)
++		}
++		if objectAuditCount(t, f.fixture, ac.ObjectDelete) != 1 {
++			t.Fatal("delete replay duplicated Audit")
++		}
++	})
++}
++
++func TestObjectProjectAuditPublicationActualCommitUnknownReplaysWithoutPUT(t *testing.T) {
++	base := newFixture(t, true)
++	raw, proxy := proxyStore(t, base, true)
++	http := newStorageProxy(t, base)
++	cfg := auditStorageConfig(t, base, http.server.URL)
++	wrapped := &objectAuditCommitStore{Store: raw, proxy: proxy}
++	f := objectAuditOn(t, base, objectAuditOptions{pg: raw, store: wrapped, config: &cfg})
++	f.sql(t, `CREATE TABLE object_fixture.audit_business_marker(id int PRIMARY KEY)`)
++	_, attempt := auditVerified(t, f, "unknown-publication", "body")
++	wrapped.arm(ac.ObjectUploadComplete, attempt.Details().ObjectID.String(), false)
++	done := make(chan foundation.CommitResult, 1)
++	go func() { done <- auditPublish(t, f, attempt) }()
++	select {
++	case <-proxy.reached:
++	case <-time.After(3 * time.Second):
++		t.Fatal("publication Audit COMMIT not intercepted")
++	}
++	wrapped.assertHit(t, base, false)
++	var visible bool
++	if err := base.store.QueryRow(contextFor(t), `SELECT u.state='committed' AND o.state='available' AND EXISTS(SELECT 1 FROM object_fixture.audit_business_marker) FROM agenteam_object.uploads u JOIN agenteam_object.objects o ON o.id=u.object_id WHERE u.id=$1`, attempt.Details().UploadID.String()).Scan(&visible); err != nil || !visible {
++		t.Fatal("actual final publication not committed", err)
++	}
++	close(proxy.release)
++	select {
++	case r := <-done:
++		if r.State() != foundation.Unknown {
++			t.Fatal("lost ACK was not Unknown", r.State())
++		}
++	case <-time.After(3 * time.Second):
++		t.Fatal("publication return did not join")
++	}
++	wrapped.waitWriter(t, base)
++	result, err := f.service.PutObject(contextFor(t), f.actor, f.owner, command(t, "unknown-publication"), "text/plain", 4, nil, io.NopCloser(strings.NewReader("body")))
++	if err != nil || result.Meta.ID != attempt.Details().ObjectID || http.puts.Load() != 1 || objectAuditCount(t, f.fixture, ac.ObjectUploadComplete) != 1 {
++		t.Fatal("publication replay changed original facts or bytes", err)
++	}
++}
+--- /dev/null
++++ b/tests/objects/project_audit_transfer_test.go
+@@ -0,0 +1,566 @@
++//go:build integration
++
++package objects_test
++
++import (
++	"context"
++	"io"
++	"strings"
++	"testing"
++	"time"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
++)
++
++func auditGETSpec(t *testing.T, f *transferFixture, oid oc.ObjectID) oc.TransferSpec {
++	t.Helper()
++	f.sql(t, `INSERT INTO object_fixture.transfer_inputs VALUES($1,$2) ON CONFLICT DO NOTHING`, f.operation.String(), oid.String())
++	s, err := oc.NewTransferSpec(oc.TransferSpecDetails{RunnerID: f.runner, OperationID: f.operation, Direction: oc.TransferGET, Owner: f.owner, ObjectID: oid})
++	if err != nil {
++		t.Fatal(err)
++	}
++	return s
++}
++func TestObjectProjectAuditTransferPUTNestedRollbackAndGETCompleteCancel(t *testing.T) {
++	t.Run("put-two-audits-one-tx", func(t *testing.T) {
++		base := newTransferFixture(t)
++		proxy := newTransferProxy(t, base.fixture)
++		cfg, payloadPUTs := auditPayloadProxy(t, base.fixture, proxy.server.URL)
++		f := objectAuditOn(t, base.fixture, objectAuditOptions{config: &cfg, transfer: base})
++		tf := f.transfer
++		body := []byte("audit private candidate")
++		spec := tf.spec(t, body)
++		grant, err := tf.transfers.IssueTransfer(contextFor(t), f.actor, command(t, "audit-put"), spec)
++		if err != nil {
++			t.Fatal(err)
++		}
++		material, err := grant.Material.ForRunner(tf.runner, grant.Status.ID)
++		if err != nil {
++			t.Fatal(err)
++		}
++		if code, _ := transferRequest(t, tf, material, body); code != 200 {
++			t.Fatal(code)
++		}
++		evidence := tf.evidence(t, grant, oc.TransferCompletedEvidence, false)
++		var inner foundation.Tx
++		outer := false
++		f.tap.set(func(ctx context.Context, tx foundation.Tx, e ac.Entry, k ac.AppendKey) error {
++			switch e.Fields().Action {
++			case ac.ObjectUploadComplete:
++				inner = tx
++			case ac.ObjectTransferComplete:
++				if tx != inner {
++					t.Error("nested publication did not share transfer Tx")
++					return fault(foundation.InvalidState)
++				}
++				x, er := f.dbstore.InTx(tx)
++				if er != nil {
++					return er
++				}
++				var published bool
++				er = x.QueryRow(ctx, `SELECT t.phase='complete' AND u.state='committed' AND o.state='available' AND a.phase='published' FROM agenteam_object.object_transfers t JOIN agenteam_object.uploads u ON u.id=t.upload_id JOIN agenteam_object.objects o ON o.id=t.object_id JOIN agenteam_object.upload_attempts a ON a.id=t.candidate_id WHERE t.id=$1`, grant.Status.ID.String()).Scan(&published)
++				if er != nil {
++					return er
++				}
++				if !published {
++					return fault(foundation.InvalidState)
++				}
++				if er = f.checker.CheckProjectAuditInTx(ctx, tx, e, k); er != nil {
++					return er
++				}
++				outer = true
++				return fault(foundation.Forbidden)
++			}
++			return nil
++		})
++		_, err = tf.transfers.CompleteTransfer(contextFor(t), f.actor, grant.Status.ID, evidence)
++		requireCode(t, err, foundation.Forbidden)
++		if !outer || objectAuditCount(t, f.fixture, ac.ObjectUploadComplete) != 0 || objectAuditCount(t, f.fixture, ac.ObjectTransferComplete) != 0 {
++			t.Fatal("two Audit/publication transaction escaped rollback")
++		}
++		var verified bool
++		if err = f.store.QueryRow(contextFor(t), `SELECT a.phase='verified' AND o.state<>'available' AND t.phase<>'complete' FROM agenteam_object.object_transfers t JOIN agenteam_object.upload_attempts a ON a.id=t.candidate_id JOIN agenteam_object.objects o ON o.id=t.object_id WHERE t.id=$1`, grant.Status.ID.String()).Scan(&verified); err != nil || !verified {
++			t.Fatal("independent verified candidate lost", err)
++		}
++		gets, puts := payloadPUTs.getBytes.Load(), payloadPUTs.puts.Load()
++		rawGets, rawPuts := proxy.stageGET.Load(), proxy.candidatePUT.Load()
++		f.tap.set(nil)
++		state, err := tf.transfers.CompleteTransfer(contextFor(t), f.actor, grant.Status.ID, evidence)
++		if err != nil || state.State != oc.TransferComplete {
++			t.Fatal("real candidate retry", err)
++		}
++		t.Logf("verified retry wire: raw stage GET %d->%d, raw candidate PUT %d->%d; payload GET bytes %d->%d, nonempty PUT %d->%d", rawGets, proxy.stageGET.Load(), rawPuts, proxy.candidatePUT.Load(), gets, payloadPUTs.getBytes.Load(), puts, payloadPUTs.puts.Load())
++		if payloadPUTs.getBytes.Load() != gets || payloadPUTs.puts.Load() != puts {
++			t.Fatal("verified retry repeated actual bytes")
++		}
++		if objectAuditCount(t, f.fixture, ac.ObjectUploadComplete) != 1 || objectAuditCount(t, f.fixture, ac.ObjectTransferComplete) != 1 {
++			t.Fatal("exact nested Audits absent")
++		}
++		if _, err = tf.transfers.CompleteTransfer(contextFor(t), f.actor, grant.Status.ID, evidence); err != nil {
++			t.Fatal(err)
++		}
++		if objectAuditCount(t, f.fixture, ac.ObjectTransferComplete) != 1 {
++			t.Fatal("complete replay duplicated Audit")
++		}
++	})
++	t.Run("get-complete-then-cancel", func(t *testing.T) {
++		base := newTransferFixture(t)
++		f := objectAuditOn(t, base.fixture, objectAuditOptions{transfer: base})
++		tf := f.transfer
++		put := f.put(t, "audit-get-source", "body")
++		spec := auditGETSpec(t, tf, put.Meta.ID)
++		grant, err := tf.transfers.IssueTransfer(contextFor(t), f.actor, command(t, "audit-get"), spec)
++		if err != nil {
++			t.Fatal(err)
++		}
++		material, _ := grant.Material.ForRunner(tf.runner, grant.Status.ID)
++		if code, b := transferRequest(t, tf, material, nil); code != 200 || string(b) != "body" {
++			t.Fatal("real GET failed", code)
++		}
++		ev := tf.evidence(t, grant, oc.TransferCompletedEvidence, false)
++		if _, err = tf.transfers.CompleteTransfer(contextFor(t), f.actor, grant.Status.ID, ev); err != nil {
++			t.Fatal(err)
++		}
++		f.tap.set(func(ctx context.Context, tx foundation.Tx, e ac.Entry, k ac.AppendKey) error {
++			if e.Fields().Action != ac.ObjectTransferRevoke {
++				return nil
++			}
++			x, er := f.dbstore.InTx(tx)
++			if er != nil {
++				return er
++			}
++			var valid bool
++			er = x.QueryRow(ctx, `SELECT phase='complete' AND revoked_at IS NOT NULL FROM agenteam_object.object_transfers WHERE id=$1`, grant.Status.ID.String()).Scan(&valid)
++			if er != nil {
++				return er
++			}
++			if !valid {
++				return fault(foundation.InvalidState)
++			}
++			return nil
++		})
++		if _, err = tf.transfers.CancelTransfer(contextFor(t), f.actor, grant.Status.ID, command(t, "audit-cancel")); err != nil {
++			t.Fatal(err)
++		}
++		if objectAuditCount(t, f.fixture, ac.ObjectTransferRevoke) != 1 {
++			t.Fatal("complete-phase revoke rejected")
++		}
++		f.sql(t, `UPDATE object_fixture.runners SET generation=generation+1`)
++		_, err = tf.transfers.InspectTransfer(contextFor(t), f.actor, grant.Status.ID)
++		requireCode(t, err, foundation.Forbidden)
++	})
++}
++
++func TestObjectProjectAuditCleanupBatchRevokeRollsBackSecondAudit(t *testing.T) {
++	base := newTransferFixture(t)
++	f := objectAuditOn(t, base.fixture, objectAuditOptions{transfer: base})
++	tf := f.transfer
++	put := f.put(t, "batch-source", "body")
++	spec := auditGETSpec(t, tf, put.Meta.ID)
++	for _, key := range []string{"batch-one", "batch-two"} {
++		if _, err := tf.transfers.IssueTransfer(contextFor(t), f.actor, command(t, key), spec); err != nil {
++			t.Fatal(err)
++		}
++	}
++	op := id[oc.CleanupOperation](t)
++	f.sql(t, `UPDATE object_fixture.projects SET state='deleting',operation_id=$1`, op.String())
++	c, _ := oc.NewProjectCleanupCause(oc.ProjectCleanupDetails{ProjectID: f.project, OperationID: op, Version: 1})
++	calls := 0
++	f.tap.set(func(ctx context.Context, tx foundation.Tx, e ac.Entry, k ac.AppendKey) error {
++		if e.Fields().Action != ac.ObjectTransferRevoke {
++			return nil
++		}
++		calls++
++		x, er := f.dbstore.InTx(tx)
++		if er != nil {
++			return er
++		}
++		var n int
++		if er = x.QueryRow(ctx, `SELECT count(*) FROM agenteam_object.object_transfers WHERE revoked_at IS NOT NULL`).Scan(&n); er != nil {
++			return er
++		}
++		if n != 2 {
++			t.Error("Audit preceded full original UPDATE", n)
++			return fault(foundation.InvalidState)
++		}
++		if calls == 2 {
++			return fault(foundation.Forbidden)
++		}
++		return nil
++	})
++	_, err := f.service.CleanupProject(contextFor(t), f.actor, c)
++	requireCode(t, err, foundation.Forbidden)
++	var revoked, refs int
++	var cleaning bool
++	if err = f.store.QueryRow(contextFor(t), `SELECT (SELECT count(*) FROM agenteam_object.object_transfers WHERE revoked_at IS NOT NULL),(SELECT count(*) FROM agenteam_object.object_references),cleaning FROM agenteam_object.objects WHERE id=$1`, put.Meta.ID.String()).Scan(&revoked, &refs, &cleaning); err != nil {
++		t.Fatal(err)
++	}
++	if calls != 2 || revoked != 0 || refs == 0 || cleaning || objectAuditCount(t, f.fixture, ac.ObjectTransferRevoke) != 0 {
++		t.Fatal("batch revoke/Audit/refs/gate failed to roll back", calls, revoked, refs, cleaning)
++	}
++	f.tap.set(nil)
++	report, err := f.service.CleanupProject(contextFor(t), f.actor, c)
++	if err != nil || report.State != oc.CleanupPending {
++		t.Fatal("remote leases not retained", err)
++	}
++	if objectAuditCount(t, f.fixture, ac.ObjectTransferRevoke) != 2 {
++		t.Fatal("batch retry lost original Audit keys")
++	}
++}
++
++func TestObjectProjectAuditStopRevokeRollbackAndTerminalInspect(t *testing.T) {
++	for _, action := range []oc.ProjectStopAction{oc.ProjectStopArchive, oc.ProjectStopDelete} {
++		t.Run(string(action), func(t *testing.T) {
++			base := newTransferFixture(t)
++			stop := newObjectStopAuthority(t, base.fixture, base.store)
++			f := objectAuditOn(t, base.fixture, objectAuditOptions{transfer: base, stop: stop})
++			tf := f.transfer
++			body := []byte("remote stop audit")
++			grant, err := tf.transfers.IssueTransfer(contextFor(t), f.actor, command(t, "stop-put"), tf.spec(t, body))
++			if err != nil {
++				t.Fatal(err)
++			}
++			// A real admitted preparation remains alive until confirmed gate commit.
++			prepared, err := f.service.PreparePayload(contextFor(t), f.actor, f.owner, "text/plain", 4, nil, io.NopCloser(strings.NewReader("body")))
++			if err != nil {
++				t.Fatal(err)
++			}
++			defer f.service.DiscardPrepared(prepared)
++			actor, c := activateObjectStop(t, f.fixture, action)
++			f.tap.set(func(ctx context.Context, tx foundation.Tx, e ac.Entry, k ac.AppendKey) error {
++				if e.Fields().Action != ac.ObjectTransferRevoke {
++					return nil
++				}
++				x, er := f.dbstore.InTx(tx)
++				if er != nil {
++					return er
++				}
++				var valid bool
++				er = x.QueryRow(ctx, `SELECT revoked_at IS NOT NULL AND phase='issued' AND NOT cleanup_gate FROM agenteam_object.object_transfers WHERE id=$1`, grant.Status.ID.String()).Scan(&valid)
++				if er != nil {
++					return er
++				}
++				if !valid {
++					return fault(foundation.InvalidState)
++				}
++				if er = f.checker.CheckProjectAuditInTx(ctx, tx, e, k); er != nil {
++					return er
++				}
++				return fault(foundation.Forbidden)
++			})
++			_, err = f.service.RequestProjectStop(contextFor(t), actor, c)
++			requireCode(t, err, foundation.Forbidden)
++			var stops, revoked, joined int
++			if err = f.store.QueryRow(contextFor(t), `SELECT (SELECT count(*) FROM agenteam_object.project_stops),(SELECT count(*) FROM agenteam_object.object_transfers WHERE revoked_at IS NOT NULL),(SELECT count(*) FROM agenteam_object.project_work WHERE kind='preparation' AND joined_at IS NOT NULL)`).Scan(&stops, &revoked, &joined); err != nil {
++				t.Fatal(err)
++			}
++			if stops != 0 || revoked != 0 || joined != 0 || objectAuditCount(t, f.fixture, ac.ObjectTransferRevoke) != 0 {
++				t.Fatal("stop gate failed to roll back or cancelled preparation", stops, revoked, joined)
++			}
++			f.tap.set(nil)
++			report, err := f.service.RequestProjectStop(contextFor(t), actor, c)
++			if err != nil && codeOf(err) != foundation.ResourceBusy || report.Details().State != oc.ProjectStopPending {
++				t.Fatal("remote lease inferred stopped", err)
++			}
++			if err = f.service.DiscardPrepared(prepared); err != nil {
++				t.Fatal(err)
++			}
++			auditRetireTransfer(t, tf, grant)
++			stopUntilSettled(t, f.service, actor, c)
++			f.sql(t, `UPDATE object_fixture.stop_causes SET phase='complete'`)
++			before := objectAuditCount(t, f.fixture, ac.ObjectTransferRevoke)
++			report, err = f.service.InspectProjectStop(contextFor(t), actor, c)
++			if err != nil || report.Details().State != oc.ProjectStopped {
++				t.Fatal("terminal Inspect", err)
++			}
++			if before != 1 || objectAuditCount(t, f.fixture, ac.ObjectTransferRevoke) != before {
++				t.Fatal("terminal Inspect appended new Audit")
++			}
++		})
++	}
++}
++
++func TestObjectProjectAuditStopGateActualCommitUnknownNeverCancels(t *testing.T) {
++	for _, mode := range []string{"committed", "rollback", "pending"} {
++		t.Run(mode, func(t *testing.T) {
++			base := newTransferFixture(t)
++			raw, proxy := proxyStore(t, base.fixture, mode == "committed")
++			proxy.late.Store(mode == "pending")
++			stop := newObjectStopAuthority(t, base.fixture, raw)
++			wrapped := &objectAuditCommitStore{Store: raw, proxy: proxy}
++			f := objectAuditOn(t, base.fixture, objectAuditOptions{pg: raw, store: wrapped, stop: stop, transfer: base})
++			tf := f.transfer
++			body := []byte("real stop unknown")
++			grant, err := tf.transfers.IssueTransfer(contextFor(t), f.actor, command(t, "unknown-stop-put"), tf.spec(t, body))
++			if err != nil {
++				t.Fatal(err)
++			}
++			prepared, err := f.service.PreparePayload(contextFor(t), f.actor, f.owner, "text/plain", 4, nil, io.NopCloser(strings.NewReader("body")))
++			if err != nil {
++				t.Fatal(err)
++			}
++			defer f.service.DiscardPrepared(prepared)
++			actor, c := activateObjectStop(t, base.fixture, oc.ProjectStopArchive)
++			wrapped.arm(ac.ObjectTransferRevoke, grant.Status.ID.String(), true)
++			done := make(chan error, 1)
++			go func() {
++				ctx, cancel := context.WithTimeout(context.Background(), 800*time.Millisecond)
++				defer cancel()
++				_, er := f.service.RequestProjectStop(ctx, actor, c)
++				done <- er
++			}()
++			select {
++			case <-proxy.reached:
++			case <-time.After(3 * time.Second):
++				t.Fatal("exact Audit stop gate COMMIT not intercepted")
++			}
++			wrapped.assertHit(t, base.fixture, mode == "pending")
++			if mode != "pending" {
++				close(proxy.release)
++			}
++			select {
++			case err = <-done:
++				requireCode(t, err, foundation.CommitUnknown)
++			case <-time.After(3 * time.Second):
++				t.Fatal("Unknown did not return")
++			}
++			// A completed API response must not cancel the live preparation even when
++			// an independent observer knows that the original DB transaction committed.
++			var joined, revoked int
++			if err = base.store.QueryRow(contextFor(t), `SELECT (SELECT count(*) FROM agenteam_object.project_work WHERE kind='preparation' AND joined_at IS NOT NULL),(SELECT count(*) FROM agenteam_object.object_transfers WHERE revoked_at IS NOT NULL)`).Scan(&joined, &revoked); err != nil {
++				t.Fatal(err)
++			}
++			if joined != 0 || mode == "committed" && revoked != 1 || mode != "committed" && revoked != 0 {
++				t.Fatal("Unknown changed cancellation/visible outcome", mode, joined, revoked)
++			}
++			if mode == "pending" {
++				close(proxy.release)
++				select {
++				case <-proxy.committed:
++				case <-time.After(3 * time.Second):
++					t.Fatal("original pending writer never committed")
++				}
++			}
++			wrapped.waitWriter(t, base.fixture)
++			// Current permission is still required after the original writer ends.
++			f.sql(t, `UPDATE object_fixture.stop_causes SET manifest=false`)
++			if _, err = f.service.RequestProjectStop(contextFor(t), actor, c); err == nil {
++				t.Fatal("stale stop authorization accepted")
++			}
++			f.sql(t, `UPDATE object_fixture.stop_causes SET manifest=true`)
++			report, err := f.service.RequestProjectStop(contextFor(t), actor, c)
++			if err != nil && codeOf(err) != foundation.ResourceBusy || report.Details().State != oc.ProjectStopPending {
++				t.Fatal("confirmed retry", err)
++			}
++			if err = f.service.DiscardPrepared(prepared); err != nil {
++				t.Fatal(err)
++			}
++			auditRetireTransfer(t, tf, grant)
++			stopUntilSettled(t, f.service, actor, c)
++			if objectAuditCount(t, f.fixture, ac.ObjectTransferRevoke) != 1 {
++				t.Fatal("Unknown retry duplicated revoke Audit")
++			}
++		})
++	}
++}
++
++func TestObjectProjectAuditLateGETCompleteRetainsConvergeCompatibility(t *testing.T) {
++	for _, stage := range []string{"retired", "cleaning", "deleted"} {
++		t.Run(stage, func(t *testing.T) {
++			base := newTransferFixture(t)
++			f := objectAuditOn(t, base.fixture, objectAuditOptions{transfer: base})
++			tf := f.transfer
++			put := f.put(t, "late-get-source", "body")
++			spec := auditGETSpec(t, tf, put.Meta.ID)
++			grant, err := tf.transfers.IssueTransfer(contextFor(t), f.actor, command(t, "late-get"), spec)
++			if err != nil {
++				t.Fatal(err)
++			}
++			material, _ := grant.Material.ForRunner(tf.runner, grant.Status.ID)
++			if code, raw := transferRequest(t, tf, material, nil); code != 200 || string(raw) != "body" {
++				t.Fatal("real GET failed", code)
++			}
++			completed := tf.evidence(t, grant, oc.TransferCompletedEvidence, false)
++			if stage != "cleaning" {
++				terminal := tf.evidence(t, grant, oc.TransferStoppedEvidence, true)
++				state, er := tf.transfers.ConfirmStopped(contextFor(t), f.actor, grant.Status.ID, terminal)
++				if er != nil || state.LeaseActive || state.State == oc.TransferComplete {
++					t.Fatal("real retirement prerequisite", er)
++				}
++			}
++			if stage != "retired" {
++				p := ownerPlan(t, f.service, f.actor, f.owner, oc.ReleaseAccess, oc.AccessRequestDetails{ObjectID: put.Meta.ID})
++				r := plannedTx(f.dbstore, f.service, contextFor(t), cause(t), p, func(ctx context.Context, tx foundation.Tx, p oc.AccessLockPlan, l oc.LockedAccess) error {
++					return f.service.ReleaseObjectInTx(ctx, tx, f.actor, f.owner, put.Meta.ID, p, l)
++				})
++				if r.State() != foundation.Committed {
++					t.Fatal(r.Fault())
++				}
++				op := id[oc.CleanupOperation](t)
++				f.sql(t, `INSERT INTO object_fixture.cleanup VALUES($1,$2,$3)`, op.String(), put.Meta.ID.String(), f.owner.Details().ID)
++				cleanup, er := oc.NewObjectCleanupCause(oc.CleanupDetails{OperationID: op, Owner: f.owner, Reason: oc.OwnerDeleted})
++				if er != nil {
++					t.Fatal(er)
++				}
++				state, er := f.service.DeleteUnreferenced(contextFor(t), cleanup, put.Meta.ID)
++				if er != nil {
++					t.Fatal(er)
++				}
++				want := oc.CleanupPending
++				if stage == "deleted" {
++					want = oc.CleanupCompleted
++				}
++				if state.State != want {
++					t.Fatal("real cleanup prerequisite", state.State)
++				}
++			}
++			var phase, lease, objectState string
++			var cleaning bool
++			if err = f.store.QueryRow(contextFor(t), `SELECT t.phase,l.state,o.state,o.cleaning FROM agenteam_object.object_transfers t JOIN agenteam_object.object_leases l ON l.id=t.lease_id JOIN agenteam_object.objects o ON o.id=t.object_id WHERE t.id=$1`, grant.Status.ID.String()).Scan(&phase, &lease, &objectState, &cleaning); err != nil {
++				t.Fatal(err)
++			}
++			t.Logf("late GET prerequisite: stage=%s phase=%s lease=%s object=%s cleaning=%t", stage, phase, lease, objectState, cleaning)
++			state, err := tf.transfers.CompleteTransfer(contextFor(t), f.actor, grant.Status.ID, completed)
++			if err != nil || state.State != oc.TransferComplete {
++				t.Fatalf("legitimate late GET completion rejected at %s: %v", stage, err)
++			}
++			if objectAuditCount(t, f.fixture, ac.ObjectTransferComplete) != 1 {
++				t.Fatal("late completion Audit missing")
++			}
++		})
++	}
++}
++
++func TestObjectProjectAuditIssueActualCommitUnknownNeverLeaksMaterial(t *testing.T) {
++	for _, mode := range []string{"committed", "rollback", "pending"} {
++		t.Run(mode, func(t *testing.T) {
++			base := newTransferFixture(t)
++			raw, proxy := proxyStore(t, base.fixture, mode == "committed")
++			proxy.late.Store(mode == "pending")
++			wrapped := &objectAuditCommitStore{Store: raw, proxy: proxy}
++			f := objectAuditOn(t, base.fixture, objectAuditOptions{pg: raw, store: wrapped, transfer: base})
++			tf := f.transfer
++			spec := tf.spec(t, []byte("unknown issue"))
++			var transfer oc.TransferID
++			f.tap.set(func(ctx context.Context, tx foundation.Tx, e ac.Entry, k ac.AppendKey) error {
++				if e.Fields().Action == ac.ObjectTransferIssue {
++					var err error
++					transfer, err = foundation.ParseID[oc.Transfer](e.Fields().Resource.Details().ID)
++					if err != nil {
++						return err
++					}
++					wrapped.arm(ac.ObjectTransferIssue, transfer.String(), false)
++				}
++				return nil
++			})
++			type outcome struct {
++				grant oc.TransferGrant
++				err   error
++			}
++			done := make(chan outcome, 1)
++			go func() {
++				ctx, cancel := context.WithTimeout(context.Background(), 800*time.Millisecond)
++				defer cancel()
++				grant, err := tf.transfers.IssueTransfer(ctx, f.actor, command(t, "unknown-issue"), spec)
++				done <- outcome{grant, err}
++			}()
++			select {
++			case <-proxy.reached:
++			case <-time.After(3 * time.Second):
++				t.Fatal("Issue Audit COMMIT not intercepted")
++			}
++			wrapped.assertHit(t, base.fixture, mode == "pending")
++			if mode != "pending" {
++				close(proxy.release)
++			}
++			select {
++			case out := <-done:
++				requireCode(t, out.err, foundation.CommitUnknown)
++				if _, err := out.grant.Material.ForRunner(tf.runner, transfer); err == nil {
++					t.Fatal("Unknown returned usable material")
++				}
++			case <-time.After(3 * time.Second):
++				t.Fatal("Issue Unknown hung")
++			}
++			if mode == "pending" {
++				close(proxy.release)
++				select {
++				case <-proxy.committed:
++				case <-time.After(3 * time.Second):
++					t.Fatal("original Issue writer did not commit")
++				}
++			}
++			wrapped.waitWriter(t, base.fixture)
++			f.tap.set(nil)
++			var count int
++			if err := base.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_object.object_transfers WHERE id=$1`, transfer.String()).Scan(&count); err != nil {
++				t.Fatal(err)
++			}
++			want := 1
++			if mode == "rollback" {
++				want = 0
++			}
++			if count != want || objectAuditCount(t, f.fixture, ac.ObjectTransferIssue) != want {
++				t.Fatal("original Issue outcome not atomic", count, want)
++			}
++			f.sql(t, `UPDATE object_fixture.sessions SET active=false`)
++			if _, err := tf.transfers.IssueTransfer(contextFor(t), f.actor, command(t, "unknown-issue"), spec); err == nil {
++				t.Fatal("current permission bypassed by Issue history")
++			}
++		})
++	}
++}
++
++func TestObjectProjectAuditPUTFinalCommitUnknownKeepsBothAudits(t *testing.T) {
++	base := newTransferFixture(t)
++	raw, commit := proxyStore(t, base.fixture, true)
++	wire := newTransferProxy(t, base.fixture)
++	cfg, counts := auditPayloadProxy(t, base.fixture, wire.server.URL)
++	wrapped := &objectAuditCommitStore{Store: raw, proxy: commit}
++	f := objectAuditOn(t, base.fixture, objectAuditOptions{pg: raw, store: wrapped, config: &cfg, transfer: base})
++	tf := f.transfer
++	body := []byte("two audits committed together")
++	grant, err := tf.transfers.IssueTransfer(contextFor(t), f.actor, command(t, "unknown-final-put"), tf.spec(t, body))
++	if err != nil {
++		t.Fatal(err)
++	}
++	material, _ := grant.Material.ForRunner(tf.runner, grant.Status.ID)
++	if code, _ := transferRequest(t, tf, material, body); code != 200 {
++		t.Fatal(code)
++	}
++	evidence := tf.evidence(t, grant, oc.TransferCompletedEvidence, false)
++	wrapped.arm(ac.ObjectTransferComplete, grant.Status.ID.String(), false)
++	done := make(chan error, 1)
++	go func() {
++		_, err := tf.transfers.CompleteTransfer(contextFor(t), f.actor, grant.Status.ID, evidence)
++		done <- err
++	}()
++	select {
++	case <-commit.reached:
++	case <-time.After(3 * time.Second):
++		t.Fatal("final PUT two-Audit transaction not intercepted")
++	}
++	wrapped.assertHit(t, base.fixture, false)
++	var exact bool
++	if err = base.store.QueryRow(contextFor(t), `SELECT t.phase='complete' AND u.state='committed' AND o.state='available' AND t.xmin=u.xmin AND t.xmin=o.xmin AND (SELECT count(*) FROM agenteam_audit.audit_records a WHERE a.xmin=t.xmin AND ((a.action='object.transfer.complete' AND a.resource_id=t.id) OR (a.action='object.upload.complete' AND a.resource_id=o.id)))=2 FROM agenteam_object.object_transfers t JOIN agenteam_object.uploads u ON u.id=t.upload_id JOIN agenteam_object.objects o ON o.id=t.object_id WHERE t.id=$1`, grant.Status.ID.String()).Scan(&exact); err != nil || !exact {
++		t.Fatal("original final PUT commit identity mismatch", err)
++	}
++	close(commit.release)
++	select {
++	case err = <-done:
++		requireCode(t, err, foundation.CommitUnknown)
++	case <-time.After(3 * time.Second):
++		t.Fatal("final PUT Unknown did not return")
++	}
++	wrapped.waitWriter(t, base.fixture)
++	gets, puts := counts.getBytes.Load(), counts.puts.Load()
++	state, err := tf.transfers.CompleteTransfer(contextFor(t), f.actor, grant.Status.ID, evidence)
++	if err != nil || state.State != oc.TransferComplete {
++		t.Fatal("final PUT replay", err)
++	}
++	if counts.getBytes.Load() != gets || counts.puts.Load() != puts || objectAuditCount(t, f.fixture, ac.ObjectTransferComplete) != 1 || objectAuditCount(t, f.fixture, ac.ObjectUploadComplete) != 1 {
++		t.Fatal("Unknown final replay repeated bytes/Audit")
++	}
++}
+--- /dev/null
++++ b/tests/objects/project_audit_fixture_test.go
+@@ -0,0 +1,557 @@
++//go:build integration
++
++package objects_test
++
++import (
++	"context"
++	"io"
++	"net/http"
++	"net/http/httptest"
++	"net/url"
++	"path/filepath"
++	"strconv"
++	"strings"
++	"sync"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/audit"
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/object"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++)
++
++type objectAuditStore interface {
++	object.Store
++	audit.Store
++}
++type objectAuditValidation struct {
++	request      oc.AccessRequest
++	dependencies oc.AccessDependencies
++}
++
++// This observer never grants permissions. It delegates to the existing formal
++// planner and proves actual held dependency locks before recording validation.
++type objectAuditPlanner struct {
++	base      oc.AccessPlanner
++	store     *postgres.Store
++	mu        sync.Mutex
++	validated map[foundation.Tx][]objectAuditValidation
++	before    func(context.Context, foundation.Tx, oc.AccessRequest) error
++}
++
++func (p *objectAuditPlanner) Discover(ctx context.Context, r oc.AccessRequest) (oc.AccessDependencies, error) {
++	return p.base.Discover(ctx, r)
++}
++func (p *objectAuditPlanner) ValidateInTx(ctx context.Context, tx foundation.Tx, r oc.AccessRequest, d oc.AccessDependencies) error {
++	p.mu.Lock()
++	before := p.before
++	p.mu.Unlock()
++	if before != nil {
++		if err := before(ctx, tx, r); err != nil {
++			return err
++		}
++	}
++	if err := p.base.ValidateInTx(ctx, tx, r, d); err != nil {
++		return err
++	}
++	if err := p.store.RequireHeldLocks(ctx, tx, d.Locks()); err != nil {
++		return err
++	}
++	p.mu.Lock()
++	p.validated[tx] = append(p.validated[tx], objectAuditValidation{r, d})
++	p.mu.Unlock()
++	return nil
++}
++func (p *objectAuditPlanner) set(fn func(context.Context, foundation.Tx, oc.AccessRequest) error) {
++	p.mu.Lock()
++	p.before = fn
++	p.mu.Unlock()
++}
++
++type objectAuditHook func(context.Context, foundation.Tx, ac.Entry, ac.AppendKey) error
++type objectAuditTap struct {
++	inner ac.Appender
++	mu    sync.Mutex
++	hook  objectAuditHook
++	after objectAuditHook
++}
++
++func (p *objectAuditTap) set(h objectAuditHook) { p.mu.Lock(); p.hook = h; p.mu.Unlock() }
++func (p *objectAuditTap) AppendInTx(ctx context.Context, tx foundation.Tx, e ac.Entry, k ac.AppendKey) (ac.AppendReceipt, error) {
++	p.mu.Lock()
++	h, a := p.hook, p.after
++	p.mu.Unlock()
++	if h != nil {
++		if err := h(ctx, tx, e, k); err != nil {
++			return ac.AppendReceipt{}, err
++		}
++	}
++	receipt, err := p.inner.AppendInTx(ctx, tx, e, k)
++	if err == nil && a != nil {
++		err = a(ctx, tx, e, k)
++	}
++	return receipt, err
++}
++
++// A strict test-only Project port: current SQL facts plus the real planner/
++// lifecycle authority, then the production Object fact checker. It does not
++// implement or stand in for the future production Project ObjectProducer map.
++type objectAuditProjectPort struct {
++	auditAuthority
++	checker *object.ProjectAuditAuthority
++	planner *objectAuditPlanner
++	gate    oc.ProjectGate
++	runner  *runnerAuthority
++	stop    *objectStopAuthority
++	process oc.ProcessID
++}
++
++func (p *objectAuditProjectPort) CheckAppendInTx(ctx context.Context, tx foundation.Tx, entry ac.Entry, key ac.AppendKey) error {
++	f := entry.Fields()
++	if f.Scope.Details().Kind != identity.ProjectScope || key.Details().Producer != ac.ObjectProducer || f.Actor.Details().ServiceName != identity.ObjectService || f.Actor.Details().CauseRef != key.Details().CauseRef {
++		return fault(foundation.Forbidden)
++	}
++	e, err := p.store.InTx(tx)
++	if err != nil {
++		return err
++	}
++	oid := f.Resource.Details().ID
++	if f.Resource.Details().Kind == ac.ObjectTransferResource {
++		if err = e.QueryRow(ctx, `SELECT object_id::text FROM agenteam_object.object_transfers WHERE id=$1`, oid).Scan(&oid); err != nil {
++			return err
++		}
++	}
++	pk, _ := foundation.ProjectLock(f.Scope.Details().ProjectID)
++	ok, _ := foundation.AggregateLock(foundation.ObjectAggregate, oid)
++	if err = p.store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{{Key: pk, Mode: foundation.Shared}, {Key: ok, Mode: foundation.Exclusive}}); err != nil {
++		return err
++	}
++	var project, state string
++	if err = e.QueryRow(ctx, `SELECT o.project_id::text,p.state FROM agenteam_object.objects o JOIN object_fixture.projects p ON p.id=o.project_id WHERE o.id=$1`, oid).Scan(&project, &state); err != nil {
++		return err
++	}
++	if project != f.Scope.Details().ProjectID {
++		return fault(foundation.Forbidden)
++	}
++	p.planner.mu.Lock()
++	records := append([]objectAuditValidation(nil), p.planner.validated[tx]...)
++	p.planner.mu.Unlock()
++	authorized := false
++	for _, v := range records {
++		d := v.request.Details()
++		if err = p.store.RequireHeldLocks(ctx, tx, v.dependencies.Locks()); err != nil {
++			return err
++		}
++		switch {
++		case f.Action == ac.ObjectUploadComplete && d.Operation == oc.PublishAccess && d.Attempt.Details().ObjectID.String() == oid:
++			if _, err = p.authority.AuthorizeOwnerInTx(ctx, tx, d.Actor, d.Owner, identity.Mutate); err != nil {
++				return err
++			}
++			if err = p.gate.CheckInTx(ctx, tx, d.Actor, d.Owner, identity.Mutate); err != nil {
++				return err
++			}
++			authorized = true
++		case d.Kind == oc.MaintenanceAccess && d.InstanceID == p.process && d.ObjectID.String() == oid &&
++			(f.Action == ac.ObjectUploadFailed && (d.Operation == oc.FinishWriterAccess || d.Operation == oc.RecoverAttemptAccess) || f.Action == ac.ObjectDelete && d.Operation == oc.FinalizeCleanupAccess):
++			// Native maintenance is restricted to this exact instance and existing
++			// object under its validated SystemConfig/Project/Object lock union.
++			if state != "active" && state != "archived" && state != "deleting" {
++				return fault(foundation.Forbidden)
++			}
++			mk, _ := foundation.SystemConfigLock("object-maintenance")
++			if err = p.store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{{Key: mk, Mode: foundation.Shared}}); err != nil {
++				return err
++			}
++			authorized = true
++		case f.Resource.Details().Kind == ac.ObjectTransferResource && d.Kind == oc.TransferAccess && d.Transfer.Details().ID.String() == f.Resource.Details().ID:
++			tr := d.Transfer.Details()
++			intent := identity.Mutate
++			if tr.Operation == oc.TransferCapture || tr.Operation == oc.TransferPublish || tr.Operation == oc.TransferCancel {
++				intent = identity.Converge
++			}
++			if p.runner == nil {
++				return fault(foundation.DependencyUnbound)
++			}
++			rd, er := p.runner.dependencies(ctx, e, d.Transfer)
++			if er != nil {
++				return er
++			}
++			if _, err = p.runner.ValidateInTx(ctx, tx, d.Transfer, rd); err != nil {
++				return err
++			}
++			if _, err = p.authority.AuthorizeOwnerInTx(ctx, tx, tr.Actor, tr.Spec.Details().Owner, intent); err != nil {
++				return err
++			}
++			if err = p.gate.CheckInTx(ctx, tx, tr.Actor, tr.Spec.Details().Owner, intent); err != nil {
++				return err
++			}
++			authorized = true
++		case f.Action == ac.ObjectTransferRevoke && d.Operation == oc.GateProjectAccess && d.ProjectCleanup.Details().ProjectID.String() == project:
++			if err = p.authority.CheckProjectCleanupInTx(ctx, tx, d.Actor, d.ProjectCleanup); err != nil {
++				return err
++			}
++			authorized = true
++		}
++	}
++	if !authorized && f.Action == ac.ObjectTransferRevoke && p.stop != nil {
++		p.stop.mu.Lock()
++		r, found := p.stop.validated[tx]
++		p.stop.mu.Unlock()
++		if found && r.Details().Cause.Details().ProjectID.String() == project {
++			deps, er := p.stop.dependencies(r)
++			if er != nil {
++				return er
++			}
++			grant, er := p.stop.ValidateProjectStopInTx(ctx, tx, r, deps)
++			if er != nil {
++				return er
++			}
++			authorized = grant.Mode() == oc.ContinueProjectStop
++		}
++	}
++	if !authorized {
++		return fault(foundation.Forbidden)
++	}
++	return p.checker.CheckProjectAuditInTx(ctx, tx, entry, key)
++}
++
++type objectAuditOptions struct {
++	store    objectAuditStore
++	pg       *postgres.Store
++	config   *object.StorageConfig
++	stop     *objectStopAuthority
++	transfer *transferFixture
++}
++type objectAuditFixture struct {
++	*fixture
++	checker  *object.ProjectAuditAuthority
++	tap      *objectAuditTap
++	planner  *objectAuditPlanner
++	transfer *transferFixture
++	dbstore  objectAuditStore
++}
++
++func newObjectAuditFixture(t *testing.T, prospective bool) *objectAuditFixture {
++	return objectAuditOn(t, newFixture(t, prospective), objectAuditOptions{})
++}
++func objectAuditOn(t *testing.T, original *fixture, o objectAuditOptions) *objectAuditFixture {
++	t.Helper()
++	copyFixture := *original
++	f := &copyFixture
++	if o.pg != nil {
++		f.store = o.pg
++	}
++	f.authority = &authority{f.store}
++	var store objectAuditStore = f.store
++	if o.store != nil {
++		store = o.store
++	}
++	if o.config != nil {
++		f.config = *o.config
++	}
++	backend, err := object.NewBackend(f.config)
++	if err != nil {
++		t.Fatal(err)
++	}
++	process := id[oc.Process](t)
++	spool, err := object.OpenSpool(filepath.Join(t.TempDir(), "audit-spool"), process)
++	if err != nil {
++		t.Fatal(err)
++	}
++	f.backend, f.spool = backend, spool
++	checker, err := object.NewProjectAuditAuthority(store)
++	if err != nil {
++		t.Fatal(err)
++	}
++	var planner oc.AccessPlanner = f.authority
++	var runner *runnerAuthority
++	var gate oc.ProjectGate = f.authority
++	var leases oc.LeaseAuthority = f.authority
++	if o.transfer != nil {
++		runner = &runnerAuthority{f.authority}
++		gate = transferProjectGate{f.authority}
++		leases = runner
++	}
++	observe := &objectAuditPlanner{base: planner, store: f.store, validated: map[foundation.Tx][]objectAuditValidation{}}
++	var transferAuthority oc.RunnerTransferAuthority
++	planner = observe
++	if runner != nil {
++		transferAuthority = &objectAuditRunner{runnerAuthority: runner, planner: observe}
++		planner = object.NewTransferAccessPlanner(observe, transferAuthority)
++	}
++	port := &objectAuditProjectPort{auditAuthority: auditAuthority{f.authority}, checker: checker, planner: observe, gate: gate, runner: runner, stop: o.stop, process: process}
++	keys, err := cursor.LoadKeyring(`{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`)
++	if err != nil {
++		t.Fatal(err)
++	}
++	realAudit, err := audit.New(store, keys, audit.Authorizations{Projects: port})
++	if err != nil {
++		t.Fatal(err)
++	}
++	tap := &objectAuditTap{inner: realAudit}
++	auth := object.Authorizations{Planner: planner, Resources: f.authority, Read: f.authority, Gate: gate, Cleanup: f.authority, Leases: leases}
++	if o.stop != nil {
++		auth.ProjectStop = o.stop
++	}
++	service, err := object.New(store, backend, spool, tap, auth)
++	if err != nil {
++		t.Fatal(err)
++	}
++	f.service = service
++	result := &objectAuditFixture{fixture: f, checker: checker, tap: tap, planner: observe, dbstore: store}
++	if o.transfer != nil {
++		endpoint, er := object.LoadTransferEndpoint(func(string) (string, bool) { return "", false }, f.config)
++		if er != nil {
++			t.Fatal(er)
++		}
++		transfers, er := object.NewTransferService(service, transferAuthority, endpoint)
++		if er != nil {
++			t.Fatal(er)
++		}
++		result.transfer = &transferFixture{f, service, transfers, runner, o.transfer.runner, o.transfer.operation, o.transfer.execution}
++	}
++	t.Cleanup(func() {
++		service.StopAdmission()
++		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
++		defer cancel()
++		if err := service.Drain(ctx); err != nil {
++			_ = service.Force(ctx)
++			t.Error(err)
++		}
++	})
++	if err = service.Initialize(contextFor(t)); err != nil {
++		t.Fatal(err)
++	}
++	return result
++}
++func auditStorageConfig(t *testing.T, f *fixture, endpoint string) object.StorageConfig {
++	t.Helper()
++	values := map[string]string{"ENDPOINT": endpoint, "BUCKET": f.bucket, "ACCESS_KEY": f.remote.AccessKey, "SECRET_KEY": f.remote.SecretKey, "TLS_MODE": "disable"}
++	if strings.HasPrefix(endpoint, "https:") {
++		values["TLS_MODE"] = "verify-full"
++		values["CA_FILE"] = f.remote.CAFile
++	}
++	c, err := object.LoadStorageConfig(func(n string) (string, bool) {
++		v, ok := values[strings.TrimPrefix(n, object.EnvironmentPrefix)]
++		return v, ok
++	})
++	if err != nil {
++		t.Fatal(err)
++	}
++	return c
++}
++func objectAuditCount(t *testing.T, f *fixture, action ac.Action) int {
++	t.Helper()
++	var n int
++	if err := f.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_audit.audit_records WHERE action=$1`, string(action)).Scan(&n); err != nil {
++		t.Fatal(err)
++	}
++	return n
++}
++
++// Selection uses actual same-Tx Audit and canonical writes, never a count of
++// commits. The proxy intercepts PostgreSQL's real COMMIT protocol exchange.
++type objectAuditCommitStore struct {
++	*postgres.Store
++	proxy     *commitProxy
++	mu        sync.Mutex
++	action    ac.Action
++	resource  string
++	stop, hit bool
++	pid       int32
++	xid       string
++}
++
++func (s *objectAuditCommitStore) arm(a ac.Action, resource string, stop bool) {
++	s.mu.Lock()
++	s.action = a
++	s.resource = resource
++	s.stop = stop
++	s.hit = false
++	s.mu.Unlock()
++}
++func (s *objectAuditCommitStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
++	return s.Store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
++		if err := fn(ctx, tx); err != nil {
++			return err
++		}
++		s.mu.Lock()
++		action, resource, needStop, hit := s.action, s.resource, s.stop, s.hit
++		s.mu.Unlock()
++		if action == "" || hit {
++			return nil
++		}
++		x, err := s.Store.InTx(tx)
++		if err != nil {
++			return err
++		}
++		var own bool
++		if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_audit.audit_records WHERE action=$1 AND resource_id=$2 AND xmin::text=pg_current_xact_id_if_assigned()::text)`, string(action), resource).Scan(&own); err != nil {
++			return err
++		}
++		if !own {
++			return nil
++		}
++		if needStop {
++			if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.object_transfers t JOIN agenteam_object.project_stops s ON s.project_id=t.project_id WHERE t.id=$1 AND t.revoked_at IS NOT NULL AND t.xmin::text=pg_current_xact_id_if_assigned()::text AND s.xmin=t.xmin AND s.state<>'stopped')`, resource).Scan(&own); err != nil {
++				return err
++			}
++			if !own {
++				return fault(foundation.InvalidState)
++			}
++		}
++		var pid int32
++		var xid string
++		if err = x.QueryRow(ctx, `SELECT pg_backend_pid(),pg_current_xact_id()::text`).Scan(&pid, &xid); err != nil {
++			return err
++		}
++		s.mu.Lock()
++		defer s.mu.Unlock()
++		if !s.hit {
++			s.pid, s.xid, s.hit = pid, xid, true
++			s.proxy.armed.Store(1)
++		}
++		return nil
++	})
++}
++func (s *objectAuditCommitStore) assertHit(t *testing.T, f *fixture, pending bool) {
++	t.Helper()
++	s.mu.Lock()
++	hit, pid, xid, action := s.hit, s.pid, s.xid, s.action
++	s.mu.Unlock()
++	if !hit || pid == 0 || xid == "" {
++		t.Fatal("semantic commit selector never matched")
++	}
++	if pending {
++		var held bool
++		if err := f.store.QueryRow(contextFor(t), `SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE pid=$1 AND backend_xid::text=$2 AND state='idle in transaction')`, pid, xid).Scan(&held); err != nil || !held {
++			t.Fatal("original pending writer not actually alive", err)
++		}
++	}
++	t.Logf("actual Audit COMMIT: action=%s pid=%d xid=%s pending=%t", action, pid, xid, pending)
++}
++func (s *objectAuditCommitStore) waitWriter(t *testing.T, f *fixture) {
++	t.Helper()
++	s.mu.Lock()
++	pid, xid := s.pid, s.xid
++	s.mu.Unlock()
++	ctx, cancel := context.WithTimeout(contextFor(t), 3*time.Second)
++	defer cancel()
++	for {
++		var alive bool
++		if err := f.store.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE pid=$1 AND backend_xid::text=$2)`, pid, xid).Scan(&alive); err != nil {
++			t.Fatal(err)
++		}
++		if !alive {
++			return
++		}
++		select {
++		case <-ctx.Done():
++			t.Fatal("original writer remains live")
++		case <-time.After(5 * time.Millisecond):
++		}
++	}
++}
++
++// The production transfer constructor requires its concrete paired planner.
++// Observe the formal Runner Validate result inside that pairing, never wrap
++// around or relax the production constructor's identity check.
++type objectAuditRunner struct {
++	*runnerAuthority
++	planner *objectAuditPlanner
++}
++
++func (a *objectAuditRunner) ValidateInTx(ctx context.Context, tx foundation.Tx, r oc.TransferAccessRequest, d oc.AccessDependencies) (oc.TransferAuthorization, error) {
++	grant, err := a.runnerAuthority.ValidateInTx(ctx, tx, r, d)
++	if err != nil {
++		return oc.TransferAuthorization{}, err
++	}
++	if err = a.planner.store.RequireHeldLocks(ctx, tx, d.Locks()); err != nil {
++		return oc.TransferAuthorization{}, err
++	}
++	request, err := oc.NewTransferAccess(r)
++	if err != nil {
++		return oc.TransferAuthorization{}, err
++	}
++	a.planner.mu.Lock()
++	a.planner.validated[tx] = append(a.planner.validated[tx], objectAuditValidation{request, d})
++	a.planner.mu.Unlock()
++	return grant, nil
++}
++
++// Count actual nonempty wire PUTs, excluding the required zero markers sent by
++// post-publication cleanup. The existing proxy's candidatePUT counts both.
++type objectAuditPayloadCounts struct{ puts, getBytes atomic.Int64 }
++
++func auditPayloadProxy(t *testing.T, f *fixture, upstream string) (object.StorageConfig, *objectAuditPayloadCounts) {
++	t.Helper()
++	target, err := url.Parse(upstream)
++	if err != nil {
++		t.Fatal(err)
++	}
++	transport := &http.Transport{}
++	count := &objectAuditPayloadCounts{}
++	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
++		payload := strings.Contains(r.URL.Path, "/candidate/") || strings.Contains(r.URL.Path, "/staging/")
++		size := r.ContentLength
++		if raw := r.Header.Get("X-Amz-Decoded-Content-Length"); raw != "" {
++			var err error
++			size, err = strconv.ParseInt(raw, 10, 64)
++			if err != nil {
++				http.Error(w, "invalid fixture length", 400)
++				return
++			}
++		}
++		if r.Method == http.MethodPut && payload && size < 0 {
++			t.Error("fixture cannot classify unknown-length candidate PUT")
++			http.Error(w, "unclassified body", 400)
++			return
++		}
++		if r.Method == http.MethodPut && payload && size > 0 {
++			count.puts.Add(1)
++		}
++		req := r.Clone(r.Context())
++		req.URL.Scheme = target.Scheme
++		req.URL.Host = target.Host
++		req.RequestURI = ""
++		response, err := transport.RoundTrip(req)
++		if err != nil {
++			http.Error(w, "fixture upstream unavailable", 503)
++			return
++		}
++		defer response.Body.Close()
++		for k, v := range response.Header {
++			w.Header()[k] = v
++		}
++		w.WriteHeader(response.StatusCode)
++		n, copyErr := io.Copy(w, response.Body)
++		if r.Method == http.MethodGet && payload {
++			count.getBytes.Add(n)
++			if copyErr != nil {
++				t.Error("fixture could not account for actual GET bytes")
++			}
++		}
++	}))
++	t.Cleanup(func() { server.CloseClientConnections(); server.Close(); transport.CloseIdleConnections() })
++	return auditStorageConfig(t, f, server.URL), count
++}
++func auditRetireTransfer(t *testing.T, tf *transferFixture, grant oc.TransferGrant) {
++	t.Helper()
++	evidence := tf.evidence(t, grant, oc.TransferStoppedEvidence, true)
++	for range 3 {
++		state, err := tf.transfers.ConfirmStopped(contextFor(t), tf.actor, grant.Status.ID, evidence)
++		if err != nil {
++			t.Fatal(err)
++		}
++		if !state.LeaseActive {
++			return
++		}
++	}
++	t.Fatal("actual independent transfer retirement did not release original lease")
++}

@@ -1,0 +1,6 @@
+{"command": ["sh", "scripts/test-objects.sh", "-run", "^TestObjectAuditIndependent", "-v"], "cwd": "/tmp/agenteam-object-audit-verifier-frxgtjbx/tree", "env": {"AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go", "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio", "GOTOOLCHAIN": "local", "GOENV": "off", "GOWORK": "off", "GOPROXY": "off", "GOSUMDB": "off", "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache", "GOCACHE": "/tmp/agenteam-object-audit-verifier-frxgtjbx/gocache", "TMPDIR": "/tmp/agenteam-object-audit-verifier-frxgtjbx/runtime", "DOCKER_CONFIG": "/tmp/agenteam-object-audit-verifier-frxgtjbx/docker-config", "DOCKER_HOST": "unix:///var/run/docker.sock"}, "started_epoch": 1791211612.4441128, "probe_sha256": "6fa231f1e18b2d29388cd2583dcf6693e761b226a412e2c148d482e5954444c6"}
+flag provided but not defined: -v
+Usage of object-fixture:
+  -run string
+    	affected tests
+invalid fixture arguments

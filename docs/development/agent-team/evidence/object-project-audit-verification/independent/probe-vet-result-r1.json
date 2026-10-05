@@ -1,0 +1,21 @@
+{
+  "name": "independent-probe-vet",
+  "command": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "vet",
+    "-tags=integration",
+    "./tests/objects"
+  ],
+  "cwd": "/tmp/agenteam-object-audit-verifier-frxgtjbx/tree",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/tmp/agenteam-object-audit-verifier-frxgtjbx/gocache"
+  },
+  "exit": 0,
+  "seconds": 23.038
+}

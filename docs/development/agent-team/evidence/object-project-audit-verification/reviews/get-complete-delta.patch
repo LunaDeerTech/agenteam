@@ -1,0 +1,50 @@
+--- review01/internal/central/object/project_audit.go
++++ review02/internal/central/object/project_audit.go
+@@ -247,7 +247,9 @@
+ 		if r.spec.Details().Direction == oc.TransferGET && v.operation != oc.TransferCapture || r.spec.Details().Direction == oc.TransferPUT && (v.operation != oc.TransferPublish || v.candidate != r.candidate) {
+ 			return projectAuditDenied()
+ 		}
+-		if err = checkTransferAuditLease(ctx, x, r, true); err != nil {
++		// A GET completion reports historical, already-authorized I/O. Its
++		// independent retirement may have released the original lease first.
++		if err = checkTransferAuditLease(ctx, x, r, r.spec.Details().Direction != oc.TransferGET); err != nil {
+ 			return err
+ 		}
+ 		if err = checkTransferAuditContent(ctx, x, r, true); err != nil {
+@@ -308,11 +310,15 @@
+ }
+ func checkTransferAuditLease(ctx context.Context, x postgres.SQLExecutor, r transferRow, active bool) error {
+ 	var object, owner, kind, state, attempt string
+-	err := x.QueryRow(ctx, `SELECT object_id::text,owner_kind,owner_id::text,state,coalesce(attempt_id::text,'') FROM agenteam_object.object_leases WHERE id=$1`, r.lease.String()).Scan(&object, &kind, &owner, &state, &attempt)
++	var released bool
++	err := x.QueryRow(ctx, `SELECT object_id::text,owner_kind,owner_id::text,state,coalesce(attempt_id::text,''),released_at IS NOT NULL FROM agenteam_object.object_leases WHERE id=$1`, r.lease.String()).Scan(&object, &kind, &owner, &state, &attempt, &released)
+ 	if err != nil {
+ 		return unavailable(err)
+ 	}
+ 	if object != r.object.String() || kind != "transfer" || owner != r.id.String() || active && state != "active" || attempt != "" {
++		return projectAuditDenied()
++	}
++	if state != "active" && (state != "released" || !released || r.retirement.Validate() != nil || len(r.retirementDigest) != 32 || r.retirementKind != oc.TransferStoppedEvidence && r.retirementKind != oc.TransferCompletedEvidence) {
+ 		return projectAuditDenied()
+ 	}
+ 	return nil
+@@ -323,14 +329,17 @@
+ 		return err
+ 	}
+ 	m := r.manifest.Details()
+-	if !found || !objectPartition(o, r.spec.Details().Owner) || o.meta.MediaType != m.MediaType || int64(o.meta.ByteSize) != m.Length || o.meta.SHA256 != m.SHA256 || o.cleaning || o.meta.State == oc.Deleted {
++	if !found || !objectPartition(o, r.spec.Details().Owner) || o.meta.MediaType != m.MediaType || int64(o.meta.ByteSize) != m.Length || o.meta.SHA256 != m.SHA256 {
+ 		return projectAuditDenied()
+ 	}
+ 	if r.spec.Details().Direction == oc.TransferGET {
+-		if o.meta.State != oc.Available {
++		if !completed && (o.meta.State != oc.Available || o.cleaning) {
+ 			return projectAuditDenied()
+ 		}
+ 		return nil
++	}
++	if o.cleaning || o.meta.State == oc.Deleted {
++		return projectAuditDenied()
+ 	}
+ 	u, found, err := loadUpload(ctx, x, r.upload)
+ 	if err != nil {

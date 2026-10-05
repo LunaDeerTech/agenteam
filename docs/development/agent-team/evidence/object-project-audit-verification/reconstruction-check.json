@@ -1,0 +1,66 @@
+[
+  {
+    "command": [
+      "python3",
+      "/workspace/agenteam/docs/development/agent-team/evidence/object-project-audit-verification/reproduce.py",
+      "--repo",
+      "/workspace/agenteam",
+      "--output",
+      "/tmp/agenteam-object-audit-verifier-frxgtjbx/archive-check-final",
+      "--sources-only",
+      "--revision",
+      "final"
+    ],
+    "exit": 0,
+    "stdout": "{\"base\": \"6658a6cb1f29299521773bc8dc86b2f607b8c809\", \"card\": \"fcae3558f00131a0bcfbd40723b36525030bee63\", \"revision\": \"final\", \"sources_only\": true, \"tree\": \"/tmp/agenteam-object-audit-verifier-frxgtjbx/archive-check-final/tree\", \"matched_files\": 13, \"probe_sha256\": \"6fa231f1e18b2d29388cd2583dcf6693e761b226a412e2c148d482e5954444c6\", \"executed_go_or_docker\": false}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/workspace/agenteam/docs/development/agent-team/evidence/object-project-audit-verification/reproduce.py",
+      "--repo",
+      "/workspace/agenteam",
+      "--output",
+      "/tmp/agenteam-object-audit-verifier-frxgtjbx/archive-check-new2",
+      "--sources-only",
+      "--revision",
+      "new2"
+    ],
+    "exit": 0,
+    "stdout": "{\"base\": \"6658a6cb1f29299521773bc8dc86b2f607b8c809\", \"card\": \"fcae3558f00131a0bcfbd40723b36525030bee63\", \"revision\": \"new2\", \"sources_only\": true, \"tree\": \"/tmp/agenteam-object-audit-verifier-frxgtjbx/archive-check-new2/tree\", \"matched_files\": 13, \"probe_sha256\": null, \"executed_go_or_docker\": false}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/workspace/agenteam/docs/development/agent-team/evidence/object-project-audit-verification/reproduce.py",
+      "--repo",
+      "/workspace/agenteam",
+      "--output",
+      "/tmp/agenteam-object-audit-verifier-frxgtjbx/archive-check-new1",
+      "--sources-only",
+      "--revision",
+      "new1"
+    ],
+    "exit": 0,
+    "stdout": "{\"base\": \"6658a6cb1f29299521773bc8dc86b2f607b8c809\", \"card\": \"fcae3558f00131a0bcfbd40723b36525030bee63\", \"revision\": \"new1\", \"sources_only\": true, \"tree\": \"/tmp/agenteam-object-audit-verifier-frxgtjbx/archive-check-new1/tree\", \"matched_files\": 13, \"probe_sha256\": null, \"executed_go_or_docker\": false}\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "python3",
+      "/workspace/agenteam/docs/development/agent-team/evidence/object-project-audit-verification/reproduce.py",
+      "--repo",
+      "/workspace/agenteam",
+      "--output",
+      "/tmp/agenteam-object-audit-verifier-frxgtjbx/archive-check-late-get-red2",
+      "--sources-only",
+      "--revision",
+      "late-get-red2"
+    ],
+    "exit": 0,
+    "stdout": "{\"base\": \"6658a6cb1f29299521773bc8dc86b2f607b8c809\", \"card\": \"fcae3558f00131a0bcfbd40723b36525030bee63\", \"revision\": \"late-get-red2\", \"sources_only\": true, \"tree\": \"/tmp/agenteam-object-audit-verifier-frxgtjbx/archive-check-late-get-red2/tree\", \"matched_files\": 13, \"probe_sha256\": null, \"executed_go_or_docker\": false}\n",
+    "stderr": ""
+  }
+]

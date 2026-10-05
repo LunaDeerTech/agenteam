@@ -1,0 +1,55 @@
+{"command": ["sh", "scripts/test-objects.sh", "-run", "^TestObjectProjectAudit"], "cwd": "/tmp/agenteam-object-audit-author-t97qa_1s/snapshot", "started": "2026-10-05T14:22:42.897051+00:00"}
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.74.199.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=6b0ba6ac3423c7f6da29de69de300f74
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=ae23014ee0f012aa99cd743c00441b18
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.013s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.020s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.039s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/process	8.682s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.032s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.018s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.017s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.020s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.020s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.024s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.023s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.021s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.046s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.041s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.038s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.049s [no tests to run]
+--- FAIL: TestObjectProjectAuditExternalPublicationExactWitnessAndRollback (1.45s)
+    project_audit_test.go:67: INVALID_ARGUMENT
+--- FAIL: TestObjectProjectAuditWriterRecoveryAndDeleteFacts (2.24s)
+    --- FAIL: TestObjectProjectAuditWriterRecoveryAndDeleteFacts/writer-and-real-verification (1.11s)
+        project_audit_test.go:184: INVALID_ARGUMENT
+--- FAIL: TestObjectProjectAuditPublicationActualCommitUnknownReplaysWithoutPUT (0.95s)
+    project_audit_test.go:301: INVALID_ARGUMENT
+--- FAIL: TestObjectProjectAuditTransferPUTNestedRollbackAndGETCompleteCancel (2.39s)
+    --- FAIL: TestObjectProjectAuditTransferPUTNestedRollbackAndGETCompleteCancel/put-two-audits-one-tx (1.22s)
+        project_audit_transfer_test.go:94: verified retry repeated actual bytes
+--- FAIL: TestObjectProjectAuditStopRevokeRollbackAndTerminalInspect (2.63s)
+    --- FAIL: TestObjectProjectAuditStopRevokeRollbackAndTerminalInspect/archive (1.19s)
+        project_audit_transfer_test.go:263: remote lease inferred stopped RESOURCE_BUSY
+    --- FAIL: TestObjectProjectAuditStopRevokeRollbackAndTerminalInspect/delete (1.44s)
+        project_audit_transfer_test.go:263: remote lease inferred stopped RESOURCE_BUSY
+--- FAIL: TestObjectProjectAuditStopGateActualCommitUnknownNeverCancels (13.64s)
+    --- FAIL: TestObjectProjectAuditStopGateActualCommitUnknownNeverCancels/committed (5.37s)
+        project_audit_transfer_test.go:320: actual Audit COMMIT: action=object.transfer.revoke pid=167 xid=1443 pending=false
+        project_audit_transfer_test.go:365: stop did not visit all native lanes {pending [] [] work_pending}
+    --- FAIL: TestObjectProjectAuditStopGateActualCommitUnknownNeverCancels/rollback (4.09s)
+        project_audit_transfer_test.go:320: actual Audit COMMIT: action=object.transfer.revoke pid=175 xid=1597 pending=false
+        project_audit_transfer_test.go:365: stop did not visit all native lanes {pending [] [] work_pending}
+    --- FAIL: TestObjectProjectAuditStopGateActualCommitUnknownNeverCancels/pending (4.17s)
+        project_audit_transfer_test.go:320: actual Audit COMMIT: action=object.transfer.revoke pid=183 xid=1751 pending=true
+        project_audit_transfer_test.go:365: stop did not visit all native lanes {pending [] [] work_pending}
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/objects	32.786s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.055s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.019s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce 04dcb53473fe464875bc3d894a948181
+D04 outbound fixture cleanup checked for nonce ae23014ee0f012aa99cd743c00441b18
+D05 object fixture exact resource cleanup checked nonce=6b0ba6ac3423c7f6da29de69de300f74

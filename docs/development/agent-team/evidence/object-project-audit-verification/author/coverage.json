@@ -1,0 +1,135 @@
+{
+  "new_real": [
+    {
+      "test": "TestObjectProjectAuditExternalPublicationExactWitnessAndRollback",
+      "log": "logs/integration-new-2.log",
+      "input": "evidence/integration2-input.json",
+      "passed_children": [
+        "TestObjectProjectAuditExternalPublicationExactWitnessAndRollback/owner",
+        "TestObjectProjectAuditExternalPublicationExactWitnessAndRollback/current-attempt",
+        "TestObjectProjectAuditExternalPublicationExactWitnessAndRollback/digest",
+        "TestObjectProjectAuditExternalPublicationExactWitnessAndRollback/phase"
+      ]
+    },
+    {
+      "test": "TestObjectProjectAuditWriterRecoveryAndDeleteFacts",
+      "log": "logs/integration-new-2.log",
+      "input": "evidence/integration2-input.json",
+      "passed_children": [
+        "TestObjectProjectAuditWriterRecoveryAndDeleteFacts/writer-and-real-verification",
+        "TestObjectProjectAuditWriterRecoveryAndDeleteFacts/delete-prestate-and-earliest-cause"
+      ]
+    },
+    {
+      "test": "TestObjectProjectAuditPublicationActualCommitUnknownReplaysWithoutPUT",
+      "log": "logs/integration-new-2.log",
+      "input": "evidence/integration2-input.json",
+      "passed_children": []
+    },
+    {
+      "test": "TestObjectProjectAuditTransferPUTNestedRollbackAndGETCompleteCancel",
+      "log": "logs/final-real-1.log",
+      "input": "evidence/final-real-input.json",
+      "passed_children": [
+        "TestObjectProjectAuditTransferPUTNestedRollbackAndGETCompleteCancel/put-two-audits-one-tx",
+        "TestObjectProjectAuditTransferPUTNestedRollbackAndGETCompleteCancel/get-complete-then-cancel"
+      ]
+    },
+    {
+      "test": "TestObjectProjectAuditCleanupBatchRevokeRollsBackSecondAudit",
+      "log": "logs/integration-new-2.log",
+      "input": "evidence/integration2-input.json",
+      "passed_children": []
+    },
+    {
+      "test": "TestObjectProjectAuditStopRevokeRollbackAndTerminalInspect",
+      "log": "logs/integration-new-2.log",
+      "input": "evidence/integration2-input.json",
+      "passed_children": [
+        "TestObjectProjectAuditStopRevokeRollbackAndTerminalInspect/archive",
+        "TestObjectProjectAuditStopRevokeRollbackAndTerminalInspect/delete"
+      ]
+    },
+    {
+      "test": "TestObjectProjectAuditStopGateActualCommitUnknownNeverCancels",
+      "log": "logs/integration-new-2.log",
+      "input": "evidence/integration2-input.json",
+      "passed_children": [
+        "TestObjectProjectAuditStopGateActualCommitUnknownNeverCancels/committed",
+        "TestObjectProjectAuditStopGateActualCommitUnknownNeverCancels/rollback",
+        "TestObjectProjectAuditStopGateActualCommitUnknownNeverCancels/pending"
+      ]
+    },
+    {
+      "test": "TestObjectProjectAuditLateGETCompleteRetainsConvergeCompatibility",
+      "log": "logs/integration-new-2.log",
+      "input": "evidence/integration2-input.json",
+      "passed_children": [
+        "TestObjectProjectAuditLateGETCompleteRetainsConvergeCompatibility/retired",
+        "TestObjectProjectAuditLateGETCompleteRetainsConvergeCompatibility/cleaning",
+        "TestObjectProjectAuditLateGETCompleteRetainsConvergeCompatibility/deleted"
+      ]
+    },
+    {
+      "test": "TestObjectProjectAuditIssueActualCommitUnknownNeverLeaksMaterial",
+      "log": "logs/integration-new-2.log",
+      "input": "evidence/integration2-input.json",
+      "passed_children": [
+        "TestObjectProjectAuditIssueActualCommitUnknownNeverLeaksMaterial/committed",
+        "TestObjectProjectAuditIssueActualCommitUnknownNeverLeaksMaterial/rollback",
+        "TestObjectProjectAuditIssueActualCommitUnknownNeverLeaksMaterial/pending"
+      ]
+    },
+    {
+      "test": "TestObjectProjectAuditPUTFinalCommitUnknownKeepsBothAudits",
+      "log": "logs/final-real-1.log",
+      "input": "evidence/final-real-input.json",
+      "passed_children": []
+    }
+  ],
+  "new_real_top": 10,
+  "new_real_sub": 19,
+  "old_real_top": 17,
+  "old_real_sub": 17,
+  "old_real_tests": [
+    "TestAccountAvatarPutReplaceDeleteAndCurrentRead",
+    "TestAccountAvatarApplyAuditRollbackKeepsCurrentAndRecoversCandidate",
+    "TestObjectAccessActualOwnerAndActorGates",
+    "TestObjectAccessMultiplePlansAcquireUnionExactlyOnce",
+    "TestObjectAccessRejectsUnboundAndForeignTokens",
+    "TestArtifactDownloadUnopenedCloseAuditsZeroAndExpiryBlocksNew",
+    "TestObjectLostPUTResponseVerifiesOriginalWithoutSecondWrite",
+    "TestObjectProjectStopAuthorityAndReadOnlyInspect",
+    "TestObjectProjectStopArchivePreservesPublishedReads",
+    "TestObjectProjectStopDeleteWaitsForActualIO",
+    "TestObjectCancelProtectsActualSourceUntilJoined",
+    "TestObjectProtectedLeaseAndProjectCleanup",
+    "TestObjectSourceLeaseCurrentAuthorityAndCancelJoins",
+    "TestTransferCurrentOwnerPrecedesHistoricalReplay",
+    "TestTransferArchivedTerminalConvergesWithoutNewMaterial",
+    "TestTransferProjectCleanupRetainsRemoteLeaseThenErasesFacts",
+    "TestTransferPUTCompleteAndIndependentRetirement"
+  ],
+  "old_real_subtests": [
+    "TestObjectAccessActualOwnerAndActorGates/payload_parent_execution",
+    "TestObjectAccessActualOwnerAndActorGates/actor_agent",
+    "TestObjectAccessActualOwnerAndActorGates/actor_execution",
+    "TestObjectAccessRejectsUnboundAndForeignTokens/other_tx",
+    "TestObjectAccessRejectsUnboundAndForeignTokens/other_service",
+    "TestObjectAccessRejectsUnboundAndForeignTokens/other_plan",
+    "TestObjectAccessRejectsUnboundAndForeignTokens/other_request",
+    "TestObjectAccessRejectsUnboundAndForeignTokens/zero_token",
+    "TestObjectAccessRejectsUnboundAndForeignTokens/public_constructor",
+    "TestObjectAccessRejectsUnboundAndForeignTokens/second_acquire",
+    "TestObjectProjectStopAuthorityAndReadOnlyInspect/manifest",
+    "TestObjectProjectStopAuthorityAndReadOnlyInspect/phase",
+    "TestObjectProjectStopAuthorityAndReadOnlyInspect/version",
+    "TestObjectProjectStopAuthorityAndReadOnlyInspect/action",
+    "TestObjectProjectStopDeleteWaitsForActualIO/small_body_already_joined_before_return",
+    "TestObjectProjectStopDeleteWaitsForActualIO/body_read_close",
+    "TestObjectProjectStopDeleteWaitsForActualIO/reader_release_callback"
+  ],
+  "unit_top": 43,
+  "unit_sub": 231,
+  "group_note": "integration-new-2 remains exit 1; only explicitly passing unchanged cases reused. PUT nested rollback rerun with complete staging+candidate body counters in final-real-1, exit 0."
+}

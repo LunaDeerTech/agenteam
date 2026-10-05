@@ -1,0 +1,70 @@
+{
+  "container": {
+    "96965eea18d2e8c38170f6f8ba0343582f907fa87ee6a721195eb89700fb3fed": {
+      "kind": "container",
+      "action": "create",
+      "id": "96965eea18d2e8c38170f6f8ba0343582f907fa87ee6a721195eb89700fb3fed",
+      "name": "agenteam-d05-object-2fbcd61cd994518349ee3e036db55119",
+      "timeNano": 1791211657636904193,
+      "labels": {
+        "agenteam.d05.objectfixture": "2fbcd61cd994518349ee3e036db55119"
+      }
+    },
+    "878f851bcdfbe6f2dec0e065e4b16d5bbcde7c5ac8ff879bc71b84720d0f173c": {
+      "kind": "container",
+      "action": "create",
+      "id": "878f851bcdfbe6f2dec0e065e4b16d5bbcde7c5ac8ff879bc71b84720d0f173c",
+      "name": "agenteam-d04-net-128b58401f52261a732fd564aea5acf0",
+      "timeNano": 1791211663388911427,
+      "labels": {
+        "agenteam.d04.networkfixture": "128b58401f52261a732fd564aea5acf0"
+      }
+    },
+    "8d0b76c90b836046ee420621d723fe41c7271905c481e18b720ba05d1dbc2abb": {
+      "kind": "container",
+      "action": "create",
+      "id": "8d0b76c90b836046ee420621d723fe41c7271905c481e18b720ba05d1dbc2abb",
+      "name": "agenteam-d03-7ce3e0e86fda33976d7a96b2a1df7e6a",
+      "timeNano": 1791211665420694198,
+      "labels": {
+        "agenteam.d03.fixture": "7ce3e0e86fda33976d7a96b2a1df7e6a"
+      }
+    },
+    "0fd0f45dba7a1a8ea5548a952701b1fe9b4ea2fdfe5e018d0daaebd22113c24d": {
+      "kind": "container",
+      "action": "create",
+      "id": "0fd0f45dba7a1a8ea5548a952701b1fe9b4ea2fdfe5e018d0daaebd22113c24d",
+      "name": "agenteam-d03-7ce3e0e86fda33976d7a96b2a1df7e6a-pg16",
+      "timeNano": 1791211667511018829,
+      "labels": {
+        "agenteam.d03.fixture": "7ce3e0e86fda33976d7a96b2a1df7e6a"
+      }
+    }
+  },
+  "network": {
+    "352540f16bafe28b841b0608bad7ae550786633a0d61ea17cf6d28da34fa62bd": {
+      "kind": "network",
+      "action": "create",
+      "id": "352540f16bafe28b841b0608bad7ae550786633a0d61ea17cf6d28da34fa62bd",
+      "name": "agenteam-d05-object-2fbcd61cd994518349ee3e036db55119",
+      "timeNano": 1791211656653503856,
+      "labels": {}
+    },
+    "b30a9acc725353bf1bd648dbf53fc6b0ecfd9fed2b9cfc5b174403d512c3c886": {
+      "kind": "network",
+      "action": "create",
+      "id": "b30a9acc725353bf1bd648dbf53fc6b0ecfd9fed2b9cfc5b174403d512c3c886",
+      "name": "agenteam-d04-net-128b58401f52261a732fd564aea5acf0",
+      "timeNano": 1791211662319195422,
+      "labels": {}
+    },
+    "ab316775add80c79e8838c903d1d4225e176cd553e2f5a7793367a39a91788c1": {
+      "kind": "network",
+      "action": "create",
+      "id": "ab316775add80c79e8838c903d1d4225e176cd553e2f5a7793367a39a91788c1",
+      "name": "agenteam-d03-7ce3e0e86fda33976d7a96b2a1df7e6a",
+      "timeNano": 1791211664422526118,
+      "labels": {}
+    }
+  }
+}

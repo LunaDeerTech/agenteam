@@ -1,0 +1,4 @@
+{"command": ["/workspace/toolchains/go1.27.1/bin/go", "test", "-tags=integration", "-run", "^$", "./tests/objects"], "cwd": "/tmp/agenteam-object-audit-author-t97qa_1s/snapshot", "started": "2026-10-05T14:37:59.043855+00:00"}
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	0.004s [no tests to run]

@@ -1,0 +1,16 @@
+{
+  "go": "/workspace/toolchains/go1.27.1/bin/go",
+  "GOTOOLCHAIN": "local",
+  "GOENV": "off",
+  "GOWORK": "off",
+  "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+  "GOCACHE": "/tmp/agenteam-object-audit-author-t97qa_1s/gocache",
+  "GOTMPDIR": "/tmp/agenteam-object-audit-author-t97qa_1s/tmp",
+  "TMPDIR": "/tmp/agenteam-object-audit-author-t97qa_1s/runtime",
+  "GOPROXY": "off",
+  "GOFLAGS": "-mod=readonly -v",
+  "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+  "DOCKER_HOST": "unix:///var/run/docker.sock",
+  "DOCKER_CONFIG": "/tmp/agenteam-object-audit-author-t97qa_1s/docker-config",
+  "cwd": "/tmp/agenteam-object-audit-author-t97qa_1s/snapshot"
+}

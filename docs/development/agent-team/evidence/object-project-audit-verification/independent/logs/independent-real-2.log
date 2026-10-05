@@ -1,0 +1,94 @@
+{"command": ["sh", "scripts/test-objects.sh", "-run", "^TestObjectAuditIndependent"], "cwd": "/tmp/agenteam-object-audit-verifier-frxgtjbx/tree", "env": {"AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go", "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio", "GOTOOLCHAIN": "local", "GOENV": "off", "GOWORK": "off", "GOPROXY": "off", "GOSUMDB": "off", "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache", "GOCACHE": "/tmp/agenteam-object-audit-verifier-frxgtjbx/gocache", "TMPDIR": "/tmp/agenteam-object-audit-verifier-frxgtjbx/runtime", "DOCKER_CONFIG": "/tmp/agenteam-object-audit-verifier-frxgtjbx/docker-config", "DOCKER_HOST": "unix:///var/run/docker.sock", "GOFLAGS": "-v"}, "started_epoch": 1791211655.596805, "probe_sha256": "6fa231f1e18b2d29388cd2583dcf6693e761b226a412e2c148d482e5954444c6"}
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.65.41.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=2fbcd61cd994518349ee3e036db55119
+github.com/LunaDeerTech/agenteam/internal/central/outbound
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+net
+net/textproto
+vendor/golang.org/x/net/http/httpproxy
+crypto/x509
+vendor/golang.org/x/net/http/httpguts
+mime/multipart
+crypto/tls
+net/http/httptrace
+net/http/internal/httpcommon
+net/http/internal/http2
+net/http
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=128b58401f52261a732fd564aea5acf0
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.019s [no tests to run]
+# github.com/LunaDeerTech/agenteam/internal/central/project
+compile: writing output: write $WORK/b416/_pkg_.a: no space left on device
+github.com/LunaDeerTech/agenteam/internal/central/model: write /tmp/agenteam-object-audit-verifier-frxgtjbx/runtime/agenteam-d05-object-2fbcd61cd994518349ee3e036db55119/agenteam-d04-net-128b58401f52261a732fd564aea5acf0-3846245604/agenteam-d03-7ce3e0e86fda33976d7a96b2a1df7e6a-296510997/go-build788232360/b419/vet.cfg: no space left on device
+github.com/LunaDeerTech/agenteam/internal/central/model: write /tmp/agenteam-object-audit-verifier-frxgtjbx/runtime/agenteam-d05-object-2fbcd61cd994518349ee3e036db55119/agenteam-d04-net-128b58401f52261a732fd564aea5acf0-3846245604/agenteam-d03-7ce3e0e86fda33976d7a96b2a1df7e6a-296510997/go-build788232360/b425/importcfg: no space left on device
+github.com/LunaDeerTech/agenteam/internal/central/object: write /tmp/agenteam-object-audit-verifier-frxgtjbx/runtime/agenteam-d05-object-2fbcd61cd994518349ee3e036db55119/agenteam-d04-net-128b58401f52261a732fd564aea5acf0-3846245604/agenteam-d03-7ce3e0e86fda33976d7a96b2a1df7e6a-296510997/go-build788232360/b430/importcfg: no space left on device
+github.com/LunaDeerTech/agenteam/internal/central/object/contract: write /tmp/agenteam-object-audit-verifier-frxgtjbx/runtime/agenteam-d05-object-2fbcd61cd994518349ee3e036db55119/agenteam-d04-net-128b58401f52261a732fd564aea5acf0-3846245604/agenteam-d03-7ce3e0e86fda33976d7a96b2a1df7e6a-296510997/go-build788232360/b432/importcfg: no space left on device
+github.com/LunaDeerTech/agenteam/internal/central/FAIL	github.com/LunaDeerTech/agenteam/internal/central/app [build failed]
+test binary build failed: exit status 1
+write /tmp/agenteam-object-audit-verifier-frxgtjbx/gocache/8c/8c622d76be5e2229f0d72209474c65336b4dcbbbeabe3df493c758b8d5559fe7-a: no space left on device
+FAIL	github.com/LunaDeerTech/agenteam/tests/process	0.037s
+# github.com/LunaDeerTech/agenteam/internal/central/model.test
+/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link: mapping output file failed: no space left on device
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+FAIL	github.com/LunaDeerTech/agenteam/tests/account [build failed]
+FAIL	github.com/LunaDeerTech/agenteam/tests/accountmail [build failed]
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/accountmail [build failed]
+# github.com/LunaDeerTech/agenteam/internal/central/recoverylog.test
+/workspace/toolchains/go1.27.1/pkg/tool/linux_amd64/link: mapping output file failed: no space left on device
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/recoverylog [build failed]
+FAIL	github.com/LunaDeerTech/agenteam/tests/project [build failed]
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model [build failed]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.010s [no tests to run]
+FAIL	github.com/LunaDeerTech/agenteam/tests/model [build failed]
+=== RUN   TestObjectAuditIndependentStopDirectCancel
+=== RUN   TestObjectAuditIndependentStopDirectCancel/audit-rejected
+    object_audit_independent_test.go:62: initialize: OBJECT_PAYLOAD_MISSING
+=== RUN   TestObjectAuditIndependentStopDirectCancel/committed
+    object_audit_independent_test.go:62: initialize: OBJECT_PAYLOAD_MISSING
+=== RUN   TestObjectAuditIndependentStopDirectCancel/rollback
+    object_audit_independent_test.go:62: initialize: OBJECT_PAYLOAD_MISSING
+=== RUN   TestObjectAuditIndependentStopDirectCancel/pending
+    object_audit_independent_test.go:62: initialize: OBJECT_PAYLOAD_MISSING
+--- FAIL: TestObjectAuditIndependentStopDirectCancel (3.66s)
+    --- FAIL: TestObjectAuditIndependentStopDirectCancel/audit-rejected (1.03s)
+    --- FAIL: TestObjectAuditIndependentStopDirectCancel/committed (0.88s)
+    --- FAIL: TestObjectAuditIndependentStopDirectCancel/rollback (0.87s)
+    --- FAIL: TestObjectAuditIndependentStopDirectCancel/pending (0.88s)
+=== RUN   TestObjectAuditIndependentRetiredGETCanonicalFacts
+=== RUN   TestObjectAuditIndependentRetiredGETCanonicalFacts/missing-retirement
+    object_audit_independent_test.go:242: initialize: OBJECT_PAYLOAD_MISSING
+=== RUN   TestObjectAuditIndependentRetiredGETCanonicalFacts/wrong-lease-owner
+    object_audit_independent_test.go:242: initialize: OBJECT_PAYLOAD_MISSING
+--- FAIL: TestObjectAuditIndependentRetiredGETCanonicalFacts (1.80s)
+    --- FAIL: TestObjectAuditIndependentRetiredGETCanonicalFacts/missing-retirement (0.89s)
+    --- FAIL: TestObjectAuditIndependentRetiredGETCanonicalFacts/wrong-lease-owner (0.91s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/objects	5.485s
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/object [build failed]
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/object/contract [build failed]
+FAIL
+D03 fixture cleanup checked for nonce 7ce3e0e86fda33976d7a96b2a1df7e6a
+D04 outbound fixture cleanup checked for nonce 128b58401f52261a732fd564aea5acf0
+D05 object fixture exact resource cleanup checked nonce=2fbcd61cd994518349ee3e036db55119

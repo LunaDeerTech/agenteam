@@ -1,0 +1,23 @@
+{
+  "declared_author_reuse_test_names_found_as_PASS": true,
+  "logs": [
+    {
+      "log": "author/logs/final-unit-race.log",
+      "passing_top": 43,
+      "passing_children": 231,
+      "FAIL_lines": 0
+    },
+    {
+      "log": "author/logs/final-real-1.log",
+      "passing_top": 19,
+      "passing_children": 19,
+      "FAIL_lines": 0
+    },
+    {
+      "log": "independent/logs/independent-real-3.log",
+      "passing_top": 2,
+      "passing_children": 6,
+      "FAIL_lines": 0
+    }
+  ]
+}

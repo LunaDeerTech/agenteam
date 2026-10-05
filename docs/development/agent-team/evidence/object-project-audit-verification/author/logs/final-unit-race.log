@@ -1,0 +1,554 @@
+{"command": ["/workspace/toolchains/go1.27.1/bin/go", "test", "-race", "-count=1", "./internal/central/object", "./internal/central/audit"], "cwd": "/tmp/agenteam-object-audit-author-t97qa_1s/snapshot", "started": "2026-10-05T14:32:12.303091+00:00"}
+=== RUN   TestStorageConfigNamedInputsAndPrivateProjections
+--- PASS: TestStorageConfigNamedInputsAndPrivateProjections (0.00s)
+=== RUN   TestStorageAdapterCloseCancelsRealHeadersAndRejectsRedirect
+--- PASS: TestStorageAdapterCloseCancelsRealHeadersAndRejectsRedirect (0.02s)
+=== RUN   TestStorageAdapterEagerRangeFraming
+--- PASS: TestStorageAdapterEagerRangeFraming (0.16s)
+=== RUN   TestDownloadSingleRangeBounds
+--- PASS: TestDownloadSingleRangeBounds (0.00s)
+=== RUN   TestDownloadPreviewUsesActualContentAndClosedAllowedTypes
+--- PASS: TestDownloadPreviewUsesActualContentAndClosedAllowedTypes (0.00s)
+=== RUN   TestDownloadContainsRetainedMaterial
+--- PASS: TestDownloadContainsRetainedMaterial (0.00s)
+=== RUN   TestDownloadKeyringBoundaries
+--- PASS: TestDownloadKeyringBoundaries (0.00s)
+=== RUN   TestDownloadKeyringNoSensitiveProjection
+--- PASS: TestDownloadKeyringNoSensitiveProjection (0.00s)
+=== RUN   TestDownloadTokenIndependentVectorAndEveryByte
+--- PASS: TestDownloadTokenIndependentVectorAndEveryByte (0.14s)
+=== RUN   TestDownloadTokenRotationAndStrictSignedPayload
+--- PASS: TestDownloadTokenRotationAndStrictSignedPayload (0.01s)
+=== RUN   TestDownloadReferenceVariantRoundTrips
+--- PASS: TestDownloadReferenceVariantRoundTrips (0.00s)
+=== RUN   TestRevokedCommandHistoryDoesNotRewriteUnknownOrOtherFailure
+--- PASS: TestRevokedCommandHistoryDoesNotRewriteUnknownOrOtherFailure (0.00s)
+=== RUN   TestObjectProjectAuditConstructionHasNoIOAndChecksDynamicIdentity
+--- PASS: TestObjectProjectAuditConstructionHasNoIOAndChecksDynamicIdentity (0.00s)
+=== RUN   TestObjectProjectAuditPublicationReadsCanonicalPrestate
+=== RUN   TestObjectProjectAuditPublicationReadsCanonicalPrestate/valid-repeat
+=== RUN   TestObjectProjectAuditPublicationReadsCanonicalPrestate/wrong-owner
+=== RUN   TestObjectProjectAuditPublicationReadsCanonicalPrestate/wrong-attempt
+=== RUN   TestObjectProjectAuditPublicationReadsCanonicalPrestate/wrong-digest
+=== RUN   TestObjectProjectAuditPublicationReadsCanonicalPrestate/not-verified
+=== RUN   TestObjectProjectAuditPublicationReadsCanonicalPrestate/not-closed
+=== RUN   TestObjectProjectAuditPublicationReadsCanonicalPrestate/revoked
+=== RUN   TestObjectProjectAuditPublicationReadsCanonicalPrestate/cleaning
+=== RUN   TestObjectProjectAuditPublicationReadsCanonicalPrestate/published-already
+=== RUN   TestObjectProjectAuditPublicationReadsCanonicalPrestate/wrong-process-witness
+--- PASS: TestObjectProjectAuditPublicationReadsCanonicalPrestate (0.00s)
+    --- PASS: TestObjectProjectAuditPublicationReadsCanonicalPrestate/valid-repeat (0.00s)
+    --- PASS: TestObjectProjectAuditPublicationReadsCanonicalPrestate/wrong-owner (0.00s)
+    --- PASS: TestObjectProjectAuditPublicationReadsCanonicalPrestate/wrong-attempt (0.00s)
+    --- PASS: TestObjectProjectAuditPublicationReadsCanonicalPrestate/wrong-digest (0.00s)
+    --- PASS: TestObjectProjectAuditPublicationReadsCanonicalPrestate/not-verified (0.00s)
+    --- PASS: TestObjectProjectAuditPublicationReadsCanonicalPrestate/not-closed (0.00s)
+    --- PASS: TestObjectProjectAuditPublicationReadsCanonicalPrestate/revoked (0.00s)
+    --- PASS: TestObjectProjectAuditPublicationReadsCanonicalPrestate/cleaning (0.00s)
+    --- PASS: TestObjectProjectAuditPublicationReadsCanonicalPrestate/published-already (0.00s)
+    --- PASS: TestObjectProjectAuditPublicationReadsCanonicalPrestate/wrong-process-witness (0.00s)
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/no-witness
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-store
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-tx
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/expired-tx
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-producer
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-cause
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-ordinal
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-resource
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-metadata
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-actor
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/missing-lock
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/ToolID
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/ExecutionID
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/ToolCallID
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/OperationID
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/RequestID
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/ApprovalID
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/RunnerID
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/CorrelationID
+=== RUN   TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/HTTPTraceID
+--- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/no-witness (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-store (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-tx (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/expired-tx (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-producer (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-cause (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-ordinal (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-resource (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-metadata (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/wrong-actor (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/missing-lock (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/ToolID (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/ExecutionID (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/ToolCallID (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/OperationID (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/RequestID (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/ApprovalID (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/RunnerID (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/CorrelationID (0.00s)
+    --- PASS: TestObjectProjectAuditExactEntryKeyAndLiveStoreTransaction/HTTPTraceID (0.00s)
+=== RUN   TestObjectProjectAuditStageRequiresRealPrivateAcquire
+--- PASS: TestObjectProjectAuditStageRequiresRealPrivateAcquire (0.00s)
+=== RUN   TestProjectStopUnboundAndExactActor
+--- PASS: TestProjectStopUnboundAndExactActor (0.00s)
+=== RUN   TestProjectStopArchiveKinds
+--- PASS: TestProjectStopArchiveKinds (0.00s)
+=== RUN   TestProjectStopMappingIncludesOldCleanupClaim
+--- PASS: TestProjectStopMappingIncludesOldCleanupClaim (0.00s)
+=== RUN   TestProjectWorkChildInheritsOnlyLiveInitialization
+=== RUN   TestProjectWorkChildInheritsOnlyLiveInitialization/initializing_parent_and_independent_cancel
+=== RUN   TestProjectWorkChildInheritsOnlyLiveInitialization/ordinary_parent_still_needs_ready
+=== RUN   TestProjectWorkChildInheritsOnlyLiveInitialization/no_parent
+=== RUN   TestProjectWorkChildInheritsOnlyLiveInitialization/unregistered
+=== RUN   TestProjectWorkChildInheritsOnlyLiveInitialization/foreign_service
+=== RUN   TestProjectWorkChildInheritsOnlyLiveInitialization/done
+=== RUN   TestProjectWorkChildInheritsOnlyLiveInitialization/cancelled
+=== RUN   TestProjectWorkChildInheritsOnlyLiveInitialization/caller_cancelled
+=== RUN   TestProjectWorkChildInheritsOnlyLiveInitialization/stopped
+=== RUN   TestProjectWorkChildInheritsOnlyLiveInitialization/forced
+=== RUN   TestProjectWorkChildInheritsOnlyLiveInitialization/quota
+--- PASS: TestProjectWorkChildInheritsOnlyLiveInitialization (0.00s)
+    --- PASS: TestProjectWorkChildInheritsOnlyLiveInitialization/initializing_parent_and_independent_cancel (0.00s)
+    --- PASS: TestProjectWorkChildInheritsOnlyLiveInitialization/ordinary_parent_still_needs_ready (0.00s)
+    --- PASS: TestProjectWorkChildInheritsOnlyLiveInitialization/no_parent (0.00s)
+    --- PASS: TestProjectWorkChildInheritsOnlyLiveInitialization/unregistered (0.00s)
+    --- PASS: TestProjectWorkChildInheritsOnlyLiveInitialization/foreign_service (0.00s)
+    --- PASS: TestProjectWorkChildInheritsOnlyLiveInitialization/done (0.00s)
+    --- PASS: TestProjectWorkChildInheritsOnlyLiveInitialization/cancelled (0.00s)
+    --- PASS: TestProjectWorkChildInheritsOnlyLiveInitialization/caller_cancelled (0.00s)
+    --- PASS: TestProjectWorkChildInheritsOnlyLiveInitialization/stopped (0.00s)
+    --- PASS: TestProjectWorkChildInheritsOnlyLiveInitialization/forced (0.00s)
+    --- PASS: TestProjectWorkChildInheritsOnlyLiveInitialization/quota (0.00s)
+=== RUN   TestProjectWorkImmutableCleanupIdentity
+--- PASS: TestProjectWorkImmutableCleanupIdentity (0.00s)
+=== RUN   TestProjectWorkIdentityLivesInPrivatePlan
+--- PASS: TestProjectWorkIdentityLivesInPrivatePlan (0.00s)
+=== RUN   TestAvatarCleanupBudgetIntersectsCallerAndForce
+=== RUN   TestAvatarCleanupBudgetIntersectsCallerAndForce/caller/caller
+=== RUN   TestAvatarCleanupBudgetIntersectsCallerAndForce/caller/force
+=== RUN   TestAvatarCleanupBudgetIntersectsCallerAndForce/force/caller
+=== RUN   TestAvatarCleanupBudgetIntersectsCallerAndForce/force/force
+--- PASS: TestAvatarCleanupBudgetIntersectsCallerAndForce (0.00s)
+    --- PASS: TestAvatarCleanupBudgetIntersectsCallerAndForce/caller/caller (0.00s)
+    --- PASS: TestAvatarCleanupBudgetIntersectsCallerAndForce/caller/force (0.00s)
+    --- PASS: TestAvatarCleanupBudgetIntersectsCallerAndForce/force/caller (0.00s)
+    --- PASS: TestAvatarCleanupBudgetIntersectsCallerAndForce/force/force (0.00s)
+=== RUN   TestAvatarCleanupCheckpointKeepsRegistrationUntilActualCompletion
+--- PASS: TestAvatarCleanupCheckpointKeepsRegistrationUntilActualCompletion (0.00s)
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_-1
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_0
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_1
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_2
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_3
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_4
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_5
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_6
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_7
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_8
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_9
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_10
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_11
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_12
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_13
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_14
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_15
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_16
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_17
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_18
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_19
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_20
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_21
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_22
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_23
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_24
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_25
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_26
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_27
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_28
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_29
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_30
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_31
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_32
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_33
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_34
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_35
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_36
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_37
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_38
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_39
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_40
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_41
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_42
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_43
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_44
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_45
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_46
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_47
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_48
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_49
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_50
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_51
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_52
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_53
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_54
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_55
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_56
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_57
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_58
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_59
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_60
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_61
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_62
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_63
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_64
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_65
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_66
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_67
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_68
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_69
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_70
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_71
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_72
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_73
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_74
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_75
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_76
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_77
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_78
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_79
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_80
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_81
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_82
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_83
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_84
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_85
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_86
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_87
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_88
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_89
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_90
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_91
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_92
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_93
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_94
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_95
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_96
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_97
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_98
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_99
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_100
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_101
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_102
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_103
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_104
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_105
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_106
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_107
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_108
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_109
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_110
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_111
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_112
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_113
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_114
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_115
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_116
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_117
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_118
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_119
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_120
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_121
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_122
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_123
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_124
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_125
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_126
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_127
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_128
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_129
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_130
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_131
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_132
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_133
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_134
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_135
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_136
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_137
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_138
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_139
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_140
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_141
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_142
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_143
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_144
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_145
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_146
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_147
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_148
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_149
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_150
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_151
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_152
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_153
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_154
+=== RUN   TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_155
+--- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix (0.07s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_-1 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_0 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_1 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_2 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_3 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_4 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_5 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_6 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_7 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_8 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_9 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_10 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_11 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_12 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_13 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_14 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_15 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_16 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_17 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_18 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_19 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_20 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_21 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_22 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_23 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_24 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_25 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_26 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_27 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_28 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_29 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_30 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_31 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_32 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_33 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_34 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_35 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_36 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_37 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_38 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_39 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_40 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_41 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_42 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_43 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_44 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_45 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_46 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_47 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_48 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_49 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_50 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_51 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_52 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_53 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_54 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_55 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_56 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_57 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_58 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_59 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_60 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_61 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_62 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_63 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_64 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_65 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_66 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_67 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_68 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_69 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_70 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_71 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_72 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_73 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_74 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_75 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_76 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_77 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_78 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_79 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_80 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_81 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_82 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_83 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_84 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_85 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_86 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_87 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_88 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_89 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_90 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_91 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_92 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_93 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_94 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_95 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_96 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_97 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_98 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_99 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_100 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_101 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_102 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_103 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_104 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_105 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_106 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_107 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_108 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_109 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_110 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_111 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_112 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_113 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_114 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_115 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_116 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_117 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_118 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_119 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_120 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_121 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_122 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_123 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_124 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_125 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_126 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_127 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_128 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_129 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_130 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_131 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_132 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_133 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_134 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_135 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_136 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_137 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_138 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_139 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_140 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_141 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_142 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_143 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_144 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_145 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_146 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_147 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_148 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_149 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_150 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_151 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_152 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_153 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_154 (0.00s)
+    --- PASS: TestSpoolInitialClaimRecoversEveryPartialManifestPrefix/prefix_155 (0.00s)
+=== RUN   TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles
+=== RUN   TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/wrong_json
+=== RUN   TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/wrong_identity_prefix
+=== RUN   TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/ready_claim_partial
+=== RUN   TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/both_claims
+=== RUN   TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/body_before_initial
+=== RUN   TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/next_before_initial
+=== RUN   TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/no_claim
+=== RUN   TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/wrong_claim_mode
+=== RUN   TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/claim_symlink
+=== RUN   TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/claim_only_body
+--- PASS: TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles (0.00s)
+    --- PASS: TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/wrong_json (0.00s)
+    --- PASS: TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/wrong_identity_prefix (0.00s)
+    --- PASS: TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/ready_claim_partial (0.00s)
+    --- PASS: TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/both_claims (0.00s)
+    --- PASS: TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/body_before_initial (0.00s)
+    --- PASS: TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/next_before_initial (0.00s)
+    --- PASS: TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/no_claim (0.00s)
+    --- PASS: TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/wrong_claim_mode (0.00s)
+    --- PASS: TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/claim_symlink (0.00s)
+    --- PASS: TestSpoolClaimsDoNotAdoptDamagedOrUnownedFiles/claim_only_body (0.00s)
+=== RUN   TestSpoolReadyClaimOnlyAndLegacyManifestRecovery
+=== RUN   TestSpoolReadyClaimOnlyAndLegacyManifestRecovery/ready_claim_only
+=== RUN   TestSpoolReadyClaimOnlyAndLegacyManifestRecovery/legacy_manifest
+--- PASS: TestSpoolReadyClaimOnlyAndLegacyManifestRecovery (0.00s)
+    --- PASS: TestSpoolReadyClaimOnlyAndLegacyManifestRecovery/ready_claim_only (0.00s)
+    --- PASS: TestSpoolReadyClaimOnlyAndLegacyManifestRecovery/legacy_manifest (0.00s)
+=== RUN   TestSpoolExactBodyBudgetAndSeekablePrefixTrap
+=== RUN   TestSpoolExactBodyBudgetAndSeekablePrefixTrap/empty
+=== RUN   TestSpoolExactBodyBudgetAndSeekablePrefixTrap/small
+=== RUN   TestSpoolExactBodyBudgetAndSeekablePrefixTrap/short
+=== RUN   TestSpoolExactBodyBudgetAndSeekablePrefixTrap/long
+--- PASS: TestSpoolExactBodyBudgetAndSeekablePrefixTrap (0.01s)
+    --- PASS: TestSpoolExactBodyBudgetAndSeekablePrefixTrap/empty (0.00s)
+    --- PASS: TestSpoolExactBodyBudgetAndSeekablePrefixTrap/small (0.00s)
+    --- PASS: TestSpoolExactBodyBudgetAndSeekablePrefixTrap/short (0.00s)
+    --- PASS: TestSpoolExactBodyBudgetAndSeekablePrefixTrap/long (0.00s)
+=== RUN   TestSpoolCancellationClosesPipeAndReleasesReservation
+--- PASS: TestSpoolCancellationClosesPipeAndReleasesReservation (0.00s)
+=== RUN   TestSpoolExclusiveOwnershipAndConfirmedOrphanCleanup
+--- PASS: TestSpoolExclusiveOwnershipAndConfirmedOrphanCleanup (0.00s)
+=== RUN   TestSpoolDiscardCrashRetainsExactDeathBoundary
+--- PASS: TestSpoolDiscardCrashRetainsExactDeathBoundary (0.00s)
+=== RUN   TestIntegrityHoldbackRejectsBeforeCompleteLength
+--- PASS: TestIntegrityHoldbackRejectsBeforeCompleteLength (0.01s)
+=== RUN   TestIntegrityCancellationJoinsBlockedReadBeforeLeaseRelease
+--- PASS: TestIntegrityCancellationJoinsBlockedReadBeforeLeaseRelease (0.00s)
+=== RUN   TestTransferSigningDurationUsesSigV4Second
+=== RUN   TestTransferSigningDurationUsesSigV4Second/first_instant
+=== RUN   TestTransferSigningDurationUsesSigV4Second/last_nanosecond
+=== RUN   TestTransferSigningDurationUsesSigV4Second/max_duration
+=== RUN   TestTransferSigningDurationUsesSigV4Second/replay_next_second
+=== RUN   TestTransferSigningDurationUsesSigV4Second/partial_deadline_floored
+=== RUN   TestTransferSigningDurationUsesSigV4Second/exact_expiry
+=== RUN   TestTransferSigningDurationUsesSigV4Second/expired
+=== RUN   TestTransferSigningDurationUsesSigV4Second/no_representable_live_second
+=== RUN   TestTransferSigningDurationUsesSigV4Second/too_long
+--- PASS: TestTransferSigningDurationUsesSigV4Second (0.00s)
+    --- PASS: TestTransferSigningDurationUsesSigV4Second/first_instant (0.00s)
+    --- PASS: TestTransferSigningDurationUsesSigV4Second/last_nanosecond (0.00s)
+    --- PASS: TestTransferSigningDurationUsesSigV4Second/max_duration (0.00s)
+    --- PASS: TestTransferSigningDurationUsesSigV4Second/replay_next_second (0.00s)
+    --- PASS: TestTransferSigningDurationUsesSigV4Second/partial_deadline_floored (0.00s)
+    --- PASS: TestTransferSigningDurationUsesSigV4Second/exact_expiry (0.00s)
+    --- PASS: TestTransferSigningDurationUsesSigV4Second/expired (0.00s)
+    --- PASS: TestTransferSigningDurationUsesSigV4Second/no_representable_live_second (0.00s)
+    --- PASS: TestTransferSigningDurationUsesSigV4Second/too_long (0.00s)
+=== RUN   TestTransferActualSDKCrossSecondCandidateCannotExtendDeadline
+    transfer_storage_test.go:95: actual SDK second changed: stale duration rejected; current duration bounded by original deadline
+--- PASS: TestTransferActualSDKCrossSecondCandidateCannotExtendDeadline (0.26s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.737s
+=== RUN   TestModelAuditDispatchRequiresModelFactAuthority
+--- PASS: TestModelAuditDispatchRequiresModelFactAuthority (0.00s)
+=== RUN   TestProjectAuditUsesOnlyDedicatedAuthoritativeDispatch
+--- PASS: TestProjectAuditUsesOnlyDedicatedAuthoritativeDispatch (0.00s)
+=== RUN   TestArtifactReadAuditUsesCurrentOwnerReadIntentAndAppendGate
+--- PASS: TestArtifactReadAuditUsesCurrentOwnerReadIntentAndAppendGate (0.00s)
+=== RUN   TestObjectServiceCauseMappingDoesNotRequireAvatarAdministrator
+--- PASS: TestObjectServiceCauseMappingDoesNotRequireAvatarAdministrator (0.00s)
+=== RUN   TestReadAuthorizationRejectionFailureAndCancellationBeforeQuery
+=== RUN   TestReadAuthorizationRejectionFailureAndCancellationBeforeQuery/rejected
+=== RUN   TestReadAuthorizationRejectionFailureAndCancellationBeforeQuery/failure
+=== RUN   TestReadAuthorizationRejectionFailureAndCancellationBeforeQuery/unbound
+=== RUN   TestReadAuthorizationRejectionFailureAndCancellationBeforeQuery/forged-grant
+--- PASS: TestReadAuthorizationRejectionFailureAndCancellationBeforeQuery (0.00s)
+    --- PASS: TestReadAuthorizationRejectionFailureAndCancellationBeforeQuery/rejected (0.00s)
+    --- PASS: TestReadAuthorizationRejectionFailureAndCancellationBeforeQuery/failure (0.00s)
+    --- PASS: TestReadAuthorizationRejectionFailureAndCancellationBeforeQuery/unbound (0.00s)
+    --- PASS: TestReadAuthorizationRejectionFailureAndCancellationBeforeQuery/forged-grant (0.00s)
+=== RUN   TestSemanticDigestStablePrincipalButDistinctAttempt
+--- PASS: TestSemanticDigestStablePrincipalButDistinctAttempt (0.00s)
+=== RUN   TestAuthorizationErrorSafeAndFaultIdentity
+--- PASS: TestAuthorizationErrorSafeAndFaultIdentity (0.00s)
+=== RUN   TestUnresolvedCommitErrorPreservesUnknownAndSafeCause
+--- PASS: TestUnresolvedCommitErrorPreservesUnknownAndSafeCause (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit	1.022s

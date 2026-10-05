@@ -1,0 +1,6 @@
+--- FAIL: TestObjectProjectAuditStageRequiresRealPrivateAcquire (0.00s)
+    project_audit_witness_test.go:84: INVALID_ARGUMENT
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/object	1.087s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit	0.005s
+FAIL
