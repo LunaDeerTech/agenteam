@@ -1,0 +1,153 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.36.84.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=2a94145af2c2c68da013c48a7b02ebc0
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=c00a4d956faea55fb9dc3a9786f13917
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.170s [no tests to run]
+=== RUN   TestSecretBindingsAuthorizationAndReadAuditBoundary
+--- PASS: TestSecretBindingsAuthorizationAndReadAuditBoundary (0.98s)
+=== RUN   TestSecretReadUnknownNeverReturnsMaterial
+--- PASS: TestSecretReadUnknownNeverReturnsMaterial (0.94s)
+=== RUN   TestSecretProjectCleanupPendingReferencesBatchesAndGate
+--- PASS: TestSecretProjectCleanupPendingReferencesBatchesAndGate (1.69s)
+=== RUN   TestSecretReadSnapshotHoldsReferenceUntilAuditCommit
+--- PASS: TestSecretReadSnapshotHoldsReferenceUntilAuditCommit (0.90s)
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/success
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/released
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/lease_owner
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/lease_ref
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/binding
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/purpose
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/payload
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/ciphertext
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/grant
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/grant_subject
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/lease_after_decrypt
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/metadata_after_decrypt
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/payload_after_decrypt
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/association
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/resolution
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/audit_failure
+=== RUN   TestSecretProjectAuditResolveFactsAndRejections/archived
+--- PASS: TestSecretProjectAuditResolveFactsAndRejections (17.52s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/success (0.91s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/released (0.95s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/lease_owner (0.99s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/lease_ref (0.97s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/binding (1.07s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/purpose (0.93s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/payload (0.97s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/ciphertext (0.95s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/grant (0.99s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/grant_subject (0.99s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/lease_after_decrypt (1.11s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/metadata_after_decrypt (1.22s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/payload_after_decrypt (1.10s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/association (1.15s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/resolution (1.06s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/audit_failure (1.05s)
+    --- PASS: TestSecretProjectAuditResolveFactsAndRejections/archived (1.09s)
+=== RUN   TestSecretProjectAuditResolveCommitUnknown
+=== RUN   TestSecretProjectAuditResolveCommitUnknown/committed
+=== RUN   TestSecretProjectAuditResolveCommitUnknown/rollback
+=== RUN   TestSecretProjectAuditResolveCommitUnknown/pending
+--- PASS: TestSecretProjectAuditResolveCommitUnknown (3.72s)
+    --- PASS: TestSecretProjectAuditResolveCommitUnknown/committed (1.29s)
+    --- PASS: TestSecretProjectAuditResolveCommitUnknown/rollback (1.21s)
+    --- PASS: TestSecretProjectAuditResolveCommitUnknown/pending (1.23s)
+=== RUN   TestSecretRotationCASReopenAndRetirement
+--- PASS: TestSecretRotationCASReopenAndRetirement (1.91s)
+=== RUN   TestSecretRotationCorruptionStopsWritesButKeepsUnrelatedAuthorizedRead
+--- PASS: TestSecretRotationCorruptionStopsWritesButKeepsUnrelatedAuthorizedRead (1.27s)
+=== RUN   TestSecretStorageReceiptAndCurrentLease
+--- PASS: TestSecretStorageReceiptAndCurrentLease (1.28s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	31.238s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.015s [no tests to run]
+=== RUN   TestProjectSecretAuditBindingResolveGate
+=== RUN   TestProjectSecretAuditBindingResolveGate/strict-usage-service-resolve
+=== RUN   TestProjectSecretAuditBindingResolveGate/usage-revoked
+=== RUN   TestProjectSecretAuditBindingResolveGate/lease-released
+=== RUN   TestProjectSecretAuditBindingResolveGate/archiving
+=== RUN   TestProjectSecretAuditBindingResolveGate/archived
+=== RUN   TestProjectSecretAuditBindingResolveGate/deleting
+=== RUN   TestProjectSecretAuditBindingResolveGate/wrong-role
+=== RUN   TestProjectSecretAuditBindingResolveGate/wrong-cause
+=== RUN   TestProjectSecretAuditBindingResolveGate/human-no-user-plan
+=== RUN   TestProjectSecretAuditBindingResolveGate/agent-run
+=== RUN   TestProjectSecretAuditBindingResolveGate/agent-subject
+=== RUN   TestProjectSecretAuditBindingResolveGate/direct-service
+=== RUN   TestProjectSecretAuditBindingResolveGate/resolve-unknown-committed
+=== RUN   TestProjectSecretAuditBindingResolveGate/resolve-unknown-rollback
+=== RUN   TestProjectSecretAuditBindingResolveGate/resolve-unknown-pending
+--- PASS: TestProjectSecretAuditBindingResolveGate (18.35s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/strict-usage-service-resolve (1.19s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/usage-revoked (1.27s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/lease-released (1.24s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/archiving (1.25s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/archived (1.25s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/deleting (1.20s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/wrong-role (1.20s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/wrong-cause (1.28s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/human-no-user-plan (1.21s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/agent-run (1.31s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/agent-subject (1.22s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/direct-service (1.25s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/resolve-unknown-committed (1.28s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/resolve-unknown-rollback (1.00s)
+    --- PASS: TestProjectSecretAuditBindingResolveGate/resolve-unknown-pending (1.21s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	19.367s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.033s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.011s [no tests to run]
+D03 fixture cleanup checked for nonce 7ce949eb9049375b43eb1959d91616d8
+D04 outbound fixture cleanup checked for nonce c00a4d956faea55fb9dc3a9786f13917
+D05 object fixture exact resource cleanup checked nonce=2a94145af2c2c68da013c48a7b02ebc0

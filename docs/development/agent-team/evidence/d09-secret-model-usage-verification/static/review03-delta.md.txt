@@ -1,0 +1,15 @@
+# Secret Model Usage review02→03 差量与冻结测试静审
+
+结论：**六生产静态 PASS；原 S1/S2 均闭合。动态与最终独立验收待执行。** 本报告承接原 /tmp/agenteam-secret-model-prod-static-ri56j6h1/review.md（ed3307f4…5b52），未重复宣称未执行的纯/真实行为通过。
+
+固定基线 4cc4726b5707127f4b50c7da7023a3cd1f0b7f2d；规格 9110686a507716d8b4e042a5562a22507658adcb rev1.1。review02 manifest ebb5d0129c81cd952826dc769ddf0e3c725ca6ede1468e161db312f33ce64b15；review03 manifest 62f592c62b14fe62feeabf9389bfa3bbe0e43419075d2fdf53a35fec5b941338；最终 candidate-freeze-02 manifest ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0。已逐项核对应冻结 20/6 文件 SHA，六生产与最终候选完全一致。副本在同目录对应命名子目录。
+
+- S1：review02 恢复了 leaseGrant→metadata→grant-purpose 的旧优先级，但仍在 writable 之前拒绝。root 采纳剩余初始化/available 优先级修正；review03 仅把实际 Model Prep 移至原 writable 成功之后、分配 ID/INSERT 之前。现结构、Store、actor/cause、Usage、grant、metadata、初始化/available 的原拒绝顺序保留，实际 Model 合法旧授权仍零写关闭，其他 purpose 不受条件影响。新增两个纯反例核合法原授权及现存 Model metadata 后的 uninitialized/unavailable；新增真实未 Initialize 反例及各子例前清 grant 钩子符合原任务，不改变旧断言。
+- S2：review02 在确认 Committed 后及材料创建后各查原 caller ctx；后者销毁材料，外层仍清临时明文。错误安全包装保留 foundation.Committed 与 context cause，不能误判已确认 Audit 回滚。Unknown 分支位于两个检查之前，原 attempt/cause 保留。review03 这部分原字节不变。真实提交后、Store 返回前取消的测试明确核 actual Committed、Fault Committed、Audit 行存在及零材料，尚待动态。
+- 其余四个生产文件与 review01 指纹相同，复用原已核静态结论。未新增生产接口、SQL、依赖或 Model consumer 绑定。
+
+冻结测试范围审查：20 路径=6 生产+14 测试；新增 nonce 路径恰为单一 keyed literal 改写，无断言 delta。原 resolution 八反例仍在；storage 同 ID/稳定值/释放、cleanup、引用锁 fence、rotation/corruption、真实 Audit/Unknown、B03 lifecycle/Session/subject/直接伪造等原强断言保留，Model 前置和调用迁入 planned 流。B03 strict fixture 明确不补 Human User SH；缺锁须在原真实 Audit/Session 边界 poison，不能冒称已经通过更深 Secret checker。既有协议工具原字节保留；新 Unknown 只是结果装饰。
+
+新六真实顶层的 fixture 从测试表读取 exact Invocation、call、snapshot、input、process/fence、current invocation、dispatch、owner/ref 等关系，Validate 在原 Tx 重读并 RequireHeldLocks；不是恒定 allow。原 service grant/gate 仍保留。部分新拒绝子例目前只核非 nil 错误与零材料，不能凭它们独立认定精确拒绝层；独立探针会补 valid-request/issuer、typed-valid RequestID/跨 Tx witness、真实锁后仍结构合法的 mapping 改变、Unknown 与 caller 取消优先级的精确链和后态。该验证补强不增加生产能力。
+
+本轮只读冻结六源/20测试和固定基线，未读活动文件，未运行 Go/Docker/网络/数据库。作者报告的纯/race/compile状态尚作为作者证据，待最终实际 argv/env/exit/log 对照；本报告不把源码审查代作动态验收。报告输入与本文件冻结；后续独立探针准备单独记录，仍无 Docker 授权。

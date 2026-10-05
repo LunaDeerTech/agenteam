@@ -1,0 +1,6 @@
+# github.com/LunaDeerTech/agenteam/tests/security_test [github.com/LunaDeerTech/agenteam/tests/security.test]
+tests/security/secret_nonce_test.go:26:32: too few values in struct literal of type secretAuthority
+FAIL	github.com/LunaDeerTech/agenteam/tests/security [build failed]
+ok  	github.com/LunaDeerTech/agenteam/tests/project	0.005s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/account	0.005s [no tests to run]
+FAIL

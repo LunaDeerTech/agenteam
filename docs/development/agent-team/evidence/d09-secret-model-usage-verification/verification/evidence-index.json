@@ -1,0 +1,129 @@
+{
+  "status": "independent PASS; root handoff complete; all-stop",
+  "scope": "6 production + 14 tests, exact final20; independent private probe one file",
+  "files": [
+    {
+      "path": "review.md",
+      "sha256": "9b184a0177fcda1ddc16b7d7981be0a477c70bc9740a30a9dcc991e7907a4087",
+      "bytes": 7511
+    },
+    {
+      "path": "candidate-manifest.json",
+      "sha256": "ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0",
+      "bytes": 4812
+    },
+    {
+      "path": "fixed-input.json",
+      "sha256": "b5661b27bf7ff34c99667f8f4264cf2de3048f568b21e905d486e118e68c979a",
+      "bytes": 549
+    },
+    {
+      "path": "ready.json",
+      "sha256": "f68ef0f12072a073be65e62a261a68c5e80d894451212871da417b2a958f214f",
+      "bytes": 2399
+    },
+    {
+      "path": "acceptance-ready.md",
+      "sha256": "a62ed58b1b98d1d6addae269df8b520f45fba82a623b33fc5d2e085ddacfcb62",
+      "bytes": 1367
+    },
+    {
+      "path": "run-authorization.json",
+      "sha256": "e532131940dc34c801d060f18b830235c9d4849da5e16b8af79edb3f76844197",
+      "bytes": 601
+    },
+    {
+      "path": "baseline-driver-check.json",
+      "sha256": "0966e61e2a33d364d0fd2838927f7fab38c75013959398eeb0f2b5e6a9d8abf0",
+      "bytes": 1443
+    },
+    {
+      "path": "run_independent.py",
+      "sha256": "978f96cf6b03723355ca1d65e99d81477489a56e2ff816d6bcac4f16db172964",
+      "bytes": 9691
+    },
+    {
+      "path": "final-handoff.json",
+      "sha256": "8dc754175dffa563bdbc2e24bb8482fda6bf2b9ee024dcdd05d52d261c279e53",
+      "bytes": 4367
+    },
+    {
+      "path": "author-evidence-verified.json",
+      "sha256": "01006b9e1b4d0d357ed70226118ee4f1a30ff8b38bf6c80703883726e748d50b",
+      "bytes": 10379
+    },
+    {
+      "path": "src/tests/security/secret_model_independent_test.go",
+      "sha256": "5805c6d04b344fadf7a297e867dde0b85e3f6b26105f63d34061c25a0a1f0ebb",
+      "bytes": 11577
+    },
+    {
+      "path": "logs/compile-independent-01.json",
+      "sha256": "6cbb81aaed7e05df304493b35164e3fcb12c863237a1604bcbaf6bda97d16977",
+      "bytes": 1691
+    },
+    {
+      "path": "logs/compile-independent-01.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "fixture-runs/independent-01/command.json",
+      "sha256": "83770e46cea4c44c8623ef159d1d7533e0caafae21b7bb5e72efac519513ac95",
+      "bytes": 1911
+    },
+    {
+      "path": "fixture-runs/independent-01/baseline.json",
+      "sha256": "42a656cca5d3734df8826a44e5712b7ebffeaa1e6deca894650c68205826562d",
+      "bytes": 2848
+    },
+    {
+      "path": "fixture-runs/independent-01/driver.log",
+      "sha256": "da3122a56ee794a6860e0393e638ac7270848a6c05d876d708773e51dc3925dc",
+      "bytes": 13906
+    },
+    {
+      "path": "fixture-runs/independent-01/docker-events.jsonl",
+      "sha256": "9d95748493fd5e15e391d9372be9dd2915e8c2d2d48b1b7557557f72991a41fc",
+      "bytes": 263984
+    },
+    {
+      "path": "fixture-runs/independent-01/docker-events.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "fixture-runs/independent-01/owned-created.json",
+      "sha256": "f0566c332c0dc359b5b306bca8f0fc4f33b124e1967b34fc9b3b2b57e8276a38",
+      "bytes": 1870
+    },
+    {
+      "path": "fixture-runs/independent-01/owned-network-live-labels.json",
+      "sha256": "19f262459bbd12f506b9972cd91f4e469c3b6f2776d195d4c9542e901b34e6be",
+      "bytes": 732
+    },
+    {
+      "path": "fixture-runs/independent-01/resource-handoff.json",
+      "sha256": "bb22bc6f7f0388e8a93516e1407b73438139e0af016874da9db025ff3b69249d",
+      "bytes": 56569
+    },
+    {
+      "path": "fixture-runs/independent-01/input-after.json",
+      "sha256": "3162c2f990c2c2a147bb375fb125e0c929a1b5bc9b8730c39e692788a8aad3cb",
+      "bytes": 3389
+    },
+    {
+      "path": "fixture-runs/independent-01/result.json",
+      "sha256": "0be6b0ae2c0d1706baa8799a09d44ddd25a7a1c17cf78eeda7c06c0c1b3a474d",
+      "bytes": 1278
+    }
+  ],
+  "external_frozen_inputs": {
+    "author_report": "/workspace/agenteam-secret-model-usage-author-l4eactgz/author-report.md",
+    "author_report_sha256": "2859f3f16a15f5dd5c8495f5c50c33a390b1d7bb155096d8fb06be398a12d292",
+    "author_index": "/workspace/agenteam-secret-model-usage-author-l4eactgz/delivery-index.json",
+    "author_index_sha256": "46fab3f8aa9b24628b3e09d251ebefb51ed006db367e12614c25f31a28612c04",
+    "static_report": "/tmp/agenteam-secret-model-review02-p32uiqx9/review03-delta.md",
+    "static_report_sha256": "ab121d02e5b3f12c8b34b7e7822f07d8f1acf0600fc725f6f270e5d855027882"
+  }
+}

@@ -1,0 +1,9 @@
+# Secret Model 独立探针就绪
+
+固定 4cc4726 + candidate-freeze-02（20 源），另加私有测试一源；指纹、精确 selector/argv/env 在 ready.json。未改原 20 源或 driver。仅提取所需 Go、tests/fixture、db、cmd、scripts，不复制文档/证据/前端/缓存或 Git 工作树。
+
+2 顶层、7 子例：另一个真实有效 Invocation 错配；外来 provider issuer；typed-valid RequestID 篡改到真实 Secret checker（精确内外错误）；活 context 携旧 witness 在新 Tx 拒绝；普通 PG 精确 blocker 下，一次完整 union 等待后真实合法 tuple 的 mapping 改变；真实提交/回滚后返回原 UnknownResult 并取消 caller，原标识及 Unknown 优先、零材料和实际 Audit 后态。
+
+离线 race integration 编译已实际 exit 0（31.958s），未运行 test binary。元数据 logs/compile-independent-01.json 记录实际 Go SHA、argv/env/exit 与日志 SHA；空日志本身不作成功证明。Go1.27.1、GOENV/GOWORK=off、私有workspace cache/tmp；MinIO精确SHA已只读核定。
+
+作者六新/十旧/四Account的结果待按最终冻结原始证据去重，独立探针不重跑全纯/全部旧组。当前没有 Docker 授权，没有运行资源；自有 Go/fixture进程0，runtime/gotmp/空Docker config均空。源码/计划冻结，all-stop，等root正式交接真实窗口。

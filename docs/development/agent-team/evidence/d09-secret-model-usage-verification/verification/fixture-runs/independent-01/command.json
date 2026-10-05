@@ -1,0 +1,43 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestIndependentSecretModelRequestAndWitness|TestIndependentSecretModelRevalidationAndOutcome)$"
+  ],
+  "env": {
+    "GOROOT": "/workspace/toolchains/go1.27.1",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "sum.golang.org",
+    "GONOSUMDB": "",
+    "GONOPROXY": "",
+    "GOPRIVATE": "",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-secret-model-v-thmobool/gocache",
+    "GOPATH": "/workspace/agenteam-secret-model-v-thmobool/gopath",
+    "TMPDIR": "/workspace/agenteam-secret-model-v-thmobool/runtime",
+    "GOTMPDIR": "/workspace/agenteam-secret-model-v-thmobool/gotmp",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2 -v",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/agenteam-secret-model-v-thmobool/docker-config",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "GOMAXPROCS": "4",
+    "DOCKER_HOST": "unix:///var/run/docker.sock"
+  },
+  "cwd": "/workspace/agenteam-secret-model-v-thmobool/src",
+  "input_manifest": "/workspace/agenteam-secret-model-v-thmobool/candidate-manifest.json",
+  "input_sha256": "ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0",
+  "start_unix": 1791222408.606429,
+  "expected_top": [
+    "TestIndependentSecretModelRequestAndWitness",
+    "TestIndependentSecretModelRevalidationAndOutcome"
+  ],
+  "ready_sha256": "f68ef0f12072a073be65e62a261a68c5e80d894451212871da417b2a958f214f",
+  "probe_sha256": "5805c6d04b344fadf7a297e867dde0b85e3f6b26105f63d34061c25a0a1f0ebb",
+  "authorization_sha256": "e532131940dc34c801d060f18b830235c9d4849da5e16b8af79edb3f76844197",
+  "runner_sha256": "978f96cf6b03723355ca1d65e99d81477489a56e2ff816d6bcac4f16db172964"
+}

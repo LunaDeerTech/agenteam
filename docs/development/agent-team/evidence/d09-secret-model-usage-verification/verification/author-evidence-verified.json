@@ -1,0 +1,300 @@
+{
+  "author_root": "/workspace/agenteam-secret-model-usage-author-l4eactgz",
+  "report_sha256": "2859f3f16a15f5dd5c8495f5c50c33a390b1d7bb155096d8fb06be398a12d292",
+  "index_sha256": "46fab3f8aa9b24628b3e09d251ebefb51ed006db367e12614c25f31a28612c04",
+  "selected_payloads_checked": [
+    {
+      "path": "author-report.md",
+      "sha256": "2859f3f16a15f5dd5c8495f5c50c33a390b1d7bb155096d8fb06be398a12d292"
+    },
+    {
+      "path": "handoff.json",
+      "sha256": "dcb4683bd07cbb5835c809a1b110d917029052cfdd54bc3b2e1753335a65a66a"
+    },
+    {
+      "path": "ready-selectors-review03.json",
+      "sha256": "a1693d4124afcffbbcdd4a5cd745d616519279375b76276d30ee4ce8560e0727"
+    },
+    {
+      "path": "checks-review03.json",
+      "sha256": "d38c1a73cefc7137ec0e93214fa0c0b77f63a8f9c3a55c574bcf2d55f5f65b29"
+    },
+    {
+      "path": "logs/review03-unit-01.json",
+      "sha256": "0350bbad8d57788c2ffc3126ebb58b678972b93d6ecf0bebf9453183e451466d"
+    },
+    {
+      "path": "logs/review03-unit-01.log",
+      "sha256": "0cbff11eb5be4739f7c75eacacf322f8125fbcbb076e123d6ad95edb75f0736a"
+    },
+    {
+      "path": "logs/review03-compile.json",
+      "sha256": "fd844db01aae3f30038b249a8f503d2039c73e8b53cafe3a80cee99314c1da90"
+    },
+    {
+      "path": "logs/review03-compile.log",
+      "sha256": "b92f5505f4d3ebcd97fa65edd81721f976b751567e248802fd64adc48990b5f1"
+    },
+    {
+      "path": "logs/review03-vet.json",
+      "sha256": "c4d8ede3ba4a431fc1be4c8e57eaf3b0e123553ac5f6818164215d086bd5cc0c"
+    },
+    {
+      "path": "logs/review03-vet.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/review03-build.json",
+      "sha256": "b1966237e7383444670d67d0fb328125c2f9aecf3ca47c2651d9acc8e712b9eb"
+    },
+    {
+      "path": "logs/review03-build.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "logs/legacy-priority-red-01.json",
+      "sha256": "a6dea04be121d1c54447e457066d8e36e069505b907606a6809199e739f663e7"
+    },
+    {
+      "path": "logs/legacy-priority-red-01.log",
+      "sha256": "1984003f2bfcc3cf25a1a267a4ecb7b4e6e8206d057bb53100d2167e9ba04cca"
+    },
+    {
+      "path": "logs/legacy-availability-red-01.json",
+      "sha256": "41ab4d0f04ac384fb4323a24f0b3502d03579b09bdac1896a3df05b4dfea2ef2"
+    },
+    {
+      "path": "logs/legacy-availability-red-01.log",
+      "sha256": "b6692ec0d84866c99f48be4f88a8457152c102563c9799d9175ce0ba51306241"
+    },
+    {
+      "path": "logs/compile-integration-01.json",
+      "sha256": "f1a72d55c106b23a75beb5d2ab6f1c20eb9e5bbb9f4e9d44f63a3b1e2c0d5e63"
+    },
+    {
+      "path": "logs/compile-integration-01.log",
+      "sha256": "df3693aeac34e9a6160e0b343268ba550d941448b9f552dd7d0fb8ac609693df"
+    },
+    {
+      "path": "logs/pure-final-01.json",
+      "sha256": "b0c429825b6506dfc70e94995fb0e74735d7f8d3a21ecef356b49e026273ff79"
+    },
+    {
+      "path": "logs/pure-final-01.log",
+      "sha256": "242c3563eb2f1af7dff619aafe997d48cae79a2ebb1937e9137b527e71a2672c"
+    },
+    {
+      "path": "logs/pure-fix-02.json",
+      "sha256": "b076daa5f1977195437330cc97c428f206b99afc419fa357f2f139914f3f4a50"
+    },
+    {
+      "path": "logs/pure-fix-02.log",
+      "sha256": "02849e2758711061514f893e3b88470074efcdcb079819c0d53f472a8b1208e0"
+    },
+    {
+      "path": "fixture-runs/new-01/resource-statistics-correction.json",
+      "sha256": "343aeb21704861cc5f1cb769839af37d1f6d18f47c309093927ec20f615cef02"
+    },
+    {
+      "path": "fixture-runs/new-01/driver.log",
+      "sha256": "1681b91a8e4b989f8338551b0f2bf0867fe9f0b090f6f2ea63cd60c4dbd22dd5"
+    },
+    {
+      "path": "fixture-runs/new-01/command.json",
+      "sha256": "d74bd733a5a2dedc9ddf2327902e0eeae73905de8d4bbfefa1425248afca2d11"
+    },
+    {
+      "path": "fixture-runs/new-01/result.json",
+      "sha256": "d648698ce3db44f38da1fc64f1f0f96fcfd28933475a0e4bd7da926e917a49ca"
+    },
+    {
+      "path": "fixture-runs/new-01/resource-handoff.json",
+      "sha256": "7cbeb113cbaccc9e9d9df1a06afe81840f3ea953e3187107166b251f13160cad"
+    },
+    {
+      "path": "fixture-runs/legacy-01/driver.log",
+      "sha256": "2583df934f89badd15d2f8e1be5fc60581ee0a9967b00ec7da52cc97c438cf00"
+    },
+    {
+      "path": "fixture-runs/legacy-01/command.json",
+      "sha256": "94d9214c19b5a467b3ddffd1ce02e6a6d2b3ed375d93c1cd06ddf7a6596e9f3e"
+    },
+    {
+      "path": "fixture-runs/legacy-01/result.json",
+      "sha256": "8f4d6b664fe2cc19807c5636d2cd700d2ba5032ac20366f8512b339973d67243"
+    },
+    {
+      "path": "fixture-runs/legacy-01/resource-handoff.json",
+      "sha256": "6bd43f14f63e2f21cf71377171a92ca10020101285bf9f2e21d8285b3954389a"
+    },
+    {
+      "path": "fixture-runs/account-01/driver.log",
+      "sha256": "95e164412c069b6149304effdce73ad3504d0d7cd987d153ddf244eafddc01fb"
+    },
+    {
+      "path": "fixture-runs/account-01/command.json",
+      "sha256": "3b1e3228c1f6e56b5737862f7a9383e310b99235923b5967f47209fa5718d462"
+    },
+    {
+      "path": "fixture-runs/account-01/result.json",
+      "sha256": "0d5c8eb47b2c895713ea488b9f7211c6082e97542a08b1177d80a0932e42681b"
+    },
+    {
+      "path": "fixture-runs/account-01/resource-handoff.json",
+      "sha256": "4b26dbea529808bdae7238cfc72e8d3774c24863f094074d3c21e433b5059c4b"
+    },
+    {
+      "path": "fixture-runs/new-01/owned-network-live-labels.json",
+      "sha256": "00ac563d23f4f3c840c89608d8f3d2046e0a823f6de1ccf8bf90044a0d5a6e45"
+    },
+    {
+      "path": "fixture-runs/new-01/network-double-absence.json",
+      "sha256": "bd6f1c24c0c7ed3be6a5e20487e51bd515f1e40f40116e43038e39093bf3cca6"
+    }
+  ],
+  "actual_log_counts": [
+    {
+      "group": "new-01",
+      "top": 6,
+      "sub": 43,
+      "top_names": [
+        "TestSecretModelUsagePlannedReadAndAudit",
+        "TestSecretModelUsageRequestAndPlanIsolation",
+        "TestSecretModelUsageLockMappingAndRevocation",
+        "TestSecretModelUsageLegacyWrappersStayClosed",
+        "TestSecretModelUsageAuditWitnessAndNoMaterial",
+        "TestSecretModelUsageOutcomeAndCurrentValue"
+      ],
+      "fail": [],
+      "skip": [],
+      "input": "ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0"
+    },
+    {
+      "group": "legacy-01",
+      "top": 10,
+      "sub": 35,
+      "top_names": [
+        "TestSecretBindingsAuthorizationAndReadAuditBoundary",
+        "TestSecretReadUnknownNeverReturnsMaterial",
+        "TestSecretProjectCleanupPendingReferencesBatchesAndGate",
+        "TestSecretReadSnapshotHoldsReferenceUntilAuditCommit",
+        "TestSecretProjectAuditResolveFactsAndRejections",
+        "TestSecretProjectAuditResolveCommitUnknown",
+        "TestSecretRotationCASReopenAndRetirement",
+        "TestSecretRotationCorruptionStopsWritesButKeepsUnrelatedAuthorizedRead",
+        "TestSecretStorageReceiptAndCurrentLease",
+        "TestProjectSecretAuditBindingResolveGate"
+      ],
+      "fail": [],
+      "skip": [],
+      "input": "ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0"
+    },
+    {
+      "group": "account-01",
+      "top": 4,
+      "sub": 7,
+      "top_names": [
+        "TestAccountExpiredLinkInvalidWhileActualMaterialUserKeepsLease",
+        "TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead",
+        "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed",
+        "TestAccountReadWaitsExactCurrentUserGateAndRejectsRevocation"
+      ],
+      "fail": [],
+      "skip": [],
+      "input": "ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0"
+    }
+  ],
+  "new01_network_note": "original raw network_count=0 preserved; use live-label correction and double exact absence for 3 actual networks, not the raw zero",
+  "reused_pure_commands": [
+    {
+      "metadata": "logs/review03-unit-01.json",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/secret/..."
+      ],
+      "exit_code": 0,
+      "wall_seconds": 2.586,
+      "input_matches_final20": true
+    },
+    {
+      "metadata": "logs/review03-compile.json",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/security",
+        "./tests/project",
+        "./tests/account"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 16.386,
+      "input_matches_final20": true
+    },
+    {
+      "metadata": "logs/review03-vet.json",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./internal/central/secret/...",
+        "./tests/security",
+        "./tests/project",
+        "./tests/account"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 14.37,
+      "input_matches_final20": true
+    },
+    {
+      "metadata": "logs/review03-build.json",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/agenteam-secret-model-usage-author-l4eactgz/bin/",
+        "./cmd/agenteam",
+        "./cmd/agenteam-runner"
+      ],
+      "exit_code": 0,
+      "wall_seconds": 14.963,
+      "input_matches_final20": true
+    }
+  ],
+  "new01_resource_correction": {
+    "original_result_preserved": true,
+    "cause": "Docker network create events contain name/type but no fixture label, so first collector did not count network rows. Networks were created.",
+    "actual_created_containers": 4,
+    "actual_created_networks": 3,
+    "live_exact_id_name_label_evidence": "owned-network-live-labels.json",
+    "network_double_exact_absence_evidence": "network-double-absence.json",
+    "network_double_absent": true,
+    "container_and_baseline_and_process_evidence": "resource-handoff.json",
+    "resource_handoff_complete": true,
+    "test_rerun": false
+  },
+  "resource_reuse_checks": [
+    {
+      "group": "new-01",
+      "two_rounds_baseline_process_runtime_clean": true,
+      "tracked_process_count": 155,
+      "network_correction_separate": true
+    },
+    {
+      "group": "legacy-01",
+      "two_rounds_baseline_process_runtime_clean": true,
+      "tracked_process_count": 81,
+      "network_correction_separate": false
+    },
+    {
+      "group": "account-01",
+      "two_rounds_baseline_process_runtime_clean": true,
+      "tracked_process_count": 84,
+      "network_correction_separate": false
+    }
+  ]
+}

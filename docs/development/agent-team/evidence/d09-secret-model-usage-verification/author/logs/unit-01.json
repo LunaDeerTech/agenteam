@@ -1,0 +1,107 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-count=1",
+    "./internal/central/secret/..."
+  ],
+  "cwd": "/workspace/agenteam-secret-model-usage-author-l4eactgz/snapshot",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-secret-model-usage-author-l4eactgz/gocache",
+    "GOTMPDIR": "/workspace/agenteam-secret-model-usage-author-l4eactgz/gotmp",
+    "TMPDIR": "/workspace/agenteam-secret-model-usage-author-l4eactgz/runtime",
+    "GOMAXPROCS": "4",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "CGO_ENABLED": "1"
+  },
+  "inputs": [
+    {
+      "path": "internal/central/secret/contract/account.go",
+      "sha256": "389eb3472f5684892f5e41c036bb904f9218d5892fac0f6cc19701ddf5c5e6a9"
+    },
+    {
+      "path": "internal/central/secret/contract/model.go",
+      "sha256": "f8bf949c3ac35a02351b61a7510609b2e86861b5ceffdddbf8fc54aa1dac2821"
+    },
+    {
+      "path": "internal/central/secret/model_usage.go",
+      "sha256": "39e24bdac54fb457d79a3c81a398ece4279a002d1a2a4c9ee6af425122508f56"
+    },
+    {
+      "path": "internal/central/secret/lease.go",
+      "sha256": "54592a44330809b5c1eac4db5b838972ee33a7510890bf89c27ef7868bd58e3f"
+    },
+    {
+      "path": "internal/central/secret/project_audit_witness.go",
+      "sha256": "a06b3c01bd908d2e41c08a64cc05e01795f34cf2a1ae694a07bb9e422651aaa7"
+    },
+    {
+      "path": "internal/central/secret/project_audit.go",
+      "sha256": "2f05d1ec7e33f9e97b201804b2865a547fb5c50d6e0bbd0d71f4b779e802e6ba"
+    },
+    {
+      "path": "internal/central/secret/contract/model_test.go",
+      "sha256": "c449d978b130dfa4d84b3118369a2c962a3e53504660a21f33ffc3b1a470a8a8"
+    },
+    {
+      "path": "internal/central/secret/model_usage_test.go",
+      "sha256": "da8f9f310bf01222efe0d61d20493acde1b89c5e408742b2aab9bd571581979d"
+    },
+    {
+      "path": "internal/central/secret/project_audit_witness_test.go",
+      "sha256": "585dcffa23bcc34db213eb107c1abbdb00b223e0cde31ea611fcf06b888b8e29"
+    },
+    {
+      "path": "tests/security/secret_model_usage_test.go",
+      "sha256": null
+    },
+    {
+      "path": "tests/security/secret_common_test.go",
+      "sha256": "cd47216790117e86e0ec02b669be5f1f94e308c9e39c8dea161e8e539681bcc6"
+    },
+    {
+      "path": "tests/security/secret_access_test.go",
+      "sha256": "ebdcbc8a72c617dc082d6ebc46ffbd3b6dee9d3015e20a19cfee062475c75ed0"
+    },
+    {
+      "path": "tests/security/secret_storage_test.go",
+      "sha256": "7fc7665a6eede9b9645d7b4cd313ee1561f80143aa542af7d5856d7f2aaad2dc"
+    },
+    {
+      "path": "tests/security/secret_cleanup_test.go",
+      "sha256": "8e2eed2575ab562c0c7aa7d512d0325ae82991acf5c51051632e0c98a74d9e53"
+    },
+    {
+      "path": "tests/security/secret_fence_test.go",
+      "sha256": "60af6b5a235620e8905f7388766e6918fdb1f80d4613a852303faea693530795"
+    },
+    {
+      "path": "tests/security/secret_rotation_test.go",
+      "sha256": "265f33afd40b857902dc945f016ff3b2bfb428fc66f6a186beb1d262868d43b5"
+    },
+    {
+      "path": "tests/security/secret_project_audit_test.go",
+      "sha256": "0473e2440e2db7eb37ce7b155d2200a67c5adad3605a1939860d7089dbb8d43c"
+    },
+    {
+      "path": "tests/project/b03_secret_audit_fixture_test.go",
+      "sha256": "cf3762c8fe031088b52d7d40142b195c889bc630dec22edfd584ee416ec140ba"
+    },
+    {
+      "path": "tests/project/b03_secret_audit_test.go",
+      "sha256": "33322aa796067aef092d287f790838a219fe95b7fa3959693066d60b04d0d289"
+    }
+  ],
+  "started_unix": 1791220387.2394903,
+  "exit_code": 0,
+  "elapsed_seconds": 30.592
+}

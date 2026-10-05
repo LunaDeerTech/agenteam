@@ -1,0 +1,29 @@
+{
+  "driver_exit": 0,
+  "driver_log_sha256": "da3122a56ee794a6860e0393e638ac7270848a6c05d876d708773e51dc3925dc",
+  "passed_child": [
+    "TestIndependentSecretModelRequestAndWitness/other-real-invocation",
+    "TestIndependentSecretModelRequestAndWitness/foreign-provider-issuer",
+    "TestIndependentSecretModelRequestAndWitness/typed-valid-requestid-tamper-reaches-checker",
+    "TestIndependentSecretModelRequestAndWitness/fresh-tx-with-live-context-cannot-reuse-proof",
+    "TestIndependentSecretModelRevalidationAndOutcome/actual-lock-then-valid-mapping-change",
+    "TestIndependentSecretModelRevalidationAndOutcome/returned-unknown-after-real-commit-and-cancel",
+    "TestIndependentSecretModelRevalidationAndOutcome/returned-unknown-after-real-rollback-and-cancel"
+  ],
+  "failed_all": [],
+  "skipped_all": [],
+  "expected_children": 7,
+  "elapsed_seconds": 101.873,
+  "passed_top": [
+    "TestIndependentSecretModelRequestAndWitness",
+    "TestIndependentSecretModelRevalidationAndOutcome"
+  ],
+  "failed_top": [],
+  "skipped_top": [],
+  "missing_expected_top": [],
+  "resource_clean": true,
+  "owned_container_count": 4,
+  "owned_network_count": 3,
+  "tracked_process_count": 335,
+  "input_sha256": "ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0"
+}

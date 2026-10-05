@@ -1,0 +1,185 @@
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.184.137.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=cabaf4319acf02e3bb4793e92bda8c6f
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+net
+net/textproto
+crypto/x509
+vendor/golang.org/x/net/http/httpguts
+vendor/golang.org/x/net/http/httpproxy
+mime/multipart
+crypto/tls
+net/http/httptrace
+net/http/internal/httpcommon
+net/http/internal/http2
+net/http
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=68ced2ddc5e1a6e98a2edf079dee8c2a
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.172s [no tests to run]
+=== RUN   TestSecretModelUsagePlannedReadAndAudit
+=== RUN   TestSecretModelUsagePlannedReadAndAudit/system=false/execution
+    secret_model_usage_test.go:189: exact Invocation association and independent resolution; Project checker calls=1
+=== RUN   TestSecretModelUsagePlannedReadAndAudit/system=false/model_call
+    secret_model_usage_test.go:189: exact Invocation association and independent resolution; Project checker calls=1
+=== RUN   TestSecretModelUsagePlannedReadAndAudit/system=true/execution
+    secret_model_usage_test.go:189: exact Invocation association and independent resolution; Project checker calls=0
+=== RUN   TestSecretModelUsagePlannedReadAndAudit/system=true/model_call
+    secret_model_usage_test.go:189: exact Invocation association and independent resolution; Project checker calls=0
+--- PASS: TestSecretModelUsagePlannedReadAndAudit (3.49s)
+    --- PASS: TestSecretModelUsagePlannedReadAndAudit/system=false/execution (0.87s)
+    --- PASS: TestSecretModelUsagePlannedReadAndAudit/system=false/model_call (0.86s)
+    --- PASS: TestSecretModelUsagePlannedReadAndAudit/system=true/execution (0.87s)
+    --- PASS: TestSecretModelUsagePlannedReadAndAudit/system=true/model_call (0.89s)
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/zero-id
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/other-invocation
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/owner
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/ref
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/snapshot
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/input
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/process
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/fence
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/dispatch
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/retired
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/issuer
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/mapping
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/human-owner
+=== RUN   TestSecretModelUsageRequestAndPlanIsolation/apply-read
+--- PASS: TestSecretModelUsageRequestAndPlanIsolation (13.20s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/zero-id (1.00s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/other-invocation (0.98s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/owner (1.00s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/ref (0.99s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/snapshot (1.02s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/input (0.90s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/process (0.93s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/fence (0.84s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/dispatch (0.92s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/retired (0.94s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/issuer (0.83s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/mapping (0.97s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/human-owner (1.02s)
+    --- PASS: TestSecretModelUsageRequestAndPlanIsolation/apply-read (0.86s)
+=== RUN   TestSecretModelUsageLockMappingAndRevocation
+=== RUN   TestSecretModelUsageLockMappingAndRevocation/real-lock-then-revocation
+    secret_model_usage_test.go:349: actual PG blocking relationship observed; one full AcquireAll; post-lock canonical revocation rejected
+=== RUN   TestSecretModelUsageLockMappingAndRevocation/missing-provider-lock-poisons
+--- PASS: TestSecretModelUsageLockMappingAndRevocation (1.94s)
+    --- PASS: TestSecretModelUsageLockMappingAndRevocation/real-lock-then-revocation (0.95s)
+    --- PASS: TestSecretModelUsageLockMappingAndRevocation/missing-provider-lock-poisons (0.98s)
+=== RUN   TestSecretModelUsageLegacyWrappersStayClosed
+=== RUN   TestSecretModelUsageLegacyWrappersStayClosed/system=false/execution
+=== RUN   TestSecretModelUsageLegacyWrappersStayClosed/system=false/model_call
+=== RUN   TestSecretModelUsageLegacyWrappersStayClosed/system=true/execution
+=== RUN   TestSecretModelUsageLegacyWrappersStayClosed/system=true/model_call
+=== RUN   TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors
+=== RUN   TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/unbound
+=== RUN   TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/wrong-cause
+=== RUN   TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/human
+=== RUN   TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/grant-purpose
+=== RUN   TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/uninitialized
+=== RUN   TestSecretModelUsageLegacyWrappersStayClosed/mcp-execution-legacy-still-works
+--- PASS: TestSecretModelUsageLegacyWrappersStayClosed (5.88s)
+    --- PASS: TestSecretModelUsageLegacyWrappersStayClosed/system=false/execution (1.07s)
+    --- PASS: TestSecretModelUsageLegacyWrappersStayClosed/system=false/model_call (0.98s)
+    --- PASS: TestSecretModelUsageLegacyWrappersStayClosed/system=true/execution (1.03s)
+    --- PASS: TestSecretModelUsageLegacyWrappersStayClosed/system=true/model_call (0.86s)
+    --- PASS: TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors (1.04s)
+        --- PASS: TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/unbound (0.00s)
+        --- PASS: TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/wrong-cause (0.00s)
+        --- PASS: TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/human (0.00s)
+        --- PASS: TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/grant-purpose (0.00s)
+        --- PASS: TestSecretModelUsageLegacyWrappersStayClosed/earlier-authority-errors/uninitialized (0.00s)
+    --- PASS: TestSecretModelUsageLegacyWrappersStayClosed/mcp-execution-legacy-still-works (0.89s)
+=== RUN   TestSecretModelUsageAuditWitnessAndNoMaterial
+=== RUN   TestSecretModelUsageAuditWitnessAndNoMaterial/request-association
+=== RUN   TestSecretModelUsageAuditWitnessAndNoMaterial/missing-proof
+=== RUN   TestSecretModelUsageAuditWitnessAndNoMaterial/cross-store
+=== RUN   TestSecretModelUsageAuditWitnessAndNoMaterial/grant-request-id
+=== RUN   TestSecretModelUsageAuditWitnessAndNoMaterial/system-human-subject
+=== RUN   TestSecretModelUsageAuditWitnessAndNoMaterial/audit-error
+=== RUN   TestSecretModelUsageAuditWitnessAndNoMaterial/aead
+=== RUN   TestSecretModelUsageAuditWitnessAndNoMaterial/cross-tx-old-witness
+--- PASS: TestSecretModelUsageAuditWitnessAndNoMaterial (8.46s)
+    --- PASS: TestSecretModelUsageAuditWitnessAndNoMaterial/request-association (1.01s)
+    --- PASS: TestSecretModelUsageAuditWitnessAndNoMaterial/missing-proof (1.19s)
+    --- PASS: TestSecretModelUsageAuditWitnessAndNoMaterial/cross-store (1.11s)
+    --- PASS: TestSecretModelUsageAuditWitnessAndNoMaterial/grant-request-id (1.02s)
+    --- PASS: TestSecretModelUsageAuditWitnessAndNoMaterial/system-human-subject (1.03s)
+    --- PASS: TestSecretModelUsageAuditWitnessAndNoMaterial/audit-error (1.02s)
+    --- PASS: TestSecretModelUsageAuditWitnessAndNoMaterial/aead (1.03s)
+    --- PASS: TestSecretModelUsageAuditWitnessAndNoMaterial/cross-tx-old-witness (1.06s)
+=== RUN   TestSecretModelUsageOutcomeAndCurrentValue
+=== RUN   TestSecretModelUsageOutcomeAndCurrentValue/decorated-unknown/rollback=false
+    secret_model_usage_test.go:602: result decoration only: actual Tx=committed, returned marker preserved; no physical backend attempt claim
+=== RUN   TestSecretModelUsageOutcomeAndCurrentValue/decorated-unknown/rollback=true
+    secret_model_usage_test.go:602: result decoration only: actual Tx=not_committed, returned marker preserved; no physical backend attempt claim
+=== RUN   TestSecretModelUsageOutcomeAndCurrentValue/committed-then-cancelled
+    secret_model_usage_test.go:618: real PG Committed, original caller cancelled before Store return, zero material; original Audit remains committed
+=== RUN   TestSecretModelUsageOutcomeAndCurrentValue/current-value-and-issued-material
+--- PASS: TestSecretModelUsageOutcomeAndCurrentValue (4.13s)
+    --- PASS: TestSecretModelUsageOutcomeAndCurrentValue/decorated-unknown/rollback=false (1.01s)
+    --- PASS: TestSecretModelUsageOutcomeAndCurrentValue/decorated-unknown/rollback=true (0.99s)
+    --- PASS: TestSecretModelUsageOutcomeAndCurrentValue/committed-then-cancelled (1.02s)
+    --- PASS: TestSecretModelUsageOutcomeAndCurrentValue/current-value-and-issued-material (1.12s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	38.126s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.009s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.012s [no tests to run]
+D03 fixture cleanup checked for nonce 357d5983ca38b488e660032fb2d5875e
+D04 outbound fixture cleanup checked for nonce 68ced2ddc5e1a6e98a2edf079dee8c2a
+D05 object fixture exact resource cleanup checked nonce=cabaf4319acf02e3bb4793e92bda8c6f

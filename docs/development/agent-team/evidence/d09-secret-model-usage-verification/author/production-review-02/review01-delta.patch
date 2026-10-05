@@ -1,0 +1,55 @@
+--- review01/internal/central/secret/model_usage.go
++++ review02/internal/central/secret/model_usage.go
+@@ -118,11 +118,23 @@
+ 		}
+ 		return sc.SecretMaterial{}, failure(CommitUnknown, foundation.CommitUnknown, modelUsageUnknown{result.AttemptID(), result.Cause()})
+ 	}
++	if err = ctx.Err(); err != nil {
++		return sc.SecretMaterial{}, modelUsageCancelledAfterCommit(err)
++	}
+ 	material, err := sc.NewSecretMaterial(plaintext)
+ 	if err != nil {
+ 		return sc.SecretMaterial{}, unavailable(err)
+ 	}
++	if err = ctx.Err(); err != nil {
++		material.Destroy()
++		return sc.SecretMaterial{}, modelUsageCancelledAfterCommit(err)
++	}
+ 	return material, nil
++}
++
++func modelUsageCancelledAfterCommit(err error) error {
++	fault := foundation.NewFault(foundation.DependencyUnavailable, foundation.Committed).WithCause(err)
++	return &Error{code: Unavailable, cause: func() error { return fault }}
+ }
+ 
+ // The legacy and explicit readers share only their already-authorized
+--- review01/internal/central/secret/lease.go
++++ review02/internal/central/secret/lease.go
+@@ -127,14 +127,6 @@
+ 	if err = s.referenceLocks(ctx, tx, ref, foundation.Exclusive); err != nil {
+ 		return empty, err
+ 	}
+-	// Purpose is an actual Secret fact, never a caller assertion. Preserve the
+-	// legacy error path when this preliminary read cannot establish it.
+-	if owner.Details().Kind == sc.ExecutionOwner || owner.Details().Kind == sc.ModelCallOwner {
+-		metadata, _, lookupErr := loadMetadata(ctx, e, ref)
+-		if lookupErr == nil && modelLeaseUsage(metadata.Purpose, owner) {
+-			return empty, failure(PreparationRequired, foundation.ResourceBusy, nil)
+-		}
+-	}
+ 	g, err := s.leaseGrant(ctx, tx, actor, ref, owner, sc.AcquireLease)
+ 	if err != nil {
+ 		return empty, err
+@@ -145,6 +137,11 @@
+ 	}
+ 	if metadata.Purpose != g.Consumer {
+ 		return empty, failure(AuthorizationRejected, foundation.Forbidden, nil)
++	}
++	// Keep the original dependency/actor/grant errors first. Even an authorized
++	// Model owner must use the planned mutation before any legacy lease write.
++	if modelLeaseUsage(metadata.Purpose, owner) {
++		return empty, failure(PreparationRequired, foundation.ResourceBusy, nil)
+ 	}
+ 	if err = s.writable(); err != nil {
+ 		return empty, err

@@ -1,0 +1,1608 @@
+{
+  "result": "PASS with four exact raw-patch whitespace exceptions",
+  "phase": "documentation archive; no new product verification",
+  "copy_checks": {
+    "raw_files": 120,
+    "raw_bytes": 1335067,
+    "author_selected_entries": 92,
+    "verification_payloads": 23,
+    "accepted_source_hashes_verified": 20,
+    "historical_variants": 4,
+    "historical_delta_bytes": 23986,
+    "result": "PASS",
+    "go_docker_network_git_writes": "not run"
+  },
+  "document_checks": {
+    "result": "PASS with exact raw-patch exceptions",
+    "raw_originals_unchanged": 120,
+    "links": 166,
+    "fragments": 11,
+    "historical_sections_unchanged": "tasks AT-0001 onward; recovery sections 5-21; original Secret card API/sections 1-8",
+    "no_index_argv_template": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/dev/null",
+      "<path>"
+    ],
+    "no_index_exit_note": "Actual exit 1 with empty diagnostics is the expected difference status, not a whitespace failure.",
+    "full_new_file_checks": [
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/README.md",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/SHA256SUMS.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/accepted-input.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/archive-checks.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/author-report.md.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-01/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch",
+        "result": "exact raw exception; SHA verified"
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/checks-review03.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/delivery-index.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/account-01/baseline.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/account-01/command.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/account-01/docker-events.jsonl",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/account-01/docker-events.stderr",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/account-01/driver.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/account-01/owned-created.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/account-01/owned-network-live-labels.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/account-01/resource-handoff.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/account-01/result.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/legacy-01/baseline.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/legacy-01/command.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/legacy-01/docker-events.jsonl",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/legacy-01/docker-events.stderr",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/legacy-01/driver.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/legacy-01/owned-created.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/legacy-01/owned-network-live-labels.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/legacy-01/resource-handoff.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/legacy-01/result.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/new-01/baseline.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/new-01/command.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/new-01/docker-events.jsonl",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/new-01/docker-events.stderr",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/new-01/driver.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/new-01/network-double-absence.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/new-01/owned-created.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/new-01/owned-network-live-labels.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/new-01/resource-handoff.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/new-01/resource-statistics-correction.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/fixture-runs/new-01/result.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/handoff.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/inputs/api-baseline.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/inputs/baseline.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/inputs/compile-integration-01/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/inputs/pure-final-01/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/build-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/build-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/compile-integration-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/compile-integration-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/compile-integration-02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/compile-integration-02.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/compile-integration-03.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/compile-integration-03.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/gofmt-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/gofmt-02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/gofmt-03.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/legacy-availability-red-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/legacy-availability-red-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/legacy-priority-red-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/legacy-priority-red-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/pure-final-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/pure-final-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/pure-fix-02.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/pure-fix-02.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review02-build.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review02-build.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review02-compile.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review02-compile.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review02-unit-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review02-unit-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review02-vet.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review02-vet.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review03-build.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review03-build.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review03-compile.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review03-compile.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review03-unit-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review03-unit-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review03-vet.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/review03-vet.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/toolchain-version.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/toolchain-version.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/unit-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/unit-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/vet-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/logs/vet-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/paths.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch",
+        "result": "exact raw exception; SHA verified"
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch",
+        "result": "exact raw exception; SHA verified"
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-03/manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-03/production-review-02-delta.patch",
+        "result": "exact raw exception; SHA verified"
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/ready-selectors-review03.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/ready-selectors.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/run.py",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/run_fixture.py",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/run_fixture_v2.py",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/history/source-deltas.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/rebuild.py",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/source-map.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/static/production-review01.md.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/static/review03-delta.md.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/SHA256SUMS.final",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/acceptance-ready.md.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/author-evidence-verified.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/baseline-driver-check.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/candidate-manifest.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/evidence-index.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/final-handoff.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/fixed-input.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/fixture-runs/independent-01/baseline.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/fixture-runs/independent-01/command.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/fixture-runs/independent-01/docker-events.jsonl",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/fixture-runs/independent-01/docker-events.stderr",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/fixture-runs/independent-01/driver.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/fixture-runs/independent-01/input-after.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/fixture-runs/independent-01/owned-created.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/fixture-runs/independent-01/owned-network-live-labels.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/fixture-runs/independent-01/resource-handoff.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/fixture-runs/independent-01/result.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/logs/compile-independent-01.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/logs/compile-independent-01.log",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/ready.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/review.md.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/run-authorization.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/run_independent.py",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/verification/src/tests/security/secret_model_independent_test.go.txt",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/whitespace-exceptions.json",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      },
+      {
+        "path": "docs/development/agent-team/d09-secret-model-usage-verification.md",
+        "exit_code": 1,
+        "stdout_bytes": 0,
+        "stderr_bytes": 0
+      }
+    ],
+    "tracked_diff_check": {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "docs/development/agent-team/tasks.md",
+        "docs/development/agent-team/recovery-2026-10-05.md",
+        "docs/development/work-items/recovery-d09-secret-model-usage.md"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "raw_exception_count": 4,
+    "product_execution": "No Go/Docker/network or Git write operations."
+  },
+  "source_reconstruction": {
+    "argv": [
+      "python3",
+      "docs/development/agent-team/evidence/d09-secret-model-usage-verification/rebuild.py",
+      "--repo",
+      ".",
+      "--check"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit_code": 0,
+    "result": {
+      "result": "PASS",
+      "indexed_files": 127,
+      "raw_files": 120,
+      "source_variants": {
+        "final": 20,
+        "compile-integration-01": 19,
+        "pure-final-01": 20,
+        "legacy-priority-red-01": 20,
+        "legacy-availability-red-01": 20
+      },
+      "scope": "SHA verification and read-only git show; no Go/Docker/network/Git writes"
+    },
+    "stderr": ""
+  },
+  "materialized_final_source_and_probe_sha_checks": 21,
+  "historical_nonce_note": "The first compile metadata predates the nonce path scope expansion. Its separately frozen nonce file matches business baseline 4cc4726 and is preserved by the historical reconstruction; original metadata is unchanged.",
+  "initial_complete_new_file_whitespace_check": {
+    "argv_template": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/dev/null",
+      "<archive path>"
+    ],
+    "checks": [
+      {
+        "path": "README.md",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "accepted-input.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/author-report.md.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/candidate-freeze-01/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/candidate-freeze-02/candidate-freeze-01-delta.patch",
+        "exit_code": 3,
+        "stdout": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:4: space before tab in indent.\n+ \tif metadata.Purpose != g.Consumer {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:5: space before tab in indent.\n+ \t\treturn empty, failure(AuthorizationRejected, foundation.Forbidden, nil)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:6: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:14: space before tab in indent.\n+ \tif modelLeaseUsage(metadata.Purpose, owner) {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:15: space before tab in indent.\n+ \t\treturn empty, failure(PreparationRequired, foundation.ResourceBusy, nil)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:19: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:20: space before tab in indent.\n+ \tid, err := foundation.NewID[sc.Lease]()\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:21: space before tab in indent.\n+ \tif err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:25: space before tab in indent.\n+ \treturn g.grant, nil\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:30: space before tab in indent.\n+ \t\tt.Run(mode, func(t *testing.T) {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:31: space before tab in indent.\n+ \t\t\tr := unitModelRequest(t)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:32: space before tab in indent.\n+ \t\t\tstore := &modelLegacyPriorityStore{tx: foundation.NewTx(), payload: projectAuditID[payloadMarker](t).String()}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:34: space before tab in indent.\n+ \t\t\t\twant = foundation.ResourceBusy\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:35: space before tab in indent.\n+ \t\t\t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:36: space before tab in indent.\n+ \t\t\tstate := &serviceState{store: store, auth: Authorizations{Usage: usage}, initialized: true}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:42: space before tab in indent.\n+ \t\t\ts := &Service{data: func() *serviceState { return state }}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:43: space before tab in indent.\n+ \t\t\t_, err := s.AcquireCredentialLeaseInTx(context.Background(), store.tx, r.Actor, r.Ref, r.LeaseOwner)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:44: space before tab in indent.\n+ \t\t\tprojectAuditCode(t, err, want)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:45: space before tab in indent.\n+ \t\t\tif (mode == \"unbound\" || mode == \"wrong-cause\" || mode == \"human\") && store.queries != 0 {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:46: space before tab in indent.\n+ \t\t\t\tt.Fatal(\"metadata consulted before earlier authority rejection\")\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:47: space before tab in indent.\n+ \t\t\t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:51: space before tab in indent.\n+ \t\t})\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:52: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:57: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:58: space before tab in indent.\n+ \tt.Run(\"earlier-authority-errors\", func(t *testing.T) {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:59: space before tab in indent.\n+ \t\tf, r, _ := newModelReadCase(t, false, sc.ModelCallOwner)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:62: space before tab in indent.\n+ \t\t\tt.Run(mode, func(t *testing.T) {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:64: space before tab in indent.\n+ \t\t\t\tservice := f.secret\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:65: space before tab in indent.\n+ \t\t\t\tactor := r.Actor\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:66: space before tab in indent.\n+ \t\t\t\twant := foundation.Forbidden\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:68: space before tab in indent.\n+ \t\t\t\t\tactor = f.actor\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:69: space before tab in indent.\n+ \t\t\t\tcase \"grant-purpose\":\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:70: space before tab in indent.\n+ \t\t\t\t\tf.ports.grant = func(g *sc.UseGrant) { g.Consumer = sc.MCP }\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:78: space before tab in indent.\n+ \t\t\t\t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:79: space before tab in indent.\n+ \t\t\t\tcommit := f.store.WithinTx(auditContext(t), txCause(t), func(ctx context.Context, tx foundation.Tx) error {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/candidate-freeze-02/candidate-freeze-01-delta.patch:80: space before tab in indent.\n+ \t\t\t\t\t_, err := service.AcquireCredentialLeaseInTx(ctx, tx, actor, r.Ref, r.LeaseOwner)\n",
+        "stderr": ""
+      },
+      {
+        "path": "author/candidate-freeze-02/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/checks-review03.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/delivery-index.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/account-01/baseline.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/account-01/command.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/account-01/docker-events.jsonl",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/account-01/docker-events.stderr",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/account-01/driver.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/account-01/owned-created.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/account-01/owned-network-live-labels.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/account-01/resource-handoff.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/account-01/result.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/legacy-01/baseline.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/legacy-01/command.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/legacy-01/docker-events.jsonl",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/legacy-01/docker-events.stderr",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/legacy-01/driver.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/legacy-01/owned-created.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/legacy-01/owned-network-live-labels.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/legacy-01/resource-handoff.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/legacy-01/result.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/new-01/baseline.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/new-01/command.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/new-01/docker-events.jsonl",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/new-01/docker-events.stderr",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/new-01/driver.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/new-01/network-double-absence.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/new-01/owned-created.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/new-01/owned-network-live-labels.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/new-01/resource-handoff.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/new-01/resource-statistics-correction.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/fixture-runs/new-01/result.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/handoff.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/inputs/api-baseline.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/inputs/baseline.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/inputs/compile-integration-01/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/inputs/pure-final-01/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/build-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/build-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compile-integration-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compile-integration-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compile-integration-02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compile-integration-02.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compile-integration-03.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/compile-integration-03.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/gofmt-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/gofmt-02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/gofmt-03.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/legacy-availability-red-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/legacy-availability-red-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/legacy-priority-red-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/legacy-priority-red-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/pure-final-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/pure-final-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/pure-fix-02.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/pure-fix-02.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review02-build.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review02-build.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review02-compile.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review02-compile.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review02-unit-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review02-unit-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review02-vet.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review02-vet.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review03-build.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review03-build.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review03-compile.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review03-compile.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review03-unit-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review03-unit-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review03-vet.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/review03-vet.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/toolchain-version.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/toolchain-version.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/unit-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/unit-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/vet-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/logs/vet-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/paths.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/production-review-01/delta.patch",
+        "exit_code": 3,
+        "stdout": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:4: space before tab in indent.\n+ \tLeaseID        LeaseID\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:5: space before tab in indent.\n+ \tAction         UsageAction\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:6: space before tab in indent.\n+ \tRetain         bool\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:9: trailing whitespace.\n+ \ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:12: space before tab in indent.\n+ \t\t\treturn bad()\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:13: space before tab in indent.\n+ \t\t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:14: space before tab in indent.\n+ \tdefault:\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:20: space before tab in indent.\n+ \t\treturn bad()\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:21: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:22: space before tab in indent.\n+ \treturn nil\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:24: space before tab in indent.\n+ \t\tLeaseID        string\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:25: space before tab in indent.\n+ \t\tAction         UsageAction\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:26: space before tab in indent.\n+ \t\tRetain         bool\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:30: space before tab in indent.\n+ \tif e != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:31: space before tab in indent.\n+ \t\treturn \"\", bad()\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:32: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:264: space before tab in indent.\n+ \t\"context\"\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:265: space before tab in indent.\n+ \t\"errors\"\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:266: trailing whitespace.\n+ \ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:268: space before tab in indent.\n+ \t\"github.com/LunaDeerTech/agenteam/internal/central/foundation\"\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:269: space before tab in indent.\n+ \tidentity \"github.com/LunaDeerTech/agenteam/internal/central/identity/contract\"\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:270: space before tab in indent.\n+ \t\"github.com/LunaDeerTech/agenteam/internal/central/postgres\"\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:272: space before tab in indent.\n+ \tif err = s.referenceLocks(ctx, tx, ref, foundation.Exclusive); err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:273: space before tab in indent.\n+ \t\treturn empty, err\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:274: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:283: space before tab in indent.\n+ \tg, err := s.leaseGrant(ctx, tx, actor, ref, owner, sc.AcquireLease)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:284: space before tab in indent.\n+ \tif err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:285: space before tab in indent.\n+ \t\treturn empty, err\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:287: space before tab in indent.\n+ \tif err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:288: space before tab in indent.\n+ \t\treturn err\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:289: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:292: space before tab in indent.\n+ \t\treturn failure(PreparationRequired, foundation.ResourceBusy, nil)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:293: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:294: space before tab in indent.\n+ \tif err = s.referenceLocks(ctx, tx, lease.ref, foundation.Exclusive); err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:296: space before tab in indent.\n+ \tlease, err = loadLease(ctx, e, id)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:297: space before tab in indent.\n+ \tif err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:298: space before tab in indent.\n+ \t\treturn err\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:302: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:303: space before tab in indent.\n+ \tg, err := s.leaseGrant(ctx, tx, actor, lease.ref, lease.owner, sc.ReleaseLease)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:304: space before tab in indent.\n+ \tif err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:306: space before tab in indent.\n+ \tbefore, err := loadLease(ctx, state.store, id)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:307: space before tab in indent.\n+ \tif err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:308: space before tab in indent.\n+ \t\treturn sc.SecretMaterial{}, err\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:312: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:313: space before tab in indent.\n+ \tvar request sc.UsageRequest\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:314: space before tab in indent.\n+ \tvar plan sc.UsageDependencies\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:316: space before tab in indent.\n+ \t\tif planned && (!lease.ref.Equal(request.Ref) || !lease.owner.Equal(request.LeaseOwner) || lease.consumer != request.Purpose) {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:317: space before tab in indent.\n+ \t\t\treturn failure(Busy, foundation.ResourceBusy, nil)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:318: space before tab in indent.\n+ \t\t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:322: space before tab in indent.\n+ \t\tif lease.released {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:323: space before tab in indent.\n+ \t\t\treturn failure(AuthorizationRejected, foundation.Forbidden, nil)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:324: space before tab in indent.\n+ \t\t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:326: space before tab in indent.\n+ \t\tif err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:327: space before tab in indent.\n+ \t\t\treturn err\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:328: space before tab in indent.\n+ \t\t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:375: space before tab in indent.\n+ \t})\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:376: space before tab in indent.\n+ \tif err = commitError(result); err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:377: space before tab in indent.\n+ \t\treturn sc.SecretMaterial{}, err\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:381: space before tab in indent.\n+ \tmetadata   sc.Metadata\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:382: space before tab in indent.\n+ \tpayload    payloadID\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:383: space before tab in indent.\n+ \tgrant      sc.UseGrant\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:386: trailing whitespace.\n+ \ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:389: space before tab in indent.\n+ \treturn context.WithValue(ctx, projectAuditWitnessKey{}, w)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:391: trailing whitespace.\n+ \ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:399: space before tab in indent.\n+ \tif lease.ref.Details().Scope.Details().Kind != identity.ProjectScope {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:400: space before tab in indent.\n+ \t\treturn ctx\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:401: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:405: space before tab in indent.\n+ \tw := projectAuditWitness{store: store, tx: tx, entry: entry, key: key,\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:408: space before tab in indent.\n+ \treturn context.WithValue(ctx, projectAuditWitnessKey{}, w)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:410: trailing whitespace.\n+ \ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:414: space before tab in indent.\n+ \tif err = store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{{Key: project, Mode: foundation.Shared}, {Key: credential, Mode: foundation.Shared}}); err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:415: space before tab in indent.\n+ \t\treturn unavailable(err)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:416: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:441: space before tab in indent.\n+ \tsubject := w.grant.Subject\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:442: space before tab in indent.\n+ \tif subject.Details().Kind == identity.Service {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:443: space before tab in indent.\n+ \t\tregistration, _ := identity.RegisterService(identity.SecretService)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:445: space before tab in indent.\n+ \t\treturn projectAuditDenied()\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:446: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:447: space before tab in indent.\n+ \tresource, _ := ac.NewResource(ac.SecretResource, ref.Details().ID.String())\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:450: space before tab in indent.\n+ \tif err != nil || !sameProjectAuditEntry(expected, entry) {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:451: space before tab in indent.\n+ \t\treturn projectAuditDenied()\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-01/delta.patch:452: space before tab in indent.\n+ \t}\n",
+        "stderr": ""
+      },
+      {
+        "path": "author/production-review-01/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/production-review-02/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/production-review-02/review01-delta.patch",
+        "exit_code": 3,
+        "stdout": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:4: space before tab in indent.\n+ \t\t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:5: space before tab in indent.\n+ \t\treturn sc.SecretMaterial{}, failure(CommitUnknown, foundation.CommitUnknown, modelUsageUnknown{result.AttemptID(), result.Cause()})\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:6: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:10: space before tab in indent.\n+ \tmaterial, err := sc.NewSecretMaterial(plaintext)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:11: space before tab in indent.\n+ \tif err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:12: space before tab in indent.\n+ \t\treturn sc.SecretMaterial{}, unavailable(err)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:13: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:18: space before tab in indent.\n+ \treturn material, nil\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:25: trailing whitespace.\n+ \ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:30: space before tab in indent.\n+ \tif err = s.referenceLocks(ctx, tx, ref, foundation.Exclusive); err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:31: space before tab in indent.\n+ \t\treturn empty, err\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:32: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:41: space before tab in indent.\n+ \tg, err := s.leaseGrant(ctx, tx, actor, ref, owner, sc.AcquireLease)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:42: space before tab in indent.\n+ \tif err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:43: space before tab in indent.\n+ \t\treturn empty, err\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:45: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:46: space before tab in indent.\n+ \tif metadata.Purpose != g.Consumer {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:47: space before tab in indent.\n+ \t\treturn empty, failure(AuthorizationRejected, foundation.Forbidden, nil)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:53: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:54: space before tab in indent.\n+ \tif err = s.writable(); err != nil {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-02/review01-delta.patch:55: space before tab in indent.\n+ \t\treturn empty, err\n",
+        "stderr": ""
+      },
+      {
+        "path": "author/production-review-03/manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/production-review-03/production-review-02-delta.patch",
+        "exit_code": 3,
+        "stdout": "docs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-03/production-review-02-delta.patch:4: space before tab in indent.\n+ \tif metadata.Purpose != g.Consumer {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-03/production-review-02-delta.patch:5: space before tab in indent.\n+ \t\treturn empty, failure(AuthorizationRejected, foundation.Forbidden, nil)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-03/production-review-02-delta.patch:6: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-03/production-review-02-delta.patch:14: space before tab in indent.\n+ \tif modelLeaseUsage(metadata.Purpose, owner) {\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-03/production-review-02-delta.patch:15: space before tab in indent.\n+ \t\treturn empty, failure(PreparationRequired, foundation.ResourceBusy, nil)\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-03/production-review-02-delta.patch:19: space before tab in indent.\n+ \t}\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-03/production-review-02-delta.patch:20: space before tab in indent.\n+ \tid, err := foundation.NewID[sc.Lease]()\ndocs/development/agent-team/evidence/d09-secret-model-usage-verification/author/production-review-03/production-review-02-delta.patch:21: space before tab in indent.\n+ \tif err != nil {\n",
+        "stderr": ""
+      },
+      {
+        "path": "author/ready-selectors-review03.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/ready-selectors.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/run.py",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/run_fixture.py",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "author/run_fixture_v2.py",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "history/source-deltas.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "rebuild.py",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "source-map.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "static/production-review01.md.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "static/review03-delta.md.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/SHA256SUMS.final",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/acceptance-ready.md.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/author-evidence-verified.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/baseline-driver-check.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/candidate-manifest.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/evidence-index.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/final-handoff.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/fixed-input.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/fixture-runs/independent-01/baseline.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/fixture-runs/independent-01/command.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/fixture-runs/independent-01/docker-events.jsonl",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/fixture-runs/independent-01/docker-events.stderr",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/fixture-runs/independent-01/driver.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/fixture-runs/independent-01/input-after.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/fixture-runs/independent-01/owned-created.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/fixture-runs/independent-01/owned-network-live-labels.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/fixture-runs/independent-01/resource-handoff.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/fixture-runs/independent-01/result.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/logs/compile-independent-01.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/logs/compile-independent-01.log",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/ready.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/review.md.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/run-authorization.json",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/run_independent.py",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      },
+      {
+        "path": "verification/src/tests/security/secret_model_independent_test.go.txt",
+        "exit_code": 1,
+        "stdout": "",
+        "stderr": ""
+      }
+    ],
+    "exception_files": 4
+  },
+  "limitations": "Author delivery-index is preserved whole, but repeated source copies/redundant baseline patches are deliberately not copied. Main reconstruction uses accepted20 and four small historical deltas. No Go/Docker/network/Git write operations."
+}

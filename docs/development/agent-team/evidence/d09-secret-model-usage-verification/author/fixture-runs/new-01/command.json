@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestSecretModelUsagePlannedReadAndAudit|TestSecretModelUsageRequestAndPlanIsolation|TestSecretModelUsageLockMappingAndRevocation|TestSecretModelUsageLegacyWrappersStayClosed|TestSecretModelUsageAuditWitnessAndNoMaterial|TestSecretModelUsageOutcomeAndCurrentValue)$"
+  ],
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2 -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-secret-model-usage-author-l4eactgz/gocache",
+    "GOTMPDIR": "/workspace/agenteam-secret-model-usage-author-l4eactgz/gotmp",
+    "TMPDIR": "/workspace/agenteam-secret-model-usage-author-l4eactgz/runtime",
+    "GOMAXPROCS": "4",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "CGO_ENABLED": "1",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "DOCKER_CONFIG": "/workspace/agenteam-secret-model-usage-author-l4eactgz/docker-config"
+  },
+  "cwd": "/workspace/agenteam-secret-model-usage-author-l4eactgz/snapshot",
+  "input_manifest": "/workspace/agenteam-secret-model-usage-author-l4eactgz/candidate-freeze-02/manifest.json",
+  "input_sha256": "ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0",
+  "start_unix": 1791221875.8705893,
+  "expected_top": [
+    "TestSecretModelUsagePlannedReadAndAudit",
+    "TestSecretModelUsageRequestAndPlanIsolation",
+    "TestSecretModelUsageLockMappingAndRevocation",
+    "TestSecretModelUsageLegacyWrappersStayClosed",
+    "TestSecretModelUsageAuditWitnessAndNoMaterial",
+    "TestSecretModelUsageOutcomeAndCurrentValue"
+  ]
+}

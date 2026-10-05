@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-w",
+    "internal/central/secret/contract/account.go",
+    "internal/central/secret/contract/model.go",
+    "internal/central/secret/model_usage.go",
+    "internal/central/secret/lease.go",
+    "internal/central/secret/project_audit_witness.go",
+    "internal/central/secret/project_audit.go",
+    "internal/central/secret/contract/model_test.go",
+    "internal/central/secret/model_usage_test.go",
+    "internal/central/secret/project_audit_witness_test.go",
+    "tests/security/secret_common_test.go",
+    "tests/security/secret_access_test.go",
+    "tests/security/secret_storage_test.go",
+    "tests/security/secret_cleanup_test.go",
+    "tests/security/secret_fence_test.go",
+    "tests/security/secret_rotation_test.go",
+    "tests/security/secret_project_audit_test.go",
+    "tests/project/b03_secret_audit_fixture_test.go",
+    "tests/project/b03_secret_audit_test.go"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": ""
+}

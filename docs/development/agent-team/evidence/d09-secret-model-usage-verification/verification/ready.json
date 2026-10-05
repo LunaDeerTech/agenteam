@@ -1,0 +1,61 @@
+{
+  "baseline": "4cc4726b5707127f4b50c7da7023a3cd1f0b7f2d",
+  "candidate_manifest_sha256": "ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0",
+  "production_manifest_sha256": "62f592c62b14fe62feeabf9389bfa3bbe0e43419075d2fdf53a35fec5b941338",
+  "probe": {
+    "path": "tests/security/secret_model_independent_test.go",
+    "sha256": "5805c6d04b344fadf7a297e867dde0b85e3f6b26105f63d34061c25a0a1f0ebb"
+  },
+  "selector": "^(TestIndependentSecretModelRequestAndWitness|TestIndependentSecretModelRevalidationAndOutcome)$",
+  "expected_top": [
+    "TestIndependentSecretModelRequestAndWitness",
+    "TestIndependentSecretModelRevalidationAndOutcome"
+  ],
+  "expected_sub_count": 7,
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestIndependentSecretModelRequestAndWitness|TestIndependentSecretModelRevalidationAndOutcome)$"
+  ],
+  "cwd": "/workspace/agenteam-secret-model-v-thmobool/src",
+  "environment": {
+    "GOROOT": "/workspace/toolchains/go1.27.1",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "sum.golang.org",
+    "GONOSUMDB": "",
+    "GONOPROXY": "",
+    "GOPRIVATE": "",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-secret-model-v-thmobool/gocache",
+    "GOPATH": "/workspace/agenteam-secret-model-v-thmobool/gopath",
+    "TMPDIR": "/workspace/agenteam-secret-model-v-thmobool/runtime",
+    "GOTMPDIR": "/workspace/agenteam-secret-model-v-thmobool/gotmp",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2 -v",
+    "CGO_ENABLED": "1",
+    "DOCKER_CONFIG": "/workspace/agenteam-secret-model-v-thmobool/docker-config",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "GOMAXPROCS": "4",
+    "DOCKER_HOST": "unix:///var/run/docker.sock"
+  },
+  "unset_environment_prefixes": [
+    "AGENTEAM_"
+  ],
+  "unset_environment_keys": [
+    "DOCKER_CONTEXT",
+    "DOCKER_TLS_VERIFY",
+    "DOCKER_CERT_PATH"
+  ],
+  "driver_budget": "unchanged -race -count=1 -timeout=6m",
+  "compile_metadata": "logs/compile-independent-01.json",
+  "docker_authorized": false,
+  "owned_runtime_processes": [],
+  "runtime_empty": true,
+  "gotmp_empty": true,
+  "docker_config_empty": true,
+  "state": "frozen and compile-ready; await root Docker handoff"
+}

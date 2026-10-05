@@ -1,0 +1,80 @@
+--- candidate-freeze-01/internal/central/secret/lease.go
++++ candidate-freeze-02/internal/central/secret/lease.go
+@@ -138,13 +138,13 @@
+ 	if metadata.Purpose != g.Consumer {
+ 		return empty, failure(AuthorizationRejected, foundation.Forbidden, nil)
+ 	}
+-	// Keep the original dependency/actor/grant errors first. Even an authorized
+-	// Model owner must use the planned mutation before any legacy lease write.
++	if err = s.writable(); err != nil {
++		return empty, err
++	}
++	// Keep the original dependency, authority and availability errors first.
++	// Model owners must still use the planned mutation before any lease write.
+ 	if modelLeaseUsage(metadata.Purpose, owner) {
+ 		return empty, failure(PreparationRequired, foundation.ResourceBusy, nil)
+-	}
+-	if err = s.writable(); err != nil {
+-		return empty, err
+ 	}
+ 	id, err := foundation.NewID[sc.Lease]()
+ 	if err != nil {
+--- candidate-freeze-01/internal/central/secret/model_usage_test.go
++++ candidate-freeze-02/internal/central/secret/model_usage_test.go
+@@ -153,7 +153,7 @@
+ 	return g.grant, nil
+ }
+ func TestModelLegacyAcquirePreservesEarlierErrors(t *testing.T) {
+-	for _, mode := range []string{"unbound", "wrong-cause", "human", "grant-purpose", "authorized-model"} {
++	for _, mode := range []string{"unbound", "wrong-cause", "human", "grant-purpose", "uninitialized", "unavailable", "authorized-model"} {
+ 		t.Run(mode, func(t *testing.T) {
+ 			r := unitModelRequest(t)
+ 			store := &modelLegacyPriorityStore{tx: foundation.NewTx(), payload: projectAuditID[payloadMarker](t).String()}
+@@ -176,12 +176,20 @@
+ 				want = foundation.ResourceBusy
+ 			}
+ 			state := &serviceState{store: store, auth: Authorizations{Usage: usage}, initialized: true}
++			if mode == "uninitialized" || mode == "unavailable" {
++				state.initialized = mode != "uninitialized"
++				state.unavailable = mode == "unavailable"
++				want = foundation.DependencyUnavailable
++			}
+ 			s := &Service{data: func() *serviceState { return state }}
+ 			_, err := s.AcquireCredentialLeaseInTx(context.Background(), store.tx, r.Actor, r.Ref, r.LeaseOwner)
+ 			projectAuditCode(t, err, want)
+ 			if (mode == "unbound" || mode == "wrong-cause" || mode == "human") && store.queries != 0 {
+ 				t.Fatal("metadata consulted before earlier authority rejection")
+ 			}
++			if (mode == "uninitialized" || mode == "unavailable") && store.queries != 1 {
++				t.Fatal("availability checked without existing authorized Model reference or after lease write")
++			}
+ 		})
+ 	}
+ }
+--- candidate-freeze-01/tests/security/secret_model_usage_test.go
++++ candidate-freeze-02/tests/security/secret_model_usage_test.go
+@@ -426,8 +426,9 @@
+ 	}
+ 	t.Run("earlier-authority-errors", func(t *testing.T) {
+ 		f, r, _ := newModelReadCase(t, false, sc.ModelCallOwner)
+-		for _, mode := range []string{"unbound", "wrong-cause", "human", "grant-purpose"} {
++		for _, mode := range []string{"unbound", "wrong-cause", "human", "grant-purpose", "uninitialized"} {
+ 			t.Run(mode, func(t *testing.T) {
++				f.ports.grant = nil
+ 				service := f.secret
+ 				actor := r.Actor
+ 				want := foundation.Forbidden
+@@ -446,6 +447,13 @@
+ 					actor = f.actor
+ 				case "grant-purpose":
+ 					f.ports.grant = func(g *sc.UseGrant) { g.Consumer = sc.MCP }
++				case "uninitialized":
++					var err error
++					service, err = secret.New(f.store, masterKeys(t, 1, 1), f.service, secret.Authorizations{Sessions: f.ports, System: f.ports, Projects: f.ports, Usage: f.ports})
++					if err != nil {
++						t.Fatal(err)
++					}
++					want = foundation.DependencyUnavailable
+ 				}
+ 				commit := f.store.WithinTx(auditContext(t), txCause(t), func(ctx context.Context, tx foundation.Tx) error {
+ 					_, err := service.AcquireCredentialLeaseInTx(ctx, tx, actor, r.Ref, r.LeaseOwner)

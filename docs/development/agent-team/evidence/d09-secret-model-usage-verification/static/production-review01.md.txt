@@ -1,0 +1,38 @@
+# Secret Model Usage production-review-01 独立静审
+
+结论：**需修复，两项确定源码问题；动态待验。** 其余六源边界未发现新的确定阻断。未运行 Go/Docker，不将作者自测状态计为本轮独立行为通过。
+
+固定输入：业务基线 `4cc4726b5707127f4b50c7da7023a3cd1f0b7f2d`；规格 `9110686a507716d8b4e042a5562a22507658adcb` 的 rev1.1（20 路径=6 生产+14 测试）；本轮仅审作者停止写入的六生产源。作者冻结目录 `/workspace/agenteam-secret-model-usage-author-l4eactgz/production-review-01`，manifest SHA256 `d5b56adcb79ddd4df9409e08f160d49b52f3bc1de8471813747a32b70980713a`，delta.patch SHA256 `fbfda0de3f7695232d5a89ea2ae1ae6704f34f0c7d10ca3e13b0d5beac7dbcc5`。本目录保存原 manifest/patch、candidate/、baseline/ 与 reviewed-card.md；identity-checks.json 验证全部源/旧基线指纹，patch-checks.json 验证六个 patch payload 恰好重建候选原字节。
+
+## 确定问题
+
+### S1 — 旧 Acquire 的更早授权/依赖错误被新 PreparationRequired 遮盖（P2）
+
+位置：`candidate/internal/central/secret/lease.go:132`。
+
+新增 metadata 预读在 `leaseGrant` 前；只要实际目的为 Model 且 owner 为 execution/model_call，就直接返回 PreparationRequired/ResourceBusy。可达输入为有效 Store/Tx、有效已存在 Model ref/owner、正确 SecretService actor，但 `auth.Usage=nil`。基线先经过 leaseGrant 的 nil dependency 分支，返回 AuthorizationUnbound/DependencyUnbound；候选从新分支提前返回 PreparationRequired。错误 actor/service/cause 也同样越过原 leaseGrant 的授权拒绝。此结论来自确定控制流，不依赖 SQL 竞态或恶意 provider。
+
+这违反卡 §5“结构、初始化、Store/依赖失败等原有更早错误……不强行改成 PreparationRequired”。需在授权 lease.go 内恢复原更早错误优先级，仍在任何写入/upsert 前关闭合法原授权的实际 Model 组合。可恢复原 leaseGrant→metadata/purpose 核对顺序，再在 writable/INSERT 前作实际组合拒绝；不改变 Account/MCP/System 的合法行为。修后用缺 Usage、错 actor/cause 与合法 Model 对照反例分别核精确码及零写入，不能把任意 error 算通过。
+
+### S2 — 已确认提交到交付之间的 caller 取消仍返回材料（P2）
+
+位置：`candidate/internal/central/secret/model_usage.go:115`–`125`。
+
+新入口收到 Committed 后无条件 NewSecretMaterial 并返回，没有检查原 caller ctx 的取消状态。确定触发路径：真实读取/AEAD/Audit Tx 成功提交；测试 Store 装饰器在实际 WithinTx 返回后、返回该原 CommittedResult 给 Service 前取消 caller ctx。候选继续复制 plaintext，返回非零可 Use 材料。固定 D03 `postgres/transaction.go:128`–`130` 在 raw.Commit 成功时返回 Committed，本身不承诺在后续交付点替调用层检查 caller 的取消。
+
+卡 §5 明确取消一律零材料。需仅在新入口的确认 Committed 后交付点检查原 caller ctx，取消时零材料并走既定安全错误处理；保留已确认的数据库事实，不把此场景冒称回滚/Unknown。Unknown 必须仍优先保留其原 attempt/cause，不能被取消检查替换；不顺带改变旧 legacy 入口。真实测试装饰器可确定性验证 Audit 已提交、ctx 已取消、材料 Use 回调未运行；这不是网络故障或 backend 未终局测试。
+
+## 其余已核边界
+
+- `contract/account.go` 仅增加 RequestID 闭集与末尾 omitempty 编码；依现成 ParseID 接受规范 UUIDv7。旧字段/顺序/值不变，新接口只读 Model execution/model_call，未扩其它公共接口。
+- 新入口本地检查 nil/零 Service 与 Store/Audit/Usage/Planner typed nil，含具名 Chan；未修改只读 service.go。缺初始化明确失败；失败 rotation 下已授权读未被错误改为全局写 gate。
+- Discover 在事务前；同 Tx 一次 AcquireAll 消费既有 plan union，再调用私有 validateUsage/RequireHeldLocks/provider validation。随后 exact lease/ref/owner/purpose/released、leaseGrant、当前 metadata/payload/AEAD 依序检查，System Subject 限同 scope SecretService，非空 grant.RequestID 拒绝。
+- 私有 proof 由成功 validate 路径构造，Audit witness 仅在实际 AEAD 后 mint；只保存 request/binding/mapping/复制锁及原安全事实，不保存材料或 provider 可变状态。checker 维持 exact Store/live Tx/Entry（含 Session/HTTP trace）/Key，核 request 来源、binding、mapping、全计划锁与 lease 锁，读取当前本域事实；不补锁、Discover 或重调 Usage。实际 Model 组合不能退回 legacy proof，mutation checker 未改。
+- `modelLeaseUsage` 同时检查实际 purpose 和 owner；Release/Read 各有锁后实际组合检查，System+ModelCallOwner、MCP 等不被该条件误关。planned mutation 核仍只读复用，不调用关闭的 public wrapper，released lease 不复活。
+- 共用解密/Audit 尾部保持 legacy associations/typed Entry/Key 和错误映射；失败时就地清临时明文，成功尾部转交后由外层 defer 清零。NewSecretMaterial 是独立副本。NotCommitted/Unknown 不构造材料；私有 Unknown wrapper 保留原 CommitResult attempt/cause，fmt/JSON/slog 仅安全码。S2 是交付取消缺口，并非发现普通 Unknown 泄露。
+
+以上是源码调用链结论，不能替代锁竞争、完整 provider 事实、真实 Project gate/缺锁 poison、材料所有权、轮换和真实 outcome 验证。此次未读活动测试，也尚未核 14 测试路径/nonce 单行 delta 或作者所有日志；它们须在最终冻结输入审查。生产 Model consumer、Invocation/Runtime、网络发送及 release actual join 仍未绑定。
+
+## 执行与冻结
+
+实际执行：只读作者冻结六源，git show 固定规格/基线；私有目录 SHA 核对及 Python unified patch 重建（6/6 成功）；有界读取既有固定 snapshot 中的 Secret/D03/Project/Audit 契约与实现。未读活动测试/暂停 Object，未执行 Go、Docker、SQL、网络或工作仓库 Git 写。只写本私有 tmp 证据。两问题已通知 root/作者，范围内修后交 production-review-02 再核 delta；本轮不私改生产。输入、报告停止写入，all-stop。

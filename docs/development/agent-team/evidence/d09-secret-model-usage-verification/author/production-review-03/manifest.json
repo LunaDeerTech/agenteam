@@ -1,0 +1,37 @@
+{
+  "baseline": "4cc4726b5707127f4b50c7da7023a3cd1f0b7f2d",
+  "spec_commit": "9110686a507716d8b4e042a5562a22507658adcb",
+  "revision": "production-review-03",
+  "paths": [
+    {
+      "path": "internal/central/secret/contract/account.go",
+      "sha256": "389eb3472f5684892f5e41c036bb904f9218d5892fac0f6cc19701ddf5c5e6a9",
+      "baseline_sha256": "e4193e566cc6422e1cae6e6067c413aa44894ea72ca9161daff5d1cc94fa2737"
+    },
+    {
+      "path": "internal/central/secret/contract/model.go",
+      "sha256": "f8bf949c3ac35a02351b61a7510609b2e86861b5ceffdddbf8fc54aa1dac2821",
+      "baseline_sha256": null
+    },
+    {
+      "path": "internal/central/secret/model_usage.go",
+      "sha256": "1761db95df8cf641daa17ae926e9776e849731ae03b8a9efe05cf76ae96b844d",
+      "baseline_sha256": null
+    },
+    {
+      "path": "internal/central/secret/lease.go",
+      "sha256": "e310f688beebb8d877f8ee4afbb4f92ec27fd8bf43666720f5fdeafdfc9bab23",
+      "baseline_sha256": "f9bbbca6cbc281d14c5b49022eead902a90deb417c24f721119e69fe9a85eaf5"
+    },
+    {
+      "path": "internal/central/secret/project_audit_witness.go",
+      "sha256": "a06b3c01bd908d2e41c08a64cc05e01795f34cf2a1ae694a07bb9e422651aaa7",
+      "baseline_sha256": "adbccf145b36f6df528d943d4b52a354ebd0af05ffda79d11e5be37da24fde30"
+    },
+    {
+      "path": "internal/central/secret/project_audit.go",
+      "sha256": "2f05d1ec7e33f9e97b201804b2865a547fb5c50d6e0bbd0d71f4b779e802e6ba",
+      "baseline_sha256": "2c0ad6763121681785de61539e40394b1e69c590ab926f96f41acb544b6ef11f"
+    }
+  ]
+}

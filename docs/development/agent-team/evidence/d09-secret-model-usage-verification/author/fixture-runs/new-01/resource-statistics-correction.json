@@ -1,0 +1,12 @@
+{
+  "original_result_preserved": true,
+  "cause": "Docker network create events contain name/type but no fixture label, so first collector did not count network rows. Networks were created.",
+  "actual_created_containers": 4,
+  "actual_created_networks": 3,
+  "live_exact_id_name_label_evidence": "owned-network-live-labels.json",
+  "network_double_exact_absence_evidence": "network-double-absence.json",
+  "network_double_absent": true,
+  "container_and_baseline_and_process_evidence": "resource-handoff.json",
+  "resource_handoff_complete": true,
+  "test_rerun": false
+}

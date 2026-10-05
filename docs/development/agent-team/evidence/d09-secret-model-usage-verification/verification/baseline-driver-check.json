@@ -1,0 +1,45 @@
+{
+  "baseline": "4cc4726b5707127f4b50c7da7023a3cd1f0b7f2d",
+  "paths": [
+    {
+      "path": "go.mod",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "same_as_baseline": true
+    },
+    {
+      "path": "go.sum",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "same_as_baseline": true
+    },
+    {
+      "path": "scripts/test-objects.sh",
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+      "same_as_baseline": true
+    },
+    {
+      "path": "scripts/test-security.sh",
+      "sha256": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be",
+      "same_as_baseline": true
+    },
+    {
+      "path": "scripts/test-postgres.sh",
+      "sha256": "eddfb4f44288f8ec448400b02435f5fd6d6c44b0d80003fd34f7785e2980cdfe",
+      "same_as_baseline": true
+    },
+    {
+      "path": "tests/testsupport/postgres/fixture.go",
+      "sha256": "448c63e2986b823ac15ccda25b75f4c8ebc28e461b3c6dbfcbb49ae24bd89437",
+      "same_as_baseline": true
+    },
+    {
+      "path": "tests/testsupport/outbound/fixture.go",
+      "sha256": "3ca36f2786e143e677d4c51844f6649a55c6a4af3c815c8db1f72bbffc8d2920",
+      "same_as_baseline": true
+    },
+    {
+      "path": "tests/testsupport/objectstore/fixture.go",
+      "sha256": "7363ada9d27a39eda336c4025ab67cb8812f8f0fbd4dd7a945b0bacc7e0fb95c",
+      "same_as_baseline": true
+    }
+  ]
+}

@@ -1,0 +1,48 @@
+# Secret Model usage 作者交付
+
+20 源固定候选已完成作者自测并停止写入；独立动态验收待执行。真实 fixture 已交还 root，所有作者 Go/Docker 命令结束。仅实现本卡 Secret planned read、同 Tx RequestID witness/checker 和实际 Model legacy wrapper 边界，零迁移。
+
+## 固定输入
+
+- 业务基线 `4cc4726b5707127f4b50c7da7023a3cd1f0b7f2d`，卡 rev1.1 提交 `9110686a507716d8b4e042a5562a22507658adcb`。
+- 最终 6 生产：[production-review-03/manifest.json](production-review-03/manifest.json)，SHA-256 `62f592c62b14fe62feeabf9389bfa3bbe0e43419075d2fdf53a35fec5b941338`。
+- 最终 20 路径：[candidate-freeze-02/manifest.json](candidate-freeze-02/manifest.json)，SHA-256 `ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0`。同目录保存每项原字节及 baseline.patch；源码、私有测试 snapshot、冻结副本末检逐项一致。
+- 原 review01、review02、candidate01 全部保留；review03 相对 review02 仅生产 `lease.go` 的 Prep 分支移至原 writable 成功后。新测试适配与旧强断言同最终 20 输入冻结。
+- 真实三组 argv/完整 selector：[ready-selectors-review03.json](ready-selectors-review03.json)。原 `scripts/test-objects.sh -run EXACT_REGEX`，底层 `-race -count=1 -timeout=6m`，verbose 只在 GOFLAGS。未修改任何 driver。
+- 离线 Go 1.27.1、`GOTOOLCHAIN=local`、modreadonly、GOPROXY/GOSUMDB off，私有 `/workspace` cache/runtime；PG17/PG16 固定 digest 和固定 SHA MinIO 由原 fixture 实际核验。未消费未提交 Artifact/Object 输入。
+
+## 结果
+
+| 作者检查 | 真实结果 |
+| --- | --- |
+| 最终 Secret unit/race | `logs/review03-unit-01.json`：exit 0，wall 2.586s，Secret 1.048s / contract 1.021s |
+| 最终 integration compile-only | `logs/review03-compile.json`：exit 0，16.386s；仅证明编译 |
+| 最终 integration vet / 两 cmd build | `logs/review03-vet.json` / `review03-build.json`：exit 0，14.370s / 14.963s |
+| 新真实组 | `fixture-runs/new-01/driver.log`：6 顶层 / 43 命名子例全部 PASS，Security 38.126s，driver 81.860s |
+| 旧真实组 | `fixture-runs/legacy-01/driver.log`：10 顶层 / 35 命名子例全部 PASS；9 Security 31.238s + 1 Project 19.367s，driver 59.098s |
+| Account 只读回归 | `fixture-runs/account-01/driver.log`：4 顶层 / 7 子例全部 PASS，Account 9.312s，driver 48.478s |
+| 其它受影响纯检查 | 原 `pure-final-01` 的 Model/Project 各包通过；该轮 Account 唯一缺 API 文件失败经私有输入补齐后 `pure-fix-02` Account/Secret race 通过。未改 Model/Project/Account 生产；本轮仅复用这些不受两次 legacy 顺序/新交付取消修复影响的结果 |
+| 最终格式与路径 | `checks-review03.json`：20 源 SHA 一致、限定 gofmt/diff whitespace 通过 |
+
+动态三组无失败、无 skip、无 race；其它包的 no-tests 不计覆盖。新组实际证明 System/Project × execution/model_call 正向、完整 planner/Invocation 映射和锁、真实竞争撤权、同 Tx RequestID checker、legacy 三入口关闭与 MCP 兼容、真实 Committed 后 caller 取消仍零材料且 Audit 保持已提交。Unavailable 私有状态的精确旧优先级用单元反例覆盖；合法实际 Model ref 未 Initialize 另有真实 PG 反例。
+
+旧 Model 用例迁入 planned 前置后原业务/Audit/原子性/Unknown 断言保留。B03 `human-no-user-plan` 的原 tap 内层精确错误、实际缺 User SH 和 poison rollback 已实际通过；该 Human Entry 可能先在 Audit→Account Session gate 拒绝，不声称已绕过该 gate 到更深 Secret checker。合法 Service 新路径另证真实 Secret checker。
+
+## 原失败与修复
+
+1. `compile-integration-01`：原测试位置字面量因新私有 planner 字段不能编译，33.489s exit 1。原输入已保留 `inputs/compile-integration-01/`。root 唯一扩一测试路径，nonce 行改 keyed `auditAuthority: auth`，其余行为不变；卡 rev1.1 已提交。
+2. `pure-final-01`：选择性固定 snapshot 初漏 `api/openapi/account.json`，Account TestB04HTTPOpenAPIRoutesAgree 失败；其它被测包通过。补固定基线 API 原字节后定向检查通过。此为作者输入准备失败，不归因产品。
+3. 独立 review01 S1：Model Prep 早于 leaseGrant 遮蔽旧更早错误。`legacy-priority-red-01` 实际四子例红，原输入/日志保留；review02 恢复原授权顺序。
+4. 独立 review01 S2：真实提交后 caller 取消仍可交材料。仅新 read 在确认 Committed 后交付前核 caller context，保持已提交事实与 Unknown 原标识。review02 修复，新真实 `committed-then-cancelled` 通过。该项修前为静态确定问题，未伪称修前动态红。
+5. 独立 review02 S1 补项：Prep 仍早于 writable。`legacy-availability-red-01` 实际 uninitialized/unavailable 两红，原 review02 输入保留；review03 后移 Prep 至 writable 后、ID/INSERT 前，最终纯/真实定向通过。
+6. 新组首次监测器漏统计 network create 事件（该事件只有 name/type，无 label），原 result 的 `owned_network_count=0` 保留。存活时已逐一核真实 3 network ID/name/fixture labels，再补两轮 exact absence；见 `fixture-runs/new-01/resource-statistics-correction.json`。测试未重跑，后两组监测器 v2 在存活阶段取实际标签并严格要求 4c3n。
+
+六生产独立静态 review03 报告 `/tmp/agenteam-secret-model-review02-p32uiqx9/review03-delta.md`，SHA `ab121d02e5b3f12c8b34b7e7822f07d8f1acf0600fc725f6f270e5d855027882`，确定静态阻断清零；不冒充独立动态验收。
+
+## 资源与边界
+
+每轮实际 4 容器 / 3 网络；累计 12 容器 / 9 网络 exact ID 二次 absent。三轮既有 2 容器 / 4 网络的 ID/name/labels 完全相同，未访问既有服务；320 条跟踪进程记录、各所属进程组均无存活，私有 runtime/gotmp 为空。详见 [handoff.json](handoff.json) 与每轮 resource-handoff/live-label/absence 记录。主线程已收回窗口；作者无后续 Go/Docker 命令。
+
+新 Unknown 是标准 Store 结果装饰：真实 Tx 先提交或回滚，装饰器返回指定原 AttemptID/Cause；验证零材料及真实 Audit 后态，不证明物理 backend attempt、丢 ACK 或未终局 writer。既有 Secret/Project Unknown 工具仅按原卡/root 授权原样复验；无新代理/网络方法，未恢复任何中断 Object 任务。
+
+生产 Model ConsumerAuthority、lease/Invocation/Runtime、Resolve/Usage/发送及 actual join、HTTP/root 仍未绑定。测试专用严格事实 provider 不等于生产实现；D09、D08、D28/E01 未完成。既有旧 Outbox 未归因问题未改也未宣称解决。

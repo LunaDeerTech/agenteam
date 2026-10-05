@@ -1,0 +1,452 @@
+--- a/internal/central/secret/contract/account.go
++++ b/internal/central/secret/contract/account.go
+@@ -250,6 +250,7 @@
+ 	LeaseID        LeaseID
+ 	Action         UsageAction
+ 	Retain         bool
++	RequestID      string // Exact Model Invocation UUID; not a transport trace or lease owner.
+ }
+ 
+ func (r UsageRequest) Validate() error {
+@@ -266,6 +267,11 @@
+ 			return bad()
+ 		}
+ 	default:
++		return bad()
++	}
++	modelRead := r.Action == ReadLeaseUsage && r.Purpose == Model &&
++		(r.LeaseOwner.Details().Kind == ExecutionOwner || r.LeaseOwner.Details().Kind == ModelCallOwner)
++	if modelRead && !validID(r.RequestID) || !modelRead && r.RequestID != "" {
+ 		return bad()
+ 	}
+ 	return nil
+@@ -291,7 +297,8 @@
+ 		LeaseID        string
+ 		Action         UsageAction
+ 		Retain         bool
+-	}{a, scope, r.Ref.Details().ID.String(), r.Purpose, r.ReferenceOwner, owner, id, r.Action, r.Retain})
++		RequestID      string `json:",omitempty"`
++	}{a, scope, r.Ref.Details().ID.String(), r.Purpose, r.ReferenceOwner, owner, id, r.Action, r.Retain, r.RequestID})
+ 	if e != nil {
+ 		return "", bad()
+ 	}
+--- a/internal/central/secret/contract/model.go
++++ b/internal/central/secret/contract/model.go
+@@ -0,0 +1,12 @@
++package contract
++
++import "context"
++
++// CredentialUsageReader reads one exact, currently authorized Model Invocation.
++// The request must identify a Model execution/model_call lease and carry the
++// Invocation UUID in RequestID. The lease owner and RequestID are not grants.
++// Material is issued only after current usage validation, AEAD and its Audit
++// have committed. The production Model consumer/runtime binding is separate.
++type CredentialUsageReader interface {
++	ReadCredentialForUsage(context.Context, UsageRequest) (SecretMaterial, error)
++}
+--- a/internal/central/secret/model_usage.go
++++ b/internal/central/secret/model_usage.go
+@@ -0,0 +1,210 @@
++package secret
++
++import (
++	"context"
++	"fmt"
++	"io"
++	"log/slog"
++	"reflect"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++func modelLeaseUsage(purpose sc.Purpose, owner sc.CredentialLeaseOwner) bool {
++	return purpose == sc.Model && (owner.Details().Kind == sc.ExecutionOwner || owner.Details().Kind == sc.ModelCallOwner)
++}
++
++// Only the new entry point uses this stricter dependency check. In particular,
++// a named nil channel may implement a port; calling it is not initialization.
++func modelUsageNilPort(v any) bool {
++	if v == nil {
++		return true
++	}
++	switch reflect.ValueOf(v).Kind() {
++	case reflect.Chan, reflect.Func, reflect.Interface, reflect.Map, reflect.Pointer, reflect.Slice:
++		return reflect.ValueOf(v).IsNil()
++	}
++	return false
++}
++
++// Minted only after validateUsage in the current read transaction. It contains
++// no provider plan, material, keyring or mutable provider-owned lock slice.
++type modelUsageReadProof struct {
++	request          sc.UsageRequest
++	binding, mapping foundation.Digest
++	locks            []foundation.LockRequest
++}
++
++func (p modelUsageReadProof) copy() *modelUsageReadProof {
++	p.locks = append([]foundation.LockRequest(nil), p.locks...)
++	return &p
++}
++
++func (s *Service) ReadCredentialForUsage(ctx context.Context, request sc.UsageRequest) (sc.SecretMaterial, error) {
++	if request.Validate() != nil || request.Action != sc.ReadLeaseUsage || !modelLeaseUsage(request.Purpose, request.LeaseOwner) {
++		return sc.SecretMaterial{}, invalid()
++	}
++	if s == nil || s.data == nil {
++		return sc.SecretMaterial{}, failure(AuthorizationUnbound, foundation.DependencyUnbound, nil)
++	}
++	state := s.state()
++	if state == nil || modelUsageNilPort(state.store) || modelUsageNilPort(state.audit) || modelUsageNilPort(state.auth.Usage) {
++		return sc.SecretMaterial{}, failure(AuthorizationUnbound, foundation.DependencyUnbound, nil)
++	}
++	planner, ok := state.auth.Usage.(sc.UsagePlanner)
++	if !ok || modelUsageNilPort(planner) {
++		return sc.SecretMaterial{}, failure(AuthorizationUnbound, foundation.DependencyUnbound, nil)
++	}
++	state.mu.Lock()
++	initialized := state.initialized
++	state.mu.Unlock()
++	if !initialized {
++		return sc.SecretMaterial{}, unavailable(nil)
++	}
++	plan, err := s.DiscoverUsage(ctx, request)
++	if err != nil {
++		return sc.SecretMaterial{}, err
++	}
++	resolution, err := foundation.NewID[struct{}]()
++	if err != nil {
++		return sc.SecretMaterial{}, unavailable(err)
++	}
++	cause, err := foundation.NewRecoveryCause("secret-resolution", resolution.String(), "")
++	if err != nil {
++		return sc.SecretMaterial{}, invalid()
++	}
++	var plaintext []byte
++	defer func() { clear(plaintext) }()
++	result := state.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
++		if err := state.store.AcquireAll(ctx, tx, plan.RequiredLocks()); err != nil {
++			return unavailable(err)
++		}
++		if err := s.validateUsage(ctx, tx, request, plan); err != nil {
++			return err
++		}
++		e, err := state.store.InTx(tx)
++		if err != nil {
++			return unavailable(err)
++		}
++		lease, err := loadLease(ctx, e, request.LeaseID)
++		if err != nil {
++			return err
++		}
++		if !lease.ref.Equal(request.Ref) || !lease.owner.Equal(request.LeaseOwner) || lease.consumer != request.Purpose {
++			return failure(Busy, foundation.ResourceBusy, nil)
++		}
++		if lease.released {
++			return failure(AuthorizationRejected, foundation.Forbidden, nil)
++		}
++		grant, err := s.leaseGrant(ctx, tx, request.Actor, lease.ref, lease.owner, sc.ReadLease)
++		if err != nil {
++			return err
++		}
++		if grant.RequestID != "" || lease.ref.Details().Scope.Details().Kind == identity.System &&
++			(grant.Subject.Details().Kind != identity.Service || grant.Subject.Details().ServiceName != identity.SecretService) {
++			return failure(AuthorizationRejected, foundation.Forbidden, nil)
++		}
++		proof := modelUsageReadProof{request: request, binding: plan.Binding(), mapping: plan.Mapping(), locks: plan.RequiredLocks()}
++		plaintext, err = s.resolveCredentialInTx(ctx, tx, e, resolution.String(), request.Actor, request.LeaseID, lease, grant, &proof)
++		return err
++	})
++	if result.State() != foundation.Committed {
++		if result.State() == foundation.NotCommitted && result.Fault() != nil {
++			return sc.SecretMaterial{}, result.Fault()
++		}
++		return sc.SecretMaterial{}, failure(CommitUnknown, foundation.CommitUnknown, modelUsageUnknown{result.AttemptID(), result.Cause()})
++	}
++	material, err := sc.NewSecretMaterial(plaintext)
++	if err != nil {
++		return sc.SecretMaterial{}, unavailable(err)
++	}
++	return material, nil
++}
++
++// The legacy and explicit readers share only their already-authorized
++// decryption/Audit tail. Their plan selection and transaction outcome policy
++// remain in their respective public entry points.
++func (s *Service) resolveCredentialInTx(ctx context.Context, tx foundation.Tx, e postgres.SQLExecutor, resolution string, actor identity.Actor, id sc.LeaseID, lease leaseRecord, grant sc.UseGrant, proof *modelUsageReadProof) ([]byte, error) {
++	state := s.state()
++	metadata, payloadID, err := loadMetadata(ctx, e, lease.ref)
++	if err != nil {
++		return nil, err
++	}
++	if metadata.Purpose != grant.Consumer || grant.Consumer != lease.consumer {
++		return nil, failure(AuthorizationRejected, foundation.Forbidden, nil)
++	}
++	p, err := loadPayload(ctx, e, payloadID)
++	if err != nil {
++		return nil, err
++	}
++	if p.ownerKind != valueOwner || p.ownerID != lease.ref.Details().ID.String() || !p.scope.Equal(lease.ref.Details().Scope) {
++		return nil, failure(DecryptFailed, foundation.DependencyUnavailable, nil)
++	}
++	plaintext, err := openEnvelope(state.keys, p)
++	if err != nil {
++		return nil, err
++	}
++	deliver := false
++	defer func() {
++		if !deliver {
++			clear(plaintext)
++		}
++	}()
++	subject := grant.Subject
++	if subject.Details().Kind == identity.Service {
++		registration, _ := identity.RegisterService(identity.SecretService)
++		subject, err = registration.Actor(resolution, p.scope)
++		if err != nil {
++			return nil, unavailable(err)
++		}
++	}
++	requestID := grant.RequestID
++	if proof != nil {
++		requestID = proof.request.RequestID
++	}
++	resource, _ := ac.NewResource(ac.SecretResource, p.ownerID)
++	auditMetadata, err := ac.SecretResolveMetadata(id.String(), ac.Consumer(grant.Consumer), "")
++	if err != nil {
++		return nil, unavailable(err)
++	}
++	entry, err := ac.NewEntry(ac.EntryFields{Scope: p.scope, Actor: subject, Action: ac.SecretResolve, Outcome: ac.Success, Resource: resource, Metadata: auditMetadata, Associations: ac.Associations{RequestID: requestID, OperationID: grant.OperationID, ToolID: grant.ToolID, RunnerID: grant.RunnerID}})
++	if err != nil {
++		return nil, unavailable(err)
++	}
++	key, err := ac.NewAppendKey(ac.SecretProducer, resolution, 0)
++	if err != nil {
++		return nil, unavailable(err)
++	}
++	auditCtx := resolutionAuditContext(ctx, state.store, tx, resolution, actor, id, lease, metadata, payloadID, grant, entry, key, proof)
++	if _, err = state.audit.AppendInTx(auditCtx, tx, entry, key); err != nil {
++		return nil, unavailable(err)
++	}
++	deliver = true
++	return plaintext, nil
++}
++
++// The original returned UnknownResult is retained privately. It is not a
++// receipt or evidence that the database committed, rolled back or joined.
++type modelUsageUnknown struct {
++	attempt foundation.ID[foundation.TransactionAttempt]
++	cause   foundation.TransactionCause
++}
++
++func (e modelUsageUnknown) Error() string { return string(CommitUnknown) }
++func (e modelUsageUnknown) AttemptID() foundation.ID[foundation.TransactionAttempt] {
++	return e.attempt
++}
++func (e modelUsageUnknown) Cause() foundation.TransactionCause { return e.cause }
++func (modelUsageUnknown) Format(w fmt.State, _ rune) {
++	_, _ = io.WriteString(w, string(CommitUnknown))
++}
++func (modelUsageUnknown) MarshalJSON() ([]byte, error) {
++	return []byte(`{"code":"SECRET_COMMIT_UNKNOWN"}`), nil
++}
++func (modelUsageUnknown) LogValue() slog.Value { return slog.StringValue(string(CommitUnknown)) }
++
++var _ sc.CredentialUsageReader = (*Service)(nil)
+--- a/internal/central/secret/lease.go
++++ b/internal/central/secret/lease.go
+@@ -4,7 +4,6 @@
+ 	"context"
+ 	"errors"
+ 
+-	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+@@ -128,6 +127,14 @@
+ 	if err = s.referenceLocks(ctx, tx, ref, foundation.Exclusive); err != nil {
+ 		return empty, err
+ 	}
++	// Purpose is an actual Secret fact, never a caller assertion. Preserve the
++	// legacy error path when this preliminary read cannot establish it.
++	if owner.Details().Kind == sc.ExecutionOwner || owner.Details().Kind == sc.ModelCallOwner {
++		metadata, _, lookupErr := loadMetadata(ctx, e, ref)
++		if lookupErr == nil && modelLeaseUsage(metadata.Purpose, owner) {
++			return empty, failure(PreparationRequired, foundation.ResourceBusy, nil)
++		}
++	}
+ 	g, err := s.leaseGrant(ctx, tx, actor, ref, owner, sc.AcquireLease)
+ 	if err != nil {
+ 		return empty, err
+@@ -210,7 +217,7 @@
+ 	if err != nil {
+ 		return err
+ 	}
+-	if accountOwner(lease.owner) {
++	if accountOwner(lease.owner) || modelLeaseUsage(lease.consumer, lease.owner) {
+ 		return failure(PreparationRequired, foundation.ResourceBusy, nil)
+ 	}
+ 	if err = s.referenceLocks(ctx, tx, lease.ref, foundation.Exclusive); err != nil {
+@@ -220,6 +227,9 @@
+ 	lease, err = loadLease(ctx, e, id)
+ 	if err != nil {
+ 		return err
++	}
++	if modelLeaseUsage(lease.consumer, lease.owner) {
++		return failure(PreparationRequired, foundation.ResourceBusy, nil)
+ 	}
+ 	g, err := s.leaseGrant(ctx, tx, actor, lease.ref, lease.owner, sc.ReleaseLease)
+ 	if err != nil {
+@@ -257,6 +267,9 @@
+ 	before, err := loadLease(ctx, state.store, id)
+ 	if err != nil {
+ 		return sc.SecretMaterial{}, err
++	}
++	if modelLeaseUsage(before.consumer, before.owner) {
++		return sc.SecretMaterial{}, failure(PreparationRequired, foundation.ResourceBusy, nil)
+ 	}
+ 	var request sc.UsageRequest
+ 	var plan sc.UsageDependencies
+@@ -296,6 +309,9 @@
+ 		if planned && (!lease.ref.Equal(request.Ref) || !lease.owner.Equal(request.LeaseOwner) || lease.consumer != request.Purpose) {
+ 			return failure(Busy, foundation.ResourceBusy, nil)
+ 		}
++		if modelLeaseUsage(lease.consumer, lease.owner) {
++			return failure(PreparationRequired, foundation.ResourceBusy, nil)
++		}
+ 		if lease.released {
+ 			return failure(AuthorizationRejected, foundation.Forbidden, nil)
+ 		}
+@@ -303,50 +319,8 @@
+ 		if err != nil {
+ 			return err
+ 		}
+-		metadata, payloadID, err := loadMetadata(ctx, e, lease.ref)
+-		if err != nil {
+-			return err
+-		}
+-		if metadata.Purpose != g.Consumer || g.Consumer != lease.consumer {
+-			return failure(AuthorizationRejected, foundation.Forbidden, nil)
+-		}
+-		p, err := loadPayload(ctx, e, payloadID)
+-		if err != nil {
+-			return err
+-		}
+-		if p.ownerKind != valueOwner || p.ownerID != lease.ref.Details().ID.String() || !p.scope.Equal(lease.ref.Details().Scope) {
+-			return failure(DecryptFailed, foundation.DependencyUnavailable, nil)
+-		}
+-		plaintext, err = openEnvelope(state.keys, p)
+-		if err != nil {
+-			return err
+-		}
+-		subject := g.Subject
+-		if subject.Details().Kind == identity.Service {
+-			registration, _ := identity.RegisterService(identity.SecretService)
+-			subject, err = registration.Actor(resolution.String(), p.scope)
+-			if err != nil {
+-				return unavailable(err)
+-			}
+-		}
+-		resource, _ := ac.NewResource(ac.SecretResource, p.ownerID)
+-		auditMetadata, err := ac.SecretResolveMetadata(id.String(), ac.Consumer(g.Consumer), "")
+-		if err != nil {
+-			return unavailable(err)
+-		}
+-		entry, err := ac.NewEntry(ac.EntryFields{Scope: p.scope, Actor: subject, Action: ac.SecretResolve, Outcome: ac.Success, Resource: resource, Metadata: auditMetadata, Associations: ac.Associations{RequestID: g.RequestID, OperationID: g.OperationID, ToolID: g.ToolID, RunnerID: g.RunnerID}})
+-		if err != nil {
+-			return unavailable(err)
+-		}
+-		key, err := ac.NewAppendKey(ac.SecretProducer, resolution.String(), 0)
+-		if err != nil {
+-			return unavailable(err)
+-		}
+-		auditCtx := resolutionAuditContext(ctx, state.store, tx, resolution.String(), actor, id, lease, metadata, payloadID, g, entry, key)
+-		if _, err = state.audit.AppendInTx(auditCtx, tx, entry, key); err != nil {
+-			return unavailable(err)
+-		}
+-		return nil
++		plaintext, err = s.resolveCredentialInTx(ctx, tx, e, resolution.String(), actor, id, lease, g, nil)
++		return err
+ 	})
+ 	if err = commitError(result); err != nil {
+ 		return sc.SecretMaterial{}, err
+--- a/internal/central/secret/project_audit_witness.go
++++ b/internal/central/secret/project_audit_witness.go
+@@ -49,6 +49,7 @@
+ 	metadata   sc.Metadata
+ 	payload    payloadID
+ 	grant      sc.UseGrant
++	modelRead  *modelUsageReadProof
+ }
+ 
+ func (projectAuditWitness) Format(w fmt.State, _ rune) {
+@@ -66,14 +67,18 @@
+ 	return context.WithValue(ctx, projectAuditWitnessKey{}, w)
+ }
+ 
+-// Only the successful lease/grant/metadata/AEAD path in ReadCredentialForRequest
+-// calls this. A resolution UUID or a persisted lease alone cannot mint it.
+-func resolutionAuditContext(ctx context.Context, store Store, tx foundation.Tx, resolution string, caller identity.Actor, id sc.LeaseID, lease leaseRecord, metadata sc.Metadata, payload payloadID, grant sc.UseGrant, entry ac.Entry, key ac.AppendKey) context.Context {
++// Only the successful lease/grant/metadata/AEAD tail of an actual read calls
++// this. Model reads must also have completed exact usage validation in this Tx.
++// A resolution UUID or a persisted lease alone cannot mint either proof.
++func resolutionAuditContext(ctx context.Context, store Store, tx foundation.Tx, resolution string, caller identity.Actor, id sc.LeaseID, lease leaseRecord, metadata sc.Metadata, payload payloadID, grant sc.UseGrant, entry ac.Entry, key ac.AppendKey, modelRead *modelUsageReadProof) context.Context {
+ 	if lease.ref.Details().Scope.Details().Kind != identity.ProjectScope {
+ 		return ctx
+ 	}
++	if modelRead != nil {
++		modelRead = modelRead.copy()
++	}
+ 	w := projectAuditWitness{store: store, tx: tx, entry: entry, key: key,
+-		resolution: &projectResolutionAudit{resolution, caller, id, lease, metadata, payload, grant}}
++		resolution: &projectResolutionAudit{resolution, caller, id, lease, metadata, payload, grant, modelRead}}
+ 	return context.WithValue(ctx, projectAuditWitnessKey{}, w)
+ }
+ 
+--- a/internal/central/secret/project_audit.go
++++ b/internal/central/secret/project_audit.go
+@@ -166,6 +166,30 @@
+ 	if err = store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{{Key: project, Mode: foundation.Shared}, {Key: credential, Mode: foundation.Shared}}); err != nil {
+ 		return unavailable(err)
+ 	}
++	requestID := w.grant.RequestID
++	if modelLeaseUsage(w.lease.consumer, owner) {
++		proof := w.modelRead
++		if proof == nil || w.grant.RequestID != "" {
++			return projectAuditDenied()
++		}
++		r := proof.request
++		binding, bindErr := sc.UsageBinding(r)
++		if bindErr != nil || r.Action != sc.ReadLeaseUsage || r.Purpose != sc.Model ||
++			!r.Actor.Equal(w.caller) || !r.Ref.Equal(ref) || !r.LeaseOwner.Equal(owner) || r.LeaseID != w.leaseID ||
++			binding != proof.binding || proof.mapping.Validate() != nil || len(proof.locks) == 0 {
++			return projectAuditDenied()
++		}
++		if err = store.RequireHeldLocks(ctx, tx, proof.locks); err != nil {
++			return unavailable(err)
++		}
++		leaseLock, _ := foundation.RecordLock(foundation.ReferenceRecordLock, "secret-lease:"+w.leaseID.String())
++		if err = store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{{Key: leaseLock, Mode: foundation.Shared}}); err != nil {
++			return unavailable(err)
++		}
++		requestID = r.RequestID
++	} else if w.modelRead != nil {
++		return projectAuditDenied()
++	}
+ 	subject := w.grant.Subject
+ 	if subject.Details().Kind == identity.Service {
+ 		registration, _ := identity.RegisterService(identity.SecretService)
+@@ -179,7 +203,7 @@
+ 		return projectAuditDenied()
+ 	}
+ 	resource, _ := ac.NewResource(ac.SecretResource, ref.Details().ID.String())
+-	expected, err := ac.NewEntry(ac.EntryFields{Scope: ref.Details().Scope, Actor: subject, Action: ac.SecretResolve, Outcome: ac.Success, Resource: resource, Metadata: metadata, Associations: ac.Associations{RequestID: w.grant.RequestID, OperationID: w.grant.OperationID, ToolID: w.grant.ToolID, RunnerID: w.grant.RunnerID}})
++	expected, err := ac.NewEntry(ac.EntryFields{Scope: ref.Details().Scope, Actor: subject, Action: ac.SecretResolve, Outcome: ac.Success, Resource: resource, Metadata: metadata, Associations: ac.Associations{RequestID: requestID, OperationID: w.grant.OperationID, ToolID: w.grant.ToolID, RunnerID: w.grant.RunnerID}})
+ 	if err != nil || !sameProjectAuditEntry(expected, entry) {
+ 		return projectAuditDenied()
+ 	}

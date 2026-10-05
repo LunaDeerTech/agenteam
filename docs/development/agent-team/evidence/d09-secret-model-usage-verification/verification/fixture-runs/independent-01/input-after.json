@@ -1,0 +1,102 @@
+[
+  {
+    "path": "internal/central/secret/contract/account.go",
+    "sha256": "389eb3472f5684892f5e41c036bb904f9218d5892fac0f6cc19701ddf5c5e6a9",
+    "unchanged": true
+  },
+  {
+    "path": "internal/central/secret/contract/model.go",
+    "sha256": "f8bf949c3ac35a02351b61a7510609b2e86861b5ceffdddbf8fc54aa1dac2821",
+    "unchanged": true
+  },
+  {
+    "path": "internal/central/secret/model_usage.go",
+    "sha256": "1761db95df8cf641daa17ae926e9776e849731ae03b8a9efe05cf76ae96b844d",
+    "unchanged": true
+  },
+  {
+    "path": "internal/central/secret/lease.go",
+    "sha256": "e310f688beebb8d877f8ee4afbb4f92ec27fd8bf43666720f5fdeafdfc9bab23",
+    "unchanged": true
+  },
+  {
+    "path": "internal/central/secret/project_audit_witness.go",
+    "sha256": "a06b3c01bd908d2e41c08a64cc05e01795f34cf2a1ae694a07bb9e422651aaa7",
+    "unchanged": true
+  },
+  {
+    "path": "internal/central/secret/project_audit.go",
+    "sha256": "2f05d1ec7e33f9e97b201804b2865a547fb5c50d6e0bbd0d71f4b779e802e6ba",
+    "unchanged": true
+  },
+  {
+    "path": "internal/central/secret/contract/model_test.go",
+    "sha256": "c449d978b130dfa4d84b3118369a2c962a3e53504660a21f33ffc3b1a470a8a8",
+    "unchanged": true
+  },
+  {
+    "path": "internal/central/secret/model_usage_test.go",
+    "sha256": "3bc0fb92f7c194c474286d7d22720cc385c85ab8ab8eabe3b887627b17ec23f2",
+    "unchanged": true
+  },
+  {
+    "path": "internal/central/secret/project_audit_witness_test.go",
+    "sha256": "585dcffa23bcc34db213eb107c1abbdb00b223e0cde31ea611fcf06b888b8e29",
+    "unchanged": true
+  },
+  {
+    "path": "tests/security/secret_model_usage_test.go",
+    "sha256": "062afa55716812eb6e4e59afc032cdd97ec3e46429e328a8fd90d3011fa2eeba",
+    "unchanged": true
+  },
+  {
+    "path": "tests/security/secret_common_test.go",
+    "sha256": "da542151ef4f479d9fe23b33753daefaad6ebd9038bc828346c189d35c4f2c59",
+    "unchanged": true
+  },
+  {
+    "path": "tests/security/secret_access_test.go",
+    "sha256": "691b10f8bb4a8e58b5ce84cfc9c722046ba871004a5fc48e784f3ba92efcc153",
+    "unchanged": true
+  },
+  {
+    "path": "tests/security/secret_storage_test.go",
+    "sha256": "6389f46c817e93390595e0f942e2df063685b0d49cfb429db7a28f9e4cf6e467",
+    "unchanged": true
+  },
+  {
+    "path": "tests/security/secret_cleanup_test.go",
+    "sha256": "6ee9e262552ea94e82c42d7eb6a1f7c5bae5b19cb03293a0490c4c30a443ad07",
+    "unchanged": true
+  },
+  {
+    "path": "tests/security/secret_fence_test.go",
+    "sha256": "25fced6ec9b249b3ba854a717d5937c4aa22cf28f435ab9a5f1dc4d10e7b4635",
+    "unchanged": true
+  },
+  {
+    "path": "tests/security/secret_rotation_test.go",
+    "sha256": "8f30ca24c8d2bd02fb0c62209c705897e9d3aece9fe3581e2f64eaf70fc58630",
+    "unchanged": true
+  },
+  {
+    "path": "tests/security/secret_project_audit_test.go",
+    "sha256": "de60fd7d1e20993fe86d4e262a5ebdc35a9d9dc9a72877a65fe72b1db81e96c9",
+    "unchanged": true
+  },
+  {
+    "path": "tests/project/b03_secret_audit_fixture_test.go",
+    "sha256": "69221e3abe5204593ce734ef2449042e1cce90f0cbef4caacf44f282b788fe40",
+    "unchanged": true
+  },
+  {
+    "path": "tests/project/b03_secret_audit_test.go",
+    "sha256": "bf98816eb342ecd079238b81b8344109531416d38b91d38bb20aee1337389c51",
+    "unchanged": true
+  },
+  {
+    "path": "tests/security/secret_nonce_test.go",
+    "sha256": "5e0c669a96cc79e2cc98c1d3449f746b174c4b8356fff70e405c57b5eb2e3ccb",
+    "unchanged": true
+  }
+]

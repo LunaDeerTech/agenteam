@@ -1,0 +1,69 @@
+{
+  "input_manifest": "candidate-freeze-02/manifest.json",
+  "input_sha256": "ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0",
+  "state": "compile and independent delta review pending; Docker permission pending",
+  "groups": [
+    {
+      "name": "new",
+      "top_count": 6,
+      "expected_top": [
+        "TestSecretModelUsagePlannedReadAndAudit",
+        "TestSecretModelUsageRequestAndPlanIsolation",
+        "TestSecretModelUsageLockMappingAndRevocation",
+        "TestSecretModelUsageLegacyWrappersStayClosed",
+        "TestSecretModelUsageAuditWitnessAndNoMaterial",
+        "TestSecretModelUsageOutcomeAndCurrentValue"
+      ],
+      "selector": "^(TestSecretModelUsagePlannedReadAndAudit|TestSecretModelUsageRequestAndPlanIsolation|TestSecretModelUsageLockMappingAndRevocation|TestSecretModelUsageLegacyWrappersStayClosed|TestSecretModelUsageAuditWitnessAndNoMaterial|TestSecretModelUsageOutcomeAndCurrentValue)$",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestSecretModelUsagePlannedReadAndAudit|TestSecretModelUsageRequestAndPlanIsolation|TestSecretModelUsageLockMappingAndRevocation|TestSecretModelUsageLegacyWrappersStayClosed|TestSecretModelUsageAuditWitnessAndNoMaterial|TestSecretModelUsageOutcomeAndCurrentValue)$"
+      ]
+    },
+    {
+      "name": "legacy",
+      "top_count": 10,
+      "expected_top": [
+        "TestSecretBindingsAuthorizationAndReadAuditBoundary",
+        "TestSecretReadUnknownNeverReturnsMaterial",
+        "TestSecretStorageReceiptAndCurrentLease",
+        "TestSecretProjectCleanupPendingReferencesBatchesAndGate",
+        "TestSecretReadSnapshotHoldsReferenceUntilAuditCommit",
+        "TestSecretRotationCASReopenAndRetirement",
+        "TestSecretRotationCorruptionStopsWritesButKeepsUnrelatedAuthorizedRead",
+        "TestSecretProjectAuditResolveFactsAndRejections",
+        "TestSecretProjectAuditResolveCommitUnknown",
+        "TestProjectSecretAuditBindingResolveGate"
+      ],
+      "selector": "^(TestSecretBindingsAuthorizationAndReadAuditBoundary|TestSecretReadUnknownNeverReturnsMaterial|TestSecretStorageReceiptAndCurrentLease|TestSecretProjectCleanupPendingReferencesBatchesAndGate|TestSecretReadSnapshotHoldsReferenceUntilAuditCommit|TestSecretRotationCASReopenAndRetirement|TestSecretRotationCorruptionStopsWritesButKeepsUnrelatedAuthorizedRead|TestSecretProjectAuditResolveFactsAndRejections|TestSecretProjectAuditResolveCommitUnknown|TestProjectSecretAuditBindingResolveGate)$",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestSecretBindingsAuthorizationAndReadAuditBoundary|TestSecretReadUnknownNeverReturnsMaterial|TestSecretStorageReceiptAndCurrentLease|TestSecretProjectCleanupPendingReferencesBatchesAndGate|TestSecretReadSnapshotHoldsReferenceUntilAuditCommit|TestSecretRotationCASReopenAndRetirement|TestSecretRotationCorruptionStopsWritesButKeepsUnrelatedAuthorizedRead|TestSecretProjectAuditResolveFactsAndRejections|TestSecretProjectAuditResolveCommitUnknown|TestProjectSecretAuditBindingResolveGate)$"
+      ]
+    },
+    {
+      "name": "account",
+      "top_count": 4,
+      "expected_top": [
+        "TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed",
+        "TestAccountReadWaitsExactCurrentUserGateAndRejectsRevocation",
+        "TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead",
+        "TestAccountExpiredLinkInvalidWhileActualMaterialUserKeepsLease"
+      ],
+      "selector": "^(TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed|TestAccountReadWaitsExactCurrentUserGateAndRejectsRevocation|TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead|TestAccountExpiredLinkInvalidWhileActualMaterialUserKeepsLease)$",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestAccountUsagePlansCannotBeForgedDowngradedOrBypassed|TestAccountReadWaitsExactCurrentUserGateAndRejectsRevocation|TestAccountAuditFailureRollsBackLoginAndDestroysUnconfirmedRead|TestAccountExpiredLinkInvalidWhileActualMaterialUserKeepsLease)$"
+      ]
+    }
+  ],
+  "GOFLAGS": "-mod=readonly -buildvcs=false -p=2 -v",
+  "driver_budget": "original -race -count=1 -timeout=6m",
+  "protocol": "each group stop on nonzero; save argv/env/log/results; owned exact IDs double absent and existing baseline unchanged, processes/runtime empty before next group; no new proxies/network injection"
+}

@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-w",
+    "internal/central/secret/contract/account.go",
+    "internal/central/secret/contract/model.go",
+    "internal/central/secret/model_usage.go",
+    "internal/central/secret/lease.go",
+    "internal/central/secret/project_audit_witness.go",
+    "internal/central/secret/project_audit.go",
+    "internal/central/secret/contract/model_test.go",
+    "internal/central/secret/model_usage_test.go",
+    "internal/central/secret/project_audit_witness_test.go"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": ""
+}

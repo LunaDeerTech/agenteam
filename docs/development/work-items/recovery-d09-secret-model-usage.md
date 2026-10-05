@@ -1,6 +1,6 @@
 # D09 Secret Model 精确 usage 读取与旧入口边界
 
-修订：rev1.1，2026-10-05，仅追加 §8 的一行测试兼容修订，API、行为及验收规则不变。状态：**rev1 已独立静审通过并获主线程采纳；实现已获授权，rev1.1 窄修订已由主线程采纳。** 固定输入为已提交 `4cc4726b5707127f4b50c7da7023a3cd1f0b7f2d`。实现者为 `recovery_handoff`，独立验收者为 `restore_test_dependencies`；20 路径实际写入权已由主线程交接，真实 fixture 尚待另授。零迁移，不修改或分配任何迁移编号；`00017` 仍仅为 R4 保留。
+修订：rev1.1，2026-10-05；API、行为、20 路径及验收规则不变。状态：**20 源已独立验收 PASS，主线程采纳并提交推送 `8ad6759dbb499ae1cfec1d47bcab75f1abb2f56d`，远端一致已核。** [正式报告](../agent-team/d09-secret-model-usage-verification.md)保留作者 20 顶层/85 子例、独立 2 顶层/7 子例、全部原失败及验证边界。业务基线 `4cc4726b5707127f4b50c7da7023a3cd1f0b7f2d`；实现者 `recovery_handoff`，独立验收者 `restore_test_dependencies`，两者已停止本卡源码/Go/Docker 写入并交回资源。零迁移，`00017` 仍仅为 R4 保留；生产 Model consumer/Invocation/Runtime/HTTP/root 不因本卡完成。
 
 独立规格审查记录：`/tmp/agenteam-secret-model-usage-review-_9um2kj3/review.md`，SHA-256 `39f0260066e579264773d66eccdbba39b6ce3ba7c44f41648ee685daaa605adc`；被审 rev1 原稿 SHA-256 为 `7d6bb71bc236b8dd0dc102acaa21efb0d9b500cdb1081ad54121a9b3e21b9c97`。结论仅为规格 PASS，无实现、编译或动态通过声明。实施须保留审查重点：实际 purpose+owner 的精确拒绝（System+ModelCallOwner 旧合法路径不受影响）；新入口本地处理 nil/零 Service 与必需接口 typed nil（含具名 nil chan），不改共享旧 helper；旧 Model 用例迁入 planned 流后仍命中原强断言；Unknown 结果装饰不冒称真实后端 attempt/网络故障；生产 Model consumer/lease/Invocation/Runtime 与发送、actual join 仍未绑定。
 
@@ -146,3 +146,11 @@ checker 对新变体执行以下兼容 delta：
 主线程于 2026-10-05 采纳此最小范围扩充：实现中的测试 `secretAuthority` 新增私有 planner issuer/once/反例控制状态，既有 `secret_nonce_test.go:26` 的位置字面量因此无法编译。只将该行改为显式 `auditAuthority: auth`，不引入测试全局 registry、不改 nonce 行为/断言；总范围由 6 生产 + 13 测试变为 **6 生产 + 14 测试（20 路径）**。公共 API、生产六路径、零迁移和全部验收要求保持。
 
 原失败保留于 `/workspace/agenteam-secret-model-usage-author-l4eactgz/logs/compile-integration-01.log` 与同名 `.json`（实际 argv/env/输入 SHA/exit）；首次 `go test -tags=integration -run '^$' ./tests/security ./tests/project ./tests/account` 在 33.489s 以 exit 1 结束，唯一编译错误为上述 too few values，Project/Account 当轮 compile-only 通过。原作者输入已保存于该目录 `inputs/compile-integration-01/`，不以修后输入覆盖首次失败。本修订记录范围授权，不预宣称修后编译或动态验收通过。
+
+## 9. 独立验收与提交归档
+
+主线程采纳独立 V 报告 `9b184a0177fcda1ddc16b7d7981be0a477c70bc9740a30a9dcc991e7907a4087`；最终 20 源 manifest `ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0` 与已提交 `8ad6759` 逐项相同。见[正式报告](../agent-team/d09-secret-model-usage-verification.md)及[证据入口](../agent-team/evidence/d09-secret-model-usage-verification/README.md)。作者三真实组 20/85、独立真实 2/7 通过，最终纯检查、原命令/env/exit、双清理和输入恢复材料均已持久归位；其它包 no-tests 不计覆盖。
+
+原 nonce 编译失败、基线 API 漏拷贝、S1 两轮优先级/available 原红和修复链保留；S2 修前只有静态确定问题，不冒称动态原红。首轮网络零统计为采集遗漏，原值和实际三网存活标签/双 absence 补证并存。Unknown 原 AttemptID/Cause 与物理 backend 分开；Human 缺锁可先在 Audit→Account Session gate poison，独立合法 Service 路径另证真实 Secret checker。
+
+本次通过仅覆盖本卡 Secret planned read、RequestID 同 Tx witness/checker 与实际 Model legacy 边界；严格 fixture 不是生产消费者。Model consumer/lease/Invocation/Runtime、发送/actual join、HTTP/root 未因本卡绑定，无真实 Provider 账号测试。System Model HTTP 另按 `b4dd1e6` 的 17 路径实施、待独立验收；Object/Artifact 原阻断及完整 D08/D09/D28/E01 未完成状态保持。

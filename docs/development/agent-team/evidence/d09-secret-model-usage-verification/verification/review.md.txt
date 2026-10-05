@@ -1,0 +1,50 @@
+# Secret Model usage 独立验收
+
+结论：**PASS，建议采纳本卡冻结 20 路径。无未决实现阻断。** 原静审 S1（legacy 错误优先级）与 S2（确认提交后取消仍交材料）已闭合。此结论只覆盖 Secret planned read、RequestID 同 Tx witness/checker、实际 Model legacy 边界及已迁入接口的兼容测试，不表示生产 Model Runtime 已绑定。
+
+## 固定输入与独立性
+
+- 业务基线 `4cc4726b5707127f4b50c7da7023a3cd1f0b7f2d`；卡 rev1.1 `9110686a507716d8b4e042a5562a22507658adcb`。
+- 作者最终 20 源：`/workspace/agenteam-secret-model-usage-author-l4eactgz/candidate-freeze-02/manifest.json`，SHA `ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0`；其中 6 生产 review03 manifest SHA `62f592c62b14fe62feeabf9389bfa3bbe0e43419075d2fdf53a35fec5b941338`。
+- 私有 `src/` 来自固定基线的必要 Go/tests/db/cmd/scripts，覆盖最终 20 原字节；不读取活动产品输入，不修改作者或仓库源码。新增独立探针仅 `src/tests/security/secret_model_independent_test.go`，SHA `5805c6d04b344fadf7a297e867dde0b85e3f6b26105f63d34061c25a0a1f0ebb`。
+- 实施者为 recovery_handoff；本验收者未参与实现。20 源与 probe 在运行前后逐项核 SHA 不变。module、三原 driver 及三原 fixture 与基线原字节相同，见 `baseline-driver-check.json`。
+
+## 审查与复用证据
+
+六生产/20 测试静审终稿 `/tmp/agenteam-secret-model-review02-p32uiqx9/review03-delta.md`，SHA `ab121d02e5b3f12c8b34b7e7822f07d8f1acf0600fc725f6f270e5d855027882`。RequestID 闭集、旧 Account/MCP binding 字节、typed-nil Chan、私有 proof 与实际 Store/Tx/完整 Entry 的绑定、一次 union/同 Tx 重验、材料销毁与 Unknown 原标识均已核。新增 nonce 路径仅位置字面量改为 keyed literal，原强断言保留。
+
+S1 最终顺序恢复 leaseGrant→metadata/purpose→原 writable，然后才关闭合法实际 Model legacy 调用，仍在 ID/INSERT 前。两轮修前四个授权优先级反例及两个初始化/available 反例实际红保留，修后纯与真实测试通过。S2 在 Committed 后和创建材料后检查原 caller context；返回错误仍保留 Committed 与 context cause，第二处销毁材料。Unknown 分支优先，不能被取消覆盖。S2 修前为静态确定问题，未冒称有修前动态红。
+
+已对作者冻结 report/handoff/index 与 35 个关键 payload 核 SHA，另核首轮网络补证原件；四个最终纯检查元数据均为精确最终 20 输入、明确 argv/env/exit 0：Secret unit/race、integration compile、integration vet、两 cmd build。空日志不作为成功依据。旧 Model/Project/Account 的适用纯检查按作者固定输入/修复前后证据复用，未重复全量执行。
+
+作者真实原日志独立计数：新 6 top / 43 sub、旧 10 top / 35 sub、Account 4 top / 7 sub，合计 **20 top / 85 sub**，无 FAIL/SKIP/race。见 `author-evidence-verified.json`；原输入准备 nonce 编译失败、漏基线 API 导致的 Account 纯失败及 S1 原红均保留，不隐藏或归为产品随机失败。
+
+## 独立实际动态验证
+
+`ready.json`（SHA `f68ef0f12072a073be65e62a261a68c5e80d894451212871da417b2a958f214f`）冻结后收到 root 独占窗口授权，另存 `run-authorization.json`，未覆盖 ready 原件。
+
+实际 argv：`sh scripts/test-objects.sh -run '^(TestIndependentSecretModelRequestAndWitness|TestIndependentSecretModelRevalidationAndOutcome)$'`。原 driver、`-race -count=1 -timeout=6m` 未变；精确 argv/env 在 `fixture-runs/independent-01/command.json`。Go 1.27.1 SHA `30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624`，GOTOOLCHAIN=local、GOENV/GOWORK=off、GOPROXY=off、modreadonly、私有 workspace cache/runtime、空 Docker config/本机 socket。原 fixture 实际报告固定 PG17=170008/PG16=160012 digest、vector 0.8.1 与 MinIO SHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`。
+
+独立 race integration 编译 exit 0（31.958s，`logs/compile-independent-01.json`）。真实唯一一轮 driver/runner **exit 0，101.873s**；Security **11.345s**，**2 top / 7 sub 全 PASS**，无 FAIL/SKIP/race：
+
+1. 严格事实 fixture 内另一个真实落库且独立成功的 Invocation，换绑到原 exact lease 后 Forbidden、零新增 Audit/材料。
+2. 完整绑定/映射/锁相同但 provider issuer 外来，精确 ResourceBusy、零 Audit/材料。
+3. AEAD 后仅篡改 typed-valid Entry.RequestID，实际 Secret checker 计数加一；外层 DependencyUnavailable、内层 Forbidden/Secret.AuthorizationRejected，Audit 回滚且零材料。
+4. 已成功 read 捕获 witness，保留非取消 context，以全新 root context 启新 Tx、取得完整 union 后调用真实 checker。精确 Forbidden/AuthorizationRejected，实际 NotCommitted；确实跨 Tx，未止于 Nested 或已取消 context。
+5. 实际 PG blocker 精确匹配 holder PID；完整 union 等待期间零 Audit。锁后将 call 和 Invocation 的 process 一起改为仍合法 tuple，旧 mapping 精确 ResourceBusy；新 Discover 仍成功且 mapping 改变。记录一次完整 union 的 key/order/mode 完全一致，零材料/Audit。
+6. 真实提交后，Store 装饰返回原 Unknown，再取消 caller：原 AttemptID/Cause 完整保留、零材料，真实 Audit 已提交。
+7. 真实回滚后同样装饰 Unknown 并取消 caller：原 AttemptID/Cause 完整保留、零材料，真实 Audit 无行。
+
+原日志 `fixture-runs/independent-01/driver.log` SHA `da3122a56ee794a6860e0393e638ac7270848a6c05d876d708773e51dc3925dc`；`result.json` SHA `0be6b0ae2c0d1706baa8799a09d44ddd25a7a1c17cf78eeda7c06c0c1b3a474d`。其它包 no-tests 不计覆盖。
+
+## 资源交还与限制
+
+本轮 4 容器/3 网络已两轮 exact ID absent；3 网络在存活时实际 inspect ID/name/nonce-label，不从缺 labels 的 network event 猜测。原 2 容器/4 网络 ID/name/labels 两轮完全相同；335 个跟踪进程及所属组无存活，额外自有 runtime 进程0；runtime/gotmp/config 空。所有 Go/Docker/runner 命令退出，已正式交回 root。`final-handoff.json` SHA `8dc754175dffa563bdbc2e24bb8482fda6bf2b9ee024dcdd05d52d261c279e53`；原 `resource-handoff.json` SHA `bb22bc6f7f0388e8a93516e1407b73438139e0af016874da9db025ff3b69249d`。
+
+作者首 new-01 原监测记录 network_count=0 是采集遗漏；其实际 3 网络的存活 labels 和两轮 exact absence 已独立核原件，不以原零计数声称未创建网络，也未为补记录重跑测试。
+
+- 新 Unknown 探针是标准 Store 结果装饰，只证明原返回标识、取消优先级、零材料及实际 Tx/Audit 后态；不证明物理 backend attempt、丢 ACK 或未终局 writer。本轮未新增任何网络故障方法。
+- B03 Human 缺 User SH 反例在真实 Audit→Account Session gate 可能先 poison；保留原精确 tap/outer 和回滚断言，不声称已穿过 Session gate 到 Secret checker。独立合法 Service probe 另证真实 Secret checker。
+- 严格 Usage/Invocation fixture 不是生产 Model consumer。ConsumerAuthority、真实 Model lease/Invocation/Runtime、Resolver/Usage/发送与 actual join、HTTP/root 仍未绑定；未运行真实供应商账号 smoke，未恢复或验证暂停的 Object 任务。D09/D08/整模块不因本卡标为完成。
+
+冻结本报告与私有输入；仓库零写、无 Git 写、无后续 Go/Docker。后续仅由 root 采纳提交授权 20 路径。

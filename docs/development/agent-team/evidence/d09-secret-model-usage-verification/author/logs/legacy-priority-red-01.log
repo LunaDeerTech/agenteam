@@ -1,0 +1,12 @@
+--- FAIL: TestModelLegacyAcquirePreservesEarlierErrors (0.00s)
+    --- FAIL: TestModelLegacyAcquirePreservesEarlierErrors/unbound (0.00s)
+        model_usage_test.go:181: error SECRET_PREPARATION_REQUIRED, want DEPENDENCY_UNBOUND
+    --- FAIL: TestModelLegacyAcquirePreservesEarlierErrors/wrong-cause (0.00s)
+        model_usage_test.go:181: error SECRET_PREPARATION_REQUIRED, want FORBIDDEN
+    --- FAIL: TestModelLegacyAcquirePreservesEarlierErrors/human (0.00s)
+        model_usage_test.go:181: error SECRET_PREPARATION_REQUIRED, want FORBIDDEN
+    --- FAIL: TestModelLegacyAcquirePreservesEarlierErrors/grant-purpose (0.00s)
+        model_usage_test.go:181: error SECRET_PREPARATION_REQUIRED, want FORBIDDEN
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/secret	0.012s
+FAIL

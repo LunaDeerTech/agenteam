@@ -1,0 +1,8 @@
+--- FAIL: TestModelLegacyAcquirePreservesEarlierErrors (0.00s)
+    --- FAIL: TestModelLegacyAcquirePreservesEarlierErrors/uninitialized (0.00s)
+        model_usage_test.go:186: error SECRET_PREPARATION_REQUIRED, want DEPENDENCY_UNAVAILABLE
+    --- FAIL: TestModelLegacyAcquirePreservesEarlierErrors/unavailable (0.00s)
+        model_usage_test.go:186: error SECRET_PREPARATION_REQUIRED, want DEPENDENCY_UNAVAILABLE
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/secret	0.013s
+FAIL

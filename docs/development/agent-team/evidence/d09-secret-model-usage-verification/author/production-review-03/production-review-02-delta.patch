@@ -1,0 +1,21 @@
+--- production-review-02/internal/central/secret/lease.go
++++ production-review-03/internal/central/secret/lease.go
+@@ -138,13 +138,13 @@
+ 	if metadata.Purpose != g.Consumer {
+ 		return empty, failure(AuthorizationRejected, foundation.Forbidden, nil)
+ 	}
+-	// Keep the original dependency/actor/grant errors first. Even an authorized
+-	// Model owner must use the planned mutation before any legacy lease write.
++	if err = s.writable(); err != nil {
++		return empty, err
++	}
++	// Keep the original dependency, authority and availability errors first.
++	// Model owners must still use the planned mutation before any lease write.
+ 	if modelLeaseUsage(metadata.Purpose, owner) {
+ 		return empty, failure(PreparationRequired, foundation.ResourceBusy, nil)
+-	}
+-	if err = s.writable(); err != nil {
+-		return empty, err
+ 	}
+ 	id, err := foundation.NewID[sc.Lease]()
+ 	if err != nil {

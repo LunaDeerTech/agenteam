@@ -1,0 +1,24 @@
+{
+  "driver_exit": 0,
+  "elapsed_seconds": 59.098,
+  "passed_top": [
+    "TestSecretBindingsAuthorizationAndReadAuditBoundary",
+    "TestSecretReadUnknownNeverReturnsMaterial",
+    "TestSecretProjectCleanupPendingReferencesBatchesAndGate",
+    "TestSecretReadSnapshotHoldsReferenceUntilAuditCommit",
+    "TestSecretProjectAuditResolveFactsAndRejections",
+    "TestSecretProjectAuditResolveCommitUnknown",
+    "TestSecretRotationCASReopenAndRetirement",
+    "TestSecretRotationCorruptionStopsWritesButKeepsUnrelatedAuthorizedRead",
+    "TestSecretStorageReceiptAndCurrentLease",
+    "TestProjectSecretAuditBindingResolveGate"
+  ],
+  "failed_top": [],
+  "skipped_top": [],
+  "missing_expected_top": [],
+  "resource_clean": true,
+  "owned_container_count": 4,
+  "owned_network_count": 3,
+  "tracked_process_count": 81,
+  "input_sha256": "ccc8044f7ac0c9ba2ac13ee00edbbd9c65ef042bdef9c43c712f223a32d006f0"
+}

@@ -1,0 +1,12 @@
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret	1.043s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret/contract	1.022s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.041s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.022s
+--- FAIL: TestB04HTTPOpenAPIRoutesAgree (0.00s)
+    http_test.go:702: open ../../../api/openapi/account.json: no such file or directory
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/account	25.950s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/account/contract	1.017s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project	1.421s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project/contract	1.084s
+FAIL

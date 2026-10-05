@@ -1,0 +1,107 @@
+{
+  "baseline": "4cc4726b5707127f4b50c7da7023a3cd1f0b7f2d",
+  "spec_commit": "9110686a507716d8b4e042a5562a22507658adcb",
+  "revision": "candidate-freeze-01",
+  "paths": [
+    {
+      "path": "internal/central/secret/contract/account.go",
+      "sha256": "389eb3472f5684892f5e41c036bb904f9218d5892fac0f6cc19701ddf5c5e6a9",
+      "baseline_sha256": "e4193e566cc6422e1cae6e6067c413aa44894ea72ca9161daff5d1cc94fa2737"
+    },
+    {
+      "path": "internal/central/secret/contract/model.go",
+      "sha256": "f8bf949c3ac35a02351b61a7510609b2e86861b5ceffdddbf8fc54aa1dac2821",
+      "baseline_sha256": null
+    },
+    {
+      "path": "internal/central/secret/model_usage.go",
+      "sha256": "1761db95df8cf641daa17ae926e9776e849731ae03b8a9efe05cf76ae96b844d",
+      "baseline_sha256": null
+    },
+    {
+      "path": "internal/central/secret/lease.go",
+      "sha256": "a02fab517a9258793eda0a19788e816a31aee06e0f52c77eef9051e4aef466ef",
+      "baseline_sha256": "f9bbbca6cbc281d14c5b49022eead902a90deb417c24f721119e69fe9a85eaf5"
+    },
+    {
+      "path": "internal/central/secret/project_audit_witness.go",
+      "sha256": "a06b3c01bd908d2e41c08a64cc05e01795f34cf2a1ae694a07bb9e422651aaa7",
+      "baseline_sha256": "adbccf145b36f6df528d943d4b52a354ebd0af05ffda79d11e5be37da24fde30"
+    },
+    {
+      "path": "internal/central/secret/project_audit.go",
+      "sha256": "2f05d1ec7e33f9e97b201804b2865a547fb5c50d6e0bbd0d71f4b779e802e6ba",
+      "baseline_sha256": "2c0ad6763121681785de61539e40394b1e69c590ab926f96f41acb544b6ef11f"
+    },
+    {
+      "path": "internal/central/secret/contract/model_test.go",
+      "sha256": "c449d978b130dfa4d84b3118369a2c962a3e53504660a21f33ffc3b1a470a8a8",
+      "baseline_sha256": null
+    },
+    {
+      "path": "internal/central/secret/model_usage_test.go",
+      "sha256": "961c9f1c47d3d95da6579ce863366c4b64615f284d897cee6fee31efdfc6bfbe",
+      "baseline_sha256": null
+    },
+    {
+      "path": "internal/central/secret/project_audit_witness_test.go",
+      "sha256": "585dcffa23bcc34db213eb107c1abbdb00b223e0cde31ea611fcf06b888b8e29",
+      "baseline_sha256": "f34c3024dc887d93fe122cb0f41b286a250a62eee809a324aed2caf63ae95ccd"
+    },
+    {
+      "path": "tests/security/secret_model_usage_test.go",
+      "sha256": "f1c3887afe450312ac2847b26b1fd58efd81c2905c6a6d8f38ff348f15cbac42",
+      "baseline_sha256": null
+    },
+    {
+      "path": "tests/security/secret_common_test.go",
+      "sha256": "da542151ef4f479d9fe23b33753daefaad6ebd9038bc828346c189d35c4f2c59",
+      "baseline_sha256": "cd47216790117e86e0ec02b669be5f1f94e308c9e39c8dea161e8e539681bcc6"
+    },
+    {
+      "path": "tests/security/secret_access_test.go",
+      "sha256": "691b10f8bb4a8e58b5ce84cfc9c722046ba871004a5fc48e784f3ba92efcc153",
+      "baseline_sha256": "ebdcbc8a72c617dc082d6ebc46ffbd3b6dee9d3015e20a19cfee062475c75ed0"
+    },
+    {
+      "path": "tests/security/secret_storage_test.go",
+      "sha256": "6389f46c817e93390595e0f942e2df063685b0d49cfb429db7a28f9e4cf6e467",
+      "baseline_sha256": "7fc7665a6eede9b9645d7b4cd313ee1561f80143aa542af7d5856d7f2aaad2dc"
+    },
+    {
+      "path": "tests/security/secret_cleanup_test.go",
+      "sha256": "6ee9e262552ea94e82c42d7eb6a1f7c5bae5b19cb03293a0490c4c30a443ad07",
+      "baseline_sha256": "8e2eed2575ab562c0c7aa7d512d0325ae82991acf5c51051632e0c98a74d9e53"
+    },
+    {
+      "path": "tests/security/secret_fence_test.go",
+      "sha256": "25fced6ec9b249b3ba854a717d5937c4aa22cf28f435ab9a5f1dc4d10e7b4635",
+      "baseline_sha256": "60af6b5a235620e8905f7388766e6918fdb1f80d4613a852303faea693530795"
+    },
+    {
+      "path": "tests/security/secret_rotation_test.go",
+      "sha256": "8f30ca24c8d2bd02fb0c62209c705897e9d3aece9fe3581e2f64eaf70fc58630",
+      "baseline_sha256": "265f33afd40b857902dc945f016ff3b2bfb428fc66f6a186beb1d262868d43b5"
+    },
+    {
+      "path": "tests/security/secret_project_audit_test.go",
+      "sha256": "de60fd7d1e20993fe86d4e262a5ebdc35a9d9dc9a72877a65fe72b1db81e96c9",
+      "baseline_sha256": "0473e2440e2db7eb37ce7b155d2200a67c5adad3605a1939860d7089dbb8d43c"
+    },
+    {
+      "path": "tests/project/b03_secret_audit_fixture_test.go",
+      "sha256": "69221e3abe5204593ce734ef2449042e1cce90f0cbef4caacf44f282b788fe40",
+      "baseline_sha256": "cf3762c8fe031088b52d7d40142b195c889bc630dec22edfd584ee416ec140ba"
+    },
+    {
+      "path": "tests/project/b03_secret_audit_test.go",
+      "sha256": "bf98816eb342ecd079238b81b8344109531416d38b91d38bb20aee1337389c51",
+      "baseline_sha256": "33322aa796067aef092d287f790838a219fe95b7fa3959693066d60b04d0d289"
+    },
+    {
+      "path": "tests/security/secret_nonce_test.go",
+      "sha256": "5e0c669a96cc79e2cc98c1d3449f746b174c4b8356fff70e405c57b5eb2e3ccb",
+      "baseline_sha256": "2abdb9b712f82724da75d4356b00921d64ebfdbde6d257a2302485f66448df6c"
+    }
+  ]
+}
