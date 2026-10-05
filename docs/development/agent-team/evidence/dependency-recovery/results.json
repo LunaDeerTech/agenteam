@@ -1,0 +1,81 @@
+{
+  "date": "2026-10-05",
+  "source_baseline": "8872110099c84cf0600bb5b62cdcd6c0c6c843e3",
+  "source_sha256": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "docs/development/work-items/d05-object-storage-research.md": "b4a0462d255910443cbed31abbaeee6d17c133b74a2d997357e37d938242f038",
+    "tests/testsupport/postgres/fixture.go": "448c63e2986b823ac15ccda25b75f4c8ebc28e461b3c6dbfcbb49ae24bd89437",
+    "tests/testsupport/objectstore/fixture.go": "7363ada9d27a39eda336c4025ab67cb8812f8f0fbd4dd7a945b0bacc7e0fb95c"
+  },
+  "go": {
+    "path": "/workspace/toolchains/go1.27.1/bin/go",
+    "version": "go1.27.1 linux/amd64",
+    "sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624"
+  },
+  "docker": {
+    "pull_exit_codes": [
+      0,
+      0
+    ],
+    "inspect_exit_codes": [
+      0,
+      0
+    ],
+    "config": "/workspace/agenteam-dependency-recovery-5drj88a2/docker-config",
+    "config_content": "{}",
+    "endpoint": "unix:///var/run/docker.sock",
+    "existing_credentials_read": false,
+    "detail_file": "docker-images.json"
+  },
+  "minio": {
+    "source_download_exit": 0,
+    "module": "github.com/minio/minio@v0.0.0-20251015172955-9e49d5e7a648",
+    "source_commit": "9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a",
+    "module_sum": "h1:6TdolSCLSs2nwm8i0PpWDqf9iX2Ty9WQK8wmr7dCnUM=",
+    "go_mod_sum": "h1:yCWDkwWO9IWpGsT4mreDDN/B/QVmK2zC666uInRAcqE=",
+    "source_zip_sha256": "b137c35bf9708b4032a6a8301495a2563cab25111c28b80fd609812a3252a2f8",
+    "source_go_mod_sha256": "673f06144e90bc045f0a20050d2874c52e551be5bfbd70dff6e76b66da0db702",
+    "source_go_sum_sha256": "86e062349c7abdce0465561bb409d410a95b00b0969ba05d5fb5f2e3550a5cd4",
+    "build_exit": 0,
+    "binary_path": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "binary_sha256": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+    "binary_bytes": 109289632,
+    "sha_check_exit": 0,
+    "version_check_exit": 0
+  },
+  "root_dependencies": {
+    "cache": "/workspace/agenteam-dependency-cache/modcache",
+    "initial_all": {
+      "download_all_exit": 0,
+      "verify_exit": 0,
+      "downloaded_module_count": 303,
+      "original_lock_sums_matched": 84,
+      "wrapper_exit": 1,
+      "wrapper_reason": "go mod download all added transitive module checksums only to the owned temporary go.sum; final copy-check intentionally detected this. Repository go.mod/go.sum remain unchanged. Expanded temporary sums preserved separately and owned copy restored byte-for-byte.",
+      "repository_sha256": {
+        "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+        "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+      }
+    },
+    "initial_wrapper_observed_output": "go.mod: OK\nsha256sum: WARNING: 1 computed checksum did NOT match\ngo.sum: FAILED\n",
+    "original_lock_offline_download_exit": 0,
+    "original_lock_offline_verify_exit": 0,
+    "original_lock_copy_hash_check_exit": 0,
+    "explicit_original_lock_download_exit": 0,
+    "explicit_unique_module_versions": 57,
+    "original_go_sum_rows_matched": 97,
+    "repository_lock_files_changed": false,
+    "sdk_zip_sha256": "3eae423e698f12a98febb5464525e882e1a4bf05da2a9b40f24ef2003a34c3f6",
+    "sdk_zip_bytes": 594178
+  },
+  "boundaries": {
+    "containers_started": 0,
+    "networks_created": 0,
+    "services_started": 0,
+    "all_owned_download_pull_build_commands_exited": true,
+    "real_integration_tests_executed": false,
+    "remaining_recovery_blockers": []
+  },
+  "large_local_evidence": "/workspace/agenteam-dependency-recovery-5drj88a2/logs"
+}

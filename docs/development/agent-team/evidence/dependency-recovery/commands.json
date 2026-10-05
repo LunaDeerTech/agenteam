@@ -1,0 +1,32 @@
+{
+  "date": "2026-10-05",
+  "execution_cache": "/workspace/agenteam-dependency-recovery-5drj88a2",
+  "note": "These are the actual owned-cache command files and their execution directory; they are evidence data, not repository executable scripts.",
+  "working_directory": "/workspace/agenteam-dependency-recovery-5drj88a2",
+  "script_contents": {
+    "environment.sh": "export GOTOOLCHAIN=local GOENV=off GOWORK=off\nexport GOPROXY=https://proxy.golang.org GOSUMDB=sum.golang.org\nexport GOPRIVATE= GONOPROXY= GONOSUMDB= GOFLAGS=\nexport GOOS=linux GOARCH=amd64 GOAMD64=v1 CGO_ENABLED=0\nexport GOMODCACHE=\"/workspace/agenteam-dependency-recovery-5drj88a2/modcache\"\nexport GOPATH=\"/workspace/agenteam-dependency-recovery-5drj88a2/gopath\"\nexport GOCACHE=\"/workspace/agenteam-dependency-recovery-5drj88a2/gocache\"\nexport GOTMPDIR=\"/workspace/agenteam-dependency-recovery-5drj88a2/gotmp\"\nresearch_dir=\"/workspace/agenteam-dependency-recovery-5drj88a2\"\nresearch_go=/workspace/toolchains/go1.27.1/bin/go\n",
+    "pull-pg-images.sh": "#!/bin/sh\nset -u\nexport DOCKER_CONFIG=\"/workspace/agenteam-dependency-recovery-5drj88a2/docker-config\"\nexport DOCKER_HOST=unix:///var/run/docker.sock\nunset DOCKER_AUTH_CONFIG DOCKER_CONTEXT DOCKER_TLS_VERIFY DOCKER_CERT_PATH\nfor image in pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782\ndo\n  digest=\"${image##*:}\"\n  printf 'command: timeout 180 docker --config %s --host unix:///var/run/docker.sock pull %s\n' \"$DOCKER_CONFIG\" \"$image\"\n  timeout 180 docker --config \"$DOCKER_CONFIG\" --host unix:///var/run/docker.sock pull \"$image\" > \"/workspace/agenteam-dependency-recovery-5drj88a2/logs/pull-$digest.log\" 2>&1\n  status=$?\n  printf 'pull_exit=%s image=%s\n' \"$status\" \"$image\"\n  cat \"/workspace/agenteam-dependency-recovery-5drj88a2/logs/pull-$digest.log\"\n  printf '%s\n' \"$status\" > \"/workspace/agenteam-dependency-recovery-5drj88a2/logs/pull-$digest.exit\"\ndone\n",
+    "download-minio.sh": "#!/bin/sh\nset -eu\n. \"/workspace/agenteam-dependency-recovery-5drj88a2/environment.sh\"\ncd \"$research_dir\"\ntest \"$(\"$research_go\" env GOVERSION)\" = go1.27.1\n\"$research_go\" version > \"$research_dir/logs/go-version.txt\"\n\"$research_go\" env GOTOOLCHAIN GOENV GOWORK GOPROXY GOSUMDB GOPRIVATE GONOPROXY GONOSUMDB GOMODCACHE GOPATH GOCACHE GOOS GOARCH GOAMD64 CGO_ENABLED > \"$research_dir/logs/go-environment.txt\"\n\"$research_go\" mod download -json github.com/minio/minio@v0.0.0-20251015172955-9e49d5e7a648 > \"$research_dir/server-source.json\" 2> \"$research_dir/logs/server-source.stderr\"\n",
+    "download-root-dependencies.sh": "#!/bin/sh\nset -eu\n. /workspace/agenteam-dependency-recovery-5drj88a2/environment.sh\nexport GOMODCACHE=/workspace/agenteam-dependency-cache/modcache\nexport GOCACHE=/workspace/agenteam-dependency-cache/gocache\nexport GOPATH=/workspace/agenteam-dependency-cache/gopath\nexport GOTMPDIR=/workspace/agenteam-dependency-cache/gotmp\ncd /workspace/agenteam-dependency-cache/root-module\nsha256sum go.mod go.sum > \"$research_dir/logs/root-module-before.sha256\"\n\"$research_go\" mod download -json all > \"$research_dir/logs/root-download.json\" 2> \"$research_dir/logs/root-download.stderr\"\n\"$research_go\" mod verify > \"$research_dir/logs/root-verify.log\" 2>&1\nsha256sum -c \"$research_dir/logs/root-module-before.sha256\"\n",
+    "verify-root-cache.sh": "#!/bin/sh\nset -eu\n. /workspace/agenteam-dependency-recovery-5drj88a2/environment.sh\nexport GOMODCACHE=/workspace/agenteam-dependency-cache/modcache\nexport GOCACHE=/workspace/agenteam-dependency-cache/gocache\nexport GOPATH=/workspace/agenteam-dependency-cache/gopath\nexport GOTMPDIR=/workspace/agenteam-dependency-cache/gotmp\nexport GOPROXY=off\ncd /workspace/agenteam-dependency-cache/root-module\n\"$research_go\" mod download -json > \"$research_dir/logs/root-offline-download.json\" 2> \"$research_dir/logs/root-offline-download.stderr\"\n\"$research_go\" mod verify > \"$research_dir/logs/root-offline-verify.log\" 2>&1\nsha256sum -c \"$research_dir/logs/root-module-before.sha256\" > \"$research_dir/logs/root-offline-lock-check.log\" 2>&1\n",
+    "build-minio.sh": "#!/bin/sh\nset -eu\n. /workspace/agenteam-dependency-recovery-5drj88a2/environment.sh\ncd \"$GOMODCACHE/github.com/minio/minio@v0.0.0-20251015172955-9e49d5e7a648\"\n\"$research_go\" build -mod=readonly -trimpath -buildvcs=false -ldflags '-s -w -X github.com/minio/minio/cmd.Version=2025-10-15T17:29:55Z -X github.com/minio/minio/cmd.ReleaseTag=RELEASE.2025-10-15T17-29-55Z -X github.com/minio/minio/cmd.CommitID=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a -X github.com/minio/minio/cmd.ShortCommitID=9e49d5e7a648 -X github.com/minio/minio/cmd.CopyrightYear=2025' -o \"$research_dir/bin/minio\" . > \"$research_dir/logs/server-build.log\" 2>&1\nsha256sum \"$research_dir/bin/minio\" go.mod go.sum > \"$research_dir/logs/server-build.sha256\"\nprintf '%s  %s\\n' dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8 \"$research_dir/bin/minio\" | sha256sum -c - > \"$research_dir/logs/server-binary-match.log\" 2>&1\n\"$research_dir/bin/minio\" --version > \"$research_dir/logs/server-version.log\" 2>&1\n\"$research_go\" version -m \"$research_dir/bin/minio\" > \"$research_dir/logs/server-buildinfo.log\" 2>&1\n"
+  },
+  "invocations": [
+    "sh /workspace/agenteam-dependency-recovery-5drj88a2/pull-pg-images.sh",
+    "sh /workspace/agenteam-dependency-recovery-5drj88a2/download-minio.sh",
+    "sh /workspace/agenteam-dependency-recovery-5drj88a2/download-root-dependencies.sh",
+    "sh /workspace/agenteam-dependency-recovery-5drj88a2/verify-root-cache.sh",
+    "sh /workspace/agenteam-dependency-recovery-5drj88a2/build-minio.sh"
+  ],
+  "explicit_original_lock_download": {
+    "argv_prefix": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "mod",
+      "download",
+      "-json"
+    ],
+    "arguments": "Sorted unique module@version pairs from the original go.sum, stripping the /go.mod version suffix; 57 pairs. Executed outside any module, with the same public proxy/sumdb environment and GOMODCACHE=/workspace/agenteam-dependency-cache/modcache.",
+    "working_directory": "/workspace/agenteam-dependency-recovery-5drj88a2",
+    "full_actual_command_local_path": "/workspace/agenteam-dependency-recovery-5drj88a2/logs/root-locked-download-command.json"
+  }
+}
