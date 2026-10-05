@@ -60,6 +60,14 @@ const endpoints = {
   logout: ['POST', '/api/v1/sessions/logout', 204],
   challenge: ['POST', '/api/v1/auth/challenges', 201],
   verify: ['POST', '/api/v1/auth/challenges/verify', 200],
+  profile: ['GET', '/api/v1/me', 200],
+  updateProfile: ['PATCH', '/api/v1/me', 200],
+  preferences: ['GET', '/api/v1/me/preferences', 200],
+  setPreferences: ['PUT', '/api/v1/me/preferences', 200],
+  avatar: ['GET', '/api/v1/me/avatar', 200],
+  putAvatar: ['PUT', '/api/v1/me/avatar', 200],
+  deleteAvatar: ['DELETE', '/api/v1/me/avatar', 204],
+  changePassword: ['POST', '/api/v1/me/change-password', 200],
 } as const
 export type Fetch = (input: string, init: RequestInit) => Promise<Response>
 
@@ -147,15 +155,82 @@ async function readJSON(response: Response, signal: AbortSignal): Promise<unknow
   }
 }
 
+async function readAvatar(response: Response, signal: AbortSignal) {
+  const media = response.headers.get('Content-Type')
+  const length = response.headers.get('Content-Length')
+  const etag = response.headers.get('ETag')
+  if (
+    !['image/jpeg', 'image/png', 'image/webp'].includes(media ?? '') ||
+    !length ||
+    !/^[1-9][0-9]{0,6}$/.test(length) ||
+    Number(length) > 5 * 1024 * 1024 ||
+    !etag ||
+    !/^"sha256:[0-9a-f]{64}"$/.test(etag)
+  )
+    throw new AccountFailure('invalid-response')
+  const reader = response.body?.getReader()
+  if (!reader) throw new AccountFailure('invalid-response')
+  let cancelled: Promise<void> | undefined
+  const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined))
+  const abort = () => {
+    void cancel()
+  }
+  signal.addEventListener('abort', abort, { once: true })
+  if (signal.aborted) abort()
+  const bytes = new Uint8Array(Number(length))
+  let offset = 0
+  try {
+    for (;;) {
+      const { done, value } = await reader.read()
+      if (done) break
+      if (offset + value.byteLength > bytes.byteLength) throw new AccountFailure('invalid-response')
+      bytes.set(value, offset)
+      offset += value.byteLength
+    }
+    if (signal.aborted) throw new AccountFailure('cancelled')
+    if (offset !== bytes.byteLength) throw new AccountFailure('invalid-response')
+    return {
+      metadata: { media_type: media, byte_size: length, sha256: etag.slice(1, -1) },
+      blob: new Blob([bytes], { type: media! }),
+    }
+  } catch (e) {
+    throw e instanceof AccountFailure
+      ? e
+      : new AccountFailure(signal.aborted ? 'cancelled' : 'invalid-response')
+  } finally {
+    signal.removeEventListener('abort', abort)
+    await cancel()
+    reader.releaseLock()
+  }
+}
+
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
   return async function request<T>(
     endpoint: keyof typeof endpoints,
     parse: (value: unknown) => T,
-    options: { body?: unknown; csrf?: string; key?: string; signal: AbortSignal },
+    options: {
+      body?: unknown
+      csrf?: string
+      key?: string
+      signal: AbortSignal
+      avatar?: { file: File; mediaType: string; version: string }
+    },
   ): Promise<T> {
     const [method, path, status] = endpoints[endpoint]
     const headers: Record<string, string> = { Accept: 'application/json, application/problem+json' }
-    if (method === 'POST') headers['Content-Type'] = 'application/json'
+    let body: BodyInit | undefined
+    if (endpoint === 'putAvatar' && options.avatar) {
+      body = options.avatar.file
+      headers['Content-Type'] = options.avatar.mediaType
+      headers['If-Match'] = `"${options.avatar.version}"`
+    } else if (method !== 'GET') {
+      body = JSON.stringify(options.body)
+      if (!body || new TextEncoder().encode(body).byteLength > 16 * 1024)
+        throw new AccountFailure('invalid-input')
+      headers['Content-Type'] = 'application/json'
+    }
+    if (endpoint === 'avatar')
+      headers.Accept = 'image/jpeg, image/png, image/webp, application/problem+json'
     if (options.csrf !== undefined) headers['X-CSRF-Token'] = options.csrf
     if (options.key !== undefined) headers['Idempotency-Key'] = options.key
     let response: Response
@@ -167,7 +242,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
         cache: 'no-store',
         redirect: 'error',
         signal: options.signal,
-        ...(method === 'POST' ? { body: JSON.stringify(options.body) } : {}),
+        ...(body === undefined ? {} : { body }),
       })
     } catch {
       throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'transport')
@@ -177,6 +252,8 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       if (response.redirected || response.type === 'opaqueredirect')
         throw new AccountFailure('invalid-response')
       if (response.status === 204 && status === 204) return parse(undefined)
+      if (endpoint === 'avatar' && response.status === 200)
+        return parse(await readAvatar(response, options.signal))
       const contentType = response.headers.get('Content-Type')?.split(';')[0]?.trim().toLowerCase()
       const success = response.status === status
       if (contentType !== (success ? 'application/json' : 'application/problem+json'))

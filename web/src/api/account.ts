@@ -55,6 +55,32 @@ export interface VerifyInput {
   proof: { angle: number }
 }
 
+export type Version = string
+export type Progress = string
+export type Digest = string
+export type Theme = User['theme']
+export type AvatarMedia = 'image/jpeg' | 'image/png' | 'image/webp'
+export type AvatarMetadata = Readonly<{
+  media_type: AvatarMedia
+  byte_size: Progress
+  sha256: Digest
+}>
+export type ProfileView = Readonly<{ user: User; avatar: AvatarMetadata | null }>
+export type PreferencesView = Readonly<{ version: Version; theme: Theme }>
+export type ProfileInput = Readonly<
+  { version: Version } & (
+    { username: string; display_name?: string } | { username?: never; display_name: string }
+  )
+>
+export type PasswordInput = Readonly<{
+  version: Version
+  current_password: string
+  new_password: string
+  confirmation: string
+}>
+export type WriteOptions = Readonly<{ csrfToken: string; key: string; signal?: AbortSignal }>
+export type AvatarDownload = Readonly<{ metadata: AvatarMetadata; blob: Blob }>
+
 function requireValue(condition: boolean) {
   if (!condition) throw new AccountFailure('invalid-response')
 }
@@ -166,9 +192,165 @@ function loginInput(value: LoginInput): LoginInput {
   }
 }
 
+function version(value: unknown, zero = false): string {
+  const result = string(value, 1, 19)
+  requireValue(
+    (zero ? /^(0|[1-9][0-9]*)$/ : /^[1-9][0-9]*$/).test(result) &&
+      BigInt(result) <= 9223372036854775807n,
+  )
+  return result
+}
+function theme(value: unknown): Theme {
+  requireValue(value === 'system' || value === 'light' || value === 'dark')
+  return value as Theme
+}
+function media(value: unknown): AvatarMedia {
+  requireValue(value === 'image/jpeg' || value === 'image/png' || value === 'image/webp')
+  return value as AvatarMedia
+}
+function avatarMetadata(value: unknown): AvatarMetadata {
+  const v = shape(value, ['media_type', 'byte_size', 'sha256'])
+  const digest = string(v.sha256, 71, 71)
+  requireValue(/^sha256:[0-9a-f]{64}$/.test(digest))
+  return { media_type: media(v.media_type), byte_size: version(v.byte_size, true), sha256: digest }
+}
+function profile(value: unknown): ProfileView {
+  const v = shape(value, ['user', 'avatar'])
+  return { user: user(v.user), avatar: v.avatar === null ? null : avatarMetadata(v.avatar) }
+}
+function preferences(value: unknown): PreferencesView {
+  const v = shape(value, ['version', 'theme'])
+  return { version: version(v.version), theme: theme(v.theme) }
+}
+function profileInput(value: ProfileInput): ProfileInput {
+  const v = shape(value, ['version'], ['username', 'display_name'])
+  requireValue(v.username !== undefined || v.display_name !== undefined)
+  let username: string | undefined, displayName: string | undefined
+  if (Object.hasOwn(v, 'username')) {
+    username = string(v.username, 3, 32)
+    requireValue(/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(username))
+  }
+  if (Object.hasOwn(v, 'display_name')) {
+    displayName = string(v.display_name, 0, 80)
+    requireValue(
+      !/[\x00-\x1f\x7f-\x9f]/.test(displayName) &&
+        new TextEncoder().encode(displayName).byteLength <= 320,
+    )
+  }
+  return {
+    version: version(v.version),
+    ...(username === undefined ? {} : { username }),
+    ...(displayName === undefined ? {} : { display_name: displayName }),
+  } as ProfileInput
+}
+function passwordInput(value: PasswordInput): PasswordInput {
+  const v = shape(value, ['version', 'current_password', 'new_password', 'confirmation'])
+  const current = string(v.current_password, 1, 512),
+    next = string(v.new_password, 15, 128),
+    confirmation = string(v.confirmation, 15, 128)
+  requireValue(
+    [current, next, confirmation].every((s) => new TextEncoder().encode(s).byteLength <= 512) &&
+      next === confirmation,
+  )
+  return {
+    version: version(v.version),
+    current_password: current,
+    new_password: next,
+    confirmation,
+  }
+}
+function writeOptions(options: WriteOptions) {
+  return {
+    csrf: csrf(options.csrfToken),
+    key: key(options.key),
+    signal: options.signal ?? new AbortController().signal,
+  }
+}
+
 export function createAccountAPI(fetcher?: Fetch) {
   const request = accountTransport(fetcher)
   return {
+    getProfile(signal = new AbortController().signal): Promise<ProfileView> {
+      return request('profile', profile, { signal })
+    },
+    updateProfile(value: ProfileInput, options: WriteOptions): Promise<ProfileView> {
+      return request(
+        'updateProfile',
+        profile,
+        input(() => ({ body: profileInput(value), ...writeOptions(options) })),
+      )
+    },
+    getPreferences(signal = new AbortController().signal): Promise<PreferencesView> {
+      return request('preferences', preferences, { signal })
+    },
+    setPreferences(value: PreferencesView, options: WriteOptions): Promise<PreferencesView> {
+      return request(
+        'setPreferences',
+        preferences,
+        input(() => ({ body: preferences(value), ...writeOptions(options) })),
+      )
+    },
+    readAvatar(signal = new AbortController().signal): Promise<AvatarDownload> {
+      return request(
+        'avatar',
+        (value) => {
+          const v = shape(value, ['metadata', 'blob'])
+          const metadata = avatarMetadata(v.metadata)
+          requireValue(
+            v.blob instanceof Blob &&
+              v.blob.size === Number(metadata.byte_size) &&
+              v.blob.type === metadata.media_type,
+          )
+          return { metadata, blob: v.blob as Blob }
+        },
+        { signal },
+      )
+    },
+    putAvatar(
+      value: Readonly<{ version: Version; file: File; mediaType: AvatarMedia }>,
+      options: WriteOptions,
+    ): Promise<ProfileView> {
+      return request(
+        'putAvatar',
+        profile,
+        input(() => {
+          const v = shape(value, ['version', 'file', 'mediaType'])
+          requireValue(v.file instanceof File && v.file.size > 0 && v.file.size <= 5 * 1024 * 1024)
+          return {
+            avatar: {
+              file: v.file as File,
+              version: version(v.version),
+              mediaType: media(v.mediaType),
+            },
+            ...writeOptions(options),
+          }
+        }),
+      )
+    },
+    deleteAvatar(value: Readonly<{ version: Version }>, options: WriteOptions): Promise<void> {
+      return request(
+        'deleteAvatar',
+        () => undefined,
+        input(() => ({
+          body: { version: version(shape(value, ['version']).version) },
+          ...writeOptions(options),
+        })),
+      )
+    },
+    changePassword(
+      value: PasswordInput,
+      options: WriteOptions,
+    ): Promise<Readonly<{ completed: true; next_path: '/' }>> {
+      return request(
+        'changePassword',
+        (value) => {
+          const v = shape(value, ['completed', 'next_path'])
+          requireValue(v.completed === true && v.next_path === '/')
+          return { completed: true, next_path: '/' }
+        },
+        input(() => ({ body: passwordInput(value), ...writeOptions(options) })),
+      )
+    },
     bootstrap(signal: AbortSignal): Promise<Bootstrap> {
       return request(
         'bootstrap',

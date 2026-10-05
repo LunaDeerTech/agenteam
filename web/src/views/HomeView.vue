@@ -10,6 +10,7 @@ onMounted(() => heading.value?.focus())
     <h1 ref="heading" tabindex="-1">首页</h1>
     <p v-if="state.user?.initial_password_suggestion" class="meta">
       你正在使用初始密码。建议之后更换为自己的密码。
+      <RouterLink to="/settings/password">修改密码</RouterLink>
     </p>
     <section aria-label="Dashboard" class="dashboard" />
   </div>

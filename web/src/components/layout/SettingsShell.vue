@@ -1,0 +1,146 @@
+<script setup lang="ts">
+import { onMounted, onUnmounted, reactive, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import UiButton from '../ui/UiButton.vue'
+import UiDrawer from '../ui/UiDrawer.vue'
+const emit = defineEmits<{ logout: [] }>()
+const route = useRoute()
+const groups = [
+  { label: '个人资料', path: '/settings/profile', leaf: '基本资料' },
+  { label: '界面偏好', path: '/settings/appearance', leaf: '主题' },
+  { label: '账号安全', path: '/settings/password', leaf: '修改密码' },
+]
+const expanded = reactive(new Set(groups.map((g) => g.path)))
+const narrow = ref(false),
+  open = ref(false)
+let media: MediaQueryList | undefined
+function resize() {
+  narrow.value = !!media?.matches
+  if (!narrow.value) open.value = false
+}
+function toggle(path: string) {
+  expanded.has(path) ? expanded.delete(path) : expanded.add(path)
+}
+onMounted(() => {
+  media = window.matchMedia('(max-width: 760px)')
+  resize()
+  media.addEventListener('change', resize)
+})
+onUnmounted(() => media?.removeEventListener('change', resize))
+</script>
+<template>
+  <div class="settings-shell">
+    <UiButton v-if="narrow" class="settings-menu-button" aria-haspopup="dialog" @click="open = true"
+      >个人设置栏目</UiButton
+    >
+    <component
+      :is="narrow ? UiDrawer : 'aside'"
+      :open="open"
+      title="个人设置栏目"
+      :class="narrow ? undefined : 'settings-sidebar'"
+      @update:open="open = $event"
+    >
+      <nav class="settings-menu" aria-label="个人设置">
+        <h2>个人设置</h2>
+        <div
+          v-for="group in groups"
+          :key="group.path"
+          class="settings-group"
+          :class="{ selected: route.path === group.path }"
+        >
+          <button
+            type="button"
+            class="settings-group-toggle"
+            :aria-expanded="expanded.has(group.path)"
+            :aria-controls="`settings-${group.leaf}`"
+            @click="toggle(group.path)"
+          >
+            {{ group.label }}
+          </button>
+          <ul v-if="expanded.has(group.path)" :id="`settings-${group.leaf}`">
+            <li>
+              <RouterLink
+                :to="group.path"
+                :aria-current="route.path === group.path ? 'page' : undefined"
+                @click="open = false"
+                >{{ group.leaf }}</RouterLink
+              >
+            </li>
+          </ul>
+        </div>
+        <UiButton variant="ghost" @click="emit('logout')">退出登录</UiButton>
+      </nav>
+    </component>
+    <section class="settings-content"><slot /></section>
+  </div>
+</template>
+<style scoped>
+.settings-shell {
+  display: grid;
+  grid-template-columns: 216px minmax(0, 1fr);
+  gap: 24px;
+  padding: var(--space);
+  min-width: 0;
+  align-items: start;
+}
+.settings-sidebar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 14px;
+  position: sticky;
+  top: 0;
+  max-height: calc(100dvh - 96px);
+  overflow-y: auto;
+  min-width: 0;
+}
+.settings-menu {
+  display: grid;
+  gap: 12px;
+}
+.settings-menu h2 {
+  font-size: 15px;
+}
+.settings-group-toggle {
+  width: 100%;
+  background: none;
+  color: var(--text);
+  border: 0;
+  padding: 8px;
+  text-align: start;
+  font: inherit;
+  cursor: pointer;
+}
+.settings-group.selected > button {
+  font-weight: 600;
+}
+.settings-group ul {
+  margin: 0;
+  padding: 4px 0 4px 16px;
+  list-style: none;
+}
+.settings-group a {
+  display: block;
+  padding: 8px;
+  border-radius: var(--radius);
+}
+.settings-group a[aria-current='page'] {
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+.settings-content {
+  min-width: 0;
+  max-width: 800px;
+  width: 100%;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 760px) {
+  .settings-shell {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .settings-menu-button {
+    justify-self: start;
+  }
+}
+</style>

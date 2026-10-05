@@ -1,0 +1,92 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { usePersonalSettings } from '../../composables/usePersonalSettings'
+import { UiButton, UiField, UiInput, UiState } from '../../components/ui'
+const s = usePersonalSettings(),
+  form = ref<HTMLFormElement | null>(null)
+const fields = [
+  { name: 'current_password' as const, label: '当前密码', autocomplete: 'current-password' },
+  { name: 'new_password' as const, label: '新密码', autocomplete: 'new-password' },
+  { name: 'confirmation' as const, label: '确认新密码', autocomplete: 'new-password' },
+]
+async function save() {
+  for (const field of fields) {
+    const input = form.value?.elements.namedItem(field.name) as HTMLInputElement | null
+    if (input) s.password[field.name] = input.value
+  }
+  await s.savePassword()
+}
+</script>
+<template>
+  <UiState
+    v-if="!s.password.version"
+    :kind="s.sections.password.status === 'loading' ? 'loading' : 'error'"
+    title="读取当前资料版本"
+    :description="s.sections.password.message"
+    ><UiButton :disabled="s.auth.state.busy" @click="s.load('password')"
+      >重新加载资料</UiButton
+    ></UiState
+  >
+  <form v-else ref="form" class="ui-stack" @submit.prevent="save">
+    <p class="meta">
+      新密码为 15–128 个字符，最多 512 字节。保留空格与中文，不会自动修剪；请避免弱密码。
+    </p>
+    <UiField
+      v-for="item in fields"
+      :key="item.name"
+      v-slot="field"
+      :id="`settings-${item.name}`"
+      :label="item.label"
+      :error="s.sections.password.fields[item.name]"
+      required
+    >
+      <UiInput
+        :id="field.id"
+        v-model="s.password[item.name]"
+        :name="item.name"
+        type="password"
+        :autocomplete="item.autocomplete"
+        :readonly="s.locked.value"
+        :invalid="field.invalid"
+        :aria-describedby="field.describedby"
+      />
+    </UiField>
+    <p
+      v-if="s.sections.password.message"
+      :role="s.sections.password.status === 'error' ? 'alert' : 'status'"
+    >
+      {{ s.sections.password.message }}
+    </p>
+    <div class="ui-row">
+      <UiButton
+        type="submit"
+        :disabled="s.locked.value || !s.passwordDirty.value"
+        :state="
+          s.sections.password.status === 'confirming-session' || s.mutation.value === 'password'
+            ? 'loading'
+            : 'idle'
+        "
+        >修改密码</UiButton
+      ><UiButton variant="ghost" :disabled="s.locked.value" @click="s.clearPassword"
+        >清空输入</UiButton
+      ><RouterLink to="/">返回首页</RouterLink>
+    </div>
+    <div v-if="s.unresolved.value === 'password'" class="ui-stack">
+      <p role="status">
+        尚未取得改密确认。当前会话可用不代表原改密命令完成；换发或失效后不能跨会话重试。
+      </p>
+      <div class="ui-row">
+        <UiButton :disabled="s.auth.state.busy" @click="s.checkCurrent('password')"
+          >检查当前会话</UiButton
+        ><UiButton :disabled="s.auth.state.busy" @click="s.retryOriginal">重试原请求</UiButton
+        ><UiButton variant="ghost" @click="s.abandonOperation">放弃本次页面操作</UiButton>
+      </div>
+    </div>
+    <UiButton
+      v-else-if="s.auth.personal.passwordProgress?.phase === 'session-unconfirmed'"
+      :disabled="s.auth.state.busy"
+      @click="s.checkCurrent('password')"
+      >检查新会话</UiButton
+    >
+  </form>
+</template>

@@ -49,6 +49,30 @@ function deferred<T>() {
 }
 function fixture() {
   const api = {
+    getProfile: vi.fn<AccountAPI['getProfile']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    updateProfile: vi.fn<AccountAPI['updateProfile']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    getPreferences: vi.fn<AccountAPI['getPreferences']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    setPreferences: vi.fn<AccountAPI['setPreferences']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    readAvatar: vi.fn<AccountAPI['readAvatar']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    putAvatar: vi.fn<AccountAPI['putAvatar']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    deleteAvatar: vi.fn<AccountAPI['deleteAvatar']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    changePassword: vi.fn<AccountAPI['changePassword']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
     bootstrap: vi.fn<AccountAPI['bootstrap']>(async () => ({
       csrf_token: anonymous,
       challenge_modes: ['rotate'] as ['rotate'],

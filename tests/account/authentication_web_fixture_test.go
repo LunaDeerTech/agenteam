@@ -37,6 +37,7 @@ type authenticationWebFixture struct {
 	origin, directory, webRoot string
 	entry                      httpRecoveryRecord
 	log                        *httpFixtureLog
+	record                     func(purpose, email, exactID string) httpRecoveryRecord
 }
 
 // Only this test server hosts the production dist. The production Central root
@@ -184,7 +185,7 @@ func newAuthenticationWebFixture(t *testing.T, ctx context.Context) *authenticat
 	if err := os.WriteFile(filepath.Join(directory, "credentials.json"), material, 0600); err != nil {
 		t.Fatal("private bootstrap transfer failed")
 	}
-	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output}
+	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output, record: old.record}
 	t.Cleanup(func() {
 		if output.contains(entry.Password) {
 			t.Error("bootstrap material escaped the restricted recovery log")

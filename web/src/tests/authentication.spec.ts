@@ -48,6 +48,30 @@ let wrapper: VueWrapper | undefined
 async function page(path = '/login', unavailable = false) {
   let signedIn = false
   const api = {
+    getProfile: vi.fn<AccountAPI['getProfile']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    updateProfile: vi.fn<AccountAPI['updateProfile']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    getPreferences: vi.fn<AccountAPI['getPreferences']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    setPreferences: vi.fn<AccountAPI['setPreferences']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    readAvatar: vi.fn<AccountAPI['readAvatar']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    putAvatar: vi.fn<AccountAPI['putAvatar']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    deleteAvatar: vi.fn<AccountAPI['deleteAvatar']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
+    changePassword: vi.fn<AccountAPI['changePassword']>(async () => {
+      throw new Error('unexpected personal request')
+    }),
     bootstrap: vi.fn<AccountAPI['bootstrap']>(async () => ({
       csrf_token: 'A'.repeat(43),
       challenge_modes: ['rotate'],
@@ -125,7 +149,8 @@ describe('formal authentication pages', () => {
     expect(p.wrapper.get('.account-name').text()).toBe(view.user.email)
     expect(p.wrapper.text()).toContain('建议之后更换')
     expect(document.documentElement.dataset.theme).toBe('dark')
-    expect(p.wrapper.find('a[href*="settings"]').exists()).toBe(false)
+    expect(p.wrapper.find('a[href="/settings/profile"]').exists()).toBe(true)
+    expect(p.wrapper.find('a[href="/settings/password"]').exists()).toBe(true)
     expect(p.wrapper.find('a[href*="project"]').exists()).toBe(false)
     // Initial restore, login confirmation, and the single protected navigation.
     expect(p.api.getSession).toHaveBeenCalledTimes(3)

@@ -22,6 +22,17 @@ export const router = createRouter({
       meta: { authentication: true, protected: true },
     },
     { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+    {
+      path: '/settings',
+      component: () => import('../views/settings/PersonalSettingsView.vue'),
+      meta: { authentication: true, protected: true },
+      redirect: '/settings/profile',
+      children: [
+        { path: 'profile', component: () => import('../views/settings/ProfileSettings.vue') },
+        { path: 'appearance', component: () => import('../views/settings/AppearanceSettings.vue') },
+        { path: 'password', component: () => import('../views/settings/PasswordSettings.vue') },
+      ],
+    },
     ...pages,
     { path: '/:pathMatch(.*)*', component: NotFoundView },
   ],

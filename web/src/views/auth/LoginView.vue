@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onMounted, onUnmounted, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
+import { safeReturnTarget } from '../../router/auth'
 import { useSession } from '../../composables/useSession'
 import UiButton from '../../components/ui/UiButton.vue'
 import UiInput from '../../components/ui/UiInput.vue'
@@ -10,7 +11,8 @@ import RotateChallenge from '../../components/account/RotateChallenge.vue'
 
 const auth = useSession(),
   state = auth.state,
-  router = useRouter()
+  router = useRouter(),
+  route = useRoute()
 const email = ref(''),
   password = ref('')
 const heading = ref<HTMLElement | null>(null),
@@ -100,7 +102,7 @@ watch(
       navigating = true
       clearForm()
       try {
-        await router.replace('/')
+        await router.replace(safeReturnTarget(route.query.return))
       } finally {
         navigating = false
       }

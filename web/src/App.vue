@@ -1,14 +1,23 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, watch } from 'vue'
+import { onMounted, onUnmounted, provide, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import AppShell from './components/layout/AppShell.vue'
 import UiButton from './components/ui/UiButton.vue'
 import UiState from './components/ui/UiState.vue'
+import UiDialog from './components/ui/UiDialog.vue'
 import { useSession } from './composables/useSession'
+import { createPersonalSettings, personalSettingsKey } from './composables/usePersonalSettings'
+import { installPersonalNavigation } from './router/auth'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
   router = useRouter()
+const settings = createPersonalSettings(auth)
+provide(personalSettingsKey, settings)
+const stopPersonalNavigation = installPersonalNavigation(router, settings)
+async function logout() {
+  if (await settings.confirmLeave()) await auth.logout()
+}
 async function refreshVisible() {
   if (document.visibilityState === 'hidden' || !route.meta.authentication || state.busy) return
   await auth.restore()
@@ -34,6 +43,8 @@ onMounted(() => {
 onUnmounted(() => {
   document.removeEventListener('visibilitychange', refreshVisible)
   window.removeEventListener('pageshow', refreshVisible)
+  stopPersonalNavigation()
+  settings.dispose()
   auth.leave()
 })
 </script>
@@ -41,18 +52,19 @@ onUnmounted(() => {
   <AppShell v-if="route.meta.protected" class="authentication-shell">
     <template #account>
       <div class="account-actions">
-        <span
+        <RouterLink
           v-if="state.user"
           class="account-name"
+          to="/settings/profile"
           :title="state.user.display_name || state.user.email"
-          >{{ state.user.display_name || state.user.email }}</span
+          >{{ state.user.display_name || state.user.email }}</RouterLink
         >
         <UiButton
           v-if="state.phase === 'authenticated' || state.phase === 'signing-out'"
           variant="ghost"
           :state="state.phase === 'signing-out' ? 'loading' : 'idle'"
           :disabled="state.busy"
-          @click="auth.logout"
+          @click="logout"
           >退出登录</UiButton
         >
       </div>
@@ -77,6 +89,19 @@ onUnmounted(() => {
     </div>
   </AppShell>
   <RouterView v-else />
+  <UiDialog
+    :open="settings.confirmation.open"
+    :title="settings.confirmation.title"
+    @update:open="!$event && settings.finishConfirmation(false)"
+  >
+    <p>{{ settings.confirmation.message }}</p>
+    <template #footer
+      ><UiButton variant="ghost" @click="settings.finishConfirmation(false)">继续编辑</UiButton
+      ><UiButton @click="settings.finishConfirmation(true)">{{
+        settings.confirmation.label
+      }}</UiButton></template
+    >
+  </UiDialog>
 </template>
 <style scoped>
 .authentication-shell :deep(.system-nav) {

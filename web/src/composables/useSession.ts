@@ -7,6 +7,14 @@ import {
   type Session,
   type SessionView,
   type User,
+  type AvatarDownload,
+  type AvatarMedia,
+  type PasswordInput,
+  type PreferencesView,
+  type ProfileInput,
+  type ProfileView,
+  type Theme,
+  type Version,
 } from '../api/account'
 import { AccountFailure, type Problem } from '../api/client'
 import { useTheme } from './useTheme'
@@ -47,7 +55,7 @@ interface LogoutIntent {
   csrf: string
 }
 type Intent = LoginIntent | LogoutIntent
-type Action = 'restore' | 'login' | 'logout'
+type Action = 'restore' | 'login' | 'logout' | 'personal'
 interface Operation {
   generation: number
   kind: Action
@@ -55,7 +63,35 @@ interface Operation {
   expired: boolean
   confirmed: boolean
   visible: Promise<void>
+  abandon?: () => void
 }
+
+export type PersonalIdentity = Readonly<{ userID: string; sessionID: string; epoch: number }>
+export type PasswordConfirmation =
+  | Readonly<{ commandConfirmed: true; sessionConfirmed: true }>
+  | Readonly<{ commandConfirmed: true; sessionConfirmed: false; failure: AccountFailure }>
+export type PersonalMutationResult =
+  | Readonly<{ kind: 'profile' | 'avatar-put'; value: ProfileView }>
+  | Readonly<{ kind: 'preferences'; value: PreferencesView }>
+  | Readonly<{ kind: 'avatar-delete' }>
+  | Readonly<{ kind: 'password'; value: PasswordConfirmation }>
+type PasswordProgress = Readonly<{
+  identity: PersonalIdentity
+  requestGeneration: number
+  phase: 'confirming-session' | 'confirmed' | 'session-unconfirmed'
+}>
+type PersonalCommand = (
+  | { kind: 'profile'; input: ProfileInput }
+  | { kind: 'preferences'; input: PreferencesView }
+  | {
+      kind: 'avatar-put'
+      input: Readonly<{ version: Version; file: File; mediaType: AvatarMedia }>
+    }
+  | { kind: 'avatar-delete'; input: Readonly<{ version: Version }> }
+  | { kind: 'password'; input: PasswordInput | null }
+) & { identity: PersonalIdentity; key: string; csrf: string; checked: boolean; unsettled: boolean }
+const sameIdentity = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
+  !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
 
 const unavailableSession = (e: unknown) =>
   e instanceof AccountFailure &&
@@ -95,6 +131,20 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
   let challengeAbort: AbortController | null = null
   const challengeTails = new Set<Promise<void>>()
   let pending = false
+  const personalContext = shallowReactive<{
+    phase: 'current' | 'checking' | 'invalid'
+    identity: PersonalIdentity | null
+  }>({ phase: 'invalid', identity: null })
+  const personalState = shallowReactive<{ passwordProgress: PasswordProgress | null }>({
+    passwordProgress: null,
+  })
+  let identityEpoch = 0,
+    personalRevision = 0
+  let trustedUser: User | null = null
+  let personalIntent: PersonalCommand | null = null
+  let preview: { identity: PersonalIdentity; theme: Theme } | null = null
+  let passwordSessionCheck = false
+  let passwordExpected: PersonalIdentity | null = null
   const valid = (op: Operation) => generation === op.generation && !op.expired
   function clearChallenge() {
     ++challengeGeneration
@@ -105,11 +155,32 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     state.passReady = false
     if (intent?.kind === 'login') delete intent.pass
   }
-  function clearIdentity() {
+  function applyTheme() {
+    useTheme().setTheme(
+      sameIdentity(preview?.identity ?? null, personalContext.identity)
+        ? preview!.theme
+        : (trustedUser?.theme ?? 'system'),
+    )
+  }
+  function clearIdentity(invalidate = true) {
     state.user = null
     state.session = null
-    sessionCSRF = ''
-    useTheme().setTheme('system')
+    if (invalidate) {
+      sessionCSRF = ''
+      ++identityEpoch
+      ++personalRevision
+      personalContext.identity = null
+      personalContext.phase = 'invalid'
+      trustedUser = null
+      preview = null
+      personalIntent = null
+      personalState.passwordProgress = null
+      passwordSessionCheck = false
+      passwordExpected = null
+    } else {
+      personalContext.phase = 'checking'
+    }
+    applyTheme()
   }
   function forgetIntent() {
     clearChallenge()
@@ -132,7 +203,35 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     )
   }
   function publish(view: SessionView) {
-    state.user = view.user
+    if (
+      passwordExpected &&
+      (view.user.id !== passwordExpected.userID || view.session.id === passwordExpected.sessionID)
+    )
+      throw new AccountFailure('invalid-response')
+    const passwordChecked = passwordExpected
+    const previous = personalContext.identity
+    const same =
+      previous?.userID === view.user.id &&
+      previous.sessionID === view.session.id &&
+      (!sessionCSRF || sessionCSRF === view.csrf_token)
+    if (!same) {
+      ++personalRevision
+      personalContext.identity = Object.freeze({
+        userID: view.user.id,
+        sessionID: view.session.id,
+        epoch: ++identityEpoch,
+      })
+      personalIntent = null
+      preview = null
+    } else if (personalIntent) personalIntent.checked = true
+    personalContext.phase = 'current'
+    passwordSessionCheck = false
+    passwordExpected = null
+    trustedUser =
+      same && trustedUser && BigInt(trustedUser.version) > BigInt(view.user.version)
+        ? trustedUser
+        : Object.freeze({ ...view.user })
+    state.user = trustedUser
     state.session = view.session
     sessionCSRF = view.csrf_token
     clearBrowser()
@@ -141,7 +240,9 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     state.phase = 'authenticated'
     state.notice = ''
     state.fields = {}
-    useTheme().setTheme(view.user.theme)
+    if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
+      personalState.passwordProgress = { ...personalState.passwordProgress, phase: 'confirmed' }
+    applyTheme()
   }
   function fields(problem?: Problem) {
     const result: Record<string, string> = {}
@@ -156,7 +257,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
     state.fields = fields(e.problem)
     if (op.kind === 'restore' || op.confirmed) {
-      clearIdentity()
+      clearIdentity(false)
       state.phase = pending ? 'uncertain' : 'unavailable'
       state.notice = op.confirmed
         ? '登录响应已接收，但当前会话尚未确认。请检查当前会话。'
@@ -267,7 +368,7 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
       // A restored identity is never displayed while its current authority is unknown.
       const previous = state.session?.id
       const previousCSRF = sessionCSRF
-      clearIdentity()
+      clearIdentity(false)
       try {
         const result = await api.getSession(op.abort.signal)
         if (!valid(op)) return
@@ -387,7 +488,8 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
     })
   }
   function logout() {
-    if (owner || pending || !state.session || !sessionCSRF) return Promise.resolve()
+    if (owner || pending || passwordSessionCheck || !state.session || !sessionCSRF)
+      return Promise.resolve()
     try {
       intent = { kind: 'logout', key: newKey(), session: state.session.id, csrf: sessionCSRF }
       return performLogout(intent)
@@ -522,7 +624,361 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
       '验证未确认，请请求新题。',
     )
   }
+  function personalIdentity(): PersonalIdentity {
+    if (owner) throw new AccountFailure('busy')
+    if (
+      personalContext.phase !== 'current' ||
+      !personalContext.identity ||
+      state.phase !== 'authenticated' ||
+      !sessionCSRF ||
+      passwordSessionCheck
+    )
+      throw new AccountFailure('invalid-input')
+    return personalContext.identity
+  }
+  function personalFailure(identity: PersonalIdentity, error: unknown) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    if (
+      sameIdentity(identity, personalContext.identity) &&
+      (unavailableSession(e) || e.problem?.code === 'CSRF_FAILED')
+    ) {
+      clearIdentity()
+      clearBrowser()
+      state.phase = 'unavailable'
+      state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
+    }
+    return e
+  }
+  function acceptUser(identity: PersonalIdentity, value: User) {
+    if (!sameIdentity(identity, personalContext.identity) || value.id !== identity.userID)
+      throw new AccountFailure('invalid-response')
+    if (!trustedUser || BigInt(value.version) >= BigInt(trustedUser.version)) {
+      trustedUser = Object.freeze({ ...value })
+      if (state.phase === 'authenticated') state.user = trustedUser
+      applyTheme()
+    }
+  }
+  function runPersonal<T>(
+    identity: PersonalIdentity,
+    work: (op: Operation, current: () => boolean) => Promise<T>,
+    command?: PersonalCommand,
+  ): Promise<T> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    const revision = personalRevision
+    const op: Operation = {
+      kind: 'personal',
+      generation: ++generation,
+      abort: new AbortController(),
+      expired: false,
+      confirmed: false,
+      visible: Promise.resolve(),
+    }
+    const current = () =>
+      valid(op) && revision === personalRevision && sameIdentity(identity, personalContext.identity)
+    owner = op
+    state.busy = true
+    let resolveVisible!: (value: T) => void, rejectVisible!: (failure: AccountFailure) => void
+    const visible = new Promise<T>((resolve, reject) => {
+      resolveVisible = resolve
+      rejectVisible = reject
+    })
+    op.visible = visible.then(
+      () => undefined,
+      () => undefined,
+    )
+    const unknown = (e: AccountFailure) => {
+      if (command && personalIntent === command && isUnknown(e)) {
+        command.checked = false
+        command.unsettled = true
+      }
+      if (command?.kind === 'password' && sameIdentity(identity, personalContext.identity))
+        passwordSessionCheck = true
+    }
+    const endVisible = (e: AccountFailure) => {
+      if (command?.kind === 'password' && op.confirmed) {
+        if (current())
+          personalState.passwordProgress = {
+            identity,
+            requestGeneration: op.generation,
+            phase: 'session-unconfirmed',
+          }
+        resolveVisible({
+          kind: 'password',
+          value: { commandConfirmed: true, sessionConfirmed: false, failure: e },
+        } as T)
+      } else {
+        unknown(e)
+        rejectVisible(e)
+      }
+    }
+    op.abandon = () => {
+      endVisible(new AccountFailure('cancelled'))
+      // A password response can rotate the Cookie. Keep its original bounded
+      // POST -> Session check alive even when its page no longer consumes it.
+      if (command?.kind !== 'password') op.abort.abort()
+    }
+    const timer = setTimeout(() => {
+      endVisible(new AccountFailure('cancelled'))
+      op.expired = true
+      op.abort.abort()
+    }, 30_000)
+    // This is the same owner as authentication, not another queue. The visible
+    // promise is bounded; actual body/cancel completion alone releases ownership.
+    const actual = Promise.resolve()
+      .then(async () => {
+        if (!current()) throw new AccountFailure('cancelled')
+        const result = await work(op, current)
+        const confirmedPassword = command?.kind === 'password' && op.confirmed
+        if (!current() && !confirmedPassword) throw new AccountFailure('cancelled')
+        return result
+      })
+      .catch((error: unknown) => {
+        const e = personalFailure(identity, error)
+        if (command && personalIntent === command) {
+          if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
+            command.checked = false
+            command.unsettled = true
+          } else personalIntent = null
+        }
+        if (command?.kind === 'password' && !op.confirmed) {
+          if (isUnknown(e)) unknown(e)
+          else if (sameIdentity(identity, personalContext.identity)) passwordSessionCheck = false
+        }
+        if (command?.kind === 'password' && op.confirmed)
+          return {
+            kind: 'password',
+            value: { commandConfirmed: true, sessionConfirmed: false, failure: e },
+          } as T
+        throw e
+      })
+      .finally(() => {
+        clearTimeout(timer)
+        op.abandon = undefined
+        if (owner === op) {
+          owner = null
+          state.busy = false
+        }
+      })
+    void actual.then(resolveVisible, rejectVisible)
+    return visible
+  }
+  function readPersonal<T>(
+    work: (identity: PersonalIdentity, op: Operation, current: () => boolean) => Promise<T>,
+  ): Promise<T> {
+    try {
+      const identity = personalIdentity()
+      return runPersonal(identity, (op, current) => work(identity, op, current))
+    } catch (e) {
+      return Promise.reject(e)
+    }
+  }
+  function startPersonal(
+    command: Omit<PersonalCommand, 'identity' | 'key' | 'csrf' | 'checked' | 'unsettled'>,
+  ): Promise<PersonalMutationResult> {
+    try {
+      const identity = personalIdentity()
+      if (personalIntent) throw new AccountFailure('busy')
+      personalState.passwordProgress = null
+      const original = {
+        ...command,
+        identity,
+        key: newKey(),
+        csrf: sessionCSRF,
+        checked: true,
+        unsettled: false,
+      } as PersonalCommand
+      personalIntent = original
+      return performPersonal(original)
+    } catch (e) {
+      return Promise.reject(e)
+    }
+  }
+  function performPersonal(original: PersonalCommand): Promise<PersonalMutationResult> {
+    const identity = original.identity
+    return runPersonal(
+      identity,
+      async (op, current) => {
+        const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+        let result: PersonalMutationResult
+        switch (original.kind) {
+          case 'profile': {
+            const value = await api.updateProfile(original.input, options)
+            if (current()) acceptUser(identity, value.user)
+            result = { kind: original.kind, value }
+            break
+          }
+          case 'avatar-put': {
+            const value = await api.putAvatar(original.input, options)
+            if (current()) acceptUser(identity, value.user)
+            result = { kind: original.kind, value }
+            break
+          }
+          case 'preferences': {
+            const value = await api.setPreferences(original.input, options)
+            if (current() && trustedUser) acceptUser(identity, { ...trustedUser, ...value })
+            result = { kind: original.kind, value }
+            break
+          }
+          case 'avatar-delete':
+            await api.deleteAvatar(original.input, options)
+            result = { kind: original.kind }
+            break
+          case 'password': {
+            if (!original.input) throw new AccountFailure('invalid-input')
+            passwordSessionCheck = true
+            await api.changePassword(original.input, options)
+            // The exact 200 is a command fact, independent of the following GET.
+            original.input = null
+            op.confirmed = true
+            if (sameIdentity(identity, personalContext.identity)) passwordExpected = identity
+            if (personalIntent === original) personalIntent = null
+            if (current())
+              personalState.passwordProgress = {
+                identity,
+                requestGeneration: op.generation,
+                phase: 'confirming-session',
+              }
+            try {
+              if (op.abort.signal.aborted) throw new AccountFailure('cancelled')
+              const view = await api.getSession(op.abort.signal)
+              if (view.user.id !== identity.userID || view.session.id === identity.sessionID)
+                throw new AccountFailure('invalid-response')
+              // Page abandonment cannot skip Cookie reconciliation. Publication is
+              // still restricted to this original actual owner/identity and deadline.
+              if (valid(op) && sameIdentity(identity, personalContext.identity)) {
+                const showProgress = current()
+                publish(view)
+                if (showProgress)
+                  personalState.passwordProgress = {
+                    identity,
+                    requestGeneration: op.generation,
+                    phase: 'confirmed',
+                  }
+              } else throw new AccountFailure('cancelled')
+              result = {
+                kind: 'password',
+                value: { commandConfirmed: true, sessionConfirmed: true },
+              }
+            } catch (error) {
+              const e = personalFailure(identity, error)
+              if (valid(op) && sameIdentity(identity, personalContext.identity)) {
+                if (current())
+                  personalState.passwordProgress = {
+                    identity,
+                    requestGeneration: op.generation,
+                    phase: 'session-unconfirmed',
+                  }
+                clearIdentity(false)
+                state.phase = 'unavailable'
+                state.notice =
+                  '密码修改已确认，但新会话尚未确认。请检查当前会话或重新登录，不要再次提交改密。'
+              }
+              result = {
+                kind: 'password',
+                value: { commandConfirmed: true, sessionConfirmed: false, failure: e },
+              }
+            }
+            break
+          }
+        }
+        if (personalIntent === original) personalIntent = null
+        return result
+      },
+      original,
+    )
+  }
+  const personal = {
+    get passwordProgress() {
+      return readonly(personalState).passwordProgress
+    },
+    getProfile(): Promise<ProfileView> {
+      return readPersonal(async (identity, op, current) => {
+        const value = await api.getProfile(op.abort.signal)
+        if (current()) acceptUser(identity, value.user)
+        return value
+      })
+    },
+    getPreferences(): Promise<PreferencesView> {
+      return readPersonal(async (identity, op, current) => {
+        const value = await api.getPreferences(op.abort.signal)
+        if (current() && trustedUser) acceptUser(identity, { ...trustedUser, ...value })
+        return value
+      })
+    },
+    readAvatar(): Promise<AvatarDownload> {
+      return readPersonal((_identity, op) => api.readAvatar(op.abort.signal))
+    },
+    async updateProfile(input: ProfileInput): Promise<ProfileView> {
+      const result = await startPersonal({ kind: 'profile', input: Object.freeze({ ...input }) })
+      if (result.kind !== 'profile') throw new AccountFailure('invalid-response')
+      return result.value
+    },
+    async setPreferences(input: PreferencesView): Promise<PreferencesView> {
+      const result = await startPersonal({
+        kind: 'preferences',
+        input: Object.freeze({ ...input }),
+      })
+      if (result.kind !== 'preferences') throw new AccountFailure('invalid-response')
+      return result.value
+    },
+    async putAvatar(
+      input: Readonly<{ version: Version; file: File; mediaType: AvatarMedia }>,
+    ): Promise<ProfileView> {
+      const result = await startPersonal({ kind: 'avatar-put', input: Object.freeze({ ...input }) })
+      if (result.kind !== 'avatar-put') throw new AccountFailure('invalid-response')
+      return result.value
+    },
+    async deleteAvatar(input: Readonly<{ version: Version }>): Promise<void> {
+      const result = await startPersonal({
+        kind: 'avatar-delete',
+        input: Object.freeze({ ...input }),
+      })
+      if (result.kind !== 'avatar-delete') throw new AccountFailure('invalid-response')
+    },
+    async changePassword(input: PasswordInput): Promise<PasswordConfirmation> {
+      const result = await startPersonal({ kind: 'password', input: Object.freeze({ ...input }) })
+      if (result.kind !== 'password') throw new AccountFailure('invalid-response')
+      return result.value
+    },
+    retryOriginal(): Promise<PersonalMutationResult> {
+      try {
+        const identity = personalIdentity()
+        if (
+          !personalIntent ||
+          !personalIntent.checked ||
+          !sameIdentity(identity, personalIntent.identity) ||
+          personalIntent.csrf !== sessionCSRF
+        )
+          throw new AccountFailure('invalid-input')
+        return performPersonal(personalIntent)
+      } catch (e) {
+        return Promise.reject(e)
+      }
+    },
+    abandon() {
+      ++personalRevision
+      personalIntent = null
+      personalState.passwordProgress = null
+      owner?.abandon?.()
+    },
+    previewTheme(identity: PersonalIdentity, value: Theme) {
+      if (
+        personalContext.phase !== 'current' ||
+        !sameIdentity(identity, personalContext.identity) ||
+        !['system', 'light', 'dark'].includes(value)
+      )
+        return
+      preview = { identity, theme: value }
+      applyTheme()
+    },
+    clearThemePreview(identity: PersonalIdentity) {
+      if (!sameIdentity(identity, preview?.identity ?? null)) return
+      preview = null
+      applyTheme()
+    },
+  }
   function leave() {
+    owner?.abandon?.()
     ++generation
     forgetIntent()
     expectedSession = null
@@ -546,6 +1002,8 @@ export function createSessionController(api: AccountAPI = createAccountAPI()) {
   }
   return {
     state: readonly(state),
+    personalContext: readonly(personalContext),
+    personal,
     restore,
     login,
     logout,
