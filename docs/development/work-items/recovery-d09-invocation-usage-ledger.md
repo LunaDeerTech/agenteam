@@ -1,6 +1,6 @@
 # D09 Invocation / Usage 事务账本恢复卡
 
-修订：rev1 已独立规格静审通过并获主线程采纳，接受提交已推送 `9aad5f5d26bf5af066390a8bd35b91d57d6b8c8b`；被审卡 SHA-256 `d53835cb79618b5cea487e8d84161cdc2e4f3a9900c6d35a86a258f75f795cab`，固定已验业务 `4295df7d51c1f171df78ab3f0d9cef2fd241a505` 不变。独立报告原定位 `/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/review.md`、SHA-256 `1fd29dfd4e7c9892440c8d6abbcb074f9e5f9964ec6b7535d3ba744f32576de0`，现见[持久规格档案](../agent-team/invocation-usage-ledger-spec-verification.md)。主线程已授权 `recovery_handoff`（backend_worker）实施 §9 精确 20 路径，独立验收负责人 `restore_test_dependencies`；含唯一 `00018_model_invocation_usage.sql` 的实施权，R4 不占 00018，但业务和迁移尚未验收。规格作者 `d08_recovery_design`（architecture_worker）；§1–10 保持被审原文，其中候选/待审/未授权表述为冻结时状态，当前行政状态以本段及末尾移交说明为准。不再委派。
+修订：rev1 已独立规格静审通过并获主线程采纳，接受提交已推送 `9aad5f5d26bf5af066390a8bd35b91d57d6b8c8b`；被审卡 SHA-256 `d53835cb79618b5cea487e8d84161cdc2e4f3a9900c6d35a86a258f75f795cab`，固定已验业务 `4295df7d51c1f171df78ab3f0d9cef2fd241a505` 不变。独立报告原定位 `/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/review.md`、SHA-256 `1fd29dfd4e7c9892440c8d6abbcb074f9e5f9964ec6b7535d3ba744f32576de0`，现见[持久规格档案](../agent-team/invocation-usage-ledger-spec-verification.md)。主线程已授权 `recovery_handoff`（backend_worker）实施 §9 精确 20 路径，独立验收负责人 `restore_test_dependencies`；含唯一 `00018_model_invocation_usage.sql` 的实施权，R4 不占 00018，但业务和迁移尚未验收。规格作者 `d08_recovery_design`（architecture_worker）；除末尾记录的 PG 版本验收口径更正外，§1–10 保持被审原文，其中候选/待审/未授权表述为冻结时状态，当前行政状态以本段及末尾移交说明为准。不再委派。
 
 必读 [设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)、[D09 工程规格 §5–8](d09-model-system-token-usage-design.md#5-调用reservation-与用量原子事实)、[Model / Usage 架构](../../architecture/platform-infrastructure/model-token-usage.md)、[Runtime 架构](../../architecture/platform-infrastructure/model-system/chat-model-runtime.md)及 [C0 Usage](../../../internal/central/usage/contract/types.go)。本卡精化一个完整库级结果，不复制 Runtime 的调用、恢复或产品规则。
 
@@ -246,7 +246,7 @@ DB Unknown 仅用实际 PG 事务结果的受控 Store 装饰器及普通 mutex/
 4. `TestUsageInvocationUnknownConfirmation`：实际提交/回滚后装饰Unknown、锁竞争有界失败与之后真实读取，exact回执/缺行区别；原state/cause/attempt、DB Unknown与dispatch_unknown分离、仍仅原请求的真实发送，禁止自动重发；取消不当作原writer终局。
 5. `TestUsageReaderNonemptyPagination`：实际非空多页、全部Filter/八GroupBy、NULL组、0/NULL/混合分母、status只按C0计数、默认30日固定cursor/显式历史范围/不同limit；同User新合法Session可续但旧Session不可，换Actor/project/filter/group/order或篡改拒绝；archived读与deleting拒沿真实gate，非本卡Archive实现。
 6. `TestUsageExecutionSummaryRebuild`：多个真实调用相同Execution的汇总、无Execution不造行、错Project/未知Execution、缺失/有效结构但错误摘要修复、重复重建、与Observe/Finalize普通并发互斥；canonical聚合与摘要逐六字段/计数/版本精确比较，不只断言count大于0。
-7. `TestUsageSchemaAndHistory`：PG17 fresh prefix1..18、PG16 populated1..17升级、原字节失败重试/约束反例、nullableFK/安全历史保留；通过正式Model配置删除方法删除无真实引用的Provider/Model后，历史Usage仍可读、live FK为空、回执可确认。不得直接改外域表伪造合法删除，也不解除未来Agent/project_summary引用缺adapter的拒绝。
+7. `TestUsageSchemaAndHistory`：PG17 fresh prefix1..18、PG17 populated prefix1..17→18（均沿 D03 支持的 PostgreSQL 17.x、最低17.8）；PG16仅为既有不支持版本反例，不作为升级成功环境；原字节失败重试/约束反例、nullableFK/安全历史保留；通过正式Model配置删除方法删除无真实引用的Provider/Model后，历史Usage仍可读、live FK为空、回执可确认。不得直接改外域表伪造合法删除，也不解除未来Agent/project_summary引用缺adapter的拒绝。
 8. `TestUsageQueryBudgetAndSafety`：确定的大数据统计fixture/实际EXPLAIN，2s含锁等待、无部分或截断总数、nullable和numeric溢出；cursor最大8标量与8KiB token边界，坏持久JSON/摘要/版本安全失败；错误/日志/回执/读DTO无材料/输入/endpoint/响应正文。性能fixture与真实发送证据分开标记。
 
 适用旧回归包括 C0 model/usage、current_resolution、Secret Model planned read、Project配置/Owner/currentSession、text/structured wire；选择受接口/schema/fixture影响的实际顶层并记录，不机械全跑无关模块。Default root 与未启用本包的System功能须仍编译/行为兼容；不要求在root装配Usage以过测。
@@ -259,4 +259,12 @@ DB Unknown 仅用实际 PG 事务结果的受控 Store 装饰器及普通 mutex/
 
 主线程已采纳独立 STATIC PASS，精确提交推送本卡 `9aad5f5d26bf5af066390a8bd35b91d57d6b8c8b`，随后正式授权 `recovery_handoff` 按固定业务 `4295df7` 实施 §9 的 20 路径，含唯一 00018 迁移；`restore_test_dependencies` 负责独立验收。实施授权不等于业务、SQL、性能或真实运行通过，本次文档归位不授任何额外路径或共享资源窗口。
 
-[规格档案与原证据](../agent-team/invocation-usage-ledger-spec-verification.md)保留被审 rev1、19 输入 Git 定位、13 接缝指纹、作者及独立检查、采纳行政差量。§1–10 技术正文逐字保持，后续验收仍须满足其中全部门槛。生产 Facts/Runtime 绑定、DB Unknown/dispatch unknown 区分、暂停 Object/Artifact、Summary 与 ready503 等限制不变；尚无完整 D09 或生产装配交付结论。
+[规格档案与原证据](../agent-team/invocation-usage-ledger-spec-verification.md)保留被审 rev1、19 输入 Git 定位、13 接缝指纹、作者及独立检查、采纳行政差量。除下述 §10 第7项 PG 版本验收口径更正外，§1–10 技术正文逐字保持，后续验收仍须满足其中全部门槛。生产 Facts/Runtime 绑定、DB Unknown/dispatch unknown 区分、暂停 Object/Artifact、Summary 与 ready503 等限制不变；尚无完整 D09 或生产装配交付结论。
+
+### PG 版本验收口径更正（2026-10-05）
+
+已接受 rev1 的 §10 第7项曾写成“PG16 populated1..17升级”，该口径错误；原规格及原静审事实仍保留于上列持久档案，不追改为当时已经正确。本次仅将正向迁移验收更正为 **PG17 fresh prefix1..18，以及 PG17 populated prefix1..17→18**；PG16仅沿既有不支持版本反例。
+
+依据为固定业务 `4295df7d51c1f171df78ab3f0d9cef2fd241a505` 的 [store.go](../../../internal/central/postgres/store.go) `checkCompatibility` 第254–255行与 [journal.go](../../../internal/central/postgres/journal.go) `checkSQLCompatibility` 第219–220行：两处均要求 `version/10000 == 17 && version%10000 >= 8`，否则返回 `VersionUnsupported`。固定 [fixture.go](../../../tests/testsupport/postgres/fixture.go) 的 `UnsupportedImage` / `UnsupportedEnv` 对应PG16，既有 [security_test.go](../../../tests/database/security_test.go) 第113–139行核Store及迁移器拒绝该版本。这里的17.8下界限于17.x，不包含其它major。
+
+这是规格验收口径更正，**不是生产兼容范围变更**，不修改 D03、fixture、SQL、实施20路径或其它业务/权限门槛，不证明新迁移已通过。本次没有运行 Go、PG、Docker 或 fixture。
