@@ -133,6 +133,7 @@ type providerInput struct {
 	Options      json.RawMessage
 }
 type providerRecord struct {
+	Project              string `json:",omitempty"`
 	ID                   string
 	Input                providerInput
 	Version              f.Version
@@ -153,7 +154,7 @@ func (r providerRecord) view() (mc.ProviderView, error) {
 		if e != nil {
 			return mc.ProviderView{}, unavailable(e)
 		}
-		ref, e := sc.NewCredentialRef(cid, id.SystemScope())
+		ref, e := sc.NewCredentialRef(cid, configurationScope(r.Project))
 		if e != nil {
 			return mc.ProviderView{}, unavailable(e)
 		}
@@ -163,7 +164,7 @@ func (r providerRecord) view() (mc.ProviderView, error) {
 	if e != nil {
 		return mc.ProviderView{}, unavailable(e)
 	}
-	v := mc.ProviderView{ID: pid, Scope: id.SystemScope(), Input: i, Version: r.Version, CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt}
+	v := mc.ProviderView{ID: pid, Scope: configurationScope(r.Project), Input: i, Version: r.Version, CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt}
 	if e = v.Validate(); e != nil {
 		return mc.ProviderView{}, unavailable(e)
 	}
@@ -175,7 +176,10 @@ type scanner interface{ Scan(...any) error }
 const providerColumns = `id::text,name,protocol,base_url,enabled,credential_id::text,provider_options,version,created_at,updated_at`
 
 func scanProvider(row scanner) (*providerRecord, error) {
-	var r providerRecord
+	return scanProviderScope(row, id.SystemScope())
+}
+func scanProviderScope(row scanner, scope id.Scope) (*providerRecord, error) {
+	r := providerRecord{Project: scope.Details().ProjectID}
 	var cid *string
 	var created, updated time.Time
 	err := row.Scan(&r.ID, &r.Input.Name, &r.Input.Protocol, &r.Input.BaseURL, &r.Input.Enabled, &cid, &r.Input.Options, &r.Version, &created, &updated)
@@ -200,6 +204,7 @@ func loadProvider(ctx context.Context, x postgres.SQLExecutor, id string) (*prov
 }
 
 type modelRecord struct {
+	Project              string `json:",omitempty"`
 	ID, ProviderID       string
 	Input                mc.ModelInput
 	Version              f.Version
@@ -215,7 +220,7 @@ func (r modelRecord) view() (mc.ModelView, error) {
 	if e != nil {
 		return mc.ModelView{}, unavailable(e)
 	}
-	v := mc.ModelView{ID: mid, ProviderID: pid, Scope: id.SystemScope(), Input: r.Input.Clone(), Version: r.Version, CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt}
+	v := mc.ModelView{ID: mid, ProviderID: pid, Scope: configurationScope(r.Project), Input: r.Input.Clone(), Version: r.Version, CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt}
 	if e = v.Validate(); e != nil {
 		return mc.ModelView{}, unavailable(e)
 	}
@@ -225,7 +230,10 @@ func (r modelRecord) view() (mc.ModelView, error) {
 const modelColumns = `m.id::text,m.provider_id::text,m.name,m.provider_model_id,m.type,m.enabled,m.parameters,m.request_overwrite,m.header_overwrite,m.capabilities,m.version,m.created_at,m.updated_at`
 
 func scanModel(row scanner) (*modelRecord, error) {
-	var r modelRecord
+	return scanModelScope(row, id.SystemScope())
+}
+func scanModelScope(row scanner, scope id.Scope) (*modelRecord, error) {
+	r := modelRecord{Project: scope.Details().ProjectID}
 	var headers, caps []byte
 	var created, updated time.Time
 	e := row.Scan(&r.ID, &r.ProviderID, &r.Input.Name, &r.Input.ProviderModelID, &r.Input.Type, &r.Input.Enabled, &r.Input.Parameters, &r.Input.RequestOverwrite, &headers, &caps, &r.Version, &created, &updated)
@@ -273,4 +281,46 @@ func loadSelection(ctx context.Context, x postgres.SQLExecutor) (*selectionRecor
 		}
 	}
 	return &r, nil
+}
+
+// Scope is inherited from the exact Provider row; no cross-scope bare-ID load.
+func configurationScope(project string) id.Scope {
+	if project == "" {
+		return id.SystemScope()
+	}
+	key, err := f.ParseID[id.Project](project)
+	if err != nil {
+		return id.Scope{}
+	}
+	scope, _ := id.InProject(key)
+	return scope
+}
+func projectLock(project string) f.LockRequest {
+	key, _ := f.ProjectLock(project)
+	return f.LockRequest{Key: key, Mode: f.Shared}
+}
+func scopeLocks(actor id.Actor, scope id.Scope) []f.LockRequest {
+	locks := []f.LockRequest{userLock(actor.Details().UserID)}
+	if scope.Details().Kind == id.ProjectScope {
+		locks = append(locks, projectLock(scope.Details().ProjectID))
+	}
+	return locks
+}
+func loadProviderScope(ctx context.Context, x postgres.SQLExecutor, key string, scope id.Scope) (*providerRecord, error) {
+	if scope.Validate() != nil {
+		return nil, fault(f.InvalidArgument)
+	}
+	if scope.Details().Kind == id.System {
+		return loadProvider(ctx, x, key)
+	}
+	return scanProviderScope(x.QueryRow(ctx, `SELECT `+providerColumns+` FROM agenteam_model.providers WHERE scope='project' AND project_id=$2 AND id=$1`, key, scope.Details().ProjectID), scope)
+}
+func loadModelScope(ctx context.Context, x postgres.SQLExecutor, key string, scope id.Scope) (*modelRecord, error) {
+	if scope.Validate() != nil {
+		return nil, fault(f.InvalidArgument)
+	}
+	if scope.Details().Kind == id.System {
+		return loadModel(ctx, x, key)
+	}
+	return scanModelScope(x.QueryRow(ctx, `SELECT `+modelColumns+` FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='project' AND p.project_id=$2 AND m.id=$1`, key, scope.Details().ProjectID), scope)
 }

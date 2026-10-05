@@ -20,27 +20,33 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
 	if e != nil {
 		return nil, e
 	}
-	p := &preparedCommand{authority: s.state().authority, actor: r.Meta.Actor, identity: identity, plan: mutationPlan{CommandID: id, Identity: identity.Canonical(), User: r.Meta.Actor.Details().UserID, Kind: r.Kind, Resource: r.Resource, Semantic: semantic, At: at}}
+	p := &preparedCommand{authority: s.state().authority, actor: r.Meta.Actor, identity: identity, plan: mutationPlan{Project: r.Meta.Scope.Details().ProjectID, CommandID: id, Identity: identity.Canonical(), User: r.Meta.Actor.Details().UserID, Kind: r.Kind, Resource: r.Resource, Semantic: semantic, At: at}}
 	plan := &p.plan
 	mode := f.Shared
 	if r.Kind == "model.delete" {
 		mode = f.Exclusive
 	}
 	p.locks = []f.LockRequest{commandLock(identity), userLock(plan.User), systemLock("model-references", mode), systemLock("outbox-registration", f.Shared), recordLock(f.CommandRecordLock, "model:"+id)}
+	if plan.Project != "" {
+		p.locks = append(p.locks, projectLock(plan.Project))
+	}
+	if plan.Project != "" && r.ModelInput != nil && r.ModelInput.Type != mc.ChatModel {
+		return nil, fault(f.InvalidArgument)
+	}
 	version := f.Version(1)
 	switch r.Kind {
 	case "provider.create":
-		if e = providerPolicy(*r.ProviderInput); e != nil {
+		if e = providerPolicyScope(*r.ProviderInput, r.Meta.Scope); e != nil {
 			return nil, e
 		}
 		plan.Resource, e = newID()
 		if e != nil {
 			return nil, e
 		}
-		plan.AfterProvider = &providerRecord{ID: plan.Resource, Input: providerFromInput(*r.ProviderInput), Version: 1, CreatedAt: at, UpdatedAt: at}
+		plan.AfterProvider = &providerRecord{Project: plan.Project, ID: plan.Resource, Input: providerFromInput(*r.ProviderInput), Version: 1, CreatedAt: at, UpdatedAt: at}
 		plan.Changed = []string{"created"}
 	case "provider.update", "provider.delete":
-		old, e := loadProvider(ctx, x, r.Resource)
+		old, e := loadProviderScope(ctx, x, r.Resource, r.Meta.Scope)
 		if e != nil {
 			return nil, e
 		}
@@ -56,7 +62,7 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
 			return nil, e
 		}
 		if r.Kind == "provider.update" {
-			if e = providerPolicy(*r.ProviderInput); e != nil {
+			if e = providerPolicyScope(*r.ProviderInput, r.Meta.Scope); e != nil {
 				return nil, e
 			}
 			if r.ProviderInput.Protocol != old.Input.Protocol {
@@ -79,7 +85,7 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
 			plan.Changed = []string{"deleted"}
 		}
 	case "model.create":
-		provider, e := loadProvider(ctx, x, r.Provider)
+		provider, e := loadProviderScope(ctx, x, r.Provider, r.Meta.Scope)
 		if e != nil {
 			return nil, e
 		}
@@ -95,10 +101,10 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
 			return nil, e
 		}
 		v := normalizedModel(*r.ModelInput)
-		plan.AfterModel = &modelRecord{ID: plan.Resource, ProviderID: r.Provider, Input: v, Version: 1, CreatedAt: at, UpdatedAt: at}
+		plan.AfterModel = &modelRecord{Project: plan.Project, ID: plan.Resource, ProviderID: r.Provider, Input: v, Version: 1, CreatedAt: at, UpdatedAt: at}
 		plan.Changed = []string{"created"}
 	case "model.update", "model.delete":
-		old, e := loadModel(ctx, x, r.Resource)
+		old, e := loadModelScope(ctx, x, r.Resource, r.Meta.Scope)
 		if e != nil {
 			return nil, e
 		}
@@ -109,7 +115,7 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
 			return nil, fault(f.VersionConflict)
 		}
 		plan.BeforeModel = old
-		provider, e := loadProvider(ctx, x, old.ProviderID)
+		provider, e := loadProviderScope(ctx, x, old.ProviderID, r.Meta.Scope)
 		if e != nil {
 			return nil, e
 		}
@@ -240,7 +246,7 @@ func normalizedModel(v mc.ModelInput) mc.ModelInput {
 func (s *Service) validateMapping(ctx context.Context, x postgres.SQLExecutor, p *preparedCommand) error {
 	v := &p.plan
 	if v.BeforeProvider != nil {
-		current, e := loadProvider(ctx, x, v.BeforeProvider.ID)
+		current, e := loadProviderScope(ctx, x, v.BeforeProvider.ID, configurationScope(v.BeforeProvider.Project))
 		if e != nil {
 			return e
 		}
@@ -249,7 +255,7 @@ func (s *Service) validateMapping(ctx context.Context, x postgres.SQLExecutor, p
 		}
 	}
 	if v.BeforeModel != nil {
-		current, e := loadModel(ctx, x, v.BeforeModel.ID)
+		current, e := loadModelScope(ctx, x, v.BeforeModel.ID, configurationScope(v.BeforeModel.Project))
 		if e != nil {
 			return e
 		}
@@ -258,7 +264,7 @@ func (s *Service) validateMapping(ctx context.Context, x postgres.SQLExecutor, p
 		}
 	}
 	for _, old := range v.Providers {
-		current, e := loadProvider(ctx, x, old.ID)
+		current, e := loadProviderScope(ctx, x, old.ID, configurationScope(old.Project))
 		if e != nil {
 			return e
 		}
@@ -267,7 +273,7 @@ func (s *Service) validateMapping(ctx context.Context, x postgres.SQLExecutor, p
 		}
 	}
 	for _, old := range v.Models {
-		current, e := loadModel(ctx, x, old.ID)
+		current, e := loadModelScope(ctx, x, old.ID, configurationScope(old.Project))
 		if e != nil {
 			return e
 		}
@@ -317,7 +323,7 @@ func (s *Service) applyConfiguration(ctx context.Context, x postgres.SQLExecutor
 	v := &p.plan
 	if r := v.AfterProvider; r != nil {
 		if v.BeforeProvider == nil {
-			_, e := x.Exec(ctx, `INSERT INTO agenteam_model.providers(id,scope,name,protocol,base_url,enabled,credential_id,provider_options,version,created_at,updated_at) VALUES($1,'system',$2,$3,$4,$5,$6,$7,$8,$9,$10)`, r.ID, r.Input.Name, string(r.Input.Protocol), r.Input.BaseURL, r.Input.Enabled, null(r.Input.CredentialID), []byte(r.Input.Options), int64(r.Version), r.CreatedAt.Time(), r.UpdatedAt.Time())
+			_, e := x.Exec(ctx, `INSERT INTO agenteam_model.providers(id,scope,project_id,name,protocol,base_url,enabled,credential_id,provider_options,version,created_at,updated_at) VALUES($1,$11,$12,$2,$3,$4,$5,$6,$7,$8,$9,$10)`, r.ID, r.Input.Name, string(r.Input.Protocol), r.Input.BaseURL, r.Input.Enabled, null(r.Input.CredentialID), []byte(r.Input.Options), int64(r.Version), r.CreatedAt.Time(), r.UpdatedAt.Time(), string(configurationScope(r.Project).Details().Kind), null(r.Project))
 			if e != nil {
 				return unavailable(e)
 			}

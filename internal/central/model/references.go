@@ -65,13 +65,16 @@ func (s *Service) prepareReplacement(ctx context.Context, p *preparedCommand, re
 	}
 	plan.References = refs
 	for _, ref := range refs {
-		if ref.Kind != "platform_selector" {
+		if plan.Project != "" || ref.Kind != "platform_selector" {
 			return fault(f.DependencyUnbound)
 		}
 	}
 	var next *modelRecord
 	if replacement != "" {
-		next, e = loadModel(ctx, x, replacement)
+		next, e = loadModelScope(ctx, x, replacement, configurationScope(plan.Project))
+		if e == nil && next == nil && plan.Project != "" {
+			next, e = loadModel(ctx, x, replacement)
+		}
 		if e != nil {
 			return e
 		}
@@ -81,7 +84,7 @@ func (s *Service) prepareReplacement(ctx context.Context, p *preparedCommand, re
 		if next.ID == plan.Resource || next.Input.Type != plan.BeforeModel.Input.Type || !next.Input.Enabled {
 			return fault(f.InvalidArgument)
 		}
-		provider, e := loadProvider(ctx, x, next.ProviderID)
+		provider, e := loadProviderScope(ctx, x, next.ProviderID, configurationScope(next.Project))
 		if e != nil {
 			return e
 		}

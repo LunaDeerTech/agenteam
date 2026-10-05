@@ -38,7 +38,10 @@ type CommandLookup struct {
 }
 
 func (s *Service) read(ctx context.Context, actor id.Actor, locks []f.LockRequest, run func(context.Context, postgres.SQLExecutor) error) error {
-	if s.state() == nil {
+	return s.readScope(ctx, actor, id.SystemScope(), locks, run)
+}
+func (s *Service) readScope(ctx context.Context, actor id.Actor, scope id.Scope, locks []f.LockRequest, run func(context.Context, postgres.SQLExecutor) error) error {
+	if s.state() == nil || scope.Details().Kind == id.ProjectScope && nilPort(s.state().authority.state().auth.Projects) {
 		return fault(f.DependencyUnbound)
 	}
 	if e := human(actor); e != nil {
@@ -48,12 +51,13 @@ func (s *Service) read(ctx context.Context, actor id.Actor, locks []f.LockReques
 	if e != nil {
 		return e
 	}
-	locks = append(locks, userLock(actor.Details().UserID), systemLock("model-references", f.Shared))
+	locks = append(locks, scopeLocks(actor, scope)...)
+	locks = append(locks, systemLock("model-references", f.Shared))
 	r := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
 		if e := s.state().store.AcquireAll(ctx, tx, locks); e != nil {
 			return portError(e)
 		}
-		if e := s.state().authority.current(ctx, tx, actor, id.Read); e != nil {
+		if e := s.state().authority.currentScope(ctx, tx, actor, scope, id.Read); e != nil {
 			return e
 		}
 		x, e := s.state().store.InTx(tx)
@@ -166,7 +170,7 @@ func (s *Service) LookupCommand(ctx context.Context, r LookupCommandRequest) (Co
 	if r.Meta.Validate() != nil || !validCommand(r.Command) {
 		return CommandLookup{}, fault(f.InvalidArgument)
 	}
-	if r.Meta.Scope.Details().Kind != id.System {
+	if r.Meta.Scope.Details().Kind == id.ProjectScope && r.Command == "model.selection.update" {
 		return CommandLookup{}, fault(f.DependencyUnbound)
 	}
 	identity, e := commandIdentity(r.Meta, r.Command)
@@ -174,8 +178,8 @@ func (s *Service) LookupCommand(ctx context.Context, r LookupCommandRequest) (Co
 		return CommandLookup{}, e
 	}
 	var out CommandLookup
-	e = s.read(ctx, r.Meta.Actor, []f.LockRequest{commandLock(identity)}, func(ctx context.Context, x postgres.SQLExecutor) error {
-		row, e := loadCommand(ctx, x, identity)
+	e = s.readScope(ctx, r.Meta.Actor, r.Meta.Scope, []f.LockRequest{commandLock(identity)}, func(ctx context.Context, x postgres.SQLExecutor) error {
+		row, e := loadCommandScope(ctx, x, identity, r.Meta.Scope)
 		if e != nil {
 			return e
 		}

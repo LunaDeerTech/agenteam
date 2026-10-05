@@ -30,7 +30,7 @@ func (s *Service) prepareSecret(ctx context.Context, p *preparedCommand) error {
 		if e != nil {
 			return unavailable(e)
 		}
-		ref, e := sc.NewCredentialRef(cid, id.SystemScope())
+		ref, e := sc.NewCredentialRef(cid, configurationScope(p.plan.Project))
 		if e != nil {
 			return e
 		}
@@ -54,7 +54,7 @@ func (s *Service) prepareSecret(ctx context.Context, p *preparedCommand) error {
 	return nil
 }
 func referenceMatches(p *preparedCommand, r sc.UsageRequest) bool {
-	if r.Validate() != nil || r.Purpose != sc.Model || !r.Ref.Details().Scope.Equal(id.SystemScope()) || r.ReferenceOwner != p.plan.Resource {
+	if r.Validate() != nil || r.Purpose != sc.Model || !r.Ref.Details().Scope.Equal(configurationScope(p.plan.Project)) || r.ReferenceOwner != p.plan.Resource {
 		return false
 	}
 	old, next := "", ""

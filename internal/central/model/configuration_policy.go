@@ -23,11 +23,20 @@ func normalizedObject(v json.RawMessage) json.RawMessage {
 }
 func emptyObject(v json.RawMessage) bool { return bytes.Equal(normalizedObject(v), []byte(`{}`)) }
 func providerPolicy(v mc.ProviderInput) error {
+	return providerPolicyScope(v, id.SystemScope())
+}
+func providerPolicyScope(v mc.ProviderInput, scope id.Scope) error {
 	if e := v.Validate(); e != nil {
 		return e
 	}
-	if v.CredentialRef != nil && !v.CredentialRef.Details().Scope.Equal(id.SystemScope()) {
+	if v.CredentialRef != nil && !v.CredentialRef.Details().Scope.Equal(scope) {
 		return fault(f.Forbidden)
+	}
+	if scope.Validate() != nil {
+		return fault(f.InvalidArgument)
+	}
+	if scope.Details().Kind == id.ProjectScope && !v.Protocol.Supports(mc.ChatModel) {
+		return fault(f.InvalidArgument)
 	}
 	// Native options have no verified profile schema in B01-K.
 	if !emptyObject(v.Options) {

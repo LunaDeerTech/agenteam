@@ -25,7 +25,7 @@ func auditEntry(actor id.Actor, p *mutationPlan) (ac.Entry, ac.AppendKey, error)
 	if e != nil {
 		return ac.Entry{}, ac.AppendKey{}, e
 	}
-	entry, e := ac.NewEntry(ac.EntryFields{Scope: id.SystemScope(), Actor: actor, Action: ac.Action(p.Kind), Outcome: ac.Success, Resource: resource, Metadata: metadata})
+	entry, e := ac.NewEntry(ac.EntryFields{Scope: configurationScope(p.Project), Actor: actor, Action: ac.Action(p.Kind), Outcome: ac.Success, Resource: resource, Metadata: metadata})
 	if e != nil {
 		return ac.Entry{}, ac.AppendKey{}, e
 	}
@@ -40,14 +40,14 @@ func (a *Authority) validatePreparedFact(ctx context.Context, tx f.Tx, p *prepar
 	if e := a.state().store.RequireHeldLocks(ctx, tx, p.locks); e != nil {
 		return portError(e)
 	}
-	if e := a.current(ctx, tx, p.actor, id.Mutate); e != nil {
+	if e := a.currentScope(ctx, tx, p.actor, configurationScope(p.plan.Project), id.Mutate); e != nil {
 		return e
 	}
 	x, e := a.state().store.InTx(tx)
 	if e != nil {
 		return portError(e)
 	}
-	r, e := loadCommand(ctx, x, p.identity)
+	r, e := loadCommandScope(ctx, x, p.identity, configurationScope(p.plan.Project))
 	if e != nil {
 		return e
 	}
@@ -55,7 +55,7 @@ func (a *Authority) validatePreparedFact(ctx context.Context, tx f.Tx, p *prepar
 		return fault(f.Forbidden)
 	}
 	if p.plan.BeforeProvider != nil || p.plan.AfterProvider != nil {
-		actual, e := loadProvider(ctx, x, p.plan.Resource)
+		actual, e := loadProviderScope(ctx, x, p.plan.Resource, configurationScope(p.plan.Project))
 		if e != nil {
 			return e
 		}
@@ -64,7 +64,7 @@ func (a *Authority) validatePreparedFact(ctx context.Context, tx f.Tx, p *prepar
 		}
 	}
 	if p.plan.BeforeModel != nil || p.plan.AfterModel != nil {
-		actual, e := loadModel(ctx, x, p.plan.Resource)
+		actual, e := loadModelScope(ctx, x, p.plan.Resource, configurationScope(p.plan.Project))
 		if e != nil {
 			return e
 		}

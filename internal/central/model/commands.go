@@ -35,6 +35,7 @@ type persistedEvent struct {
 	Payload json.RawMessage
 }
 type mutationPlan struct {
+	Project                                   string `json:",omitempty"`
 	CommandID, Identity, User, Kind, Resource string
 	Semantic                                  f.Digest
 	BeforeProvider, AfterProvider             *providerRecord
@@ -81,6 +82,9 @@ func (a *Authority) contextPlan(ctx context.Context, actor id.Actor) (*preparedC
 
 func validCommand(kind string) bool { return ac.ModelAction(ac.Action(kind)) }
 func commandIdentity(meta mc.CommandMeta, kind string) (f.CommandIdentity, error) {
+	if meta.Scope.Details().Kind == id.ProjectScope {
+		return f.NewCommandIdentity("model.project", []string{meta.Scope.Details().ProjectID, meta.Actor.Details().UserID}, kind, meta.Key)
+	}
 	return f.NewCommandIdentity("model.system", []string{meta.Actor.Details().UserID}, kind, meta.Key)
 }
 func commandSemantic(r commandRequest) (f.Digest, error) {
@@ -110,19 +114,53 @@ func commandSemantic(r commandRequest) (f.Digest, error) {
 	if e != nil {
 		return "", unavailable(e)
 	}
+	if r.Meta.Scope.Details().Kind == id.ProjectScope {
+		raw, e = json.Marshal(struct {
+			Format, Project, User string
+			Request               json.RawMessage
+		}{"model-project-command-v1", r.Meta.Scope.Details().ProjectID, r.Meta.Actor.Details().UserID, raw})
+		if e != nil {
+			return "", unavailable(e)
+		}
+	}
 	return cursor.Digest(raw)
 }
 func loadCommand(ctx context.Context, x postgres.SQLExecutor, identity f.CommandIdentity) (*commandRecord, error) {
+	return loadCommandScope(ctx, x, identity, id.SystemScope())
+}
+func loadCommandScope(ctx context.Context, x postgres.SQLExecutor, identity f.CommandIdentity, scope id.Scope) (*commandRecord, error) {
+	if scope.Validate() != nil || identity.Validate() != nil {
+		return nil, fault(f.InvalidArgument)
+	}
+	owners := identity.OwnerIDs()
+	if scope.Details().Kind == id.System {
+		if identity.Namespace() != "model.system" || len(owners) != 1 {
+			return nil, fault(f.Forbidden)
+		}
+	} else if identity.Namespace() != "model.project" || len(owners) != 2 || owners[0] != scope.Details().ProjectID {
+		return nil, fault(f.Forbidden)
+	}
 	var r commandRecord
 	var plan, receipt []byte
-	e := x.QueryRow(ctx, `SELECT id::text,command_identity,user_id::text,command_name,resource_id::text,phase,semantic_digest,mutation_plan,safe_receipt FROM agenteam_model.commands WHERE command_identity=$1 AND scope='system'`, identity.Canonical()).Scan(&r.ID, &r.Identity, &r.User, &r.Kind, &r.Resource, &r.Phase, &r.Semantic, &plan, &receipt)
+	query := `SELECT id::text,command_identity,user_id::text,command_name,resource_id::text,phase,semantic_digest,mutation_plan,safe_receipt FROM agenteam_model.commands WHERE command_identity=$1 AND scope='system' AND project_id IS NULL`
+	args := []any{identity.Canonical()}
+	if scope.Details().Kind == id.ProjectScope {
+		query = `SELECT id::text,command_identity,user_id::text,command_name,resource_id::text,phase,semantic_digest,mutation_plan,safe_receipt FROM agenteam_model.commands WHERE command_identity=$1 AND scope='project' AND project_id=$2`
+		args = append(args, scope.Details().ProjectID)
+	}
+	e := x.QueryRow(ctx, query, args...).Scan(&r.ID, &r.Identity, &r.User, &r.Kind, &r.Resource, &r.Phase, &r.Semantic, &plan, &receipt)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return nil, nil
 	}
 	if e != nil {
 		return nil, unavailable(e)
 	}
-	if json.Unmarshal(plan, &r.Plan) != nil {
+	// Only the actual scope-filtered row and exact original identity can
+	// interpret a historical System plan without the Project discriminator.
+	if r.Identity != identity.Canonical() || r.User != owners[len(owners)-1] || r.Kind != identity.Command() {
+		return nil, unavailable(nil)
+	}
+	if json.Unmarshal(plan, &r.Plan) != nil || r.Plan.Project != scope.Details().ProjectID {
 		return nil, unavailable(nil)
 	}
 	if r.Phase == "committed" {
@@ -142,10 +180,10 @@ func (s *Service) runCommand(ctx context.Context, r commandRequest) (mc.CommandR
 	if e := r.Meta.Validate(); e != nil {
 		return empty, e
 	}
-	if r.Meta.Scope.Details().Kind != id.System {
+	if r.Meta.Scope.Details().Kind == id.ProjectScope && r.Kind == "model.selection.update" {
 		return empty, fault(f.DependencyUnbound)
 	}
-	if e := s.state().authority.current(ctx, f.Tx{}, r.Meta.Actor, id.Mutate); e != nil {
+	if e := s.state().authority.currentScope(ctx, f.Tx{}, r.Meta.Actor, r.Meta.Scope, receiptIntent(r.Meta.Scope)); e != nil {
 		return empty, e
 	}
 	identity, e := commandIdentity(r.Meta, r.Kind)
@@ -156,20 +194,23 @@ func (s *Service) runCommand(ctx context.Context, r commandRequest) (mc.CommandR
 	if e != nil {
 		return empty, e
 	}
-	prior, e := loadCommand(ctx, s.state().store, identity)
+	prior, e := loadCommandScope(ctx, s.state().store, identity, r.Meta.Scope)
 	if e != nil {
 		return empty, e
 	}
 	if prior != nil {
-		return s.replay(ctx, r.Meta.Actor, identity, semantic, nil)
+		return s.replayScope(ctx, r.Meta.Actor, r.Meta.Scope, identity, semantic, nil)
+	}
+	if e := s.state().authority.currentScope(ctx, f.Tx{}, r.Meta.Actor, r.Meta.Scope, id.Mutate); e != nil {
+		return s.recheckPreparationScope(ctx, r.Meta.Actor, r.Meta.Scope, identity, semantic, e)
 	}
 	p, e := s.prepare(ctx, r, identity, semantic)
 	if e != nil {
-		return s.recheckPreparation(ctx, r.Meta.Actor, identity, semantic, e)
+		return s.recheckPreparationScope(ctx, r.Meta.Actor, r.Meta.Scope, identity, semantic, e)
 	}
 	ctx = commandContext(ctx, p)
 	if e = s.prepareEffects(ctx, p); e != nil {
-		return s.recheckPreparation(ctx, r.Meta.Actor, identity, semantic, e)
+		return s.recheckPreparationScope(ctx, r.Meta.Actor, r.Meta.Scope, identity, semantic, e)
 	}
 	var receipt mc.CommandReceipt
 	cause, e := f.NewCommandsCause(identity)
@@ -180,14 +221,14 @@ func (s *Service) runCommand(ctx context.Context, r commandRequest) (mc.CommandR
 		if e := s.state().store.AcquireAll(ctx, tx, p.locks); e != nil {
 			return portError(e)
 		}
-		if e := s.state().authority.current(ctx, tx, r.Meta.Actor, id.Mutate); e != nil {
+		if e := s.state().authority.currentScope(ctx, tx, r.Meta.Actor, r.Meta.Scope, receiptIntent(r.Meta.Scope)); e != nil {
 			return e
 		}
 		x, e := s.state().store.InTx(tx)
 		if e != nil {
 			return portError(e)
 		}
-		old, e := loadCommand(ctx, x, identity)
+		old, e := loadCommandScope(ctx, x, identity, r.Meta.Scope)
 		if e != nil {
 			return e
 		}
@@ -200,6 +241,9 @@ func (s *Service) runCommand(ctx context.Context, r commandRequest) (mc.CommandR
 			}
 			receipt = *old.Receipt
 			return nil
+		}
+		if e = s.state().authority.currentScope(ctx, tx, r.Meta.Actor, r.Meta.Scope, id.Mutate); e != nil {
+			return e
 		}
 		if e = s.validateMapping(ctx, x, p); e != nil {
 			return e
@@ -242,7 +286,7 @@ func (s *Service) runCommand(ctx context.Context, r commandRequest) (mc.CommandR
 		return nil
 	})
 	if result.State() == f.Unknown {
-		return s.replay(ctx, r.Meta.Actor, identity, semantic, &result)
+		return s.replayScope(ctx, r.Meta.Actor, r.Meta.Scope, identity, semantic, &result)
 	}
 	if e = commitError(result); e != nil {
 		return empty, e
@@ -255,23 +299,26 @@ func (s *Service) runCommand(ctx context.Context, r commandRequest) (mc.CommandR
 // This confirmation does no discovery, adds no locks after AcquireAll, and
 // preserves the original preparation error (including Unknown) on true absence.
 func (s *Service) recheckPreparation(ctx context.Context, actor id.Actor, identity f.CommandIdentity, expected f.Digest, preparationError error) (mc.CommandReceipt, error) {
+	return s.recheckPreparationScope(ctx, actor, id.SystemScope(), identity, expected, preparationError)
+}
+func (s *Service) recheckPreparationScope(ctx context.Context, actor id.Actor, scope id.Scope, identity f.CommandIdentity, expected f.Digest, preparationError error) (mc.CommandReceipt, error) {
 	var receipt *mc.CommandReceipt
 	cause, err := f.NewCommandsCause(identity)
 	if err != nil {
 		return mc.CommandReceipt{}, portError(err)
 	}
 	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
-		if err := s.state().store.AcquireAll(ctx, tx, []f.LockRequest{commandLock(identity), userLock(actor.Details().UserID)}); err != nil {
+		if err := s.state().store.AcquireAll(ctx, tx, append([]f.LockRequest{commandLock(identity)}, scopeLocks(actor, scope)...)); err != nil {
 			return portError(err)
 		}
-		if err := s.state().authority.current(ctx, tx, actor, id.Mutate); err != nil {
+		if err := s.state().authority.currentScope(ctx, tx, actor, scope, receiptIntent(scope)); err != nil {
 			return err
 		}
 		x, err := s.state().store.InTx(tx)
 		if err != nil {
 			return portError(err)
 		}
-		r, err := loadCommand(ctx, x, identity)
+		r, err := loadCommandScope(ctx, x, identity, scope)
 		if err != nil {
 			return err
 		}
@@ -306,21 +353,24 @@ func (s *Service) recheckPreparation(ctx context.Context, actor id.Actor, identi
 // canonical writer lock and compares the original expected digest; public
 // LookupCommand deliberately has no authority to confirm a different request.
 func (s *Service) replay(ctx context.Context, actor id.Actor, identity f.CommandIdentity, expected f.Digest, unknown *f.CommitResult) (mc.CommandReceipt, error) {
+	return s.replayScope(ctx, actor, id.SystemScope(), identity, expected, unknown)
+}
+func (s *Service) replayScope(ctx context.Context, actor id.Actor, scope id.Scope, identity f.CommandIdentity, expected f.Digest, unknown *f.CommitResult) (mc.CommandReceipt, error) {
 	var receipt mc.CommandReceipt
 	found := false
 	cause, _ := f.NewCommandsCause(identity)
 	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
-		if e := s.state().store.AcquireAll(ctx, tx, []f.LockRequest{commandLock(identity), userLock(actor.Details().UserID)}); e != nil {
+		if e := s.state().store.AcquireAll(ctx, tx, append([]f.LockRequest{commandLock(identity)}, scopeLocks(actor, scope)...)); e != nil {
 			return portError(e)
 		}
-		if e := s.state().authority.current(ctx, tx, actor, id.Mutate); e != nil {
+		if e := s.state().authority.currentScope(ctx, tx, actor, scope, receiptIntent(scope)); e != nil {
 			return e
 		}
 		x, e := s.state().store.InTx(tx)
 		if e != nil {
 			return portError(e)
 		}
-		r, e := loadCommand(ctx, x, identity)
+		r, e := loadCommandScope(ctx, x, identity, scope)
 		if e != nil {
 			return e
 		}
@@ -364,7 +414,7 @@ func (s *Service) insertCommand(ctx context.Context, x postgres.SQLExecutor, p *
 	if e != nil {
 		return e
 	}
-	_, e = x.Exec(ctx, `INSERT INTO agenteam_model.commands(id,scope,user_id,command_name,command_identity,key_digest,semantic_digest,resource_id,phase,mutation_plan,event_id,event_header,event_payload,created_at) VALUES($1,'system',$2,$3,$4,$5,$6,$7,'prepared',$8,$9,$10,$11,$12)`, p.plan.CommandID, p.plan.User, p.plan.Kind, p.plan.Identity, hash([]byte(p.identity.Key())).String(), p.plan.Semantic.String(), p.plan.Resource, plan, p.plan.Events[0].Header.EventID.String(), header, []byte(p.plan.Events[0].Payload), p.plan.At.Time())
+	_, e = x.Exec(ctx, `INSERT INTO agenteam_model.commands(id,scope,project_id,user_id,command_name,command_identity,key_digest,semantic_digest,resource_id,phase,mutation_plan,event_id,event_header,event_payload,created_at) VALUES($1,$13,$14,$2,$3,$4,$5,$6,$7,'prepared',$8,$9,$10,$11,$12)`, p.plan.CommandID, p.plan.User, p.plan.Kind, p.plan.Identity, hash([]byte(p.identity.Key())).String(), p.plan.Semantic.String(), p.plan.Resource, plan, p.plan.Events[0].Header.EventID.String(), header, []byte(p.plan.Events[0].Payload), p.plan.At.Time(), string(configurationScope(p.plan.Project).Details().Kind), null(p.plan.Project))
 	return portError(e)
 }
 func nextVersion(v f.Version) (f.Version, error) {
@@ -391,7 +441,7 @@ func sameValue(a, b any) bool {
 }
 
 func (s *Service) CreateProvider(ctx context.Context, r mc.CreateProviderRequest) (mc.CommandReceipt, error) {
-	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil {
+	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil && (s.state() == nil || nilPort(s.state().authority.state().auth.Projects)) {
 		return mc.CommandReceipt{}, fault(f.DependencyUnbound)
 	}
 	if e := r.Validate(); e != nil {
@@ -401,7 +451,7 @@ func (s *Service) CreateProvider(ctx context.Context, r mc.CreateProviderRequest
 	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "provider.create", ProviderInput: &v})
 }
 func (s *Service) UpdateProvider(ctx context.Context, r mc.UpdateProviderRequest) (mc.CommandReceipt, error) {
-	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil {
+	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil && (s.state() == nil || nilPort(s.state().authority.state().auth.Projects)) {
 		return mc.CommandReceipt{}, fault(f.DependencyUnbound)
 	}
 	if e := r.Validate(); e != nil {
@@ -411,7 +461,7 @@ func (s *Service) UpdateProvider(ctx context.Context, r mc.UpdateProviderRequest
 	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "provider.update", Resource: r.ID.String(), Expected: r.ExpectedVersion, ProviderInput: &v})
 }
 func (s *Service) DeleteProvider(ctx context.Context, r mc.DeleteProviderRequest) (mc.CommandReceipt, error) {
-	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil {
+	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil && (s.state() == nil || nilPort(s.state().authority.state().auth.Projects)) {
 		return mc.CommandReceipt{}, fault(f.DependencyUnbound)
 	}
 	if e := r.Validate(); e != nil {
@@ -420,7 +470,7 @@ func (s *Service) DeleteProvider(ctx context.Context, r mc.DeleteProviderRequest
 	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "provider.delete", Resource: r.ID.String(), Expected: r.ExpectedVersion})
 }
 func (s *Service) CreateModel(ctx context.Context, r mc.CreateModelRequest) (mc.CommandReceipt, error) {
-	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil {
+	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil && (s.state() == nil || nilPort(s.state().authority.state().auth.Projects)) {
 		return mc.CommandReceipt{}, fault(f.DependencyUnbound)
 	}
 	if e := r.Validate(); e != nil {
@@ -430,7 +480,7 @@ func (s *Service) CreateModel(ctx context.Context, r mc.CreateModelRequest) (mc.
 	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "model.create", Provider: r.ProviderID.String(), ModelInput: &v})
 }
 func (s *Service) UpdateModel(ctx context.Context, r mc.UpdateModelRequest) (mc.CommandReceipt, error) {
-	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil {
+	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil && (s.state() == nil || nilPort(s.state().authority.state().auth.Projects)) {
 		return mc.CommandReceipt{}, fault(f.DependencyUnbound)
 	}
 	if e := r.Validate(); e != nil {
@@ -440,7 +490,7 @@ func (s *Service) UpdateModel(ctx context.Context, r mc.UpdateModelRequest) (mc.
 	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "model.update", Resource: r.ID.String(), Expected: r.ExpectedVersion, ModelInput: &v})
 }
 func (s *Service) DeleteModel(ctx context.Context, r mc.DeleteModelRequest) (mc.CommandReceipt, error) {
-	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil {
+	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil && (s.state() == nil || nilPort(s.state().authority.state().auth.Projects)) {
 		return mc.CommandReceipt{}, fault(f.DependencyUnbound)
 	}
 	if e := r.Validate(); e != nil {
@@ -461,4 +511,11 @@ func (s *Service) UpdatePlatformSelection(ctx context.Context, r mc.UpdatePlatfo
 	}
 	v := r.Selection.Clone()
 	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "model.selection.update", Resource: v.ID, Expected: r.ExpectedVersion, Selection: &v})
+}
+
+func receiptIntent(scope id.Scope) id.AccessIntent {
+	if scope.Details().Kind == id.ProjectScope {
+		return id.Read
+	}
+	return id.Mutate
 }

@@ -285,7 +285,7 @@ func (a *Authority) ValidateAppendInTx(ctx context.Context, tx foundation.Tx, ac
 }
 
 // Discover/ValidateInTx bind typed Project appends and explicitly configured
-// lifecycle facts. Other producers and delivery remain unbound.
+// lifecycle facts, plus the Model-only Project gate. Other delivery remains unbound.
 func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc.Dependencies, error) {
 	if a.state() == nil {
 		return oc.Dependencies{}, fault(foundation.DependencyUnbound)
@@ -300,6 +300,9 @@ func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc
 			return oc.Dependencies{}, err
 		}
 		return facts.Discover(ctx, request)
+	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "model" {
+		return a.discoverModelEvent(request)
 	}
 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
 		return oc.Dependencies{}, fault(foundation.DependencyUnbound)
@@ -328,6 +331,9 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx foundation.Tx, request 
 			return err
 		}
 		return facts.ValidateInTx(ctx, tx, request, deps)
+	}
+	if d.Kind == oc.AppendProject && d.Event.Producer == "model" {
+		return a.validateModelEventInTx(ctx, tx, request, deps)
 	}
 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
 		return fault(foundation.DependencyUnbound)

@@ -76,7 +76,14 @@ func (s *Service) prepareEvents(p *preparedCommand) error {
 		if e != nil {
 			return e
 		}
-		event, e := ec.NewEvent(s.state().deps.ConfigurationEvents.data().configuration, h, mc.ConfigurationChanged{AggregateID: resource, Version: version, Scope: "system", ChangedFields: append([]string(nil), changed...)})
+		if p.plan.Project != "" {
+			project, err := f.ParseID[ec.Project](p.plan.Project)
+			if err != nil {
+				return unavailable(err)
+			}
+			h.Scope = ec.Scope{Kind: ec.ProjectScope, ProjectID: project}
+		}
+		event, e := ec.NewEvent(s.state().deps.ConfigurationEvents.data().configuration, h, mc.ConfigurationChanged{AggregateID: resource, Version: version, Scope: string(configurationScope(p.plan.Project).Details().Kind), ProjectID: p.plan.Project, ChangedFields: append([]string(nil), changed...)})
 		if e != nil {
 			return e
 		}
@@ -139,7 +146,7 @@ func matchingEvent(p *preparedCommand, summary ec.Summary) bool {
 		return false
 	}
 	for _, event := range p.plan.Events {
-		if reflect.DeepEqual(event.Header, summary.Header) {
+		if validPersistedEvent(event) && reflect.DeepEqual(event.Header, summary.Header) {
 			canonical, e := cursor.CanonicalJSON(event.Payload)
 			return e == nil && hash(canonical) == summary.PayloadDigest
 		}
@@ -207,7 +214,7 @@ func validPersistedEvent(v persistedEvent) bool {
 	switch v.Header.EventType {
 	case ConfigurationChangedEvent:
 		var p mc.ConfigurationChanged
-		return json.Unmarshal(v.Payload, &p) == nil && p.Validate() == nil
+		return json.Unmarshal(v.Payload, &p) == nil && p.Validate() == nil && v.Header.SchemaVersion == 1 && v.Header.AggregateType == ConfigurationAggregate && v.Header.AggregateSequence == nil && v.Header.AggregateVersion != nil && *v.Header.AggregateVersion == p.Version && v.Header.AggregateID.String() == p.AggregateID && (v.Header.Scope.Kind == ec.SystemScope && p.Scope == "system" && p.ProjectID == "" || v.Header.Scope.Kind == ec.ProjectScope && p.Scope == "project" && v.Header.Scope.ProjectID.String() == p.ProjectID)
 	case EmbeddingSelectionChangedEvent:
 		var p mc.EmbeddingSelectionChanged
 		return json.Unmarshal(v.Payload, &p) == nil && p.Validate() == nil
