@@ -1,0 +1,73 @@
+{
+  "owned_resource_checks": [
+    {
+      "kind": "container",
+      "id": "21986527d291861ae01e982fdcf8b342ede5de4f5d6501dc1cc217e44461cf88",
+      "name": "/agenteam-d05-object-dcc0f72b1dc46da31b07691c29418b31",
+      "label": "agenteam.d05.objectfixture",
+      "nonce": "dcc0f72b1dc46da31b07691c29418b31",
+      "remaining": false,
+      "inspect_exit": 1
+    },
+    {
+      "kind": "network",
+      "id": "6754dfb6759666e65865599d22b69ed3d21a22bdfa105af860a1cf386999566c",
+      "name": "agenteam-d05-object-dcc0f72b1dc46da31b07691c29418b31",
+      "label": "agenteam.d05.objectfixture",
+      "nonce": "dcc0f72b1dc46da31b07691c29418b31",
+      "remaining": false,
+      "inspect_exit": 1
+    },
+    {
+      "kind": "container",
+      "id": "6a7c9711fe3bfcf162acae3ec9cbad37385d67550c965ffc6656b154ffda0ae6",
+      "name": "/agenteam-d03-d883e653450eb8b7897cb875a22ba80c-pg16",
+      "label": "agenteam.d03.fixture",
+      "nonce": "d883e653450eb8b7897cb875a22ba80c",
+      "remaining": false,
+      "inspect_exit": 1
+    },
+    {
+      "kind": "container",
+      "id": "6c09cc6e5ffc2135662c620a21e5f7cbccaf5fa9357767b3066f3a4c5824fe0a",
+      "name": "/agenteam-d03-d883e653450eb8b7897cb875a22ba80c",
+      "label": "agenteam.d03.fixture",
+      "nonce": "d883e653450eb8b7897cb875a22ba80c",
+      "remaining": false,
+      "inspect_exit": 1
+    },
+    {
+      "kind": "network",
+      "id": "4ef153ff5442dea21ad3b5c7711d10da7223da13126016d9eaea6fe033592eb2",
+      "name": "agenteam-d03-d883e653450eb8b7897cb875a22ba80c",
+      "label": "agenteam.d03.fixture",
+      "nonce": "d883e653450eb8b7897cb875a22ba80c",
+      "remaining": false,
+      "inspect_exit": 1
+    },
+    {
+      "kind": "container",
+      "id": "c8d378f869fe805a6fea2c0a8089ccabad5584e0552de634d1c971be2a25fb9c",
+      "name": "/agenteam-d04-net-0d3378de6aced1cdbb6f2ea4b7313444",
+      "label": "agenteam.d04.networkfixture",
+      "nonce": "0d3378de6aced1cdbb6f2ea4b7313444",
+      "remaining": false,
+      "inspect_exit": 1
+    },
+    {
+      "kind": "network",
+      "id": "70dcf995c60c1e96fca1ba4d1928ecc8612d6ea1aa8b32e161efa6441ec435f1",
+      "name": "agenteam-d04-net-0d3378de6aced1cdbb6f2ea4b7313444",
+      "label": "agenteam.d04.networkfixture",
+      "nonce": "0d3378de6aced1cdbb6f2ea4b7313444",
+      "remaining": false,
+      "inspect_exit": 1
+    }
+  ],
+  "owned_running_tool_or_test_pids": [],
+  "runtime_directory_contents": [],
+  "preexisting_resources_unchanged": [
+    "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e /agenteam-dev-infra-minio-1 running",
+    "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c /agenteam-dev-infra-postgres-1 running"
+  ]
+}

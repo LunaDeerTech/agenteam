@@ -1,0 +1,40 @@
+{
+  "files": {
+    "tests/project/b02_commit_proxy_test.go": "f6a8912ca242d7f275ac84120dc1a25f250ba3d5c55696ecfdf44861e0c338aa",
+    "tests/project/b02_fixture_test.go": "6687003d2f1700f336c365477237e413580fb5d217e6a6754733d4326434df94",
+    "tests/project/b02_owner_commands_test.go": "5d4b886c58ae4b286da9e79e5470688db953091e54905badb0ea5993064b7b35",
+    "tests/project/b02_unknown_test.go": "c6aa72701e225d514227ae7a6c634512dd0add6e15b8b603ad5d31465c943edd",
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "scripts/test-objects.sh": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+    "scripts/test-security.sh": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be",
+    "scripts/test-postgres.sh": "eddfb4f44288f8ec448400b02435f5fd6d6c44b0d80003fd34f7785e2980cdfe",
+    "tests/testsupport/postgres/cmd/fixture/main.go": "55ae7da25e69c4f4f29ca516748d8cc837913016e9fc381fc96abc11f37298de",
+    "tests/testsupport/outbound/cmd/fixture/main.go": "46da1f582264c5799b509e5d3f5002ed588628b1d12b9b589ab8064fc3cdf683",
+    "tests/testsupport/objectstore/cmd/fixture/main.go": "680472027d5a30aa5f3a316c9301fc3c78bc9a7297cbe18647fab43af1b5bbab"
+  },
+  "selected_tests": [
+    "TestProjectB02MigrationFreshAndPopulatedUpgrade",
+    "TestProjectB02MigrationFailureRollsBackSchemaAndAudit",
+    "TestProjectB02DescriptionSchemaMatchesControlAndByteRules",
+    "TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts",
+    "TestProjectB02ClaimChild",
+    "TestProjectB02CreationClaimRequiresActualDeathAndFairRecovery",
+    "TestProjectB02OwnerSessionNamePathAndPaging",
+    "TestProjectB02TargetIdentityAndDeletionTombstone",
+    "TestProjectB02InitializerFailureUnknownUnboundAndReceiptOrder",
+    "TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp",
+    "TestProjectB02OwnerPortRequiresCallerTransactionLocks",
+    "TestProjectB02ConcurrentCreateKeepsOneReservationAndOriginalIdentity",
+    "TestProjectB02ConcurrentUpdateRejectsOldVersionWithoutExtraFacts",
+    "TestProjectB02TwoPlannedTargetsCompeteForOneCanonicalName",
+    "TestProjectB02CreateReservesNameAfterAnotherTargetWasPlanned",
+    "TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal",
+    "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts",
+    "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock",
+    "TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary",
+    "TestProjectB02UnknownWriterHeldThenCommitOrRollback",
+    "TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization"
+  ],
+  "files_unchanged_after_run": true
+}

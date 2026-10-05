@@ -1,0 +1,30 @@
+{
+  "cwd": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/snapshot",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOCACHE": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+    "GOTMPDIR": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/runtime",
+    "TMPDIR": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/runtime",
+    "DOCKER_CONFIG": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/docker",
+    "DOCKER_HOST": "unix:///var/run/docker.sock"
+  },
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestProjectB02"
+  ],
+  "started_utc": "2026-10-05T11:01:19Z",
+  "toolchain_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "minio_sha256": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+  "exit": 0,
+  "finished_utc": "2026-10-05T11:03:33Z",
+  "log_sha256": "d70cc510314d8bc611cbaf0921da83b780edf0af512e4ec0d624f511f5c56208"
+}
