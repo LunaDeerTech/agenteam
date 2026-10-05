@@ -97,7 +97,8 @@ func (s *Service) ReleaseForCleanupInTx(ctx context.Context, tx foundation.Tx, c
 	}
 	// The normal Release port may have removed this reference earlier in this
 	// same transaction. The exact persisted owning-domain cause is still required.
-	_, err = x.Exec(ctx, `DELETE FROM agenteam_object.object_references WHERE object_id=$1 AND owner_kind='avatar' AND owner_id=$2 AND partition_id=$2 AND upload_id=$3 AND kind IN ('canonical','reserved')`, id.String(), cause.Details().Owner.Details().ID, u.id.String())
+	owner := cause.Details().Owner
+	_, err = x.Exec(ctx, `DELETE FROM agenteam_object.object_references WHERE object_id=$1 AND owner_kind=$2 AND owner_id=$3 AND partition_id=$4 AND upload_id=$5 AND kind IN ('canonical','reserved')`, id.String(), string(owner.Details().Kind), owner.Details().ID, owner.Partition(), u.id.String())
 	if err != nil {
 		return unavailable(err)
 	}

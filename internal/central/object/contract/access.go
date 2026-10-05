@@ -224,7 +224,10 @@ func newAccessRequest(kind AccessKind, d AccessRequestDetails) (AccessRequest, e
 	case CleanupReleaseAccess:
 		allow("object", "cleanup", "upload")
 		cause := d.Cleanup.Details()
-		err = require(d.Operation == ReleaseForCleanupAccess && d.ObjectID.Validate() == nil && d.UploadID.Validate() == nil && d.Cleanup.Validate() == nil && cause.Owner.Details().Kind == Avatar && (cause.Reason == ReplacedObject || cause.Reason == CancelledUpload))
+		owner := cause.Owner.Details()
+		allowedCause := owner.Kind == Avatar && (cause.Reason == ReplacedObject || cause.Reason == CancelledUpload) ||
+			owner.Kind == Knowledge && validID(owner.ProjectID) && (cause.Reason == ReplacedObject || cause.Reason == CancelledUpload || cause.Reason == OwnerDeleted)
+		err = require(d.Operation == ReleaseForCleanupAccess && d.ObjectID.Validate() == nil && d.UploadID.Validate() == nil && d.Cleanup.Validate() == nil && allowedCause)
 	case ProjectCleanupAccess:
 		allow("actor", "project_cleanup")
 		err = require(d.Actor.Validate() == nil && d.ProjectCleanup.Validate() == nil)
