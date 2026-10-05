@@ -1,0 +1,268 @@
+{
+  "schema_version": 1,
+  "scope": "Independent specification review and adopted implementation authorization; no business or migration acceptance",
+  "baseline": "be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74",
+  "accepted_spec": {
+    "commit": "e81b029cd65fb26cc8598955e32b961dac35cb85",
+    "path": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+    "sha256": "9413b70e0d524cc3223bf6aec9d1f761237ec22e96f988a99c9fa5e6827052b6",
+    "original": "/tmp/agenteam-current-resolution-card-bt7_tirx/rev1_1/rev1.1.md",
+    "bytes": 36192
+  },
+  "accepted_migration_reservation": "6a9c04ee741edcf8722a5d828a05eb6e3bc55891",
+  "raw_files": [
+    {
+      "path": "spec/review-rev1.md",
+      "original": "/tmp/agenteam-current-resolution-spec-review-9bbrx5_0/review-rev1.md",
+      "sha256": "6d7b4ee89dbe6ff6e27f77e19bf209f9f51d1d3f962827c57e16e077a26427a2",
+      "bytes": 5767
+    },
+    {
+      "path": "spec/review-rev1.1.md",
+      "original": "/tmp/agenteam-current-resolution-spec-review-9bbrx5_0/review-rev1.1.md",
+      "sha256": "1f1946e347d10e3d91937fd165068220168469d6a0c9ee512adcc2f6b4b636a7",
+      "bytes": 1417
+    },
+    {
+      "path": "spec/review-checks.json",
+      "original": "/tmp/agenteam-current-resolution-spec-review-9bbrx5_0/checks.json",
+      "sha256": "34db86b67dae3fd5aa2d33da738199cda029003a9e8c4b0a1837f4f9a5caea34",
+      "bytes": 1906
+    },
+    {
+      "path": "spec/acceptance-plan.md",
+      "original": "/tmp/agenteam-current-resolution-spec-review-9bbrx5_0/acceptance-plan.md",
+      "sha256": "0a716da0233b295169b68212d3428af27d02fae81fcda2f6775986437ccc05c8",
+      "bytes": 4101
+    },
+    {
+      "path": "spec/rev1.1-delta.patch",
+      "original": "/tmp/agenteam-current-resolution-card-bt7_tirx/rev1_1/delta.patch",
+      "sha256": "5b035ba79fb4b369c2512e2717a9e99fa0f59f6dad398b9e054bf90adaf15e7a",
+      "bytes": 5459
+    },
+    {
+      "path": "spec/rev1.1-author-checks.json",
+      "original": "/tmp/agenteam-current-resolution-card-bt7_tirx/rev1_1/checks.json",
+      "sha256": "43152ca47fdd5b7780cd3b46acc1a05a475cf0216469d95e1854577a7c380ebc",
+      "bytes": 734
+    },
+    {
+      "path": "spec/inputs.json",
+      "original": "/tmp/agenteam-current-resolution-card-bt7_tirx/inputs.json",
+      "sha256": "db55f03eb17067dfbe04d88286551e950e22cb1653fcfe55baa3a2848e45675c",
+      "bytes": 7876
+    },
+    {
+      "path": "spec/rev1-author-checks.json",
+      "original": "/tmp/agenteam-current-resolution-card-bt7_tirx/checks.json",
+      "sha256": "3261f62f73a09984a1b1f5c63968efa2ec6607cd3e2363cfce1835199f71c26d",
+      "bytes": 409
+    },
+    {
+      "path": "spec/candidate-paths.json",
+      "original": "/tmp/agenteam-current-resolution-card-bt7_tirx/candidate-paths.json",
+      "sha256": "681b12254e317869047d0b8fd24d3ee523b32c50a94dcbd00d1877fc25ac18f3",
+      "bytes": 3173
+    },
+    {
+      "path": "migration/review-freeze01.md",
+      "original": "/tmp/agenteam-migration-reservation-review-8u9l64q6/review.md",
+      "sha256": "202a22008c40480ce4e4ea4fd10d23e28cbef54159f90aba84cdb26ffcb0ad85",
+      "bytes": 1441
+    },
+    {
+      "path": "migration/review-freeze02.md",
+      "original": "/tmp/agenteam-migration-reservation-review-8u9l64q6/review-freeze02.md",
+      "sha256": "9a94da8ba692ae1e12110eeeb210da430bcd81b5012ff26cbd3ba3cf9f389973",
+      "bytes": 1082
+    },
+    {
+      "path": "migration/review-checks.json",
+      "original": "/tmp/agenteam-migration-reservation-review-8u9l64q6/checks.json",
+      "sha256": "5e447538ce9378125a0305bdef72afa59c1ad2b74b9622256fefd018cd953df5",
+      "bytes": 1059
+    },
+    {
+      "path": "migration/before.json",
+      "original": "/tmp/agenteam-migration-reservation-delta-xzs4gp1z/before.json",
+      "sha256": "5f211956a5ef90849c4265579e75eea7f5c43929eb4edf31dcb85677eed5c158",
+      "bytes": 468
+    },
+    {
+      "path": "migration/manifest-freeze01.json",
+      "original": "/tmp/agenteam-migration-reservation-delta-xzs4gp1z/manifest.json",
+      "sha256": "2e1a3bf6550285ff062d517b1b9a44f0862502fedb6ba62703c2907a740a3bd2",
+      "bytes": 828
+    },
+    {
+      "path": "migration/manifest-freeze02.json",
+      "original": "/tmp/agenteam-migration-reservation-delta-xzs4gp1z/freeze02/manifest.json",
+      "sha256": "3e2d25769943352e80b511397ab59d241e9e54f46a4c22aba40d0a5852aa769b",
+      "bytes": 828
+    },
+    {
+      "path": "migration/initial-delta.patch",
+      "original": "/tmp/agenteam-migration-reservation-delta-xzs4gp1z/delta.patch",
+      "sha256": "11cf1be7a20185b2c0e4538a24bda51647f1c5cca6d7f33eaf650dca93128f06",
+      "bytes": 28006
+    },
+    {
+      "path": "migration/final-delta.patch",
+      "original": "/tmp/agenteam-migration-reservation-delta-xzs4gp1z/freeze02/delta-from-freeze01.patch",
+      "sha256": "3d00c938f4d1fb66acb287c1ff26ac9c3b283a031c96f364383f84bc73a37f8c",
+      "bytes": 4692
+    }
+  ],
+  "git_input_index": "spec/inputs.json",
+  "git_inputs_verified": 38,
+  "supplemental_error_contract": {
+    "commit": "be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74",
+    "path": "internal/central/foundation/fault.go",
+    "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+    "original": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/src/internal/central/foundation/fault.go"
+  },
+  "reconstruction": {
+    "rev1": {
+      "sha256": "20637a89d03b3b2e4fc4d1749afc010f260b3eeaeae96b277a217ca6eebe80b7",
+      "from": "accepted_spec",
+      "reverse_patch": "spec/rev1.1-delta.patch",
+      "forward_exact_reconstruction_verified": true,
+      "original": "/tmp/agenteam-current-resolution-card-bt7_tirx/rev1.md",
+      "method": "Read accepted_spec commit:path, then reverse spec/rev1.1-delta.patch against those bytes; expected original hash above."
+    },
+    "migration_before_commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "migration_sequence": [
+      "migration/initial-delta.patch",
+      "migration/final-delta.patch"
+    ],
+    "three_files_exact_reconstruction_matches_accepted_git": true,
+    "migration_method": "Read each before commit:path below; apply initial-delta.patch then final-delta.patch in order. Patch header a/ and b/ prefixes map to repository-relative paths. Compare every stage to the archived manifests; final bytes equal accepted_migration_reservation commit:path."
+  },
+  "not_executed": [
+    "Go",
+    "npm",
+    "Docker",
+    "SQL",
+    "network",
+    "Git writes",
+    "business source execution"
+  ],
+  "migration_git_locators": [
+    {
+      "path": "docs/development/work-items/recovery-d08-lifecycle-runtime.md",
+      "before": {
+        "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+        "sha256": "07da60f5aeb9be3417a8bbb5957e0c2a3782784fde55d530b97d43313476a8af"
+      },
+      "after": {
+        "commit": "6a9c04ee741edcf8722a5d828a05eb6e3bc55891",
+        "sha256": "e9597479bdf9c65b5bc3d748a6eedaa96ee77263bff9230869608d1942288d96"
+      }
+    },
+    {
+      "path": "docs/development/agent-team/tasks.md",
+      "before": {
+        "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+        "sha256": "cf71802bd4fbc18c3c07ac0cca551718d328c4b059801838e7388f43f656f839"
+      },
+      "after": {
+        "commit": "6a9c04ee741edcf8722a5d828a05eb6e3bc55891",
+        "sha256": "2c9cc56221866dd9a55e8c3b5ccc928cef308bb1f14b9cc0307fe41fc03940bd"
+      }
+    },
+    {
+      "path": "docs/development/agent-team/recovery-2026-10-05.md",
+      "before": {
+        "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+        "sha256": "2b8b36317f968e25d55a1f40c0bf4efc92a62728f448a202017f05040bcb0d3a"
+      },
+      "after": {
+        "commit": "6a9c04ee741edcf8722a5d828a05eb6e3bc55891",
+        "sha256": "92f4d98a1b46a4f8bcbfb67738337ca71e7ce655ac689de3944b020d6fa3568e"
+      }
+    }
+  ],
+  "git_input_commit_aliases": {
+    "b629714": "b6297143dce6a479d7c9ce7d463900288d5b0915"
+  },
+  "raw_whitespace_exceptions": [
+    {
+      "path": "spec/rev1.1-delta.patch",
+      "sha256": "5b035ba79fb4b369c2512e2717a9e99fa0f59f6dad398b9e054bf90adaf15e7a",
+      "line_numbers": [
+        5,
+        8,
+        10,
+        12,
+        14,
+        17,
+        19,
+        21,
+        23,
+        26,
+        28
+      ],
+      "reason": "Original unified-diff context prefixes, kept byte-for-byte; exempt only this raw patch from trailing-whitespace normalization."
+    },
+    {
+      "path": "migration/initial-delta.patch",
+      "sha256": "11cf1be7a20185b2c0e4538a24bda51647f1c5cca6d7f33eaf650dca93128f06",
+      "line_numbers": [
+        5,
+        8,
+        10,
+        12,
+        14,
+        21,
+        23,
+        26,
+        28,
+        44,
+        46,
+        48,
+        50,
+        53,
+        55,
+        57,
+        68,
+        70,
+        73,
+        75,
+        88,
+        91,
+        93,
+        97,
+        100,
+        102,
+        106,
+        111,
+        113,
+        116
+      ],
+      "reason": "Original unified-diff context prefixes, kept byte-for-byte; exempt only this raw patch from trailing-whitespace normalization."
+    },
+    {
+      "path": "migration/final-delta.patch",
+      "sha256": "3d00c938f4d1fb66acb287c1ff26ac9c3b283a031c96f364383f84bc73a37f8c",
+      "line_numbers": [
+        4,
+        18,
+        20
+      ],
+      "reason": "Original unified-diff context prefixes, kept byte-for-byte; exempt only this raw patch from trailing-whitespace normalization."
+    }
+  ],
+  "summary": {
+    "raw_file_count": 17,
+    "raw_bytes": 69246,
+    "raw_original_byte_matches": true,
+    "git_input_count": 38,
+    "migration_files": 3,
+    "new_source_tree_copies": 0
+  },
+  "report": {
+    "path": "docs/development/agent-team/current-model-resolution-spec-verification.md",
+    "sha256": "1131dadc22a8e96c287d6faa9464d26be39aab6818af2326d96939c1ad015264"
+  }
+}

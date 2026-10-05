@@ -1,6 +1,6 @@
 # D09 current Model Resolution 库级恢复卡
 
-修订：rev1.1 候选，待独立差量复审；仅对齐 Foundation 既有同单位异义错误码，行为、API 与 20 路径保持。固定已接受源码 `be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74`；当前只授权 `recovery_handoff`（architecture_worker）写本卡，不授权 Go、SQL、真实 fixture 或生产绑定。实现者、独立验收者和资源窗口由主线程另授，不再委派。
+修订：rev1.1 已独立规格静审通过并获主线程采纳，接受提交 `e81b029cd65fb26cc8598955e32b961dac35cb85`，被审卡 SHA-256 `9413b70e0d524cc3223bf6aec9d1f761237ec22e96f988a99c9fa5e6827052b6`。固定业务基线 `be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74`。主线程已授权 `recovery_handoff`（backend_worker）实施 §9 精确 20 路径，含 `00017_model_current_resolution.sql`；独立 `restore_test_dependencies` 负责计划、后续冻结生产/SQL 静审及验收。尚无业务或迁移通过结论，无 Docker 窗口。§1–11 保留已审规格原文，其中待授权表述是当时状态；当前权限以本页首及末尾授权记录为准，不再委派。
 
 必读 [设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)、[D09 设计 §4](d09-model-system-token-usage-design.md#4-正式规划授权与-secret-组合)、[Model Resolution 架构](../../architecture/platform-infrastructure/model-system/model-resolution.md)及已验 [Secret planned usage](recovery-d09-secret-model-usage.md)。本卡落实其中一个完整结果，不把整个 D09 或未来 consumer 的正式端口视为已实现。
 
@@ -204,3 +204,11 @@ execution lease 终局由 D22 真实 execution/join 负责；model_call 由未�
 structured-v1 动态前置已接受；仍须独立采纳本卡、核最终依赖与 20 路径独占状态，再由主线程另授 00017/唯一作者/独立验收者。需要新增正向 consumer、材料读取/退休、Invocation/Usage 或服务根的场景，属于后继完整结果，不能以当前 fixture 代替。新表的全生命周期清理和生产根可用性仍未交付。
 
 设计输入复用 `/tmp/agenteam-current-resolution-design-zmmmha4u/report.md`（SHA-256 `0c236afe24de726d631dc1bcc26369521446d1a67a0d0ee27054fd87ba88e4e8`）与 `/tmp/agenteam-d09-next-dependency-v-8f_3yzzz/report.md`（`494e4e8b9dbb19f5c8d7f2194abd1cad5b312dc88ecc166fda0a20c75a430292`）；两者是早先固定输入分析，不覆盖后来真实根或 structured 动态结果。本卡只声明规格自查，不声明独立通过、业务实现或动态验收。完成独立采纳和真实库级验收后，仍保留 Summary 待决、无 production consumer/Invocation/Usage、Project cleanup/root 未绑定、Object/Artifact 原阻断和完整 D09 未完成的限制。
+
+## 12. 规格采纳与实施授权
+
+主线程采纳 rev1.1 独立 STATIC PASS 并以 `e81b029cd65fb26cc8598955e32b961dac35cb85` 接受本卡，随后正式授权 `recovery_handoff` 转 backend_worker，在固定 `be0bd07` 上实施 §9 的 20 路径（含 00017）；本次不扩 API、路径或技术规则。`restore_test_dependencies` 已冻结独立计划，后续只审作者停写的生产/SQL 输入，真实 fixture 窗口仍须另授。规格采纳和实施授权不构成 Resolver、迁移或生产 consumer 已验收。
+
+[规格验收及原证据](../agent-team/current-model-resolution-spec-verification.md)保留 rev1 两处错误码 R1、rev1.1 窄修与迁移排期三文档两处遗漏/修后 PASS。最终独立规格报告 SHA-256 为 `1f1946e347d10e3d91937fd165068220168469d6a0c9ee512adcc2f6b4b636a7`；仅将两处 `IDEMPOTENCY_CONFLICT` 对齐既有 `IDEMPOTENCY_KEY_REUSED`，不新增 Foundation 契约。排期 `6a9c04e` 已接受，R4 不预占 00018；本次归档不读取或改动活动 20 源。
+
+structured wire 115 路径归档已接受推送 `9da1e2ba8f6a2b4d44d9b9f8213509e990956e23`，复用其已验前置。Summary 待决、无生产 consumer/材料读取退休/Invocation/Usage/Project cleanup/root 正向绑定、Object/Artifact 原阻断和 ready503 不变；完整 D09 未完成。

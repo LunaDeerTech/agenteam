@@ -1,0 +1,123 @@
+--- a/docs/development/work-items/recovery-d08-lifecycle-runtime.md
++++ b/docs/development/work-items/recovery-d08-lifecycle-runtime.md
+@@ -1,6 +1,6 @@
+ # D08 B03-R4：真实归档终局、恢复与原操作重试
+ 
+-修订：rev2 / 已采纳规格。rev1 的两项限定修订已通过独立差量复审，主线程采纳规格；尚未开放业务实施。当前只有本卡规格写权，没有 Go、SQL、测试资源或共享台账写权。`00017` 已由主线程为本卡保留；编号登记不是迁移已实施。实施者和独立验收者由主线程另行下发，不再委派。
++修订：rev2.1 / 迁移排期与前向恢复限定差量待审；业务规则沿已采纳 rev2。尚未开放业务实施。主线程已撤回本卡原 `00017` 文档预留，转留 D09 current Model Resolution；本卡迁移编号待实施前重新分配，不预占 `00018`。没有 Go、SQL 或测试资源写权。实施者和独立验收者由主线程另行下发，不再委派。
+ 
+ ## 固定输入与完整结果
+ 
+@@ -86,13 +86,13 @@
+ 
+ 全体持久 stop=stopped 后仍需在当前 claim 下逐项真实 Inspect；不持长 Tx 等外域 I/O。最终 Project EX 事务重读完整所有行与 exact claim，并核本轮复核对应行版本未变、没有本 item 尚活调用。复核失败不能伪造终态，也不能为了重新尝试抹去 stopped/checkpoint 历史。未来 enabled participant 若增加自主工作，必须升级其 adapter/manifest 证明，不能沿用本卡四域的事实假设。
+ 
+-## 00017：operation 自有完成事件计划
+-
+-唯一迁移候选为 `db/migrations/00017_project_lifecycle_completion_plan.sql`。00013 已有完整 claims、行版本、attempt_count/next_attempt_at；00016 是 Object maintenance 表，不提供 Project 完成事件身份。最小增加 `agenteam_project.lifecycle_operations.completion_plan JSONB NULL`，不改 commands/event_ids/R2 plan，不追加表或跨域 FK。migration embed 已 glob `*.sql`，无需为编号修改 Go embed。
++## 待编号迁移：operation 自有完成事件计划
++
++唯一迁移候选仍为一个 `project_lifecycle_completion_plan.sql`，完整文件名前缀待主线程按届时已提交连续序列分配；不得使用已转留 D09 的 `00017` 或自行占用下一号。00013 已有完整 claims、行版本、attempt_count/next_attempt_at；00016 是 Object maintenance 表，不提供 Project 完成事件身份。最小增加 `agenteam_project.lifecycle_operations.completion_plan JSONB NULL`，不改 commands/event_ids/R2 plan，不追加表或跨域 FK。migration embed 已 glob `*.sql`，无需为编号修改 Go embed。
+ 
+ 计划格式固定 `project-archive-completion-v1`：ProjectID、OperationID、action=archive、接受 ProjectVersion、target_project_version=接受值+1、原 manifest_digest、完整 event_header 与 typed event_payload。Header 固定 Project producer/aggregate/scope、schema 1、独立首次 EventID、固定 target AggregateVersion；payload 精确 `operation_id/from=archiving/to=archived/action=archive`，不含 op.version、claim/fence、名称或 private refs。字段/格式版本严格闭集，拒绝缺字段、未知字段、null、坏 header/payload/摘要/版本；写前解码拒绝重复 key，读取已 JSONB 规范化的内容仍完整验证，不把 JSON 排版字节当事件身份。
+ 
+-DB CHECK 至少限制 SQL NULL 或 archive 的合法格式 JSON object、长度至多 65,536 bytes 和必需字段/基本 JSON 类型；应用 loader 再核完整 typed/cross-field 关系。旧 accepted/stopping/failed 和旧 completed 行允许 NULL，迁移不伪造历史 EventID、不重发旧完成事件。旧 NULL completed 只按既有终态事实读取，不能作为新 Append 许可。非法格式/过大/非 archive 计划拒绝；原 00013/00016 populated 数据和 CHECK 不削弱。Down 仅限隔离未使用迁移的回滚验证；存在非 NULL 计划时必须失败，不能删除已持久事件身份。
++DB CHECK 至少限制 SQL NULL 或 archive 的合法格式 JSON object、长度至多 65,536 bytes 和必需字段/基本 JSON 类型；应用 loader 再核完整 typed/cross-field 关系。旧 accepted/stopping/failed 和旧 completed 行允许 NULL，迁移不伪造历史 EventID、不重发旧完成事件。旧 NULL completed 只按既有终态事实读取，不能作为新 Append 许可。非法格式/过大/非 archive 计划拒绝；原 00013/00016 populated 数据和 CHECK 不削弱。沿已验迁移 Source 的前向约束，不写 Goose Down、不修改旧迁移或迁移引擎；失败恢复使用事务回滚、隔离备份恢复或另行审查的前向修正，不能删除已持久事件身份。隔离恢复演练不得冒充生产降级或允许带非 NULL 计划回退。
+ 
+ 完成 plan 的首次 NULL→选定值在全 stop 确认后的短 Project EX + exact claim 事务内发生；一次 DbNow 作为计划 OccurredAt 与本次 updated_at，operation.version+1，Project/version/gate 不变，不 Append/Touch。计划随后不可变；已有同值计划只读复用，不因 participant checkpoint、Retry 或新 claim 生成另一个 EventID。格式 v1 不是随进度递增的 plan version；它绑定不变的 operation/project/manifest/接受版本，而不是会变化的 op.version 或过期 claim。
+ 
+@@ -163,7 +163,7 @@
+ | 旧 `internal/central/project/lifecycle_store.go` | 加载私有completion_plan、retry_after、行version/attempt_count/next_attempt_at；全量校验后才截DTO |
+ | 旧 `internal/central/project/events.go`、`lifecycle_events.go` | 完成/Restore的精确事实与双私有计划；保留D09、领域绑定及R2旧路由 |
+ | 旧 `internal/central/project/lifecycle_audit.go`、`audit_authority.go` | completion/Restore/Retry的typed同Tx真实事实分派 |
+-| 新 `db/migrations/00017_project_lifecycle_completion_plan.sql` | 仅上述operation列/CHECK与受保护Down |
++| 新 `db/migrations/<主线程待分配>_project_lifecycle_completion_plan.sql` | 仍只占一个路径；仅上述 operation 列/CHECK，前向迁移，不含 Down |
+ | 新 `tests/project/lifecycle_runtime_fixture_test.go` | 真实四域/Account/PG/MinIO/guard固定装配、明确原writer协议 |
+ | 新 `tests/project/lifecycle_runtime_test.go` | 真实archive终局/delete handoff/manifest/公平预算 |
+ | 新 `tests/project/lifecycle_runtime_recovery_test.go` | actual process死亡/旧writer/claim接管/完整checkpoint恢复 |
+@@ -192,7 +192,7 @@
+ | `CompletionUnknown` | plan与最终archive各自真实三态，原候选/持久ID不换、Audit/Event只一次、所有权保留；final已提交而随后Restore时仅确认历史结果，零旧cause续写 |
+ | `RestoreRetryUnknown` | 两命令规划/提交适用的真实三态与当前撤权/新SessionLookup；still writer不能not_observed，同key确认零重复Touch/事件 |
+ | `GlobalJoin` | Create实际卡住initializer/确认、creation Unknown、R2/Update/Lookup原writer及Runtime尾部同时存在；另以精确backend PID/原ROLLBACK协议，令真实Service Tx持域锁并执行可回滚操作后，ROLLBACK确认失败、客户端已返回NotCommitted而原backend仍在事务持锁：业务保持NotCommitted，Joined=false、槽仍占用、Force/Drain有界未完成；放行原ROLLBACK并经原共享锁与确认Tx证明终局后才join。不得手造结果或只看客户端关闭；确认Tx自身/opaque Resolve的同类收尾也保持owner。旧API取消/3s窗口不假join，Force预算不重开；晚Initialize返回仍被跟踪，Project+Artifact+Outbox+HTTP的AND未成立前guard不释放 |
+-| `Schema17` | fresh prefix1..17、populated accepted/stopping/failed/旧NULL completed/delete，原行/约束保持；非法/过大/非archive plan拒绝；迁移事务失败无半列，已有持久plan时Down拒绝抹身份 |
++| `SchemaCompletionPlan` | 按实施时已分配连续前缀验证 fresh/populated accepted/stopping/failed/旧 NULL completed/delete，原行/约束保持；非法/过大/非 archive plan 拒绝；事务失败无半列，Source 拒含 Down 输入，隔离备份恢复保留已持久 plan/EventID，不实施生产降级 |
+ 
+ 进程/COMMIT试验使用明确ready/entered/COMMIT协议和精确backend PID，不以固定sleep、宽松SQLSTATE或无锁缺行解释成功。新组不skip；记录每轮固定源码/上游manifest、顶层/子例、原失败与修复、复用的未变输入，不能把跨轮组合写成最终输入一次全绿。受影响旧完整顶层包括Project B02/R2/R3/Secret/D09/领域绑定、Artifact stop/Object S2/ObjectAudit、Outbox普通及lifecycle；原 `TestOutboxLifecycleInspectionAuthorityBoundary` 首红未重现但原因未知，仍保留关注，不能声明R4已修复其根因。
+ 
+@@ -200,10 +200,16 @@
+ 
+ ## 开工门槛与交付边界
+ 
+-本卡静审通过不等于实现授权。开工前由主线程收齐Artifact和领域绑定的正式验收提交，连同已验ObjectAudit/D09逐项核R4实际消费端口/Store/锁/事件事实差异，交还全部旧文件所有权，再下发唯一实现者及00017写权。若最终delta改变本卡完整结果或新增路径，先收窄可核差异重审，不省略真实绑定。最终只在真实archive/Restore/Retry、恢复/全局join和delete handoff均被独立验证后声明本卡通过；后继Cleaner、生产HTTP/root、D10和完整模块门槛仍独立未交付。
++本卡静审通过不等于实现授权。开工前由主线程收齐 Artifact 和领域绑定的正式验收提交，连同已验 ObjectAudit/D09 逐项核 R4 实际消费端口/Store/锁/事件事实差异，交还全部旧文件所有权；重新确认全局迁移连续前缀、分配一个实际编号并完成对应输入差量审核后，才下发唯一实现者及该迁移写权。若最终 delta 改变本卡完整结果或新增路径，先收窄可核差异重审，不省略真实绑定。最终只在真实 archive/Restore/Retry、恢复/全局 join 和 delete handoff 均被独立验证后声明本卡通过；后继 Cleaner、生产 HTTP/root、D10 和完整模块门槛仍独立未交付。
+ 
+ rev1 原候选 SHA-256 为 `d1030889c9a10ce939e2acb08c9ef1e685486f4c7ca48c7a9a2ad0ea32efacba`；独立静审报告 SHA-256 为 `507edec7a03c7bab946147cfc7ba81fbf9b5d809dea71a9bd05e6d11781caf18`。rev2 仅修正实际 work_claims 表名，以及 NotCommitted 业务结果和原 writer/锁终局的区别（包含 Resolve、确认事务和原 GlobalJoin 顶层反例）；API、34路径、00017范围和13顶层保持。该失败路径本轮只有固定源码静态依据，没有动态复现或实现通过声明，等待限定 delta 复审。
+ 
+ ## rev2 规格采纳
+ 
+ 2026-10-05，主线程核对冻结候选 SHA-256 `99cf338a8254768d11c46964a6b6ffbdd27686bb6a4fb3b8b10c1de9283ae924` 与独立差量复审报告 SHA-256 `c92c4745d7f4c8e6c6072b67b2c70bfc1452b662b1d5ce66feb6a525b4804839`，采纳 rev2 规格。实际检查为固定差量、API/34路径/00017范围、13顶层与14链接核对；未运行 Go/Docker，不构成行为验收。Artifact stop 和领域绑定最终验收、真实接缝 delta、文件所有权交还仍是实施前置，00017 继续仅保留编号。
++
++## rev2.1 工程排期差量
++
++2026-10-05，主线程在固定 `3e5d88209224678c72302ec9b307327469ecd38c` 及工作区只读核查后，确认全局 SQL 仅 00001–00016，R4 的 00017/completion_plan 没有实现；独立核查报告 SHA-256 为 `a1c7d95b3ab9691851d3b0a9f05a364f0fbe4ba2b0da390eabb621e8f8949e16`。主线程撤回原文档预留，将 00017 转留 current Model Resolution，R4 待后续实际分配，不保证 00018。上段及旧报告保留原时点事实。
++
++本次只改当前编号/实施门槛，并将原受保护 Down 设想纠正为 [Source](../../../internal/central/postgres/source.go) 已验的前向迁移及隔离恢复约束；不改变 completion_plan 业务/API、34 路径数量、13 组验收结果目标或现有上游阻断，不写 SQL、不改迁移引擎。该限定差量待独立复核，规格通过仍不授业务实施权。
+--- a/docs/development/agent-team/tasks.md
++++ b/docs/development/agent-team/tasks.md
+@@ -8,14 +8,14 @@
+ 
+ 恢复文档及此前已验结果按下文保留；Object Audit 13 源已独立验收并提交推送 `a716ae2a16bc24c115d0207557cada96a30f1049`，主线程已核远端一致。[Project 领域绑定 rev2](../work-items/recovery-project-domain-bindings.md)已独立静审采纳并提交 `086f984eeadadebddcbcaab2868af96f8dfe5ce7`，尚未实施，仍待 Artifact 最终验收、接缝 delta 与文件所有权交还。D09 Project 配置 21 源已验提交推送 `de00c610`；作者第二轮 43 顶层/117 子例、独立 2 顶层/5 子例通过，[正式报告及持久证据](d09-project-configuration-verification.md)已提交推送 `965da5d`。
+ 
+-Object Runtime 的[普通锁竞争回归](object-runtime-join-regression.md)已确认，缺陷仍未修；[修复规格](../work-items/recovery-object-runtime-join.md) `8bce2d9` 已审，但业务执行被自动安全筛查中断，工具原文为 `possible cybersecurity risk`。当前原实施任务停止，不改派或重试；尚无产品/测试源码改动、Go/Docker 或自有运行资源，固定 803 文件准备快照保留。Artifact 本域 review09 的[有限验证结果](artifact-project-stop-verification.md)已获采纳：30 新 + 37 旧来自 35/26/6 的分版本证据；候选 16 源仅归档、未提交，共享 guard、完整卡与 Project 领域绑定继续 BLOCKED。原红 `696b523` 与既有 S2 验收历史保留。R4 rev2 规格已审提交 `18e5297d304ab175a6c49b18c6a1df4af747e1b5`，尚无业务实施权；[OpenAI wire](../work-items/recovery-d09-openai-chat-wire.md)库级 16 源已独立验收并提交推送 `9c72190`，[正式报告](d09-openai-chat-wire-verification.md)保留作者 13/36、独立 1/2 及未绑定边界。已验迁移前缀至 00016，R4 的 00017 completion_plan 仅规划、未写 SQL。原 Outbox 首红未复现、原因未知的关注项保留；完整 D08/D09/D28/E01 仍未完成。
++Object Runtime 的[普通锁竞争回归](object-runtime-join-regression.md)已确认，缺陷仍未修；[修复规格](../work-items/recovery-object-runtime-join.md) `8bce2d9` 已审，但业务执行被自动安全筛查中断，工具原文为 `possible cybersecurity risk`。当前原实施任务停止，不改派或重试；尚无产品/测试源码改动、Go/Docker 或自有运行资源，固定 803 文件准备快照保留。Artifact 本域 review09 的[有限验证结果](artifact-project-stop-verification.md)已获采纳：30 新 + 37 旧来自 35/26/6 的分版本证据；候选 16 源仅归档、未提交，共享 guard、完整卡与 Project 领域绑定继续 BLOCKED。原红 `696b523` 与既有 S2 验收历史保留。R4 rev2 规格已审提交 `18e5297d304ab175a6c49b18c6a1df4af747e1b5`，尚无业务实施权；[OpenAI wire](../work-items/recovery-d09-openai-chat-wire.md)库级 16 源已独立验收并提交推送 `9c72190`，[正式报告](d09-openai-chat-wire-verification.md)保留作者 13/36、独立 1/2 及未绑定边界。已验迁移前缀至 00016；主线程已将仅文档预留的 00017 从 R4 转留 D09 current Model Resolution，尚未写 SQL，R4 completion_plan 待后续实际编号且不预占 00018。原 Outbox 首红未复现、原因未知的关注项保留；完整 D08/D09/D28/E01 仍未完成。
+ 
+ 以下为恢复后的摘要。下文旧阶段中的 `d02_backend`、`d08_design`、`parallel_plan`、`d01_verify`、acceptance 等所有权及“正在实施”描述保留为当时历史，不表示旧实例仍在运行或旧未提交源码已恢复。旧 `/tmp` 证据没有随仓库恢复；历史局部通过不能证明当前缺失实现已存在。本次实际分工见[恢复记录的所有权表](recovery-2026-10-05.md#4-本次所有权与下一步)。
+ 
+ | 工作项 | 当前进度 | 所有权与下一步 |
+ | --- | --- | --- |
+ | D07 | 当前范围已关闭，文档提交 `0ed8085`；历史失败与组合验收边界保留 | 无活动 D07 实现；后续 UI、WS、Project/Runner 绑定按责任模块推进 |
+-| D08 | R1 `98262b4`、R2 `73db0d4`、[R3](../work-items/recovery-d08-lifecycle-authority.md) `3e399c3`、D05 S1 `49c6589`、[Secret checker](../work-items/recovery-secret-project-audit.md) `7d7c50d`、[Project+Secret窄绑定](../work-items/recovery-project-secret-audit-binding.md) `81fe742`、[S2 Object stop](../work-items/recovery-d05-object-stop.md) `6658a6c`及[Object Audit](../work-items/recovery-object-project-audit.md) `a716ae2`均已独立验收提交；完整 B03 未完成 | Object 修复规格 `8bce2d9` 已审，业务执行中断且原任务停止、不改派或重试；缺陷未修，Artifact 最终共享 guard/领域绑定依赖被阻塞。Artifact 本域[有限验证](artifact-project-stop-verification.md)已采纳，16 源未提交、完整卡仍 BLOCKED；R4 rev2 `18e5297` 尚无业务实施权，00017 仅规划；当前接续见[恢复记录](recovery-2026-10-05.md#19-object-修复业务执行中断) |
++| D08 | R1 `98262b4`、R2 `73db0d4`、[R3](../work-items/recovery-d08-lifecycle-authority.md) `3e399c3`、D05 S1 `49c6589`、[Secret checker](../work-items/recovery-secret-project-audit.md) `7d7c50d`、[Project+Secret窄绑定](../work-items/recovery-project-secret-audit-binding.md) `81fe742`、[S2 Object stop](../work-items/recovery-d05-object-stop.md) `6658a6c`及[Object Audit](../work-items/recovery-object-project-audit.md) `a716ae2`均已独立验收提交；完整 B03 未完成 | Object 修复规格 `8bce2d9` 已审，业务执行中断且原任务停止、不改派或重试；缺陷未修，Artifact 最终共享 guard/领域绑定依赖被阻塞。Artifact 本域[有限验证](artifact-project-stop-verification.md)已采纳，16 源未提交、完整卡仍 BLOCKED；R4 rev2 `18e5297` 尚无业务实施权，completion_plan 改为待编号，00017 已转留 D09；当前接续见[恢复记录](recovery-2026-10-05.md#26-current-resolution-迁移排期) |
+ | D09 | C0 `e6e94c4`、B01-K System 配置及 00015 已独立验收，Audit 六源 `26622bc`、System 二十九源 `543511c` 已推送；[Project 配置窄块](../work-items/recovery-d09-project-configuration.md)21 源已验提交推送 `de00c610` | 作者 43 顶层/117 子例、独立 2 顶层/5 子例 PASS；[正式报告](d09-project-configuration-verification.md)及证据 `965da5d` 保留首 FAIL、五项非 verbose 复用与早期纯检查元数据限制。OpenAI wire 16 源库级已验提交 `9c72190`，[wire 报告](d09-openai-chat-wire-verification.md)记录作者 13/36、独立 1/2。[Secret Model usage](../work-items/recovery-d09-secret-model-usage.md)20 源已独立 PASS 并提交推送 `8ad6759`，[报告](d09-secret-model-usage-verification.md)保留作者 20/85、独立 2/7 及原失败。[System Model HTTP](../work-items/recovery-d09-system-model-http.md)17 源已独立 PASS 并提交推送 `ac5b4c6`，[报告](d09-system-model-http-verification.md)保留作者 20/48（配置 5/26 限定复用）及独立 2/4。HTTP 143 路径归档已提交推送 `268a625`。[System root](../work-items/recovery-d09-system-model-root.md)8 路径已独立 PASS，提交推送 `457b1979c9d6563740543b2011eedc06cce34c71`、远端一致；[报告](system-model-root-verification.md)保留作者 15/21（最终直接 14 顶层、初始化 1/5 复用）及独立 2/4（修后 1/2、首轮初始化 1/2 复用）和所有原红。默认 System 配置已对外；无 Model consumer/Invocation/Usage 或真实 Provider 调用，Summary 初值/Settings 待决，完整 D09 未完成。本归档时点：结构化 wire 10 源候选的 4 生产静审发现 Decoder.Token 长值复制/扫描取消阻断，原范围返修方案待审、未验收；Resolver 因该前置暂缓，后续另项接续 |
+ | D26 | 规格及后端依赖 delta 已采纳提交推送 `64e47fbc180a1fb2da385e7d4fabcc880699b0d5`；本归档时点已授权固定 `457b197` 上的 21 路径实施，尚未业务验收 | 作者 `d08_registry_backend`、独立 `recovery_verification`；无 browser/Docker 权，D26 规格/API/前端证据另项归档，不并入 System root 结果 |
+ | D10 | P1 真实 builtin/包载体 11 路径及两份文档已在 `8872110` 提交，并通过本轮固定输入独立验收；[主卡 rev2](../work-items/d10-skills-initialization.md)仅同步状态 | `skill_verification` 已冻结报告及持久证据；Go unit/race/vet与7项独立race探针通过。生产初始化仍须真实D08/D05、Object fact checker与生命周期组合，D10模块未完成 |
+--- a/docs/development/agent-team/recovery-2026-10-05.md
++++ b/docs/development/agent-team/recovery-2026-10-05.md
+@@ -1,6 +1,6 @@
+ # 2026-10-05 中断恢复记录
+ 
+-修订 20，接续 System Model 默认根独立验收、提交与持久归档。本文不重写既有验收历史，不新增产品规则；各历史阶段保留当时事实，最新接续见 §25。模块状态以[台账摘要](tasks.md#当前恢复点与并行所有权)和正式验收记录接续；首个未完成模块仍是 D08。
++修订 21，接续 current Model Resolution 迁移排期；System Model 默认根独立验收与持久归档保持。本文不重写既有验收历史，不新增产品规则；各历史阶段保留当时事实，最新接续见 §26。模块状态以[台账摘要](tasks.md#当前恢复点与并行所有权)和正式验收记录接续；首个未完成模块仍是 D08。
+ 
+ ## 1. 基线与证据来源
+ 
+@@ -19,7 +19,7 @@
+ | D10：[主卡 rev2](../work-items/d10-skills-initialization.md)、[设计 rev2](../work-items/d10-skills-initialization-design.md) | `8872110` 实际含 P1 的 11 个 builtin/纯包/契约路径及当时 rev1 两文档；本轮固定输入独立验收已通过 | rev2 仅同步已提交/已验状态；新结论来自本轮真实检查，不反推旧未记录验收。Skill服务、PG/MinIO、D08与生命周期等后段继续未验证 |
+ | D12：[主卡及 S01 rev2](../work-items/d12-knowledge-documents.md)、[设计 rev2](../work-items/d12-knowledge-documents-design.md)、[B02 rev1](../work-items/d12-b02-knowledge-service.md) | B01 `914fd84`、B02 卡/C1 `71dc176`、C2 `f401c15`、C3 `231a384` 保留 | 旧卡页首的 C1/C2/C3 阶段描述落后于台账和已提交结果；本次保留原卡，按提交识别共享能力，不据此声明 Knowledge 主体完成 |
+ 
+-已验迁移前缀连续至`00016_object_project_work_maintenance.sql`。S1 schema `49c6589`与S2 Object库级work登记、停止/join的28源`6658a6c`分别独立验收，不据此扩为Artifact或完整Project生命周期通过。主线程为R4保留00017 completion_plan，仅为规格规划、未写SQL；Object Audit与领域绑定块不占迁移。
++已验迁移前缀连续至`00016_object_project_work_maintenance.sql`。S1 schema `49c6589`与S2 Object库级work登记、停止/join的28源`6658a6c`分别独立验收，不据此扩为Artifact或完整Project生命周期通过。主线程已撤回 R4 原 00017 文档预留，转留 D09 current Model Resolution，尚未写 SQL；R4 completion_plan 待后续实际编号，不预占 00018。Object Audit与领域绑定块不占迁移。
+ 
+ ## 3. 未恢复的实现与临时证据
+ 
+@@ -66,7 +66,9 @@
+ | `d08_registry_backend` | D26 规格及依赖 delta 已采纳提交推送 `64e47fb`，已获固定 `457b197` 的 21 路径实施权 | 尚未业务验收，无 browser/Docker 权；不触本次根归档 |
+ | `recovery_verification` | D26 独立验收计划与专属规格/API 归档 | 规格及依赖 delta 已通过；前端业务等待固定输入验收，D26 卡状态与证据另项接续 |
+ 
+-B03-R1/R2/R3、D05 S1/S2、Secret checker、ProjectSecret 窄绑定、Object Audit 及 D09 Project 配置窄块的既有验收提交保留。Object Runtime 提前退出缺陷未修；规格 `8bce2d9` 已审，但业务执行被自动安全筛查中断，原实施任务停止、不改派或重试。Artifact 本域有限结果已采纳并归档，16 源未提交；最终共享 guard、整卡与领域绑定仍被阻塞。R4 rev2 `18e5297` 尚无业务实施权，00017 仅规划；OpenAI wire 16 源库级已验提交 `9c72190`。Secret Model usage 20 源已独立 PASS 并提交推送 `8ad6759`；System Model HTTP 17 源已独立 PASS 并提交 `ac5b4c6`；HTTP 143 路径归档已提交推送 `268a625`；System root 8 路径已独立 PASS 并提交推送 `457b197`，窗口已交回，当前仅作持久归档。原 Outbox 未归因红保留，完整 D08/D09/D28/E01 及 D10/D12 后段未完成。
++B03-R1/R2/R3、D05 S1/S2、Secret checker、ProjectSecret 窄绑定、Object Audit 及 D09 Project 配置窄块的既有验收提交保留。Object Runtime 提前退出缺陷未修；规格 `8bce2d9` 已审，但业务执行被自动安全筛查中断，原实施任务停止、不改派或重试。Artifact 本域有限结果已采纳并归档，16 源未提交；最终共享 guard、整卡与领域绑定仍被阻塞。R4 rev2 `18e5297` 尚无业务实施权，completion_plan 当前待编号，00017 已转留 D09；OpenAI wire 16 源库级已验提交 `9c72190`。Secret Model usage 20 源已独立 PASS 并提交推送 `8ad6759`；System Model HTTP 17 源已独立 PASS 并提交 `ac5b4c6`；HTTP 143 路径归档已提交推送 `268a625`；System root 8 路径已独立 PASS 并提交推送 `457b197`，窗口已交回，当前仅作持久归档。原 Outbox 未归因红保留，完整 D08/D09/D28/E01 及 D10/D12 后段未完成。
++
++§4 表格保留 System root 归档当时分工；该 187 路径归档已提交推送 `3e5d88209224678c72302ec9b307327469ecd38c`、主线程确认远端一致。当前仅由 `recovery_handoff` 设计 current Model Resolution 新卡及此次限定排期差量；结构化 wire 仍待动态接受，业务和资源权限另授。迁移排期见 §26，不沿旧分工授予实施权。
+ 
+ ## 5. 本次检查与交接边界
+ 
+@@ -225,3 +227,9 @@
+ 作者六轮 25 容器/19 网络、独立两轮各 4/3，所有实际轮均记录存活 exact ID/name/nonce-label 并双 absent；原 2 容器/4 网络不变，owned 进程/组与 runtime 清零，窗口交回。归档只核固定字节/原证据与 Git 对象，无新 Go/Docker/网络或 Git 写操作，原 patch/log 空白按精确例外保存。
+ 
+ §24 的实施中分工保留为历史，最新归档时点见 §4：结构化 wire 4 生产静审有待修阻断、10 源候选未验收，Resolver 因该前置暂缓；D26 规格及后端依赖 delta 已采纳提交推送 `64e47fbc180a1fb2da385e7d4fabcc880699b0d5`，作者已获固定 `457b197` 的 21 路径实施权但无 browser/Docker 权，尚未业务验收，D26 专属证据后续另项。Object 原被中断修复保持停止，Artifact 16 源未提交、共享 guard/完整卡及领域绑定仍 BLOCKED；Model consumer/Invocation/Usage、实际 Provider 调用未绑，Summary 产品初值待决，`ready=false`/503，完整 D08/D09/D28/E01 未完成。
++
++## 26. current Resolution 迁移排期
++
++2026-10-05，主线程读核独立报告 SHA-256 `a1c7d95b3ab9691851d3b0a9f05a364f0fbe4ba2b0da390eabb621e8f8949e16`，并确认固定 `3e5d882` 的全局 SQL 仅 00001–00016、工作区没有 00017/completion_plan 实现。原 R4 预留仅在文档，主线程决定将下一连续 00017 转留 D09 current Model Resolution；最终文件名随该卡 schema 冻结，当前不授 SQL 实施权，不预占 00018。
++
++[R4 活卡](../work-items/recovery-d08-lifecycle-runtime.md)改为待编号；原 completion_plan 业务、34 路径数量及上游阻断保持。其原受保护 Down 设想改为现有 Source 的前向迁移约束：事务失败回滚、隔离备份恢复或另审前向修正，不写 Goose Down、不改旧迁移/引擎、不删除已持久事件身份。此三文档工程差量独立待审，旧编号记录和报告不倒写；新 Resolver 卡另行冻结，structured wire 动态前置和无生产 consumer 的边界不变。

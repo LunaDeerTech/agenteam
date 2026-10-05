@@ -1,0 +1,192 @@
+[
+  {
+    "path": "AGENTS.md",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "e4c9c329e3818afd4ef01d01cc882255e301ae1b06617b5376b984c0ba8667ff"
+  },
+  {
+    "path": ".agents/skills/agenteam-design/SKILL.md",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81"
+  },
+  {
+    "path": ".agents/skills/agenteam-go-development/SKILL.md",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "037910810b78e431d6c477677704cbcc746ea3d9db6448556221800661072b2b"
+  },
+  {
+    "path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "66f49baf7dde34c3c2b39e68f793d670074ed3479afd8d0940ffa6288518bb13"
+  },
+  {
+    "path": "docs/development/work-items/d09-model-system-token-usage.md",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "de35939d954520cce219603f853c385f16cfce690821605ba24f5d4b101ee3e5"
+  },
+  {
+    "path": "docs/development/work-items/d01-contracts/model-tool.md",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "876b64869313be14672bb81b5c857ceae266b3485957201406f305672601df32"
+  },
+  {
+    "path": "docs/development/work-items/recovery-d09-secret-model-usage.md",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "9573ba5dccc9e3230736782defb4f80429d05b9a4fdad7fcde9920632eaf5568"
+  },
+  {
+    "path": "docs/architecture/platform-infrastructure/model-system/model-resolution.md",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "7a0c7d00ce84dcef95167cb38224d662fee6c57450e8752d60f02e0a7d1c0441"
+  },
+  {
+    "path": "docs/architecture/platform-infrastructure/model-token-usage.md",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "84c277f1e95fc8ede86ba80485ca0b90a9bb7986c2d1ef6177f0164eb12fa8a3"
+  },
+  {
+    "path": "db/migrations/00015_model_configuration.sql",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "c1f4c4685d1710be4850994ce3e216d98c43201ac38b03e932fd610ab38b17af"
+  },
+  {
+    "path": "internal/central/model/contract/types.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4"
+  },
+  {
+    "path": "internal/central/model/contract/configuration.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "a318e6cc6fb3697d407569f8b3ecb9a441817b8ea1d7e2d0dd1b567d1ced4d14"
+  },
+  {
+    "path": "internal/central/model/contract/resolution.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "151f89787aa0d35d016dd8d77b03f957548fd2f1c9b81cf44e646441867f9a64"
+  },
+  {
+    "path": "internal/central/model/contract/authority.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "358a96356382a651e5668a73962699ecfc39e2fbe27512af880e1ce3aef7e77a"
+  },
+  {
+    "path": "internal/central/model/service.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "eb51dcc1217b4496a266607653b596b5623967069e2dff887a1d3c4470f1fa0a"
+  },
+  {
+    "path": "internal/central/model/authority.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "a841fdb3841be814fb18e29c5b910050e07ce8b51bea287512e43077fc03dbe6"
+  },
+  {
+    "path": "internal/central/model/secret_authority.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "9275aa79a95f8245d284f1fd93d2fd79ea13c06f8fd1459e6b499db0ebef0605"
+  },
+  {
+    "path": "internal/central/model/secret_router.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "136015f0965f21ebf010c907a987fc757f8ef7b6d9c120e7f5fe35ef1b6f3ed5"
+  },
+  {
+    "path": "internal/central/model/configuration_policy.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "0802ff9e5fbd14f485b91fb407fe86d1c46a2916469e1c8ac52e98ca21e5a912"
+  },
+  {
+    "path": "internal/central/model/references.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "880234288ab809df8ef1ad2af20d555ccd79ed6a6c31cd4a86d6883b3bd5c642"
+  },
+  {
+    "path": "internal/central/model/query.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "bcc0f680b3f45299249b405b69a64370a3a97699aae3232b36bc1c7b068d15fd"
+  },
+  {
+    "path": "internal/central/model/store.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "726c777e5b549ff091e4134f1b82930a643197d24497b6cabb2813191c7657da"
+  },
+  {
+    "path": "internal/central/secret/usage_plan.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "ad554aa10034aae01ca132ac6649bfecf8b8e894d14ba80faead61be1cc9c20b"
+  },
+  {
+    "path": "internal/central/secret/lease.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "e310f688beebb8d877f8ee4afbb4f92ec27fd8bf43666720f5fdeafdfc9bab23"
+  },
+  {
+    "path": "internal/central/secret/model_usage.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "1761db95df8cf641daa17ae926e9776e849731ae03b8a9efe05cf76ae96b844d"
+  },
+  {
+    "path": "docs/development/work-items/recovery-d09-openai-chat-structured-wire.md",
+    "commit": "b629714",
+    "sha256": "747c879b4d930de949570a72ad6f3418bac3870f1ea23d639e19ce8a456799a0"
+  },
+  {
+    "path": "internal/central/foundation/lock.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384"
+  },
+  {
+    "path": "internal/central/foundation/cause.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7"
+  },
+  {
+    "path": "internal/central/foundation/tx.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f"
+  },
+  {
+    "path": "internal/central/secret/contract/types.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "2e9109c3278ef461166d41e4def3f6c76b0fde2cdd11fff7b755bdbcd1052cd7"
+  },
+  {
+    "path": "internal/central/identity/contract/identity.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "845794400c185b5f00ef673007661ec1382d19b54ec82329d565567daa073ef4"
+  },
+  {
+    "path": "internal/central/model/contract/references.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "6728cd6830d72988a91082d886e5a12843077381a53e38e7826665f1d4a09740"
+  },
+  {
+    "path": "internal/central/model/commands.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "c801fae31f25815e00ebe82c41a363d53d9a6ff5c2f246f99541cac91de948e7"
+  },
+  {
+    "path": "internal/central/model/project_query.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "9ed9bf858b9b216e7c544dbe4fab92613c6371e5c97c1d94c905525b580f4602"
+  },
+  {
+    "path": "internal/central/model/secret_router_test.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "defbac089b8a5290456ede7da8770358750aa37e4c5e7698cec5dcce2f762538"
+  },
+  {
+    "path": "internal/central/model/secret_authority_test.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "bcdcd6d5d0a0ac211e044ecb9008ffb38bd44069fde395707197eedb80df6cd6"
+  },
+  {
+    "path": "tests/model/project_configuration_fixture_test.go",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "d19c5fb039e784e9747fe853261ceefa4ebdccba9659e5a1010e34832e5c523a"
+  },
+  {
+    "path": "docs/development/work-items/recovery-d08-lifecycle-runtime.md",
+    "commit": "3e5d88209224678c72302ec9b307327469ecd38c",
+    "sha256": "07da60f5aeb9be3417a8bbb5957e0c2a3782784fde55d530b97d43313476a8af"
+  }
+]

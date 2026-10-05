@@ -1,0 +1,49 @@
+{
+  "review_kind": "independent static specification review; no implementation or dynamic execution",
+  "baseline": "be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74",
+  "migration_reservation": "6a9c04ee741edcf8722a5d828a05eb6e3bc55891",
+  "fixed_card": {
+    "path": "/tmp/agenteam-current-resolution-card-bt7_tirx/rev1.md",
+    "sha256": "20637a89d03b3b2e4fc4d1749afc010f260b3eeaeae96b277a217ca6eebe80b7"
+  },
+  "provided_checks": {
+    "path": "/tmp/agenteam-current-resolution-card-bt7_tirx/checks.json",
+    "sha256": "3261f62f73a09984a1b1f5c63968efa2ec6607cd3e2363cfce1835199f71c26d"
+  },
+  "input_index": {
+    "path": "/tmp/agenteam-current-resolution-card-bt7_tirx/inputs.json",
+    "sha256": "db55f03eb17067dfbe04d88286551e950e22cb1653fcfe55baa3a2848e45675c",
+    "file_count": 38,
+    "all_file_sha256_match": true
+  },
+  "candidate_paths": {
+    "path": "/tmp/agenteam-current-resolution-card-bt7_tirx/candidate-paths.json",
+    "sha256": "681b12254e317869047d0b8fd24d3ee523b32c50a94dcbd00d1877fc25ac18f3",
+    "count": 20,
+    "unique_count": 20,
+    "old": 4,
+    "new": 16
+  },
+  "supplemental_fixed_source": {
+    "path": "/workspace/agenteam-system-model-root-acceptance-ci965cuv/src/internal/central/foundation/fault.go",
+    "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+    "provenance": "previous accepted System root independent fixed input; supplements supplied fixed Model commands.go"
+  },
+  "executed": [
+    "read frozen specification and relevant fixed sources",
+    "SHA-256 validation",
+    "bounded static search of already-fixed constructor consumers"
+  ],
+  "not_executed": [
+    "Go",
+    "Docker",
+    "SQL",
+    "network",
+    "Git",
+    "repository writes"
+  ],
+  "findings": [
+    "R1: replace the two unsupported IDEMPOTENCY_CONFLICT literals with existing IDEMPOTENCY_KEY_REUSED"
+  ],
+  "generated_utc": "2026-10-05T20:08:56.949793+00:00"
+}

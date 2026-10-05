@@ -1,0 +1,28 @@
+--- a/docs/development/work-items/recovery-d09-current-model-resolution.md
++++ b/docs/development/work-items/recovery-d09-current-model-resolution.md
+@@ -1,6 +1,6 @@
+ # D09 current Model Resolution 库级恢复卡
+ 
+-修订：rev1 候选，待独立规格审查。固定已接受源码 `be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74`；当前只授权 `recovery_handoff`（architecture_worker）写本卡，不授权 Go、SQL、真实 fixture 或生产绑定。实现者、独立验收者和资源窗口由主线程另授，不再委派。
++修订：rev1.1 候选，待独立差量复审；仅对齐 Foundation 既有同单位异义错误码，行为、API 与 20 路径保持。固定已接受源码 `be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74`；当前只授权 `recovery_handoff`（architecture_worker）写本卡，不授权 Go、SQL、真实 fixture 或生产绑定。实现者、独立验收者和资源窗口由主线程另授，不再委派。
+ 
+ 必读 [设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)、[D09 设计 §4](d09-model-system-token-usage-design.md#4-正式规划授权与-secret-组合)、[Model Resolution 架构](../../architecture/platform-infrastructure/model-system/model-resolution.md)及已验 [Secret planned usage](recovery-d09-secret-model-usage.md)。本卡落实其中一个完整结果，不把整个 D09 或未来 consumer 的正式端口视为已实现。
+ 
+@@ -55,7 +55,7 @@
+ 
+ Select 的当前 Human 授权先于有区分度的资源错误；Resolve 的当前 consumer 授权也须先于向外暴露配置/准备记录是否存在。Discover 阶段读到的候选只是收集锁和依赖；必要时用包含当前 consumer 全部锁的短只读 Tx 先核权限，不能把 `ConsumerAuthority.Discover` 当授权。所有成功准备和最终 Tx 仍锁后重新验证；不以一次前置检查跨 Tx 放行。
+ 
+-错误保持安全闭集：坏结构/零 ctx 为 `INVALID_ARGUMENT`，缺装配为 `DEPENDENCY_UNBOUND`；当前授权失败保留正式 authority 错误，可见资源缺失 `NOT_FOUND`，disabled/必需 selector 未配置 `INVALID_STATE`，不支持的 profile/字段 `CAPABILITY_UNSUPPORTED`，锁后配置/plan 变化 `RESOURCE_BUSY`，持久同单位异义 `IDEMPOTENCY_CONFLICT`。不向普通错误/日志加入 snapshot/private plan、endpoint、credential 或 consumer 输入内容。
++错误保持安全闭集：坏结构/零 ctx 为 `INVALID_ARGUMENT`，缺装配为 `DEPENDENCY_UNBOUND`；当前授权失败保留正式 authority 错误，可见资源缺失 `NOT_FOUND`，disabled/必需 selector 未配置 `INVALID_STATE`，不支持的 profile/字段 `CAPABILITY_UNSUPPORTED`，锁后配置/plan 变化 `RESOURCE_BUSY`，持久同单位异义 `IDEMPOTENCY_KEY_REUSED`。不向普通错误/日志加入 snapshot/private plan、endpoint、credential 或 consumer 输入内容。
+ 
+ 新 snapshot 只冻结已验 profile 子集：OpenAIChat/OpenAIChatV1/Chat；无 tools、parallel tools、reasoning 或 reasoning_efforts，input/output 均为 text，空 Provider Options/Parameters/RequestOverwrite/HeaderOverwrite。streaming 与合法 ContextLength/MaxOutput 原值保留。StructuredOutputModes 不含 json_schema 且满足 text-v1 闭集时固定 `openai-chat-text-v1`；含 json_schema 并满足 structured-v1 闭集时固定 `openai-chat-structured-v1`。platform.memory 只能后者。直接 chat 也按实际 capability 选 revision，不按未来单次 ResponseFormat 更换快照。
+ 
+@@ -67,7 +67,7 @@
+ 
+ 使用本域 `model.resolve` CommandIdentity 作 rank-0 writer 锁/TransactionCause，owner IDs 为 Project 与 lease owner 的规范 UUID；command 区分 owner kind，key 为上述解析单位的固定版本 canonical digest。它不写配置 commands 表、不伪造用户提交的 CommandMeta。不同 model_call purpose/consumer 不产生第二单位，而是下列异义冲突。
+ 
+-持久 semantic digest 为版本化 canonical 私有标量 DTO：完整 consumer、purpose/source、LeaseOwner、原始 ModelRef/Selection（含是否带版本）/ReasoningEffort及稳定 initiator。Human 稳定身份含 UserID、不含 SessionID；AgentRun/Service 保留各自完整稳定角色/Project/Agent/Execution/Cause 身份。**不把第一次观测的 live Provider/Model/selector 版本、endpoint 或配置值写入 semantic digest**。新 Session 必须重新规划和当前授权；旧内存 plan 的完整 Actor binding 不可移用。相同单位异义返回 `IDEMPOTENCY_CONFLICT`，不复用别人的快照。
++持久 semantic digest 为版本化 canonical 私有标量 DTO：完整 consumer、purpose/source、LeaseOwner、原始 ModelRef/Selection（含是否带版本）/ReasoningEffort及稳定 initiator。Human 稳定身份含 UserID、不含 SessionID；AgentRun/Service 保留各自完整稳定角色/Project/Agent/Execution/Cause 身份。**不把第一次观测的 live Provider/Model/selector 版本、endpoint 或配置值写入 semantic digest**。新 Session 必须重新规划和当前授权；旧内存 plan 的完整 Actor binding 不可移用。相同单位异义返回 `IDEMPOTENCY_KEY_REUSED`，不复用别人的快照。
+ 
+ 规划中的唯一全局迁移为 `db/migrations/00017_model_current_resolution.sql`，只新增以下三张 `agenteam_model` 表及本域约束/索引；不改 00001–00016、配置 commands、Audit schema、Secret 私有表或跨域 FK：
+ 

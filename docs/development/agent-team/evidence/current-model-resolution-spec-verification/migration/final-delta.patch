@@ -1,0 +1,20 @@
+--- a/docs/development/work-items/recovery-d08-lifecycle-runtime.md
++++ b/docs/development/work-items/recovery-d08-lifecycle-runtime.md
+@@ -36,7 +36,7 @@
+ 
+ 1. `Service.New` 只捕获一次有效 `Processes.CurrentProcess()`，creation 和 lifecycle 始终使用该实例 ID。ProcessAuthority 是受信任外部依赖；合法 ID 不证明真实 ProcessGuard 已装配，组合验收另证。不得在 Project 中新建、重置或 Close guard。Authority 与 Store 必须是同一实际 Store；不按同 PG 地址替代同 Store。
+ 2. `NewRuntime` 不执行 SQL、不启动 goroutine。拒绝 nil/可判定零 Service 或 LifecycleAuthority、异 Store、无效 registry、当前 manifest 解析失败及第二个 Runtime；Service Authority 的 Lifecycle 依赖须为传入的同一具体 R3 Authority。其完整版本声明与当前 registry 一致；恢复旧 operation 时再按该 operation 的完整 manifest 逐项核兼容版本。opaque participant 的非 nil、Name/声明检查不是内部健康证明，不反射猜私有状态。实际调用错误或 panic 不能转成 stopped。
+-3. 构造成功即把 Runtime 所有权挂入 Service；外层必须先登记资源，再调用 Initialize/Start。Initialize 自身计入 owned control，确认 schema 17 与当前装配，建立恢复扫描能力，不执行未确认接受的参与者调用。历史 operation 的缺版本/坏事实逐项显式失败或保留待处理，不用一个忙 Project 阻止所有其他 Project 初始化。启动检查失败/取消不撤销资源登记；晚返回控制仍计入 Joined。
++3. 构造成功即把 Runtime 所有权挂入 Service；外层必须先登记资源，再调用 Initialize/Start。Initialize 自身计入 owned control，确认本卡届时获分配迁移的实际 schema 与当前装配，建立恢复扫描能力，不执行未确认接受的参与者调用。历史 operation 的缺版本/坏事实逐项显式失败或保留待处理，不用一个忙 Project 阻止所有其他 Project 初始化。启动检查失败/取消不撤销资源登记；晚返回控制仍计入 Joined。
+ 4. Start 仅在 Initialize 成功后启动一次；重复 Start 返回 `INVALID_STATE`，StopAdmission 后不能重启。Start 的 context 只约束启动等待，成功后由已登记 Runtime 持有运行 context，后续请求取消不结束整个 worker。Check 用有限调用预算检查初始化/停止/致命调度错误和真实依赖状态，不启动业务、不等待所有 pending 操作完成；单个 failed operation 不等于全 Runtime 无法服务。
+ 5. Service/Runtime 的 StopAdmission 共用一个 admission 屏障：停止新公共调用和新 work round，不取消已接受调用；已登记父调用的 checkpoint/确认属于同一 owner，可继续收尾，不借 child 再申请一个新 admission。既有 Service.Stop/Force 保留“关 admission 并请求取消”的兼容含义，其无 context 返回不构成 join 证明。Runtime.Force(ctx) 同时请求取消并在原预算内等待全局 Joined；Drain(ctx) 只等待并执行必要有界终局确认，不提前标成功。
+ 6. `Joined` 在 admission 已关闭，所有 Service 公共调用、creation provider/confirmation、Runtime 初始化/调度/worker、原 writer 终局确认和实际尾部调用全部返回且资源所有权退休后才为 true。Runtime.Joined 与 Service.Joined 使用同一事实；没有 Runtime 的 Service 也必须满足 creation/命令部分。未关闭 admission 时不能因瞬间零调用报告最终 joined；Runtime.Drain 要求先 StopAdmission，否则返回 INVALID_STATE。零 Runtime 的 Joined=false，其有返回值方法拒绝 DEPENDENCY_UNBOUND；重复 StopAdmission 安全。
+@@ -170,7 +170,7 @@
+ | 新 `tests/project/lifecycle_restore_retry_test.go` | Restore/Retry/Lookup的权限、幂等及原子性 |
+ | 新 `tests/project/lifecycle_runtime_unknown_test.go` | claim/checkpoint/plan/final/Restore/Retry真实Unknown |
+ | 新 `tests/project/lifecycle_runtime_shutdown_test.go` | 旧creation/公共命令与Runtime全局join、联合guard屏障 |
+-| 新 `tests/project/lifecycle_completion_schema_test.go` | fresh/populated prefix17、严格plan/受保护回滚 |
++| 新 `tests/project/lifecycle_completion_schema_test.go` | 届时连续前缀的 fresh/populated、严格 plan、前向迁移与隔离恢复 |
+ 
+ 不改R1/R3、领域绑定/Artifact/Object/D09文件、foundation/postgres、旧SQL、shared contract、go.mod/sum、脚本、HTTP/app或共享台账。旧 `events.go` 等接缝须先由D09/领域绑定作者验收冻结并交还。新测试复用已验B02 COMMIT proxy和owned资源原则，不修改旧fixture/旧断言。
+ 

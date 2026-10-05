@@ -1,0 +1,24 @@
+{
+  "manifest_sha256": "2e1a3bf6550285ff062d517b1b9a44f0862502fedb6ba62703c2907a740a3bd2",
+  "delta_sha256": "11cf1be7a20185b2c0e4538a24bda51647f1c5cca6d7f33eaf650dca93128f06",
+  "three_before_after_sha_match": true,
+  "exact_delta_rebuilt": true,
+  "public_api_codeblock_unchanged": true,
+  "findings": [
+    {
+      "id": "M1",
+      "path": "docs/development/work-items/recovery-d08-lifecycle-runtime.md",
+      "line": 39,
+      "actual": "Initialize 自身计入 owned control，确认 schema 17 与当前装配",
+      "required": "改为确认本卡届时获分配迁移的实际 schema 和当前装配，不把 Resolver 17 当作 R4 已具备列"
+    },
+    {
+      "id": "M2",
+      "path": "docs/development/work-items/recovery-d08-lifecycle-runtime.md",
+      "line": 173,
+      "actual": "fresh/populated prefix17、严格plan/受保护回滚",
+      "required": "按届时已分配连续前缀的 fresh/populated；严格 plan 与前向/隔离恢复，不保留固定17/旧Down口径"
+    }
+  ],
+  "no_repo_go_docker_network_git_actions": true
+}

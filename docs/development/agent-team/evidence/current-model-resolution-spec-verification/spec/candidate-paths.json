@@ -1,0 +1,122 @@
+[
+  {
+    "path": "internal/central/model/authority.go",
+    "state": "旧",
+    "baseline_exists": true,
+    "baseline_sha256": "a841fdb3841be814fb18e29c5b910050e07ce8b51bea287512e43077fc03dbe6"
+  },
+  {
+    "path": "internal/central/model/service.go",
+    "state": "旧",
+    "baseline_exists": true,
+    "baseline_sha256": "eb51dcc1217b4496a266607653b596b5623967069e2dff887a1d3c4470f1fa0a"
+  },
+  {
+    "path": "internal/central/model/secret_authority.go",
+    "state": "旧",
+    "baseline_exists": true,
+    "baseline_sha256": "9275aa79a95f8245d284f1fd93d2fd79ea13c06f8fd1459e6b499db0ebef0605"
+  },
+  {
+    "path": "internal/central/model/secret_router.go",
+    "state": "旧",
+    "baseline_exists": true,
+    "baseline_sha256": "136015f0965f21ebf010c907a987fc757f8ef7b6d9c120e7f5fe35ef1b6f3ed5"
+  },
+  {
+    "path": "internal/central/model/resolver.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/model/resolution_plan.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/model/resolution_store.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/model/resolution_secret.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/model/resolution_policy.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/model/resolver_test.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/model/resolution_plan_test.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/model/resolution_secret_test.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "internal/central/model/resolution_policy_test.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "tests/model/current_resolution_fixture_test.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "tests/model/current_resolution_selection_test.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "tests/model/current_resolution_atomicity_test.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "tests/model/current_resolution_authorization_test.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "tests/model/current_resolution_unknown_test.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "tests/model/current_resolution_schema_test.go",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  },
+  {
+    "path": "db/migrations/00017_model_current_resolution.sql",
+    "state": "新",
+    "baseline_exists": false,
+    "baseline_sha256": null
+  }
+]
