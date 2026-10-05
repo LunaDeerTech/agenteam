@@ -1,0 +1,31 @@
+# D26 正式认证前端 rev1：独立规格静审
+
+结论：**BLOCKED，仅一项必要前置修订 F1；其余本次有界静审未见新增硬阻断。** 真实挑战 pass 与既有 OpenAPI 两字段不一致，须由契约负责人纠正并验收后让前端消费。不能把当前 rev1 宣称 STATIC PASS，也不能只在客户端私自放宽。未修改卡/API/仓库，未运行 npm、浏览器、Go、Docker 或网络；没有动态产品通过结论。
+
+固定输入为 `422e0c1d97d924e503ad816992b778e917599507` 与 `d26-account-authentication.md` rev1 SHA `1a56bc635841778a642fabfb4f78098dd866ca191b4f1101fee14855e712fb2f`。原冻结副本为 `/tmp/agenteam-d26-auth-spec-50uiases/card.md`，末检不变；本目录 `inputs.json` 逐 SHA 定位实际采用的 Git 固定文件，未读活动 app/前端候选作为依据。已读 AGENTS、团队流程及 design/verification/Vue-development/Vue-testing 技能，针对异步/可见行为/真实 DOM 的测试参考仅作审查依据，没有安装其示例依赖。
+
+## 必要修订 F1
+
+冻结小结 `F1.md`（SHA `a8faa1fd33d29d7a6255128a3ffb2bb95f2f1efd731ac8afd84ee36270743de8`）和 `F1-evidence.json`（SHA `1b879f6cb16f209e47dac223ec7f0bb789f883ff858b64c2ecb93ef1d3e55e72`）保留源码/HTTP 输入输出/最终 consumer 全链。服务端实际签发并接受 `UUIDv7(36) + '.' + RawURL(32bytes=43)`，总80 ASCII字符；`account.json` LoginInput.challenge_pass 与 ChallengePass.pass 却 maxLength43。卡行35要求 pass 沿该限制，会拒真实 verify 成功响应。CSRF43本身正确，六个 method/path/status 也无此变化。
+
+建议另授两字段的正式契约纠正和有意义的回归，保持 Go 生产逻辑不变；D26 卡再补该已验前置及 pass80/CSRF43 的 typed-client 正反场景。当前21路径没有 OpenAPI 写权，不能以卡内实现临时绕开；前端范围不因单独上游契约修正自动增加第22路径。上述为确定静态矛盾，无原动态失败或认证绕过结论。
+
+## 其余有界结论
+
+| 检查面 | 结论与固定依据 |
+| --- | --- |
+| 21实现/测试/配置 + 3验后文档 | 路径逐项核为15新/6旧，现有 UiInput 透传原生属性，UiField 提供 id/invalid/describedby，UiButton 默认 button 可显式 submit；AppShell 窄透传 SystemNav 现有 slot 足以放身份/退出。原两个 web tests 不依赖待替换首页或认证状态；未发现必须更改 shared UI、SystemNav、main.ts、tokens 或旧 harness 的证据。两个新 Go 文件可在现有 account_test 包内建立独立 fixture 与四组顶层。 |
+| 六真实 D07 API/typed DTO | 对照 account.json/common.json 与 http.go/http_auth.go/http_wire.go，六条精确 path/status/body、login无Session CSRF、logout204无body、bootstrap43、version十进制字符串/UTC微秒均一致，F1除外。运行时 unknown 解析、不以401网络错误混同、安全Problem文本/无rawbody、禁止任意URL/redirect是可执行边界。 |
+| Session/CSRF/Unknown/重放 | GetSession源码无活动Touch；卡先GET再发布身份/Session CSRF，login200后真实GET，失效隐藏旧身份，正向Session观察不证明原命令提交；loginMAC实际绑定browser/规范email/密码，不含后补pass，所以CHALLENGE_REQUIRED保持原key正确。Cookie上下文变更必须作废旧重放；logout只在原Session当前时同key重试，不新增lookup接口或自动mutation。 |
+| 四Cookie入口与取消 | bootstrap、Session GET失效清Cookie、login、logout均须串行；代际禁止迟到结果与finally修改新状态，卸载不立即丢transport责任，30s取消只转未确认，不能宣布服务端回滚。实施须把logout也纳入这四入口的统一generation/finally和持有责任；该点由卡的通用过期结果规则覆盖，不额外要求API。至少一个忽略abort的barrier只证明客户端行为，不能写成真实Cookie/服务端Unknown动态通过。 |
+| 页面/路由/rotate | 独立登录面板与只读空首页符合已确认布局；return target仅'/'，不生成未来链接或项目Owner推断；Debug DEV独立、不调用认证且生产排除。官方Rotate 2.0.7与原生range共同angle送真实verify、键盘/焦点/缩放/reduced-motion是明确验收项；视觉判断限制明确，不冒称非视觉替代。 |
+| 同源/dist/真实浏览器 | csrf.go:66–79实际校验Host与Origin，卡保持外部Host/Origin且先确定PUBLIC_ORIGIN的代理方案相容。已有http_fixture_test.go可证明accountenv/真实app.Run/PG/MinIO组合接缝存在；原captcha_web_test.go含/fixture旁路，只能借锁定依赖/solver/进程模式，不能复用为正式验收。新专属config可以直接调用既有本地Playwright CLI，不改其旧npm test/harness。API/缺失资源/服务端错误不fallback，静态服务器仅测试能力，D28单站hosting未完成。 |
+| 资源、预算和前置差量 | 卡保留race/count1/6m、每顶层2m共享子例、Playwright45s/单worker/零retry；实际Node/Chromium/locked cache尚需实施时核，不能从旧成功或403推断。独占窗口、exact nonce/label/ID双absence、原基线不变、子进程wait/私有凭据清理已明确；当前静审未占这些资源。System root8将来若验收提交，只能经固定delta核对后加入输入，不用活动app解释结果。 |
+
+## 交付与未验证
+
+`checks.json` 记录实际路径分类、固定Git链接/fragment、UTF8/LF/围栏/尾空格及所执行只读命令。全部规格链接存在于固定基线，路径分类与卡吻合。`inputs.json` 保存选读源指纹；F1长度算术仅用全零合成字节计算编码长度，没有读取凭据、调用Go或真正签发pass。
+
+后续独立验收优先核：真实80字符pass完成六API登录链；原输入/同key及Cookie队列迟到竞争；正式dist同源Session确认/注销与rotate两交互分支；固定生产依赖和资源清零。其余按作者有效固定证据去重，不扩大为完整D26/D28、跨标签同步、服务器Unknown网络注入或非视觉挑战工程。当前前端/root/视觉/构建/实际浏览器资源均未在本轮验证。
+
+报告及所有本轮命令已完成，私有证据冻结；仓库零写、无后台/Go/Docker/浏览器任务，all-stop。

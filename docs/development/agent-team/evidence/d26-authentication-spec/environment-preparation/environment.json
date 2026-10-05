@@ -1,0 +1,223 @@
+{
+  "accepted_baseline": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "env_commands": [
+    {
+      "argv": [
+        "node",
+        "--version"
+      ],
+      "exit": 0,
+      "stdout": "v24.19.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "npm",
+        "--version"
+      ],
+      "exit": 0,
+      "stdout": "11.9.0\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "dpkg-query",
+        "-W",
+        "-f=${Package} ${Version} ${Status}\n",
+        "chromium",
+        "chromium-common"
+      ],
+      "exit": 0,
+      "stdout": "chromium 151.0.7922.173-1~deb13u1 install ok installed\nchromium-common 151.0.7922.173-1~deb13u1 install ok installed\n",
+      "stderr": ""
+    }
+  ],
+  "cache_root": "/workspace/.npm-cache/_cacache",
+  "locks": {
+    "web/package-lock.json": {
+      "lock_sha256": "daab84caeafa77fca90e366a503c6ed59f50a19da123345f83ddbf4fc26d8c7f",
+      "lock_packages": 170,
+      "platform": "linux-x64",
+      "compatible": 147,
+      "cached_integrity_verified": 145,
+      "missing_cache": [
+        {
+          "path": "node_modules/@rolldown/binding-linux-x64-musl",
+          "version": "1.2.12",
+          "optional": true
+        },
+        {
+          "path": "node_modules/lightningcss-linux-x64-musl",
+          "version": "1.33.0",
+          "optional": true
+        }
+      ],
+      "corrupt_cache": [],
+      "other_platform_omitted": 23,
+      "installed_version_matching": 145,
+      "installed_missing": [
+        "node_modules/@rolldown/binding-linux-x64-musl",
+        "node_modules/lightningcss-linux-x64-musl"
+      ],
+      "installed_version_mismatch": []
+    },
+    "tests/account-captcha-web/package-lock.json": {
+      "lock_sha256": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534",
+      "lock_packages": 109,
+      "platform": "linux-x64",
+      "compatible": 85,
+      "cached_integrity_verified": 77,
+      "missing_cache": [
+        {
+          "path": "node_modules/@csstools/css-calc",
+          "version": "3.4.3",
+          "optional": false
+        },
+        {
+          "path": "node_modules/@csstools/css-color-parser",
+          "version": "4.2.6",
+          "optional": false
+        },
+        {
+          "path": "node_modules/@playwright/test",
+          "version": "1.56.1",
+          "optional": false
+        },
+        {
+          "path": "node_modules/@rolldown/binding-linux-x64-musl",
+          "version": "1.2.12",
+          "optional": true
+        },
+        {
+          "path": "node_modules/go-captcha-vue",
+          "version": "2.0.7",
+          "optional": false
+        },
+        {
+          "path": "node_modules/lightningcss-linux-x64-musl",
+          "version": "1.33.0",
+          "optional": true
+        },
+        {
+          "path": "node_modules/playwright",
+          "version": "1.56.1",
+          "optional": false
+        },
+        {
+          "path": "node_modules/playwright-core",
+          "version": "1.56.1",
+          "optional": false
+        }
+      ],
+      "corrupt_cache": [],
+      "other_platform_omitted": 24,
+      "installed_version_matching": 0,
+      "installed_missing": [
+        "node_modules/@acemir/cssom",
+        "node_modules/@asamuzakjp/css-color",
+        "node_modules/@asamuzakjp/dom-selector",
+        "node_modules/@asamuzakjp/nwsapi",
+        "node_modules/@babel/helper-string-parser",
+        "node_modules/@babel/helper-validator-identifier",
+        "node_modules/@babel/parser",
+        "node_modules/@babel/types",
+        "node_modules/@csstools/color-helpers",
+        "node_modules/@csstools/css-calc",
+        "node_modules/@csstools/css-color-parser",
+        "node_modules/@csstools/css-parser-algorithms",
+        "node_modules/@csstools/css-syntax-patches-for-csstree",
+        "node_modules/@csstools/css-tokenizer",
+        "node_modules/@exodus/bytes",
+        "node_modules/@jridgewell/sourcemap-codec",
+        "node_modules/@oxc-project/types",
+        "node_modules/@playwright/test",
+        "node_modules/@rolldown/binding-linux-x64-gnu",
+        "node_modules/@rolldown/binding-linux-x64-musl",
+        "node_modules/@rolldown/pluginutils",
+        "node_modules/@vue/compiler-core",
+        "node_modules/@vue/compiler-core/node_modules/entities",
+        "node_modules/@vue/compiler-dom",
+        "node_modules/@vue/compiler-sfc",
+        "node_modules/@vue/compiler-ssr",
+        "node_modules/@vue/reactivity",
+        "node_modules/@vue/runtime-core",
+        "node_modules/@vue/runtime-dom",
+        "node_modules/@vue/server-renderer",
+        "node_modules/@vue/shared",
+        "node_modules/agent-base",
+        "node_modules/bidi-js",
+        "node_modules/css-tree",
+        "node_modules/cssstyle",
+        "node_modules/csstype",
+        "node_modules/data-urls",
+        "node_modules/data-urls/node_modules/whatwg-mimetype",
+        "node_modules/debug",
+        "node_modules/decimal.js",
+        "node_modules/detect-libc",
+        "node_modules/entities",
+        "node_modules/estree-walker",
+        "node_modules/fdir",
+        "node_modules/go-captcha-vue",
+        "node_modules/html-encoding-sniffer",
+        "node_modules/http-proxy-agent",
+        "node_modules/https-proxy-agent",
+        "node_modules/is-potential-custom-element-name",
+        "node_modules/jsdom",
+        "node_modules/lightningcss",
+        "node_modules/lightningcss-linux-x64-gnu",
+        "node_modules/lightningcss-linux-x64-musl",
+        "node_modules/lru-cache",
+        "node_modules/magic-string",
+        "node_modules/mdn-data",
+        "node_modules/ms",
+        "node_modules/nanoid",
+        "node_modules/parse5",
+        "node_modules/picocolors",
+        "node_modules/picomatch",
+        "node_modules/playwright",
+        "node_modules/playwright-core",
+        "node_modules/postcss",
+        "node_modules/punycode",
+        "node_modules/require-from-string",
+        "node_modules/rolldown",
+        "node_modules/saxes",
+        "node_modules/source-map-js",
+        "node_modules/symbol-tree",
+        "node_modules/tinyglobby",
+        "node_modules/tldts",
+        "node_modules/tldts-core",
+        "node_modules/tough-cookie",
+        "node_modules/tr46",
+        "node_modules/typescript",
+        "node_modules/vite",
+        "node_modules/vue",
+        "node_modules/w3c-xmlserializer",
+        "node_modules/webidl-conversions",
+        "node_modules/whatwg-mimetype",
+        "node_modules/whatwg-url",
+        "node_modules/ws",
+        "node_modules/xml-name-validator",
+        "node_modules/xmlchars"
+      ],
+      "installed_version_mismatch": []
+    }
+  },
+  "registry_metadata_entries": [],
+  "browser": {
+    "wrapper": "/usr/bin/chromium",
+    "binary": "/usr/lib/chromium/chromium",
+    "exists": true,
+    "executable": true,
+    "binary_sha256": "d387400aaf740ccb75e5e996a34aa0940e6e97683a4eabd6ae34c1eed6804723",
+    "launched": false
+  },
+  "not_executed": [
+    "install",
+    "npm build",
+    "npm test",
+    "browser",
+    "Go",
+    "Docker",
+    "network"
+  ]
+}

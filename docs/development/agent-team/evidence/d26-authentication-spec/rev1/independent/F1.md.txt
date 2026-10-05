@@ -1,0 +1,11 @@
+# D26 rev1 独立静审：F1 正式挑战 pass 契约冲突
+
+结论：**确定阻断，前端实施须等正式契约纠正；未执行 Go/HTTP/npm/browser。** 输入为 `422e0c1d97d924e503ad816992b778e917599507` 与 rev1 卡 `1a56bc635841778a642fabfb4f78098dd866ca191b4f1101fee14855e712fb2f`。这不是已发生的前端动态失败，也不指认证绕过。
+
+固定源码链：`account/browser.go:31–37` 的 randomToken 将 32 随机字节编码为 43 字符无 padding Base64URL；`account/challenge.go:340` 按 `id.String() + "." + raw` 签发 80 字符 pass，`:383` 原样交 SecretMaterial；`account/http_auth.go:208–214` 将材料原样编码为 `{pass}`，没有截短。接收侧 `http_wire.go:33–46` 将字符串字节原样交 NewSecretMaterial（`secret/contract/material.go:13,24–29` 为 1–65536 字节）；`account/contract/commands.go:24–28` 没有 43 字符限制。最终 `challenge.go:404–418` 严格拆成 ID 与 canonical 32-byte Base64URL，再按原 one-use/binding 判定，因此真实签发与消费一致为 80 字符。
+
+同基线 `api/openapi/account.json:3362–3365` 的 LoginInput.challenge_pass 和 `:3490–3496` 的 ChallengePass.pass 均写 maxLength=43。卡 §2/行35 要求 pass 沿 OpenAPI 限制，且 §2/行18 将其定为唯一 wire 来源；按卡实现的运行时 parser 会拒绝真实 verify 成功响应或无法重交真实登录。这是既有文档 schema 与生产 wire 的冲突；CSRF 自身仍是 43 字符，不能一并放宽。
+
+最小建议：主线程另授原契约负责人一个独立可验窄修，只纠正这两字段以容纳并准确描述现有 80 字符 opaque pass，保留原 ID、随机材料、一次性/绑定和服务端行为；用固定真实签发/消费源码及有意义的契约回归闭合。D26 卡消费该已验纠正提交/指纹并明确 CSRF43 与 pass80，补 typed client 接收真实80/拒43误形态的场景。不让前端私下绕过 OpenAPI，不改六 API、生产认证规则或扩大 D26 页面范围。当前 21 路径没有 OpenAPI 写权，该纠正必须单独授权；其余前端范围无需因此扩大。
+
+原始定位和长度静态检查保存在 `F1-evidence.json`；敏感值未读取或保存。此小结冻结后不改，后续总报告引用它。

@@ -1,0 +1,196 @@
+{
+  "base": "422e0c1d97d924e503ad816992b778e917599507",
+  "card_sha256": "1a56bc635841778a642fabfb4f78098dd866ca191b4f1101fee14855e712fb2f",
+  "implementation_paths": [
+    {
+      "path": "web/src/api/client.ts",
+      "kind": "new"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "kind": "new"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "kind": "new"
+    },
+    {
+      "path": "web/src/components/account/RotateChallenge.vue",
+      "kind": "new"
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "kind": "new"
+    },
+    {
+      "path": "web/src/views/HomeView.vue",
+      "kind": "new"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "kind": "new"
+    },
+    {
+      "path": "web/src/App.vue",
+      "kind": "existing"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "kind": "existing"
+    },
+    {
+      "path": "web/src/components/layout/AppShell.vue",
+      "kind": "existing"
+    },
+    {
+      "path": "web/vite.config.ts",
+      "kind": "existing"
+    },
+    {
+      "path": "web/package.json",
+      "kind": "existing"
+    },
+    {
+      "path": "web/package-lock.json",
+      "kind": "existing"
+    },
+    {
+      "path": "web/src/tests/account-client.spec.ts",
+      "kind": "new"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "kind": "new"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "kind": "new"
+    },
+    {
+      "path": "web/src/tests/rotate-challenge.spec.ts",
+      "kind": "new"
+    },
+    {
+      "path": "tests/account-captcha-web/authentication.config.js",
+      "kind": "new"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/authentication.spec.ts",
+      "kind": "new"
+    },
+    {
+      "path": "tests/account/authentication_web_fixture_test.go",
+      "kind": "new"
+    },
+    {
+      "path": "tests/account/authentication_web_test.go",
+      "kind": "new"
+    }
+  ],
+  "counts": {
+    "total": 21,
+    "new": 15,
+    "existing": 6,
+    "post_acceptance_docs": 3
+  },
+  "links": [
+    {
+      "target": "docs/development/work-items/d07-account-session-smtp.md",
+      "fragment": "当前进度",
+      "pass": true
+    },
+    {
+      "target": "docs/development/development-plan.md",
+      "fragment": "d28-集成部署与交付验收",
+      "pass": true
+    },
+    {
+      "target": "docs/frontend-design/layouts/account-entry.md",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": "docs/architecture/platform-infrastructure/authentication/account-lifecycle.md",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": "docs/frontend-design/layouts/application-shell.md",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": "docs/frontend-design/layouts/system-pages.md",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": "AGENTS.md",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": "docs/development/agent-team/README.md",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": ".agents/skills/agenteam-design/SKILL.md",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": ".agents/skills/agenteam-vue-development/SKILL.md",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": ".agents/skills/vue-testing-best-practices/SKILL.md",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": "docs/development/frontend/README.md",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": "docs/development/frontend/components.md",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": "docs/frontend-design/styles/README.md",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": "api/openapi/account.json",
+      "fragment": "",
+      "pass": true
+    },
+    {
+      "target": "api/openapi/common.json",
+      "fragment": "",
+      "pass": true
+    }
+  ],
+  "format": "UTF8/LF/final newline/trailing whitespace/fences PASS",
+  "spec_result": "BLOCKED F1; remaining bounded static review has no additional mandatory revision",
+  "actual_commands": [
+    "git show 422e0c1d97d924e503ad816992b778e917599507:<selected path>",
+    "git cat-file -e 422e0c1d97d924e503ad816992b778e917599507:<card link/whitelist path>",
+    "git grep -n <targeted symbols> 422e0c1 -- <bounded directories>",
+    "rg/sed/nl on fixed private copies",
+    "python3 - [source/schema length check, path/link/format checks]"
+  ],
+  "not_run": [
+    "npm",
+    "browser",
+    "Go",
+    "Docker",
+    "network",
+    "Git writes"
+  ],
+  "missing_read_note": "An initial guessed optional web/src/tests/layout.spec.ts does not exist. Actual components.spec.ts and styles.spec.ts were then enumerated and read at the fixed commit."
+}

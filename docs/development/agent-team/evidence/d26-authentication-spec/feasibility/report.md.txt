@@ -1,0 +1,58 @@
+# D26 认证页面独立结果可行性
+
+2026-10-05，固定 `422e0c1d97d924e503ad816992b778e917599507`。结论：**可以先交独立完整的正式认证客户端/页面结果，必须含真实 rotate 挑战；可以不依赖 D25、Project、Model。** 这是正式 `web/` 源码、生产构建和真实 Account HTTP 的浏览器组合结果，不是完整 D26，也不是 Central 已托管前端或整站已部署。当前只建议先形成窄卡，没有实现/执行授权。
+
+## 规则与真实依赖
+
+固定树没有 D26 专属实施卡，正式入口是 `development-plan.md` 的 D26 段（约 378 行）。依赖总表列 D25，但同计划 §推进规则 2/5、AGENTS 明确允许只消费已验子能力的完整结果先行；没有要求每个 D26 子结果先完成 realtime。D26 整体的 realtime/refetch、项目路径/双导航、个人设置/主题保存等仍待后续完整验收。
+
+D07 主卡当前段及 B04 终局记录确认 `022dcea` 已交付真实 Account HTTP/Session/System/根装配，`0ed8085` 关闭文档。当前实际源码仍有完整路由和 OpenAPI。其适用验收是记录明确的组合验收，不重新表述为单次全绿；本次没有重跑 D07。`docs/development/frontend/README.md` 开头“后端尚未实现”已过时，应在后续文档范围内同步，不能据其否定已验 HTTP。
+
+| 本结果必需 API | 固定实现及作用 |
+| --- | --- |
+| GET `/api/v1/auth/bootstrap` | anonymous HttpOnly cookie、匿名 CSRF、`challenge_modes=[rotate]`、渠道；不查邮箱存在性 |
+| GET `/api/v1/session` | 当前 User/Session/Session CSRF；401 清 Session cookie；读取不 TouchActivity |
+| POST `/api/v1/sessions/login` | 匿名 CSRF + Idempotency-Key；密码/不存在邮箱同 401；成功 Set-Cookie 和安全身份，`next_path=/` |
+| POST `/api/v1/sessions/logout` | 当前 Session CSRF + Idempotency-Key + `{}`；确认成功 204、撤销/清 cookie |
+| POST `/api/v1/auth/challenges`、`/verify` | 实际 email/login_key/browser 绑定、公开旋转图、`proof.angle`、一次性 pass；仍需匿名 CSRF |
+
+六项均为已验 D07 正式 API，不需要后端新端口或迁移。源码依据 `account/http.go:65`、`http_auth.go`、`csrf.go`、`http_wire.go` 与 `api/openapi/account.json`。Account 的 HTTP 集成用例覆盖真实 root、Cookie/CSRF、挑战、Session/改密/重置/注销；已验 GoCaptcha 浏览器 harness 证明官方旋转组件的真实可操作性，**未证明正式页面已存在或已验**。
+
+## 前端现状与必须补齐部分
+
+- `web/src/router/index.ts` 仅开发 `/debug`、生产空 `/`、404；无 auth guard。`App.vue` 无条件包 AppShell，登录页需独立无已登录导航的布局。
+- 没有 typed API client、Session 状态、CSRF 管理、登录/注销页面。`SystemNav` 仅从 route meta 读入口，不含真实用户或退出动作。
+- 可直接复用 UiField/UiInput/UiButton/UiState/UiSpinner/UiCard、现有布局/tokens、`useTheme`。当前主题仅内存 system；Session 已返回真实 `user.theme`，可只读应用，偏好编辑/保存留后续，不能将 Debug 选择写成账号偏好。
+- 产品 web 锁定 Vue 3.5.43、Vite 8.3.1；没有 go-captcha-vue/Playwright。既有独立 harness 锁定 go-captcha-vue 2.0.7、同版 Vue/Vite 和 Playwright 1.56.1。正式旋转组件需要按已定依赖核准 web 的 package/lock 窄增量，不能 import harness/Debug 或复制其 `/fixture/*` 客户端充当产品 API。
+- harness 的原组件缺键盘/ARIA，因此其同题 range 控件、焦点恢复经验必须在正式包装中重验。保留视觉挑战限制，不声称已解决不可视用户可达性。
+
+完整页面结果不能只有密码正确时成功。需要处理 `CHALLENGE_REQUIRED` 与普通 401 的区别、挑战过期/错题/换邮箱或登录 key、双击/取消/异常/Unknown，密码不 trim、不截断、不持久化。匿名 CSRF 与 Session CSRF 不能混用：login 200 没有 Session CSRF，随后真实 GET session 才取得它。Cookie 由浏览器 HttpOnly 管理；client 用同源相对 `/api/v1`，不读取/复制 Cookie、不存密码/pass/CSRF 到 URL 或持久存储。
+
+同一待查登录保留原 key 与完整输入意义；改邮箱/密码是新意义，挑战/pass 的正式绑定不能乱换。没有公开 HTTP command-lookup 路由可虚构调用；Unknown/响应失败保持未确认，按既有同键恢复及当前 session 事实收敛，不换 key 自动重发、不显示成功。logout 未确认不能仅清前端缓存宣称服务端已撤销。迟到 session/login 响应不得在已退出/切换身份后恢复旧状态。轮询/页面保活不自行续期。
+
+## 页面范围与托管边界
+
+已有产品规则足以提供登录落点：`layouts/system-pages.md` §2 明确系统首页仅“首页”标题和待设计 Dashboard 容器，不造统计、项目列表或 Inbox。可将真实登录落到这个既定首页；它不是测试 Session 面板。认证解析前不显示管理员菜单/旧用户内容。只实现已有登录及首页基础路由和真实 logout 动作，return target 限实际已实现路由并重新校验；不将登录等同 Project Owner 授权。
+
+邀请、找回/重置、首次改密入口、个人设置及完整系统导航属于已确认后续页面，不是未定产品规则。窄卡须明确本块未实现范围，保留初始密码的非强制建议，**不新增导航含义、不生成假的可点击入口/未完成设置页、不把任意项目目标重定向成另一项目**。页面命名/路由及延期入口如何呈现由下一工程卡按既定布局明确，本分析不代写产品导航。
+
+当前 Central `app/app.go:162` 只分发 diagnostics 和 Account handler，不提供静态资源/SPA fallback；Vite 配置没有 API proxy。因此不能开 5173 页面后直接跨源请求 backend，或擅加 CORS、Cookie、Host/Origin 例外。
+
+建议沿主线程指定边界：同源相对 API；开发代理与验收用同源前端服务只转发 `/api/v1` 到真实 Account HTTP，保留正确 Host/Origin，`PUBLIC_ORIGIN` 固定为浏览器外部 origin。前端资源/History fallback 与 API 错误严格分开。生产同源静态托管归部署/根集成责任，当前不改 Central、不宣称 `/login` 已可由 Central 单进程提供。D26 本段没有把 Central 嵌入静态服务写成每张子卡的硬门槛，故此边界足够形成真实前端库/页面完整结果；若交付定义要求已部署的单入口整站，则静态托管/SPA fallback 是尚缺的硬集成项。
+
+## 候选最小路径（待正式卡冻结，不是写入授权）
+
+- 新 `web/src/api/{client,account}.ts`，`composables/useSession.ts`，`components/account/RotateChallenge.vue`，`views/auth/LoginView.vue`，`views/HomeView.vue`，`router/auth.ts`。
+- 窄改 `web/src/App.vue`、`router/index.ts`、`components/layout/AppShell.vue`（透传现有 SystemNav 插槽即可，不引未来菜单）；页面局部样式优先，公共 UI/tokens/Debug 只读。
+- `web/package.json`、`package-lock.json` 的正式旋转依赖；`web/vite.config.ts` 的明确开发代理；前端开发说明同步真实 API/托管边界。
+- 新 `web/src/tests/{account-client,session,authentication}.spec.ts`；新专属 browser spec/config 与 owned 同源集成 fixture，精确测试路径由卡按现有 runner 接缝冻结。不为测试改已验 Account 生产或旧断言，不增加新迁移。
+
+## 验收可行性与未验证项
+
+工程检查可沿现有 `npm run check --prefix web`；Vitest 负责 typed Problem、匿名/Session CSRF、Unknown 不假成功、取消与迟到响应竞态、路由重入和敏感数据不落盘。Mock 仅为前端异常分支，不能算真实登录证据。
+
+真实浏览器应访问**正式 web 生产构建**，通过同源普通代理连接实际 Account root/PG/Secret/Audit，测试真实登录→GET session→刷新恢复→注销→再次访问拒绝，并覆盖服务器真实错误密码阈值→rotate→verify→login、过期/撤销、键盘/焦点、浅深色/窄屏/reduced motion/溢出及 production Debug 排除。服务端 readyz 仍 503 不是此 Account 能力不可用，也不能为测试将 readyz 改绿。不得用原 `/fixture` harness 或响应 mock 冒正式 HTTP 组合通过。
+
+已有锁定浏览器组合/公开图像 solver 与 owned fixture 提供可行基础；后续执行前需再核实际 Node/浏览器/依赖可用性和独占资源。此轮未执行 npm、浏览器、网络、Go/Docker，也未检查当前运行环境可立即启动。旧 Playwright 配套 Chromium 下载 403、改用系统 Chromium 151 的事实保留；不自动联网升级或改失败预算。root 授窗后正常真实交互即可，不涉及恢复任何网络故障方法。
+
+最终建议：先冻结上述认证完整结果卡，后续实现者与独立 V 分工；完整 D26、D25、Project/Model、部署/root 托管均不因这张卡通过而完成。逐文件固定 SHA 见 `inputs.json`。仅自有 tmp 写入，仓库/Git 未写，all-stop。

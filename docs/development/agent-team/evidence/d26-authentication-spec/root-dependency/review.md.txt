@@ -1,0 +1,25 @@
+# D26 后继固定依赖差量：422e0c1 → 457b197
+
+结论：**静态 PASS，可将 D26 的统一源码基线提升为已接受 `457b1979c9d6563740543b2011eedc06cce34c71`。** 六条认证 API 和前端实现白名单不需随此差量扩展。此结论只核后继依赖兼容性，不重做或冒领上游 root8 独立动态验收，不证明 D26 浏览器组合已运行。待作者冻结 rev1.2 后再复审卡差量；没有读取活动卡。
+
+固定比较起点为 `422e0c1d97d924e503ad816992b778e917599507`。实际仅10路径，逐文件 SHA 在 checks.json，三生产文件的原始 Git 差异在 production.delta.patch。已验 API 纠正 df78a92 的 account.json 字节在457b197完全相同，SHA `583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797`；F1独立源/schema结论可直接复用。
+
+| 固定差量 | D26影响与边界 |
+| --- | --- |
+| Account OpenAPI 1文件 | 仅已验 CSRF43/pass80 契约纠正；不改变六API的method/path/status/body其他规则。 |
+| app/account.go、security.go、model.go 3生产 | 同Store增加真实Model Authority/Service/SystemHTTP，Audit增加Models、Outbox增加Model producer/events，Secret UsageRouter对非Model用途仍转交原Account Authority。六认证URL不落入六个完整System Model前缀，按原请求对象转交原Account handler；Host/Origin、Cookie、CSRF和D07实现保持。 |
+| root8 中3新测试 | 仅新增对应装配/启动失败/生命周期与process行为覆盖；未改Account旧fixture/test、浏览器harness或D26源码。上游已接受事实来自主线程；本轮未运行这些测试。 |
+| root8 中AGENTS/backend README | 归位System Model根已绑定和Secret→Model同ctx初始化等已接受行为；保留Object缺陷、ready503及Model调用/Project/完整D09未完成边界。 |
+| structured-wire新卡1文件 | 规格文档，不增加生产源或成为认证客户端前置；不纳入D26页面/Provider调用范围。 |
+
+## 实际初始化影响
+
+`app/account.go:403–416` 在既有 deps.secret 回调中先执行真实 Secret Initialize，错误或ctx取消即返回，再同ctx调用 Model Initialize。`app/app.go:420–441` 仍给该阶段原 SecurityStartupTimeout，不新增预算或并列runtime。已存在的 `model/service.go:64` 检查现有providers/models/commands/references表并在model-platform-selection EX下幂等创建configured=false技术单例；这不是默认Model、Summary或Provider请求。固定schema/config/依赖锁均未变，因此原完整迁移、accountenv、PG/MinIO及独立keyring/recovery log可继续作为新fixture基础，没有新环境变量或真实Provider账号需求。
+
+D26新fixture须正常走该完整已接受root及已有00015/00016迁移前缀，不能为省时间跳过Model初始化、改成局部Account根或用活动主树；必须先确定浏览器外部PUBLIC_ORIGIN并原样代理Host/Origin，仍等真实listener。保留原启动/浏览器/清理预算；若新基线组合失败保留原输入和后态再归因，不把旧fixture通过当新组合已验，也不扩大为Object guard缺陷已修。
+
+## 实际只读核对与后续
+
+`git diff --name-only` 确认整个 Account生产目录、common.json、config、migrations、go.mod/go.sum、scripts、testsupport、tests/account、web及旧captcha-web均无变化。固定SecretUsageRouter/service/app.go与HTTP fixture逐字相同；新路由完整前缀与六认证路径的交集为空，保持当前D26六接口设计。原21+3路径与F1闭合可沿rev1.1复用；rev1.2只应更新统一输入/已验root依赖和初始化说明，不把规格通过写成产品完成。
+
+本轮仅Git读取、固定文件阅读及Python字节/路径计算，未读取活动app或卡，未运行Go/npm/browser/Docker/网络，无仓库或Git写操作。私有结论已冻结、全部命令结束；等rev1.2固定输入另行差量复审。

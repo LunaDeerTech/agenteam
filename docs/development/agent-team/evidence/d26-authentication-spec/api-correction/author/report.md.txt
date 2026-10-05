@@ -1,0 +1,15 @@
+Account OpenAPI challenge pass 长度窄修；仅 api/openapi/account.json 两个属性，生产行为与 D26 卡保持不变。
+
+固定签发/消费/编码链以 422e0c1d97d924e503ad816992b778e917599507 的八项必要源核对 SHA，当前观测 HEAD b6297143dce6a479d7c9ce7d463900288d5b0915，相关源逐字相同；见 inputs.json。browser.go 32 字节 RawURL token=43 字符，challenge.go 将 UUIDv7 36 字符、点号和 token 原样组成/消费 80 ASCII 字符；http_auth/http_wire/SecretMaterial 不截短。本轮未签发真实材料。
+
+改动只将 LoginInput.challenge_pass 与 ChallengePass.pass 设 minLength=maxLength=80，补既有 opaque 组成和一次性 browser/email/login-key 绑定说明；原 writeOnly/readOnly、optional/required、全部 CSRF43、其它 schema 与操作不变。
+
+- 原 account SHA d5c519649e1f31871aa166ea5349d65a7d830d70a5d29654ee98a0f79cbfeb44。
+- 修后 SHA 583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797。
+- 精确 delta.patch SHA 8d4beb4cf33d11fb3ea14dc7aac8920b87dc090af8c106320bcd7c380862dbf8。
+
+原 schema 检查先于修改运行，before-result.json 记录同一代表性有效80在两个字段及整体DTO均因maxLength被拒，只有旧错误43被接收。脚本 exit0 表示成功复现这些预期的旧契约错误，不能解释为旧契约正确。
+
+修后沿同一 validate.py，Python jsonschema 4.26.0 / Draft202012Validator，对代表性80、43、79、81各验证字段及整个DTO，共16项：两个字段/DTO均只接受80，其余拒绝。所有样本由固定公开合成 UUID 和 bytes(range(32)) 构成，仅记录长度/hash，不是真实 pass，也不证明真实挑战授权/消费。组件 schema 标准检查通过，JSON可解析、account/common共211个本地 $ref 全解析；不联网读取 schema。after-result.json/after.log 记录原命令、版本和结果。
+
+final-check.json 确认除了两字段其余文档语义不变、readOnly/writeOnly和CSRF43保留、八项源与D26卡未变、diff-check exit0。无新增永久测试、无生产/API行为改动、无Go/npm/browser/Docker/网络执行或Git写。作者源码与证据停写，待独立审查，由主线程提交唯一API文件。

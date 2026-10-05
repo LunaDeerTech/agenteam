@@ -1,0 +1,13 @@
+# D26 rev1.1 独立差量复审
+
+结论：**STATIC PASS，可供主线程采纳规格。** 原 rev1 的唯一 F1 阻断已通过已验正式上游修正闭合；这不是前端业务或浏览器验收通过，也不授业务实施权。
+
+被审卡 SHA `c90114c8d1e0e0c6f2a5a2d92a9b95e2e136bc5760fbabb8196961c8b6da7a22`，原卡 `1a56bc635841778a642fabfb4f78098dd866ca191b4f1101fee14855e712fb2f`。冻结 delta `837fa2649c4b01eecd4d6405e8d50614028bd1c00259a27ab39c769d7b1c53ee`、作者报告 `8895bebd7b30a7bcd055a4ca15cca4f179b23ecbeedbbdb31a353945a11bb029` 和仓库卡逐 SHA 匹配。
+
+实际核 `git show df78a9215d1a0dd22f8b8fb26a24e329130fb034:api/openapi/account.json`，字节 SHA 为已独立验收的 `583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797`；原 Go/common 基线仍为 `422e0c1`。卡准确区分匿名/Session CSRF43 与响应pass/可选登录challenge_pass80；opaque原样传递、不截断重组、不以shape代替服务端授权和一次性消费。typed-client 两侧80接受/43、79、81拒绝以及真实rotate→verify80→同key登录/DB消费已纳入未来验收，未伪称已经执行。
+
+§1/3/4/5/6/7逐字未变，21实现/测试/配置路径与3验后文档不变，六API/同key原输入/四Cookie串行与取消代际/正式dist同源真实root/资源窗口/原预算和D28边界均复用原审查，无新增硬阻断。全部16链接字符串未变，复用原固定Git目标与fragment核验；卡UTF8/LF/末尾换行/尾空格/围栏检查通过。页首保留rev1 BLOCKED及F1独立修正证据，没有倒写原历史。
+
+作者 first-check-note 的 no-index diff内容差异exit1属其自查程序期望修正，原件保留；本轮不将其称为产品失败。未重跑已验JSON Schema或任何Go/npm/browser/Docker/网络，无仓库/Git写。System root8尚未纳入，未来以其已验提交另核固定依赖delta，不把活动app视作已验输入。
+
+详细核对见 checks.json。报告冻结，全部命令结束，无运行资源，all-stop。

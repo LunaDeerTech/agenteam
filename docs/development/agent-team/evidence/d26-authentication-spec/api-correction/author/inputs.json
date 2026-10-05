@@ -1,0 +1,41 @@
+{
+  "base": "422e0c1d97d924e503ad816992b778e917599507",
+  "observed_head": "b6297143dce6a479d7c9ce7d463900288d5b0915",
+  "sources": [
+    {
+      "path": "internal/central/account/browser.go",
+      "sha256": "fefcb989d08e22eb73863826396c892c033c14dbdd905a09eb28c98ec6375400"
+    },
+    {
+      "path": "internal/central/account/challenge.go",
+      "sha256": "779aa885896b85edb96e6a5c34e55d8d52d6a8cc6a07933abf68cacdd77cbdb8"
+    },
+    {
+      "path": "internal/central/account/http_auth.go",
+      "sha256": "4a8f24dec41bb2dd7d94c3777ee8c80fe3b0ba4e9a799b9e07435c8989a5ba98"
+    },
+    {
+      "path": "internal/central/account/http_wire.go",
+      "sha256": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095"
+    },
+    {
+      "path": "internal/central/account/contract/commands.go",
+      "sha256": "278d3c0d8f1e97b8b226c9d25777d3a4f4a4a4ae00931c44304b5c856c67d5dd"
+    },
+    {
+      "path": "internal/central/secret/contract/material.go",
+      "sha256": "a83f362b2d163ea0f7a9ea320670beb0bba7d046361a8f45590b8aca8ecd4a9f"
+    },
+    {
+      "path": "internal/central/foundation/id.go",
+      "sha256": "40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54"
+    },
+    {
+      "path": "api/openapi/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+    }
+  ],
+  "account_before_sha256": "d5c519649e1f31871aa166ea5349d65a7d830d70a5d29654ee98a0f79cbfeb44",
+  "D26_card_frozen_sha256": "1a56bc635841778a642fabfb4f78098dd866ca191b4f1101fee14855e712fb2f",
+  "F1_sha256": "a8faa1fd33d29d7a6255128a3ffb2bb95f2f1efd731ac8afd84ee36270743de8"
+}

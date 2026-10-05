@@ -1,0 +1,13 @@
+# Account challenge pass OpenAPI F1 窄修独立复核
+
+结论：**PASS，可以提交唯一 `api/openapi/account.json`。** 只解除 D26 rev1 的 F1 前置契约矛盾，不代表 D26 卡整体采纳、前端实现或真实浏览器已验收。
+
+修前 `d5c519649e1f31871aa166ea5349d65a7d830d70a5d29654ee98a0f79cbfeb44`；修后/仓库末检 `583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797`。作者 delta `8d4beb4cf33d11fb3ea14dc7aac8920b87dc090af8c106320bcd7c380862dbf8`、报告 `11ced0e7cc823674685c5fe76a56b4198dc10910a74c8fafca99343b9fe0a638` 均逐字核对。
+
+差异仅 LoginInput.challenge_pass 与 ChallengePass.pass 的 minLength/maxLength=80 及现有 opaque 组成/一次性绑定说明。把两字段恢复为旧值后整个 JSON 与原件语义完全相等；writeOnly/readOnly、请求可省略/响应必需、两处 CSRF43、全部操作/path/status/其他 schema 不变。没有生产 Go 行为改动。
+
+固定 `422e0c1` 已审签发/HTTP/消费链六源再核 Git SHA：32 随机字节 RawURL=43 字符，UUID36+点+43=80；服务端原样出入并在真实 consumer 严格校验原32字节token/ID与一次性绑定。新说明准确描述既有 wire；schema 长度检查本身不验证 pass 权限、活性或防重放。
+
+独立实际执行 Python jsonschema Draft202012Validator：对两字段及各整体 DTO、80/43/79/81 四组共16项，旧 schema 只收错误43、拒真实80，修后只收80、拒43/79/81。另核登录可省略challenge_pass、响应不能缺pass，组件 schema 标准检查通过。样本是固定公开合成值，未读取凭据或真正签发材料。限定 `git diff --check -- api/openapi/account.json` exit0；原冻结 D26 rev1 卡 SHA仍 `1a56bc635841778a642fabfb4f78098dd866ca191b4f1101fee14855e712fb2f`。
+
+原始结果、输入SHA、验证器版本与实际差异检查命令见 checks.json。作者211个本地ref结果仅复用为作者证据；本轮未重跑该项，因差量未改任何ref。没有 Go、npm、浏览器、Docker、网络或 Git 写操作；仓库零写、私有报告冻结，all-stop。D26 后续应明确消费本修正的已验提交/指纹，再复核卡内 CSRF43/pass80 场景；不先认作整前端卡通过。

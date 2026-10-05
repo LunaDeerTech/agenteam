@@ -1,0 +1,202 @@
+{
+  "base_commit": "422e0c1d97d924e503ad816992b778e917599507",
+  "scope": "read-only D26 authentication-page feasibility; no implementation or execution",
+  "inputs": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "eb35f7ba3abd85bb13cc27cc84b330f50ae24309f6f1319330dfa1d914b97fe9",
+      "bytes": 14612
+    },
+    {
+      "path": ".agents/skills/agenteam-design/SKILL.md",
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81",
+      "bytes": 3874
+    },
+    {
+      "path": ".agents/skills/agenteam-vue-development/SKILL.md",
+      "sha256": "a52ae4b3e6913f3a37b6944e833de9fc282ecb282bf6d2478aea783b19bee039",
+      "bytes": 3634
+    },
+    {
+      "path": ".agents/skills/vue-testing-best-practices/SKILL.md",
+      "sha256": "376fd21d6adfd37f7d102fa17ca099abddef16943389f37588405b013cef23b8",
+      "bytes": 2129
+    },
+    {
+      "path": "docs/development/agent-team/README.md",
+      "sha256": "78a30e5e15eecee1932b97fc862a353d26ed2bd255a88b951245c925cf8ba869",
+      "bytes": 13433
+    },
+    {
+      "path": "docs/development/agent-team/tasks.md",
+      "sha256": "118f3231d4915f016174cfa44c433fbdaa27bb7c886a97a364722e48575bd9f4",
+      "bytes": 204614
+    },
+    {
+      "path": "docs/development/development-plan.md",
+      "sha256": "307d8c418cc81bbf1a3eb9a4089b01b0d12b87dfd424d77fd081a391437505b0",
+      "bytes": 66579
+    },
+    {
+      "path": "docs/development/frontend/README.md",
+      "sha256": "b35bd344e377f1d145be2f6856243942553f9cac3ff70bfb5ad77e23960d9fc8",
+      "bytes": 4826
+    },
+    {
+      "path": "docs/development/frontend/components.md",
+      "sha256": "10ecd86ee870994dc435174c8d7bb8f8e257b31d5753ef77f6f49f259a512259",
+      "bytes": 5509
+    },
+    {
+      "path": "docs/frontend-design/layouts/account-entry.md",
+      "sha256": "6e6eea53bf8c0a4b032dabac0d8e2f14f1becc7c71541bdc7d062a632ad490be",
+      "bytes": 3669
+    },
+    {
+      "path": "docs/frontend-design/layouts/application-shell.md",
+      "sha256": "80c63edeb8ab115ad65e515f6d912d414b252e3f8ed942d3cba635cf23994f18",
+      "bytes": 5338
+    },
+    {
+      "path": "docs/frontend-design/layouts/system-pages.md",
+      "sha256": "ecdeebc169105d27218c4b8759a750ff9948a54f4e96fd95a8d74204fb9fea22",
+      "bytes": 4495
+    },
+    {
+      "path": "docs/architecture/platform-infrastructure/authentication/account-lifecycle.md",
+      "sha256": "d8bbe8ac8055d4ee775489ea03876ce9bbe32e9df7b1ac22b0a659fe5884319d",
+      "bytes": 10350
+    },
+    {
+      "path": "docs/development/work-items/d07-account-session-smtp.md",
+      "sha256": "701048a3bbb68d9935c658e66bc0675218d814e84001fcb211fabe476fbd11e7",
+      "bytes": 153221
+    },
+    {
+      "path": "docs/development/work-items/d07-account-session-smtp-design.md",
+      "sha256": "b7c4669921a404585948bd59b0db4c3d7a9e29f293fb57a7754efea55ef33fac",
+      "bytes": 121690
+    },
+    {
+      "path": "api/openapi/account.json",
+      "sha256": "d5c519649e1f31871aa166ea5349d65a7d830d70a5d29654ee98a0f79cbfeb44",
+      "bytes": 127063
+    },
+    {
+      "path": "internal/central/account/http.go",
+      "sha256": "5c57879f54f7a56f7a6a3b3f64059da7315b4275b1fa93422b79de4707dc6b78",
+      "bytes": 7386
+    },
+    {
+      "path": "internal/central/account/http_auth.go",
+      "sha256": "4a8f24dec41bb2dd7d94c3777ee8c80fe3b0ba4e9a799b9e07435c8989a5ba98",
+      "bytes": 13528
+    },
+    {
+      "path": "internal/central/account/http_wire.go",
+      "sha256": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095",
+      "bytes": 7376
+    },
+    {
+      "path": "internal/central/account/csrf.go",
+      "sha256": "7081e08ba956c81daa1051a3f57e0792600cc12e71f4dddeeb3277e675a59e94",
+      "bytes": 5731
+    },
+    {
+      "path": "internal/central/account/login.go",
+      "sha256": "a1802b85303167f2b5421fbbef82e769239dcc28f5da8126b83082996186ee06",
+      "bytes": 22041
+    },
+    {
+      "path": "internal/central/account/session.go",
+      "sha256": "4df72697b0e66dd372be859099e7d813960d36402ca540c2a01576ff68adb0e5",
+      "bytes": 4862
+    },
+    {
+      "path": "internal/central/app/account.go",
+      "sha256": "f2c608bf97687198dd90444623c2b5611f1433de78e9482155cd772b42b29662",
+      "bytes": 12174
+    },
+    {
+      "path": "internal/central/app/app.go",
+      "sha256": "16d03bee7c067afd57119d3d318f94119bf2cf3db033ed52afd9d380a39cf005",
+      "bytes": 20242
+    },
+    {
+      "path": "internal/central/httpapi/problem.go",
+      "sha256": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde",
+      "bytes": 8391
+    },
+    {
+      "path": "tests/account/http_fixture_test.go",
+      "sha256": "f622024fed7d759ea422c3338bcc145818d7683709f109ee79a3413f6ee03d4f",
+      "bytes": 12793
+    },
+    {
+      "path": "tests/account/http_session_test.go",
+      "sha256": "01073164847fcf71b0d382296e8b2452ed9ef623d063d550b730dd67ad5714b5",
+      "bytes": 5974
+    },
+    {
+      "path": "tests/account-captcha-web/README.md",
+      "sha256": "1f2f6f2f6ede803536670a21ca95373f665005de083ea91f1191aaedbce848c9",
+      "bytes": 4160
+    },
+    {
+      "path": "tests/account-captcha-web/package.json",
+      "sha256": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58",
+      "bytes": 429
+    },
+    {
+      "path": "tests/account-captcha-web/src/main.ts",
+      "sha256": "fe3ee69f0d1ba6cb1e8a668103591bab01e5c57124b65013ae9605c6ab94235d",
+      "bytes": 4894
+    },
+    {
+      "path": "web/package.json",
+      "sha256": "0688197e9f837652f7d53e030746082f335e44d6146656cae8249f7a36462d40",
+      "bytes": 953
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "daab84caeafa77fca90e366a503c6ed59f50a19da123345f83ddbf4fc26d8c7f",
+      "bytes": 86499
+    },
+    {
+      "path": "web/vite.config.ts",
+      "sha256": "950681b8cf2bfd7644798fd3fdaa6a3a4b91ea0b1d49020052d5d4d4db30562a",
+      "bytes": 226
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "1047c942f523b979d86caa5872166c44fc794cbbc1a56d0dce0e227c56bd0680",
+      "bytes": 152
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "31a389b54182754a0934fd685e73940af4eae2183a1acd12142dca5789b71f89",
+      "bytes": 840
+    },
+    {
+      "path": "web/src/components/layout/AppShell.vue",
+      "sha256": "222977718b0c1ca347b901c62468389637c7fee8295ad829000d79d6bffe86ce",
+      "bytes": 290
+    },
+    {
+      "path": "web/src/components/layout/SystemNav.vue",
+      "sha256": "6304a5e197515928320d3ea0fb8c0c2edf744820635d2a51588eb726fc57a41b",
+      "bytes": 720
+    },
+    {
+      "path": "web/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+      "bytes": 740
+    }
+  ],
+  "restrictions": [
+    "no active product candidate input",
+    "no npm/browser/network/Go/Docker",
+    "no repository or Git writes",
+    "no delegation"
+  ]
+}

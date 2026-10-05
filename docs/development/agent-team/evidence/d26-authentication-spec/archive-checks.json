@@ -1,0 +1,281 @@
+{
+  "scope": "Specification evidence and card administrative status only; no business validation",
+  "raw_files": 46,
+  "raw_bytes": 241158,
+  "raw_matches_frozen_sources": true,
+  "card_sections1_to8_byte_identical": true,
+  "links": 38,
+  "fragments": 2,
+  "format": "generated Markdown/JSON/Python UTF8-LF/whitespace and tracked card diff-check PASS",
+  "raw_whitespace_checks": [
+    {
+      "path": "feasibility/report.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "feasibility/inputs.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "feasibility/SHA256SUMS.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1/author/card.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1/author/checks.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1/independent/review.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1/independent/checks.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1/independent/inputs.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1/independent/F1.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1/independent/F1-evidence.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1/independent/review-index.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "api-correction/author/inputs.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "api-correction/author/validate.py.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "api-correction/author/before-result.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "api-correction/author/after-result.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "api-correction/author/after.log",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "api-correction/author/final-check.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "api-correction/author/report.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "api-correction/author/SHA256SUMS",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "api-correction/author/delta.patch",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "api-correction/independent/review.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "api-correction/independent/checks.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "api-correction/independent/index.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.1/author/card.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.1/author/delta.patch",
+      "exit": 3,
+      "warning": true
+    },
+    {
+      "path": "rev1.1/author/first-check-note.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.1/author/checks.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.1/author/report.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.1/author/SHA256SUMS",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.1/independent/review.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.1/independent/checks.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.1/independent/index.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "root-dependency/review.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "root-dependency/checks.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "root-dependency/production.delta.patch",
+      "exit": 3,
+      "warning": true
+    },
+    {
+      "path": "root-dependency/index.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.2/author/card.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.2/author/delta.patch",
+      "exit": 3,
+      "warning": true
+    },
+    {
+      "path": "rev1.2/author/checks.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.2/author/SHA256SUMS",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.2/independent/review.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.2/independent/checks.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "rev1.2/independent/index.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "environment-preparation/preparation.md.txt",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "environment-preparation/environment.json",
+      "exit": 1,
+      "warning": false
+    },
+    {
+      "path": "environment-preparation/dependency-checks.json",
+      "exit": 1,
+      "warning": false
+    }
+  ],
+  "exact_raw_warning_files": [
+    "rev1.1/author/delta.patch",
+    "root-dependency/production.delta.patch",
+    "rev1.2/author/delta.patch"
+  ],
+  "commands": [
+    "python3 - [raw byte/source compare, links/fragments/card-history]",
+    "git diff --no-index --check -- /dev/null <each exact new file>",
+    "git diff --check -- docs/development/work-items/d26-account-authentication.md"
+  ],
+  "rebuild": {
+    "argv": [
+      "python3",
+      "docs/development/agent-team/evidence/d26-authentication-spec/rebuild.py",
+      "--output",
+      "/tmp/agenteam-d26-spec-archive-kc8sac3l/restored"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 0,
+    "observed_stdout": {
+      "result": "PASS",
+      "indexed_files": 52,
+      "raw_files": 46,
+      "git_materials": 3,
+      "fixed_selected_sources": 51,
+      "output": "/tmp/agenteam-d26-spec-archive-kc8sac3l/restored",
+      "scope": "bytes and local Git only; no validators or product code executed"
+    },
+    "stderr": "",
+    "metadata_note": "Observed tool result, then recorded here; only this archive check record and its checksum index changed after that run. Final checksum verification runs on the resulting index."
+  },
+  "not_run": [
+    "Go",
+    "npm",
+    "browser",
+    "Docker",
+    "network",
+    "Git writes"
+  ]
+}

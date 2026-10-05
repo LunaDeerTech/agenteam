@@ -1,18 +1,16 @@
 # D26 正式 Account 认证客户端与页面
 
-修订：rev1.2，2026-10-05（仅采纳与实施授权状态归位，工程规则不变）。状态：**规格独立 STATIC PASS 并获采纳，21 路径已授权实施，业务尚未验收。** 设计及前端实施者为 `d08_registry_backend`，独立验收者为未参与业务实现的 `recovery_verification`；当前浏览器/Docker 窗口尚未授权。统一固定源码基线为已接受 `457b1979c9d6563740543b2011eedc06cce34c71`，包含原 `422e0c1d97d924e503ad816992b778e917599507`、已验 Account OpenAPI 修正 `df78a9215d1a0dd22f8b8fb26a24e329130fb034` 及 System Model root 装配；本卡无迁移。当前授权以 §9 为准，以下来源及 §1–8 保留规格制定时的记录。
+修订：rev1.1，2026-10-05。状态：**rev1.1 待独立差量复审，未业务实施；本轮只授权本文件设计，不授权业务实施或运行。** 设计者 `d08_registry_backend` 本轮承担 architecture_worker；实现及独立验收由主线程另派。固定输入为 `422e0c1d97d924e503ad816992b778e917599507` 加已验 Account OpenAPI 修正 `df78a9215d1a0dd22f8b8fb26a24e329130fb034`；相关 Go 仍固定原基线且无变更，无迁移。
 
 可行性依据：`/tmp/agenteam-d26-auth-feasibility-v-oqwi6632/report.md`，SHA-256 `923d56d639cbb335ce7a11a39b70bd755dc1dd15c65a3ace500b84a864fdf9e9`。该报告只做静态核对，不是 npm、浏览器或真实后端执行通过。活动 app/Model 装配及 Artifact 改动不进入本卡固定输入；后续消费新提交必须先核相关依赖差量。
 
-rev1 独立静审为 **BLOCKED，仅 F1 前置契约矛盾**，原报告 `/tmp/agenteam-d26-auth-static-pz4ka2qc/review.md`，SHA-256 `8db17da803c93e6a9e9afebb67a68dfd9c086db63784127979891f888a214d3d`。F1 已单独纠正并通过独立复核：`/tmp/agenteam-account-pass-schema-v-j3_3gecx/review.md`，SHA-256 `87474952e73b48f111b48adcc1b0cd9e869a91920263c0eca76200dcfa06c536`；已验 `account.json` SHA-256 `583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797`。该修正只使两处 pass 长度与既有签发/消费行为一致，不改变认证行为或本卡 21+3 路径。
-
-rev1.1 已独立 **STATIC PASS** 并获主线程采纳：`/tmp/agenteam-d26-auth-rev11-v-is_xe5w_/review.md`，SHA-256 `14a591cc38896e5c1256393fb281764297574de1e7a20741bd0d161e3c8f9746`。统一至 `457b197` 的依赖差量也已独立 **STATIC PASS**：`/tmp/agenteam-d26-root-dependency-v-betgak7_/review.md`，SHA-256 `f47c91544e9129b0f8bc0726986e016f8bdce3b3e73dd3652553bd4ffd774421`。两项均不代表前端业务或新基线浏览器组合已运行；本修订仅归位 §6 已验依赖，卡片差量仍待独立复审。
+rev1 独立静审为 **BLOCKED，仅 F1 前置契约矛盾**，原报告 `/tmp/agenteam-d26-auth-static-pz4ka2qc/review.md`，SHA-256 `8db17da803c93e6a9e9afebb67a68dfd9c086db63784127979891f888a214d3d`。F1 已单独纠正并通过独立复核：`/tmp/agenteam-account-pass-schema-v-j3_3gecx/review.md`，SHA-256 `87474952e73b48f111b48adcc1b0cd9e869a91920263c0eca76200dcfa06c536`；已验 `account.json` SHA-256 `583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797`。该修正只使两处 pass 长度与既有签发/消费行为一致，不改变认证行为或本卡 21+3 路径；不代表 rev1.1 整卡或前端业务已验收。root8 的真实后端固定差量待其已验提交后由主线程另行纳入。
 
 ## 1. 完整结果与前置
 
 交付正式 `web/` 中可连接真实 Account HTTP 的登录、rotate 挑战、刷新恢复 Session、当前 Session 注销，以及已确认的空首页和认证路由。生产构建必须经过自有同源服务器与真实 Account root/PG/Secret/Audit/Outbox 的浏览器组合验收；既有 CAPTCHA harness 只提供已锁依赖与测试算法，不能充当产品页面。
 
-前端业务只消费 [D07 已验能力](d07-account-session-smtp.md#当前进度)：B04 `022dcea`、文档关闭 `0ed8085` 所归位的六项 HTTP 接口及当前固定实现。D07 原组合验收的历史限制沿原卡保留，不另称一次全绿。本卡不依赖 D25、Project 或 Model 页面/调用，也不授予 Project Owner 权限；真实后端启动包含 §6 已验 System Model 初始化。D26 后续负责邀请/恢复/改密/个人设置与主题保存、项目路径及双导航、Realtime/refetch；D27 负责相应业务页面；[D28](../development-plan.md#d28-集成部署与交付验收)负责生产资源托管和 History fallback。当前 Central 未托管 SPA，本卡不改 root，不将 `/readyz` 改绿，不宣布完整 D26 或部署完成。
+本结果只消费 [D07 已验能力](d07-account-session-smtp.md#当前进度)：B04 `022dcea`、文档关闭 `0ed8085` 所归位的六项 HTTP 接口及当前固定实现。D07 原组合验收的历史限制沿原卡保留，不另称一次全绿。本卡不依赖 D25、Project 或 Model，也不授予 Project Owner 权限。D26 后续负责邀请/恢复/改密/个人设置与主题保存、项目路径及双导航、Realtime/refetch；D27 负责相应业务页面；[D28](../development-plan.md#d28-集成部署与交付验收)负责生产资源托管和 History fallback。当前 Central 未托管 SPA，本卡不改 root，不将 `/readyz` 改绿，不宣布完整 D26 或部署完成。
 
 产品依据为 [账号入口](../../frontend-design/layouts/account-entry.md)、[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)、[应用框架](../../frontend-design/layouts/application-shell.md)、[系统首页](../../frontend-design/layouts/system-pages.md)。首页仅“首页”标题及待设计的 Dashboard 容器，不增加统计、项目列表、Session 调试面板或虚构数据。初始密码仍为可继续使用的改密建议；本卡显示建议文字，不生成尚未实现的个人设置链接。找回、邀请、注册、搜索、Inbox、项目和设置入口由后继页面开放，本卡不放不可用链接或假导航，也不新增公开注册。
 
@@ -20,7 +18,7 @@ rev1.1 已独立 **STATIC PASS** 并获主线程采纳：`/tmp/agenteam-d26-auth
 
 ## 2. 六项 API 与客户端类型
 
-唯一 wire 来源为统一 `457b197` 中的 [account.json](../../../api/openapi/account.json)、[common.json](../../../api/openapi/common.json)，并核同一基线 `account/http.go`、`http_auth.go`、`http_wire.go`、`csrf.go`；前者与已验 `df78a92` 字节相同，common 及 Account 实现与 `422e0c1` 无差量。本卡不改服务端 DTO、状态码、Cookie 或 CSRF 规则。
+唯一 wire 来源为上述 `df78a92` 已验修正的 [account.json](../../../api/openapi/account.json) 与 `422e0c1` 固定的 [common.json](../../../api/openapi/common.json)，并核原基线 `account/http.go`、`http_auth.go`、`http_wire.go`、`csrf.go`。本卡不改服务端 DTO、状态码、Cookie 或 CSRF 规则。
 
 | 方法与同源路径 | 请求与权限材料 | 成功响应 |
 | --- | --- | --- |
@@ -97,10 +95,6 @@ rev1.1 已独立 **STATIC PASS** 并获主线程采纳：`/tmp/agenteam-d26-auth
 
 ## 6. 同源运行、依赖及固定输入
 
-实现及真实后端构建统一从已接受 `457b197` 固定快照取得完整闭包，再覆盖本卡授权候选，不从活动主树拼接源。相对原 `422e0c1`，生产差量只有已验 `account.json` 纠正及 `internal/central/app/account.go`、`security.go`、`model.go` 三处装配：Audit 加入 Model Authority、Outbox 加入 Model producer/events、Secret UsageRouter 的非 Model 用途仍转交原 Account Authority，六个完整 System Model 路由前缀不接管本卡六认证路径。root8 的另五文件为 `internal/central/app/model_test.go`、`model_process_test.go`、`tests/process/model_system_database_test.go` 及 `AGENTS.md`、后端 README；中间 structured-wire 新卡仅为规格文档，不成为本卡页面或 Provider 调用前置。Account handler/CSRF、common、config、迁移、Go 锁、scripts/testsupport、旧 Account fixture 与 web/旧 CAPTCHA 锁均无差量，21+3 白名单不增加写权。
-
-新浏览器 fixture 必须真实经过该完整 root：保留既有全迁移（含 00015/00016）与 accountenv/PG/MinIO、独立 keyring/recovery log；Secret Initialize 成功且 ctx 未取消后，同一 ctx、同一原 30s SecurityStartupTimeout 内执行 Model Initialize，再等待真实 listener。后者检查既有 Model 存储并幂等建立 `configured=false` 的技术 singleton，不选择默认 Model、不请求 Provider，无新增环境变量或 Provider 凭据。不得跳过初始化、换局部 Account 根或扩启动/浏览器预算；旧基线通过记录不证明新组合已验，也不表示已知 Object 退出缺陷已修。
-
 保持 `web/package.json` Node 范围 `^22.18.0 || >=24.12.0` 和现有 Vue/Vite/TypeScript/测试依赖锁定值；唯一正式依赖增量为精确 `go-captcha-vue: "2.0.7"` 及必要锁闭包。不得顺带升级、引入 Pinia/Axios/MSW/Testing Library 或另建全局客户端框架。Playwright 复用 `tests/account-captcha-web` 已锁 `@playwright/test 1.56.1`，新增专属 config/spec；不改其原 harness、lock、旧测试或将其 src 导入 web。只复用只读的 public-solver/drag-geometry 测试算法。
 
 开发代理在 `web/vite.config.ts` 中仅代理 `/api/v1`，目标从显式 `AGENTEAM_DEV_API_TARGET` 读取且只允许开发者自有 loopback HTTP 端口；无默认远端目标、无客户端构建注入秘密。未配置时保持纯前端开发并明确 API 不可用，不造成功响应。Vite 仍只绑定 127.0.0.1:5173/strictPort。代理保留浏览器 Host/Origin（不 `changeOrigin:true`），真实 Central 的 PUBLIC_ORIGIN 必须等于浏览器外部 origin；不添加 CORS、Cookie rewrite、CSRF 豁免或信任 X-Forwarded-*。
@@ -163,12 +157,4 @@ rev1.1 已独立 **STATIC PASS** 并获主线程采纳：`/tmp/agenteam-d26-auth
 
 每次 fixture 结束必须实际确认自有 nonce+label+exactID 资源两遍 absent、原基线不变、子进程已 wait、runtime/私有凭据文件清理，再交还窗口；不能只声明all-stop。作者冻结基线、21源码/锁/必要依赖 hash、真实 argv/env/exit、原红/修复与场景映射后停写；不可把含凭据 env 原值归档，保留变量名和安全脱敏说明。独立验收者优先补 Session/CSRF及迟到结果、真实挑战/注销、构建/同源边界，按固定有效证据去重，不以纯页面mock代替正式浏览器。
 
-本卡规格自查只证明来源、边界、链接和格式；环境准备仅查询 Node/npm 版本、浏览器安装文件和锁定缓存，未进行业务、安装、构建、浏览器、Go/Docker 或网络执行。独立规格审查及主线程采纳后才下发业务实现。产品规则变化、必须新增API/依赖/第22实现路径、Cookie安全或生产hosting范围变化，先向主线程提供事实与最小必要修订。
-
-## 9. 规格采纳与实施授权
-
-rev1.2 经独立差量审查 STATIC PASS 后，主线程已采纳并精确提交推送 `64e47fbc180a1fb2da385e7d4fabcc880699b0d5`。被审原卡 SHA `76745915d15c24dcd86ba061b0ff7bfada440d0a251f23f026166b971838edcd`，独立报告 SHA `339d6f5b32908e2e3efaaf8f9ca6f2fab8445cbdee79dfb835bf4beeca363182`；原 rev1 F1 阻断、正式 API 修正 `df78a92`、rev1.1、root 依赖差量、rev1.2 及环境只读准备均见[持久规格验收记录](../agent-team/d26-authentication-spec-verification.md)。此次状态归位不修改 §1–8 的工程语义，也不把规格通过写成前端动态通过。
-
-主线程已授权 `d08_registry_backend` 对 §7 的 21 个代码/测试/配置路径实施，固定源码基线为 `457b197`；先冻结核心源码、锁及必要测试输入，再由 `recovery_verification` 独立静审。浏览器/Docker 及真实 fixture 窗口须另行明确交接，目前未授；验后三份文档写权也另行交接，不随业务授权自动扩大。当前本卡状态与规格报告/证据由文档执行者归位，不占用业务源码，也不代替独立验收。
-
-[后续独立验收短计划](../agent-team/evidence/d26-authentication-spec/independent-plan.md)仅记录待验证风险，未运行新的 Go/npm/browser/Docker 检查。正式认证页面、完整 D26/D28、Provider 调用及已知 Object/Artifact/Project 阻断没有因此完成或解除。
+本卡规格自查只证明来源、边界、链接和格式；未发生业务/npm/browser/Go/Docker/网络执行。独立规格审查及主线程采纳后才下发业务实现。产品规则变化、必须新增API/依赖/第22实现路径、Cookie安全或生产hosting范围变化，先向主线程提供事实与最小必要修订。

@@ -1,0 +1,276 @@
+{
+  "base": "422e0c1d97d924e503ad816992b778e917599507",
+  "accepted": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "accepted_tree": "cb71a7d81b64130fb15dde2d7ac6e55cc2f57f0d",
+  "root8_paths": [
+    "AGENTS.md",
+    "docs/development/backend/README.md",
+    "internal/central/app/account.go",
+    "internal/central/app/model.go",
+    "internal/central/app/model_process_test.go",
+    "internal/central/app/model_test.go",
+    "internal/central/app/security.go",
+    "tests/process/model_system_database_test.go"
+  ],
+  "whole_delta": [
+    "M\tAGENTS.md",
+    "M\tapi/openapi/account.json",
+    "M\tdocs/development/backend/README.md",
+    "A\tdocs/development/work-items/recovery-d09-openai-chat-structured-wire.md",
+    "M\tinternal/central/app/account.go",
+    "A\tinternal/central/app/model.go",
+    "A\tinternal/central/app/model_process_test.go",
+    "A\tinternal/central/app/model_test.go",
+    "M\tinternal/central/app/security.go",
+    "A\ttests/process/model_system_database_test.go"
+  ],
+  "unchanged_scopes": [
+    "internal/central/account",
+    "api/openapi/common.json",
+    "internal/central/config",
+    "db/migrations",
+    "go.mod",
+    "go.sum",
+    "scripts",
+    "tests/testsupport",
+    "tests/account",
+    "web",
+    "tests/account-captcha-web",
+    "internal/central/model/service.go",
+    "internal/central/model/secret_router.go",
+    "internal/central/app/app.go"
+  ],
+  "sources": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "e4c9c329e3818afd4ef01d01cc882255e301ae1b06617b5376b984c0ba8667ff"
+    },
+    {
+      "path": "docs/development/backend/README.md",
+      "sha256": "e7c9b90e8e9ee81b315a9f79f88ccb490baf68be77d2f0e05f866238df877ed0"
+    },
+    {
+      "path": "internal/central/app/account.go",
+      "sha256": "a855a5320b3fbbd5f34cdb3781ce34299a12d86b80e14cafc8d37c03734944c5"
+    },
+    {
+      "path": "internal/central/app/model.go",
+      "sha256": "88921c967e1a70509c169e4461e7f73c9f0b76429c85c2fdb29d59ae5e10c799"
+    },
+    {
+      "path": "internal/central/app/model_process_test.go",
+      "sha256": "d0da84b5ba533cbfae206caeac0b4631aa62e0b41b9bc8b343b1c0e649c8f1db"
+    },
+    {
+      "path": "internal/central/app/model_test.go",
+      "sha256": "e89d795350b31362b02d1181d8c22facde06ddae32b0c1b394cf0706429bff54"
+    },
+    {
+      "path": "internal/central/app/security.go",
+      "sha256": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7"
+    },
+    {
+      "path": "tests/process/model_system_database_test.go",
+      "sha256": "04ec22070af57711696b5bb1538fc61a5d64f4bae303ca9d3c551df0a89fd3a6"
+    },
+    {
+      "path": "api/openapi/account.json",
+      "sha256": "583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797"
+    },
+    {
+      "path": "internal/central/model/service.go",
+      "sha256": "eb51dcc1217b4496a266607653b596b5623967069e2dff887a1d3c4470f1fa0a"
+    },
+    {
+      "path": "internal/central/model/secret_router.go",
+      "sha256": "136015f0965f21ebf010c907a987fc757f8ef7b6d9c120e7f5fe35ef1b6f3ed5"
+    },
+    {
+      "path": "internal/central/app/app.go",
+      "sha256": "16d03bee7c067afd57119d3d318f94119bf2cf3db033ed52afd9d380a39cf005"
+    },
+    {
+      "path": "tests/account/http_fixture_test.go",
+      "sha256": "f622024fed7d759ea422c3338bcc145818d7683709f109ee79a3413f6ee03d4f"
+    },
+    {
+      "path": "tests/account-captcha-web/playwright.config.js",
+      "sha256": "b96245dec4d221cc7f5bcd546d8f55138e8ddaa8a31c6a8e89049983e7f17c60"
+    },
+    {
+      "path": "tests/testsupport/accountenv/environment.go",
+      "sha256": "08c4822e76f349396053ee877f9eadb283018838d7ced5bfd642516a5012c9aa"
+    },
+    {
+      "path": "db/migrations/embed.go",
+      "sha256": "ec8dfa638b97c1456b5d04e536b319c5d7d4f8faea755c194796ea69be1ad578"
+    },
+    {
+      "path": "go.mod",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758"
+    },
+    {
+      "path": "go.sum",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+    }
+  ],
+  "skills": [
+    {
+      "path": "/workspace/agenteam/.agents/skills/agenteam-vue-development/SKILL.md",
+      "sha256": "a52ae4b3e6913f3a37b6944e833de9fc282ecb282bf6d2478aea783b19bee039",
+      "read": true
+    },
+    {
+      "path": "/workspace/agenteam/.agents/skills/vue-testing-best-practices/SKILL.md",
+      "sha256": "376fd21d6adfd37f7d102fa17ca099abddef16943389f37588405b013cef23b8",
+      "read": true
+    },
+    {
+      "path": "/workspace/agenteam/.agents/skills/vue-testing-best-practices/reference/testing-e2e-playwright-recommended.md",
+      "sha256": "d415a403c6851cb57666b9143cb3acec6eba53af269cf765918c108dd0c96355",
+      "read": true
+    },
+    {
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright-core/lib/tools/skills/playwright-cli/SKILL.md",
+      "sha256": "29c0b669a524d42b51934d7db9144c1c07a566d0549ae6fb6ccd810e5a3cf61b",
+      "read": true
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "422e0c1d97d924e503ad816992b778e917599507",
+        "457b1979c9d6563740543b2011eedc06cce34c71"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "df78a9215d1a0dd22f8b8fb26a24e329130fb034",
+        "457b1979c9d6563740543b2011eedc06cce34c71"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-status",
+        "422e0c1d97d924e503ad816992b778e917599507",
+        "457b1979c9d6563740543b2011eedc06cce34c71"
+      ],
+      "exit": 0,
+      "stdout": "M\tAGENTS.md\nM\tapi/openapi/account.json\nM\tdocs/development/backend/README.md\nA\tdocs/development/work-items/recovery-d09-openai-chat-structured-wire.md\nM\tinternal/central/app/account.go\nA\tinternal/central/app/model.go\nA\tinternal/central/app/model_process_test.go\nA\tinternal/central/app/model_test.go\nM\tinternal/central/app/security.go\nA\ttests/process/model_system_database_test.go\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--name-only",
+        "422e0c1d97d924e503ad816992b778e917599507",
+        "457b1979c9d6563740543b2011eedc06cce34c71",
+        "--",
+        "internal/central/account",
+        "api/openapi/common.json",
+        "internal/central/config",
+        "db/migrations",
+        "go.mod",
+        "go.sum",
+        "scripts",
+        "tests/testsupport",
+        "tests/account",
+        "web",
+        "tests/account-captcha-web",
+        "internal/central/model/service.go",
+        "internal/central/model/secret_router.go",
+        "internal/central/app/app.go"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff-tree",
+        "--no-commit-id",
+        "--name-only",
+        "-r",
+        "457b1979c9d6563740543b2011eedc06cce34c71"
+      ],
+      "exit": 0,
+      "stdout": "AGENTS.md\ndocs/development/backend/README.md\ninternal/central/app/account.go\ninternal/central/app/model.go\ninternal/central/app/model_process_test.go\ninternal/central/app/model_test.go\ninternal/central/app/security.go\ntests/process/model_system_database_test.go\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "457b1979c9d6563740543b2011eedc06cce34c71^{tree}"
+      ],
+      "exit": 0,
+      "stdout": "cb71a7d81b64130fb15dde2d7ac6e55cc2f57f0d\n",
+      "stderr": ""
+    }
+  ],
+  "environment_assessment": {
+    "platform_libc": "glibc 2.41",
+    "web_145_current_glibc_packages_integrity_verified": true,
+    "web_two_missing_optional_musl_not_for_this_glibc": true,
+    "captcha_harness_node_modules_exists": false,
+    "six_required_cache_missing": [
+      {
+        "path": "node_modules/@csstools/css-calc",
+        "version": "3.4.3",
+        "optional": false
+      },
+      {
+        "path": "node_modules/@csstools/css-color-parser",
+        "version": "4.2.6",
+        "optional": false
+      },
+      {
+        "path": "node_modules/@playwright/test",
+        "version": "1.56.1",
+        "optional": false
+      },
+      {
+        "path": "node_modules/go-captcha-vue",
+        "version": "2.0.7",
+        "optional": false
+      },
+      {
+        "path": "node_modules/playwright",
+        "version": "1.56.1",
+        "optional": false
+      },
+      {
+        "path": "node_modules/playwright-core",
+        "version": "1.56.1",
+        "optional": false
+      }
+    ],
+    "playwright_lock": "1.56.1",
+    "system_playwright_versions_not_substitutes": [
+      "1.57.0",
+      "1.62.1"
+    ],
+    "browser_compatibility_with_locked_playwright": "NOT_RUN",
+    "named_playwright_skill_not_found": true,
+    "available_related_skill": "playwright-cli",
+    "playwright_cli_in_path": false,
+    "skill_resolution": "root accepted read related browser skill; use existing locked test runner without latest CLI install",
+    "only_read_queries": true
+  }
+}

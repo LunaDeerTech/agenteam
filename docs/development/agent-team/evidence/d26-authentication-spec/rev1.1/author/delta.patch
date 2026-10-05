@@ -1,0 +1,47 @@
+--- rev1/docs/development/work-items/d26-account-authentication.md
++++ rev1.1/docs/development/work-items/d26-account-authentication.md
+@@ -1,8 +1,10 @@
+ # D26 正式 Account 认证客户端与页面
+ 
+-修订：rev1，2026-10-05。状态：**工程规格待独立审查和主线程采纳；本轮只授权本文件设计，不授权业务实施或运行。** 设计者 `d08_registry_backend` 本轮承担 architecture_worker；实现及独立验收由主线程另派。固定输入 `422e0c1d97d924e503ad816992b778e917599507`，无迁移。
++修订：rev1.1，2026-10-05。状态：**rev1.1 待独立差量复审，未业务实施；本轮只授权本文件设计，不授权业务实施或运行。** 设计者 `d08_registry_backend` 本轮承担 architecture_worker；实现及独立验收由主线程另派。固定输入为 `422e0c1d97d924e503ad816992b778e917599507` 加已验 Account OpenAPI 修正 `df78a9215d1a0dd22f8b8fb26a24e329130fb034`；相关 Go 仍固定原基线且无变更，无迁移。
+ 
+ 可行性依据：`/tmp/agenteam-d26-auth-feasibility-v-oqwi6632/report.md`，SHA-256 `923d56d639cbb335ce7a11a39b70bd755dc1dd15c65a3ace500b84a864fdf9e9`。该报告只做静态核对，不是 npm、浏览器或真实后端执行通过。活动 app/Model 装配及 Artifact 改动不进入本卡固定输入；后续消费新提交必须先核相关依赖差量。
++
++rev1 独立静审为 **BLOCKED，仅 F1 前置契约矛盾**，原报告 `/tmp/agenteam-d26-auth-static-pz4ka2qc/review.md`，SHA-256 `8db17da803c93e6a9e9afebb67a68dfd9c086db63784127979891f888a214d3d`。F1 已单独纠正并通过独立复核：`/tmp/agenteam-account-pass-schema-v-j3_3gecx/review.md`，SHA-256 `87474952e73b48f111b48adcc1b0cd9e869a91920263c0eca76200dcfa06c536`；已验 `account.json` SHA-256 `583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797`。该修正只使两处 pass 长度与既有签发/消费行为一致，不改变认证行为或本卡 21+3 路径；不代表 rev1.1 整卡或前端业务已验收。root8 的真实后端固定差量待其已验提交后由主线程另行纳入。
+ 
+ ## 1. 完整结果与前置
+ 
+@@ -16,7 +18,7 @@
+ 
+ ## 2. 六项 API 与客户端类型
+ 
+-唯一 wire 来源为固定 [account.json](../../../api/openapi/account.json)、[common.json](../../../api/openapi/common.json)，并核 `account/http.go`、`http_auth.go`、`http_wire.go`、`csrf.go`。本卡不改服务端 DTO、状态码、Cookie 或 CSRF 规则。
++唯一 wire 来源为上述 `df78a92` 已验修正的 [account.json](../../../api/openapi/account.json) 与 `422e0c1` 固定的 [common.json](../../../api/openapi/common.json)，并核原基线 `account/http.go`、`http_auth.go`、`http_wire.go`、`csrf.go`。本卡不改服务端 DTO、状态码、Cookie 或 CSRF 规则。
+ 
+ | 方法与同源路径 | 请求与权限材料 | 成功响应 |
+ | --- | --- | --- |
+@@ -32,7 +34,8 @@
+ 客户端以 `unknown` 接收 JSON 后验证本次所需完整 shape，不以 `as SessionView` 掩盖畸形响应。类型与 wire 要求：
+ 
+ - `User`：`id,email,username,display_name,role,theme,version,initial_password_suggestion`；role=`admin|user`，theme=`system|light|dark`。Session 为 `id,issued_at,absolute_expires_at,idle_expires_at`。ID 沿 UUIDv7，小写标准形；version 保持正 int64 十进制**字符串**，不得转 number。Instant 保持 UTC 六位小数字符串，不用本地时钟代替服务端过期判定。
+-- CSRF 是原 43 字符材料；challenge/pass/图片字段沿 OpenAPI 限制。只渲染服务端返回的 `data:image/png;base64,` 公共题图，校验单项和合计上界；不访问响应提供的任意远端图片 URL。angle 为 0–360 的整数，官方组件角度取整后与键盘控件使用同一值。
++- 运行时解析区分 CSRF 与 challenge pass：匿名及 Session CSRF 均保持原 **43 字符**；`ChallengePass.pass` 响应与可选 `LoginInput.challenge_pass` 请求均沿已验 OpenAPI 的 **minLength=80、maxLength=80**。既有 pass 为 UUID36 + `.` + 32 随机字节的 canonical RawURL43，共 80 ASCII 字符，客户端将其作为 opaque 材料原样传递，不截断、解码重组或套用 CSRF43 限制；长度/shape 通过不证明其授权、活性或一次性消费成功，这些仍由服务端判断。challenge/图片其余字段沿 OpenAPI 限制。
++- 只渲染服务端返回的 `data:image/png;base64,` 公共题图，校验单项和合计上界；不访问响应提供的任意远端图片 URL。angle 为 0–360 的整数，官方组件角度取整后与键盘控件使用同一值。
+ - `Idempotency-Key` 是 foundation 的 1–128 字符 key，**不是 UUIDv7 ID**；新意图用 `crypto.randomUUID()` 生成合法不可预测 key，不用 Math.random 或时间戳降级。熵不可用时显示本地错误，不发送写请求。
+ - `Problem` 保留 `type,title,status,detail,instance,code,request_id,field_errors?,retry_hint?,commit_state`，commit_state 闭集沿 common.json。逻辑按 `code` 和明确状态处理；字段错误只映射本页面已知 JSON Pointer，未知字段作为区域错误。安全服务端文字仅作文本，不用 HTML，不拼接请求值或 raw response。
+ - JSON/Content-Type/成功状态与 shape 不符、断网和 abort 是独立 `transport/invalid-response/cancelled` 失败，不能伪造一个 `Problem`、伪造 `not_committed` 或转换为空成功；已发出的 mutation 在这类失败后视为结果未确认。204 不尝试 JSON 解析。
+@@ -138,11 +141,11 @@
+ 
+ | 检查 | 必须闭合的行为 |
+ | --- | --- |
+-| typed client | 六 API exact method/path/body/status，204无解析；匿名和 Session CSRF不混用；Problem/畸形响应/网络/取消分别处理；精确大 version、不显示 raw body/secret |
++| typed client | 六 API exact method/path/body/status，204无解析；匿名和 Session CSRF43不混用；同一代表性合成80字符 pass 在响应解析及登录请求校验/原样传递两侧通过，旧误shape43、79、81两侧均拒绝，不截断或生成替代材料；Problem/畸形响应/网络/取消分别处理；精确大 version、不显示 raw body/secret |
+ | session/路由纯测试 | 首次401与依赖失败区分、login200后GET、logout未确认、Unknown同key同输入、CSRF失效不偷偷换browser；晚到GET/login/bootstrap/verify及finally均不能污染新代；Cookie请求串行；错误返回目标/重入/卸载；不凭401证明旧命令未提交 |
+ | 登录/rotate纯交互 | 错密码与ChallengeRequired分流；换输入/刷新题/过期使旧pass失效；双击/Enter单飞，官方与range同angle；密码首尾空格/Unicode原样、敏感值不持久化；焦点和辅助说明 |
+ | `TestAccountAuthenticationWebSessionLifecycle` | 浏览器打开正式构建：真实登录→Session CSRF确认→空首页→刷新恢复→当前Session退出→受保护页再次拒绝；真实User/Session/Audit后态，初始密码建议非强制 |
+-| `TestAccountAuthenticationWebRotateChallenge` | 真实错误密码达到正式阈值→服务端要求挑战→公共题图求解→官方拖拽/键盘两分支→真实verify pass→同key登录、DB一次性consume；不通过私有答案或本地success绕过 |
++| `TestAccountAuthenticationWebRotateChallenge` | 真实错误密码达到正式阈值→服务端要求挑战→公共题图求解→官方拖拽/键盘两分支→真实verify的80字符pass经正式typed client解析并原样送同key登录、DB一次性consume；不通过私有答案或本地success绕过，不记录pass原值 |
+ | `TestAccountAuthenticationWebRevocationAndExpiry` | 正式服务端撤销与自有Session期限后态，两分支均经真实GET和路由使旧内容消失；保留Cookie/CSRF安全验证；旧请求不能恢复已退出身份 |
+ | `TestAccountAuthenticationWebLayoutsAndProduction` | 正式构建浅深、1440/1024/834/390、200%缩放、键盘焦点/reduced motion/overflow、服务端theme读取；生产无Debug源码/路由，`/debug`为NotFound；API及缺失资产不被fallback |
+ 

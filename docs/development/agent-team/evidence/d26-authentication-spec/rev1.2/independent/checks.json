@@ -1,0 +1,28 @@
+{
+  "result": "STATIC PASS rev1.2 spec delta",
+  "card_sha256": "76745915d15c24dcd86ba061b0ff7bfada440d0a251f23f026166b971838edcd",
+  "prior_card_sha256": "c90114c8d1e0e0c6f2a5a2d92a9b95e2e136bc5760fbabb8196961c8b6da7a22",
+  "patch_sha256": "d5b726a440b078e5cd36b14c07f969b22f47b942307fc6dab61c0088c007dda1",
+  "source_base": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "unchanged_sections": [
+    3,
+    4,
+    5,
+    7
+  ],
+  "api_matrix_and_typed_rules_unchanged": true,
+  "existing_section6_controls_unchanged": true,
+  "acceptance_matrix_and_budgets_unchanged": true,
+  "scope": "21 implementation/test/config + 3 post-acceptance docs unchanged",
+  "links": "all16 strings unchanged; reuse previous fixed-link checks",
+  "format": "UTF8/LF/EOF/whitespace/fences PASS",
+  "not_run": [
+    "Go",
+    "npm",
+    "browser",
+    "Docker",
+    "network",
+    "Git writes"
+  ],
+  "writes": "private report/checks only"
+}

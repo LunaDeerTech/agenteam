@@ -1,0 +1,17 @@
+{
+  "result": "author doc-check harness expectation error, not card/source failure",
+  "argv": [
+    "git",
+    "diff",
+    "--no-index",
+    "--check",
+    "--",
+    "/tmp/agenteam-d26-auth-spec-50uiases/card.md",
+    "/workspace/agenteam/docs/development/work-items/d26-account-authentication.md"
+  ],
+  "actual_exit": 1,
+  "stdout": "",
+  "stderr": "",
+  "incorrect_expected_exit": 0,
+  "correction": "git diff --no-index implies --exit-code; content difference yields 1. Retained original result; no source edits."
+}

@@ -1,0 +1,101 @@
+{
+  "result": "STATIC PASS for using fixed source baseline457b197; no runtime validation",
+  "before": "422e0c1d97d924e503ad816992b778e917599507",
+  "after": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "changed_paths": [
+    {
+      "path": "AGENTS.md",
+      "before_sha256": "eb35f7ba3abd85bb13cc27cc84b330f50ae24309f6f1319330dfa1d914b97fe9",
+      "after_sha256": "e4c9c329e3818afd4ef01d01cc882255e301ae1b06617b5376b984c0ba8667ff"
+    },
+    {
+      "path": "api/openapi/account.json",
+      "before_sha256": "d5c519649e1f31871aa166ea5349d65a7d830d70a5d29654ee98a0f79cbfeb44",
+      "after_sha256": "583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797"
+    },
+    {
+      "path": "docs/development/backend/README.md",
+      "before_sha256": "cdb3625e4643a9f96f46c0a3b373eb7be1c212cbf19e8fa5f3a6420d8f4f51be",
+      "after_sha256": "e7c9b90e8e9ee81b315a9f79f88ccb490baf68be77d2f0e05f866238df877ed0"
+    },
+    {
+      "path": "docs/development/work-items/recovery-d09-openai-chat-structured-wire.md",
+      "before_sha256": null,
+      "after_sha256": "747c879b4d930de949570a72ad6f3418bac3870f1ea23d639e19ce8a456799a0"
+    },
+    {
+      "path": "internal/central/app/account.go",
+      "before_sha256": "f2c608bf97687198dd90444623c2b5611f1433de78e9482155cd772b42b29662",
+      "after_sha256": "a855a5320b3fbbd5f34cdb3781ce34299a12d86b80e14cafc8d37c03734944c5"
+    },
+    {
+      "path": "internal/central/app/model.go",
+      "before_sha256": null,
+      "after_sha256": "88921c967e1a70509c169e4461e7f73c9f0b76429c85c2fdb29d59ae5e10c799"
+    },
+    {
+      "path": "internal/central/app/model_process_test.go",
+      "before_sha256": null,
+      "after_sha256": "d0da84b5ba533cbfae206caeac0b4631aa62e0b41b9bc8b343b1c0e649c8f1db"
+    },
+    {
+      "path": "internal/central/app/model_test.go",
+      "before_sha256": null,
+      "after_sha256": "e89d795350b31362b02d1181d8c22facde06ddae32b0c1b394cf0706429bff54"
+    },
+    {
+      "path": "internal/central/app/security.go",
+      "before_sha256": "38cfdf17be802be521c966c349b9660aaed3adc4967e141c947ca22c4631dfde",
+      "after_sha256": "f911d4901fda31ad614ca37ea139afc9640c10d104db701bc447248b4e5615c7"
+    },
+    {
+      "path": "tests/process/model_system_database_test.go",
+      "before_sha256": null,
+      "after_sha256": "04ec22070af57711696b5bb1538fc61a5d64f4bae303ca9d3c551df0a89fd3a6"
+    }
+  ],
+  "unchanged_scope": [
+    "internal/central/account",
+    "api/openapi/common.json",
+    "internal/central/config",
+    "db/migrations",
+    "go.mod",
+    "go.sum",
+    "scripts",
+    "tests/testsupport",
+    "tests/account",
+    "web",
+    "tests/account-captcha-web"
+  ],
+  "six_account_paths_preserve_routing": [
+    "/api/v1/auth/bootstrap",
+    "/api/v1/session",
+    "/api/v1/sessions/login",
+    "/api/v1/sessions/logout",
+    "/api/v1/auth/challenges",
+    "/api/v1/auth/challenges/verify"
+  ],
+  "fixed_unchanged_support": {
+    "internal/central/model/service.go": "eb51dcc1217b4496a266607653b596b5623967069e2dff887a1d3c4470f1fa0a",
+    "internal/central/model/secret_router.go": "136015f0965f21ebf010c907a987fc757f8ef7b6d9c120e7f5fe35ef1b6f3ed5",
+    "internal/central/app/app.go": "16d03bee7c067afd57119d3d318f94119bf2cf3db033ed52afd9d380a39cf005",
+    "tests/account/http_fixture_test.go": "f622024fed7d759ea422c3338bcc145818d7683709f109ee79a3413f6ee03d4f"
+  },
+  "actual_commands": [
+    "git diff --name-status/--stat 422e0c1d97d924e503ad816992b778e917599507 457b1979c9d6563740543b2011eedc06cce34c71",
+    "git diff 422e0c1d97d924e503ad816992b778e917599507 457b1979c9d6563740543b2011eedc06cce34c71 -- <three production paths>",
+    "git show 457b1979c9d6563740543b2011eedc06cce34c71:<selected committed file>",
+    "git grep -n <targeted symbols> 457b1979c9d6563740543b2011eedc06cce34c71 -- <bounded paths>",
+    "git diff --name-only 422e0c1d97d924e503ad816992b778e917599507 457b1979c9d6563740543b2011eedc06cce34c71 -- <unchanged scopes>",
+    "python3 - [fixed SHA and route-prefix calculations]"
+  ],
+  "not_run": [
+    "Go",
+    "npm",
+    "browser",
+    "Docker",
+    "network",
+    "Git writes"
+  ],
+  "activity": "No active D26 rev1.2 card read; no repository writes"
+}

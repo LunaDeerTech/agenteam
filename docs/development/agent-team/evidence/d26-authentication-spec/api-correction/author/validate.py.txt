@@ -1,0 +1,52 @@
+from pathlib import Path
+import base64,hashlib,importlib.metadata,json,os,sys
+from urllib.parse import unquote
+from jsonschema import Draft202012Validator,FormatChecker
+root=Path(__file__).parent; repo=Path('/workspace/agenteam'); stage=sys.argv[1]
+assert stage in ['before','after']
+path=root/('account.before.json' if stage=='before' else 'account.after.json')
+doc=json.loads(path.read_text())
+raw32=bytes(range(32)); token=base64.urlsafe_b64encode(raw32).decode().rstrip('=')
+value='01900000-0000-7000-8000-000000000001'+'.'+token
+assert len(token)==43 and len(value)==80 and value.isascii()
+assert base64.urlsafe_b64decode(token+'=')==raw32
+samples={'representative80':value,'old43':token,'short79':value[:-1],'long81':value+'A'}
+results=[]
+for name,field in [('ChallengePass','pass'),('LoginInput','challenge_pass')]:
+ schema=doc['components']['schemas'][name]
+ for sample,v in samples.items():
+  for target in ['field','whole_object']:
+   instance=v if target=='field' else ({'pass':v} if name=='ChallengePass' else {'email':'contract-fixture@example.test','password':'synthetic-only-contract-fixture','challenge_pass':v})
+   chosen=schema['properties'][field] if target=='field' else schema
+   Draft202012Validator.check_schema(chosen)
+   errs=list(Draft202012Validator(chosen,format_checker=FormatChecker()).iter_errors(instance))
+   valid=not errs; expected=sample==('old43' if stage=='before' else 'representative80')
+   assert valid==expected,(stage,name,sample,target,valid)
+   results.append({'schema':name,'field':field,'target':target,'sample':sample,'length':len(v),'sample_sha256':hashlib.sha256(v.encode()).hexdigest(),'valid':valid,'expected':expected,'errors':[{'validator':e.validator,'schema_path':list(e.schema_path),'instance_path':list(e.path)} for e in errs]})
+refs=[]
+def resolve(base,ref):
+ resource,_,pointer=ref.partition('#')
+ assert '://' not in resource,ref
+ # The tested account copy resolves external refs beside the official source.
+ linked=(base.parent/resource).resolve() if resource else base
+ value=doc if linked==repo/'api/openapi/account.json' else json.loads(linked.read_text())
+ if pointer:
+  assert pointer.startswith('/'),ref
+  for piece in pointer[1:].split('/'):
+   value=value[unquote(piece).replace('~1','/').replace('~0','~')]
+ return value
+def walk(x,base):
+ if isinstance(x,dict):
+  if '$ref' in x: resolve(base,x['$ref']); refs.append({'base':str(base.relative_to(repo)),'ref':x['$ref']})
+  for v in x.values(): walk(v,base)
+ elif isinstance(x,list):
+  for v in x: walk(v,base)
+walk(doc,repo/'api/openapi/account.json')
+common=json.loads((repo/'api/openapi/common.json').read_text());walk(common,repo/'api/openapi/common.json')
+for source in [doc,common]:
+ for s in source['components']['schemas'].values(): Draft202012Validator.check_schema(s)
+result={'stage':stage,'argv':[sys.executable,*sys.argv],'cwd':os.getcwd(),'validator':'JSON Schema Draft 2020-12','jsonschema_version':importlib.metadata.version('jsonschema'),'python':sys.version,'input_sha256':hashlib.sha256(path.read_bytes()).hexdigest(),'synthetic_samples_only':True,'samples_same_both_schemas':True,'validation_count':len(results),'validations':results,'local_ref_count':len(refs),'all_component_schemas_valid':True,'exit':0}
+(root/(stage+'-result.json')).write_text(json.dumps(result,indent=2)+'\n')
+print(stage, 'standard validation cases',len(results),'local references',len(refs),'exit=0')
+for name in ['ChallengePass','LoginInput']:
+ print(name,', '.join(row['sample']+':'+('valid' if row['valid'] else 'rejected') for row in results if row['schema']==name and row['target']=='whole_object'))

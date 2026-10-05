@@ -1,0 +1,27 @@
+{
+  "before_sha256": "d5c519649e1f31871aa166ea5349d65a7d830d70a5d29654ee98a0f79cbfeb44",
+  "after_sha256": "583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797",
+  "changed_fields": [
+    "LoginInput.challenge_pass",
+    "ChallengePass.pass"
+  ],
+  "other_schema_fields_operations_unchanged": true,
+  "CSRF43_unchanged": true,
+  "readOnly_writeOnly_preserved": true,
+  "D26_card_unchanged": true,
+  "source_chain_unchanged": true,
+  "schema_validation_exit": 0,
+  "diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "api/openapi/account.json"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

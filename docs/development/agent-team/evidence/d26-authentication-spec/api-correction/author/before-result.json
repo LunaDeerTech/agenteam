@@ -1,0 +1,317 @@
+{
+  "stage": "before",
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3",
+    "/tmp/agenteam-account-pass-schema-mtff405l/validate.py",
+    "before"
+  ],
+  "cwd": "/workspace/agenteam",
+  "validator": "JSON Schema Draft 2020-12",
+  "jsonschema_version": "4.26.0",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "input_sha256": "d5c519649e1f31871aa166ea5349d65a7d830d70a5d29654ee98a0f79cbfeb44",
+  "synthetic_samples_only": true,
+  "samples_same_both_schemas": true,
+  "validation_count": 16,
+  "validations": [
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "target": "field",
+      "sample": "representative80",
+      "length": 80,
+      "sample_sha256": "fe8caa46c9b022cb0f6f8ca194c78b55b2ddb990aea2ecf158b5903855d68678",
+      "valid": false,
+      "expected": false,
+      "errors": [
+        {
+          "validator": "maxLength",
+          "schema_path": [
+            "maxLength"
+          ],
+          "instance_path": []
+        }
+      ]
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "target": "whole_object",
+      "sample": "representative80",
+      "length": 80,
+      "sample_sha256": "fe8caa46c9b022cb0f6f8ca194c78b55b2ddb990aea2ecf158b5903855d68678",
+      "valid": false,
+      "expected": false,
+      "errors": [
+        {
+          "validator": "maxLength",
+          "schema_path": [
+            "properties",
+            "pass",
+            "maxLength"
+          ],
+          "instance_path": [
+            "pass"
+          ]
+        }
+      ]
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "target": "field",
+      "sample": "old43",
+      "length": 43,
+      "sample_sha256": "ea866a757e4c38babfa8127cbe9a409d3e1f93a00ff1488ff735fcf917afffd0",
+      "valid": true,
+      "expected": true,
+      "errors": []
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "target": "whole_object",
+      "sample": "old43",
+      "length": 43,
+      "sample_sha256": "ea866a757e4c38babfa8127cbe9a409d3e1f93a00ff1488ff735fcf917afffd0",
+      "valid": true,
+      "expected": true,
+      "errors": []
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "target": "field",
+      "sample": "short79",
+      "length": 79,
+      "sample_sha256": "21ceb912edb60eefbb52e3f5f8de22c48eae665802655ea320409fedde879f07",
+      "valid": false,
+      "expected": false,
+      "errors": [
+        {
+          "validator": "maxLength",
+          "schema_path": [
+            "maxLength"
+          ],
+          "instance_path": []
+        }
+      ]
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "target": "whole_object",
+      "sample": "short79",
+      "length": 79,
+      "sample_sha256": "21ceb912edb60eefbb52e3f5f8de22c48eae665802655ea320409fedde879f07",
+      "valid": false,
+      "expected": false,
+      "errors": [
+        {
+          "validator": "maxLength",
+          "schema_path": [
+            "properties",
+            "pass",
+            "maxLength"
+          ],
+          "instance_path": [
+            "pass"
+          ]
+        }
+      ]
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "target": "field",
+      "sample": "long81",
+      "length": 81,
+      "sample_sha256": "a0ec5d4d989e3308124a5a3cde866e1111cede6d0bd745d8afeaef3b28b7ce16",
+      "valid": false,
+      "expected": false,
+      "errors": [
+        {
+          "validator": "maxLength",
+          "schema_path": [
+            "maxLength"
+          ],
+          "instance_path": []
+        }
+      ]
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "target": "whole_object",
+      "sample": "long81",
+      "length": 81,
+      "sample_sha256": "a0ec5d4d989e3308124a5a3cde866e1111cede6d0bd745d8afeaef3b28b7ce16",
+      "valid": false,
+      "expected": false,
+      "errors": [
+        {
+          "validator": "maxLength",
+          "schema_path": [
+            "properties",
+            "pass",
+            "maxLength"
+          ],
+          "instance_path": [
+            "pass"
+          ]
+        }
+      ]
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "target": "field",
+      "sample": "representative80",
+      "length": 80,
+      "sample_sha256": "fe8caa46c9b022cb0f6f8ca194c78b55b2ddb990aea2ecf158b5903855d68678",
+      "valid": false,
+      "expected": false,
+      "errors": [
+        {
+          "validator": "maxLength",
+          "schema_path": [
+            "maxLength"
+          ],
+          "instance_path": []
+        }
+      ]
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "target": "whole_object",
+      "sample": "representative80",
+      "length": 80,
+      "sample_sha256": "fe8caa46c9b022cb0f6f8ca194c78b55b2ddb990aea2ecf158b5903855d68678",
+      "valid": false,
+      "expected": false,
+      "errors": [
+        {
+          "validator": "maxLength",
+          "schema_path": [
+            "properties",
+            "challenge_pass",
+            "maxLength"
+          ],
+          "instance_path": [
+            "challenge_pass"
+          ]
+        }
+      ]
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "target": "field",
+      "sample": "old43",
+      "length": 43,
+      "sample_sha256": "ea866a757e4c38babfa8127cbe9a409d3e1f93a00ff1488ff735fcf917afffd0",
+      "valid": true,
+      "expected": true,
+      "errors": []
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "target": "whole_object",
+      "sample": "old43",
+      "length": 43,
+      "sample_sha256": "ea866a757e4c38babfa8127cbe9a409d3e1f93a00ff1488ff735fcf917afffd0",
+      "valid": true,
+      "expected": true,
+      "errors": []
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "target": "field",
+      "sample": "short79",
+      "length": 79,
+      "sample_sha256": "21ceb912edb60eefbb52e3f5f8de22c48eae665802655ea320409fedde879f07",
+      "valid": false,
+      "expected": false,
+      "errors": [
+        {
+          "validator": "maxLength",
+          "schema_path": [
+            "maxLength"
+          ],
+          "instance_path": []
+        }
+      ]
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "target": "whole_object",
+      "sample": "short79",
+      "length": 79,
+      "sample_sha256": "21ceb912edb60eefbb52e3f5f8de22c48eae665802655ea320409fedde879f07",
+      "valid": false,
+      "expected": false,
+      "errors": [
+        {
+          "validator": "maxLength",
+          "schema_path": [
+            "properties",
+            "challenge_pass",
+            "maxLength"
+          ],
+          "instance_path": [
+            "challenge_pass"
+          ]
+        }
+      ]
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "target": "field",
+      "sample": "long81",
+      "length": 81,
+      "sample_sha256": "a0ec5d4d989e3308124a5a3cde866e1111cede6d0bd745d8afeaef3b28b7ce16",
+      "valid": false,
+      "expected": false,
+      "errors": [
+        {
+          "validator": "maxLength",
+          "schema_path": [
+            "maxLength"
+          ],
+          "instance_path": []
+        }
+      ]
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "target": "whole_object",
+      "sample": "long81",
+      "length": 81,
+      "sample_sha256": "a0ec5d4d989e3308124a5a3cde866e1111cede6d0bd745d8afeaef3b28b7ce16",
+      "valid": false,
+      "expected": false,
+      "errors": [
+        {
+          "validator": "maxLength",
+          "schema_path": [
+            "properties",
+            "challenge_pass",
+            "maxLength"
+          ],
+          "instance_path": [
+            "challenge_pass"
+          ]
+        }
+      ]
+    }
+  ],
+  "local_ref_count": 211,
+  "all_component_schemas_valid": true,
+  "exit": 0
+}

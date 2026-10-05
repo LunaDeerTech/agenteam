@@ -1,0 +1,183 @@
+{
+  "status": "PASS narrow OpenAPI F1 prerequisite only",
+  "author_fixed_files": {
+    "account.before.json": "d5c519649e1f31871aa166ea5349d65a7d830d70a5d29654ee98a0f79cbfeb44",
+    "account.after.json": "583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797",
+    "delta.patch": "8d4beb4cf33d11fb3ea14dc7aac8920b87dc090af8c106320bcd7c380862dbf8",
+    "report.md": "11ced0e7cc823674685c5fe76a56b4198dc10910a74c8fafca99343b9fe0a638"
+  },
+  "current_api_sha256": "583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797",
+  "jsonschema_version": "4.26.0",
+  "validator": "Draft202012Validator",
+  "comparative_field_and_dto_cases": [
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "level": "field",
+      "case": "real_wire_shape80",
+      "length": 80,
+      "before_accepts": false,
+      "after_accepts": true
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "level": "dto",
+      "case": "real_wire_shape80",
+      "length": 80,
+      "before_accepts": false,
+      "after_accepts": true
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "level": "field",
+      "case": "old_wrong43",
+      "length": 43,
+      "before_accepts": true,
+      "after_accepts": false
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "level": "dto",
+      "case": "old_wrong43",
+      "length": 43,
+      "before_accepts": true,
+      "after_accepts": false
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "level": "field",
+      "case": "short79",
+      "length": 79,
+      "before_accepts": false,
+      "after_accepts": false
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "level": "dto",
+      "case": "short79",
+      "length": 79,
+      "before_accepts": false,
+      "after_accepts": false
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "level": "field",
+      "case": "long81",
+      "length": 81,
+      "before_accepts": false,
+      "after_accepts": false
+    },
+    {
+      "schema": "LoginInput",
+      "field": "challenge_pass",
+      "level": "dto",
+      "case": "long81",
+      "length": 81,
+      "before_accepts": false,
+      "after_accepts": false
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "level": "field",
+      "case": "real_wire_shape80",
+      "length": 80,
+      "before_accepts": false,
+      "after_accepts": true
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "level": "dto",
+      "case": "real_wire_shape80",
+      "length": 80,
+      "before_accepts": false,
+      "after_accepts": true
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "level": "field",
+      "case": "old_wrong43",
+      "length": 43,
+      "before_accepts": true,
+      "after_accepts": false
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "level": "dto",
+      "case": "old_wrong43",
+      "length": 43,
+      "before_accepts": true,
+      "after_accepts": false
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "level": "field",
+      "case": "short79",
+      "length": 79,
+      "before_accepts": false,
+      "after_accepts": false
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "level": "dto",
+      "case": "short79",
+      "length": 79,
+      "before_accepts": false,
+      "after_accepts": false
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "level": "field",
+      "case": "long81",
+      "length": 81,
+      "before_accepts": false,
+      "after_accepts": false
+    },
+    {
+      "schema": "ChallengePass",
+      "field": "pass",
+      "level": "dto",
+      "case": "long81",
+      "length": 81,
+      "before_accepts": false,
+      "after_accepts": false
+    }
+  ],
+  "optional_request_and_required_response_preserved": true,
+  "csrf43_preserved": true,
+  "all_other_json_semantics_unchanged": true,
+  "fixed_source_sha256": {
+    "internal/central/account/browser.go": "fefcb989d08e22eb73863826396c892c033c14dbdd905a09eb28c98ec6375400",
+    "internal/central/account/challenge.go": "779aa885896b85edb96e6a5c34e55d8d52d6a8cc6a07933abf68cacdd77cbdb8",
+    "internal/central/account/http_auth.go": "4a8f24dec41bb2dd7d94c3777ee8c80fe3b0ba4e9a799b9e07435c8989a5ba98",
+    "internal/central/account/http_wire.go": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095",
+    "internal/central/account/contract/commands.go": "278d3c0d8f1e97b8b226c9d25777d3a4f4a4a4ae00931c44304b5c856c67d5dd",
+    "internal/central/secret/contract/material.go": "a83f362b2d163ea0f7a9ea320670beb0bba7d046361a8f45590b8aca8ecd4a9f"
+  },
+  "diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "api/openapi/account.json"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "card_original_unchanged": "1a56bc635841778a642fabfb4f78098dd866ca191b4f1101fee14855e712fb2f",
+  "limitations": "Static source/schema verification only; no Go/npm/browser/Docker/network; synthetic values only, no real authorization/consumption tested."
+}

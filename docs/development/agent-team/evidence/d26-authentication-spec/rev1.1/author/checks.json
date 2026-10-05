@@ -1,0 +1,182 @@
+{
+  "base": "422e0c1d97d924e503ad816992b778e917599507",
+  "accepted_api_commit": "df78a9215d1a0dd22f8b8fb26a24e329130fb034",
+  "observed_head": "df78a9215d1a0dd22f8b8fb26a24e329130fb034",
+  "card": {
+    "path": "docs/development/work-items/d26-account-authentication.md",
+    "before_sha256": "1a56bc635841778a642fabfb4f78098dd866ca191b4f1101fee14855e712fb2f",
+    "after_sha256": "c90114c8d1e0e0c6f2a5a2d92a9b95e2e136bc5760fbabb8196961c8b6da7a22"
+  },
+  "api": {
+    "path": "api/openapi/account.json",
+    "sha256": "583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797",
+    "accepted_workspace_equal": true
+  },
+  "evidence_reports": [
+    {
+      "path": "/tmp/agenteam-d26-auth-static-pz4ka2qc/review.md",
+      "sha256": "8db17da803c93e6a9e9afebb67a68dfd9c086db63784127979891f888a214d3d"
+    },
+    {
+      "path": "/tmp/agenteam-account-pass-schema-v-j3_3gecx/review.md",
+      "sha256": "87474952e73b48f111b48adcc1b0cd9e869a91920263c0eca76200dcfa06c536"
+    },
+    {
+      "path": "/tmp/agenteam-d26-auth-feasibility-v-oqwi6632/report.md",
+      "sha256": "923d56d639cbb335ce7a11a39b70bd755dc1dd15c65a3ace500b84a864fdf9e9"
+    }
+  ],
+  "fixed_sources": [
+    {
+      "path": "internal/central/account/browser.go",
+      "sha256": "fefcb989d08e22eb73863826396c892c033c14dbdd905a09eb28c98ec6375400",
+      "base_accepted_workspace_equal": true
+    },
+    {
+      "path": "internal/central/account/challenge.go",
+      "sha256": "779aa885896b85edb96e6a5c34e55d8d52d6a8cc6a07933abf68cacdd77cbdb8",
+      "base_accepted_workspace_equal": true
+    },
+    {
+      "path": "internal/central/account/http_auth.go",
+      "sha256": "4a8f24dec41bb2dd7d94c3777ee8c80fe3b0ba4e9a799b9e07435c8989a5ba98",
+      "base_accepted_workspace_equal": true
+    },
+    {
+      "path": "internal/central/account/http_wire.go",
+      "sha256": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095",
+      "base_accepted_workspace_equal": true
+    },
+    {
+      "path": "internal/central/account/contract/commands.go",
+      "sha256": "278d3c0d8f1e97b8b226c9d25777d3a4f4a4a4ae00931c44304b5c856c67d5dd",
+      "base_accepted_workspace_equal": true
+    },
+    {
+      "path": "internal/central/secret/contract/material.go",
+      "sha256": "a83f362b2d163ea0f7a9ea320670beb0bba7d046361a8f45590b8aca8ecd4a9f",
+      "base_accepted_workspace_equal": true
+    },
+    {
+      "path": "internal/central/foundation/id.go",
+      "sha256": "40c6dce3cbaa3f8bcb6171fcd0ffd5b4af2d495d7a0b440607ce346fc2196e54",
+      "base_accepted_workspace_equal": true
+    },
+    {
+      "path": "api/openapi/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "base_accepted_workspace_equal": true
+    },
+    {
+      "path": "internal/central/account/http.go",
+      "sha256": "5c57879f54f7a56f7a6a3b3f64059da7315b4275b1fa93422b79de4707dc6b78",
+      "base_accepted_workspace_equal": true
+    },
+    {
+      "path": "internal/central/account/csrf.go",
+      "sha256": "7081e08ba956c81daa1051a3f57e0792600cc12e71f4dddeeb3277e675a59e94",
+      "base_accepted_workspace_equal": true
+    }
+  ],
+  "checks": {
+    "UTF8_LF_terminal_newline": true,
+    "trailing_whitespace": 0,
+    "fences_paired": true,
+    "local_links_and_fragments": [
+      "d07-account-session-smtp.md#当前进度",
+      "../development-plan.md#d28-集成部署与交付验收",
+      "../../frontend-design/layouts/account-entry.md",
+      "../../architecture/platform-infrastructure/authentication/account-lifecycle.md",
+      "../../frontend-design/layouts/application-shell.md",
+      "../../frontend-design/layouts/system-pages.md",
+      "../../../AGENTS.md",
+      "../agent-team/README.md",
+      "../../../.agents/skills/agenteam-design/SKILL.md",
+      "../../../.agents/skills/agenteam-vue-development/SKILL.md",
+      "../../../.agents/skills/vue-testing-best-practices/SKILL.md",
+      "../frontend/README.md",
+      "../frontend/components.md",
+      "../../frontend-design/styles/README.md",
+      "../../../api/openapi/account.json",
+      "../../../api/openapi/common.json"
+    ],
+    "unchanged_sections": [
+      1,
+      3,
+      4,
+      5,
+      6,
+      7
+    ],
+    "implementation_paths": [
+      "web/src/api/client.ts",
+      "web/src/api/account.ts",
+      "web/src/composables/useSession.ts",
+      "web/src/components/account/RotateChallenge.vue",
+      "web/src/views/auth/LoginView.vue",
+      "web/src/views/HomeView.vue",
+      "web/src/router/auth.ts",
+      "web/src/App.vue",
+      "web/src/router/index.ts",
+      "web/src/components/layout/AppShell.vue",
+      "web/vite.config.ts",
+      "web/package.json",
+      "web/package-lock.json",
+      "web/src/tests/account-client.spec.ts",
+      "web/src/tests/session.spec.ts",
+      "web/src/tests/authentication.spec.ts",
+      "web/src/tests/rotate-challenge.spec.ts",
+      "tests/account-captcha-web/authentication.config.js",
+      "tests/account-captcha-web/e2e/authentication.spec.ts",
+      "tests/account/authentication_web_fixture_test.go",
+      "tests/account/authentication_web_test.go"
+    ],
+    "implementation_paths_count": 21,
+    "future_doc_paths_count": 3,
+    "commands": [
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check",
+          "--",
+          "docs/development/work-items/d26-account-authentication.md"
+        ],
+        "cwd": "/workspace/agenteam",
+        "exit": 0,
+        "stdout": "",
+        "stderr": "",
+        "expected_exit": 0,
+        "interpretation": "passed"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--no-index",
+          "--check",
+          "--",
+          "/tmp/agenteam-d26-auth-spec-50uiases/card.md",
+          "/workspace/agenteam/docs/development/work-items/d26-account-authentication.md"
+        ],
+        "cwd": "/workspace/agenteam",
+        "exit": 1,
+        "stdout": "",
+        "stderr": "",
+        "expected_exit": 1,
+        "interpretation": "no-index implies --exit-code; 1 denotes known content difference with no whitespace output"
+      }
+    ]
+  },
+  "only_repository_write": "docs/development/work-items/d26-account-authentication.md",
+  "not_executed": [
+    "npm",
+    "browser",
+    "Go",
+    "Docker",
+    "network",
+    "business tests",
+    "Git writes"
+  ],
+  "status": "rev1.1待独立差量复审，未业务实施"
+}

@@ -1,0 +1,88 @@
+{
+  "base": "457b1979c9d6563740543b2011eedc06cce34c71",
+  "before_sha256": "c90114c8d1e0e0c6f2a5a2d92a9b95e2e136bc5760fbabb8196961c8b6da7a22",
+  "after_sha256": "76745915d15c24dcd86ba061b0ff7bfada440d0a251f23f026166b971838edcd",
+  "reports": [
+    {
+      "path": "/tmp/agenteam-d26-auth-rev11-v-is_xe5w_/review.md",
+      "sha256": "14a591cc38896e5c1256393fb281764297574de1e7a20741bd0d161e3c8f9746"
+    },
+    {
+      "path": "/tmp/agenteam-d26-root-dependency-v-betgak7_/review.md",
+      "sha256": "f47c91544e9129b0f8bc0726986e016f8bdce3b3e73dd3652553bd4ffd774421"
+    }
+  ],
+  "unchanged_sections": [
+    3,
+    4,
+    5,
+    7
+  ],
+  "six_API_parser_rules_and_auth_test_matrix_unchanged": true,
+  "original_sameorigin_dependencies_and_budgets_unchanged": true,
+  "scope": "21+3 unchanged",
+  "implementation_paths": [
+    "web/src/api/client.ts",
+    "web/src/api/account.ts",
+    "web/src/composables/useSession.ts",
+    "web/src/components/account/RotateChallenge.vue",
+    "web/src/views/auth/LoginView.vue",
+    "web/src/views/HomeView.vue",
+    "web/src/router/auth.ts",
+    "web/src/App.vue",
+    "web/src/router/index.ts",
+    "web/src/components/layout/AppShell.vue",
+    "web/vite.config.ts",
+    "web/package.json",
+    "web/package-lock.json",
+    "web/src/tests/account-client.spec.ts",
+    "web/src/tests/session.spec.ts",
+    "web/src/tests/authentication.spec.ts",
+    "web/src/tests/rotate-challenge.spec.ts",
+    "tests/account-captcha-web/authentication.config.js",
+    "tests/account-captcha-web/e2e/authentication.spec.ts",
+    "tests/account/authentication_web_fixture_test.go",
+    "tests/account/authentication_web_test.go"
+  ],
+  "links": {
+    "count": 16,
+    "strings_unchanged": true,
+    "targets_exist": true,
+    "fragment_validation": "reuse prior rev1.1 fixed evidence; same links/targets"
+  },
+  "UTF8_LF_newline_whitespace_fences": "PASS",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "docs/development/work-items/d26-account-authentication.md"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": "",
+      "meaning": "PASS"
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/tmp/agenteam-d26-auth-rev11-7xjetye2/card.md",
+        "/workspace/agenteam/docs/development/work-items/d26-account-authentication.md"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": "",
+      "meaning": "known content delta/no whitespace error"
+    }
+  ],
+  "preparation_report": "/tmp/agenteam-d26-auth-implementation-prep-g29d5f94/preparation.md",
+  "preparation_sha256": "1321804c1b05ef74fbcc1da3bb0c03422be8c4968640216f8faf0c3e14633aca",
+  "only_repo_write": "docs/development/work-items/d26-account-authentication.md",
+  "business_install_build_browser_Go_Docker_network_git_writes": "not executed"
+}

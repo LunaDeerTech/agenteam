@@ -1,0 +1,191 @@
+{
+  "base": "422e0c1d97d924e503ad816992b778e917599507",
+  "card": {
+    "path": "docs/development/work-items/d26-account-authentication.md",
+    "sha256": "1a56bc635841778a642fabfb4f78098dd866ca191b4f1101fee14855e712fb2f"
+  },
+  "input_files": [
+    {
+      "path": "AGENTS.md",
+      "sha256": "eb35f7ba3abd85bb13cc27cc84b330f50ae24309f6f1319330dfa1d914b97fe9"
+    },
+    {
+      "path": ".agents/skills/agenteam-design/SKILL.md",
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81"
+    },
+    {
+      "path": ".agents/skills/agenteam-vue-development/SKILL.md",
+      "sha256": "a52ae4b3e6913f3a37b6944e833de9fc282ecb282bf6d2478aea783b19bee039"
+    },
+    {
+      "path": ".agents/skills/vue-testing-best-practices/SKILL.md",
+      "sha256": "376fd21d6adfd37f7d102fa17ca099abddef16943389f37588405b013cef23b8"
+    },
+    {
+      "path": "docs/development/development-plan.md",
+      "sha256": "307d8c418cc81bbf1a3eb9a4089b01b0d12b87dfd424d77fd081a391437505b0"
+    },
+    {
+      "path": "docs/frontend-design/layouts/account-entry.md",
+      "sha256": "6e6eea53bf8c0a4b032dabac0d8e2f14f1becc7c71541bdc7d062a632ad490be"
+    },
+    {
+      "path": "docs/frontend-design/layouts/system-pages.md",
+      "sha256": "ecdeebc169105d27218c4b8759a750ff9948a54f4e96fd95a8d74204fb9fea22"
+    },
+    {
+      "path": "docs/frontend-design/layouts/application-shell.md",
+      "sha256": "80c63edeb8ab115ad65e515f6d912d414b252e3f8ed942d3cba635cf23994f18"
+    },
+    {
+      "path": "api/openapi/account.json",
+      "sha256": "d5c519649e1f31871aa166ea5349d65a7d830d70a5d29654ee98a0f79cbfeb44"
+    },
+    {
+      "path": "api/openapi/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+    },
+    {
+      "path": "internal/central/account/http.go",
+      "sha256": "5c57879f54f7a56f7a6a3b3f64059da7315b4275b1fa93422b79de4707dc6b78"
+    },
+    {
+      "path": "internal/central/account/http_auth.go",
+      "sha256": "4a8f24dec41bb2dd7d94c3777ee8c80fe3b0ba4e9a799b9e07435c8989a5ba98"
+    },
+    {
+      "path": "internal/central/account/http_wire.go",
+      "sha256": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095"
+    },
+    {
+      "path": "internal/central/account/csrf.go",
+      "sha256": "7081e08ba956c81daa1051a3f57e0792600cc12e71f4dddeeb3277e675a59e94"
+    },
+    {
+      "path": "internal/central/account/login.go",
+      "sha256": "a1802b85303167f2b5421fbbef82e769239dcc28f5da8126b83082996186ee06"
+    },
+    {
+      "path": "internal/central/account/challenge.go",
+      "sha256": "779aa885896b85edb96e6a5c34e55d8d52d6a8cc6a07933abf68cacdd77cbdb8"
+    },
+    {
+      "path": "internal/central/account/contract/settings.go",
+      "sha256": "d03456c27fdfaaf489012712767273bbe6615a7a9bc578ebcbfff2c447ea11e9"
+    },
+    {
+      "path": "web/package.json",
+      "sha256": "0688197e9f837652f7d53e030746082f335e44d6146656cae8249f7a36462d40"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "daab84caeafa77fca90e366a503c6ed59f50a19da123345f83ddbf4fc26d8c7f"
+    },
+    {
+      "path": "web/vite.config.ts",
+      "sha256": "950681b8cf2bfd7644798fd3fdaa6a3a4b91ea0b1d49020052d5d4d4db30562a"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "1047c942f523b979d86caa5872166c44fc794cbbc1a56d0dce0e227c56bd0680"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "31a389b54182754a0934fd685e73940af4eae2183a1acd12142dca5789b71f89"
+    },
+    {
+      "path": "web/src/components/layout/AppShell.vue",
+      "sha256": "222977718b0c1ca347b901c62468389637c7fee8295ad829000d79d6bffe86ce"
+    },
+    {
+      "path": "web/src/components/layout/SystemNav.vue",
+      "sha256": "6304a5e197515928320d3ea0fb8c0c2edf744820635d2a51588eb726fc57a41b"
+    },
+    {
+      "path": "web/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13"
+    },
+    {
+      "path": "tests/account-captcha-web/package.json",
+      "sha256": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58"
+    },
+    {
+      "path": "tests/account-captcha-web/package-lock.json",
+      "sha256": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+    },
+    {
+      "path": "tests/account-captcha-web/playwright.config.js",
+      "sha256": "b96245dec4d221cc7f5bcd546d8f55138e8ddaa8a31c6a8e89049983e7f17c60"
+    }
+  ],
+  "feasibility_report_sha256": "923d56d639cbb335ce7a11a39b70bd755dc1dd15c65a3ace500b84a864fdf9e9",
+  "checks": {
+    "UTF8_LF_terminal_newline": true,
+    "trailing_whitespace": 0,
+    "fences_paired": true,
+    "local_links_and_fragments": [
+      "d07-account-session-smtp.md#当前进度",
+      "../development-plan.md#d28-集成部署与交付验收",
+      "../../frontend-design/layouts/account-entry.md",
+      "../../architecture/platform-infrastructure/authentication/account-lifecycle.md",
+      "../../frontend-design/layouts/application-shell.md",
+      "../../frontend-design/layouts/system-pages.md",
+      "../../../AGENTS.md",
+      "../agent-team/README.md",
+      "../../../.agents/skills/agenteam-design/SKILL.md",
+      "../../../.agents/skills/agenteam-vue-development/SKILL.md",
+      "../../../.agents/skills/vue-testing-best-practices/SKILL.md",
+      "../frontend/README.md",
+      "../frontend/components.md",
+      "../../frontend-design/styles/README.md",
+      "../../../api/openapi/account.json",
+      "../../../api/openapi/common.json"
+    ],
+    "implementation_paths_count": 21,
+    "future_doc_paths_count": 3,
+    "git_diff_check": {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "docs/development/work-items/d26-account-authentication.md"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "not_executed": [
+    "npm",
+    "browser",
+    "Go",
+    "Docker",
+    "network",
+    "business tests"
+  ],
+  "only_repository_write": "docs/development/work-items/d26-account-authentication.md",
+  "implementation_paths": [
+    "web/src/api/client.ts",
+    "web/src/api/account.ts",
+    "web/src/composables/useSession.ts",
+    "web/src/components/account/RotateChallenge.vue",
+    "web/src/views/auth/LoginView.vue",
+    "web/src/views/HomeView.vue",
+    "web/src/router/auth.ts",
+    "web/src/App.vue",
+    "web/src/router/index.ts",
+    "web/src/components/layout/AppShell.vue",
+    "web/vite.config.ts",
+    "web/package.json",
+    "web/package-lock.json",
+    "web/src/tests/account-client.spec.ts",
+    "web/src/tests/session.spec.ts",
+    "web/src/tests/authentication.spec.ts",
+    "web/src/tests/rotate-challenge.spec.ts",
+    "tests/account-captcha-web/authentication.config.js",
+    "tests/account-captcha-web/e2e/authentication.spec.ts",
+    "tests/account/authentication_web_fixture_test.go",
+    "tests/account/authentication_web_test.go"
+  ]
+}
