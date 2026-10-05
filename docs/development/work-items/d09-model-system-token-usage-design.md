@@ -1,8 +1,8 @@
 # D09 Model System 与 Token Usage 工程规格
 
-修订 2，2026-10-05。设计部分已采纳并归位；独立复核已通过 R01/R02/C01 及本轮官方 SDK 字段事实。继承设计基线 `da5caab58ad7b0b6c03f2120e3d8456d3d8b9613`，增核已验 D08 B02 `6319d033f089140b34de60374312ce57141e6fa2`；归位时仓库基线 `a4b728bf2cc5f38fb0c626c4cd793456f3b35b90`。除本页首状态外，正文与已审 `/tmp` 修订 2 一致。
+修订 3，2026-10-05。设计部分已采纳；修订 2 的 R01/R02/C01 与官方 SDK 字段事实不变，本轮仅归位独立静态通过的 C0 精确 Go 形状与实施范围。继承设计基线 `da5caab58ad7b0b6c03f2120e3d8456d3d8b9613`、已验 D08 B02 `6319d033f089140b34de60374312ce57141e6fa2`；C0 固定编译基线为 `16595ad1e78e5283dfe85fb812095acde382edd1`。
 
-当前范围由[主卡](d09-model-system-token-usage.md)限定：B01 仅列纯契约候选，具体 Go 形状与源码授权尚须冻结；完整 D09 未开工、未完成。本文不证明 Provider 运行兼容，§13 的 Summary 初值、Jina/型号 conformance 及未来真实绑定继续待定。
+当前范围由[主卡](d09-model-system-token-usage.md)限定：B01/C0 仅实施 8+2 纯契约及相邻测试，源码待独立验收；完整 D09 未开工、未完成。本文不证明 Provider 运行兼容，§13 的 Summary 初值、Jina/型号 conformance 及未来真实绑定继续待定。
 
 依据：[开发计划](../development-plan.md)、[Model 架构](../../architecture/platform-infrastructure/model-system/README.md)、[配置](../../architecture/platform-infrastructure/model-system/model-configuration.md)、[解析](../../architecture/platform-infrastructure/model-system/model-resolution.md)、[Chat Runtime](../../architecture/platform-infrastructure/model-system/chat-model-runtime.md)、[Usage](../../architecture/platform-infrastructure/model-token-usage.md)、[D01 Model 契约](d01-contracts/model-tool.md)、[事务](d01-contracts/foundation.md)、[生命周期](d01-contracts/domain-lifecycle.md)、[W17–19/W42](d01-contracts/walkthroughs.md)、[D08 规格](d08-project-owner-design.md)。本文只细化这些规则；未闭合事项见 §13。
 
@@ -29,6 +29,25 @@
 3. `audit/contract/{types,metadata}.go`、新 `audit/contract/model.go` 及闭集测试；`audit/service.go` 仅新增 optional Models verifier 与 Model action 分派；新 `audit/model_test.go`。模型调用本身不逐条写 Audit；§10 限定配置审计。
 4. `app/{app,resources,health,diagnostics,security,object,outbox}.go` 仅最终根绑定、typed registry 与联合 join；以届时 D07/D08 已验版本为基线，不重写账户/邮件实现。`tests/testsupport/postgres/cmd/fixture/main.go` 仅追加 model/usage/tests/model 包，原 nonce、隔离、版本和每包 6m/race 不改。
 5. D08 对 ModelRuntime/Secret/Outbound/Audit 的事实验证通过其正式注册端口在新 `model/project_adapter.go` 和根组合完成；缺正式端口时先报告，不直接跨域查 Project SQL。§13 的 Project 创建输入/初始化不在当前旧文件授权内。
+
+## 1.1. C0 已采纳公共形状
+
+下列正式 Go 声明对应已审 C0 稿 `bec826d7cef677352e36c8c3113f541c8a237b48044084d8a960d203ad0328eb`；字段名、可空指针、构造器、闭集与端口以这些源码为准。仅 marker ID 可为空 struct，业务 DTO 均有真实字段；接口无生产占位实现。
+
+| 正式源码 | C0 责任 |
+| --- | --- |
+| [model/types.go](../../../internal/central/model/contract/types.go) | Consumer/ModelIdentity/ConfigSnapshot/ResolvedModel、能力、错误与非负 decimal-string TokenCount/nullable Usage |
+| [configuration.go](../../../internal/central/model/contract/configuration.go) | Provider/Model 命令和安全投影、SelectionRef/Result、平台/Project 已配置状态；无 Summary 初始值载体 |
+| [resolution.go](../../../internal/central/model/contract/resolution.go) | 显式 current_selection/serving_snapshot 请求与 Resolver 四方法，配置身份和新 lease 分离 |
+| [authority.go](../../../internal/central/model/contract/authority.go) | ConsumerRequest/AttemptIdentity/InputIdentity/RetryPolicy、ConsumerAuthority、四 concrete opaque plan 与 issuer |
+| [references.go](../../../internal/central/model/contract/references.go) | ReferenceChange/ReplacementPlan 与四个 References 方法；未来 owner canonical rewrite 仍需真实域适配 |
+| [chat.go](../../../internal/central/model/contract/chat.go) | Message/Part/Tool/ModelRequest/Response/Frame、Chat 与 Stream 端口；部分/完整 payload 严格分离 |
+| [nonchat.go](../../../internal/central/model/contract/nonchat.go) | Embed/Rerank/GenerateImage 独立请求与结果、有限向量/索引、Object 业务引用 |
+| [events.go](../../../internal/central/model/contract/events.go) | typed 安全配置 payload；不注册 Outbox catalog/handler，不使中立 event 层依赖 Model |
+| [usage/types.go](../../../internal/central/usage/contract/types.go) | exact Invocation 与历史安全身份、FieldSummary/Summary 的已知/未知分母 |
+| [query.go](../../../internal/central/usage/contract/query.go) | Project Filter/Query/Page/分组 AggregatePage 与 Reader；不提供系统跨租户聚合或默认授权 |
+
+四计划的 `New…(PlanIssuer, …Details)`、`Validate/Details/RequiredLocks/Matches` 只完成结构/不可变绑定：issuer 不导出，复制全部可变字段/锁，JSON 不能构造计划。绑定使用完整 Actor（包括当前 Session），不与持久命令的稳定主体摘要混用。服务仍须完整初始 union、D03 RequireHeld、锁后当前事实重验；C0 不证明已提交/权限/Secret 材料可读/actual join。JSON 参数只核大小、严格 object/深度/重复键/禁止覆盖，未核 profile/型号继续拒作为已支持声明。
 
 ## 2. 配置、默认与公开数据
 
@@ -85,13 +104,13 @@ const (
     ServingSnapshotSource ResolutionSource = "serving_snapshot"
 )
 type ResolveRequest struct {
-    Actor identity.Actor; Consumer ModelConsumer; Purpose ModelPurpose
+    Actor identity.Actor; Consumer Consumer; Purpose Purpose
     Source ResolutionSource
-    ModelRef ModelID; Selection SelectionRef; ReasoningEffort string
-    ServingSnapshotID SnapshotID; ServingGenerationID string // UUID；D13/D14 自有事实身份
+    ModelRef *ModelID; Selection *SelectionRef; ReasoningEffort string
+    ServingSnapshotID *SnapshotID; ServingGenerationID string // UUID；D13/D14 自有事实身份
     LeaseOwner secret.CredentialLeaseOwner
 }
-// 以下为 ModelService 方法签名；各 Plan 是本实例签发的 concrete opaque type。
+// C0 分别声明 Resolver / References；实际 ModelService 后续实现，各 Plan 为实例签发的 concrete opaque type。
 SelectModel(context.Context, identity.Actor, SelectionRequest) (SelectionResult, error)
 DiscoverResolve(context.Context, ResolveRequest) (ResolutionPlan, error)
 ResolveModelInTx(context.Context, foundation.Tx, ResolveRequest, ResolutionPlan) (ResolvedModel, error)
@@ -156,6 +175,7 @@ Stream(context.Context, ModelRequest) (ModelStream, error)
 Embed(context.Context, EmbeddingRequest) (Embeddings, error)
 Rerank(context.Context, RerankRequest) (RankedItems, error)
 GenerateImage(context.Context, ImageRequest) (GeneratedFiles, error)
+// 以下持久/Runtime 端口尚属后续块，不在 C0 新源中定义空载体。
 LookupCall(context.Context, identity.Actor, CallIdentity) (CallReceipt, error)
 // 持久化口由 Runtime 使用，均须绑定实际 reservation/attempt，不开放 HTTP。
 ReserveInvocationInTx(context.Context, foundation.Tx, InvocationReservation, InvocationPlan) (InvocationReceipt, error)
@@ -228,7 +248,7 @@ Agent retry 唯一 owner 为 Model Runtime：单请求 timeout 30s→60s→120s�
 
 ## 8. 用量查询与可重建汇总
 
-`usage.Service.List(ctx, Human, Query) (Page,error)`、`Aggregate(ctx,Human,AggregateQuery)(Summary,error)`；ProjectID必需，当前 Session+Owner，系统管理员无跨Owner豁免。任意聚合前先同UserSH+ProjectSH当前权限，归档可读，deleting只按D08限定安全状态拒正文查询。
+`usage.Service.List(ctx, Human, Query) (Page,error)`、`Aggregate(ctx,Human,AggregateQuery)(AggregatePage,error)`；ProjectID必需，当前 Session+Owner，系统管理员无跨Owner豁免。任意聚合前先同UserSH+ProjectSH当前权限，归档可读，deleting只按D08限定安全状态拒正文查询。
 
 Query 支持 consumer_type/Agent/Execution/Meeting/purpose/历史ProviderID/历史ModelID/status/started_at[from,to)。默认最近30日；显式范围不靠默认时间改摘要，同筛选可游标分页查全部保留历史。分页默认50/max100，使用部署 cursor.Keyring；digest绑定scope/Actor稳定主体/排序/全部filter，不绑定limit/session/trace。order started_at DESC,id DESC，固定第一页水位，所有页当前授权，cursor不是权限。
 
@@ -283,7 +303,7 @@ D09先后端服务与HTTP，无匿名模型调用路由，无新增账户/System
 
 ## 12. 验收及命令
 
-以下均为**待实现后执行**，本次只做文档检查。每一真实probe附固定源码/依赖manifest、确切命令/exit/资源finally清理；生产stub或仅interface编译不能替代真实PG/Providerfixture。新tests必须进入既有完整脚本包列表，不能只在作者临时命令中存在。
+C0 按主卡执行纯构建/unit/race/vet，其作者结果不代替独立源码验收；下表涉及实际服务/存储/Provider 的断言均为**后续实现后执行**。每一真实probe附固定源码/依赖manifest、确切命令/exit/资源finally清理；生产stub或仅interface编译不能替代真实PG/Providerfixture。新tests必须进入既有完整脚本包列表，不能只在作者临时命令中存在。
 
 | ID | 必须观察的真实断言 |
 | --- | --- |
@@ -323,4 +343,4 @@ AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go GOTOOLCHAIN=local sh scripts/t
 2. **Provider conformance 与剩余 wire**：§6 四 profile 已有固定官方 SDK 字段事实及独立局部复核，不再称零官方源码；Jina、逐型号能力/互斥矩阵、完整 schema 子集和真实 server conformance 仍未验。SDK不证明账号/API可用，无真实smoke不宣称Provider实测。此限制不阻纯配置/锁/Usage或本轮公共契约，但B02/完整D09不得据源码证据宣称ready；后续联网/运行另行授权，不继续本轮研究。
 3. **真实跨模块实现**：已验 D08 B02 Human Owner/gate 可用，B03 lifecycle/Service validators仍待绑定；D07实际最终根提交、D10 Agent model-ref authority、D13/D14 serving source与长期Secret保留、D19Approval、D21ImageTool、D22Execution/Loop、D24Meeting分别接正式端口，缺实现不是空成功。可先独立验本轮纯契约，不代表完整D09依赖齐备。本次不改这些活动源码、迁移或产品界面。
 
-作者自查和输入指纹随本稿交付；只证明来源/文本/边界一致，不证明任何 D09 代码或运行行为已完成。
+作者自查与 C0 固定编译输入随本轮交付；纯契约验证不证明实际 D09 授权、事务、Provider 调用或完整模块完成。

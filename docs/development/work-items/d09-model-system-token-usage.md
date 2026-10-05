@@ -1,19 +1,19 @@
 # D09 Model System 与 Token Usage
 
-修订 1，2026-10-05。归位基线 `a4b728bf2cc5f38fb0c626c4cd793456f3b35b90`；设计基线及来源见[工程规格修订 2](d09-model-system-token-usage-design.md)。状态：**设计部分采纳；B01 纯契约候选尚未实施；完整 D09 未开工、未完成。** 本卡不是源码、迁移、网络实验或真实 Provider 调用授权。
+修订 2，2026-10-05。C0 固定编译基线 `16595ad1e78e5283dfe85fb812095acde382edd1`；设计基线及来源见[工程规格修订 3](d09-model-system-token-usage-design.md)。状态：**设计部分采纳；B01/C0 纯契约形状已独立静态通过并获 root 授权实施，源码待独立验收；完整 D09 未开工、未完成。** 本卡只授权下列 20 个新 Go 文件及两份 D09 文档同步，不授权迁移、网络实验或真实 Provider 调用。
 
 依据：[开发计划 D09](../development-plan.md)、[D01 模型契约](d01-contracts/model-tool.md)、[D08 规格](d08-project-owner-design.md)。必读 [AGENTS](../../../AGENTS.md)、[团队流程](../agent-team/README.md)、[设计技能](../../../.agents/skills/agenteam-design/SKILL.md)；实施/独立验收按团队角色与各自技能执行。root 持本卡、台账、计划、迁移编号及最终 Git 交付。
 
 ## 已采纳与未满足
 
-- 设计修订 2 的 R01（精确 Invocation planned read）、R02（实际 PurposeModel+execution/model_call 的 legacy wrapper 拒绝、保 MCP）、C01（immutable serving snapshot 与新 call lease 分层）已独立定向通过。当前只归位规格，不声称 Secret 或 Model 已实现这些增量。
+- 设计修订 2 的 R01（精确 Invocation planned read）、R02（实际 PurposeModel+execution/model_call 的 legacy wrapper 拒绝、保 MCP）、C01（immutable serving snapshot 与新 call lease 分层）已独立定向通过。C0 只落实纯载体，不声称 Secret planned read、旧 wrapper 拒绝或 Model 运行服务已实现。
 - OpenAI/Anthropic 固定官方 SDK 仅证明采用字段及 usage 口径；不引入 SDK 运行依赖，不证明真实 Provider、账号权限或型号矩阵。Jina、完整 schema/型号 conformance 保持未闭合。
 - Summary 初值仍待用户决定；不新增 Project 创建输入、默认值或用 NULL 宣称必填已满足。配置/初始化/完整 D09 验收受此约束，纯类型不代决。
 - 已验 D08 B02 `6319d03` 的 Human Owner/gate、创建/恢复可作为后续真实依赖；B03 lifecycle/Service validators/参与者适配尚须其正式验收。D10/D13/D14/D19/D21/D22/D24 各自绑定真实引用、serving generation、consumer/cause/输入/死亡或终局事实；不得用成功 stub、跨域 SQL 或通用 Owner 豁免替代。
 
-## B01 纯契约候选范围
+## B01/C0 纯契约实施范围
 
-这是工程规格 §1 宽 B01 的**首阶段候选**，只形成可编译、可验证的类型/闭集与规划绑定；不等于配置/Usage 存储结果已经交付。下表为本阶段唯一候选新源白名单，各路径相对 `internal/central/`，同时间仅一位实现者写这些共享契约；root 冻结具体 Go 形状并发出源码任务后才实施。
+这是工程规格 §1 宽 B01 的**首阶段 C0**，只形成可编译、可验证的类型/闭集与规划绑定；不等于配置/Usage 存储结果已经交付。下表为 root 已授权的唯一新源白名单，各路径相对 `internal/central/`，合计 10 个生产源和 10 个相邻测试；architecture_worker 是本轮唯一作者。
 
 | 生产新源 | 仅对应的新测试 | 职责 |
 | --- | --- | --- |
@@ -28,27 +28,27 @@
 | `usage/contract/types.go` | `usage/contract/types_test.go` | Invocation/Usage/summary 的 nullable 数值与来源、真实 attempt 身份 |
 | `usage/contract/query.go` | `usage/contract/query_test.go` | Owner 查询/筛选/分页/统计的安全 DTO/端口，cursor 不作权限 |
 
-不写现有文件、Secret 新读实现/旧 RequestID 载体、Actor/Audit 注册、DB 表/迁移、Model/Usage 服务、Provider adapter、HTTP/app、脚本、依赖或未来域实现。工程规格 §1 的这些后续增量继续逐项授权；纯 interface 无实现不是生产已绑定。出现白名单之外的必要代码时先报告，不能用空结构/静默成功来绕过依赖。
+除本卡与工程规格外不写现有文件；不写 Secret 新读实现/旧 RequestID 载体、Actor/Audit 注册、DB 表/迁移、Model/Usage 服务、Provider adapter、HTTP/app、脚本、依赖或未来域实现。工程规格 §1 的这些后续增量继续逐项授权；纯 interface 无实现不是生产已绑定。出现白名单之外的必要代码时先报告，不能用空结构/静默成功来绕过依赖。
 
-## 开工前最小工程形状
+## 已采纳的精确 Go 形状
 
-设计已固定语义，但尚未把以下所有名字展开为完整 Go 公共字段/构造器；因此本卡保留“候选”，不让实现者在多个模块内各猜一份接口。这些属于工程定型，不重新询问已定产品规则：
+独立静态采纳的 C0 声明稿 SHA256 为 `bec826d7cef677352e36c8c3113f541c8a237b48044084d8a960d203ad0328eb`，本轮按其 8+2 文件职责落源码；精确字段/指针/构造器及接口以工程规格 §1.1 链接的 Go 声明为准，不由下游再猜一套载体。
 
-1. 固定 `ConsumerRequest` 各 action 的必填/禁带字段、各 opaque Plan 的 issuer/request/mapping/复制锁投影与构造/匹配签名；包括 prospective 同 Tx 事实、exact Invocation 与 serving source 的字段归属。复用现有 D03/Secret/D05 模式，不新增通用授权框架。
-2. 将配置命令、`SelectionRef`、`ReferenceChange`/replacement、nonchat 请求和 Usage query/result 的剩余 Go 载体列齐；只验证平台已定闭集/范围，不把未核 Jina/型号能力包装成合法 native 参数。需要未答 Summary 初值的初始化/创建载体暂缓。
-3. 新 Secret `CredentialUsageReader` 及 RequestID 语义已定，但 `UsageRequest` 是旧公共文件；其载体兼容与实际 wrapper/planned read 为后续受权块，不在上述纯新源白名单偷偷修改。本阶段不得声称 R01/R02 已运行；Model 的跨域依赖声明须明确引用这个待实现正式口。
-
-允许先仅在 `/tmp` 给出上述最小 typed 候选并独立复核；通过后 root 发精确源码卡。不得因此重复改写产品架构或整份工程规格。
+- `ConsumerRequest` 五 action 明确必填/禁带；exact Invocation/Process/fence/Input/lease 绑定不从“最新 call”推断。current/serving 分支互斥，旧配置身份与新 call lease 分离。
+- 四 concrete opaque plan 提供 `Validate/Details/RequiredLocks/Matches`，实例 issuer 与完整 Actor（含 Session）/request/mapping 绑定；复制锁集/可变载体、拒 JSON 造计划。结构有效不代表持锁、当前授权、提交或 actual join；命令持久摘要仍另按稳定 Actor 主体排除 Session。
+- 平台 DTO 校验已定结构/闭集/范围；不以合法 JSON 宣称 profile/型号支持。Usage 只返回历史身份，不携 System endpoint/overwrite/SecretRef；nil、零及 overflow 保持区别。
+- Secret 新 `CredentialUsageReader`、旧 `UsageRequest.RequestID` 和实际 wrapper/planned read 不在本阶段；Summary 初始配置、Jina/型号规则、未来 consumer/reference/lifecycle 绑定继续暂缓，不新增空结构或默认成功。
 
 ## 固定编译依赖与验收
 
-- 编译基线固定 `a4b728bf2cc5f38fb0c626c4cd793456f3b35b90`；Go 精确 1.27.1，`GOTOOLCHAIN=local`、`-mod=readonly`。`go.mod`/`go.sum` 不变，不安装 Provider SDK。开工/交付记录真实 `go list` 编译闭包指纹；本次文档归位未执行编译，不把候选列表称实际编译闭包。
+- 编译基线固定 `16595ad1e78e5283dfe85fb812095acde382edd1`；Go 精确 1.27.1，`GOTOOLCHAIN=local`、`-mod=readonly`。`go.mod`/`go.sum` 不变，不安装 Provider SDK。在该提交的隔离副本叠加本轮 20 新源执行验证；记录真实 `go list` 编译闭包及日志，不消费活动 D08/D05/00014 工作树。
 - 既有只读依赖限 `internal/central/foundation`、`identity/contract`、`secret/contract`、`object/contract`，事件如需复用仅 `event/contract`；及其该固定提交的传递闭包/标准库。Usage 可引用本次 model contract，反向不得依赖 Usage 实现。禁止导入 Tool/Execution 或任何 Central 实现包。新依赖或旧源差异须显式核定，不能改工作树依赖救编译。
 - 有意义纯测试覆盖工程规格 T01、T06/T07 的可静态验证部分：闭集/必填/禁带组合、稳定请求 binding、计划 issuer/mapping/复制切片、防反序列化造权限、nullable 与 0、>2^53 的 int64 精确编码及溢出拒绝、安全格式化不带材料。无源码时不编造 PASS；真实锁/Secret/Unknown/provider/join 留到相应运行块。
 - 实施后执行以下命令，并由未参与实现的审查者验证公共形状、拒绝分支、包分层和真实结果。纯契约不需要 Docker/PG/MinIO/模型 API，不占并行验收资源。
 
 ```sh
-GOTOOLCHAIN=local /workspace/toolchains/go1.27.1/bin/go test -mod=readonly -race ./internal/central/model/contract ./internal/central/usage/contract
+GOTOOLCHAIN=local /workspace/toolchains/go1.27.1/bin/go test -mod=readonly -count=1 ./internal/central/model/contract ./internal/central/usage/contract
+GOTOOLCHAIN=local /workspace/toolchains/go1.27.1/bin/go test -mod=readonly -race -count=1 ./internal/central/model/contract ./internal/central/usage/contract
 GOTOOLCHAIN=local /workspace/toolchains/go1.27.1/bin/go vet -mod=readonly ./internal/central/model/contract ./internal/central/usage/contract
 GOTOOLCHAIN=local /workspace/toolchains/go1.27.1/bin/go build -mod=readonly ./internal/central/model/contract ./internal/central/usage/contract
 ```
