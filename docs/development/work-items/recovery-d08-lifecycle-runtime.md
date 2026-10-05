@@ -1,6 +1,6 @@
 # D08 B03-R4：真实归档终局、恢复与原操作重试
 
-修订：rev2 / 已采纳规格。rev1 的两项限定修订已通过独立差量复审，主线程采纳规格；尚未开放业务实施。当前只有本卡规格写权，没有 Go、SQL、测试资源或共享台账写权。`00017` 已由主线程为本卡保留；编号登记不是迁移已实施。实施者和独立验收者由主线程另行下发，不再委派。
+修订：rev2.1 / 迁移排期与前向恢复限定差量待审；业务规则沿已采纳 rev2。尚未开放业务实施。主线程已撤回本卡原 `00017` 文档预留，转留 D09 current Model Resolution；本卡迁移编号待实施前重新分配，不预占 `00018`。没有 Go、SQL 或测试资源写权。实施者和独立验收者由主线程另行下发，不再委派。
 
 ## 固定输入与完整结果
 
@@ -36,7 +36,7 @@ func (*Service) RetryLifecycle(context.Context, identity.Actor,
 
 1. `Service.New` 只捕获一次有效 `Processes.CurrentProcess()`，creation 和 lifecycle 始终使用该实例 ID。ProcessAuthority 是受信任外部依赖；合法 ID 不证明真实 ProcessGuard 已装配，组合验收另证。不得在 Project 中新建、重置或 Close guard。Authority 与 Store 必须是同一实际 Store；不按同 PG 地址替代同 Store。
 2. `NewRuntime` 不执行 SQL、不启动 goroutine。拒绝 nil/可判定零 Service 或 LifecycleAuthority、异 Store、无效 registry、当前 manifest 解析失败及第二个 Runtime；Service Authority 的 Lifecycle 依赖须为传入的同一具体 R3 Authority。其完整版本声明与当前 registry 一致；恢复旧 operation 时再按该 operation 的完整 manifest 逐项核兼容版本。opaque participant 的非 nil、Name/声明检查不是内部健康证明，不反射猜私有状态。实际调用错误或 panic 不能转成 stopped。
-3. 构造成功即把 Runtime 所有权挂入 Service；外层必须先登记资源，再调用 Initialize/Start。Initialize 自身计入 owned control，确认 schema 17 与当前装配，建立恢复扫描能力，不执行未确认接受的参与者调用。历史 operation 的缺版本/坏事实逐项显式失败或保留待处理，不用一个忙 Project 阻止所有其他 Project 初始化。启动检查失败/取消不撤销资源登记；晚返回控制仍计入 Joined。
+3. 构造成功即把 Runtime 所有权挂入 Service；外层必须先登记资源，再调用 Initialize/Start。Initialize 自身计入 owned control，确认本卡届时获分配迁移的实际 schema 与当前装配，建立恢复扫描能力，不执行未确认接受的参与者调用。历史 operation 的缺版本/坏事实逐项显式失败或保留待处理，不用一个忙 Project 阻止所有其他 Project 初始化。启动检查失败/取消不撤销资源登记；晚返回控制仍计入 Joined。
 4. Start 仅在 Initialize 成功后启动一次；重复 Start 返回 `INVALID_STATE`，StopAdmission 后不能重启。Start 的 context 只约束启动等待，成功后由已登记 Runtime 持有运行 context，后续请求取消不结束整个 worker。Check 用有限调用预算检查初始化/停止/致命调度错误和真实依赖状态，不启动业务、不等待所有 pending 操作完成；单个 failed operation 不等于全 Runtime 无法服务。
 5. Service/Runtime 的 StopAdmission 共用一个 admission 屏障：停止新公共调用和新 work round，不取消已接受调用；已登记父调用的 checkpoint/确认属于同一 owner，可继续收尾，不借 child 再申请一个新 admission。既有 Service.Stop/Force 保留“关 admission 并请求取消”的兼容含义，其无 context 返回不构成 join 证明。Runtime.Force(ctx) 同时请求取消并在原预算内等待全局 Joined；Drain(ctx) 只等待并执行必要有界终局确认，不提前标成功。
 6. `Joined` 在 admission 已关闭，所有 Service 公共调用、creation provider/confirmation、Runtime 初始化/调度/worker、原 writer 终局确认和实际尾部调用全部返回且资源所有权退休后才为 true。Runtime.Joined 与 Service.Joined 使用同一事实；没有 Runtime 的 Service 也必须满足 creation/命令部分。未关闭 admission 时不能因瞬间零调用报告最终 joined；Runtime.Drain 要求先 StopAdmission，否则返回 INVALID_STATE。零 Runtime 的 Joined=false，其有返回值方法拒绝 DEPENDENCY_UNBOUND；重复 StopAdmission 安全。
@@ -86,13 +86,13 @@ required/pending 行可按原 cause 幂等 RequestStop，若在同一总预算�
 
 全体持久 stop=stopped 后仍需在当前 claim 下逐项真实 Inspect；不持长 Tx 等外域 I/O。最终 Project EX 事务重读完整所有行与 exact claim，并核本轮复核对应行版本未变、没有本 item 尚活调用。复核失败不能伪造终态，也不能为了重新尝试抹去 stopped/checkpoint 历史。未来 enabled participant 若增加自主工作，必须升级其 adapter/manifest 证明，不能沿用本卡四域的事实假设。
 
-## 00017：operation 自有完成事件计划
+## 待编号迁移：operation 自有完成事件计划
 
-唯一迁移候选为 `db/migrations/00017_project_lifecycle_completion_plan.sql`。00013 已有完整 claims、行版本、attempt_count/next_attempt_at；00016 是 Object maintenance 表，不提供 Project 完成事件身份。最小增加 `agenteam_project.lifecycle_operations.completion_plan JSONB NULL`，不改 commands/event_ids/R2 plan，不追加表或跨域 FK。migration embed 已 glob `*.sql`，无需为编号修改 Go embed。
+唯一迁移候选仍为一个 `project_lifecycle_completion_plan.sql`，完整文件名前缀待主线程按届时已提交连续序列分配；不得使用已转留 D09 的 `00017` 或自行占用下一号。00013 已有完整 claims、行版本、attempt_count/next_attempt_at；00016 是 Object maintenance 表，不提供 Project 完成事件身份。最小增加 `agenteam_project.lifecycle_operations.completion_plan JSONB NULL`，不改 commands/event_ids/R2 plan，不追加表或跨域 FK。migration embed 已 glob `*.sql`，无需为编号修改 Go embed。
 
 计划格式固定 `project-archive-completion-v1`：ProjectID、OperationID、action=archive、接受 ProjectVersion、target_project_version=接受值+1、原 manifest_digest、完整 event_header 与 typed event_payload。Header 固定 Project producer/aggregate/scope、schema 1、独立首次 EventID、固定 target AggregateVersion；payload 精确 `operation_id/from=archiving/to=archived/action=archive`，不含 op.version、claim/fence、名称或 private refs。字段/格式版本严格闭集，拒绝缺字段、未知字段、null、坏 header/payload/摘要/版本；写前解码拒绝重复 key，读取已 JSONB 规范化的内容仍完整验证，不把 JSON 排版字节当事件身份。
 
-DB CHECK 至少限制 SQL NULL 或 archive 的合法格式 JSON object、长度至多 65,536 bytes 和必需字段/基本 JSON 类型；应用 loader 再核完整 typed/cross-field 关系。旧 accepted/stopping/failed 和旧 completed 行允许 NULL，迁移不伪造历史 EventID、不重发旧完成事件。旧 NULL completed 只按既有终态事实读取，不能作为新 Append 许可。非法格式/过大/非 archive 计划拒绝；原 00013/00016 populated 数据和 CHECK 不削弱。Down 仅限隔离未使用迁移的回滚验证；存在非 NULL 计划时必须失败，不能删除已持久事件身份。
+DB CHECK 至少限制 SQL NULL 或 archive 的合法格式 JSON object、长度至多 65,536 bytes 和必需字段/基本 JSON 类型；应用 loader 再核完整 typed/cross-field 关系。旧 accepted/stopping/failed 和旧 completed 行允许 NULL，迁移不伪造历史 EventID、不重发旧完成事件。旧 NULL completed 只按既有终态事实读取，不能作为新 Append 许可。非法格式/过大/非 archive 计划拒绝；原 00013/00016 populated 数据和 CHECK 不削弱。沿已验迁移 Source 的前向约束，不写 Goose Down、不修改旧迁移或迁移引擎；失败恢复使用事务回滚、隔离备份恢复或另行审查的前向修正，不能删除已持久事件身份。隔离恢复演练不得冒充生产降级或允许带非 NULL 计划回退。
 
 完成 plan 的首次 NULL→选定值在全 stop 确认后的短 Project EX + exact claim 事务内发生；一次 DbNow 作为计划 OccurredAt 与本次 updated_at，operation.version+1，Project/version/gate 不变，不 Append/Touch。计划随后不可变；已有同值计划只读复用，不因 participant checkpoint、Retry 或新 claim 生成另一个 EventID。格式 v1 不是随进度递增的 plan version；它绑定不变的 operation/project/manifest/接受版本，而不是会变化的 op.version 或过期 claim。
 
@@ -163,14 +163,14 @@ Lookup增加两种严格分派，先当前身份/Owner和可见性；持原comma
 | 旧 `internal/central/project/lifecycle_store.go` | 加载私有completion_plan、retry_after、行version/attempt_count/next_attempt_at；全量校验后才截DTO |
 | 旧 `internal/central/project/events.go`、`lifecycle_events.go` | 完成/Restore的精确事实与双私有计划；保留D09、领域绑定及R2旧路由 |
 | 旧 `internal/central/project/lifecycle_audit.go`、`audit_authority.go` | completion/Restore/Retry的typed同Tx真实事实分派 |
-| 新 `db/migrations/00017_project_lifecycle_completion_plan.sql` | 仅上述operation列/CHECK与受保护Down |
+| 新 `db/migrations/<主线程待分配>_project_lifecycle_completion_plan.sql` | 仍只占一个路径；仅上述 operation 列/CHECK，前向迁移，不含 Down |
 | 新 `tests/project/lifecycle_runtime_fixture_test.go` | 真实四域/Account/PG/MinIO/guard固定装配、明确原writer协议 |
 | 新 `tests/project/lifecycle_runtime_test.go` | 真实archive终局/delete handoff/manifest/公平预算 |
 | 新 `tests/project/lifecycle_runtime_recovery_test.go` | actual process死亡/旧writer/claim接管/完整checkpoint恢复 |
 | 新 `tests/project/lifecycle_restore_retry_test.go` | Restore/Retry/Lookup的权限、幂等及原子性 |
 | 新 `tests/project/lifecycle_runtime_unknown_test.go` | claim/checkpoint/plan/final/Restore/Retry真实Unknown |
 | 新 `tests/project/lifecycle_runtime_shutdown_test.go` | 旧creation/公共命令与Runtime全局join、联合guard屏障 |
-| 新 `tests/project/lifecycle_completion_schema_test.go` | fresh/populated prefix17、严格plan/受保护回滚 |
+| 新 `tests/project/lifecycle_completion_schema_test.go` | 届时连续前缀的 fresh/populated、严格 plan、前向迁移与隔离恢复 |
 
 不改R1/R3、领域绑定/Artifact/Object/D09文件、foundation/postgres、旧SQL、shared contract、go.mod/sum、脚本、HTTP/app或共享台账。旧 `events.go` 等接缝须先由D09/领域绑定作者验收冻结并交还。新测试复用已验B02 COMMIT proxy和owned资源原则，不修改旧fixture/旧断言。
 
@@ -192,7 +192,7 @@ Lookup增加两种严格分派，先当前身份/Owner和可见性；持原comma
 | `CompletionUnknown` | plan与最终archive各自真实三态，原候选/持久ID不换、Audit/Event只一次、所有权保留；final已提交而随后Restore时仅确认历史结果，零旧cause续写 |
 | `RestoreRetryUnknown` | 两命令规划/提交适用的真实三态与当前撤权/新SessionLookup；still writer不能not_observed，同key确认零重复Touch/事件 |
 | `GlobalJoin` | Create实际卡住initializer/确认、creation Unknown、R2/Update/Lookup原writer及Runtime尾部同时存在；另以精确backend PID/原ROLLBACK协议，令真实Service Tx持域锁并执行可回滚操作后，ROLLBACK确认失败、客户端已返回NotCommitted而原backend仍在事务持锁：业务保持NotCommitted，Joined=false、槽仍占用、Force/Drain有界未完成；放行原ROLLBACK并经原共享锁与确认Tx证明终局后才join。不得手造结果或只看客户端关闭；确认Tx自身/opaque Resolve的同类收尾也保持owner。旧API取消/3s窗口不假join，Force预算不重开；晚Initialize返回仍被跟踪，Project+Artifact+Outbox+HTTP的AND未成立前guard不释放 |
-| `Schema17` | fresh prefix1..17、populated accepted/stopping/failed/旧NULL completed/delete，原行/约束保持；非法/过大/非archive plan拒绝；迁移事务失败无半列，已有持久plan时Down拒绝抹身份 |
+| `SchemaCompletionPlan` | 按实施时已分配连续前缀验证 fresh/populated accepted/stopping/failed/旧 NULL completed/delete，原行/约束保持；非法/过大/非 archive plan 拒绝；事务失败无半列，Source 拒含 Down 输入，隔离备份恢复保留已持久 plan/EventID，不实施生产降级 |
 
 进程/COMMIT试验使用明确ready/entered/COMMIT协议和精确backend PID，不以固定sleep、宽松SQLSTATE或无锁缺行解释成功。新组不skip；记录每轮固定源码/上游manifest、顶层/子例、原失败与修复、复用的未变输入，不能把跨轮组合写成最终输入一次全绿。受影响旧完整顶层包括Project B02/R2/R3/Secret/D09/领域绑定、Artifact stop/Object S2/ObjectAudit、Outbox普通及lifecycle；原 `TestOutboxLifecycleInspectionAuthorityBoundary` 首红未重现但原因未知，仍保留关注，不能声明R4已修复其根因。
 
@@ -200,10 +200,16 @@ Lookup增加两种严格分派，先当前身份/Owner和可见性；持原comma
 
 ## 开工门槛与交付边界
 
-本卡静审通过不等于实现授权。开工前由主线程收齐Artifact和领域绑定的正式验收提交，连同已验ObjectAudit/D09逐项核R4实际消费端口/Store/锁/事件事实差异，交还全部旧文件所有权，再下发唯一实现者及00017写权。若最终delta改变本卡完整结果或新增路径，先收窄可核差异重审，不省略真实绑定。最终只在真实archive/Restore/Retry、恢复/全局join和delete handoff均被独立验证后声明本卡通过；后继Cleaner、生产HTTP/root、D10和完整模块门槛仍独立未交付。
+本卡静审通过不等于实现授权。开工前由主线程收齐 Artifact 和领域绑定的正式验收提交，连同已验 ObjectAudit/D09 逐项核 R4 实际消费端口/Store/锁/事件事实差异，交还全部旧文件所有权；重新确认全局迁移连续前缀、分配一个实际编号并完成对应输入差量审核后，才下发唯一实现者及该迁移写权。若最终 delta 改变本卡完整结果或新增路径，先收窄可核差异重审，不省略真实绑定。最终只在真实 archive/Restore/Retry、恢复/全局 join 和 delete handoff 均被独立验证后声明本卡通过；后继 Cleaner、生产 HTTP/root、D10 和完整模块门槛仍独立未交付。
 
 rev1 原候选 SHA-256 为 `d1030889c9a10ce939e2acb08c9ef1e685486f4c7ca48c7a9a2ad0ea32efacba`；独立静审报告 SHA-256 为 `507edec7a03c7bab946147cfc7ba81fbf9b5d809dea71a9bd05e6d11781caf18`。rev2 仅修正实际 work_claims 表名，以及 NotCommitted 业务结果和原 writer/锁终局的区别（包含 Resolve、确认事务和原 GlobalJoin 顶层反例）；API、34路径、00017范围和13顶层保持。该失败路径本轮只有固定源码静态依据，没有动态复现或实现通过声明，等待限定 delta 复审。
 
 ## rev2 规格采纳
 
 2026-10-05，主线程核对冻结候选 SHA-256 `99cf338a8254768d11c46964a6b6ffbdd27686bb6a4fb3b8b10c1de9283ae924` 与独立差量复审报告 SHA-256 `c92c4745d7f4c8e6c6072b67b2c70bfc1452b662b1d5ce66feb6a525b4804839`，采纳 rev2 规格。实际检查为固定差量、API/34路径/00017范围、13顶层与14链接核对；未运行 Go/Docker，不构成行为验收。Artifact stop 和领域绑定最终验收、真实接缝 delta、文件所有权交还仍是实施前置，00017 继续仅保留编号。
+
+## rev2.1 工程排期差量
+
+2026-10-05，主线程在固定 `3e5d88209224678c72302ec9b307327469ecd38c` 及工作区只读核查后，确认全局 SQL 仅 00001–00016，R4 的 00017/completion_plan 没有实现；独立核查报告 SHA-256 为 `a1c7d95b3ab9691851d3b0a9f05a364f0fbe4ba2b0da390eabb621e8f8949e16`。主线程撤回原文档预留，将 00017 转留 current Model Resolution，R4 待后续实际分配，不保证 00018。上段及旧报告保留原时点事实。
+
+本次只改当前编号/实施门槛，并将原受保护 Down 设想纠正为 [Source](../../../internal/central/postgres/source.go) 已验的前向迁移及隔离恢复约束；不改变 completion_plan 业务/API、34 路径数量、13 组验收结果目标或现有上游阻断，不写 SQL、不改迁移引擎。该限定差量待独立复核，规格通过仍不授业务实施权。
