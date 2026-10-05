@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -27,6 +28,76 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/recoverylog"
 	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 )
+
+// This is the exact middleware composition installed by app: one logged root
+// Handler around the account handler. The bootstrap subcase injects an unbound
+// internal dependency to exercise a panic in the actual account route; it is
+// not a successful authorization or storage substitute.
+func TestB04HTTPProductionMiddlewareIdentityLoggedOnce(t *testing.T) {
+	boundary, err := csrfNewBoundary("https://example.test")
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		path           string
+		status, panics int
+	}{
+		{"/api/v1/me", 401, 0},
+		{"/api/v1/auth/bootstrap", 500, 1},
+	} {
+		t.Run(tc.path, func(t *testing.T) {
+			var output bytes.Buffer
+			logger := slog.New(slog.NewJSONHandler(&output, nil))
+			accountHandler := (&accountHTTP{csrf: boundary}).httpHandler()
+			root := httpapi.Handler(logger, accountHandler)
+			r := httptest.NewRequest("GET", "https://example.test"+tc.path, nil)
+			r.Header.Set("X-Request-ID", "untrusted-trace-sentinel")
+			r.Header.Set("Authorization", "Bearer private-log-sentinel")
+			w := httptest.NewRecorder()
+			root.ServeHTTP(w, r)
+			if w.Code != tc.status {
+				t.Fatalf("status=%d want=%d", w.Code, tc.status)
+			}
+			httpAssertSecurityHeaders(t, w)
+			var problem httpapi.Problem
+			if err := json.Unmarshal(w.Body.Bytes(), &problem); err != nil {
+				t.Fatal(err)
+			}
+			responseID := w.Header().Get("X-Request-ID")
+			if responseID == "" || responseID != problem.RequestID.String() || responseID == "untrusted-trace-sentinel" {
+				t.Error("response and Problem do not share a server-owned request identity")
+			}
+			requests, panics := 0, 0
+			for _, line := range bytes.Split(bytes.TrimSpace(output.Bytes()), []byte{'\n'}) {
+				var entry map[string]any
+				if err := json.Unmarshal(line, &entry); err != nil {
+					t.Fatal(err)
+				}
+				switch entry["event"] {
+				case "http_request":
+					requests++
+					if entry["request_id"] != responseID {
+						t.Error("production root log request_id differs from the response/Problem")
+					}
+					if entry["route"] != tc.path {
+						t.Errorf("production root log route=%v want=%s", entry["route"], tc.path)
+					}
+				case "http_panic":
+					panics++
+					if entry["request_id"] != responseID {
+						t.Error("panic log request identity differs from the response")
+					}
+				}
+			}
+			if requests != 1 || panics != tc.panics {
+				t.Errorf("request logs=%d panic logs=%d; want 1/%d", requests, panics, tc.panics)
+			}
+			if strings.Contains(output.String(), "private-log-sentinel") || strings.Contains(output.String(), "untrusted-trace-sentinel") || strings.Contains(output.String(), "runtime error") {
+				t.Error("HTTP logs contain sensitive input or raw panic details")
+			}
+		})
+	}
+}
 
 func httpAssertSecurityHeaders(t *testing.T, w *httptest.ResponseRecorder) {
 	t.Helper()

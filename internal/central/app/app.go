@@ -13,11 +13,13 @@ import (
 	"os"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"github.com/LunaDeerTech/agenteam/internal/platform/lifecycle"
 	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
 )
@@ -50,28 +52,35 @@ type database interface {
 // Only package-local tests can replace assembly. Production always uses Open,
 // the embedded migration source and the fixed health sampling intervals.
 type dependencies struct {
-	listen   func(context.Context, string, string) (net.Listener, error)
-	handler  http.Handler
-	open     func(context.Context, postgres.Config) (database, error)
-	migrate  func(context.Context, postgres.Config) postgres.MigrationState
-	health   healthTiming
-	security func(context.Context, config.Config, database) (*audit.Service, error)
-	secret   func(context.Context, config.Config, database, *audit.Service) (maintenance, error)
-	outbound func(context.Context, config.Config, database, *audit.Service) (egress, error)
-	objects  func(context.Context, config.Config, database, *audit.Service) (objectStorage, error)
-	outbox   func(config.Config, database, *audit.Service, objectStorage) (outboxStorage, error)
+	listen             func(context.Context, string, string) (net.Listener, error)
+	handler            http.Handler
+	open               func(context.Context, postgres.Config) (database, error)
+	migrate            func(context.Context, postgres.Config) postgres.MigrationState
+	health             healthTiming
+	security           func(context.Context, config.Config, database) (*audit.Service, error)
+	secret             func(context.Context, config.Config, database, *audit.Service) (maintenance, error)
+	outbound           func(context.Context, config.Config, database, *audit.Service) (egress, error)
+	objects            func(context.Context, config.Config, database, *audit.Service) (objectStorage, error)
+	outbox             func(config.Config, database, *audit.Service, objectStorage) (outboxStorage, error)
+	bind               func(context.Context, config.Config, database, *resources, *dependencies) error
+	secretInitialize   func(context.Context, *secret.Service) error
+	outboundConstruct  func(context.Context, config.Config, *outboundRuntime) error
+	outboundInitialize func(context.Context, *outboundRuntime) (egress, error)
+	observeAccount     func(*account.Service)
 }
 
 type startupResult struct {
-	health          postgres.DatabaseHealth
-	sampled         time.Time
-	objectSampled   time.Time
-	objectAvailable bool
-	outboxSampled   time.Time
-	outboxAvailable bool
-	err             error
-	code            lifecycle.FailureCode
-	securityFailure bool
+	health           postgres.DatabaseHealth
+	sampled          time.Time
+	objectSampled    time.Time
+	objectAvailable  bool
+	outboxSampled    time.Time
+	outboxAvailable  bool
+	accountSampled   time.Time
+	accountAvailable bool
+	err              error
+	code             lifecycle.FailureCode
+	securityFailure  bool
 }
 
 func run(ctx context.Context, cfg config.Config, logger processLogger, signals <-chan os.Signal, deps dependencies) error {
@@ -104,20 +113,8 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			return m.Migrate(ctx)
 		}
 	}
-	if deps.security == nil {
-		deps.security = initializeSecurity
-	}
-	if deps.secret == nil {
-		deps.secret = initializeSecret
-	}
-	if deps.outbound == nil {
-		deps.outbound = initializeOutbound
-	}
-	if deps.objects == nil {
-		deps.objects = initializeObjects
-	}
-	if deps.outbox == nil {
-		deps.outbox = createOutbox
+	if deps.bind == nil {
+		deps.bind = bindAccounts
 	}
 	startup, cancelStartup := context.WithCancel(control.StopContext())
 	defer cancelStartup()
@@ -152,23 +149,41 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	monitor.objectAvailable = initial.objectAvailable
 	monitor.outboxReceived = initial.outboxSampled
 	monitor.outboxAvailable = initial.outboxAvailable
+	monitor.accountReceived = initial.accountSampled
+	monitor.accountAvailable = initial.accountAvailable
+	monitor.accountBound = owned.accounts() != nil
 	healthContext, cancelHealth := context.WithCancel(context.Background())
 	defer cancelHealth()
 	healthDone := make(chan struct{})
 	go func() {
 		defer close(healthDone)
-		monitor.run(healthContext, owned.store(), logger, owned.objects(), owned.outbox())
+		monitor.run(healthContext, owned.store(), logger, owned.objects(), owned.outbox(), owned.accounts())
 	}()
 	if deps.handler == nil {
-		deps.handler = diagnosticRouter(monitor, true, owned.secret(), owned.outbound())
+		diagnostics := diagnosticRouter(monitor, true, owned.secret(), owned.outbound())
+		accounts := owned.accounts()
+		if accounts == nil || accounts.Handler() == nil {
+			// Only package-local unit collaborators may omit real Account.
+			deps.handler = diagnostics
+		} else {
+			accountHandler := accounts.Handler()
+			deps.handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path == "/livez" || r.URL.Path == "/readyz" || r.URL.Path == "/diagnostics" {
+					diagnostics.ServeHTTP(w, r)
+					return
+				}
+				accountHandler.ServeHTTP(w, r)
+			})
+		}
 	}
 	serving, cancelServing := context.WithCancel(context.WithoutCancel(ctx))
 	defer cancelServing()
 	gate := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if control.Stopping() {
+		if control.Stopping() || !owned.admitHTTP() {
 			httpapi.WriteProblem(w, r, foundation.NewFault(foundation.ShuttingDown, foundation.NotStarted))
 			return
 		}
+		defer owned.finishHTTP()
 		deps.handler.ServeHTTP(w, r)
 	})
 	server := &http.Server{Handler: httpapi.Handler(logger.HTTPLogger(), gate), BaseContext: func(net.Listener) context.Context { return serving }, ReadHeaderTimeout: 5 * time.Second, IdleTimeout: 60 * time.Second, MaxHeaderBytes: 1 << 20, ErrorLog: logger.ServerErrorLog()}
@@ -203,6 +218,7 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 	owned.stopOutbound()
 	owned.stopObjects()
 	owned.stopOutbox()
+	owned.stopAccounts()
 	cancelHealth()
 	drain, cancelDrain := control.DrainContext()
 	defer cancelDrain()
@@ -216,6 +232,8 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			outboundDone <- nil
 		}
 	}()
+	accountDone := make(chan error, 1)
+	go func() { accountDone <- owned.drainAccounts(drain) }()
 	outboxDone := make(chan error, 1)
 	go func() {
 		if service := owned.outbox(); service != nil {
@@ -224,15 +242,16 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			outboxDone <- nil
 		}
 	}()
-	// The object guard stays held while HTTP producers or Outbox callbacks can
-	// still own work. Once both join, Runtime.Drain may retire it.
+	// All HTTP, Account, Mail and Outbox work must actually join before guard
+	// retirement, including a reader or Sink close still running after cancel.
 	var objectDone chan error
 	objectStarted := false
 	outboxDrained := false
+	accountDrained := false
 	var databaseDone chan error
 	httpDrained, databaseDrained, outboundDrained, objectDrained := false, false, false, false
 	for {
-		if httpDrained && outboxDrained && !objectStarted {
+		if httpDrained && outboxDrained && accountDrained && owned.producersJoined() && !objectStarted {
 			objectStarted = true
 			objectDone = make(chan error, 1)
 			go func() {
@@ -294,6 +313,13 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 			} else {
 				code = lifecycle.ShutdownTimeout
 			}
+		case err := <-accountDone:
+			accountDone = nil
+			if err == nil {
+				accountDrained = true
+			} else {
+				code = lifecycle.ShutdownTimeout
+			}
 		case err := <-objectDone:
 			objectDone = nil
 			if err == nil {
@@ -335,6 +361,12 @@ func run(ctx context.Context, cfg config.Config, logger processLogger, signals <
 		if objectDone != nil {
 			select {
 			case <-objectDone:
+			case <-forced.Done():
+			}
+		}
+		if accountDone != nil {
+			select {
+			case <-accountDone:
 			case <-forced.Done():
 			}
 		}
@@ -387,6 +419,13 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 	cancelDatabase()
 	ctx, cancelSecurity := context.WithTimeout(parent, SecurityStartupTimeout)
 	defer cancelSecurity()
+	if deps.bind == nil {
+		deps.bind = bindAccounts
+	}
+	if err := deps.bind(ctx, cfg, store, owned, &deps); err != nil {
+		logger.Security(logging.SecurityFailed)
+		return startupResult{err: err, code: lifecycle.InitializationFailed, securityFailure: true}
+	}
 	logger.Security(logging.CursorInitializing)
 	logger.Security(logging.AuditInitializing)
 	auditService, err := deps.security(ctx, cfg, store)
@@ -454,6 +493,14 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 	if err == nil && outboxService != nil {
 		err = outboxService.Initialize(ctx)
 	}
+	accountService := owned.accounts()
+	if err == nil && accountService != nil {
+		err = accountService.Start(ctx)
+	}
+	if err == nil && accountService != nil {
+		err = accountService.Check(ctx)
+	}
+	accountSampled := deps.health.now()
 	if err == nil && outboxService != nil {
 		err = outboxService.Start(context.WithoutCancel(ctx))
 	}
@@ -493,7 +540,7 @@ func initialize(ctx context.Context, cfg config.Config, logger processLogger, de
 		return failed(err)
 	}
 	logger.Database(logging.DatabaseHealthy, "", "", migration.Version)
-	return startupResult{health: health, sampled: sampled, objectSampled: objectSampled, objectAvailable: objectService != nil, outboxSampled: outboxSampled, outboxAvailable: outboxService != nil}
+	return startupResult{health: health, sampled: sampled, objectSampled: objectSampled, objectAvailable: objectService != nil, outboxSampled: outboxSampled, outboxAvailable: outboxService != nil, accountSampled: accountSampled, accountAvailable: accountService != nil}
 }
 
 func stopStartup(logger processLogger, control *lifecycle.Controller, owned *resources, initialized <-chan startupResult) error {
@@ -502,6 +549,7 @@ func stopStartup(logger processLogger, control *lifecycle.Controller, owned *res
 	owned.stopOutbound()
 	owned.stopObjects()
 	owned.stopOutbox()
+	owned.stopAccounts()
 	drain, cancel := control.DrainContext()
 	defer cancel()
 	var drained chan error
@@ -529,6 +577,14 @@ func stopStartup(logger processLogger, control *lifecycle.Controller, owned *res
 						drained <- err
 						return
 					}
+				}
+				if err := owned.drainAccounts(drain); err != nil {
+					drained <- err
+					return
+				}
+				if !owned.producersJoined() {
+					drained <- context.Canceled
+					return
 				}
 				if service := owned.objects(); service != nil {
 					if err := service.Drain(drain); err != nil {

@@ -32,15 +32,18 @@ func (t healthTiming) defaults() healthTiming {
 }
 
 type healthMonitor struct {
-	mu              sync.RWMutex
-	last            postgres.DatabaseHealth
-	received        time.Time
-	available       bool
-	timing          healthTiming
-	objectAvailable bool
-	objectReceived  time.Time
-	outboxAvailable bool
-	outboxReceived  time.Time
+	mu               sync.RWMutex
+	last             postgres.DatabaseHealth
+	received         time.Time
+	available        bool
+	timing           healthTiming
+	objectAvailable  bool
+	objectReceived   time.Time
+	outboxAvailable  bool
+	outboxReceived   time.Time
+	accountAvailable bool
+	accountReceived  time.Time
+	accountBound     bool
 }
 
 func healthy(h postgres.DatabaseHealth) bool {
@@ -67,6 +70,35 @@ func (h *healthMonitor) objectSnapshot() bool {
 
 type healthComponent interface{ Check(context.Context) error }
 
+// A timed-out sample remains owned until Check actually returns. A later
+// round can discard its result and start fresh, but cannot overlap it or
+// publish a late success under the later round's deadline.
+type healthCheck[T any] struct{ pending chan T }
+
+func (c *healthCheck[T]) start(ctx context.Context, work func(context.Context) T) chan T {
+	if c.pending != nil {
+		select {
+		case <-c.pending:
+			c.pending = nil
+		default:
+			return nil
+		}
+	}
+	done := make(chan T, 1)
+	c.pending = done
+	go func() {
+		done <- work(ctx)
+		close(done)
+	}()
+	return done
+}
+
+func (h *healthMonitor) accountSnapshot() bool {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+	return h.accountAvailable && h.timing.now().Sub(h.accountReceived) <= h.timing.stale
+}
+
 func (h *healthMonitor) outboxSnapshot() bool {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
@@ -75,6 +107,12 @@ func (h *healthMonitor) outboxSnapshot() bool {
 func (h *healthMonitor) run(ctx context.Context, db database, logger processLogger, objects ...healthComponent) {
 	timer := time.NewTicker(h.timing.interval)
 	defer timer.Stop()
+	type databaseSample struct {
+		health postgres.DatabaseHealth
+		err    error
+	}
+	var databaseCheck healthCheck[databaseSample]
+	var objectCheck, outboxCheck, accountCheck healthCheck[error]
 	for {
 		select {
 		case <-ctx.Done():
@@ -85,54 +123,80 @@ func (h *healthMonitor) run(ctx context.Context, db database, logger processLogg
 			return
 		}
 		sample, cancel := context.WithTimeout(ctx, h.timing.timeout)
-		type databaseSample struct {
-			health postgres.DatabaseHealth
-			err    error
-		}
-		databaseDone := make(chan databaseSample, 1)
-		go func(done chan databaseSample) {
-			next, err := db.Check(sample)
-			done <- databaseSample{next, err}
-		}(databaseDone)
-		objectDone := make(chan error, 1)
+		databaseDone := databaseCheck.start(sample, func(ctx context.Context) databaseSample {
+			next, err := db.Check(ctx)
+			return databaseSample{next, err}
+		})
 		var objectService healthComponent
 		if len(objects) > 0 {
 			objectService = objects[0]
 		}
-		go func(done chan error) {
+		objectDone := objectCheck.start(sample, func(ctx context.Context) error {
 			if objectService != nil {
-				done <- objectService.Check(sample)
-			} else {
-				done <- errors.New("OBJECT_UNBOUND")
+				return objectService.Check(ctx)
 			}
-		}(objectDone)
-		outboxDone := make(chan error, 1)
+			return errors.New("OBJECT_UNBOUND")
+		})
 		var outboxService healthComponent
 		if len(objects) > 1 {
 			outboxService = objects[1]
 		}
-		go func(done chan error) {
+		outboxDone := outboxCheck.start(sample, func(ctx context.Context) error {
 			if outboxService != nil {
-				done <- outboxService.Check(sample)
-			} else {
-				done <- errors.New("OUTBOX_UNBOUND")
+				return outboxService.Check(ctx)
 			}
-		}(outboxDone)
+			return errors.New("OUTBOX_UNBOUND")
+		})
+		var accountService healthComponent
+		if len(objects) > 2 {
+			accountService = objects[2]
+		}
+		accountDone := accountCheck.start(sample, func(ctx context.Context) error {
+			if accountService != nil {
+				return accountService.Check(ctx)
+			}
+			return errors.New("ACCOUNT_UNBOUND")
+		})
 		var next postgres.DatabaseHealth
-		var err, objectErr, outboxErr error
-		for databaseDone != nil || objectDone != nil || outboxDone != nil {
+		var err, objectErr, outboxErr, accountErr error
+		// A previous round's unjoined call is unavailable, even if its result
+		// arrives while independent dependencies complete this fresh round.
+		if databaseDone == nil {
+			err = context.DeadlineExceeded
+		}
+		if objectDone == nil {
+			objectErr = context.DeadlineExceeded
+		}
+		if outboxDone == nil {
+			outboxErr = context.DeadlineExceeded
+		}
+		if accountDone == nil {
+			accountErr = context.DeadlineExceeded
+		}
+		for databaseDone != nil || objectDone != nil || outboxDone != nil || accountDone != nil {
 			select {
 			case result := <-databaseDone:
+				databaseCheck.pending = nil
 				next = result.health
 				err = result.err
 				databaseDone = nil
 			case result := <-objectDone:
+				objectCheck.pending = nil
 				objectErr = result
 				objectDone = nil
 			case result := <-outboxDone:
+				outboxCheck.pending = nil
 				outboxErr = result
 				outboxDone = nil
+			case result := <-accountDone:
+				accountCheck.pending = nil
+				accountErr = result
+				accountDone = nil
 			case <-sample.Done():
+				if accountDone != nil {
+					accountErr = sample.Err()
+					accountDone = nil
+				}
 				if outboxDone != nil {
 					outboxErr = sample.Err()
 					outboxDone = nil
@@ -156,6 +220,9 @@ func (h *healthMonitor) run(ctx context.Context, db database, logger processLogg
 		if outboxErr == nil {
 			outboxErr = sample.Err()
 		}
+		if accountErr == nil {
+			accountErr = sample.Err()
+		}
 		cancel()
 		if ctx.Err() != nil {
 			return
@@ -173,6 +240,10 @@ func (h *healthMonitor) run(ctx context.Context, db database, logger processLogg
 		h.outboxAvailable = outboxErr == nil
 		if outboxErr == nil {
 			h.outboxReceived = h.timing.now()
+		}
+		h.accountAvailable = accountErr == nil
+		if accountErr == nil {
+			h.accountReceived = h.timing.now()
 		}
 		if available {
 			h.last = next

@@ -3,11 +3,14 @@ package main
 import (
 	"bytes"
 	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
+	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
 )
 
 func TestInformationAndRepairArgumentsDoNotReadUnselectedInputs(t *testing.T) {
@@ -27,7 +30,13 @@ func TestInformationAndRepairArgumentsDoNotReadUnselectedInputs(t *testing.T) {
 	}
 }
 func TestCheckConfigAndUnsupportedCompiledRepair(t *testing.T) {
+	accountValues := accountenv.New(t).Values()
+	accountPath := filepath.Join(filepath.Dir(accountValues[config.Prefix+"ACCOUNT_RECOVERY_LOG"]), "check-config-uncreated.log")
+	accountValues[config.Prefix+"ACCOUNT_RECOVERY_LOG"] = accountPath
 	lookup := func(key string) (string, bool) {
+		if value, ok := accountValues[key]; ok {
+			return value, true
+		}
 		if value, ok := objectfixture.ConfigOnlyValues()[key]; ok {
 			return value, true
 		}
@@ -46,6 +55,9 @@ func TestCheckConfigAndUnsupportedCompiledRepair(t *testing.T) {
 	var out, logs bytes.Buffer
 	if execute([]string{"--check-config"}, lookup, nil, &out, &logs, nil) != 0 || !strings.Contains(out.String(), `"scope":"d05"`) {
 		t.Fatal("pure D05 configuration check failed")
+	}
+	if _, err := os.Lstat(accountPath); !os.IsNotExist(err) {
+		t.Fatal("configuration check created or opened its Account recovery log path")
 	}
 	source, err := postgres.EmbeddedSource()
 	if err != nil {

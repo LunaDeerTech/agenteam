@@ -27,6 +27,7 @@ func databaseEnvironment(t *testing.T, db *pgfixture.Database, extras ...string)
 		t.Fatal("owned MinIO configuration failed")
 	}
 	base := append(objects, []string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0", "AGENTEAM_CENTRAL_DATABASE_URL=" + db.Fixture.URL(db.Name), "AGENTEAM_CENTRAL_DATABASE_CA_FILE=" + db.Fixture.CAFile, "AGENTEAM_CENTRAL_DATABASE_STARTUP_TIMEOUT=15s", "AGENTEAM_CENTRAL_SHUTDOWN_TIMEOUT=3s"}...)
+	base = append(base, accountEnvironment(t, db.Name)...)
 	return append(base, extras...)
 }
 func databaseContext(t *testing.T) context.Context {
@@ -240,7 +241,7 @@ func waitDiagnosticState(t *testing.T, address, want string, timeout time.Durati
 		matched := 0
 		for _, capability := range d.Capabilities {
 			switch capability.Name {
-			case "postgresql", "pgvector", "migrations", "read_write", "audit_storage", "secret", "outbound", "object_storage", "outbox":
+			case "postgresql", "pgvector", "migrations", "read_write", "audit_storage", "secret", "outbound", "object_storage", "outbox", "identity", "outbox_handlers":
 				if capability.Status == want {
 					matched++
 				}
@@ -248,13 +249,24 @@ func waitDiagnosticState(t *testing.T, address, want string, timeout time.Durati
 				if capability.Status != "available" {
 					t.Fatal("cursor initialization unavailable")
 				}
+			case "audit_authorization", "secret_authorization", "outbound_authorization", "outbox_authorization", "object_authorization":
+				expected := "unavailable"
+				if want == "available" {
+					expected = "system_bound"
+					if capability.Name == "object_authorization" {
+						expected = "avatar_bound"
+					}
+				}
+				if capability.Status == expected {
+					matched++
+				}
 			default:
 				if capability.Status != "unbound" {
 					t.Fatal("future dependency claimed available")
 				}
 			}
 		}
-		if matched == 9 {
+		if matched == 16 {
 			if want == "available" && (d.Database == nil || !d.Database.ReadWrite || d.Database.ExtensionVersion != "0.8.1") {
 				t.Fatal("database evidence absent")
 			}
@@ -321,7 +333,7 @@ func TestCentralStopWhileHealthQueryIsBlocked(t *testing.T) {
 	if _, err := tx.Exec(databaseContext(t), "LOCK TABLE agenteam_meta.health_probe IN ACCESS EXCLUSIVE MODE"); err != nil {
 		t.Fatal("fixture health barrier failed")
 	}
-	waitDatabaseFact(t, admin, "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND application_name='agenteam' AND wait_event_type='Lock')")
+	waitDatabaseFact(t, db.Connect(t), "SELECT EXISTS(SELECT 1 FROM pg_stat_activity WHERE datname=current_database() AND application_name='agenteam' AND wait_event_type='Lock')")
 	if err := p.command.Process.Signal(syscall.SIGTERM); err != nil {
 		t.Fatal(err)
 	}

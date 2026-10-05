@@ -98,7 +98,7 @@ func guardOutbox(t *testing.T, store *postgres.Store, objects *objectAssembly, e
 	if err != nil {
 		t.Fatal(err)
 	}
-	svc, err := outbox.New(store, cat, outbox.Authorizations{Processes: outboxProcessAuthority{objects}, Producers: map[event.StableName]oc.ProducerAuthority{"guard": guardProducer{oc.NewPlanIssuer()}}})
+	svc, err := outbox.New(store, cat, outbox.Authorizations{Processes: outboxProcessAuthority{process: objects.process, guard: objects.guard}, Producers: map[event.StableName]oc.ProducerAuthority{"guard": guardProducer{oc.NewPlanIssuer()}}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -131,6 +131,7 @@ func guardEnvironment(t *testing.T, db *pgfixture.Database) []string {
 	if err != nil {
 		t.Fatal(err)
 	}
+	objects = append(objects, accountTestEnvironment(t, db.Name).Environ()...)
 	return append(objects, `AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_DATABASE_URL="+db.Fixture.URL(db.Name), "AGENTEAM_CENTRAL_DATABASE_CA_FILE="+db.Fixture.CAFile, "AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:0")
 }
 func guardID[K any](t *testing.T) foundation.ID[K] {
@@ -167,18 +168,13 @@ func TestOutboxGuardOwnedChild(t *testing.T) {
 	if _, err = store.Exec(databaseTestContext(t), `CREATE TABLE outbox_guard_effect(id uuid PRIMARY KEY)`); err != nil {
 		t.Fatal(err)
 	}
-	auditor, err := initializeSecurity(databaseTestContext(t), cfg, store)
-	if err != nil {
-		t.Fatal(err)
-	}
-	resource, err := initializeObjects(databaseTestContext(t), cfg, store, auditor)
-	if err != nil {
-		t.Fatal(err)
-	}
-	objects := resource.(*objectAssembly)
+	owned, objects := guardAccountAssembly(t, cfg, store)
 	release := make(chan struct{})
 	entered := make(chan struct{})
 	svc, r, typ := guardOutbox(t, store, objects, entered, release)
+	owned.mu.Lock()
+	owned.outboxService = r
+	owned.mu.Unlock()
 	if err = r.Start(context.Background()); err != nil {
 		t.Fatal(err)
 	}
@@ -215,7 +211,9 @@ func TestOutboxGuardOwnedChild(t *testing.T) {
 	if err != nil || strings.TrimSpace(line) != "force" {
 		t.Fatal("missing force barrier")
 	}
-	owned := &resources{db: observedDatabase{store}, objectService: objects, outboxService: r}
+	owned.mu.Lock()
+	owned.db = observedDatabase{store}
+	owned.mu.Unlock()
 	forced, cancel := context.WithTimeout(context.Background(), 100*time.Millisecond)
 	start := time.Now()
 	cleanupResources(forced, owned, nil)
@@ -284,25 +282,16 @@ func TestOutboxGuardActualCallbackForceAndExactKillRecovery(t *testing.T) {
 	if err = store.QueryRow(databaseTestContext(t), `SELECT (SELECT state FROM agenteam_object.process_claims WHERE process_id=$1),(SELECT count(*) FROM outbox_guard_effect)`, old.String()).Scan(&state, &effects); err != nil || state != "claimed" || effects != 0 {
 		t.Fatal("live callback force released guard or committed effect", state, effects, err)
 	}
-	auditor, err := initializeSecurity(databaseTestContext(t), cfg, store)
-	if err != nil {
-		t.Fatal(err)
-	}
-	resource, err := initializeObjects(databaseTestContext(t), cfg, store, auditor)
-	if err != nil {
-		t.Fatal(err)
-	}
-	observer := resource.(*objectAssembly)
-	t.Cleanup(func() {
-		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
-		defer cancel()
-		_ = observer.Force(ctx)
-	})
+	observerOwned, observer := guardAccountAssembly(t, cfg, store)
+
 	var fault *foundation.Fault
 	if err = observer.guard.ConfirmStopped(databaseTestContext(t), old); !errors.As(err, &fault) || fault.Code != foundation.ResourceBusy {
 		t.Fatal("live exact flock accepted after API force", err)
 	}
 	_, runtime, _ := guardOutbox(t, store, observer, nil, nil)
+	observerOwned.mu.Lock()
+	observerOwned.outboxService = runtime
+	observerOwned.mu.Unlock()
 	// Initialization scans the real old processing row, but a living exact owner
 	// stays protected even though its database transaction already rolled back.
 	if err = runtime.Start(context.Background()); err != nil {
@@ -346,6 +335,10 @@ func TestOutboxGuardActualCallbackForceAndExactKillRecovery(t *testing.T) {
 	}
 	if err = store.QueryRow(databaseTestContext(t), `SELECT count(*) FROM outbox_guard_effect`).Scan(&n); err != nil || n != 1 {
 		t.Fatal("recovery did not commit exactly one effect")
+	}
+	observerOwned.stopAccounts()
+	if err = observerOwned.drainAccounts(databaseTestContext(t)); err != nil {
+		t.Fatal(err)
 	}
 	if err = observer.Drain(databaseTestContext(t)); err != nil {
 		t.Fatal(err)

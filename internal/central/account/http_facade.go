@@ -400,7 +400,7 @@ func (f *SystemHTTPFacade) ListInvitations(ctx context.Context, actor identity.A
 			return e
 		}
 		dateArg, idArg := httpPositionArgs(created, id)
-		rows, e := x.Query(ctx, `SELECT id::text,email,version,created_at,expires_at FROM agenteam_account.invitations WHERE ($1::timestamptz IS NULL OR (created_at,id)<($1,$2::uuid)) ORDER BY created_at DESC,id DESC LIMIT $3`, dateArg, idArg, limit+1)
+		rows, e := x.Query(ctx, `SELECT id::text,canonical_email,version,created_at,expires_at FROM agenteam_account.invitations WHERE ($1::timestamptz IS NULL OR (created_at,id)<($1,$2::uuid)) ORDER BY created_at DESC,id DESC LIMIT $3`, dateArg, idArg, limit+1)
 		if e != nil {
 			return unavailable(e)
 		}

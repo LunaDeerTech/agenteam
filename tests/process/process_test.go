@@ -26,6 +26,8 @@ import (
 var binaries map[string]string
 var goTool, repository string
 
+const processPublicHost = "localhost:8080"
+
 func TestMain(m *testing.M) {
 	goTool = os.Getenv("AGENTEAM_GO")
 	if goTool == "" {
@@ -231,13 +233,26 @@ func checkDiagnosticBinary(t *testing.T, address string) {
 	t.Helper()
 	client := &http.Client{Timeout: 5 * time.Second}
 	defer client.CloseIdleConnections()
+	wrongHost, _ := http.NewRequest("GET", "http://"+address+"/api/v1/session?secret=query-SENTINEL", nil)
+	wrongHost.Host = "wrong-public-origin.invalid"
+	wrongHost.Header.Set("Authorization", "header-SENTINEL")
+	rejected, err := client.Do(wrongHost)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, readErr := io.Copy(io.Discard, rejected.Body)
+	_ = rejected.Body.Close()
+	if readErr != nil || rejected.StatusCode != http.StatusForbidden || rejected.Header.Get("X-Request-ID") == "" {
+		t.Fatal("wrong public Host crossed the account boundary")
+	}
 	for _, tc := range []struct {
 		method, path string
 		status       int
 	}{
-		{"GET", "/livez", 200}, {"HEAD", "/livez", 200}, {"GET", "/readyz", 503}, {"HEAD", "/readyz", 503}, {"GET", "/diagnostics", 200}, {"HEAD", "/diagnostics", 200}, {"POST", "/diagnostics", 405}, {"GET", "/api/v1/session", 404}, {"GET", "/page", 404}, {"GET", "/assets/missing.js", 404},
+		{"GET", "/livez", 200}, {"HEAD", "/livez", 200}, {"GET", "/readyz", 503}, {"HEAD", "/readyz", 503}, {"GET", "/diagnostics", 200}, {"HEAD", "/diagnostics", 200}, {"POST", "/diagnostics", 405}, {"GET", "/api/v1/session", 401}, {"GET", "/page", 404}, {"GET", "/assets/missing.js", 404},
 	} {
 		request, _ := http.NewRequest(tc.method, "http://"+address+tc.path+"?secret=query-SENTINEL", nil)
+		request.Host = processPublicHost
 		request.Header.Set("Authorization", "header-SENTINEL")
 		response, err := client.Do(request)
 		if err != nil {
@@ -304,6 +319,7 @@ func TestCLIScopeAndSafeFailures(t *testing.T) {
 			}
 			if service == "central" {
 				checkedEnvironment = append(checkedEnvironment, objectfixture.ConfigOnlyEnvironment()...)
+				checkedEnvironment = append(checkedEnvironment, accountEnvironment(t, "config")...)
 			}
 			p := launch(t, name, []string{"--check-config"}, checkedEnvironment)
 			p.wait(t, 0)
@@ -378,7 +394,7 @@ func TestCentralCheckAndCompiledRepairNeverConnect(t *testing.T) {
 				args = []string{"--expected-checksum", string(source.Manifest()[0].Checksum), "--repair-migration", "1"}
 				want = 1
 			}
-			p := launch(t, "agenteam", args, append(objectfixture.ConfigOnlyEnvironment(), []string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_DATABASE_URL=postgresql://pure:password-SENTINEL@" + listener.Addr().String() + "/pure", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"}...))
+			p := launch(t, "agenteam", args, append(append(objectfixture.ConfigOnlyEnvironment(), accountEnvironment(t, "check-repair")...), []string{`AGENTEAM_CENTRAL_SECRET_KEYRING={"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`, `AGENTEAM_CENTRAL_CURSOR_KEYRING={"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`, "AGENTEAM_CENTRAL_DATABASE_URL=postgresql://pure:password-SENTINEL@" + listener.Addr().String() + "/pure", "AGENTEAM_CENTRAL_DATABASE_TLS_MODE=disable"}...))
 			p.wait(t, want)
 			_ = listener.Close()
 			if <-accepted {

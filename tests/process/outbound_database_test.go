@@ -38,8 +38,13 @@ func TestCentralOutboundActualStartupDiagnosticAndSignals(t *testing.T) {
 			for _, cap := range d.Capabilities {
 				found[cap.Name] = cap.Status
 			}
-			if found["outbound"] != "available" || found["outbound_authorization"] != "unbound" || found["identity"] != "unbound" {
-				t.Fatal("outbound confused with authorization")
+			if found["outbound"] != "available" || found["outbound_authorization"] != "system_bound" || found["identity"] != "available" {
+				t.Fatal("outbound or the actual account authority is unavailable")
+			}
+			for _, name := range []string{"project_authorization", "runner_transfer_authorization", "runner_protocol"} {
+				if found[name] != "unbound" {
+					t.Fatal("outbound fabricated a future domain binding")
+				}
 			}
 			for _, private := range []string{"cidr", "allow_http", "key_b64", "ciphertext"} {
 				if strings.Contains(string(data), private) {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"sync/atomic"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
@@ -34,18 +35,13 @@ func (o *outboundRuntime) Status() outbound.PolicyStatus {
 	return s
 }
 
-func initializeOutbound(ctx context.Context, cfg config.Config, db database, auditing *audit.Service) (egress, error) {
+func createOutbound(cfg config.Config, db database, auditing *audit.Service, authority *account.Authority) (*outboundRuntime, error) {
 	store, ok := db.(outbound.Store)
-	if !ok {
+	if !ok || authority == nil {
 		return nil, errors.New("OUTBOUND_STORE_UNAVAILABLE")
 	}
-	// D07 supplies current Session/SystemAdmin authorization. No policy HTTP or
-	// successful authorization stub is installed in the diagnostic process.
-	policy, err := outbound.NewPolicyService(store, auditing, outbound.Authorizations{})
+	policy, err := outbound.NewPolicyService(store, auditing, outbound.Authorizations{Sessions: authority, System: authority})
 	if err != nil {
-		return nil, err
-	}
-	if err = policy.Reload(ctx); err != nil {
 		return nil, err
 	}
 	client, err := outbound.NewClient(policy, cfg.OutboundTrust(), nil)

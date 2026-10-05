@@ -188,15 +188,22 @@ func waitObjectCapability(t *testing.T, address, want string) {
 			t.Fatal("invalid object diagnostic")
 		}
 		matched := false
+		found := map[string]string{}
 		for _, c := range diagnostic.Capabilities {
+			found[c.Name] = c.Status
 			if c.Name == "object_storage" && c.Status == want {
 				matched = true
 			}
-			if (c.Name == "object_authorization" || c.Name == "runner_transfer_authorization") && c.Status != "unbound" {
-				t.Fatal("invented product authority")
-			}
 			if c.Name == "postgresql" && c.Status != "available" {
 				t.Fatal("object failure incorrectly marked DB unavailable")
+			}
+		}
+		if found["object_authorization"] != "avatar_bound" || found["identity"] != "available" {
+			t.Fatal("object storage health changed the actual account avatar binding")
+		}
+		for _, name := range []string{"project_authorization", "runner_transfer_authorization", "runner_protocol"} {
+			if found[name] != "unbound" {
+				t.Fatal("object storage fabricated a future domain binding")
 			}
 		}
 		if matched {

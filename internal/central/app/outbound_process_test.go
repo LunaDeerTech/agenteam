@@ -14,6 +14,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
@@ -46,8 +47,8 @@ func (o observedOutbound) Drain(ctx context.Context) error {
 func configureOutboundFixture(t *testing.T, mode string, cfg config.Config, deps *dependencies, release <-chan struct{}) {
 	t.Helper()
 	if mode == "outbound_startup_second_signal" {
-		deps.outbound = func(ctx context.Context, cfg config.Config, db database, service *audit.Service) (egress, error) {
-			result, err := initializeOutbound(ctx, cfg, db, service)
+		deps.outboundInitialize = func(ctx context.Context, result *outboundRuntime) (egress, error) {
+			err := result.policy.Reload(ctx)
 			fmt.Fprintln(os.Stdout, `{"event":"outbound_initialization_returned"}`)
 			<-release
 			return result, err
@@ -62,20 +63,18 @@ func configureOutboundFixture(t *testing.T, mode string, cfg config.Config, deps
 		t.Fatal(err)
 	}
 	var runtime *outboundRuntime
-	deps.outbound = func(ctx context.Context, cfg config.Config, db database, service *audit.Service) (egress, error) {
-		result, err := initializeOutbound(ctx, cfg, db, service)
-		if err != nil {
-			return nil, err
-		}
-		runtime = result.(*outboundRuntime)
-		// Only the test executable substitutes DNS. Real classifier, policy,
-		// pinning, socket, deployment CA and HTTP transport remain unchanged.
+	var accounts *account.Service
+	deps.observeAccount = func(core *account.Service) { accounts = core }
+	deps.outboundConstruct = func(ctx context.Context, cfg config.Config, created *outboundRuntime) error {
+		runtime = created
+		// Test-only DNS substitution happens during pure construction, before any
+		// worker captures the concrete Client. Classifier and policy remain real.
 		_ = runtime.client.ForceClose(ctx)
 		runtime.client, err = outbound.NewClient(runtime.policy, cfg.OutboundTrust(), appFixtureResolver{netip.MustParseAddr(d.PrivateIP)})
-		if err != nil {
-			return nil, err
-		}
-		return observedOutbound{runtime}, nil
+		return err
+	}
+	deps.outboundInitialize = func(ctx context.Context, runtime *outboundRuntime) (egress, error) {
+		return observedOutbound{runtime}, runtime.policy.Reload(ctx)
 	}
 	transactionHandler := deps.handler
 	deps.handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -83,9 +82,12 @@ func configureOutboundFixture(t *testing.T, mode string, cfg config.Config, deps
 			transactionHandler.ServeHTTP(w, r)
 			return
 		}
-		user, _ := foundation.NewID[identity.User]()
-		session, _ := foundation.NewID[identity.Session]()
-		actor, _ := identity.NewHuman(user, session)
+		actor, err := fixtureAccountActor(r.Context(), cfg, accounts)
+		if err != nil {
+			t.Error("fixture real account login failed")
+			w.WriteHeader(500)
+			return
+		}
 		cause, _ := foundation.NewID[struct{}]()
 		key, _ := ac.NewAppendKey(ac.AccessProducer, cause.String(), 0)
 		call, err := outbound.NewCallContext(actor, identity.SystemScope(), key, ac.Associations{})

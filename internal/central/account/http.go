@@ -8,7 +8,6 @@ import (
 
 	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
-	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 )
 
@@ -46,7 +45,8 @@ func httpValidateCore(core *Service) error {
 }
 
 // NewHTTPHandler installs the account surface only. Construction does no I/O;
-// the composition root must initialize and start all real capabilities first.
+// the composition root must initialize and start all real capabilities first
+// and install the shared HTTP trace/recovery middleware exactly once outside it.
 func NewHTTPHandler(core *Service, profiles c.ProfilePort, options HTTPOptions) (http.Handler, error) {
 	if e := httpValidateCore(core); e != nil {
 		return nil, e
@@ -123,7 +123,7 @@ func (h *accountHTTP) httpHandler() http.Handler {
 		})
 	}
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) { httpProblem(w, r, fault(foundation.NotFound, nil)) })
-	return httpapi.Handler(nil, http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		httpSecurityHeaders(w)
 		if e := h.csrf.csrfCheck(r); e != nil {
 			httpProblem(w, r, e)
@@ -136,7 +136,7 @@ func (h *accountHTTP) httpHandler() http.Handler {
 			return
 		}
 		mux.ServeHTTP(w, r)
-	}))
+	})
 }
 func (h *accountHTTP) httpDispatch(w http.ResponseWriter, r *http.Request, route accountHTTPRoute) {
 	var input httpRequest

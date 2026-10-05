@@ -55,6 +55,12 @@ func (d *unitDatabase) ForceClose(ctx context.Context) error {
 	return nil
 }
 func unitDependencies(deps dependencies) dependencies {
+	if deps.bind == nil {
+		// These existing pure orchestration tests deliberately supply every stage;
+		// real process fixtures leave bind unset and use the full Account root.
+		deps.bind = func(context.Context, config.Config, database, *resources, *dependencies) error { return nil }
+	}
+
 	if deps.outbox == nil {
 		deps.outbox = func(config.Config, database, *audit.Service, objectStorage) (outboxStorage, error) { return nil, nil }
 	}

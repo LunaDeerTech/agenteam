@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"net"
 	"net/http"
 	"sync"
@@ -26,6 +27,82 @@ type resources struct {
 	outboundService   egress
 	objectService     objectStorage
 	outboxService     outboxStorage
+	accountService    accountStorage
+	httpActive        int
+}
+
+func (o *resources) addAccounts(ctx context.Context, service accountStorage) bool {
+	o.mu.Lock()
+	forced, stopping := o.forced, o.stopping
+	if forced == nil {
+		o.accountService = service
+		o.mu.Unlock()
+		if !stopping && ctx.Err() == nil {
+			return true
+		}
+		service.StopAdmission()
+		return false
+	}
+	o.mu.Unlock()
+	service.StopAdmission()
+	_ = service.Force(forced)
+	return false
+}
+func (o *resources) accounts() accountStorage {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	return o.accountService
+}
+func (o *resources) stopAccounts() {
+	if service := o.accounts(); service != nil {
+		service.StopAdmission()
+	}
+}
+func (o *resources) admitHTTP() bool {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	if o.stopping || o.forced != nil {
+		return false
+	}
+	o.httpActive++
+	return true
+}
+func (o *resources) finishHTTP() { o.mu.Lock(); o.httpActive--; o.mu.Unlock() }
+
+func (o *resources) producersJoined() bool {
+	o.mu.Lock()
+	stopped, active, accounts, deliveries := o.stopping, o.httpActive, o.accountService, o.outboxService
+	o.mu.Unlock()
+	return stopped && active == 0 && (accounts == nil || accounts.Joined()) && (deliveries == nil || deliveries.Joined())
+}
+
+func (o *resources) forceObjects(ctx context.Context, service objectStorage) {
+	if service == nil {
+		return
+	}
+	if o.producersJoined() {
+		_ = service.Force(ctx)
+	} else if transports, ok := service.(interface{ forceTransports(context.Context) error }); ok {
+		_ = transports.forceTransports(ctx)
+	}
+}
+
+// Each resource returned after a cancellation remains owned. A forced late
+// object acquisition uses the same joint predicate as the ordinary path.
+func (o *resources) objectAcquired(ctx context.Context, service objectStorage) bool {
+	o.mu.Lock()
+	forced, stopping := o.forced, o.stopping
+	o.mu.Unlock()
+	if forced != nil {
+		service.StopAdmission()
+		o.forceObjects(forced, service)
+		return false
+	}
+	if stopping || ctx.Err() != nil {
+		service.StopAdmission()
+		return false
+	}
+	return true
 }
 
 func (o *resources) addObjects(ctx context.Context, service objectStorage) bool {
@@ -46,7 +123,7 @@ func (o *resources) addObjects(ctx context.Context, service objectStorage) bool 
 	}
 	o.mu.Unlock()
 	service.StopAdmission()
-	_ = service.Force(forced)
+	o.forceObjects(forced, service)
 	return false
 }
 func (o *resources) objects() objectStorage { o.mu.Lock(); defer o.mu.Unlock(); return o.objectService }
@@ -168,6 +245,7 @@ func cleanupResources(ctx context.Context, o *resources, cancelServing context.C
 	o.stopOutbound()
 	o.stopObjects()
 	o.stopOutbox()
+	o.stopAccounts()
 	o.mu.Lock()
 	o.forced = ctx
 	store := o.db
@@ -175,6 +253,7 @@ func cleanupResources(ctx context.Context, o *resources, cancelServing context.C
 	outboundService := o.outboundService
 	objectService := o.objectService
 	outboxService := o.outboxService
+	accountService := o.accountService
 	o.mu.Unlock()
 	if cancelMaintenance != nil {
 		cancelMaintenance()
@@ -192,7 +271,13 @@ func cleanupResources(ctx context.Context, o *resources, cancelServing context.C
 	}()
 	// Both real ports respect this already shared deadline, including an
 	// expired one. Initiation is synchronous so DB cannot overtake cleanup.
-	forceObjectAfterOutbox(ctx, objectService, outboxService)
+	if outboxService != nil {
+		_ = outboxService.Force(ctx)
+	}
+	if accountService != nil {
+		_ = accountService.Force(ctx)
+	}
+	o.forceObjects(ctx, objectService)
 	for _, done := range []<-chan struct{}{outboundDone, o.workerDone()} {
 		if done != nil {
 			select {
@@ -209,6 +294,18 @@ func cleanupResources(ctx context.Context, o *resources, cancelServing context.C
 	if store != nil {
 		_ = store.ForceClose(ctx)
 	}
+}
+
+func (o *resources) drainAccounts(ctx context.Context) error {
+	if service := o.accounts(); service != nil {
+		if err := service.Drain(ctx); err != nil {
+			return err
+		}
+		if !service.Joined() {
+			return foundation.NewFault(foundation.DependencyUnavailable, foundation.NotStarted)
+		}
+	}
+	return nil
 }
 
 func joinWorkers(ctx context.Context, serve, http, db <-chan error, health <-chan struct{}) {

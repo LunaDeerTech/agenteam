@@ -85,6 +85,9 @@ func testConfig(t *testing.T, timeout string) config.Config {
 	for key, value := range objectfixture.ConfigOnlyValues() {
 		values[key] = value
 	}
+	for key, value := range accountTestEnvironment(t, "unit").Values() {
+		values[key] = value
+	}
 	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, nil)
 	if err != nil {
 		t.Fatal(err)

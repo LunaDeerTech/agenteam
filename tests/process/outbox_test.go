@@ -36,16 +36,20 @@ func waitOutboxCapability(t *testing.T, address, want string) {
 		if err != nil || body.Ready {
 			t.Fatal("invalid readiness projection")
 		}
-		matched, unbound := false, 0
+		matched := false
+		found := map[string]string{}
 		for _, c := range body.Capabilities {
+			found[c.Name] = c.Status
 			if c.Name == "outbox" && c.Status == want {
 				matched = true
 			}
-			if (c.Name == "outbox_authorization" || c.Name == "outbox_handlers") && c.Status == "unbound" {
-				unbound++
+		}
+		for _, name := range []string{"project_authorization", "runner_transfer_authorization", "runner_protocol"} {
+			if found[name] != "unbound" {
+				t.Fatal("outbox fabricated a future domain binding")
 			}
 		}
-		if matched && unbound == 2 {
+		if matched && found["outbox_authorization"] == "system_bound" && found["outbox_handlers"] == "available" && found["identity"] == "available" {
 			return
 		}
 		select {
@@ -62,9 +66,14 @@ func TestCentralOutboxEmptyMechanismHealthRecoveryAndSignal(t *testing.T) {
 	waitOutboxCapability(t, address, "available")
 	checkDiagnosticBinary(t, address)
 	conn := db.Connect(t)
-	var handlers, attempts int
-	if err := conn.QueryRow(databaseContext(t), `SELECT (SELECT count(*) FROM agenteam_outbox.handlers),(SELECT count(*) FROM agenteam_outbox.attempts)`).Scan(&handlers, &attempts); err != nil || handlers != 0 || attempts != 0 {
-		t.Fatal("empty production catalog fabricated domain binding")
+	var handlers, subscriptions, exactHandler, exactSubscription, attempts int
+	if err := conn.QueryRow(databaseContext(t), `SELECT
+ (SELECT count(*) FROM agenteam_outbox.handlers),
+ (SELECT count(*) FROM agenteam_outbox.subscriptions),
+ (SELECT count(*) FROM agenteam_outbox.handlers WHERE id='account.mail-enqueue' AND format=1 AND effect='canonical_converge' AND ordering_policy='canonical_reconcile'),
+ (SELECT count(*) FROM agenteam_outbox.subscriptions WHERE handler_id='account.mail-enqueue' AND event_type='account.delivery-requested' AND format=1 AND accepted_versions=ARRAY[1]::bigint[]),
+ (SELECT count(*) FROM agenteam_outbox.attempts)`).Scan(&handlers, &subscriptions, &exactHandler, &exactSubscription, &attempts); err != nil || handlers != 1 || subscriptions != 1 || exactHandler != 1 || exactSubscription != 1 || attempts != 0 {
+		t.Fatal("production catalog differs from the sole account mail binding or fabricated a business attempt")
 	}
 	if _, err := conn.Exec(databaseContext(t), `ALTER TABLE agenteam_outbox.control RENAME TO unavailable_control`); err != nil {
 		t.Fatal(err)

@@ -23,9 +23,9 @@ import (
 
 const appMasterTwo = `{"format":1,"current_version":"2","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="},{"version":"2","key_b64":"QEFCQ0RFRkdISUpLTE1OT1BRUlNUVVZXWFlaW1xdXl8="}]}`
 
-// A test-only seed identity. The command binary and the actual app fixture
-// still use unbound business authorities; this only creates genuine envelopes
-// through the formal service/Audit ports before exercising process recovery.
+// A test-only seed identity creates genuine envelopes through the formal
+// service/Audit ports before process recovery. The actual command and app
+// fixture initialize real Account authorities independently of this seed.
 type seedSecretIdentity struct{ actor identity.Actor }
 
 func (a seedSecretIdentity) RequireCurrentSession(_ context.Context, _ foundation.Tx, actor identity.Actor) error {

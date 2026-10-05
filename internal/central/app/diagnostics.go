@@ -47,6 +47,9 @@ func diagnosticRouter(monitor *healthMonitor, securityInitialized bool, secrets 
 		if !monitor.objectSnapshot() {
 			code = foundation.DependencyUnavailable
 		}
+		if !monitor.accountSnapshot() {
+			code = foundation.DependencyUnavailable
+		}
 		httpapi.WriteProblem(w, r, foundation.NewFault(code, foundation.NotStarted))
 	})
 	router.HandleFunc("GET /diagnostics", func(w http.ResponseWriter, r *http.Request) {
@@ -103,8 +106,17 @@ func diagnosticRouter(monitor *healthMonitor, securityInitialized bool, secrets 
 		} else {
 			stage = "unavailable"
 		}
+		accountStatus, systemAuthorization, avatarAuthorization := "unavailable", "unavailable", "unavailable"
+		if monitor.accountSnapshot() && available {
+			accountStatus, systemAuthorization, avatarAuthorization = "available", "system_bound", "avatar_bound"
+		} else {
+			stage = "unavailable"
+		}
+		if !monitor.accountBound {
+			accountStatus, systemAuthorization, avatarAuthorization = "unbound", "unbound", "unbound"
+		}
 		_ = httpapi.WriteJSON(w, r, http.StatusOK, diagnostics{Ready: false, Database: database, SecurityStage: stage, Secret: secretState, Outbound: outboundState, Capabilities: []capability{
-			{"postgresql", status}, {"pgvector", status}, {"migrations", status}, {"read_write", status}, {"cursor", securityStatus}, {"audit_storage", auditStatus}, {"audit_authorization", "unbound"}, {"secret", secretStatus}, {"secret_authorization", "unbound"}, {"outbound", outboundStatus}, {"outbound_authorization", "unbound"}, {"object_storage", objectStatus}, {"outbox", outboxStatus}, {"outbox_authorization", "unbound"}, {"outbox_handlers", "unbound"}, {"object_authorization", "unbound"}, {"runner_transfer_authorization", "unbound"}, {"identity", "unbound"}, {"runner_protocol", "unbound"},
+			{"postgresql", status}, {"pgvector", status}, {"migrations", status}, {"read_write", status}, {"cursor", securityStatus}, {"audit_storage", auditStatus}, {"audit_authorization", systemAuthorization}, {"secret", secretStatus}, {"secret_authorization", systemAuthorization}, {"outbound", outboundStatus}, {"outbound_authorization", systemAuthorization}, {"object_storage", objectStatus}, {"outbox", outboxStatus}, {"outbox_authorization", systemAuthorization}, {"outbox_handlers", accountStatus}, {"object_authorization", avatarAuthorization}, {"project_authorization", "unbound"}, {"runner_transfer_authorization", "unbound"}, {"identity", accountStatus}, {"runner_protocol", "unbound"},
 		}})
 	})
 	return router

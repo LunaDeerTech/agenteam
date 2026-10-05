@@ -19,11 +19,11 @@ import (
 	"testing"
 	"time"
 
-	"github.com/LunaDeerTech/agenteam/internal/central/audit"
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	"github.com/LunaDeerTech/agenteam/internal/central/httpapi"
 	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
 	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
 	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
 )
@@ -144,11 +144,11 @@ func TestDatabaseAppProcessFixture(t *testing.T) {
 		}
 	}
 	if mode == "secret_startup_second_signal" {
-		deps.secret = func(ctx context.Context, cfg config.Config, db database, auditing *audit.Service) (maintenance, error) {
-			service, err := initializeSecret(ctx, cfg, db, auditing)
+		deps.secretInitialize = func(ctx context.Context, service *secret.Service) error {
+			err := service.Initialize(ctx)
 			fmt.Fprintln(os.Stdout, `{"event":"secret_initialization_returned"}`)
 			<-release // Only the test executable delays the real failed initializer.
-			return service, err
+			return err
 		}
 	}
 	configureOutboundFixture(t, mode, cfg, &deps, release)
@@ -180,6 +180,7 @@ func launchDatabaseApp(t *testing.T, db *pgfixture.Database, mode, timeout strin
 		t.Fatal("owned MinIO configuration failed")
 	}
 	p.cmd.Env = append(p.cmd.Env, objects...)
+	p.cmd.Env = append(p.cmd.Env, accountTestEnvironment(t, db.Name).Environ()...)
 	for _, extra := range extras {
 		key, _, _ := strings.Cut(extra, "=")
 		replaced := false
