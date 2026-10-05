@@ -1,0 +1,178 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"strings"
+	"testing"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
+)
+
+func TestModelOpenAIChatWireHTTP(t *testing.T) {
+	v := newWireFixture(t)
+	t.Run("real_policy_deny_then_allow_and_exact_native_request", func(t *testing.T) {
+		cfg := wireJSON(wireReply("answer 世界", "length", json.RawMessage(`{"prompt_tokens":9007199254740993,"completion_tokens":0,"total_tokens":null,"prompt_tokens_details":{"cached_tokens":0,"cache_write_tokens":2},"completion_tokens_details":{"reasoning_tokens":3}}`), nil))
+		cfg.Suffix = "/base%2Fkeep//./inner/chat/completions"
+		key := v.scenario(t, cfg)
+		r, o := v.input(t, key, wire.JSONResponse)
+		r.Snapshot.Endpoint += "/base%2Fkeep//./inner/"
+		max := mc.TokenCount(9007199254740993)
+		r.Snapshot.Capabilities.MaxOutput = &max
+		denied := v.start(t, testContext(t), v.adapter, r, o)
+		_, e := denied.Result(testContext(t))
+		wireModelError(t, e, "permission", "wire_transport_error", false, false)
+		wireClose(t, denied)
+		d := denied.Observe()
+		if !d.DoStarted || d.Decision == nil || d.Decision.Sent || d.Decision.Reason != ac.PrivateNotAllowed || len(v.state(t, key).Requests) != 0 {
+			t.Fatal("denial did not preserve real zero-send Decision")
+		}
+		v.allow(t, true)
+		x := v.start(t, testContext(t), v.adapter, r, o)
+		r.Messages[0].Parts[0].Text.Text = "mutated after Start"
+		*r.Snapshot.Capabilities.MaxOutput = 1
+		result, e := x.Result(testContext(t))
+		if e != nil || result.Text != "answer 世界" || result.End.FinishReason != "length" || result.End.ProviderRequestID != "req_wire:1" || !x.Joined() {
+			t.Fatal("wire JSON result", e)
+		}
+		u := result.End.Usage
+		if u.Source != mc.ProviderUsage || u.InputTokens == nil || *u.InputTokens != 9007199254740993 || u.OutputTokens == nil || *u.OutputTokens != 0 || u.TotalTokens != nil || u.CachedInputTokens == nil || *u.CachedInputTokens != 0 || u.CacheWriteTokens == nil || *u.CacheWriteTokens != 2 || u.ReasoningTokens == nil || *u.ReasoningTokens != 3 {
+			t.Fatal("native usage projection")
+		}
+		*u.InputTokens = 1
+		if *x.Observe().Usage.InputTokens != 9007199254740993 {
+			t.Fatal("observation aliases result")
+		}
+		state := v.state(t, key)
+		if len(state.Requests) != 1 {
+			t.Fatal("adapter retried")
+		}
+		got := state.Requests[0]
+		if got.Method != "POST" || got.Host != "fixture.test:8443" || got.RequestURI != "/case/"+key+cfg.Suffix || got.Query != "" || got.Headers.Get("Authorization") != "Bearer "+wireCredentialCanary || got.Headers.Get("Content-Type") != "application/json" || got.Headers.Get("Accept") != "application/json" {
+			t.Fatal("origin/path/header binding")
+		}
+		var body map[string]json.RawMessage
+		if json.Unmarshal([]byte(got.Body), &body) != nil || len(body) != 4 || string(body["model"]) != `"fixture-native-model"` || string(body["stream"]) != "false" || string(body["max_completion_tokens"]) != "9007199254740993" || strings.Contains(got.Body, "mutated") || strings.Contains(got.Body, "canary") {
+			t.Fatal("request encoding/ownership")
+		}
+		var messages []struct{ Role, Content string }
+		if json.Unmarshal(body["messages"], &messages) != nil || len(messages) != 2 || messages[0].Role != "system" || messages[0].Content != "  exact 系统\n" {
+			t.Fatal("native messages changed")
+		}
+		if d := x.Observe(); d.Decision == nil || !d.Decision.Sent || d.Decision.Reason != "" {
+			t.Fatal("success real Decision")
+		}
+		wireClose(t, x)
+		v.settled(t, key)
+	})
+	t.Run("unsupported_invalid_and_cancelled_admission_are_zero_do", func(t *testing.T) {
+		key := v.scenario(t, wireJSON(wireReply("must not send", "stop", nil, nil)))
+		for _, kind := range []string{"tools", "revision", "format", "invalid", "cancelled"} {
+			r, o := v.input(t, key, wire.JSONResponse)
+			ctx := testContext(t)
+			switch kind {
+			case "tools":
+				r.Tools = []mc.Tool{{Name: "x", InputSchema: json.RawMessage(`{}`)}}
+			case "revision":
+				r.Snapshot.Identity.AdapterRevision = "unknown"
+			case "format":
+				r.ResponseFormat = mc.ResponseFormat{Kind: "json_schema", Name: "typed", Schema: json.RawMessage(`{}`)}
+			case "invalid":
+				o.Limits.Overall = 0
+			case "cancelled":
+				c, cancel := context.WithCancel(ctx)
+				cancel()
+				ctx = c
+			}
+			x, e := v.adapter.Start(ctx, r, o)
+			if x != nil {
+				t.Fatal("rejected call owns handle")
+			}
+			switch kind {
+			case "invalid":
+				wireFault(t, e, f.InvalidArgument)
+			case "cancelled":
+				wireModelError(t, e, "cancelled", "wire_cancelled", false, false)
+			default:
+				wireModelError(t, e, "unsupported_feature", "wire_unsupported_feature", false, false)
+			}
+		}
+		if len(v.state(t, key).Requests) != 0 {
+			t.Fatal("rejected request reached server")
+		}
+		var nilResolver wireNilResolver
+		transport := v.transport
+		transport.Resolver = nilResolver
+		if _, e := wire.NewOpenAIChat(transport, wire.NewBudget()); e == nil {
+			t.Fatal("typed nil resolver accepted with valid real policy/trust")
+		}
+	})
+	t.Run("native_refusal_is_safe_error_with_usage", func(t *testing.T) {
+		key := v.scenario(t, wireJSON(wireReply(wireBodyCanary, "stop", json.RawMessage(`{"prompt_tokens":0}`), wireBodyCanary)))
+		r, o := v.input(t, key, wire.JSONResponse)
+		x := v.start(t, testContext(t), v.adapter, r, o)
+		result, e := x.Result(testContext(t))
+		m := wireModelError(t, e, "content_filter", "", true, false)
+		if result.Text != "" || result.End.FinishReason != "" || m.Retryable || x.Observe().Usage.InputTokens == nil || *x.Observe().Usage.InputTokens != 0 {
+			t.Fatal("refusal leaked success/dropped usage")
+		}
+		wireClose(t, x)
+	})
+	t.Run("status_mapping_discards_private_body_and_does_not_retry", func(t *testing.T) {
+		for _, tc := range []struct {
+			status   int
+			category mc.ErrorCategory
+			retry    bool
+		}{{400, "provider_error", false}, {401, "authentication", false}, {403, "permission", false}, {404, "provider_error", false}, {429, "rate_limited", true}, {500, "provider_error", false}, {502, "provider_unavailable", true}, {503, "provider_unavailable", true}, {504, "provider_unavailable", true}} {
+			cfg := wireJSON([]byte(strings.Repeat(wireBodyCanary, 3000)))
+			cfg.Status = tc.status
+			cfg.Headers["X-Request-Id"] = "not a safe token"
+			key := v.scenario(t, cfg)
+			r, o := v.input(t, key, wire.JSONResponse)
+			x := v.start(t, testContext(t), v.adapter, r, o)
+			_, e := x.Result(testContext(t))
+			m := wireModelError(t, e, tc.category, "wire_http_error", true, false)
+			if m.Retryable != tc.retry || m.ProviderRequestID != "" || len(v.state(t, key).Requests) != 1 {
+				t.Fatal("status retry/request id")
+			}
+			wireClose(t, x)
+		}
+	})
+	t.Run("tls_and_post_redirect_preserve_actual_decision", func(t *testing.T) {
+		key := v.scenario(t, wireJSON(wireReply("unused", "stop", nil, nil)))
+		r, o := v.input(t, key, wire.JSONResponse)
+		r.Snapshot.Endpoint = strings.Replace(r.Snapshot.Endpoint, "fixture.test", "wrong.fixture.test", 1)
+		x := v.start(t, testContext(t), v.adapter, r, o)
+		_, e := x.Result(testContext(t))
+		wireModelError(t, e, "network", "wire_transport_error", false, false)
+		if d := x.Observe().Decision; d == nil || d.Reason != ac.TLSFailed || len(v.state(t, key).Requests) != 0 {
+			t.Fatal("TLS incorrectly sent")
+		}
+		wireClose(t, x)
+		cfg := wireJSON(nil)
+		cfg.Status = 307
+		cfg.Headers["Location"] = "https://other.fixture.test:8443/case/" + key + "/chat/completions"
+		redirect := v.scenario(t, cfg)
+		r, o = v.input(t, redirect, wire.JSONResponse)
+		x = v.start(t, testContext(t), v.adapter, r, o)
+		_, e = x.Result(testContext(t))
+		wireModelError(t, e, "permission", "wire_transport_error", true, false)
+		if d := x.Observe().Decision; d == nil || d.Reason != ac.RedirectDenied || len(v.state(t, redirect).Requests) != 1 || len(v.state(t, key).Requests) != 0 {
+			t.Fatal("POST redirect emitted second request")
+		}
+		wireClose(t, x)
+	})
+	t.Run("wire_control_rejects_outside_closed_profile", func(t *testing.T) {
+		for _, cfg := range []netfixture.ScenarioConfig{{Mode: "openai_chat_wire"}, {Mode: "stream", Wire: &netfixture.WireScenario{Status: 200}}, {Mode: "openai_chat_wire", Body: "legacy", Wire: &netfixture.WireScenario{Status: 200}}, {Mode: "openai_chat_wire", Wire: &netfixture.WireScenario{Status: 201}}, {Mode: "openai_chat_wire", Wire: &netfixture.WireScenario{Status: 200, Suffix: "/bad?query/chat/completions"}}, {Mode: "openai_chat_wire", Wire: &netfixture.WireScenario{Status: 200, Headers: map[string]string{"Set-Cookie": "forbidden"}}}, {Mode: "openai_chat_wire", Wire: &netfixture.WireScenario{Status: 200, Chunks: [][]byte{make([]byte, 512<<10+1)}}}} {
+			if _, e := v.net.Create(testContext(t), cfg); e == nil {
+				t.Fatal("invalid wire scenario accepted")
+			}
+		}
+	})
+}

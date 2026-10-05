@@ -99,16 +99,27 @@ func (d *Descriptor) Verify() error {
 type ScenarioConfig struct {
 	Mode, Redirect, Body string
 	Size, HeaderBytes    int
+	Wire                 *WireScenario
+}
+type WireScenario struct {
+	Suffix          string
+	Status          int
+	Headers         map[string]string
+	Chunks          [][]byte
+	HoldAfter       *int
+	DisconnectAfter *int
 }
 type Request struct {
 	Connection                      int64
 	Method, Host, Path, Query, Body string
 	Headers                         http.Header
+	RequestURI                      string
 }
 type State struct {
-	Requests    []Request
-	Closed      map[int64]bool
-	Connections map[int64]string
+	Requests                          []Request
+	Closed                            map[int64]bool
+	Connections                       map[int64]string
+	ActiveHandlers, CompletedHandlers int
 }
 
 func (d *Descriptor) control(ctx context.Context, method, path string, input any, output any) error {

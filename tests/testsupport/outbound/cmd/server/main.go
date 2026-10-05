@@ -4,12 +4,14 @@ package main
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"flag"
 	"io"
 	"log"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"os/signal"
 	"strings"
@@ -22,17 +24,28 @@ import (
 type config struct {
 	Mode, Redirect, Body string
 	Size, HeaderBytes    int
+	Wire                 *wireScenario
+}
+type wireScenario struct {
+	Suffix          string
+	Status          int
+	Headers         map[string]string
+	Chunks          [][]byte
+	HoldAfter       *int
+	DisconnectAfter *int
 }
 type request struct {
 	Connection                      int64
 	Method, Host, Path, Query, Body string
 	Headers                         http.Header
+	RequestURI                      string
 }
 type scenario struct {
-	Config   config
-	Requests []request
-	Released bool
-	release  chan struct{}
+	Config                            config
+	Requests                          []request
+	Released                          bool
+	ActiveHandlers, CompletedHandlers int
+	release                           chan struct{}
 }
 type serverState struct {
 	mu          sync.Mutex
@@ -121,7 +134,7 @@ func (s *serverState) control(w http.ResponseWriter, r *http.Request) {
 	switch parts[0] {
 	case "create":
 		var cfg config
-		if r.Method != "POST" || json.NewDecoder(io.LimitReader(r.Body, 1<<20)).Decode(&cfg) != nil || cfg.Size < 0 || cfg.Size > 300<<20 || cfg.HeaderBytes < 0 || cfg.HeaderBytes > 1<<20 {
+		if r.Method != "POST" || json.NewDecoder(io.LimitReader(r.Body, 1<<20)).Decode(&cfg) != nil || cfg.Size < 0 || cfg.Size > 300<<20 || cfg.HeaderBytes < 0 || cfg.HeaderBytes > 1<<20 || !validWire(&cfg, id) {
 			w.WriteHeader(400)
 			return
 		}
@@ -149,10 +162,11 @@ func (s *serverState) control(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		_ = json.NewEncoder(w).Encode(struct {
-			Requests    []request
-			Closed      map[int64]bool
-			Connections map[int64]string
-		}{v.Requests, s.closed, s.connections})
+			Requests                          []request
+			Closed                            map[int64]bool
+			Connections                       map[int64]string
+			ActiveHandlers, CompletedHandlers int
+		}{v.Requests, s.closed, s.connections, v.ActiveHandlers, v.CompletedHandlers})
 	default:
 		w.WriteHeader(404)
 	}
@@ -160,8 +174,14 @@ func (s *serverState) control(w http.ResponseWriter, r *http.Request) {
 func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 	id := strings.TrimPrefix(r.URL.Path, "/case/")
 	if len(id) != 32 {
-		w.WriteHeader(404)
-		return
+		// Only the new wire scenario admits a suffix. Legacy modes retain their
+		// exact decoded /case/<id> route below, including existing defaults.
+		raw := strings.TrimPrefix(r.URL.EscapedPath(), "/case/")
+		if !strings.HasPrefix(r.URL.EscapedPath(), "/case/") || len(raw) < 33 {
+			w.WriteHeader(404)
+			return
+		}
+		id = raw[:32]
 	}
 	s.mu.Lock()
 	v := s.cases[id]
@@ -171,18 +191,39 @@ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	cfg := v.Config
+	if cfg.Mode == "openai_chat_wire" {
+		if r.URL.EscapedPath() != "/case/"+id+cfg.Wire.Suffix || r.URL.RawQuery != "" || r.URL.ForceQuery {
+			s.mu.Unlock()
+			w.WriteHeader(404)
+			return
+		}
+	} else if strings.TrimPrefix(r.URL.Path, "/case/") != id {
+		s.mu.Unlock()
+		w.WriteHeader(404)
+		return
+	}
 	release := v.release
+	v.ActiveHandlers++
 	s.mu.Unlock()
+	defer func() { s.mu.Lock(); v.ActiveHandlers--; v.CompletedHandlers++; s.mu.Unlock() }()
 	body, e := io.ReadAll(io.LimitReader(r.Body, 16<<20+1))
 	if e != nil {
 		w.WriteHeader(400)
 		return
 	}
 	_ = r.Body.Close()
-	record := request{r.Context().Value(connectionKey{}).(int64), r.Method, r.Host, r.URL.Path, r.URL.RawQuery, string(body), r.Header.Clone()}
+	if cfg.Mode == "openai_chat_wire" && len(body) > 16<<20 {
+		w.WriteHeader(413)
+		return
+	}
+	record := request{Connection: r.Context().Value(connectionKey{}).(int64), Method: r.Method, Host: r.Host, Path: r.URL.Path, Query: r.URL.RawQuery, Body: string(body), Headers: r.Header.Clone(), RequestURI: r.RequestURI}
 	s.mu.Lock()
 	v.Requests = append(v.Requests, record)
 	s.mu.Unlock()
+	if cfg.Mode == "openai_chat_wire" {
+		serveWire(w, r, cfg.Wire, release)
+		return
+	}
 	switch cfg.Mode {
 	case "drop":
 		conn, _, e := w.(http.Hijacker).Hijack()
@@ -258,5 +299,107 @@ func (s *serverState) serve(w http.ResponseWriter, r *http.Request) {
 	}
 	if cfg.Mode == "chunked" {
 		w.Header().Set("X-Fixture-Trailer", "complete")
+	}
+}
+
+func validWire(cfg *config, id string) bool {
+	if cfg.Mode != "openai_chat_wire" {
+		return cfg.Wire == nil
+	}
+	v := cfg.Wire
+	if v == nil || cfg.Redirect != "" || cfg.Body != "" || cfg.Size != 0 || cfg.HeaderBytes != 0 {
+		return false
+	}
+	if raw, err := hex.DecodeString(id); err != nil || len(raw) != 16 {
+		return false
+	}
+	if v.Suffix == "" {
+		v.Suffix = "/chat/completions"
+	}
+	if len(v.Suffix) > 2048 || !strings.HasPrefix(v.Suffix, "/") || !strings.HasSuffix(v.Suffix, "/chat/completions") || strings.ContainsAny(v.Suffix, "?#") {
+		return false
+	}
+	u, err := url.ParseRequestURI(v.Suffix)
+	if err != nil || u.EscapedPath() != v.Suffix || u.RawQuery != "" || u.ForceQuery {
+		return false
+	}
+	switch v.Status {
+	case 200, 302, 307, 308, 400, 401, 403, 404, 408, 409, 429, 500, 502, 503, 504:
+	default:
+		return false
+	}
+	seen := map[string]bool{}
+	headerBytes := 0
+	for key, value := range v.Headers {
+		name := http.CanonicalHeaderKey(key)
+		switch name {
+		case "Content-Type", "X-Request-Id", "Retry-After", "Location":
+		default:
+			return false
+		}
+		if seen[name] {
+			return false
+		}
+		seen[name] = true
+		for _, c := range value {
+			if c < 32 && c != '\t' || c == 127 {
+				return false
+			}
+		}
+		headerBytes += len(key) + len(value)
+		if headerBytes > 16<<10 {
+			return false
+		}
+	}
+	if len(v.Chunks) > 512 {
+		return false
+	}
+	total := 0
+	for _, chunk := range v.Chunks {
+		total += len(chunk)
+		if total > 512<<10 {
+			return false
+		}
+	}
+	for _, n := range []*int{v.HoldAfter, v.DisconnectAfter} {
+		if n != nil && (*n < 0 || *n > len(v.Chunks)) {
+			return false
+		}
+	}
+	return true
+}
+func serveWire(w http.ResponseWriter, r *http.Request, v *wireScenario, release <-chan struct{}) {
+	for key, value := range v.Headers {
+		w.Header().Set(key, value)
+	}
+	w.WriteHeader(v.Status)
+	w.(http.Flusher).Flush()
+	for sent := 0; sent <= len(v.Chunks); sent++ {
+		if v.HoldAfter != nil && sent == *v.HoldAfter {
+			select {
+			case <-release:
+			case <-r.Context().Done():
+				return
+			}
+		}
+		if v.DisconnectAfter != nil && sent == *v.DisconnectAfter {
+			conn, _, err := w.(http.Hijacker).Hijack()
+			if err == nil {
+				_ = conn.Close()
+			}
+			return
+		}
+		if sent == len(v.Chunks) {
+			return
+		}
+		select {
+		case <-r.Context().Done():
+			return
+		default:
+		}
+		if _, err := w.Write(v.Chunks[sent]); err != nil {
+			return
+		}
+		w.(http.Flusher).Flush()
 	}
 }
