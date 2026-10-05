@@ -1,0 +1,204 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.116.197.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=70c33971710668a4f064c40603a75c1d
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=a22d9a697709f6ea3998a1a80f778907
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.027s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.035s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.277s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.016s [no tests to run]
+=== RUN   TestArtifactProjectStopArchivePreservesCanonicalAndFencesReceipts
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=192 decoded=19 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=179 decoded=7 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+--- PASS: TestArtifactProjectStopArchivePreservesCanonicalAndFencesReceipts (1.75s)
+=== RUN   TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease
+=== RUN   TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease/reader_release
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=590720 decoded=589824 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_test.go:85: actual reader lifetime: active=true, native lease and work share exact process 01a10ce6-6121-7ae9-b576-32602070f270
+=== RUN   TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease/unopened_source
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=590720 decoded=589824 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+--- PASS: TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease (2.67s)
+    --- PASS: TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease/reader_release (1.40s)
+    --- PASS: TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease/unopened_source (1.28s)
+=== RUN   TestArtifactProjectStopObjectReportConservativeMatrix
+=== RUN   TestArtifactProjectStopObjectReportConservativeMatrix/pending
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestArtifactProjectStopObjectReportConservativeMatrix/failed
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestArtifactProjectStopObjectReportConservativeMatrix/unknown
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestArtifactProjectStopObjectReportConservativeMatrix/wrong_cause
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestArtifactProjectStopObjectReportConservativeMatrix/wrong_component
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestArtifactProjectStopObjectReportConservativeMatrix/unbound
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+--- PASS: TestArtifactProjectStopObjectReportConservativeMatrix (6.53s)
+    --- PASS: TestArtifactProjectStopObjectReportConservativeMatrix/pending (1.14s)
+    --- PASS: TestArtifactProjectStopObjectReportConservativeMatrix/failed (1.08s)
+    --- PASS: TestArtifactProjectStopObjectReportConservativeMatrix/unknown (1.08s)
+    --- PASS: TestArtifactProjectStopObjectReportConservativeMatrix/wrong_cause (1.09s)
+    --- PASS: TestArtifactProjectStopObjectReportConservativeMatrix/wrong_component (1.06s)
+    --- PASS: TestArtifactProjectStopObjectReportConservativeMatrix/unbound (1.07s)
+=== RUN   TestArtifactProjectStopReadOnlyRequiresBothReceipts
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+--- PASS: TestArtifactProjectStopReadOnlyRequiresBothReceipts (1.16s)
+=== RUN   TestArtifactProjectStopRejectedAuthorityHasNoSideEffects
+=== RUN   TestArtifactProjectStopRejectedAuthorityHasNoSideEffects/held_ex
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestArtifactProjectStopRejectedAuthorityHasNoSideEffects/manifest
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestArtifactProjectStopRejectedAuthorityHasNoSideEffects/restored
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestArtifactProjectStopRejectedAuthorityHasNoSideEffects/wrong_cause
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+--- PASS: TestArtifactProjectStopRejectedAuthorityHasNoSideEffects (6.64s)
+    --- PASS: TestArtifactProjectStopRejectedAuthorityHasNoSideEffects/held_ex (2.41s)
+    --- PASS: TestArtifactProjectStopRejectedAuthorityHasNoSideEffects/manifest (1.42s)
+    --- PASS: TestArtifactProjectStopRejectedAuthorityHasNoSideEffects/restored (1.48s)
+    --- PASS: TestArtifactProjectStopRejectedAuthorityHasNoSideEffects/wrong_cause (1.33s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	19.778s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+D03 fixture cleanup checked for nonce 185f29d3d32c7e9b5a4c15d132b564d3
+D04 outbound fixture cleanup checked for nonce a22d9a697709f6ea3998a1a80f778907
+D05 object fixture exact resource cleanup checked nonce=70c33971710668a4f064c40603a75c1d

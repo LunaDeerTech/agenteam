@@ -1,0 +1,8 @@
+{
+  "production": "../production-review-01/manifest.json",
+  "test": {
+    "internal/central/artifact/lifecycle_test.go": "196166241f15816684b13d7dd026c33eb232b4fc7f3f6e290dfeaf32d70db167"
+  },
+  "command": "go test -race -count=1 -run ^TestArtifactRejectedUploadStillJoinsActualClose$ ./internal/central/artifact",
+  "log": "../logs/rejected-close-red-01.log"
+}

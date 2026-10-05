@@ -1,0 +1,12 @@
+# Artifact review08 限定独立静审
+
+2026-10-05。**review07 指出的两项修复静态通过，本次固定差量未发现新增阻断。非 Artifact 完整动态验收，最终共享 guard 仍 blocked。**
+
+固定 delta SHA `eb925483796b42dbf72f3b5965a89ba2ca972adedb7218dccdc9db19b901ea2e`，引用 review07 `f82859658f4ea040fa05a31f257f348d1689669bfccd028eed88b880507f0564`。只复制3生产+2unit固定副本；before从同一冻结delta.patch在自有tmp反向还原，五项before/after均逐字节SHA匹配清单（包括此前未单独复制的project_work_test）。未读活动真实矩阵。
+
+- **Unknown聚合闭合。** 新pendingConvergenceReport以本轮已观察Unknown或当前原结果Unknown为依据，保持Pending/OutcomeUnknown；没有此前Unknown时继续返回原NotCommitted Fault。normalizeArtifactRefs按kind+ID去重、Unknown排除同ref Active并稳定排序；早退与原merge统一复用，不伪造Object调用结果。内部pendingResult不被改为业务Unknown。新增unit覆盖“已有真实Unknown+随后NotCommitted+重复/交叉refs”及无Unknown对照；只是纯结果/构造约束证据，不冒称实际COMMIT注入。
+- **首次Acquire前的退休登记闭合。** within从已经发现的extra与各AccessLockPlan.Details().Locks组成规范化完整union，在回调内任何实际Acquire之前调用observeControl记录原Tx及计划。observeControl仍核真实活跃InTx、原私有control归属/注册/未返回，并只保存退休责任；注释明确不是已持锁证明。随后依旧一次AcquireAll或AcquireAccessPlansInTx，再DiscoverInTx、ValidateAccessPlan、正式Authority及必要requireControlWork；没有跳过这些验证。失败首attempt不再以空origins/locks/work走joinControl早退，原union由既有EX退休检查保留。新增纯Store adapter在Acquire入口核精确union和Tx，区分失败不进业务callback、原Unknown来源与后续确认退休；它不模拟真实PG锁或网络终局。
+
+review05/06/07的其它固定结论复用；本次没有增加API、迁移、原16路径或预算。作者race21/vet21/compile21报告通过，独立本轮仅审固定实现与测试源码，不重复运行或冒领作者执行。普通SQL/ctx canary另由root安排窗口，本轮未运行；原中止协议方案未读取、未恢复、未换主体重试。Object上游共享guard已知缺陷及其被暂停的修复执行仍阻止最终共享终局验收，不能以旧6658本域通过掩盖。
+
+实际检查仅SHA、固定差量/定向源码阅读及自有tmp反向patch重建；无Go/Docker、仓库/Git写或委派。五项after末检仍匹配，全部命令结束，无本轮fixture。此报告与证据冻结，all-stop；等待正式最终源/被允许的动态增量及上游整合。

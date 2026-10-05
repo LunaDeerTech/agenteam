@@ -1,0 +1,31 @@
+{
+  "cwd": "/workspace/agenteam-artifact-f1-v-uh4fek8y/tree",
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-count=1",
+    "-timeout=6m",
+    "-run",
+    "^TestIndependentArtifactRunningCancelledUploadTracksActualClose$",
+    "-v",
+    "./internal/central/artifact"
+  ],
+  "environment": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-artifact-f1-v-uh4fek8y/gocache",
+    "TMPDIR": "/workspace/agenteam-artifact-f1-v-uh4fek8y/tmp",
+    "GOTMPDIR": "/workspace/agenteam-artifact-f1-v-uh4fek8y/tmp",
+    "GOFLAGS": "-mod=readonly"
+  },
+  "toolchain": "go version go1.27.1 linux/amd64",
+  "probe_sha256": "4870cce2f4f694b516756752453bc24b125b0f9313c584bca3b10db1a272f849",
+  "input_sha256": "e4173d283b274af9b4c0df62d828a8bc8fce72fcf2af51c154352f60ecf16d76",
+  "started": "2026-10-05T15:45:42.912086+00:00"
+}

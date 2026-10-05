@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-tags=integration",
+    "-race",
+    "-c",
+    "-overlay",
+    "/workspace/agenteam-artifact-review09-v-qk_5bouy/probe-compile/overlay.json",
+    "-o",
+    "/workspace/agenteam-artifact-review09-v-qk_5bouy/probe-compile/objects.test",
+    "./tests/objects"
+  ],
+  "cwd": "/workspace/agenteam-artifact-foreign-v-4jgd5ed_/tree",
+  "environment": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-artifact-foreign-v-4jgd5ed_/gocache",
+    "TMPDIR": "/workspace/agenteam-artifact-foreign-v-4jgd5ed_/tmp",
+    "GOTMPDIR": "/workspace/agenteam-artifact-foreign-v-4jgd5ed_/tmp"
+  },
+  "candidate_manifest_sha256": "79e5eb812c0fda2a42d390a7e2703b1ebca4ce581c055e1c2a99fda1ab76914e",
+  "probe_sha256": "c40b8aeb6f574a2bbd7674f77b5ed5fb8c3311a1d367bc8302efaa2b199e5350",
+  "selector": "^TestIndependentArtifactForeignJoinCommittedStoreUnknown$",
+  "overlay_sha256": "4fdd115fc9104e1557a6c7d8a41e47446e32055418e2e878c3522b6efabf7c9d",
+  "operation": "compile only; no test/fixture execution"
+}

@@ -1,0 +1,44 @@
+{
+  "result": "PASS for Python checks with exact raw-file whitespace exceptions; root refreshed-index check pending",
+  "original_archive_checks": {
+    "path": "history/archive-checks-before-whitespace-correction.json",
+    "sha256": "1a964e1f332337ec7016c06b04bc712122cc2582a59be907387290986264a59b",
+    "preservation": "Original bytes retained, including original PASS and its narrower check scope."
+  },
+  "root_first_full_index_check": {
+    "reported_staged_paths": 315,
+    "additional_warning_beyond_15_raw_patches": {
+      "path": "author/logs/join-pending-01.log",
+      "line": 4,
+      "warning": "space before tab",
+      "sha256": "e103146598e81a3f518742a4c46eeaad83dc66f54a0cf7e10e6a4d26241a95ea"
+    },
+    "provenance": "Root reported the actual first staged-index diff --check warning; exact root argv/exit were not supplied and are not invented."
+  },
+  "correction": "Preserve raw log bytes; whitespace-exceptions.json identifies 15 raw patches and this one raw log separately. Earlier trailing-whitespace checks did not establish a warning-free full 315-path index.",
+  "actual_python_check": {
+    "argv": [
+      "python3",
+      "docs/development/agent-team/evidence/artifact-project-stop-verification/whitespace-check.py"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit_code": 0,
+    "result": {
+      "result": "PASS with exact raw-file whitespace exceptions",
+      "checked_non_patch_files": 299,
+      "exact_exceptions": 16,
+      "preserved_raw_originals": 302,
+      "warnings_outside_raw_patches": [
+        {
+          "path": "author/logs/join-pending-01.log",
+          "line": 4,
+          "rule": "space before tab in indent"
+        }
+      ],
+      "unexpected_warnings": [],
+      "scope": "Python trailing whitespace, space-before-tab indent, blank-at-EOF and SHA checks; not a Git index check"
+    }
+  },
+  "updated_report_readme_links_checked": 39,
+  "new_git_go_docker_network_operations": "none"
+}

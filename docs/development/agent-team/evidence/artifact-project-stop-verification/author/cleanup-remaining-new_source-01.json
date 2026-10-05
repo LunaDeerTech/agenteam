@@ -1,0 +1,44 @@
+{
+  "exit": 0,
+  "seconds": 35.163,
+  "containers": {
+    "baseline_ids_names_labels_equal": true,
+    "owned": {
+      "2f966b2ba778397f2bbee90ef06edbf3d0f394cebcfaecde923ccf9e25653410": {
+        "exit": 1,
+        "output": "Error response from daemon: No such container: 2f966b2ba778397f2bbee90ef06edbf3d0f394cebcfaecde923ccf9e25653410"
+      },
+      "cd31bec9bf0c42b6a19b936739c0911002d41ee6c513422f04a826f77cd22ee5": {
+        "exit": 1,
+        "output": "Error response from daemon: No such container: cd31bec9bf0c42b6a19b936739c0911002d41ee6c513422f04a826f77cd22ee5"
+      },
+      "d091b09b3b5f548489104e388e5e2bb58219e9edae9c14fc5239cf7f241d3ce3": {
+        "exit": 1,
+        "output": "Error response from daemon: No such container: d091b09b3b5f548489104e388e5e2bb58219e9edae9c14fc5239cf7f241d3ce3"
+      },
+      "df6efa079a7c029c49a029899ead675fcf725a4c634fdb89ca8203c73f88abca": {
+        "exit": 1,
+        "output": "Error response from daemon: No such container: df6efa079a7c029c49a029899ead675fcf725a4c634fdb89ca8203c73f88abca"
+      }
+    }
+  },
+  "networks": {
+    "baseline_ids_names_labels_equal": true,
+    "owned": {
+      "a5188dc09b8f6c4aa233136715b123e005c6d2b611d56df8a531ae0c8ff38dce": {
+        "exit": 1,
+        "output": "Error response from daemon: network a5188dc09b8f6c4aa233136715b123e005c6d2b611d56df8a531ae0c8ff38dce not found"
+      },
+      "fdf1c21cbff0ca81b27b0d0309a6c266622d7f1c5faac972ff45afab3d6ed9d1": {
+        "exit": 1,
+        "output": "Error response from daemon: network fdf1c21cbff0ca81b27b0d0309a6c266622d7f1c5faac972ff45afab3d6ed9d1 not found"
+      },
+      "fe640d9d7ec7aaa50865ffe9408ab0b3adcbacc2147d0930e3399fd497562a62": {
+        "exit": 1,
+        "output": "Error response from daemon: network fe640d9d7ec7aaa50865ffe9408ab0b3adcbacc2147d0930e3399fd497562a62 not found"
+      }
+    }
+  },
+  "runtime_entries": [],
+  "owned_processes": []
+}

@@ -1,0 +1,369 @@
+--- before/internal/central/artifact/service.go
++++ after/internal/central/artifact/service.go
+@@ -130,7 +130,24 @@
+ 	if err != nil {
+ 		return rejected(invalid())
+ 	}
++	planned := append([]foundation.LockRequest{}, extra...)
++	for _, plan := range plans {
++		if plan.Validate() != nil {
++			return rejected(invalid())
++		}
++		planned = append(planned, plan.Details().Locks...)
++	}
++	planned, err = oc.NormalizeAccessLocks(planned)
++	if err != nil {
++		return rejected(invalid())
++	}
+ 	return r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
++		// The first lookup has no durable work yet. Own its physical attempt
++		// before Acquire can retain an earlier key and fail on a later one.
++		// This records cleanup responsibility, never proof of held locks.
++		if err := s.observeControl(control, tx, planned); err != nil {
++			return err
++		}
+ 		var locked oc.LockedAccess
+ 		var err error
+ 		if len(plans) > 0 {
+@@ -140,13 +157,6 @@
+ 		}
+ 		if err != nil {
+ 			return portError(err)
+-		}
+-		locks := extra
+-		if len(plans) > 0 {
+-			locks = locked.Locks()
+-		}
+-		if err = s.observeControl(control, tx, locks); err != nil {
+-			return err
+ 		}
+ 		current, err := r.owners.state().authority.DiscoverInTx(ctx, tx, subject)
+ 		if err != nil {
+--- before/internal/central/artifact/project_work.go
++++ after/internal/central/artifact/project_work.go
+@@ -117,8 +117,9 @@
+ 	if err != nil {
+ 		return invalid()
+ 	}
+-	// Our private producer key can only be consumed through the one acquisition
+-	// above. The original writer and every later checkpoint share this EX key.
++	// This is the planned responsibility of one physical attempt, not a held
++	// lock assertion. The actual acquisition still validates the full union.
++	// The original writer and every later checkpoint share this private EX key.
+ 	found := false
+ 	for _, lock := range locks {
+ 		if foundation.CompareLockKeys(lock.Key, controlRecordLock(p.id).Key) == 0 && lock.Mode == foundation.Exclusive {
+--- before/internal/central/artifact/project_lifecycle.go
++++ after/internal/central/artifact/project_lifecycle.go
+@@ -725,10 +725,7 @@
+ 		if !w.joined || w.source.Validate() == nil && !w.sourceJoined {
+ 			recordConvergence(&w, s.recoverArtifactWork(ctx, p, request, w))
+ 			if result, pending := s.pendingStopBatch(p); pending {
+-				if result.State() == foundation.Unknown {
+-					return oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, local)
+-				}
+-				return oc.ObjectStopReport{}, commitError(result)
++				return pendingConvergenceReport(cause, local, convergenceUnknown, result)
+ 			}
+ 		}
+ 	}
+@@ -796,45 +793,25 @@
+ 	}
+ 	return oc.ProjectStopRef{Kind: kind, ID: id}
+ }
++
++func pendingConvergenceReport(cause oc.ProjectStopCause, local oc.ObjectStopDetails, observedUnknown error, original foundation.CommitResult) (oc.ObjectStopReport, error) {
++	if observedUnknown != nil || original.State() == foundation.Unknown {
++		local = normalizeArtifactRefs(local)
++		local.State, local.SafeReason = oc.ProjectStopPending, oc.ProjectStopOutcomeUnknown
++		return oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, local)
++	}
++	return oc.ObjectStopReport{}, commitError(original)
++}
+ func mergeArtifactReport(cause oc.ProjectStopCause, local oc.ObjectStopDetails, object oc.ObjectStopReport) (oc.ObjectStopReport, error) {
+ 	if !object.Matches(oc.ObjectStopComponent, cause) {
+ 		return oc.ObjectStopReport{}, invalid()
+ 	}
+ 	d := object.Details()
+ 	out := local
+-	unknown := map[oc.ProjectStopRef]bool{}
+-	active := map[oc.ProjectStopRef]bool{}
+-	for _, refs := range [][]oc.ProjectStopRef{local.UnknownRefs, d.UnknownRefs} {
+-		for _, ref := range refs {
+-			unknown[ref] = true
+-		}
+-	}
+-	for _, refs := range [][]oc.ProjectStopRef{local.ActiveRefs, d.ActiveRefs} {
+-		for _, ref := range refs {
+-			if !unknown[ref] {
+-				active[ref] = true
+-			}
+-		}
+-	}
+-	out.ActiveRefs = nil
+-	out.UnknownRefs = nil
+-	for ref := range active {
+-		out.ActiveRefs = append(out.ActiveRefs, ref)
+-	}
+-	for ref := range unknown {
+-		out.UnknownRefs = append(out.UnknownRefs, ref)
+-	}
+-	sortRefs := func(refs []oc.ProjectStopRef) {
+-		sort.Slice(refs, func(i, j int) bool {
+-			if refs[i].Kind != refs[j].Kind {
+-				return refs[i].Kind < refs[j].Kind
+-			}
+-			return refs[i].ID.String() < refs[j].ID.String()
+-		})
+-	}
+-	sortRefs(out.ActiveRefs)
+-	sortRefs(out.UnknownRefs)
+-	if len(unknown) > 0 || local.SafeReason == oc.ProjectStopOutcomeUnknown || d.SafeReason == oc.ProjectStopOutcomeUnknown {
++	out.UnknownRefs = append(append([]oc.ProjectStopRef{}, local.UnknownRefs...), d.UnknownRefs...)
++	out.ActiveRefs = append(append([]oc.ProjectStopRef{}, local.ActiveRefs...), d.ActiveRefs...)
++	out = normalizeArtifactRefs(out)
++	if len(out.UnknownRefs) > 0 || local.SafeReason == oc.ProjectStopOutcomeUnknown || d.SafeReason == oc.ProjectStopOutcomeUnknown {
+ 		out.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopOutcomeUnknown
+ 	} else if d.State == oc.ProjectStopFailed {
+ 		out.State, out.SafeReason = oc.ProjectStopFailed, d.SafeReason
+@@ -845,6 +822,37 @@
+ 		out.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopWorkPending
+ 	}
+ 	return oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, out)
++}
++func normalizeArtifactRefs(out oc.ObjectStopDetails) oc.ObjectStopDetails {
++	unknown := map[oc.ProjectStopRef]bool{}
++	active := map[oc.ProjectStopRef]bool{}
++	for _, ref := range out.UnknownRefs {
++		unknown[ref] = true
++	}
++	for _, ref := range out.ActiveRefs {
++		if !unknown[ref] {
++			active[ref] = true
++		}
++	}
++	out.ActiveRefs = nil
++	out.UnknownRefs = nil
++	for ref := range active {
++		out.ActiveRefs = append(out.ActiveRefs, ref)
++	}
++	for ref := range unknown {
++		out.UnknownRefs = append(out.UnknownRefs, ref)
++	}
++	sortRefs := func(refs []oc.ProjectStopRef) {
++		sort.Slice(refs, func(i, j int) bool {
++			if refs[i].Kind != refs[j].Kind {
++				return refs[i].Kind < refs[j].Kind
++			}
++			return refs[i].ID.String() < refs[j].ID.String()
++		})
++	}
++	sortRefs(out.ActiveRefs)
++	sortRefs(out.UnknownRefs)
++	return out
+ }
+ func (s *Service) artifactPending(ctx context.Context, e postgres.SQLExecutor, d oc.ProjectStopCauseDetails) (bool, error) {
+ 	var pending bool
+--- before/internal/central/artifact/project_work_test.go
++++ after/internal/central/artifact/project_work_test.go
+@@ -3,7 +3,9 @@
+ import (
+ 	"context"
+ 	"testing"
+-
++	"time"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
+ 	au "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+@@ -188,3 +190,154 @@
+ 		t.Fatal("retired private handle accepted")
+ 	}
+ }
++
++type attemptUnitAuthority struct {
++	ac.Authority
++	deps oc.AccessDependencies
++}
++
++func (a *attemptUnitAuthority) Discover(context.Context, ac.AccessSubject) (oc.AccessDependencies, error) {
++	return a.deps, nil
++}
++func (a *attemptUnitAuthority) DiscoverInTx(context.Context, foundation.Tx, ac.AccessSubject) (oc.AccessDependencies, error) {
++	return a.deps, nil
++}
++func (a *attemptUnitAuthority) AuthorizeInTx(_ context.Context, _ foundation.Tx, subject ac.AccessSubject, intent identity.AccessIntent) (identity.AccessGrant, error) {
++	scope, _ := identity.InProject(subject.ProjectID)
++	now, _ := foundation.NewInstant(time.Now())
++	return identity.NewAccessGrant(subject.Actor, scope, intent, now, 1)
++}
++
++type attemptUnitExecutor struct{ postgres.SQLExecutor }
++type attemptUnitRow struct{}
++
++func (attemptUnitExecutor) QueryRow(context.Context, string, ...any) postgres.Row {
++	return attemptUnitRow{}
++}
++func (attemptUnitRow) Scan(out ...any) error { *out[0].(*bool) = false; return nil }
++
++type attemptUnitStore struct {
++	Store
++	live    foundation.Tx
++	result  foundation.CommitResult
++	acquire func(foundation.Tx, []foundation.LockRequest) error
++}
++
++func (s *attemptUnitStore) WithinTx(ctx context.Context, _ foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
++	s.live = foundation.NewTx()
++	err := fn(ctx, s.live)
++	s.live = foundation.Tx{}
++	if err != nil {
++		return rejected(err)
++	}
++	return s.result
++}
++func (s *attemptUnitStore) InTx(tx foundation.Tx) (postgres.SQLExecutor, error) {
++	if !tx.Valid() || tx != s.live {
++		return nil, invalid()
++	}
++	return attemptUnitExecutor{}, nil
++}
++func (s *attemptUnitStore) AcquireAll(_ context.Context, tx foundation.Tx, locks []foundation.LockRequest) error {
++	if s.acquire != nil {
++		return s.acquire(tx, locks)
++	}
++	return nil
++}
++
++type attemptUnitObjects struct {
++	oc.Objects
++	store  *attemptUnitStore
++	issuer oc.AccessIssuer
++}
++
++func (o *attemptUnitObjects) AcquireAccessPlansInTx(ctx context.Context, tx foundation.Tx, plans []oc.AccessLockPlan, extra []foundation.LockRequest) (oc.LockedAccess, error) {
++	locked, err := oc.NewLockedAccess(o.issuer, tx, plans, extra)
++	if err != nil {
++		return locked, err
++	}
++	return locked, o.store.AcquireAll(ctx, tx, locked.Locks())
++}
++func TestArtifactFirstAttemptOwnedBeforeAcquire(t *testing.T) {
++	for _, kind := range []string{"lookup_failure", "planned_acquire_failure", "commit_unknown"} {
++		t.Run(kind, func(t *testing.T) {
++			s := producerFixture()
++			p, err := s.beginProducer(context.Background(), testProject(t))
++			if err != nil {
++				t.Fatal(err)
++			}
++			user, _ := foundation.NewID[identity.User]()
++			session, _ := foundation.NewID[identity.Session]()
++			actor, _ := identity.NewHuman(user, session)
++			subject := ac.AccessSubject{Actor: actor, ProjectID: p.project}
++			deps, _ := oc.NewAccessDependencies(digestBytes([]byte("attempt-unit")), []foundation.LockRequest{projectLock(p.project, foundation.Shared)})
++			cause, _ := txCause()
++			attempt, _ := foundation.NewID[foundation.TransactionAttempt]()
++			store := &attemptUnitStore{result: foundation.UnknownResult(attempt, cause)}
++			s.state().store = store
++			s.state().owners, err = NewOwnerProvider(store, &attemptUnitAuthority{deps: deps})
++			if err != nil {
++				t.Fatal(err)
++			}
++			var plans []oc.AccessLockPlan
++			plannedKey, _ := foundation.RecordLock(foundation.ReferenceRecordLock, "unit-object-plan")
++			if kind == "planned_acquire_failure" {
++				ownerID, _ := foundation.NewID[struct{}]()
++				owner, _ := oc.NewObjectOwner(oc.Artifact, ownerID.String(), p.project.String())
++				request, e := makeOwnerRequest(actor, owner, oc.PrepareReadAccess, oc.AccessRequestDetails{})
++				if e != nil {
++					t.Fatal(e)
++				}
++				issuer := oc.NewAccessIssuer()
++				locks := append(deps.Locks(), foundation.LockRequest{Key: plannedKey, Mode: foundation.Exclusive})
++				plan, e := oc.NewAccessLockPlan(issuer, oc.AccessPlanDetails{Request: request, DependencyRequest: request, Dependencies: deps, DomainBinding: digestBytes([]byte("original-plan")), Locks: locks})
++				if e != nil {
++					t.Fatal(e)
++				}
++				plans = []oc.AccessLockPlan{plan}
++				s.state().objects = &attemptUnitObjects{store: store, issuer: issuer}
++			}
++			acquisitions := 0
++			store.acquire = func(tx foundation.Tx, locks []foundation.LockRequest) error {
++				acquisitions++
++				if p.work != nil || !p.origins[tx] || len(p.locks) != len(locks) {
++					t.Fatal("first original attempt was not owned before Acquire", len(p.origins), len(p.locks), len(locks))
++				}
++				found := kind != "planned_acquire_failure"
++				for i, lock := range locks {
++					if foundation.CompareLockKeys(p.locks[i].Key, lock.Key) != 0 || p.locks[i].Mode != lock.Mode {
++						t.Fatal("pre-Acquire union differed from actual original plan")
++					}
++					if foundation.CompareLockKeys(lock.Key, plannedKey) == 0 {
++						found = true
++					}
++				}
++				if !found {
++					t.Fatal("Object plan key missing from original ownership")
++				}
++				if kind != "commit_unknown" {
++					return failure(foundation.Forbidden, nil)
++				}
++				return nil
++			}
++			callback := false
++			result := s.within(p.ctx, subject, identity.Read, cause, plans, nil, func(context.Context, foundation.Tx, oc.LockedAccess) error { callback = true; return nil })
++			if acquisitions != 1 || len(p.origins) != 1 {
++				t.Fatal("physical attempt did not remain exactly owned")
++			}
++			if kind == "commit_unknown" {
++				if !callback || result.State() != foundation.Unknown || result.AttemptID() != attempt {
++					t.Fatal("Store Unknown provenance changed")
++				}
++			} else if callback || result.State() != foundation.NotCommitted || result.Fault().Code != foundation.Forbidden {
++				t.Fatal("Acquire failure changed or authorized work", result.State())
++			}
++			store.acquire = nil
++			store.result = foundation.CommittedResult()
++			s.finishProducer(p)
++			if len(s.state().controls) != 0 {
++				t.Fatal("confirmed full union cleanup failed to retire control")
++			}
++		})
++	}
++}
+--- before/internal/central/artifact/project_lifecycle_test.go
++++ after/internal/central/artifact/project_lifecycle_test.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"context"
++	"errors"
+ 	"testing"
+ 
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+@@ -156,3 +157,24 @@
+ 		}
+ 	}
+ }
++
++func TestArtifactStopPendingBatchPreservesPriorUnknownAndNormalizesRefs(t *testing.T) {
++	cause := testArtifactStopCause(t)
++	id, _ := foundation.NewID[oc.ProjectStopResource]()
++	ref := oc.ProjectStopRef{Kind: oc.StopArtifactCreation, ID: id}
++	original := foundation.NotCommittedResult(foundation.NewFault(foundation.Forbidden, foundation.NotCommitted))
++	observed := foundation.NewFault(foundation.CommitUnknown, foundation.Unknown)
++	local := oc.ObjectStopDetails{State: oc.ProjectStopPending, SafeReason: oc.ProjectStopOutcomeUnknown, UnknownRefs: []oc.ProjectStopRef{ref, ref}, ActiveRefs: []oc.ProjectStopRef{ref}}
++	report, err := pendingConvergenceReport(cause, local, observed, original)
++	if err != nil || report.Validate() != nil || report.Details().SafeReason != oc.ProjectStopOutcomeUnknown || len(report.Details().UnknownRefs) != 1 || len(report.Details().ActiveRefs) != 0 {
++		t.Fatal("later NotCommitted hid earlier real Unknown or duplicate refs broke report", err)
++	}
++	if original.State() != foundation.NotCommitted || original.Fault().Code != foundation.Forbidden {
++		t.Fatal("owned pending business result was rewritten")
++	}
++	_, err = pendingConvergenceReport(cause, oc.ObjectStopDetails{State: oc.ProjectStopPending}, nil, original)
++	var fault *foundation.Fault
++	if !errors.As(err, &fault) || fault.CommitState != foundation.NotCommitted || fault.Code != foundation.Forbidden {
++		t.Fatal("NotCommitted without a real earlier Unknown was changed", err)
++	}
++}

@@ -1,0 +1,916 @@
+{
+  "final_manifest": "candidate-final/manifest.json",
+  "final_manifest_sha256": "1c931fc6ac183643380c5c287b008bc672ad5df5d0cc7249ab7ee0ad69e72b85",
+  "logs": [
+    {
+      "log": "logs/build23-agenteam-runner.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "input": "input-build-23.json",
+      "input_sha256": "1f248e3f8d3944a15caedf7c27346cb8607bfe0ce7f3514664e4dcc328b52451",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/agenteam-artifact-stop-build-y597q6vl/bin/agenteam-runner",
+        "./cmd/agenteam-runner"
+      ],
+      "summary_lines": []
+    },
+    {
+      "log": "logs/build23-agenteam.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "input": "input-build-23.json",
+      "input_sha256": "1f248e3f8d3944a15caedf7c27346cb8607bfe0ce7f3514664e4dcc328b52451",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/agenteam-artifact-stop-build-y597q6vl/bin/agenteam",
+        "./cmd/agenteam"
+      ],
+      "summary_lines": []
+    },
+    {
+      "log": "logs/compile-01.log",
+      "sha256": "ed4c5a832dcbd95e6e64ff6f8197a462d50121d544517303a3ed26d0bde82add",
+      "exit": 1,
+      "input": "input-compile-01.json",
+      "input_sha256": "b56918223973a1d840a6667972effe99079e78ecb0892a4be49a6e797671c046",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-run",
+        "^$",
+        "./internal/central/artifact/...",
+        "./internal/central/object/..."
+      ],
+      "summary_lines": [
+        "FAIL\tgithub.com/LunaDeerTech/agenteam/internal/central/artifact [build failed]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t0.007s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object\t0.011s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object/contract\t0.003s [no tests to run]",
+        "FAIL"
+      ]
+    },
+    {
+      "log": "logs/compile-04.log",
+      "sha256": "34ce78279f70a15257cdd51083074b4c4be7908478b25ff0cfe80e20d88da342",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t0.006s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t0.006s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.005s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile-05.log",
+      "sha256": "906f2df9212daa900149a0d260fe2ee1c7c1a1918bd05809d11fee13920bd53c",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "FAIL\tgithub.com/LunaDeerTech/agenteam/tests/objects [build failed]",
+        "FAIL"
+      ]
+    },
+    {
+      "log": "logs/compile-06.log",
+      "sha256": "3f7ae0ee2045d268d7a804f6ecb97944c96ec4968af47df238b60b431034818a",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.005s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile-08.log",
+      "sha256": "505e9bf917e5a3a1fd5a6483e6ab870ec7ac2a8fd63a17188ff36b5243c6634b",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t0.003s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t(cached) [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.006s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile-09.log",
+      "sha256": "9865495226edbb064884efbdafef74aa539ddb4457da0ced66c88680aa37f851",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t(cached) [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t(cached) [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.005s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile-10.log",
+      "sha256": "20b9824815d72ef4804f1f3cf56033c1da511d6bd1592e21abe22dfa34383175",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t0.034s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t(cached) [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.005s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile11.log",
+      "sha256": "4db5f8ba08fcc09fc8806632145c3e9f87c9d6c47f294151b47a5dd3dc3e9507",
+      "exit": 0,
+      "input": "input-pure-11.json",
+      "input_sha256": "1623e57b0180d87e98ebe899868ce67c9dfdb72b9e26e6bc95c2901ad43398ab",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./internal/central/artifact/...",
+        "./tests/objects"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t0.012s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t(cached) [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.004s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile12.log",
+      "sha256": "6fc93f0724b4307de0d8bf7860c6dee3cd858e266c5ffe463a03ee8da75a4907",
+      "exit": 0,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.004s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile13.log",
+      "sha256": "6fc93f0724b4307de0d8bf7860c6dee3cd858e266c5ffe463a03ee8da75a4907",
+      "exit": 0,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.004s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile14.log",
+      "sha256": "6fc93f0724b4307de0d8bf7860c6dee3cd858e266c5ffe463a03ee8da75a4907",
+      "exit": 0,
+      "input": "input-pure-14.json",
+      "input_sha256": "5e452ac378f1fa1b58039dfc32bb41f21f1bf908d0f63f7944da77a5c49ad7b6",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/objects"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.004s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile15.log",
+      "sha256": "3f7ae0ee2045d268d7a804f6ecb97944c96ec4968af47df238b60b431034818a",
+      "exit": 0,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.005s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile16.log",
+      "sha256": "6fc93f0724b4307de0d8bf7860c6dee3cd858e266c5ffe463a03ee8da75a4907",
+      "exit": 0,
+      "input": "input-pure-16.json",
+      "input_sha256": "2c12876dac7f9f39079d99fa0fb9f40acb9f7606f989d8c3fe1f9a65f965ffde",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/objects"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.004s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile17.log",
+      "sha256": "3f7ae0ee2045d268d7a804f6ecb97944c96ec4968af47df238b60b431034818a",
+      "exit": 0,
+      "input": "input-pure-17.json",
+      "input_sha256": "303e00ef33cb2c18cc375686520bea29fb17a6f1614bc303a1f7ec291e685192",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/objects"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.005s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile18.log",
+      "sha256": "6fc93f0724b4307de0d8bf7860c6dee3cd858e266c5ffe463a03ee8da75a4907",
+      "exit": 0,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.004s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile19.log",
+      "sha256": "3f7ae0ee2045d268d7a804f6ecb97944c96ec4968af47df238b60b431034818a",
+      "exit": 0,
+      "input": "input-pure-19.json",
+      "input_sha256": "a3e5bc144afba26b179568456b85f8562f11e1e173042e9beed7d2a6f3d786e7",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/objects"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.005s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile20.log",
+      "sha256": "6cc3632a82c9baef0ce1def440ceeaa7c981e59d6b824e61fe28a3b37ea7abce",
+      "exit": 0,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.006s [no tests to run]"
+      ],
+      "scope": "Deferred protocol draft offline compilation only, removed from final16, no real execution, not acceptance evidence."
+    },
+    {
+      "log": "logs/compile21.log",
+      "sha256": "6fc93f0724b4307de0d8bf7860c6dee3cd858e266c5ffe463a03ee8da75a4907",
+      "exit": 0,
+      "input": "input-pure-21.json",
+      "input_sha256": "60fce686d4826355cecc3f1542e72c29e062a5a73656c874d105cdcef34f02d0",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/objects"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.004s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/compile22.log",
+      "sha256": "3f7ae0ee2045d268d7a804f6ecb97944c96ec4968af47df238b60b431034818a",
+      "exit": 0,
+      "input": "input-pure-22.json",
+      "input_sha256": "fc77be25f2968e609093ce08ee27fabecfc8680ac333c340c71fdc2ed36f5d40",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/objects"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t0.005s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/join-identity-fix-01.log",
+      "sha256": "677f1ed439468740b0d58cabbb27d882bb34d84418784785b2d33e984ee5f6ce",
+      "exit": 0,
+      "input": "input-join-identity-fix-01.json",
+      "input_sha256": "7713ebb5106f7c064823e14b1315f9655f596893e9bb5ed1858bed7841a6c8c9",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactProjectStopUnknownJoinCheckpointRemainsUnknown|TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel)$"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/postgres\t1.019s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/database\t1.022s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/app\t1.016s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/process\t2.158s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/security\t1.011s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/outbox\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox\t1.011s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox/contract\t1.010s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/account\t1.020s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/accountmail\t1.013s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/accountmail\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/recoverylog\t1.016s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/project\t1.019s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model\t1.013s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model/contract\t1.012s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/model\t1.046s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t11.061s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object\t1.017s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object/contract\t1.011s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/join-identity-red-01.log",
+      "sha256": "f492ab3603d2c2bf15f97ee8cc653a3413cf14fb39b4ab1ccb7b465aae78031d",
+      "exit": 1,
+      "input": "input-join-identity-red-01.json",
+      "input_sha256": "30be3f8701e7c37796af55ca102b3c18fead9eda298770af19f1fa7c30a6e8b2",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactProjectStopUnknownJoinCheckpointRemainsUnknown|TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel)$"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/postgres\t1.022s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/database\t1.023s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/app\t1.038s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/process\t8.227s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/security\t1.056s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/outbox\t1.049s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox\t1.079s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox/contract\t1.017s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/account\t1.027s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/accountmail\t1.025s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/accountmail\t1.022s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/recoverylog\t1.021s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/project\t1.035s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model\t1.020s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model/contract\t1.031s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/model\t1.031s [no tests to run]",
+        "--- FAIL: TestArtifactProjectStopUnknownJoinCheckpointRemainsUnknown (2.75s)",
+        "--- FAIL: TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel (8.12s)",
+        "FAIL",
+        "FAIL\tgithub.com/LunaDeerTech/agenteam/tests/objects\t10.900s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object\t1.017s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object/contract\t1.014s [no tests to run]",
+        "FAIL"
+      ]
+    },
+    {
+      "log": "logs/join-pending-01.log",
+      "sha256": "e103146598e81a3f518742a4c46eeaad83dc66f54a0cf7e10e6a4d26241a95ea",
+      "exit": 1,
+      "input": "input-join-pending-01.json",
+      "input_sha256": "38f1e603c29e101c60801aa79d815a089e93c47b2a0dde41080941e175d36916",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-v",
+        "-run",
+        "^TestArtifactProjectStopUnknownJoinCheckpointRemainsUnknown$"
+      ],
+      "summary_lines": [],
+      "scope": "Driver rejected positional -v before creating fixtures; not product failure or validation."
+    },
+    {
+      "log": "logs/join-pending-02.log",
+      "sha256": "cadfbfc8e58e88c15084ff84b6583f9005f590affb32ace10c41375ac3008524",
+      "exit": 0,
+      "input": "input-join-pending-02.json",
+      "input_sha256": "54861621de18e2918fdbb1ccadaaf29a208cdcd61b5899d0979e4f972b2693d5",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestArtifactProjectStopUnknownJoinCheckpointRemainsUnknown$"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/postgres\t1.034s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/database\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/app\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/process\t2.298s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/security\t1.011s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/outbox\t1.018s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox\t1.011s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox/contract\t1.018s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/account\t1.020s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/accountmail\t1.016s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/accountmail\t1.013s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/recoverylog\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/project\t1.017s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model\t1.012s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model/contract\t1.011s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/model\t1.013s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t7.459s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object/contract\t1.012s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/normal-lock-01.log",
+      "sha256": "e061b2d8a971e029957652edc02b9a5485c1348b7d04cbbf6bdc6f8ef75f0297",
+      "exit": 0,
+      "input": "input-normal-lock-01.json",
+      "input_sha256": "aef9a2280ddba3480ec508a3e797705c5140ccbd770daa4b3d5d32c650e367a8",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactProjectStopFirstLookupFailureRetainsConfirmation)$"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/postgres\t1.028s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/database\t1.016s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/app\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/process\t2.178s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/security\t1.010s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/outbox\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox\t1.012s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox/contract\t1.018s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/account\t1.022s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/accountmail\t1.021s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/accountmail\t1.017s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/recoverylog\t1.013s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/project\t1.016s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model\t1.010s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model/contract\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/model\t1.015s [no tests to run]",
+        "--- PASS: TestArtifactProjectStopFirstLookupFailureRetainsConfirmation (1.22s)",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t2.249s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object\t1.016s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object/contract\t1.010s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/race-02.log",
+      "sha256": "1d6006bb694286009fc88b1958c6cc2b496e94d63c7815f7da437eec5c5f3559",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t1.101s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t1.014s"
+      ]
+    },
+    {
+      "log": "logs/race-03.log",
+      "sha256": "9354b8b436398e62a150a115c25a547f5624fe7f3475ad5f2319072b415cd29b",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t1.105s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t1.020s"
+      ]
+    },
+    {
+      "log": "logs/race-07.log",
+      "sha256": "cf39a52d25835186d4ae56cacbc91068c6c0fc9f1d94faa6a63e167257ddd45f",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t1.166s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t1.019s"
+      ]
+    },
+    {
+      "log": "logs/race-10.log",
+      "sha256": "599f82bc8d6823e160deeb088346c58404c1b8f6b1456949646b4d3df36cf264",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t1.162s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t1.014s"
+      ]
+    },
+    {
+      "log": "logs/race11.log",
+      "sha256": "637eefd2b361189c23d971a680c4ee1421486560490459523061b26c6c18bf72",
+      "exit": 0,
+      "input": "input-pure-11.json",
+      "input_sha256": "1623e57b0180d87e98ebe899868ce67c9dfdb72b9e26e6bc95c2901ad43398ab",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/artifact/..."
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t1.164s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t1.016s"
+      ]
+    },
+    {
+      "log": "logs/race14.log",
+      "sha256": "fe8b719a10943f649b0ee71a6e135d8d60c571065c7ac6f999ac301b21d71d9f",
+      "exit": 0,
+      "input": "input-pure-14.json",
+      "input_sha256": "5e452ac378f1fa1b58039dfc32bb41f21f1bf908d0f63f7944da77a5c49ad7b6",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/artifact/..."
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t1.168s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t1.022s"
+      ]
+    },
+    {
+      "log": "logs/race16.log",
+      "sha256": "599f82bc8d6823e160deeb088346c58404c1b8f6b1456949646b4d3df36cf264",
+      "exit": 0,
+      "input": "input-pure-16.json",
+      "input_sha256": "2c12876dac7f9f39079d99fa0fb9f40acb9f7606f989d8c3fe1f9a65f965ffde",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/artifact/..."
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t1.162s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t1.014s"
+      ]
+    },
+    {
+      "log": "logs/race17.log",
+      "sha256": "637b6eaf5dce71018ba850f7106eb48b63d56619a63677d7fad98707688693da",
+      "exit": 0,
+      "input": "input-pure-17.json",
+      "input_sha256": "303e00ef33cb2c18cc375686520bea29fb17a6f1614bc303a1f7ec291e685192",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/artifact/..."
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t1.159s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t1.015s"
+      ]
+    },
+    {
+      "log": "logs/race19.log",
+      "sha256": "39cc324cead4978089753ea4cf30a3f3b038977e32bcf832438337e0e8584b42",
+      "exit": 0,
+      "input": "input-pure-19.json",
+      "input_sha256": "a3e5bc144afba26b179568456b85f8562f11e1e173042e9beed7d2a6f3d786e7",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/artifact/..."
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t1.164s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t1.013s"
+      ]
+    },
+    {
+      "log": "logs/race21.log",
+      "sha256": "9d663f15a61a35ebb6336d49ad6af2588a1a5705296acafbda6d632f94429c8a",
+      "exit": 0,
+      "input": "input-pure-21.json",
+      "input_sha256": "60fce686d4826355cecc3f1542e72c29e062a5a73656c874d105cdcef34f02d0",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/artifact/..."
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t1.161s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t1.018s"
+      ]
+    },
+    {
+      "log": "logs/rejected-close-red-01.log",
+      "sha256": "0bf0ecd14309922694dda6144b8203d72f73325d5ffad90bec5afb1333d1ff36",
+      "exit": null,
+      "input": "rejected-close-red-01/input.json",
+      "input_sha256": "6252f090db2405d7a6684671df0a8bd2e75e504335ba79f5411a97619148ab9f",
+      "command": "go test -race -count=1 -run ^TestArtifactRejectedUploadStillJoinsActualClose$ ./internal/central/artifact",
+      "summary_lines": [
+        "--- FAIL: TestArtifactRejectedUploadStillJoinsActualClose (0.00s)",
+        "FAIL",
+        "FAIL\tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t0.011s",
+        "FAIL"
+      ]
+    },
+    {
+      "log": "logs/selector-fix-01.log",
+      "sha256": "142513f8fc59e6773e9147a8dbcea75cf7425ad7873161a18e61be7645027fac",
+      "exit": 0,
+      "input": "input-selector-fix-01.json",
+      "input_sha256": "254e4f5969f21a67f4c2d954f21fbcd048a6f79d9cf93c2168940d9613681bac",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactProjectStopSourceIdentityCannotEscapeSelector|TestArtifactProjectStopSourcePlanningKeepsWholeCallPending|TestArtifactProjectStopBoundedLocalSnapshotAndABA|TestArtifactProjectStopPreWorkCancellationIsBoundedAndFair|TestArtifactProjectStopUnknownJoinCheckpointRemainsUnknown|TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel)$"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/postgres\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/database\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/app\t1.019s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/process\t2.199s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/security\t1.010s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/outbox\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox/contract\t1.010s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/account\t1.021s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/accountmail\t1.016s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/accountmail\t1.016s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/recoverylog\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/project\t1.017s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model\t1.012s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model/contract\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/model\t1.016s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t25.454s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object/contract\t1.013s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/selector-red-01.log",
+      "sha256": "3e8e05f86a1ae31f487e4f9aa05121a08fefc76e687cdf4a5a38280fef451265",
+      "exit": 1,
+      "input": "input-selector-red-01.json",
+      "input_sha256": "f8840d770f26991380c09af929dfd718bd42b67510c087f6ad0ffb298f9d7599",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestArtifactProjectStopSourceIdentityCannotEscapeSelector$"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/postgres\t1.017s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/database\t1.011s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/app\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/process\t2.150s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/security\t1.010s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/outbox\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox\t1.010s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox/contract\t1.022s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/account\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/accountmail\t1.012s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/accountmail\t1.013s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/recoverylog\t1.013s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/project\t1.020s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model/contract\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/model\t1.015s [no tests to run]",
+        "--- FAIL: TestArtifactProjectStopSourceIdentityCannotEscapeSelector (1.32s)",
+        "FAIL",
+        "FAIL\tgithub.com/LunaDeerTech/agenteam/tests/objects\t1.342s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object\t1.016s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object/contract\t1.010s [no tests to run]",
+        "FAIL"
+      ]
+    },
+    {
+      "log": "logs/source-planning-fix-01.log",
+      "sha256": "151a1715f58c103f5b7c9a0ed259113971389cf98483e9e9eb4ea424cd0e31ed",
+      "exit": 0,
+      "input": "input-source-planning-fix-01.json",
+      "input_sha256": "60e75294c652c68cfabc128c7ddc44d2d5498fdaefd958a4ed9b2ab127afcb6b",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestArtifactProjectStopSourcePlanningKeepsWholeCallPending$"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/postgres\t1.022s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/database\t1.017s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/app\t1.017s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/process\t2.078s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/security\t1.010s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/outbox\t1.019s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox\t1.011s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox/contract\t1.013s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/account\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/accountmail\t1.012s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/accountmail\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/recoverylog\t1.016s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/project\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model\t1.017s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model/contract\t1.012s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/model\t1.013s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t2.455s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object\t1.018s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object/contract\t1.012s [no tests to run]"
+      ]
+    },
+    {
+      "log": "logs/source-planning-red-01.log",
+      "sha256": "6642436a5683de315d48c226a93b279eef0f60b37edcc02857cb0e809aa945d9",
+      "exit": 1,
+      "input": "input-source-planning-red-01.json",
+      "input_sha256": "8b2997562d0366790170a804d1873ac8b5fb34591760a876930ed84f02c2281d",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestArtifactProjectStopSourcePlanningKeepsWholeCallPending$"
+      ],
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/postgres\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/database\t1.032s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/app\t1.017s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/process\t2.081s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/security\t1.011s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/outbox\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox\t1.009s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox/contract\t1.011s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/account\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/accountmail\t1.012s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/accountmail\t1.017s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/recoverylog\t1.014s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/project\t1.026s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model\t1.009s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model/contract\t1.010s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/tests/model\t1.018s [no tests to run]",
+        "--- FAIL: TestArtifactProjectStopSourcePlanningKeepsWholeCallPending (1.37s)",
+        "FAIL",
+        "FAIL\tgithub.com/LunaDeerTech/agenteam/tests/objects\t1.386s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object\t1.015s [no tests to run]",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object/contract\t1.011s [no tests to run]",
+        "FAIL"
+      ]
+    },
+    {
+      "log": "logs/unit-02.log",
+      "sha256": "150afca25e3a10eb000097c6cc72f0b90daa22385b4d89946d39ae94f0c8aee2",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": [
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact\t0.086s",
+        "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/artifact/contract\t0.004s"
+      ]
+    },
+    {
+      "log": "logs/vet-02.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": []
+    },
+    {
+      "log": "logs/vet-03.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": []
+    },
+    {
+      "log": "logs/vet-10.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": null,
+      "record_limit": "Historical raw log; exact argv/input metadata not separately persisted for this label. Not used as final validation.",
+      "summary_lines": []
+    },
+    {
+      "log": "logs/vet11.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "input": "input-pure-11.json",
+      "input_sha256": "1623e57b0180d87e98ebe899868ce67c9dfdb72b9e26e6bc95c2901ad43398ab",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./internal/central/artifact/...",
+        "./tests/objects"
+      ],
+      "summary_lines": []
+    },
+    {
+      "log": "logs/vet14.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "input": "input-pure-14.json",
+      "input_sha256": "5e452ac378f1fa1b58039dfc32bb41f21f1bf908d0f63f7944da77a5c49ad7b6",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./internal/central/artifact/...",
+        "./tests/objects"
+      ],
+      "summary_lines": []
+    },
+    {
+      "log": "logs/vet16.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "input": "input-pure-16.json",
+      "input_sha256": "2c12876dac7f9f39079d99fa0fb9f40acb9f7606f989d8c3fe1f9a65f965ffde",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./internal/central/artifact/...",
+        "./tests/objects"
+      ],
+      "summary_lines": []
+    },
+    {
+      "log": "logs/vet17.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "input": "input-pure-17.json",
+      "input_sha256": "303e00ef33cb2c18cc375686520bea29fb17a6f1614bc303a1f7ec291e685192",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./internal/central/artifact/...",
+        "./tests/objects"
+      ],
+      "summary_lines": []
+    },
+    {
+      "log": "logs/vet19.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "input": "input-pure-19.json",
+      "input_sha256": "a3e5bc144afba26b179568456b85f8562f11e1e173042e9beed7d2a6f3d786e7",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./internal/central/artifact/...",
+        "./tests/objects"
+      ],
+      "summary_lines": []
+    },
+    {
+      "log": "logs/vet21.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "input": "input-pure-21.json",
+      "input_sha256": "60fce686d4826355cecc3f1542e72c29e062a5a73656c874d105cdcef34f02d0",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./internal/central/artifact/...",
+        "./tests/objects"
+      ],
+      "summary_lines": []
+    },
+    {
+      "log": "logs/vet22.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "input": "input-pure-22.json",
+      "input_sha256": "fc77be25f2968e609093ce08ee27fabecfc8680ac333c340c71fdc2ed36f5d40",
+      "command": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./tests/objects"
+      ],
+      "summary_lines": []
+    }
+  ],
+  "cleanup": {
+    "cleanup-handoff-01.json": "e7199acd0a5ad4f6156b5e528e5f308ba59eac306b7dff65accf0d3cccd32cf2",
+    "cleanup-handoff-02.json": "44101eb7fdd53b5077f5a6996a4d9e641fe2bcf58b2ff367e8348b8b6a4b4b28",
+    "cleanup-handoff-03.json": "31e792c5fe36a160064ab9d107a30442d608ab9927ef0b9d6b38b40bea8981fa",
+    "cleanup-join-identity-fix-01.json": "42f1e0193a20037a17302b1d805b6bc98d1ca3f86adc3d18a78de16b963ea76b",
+    "cleanup-join-identity-red-01.json": "6b5d857fcc2bbc5ce0098b68dbb3e80e364c9e66aebc9e4b50088f632234d678",
+    "cleanup-join-pending-01.json": "c42e4a44ec449c5973ee8f2225f73e2f9dbd4244d0a64298e35363c7746ba705",
+    "cleanup-join-pending-02.json": "c2a310c588b1ff7ba5c8935157cb74a319661826bc2daea98bba21299e68e0d4",
+    "cleanup-normal-lock-01.json": "4277de2fe8f3929f94fbba133b30f40bd822603e2b30a5ae9b07bd4472a8cb1b",
+    "cleanup-selector-fix-01.json": "d99a5692836fd0168f21260ec1bbcd9f006c1d48c16727610409a2a04b8db586",
+    "cleanup-selector-red-01.json": "c89f147e8a9c8a3456c596d31af6fe3b519e0eaa322f371f0b72fe12d4236cc9",
+    "cleanup-source-planning-fix-01.json": "659c33c2a47c104d93828b4af95022a70cbef507bce0ee9c656b61d43827153d",
+    "cleanup-source-planning-red-01.json": "debfb6c3001f28edeceec4144f50fc1d09045cf42f9cb16f6569719eb9869a4b"
+  },
+  "production_deltas": {
+    "production-review-02/delta.json": "878b91ecb2c9dbe32801a900563a49f433c8bbe08f387ee8d1470b69a7f35567",
+    "production-review-03/delta.json": "b8e15d6348264a213f1a6fa6c5233201c7e4f6bfd552a32d21ce803ad092941c",
+    "production-review-04/delta.json": "7157d94d83fa8420434a0b943ba8968c55b0755563bd3e44f6a54c89d15bce8d",
+    "production-review-05/delta.json": "c53e5bf79058386010df2450f70ceef8b78858cad540610200f414edfc7bcf41",
+    "production-review-06/delta.json": "470de77e64907e378f6c27d333095bfb4efb3e27dd268d47142144c11a81a633",
+    "production-review-07/delta.json": "f82859658f4ea040fa05a31f257f348d1689669bfccd028eed88b880507f0564",
+    "production-review-08/delta.json": "eb925483796b42dbf72f3b5965a89ba2ca972adedb7218dccdc9db19b901ea2e"
+  },
+  "limitation": "No missing historical exit is invented. Final validation uses fully recorded 21/22/23 and normal-lock-01; earlier real runs retain their exact own inputs."
+}

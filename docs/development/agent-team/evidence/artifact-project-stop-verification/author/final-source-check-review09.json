@@ -1,0 +1,12 @@
+{
+  "candidate": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-review09/manifest.json",
+  "manifest_sha256": "79e5eb812c0fda2a42d390a7e2703b1ebca4ce581c055e1c2a99fda1ab76914e",
+  "source16_shared_and_snapshot_match": true,
+  "owned_go_processes": [],
+  "runtime_empty": true,
+  "gofmt_exit": 0,
+  "gofmt_output": "",
+  "owned_diff_check_exit": 0,
+  "unchanged_old_unknown_test_sha256": "981df22947dfeef47040758be099a9194d2e3f61d3e27d995cab2a5e316adb66",
+  "owned_process_check": "actual /proc exe scan limited to own Go TMPDIR; fixture/MinIO resource absence belongs to last cleanup-double record"
+}

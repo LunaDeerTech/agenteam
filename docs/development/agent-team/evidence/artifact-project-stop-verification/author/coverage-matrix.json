@@ -1,0 +1,95 @@
+{
+  "final_manifest_sha256": "1c931fc6ac183643380c5c287b008bc672ad5df5d0cc7249ab7ee0ad69e72b85",
+  "new_top_count": 30,
+  "final_input_actual_verbose_pass": [
+    "TestArtifactProjectStopFirstLookupFailureRetainsConfirmation"
+  ],
+  "earlier_input_nonverbose_selected_package_pass": [
+    "TestArtifactProjectStopSourceIdentityCannotEscapeSelector",
+    "TestArtifactProjectStopSourcePlanningKeepsWholeCallPending",
+    "TestArtifactProjectStopBoundedLocalSnapshotAndABA",
+    "TestArtifactProjectStopPreWorkCancellationIsBoundedAndFair",
+    "TestArtifactProjectStopUnknownJoinCheckpointRemainsUnknown",
+    "TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel"
+  ],
+  "new_tops_not_executed": [
+    "TestArtifactProjectStopLifecycleResolverKeepsSharedGuard",
+    "TestArtifactProjectStopLifecycleUploadReadAndClose",
+    "TestArtifactProjectStopLifecycleWholeObjectWriterTail",
+    "TestArtifactProjectStopLifecycleSourceCancelTimeoutKeepsOriginalRelease",
+    "TestArtifactProjectStopLegacyConstructorLocalJoinAndForeignConservatism",
+    "TestArtifactProjectStopRejectedUploadCloseKeepsSharedGuard",
+    "TestArtifactProjectStopUnknownAdmissionNeverStartsIO",
+    "TestArtifactProjectStopUnknownSourceAndFinalPublication",
+    "TestArtifactProjectStopUnknownPreflightAndGateNeverCancel",
+    "TestArtifactProjectStopTechnicalRowsFairnessAndLegacyNative",
+    "TestArtifactProjectStopRecoveryExactGuardKillAndWriterIdentity",
+    "TestArtifactProjectStopLegacyIncompleteCommandHasNoInventedProcess",
+    "TestArtifactProjectStopDualProjectResolverAndTombstone",
+    "TestArtifactProjectStopSourceArchiveAndCompletedTargetReplay",
+    "TestArtifactProjectStopSourceGrantMustMatchOriginalActor",
+    "TestArtifactProjectStopSourceCurrentPermissionAndMapping",
+    "TestArtifactProjectStopMissingNonArtifactSourceAuthorityNeverResolves",
+    "TestArtifactProjectStopConcurrentSameKeyPreservesOriginalWork",
+    "TestArtifactProjectStopArchivePreservesCanonicalAndFencesReceipts",
+    "TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease",
+    "TestArtifactProjectStopObjectReportConservativeMatrix",
+    "TestArtifactProjectStopReadOnlyRequiresBothReceipts",
+    "TestArtifactProjectStopRejectedAuthorityHasNoSideEffects"
+  ],
+  "old_compatibility_not_executed_on_artifact_candidate": {
+    "compat_artifact_core": [
+      "TestArtifactThreeCreationPathsAndCompletedSourceReplay",
+      "TestArtifactSourceCurrentRevocationBlocksPublishAndRecoveryKeepsOriginal",
+      "TestArtifactSourceCommandUnknownAndOriginalFactRecovery",
+      "TestArtifactProspectiveCancelAndProjectCleanupDoNotRevive",
+      "TestArtifactPendingCreationCancelPreventsLaterPublication",
+      "TestArtifactAgentExecutionCurrentGateAndProvenance"
+    ],
+    "compat_artifact_projection_cleanup": [
+      "TestArtifactProjectCleanupBoundedBatchAndForeignReader",
+      "TestArtifactListLiteralCursorBindingAndCurrentPermission",
+      "TestArtifactReadUTF8BinaryImageAndAuditBoundary",
+      "TestArtifactSourceUploadReceiptAndUnboundDownloadProviders",
+      "TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown",
+      "TestArtifactFinalCleanupLateDownloadAndNewKeysCannotRevive"
+    ],
+    "compat_artifact_download": [
+      "TestArtifactDownloadCurrentAuthorizationWinsGateRace",
+      "TestArtifactDownloadIntegrityNeverDeliversCorruptWholeBody",
+      "TestArtifactDownloadDrainAndForceJoinActualStorage",
+      "TestArtifactDownloadUnopenedCloseAuditsZeroAndExpiryBlocksNew",
+      "TestArtifactDownloadForceInterruptsActualBlockedHTTPWrite",
+      "TestArtifactDownloadRealStreamRangePermissionsAndAudit",
+      "TestArtifactDownloadAuditFailureAndActualPartialWrite",
+      "TestArtifactDownloadPreviewSniffAndUnboundProvider",
+      "TestArtifactDownloadPurgeRequiresPlansPhysicalCompletionAndBoundPort",
+      "TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending"
+    ],
+    "compat_object_lifetime": [
+      "TestObjectSourceLeaseAtomicCommitAndSingleOpen",
+      "TestObjectSourceLeaseCurrentAuthorityAndCancelJoins",
+      "TestObjectSourceLeaseUploadedReceiptAndSharedPlanRejection",
+      "TestObjectSourceLeaseFailedReleaseRemainsObservableAndRetryable",
+      "TestObjectSourceLeaseUnopenedCancellationSharesShutdown",
+      "TestObjectSourceLeaseParticipatesInServiceDrainAndForce",
+      "TestObjectGracefulDrainKeepsAdmittedReaderAlive",
+      "TestObjectForceClosesRealReadAndSharesCleanupDeadline",
+      "TestObjectForceJoinsActualPreparationPipe",
+      "TestObjectForceCancelsAlreadyFreshMarkerContext",
+      "TestObjectRuntimeProbeEmptyAndSingleWorker",
+      "TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget",
+      "TestObjectRuntimeForceJoinsMainAndTransferIOInOneBudget",
+      "TestObjectProjectStopDeleteWaitsForActualIO",
+      "TestObjectProjectStopUnopenedSourceAndCrossProjectRelations"
+    ]
+  },
+  "all_stop": true,
+  "limits": [
+    "Six selected tops are inferred from exact -run selection and package exit0 without per-top verbose PASS; no rerun solely for verbosity.",
+    "The six-top package used review07, not final review08; latest source delta has pure checks and one ordinary-lock real canary.",
+    "Failed ROLLBACK/original backend persistence and new protocol tests remain unexecuted.",
+    "Foreign dead-process join Unknown not dynamically covered by author.",
+    "Object runtime/shared guard known upstream defect blocks complete integrated acceptance."
+  ]
+}

@@ -1,0 +1,18 @@
+# 正式 Artifact work 写者与共同 Project 屏障（固定输入）
+
+本记录只陈述现有正式写路径，不声称可阻止绕过所有协议的外部 SQL。尚未实现 selector 分批校验；该实现须等待卡 rev3 采纳。
+
+- `service.go:within` 从私有 control 取得 `controlLocks`，和 Owner/对象 plans/原 command 一次组成 union 并恰一次 AcquireAll / AcquireAccessPlansInTx。target Project SH 来自 controlLocks；有 work 时其 source Project SH 来自 artifactWorkLocks。Acquire 后才 observeControl 和正式当前权限/工作检查。
+- `project_work.go:registerWork` 在 within Tx 中确认源 Read grant.Matches+Check、读取 epoch并 INSERT。immutable id/project/process/kind/resource/command/source 一次 INSERT，无正式 UPDATE 改写。epoch写入内存与首次 INSERT在同 Tx，内存赋值持 service mutex。
+- `bindWorkSource` 在相同已取得 union 的业务 Tx 内更新唯一 `source_lease_id`（NULL→真实 lease 或同 ID），随后持 mutex同步 work.lease；失败/Unknown保持原 handle。
+- `joinControl` 只更新 joined/source_joined；沿所有原 writer锁并追加 artifactWorkLocks，把模式提升 EX后一次 AcquireAll。target/source Project因此皆被包含。
+- `project_lifecycle.go:stopTransaction/recoverArtifactWork` 由 cause Project EX、目标/来源 work Project SH、Authority依赖、原native与work/control record组成 union，一次Acquire，完整Authority检查后仅写撤销/游标/终态；无immutable tuple UPDATE。
+- 本地登记、退休、hint、首次work/epoch、lease/admitting、原Tx/锁union的正常变化必须进入待实现的monotonic revision；单纯最终pointer集合相等不证明无ABA。旧sourceHint纯内存保守join，已完成target-only replay在registerWork之前返回。
+- 共同cause Project EX可在最终gate决策时阻止正式相关writer并取得一致的registry snapshot。本地只读批校验释放锁后，不提供针对任何外部SQL的跨Tx原子完整DB快照保证。
+
+固定源 SHA-256：
+
+- /tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/service.go: `85d66203f2475d4b7512ac83c67363798d150d08a633bd5ef9bbc69fa44176b9`
+- /tmp/agenteam-artifact-stop-author-y597q6vl/production-review-04/internal/central/artifact/project_work.go: `633b299ff95d7135901919225e0079dc7debdd905c6f6e8555dbd283cc71e440`
+- /tmp/agenteam-artifact-stop-author-y597q6vl/production-review-03/internal/central/artifact/project_lifecycle.go: `264bd4c60c8b56f82c98ad5ac6c2714b5b6d053e3e3461d1f527038c5040be2b`
+- /tmp/agenteam-artifact-stop-author-y597q6vl/production-review-04/internal/central/artifact/lifecycle.go: `9073b198614fea015a5f99ecb173d6c9e207fec73f536ceacb9e64a849872e39`

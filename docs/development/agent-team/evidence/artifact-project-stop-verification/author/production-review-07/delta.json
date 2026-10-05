@@ -1,0 +1,17 @@
+{
+  "prior_delta_sha256": "470de77e64907e378f6c27d333095bfb4efb3e27dd268d47142144c11a81a633",
+  "files": {
+    "internal/central/artifact/lifecycle.go": {
+      "before": "a27ff1dafcd41d422785819e8aeb966b71d0703e368172096ab56579ca207bbb",
+      "after": "10a95b174a878e49eaa5853db65f0b30a2cbabdcf07d1e74c6f719bf7917abb4"
+    },
+    "internal/central/artifact/project_lifecycle.go": {
+      "before": "b7a898cc8904f3ca71f6eb8bc7e96b9fcab5b637df9fa402f684851b187a94bb",
+      "after": "c805dd892c64abced2f3cb18c0c97bbbecd44ad63f2997c8e46587ca1972fcc6"
+    },
+    "internal/central/artifact/project_lifecycle_test.go": {
+      "before": "1cf78091857322d1a7c2c7195d0cfe1e75b848ce5dee625661ee71c30c3489b0",
+      "after": "4ed8e6de6e60e4032ca499f08bc1bc923d3bf57b0858a5588fa69a1800b4aaea"
+    }
+  }
+}

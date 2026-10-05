@@ -1,0 +1,244 @@
+{
+  "base": "6658a6cb1f29299521773bc8dc86b2f607b8c809",
+  "final_manifest": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/manifest.json",
+  "final_manifest_sha256": "1c931fc6ac183643380c5c287b008bc672ad5df5d0cc7249ab7ee0ad69e72b85",
+  "coverage_sha256": "b38ccfc7ca260772810456c7172abdfe3eb33bbf2ca62e5653338bca31b74272",
+  "new_count": 23,
+  "old_count": 37,
+  "groups": [
+    {
+      "order": 1,
+      "label": "remaining-new_core-01",
+      "count": 5,
+      "names": [
+        "TestArtifactProjectStopArchivePreservesCanonicalAndFencesReceipts",
+        "TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease",
+        "TestArtifactProjectStopObjectReportConservativeMatrix",
+        "TestArtifactProjectStopReadOnlyRequiresBothReceipts",
+        "TestArtifactProjectStopRejectedAuthorityHasNoSideEffects"
+      ],
+      "pattern": "^(TestArtifactProjectStopArchivePreservesCanonicalAndFencesReceipts|TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease|TestArtifactProjectStopObjectReportConservativeMatrix|TestArtifactProjectStopReadOnlyRequiresBothReceipts|TestArtifactProjectStopRejectedAuthorityHasNoSideEffects)$",
+      "cost_basis": "5 tops: archive/receipt and real read/source stop, 6 Object-result variants, 4 current-authority variants; no process launch or >64 setup.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactProjectStopArchivePreservesCanonicalAndFencesReceipts|TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease|TestArtifactProjectStopObjectReportConservativeMatrix|TestArtifactProjectStopReadOnlyRequiresBothReceipts|TestArtifactProjectStopRejectedAuthorityHasNoSideEffects)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    },
+    {
+      "order": 2,
+      "label": "remaining-new_source-01",
+      "count": 6,
+      "names": [
+        "TestArtifactProjectStopDualProjectResolverAndTombstone",
+        "TestArtifactProjectStopSourceArchiveAndCompletedTargetReplay",
+        "TestArtifactProjectStopSourceGrantMustMatchOriginalActor",
+        "TestArtifactProjectStopSourceCurrentPermissionAndMapping",
+        "TestArtifactProjectStopMissingNonArtifactSourceAuthorityNeverResolves",
+        "TestArtifactProjectStopConcurrentSameKeyPreservesOriginalWork"
+      ],
+      "pattern": "^(TestArtifactProjectStopDualProjectResolverAndTombstone|TestArtifactProjectStopSourceArchiveAndCompletedTargetReplay|TestArtifactProjectStopSourceGrantMustMatchOriginalActor|TestArtifactProjectStopSourceCurrentPermissionAndMapping|TestArtifactProjectStopMissingNonArtifactSourceAuthorityNeverResolves|TestArtifactProjectStopConcurrentSameKeyPreservesOriginalWork)$",
+      "cost_basis": "6 tops: normal dual-project/source current grant/replay and concurrent key barriers; bounded 3s barrier checks.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactProjectStopDualProjectResolverAndTombstone|TestArtifactProjectStopSourceArchiveAndCompletedTargetReplay|TestArtifactProjectStopSourceGrantMustMatchOriginalActor|TestArtifactProjectStopSourceCurrentPermissionAndMapping|TestArtifactProjectStopMissingNonArtifactSourceAuthorityNeverResolves|TestArtifactProjectStopConcurrentSameKeyPreservesOriginalWork)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    },
+    {
+      "order": 3,
+      "label": "remaining-new_lifecycle-01",
+      "count": 6,
+      "names": [
+        "TestArtifactProjectStopLifecycleResolverKeepsSharedGuard",
+        "TestArtifactProjectStopLifecycleUploadReadAndClose",
+        "TestArtifactProjectStopLifecycleWholeObjectWriterTail",
+        "TestArtifactProjectStopLifecycleSourceCancelTimeoutKeepsOriginalRelease",
+        "TestArtifactProjectStopLegacyConstructorLocalJoinAndForeignConservatism",
+        "TestArtifactProjectStopRejectedUploadCloseKeepsSharedGuard"
+      ],
+      "pattern": "^(TestArtifactProjectStopLifecycleResolverKeepsSharedGuard|TestArtifactProjectStopLifecycleUploadReadAndClose|TestArtifactProjectStopLifecycleWholeObjectWriterTail|TestArtifactProjectStopLifecycleSourceCancelTimeoutKeepsOriginalRelease|TestArtifactProjectStopLegacyConstructorLocalJoinAndForeignConservatism|TestArtifactProjectStopRejectedUploadCloseKeepsSharedGuard)$",
+      "cost_basis": "6 tops: actual resolver/body/writer/source callback tails and legacy constructor; 60/80ms shutdown windows, existing callback cleanup budgets unchanged.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactProjectStopLifecycleResolverKeepsSharedGuard|TestArtifactProjectStopLifecycleUploadReadAndClose|TestArtifactProjectStopLifecycleWholeObjectWriterTail|TestArtifactProjectStopLifecycleSourceCancelTimeoutKeepsOriginalRelease|TestArtifactProjectStopLegacyConstructorLocalJoinAndForeignConservatism|TestArtifactProjectStopRejectedUploadCloseKeepsSharedGuard)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    },
+    {
+      "order": 4,
+      "label": "remaining-new-recovery-unknown-01",
+      "count": 3,
+      "names": [
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO",
+        "TestArtifactProjectStopUnknownSourceAndFinalPublication",
+        "TestArtifactProjectStopUnknownPreflightAndGateNeverCancel"
+      ],
+      "pattern": "^(TestArtifactProjectStopUnknownAdmissionNeverStartsIO|TestArtifactProjectStopUnknownSourceAndFinalPublication|TestArtifactProjectStopUnknownPreflightAndGateNeverCancel)$",
+      "cost_basis": "3 pre-existing tops: 9 admission variants + 2 source/publication phases + 2 stop phases. Existing commit proxy/semantics only; paused draft excluded. Keep apart from process/scan recovery.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactProjectStopUnknownAdmissionNeverStartsIO|TestArtifactProjectStopUnknownSourceAndFinalPublication|TestArtifactProjectStopUnknownPreflightAndGateNeverCancel)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    },
+    {
+      "order": 5,
+      "label": "remaining-new-recovery-native-01",
+      "count": 3,
+      "names": [
+        "TestArtifactProjectStopTechnicalRowsFairnessAndLegacyNative",
+        "TestArtifactProjectStopRecoveryExactGuardKillAndWriterIdentity",
+        "TestArtifactProjectStopLegacyIncompleteCommandHasNoInventedProcess"
+      ],
+      "pattern": "^(TestArtifactProjectStopTechnicalRowsFairnessAndLegacyNative|TestArtifactProjectStopRecoveryExactGuardKillAndWriterIdentity|TestArtifactProjectStopLegacyIncompleteCommandHasNoInventedProcess)$",
+      "cost_basis": "3 pre-existing tops: >64 technical/native rows, exact guard child with original 25s process context, legacy incomplete rows. No extra network method.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactProjectStopTechnicalRowsFairnessAndLegacyNative|TestArtifactProjectStopRecoveryExactGuardKillAndWriterIdentity|TestArtifactProjectStopLegacyIncompleteCommandHasNoInventedProcess)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    },
+    {
+      "order": 6,
+      "label": "remaining-compat_artifact_core-01",
+      "count": 6,
+      "names": [
+        "TestArtifactThreeCreationPathsAndCompletedSourceReplay",
+        "TestArtifactSourceCurrentRevocationBlocksPublishAndRecoveryKeepsOriginal",
+        "TestArtifactSourceCommandUnknownAndOriginalFactRecovery",
+        "TestArtifactProspectiveCancelAndProjectCleanupDoNotRevive",
+        "TestArtifactPendingCreationCancelPreventsLaterPublication",
+        "TestArtifactAgentExecutionCurrentGateAndProvenance"
+      ],
+      "pattern": "^(TestArtifactThreeCreationPathsAndCompletedSourceReplay|TestArtifactSourceCurrentRevocationBlocksPublishAndRecoveryKeepsOriginal|TestArtifactSourceCommandUnknownAndOriginalFactRecovery|TestArtifactProspectiveCancelAndProjectCleanupDoNotRevive|TestArtifactPendingCreationCancelPreventsLaterPublication|TestArtifactAgentExecutionCurrentGateAndProvenance)$",
+      "cost_basis": "6 old tops: normal creation/source authorization, original unknown-source recovery, prospective cancellation and agent provenance.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactThreeCreationPathsAndCompletedSourceReplay|TestArtifactSourceCurrentRevocationBlocksPublishAndRecoveryKeepsOriginal|TestArtifactSourceCommandUnknownAndOriginalFactRecovery|TestArtifactProspectiveCancelAndProjectCleanupDoNotRevive|TestArtifactPendingCreationCancelPreventsLaterPublication|TestArtifactAgentExecutionCurrentGateAndProvenance)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    },
+    {
+      "order": 7,
+      "label": "remaining-compat_artifact_projection_cleanup-01",
+      "count": 6,
+      "names": [
+        "TestArtifactProjectCleanupBoundedBatchAndForeignReader",
+        "TestArtifactListLiteralCursorBindingAndCurrentPermission",
+        "TestArtifactReadUTF8BinaryImageAndAuditBoundary",
+        "TestArtifactSourceUploadReceiptAndUnboundDownloadProviders",
+        "TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown",
+        "TestArtifactFinalCleanupLateDownloadAndNewKeysCannotRevive"
+      ],
+      "pattern": "^(TestArtifactProjectCleanupBoundedBatchAndForeignReader|TestArtifactListLiteralCursorBindingAndCurrentPermission|TestArtifactReadUTF8BinaryImageAndAuditBoundary|TestArtifactSourceUploadReceiptAndUnboundDownloadProviders|TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown|TestArtifactFinalCleanupLateDownloadAndNewKeysCannotRevive)$",
+      "cost_basis": "6 old tops: includes original 101-real-create setup with fixed 1m setup/2m proxy budget; projection and final cleanup separate from download socket suite.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactProjectCleanupBoundedBatchAndForeignReader|TestArtifactListLiteralCursorBindingAndCurrentPermission|TestArtifactReadUTF8BinaryImageAndAuditBoundary|TestArtifactSourceUploadReceiptAndUnboundDownloadProviders|TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown|TestArtifactFinalCleanupLateDownloadAndNewKeysCannotRevive)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    },
+    {
+      "order": 8,
+      "label": "remaining-compat_artifact_download-01",
+      "count": 10,
+      "names": [
+        "TestArtifactDownloadCurrentAuthorizationWinsGateRace",
+        "TestArtifactDownloadIntegrityNeverDeliversCorruptWholeBody",
+        "TestArtifactDownloadDrainAndForceJoinActualStorage",
+        "TestArtifactDownloadUnopenedCloseAuditsZeroAndExpiryBlocksNew",
+        "TestArtifactDownloadForceInterruptsActualBlockedHTTPWrite",
+        "TestArtifactDownloadRealStreamRangePermissionsAndAudit",
+        "TestArtifactDownloadAuditFailureAndActualPartialWrite",
+        "TestArtifactDownloadPreviewSniffAndUnboundProvider",
+        "TestArtifactDownloadPurgeRequiresPlansPhysicalCompletionAndBoundPort",
+        "TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending"
+      ],
+      "pattern": "^(TestArtifactDownloadCurrentAuthorizationWinsGateRace|TestArtifactDownloadIntegrityNeverDeliversCorruptWholeBody|TestArtifactDownloadDrainAndForceJoinActualStorage|TestArtifactDownloadUnopenedCloseAuditsZeroAndExpiryBlocksNew|TestArtifactDownloadForceInterruptsActualBlockedHTTPWrite|TestArtifactDownloadRealStreamRangePermissionsAndAudit|TestArtifactDownloadAuditFailureAndActualPartialWrite|TestArtifactDownloadPreviewSniffAndUnboundProvider|TestArtifactDownloadPurgeRequiresPlansPhysicalCompletionAndBoundPort|TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending)$",
+      "cost_basis": "10 old tops: stream/range/current permission, real storage/socket Force, purge and original three download Unknown phases. Existing per-operation 1-3s barriers unchanged.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactDownloadCurrentAuthorizationWinsGateRace|TestArtifactDownloadIntegrityNeverDeliversCorruptWholeBody|TestArtifactDownloadDrainAndForceJoinActualStorage|TestArtifactDownloadUnopenedCloseAuditsZeroAndExpiryBlocksNew|TestArtifactDownloadForceInterruptsActualBlockedHTTPWrite|TestArtifactDownloadRealStreamRangePermissionsAndAudit|TestArtifactDownloadAuditFailureAndActualPartialWrite|TestArtifactDownloadPreviewSniffAndUnboundProvider|TestArtifactDownloadPurgeRequiresPlansPhysicalCompletionAndBoundPort|TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    },
+    {
+      "order": 9,
+      "label": "remaining-compat-object-source-01",
+      "count": 6,
+      "names": [
+        "TestObjectSourceLeaseAtomicCommitAndSingleOpen",
+        "TestObjectSourceLeaseCurrentAuthorityAndCancelJoins",
+        "TestObjectSourceLeaseUploadedReceiptAndSharedPlanRejection",
+        "TestObjectSourceLeaseFailedReleaseRemainsObservableAndRetryable",
+        "TestObjectSourceLeaseUnopenedCancellationSharesShutdown",
+        "TestObjectSourceLeaseParticipatesInServiceDrainAndForce"
+      ],
+      "pattern": "^(TestObjectSourceLeaseAtomicCommitAndSingleOpen|TestObjectSourceLeaseCurrentAuthorityAndCancelJoins|TestObjectSourceLeaseUploadedReceiptAndSharedPlanRejection|TestObjectSourceLeaseFailedReleaseRemainsObservableAndRetryable|TestObjectSourceLeaseUnopenedCancellationSharesShutdown|TestObjectSourceLeaseParticipatesInServiceDrainAndForce)$",
+      "cost_basis": "6 old SourceLease tops, failure/retry/cancel/Force independent of general Runtime and S2 stop scenarios.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestObjectSourceLeaseAtomicCommitAndSingleOpen|TestObjectSourceLeaseCurrentAuthorityAndCancelJoins|TestObjectSourceLeaseUploadedReceiptAndSharedPlanRejection|TestObjectSourceLeaseFailedReleaseRemainsObservableAndRetryable|TestObjectSourceLeaseUnopenedCancellationSharesShutdown|TestObjectSourceLeaseParticipatesInServiceDrainAndForce)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    },
+    {
+      "order": 10,
+      "label": "remaining-compat-object-runtime-stop-01",
+      "count": 9,
+      "names": [
+        "TestObjectGracefulDrainKeepsAdmittedReaderAlive",
+        "TestObjectForceClosesRealReadAndSharesCleanupDeadline",
+        "TestObjectForceJoinsActualPreparationPipe",
+        "TestObjectForceCancelsAlreadyFreshMarkerContext",
+        "TestObjectRuntimeProbeEmptyAndSingleWorker",
+        "TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget",
+        "TestObjectRuntimeForceJoinsMainAndTransferIOInOneBudget",
+        "TestObjectProjectStopDeleteWaitsForActualIO",
+        "TestObjectProjectStopUnopenedSourceAndCrossProjectRelations"
+      ],
+      "pattern": "^(TestObjectGracefulDrainKeepsAdmittedReaderAlive|TestObjectForceClosesRealReadAndSharesCleanupDeadline|TestObjectForceJoinsActualPreparationPipe|TestObjectForceCancelsAlreadyFreshMarkerContext|TestObjectRuntimeProbeEmptyAndSingleWorker|TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|TestObjectRuntimeForceJoinsMainAndTransferIOInOneBudget|TestObjectProjectStopDeleteWaitsForActualIO|TestObjectProjectStopUnopenedSourceAndCrossProjectRelations)$",
+      "cost_basis": "9 old tops: 4 generic lifetime + 3 Runtime + 2 S2 actual-stop. Known upstream guard defect must be recorded/attributed, never patched here or softened.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestObjectGracefulDrainKeepsAdmittedReaderAlive|TestObjectForceClosesRealReadAndSharesCleanupDeadline|TestObjectForceJoinsActualPreparationPipe|TestObjectForceCancelsAlreadyFreshMarkerContext|TestObjectRuntimeProbeEmptyAndSingleWorker|TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|TestObjectRuntimeForceJoinsMainAndTransferIOInOneBudget|TestObjectProjectStopDeleteWaitsForActualIO|TestObjectProjectStopUnopenedSourceAndCrossProjectRelations)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    }
+  ],
+  "scope": "Existing frozen tests only; no paused draft/new protocol method; no unmodified-source recompilation preflight. Docker window requires explicit root handoff.",
+  "failure_policy": "Preserve first unexpected failure input/raw output, release actual test barriers and exact owned resources, diagnose within 16; any source change freezes delta and only affected checks. Known Object defect remains upstream, no Object/old assertion/budget edits.",
+  "driver": "/tmp/agenteam-artifact-stop-author-y597q6vl/run_fixture_verbose.py",
+  "cwd": "/tmp/agenteam-artifact-stop-author-y597q6vl/snapshot"
+}

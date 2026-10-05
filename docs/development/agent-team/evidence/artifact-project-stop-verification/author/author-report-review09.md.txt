@@ -1,0 +1,66 @@
+# Artifact project stop：作者自测续交（review09）
+
+本增补替代旧报告中“23新/37旧未执行”的当时状态，不覆盖原报告、矩阵、失败日志或固定源副本。原声明的 **30 个新 top 与 37 个旧兼容 top 现在全部有通过证据**。其中最终 review09 实际执行35个 distinct top；复用 review08 的26个、review07 的6个。后6个仍只按精确选择+包 exit0 记通过，没有补造逐top/subtest verbose PASS。独立采纳与完整组合边界见下文。
+
+最终16源/测试固定副本为 `candidate-review09/`，manifest SHA-256 **79e5eb812c0fda2a42d390a7e2703b1ebca4ce581c055e1c2a99fda1ab76914e**。执行输入一直是 `6658a6cb1f29299521773bc8dc86b2f607b8c809` archive + 本卡16，未消费活动Object/Project/app/D09源；没有新增依赖、迁移、脚本、旧测试或第17业务路径，无Git写操作。共享16和snapshot末核完全一致。
+
+## publication兼容修复与gate测试校准
+
+在review08完整续测中，两次原组失败均保留：`remaining-new-recovery-unknown-01`（新publication、gate失败）和 `remaining-compat_artifact_core-01`（旧publication失败）。原fixture已清零后才进行只读归因；没有无诊断重跑或改旧断言。V限定报告为 `/workspace/agenteam-artifact-unknown-review-v-irr6g8hc/review.md`，SHA `7a2a3210a100cfb3d6340ae417c4b2770b0e53e62929610ea753772c1177bcb1`。
+
+review09只改2生产+1unit+1新integration文件，delta SHA **0c6b82ba97c48c56fa9f2ff9b6f7f2c05dd5b5f2fbbdf8de9e542dbb8d8cb1c0**。正式 `within` 结果为Unknown时保存该状态；公共调用仍先完成真实body/Discard尾部，随后交付原Unknown并保留完整control、原Tx/union/source/prepared责任。此时不再同步追加Artifact确认预算，也不新增后台worker或goroutine。原Request、同command恢复或Drain在各自预算内确认，未真join不能注销。Completed replay仍保持target-only，它本身不承诺自动退休旧Unknown control；后续显式Drain/Request承担收束。Committed与NotCommitted策略未改。
+
+新旧publication的原3秒断言均未移动或延长。修后透明观测到真实Discard耗时2.004773423s，公共Unknown在原COMMIT barrier后2.004977697s交付；随后原writer未终局时Drain仍失败、重放不重复I/O、放行后收敛。旧base本身也有cancelSource 2秒，且原红未捕获等待栈；因此本报告不把静态“2+2”宣称两次原红唯一动态根因。
+
+新gate测试按既有四游标校准，共用首次原30秒context、固定至多4次Request，没有sleep或循环到绿。修后日志明确原gate提交保存cursor1且原context未cancel；4轮cursor2→3→0→1，全部Pending，第4轮取消精确原context；resolver真实仍未返回时不能Stopped，放行后原失败结果与最终Stopped都保留。
+
+修后 `unknown-compat-fix-01` 新2+旧1共3top/6sub全部显式PASS（Objects22.855s），`remaining-new-admission-review09-01` 三创建入口×三结果共1top/9sub显式PASS（12.267s）。旧 `artifact_unknown_test.go` 与6658逐字相同，SHA `981df22947dfeef47040758be099a9194d2e3f61d3e27d995cab2a5e316adb66`。
+
+## 精确覆盖及原命令
+
+完整逐top归属与12轮原结果在 `coverage-matrix-review09.json`，SHA **a4bd6a11f2eb5bfbb7fc8b8729025171ab09ac74802581b64b2790ca5d74162f**。67 distinct top中61有逐top显式PASS，另6是历史非verbose六选包通过；可直接从本轮原日志去重得到55个显式PASS的sub名称，不把未verbose子例数补造。review09只改变ordinary Unknown交付时的确认调度；直接受影响的准入/源捕获/发布Unknown及原旧恢复已在review09复验，权限、正常已确认路径、selector/identity/fairness算法和NotCommitted确认不变。该复用依据由独立V最终判断。
+
+以下每个标签都有 `input-<标签>.json`（实际argv/env/16SHA）、`logs/<标签>.log`及`.exit`、`cleanup-<标签>.json`和`cleanup-double-<标签>.json`。均走原 `sh scripts/test-objects.sh -run <精确selector>`，Go1.27.1、race/count1/每包6m原预算，GOFLAGS=`-mod=readonly -v`。fixture都是自有nonce/labels/exactID，不接触原dev infra。
+
+| 标签 | 输入 | top PASS/FAIL | sub PASS/FAIL | Objects秒 / exit |
+| --- | --- | --- | --- | --- |
+| `remaining-new_core-01` | review08 | 5/0 | 12/0 | 19.778 / 0 |
+| `remaining-new_source-01` | review08 | 6/0 | 4/0 | 11.896 / 0 |
+| `remaining-new_lifecycle-01` | review08 | 6/0 | 2/0 | 11.134 / 0 |
+| `remaining-new-recovery-unknown-01` | review08 | 1/2 | 11/2 | 30.249 / 1 |
+| `remaining-new-recovery-native-01` | review08 | 3/0 | 0/0 | 5.576 / 0 |
+| `remaining-compat_artifact_core-01` | review08 | 5/1 | 1/1 | 25.022 / 1 |
+| `remaining-compat_artifact_projection_cleanup-01` | review09 | 6/0 | 4/0 | 30.849 / 0 |
+| `remaining-compat_artifact_download-01` | review09 | 10/0 | 8/0 | 25.473 / 0 |
+| `remaining-compat-object-source-01` | review09 | 6/0 | 5/0 | 10.781 / 0 |
+| `remaining-compat-object-runtime-stop-01` | review09 | 9/0 | 5/0 | 24.433 / 0 |
+| `unknown-compat-fix-01` | review09 | 3/0 | 6/0 | 22.855 / 0 |
+| `remaining-new-admission-review09-01` | review09 | 1/0 | 9/0 | 12.267 / 0 |
+
+历史正常锁canary `normal-lock-01` 及六选包 `selector-fix-01` 保留原证据：前者review08唯一top显式PASS；后者review07包exit0、25.454s、非verbose。更早F1原单元红、F2/F3原红、source-planning/selector原红与修复，以及编译失败和错误driver参数都在未改的 `author-report.md` / `evidence-index.json` 中，不删也不改称一次全绿。
+
+## 最终pure与输入末核
+
+`input-pure-24.json` SHA **c1d0dd12b5c205bf2c474f86acf80e9e9a79067a2429c91f87cc9291fa707694** 保存最终16与实际argv/env。以下全部exit0：
+
+- `go test -race -count=1 ./internal/central/artifact/...`：artifact1.159s、contract1.015s（race24原日志）。
+- `go vet -tags=integration ./internal/central/artifact/... ./tests/objects`（vet24）。
+- `go test -race -tags=integration -run ^$ ./tests/objects`：编译通过1.017s（compile24；明确无真实测试）。
+
+Go为 `/workspace/toolchains/go1.27.1/bin/go`，GOTOOLCHAIN=local、GOENV=off、GOWORK=off、GOPROXY=off，锁定modcache不改module。GOCACHE/TMPDIR在自有 `/workspace/agenteam-artifact-stop-build-y597q6vl/`。旧两cmd build23均在review08通过；review09没有把未重跑的cmd build冒称最终输入实际构建，最新API未改，本轮执行卡定pure/race/vet/compile。
+
+`final-source-check-review09.json` SHA **c4ffa143984bb2e256ebd171040ec7678b1d2199b0f34e7b77c186556ce5f775**：shared/snapshot16一致、gofmt-l空、限定16的git diff --check=0、旧Unknown测试未变，自有Go TMPDIR为空且实际/proc扫描无所属Go进程。
+
+## 边界与未验证
+
+- 上游Object Runtime/guard提前退出缺陷仍未修复整合；本轮旧Runtime/S2用例通过不等于这个另有真实反例的缺陷消失。完整Object/Artifact共享guard组合仍blocked；无Object修复或app装配修改。
+- failed ROLLBACK后原backend/部分Acquire仍活的动态场景仍未执行；暂停draft未进入最终16、没有换方法运行。普通holder canary与正式Store结果pure不能代替该证明。
+- 之前真实Unknown与后续NotCommitted混合聚合目前由pure覆盖，没有新增真实混合矩阵。
+- foreign recovery的独立补差归V：`/workspace/agenteam-artifact-review09-v-qk_5bouy/probe-real-01/report.md` SHA `710cef3a970f6f3ac0bcd3262f87bd8fa03217a7cbf51fd369d3bffd18f88734`。它是实际Committed join后由正式Store端口模拟Unknown，并用另一笔普通SH阻挡后续完整EX确认；不冒称网络丢ACK或原writer仍活的动态证明。
+- 后继Project/app全程绑定、来源router、Cleaner最终退休及完整D05/D08交付不在本卡。
+
+## 资源与冻结交接
+
+12轮续跑逐轮都保存真实4容器/3网络两次exactID absent，原2容器/4网络ID/name/labels一致，runtime/ownedprocess空；未清理他人资源或证据。末轮 `cleanup-double-remaining-compat-object-runtime-stop-01.json` SHA **a4549aec10265eabd2a401e7666a01ea1cde6512ef0eaf75eddd1f14f7206caa**。Docker窗口已正式交回root，所有Go/Docker命令结束，16源/snapshot停止写入。
+
+全部续跑原输入/日志/exit/二清、最终pure与源码delta的轻量增补索引：`evidence-addendum-review09.json` SHA **29d858a7e3e96d65a9c7675a86c9338f13a768e2a97493838b385c95d9dfc3de**；它引用原52日志索引 `fd624c41…`，没有复制全树或覆盖旧证据。最终本域采纳/整合仍交root与独立V。

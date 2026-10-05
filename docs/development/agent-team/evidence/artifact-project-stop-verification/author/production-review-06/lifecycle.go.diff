@@ -1,0 +1,21 @@
+--- before/internal/central/artifact/lifecycle.go
++++ after/internal/central/artifact/lifecycle.go
+@@ -20,6 +20,7 @@
+ 	ctx                context.Context
+ 	cancel             context.CancelFunc
+ 	returned, settling bool
++	stopCancelled      bool
+ 	settleDone         chan struct{}
+ 	settleErr          error
+ 	cleanupCancel      context.CancelFunc
+@@ -141,6 +142,10 @@
+ 	if !r.controls[p] {
+ 		r.mu.Unlock()
+ 		return
++	}
++	if !p.stopCancelled {
++		p.stopCancelled = true
++		r.localRevision++
+ 	}
+ 	p.cancel()
+ 	body := p.body

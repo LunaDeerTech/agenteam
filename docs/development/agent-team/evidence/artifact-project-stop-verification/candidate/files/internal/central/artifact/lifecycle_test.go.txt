@@ -1,0 +1,196 @@
+package artifact
+
+import (
+	"context"
+	"io"
+	"sync"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+)
+
+func producerFixture() *Service {
+	r := &serviceState{controls: map[*producerControl]bool{}, changed: make(chan struct{}), leases: map[oc.LeaseID]oc.SourceLease{}}
+	return &Service{func() *serviceState { return r }}
+}
+func testProject(t *testing.T) identity.ProjectID {
+	t.Helper()
+	v, e := foundation.NewID[identity.Project]()
+	if e != nil {
+		t.Fatal(e)
+	}
+	return v
+}
+func waitProducer(t *testing.T, ch <-chan struct{}) {
+	t.Helper()
+	select {
+	case <-ch:
+	case <-time.After(time.Second):
+		t.Fatal("registered producer barrier not reached")
+	}
+}
+
+type heldProducerBody struct {
+	entered, release chan struct{}
+	once             sync.Once
+}
+
+func (b *heldProducerBody) Read([]byte) (int, error) { return 0, io.EOF }
+func (b *heldProducerBody) Close() error {
+	b.once.Do(func() { close(b.entered) })
+	<-b.release
+	return nil
+}
+func TestArtifactProducerForceWaitsForActualClose(t *testing.T) {
+	s := producerFixture()
+	p, err := s.beginProducer(context.Background(), testProject(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := &heldProducerBody{entered: make(chan struct{}), release: make(chan struct{})}
+	owned := s.ownBody(p, body)
+	returned := make(chan struct{})
+	go func() { _ = owned.Close(); s.finishProducer(p); close(returned) }()
+	waitProducer(t, body.entered)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Millisecond)
+	defer cancel()
+	if err = s.Force(ctx); err == nil || s.Joined() {
+		t.Fatal("Force forgot a still executing Close", err)
+	}
+	select {
+	case <-returned:
+		t.Fatal("producer returned before the underlying close")
+	default:
+	}
+	close(body.release)
+	waitProducer(t, returned)
+	joined, done := context.WithTimeout(context.Background(), time.Second)
+	defer done()
+	if err = s.Drain(joined); err != nil || !s.Joined() {
+		t.Fatal("actual Close did not release registry", err)
+	}
+}
+
+type heldSourceCancel struct {
+	oc.SourceReads
+	entered, release chan struct{}
+	once             sync.Once
+}
+
+func (s *heldSourceCancel) CancelSourceLease(context.Context, oc.SourceLease) error {
+	s.once.Do(func() { close(s.entered) })
+	<-s.release
+	return nil
+}
+func TestArtifactProducerCleanupTimeoutRetainsWholeCall(t *testing.T) {
+	s := producerFixture()
+	source := &heldSourceCancel{entered: make(chan struct{}), release: make(chan struct{})}
+	s.state().reads = source
+	p, err := s.beginProducer(context.Background(), testProject(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, _ := foundation.NewID[oc.Lease]()
+	lease, _ := oc.NewSourceLease(oc.NewSourceIssuer(), id)
+	s.ownSource(p, lease)
+	returned := make(chan struct{})
+	go func() { s.finishProducer(p); close(returned) }()
+	waitProducer(t, source.entered)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Millisecond)
+	defer cancel()
+	start := time.Now()
+	if err = s.Force(ctx); err == nil || s.Joined() {
+		t.Fatal("source callback was treated as joined", err)
+	}
+	if time.Since(start) > 250*time.Millisecond {
+		t.Fatal("Force waited past its budget for an uncooperative callback")
+	}
+	close(source.release)
+	waitProducer(t, returned)
+	drain, done := context.WithTimeout(context.Background(), time.Second)
+	defer done()
+	if err = s.Drain(drain); err != nil || !s.Joined() {
+		t.Fatal(err)
+	}
+}
+func TestArtifactProducerAdmissionAndProjectCancellation(t *testing.T) {
+	s := producerFixture()
+	a, err := s.beginProducer(context.Background(), testProject(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := s.beginProducer(context.Background(), testProject(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	s.cancelProducer(a)
+	if a.ctx.Err() == nil || b.ctx.Err() != nil {
+		t.Fatal("one project cancelled another producer")
+	}
+	ctx, cancel := context.WithTimeout(context.Background(), 20*time.Millisecond)
+	defer cancel()
+	if err = s.Drain(ctx); err == nil || b.ctx.Err() != nil {
+		t.Fatal("Drain cancelled an admitted call", err)
+	}
+	s.StopAdmission()
+	if _, err = s.beginProducer(context.Background(), testProject(t)); err == nil {
+		t.Fatal("admitted after StopAdmission")
+	}
+	s.finishProducer(a)
+	s.finishProducer(b)
+	if !s.Joined() {
+		t.Fatal("ended independent producers still owned")
+	}
+	var wg sync.WaitGroup
+	for range 16 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			if _, err := s.beginProducer(context.Background(), identity.ProjectID{}); err == nil {
+				t.Error("shutdown admission race")
+			}
+		}()
+	}
+	wg.Wait()
+}
+
+func TestArtifactRejectedUploadStillJoinsActualClose(t *testing.T) {
+	for _, kind := range []string{"stopped", "cancelled_context"} {
+		t.Run(kind, func(t *testing.T) {
+			s := producerFixture()
+			s.StopAdmission()
+			ctx := context.Background()
+			if kind == "cancelled_context" {
+				var cancel context.CancelFunc
+				ctx, cancel = context.WithCancel(ctx)
+				cancel()
+			}
+			body := &heldProducerBody{entered: make(chan struct{}), release: make(chan struct{})}
+			var open sync.Once
+			defer open.Do(func() { close(body.release) })
+			returned := make(chan struct{})
+			go func() { _, _ = s.UploadPayload(ctx, ac.Invocation{}, ac.UploadTarget{}, body); close(returned) }()
+			waitProducer(t, body.entered)
+			if s.Joined() {
+				t.Error("rejected UploadPayload Close still running while Joined=true")
+			}
+			budget, cancel := context.WithTimeout(context.Background(), 30*time.Millisecond)
+			err := s.Force(budget)
+			cancel()
+			if err == nil {
+				t.Error("Force succeeded before rejected upload body.Close returned")
+			}
+			open.Do(func() { close(body.release) })
+			waitProducer(t, returned)
+			budget, cancel = context.WithTimeout(context.Background(), time.Second)
+			defer cancel()
+			if err = s.Drain(budget); err != nil || !s.Joined() {
+				t.Fatal("released rejected body retained registry", err)
+			}
+		})
+	}
+}

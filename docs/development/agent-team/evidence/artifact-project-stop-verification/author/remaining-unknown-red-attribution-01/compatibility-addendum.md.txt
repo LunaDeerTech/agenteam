@@ -1,0 +1,11 @@
+# 旧兼容首红补充
+
+仍固定 candidate-final 1c931fc6；第6组 old compat core 6 top 里 5 通过，旧 TestArtifactSourceCommandUnknownAndOriginalFactRecovery 的 source_capture 通过、publication 在 artifact_unknown_test.go:80 的原3秒返回等待失败。Objects 25.022s，driver 51.697s，exit1；后4组停止。二次4c3n exact absent、原2c4n不变、runtime/process0，16输入未变。
+
+旧测试没有按Tx序号猜 publication：artifactCommitArm 在真实 Audit.AppendInTx 成功且 action=ArtifactCreate 时 arm。原输入/日志/二清精确路径SHA见 compatibility-evidence.json；原5top通过复用，不混称整组通过。
+
+只读基线对照：6658a6c 的 CreateFromSource 已有 Object.DiscardPrepared defer；成功读取后 source lease 的实际 EOF/release 已完成，旧 cancelSource 对该lease通常立即返回。新增 finishProducer 才在这些真实尾部之后增加全union确认2秒的同步等待。因此只给新test延迟起算不能闭合旧合法API兼容，旧断言不在可改范围。
+
+最窄产品方向待root/V裁定：在确切原Store结果为Unknown时，公共返回与已经登记的后续确认等待分离。所有外部body.Close/Discard当前仍先真实结束；随后在同registry mutex内标记returned并登记现有settling worker，再让Unknown返回，不叠加额外同步2秒。worker沿原单次2秒或Force剩余ctx，完整原Tx/union确认前control保留；强制取消、回调不合作、确认失败皆不删。正常Committed与NotCommitted路径可保持现行同步策略，原业务Unknown/Attempt/Cause不改。此为原scope lifecycle/service内的建议，不是已实施，不新增后台常驻worker或绕过原锁。
+
+需有意义pure补证：正式Store端口Unknown进入同registered cleanup，cleanup被实际barrier持有时public finish能返回且Joined/Force不成功；释放并真实确认后才清registry。新+旧publication原3秒断言必须原样通过；原F1 actualClose、source cancel whole-tail、firstlookup NotCommitted确认与joinUnknown回归按影响验证。不改Object/旧测试/原预算，不新增协议故障方法。

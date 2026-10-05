@@ -1,0 +1,234 @@
+--- candidate-final/internal/central/artifact/service.go
++++ review09/internal/central/artifact/service.go
+@@ -141,7 +141,7 @@
+ 	if err != nil {
+ 		return rejected(invalid())
+ 	}
+-	return r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
++	result := r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+ 		// The first lookup has no durable work yet. Own its physical attempt
+ 		// before Acquire can retain an earlier key and fail on a later one.
+ 		// This records cleanup responsibility, never proof of held locks.
+@@ -180,6 +180,12 @@
+ 		}
+ 		return fn(ctx, tx, locked)
+ 	})
++	if control != nil && result.State() == foundation.Unknown {
++		r.mu.Lock()
++		control.unknown = true
++		r.mu.Unlock()
++	}
++	return result
+ }
+ func createLocks(c foundation.CommandIdentity, artifact string) []foundation.LockRequest {
+ 	key, _ := foundation.CommandLock(c)
+--- candidate-final/internal/central/artifact/lifecycle.go
++++ review09/internal/central/artifact/lifecycle.go
+@@ -20,6 +20,7 @@
+ 	ctx                context.Context
+ 	cancel             context.CancelFunc
+ 	returned, settling bool
++	unknown            bool
+ 	stopCancelled      bool
+ 	settleDone         chan struct{}
+ 	settleErr          error
+@@ -165,8 +166,17 @@
+ 	r.localRevision++
+ 	p.cancel()
+ 	force := r.forceContext
++	unknown := p.unknown
+ 	r.signal()
+ 	r.mu.Unlock()
++	// Deliver the original Unknown after the call's real body/Discard tail.
++	// Keep its exact writer, lease and cleanup responsibility registered; a
++	// later Request, retry or Drain confirms it within that caller's budget.
++	// Starting another synchronous cleanup wait here would delay the original
++	// result behind a second budget, while still proving no writer outcome.
++	if unknown {
++		return
++	}
+ 	ctx := force
+ 	var cancel context.CancelFunc
+ 	if ctx == nil {
+--- candidate-final/internal/central/artifact/project_work_test.go
++++ review09/internal/central/artifact/project_work_test.go
+@@ -332,6 +332,35 @@
+ 			} else if callback || result.State() != foundation.NotCommitted || result.Fault().Code != foundation.Forbidden {
+ 				t.Fatal("Acquire failure changed or authorized work", result.State())
+ 			}
++			if kind == "commit_unknown" {
++				original := append([]foundation.LockRequest{}, p.locks...)
++				s.finishProducer(p)
++				s.StopAdmission()
++				if acquisitions != 1 || !p.returned || p.settling || !s.state().controls[p] || s.Joined() {
++					t.Fatal("Unknown delivery started another wait or retired its original owner")
++				}
++				store.acquire = func(_ foundation.Tx, locks []foundation.LockRequest) error {
++					acquisitions++
++					if len(locks) != len(original) {
++						t.Error("later confirmation lost original union")
++						return invalid()
++					}
++					for i, lock := range original {
++						if foundation.CompareLockKeys(locks[i].Key, lock.Key) != 0 || locks[i].Mode != foundation.Exclusive {
++							t.Error("later confirmation did not retain every original key as EX")
++							return invalid()
++						}
++					}
++					return nil
++				}
++				store.result = foundation.CommittedResult()
++				budget, cancel := context.WithTimeout(context.Background(), time.Second)
++				defer cancel()
++				if err = s.Drain(budget); err != nil || !s.Joined() || acquisitions != 2 {
++					t.Fatal("later confirmed full union did not retire Unknown", err)
++				}
++				return
++			}
+ 			store.acquire = nil
+ 			store.result = foundation.CommittedResult()
+ 			s.finishProducer(p)
+--- candidate-final/tests/objects/artifact_project_stop_recovery_test.go
++++ review09/tests/objects/artifact_project_stop_recovery_test.go
+@@ -203,6 +203,30 @@
+ 		}
+ 	}
+ }
++
++type artifactDiscardTiming struct {
++	duration time.Duration
++	err      error
++}
++type artifactObservedDiscard struct {
++	oc.Uploads
++	seen     atomic.Bool
++	entered  chan struct{}
++	returned chan artifactDiscardTiming
++}
++
++func (o *artifactObservedDiscard) DiscardPrepared(p oc.PreparedPayload) error {
++	first := o.seen.CompareAndSwap(false, true)
++	started := time.Now()
++	if first {
++		close(o.entered)
++	}
++	err := o.Uploads.DiscardPrepared(p)
++	if first {
++		o.returned <- artifactDiscardTiming{time.Since(started), err}
++	}
++	return err
++}
+ func TestArtifactProjectStopUnknownSourceAndFinalPublication(t *testing.T) {
+ 	for _, phase := range []string{"source_capture", "publication"} {
+ 		t.Run(phase, func(t *testing.T) {
+@@ -210,7 +234,11 @@
+ 			source := f.create(t, "original", "text/plain", strings.Repeat("s", 100000))
+ 			ref, _ := source.Details().Reference.BusinessFile()
+ 			target := f.addProject(t)
+-			on, wrapped, proxy := artifactCommitFixture(t, f, false, true, artifactStopOptions{})
++			var discard *artifactObservedDiscard
++			on, wrapped, proxy := artifactCommitFixture(t, f, false, true, artifactStopOptions{uploads: func(u oc.Uploads) oc.Uploads {
++				discard = &artifactObservedDiscard{Uploads: u, entered: make(chan struct{}), returned: make(chan artifactDiscardTiming, 1)}
++				return discard
++			}})
+ 			var release sync.Once
+ 			defer release.Do(func() { close(proxy.release) })
+ 			cmd := command(t, "unknown-copy")
+@@ -223,8 +251,22 @@
+ 				done <- e
+ 			}()
+ 			artifactStopWait(t, proxy.reached)
++			commitReached := time.Now()
+ 			wrapped.assertHit(t, phase)
+ 			requireCode(t, artifactStopResult(t, done), foundation.CommitUnknown)
++			if phase == "publication" {
++				select {
++				case <-discard.entered:
++				default:
++					t.Fatal("publication returned before actual Discard entered")
++				}
++				select {
++				case timing := <-discard.returned:
++					t.Log("actual Discard duration", timing.duration, "result", timing.err, "public Unknown after COMMIT barrier", time.Since(commitReached))
++				default:
++					t.Fatal("publication returned before actual Discard returned")
++				}
++			}
+ 			if phase == "source_capture" && (f.proxy.gets.Load() != gets || f.proxy.puts.Load() != puts) {
+ 				t.Fatal("unknown source capture started GET/PUT")
+ 			}
+@@ -287,14 +329,19 @@
+ 				copyDone <- e
+ 			}()
+ 			original := artifactResolverEntered(t, resolver)
++			var work string
++			if err := f.store.QueryRow(contextFor(t), `SELECT id::text FROM agenteam_artifact.project_work WHERE project_id=$1 AND joined_at IS NULL`, f.project.String()).Scan(&work); err != nil {
++				t.Fatal("exact live resolver work", err)
++			}
+ 			actor, cause := f.activate(t, f.project, oc.ProjectStopArchive)
++			requestCtx := contextFor(t)
+ 			wrapped.arm(phase)
+ 			type answer struct {
+ 				report oc.ObjectStopReport
+ 				err    error
+ 			}
+ 			reports := make(chan answer, 1)
+-			go func() { r, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause); reports <- answer{r, e} }()
++			go func() { r, e := on.artifact.RequestProjectStop(requestCtx, actor, cause); reports <- answer{r, e} }()
+ 			artifactStopWait(t, proxy.reached)
+ 			wrapped.assertHit(t, phase)
+ 			var first answer
+@@ -306,7 +353,7 @@
+ 			if first.err != nil || first.report.Details().SafeReason != oc.ProjectStopOutcomeUnknown || original.Err() != nil || on.stopObjects.requests.Load() != 0 {
+ 				t.Fatal("unconfirmed stop cancelled or invoked Object", first.err, first.report.Details())
+ 			}
+-			budget, cancel := context.WithTimeout(context.Background(), 80*time.Millisecond)
++			budget, cancel := context.WithTimeout(requestCtx, 80*time.Millisecond)
+ 			_, err := on.artifact.RequestProjectStop(budget, actor, cause)
+ 			cancel()
+ 			if err == nil || original.Err() != nil || on.stopObjects.requests.Load() != 0 {
+@@ -314,9 +361,41 @@
+ 			}
+ 			release.Do(func() { close(proxy.release) })
+ 			artifactStopWait(t, proxy.committed)
+-			r, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause)
+-			if e != nil || r.Details().State != oc.ProjectStopPending || original.Err() == nil {
+-				t.Fatal("confirmed gate did not cancel exact original", e)
++			cursor := func() (int, bool) {
++				t.Helper()
++				var lane int
++				var revoked bool
++				if err := f.store.QueryRow(requestCtx, `SELECT COALESCE((SELECT scan_kind FROM agenteam_artifact.project_stops WHERE project_id=$1 AND operation_id=$2),-1),EXISTS(SELECT 1 FROM agenteam_artifact.project_work WHERE id=$3 AND revoked_by=$2)`, f.project.String(), cause.Details().OperationID.String(), work).Scan(&lane, &revoked); err != nil {
++					t.Fatal("exact recovered cursor/work", err)
++				}
++				return lane, revoked
++			}
++			lane, revoked := cursor()
++			t.Log("original COMMIT terminal", phase, "cursor", lane, "work revoked", revoked, "original context", original.Err())
++			if phase == "gate" && (lane != 1 || !revoked) || phase == "preflight" && (lane != -1 || revoked) {
++				t.Fatal("late COMMIT did not preserve its actual original phase", lane, revoked)
++			}
++			// The confirmed late gate advanced the persistent cursor before the
++			// caller learned its outcome. Drive one fixed four-lane cycle using
++			// the same original request budget; no new timeout or polling sleep.
++			for round := 0; round < 4; round++ {
++				r, e := on.artifact.RequestProjectStop(requestCtx, actor, cause)
++				lane, revoked = cursor()
++				t.Log("recovery round", round, "cursor", lane, "work revoked", revoked, "report", r.Details(), "error", e, "original context", original.Err())
++				if e != nil || r.Validate() != nil || r.Details().State != oc.ProjectStopPending {
++					t.Fatal("held original resolver failed conservative recovery", e, r.Details())
++				}
++				select {
++				case e := <-copyDone:
++					t.Fatal("original resolver returned before actual release", e)
++				default:
++				}
++				if original.Err() != nil {
++					break
++				}
++			}
++			if original.Err() == nil {
++				t.Fatal("one complete cursor cycle did not cancel exact original")
+ 			}
+ 			unblock.Do(func() { close(resolver.release) })
+ 			if artifactStopResult(t, copyDone) == nil {

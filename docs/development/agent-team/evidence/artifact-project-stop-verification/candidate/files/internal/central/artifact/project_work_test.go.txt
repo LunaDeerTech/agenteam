@@ -1,0 +1,372 @@
+package artifact
+
+import (
+	"context"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
+	au "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+)
+
+type constructorStore struct{ Store }
+type constructorObjects struct{ oc.Objects }
+type constructorUploads struct{ oc.Uploads }
+type constructorCleaner struct{ oc.Cleaner }
+type constructorAudit struct{ au.Appender }
+type constructorAuthority struct{ oc.ProjectStopAuthority }
+type constructorStop struct{ oc.ObjectProjectStop }
+type constructorSources struct{ SourceAuthority }
+type constructorProcesses struct {
+	calls int
+	id    oc.ProcessID
+}
+
+func (p *constructorProcesses) CurrentProcess() oc.ProcessID { p.calls++; return p.id }
+func (*constructorProcesses) ConfirmStopped(context.Context, oc.ProcessID) error {
+	return failure(foundation.ResourceBusy, nil)
+}
+func constructorFixture(t *testing.T, stop ProjectStopDependencies) (*Service, error) {
+	t.Helper()
+	store := &constructorStore{}
+	owners, _ := NewOwnerProvider(store, nil)
+	keys, err := cursor.LoadKeyring(`{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return NewWithProjectStop(store, owners, &constructorObjects{}, &constructorUploads{}, &constructorCleaner{}, nil, nil, &constructorAudit{}, keys, stop)
+}
+func TestArtifactProjectStopConstructionAndExactProcess(t *testing.T) {
+	a, err := constructorFixture(t, ProjectStopDependencies{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	b, err := constructorFixture(t, ProjectStopDependencies{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if a.state().process.Validate() != nil || a.state().process == b.state().process {
+		t.Fatal("legacy constructor reused a process identity")
+	}
+	id, _ := foundation.NewID[oc.Process]()
+	processes := &constructorProcesses{id: id}
+	s, err := constructorFixture(t, ProjectStopDependencies{Processes: processes})
+	if err != nil || processes.calls != 1 || s.state().process != id {
+		t.Fatal("process not captured once", err)
+	}
+	processes.id, _ = foundation.NewID[oc.Process]()
+	if s.state().process != id {
+		t.Fatal("captured process was mutable")
+	}
+	for _, deps := range []ProjectStopDependencies{{Authority: (*constructorAuthority)(nil)}, {Objects: (*constructorStop)(nil)}, {Sources: (*constructorSources)(nil)}, {Processes: (*constructorProcesses)(nil)}} {
+		if _, err = constructorFixture(t, deps); err == nil {
+			t.Fatal("typed nil dependency accepted")
+		}
+	}
+	if _, err = constructorFixture(t, ProjectStopDependencies{Processes: &constructorProcesses{}}); err == nil {
+		t.Fatal("invalid current process accepted")
+	}
+	var zero Service
+	zero.StopAdmission()
+	if zero.Joined() {
+		t.Fatal("zero service pretended joined")
+	}
+	if zero.Drain(context.Background()) == nil || zero.Force(context.Background()) == nil {
+		t.Fatal("zero service did not reject")
+	}
+}
+func TestArtifactProjectWorkPrivateControlAndReadPlanning(t *testing.T) {
+	s := producerFixture()
+	p, err := s.beginProducer(context.Background(), testProject(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	other := producerFixture()
+	if _, err = other.controlFor(p.ctx); err == nil {
+		t.Fatal("foreign issuer accepted")
+	}
+	fake := &producerControl{service: s}
+	if _, err = s.controlFor(context.WithValue(context.Background(), producerKey{}, fake)); err == nil {
+		t.Fatal("unregistered control accepted")
+	}
+	s.finishProducer(p)
+	if _, err = s.controlFor(p.ctx); err == nil {
+		t.Fatal("ended control accepted")
+	}
+	user, _ := foundation.NewID[identity.User]()
+	session, _ := foundation.NewID[identity.Session]()
+	actor, err := identity.NewHuman(user, session)
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, _ := foundation.NewID[struct{}]()
+	owner, _ := oc.NewObjectOwner(oc.Artifact, id.String(), testProject(t).String())
+	request, err := makeOwnerRequest(actor, owner, oc.PrepareReadAccess, oc.AccessRequestDetails{})
+	if err != nil || request.Details().Intent != identity.Read {
+		t.Fatal("source preparation was planned as mutation", err)
+	}
+}
+func TestArtifactProjectWorkSourceDispatchDoesNotInventAuthority(t *testing.T) {
+	s, err := constructorFixture(t, ProjectStopDependencies{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	id, _ := foundation.NewID[struct{}]()
+	project := testProject(t)
+	artifact, _ := oc.NewObjectOwner(oc.Artifact, id.String(), project.String())
+	knowledge, _ := oc.NewObjectOwner(oc.Knowledge, id.String(), project.String())
+	if got, err := s.sourceAuthority(artifact); err != nil || got != s.state().owners {
+		t.Fatal("real Artifact fallback missing", err)
+	}
+	if _, err := s.sourceAuthority(knowledge); err == nil {
+		t.Fatal("non Artifact source used Artifact authority")
+	}
+	ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.KnowledgeFile, ProjectID: project, DocumentID: id.String(), Revision: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	owner, err := mappedSourceOwner(ref)
+	if err != nil || !owner.Equal(knowledge) {
+		t.Fatal("formal source owner mapping lost", err)
+	}
+}
+
+type producerTransactionStore struct {
+	Store
+	live foundation.Tx
+}
+
+func (s *producerTransactionStore) InTx(tx foundation.Tx) (postgres.SQLExecutor, error) {
+	if tx != s.live || !tx.Valid() {
+		return nil, failure(foundation.InvalidState, nil)
+	}
+	return nil, nil
+}
+func TestArtifactProjectWorkRequiresOwnLiveTransactionAndCompleteControlLock(t *testing.T) {
+	s := producerFixture()
+	store := &producerTransactionStore{live: foundation.NewTx()}
+	s.state().store = store
+	p, err := s.beginProducer(context.Background(), testProject(t))
+	if err != nil {
+		t.Fatal(err)
+	}
+	project := projectLock(p.project, foundation.Shared)
+	own := controlRecordLock(p.id)
+	if err = s.observeControl(p, foundation.NewTx(), []foundation.LockRequest{project, own}); err == nil {
+		t.Fatal("foreign callback-local Tx accepted")
+	}
+	if err = s.observeControl(p, store.live, []foundation.LockRequest{project}); err == nil {
+		t.Fatal("missing original writer control EX accepted")
+	}
+	shared := own
+	shared.Mode = foundation.Shared
+	if err = s.observeControl(p, store.live, []foundation.LockRequest{project, shared}); err == nil {
+		t.Fatal("control SH substituted for writer EX")
+	}
+	if len(p.origins) != 0 || len(p.locks) != 0 {
+		t.Fatal("rejected capability changed writer evidence")
+	}
+	if err = s.observeControl(p, store.live, []foundation.LockRequest{own, project, own}); err != nil {
+		t.Fatal(err)
+	}
+	if len(p.origins) != 1 || !p.origins[store.live] || len(p.locks) != 2 {
+		t.Fatal("confirmed acquisition lost original Tx/full normalized union")
+	}
+	for i := 1; i < len(p.locks); i++ {
+		if foundation.CompareLockKeys(p.locks[i-1].Key, p.locks[i].Key) >= 0 {
+			t.Fatal("retained union was not canonical")
+		}
+	}
+	s.state().mu.Lock()
+	delete(s.state().controls, p)
+	s.state().mu.Unlock()
+	p.cancel()
+	if err = s.observeControl(p, store.live, []foundation.LockRequest{own, project}); err == nil {
+		t.Fatal("retired private handle accepted")
+	}
+}
+
+type attemptUnitAuthority struct {
+	ac.Authority
+	deps oc.AccessDependencies
+}
+
+func (a *attemptUnitAuthority) Discover(context.Context, ac.AccessSubject) (oc.AccessDependencies, error) {
+	return a.deps, nil
+}
+func (a *attemptUnitAuthority) DiscoverInTx(context.Context, foundation.Tx, ac.AccessSubject) (oc.AccessDependencies, error) {
+	return a.deps, nil
+}
+func (a *attemptUnitAuthority) AuthorizeInTx(_ context.Context, _ foundation.Tx, subject ac.AccessSubject, intent identity.AccessIntent) (identity.AccessGrant, error) {
+	scope, _ := identity.InProject(subject.ProjectID)
+	now, _ := foundation.NewInstant(time.Now())
+	return identity.NewAccessGrant(subject.Actor, scope, intent, now, 1)
+}
+
+type attemptUnitExecutor struct{ postgres.SQLExecutor }
+type attemptUnitRow struct{}
+
+func (attemptUnitExecutor) QueryRow(context.Context, string, ...any) postgres.Row {
+	return attemptUnitRow{}
+}
+func (attemptUnitRow) Scan(out ...any) error { *out[0].(*bool) = false; return nil }
+
+type attemptUnitStore struct {
+	Store
+	live    foundation.Tx
+	result  foundation.CommitResult
+	acquire func(foundation.Tx, []foundation.LockRequest) error
+}
+
+func (s *attemptUnitStore) WithinTx(ctx context.Context, _ foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
+	s.live = foundation.NewTx()
+	err := fn(ctx, s.live)
+	s.live = foundation.Tx{}
+	if err != nil {
+		return rejected(err)
+	}
+	return s.result
+}
+func (s *attemptUnitStore) InTx(tx foundation.Tx) (postgres.SQLExecutor, error) {
+	if !tx.Valid() || tx != s.live {
+		return nil, invalid()
+	}
+	return attemptUnitExecutor{}, nil
+}
+func (s *attemptUnitStore) AcquireAll(_ context.Context, tx foundation.Tx, locks []foundation.LockRequest) error {
+	if s.acquire != nil {
+		return s.acquire(tx, locks)
+	}
+	return nil
+}
+
+type attemptUnitObjects struct {
+	oc.Objects
+	store  *attemptUnitStore
+	issuer oc.AccessIssuer
+}
+
+func (o *attemptUnitObjects) AcquireAccessPlansInTx(ctx context.Context, tx foundation.Tx, plans []oc.AccessLockPlan, extra []foundation.LockRequest) (oc.LockedAccess, error) {
+	locked, err := oc.NewLockedAccess(o.issuer, tx, plans, extra)
+	if err != nil {
+		return locked, err
+	}
+	return locked, o.store.AcquireAll(ctx, tx, locked.Locks())
+}
+func TestArtifactFirstAttemptOwnedBeforeAcquire(t *testing.T) {
+	for _, kind := range []string{"lookup_failure", "planned_acquire_failure", "commit_unknown"} {
+		t.Run(kind, func(t *testing.T) {
+			s := producerFixture()
+			p, err := s.beginProducer(context.Background(), testProject(t))
+			if err != nil {
+				t.Fatal(err)
+			}
+			user, _ := foundation.NewID[identity.User]()
+			session, _ := foundation.NewID[identity.Session]()
+			actor, _ := identity.NewHuman(user, session)
+			subject := ac.AccessSubject{Actor: actor, ProjectID: p.project}
+			deps, _ := oc.NewAccessDependencies(digestBytes([]byte("attempt-unit")), []foundation.LockRequest{projectLock(p.project, foundation.Shared)})
+			cause, _ := txCause()
+			attempt, _ := foundation.NewID[foundation.TransactionAttempt]()
+			store := &attemptUnitStore{result: foundation.UnknownResult(attempt, cause)}
+			s.state().store = store
+			s.state().owners, err = NewOwnerProvider(store, &attemptUnitAuthority{deps: deps})
+			if err != nil {
+				t.Fatal(err)
+			}
+			var plans []oc.AccessLockPlan
+			plannedKey, _ := foundation.RecordLock(foundation.ReferenceRecordLock, "unit-object-plan")
+			if kind == "planned_acquire_failure" {
+				ownerID, _ := foundation.NewID[struct{}]()
+				owner, _ := oc.NewObjectOwner(oc.Artifact, ownerID.String(), p.project.String())
+				request, e := makeOwnerRequest(actor, owner, oc.PrepareReadAccess, oc.AccessRequestDetails{})
+				if e != nil {
+					t.Fatal(e)
+				}
+				issuer := oc.NewAccessIssuer()
+				locks := append(deps.Locks(), foundation.LockRequest{Key: plannedKey, Mode: foundation.Exclusive})
+				plan, e := oc.NewAccessLockPlan(issuer, oc.AccessPlanDetails{Request: request, DependencyRequest: request, Dependencies: deps, DomainBinding: digestBytes([]byte("original-plan")), Locks: locks})
+				if e != nil {
+					t.Fatal(e)
+				}
+				plans = []oc.AccessLockPlan{plan}
+				s.state().objects = &attemptUnitObjects{store: store, issuer: issuer}
+			}
+			acquisitions := 0
+			store.acquire = func(tx foundation.Tx, locks []foundation.LockRequest) error {
+				acquisitions++
+				if p.work != nil || !p.origins[tx] || len(p.locks) != len(locks) {
+					t.Fatal("first original attempt was not owned before Acquire", len(p.origins), len(p.locks), len(locks))
+				}
+				found := kind != "planned_acquire_failure"
+				for i, lock := range locks {
+					if foundation.CompareLockKeys(p.locks[i].Key, lock.Key) != 0 || p.locks[i].Mode != lock.Mode {
+						t.Fatal("pre-Acquire union differed from actual original plan")
+					}
+					if foundation.CompareLockKeys(lock.Key, plannedKey) == 0 {
+						found = true
+					}
+				}
+				if !found {
+					t.Fatal("Object plan key missing from original ownership")
+				}
+				if kind != "commit_unknown" {
+					return failure(foundation.Forbidden, nil)
+				}
+				return nil
+			}
+			callback := false
+			result := s.within(p.ctx, subject, identity.Read, cause, plans, nil, func(context.Context, foundation.Tx, oc.LockedAccess) error { callback = true; return nil })
+			if acquisitions != 1 || len(p.origins) != 1 {
+				t.Fatal("physical attempt did not remain exactly owned")
+			}
+			if kind == "commit_unknown" {
+				if !callback || result.State() != foundation.Unknown || result.AttemptID() != attempt {
+					t.Fatal("Store Unknown provenance changed")
+				}
+			} else if callback || result.State() != foundation.NotCommitted || result.Fault().Code != foundation.Forbidden {
+				t.Fatal("Acquire failure changed or authorized work", result.State())
+			}
+			if kind == "commit_unknown" {
+				original := append([]foundation.LockRequest{}, p.locks...)
+				s.finishProducer(p)
+				s.StopAdmission()
+				if acquisitions != 1 || !p.returned || p.settling || !s.state().controls[p] || s.Joined() {
+					t.Fatal("Unknown delivery started another wait or retired its original owner")
+				}
+				store.acquire = func(_ foundation.Tx, locks []foundation.LockRequest) error {
+					acquisitions++
+					if len(locks) != len(original) {
+						t.Error("later confirmation lost original union")
+						return invalid()
+					}
+					for i, lock := range original {
+						if foundation.CompareLockKeys(locks[i].Key, lock.Key) != 0 || locks[i].Mode != foundation.Exclusive {
+							t.Error("later confirmation did not retain every original key as EX")
+							return invalid()
+						}
+					}
+					return nil
+				}
+				store.result = foundation.CommittedResult()
+				budget, cancel := context.WithTimeout(context.Background(), time.Second)
+				defer cancel()
+				if err = s.Drain(budget); err != nil || !s.Joined() || acquisitions != 2 {
+					t.Fatal("later confirmed full union did not retire Unknown", err)
+				}
+				return
+			}
+			store.acquire = nil
+			store.result = foundation.CommittedResult()
+			s.finishProducer(p)
+			if len(s.state().controls) != 0 {
+				t.Fatal("confirmed full union cleanup failed to retire control")
+			}
+		})
+	}
+}

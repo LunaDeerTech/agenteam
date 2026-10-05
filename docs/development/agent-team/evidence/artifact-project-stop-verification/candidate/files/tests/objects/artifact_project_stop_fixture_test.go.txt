@@ -1,0 +1,391 @@
+//go:build integration
+
+package objects_test
+
+import (
+	"context"
+	"errors"
+	"path/filepath"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/artifact"
+	art "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/audit"
+	au "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/object"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/jackc/pgx/v5"
+)
+
+// Only the absent upstream Project/identity assembly is isolated here. Both
+// components receive exact current SQL cause/phase/manifest, actor and held-Tx
+// checks. The business Artifact/Object/SourceReads/Audit services are real.
+type artifactStopAuthority struct {
+	store     *postgres.Store
+	mu        sync.Mutex
+	validated map[foundation.Tx]oc.ProjectStopRequest
+}
+
+func newArtifactStopAuthority(t *testing.T, f *fixture, store *postgres.Store) *artifactStopAuthority {
+	t.Helper()
+	f.sql(t, `CREATE TABLE object_fixture.stop_causes(project_id uuid PRIMARY KEY,operation_id uuid NOT NULL,action text NOT NULL,accepted_version bigint NOT NULL,phase text NOT NULL,manifest boolean NOT NULL DEFAULT true)`)
+	return &artifactStopAuthority{store: store, validated: map[foundation.Tx]oc.ProjectStopRequest{}}
+}
+func (a *artifactStopAuthority) dependencies(r oc.ProjectStopRequest) (oc.AccessDependencies, error) {
+	if r.Validate() != nil {
+		return oc.AccessDependencies{}, fault(foundation.InvalidArgument)
+	}
+	b, err := oc.ProjectStopBinding(r)
+	if err != nil {
+		return oc.AccessDependencies{}, err
+	}
+	key, _ := foundation.ProjectLock(r.Details().Cause.Details().ProjectID.String())
+	record, _ := foundation.RecordLock(foundation.ReferenceRecordLock, "fixture-project-stop:"+r.Details().Cause.Details().ProjectID.String())
+	return oc.NewAccessDependencies(b, []foundation.LockRequest{{Key: key, Mode: foundation.Exclusive}, {Key: record, Mode: foundation.Exclusive}})
+}
+func (a *artifactStopAuthority) DiscoverProjectStop(_ context.Context, r oc.ProjectStopRequest) (oc.AccessDependencies, error) {
+	return a.dependencies(r)
+}
+func (a *artifactStopAuthority) ValidateProjectStopInTx(ctx context.Context, tx foundation.Tx, r oc.ProjectStopRequest, expected oc.AccessDependencies) (oc.ProjectStopAuthorization, error) {
+	actual, err := a.dependencies(r)
+	if err != nil {
+		return oc.ProjectStopAuthorization{}, err
+	}
+	if !actual.Equal(expected) || (r.Details().Component != oc.ObjectStopComponent && r.Details().Component != oc.ArtifactStopComponent) {
+		return oc.ProjectStopAuthorization{}, fault(foundation.Forbidden)
+	}
+	if err = a.store.RequireHeldLocks(ctx, tx, actual.Locks()); err != nil {
+		return oc.ProjectStopAuthorization{}, err
+	}
+	e, err := a.store.InTx(tx)
+	if err != nil {
+		return oc.ProjectStopAuthorization{}, err
+	}
+	d := r.Details().Cause.Details()
+	var op, action, phase, state string
+	var version, current int64
+	var manifest bool
+	err = e.QueryRow(ctx, `SELECT c.operation_id::text,c.action,c.accepted_version,c.phase,c.manifest,coalesce(p.state,'deleted'),coalesce(p.version,c.accepted_version) FROM object_fixture.stop_causes c LEFT JOIN object_fixture.projects p ON p.id=c.project_id WHERE c.project_id=$1`, d.ProjectID.String()).Scan(&op, &action, &version, &phase, &manifest, &state, &current)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return oc.ProjectStopAuthorization{}, fault(foundation.Forbidden)
+	}
+	if err != nil {
+		return oc.ProjectStopAuthorization{}, err
+	}
+	if op != d.OperationID.String() || action != string(d.Action) || version != int64(d.ProjectVersion) || current != version || !manifest || state != "archived" && state != "deleting" && state != "deleted" || action == "archive" && state != "archived" || action == "delete" && state != "deleting" && !(state == "deleted" && phase == "complete") {
+		return oc.ProjectStopAuthorization{}, fault(foundation.Forbidden)
+	}
+	mode := oc.ContinueProjectStop
+	if (phase == "complete" || phase == "cleaning" || phase == "finalizing" || phase == "failed") && r.Details().Step == oc.InspectProjectStopStep {
+		mode = oc.ReadProjectStop
+	} else if phase != "stopping" {
+		return oc.ProjectStopAuthorization{}, fault(foundation.Forbidden)
+	}
+	a.mu.Lock()
+	a.validated[tx] = r
+	a.mu.Unlock()
+	return oc.NewProjectStopAuthorization(tx, r, expected, mode)
+}
+
+type artifactStopProcesses struct {
+	*object.ProcessGuard
+	id oc.ProcessID
+}
+
+func (p *artifactStopProcesses) CurrentProcess() oc.ProcessID { return p.id }
+
+type artifactStopObjectPort struct {
+	oc.ObjectProjectStop
+	requests, inspects atomic.Int64
+	override           func(oc.ObjectStopReport, error) (oc.ObjectStopReport, error)
+}
+
+func (p *artifactStopObjectPort) RequestProjectStop(ctx context.Context, a identity.Actor, c oc.ProjectStopCause) (oc.ObjectStopReport, error) {
+	p.requests.Add(1)
+	r, e := p.ObjectProjectStop.RequestProjectStop(ctx, a, c)
+	if p.override != nil {
+		return p.override(r, e)
+	}
+	return r, e
+}
+func (p *artifactStopObjectPort) InspectProjectStop(ctx context.Context, a identity.Actor, c oc.ProjectStopCause) (oc.ObjectStopReport, error) {
+	p.inspects.Add(1)
+	r, e := p.ObjectProjectStop.InspectProjectStop(ctx, a, c)
+	if p.override != nil {
+		return p.override(r, e)
+	}
+	return r, e
+}
+
+type artifactStopOptions struct {
+	store         *postgres.Store
+	port          artifact.Store
+	resolve       func(oc.SourceResolver) oc.SourceResolver
+	reads         func(oc.SourceReads) oc.SourceReads
+	uploads       func(oc.Uploads) oc.Uploads
+	audit         func(au.Appender) au.Appender
+	sources       func(*artifact.OwnerProvider) artifact.SourceAuthority
+	planner       func(oc.AccessPlanner) oc.AccessPlanner
+	authority     oc.ProjectStopAuthority
+	guard, legacy bool
+	spoolPath     string
+	process       oc.ProcessID
+}
+type artifactStopFixture struct {
+	*artifactFixture
+	owners        *artifact.OwnerProvider
+	reads         oc.SourceReads
+	stopAuthority *artifactStopAuthority
+	stopObjects   *artifactStopObjectPort
+	guard         *object.ProcessGuard
+	runtime       *object.Runtime
+	process       oc.ProcessID
+	spoolPath     string
+}
+
+func newArtifactStopFixture(t *testing.T, o artifactStopOptions) *artifactStopFixture {
+	t.Helper()
+	f := newFixture(t, false)
+	f.sql(t, `ALTER TABLE object_fixture.projects ADD audit_allowed boolean NOT NULL DEFAULT true;CREATE TABLE object_fixture.operations(id uuid PRIMARY KEY,execution_id uuid NOT NULL,tool_id uuid NOT NULL,tool_call_id uuid NOT NULL,active boolean NOT NULL DEFAULT true); CREATE TABLE object_fixture.copy_commands(id uuid PRIMARY KEY,object_id uuid NOT NULL,source_lease uuid NOT NULL,revision bigint NOT NULL)`)
+	proxy := newStorageProxy(t, f)
+	a := newArtifactStopAuthority(t, f, f.store)
+	return bindArtifactStop(t, f, proxy, a, o)
+}
+func bindArtifactStop(t *testing.T, f *fixture, proxy *storageProxy, a *artifactStopAuthority, o artifactStopOptions) *artifactStopFixture {
+	t.Helper()
+	store := o.store
+	if store == nil {
+		store = f.store
+	}
+	port := o.port
+	if port == nil {
+		port = store
+	}
+	a = &artifactStopAuthority{store: store, validated: map[foundation.Tx]oc.ProjectStopRequest{}}
+	values := map[string]string{"ENDPOINT": proxy.server.URL, "BUCKET": f.bucket, "ACCESS_KEY": f.remote.AccessKey, "SECRET_KEY": f.remote.SecretKey, "TLS_MODE": "disable"}
+	cfg, err := object.LoadStorageConfig(func(k string) (string, bool) { v, ok := values[k[len(object.EnvironmentPrefix):]]; return v, ok })
+	if err != nil {
+		t.Fatal(err)
+	}
+	backend, err := object.NewBackend(cfg)
+	if err != nil {
+		t.Fatal(err)
+	}
+	process := o.process
+	if process.Validate() != nil {
+		process = id[oc.Process](t)
+	}
+	path := o.spoolPath
+	if path == "" {
+		path = filepath.Join(t.TempDir(), "artifact-stop-spool")
+	}
+	spool, err := object.OpenSpool(path, process)
+	if err != nil {
+		t.Fatal(err)
+	}
+	keys, err := cursor.LoadKeyring(`{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`)
+	if err != nil {
+		t.Fatal(err)
+	}
+	current := &artifactAuthority{store}
+	auditing, err := audit.New(store, keys, audit.Authorizations{Sessions: current, Projects: current})
+	if err != nil {
+		t.Fatal(err)
+	}
+	owners, err := artifact.NewOwnerProvider(port, current)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var planner oc.AccessPlanner = owners
+	if o.planner != nil {
+		planner = o.planner(planner)
+	}
+	var guard *object.ProcessGuard
+	var processes artifact.ProcessAuthority
+	if o.guard {
+		guard, err = object.OpenProcessGuard(spool, process)
+		if err != nil {
+			t.Fatal(err)
+		}
+		processes = &artifactStopProcesses{guard, process}
+	}
+	stopAuth := o.authority
+	if stopAuth == nil {
+		stopAuth = a
+	}
+	objects, err := object.New(store, backend, spool, auditing, object.Authorizations{Planner: planner, Resources: owners, Read: owners, Gate: owners, Cleanup: owners, Processes: guardPort(guard), ProjectStop: stopAuth})
+	if err != nil {
+		t.Fatal(err)
+	}
+	var runtime *object.Runtime
+	if guard != nil {
+		endpoint, e := object.LoadTransferEndpoint(func(string) (string, bool) { return "", false }, cfg)
+		if e != nil {
+			t.Fatal(e)
+		}
+		transfer, e := object.NewTransferService(objects, nil, endpoint)
+		if e != nil {
+			t.Fatal(e)
+		}
+		runtime, e = object.NewRuntime(objects, guard, transfer)
+		if e != nil {
+			t.Fatal(e)
+		}
+		err = runtime.Initialize(contextFor(t))
+	} else {
+		err = objects.Initialize(contextFor(t))
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+	sources, err := artifact.NewSources(owners, objects, auditing)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var sourceResolver oc.SourceResolver = sources
+	if o.resolve != nil {
+		sourceResolver = o.resolve(sourceResolver)
+	}
+	resolver := &countedSource{SourceResolver: sourceResolver}
+	originalReads, err := object.NewSourceReads(objects, resolver)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var reads oc.SourceReads = originalReads
+	if o.reads != nil {
+		reads = o.reads(reads)
+	}
+	var uploads oc.Uploads = objects
+	if o.uploads != nil {
+		uploads = o.uploads(uploads)
+	}
+	var appender au.Appender = auditing
+	if o.audit != nil {
+		appender = o.audit(appender)
+	}
+	stops := &artifactStopObjectPort{ObjectProjectStop: objects}
+	deps := artifact.ProjectStopDependencies{Authority: stopAuth, Objects: stops, Processes: processes}
+	if o.sources != nil {
+		deps.Sources = o.sources(owners)
+	}
+	var service *artifact.Service
+	if o.legacy {
+		service, err = artifact.New(port, owners, objects, uploads, objects, reads, resolver, appender, keys)
+	} else {
+		service, err = artifact.NewWithProjectStop(port, owners, objects, uploads, objects, reads, resolver, appender, keys, deps)
+	}
+	if err != nil {
+		t.Fatal(err)
+	}
+	result := &artifactStopFixture{artifactFixture: &artifactFixture{f, service, objects, sources, resolver, current, auditing, keys, proxy}, owners: owners, reads: reads, stopAuthority: a, stopObjects: stops, guard: guard, runtime: runtime, process: process, spoolPath: path}
+	t.Cleanup(func() {
+		// The shared flock belongs to the combined producer barrier, never just
+		// the Object runtime. No test may release it while Artifact still owns I/O.
+		service.StopAdmission()
+		ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+		if err := service.Drain(ctx); err != nil {
+			_ = service.Force(ctx)
+			t.Error("Artifact cleanup", err)
+		}
+		if !service.Joined() {
+			t.Error("Artifact did not join; shared guard retained")
+			return
+		}
+		if runtime != nil {
+			runtime.StopAdmission()
+			if err := runtime.Drain(ctx); err != nil {
+				_ = runtime.Force(ctx)
+				t.Error(err)
+			}
+		} else {
+			objects.StopAdmission()
+			if err := objects.Drain(ctx); err != nil {
+				_ = objects.Force(ctx)
+				t.Error(err)
+			}
+		}
+	})
+	return result
+}
+func guardPort(g *object.ProcessGuard) oc.ProcessAuthority {
+	if g == nil {
+		return nil
+	}
+	return g
+}
+func (f *artifactStopFixture) invocationFor(t *testing.T, project identity.ProjectID) art.Invocation {
+	t.Helper()
+	v, e := art.NewInvocation(art.InvocationDetails{Actor: f.actor, ProjectID: project, AttemptID: id[art.CallAttempt](t)})
+	if e != nil {
+		t.Fatal(e)
+	}
+	return v
+}
+func (f *artifactStopFixture) addProject(t *testing.T) identity.ProjectID {
+	t.Helper()
+	p := id[identity.Project](t)
+	f.sql(t, `INSERT INTO object_fixture.projects(id,owner_id) VALUES($1,$2)`, p.String(), f.actor.Details().UserID)
+	return p
+}
+func (f *artifactStopFixture) activate(t *testing.T, p identity.ProjectID, action oc.ProjectStopAction) (identity.Actor, oc.ProjectStopCause) {
+	t.Helper()
+	other := *f.fixture
+	other.project = p
+	return activateObjectStop(t, &other, action)
+}
+func artifactStopSettled(t *testing.T, s *artifact.Service, a identity.Actor, c oc.ProjectStopCause) oc.ObjectStopReport {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(contextFor(t), 4*time.Second)
+	defer cancel()
+	var last oc.ObjectStopReport
+	for i := 0; i < 48; i++ {
+		r, e := s.RequestProjectStop(ctx, a, c)
+		last = r
+		if e == nil && r.Details().State == oc.ProjectStopped {
+			return r
+		}
+		if e != nil && codeOf(e) != foundation.ResourceBusy {
+			t.Fatal("Artifact stop", e)
+		}
+		select {
+		case <-ctx.Done():
+			t.Fatal("Artifact stop budget", last.Details())
+		case <-time.After(5 * time.Millisecond):
+		}
+	}
+	t.Fatal("Artifact did not reach exact terminal report", last.Details())
+	return last
+}
+func artifactStopWait(t *testing.T, ch <-chan struct{}) {
+	t.Helper()
+	select {
+	case <-ch:
+	case <-time.After(3 * time.Second):
+		t.Fatal("actual barrier not reached")
+	}
+}
+func artifactStopResult(t *testing.T, ch <-chan error) error {
+	t.Helper()
+	select {
+	case err := <-ch:
+		return err
+	case <-time.After(3 * time.Second):
+		t.Fatal("original call did not return")
+	}
+	return nil
+}
+func (f *artifactStopFixture) workCounts(t *testing.T, project identity.ProjectID) (all, joined int) {
+	t.Helper()
+	if err := f.store.QueryRow(contextFor(t), `SELECT count(*),count(*) FILTER(WHERE joined_at IS NOT NULL) FROM agenteam_artifact.project_work WHERE project_id=$1`, project.String()).Scan(&all, &joined); err != nil {
+		t.Fatal(err)
+	}
+	return
+}

@@ -1,0 +1,896 @@
+{
+  "final_manifest": "candidate-review09/manifest.json",
+  "final_manifest_sha256": "79e5eb812c0fda2a42d390a7e2703b1ebca4ce581c055e1c2a99fda1ab76914e",
+  "new_top_count": 30,
+  "compatibility_top_count": 37,
+  "distinct_tops_with_pass_evidence": 67,
+  "explicit_verbose_distinct_tops": 61,
+  "source_counts": {
+    "review07": 6,
+    "review08": 26,
+    "review09": 35
+  },
+  "none_of_declared_30_new_or_37_compatibility_left_unexecuted": true,
+  "new": [
+    {
+      "name": "TestArtifactProjectStopArchivePreservesCanonicalAndFencesReceipts",
+      "kind": "new",
+      "evidence": "remaining-new_core-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopBoundedLocalSnapshotAndABA",
+      "kind": "new",
+      "evidence": "selector-fix-01",
+      "source": "review07",
+      "proof": "exact six-top selection + package exit0; no per-top/subtest verbose PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopConcurrentSameKeyPreservesOriginalWork",
+      "kind": "new",
+      "evidence": "remaining-new_source-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease",
+      "kind": "new",
+      "evidence": "remaining-new_core-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopDualProjectResolverAndTombstone",
+      "kind": "new",
+      "evidence": "remaining-new_source-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopFirstLookupFailureRetainsConfirmation",
+      "kind": "new",
+      "evidence": "normal-lock-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopLegacyConstructorLocalJoinAndForeignConservatism",
+      "kind": "new",
+      "evidence": "remaining-new_lifecycle-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopLegacyIncompleteCommandHasNoInventedProcess",
+      "kind": "new",
+      "evidence": "remaining-new-recovery-native-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopLifecycleResolverKeepsSharedGuard",
+      "kind": "new",
+      "evidence": "remaining-new_lifecycle-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopLifecycleSourceCancelTimeoutKeepsOriginalRelease",
+      "kind": "new",
+      "evidence": "remaining-new_lifecycle-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopLifecycleUploadReadAndClose",
+      "kind": "new",
+      "evidence": "remaining-new_lifecycle-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopLifecycleWholeObjectWriterTail",
+      "kind": "new",
+      "evidence": "remaining-new_lifecycle-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel",
+      "kind": "new",
+      "evidence": "selector-fix-01",
+      "source": "review07",
+      "proof": "exact six-top selection + package exit0; no per-top/subtest verbose PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopMissingNonArtifactSourceAuthorityNeverResolves",
+      "kind": "new",
+      "evidence": "remaining-new_source-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopObjectReportConservativeMatrix",
+      "kind": "new",
+      "evidence": "remaining-new_core-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopPreWorkCancellationIsBoundedAndFair",
+      "kind": "new",
+      "evidence": "selector-fix-01",
+      "source": "review07",
+      "proof": "exact six-top selection + package exit0; no per-top/subtest verbose PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopReadOnlyRequiresBothReceipts",
+      "kind": "new",
+      "evidence": "remaining-new_core-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopRecoveryExactGuardKillAndWriterIdentity",
+      "kind": "new",
+      "evidence": "remaining-new-recovery-native-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopRejectedAuthorityHasNoSideEffects",
+      "kind": "new",
+      "evidence": "remaining-new_core-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopRejectedUploadCloseKeepsSharedGuard",
+      "kind": "new",
+      "evidence": "remaining-new_lifecycle-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopSourceArchiveAndCompletedTargetReplay",
+      "kind": "new",
+      "evidence": "remaining-new_source-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopSourceCurrentPermissionAndMapping",
+      "kind": "new",
+      "evidence": "remaining-new_source-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopSourceGrantMustMatchOriginalActor",
+      "kind": "new",
+      "evidence": "remaining-new_source-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopSourceIdentityCannotEscapeSelector",
+      "kind": "new",
+      "evidence": "selector-fix-01",
+      "source": "review07",
+      "proof": "exact six-top selection + package exit0; no per-top/subtest verbose PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopSourcePlanningKeepsWholeCallPending",
+      "kind": "new",
+      "evidence": "selector-fix-01",
+      "source": "review07",
+      "proof": "exact six-top selection + package exit0; no per-top/subtest verbose PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopTechnicalRowsFairnessAndLegacyNative",
+      "kind": "new",
+      "evidence": "remaining-new-recovery-native-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopUnknownAdmissionNeverStartsIO",
+      "kind": "new",
+      "evidence": "remaining-new-admission-review09-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactProjectStopUnknownJoinCheckpointRemainsUnknown",
+      "kind": "new",
+      "evidence": "selector-fix-01",
+      "source": "review07",
+      "proof": "exact six-top selection + package exit0; no per-top/subtest verbose PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectStopUnknownPreflightAndGateNeverCancel",
+      "kind": "new",
+      "evidence": "unknown-compat-fix-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactProjectStopUnknownSourceAndFinalPublication",
+      "kind": "new",
+      "evidence": "unknown-compat-fix-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    }
+  ],
+  "compatibility": [
+    {
+      "name": "TestArtifactAgentExecutionCurrentGateAndProvenance",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_core-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactDownloadAuditFailureAndActualPartialWrite",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_download-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactDownloadCurrentAuthorizationWinsGateRace",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_download-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactDownloadDrainAndForceJoinActualStorage",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_download-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactDownloadForceInterruptsActualBlockedHTTPWrite",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_download-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactDownloadIntegrityNeverDeliversCorruptWholeBody",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_download-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactDownloadPreviewSniffAndUnboundProvider",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_download-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactDownloadPurgeRequiresPlansPhysicalCompletionAndBoundPort",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_download-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactDownloadRealStreamRangePermissionsAndAudit",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_download-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_download-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactDownloadUnopenedCloseAuditsZeroAndExpiryBlocksNew",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_download-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_projection_cleanup-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactFinalCleanupLateDownloadAndNewKeysCannotRevive",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_projection_cleanup-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactListLiteralCursorBindingAndCurrentPermission",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_projection_cleanup-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactPendingCreationCancelPreventsLaterPublication",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_core-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactProjectCleanupBoundedBatchAndForeignReader",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_projection_cleanup-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactProspectiveCancelAndProjectCleanupDoNotRevive",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_core-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactReadUTF8BinaryImageAndAuditBoundary",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_projection_cleanup-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactSourceCommandUnknownAndOriginalFactRecovery",
+      "kind": "compatibility",
+      "evidence": "unknown-compat-fix-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactSourceCurrentRevocationBlocksPublishAndRecoveryKeepsOriginal",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_core-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestArtifactSourceUploadReceiptAndUnboundDownloadProviders",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_projection_cleanup-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestArtifactThreeCreationPathsAndCompletedSourceReplay",
+      "kind": "compatibility",
+      "evidence": "remaining-compat_artifact_core-01",
+      "source": "review08",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": true
+    },
+    {
+      "name": "TestObjectForceCancelsAlreadyFreshMarkerContext",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-runtime-stop-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectForceClosesRealReadAndSharesCleanupDeadline",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-runtime-stop-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectForceJoinsActualPreparationPipe",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-runtime-stop-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectGracefulDrainKeepsAdmittedReaderAlive",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-runtime-stop-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectProjectStopDeleteWaitsForActualIO",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-runtime-stop-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectProjectStopUnopenedSourceAndCrossProjectRelations",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-runtime-stop-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectRuntimeForceJoinsMainAndTransferIOInOneBudget",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-runtime-stop-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectRuntimeProbeEmptyAndSingleWorker",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-runtime-stop-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-runtime-stop-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectSourceLeaseAtomicCommitAndSingleOpen",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-source-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectSourceLeaseCurrentAuthorityAndCancelJoins",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-source-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectSourceLeaseFailedReleaseRemainsObservableAndRetryable",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-source-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectSourceLeaseParticipatesInServiceDrainAndForce",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-source-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectSourceLeaseUnopenedCancellationSharesShutdown",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-source-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    },
+    {
+      "name": "TestObjectSourceLeaseUploadedReceiptAndSharedPlanRejection",
+      "kind": "compatibility",
+      "evidence": "remaining-compat-object-source-01",
+      "source": "review09",
+      "proof": "explicit verbose top PASS",
+      "reused_on_review09": false
+    }
+  ],
+  "continuation_runs": [
+    {
+      "label": "remaining-new_core-01",
+      "source": "review08",
+      "top_pass": [
+        "TestArtifactProjectStopArchivePreservesCanonicalAndFencesReceipts",
+        "TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease",
+        "TestArtifactProjectStopObjectReportConservativeMatrix",
+        "TestArtifactProjectStopReadOnlyRequiresBothReceipts",
+        "TestArtifactProjectStopRejectedAuthorityHasNoSideEffects"
+      ],
+      "top_fail": [],
+      "sub_pass": [
+        "TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease/reader_release",
+        "TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease/unopened_source",
+        "TestArtifactProjectStopObjectReportConservativeMatrix/pending",
+        "TestArtifactProjectStopObjectReportConservativeMatrix/failed",
+        "TestArtifactProjectStopObjectReportConservativeMatrix/unknown",
+        "TestArtifactProjectStopObjectReportConservativeMatrix/wrong_cause",
+        "TestArtifactProjectStopObjectReportConservativeMatrix/wrong_component",
+        "TestArtifactProjectStopObjectReportConservativeMatrix/unbound",
+        "TestArtifactProjectStopRejectedAuthorityHasNoSideEffects/held_ex",
+        "TestArtifactProjectStopRejectedAuthorityHasNoSideEffects/manifest",
+        "TestArtifactProjectStopRejectedAuthorityHasNoSideEffects/restored",
+        "TestArtifactProjectStopRejectedAuthorityHasNoSideEffects/wrong_cause"
+      ],
+      "sub_fail": [],
+      "package_seconds": 19.778,
+      "driver_seconds": 40.66,
+      "exit": 0,
+      "input": "input-remaining-new_core-01.json",
+      "log": "logs/remaining-new_core-01.log",
+      "cleanup_double": "cleanup-double-remaining-new_core-01.json"
+    },
+    {
+      "label": "remaining-new_source-01",
+      "source": "review08",
+      "top_pass": [
+        "TestArtifactProjectStopDualProjectResolverAndTombstone",
+        "TestArtifactProjectStopSourceArchiveAndCompletedTargetReplay",
+        "TestArtifactProjectStopSourceGrantMustMatchOriginalActor",
+        "TestArtifactProjectStopSourceCurrentPermissionAndMapping",
+        "TestArtifactProjectStopMissingNonArtifactSourceAuthorityNeverResolves",
+        "TestArtifactProjectStopConcurrentSameKeyPreservesOriginalWork"
+      ],
+      "top_fail": [],
+      "sub_pass": [
+        "TestArtifactProjectStopSourceCurrentPermissionAndMapping/owner",
+        "TestArtifactProjectStopSourceCurrentPermissionAndMapping/session",
+        "TestArtifactProjectStopSourceCurrentPermissionAndMapping/project",
+        "TestArtifactProjectStopSourceCurrentPermissionAndMapping/mapping"
+      ],
+      "sub_fail": [],
+      "package_seconds": 11.896,
+      "driver_seconds": 35.163,
+      "exit": 0,
+      "input": "input-remaining-new_source-01.json",
+      "log": "logs/remaining-new_source-01.log",
+      "cleanup_double": "cleanup-double-remaining-new_source-01.json"
+    },
+    {
+      "label": "remaining-new_lifecycle-01",
+      "source": "review08",
+      "top_pass": [
+        "TestArtifactProjectStopLifecycleResolverKeepsSharedGuard",
+        "TestArtifactProjectStopLifecycleUploadReadAndClose",
+        "TestArtifactProjectStopLifecycleWholeObjectWriterTail",
+        "TestArtifactProjectStopLifecycleSourceCancelTimeoutKeepsOriginalRelease",
+        "TestArtifactProjectStopLegacyConstructorLocalJoinAndForeignConservatism",
+        "TestArtifactProjectStopRejectedUploadCloseKeepsSharedGuard"
+      ],
+      "top_fail": [],
+      "sub_pass": [
+        "TestArtifactProjectStopLifecycleWholeObjectWriterTail/archive",
+        "TestArtifactProjectStopLifecycleWholeObjectWriterTail/delete"
+      ],
+      "sub_fail": [],
+      "package_seconds": 11.134,
+      "driver_seconds": 31.99,
+      "exit": 0,
+      "input": "input-remaining-new_lifecycle-01.json",
+      "log": "logs/remaining-new_lifecycle-01.log",
+      "cleanup_double": "cleanup-double-remaining-new_lifecycle-01.json"
+    },
+    {
+      "label": "remaining-new-recovery-unknown-01",
+      "source": "review08",
+      "top_pass": [
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO"
+      ],
+      "top_fail": [
+        "TestArtifactProjectStopUnknownSourceAndFinalPublication",
+        "TestArtifactProjectStopUnknownPreflightAndGateNeverCancel"
+      ],
+      "sub_pass": [
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/committed/content",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/committed/source",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/committed/upload",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/rolled_back/content",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/rolled_back/source",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/rolled_back/upload",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/late/content",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/late/source",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/late/upload",
+        "TestArtifactProjectStopUnknownSourceAndFinalPublication/source_capture",
+        "TestArtifactProjectStopUnknownPreflightAndGateNeverCancel/preflight"
+      ],
+      "sub_fail": [
+        "TestArtifactProjectStopUnknownSourceAndFinalPublication/publication",
+        "TestArtifactProjectStopUnknownPreflightAndGateNeverCancel/gate"
+      ],
+      "package_seconds": 30.249,
+      "driver_seconds": 58.951,
+      "exit": 1,
+      "input": "input-remaining-new-recovery-unknown-01.json",
+      "log": "logs/remaining-new-recovery-unknown-01.log",
+      "cleanup_double": "cleanup-double-remaining-new-recovery-unknown-01.json"
+    },
+    {
+      "label": "remaining-new-recovery-native-01",
+      "source": "review08",
+      "top_pass": [
+        "TestArtifactProjectStopTechnicalRowsFairnessAndLegacyNative",
+        "TestArtifactProjectStopRecoveryExactGuardKillAndWriterIdentity",
+        "TestArtifactProjectStopLegacyIncompleteCommandHasNoInventedProcess"
+      ],
+      "top_fail": [],
+      "sub_pass": [],
+      "sub_fail": [],
+      "package_seconds": 5.576,
+      "driver_seconds": 26.955,
+      "exit": 0,
+      "input": "input-remaining-new-recovery-native-01.json",
+      "log": "logs/remaining-new-recovery-native-01.log",
+      "cleanup_double": "cleanup-double-remaining-new-recovery-native-01.json"
+    },
+    {
+      "label": "remaining-compat_artifact_core-01",
+      "source": "review08",
+      "top_pass": [
+        "TestArtifactSourceCurrentRevocationBlocksPublishAndRecoveryKeepsOriginal",
+        "TestArtifactAgentExecutionCurrentGateAndProvenance",
+        "TestArtifactProspectiveCancelAndProjectCleanupDoNotRevive",
+        "TestArtifactPendingCreationCancelPreventsLaterPublication",
+        "TestArtifactThreeCreationPathsAndCompletedSourceReplay"
+      ],
+      "top_fail": [
+        "TestArtifactSourceCommandUnknownAndOriginalFactRecovery"
+      ],
+      "sub_pass": [
+        "TestArtifactSourceCommandUnknownAndOriginalFactRecovery/source_capture"
+      ],
+      "sub_fail": [
+        "TestArtifactSourceCommandUnknownAndOriginalFactRecovery/publication"
+      ],
+      "package_seconds": 25.022,
+      "driver_seconds": 51.697,
+      "exit": 1,
+      "input": "input-remaining-compat_artifact_core-01.json",
+      "log": "logs/remaining-compat_artifact_core-01.log",
+      "cleanup_double": "cleanup-double-remaining-compat_artifact_core-01.json"
+    },
+    {
+      "label": "remaining-compat_artifact_projection_cleanup-01",
+      "source": "review09",
+      "top_pass": [
+        "TestArtifactProjectCleanupBoundedBatchAndForeignReader",
+        "TestArtifactListLiteralCursorBindingAndCurrentPermission",
+        "TestArtifactReadUTF8BinaryImageAndAuditBoundary",
+        "TestArtifactSourceUploadReceiptAndUnboundDownloadProviders",
+        "TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown",
+        "TestArtifactFinalCleanupLateDownloadAndNewKeysCannotRevive"
+      ],
+      "top_fail": [],
+      "sub_pass": [
+        "TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown/rollback",
+        "TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown/unknown_rollback",
+        "TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown/unknown_commit",
+        "TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown/late_commit"
+      ],
+      "sub_fail": [],
+      "package_seconds": 30.849,
+      "driver_seconds": 53.868,
+      "exit": 0,
+      "input": "input-remaining-compat_artifact_projection_cleanup-01.json",
+      "log": "logs/remaining-compat_artifact_projection_cleanup-01.log",
+      "cleanup_double": "cleanup-double-remaining-compat_artifact_projection_cleanup-01.json"
+    },
+    {
+      "label": "remaining-compat_artifact_download-01",
+      "source": "review09",
+      "top_pass": [
+        "TestArtifactDownloadCurrentAuthorizationWinsGateRace",
+        "TestArtifactDownloadIntegrityNeverDeliversCorruptWholeBody",
+        "TestArtifactDownloadDrainAndForceJoinActualStorage",
+        "TestArtifactDownloadUnopenedCloseAuditsZeroAndExpiryBlocksNew",
+        "TestArtifactDownloadForceInterruptsActualBlockedHTTPWrite",
+        "TestArtifactDownloadRealStreamRangePermissionsAndAudit",
+        "TestArtifactDownloadAuditFailureAndActualPartialWrite",
+        "TestArtifactDownloadPreviewSniffAndUnboundProvider",
+        "TestArtifactDownloadPurgeRequiresPlansPhysicalCompletionAndBoundPort",
+        "TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending"
+      ],
+      "top_fail": [],
+      "sub_pass": [
+        "TestArtifactDownloadCurrentAuthorizationWinsGateRace/issue_owner",
+        "TestArtifactDownloadCurrentAuthorizationWinsGateRace/open_session",
+        "TestArtifactDownloadCurrentAuthorizationWinsGateRace/open_owner",
+        "TestArtifactDownloadDrainAndForceJoinActualStorage/drain",
+        "TestArtifactDownloadDrainAndForceJoinActualStorage/force",
+        "TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending/issued",
+        "TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending/started",
+        "TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending/sent"
+      ],
+      "sub_fail": [],
+      "package_seconds": 25.473,
+      "driver_seconds": 46.752,
+      "exit": 0,
+      "input": "input-remaining-compat_artifact_download-01.json",
+      "log": "logs/remaining-compat_artifact_download-01.log",
+      "cleanup_double": "cleanup-double-remaining-compat_artifact_download-01.json"
+    },
+    {
+      "label": "remaining-compat-object-source-01",
+      "source": "review09",
+      "top_pass": [
+        "TestObjectSourceLeaseFailedReleaseRemainsObservableAndRetryable",
+        "TestObjectSourceLeaseUnopenedCancellationSharesShutdown",
+        "TestObjectSourceLeaseParticipatesInServiceDrainAndForce",
+        "TestObjectSourceLeaseAtomicCommitAndSingleOpen",
+        "TestObjectSourceLeaseCurrentAuthorityAndCancelJoins",
+        "TestObjectSourceLeaseUploadedReceiptAndSharedPlanRejection"
+      ],
+      "top_fail": [],
+      "sub_pass": [
+        "TestObjectSourceLeaseUnopenedCancellationSharesShutdown/drain",
+        "TestObjectSourceLeaseUnopenedCancellationSharesShutdown/force",
+        "TestObjectSourceLeaseUnopenedCancellationSharesShutdown/late_cancel",
+        "TestObjectSourceLeaseParticipatesInServiceDrainAndForce/drain",
+        "TestObjectSourceLeaseParticipatesInServiceDrainAndForce/force"
+      ],
+      "sub_fail": [],
+      "package_seconds": 10.781,
+      "driver_seconds": 32.127,
+      "exit": 0,
+      "input": "input-remaining-compat-object-source-01.json",
+      "log": "logs/remaining-compat-object-source-01.log",
+      "cleanup_double": "cleanup-double-remaining-compat-object-source-01.json"
+    },
+    {
+      "label": "remaining-compat-object-runtime-stop-01",
+      "source": "review09",
+      "top_pass": [
+        "TestObjectGracefulDrainKeepsAdmittedReaderAlive",
+        "TestObjectForceClosesRealReadAndSharesCleanupDeadline",
+        "TestObjectForceJoinsActualPreparationPipe",
+        "TestObjectForceCancelsAlreadyFreshMarkerContext",
+        "TestObjectProjectStopDeleteWaitsForActualIO",
+        "TestObjectProjectStopUnopenedSourceAndCrossProjectRelations",
+        "TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget",
+        "TestObjectRuntimeForceJoinsMainAndTransferIOInOneBudget",
+        "TestObjectRuntimeProbeEmptyAndSingleWorker"
+      ],
+      "top_fail": [],
+      "sub_pass": [
+        "TestObjectProjectStopDeleteWaitsForActualIO/small_body_already_joined_before_return",
+        "TestObjectProjectStopDeleteWaitsForActualIO/body_read_close",
+        "TestObjectProjectStopDeleteWaitsForActualIO/reader_release_callback",
+        "TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget/startup",
+        "TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget/worker"
+      ],
+      "sub_fail": [],
+      "package_seconds": 24.433,
+      "driver_seconds": 44.36,
+      "exit": 0,
+      "input": "input-remaining-compat-object-runtime-stop-01.json",
+      "log": "logs/remaining-compat-object-runtime-stop-01.log",
+      "cleanup_double": "cleanup-double-remaining-compat-object-runtime-stop-01.json"
+    },
+    {
+      "label": "unknown-compat-fix-01",
+      "source": "review09",
+      "top_pass": [
+        "TestArtifactProjectStopUnknownSourceAndFinalPublication",
+        "TestArtifactProjectStopUnknownPreflightAndGateNeverCancel",
+        "TestArtifactSourceCommandUnknownAndOriginalFactRecovery"
+      ],
+      "top_fail": [],
+      "sub_pass": [
+        "TestArtifactProjectStopUnknownSourceAndFinalPublication/source_capture",
+        "TestArtifactProjectStopUnknownSourceAndFinalPublication/publication",
+        "TestArtifactProjectStopUnknownPreflightAndGateNeverCancel/preflight",
+        "TestArtifactProjectStopUnknownPreflightAndGateNeverCancel/gate",
+        "TestArtifactSourceCommandUnknownAndOriginalFactRecovery/source_capture",
+        "TestArtifactSourceCommandUnknownAndOriginalFactRecovery/publication"
+      ],
+      "sub_fail": [],
+      "package_seconds": 22.855,
+      "driver_seconds": 41.296,
+      "exit": 0,
+      "input": "input-unknown-compat-fix-01.json",
+      "log": "logs/unknown-compat-fix-01.log",
+      "cleanup_double": "cleanup-double-unknown-compat-fix-01.json"
+    },
+    {
+      "label": "remaining-new-admission-review09-01",
+      "source": "review09",
+      "top_pass": [
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO"
+      ],
+      "top_fail": [],
+      "sub_pass": [
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/committed/content",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/committed/source",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/committed/upload",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/rolled_back/content",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/rolled_back/source",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/rolled_back/upload",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/late/content",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/late/source",
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO/late/upload"
+      ],
+      "sub_fail": [],
+      "package_seconds": 12.267,
+      "driver_seconds": 35.34,
+      "exit": 0,
+      "input": "input-remaining-new-admission-review09-01.json",
+      "log": "logs/remaining-new-admission-review09-01.log",
+      "cleanup_double": "cleanup-double-remaining-new-admission-review09-01.json"
+    }
+  ],
+  "reuse_basis": {
+    "review08": "review09 changes only delivery of actual ordinary within Unknown. The old first-lookup NotCommitted path and all confirmed normal paths retain behavior. Ordinary admission Unknown (all3 producer kinds), new source/publication Unknown, old source/publication Unknown and gate follow-up were rechecked on review09. Identity/read/authority gates, bounded scanning and real-body/writer retirement rules were not changed. Reuse is author assessment for independent acceptance.",
+    "review07": "The six selector/join tops have exact selection plus package exit0, not individual verbose PASS. Later deltas add pending report normalization, first Acquire ownership and deferred ordinary Unknown confirmation; relevant sourceplanning/member/identity/fairness algorithms are unchanged. Original result is retained as historical evidence, not claimed as a full review09 rerun."
+  },
+  "unverified_or_external_boundaries": [
+    "No dynamic failed-ROLLBACK retained-original-backend/partial-Acquire scenario; approved normal-lock canary and formal Store unit result tests do not substitute for that paused scenario.",
+    "No real mixed aggregation scenario for earlier Unknown plus later NotCommitted; pure regression only.",
+    "Independent foreign recovery evidence belongs to V, uses a formal Store Unknown simulation after a real Committed join plus a separate ordinary lock holder, not lost network ACK nor original writer persistence.",
+    "Complete Object/Artifact shared guard acceptance remains blocked by the separately known upstream Object Runtime/guard defect. No Object fix or app binding was included."
+  ],
+  "all_stop": true
+}

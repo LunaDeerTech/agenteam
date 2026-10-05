@@ -1,0 +1,30 @@
+{
+  "exit_code": 0,
+  "elapsed_seconds": 7.046515,
+  "command_sha256": "ae24365415ec55c8ddda6d085c90db2d6ea46cebb81a91d787b5dc720b24bf27",
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "candidate16_effective_matches": {
+    "internal/central/artifact/service.go": true,
+    "internal/central/artifact/create.go": true,
+    "internal/central/artifact/upload.go": true,
+    "internal/central/artifact/publish.go": true,
+    "internal/central/artifact/commands.go": true,
+    "internal/central/artifact/project_work.go": true,
+    "internal/central/artifact/project_lifecycle.go": true,
+    "internal/central/artifact/lifecycle.go": true,
+    "internal/central/artifact/project_work_test.go": true,
+    "internal/central/artifact/project_lifecycle_test.go": true,
+    "internal/central/artifact/lifecycle_test.go": true,
+    "tests/objects/artifact_project_stop_fixture_test.go": true,
+    "tests/objects/artifact_project_stop_test.go": true,
+    "tests/objects/artifact_project_stop_source_test.go": true,
+    "tests/objects/artifact_project_stop_recovery_test.go": true,
+    "tests/objects/artifact_project_stop_lifecycle_test.go": true
+  },
+  "probe_sha256": "c40b8aeb6f574a2bbd7674f77b5ed5fb8c3311a1d367bc8302efaa2b199e5350",
+  "go_pid": 840206,
+  "go_present": false,
+  "tmp_entries": [],
+  "completed_utc": "2026-10-05T17:00:18.724609+00:00",
+  "binary_sha256": "97872b81cd21bb1c70792b92074ac7ac1e1fa3f0769b04084b3e9640cef07c38"
+}

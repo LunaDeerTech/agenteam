@@ -1,0 +1,248 @@
+package artifact
+
+import (
+	"context"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+)
+
+type createRequest struct {
+	invocation ac.Invocation
+	command    foundation.CommandMeta
+	identity   foundation.CommandIdentity
+	digest     foundation.Digest
+	display    ac.Display
+	path       string
+	kind       ac.Kind
+	media      string
+	size       int64
+	sha        foundation.Digest
+	sourceRef  oc.BusinessFileRef
+	receipt    oc.UploadReceipt
+}
+
+func makeRequest(v ac.Invocation, meta foundation.CommandMeta, display ac.Display, path, media string, size int64, sha foundation.Digest, ref oc.BusinessFileRef, receipt oc.UploadReceipt) (createRequest, error) {
+	meta = copyCommand(meta)
+	if v.Validate() != nil || meta.Validate() != nil || display.Validate() != nil {
+		return createRequest{}, invalid()
+	}
+	if path != "content" && path != "source" && path != "upload" {
+		return createRequest{}, invalid()
+	}
+	if path == "source" && ref.Validate() != nil || path == "upload" && (receipt.Validate() != nil || v.Details().Actor.Details().Kind != identity.Human) {
+		return createRequest{}, invalid()
+	}
+	if path == "content" {
+		normalized, err := oc.NormalizeMediaType(media)
+		if err != nil || normalized != media || size < 0 || size > ac.MaxInlineBytes || sha.Validate() != nil {
+			return createRequest{}, invalid()
+		}
+	}
+	kind := ac.Generated
+	if path == "upload" {
+		kind = ac.UserUpload
+	}
+	d := v.Details()
+	id, err := commandIdentity(d.ProjectID, meta.IdempotencyKey, "create")
+	if err != nil {
+		return createRequest{}, invalid()
+	}
+	var source referenceWire
+	if path == "source" {
+		source = referenceStorage(ref)
+	} else if path == "upload" {
+		r, _ := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.UploadedObject, Receipt: receipt})
+		source = referenceStorage(r)
+	}
+	semantic := struct {
+		Path                                 string
+		Actor                                string
+		Project                              string
+		Execution, Operation, Tool, ToolCall string
+		Name, Description, Media             string
+		Size                                 int64
+		SHA                                  string
+		Source                               referenceWire
+		Expected                             *foundation.Version
+	}{path, stableActor(d.Actor), d.ProjectID.String(), d.ExecutionID, d.OperationID, d.ToolID, d.ToolCallID, display.Name, display.Description, media, size, sha.String(), source, meta.ExpectedVersion}
+	// Request/HTTP trace and invocation attempt do not change a business command.
+	digest, err := jsonDigest(semantic)
+	if err != nil {
+		return createRequest{}, err
+	}
+	return createRequest{v, meta, id, digest, display, path, kind, media, size, sha, ref, receipt}, nil
+}
+
+type commandRow struct {
+	identity                                      foundation.CommandIdentity
+	ref                                           ac.ArtifactRef
+	originalActor                                 string
+	digest                                        foundation.Digest
+	cause, path, state                            string
+	kind                                          ac.Kind
+	display                                       ac.Display
+	media                                         string
+	size                                          int64
+	sha                                           foundation.Digest
+	source                                        oc.ResolvedSource
+	sourceLease                                   oc.LeaseID
+	object                                        oc.ObjectID
+	upload                                        oc.UploadID
+	attempt                                       oc.AttemptID
+	creatorKind                                   identity.ActorKind
+	creator, execution, operation, tool, toolCall string
+	created                                       foundation.Instant
+}
+
+const commandColumns = `command_hash,command_key,project_id::text,artifact_id::text,file_id::text,stable_actor,request_digest,creation_cause,path,kind,state,name,description,media_type,byte_size,sha256,source,COALESCE(source_lease_id::text,''),COALESCE(target_object_id::text,''),COALESCE(target_upload_id::text,''),COALESCE(target_attempt_id::text,''),creator_kind,creator_id::text,COALESCE(execution_id::text,''),COALESCE(operation_id::text,''),COALESCE(tool_id::text,''),COALESCE(tool_call_id::text,''),created_at`
+
+func loadCommand(ctx context.Context, e postgres.SQLExecutor, id foundation.CommandIdentity) (commandRow, bool, error) {
+	c, found, err := scanCommand(e.QueryRow(ctx, `SELECT `+commandColumns+` FROM agenteam_artifact.commands WHERE command_hash=$1`, digestRaw(digestBytes([]byte(id.Canonical())))))
+	if err == nil && found && c.identity.Canonical() != id.Canonical() {
+		return c, false, unavailable(nil)
+	}
+	return c, found, err
+}
+func loadCommandArtifact(ctx context.Context, e postgres.SQLExecutor, id string) (commandRow, bool, error) {
+	return scanCommand(e.QueryRow(ctx, `SELECT `+commandColumns+` FROM agenteam_artifact.commands WHERE artifact_id=$1`, id))
+}
+func scanCommand(row postgres.Row) (commandRow, bool, error) {
+	var c commandRow
+	var key, project, artifact, file, kind, creatorKind, sourceLease, object, upload, attempt string
+	var hash, digest, sha, source []byte
+	var created time.Time
+	err := row.Scan(&hash, &key, &project, &artifact, &file, &c.originalActor, &digest, &c.cause, &c.path, &kind, &c.state, &c.display.Name, &c.display.Description, &c.media, &c.size, &sha, &source, &sourceLease, &object, &upload, &attempt, &creatorKind, &c.creator, &c.execution, &c.operation, &c.tool, &c.toolCall, &created)
+	if noRows(err) {
+		return c, false, nil
+	}
+	if err != nil {
+		return c, false, unavailable(err)
+	}
+	c.kind = ac.Kind(kind)
+	c.creatorKind = identity.ActorKind(creatorKind)
+	c.digest = rawDigest(digest)
+	c.sha = rawDigest(sha)
+	var parse error
+	c.ref.ProjectID, parse = foundation.ParseID[identity.Project](project)
+	if parse != nil {
+		return c, false, unavailable(parse)
+	}
+	c.ref.ArtifactID, parse = foundation.ParseID[ac.ArtifactEntity](artifact)
+	if parse != nil {
+		return c, false, unavailable(parse)
+	}
+	c.ref.FileID, parse = foundation.ParseID[ac.File](file)
+	if parse != nil {
+		return c, false, unavailable(parse)
+	}
+	c.identity, parse = commandIdentity(c.ref.ProjectID, foundation.IdempotencyKey(key), "create")
+	if parse != nil || rawDigest(hash) != digestBytes([]byte(c.identity.Canonical())) || c.digest.Validate() != nil || c.sha.Validate() != nil {
+		return c, false, unavailable(nil)
+	}
+	c.created, parse = foundation.NewInstant(created)
+	if parse != nil {
+		return c, false, unavailable(parse)
+	}
+	if len(source) > 0 {
+		c.source, parse = decodeSource(source)
+		if parse != nil {
+			return c, false, parse
+		}
+	}
+	if sourceLease != "" {
+		c.sourceLease, parse = foundation.ParseID[oc.Lease](sourceLease)
+		if parse != nil {
+			return c, false, unavailable(parse)
+		}
+	}
+	if object != "" {
+		c.object, parse = foundation.ParseID[oc.StoredObject](object)
+		if parse != nil {
+			return c, false, unavailable(parse)
+		}
+	}
+	if upload != "" {
+		c.upload, parse = foundation.ParseID[oc.Upload](upload)
+		if parse != nil {
+			return c, false, unavailable(parse)
+		}
+	}
+	if attempt != "" {
+		c.attempt, parse = foundation.ParseID[oc.Attempt](attempt)
+		if parse != nil {
+			return c, false, unavailable(parse)
+		}
+	}
+	return c, true, nil
+}
+func newCommand(req createRequest, ref ac.ArtifactRef, source oc.ResolvedSource) (commandRow, error) {
+	d := req.invocation.Details()
+	a := d.Actor.Details()
+	creator := a.UserID
+	if a.Kind == identity.AgentRun {
+		creator = a.AgentID
+	}
+	causeID, err := foundation.NewID[struct{}]()
+	if err != nil {
+		return commandRow{}, unavailable(err)
+	}
+	c := commandRow{identity: req.identity, ref: ref, originalActor: stableActor(d.Actor), digest: req.digest, cause: causeID.String(), path: req.path, state: "pending", kind: req.kind, display: req.display, media: req.media, size: req.size, sha: req.sha, source: source, creatorKind: a.Kind, creator: creator, execution: d.ExecutionID, operation: d.OperationID, tool: d.ToolID, toolCall: d.ToolCallID}
+	if req.path == "source" {
+		m := source.Details().Meta
+		c.media = m.MediaType
+		c.size = int64(m.ByteSize)
+		c.sha = m.SHA256
+	}
+	return c, nil
+}
+func insertCommand(ctx context.Context, e postgres.SQLExecutor, c commandRow) error {
+	var source any
+	if c.source.Validate() == nil {
+		raw, err := encodeSource(c.source)
+		if err != nil {
+			return err
+		}
+		source = string(raw)
+	}
+	_, err := e.Exec(ctx, `INSERT INTO agenteam_artifact.commands(command_hash,command_key,project_id,artifact_id,file_id,stable_actor,request_digest,creation_cause,path,kind,state,name,description,media_type,byte_size,sha256,source,source_lease_id,target_object_id,target_upload_id,target_attempt_id,creator_kind,creator_id,execution_id,operation_id,tool_id,tool_call_id) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,'pending',$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23,$24,$25,$26)`, digestRaw(digestBytes([]byte(c.identity.Canonical()))), string(c.identity.Key()), c.ref.ProjectID.String(), c.ref.ArtifactID.String(), c.ref.FileID.String(), c.originalActor, digestRaw(c.digest), c.cause, c.path, string(c.kind), c.display.Name, c.display.Description, c.media, c.size, digestRaw(c.sha), source, nullableID(c.sourceLease), nullableID(c.object), nullableID(c.upload), nullableID(c.attempt), string(c.creatorKind), c.creator, null(c.execution), null(c.operation), null(c.tool), null(c.toolCall))
+	return portOrNil(err)
+}
+func null(s string) any {
+	if s == "" {
+		return nil
+	}
+	return s
+}
+
+type scalarID interface {
+	Validate() error
+	String() string
+}
+
+func nullableID(id scalarID) any {
+	if id.Validate() != nil {
+		return nil
+	}
+	return id.String()
+}
+func matchesCommand(c commandRow, req createRequest) error {
+	if c.originalActor != stableActor(req.invocation.Details().Actor) {
+		return failure(foundation.Forbidden, nil)
+	}
+	if c.digest != req.digest {
+		return failure(foundation.IdempotencyKeyReused, nil)
+	}
+	return nil
+}
+func copyCommand(meta foundation.CommandMeta) foundation.CommandMeta {
+	if meta.ExpectedVersion != nil {
+		v := *meta.ExpectedVersion
+		meta.ExpectedVersion = &v
+	}
+	return meta
+}

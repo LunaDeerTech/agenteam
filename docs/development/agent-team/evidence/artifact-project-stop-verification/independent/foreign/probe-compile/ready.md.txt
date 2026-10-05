@@ -1,0 +1,9 @@
+# review09 foreign probe 编译准备冻结
+
+有效候选16为79e5eb812c0fda2a42d390a7e2703b1ebca4ce581c055e1c2a99fda1ab76914e；在原6658+1c931fc6 tree上只用overlay.json替换已审4文件。旧tree16/probe未改，不重复复制整树。独立probe SHA仍c40b8aeb6f574a2bbd7674f77b5ed5fb8c3311a1d367bc8302efaa2b199e5350，selector仍`^TestIndependentArtifactForeignJoinCommittedStoreUnknown$`。
+
+实际 `go test -tags=integration -race -c -overlay <绝对overlay.json> -o <私有objects.test> ./tests/objects` exit0，7.046515s。精确argv/环境在command.json；复跑编译脚本../run-probe-compile.py。底层真实Commit/合法模拟Unknown+另一笔普通SH holder的范围沿原ready.md，不是物理提交Unknown或存活回滚writer证明。
+
+仅编译，未启动test binary/PG/MinIO/Docker，未来实际driver须继承同一overlay（或固定等价物理快照）才属于review09，不可误运行旧1c931fc6。有效16前后匹配；driver840202/Go840206实际absent，TMPDIR空，all-stop等待root窗口。
+
+后续作者已给固定修后3top6sub真实日志，本次只读核其SHA与执行清单79e5eb81一致：b028f34bd9dff7bd9d5b12646e9489c115acb52daa1bc75454b67ae0abfdf1e5，Objects22.855s。记录Discard2.004773423s/publicUnknown2.004977697s；gate从lane1按2/3/0/1四轮Pending，第4取消原ctx；旧publication3s原断言通过。这是作者实际覆盖复用，不是独立动态执行，也不反推原红唯一等待栈。余旧回归/整卡共享Object blocker仍按主线程保留。

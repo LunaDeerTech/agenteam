@@ -1,0 +1,109 @@
+--- before/internal/central/artifact/project_lifecycle.go
++++ after/internal/central/artifact/project_lifecycle.go
+@@ -27,6 +27,7 @@
+ 	work                *artifactWork
+ 	sourceHint          identity.ProjectID
+ 	admitting, returned bool
++	stopCancelled       bool
+ 	origins             map[foundation.Tx]bool
+ 	locks               []foundation.LockRequest
+ }
+@@ -227,6 +228,7 @@
+ 	for _, u := range b.intents {
+ 		b.locks = append(b.locks, createLocks(u.identity, u.ref.ArtifactID.String())...)
+ 	}
++	var preWork []capturedProducer
+ 	r.mu.Lock()
+ 	for p := range r.controls {
+ 		if !producerRelated(p, d) {
+@@ -237,6 +239,10 @@
+ 		// An unverified source hint can delay Stopped, but cannot authorize
+ 		// cancelling a call in the other project.
+ 		if p.project != d.ProjectID && (p.work == nil || p.work.source != d.ProjectID) {
++			continue
++		}
++		if p.work == nil {
++			preWork = append(preWork, capture)
+ 			continue
+ 		}
+ 		// The persistent page alone defines this round's revocation/cancel set.
+@@ -257,14 +263,30 @@
+ 			}
+ 		}
+ 		b.controls = append(b.controls, capture)
++	}
++	b.localRevision, b.hasLocalSnapshot = r.localRevision, true
++	r.mu.Unlock()
++	// Work rows already have the four durable cursors. Pre-work calls have no
++	// row to advance: select uncancelled lifetimes first, then retry old tails.
++	sort.Slice(preWork, func(i, j int) bool {
++		if preWork[i].stopCancelled != preWork[j].stopCancelled {
++			return !preWork[i].stopCancelled
++		}
++		return preWork[i].id < preWork[j].id
++	})
++	for _, capture := range preWork {
++		if len(b.controls) == artifactStopBatchSize {
++			break
++		}
++		b.controls = append(b.controls, capture)
++	}
++	for _, capture := range b.controls {
+ 		b.locks = append(b.locks, capture.locks...)
+-		b.locks = append(b.locks, controlRecordLock(p.id))
++		b.locks = append(b.locks, controlRecordLock(capture.id))
+ 		if capture.work != nil {
+ 			b.locks = append(b.locks, artifactWorkLocks(*capture.work)...)
+ 		}
+ 	}
+-	b.localRevision, b.hasLocalSnapshot = r.localRevision, true
+-	r.mu.Unlock()
+ 	sort.Slice(b.local, func(i, j int) bool { return b.local[i].id < b.local[j].id })
+ 	b.locks, err = oc.NormalizeAccessLocks(b.locks)
+ 	if err != nil {
+@@ -336,7 +358,7 @@
+ 	return p.project == d.ProjectID || d.Action == oc.ProjectStopDelete && (p.sourceHint == d.ProjectID || p.work != nil && p.work.source == d.ProjectID)
+ }
+ func captureProducer(p *producerControl) capturedProducer {
+-	c := capturedProducer{control: p, id: p.id, sourceHint: p.sourceHint, admitting: p.admitting, returned: p.returned, locks: append([]foundation.LockRequest{}, p.locks...), origins: map[foundation.Tx]bool{}}
++	c := capturedProducer{control: p, id: p.id, sourceHint: p.sourceHint, admitting: p.admitting, returned: p.returned, stopCancelled: p.stopCancelled, locks: append([]foundation.LockRequest{}, p.locks...), origins: map[foundation.Tx]bool{}}
+ 	if p.work != nil {
+ 		w := *p.work
+ 		c.work = &w
+@@ -356,7 +378,7 @@
+ 	}
+ 	for _, c := range b.local {
+ 		p := c.control
+-		if !r.controls[p] || p.service != s || p.id != c.id || p.sourceHint != c.sourceHint || p.admitting != c.admitting || p.returned != c.returned || (p.work == nil) != (c.work == nil) || p.work != nil && (!workIdentity(*p.work, *c.work) || p.work.lease != c.work.lease) || len(p.origins) != len(c.origins) || len(p.locks) != len(c.locks) {
++		if !r.controls[p] || p.service != s || p.id != c.id || p.sourceHint != c.sourceHint || p.admitting != c.admitting || p.returned != c.returned || p.stopCancelled != c.stopCancelled || (p.work == nil) != (c.work == nil) || p.work != nil && (!workIdentity(*p.work, *c.work) || p.work.lease != c.work.lease) || len(p.origins) != len(c.origins) || len(p.locks) != len(c.locks) {
+ 			return failure(foundation.ResourceBusy, nil)
+ 		}
+ 		for tx := range c.origins {
+@@ -498,7 +520,13 @@
+ 	if err != nil {
+ 		return rejected(err)
+ 	}
+-	return r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
++	r.mu.Lock()
++	p.pendingBatch = append([]foundation.LockRequest{}, locks...)
++	r.mu.Unlock()
++	result := r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
++		r.mu.Lock()
++		p.origins[tx] = true
++		r.mu.Unlock()
+ 		if err := r.store.AcquireAll(ctx, tx, locks); err != nil {
+ 			return portError(err)
+ 		}
+@@ -521,6 +549,12 @@
+ 		}
+ 		return fn(ctx, tx, e, grant.Mode())
+ 	})
++	if result.State() == foundation.Committed {
++		r.mu.Lock()
++		p.pendingBatch = nil
++		r.mu.Unlock()
++	}
++	return result
+ }
+ func (s *Service) RequestProjectStop(ctx context.Context, actor identity.Actor, cause oc.ProjectStopCause) (oc.ObjectStopReport, error) {
+ 	return s.artifactProjectStop(ctx, actor, cause, oc.RequestProjectStopStep)

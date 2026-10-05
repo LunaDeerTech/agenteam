@@ -1,0 +1,164 @@
+--- before/internal/central/artifact/lifecycle.go
++++ after/internal/central/artifact/lifecycle.go
+@@ -29,6 +29,7 @@
+ 	origins            map[foundation.Tx]bool
+ 	locks              []foundation.LockRequest
+ 	pendingBatch       []foundation.LockRequest
++	pendingResult      foundation.CommitResult
+ 	body               *producerBody
+ 	lease              oc.SourceLease
+ 	prepared           oc.PreparedPayload
+--- before/internal/central/artifact/project_lifecycle.go
++++ after/internal/central/artifact/project_lifecycle.go
+@@ -429,9 +429,9 @@
+ 	// AcquireAll can fail after acquiring an earlier key but before control EX.
+ 	// Retain this one unconfirmed union before starting the physical Tx. A
+ 	// confirmed batch retires its union; historical batches never accumulate it.
+-	r.mu.Lock()
+-	p.pendingBatch = append([]foundation.LockRequest{}, locks...)
+-	r.mu.Unlock()
++	if previous, started := s.startStopBatch(p, locks); !started {
++		return previous
++	}
+ 	result := r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+ 		r.mu.Lock()
+ 		p.origins[tx] = true
+@@ -490,12 +490,38 @@
+ 		r.mu.Unlock()
+ 		return err
+ 	})
++	return s.finishStopBatch(p, result)
++}
++
++// An unconfirmed transaction keeps its original bounded union and outcome.
++// This request returns instead of accumulating another work/batch behind it;
++// whole-control cleanup later proves that union terminal before retirement.
++func (s *Service) startStopBatch(p *producerControl, locks []foundation.LockRequest) (foundation.CommitResult, bool) {
++	r := s.state()
++	r.mu.Lock()
++	defer r.mu.Unlock()
++	if len(p.pendingBatch) != 0 {
++		return p.pendingResult, false
++	}
++	p.pendingBatch = append([]foundation.LockRequest{}, locks...)
++	p.pendingResult = rejected(failure(foundation.ResourceBusy, nil))
++	return foundation.CommittedResult(), true
++}
++func (s *Service) finishStopBatch(p *producerControl, result foundation.CommitResult) foundation.CommitResult {
++	r := s.state()
++	r.mu.Lock()
++	defer r.mu.Unlock()
++	p.pendingResult = result
+ 	if result.State() == foundation.Committed {
+-		r.mu.Lock()
+ 		p.pendingBatch = nil
+-		r.mu.Unlock()
+ 	}
+ 	return result
++}
++func (s *Service) pendingStopBatch(p *producerControl) (foundation.CommitResult, bool) {
++	r := s.state()
++	r.mu.Lock()
++	defer r.mu.Unlock()
++	return p.pendingResult, len(p.pendingBatch) != 0
+ }
+ func (s *Service) cancelCaptured(c capturedProducer) {
+ 	r := s.state()
+@@ -520,9 +546,9 @@
+ 	if err != nil {
+ 		return rejected(err)
+ 	}
+-	r.mu.Lock()
+-	p.pendingBatch = append([]foundation.LockRequest{}, locks...)
+-	r.mu.Unlock()
++	if previous, started := s.startStopBatch(p, locks); !started {
++		return previous
++	}
+ 	result := r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+ 		r.mu.Lock()
+ 		p.origins[tx] = true
+@@ -549,12 +575,7 @@
+ 		}
+ 		return fn(ctx, tx, e, grant.Mode())
+ 	})
+-	if result.State() == foundation.Committed {
+-		r.mu.Lock()
+-		p.pendingBatch = nil
+-		r.mu.Unlock()
+-	}
+-	return result
++	return s.finishStopBatch(p, result)
+ }
+ func (s *Service) RequestProjectStop(ctx context.Context, actor identity.Actor, cause oc.ProjectStopCause) (oc.ObjectStopReport, error) {
+ 	return s.artifactProjectStop(ctx, actor, cause, oc.RequestProjectStopStep)
+@@ -703,6 +724,12 @@
+ 	for _, w := range b.works {
+ 		if !w.joined || w.source.Validate() == nil && !w.sourceJoined {
+ 			recordConvergence(&w, s.recoverArtifactWork(ctx, p, request, w))
++			if result, pending := s.pendingStopBatch(p); pending {
++				if result.State() == foundation.Unknown {
++					return oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, local)
++				}
++				return oc.ObjectStopReport{}, commitError(result)
++			}
+ 		}
+ 	}
+ 	var object oc.ObjectStopReport
+--- before/internal/central/artifact/project_lifecycle_test.go
++++ after/internal/central/artifact/project_lifecycle_test.go
+@@ -36,6 +36,55 @@
+ 		t.Fatal("new lifetime disappeared back into an accepted old snapshot", sameMembers, err)
+ 	}
+ 	s.finishProducer(p)
++}
++
++func TestArtifactStopUnconfirmedBatchPreservesOriginalUnionAndOutcome(t *testing.T) {
++	attempt, _ := foundation.NewID[foundation.TransactionAttempt]()
++	cause, err := txCause()
++	if err != nil {
++		t.Fatal(err)
++	}
++	for _, original := range []foundation.CommitResult{
++		foundation.NotCommittedResult(foundation.NewFault(foundation.Forbidden, foundation.NotCommitted)),
++		foundation.UnknownResult(attempt, cause),
++	} {
++		t.Run(string(original.State()), func(t *testing.T) {
++			s := producerFixture()
++			p, err := s.beginProducer(context.Background(), testProject(t))
++			if err != nil {
++				t.Fatal(err)
++			}
++			first := []foundation.LockRequest{projectLock(p.project, foundation.Exclusive), controlRecordLock(p.id)}
++			if _, started := s.startStopBatch(p, first); !started {
++				t.Fatal("first bounded batch rejected")
++			}
++			s.finishStopBatch(p, original)
++			next := []foundation.LockRequest{projectLock(testProject(t), foundation.Exclusive)}
++			kept, started := s.startStopBatch(p, next)
++			if started || kept.State() != original.State() || kept.AttemptID() != original.AttemptID() || kept.Cause().Details().RecoveryRunID != original.Cause().Details().RecoveryRunID {
++				t.Fatal("unconfirmed original batch replaced", started, kept.State())
++			}
++			if original.Fault() != nil && (kept.Fault() == nil || kept.Fault().Code != original.Fault().Code) {
++				t.Fatal("original business fault changed")
++			}
++			if len(p.pendingBatch) != len(first) {
++				t.Fatal("pending union grew or disappeared")
++			}
++			for i, lock := range first {
++				if foundation.CompareLockKeys(p.pendingBatch[i].Key, lock.Key) != 0 || p.pendingBatch[i].Mode != lock.Mode {
++					t.Fatal("original pending key replaced")
++				}
++			}
++			// This models a confirmed barrier result, never a NotCommitted
++			// callback. Only confirmation releases the slot for a new batch.
++			s.finishStopBatch(p, foundation.CommittedResult())
++			if _, started := s.startStopBatch(p, next); !started {
++				t.Fatal("confirmed batch prevented forward progress")
++			}
++			s.finishStopBatch(p, foundation.CommittedResult())
++			s.finishProducer(p)
++		})
++	}
+ }
+ 
+ func testArtifactStopCause(t *testing.T) oc.ProjectStopCause {

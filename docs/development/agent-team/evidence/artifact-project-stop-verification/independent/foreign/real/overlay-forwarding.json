@@ -1,0 +1,38 @@
+{
+  "overlay_sha256": "4fdd115fc9104e1557a6c7d8a41e47446e32055418e2e878c3522b6efabf7c9d",
+  "driver_go_flags": "-mod=readonly -v -overlay=/workspace/agenteam-artifact-review09-v-qk_5bouy/probe-compile/overlay.json",
+  "actual_first_go_build_environment_captured": true,
+  "final_go_test_pid_not_captured_due_to_nested_process_groups": true,
+  "fixed_helpers_preserve_GOFLAGS": [
+    {
+      "path": "tests/testsupport/objectstore/cmd/fixture/main.go",
+      "sha256": "680472027d5a30aa5f3a316c9301fc3c78bc9a7297cbe18647fab43af1b5bbab",
+      "environment_forwarding": [
+        {
+          "line": 213,
+          "text": "cmd.Env = append(os.Environ(), objectfixture.Env+\"=\"+path, \"GOTOOLCHAIN=local\", \"TMPDIR=\"+directory)"
+        }
+      ]
+    },
+    {
+      "path": "tests/testsupport/outbound/cmd/fixture/main.go",
+      "sha256": "46da1f582264c5799b509e5d3f5002ed588628b1d12b9b589ab8064fc3cdf683",
+      "environment_forwarding": [
+        {
+          "line": 171,
+          "text": "cmd.Env = append(os.Environ(), netfixture.Env+\"=\"+path, \"GOTOOLCHAIN=local\", \"TMPDIR=\"+directory)"
+        }
+      ]
+    },
+    {
+      "path": "tests/testsupport/postgres/cmd/fixture/main.go",
+      "sha256": "55ae7da25e69c4f4f29ca516748d8cc837913016e9fc381fc96abc11f37298de",
+      "environment_forwarding": [
+        {
+          "line": 239,
+          "text": "cmd.Env = append(os.Environ(), pgfixture.Env+\"=\"+path, pgfixture.UnsupportedEnv+\"=\"+unsupportedPath, \"GOTOOLCHAIN=local\", \"TMPDIR=\"+directory)"
+        }
+      ]
+    }
+  ]
+}

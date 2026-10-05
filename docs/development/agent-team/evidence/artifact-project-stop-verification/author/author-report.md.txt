@@ -1,0 +1,61 @@
+# Artifact project stop：作者冻结交接（部分验证）
+
+16 源/测试已停写；固定依赖 `6658a6cb1f29299521773bc8dc86b2f607b8c809`，没有消费活动 Object/Project/app/D09 修改，没有 Git 写操作。此交付不是 Artifact 整卡通过，也不是 Object/Artifact shared guard 的总体验收。
+
+最终只读 16 字节副本：`candidate-final/`；`candidate-final/manifest.json` SHA-256 **1c931fc6ac183643380c5c287b008bc672ad5df5d0cc7249ab7ee0ad69e72b85**。共享源、固定执行 snapshot 与副本逐项一致；最终末核在 `final-source-check.json`，gofmt/diff check 均 0。上游已知 Object Runtime/guard 提前退出缺陷仍未修复整合，完整组合采纳 blocked。
+
+## 当前实现及本次收口
+
+8 个生产路径接入 whole-call producer、持久 work、原 source grant.Matches/Read 规划、目标/来源停止、真实 Object 委托与完整 writer/join。原5条生产接缝之外没有第17路径/旧测试/SQL/契约/脚本/应用绑定修改。
+
+最近收口：稳定 stop control，≤64 readonly local 批、完整 tuple/lease/hint/成员及单调 revision，bounded/fair 取消；失败批保留其完整原 union 与原 CommitResult，不再覆盖/累积下一笔；ordinary first lookup 在实际 Acquire 前记录原计划完整 union/真实 Tx 的退休责任，实际 held locks 和授权仍由原单次 Acquire 与 Authority 验证；已有真实 Unknown 优先于后续 NotCommitted，refs 统一归一。最新 `production-review-08/delta.json` SHA **eb925483796b42dbf72f3b5965a89ba2ca972adedb7218dccdc9db19b901ea2e**，相对 review07 为3生产+2单元，未改变 Object/D03。
+
+## 最终输入的纯检查
+
+| 原始输入/命令记录 | 原始日志/exit | 结果及准确范围 |
+| --- | --- | --- |
+| `input-pure-21.json` | `logs/race21.log/.exit` | exit0，`go test -race -count=1 ./internal/central/artifact/...`；Artifact1.161s/contract1.018s，生产8+unit3与最终完全相同 |
+| 同上 | `logs/vet21.log/.exit` | exit0，Artifact与当时 integration 包；最终追加 canary 由 vet22 补齐 |
+| 同上 | `logs/compile21.log/.exit` | exit0，历史 integration 编译；最终追加 canary 由 compile22 补齐 |
+| `input-pure-22.json` | `logs/vet22.log/.exit`、`logs/compile22.log/.exit` | exit0，最终16完全相同；`go vet -tags=integration ./tests/objects` 与 `go test -tags=integration -run ^$ ./tests/objects` |
+| `input-build-23.json` | `logs/build23-agenteam.log/.exit`、`logs/build23-agenteam-runner.log/.exit` | 两cmd均exit0，产物只在自有 `/workspace/agenteam-artifact-stop-build-y597q6vl/bin/` |
+
+实际 Go 为 `/workspace/toolchains/go1.27.1/bin/go`。执行 cwd 是本目录 `snapshot/`；`GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOFLAGS=-mod=readonly`，锁定 modcache `/workspace/agenteam-dependency-cache/modcache`；GOCACHE/TMPDIR在自有 `/workspace/agenteam-artifact-stop-build-y597q6vl/{go-build,runtime}`。argv/env/输入SHA保留在上表JSON，没有改module、脚本或原测试预算。
+
+## 所有真实执行与输入分界
+
+下表标签对应 `input-<标签>.json`（确切 argv/env/16SHA）、`logs/<标签>.log` 和 `.exit`，以及 `cleanup-<标签>.json`。所有真实组通过原 `sh scripts/test-objects.sh -run ...`，原 race/count=1/每包6m。没有把历史输入的通过写成最终 review08 的完整矩阵通过。
+
+| 标签 | 原输入/目的 | 真实结果 |
+| --- | --- | --- |
+| join-identity-red-01 | c2a5599b 原 F2/F3 | exit1；本地settle真实join ACK丢失后Unknown被吞，页内6字段错配仍cancel/gate/ObjectContinue；不代表foreign recovery分支 |
+| join-identity-fix-01 | review03 | exit0，Objects11.061s；精确2top包通过，无逐top verbose日志 |
+| source-planning-red-01 | review03、7940d118… | exit1；正式Discover前的真实planner barrier，work/Resolve=0、调用仍活却SourceDelete提前Stopped；放行后被gate拒绝，没有证明非法I/O |
+| selector-red-01 | review03、c10093d8… | exit1；真实S→T原handle的DBsource改出S扫描集合，仍gate=1/ObjectContinue=1；原handle未cancel |
+| source-planning-fix-01 | review04 hint | exit0，Objects2.455s；真实调用退出前pending，实际返回后stopped |
+| join-pending-01 | driver错误参数 `-v` | exit1，在fixture建立前拒绝；没有产品断言执行，不能算产品红 |
+| join-pending-02 | review03+04，扩展本地F2 | exit0，Objects7.459s；精确top内ACK丢失及原writer pending两分支，按所保存原输入证明本地路径，不扩称foreign death |
+| selector-fix-01 | input02 b648de56…/review07 | exit0，Objects25.454s；固定6top选择的包通过。GOFLAGS为-mod=readonly，**没有逐top显式PASS**；不是最终review08实际重跑。6名称及范围在coverage-matrix.json |
+| normal-lock-01 | 最终16：normal-lock-input-01 78630fb6… | exit0，唯一top `TestArtifactProjectStopFirstLookupFailureRetainsConfirmation` 显式PASS1.22s，Objects2.249s；GOFLAGS=-mod=readonly -v |
+
+普通锁canary：精确backend127在首次lookup部分持Command、等待Project、未取得control；正常ctx取消由真实Store给原NotCommitted；backend128取得相同4键EX的确认尝试被独立普通Project holder阻塞。whole call/Drain与guard不提前退出，holder真实COMMIT放行后收敛。透明observer没有改任何返回值、协议或网络。**此例不证明 failed ROLLBACK 后原backend仍活，也不替代该未验场景。**
+
+关键原始SHA：最终canary输入 `aef9a2280ddba3480ec508a3e797705c5140ccbd770daa4b3d5d32c650e367a8`，日志 `e061b2d8a971e029957652edc02b9a5485c1348b7d04cbbf6bdc6f8ef75f0297`；六top输入 `254e4f5969f21a67f4c2d954f21fbcd048a6f79d9cf93c2168940d9613681bac`，日志 `142513f8fc59e6773e9147a8dbcea75cf7425ad7873161a18e61be7645027fac`。
+
+## 红证据、未验证及复用限制
+
+原F1拒绝body.Close红为纯单元，保存在 `rejected-close-red-01/input.json`、原生产review01和 `logs/rejected-close-red-01.log`；两原子分支都在stopped服务上，不冒称其cancelled_context是运行态独立场景。最终pure覆盖修复；独立V另有运行态already-cancelled probe，由V自行归属。早期compile-01（Rows指针）、compile-05（SourceReads interface）失败均保留；不能抹成一次全绿。
+
+review05/06/07的额外发现是固定静态缺陷，未伪称均有动态原红：prework>64 final union、首stop Acquire前责任、pending union覆盖、early-return Unknown/refs、普通lookup首次Acquire。最终纯检查与上述有界普通canary覆盖本次窄修。
+
+最终5集成文件共有30个新top；作者在各原输入上实际覆盖7个distinct top，其中最终review08仅普通锁1top动态，另外6为review07非verbose包通过；剩余23top未执行。原计划4组37个旧兼容top在本Artifact候选未执行。精确名称、分组与每条状态在 `coverage-matrix.json`，不能把编译通过或此前S2基线通过当这些候选用例执行证据。
+
+尚未动态覆盖：完整Archive/Delete/dual-project正常矩阵、完整legacy/read-only/permission/lifecycle/真实kill恢复组；foreign recoverArtifactWork join Unknown；review08“之前Unknown+后续NotCommitted”的真实混合恢复（目前纯测试）；rev3 failed ROLLBACK/部分Acquire原backend未终局及其它新的协议场景。card所需后续联合ProcessGuard/app装配并未在本卡绑定。
+
+按root限定，新协议/ROLLBACK草稿已停，保留在私有 `deferred-protocol-draft-01`，没有进入最终16或真实运行；compile20仅早期draft的离线编译，不作验收证据。普通SQL测试是另行批准的正常holder方案，不能借其通过扩大暂停方案授权。上游Object已知退出缺陷的修复被root停止；本作者没有代做或升级依赖，完整shared guard组合仍blocked。
+
+## 资源、停止状态与完整映射
+
+每轮原nonce标签/exact ID清理记录保留。`cleanup-handoff-01.json`记录早期6次真实轮24容器18网络的复核；`cleanup-handoff-02.json`记录六top轮4c3n二次absent；最新 `cleanup-handoff-03.json` SHA **31e792c5fe36a160064ab9d107a30442d608ab9927ef0b9d6b38b40bea8981fa** 记录最终canary4c3n二次absent、原2c4n的ID/name/labels不变、runtime空、owned process0及末源hash一致。未删除他人资源/证据。两个后续cmd build已正常结束；没有活动作者Go/Docker命令。源码及快照停止写入，只写此tmp报告。
+
+完整52份原纯/真实日志SHA、实际存在的exit文件、确切已记录argv/input映射及所有cleanup/delta SHA在 `evidence-index.json`；缺失的早期单独exit/argv不补造，保留原log且不用于最终有效验收。该索引SHA **fd624c412b363bec6f443d66e7fca0904cbb5b81be07dfb12b47fc1592f367e2**；精确覆盖矩阵SHA **b38ccfc7ca260772810456c7172abdfe3eb33bbf2ca62e5653338bca31b74272**。最终是否接受本域部分结果、后续动态去重和Object依赖闭合均交主线程/独立V裁定。

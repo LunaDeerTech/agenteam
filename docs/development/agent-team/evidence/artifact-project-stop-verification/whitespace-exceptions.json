@@ -1,0 +1,103 @@
+{
+  "scope": "Exact paths relative to this evidence directory; no glob or directory exclusion.",
+  "exceptions": [
+    {
+      "path": "author/production-review-03/project_lifecycle.go.diff",
+      "kind": "raw_patch",
+      "sha256": "efff9fceeeda6054920e8a395a4c91d96eabadc4d24dbc42cb0fb80c632ec1b2",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-03/project_lifecycle_test.go.diff",
+      "kind": "raw_patch",
+      "sha256": "618fada22fc33f3135a69f3abb70cfc01624d19bc674c634e1e271f3be4fe1f6",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-04/lifecycle.go.diff",
+      "kind": "raw_patch",
+      "sha256": "2c1453feb30c05abd6c852646420247b19d645365075cf6619e2d1bf82edeb1c",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-04/project_work.go.diff",
+      "kind": "raw_patch",
+      "sha256": "23ae2b1bb61e0d8d73b67e4c769c8cffc08d7c14eb47d031bbffbdf8671bd0d8",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-05/lifecycle.go.diff",
+      "kind": "raw_patch",
+      "sha256": "bd29b8bb9e938888975832daa77a90a176c1e204989e30a3a8f6dab3dfe24615",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-05/project_lifecycle.go.diff",
+      "kind": "raw_patch",
+      "sha256": "a1ce5b3ad92c485033c7581b7bcaad094850aa63a2af5398816158c84982a5e5",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-05/project_lifecycle_test.go.diff",
+      "kind": "raw_patch",
+      "sha256": "c407b0d7a1489ecff603f2331212b3706ae416fe76dd187933428062b37f8cd8",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-05/project_work.go.diff",
+      "kind": "raw_patch",
+      "sha256": "2c5c7d690ebf507ebda6c814df8be6589d5e6e151764ef99b1aa2a1d6eeaf47b",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-05/service.go.diff",
+      "kind": "raw_patch",
+      "sha256": "11f45540338797b0d71a76b74a8deda5b47f23500b56cb96363da303e3d4a6a8",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-06/lifecycle.go.diff",
+      "kind": "raw_patch",
+      "sha256": "99a6e956a1e05eb12a2c1c6fd51ded9a8a20b4197e553b34670dd83500730a93",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-06/project_lifecycle.go.diff",
+      "kind": "raw_patch",
+      "sha256": "a31e5e5d7f381a1148c99114cdbced90c4cd99bce4061636d8b5fb7d3212eeae",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-07/delta.patch",
+      "kind": "raw_patch",
+      "sha256": "1cd7258bdeaecf4edaec6b5b7520440207249c5fc76fa7ebee02a706420149dc",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-08/delta.patch",
+      "kind": "raw_patch",
+      "sha256": "11fc4eda73c4e935137c6235c6759b6e41f6e374f5ea2e60543bdc09dd3660a0",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/production-review-09/delta.patch",
+      "kind": "raw_patch",
+      "sha256": "a595c3eaee2fe567e3c64c44f057b0b7e959a72b834b8ebf6898944c12d15215",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "independent/f1/evidence/production.patch",
+      "kind": "raw_patch",
+      "sha256": "725a0c3766159fe07074965e07287b69231b616f1a84128e97a6fd649a099ae0",
+      "reason": "Preserve the original patch bytes."
+    },
+    {
+      "path": "author/logs/join-pending-01.log",
+      "kind": "raw_log",
+      "sha256": "e103146598e81a3f518742a4c46eeaad83dc66f54a0cf7e10e6a4d26241a95ea",
+      "line": 4,
+      "warning": "space before tab in indent",
+      "reason": "Root found this additional warning in the first full staged-index check; preserve the original log bytes."
+    }
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "input_manifest": "normal-lock-input-01/manifest.json",
+  "input_sha256": "78630fb6828e54e7d5d5ff12477c21e72047b3e5d3e6d5fc3fefdd8f87e0b7e6",
+  "cwd": "/tmp/agenteam-artifact-stop-author-y597q6vl/snapshot",
+  "commands": {
+    "agenteam": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "build",
+      "-o",
+      "/workspace/agenteam-artifact-stop-build-y597q6vl/bin/agenteam",
+      "./cmd/agenteam"
+    ],
+    "agenteam-runner": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "build",
+      "-o",
+      "/workspace/agenteam-artifact-stop-build-y597q6vl/bin/agenteam-runner",
+      "./cmd/agenteam-runner"
+    ]
+  },
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-artifact-stop-build-y597q6vl/go-build",
+    "TMPDIR": "/workspace/agenteam-artifact-stop-build-y597q6vl/runtime"
+  }
+}

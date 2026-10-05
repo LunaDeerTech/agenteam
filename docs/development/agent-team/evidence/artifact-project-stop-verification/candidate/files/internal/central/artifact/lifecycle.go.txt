@@ -1,0 +1,331 @@
+package artifact
+
+import (
+	"context"
+	"io"
+	"sync"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+)
+
+type producerKey struct{}
+type producerControl struct {
+	service            *Service
+	id                 string
+	project            identity.ProjectID
+	sourceHint         identity.ProjectID
+	ctx                context.Context
+	cancel             context.CancelFunc
+	returned, settling bool
+	unknown            bool
+	stopCancelled      bool
+	settleDone         chan struct{}
+	settleErr          error
+	cleanupCancel      context.CancelFunc
+	admitting          bool
+	work               *artifactWork
+	origins            map[foundation.Tx]bool
+	locks              []foundation.LockRequest
+	pendingBatch       []foundation.LockRequest
+	pendingResult      foundation.CommitResult
+	body               *producerBody
+	lease              oc.SourceLease
+	prepared           oc.PreparedPayload
+}
+
+// Close is part of the registered call, including when cancellation invokes
+// it concurrently with Read. A returned Close wrapper never proves a writer
+// or a SourceLease callback has left its own tail.
+type producerBody struct {
+	io.ReadCloser
+	once       sync.Once
+	cancelOnce sync.Once
+	done       chan struct{}
+	err        error
+}
+
+func (b *producerBody) Close() error {
+	b.once.Do(func() { b.err = b.ReadCloser.Close(); close(b.done) })
+	<-b.done
+	return b.err
+}
+func (b *producerBody) cancel() { b.cancelOnce.Do(func() { go func() { _ = b.Close() }() }) }
+
+func (r *serviceState) signal() { close(r.changed); r.changed = make(chan struct{}) }
+func (s *Service) beginProducer(ctx context.Context, project identity.ProjectID) (*producerControl, error) {
+	return s.beginControlledProducer(ctx, project, false)
+}
+
+// UploadPayload owns the supplied body even when business admission fails.
+// Register that required Close under the same registry mutex as shutdown;
+// it gets no database or external-work admission, only a tracked cleanup tail.
+func (s *Service) beginControlledProducer(ctx context.Context, project identity.ProjectID, closeOnRejection bool) (*producerControl, error) {
+	r := s.state()
+	if r == nil {
+		return nil, invalid()
+	}
+	var admission error
+	if ctx == nil {
+		admission = invalid()
+		ctx = context.Background()
+	} else if err := ctx.Err(); err != nil {
+		admission = unavailable(err)
+	}
+	id, err := foundation.NewID[struct{}]()
+	if err != nil && admission == nil {
+		admission = unavailable(err)
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if admission == nil && (r.stopped || r.forced) {
+		admission = failure(foundation.ShuttingDown, nil)
+	}
+	if admission != nil && !closeOnRejection {
+		return nil, admission
+	}
+	work, cancel := context.WithCancel(ctx)
+	p := &producerControl{service: s, id: id.String(), project: project, cancel: cancel, origins: map[foundation.Tx]bool{}}
+	p.ctx = context.WithValue(work, producerKey{}, p)
+	r.controls[p] = true
+	r.localRevision++
+	r.signal()
+	if admission != nil {
+		cancel()
+	}
+	return p, admission
+}
+func (s *Service) controlFor(ctx context.Context) (*producerControl, error) {
+	p, _ := ctx.Value(producerKey{}).(*producerControl)
+	if p == nil {
+		return nil, nil
+	}
+	r := s.state()
+	if r == nil || p.service != s {
+		return nil, invalid()
+	}
+	r.mu.Lock()
+	active := r.controls[p] && !p.returned
+	r.mu.Unlock()
+	if !active {
+		return nil, invalid()
+	}
+	return p, nil
+}
+func (s *Service) ownBody(p *producerControl, body io.ReadCloser) *producerBody {
+	b := &producerBody{ReadCloser: body, done: make(chan struct{})}
+	r := s.state()
+	r.mu.Lock()
+	p.body = b
+	cancelled := p.ctx.Err() != nil
+	r.mu.Unlock()
+	if cancelled {
+		b.cancel()
+	}
+	return b
+}
+func (s *Service) ownPrepared(p *producerControl, prepared oc.PreparedPayload) {
+	r := s.state()
+	r.mu.Lock()
+	p.prepared = prepared
+	r.mu.Unlock()
+}
+func (s *Service) ownSource(p *producerControl, lease oc.SourceLease) {
+	r := s.state()
+	r.mu.Lock()
+	p.lease = lease
+	r.mu.Unlock()
+}
+func (s *Service) cancelProducer(p *producerControl) {
+	r := s.state()
+	r.mu.Lock()
+	if !r.controls[p] {
+		r.mu.Unlock()
+		return
+	}
+	if !p.stopCancelled {
+		p.stopCancelled = true
+		r.localRevision++
+	}
+	p.cancel()
+	body := p.body
+	if p.cleanupCancel != nil {
+		p.cleanupCancel()
+	}
+	r.mu.Unlock()
+	if body != nil {
+		body.cancel()
+	}
+}
+func (s *Service) finishProducer(p *producerControl) {
+	r := s.state()
+	r.mu.Lock()
+	p.returned = true
+	r.localRevision++
+	p.cancel()
+	force := r.forceContext
+	unknown := p.unknown
+	r.signal()
+	r.mu.Unlock()
+	// Deliver the original Unknown after the call's real body/Discard tail.
+	// Keep its exact writer, lease and cleanup responsibility registered; a
+	// later Request, retry or Drain confirms it within that caller's budget.
+	// Starting another synchronous cleanup wait here would delay the original
+	// result behind a second budget, while still proving no writer outcome.
+	if unknown {
+		return
+	}
+	ctx := force
+	var cancel context.CancelFunc
+	if ctx == nil {
+		ctx, cancel = context.WithTimeout(context.Background(), 2*time.Second)
+		defer cancel()
+	}
+	_ = s.settleProducer(ctx, p)
+}
+func (s *Service) settleProducer(ctx context.Context, p *producerControl) error {
+	r := s.state()
+	r.mu.Lock()
+	if !r.controls[p] {
+		r.mu.Unlock()
+		return nil
+	}
+	if !p.returned {
+		r.mu.Unlock()
+		return failure(foundation.ResourceBusy, nil)
+	}
+	if !p.settling {
+		p.settling = true
+		p.settleDone = make(chan struct{})
+		cleanup, cancel := context.WithCancel(ctx)
+		p.cleanupCancel = cancel
+		go func() {
+			err := s.settleProducerWork(cleanup, p)
+			cancel()
+			r.mu.Lock()
+			p.cleanupCancel = nil
+			p.settleErr = err
+			p.settling = false
+			close(p.settleDone)
+			r.signal()
+			r.mu.Unlock()
+		}()
+	}
+	done := p.settleDone
+	r.mu.Unlock()
+	select {
+	case <-ctx.Done():
+		return unavailable(ctx.Err())
+	case <-done:
+		r.mu.Lock()
+		err := p.settleErr
+		r.mu.Unlock()
+		return err
+	}
+}
+func (s *Service) settleProducerWork(ctx context.Context, p *producerControl) error {
+	r := s.state()
+	r.mu.Lock()
+	body, lease, prepared := p.body, p.lease, p.prepared
+	r.mu.Unlock()
+	if err := ctx.Err(); err != nil {
+		return unavailable(err)
+	}
+	if body != nil {
+		select {
+		case <-body.done:
+		default:
+			return failure(foundation.ResourceBusy, nil)
+		}
+	}
+	if lease.Validate() == nil {
+		if err := r.reads.CancelSourceLease(ctx, lease); err != nil {
+			return portError(err)
+		}
+		r.mu.Lock()
+		delete(r.leases, lease.ID())
+		r.mu.Unlock()
+	}
+	if prepared.Validate() == nil {
+		if err := r.uploads.DiscardPrepared(prepared); err != nil {
+			return portError(err)
+		}
+	}
+	if err := s.joinControl(ctx, p); err != nil {
+		return err
+	}
+	r.mu.Lock()
+	delete(r.controls, p)
+	r.localRevision++
+	r.signal()
+	r.mu.Unlock()
+	return nil
+}
+func (s *Service) StopAdmission() {
+	if r := s.state(); r != nil {
+		r.mu.Lock()
+		r.stopped = true
+		r.signal()
+		r.mu.Unlock()
+	}
+}
+func (s *Service) Joined() bool {
+	r := s.state()
+	if r == nil {
+		return false
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return r.stopped && len(r.controls) == 0
+}
+func (s *Service) Drain(ctx context.Context) error {
+	r := s.state()
+	if r == nil || ctx == nil {
+		return invalid()
+	}
+	ticker := time.NewTicker(10 * time.Millisecond)
+	defer ticker.Stop()
+	for {
+		r.mu.Lock()
+		var ended []*producerControl
+		for p := range r.controls {
+			if p.returned && !p.settling {
+				ended = append(ended, p)
+			}
+		}
+		n, changed := len(r.controls), r.changed
+		r.mu.Unlock()
+		if n == 0 {
+			return nil
+		}
+		for _, p := range ended {
+			_ = s.settleProducer(ctx, p)
+		}
+		select {
+		case <-ctx.Done():
+			return unavailable(ctx.Err())
+		case <-changed:
+		case <-ticker.C:
+		}
+	}
+}
+func (s *Service) Force(ctx context.Context) error {
+	r := s.state()
+	if r == nil || ctx == nil {
+		return invalid()
+	}
+	r.mu.Lock()
+	r.stopped, r.forced, r.forceContext = true, true, ctx
+	var controls []*producerControl
+	for p := range r.controls {
+		controls = append(controls, p)
+	}
+	r.signal()
+	r.mu.Unlock()
+	for _, p := range controls {
+		s.cancelProducer(p)
+	}
+	return s.Drain(ctx)
+}

@@ -1,6 +1,6 @@
 # 恢复：Artifact 项目范围停止与真实 join
 
-修订：rev3，追加真实反例与来源 hint、selector 分批验证的工程澄清，已通过本次限定 delta 复核并由主线程采纳；API、16路径、迁移范围及原预算不变。Object S2已完整独立验收；文末原采纳/交接记录保留当时事实，本轮定向修复通过不代表 Artifact 完整停止行为已独立验收。selector 修复按本次澄清在原16路径内继续，仍须最终独立行为验收。
+修订：rev3，来源 hint、selector 分批验证的工程澄清已获采纳；API、16路径、迁移范围及原预算不变。当前 review09 的 Artifact 本域[有限验证结果](../agent-team/artifact-project-stop-verification.md)已获主线程采纳并归档，16 源尚未提交；共享 Object guard 缺陷与更强恢复场景未验，**完整卡仍 BLOCKED**。Object S2及文末原采纳/交接记录保留当时事实，不以历史局部通过否定后来普通锁竞争反例。
 
 ## 完整结果与固定输入
 
@@ -192,3 +192,12 @@ completed command 仍先当前目标可见性、完成 target-only replay；只�
 F2/F3、本节 hint/selector 与真实 join增量全部须在最终冻结源上按原独立验收门槛验证；定向作者通过、只读协议核对或规格采纳都不替代该结论。API、16个源/测试路径、四持久游标、ProcessGuard装配边界、Cleaner后继及“不占00017”保持。
 
 主线程采纳记录：2026-10-05，独立验收者对冻结候选 `65f744a2866b70e5c35d71478a3d31ad15c9426a987b56ba6cdac4752c6755bb` 的限定差量完成核对，原API/16路径/预算不扩。仅将hint段的Authority明确为本次停止请求的Authority，避免与Source Read授权混淆。主线程采纳工程澄清，继续原范围修复；本次没有新增动态通过声明。
+
+
+## review09 本域有限验证归档
+
+主线程采纳独立报告 `d68a2857d75cf66c007e97c6b4e147e6734ec09407cee4fe9354393f2feffdde` 的限定结论，详见[正式报告](../agent-team/artifact-project-stop-verification.md)和[证据入口](../agent-team/evidence/artifact-project-stop-verification/README.md)。候选为已验 Object 基线 `6658a6c` 加 review09 的 16 源，manifest `79e5eb812c0fda2a42d390a7e2703b1ebca4ce581c055e1c2a99fda1ab76914e`；源码只作可重建证据保存，未提交为业务实现。
+
+30 新 + 37 旧集合分别来自 review09 的 35 个显式顶层、review08 复用的 26 个显式顶层、review07 精确六选包的 6 项非 verbose 证据。原失败、差量、实际 argv/env/exit、复用依据与资源双清零均保留，不能改写成最终 16 源一次 67 项全绿。F1 旧纯 probe 限定复用，foreign 的正式 Store 结果装饰 Unknown 不等于真实网络 Unknown。
+
+本域结果不解除共享 Object 普通锁退出缺陷，也不覆盖 failed ROLLBACK 原 backend 仍持部分 Acquire 锁、真实 Unknown→NotCommitted 混合聚合等未验动态。Object 原实施任务停止、不改派或重试；整卡、共享 guard 与后继领域绑定继续 BLOCKED。当前不重启已暂停方法、不宣告 Project/app/Cleaner 或完整 D05/D08 完成；本节只归档状态，不修改上文 API、预算、16 路径或“不占00017”的职责。

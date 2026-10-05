@@ -1,0 +1,320 @@
+//go:build integration
+
+package objects_test
+
+import (
+	"context"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/artifact"
+	art "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+)
+
+type artifactHeldResolver struct {
+	oc.SourceResolver
+	entered  chan context.Context
+	release  chan struct{}
+	disabled atomic.Bool
+}
+
+func (r *artifactHeldResolver) Resolve(ctx context.Context, a identity.Actor, ref oc.BusinessFileRef) (oc.ResolvedSource, error) {
+	if !r.disabled.Load() {
+		r.entered <- ctx
+		<-r.release
+	}
+	return r.SourceResolver.Resolve(ctx, a, ref)
+}
+func newArtifactHeldResolver(r oc.SourceResolver) *artifactHeldResolver {
+	return &artifactHeldResolver{SourceResolver: r, entered: make(chan context.Context, 8), release: make(chan struct{})}
+}
+func artifactResolverEntered(t *testing.T, r *artifactHeldResolver) context.Context {
+	t.Helper()
+	select {
+	case ctx := <-r.entered:
+		return ctx
+	case <-time.After(3 * time.Second):
+		t.Fatal("resolver not reached")
+	}
+	return nil
+}
+func TestArtifactProjectStopDualProjectResolverAndTombstone(t *testing.T) {
+	var resolver *artifactHeldResolver
+	f := newArtifactStopFixture(t, artifactStopOptions{resolve: func(r oc.SourceResolver) oc.SourceResolver { resolver = newArtifactHeldResolver(r); return resolver }})
+	var release sync.Once
+	defer release.Do(func() { close(resolver.release) })
+	target, independentSource, independentTarget := f.addProject(t), f.addProject(t), f.addProject(t)
+	first := f.create(t, "first", "text/plain", "source one")
+	second, err := f.artifact.CreateFromContent(contextFor(t), f.invocationFor(t, independentSource), command(t, "second"), art.Display{Name: "second.txt"}, "text/plain", "source two")
+	if err != nil {
+		t.Fatal(err)
+	}
+	firstRef, _ := first.Details().Reference.BusinessFile()
+	secondRef, _ := second.Details().Reference.BusinessFile()
+	copyCommand := command(t, "dual-copy")
+	display := art.Display{Name: "copy.txt"}
+	one, two := make(chan error, 1), make(chan error, 1)
+	go func() {
+		_, e := f.artifact.CreateFromSource(contextFor(t), f.invocationFor(t, target), copyCommand, display, firstRef)
+		one <- e
+	}()
+	oneCtx := artifactResolverEntered(t, resolver)
+	go func() {
+		_, e := f.artifact.CreateFromSource(contextFor(t), f.invocationFor(t, independentTarget), command(t, "independent-copy"), display, secondRef)
+		two <- e
+	}()
+	twoCtx := artifactResolverEntered(t, resolver)
+	var work, native int
+	if err = f.store.QueryRow(contextFor(t), `SELECT (SELECT count(*) FROM agenteam_artifact.project_work WHERE source_project_id IS NOT NULL AND joined_at IS NULL),(SELECT count(*) FROM agenteam_artifact.commands WHERE command_key IN('dual-copy','independent-copy'))`).Scan(&work, &native); err != nil || work != 2 || native != 0 {
+		t.Fatal("resolver preceded committed work or fake native source", work, native, err)
+	}
+	targetActor, targetCause := f.activate(t, target, oc.ProjectStopArchive)
+	sourceActor, sourceCause := f.activate(t, f.project, oc.ProjectStopDelete)
+	for range 3 {
+		r, e := f.artifact.RequestProjectStop(contextFor(t), targetActor, targetCause)
+		if e != nil || r.Details().State != oc.ProjectStopPending {
+			t.Fatal("held target call not pending", e)
+		}
+		r, e = f.artifact.RequestProjectStop(contextFor(t), sourceActor, sourceCause)
+		if e != nil || r.Details().State != oc.ProjectStopPending {
+			t.Fatal("held source call not pending", e)
+		}
+	}
+	if oneCtx.Err() == nil || twoCtx.Err() != nil {
+		t.Fatal("exact child cancellation crossed projects")
+	}
+	var targetOp, sourceOp string
+	var joined, sourceJoined bool
+	if err = f.store.QueryRow(contextFor(t), `SELECT revoked_by::text,source_revoked_by::text,joined_at IS NOT NULL,source_joined_at IS NOT NULL FROM agenteam_artifact.project_work WHERE project_id=$1 AND source_project_id=$2`, target.String(), f.project.String()).Scan(&targetOp, &sourceOp, &joined, &sourceJoined); err != nil || targetOp != targetCause.Details().OperationID.String() || sourceOp != sourceCause.Details().OperationID.String() || joined || sourceJoined {
+		t.Fatal("dual cause or whole-call identity lost", err, targetOp, sourceOp, joined, sourceJoined)
+	}
+	release.Do(func() { close(resolver.release) })
+	if artifactStopResult(t, one) == nil {
+		t.Fatal("cancelled copy published")
+	}
+	if err = artifactStopResult(t, two); err != nil {
+		t.Fatal("independent copy interrupted", err)
+	}
+	artifactStopSettled(t, f.artifact, targetActor, targetCause)
+	artifactStopSettled(t, f.artifact, sourceActor, sourceCause)
+	f.sql(t, `UPDATE object_fixture.projects SET state='active',operation_id=NULL,version=version+1 WHERE id IN($1,$2)`, target.String(), f.project.String())
+	before := f.resolver.resolves.Load()
+	_, err = f.artifact.CreateFromSource(contextFor(t), f.invocationFor(t, target), copyCommand, display, firstRef)
+	if err == nil || f.resolver.resolves.Load() != before {
+		t.Fatal("pre-resolver tombstone revived after Restore", err)
+	}
+	resolver.disabled.Store(true)
+	_, err = f.artifact.CreateFromSource(contextFor(t), f.invocationFor(t, target), command(t, "new-copy"), display, firstRef)
+	if err != nil {
+		t.Fatal("new key rejected", err)
+	}
+}
+func TestArtifactProjectStopSourceArchiveAndCompletedTargetReplay(t *testing.T) {
+	f := newArtifactStopFixture(t, artifactStopOptions{})
+	target := f.addProject(t)
+	original := f.create(t, "original", "text/plain", "retained copy")
+	ref, _ := original.Details().Reference.BusinessFile()
+	actor, cause := f.activate(t, f.project, oc.ProjectStopArchive)
+	artifactStopSettled(t, f.artifact, actor, cause)
+	cmd := command(t, "archived-source-copy")
+	display := art.Display{Name: "copy.txt"}
+	copied, err := f.artifact.CreateFromSource(contextFor(t), f.invocationFor(t, target), cmd, display, ref)
+	if err != nil {
+		t.Fatal("archived source denied current Read", err)
+	}
+	actor, cause = f.activate(t, f.project, oc.ProjectStopDelete)
+	artifactStopSettled(t, f.artifact, actor, cause)
+	f.resolver.reject.Store(true)
+	before := f.resolver.resolves.Load()
+	get, put := f.proxy.gets.Load(), f.proxy.puts.Load()
+	all, _ := f.workCounts(t, target)
+	out, err := f.artifact.CreateFromSource(contextFor(t), f.invocationFor(t, target), cmd, display, ref)
+	if err != nil || out.Details().Reference != copied.Details().Reference || f.resolver.resolves.Load() != before || f.proxy.gets.Load() != get || f.proxy.puts.Load() != put {
+		t.Fatal("completed target replay revisited deleted source", err)
+	}
+	after, _ := f.workCounts(t, target)
+	if after != all {
+		t.Fatal("completed replay created new work")
+	}
+}
+
+type artifactWrongSourceGrant struct {
+	*artifact.OwnerProvider
+	wrong identity.Actor
+	calls atomic.Int64
+}
+
+func (a *artifactWrongSourceGrant) AuthorizeOwnerInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, owner oc.ObjectOwner, intent identity.AccessIntent) (oc.OwnerAuthorization, error) {
+	g, e := a.OwnerProvider.AuthorizeOwnerInTx(ctx, tx, actor, owner, intent)
+	if e != nil {
+		return g, e
+	}
+	a.calls.Add(1)
+	d := g.Details()
+	d.Actor = a.wrong
+	return oc.NewOwnerAuthorization(d)
+}
+func TestArtifactProjectStopSourceGrantMustMatchOriginalActor(t *testing.T) {
+	var bad *artifactWrongSourceGrant
+	wrong, _ := identity.NewHuman(id[identity.User](t), id[identity.Session](t))
+	f := newArtifactStopFixture(t, artifactStopOptions{sources: func(p *artifact.OwnerProvider) artifact.SourceAuthority {
+		bad = &artifactWrongSourceGrant{OwnerProvider: p, wrong: wrong}
+		return bad
+	}})
+	source := f.create(t, "grant-source", "text/plain", "body")
+	ref, _ := source.Details().Reference.BusinessFile()
+	before, _ := f.workCounts(t, f.project)
+	gets, puts := f.proxy.gets.Load(), f.proxy.puts.Load()
+	_, err := f.artifact.CreateFromSource(contextFor(t), f.invocation(t), command(t, "wrong-source-grant"), art.Display{Name: "copy.txt"}, ref)
+	requireCode(t, err, foundation.Forbidden)
+	after, _ := f.workCounts(t, f.project)
+	if bad.calls.Load() != 1 || f.resolver.resolves.Load() != 0 || before != after || f.proxy.gets.Load() != gets || f.proxy.puts.Load() != puts {
+		t.Fatal("mismatched valid grant crossed resolver/admission")
+	}
+}
+func TestArtifactProjectStopSourceCurrentPermissionAndMapping(t *testing.T) {
+	for _, change := range []string{"owner", "session", "project", "mapping"} {
+		t.Run(change, func(t *testing.T) {
+			f := newArtifactStopFixture(t, artifactStopOptions{})
+			target := f.addProject(t)
+			source := f.create(t, "permission-source", "text/plain", "body")
+			ref, _ := source.Details().Reference.BusinessFile()
+			key, _ := foundation.ProjectLock(f.project.String())
+			query := `UPDATE object_fixture.projects SET owner_id=$1 WHERE id=$2`
+			args := []any{id[identity.User](t).String(), f.project.String()}
+			switch change {
+			case "session":
+				key, _ = foundation.UserLock(f.actor.Details().UserID)
+				query = `UPDATE object_fixture.sessions SET active=false WHERE id=$1`
+				args = []any{f.actor.Details().SessionID}
+			case "project":
+				query = `UPDATE object_fixture.projects SET state='deleting' WHERE id=$1`
+				args = []any{f.project.String()}
+			case "mapping":
+				query = `UPDATE agenteam_artifact.artifacts SET project_id=$1 WHERE id=$2`
+				args = []any{target.String(), source.Details().Reference.ArtifactID.String()}
+			}
+			unlock := artifactGate(t, f.artifactFixture, key, query, args...)
+			done := make(chan error, 1)
+			go func() {
+				_, e := f.artifact.CreateFromSource(contextFor(t), f.invocationFor(t, target), command(t, "permission-copy"), art.Display{Name: "copy.txt"}, ref)
+				done <- e
+			}()
+			waitAdvisory(t, f.fixture, key)
+			unlock()
+			if err := artifactStopResult(t, done); err == nil {
+				t.Fatal("current permission/mapping revocation ignored")
+			}
+			if f.resolver.resolves.Load() != 0 {
+				t.Fatal("rejected source reached resolver")
+			}
+			all, _ := f.workCounts(t, target)
+			if all != 0 {
+				t.Fatal("denied source retained admitted work")
+			}
+		})
+	}
+}
+
+func TestArtifactProjectStopMissingNonArtifactSourceAuthorityNeverResolves(t *testing.T) {
+	f := newArtifactStopFixture(t, artifactStopOptions{})
+	ref, err := oc.NewBusinessFileRef(oc.BusinessFileDetails{Kind: oc.KnowledgeFile, ProjectID: f.project, DocumentID: id[struct{}](t).String(), Revision: 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = f.artifact.CreateFromSource(contextFor(t), f.invocation(t), command(t, "unbound-knowledge"), art.Display{Name: "knowledge"}, ref)
+	requireCode(t, err, foundation.DependencyUnbound)
+	all, _ := f.workCounts(t, f.project)
+	if all != 0 || f.resolver.resolves.Load() != 0 || f.proxy.gets.Load() != 0 || f.proxy.puts.Load() != 0 {
+		t.Fatal("unbound non Artifact source reached work/resolver/storage")
+	}
+}
+func TestArtifactProjectStopConcurrentSameKeyPreservesOriginalWork(t *testing.T) {
+	var resolver *artifactHeldResolver
+	f := newArtifactStopFixture(t, artifactStopOptions{resolve: func(r oc.SourceResolver) oc.SourceResolver { resolver = newArtifactHeldResolver(r); return resolver }})
+	source := f.create(t, "same-key-source", "text/plain", "body")
+	ref, _ := source.Details().Reference.BusinessFile()
+	cmd := command(t, "same-copy")
+	display := art.Display{Name: "copy"}
+	var open sync.Once
+	defer open.Do(func() { close(resolver.release) })
+	done := make(chan error, 1)
+	go func() {
+		_, e := f.artifact.CreateFromSource(contextFor(t), f.invocation(t), cmd, display, ref)
+		done <- e
+	}()
+	original := artifactResolverEntered(t, resolver)
+	var before string
+	if err := f.store.QueryRow(contextFor(t), `SELECT jsonb_agg(jsonb_build_array(id,project_id,process_id,kind,resource_id,encode(command_hash,'hex'),source_project_id,source_lease_id,admission_version,admission_operation) ORDER BY id)::text FROM agenteam_artifact.project_work WHERE source_project_id IS NOT NULL`).Scan(&before); err != nil {
+		t.Fatal(err)
+	}
+	_, err := f.artifact.CreateFromSource(contextFor(t), f.invocation(t), cmd, display, ref)
+	requireCode(t, err, foundation.ResourceBusy)
+	var after string
+	if err = f.store.QueryRow(contextFor(t), `SELECT jsonb_agg(jsonb_build_array(id,project_id,process_id,kind,resource_id,encode(command_hash,'hex'),source_project_id,source_lease_id,admission_version,admission_operation) ORDER BY id)::text FROM agenteam_artifact.project_work WHERE source_project_id IS NOT NULL`).Scan(&after); err != nil || after != before || original.Err() != nil || f.resolver.resolves.Load() != 1 {
+		t.Fatal("duplicate overwrote/cancelled original physical work", err)
+	}
+	open.Do(func() { close(resolver.release) })
+	if err = artifactStopResult(t, done); err != nil {
+		t.Fatal("original source call could not finish", err)
+	}
+	var exact bool
+	if err = f.store.QueryRow(contextFor(t), `SELECT count(*)=1 AND bool_and(w.source_lease_id=c.source_lease_id AND w.source_joined_at IS NOT NULL AND w.joined_at IS NOT NULL) FROM agenteam_artifact.project_work w JOIN agenteam_artifact.commands c ON c.artifact_id=w.resource_id WHERE c.command_key='same-copy'`).Scan(&exact); err != nil || !exact {
+		t.Fatal("original source lease assignment/join changed", err)
+	}
+}
+
+func TestArtifactProjectStopSourcePlanningKeepsWholeCallPending(t *testing.T) {
+	var planner *recoveryItemPlanner
+	f := newArtifactStopFixture(t, artifactStopOptions{guard: true, planner: func(p oc.AccessPlanner) oc.AccessPlanner {
+		planner = &recoveryItemPlanner{base: p}
+		return planner
+	}})
+	source := f.create(t, "planning-source", "text/plain", "body")
+	ref, _ := source.Details().Reference.BusinessFile()
+	target := f.addProject(t)
+	entered, release := make(chan struct{}), make(chan struct{})
+	var hit, open sync.Once
+	defer open.Do(func() { close(release) })
+	planner.set(func(d oc.AccessRequestDetails) error {
+		if d.Operation == oc.PrepareReadAccess && d.Owner.Details().ProjectID == f.project.String() {
+			hit.Do(func() { close(entered) })
+			<-release
+		}
+		return nil
+	})
+	done := make(chan error, 1)
+	go func() {
+		_, err := f.artifact.CreateFromSource(contextFor(t), f.invocationFor(t, target), command(t, "planning-copy"), art.Display{Name: "copy"}, ref)
+		done <- err
+	}()
+	artifactStopWait(t, entered)
+	if n, _ := f.workCounts(t, target); n != 0 || f.resolver.resolves.Load() != 0 {
+		t.Fatal("barrier was not before durable work and resolver", n)
+	}
+	actor, cause := f.activate(t, f.project, oc.ProjectStopDelete)
+	for range 5 {
+		r, err := f.artifact.RequestProjectStop(contextFor(t), actor, cause)
+		if err != nil || r.Details().State != oc.ProjectStopPending {
+			t.Error("source stopped while its planning call was still held", err, r.Details())
+			break
+		}
+	}
+	select {
+	case err := <-done:
+		t.Fatal("planning barrier did not hold actual public call", err)
+	default:
+	}
+	assertArtifactGuardHeld(t, f)
+	open.Do(func() { close(release) })
+	if artifactStopResult(t, done) == nil || f.resolver.resolves.Load() != 0 {
+		t.Fatal("deleted source planning crossed current gate/resolver")
+	}
+	planner.set(nil)
+	artifactStopSettled(t, f.artifact, actor, cause)
+}

@@ -1,0 +1,289 @@
+--- before/internal/central/artifact/project_lifecycle.go
++++ after/internal/central/artifact/project_lifecycle.go
+@@ -22,25 +22,33 @@
+ 	after string
+ }
+ type capturedProducer struct {
+-	control *producerControl
+-	work    *artifactWork
++	control             *producerControl
++	id                  string
++	work                *artifactWork
++	sourceHint          identity.ProjectID
++	admitting, returned bool
++	origins             map[foundation.Tx]bool
++	locks               []foundation.LockRequest
+ }
+ type artifactStopPlan struct {
+-	service      *Service
+-	request      oc.ProjectStopRequest
+-	dependencies oc.AccessDependencies
+-	previous     artifactStopRow
+-	found        bool
+-	works        []artifactWork
+-	commands     []commandRow
+-	intents      []uploadIntent
+-	native       map[string]commandRow
+-	uploads      map[string]uploadIntent
+-	controls     []capturedProducer
+-	locks        []foundation.LockRequest
+-	nextLane     int
+-	nextAfter    string
+-	cycle        bool
++	service          *Service
++	request          oc.ProjectStopRequest
++	dependencies     oc.AccessDependencies
++	previous         artifactStopRow
++	found            bool
++	works            []artifactWork
++	commands         []commandRow
++	intents          []uploadIntent
++	native           map[string]commandRow
++	uploads          map[string]uploadIntent
++	controls         []capturedProducer
++	local            []capturedProducer
++	localRevision    uint64
++	hasLocalSnapshot bool
++	locks            []foundation.LockRequest
++	nextLane         int
++	nextAfter        string
++	cycle            bool
+ }
+ 
+ func loadArtifactStop(ctx context.Context, e postgres.SQLExecutor, cause oc.ProjectStopCause) (artifactStopRow, bool, error) {
+@@ -221,11 +229,17 @@
+ 	}
+ 	r.mu.Lock()
+ 	for p := range r.controls {
+-		if p.project != d.ProjectID && (d.Action != oc.ProjectStopDelete || p.work == nil || p.work.source != d.ProjectID) {
++		if !producerRelated(p, d) {
+ 			continue
+ 		}
+-		// Only the durable identities in this bounded page are revoked below.
+-		// A later page keeps its own original control until its gate confirms.
++		capture := captureProducer(p)
++		b.local = append(b.local, capture)
++		// An unverified source hint can delay Stopped, but cannot authorize
++		// cancelling a call in the other project.
++		if p.project != d.ProjectID && (p.work == nil || p.work.source != d.ProjectID) {
++			continue
++		}
++		// The persistent page alone defines this round's revocation/cancel set.
+ 		if p.work != nil {
+ 			inBatch := false
+ 			for _, w := range b.works {
+@@ -242,19 +256,16 @@
+ 				continue
+ 			}
+ 		}
+-		capture := capturedProducer{control: p}
+-		if p.work != nil {
+-			w := *p.work
+-			capture.work = &w
+-		}
+ 		b.controls = append(b.controls, capture)
+-		b.locks = append(b.locks, p.locks...)
++		b.locks = append(b.locks, capture.locks...)
+ 		b.locks = append(b.locks, controlRecordLock(p.id))
+ 		if capture.work != nil {
+ 			b.locks = append(b.locks, artifactWorkLocks(*capture.work)...)
+ 		}
+ 	}
++	b.localRevision, b.hasLocalSnapshot = r.localRevision, true
+ 	r.mu.Unlock()
++	sort.Slice(b.local, func(i, j int) bool { return b.local[i].id < b.local[j].id })
+ 	b.locks, err = oc.NormalizeAccessLocks(b.locks)
+ 	if err != nil {
+ 		return nil, invalid()
+@@ -317,16 +328,162 @@
+ 	r := s.state()
+ 	r.mu.Lock()
+ 	defer r.mu.Unlock()
+-	for _, capture := range b.controls {
+-		p := capture.control
+-		if !r.controls[p] {
+-			continue
+-		}
+-		if p.service != s || (p.work == nil) != (capture.work == nil) || p.work != nil && (!workIdentity(*p.work, *capture.work) || p.work.lease != capture.work.lease) {
++	return s.validateLocalSnapshot(b)
++}
++
++// All callers of these snapshot helpers hold the service registry mutex.
++func producerRelated(p *producerControl, d oc.ProjectStopCauseDetails) bool {
++	return p.project == d.ProjectID || d.Action == oc.ProjectStopDelete && (p.sourceHint == d.ProjectID || p.work != nil && p.work.source == d.ProjectID)
++}
++func captureProducer(p *producerControl) capturedProducer {
++	c := capturedProducer{control: p, id: p.id, sourceHint: p.sourceHint, admitting: p.admitting, returned: p.returned, locks: append([]foundation.LockRequest{}, p.locks...), origins: map[foundation.Tx]bool{}}
++	if p.work != nil {
++		w := *p.work
++		c.work = &w
++	}
++	for tx := range p.origins {
++		c.origins[tx] = true
++	}
++	return c
++}
++func (s *Service) validateLocalSnapshot(b *artifactStopPlan) error {
++	if !b.hasLocalSnapshot {
++		return nil
++	}
++	r := s.state()
++	if r.localRevision != b.localRevision {
++		return failure(foundation.ResourceBusy, nil)
++	}
++	for _, c := range b.local {
++		p := c.control
++		if !r.controls[p] || p.service != s || p.id != c.id || p.sourceHint != c.sourceHint || p.admitting != c.admitting || p.returned != c.returned || (p.work == nil) != (c.work == nil) || p.work != nil && (!workIdentity(*p.work, *c.work) || p.work.lease != c.work.lease) || len(p.origins) != len(c.origins) || len(p.locks) != len(c.locks) {
+ 			return failure(foundation.ResourceBusy, nil)
+ 		}
++		for tx := range c.origins {
++			if !p.origins[tx] {
++				return failure(foundation.ResourceBusy, nil)
++			}
++		}
++		for i, lock := range c.locks {
++			if foundation.CompareLockKeys(lock.Key, p.locks[i].Key) != 0 || lock.Mode != p.locks[i].Mode {
++				return failure(foundation.ResourceBusy, nil)
++			}
++		}
+ 	}
+ 	return nil
++}
++func (s *Service) verifyLocalProducers(ctx context.Context, p *producerControl, b *artifactStopPlan) foundation.CommitResult {
++	for start := 0; start < len(b.local); start += artifactStopBatchSize {
++		end := min(start+artifactStopBatchSize, len(b.local))
++		result := s.verifyLocalBatch(ctx, p, b, b.local[start:end])
++		if result.State() != foundation.Committed {
++			return result
++		}
++	}
++	return foundation.CommittedResult()
++}
++func (s *Service) verifyLocalBatch(ctx context.Context, p *producerControl, b *artifactStopPlan, batch []capturedProducer) foundation.CommitResult {
++	if len(batch) > artifactStopBatchSize || b.service != s {
++		return rejected(invalid())
++	}
++	r := s.state()
++	barrier := []foundation.LockRequest{controlRecordLock(p.id), projectLock(b.request.Details().Cause.Details().ProjectID, foundation.Exclusive)}
++	locks := append(append([]foundation.LockRequest{}, b.dependencies.Locks()...), barrier...)
++	for _, c := range batch {
++		locks = append(locks, c.locks...)
++		locks = append(locks, controlRecordLock(c.id))
++		if c.work != nil {
++			locks = append(locks, artifactWorkLocks(*c.work)...)
++		}
++	}
++	locks, err := oc.NormalizeAccessLocks(locks)
++	if err != nil {
++		return rejected(invalid())
++	}
++	cause, err := txCause()
++	if err != nil {
++		return rejected(err)
++	}
++	// AcquireAll can fail after acquiring an earlier key but before control EX.
++	// Retain this one unconfirmed union before starting the physical Tx. A
++	// confirmed batch retires its union; historical batches never accumulate it.
++	r.mu.Lock()
++	p.pendingBatch = append([]foundation.LockRequest{}, locks...)
++	r.mu.Unlock()
++	result := r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
++		r.mu.Lock()
++		p.origins[tx] = true
++		r.mu.Unlock()
++		if err := r.store.AcquireAll(ctx, tx, locks); err != nil {
++			return portError(err)
++		}
++		// Every batch has acquired these same keys. They are sufficient to
++		// serialize confirmed history without retaining all previous unions.
++		if err := s.observeControl(p, tx, barrier); err != nil {
++			return err
++		}
++		grant, err := r.stop.Authority.ValidateProjectStopInTx(ctx, tx, b.request, b.dependencies)
++		if err != nil {
++			return portError(err)
++		}
++		if !grant.Matches(tx, b.request, b.dependencies) {
++			return failure(foundation.Forbidden, nil)
++		}
++		e, err := r.store.InTx(tx)
++		if err != nil {
++			return portError(err)
++		}
++		for _, c := range batch {
++			if c.work == nil {
++				continue
++			}
++			w := *c.work
++			actual, found, err := loadArtifactWork(ctx, e, w.id)
++			if err != nil {
++				return err
++			}
++			if !found || !workIdentity(w, actual) || w.lease != actual.lease {
++				return failure(foundation.ResourceBusy, nil)
++			}
++			if w.kind == "creation" {
++				native, found, err := loadCommandArtifact(ctx, e, w.resource)
++				if err != nil {
++					return err
++				}
++				if found && (native.ref.ProjectID != w.project || digestBytes([]byte(native.identity.Canonical())) != w.command || sourceProject(native) != w.source) {
++					return invalid()
++				}
++			} else {
++				native, found, err := loadIntentID(ctx, e, w.resource)
++				if err != nil {
++					return err
++				}
++				if !found || native.ref.ProjectID != w.project || digestBytes([]byte(native.identity.Canonical())) != w.command {
++					return invalid()
++				}
++			}
++		}
++		r.mu.Lock()
++		err = s.validateLocalSnapshot(b)
++		r.mu.Unlock()
++		return err
++	})
++	if result.State() == foundation.Committed {
++		r.mu.Lock()
++		p.pendingBatch = nil
++		r.mu.Unlock()
++	}
++	return result
++}
++func (s *Service) cancelCaptured(c capturedProducer) {
++	r := s.state()
++	r.mu.Lock()
++	p := c.control
++	matches := r.controls[p] && p.service == s && p.id == c.id && p.sourceHint == c.sourceHint && (p.work == nil) == (c.work == nil) && (p.work == nil || workIdentity(*p.work, *c.work) && p.work.lease == c.work.lease)
++	r.mu.Unlock()
++	if matches {
++		s.cancelProducer(p)
++	}
+ }
+ func (s *Service) stopTransaction(ctx context.Context, p *producerControl, b *artifactStopPlan, fn func(context.Context, foundation.Tx, postgres.SQLExecutor, oc.ProjectStopAuthorizationMode) error) foundation.CommitResult {
+ 	if b == nil || b.service != s {
+@@ -395,6 +552,13 @@
+ 	ctx = p.ctx
+ 	b, err := s.discoverArtifactStop(ctx, request)
+ 	if err != nil {
++		return oc.ObjectStopReport{}, err
++	}
++	verified := s.verifyLocalProducers(ctx, p, b)
++	if verified.State() == foundation.Unknown {
++		return pendingArtifact(cause, true)
++	}
++	if err = commitError(verified); err != nil {
+ 		return oc.ObjectStopReport{}, err
+ 	}
+ 	var mode oc.ProjectStopAuthorizationMode
+@@ -499,7 +663,7 @@
+ 		}
+ 	}
+ 	for _, capture := range b.controls {
+-		s.cancelProducer(capture.control)
++		s.cancelCaptured(capture)
+ 		recordConvergence(capture.work, s.settleProducer(ctx, capture.control))
+ 	}
+ 	for _, w := range b.works {

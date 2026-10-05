@@ -1,0 +1,56 @@
+# Artifact review09：最终本域独立覆盖结论
+
+建议采纳固定review09的Artifact本域有限结果。作者声明的30个新增、37个旧兼容顶层集合已有完整对应证据，未发现须新增运行的集合缺项；这不是整张Artifact卡、共享Object guard或完整D08通过。上游Object真实guard缺陷仍未修复整合，原卡中部分更强动态场景仍未验证，边界见末段。
+
+固定输入：`6658a6cb1f29299521773bc8dc86b2f607b8c809` + `candidate-review09/` 16源，manifest SHA **79e5eb812c0fda2a42d390a7e2703b1ebca4ce581c055e1c2a99fda1ab76914e**。本轮只读核证据，不执行Go/Docker，不写产品/仓库/Git。作者最终报告90665285、矩阵a4bd6a11、轻量索引29d858a7、末核c4ffa143均按完整SHA验证，76个增补原文件hash匹配；原报告/失败日志未覆盖。
+
+## 数量与实际执行粒度
+
+| 输入与证据 | 新 | 旧 | 本次认定 |
+| --- | ---: | ---: | --- |
+| review09实际显式日志 | 3 | 32 | 35个独立顶层PASS |
+| review08原日志适用复用 | 21 | 5 | 26个显式顶层PASS；原兼容组总exit1不抹掉5个独立通过项 |
+| review07固定六选包 | 6 | 0 | 精确选择器+包exit0，保留非verbose粒度 |
+| 合计 | 30 | 37 | 61个显式顶层PASS+6个历史选择器支持；55个去重显式子例名称 |
+
+不是最终16一次67项全绿，不为历史6项补造逐top/subtest日志。`evidence/case-evidence.json`逐67项给原run、input/log SHA、来源和复用依据键；`raw-checks.json`独立重解析原始PASS/FAIL/exit并对照实际argv/env/16哈希。源中30个Test函数与新集合完全相等；旧37名与原冻结10组plan的旧集合完全相等。其它driver包no-tests、compile24的no-tests、真实child helper均不加入67数目。
+
+## 复用判断
+
+review08→09只对**ordinary within真实Unknown**设置flag，并在真实body/Discard已经返回后不再启动新增退场确认等待。原CommitResult值、NotCommitted、正常Committed路径、权限、Project gate、body实际Close、sourcelease/原writer责任和最终EX确认不变。因此core/source/lifecycle/technical/native及旧5个正常/权限/撤销通过项可以复用；Object port合成的Unknown报告不是ordinary within Unknown，不能混淆。普通首lookup锁canary走NotCommitted，新增flag不触发，其已实测完整union退休仍适用。直接受影响的三创建入口×三结果admission、源捕获/最终publication、旧源恢复以及gate恢复都已在review09实跑；没有只凭文件未改就复用受影响Unknown路径。
+
+六个review07场景另核：精确函数名各存在，integration标签与原driver一致，无TestMain替代；六函数及其fixture主路径没有Skip/testing.Short（包内仅三个独立child helper有Skip，既非六选也非六场景调用路径）。函数体逐字节一致只作辅助；关键生产算法也按语义与16个相关函数精确差量核对，见reuse-function-checks.json。
+
+| 历史场景 | 后续生产差量为何不改变被验事实 |
+| --- | --- |
+| SourceIdentityCannotEscapeSelector | 按原local读取DB完整tuple、页外失配拒绝与零gate/Continue的discover/validate路径不变；正式成功Acquire后的规范union与review08提前登记union相同 |
+| LocalWorkIdentityTamperingRejectsBeforeCancel | 六种typed身份失配在取消前校验不变，captured handle与完整tuple/lease相等规则不变；没有ordinary Unknown引入 |
+| SourcePlanningKeepsWholeCallPending | sourcehint只保守join、work/Resolve=0前规划barrier和最终current gate不变；成功lookup已Committed，review09不跳正常尾部 |
+| BoundedLocalSnapshotAndABA | 65成员两批、revision/member ABA拒绝、最终sameTx验证核心未改；review08观测前移未增一次成功Tx的revision事件或缩减union |
+| PreWorkCancellationIsBoundedAndFair | work=nil的64/65实际取消选择、公平标记和未选wholejoin算法不变；hint/planner/barrier不触发ordinary Unknown |
+| UnknownJoinCheckpointRemainsUnknown | 先真实完成业务publication，Unknown命中local joinControl/checkpoint（不走ordinary within）；review09flag不触发。原local recordConvergence和合并Unknown优先路径仍在；review08抽出的refs归一保持同语义 |
+
+review08新的foreign pending早退/先Unknown后NotCommitted混合分支不由上述6项外推：foreign有下面独立正式Store模拟增量；真实混合场景仍未验。六选只按包级历史通过复用，不宣称review09重跑；不需要仅为补verbose再次执行。
+
+## 失败、修复与独立增量
+
+原新Unknown组两红3a7b7bb8、原旧publication红082491bf均保留。独立归因报告7a2a3210拒绝只移动测试计时；review09差量独立静审12f577ca通过。修后b028f34b原log显示新2+旧1的3top/6sub PASS，Discard2.004773423s/公开Unknown2.004977697s，新旧publication原3s未变；gate原提交cursor1，随后2/3/0/1四轮均Pending、第4精确取消原ctx，仍需真实resolver释放后才终态。admission在review09复跑1top/9sub（d8d9a534）通过。原红没有等待栈，旧base也有cancelSource2s，不宣称“2+2”是当时唯一动态根因。
+
+独立F1纯probe：`/workspace/agenteam-artifact-f1-v-uh4fek8y/report.md`，SHA2e79b05143c4e6173be8243e442f30e91687223b87b1c1f05dcdc78d6b3c945e。running service + 已cancel ctx而未StopAdmission，实际Close持有时Read/DB=0、原control不退、Force30ms到期仍Joined=false；放行后真实Close一次并收敛。该旧snapshot未再跑；final零DB路径不会触发unknown，实际Close/生命周期分支语义未变，按限定语义复用，不扩成PG/guard证明。
+
+独立foreign真实probe：`/workspace/agenteam-artifact-review09-v-qk_5bouy/probe-real-01/report.md`，SHA710cef3a970f6f3ac0bcd3262f87bd8fa03217a7cbf51fd369d3bffd18f88734。在review09有效overlay上1top3.28s/Objects4.305s真实PASS。真实Kill+Wait/原guard与技术work、sameTx完整tuple/Authority/实际join Committed，随后正式Store装饰器明示模拟Unknown；另一笔普通SH阻止完整EX确认时未早Joined，释放后Drain成功。与真实网络Unknown/原writer仍活明确区分。该增量不加入作者30项数目。
+
+最终作者race24/vet24/compile24原input16完全review09且exit0；race的artifact1.159s/contract1.015s，compile的1.017s明确no-tests。独立foreign在review09重新race编译7.046515s通过，后实测如上。两cmd build23仅review08实际通过，review09无公共API/import图扩展可复用其兼容构建证据；不声称最终16实际重建两cmd。
+
+## 资源、未验与交付边界
+
+12轮作者续跑的first/second清理记录均独立按原JSON核：逐4容器/3网络exactID absent、原2容器/4网络ID/name/labels相同，ownedprocess/runtime空、末源匹配；最后记录a4549aec。独立foreign同样二清并补跨进程组实际owned程序0。这里只读复用冻结资源证据，没有再次触碰已交还窗口。最终16逐项hash匹配，作者和V均all-stop，未读取其他活动产品候选。
+
+本域集合完成不消除以下限制：
+
+- 主线程已确认上游Object在普通锁竞争下可能未join而Drain/claim/flock先终局，该真实缺陷尚未整合修复；旧Runtime/S2个别通过不否定反例。共享guard整卡必须保持blocked。
+- failed ROLLBACK后原backend仍持部分Acquire锁的动态证明未执行，已暂停方法没有恢复或换主体重演。普通lock canary、纯Store结果与foreign模拟不替代它。
+- 先真实Unknown再后来NotCommitted的混合聚合仅pure回归，没有新增真实混合矩阵。历史6选不扩大到新foreign/mixed路径。
+- Project/app正式装配、未来来源router、Cleaner最终退休及完整D05/D08不在本次结果内。
+
+据此可采纳review09作为有明确验证边界的Artifact本域交付；不得把67集合证据改写成全卡所有恢复/共享guard门槛已通过。本轮只读汇总结束，无新增运行或未停命令。

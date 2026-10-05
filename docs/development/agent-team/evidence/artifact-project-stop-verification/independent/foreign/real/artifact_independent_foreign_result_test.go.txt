@@ -1,0 +1,346 @@
+//go:build integration
+
+package objects_test
+
+import (
+	"bufio"
+	"context"
+	"encoding/hex"
+	"encoding/json"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/artifact"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+)
+
+// This adapter changes one public Store result after recording a real ordinary
+// Committed result. It does not simulate lost packets or a surviving writer.
+// The subsequent lock holder is a different, explicitly owned transaction.
+type independentForeignJoinWitness struct {
+	attempt    artifactFirstAttempt
+	underlying foundation.CommitResult
+	simulated  foundation.CommitResult
+}
+
+type independentForeignJoinStore struct {
+	*postgres.Store
+	mu               sync.Mutex
+	work, resource   string
+	process          oc.ProcessID
+	project          identity.ProjectID
+	command          []byte
+	stopCause        oc.ProjectStopCause
+	authority        *artifactStopAuthority
+	armed, published bool
+	confirmationSent bool
+	attempts         map[foundation.Tx]artifactFirstAttempt
+	committed        chan independentForeignJoinWitness
+	allowResult      chan struct{}
+	confirmation     chan artifactFirstAttempt
+}
+
+func (s *independentForeignJoinStore) AcquireAll(ctx context.Context, tx foundation.Tx, locks []foundation.LockRequest) error {
+	e, err := s.Store.InTx(tx)
+	if err != nil {
+		return err
+	}
+	var pid int32
+	if err := e.QueryRow(ctx, `SELECT pg_backend_pid()`).Scan(&pid); err != nil {
+		return err
+	}
+	a := artifactFirstAttempt{tx: tx, pid: pid, locks: append([]foundation.LockRequest(nil), locks...)}
+	s.mu.Lock()
+	s.attempts[tx] = a
+	confirm := s.published && !s.confirmationSent
+	if confirm {
+		s.confirmationSent = true
+	}
+	s.mu.Unlock()
+	if confirm {
+		s.confirmation <- a
+	}
+	return s.Store.AcquireAll(ctx, tx, locks)
+}
+
+func (s *independentForeignJoinStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
+	s.mu.Lock()
+	armed := s.armed
+	s.mu.Unlock()
+	if !armed {
+		return s.Store.WithinTx(ctx, cause, fn)
+	}
+	var original foundation.Tx
+	var exactJoin bool
+	underlying := s.Store.WithinTx(ctx, cause, func(inner context.Context, tx foundation.Tx) error {
+		original = tx
+		e, err := s.Store.InTx(tx)
+		if err != nil {
+			return err
+		}
+		var before bool
+		if err := e.QueryRow(inner, `SELECT joined_at IS NOT NULL FROM agenteam_artifact.project_work WHERE id=$1`, s.work).Scan(&before); err != nil {
+			return err
+		}
+		if err := fn(inner, tx); err != nil {
+			return err
+		}
+		var joined, ownXmin, exactTuple bool
+		err = e.QueryRow(inner, `SELECT joined_at IS NOT NULL,
+ COALESCE(xmin::text=pg_current_xact_id_if_assigned()::text,false),
+ COALESCE(process_id=$2::uuid AND resource_id=$3::uuid AND project_id=$4::uuid AND kind='creation' AND command_hash=$5::bytea AND source_project_id IS NULL AND source_lease_id IS NULL AND admission_version=0 AND admission_operation IS NULL AND revoked_by=$6::uuid,false)
+ FROM agenteam_artifact.project_work WHERE id=$1`, s.work, s.process.String(), s.resource, s.project.String(), s.command, s.stopCause.Details().OperationID.String()).Scan(&joined, &ownXmin, &exactTuple)
+		if err != nil {
+			return err
+		}
+		s.authority.mu.Lock()
+		validated, ok := s.authority.validated[tx]
+		s.authority.mu.Unlock()
+		exactJoin = !before && joined && ownXmin && exactTuple && ok && validated.Details().Component == oc.ArtifactStopComponent && validated.Details().Cause.Equal(s.stopCause)
+		return nil
+	})
+	if !exactJoin || underlying.State() != foundation.Committed {
+		return underlying
+	}
+	s.mu.Lock()
+	if !s.armed {
+		s.mu.Unlock()
+		return underlying
+	}
+	s.armed = false
+	a := s.attempts[original]
+	s.mu.Unlock()
+	attempt, err := foundation.NewID[foundation.TransactionAttempt]()
+	if err != nil {
+		return underlying
+	}
+	simulated := foundation.UnknownResult(attempt, cause)
+	s.committed <- independentForeignJoinWitness{a, underlying, simulated}
+	select {
+	case <-s.allowResult:
+	case <-ctx.Done():
+	}
+	s.mu.Lock()
+	s.published = true
+	s.mu.Unlock()
+	return simulated
+}
+
+var _ artifact.Store = (*independentForeignJoinStore)(nil)
+
+func TestIndependentArtifactForeignJoinCommittedStoreUnknown(t *testing.T) {
+	f := newArtifactStopFixture(t, artifactStopOptions{})
+	old := id[oc.Process](t)
+	spool := filepath.Join(t.TempDir(), "shared-spool")
+	input := filepath.Join(t.TempDir(), "guard.json")
+	raw, err := json.Marshal(guardChildInput{f.db.Name, f.bucket, spool, old.String()})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(input, raw, 0600); err != nil {
+		t.Fatal(err)
+	}
+	childContext, stopChild := context.WithTimeout(contextFor(t), 25*time.Second)
+	defer stopChild()
+	child := exec.CommandContext(childContext, os.Args[0], "-test.run=^TestObjectProcessGuardChild$")
+	child.Env = append(os.Environ(), "AGENTEAM_OBJECT_GUARD_CHILD="+input)
+	stdin, err := child.StdinPipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer stdin.Close()
+	stdout, err := child.StdoutPipe()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err := child.Start(); err != nil {
+		t.Fatal(err)
+	}
+	childDone := make(chan struct{})
+	go func() { _ = child.Wait(); close(childDone) }()
+	t.Cleanup(func() {
+		_ = child.Process.Kill()
+		select {
+		case <-childDone:
+		case <-time.After(time.Second):
+			t.Error("owned claim child did not exit")
+		}
+	})
+	lines := make(chan string, 4)
+	go func() {
+		defer close(lines)
+		scanner := bufio.NewScanner(stdout)
+		for scanner.Scan() {
+			lines <- scanner.Text()
+		}
+	}()
+	waitChild := func(want string) {
+		t.Helper()
+		select {
+		case got := <-lines:
+			if got != want {
+				t.Fatal("real claim child barrier", got, want)
+			}
+		case <-childContext.Done():
+			t.Fatal("claim child did not reach the existing barrier")
+		}
+	}
+	waitChild("CLAIM_BOUND")
+	if _, err := stdin.Write([]byte{'d'}); err != nil {
+		t.Fatal(err)
+	}
+	waitChild("SPOOL_DRAINED_CLAIM_HELD")
+
+	work, resource := id[struct{}](t).String(), id[struct{}](t).String()
+	commandIdentity, err := foundation.NewCommandIdentity("artifact", []string{f.project.String()}, "create", "independent-foreign-join")
+	if err != nil {
+		t.Fatal(err)
+	}
+	hash, err := hex.DecodeString(strings.TrimPrefix(digest([]byte(commandIdentity.Canonical())).String(), "sha256:"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	observer := &independentForeignJoinStore{Store: f.store, work: work, resource: resource, process: old, project: f.project, command: hash, attempts: map[foundation.Tx]artifactFirstAttempt{}, committed: make(chan independentForeignJoinWitness, 1), allowResult: make(chan struct{}), confirmation: make(chan artifactFirstAttempt, 1)}
+	on := bindArtifactStop(t, f.fixture, f.proxy, f.stopAuthority, artifactStopOptions{port: observer, guard: true, spoolPath: spool})
+	observer.authority = on.stopAuthority
+	if err := on.guard.ConfirmStopped(contextFor(t), old); err == nil || codeOf(err) != foundation.ResourceBusy {
+		t.Fatal("live exact claim was not retained", err)
+	}
+	if err := child.Process.Kill(); err != nil {
+		t.Fatal(err)
+	}
+	artifactStopWait(t, childDone)
+	if err := on.guard.ConfirmStopped(contextFor(t), old); err != nil {
+		t.Fatal("real killed child was not confirmed through its original claim", err)
+	}
+	// Same technical-work fixture as the accepted recovery test: the process
+	// claim is real; this SQL row is explicit fixture setup, not a producer run.
+	f.sql(t, `INSERT INTO agenteam_artifact.project_work(id,project_id,process_id,kind,resource_id,command_hash,admission_version) VALUES($1,$2,$3,'creation',$4,$5,0)`, work, f.project.String(), old.String(), resource, hash)
+	actor, stopCause := f.activate(t, f.project, oc.ProjectStopArchive)
+	observer.stopCause = stopCause
+	observer.armed = true
+	var allow sync.Once
+	defer allow.Do(func() { close(observer.allowResult) })
+	type answer struct {
+		report oc.ObjectStopReport
+		err    error
+	}
+	answered := make(chan answer, 1)
+	go func() {
+		r, err := on.artifact.RequestProjectStop(contextFor(t), actor, stopCause)
+		answered <- answer{r, err}
+	}()
+	var witness independentForeignJoinWitness
+	select {
+	case witness = <-observer.committed:
+	case got := <-answered:
+		t.Fatal("public call returned without the exact foreign join transaction", got.err)
+	case <-time.After(3 * time.Second):
+		t.Fatal("same-Tx foreign join was not observed")
+	}
+	if witness.underlying.State() != foundation.Committed || witness.simulated.State() != foundation.Unknown || !witness.attempt.tx.Valid() || witness.attempt.pid == 0 || len(witness.attempt.locks) == 0 {
+		t.Fatal("real and simulated Store outcomes were not separately recorded")
+	}
+	if _, err := f.store.InTx(witness.attempt.tx); err == nil {
+		t.Fatal("normal Committed callback still exposed an active transaction")
+	}
+	var persisted bool
+	if err := f.store.QueryRow(contextFor(t), `SELECT joined_at IS NOT NULL AND process_id=$2 AND resource_id=$3 FROM agenteam_artifact.project_work WHERE id=$1`, work, old.String(), resource).Scan(&persisted); err != nil || !persisted {
+		t.Fatal("underlying normal commit did not persist exact foreign join", persisted, err)
+	}
+	t.Logf("foreign exact claim: live refused; Kill+Wait confirmed; semantic join sameTx=true underlying=committed backend=%d simulatedStoreResult=unknown", witness.attempt.pid)
+
+	// A separate normal shared holder blocks cleanup's EX confirmation. It is
+	// deliberately not described as the original (already committed) writer.
+	key, _ := foundation.ProjectLock(f.project.String())
+	held, release := make(chan struct{}), make(chan struct{})
+	holderDone := make(chan foundation.CommitResult, 1)
+	go func() {
+		holderDone <- f.store.WithinTx(contextFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+			if err := f.store.AcquireAll(ctx, tx, []foundation.LockRequest{{Key: key, Mode: foundation.Shared}}); err != nil {
+				return err
+			}
+			close(held)
+			<-release
+			return nil
+		})
+	}()
+	var releaseOnce sync.Once
+	unblock := func() {
+		releaseOnce.Do(func() {
+			close(release)
+			select {
+			case r := <-holderDone:
+				if r.State() != foundation.Committed {
+					t.Error("ordinary lock holder did not commit", r.State())
+				}
+			case <-time.After(3 * time.Second):
+				t.Error("ordinary lock holder did not return")
+			}
+		})
+	}
+	defer unblock()
+	artifactStopWait(t, held)
+	allow.Do(func() { close(observer.allowResult) })
+	var confirmation artifactFirstAttempt
+	select {
+	case confirmation = <-observer.confirmation:
+	case <-time.After(3 * time.Second):
+		t.Fatal("original request did not retain a cleanup transaction")
+	}
+	if !confirmation.tx.Valid() || confirmation.tx == witness.attempt.tx {
+		t.Fatal("cleanup did not use a distinct real transaction")
+	}
+	artifactWaitProjectLock(t, f.fixture, confirmation, f.project)
+	for _, original := range witness.attempt.locks {
+		found := false
+		for _, current := range confirmation.locks {
+			if foundation.CompareLockKeys(original.Key, current.Key) == 0 && current.Mode == foundation.Exclusive {
+				found = true
+			}
+		}
+		if !found {
+			t.Fatal("original foreign join key missing from retirement EX union")
+		}
+	}
+	on.artifact.StopAdmission()
+	if on.artifact.Joined() {
+		t.Fatal("request control retired while ordinary EX confirmation was blocked")
+	}
+	var got answer
+	select {
+	case got = <-answered:
+	case <-time.After(3 * time.Second):
+		t.Fatal("pending response exceeded existing cleanup budget")
+	}
+	if got.err != nil || got.report.Validate() != nil {
+		t.Fatal("simulated Store Unknown was lost", got.err)
+	}
+	d := got.report.Details()
+	if d.State != oc.ProjectStopPending || d.SafeReason != oc.ProjectStopOutcomeUnknown || len(d.UnknownRefs) != 1 || d.UnknownRefs[0].Kind != oc.StopArtifactCreation || d.UnknownRefs[0].ID.String() != resource {
+		t.Fatal("foreign Unknown provenance lost", d)
+	}
+	if on.stopObjects.requests.Load() != 0 || on.stopObjects.inspects.Load() != 0 {
+		t.Fatal("unconfirmed request continued into Object")
+	}
+	var state string
+	if err := f.store.QueryRow(contextFor(t), `SELECT state FROM agenteam_artifact.project_stops WHERE operation_id=$1`, stopCause.Details().OperationID.String()).Scan(&state); err != nil || state != "stopping" || on.artifact.Joined() {
+		t.Fatal("pending request falsely completed", state, err)
+	}
+	t.Logf("public=outcome_unknown exactRef=true ObjectContinue=0 stoppedWrite=0; separateHolder=normalSH confirmationBackend=%d fullOriginalUnionEX=true Joined=false", confirmation.pid)
+	unblock()
+	drain, cancel := context.WithTimeout(contextFor(t), 3*time.Second)
+	defer cancel()
+	if err := on.artifact.Drain(drain); err != nil || !on.artifact.Joined() {
+		t.Fatal("ordinary holder release did not converge the original control", err)
+	}
+	t.Log("ordinary holder released; Artifact Drain succeeded/Joined=true; no assertion about production shared-guard completion or real transport Unknown")
+}

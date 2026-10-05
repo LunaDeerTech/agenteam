@@ -1,0 +1,28 @@
+{
+  "base": "6658a6cb1f29299521773bc8dc86b2f607b8c809",
+  "snapshot_scope": "go.mod,go.sum,internal from git archive; eight fixed production overlays only; no author candidate tests",
+  "files": {
+    "internal/central/artifact/service.go": "85d66203f2475d4b7512ac83c67363798d150d08a633bd5ef9bbc69fa44176b9",
+    "internal/central/artifact/create.go": "3b1301f803d4dc6f4b9293b01472669706bb1ae6bc9a4f60e2bcb3eabf8af481",
+    "internal/central/artifact/upload.go": "88e0e59f7b603066665fc6a6524f62f27cc1fb33c00c626e835f3303a2b565fc",
+    "internal/central/artifact/publish.go": "8ef90f162afb3778abd25afd4865da7aa8deaa3c68ba3084089785ac2aebcc29",
+    "internal/central/artifact/commands.go": "7a366cf2b7209d46f5b5c455a21d037dd16c5f52ced9950eb76c618dd454968d",
+    "internal/central/artifact/project_work.go": "633b299ff95d7135901919225e0079dc7debdd905c6f6e8555dbd283cc71e440",
+    "internal/central/artifact/project_lifecycle.go": "264bd4c60c8b56f82c98ad5ac6c2714b5b6d053e3e3461d1f527038c5040be2b",
+    "internal/central/artifact/lifecycle.go": "9073b198614fea015a5f99ecb173d6c9e207fec73f536ceacb9e64a849872e39"
+  },
+  "sources": {
+    "internal/central/artifact/service.go": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/service.go",
+    "internal/central/artifact/create.go": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/create.go",
+    "internal/central/artifact/upload.go": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-02/internal/central/artifact/upload.go",
+    "internal/central/artifact/publish.go": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/publish.go",
+    "internal/central/artifact/commands.go": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/commands.go",
+    "internal/central/artifact/project_work.go": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-04/internal/central/artifact/project_work.go",
+    "internal/central/artifact/project_lifecycle.go": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-03/internal/central/artifact/project_lifecycle.go",
+    "internal/central/artifact/lifecycle.go": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-04/internal/central/artifact/lifecycle.go"
+  },
+  "module": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+  }
+}

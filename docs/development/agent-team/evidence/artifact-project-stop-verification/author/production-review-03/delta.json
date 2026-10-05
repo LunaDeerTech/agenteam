@@ -1,0 +1,14 @@
+{
+  "base": "6658a6cb1f29299521773bc8dc86b2f607b8c809",
+  "prior_manifest_sha256": "c2a5599b0fe5763cedbb047c1a355409498875d52d027c0af0d1f96ab443fd9c",
+  "files": {
+    "internal/central/artifact/project_lifecycle.go": {
+      "before": "bd68013e20af9514463eb016da9c8143145c315cccebfa39dc5814c5df3f8f79",
+      "after": "264bd4c60c8b56f82c98ad5ac6c2714b5b6d053e3e3461d1f527038c5040be2b"
+    },
+    "internal/central/artifact/project_lifecycle_test.go": {
+      "before": "62cf1d2f136597bdf884ca323b55f347ad17dbbe3467720229407225db2a5fd7",
+      "after": "29e2d7a5c2c5720216ec23bf658dcf965a3ed8a0be21bf33c69abb65fe51f31c"
+    }
+  }
+}

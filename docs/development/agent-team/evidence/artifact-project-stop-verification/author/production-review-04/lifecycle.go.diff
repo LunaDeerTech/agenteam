@@ -1,0 +1,10 @@
+--- before/internal/central/artifact/lifecycle.go
++++ after/internal/central/artifact/lifecycle.go
+@@ -16,6 +16,7 @@
+ 	service            *Service
+ 	id                 string
+ 	project            identity.ProjectID
++	sourceHint         identity.ProjectID
+ 	ctx                context.Context
+ 	cancel             context.CancelFunc
+ 	returned, settling bool

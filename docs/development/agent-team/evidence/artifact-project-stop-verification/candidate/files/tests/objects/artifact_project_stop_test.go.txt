@@ -1,0 +1,299 @@
+//go:build integration
+
+package objects_test
+
+import (
+	"context"
+	"io"
+	"strings"
+	"sync"
+	"testing"
+	"time"
+
+	art "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/object"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+)
+
+func TestArtifactProjectStopArchivePreservesCanonicalAndFencesReceipts(t *testing.T) {
+	f := newArtifactStopFixture(t, artifactStopOptions{})
+	ctx := contextFor(t)
+	canonical := f.create(t, "canonical", "text/plain", "archive keeps bytes")
+	empty, err := f.artifact.BeginUpload(ctx, f.invocation(t), command(t, "unopened"), art.Display{Name: "unopened.txt"}, "text/plain", 4, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	target, err := f.artifact.BeginUpload(ctx, f.invocation(t), command(t, "receipt"), art.Display{Name: "receipt.txt"}, "text/plain", 4, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	uploaded, err := f.artifact.UploadPayload(ctx, f.invocation(t), target, io.NopCloser(strings.NewReader("body")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	actor, cause := f.activate(t, f.project, oc.ProjectStopArchive)
+	artifactStopSettled(t, f.artifact, actor, cause)
+	read, err := f.artifact.ReadArtifact(ctx, f.invocation(t), canonical.Details().Reference, art.PreviewRequest{})
+	if err != nil || read.Details().Text != "archive keeps bytes" {
+		t.Fatal("archived canonical read", err)
+	}
+	downloads := f.downloads(t, f.sources)
+	token := f.downloadToken(t, downloads, canonical, oc.DownloadAttachment)
+	_, bytes, readErr, out := downloadHTTP(t, downloads, f.actor, token, "", 0, nil)
+	if readErr != nil || out.err != nil || string(bytes) != "archive keeps bytes" {
+		t.Fatal("archived download", readErr, out.err)
+	}
+	var records, refs, deleted int
+	if err = f.store.QueryRow(ctx, `SELECT (SELECT count(*) FROM agenteam_artifact.artifacts),(SELECT count(*) FROM agenteam_object.object_references WHERE kind='canonical'),(SELECT count(*) FROM agenteam_object.cleanup_operations)`).Scan(&records, &refs, &deleted); err != nil || records != 1 || refs != 1 || deleted != 0 {
+		t.Fatal("stop changed canonical or invoked Cleaner", records, refs, deleted, err)
+	}
+	// Restore permits a new key, while revoked UploadTargets/receipts stay dead.
+	f.sql(t, `UPDATE object_fixture.projects SET state='active',operation_id=NULL,version=version+1 WHERE id=$1`, f.project.String())
+	before := f.proxy.puts.Load()
+	_, err = f.artifact.UploadPayload(ctx, f.invocation(t), empty, io.NopCloser(strings.NewReader("body")))
+	if err == nil {
+		t.Fatal("old unopened target revived")
+	}
+	_, err = f.artifact.CreateFromUpload(ctx, f.invocation(t), command(t, "old-receipt-consume"), art.Display{Name: "receipt.txt"}, uploaded.Receipt)
+	if err == nil {
+		t.Fatal("old receipt consumed after Restore")
+	}
+	if f.proxy.puts.Load() != before {
+		t.Fatal("revoked old target reached PUT")
+	}
+	f.create(t, "new-after-restore", "text/plain", "new key")
+}
+func TestArtifactProjectStopDeleteJoinsRealReaderAndSourceLease(t *testing.T) {
+	for _, kind := range []string{"reader_release", "unopened_source"} {
+		t.Run(kind, func(t *testing.T) {
+			var planner *recoveryItemPlanner
+			f := newArtifactStopFixture(t, artifactStopOptions{planner: func(p oc.AccessPlanner) oc.AccessPlanner { planner = &recoveryItemPlanner{base: p}; return planner }})
+			metadata := f.create(t, "source", "text/plain", strings.Repeat("big body\n", oc.StreamBufferSize))
+			entered, release := make(chan struct{}), make(chan struct{})
+			var hit, open sync.Once
+			defer open.Do(func() { close(release) })
+			done := make(chan error, 1)
+			if kind == "reader_release" {
+				owner, _ := oc.NewObjectOwner(oc.Artifact, metadata.Details().Reference.ArtifactID.String(), f.project.String())
+				f.proxy.mode.Store(proxyHoldReadBody)
+				reader, err := f.objects.ReadObject(contextFor(t), f.actor, owner, metadata.Details().Object.ID, nil)
+				if err != nil {
+					t.Fatal(err)
+				}
+				assertStopBodyHeld(t, f.proxy)
+				assertStopReaderLifetime(t, f.fixture, metadata.Details().Object.ID, f.process, true)
+				planner.set(func(d oc.AccessRequestDetails) error {
+					if d.Operation == oc.ReleaseReaderAccess {
+						hit.Do(func() { close(entered) })
+						<-release
+					}
+					return nil
+				})
+				go func() { done <- reader.Close() }()
+				artifactStopWait(t, entered)
+			} else {
+				ref, _ := metadata.Details().Reference.BusinessFile()
+				source, err := f.sources.Resolve(contextFor(t), f.actor, ref)
+				if err != nil {
+					t.Fatal(err)
+				}
+				_, result := acquireSourceOn(t, f.fixture, f.objects, f.reads.(*object.SourceReads), source, f.store, nil)
+				if result.State() != foundation.Committed {
+					t.Fatal(result.Fault())
+				}
+				var active int
+				if err = f.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='source' AND state='active'`, metadata.Details().Object.ID.String()).Scan(&active); err != nil || active != 1 {
+					t.Fatal("unopened lease missing", active, err)
+				}
+			}
+			actor, cause := f.activate(t, f.project, oc.ProjectStopDelete)
+			if kind == "reader_release" {
+				report, err := f.artifact.RequestProjectStop(contextFor(t), actor, cause)
+				if err != nil || report.Details().State != oc.ProjectStopPending {
+					t.Fatal("real reader was not pending", err, report.Details())
+				}
+				select {
+				case <-done:
+					t.Fatal("blocked release returned")
+				default:
+				}
+				open.Do(func() { close(release) })
+				_ = artifactStopResult(t, done)
+				planner.set(nil)
+			}
+			artifactStopSettled(t, f.artifact, actor, cause)
+			var active int
+			if err := f.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND state='active'`, metadata.Details().Object.ID.String()).Scan(&active); err != nil || active != 0 {
+				t.Fatal("Object lease not actually joined", active, err)
+			}
+		})
+	}
+}
+func TestArtifactProjectStopObjectReportConservativeMatrix(t *testing.T) {
+	for _, kind := range []string{"pending", "failed", "unknown", "wrong_cause", "wrong_component", "unbound"} {
+		t.Run(kind, func(t *testing.T) {
+			f := newArtifactStopFixture(t, artifactStopOptions{})
+			actor, cause := f.activate(t, f.project, oc.ProjectStopArchive)
+			f.stopObjects.override = func(r oc.ObjectStopReport, e error) (oc.ObjectStopReport, error) {
+				if e != nil {
+					return r, e
+				}
+				if kind == "unbound" {
+					return oc.ObjectStopReport{}, fault(foundation.DependencyUnbound)
+				}
+				component := oc.ObjectStopComponent
+				actual := cause
+				d := oc.ObjectStopDetails{State: oc.ProjectStopPending, SafeReason: oc.ProjectStopWorkPending}
+				switch kind {
+				case "failed":
+					d.State = oc.ProjectStopFailed
+					d.SafeReason = oc.ProjectStopOperationFailed
+				case "unknown":
+					d.SafeReason = oc.ProjectStopOutcomeUnknown
+				case "wrong_cause":
+					v := cause.Details()
+					v.OperationID = id[oc.ProjectStopOperation](t)
+					actual, _ = oc.NewProjectStopCause(v)
+				case "wrong_component":
+					component = oc.ArtifactStopComponent
+				}
+				return oc.NewObjectStopReport(component, actual, d)
+			}
+			for range 5 {
+				report, err := f.artifact.RequestProjectStop(contextFor(t), actor, cause)
+				if kind == "wrong_cause" || kind == "wrong_component" || kind == "unbound" {
+					if err == nil {
+						t.Fatal("invalid Object proof accepted")
+					}
+					break
+				}
+				if err != nil || report.Details().State == oc.ProjectStopped {
+					t.Fatal("Object nonterminal became Artifact stopped", err, report.Details())
+				}
+				if kind == "unknown" && report.Details().SafeReason != oc.ProjectStopOutcomeUnknown {
+					t.Fatal("unknown lost")
+				}
+			}
+			var stopped int
+			if err := f.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_artifact.project_stops WHERE state='stopped'`).Scan(&stopped); err != nil || stopped != 0 {
+				t.Fatal("false durable stopped", stopped, err)
+			}
+			f.stopObjects.override = nil
+			artifactStopSettled(t, f.artifact, actor, cause)
+		})
+	}
+}
+func TestArtifactProjectStopReadOnlyRequiresBothReceipts(t *testing.T) {
+	f := newArtifactStopFixture(t, artifactStopOptions{})
+	actor, cause := f.activate(t, f.project, oc.ProjectStopDelete)
+	f.sql(t, `UPDATE object_fixture.stop_causes SET phase='complete'`)
+	before := f.stopObjects.requests.Load()
+	_, err := f.artifact.InspectProjectStop(contextFor(t), actor, cause)
+	if err == nil {
+		t.Fatal("missing local receipt accepted")
+	}
+	if f.stopObjects.requests.Load() != before || f.stopObjects.inspects.Load() != 0 {
+		t.Fatal("missing local receipt invoked Object")
+	}
+	f.sql(t, `UPDATE object_fixture.stop_causes SET phase='stopping'`)
+	if _, err = f.artifact.InspectProjectStop(contextFor(t), actor, cause); err == nil {
+		t.Fatal("Inspect created new cause")
+	}
+	if _, err = f.artifact.RequestProjectStop(contextFor(t), actor, cause); err != nil {
+		t.Fatal(err)
+	}
+	f.sql(t, `UPDATE object_fixture.stop_causes SET phase='complete'`)
+	if _, err = f.artifact.InspectProjectStop(contextFor(t), actor, cause); err == nil {
+		t.Fatal("nonterminal local receipt read as stopped")
+	}
+	f.sql(t, `UPDATE object_fixture.stop_causes SET phase='stopping'`)
+	artifactStopSettled(t, f.artifact, actor, cause)
+	f.sql(t, `UPDATE object_fixture.stop_causes SET phase='complete'`)
+	var xmin string
+	if err = f.store.QueryRow(contextFor(t), `SELECT xmin::text FROM agenteam_artifact.project_stops`).Scan(&xmin); err != nil {
+		t.Fatal(err)
+	}
+	report, err := f.artifact.InspectProjectStop(contextFor(t), actor, cause)
+	if err != nil || report.Details().State != oc.ProjectStopped {
+		t.Fatal("terminal read", err)
+	}
+	var after string
+	if err = f.store.QueryRow(contextFor(t), `SELECT xmin::text FROM agenteam_artifact.project_stops`).Scan(&after); err != nil || after != xmin {
+		t.Fatal("read-only updated receipt", err)
+	}
+	if _, err = f.artifact.RequestProjectStop(context.Background(), actor, cause); err == nil {
+		t.Fatal("Request used read-only phase")
+	}
+	for _, phase := range []string{"cleaning", "finalizing", "failed", "complete"} {
+		f.sql(t, `UPDATE object_fixture.stop_causes SET phase=$1`, phase)
+		requests := f.stopObjects.requests.Load()
+		r, e := f.artifact.InspectProjectStop(contextFor(t), actor, cause)
+		if e != nil || r.Details().State != oc.ProjectStopped || f.stopObjects.requests.Load() != requests {
+			t.Fatal("read-only phase changed gate or continued Object", phase, e)
+		}
+		if _, e = f.artifact.RequestProjectStop(contextFor(t), actor, cause); e == nil {
+			t.Fatal("Request admitted outside stopping", phase)
+		}
+	}
+	f.sql(t, `DELETE FROM object_fixture.projects WHERE id=$1`, f.project.String())
+	r, e := f.artifact.InspectProjectStop(contextFor(t), actor, cause)
+	if e != nil || r.Details().State != oc.ProjectStopped {
+		t.Fatal("exact minimal deleted receipt unavailable", e)
+	}
+}
+
+func TestArtifactProjectStopRejectedAuthorityHasNoSideEffects(t *testing.T) {
+	for _, kind := range []string{"held_ex", "manifest", "restored", "wrong_cause"} {
+		t.Run(kind, func(t *testing.T) {
+			var resolver *artifactHeldResolver
+			f := newArtifactStopFixture(t, artifactStopOptions{resolve: func(r oc.SourceResolver) oc.SourceResolver { resolver = newArtifactHeldResolver(r); return resolver }})
+			source := f.create(t, "authority-source", "text/plain", "body")
+			ref, _ := source.Details().Reference.BusinessFile()
+			var open sync.Once
+			defer open.Do(func() { close(resolver.release) })
+			done := make(chan error, 1)
+			go func() {
+				_, e := f.artifact.CreateFromSource(contextFor(t), f.invocation(t), command(t, "authority-copy"), art.Display{Name: "copy"}, ref)
+				done <- e
+			}()
+			original := artifactResolverEntered(t, resolver)
+			actor, cause := f.activate(t, f.project, oc.ProjectStopArchive)
+			var err error
+			switch kind {
+			case "held_ex":
+				key, _ := foundation.ProjectLock(f.project.String())
+				release := artifactGate(t, f.artifactFixture, key, `UPDATE object_fixture.projects SET version=version WHERE id=$1`, f.project.String())
+				budget, cancel := context.WithTimeout(context.Background(), 60*time.Millisecond)
+				_, err = f.artifact.RequestProjectStop(budget, actor, cause)
+				cancel()
+				release()
+			case "manifest":
+				f.sql(t, `UPDATE object_fixture.stop_causes SET manifest=false`)
+				_, err = f.artifact.RequestProjectStop(contextFor(t), actor, cause)
+			case "restored":
+				f.sql(t, `UPDATE object_fixture.projects SET state='active',version=version+1,operation_id=NULL WHERE id=$1`, f.project.String())
+				_, err = f.artifact.RequestProjectStop(contextFor(t), actor, cause)
+			case "wrong_cause":
+				d := cause.Details()
+				d.OperationID = id[oc.ProjectStopOperation](t)
+				wrong, _ := oc.NewProjectStopCause(d)
+				_, err = f.artifact.RequestProjectStop(contextFor(t), actor, wrong)
+			}
+			if err == nil || original.Err() != nil || f.stopObjects.requests.Load() != 0 {
+				t.Fatal("unconfirmed authority caused side effects", kind, err)
+			}
+			var gates, revoked int
+			if e := f.store.QueryRow(contextFor(t), `SELECT (SELECT count(*) FROM agenteam_artifact.project_stops),(SELECT count(*) FROM agenteam_artifact.project_work WHERE revoked_by IS NOT NULL)`).Scan(&gates, &revoked); e != nil || gates != 0 || revoked != 0 {
+				t.Fatal("denied authority wrote technical gate", gates, revoked, e)
+			}
+			f.sql(t, `UPDATE object_fixture.stop_causes SET manifest=true`)
+			f.sql(t, `UPDATE object_fixture.projects SET state='archived',version=$2,operation_id=$3 WHERE id=$1`, f.project.String(), int64(cause.Details().ProjectVersion), cause.Details().OperationID.String())
+			open.Do(func() { close(resolver.release) })
+			if artifactStopResult(t, done) == nil {
+				t.Fatal("archived copy published")
+			}
+			artifactStopSettled(t, f.artifact, actor, cause)
+		})
+	}
+}

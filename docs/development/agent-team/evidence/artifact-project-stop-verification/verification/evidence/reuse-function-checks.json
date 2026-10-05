@@ -1,0 +1,131 @@
+{
+  "historical_six": [
+    {
+      "function": "TestArtifactProjectStopBoundedLocalSnapshotAndABA",
+      "path": "tests/objects/artifact_project_stop_recovery_test.go",
+      "before_final_body_equal": true,
+      "body_sha256": "9a6ab7f8ff9c2c13d1946df93a66083feeec4fe8aa652509301f8bc9d5e47694",
+      "no_skip_short_branch": true
+    },
+    {
+      "function": "TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel",
+      "path": "tests/objects/artifact_project_stop_recovery_test.go",
+      "before_final_body_equal": true,
+      "body_sha256": "8f68b6b2c91735c4e641ec73f8fd2de735a022a3190a7a0316727d99bbaf05d6",
+      "no_skip_short_branch": true
+    },
+    {
+      "function": "TestArtifactProjectStopPreWorkCancellationIsBoundedAndFair",
+      "path": "tests/objects/artifact_project_stop_recovery_test.go",
+      "before_final_body_equal": true,
+      "body_sha256": "4eac0242ee34d34fa26a18cb9b3fc751a682588240464e29e51e97a1f963a563",
+      "no_skip_short_branch": true
+    },
+    {
+      "function": "TestArtifactProjectStopSourceIdentityCannotEscapeSelector",
+      "path": "tests/objects/artifact_project_stop_recovery_test.go",
+      "before_final_body_equal": true,
+      "body_sha256": "8ecdfdd6f7727a345b52b03f9717b7c1e6ffd67684cbbdf76fff1ace4490e064",
+      "no_skip_short_branch": true
+    },
+    {
+      "function": "TestArtifactProjectStopSourcePlanningKeepsWholeCallPending",
+      "path": "tests/objects/artifact_project_stop_source_test.go",
+      "before_final_body_equal": true,
+      "body_sha256": "3b059fbc9bd5e9d61bb9d092b4cae8934ee20899fb3ede05bd628c61a1fe555f",
+      "no_skip_short_branch": true
+    },
+    {
+      "function": "TestArtifactProjectStopUnknownJoinCheckpointRemainsUnknown",
+      "path": "tests/objects/artifact_project_stop_recovery_test.go",
+      "before_final_body_equal": true,
+      "body_sha256": "a5fe70489e3c99694fe1bbe9a03207e9e7e8f23f0884f20559dd3364c9b83b4b",
+      "no_skip_short_branch": true
+    }
+  ],
+  "unchanged_relevant_production": [
+    {
+      "function": "discoverArtifactStop",
+      "before_final_body_equal": true,
+      "body_sha256": "392230f25b9ee00e80c9cafea2a6830e45b9b48168437b9c5c66514d48c2b7c9"
+    },
+    {
+      "function": "validateArtifactBatch",
+      "before_final_body_equal": true,
+      "body_sha256": "1e1334f9ff7d80c03c706b36af43013015d255d5c4ce330ff7c3d5f9c4fbd150"
+    },
+    {
+      "function": "producerRelated",
+      "before_final_body_equal": true,
+      "body_sha256": "65518321b30eb334ae00ffd46e6b2276517982e15261e1e027d642e7e4221b77"
+    },
+    {
+      "function": "captureProducer",
+      "before_final_body_equal": true,
+      "body_sha256": "a694e18625c0f0b6a83fb0204e7600bfdc52ed7e82a966010e10d3a472159fc5"
+    },
+    {
+      "function": "validateLocalSnapshot",
+      "before_final_body_equal": true,
+      "body_sha256": "3cb02222a4167c37ddb93fd0396eeb5e01386c4b5afc560b31740d21158a740f"
+    },
+    {
+      "function": "verifyLocalProducers",
+      "before_final_body_equal": true,
+      "body_sha256": "a940ff85cab8bbcc3f1fbdeab6abc658003ce591d7de896d7682871f9fbad8ce"
+    },
+    {
+      "function": "verifyLocalBatch",
+      "before_final_body_equal": true,
+      "body_sha256": "97434e25acaad12bbe4f4c88e38a5a1aee3d09fc7bb5a13641d402dea5758bcb"
+    },
+    {
+      "function": "startStopBatch",
+      "before_final_body_equal": true,
+      "body_sha256": "57a6225fd2114b1b99a68dec562859381da8c649f183ba7b4eee561e2a5df61e"
+    },
+    {
+      "function": "finishStopBatch",
+      "before_final_body_equal": true,
+      "body_sha256": "d94ad7b9bd3b9845aba899314781ba74f5d763d94fbe0fefcabd55d8cd7ab896"
+    },
+    {
+      "function": "pendingStopBatch",
+      "before_final_body_equal": true,
+      "body_sha256": "f4ab14bda6bb806cca7b435362e5b8f46ba683cae0830496f8bfc3345d825fd6"
+    },
+    {
+      "function": "cancelCaptured",
+      "before_final_body_equal": true,
+      "body_sha256": "240c8165e5b025a9836d8d00a0c3ae28f85fc1fd1fff5ec206e791550100c7fb"
+    },
+    {
+      "function": "stopTransaction",
+      "before_final_body_equal": true,
+      "body_sha256": "799266bb2fce6376bc2b81617a1d06a082644ce9c91cbb00a9674e15cb104ae7"
+    },
+    {
+      "function": "artifactPending",
+      "before_final_body_equal": true,
+      "body_sha256": "653bb410d12025d2b4a574b7eb26208ed46ba026e14d58268e0076c658db5032"
+    },
+    {
+      "function": "recoverArtifactWork",
+      "before_final_body_equal": true,
+      "body_sha256": "698aa871f6cc493d7e9acfd6fc8d345dbb7f4c74a9beb8cd165168b8cb0b8e30"
+    },
+    {
+      "function": "registerWork",
+      "before_final_body_equal": true,
+      "body_sha256": "8a783dfbdde74dd9c33654c9a53a6b21fbfbb9572cf9439ca8326317cb7eb5ff"
+    },
+    {
+      "function": "joinControl",
+      "before_final_body_equal": true,
+      "body_sha256": "ababb17082ba6a065c12985b1d383fd193d95a144e007833aebe78d379c6f858"
+    }
+  ],
+  "semantic_delta_explanation": "review08 actual successful Acquire still observes the same normalized plan+extra union; failure-before-acquire branch separately covered. review09 only skips new finish wait for actual ordinary within Unknown, absent in these six main producers; local join Unknown originates joinControl outside within. Changed pendingConvergenceReport foreign/mixed path is not inferred from six; report separates independent Store simulation and pure-only mixed coverage.",
+  "fixtures_no_skip": true,
+  "no_TestMain_in_objects": true
+}

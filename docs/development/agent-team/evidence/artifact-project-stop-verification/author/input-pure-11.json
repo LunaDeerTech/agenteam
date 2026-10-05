@@ -1,0 +1,56 @@
+{
+  "base": "6658a6cb1f29299521773bc8dc86b2f607b8c809",
+  "files": {
+    "internal/central/artifact/service.go": "85d66203f2475d4b7512ac83c67363798d150d08a633bd5ef9bbc69fa44176b9",
+    "internal/central/artifact/create.go": "3b1301f803d4dc6f4b9293b01472669706bb1ae6bc9a4f60e2bcb3eabf8af481",
+    "internal/central/artifact/upload.go": "88e0e59f7b603066665fc6a6524f62f27cc1fb33c00c626e835f3303a2b565fc",
+    "internal/central/artifact/publish.go": "8ef90f162afb3778abd25afd4865da7aa8deaa3c68ba3084089785ac2aebcc29",
+    "internal/central/artifact/commands.go": "7a366cf2b7209d46f5b5c455a21d037dd16c5f52ced9950eb76c618dd454968d",
+    "internal/central/artifact/project_work.go": "8f1183acd0af997489e2ccbde8afa2213a1a87be4fb6abb5a1f924a87bc73fd8",
+    "internal/central/artifact/project_lifecycle.go": "264bd4c60c8b56f82c98ad5ac6c2714b5b6d053e3e3461d1f527038c5040be2b",
+    "internal/central/artifact/lifecycle.go": "fb13de1242cc276e943aabe7f7698108a0f242bfd69eca0f3c99bde7039bc868",
+    "internal/central/artifact/project_work_test.go": "ed8ffdb2120c0aa993693613afbd76356c6bd186b45971f61373a5caea622f91",
+    "internal/central/artifact/project_lifecycle_test.go": "29e2d7a5c2c5720216ec23bf658dcf965a3ed8a0be21bf33c69abb65fe51f31c",
+    "internal/central/artifact/lifecycle_test.go": "196166241f15816684b13d7dd026c33eb232b4fc7f3f6e290dfeaf32d70db167",
+    "tests/objects/artifact_project_stop_fixture_test.go": "897ad08f1e8b7b38d06bee89c85d8258ac1100b6ecaf6a6fd0d5b2f528dff749",
+    "tests/objects/artifact_project_stop_test.go": "4f81a20cbb0023e0f007f861f4e077f7c6e9afc34f588e8beaf63f857bb0b159",
+    "tests/objects/artifact_project_stop_source_test.go": "672d6388233fd5f4d522e93bea56ed1c128f36bc47ee40cc0979afd080966603",
+    "tests/objects/artifact_project_stop_recovery_test.go": "aac8dc7ebb39e658d7855661f83916b93e58005046b1e664f698115acb4913fd",
+    "tests/objects/artifact_project_stop_lifecycle_test.go": "2f38affac95b80ae00b2d7e335f9a5621d9924b7882648bb3ef357fba671a674"
+  },
+  "commands": {
+    "race11": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-race",
+      "-count=1",
+      "./internal/central/artifact/..."
+    ],
+    "vet11": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "-tags=integration",
+      "./internal/central/artifact/...",
+      "./tests/objects"
+    ],
+    "compile11": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-tags=integration",
+      "-run",
+      "^$",
+      "./internal/central/artifact/...",
+      "./tests/objects"
+    ]
+  },
+  "environment": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-artifact-stop-build-y597q6vl/go-build",
+    "TMPDIR": "/workspace/agenteam-artifact-stop-build-y597q6vl/runtime"
+  }
+}

@@ -1,0 +1,11 @@
+# Artifact F1 独立纯验证
+
+结论：固定 6658a6c + review01/02/03/04 八生产的单独 cancelled-context 准入路径通过。不是 Artifact 完整验收，不扩称 PG/共享 ProcessGuard 或 review05 已验。
+
+实际命令（固定 tree）：Go1.27.1 `test -race -count=1 -timeout=6m -run ^TestIndependentArtifactRunningCancelledUploadTracksActualClose$ -v ./internal/central/artifact`。离线模块、私有 /workspace GOCACHE/TMPDIR；完整 argv/env 在 evidence/command.json。输入 SHA bcd0710dacdff07a292af0c14e3cab1c5bd1951b595fdb839ca143252a38af97；probe SHA 4870cce2f4f694b516756752453bc24b125b0f9313c584bca3b10db1a272f849；原始日志 SHA 6ed3e92dc48f631a3617b5f7445c71223e410992c042aaaefb0f974c8f7ae262。exit 0，包内 1.043s，driver 25.945710s，原预算未改。
+
+真实观察：调用前 ctx 已 cancelled，但服务未 StopAdmission/Force；底层 Close barrier 已进入且公共调用未返，登记 controls=1，payload Read=0/DB port=0。Force 30ms 预算实际30.802462ms返回 DeadlineExceeded，Joined=false，底层 Close恰1次。释放后返回原 DependencyUnavailable/NotStarted+context.Canceled，Drain成功、Joined=true，Read/DB仍0。运行中的 Joined 本身恒 false，因此前半另直接核 registry 单一控制，未以该恒值冒充准入证明。仅内部最小服务夹具与拒绝准入端口计数，不创建生产 allow adapter。
+
+首次执行因裁剪 snapshot 缺固定 postgres 依赖 db/migrations，setup失败、未进入测试；setup-incomplete 原 command/result/log/input 全保留。只补同基线目录后，以相同 probe/八生产/argv重跑通过；未弱化断言/预算。全部八源与go.mod/sum前后相同，实际Go PIDs已不存在、私有构建tmp为空。未使用 Docker、未改仓库/Git，无委派。
+
+重建：git archive 固定输入的 go.mod、go.sum、internal、db/migrations；对空自有目录应用 evidence/production.patch；复制 evidence/independent_cancelled_upload_test.go 至 internal/central/artifact/ 同名文件；按 command.json 环境（自行更换私有 cache/tmp路径）运行原 argv。清单与 patch/probe 支持恢复；不保存整个 snapshot/cache 到交付仓库。review05/final 若影响 lifecycle/upload相关路径须重新核复用条件或重跑此单项。本报告及本轮证据冻结。

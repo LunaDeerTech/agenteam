@@ -1,0 +1,24 @@
+--- before/internal/central/artifact/project_work.go
++++ after/internal/central/artifact/project_work.go
+@@ -226,6 +226,12 @@
+ 		if err != nil {
+ 			return err
+ 		}
++		// An incomplete source call can still be inside its first planning
++		// callback. This hint only prevents premature source-side Stopped;
++		// it is neither a cancellation grant nor a durable authorized relation.
++		r.mu.Lock()
++		p.sourceHint = w.source
++		r.mu.Unlock()
+ 		plan, err := s.ownerPlan(ctx, req.invocation.Details().Actor, sourceOwner, oc.PrepareReadAccess, oc.AccessRequestDetails{})
+ 		if err != nil {
+ 			return err
+@@ -403,7 +409,7 @@
+ 	defer r.mu.Unlock()
+ 	var out []*producerControl
+ 	for p := range r.controls {
+-		if p.project == project || source && p.work != nil && p.work.source == project {
++		if p.project == project || source && (p.sourceHint == project || p.work != nil && p.work.source == project) {
+ 			out = append(out, p)
+ 		}
+ 	}

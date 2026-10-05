@@ -1,0 +1,22 @@
+{
+  "baseline": "6658a6cb1f29299521773bc8dc86b2f607b8c809",
+  "files": {
+    "internal/central/artifact/service.go": "85d66203f2475d4b7512ac83c67363798d150d08a633bd5ef9bbc69fa44176b9",
+    "internal/central/artifact/create.go": "3b1301f803d4dc6f4b9293b01472669706bb1ae6bc9a4f60e2bcb3eabf8af481",
+    "internal/central/artifact/upload.go": "2ebb7d8195c728d474c252cb8a4c9dfa629b02442999568fd9fa854632764d26",
+    "internal/central/artifact/publish.go": "8ef90f162afb3778abd25afd4865da7aa8deaa3c68ba3084089785ac2aebcc29",
+    "internal/central/artifact/commands.go": "7a366cf2b7209d46f5b5c455a21d037dd16c5f52ced9950eb76c618dd454968d",
+    "internal/central/artifact/project_work.go": "01a9aa70a8d93e1b6c2f1c0d1dcb11774d442397ed06c700f1d5a5775f1b5523",
+    "internal/central/artifact/project_lifecycle.go": "34ae9393cf6af85638f826f5897140f8aaa061fede307a419f860ef3b8578c3d",
+    "internal/central/artifact/lifecycle.go": "a0ede8769446e63699de22ce3dbf582cef9abf5f43ab6596b69913972a6008bf"
+  },
+  "command": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-run",
+    "^$",
+    "./internal/central/artifact/...",
+    "./internal/central/object/..."
+  ],
+  "cwd": "/tmp/agenteam-artifact-stop-author-y597q6vl/snapshot"
+}

@@ -1,0 +1,2611 @@
+{
+  "format": "utf8-lines-v1; replace final-source line ranges, applying edits in reverse order",
+  "base_manifest_sha256": "79e5eb812c0fda2a42d390a7e2703b1ebca4ce581c055e1c2a99fda1ab76914e",
+  "variants": {
+    "production-review-01": {
+      "original_manifest": "author/production-review-01/manifest.json",
+      "original_manifest_sha256": "ffe55dcfd6aec53aa7e290e0562adda09db3b2932314e48d35a46d582e143c0e",
+      "files": {
+        "internal/central/artifact/service.go": {
+          "sha256": "85d66203f2475d4b7512ac83c67363798d150d08a633bd5ef9bbc69fa44176b9",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/service.go",
+          "edits": [
+            {
+              "start": 32,
+              "end": 33,
+              "lines": []
+            },
+            {
+              "start": 132,
+              "end": 150,
+              "lines": [
+                "\treturn r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {\n"
+              ]
+            },
+            {
+              "start": 159,
+              "end": 159,
+              "lines": [
+                "\t\t}\n",
+                "\t\tlocks := extra\n",
+                "\t\tif len(plans) > 0 {\n",
+                "\t\t\tlocks = locked.Locks()\n",
+                "\t\t}\n",
+                "\t\tif err = s.observeControl(control, tx, locks); err != nil {\n",
+                "\t\t\treturn err\n"
+              ]
+            },
+            {
+              "start": 182,
+              "end": 188,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/create.go": {
+          "sha256": "3b1301f803d4dc6f4b9293b01472669706bb1ae6bc9a4f60e2bcb3eabf8af481",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/create.go",
+          "edits": []
+        },
+        "internal/central/artifact/upload.go": {
+          "sha256": "2ebb7d8195c728d474c252cb8a4c9dfa629b02442999568fd9fa854632764d26",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/upload.go",
+          "edits": [
+            {
+              "start": 257,
+              "end": 259,
+              "lines": [
+                "\tproducer, err := s.beginProducer(ctx, v.Details().ProjectID)\n",
+                "\tif err != nil {\n"
+              ]
+            },
+            {
+              "start": 266,
+              "end": 269,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/publish.go": {
+          "sha256": "8ef90f162afb3778abd25afd4865da7aa8deaa3c68ba3084089785ac2aebcc29",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/publish.go",
+          "edits": []
+        },
+        "internal/central/artifact/commands.go": {
+          "sha256": "7a366cf2b7209d46f5b5c455a21d037dd16c5f52ced9950eb76c618dd454968d",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/commands.go",
+          "edits": []
+        },
+        "internal/central/artifact/project_work.go": {
+          "sha256": "8f1183acd0af997489e2ccbde8afa2213a1a87be4fb6abb5a1f924a87bc73fd8",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/project_work.go",
+          "edits": [
+            {
+              "start": 119,
+              "end": 122,
+              "lines": [
+                "\t// Our private producer key can only be consumed through the one acquisition\n",
+                "\t// above. The original writer and every later checkpoint share this EX key.\n"
+              ]
+            },
+            {
+              "start": 133,
+              "end": 136,
+              "lines": []
+            },
+            {
+              "start": 232,
+              "end": 239,
+              "lines": []
+            },
+            {
+              "start": 251,
+              "end": 252,
+              "lines": []
+            },
+            {
+              "start": 253,
+              "end": 254,
+              "lines": [
+                "\tdefer func() { r.mu.Lock(); p.admitting = false; r.mu.Unlock() }()\n"
+              ]
+            },
+            {
+              "start": 312,
+              "end": 313,
+              "lines": []
+            },
+            {
+              "start": 348,
+              "end": 349,
+              "lines": []
+            },
+            {
+              "start": 360,
+              "end": 361,
+              "lines": []
+            },
+            {
+              "start": 367,
+              "end": 368,
+              "lines": [
+                "\tif len(origins) == 0 && expected == nil {\n"
+              ]
+            },
+            {
+              "start": 420,
+              "end": 421,
+              "lines": [
+                "\t\tif p.project == project || source && p.work != nil && p.work.source == project {\n"
+              ]
+            }
+          ]
+        },
+        "internal/central/artifact/project_lifecycle.go": {
+          "sha256": "bd68013e20af9514463eb016da9c8143145c315cccebfa39dc5814c5df3f8f79",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/project_lifecycle.go",
+          "edits": [
+            {
+              "start": 4,
+              "end": 5,
+              "lines": []
+            },
+            {
+              "start": 24,
+              "end": 32,
+              "lines": [
+                "\tcontrol *producerControl\n",
+                "\twork    *artifactWork\n"
+              ]
+            },
+            {
+              "start": 34,
+              "end": 52,
+              "lines": [
+                "\tservice      *Service\n",
+                "\trequest      oc.ProjectStopRequest\n",
+                "\tdependencies oc.AccessDependencies\n",
+                "\tprevious     artifactStopRow\n",
+                "\tfound        bool\n",
+                "\tworks        []artifactWork\n",
+                "\tcommands     []commandRow\n",
+                "\tintents      []uploadIntent\n",
+                "\tnative       map[string]commandRow\n",
+                "\tuploads      map[string]uploadIntent\n",
+                "\tcontrols     []capturedProducer\n",
+                "\tlocks        []foundation.LockRequest\n",
+                "\tnextLane     int\n",
+                "\tnextAfter    string\n",
+                "\tcycle        bool\n"
+              ]
+            },
+            {
+              "start": 230,
+              "end": 231,
+              "lines": []
+            },
+            {
+              "start": 233,
+              "end": 234,
+              "lines": [
+                "\t\tif p.project != d.ProjectID && (d.Action != oc.ProjectStopDelete || p.work == nil || p.work.source != d.ProjectID) {\n"
+              ]
+            },
+            {
+              "start": 236,
+              "end": 248,
+              "lines": [
+                "\t\t// Only the durable identities in this bounded page are revoked below.\n",
+                "\t\t// A later page keeps its own original control until its gate confirms.\n"
+              ]
+            },
+            {
+              "start": 252,
+              "end": 256,
+              "lines": []
+            },
+            {
+              "start": 264,
+              "end": 279,
+              "lines": [
+                "\t\tcapture := capturedProducer{control: p}\n",
+                "\t\tif p.work != nil {\n",
+                "\t\t\tw := *p.work\n",
+                "\t\t\tcapture.work = &w\n"
+              ]
+            },
+            {
+              "start": 281,
+              "end": 285,
+              "lines": [
+                "\t\tb.locks = append(b.locks, p.locks...)\n",
+                "\t\tb.locks = append(b.locks, controlRecordLock(p.id))\n"
+              ]
+            },
+            {
+              "start": 289,
+              "end": 290,
+              "lines": [
+                "\tr.mu.Unlock()\n"
+              ]
+            },
+            {
+              "start": 352,
+              "end": 381,
+              "lines": [
+                "\tfor _, capture := range b.controls {\n",
+                "\t\tp := capture.control\n",
+                "\t\tif !r.controls[p] {\n",
+                "\t\t\tcontinue\n",
+                "\t\t}\n",
+                "\t\tif p.service != s || (p.work == nil) != (capture.work == nil) || p.work != nil && (!workIdentity(*p.work, *capture.work) || p.work.lease != capture.work.lease) {\n"
+              ]
+            },
+            {
+              "start": 382,
+              "end": 392,
+              "lines": []
+            },
+            {
+              "start": 395,
+              "end": 534,
+              "lines": []
+            },
+            {
+              "start": 548,
+              "end": 555,
+              "lines": [
+                "\treturn r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {\n"
+              ]
+            },
+            {
+              "start": 577,
+              "end": 578,
+              "lines": []
+            },
+            {
+              "start": 609,
+              "end": 616,
+              "lines": []
+            },
+            {
+              "start": 707,
+              "end": 719,
+              "lines": []
+            },
+            {
+              "start": 720,
+              "end": 722,
+              "lines": [
+                "\t\ts.cancelProducer(capture.control)\n",
+                "\t\t_ = s.settleProducer(ctx, capture.control)\n"
+              ]
+            },
+            {
+              "start": 725,
+              "end": 729,
+              "lines": [
+                "\t\t\t_ = s.recoverArtifactWork(ctx, p, request, w)\n"
+              ]
+            },
+            {
+              "start": 738,
+              "end": 741,
+              "lines": []
+            },
+            {
+              "start": 744,
+              "end": 747,
+              "lines": []
+            },
+            {
+              "start": 749,
+              "end": 749,
+              "lines": [
+                "\tlocal := oc.ObjectStopDetails{State: oc.ProjectStopPending, SafeReason: oc.ProjectStopWorkPending}\n"
+              ]
+            },
+            {
+              "start": 754,
+              "end": 755,
+              "lines": [
+                "\tif b.cycle {\n"
+              ]
+            },
+            {
+              "start": 795,
+              "end": 804,
+              "lines": []
+            },
+            {
+              "start": 810,
+              "end": 826,
+              "lines": []
+            },
+            {
+              "start": 828,
+              "end": 830,
+              "lines": [
+                "\tfor _, refs := range [][]oc.ProjectStopRef{local.UnknownRefs, d.UnknownRefs} {\n",
+                "\t\tfor _, ref := range refs {\n",
+                "\t\t\tunknown[ref] = true\n",
+                "\t\t}\n"
+              ]
+            },
+            {
+              "start": 831,
+              "end": 834,
+              "lines": [
+                "\tfor _, refs := range [][]oc.ProjectStopRef{local.ActiveRefs, d.ActiveRefs} {\n",
+                "\t\tfor _, ref := range refs {\n",
+                "\t\t\tif !unknown[ref] {\n",
+                "\t\t\t\tactive[ref] = true\n",
+                "\t\t\t}\n"
+              ]
+            },
+            {
+              "start": 854,
+              "end": 855,
+              "lines": [
+                "\tif len(unknown) > 0 || local.SafeReason == oc.ProjectStopOutcomeUnknown || d.SafeReason == oc.ProjectStopOutcomeUnknown {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopOutcomeUnknown\n",
+                "\t} else if d.State == oc.ProjectStopFailed {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopFailed, d.SafeReason\n",
+                "\t} else if local.State == oc.ProjectStopped && d.State == oc.ProjectStopped {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopped, \"\"\n",
+                "\t\tout.ActiveRefs = nil\n",
+                "\t} else {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopWorkPending\n",
+                "\t}\n",
+                "\treturn oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, out)\n"
+              ]
+            }
+          ]
+        },
+        "internal/central/artifact/lifecycle.go": {
+          "sha256": "aa3f7ffe9f40c6db0927def21e6e0da491ee64919b32012d173dabf3087a5db9",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/lifecycle.go",
+          "edits": [
+            {
+              "start": 18,
+              "end": 19,
+              "lines": []
+            },
+            {
+              "start": 22,
+              "end": 24,
+              "lines": []
+            },
+            {
+              "start": 31,
+              "end": 33,
+              "lines": []
+            },
+            {
+              "start": 58,
+              "end": 65,
+              "lines": []
+            },
+            {
+              "start": 66,
+              "end": 67,
+              "lines": [
+                "\tif r == nil || ctx == nil {\n"
+              ]
+            },
+            {
+              "start": 69,
+              "end": 75,
+              "lines": [
+                "\tif err := ctx.Err(); err != nil {\n",
+                "\t\treturn nil, unavailable(err)\n"
+              ]
+            },
+            {
+              "start": 77,
+              "end": 79,
+              "lines": [
+                "\tif err != nil {\n",
+                "\t\treturn nil, unavailable(err)\n"
+              ]
+            },
+            {
+              "start": 82,
+              "end": 87,
+              "lines": [
+                "\tif r.stopped || r.forced {\n",
+                "\t\treturn nil, failure(foundation.ShuttingDown, nil)\n"
+              ]
+            },
+            {
+              "start": 92,
+              "end": 93,
+              "lines": []
+            },
+            {
+              "start": 94,
+              "end": 98,
+              "lines": [
+                "\treturn p, nil\n"
+              ]
+            },
+            {
+              "start": 147,
+              "end": 151,
+              "lines": []
+            },
+            {
+              "start": 165,
+              "end": 166,
+              "lines": []
+            },
+            {
+              "start": 168,
+              "end": 169,
+              "lines": []
+            },
+            {
+              "start": 171,
+              "end": 179,
+              "lines": []
+            },
+            {
+              "start": 260,
+              "end": 261,
+              "lines": []
+            }
+          ]
+        }
+      }
+    },
+    "red-input-join-identity-01": {
+      "original_manifest": "author/red-input-join-identity-01/manifest.json",
+      "original_manifest_sha256": "c2a5599b0fe5763cedbb047c1a355409498875d52d027c0af0d1f96ab443fd9c",
+      "files": {
+        "internal/central/artifact/service.go": {
+          "sha256": "85d66203f2475d4b7512ac83c67363798d150d08a633bd5ef9bbc69fa44176b9",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/service.go",
+          "edits": [
+            {
+              "start": 32,
+              "end": 33,
+              "lines": []
+            },
+            {
+              "start": 132,
+              "end": 150,
+              "lines": [
+                "\treturn r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {\n"
+              ]
+            },
+            {
+              "start": 159,
+              "end": 159,
+              "lines": [
+                "\t\t}\n",
+                "\t\tlocks := extra\n",
+                "\t\tif len(plans) > 0 {\n",
+                "\t\t\tlocks = locked.Locks()\n",
+                "\t\t}\n",
+                "\t\tif err = s.observeControl(control, tx, locks); err != nil {\n",
+                "\t\t\treturn err\n"
+              ]
+            },
+            {
+              "start": 182,
+              "end": 188,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/create.go": {
+          "sha256": "3b1301f803d4dc6f4b9293b01472669706bb1ae6bc9a4f60e2bcb3eabf8af481",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/create.go",
+          "edits": []
+        },
+        "internal/central/artifact/upload.go": {
+          "sha256": "88e0e59f7b603066665fc6a6524f62f27cc1fb33c00c626e835f3303a2b565fc",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/upload.go",
+          "edits": []
+        },
+        "internal/central/artifact/publish.go": {
+          "sha256": "8ef90f162afb3778abd25afd4865da7aa8deaa3c68ba3084089785ac2aebcc29",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/publish.go",
+          "edits": []
+        },
+        "internal/central/artifact/commands.go": {
+          "sha256": "7a366cf2b7209d46f5b5c455a21d037dd16c5f52ced9950eb76c618dd454968d",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/commands.go",
+          "edits": []
+        },
+        "internal/central/artifact/project_work.go": {
+          "sha256": "8f1183acd0af997489e2ccbde8afa2213a1a87be4fb6abb5a1f924a87bc73fd8",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/project_work.go",
+          "edits": [
+            {
+              "start": 119,
+              "end": 122,
+              "lines": [
+                "\t// Our private producer key can only be consumed through the one acquisition\n",
+                "\t// above. The original writer and every later checkpoint share this EX key.\n"
+              ]
+            },
+            {
+              "start": 133,
+              "end": 136,
+              "lines": []
+            },
+            {
+              "start": 232,
+              "end": 239,
+              "lines": []
+            },
+            {
+              "start": 251,
+              "end": 252,
+              "lines": []
+            },
+            {
+              "start": 253,
+              "end": 254,
+              "lines": [
+                "\tdefer func() { r.mu.Lock(); p.admitting = false; r.mu.Unlock() }()\n"
+              ]
+            },
+            {
+              "start": 312,
+              "end": 313,
+              "lines": []
+            },
+            {
+              "start": 348,
+              "end": 349,
+              "lines": []
+            },
+            {
+              "start": 360,
+              "end": 361,
+              "lines": []
+            },
+            {
+              "start": 367,
+              "end": 368,
+              "lines": [
+                "\tif len(origins) == 0 && expected == nil {\n"
+              ]
+            },
+            {
+              "start": 420,
+              "end": 421,
+              "lines": [
+                "\t\tif p.project == project || source && p.work != nil && p.work.source == project {\n"
+              ]
+            }
+          ]
+        },
+        "internal/central/artifact/project_lifecycle.go": {
+          "sha256": "bd68013e20af9514463eb016da9c8143145c315cccebfa39dc5814c5df3f8f79",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/project_lifecycle.go",
+          "edits": [
+            {
+              "start": 4,
+              "end": 5,
+              "lines": []
+            },
+            {
+              "start": 24,
+              "end": 32,
+              "lines": [
+                "\tcontrol *producerControl\n",
+                "\twork    *artifactWork\n"
+              ]
+            },
+            {
+              "start": 34,
+              "end": 52,
+              "lines": [
+                "\tservice      *Service\n",
+                "\trequest      oc.ProjectStopRequest\n",
+                "\tdependencies oc.AccessDependencies\n",
+                "\tprevious     artifactStopRow\n",
+                "\tfound        bool\n",
+                "\tworks        []artifactWork\n",
+                "\tcommands     []commandRow\n",
+                "\tintents      []uploadIntent\n",
+                "\tnative       map[string]commandRow\n",
+                "\tuploads      map[string]uploadIntent\n",
+                "\tcontrols     []capturedProducer\n",
+                "\tlocks        []foundation.LockRequest\n",
+                "\tnextLane     int\n",
+                "\tnextAfter    string\n",
+                "\tcycle        bool\n"
+              ]
+            },
+            {
+              "start": 230,
+              "end": 231,
+              "lines": []
+            },
+            {
+              "start": 233,
+              "end": 234,
+              "lines": [
+                "\t\tif p.project != d.ProjectID && (d.Action != oc.ProjectStopDelete || p.work == nil || p.work.source != d.ProjectID) {\n"
+              ]
+            },
+            {
+              "start": 236,
+              "end": 248,
+              "lines": [
+                "\t\t// Only the durable identities in this bounded page are revoked below.\n",
+                "\t\t// A later page keeps its own original control until its gate confirms.\n"
+              ]
+            },
+            {
+              "start": 252,
+              "end": 256,
+              "lines": []
+            },
+            {
+              "start": 264,
+              "end": 279,
+              "lines": [
+                "\t\tcapture := capturedProducer{control: p}\n",
+                "\t\tif p.work != nil {\n",
+                "\t\t\tw := *p.work\n",
+                "\t\t\tcapture.work = &w\n"
+              ]
+            },
+            {
+              "start": 281,
+              "end": 285,
+              "lines": [
+                "\t\tb.locks = append(b.locks, p.locks...)\n",
+                "\t\tb.locks = append(b.locks, controlRecordLock(p.id))\n"
+              ]
+            },
+            {
+              "start": 289,
+              "end": 290,
+              "lines": [
+                "\tr.mu.Unlock()\n"
+              ]
+            },
+            {
+              "start": 352,
+              "end": 381,
+              "lines": [
+                "\tfor _, capture := range b.controls {\n",
+                "\t\tp := capture.control\n",
+                "\t\tif !r.controls[p] {\n",
+                "\t\t\tcontinue\n",
+                "\t\t}\n",
+                "\t\tif p.service != s || (p.work == nil) != (capture.work == nil) || p.work != nil && (!workIdentity(*p.work, *capture.work) || p.work.lease != capture.work.lease) {\n"
+              ]
+            },
+            {
+              "start": 382,
+              "end": 392,
+              "lines": []
+            },
+            {
+              "start": 395,
+              "end": 534,
+              "lines": []
+            },
+            {
+              "start": 548,
+              "end": 555,
+              "lines": [
+                "\treturn r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {\n"
+              ]
+            },
+            {
+              "start": 577,
+              "end": 578,
+              "lines": []
+            },
+            {
+              "start": 609,
+              "end": 616,
+              "lines": []
+            },
+            {
+              "start": 707,
+              "end": 719,
+              "lines": []
+            },
+            {
+              "start": 720,
+              "end": 722,
+              "lines": [
+                "\t\ts.cancelProducer(capture.control)\n",
+                "\t\t_ = s.settleProducer(ctx, capture.control)\n"
+              ]
+            },
+            {
+              "start": 725,
+              "end": 729,
+              "lines": [
+                "\t\t\t_ = s.recoverArtifactWork(ctx, p, request, w)\n"
+              ]
+            },
+            {
+              "start": 738,
+              "end": 741,
+              "lines": []
+            },
+            {
+              "start": 744,
+              "end": 747,
+              "lines": []
+            },
+            {
+              "start": 749,
+              "end": 749,
+              "lines": [
+                "\tlocal := oc.ObjectStopDetails{State: oc.ProjectStopPending, SafeReason: oc.ProjectStopWorkPending}\n"
+              ]
+            },
+            {
+              "start": 754,
+              "end": 755,
+              "lines": [
+                "\tif b.cycle {\n"
+              ]
+            },
+            {
+              "start": 795,
+              "end": 804,
+              "lines": []
+            },
+            {
+              "start": 810,
+              "end": 826,
+              "lines": []
+            },
+            {
+              "start": 828,
+              "end": 830,
+              "lines": [
+                "\tfor _, refs := range [][]oc.ProjectStopRef{local.UnknownRefs, d.UnknownRefs} {\n",
+                "\t\tfor _, ref := range refs {\n",
+                "\t\t\tunknown[ref] = true\n",
+                "\t\t}\n"
+              ]
+            },
+            {
+              "start": 831,
+              "end": 834,
+              "lines": [
+                "\tfor _, refs := range [][]oc.ProjectStopRef{local.ActiveRefs, d.ActiveRefs} {\n",
+                "\t\tfor _, ref := range refs {\n",
+                "\t\t\tif !unknown[ref] {\n",
+                "\t\t\t\tactive[ref] = true\n",
+                "\t\t\t}\n"
+              ]
+            },
+            {
+              "start": 854,
+              "end": 855,
+              "lines": [
+                "\tif len(unknown) > 0 || local.SafeReason == oc.ProjectStopOutcomeUnknown || d.SafeReason == oc.ProjectStopOutcomeUnknown {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopOutcomeUnknown\n",
+                "\t} else if d.State == oc.ProjectStopFailed {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopFailed, d.SafeReason\n",
+                "\t} else if local.State == oc.ProjectStopped && d.State == oc.ProjectStopped {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopped, \"\"\n",
+                "\t\tout.ActiveRefs = nil\n",
+                "\t} else {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopWorkPending\n",
+                "\t}\n",
+                "\treturn oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, out)\n"
+              ]
+            }
+          ]
+        },
+        "internal/central/artifact/lifecycle.go": {
+          "sha256": "fb13de1242cc276e943aabe7f7698108a0f242bfd69eca0f3c99bde7039bc868",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/lifecycle.go",
+          "edits": [
+            {
+              "start": 18,
+              "end": 19,
+              "lines": []
+            },
+            {
+              "start": 22,
+              "end": 24,
+              "lines": []
+            },
+            {
+              "start": 31,
+              "end": 33,
+              "lines": []
+            },
+            {
+              "start": 92,
+              "end": 93,
+              "lines": []
+            },
+            {
+              "start": 147,
+              "end": 151,
+              "lines": []
+            },
+            {
+              "start": 165,
+              "end": 166,
+              "lines": []
+            },
+            {
+              "start": 168,
+              "end": 169,
+              "lines": []
+            },
+            {
+              "start": 171,
+              "end": 179,
+              "lines": []
+            },
+            {
+              "start": 260,
+              "end": 261,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/project_work_test.go": {
+          "sha256": "ed8ffdb2120c0aa993693613afbd76356c6bd186b45971f61373a5caea622f91",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/project_work_test.go",
+          "edits": [
+            {
+              "start": 5,
+              "end": 6,
+              "lines": []
+            },
+            {
+              "start": 7,
+              "end": 8,
+              "lines": []
+            },
+            {
+              "start": 192,
+              "end": 372,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/project_lifecycle_test.go": {
+          "sha256": "62cf1d2f136597bdf884ca323b55f347ad17dbbe3467720229407225db2a5fd7",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/project_lifecycle_test.go",
+          "edits": [
+            {
+              "start": 3,
+              "end": 5,
+              "lines": []
+            },
+            {
+              "start": 10,
+              "end": 89,
+              "lines": []
+            },
+            {
+              "start": 136,
+              "end": 180,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/lifecycle_test.go": {
+          "sha256": "196166241f15816684b13d7dd026c33eb232b4fc7f3f6e290dfeaf32d70db167",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/lifecycle_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_fixture_test.go": {
+          "sha256": "897ad08f1e8b7b38d06bee89c85d8258ac1100b6ecaf6a6fd0d5b2f528dff749",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/tests/objects/artifact_project_stop_fixture_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_test.go": {
+          "sha256": "4f81a20cbb0023e0f007f861f4e077f7c6e9afc34f588e8beaf63f857bb0b159",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/tests/objects/artifact_project_stop_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_source_test.go": {
+          "sha256": "672d6388233fd5f4d522e93bea56ed1c128f36bc47ee40cc0979afd080966603",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/tests/objects/artifact_project_stop_source_test.go",
+          "edits": [
+            {
+              "start": 270,
+              "end": 320,
+              "lines": []
+            }
+          ]
+        },
+        "tests/objects/artifact_project_stop_recovery_test.go": {
+          "sha256": "aac8dc7ebb39e658d7855661f83916b93e58005046b1e664f698115acb4913fd",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/tests/objects/artifact_project_stop_recovery_test.go",
+          "edits": [
+            {
+              "start": 9,
+              "end": 10,
+              "lines": []
+            },
+            {
+              "start": 27,
+              "end": 28,
+              "lines": []
+            },
+            {
+              "start": 205,
+              "end": 229,
+              "lines": []
+            },
+            {
+              "start": 236,
+              "end": 241,
+              "lines": [
+                "\t\t\ton, wrapped, proxy := artifactCommitFixture(t, f, false, true, artifactStopOptions{})\n"
+              ]
+            },
+            {
+              "start": 253,
+              "end": 254,
+              "lines": []
+            },
+            {
+              "start": 256,
+              "end": 269,
+              "lines": []
+            },
+            {
+              "start": 331,
+              "end": 335,
+              "lines": []
+            },
+            {
+              "start": 336,
+              "end": 337,
+              "lines": []
+            },
+            {
+              "start": 343,
+              "end": 344,
+              "lines": [
+                "\t\t\tgo func() { r, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause); reports <- answer{r, e} }()\n"
+              ]
+            },
+            {
+              "start": 355,
+              "end": 356,
+              "lines": [
+                "\t\t\tbudget, cancel := context.WithTimeout(context.Background(), 80*time.Millisecond)\n"
+              ]
+            },
+            {
+              "start": 363,
+              "end": 398,
+              "lines": [
+                "\t\t\tr, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause)\n",
+                "\t\t\tif e != nil || r.Details().State != oc.ProjectStopPending || original.Err() == nil {\n",
+                "\t\t\t\tt.Fatal(\"confirmed gate did not cancel exact original\", e)\n"
+              ]
+            },
+            {
+              "start": 451,
+              "end": 460,
+              "lines": []
+            },
+            {
+              "start": 462,
+              "end": 463,
+              "lines": [
+                "\ton, wrapped, proxy := artifactCommitFixture(t, f, true, false, artifactStopOptions{uploads: func(u oc.Uploads) oc.Uploads {\n"
+              ]
+            },
+            {
+              "start": 492,
+              "end": 499,
+              "lines": [
+                "\tgo func() { r, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause); reports <- answer{r, e} }()\n"
+              ]
+            },
+            {
+              "start": 501,
+              "end": 504,
+              "lines": [
+                "\trelease.Do(func() { close(proxy.release) })\n"
+              ]
+            },
+            {
+              "start": 506,
+              "end": 509,
+              "lines": [
+                "\t\tif a.e != nil || a.r.Details().State != oc.ProjectStopPending || a.r.Details().SafeReason != oc.ProjectStopOutcomeUnknown || len(a.r.Details().UnknownRefs) == 0 {\n"
+              ]
+            },
+            {
+              "start": 513,
+              "end": 527,
+              "lines": []
+            },
+            {
+              "start": 701,
+              "end": 740,
+              "lines": []
+            },
+            {
+              "start": 764,
+              "end": 1227,
+              "lines": []
+            }
+          ]
+        },
+        "tests/objects/artifact_project_stop_lifecycle_test.go": {
+          "sha256": "2f38affac95b80ae00b2d7e335f9a5621d9924b7882648bb3ef357fba671a674",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/tests/objects/artifact_project_stop_lifecycle_test.go",
+          "edits": []
+        }
+      }
+    },
+    "source-planning-red-input-01": {
+      "original_manifest": "author/source-planning-red-input-01/manifest.json",
+      "original_manifest_sha256": "7940d118d2050610e97d2c3564b977e9a2c2bc424e79666497cfb457bf26ac92",
+      "files": {
+        "internal/central/artifact/service.go": {
+          "sha256": "85d66203f2475d4b7512ac83c67363798d150d08a633bd5ef9bbc69fa44176b9",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/service.go",
+          "edits": [
+            {
+              "start": 32,
+              "end": 33,
+              "lines": []
+            },
+            {
+              "start": 132,
+              "end": 150,
+              "lines": [
+                "\treturn r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {\n"
+              ]
+            },
+            {
+              "start": 159,
+              "end": 159,
+              "lines": [
+                "\t\t}\n",
+                "\t\tlocks := extra\n",
+                "\t\tif len(plans) > 0 {\n",
+                "\t\t\tlocks = locked.Locks()\n",
+                "\t\t}\n",
+                "\t\tif err = s.observeControl(control, tx, locks); err != nil {\n",
+                "\t\t\treturn err\n"
+              ]
+            },
+            {
+              "start": 182,
+              "end": 188,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/create.go": {
+          "sha256": "3b1301f803d4dc6f4b9293b01472669706bb1ae6bc9a4f60e2bcb3eabf8af481",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/create.go",
+          "edits": []
+        },
+        "internal/central/artifact/upload.go": {
+          "sha256": "88e0e59f7b603066665fc6a6524f62f27cc1fb33c00c626e835f3303a2b565fc",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/upload.go",
+          "edits": []
+        },
+        "internal/central/artifact/publish.go": {
+          "sha256": "8ef90f162afb3778abd25afd4865da7aa8deaa3c68ba3084089785ac2aebcc29",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/publish.go",
+          "edits": []
+        },
+        "internal/central/artifact/commands.go": {
+          "sha256": "7a366cf2b7209d46f5b5c455a21d037dd16c5f52ced9950eb76c618dd454968d",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/commands.go",
+          "edits": []
+        },
+        "internal/central/artifact/project_work.go": {
+          "sha256": "8f1183acd0af997489e2ccbde8afa2213a1a87be4fb6abb5a1f924a87bc73fd8",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/project_work.go",
+          "edits": [
+            {
+              "start": 119,
+              "end": 122,
+              "lines": [
+                "\t// Our private producer key can only be consumed through the one acquisition\n",
+                "\t// above. The original writer and every later checkpoint share this EX key.\n"
+              ]
+            },
+            {
+              "start": 133,
+              "end": 136,
+              "lines": []
+            },
+            {
+              "start": 232,
+              "end": 239,
+              "lines": []
+            },
+            {
+              "start": 251,
+              "end": 252,
+              "lines": []
+            },
+            {
+              "start": 253,
+              "end": 254,
+              "lines": [
+                "\tdefer func() { r.mu.Lock(); p.admitting = false; r.mu.Unlock() }()\n"
+              ]
+            },
+            {
+              "start": 312,
+              "end": 313,
+              "lines": []
+            },
+            {
+              "start": 348,
+              "end": 349,
+              "lines": []
+            },
+            {
+              "start": 360,
+              "end": 361,
+              "lines": []
+            },
+            {
+              "start": 367,
+              "end": 368,
+              "lines": [
+                "\tif len(origins) == 0 && expected == nil {\n"
+              ]
+            },
+            {
+              "start": 420,
+              "end": 421,
+              "lines": [
+                "\t\tif p.project == project || source && p.work != nil && p.work.source == project {\n"
+              ]
+            }
+          ]
+        },
+        "internal/central/artifact/project_lifecycle.go": {
+          "sha256": "264bd4c60c8b56f82c98ad5ac6c2714b5b6d053e3e3461d1f527038c5040be2b",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-03/internal/central/artifact/project_lifecycle.go",
+          "edits": [
+            {
+              "start": 24,
+              "end": 32,
+              "lines": [
+                "\tcontrol *producerControl\n",
+                "\twork    *artifactWork\n"
+              ]
+            },
+            {
+              "start": 34,
+              "end": 52,
+              "lines": [
+                "\tservice      *Service\n",
+                "\trequest      oc.ProjectStopRequest\n",
+                "\tdependencies oc.AccessDependencies\n",
+                "\tprevious     artifactStopRow\n",
+                "\tfound        bool\n",
+                "\tworks        []artifactWork\n",
+                "\tcommands     []commandRow\n",
+                "\tintents      []uploadIntent\n",
+                "\tnative       map[string]commandRow\n",
+                "\tuploads      map[string]uploadIntent\n",
+                "\tcontrols     []capturedProducer\n",
+                "\tlocks        []foundation.LockRequest\n",
+                "\tnextLane     int\n",
+                "\tnextAfter    string\n",
+                "\tcycle        bool\n"
+              ]
+            },
+            {
+              "start": 230,
+              "end": 231,
+              "lines": []
+            },
+            {
+              "start": 233,
+              "end": 234,
+              "lines": [
+                "\t\tif p.project != d.ProjectID && (d.Action != oc.ProjectStopDelete || p.work == nil || p.work.source != d.ProjectID) {\n"
+              ]
+            },
+            {
+              "start": 236,
+              "end": 248,
+              "lines": [
+                "\t\t// Only the durable identities in this bounded page are revoked below.\n",
+                "\t\t// A later page keeps its own original control until its gate confirms.\n"
+              ]
+            },
+            {
+              "start": 264,
+              "end": 279,
+              "lines": [
+                "\t\tcapture := capturedProducer{control: p}\n",
+                "\t\tif p.work != nil {\n",
+                "\t\t\tw := *p.work\n",
+                "\t\t\tcapture.work = &w\n"
+              ]
+            },
+            {
+              "start": 281,
+              "end": 285,
+              "lines": [
+                "\t\tb.locks = append(b.locks, p.locks...)\n",
+                "\t\tb.locks = append(b.locks, controlRecordLock(p.id))\n"
+              ]
+            },
+            {
+              "start": 289,
+              "end": 290,
+              "lines": [
+                "\tr.mu.Unlock()\n"
+              ]
+            },
+            {
+              "start": 352,
+              "end": 381,
+              "lines": [
+                "\tfor _, capture := range b.controls {\n",
+                "\t\tp := capture.control\n",
+                "\t\tif !r.controls[p] {\n",
+                "\t\t\tcontinue\n",
+                "\t\t}\n",
+                "\t\tif p.service != s || (p.work == nil) != (capture.work == nil) || p.work != nil && (!workIdentity(*p.work, *capture.work) || p.work.lease != capture.work.lease) {\n"
+              ]
+            },
+            {
+              "start": 382,
+              "end": 392,
+              "lines": []
+            },
+            {
+              "start": 395,
+              "end": 534,
+              "lines": []
+            },
+            {
+              "start": 548,
+              "end": 555,
+              "lines": [
+                "\treturn r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {\n"
+              ]
+            },
+            {
+              "start": 577,
+              "end": 578,
+              "lines": []
+            },
+            {
+              "start": 609,
+              "end": 616,
+              "lines": []
+            },
+            {
+              "start": 720,
+              "end": 721,
+              "lines": [
+                "\t\ts.cancelProducer(capture.control)\n"
+              ]
+            },
+            {
+              "start": 726,
+              "end": 729,
+              "lines": []
+            },
+            {
+              "start": 795,
+              "end": 804,
+              "lines": []
+            },
+            {
+              "start": 810,
+              "end": 826,
+              "lines": []
+            },
+            {
+              "start": 828,
+              "end": 830,
+              "lines": [
+                "\tfor _, refs := range [][]oc.ProjectStopRef{local.UnknownRefs, d.UnknownRefs} {\n",
+                "\t\tfor _, ref := range refs {\n",
+                "\t\t\tunknown[ref] = true\n",
+                "\t\t}\n"
+              ]
+            },
+            {
+              "start": 831,
+              "end": 834,
+              "lines": [
+                "\tfor _, refs := range [][]oc.ProjectStopRef{local.ActiveRefs, d.ActiveRefs} {\n",
+                "\t\tfor _, ref := range refs {\n",
+                "\t\t\tif !unknown[ref] {\n",
+                "\t\t\t\tactive[ref] = true\n",
+                "\t\t\t}\n"
+              ]
+            },
+            {
+              "start": 854,
+              "end": 855,
+              "lines": [
+                "\tif len(unknown) > 0 || local.SafeReason == oc.ProjectStopOutcomeUnknown || d.SafeReason == oc.ProjectStopOutcomeUnknown {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopOutcomeUnknown\n",
+                "\t} else if d.State == oc.ProjectStopFailed {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopFailed, d.SafeReason\n",
+                "\t} else if local.State == oc.ProjectStopped && d.State == oc.ProjectStopped {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopped, \"\"\n",
+                "\t\tout.ActiveRefs = nil\n",
+                "\t} else {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopWorkPending\n",
+                "\t}\n",
+                "\treturn oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, out)\n"
+              ]
+            }
+          ]
+        },
+        "internal/central/artifact/lifecycle.go": {
+          "sha256": "fb13de1242cc276e943aabe7f7698108a0f242bfd69eca0f3c99bde7039bc868",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/lifecycle.go",
+          "edits": [
+            {
+              "start": 18,
+              "end": 19,
+              "lines": []
+            },
+            {
+              "start": 22,
+              "end": 24,
+              "lines": []
+            },
+            {
+              "start": 31,
+              "end": 33,
+              "lines": []
+            },
+            {
+              "start": 92,
+              "end": 93,
+              "lines": []
+            },
+            {
+              "start": 147,
+              "end": 151,
+              "lines": []
+            },
+            {
+              "start": 165,
+              "end": 166,
+              "lines": []
+            },
+            {
+              "start": 168,
+              "end": 169,
+              "lines": []
+            },
+            {
+              "start": 171,
+              "end": 179,
+              "lines": []
+            },
+            {
+              "start": 260,
+              "end": 261,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/project_work_test.go": {
+          "sha256": "ed8ffdb2120c0aa993693613afbd76356c6bd186b45971f61373a5caea622f91",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/project_work_test.go",
+          "edits": [
+            {
+              "start": 5,
+              "end": 6,
+              "lines": []
+            },
+            {
+              "start": 7,
+              "end": 8,
+              "lines": []
+            },
+            {
+              "start": 192,
+              "end": 372,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/project_lifecycle_test.go": {
+          "sha256": "29e2d7a5c2c5720216ec23bf658dcf965a3ed8a0be21bf33c69abb65fe51f31c",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-03/internal/central/artifact/project_lifecycle_test.go",
+          "edits": [
+            {
+              "start": 3,
+              "end": 5,
+              "lines": []
+            },
+            {
+              "start": 10,
+              "end": 89,
+              "lines": []
+            },
+            {
+              "start": 159,
+              "end": 180,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/lifecycle_test.go": {
+          "sha256": "196166241f15816684b13d7dd026c33eb232b4fc7f3f6e290dfeaf32d70db167",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/lifecycle_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_fixture_test.go": {
+          "sha256": "897ad08f1e8b7b38d06bee89c85d8258ac1100b6ecaf6a6fd0d5b2f528dff749",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/tests/objects/artifact_project_stop_fixture_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_test.go": {
+          "sha256": "4f81a20cbb0023e0f007f861f4e077f7c6e9afc34f588e8beaf63f857bb0b159",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/tests/objects/artifact_project_stop_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_source_test.go": {
+          "sha256": "69521574637bdfe4149158f8f61dfdf9bed922f95c635e25a8359293d966c31a",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/source-planning-red-input-01/tests/objects/artifact_project_stop_source_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_recovery_test.go": {
+          "sha256": "aac8dc7ebb39e658d7855661f83916b93e58005046b1e664f698115acb4913fd",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/tests/objects/artifact_project_stop_recovery_test.go",
+          "edits": [
+            {
+              "start": 9,
+              "end": 10,
+              "lines": []
+            },
+            {
+              "start": 27,
+              "end": 28,
+              "lines": []
+            },
+            {
+              "start": 205,
+              "end": 229,
+              "lines": []
+            },
+            {
+              "start": 236,
+              "end": 241,
+              "lines": [
+                "\t\t\ton, wrapped, proxy := artifactCommitFixture(t, f, false, true, artifactStopOptions{})\n"
+              ]
+            },
+            {
+              "start": 253,
+              "end": 254,
+              "lines": []
+            },
+            {
+              "start": 256,
+              "end": 269,
+              "lines": []
+            },
+            {
+              "start": 331,
+              "end": 335,
+              "lines": []
+            },
+            {
+              "start": 336,
+              "end": 337,
+              "lines": []
+            },
+            {
+              "start": 343,
+              "end": 344,
+              "lines": [
+                "\t\t\tgo func() { r, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause); reports <- answer{r, e} }()\n"
+              ]
+            },
+            {
+              "start": 355,
+              "end": 356,
+              "lines": [
+                "\t\t\tbudget, cancel := context.WithTimeout(context.Background(), 80*time.Millisecond)\n"
+              ]
+            },
+            {
+              "start": 363,
+              "end": 398,
+              "lines": [
+                "\t\t\tr, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause)\n",
+                "\t\t\tif e != nil || r.Details().State != oc.ProjectStopPending || original.Err() == nil {\n",
+                "\t\t\t\tt.Fatal(\"confirmed gate did not cancel exact original\", e)\n"
+              ]
+            },
+            {
+              "start": 451,
+              "end": 460,
+              "lines": []
+            },
+            {
+              "start": 462,
+              "end": 463,
+              "lines": [
+                "\ton, wrapped, proxy := artifactCommitFixture(t, f, true, false, artifactStopOptions{uploads: func(u oc.Uploads) oc.Uploads {\n"
+              ]
+            },
+            {
+              "start": 492,
+              "end": 499,
+              "lines": [
+                "\tgo func() { r, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause); reports <- answer{r, e} }()\n"
+              ]
+            },
+            {
+              "start": 501,
+              "end": 504,
+              "lines": [
+                "\trelease.Do(func() { close(proxy.release) })\n"
+              ]
+            },
+            {
+              "start": 506,
+              "end": 509,
+              "lines": [
+                "\t\tif a.e != nil || a.r.Details().State != oc.ProjectStopPending || a.r.Details().SafeReason != oc.ProjectStopOutcomeUnknown || len(a.r.Details().UnknownRefs) == 0 {\n"
+              ]
+            },
+            {
+              "start": 513,
+              "end": 527,
+              "lines": []
+            },
+            {
+              "start": 701,
+              "end": 740,
+              "lines": []
+            },
+            {
+              "start": 764,
+              "end": 1227,
+              "lines": []
+            }
+          ]
+        },
+        "tests/objects/artifact_project_stop_lifecycle_test.go": {
+          "sha256": "2f38affac95b80ae00b2d7e335f9a5621d9924b7882648bb3ef357fba671a674",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/tests/objects/artifact_project_stop_lifecycle_test.go",
+          "edits": []
+        }
+      }
+    },
+    "selector-red-input-01": {
+      "original_manifest": "author/selector-red-input-01/manifest.json",
+      "original_manifest_sha256": "c10093d84f3e57b450cacafb4fe0bfe3e81d4c228d778168978e2a0fc9657217",
+      "files": {
+        "internal/central/artifact/service.go": {
+          "sha256": "85d66203f2475d4b7512ac83c67363798d150d08a633bd5ef9bbc69fa44176b9",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/service.go",
+          "edits": [
+            {
+              "start": 32,
+              "end": 33,
+              "lines": []
+            },
+            {
+              "start": 132,
+              "end": 150,
+              "lines": [
+                "\treturn r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {\n"
+              ]
+            },
+            {
+              "start": 159,
+              "end": 159,
+              "lines": [
+                "\t\t}\n",
+                "\t\tlocks := extra\n",
+                "\t\tif len(plans) > 0 {\n",
+                "\t\t\tlocks = locked.Locks()\n",
+                "\t\t}\n",
+                "\t\tif err = s.observeControl(control, tx, locks); err != nil {\n",
+                "\t\t\treturn err\n"
+              ]
+            },
+            {
+              "start": 182,
+              "end": 188,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/create.go": {
+          "sha256": "3b1301f803d4dc6f4b9293b01472669706bb1ae6bc9a4f60e2bcb3eabf8af481",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/create.go",
+          "edits": []
+        },
+        "internal/central/artifact/upload.go": {
+          "sha256": "88e0e59f7b603066665fc6a6524f62f27cc1fb33c00c626e835f3303a2b565fc",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/upload.go",
+          "edits": []
+        },
+        "internal/central/artifact/publish.go": {
+          "sha256": "8ef90f162afb3778abd25afd4865da7aa8deaa3c68ba3084089785ac2aebcc29",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/publish.go",
+          "edits": []
+        },
+        "internal/central/artifact/commands.go": {
+          "sha256": "7a366cf2b7209d46f5b5c455a21d037dd16c5f52ced9950eb76c618dd454968d",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/commands.go",
+          "edits": []
+        },
+        "internal/central/artifact/project_work.go": {
+          "sha256": "8f1183acd0af997489e2ccbde8afa2213a1a87be4fb6abb5a1f924a87bc73fd8",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/project_work.go",
+          "edits": [
+            {
+              "start": 119,
+              "end": 122,
+              "lines": [
+                "\t// Our private producer key can only be consumed through the one acquisition\n",
+                "\t// above. The original writer and every later checkpoint share this EX key.\n"
+              ]
+            },
+            {
+              "start": 133,
+              "end": 136,
+              "lines": []
+            },
+            {
+              "start": 232,
+              "end": 239,
+              "lines": []
+            },
+            {
+              "start": 251,
+              "end": 252,
+              "lines": []
+            },
+            {
+              "start": 253,
+              "end": 254,
+              "lines": [
+                "\tdefer func() { r.mu.Lock(); p.admitting = false; r.mu.Unlock() }()\n"
+              ]
+            },
+            {
+              "start": 312,
+              "end": 313,
+              "lines": []
+            },
+            {
+              "start": 348,
+              "end": 349,
+              "lines": []
+            },
+            {
+              "start": 360,
+              "end": 361,
+              "lines": []
+            },
+            {
+              "start": 367,
+              "end": 368,
+              "lines": [
+                "\tif len(origins) == 0 && expected == nil {\n"
+              ]
+            },
+            {
+              "start": 420,
+              "end": 421,
+              "lines": [
+                "\t\tif p.project == project || source && p.work != nil && p.work.source == project {\n"
+              ]
+            }
+          ]
+        },
+        "internal/central/artifact/project_lifecycle.go": {
+          "sha256": "264bd4c60c8b56f82c98ad5ac6c2714b5b6d053e3e3461d1f527038c5040be2b",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-03/internal/central/artifact/project_lifecycle.go",
+          "edits": [
+            {
+              "start": 24,
+              "end": 32,
+              "lines": [
+                "\tcontrol *producerControl\n",
+                "\twork    *artifactWork\n"
+              ]
+            },
+            {
+              "start": 34,
+              "end": 52,
+              "lines": [
+                "\tservice      *Service\n",
+                "\trequest      oc.ProjectStopRequest\n",
+                "\tdependencies oc.AccessDependencies\n",
+                "\tprevious     artifactStopRow\n",
+                "\tfound        bool\n",
+                "\tworks        []artifactWork\n",
+                "\tcommands     []commandRow\n",
+                "\tintents      []uploadIntent\n",
+                "\tnative       map[string]commandRow\n",
+                "\tuploads      map[string]uploadIntent\n",
+                "\tcontrols     []capturedProducer\n",
+                "\tlocks        []foundation.LockRequest\n",
+                "\tnextLane     int\n",
+                "\tnextAfter    string\n",
+                "\tcycle        bool\n"
+              ]
+            },
+            {
+              "start": 230,
+              "end": 231,
+              "lines": []
+            },
+            {
+              "start": 233,
+              "end": 234,
+              "lines": [
+                "\t\tif p.project != d.ProjectID && (d.Action != oc.ProjectStopDelete || p.work == nil || p.work.source != d.ProjectID) {\n"
+              ]
+            },
+            {
+              "start": 236,
+              "end": 248,
+              "lines": [
+                "\t\t// Only the durable identities in this bounded page are revoked below.\n",
+                "\t\t// A later page keeps its own original control until its gate confirms.\n"
+              ]
+            },
+            {
+              "start": 264,
+              "end": 279,
+              "lines": [
+                "\t\tcapture := capturedProducer{control: p}\n",
+                "\t\tif p.work != nil {\n",
+                "\t\t\tw := *p.work\n",
+                "\t\t\tcapture.work = &w\n"
+              ]
+            },
+            {
+              "start": 281,
+              "end": 285,
+              "lines": [
+                "\t\tb.locks = append(b.locks, p.locks...)\n",
+                "\t\tb.locks = append(b.locks, controlRecordLock(p.id))\n"
+              ]
+            },
+            {
+              "start": 289,
+              "end": 290,
+              "lines": [
+                "\tr.mu.Unlock()\n"
+              ]
+            },
+            {
+              "start": 352,
+              "end": 381,
+              "lines": [
+                "\tfor _, capture := range b.controls {\n",
+                "\t\tp := capture.control\n",
+                "\t\tif !r.controls[p] {\n",
+                "\t\t\tcontinue\n",
+                "\t\t}\n",
+                "\t\tif p.service != s || (p.work == nil) != (capture.work == nil) || p.work != nil && (!workIdentity(*p.work, *capture.work) || p.work.lease != capture.work.lease) {\n"
+              ]
+            },
+            {
+              "start": 382,
+              "end": 392,
+              "lines": []
+            },
+            {
+              "start": 395,
+              "end": 534,
+              "lines": []
+            },
+            {
+              "start": 548,
+              "end": 555,
+              "lines": [
+                "\treturn r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {\n"
+              ]
+            },
+            {
+              "start": 577,
+              "end": 578,
+              "lines": []
+            },
+            {
+              "start": 609,
+              "end": 616,
+              "lines": []
+            },
+            {
+              "start": 720,
+              "end": 721,
+              "lines": [
+                "\t\ts.cancelProducer(capture.control)\n"
+              ]
+            },
+            {
+              "start": 726,
+              "end": 729,
+              "lines": []
+            },
+            {
+              "start": 795,
+              "end": 804,
+              "lines": []
+            },
+            {
+              "start": 810,
+              "end": 826,
+              "lines": []
+            },
+            {
+              "start": 828,
+              "end": 830,
+              "lines": [
+                "\tfor _, refs := range [][]oc.ProjectStopRef{local.UnknownRefs, d.UnknownRefs} {\n",
+                "\t\tfor _, ref := range refs {\n",
+                "\t\t\tunknown[ref] = true\n",
+                "\t\t}\n"
+              ]
+            },
+            {
+              "start": 831,
+              "end": 834,
+              "lines": [
+                "\tfor _, refs := range [][]oc.ProjectStopRef{local.ActiveRefs, d.ActiveRefs} {\n",
+                "\t\tfor _, ref := range refs {\n",
+                "\t\t\tif !unknown[ref] {\n",
+                "\t\t\t\tactive[ref] = true\n",
+                "\t\t\t}\n"
+              ]
+            },
+            {
+              "start": 854,
+              "end": 855,
+              "lines": [
+                "\tif len(unknown) > 0 || local.SafeReason == oc.ProjectStopOutcomeUnknown || d.SafeReason == oc.ProjectStopOutcomeUnknown {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopOutcomeUnknown\n",
+                "\t} else if d.State == oc.ProjectStopFailed {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopFailed, d.SafeReason\n",
+                "\t} else if local.State == oc.ProjectStopped && d.State == oc.ProjectStopped {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopped, \"\"\n",
+                "\t\tout.ActiveRefs = nil\n",
+                "\t} else {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopWorkPending\n",
+                "\t}\n",
+                "\treturn oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, out)\n"
+              ]
+            }
+          ]
+        },
+        "internal/central/artifact/lifecycle.go": {
+          "sha256": "fb13de1242cc276e943aabe7f7698108a0f242bfd69eca0f3c99bde7039bc868",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/lifecycle.go",
+          "edits": [
+            {
+              "start": 18,
+              "end": 19,
+              "lines": []
+            },
+            {
+              "start": 22,
+              "end": 24,
+              "lines": []
+            },
+            {
+              "start": 31,
+              "end": 33,
+              "lines": []
+            },
+            {
+              "start": 92,
+              "end": 93,
+              "lines": []
+            },
+            {
+              "start": 147,
+              "end": 151,
+              "lines": []
+            },
+            {
+              "start": 165,
+              "end": 166,
+              "lines": []
+            },
+            {
+              "start": 168,
+              "end": 169,
+              "lines": []
+            },
+            {
+              "start": 171,
+              "end": 179,
+              "lines": []
+            },
+            {
+              "start": 260,
+              "end": 261,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/project_work_test.go": {
+          "sha256": "ed8ffdb2120c0aa993693613afbd76356c6bd186b45971f61373a5caea622f91",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/project_work_test.go",
+          "edits": [
+            {
+              "start": 5,
+              "end": 6,
+              "lines": []
+            },
+            {
+              "start": 7,
+              "end": 8,
+              "lines": []
+            },
+            {
+              "start": 192,
+              "end": 372,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/project_lifecycle_test.go": {
+          "sha256": "29e2d7a5c2c5720216ec23bf658dcf965a3ed8a0be21bf33c69abb65fe51f31c",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-03/internal/central/artifact/project_lifecycle_test.go",
+          "edits": [
+            {
+              "start": 3,
+              "end": 5,
+              "lines": []
+            },
+            {
+              "start": 10,
+              "end": 89,
+              "lines": []
+            },
+            {
+              "start": 159,
+              "end": 180,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/lifecycle_test.go": {
+          "sha256": "196166241f15816684b13d7dd026c33eb232b4fc7f3f6e290dfeaf32d70db167",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/internal/central/artifact/lifecycle_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_fixture_test.go": {
+          "sha256": "897ad08f1e8b7b38d06bee89c85d8258ac1100b6ecaf6a6fd0d5b2f528dff749",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/tests/objects/artifact_project_stop_fixture_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_test.go": {
+          "sha256": "4f81a20cbb0023e0f007f861f4e077f7c6e9afc34f588e8beaf63f857bb0b159",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/tests/objects/artifact_project_stop_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_source_test.go": {
+          "sha256": "69521574637bdfe4149158f8f61dfdf9bed922f95c635e25a8359293d966c31a",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/source-planning-red-input-01/tests/objects/artifact_project_stop_source_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_recovery_test.go": {
+          "sha256": "56cc547444a59e0b92bf0e56aea07656cede876a5eff78135cb8e0dda7c8afde",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-red-input-01/tests/objects/artifact_project_stop_recovery_test.go",
+          "edits": [
+            {
+              "start": 9,
+              "end": 10,
+              "lines": []
+            },
+            {
+              "start": 27,
+              "end": 28,
+              "lines": []
+            },
+            {
+              "start": 205,
+              "end": 229,
+              "lines": []
+            },
+            {
+              "start": 236,
+              "end": 241,
+              "lines": [
+                "\t\t\ton, wrapped, proxy := artifactCommitFixture(t, f, false, true, artifactStopOptions{})\n"
+              ]
+            },
+            {
+              "start": 253,
+              "end": 254,
+              "lines": []
+            },
+            {
+              "start": 256,
+              "end": 269,
+              "lines": []
+            },
+            {
+              "start": 331,
+              "end": 335,
+              "lines": []
+            },
+            {
+              "start": 336,
+              "end": 337,
+              "lines": []
+            },
+            {
+              "start": 343,
+              "end": 344,
+              "lines": [
+                "\t\t\tgo func() { r, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause); reports <- answer{r, e} }()\n"
+              ]
+            },
+            {
+              "start": 355,
+              "end": 356,
+              "lines": [
+                "\t\t\tbudget, cancel := context.WithTimeout(context.Background(), 80*time.Millisecond)\n"
+              ]
+            },
+            {
+              "start": 363,
+              "end": 398,
+              "lines": [
+                "\t\t\tr, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause)\n",
+                "\t\t\tif e != nil || r.Details().State != oc.ProjectStopPending || original.Err() == nil {\n",
+                "\t\t\t\tt.Fatal(\"confirmed gate did not cancel exact original\", e)\n"
+              ]
+            },
+            {
+              "start": 451,
+              "end": 460,
+              "lines": []
+            },
+            {
+              "start": 462,
+              "end": 463,
+              "lines": [
+                "\ton, wrapped, proxy := artifactCommitFixture(t, f, true, false, artifactStopOptions{uploads: func(u oc.Uploads) oc.Uploads {\n"
+              ]
+            },
+            {
+              "start": 492,
+              "end": 499,
+              "lines": [
+                "\tgo func() { r, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause); reports <- answer{r, e} }()\n"
+              ]
+            },
+            {
+              "start": 501,
+              "end": 504,
+              "lines": [
+                "\trelease.Do(func() { close(proxy.release) })\n"
+              ]
+            },
+            {
+              "start": 506,
+              "end": 509,
+              "lines": [
+                "\t\tif a.e != nil || a.r.Details().State != oc.ProjectStopPending || a.r.Details().SafeReason != oc.ProjectStopOutcomeUnknown || len(a.r.Details().UnknownRefs) == 0 {\n"
+              ]
+            },
+            {
+              "start": 513,
+              "end": 527,
+              "lines": []
+            },
+            {
+              "start": 764,
+              "end": 1227,
+              "lines": []
+            }
+          ]
+        },
+        "tests/objects/artifact_project_stop_lifecycle_test.go": {
+          "sha256": "2f38affac95b80ae00b2d7e335f9a5621d9924b7882648bb3ef357fba671a674",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/red-input-join-identity-01/tests/objects/artifact_project_stop_lifecycle_test.go",
+          "edits": []
+        }
+      }
+    },
+    "selector-fixture-input-02": {
+      "original_manifest": "author/selector-fixture-input-02/manifest.json",
+      "original_manifest_sha256": "b648de56a331d8e612b7874781835607b7200cfdab4bc909aeea989619240540",
+      "files": {
+        "internal/central/artifact/service.go": {
+          "sha256": "cc031bb7ee21079262d9f1a23257d2807c98a46da29c30529917d640248ff50d",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/internal/central/artifact/service.go",
+          "edits": [
+            {
+              "start": 132,
+              "end": 150,
+              "lines": [
+                "\treturn r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {\n"
+              ]
+            },
+            {
+              "start": 159,
+              "end": 159,
+              "lines": [
+                "\t\t}\n",
+                "\t\tlocks := extra\n",
+                "\t\tif len(plans) > 0 {\n",
+                "\t\t\tlocks = locked.Locks()\n",
+                "\t\t}\n",
+                "\t\tif err = s.observeControl(control, tx, locks); err != nil {\n",
+                "\t\t\treturn err\n"
+              ]
+            },
+            {
+              "start": 182,
+              "end": 188,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/create.go": {
+          "sha256": "3b1301f803d4dc6f4b9293b01472669706bb1ae6bc9a4f60e2bcb3eabf8af481",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/internal/central/artifact/create.go",
+          "edits": []
+        },
+        "internal/central/artifact/upload.go": {
+          "sha256": "88e0e59f7b603066665fc6a6524f62f27cc1fb33c00c626e835f3303a2b565fc",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/internal/central/artifact/upload.go",
+          "edits": []
+        },
+        "internal/central/artifact/publish.go": {
+          "sha256": "8ef90f162afb3778abd25afd4865da7aa8deaa3c68ba3084089785ac2aebcc29",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/internal/central/artifact/publish.go",
+          "edits": []
+        },
+        "internal/central/artifact/commands.go": {
+          "sha256": "7a366cf2b7209d46f5b5c455a21d037dd16c5f52ced9950eb76c618dd454968d",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/internal/central/artifact/commands.go",
+          "edits": []
+        },
+        "internal/central/artifact/project_work.go": {
+          "sha256": "5fc4b9f4b7a4196e71c30d5d35b53ab4dd365c41fcc42f002086842030ad8cfb",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/internal/central/artifact/project_work.go",
+          "edits": [
+            {
+              "start": 119,
+              "end": 122,
+              "lines": [
+                "\t// Our private producer key can only be consumed through the one acquisition\n",
+                "\t// above. The original writer and every later checkpoint share this EX key.\n"
+              ]
+            }
+          ]
+        },
+        "internal/central/artifact/project_lifecycle.go": {
+          "sha256": "c805dd892c64abced2f3cb18c0c97bbbecd44ad63f2997c8e46587ca1972fcc6",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/internal/central/artifact/project_lifecycle.go",
+          "edits": [
+            {
+              "start": 727,
+              "end": 728,
+              "lines": [
+                "\t\t\t\tif result.State() == foundation.Unknown {\n",
+                "\t\t\t\t\treturn oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, local)\n",
+                "\t\t\t\t}\n",
+                "\t\t\t\treturn oc.ObjectStopReport{}, commitError(result)\n"
+              ]
+            },
+            {
+              "start": 795,
+              "end": 804,
+              "lines": []
+            },
+            {
+              "start": 810,
+              "end": 826,
+              "lines": []
+            },
+            {
+              "start": 828,
+              "end": 830,
+              "lines": [
+                "\tfor _, refs := range [][]oc.ProjectStopRef{local.UnknownRefs, d.UnknownRefs} {\n",
+                "\t\tfor _, ref := range refs {\n",
+                "\t\t\tunknown[ref] = true\n",
+                "\t\t}\n"
+              ]
+            },
+            {
+              "start": 831,
+              "end": 834,
+              "lines": [
+                "\tfor _, refs := range [][]oc.ProjectStopRef{local.ActiveRefs, d.ActiveRefs} {\n",
+                "\t\tfor _, ref := range refs {\n",
+                "\t\t\tif !unknown[ref] {\n",
+                "\t\t\t\tactive[ref] = true\n",
+                "\t\t\t}\n"
+              ]
+            },
+            {
+              "start": 854,
+              "end": 855,
+              "lines": [
+                "\tif len(unknown) > 0 || local.SafeReason == oc.ProjectStopOutcomeUnknown || d.SafeReason == oc.ProjectStopOutcomeUnknown {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopOutcomeUnknown\n",
+                "\t} else if d.State == oc.ProjectStopFailed {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopFailed, d.SafeReason\n",
+                "\t} else if local.State == oc.ProjectStopped && d.State == oc.ProjectStopped {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopped, \"\"\n",
+                "\t\tout.ActiveRefs = nil\n",
+                "\t} else {\n",
+                "\t\tout.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopWorkPending\n",
+                "\t}\n",
+                "\treturn oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, out)\n"
+              ]
+            }
+          ]
+        },
+        "internal/central/artifact/lifecycle.go": {
+          "sha256": "10a95b174a878e49eaa5853db65f0b30a2cbabdcf07d1e74c6f719bf7917abb4",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/internal/central/artifact/lifecycle.go",
+          "edits": [
+            {
+              "start": 22,
+              "end": 23,
+              "lines": []
+            },
+            {
+              "start": 168,
+              "end": 169,
+              "lines": []
+            },
+            {
+              "start": 171,
+              "end": 179,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/project_work_test.go": {
+          "sha256": "ed8ffdb2120c0aa993693613afbd76356c6bd186b45971f61373a5caea622f91",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/internal/central/artifact/project_work_test.go",
+          "edits": [
+            {
+              "start": 5,
+              "end": 6,
+              "lines": []
+            },
+            {
+              "start": 7,
+              "end": 8,
+              "lines": []
+            },
+            {
+              "start": 192,
+              "end": 372,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/project_lifecycle_test.go": {
+          "sha256": "4ed8e6de6e60e4032ca499f08bc1bc923d3bf57b0858a5588fa69a1800b4aaea",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/internal/central/artifact/project_lifecycle_test.go",
+          "edits": [
+            {
+              "start": 4,
+              "end": 5,
+              "lines": []
+            },
+            {
+              "start": 159,
+              "end": 180,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/lifecycle_test.go": {
+          "sha256": "196166241f15816684b13d7dd026c33eb232b4fc7f3f6e290dfeaf32d70db167",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/internal/central/artifact/lifecycle_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_fixture_test.go": {
+          "sha256": "897ad08f1e8b7b38d06bee89c85d8258ac1100b6ecaf6a6fd0d5b2f528dff749",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/tests/objects/artifact_project_stop_fixture_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_test.go": {
+          "sha256": "4f81a20cbb0023e0f007f861f4e077f7c6e9afc34f588e8beaf63f857bb0b159",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/tests/objects/artifact_project_stop_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_source_test.go": {
+          "sha256": "69521574637bdfe4149158f8f61dfdf9bed922f95c635e25a8359293d966c31a",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/tests/objects/artifact_project_stop_source_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_recovery_test.go": {
+          "sha256": "cff2b5a6afb97da8559268f5a142f817fdcc4121f815e05280ec0173bbd0db51",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/tests/objects/artifact_project_stop_recovery_test.go",
+          "edits": [
+            {
+              "start": 9,
+              "end": 10,
+              "lines": []
+            },
+            {
+              "start": 205,
+              "end": 229,
+              "lines": []
+            },
+            {
+              "start": 236,
+              "end": 241,
+              "lines": [
+                "\t\t\ton, wrapped, proxy := artifactCommitFixture(t, f, false, true, artifactStopOptions{})\n"
+              ]
+            },
+            {
+              "start": 253,
+              "end": 254,
+              "lines": []
+            },
+            {
+              "start": 256,
+              "end": 269,
+              "lines": []
+            },
+            {
+              "start": 331,
+              "end": 335,
+              "lines": []
+            },
+            {
+              "start": 336,
+              "end": 337,
+              "lines": []
+            },
+            {
+              "start": 343,
+              "end": 344,
+              "lines": [
+                "\t\t\tgo func() { r, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause); reports <- answer{r, e} }()\n"
+              ]
+            },
+            {
+              "start": 355,
+              "end": 356,
+              "lines": [
+                "\t\t\tbudget, cancel := context.WithTimeout(context.Background(), 80*time.Millisecond)\n"
+              ]
+            },
+            {
+              "start": 363,
+              "end": 398,
+              "lines": [
+                "\t\t\tr, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause)\n",
+                "\t\t\tif e != nil || r.Details().State != oc.ProjectStopPending || original.Err() == nil {\n",
+                "\t\t\t\tt.Fatal(\"confirmed gate did not cancel exact original\", e)\n"
+              ]
+            },
+            {
+              "start": 1036,
+              "end": 1227,
+              "lines": []
+            }
+          ]
+        },
+        "tests/objects/artifact_project_stop_lifecycle_test.go": {
+          "sha256": "2f38affac95b80ae00b2d7e335f9a5621d9924b7882648bb3ef357fba671a674",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/selector-fixture-input-02/tests/objects/artifact_project_stop_lifecycle_test.go",
+          "edits": []
+        }
+      }
+    },
+    "candidate-final": {
+      "original_manifest": "author/candidate-final/manifest.json",
+      "original_manifest_sha256": "1c931fc6ac183643380c5c287b008bc672ad5df5d0cc7249ab7ee0ad69e72b85",
+      "files": {
+        "internal/central/artifact/service.go": {
+          "sha256": "61f27612b6e0d65745c4addfc10e150bc098371665ecb4304277fc3985189985",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/internal/central/artifact/service.go",
+          "edits": [
+            {
+              "start": 143,
+              "end": 144,
+              "lines": [
+                "\treturn r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {\n"
+              ]
+            },
+            {
+              "start": 182,
+              "end": 188,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/create.go": {
+          "sha256": "3b1301f803d4dc6f4b9293b01472669706bb1ae6bc9a4f60e2bcb3eabf8af481",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/internal/central/artifact/create.go",
+          "edits": []
+        },
+        "internal/central/artifact/upload.go": {
+          "sha256": "88e0e59f7b603066665fc6a6524f62f27cc1fb33c00c626e835f3303a2b565fc",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/internal/central/artifact/upload.go",
+          "edits": []
+        },
+        "internal/central/artifact/publish.go": {
+          "sha256": "8ef90f162afb3778abd25afd4865da7aa8deaa3c68ba3084089785ac2aebcc29",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/internal/central/artifact/publish.go",
+          "edits": []
+        },
+        "internal/central/artifact/commands.go": {
+          "sha256": "7a366cf2b7209d46f5b5c455a21d037dd16c5f52ced9950eb76c618dd454968d",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/internal/central/artifact/commands.go",
+          "edits": []
+        },
+        "internal/central/artifact/project_work.go": {
+          "sha256": "c0f251349bf87ba151a22f9c580f5d059637ad336cce4cbaf52d9327c8141732",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/internal/central/artifact/project_work.go",
+          "edits": []
+        },
+        "internal/central/artifact/project_lifecycle.go": {
+          "sha256": "edf00ff41b417f0e159085f2d772e1fff4b154c85082bd20b965817605ca08be",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/internal/central/artifact/project_lifecycle.go",
+          "edits": []
+        },
+        "internal/central/artifact/lifecycle.go": {
+          "sha256": "10a95b174a878e49eaa5853db65f0b30a2cbabdcf07d1e74c6f719bf7917abb4",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/internal/central/artifact/lifecycle.go",
+          "edits": [
+            {
+              "start": 22,
+              "end": 23,
+              "lines": []
+            },
+            {
+              "start": 168,
+              "end": 169,
+              "lines": []
+            },
+            {
+              "start": 171,
+              "end": 179,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/project_work_test.go": {
+          "sha256": "4d2dbf38b94107c28759f6ad1e0ad59d80cb60e47b66fd768b72147ad5f44a99",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/internal/central/artifact/project_work_test.go",
+          "edits": [
+            {
+              "start": 334,
+              "end": 363,
+              "lines": []
+            }
+          ]
+        },
+        "internal/central/artifact/project_lifecycle_test.go": {
+          "sha256": "466eae40f7984af3145016d1db85f20f1dbae78bc7e501457f50bf093fcbd848",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/internal/central/artifact/project_lifecycle_test.go",
+          "edits": []
+        },
+        "internal/central/artifact/lifecycle_test.go": {
+          "sha256": "196166241f15816684b13d7dd026c33eb232b4fc7f3f6e290dfeaf32d70db167",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/internal/central/artifact/lifecycle_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_fixture_test.go": {
+          "sha256": "897ad08f1e8b7b38d06bee89c85d8258ac1100b6ecaf6a6fd0d5b2f528dff749",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/tests/objects/artifact_project_stop_fixture_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_test.go": {
+          "sha256": "4f81a20cbb0023e0f007f861f4e077f7c6e9afc34f588e8beaf63f857bb0b159",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/tests/objects/artifact_project_stop_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_source_test.go": {
+          "sha256": "69521574637bdfe4149158f8f61dfdf9bed922f95c635e25a8359293d966c31a",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/tests/objects/artifact_project_stop_source_test.go",
+          "edits": []
+        },
+        "tests/objects/artifact_project_stop_recovery_test.go": {
+          "sha256": "176b3c5e2a5746932044407d24f31b3293a207beeae575f5e42a76abc80d6c6e",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/tests/objects/artifact_project_stop_recovery_test.go",
+          "edits": [
+            {
+              "start": 205,
+              "end": 229,
+              "lines": []
+            },
+            {
+              "start": 236,
+              "end": 241,
+              "lines": [
+                "\t\t\ton, wrapped, proxy := artifactCommitFixture(t, f, false, true, artifactStopOptions{})\n"
+              ]
+            },
+            {
+              "start": 253,
+              "end": 254,
+              "lines": []
+            },
+            {
+              "start": 256,
+              "end": 269,
+              "lines": []
+            },
+            {
+              "start": 331,
+              "end": 335,
+              "lines": []
+            },
+            {
+              "start": 336,
+              "end": 337,
+              "lines": []
+            },
+            {
+              "start": 343,
+              "end": 344,
+              "lines": [
+                "\t\t\tgo func() { r, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause); reports <- answer{r, e} }()\n"
+              ]
+            },
+            {
+              "start": 355,
+              "end": 356,
+              "lines": [
+                "\t\t\tbudget, cancel := context.WithTimeout(context.Background(), 80*time.Millisecond)\n"
+              ]
+            },
+            {
+              "start": 363,
+              "end": 398,
+              "lines": [
+                "\t\t\tr, e := on.artifact.RequestProjectStop(contextFor(t), actor, cause)\n",
+                "\t\t\tif e != nil || r.Details().State != oc.ProjectStopPending || original.Err() == nil {\n",
+                "\t\t\t\tt.Fatal(\"confirmed gate did not cancel exact original\", e)\n"
+              ]
+            }
+          ]
+        },
+        "tests/objects/artifact_project_stop_lifecycle_test.go": {
+          "sha256": "2f38affac95b80ae00b2d7e335f9a5621d9924b7882648bb3ef357fba671a674",
+          "verified_original_copy": "/tmp/agenteam-artifact-stop-author-y597q6vl/candidate-final/tests/objects/artifact_project_stop_lifecycle_test.go",
+          "edits": []
+        }
+      }
+    },
+    "rejected-close-red-01": {
+      "original_manifest": "author/rejected-close-red-01/input.json",
+      "original_manifest_sha256": "6252f090db2405d7a6684671df0a8bd2e75e504335ba79f5411a97619148ab9f",
+      "inherits": "production-review-01",
+      "files": {
+        "internal/central/artifact/lifecycle_test.go": {
+          "sha256": "196166241f15816684b13d7dd026c33eb232b4fc7f3f6e290dfeaf32d70db167",
+          "edits": []
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,21 @@
+# remaining-new-recovery-unknown-01 首红归因（只读）
+
+固定 candidate-final 1c931fc6，原 3 top/13 sub；admission 9 子例通过，source_capture/preflight 通过；publication 与 gate 失败。原日志/source/argv/environment/double cleanup 的 SHA 在 evidence.json。4 容器 3 网络二次 absent、原 2/4 基线不变，runtime/process 0；窗口已交 root。生产/测试 16 项未改。
+
+## publication
+
+实际日志明确命中真实 publication COMMIT（commands completed + Artifact canonical + Object reference + Audit 同 Tx xmin），随后 recovery_test.go:227 的 artifactStopResult 在 3 秒内没收到公共调用返回。本轮没有 goroutine/PG 等待快照，不能把静态推导称为实际等待栈。
+
+固定调用链：CreateFromSource 在 publishPrepared 返回 Unknown 后，先执行 deferred uploads.DiscardPrepared，再 body.Close，最后 finishProducer。固定 Object service.go:421–455 的 DiscardPrepared 同步 entry.release；release 的 finishOperationWork（project_work.go:367）为未 ended 的 preparation work 申请 cleanupContext（service.go:238，2 秒）并 joinProjectWork；其完整 EX union 包含目标 Project，晚 publication 的原 Tx 持相同 Project SH。结束这一 Object 收尾后，Artifact lifecycle.go:161–176 又开原 2 秒 settleProducer；其中 joinControl 将原 publication union 全转 EX，原 writer 未解时仍阻塞。因此测试 3 秒总等待小于可能的两个串行既定预算。原失败不证明丢 Unknown/提前 join，也不证明永久不返。
+
+待审最窄验证方案：只在本卡测试用正式 Uploads 装饰器观测真实 DiscardPrepared enter/return，不干预其返回/SQL/网络；保留原 3 秒 helper、race/count1/6m，不增加预算。publication barrier 后先观察实际 DiscardPrepared 完成，并记录耗时与调用仍在 registry 的事实；再在原 3 秒内要求原公共调用返回 CommitUnknown，随后原 Drain/重放/最终一份 canonical+Audit 断言继续。以独立阶段证明 whole-call 仍覆盖实际 Discard，而不是简单延长等待。若真实收尾超原单阶段预算，再作为产品问题保留失败；不改 Object。
+
+## gate
+
+实际日志明确命中 gate Tx，首次 Unknown 未 cancel/Object Continue；原 writer 放行并 PostgreSQL COMMIT 后，下一次 Request 返回 err=nil，但原复合断言失败（原日志没打印完整 report/ctx，不能仅据字串断言究竟哪个分量）。
+
+固定静态路径：原 gate 同 Tx 保存 revoked_by 并将 scan_kind 从目标 work 0 推到 1；Unknown 路径在 commit 后取消前返回。重试按已持久的 1 重新规划；Archive 跳过 source lane，因此 b.works/b.controls 空，本次安全 Pending，未必在这一调用取消仍阻 resolver 的原 handle。后续 2/3/0 有界循环才再选择精确 work 并取消。卡规定四游标越过 busy 项、调用者重复驱动；原测试要求单次下一 Request 就 cancel，比游标语义更强。需独立确认是否属于应保留并重放捕获的产品义务，还是测试应检验有界整轮进展。
+
+待审最窄验证方案：在原同 top 内补首次 Unknown 的 gate/current work SQL、释放后 cursor/revocation 与 exact context 状态。若卡允许一轮进展，保持原总请求 context/3 秒结果 helper，不增超时；最多原四 lane 周期的 Request 检查每次 Pending（不得提前 Stopped），以最终 exact 原 handle 已 cancel、真实 resolver 尚未退出仍 Pending、释放后真实终态为门槛。若 root/V 判定同一重放必须立即取消，则先给限定生产修复再实施，不能只去掉原断言。
+
+以上仅静态归因与原实测证据，不把候选方案写成已通过。不运行暂停的协议 draft，不新增故障方法，不改上游或旧测试。

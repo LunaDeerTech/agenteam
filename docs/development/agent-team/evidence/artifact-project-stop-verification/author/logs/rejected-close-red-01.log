@@ -1,0 +1,10 @@
+--- FAIL: TestArtifactRejectedUploadStillJoinsActualClose (0.00s)
+    --- FAIL: TestArtifactRejectedUploadStillJoinsActualClose/stopped (0.00s)
+        lifecycle_test.go:179: rejected UploadPayload Close still running while Joined=true
+        lifecycle_test.go:185: Force succeeded before rejected upload body.Close returned
+    --- FAIL: TestArtifactRejectedUploadStillJoinsActualClose/cancelled_context (0.00s)
+        lifecycle_test.go:179: rejected UploadPayload Close still running while Joined=true
+        lifecycle_test.go:185: Force succeeded before rejected upload body.Close returned
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/artifact	0.011s
+FAIL

@@ -1,0 +1,75 @@
+--- red/internal/central/artifact/project_lifecycle.go
++++ fix/internal/central/artifact/project_lifecycle.go
+@@ -2,6 +2,7 @@
+ 
+ import (
+ 	"context"
++	"errors"
+ 	"sort"
+ 
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+@@ -229,6 +230,10 @@
+ 			inBatch := false
+ 			for _, w := range b.works {
+ 				if w.id == p.work.id {
++					if !workIdentity(w, *p.work) || w.lease != p.work.lease {
++						r.mu.Unlock()
++						return nil, failure(foundation.ResourceBusy, nil)
++					}
+ 					inBatch = true
+ 					break
+ 				}
+@@ -481,13 +486,25 @@
+ 	}
+ 	// Only these identities were captured and checked in both confirmed Txes.
+ 	// A control that joined meanwhile is harmless; no project-wide rescan cancel.
++	local := oc.ObjectStopDetails{State: oc.ProjectStopPending, SafeReason: oc.ProjectStopWorkPending}
++	var convergenceUnknown error
++	recordConvergence := func(w *artifactWork, err error) {
++		var fault *foundation.Fault
++		if errors.As(err, &fault) && (fault.CommitState == foundation.Unknown || fault.Code == foundation.CommitUnknown) {
++			convergenceUnknown = portError(err)
++			local.SafeReason = oc.ProjectStopOutcomeUnknown
++			if w != nil {
++				local.UnknownRefs = append(local.UnknownRefs, artifactWorkRef(*w))
++			}
++		}
++	}
+ 	for _, capture := range b.controls {
+ 		s.cancelProducer(capture.control)
+-		_ = s.settleProducer(ctx, capture.control)
++		recordConvergence(capture.work, s.settleProducer(ctx, capture.control))
+ 	}
+ 	for _, w := range b.works {
+ 		if !w.joined || w.source.Validate() == nil && !w.sourceJoined {
+-			_ = s.recoverArtifactWork(ctx, p, request, w)
++			recordConvergence(&w, s.recoverArtifactWork(ctx, p, request, w))
+ 		}
+ 	}
+ 	var object oc.ObjectStopReport
+@@ -497,18 +514,23 @@
+ 		object, err = r.stop.Objects.RequestProjectStop(ctx, actor, cause)
+ 	}
+ 	if err != nil {
++		if convergenceUnknown != nil {
++			return oc.ObjectStopReport{}, convergenceUnknown
++		}
+ 		return oc.ObjectStopReport{}, portError(err)
+ 	}
+ 	if !object.Matches(oc.ObjectStopComponent, cause) {
++		if convergenceUnknown != nil {
++			return oc.ObjectStopReport{}, convergenceUnknown
++		}
+ 		return oc.ObjectStopReport{}, invalid()
+ 	}
+-	local := oc.ObjectStopDetails{State: oc.ProjectStopPending, SafeReason: oc.ProjectStopWorkPending}
+ 	for _, w := range b.works {
+ 		if !w.joined || w.source.Validate() == nil && !w.sourceJoined {
+ 			local.ActiveRefs = append(local.ActiveRefs, artifactWorkRef(w))
+ 		}
+ 	}
+-	if b.cycle {
++	if b.cycle && convergenceUnknown == nil {
+ 		// Fresh planning/auth after Object returned. Its report cannot authorize
+ 		// a stale cause, a changed mapping, or a partially scanned prefix.
+ 		final, err := s.discoverArtifactStop(ctx, request)

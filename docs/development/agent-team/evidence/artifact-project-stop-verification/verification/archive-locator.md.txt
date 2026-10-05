@@ -1,0 +1,21 @@
+# Artifact 本域有限结果：最小持久化定位清单
+
+这是归档定位清单，不扩充验收结论，也不授权新运行。主报告及 evidence/SHA256SUMS 保持原字节。最终产品16源尚未提交；共享Object guard/整卡仍blocked。
+
+作者根 `R=/tmp/agenteam-artifact-stop-author-y597q6vl`；基线 `6658a6cb1f29299521773bc8dc86b2f607b8c809`。
+
+1. **可重建候选：保留完整16最直接。** `R/candidate-review09/manifest.json`（79e5eb812c0fda2a42d390a7e2703b1ebca4ce581c055e1c2a99fda1ab76914e）及其 `files` 精确列出的16份副本：8生产、8测试；从固定base归档树覆盖这16份即可重建，不需要作者工作树、cache或依赖副本。若归档者选择生成一份base→candidate补丁，可省去16副本，但必须包含全部新增文件并恢复16哈希；不同时保留重复两份。go.mod/go.sum沿固定base，未变。
+
+2. **结论/覆盖/复用。** 保留本目录 `report.md`（d68a2857d75cf66c007e97c6b4e147e6734ec09407cee4fe9354393f2feffdde）及整个 `evidence/`（8个小文件，含case-evidence逐67项映射、raw-checks、reuse-function-checks、作者最终报告/矩阵/索引/末核）；原索引 SHA e8f102fac5176975d0554a556f46626ca300572786e9df3bd766080781818ea5。保留 `R/author-report.md`、`coverage-matrix.json`、`evidence-index.json` 原历史版本；不能用最终摘要覆盖原先未跑范围。
+
+3. **全部早期首红及已用历史动态：按原索引取，不只取最新两红。** `R/evidence-index.json.logs` 的52份原log合计仅45,200字节，可全保留；每项已有 `input` 则一并保留该原文件，已有同名 `.exit` 也保留；没有原argv/input的条目继续明示缺证，不补造。另保留索引 `cleanup` 所列12份JSON。这组包含 rejected-close-red-01（F1）、join-identity-red-01（F2/F3）、source-planning-red-01、selector-red-01、join-pending-01 启动错误、早期compile红，以及对应修后/selector六选包/normal-lock成功。不能漏掉这些而只保留review09首红。
+
+4. **最终续跑、失败及修后：** `R/evidence-addendum-review09.json.additional_files` 精确76份小文件全部按原hash保留；涵盖12续跑的raw日志/exit/input/首二次cleanup、pure24、review09修复delta及执行计划。包括原新Unknown两红3a7b7bb8、原不可改兼容publication红082491bf，以及修后b028f34b、admission复跑、其余旧31。每项input保留原argv/env；cleanup自带baseline与exactID记录，不需复制runtime目录。`R/run_fixture_verbose.py`、`run_fixture-without-v.py`、`double_cleanup.py` 可保留为解释实际driver的短源码；归档重放不意味着现在获准运行。
+
+5. **原失败/复用的源身份和修复链：** 保留 `production-review-01/manifest.json`，`production-review-02..09/delta.json` 及已有 `.diff`/`delta.patch`（勿复制整棵旧树）；保留 `formal-writer-locks.md` 和 `remaining-unknown-red-attribution-01/{attribution.md,evidence.json}`。早期固定输入源定位为 `rejected-close-red-01/input.json` + review01、`red-input-join-identity-01/manifest.json`、`source-planning-red-input-01/manifest.json`、`selector-red-input-01/manifest.json`；历史六选为 `selector-fixture-input-02/manifest.json`，review08复用为 `candidate-final/manifest.json`。如要求这些历史源也长期可重建，由归档者仅对其已固定副本生成相对最终16的差量，并按各原manifest核恢复字节；不复制多个16源全量，不读活动源。静审最小报告定位：review08 `/tmp/agenteam-artifact-review08-v-9mc4c90o/review.md`；publication归因 `/workspace/agenteam-artifact-unknown-review-v-irr6g8hc/review.md`；review09 `/workspace/agenteam-artifact-review09-v-qk_5bouy/review.md`。rev3规格引用已提交74f4db8，不再复制整卡。
+
+6. **独立F1可复建纯probe。** `/workspace/agenteam-artifact-f1-v-uh4fek8y/report.md` + 整个 `evidence/`（12个小文件，含baseline+production.patch、probe原源码、原失败setup/修后命令结果、实际pure原log、all-stop）。其report SHA2e79b05143c4e6173be8243e442f30e91687223b87b1c1f05dcdc78d6b3c945e，index3282924dbf2a6778421322b9a1faacc3b72f3bc3391a2f89613de9507eb0bb55。不要复制tree/gocache/tmp。
+
+7. **独立foreign最终有效overlay和真实结果。** `/workspace/agenteam-artifact-review09-v-qk_5bouy/probe-real-01/` 顶层原文件（16个索引项+索引；不要runtime/docker-config目录），含probe源c40b8aeb、真实fixture.log a1e9ebb1、command/env、normalCommitted→Store装饰Unknown边界、baseline/两次exactID清零/跨process-group补查、run.py和报告710cef3a；索引05dc5240。另保留同根 `probe-compile/` 的command/result/log/overlay/ready/stop/SHA256SUMS，不保留37MB objects.test。overlay指向同根 `overlay/` 的四份固定源：字节等最终candidate对应4份，可在归档重建时改为指向已保存candidate并记录路径映射，原overlay原字节也保留。该方法不是真实网络Unknown，不得改称原writer存活证明。
+
+8. **明确不归档/不重启。** 不取任何cache、构建binary、snapshot整树、数据库、fixture凭据、runtime、共享Docker配置，且不读取/复制/复活已停止的deferred protocol草稿。原动态资源已清零；此清单不包含新的Go/Docker动作。归档仅报告本域有限结果，不以67数量解除Object共享guard阻断或抹平failed-ROLLBACK/mixed真实动态未验边界。

@@ -1,0 +1,10 @@
+--- before/internal/central/artifact/service.go
++++ after/internal/central/artifact/service.go
+@@ -30,6 +30,7 @@
+ 	stop            ProjectStopDependencies
+ 	process         oc.ProcessID
+ 	controls        map[*producerControl]bool
++	localRevision   uint64
+ 	changed         chan struct{}
+ 	stopped, forced bool
+ 	forceContext    context.Context

@@ -1,0 +1,104 @@
+from pathlib import Path
+from urllib.parse import unquote
+import hashlib
+import json
+import re
+import subprocess
+
+REPO = Path('/workspace/agenteam')
+OUT = REPO/'docs/development/agent-team/evidence/artifact-project-stop-verification'
+TMP = Path('/tmp/agenteam-artifact-archive-t64zx6Zx')
+DOCS = [
+    'docs/development/agent-team/artifact-project-stop-verification.md',
+    'docs/development/agent-team/evidence/artifact-project-stop-verification/README.md',
+    'docs/development/agent-team/tasks.md',
+    'docs/development/agent-team/recovery-2026-10-05.md',
+    'docs/development/work-items/recovery-artifact-project-stop.md',
+]
+TRACKED = DOCS[2:]
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+commands = []
+def run(args):
+    result = subprocess.run(args, cwd=REPO, capture_output=True, text=True)
+    commands.append({'argv': args, 'cwd': str(REPO), 'exit_code': result.returncode, 'stdout_sha256': sha(result.stdout.encode()), 'stdout_bytes': len(result.stdout.encode()), 'stderr': result.stderr})
+    no_index_difference = '--no-index' in args and result.returncode == 1 and not result.stdout and not result.stderr
+    if no_index_difference:
+        commands[-1]['interpretation'] = 'expected no-index difference exit 1; no whitespace diagnostics'
+    assert result.returncode == 0 or no_index_difference, commands[-1]
+    return result.stdout
+
+raw = json.loads((OUT/'source-map.json').read_text())['raw_files']
+for name, meta in raw.items():
+    data = (OUT/name).read_bytes()
+    assert sha(data) == meta['sha256']
+    for source in meta['original_paths']:
+        assert Path(source).read_bytes() == data, ('original changed', source)
+
+link_count = 0
+fragment_count = 0
+def slugs(path):
+    result = set()
+    duplicates = {}
+    for match in re.finditer(r'^#{1,6}\s+(.+?)\s*#*$', path.read_text(), re.M):
+        title = re.sub(r'<[^>]*>', '', match.group(1)).strip().lower()
+        title = re.sub(r'[^\w\-\s\u3400-\u9fff]', '', title).replace(' ', '-')
+        n = duplicates.get(title, 0)
+        duplicates[title] = n+1
+        result.add(title if n == 0 else f'{title}-{n}')
+    return result
+
+for name in DOCS:
+    p = REPO/name
+    data = p.read_bytes()
+    text = data.decode('utf-8')
+    assert b'\r' not in data
+    assert data.endswith(b'\n')
+    assert not re.search(r'[ \t]+$', text, re.M), name
+    fences = re.findall(r'^```', text, re.M)
+    assert len(fences) % 2 == 0, ('unbalanced fences', name)
+    for destination in re.findall(r'\[[^\]]*\]\(([^)]+)\)', text):
+        destination = destination.strip('<>')
+        if re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*:', destination):
+            continue
+        destination = unquote(destination)
+        relative, _, fragment = destination.partition('#')
+        target = (p.parent/relative).resolve() if relative else p
+        assert target.exists(), (name, destination)
+        link_count += 1
+        if fragment:
+            fragment_count += 1
+            assert fragment in slugs(target), ('fragment missing', name, destination)
+
+old = {}
+for name in TRACKED:
+    old[name] = run(['git', 'show', '9110686a507716d8b4e042a5562a22507658adcb:'+name])
+assert old[TRACKED[0]].split('## AT-0001：', 1)[1] == (REPO/TRACKED[0]).read_text().split('## AT-0001：', 1)[1]
+historical = old[TRACKED[1]].split('## 5. 本次检查与交接边界', 1)[1]
+current = (REPO/TRACKED[1]).read_text().split('## 5. 本次检查与交接边界', 1)[1].split('\n## 21. Artifact 本域有限验证归档与 Secret 接续', 1)[0]
+assert current.rstrip() == historical.rstrip(), 'recovery sections 5-20 changed'
+old_api = old[TRACKED[2]].split('## 完整结果与固定输入', 1)[1]
+new_api = (REPO/TRACKED[2]).read_text().split('## 完整结果与固定输入', 1)[1].split('\n## review09 本域有限验证归档', 1)[0]
+assert new_api.rstrip() == old_api.rstrip(), 'existing Artifact specification changed'
+
+exceptions = set(json.loads((OUT/'raw-patch-paths.json').read_text()))
+assert len(exceptions) == 15
+assert all((OUT/x).is_file() for x in exceptions)
+raw_whitespace_checked = 0
+for p in OUT.rglob('*'):
+    if not p.is_file() or str(p.relative_to(OUT)) in exceptions:
+        continue
+    for line in p.read_bytes().splitlines():
+        assert not line.endswith((b' ', b'\t')), str(p)
+    raw_whitespace_checked += 1
+run(['git', 'diff', '--check', '--', *TRACKED])
+for name in DOCS[:2]:
+    run(['git', 'diff', '--no-index', '--check', '--', '/dev/null', name])
+data = {'documentation_files': DOCS, 'links_checked': link_count, 'fragments_checked': fragment_count,
+        'raw_original_files_checked': len(raw), 'non_patch_files_whitespace_checked': raw_whitespace_checked,
+        'exact_raw_patch_exceptions': sorted(exceptions), 'history_sections': 'tasks AT-0001 onward; recovery sections 5-20; original Artifact card body unchanged',
+        'commands': commands, 'result': 'PASS', 'product_tests': 'not run', 'network_docker_git_writes': 'not run'}
+(TMP/'doc-checks.json').write_text(json.dumps(data, ensure_ascii=False, indent=2)+'\n')
+print(json.dumps({k:v for k,v in data.items() if k not in ('commands','exact_raw_patch_exceptions')}, ensure_ascii=False, indent=2))

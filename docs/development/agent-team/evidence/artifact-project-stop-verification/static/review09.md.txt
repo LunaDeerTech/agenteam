@@ -1,0 +1,16 @@
+# Artifact review09：独立差量静审
+
+结论：本限定差量静审通过，未发现阻止作者定向复验的缺口；不表示原新/旧 publication 红已动态修复，也不表示 Artifact 整卡或共享 Object guard 验收通过。
+
+固定 delta `0c6b82ba97c48c56fa9f2ff9b6f7f2c05dd5b5f2fbbdf8de9e542dbb8d8cb1c0`，patch `a595c3eaee2fe567e3c64c44f057b0b7e959a72b834b8ebf6898944c12d15215`，candidate16 `79e5eb812c0fda2a42d390a7e2703b1ebca4ce581c055e1c2a99fda1ab76914e`。16项逐字节匹配；相对1c931fc6恰好2生产(service/lifecycle)+1unit+1新真实测试变化，旧 publication测试和其原3s字节不变。仅读固定副本与既往已审源，没有消费活动pure结果。
+
+- service.go:144–188 原样保留 Store CommitResult；只在实际 State()==Unknown 时于mutex标记原control.unknown，不把NotCommitted/Committed转Unknown，也不以Fault字符串推断。原Acquire前Tx/完整计划union登记不变。普通stopTransaction不经过within，不因本flag跳过其pendingBatch责任。
+- lifecycle.go:162–186 先置returned、递增revision、cancel原调用并signal，Unknown分支立即返；不创建新context/worker/goroutine，不开始新确认事务，不删control、不改原work/Tx/locks/lease/prepared/body。Create/Upload原defer实际Close/Discard顺序不改；若Close尚未真正返回，finish分支尚未到达。若既有Discard失败或仍有源尾部，其owned字段仍保留，不能因公开返回把它等同实际终局。
+- 后续推进沿原路径：Drain:290–304 枚举returned&&!settling并使用调用者ctx；Request原project_lifecycle.go:720–728、868–875对捕获或同work本地control settle；未完成命令same-instance retry在project_work.go:201–215 settle原handle。completed target-only replay本身不保证退休旧control，仍由Drain/Request负责，避免夸大“任意retry自动清理”。settleProducerWork:228–264核actual body.done→原lease Cancel→prepared Discard→joinControl完整原union EX确认，全部成功才注销；错误保留owner。Force原ctx→Drain路径不变，没有重开Unknown退场预算。
+- unit保留原Unknown AttemptID、原NotCommitted Forbidden断言；新增证明finish未Acquire/未settling/仍登记，再通过调用者Drain确认原完整union全EX才Joined。该adapter测试不是实际PG迟提交证明。
+- 新publication仍先原artifactStopResult3s取Unknown，再无等待读取透明Discard enter/return观察；没有把计时起点移到Discard之后，旧artifact_unknown_test.go SHA981df22947dfeef47040758be099a9194d2e3f61d3e27d995cab2a5e316adb66不变。新观察只记录真实委托耗时/错误，不伪造成功。
+- gate只改新test：同一requestCtx30s用于首call、80ms未决重试和至多4次恢复；真SQL核gate的lane1+精确revoked或preflight无gate。每轮记录cursor/report/error/原ctx，必须Validate且Pending、copyDone尚未返回；精确原ctx被取消才早停，4轮仍未取消FAIL，随后原释放/失败/最终收敛门槛保留。不sleep，不重开每轮30s，不改旧断言。
+
+必须保持的验证边界：原两组失败日志保留；仍需冻结review09真实新旧publication3s、gate四游标结果及原owner未早退/后续真实join证据。此前foreign独立探针只触及未变stopTransaction/recovery路径；迁移时仅使用此4文件差量、保持probe字节及selector不变，可重新离线race编译准备，不得将compile当动态通过。共享Object guard已知缺口继续阻塞整体验收。
+
+仅写本私有目录；静审阶段无Go/Docker/仓库/Git写。报告冻结后，只按root已授权执行该独立probe最小overlay编译准备。

@@ -1,0 +1,47 @@
+{
+  "at": "2026-10-05T17:14:19.255881+00:00",
+  "first": "cleanup-remaining-compat-object-source-01.json",
+  "second": {
+    "containers": {
+      "owned": {
+        "2414f10c2c16a5ae193a1072cd5948d454a7292ec66bf22fa70d6fe2034fbba7": {
+          "exit": 1,
+          "output": "Error response from daemon: No such container: 2414f10c2c16a5ae193a1072cd5948d454a7292ec66bf22fa70d6fe2034fbba7"
+        },
+        "9ec25b8b8c89f6d5db3d0a9f1af75d269ff13b7d6d11710b5754265fa8ea4e5a": {
+          "exit": 1,
+          "output": "Error response from daemon: No such container: 9ec25b8b8c89f6d5db3d0a9f1af75d269ff13b7d6d11710b5754265fa8ea4e5a"
+        },
+        "ab775b7d4a289509d73bca5377ffed2e0fb0647e148bf1133bbf7d33b7f87163": {
+          "exit": 1,
+          "output": "Error response from daemon: No such container: ab775b7d4a289509d73bca5377ffed2e0fb0647e148bf1133bbf7d33b7f87163"
+        },
+        "c955ce9d1ea8388680efe3e19917d4dcc5d4ed2342c7bd824d22c58aa46460ce": {
+          "exit": 1,
+          "output": "Error response from daemon: No such container: c955ce9d1ea8388680efe3e19917d4dcc5d4ed2342c7bd824d22c58aa46460ce"
+        }
+      },
+      "baseline_equal": true
+    },
+    "networks": {
+      "owned": {
+        "96988fc7948b297cb1d9d5ef948edf3238a5dd7a2714f40f101610873101c740": {
+          "exit": 1,
+          "output": "Error response from daemon: network 96988fc7948b297cb1d9d5ef948edf3238a5dd7a2714f40f101610873101c740 not found"
+        },
+        "bdf4c93c6dfe3fa43269223502c0443874ce8873156b648bc125a8f3c6c33ae6": {
+          "exit": 1,
+          "output": "Error response from daemon: network bdf4c93c6dfe3fa43269223502c0443874ce8873156b648bc125a8f3c6c33ae6 not found"
+        },
+        "f00bd6b2977e72b4aea5f071d9d502fb5de97e0635f21cee7265beba7734ccc3": {
+          "exit": 1,
+          "output": "Error response from daemon: network f00bd6b2977e72b4aea5f071d9d502fb5de97e0635f21cee7265beba7734ccc3 not found"
+        }
+      },
+      "baseline_equal": true
+    }
+  },
+  "runtime_entries": [],
+  "owned_processes": [],
+  "source16_end_match": true
+}

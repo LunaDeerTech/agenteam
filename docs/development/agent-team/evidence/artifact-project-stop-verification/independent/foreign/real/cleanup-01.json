@@ -1,0 +1,169 @@
+{
+  "baseline_equal": true,
+  "exact_owned": {
+    "containers": [
+      {
+        "absent": true,
+        "id": "8ce579b673b2a6a96e2d414ee43da9b13fb02dba1f0a8b21079775bb401107a2",
+        "labels": {
+          "agenteam.d05.objectfixture": "f4c5c500401182e11fee139ccb4f322a"
+        },
+        "name": "/agenteam-d05-object-f4c5c500401182e11fee139ccb4f322a",
+        "returncode": 1,
+        "stderr": "Error: No such object: 8ce579b673b2a6a96e2d414ee43da9b13fb02dba1f0a8b21079775bb401107a2"
+      },
+      {
+        "absent": true,
+        "id": "8f3d4ca71984be98cb825773062399bb90ddd4fc66f1809daed851caf340b707",
+        "labels": {
+          "agenteam.d03.fixture": "a7160e24cbcfbd5024f71afc06df972b"
+        },
+        "name": "/agenteam-d03-a7160e24cbcfbd5024f71afc06df972b",
+        "returncode": 1,
+        "stderr": "Error: No such object: 8f3d4ca71984be98cb825773062399bb90ddd4fc66f1809daed851caf340b707"
+      },
+      {
+        "absent": true,
+        "id": "a4de989a9e21ad4a41a785042109dde0bb6e2fa2b097eed8cb229addebb2a1b1",
+        "labels": {
+          "agenteam.d04.networkfixture": "a7ad732d4ec73471fb007c8e389ebdb5"
+        },
+        "name": "/agenteam-d04-net-a7ad732d4ec73471fb007c8e389ebdb5",
+        "returncode": 1,
+        "stderr": "Error: No such object: a4de989a9e21ad4a41a785042109dde0bb6e2fa2b097eed8cb229addebb2a1b1"
+      },
+      {
+        "absent": true,
+        "id": "aed17d3c5cf0547044c5e419d3a982afae2fdb0b5d88bceee738dc4307ac55ec",
+        "labels": {
+          "agenteam.d03.fixture": "a7160e24cbcfbd5024f71afc06df972b"
+        },
+        "name": "/agenteam-d03-a7160e24cbcfbd5024f71afc06df972b-pg16",
+        "returncode": 1,
+        "stderr": "Error: No such object: aed17d3c5cf0547044c5e419d3a982afae2fdb0b5d88bceee738dc4307ac55ec"
+      }
+    ],
+    "networks": [
+      {
+        "absent": true,
+        "id": "2991ab9661098d0c3a69df114a2dc9b3827dbf268ca0d71a8605b8793c207776",
+        "labels": {
+          "agenteam.d04.networkfixture": "a7ad732d4ec73471fb007c8e389ebdb5"
+        },
+        "name": "agenteam-d04-net-a7ad732d4ec73471fb007c8e389ebdb5",
+        "returncode": 1,
+        "stderr": "Error response from daemon: network 2991ab9661098d0c3a69df114a2dc9b3827dbf268ca0d71a8605b8793c207776 not found"
+      },
+      {
+        "absent": true,
+        "id": "3dd61656139eb8a447598f7adad7c2b216b306bdeaa38864581e45057f7452b9",
+        "labels": {
+          "agenteam.d05.objectfixture": "f4c5c500401182e11fee139ccb4f322a"
+        },
+        "name": "agenteam-d05-object-f4c5c500401182e11fee139ccb4f322a",
+        "returncode": 1,
+        "stderr": "Error response from daemon: network 3dd61656139eb8a447598f7adad7c2b216b306bdeaa38864581e45057f7452b9 not found"
+      },
+      {
+        "absent": true,
+        "id": "fc5f1cceae04685045380c6ba8ce1b696ba636a4f6d6bb9affbed68398a83862",
+        "labels": {
+          "agenteam.d03.fixture": "a7160e24cbcfbd5024f71afc06df972b"
+        },
+        "name": "agenteam-d03-a7160e24cbcfbd5024f71afc06df972b",
+        "returncode": 1,
+        "stderr": "Error response from daemon: network fc5f1cceae04685045380c6ba8ce1b696ba636a4f6d6bb9affbed68398a83862 not found"
+      }
+    ]
+  },
+  "observed_utc": "2026-10-05T17:09:02.323612+00:00",
+  "overlay_sha256": "4fdd115fc9104e1557a6c7d8a41e47446e32055418e2e878c3522b6efabf7c9d",
+  "owned_pids": [],
+  "owned_process_group": 845341,
+  "probe_sha256": "c40b8aeb6f574a2bbd7674f77b5ed5fb8c3311a1d367bc8302efaa2b199e5350",
+  "resources": {
+    "containers": [
+      {
+        "id": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+        "labels": {
+          "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "postgres",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "name": "/agenteam-dev-infra-postgres-1"
+      },
+      {
+        "id": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+        "labels": {
+          "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "minio",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "name": "/agenteam-dev-infra-minio-1"
+      }
+    ],
+    "networks": [
+      {
+        "id": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+        "labels": {
+          "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+          "com.docker.compose.network": "default",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.version": "2.40.3"
+        },
+        "name": "agenteam-dev-infra_default"
+      },
+      {
+        "id": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+        "labels": {},
+        "name": "none"
+      },
+      {
+        "id": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+        "labels": {},
+        "name": "host"
+      },
+      {
+        "id": "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5",
+        "labels": {},
+        "name": "bridge"
+      }
+    ]
+  },
+  "runtime_entries": [],
+  "source_after": {
+    "internal/central/artifact/commands.go": "7a366cf2b7209d46f5b5c455a21d037dd16c5f52ced9950eb76c618dd454968d",
+    "internal/central/artifact/create.go": "3b1301f803d4dc6f4b9293b01472669706bb1ae6bc9a4f60e2bcb3eabf8af481",
+    "internal/central/artifact/lifecycle.go": "2b3331121885630d71e56774f10c2e29a25a8ad07877e1a7a9687a57ae8ae878",
+    "internal/central/artifact/lifecycle_test.go": "196166241f15816684b13d7dd026c33eb232b4fc7f3f6e290dfeaf32d70db167",
+    "internal/central/artifact/project_lifecycle.go": "edf00ff41b417f0e159085f2d772e1fff4b154c85082bd20b965817605ca08be",
+    "internal/central/artifact/project_lifecycle_test.go": "466eae40f7984af3145016d1db85f20f1dbae78bc7e501457f50bf093fcbd848",
+    "internal/central/artifact/project_work.go": "c0f251349bf87ba151a22f9c580f5d059637ad336cce4cbaf52d9327c8141732",
+    "internal/central/artifact/project_work_test.go": "3091e7441c5cbb47bb72a20ec42c243a4f4f38a51190cde58ec54e6029316efe",
+    "internal/central/artifact/publish.go": "8ef90f162afb3778abd25afd4865da7aa8deaa3c68ba3084089785ac2aebcc29",
+    "internal/central/artifact/service.go": "c89c9fd07ddece1f06ca810bd464203e7c2f819170c554cb6030f0f7d7850573",
+    "internal/central/artifact/upload.go": "88e0e59f7b603066665fc6a6524f62f27cc1fb33c00c626e835f3303a2b565fc",
+    "tests/objects/artifact_project_stop_fixture_test.go": "897ad08f1e8b7b38d06bee89c85d8258ac1100b6ecaf6a6fd0d5b2f528dff749",
+    "tests/objects/artifact_project_stop_lifecycle_test.go": "2f38affac95b80ae00b2d7e335f9a5621d9924b7882648bb3ef357fba671a674",
+    "tests/objects/artifact_project_stop_recovery_test.go": "dc44ba1e88f0ec1f1d08e45e8f85e7e56dd5f359a5e6aed81562e9a21dc49e7c",
+    "tests/objects/artifact_project_stop_source_test.go": "69521574637bdfe4149158f8f61dfdf9bed922f95c635e25a8359293d966c31a",
+    "tests/objects/artifact_project_stop_test.go": "4f81a20cbb0023e0f007f861f4e077f7c6e9afc34f588e8beaf63f857bb0b159"
+  },
+  "source_matches": true
+}

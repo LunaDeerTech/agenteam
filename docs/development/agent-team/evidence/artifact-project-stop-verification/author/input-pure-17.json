@@ -1,0 +1,44 @@
+{
+  "files": {
+    "internal/central/artifact/service.go": "cc031bb7ee21079262d9f1a23257d2807c98a46da29c30529917d640248ff50d",
+    "internal/central/artifact/create.go": "3b1301f803d4dc6f4b9293b01472669706bb1ae6bc9a4f60e2bcb3eabf8af481",
+    "internal/central/artifact/upload.go": "88e0e59f7b603066665fc6a6524f62f27cc1fb33c00c626e835f3303a2b565fc",
+    "internal/central/artifact/publish.go": "8ef90f162afb3778abd25afd4865da7aa8deaa3c68ba3084089785ac2aebcc29",
+    "internal/central/artifact/commands.go": "7a366cf2b7209d46f5b5c455a21d037dd16c5f52ced9950eb76c618dd454968d",
+    "internal/central/artifact/project_work.go": "5fc4b9f4b7a4196e71c30d5d35b53ab4dd365c41fcc42f002086842030ad8cfb",
+    "internal/central/artifact/project_lifecycle.go": "b7a898cc8904f3ca71f6eb8bc7e96b9fcab5b637df9fa402f684851b187a94bb",
+    "internal/central/artifact/lifecycle.go": "a27ff1dafcd41d422785819e8aeb966b71d0703e368172096ab56579ca207bbb",
+    "internal/central/artifact/project_work_test.go": "ed8ffdb2120c0aa993693613afbd76356c6bd186b45971f61373a5caea622f91",
+    "internal/central/artifact/project_lifecycle_test.go": "1cf78091857322d1a7c2c7195d0cfe1e75b848ce5dee625661ee71c30c3489b0",
+    "internal/central/artifact/lifecycle_test.go": "196166241f15816684b13d7dd026c33eb232b4fc7f3f6e290dfeaf32d70db167",
+    "tests/objects/artifact_project_stop_fixture_test.go": "897ad08f1e8b7b38d06bee89c85d8258ac1100b6ecaf6a6fd0d5b2f528dff749",
+    "tests/objects/artifact_project_stop_test.go": "4f81a20cbb0023e0f007f861f4e077f7c6e9afc34f588e8beaf63f857bb0b159",
+    "tests/objects/artifact_project_stop_source_test.go": "69521574637bdfe4149158f8f61dfdf9bed922f95c635e25a8359293d966c31a",
+    "tests/objects/artifact_project_stop_recovery_test.go": "daa49f4a2967f4f67997748d59abd9e6a167696b640945dcfa36a240bae2f2e1",
+    "tests/objects/artifact_project_stop_lifecycle_test.go": "2f38affac95b80ae00b2d7e335f9a5621d9924b7882648bb3ef357fba671a674"
+  },
+  "commands": {
+    "race17": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-race",
+      "-count=1",
+      "./internal/central/artifact/..."
+    ],
+    "vet17": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "-tags=integration",
+      "./internal/central/artifact/...",
+      "./tests/objects"
+    ],
+    "compile17": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-tags=integration",
+      "-run",
+      "^$",
+      "./tests/objects"
+    ]
+  }
+}

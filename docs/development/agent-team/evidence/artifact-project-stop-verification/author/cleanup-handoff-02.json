@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-05T16:12:12.528946+00:00",
+  "first": "cleanup-selector-fix-01.json",
+  "second": {
+    "containers": {
+      "owned": {
+        "193f105deab6a66e8d717cae09f648a3b7865cd51db91e2e324cb132a0215ff6": {
+          "exit": 1,
+          "output": "Error response from daemon: No such container: 193f105deab6a66e8d717cae09f648a3b7865cd51db91e2e324cb132a0215ff6"
+        },
+        "4c2343736fb259bc59fa82fcc0252fc9ebfe4ae36e4ccc9361a6bca40caf8747": {
+          "exit": 1,
+          "output": "Error response from daemon: No such container: 4c2343736fb259bc59fa82fcc0252fc9ebfe4ae36e4ccc9361a6bca40caf8747"
+        },
+        "5e9f7f7b2ea0272a4a0380d91f84d215762b6a1fc70505e07ced0442406ad5cb": {
+          "exit": 1,
+          "output": "Error response from daemon: No such container: 5e9f7f7b2ea0272a4a0380d91f84d215762b6a1fc70505e07ced0442406ad5cb"
+        },
+        "e6bdb03c751fd7ace2233d1b05c3225dd0680603f872561b8966ddf70b1fffbb": {
+          "exit": 1,
+          "output": "Error response from daemon: No such container: e6bdb03c751fd7ace2233d1b05c3225dd0680603f872561b8966ddf70b1fffbb"
+        }
+      },
+      "baseline_equal": true
+    },
+    "networks": {
+      "owned": {
+        "1979e4743f023be9defde685dd0dae837a01fe2992e829cdb3e6c66520061d39": {
+          "exit": 1,
+          "output": "Error response from daemon: network 1979e4743f023be9defde685dd0dae837a01fe2992e829cdb3e6c66520061d39 not found"
+        },
+        "58dd92328ee89af87cb7e611c9a3ae2b4e54cce8d50fa5d1d1f0ad36d79633b6": {
+          "exit": 1,
+          "output": "Error response from daemon: network 58dd92328ee89af87cb7e611c9a3ae2b4e54cce8d50fa5d1d1f0ad36d79633b6 not found"
+        },
+        "aa4ec2b3ecd93ad043f720a58113d8f67b4fbc5d8394c227efc0f8052d177145": {
+          "exit": 1,
+          "output": "Error response from daemon: network aa4ec2b3ecd93ad043f720a58113d8f67b4fbc5d8394c227efc0f8052d177145 not found"
+        }
+      },
+      "baseline_equal": true
+    }
+  },
+  "runtime_entries": [],
+  "owned_processes": []
+}

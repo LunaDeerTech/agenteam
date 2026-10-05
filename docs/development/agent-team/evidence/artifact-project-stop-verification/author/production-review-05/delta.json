@@ -1,0 +1,31 @@
+{
+  "card": "74f4db8ee52b1e832373f4adf56d4f5e26399fa0",
+  "prior_manifest_sha256": "3b27df8bb60489b07ac6bc3831e1272e2861951f0522f3d1dc352d77354052ba",
+  "files": {
+    "internal/central/artifact/service.go": {
+      "before": "85d66203f2475d4b7512ac83c67363798d150d08a633bd5ef9bbc69fa44176b9",
+      "after": "cc031bb7ee21079262d9f1a23257d2807c98a46da29c30529917d640248ff50d",
+      "before_path": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-01/internal/central/artifact/service.go"
+    },
+    "internal/central/artifact/lifecycle.go": {
+      "before": "9073b198614fea015a5f99ecb173d6c9e207fec73f536ceacb9e64a849872e39",
+      "after": "c5a46fc5237de62eb04e0ed595fadca4604a4d7eb1f989d0ba877c9445a3aa81",
+      "before_path": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-04/internal/central/artifact/lifecycle.go"
+    },
+    "internal/central/artifact/project_work.go": {
+      "before": "633b299ff95d7135901919225e0079dc7debdd905c6f6e8555dbd283cc71e440",
+      "after": "5fc4b9f4b7a4196e71c30d5d35b53ab4dd365c41fcc42f002086842030ad8cfb",
+      "before_path": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-04/internal/central/artifact/project_work.go"
+    },
+    "internal/central/artifact/project_lifecycle.go": {
+      "before": "264bd4c60c8b56f82c98ad5ac6c2714b5b6d053e3e3461d1f527038c5040be2b",
+      "after": "710cf049a75a3d4e7391dca5907f75ce3c6a7f5e6f39c6ceddd52aa1a2f44c8c",
+      "before_path": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-03/internal/central/artifact/project_lifecycle.go"
+    },
+    "internal/central/artifact/project_lifecycle_test.go": {
+      "before": "29e2d7a5c2c5720216ec23bf658dcf965a3ed8a0be21bf33c69abb65fe51f31c",
+      "after": "1cf78091857322d1a7c2c7195d0cfe1e75b848ce5dee625661ee71c30c3489b0",
+      "before_path": "/tmp/agenteam-artifact-stop-author-y597q6vl/production-review-03/internal/central/artifact/project_lifecycle_test.go"
+    }
+  }
+}

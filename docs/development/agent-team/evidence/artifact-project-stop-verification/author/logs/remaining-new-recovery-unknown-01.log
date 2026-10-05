@@ -1,0 +1,300 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.138.178.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=72c5b7d4ca41fd7e3e183d2e25ddf6cf
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=822e089dc26f1742ae6fa4116002faf0
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.168s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.016s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.019s [no tests to run]
+=== RUN   TestArtifactProjectStopUnknownAdmissionNeverStartsIO
+=== RUN   TestArtifactProjectStopUnknownAdmissionNeverStartsIO/committed/content
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:168: actual Artifact COMMIT work work tuple [["01a10cf2-b743-795f-ae9f-e47b8dd11436", "01a10cf2-b5d2-77c4-85f6-ee51be4c55e2", "01a10cf2-b737-7882-905c-2320a4c6ed49", "creation", "01a10cf2-b743-7240-8a46-2054aa9b6812", "47af82734212b99237ceed128add3bdd29cf32cd73399161d4cc36023621074b", null, null, 0, null, false]]
+=== RUN   TestArtifactProjectStopUnknownAdmissionNeverStartsIO/committed/source
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:168: actual Artifact COMMIT work work tuple [["01a10cf2-bbfa-7cb0-80f0-961e7ea9a686", "01a10cf2-badc-73dd-9bc6-38255b3853ea", "01a10cf2-bbef-7d8b-a930-ba5e8766e3bf", "creation", "01a10cf2-bbfa-7ef6-8365-51955859160c", "38239abbd1f49f727e32b74353799fd9ffb94751196ca1222516e3c6813cfa7a", "01a10cf2-badc-73dd-9bc6-38255b3853ea", null, 0, null, false]]
+=== RUN   TestArtifactProjectStopUnknownAdmissionNeverStartsIO/committed/upload
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:168: actual Artifact COMMIT work work tuple [["01a10cf2-c0bd-7d69-8053-9e93f95b0941", "01a10cf2-bf92-785b-baa9-1574a6280a5a", "01a10cf2-c0ab-7eed-a5bc-5ca2ecbc4a32", "upload", "01a10cf2-c0ac-7c83-95ad-39e767d579df", "0672a00b080725fc4550cb8b2c8927d887e55a49228f1dc6acd5b90d7bf93b7a", null, null, 0, null, false]]
+=== RUN   TestArtifactProjectStopUnknownAdmissionNeverStartsIO/rolled_back/content
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:168: actual Artifact COMMIT work work tuple [["01a10cf2-c532-7e51-841b-0a724ffe70f0", "01a10cf2-c413-7728-af97-bfa03d0691d8", "01a10cf2-c522-7c01-a250-06871c4e2f5a", "creation", "01a10cf2-c532-790a-a2fb-16ca942f8596", "000f840b217ff27e06a3e751da72a374ebcdaec12a0a6e7d25d68340a7307c00", null, null, 0, null, false]]
+=== RUN   TestArtifactProjectStopUnknownAdmissionNeverStartsIO/rolled_back/source
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:168: actual Artifact COMMIT work work tuple [["01a10cf2-c98e-7c6d-8c6a-e6e4b1a160ce", "01a10cf2-c866-72e2-a0e9-ae57839fc4e9", "01a10cf2-c982-7fbb-8692-6be9330cd32b", "creation", "01a10cf2-c98e-7fef-9853-e4959a5ef524", "1c81d9c96758a101f971d3df742dc1d47ae44fa674c30ae857f44b57842f5e93", "01a10cf2-c866-72e2-a0e9-ae57839fc4e9", null, 0, null, false]]
+=== RUN   TestArtifactProjectStopUnknownAdmissionNeverStartsIO/rolled_back/upload
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:168: actual Artifact COMMIT work work tuple [["01a10cf2-ce60-7039-ad52-6ab29358476c", "01a10cf2-ccfa-7da9-b56f-4a4309c424ae", "01a10cf2-ce48-78b4-ab03-f2d86fcb7cda", "upload", "01a10cf2-ce49-73db-ad9f-0087ef0d5068", "c7ab357bf29d383ff37026e53c048ee77778078903735b2781593050d97fa015", null, null, 0, null, false]]
+=== RUN   TestArtifactProjectStopUnknownAdmissionNeverStartsIO/late/content
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:168: actual Artifact COMMIT work work tuple [["01a10cf2-d372-762a-af0b-e85ae0441988", "01a10cf2-d242-79c8-9bfb-4bfbd2ca6502", "01a10cf2-d362-7a4c-9fec-e79027ae429a", "creation", "01a10cf2-d372-7254-8451-990ea8705de7", "47cd95b11ce9f1ea922c53f25c5c2f40e17f5adde006c2328bba4396a0034931", null, null, 0, null, false]]
+=== RUN   TestArtifactProjectStopUnknownAdmissionNeverStartsIO/late/source
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:168: actual Artifact COMMIT work work tuple [["01a10cf2-dc72-7607-b7b5-aab7fcf215b2", "01a10cf2-db3e-739d-ab5f-d625103818d4", "01a10cf2-dc65-7669-bb67-8173d528b017", "creation", "01a10cf2-dc72-75d5-961b-ce82fbca0865", "8dbb64c6884cca737f1b42c2b4780bb4e0b66433146152ab101cb772b7198911", "01a10cf2-db3e-739d-ab5f-d625103818d4", null, 0, null, false]]
+=== RUN   TestArtifactProjectStopUnknownAdmissionNeverStartsIO/late/upload
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:168: actual Artifact COMMIT work work tuple [["01a10cf2-e562-76a8-aacf-87c6dbfb7157", "01a10cf2-e436-70a2-9187-66eb83f5655d", "01a10cf2-e551-7856-8412-a03eea1347be", "upload", "01a10cf2-e552-735e-97db-8b7ae3654051", "8e9e051cabe635d3fc1bb068ca359381f28e6f79736902b8d19eef6ead97d79a", null, null, 0, null, false]]
+--- PASS: TestArtifactProjectStopUnknownAdmissionNeverStartsIO (14.19s)
+    --- PASS: TestArtifactProjectStopUnknownAdmissionNeverStartsIO/committed/content (1.31s)
+    --- PASS: TestArtifactProjectStopUnknownAdmissionNeverStartsIO/committed/source (1.21s)
+    --- PASS: TestArtifactProjectStopUnknownAdmissionNeverStartsIO/committed/upload (1.22s)
+    --- PASS: TestArtifactProjectStopUnknownAdmissionNeverStartsIO/rolled_back/content (1.15s)
+    --- PASS: TestArtifactProjectStopUnknownAdmissionNeverStartsIO/rolled_back/source (1.12s)
+    --- PASS: TestArtifactProjectStopUnknownAdmissionNeverStartsIO/rolled_back/upload (1.24s)
+    --- PASS: TestArtifactProjectStopUnknownAdmissionNeverStartsIO/late/content (2.36s)
+    --- PASS: TestArtifactProjectStopUnknownAdmissionNeverStartsIO/late/source (2.33s)
+    --- PASS: TestArtifactProjectStopUnknownAdmissionNeverStartsIO/late/upload (2.27s)
+=== RUN   TestArtifactProjectStopUnknownSourceAndFinalPublication
+=== RUN   TestArtifactProjectStopUnknownSourceAndFinalPublication/source_capture
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=100265 decoded=100000 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:226: actual Artifact COMMIT source_capture work tuple [["01a10cf2-ee66-737b-8563-0839516c6ba3", "01a10cf2-ee37-7f01-a498-0b76a34fff40", "01a10cf2-ee5c-7f5b-b9d4-f2b36b4a7ea8", "creation", "01a10cf2-ee66-74de-a9c1-2e9416d49f19", "2d4fa167ce666f5733ba55659e7bba9e49f82507d08a8496f1de5edaf4715c20", "01a10cf2-ed2d-7173-9897-c44fbcd86d22", "01a10cf2-ee76-7033-ace5-6bad285608cc", 0, null, false]]
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=100265 decoded=100000 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+=== RUN   TestArtifactProjectStopUnknownSourceAndFinalPublication/publication
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=100265 decoded=100000 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=100265 decoded=100000 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:226: actual Artifact COMMIT publication work tuple []
+    artifact_project_stop_recovery_test.go:227: original call did not return
+--- FAIL: TestArtifactProjectStopUnknownSourceAndFinalPublication (9.17s)
+    --- PASS: TestArtifactProjectStopUnknownSourceAndFinalPublication/source_capture (4.88s)
+    --- FAIL: TestArtifactProjectStopUnknownSourceAndFinalPublication/publication (4.30s)
+=== RUN   TestArtifactProjectStopUnknownPreflightAndGateNeverCancel
+=== RUN   TestArtifactProjectStopUnknownPreflightAndGateNeverCancel/preflight
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:299: actual Artifact COMMIT preflight work tuple []
+=== RUN   TestArtifactProjectStopUnknownPreflightAndGateNeverCancel/gate
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:299: actual Artifact COMMIT gate work tuple [["01a10cf3-1efd-74a1-b579-a1297e15a9fc", "01a10cf3-1e72-75c1-bfbc-f10f8b656f94", "01a10cf3-1ef8-7c90-9026-c9d603afeafb", "creation", "01a10cf3-1efd-7e4f-b764-f83ebd14cc6e", "d5eaa894bf8bbbbb9f963405819252a49f9c159b6b0ed334204f564dfbb3ee05", null, null, 0, null, true], ["01a10cf3-1f84-7bf5-a3f3-b0858d4497f0", "01a10cf3-1e72-75c1-bfbc-f10f8b656f94", "01a10cf3-1f7c-7f2e-83c8-38e1d81829bf", "creation", "01a10cf3-1f84-7992-ae76-298360c14f8e", "91390aa810336f45c0fe54e6a65a54343bf6ea05bd516980d27c25de35884c5d", "01a10cf3-1e72-75c1-bfbc-f10f8b656f94", null, 0, null, false]]
+    artifact_project_stop_recovery_test.go:319: confirmed gate did not cancel exact original <nil>
+--- FAIL: TestArtifactProjectStopUnknownPreflightAndGateNeverCancel (6.85s)
+    --- PASS: TestArtifactProjectStopUnknownPreflightAndGateNeverCancel/preflight (3.50s)
+    --- FAIL: TestArtifactProjectStopUnknownPreflightAndGateNeverCancel/gate (3.35s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/objects	30.249s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.016s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce 1480d2ede34cf06cf142c526ea8c535c
+D04 outbound fixture cleanup checked for nonce 822e089dc26f1742ae6fa4116002faf0
+D05 object fixture exact resource cleanup checked nonce=72c5b7d4ca41fd7e3e183d2e25ddf6cf

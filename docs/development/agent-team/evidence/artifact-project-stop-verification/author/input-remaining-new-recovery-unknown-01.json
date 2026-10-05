@@ -1,0 +1,42 @@
+{
+  "baseline": "6658a6cb1f29299521773bc8dc86b2f607b8c809",
+  "files": {
+    "internal/central/artifact/service.go": "61f27612b6e0d65745c4addfc10e150bc098371665ecb4304277fc3985189985",
+    "internal/central/artifact/create.go": "3b1301f803d4dc6f4b9293b01472669706bb1ae6bc9a4f60e2bcb3eabf8af481",
+    "internal/central/artifact/upload.go": "88e0e59f7b603066665fc6a6524f62f27cc1fb33c00c626e835f3303a2b565fc",
+    "internal/central/artifact/publish.go": "8ef90f162afb3778abd25afd4865da7aa8deaa3c68ba3084089785ac2aebcc29",
+    "internal/central/artifact/commands.go": "7a366cf2b7209d46f5b5c455a21d037dd16c5f52ced9950eb76c618dd454968d",
+    "internal/central/artifact/project_work.go": "c0f251349bf87ba151a22f9c580f5d059637ad336cce4cbaf52d9327c8141732",
+    "internal/central/artifact/project_lifecycle.go": "edf00ff41b417f0e159085f2d772e1fff4b154c85082bd20b965817605ca08be",
+    "internal/central/artifact/lifecycle.go": "10a95b174a878e49eaa5853db65f0b30a2cbabdcf07d1e74c6f719bf7917abb4",
+    "internal/central/artifact/project_work_test.go": "4d2dbf38b94107c28759f6ad1e0ad59d80cb60e47b66fd768b72147ad5f44a99",
+    "internal/central/artifact/project_lifecycle_test.go": "466eae40f7984af3145016d1db85f20f1dbae78bc7e501457f50bf093fcbd848",
+    "internal/central/artifact/lifecycle_test.go": "196166241f15816684b13d7dd026c33eb232b4fc7f3f6e290dfeaf32d70db167",
+    "tests/objects/artifact_project_stop_fixture_test.go": "897ad08f1e8b7b38d06bee89c85d8258ac1100b6ecaf6a6fd0d5b2f528dff749",
+    "tests/objects/artifact_project_stop_test.go": "4f81a20cbb0023e0f007f861f4e077f7c6e9afc34f588e8beaf63f857bb0b159",
+    "tests/objects/artifact_project_stop_source_test.go": "69521574637bdfe4149158f8f61dfdf9bed922f95c635e25a8359293d966c31a",
+    "tests/objects/artifact_project_stop_recovery_test.go": "176b3c5e2a5746932044407d24f31b3293a207beeae575f5e42a76abc80d6c6e",
+    "tests/objects/artifact_project_stop_lifecycle_test.go": "2f38affac95b80ae00b2d7e335f9a5621d9924b7882648bb3ef357fba671a674"
+  },
+  "command": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestArtifactProjectStopUnknownAdmissionNeverStartsIO|TestArtifactProjectStopUnknownSourceAndFinalPublication|TestArtifactProjectStopUnknownPreflightAndGateNeverCancel)$"
+  ],
+  "cwd": "/tmp/agenteam-artifact-stop-author-y597q6vl/snapshot",
+  "environment": {
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "DOCKER_CONFIG": "/tmp/agenteam-artifact-stop-author-y597q6vl/docker-config",
+    "TMPDIR": "/workspace/agenteam-artifact-stop-build-y597q6vl/runtime",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-artifact-stop-build-y597q6vl/go-build"
+  }
+}

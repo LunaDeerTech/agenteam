@@ -1,0 +1,64 @@
+--- before/internal/central/artifact/project_work.go
++++ after/internal/central/artifact/project_work.go
+@@ -130,6 +130,9 @@
+ 	}
+ 	p.origins[tx] = true
+ 	p.locks = all
++	if p.project.Validate() == nil {
++		r.localRevision++
++	}
+ 	return nil
+ }
+ func (s *Service) requireControlWork(ctx context.Context, tx foundation.Tx, p *producerControl) error {
+@@ -231,6 +234,7 @@
+ 		// it is neither a cancellation grant nor a durable authorized relation.
+ 		r.mu.Lock()
+ 		p.sourceHint = w.source
++		r.localRevision++
+ 		r.mu.Unlock()
+ 		plan, err := s.ownerPlan(ctx, req.invocation.Details().Actor, sourceOwner, oc.PrepareReadAccess, oc.AccessRequestDetails{})
+ 		if err != nil {
+@@ -244,8 +248,9 @@
+ 		return invalid()
+ 	}
+ 	p.work, p.admitting = &w, true
+-	r.mu.Unlock()
+-	defer func() { r.mu.Lock(); p.admitting = false; r.mu.Unlock() }()
++	r.localRevision++
++	r.mu.Unlock()
++	defer func() { r.mu.Lock(); p.admitting = false; r.localRevision++; r.mu.Unlock() }()
+ 	cause, _ := foundation.NewCommandsCause(req.identity)
+ 	result := s.within(ctx, invocationSubject(req.invocation), identity.Mutate, cause, plans, createLocks(req.identity, ref.ArtifactID.String()), func(ctx context.Context, tx foundation.Tx, _ oc.LockedAccess) error {
+ 		e, err := r.store.InTx(tx)
+@@ -304,6 +309,7 @@
+ 		}
+ 		r.mu.Lock()
+ 		w.version, w.operation = version, operation
++		r.localRevision++
+ 		r.mu.Unlock()
+ 		_, err = e.Exec(ctx, `INSERT INTO agenteam_artifact.project_work(id,project_id,process_id,kind,resource_id,command_hash,source_project_id,admission_version,admission_operation) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`, w.id, w.project.String(), w.process.String(), w.kind, w.resource, digestRaw(w.command), nullableID(w.source), w.version, null(w.operation))
+ 		return portOrNil(err)
+@@ -339,6 +345,7 @@
+ 	r.mu.Lock()
+ 	p.work.lease = lease.ID()
+ 	p.lease = lease
++	r.localRevision++
+ 	r.mu.Unlock()
+ 	return nil
+ }
+@@ -350,13 +357,14 @@
+ 		origins = append(origins, tx)
+ 	}
+ 	locks := append([]foundation.LockRequest{}, p.locks...)
++	locks = append(locks, p.pendingBatch...)
+ 	var expected *artifactWork
+ 	if p.work != nil {
+ 		w := *p.work
+ 		expected = &w
+ 	}
+ 	r.mu.Unlock()
+-	if len(origins) == 0 && expected == nil {
++	if len(origins) == 0 && expected == nil && len(locks) == 0 {
+ 		return nil
+ 	}
+ 	for _, tx := range origins {

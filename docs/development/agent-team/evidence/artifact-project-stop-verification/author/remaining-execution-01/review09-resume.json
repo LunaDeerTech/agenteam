@@ -1,0 +1,115 @@
+{
+  "candidate": "candidate-review09/manifest.json",
+  "candidate_manifest_sha256": "79e5eb812c0fda2a42d390a7e2703b1ebca4ce581c055e1c2a99fda1ab76914e",
+  "budget": "original race/count1/6m per driver; GOFLAGS=-mod=readonly -v",
+  "groups": [
+    {
+      "label": "remaining-new-admission-review09-01",
+      "pattern": "^TestArtifactProjectStopUnknownAdmissionNeverStartsIO$",
+      "tops": [
+        "TestArtifactProjectStopUnknownAdmissionNeverStartsIO"
+      ],
+      "reason": "review09 changed ordinary within Unknown return/retirement path; original9sub regression"
+    },
+    {
+      "order": 7,
+      "label": "remaining-compat_artifact_projection_cleanup-01",
+      "count": 6,
+      "names": [
+        "TestArtifactProjectCleanupBoundedBatchAndForeignReader",
+        "TestArtifactListLiteralCursorBindingAndCurrentPermission",
+        "TestArtifactReadUTF8BinaryImageAndAuditBoundary",
+        "TestArtifactSourceUploadReceiptAndUnboundDownloadProviders",
+        "TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown",
+        "TestArtifactFinalCleanupLateDownloadAndNewKeysCannotRevive"
+      ],
+      "pattern": "^(TestArtifactProjectCleanupBoundedBatchAndForeignReader|TestArtifactListLiteralCursorBindingAndCurrentPermission|TestArtifactReadUTF8BinaryImageAndAuditBoundary|TestArtifactSourceUploadReceiptAndUnboundDownloadProviders|TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown|TestArtifactFinalCleanupLateDownloadAndNewKeysCannotRevive)$",
+      "cost_basis": "6 old tops: includes original 101-real-create setup with fixed 1m setup/2m proxy budget; projection and final cleanup separate from download socket suite.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactProjectCleanupBoundedBatchAndForeignReader|TestArtifactListLiteralCursorBindingAndCurrentPermission|TestArtifactReadUTF8BinaryImageAndAuditBoundary|TestArtifactSourceUploadReceiptAndUnboundDownloadProviders|TestArtifactFinalCleanupAtomicRollbackAndRealCommitUnknown|TestArtifactFinalCleanupLateDownloadAndNewKeysCannotRevive)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    },
+    {
+      "order": 8,
+      "label": "remaining-compat_artifact_download-01",
+      "count": 10,
+      "names": [
+        "TestArtifactDownloadCurrentAuthorizationWinsGateRace",
+        "TestArtifactDownloadIntegrityNeverDeliversCorruptWholeBody",
+        "TestArtifactDownloadDrainAndForceJoinActualStorage",
+        "TestArtifactDownloadUnopenedCloseAuditsZeroAndExpiryBlocksNew",
+        "TestArtifactDownloadForceInterruptsActualBlockedHTTPWrite",
+        "TestArtifactDownloadRealStreamRangePermissionsAndAudit",
+        "TestArtifactDownloadAuditFailureAndActualPartialWrite",
+        "TestArtifactDownloadPreviewSniffAndUnboundProvider",
+        "TestArtifactDownloadPurgeRequiresPlansPhysicalCompletionAndBoundPort",
+        "TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending"
+      ],
+      "pattern": "^(TestArtifactDownloadCurrentAuthorizationWinsGateRace|TestArtifactDownloadIntegrityNeverDeliversCorruptWholeBody|TestArtifactDownloadDrainAndForceJoinActualStorage|TestArtifactDownloadUnopenedCloseAuditsZeroAndExpiryBlocksNew|TestArtifactDownloadForceInterruptsActualBlockedHTTPWrite|TestArtifactDownloadRealStreamRangePermissionsAndAudit|TestArtifactDownloadAuditFailureAndActualPartialWrite|TestArtifactDownloadPreviewSniffAndUnboundProvider|TestArtifactDownloadPurgeRequiresPlansPhysicalCompletionAndBoundPort|TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending)$",
+      "cost_basis": "10 old tops: stream/range/current permission, real storage/socket Force, purge and original three download Unknown phases. Existing per-operation 1-3s barriers unchanged.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestArtifactDownloadCurrentAuthorizationWinsGateRace|TestArtifactDownloadIntegrityNeverDeliversCorruptWholeBody|TestArtifactDownloadDrainAndForceJoinActualStorage|TestArtifactDownloadUnopenedCloseAuditsZeroAndExpiryBlocksNew|TestArtifactDownloadForceInterruptsActualBlockedHTTPWrite|TestArtifactDownloadRealStreamRangePermissionsAndAudit|TestArtifactDownloadAuditFailureAndActualPartialWrite|TestArtifactDownloadPreviewSniffAndUnboundProvider|TestArtifactDownloadPurgeRequiresPlansPhysicalCompletionAndBoundPort|TestArtifactDownloadUnknownConfirmsOriginalPhaseWithoutResending)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    },
+    {
+      "order": 9,
+      "label": "remaining-compat-object-source-01",
+      "count": 6,
+      "names": [
+        "TestObjectSourceLeaseAtomicCommitAndSingleOpen",
+        "TestObjectSourceLeaseCurrentAuthorityAndCancelJoins",
+        "TestObjectSourceLeaseUploadedReceiptAndSharedPlanRejection",
+        "TestObjectSourceLeaseFailedReleaseRemainsObservableAndRetryable",
+        "TestObjectSourceLeaseUnopenedCancellationSharesShutdown",
+        "TestObjectSourceLeaseParticipatesInServiceDrainAndForce"
+      ],
+      "pattern": "^(TestObjectSourceLeaseAtomicCommitAndSingleOpen|TestObjectSourceLeaseCurrentAuthorityAndCancelJoins|TestObjectSourceLeaseUploadedReceiptAndSharedPlanRejection|TestObjectSourceLeaseFailedReleaseRemainsObservableAndRetryable|TestObjectSourceLeaseUnopenedCancellationSharesShutdown|TestObjectSourceLeaseParticipatesInServiceDrainAndForce)$",
+      "cost_basis": "6 old SourceLease tops, failure/retry/cancel/Force independent of general Runtime and S2 stop scenarios.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestObjectSourceLeaseAtomicCommitAndSingleOpen|TestObjectSourceLeaseCurrentAuthorityAndCancelJoins|TestObjectSourceLeaseUploadedReceiptAndSharedPlanRejection|TestObjectSourceLeaseFailedReleaseRemainsObservableAndRetryable|TestObjectSourceLeaseUnopenedCancellationSharesShutdown|TestObjectSourceLeaseParticipatesInServiceDrainAndForce)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    },
+    {
+      "order": 10,
+      "label": "remaining-compat-object-runtime-stop-01",
+      "count": 9,
+      "names": [
+        "TestObjectGracefulDrainKeepsAdmittedReaderAlive",
+        "TestObjectForceClosesRealReadAndSharesCleanupDeadline",
+        "TestObjectForceJoinsActualPreparationPipe",
+        "TestObjectForceCancelsAlreadyFreshMarkerContext",
+        "TestObjectRuntimeProbeEmptyAndSingleWorker",
+        "TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget",
+        "TestObjectRuntimeForceJoinsMainAndTransferIOInOneBudget",
+        "TestObjectProjectStopDeleteWaitsForActualIO",
+        "TestObjectProjectStopUnopenedSourceAndCrossProjectRelations"
+      ],
+      "pattern": "^(TestObjectGracefulDrainKeepsAdmittedReaderAlive|TestObjectForceClosesRealReadAndSharesCleanupDeadline|TestObjectForceJoinsActualPreparationPipe|TestObjectForceCancelsAlreadyFreshMarkerContext|TestObjectRuntimeProbeEmptyAndSingleWorker|TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|TestObjectRuntimeForceJoinsMainAndTransferIOInOneBudget|TestObjectProjectStopDeleteWaitsForActualIO|TestObjectProjectStopUnopenedSourceAndCrossProjectRelations)$",
+      "cost_basis": "9 old tops: 4 generic lifetime + 3 Runtime + 2 S2 actual-stop. Known upstream guard defect must be recorded/attributed, never patched here or softened.",
+      "command": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^(TestObjectGracefulDrainKeepsAdmittedReaderAlive|TestObjectForceClosesRealReadAndSharesCleanupDeadline|TestObjectForceJoinsActualPreparationPipe|TestObjectForceCancelsAlreadyFreshMarkerContext|TestObjectRuntimeProbeEmptyAndSingleWorker|TestObjectRuntimeRecoveryCleanupKeepsStartupAndWorkerBudget|TestObjectRuntimeForceJoinsMainAndTransferIOInOneBudget|TestObjectProjectStopDeleteWaitsForActualIO|TestObjectProjectStopUnopenedSourceAndCrossProjectRelations)$"
+      ],
+      "GOFLAGS": "-mod=readonly -v",
+      "budget": "unchanged driver race/count=1/6m per package"
+    }
+  ],
+  "state": "prepared; no Docker authorization inferred"
+}

@@ -1,0 +1,7 @@
+=== RUN   TestIndependentArtifactRunningCancelledUploadTracksActualClose
+    independent_cancelled_upload_test.go:132: before Force: stopped=false forced=false cancelled_before_call=true controls=1 CloseEntered=true publicReturned=false db=0 read=0
+    independent_cancelled_upload_test.go:153: held Close: ForceDeadline=true Joined=false CloseCalls=1 elapsed=30.802462ms
+    independent_cancelled_upload_test.go:173: released Close: original cancelled error retained; CloseCalls=1 Read=0 DB=0 Drain=success Joined=true
+--- PASS: TestIndependentArtifactRunningCancelledUploadTracksActualClose (0.03s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/artifact	1.043s

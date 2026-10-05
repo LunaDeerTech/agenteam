@@ -1,0 +1,4 @@
+# github.com/LunaDeerTech/agenteam/tests/objects_test [github.com/LunaDeerTech/agenteam/tests/objects.test]
+tests/objects/artifact_project_stop_test.go:99:59: cannot use f.reads (variable of interface type "github.com/LunaDeerTech/agenteam/internal/central/object/contract".SourceReads) as *object.SourceReads value in argument to acquireSourceOn: need type assertion
+FAIL	github.com/LunaDeerTech/agenteam/tests/objects [build failed]
+FAIL

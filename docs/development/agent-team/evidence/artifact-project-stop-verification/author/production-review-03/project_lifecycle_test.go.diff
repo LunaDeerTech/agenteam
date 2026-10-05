@@ -1,0 +1,29 @@
+--- red/internal/central/artifact/project_lifecycle_test.go
++++ fix/internal/central/artifact/project_lifecycle_test.go
+@@ -53,3 +53,26 @@
+ 		t.Fatal("unknown fact was weakened or duplicated", err)
+ 	}
+ }
++
++func TestArtifactProjectStopLocalJoinUnknownSurvivesObjectTerminal(t *testing.T) {
++	cause := testArtifactStopCause(t)
++	id, _ := foundation.NewID[oc.ProjectStopResource]()
++	ref := oc.ProjectStopRef{Kind: oc.StopArtifactCreation, ID: id}
++	for _, state := range []oc.ProjectStopState{oc.ProjectStopped, oc.ProjectStopFailed} {
++		details := oc.ObjectStopDetails{State: state}
++		if state == oc.ProjectStopFailed {
++			details.SafeReason = oc.ProjectStopDependencyUnavailable
++		}
++		object, err := oc.NewObjectStopReport(oc.ObjectStopComponent, cause, details)
++		if err != nil {
++			t.Fatal(err)
++		}
++		out, err := mergeArtifactReport(cause, oc.ObjectStopDetails{
++			State: oc.ProjectStopPending, SafeReason: oc.ProjectStopOutcomeUnknown,
++			ActiveRefs: []oc.ProjectStopRef{ref}, UnknownRefs: []oc.ProjectStopRef{ref, ref},
++		}, object)
++		if err != nil || out.Details().State != oc.ProjectStopPending || out.Details().SafeReason != oc.ProjectStopOutcomeUnknown || len(out.Details().UnknownRefs) != 1 || len(out.Details().ActiveRefs) != 0 {
++			t.Fatal("local join uncertainty lost to Object terminal", state, err, out.Details())
++		}
++	}
++}

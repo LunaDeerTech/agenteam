@@ -1,0 +1,1946 @@
+--- a/internal/central/artifact/service.go
++++ b/internal/central/artifact/service.go
+@@ -16,30 +16,78 @@
+ )
+ 
+ type serviceState struct {
+-	store    Store
+-	owners   *OwnerProvider
+-	objects  oc.Objects
+-	uploads  oc.Uploads
+-	cleaner  oc.Cleaner
+-	reads    oc.SourceReads
+-	resolver oc.SourceResolver
+-	audit    au.Appender
+-	cursors  cursor.Keyring
+-	mu       sync.Mutex
+-	leases   map[foundation.Digest]oc.SourceLease
++	store           Store
++	owners          *OwnerProvider
++	objects         oc.Objects
++	uploads         oc.Uploads
++	cleaner         oc.Cleaner
++	reads           oc.SourceReads
++	resolver        oc.SourceResolver
++	audit           au.Appender
++	cursors         cursor.Keyring
++	mu              sync.Mutex
++	leases          map[oc.LeaseID]oc.SourceLease
++	stop            ProjectStopDependencies
++	process         oc.ProcessID
++	controls        map[*producerControl]bool
++	changed         chan struct{}
++	stopped, forced bool
++	forceContext    context.Context
+ }
+ type Service struct{ data func() *serviceState }
+ 
+ func New(store Store, owners *OwnerProvider, objects oc.Objects, uploads oc.Uploads, cleaner oc.Cleaner, reads oc.SourceReads, resolver oc.SourceResolver, auditing au.Appender, cursors cursor.Keyring) (*Service, error) {
++	return NewWithProjectStop(store, owners, objects, uploads, cleaner, reads, resolver, auditing, cursors, ProjectStopDependencies{})
++}
++
++type ProcessAuthority interface {
++	oc.ProcessAuthority
++	CurrentProcess() oc.ProcessID
++}
++type SourceAuthority interface {
++	oc.ResourceAuthority
++	oc.ProjectGate
++}
++type ProjectStopDependencies struct {
++	Authority oc.ProjectStopAuthority
++	Objects   oc.ObjectProjectStop
++	Processes ProcessAuthority
++	Sources   SourceAuthority
++}
++
++func NewWithProjectStop(store Store, owners *OwnerProvider, objects oc.Objects, uploads oc.Uploads, cleaner oc.Cleaner, reads oc.SourceReads, resolver oc.SourceResolver, auditing au.Appender, cursors cursor.Keyring, stop ProjectStopDependencies) (*Service, error) {
+ 	if nilPort(store) || owners == nil || owners.data == nil || nilPort(objects) || nilPort(uploads) || nilPort(cleaner) || nilPort(auditing) || cursors.Validate() != nil {
+ 		return nil, invalid()
+ 	}
++	for _, optional := range []any{reads, resolver, stop.Authority, stop.Objects, stop.Processes, stop.Sources} {
++		if optional != nil && nilPort(optional) {
++			return nil, invalid()
++		}
++	}
++	var process oc.ProcessID
++	if stop.Processes != nil {
++		process = stop.Processes.CurrentProcess()
++		if process.Validate() != nil {
++			return nil, invalid()
++		}
++	} else {
++		var err error
++		process, err = foundation.NewID[oc.Process]()
++		if err != nil {
++			return nil, unavailable(err)
++		}
++	}
+ 	// Source ports can be explicitly unbound in the composition root; source
+ 	// creation rejects that state. Inline/upload never invent source providers.
+-	r := &serviceState{store: store, owners: owners, objects: objects, uploads: uploads, cleaner: cleaner, reads: reads, resolver: resolver, audit: auditing, cursors: cursors, leases: map[foundation.Digest]oc.SourceLease{}}
++	r := &serviceState{store: store, owners: owners, objects: objects, uploads: uploads, cleaner: cleaner, reads: reads, resolver: resolver, audit: auditing, cursors: cursors, leases: map[oc.LeaseID]oc.SourceLease{}, stop: stop, process: process, controls: map[*producerControl]bool{}, changed: make(chan struct{})}
+ 	return &Service{func() *serviceState { return r }}, nil
+ }
+-func (s *Service) state() *serviceState      { return s.data() }
++func (s *Service) state() *serviceState {
++	if s == nil || s.data == nil {
++		return nil
++	}
++	return s.data()
++}
+ func (Service) Format(w fmt.State, _ rune)   { _, _ = io.WriteString(w, "artifact_service") }
+ func (Service) MarshalJSON() ([]byte, error) { return []byte(`"artifact_service"`), nil }
+ func (*Service) UnmarshalJSON([]byte) error  { return invalid() }
+@@ -70,6 +118,17 @@
+ 		return rejected(unavailable(nil))
+ 	}
+ 	extra = append(append([]foundation.LockRequest{}, extra...), deps.Locks()...)
++	control, err := s.controlFor(ctx)
++	if err != nil {
++		return rejected(err)
++	}
++	if control != nil {
++		extra = append(extra, s.controlLocks(control)...)
++	}
++	extra, err = oc.NormalizeAccessLocks(extra)
++	if err != nil {
++		return rejected(invalid())
++	}
+ 	return r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+ 		var locked oc.LockedAccess
+ 		var err error
+@@ -81,6 +140,13 @@
+ 		if err != nil {
+ 			return portError(err)
+ 		}
++		locks := extra
++		if len(plans) > 0 {
++			locks = locked.Locks()
++		}
++		if err = s.observeControl(control, tx, locks); err != nil {
++			return err
++		}
+ 		current, err := r.owners.state().authority.DiscoverInTx(ctx, tx, subject)
+ 		if err != nil {
+ 			return portError(err)
+@@ -95,6 +161,11 @@
+ 		}
+ 		if err = r.owners.authorize(ctx, tx, subject, intent); err != nil {
+ 			return err
++		}
++		if intent == identity.Mutate && control != nil {
++			if err = s.requireControlWork(ctx, tx, control); err != nil {
++				return err
++			}
+ 		}
+ 		return fn(ctx, tx, locked)
+ 	})
+@@ -112,7 +183,7 @@
+ 	d.Owner = owner
+ 	d.Operation = op
+ 	d.Intent = identity.Mutate
+-	if op == oc.LookupAccess {
++	if op == oc.LookupAccess || op == oc.PrepareReadAccess {
+ 		d.Intent = identity.Read
+ 	}
+ 	if op == oc.CancelAccess || op == oc.ReleaseAccess {
+--- a/internal/central/artifact/create.go
++++ b/internal/central/artifact/create.go
+@@ -4,7 +4,6 @@
+ 	"context"
+ 	"io"
+ 	"strings"
+-	"time"
+ 
+ 	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+@@ -24,6 +23,12 @@
+ 	if err != nil {
+ 		return ac.Metadata{}, err
+ 	}
++	producer, err := s.beginProducer(ctx, v.Details().ProjectID)
++	if err != nil {
++		return ac.Metadata{}, err
++	}
++	defer s.finishProducer(producer)
++	ctx = producer.ctx
+ 	c, completed, err := s.lookup(ctx, req)
+ 	if err != nil {
+ 		return ac.Metadata{}, err
+@@ -31,16 +36,29 @@
+ 	if completed != nil {
+ 		return *completed, nil
+ 	}
++	ref := c.ref
++	if ref.Validate() != nil {
++		ref, err = newRef(v.Details().ProjectID)
++		if err != nil {
++			return ac.Metadata{}, err
++		}
++	}
++	if err = s.registerWork(ctx, producer, req, ref, "creation"); err != nil {
++		return ac.Metadata{}, err
++	}
+ 	if c.identity.Validate() != nil {
+-		c, err = s.beginCommand(ctx, req, oc.ResolvedSource{}, oc.SourceLease{})
+-		if err != nil {
+-			return ac.Metadata{}, err
+-		}
+-	}
+-	p, err := s.state().uploads.PreparePayload(ctx, v.Details().Actor, artifactOwner(c.ref), c.media, c.size, &c.sha, io.NopCloser(strings.NewReader(content)))
+-	if err != nil {
+-		return ac.Metadata{}, err
+-	}
++		c, err = s.beginCommand(ctx, req, ref, oc.ResolvedSource{}, oc.SourceLease{})
++		if err != nil {
++			return ac.Metadata{}, err
++		}
++	}
++	body := s.ownBody(producer, io.NopCloser(strings.NewReader(content)))
++	defer body.Close()
++	p, err := s.state().uploads.PreparePayload(ctx, v.Details().Actor, artifactOwner(c.ref), c.media, c.size, &c.sha, body)
++	if err != nil {
++		return ac.Metadata{}, err
++	}
++	s.ownPrepared(producer, p)
+ 	defer s.state().uploads.DiscardPrepared(p)
+ 	return s.publishPrepared(ctx, req, c, p)
+ }
+@@ -49,6 +67,12 @@
+ 	if err != nil {
+ 		return ac.Metadata{}, err
+ 	}
++	producer, err := s.beginProducer(ctx, v.Details().ProjectID)
++	if err != nil {
++		return ac.Metadata{}, err
++	}
++	defer s.finishProducer(producer)
++	ctx = producer.ctx
+ 	c, completed, err := s.lookup(ctx, req)
+ 	if err != nil {
+ 		return ac.Metadata{}, err
+@@ -60,6 +84,16 @@
+ 	if nilPort(r.reads) || nilPort(r.resolver) {
+ 		return ac.Metadata{}, failure(foundation.DependencyUnbound, nil)
+ 	}
++	target := c.ref
++	if target.Validate() != nil {
++		target, err = newRef(v.Details().ProjectID)
++		if err != nil {
++			return ac.Metadata{}, err
++		}
++	}
++	if err = s.registerWork(ctx, producer, req, target, "creation"); err != nil {
++		return ac.Metadata{}, err
++	}
+ 	source, err := r.resolver.Resolve(ctx, v.Details().Actor, ref)
+ 	if err != nil {
+ 		return ac.Metadata{}, portError(err)
+@@ -78,22 +112,23 @@
+ 	// Capture the original source facts and acquire its Process/source lease in
+ 	// the same short Tx as the command. No GET is permitted on unknown commit.
+ 	var lease oc.SourceLease
+-	c, lease, err = s.acquireCommandSource(ctx, req, c, source)
+-	if err != nil {
+-		return ac.Metadata{}, err
+-	}
+-	defer s.cancelSource(lease)
++	c, lease, err = s.acquireCommandSource(ctx, req, c, target, source, producer)
++	if err != nil {
++		return ac.Metadata{}, err
++	}
+ 	reader, err := r.reads.OpenLeasedSource(ctx, v.Details().Actor, lease)
+ 	if err != nil {
+ 		return ac.Metadata{}, err
+ 	}
+-	defer reader.Close()
+-	p, err := r.uploads.PreparePayload(ctx, v.Details().Actor, artifactOwner(c.ref), c.media, c.size, &c.sha, reader)
+-	if err != nil {
+-		return ac.Metadata{}, err
+-	}
++	body := s.ownBody(producer, reader)
++	defer body.Close()
++	p, err := r.uploads.PreparePayload(ctx, v.Details().Actor, artifactOwner(c.ref), c.media, c.size, &c.sha, body)
++	if err != nil {
++		return ac.Metadata{}, err
++	}
++	s.ownPrepared(producer, p)
+ 	defer r.uploads.DiscardPrepared(p)
+-	if err = reader.Close(); err != nil {
++	if err = body.Close(); err != nil {
+ 		return ac.Metadata{}, err
+ 	}
+ 	return s.publishPrepared(ctx, req, c, p)
+@@ -109,11 +144,7 @@
+ 	}
+ 	return ac.ArtifactRef{ProjectID: project, ArtifactID: a, FileID: f}, nil
+ }
+-func (s *Service) beginCommand(ctx context.Context, req createRequest, source oc.ResolvedSource, lease oc.SourceLease) (commandRow, error) {
+-	ref, err := newRef(req.invocation.Details().ProjectID)
+-	if err != nil {
+-		return commandRow{}, err
+-	}
++func (s *Service) beginCommand(ctx context.Context, req createRequest, ref ac.ArtifactRef, source oc.ResolvedSource, lease oc.SourceLease) (commandRow, error) {
+ 	c, err := newCommand(req, ref, source)
+ 	if err != nil {
+ 		return commandRow{}, err
+@@ -147,9 +178,8 @@
+ 		return nil
+ 	}
+ 	r := s.state()
+-	hash := digestBytes([]byte(c.identity.Canonical()))
+ 	r.mu.Lock()
+-	local := r.leases[hash]
++	local := r.leases[c.sourceLease]
+ 	r.mu.Unlock()
+ 	if local.Validate() == nil && local.ID() == c.sourceLease {
+ 		if err := r.reads.CancelSourceLease(ctx, local); err != nil {
+@@ -167,14 +197,11 @@
+ 	}
+ 	return nil
+ }
+-func (s *Service) acquireCommandSource(ctx context.Context, req createRequest, c commandRow, source oc.ResolvedSource) (commandRow, oc.SourceLease, error) {
++func (s *Service) acquireCommandSource(ctx context.Context, req createRequest, c commandRow, ref ac.ArtifactRef, source oc.ResolvedSource, producer *producerControl) (commandRow, oc.SourceLease, error) {
+ 	r := s.state()
+ 	isNew := c.identity.Validate() != nil
+ 	if isNew {
+-		ref, err := newRef(req.invocation.Details().ProjectID)
+-		if err != nil {
+-			return commandRow{}, oc.SourceLease{}, err
+-		}
++		var err error
+ 		c, err = newCommand(req, ref, source)
+ 		if err != nil {
+ 			return commandRow{}, oc.SourceLease{}, err
+@@ -213,6 +240,10 @@
+ 		if err != nil {
+ 			return err
+ 		}
++		s.ownSource(producer, lease)
++		if err = s.bindWorkSource(ctx, tx, producer, lease); err != nil {
++			return err
++		}
+ 		if isNew {
+ 			next := c
+ 			next.sourceLease = lease.ID()
+@@ -223,7 +254,7 @@
+ 	})
+ 	if lease.Validate() == nil {
+ 		r.mu.Lock()
+-		r.leases[digestBytes([]byte(req.identity.Canonical()))] = lease
++		r.leases[lease.ID()] = lease
+ 		r.mu.Unlock()
+ 	}
+ 	if err = commitError(result); err != nil {
+@@ -232,20 +263,3 @@
+ 	c.sourceLease = lease.ID()
+ 	return c, lease, nil
+ }
+-func (s *Service) cancelSource(lease oc.SourceLease) {
+-	if lease.Validate() != nil {
+-		return
+-	}
+-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+-	defer cancel()
+-	if s.state().reads.CancelSourceLease(ctx, lease) == nil {
+-		r := s.state()
+-		r.mu.Lock()
+-		for key, handle := range r.leases {
+-			if handle.ID() == lease.ID() {
+-				delete(r.leases, key)
+-			}
+-		}
+-		r.mu.Unlock()
+-	}
+-}
+--- a/internal/central/artifact/upload.go
++++ b/internal/central/artifact/upload.go
+@@ -169,6 +169,12 @@
+ 	if err != nil {
+ 		return ac.UploadTarget{}, err
+ 	}
++	producer, err := s.beginProducer(ctx, v.Details().ProjectID)
++	if err != nil {
++		return ac.UploadTarget{}, err
++	}
++	defer s.finishProducer(producer)
++	ctx = producer.ctx
+ 	before, found, err := loadIntent(ctx, s.state().store, id)
+ 	if err != nil {
+ 		return ac.UploadTarget{}, err
+@@ -204,7 +210,7 @@
+ 			if current.digest != semantic {
+ 				return failure(foundation.IdempotencyKeyReused, nil)
+ 			}
+-			if current.state == "deleted" || current.state == "consumed" {
++			if current.state == "deleted" || current.state == "consumed" || current.state == "cancel_requested" || current.state == "cancelled" {
+ 				return failure(foundation.ResourceDeleted, nil)
+ 			}
+ 			return nil
+@@ -249,7 +255,18 @@
+ 	if nilPort(body) {
+ 		return oc.PutResult{}, invalid()
+ 	}
++	producer, err := s.beginControlledProducer(ctx, v.Details().ProjectID, true)
++	if producer == nil {
++		_ = body.Close()
++		return oc.PutResult{}, err
++	}
++	defer s.finishProducer(producer)
++	ctx = producer.ctx
++	body = s.ownBody(producer, body)
+ 	defer body.Close()
++	if err != nil {
++		return oc.PutResult{}, err
++	}
+ 	if v.Validate() != nil || v.Details().Actor.Details().Kind != identity.Human || target.Reference.Validate() != nil || target.Owner.Validate() != nil || target.Command.Validate() != nil {
+ 		return oc.PutResult{}, invalid()
+ 	}
+@@ -268,11 +285,16 @@
+ 	if err = matchesIntent(u, v, target); err != nil {
+ 		return oc.PutResult{}, err
+ 	}
++	request := createRequest{invocation: v, command: target.Command, identity: u.identity, path: "payload"}
++	if err = s.registerWork(ctx, producer, request, u.ref, "upload"); err != nil {
++		return oc.PutResult{}, err
++	}
+ 
+ 	p, err := r.uploads.PreparePayload(ctx, v.Details().Actor, target.Owner, u.media, u.size, u.expectedSHA, body)
+ 	if err != nil {
+ 		return oc.PutResult{}, err
+ 	}
++	s.ownPrepared(producer, p)
+ 	defer r.uploads.DiscardPrepared(p)
+ 	if u.sha.Validate() == nil && u.sha != p.Details().SHA256 {
+ 		return oc.PutResult{}, failure(foundation.IdempotencyKeyReused, nil)
+@@ -370,6 +392,12 @@
+ 	if err != nil {
+ 		return ac.Metadata{}, err
+ 	}
++	producer, err := s.beginProducer(ctx, v.Details().ProjectID)
++	if err != nil {
++		return ac.Metadata{}, err
++	}
++	defer s.finishProducer(producer)
++	ctx = producer.ctx
+ 	command = req.command
+ 	_, completed, err := s.lookup(ctx, req)
+ 	if err != nil {
+--- a/internal/central/artifact/publish.go
++++ b/internal/central/artifact/publish.go
+@@ -14,6 +14,10 @@
+ 
+ func (s *Service) publishPrepared(ctx context.Context, req createRequest, c commandRow, p oc.PreparedPayload) (ac.Metadata, error) {
+ 	r := s.state()
++	control, err := s.controlFor(ctx)
++	if err != nil || control == nil {
++		return ac.Metadata{}, invalid()
++	}
+ 	actor := req.invocation.Details().Actor
+ 	owner := artifactOwner(c.ref)
+ 	plan, err := s.ownerPlan(ctx, actor, owner, oc.ReserveAccess, oc.AccessRequestDetails{Command: &req.command, Prepared: p})
+--- a/internal/central/artifact/commands.go
++++ b/internal/central/artifact/commands.go
+@@ -99,21 +99,30 @@
+ 	created                                       foundation.Instant
+ }
+ 
+-const commandColumns = `command_key,project_id::text,artifact_id::text,file_id::text,stable_actor,request_digest,creation_cause,path,kind,state,name,description,media_type,byte_size,sha256,source,COALESCE(source_lease_id::text,''),COALESCE(target_object_id::text,''),COALESCE(target_upload_id::text,''),COALESCE(target_attempt_id::text,''),creator_kind,creator_id::text,COALESCE(execution_id::text,''),COALESCE(operation_id::text,''),COALESCE(tool_id::text,''),COALESCE(tool_call_id::text,''),created_at`
++const commandColumns = `command_hash,command_key,project_id::text,artifact_id::text,file_id::text,stable_actor,request_digest,creation_cause,path,kind,state,name,description,media_type,byte_size,sha256,source,COALESCE(source_lease_id::text,''),COALESCE(target_object_id::text,''),COALESCE(target_upload_id::text,''),COALESCE(target_attempt_id::text,''),creator_kind,creator_id::text,COALESCE(execution_id::text,''),COALESCE(operation_id::text,''),COALESCE(tool_id::text,''),COALESCE(tool_call_id::text,''),created_at`
+ 
+ func loadCommand(ctx context.Context, e postgres.SQLExecutor, id foundation.CommandIdentity) (commandRow, bool, error) {
++	c, found, err := scanCommand(e.QueryRow(ctx, `SELECT `+commandColumns+` FROM agenteam_artifact.commands WHERE command_hash=$1`, digestRaw(digestBytes([]byte(id.Canonical())))))
++	if err == nil && found && c.identity.Canonical() != id.Canonical() {
++		return c, false, unavailable(nil)
++	}
++	return c, found, err
++}
++func loadCommandArtifact(ctx context.Context, e postgres.SQLExecutor, id string) (commandRow, bool, error) {
++	return scanCommand(e.QueryRow(ctx, `SELECT `+commandColumns+` FROM agenteam_artifact.commands WHERE artifact_id=$1`, id))
++}
++func scanCommand(row postgres.Row) (commandRow, bool, error) {
+ 	var c commandRow
+ 	var key, project, artifact, file, kind, creatorKind, sourceLease, object, upload, attempt string
+-	var digest, sha, source []byte
++	var hash, digest, sha, source []byte
+ 	var created time.Time
+-	err := e.QueryRow(ctx, `SELECT `+commandColumns+` FROM agenteam_artifact.commands WHERE command_hash=$1`, digestRaw(digestBytes([]byte(id.Canonical())))).Scan(&key, &project, &artifact, &file, &c.originalActor, &digest, &c.cause, &c.path, &kind, &c.state, &c.display.Name, &c.display.Description, &c.media, &c.size, &sha, &source, &sourceLease, &object, &upload, &attempt, &creatorKind, &c.creator, &c.execution, &c.operation, &c.tool, &c.toolCall, &created)
++	err := row.Scan(&hash, &key, &project, &artifact, &file, &c.originalActor, &digest, &c.cause, &c.path, &kind, &c.state, &c.display.Name, &c.display.Description, &c.media, &c.size, &sha, &source, &sourceLease, &object, &upload, &attempt, &creatorKind, &c.creator, &c.execution, &c.operation, &c.tool, &c.toolCall, &created)
+ 	if noRows(err) {
+ 		return c, false, nil
+ 	}
+ 	if err != nil {
+ 		return c, false, unavailable(err)
+ 	}
+-	c.identity = id
+ 	c.kind = ac.Kind(kind)
+ 	c.creatorKind = identity.ActorKind(creatorKind)
+ 	c.digest = rawDigest(digest)
+@@ -131,7 +140,8 @@
+ 	if parse != nil {
+ 		return c, false, unavailable(parse)
+ 	}
+-	if key != string(id.Key()) || len(id.OwnerIDs()) != 1 || id.OwnerIDs()[0] != project || c.digest.Validate() != nil || c.sha.Validate() != nil {
++	c.identity, parse = commandIdentity(c.ref.ProjectID, foundation.IdempotencyKey(key), "create")
++	if parse != nil || rawDigest(hash) != digestBytes([]byte(c.identity.Canonical())) || c.digest.Validate() != nil || c.sha.Validate() != nil {
+ 		return c, false, unavailable(nil)
+ 	}
+ 	c.created, parse = foundation.NewInstant(created)
+--- /dev/null
++++ b/internal/central/artifact/project_work.go
+@@ -0,0 +1,418 @@
++package artifact
++
++import (
++	"context"
++	"sort"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++)
++
++type artifactWork struct {
++	id, kind, resource                string
++	project, source                   identity.ProjectID
++	process                           oc.ProcessID
++	command                           foundation.Digest
++	lease                             oc.LeaseID
++	version                           int64
++	operation, revoked, sourceRevoked string
++	joined, sourceJoined              bool
++}
++
++const artifactWorkColumns = `id::text,project_id::text,process_id::text,kind,resource_id::text,command_hash,COALESCE(source_project_id::text,''),COALESCE(source_lease_id::text,''),admission_version,COALESCE(admission_operation::text,''),COALESCE(revoked_by::text,''),COALESCE(source_revoked_by::text,''),joined_at IS NOT NULL,source_joined_at IS NOT NULL`
++
++func scanArtifactWork(row postgres.Row) (artifactWork, bool, error) {
++	var w artifactWork
++	var project, source, process, lease string
++	var command []byte
++	err := row.Scan(&w.id, &project, &process, &w.kind, &w.resource, &command, &source, &lease, &w.version, &w.operation, &w.revoked, &w.sourceRevoked, &w.joined, &w.sourceJoined)
++	if noRows(err) {
++		return w, false, nil
++	}
++	if err != nil {
++		return w, false, unavailable(err)
++	}
++	w.project, err = foundation.ParseID[identity.Project](project)
++	if err != nil {
++		return w, false, unavailable(err)
++	}
++	w.process, err = foundation.ParseID[oc.Process](process)
++	if err != nil {
++		return w, false, unavailable(err)
++	}
++	if source != "" {
++		w.source, err = foundation.ParseID[identity.Project](source)
++		if err != nil {
++			return w, false, unavailable(err)
++		}
++	}
++	if lease != "" {
++		w.lease, err = foundation.ParseID[oc.Lease](lease)
++		if err != nil {
++			return w, false, unavailable(err)
++		}
++	}
++	w.command = rawDigest(command)
++	if !validWorkID(w.id) || !validWorkID(w.resource) || w.command.Validate() != nil || w.kind != "creation" && w.kind != "upload" || w.version < 0 || (w.version == 0) != (w.operation == "") || w.operation != "" && !validWorkID(w.operation) || w.revoked != "" && !validWorkID(w.revoked) || w.sourceRevoked != "" && !validWorkID(w.sourceRevoked) || w.source.Validate() != nil && (lease != "" || w.sourceRevoked != "" || w.sourceJoined) {
++		return w, false, unavailable(nil)
++	}
++	return w, true, nil
++}
++func validWorkID(id string) bool { _, err := foundation.ParseID[struct{}](id); return err == nil }
++func loadArtifactWork(ctx context.Context, e postgres.SQLExecutor, id string) (artifactWork, bool, error) {
++	return scanArtifactWork(e.QueryRow(ctx, `SELECT `+artifactWorkColumns+` FROM agenteam_artifact.project_work WHERE id=$1`, id))
++}
++func workIdentity(a, b artifactWork) bool {
++	return a.id == b.id && a.project == b.project && a.source == b.source && a.process == b.process && a.kind == b.kind && a.resource == b.resource && a.command == b.command && a.version == b.version && a.operation == b.operation
++}
++func workRecordLock(id string) foundation.LockRequest {
++	key, _ := foundation.RecordLock(foundation.ReferenceRecordLock, "artifact-work:"+id)
++	return foundation.LockRequest{Key: key, Mode: foundation.Exclusive}
++}
++func controlRecordLock(id string) foundation.LockRequest {
++	key, _ := foundation.RecordLock(foundation.ReferenceRecordLock, "artifact-control:"+id)
++	return foundation.LockRequest{Key: key, Mode: foundation.Exclusive}
++}
++func projectLock(id identity.ProjectID, mode foundation.LockMode) foundation.LockRequest {
++	key, _ := foundation.ProjectLock(id.String())
++	return foundation.LockRequest{Key: key, Mode: mode}
++}
++func artifactWorkLocks(w artifactWork) []foundation.LockRequest {
++	locks := []foundation.LockRequest{projectLock(w.project, foundation.Shared), workRecordLock(w.id), artifactLock(w.resource)}
++	if w.source.Validate() == nil {
++		locks = append(locks, projectLock(w.source, foundation.Shared))
++	}
++	return locks
++}
++func (s *Service) controlLocks(p *producerControl) []foundation.LockRequest {
++	r := s.state()
++	r.mu.Lock()
++	defer r.mu.Unlock()
++	locks := []foundation.LockRequest{controlRecordLock(p.id)}
++	if p.project.Validate() == nil {
++		locks = append(locks, projectLock(p.project, foundation.Shared))
++	}
++	if p.work != nil {
++		locks = append(locks, artifactWorkLocks(*p.work)...)
++	}
++	return locks
++}
++func (s *Service) observeControl(p *producerControl, tx foundation.Tx, locks []foundation.LockRequest) error {
++	if p == nil {
++		return nil
++	}
++	r := s.state()
++	if _, err := r.store.InTx(tx); err != nil {
++		return portError(err)
++	}
++	r.mu.Lock()
++	defer r.mu.Unlock()
++	if p.service != s || !r.controls[p] || p.returned {
++		return invalid()
++	}
++	all, err := oc.NormalizeAccessLocks(append(append([]foundation.LockRequest{}, p.locks...), locks...))
++	if err != nil {
++		return invalid()
++	}
++	// Our private producer key can only be consumed through the one acquisition
++	// above. The original writer and every later checkpoint share this EX key.
++	found := false
++	for _, lock := range locks {
++		if foundation.CompareLockKeys(lock.Key, controlRecordLock(p.id).Key) == 0 && lock.Mode == foundation.Exclusive {
++			found = true
++		}
++	}
++	if !found {
++		return invalid()
++	}
++	p.origins[tx] = true
++	p.locks = all
++	return nil
++}
++func (s *Service) requireControlWork(ctx context.Context, tx foundation.Tx, p *producerControl) error {
++	r := s.state()
++	r.mu.Lock()
++	if p.work == nil || p.admitting {
++		r.mu.Unlock()
++		return nil
++	}
++	expected := *p.work
++	r.mu.Unlock()
++	e, err := r.store.InTx(tx)
++	if err != nil {
++		return portError(err)
++	}
++	current, found, err := loadArtifactWork(ctx, e, expected.id)
++	if err != nil {
++		return err
++	}
++	if !found || !workIdentity(expected, current) || current.lease != expected.lease || current.joined || current.sourceJoined || current.revoked != "" || current.sourceRevoked != "" {
++		return failure(foundation.ResourceDeleted, nil)
++	}
++	return nil
++}
++func mappedSourceOwner(ref oc.BusinessFileRef) (oc.ObjectOwner, error) {
++	if ref.Validate() != nil {
++		return oc.ObjectOwner{}, invalid()
++	}
++	d := ref.Details()
++	switch d.Kind {
++	case oc.ArtifactFile:
++		return oc.NewObjectOwner(oc.Artifact, d.ArtifactID, d.ProjectID.String())
++	case oc.KnowledgeFile:
++		return oc.NewObjectOwner(oc.Knowledge, d.DocumentID, d.ProjectID.String())
++	case oc.ExecutionFile:
++		return oc.NewObjectOwner(oc.ExecutionPayload, d.PayloadID, d.ProjectID.String())
++	case oc.UploadedObject:
++		return d.Receipt.Details().Owner, nil
++	}
++	return oc.ObjectOwner{}, invalid()
++}
++func (s *Service) sourceAuthority(owner oc.ObjectOwner) (SourceAuthority, error) {
++	r := s.state()
++	if owner.Validate() != nil {
++		return nil, invalid()
++	}
++	if r.stop.Sources != nil {
++		return r.stop.Sources, nil
++	}
++	if owner.Details().Kind == oc.Artifact {
++		return r.owners, nil
++	}
++	return nil, failure(foundation.DependencyUnbound, nil)
++}
++func (s *Service) registerWork(ctx context.Context, p *producerControl, req createRequest, ref ac.ArtifactRef, kind string) error {
++	if p == nil || p.service != s || p.project != ref.ProjectID || ref.Validate() != nil || req.identity.Validate() != nil || kind != "creation" && kind != "upload" {
++		return invalid()
++	}
++	r := s.state()
++	id, err := foundation.NewID[struct{}]()
++	if err != nil {
++		return unavailable(err)
++	}
++	w := artifactWork{id: id.String(), project: ref.ProjectID, process: r.process, kind: kind, resource: ref.ArtifactID.String(), command: digestBytes([]byte(req.identity.Canonical()))}
++	// A previous Unknown call remains registered until its original source
++	// cleanup and writer barrier really finish. A same-instance retry may
++	// continue that exact cleanup; a new instance cannot manufacture its handle.
++	r.mu.Lock()
++	var previous []*producerControl
++	for old := range r.controls {
++		if old != p && old.returned && old.work != nil && old.work.command == w.command {
++			previous = append(previous, old)
++		}
++	}
++	r.mu.Unlock()
++	for _, old := range previous {
++		if err := s.settleProducer(ctx, old); err != nil {
++			return err
++		}
++	}
++	var plans []oc.AccessLockPlan
++	var sourceOwner oc.ObjectOwner
++	var authority SourceAuthority
++	if req.path == "source" {
++		sourceOwner, err = mappedSourceOwner(req.sourceRef)
++		if err != nil {
++			return err
++		}
++		w.source, err = foundation.ParseID[identity.Project](sourceOwner.Details().ProjectID)
++		if err != nil {
++			return failure(foundation.DependencyUnbound, nil)
++		}
++		authority, err = s.sourceAuthority(sourceOwner)
++		if err != nil {
++			return err
++		}
++		// An incomplete source call can still be inside its first planning
++		// callback. This hint only prevents premature source-side Stopped;
++		// it is neither a cancellation grant nor a durable authorized relation.
++		r.mu.Lock()
++		p.sourceHint = w.source
++		r.mu.Unlock()
++		plan, err := s.ownerPlan(ctx, req.invocation.Details().Actor, sourceOwner, oc.PrepareReadAccess, oc.AccessRequestDetails{})
++		if err != nil {
++			return err
++		}
++		plans = append(plans, plan)
++	}
++	r.mu.Lock()
++	if !r.controls[p] || p.work != nil {
++		r.mu.Unlock()
++		return invalid()
++	}
++	p.work, p.admitting = &w, true
++	r.mu.Unlock()
++	defer func() { r.mu.Lock(); p.admitting = false; r.mu.Unlock() }()
++	cause, _ := foundation.NewCommandsCause(req.identity)
++	result := s.within(ctx, invocationSubject(req.invocation), identity.Mutate, cause, plans, createLocks(req.identity, ref.ArtifactID.String()), func(ctx context.Context, tx foundation.Tx, _ oc.LockedAccess) error {
++		e, err := r.store.InTx(tx)
++		if err != nil {
++			return portError(err)
++		}
++		if authority != nil {
++			actor := req.invocation.Details().Actor
++			grant, err := authority.AuthorizeOwnerInTx(ctx, tx, actor, sourceOwner, identity.Read)
++			if err != nil {
++				return portError(err)
++			}
++			if !grant.Matches(actor, sourceOwner, identity.Read) {
++				return failure(foundation.Forbidden, nil)
++			}
++			if err = authority.CheckInTx(ctx, tx, actor, sourceOwner, identity.Read); err != nil {
++				return portError(err)
++			}
++		}
++		var revoked, active, recorded bool
++		err = e.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_artifact.project_work WHERE command_hash=$1 AND (revoked_by IS NOT NULL OR source_revoked_by IS NOT NULL)),EXISTS(SELECT 1 FROM agenteam_artifact.project_work WHERE command_hash=$1 AND joined_at IS NULL),EXISTS(SELECT 1 FROM agenteam_artifact.project_work WHERE command_hash=$1 AND resource_id=$2)`, digestRaw(w.command), w.resource).Scan(&revoked, &active, &recorded)
++		if err != nil {
++			return unavailable(err)
++		}
++		if revoked {
++			return failure(foundation.ResourceDeleted, nil)
++		}
++		if active {
++			return failure(foundation.ResourceBusy, nil)
++		}
++		if kind == "creation" {
++			current, found, err := loadCommand(ctx, e, req.identity)
++			if err != nil {
++				return err
++			}
++			if found && (current.ref != ref || current.state != "pending") {
++				return failure(foundation.ResourceDeleted, nil)
++			}
++			if found && !recorded {
++				return failure(foundation.ResourceBusy, nil)
++			}
++		} else {
++			intent, found, err := loadIntentID(ctx, e, ref.ArtifactID.String())
++			if err != nil {
++				return err
++			}
++			if !found || intent.ref != ref || intent.identity.Canonical() != req.identity.Canonical() || intent.state != "pending" && intent.state != "uploaded" {
++				return failure(foundation.ResourceDeleted, nil)
++			}
++		}
++		var version int64
++		var operation string
++		err = e.QueryRow(ctx, `SELECT project_version,operation_id::text FROM agenteam_artifact.project_stops WHERE project_id=$1 ORDER BY project_version DESC LIMIT 1`, w.project.String()).Scan(&version, &operation)
++		if err != nil && !noRows(err) {
++			return unavailable(err)
++		}
++		r.mu.Lock()
++		w.version, w.operation = version, operation
++		r.mu.Unlock()
++		_, err = e.Exec(ctx, `INSERT INTO agenteam_artifact.project_work(id,project_id,process_id,kind,resource_id,command_hash,source_project_id,admission_version,admission_operation) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)`, w.id, w.project.String(), w.process.String(), w.kind, w.resource, digestRaw(w.command), nullableID(w.source), w.version, null(w.operation))
++		return portOrNil(err)
++	})
++	return commitError(result)
++}
++func (s *Service) bindWorkSource(ctx context.Context, tx foundation.Tx, p *producerControl, lease oc.SourceLease) error {
++	r := s.state()
++	r.mu.Lock()
++	if p == nil || !r.controls[p] || p.work == nil || p.work.source.Validate() != nil || lease.Validate() != nil {
++		r.mu.Unlock()
++		return invalid()
++	}
++	w := *p.work
++	r.mu.Unlock()
++	e, err := r.store.InTx(tx)
++	if err != nil {
++		return portError(err)
++	}
++	if err = s.requireControlWork(ctx, tx, p); err != nil {
++		return err
++	}
++	if w.lease.Validate() == nil && w.lease != lease.ID() {
++		return invalid()
++	}
++	result, err := e.Exec(ctx, `UPDATE agenteam_artifact.project_work SET source_lease_id=$2 WHERE id=$1 AND (source_lease_id IS NULL OR source_lease_id=$2)`, w.id, lease.ID().String())
++	if err != nil {
++		return unavailable(err)
++	}
++	if result.RowsAffected() != 1 {
++		return invalid()
++	}
++	r.mu.Lock()
++	p.work.lease = lease.ID()
++	p.lease = lease
++	r.mu.Unlock()
++	return nil
++}
++func (s *Service) joinControl(ctx context.Context, p *producerControl) error {
++	r := s.state()
++	r.mu.Lock()
++	origins := make([]foundation.Tx, 0, len(p.origins))
++	for tx := range p.origins {
++		origins = append(origins, tx)
++	}
++	locks := append([]foundation.LockRequest{}, p.locks...)
++	var expected *artifactWork
++	if p.work != nil {
++		w := *p.work
++		expected = &w
++	}
++	r.mu.Unlock()
++	if len(origins) == 0 && expected == nil {
++		return nil
++	}
++	for _, tx := range origins {
++		if _, err := r.store.InTx(tx); err == nil {
++			return failure(foundation.ResourceBusy, nil)
++		}
++	}
++	locks = append(locks, s.controlLocks(p)...)
++	for i := range locks {
++		locks[i].Mode = foundation.Exclusive
++	}
++	locks, err := oc.NormalizeAccessLocks(locks)
++	if err != nil {
++		return invalid()
++	}
++	cause, err := txCause()
++	if err != nil {
++		return err
++	}
++	result := r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
++		if err := r.store.AcquireAll(ctx, tx, locks); err != nil {
++			return portError(err)
++		}
++		if expected == nil {
++			return nil
++		}
++		e, err := r.store.InTx(tx)
++		if err != nil {
++			return portError(err)
++		}
++		current, found, err := loadArtifactWork(ctx, e, expected.id)
++		if err != nil {
++			return err
++		}
++		if !found {
++			return nil
++		}
++		if !workIdentity(*expected, current) || current.lease.Validate() == nil && current.lease != expected.lease {
++			return invalid()
++		}
++		_, err = e.Exec(ctx, `UPDATE agenteam_artifact.project_work SET joined_at=COALESCE(joined_at,clock_timestamp()),source_joined_at=CASE WHEN source_project_id IS NOT NULL THEN COALESCE(source_joined_at,clock_timestamp()) ELSE NULL END WHERE id=$1`, expected.id)
++		return portOrNil(err)
++	})
++	return commitError(result)
++}
++
++func (s *Service) workControls(project identity.ProjectID, source bool) []*producerControl {
++	r := s.state()
++	r.mu.Lock()
++	defer r.mu.Unlock()
++	var out []*producerControl
++	for p := range r.controls {
++		if p.project == project || source && (p.sourceHint == project || p.work != nil && p.work.source == project) {
++			out = append(out, p)
++		}
++	}
++	sort.Slice(out, func(i, j int) bool { return out[i].id < out[j].id })
++	return out
++}
+--- /dev/null
++++ b/internal/central/artifact/project_lifecycle.go
+@@ -0,0 +1,719 @@
++package artifact
++
++import (
++	"context"
++	"errors"
++	"sort"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++)
++
++var _ oc.ObjectProjectStop = (*Service)(nil)
++
++const artifactStopBatchSize = 64
++
++type artifactStopRow struct {
++	cause oc.ProjectStopCause
++	state string
++	lane  int
++	after string
++}
++type capturedProducer struct {
++	control *producerControl
++	work    *artifactWork
++}
++type artifactStopPlan struct {
++	service      *Service
++	request      oc.ProjectStopRequest
++	dependencies oc.AccessDependencies
++	previous     artifactStopRow
++	found        bool
++	works        []artifactWork
++	commands     []commandRow
++	intents      []uploadIntent
++	native       map[string]commandRow
++	uploads      map[string]uploadIntent
++	controls     []capturedProducer
++	locks        []foundation.LockRequest
++	nextLane     int
++	nextAfter    string
++	cycle        bool
++}
++
++func loadArtifactStop(ctx context.Context, e postgres.SQLExecutor, cause oc.ProjectStopCause) (artifactStopRow, bool, error) {
++	d := cause.Details()
++	var row artifactStopRow
++	var action string
++	var version int64
++	err := e.QueryRow(ctx, `SELECT action,project_version,state,scan_kind,COALESCE(scan_after::text,'') FROM agenteam_artifact.project_stops WHERE project_id=$1 AND operation_id=$2`, d.ProjectID.String(), d.OperationID.String()).Scan(&action, &version, &row.state, &row.lane, &row.after)
++	if noRows(err) {
++		return row, false, nil
++	}
++	if err != nil {
++		return row, false, unavailable(err)
++	}
++	if action != string(d.Action) || version != int64(d.ProjectVersion) || row.lane < 0 || row.lane > 3 || row.after != "" && !validWorkID(row.after) || row.state != "stopping" && row.state != "stopped" || row.state == "stopped" && (row.lane != 0 || row.after != "") {
++		return row, false, invalid()
++	}
++	row.cause = cause
++	return row, true, nil
++}
++func commandStopFingerprint(c commandRow) foundation.Digest {
++	var source string
++	if c.source.Validate() == nil {
++		raw, _ := encodeSource(c.source)
++		source = string(raw)
++	}
++	d, _ := jsonDigest(struct {
++		Identity                                             string
++		Ref                                                  any
++		Digest                                               string
++		State, Cause, Source, Lease, Object, Upload, Attempt string
++	}{c.identity.Canonical(), c.ref, c.digest.String(), c.state, c.cause, source, c.sourceLease.String(), c.object.String(), c.upload.String(), c.attempt.String()})
++	return d
++}
++func intentStopFingerprint(u uploadIntent) foundation.Digest {
++	d, _ := jsonDigest(struct {
++		Identity                                                   string
++		Ref                                                        any
++		Digest                                                     string
++		State, Cause, Actor, Object, Upload, Attempt, Receipt, SHA string
++	}{u.identity.Canonical(), u.ref, u.digest.String(), u.state, u.cause, u.originalActor, u.object.String(), u.upload.String(), u.attempt.String(), u.receipt.String(), u.sha.String()})
++	return d
++}
++func sourceProject(c commandRow) identity.ProjectID {
++	if c.source.Validate() != nil {
++		return identity.ProjectID{}
++	}
++	id, _ := foundation.ParseID[identity.Project](c.source.Details().Owner.Details().ProjectID)
++	return id
++}
++func commandAffected(c commandRow, d oc.ProjectStopCauseDetails) bool {
++	return c.ref.ProjectID == d.ProjectID || d.Action == oc.ProjectStopDelete && sourceProject(c) == d.ProjectID
++}
++func (s *Service) discoverArtifactStop(ctx context.Context, request oc.ProjectStopRequest) (*artifactStopPlan, error) {
++	r := s.state()
++	d := request.Details().Cause.Details()
++	b := &artifactStopPlan{service: s, request: request, native: map[string]commandRow{}, uploads: map[string]uploadIntent{}}
++	var err error
++	b.dependencies, err = r.stop.Authority.DiscoverProjectStop(ctx, request)
++	if err != nil {
++		return nil, portError(err)
++	}
++	if b.dependencies.Validate() != nil {
++		return nil, invalid()
++	}
++	b.previous, b.found, err = loadArtifactStop(ctx, r.store, request.Details().Cause)
++	if err != nil {
++		return nil, err
++	}
++	b.locks = append(b.locks, b.dependencies.Locks()...)
++	b.locks = append(b.locks, projectLock(d.ProjectID, foundation.Exclusive))
++	b.nextLane, b.nextAfter = b.previous.lane, b.previous.after
++	if b.found && b.previous.state == "stopped" {
++		return b, nil
++	}
++	var rows *postgres.Rows
++	switch b.previous.lane {
++	case 0, 1:
++		column := "project_id"
++		if b.previous.lane == 1 {
++			column = "source_project_id"
++		}
++		if b.previous.lane == 1 && d.Action != oc.ProjectStopDelete {
++			break
++		}
++		rows, err = r.store.Query(ctx, `SELECT `+artifactWorkColumns+` FROM agenteam_artifact.project_work WHERE `+column+`=$1 AND ($2::text='' OR id>NULLIF($2::text,'')::uuid) ORDER BY id LIMIT $3`, d.ProjectID.String(), b.previous.after, artifactStopBatchSize)
++		if err != nil {
++			return nil, unavailable(err)
++		}
++		for rows.Next() {
++			w, _, e := scanArtifactWork(rows)
++			if e != nil {
++				rows.Close()
++				return nil, e
++			}
++			b.works = append(b.works, w)
++			b.nextAfter = w.id
++		}
++	case 2:
++		// Decode the actual original source, including legacy commands without
++		// work. A caller's project label never establishes an incoming relation.
++		rows, err = r.store.Query(ctx, `SELECT `+commandColumns+` FROM agenteam_artifact.commands WHERE (project_id=$1 OR ($3 AND path='source')) AND ($2::text='' OR artifact_id>NULLIF($2::text,'')::uuid) ORDER BY artifact_id LIMIT $4`, d.ProjectID.String(), b.previous.after, d.Action == oc.ProjectStopDelete, artifactStopBatchSize)
++		if err != nil {
++			return nil, unavailable(err)
++		}
++		for rows.Next() {
++			c, _, e := scanCommand(rows)
++			if e != nil {
++				rows.Close()
++				return nil, e
++			}
++			b.commands = append(b.commands, c)
++			b.nextAfter = c.ref.ArtifactID.String()
++		}
++	case 3:
++		rows, err = r.store.Query(ctx, `SELECT `+intentColumns+` FROM agenteam_artifact.upload_intents WHERE project_id=$1 AND ($2::text='' OR id>NULLIF($2::text,'')::uuid) ORDER BY id LIMIT $3`, d.ProjectID.String(), b.previous.after, artifactStopBatchSize)
++		if err != nil {
++			return nil, unavailable(err)
++		}
++		for rows.Next() {
++			u, _, e := scanIntent(rows)
++			if e != nil {
++				rows.Close()
++				return nil, e
++			}
++			b.intents = append(b.intents, u)
++			b.nextAfter = u.ref.ArtifactID.String()
++		}
++	}
++	if rows != nil {
++		err = rows.Err()
++		rows.Close()
++		if err != nil {
++			return nil, unavailable(err)
++		}
++	}
++	count := len(b.works) + len(b.commands) + len(b.intents)
++	if count < artifactStopBatchSize {
++		b.nextLane = (b.previous.lane + 1) % 4
++		b.nextAfter = ""
++		b.cycle = b.previous.lane == 3
++	}
++	for _, w := range b.works {
++		b.locks = append(b.locks, artifactWorkLocks(w)...)
++		if w.kind == "creation" {
++			c, found, e := loadCommandArtifact(ctx, r.store, w.resource)
++			if e != nil {
++				return nil, e
++			}
++			if found {
++				if c.ref.ProjectID != w.project || digestBytes([]byte(c.identity.Canonical())) != w.command || sourceProject(c) != w.source {
++					return nil, invalid()
++				}
++				b.native[w.id] = c
++				b.locks = append(b.locks, createLocks(c.identity, w.resource)...)
++			}
++		} else {
++			u, found, e := loadIntentID(ctx, r.store, w.resource)
++			if e != nil {
++				return nil, e
++			}
++			if !found || u.ref.ProjectID != w.project || digestBytes([]byte(u.identity.Canonical())) != w.command || w.source.Validate() == nil {
++				return nil, invalid()
++			}
++			b.uploads[w.id] = u
++			b.locks = append(b.locks, createLocks(u.identity, w.resource)...)
++		}
++	}
++	for _, c := range b.commands {
++		b.locks = append(b.locks, createLocks(c.identity, c.ref.ArtifactID.String())...)
++		b.locks = append(b.locks, projectLock(c.ref.ProjectID, foundation.Shared))
++		if sourceProject(c).Validate() == nil {
++			b.locks = append(b.locks, projectLock(sourceProject(c), foundation.Shared))
++		}
++	}
++	for _, u := range b.intents {
++		b.locks = append(b.locks, createLocks(u.identity, u.ref.ArtifactID.String())...)
++	}
++	r.mu.Lock()
++	for p := range r.controls {
++		if p.project != d.ProjectID && (d.Action != oc.ProjectStopDelete || p.work == nil || p.work.source != d.ProjectID) {
++			continue
++		}
++		// Only the durable identities in this bounded page are revoked below.
++		// A later page keeps its own original control until its gate confirms.
++		if p.work != nil {
++			inBatch := false
++			for _, w := range b.works {
++				if w.id == p.work.id {
++					if !workIdentity(w, *p.work) || w.lease != p.work.lease {
++						r.mu.Unlock()
++						return nil, failure(foundation.ResourceBusy, nil)
++					}
++					inBatch = true
++					break
++				}
++			}
++			if !inBatch {
++				continue
++			}
++		}
++		capture := capturedProducer{control: p}
++		if p.work != nil {
++			w := *p.work
++			capture.work = &w
++		}
++		b.controls = append(b.controls, capture)
++		b.locks = append(b.locks, p.locks...)
++		b.locks = append(b.locks, controlRecordLock(p.id))
++		if capture.work != nil {
++			b.locks = append(b.locks, artifactWorkLocks(*capture.work)...)
++		}
++	}
++	r.mu.Unlock()
++	b.locks, err = oc.NormalizeAccessLocks(b.locks)
++	if err != nil {
++		return nil, invalid()
++	}
++	return b, nil
++}
++func (s *Service) validateArtifactBatch(ctx context.Context, e postgres.SQLExecutor, b *artifactStopPlan) error {
++	current, found, err := loadArtifactStop(ctx, e, b.request.Details().Cause)
++	if err != nil {
++		return err
++	}
++	if found != b.found || found && (current.state != b.previous.state || current.lane != b.previous.lane || current.after != b.previous.after) {
++		return failure(foundation.ResourceBusy, nil)
++	}
++	for _, w := range b.works {
++		actual, found, err := loadArtifactWork(ctx, e, w.id)
++		if err != nil {
++			return err
++		}
++		if !found || !workIdentity(w, actual) || w.lease != actual.lease {
++			return failure(foundation.ResourceBusy, nil)
++		}
++		if c, ok := b.native[w.id]; ok {
++			now, found, err := loadCommandArtifact(ctx, e, w.resource)
++			if err != nil {
++				return err
++			}
++			if !found || commandStopFingerprint(c) != commandStopFingerprint(now) {
++				return failure(foundation.ResourceBusy, nil)
++			}
++		}
++		if u, ok := b.uploads[w.id]; ok {
++			now, found, err := loadIntentID(ctx, e, w.resource)
++			if err != nil {
++				return err
++			}
++			if !found || intentStopFingerprint(u) != intentStopFingerprint(now) {
++				return failure(foundation.ResourceBusy, nil)
++			}
++		}
++	}
++	for _, c := range b.commands {
++		now, found, err := loadCommand(ctx, e, c.identity)
++		if err != nil {
++			return err
++		}
++		if !found || commandStopFingerprint(now) != commandStopFingerprint(c) {
++			return failure(foundation.ResourceBusy, nil)
++		}
++	}
++	for _, u := range b.intents {
++		now, found, err := loadIntentID(ctx, e, u.ref.ArtifactID.String())
++		if err != nil {
++			return err
++		}
++		if !found || intentStopFingerprint(now) != intentStopFingerprint(u) {
++			return failure(foundation.ResourceBusy, nil)
++		}
++	}
++	r := s.state()
++	r.mu.Lock()
++	defer r.mu.Unlock()
++	for _, capture := range b.controls {
++		p := capture.control
++		if !r.controls[p] {
++			continue
++		}
++		if p.service != s || (p.work == nil) != (capture.work == nil) || p.work != nil && (!workIdentity(*p.work, *capture.work) || p.work.lease != capture.work.lease) {
++			return failure(foundation.ResourceBusy, nil)
++		}
++	}
++	return nil
++}
++func (s *Service) stopTransaction(ctx context.Context, p *producerControl, b *artifactStopPlan, fn func(context.Context, foundation.Tx, postgres.SQLExecutor, oc.ProjectStopAuthorizationMode) error) foundation.CommitResult {
++	if b == nil || b.service != s {
++		return rejected(invalid())
++	}
++	r := s.state()
++	locks, err := oc.NormalizeAccessLocks(append(append([]foundation.LockRequest{}, b.locks...), s.controlLocks(p)...))
++	if err != nil {
++		return rejected(invalid())
++	}
++	cause, err := txCause()
++	if err != nil {
++		return rejected(err)
++	}
++	return r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
++		if err := r.store.AcquireAll(ctx, tx, locks); err != nil {
++			return portError(err)
++		}
++		if err := s.observeControl(p, tx, locks); err != nil {
++			return err
++		}
++		grant, err := r.stop.Authority.ValidateProjectStopInTx(ctx, tx, b.request, b.dependencies)
++		if err != nil {
++			return portError(err)
++		}
++		if !grant.Matches(tx, b.request, b.dependencies) {
++			return failure(foundation.Forbidden, nil)
++		}
++		e, err := r.store.InTx(tx)
++		if err != nil {
++			return portError(err)
++		}
++		if err = s.validateArtifactBatch(ctx, e, b); err != nil {
++			return err
++		}
++		return fn(ctx, tx, e, grant.Mode())
++	})
++}
++func (s *Service) RequestProjectStop(ctx context.Context, actor identity.Actor, cause oc.ProjectStopCause) (oc.ObjectStopReport, error) {
++	return s.artifactProjectStop(ctx, actor, cause, oc.RequestProjectStopStep)
++}
++func (s *Service) InspectProjectStop(ctx context.Context, actor identity.Actor, cause oc.ProjectStopCause) (oc.ObjectStopReport, error) {
++	return s.artifactProjectStop(ctx, actor, cause, oc.InspectProjectStopStep)
++}
++func pendingArtifact(cause oc.ProjectStopCause, unknown bool) (oc.ObjectStopReport, error) {
++	reason := oc.ProjectStopWorkPending
++	if unknown {
++		reason = oc.ProjectStopOutcomeUnknown
++	}
++	return oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, oc.ObjectStopDetails{State: oc.ProjectStopPending, SafeReason: reason})
++}
++func (s *Service) artifactProjectStop(ctx context.Context, actor identity.Actor, cause oc.ProjectStopCause, step oc.ProjectStopStep) (oc.ObjectStopReport, error) {
++	request, err := oc.NewProjectStopRequest(oc.ProjectStopRequestDetails{Actor: actor, Cause: cause, Component: oc.ArtifactStopComponent, Step: step})
++	if err != nil || s.state() == nil {
++		return oc.ObjectStopReport{}, invalid()
++	}
++	r := s.state()
++	if r.stop.Authority == nil || r.stop.Objects == nil {
++		return oc.ObjectStopReport{}, failure(foundation.DependencyUnbound, nil)
++	}
++	p, err := s.beginProducer(ctx, identity.ProjectID{})
++	if err != nil {
++		return oc.ObjectStopReport{}, err
++	}
++	defer s.finishProducer(p)
++	ctx = p.ctx
++	b, err := s.discoverArtifactStop(ctx, request)
++	if err != nil {
++		return oc.ObjectStopReport{}, err
++	}
++	var mode oc.ProjectStopAuthorizationMode
++	preflight := s.stopTransaction(ctx, p, b, func(_ context.Context, _ foundation.Tx, _ postgres.SQLExecutor, m oc.ProjectStopAuthorizationMode) error {
++		mode = m
++		return nil
++	})
++	if preflight.State() == foundation.Unknown {
++		return pendingArtifact(cause, true)
++	}
++	if err = commitError(preflight); err != nil {
++		return oc.ObjectStopReport{}, err
++	}
++	if mode == oc.ReadProjectStop {
++		if !b.found || b.previous.state != "stopped" {
++			return oc.ObjectStopReport{}, failure(foundation.ResourceBusy, nil)
++		}
++		object, err := r.stop.Objects.InspectProjectStop(ctx, actor, cause)
++		if err != nil {
++			return oc.ObjectStopReport{}, portError(err)
++		}
++		return mergeArtifactReport(cause, oc.ObjectStopDetails{State: oc.ProjectStopped}, object)
++	}
++	if mode != oc.ContinueProjectStop {
++		return oc.ObjectStopReport{}, invalid()
++	}
++	if step == oc.InspectProjectStopStep && !b.found {
++		return oc.ObjectStopReport{}, failure(foundation.ResourceBusy, nil)
++	}
++	if b.found && b.previous.state == "stopped" {
++		var object oc.ObjectStopReport
++		if step == oc.InspectProjectStopStep {
++			object, err = r.stop.Objects.InspectProjectStop(ctx, actor, cause)
++		} else {
++			object, err = r.stop.Objects.RequestProjectStop(ctx, actor, cause)
++		}
++		if err != nil {
++			return oc.ObjectStopReport{}, portError(err)
++		}
++		return mergeArtifactReport(cause, oc.ObjectStopDetails{State: oc.ProjectStopped}, object)
++	}
++	d := cause.Details()
++	gate := s.stopTransaction(ctx, p, b, func(ctx context.Context, _ foundation.Tx, e postgres.SQLExecutor, m oc.ProjectStopAuthorizationMode) error {
++		if m != oc.ContinueProjectStop {
++			return failure(foundation.Forbidden, nil)
++		}
++		if !b.found {
++			_, err := e.Exec(ctx, `INSERT INTO agenteam_artifact.project_stops(project_id,operation_id,action,project_version) VALUES($1,$2,$3,$4)`, d.ProjectID.String(), d.OperationID.String(), string(d.Action), int64(d.ProjectVersion))
++			if err != nil {
++				return unavailable(err)
++			}
++		}
++		for _, w := range b.works {
++			if w.project == d.ProjectID {
++				if _, err := e.Exec(ctx, `UPDATE agenteam_artifact.project_work SET revoked_by=COALESCE(revoked_by,$2) WHERE id=$1`, w.id, d.OperationID.String()); err != nil {
++					return unavailable(err)
++				}
++			}
++			if d.Action == oc.ProjectStopDelete && w.source == d.ProjectID {
++				if _, err := e.Exec(ctx, `UPDATE agenteam_artifact.project_work SET source_revoked_by=COALESCE(source_revoked_by,$2) WHERE id=$1`, w.id, d.OperationID.String()); err != nil {
++					return unavailable(err)
++				}
++			}
++		}
++		for _, c := range b.commands {
++			if !commandAffected(c, d) || c.state == "completed" || c.state == "deleted" {
++				continue
++			}
++			if _, err := e.Exec(ctx, `UPDATE agenteam_artifact.commands SET state='cancel_requested' WHERE command_hash=$1 AND state NOT IN('completed','deleted','cancelled')`, digestRaw(digestBytes([]byte(c.identity.Canonical())))); err != nil {
++				return unavailable(err)
++			}
++		}
++		for _, u := range b.intents {
++			if u.state == "consumed" || u.state == "deleted" {
++				continue
++			}
++			if _, err := e.Exec(ctx, `UPDATE agenteam_artifact.upload_intents SET state='cancel_requested' WHERE id=$1 AND state NOT IN('consumed','deleted','cancelled')`, u.ref.ArtifactID.String()); err != nil {
++				return unavailable(err)
++			}
++		}
++		_, err := e.Exec(ctx, `UPDATE agenteam_artifact.project_stops SET scan_kind=$3,scan_after=$4 WHERE project_id=$1 AND operation_id=$2`, d.ProjectID.String(), d.OperationID.String(), b.nextLane, null(b.nextAfter))
++		return portOrNil(err)
++	})
++	if gate.State() == foundation.Unknown {
++		return pendingArtifact(cause, true)
++	}
++	if err = commitError(gate); err != nil {
++		return oc.ObjectStopReport{}, err
++	}
++	// Only these identities were captured and checked in both confirmed Txes.
++	// A control that joined meanwhile is harmless; no project-wide rescan cancel.
++	local := oc.ObjectStopDetails{State: oc.ProjectStopPending, SafeReason: oc.ProjectStopWorkPending}
++	var convergenceUnknown error
++	recordConvergence := func(w *artifactWork, err error) {
++		var fault *foundation.Fault
++		if errors.As(err, &fault) && (fault.CommitState == foundation.Unknown || fault.Code == foundation.CommitUnknown) {
++			convergenceUnknown = portError(err)
++			local.SafeReason = oc.ProjectStopOutcomeUnknown
++			if w != nil {
++				local.UnknownRefs = append(local.UnknownRefs, artifactWorkRef(*w))
++			}
++		}
++	}
++	for _, capture := range b.controls {
++		s.cancelProducer(capture.control)
++		recordConvergence(capture.work, s.settleProducer(ctx, capture.control))
++	}
++	for _, w := range b.works {
++		if !w.joined || w.source.Validate() == nil && !w.sourceJoined {
++			recordConvergence(&w, s.recoverArtifactWork(ctx, p, request, w))
++		}
++	}
++	var object oc.ObjectStopReport
++	if step == oc.InspectProjectStopStep {
++		object, err = r.stop.Objects.InspectProjectStop(ctx, actor, cause)
++	} else {
++		object, err = r.stop.Objects.RequestProjectStop(ctx, actor, cause)
++	}
++	if err != nil {
++		if convergenceUnknown != nil {
++			return oc.ObjectStopReport{}, convergenceUnknown
++		}
++		return oc.ObjectStopReport{}, portError(err)
++	}
++	if !object.Matches(oc.ObjectStopComponent, cause) {
++		if convergenceUnknown != nil {
++			return oc.ObjectStopReport{}, convergenceUnknown
++		}
++		return oc.ObjectStopReport{}, invalid()
++	}
++	for _, w := range b.works {
++		if !w.joined || w.source.Validate() == nil && !w.sourceJoined {
++			local.ActiveRefs = append(local.ActiveRefs, artifactWorkRef(w))
++		}
++	}
++	if b.cycle && convergenceUnknown == nil {
++		// Fresh planning/auth after Object returned. Its report cannot authorize
++		// a stale cause, a changed mapping, or a partially scanned prefix.
++		final, err := s.discoverArtifactStop(ctx, request)
++		if err != nil {
++			return oc.ObjectStopReport{}, err
++		}
++		result := s.stopTransaction(ctx, p, final, func(ctx context.Context, _ foundation.Tx, e postgres.SQLExecutor, m oc.ProjectStopAuthorizationMode) error {
++			if m != oc.ContinueProjectStop {
++				return failure(foundation.Forbidden, nil)
++			}
++			pending, err := s.artifactPending(ctx, e, d)
++			if err != nil {
++				return err
++			}
++			if pending || len(s.workControls(d.ProjectID, d.Action == oc.ProjectStopDelete)) != 0 || object.Details().State != oc.ProjectStopped {
++				return nil
++			}
++			_, err = e.Exec(ctx, `UPDATE agenteam_artifact.project_stops SET state='stopped',stopped_at=clock_timestamp(),scan_kind=0,scan_after=NULL WHERE project_id=$1 AND operation_id=$2`, d.ProjectID.String(), d.OperationID.String())
++			if err == nil {
++				local = oc.ObjectStopDetails{State: oc.ProjectStopped}
++			}
++			return portOrNil(err)
++		})
++		if result.State() == foundation.Unknown {
++			return pendingArtifact(cause, true)
++		}
++		if err = commitError(result); err != nil {
++			return oc.ObjectStopReport{}, err
++		}
++	}
++	return mergeArtifactReport(cause, local, object)
++}
++func artifactWorkRef(w artifactWork) oc.ProjectStopRef {
++	id, _ := foundation.ParseID[oc.ProjectStopResource](w.resource)
++	kind := oc.StopArtifactCreation
++	if w.kind == "upload" {
++		kind = oc.StopArtifactUpload
++	}
++	return oc.ProjectStopRef{Kind: kind, ID: id}
++}
++func mergeArtifactReport(cause oc.ProjectStopCause, local oc.ObjectStopDetails, object oc.ObjectStopReport) (oc.ObjectStopReport, error) {
++	if !object.Matches(oc.ObjectStopComponent, cause) {
++		return oc.ObjectStopReport{}, invalid()
++	}
++	d := object.Details()
++	out := local
++	unknown := map[oc.ProjectStopRef]bool{}
++	active := map[oc.ProjectStopRef]bool{}
++	for _, refs := range [][]oc.ProjectStopRef{local.UnknownRefs, d.UnknownRefs} {
++		for _, ref := range refs {
++			unknown[ref] = true
++		}
++	}
++	for _, refs := range [][]oc.ProjectStopRef{local.ActiveRefs, d.ActiveRefs} {
++		for _, ref := range refs {
++			if !unknown[ref] {
++				active[ref] = true
++			}
++		}
++	}
++	out.ActiveRefs = nil
++	out.UnknownRefs = nil
++	for ref := range active {
++		out.ActiveRefs = append(out.ActiveRefs, ref)
++	}
++	for ref := range unknown {
++		out.UnknownRefs = append(out.UnknownRefs, ref)
++	}
++	sortRefs := func(refs []oc.ProjectStopRef) {
++		sort.Slice(refs, func(i, j int) bool {
++			if refs[i].Kind != refs[j].Kind {
++				return refs[i].Kind < refs[j].Kind
++			}
++			return refs[i].ID.String() < refs[j].ID.String()
++		})
++	}
++	sortRefs(out.ActiveRefs)
++	sortRefs(out.UnknownRefs)
++	if len(unknown) > 0 || local.SafeReason == oc.ProjectStopOutcomeUnknown || d.SafeReason == oc.ProjectStopOutcomeUnknown {
++		out.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopOutcomeUnknown
++	} else if d.State == oc.ProjectStopFailed {
++		out.State, out.SafeReason = oc.ProjectStopFailed, d.SafeReason
++	} else if local.State == oc.ProjectStopped && d.State == oc.ProjectStopped {
++		out.State, out.SafeReason = oc.ProjectStopped, ""
++		out.ActiveRefs = nil
++	} else {
++		out.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopWorkPending
++	}
++	return oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, out)
++}
++func (s *Service) artifactPending(ctx context.Context, e postgres.SQLExecutor, d oc.ProjectStopCauseDetails) (bool, error) {
++	var pending bool
++	err := e.QueryRow(ctx, `SELECT
++ EXISTS(SELECT 1 FROM agenteam_artifact.project_work WHERE (project_id=$1 AND (joined_at IS NULL OR revoked_by IS NULL)) OR ($2 AND source_project_id=$1 AND (source_joined_at IS NULL OR source_revoked_by IS NULL)))
++ OR EXISTS(SELECT 1 FROM agenteam_artifact.commands c WHERE (c.project_id=$1 OR ($2 AND c.path='source' AND c.source->>'project'=$1::text)) AND c.state NOT IN('completed','deleted') AND (c.state NOT IN('cancel_requested','cancelled') OR NOT EXISTS(SELECT 1 FROM agenteam_artifact.project_work w WHERE w.project_id=c.project_id AND w.resource_id=c.artifact_id AND w.command_hash=c.command_hash AND w.kind='creation' AND w.joined_at IS NOT NULL)))
++ OR EXISTS(SELECT 1 FROM agenteam_artifact.upload_intents u WHERE u.project_id=$1 AND u.state NOT IN('consumed','deleted') AND (u.state NOT IN('cancel_requested','cancelled') OR (u.target_object_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM agenteam_artifact.project_work w WHERE w.project_id=u.project_id AND w.resource_id=u.id AND w.command_hash=u.command_hash AND w.kind='upload' AND w.joined_at IS NOT NULL))))`, d.ProjectID.String(), d.Action == oc.ProjectStopDelete).Scan(&pending)
++	if err != nil {
++		return false, unavailable(err)
++	}
++	return pending, nil
++}
++func (s *Service) recoverArtifactWork(ctx context.Context, p *producerControl, request oc.ProjectStopRequest, w artifactWork) error {
++	r := s.state()
++	r.mu.Lock()
++	for local := range r.controls {
++		if local.work != nil && local.work.id == w.id {
++			r.mu.Unlock()
++			return s.settleProducer(ctx, local)
++		}
++	}
++	r.mu.Unlock()
++	if r.stop.Processes == nil || w.process == r.process {
++		return failure(foundation.ResourceBusy, nil)
++	}
++	if err := r.stop.Processes.ConfirmStopped(ctx, w.process); err != nil {
++		return portError(err)
++	}
++	// Reacquire the exact writer keys first. A dead process can still have an
++	// original server-side COMMIT whose lease row was invisible to discovery.
++	b, err := s.discoverArtifactStop(ctx, request)
++	if err != nil {
++		return err
++	}
++	b.works = []artifactWork{w}
++	b.commands = nil
++	b.intents = nil
++	b.native = map[string]commandRow{}
++	b.uploads = map[string]uploadIntent{}
++	b.locks = append(b.locks, artifactWorkLocks(w)...)
++	var source oc.ResolvedSource
++	if w.kind == "creation" {
++		c, found, err := loadCommandArtifact(ctx, r.store, w.resource)
++		if err != nil {
++			return err
++		}
++		if found {
++			if c.ref.ProjectID != w.project || digestBytes([]byte(c.identity.Canonical())) != w.command || sourceProject(c) != w.source {
++				return invalid()
++			}
++			b.native[w.id] = c
++			source = c.source
++			b.locks = append(b.locks, createLocks(c.identity, w.resource)...)
++		}
++	} else {
++		u, found, err := loadIntentID(ctx, r.store, w.resource)
++		if err != nil {
++			return err
++		}
++		if !found || u.ref.ProjectID != w.project || digestBytes([]byte(u.identity.Canonical())) != w.command {
++			return invalid()
++		}
++		b.uploads[w.id] = u
++		b.locks = append(b.locks, createLocks(u.identity, w.resource)...)
++	}
++	barrier := s.stopTransaction(ctx, p, b, func(_ context.Context, _ foundation.Tx, _ postgres.SQLExecutor, m oc.ProjectStopAuthorizationMode) error {
++		if m != oc.ContinueProjectStop {
++			return invalid()
++		}
++		return nil
++	})
++	if err = commitError(barrier); err != nil {
++		return err
++	}
++	if w.lease.Validate() == nil {
++		if source.Validate() != nil {
++			return failure(foundation.ResourceBusy, nil)
++		}
++		inspection, err := r.cleaner.InspectReferences(ctx, source.Details().Meta.ID)
++		if err != nil {
++			return portError(err)
++		}
++		for _, lease := range inspection.ActiveLeases {
++			if lease.ID == w.lease {
++				return failure(foundation.ResourceBusy, nil)
++			}
++		}
++	}
++	result := s.stopTransaction(ctx, p, b, func(ctx context.Context, _ foundation.Tx, e postgres.SQLExecutor, m oc.ProjectStopAuthorizationMode) error {
++		if m != oc.ContinueProjectStop {
++			return invalid()
++		}
++		_, err := e.Exec(ctx, `UPDATE agenteam_artifact.project_work SET joined_at=COALESCE(joined_at,clock_timestamp()),source_joined_at=CASE WHEN source_project_id IS NOT NULL THEN COALESCE(source_joined_at,clock_timestamp()) ELSE NULL END WHERE id=$1`, w.id)
++		return portOrNil(err)
++	})
++	return commitError(result)
++}
+--- /dev/null
++++ b/internal/central/artifact/lifecycle.go
+@@ -0,0 +1,311 @@
++package artifact
++
++import (
++	"context"
++	"io"
++	"sync"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
++)
++
++type producerKey struct{}
++type producerControl struct {
++	service            *Service
++	id                 string
++	project            identity.ProjectID
++	sourceHint         identity.ProjectID
++	ctx                context.Context
++	cancel             context.CancelFunc
++	returned, settling bool
++	settleDone         chan struct{}
++	settleErr          error
++	cleanupCancel      context.CancelFunc
++	admitting          bool
++	work               *artifactWork
++	origins            map[foundation.Tx]bool
++	locks              []foundation.LockRequest
++	body               *producerBody
++	lease              oc.SourceLease
++	prepared           oc.PreparedPayload
++}
++
++// Close is part of the registered call, including when cancellation invokes
++// it concurrently with Read. A returned Close wrapper never proves a writer
++// or a SourceLease callback has left its own tail.
++type producerBody struct {
++	io.ReadCloser
++	once       sync.Once
++	cancelOnce sync.Once
++	done       chan struct{}
++	err        error
++}
++
++func (b *producerBody) Close() error {
++	b.once.Do(func() { b.err = b.ReadCloser.Close(); close(b.done) })
++	<-b.done
++	return b.err
++}
++func (b *producerBody) cancel() { b.cancelOnce.Do(func() { go func() { _ = b.Close() }() }) }
++
++func (r *serviceState) signal() { close(r.changed); r.changed = make(chan struct{}) }
++func (s *Service) beginProducer(ctx context.Context, project identity.ProjectID) (*producerControl, error) {
++	return s.beginControlledProducer(ctx, project, false)
++}
++
++// UploadPayload owns the supplied body even when business admission fails.
++// Register that required Close under the same registry mutex as shutdown;
++// it gets no database or external-work admission, only a tracked cleanup tail.
++func (s *Service) beginControlledProducer(ctx context.Context, project identity.ProjectID, closeOnRejection bool) (*producerControl, error) {
++	r := s.state()
++	if r == nil {
++		return nil, invalid()
++	}
++	var admission error
++	if ctx == nil {
++		admission = invalid()
++		ctx = context.Background()
++	} else if err := ctx.Err(); err != nil {
++		admission = unavailable(err)
++	}
++	id, err := foundation.NewID[struct{}]()
++	if err != nil && admission == nil {
++		admission = unavailable(err)
++	}
++	r.mu.Lock()
++	defer r.mu.Unlock()
++	if admission == nil && (r.stopped || r.forced) {
++		admission = failure(foundation.ShuttingDown, nil)
++	}
++	if admission != nil && !closeOnRejection {
++		return nil, admission
++	}
++	work, cancel := context.WithCancel(ctx)
++	p := &producerControl{service: s, id: id.String(), project: project, cancel: cancel, origins: map[foundation.Tx]bool{}}
++	p.ctx = context.WithValue(work, producerKey{}, p)
++	r.controls[p] = true
++	r.signal()
++	if admission != nil {
++		cancel()
++	}
++	return p, admission
++}
++func (s *Service) controlFor(ctx context.Context) (*producerControl, error) {
++	p, _ := ctx.Value(producerKey{}).(*producerControl)
++	if p == nil {
++		return nil, nil
++	}
++	r := s.state()
++	if r == nil || p.service != s {
++		return nil, invalid()
++	}
++	r.mu.Lock()
++	active := r.controls[p] && !p.returned
++	r.mu.Unlock()
++	if !active {
++		return nil, invalid()
++	}
++	return p, nil
++}
++func (s *Service) ownBody(p *producerControl, body io.ReadCloser) *producerBody {
++	b := &producerBody{ReadCloser: body, done: make(chan struct{})}
++	r := s.state()
++	r.mu.Lock()
++	p.body = b
++	cancelled := p.ctx.Err() != nil
++	r.mu.Unlock()
++	if cancelled {
++		b.cancel()
++	}
++	return b
++}
++func (s *Service) ownPrepared(p *producerControl, prepared oc.PreparedPayload) {
++	r := s.state()
++	r.mu.Lock()
++	p.prepared = prepared
++	r.mu.Unlock()
++}
++func (s *Service) ownSource(p *producerControl, lease oc.SourceLease) {
++	r := s.state()
++	r.mu.Lock()
++	p.lease = lease
++	r.mu.Unlock()
++}
++func (s *Service) cancelProducer(p *producerControl) {
++	r := s.state()
++	r.mu.Lock()
++	if !r.controls[p] {
++		r.mu.Unlock()
++		return
++	}
++	p.cancel()
++	body := p.body
++	if p.cleanupCancel != nil {
++		p.cleanupCancel()
++	}
++	r.mu.Unlock()
++	if body != nil {
++		body.cancel()
++	}
++}
++func (s *Service) finishProducer(p *producerControl) {
++	r := s.state()
++	r.mu.Lock()
++	p.returned = true
++	p.cancel()
++	force := r.forceContext
++	r.signal()
++	r.mu.Unlock()
++	ctx := force
++	var cancel context.CancelFunc
++	if ctx == nil {
++		ctx, cancel = context.WithTimeout(context.Background(), 2*time.Second)
++		defer cancel()
++	}
++	_ = s.settleProducer(ctx, p)
++}
++func (s *Service) settleProducer(ctx context.Context, p *producerControl) error {
++	r := s.state()
++	r.mu.Lock()
++	if !r.controls[p] {
++		r.mu.Unlock()
++		return nil
++	}
++	if !p.returned {
++		r.mu.Unlock()
++		return failure(foundation.ResourceBusy, nil)
++	}
++	if !p.settling {
++		p.settling = true
++		p.settleDone = make(chan struct{})
++		cleanup, cancel := context.WithCancel(ctx)
++		p.cleanupCancel = cancel
++		go func() {
++			err := s.settleProducerWork(cleanup, p)
++			cancel()
++			r.mu.Lock()
++			p.cleanupCancel = nil
++			p.settleErr = err
++			p.settling = false
++			close(p.settleDone)
++			r.signal()
++			r.mu.Unlock()
++		}()
++	}
++	done := p.settleDone
++	r.mu.Unlock()
++	select {
++	case <-ctx.Done():
++		return unavailable(ctx.Err())
++	case <-done:
++		r.mu.Lock()
++		err := p.settleErr
++		r.mu.Unlock()
++		return err
++	}
++}
++func (s *Service) settleProducerWork(ctx context.Context, p *producerControl) error {
++	r := s.state()
++	r.mu.Lock()
++	body, lease, prepared := p.body, p.lease, p.prepared
++	r.mu.Unlock()
++	if err := ctx.Err(); err != nil {
++		return unavailable(err)
++	}
++	if body != nil {
++		select {
++		case <-body.done:
++		default:
++			return failure(foundation.ResourceBusy, nil)
++		}
++	}
++	if lease.Validate() == nil {
++		if err := r.reads.CancelSourceLease(ctx, lease); err != nil {
++			return portError(err)
++		}
++		r.mu.Lock()
++		delete(r.leases, lease.ID())
++		r.mu.Unlock()
++	}
++	if prepared.Validate() == nil {
++		if err := r.uploads.DiscardPrepared(prepared); err != nil {
++			return portError(err)
++		}
++	}
++	if err := s.joinControl(ctx, p); err != nil {
++		return err
++	}
++	r.mu.Lock()
++	delete(r.controls, p)
++	r.signal()
++	r.mu.Unlock()
++	return nil
++}
++func (s *Service) StopAdmission() {
++	if r := s.state(); r != nil {
++		r.mu.Lock()
++		r.stopped = true
++		r.signal()
++		r.mu.Unlock()
++	}
++}
++func (s *Service) Joined() bool {
++	r := s.state()
++	if r == nil {
++		return false
++	}
++	r.mu.Lock()
++	defer r.mu.Unlock()
++	return r.stopped && len(r.controls) == 0
++}
++func (s *Service) Drain(ctx context.Context) error {
++	r := s.state()
++	if r == nil || ctx == nil {
++		return invalid()
++	}
++	ticker := time.NewTicker(10 * time.Millisecond)
++	defer ticker.Stop()
++	for {
++		r.mu.Lock()
++		var ended []*producerControl
++		for p := range r.controls {
++			if p.returned && !p.settling {
++				ended = append(ended, p)
++			}
++		}
++		n, changed := len(r.controls), r.changed
++		r.mu.Unlock()
++		if n == 0 {
++			return nil
++		}
++		for _, p := range ended {
++			_ = s.settleProducer(ctx, p)
++		}
++		select {
++		case <-ctx.Done():
++			return unavailable(ctx.Err())
++		case <-changed:
++		case <-ticker.C:
++		}
++	}
++}
++func (s *Service) Force(ctx context.Context) error {
++	r := s.state()
++	if r == nil || ctx == nil {
++		return invalid()
++	}
++	r.mu.Lock()
++	r.stopped, r.forced, r.forceContext = true, true, ctx
++	var controls []*producerControl
++	for p := range r.controls {
++		controls = append(controls, p)
++	}
++	r.signal()
++	r.mu.Unlock()
++	for _, p := range controls {
++		s.cancelProducer(p)
++	}
++	return s.Drain(ctx)
++}

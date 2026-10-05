@@ -1,0 +1,25 @@
+{
+  "prior_delta_sha256": "f82859658f4ea040fa05a31f257f348d1689669bfccd028eed88b880507f0564",
+  "files": {
+    "internal/central/artifact/service.go": {
+      "before": "cc031bb7ee21079262d9f1a23257d2807c98a46da29c30529917d640248ff50d",
+      "after": "61f27612b6e0d65745c4addfc10e150bc098371665ecb4304277fc3985189985"
+    },
+    "internal/central/artifact/project_work.go": {
+      "before": "5fc4b9f4b7a4196e71c30d5d35b53ab4dd365c41fcc42f002086842030ad8cfb",
+      "after": "c0f251349bf87ba151a22f9c580f5d059637ad336cce4cbaf52d9327c8141732"
+    },
+    "internal/central/artifact/project_lifecycle.go": {
+      "before": "c805dd892c64abced2f3cb18c0c97bbbecd44ad63f2997c8e46587ca1972fcc6",
+      "after": "edf00ff41b417f0e159085f2d772e1fff4b154c85082bd20b965817605ca08be"
+    },
+    "internal/central/artifact/project_work_test.go": {
+      "before": "ed8ffdb2120c0aa993693613afbd76356c6bd186b45971f61373a5caea622f91",
+      "after": "4d2dbf38b94107c28759f6ad1e0ad59d80cb60e47b66fd768b72147ad5f44a99"
+    },
+    "internal/central/artifact/project_lifecycle_test.go": {
+      "before": "4ed8e6de6e60e4032ca499f08bc1bc923d3bf57b0858a5588fa69a1800b4aaea",
+      "after": "466eae40f7984af3145016d1db85f20f1dbae78bc7e501457f50bf093fcbd848"
+    }
+  }
+}

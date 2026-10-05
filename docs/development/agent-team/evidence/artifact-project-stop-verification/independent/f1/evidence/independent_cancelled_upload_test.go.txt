@@ -1,0 +1,174 @@
+package artifact
+
+import (
+	"context"
+	"errors"
+	"io"
+	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/jackc/pgx/v5/pgconn"
+)
+
+// This test deliberately uses only the pre-DB admission path. It does not
+// construct a production allow adapter or claim PG/ProcessGuard coverage.
+type independentRejectedStore struct{ calls atomic.Int32 }
+
+var independentUnexpectedDB = errors.New("unexpected database access during rejected admission")
+
+func (s *independentRejectedStore) Exec(context.Context, string, ...any) (pgconn.CommandTag, error) {
+	s.calls.Add(1)
+	return pgconn.CommandTag{}, independentUnexpectedDB
+}
+func (s *independentRejectedStore) Query(context.Context, string, ...any) (*postgres.Rows, error) {
+	s.calls.Add(1)
+	return nil, independentUnexpectedDB
+}
+func (s *independentRejectedStore) QueryRow(context.Context, string, ...any) postgres.Row {
+	s.calls.Add(1)
+	return independentRejectedRow{}
+}
+func (*independentRejectedRow) unused()          {}
+func (independentRejectedRow) Scan(...any) error { return independentUnexpectedDB }
+
+type independentRejectedRow struct{}
+
+func (s *independentRejectedStore) InTx(foundation.Tx) (postgres.SQLExecutor, error) {
+	s.calls.Add(1)
+	return nil, independentUnexpectedDB
+}
+func (s *independentRejectedStore) WithinTx(context.Context, foundation.TransactionCause, func(context.Context, foundation.Tx) error) foundation.CommitResult {
+	s.calls.Add(1)
+	return foundation.NotCommittedResult(foundation.NewFault(foundation.DependencyUnavailable, foundation.NotCommitted))
+}
+func (s *independentRejectedStore) AcquireAll(context.Context, foundation.Tx, []foundation.LockRequest) error {
+	s.calls.Add(1)
+	return independentUnexpectedDB
+}
+
+type independentBlockedClose struct {
+	entered, release chan struct{}
+	enterOnce        sync.Once
+	reads, closes    atomic.Int32
+}
+
+func (b *independentBlockedClose) Read([]byte) (int, error) {
+	b.reads.Add(1)
+	return 0, io.EOF
+}
+func (b *independentBlockedClose) Close() error {
+	b.closes.Add(1)
+	b.enterOnce.Do(func() { close(b.entered) })
+	<-b.release
+	return nil
+}
+
+func TestIndependentArtifactRunningCancelledUploadTracksActualClose(t *testing.T) {
+	store := &independentRejectedStore{}
+	r := &serviceState{store: store, controls: map[*producerControl]bool{}, changed: make(chan struct{}), leases: map[oc.LeaseID]oc.SourceLease{}}
+	s := &Service{data: func() *serviceState { return r }}
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	if ctx.Err() != context.Canceled {
+		t.Fatal("the context must be cancelled before calling UploadPayload")
+	}
+	body := &independentBlockedClose{entered: make(chan struct{}), release: make(chan struct{})}
+	var release sync.Once
+	done := make(chan struct{})
+	var callErr error
+	go func() {
+		_, callErr = s.UploadPayload(ctx, ac.Invocation{}, ac.UploadTarget{}, body)
+		close(done)
+	}()
+	t.Cleanup(func() {
+		release.Do(func() { close(body.release) })
+		select {
+		case <-done:
+		case <-time.After(time.Second):
+			t.Error("public call did not exit after releasing actual Close")
+		}
+		s.StopAdmission()
+		cleanup, stop := context.WithTimeout(context.Background(), time.Second)
+		defer stop()
+		if err := s.Drain(cleanup); err != nil {
+			t.Error("cleanup did not join", err)
+		}
+	})
+	select {
+	case <-body.entered:
+	case <-time.After(time.Second):
+		t.Fatal("actual underlying Close was not entered")
+	}
+
+	// Joined is always false on a running service; independently inspect the
+	// registered tail before Force changes the admission state.
+	r.mu.Lock()
+	stopped, forced, active := r.stopped, r.forced, len(r.controls)
+	validControl := active == 1
+	for p := range r.controls {
+		validControl = validControl && p.ctx.Err() == context.Canceled && !p.returned && p.body != nil && p.work == nil && len(p.origins) == 0
+	}
+	r.mu.Unlock()
+	if stopped || forced || !validControl {
+		t.Fatalf("cancelled-context admission path not isolated: stopped=%v forced=%v controls=%d valid=%v", stopped, forced, active, validControl)
+	}
+	select {
+	case <-done:
+		t.Fatal("public call returned while actual Close was still held")
+	default:
+	}
+	if n := body.reads.Load(); n != 0 {
+		t.Fatalf("rejected admission read the payload: %d", n)
+	}
+	if n := store.calls.Load(); n != 0 {
+		t.Fatalf("rejected admission entered a database port: %d", n)
+	}
+	t.Logf("before Force: stopped=%v forced=%v cancelled_before_call=true controls=%d CloseEntered=true publicReturned=false db=0 read=0", stopped, forced, active)
+
+	budget, stop := context.WithTimeout(context.Background(), 30*time.Millisecond)
+	started := time.Now()
+	err := s.Force(budget)
+	elapsed := time.Since(started)
+	stop()
+	if err == nil || !errors.Is(err, context.DeadlineExceeded) || s.Joined() {
+		t.Fatalf("Force forgot the blocked Close: err=%v joined=%v", err, s.Joined())
+	}
+	if elapsed > 250*time.Millisecond {
+		t.Fatalf("Force exceeded the existing 30ms budget tolerance: %s", elapsed)
+	}
+	if n := body.closes.Load(); n != 1 {
+		t.Fatalf("underlying Close must run exactly once while held: %d", n)
+	}
+	select {
+	case <-done:
+		t.Fatal("Force made the public call return before actual Close")
+	default:
+	}
+	t.Logf("held Close: ForceDeadline=true Joined=false CloseCalls=1 elapsed=%s", elapsed)
+
+	release.Do(func() { close(body.release) })
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("public call did not return after actual Close release")
+	}
+	var fault *foundation.Fault
+	if !errors.As(callErr, &fault) || fault.Code != foundation.DependencyUnavailable || fault.CommitState != foundation.NotStarted || !errors.Is(callErr, context.Canceled) {
+		t.Fatalf("original cancelled-context error lost: %v", callErr)
+	}
+	drain, stop := context.WithTimeout(context.Background(), time.Second)
+	defer stop()
+	if err := s.Drain(drain); err != nil || !s.Joined() {
+		t.Fatalf("actual Close did not converge to Joined: %v joined=%v", err, s.Joined())
+	}
+	if body.closes.Load() != 1 || body.reads.Load() != 0 || store.calls.Load() != 0 {
+		t.Fatalf("rejected call performed unexpected work: close=%d read=%d db=%d", body.closes.Load(), body.reads.Load(), store.calls.Load())
+	}
+	t.Log("released Close: original cancelled error retained; CloseCalls=1 Read=0 DB=0 Drain=success Joined=true")
+}

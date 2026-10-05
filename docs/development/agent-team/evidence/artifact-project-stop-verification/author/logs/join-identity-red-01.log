@@ -1,0 +1,113 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.230.102.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=3c71ee204b41506b92ada5afdc92e765
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=419f79c0282fe8e691f199bb479fa528
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.022s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.023s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.038s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/process	8.227s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.056s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.049s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.079s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.017s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.027s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.025s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.022s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.021s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.035s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.020s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.031s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.031s [no tests to run]
+--- FAIL: TestArtifactProjectStopUnknownJoinCheckpointRemainsUnknown (2.75s)
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+    proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+    artifact_project_stop_recovery_test.go:405: actual Artifact COMMIT join work tuple [["01a10c9e-1286-7cd0-a1e2-9fe0a2b9f6b0", "01a10c9e-1173-72e3-aeca-ce2e0d07af5b", "01a10c9e-127b-71b9-86d1-c56027d95fcf", "creation", "01a10c9e-1286-74a5-9e6f-861980067984", "6de23c3107564ffec566f6587f9c12494869af276b01bf3b8079850dead4326f", null, null, 0, null, true]]
+    artifact_project_stop_recovery_test.go:410: join Unknown was downgraded to ordinary work pending <nil> {pending [{artifact_creation 01a10c9e-1286-74a5-9e6f-861980067984}] [] work_pending}
+--- FAIL: TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel (8.12s)
+    --- FAIL: TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel/process_id (1.28s)
+        proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        artifact_project_stop_recovery_test.go:572: changed immutable local identity authorized cancellation process_id <nil> context canceled 1
+        artifact_project_stop_recovery_test.go:576: identity mismatch wrote stop gate 1 <nil>
+    --- FAIL: TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel/resource_id (1.33s)
+        proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        artifact_project_stop_recovery_test.go:572: changed immutable local identity authorized cancellation resource_id <nil> context canceled 1
+        artifact_project_stop_recovery_test.go:576: identity mismatch wrote stop gate 1 <nil>
+    --- FAIL: TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel/command_hash (1.30s)
+        proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        artifact_project_stop_recovery_test.go:572: changed immutable local identity authorized cancellation command_hash <nil> context canceled 1
+        artifact_project_stop_recovery_test.go:576: identity mismatch wrote stop gate 1 <nil>
+    --- FAIL: TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel/source_project_id (1.35s)
+        proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        artifact_project_stop_recovery_test.go:572: changed immutable local identity authorized cancellation source_project_id <nil> context canceled 1
+        artifact_project_stop_recovery_test.go:576: identity mismatch wrote stop gate 1 <nil>
+    --- FAIL: TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel/source_lease_id (1.36s)
+        proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        artifact_project_stop_recovery_test.go:572: changed immutable local identity authorized cancellation source_lease_id <nil> context canceled 1
+        artifact_project_stop_recovery_test.go:576: identity mismatch wrote stop gate 1 <nil>
+    --- FAIL: TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel/epoch (1.50s)
+        proxy_test.go:156: wire classified: method=HEAD content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        proxy_test.go:156: wire classified: method=PUT content_length=176 decoded=4 payload=true marker=false
+        proxy_test.go:156: wire classified: method=GET content_length=0 decoded=0 payload=false marker=false
+        artifact_project_stop_recovery_test.go:572: changed immutable local identity authorized cancellation epoch <nil> context canceled 1
+        artifact_project_stop_recovery_test.go:576: identity mismatch wrote stop gate 1 <nil>
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/objects	10.900s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.017s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.014s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce 2c5026f4ccd848cf303d183bd851aea1
+D04 outbound fixture cleanup checked for nonce 419f79c0282fe8e691f199bb479fa528
+D05 object fixture exact resource cleanup checked nonce=3c71ee204b41506b92ada5afdc92e765

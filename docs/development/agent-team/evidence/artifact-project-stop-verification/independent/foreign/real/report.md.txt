@@ -1,0 +1,20 @@
+# Artifact foreign join：独立局部真实验证
+
+结论：唯一独立顶层通过；不等同 Artifact 整卡或共享 Object guard 验收。有效输入是固定 base6658a6c + review09 16源（清单 SHA79e5eb812c0fda2a42d390a7e2703b1ebca4ce581c055e1c2a99fda1ab76914e）+ 独立 probe c40b8aeb6f574a2bbd7674f77b5ed5fb8c3311a1d367bc8302efaa2b199e5350。物理旧tree保持1c931fc6，通过已静审四文件 overlay构成review09，末核输入未变。
+
+实际命令是原 `sh scripts/test-objects.sh -run '^TestIndependentArtifactForeignJoinCommittedStoreUnknown$'`，没有driver -v；GOFLAGS为 `-mod=readonly -v -overlay=/workspace/agenteam-artifact-review09-v-qk_5bouy/probe-compile/overlay.json`。固定Go1.27.1/offline module cache，原driver最终调用race/count=1/timeout=6m未改。私有空DockerConfig/本机socket、私有cache/runtime，PG17=170008、PG16=160012、既有精确MinIO SHA见command.json和raw log。首Go helper build的实际环境已采获；监测原进程组未捕获后来另设组的最终Go test PID，overlay传递另以固定三级helper原样append(os.Environ())链证明，细节在overlay-forwarding.json，未伪称抓到该PID。
+
+原log `fixture.log` SHAa1e9ebb148ad4a25fb65ac6d9acc593a1587b4ee6b21fd14ba820c2901af11d9：1top/0sub，顶层3.28s，Objects4.305s；driver exit0，测试driver70.334622s，外部监测/双清到71.757459s。其它driver包的no-tests不计覆盖。首次成功即结束，无重跑。
+
+实际证据：
+
+- 已有真实child ProcessGuard活时ConfirmStopped拒绝；原child Kill+Wait后同claim确认。技术work由测试显式SQL建立，不声称是完整业务producer生成。
+- 透明正式Store中捕获真实foreign join同Tx：false→joined、xmin、原完整process/project/resource/command/source/lease/epoch/cause与实际Authority匹配。底层真实Committed、backend126，之后才单次返回合法的**模拟Store Unknown**；明确不称物理提交Unknown、原writer仍活或ROLLBACK故障。
+- 原join确已持久；随后另一笔自有普通Project SH阻止原请求退休EX确认。真实pg_locks观察确认backend128等待，确认union包含原每个键的EX；这笔普通holder不是已结束原writer。
+- public report合法OutcomeUnknown与唯一精确UnknownRef，Object Request/Inspect均0、stop状态仍stopping；StopAdmission后Joined=false。正常holder实际释放/Committed后，Artifact Drain成功且Joined=true。
+
+资源证据：观察并保存4容器3网络精确ID/name/nonce-label；cleanup-01/02均逐ID inspect absent，原2容器4网络规范化基线逐项一致。原driver组进程0及runtime空；进一步跨进程组以本轮runtime路径/唯一selector/私有cwd核实际owned程序两次0，driver845243/shell845341 absent，见cross-process-group-stop.json。监测无错误，不接触原基线资源。末核有效16/probe/overlay/go.mod/go.sum均不变，窗口已交主线程，all-stop。
+
+复跑材料：run.py记录精确argv/环境/输入及被动资源监测；probe同名源码在本目录，review09 delta/四文件与旧6658+候选16重建关系在上级evidence及先前ready.md。运行新的fixture仍须主线程授予唯一窗口；不可直接再次运行会覆盖本轮原文件的run.py，应复制监测脚本至新私有run目录，并核相同输入。
+
+范围限制：Store结果是明示模拟；普通锁只证明此原owner/完整EX确认没有提前退场，不能替代真实传输Unknown/未结束ROLLBACK反例。本次没改生产/旧测试、没补其它作者原组；原失败日志、作者有效覆盖与剩余兼容检查另行汇总。Object上游共享guard已知缺陷仍阻塞整体验收；不涉及生产Project/app/root装配。

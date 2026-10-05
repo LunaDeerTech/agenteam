@@ -1,0 +1,159 @@
+{
+  "result": "PASS",
+  "phase": "documentation archival only; no new product execution",
+  "original_copy_checks": {
+    "copied_files": 302,
+    "copied_bytes": 1274152,
+    "historical_logs": 52,
+    "historical_log_bytes": 45200,
+    "historical_exit_files_present": 37,
+    "historical_cleanup_files": 12,
+    "addendum_files": 76,
+    "final_source_files": 16,
+    "history_variants": 7,
+    "history_delta_bytes": 93536,
+    "raw_patch_files": 15,
+    "all_original_hash_checks": "PASS",
+    "go_docker_network_git_writes": "not run"
+  },
+  "document_checks": {
+    "documentation_files": [
+      "docs/development/agent-team/artifact-project-stop-verification.md",
+      "docs/development/agent-team/evidence/artifact-project-stop-verification/README.md",
+      "docs/development/agent-team/tasks.md",
+      "docs/development/agent-team/recovery-2026-10-05.md",
+      "docs/development/work-items/recovery-artifact-project-stop.md"
+    ],
+    "links_checked": 176,
+    "fragments_checked": 12,
+    "raw_original_files_checked": 302,
+    "non_patch_files_whitespace_checked": 296,
+    "exact_raw_patch_exceptions": [
+      "author/production-review-03/project_lifecycle.go.diff",
+      "author/production-review-03/project_lifecycle_test.go.diff",
+      "author/production-review-04/lifecycle.go.diff",
+      "author/production-review-04/project_work.go.diff",
+      "author/production-review-05/lifecycle.go.diff",
+      "author/production-review-05/project_lifecycle.go.diff",
+      "author/production-review-05/project_lifecycle_test.go.diff",
+      "author/production-review-05/project_work.go.diff",
+      "author/production-review-05/service.go.diff",
+      "author/production-review-06/lifecycle.go.diff",
+      "author/production-review-06/project_lifecycle.go.diff",
+      "author/production-review-07/delta.patch",
+      "author/production-review-08/delta.patch",
+      "author/production-review-09/delta.patch",
+      "independent/f1/evidence/production.patch"
+    ],
+    "history_sections": "tasks AT-0001 onward; recovery sections 5-20; original Artifact card body unchanged",
+    "commands": [
+      {
+        "argv": [
+          "git",
+          "show",
+          "9110686a507716d8b4e042a5562a22507658adcb:docs/development/agent-team/tasks.md"
+        ],
+        "cwd": "/workspace/agenteam",
+        "exit_code": 0,
+        "stdout_sha256": "d08c53ccd21713270903003a1d3967b413ad7a4fbc8f43758939ca5c4359abd8",
+        "stdout_bytes": 203555,
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "show",
+          "9110686a507716d8b4e042a5562a22507658adcb:docs/development/agent-team/recovery-2026-10-05.md"
+        ],
+        "cwd": "/workspace/agenteam",
+        "exit_code": 0,
+        "stdout_sha256": "753c632a98636adf34e4ea78d6dfa0b7337d80b123258e5de962068f4d7568f7",
+        "stdout_bytes": 31235,
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "show",
+          "9110686a507716d8b4e042a5562a22507658adcb:docs/development/work-items/recovery-artifact-project-stop.md"
+        ],
+        "cwd": "/workspace/agenteam",
+        "exit_code": 0,
+        "stdout_sha256": "4e358a7a6b3974e195c3643524ac062320dbb6a20a51a1d916f91406a509d2e7",
+        "stdout_bytes": 38725,
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--check",
+          "--",
+          "docs/development/agent-team/tasks.md",
+          "docs/development/agent-team/recovery-2026-10-05.md",
+          "docs/development/work-items/recovery-artifact-project-stop.md"
+        ],
+        "cwd": "/workspace/agenteam",
+        "exit_code": 0,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 0,
+        "stderr": ""
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--no-index",
+          "--check",
+          "--",
+          "/dev/null",
+          "docs/development/agent-team/artifact-project-stop-verification.md"
+        ],
+        "cwd": "/workspace/agenteam",
+        "exit_code": 1,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 0,
+        "stderr": "",
+        "interpretation": "expected no-index difference exit 1; no whitespace diagnostics"
+      },
+      {
+        "argv": [
+          "git",
+          "diff",
+          "--no-index",
+          "--check",
+          "--",
+          "/dev/null",
+          "docs/development/agent-team/evidence/artifact-project-stop-verification/README.md"
+        ],
+        "cwd": "/workspace/agenteam",
+        "exit_code": 1,
+        "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_bytes": 0,
+        "stderr": "",
+        "interpretation": "expected no-index difference exit 1; no whitespace diagnostics"
+      }
+    ],
+    "result": "PASS",
+    "product_tests": "not run",
+    "network_docker_git_writes": "not run"
+  },
+  "reconstruction": {
+    "argv": [
+      "python3",
+      "/workspace/agenteam/docs/development/agent-team/evidence/artifact-project-stop-verification/rebuild.py",
+      "--out",
+      "/tmp/agenteam-artifact-archive-t64zx6Zx/rebuilt-final16"
+    ],
+    "exit_code": 0,
+    "stdout": "{\n  \"indexed_files\": 310,\n  \"raw_files\": 302,\n  \"source_variants\": {\n    \"final\": 16,\n    \"production-review-01\": 8,\n    \"red-input-join-identity-01\": 16,\n    \"source-planning-red-input-01\": 16,\n    \"selector-red-input-01\": 16,\n    \"selector-fixture-input-02\": 16,\n    \"candidate-final\": 16,\n    \"rejected-close-red-01\": 9\n  },\n  \"result\": \"PASS\",\n  \"execution\": \"SHA checks and source reconstruction only; no Go/Docker/network\",\n  \"materialized\": {\n    \"variant\": \"final\",\n    \"files\": 16,\n    \"output\": \"/tmp/agenteam-artifact-archive-t64zx6Zx/rebuilt-final16\"\n  }\n}\n",
+    "stderr": ""
+  },
+  "notes": [
+    "All 302 original-file copies were compared byte-for-byte again after archive construction.",
+    "Seven historical variants recover only their original manifest scope from one final16; no full baseline or cache was copied.",
+    "No-index whitespace checks returned the actual expected difference exit 1 with empty diagnostics; tracked git diff --check returned 0.",
+    "Only the 15 exact archived raw patch paths are excluded from whitespace checks; their original SHA256 is verified.",
+    "The new evidence index excludes itself and includes all other evidence files."
+  ]
+}

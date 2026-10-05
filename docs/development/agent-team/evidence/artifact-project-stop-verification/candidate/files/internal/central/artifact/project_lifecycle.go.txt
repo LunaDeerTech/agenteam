@@ -1,0 +1,952 @@
+package artifact
+
+import (
+	"context"
+	"errors"
+	"sort"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+)
+
+var _ oc.ObjectProjectStop = (*Service)(nil)
+
+const artifactStopBatchSize = 64
+
+type artifactStopRow struct {
+	cause oc.ProjectStopCause
+	state string
+	lane  int
+	after string
+}
+type capturedProducer struct {
+	control             *producerControl
+	id                  string
+	work                *artifactWork
+	sourceHint          identity.ProjectID
+	admitting, returned bool
+	stopCancelled       bool
+	origins             map[foundation.Tx]bool
+	locks               []foundation.LockRequest
+}
+type artifactStopPlan struct {
+	service          *Service
+	request          oc.ProjectStopRequest
+	dependencies     oc.AccessDependencies
+	previous         artifactStopRow
+	found            bool
+	works            []artifactWork
+	commands         []commandRow
+	intents          []uploadIntent
+	native           map[string]commandRow
+	uploads          map[string]uploadIntent
+	controls         []capturedProducer
+	local            []capturedProducer
+	localRevision    uint64
+	hasLocalSnapshot bool
+	locks            []foundation.LockRequest
+	nextLane         int
+	nextAfter        string
+	cycle            bool
+}
+
+func loadArtifactStop(ctx context.Context, e postgres.SQLExecutor, cause oc.ProjectStopCause) (artifactStopRow, bool, error) {
+	d := cause.Details()
+	var row artifactStopRow
+	var action string
+	var version int64
+	err := e.QueryRow(ctx, `SELECT action,project_version,state,scan_kind,COALESCE(scan_after::text,'') FROM agenteam_artifact.project_stops WHERE project_id=$1 AND operation_id=$2`, d.ProjectID.String(), d.OperationID.String()).Scan(&action, &version, &row.state, &row.lane, &row.after)
+	if noRows(err) {
+		return row, false, nil
+	}
+	if err != nil {
+		return row, false, unavailable(err)
+	}
+	if action != string(d.Action) || version != int64(d.ProjectVersion) || row.lane < 0 || row.lane > 3 || row.after != "" && !validWorkID(row.after) || row.state != "stopping" && row.state != "stopped" || row.state == "stopped" && (row.lane != 0 || row.after != "") {
+		return row, false, invalid()
+	}
+	row.cause = cause
+	return row, true, nil
+}
+func commandStopFingerprint(c commandRow) foundation.Digest {
+	var source string
+	if c.source.Validate() == nil {
+		raw, _ := encodeSource(c.source)
+		source = string(raw)
+	}
+	d, _ := jsonDigest(struct {
+		Identity                                             string
+		Ref                                                  any
+		Digest                                               string
+		State, Cause, Source, Lease, Object, Upload, Attempt string
+	}{c.identity.Canonical(), c.ref, c.digest.String(), c.state, c.cause, source, c.sourceLease.String(), c.object.String(), c.upload.String(), c.attempt.String()})
+	return d
+}
+func intentStopFingerprint(u uploadIntent) foundation.Digest {
+	d, _ := jsonDigest(struct {
+		Identity                                                   string
+		Ref                                                        any
+		Digest                                                     string
+		State, Cause, Actor, Object, Upload, Attempt, Receipt, SHA string
+	}{u.identity.Canonical(), u.ref, u.digest.String(), u.state, u.cause, u.originalActor, u.object.String(), u.upload.String(), u.attempt.String(), u.receipt.String(), u.sha.String()})
+	return d
+}
+func sourceProject(c commandRow) identity.ProjectID {
+	if c.source.Validate() != nil {
+		return identity.ProjectID{}
+	}
+	id, _ := foundation.ParseID[identity.Project](c.source.Details().Owner.Details().ProjectID)
+	return id
+}
+func commandAffected(c commandRow, d oc.ProjectStopCauseDetails) bool {
+	return c.ref.ProjectID == d.ProjectID || d.Action == oc.ProjectStopDelete && sourceProject(c) == d.ProjectID
+}
+func (s *Service) discoverArtifactStop(ctx context.Context, request oc.ProjectStopRequest) (*artifactStopPlan, error) {
+	r := s.state()
+	d := request.Details().Cause.Details()
+	b := &artifactStopPlan{service: s, request: request, native: map[string]commandRow{}, uploads: map[string]uploadIntent{}}
+	var err error
+	b.dependencies, err = r.stop.Authority.DiscoverProjectStop(ctx, request)
+	if err != nil {
+		return nil, portError(err)
+	}
+	if b.dependencies.Validate() != nil {
+		return nil, invalid()
+	}
+	b.previous, b.found, err = loadArtifactStop(ctx, r.store, request.Details().Cause)
+	if err != nil {
+		return nil, err
+	}
+	b.locks = append(b.locks, b.dependencies.Locks()...)
+	b.locks = append(b.locks, projectLock(d.ProjectID, foundation.Exclusive))
+	b.nextLane, b.nextAfter = b.previous.lane, b.previous.after
+	if b.found && b.previous.state == "stopped" {
+		return b, nil
+	}
+	var rows *postgres.Rows
+	switch b.previous.lane {
+	case 0, 1:
+		column := "project_id"
+		if b.previous.lane == 1 {
+			column = "source_project_id"
+		}
+		if b.previous.lane == 1 && d.Action != oc.ProjectStopDelete {
+			break
+		}
+		rows, err = r.store.Query(ctx, `SELECT `+artifactWorkColumns+` FROM agenteam_artifact.project_work WHERE `+column+`=$1 AND ($2::text='' OR id>NULLIF($2::text,'')::uuid) ORDER BY id LIMIT $3`, d.ProjectID.String(), b.previous.after, artifactStopBatchSize)
+		if err != nil {
+			return nil, unavailable(err)
+		}
+		for rows.Next() {
+			w, _, e := scanArtifactWork(rows)
+			if e != nil {
+				rows.Close()
+				return nil, e
+			}
+			b.works = append(b.works, w)
+			b.nextAfter = w.id
+		}
+	case 2:
+		// Decode the actual original source, including legacy commands without
+		// work. A caller's project label never establishes an incoming relation.
+		rows, err = r.store.Query(ctx, `SELECT `+commandColumns+` FROM agenteam_artifact.commands WHERE (project_id=$1 OR ($3 AND path='source')) AND ($2::text='' OR artifact_id>NULLIF($2::text,'')::uuid) ORDER BY artifact_id LIMIT $4`, d.ProjectID.String(), b.previous.after, d.Action == oc.ProjectStopDelete, artifactStopBatchSize)
+		if err != nil {
+			return nil, unavailable(err)
+		}
+		for rows.Next() {
+			c, _, e := scanCommand(rows)
+			if e != nil {
+				rows.Close()
+				return nil, e
+			}
+			b.commands = append(b.commands, c)
+			b.nextAfter = c.ref.ArtifactID.String()
+		}
+	case 3:
+		rows, err = r.store.Query(ctx, `SELECT `+intentColumns+` FROM agenteam_artifact.upload_intents WHERE project_id=$1 AND ($2::text='' OR id>NULLIF($2::text,'')::uuid) ORDER BY id LIMIT $3`, d.ProjectID.String(), b.previous.after, artifactStopBatchSize)
+		if err != nil {
+			return nil, unavailable(err)
+		}
+		for rows.Next() {
+			u, _, e := scanIntent(rows)
+			if e != nil {
+				rows.Close()
+				return nil, e
+			}
+			b.intents = append(b.intents, u)
+			b.nextAfter = u.ref.ArtifactID.String()
+		}
+	}
+	if rows != nil {
+		err = rows.Err()
+		rows.Close()
+		if err != nil {
+			return nil, unavailable(err)
+		}
+	}
+	count := len(b.works) + len(b.commands) + len(b.intents)
+	if count < artifactStopBatchSize {
+		b.nextLane = (b.previous.lane + 1) % 4
+		b.nextAfter = ""
+		b.cycle = b.previous.lane == 3
+	}
+	for _, w := range b.works {
+		b.locks = append(b.locks, artifactWorkLocks(w)...)
+		if w.kind == "creation" {
+			c, found, e := loadCommandArtifact(ctx, r.store, w.resource)
+			if e != nil {
+				return nil, e
+			}
+			if found {
+				if c.ref.ProjectID != w.project || digestBytes([]byte(c.identity.Canonical())) != w.command || sourceProject(c) != w.source {
+					return nil, invalid()
+				}
+				b.native[w.id] = c
+				b.locks = append(b.locks, createLocks(c.identity, w.resource)...)
+			}
+		} else {
+			u, found, e := loadIntentID(ctx, r.store, w.resource)
+			if e != nil {
+				return nil, e
+			}
+			if !found || u.ref.ProjectID != w.project || digestBytes([]byte(u.identity.Canonical())) != w.command || w.source.Validate() == nil {
+				return nil, invalid()
+			}
+			b.uploads[w.id] = u
+			b.locks = append(b.locks, createLocks(u.identity, w.resource)...)
+		}
+	}
+	for _, c := range b.commands {
+		b.locks = append(b.locks, createLocks(c.identity, c.ref.ArtifactID.String())...)
+		b.locks = append(b.locks, projectLock(c.ref.ProjectID, foundation.Shared))
+		if sourceProject(c).Validate() == nil {
+			b.locks = append(b.locks, projectLock(sourceProject(c), foundation.Shared))
+		}
+	}
+	for _, u := range b.intents {
+		b.locks = append(b.locks, createLocks(u.identity, u.ref.ArtifactID.String())...)
+	}
+	var preWork []capturedProducer
+	r.mu.Lock()
+	for p := range r.controls {
+		if !producerRelated(p, d) {
+			continue
+		}
+		capture := captureProducer(p)
+		b.local = append(b.local, capture)
+		// An unverified source hint can delay Stopped, but cannot authorize
+		// cancelling a call in the other project.
+		if p.project != d.ProjectID && (p.work == nil || p.work.source != d.ProjectID) {
+			continue
+		}
+		if p.work == nil {
+			preWork = append(preWork, capture)
+			continue
+		}
+		// The persistent page alone defines this round's revocation/cancel set.
+		if p.work != nil {
+			inBatch := false
+			for _, w := range b.works {
+				if w.id == p.work.id {
+					if !workIdentity(w, *p.work) || w.lease != p.work.lease {
+						r.mu.Unlock()
+						return nil, failure(foundation.ResourceBusy, nil)
+					}
+					inBatch = true
+					break
+				}
+			}
+			if !inBatch {
+				continue
+			}
+		}
+		b.controls = append(b.controls, capture)
+	}
+	b.localRevision, b.hasLocalSnapshot = r.localRevision, true
+	r.mu.Unlock()
+	// Work rows already have the four durable cursors. Pre-work calls have no
+	// row to advance: select uncancelled lifetimes first, then retry old tails.
+	sort.Slice(preWork, func(i, j int) bool {
+		if preWork[i].stopCancelled != preWork[j].stopCancelled {
+			return !preWork[i].stopCancelled
+		}
+		return preWork[i].id < preWork[j].id
+	})
+	for _, capture := range preWork {
+		if len(b.controls) == artifactStopBatchSize {
+			break
+		}
+		b.controls = append(b.controls, capture)
+	}
+	for _, capture := range b.controls {
+		b.locks = append(b.locks, capture.locks...)
+		b.locks = append(b.locks, controlRecordLock(capture.id))
+		if capture.work != nil {
+			b.locks = append(b.locks, artifactWorkLocks(*capture.work)...)
+		}
+	}
+	sort.Slice(b.local, func(i, j int) bool { return b.local[i].id < b.local[j].id })
+	b.locks, err = oc.NormalizeAccessLocks(b.locks)
+	if err != nil {
+		return nil, invalid()
+	}
+	return b, nil
+}
+func (s *Service) validateArtifactBatch(ctx context.Context, e postgres.SQLExecutor, b *artifactStopPlan) error {
+	current, found, err := loadArtifactStop(ctx, e, b.request.Details().Cause)
+	if err != nil {
+		return err
+	}
+	if found != b.found || found && (current.state != b.previous.state || current.lane != b.previous.lane || current.after != b.previous.after) {
+		return failure(foundation.ResourceBusy, nil)
+	}
+	for _, w := range b.works {
+		actual, found, err := loadArtifactWork(ctx, e, w.id)
+		if err != nil {
+			return err
+		}
+		if !found || !workIdentity(w, actual) || w.lease != actual.lease {
+			return failure(foundation.ResourceBusy, nil)
+		}
+		if c, ok := b.native[w.id]; ok {
+			now, found, err := loadCommandArtifact(ctx, e, w.resource)
+			if err != nil {
+				return err
+			}
+			if !found || commandStopFingerprint(c) != commandStopFingerprint(now) {
+				return failure(foundation.ResourceBusy, nil)
+			}
+		}
+		if u, ok := b.uploads[w.id]; ok {
+			now, found, err := loadIntentID(ctx, e, w.resource)
+			if err != nil {
+				return err
+			}
+			if !found || intentStopFingerprint(u) != intentStopFingerprint(now) {
+				return failure(foundation.ResourceBusy, nil)
+			}
+		}
+	}
+	for _, c := range b.commands {
+		now, found, err := loadCommand(ctx, e, c.identity)
+		if err != nil {
+			return err
+		}
+		if !found || commandStopFingerprint(now) != commandStopFingerprint(c) {
+			return failure(foundation.ResourceBusy, nil)
+		}
+	}
+	for _, u := range b.intents {
+		now, found, err := loadIntentID(ctx, e, u.ref.ArtifactID.String())
+		if err != nil {
+			return err
+		}
+		if !found || intentStopFingerprint(now) != intentStopFingerprint(u) {
+			return failure(foundation.ResourceBusy, nil)
+		}
+	}
+	r := s.state()
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return s.validateLocalSnapshot(b)
+}
+
+// All callers of these snapshot helpers hold the service registry mutex.
+func producerRelated(p *producerControl, d oc.ProjectStopCauseDetails) bool {
+	return p.project == d.ProjectID || d.Action == oc.ProjectStopDelete && (p.sourceHint == d.ProjectID || p.work != nil && p.work.source == d.ProjectID)
+}
+func captureProducer(p *producerControl) capturedProducer {
+	c := capturedProducer{control: p, id: p.id, sourceHint: p.sourceHint, admitting: p.admitting, returned: p.returned, stopCancelled: p.stopCancelled, locks: append([]foundation.LockRequest{}, p.locks...), origins: map[foundation.Tx]bool{}}
+	if p.work != nil {
+		w := *p.work
+		c.work = &w
+	}
+	for tx := range p.origins {
+		c.origins[tx] = true
+	}
+	return c
+}
+func (s *Service) validateLocalSnapshot(b *artifactStopPlan) error {
+	if !b.hasLocalSnapshot {
+		return nil
+	}
+	r := s.state()
+	if r.localRevision != b.localRevision {
+		return failure(foundation.ResourceBusy, nil)
+	}
+	for _, c := range b.local {
+		p := c.control
+		if !r.controls[p] || p.service != s || p.id != c.id || p.sourceHint != c.sourceHint || p.admitting != c.admitting || p.returned != c.returned || p.stopCancelled != c.stopCancelled || (p.work == nil) != (c.work == nil) || p.work != nil && (!workIdentity(*p.work, *c.work) || p.work.lease != c.work.lease) || len(p.origins) != len(c.origins) || len(p.locks) != len(c.locks) {
+			return failure(foundation.ResourceBusy, nil)
+		}
+		for tx := range c.origins {
+			if !p.origins[tx] {
+				return failure(foundation.ResourceBusy, nil)
+			}
+		}
+		for i, lock := range c.locks {
+			if foundation.CompareLockKeys(lock.Key, p.locks[i].Key) != 0 || lock.Mode != p.locks[i].Mode {
+				return failure(foundation.ResourceBusy, nil)
+			}
+		}
+	}
+	return nil
+}
+func (s *Service) verifyLocalProducers(ctx context.Context, p *producerControl, b *artifactStopPlan) foundation.CommitResult {
+	for start := 0; start < len(b.local); start += artifactStopBatchSize {
+		end := min(start+artifactStopBatchSize, len(b.local))
+		result := s.verifyLocalBatch(ctx, p, b, b.local[start:end])
+		if result.State() != foundation.Committed {
+			return result
+		}
+	}
+	return foundation.CommittedResult()
+}
+func (s *Service) verifyLocalBatch(ctx context.Context, p *producerControl, b *artifactStopPlan, batch []capturedProducer) foundation.CommitResult {
+	if len(batch) > artifactStopBatchSize || b.service != s {
+		return rejected(invalid())
+	}
+	r := s.state()
+	barrier := []foundation.LockRequest{controlRecordLock(p.id), projectLock(b.request.Details().Cause.Details().ProjectID, foundation.Exclusive)}
+	locks := append(append([]foundation.LockRequest{}, b.dependencies.Locks()...), barrier...)
+	for _, c := range batch {
+		locks = append(locks, c.locks...)
+		locks = append(locks, controlRecordLock(c.id))
+		if c.work != nil {
+			locks = append(locks, artifactWorkLocks(*c.work)...)
+		}
+	}
+	locks, err := oc.NormalizeAccessLocks(locks)
+	if err != nil {
+		return rejected(invalid())
+	}
+	cause, err := txCause()
+	if err != nil {
+		return rejected(err)
+	}
+	// AcquireAll can fail after acquiring an earlier key but before control EX.
+	// Retain this one unconfirmed union before starting the physical Tx. A
+	// confirmed batch retires its union; historical batches never accumulate it.
+	if previous, started := s.startStopBatch(p, locks); !started {
+		return previous
+	}
+	result := r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+		r.mu.Lock()
+		p.origins[tx] = true
+		r.mu.Unlock()
+		if err := r.store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		// Every batch has acquired these same keys. They are sufficient to
+		// serialize confirmed history without retaining all previous unions.
+		if err := s.observeControl(p, tx, barrier); err != nil {
+			return err
+		}
+		grant, err := r.stop.Authority.ValidateProjectStopInTx(ctx, tx, b.request, b.dependencies)
+		if err != nil {
+			return portError(err)
+		}
+		if !grant.Matches(tx, b.request, b.dependencies) {
+			return failure(foundation.Forbidden, nil)
+		}
+		e, err := r.store.InTx(tx)
+		if err != nil {
+			return portError(err)
+		}
+		for _, c := range batch {
+			if c.work == nil {
+				continue
+			}
+			w := *c.work
+			actual, found, err := loadArtifactWork(ctx, e, w.id)
+			if err != nil {
+				return err
+			}
+			if !found || !workIdentity(w, actual) || w.lease != actual.lease {
+				return failure(foundation.ResourceBusy, nil)
+			}
+			if w.kind == "creation" {
+				native, found, err := loadCommandArtifact(ctx, e, w.resource)
+				if err != nil {
+					return err
+				}
+				if found && (native.ref.ProjectID != w.project || digestBytes([]byte(native.identity.Canonical())) != w.command || sourceProject(native) != w.source) {
+					return invalid()
+				}
+			} else {
+				native, found, err := loadIntentID(ctx, e, w.resource)
+				if err != nil {
+					return err
+				}
+				if !found || native.ref.ProjectID != w.project || digestBytes([]byte(native.identity.Canonical())) != w.command {
+					return invalid()
+				}
+			}
+		}
+		r.mu.Lock()
+		err = s.validateLocalSnapshot(b)
+		r.mu.Unlock()
+		return err
+	})
+	return s.finishStopBatch(p, result)
+}
+
+// An unconfirmed transaction keeps its original bounded union and outcome.
+// This request returns instead of accumulating another work/batch behind it;
+// whole-control cleanup later proves that union terminal before retirement.
+func (s *Service) startStopBatch(p *producerControl, locks []foundation.LockRequest) (foundation.CommitResult, bool) {
+	r := s.state()
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if len(p.pendingBatch) != 0 {
+		return p.pendingResult, false
+	}
+	p.pendingBatch = append([]foundation.LockRequest{}, locks...)
+	p.pendingResult = rejected(failure(foundation.ResourceBusy, nil))
+	return foundation.CommittedResult(), true
+}
+func (s *Service) finishStopBatch(p *producerControl, result foundation.CommitResult) foundation.CommitResult {
+	r := s.state()
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	p.pendingResult = result
+	if result.State() == foundation.Committed {
+		p.pendingBatch = nil
+	}
+	return result
+}
+func (s *Service) pendingStopBatch(p *producerControl) (foundation.CommitResult, bool) {
+	r := s.state()
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	return p.pendingResult, len(p.pendingBatch) != 0
+}
+func (s *Service) cancelCaptured(c capturedProducer) {
+	r := s.state()
+	r.mu.Lock()
+	p := c.control
+	matches := r.controls[p] && p.service == s && p.id == c.id && p.sourceHint == c.sourceHint && (p.work == nil) == (c.work == nil) && (p.work == nil || workIdentity(*p.work, *c.work) && p.work.lease == c.work.lease)
+	r.mu.Unlock()
+	if matches {
+		s.cancelProducer(p)
+	}
+}
+func (s *Service) stopTransaction(ctx context.Context, p *producerControl, b *artifactStopPlan, fn func(context.Context, foundation.Tx, postgres.SQLExecutor, oc.ProjectStopAuthorizationMode) error) foundation.CommitResult {
+	if b == nil || b.service != s {
+		return rejected(invalid())
+	}
+	r := s.state()
+	locks, err := oc.NormalizeAccessLocks(append(append([]foundation.LockRequest{}, b.locks...), s.controlLocks(p)...))
+	if err != nil {
+		return rejected(invalid())
+	}
+	cause, err := txCause()
+	if err != nil {
+		return rejected(err)
+	}
+	if previous, started := s.startStopBatch(p, locks); !started {
+		return previous
+	}
+	result := r.store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+		r.mu.Lock()
+		p.origins[tx] = true
+		r.mu.Unlock()
+		if err := r.store.AcquireAll(ctx, tx, locks); err != nil {
+			return portError(err)
+		}
+		if err := s.observeControl(p, tx, locks); err != nil {
+			return err
+		}
+		grant, err := r.stop.Authority.ValidateProjectStopInTx(ctx, tx, b.request, b.dependencies)
+		if err != nil {
+			return portError(err)
+		}
+		if !grant.Matches(tx, b.request, b.dependencies) {
+			return failure(foundation.Forbidden, nil)
+		}
+		e, err := r.store.InTx(tx)
+		if err != nil {
+			return portError(err)
+		}
+		if err = s.validateArtifactBatch(ctx, e, b); err != nil {
+			return err
+		}
+		return fn(ctx, tx, e, grant.Mode())
+	})
+	return s.finishStopBatch(p, result)
+}
+func (s *Service) RequestProjectStop(ctx context.Context, actor identity.Actor, cause oc.ProjectStopCause) (oc.ObjectStopReport, error) {
+	return s.artifactProjectStop(ctx, actor, cause, oc.RequestProjectStopStep)
+}
+func (s *Service) InspectProjectStop(ctx context.Context, actor identity.Actor, cause oc.ProjectStopCause) (oc.ObjectStopReport, error) {
+	return s.artifactProjectStop(ctx, actor, cause, oc.InspectProjectStopStep)
+}
+func pendingArtifact(cause oc.ProjectStopCause, unknown bool) (oc.ObjectStopReport, error) {
+	reason := oc.ProjectStopWorkPending
+	if unknown {
+		reason = oc.ProjectStopOutcomeUnknown
+	}
+	return oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, oc.ObjectStopDetails{State: oc.ProjectStopPending, SafeReason: reason})
+}
+func (s *Service) artifactProjectStop(ctx context.Context, actor identity.Actor, cause oc.ProjectStopCause, step oc.ProjectStopStep) (oc.ObjectStopReport, error) {
+	request, err := oc.NewProjectStopRequest(oc.ProjectStopRequestDetails{Actor: actor, Cause: cause, Component: oc.ArtifactStopComponent, Step: step})
+	if err != nil || s.state() == nil {
+		return oc.ObjectStopReport{}, invalid()
+	}
+	r := s.state()
+	if r.stop.Authority == nil || r.stop.Objects == nil {
+		return oc.ObjectStopReport{}, failure(foundation.DependencyUnbound, nil)
+	}
+	p, err := s.beginProducer(ctx, identity.ProjectID{})
+	if err != nil {
+		return oc.ObjectStopReport{}, err
+	}
+	defer s.finishProducer(p)
+	ctx = p.ctx
+	b, err := s.discoverArtifactStop(ctx, request)
+	if err != nil {
+		return oc.ObjectStopReport{}, err
+	}
+	verified := s.verifyLocalProducers(ctx, p, b)
+	if verified.State() == foundation.Unknown {
+		return pendingArtifact(cause, true)
+	}
+	if err = commitError(verified); err != nil {
+		return oc.ObjectStopReport{}, err
+	}
+	var mode oc.ProjectStopAuthorizationMode
+	preflight := s.stopTransaction(ctx, p, b, func(_ context.Context, _ foundation.Tx, _ postgres.SQLExecutor, m oc.ProjectStopAuthorizationMode) error {
+		mode = m
+		return nil
+	})
+	if preflight.State() == foundation.Unknown {
+		return pendingArtifact(cause, true)
+	}
+	if err = commitError(preflight); err != nil {
+		return oc.ObjectStopReport{}, err
+	}
+	if mode == oc.ReadProjectStop {
+		if !b.found || b.previous.state != "stopped" {
+			return oc.ObjectStopReport{}, failure(foundation.ResourceBusy, nil)
+		}
+		object, err := r.stop.Objects.InspectProjectStop(ctx, actor, cause)
+		if err != nil {
+			return oc.ObjectStopReport{}, portError(err)
+		}
+		return mergeArtifactReport(cause, oc.ObjectStopDetails{State: oc.ProjectStopped}, object)
+	}
+	if mode != oc.ContinueProjectStop {
+		return oc.ObjectStopReport{}, invalid()
+	}
+	if step == oc.InspectProjectStopStep && !b.found {
+		return oc.ObjectStopReport{}, failure(foundation.ResourceBusy, nil)
+	}
+	if b.found && b.previous.state == "stopped" {
+		var object oc.ObjectStopReport
+		if step == oc.InspectProjectStopStep {
+			object, err = r.stop.Objects.InspectProjectStop(ctx, actor, cause)
+		} else {
+			object, err = r.stop.Objects.RequestProjectStop(ctx, actor, cause)
+		}
+		if err != nil {
+			return oc.ObjectStopReport{}, portError(err)
+		}
+		return mergeArtifactReport(cause, oc.ObjectStopDetails{State: oc.ProjectStopped}, object)
+	}
+	d := cause.Details()
+	gate := s.stopTransaction(ctx, p, b, func(ctx context.Context, _ foundation.Tx, e postgres.SQLExecutor, m oc.ProjectStopAuthorizationMode) error {
+		if m != oc.ContinueProjectStop {
+			return failure(foundation.Forbidden, nil)
+		}
+		if !b.found {
+			_, err := e.Exec(ctx, `INSERT INTO agenteam_artifact.project_stops(project_id,operation_id,action,project_version) VALUES($1,$2,$3,$4)`, d.ProjectID.String(), d.OperationID.String(), string(d.Action), int64(d.ProjectVersion))
+			if err != nil {
+				return unavailable(err)
+			}
+		}
+		for _, w := range b.works {
+			if w.project == d.ProjectID {
+				if _, err := e.Exec(ctx, `UPDATE agenteam_artifact.project_work SET revoked_by=COALESCE(revoked_by,$2) WHERE id=$1`, w.id, d.OperationID.String()); err != nil {
+					return unavailable(err)
+				}
+			}
+			if d.Action == oc.ProjectStopDelete && w.source == d.ProjectID {
+				if _, err := e.Exec(ctx, `UPDATE agenteam_artifact.project_work SET source_revoked_by=COALESCE(source_revoked_by,$2) WHERE id=$1`, w.id, d.OperationID.String()); err != nil {
+					return unavailable(err)
+				}
+			}
+		}
+		for _, c := range b.commands {
+			if !commandAffected(c, d) || c.state == "completed" || c.state == "deleted" {
+				continue
+			}
+			if _, err := e.Exec(ctx, `UPDATE agenteam_artifact.commands SET state='cancel_requested' WHERE command_hash=$1 AND state NOT IN('completed','deleted','cancelled')`, digestRaw(digestBytes([]byte(c.identity.Canonical())))); err != nil {
+				return unavailable(err)
+			}
+		}
+		for _, u := range b.intents {
+			if u.state == "consumed" || u.state == "deleted" {
+				continue
+			}
+			if _, err := e.Exec(ctx, `UPDATE agenteam_artifact.upload_intents SET state='cancel_requested' WHERE id=$1 AND state NOT IN('consumed','deleted','cancelled')`, u.ref.ArtifactID.String()); err != nil {
+				return unavailable(err)
+			}
+		}
+		_, err := e.Exec(ctx, `UPDATE agenteam_artifact.project_stops SET scan_kind=$3,scan_after=$4 WHERE project_id=$1 AND operation_id=$2`, d.ProjectID.String(), d.OperationID.String(), b.nextLane, null(b.nextAfter))
+		return portOrNil(err)
+	})
+	if gate.State() == foundation.Unknown {
+		return pendingArtifact(cause, true)
+	}
+	if err = commitError(gate); err != nil {
+		return oc.ObjectStopReport{}, err
+	}
+	// Only these identities were captured and checked in both confirmed Txes.
+	// A control that joined meanwhile is harmless; no project-wide rescan cancel.
+	local := oc.ObjectStopDetails{State: oc.ProjectStopPending, SafeReason: oc.ProjectStopWorkPending}
+	var convergenceUnknown error
+	recordConvergence := func(w *artifactWork, err error) {
+		var fault *foundation.Fault
+		if errors.As(err, &fault) && (fault.CommitState == foundation.Unknown || fault.Code == foundation.CommitUnknown) {
+			convergenceUnknown = portError(err)
+			local.SafeReason = oc.ProjectStopOutcomeUnknown
+			if w != nil {
+				local.UnknownRefs = append(local.UnknownRefs, artifactWorkRef(*w))
+			}
+		}
+	}
+	for _, capture := range b.controls {
+		s.cancelCaptured(capture)
+		recordConvergence(capture.work, s.settleProducer(ctx, capture.control))
+	}
+	for _, w := range b.works {
+		if !w.joined || w.source.Validate() == nil && !w.sourceJoined {
+			recordConvergence(&w, s.recoverArtifactWork(ctx, p, request, w))
+			if result, pending := s.pendingStopBatch(p); pending {
+				return pendingConvergenceReport(cause, local, convergenceUnknown, result)
+			}
+		}
+	}
+	var object oc.ObjectStopReport
+	if step == oc.InspectProjectStopStep {
+		object, err = r.stop.Objects.InspectProjectStop(ctx, actor, cause)
+	} else {
+		object, err = r.stop.Objects.RequestProjectStop(ctx, actor, cause)
+	}
+	if err != nil {
+		if convergenceUnknown != nil {
+			return oc.ObjectStopReport{}, convergenceUnknown
+		}
+		return oc.ObjectStopReport{}, portError(err)
+	}
+	if !object.Matches(oc.ObjectStopComponent, cause) {
+		if convergenceUnknown != nil {
+			return oc.ObjectStopReport{}, convergenceUnknown
+		}
+		return oc.ObjectStopReport{}, invalid()
+	}
+	for _, w := range b.works {
+		if !w.joined || w.source.Validate() == nil && !w.sourceJoined {
+			local.ActiveRefs = append(local.ActiveRefs, artifactWorkRef(w))
+		}
+	}
+	if b.cycle && convergenceUnknown == nil {
+		// Fresh planning/auth after Object returned. Its report cannot authorize
+		// a stale cause, a changed mapping, or a partially scanned prefix.
+		final, err := s.discoverArtifactStop(ctx, request)
+		if err != nil {
+			return oc.ObjectStopReport{}, err
+		}
+		result := s.stopTransaction(ctx, p, final, func(ctx context.Context, _ foundation.Tx, e postgres.SQLExecutor, m oc.ProjectStopAuthorizationMode) error {
+			if m != oc.ContinueProjectStop {
+				return failure(foundation.Forbidden, nil)
+			}
+			pending, err := s.artifactPending(ctx, e, d)
+			if err != nil {
+				return err
+			}
+			if pending || len(s.workControls(d.ProjectID, d.Action == oc.ProjectStopDelete)) != 0 || object.Details().State != oc.ProjectStopped {
+				return nil
+			}
+			_, err = e.Exec(ctx, `UPDATE agenteam_artifact.project_stops SET state='stopped',stopped_at=clock_timestamp(),scan_kind=0,scan_after=NULL WHERE project_id=$1 AND operation_id=$2`, d.ProjectID.String(), d.OperationID.String())
+			if err == nil {
+				local = oc.ObjectStopDetails{State: oc.ProjectStopped}
+			}
+			return portOrNil(err)
+		})
+		if result.State() == foundation.Unknown {
+			return pendingArtifact(cause, true)
+		}
+		if err = commitError(result); err != nil {
+			return oc.ObjectStopReport{}, err
+		}
+	}
+	return mergeArtifactReport(cause, local, object)
+}
+func artifactWorkRef(w artifactWork) oc.ProjectStopRef {
+	id, _ := foundation.ParseID[oc.ProjectStopResource](w.resource)
+	kind := oc.StopArtifactCreation
+	if w.kind == "upload" {
+		kind = oc.StopArtifactUpload
+	}
+	return oc.ProjectStopRef{Kind: kind, ID: id}
+}
+
+func pendingConvergenceReport(cause oc.ProjectStopCause, local oc.ObjectStopDetails, observedUnknown error, original foundation.CommitResult) (oc.ObjectStopReport, error) {
+	if observedUnknown != nil || original.State() == foundation.Unknown {
+		local = normalizeArtifactRefs(local)
+		local.State, local.SafeReason = oc.ProjectStopPending, oc.ProjectStopOutcomeUnknown
+		return oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, local)
+	}
+	return oc.ObjectStopReport{}, commitError(original)
+}
+func mergeArtifactReport(cause oc.ProjectStopCause, local oc.ObjectStopDetails, object oc.ObjectStopReport) (oc.ObjectStopReport, error) {
+	if !object.Matches(oc.ObjectStopComponent, cause) {
+		return oc.ObjectStopReport{}, invalid()
+	}
+	d := object.Details()
+	out := local
+	out.UnknownRefs = append(append([]oc.ProjectStopRef{}, local.UnknownRefs...), d.UnknownRefs...)
+	out.ActiveRefs = append(append([]oc.ProjectStopRef{}, local.ActiveRefs...), d.ActiveRefs...)
+	out = normalizeArtifactRefs(out)
+	if len(out.UnknownRefs) > 0 || local.SafeReason == oc.ProjectStopOutcomeUnknown || d.SafeReason == oc.ProjectStopOutcomeUnknown {
+		out.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopOutcomeUnknown
+	} else if d.State == oc.ProjectStopFailed {
+		out.State, out.SafeReason = oc.ProjectStopFailed, d.SafeReason
+	} else if local.State == oc.ProjectStopped && d.State == oc.ProjectStopped {
+		out.State, out.SafeReason = oc.ProjectStopped, ""
+		out.ActiveRefs = nil
+	} else {
+		out.State, out.SafeReason = oc.ProjectStopPending, oc.ProjectStopWorkPending
+	}
+	return oc.NewObjectStopReport(oc.ArtifactStopComponent, cause, out)
+}
+func normalizeArtifactRefs(out oc.ObjectStopDetails) oc.ObjectStopDetails {
+	unknown := map[oc.ProjectStopRef]bool{}
+	active := map[oc.ProjectStopRef]bool{}
+	for _, ref := range out.UnknownRefs {
+		unknown[ref] = true
+	}
+	for _, ref := range out.ActiveRefs {
+		if !unknown[ref] {
+			active[ref] = true
+		}
+	}
+	out.ActiveRefs = nil
+	out.UnknownRefs = nil
+	for ref := range active {
+		out.ActiveRefs = append(out.ActiveRefs, ref)
+	}
+	for ref := range unknown {
+		out.UnknownRefs = append(out.UnknownRefs, ref)
+	}
+	sortRefs := func(refs []oc.ProjectStopRef) {
+		sort.Slice(refs, func(i, j int) bool {
+			if refs[i].Kind != refs[j].Kind {
+				return refs[i].Kind < refs[j].Kind
+			}
+			return refs[i].ID.String() < refs[j].ID.String()
+		})
+	}
+	sortRefs(out.ActiveRefs)
+	sortRefs(out.UnknownRefs)
+	return out
+}
+func (s *Service) artifactPending(ctx context.Context, e postgres.SQLExecutor, d oc.ProjectStopCauseDetails) (bool, error) {
+	var pending bool
+	err := e.QueryRow(ctx, `SELECT
+ EXISTS(SELECT 1 FROM agenteam_artifact.project_work WHERE (project_id=$1 AND (joined_at IS NULL OR revoked_by IS NULL)) OR ($2 AND source_project_id=$1 AND (source_joined_at IS NULL OR source_revoked_by IS NULL)))
+ OR EXISTS(SELECT 1 FROM agenteam_artifact.commands c WHERE (c.project_id=$1 OR ($2 AND c.path='source' AND c.source->>'project'=$1::text)) AND c.state NOT IN('completed','deleted') AND (c.state NOT IN('cancel_requested','cancelled') OR NOT EXISTS(SELECT 1 FROM agenteam_artifact.project_work w WHERE w.project_id=c.project_id AND w.resource_id=c.artifact_id AND w.command_hash=c.command_hash AND w.kind='creation' AND w.joined_at IS NOT NULL)))
+ OR EXISTS(SELECT 1 FROM agenteam_artifact.upload_intents u WHERE u.project_id=$1 AND u.state NOT IN('consumed','deleted') AND (u.state NOT IN('cancel_requested','cancelled') OR (u.target_object_id IS NOT NULL AND NOT EXISTS(SELECT 1 FROM agenteam_artifact.project_work w WHERE w.project_id=u.project_id AND w.resource_id=u.id AND w.command_hash=u.command_hash AND w.kind='upload' AND w.joined_at IS NOT NULL))))`, d.ProjectID.String(), d.Action == oc.ProjectStopDelete).Scan(&pending)
+	if err != nil {
+		return false, unavailable(err)
+	}
+	return pending, nil
+}
+func (s *Service) recoverArtifactWork(ctx context.Context, p *producerControl, request oc.ProjectStopRequest, w artifactWork) error {
+	r := s.state()
+	r.mu.Lock()
+	for local := range r.controls {
+		if local.work != nil && local.work.id == w.id {
+			r.mu.Unlock()
+			return s.settleProducer(ctx, local)
+		}
+	}
+	r.mu.Unlock()
+	if r.stop.Processes == nil || w.process == r.process {
+		return failure(foundation.ResourceBusy, nil)
+	}
+	if err := r.stop.Processes.ConfirmStopped(ctx, w.process); err != nil {
+		return portError(err)
+	}
+	// Reacquire the exact writer keys first. A dead process can still have an
+	// original server-side COMMIT whose lease row was invisible to discovery.
+	b, err := s.discoverArtifactStop(ctx, request)
+	if err != nil {
+		return err
+	}
+	b.works = []artifactWork{w}
+	b.commands = nil
+	b.intents = nil
+	b.native = map[string]commandRow{}
+	b.uploads = map[string]uploadIntent{}
+	b.locks = append(b.locks, artifactWorkLocks(w)...)
+	var source oc.ResolvedSource
+	if w.kind == "creation" {
+		c, found, err := loadCommandArtifact(ctx, r.store, w.resource)
+		if err != nil {
+			return err
+		}
+		if found {
+			if c.ref.ProjectID != w.project || digestBytes([]byte(c.identity.Canonical())) != w.command || sourceProject(c) != w.source {
+				return invalid()
+			}
+			b.native[w.id] = c
+			source = c.source
+			b.locks = append(b.locks, createLocks(c.identity, w.resource)...)
+		}
+	} else {
+		u, found, err := loadIntentID(ctx, r.store, w.resource)
+		if err != nil {
+			return err
+		}
+		if !found || u.ref.ProjectID != w.project || digestBytes([]byte(u.identity.Canonical())) != w.command {
+			return invalid()
+		}
+		b.uploads[w.id] = u
+		b.locks = append(b.locks, createLocks(u.identity, w.resource)...)
+	}
+	barrier := s.stopTransaction(ctx, p, b, func(_ context.Context, _ foundation.Tx, _ postgres.SQLExecutor, m oc.ProjectStopAuthorizationMode) error {
+		if m != oc.ContinueProjectStop {
+			return invalid()
+		}
+		return nil
+	})
+	if err = commitError(barrier); err != nil {
+		return err
+	}
+	if w.lease.Validate() == nil {
+		if source.Validate() != nil {
+			return failure(foundation.ResourceBusy, nil)
+		}
+		inspection, err := r.cleaner.InspectReferences(ctx, source.Details().Meta.ID)
+		if err != nil {
+			return portError(err)
+		}
+		for _, lease := range inspection.ActiveLeases {
+			if lease.ID == w.lease {
+				return failure(foundation.ResourceBusy, nil)
+			}
+		}
+	}
+	result := s.stopTransaction(ctx, p, b, func(ctx context.Context, _ foundation.Tx, e postgres.SQLExecutor, m oc.ProjectStopAuthorizationMode) error {
+		if m != oc.ContinueProjectStop {
+			return invalid()
+		}
+		_, err := e.Exec(ctx, `UPDATE agenteam_artifact.project_work SET joined_at=COALESCE(joined_at,clock_timestamp()),source_joined_at=CASE WHEN source_project_id IS NOT NULL THEN COALESCE(source_joined_at,clock_timestamp()) ELSE NULL END WHERE id=$1`, w.id)
+		return portOrNil(err)
+	})
+	return commitError(result)
+}

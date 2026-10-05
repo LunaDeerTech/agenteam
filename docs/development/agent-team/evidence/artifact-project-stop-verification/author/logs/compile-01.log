@@ -1,0 +1,13 @@
+# github.com/LunaDeerTech/agenteam/internal/central/artifact [github.com/LunaDeerTech/agenteam/internal/central/artifact.test]
+internal/central/artifact/project_lifecycle.go:128:15: cannot use 1st function result (value of type *postgres.Rows) as postgres.Rows value in multiple assignment
+internal/central/artifact/project_lifecycle.go:133:32: cannot use rows (variable of struct type postgres.Rows) as postgres.Row value in argument to scanArtifactWork: postgres.Rows does not implement postgres.Row (method Scan has pointer receiver)
+internal/central/artifact/project_lifecycle.go:144:15: cannot use 1st function result (value of type *postgres.Rows) as postgres.Rows value in multiple assignment
+internal/central/artifact/project_lifecycle.go:149:27: cannot use rows (variable of struct type postgres.Rows) as postgres.Row value in argument to scanCommand: postgres.Rows does not implement postgres.Row (method Scan has pointer receiver)
+internal/central/artifact/project_lifecycle.go:158:15: cannot use 1st function result (value of type *postgres.Rows) as postgres.Rows value in multiple assignment
+internal/central/artifact/project_lifecycle.go:163:26: cannot use rows (variable of struct type postgres.Rows) as postgres.Row value in argument to scanIntent: postgres.Rows does not implement postgres.Row (method Scan has pointer receiver)
+internal/central/artifact/project_lifecycle.go:172:13: invalid operation: rows != nil (mismatched types postgres.Rows and untyped nil)
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/artifact [build failed]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/artifact/contract	0.007s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	0.011s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	0.003s [no tests to run]
+FAIL

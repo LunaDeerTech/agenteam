@@ -1,0 +1,45 @@
+--- before/internal/central/artifact/project_lifecycle_test.go
++++ after/internal/central/artifact/project_lifecycle_test.go
+@@ -1,11 +1,42 @@
+ package artifact
+ 
+ import (
++	"context"
+ 	"testing"
+ 
+ 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+ )
++
++func TestArtifactStopSnapshotRejectsRegistryABA(t *testing.T) {
++	s := producerFixture()
++	project := testProject(t)
++	p, err := s.beginProducer(context.Background(), project)
++	if err != nil {
++		t.Fatal(err)
++	}
++	r := s.state()
++	r.mu.Lock()
++	b := &artifactStopPlan{service: s, hasLocalSnapshot: true, localRevision: r.localRevision, local: []capturedProducer{captureProducer(p)}}
++	err = s.validateLocalSnapshot(b)
++	r.mu.Unlock()
++	if err != nil {
++		t.Fatal("unchanged original snapshot rejected", err)
++	}
++	q, err := s.beginProducer(context.Background(), project)
++	if err != nil {
++		t.Fatal(err)
++	}
++	s.finishProducer(q)
++	r.mu.Lock()
++	sameMembers := len(r.controls) == 1 && r.controls[p]
++	err = s.validateLocalSnapshot(b)
++	r.mu.Unlock()
++	if !sameMembers || err == nil {
++		t.Fatal("new lifetime disappeared back into an accepted old snapshot", sameMembers, err)
++	}
++	s.finishProducer(p)
++}
+ 
+ func testArtifactStopCause(t *testing.T) oc.ProjectStopCause {
+ 	t.Helper()

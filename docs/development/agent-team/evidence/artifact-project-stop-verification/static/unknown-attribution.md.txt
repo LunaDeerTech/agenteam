@@ -1,0 +1,21 @@
+# Artifact 两条 Unknown 首红：独立限定审查
+
+结论：publication 兼容阻断成立，不能只移动新测试计时起点。gate 的单次立即取消断言可按原四游标语义作有界校准；仍须实际复验。这里仅静审固定输入/原日志，未运行任何新真实测试或协议干预。
+
+固定输入：base6658a6c + candidate-final16，manifest SHA1c931fc6ac183643380c5c287b008bc672ad5df5d0cc7249ab7ee0ad69e72b85；两次失败输入的16项与固定副本逐项一致。rev3为74f4db8。作者归因418e5508与 evidence6dfa7711 已核；原新组日志3a7b7bb8、原旧组日志082491bf留副本。旧 artifact_unknown_test.go 与6658字节一致，SHA981df22947dfeef47040758be099a9194d2e3f61d3e27d995cab2a5e316adb66。
+
+## publication：保留原3s，不以测试修订解围
+
+原新测试 artifact_project_stop_recovery_test.go:225–227 在语义 publication COMMIT 命中后，3s 等原调用未返；旧 TestArtifactSourceCommandUnknownAndOriginalFactRecovery/publication 在 artifact_unknown_test.go:71–80 同样3s FAIL（source_capture PASS）。旧语义 arm 位于真实 Audit AppendInTx:26–30。这是确实未满足旧兼容门槛，不是 compile/no-tests 或只一条新测试标签。
+
+静态链：候选 create.go:74/124/130 的 defer 依次 DiscardPrepared→body.Close→finishProducer；Object service.go:453 release→service.go:165 finishOperationWork→project_work.go:381 cleanupContext 原2s；候选 Artifact lifecycle.go:161–176 再同步 settleProducer 原2s，settleProducerWork:233–247 包含 source cancel/Discard/完整 control EX join（project_work.go:353–412）。在实际原 publication writer 持相关 SH 的情况下，这条完整锁确认可能等待。原base也有 defer cancelSource 且其独立2s（旧create.go:85/235–241），故不能仅以“2+2”算术宣称净新增耗时或两次红的唯一根因；本轮没有等待栈/各阶段耗时，这是静态强解释。
+
+最小修复方向：将交付原业务 Unknown 与 owned control 的真实退休等待分开。公开结果、work/原Tx/完整union/body/source/prepared/cleanup 所有权不丢失；尚未终局绝不写 joined 或从 registry 注销，Force/Drain 仍按原请求预算管理和等待真实 cleanup。若采取后台原cleanup，它必须先在互斥区登记到原control，生命周期/cancel由原owner持有，不能裸goroutine、复用已取消的临时context或 public-return 时 defer cancel 把它丢掉；不得扩新worker/API/预算。旧3s及新3s原门槛保留，透明 Discard enter/return 只作阶段诊断，不用作绕过旧断言的验收替代。
+
+## gate：原卡允许有界再驱动，不保证下一call必cancel
+
+卡:81 禁止 Unknown 未确认前取消/Continue；:89 四游标可越过 busy/unknown，尾部再核；:91 调用者再次 Request/Inspect 驱动。本实现 project_lifecycle.go:189–194 页尾换lane，:248–265 只选原持久页controls，:697 同Tx保存nextLane，:700 Unknown在取消前返，:720–722 confirmed后取消。Archive lane1跳过source（:135–136）。因此若 gate真提交0→1，下一调用可以只推进lane1，不能从“一次无cancel”推定漏永久取消。
+
+原 gate 日志只输出复合assert失败时的 nil error，没有 report/ctx分量、durable cursor；所以不能称原红确证是cursor或原ctx仍活。最小新测试校准：保持首次Unknown、未决writer重试时零cancel/零Object Continue；释放后记录精确 gate/work/cursor 和原resolver ctx；为此fixture不足64项的四lane周期固定至多4次 Request，共用首次创建的原30s context（contextFor每次会重开30s，不能放进循环），不sleep或循环到绿。每轮report完整合法且Pending、真实resolver release尚未放行不得Stopped；最后必须取消精确原ctx，释放后原失败结果/最终Stopped与无重复事实断言不删。该校准不扩规格，但需root授权后由作者冻结实现/实际复验。
+
+未验证：没有新的PG/fixture行为、没有唯一耗时根因证明、没有修复通过结论。作者第三方资源清零记录只按已给日志/主线程交接复用，本审查未占Docker。foreign独立probe另已compile0但未运行；共享Object guard已知阻塞继续保留。只写本私有目录，仓库与原16源未改，all-stop。

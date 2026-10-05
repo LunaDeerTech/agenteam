@@ -1,0 +1,357 @@
+//go:build integration
+
+package objects_test
+
+import (
+	"context"
+	"io"
+	"os"
+	"path/filepath"
+	"strings"
+	"sync"
+	"syscall"
+	"testing"
+	"time"
+
+	art "github.com/LunaDeerTech/agenteam/internal/central/artifact/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+)
+
+func assertArtifactGuardHeld(t *testing.T, f *artifactStopFixture) {
+	t.Helper()
+	claim, err := os.OpenFile(filepath.Join(f.spoolPath+".processes", f.process.String()+".claim"), os.O_RDWR, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer claim.Close()
+	if err = syscall.Flock(int(claim.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err == nil {
+		_ = syscall.Flock(int(claim.Fd()), syscall.LOCK_UN)
+		t.Fatal("shared guard released while Artifact still owned work")
+	}
+}
+func TestArtifactProjectStopLifecycleResolverKeepsSharedGuard(t *testing.T) {
+	var resolver *artifactHeldResolver
+	f := newArtifactStopFixture(t, artifactStopOptions{guard: true, resolve: func(r oc.SourceResolver) oc.SourceResolver { resolver = newArtifactHeldResolver(r); return resolver }})
+	var release sync.Once
+	defer release.Do(func() { close(resolver.release) })
+	source := f.create(t, "guard-source", "text/plain", "body")
+	ref, _ := source.Details().Reference.BusinessFile()
+	done := make(chan error, 1)
+	go func() {
+		_, err := f.artifact.CreateFromSource(contextFor(t), f.invocation(t), command(t, "held-copy"), art.Display{Name: "copy.txt"}, ref)
+		done <- err
+	}()
+	originalCtx := artifactResolverEntered(t, resolver)
+	f.artifact.StopAdmission()
+	_, err := f.artifact.BeginUpload(contextFor(t), f.invocation(t), command(t, "after-stop"), art.Display{Name: "new"}, "text/plain", 1, nil)
+	requireCode(t, err, foundation.ShuttingDown)
+	budget, cancel := context.WithTimeout(context.Background(), 60*time.Millisecond)
+	err = f.artifact.Drain(budget)
+	cancel()
+	if err == nil || originalCtx.Err() != nil || f.artifact.Joined() {
+		t.Fatal("Drain cancelled or forgot admitted resolver")
+	}
+	budget, cancel = context.WithTimeout(context.Background(), 60*time.Millisecond)
+	started := time.Now()
+	err = f.artifact.Force(budget)
+	cancel()
+	if err == nil || time.Since(started) > 300*time.Millisecond || originalCtx.Err() == nil || f.artifact.Joined() {
+		t.Fatal("Force budget/actual join", err)
+	}
+	assertArtifactGuardHeld(t, f)
+	release.Do(func() { close(resolver.release) })
+	if artifactStopResult(t, done) == nil {
+		t.Fatal("forced resolver published")
+	}
+	budget, cancel = context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	if err = f.artifact.Drain(budget); err != nil || !f.artifact.Joined() {
+		t.Fatal("real resolver did not join", err)
+	}
+	// The joint owner grants Object runtime shutdown only after Artifact joined.
+	f.runtime.StopAdmission()
+	if err = f.runtime.Drain(budget); err != nil {
+		t.Fatal(err)
+	}
+}
+func TestArtifactProjectStopLifecycleUploadReadAndClose(t *testing.T) {
+	f := newArtifactStopFixture(t, artifactStopOptions{})
+	target, err := f.artifact.BeginUpload(contextFor(t), f.invocation(t), command(t, "blocked-upload"), art.Display{Name: "body"}, "text/plain", 1, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := &stopBlockedBody{entered: make(chan struct{}), release: make(chan struct{})}
+	var release sync.Once
+	defer release.Do(func() { close(body.release) })
+	done := make(chan error, 1)
+	go func() { _, e := f.artifact.UploadPayload(contextFor(t), f.invocation(t), target, body); done <- e }()
+	artifactStopWait(t, body.entered)
+	all, joined := f.workCounts(t, f.project)
+	if all != 1 || joined != 0 {
+		t.Fatal("body started without unjoined durable work", all, joined)
+	}
+	actor, cause := f.activate(t, f.project, oc.ProjectStopArchive)
+	r, err := f.artifact.RequestProjectStop(contextFor(t), actor, cause)
+	if err != nil || r.Details().State != oc.ProjectStopPending {
+		t.Fatal("Read/Close not pending", err)
+	}
+	select {
+	case <-done:
+		t.Fatal("body was not actually held")
+	default:
+	}
+	release.Do(func() { close(body.release) })
+	if artifactStopResult(t, done) == nil {
+		t.Fatal("cancelled body published")
+	}
+	if body.closes.Load() != 1 {
+		t.Fatal("body close was not exactly once", body.closes.Load())
+	}
+	artifactStopSettled(t, f.artifact, actor, cause)
+}
+func TestArtifactProjectStopLifecycleWholeObjectWriterTail(t *testing.T) {
+	for _, action := range []oc.ProjectStopAction{oc.ProjectStopArchive, oc.ProjectStopDelete} {
+		t.Run(string(action), func(t *testing.T) {
+			var planner *recoveryItemPlanner
+			f := newArtifactStopFixture(t, artifactStopOptions{guard: true, planner: func(p oc.AccessPlanner) oc.AccessPlanner { planner = &recoveryItemPlanner{base: p}; return planner }})
+			entered, release := make(chan struct{}), make(chan struct{})
+			var hit, open sync.Once
+			defer open.Do(func() { close(release) })
+			planner.set(func(d oc.AccessRequestDetails) error {
+				if d.Operation == oc.FinishWriterAccess {
+					hit.Do(func() { close(entered) })
+					<-release
+				}
+				return nil
+			})
+			beforeGet, beforePut := f.proxy.gets.Load(), f.proxy.puts.Load()
+			done := make(chan error, 1)
+			go func() {
+				_, err := f.artifact.CreateFromContent(contextFor(t), f.invocation(t), command(t, "tail"), art.Display{Name: "tail.txt"}, "text/plain", "whole writer")
+				done <- err
+			}()
+			artifactStopWait(t, entered)
+			if f.proxy.puts.Load() != beforePut+1 || f.proxy.gets.Load() != beforeGet+1 {
+				t.Fatal("barrier preceded actual PUT/verify")
+			}
+			var active int
+			if err := f.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_artifact.project_work w JOIN agenteam_artifact.commands c ON c.artifact_id=w.resource_id JOIN agenteam_object.upload_attempts a ON a.id=c.target_attempt_id WHERE w.joined_at IS NULL AND NOT a.io_closed AND a.phase='sending'`).Scan(&active); err != nil || active != 1 {
+				t.Fatal("writer tail did not own actual native facts", active, err)
+			}
+			actor, cause := f.activate(t, f.project, action)
+			for range 5 {
+				r, err := f.artifact.RequestProjectStop(contextFor(t), actor, cause)
+				if err != nil || r.Details().State != oc.ProjectStopPending {
+					t.Fatal("spool/body close substituted for whole writer join", err, r.Details())
+				}
+			}
+			f.artifact.StopAdmission()
+			budget, cancel := context.WithTimeout(context.Background(), 60*time.Millisecond)
+			err := f.artifact.Drain(budget)
+			cancel()
+			if err == nil || f.artifact.Joined() {
+				t.Fatal("Artifact forgot actual writer")
+			}
+			assertArtifactGuardHeld(t, f)
+			open.Do(func() { close(release) })
+			if artifactStopResult(t, done) == nil {
+				t.Fatal("revoked publication succeeded")
+			}
+			planner.set(nil)
+			budget, cancel = context.WithTimeout(context.Background(), time.Second)
+			defer cancel()
+			if err = f.artifact.Drain(budget); err != nil || !f.artifact.Joined() {
+				t.Fatal("writer returned but Artifact stuck", err)
+			}
+			// StopAdmission fences every new producer; a fresh conservative Service
+			// can read the now durable original local join without inventing death.
+			rebound := bindArtifactStop(t, f.fixture, f.proxy, f.stopAuthority, artifactStopOptions{})
+			artifactStopSettled(t, rebound.artifact, actor, cause)
+		})
+	}
+}
+
+type artifactOpenFailure struct {
+	oc.SourceReads
+	opened, closed chan struct{}
+	once           sync.Once
+	cancelReturns  chan error
+}
+
+func (r *artifactOpenFailure) OpenLeasedSource(ctx context.Context, a identity.Actor, l oc.SourceLease) (*oc.ObjectReader, error) {
+	reader, err := r.SourceReads.OpenLeasedSource(ctx, a, l)
+	if err != nil {
+		return reader, err
+	}
+	r.once.Do(func() { close(r.opened) })
+	go func() { _ = reader.Close(); close(r.closed) }()
+	return nil, fault(foundation.DependencyUnavailable)
+}
+func (r *artifactOpenFailure) CancelSourceLease(ctx context.Context, l oc.SourceLease) error {
+	err := r.SourceReads.CancelSourceLease(ctx, l)
+	select {
+	case r.cancelReturns <- err:
+	default:
+	}
+	return err
+}
+func TestArtifactProjectStopLifecycleSourceCancelTimeoutKeepsOriginalRelease(t *testing.T) {
+	var planner *recoveryItemPlanner
+	var reads *artifactOpenFailure
+	f := newArtifactStopFixture(t, artifactStopOptions{guard: true, planner: func(p oc.AccessPlanner) oc.AccessPlanner { planner = &recoveryItemPlanner{base: p}; return planner }, reads: func(r oc.SourceReads) oc.SourceReads {
+		reads = &artifactOpenFailure{SourceReads: r, opened: make(chan struct{}), closed: make(chan struct{}), cancelReturns: make(chan error, 8)}
+		return reads
+	}})
+	source := f.create(t, "release-source", "text/plain", strings.Repeat("source bytes\n", oc.StreamBufferSize))
+	ref, _ := source.Details().Reference.BusinessFile()
+	entered, release := make(chan struct{}), make(chan struct{})
+	var hit, open sync.Once
+	defer open.Do(func() { close(release) })
+	planner.set(func(d oc.AccessRequestDetails) error {
+		if d.Operation == oc.ReleaseReaderAccess {
+			hit.Do(func() { close(entered) })
+			<-release
+		}
+		return nil
+	})
+	f.proxy.mode.Store(proxyHoldReadBody)
+	done := make(chan error, 1)
+	go func() {
+		_, e := f.artifact.CreateFromSource(contextFor(t), f.invocation(t), command(t, "release-copy"), art.Display{Name: "copy.txt"}, ref)
+		done <- e
+	}()
+	artifactStopWait(t, reads.opened)
+	artifactStopWait(t, entered)
+	var active int
+	if err := f.store.QueryRow(contextFor(t), `SELECT count(*) FROM agenteam_object.object_leases WHERE object_id=$1 AND owner_kind='source' AND state='active'`, source.Details().Object.ID.String()).Scan(&active); err != nil || active != 1 {
+		t.Fatal("actual SourceLease not held", active, err)
+	}
+	budget, cancel := context.WithTimeout(context.Background(), 80*time.Millisecond)
+	started := time.Now()
+	err := f.artifact.Force(budget)
+	cancel()
+	if err == nil || time.Since(started) > 350*time.Millisecond || f.artifact.Joined() {
+		t.Fatal("source release ignored Force budget or joined early", err)
+	}
+	if e := artifactStopResult(t, done); e == nil {
+		t.Fatal("injected Open failure returned success")
+	}
+	if e := artifactStopResult(t, reads.cancelReturns); e == nil {
+		t.Fatal("CancelSourceLease did not expose timeout")
+	}
+	select {
+	case <-reads.closed:
+		t.Fatal("SourceLease release unexpectedly returned")
+	default:
+	}
+	assertArtifactGuardHeld(t, f)
+	open.Do(func() { close(release) })
+	artifactStopWait(t, reads.closed)
+	planner.set(nil)
+	budget, cancel = context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	if err = f.artifact.Drain(budget); err != nil || !f.artifact.Joined() {
+		t.Fatal("exact original SourceLease could not finish", err)
+	}
+}
+func TestArtifactProjectStopLegacyConstructorLocalJoinAndForeignConservatism(t *testing.T) {
+	var resolver *artifactHeldResolver
+	f := newArtifactStopFixture(t, artifactStopOptions{legacy: true, resolve: func(r oc.SourceResolver) oc.SourceResolver {
+		resolver = newArtifactHeldResolver(r)
+		resolver.disabled.Store(true)
+		return resolver
+	}})
+	source := f.create(t, "legacy-content", "text/plain", "body")
+	ref, _ := source.Details().Reference.BusinessFile()
+	if _, err := f.artifact.CreateFromSource(contextFor(t), f.invocation(t), command(t, "legacy-source"), art.Display{Name: "source.txt"}, ref); err != nil {
+		t.Fatal(err)
+	}
+	target, err := f.artifact.BeginUpload(contextFor(t), f.invocation(t), command(t, "legacy-upload"), art.Display{Name: "upload.txt"}, "text/plain", 4, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	stored, err := f.artifact.UploadPayload(contextFor(t), f.invocation(t), target, io.NopCloser(strings.NewReader("body")))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = f.artifact.CreateFromUpload(contextFor(t), f.invocation(t), command(t, "legacy-consume"), art.Display{Name: "upload.txt"}, stored.Receipt); err != nil {
+		t.Fatal(err)
+	}
+	all, joined := f.workCounts(t, f.project)
+	if all != 3 || joined != all {
+		t.Fatal("legacy calls lack durable local joins", all, joined)
+	}
+	resolver.disabled.Store(false)
+	var open sync.Once
+	defer open.Do(func() { close(resolver.release) })
+	done := make(chan error, 1)
+	go func() {
+		_, e := f.artifact.CreateFromSource(contextFor(t), f.invocation(t), command(t, "legacy-held"), art.Display{Name: "held.txt"}, ref)
+		done <- e
+	}()
+	original := artifactResolverEntered(t, resolver)
+	rebound := bindArtifactStop(t, f.fixture, f.proxy, f.stopAuthority, artifactStopOptions{})
+	actor, cause := f.activate(t, f.project, oc.ProjectStopDelete)
+	_, err = f.artifact.RequestProjectStop(contextFor(t), actor, cause)
+	requireCode(t, err, foundation.DependencyUnbound)
+	for range 5 {
+		r, e := rebound.artifact.RequestProjectStop(contextFor(t), actor, cause)
+		if e != nil || r.Details().State != oc.ProjectStopPending || original.Err() != nil {
+			t.Fatal("foreign nil-process service invented death", e)
+		}
+	}
+	open.Do(func() { close(resolver.release) })
+	if artifactStopResult(t, done) == nil {
+		t.Fatal("deleting legacy call published")
+	}
+	artifactStopSettled(t, rebound.artifact, actor, cause)
+}
+
+type artifactRejectedBody struct {
+	entered, release chan struct{}
+	once             sync.Once
+}
+
+func (*artifactRejectedBody) Read([]byte) (int, error) { return 0, io.EOF }
+func (b *artifactRejectedBody) Close() error {
+	b.once.Do(func() { close(b.entered) })
+	<-b.release
+	return nil
+}
+func TestArtifactProjectStopRejectedUploadCloseKeepsSharedGuard(t *testing.T) {
+	f := newArtifactStopFixture(t, artifactStopOptions{guard: true})
+	target, err := f.artifact.BeginUpload(contextFor(t), f.invocation(t), command(t, "rejected-body"), art.Display{Name: "body"}, "text/plain", 1, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.artifact.StopAdmission()
+	body := &artifactRejectedBody{entered: make(chan struct{}), release: make(chan struct{})}
+	var open sync.Once
+	defer open.Do(func() { close(body.release) })
+	done := make(chan error, 1)
+	go func() { _, e := f.artifact.UploadPayload(contextFor(t), f.invocation(t), target, body); done <- e }()
+	artifactStopWait(t, body.entered)
+	if f.artifact.Joined() {
+		t.Fatal("rejected body Close was outside producer barrier")
+	}
+	budget, cancel := context.WithTimeout(context.Background(), 60*time.Millisecond)
+	err = f.artifact.Force(budget)
+	cancel()
+	if err == nil || f.artifact.Joined() {
+		t.Fatal("Force forgot rejected body Close")
+	}
+	assertArtifactGuardHeld(t, f)
+	all, _ := f.workCounts(t, f.project)
+	if all != 0 {
+		t.Fatal("rejected cleanup received business work admission")
+	}
+	open.Do(func() { close(body.release) })
+	requireCode(t, artifactStopResult(t, done), foundation.ShuttingDown)
+	budget, cancel = context.WithTimeout(context.Background(), time.Second)
+	defer cancel()
+	if err = f.artifact.Drain(budget); err != nil || !f.artifact.Joined() {
+		t.Fatal("rejected close did not actually join", err)
+	}
+}

@@ -1,0 +1,17 @@
+{
+  "845356": {
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "build",
+      "-o",
+      "/workspace/agenteam-artifact-review09-v-qk_5bouy/probe-real-01/runtime/agenteam-d05-object-helper.6sQIvW/fixture",
+      "./tests/testsupport/objectstore/cmd/fixture"
+    ],
+    "environment": {
+      "GOENV": "off",
+      "GOFLAGS": "-mod=readonly -v -overlay=/workspace/agenteam-artifact-review09-v-qk_5bouy/probe-compile/overlay.json",
+      "GOTOOLCHAIN": "local",
+      "GOWORK": "off"
+    }
+  }
+}

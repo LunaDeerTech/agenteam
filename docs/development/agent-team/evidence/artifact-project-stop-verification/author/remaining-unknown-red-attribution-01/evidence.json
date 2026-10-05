@@ -1,0 +1,22 @@
+{
+  "base": "6658a6cb1f29299521773bc8dc86b2f607b8c809",
+  "evidence": {
+    "candidate-final/manifest.json": "1c931fc6ac183643380c5c287b008bc672ad5df5d0cc7249ab7ee0ad69e72b85",
+    "input-remaining-new-recovery-unknown-01.json": "0d6c9769ae83960f5260f377d51eaf2fbc55f46ffa1c822901ab58b17882af1e",
+    "logs/remaining-new-recovery-unknown-01.log": "3a7b7bb843e72c8c446b7319b1291afd720a21963f9bc446947f470e7ee15607",
+    "logs/remaining-new-recovery-unknown-01.exit": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+    "cleanup-remaining-new-recovery-unknown-01.json": "89d467b333a06ae3ef9381ef61240de290b32dd57c20673ec0e87c72b331c1e7",
+    "cleanup-double-remaining-new-recovery-unknown-01.json": "7ae8467d9a1a5d1aff15bcb15fb1715895974957d21b54d1c6b5e968fec02a10"
+  },
+  "source_copy": "../candidate-final",
+  "source_changed": false,
+  "actual_tests": {
+    "top_pass": 1,
+    "top_fail": 2,
+    "sub_pass": 11,
+    "sub_fail": 2,
+    "package_seconds": 30.249,
+    "driver_seconds": 58.951
+  },
+  "status": "readonly attribution; no rerun/source edit"
+}
