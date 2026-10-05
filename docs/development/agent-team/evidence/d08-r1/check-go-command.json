@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "sh",
+    "scripts/check-go.sh"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=2",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/tmp/agenteam-d08-r1-author-4lrVBX1e/go-build",
+    "GOTMPDIR": "/tmp/agenteam-d08-r1-independent-vuogsrq8/tmp",
+    "TMPDIR": "/tmp/agenteam-d08-r1-independent-vuogsrq8/tmp",
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "GOAMD64": "v1",
+    "CGO_ENABLED": "1"
+  },
+  "started_utc": "2026-10-05T10:54:45Z",
+  "validated_author_local_inputs": 162,
+  "pid": 42241,
+  "exit": 0,
+  "seconds": 133.445,
+  "finished_utc": "2026-10-05T10:56:58Z",
+  "log_sha256": "e0c5b20fa8ef8e91426cb398db9446214e8a27738d66653a1f5ac74ef1afbe8e"
+}

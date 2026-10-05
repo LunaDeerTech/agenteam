@@ -1,0 +1,19 @@
+{
+  "base": "a9cf0de222ce846f40784472e3d3dbce43a0d3e5",
+  "head": "08bc5c5874d29d34855323119a7f7e52240caad1",
+  "source": {
+    "internal/central/project/participants.go": "b38ebb0b2cfa0ae42e969bd993932808fdb20f7a5f4297375f27d5f6a74455ed",
+    "internal/central/project/participants_test.go": "f3386b187e4c751976ba8d147eb43d5b0c717bf19394e53a822aaf7ee0968b57"
+  },
+  "card_sha256": "8f0297714cf6104784db55c8bc8c2adfe87449b6febe3b058bb761d7a64892e4",
+  "author_manifest_sha256": "445b7fc069dd0208b08088beb42cde23931a79f294b445608abbeb2a7cf98dc2",
+  "probe_sha256": "46930cc87f3eb8f8638a03a50db06040eb242b2fc370d92b90e8873bed19604b",
+  "module_locks": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+  },
+  "scripts": {
+    "scripts/check-go.sh": "e98f8fc82d0dad14511631e8490314d6fe2a2880682b2f4caddc0d0834b8b816",
+    "scripts/build-go.sh": "cf11d5c7cf3bd35794fb0f2b674cc2fa5ecf967793dbdf5ce8ea775eb3f66ef8"
+  }
+}

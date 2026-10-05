@@ -1,0 +1,16 @@
+=== RUN   TestIndependentR1FrozenManifestCompatibility
+=== RUN   TestIndependentR1FrozenManifestCompatibility/original-version
+=== RUN   TestIndependentR1FrozenManifestCompatibility/current-version
+=== RUN   TestIndependentR1FrozenManifestCompatibility/owner
+=== RUN   TestIndependentR1FrozenManifestCompatibility/reference-kinds
+=== RUN   TestIndependentR1FrozenManifestCompatibility/cleanup-edge
+--- PASS: TestIndependentR1FrozenManifestCompatibility (0.00s)
+    --- PASS: TestIndependentR1FrozenManifestCompatibility/original-version (0.00s)
+    --- PASS: TestIndependentR1FrozenManifestCompatibility/current-version (0.00s)
+    --- PASS: TestIndependentR1FrozenManifestCompatibility/owner (0.00s)
+    --- PASS: TestIndependentR1FrozenManifestCompatibility/reference-kinds (0.00s)
+    --- PASS: TestIndependentR1FrozenManifestCompatibility/cleanup-edge (0.00s)
+=== RUN   TestIndependentR1PlanIsolation
+--- PASS: TestIndependentR1PlanIsolation (0.04s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project	1.053s

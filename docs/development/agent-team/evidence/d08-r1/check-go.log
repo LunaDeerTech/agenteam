@@ -1,0 +1,100 @@
+ok  	github.com/LunaDeerTech/agenteam/cmd/agenteam	0.015s
+?   	github.com/LunaDeerTech/agenteam/cmd/agenteam-runner	[no test files]
+?   	github.com/LunaDeerTech/agenteam/db/migrations	[no test files]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/account	3.509s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/account/contract	0.004s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	0.025s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	6.858s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/artifact	0.003s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/artifact/contract	0.003s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit	0.004s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit/contract	0.005s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/config	0.024s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/cursor	0.005s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/event/contract	0.010s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/foundation	0.004s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/httpapi	0.027s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/identity/contract	0.002s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract	0.010s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	0.007s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	0.004s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	0.990s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	0.005s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbound	6.572s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	0.020s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	0.012s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	0.059s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project	0.049s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project/contract	0.012s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	0.040s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret	0.004s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret/contract	0.002s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/skill	0.004s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/skill/contract	0.062s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/usage/contract	0.003s
+ok  	github.com/LunaDeerTech/agenteam/internal/platform/lifecycle	0.002s
+ok  	github.com/LunaDeerTech/agenteam/internal/platform/logging	0.002s
+ok  	github.com/LunaDeerTech/agenteam/internal/runner/app	0.002s
+ok  	github.com/LunaDeerTech/agenteam/internal/runner/config	0.002s
+ok  	github.com/LunaDeerTech/agenteam/tests/account	0.756s
+ok  	github.com/LunaDeerTech/agenteam/tests/process	1.434s
+ok  	github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv	0.004s
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/outbound	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/postgres	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/smtp	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/smtp/cmd/server	[no test files]
+ok  	github.com/LunaDeerTech/agenteam/cmd/agenteam	1.129s
+?   	github.com/LunaDeerTech/agenteam/cmd/agenteam-runner	[no test files]
+?   	github.com/LunaDeerTech/agenteam/db/migrations	[no test files]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/account	26.775s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/account/contract	1.019s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.035s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	10.353s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/artifact	1.012s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/artifact/contract	1.014s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit	1.015s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/audit/contract	1.035s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/config	1.166s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/cursor	1.050s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/event/contract	1.087s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/foundation	1.023s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/httpapi	1.089s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/identity/contract	1.010s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/knowledge/contract	1.092s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.025s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.021s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.916s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.030s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbound	7.671s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.030s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.207s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.073s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project	1.366s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project/contract	1.093s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.054s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret	1.030s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/secret/contract	1.013s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/skill	1.017s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/skill/contract	1.194s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/usage/contract	1.014s
+ok  	github.com/LunaDeerTech/agenteam/internal/platform/lifecycle	1.010s
+ok  	github.com/LunaDeerTech/agenteam/internal/platform/logging	1.015s
+ok  	github.com/LunaDeerTech/agenteam/internal/runner/app	1.014s
+ok  	github.com/LunaDeerTech/agenteam/internal/runner/config	1.012s
+ok  	github.com/LunaDeerTech/agenteam/tests/account	6.900s
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.315s
+ok  	github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv	1.016s
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/outbound	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/postgres	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/smtp	[no test files]
+?   	github.com/LunaDeerTech/agenteam/tests/testsupport/smtp/cmd/server	[no test files]

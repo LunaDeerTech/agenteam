@@ -1,0 +1,77 @@
+{
+  "local_inputs_matched": 162,
+  "source_matched": {
+    "internal/central/project/participants.go": "b38ebb0b2cfa0ae42e969bd993932808fdb20f7a5f4297375f27d5f6a74455ed",
+    "internal/central/project/participants_test.go": "f3386b187e4c751976ba8d147eb43d5b0c717bf19394e53a822aaf7ee0968b57"
+  },
+  "non_docs_tracked_diff_from_base": [],
+  "checks": [
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/gofmt",
+        "-l",
+        "internal/central/project/participants.go",
+        "internal/central/project/participants_test.go"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "internal/central/project/participants.go",
+        "internal/central/project/participants_test.go"
+      ],
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "/dev/null",
+        "internal/central/project/participants.go"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "/dev/null",
+        "internal/central/project/participants_test.go"
+      ],
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "owned_process_groups": [
+    42241,
+    54273
+  ],
+  "owned_processes_remaining": [],
+  "temporary_work_directory_entries": [],
+  "docker_resources_created": 0,
+  "binary_artifacts": {
+    "bin/agenteam": {
+      "bytes": 29420293,
+      "sha256": "ea7a79d64ff42a5a423805b058b42ac608ee96c402dd7fe886f6fd173aa9a369"
+    },
+    "bin/agenteam-runner": {
+      "bytes": 4631991,
+      "sha256": "b4657eb7c68914b939a3f4f20838372d1bb2eae8473956f5925dbb3ff7f6441b"
+    }
+  }
+}

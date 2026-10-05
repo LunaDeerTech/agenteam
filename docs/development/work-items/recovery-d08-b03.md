@@ -1,6 +1,6 @@
 # D08 B03 恢复首块：生命周期参与者注册与恢复解析
 
-修订：rev1。状态：主线程已采纳首块范围，API 与验收规则待独立静审后下发实现。工作项：D08 / B03-R1。执行角色为 `backend_worker`，独立验收为未参与实现的 `verification_worker`，均按团队规则使用 `gpt-6-astra / max`，不得再委派。
+修订：rev2，仅同步交付状态，冻结 API 与验收规则不变。状态：R1 已独立验收通过并获主线程采纳，两源已提交推送 `98262b49aa87c52cfb0c09586dd1b76f9aa1fd52`。工作项：D08 / B03-R1。执行角色为 `backend_worker`，独立验收为未参与实现的 `verification_worker`，均按团队规则使用 `gpt-6-astra / max`，不得再委派。
 
 ## 基线与恢复边界
 
@@ -82,3 +82,9 @@ git diff --check
 作者交付两文件的固定指纹、相关编译依赖标识、实际命令/原始日志/结果和停止写入声明；独立验收基于该固定输入验证关键拒绝、版本恢复及不可变性，语义和依赖未变的证据可复用。本卡写作阶段仅完成只读现状核对与文档检查，以上 Go 检查尚未执行。
 
 需要修改既有公共口、Service、任何第三个文件、迁移或注册产品规则时，暂停受影响部分向主线程报告；没有重新设计全局计划的授权。通过本卡只代表 registry 可用；B03-P 持久生命周期、D05 真停止/清理、Secret/Object Audit fact checker、真实 PG/MinIO/ProcessGuard/Outbox 集成、B04 HTTP/app 和 D10 初始化仍未验收。
+
+## R1 独立验收与后续交接
+
+作者交付 `participants.go` 与 `participants_test.go` 两源，独立验收通过且无阻断，主线程已采纳并以 `98262b4` 精确提交、推送，远端同 SHA。[独立报告](../agent-team/d08-r1-verification.md)记录一次完整 `scripts/check-go.sh` exit0（133.445s），含 test/vet、integration-tag vet、race 及两个命令构建，未运行 integration 测试；独立 race/count1 探针2顶层5子例通过（1.053s）。两源和162个本地编译输入在 R2 开写前末检匹配，owned 进程与测试工作临时目录已清零；具体输入和证据以报告为准。
+
+下一结果按已独立静审并提交 `9531499` 的 [R2 持久接受卡](recovery-d08-b03-acceptance.md)接续：消费本次已验 R1 提交/精确指纹，保持 R1 两源冻结，由主线程交接作者及唯一 PG/MinIO fixture。R2 只接受并确认持久操作，不调用参与者或产生归档/物理删除终态；其真实事务、权限和 Unknown 门槛单独验收。

@@ -1,0 +1,234 @@
+package project_test
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"reflect"
+	"sync"
+	"sync/atomic"
+	"testing"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/project"
+	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+)
+
+type r1ProbeAdapter struct {
+	name  c.ParticipantName
+	calls *atomic.Int64
+}
+
+func (p *r1ProbeAdapter) Name() c.ParticipantName { return p.name }
+func (p *r1ProbeAdapter) RequestStop(context.Context, identity.Actor, c.LifecycleCause, c.ScopeRef) (c.StopReport, error) {
+	p.calls.Add(1)
+	return c.StopReport{}, errors.New("unexpected independent probe business call")
+}
+func (p *r1ProbeAdapter) InspectStop(context.Context, identity.Actor, c.LifecycleCause, c.ScopeRef) (c.StopReport, error) {
+	p.calls.Add(1)
+	return c.StopReport{}, errors.New("unexpected independent probe business call")
+}
+func (p *r1ProbeAdapter) Cleanup(context.Context, identity.Actor, c.LifecycleCause, c.ScopeRef, *c.CleanupCheckpoint) (c.CleanupReport, error) {
+	p.calls.Add(1)
+	return c.CleanupReport{}, errors.New("unexpected independent probe business call")
+}
+
+func r1ProbeEntries(version foundation.Version, skills bool) []c.ParticipantRegistration {
+	entries := []c.ParticipantRegistration{
+		{Name: c.SecretParticipant, ContractVersion: version, OwnerModule: "secret", ReferenceKinds: []c.ReferenceKind{"credential"}},
+		{Name: c.ArtifactObjectParticipant, ContractVersion: version, OwnerModule: "artifact-object", ReferenceKinds: []c.ReferenceKind{"object", "artifact"}},
+		{Name: c.OutboxParticipant, ContractVersion: version, OwnerModule: "outbox", ReferenceKinds: []c.ReferenceKind{"delivery"}, CleanupAfter: []c.ParticipantName{c.SecretParticipant, c.ArtifactObjectParticipant}},
+		{Name: c.AuditParticipant, ContractVersion: version, OwnerModule: "audit", CleanupAfter: []c.ParticipantName{c.OutboxParticipant}},
+	}
+	if skills {
+		entries = append(entries, c.ParticipantRegistration{Name: c.SkillsParticipant, ContractVersion: version, OwnerModule: "skills", ReferenceKinds: []c.ReferenceKind{"skill"}})
+		entries[1].CleanupAfter = []c.ParticipantName{c.SkillsParticipant}
+		entries[2].CleanupAfter = append(entries[2].CleanupAfter, c.SkillsParticipant)
+	}
+	return entries
+}
+
+func r1ProbeManifest(t *testing.T, entries []c.ParticipantRegistration) c.RequiredManifest {
+	t.Helper()
+	m, err := c.NewRequiredManifest(entries)
+	if err != nil {
+		t.Fatalf("invalid independent input manifest: %v", err)
+	}
+	return m
+}
+
+func r1ProbeBindings(entries []c.ParticipantRegistration, calls *atomic.Int64) []project.LifecycleParticipantBinding {
+	out := make([]project.LifecycleParticipantBinding, len(entries))
+	for i, entry := range entries {
+		out[i] = project.LifecycleParticipantBinding{Registration: entry, Participant: &r1ProbeAdapter{name: entry.Name, calls: calls}}
+	}
+	return out
+}
+
+func r1ProbeFault(t *testing.T, err error, code foundation.Code) {
+	t.Helper()
+	var f *foundation.Fault
+	if !errors.As(err, &f) || f.Code != code || f.CommitState != foundation.NotStarted {
+		t.Fatalf("got %v, want %s / not_started", err, code)
+	}
+}
+
+func TestIndependentR1FrozenManifestCompatibility(t *testing.T) {
+	var calls atomic.Int64
+	old := r1ProbeManifest(t, r1ProbeEntries(1, false))
+	current := r1ProbeManifest(t, r1ProbeEntries(2, true))
+	oldBindings := r1ProbeBindings(old.Entries(), &calls)
+	currentBindings := r1ProbeBindings(current.Entries(), &calls)
+	bindings := append(append([]project.LifecycleParticipantBinding{}, oldBindings...), currentBindings...)
+	registry, err := project.NewLifecycleRegistry(current, bindings)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, tc := range []struct {
+		name     string
+		manifest c.RequiredManifest
+		bindings []project.LifecycleParticipantBinding
+	}{{"original-version", old, oldBindings}, {"current-version", current, currentBindings}} {
+		t.Run(tc.name, func(t *testing.T) {
+			plan, err := registry.Resolve(tc.manifest)
+			if err != nil {
+				t.Fatal(err)
+			}
+			for _, binding := range tc.bindings {
+				got, err := plan.Participant(binding.Registration.Name)
+				if err != nil || got != binding.Participant {
+					t.Fatalf("wrong instance for %s/v%d: %v", binding.Registration.Name, binding.Registration.ContractVersion, err)
+				}
+			}
+			m, err := plan.Manifest()
+			got, ge := m.Digest()
+			want, we := tc.manifest.Digest()
+			if err != nil || ge != nil || we != nil || got != want {
+				t.Fatal("plan changed the original manifest digest")
+			}
+		})
+	}
+	oldPlan, err := registry.Resolve(old)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = oldPlan.Participant(c.SkillsParticipant)
+	r1ProbeFault(t, err, foundation.DependencyUnbound)
+	currentOnly, err := project.NewLifecycleRegistry(current, currentBindings)
+	if err != nil {
+		t.Fatal(err)
+	}
+	_, err = currentOnly.Resolve(old)
+	r1ProbeFault(t, err, foundation.DependencyUnbound)
+	for _, tc := range []struct {
+		name   string
+		change func(*c.ParticipantRegistration)
+	}{
+		{"owner", func(r *c.ParticipantRegistration) { r.OwnerModule = "other-owner" }},
+		{"reference-kinds", func(r *c.ParticipantRegistration) { r.ReferenceKinds = append(r.ReferenceKinds, "lease") }},
+		{"cleanup-edge", func(r *c.ParticipantRegistration) { r.CleanupAfter = []c.ParticipantName{c.ArtifactObjectParticipant} }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			entries := old.Entries()
+			for i := range entries {
+				if entries[i].Name == c.SecretParticipant {
+					tc.change(&entries[i])
+				}
+			}
+			frozen := r1ProbeManifest(t, entries)
+			partial, err := registry.Resolve(frozen)
+			r1ProbeFault(t, err, foundation.DependencyUnavailable)
+			_, err = partial.Manifest()
+			r1ProbeFault(t, err, foundation.DependencyUnbound)
+		})
+	}
+	bad := append([]project.LifecycleParticipantBinding{}, currentBindings...)
+	var typedNil *r1ProbeAdapter
+	bad[0].Participant = typedNil
+	_, err = project.NewLifecycleRegistry(current, bad)
+	r1ProbeFault(t, err, foundation.DependencyUnbound)
+	if calls.Load() != 0 {
+		t.Fatal("registry invoked a participant business method")
+	}
+}
+
+func TestIndependentR1PlanIsolation(t *testing.T) {
+	var calls atomic.Int64
+	entries := r1ProbeEntries(2, true)
+	manifest := r1ProbeManifest(t, entries)
+	bindings := r1ProbeBindings(entries, &calls)
+	registry, err := project.NewLifecycleRegistry(manifest, bindings)
+	if err != nil {
+		t.Fatal(err)
+	}
+	selected := bindings[0].Participant
+	wantDigest, _ := manifest.Digest()
+	bindings[0].Registration.ReferenceKinds[0] = "external-mutation"
+	bindings[0].Registration.OwnerModule = "external-owner"
+	bindings[0].Participant = nil
+	bindings[1].Registration.CleanupAfter[0] = c.AuditParticipant
+	bindings[2].Registration.CleanupAfter[0] = c.AuditParticipant
+	plan, err := registry.Resolve(manifest)
+	if err != nil {
+		t.Fatalf("caller mutation changed registry: %v", err)
+	}
+	got, err := plan.Participant(c.SecretParticipant)
+	if err != nil || got != selected {
+		t.Fatal("input mutation changed adapter selection")
+	}
+	wantStop := []c.ParticipantName{c.SkillsParticipant, c.ArtifactObjectParticipant, c.AuditParticipant, c.OutboxParticipant, c.SecretParticipant}
+	wantCleanup := []c.ParticipantName{c.SkillsParticipant, c.ArtifactObjectParticipant, c.SecretParticipant, c.OutboxParticipant, c.AuditParticipant}
+	check := func() error {
+		p, err := registry.Resolve(manifest)
+		if err != nil {
+			return err
+		}
+		stop, err := p.StopOrder()
+		if err != nil || !reflect.DeepEqual(stop, wantStop) {
+			return fmt.Errorf("stop order changed: %v / %v", stop, err)
+		}
+		cleanup, err := p.CleanupOrder()
+		if err != nil || !reflect.DeepEqual(cleanup, wantCleanup) {
+			return fmt.Errorf("cleanup order violated original graph: %v / %v", cleanup, err)
+		}
+		stop[0], cleanup[0] = "changed-return", "changed-return"
+		m, err := p.Manifest()
+		if err != nil {
+			return err
+		}
+		returned := m.Entries()
+		returned[0].Name = "changed-return"
+		returned[0].ReferenceKinds[0] = "changed-return"
+		actual, err := m.Digest()
+		if err != nil || actual != wantDigest {
+			return errors.New("returned entries changed the immutable digest")
+		}
+		return nil
+	}
+	if err = check(); err != nil {
+		t.Fatal(err)
+	}
+	var wg sync.WaitGroup
+	failures := make(chan error, 8)
+	for range 8 {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for range 40 {
+				if err := check(); err != nil {
+					failures <- err
+					return
+				}
+			}
+		}()
+	}
+	wg.Wait()
+	close(failures)
+	for err := range failures {
+		t.Error(err)
+	}
+	if calls.Load() != 0 {
+		t.Fatal("registry invoked a participant business method")
+	}
+}

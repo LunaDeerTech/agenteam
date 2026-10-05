@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-count=1",
+    "-timeout=2m",
+    "-v",
+    "-overlay",
+    "/tmp/agenteam-d08-r1-independent-vuogsrq8/probe-overlay.json",
+    "-run",
+    "^TestIndependentR1(FrozenManifestCompatibility|PlanIsolation)$",
+    "./internal/central/project"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=2",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/tmp/agenteam-d08-r1-author-4lrVBX1e/go-build",
+    "GOTMPDIR": "/tmp/agenteam-d08-r1-independent-vuogsrq8/tmp",
+    "TMPDIR": "/tmp/agenteam-d08-r1-independent-vuogsrq8/tmp",
+    "GOOS": "linux",
+    "GOARCH": "amd64",
+    "GOAMD64": "v1",
+    "CGO_ENABLED": "1"
+  },
+  "pid": 54273,
+  "started_utc": "2026-10-05T10:57:32Z",
+  "exit": 0,
+  "seconds": 1.8,
+  "log_sha256": "17055cf239559127d141e9581ed4f9119c28cbeef5a73b30289be3ed2fe91bec"
+}
