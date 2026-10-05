@@ -1,0 +1,46 @@
+[
+  {
+    "name": "compile-independent-real",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-tags=integration",
+      "-run",
+      "^$",
+      "./tests/security"
+    ],
+    "environment": {
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+      "GOCACHE": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+      "GOTMPDIR": "/tmp/agenteam-secret-audit-verification-zaezxny0/runtime",
+      "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-secret-audit-verification-zaezxny0/overlay.json"
+    },
+    "exit": 0,
+    "seconds": 2.189
+  },
+  {
+    "name": "vet-independent-real",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "-tags=integration",
+      "./tests/security"
+    ],
+    "environment": {
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+      "GOCACHE": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+      "GOTMPDIR": "/tmp/agenteam-secret-audit-verification-zaezxny0/runtime",
+      "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-secret-audit-verification-zaezxny0/overlay.json"
+    },
+    "exit": 0,
+    "seconds": 0.42
+  }
+]

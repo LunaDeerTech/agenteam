@@ -1,0 +1,6 @@
+{"command": ["/workspace/toolchains/go1.27.1/bin/go", "test", "-run", "^TestSecretProjectAuditConstructionAndTransactionWitness$", "./internal/central/secret"], "cwd": "/tmp/agenteam-secret-audit-author-aci61g66/snapshot", "started": "2026-10-05T12:20:06.137951+00:00"}
+--- FAIL: TestSecretProjectAuditConstructionAndTransactionWitness (0.00s)
+    project_audit_witness_test.go:35: error <nil>, want INVALID_ARGUMENT
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/secret	0.003s
+FAIL

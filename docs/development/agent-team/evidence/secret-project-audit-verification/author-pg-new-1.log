@@ -1,0 +1,20 @@
+{"command": ["env", "AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go", "DOCKER_HOST=unix:///var/run/docker.sock", "DOCKER_CONFIG=/tmp/agenteam-secret-audit-author-aci61g66/docker-config", "TMPDIR=/tmp/agenteam-secret-audit-author-aci61g66/tmp", "/workspace/toolchains/go1.27.1/bin/go", "run", "./tests/testsupport/postgres/cmd/fixture", "-run", "^TestSecretProjectAudit"], "cwd": "/tmp/agenteam-secret-audit-author-aci61g66/snapshot", "started": "2026-10-05T12:24:54.179009+00:00"}
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.013s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.021s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.043s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/process	14.728s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/security	43.901s
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.060s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.056s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.033s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.058s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.047s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.045s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.040s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.021s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.024s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.023s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.051s [no tests to run]
+D03 fixture cleanup checked for nonce 9cf807246ffb6f669d01395c042ae898

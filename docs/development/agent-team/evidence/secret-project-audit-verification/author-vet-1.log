@@ -1,0 +1,4 @@
+{"command": ["/workspace/toolchains/go1.27.1/bin/go", "vet", "./internal/central/secret", "./internal/central/audit"], "cwd": "/tmp/agenteam-secret-audit-author-aci61g66/snapshot", "started": "2026-10-05T12:15:59.157483+00:00"}
+internal/central/secret/project_audit_witness_test.go:102:42: github.com/LunaDeerTech/agenteam/internal/central/audit/contract.AppendKeyDetails struct literal uses unkeyed fields
+internal/central/secret/project_audit_witness_test.go:102:104: github.com/LunaDeerTech/agenteam/internal/central/audit/contract.AppendKeyDetails struct literal uses unkeyed fields
+internal/central/secret/project_audit_witness_test.go:102:154: github.com/LunaDeerTech/agenteam/internal/central/audit/contract.AppendKeyDetails struct literal uses unkeyed fields

@@ -1,0 +1,33 @@
+{
+  "utf8_lf_final_newline_no_trailing_whitespace": true,
+  "checked_file_count": 50,
+  "python_ast_parse_passed": [
+    "author-run.py",
+    "original-runner.py",
+    "reproduce.py"
+  ],
+  "json_jsonl_parse_passed": true,
+  "report_links_exist": [
+    "evidence/secret-project-audit-verification/accepted-commit.json",
+    "../work-items/recovery-secret-project-audit.md",
+    "evidence/secret-project-audit-verification/author-final-source.sha256",
+    "evidence/secret-project-audit-verification/fixed-inputs.json",
+    "evidence/secret-project-audit-verification/author-results.jsonl",
+    "evidence/secret-project-audit-verification/author-pg-new-1.log",
+    "evidence/secret-project-audit-verification/author-pg-regression-1.log",
+    "evidence/secret-project-audit-verification/independent-pure-checks.json",
+    "evidence/secret-project-audit-verification/independent-pure-race.log",
+    "evidence/secret-project-audit-verification/independent-fixture-command.json",
+    "evidence/secret-project-audit-verification/independent-fixture.log",
+    "evidence/secret-project-audit-verification/verification-results.json",
+    "evidence/secret-project-audit-verification/author-comparable-regression-red.log",
+    "evidence/secret-project-audit-verification/author-author-handoff.md",
+    "evidence/secret-project-audit-verification/independent_project_audit_test.go.txt",
+    "evidence/secret-project-audit-verification/independent_secret_project_audit_test.go.txt",
+    "evidence/secret-project-audit-verification/reproduce.py",
+    "evidence/secret-project-audit-verification/reproduce-prepare-check.json",
+    "evidence/secret-project-audit-verification/independent-cleanup-and-inputs.json"
+  ],
+  "git_write_operations": false,
+  "fixture_restarted": false
+}

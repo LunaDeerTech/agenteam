@@ -1,6 +1,6 @@
 # 恢复：Secret 的 Project Audit 真实事实校验
 
-修订：rev1。状态：已通过独立静审并获主线程采纳，代码实施与资源按下述范围另行下发。设计阶段只新增本卡，不自动开放其它文件。
+修订：rev2，仅同步阶段状态，rev1冻结API与行为不变。Secret checker八源已独立验收通过并由主线程采纳、提交推送`7d7c50df0dafcdeaaf700dc2662a6013245bbb6f`，远端一致。下文规格与静审记录保留当时事实，正式验收及后继边界见文末。
 
 ## 完整结果与固定依赖
 
@@ -89,3 +89,9 @@ checker 每次用自身 Store.InTx 确认同一活 Tx，再以现有 RequireHeld
 2026-10-05，未参与本卡编写的 `skill_verification` 对冻结 SHA-256 `e78c72d0135efddbeac8e948c6fd2dafb9b557e06a708bf21b77939f6bbfdf43` 与固定 `49c6589` 的 21 个相关文件完成独立静审，通过，无确定阻断。构造、Store/Tx 见证、mutation 后态/旧 purpose、lease/grant/解密后 resolve 接缝均可在八文件范围实现，不需新增迁移或契约。8 个链接/fragment 与格式检查通过，未运行 Go/Docker。报告为 `/tmp/agenteam-secret-audit-static-uyjzyxxs/review.md`，SHA-256 `93c9619e372088bc34f289f533da233a3632d2383ce61171cdce9c7f95fdbec5`；本节持久保留结论，不依赖临时文件存续。
 
 现有 Entry/Metadata 的 opaque 值语义已隔离 caller 可变 slice；实施仍须精确比较包含 Session 的完整 ActorDetails、包含 HTTPTraceID 的全部九个 Associations、Metadata 内容及全 AppendKey，不能使用省略字段的安全投影。Unknown 实测必须命中 mutation/resolve 自身的最终 Tx，不能把 PrepareWrite 的 nonce 预留提交计入，也不能以一次缺行推断原 writer 已终局。主线程采纳仅更新状态与本记录，行为正文不变；实现、正式 Project 绑定与运行时验收仍未完成。
+
+## Secret checker 独立验收与正式绑定交接
+
+八源已独立验收并由主线程采纳、提交推送`7d7c50d`，精确匹配清单SHA-256 `73a003de920ad6a8461bb60fd5c8510b1c28be4aee803cb56f9127556b27c046`。[正式报告](../agent-team/secret-project-audit-verification.md)复用作者unit/race/vet/compile、新7个PG顶层通过（43.901s）、旧Secret组（27.965s）及3个Account组合（31.373s），原编译/vet与Store可比较性红例及修复均保留；独立不可变性race、新探针compile/vet与真实PG race 1顶层3子例通过（6.306s），2容器1网络及所属进程清零。本次只证明Secret事实checker与真实调用点，不含Project生产路由、root、AgentRun或消费者绑定。
+
+已审[正式绑定卡](recovery-project-secret-audit-binding.md) `dc45a6a`由`restore_test_dependencies`按固定`7d7c50d`快照正式实施8个Project源、无Docker权；S2作者28源独占fixture修后复验中，首轮3项reader前置失败保留，尚未验收。后继绑定与完整D08继续按真实结果单独验收。

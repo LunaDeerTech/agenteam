@@ -1,0 +1,17 @@
+{
+  "base": "d57ce0ba60150d0377082a2996b903353e867007",
+  "source_hashes": {
+    "internal/central/secret/write.go": "f207867f7ce32aa15e1ae3c0365a879402e6df94f59ff98aebd063364d566303",
+    "internal/central/secret/lease.go": "f9bbbca6cbc281d14c5b49022eead902a90deb417c24f721119e69fe9a85eaf5",
+    "internal/central/secret/project_audit.go": "2c0ad6763121681785de61539e40394b1e69c590ab926f96f41acb544b6ef11f",
+    "internal/central/secret/project_audit_witness.go": "adbccf145b36f6df528d943d4b52a354ebd0af05ffda79d11e5be37da24fde30",
+    "internal/central/secret/project_audit_test.go": "ad3734d49d5c17a286d690eb2c24c8cf26ffffc4f8fb3e3ddb2975386caf32ef",
+    "internal/central/secret/project_audit_witness_test.go": "f34c3024dc887d93fe122cb0f41b286a250a62eee809a324aed2caf63ae95ccd",
+    "tests/security/secret_project_audit_test.go": "0473e2440e2db7eb37ce7b155d2200a67c5adad3605a1939860d7089dbb8d43c",
+    "tests/security/secret_project_audit_fixture_test.go": "01aa609aaea91ce6a97d95f5d195d91b9a521f39a72fee7fda84e9d10b934c8a"
+  },
+  "archive_sha256": "60ef96d28b5fe30dc5eb253b42f7916779e749154fcf2ff3614d23f3c8d38494",
+  "go_mod_sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+  "go_sum_sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+  "source_manifest_sha256": "73a003de920ad6a8461bb60fd5c8510b1c28be4aee803cb56f9127556b27c046"
+}

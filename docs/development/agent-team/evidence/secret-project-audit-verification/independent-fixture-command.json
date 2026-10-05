@@ -1,0 +1,67 @@
+{
+  "command": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "run",
+    "./tests/testsupport/postgres/cmd/fixture",
+    "-run",
+    "^TestSecretAuditIndependent"
+  ],
+  "cwd": "/tmp/agenteam-secret-audit-verification-zaezxny0/snapshot",
+  "base": "d57ce0ba60150d0377082a2996b903353e867007",
+  "environment": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+    "GOTMPDIR": "/tmp/agenteam-secret-audit-verification-zaezxny0/runtime",
+    "TMPDIR": "/tmp/agenteam-secret-audit-verification-zaezxny0/runtime",
+    "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-secret-audit-verification-zaezxny0/overlay.json -v",
+    "DOCKER_CONFIG": "/tmp/agenteam-secret-audit-verification-zaezxny0/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock"
+  },
+  "unset": [
+    "DOCKER_CONTEXT",
+    "DOCKER_TLS_VERIFY",
+    "DOCKER_CERT_PATH",
+    "DOCKER_API_VERSION",
+    "AGENTEAM_OBJECT_FIXTURE",
+    "AGENTEAM_POSTGRES_FIXTURE",
+    "AGENTEAM_NETWORK_FIXTURE"
+  ],
+  "before": {
+    "containers": [
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e"
+    ],
+    "networks": [
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+      "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5"
+    ]
+  },
+  "start": "2026-10-05T12:37:06.938374+00:00",
+  "source_hashes": {
+    "internal/central/secret/write.go": "f207867f7ce32aa15e1ae3c0365a879402e6df94f59ff98aebd063364d566303",
+    "internal/central/secret/lease.go": "f9bbbca6cbc281d14c5b49022eead902a90deb417c24f721119e69fe9a85eaf5",
+    "internal/central/secret/project_audit.go": "2c0ad6763121681785de61539e40394b1e69c590ab926f96f41acb544b6ef11f",
+    "internal/central/secret/project_audit_witness.go": "adbccf145b36f6df528d943d4b52a354ebd0af05ffda79d11e5be37da24fde30",
+    "internal/central/secret/project_audit_test.go": "ad3734d49d5c17a286d690eb2c24c8cf26ffffc4f8fb3e3ddb2975386caf32ef",
+    "internal/central/secret/project_audit_witness_test.go": "f34c3024dc887d93fe122cb0f41b286a250a62eee809a324aed2caf63ae95ccd",
+    "tests/security/secret_project_audit_test.go": "0473e2440e2db7eb37ce7b155d2200a67c5adad3605a1939860d7089dbb8d43c",
+    "tests/security/secret_project_audit_fixture_test.go": "01aa609aaea91ce6a97d95f5d195d91b9a521f39a72fee7fda84e9d10b934c8a"
+  },
+  "probe_hashes": {
+    "independent_secret_project_audit_test.go": "bfa424aac0a196c702a85668c3095f91fdb9b3c0dd2b04c0b50c58c32702ed2b",
+    "independent_project_audit_test.go": "0b8cce6fbe4adb7b5e01e1ef7479c2a9de4d1b9879048eb5a8686f80d9293984"
+  },
+  "tools": {
+    "AGENTEAM_GO": {
+      "path": "/workspace/toolchains/go1.27.1/bin/go",
+      "sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624"
+    }
+  }
+}

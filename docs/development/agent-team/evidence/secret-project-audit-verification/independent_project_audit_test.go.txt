@@ -1,0 +1,69 @@
+package secret
+
+import (
+	"bytes"
+	"context"
+	"sync"
+	"testing"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+)
+
+// Exercise exported mutable views against the actual private witness: modifying
+// a caller's input slice, Fields value, actor details or Metadata.JSON buffer
+// must not change both the audited Entry and its retained snapshot together.
+func TestSecretAuditIndependentEntryViewsAreImmutable(t *testing.T) {
+	f := newProjectAuditMutation(t, sc.Update, true)
+	changed := []ac.ChangedField{ac.PurposeChanged, ac.ValueChanged}
+	metadata, err := ac.SecretMutationMetadata(ac.SecretUpdate, f.result.Metadata.Version, changed)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fields := f.entry.Fields()
+	fields.Metadata = metadata
+	entry, err := ac.NewEntry(fields)
+	if err != nil {
+		t.Fatal(err)
+	}
+	ctx := mutationAuditContext(context.Background(), f.store, f.store.tx, f.p, f.prior, f.result, entry, f.key)
+	before := append([]byte(nil), entry.Fields().Metadata.JSON()...)
+	changed[0], changed[1] = ac.ValueChanged, ac.ValueChanged
+	fields.Associations.RequestID = projectAuditID[struct{}](t).String()
+	fields.Associations.HTTPTraceID = projectAuditID[struct{}](t).String()
+	fields.Actor, _ = identity.NewHuman(projectAuditID[identity.User](t), projectAuditID[identity.Session](t))
+	var workers sync.WaitGroup
+	for range 16 {
+		workers.Go(func() {
+			for range 32 {
+				view := entry.Fields()
+				buf := view.Metadata.JSON()
+				clear(buf)
+				details := view.Actor.Details()
+				details.SessionID = "changed-local-details"
+				view.Associations.HTTPTraceID = "changed-local-copy"
+				if !bytes.Equal(entry.Fields().Metadata.JSON(), before) || !sameProjectAuditEntry(entry, f.entry) {
+					t.Error("public mutable view changed retained witness Entry")
+					return
+				}
+			}
+		})
+	}
+	workers.Wait()
+	if err := f.checker.CheckProjectAuditInTx(ctx, f.store.tx, entry, f.key); err != nil {
+		t.Fatal("original exact witness no longer valid", err)
+	}
+	if entry.Fields().Associations != (ac.Associations{}) || !entry.Fields().Actor.Equal(f.p.actor) {
+		t.Fatal("constructor fields remained aliased")
+	}
+	// A legitimately reconstructed changed Entry must still be rejected, even
+	// though the mutated caller views above cannot change the frozen original.
+	altered, err := ac.NewEntry(fields)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = f.checker.CheckProjectAuditInTx(ctx, f.store.tx, altered, f.key); err == nil {
+		t.Fatal("new Entry inherited the original witness")
+	}
+}

@@ -1,0 +1,62 @@
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.034s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	10.872s [no tests to run]
+=== RUN   TestSecretAuditIndependentFactRollbackAndPoison
+=== RUN   TestSecretAuditIndependentFactRollbackAndPoison/receipt-payload-owner
+    independent_secret_project_audit_test.go:172: real final Tx: checker rejection, complete rollback, exact original prepared retry committed once
+=== RUN   TestSecretAuditIndependentFactRollbackAndPoison/different-wrapper-same-pg
+    independent_secret_project_audit_test.go:172: real final Tx: checker rejection, complete rollback, exact original prepared retry committed once
+=== RUN   TestSecretAuditIndependentFactRollbackAndPoison/checker-missing-lock-poisons-ignored-error
+    independent_secret_project_audit_test.go:172: real final Tx: checker rejection, complete rollback, exact original prepared retry committed once
+--- PASS: TestSecretAuditIndependentFactRollbackAndPoison (5.28s)
+    --- PASS: TestSecretAuditIndependentFactRollbackAndPoison/receipt-payload-owner (1.99s)
+    --- PASS: TestSecretAuditIndependentFactRollbackAndPoison/different-wrapper-same-pg (2.25s)
+    --- PASS: TestSecretAuditIndependentFactRollbackAndPoison/checker-missing-lock-poisons-ignored-error (1.04s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	6.306s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.052s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.067s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.049s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.052s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.031s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.030s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.051s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.026s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.046s [no tests to run]
+D03 fixture cleanup checked for nonce 9e196b26219c8ca85ae2b865c4b28724

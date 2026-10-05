@@ -1,0 +1,27 @@
+{
+  "authorization": "pending exclusive fixture handoff; do not execute yet",
+  "new_suite": [
+    "env",
+    "AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go",
+    "DOCKER_HOST=unix:///var/run/docker.sock",
+    "DOCKER_CONFIG=/tmp/agenteam-secret-audit-author-aci61g66/docker-config",
+    "TMPDIR=/tmp/agenteam-secret-audit-author-aci61g66/tmp",
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "run",
+    "./tests/testsupport/postgres/cmd/fixture",
+    "-run",
+    "^TestSecretProjectAudit"
+  ],
+  "affected_regression": [
+    "env",
+    "AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go",
+    "DOCKER_HOST=unix:///var/run/docker.sock",
+    "DOCKER_CONFIG=/tmp/agenteam-secret-audit-author-aci61g66/docker-config",
+    "TMPDIR=/tmp/agenteam-secret-audit-author-aci61g66/tmp",
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "run",
+    "./tests/testsupport/postgres/cmd/fixture",
+    "-run",
+    "^(TestSecret(ProjectCleanup|Nonce|Registry|Mutation|Storage|Rotation|Write|Read|Bindings|Prepared|Killed)|TestAccountBootstrapLoginReplayAndIndependentResponseLeases$|TestAccountInvitationAtomicSecretIntentEventAndRevocation$|TestAccountUnknownNeverExposesUnconfirmedLoginMaterial$)"
+  ]
+}
