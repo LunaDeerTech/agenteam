@@ -1,0 +1,415 @@
+//go:build integration
+
+// Independent D08 B03-R2 probes. Run via Go overlay; author sources stay intact.
+package project_test
+
+import (
+	"context"
+	"errors"
+	"fmt"
+	"net"
+	"net/url"
+	"sync/atomic"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/project"
+	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	"github.com/jackc/pgx/v5/pgconn"
+)
+
+// The proxy is armed only after this independent oracle inspects all acceptance
+// facts inside the real transaction. The original Store.Commit result is intact.
+type verificationStore struct {
+	*postgres.Store
+	proxy                      *commitProxy
+	enabled, fired             atomic.Bool
+	holder                     atomic.Int32
+	timeouts                   atomic.Int64
+	intent                     r2Intent
+	phase                      string
+	before                     time.Time
+	operation, event, manifest string
+	session                    string
+}
+
+func (s *verificationStore) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
+	return s.Store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+		if err := fn(ctx, tx); err != nil {
+			var pg *pgconn.PgError
+			if s.fired.Load() && errors.As(err, &pg) && pg.Code == "55P03" {
+				s.timeouts.Add(1)
+			}
+			return err
+		}
+		if !s.enabled.Load() || s.fired.Load() {
+			return nil
+		}
+		x, err := s.InTx(tx)
+		if err != nil {
+			return err
+		}
+		var phase, gate, opID, eventID, manifest string
+		var version int64
+		var pid int32
+		var operations, participants, audits, events, completed int
+		var at time.Time
+		err = x.QueryRow(ctx, `SELECT c.state,p.lifecycle,p.version,c.plan->>'operation_id',c.event_id::text,c.plan->>'manifest_digest',pg_backend_pid(),
+   (SELECT count(*) FROM agenteam_project.lifecycle_operations WHERE project_id=p.id),
+   (SELECT count(*) FROM agenteam_project.lifecycle_participants z JOIN agenteam_project.lifecycle_operations o ON o.id=z.operation_id WHERE o.project_id=p.id),
+   (SELECT count(*) FROM agenteam_audit.audit_records WHERE project_id=p.id AND action IN ('project.archive.accepted','project.delete.accepted')),
+   (SELECT count(*) FROM agenteam_outbox.events WHERE project_id=p.id AND event_type='project.lifecycle_changed'),
+   (SELECT count(*) FROM agenteam_project.commands WHERE project_id=p.id AND command_name IN ('archive','delete') AND state='completed'),
+   (SELECT last_activity_at FROM agenteam_account.sessions WHERE id=$4)
+   FROM agenteam_project.commands c JOIN agenteam_project.projects p ON p.id=c.project_id
+   WHERE c.project_id=$1 AND c.command_name=$2 AND c.key=$3`, s.intent.project.ID.String(), string(s.intent.command), string(s.intent.meta.IdempotencyKey), s.session).Scan(&phase, &gate, &version, &opID, &eventID, &manifest, &pid, &operations, &participants, &audits, &events, &completed, &at)
+		if err != nil {
+			return err
+		}
+		if phase != s.phase {
+			return nil
+		}
+		if phase == "planned" {
+			if gate != "active" || version != int64(s.intent.project.Version) || operations != 0 || participants != 0 || audits != 0 || events != 0 || completed != 0 || !at.Equal(s.before) {
+				return fmt.Errorf("independent planned oracle rejected partial acceptance")
+			}
+		} else {
+			wantGate, wantAction, wantCleanup := "deleting", "delete", "required"
+			if s.intent.command == c.ArchiveCommand {
+				wantGate, wantAction, wantCleanup = "archiving", "archive", "not_applicable"
+			}
+			if gate != wantGate || version != int64(s.intent.project.Version+1) || operations != 1 || participants != 4 || audits != 1 || events != 1 || completed != 1 || !at.After(s.before) {
+				return fmt.Errorf("independent final oracle rejected non-atomic acceptance")
+			}
+			var canonical bool
+			err = x.QueryRow(ctx, `SELECT p.current_lifecycle_operation_id=o.id AND o.id::text=$2 AND o.state='accepted' AND o.version=1 AND o.action=$3 AND o.project_version=p.version AND o.manifest_digest=c.plan->>'manifest_digest' AND o.required_manifest=c.plan->'required_manifest' AND o.created_at=p.updated_at AND o.updated_at=o.created_at AND o.owner_user_id=p.owner_user_id AND
+    NOT EXISTS(SELECT 1 FROM agenteam_project.lifecycle_participants z WHERE z.operation_id=o.id AND (z.stop_state<>'required' OR z.cleanup_state<>$4 OR z.contract_version<>1 OR z.version<>1 OR z.safe_pending_refs<>'[]'::jsonb OR z.safe_reason IS NOT NULL)) AND
+    EXISTS(SELECT 1 FROM agenteam_outbox.events e WHERE e.id=c.event_id AND e.project_id=p.id AND e.event_type='project.lifecycle_changed')
+    FROM agenteam_project.projects p JOIN agenteam_project.lifecycle_operations o ON o.project_id=p.id JOIN agenteam_project.commands c ON c.project_id=p.id AND c.command_name=$3 WHERE p.id=$1`, s.intent.project.ID.String(), opID, wantAction, wantCleanup).Scan(&canonical)
+			if err != nil {
+				return err
+			}
+			if !canonical {
+				return fmt.Errorf("independent final canonical oracle rejected mismatched identities")
+			}
+		}
+		if !s.fired.CompareAndSwap(false, true) {
+			return nil
+		}
+		s.operation, s.event, s.manifest = opID, eventID, manifest
+		s.holder.Store(pid)
+		s.proxy.armed.Store(true)
+		return nil
+	})
+}
+
+func TestProjectR2IndependentCommitFacts(t *testing.T) {
+	for _, phase := range []string{"planned", "completed"} {
+		for _, commit := range []bool{false, true} {
+			t.Run(fmt.Sprintf("%s/late-commit=%t", phase, commit), func(t *testing.T) {
+				db := newDatabase(t)
+				proxy := newCommitProxy(t, net.JoinHostPort("127.0.0.1", db.Fixture.Port), commit)
+				u, err := url.Parse(db.Fixture.URL(db.Name))
+				if err != nil {
+					t.Fatal(err)
+				}
+				u.Host = proxy.listener.Addr().String()
+				raw := openStore(t, db.Config(t, map[string]string{"URL": u.String(), "TLS_MODE": "disable", "LOCK_TIMEOUT": "1s"}))
+				w := &verificationStore{Store: raw, proxy: proxy, phase: phase}
+				f := &r2Fixture{b02Fixture: assemble(t, db, raw, w), registry: r2Registry(t, r2Entries(1, false))}
+				f.service = f.lifecycleService(t, nil)
+				owner := f.human(t, "owner-alpha", "user")
+				p, _, _ := f.create(t, owner, "IndependentCommit")
+				command := c.DeleteCommand
+				if phase == "planned" {
+					command = c.ArchiveCommand
+				}
+				intent := newR2Intent(t, p, command, "independent-commit")
+				w.intent = intent
+				w.before = f.resetActivity(t, owner)
+				w.session = owner.Details().SessionID
+				w.enabled.Store(true)
+				ctx, cancel := context.WithCancel(ctxFor(t))
+				defer cancel()
+				done := make(chan error, 1)
+				go func() { _, err := intent.invoke(ctx, f.service, owner); done <- err }()
+				await(t, proxy.reached)
+				identity, _ := c.CommandIdentity(p.ID, command, intent.meta.IdempotencyKey)
+				key, _ := foundation.CommandLock(identity)
+				r2ObserveWaiter(t, f, w.holder.Load(), key, "ExclusiveLock")
+				if phase == "completed" && commit {
+					cancel()
+				}
+				r2CheckUnknown(t, r2AwaitReply(t, done), intent, foundation.Unknown)
+				if w.timeouts.Load() == 0 {
+					t.Fatal("no physical 55P03 confirmation")
+				}
+				_, err = f.service.LookupCommand(ctxFor(t), owner, intent.lookup())
+				r2RequireSQLState(t, err, "55P03")
+				// Outside the held transaction, none of the final facts may leak.
+				f.assertNoAcceptance(t, intent, owner, w.before)
+				close(proxy.release)
+				await(t, proxy.completed)
+				lookup, err := f.service.LookupCommand(ctxFor(t), owner, intent.lookup())
+				if err != nil {
+					t.Fatal(err)
+				}
+				want := c.LookupNotObserved
+				if phase == "completed" || commit {
+					want = c.LookupInProgress
+				}
+				if phase == "completed" && commit {
+					want = c.LookupCommitted
+				}
+				if lookup.State != want {
+					t.Fatalf("terminal lookup %s want %s", lookup.State, want)
+				}
+				accepted, err := intent.invoke(ctxFor(t), f.service, owner)
+				if err != nil {
+					t.Fatal(err)
+				}
+				manifest, _ := f.registry.Manifest()
+				f.assertAccepted(t, intent, owner, accepted, manifest)
+				if phase == "completed" || commit {
+					if accepted.Operation.ID.String() != w.operation {
+						t.Fatal("lost original operation")
+					}
+					var ev, digest string
+					if err = f.raw.QueryRow(ctxFor(t), `SELECT event_id::text,plan->>'manifest_digest' FROM agenteam_project.commands WHERE project_id=$1 AND command_name=$2`, p.ID.String(), string(command)).Scan(&ev, &digest); err != nil || ev != w.event || digest != w.manifest {
+						t.Fatal("lost original event/manifest", err)
+					}
+				}
+				t.Logf("same-Tx oracle passed; actual COMMIT held; EX waiter + 55P03; phase=%s late_commit=%t terminal=%s; exactly one acceptance", phase, commit, want)
+			})
+		}
+	}
+}
+
+type verificationAudit struct {
+	ac.Appender
+	store   project.Store
+	project c.ProjectID
+	calls   atomic.Int32
+}
+
+func (a *verificationAudit) AppendInTx(ctx context.Context, tx foundation.Tx, e ac.Entry, k ac.AppendKey) (ac.AppendReceipt, error) {
+	a.calls.Add(1)
+	if err := verificationRemoveParticipant(ctx, tx, a.store, a.project); err != nil {
+		return ac.AppendReceipt{}, err
+	}
+	return a.Appender.AppendInTx(ctx, tx, e, k)
+}
+
+type verificationEvent struct {
+	oc.Appender
+	store   project.Store
+	project c.ProjectID
+	calls   atomic.Int32
+}
+
+func (a *verificationEvent) AppendEventInTx(ctx context.Context, tx foundation.Tx, actor identity.Actor, e event.Event, p oc.AppendPlan) (oc.AppendReceipt, error) {
+	a.calls.Add(1)
+	if err := verificationRemoveParticipant(ctx, tx, a.store, a.project); err != nil {
+		return oc.AppendReceipt{}, err
+	}
+	return a.Appender.AppendEventInTx(ctx, tx, actor, e, p)
+}
+func verificationRemoveParticipant(ctx context.Context, tx foundation.Tx, store project.Store, p c.ProjectID) error {
+	x, err := store.InTx(tx)
+	if err != nil {
+		return err
+	}
+	tag, err := x.Exec(ctx, `DELETE FROM agenteam_project.lifecycle_participants WHERE operation_id=(SELECT current_lifecycle_operation_id FROM agenteam_project.projects WHERE id=$1) AND participant_name='secret'`, p.String())
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() != 1 {
+		return fmt.Errorf("canonical accepted participant was not present")
+	}
+	return nil
+}
+func TestProjectR2IndependentIncompleteCanonicalFacts(t *testing.T) {
+	f := newR2Fixture(t)
+	owner := f.human(t, "owner-alpha", "user")
+	for _, command := range []c.CommandName{c.ArchiveCommand, c.DeleteCommand} {
+		for _, where := range []string{"audit", "event"} {
+			t.Run(string(command)+"/"+where, func(t *testing.T) {
+				p, _, _ := f.create(t, owner, "Partial-"+string(command)+"-"+where)
+				i := newR2Intent(t, p, command, "partial-facts")
+				before := f.resetActivity(t, owner)
+				a := &verificationAudit{Appender: f.aud, store: f.store, project: p.ID}
+				e := &verificationEvent{Appender: f.events, store: f.store, project: p.ID}
+				service := f.lifecycleService(t, func(d *project.Dependencies) {
+					if where == "audit" {
+						d.Audit = a
+					} else {
+						d.Events = e
+					}
+				})
+				_, err := i.invoke(ctxFor(t), service, owner)
+				requireCode(t, err, foundation.DependencyUnavailable)
+				if a.calls.Load()+e.calls.Load() != 1 {
+					t.Fatal("negative did not reach canonical fact check")
+				}
+				f.assertNoAcceptance(t, i, owner, before)
+				if f.snapshot(t, p.ID, owner).Plans != 1 {
+					t.Fatal("lost plan")
+				}
+				result, err := i.invoke(ctxFor(t), f.service, owner)
+				if err != nil {
+					t.Fatal("legal original recovery", err)
+				}
+				m, _ := f.registry.Manifest()
+				f.assertAccepted(t, i, owner, result, m)
+				t.Log("typed accepted append rejected incomplete participant set after gate and operation were written; Tx rolled back; original intent recovered")
+			})
+		}
+	}
+}
+
+func verificationRenew(t *testing.T, f *r2Fixture, owner identity.Actor) identity.Actor {
+	t.Helper()
+	session := id[identity.Session](t)
+	if _, err := f.raw.Exec(ctxFor(t), `INSERT INTO agenteam_account.sessions(id,user_id,token_verifier,csrf_kid,issued_at,last_activity_at,idle_seconds,absolute_expires_at) VALUES($1,$2,decode(repeat('cd',32),'hex'),'a',clock_timestamp()-interval '2 minutes',clock_timestamp()-interval '2 minutes',3600,clock_timestamp()+interval '1 hour')`, session.String(), owner.Details().UserID); err != nil {
+		t.Fatal(err)
+	}
+	user, _ := foundation.ParseID[identity.User](owner.Details().UserID)
+	renewed, err := identity.NewHuman(user, session)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return renewed
+}
+func verificationRevoke(t *testing.T, f *r2Fixture, owner identity.Actor) {
+	t.Helper()
+	if _, err := f.raw.Exec(ctxFor(t), `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='administrative' WHERE id=$1`, owner.Details().SessionID); err != nil {
+		t.Fatal(err)
+	}
+}
+func TestProjectR2IndependentCurrentAuthorizationBeforeReplay(t *testing.T) {
+	for _, command := range []c.CommandName{c.ArchiveCommand, c.DeleteCommand} {
+		t.Run(string(command), func(t *testing.T) {
+			f := newR2Fixture(t)
+			owner := f.human(t, "owner-alpha", "user")
+			admin := f.human(t, "other-admin", "admin")
+			p, _, _ := f.create(t, owner, "ReplayAuth")
+			i := newR2Intent(t, p, command, "replay-auth")
+			accepted, err := i.invoke(ctxFor(t), f.service, owner)
+			if err != nil {
+				t.Fatal(err)
+			}
+			auth, err := project.NewAuthority(f.store, project.AuthorityDependencies{Sessions: f.accounts})
+			if err != nil {
+				t.Fatal(err)
+			}
+			unbound := f.lifecycleService(t, func(d *project.Dependencies) { d.Authority = auth; d.LifecycleRegistry = nil })
+			changed := i
+			v := foundation.Version(99)
+			changed.meta.ExpectedVersion = &v
+			for _, invoke := range []r2Intent{i, changed} {
+				_, err = invoke.invoke(ctxFor(t), unbound, admin)
+				requireCode(t, err, foundation.NotFound)
+			}
+			_, err = unbound.LookupCommand(ctxFor(t), admin, i.lookup())
+			requireCode(t, err, foundation.NotFound)
+			verificationRevoke(t, f, owner)
+			for _, invoke := range []r2Intent{i, changed} {
+				_, err = invoke.invoke(ctxFor(t), unbound, owner)
+				requireCode(t, err, foundation.SessionRevoked)
+			}
+			_, err = unbound.LookupCommand(ctxFor(t), owner, i.lookup())
+			requireCode(t, err, foundation.SessionRevoked)
+			_, err = unbound.GetLifecycle(ctxFor(t), owner, p.ID, accepted.Operation.ID)
+			requireCode(t, err, foundation.SessionRevoked)
+			renewed := verificationRenew(t, f, owner)
+			if _, err = f.raw.Exec(ctxFor(t), `UPDATE agenteam_account.users SET username='owner-renamed',version=version+1 WHERE id=$1`, owner.Details().UserID); err != nil {
+				t.Fatal(err)
+			}
+			before := f.snapshot(t, p.ID, renewed)
+			replay, err := i.invoke(ctxFor(t), unbound, renewed)
+			if err != nil || replay.Operation.ID != accepted.Operation.ID {
+				t.Fatal("renewed stable-user replay", err)
+			}
+			read, err := unbound.GetLifecycle(ctxFor(t), renewed, p.ID, accepted.Operation.ID)
+			if err != nil || read.Operation.ID != accepted.Operation.ID {
+				t.Fatal("renewed get", err)
+			}
+			lookup, err := unbound.LookupCommand(ctxFor(t), renewed, i.lookup())
+			if err != nil || lookup.State != c.LookupCommitted || lookup.Result.Lifecycle.Operation.ID != accepted.Operation.ID {
+				t.Fatal("renewed lookup", err)
+			}
+			_, err = changed.invoke(ctxFor(t), unbound, renewed)
+			requireCode(t, err, foundation.IdempotencyKeyReused)
+			if after := f.snapshot(t, p.ID, renewed); after != before {
+				t.Fatal("replay/query touched data")
+			}
+			t.Log("revocation/Owner precede digest and missing dependencies; renewed Session after username change replays without Touch")
+		})
+	}
+}
+
+func TestProjectR2IndependentMinimalReceiptAuthorization(t *testing.T) {
+	f := newR2Fixture(t)
+	owner := f.human(t, "owner-alpha", "user")
+	target, op := id[identity.Project](t), id[c.Operation](t)
+	v := foundation.Version(1)
+	m := meta(t, "receipt-original", &v)
+	req := c.DeleteProjectRequest{NormalizedCurrentPath: "owner-alpha/gone", Permanent: true}
+	digest, err := c.DeleteDigest(owner, m, target, req)
+	if err != nil {
+		t.Fatal(err)
+	}
+	user, _ := foundation.ParseID[identity.User](owner.Details().UserID)
+	hash, _ := c.DeletionCommandKeyHash(target, user, m.IdempotencyKey)
+	if _, err = f.raw.Exec(ctxFor(t), `INSERT INTO agenteam_project.deletion_receipts(operation_id,deleted_project_id,original_owner_user_id,command_key_hash,request_digest,completed_at) VALUES($1,$2,$3,$4,$5,clock_timestamp())`, op.String(), target.String(), user.String(), hash.String(), digest.String()); err != nil {
+		t.Fatal(err)
+	}
+	s := f.lifecycleService(t, func(d *project.Dependencies) { d.LifecycleRegistry = nil })
+	lookup := c.CommandLookupRequest{ProjectID: target, Command: c.DeleteCommand, Key: m.IdempotencyKey}
+	wrong := lookup
+	wrong.Key = "wrong-key"
+	_, err = s.LookupCommand(ctxFor(t), owner, wrong)
+	requireCode(t, err, foundation.ResourceDeleted)
+	wrongMeta := m
+	wrongMeta.IdempotencyKey = wrong.Key
+	_, err = s.BeginDeleteProject(ctxFor(t), owner, wrongMeta, target, req)
+	requireCode(t, err, foundation.ResourceDeleted)
+	verificationRevoke(t, f, owner)
+	changed := req
+	changed.NormalizedCurrentPath = "owner-alpha/changed"
+	_, err = s.BeginDeleteProject(ctxFor(t), owner, m, target, changed)
+	requireCode(t, err, foundation.SessionRevoked)
+	_, err = s.LookupCommand(ctxFor(t), owner, lookup)
+	requireCode(t, err, foundation.SessionRevoked)
+	_, err = s.LookupCommand(ctxFor(t), owner, wrong)
+	requireCode(t, err, foundation.SessionRevoked)
+	renewed := verificationRenew(t, f, owner)
+	before := f.resetActivity(t, renewed)
+	r, err := s.BeginDeleteProject(ctxFor(t), renewed, m, target, req)
+	if err != nil || r.Receipt == nil || r.Receipt.Details().OperationID != op {
+		t.Fatal("minimal renewed replay", err)
+	}
+	r, err = s.GetLifecycle(ctxFor(t), renewed, target, op)
+	if err != nil || r.Receipt == nil {
+		t.Fatal("minimal renewed get", err)
+	}
+	l, err := s.LookupCommand(ctxFor(t), renewed, lookup)
+	if err != nil || l.State != c.LookupCommitted || l.Result.Lifecycle.Receipt == nil {
+		t.Fatal("minimal renewed lookup", err)
+	}
+	_, err = s.BeginDeleteProject(ctxFor(t), renewed, m, target, changed)
+	requireCode(t, err, foundation.IdempotencyKeyReused)
+	var after time.Time
+	var bodies, commands, ops, audits, events, receipts int
+	err = f.raw.QueryRow(ctxFor(t), `SELECT (SELECT last_activity_at FROM agenteam_account.sessions WHERE id=$1),(SELECT count(*) FROM agenteam_project.projects WHERE id=$2),(SELECT count(*) FROM agenteam_project.commands WHERE project_id=$2),(SELECT count(*) FROM agenteam_project.lifecycle_operations WHERE project_id=$2),(SELECT count(*) FROM agenteam_audit.audit_records WHERE project_id=$2),(SELECT count(*) FROM agenteam_outbox.events WHERE project_id=$2),(SELECT count(*) FROM agenteam_project.deletion_receipts WHERE deleted_project_id=$2)`, renewed.Details().SessionID, target.String()).Scan(&after, &bodies, &commands, &ops, &audits, &events, &receipts)
+	if err != nil || !after.Equal(before) || bodies+commands+ops+audits+events != 0 || receipts != 1 {
+		t.Fatal("minimal receipt read mutated state", err)
+	}
+	t.Log("wrong-key receipt cannot replay; revoked Session wins before key/digest; renewed Owner reads sole receipt without body or Touch")
+}

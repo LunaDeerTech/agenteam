@@ -1,0 +1,21 @@
+===== unit-r1.log =====
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project	0.054s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project/contract	0.013s
+===== race-r1.log =====
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project	1.285s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project/contract	1.100s
+===== vet-r1.log =====
+===== compile-integration-r1.log =====
+# github.com/LunaDeerTech/agenteam/tests/project_test [github.com/LunaDeerTech/agenteam/tests/project.test]
+tests/project/b03_r2_acceptance_test.go:197:33: undefined: foundation.SessionExpired
+tests/project/b03_r2_acceptance_test.go:199:33: undefined: foundation.SessionExpired
+tests/project/b03_r2_acceptance_test.go:201:33: undefined: foundation.SessionExpired
+tests/project/b03_r2_unknown_test.go:16:2: "github.com/LunaDeerTech/agenteam/internal/central/identity/contract" imported as identity and not used
+FAIL	github.com/LunaDeerTech/agenteam/tests/project [build failed]
+FAIL
+===== compile-integration-r2.log =====
+ok  	github.com/LunaDeerTech/agenteam/tests/project	0.005s [no tests to run]
+===== compile-integration-r3.log =====
+ok  	github.com/LunaDeerTech/agenteam/tests/project	0.005s [no tests to run]
+===== build-central.log =====
+===== build-runner.log =====

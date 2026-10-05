@@ -1,6 +1,6 @@
 # D08 B03-R2：归档与删除的持久接受及结果确认
 
-修订：rev1。状态：独立静审通过，主线程已采纳；实现须消费已验收的 B03-R1。执行为同一 `backend_worker` 接续，独立验收为未参与实现的 `verification_worker`，按团队规则使用 `gpt-6-astra / max`，不得再委派。
+修订：rev2，仅同步交付状态，冻结 API 与行为规则不变。状态：R2 已独立验收通过并获主线程采纳，15源已提交推送 `73db0d45d673f804a37a7232a79a611a1ef447aa`，远端同 SHA。执行为同一 `backend_worker` 接续，独立验收为未参与实现的 `verification_worker`，按团队规则使用 `gpt-6-astra / max`，不得再委派。
 
 ## 输入与完整结果
 
@@ -90,3 +90,9 @@ git diff --check
 2026-10-05，未参与本卡设计及 R1 实现的 `skill_verification` 对冻结 rev1（SHA-256 `80ce099cafdec999bf610be0dd4042bb87bf3f0b7c86517da0a63a628b31b7f7`）与固定 `8872110` 的旧接缝独立静审，通过且无硬阻断。主线程全文核读报告并采纳；本节及状态行仅追加审查事实，不改变上文接口和授权。核对范围包括 00013 容量、Session/Owner 与路径锁、接受事务原子性、原清单恢复、Audit/Event 事实分派、Unknown 原身份串行确认及最小 receipt 权限；未运行 Go/PG/Docker。
 
 实施须特别保留三个已有约束：GetLifecycle/deleting 重放不能走普通 Read gate；旧 B02 `commitStore` 的非 creation 分支只截留 update，R2 必须在本卡新测试文件中精确武装 archive/delete 的真实 COMMIT；最小 receipt 由 typed constructor 从本域行还原，不能对 opaque 类型泛 JSON 解码。原报告位于 `/tmp/agenteam-d08-r2-spec-review-u2lfdanp/report.md`，SHA-256 `cefb5947c1b2d0333e52589b4d4e8cc41c92a9943f4edb65f2f9d26b582f5730`；关键结论已在本节持久记录，不依赖该临时文件续接。
+
+## R2 独立验收与提交
+
+主线程已采纳[独立报告](../agent-team/d08-r2-verification.md)，并以 `73db0d4` 精确提交、推送15源。作者13个新R2顶层按组合通过：首轮唯一 failed-init 测试前置错误保留，修后该1项与15个旧B02顶层通过；unit/race/vet及两个命令构建通过。独立真实race验证4顶层10子例通过（16.972s），两个命令构建通过，相关进程与owned资源清零。实际输入、命令、原失败和分组边界见报告，不称单次无过滤全绿。
+
+本次通过范围仅为归档/删除接受、Get、原命令重放与Unknown确认，不包含stop、cleanup、生命周期终态、HTTP/root或D10绑定。后续[D05规格](recovery-d05-object-stop.md)已静审并提交`7000676`；00016 S1两源由`restore_test_dependencies`实施并独占fixture，尚未验收。R3当前cause/phase Authority卡由设计负责人准备；其实现与正式推进仍按后续卡分别验收。

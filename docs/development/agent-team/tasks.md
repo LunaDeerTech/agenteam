@@ -6,14 +6,14 @@
 
 2026-10-05 中断恢复以 `main = origin/main = 8872110099c84cf0600bb5b62cdcd6c0c6c843e3` 为初始基线，工作区当时干净、无未推送提交。主线程已实际核对远端并建立同提交的本地 `main`；详细现存源码、缺失产物和下一步见[本次恢复记录](recovery-2026-10-05.md)。
 
-恢复文档、D08 恢复卡与独立核查已提交推送 `a9cf0de`；D10 P1 独立验收及状态同步16路径已提交推送 `eab831b`。D08 B03-R1 两源已独立验收通过并提交推送 `98262b49aa87c52cfb0c09586dd1b76f9aa1fd52`，主线程确认远端同 SHA；后续按已验规格 `9531499` 的 R2 卡接续。
+恢复文档与D10 P1交付已分别提交推送`a9cf0de`、`eab831b`；D08 B03-R1两源已验`98262b4`。R2持久接受15源已独立验收并提交推送`73db0d45d673f804a37a7232a79a611a1ef447aa`，主线程确认远端同SHA；后续推进D05 S1及R3 Authority规格，完整D08仍未完成。
 
 以下为恢复后的摘要。下文旧阶段中的 `d02_backend`、`d08_design`、`parallel_plan`、`d01_verify`、acceptance 等所有权及“正在实施”描述保留为当时历史，不表示旧实例仍在运行或旧未提交源码已恢复。旧 `/tmp` 证据没有随仓库恢复；历史局部通过不能证明当前缺失实现已存在。本次实际分工见[恢复记录的所有权表](recovery-2026-10-05.md#4-本次所有权与下一步)。
 
 | 工作项 | 当前进度 | 所有权与下一步 |
 | --- | --- | --- |
 | D07 | 当前范围已关闭，文档提交 `0ed8085`；历史失败与组合验收边界保留 | 无活动 D07 实现；后续 UI、WS、Project/Runner 绑定按责任模块推进 |
-| D08 | 已提交基础保留；新 R1 不可变 registry/原版本解析已独立验收并提交 `98262b4`；旧 A/P 未提交主体未恢复，完整 B03 未完成 | 按[R2 持久接受卡](../work-items/recovery-d08-b03-acceptance.md)消费已验 R1，并交接唯一真实 fixture；stop、生命周期推进、Object/Secret fact checker、HTTP/app 和 D10 绑定仍未完成 |
+| D08 | R1 registry `98262b4`、[R2持久接受](../work-items/recovery-d08-b03-acceptance.md) `73db0d4`均已独立验收提交；完整B03未完成 | [D05规格](../work-items/recovery-d05-object-stop.md) `7000676`已静审提交；00016 S1两源由`restore_test_dependencies`实施并独占fixture，R3 Authority卡准备中。stop/cleanup/HTTP/root/D10仍未完成 |
 | D09 | C0 `e6e94c4`、B01-K System 配置及 00015 已独立验收，Audit 六源 `26622bc`、System 二十九源 `543511c` 已推送 | 本块不含 Project 配置、Resolver/Usage、Provider 调用或根 HTTP；后续范围另派，D09 模块未完成 |
 | D10 | P1 真实 builtin/包载体 11 路径及两份文档已在 `8872110` 提交，并通过本轮固定输入独立验收；[主卡 rev2](../work-items/d10-skills-initialization.md)仅同步状态 | `skill_verification` 已冻结报告及持久证据；Go unit/race/vet与7项独立race探针通过。生产初始化仍须真实D08/D05、Object fact checker与生命周期组合，D10模块未完成 |
 | D12 | B01 `914fd84`、正式 B02 卡及 C1 `71dc176`、C2 `f401c15`、C3 `231a384` 的提交仍在；Knowledge 主体未验收且本次未恢复 | 当前仅有 Knowledge contract 12 文件；B02 新领域 29 路径均缺，未编号 SQL 草案也未恢复。按真实上游与新文件所有权重新下发，不以共享口通过替代真实 Knowledge/A/P 组合 |
@@ -916,3 +916,9 @@ D10 P1 随后由未参与实现的 `skill_verification` 对固定 `8872110` 独�
 D10 P1 的报告、证据与四文档共16路径已提交推送 `eab831b`，R2 正式规格已提交推送 `9531499`。R1 作者两源随后由独立验收通过并获主线程采纳，已精确提交推送 `98262b4`，远端已核。[R1 报告](d08-r1-verification.md)记录完整 check-go 一次 exit0、独立 race/count1 两顶层五子例通过，两源及162个本地编译输入在 R2 开写前末检匹配，owned 进程与测试工作临时目录清零。
 
 R2 按[正式卡](../work-items/recovery-d08-b03-acceptance.md)消费已验 R1 提交/指纹，R1 两源保持冻结；作者与唯一 PG/MinIO fixture 由主线程交接。接受事务、当前权限和 Unknown 独立验收前不算 R2 完成，registry 通过也不代表真实停止、归档/删除终态或完整 D08 已完成。
+
+### R2 采纳提交与后段接续
+
+R2已由独立验收通过并获主线程采纳，15源提交推送`73db0d45d673f804a37a7232a79a611a1ef447aa`，远端已核。[正式报告](d08-r2-verification.md)保留作者13个新顶层组合通过、首轮唯一failed-init测试前置错误及修后1项+15个旧B02通过；作者unit/race/vet和两个命令构建通过。独立真实race4顶层10子例通过（16.972s），两个命令构建通过，相关owned资源清零；不将组合证据称为单次无过滤全绿。
+
+验收仅覆盖accept/Get/replay/Unknown，stop/cleanup/HTTP/root/D10仍未通过。D05正式规格已静审并提交`7000676`，00016 S1两个新文件由`restore_test_dependencies`实施并独占fixture、待验收；R3 Authority卡由设计负责人准备。本次只同步三文档状态与证据，R2冻结API/行为规则及历史正文不变。

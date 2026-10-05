@@ -1,0 +1,31 @@
+cwd=/workspace/agenteam
+
+log=unit-r1.log exit=0
+GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOFLAGS=-mod=readonly GOMODCACHE=/workspace/agenteam-dependency-cache/modcache /workspace/toolchains/go1.27.1/bin/go test -count=1 ./internal/central/project/...
+
+log=race-r1.log exit=0
+GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOFLAGS=-mod=readonly GOMODCACHE=/workspace/agenteam-dependency-cache/modcache /workspace/toolchains/go1.27.1/bin/go test -race -count=1 ./internal/central/project/...
+
+log=vet-r1.log exit=0
+GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOFLAGS=-mod=readonly GOMODCACHE=/workspace/agenteam-dependency-cache/modcache /workspace/toolchains/go1.27.1/bin/go vet ./internal/central/project/...
+
+log=compile-integration-r1.log exit=1
+GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOFLAGS=-mod=readonly GOMODCACHE=/workspace/agenteam-dependency-cache/modcache /workspace/toolchains/go1.27.1/bin/go test -tags=integration -run '^$' ./tests/project
+
+log=compile-integration-r2.log exit=0
+GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOFLAGS=-mod=readonly GOMODCACHE=/workspace/agenteam-dependency-cache/modcache /workspace/toolchains/go1.27.1/bin/go test -tags=integration -run '^$' ./tests/project
+
+log=compile-integration-r3.log exit=0
+GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOFLAGS=-mod=readonly GOMODCACHE=/workspace/agenteam-dependency-cache/modcache /workspace/toolchains/go1.27.1/bin/go test -tags=integration -run '^$' ./tests/project
+
+log=build-central.log exit=0
+GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOFLAGS=-mod=readonly GOMODCACHE=/workspace/agenteam-dependency-cache/modcache /workspace/toolchains/go1.27.1/bin/go build -o /tmp/agenteam-d08-r2-author-2fSdA01Z/agenteam ./cmd/agenteam
+
+log=build-runner.log exit=0
+GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOFLAGS=-mod=readonly GOMODCACHE=/workspace/agenteam-dependency-cache/modcache /workspace/toolchains/go1.27.1/bin/go build -o /tmp/agenteam-d08-r2-author-2fSdA01Z/agenteam-runner ./cmd/agenteam-runner
+
+log=fixture-r2-r1.log exit=1
+GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOFLAGS=-mod=readonly GOMODCACHE=/workspace/agenteam-dependency-cache/modcache AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go AGENTEAM_MINIO_BINARY=/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio DOCKER_CONFIG=/tmp/agenteam-d08-r2-author-2fSdA01Z/docker-config DOCKER_HOST=unix:///var/run/docker.sock sh scripts/test-objects.sh -run '^TestProjectB03R2'
+
+log=fixture-r2-repaired-and-b02.log exit=0
+GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOFLAGS=-mod=readonly GOMODCACHE=/workspace/agenteam-dependency-cache/modcache AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go AGENTEAM_MINIO_BINARY=/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio DOCKER_CONFIG=/tmp/agenteam-d08-r2-author-2fSdA01Z/docker-config DOCKER_HOST=unix:///var/run/docker.sock sh scripts/test-objects.sh -run '^TestProject(B03R2OwnerSessionDependenciesAndGates|B02(OwnerSessionNamePathAndPaging|TargetIdentityAndDeletionTombstone|InitializerFailureUnknownUnboundAndReceiptOrder|AuditEventReceiptTouchAtomicityAndNoOp|OwnerPortRequiresCallerTransactionLocks|ConcurrentCreateKeepsOneReservationAndOriginalIdentity|ConcurrentUpdateRejectsOldVersionWithoutExtraFacts|TwoPlannedTargetsCompeteForOneCanonicalName|CreateReservesNameAfterAnotherTargetWasPlanned|ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal|InitializationRejectsWrongMappingPlanAndActualSkillFacts|InitializationMergesCompleteLockPlanAndPoisonsMissingLock|CreateAuditEventFailuresRespectAcceptanceBoundary|UnknownWriterHeldThenCommitOrRollback|UnknownOriginalCallResolvesAfterWriterSerialization))$'

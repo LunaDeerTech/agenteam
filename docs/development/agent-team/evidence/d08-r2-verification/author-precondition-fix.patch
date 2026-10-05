@@ -1,0 +1,23 @@
+--- a/tests/project/b03_r2_acceptance_test.go
++++ b/tests/project/b03_r2_acceptance_test.go
+@@ -7,0 +8 @@
++	"errors"
+@@ -210,3 +211,15 @@
+-	creation, err := f.service.CreateProject(ctxFor(t), other, meta(t, "uninitialized", nil), c.CreateProjectRequest{ProjectID: target, Name: "Pending"})
+-	if err != nil || creation.Operation == nil {
+-		t.Fatal("failed initialization fixture", err)
++	creationMeta := meta(t, "uninitialized", nil)
++	_, err = f.service.CreateProject(ctxFor(t), other, creationMeta, c.CreateProjectRequest{ProjectID: target, Name: "Pending"})
++	var failure *foundation.Fault
++	if !errors.As(err, &failure) || failure.Code != foundation.DependencyUnavailable || failure.CommitState != foundation.Committed {
++		t.Fatal("failed initialization must retain the accepted creation", err)
++	}
++	creation, err := f.service.LookupCommand(ctxFor(t), other, c.CommandLookupRequest{ProjectID: target, Command: c.CreateCommand, Key: creationMeta.IdempotencyKey})
++	if err != nil || creation.State != c.LookupCommitted || creation.Result == nil || creation.Result.Creation == nil || creation.Result.Creation.Operation == nil {
++		t.Fatal("failed initialization lost its receipt", err)
++	}
++	failed := creation.Result.Creation.Operation
++	var initialized bool
++	var creationID string
++	if err = f.raw.QueryRow(ctxFor(t), `SELECT initialized_at IS NOT NULL,creation_id::text FROM agenteam_project.projects WHERE id=$1`, target.String()).Scan(&initialized, &creationID); err != nil || initialized || creationID != failed.ID.String() || failed.State != c.CreationFailed || failed.SafeReason != c.ReasonOperationFailed || failure.CauseID != failed.ID.String() {
++		t.Fatal("failed initialization canonical state mismatch", err)

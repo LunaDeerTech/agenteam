@@ -1,0 +1,86 @@
+{
+  "base": "39ae1f3415b8095096b0027679cf1f35650f20c4",
+  "archive_sha256": "b5374c54da3bb8cc434336888df7d2e76edd636fa866c4a3fc82c77b89e077cf",
+  "manifest_sha256": "d2133560cd18b1560da9b703f7c2057f31c512d8beaeb8dca6b33cb7e4a81d8a",
+  "created_utc": "2026-10-05T11:30:03.625602+00:00",
+  "snapshot": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/snapshot",
+  "cache": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+  "accepted_source_commit": "73db0d45d673f804a37a7232a79a611a1ef447aa",
+  "final_fifteen_source_matches_main_and_commit": true,
+  "critical_unchanged_inputs": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "internal/central/project/participants.go": "b38ebb0b2cfa0ae42e969bd993932808fdb20f7a5f4297375f27d5f6a74455ed",
+    "internal/central/project/participants_test.go": "f3386b187e4c751976ba8d147eb43d5b0c717bf19394e53a822aaf7ee0968b57",
+    "db/migrations/00013_project_owner.sql": "6ec8c84b7fcedd538550ece134c2df3e35febfe13e4906c74aa91dd1fe878cc0",
+    "scripts/test-objects.sh": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+    "scripts/test-security.sh": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be",
+    "scripts/test-postgres.sh": "eddfb4f44288f8ec448400b02435f5fd6d6c44b0d80003fd34f7785e2980cdfe",
+    "tests/testsupport/postgres/cmd/fixture/main.go": "55ae7da25e69c4f4f29ca516748d8cc837913016e9fc381fc96abc11f37298de",
+    "tests/testsupport/objectstore/cmd/fixture/main.go": "680472027d5a30aa5f3a316c9301fc3c78bc9a7297cbe18647fab43af1b5bbab",
+    "tests/project/b02_fixture_test.go": "6687003d2f1700f336c365477237e413580fb5d217e6a6754733d4326434df94",
+    "tests/project/b02_commit_proxy_test.go": "f6a8912ca242d7f275ac84120dc1a25f250ba3d5c55696ecfdf44861e0c338aa",
+    "tests/project/b02_owner_commands_test.go": "5d4b886c58ae4b286da9e79e5470688db953091e54905badb0ea5993064b7b35",
+    "tests/project/b02_unknown_test.go": "c6aa72701e225d514227ae7a6c634512dd0add6e15b8b603ad5d31465c943edd",
+    "docs/development/work-items/recovery-d08-b03-acceptance.md": "45079bd7e433234733422640af9f4fe95af712f59748059230c862438e08bedc"
+  },
+  "toolchain": {
+    "go_version": "go1.27.1",
+    "go_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+    "minio_version": "RELEASE.2025-10-15T17-29-55Z",
+    "minio_sha256": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8"
+  },
+  "author_first_input_only_difference": {
+    "path": "tests/project/b03_r2_acceptance_test.go",
+    "sha256": "899fffac2581c94a4b735a2094c885ea33a5c5f119302bf67601f1dc37399054",
+    "restore": "Apply author-precondition-fix.patch in reverse to the final frozen source; other 14 sources identical."
+  },
+  "author_manifest_hashes": {
+    "source-fixture-r1.sha256": "dcddd803d522a7a5899c05025d578ff693aad35cd9db994dd4b1ee1605b3040b",
+    "source-fixture-r2.sha256": "ed1b23145771a01963f797980b13eeb293ad69dc59bcf9ede9d0255d955fdf85"
+  },
+  "author_small_log_hashes": {
+    "unit-r1.log": "63b22899bb4995ee0d7d5c407ef65500e535dc1a78d473ca70513dec059801b5",
+    "race-r1.log": "97f006f8151ead2cf8a3ebef483fbc8cf15df15e0abb7e653dba9699354e0477",
+    "vet-r1.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "compile-integration-r1.log": "e142cfd5ebc84c58dbfe0cb1ffde038fc8f994f7e5e2cc5026b22a04a89bc13a",
+    "compile-integration-r2.log": "fc09d0461353f36109d4c49f098f87e3f810e988c5a6b6c38532a6d9143cbb5c",
+    "compile-integration-r3.log": "fc09d0461353f36109d4c49f098f87e3f810e988c5a6b6c38532a6d9143cbb5c",
+    "build-central.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "build-runner.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "author_r2_tests": [
+    "TestProjectB03R2AcceptReplayAndCurrentProgress",
+    "TestProjectB03R2AtomicRollbackAtAuditEventAndTouch",
+    "TestProjectB03R2OwnerSessionDependenciesAndGates",
+    "TestProjectB03R2RetainsPlannedVersionsAcrossServiceRebuild",
+    "TestProjectB03R2CorruptStoredManifestCannotShrinkProgress",
+    "TestProjectB03R2ConcurrentCommandsKeepOneOperation",
+    "TestProjectB03R2FinalAcceptanceRechecksPathAndSession",
+    "TestProjectB03R2MinimalReceiptIsCurrentOwnerReadOnly",
+    "TestProjectB03R2PlannedTypedFactsCannotForgeAcceptance",
+    "TestProjectB03R2ArchivedPrerequisiteAcceptsDelete",
+    "TestProjectB03R2SharedGateBlocksAcceptanceBeforeAnyFacts",
+    "TestProjectB03R2UnknownWriterHeldThenCommitOrRollback",
+    "TestProjectB03R2UnknownOriginalCallSerializesWriter"
+  ],
+  "author_affected_b02_tests": [
+    "TestProjectB02OwnerSessionNamePathAndPaging",
+    "TestProjectB02TargetIdentityAndDeletionTombstone",
+    "TestProjectB02InitializerFailureUnknownUnboundAndReceiptOrder",
+    "TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp",
+    "TestProjectB02OwnerPortRequiresCallerTransactionLocks",
+    "TestProjectB02ConcurrentCreateKeepsOneReservationAndOriginalIdentity",
+    "TestProjectB02ConcurrentUpdateRejectsOldVersionWithoutExtraFacts",
+    "TestProjectB02TwoPlannedTargetsCompeteForOneCanonicalName",
+    "TestProjectB02CreateReservesNameAfterAnotherTargetWasPlanned",
+    "TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal",
+    "TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts",
+    "TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock",
+    "TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary",
+    "TestProjectB02UnknownWriterHeldThenCommitOrRollback",
+    "TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization"
+  ],
+  "independent_probe_sha256": "7582788dd1516876d52efb2e9cd3e1d48fc67c5b3b6dba83738e61a5a1550e97",
+  "final_checked_utc": "2026-10-05T11:38:15.886111+00:00"
+}

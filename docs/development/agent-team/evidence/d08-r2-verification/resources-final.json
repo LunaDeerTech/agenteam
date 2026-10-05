@@ -1,0 +1,79 @@
+{
+  "at": "2026-10-05T11:35:59.386127+00:00",
+  "owned": [
+    {
+      "kind": "container",
+      "id": "7d9ad4bb96c0ebc35d466e6195d40a9d63bfc23138352be96cba512fdbeaf244",
+      "name": "/agenteam-d03-4feb9bbd2f22e4209d202f894fb47d8e",
+      "labels": {
+        "agenteam.d03.fixture": "4feb9bbd2f22e4209d202f894fb47d8e"
+      },
+      "inspect_exit": 1,
+      "missing": true
+    },
+    {
+      "kind": "container",
+      "id": "a01362e8434841ccad307941918d5a9ce6f2916a50fc334f7096bd0badbe5cda",
+      "name": "/agenteam-d04-net-399f661e2c1a6674628f9d000ccfc221",
+      "labels": {
+        "agenteam.d04.networkfixture": "399f661e2c1a6674628f9d000ccfc221"
+      },
+      "inspect_exit": 1,
+      "missing": true
+    },
+    {
+      "kind": "container",
+      "id": "bad391e8ab6a5df3b1d0bf7ed6ea91092cda4570aa1827c995275918e7861401",
+      "name": "/agenteam-d05-object-e26fda6b462dbbbe22debc4066b2f19a",
+      "labels": {
+        "agenteam.d05.objectfixture": "e26fda6b462dbbbe22debc4066b2f19a"
+      },
+      "inspect_exit": 1,
+      "missing": true
+    },
+    {
+      "kind": "container",
+      "id": "d4d4d54e4f17ce677d9a273a7a1e4eab4386aa5dfc23fc3511623dd78237d6a4",
+      "name": "/agenteam-d03-4feb9bbd2f22e4209d202f894fb47d8e-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "4feb9bbd2f22e4209d202f894fb47d8e"
+      },
+      "inspect_exit": 1,
+      "missing": true
+    },
+    {
+      "kind": "network",
+      "id": "9b7367d7f53e15bba29866e43d6991533613ca1a1154f87d1f32e57cf2439021",
+      "name": "agenteam-d04-net-399f661e2c1a6674628f9d000ccfc221",
+      "labels": {
+        "agenteam.d04.networkfixture": "399f661e2c1a6674628f9d000ccfc221"
+      },
+      "inspect_exit": 1,
+      "missing": true
+    },
+    {
+      "kind": "network",
+      "id": "dad48d57f7c1db00072ef1c7528b038711522469d3b3113806d1b44cb910cce6",
+      "name": "agenteam-d03-4feb9bbd2f22e4209d202f894fb47d8e",
+      "labels": {
+        "agenteam.d03.fixture": "4feb9bbd2f22e4209d202f894fb47d8e"
+      },
+      "inspect_exit": 1,
+      "missing": true
+    },
+    {
+      "kind": "network",
+      "id": "fcdbe8df815be9d2c6d75b2a4603ff4c4e33c6e3d5d4eac775ef3a8e90d3f289",
+      "name": "agenteam-d05-object-e26fda6b462dbbbe22debc4066b2f19a",
+      "labels": {
+        "agenteam.d05.objectfixture": "e26fda6b462dbbbe22debc4066b2f19a"
+      },
+      "inspect_exit": 1,
+      "missing": true
+    }
+  ],
+  "remaining": [],
+  "runtime_entries": [],
+  "processes": [],
+  "existing_baseline_unchanged": true
+}

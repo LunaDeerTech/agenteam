@@ -1,0 +1,146 @@
+{
+  "builds": [
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/tmp/agenteam-d08-r2-verification-wb5yyx9m/builds/agenteam",
+        "./cmd/agenteam"
+      ],
+      "cwd": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/snapshot",
+      "env": {
+        "GOTOOLCHAIN": "local",
+        "GOENV": "off",
+        "GOWORK": "off",
+        "GOPROXY": "off",
+        "GOFLAGS": "-mod=readonly",
+        "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+        "GOCACHE": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+        "GOTMPDIR": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/runtime"
+      },
+      "start": "2026-10-05T11:31:42.560846+00:00",
+      "exit": 0,
+      "end": "2026-10-05T11:31:50.684584+00:00",
+      "log": "build-agenteam.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/tmp/agenteam-d08-r2-verification-wb5yyx9m/builds/agenteam-runner",
+        "./cmd/agenteam-runner"
+      ],
+      "cwd": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/snapshot",
+      "env": {
+        "GOTOOLCHAIN": "local",
+        "GOENV": "off",
+        "GOWORK": "off",
+        "GOPROXY": "off",
+        "GOFLAGS": "-mod=readonly",
+        "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+        "GOCACHE": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+        "GOTMPDIR": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/runtime"
+      },
+      "start": "2026-10-05T11:31:50.684728+00:00",
+      "exit": 0,
+      "end": "2026-10-05T11:31:50.904426+00:00",
+      "log": "build-agenteam-runner.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "probe_compile": {
+    "cwd": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/snapshot",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-tags=integration",
+      "-run",
+      "^$",
+      "./tests/project"
+    ],
+    "environment": "build environment plus GOFLAGS=-mod=readonly -overlay=/tmp/agenteam-d08-r2-verification-wb5yyx9m/overlay.json",
+    "exit": 0,
+    "output": "ok  \tgithub.com/LunaDeerTech/agenteam/tests/project\t0.005s [no tests to run]\n"
+  },
+  "rejected_launch": {
+    "cwd": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/snapshot",
+    "argv": [
+      "sh",
+      "scripts/test-objects.sh",
+      "-run",
+      "^TestProjectR2Independent",
+      "-v",
+      "-failfast"
+    ],
+    "env": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-d08-r2-verification-wb5yyx9m/overlay.json",
+      "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+      "GOCACHE": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+      "GOTMPDIR": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/runtime",
+      "TMPDIR": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/runtime",
+      "DOCKER_CONFIG": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/docker-config",
+      "DOCKER_HOST": "unix:///var/run/docker.sock"
+    },
+    "unset": [
+      "DOCKER_CONTEXT",
+      "DOCKER_TLS_VERIFY",
+      "DOCKER_CERT_PATH",
+      "DOCKER_API_VERSION",
+      "AGENTEAM_OBJECT_FIXTURE",
+      "AGENTEAM_POSTGRES_FIXTURE",
+      "AGENTEAM_NETWORK_FIXTURE"
+    ],
+    "start": "2026-10-05T11:34:09.578359+00:00",
+    "exit": 1,
+    "end": "2026-10-05T11:34:10.529680+00:00",
+    "log": "fixture-independent-r1.log",
+    "log_sha256": "e103146598e81a3f518742a4c46eeaad83dc66f54a0cf7e10e6a4d26241a95ea"
+  },
+  "real_fixture": {
+    "cwd": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/snapshot",
+    "argv": [
+      "sh",
+      "scripts/test-objects.sh",
+      "-run",
+      "^TestProjectR2Independent"
+    ],
+    "env": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-d08-r2-verification-wb5yyx9m/overlay.json -v",
+      "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+      "GOCACHE": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+      "GOTMPDIR": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/runtime",
+      "TMPDIR": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/runtime",
+      "DOCKER_CONFIG": "/tmp/agenteam-d08-r2-verification-wb5yyx9m/docker-config",
+      "DOCKER_HOST": "unix:///var/run/docker.sock"
+    },
+    "unset": [
+      "DOCKER_CONTEXT",
+      "DOCKER_TLS_VERIFY",
+      "DOCKER_CERT_PATH",
+      "DOCKER_API_VERSION",
+      "AGENTEAM_OBJECT_FIXTURE",
+      "AGENTEAM_POSTGRES_FIXTURE",
+      "AGENTEAM_NETWORK_FIXTURE"
+    ],
+    "start": "2026-10-05T11:34:39.914382+00:00",
+    "exit": 0,
+    "end": "2026-10-05T11:35:41.429831+00:00",
+    "log": "fixture-independent-r2.log",
+    "log_sha256": "1b49f45f34b871dfa65c8139bc79079449b7ffad91716b8db9aee47bdd98488b"
+  }
+}
