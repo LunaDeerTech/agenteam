@@ -6,14 +6,14 @@
 
 2026-10-05 中断恢复以 `main = origin/main = 8872110099c84cf0600bb5b62cdcd6c0c6c843e3` 为初始基线，工作区当时干净、无未推送提交。主线程已实际核对远端并建立同提交的本地 `main`；详细现存源码、缺失产物和下一步见[本次恢复记录](recovery-2026-10-05.md)。
 
-恢复文档、D10 P1、D08 R1/R2/R3及D05 S1已按下文提交；Secret checker八源已独立验收并提交推送`7d7c50df0dafcdeaaf700dc2662a6013245bbb6f`，主线程确认远端同SHA。已验迁移前缀至00016；Project+Secret绑定正式实施中，S2独占fixture修后复验，完整D08仍未完成。
+恢复文档、D10 P1、D08 R1/R2/R3、D05 S1及Secret checker已按下文验收提交；本次恢复核对基线为`431fb5320b801802762ada2c5aaf647ada24a355`，新增Object Audit规格已独立静审，实施仍待S2完整验收与接缝delta。已验迁移前缀至00016；S2与Project+Secret绑定均未验收。S2 runtime11两红后的review03已冻结，待独立delta审查与真实复验；当前fixture归绑定独立验收者作真实时间诊断与验收，绑定旧Outbox红例尚未闭合。完整D08/D28/E01仍未完成。
 
 以下为恢复后的摘要。下文旧阶段中的 `d02_backend`、`d08_design`、`parallel_plan`、`d01_verify`、acceptance 等所有权及“正在实施”描述保留为当时历史，不表示旧实例仍在运行或旧未提交源码已恢复。旧 `/tmp` 证据没有随仓库恢复；历史局部通过不能证明当前缺失实现已存在。本次实际分工见[恢复记录的所有权表](recovery-2026-10-05.md#4-本次所有权与下一步)。
 
 | 工作项 | 当前进度 | 所有权与下一步 |
 | --- | --- | --- |
 | D07 | 当前范围已关闭，文档提交 `0ed8085`；历史失败与组合验收边界保留 | 无活动 D07 实现；后续 UI、WS、Project/Runner 绑定按责任模块推进 |
-| D08 | R1 `98262b4`、R2 `73db0d4`、[R3](../work-items/recovery-d08-lifecycle-authority.md) `3e399c3`、D05 S1 `49c6589`及[Secret checker](../work-items/recovery-secret-project-audit.md) `7d7c50d`均已独立验收提交；完整B03未完成 | [Project+Secret绑定卡](../work-items/recovery-project-secret-audit-binding.md) `dc45a6a`已审，`restore_test_dependencies`按固定`7d7c50d`实施8个Project源、无Docker权；[S2](../work-items/recovery-d05-object-stop.md)作者28源独占fixture修后复验中，首轮3项reader前置失败保留、尚未验收。实际Object stop/推进/cleanup/HTTP/root/D10仍未完成 |
+| D08 | R1 `98262b4`、R2 `73db0d4`、[R3](../work-items/recovery-d08-lifecycle-authority.md) `3e399c3`、D05 S1 `49c6589`及[Secret checker](../work-items/recovery-secret-project-audit.md) `7d7c50d`均已独立验收提交；完整B03未完成 | [S2](../work-items/recovery-d05-object-stop.md)review02的21新+15旧已过，随后runtime11两红；review03两生产+一单测已冻结，待独立delta审查与真实复验，独立23顶层计划未跑。[Project+Secret绑定](../work-items/recovery-project-secret-audit-binding.md)8源冻结、六新组合已过，旧Outbox completed 6子例失败未闭合；独立验收者当前独占fixture。[Object Audit规格](../work-items/recovery-object-project-audit.md) `431fb53`已审未开写，Artifact stop规格已审提交`8f5b900`，仍待S2、未开写。详见[恢复点](recovery-2026-10-05.md#12-未验候选与当前恢复顺序) |
 | D09 | C0 `e6e94c4`、B01-K System 配置及 00015 已独立验收，Audit 六源 `26622bc`、System 二十九源 `543511c` 已推送 | 本块不含 Project 配置、Resolver/Usage、Provider 调用或根 HTTP；后续范围另派，D09 模块未完成 |
 | D10 | P1 真实 builtin/包载体 11 路径及两份文档已在 `8872110` 提交，并通过本轮固定输入独立验收；[主卡 rev2](../work-items/d10-skills-initialization.md)仅同步状态 | `skill_verification` 已冻结报告及持久证据；Go unit/race/vet与7项独立race探针通过。生产初始化仍须真实D08/D05、Object fact checker与生命周期组合，D10模块未完成 |
 | D12 | B01 `914fd84`、正式 B02 卡及 C1 `71dc176`、C2 `f401c15`、C3 `231a384` 的提交仍在；Knowledge 主体未验收且本次未恢复 | 当前仅有 Knowledge contract 12 文件；B02 新领域 29 路径均缺，未编号 SQL 草案也未恢复。按真实上游与新文件所有权重新下发，不以共享口通过替代真实 Knowledge/A/P 组合 |
@@ -940,3 +940,11 @@ Secret checker `d57ce0b`作者已完成真实新/旧组、清零4容器2网络�
 Secret checker八源已独立验收并获采纳，提交推送`7d7c50df0dafcdeaaf700dc2662a6013245bbb6f`、远端一致。[正式报告](secret-project-audit-verification.md)复用作者unit/race/vet/compile、新7个PG顶层通过（43.901s）、旧Secret组（27.965s）及3个Account组合（31.373s），原编译/vet与Store可比较性红例及修复均保留；独立不可变性race、新探针compile/vet与真实PG race 1顶层3子例通过（6.306s），2容器1网络及所属进程清零。本次仅交付Secret事实checker与真实调用点，不含Project生产路由、root、AgentRun或消费者绑定。
 
 已审绑定卡`dc45a6a`由`restore_test_dependencies`按固定`7d7c50d`快照正式实施8个Project源、无Docker权；S2作者28源独占fixture修后复验中，首轮3项reader前置失败保留，尚未验收。后继绑定与实际Object停止继续单独验收，不由checker通过推定完成。
+
+### S2 与 ProjectSecret 未验候选恢复点
+
+S2的review02 28源清单为`/tmp/agenteam-d05-s2-author-ufzmxn_g/candidate-review02/input.json`，SHA-256 `83df2212bc6e2fc4386594f56d16c4413f8051f3b6e6874dbfeabdc9a098e4fe`，该输入已通过修后21新+15旧共36顶层。先前standalone UploadPrepared在spool.Close后仍有verify/finishWriter尾部却被Discard提前join，已以完整writer引用和discard互斥修复；SourceUnopened Force另开cleanup预算破坏原500ms，已复用原ctx，两项定向及36项组通过，原红保留在同根`author-status-review02.md`。随后余59项中的runtime11组exit1（`logs/compat-runtime-01.log`，41.236s），`BusyDoesNotMaskLaterRecoveryFailure`与`RecoveryCleanup/startup`两红；trace确认`Runtime.Initialize`父`admit(true)`→`childOperation`清父标签→`begin(false)`在`runtimeReady=false`误拒绝。两生产+一单测修复已冻结于同根`production-review-03/`（delta.json及patch），object/... race通过（2.285s）、vet通过，integration compile补验中；review03待独立delta审查与真实复验；transfer 16+11、download12、recovery9及正式独立23顶层计划仍未跑。review02的通过不能套到后续改稿。
+
+ProjectSecret八源固定在`/tmp/agenteam-project-secret-binding-ljibt5s3/candidate-freeze/manifest.json`，SHA-256 `019f871617e5c2f49df4af44bf6c9c9153043bde69708cb72d767a7fa79d5e6f`；四生产静审通过，六新按不变输入组合通过。首轮错误分层/cross-Tx测试前置已修；COMMIT首红5s缺协议证据，不能唯一归因，补入确认PG COMMIT后丢ACK的fixture后Unknown三态通过。随后作者旧回归exit1：Secret/security 10顶层47.324s、Account 2顶层6.471s通过，旧`TestOutboxLifecycleInspectionAuthorityBoundary`的completed分支6子例返回非预期`DependencyUnavailable`，原因未定。四轮28个created exact ID均absent、baseline不变、所属进程0已记入同根`evidence/resource-handoff.json`；此前已交窗S2，S2本轮清零后又正式交`skill_verification`作绑定真实时间诊断及独立验收。八源仍冻结，作者只读定位、不改旧范围；独立验收未完成。
+
+[Object Audit规格](../work-items/recovery-object-project-audit.md)已以`431fb5320b801802762ada2c5aaf647ada24a355`提交并通过独立静审，必须等S2完整验收和接缝delta后才可开写。Artifact stop规格`docs/development/work-items/recovery-artifact-project-stop.md`已独立静审、获主线程采纳并提交推送`8f5b900e52e5bc192647e8758375dc998eed385a`，远端一致；仍待S2、未开写，00017未分配。当前fixture仅归绑定验收者，S2 review03已冻结、补集成编译；后续真实复验、余项及独立验收均以主线程新交接为准，不跳过两块原红。完整D08/D28/E01仍未完成，已验报告不因本次归位重写。
