@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"strconv"
 	"strings"
+	"unicode/utf8"
 
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
@@ -32,8 +33,17 @@ func UUID(value string) (Scalar, error) {
 	return Scalar{"uuid", value}, nil
 }
 func Integer(value int64) Scalar { return Scalar{"integer", strconv.FormatInt(value, 10)} }
-func (s Scalar) Kind() string    { return s.kind }
-func (s Scalar) Value() string   { return s.value }
+
+// Text retains the original UTF-8 bytes without normalization or trimming.
+func Text(value string) (Scalar, error) {
+	if !utf8.ValidString(value) {
+		return Scalar{}, invalidCursor()
+	}
+	return Scalar{"text", value}, nil
+}
+
+func (s Scalar) Kind() string  { return s.kind }
+func (s Scalar) Value() string { return s.value }
 
 type Binding struct {
 	Scope       identity.Scope
@@ -95,6 +105,8 @@ func scalarValid(s Scalar) bool {
 	case "integer":
 		v, e := strconv.ParseInt(s.value, 10, 64)
 		return e == nil && strconv.FormatInt(v, 10) == s.value
+	case "text":
+		return utf8.ValidString(s.value)
 	}
 	return false
 }

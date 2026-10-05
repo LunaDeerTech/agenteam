@@ -1,6 +1,6 @@
 # D12 Knowledge 文档与文档树
 
-状态：S01 rev2 已审查并采纳；B01 纯契约已实现并完成作者局部自测，等待独立验收。D12 整体未完成。
+状态：S01 rev2 已审查并采纳；B01 纯契约已独立验收并提交推送 `914fd84`。[B02 完整 Human canonical/树服务卡](d12-b02-knowledge-service.md) 已采纳，当前文档归位与 C1 cursor.Text 已完成作者自测、等待另一实例独立验收；B02业务和 D12 整体未完成。
 
 正式依据：[实施规格](d12-knowledge-documents-design.md)、[D01 资源契约](d01-contracts/resources-skills.md)、[文档领域](../../architecture/knowledge-memory/knowledge-document-domain.md)。规格输入固定 `16595ad1e78e5283dfe85fb812095acde382edd1`。原候选 `/tmp/agenteam-d12-s01-rev2-21if98iv/d12-knowledge-s01-candidate.md` SHA `c1ae54e6a6d4ea111d4e662ba3c75cbd4c7a42d8f7ab2768b3bbbf45309adf23`；独立复核 `/tmp/agenteam-d12-rev2-review-0nxov8_a/report.md` SHA `35c733111d44052d124e7cc731433905794840b4b82b2777da102806ca78acf9`。R01 namespace/OwnerIDs 与 R02 跨包 typed 载体已闭环；静态采纳不代表生产能力通过。
 
@@ -26,6 +26,12 @@
 ## B01 作者冻结记录
 
 固定隔离副本 `/tmp/agenteam-d12-b01-vt2dgnub/repo` 仅含165基线必要契约/基础依赖与本次12新源，不消费活动稿；未采入后续 PrepareReadAccess 变体。Go1.27.1 首轮29主测试通过，补充预览一致性后受影响2主测试通过，最终全包 race 30主/18子通过（1.127s），vet通过。实际命令和原日志见同目录上级的 `author-report.md` / `validation.json`。本记录仅为作者自测；独立验收、真实Session/Owner、活Tx/持锁、D05 I/O/join、Outbox持久发布、PG/MinIO/服务/provider、D08生命周期与D13/Agent adapter 均未因此通过。
+
+## B01 独立验收与 B02 接续
+
+B01 独立报告 `/tmp/agenteam-d12-b01-verify-49kvfiqa/report.md` SHA `b95a4e96a583b3e72097d027f9e372d3f7dc5b58d1a031ed5634d08fc5b6523e`：复用匹配的作者 pure/race/vet，并独立验证 Source 真实一次 Close/并发责任、严格DTO及精确数值、签名域隔离，三项风险测试 race 3.169s 通过。12文件及两文档已随 `914fd84` 提交推送；只认定纯契约，不证明真实权限、活Tx、对象流或数据库。
+
+[B02 正式卡](d12-b02-knowledge-service.md) 保留完整 Human CRUD，明确29新领域与共享6新/9旧范围。当前只授权 C1 的 `cursor.go`/`text_test.go`；其余按固定输入和文件所有权另行接续。A 的真实 D05 Object Audit/stop、P 的通用 Human Outbox gate及Knowledge Audit路由尚需独立验收，B持有的Audit闭集需先冻结交接；无编号DDL仍在卡中指向的原 `/tmp`，没有占用迁移号。B02当前静态采纳不等业务通过，也不等待D13作为canonical前置。 C1 作者以固定 Go1.27.1、local/readonly、GOMAXPROCS=2/-p=1 对 cursor 全包10主测试执行 unit（0.008s）、race（1.186s）及 vet，全部通过；原日志与命令在 `/tmp/agenteam-d12-c1-yq_7vblk/`，不作独立验收或真实分页查询通过。
 
 ## 后续门槛
 

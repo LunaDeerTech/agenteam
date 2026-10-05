@@ -1,12 +1,12 @@
 # D12 Knowledge 文档与当前文档树实施规格
 
-状态：S01 rev2 已由独立验证者通过并获主线程采纳；B01 纯契约已实现并完成作者局部自测，尚未独立验收，未分配迁移号。主卡见 [D12 工作项](d12-knowledge-documents.md)。固定输入为 `16595ad1e78e5283dfe85fb812095acde382edd1`；不消费活动 D07、D08 P、D05 stop 或 D09 源码。本规格不改变产品架构。
+状态：S01 rev2 已由独立验证者通过并获主线程采纳；B01 纯契约已独立验收并提交推送 `914fd84`。[B02 正式卡](d12-b02-knowledge-service.md) 已采纳，当前仅其 C1 cursor.Text 完成作者局部自测、等待独立验收，真实业务依赖与迁移尚未验收，未分配迁移号。主卡见 [D12 工作项](d12-knowledge-documents.md)。固定输入为 `16595ad1e78e5283dfe85fb812095acde382edd1`；不消费活动 D07、D08 P、D05 stop 或 D09 源码。本规格不改变产品架构。
 
 ## 1. 范围与可立即完成的结果
 
 依据 D01 `resources-skills.md` 的“Knowledge 树与内容端口”、`foundation.md` 的 Cursor/业务幂等/锁序、`domain-lifecycle.md` 的删除矩阵，以及 `knowledge-document-domain.md` §2/6/8/9，落实 **Human 当前 Owner** 的稳定 Document ID、canonical 内容、树查询/移动和确认范围删除。D12 不实现 parser、embedding、query-doc、模型选择、完整版本历史或 D13 索引器。
 
-目前可先完成一个独立结果：**新 `knowledge/contract` 的完整类型、严格编解码、纯树规则、命令摘要、删除范围与签名确认凭据、typed canonical 事件**。不是数据库/权限实现，也不提供成功空服务。领域服务代码及测试准备可随后独立推进；真实 PostgreSQL/MinIO/生命周期门槛逐项满足后才验收对应块，不因缺 D09/D13 整体等待。
+已完成的独立结果是 **`knowledge/contract` 的完整类型、严格编解码、纯树规则、命令摘要、删除范围与签名确认凭据、typed canonical 事件**。不是数据库/权限实现，也不提供成功空服务。领域服务代码及测试准备可随后独立推进；真实 PostgreSQL/MinIO/生命周期门槛逐项满足后才验收对应块，不因缺 D09/D13 整体等待。
 
 固定基线已经具备：
 
@@ -392,8 +392,8 @@ Cleanup 的依赖顺序由 D08 manifest 明列：Knowledge 自有 refs与publica
 
 | 结果块 | 可写范围与实际前置 | 可认定的完成/阻塞边界 |
 | --- | --- | --- |
-| B01 纯契约/规则，建议立即独立派一名完整作者 | 仅新 `internal/central/knowledge/contract/{types,source,commands,tree,confirmation,events}.go` 及六个对应 `_test.go`，共12文件；固定165上的 foundation、identity/contract、object/contract、project/contract、event/contract、outbox/contract 和 cursor.CanonicalJSON 只读。opaque 补口仍放 types/source/tree 六源既有分工，不增加第13文件。目录若已有文件先停止冲突，不能覆盖。 | 完整 strict DTO/enum、树校验、语义摘要、token签发验签/过期、typed events及负例；无 service/schema/Audit/identity/cursor 旧文件写。执行纯 unit/race/vet 与独立风险验收后才可称该块完成。本次仅设计，未执行这些检查。 |
-| B02 Human canonical+树服务库及测试准备 | 新 `knowledge/` 服务/repository/planner/object/source/read/query/publication/recovery及自有测试；按 §4 构造依赖完成闭包，由root分配完整文件白名单。可按稳定D08 Owner/D05口编译及准备SQL/真实场景；纯开发可并行。 | fake/repository纯测不等真实业务通过。正式 schema必须唯一迁移号/资源排程；本候选不抢00014及活动旧D05。Owner/currentSession/once-union/receipt/真实对象发布/Unknown均须真实PG+MinIO后验。 |
+| B01 纯契约/规则，已验收并推送914fd84 | 仅新 `internal/central/knowledge/contract/{types,source,commands,tree,confirmation,events}.go` 及六个对应 `_test.go`，共12文件；固定165上的 foundation、identity/contract、object/contract、project/contract、event/contract、outbox/contract 和 cursor.CanonicalJSON 只读。opaque 补口仍放 types/source/tree 六源既有分工，不增加第13文件。目录若已有文件先停止冲突，不能覆盖。 | 完整 strict DTO/enum、树校验、语义摘要、token签发验签/过期、typed events及负例；无 service/schema/Audit/identity/cursor 旧文件写。纯 unit/race/vet 及独立风险验收已完成，实际证据见主卡 B01 记录；仅此纯块完成。 |
+| B02 Human canonical+树服务库及测试准备 | 按[B02正式卡](d12-b02-knowledge-service.md)的29新领域与共享6新/9旧闭包推进；当前仅 C1获授权，其他路径按所有权接续。真实D05 Object Audit/stop、P通用Human Outbox gate/Knowledge Audit路由与正式迁移仍为未验集成门槛。 | fake/repository纯测不等真实业务通过。正式 schema必须唯一迁移号/资源排程；本候选不抢00014及活动旧D05。Owner/currentSession/once-union/receipt/真实对象发布/Unknown均须真实PG+MinIO后验。 |
 | 窄共同口 | cursor text scalar；Knowledge download/delete Audit 的 action/resource/producer/metadata及真实CheckAppend；必要D05清理能力。每项先核既有已验成果，单独授权旧路径与兼容迁移，不交B01随意改。 | download Audit闭集现不存在；D08基线Audit authority只认ProjectAction，不是任意Knowledge记录的授权。只对危险删除与D05要求的受控下载补必要Audit，普通低风险命令不机械复制运行内容。 |
 | B03 participant与实际装配 | 等D08 P/D05 stop对应稳定接口和实现验收交接；D12 own事实源与上述清理口齐备后，唯一runtime/fixture资源。 | 真实archive/delete竞争、reader/writer/source join、exact cause、恢复/迟到结果不得复活；D08整体未验的接口不能以候选或C0替代。 |
 | D13/Tool/HTTP后续 | D13提供索引状态/解析/serving、D18/19/21/22提供真正Agent/Tool调用和权限，D27 HTTP/UI。 | 不阻断Human纯树/内容设计与独立模块代码；无生产空allow/no-op索引、无Agent伪装Human、无提前根装配。 |
