@@ -1,7 +1,7 @@
 # D07 账号、Session、SMTP 与个人资料
 
 - 修订：2；状态：实现中（B01–B03已采纳，B04实施中）；台账AT-0014，按真实依赖与D08并行。
-- 基线：`main@57bfadb`，D06完整独立验收后工作区干净；D01–D06前置通过，最终证据见[D06主卡](d06-transactional-outbox.md)。此前GitHub认证阻塞已解除；已验小块及时提交推送，最新B03交付为`ffa65f0`。
+- 基线：`main@57bfadb`，D06完整独立验收后工作区干净；D01–D06前置通过，最终证据见[D06主卡](d06-transactional-outbox.md)。此前GitHub认证阻塞已解除；B03交付为`ffa65f0`，B04已提交纯块与当前后段边界见[最新采纳记录](#b04纯块采纳与后段候选并行)，已验小块及时提交推送。
 - 目标：实现正式人类身份/Session与System授权、初始化/邀请/密码恢复、内嵌挑战、SMTP持久投递及资料/头像/偏好；通过真实HTTP、数据库/SMTP/对象组合验证，不以生产stub代替后续领域绑定。
 - 依据：[计划D07](../development-plan.md#d07-账号-session-smtp-与个人资料)、[账号](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)、[SMTP](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)、[D01契约](d01-contracts/README.md)、[账号页面](../../frontend-design/layouts/account-entry.md)、[个人设置](../../frontend-design/layouts/personal-settings.md)、[系统设置](../../frontend-design/layouts/system-settings.md)。已确认产品规则不重复询问。
 
@@ -11,11 +11,11 @@
 | --- | --- | --- | --- |
 | S01 完整可实施规格 | architecture_worker | 新`d07-account-session-smtp-design.md`；其余源码/契约只读；不使用Docker | 已完成 |
 | R01 工程可行性与有界技术证据 | backend_worker，承担research_worker职责 | 仓库只读；只在任务自有`/tmp`作报告及隔离实验，不修改依赖锁/源码；不使用Docker | 已完成 |
-| V01 独立规格及实现审查 | verification_worker / acceptance_lead | B03最终报告封存、all-stop；A1另在冻结副本纯验证 | B03完整适用门槛已采纳 |
+| V01 独立规格及实现审查 | verification_worker / acceptance_lead | B03/A1/B1证据封存；A2不可变候选只读静审，不占Docker | B03及已列纯块已采纳，组合待验 |
 | B01 身份与安全基础 | backend_worker | 90源/361依赖冻结，命令全停 | 已完成 |
 | B02 邀请、恢复与挑战 | backend_worker | 71源/442依赖冻结，作者/V全停 | 已完成 |
 | B03 持久投递 | backend_worker | 68源/498依赖冻结验收；原V资源已清零交回 | 已完成，`ffa65f0`已推送 |
-| B04 资料与正式入口 | A=d02_backend / B=d07_http | A1八源独立审查；A后段独占00012/Docker和已审D05窄口；B新HTTP/facade，根装配等A冻结 | C0已采纳，两路实施中 |
+| B04 资料与正式入口 | A=d02_backend / B=d07_http | A后段独占00012/Docker和已审D05窄口；B独占app/共享fixture接缝，用固定候选隔离装配 | C0/A1/B1/config纯块已采纳，后段实施与验收中 |
 
 root安排本卡/计划/台账的唯一写者并负责最终整合；设计规格独占给architecture，业务实现与测试证据分析分别交执行者/独立验收负责人。使用agenteam-design/go-development/verification/documentation技能，按AGENTS团队规则执行，子agent不得再委派或Git写。只审固定停写副本，按真实依赖和文件/迁移/资源唯一所有权并行；D08已满足前置的纯契约可先行，不以整个D07完成作统一等待门槛。
 
@@ -41,7 +41,7 @@ SMTP三模式none/STARTTLS/TLS，复用正式非HTTP出站拨号/证书与策略
 
 S01须有稳定来源manifest、格式/本地链接检查、全部读写/命令停止声明，独立审查/root采纳后才实施。R01临时报告与实验须归档可引用的哈希/命令，不能把研究建议自动写成已定契约或已实现能力。
 
-后续实现必须覆盖正常、无权限、真实并发撤销/兑换、unknown commit/SMTP未知结果、重启/关闭/资源join、公开隐私和日志安全，运行适用普通/race/vet/真实HTTP+PG+SMTP+MinIO组合。模块最终独立验证及无过滤兼容才标完成，单卡或纯接口不代表D07完成。工程细节在既定范围内自主决定，仅真正未决产品含义/实质范围变化报告root。
+后续实现必须覆盖正常、无权限、真实并发撤销/兑换、unknown commit/SMTP未知结果、重启/关闭/资源join、公开隐私和日志安全，运行适用普通/race/vet/真实HTTP+PG+SMTP+MinIO组合。模块最终独立验证及完整适用兼容才标完成；按正式设计执行旧域完整包覆盖及运行前冻结的Account穷尽分组，原每包6m/race/内部断言保持。单卡或纯接口不代表D07完成。工程细节在既定范围内自主决定，仅真正未决产品含义/实质范围变化报告root。
 
 
 ## R01研究交付
@@ -594,3 +594,21 @@ A24实际官方Vue desktop/keyboard仍各核verify/login/DB consumed及进程退
 B04 C0已独立验证已提交基线`4e7e865`+新两文件的test0.006s/vet，37依赖与该基线相同，不依赖未提交B03；提交`06346b8`保持冻结。A1八源仍由V在隔离副本独立审查，首次作者错误cwd导致主树编译未进入测试的记录保留，不算有效A证据或B缺陷；正式A1隔离结果另行验收。root现基于`ffa65f0`正式派A后段，卡 `/tmp/agenteam-d07-b04-stage1-cards-gcfomq4b/a-stage2-task-card.md` SHA `6876c128eda2e9fdbf069d3fb004b395c799e258bb88331ee485e8ca4b6faa33`：00012仅头像恢复partial index、五旧D05窄文件、新完整Profile/Avatar/Runtime与自有测试，Docker独占给A。A1八源V期间不写，A后段可在其余范围并行；A/B构建各用稳定输入+本人新文件的隔离快照，不读对方活动整包。
 
 B继续新HTTP/CSRF/OpenAPI/facade；真实app/config/共享fixture归B后段，在A完整实现冻结后组合，当前未绑定生产Profile/账户Runtime与邮件/HTTP的联合guard责任。D08 B01纯契约并行，不占00012或Docker。D07/B04/D08模块均未完成，诊断ready=false；主线程只协调、核结论与Git交付，执行/测试分析仍委派。
+
+### B04纯块采纳与后段候选并行
+
+本节更新当前状态；前文保留当时的冻结、失败与授权记录。root已及时提交并推送C0两源`06346b8`、A1八源`59b38c8`、配置及测试环境五源`0f2b9ee`、B1纯HTTP十一源`e8941e8`。这些分别完成各自验收，不相加为真实A/B组合通过。正式设计最新提交`8566ea5`，SHA `39e3409ede9198519701443323bd2e333cdf1cf60c8e960ccb7c555e23a4f7c6`；补入同core的`NewAvatarAuthority`以解决Secret/Object同名方法签名冲突，以及旧域完整包、运行前冻结Account穷尽分组的兼容口径，原6m/race/断言未放宽。
+
+A1原PNG容器检查接受第一完整zlib流后的非空IDAT拼接，独立3正2反探针确实产生两项红；仅codec与回归窄修后，同字节原探针、受影响PNG回归和两个真实多pass Adam7正例独立通过（Account0.029s、vet exit0），作者修后完整纯组证据复用。最终八源manifest `2f184f6712cd684e34a1c874fd5498a360171318f0e523cbf4196cf0eb7be5f0`，208输入末检一致；独立报告 `/tmp/agenteam-d07-b04-a1-png-verify-txxtxa_t/final-report.md` SHA `938b0c4a67d932037c557d3fab9014af9ccadfc8de03cffc36a94c6381bff3ad`，29项索引 `7dd363e25a95ab8ed6c27f3c0e82f48e1bfa53ae0a3744028d49cfa3da6d228b`。原作者错误主树cwd的编译失败也保留，不当有效A证据或B缺陷；本块未验真实PG/current Tx、对象引用、permit与Runtime联合join。
+
+B1独立四项纯边界（Origin地址身份、敏感投影、Write error/panic下reader Close实际join、Problem隐私）Account0.008s，通过定向Close join race1.029s/vet；实际DTO导出与离线Schema8正10反通过，覆盖int64十进制字符串、nullable avatar、原applied_version与当前settings.version的区别。作者23项纯组、build及34 method/path、26 paths、203 refs证据按原指纹复用，未机械重跑。source11 `1f644c616ae37735d3df99d50b2101f95be36f29cd3087b6c117795ba7a23920`，580捕获输入与2304编译/测试所选依赖末检一致；独立报告 `/tmp/agenteam-d07-b04-http-verify-us4gr097/final-report.md` SHA `5e295e1ec70e562da5e26f96554871b220dd1e4eed8632d56615b137cb236434`，55项索引 `a538243fd41d920e90c265f908adb2138d93ecab4d147648ee7dedaf1f63c503`。作者默认端口、测试编译、OpenAPI生成/路径及localhost尾点历史红、最早缺完整snapshot的限制均保留；V自身UUIDv4准备失败及仅三处改为合法v7的原文件/diff保留。未验真实PG授权成功、撤权/Unknown、SQL分页、Profile/Object或根装配；捕获设计仍为当时`4ad80...`，不替换成后来行政修订。
+
+配置五源由验收负责人独立静审并核作者固定输入和日志：完整config14顶层与accountenv3顶层普通测试、race、vet/build通过，source5 `305f069c49431be52fd8b8902c79a8897f16ecbe20b809e285ebbc3b3b47dbbc`、822固定仓库文件和实际所选2294依赖一致。覆盖Account keyring四用途隔离、恢复日志路径只作词法验证与安全投影、HTTPS/local规则，以及自有环境真实Sink停止准入/Drain/Joined和精确清理。原helper签名导致旧测试编译失败与新Sink测试漏StopAdmission的准备红均保留，仅范围内修正后通过。作者报告 `/tmp/agenteam-d07-b04-config-gh7o2zrj/author-report.md` SHA `47705aad8c5df27c5a05e1176fea53ec6e97df9a8a9b5253b04400776114decd`，39项索引 `1aaa28a1378de757f7afeabecb024cb5af711d7148d5e0a8ea8b23e18c689acc`；独立采纳报告 `/tmp/agenteam-d07-b03-acceptance-akbuvp_l/b04-config-accepted-review.md` SHA `ea2e9e9b58eeac559d094c1f3463cc29018f8aaacded8a5f9953e9bba93decd8`。该纯块没有构建新app或运行真实PG。
+
+独立V另以已提交`e8941e8bec2f7b5750f51a42c9db8859c9f26c70`只读archive，固定Go1.27.1/local、readonly、offline，各一次正式`go build -mod=readonly -o <自有产物路径> ./cmd/agenteam`和`./cmd/agenteam-runner`，分别15.908s/1.478s、exit0；834源末检不变。Central产物SHA `15f166947d0c6a985a57eb1f5d02ac16c4a30849314d28538882b7052278d345`，Runner `85d84fe2137b53ad349beb81eeca9fe8f2bdfcfc722dbbef82fa5c3853e3a31d`。报告 `/tmp/agenteam-d07-committed-binaries-5j3_kucu/report.md` SHA `22650c27e9d3797b19025ea2ff74949ab6638c987834e226e946f8bfcf4fddef`，26项索引 `784c5d15e569677d8085677613a474962ac6d83393c8894adf196313ae2a051c`；未执行产物、未测试或启动服务，不证明B2新根装配可运行。
+
+A2仍由`d02_backend`独占已授权Profile/Avatar/D05范围、00012头像恢复partial index和Docker；B2由`d07_http`独占app/config/共享账户fixture接缝，卡 `/tmp/agenteam-d07-b04-stage1-cards-gcfomq4b/b-stage2-task-card.md` SHA `ab9d33a495667b0f1df51c468a5a157e4053c2f41ca95a8efa958f4ab82ba041`、41路径清单SHA `50ed76619a9107805e0f650c66da9aed798be5b422fd2cb338d9b0eed2e3bb38`。A已导出不可变、明确未验的完整生产候选 `/tmp/agenteam-d07-b04-a2-production-candidate-4u6stm70`，source15 `4c7d07dd4cbcb778157bd1085c9efb66eaf25f73e7cb29c396e52439cf8bf1f2`、all830 `0de29beeccd1c522220dcd22f81065647e273f5b03f790c6ee39022b6beb5152`，索引 `291a1c069321da02576227e620e6badca00322b911a8ca92f103740f2a0a0712`。V已复制核验并只读静审，B已消费该候选隔离装配编译；作者继续自己的授权范围，后续生产delta单独冻结复核。各方不读A/B/D08活动源码，不造生产stub；这一路并行无需等待A全组结束，真实PG/对象/邮件/HTTP与生命周期联合执行仍等相关输入冻结和Docker正式交接。
+
+A2原红按实际原因保留：首两例新caller多传Account Audit闭集不允许的InitiatorID，已仅修新生产调用；第二轮撤销Session准备SQL漏revoked_reason，已仅修新测试。随后九顶层组在技术marker、短reader已EOF和空Consume receipt三处准备失败，没有证明对应COMMIT/受保护reader/gate行为；其余局部无失败不当整组通过。Avatar正式ExistingOwner绑定天然不产生Prospective Consume receipt，后续须保持实际Reserve/Publish/Attach/Lookup不可复活断言并明确空receipt事实；Consume/Cancel仅以既有D05真实Prospective两原用例单列相邻覆盖，不构造receipt或把构造器拒绝当Avatar gate验证。原日志、输入和断言保留，受影响实际场景仍在固定组验证中。
+
+A2/B2全部源码、00012与真实组合尚未采纳，D07/B04保持实施与验收中，诊断ready=false。下一步完成A后段异常/恢复/资源验证、独立风险审查和B正式装配/旧fixture适配；相关范围最终停写后按固定输入执行完整适用兼容，未变证据可复用，相关delta重新验证。D08状态与所有权沿其正式主卡及独立台账，本次记录不改写其验收结论。

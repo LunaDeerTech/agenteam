@@ -820,6 +820,14 @@ B03已由独立V及验收负责人采纳，无未决阻断；root将精确剩余
 
 本轮业务执行依据冻结rev6；AGENTS与后采纳B04 rev7的行政差异已单列，不声称主树566完全一致。root现将00012头像恢复索引与Docker独占交A后段，范围见已审A卡；A1八源仍在隔离V期间冻结，C0不漂移。B新HTTP/facade并行，生产Profile/Runtime/app联合装配尚未验收；D08纯契约不占迁移号/资源。D07仍未完成、ready=false。
 
+### D07 B04纯块提交与后段固定候选并行
+
+root已采纳并提交推送C0两源`06346b8`、A1八源`59b38c8`、配置与测试环境五源`0f2b9ee`、B1纯HTTP十一源`e8941e8`；正式设计最新窄补为`8566ea5`。实际检查、输入指纹、报告与限制见[D07最新采纳记录](../work-items/d07-account-session-smtp.md#b04纯块采纳与后段候选并行)。A1原PNG两反例以原字节探针闭环；B1独立四边界、Close join race及实际DTO离线Schema通过，config两完整纯包普通/race/vet/build通过。原实现/准备红及早期输入证据限制保留，不把纯块相加为真实A/B组合通过。
+
+独立V从已提交`e8941e8`只读archive，Go1.27.1/local/readonly/offline各构建Central与Runner一次，exit0、834源末检不变；报告 `/tmp/agenteam-d07-committed-binaries-5j3_kucu/report.md` SHA `22650c27e9d3797b19025ea2ff74949ab6638c987834e226e946f8bfcf4fddef`。没有执行产物或启动服务，新B2根装配和真实PG组合仍待验。
+
+A2继续独占00012/已授权D05窄口/Docker，B2按41路径后段卡推进app/旧fixture。固定未验A候选source15 `4c7d07dd4cbcb778157bd1085c9efb66eaf25f73e7cb29c396e52439cf8bf1f2`、all830 `0de29beeccd1c522220dcd22f81065647e273f5b03f790c6ee39022b6beb5152`已供V静审和B隔离装配编译，各自不读活动依赖，后续生产delta另核；真实联合执行等相关停写和资源交接。A2已有Audit新caller错误及新测试准备红保留，COMMIT/reader/gate受影响场景仍在验证；Avatar ExistingOwner无Consume receipt，相邻Prospective Consume覆盖明确分列。下一步为A/B后段风险验证和正式联合装配，B04与D07均未完成；D08条目保持原记录。
+
 ## AT-0015：D08 Project 与 Owner
 
 - 状态：S01 规格已独立静态审查通过并由 root 采纳；B01 正式契约与纯规则库已独立验收，12新源及两项对应文档澄清提交并推送 `199554b`；D08 模块尚未完成。正式[主卡](../work-items/d08-project-owner.md)与[设计 rev2](../work-items/d08-project-owner-design.md)已由 root 提交并推送 `08d119d`。
