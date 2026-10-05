@@ -378,7 +378,11 @@ func (s *Service) withinAccess(ctx context.Context, cause foundation.Transaction
 		if err != nil {
 			return err
 		}
-		if err = fn(ctx, tx, plan, locked); err != nil {
+		auditCtx, err := s.projectAuditAccessContext(ctx, tx, request, plan, locked)
+		if err != nil {
+			return err
+		}
+		if err = fn(auditCtx, tx, plan, locked); err != nil {
 			return err
 		}
 		return s.accessWorkAfter(ctx, tx, request, locked, before)

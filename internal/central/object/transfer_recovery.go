@@ -454,6 +454,7 @@ func gateProjectTransfers(ctx context.Context, s *Service, tx foundation.Tx, id 
 	if err != nil {
 		return unavailable(err)
 	}
+	var pending []transferRow
 	for _, id := range ids {
 		r, found, err := loadTransfer(ctx, e, id)
 		if err != nil {
@@ -462,12 +463,20 @@ func gateProjectTransfers(ctx context.Context, s *Service, tx foundation.Tx, id 
 		if !found {
 			return unavailable(nil)
 		}
+		pending = append(pending, r)
+	}
+	// Keep the original predicate, locks and metadata in this transaction.
+	// Every revoke audit now observes the same canonical revoked post-state.
+	_, err = e.Exec(ctx, `UPDATE agenteam_object.object_transfers SET revoked_at=coalesce(revoked_at,clock_timestamp()),cleanup_gate=true,version=version+1 WHERE object_id=$1 AND revoked_at IS NULL`, id.String())
+	if err != nil {
+		return unavailable(err)
+	}
+	for _, r := range pending {
 		if err = appendTransferAudit(ctx, s, tx, r, ac.ObjectTransferRevoke); err != nil {
 			return err
 		}
 	}
-	_, err = e.Exec(ctx, `UPDATE agenteam_object.object_transfers SET revoked_at=coalesce(revoked_at,clock_timestamp()),cleanup_gate=true,version=version+1 WHERE object_id=$1 AND revoked_at IS NULL`, id.String())
-	return unavailableIf(err)
+	return nil
 }
 func purgeObjectTransfers(ctx context.Context, e postgres.SQLExecutor, id oc.ObjectID) error {
 	var remaining bool

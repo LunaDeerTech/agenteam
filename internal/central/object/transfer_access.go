@@ -263,7 +263,11 @@ func (t *TransferService) within(ctx context.Context, request oc.AccessRequest, 
 				return err
 			}
 		}
-		return fn(ctx, tx, plans, locked, a)
+		auditCtx, err := t.projectAuditTransferContext(ctx, tx, request, plans[0], locked, a)
+		if err != nil {
+			return err
+		}
+		return fn(auditCtx, tx, plans, locked, a)
 	})
 }
 func transferReadRequest(actor identity.Actor, owner oc.ObjectOwner, id oc.ObjectID) oc.AccessRequest {

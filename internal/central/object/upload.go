@@ -259,6 +259,10 @@ func (s *Service) PublishVerifiedInTx(ctx context.Context, tx foundation.Tx, act
 	if !found || a.upload != u.id || a.object != u.object || u.attempt != a.id || a.cleaning || a.phase != "verified" || a.size != int64(obj.meta.ByteSize) || a.digest != obj.meta.SHA256 {
 		return oc.PutResult{}, failure(foundation.InvalidState, nil)
 	}
+	ctx, err = s.projectAuditAccessContext(ctx, tx, request, plan, locked)
+	if err != nil {
+		return oc.PutResult{}, err
+	}
 	auditID, err := s.appendAudit(ctx, tx, u, obj.meta, ac.ObjectUploadComplete, ac.Success, ac.PublishedPhase, "", u.id.String(), 0)
 	if err != nil {
 		return oc.PutResult{}, err
@@ -318,6 +322,10 @@ func (s *Service) appendAudit(ctx context.Context, tx foundation.Tx, u uploadRow
 	key, err := ac.NewAppendKey(ac.ObjectProducer, cause, ordinal)
 	if err != nil {
 		return ac.ID{}, unavailable(err)
+	}
+	ctx, err = s.projectAuditWitnessContext(ctx, tx, projectAuditWitness{entry: entry, key: key, upload: u.id, meta: meta, reason: reason})
+	if err != nil {
+		return ac.ID{}, err
 	}
 	receipt, err := s.state().audit.AppendInTx(ctx, tx, entry, key)
 	if err != nil {

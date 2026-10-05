@@ -438,6 +438,10 @@ func appendTransferAudit(ctx context.Context, s *Service, tx foundation.Tx, r tr
 	if err != nil {
 		return unavailable(err)
 	}
+	ctx, err = s.projectAuditWitnessContext(ctx, tx, projectAuditWitness{entry: entry, key: key, transfer: transferAuditFact(r)})
+	if err != nil {
+		return err
+	}
 	_, err = s.state().audit.AppendInTx(ctx, tx, entry, key)
 	if err != nil {
 		return portError(err)

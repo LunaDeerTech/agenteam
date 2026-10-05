@@ -138,7 +138,11 @@ func (s *Service) projectStop(ctx context.Context, actor identity.Actor, cause o
 			}
 		}
 		if !f.overflow {
-			if err = s.revokeProjectBatch(ctx, tx, e, cause, f); err != nil {
+			auditCtx, err := s.projectAuditStopContext(ctx, tx, gatePlan, a, f)
+			if err != nil {
+				return err
+			}
+			if err = s.revokeProjectBatch(auditCtx, tx, e, cause, f); err != nil {
 				return err
 			}
 		}
