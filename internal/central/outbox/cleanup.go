@@ -17,6 +17,7 @@ type lifecyclePlan struct {
 	request      oc.ProjectRequest
 	dependencies oc.Dependencies
 	cause        oc.LifecycleDetails
+	continuation *lifecyclePlan
 }
 type lifecycleRow struct {
 	operation string
@@ -46,12 +47,10 @@ func (s *Service) planLifecycle(ctx context.Context, actor identity.Actor, cause
 	if dependencies.Validate() != nil {
 		return p, unavailable(nil)
 	}
-	return lifecyclePlan{request, dependencies, cause.Details()}, nil
+	return lifecyclePlan{request: request, dependencies: dependencies, cause: cause.Details()}, nil
 }
 func (p lifecyclePlan) locks(mode foundation.LockMode) []foundation.LockRequest {
-	key, _ := foundation.ProjectLock(p.cause.ProjectID.String())
-	locks := p.dependencies.Locks()
-	return append(locks, foundation.LockRequest{Key: key, Mode: mode})
+	return p.unionLocks(mode)
 }
 func (s *Service) validateLifecycle(ctx context.Context, tx foundation.Tx, p lifecyclePlan) error {
 	if err := s.state().auth.Projects.ValidateInTx(ctx, tx, p.request, p.dependencies); err != nil {
@@ -152,12 +151,14 @@ func (s *Service) startLifecycle(ctx context.Context, p lifecyclePlan, write boo
 		if !write && (!found || !lifecycleMatches(old, p.cause)) {
 			return failure(foundation.InvalidState, nil)
 		}
-		// Inspect observes an exact terminal receipt under the same SH union as
-		// the current authorization and callback capture. A separate preflight
-		// would permit another instance to finish between the two transactions.
-		if p.request.Details().LifecycleStep == oc.LifecycleInspect && (old.phase == "stopped" || old.phase == "completed") {
+		// Recheck after the initial observation: another instance can finish
+		// before this transaction, in which case Stop permission is unnecessary.
+		if p.inspection() && terminalLifecycle(old) {
 			row, terminal = old, true
 			return nil
+		}
+		if err = s.validateInspectionContinuation(ctx, tx, p); err != nil {
+			return err
 		}
 		if err = checkLifecycleTransition(old, found, p.cause); err != nil {
 			return err
@@ -186,6 +187,18 @@ func (s *Service) startLifecycle(ctx context.Context, p lifecyclePlan, write boo
 		old, found, err := readLifecycle(ctx, x, p.cause.ProjectID)
 		if err != nil {
 			return err
+		}
+		if p.inspection() {
+			if !found || !lifecycleMatches(old, p.cause) {
+				return failure(foundation.InvalidState, nil)
+			}
+			if terminalLifecycle(old) {
+				row = old
+				return nil
+			}
+			if err = s.validateInspectionContinuation(ctx, tx, p); err != nil {
+				return err
+			}
 		}
 		if err = checkLifecycleTransition(old, found, p.cause); err != nil {
 			return err
@@ -318,6 +331,20 @@ func (s *Service) stopProject(ctx context.Context, actor identity.Actor, cause o
 	if err != nil {
 		return report, err
 	}
+	if p.inspection() {
+		observed, err := s.inspectLifecycleReceipt(ctx, p)
+		if err != nil {
+			return report, err
+		}
+		if terminalLifecycle(observed) {
+			return oc.StopReport{Stopped: true}, nil
+		}
+		continuation, err := s.planLifecycle(ctx, actor, cause, oc.LifecycleStop)
+		if err != nil {
+			return report, err
+		}
+		p.continuation = &continuation
+	}
 	row, err := s.startLifecycle(ctx, p, step == oc.LifecycleStop)
 	if err != nil {
 		return report, err
@@ -390,6 +417,9 @@ func (s *Service) progressLifecycleStop(ctx context.Context, p lifecyclePlan, ba
 		if p.request.Details().LifecycleStep == oc.LifecycleInspect && (current.phase == "stopped" || current.phase == "completed") {
 			terminal = true
 			return nil
+		}
+		if err = s.validateInspectionContinuation(ctx, tx, p); err != nil {
+			return err
 		}
 		for _, e := range batch {
 			for _, d := range e.deliveries {
@@ -473,6 +503,13 @@ func (s *Service) stopReport(ctx context.Context, p lifecyclePlan) (oc.StopRepor
 		}
 		if !found || !lifecycleMatches(row, p.cause) {
 			return failure(foundation.ResourceBusy, nil)
+		}
+		if p.inspection() && terminalLifecycle(row) {
+			report.Stopped = true
+			return nil
+		}
+		if err = s.validateInspectionContinuation(ctx, tx, p); err != nil {
+			return err
 		}
 		// Count under the same EX gate that serializes every claim. The bounded
 		// progress batch above persists exact retirement proofs; an unvisited or

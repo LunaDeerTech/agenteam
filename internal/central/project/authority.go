@@ -36,6 +36,9 @@ func NewAuthority(store Store, d AuthorityDependencies) (*Authority, error) {
 	if nilPort(store) || nilPort(d.Sessions) {
 		return nil, fault(foundation.DependencyUnbound)
 	}
+	if facts, ok := d.Lifecycle.(*LifecycleAuthority); ok && (!facts.bound() || !sameStore(store, facts.store)) {
+		return nil, fault(foundation.DependencyUnbound)
+	}
 	st := &authorityState{store: store, sessions: d.Sessions, routes: d.Routes, lifecycle: d.Lifecycle, eventIssuer: oc.NewPlanIssuer(), projectIssuer: oc.NewPlanIssuer()}
 	return &Authority{data: func() *authorityState { return st }}, nil
 }

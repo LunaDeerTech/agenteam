@@ -284,9 +284,8 @@ func (a *Authority) ValidateAppendInTx(ctx context.Context, tx foundation.Tx, ac
 	return a.validateEventFact(ctx, tx, actor, summary, stage, string(deps.Opaque()))
 }
 
-// Discover/ValidateInTx bind the Project side of B02's own typed appends. Other
-// producer, delivery and lifecycle requests require B03's real adapter and are
-// explicitly unbound here; this is not a generic service or Owner bypass.
+// Discover/ValidateInTx bind typed Project appends and explicitly configured
+// lifecycle facts. Other producers and delivery remain unbound.
 func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc.Dependencies, error) {
 	if a.state() == nil {
 		return oc.Dependencies{}, fault(foundation.DependencyUnbound)
@@ -295,6 +294,13 @@ func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc
 		return oc.Dependencies{}, invalid()
 	}
 	d := request.Details()
+	if d.Kind == oc.LifecycleProject {
+		facts, err := a.lifecycleAuthority()
+		if err != nil {
+			return oc.Dependencies{}, err
+		}
+		return facts.Discover(ctx, request)
+	}
 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
 		return oc.Dependencies{}, fault(foundation.DependencyUnbound)
 	}
@@ -316,6 +322,13 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx foundation.Tx, request 
 		return invalid()
 	}
 	d := request.Details()
+	if d.Kind == oc.LifecycleProject {
+		facts, err := a.lifecycleAuthority()
+		if err != nil {
+			return err
+		}
+		return facts.ValidateInTx(ctx, tx, request, deps)
+	}
 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
 		return fault(foundation.DependencyUnbound)
 	}
