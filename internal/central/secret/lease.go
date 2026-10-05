@@ -342,7 +342,8 @@ func (s *Service) ReadCredentialForRequest(ctx context.Context, actor identity.A
 		if err != nil {
 			return unavailable(err)
 		}
-		if _, err = state.audit.AppendInTx(ctx, tx, entry, key); err != nil {
+		auditCtx := resolutionAuditContext(ctx, state.store, tx, resolution.String(), actor, id, lease, metadata, payloadID, g, entry, key)
+		if _, err = state.audit.AppendInTx(auditCtx, tx, entry, key); err != nil {
 			return unavailable(err)
 		}
 		return nil

@@ -377,7 +377,8 @@ func (s *Service) applyWriteInTx(ctx context.Context, tx foundation.Tx, p prepar
 	if err != nil {
 		return empty, unavailable(err)
 	}
-	if _, err = state.audit.AppendInTx(ctx, tx, entry, key); err != nil {
+	auditCtx := mutationAuditContext(ctx, state.store, tx, p, old, result, entry, key)
+	if _, err = state.audit.AppendInTx(auditCtx, tx, entry, key); err != nil {
 		return empty, unavailable(err)
 	}
 	return result, nil
