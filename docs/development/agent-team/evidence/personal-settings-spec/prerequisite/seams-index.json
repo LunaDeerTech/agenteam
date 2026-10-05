@@ -1,0 +1,136 @@
+{
+  "kind": "preliminary independent prerequisite seam audit, not final prerequisite acceptance",
+  "auth_manifest": {
+    "original": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/author-final/manifest.json",
+    "sha256": "598b10dcbc7e65c7ec197947900cf0e28248ac5a83c7fbcbfb4523d7a9fc40c0"
+  },
+  "auth_frozen_source_directory": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-05",
+  "auth_source_checks": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679"
+    },
+    {
+      "path": "web/src/components/account/RotateChallenge.vue",
+      "sha256": "bd2594511300bc45e17fb472d7e30ac95dd499619be27dc5f9abd81a6d9962e6"
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "sha256": "ff4f8706bfd1856bdbdddb2e894f637f4b5f4e225d32aea5b5e8c4146ed70223"
+    },
+    {
+      "path": "web/src/views/HomeView.vue",
+      "sha256": "666bb17e2cc42913f9a9c1a061480cd48add72e5b3d3256e3eca5cdf2eb0273f"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "723e489ea5ad1fb501d573386b3df3b01bbb88aa12f739af62d35693e7fa3c4c"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "eb2e040336dba0664d58feb308c6d62364f1f9e34b239135730e1daa8446c51d"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "fb2ca02271811398a164ea7500ddb66585d9713b4302abf8694a75ca3653647b"
+    },
+    {
+      "path": "web/src/components/layout/AppShell.vue",
+      "sha256": "02513aafc6dd78deccf300d7c12a6d0433919bc0baf1c844899ee3cdbf0ff88d"
+    },
+    {
+      "path": "web/vite.config.ts",
+      "sha256": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+    },
+    {
+      "path": "web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    {
+      "path": "web/src/tests/account-client.spec.ts",
+      "sha256": "08cc7d90a97e2fb3cfec02aee6d3db395a4a48b5bddc9d71c0ef27c492b7be9b"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "084bbdcc66fc15bf560b608a861792d73c9d712bd36f6ad5ca15a6b9aa5ec25c"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "90c9ef3fe2df6029fcc52ba8e72e78b8f686ea23b14896d0db31cc8ea3916e0d"
+    },
+    {
+      "path": "web/src/tests/rotate-challenge.spec.ts",
+      "sha256": "0a18ccebb6b6a267dc71696082031a04603c5b2fcd5f4cbb434afa89287bc540"
+    },
+    {
+      "path": "tests/account-captcha-web/authentication.config.js",
+      "sha256": "2f2a2921142b53eb4fbb9b103f4e59e06ab1619bb31ccce3e7677aa2d0e410c1"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/authentication.spec.ts",
+      "sha256": "a87ba8393cd9702412725a1e41c4333bb7f9d00fa0af8e3a9a9f10841461f169"
+    },
+    {
+      "path": "tests/account/authentication_web_fixture_test.go",
+      "sha256": "95a635c182b81b82b78d97d7574a432c1d0a371a5ae84396bc95d6880a6ea3b7"
+    },
+    {
+      "path": "tests/account/authentication_web_test.go",
+      "sha256": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76"
+    }
+  ],
+  "personal_card_git": "ac653cfd099f959ae9bec2c3489e499351b0fdfd:docs/development/work-items/d26-personal-settings.md",
+  "personal_card_sha256": "3c190ab7e068397a50edfe8061916409aa2a47ad0a3ef6e036054417cc9ead8d",
+  "backend_comparisons": [
+    {
+      "from": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "to": "457b1979c9d6563740543b2011eedc06cce34c71",
+      "paths": [
+        "internal/central/account",
+        "internal/central/app",
+        "api/openapi/account.json",
+        "api/openapi/common.json",
+        "tests/account",
+        "tests/testsupport/accountenv",
+        "web/src/composables/useTheme.ts"
+      ],
+      "changed_files": []
+    },
+    {
+      "from": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "to": "ac653cfd099f959ae9bec2c3489e499351b0fdfd",
+      "paths": [
+        "internal/central/account",
+        "internal/central/app",
+        "api/openapi/account.json",
+        "api/openapi/common.json",
+        "tests/account",
+        "tests/testsupport/accountenv",
+        "web/src/composables/useTheme.ts"
+      ],
+      "changed_files": []
+    }
+  ],
+  "recommended_candidate_path_count": 24,
+  "additional_paths": [
+    "web/src/views/auth/LoginView.vue",
+    "web/src/tests/authentication.spec.ts",
+    "tests/account/authentication_web_fixture_test.go"
+  ],
+  "report_sha256": "1fd8419f21a5ea43cd769aa0ba8e822d10f138425671cb41e7b4b4777d44592f",
+  "dynamic_checks": [],
+  "repository_writes": false,
+  "authentication_final_commit": "pending final independent result and commit; must recheck"
+}

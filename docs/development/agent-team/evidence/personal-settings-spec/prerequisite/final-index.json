@@ -1,0 +1,76 @@
+{
+  "kind": "independent final prerequisite and rev1.2 static delta",
+  "conclusion": "PASS; recommend root accept rev1.2 and close prerequisite, implementation requires separate assignment",
+  "auth_commit": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "commit_check": {
+    "path": "/workspace/agenteam-personal-settings-prerequisite-final-v-0wgurqub/commit-check.json",
+    "sha256": "761a7a663f37697373542d6031fc6f78e191b6d318083c7ed9c6d1bd1e257562"
+  },
+  "spec": {
+    "original": "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_2/rev1.2.md",
+    "sha256": "65ff66b024de34b32f6b0fbc000f5d3e77a3e40ba7bf1b334045ee2d9b031631"
+  },
+  "delta": {
+    "original": "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_2/delta.patch",
+    "sha256": "a94e00477bb59352967365a082568ba132943e0623b15d45253bf0a448eec302",
+    "independently_regenerated_equal": true
+  },
+  "author_checks_sha256": "ac1f938a70201d74ec3b4dacba0e369aeca1dade5d8595e17cc81b88480268dd",
+  "unchanged_original_sections": [
+    1,
+    5,
+    7
+  ],
+  "scope_paths": [
+    "web/src/api/client.ts",
+    "web/src/api/account.ts",
+    "web/src/composables/useSession.ts",
+    "web/src/router/auth.ts",
+    "web/src/views/auth/LoginView.vue",
+    "web/src/router/index.ts",
+    "web/src/App.vue",
+    "web/src/views/HomeView.vue",
+    "web/src/composables/usePersonalSettings.ts",
+    "web/src/components/layout/SettingsShell.vue",
+    "web/src/views/settings/PersonalSettingsView.vue",
+    "web/src/views/settings/ProfileSettings.vue",
+    "web/src/views/settings/AppearanceSettings.vue",
+    "web/src/views/settings/PasswordSettings.vue",
+    "web/src/tests/personal-settings-client.spec.ts",
+    "web/src/tests/personal-settings-state.spec.ts",
+    "web/src/tests/personal-settings.spec.ts",
+    "web/src/tests/session.spec.ts",
+    "web/src/tests/authentication.spec.ts",
+    "tests/account-captcha-web/personal-settings.config.js",
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+    "tests/account/authentication_web_fixture_test.go",
+    "tests/account/personal_settings_web_fixture_test.go",
+    "tests/account/personal_settings_web_test.go"
+  ],
+  "added_paths": [
+    "tests/account/authentication_web_fixture_test.go",
+    "web/src/tests/authentication.spec.ts",
+    "web/src/views/auth/LoginView.vue"
+  ],
+  "full_relevant_closure": [
+    "web",
+    "tests/account-captcha-web",
+    "tests/account",
+    "tests/testsupport",
+    "internal/central/app",
+    "internal/central/account",
+    "api/openapi/account.json",
+    "api/openapi/common.json",
+    "go.mod",
+    "go.sum",
+    "scripts/test-objects.sh"
+  ],
+  "only_auth_21_changed_since_baseline": true,
+  "reused_seams_report": {
+    "path": "/workspace/agenteam-personal-settings-seams-v-gkyz_151/report.md",
+    "sha256": "1fd8419f21a5ea43cd769aa0ba8e822d10f138425671cb41e7b4b4777d44592f"
+  },
+  "report_sha256": "9a0450e4c1f799dcbe110f511fcf7d54ab1fe04fe37bd0986339107d76aba23b",
+  "dynamic_commands": [],
+  "repository_writes": false
+}

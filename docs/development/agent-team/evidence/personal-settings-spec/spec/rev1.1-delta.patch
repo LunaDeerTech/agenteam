@@ -1,0 +1,28 @@
+--- a/docs/development/work-items/d26-personal-settings.md
++++ b/docs/development/work-items/d26-personal-settings.md
+@@ -1,6 +1,6 @@
+ # D26 本人资料、主题与修改密码
+ 
+-修订：rev1 候选，2026-10-05，待独立规格静审及主线程采纳。**当前只授权本卡设计，不授权业务实施。D26 认证前端尚未最终验收，是本卡的硬前置。** 固定后端与设计来源 `ccf498d61152178c5b44994d4b9e8b8f4eb6813b`；不读取活动认证 UI/core。实施者、独立验收者、最终前端基线及资源窗口均须后授。无新包、后端 API 或迁移。
++修订：rev1.1 候选，2026-10-05，待独立窄差量复审及主线程采纳；仅将头像下载下界明确为1字节并补正常小尺寸头像成功用例，其余规则与21路径保持。**当前只授权本卡设计，不授权业务实施。D26 认证前端尚未最终验收，是本卡的硬前置。** 固定后端与设计来源 `ccf498d61152178c5b44994d4b9e8b8f4eb6813b`；不读取活动认证 UI/core。实施者、独立验收者、最终前端基线及资源窗口均须后授。无新包、后端 API 或迁移。
+ 
+ 依据为 [D07 已验 Account](d07-account-session-smtp.md)、[认证卡 rev1.2](d26-account-authentication.md)、[个人设置](../../frontend-design/layouts/personal-settings.md)、[通用设置框架](../../frontend-design/layouts/settings-shell.md)、[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)及固定可行性报告 `/workspace/agenteam-personal-settings-feasibility-d0bt0_z1/report.md`（SHA-256 `8d7839fcd20da4a8457b6483f72a9b86c3a10b02d2155e1f59db625372cc1e2c`）。报告只有静态分析。必读 [设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[Vue 开发](../../../.agents/skills/agenteam-vue-development/SKILL.md)、[Vue 测试](../../../.agents/skills/vue-testing-best-practices/SKILL.md)、[前端基础](../frontend/README.md)、[组件接口](../frontend/components.md)及[样式规范](../../frontend-design/styles/README.md)；浏览器阶段另读可用 Playwright 技能。
+ 
+@@ -85,7 +85,7 @@
+ 
+ Profile 用户必须验证认证卡完整字段，包括当前 user ID、role/theme、version 与初始密码建议；avatar 明确为 null 或完整三个字段。preferences 的 version 和 User version 是同一版本。JSON/畸形响应、transport、cancelled 与安全 Problem 分开，不制造 `not_committed`。Problem 保留原 code/field_errors/commit_state/retry_hint/request_id；未知字段/码只作安全区域错误，不显示 raw body 或请求值。
+ 
+-头像下载先验证200、精确允许媒体、1–5MiB Content-Length、带引号的有效 Digest ETag；有界读取，实际字节数必须等于声明，超限/截断/坏头拒绝，不盲目无界 `blob()`。只构造有界 Blob 与由响应头得到的 metadata，不把远端 URL 当图片。若它与当前 Profile.avatar 不一致，丢弃该下载，显示“头像已变化，请重新加载”；一次显式重新加载重新读 Profile 再取图片，不循环重试。只有当前 Profile 明确 avatar=null 才显示无头像；下载401/依赖失败不冒充 null。
++头像下载先验证200、精确允许媒体、1字节 ≤ Content-Length ≤ 5×1024×1024字节、带引号的有效 Digest ETag；有界读取，实际字节数必须等于声明，超限/截断/坏头拒绝，不盲目无界 `blob()`。只构造有界 Blob 与由响应头得到的 metadata，不把远端 URL 当图片。若它与当前 Profile.avatar 不一致，丢弃该下载，显示“头像已变化，请重新加载”；一次显式重新加载重新读 Profile 再取图片，不循环重试。只有当前 Profile 明确 avatar=null 才显示无头像；下载401/依赖失败不冒充 null。
+ 
+ ## 4. 单一身份、版本与请求状态
+ 
+@@ -194,7 +194,7 @@
+ | --- | --- |
+ | typed client纯测 | 八方法精确method/path/header/body/status；原字节File/密码、optional缺省/null/显式空；User完整shape、大int64、Digest与Progress、204无解析；头像超限/截断/错误媒体/ETag及非200；Problem/transport/取消不伪造提交状态 |
+ | 状态与组件纯测 | 同一Cookie队列，新旧Session/generation；忽略abort仍晚到的确定barrier，含头像/资料401；改密200→GET成功/失败/身份失配；Unknown原意图重试限制、版本不自动更新、不同分区版本冲突；主题预览与迟到Session；脏route/back/logout前确认；Blob/监听器清理 |
+-| `TestAccountPersonalSettingsWebProfileAndAvatar` | 真实本人资料修改/刷新、空显示名/username规范与重复冲突；静态JPG/PNG/WebP真实上传→服务端metadata/bytes→替换/移除，默认头像；SVG/动画/超限真实拒绝与旧头像保持。保存时最终字符/自动填充/点击与Enter快照正确；User/命令/Audit后态对应 |
++| `TestAccountPersonalSettingsWebProfileAndAvatar` | 真实本人资料修改/刷新、空显示名/username规范与重复冲突；静态JPG/PNG/WebP真实上传→服务端metadata/bytes→替换/移除，默认头像；至少一个正常小尺寸头像在服务端编码后实际小于1MiB，仍成功读回；SVG/动画/超限真实拒绝与旧头像保持。保存时最终字符/自动填充/点击与Enter快照正确；User/命令/Audit后态对应 |
+ | `TestAccountPersonalSettingsWebThemeAndNavigation` | 真实主题预览零写、取消、保存后刷新/重登保持；两个当前窗口造成真实version冲突且保留输入；指定叶子/首项、dirty菜单/back/logout确认、system变化和saved/draft区别 |
+ | `TestAccountPersonalSettingsWebPasswordRotation` | 两个真实浏览器context同用户：当前密码错/确认不一致/弱密码反馈；成功换当前Session、GET新CSRF后资料再写成功，另一旧Session真实401；新密码登录成功/旧密码拒绝、初始建议清除，敏感表单及时清空 |
+ | `TestAccountPersonalSettingsWebAuthorityAndProduction` | 实际普通用户与管理员各走本人页面；失效隐藏旧内容、同源/CSRF真实生效，无body越权；生产无Debug/API不被fallback；1440/1024/834/390、浅深/system、200%/键盘/焦点/reduced motion/长文本和无溢出 |

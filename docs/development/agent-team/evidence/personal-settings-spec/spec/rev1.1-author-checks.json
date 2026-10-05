@@ -1,0 +1,41 @@
+{
+  "kind": "rev1.1 narrow author self-check, pending independent review; no implementation authorization",
+  "card_path": "docs/development/work-items/d26-personal-settings.md",
+  "baseline": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+  "original_rev1_sha256": "0243bd0ce7a1f334dc5601ec40c8b07728f00d7797cc14bfa21f166bda5ef2e9",
+  "rev1_1_sha256": "3c190ab7e068397a50edfe8061916409aa2a47ad0a3ef6e036054417cc9ead8d",
+  "delta_sha256": "64ee6275d199dd7f0541713c4a0433a7bb6441160702f6260a24a25e93fb9d04",
+  "changed_lines": 3,
+  "changes": [
+    "header revision/pending narrow review",
+    "avatar response minimum 1 byte, maximum 5*1024*1024 bytes",
+    "small normal avatar below 1 MiB success scenario"
+  ],
+  "other_bytes_unchanged": true,
+  "scope_count": 21,
+  "local_links": 13,
+  "format_UTF8_LF_endline_fences_trailing_whitespace": "PASS",
+  "diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/dev/null",
+      "docs/development/work-items/d26-personal-settings.md"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "authentication_prerequisite": "still not satisfied; final accepted D26 and independent interface/file delta required before implementation",
+  "not_run": [
+    "Go",
+    "npm",
+    "browser",
+    "Docker",
+    "SQL",
+    "network",
+    "Git writes"
+  ]
+}

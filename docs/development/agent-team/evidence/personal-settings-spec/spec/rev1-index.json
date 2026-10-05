@@ -1,0 +1,77 @@
+{
+  "kind": "read_only_spec_review",
+  "fixed_commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+  "card_original": "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1.md",
+  "card_sha256": "0243bd0ce7a1f334dc5601ec40c8b07728f00d7797cc14bfa21f166bda5ef2e9",
+  "finding": "F1 Content-Length byte lower bound; pending narrow card revision",
+  "report_sha256": "e687d78ab56a52efb7ec54374fffabc5c5160dc804b9d76b3bd869903a1360d4",
+  "fixed_git_inputs": [
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:internal/central/account/http.go",
+      "sha256": "5c57879f54f7a56f7a6a3b3f64059da7315b4275b1fa93422b79de4707dc6b78",
+      "bytes": 7386
+    },
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:internal/central/account/http_profile.go",
+      "sha256": "d7405c213f6f7013838a0f70916da022c80486c24d0ff6739e2505bf787d5e34",
+      "bytes": 9441
+    },
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:internal/central/account/http_auth.go",
+      "sha256": "4a8f24dec41bb2dd7d94c3777ee8c80fe3b0ba4e9a799b9e07435c8989a5ba98",
+      "bytes": 13528
+    },
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:internal/central/account/contract/profile.go",
+      "sha256": "3294b7b54dbc92efa807687b9708afd3ab4456e80dcf1cf28c85830bdd67b33b",
+      "bytes": 6100
+    },
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:internal/central/account/profile_commands.go",
+      "sha256": "368fa05b9c552aebd0638824f2c440bf7c91e695c6529cc4d405649d2351fd5a",
+      "bytes": 6878
+    },
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:internal/central/account/password_change.go",
+      "sha256": "71c60ecc09196a4cdc2721c6eb5e5e293ee3e94adf25065002121ceacf41b19e",
+      "bytes": 12517
+    },
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:api/openapi/account.json",
+      "sha256": "583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797",
+      "bytes": 127500
+    },
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:api/openapi/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212",
+      "bytes": 11091
+    },
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:web/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13",
+      "bytes": 740
+    },
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:docs/frontend-design/layouts/personal-settings.md",
+      "sha256": "0b6ea11e9a7c724cea4d7b151a116ec67fb8532376b2886a7f3c548aeb1eea5a",
+      "bytes": 3198
+    },
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:docs/frontend-design/layouts/settings-shell.md",
+      "sha256": "696e85efd8a042696921b9733795d0f58d8351286200b5b9d420311e64d8f0b8",
+      "bytes": 3344
+    },
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:docs/development/work-items/d26-account-authentication.md",
+      "sha256": "e5c92d8a9df93b6d5010689ca2b6a74ef14bc8e43c80d0f9863efaf20d19de07",
+      "bytes": 33151
+    },
+    {
+      "git": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b:tests/account/http_avatar_test.go",
+      "sha256": "5dd56f30676ae42de0aaeea461c3e1e97e7ac70abafeaeeb615f66d12e4d76ca",
+      "bytes": 4280
+    }
+  ],
+  "executed_dynamic_checks": [],
+  "repository_writes": false
+}

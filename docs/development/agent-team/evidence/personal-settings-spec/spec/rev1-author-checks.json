@@ -1,0 +1,149 @@
+{
+  "kind": "candidate specification author self-check; no implementation or independent acceptance",
+  "source_commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+  "card": {
+    "path": "docs/development/work-items/d26-personal-settings.md",
+    "sha256": "0243bd0ce7a1f334dc5601ec40c8b07728f00d7797cc14bfa21f166bda5ef2e9",
+    "bytes": 30333
+  },
+  "scope_count": 21,
+  "methods": [
+    "getProfile",
+    "updateProfile",
+    "getPreferences",
+    "setPreferences",
+    "readAvatar",
+    "putAvatar",
+    "deleteAvatar",
+    "changePassword"
+  ],
+  "real_targets": [
+    "TestAccountPersonalSettingsWebProfileAndAvatar",
+    "TestAccountPersonalSettingsWebThemeAndNavigation",
+    "TestAccountPersonalSettingsWebPasswordRotation",
+    "TestAccountPersonalSettingsWebAuthorityAndProduction"
+  ],
+  "local_links": 13,
+  "UTF8_LF_end_newline_no_trailing_whitespace_fences": "PASS",
+  "diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "/dev/null",
+      "docs/development/work-items/d26-personal-settings.md"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "note": "no-index may exit 1 for a new file; empty --check diagnostics confirms no whitespace errors"
+  },
+  "inputs": [
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "docs/development/work-items/d26-account-authentication.md",
+      "sha256": "e5c92d8a9df93b6d5010689ca2b6a74ef14bc8e43c80d0f9863efaf20d19de07"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "docs/frontend-design/layouts/personal-settings.md",
+      "sha256": "0b6ea11e9a7c724cea4d7b151a116ec67fb8532376b2886a7f3c548aeb1eea5a"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "docs/frontend-design/layouts/settings-shell.md",
+      "sha256": "696e85efd8a042696921b9733795d0f58d8351286200b5b9d420311e64d8f0b8"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "docs/frontend-design/layouts/application-shell.md",
+      "sha256": "80c63edeb8ab115ad65e515f6d912d414b252e3f8ed942d3cba635cf23994f18"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "docs/architecture/platform-infrastructure/authentication/account-lifecycle.md",
+      "sha256": "d8bbe8ac8055d4ee775489ea03876ce9bbe32e9df7b1ac22b0a659fe5884319d"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "api/openapi/account.json",
+      "sha256": "583783ef80da1e6f93f84e7d5906dfabd3169e2d21f518df930f45d52409f797"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "api/openapi/common.json",
+      "sha256": "d80bdf91970272768c74aa89cf7c3b1faed8187c78297b3ef1ecb69780aab212"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "internal/central/account/http.go",
+      "sha256": "5c57879f54f7a56f7a6a3b3f64059da7315b4275b1fa93422b79de4707dc6b78"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "internal/central/account/http_profile.go",
+      "sha256": "d7405c213f6f7013838a0f70916da022c80486c24d0ff6739e2505bf787d5e34"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "internal/central/account/http_auth.go",
+      "sha256": "4a8f24dec41bb2dd7d94c3777ee8c80fe3b0ba4e9a799b9e07435c8989a5ba98"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "internal/central/account/http_wire.go",
+      "sha256": "adb771bc3c77f4a984ac326ba0300da3b5ca2ec6f7ace291d4881fd53d56d095"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "internal/central/account/profile_commands.go",
+      "sha256": "368fa05b9c552aebd0638824f2c440bf7c91e695c6529cc4d405649d2351fd5a"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "internal/central/account/password_change.go",
+      "sha256": "71c60ecc09196a4cdc2721c6eb5e5e293ee3e94adf25065002121ceacf41b19e"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "internal/central/account/avatar.go",
+      "sha256": "5b7e1660a29ded757fdb8897da5986a99b5d61dc41f23dfde7b05b9984b52d10"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "internal/central/account/avatar_codec.go",
+      "sha256": "60e3b022974d4f86750cb9eb009a926d235180152cd52b04202794b938e36667"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "internal/central/account/validation.go",
+      "sha256": "8fcc8faa4ecd908188b4711792373f98cb4551ef75139435c7ca08cc1994a0a3"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "internal/central/app/account.go",
+      "sha256": "a855a5320b3fbbd5f34cdb3781ce34299a12d86b80e14cafc8d37c03734944c5"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "internal/central/account/password.go",
+      "sha256": "188a124aa7f1e9f3170aa291e333fb4ff9dda6764b8bfd9e1e7aedd28a943c1f"
+    },
+    {
+      "commit": "ccf498d61152178c5b44994d4b9e8b8f4eb6813b",
+      "path": "internal/central/account/mutation.go",
+      "sha256": "a44400ce2be00ff4e7068b4f8304d7de89081cf2a0867a5ab2afde67cdb39526"
+    }
+  ],
+  "not_run": [
+    "Go",
+    "npm",
+    "browser",
+    "Docker",
+    "SQL",
+    "network",
+    "Git writes"
+  ],
+  "password_field_evidence": "Existing /password may originate from old/new password validation; retained as section-level error, without backend changes."
+}

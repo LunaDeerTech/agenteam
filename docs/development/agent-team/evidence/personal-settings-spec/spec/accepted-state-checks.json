@@ -1,0 +1,37 @@
+{
+  "kind": "administrative status update; no technical change",
+  "before_sha256": "65ff66b024de34b32f6b0fbc000f5d3e77a3e40ba7bf1b334045ee2d9b031631",
+  "after_sha256": "f78fb7f883fcac25f598ca8b220ced0ed56219dec39f02d6815be9ad5c835fa9",
+  "delta_sha256": "0d9c082e4166f3e5ae82a48aabb7d7d3a26fbdcfb8e02b6fef12fc73068af051",
+  "accepted_auth_commit": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "independent_report": {
+    "path": "/workspace/agenteam-personal-settings-prerequisite-final-v-0wgurqub/final-report.md",
+    "sha256": "9a0450e4c1f799dcbe110f511fcf7d54ab1fe04fe37bd0986339107d76aba23b"
+  },
+  "independent_index": {
+    "path": "/workspace/agenteam-personal-settings-prerequisite-final-v-0wgurqub/final-index.json",
+    "sha256": "e889576c24f6c970e0d704b0c4e5bf562792ebdc33c77d846412bbf9ea1b53fb"
+  },
+  "sections_3_through_9_byte_unchanged": true,
+  "section_1_byte_unchanged": true,
+  "scope_paths": 24,
+  "relative_links_valid": 13,
+  "utf8_lf_final_newline_no_trailing_whitespace": true,
+  "diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "docs/development/work-items/d26-personal-settings.md"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "business_authorization": "not granted",
+  "dynamic_commands": [],
+  "repository_writes": [
+    "docs/development/work-items/d26-personal-settings.md"
+  ]
+}

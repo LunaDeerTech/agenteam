@@ -1,0 +1,19 @@
+{
+  "kind": "minimal independent verification plan only",
+  "authentication_commit": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "reviewed_technical_card_sha256": "65ff66b024de34b32f6b0fbc000f5d3e77a3e40ba7bf1b334045ee2d9b031631",
+  "prerequisite_report_sha256": "9a0450e4c1f799dcbe110f511fcf7d54ab1fe04fe37bd0986339107d76aba23b",
+  "plan_sha256": "880de32261a4154a5912ed2395b3113217e9ad54f7451a1fba01811542e262a3",
+  "default_upper_bound": {
+    "pure_topics": 2,
+    "real_tops": 2
+  },
+  "author_required_real_tops": {
+    "personal": 4,
+    "authentication_regression": 4
+  },
+  "implementation_read": false,
+  "probe_written": false,
+  "dynamic_commands": [],
+  "repository_writes": false
+}

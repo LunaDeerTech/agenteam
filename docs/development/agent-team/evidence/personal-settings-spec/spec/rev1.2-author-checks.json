@@ -1,0 +1,99 @@
+{
+  "kind": "author documentation self-check; not independent acceptance",
+  "repository_path": "docs/development/work-items/d26-personal-settings.md",
+  "before_commit": "ac653cfd099f959ae9bec2c3489e499351b0fdfd",
+  "before_sha256": "3c190ab7e068397a50edfe8061916409aa2a47ad0a3ef6e036054417cc9ead8d",
+  "after_sha256": "65ff66b024de34b32f6b0fbc000f5d3e77a3e40ba7bf1b334045ee2d9b031631",
+  "delta_sha256": "a94e00477bb59352967365a082568ba132943e0623b15d45253bf0a448eec302",
+  "utf8_lf_final_newline": true,
+  "no_trailing_whitespace": true,
+  "balanced_fences": true,
+  "links": [
+    {
+      "target": "d07-account-session-smtp.md",
+      "exists": true
+    },
+    {
+      "target": "d26-account-authentication.md",
+      "exists": true
+    },
+    {
+      "target": "../../frontend-design/layouts/personal-settings.md",
+      "exists": true
+    },
+    {
+      "target": "../../frontend-design/layouts/settings-shell.md",
+      "exists": true
+    },
+    {
+      "target": "../../architecture/platform-infrastructure/authentication/account-lifecycle.md",
+      "exists": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "exists": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-vue-development/SKILL.md",
+      "exists": true
+    },
+    {
+      "target": "../../../.agents/skills/vue-testing-best-practices/SKILL.md",
+      "exists": true
+    },
+    {
+      "target": "../frontend/README.md",
+      "exists": true
+    },
+    {
+      "target": "../frontend/components.md",
+      "exists": true
+    },
+    {
+      "target": "../../frontend-design/styles/README.md",
+      "exists": true
+    },
+    {
+      "target": "../../../api/openapi/account.json",
+      "exists": true
+    },
+    {
+      "target": "../../../api/openapi/common.json",
+      "exists": true
+    }
+  ],
+  "scope_count": 24,
+  "scope_added": [
+    "web/src/views/auth/LoginView.vue",
+    "web/src/tests/authentication.spec.ts",
+    "tests/account/authentication_web_fixture_test.go"
+  ],
+  "product_sections_1_5_7_byte_unchanged": true,
+  "fixed_audit_report": {
+    "path": "/workspace/agenteam-personal-settings-seams-v-gkyz_151/report.md",
+    "sha256": "1fd8419f21a5ea43cd769aa0ba8e822d10f138425671cb41e7b4b4777d44592f"
+  },
+  "fixed_audit_index": {
+    "path": "/workspace/agenteam-personal-settings-seams-v-gkyz_151/index.json",
+    "sha256": "fe83ce424280a17dadf099ae4d668101568343bb534656ea83b7591d3e3bee98"
+  },
+  "fixed_authentication_21_source_sha_match": true,
+  "diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "docs/development/work-items/d26-personal-settings.md"
+    ],
+    "exit_code": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "authentication_final_commit_recheck": "still required; not yet complete",
+  "business_implementation": "not authorized",
+  "dynamic_checks": [],
+  "repository_writes": [
+    "docs/development/work-items/d26-personal-settings.md"
+  ]
+}

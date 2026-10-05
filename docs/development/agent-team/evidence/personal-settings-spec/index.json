@@ -1,0 +1,282 @@
+{
+  "kind": "minimal personal-settings specification and final prerequisite archive; no business verification",
+  "spec_commit": "e2ec65d4bb2bf220b67efb7a88d76bf4b2ceb901",
+  "authentication_commit": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "current_authorization": {
+    "author": "d08_registry_backend",
+    "independent_verifier": "skill_verification",
+    "source_paths": 24,
+    "docker_browser_window": "not granted",
+    "status": "implementation authorized; no accepted personal-settings implementation result"
+  },
+  "payloads": [
+    {
+      "archive": "spec/rev1-author-checks.json",
+      "original": "/workspace/agenteam-personal-settings-card-78yf7ay1/checks.json",
+      "sha256": "0014180a3796bd84fe0ead2ef54b6b328777c248816e22e98cb8a7c9c338664a",
+      "bytes": 5596
+    },
+    {
+      "archive": "spec/rev1-review.md",
+      "original": "/workspace/agenteam-personal-settings-spec-v-hz0shzhj/report.md",
+      "sha256": "e687d78ab56a52efb7ec54374fffabc5c5160dc804b9d76b3bd869903a1360d4",
+      "bytes": 4655
+    },
+    {
+      "archive": "spec/rev1-index.json",
+      "original": "/workspace/agenteam-personal-settings-spec-v-hz0shzhj/index.json",
+      "sha256": "da4ebd74a4dcad5fa7f650d0b93a20ecd846a5ffc4e2a4844160c03b8a633cb3",
+      "bytes": 3309
+    },
+    {
+      "archive": "spec/rev1.1-delta.patch",
+      "original": "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_1/delta.patch",
+      "sha256": "64ee6275d199dd7f0541713c4a0433a7bb6441160702f6260a24a25e93fb9d04",
+      "bytes": 6253
+    },
+    {
+      "archive": "spec/rev1.1-author-checks.json",
+      "original": "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_1/checks.json",
+      "sha256": "138084956b08056adcb8141c992501c5e6baa627b31ae2f9e5265f14ec066cbb",
+      "bytes": 1345
+    },
+    {
+      "archive": "spec/rev1.1-review.md",
+      "original": "/workspace/agenteam-personal-settings-spec-v-hz0shzhj/rev1.1-review.md",
+      "sha256": "2593182a692eec16d986ff7ca6a378ed560345f7f34bca6d9342b2762e9e0161",
+      "bytes": 1473
+    },
+    {
+      "archive": "spec/rev1.1-index.json",
+      "original": "/workspace/agenteam-personal-settings-spec-v-hz0shzhj/rev1.1-index.json",
+      "sha256": "5cecedba804dd1964616fd9ed313f0fad8373d77d7f0aa737c96fbb80ce1a363",
+      "bytes": 1050
+    },
+    {
+      "archive": "spec/rev1.2-delta.patch",
+      "original": "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_2/delta.patch",
+      "sha256": "a94e00477bb59352967365a082568ba132943e0623b15d45253bf0a448eec302",
+      "bytes": 29481
+    },
+    {
+      "archive": "spec/rev1.2-author-checks.json",
+      "original": "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_2/checks.json",
+      "sha256": "ac1f938a70201d74ec3b4dacba0e369aeca1dade5d8595e17cc81b88480268dd",
+      "bytes": 2954
+    },
+    {
+      "archive": "spec/accepted-state-delta.patch",
+      "original": "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_2/administrative/delta.patch",
+      "sha256": "0d9c082e4166f3e5ae82a48aabb7d7d3a26fbdcfb8e02b6fef12fc73068af051",
+      "bytes": 10516
+    },
+    {
+      "archive": "spec/accepted-state-checks.json",
+      "original": "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_2/administrative/checks.json",
+      "sha256": "a3e86cf7cd0077dc8dc26f8eb011d05d2f5393799ba3df1752256fe79a9b6b71",
+      "bytes": 1381
+    },
+    {
+      "archive": "prerequisite/seams-review.md",
+      "original": "/workspace/agenteam-personal-settings-seams-v-gkyz_151/report.md",
+      "sha256": "1fd8419f21a5ea43cd769aa0ba8e822d10f138425671cb41e7b4b4777d44592f",
+      "bytes": 10124
+    },
+    {
+      "archive": "prerequisite/seams-index.json",
+      "original": "/workspace/agenteam-personal-settings-seams-v-gkyz_151/index.json",
+      "sha256": "fe83ce424280a17dadf099ae4d668101568343bb534656ea83b7591d3e3bee98",
+      "bytes": 5040
+    },
+    {
+      "archive": "prerequisite/auth-final-manifest.json",
+      "original": "/workspace/agenteam-personal-settings-seams-v-gkyz_151/auth-final-manifest.json",
+      "sha256": "598b10dcbc7e65c7ec197947900cf0e28248ac5a83c7fbcbfb4523d7a9fc40c0",
+      "bytes": 3977
+    },
+    {
+      "archive": "prerequisite/final-review.md",
+      "original": "/workspace/agenteam-personal-settings-prerequisite-final-v-0wgurqub/final-report.md",
+      "sha256": "9a0450e4c1f799dcbe110f511fcf7d54ab1fe04fe37bd0986339107d76aba23b",
+      "bytes": 3512
+    },
+    {
+      "archive": "prerequisite/final-index.json",
+      "original": "/workspace/agenteam-personal-settings-prerequisite-final-v-0wgurqub/final-index.json",
+      "sha256": "e889576c24f6c970e0d704b0c4e5bf562792ebdc33c77d846412bbf9ea1b53fb",
+      "bytes": 3002
+    },
+    {
+      "archive": "prerequisite/commit-check.json",
+      "original": "/workspace/agenteam-personal-settings-prerequisite-final-v-0wgurqub/commit-check.json",
+      "sha256": "761a7a663f37697373542d6031fc6f78e191b6d318083c7ed9c6d1bd1e257562",
+      "bytes": 8645
+    },
+    {
+      "archive": "plan/plan.md",
+      "original": "/workspace/agenteam-personal-settings-independent-plan-8mbfvcjh/plan.md",
+      "sha256": "880de32261a4154a5912ed2395b3113217e9ad54f7451a1fba01811542e262a3",
+      "bytes": 5608
+    },
+    {
+      "archive": "plan/index.json",
+      "original": "/workspace/agenteam-personal-settings-independent-plan-8mbfvcjh/index.json",
+      "sha256": "bca61576f61e35e27c3c562df560ce82dfff08111a718159dd077be9c55dced0",
+      "bytes": 698
+    }
+  ],
+  "card_reconstruction": {
+    "path": "docs/development/work-items/d26-personal-settings.md",
+    "steps": [
+      {
+        "version": "rev1.1",
+        "git": "ac653cfd099f959ae9bec2c3489e499351b0fdfd:docs/development/work-items/d26-personal-settings.md",
+        "sha256": "3c190ab7e068397a50edfe8061916409aa2a47ad0a3ef6e036054417cc9ead8d"
+      },
+      {
+        "version": "rev1",
+        "from": "rev1.1",
+        "reverse_patch": "spec/rev1.1-delta.patch",
+        "sha256": "0243bd0ce7a1f334dc5601ec40c8b07728f00d7797cc14bfa21f166bda5ef2e9"
+      },
+      {
+        "version": "rev1.2",
+        "from": "rev1.1",
+        "forward_patch": "spec/rev1.2-delta.patch",
+        "sha256": "65ff66b024de34b32f6b0fbc000f5d3e77a3e40ba7bf1b334045ee2d9b031631"
+      },
+      {
+        "version": "rev1.2-accepted",
+        "from": "rev1.2",
+        "forward_patch": "spec/accepted-state-delta.patch",
+        "git": "e2ec65d4bb2bf220b67efb7a88d76bf4b2ceb901:docs/development/work-items/d26-personal-settings.md",
+        "sha256": "f78fb7f883fcac25f598ca8b220ced0ed56219dec39f02d6815be9ad5c835fa9"
+      }
+    ],
+    "actual_archive_check": "All original hunks applied in memory with exact context and line counts; all four SHA-256 match; accepted bytes equal fixed Git blob.",
+    "original_aliases": {
+      "rev1": [
+        "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1.md",
+        "/workspace/agenteam-personal-settings-spec-v-hz0shzhj/rev1.md"
+      ],
+      "rev1.1": [
+        "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_1/rev1.1.md",
+        "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_2/before.md",
+        "/workspace/agenteam-personal-settings-spec-v-hz0shzhj/rev1.1.md"
+      ],
+      "rev1.2": [
+        "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_2/rev1.2.md",
+        "/workspace/agenteam-personal-settings-prerequisite-final-v-0wgurqub/rev1.2.md"
+      ],
+      "rev1.2-accepted": [
+        "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_2/administrative/rev1.2-accepted.md"
+      ]
+    }
+  },
+  "git_input_locators": [
+    {
+      "record": "spec/rev1-author-checks.json",
+      "entries": "inputs[]",
+      "locator": "entry.commit + colon + entry.path",
+      "sha": "entry.sha256",
+      "count": 19
+    },
+    {
+      "record": "spec/rev1-index.json",
+      "entries": "fixed_git_inputs[]",
+      "locator": "entry.git",
+      "sha": "entry.sha256",
+      "count": 13
+    },
+    {
+      "record": "prerequisite/commit-check.json",
+      "entries": "source_checks[] and non-generated fixed_dependency_checks[]",
+      "locator": "record.commit + colon + entry.path",
+      "sha": "entry.actual",
+      "count": 26
+    }
+  ],
+  "git_input_check": {
+    "unique_blobs": 48,
+    "all_sha256_match": true,
+    "no_active_source_read": true
+  },
+  "authentication_fixed_source_alias": {
+    "original_prefix": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/fixture-input-05/",
+    "git_prefix": "9a710f272026b41ef69852bbeb41cb7670b500a8:",
+    "paths_and_sha": "prerequisite/seams-index.json auth_source_checks[]",
+    "author_manifest_original": "/workspace/agenteam-d26-auth-author-jrfhr6h1/evidence/author-final/manifest.json",
+    "author_manifest_archive": "prerequisite/auth-final-manifest.json",
+    "scope_note": "Only the 21 accepted source blobs and five Git dependencies are inputs to this prerequisite audit. Generated dist and authentication candidate.patch references inside the original manifest belong to authentication dynamic evidence and are not personal-settings reconstruction inputs; this archive does not claim to reproduce or rerun that acceptance."
+  },
+  "raw_whitespace_exceptions": [
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-spec/spec/rev1.1-delta.patch",
+      "sha256": "64ee6275d199dd7f0541713c4a0433a7bb6441160702f6260a24a25e93fb9d04",
+      "lines": [
+        5,
+        8,
+        10,
+        12,
+        14,
+        17,
+        19
+      ],
+      "reason": "Original unified patch blank-context marker, retained byte for byte."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-spec/spec/rev1.2-delta.patch",
+      "sha256": "a94e00477bb59352967365a082568ba132943e0623b15d45253bf0a448eec302",
+      "lines": [
+        5,
+        8,
+        10,
+        12,
+        14,
+        28,
+        30,
+        32,
+        35,
+        48,
+        50,
+        97,
+        99,
+        101,
+        103,
+        106,
+        108,
+        110,
+        112,
+        115,
+        147,
+        150,
+        152,
+        164,
+        167,
+        169,
+        171,
+        173
+      ],
+      "reason": "Original unified patch blank-context marker, retained byte for byte."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-spec/spec/accepted-state-delta.patch",
+      "sha256": "0d9c082e4166f3e5ae82a48aabb7d7d3a26fbdcfb8e02b6fef12fc73068af051",
+      "lines": [
+        5,
+        8,
+        10,
+        19,
+        26,
+        32,
+        35,
+        37,
+        39,
+        41
+      ],
+      "reason": "Original unified patch blank-context marker, retained byte for byte."
+    }
+  ],
+  "record_scope": "Original statuses, command metadata and review conclusions are preserved as written. The archive report and current card record the later 24-source assignment. No sources, dist, caches, binaries, credentials or authentication dynamic logs copied.",
+  "dynamic_commands": []
+}

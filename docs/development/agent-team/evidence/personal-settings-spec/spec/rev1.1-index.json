@@ -1,0 +1,26 @@
+{
+  "kind": "rev1.1 independent narrow static review",
+  "conclusion": "PASS specification; implementation hard prerequisites remain",
+  "card": {
+    "original": "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_1/rev1.1.md",
+    "sha256": "3c190ab7e068397a50edfe8061916409aa2a47ad0a3ef6e036054417cc9ead8d"
+  },
+  "delta": {
+    "original": "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_1/delta.patch",
+    "sha256": "64ee6275d199dd7f0541713c4a0433a7bb6441160702f6260a24a25e93fb9d04"
+  },
+  "author_checks": {
+    "original": "/workspace/agenteam-personal-settings-card-78yf7ay1/rev1_1/checks.json",
+    "sha256": "138084956b08056adcb8141c992501c5e6baa627b31ae2f9e5265f14ec066cbb"
+  },
+  "independent_changed_lines": [
+    3,
+    88,
+    197
+  ],
+  "patch_bytes_equal_independent_diff": true,
+  "rev1_report_sha256": "e687d78ab56a52efb7ec54374fffabc5c5160dc804b9d76b3bd869903a1360d4",
+  "review_sha256": "2593182a692eec16d986ff7ca6a378ed560345f7f34bca6d9342b2762e9e0161",
+  "dynamic_commands": [],
+  "repository_writes": false
+}

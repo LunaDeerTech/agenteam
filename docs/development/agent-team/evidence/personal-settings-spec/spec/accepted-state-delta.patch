@@ -1,0 +1,43 @@
+--- a/docs/development/work-items/d26-personal-settings.md
++++ b/docs/development/work-items/d26-personal-settings.md
+@@ -1,6 +1,6 @@
+ # D26 本人资料、主题与修改密码
+ 
+-修订：rev1.2 候选，2026-10-05，待独立差量静审及主线程采纳。rev1.1 已独立静审通过并获采纳，提交 `ac653cfd099f959ae9bec2c3489e499351b0fdfd`（被审卡 SHA-256 `3c190ab7e068397a50edfe8061916409aa2a47ad0a3ef6e036054417cc9ead8d`，独立报告 SHA-256 `2593182a692eec16d986ff7ca6a378ed560345f7f34bca6d9342b2762e9e0161`）。本次仅据冻结认证源码明确实际接缝及必要范围，21路径增至24，产品规则不变。**当前只授权本卡设计，不授权业务实施。D26 认证前端尚未最终验收，是本卡的硬前置。** 固定后端与设计来源仍为 `ccf498d61152178c5b44994d4b9e8b8f4eb6813b`；只消费 §2 固定候选，不读取活动认证 UI/core。实施者、独立验收者、最终前端基线及资源窗口均须后授。无新包、后端 API 或迁移。
++修订：rev1.2，2026-10-05，独立差量静审及 §2 最终前置核查均通过，已获主线程采纳；被审卡 SHA-256 `65ff66b024de34b32f6b0fbc000f5d3e77a3e40ba7bf1b334045ee2d9b031631`。rev1.1 已独立静审通过并获采纳，提交 `ac653cfd099f959ae9bec2c3489e499351b0fdfd`（被审卡 SHA-256 `3c190ab7e068397a50edfe8061916409aa2a47ad0a3ef6e036054417cc9ead8d`，独立报告 SHA-256 `2593182a692eec16d986ff7ca6a378ed560345f7f34bca6d9342b2762e9e0161`）。本次仅据冻结认证源码明确实际接缝及必要范围，21路径增至24，产品规则不变。**D26 认证前端已最终通过并提交推送 `9a710f272026b41ef69852bbeb41cb7670b500a8`，§2 前置已关闭；本卡业务尚未授权或实施，待本卡提交后另授。** 固定后端与设计来源仍为 `ccf498d61152178c5b44994d4b9e8b8f4eb6813b`，最终认证基线为 `9a710f2`；不读取活动源码。实施者、独立验收者及资源窗口均须后授。无新包、后端 API 或迁移。
+ 
+ 依据为 [D07 已验 Account](d07-account-session-smtp.md)、[认证卡 rev1.2](d26-account-authentication.md)、[个人设置](../../frontend-design/layouts/personal-settings.md)、[通用设置框架](../../frontend-design/layouts/settings-shell.md)、[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)及固定可行性报告 `/workspace/agenteam-personal-settings-feasibility-d0bt0_z1/report.md`（SHA-256 `8d7839fcd20da4a8457b6483f72a9b86c3a10b02d2155e1f59db625372cc1e2c`）。报告只有静态分析。必读 [设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[Vue 开发](../../../.agents/skills/agenteam-vue-development/SKILL.md)、[Vue 测试](../../../.agents/skills/vue-testing-best-practices/SKILL.md)、[前端基础](../frontend/README.md)、[组件接口](../frontend/components.md)及[样式规范](../../frontend-design/styles/README.md)；浏览器阶段另读可用 Playwright 技能。
+ 
+@@ -17,13 +17,13 @@
+ | 依赖 | 固定事实与限制 |
+ | --- | --- |
+ | D07 资料/头像/偏好/改密 HTTP | 已有真实端口；`account/http.go:77–85` 注册，`app/account.go:324–345,382–386` 装配真实 core、AvatarAuthority、ProfileService、Runtime 和 handler；普通用户/管理员同样只访问本人 |
+-| D26 认证前端 | 规格已采纳，但业务未最终验收；本卡依赖同源传输、User/Problem 解析、Session/CSRF、单一 Cookie 队列、generation、登录/注销/受保护路由及同源 dist fixture，不能用静审或 pure 通过替代真实组合 |
++| D26 认证前端 | 已最终验收并提交推送 `9a710f272026b41ef69852bbeb41cb7670b500a8`；本卡依赖的同源传输、User/Problem 解析、Session/CSRF、单一 Cookie owner、generation、登录/注销/受保护路由及同源 dist fixture，已按下述最终独立结论核定；本卡新增门面仍待实施 |
+ | 前端基础 | 复用既有 Ui 控件、tokens、useTheme、浮层/焦点；不复制 Debug 数据，不加 Pinia、上传/表单/UI 库或包锁改动 |
+ | 后端运行 | 复用真实 Account root/PG/Secret/Audit/Outbox/MinIO；无 Project/D25/未决 Summary 前置，也不新增生产 root 能力 |
+ 
+-**业务开工前必须另有一份独立依赖差量结论**：固定 D26 最终独立通过的提交与相关文件 SHA，核其实际导出、错误/取消模型、Cookie 队列完整生命周期、主题应用位置、路由 guard 和 fixture helper；逐一映射本卡 §3/§4 所需能力，核后端相对 `ccf498d` 的相关差量与 §8 文件所有权。该核查必须落实到真实函数/类型/路径，不只写“可复用”。若需改公共行为或增加路径，先修订本卡并审差量；未经此门槛与主线程实施授权，不因本卡静审通过而开写。
+-
+-本次预备接缝审计固定于 `/workspace/agenteam-personal-settings-seams-v-gkyz_151/report.md`（SHA-256 `1fd8419f21a5ea43cd769aa0ba8e822d10f138425671cb41e7b4b4777d44592f`，index `fe83ce424280a17dadf099ae4d668101568343bb534656ea83b7591d3e3bee98`）。输入为认证 author-final manifest `598b10dcbc7e65c7ec197947900cf0e28248ac5a83c7fbcbfb4523d7a9fc40c0` 引用的 `fixture-input-05` 原件21源（manifest `2e0d63e1fabeaf4ba1ba808f2aa5e4a795b903516f6501b08d25517f16b37966`），不是活动树。以下行号均对应该冻结副本；这是可行性依据，**不关闭认证最终验收/提交后的独立门槛**。
++**业务开工所需的独立依赖差量门槛已关闭，实施授权仍未授予。** 最终报告 `/workspace/agenteam-personal-settings-prerequisite-final-v-0wgurqub/final-report.md`（SHA-256 `9a0450e4c1f799dcbe110f511fcf7d54ab1fe04fe37bd0986339107d76aba23b`，`final-index.json` SHA-256 `e889576c24f6c970e0d704b0c4e5bf562792ebdc33c77d846412bbf9ea1b53fb`）已获主线程采纳：固定认证提交21源与预审输入相同、五项Git依赖及相关后端/helper闭包无影响漂移，实际导出/owner/身份主题/路由/fixture与本卡24路径映射成立。§3–9 技术规则保持，条件性范围仍须主线程另授；其中最终认证提交后的末核已由此结论履行。后续若基线、公共行为或路径有影响差量，仍须先核受影响部分并修订规格，不因本次通过而自行扩权。
++
++本次预备接缝审计固定于 `/workspace/agenteam-personal-settings-seams-v-gkyz_151/report.md`（SHA-256 `1fd8419f21a5ea43cd769aa0ba8e822d10f138425671cb41e7b4b4777d44592f`，index `fe83ce424280a17dadf099ae4d668101568343bb534656ea83b7591d3e3bee98`）。输入为认证 author-final manifest `598b10dcbc7e65c7ec197947900cf0e28248ac5a83c7fbcbfb4523d7a9fc40c0` 引用的 `fixture-input-05` 原件21源（manifest `2e0d63e1fabeaf4ba1ba808f2aa5e4a795b903516f6501b08d25517f16b37966`），不是活动树。以下行号均对应该冻结副本；该预审只提供可行性依据，最终认证提交后的门槛由上列最终独立报告关闭。
+ 
+ | 实际接缝 | 本卡必要窄扩与保留责任 |
+ | --- | --- |
+@@ -34,7 +34,7 @@
+ | `authentication.spec.ts:50–79,128`、`session.spec.ts` | 类型注入目前6方法；补8成员的测试setup，意外调用应显式拒绝。仅更新“无settings链接”的过时断言，改验允许的profile/password目标；其余认证断言、Project链接禁用、原预算均保留 |
+ | `newAuthenticationWebFixture(t,ctx)`、`authentication_web_fixture_test.go:177–187` | 已有真实root/随机同源/dist builder，但 `old.record` 仅局部存活。只保留私有record绑定/必要fixture引用给同包新helper；普通用户沿 `f.origin` 的正式邀请/inspect/redeem创建。原 `.browser()` 固定认证config，个人设置在新两Go文件接专属launcher，不改旧launcher/断言，不复制root |
+ 
+-独立审计已核 `ccf498d` 至认证候选基线 `457b1979c9d6563740543b2011eedc06cce34c71` 及至 `ac653cf` 的 Account/app、两OpenAPI、`tests/account`、`tests/testsupport/accountenv`、`useTheme.ts` 均零差量。认证最终提交到位后仍须核相同21源SHA、上述闭包和实际导出；无差量才复用本结论，有差量只补受影响接缝并确认24路径所有权。§3/§4 的新增导出是本卡待实现提案，不能当作认证已交付能力；不另造第二 Session store、Cookie 队列、通用 HTTP 工厂或全局可变 CSRF header。
++独立审计已核 `ccf498d` 至认证候选基线 `457b1979c9d6563740543b2011eedc06cce34c71` 及至 `ac653cf` 的 Account/app、两OpenAPI、`tests/account`、`tests/testsupport/accountenv`、`useTheme.ts` 均零差量。最终独立报告已核认证 `9a710f2` 的相同21源SHA及实际导出；相对 `ccf498d`，Account/app、两OpenAPI、accountenv和useTheme无差量，tests/account仅新增认证两fixture，旧helper不变。本预审结论据此复用，24路径范围已采纳，具体唯一写权仍待另授。§3/§4 的新增导出是本卡待实现提案，不能当作认证已交付能力；不另造第二 Session store、Cookie 队列、通用 HTTP 工厂或全局可变 CSRF header。
+ 
+ 已知 Object Runtime join 缺陷及暂停修复保持；头像只消费 D07 已验本人 HTTP，不恢复暂停的方法或证明共享 guard 异常退出已修。Artifact/领域绑定阻断、ready503、无 Project/D25 绑定、Summary 待决、D28 生产 SPA 托管及完整 D26/D27 未完成的边界均保持。
+ 
+@@ -265,4 +265,4 @@
+ 
+ ## 10. 当前交付状态
+ 
+-rev1.1 已独立规格通过并提交 `ac653cf`；rev1.2 仅补冻结认证候选审计发现的实际接缝、24路径和必要回归，仍待独立差量审查及主线程采纳，尚无个人设置业务实施或动态结论。固定D07 API可支持本结果；认证前端最终独立通过并提交后，仍须按 §2 末核同源SHA/后端闭包/实际接缝与所有权，再另授实施。临时报告及候选源码审计不等于前置已满足。邀请/恢复等后继责任、生产SPA托管、Object/Artifact阻断、Summary待决及完整模块未完成均不变。
++rev1.1 已独立规格通过并提交 `ac653cf`；rev1.2 的实际接缝、24路径和必要回归已独立静审通过并获采纳。认证业务已最终通过并提交推送 `9a710f272026b41ef69852bbeb41cb7670b500a8`，§2 最终提交/后端闭包/接缝核查已由上述独立报告关闭。个人设置仍无业务实施授权、实现或动态结论，待本卡提交后另授。邀请/恢复等后继责任、生产SPA托管、Object/Artifact阻断、Summary待决及完整模块未完成均不变。

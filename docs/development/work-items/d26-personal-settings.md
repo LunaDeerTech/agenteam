@@ -1,6 +1,6 @@
 # D26 本人资料、主题与修改密码
 
-修订：rev1.2，2026-10-05，独立差量静审及 §2 最终前置核查均通过，已获主线程采纳；被审卡 SHA-256 `65ff66b024de34b32f6b0fbc000f5d3e77a3e40ba7bf1b334045ee2d9b031631`。rev1.1 已独立静审通过并获采纳，提交 `ac653cfd099f959ae9bec2c3489e499351b0fdfd`（被审卡 SHA-256 `3c190ab7e068397a50edfe8061916409aa2a47ad0a3ef6e036054417cc9ead8d`，独立报告 SHA-256 `2593182a692eec16d986ff7ca6a378ed560345f7f34bca6d9342b2762e9e0161`）。本次仅据冻结认证源码明确实际接缝及必要范围，21路径增至24，产品规则不变。**D26 认证前端已最终通过并提交推送 `9a710f272026b41ef69852bbeb41cb7670b500a8`，§2 前置已关闭；本卡业务尚未授权或实施，待本卡提交后另授。** 固定后端与设计来源仍为 `ccf498d61152178c5b44994d4b9e8b8f4eb6813b`，最终认证基线为 `9a710f2`；不读取活动源码。实施者、独立验收者及资源窗口均须后授。无新包、后端 API 或迁移。
+修订：rev1.2，2026-10-05，独立差量静审及 §2 最终前置核查均通过，已获主线程采纳；被审卡 SHA-256 `65ff66b024de34b32f6b0fbc000f5d3e77a3e40ba7bf1b334045ee2d9b031631`。rev1.1 已独立静审通过并获采纳，提交 `ac653cfd099f959ae9bec2c3489e499351b0fdfd`（被审卡 SHA-256 `3c190ab7e068397a50edfe8061916409aa2a47ad0a3ef6e036054417cc9ead8d`，独立报告 SHA-256 `2593182a692eec16d986ff7ca6a378ed560345f7f34bca6d9342b2762e9e0161`）。本次仅据冻结认证源码明确实际接缝及必要范围，21路径增至24，产品规则不变。**D26 认证前端已最终通过并提交推送 `9a710f272026b41ef69852bbeb41cb7670b500a8`，§2 前置已关闭；本卡已提交推送 `e2ec65d4bb2bf220b67efb7a88d76bf4b2ceb901`，主线程已授权精确24源实施，尚无个人设置业务验收结论。** 固定后端与设计来源仍为 `ccf498d61152178c5b44994d4b9e8b8f4eb6813b`，最终认证基线为 `9a710f2`；不读取活动源码。实施者为 `d08_registry_backend`，独立验收者为 `skill_verification`；Docker/browser窗口尚未授予。正文保留规格冻结时的授权条件，当前状态以 §10 接续记录为准。无新包、后端 API 或迁移。
 
 依据为 [D07 已验 Account](d07-account-session-smtp.md)、[认证卡 rev1.2](d26-account-authentication.md)、[个人设置](../../frontend-design/layouts/personal-settings.md)、[通用设置框架](../../frontend-design/layouts/settings-shell.md)、[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)及固定可行性报告 `/workspace/agenteam-personal-settings-feasibility-d0bt0_z1/report.md`（SHA-256 `8d7839fcd20da4a8457b6483f72a9b86c3a10b02d2155e1f59db625372cc1e2c`）。报告只有静态分析。必读 [设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[Vue 开发](../../../.agents/skills/agenteam-vue-development/SKILL.md)、[Vue 测试](../../../.agents/skills/vue-testing-best-practices/SKILL.md)、[前端基础](../frontend/README.md)、[组件接口](../frontend/components.md)及[样式规范](../../frontend-design/styles/README.md)；浏览器阶段另读可用 Playwright 技能。
 
@@ -265,4 +265,10 @@ Unknown/迟到transport可用纯可控promise证明前端状态机；**本卡不
 
 ## 10. 当前交付状态
 
-rev1.1 已独立规格通过并提交 `ac653cf`；rev1.2 的实际接缝、24路径和必要回归已独立静审通过并获采纳。认证业务已最终通过并提交推送 `9a710f272026b41ef69852bbeb41cb7670b500a8`，§2 最终提交/后端闭包/接缝核查已由上述独立报告关闭。个人设置仍无业务实施授权、实现或动态结论，待本卡提交后另授。邀请/恢复等后继责任、生产SPA托管、Object/Artifact阻断、Summary待决及完整模块未完成均不变。
+rev1.1 已独立规格通过并提交 `ac653cf`；rev1.2 的实际接缝、24路径和必要回归已独立静审通过并获采纳，规格提交推送 `e2ec65d4bb2bf220b67efb7a88d76bf4b2ceb901`。认证业务已最终通过并提交推送 `9a710f272026b41ef69852bbeb41cb7670b500a8`，§2 最终提交/后端闭包/接缝核查已关闭。主线程现已授权24源实施，尚无本卡业务验收通过或动态结论。邀请/恢复等后继责任、生产SPA托管、Object/Artifact阻断、Summary待决及完整模块未完成均不变。
+
+### 实施授权接续
+
+`d08_registry_backend` 独占 §8 精确24源，以已验认证 `9a710f272026b41ef69852bbeb41cb7670b500a8` 为固定业务基线；`skill_verification` 负责固定生产静审及独立验收。此段履行正文规格冻结时“实施待另授”的条件；§1–9 技术原文、产品规则、24路径和验收预算不变，不把新增personal接口当已实现。当前无Docker/browser窗口，实际资源仍由主线程另授。
+
+原修订、预审/最终核查和后续独立风险计划见[规格与前置验收记录](../agent-team/personal-settings-spec-verification.md)。计划为准备证据，不是已执行测试；原报告中“待授权/待认证提交”保留当时事实，由此接续状态更新。

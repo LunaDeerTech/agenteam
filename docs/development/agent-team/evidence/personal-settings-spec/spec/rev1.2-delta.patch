@@ -1,0 +1,175 @@
+--- a/docs/development/work-items/d26-personal-settings.md
++++ b/docs/development/work-items/d26-personal-settings.md
+@@ -1,6 +1,6 @@
+ # D26 本人资料、主题与修改密码
+ 
+-修订：rev1.1 候选，2026-10-05，待独立窄差量复审及主线程采纳；仅将头像下载下界明确为1字节并补正常小尺寸头像成功用例，其余规则与21路径保持。**当前只授权本卡设计，不授权业务实施。D26 认证前端尚未最终验收，是本卡的硬前置。** 固定后端与设计来源 `ccf498d61152178c5b44994d4b9e8b8f4eb6813b`；不读取活动认证 UI/core。实施者、独立验收者、最终前端基线及资源窗口均须后授。无新包、后端 API 或迁移。
++修订：rev1.2 候选，2026-10-05，待独立差量静审及主线程采纳。rev1.1 已独立静审通过并获采纳，提交 `ac653cfd099f959ae9bec2c3489e499351b0fdfd`（被审卡 SHA-256 `3c190ab7e068397a50edfe8061916409aa2a47ad0a3ef6e036054417cc9ead8d`，独立报告 SHA-256 `2593182a692eec16d986ff7ca6a378ed560345f7f34bca6d9342b2762e9e0161`）。本次仅据冻结认证源码明确实际接缝及必要范围，21路径增至24，产品规则不变。**当前只授权本卡设计，不授权业务实施。D26 认证前端尚未最终验收，是本卡的硬前置。** 固定后端与设计来源仍为 `ccf498d61152178c5b44994d4b9e8b8f4eb6813b`；只消费 §2 固定候选，不读取活动认证 UI/core。实施者、独立验收者、最终前端基线及资源窗口均须后授。无新包、后端 API 或迁移。
+ 
+ 依据为 [D07 已验 Account](d07-account-session-smtp.md)、[认证卡 rev1.2](d26-account-authentication.md)、[个人设置](../../frontend-design/layouts/personal-settings.md)、[通用设置框架](../../frontend-design/layouts/settings-shell.md)、[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)及固定可行性报告 `/workspace/agenteam-personal-settings-feasibility-d0bt0_z1/report.md`（SHA-256 `8d7839fcd20da4a8457b6483f72a9b86c3a10b02d2155e1f59db625372cc1e2c`）。报告只有静态分析。必读 [设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[Vue 开发](../../../.agents/skills/agenteam-vue-development/SKILL.md)、[Vue 测试](../../../.agents/skills/vue-testing-best-practices/SKILL.md)、[前端基础](../frontend/README.md)、[组件接口](../frontend/components.md)及[样式规范](../../frontend-design/styles/README.md)；浏览器阶段另读可用 Playwright 技能。
+ 
+@@ -23,13 +23,24 @@
+ 
+ **业务开工前必须另有一份独立依赖差量结论**：固定 D26 最终独立通过的提交与相关文件 SHA，核其实际导出、错误/取消模型、Cookie 队列完整生命周期、主题应用位置、路由 guard 和 fixture helper；逐一映射本卡 §3/§4 所需能力，核后端相对 `ccf498d` 的相关差量与 §8 文件所有权。该核查必须落实到真实函数/类型/路径，不只写“可复用”。若需改公共行为或增加路径，先修订本卡并审差量；未经此门槛与主线程实施授权，不因本卡静审通过而开写。
+ 
+-本卡不指定未见的认证导出名称，不假定其候选实现已经满足这些能力。§3 是本次新增调用边界，§4 是必须由**同一个**认证协调器承接的行为；最终函数名/类型别名可在上述窄差量中对齐，不另造第二 Session store、Cookie 队列、通用 HTTP 工厂或全局可变 CSRF header。
++本次预备接缝审计固定于 `/workspace/agenteam-personal-settings-seams-v-gkyz_151/report.md`（SHA-256 `1fd8419f21a5ea43cd769aa0ba8e822d10f138425671cb41e7b4b4777d44592f`，index `fe83ce424280a17dadf099ae4d668101568343bb534656ea83b7591d3e3bee98`）。输入为认证 author-final manifest `598b10dcbc7e65c7ec197947900cf0e28248ac5a83c7fbcbfb4523d7a9fc40c0` 引用的 `fixture-input-05` 原件21源（manifest `2e0d63e1fabeaf4ba1ba808f2aa5e4a795b903516f6501b08d25517f16b37966`），不是活动树。以下行号均对应该冻结副本；这是可行性依据，**不关闭认证最终验收/提交后的独立门槛**。
++
++| 实际接缝 | 本卡必要窄扩与保留责任 |
++| --- | --- |
++| `api/client.ts:150` 的 `accountTransport`、`api/account.ts:169,239` 的 `createAccountAPI` / `AccountAPI=ReturnType` | 原闭集6方法只发送POST JSON；在原工厂扩8方法、PATCH/PUT/DELETE JSON和raw File/有界图片，保留实际body清理。`User` 已导出，私有 `user()` 可在同文件复用。扩展后两份旧纯测试 mock 需完整类型适配，不把生产方法改成optional或空成功 |
++| `useSession.ts:73,216–254,547–566` | 现有 `createSessionController` / `SessionController` / `useSession` 没有通用业务调用口；私有 `run` 是 restore/login/logout 的 `Promise<void>` owner，忙时可能空返回。§4 新增 typed 个人门面必须由同一 owner 承接，明确DTO/错误；可见30s超时不释放实际请求尾部。原认证方法签名与单飞语义保持 |
++| `useSession.ts:87–98,108–145,263–297`、`App.vue:12–15,60` | 现 `generation` 每次请求递增；restore 先清身份/设system，publish 清意图/设主题，checking会卸载 RouterView。不能直接将其当稳定身份代际或真实离页；按 §4 分离并保留同身份草稿/预览，仍隐藏检查中的受保护展示 |
++| `router/auth.ts:5–21`、`LoginView.vue:95–103` | `safeReturnTarget` 和 guard 的 return 目前只有 `/`，登录成功也硬编码 `/`。两处共同接闭集三叶子；未认证跳转保存净化目标，登录完成消费同一净化目标。挑战/焦点/密码wire不改，dirty确认先于破坏草稿的导航及logout |
++| `authentication.spec.ts:50–79,128`、`session.spec.ts` | 类型注入目前6方法；补8成员的测试setup，意外调用应显式拒绝。仅更新“无settings链接”的过时断言，改验允许的profile/password目标；其余认证断言、Project链接禁用、原预算均保留 |
++| `newAuthenticationWebFixture(t,ctx)`、`authentication_web_fixture_test.go:177–187` | 已有真实root/随机同源/dist builder，但 `old.record` 仅局部存活。只保留私有record绑定/必要fixture引用给同包新helper；普通用户沿 `f.origin` 的正式邀请/inspect/redeem创建。原 `.browser()` 固定认证config，个人设置在新两Go文件接专属launcher，不改旧launcher/断言，不复制root |
++
++独立审计已核 `ccf498d` 至认证候选基线 `457b1979c9d6563740543b2011eedc06cce34c71` 及至 `ac653cf` 的 Account/app、两OpenAPI、`tests/account`、`tests/testsupport/accountenv`、`useTheme.ts` 均零差量。认证最终提交到位后仍须核相同21源SHA、上述闭包和实际导出；无差量才复用本结论，有差量只补受影响接缝并确认24路径所有权。§3/§4 的新增导出是本卡待实现提案，不能当作认证已交付能力；不另造第二 Session store、Cookie 队列、通用 HTTP 工厂或全局可变 CSRF header。
+ 
+ 已知 Object Runtime join 缺陷及暂停修复保持；头像只消费 D07 已验本人 HTTP，不恢复暂停的方法或证明共享 guard 异常退出已修。Artifact/领域绑定阻断、ready503、无 Project/D25 绑定、Summary 待决、D28 生产 SPA 托管及完整 D26/D27 未完成的边界均保持。
+ 
+ ## 3. 新增 typed HTTP 调用
+ 
+-唯一 wire 来源为固定 [account.json](../../../api/openapi/account.json)、[common.json](../../../api/openapi/common.json)与同提交 `account/http.go`、`http_profile.go`、`http_auth.go`、`http_wire.go`。新增八方法；下列接口只说明调用签名，不要求新建第二客户端实例。`AccountUser` 复用认证卡完整 User shape 和运行时解析，不复制另一个宽松解析器；其实际源码导出名待 §2 固定输入核定。Version/Progress/Digest 沿 common：Version 为正 int64 十进制字符串，Progress 为非负 int64 十进制字符串，Digest 为 `sha256:` 加64位小写十六进制。比较版本使用精确字符串/BigInt，不经 number；只对已确认不超过5MiB的头像长度转换安全 number。
++唯一 wire 来源为固定 [account.json](../../../api/openapi/account.json)、[common.json](../../../api/openapi/common.json)与同提交 `account/http.go`、`http_profile.go`、`http_auth.go`、`http_wire.go`。新增八方法；下列接口只说明调用签名，不要求新建第二客户端实例。`User` 复用冻结 `api/account.ts` 已导出类型及同文件私有 `user()` 完整解析，不复制另一个宽松解析器。Version/Progress/Digest 沿 common：Version 为正 int64 十进制字符串，Progress 为非负 int64 十进制字符串，Digest 为 `sha256:` 加64位小写十六进制。比较版本使用精确字符串/BigInt，不经 number；只对已确认不超过5MiB的头像长度转换安全 number。
+ 
+ ```ts
+ type Version = string
+@@ -42,7 +53,7 @@
+   byte_size: Progress
+   sha256: Digest
+ }>
+-type ProfileView = Readonly<{ user: AccountUser; avatar: AvatarMetadata | null }>
++type ProfileView = Readonly<{ user: User; avatar: AvatarMetadata | null }>
+ type PreferencesView = Readonly<{ version: Version; theme: Theme }>
+ type ProfileInput = Readonly<{ version: Version } & (
+   { username: string; display_name?: string } |
+@@ -89,9 +100,49 @@
+ 
+ ## 4. 单一身份、版本与请求状态
+ 
+-`usePersonalSettings` 只拥有本页 saved/draft/命令状态与受控 Blob URL，不拥有第二份认证事实。当前 User/Session、CSRF、身份 generation、Cookie 队列及认证失败处理仍来自同一认证协调器。每个请求捕获 `{userID,sessionID,authGeneration,requestGeneration}`；写意图另冻结 `{method,path,key,expectedVersion,完整input或同一File}`。异步回包及 finally 全部核对身份/请求，旧结果不能改用户、主题、头像、dirty、busy、消息或导航；不把 abort 当作足够隔离。
+-
+-**新增全部 Account 请求都进入原 Cookie 队列**，包括读资料/偏好/头像。`account/http.go:175–178` 的失效错误可清 Session Cookie，不能把 GET 或图片视作没有 Cookie 副作用。禁止 `<img src="/api/v1/me/avatar">` 绕队列；显示受控下载后的 Blob URL。Cookie 请求沿认证卡30s上界，逻辑离页不提前丢失实际 transport 责任；下一身份请求必须等上一请求真正结束，超时/取消不是服务器回滚证明。改密 POST 与随后的 Session 确认构成协调器内有序的身份转换，旧 Session 写与 logout 不得插入其间；具体承接函数由 §2 核定，不再套一个会死锁的队列。
++`usePersonalSettings` 只拥有本页 saved/draft/命令状态与受控 Blob URL，不拥有第二份认证事实。当前 User/Session、CSRF、Cookie 请求 owner 及认证失败处理仍来自同一 `createSessionController`。新增稳定 `identity.epoch` 与现有每次run递增的请求generation分开；每个请求捕获 `{userID,sessionID,epoch,requestGeneration}`，写意图另冻结 `{method,path,key,expectedVersion,完整input或同一File}`。异步回包及finally全部核对身份/请求，旧结果不能改用户、主题、头像、dirty、busy、消息或导航；不把abort当作足够隔离。
++
++在现有 controller 的返回对象新增 `personalContext`（只读 `{phase:'current'|'checking'|'invalid', identity:PersonalIdentity|null}`）和 `personal` 门面，下列名称为**本卡新增**，不是现成API。identity只含非敏感标识；checking保留的旧标识只供隔离/草稿生命周期判断，不授予显示或请求权限。CSRF、key、原重试意图仍为controller私有。
++
++```ts
++type PersonalIdentity = Readonly<{ userID: string; sessionID: string; epoch: number }>
++type PasswordConfirmation =
++  | Readonly<{ commandConfirmed: true; sessionConfirmed: true }>
++  | Readonly<{ commandConfirmed: true; sessionConfirmed: false; failure: AccountFailure }>
++type PersonalMutationResult =
++  | Readonly<{ kind: 'profile' | 'avatar-put'; value: ProfileView }>
++  | Readonly<{ kind: 'preferences'; value: PreferencesView }>
++  | Readonly<{ kind: 'avatar-delete' }>
++  | Readonly<{ kind: 'password'; value: PasswordConfirmation }>
++interface PersonalSessionMethods {
++  readonly passwordProgress: Readonly<{
++    identity: PersonalIdentity
++    requestGeneration: number
++    phase: 'confirming-session' | 'confirmed' | 'session-unconfirmed'
++  }> | null
++  getProfile(): Promise<ProfileView>
++  updateProfile(input: ProfileInput): Promise<ProfileView>
++  getPreferences(): Promise<PreferencesView>
++  setPreferences(input: PreferencesView): Promise<PreferencesView>
++  readAvatar(): Promise<AvatarDownload>
++  putAvatar(input: Readonly<{ version: Version; file: File; mediaType: AvatarMedia }>):
++    Promise<ProfileView>
++  deleteAvatar(input: Readonly<{ version: Version }>): Promise<void>
++  changePassword(input: PasswordInput): Promise<PasswordConfirmation>
++  retryOriginal(): Promise<PersonalMutationResult>
++  abandon(): void
++  previewTheme(identity: PersonalIdentity, theme: Theme): void
++  clearThemePreview(identity: PersonalIdentity): void
++}
++```
++
++八个门面方法分别调用 §3 同名HTTP方法，不接受任意callback、token或自由User setter。忙时新个人调用在生成key/启动transport前以已有 `AccountFailure('busy')` 明确拒绝，不按泛称read合并不同端点、不将原run的void/no-op当DTO成功。实际请求失败保留原 `AccountFailure`；个人字段错误/Unknown只反馈个人状态，不直接复用只懂登录字段的 `failure()`。真正身份失效/CSRF上下文失效仍由原协调器处理。`retryOriginal` 只派发私有冻结意图并返回相应kind；缺意图或跨身份拒绝。`abandon` 只隔离页面责任，不能提前释放actual owner或声明服务器回滚。改密严格200时立即发布受原identity/requestGeneration约束的只读 `personal.passwordProgress` 为confirming-session，页面据此立即清密码；不等Session GET才通知确认，也不暴露key或材料。此投影非null即表示该写已确认，后续visible超时不能把它降回unknown；随后成功/失败分别转confirmed/session-unconfirmed。最终Promise以 `PasswordConfirmation` 保留同一事实，200前错误仍reject；逻辑离页不让旧投影重新打开页面或触发提示。
++
++新 `usePersonalSettings` 的草稿owner由 `App.vue` 生命周期创建并向设置页提供同一实例。RouterView临时checking卸载不等同真实离页：受保护展示仍隐藏，尚未判定失效的同身份draft/preview不销毁；同身份重验可更新可信saved/version而不重基dirty。确认新User/Session或上下文失效才递增epoch并清旧意图/草稿；显式离页/放弃则按 §6 清理。改密由本owner确认的换发，只保留该次安全完成/会话确认反馈，不继承旧身份可重放意图。
++
++共享 `useTheme` 保持只读；controller内部区分已确认theme与身份约束的临时preview。`previewTheme` / `clearThemePreview` 必须核当前identity，旧代清理不能撤销新代预览；同身份重验不闪回system或覆盖dirty预览，真正失效回system。组件不能把自填User/Preferences当可信saved；同步只消费controller自己成功解析、身份及版本匹配的响应。
++
++**新增全部 Account 请求都进入原 Cookie 队列**，包括读资料/偏好/头像。`account/http.go:175–178` 的失效错误可清 Session Cookie，不能把 GET 或图片视作没有 Cookie 副作用。禁止 `<img src="/api/v1/me/avatar">` 绕队列；显示受控下载后的 Blob URL。Cookie 请求沿认证卡30s上界，逻辑离页不提前丢失实际 transport 责任；下一身份请求必须等上一请求真正结束，超时/取消不是服务器回滚证明。改密 POST 与随后的 Session 确认构成协调器内有序的身份转换，旧 Session 写与 logout 不得插入其间；由 `personal.changePassword` 在同一次owner内直接完成，不嵌套run/restore或第二队列；可见超时/取消与actual body尾部仍分别收束。
+ 
+ 本页一次只提交一个 mutation。资料字段和头像为独立保存分区；主题和密码各自加载与保存。每份 draft 带产生时的 User version；后续已确认响应只更新非脏视图和当前已保存事实，不给脏 draft 自动换 expectedVersion。低版本迟到响应不回滚较新已确认资料；版本比较不是授权，仍受真实 Session/generation 约束。
+ 
+@@ -146,7 +197,7 @@
+ 
+ 请求在途时，放弃/离页只是逻辑取消并隔离generation，真实请求及必要快照由原协调器持有到transport结束，不能释放队列后立即发logout/新身份操作。可能改变Cookie的改密结果需先完成协调器当前Session检查，再开放受保护写；弃置页面的晚到成功不重新打开页面或弹成功。浏览器真实退出可能直接丢失内存，重新加载从真实Session开始，不声称原提交回滚。
+ 
+-密码、CSRF、key、File/待重试body只放必要内存和实际请求；不进URL/history state、storage、日志、错误对象、trace/video、Service Worker或跨标签广播。确认成功、明确放弃、离页、失效时清不再需要的引用；在途私有请求仍保留最低必要内容直到结束。JS字符串/浏览器副本不能承诺物理擦除。Blob URLs逐个释放；卸载不遗留监听器/主题覆盖/脏导航拦截。
++密码、CSRF、key、File/待重试body只放必要内存和实际请求；不进URL/history state、storage、日志、错误对象、trace/video、Service Worker或跨标签广播。确认成功、明确放弃、离页、失效时清不再需要的引用；在途私有请求仍保留最低必要内容直到结束。JS字符串/浏览器副本不能承诺物理擦除。Blob URLs逐个释放；真实离页、失效及草稿owner终止不遗留监听器/主题覆盖/脏导航拦截；仅checking造成的视图临时卸载沿 §4 保留同身份owner。
+ 
+ ## 7. 布局与可访问性
+ 
+@@ -158,18 +209,19 @@
+ 
+ ## 8. 条件性精确文件范围
+ 
+-以下为候选 **21代码/测试路径**，须通过 §2 后再正式授权；当前没有任何业务写权。相对已验后的认证成果，7生产与1纯测试需窄扩；其余新增。实际导出/helper未核前不先承诺这些路径已足够，不以复制实现硬守数量。
++以下为候选 **24代码/测试路径（14生产、10测试/fixture）**，须通过 §2 后再正式授权；当前没有任何业务写权。相对冻结认证成果，8生产、2纯测试与1旧fixture需窄扩，其余13路径新增。本次新增三条旧路径有 §2 精确来源；认证最终提交后仍须末核，不以复制实现硬守数量。
+ 
+ | 路径 | 责任 |
+ | --- | --- |
+ | `web/src/api/client.ts` | 原认证传输窄扩固定头像raw/有界bytes；保持原JSON/Problem/取消语义，无任意URL |
+ | `web/src/api/account.ts` | 8新增方法、完整DTO/标量/头像响应解析，复用User解析 |
+-| `web/src/composables/useSession.ts` | 原单一Cookie队列承接全部新调用，改密身份转换、可信同身份资料/主题同步；不扩公开敏感状态 |
+-| `web/src/router/auth.ts` | 返回目标闭集和认证规则窄增三叶子 |
++| `web/src/composables/useSession.ts` | 原唯一owner承接typed个人门面、稳定identity epoch、改密双请求、可信资料/theme与预览；不扩公开敏感状态 |
++| `web/src/router/auth.ts` | safeReturnTarget闭集窄增三叶子，保留净化后的登录返回目标及dirty前置确认 |
++| `web/src/views/auth/LoginView.vue` | 登录成功以同一safeReturnTarget替代硬编码 `/`；其它登录/挑战/焦点规则不改 |
+ | `web/src/router/index.ts` | `/settings`及三叶子注册，既有DEV/NotFound保持 |
+-| `web/src/App.vue` | 右上本人入口、既有logout前的dirty确认接缝 |
++| `web/src/App.vue` | 右上本人入口、logout前dirty确认、同一设置草稿owner跨临时checking卸载；不保留失效受保护展示 |
+ | `web/src/views/HomeView.vue` | 初始改密建议直达，无其它Dashboard改动 |
+-| `web/src/composables/usePersonalSettings.ts` | 新；本页saved/draft/version/意图/离页/预览所有权 |
++| `web/src/composables/usePersonalSettings.ts` | 新；App生命周期中的saved/draft/version/命令状态/离页/Blob所有权，向子页提供同一owner；无第二认证store |
+ | `web/src/components/layout/SettingsShell.vue` | 新；本卡真实使用的两级栏目/窄屏侧栏，布局不含API/权限猜测 |
+ | `web/src/views/settings/PersonalSettingsView.vue` | 新；设置根、协调子页、加载/离页和焦点 |
+ | `web/src/views/settings/ProfileSettings.vue` | 新；资料与独立头像分区 |
+@@ -178,13 +230,15 @@
+ | `web/src/tests/personal-settings-client.spec.ts` | 新；八方法wire/完整解析/有界图片与错误 |
+ | `web/src/tests/personal-settings-state.spec.ts` | 新；version、Unknown、dirty/主题/Blob责任与迟到barrier |
+ | `web/src/tests/personal-settings.spec.ts` | 新；真实Vue路由/组件组合、字段和键盘/焦点 |
+-| `web/src/tests/session.spec.ts` | 已验后窄扩新请求/改密与原Cookie/generation组合，旧断言不动 |
++| `web/src/tests/session.spec.ts` | 窄扩新请求/改密与原owner/identity组合，适配AccountAPI mock类型；旧行为断言不动 |
++| `web/src/tests/authentication.spec.ts` | 仅适配typed mock并将旧“无settings链接”断言改为允许profile/password目标；保留其它认证/权限断言 |
+ | `tests/account-captcha-web/personal-settings.config.js` | 新；专属selector，沿已锁本地Playwright/Chromium，无新包或下载 |
+ | `tests/account-captcha-web/e2e/personal-settings.spec.ts` | 新；正式dist真实浏览器场景 |
+-| `tests/account/personal_settings_web_fixture_test.go` | 新；真实root/同源dist/受控fixture衔接，仅测试；是否能直接复用旧helper由 §2 核定 |
++| `tests/account/authentication_web_fixture_test.go` | 仅保留constructor的私有record绑定/必要fixture引用，供同包新helper；旧launcher/断言/清理保持 |
++| `tests/account/personal_settings_web_fixture_test.go` | 新；复用newAuthenticationWebFixture，正式邀请/兑换与专属browser config/安全IPC/result/进程wait，不复制root |
+ | `tests/account/personal_settings_web_test.go` | 新；四个真实顶层、HTTP/DB后态与浏览器证据 |
+ 
+-所有Go生产、Account/OpenAPI、迁移、脚本/Go module、共享Ui/tokens/useTheme、package/lock及其它旧测试均只读。特别不改认证活动文件、Object暂停修复、Artifact或Model/Resolver实现。必要范围外差量先给具体来源/触发再修规格，不能生产stub或放宽旧断言。验后文档仅本卡、`docs/development/frontend/README.md`、`docs/development/frontend/verification.md`，由主线程另授；状态页/AGENTS不随业务授权。
++所有Go生产、Account/OpenAPI、迁移、脚本/Go module、共享Ui/tokens/useTheme、package/lock及其它旧测试均只读。特别不改认证活动文件、Object暂停修复、Artifact或Model/Resolver实现。必要范围外差量先给具体来源/触发再修规格，不能生产stub或放宽安全断言；仅上表已列的过时settings导航断言随新能力更新。验后文档仅本卡、`docs/development/frontend/README.md`、`docs/development/frontend/verification.md`，由主线程另授；状态页/AGENTS不随业务授权。
+ 
+ ## 9. 验收与证据边界
+ 
+@@ -193,13 +247,13 @@
+ | 检查 | 必须覆盖 |
+ | --- | --- |
+ | typed client纯测 | 八方法精确method/path/header/body/status；原字节File/密码、optional缺省/null/显式空；User完整shape、大int64、Digest与Progress、204无解析；头像超限/截断/错误媒体/ETag及非200；Problem/transport/取消不伪造提交状态 |
+-| 状态与组件纯测 | 同一Cookie队列，新旧Session/generation；忽略abort仍晚到的确定barrier，含头像/资料401；改密200→GET成功/失败/身份失配；Unknown原意图重试限制、版本不自动更新、不同分区版本冲突；主题预览与迟到Session；脏route/back/logout前确认；Blob/监听器清理 |
++| 状态与组件纯测 | 同一owner的typed DTO/错误，busy零transport/零新key且非void成功；visible超时后actual尾部仍占owner，忽略abort晚到barrier含头像/资料401；改密POST→GET同owner、200立即清密码、确认后超时不退回unknown、成功/失败/身份失配；稳定epoch区别每run generation，临时checking隐藏内容但同身份draft/preview保留、真实失效清理；Unknown重试/版本/分区冲突；safeReturnTarget三叶子经登录不丢且非法目标回 `/`；dirty route/back/logout与Blob/监听器清理 |
+ | `TestAccountPersonalSettingsWebProfileAndAvatar` | 真实本人资料修改/刷新、空显示名/username规范与重复冲突；静态JPG/PNG/WebP真实上传→服务端metadata/bytes→替换/移除，默认头像；至少一个正常小尺寸头像在服务端编码后实际小于1MiB，仍成功读回；SVG/动画/超限真实拒绝与旧头像保持。保存时最终字符/自动填充/点击与Enter快照正确；User/命令/Audit后态对应 |
+-| `TestAccountPersonalSettingsWebThemeAndNavigation` | 真实主题预览零写、取消、保存后刷新/重登保持；两个当前窗口造成真实version冲突且保留输入；指定叶子/首项、dirty菜单/back/logout确认、system变化和saved/draft区别 |
++| `TestAccountPersonalSettingsWebThemeAndNavigation` | 真实主题预览零写、取消、保存后刷新/重登保持；两个当前窗口造成真实version冲突且保留输入；指定叶子/首项及未登录三叶子→真实登录返回、dirty菜单/back/logout确认、同身份重验保留草稿/预览、system变化和saved/draft区别 |
+ | `TestAccountPersonalSettingsWebPasswordRotation` | 两个真实浏览器context同用户：当前密码错/确认不一致/弱密码反馈；成功换当前Session、GET新CSRF后资料再写成功，另一旧Session真实401；新密码登录成功/旧密码拒绝、初始建议清除，敏感表单及时清空 |
+ | `TestAccountPersonalSettingsWebAuthorityAndProduction` | 实际普通用户与管理员各走本人页面；失效隐藏旧内容、同源/CSRF真实生效，无body越权；生产无Debug/API不被fallback；1440/1024/834/390、浅深/system、200%/键盘/焦点/reduced motion/长文本和无溢出 |
+ 
+-普通用户前置尽量由现有正式D07邀请/兑换HTTP在fixture中创建；这只是测试setup，不交付邀请前端、不改角色SQL造权限。正向场景真实dist→同源fixture→Account root/PG/MinIO，不用 route.fulfill、假Session/假数据或fixture业务API。关键持久后态由自有fixture精确只读核对；不把DOM成功文字当后端通过。主题preview断言同一持久User version/theme未变，改密验证真实新旧Session和后续CSRF行为，不读取密码hash或Cookie原值进报告。
++普通用户前置必须沿 `newAuthenticationWebFixture` 的随机 `f.origin` 调用正式D07邀请/inspect/兑换HTTP。新同包helper通过旧constructor保留的私有 `old.record` 绑定读取本fixture精确邀请恢复记录；旧 `httpFixture.invite` 固定localhost origin不可直接套用。专属browser launcher位于新两Go文件，沿原预算/安全IPC/result/实际进程wait，不导入执行整份旧TS spec、不复制root或修改旧launcher。这里只做测试setup，不交付邀请前端、不用SQL造用户或角色，也不暴露生产fixture接口。正向场景真实dist→同源fixture→Account root/PG/MinIO，不用 route.fulfill、假Session/假数据或fixture业务API。关键持久后态由自有fixture精确只读核对；不把DOM成功文字当后端通过。主题preview断言同一持久User version/theme未变，改密验证真实新旧Session和后续CSRF行为，不读取密码hash或Cookie原值进报告。
+ 
+ Unknown/迟到transport可用纯可控promise证明前端状态机；**本卡不新增真实网络/COMMIT/ROLLBACK注入**，不得将纯失败模拟写成服务端Unknown或原writer终局证明。正常头像关闭与fixture退出不外推Object已知guard缺陷已修。D25未实现的WS行为不纳入通过声明。
+ 
+@@ -211,4 +265,4 @@
+ 
+ ## 10. 当前交付状态
+ 
+-本卡只落实已确认产品规则和主线程接受的三个叶子路由，尚无独立规格通过、业务实施或动态结论。固定 D07 API 可支持本结果；硬前置是认证前端最终验收及 §2 精确独立差量。若其真实实现不能承接队列/主题/身份转换，先报最小接缝，不在本页复制安全机制或绕过前置。邀请/恢复等后继责任、生产SPA托管、Object/Artifact阻断、Summary待决及完整模块未完成均不变。
++rev1.1 已独立规格通过并提交 `ac653cf`；rev1.2 仅补冻结认证候选审计发现的实际接缝、24路径和必要回归，仍待独立差量审查及主线程采纳，尚无个人设置业务实施或动态结论。固定D07 API可支持本结果；认证前端最终独立通过并提交后，仍须按 §2 末核同源SHA/后端闭包/实际接缝与所有权，再另授实施。临时报告及候选源码审计不等于前置已满足。邀请/恢复等后继责任、生产SPA托管、Object/Artifact阻断、Summary待决及完整模块未完成均不变。
