@@ -1,6 +1,6 @@
 # D09 B01-K：System 配置原子存储首块
 
-修订 1，2026-10-05。固定实现输入 `e6e94c4`；C0 已独立验收。状态：**本块规格已采纳，源码与迁移尚未实施、未验收；由 root 分配作者、迁移编号及资源后实施。** 复用[工程规格](d09-model-system-token-usage-design.md) §2–4/8/10，与[D09 主卡](d09-model-system-token-usage.md)共同限定范围。System 先行、Project 后接同一正式 P adapter；Summary/Jina/型号决定保持待定，不阻塞本块独立结果。
+修订 1，2026-10-05。原实现依赖为 `e6e94c4`，C0 已独立验收；真实迁移组固定输入为已验连续前缀 `30f5c29` 加本块源码。状态：**System 配置实现与 00015 已完成作者验证，正在独立终验，未声明模块完成或根 HTTP 已绑定。** 复用[工程规格](d09-model-system-token-usage-design.md) §2–4/8/10，与[D09 主卡](d09-model-system-token-usage.md)共同限定范围。System 先行、Project 后接同一正式 P adapter；Summary/Jina/型号决定保持待定，不阻塞本块独立结果。
 
 ## 1. 完整结果与边界
 
@@ -19,7 +19,7 @@
 - 新 `model/{service,store,authority,configuration,commands,query,configuration_policy,references,secret_authority,secret_router,audit_authority,events}.go`；测试仅上述 12 个 basename 对应的 `*_test.go`。内部 helper 可在这组文件内安排，不增加 Runtime/网络/通用权限框架。
 - 新 audit/contract/model.go、audit/contract/model_test.go、audit/model_test.go；旧 Audit 窄增量见 §4。
 - tests/model/system_configuration_integration_test.go：隔离实际 PG、真实 D07 admin/Session、Secret、Audit、Outbox；领域 fixture 只提供可核事实，不以 permissive authority 冒充生产绑定。
-- 一个 root 后配编号的 `db/migrations/NNNNN_model_configuration.sql`（Up-only），范围与候选位置见 §6。00014 属 A 且尚未验，不能占号、跳过该顺序或改既有 SQL。
+- 一个 root 后配编号的 `db/migrations/NNNNN_model_configuration.sql`（Up-only），范围与候选位置见 §6。00014 属 A，已独立验收并提交 `30f5c29`；root 随后明确授权本块唯一 `00015_model_configuration.sql`，既有 SQL 不变。
 - scripts/test-models.sh 可复用既有 fixture 启动协议；tests/testsupport/postgres/cmd/fixture/main.go 仅在原固定包列表追加 ./internal/central/model/... 与 ./tests/model/...。不改资源/nonce/权限/6m/race/原列表；真实执行等 root 移交 fixture。
 
 C0 20 源、D08 源、Secret 源、identity、app/config、go.mod/go.sum 均不是首块写入范围。后续若确需 C0 补载体先报明确缺口；下述 service 自有返回类型不改变 C0 声明。
@@ -39,7 +39,9 @@ type Store interface {
 }
 type Authorizations struct { Sessions id.SessionAuthority; System id.SystemAuthority }
 func NewAuthority(Store,Authorizations) (*Authority,error)
-type Dependencies struct { Secret sc.UsageOperations; Audit ac.Appender; Events oc.Appender; Cursors cursor.Keyring }
+type ModelEvents struct { /* 私有、同 catalog 的两种 EventType；只由 DefineEvents 构造 */ }
+func DefineEvents(*event.Catalog) (ModelEvents,error)
+type Dependencies struct { Secret sc.UsageOperations; Audit ac.Appender; Events oc.Appender; ConfigurationEvents ModelEvents; Cursors cursor.Keyring }
 func New(Store,*Authority,Dependencies) (*Service,error)
 func (*Service) Initialize(context.Context) error // 真DB检查及singleton技术身份；构造无I/O
 func (*Service) CreateProvider(context.Context,mc.CreateProviderRequest) (mc.CommandReceipt,error)
@@ -65,6 +67,8 @@ func (*Service) LookupCommand(context.Context,LookupCommandRequest) (CommandLook
 ~~~
 
 构造次序：真实 D07 Authority → Model Authority（只DB/Session/System，不依赖Service）→ Audit.Models verifier、Secret Usage router、Outbox Model producer/catalog → Model Service。Secret、Audit、Outbox均使用同一DB Store；纯构造拒缺必需依赖，不开启goroutine、网络或预先授权。首块不改生产根；测试组合必须真实完成各域 Initialize。
+
+实现澄清：`DefineEvents` 在调用者提供的同一 `event.Catalog` 中注册两种闭合事件，返回不可拼接的私有 `ModelEvents` 载体；该 catalog 同时显式传给真实 Outbox 构造器。Model `New` 拒零载体/无效 schema，且不另建 catalog。`oc.Appender` 没有只读 catalog 身份口，故 `New` 不声称已验证它的私有 catalog；传错 catalog 时，原 `PrepareAppend` 的 `Owns` 检查会在业务事务及首个配置/command 持久写之前明确拒绝。该错误原样沿安全错误口返回，不绕过校验、不更改 C0/Outbox 公共接口。
 
 Authority 实现 sc.UsagePlanner/sc.UsageAuthority 的 **Model Provider reference** 分支、ac.ModelAuthority、oc.ProducerAuthority。首块不实现合法 Model lease/call：Acquire/Read/Release 类依赖明确 unbound，不建立虚构call。Secret router 构造显式接既有 fallback sc.UsageAuthority（若需 planned fallback，必须真实支持 sc.UsagePlanner）；仅 Purpose=Model 的 retain/release_reference 路由到本域，其他既有 Account/MCP 路径原样转交，不猜 owner 字符串。缺请求用途的 AuthorizeLeaseInTx 在本块只转交原 fallback，不以 execution owner 推断 Model/MCP。
 
@@ -93,7 +97,7 @@ Authority 实现 sc.UsagePlanner/sc.UsageAuthority 的 **Model Provider referenc
 
 ## 6. Schema 与后续 Usage/Secret 完整块
 
-首块迁移只配置五表及Audit闭集；未编号 DDL 候选仍在 `/tmp/agenteam-d09-b01-prep-q49oerfz/schema-candidate.sql`，SHA256 `ad828d0306f044d9bd133b0cb756cfca44f024c09cf086eb52835c1f987c67cf`，本轮未改、未执行。root分配连续编号后实现者按当时已验前缀生成最终Migration；既有00001–00014不得改，当前没有声称00014通过。
+首块迁移只配置五表及 Audit 闭集。原未编号 DDL 候选保留在 `/tmp/agenteam-d09-b01-prep-q49oerfz/schema-candidate.sql`，SHA256 `ad828d0306f044d9bd133b0cb756cfca44f024c09cf086eb52835c1f987c67cf`；它仅是原准备输入。正式 `00015_model_configuration.sql` 已按 `30f5c29` 的连续已验前缀生成并归位，作者真实 fresh、已填充 00014 升级、非法 NULL/组合 CHECK、事务失败及同 checksum 重试均通过；旧 Audit 行与无关约束保留。既有 00001–00014 未改，00015 仍待本块独立终验采纳。
 
 | 后续能力 | 可以先做的事实/查询 | 必须先行或同块的真实前置 |
 | --- | --- | --- |
@@ -113,4 +117,4 @@ Authority 实现 sc.UsagePlanner/sc.UsageAuthority 的 **Model Provider referenc
 
 命令由后续实施者实际执行：Go1.27.1/local/mod=readonly 的 model/audit相关unit/race/vet/build；新 tests/model 纳入现有真实隔离fixture原完整包列表。作者PASS与独立验收分开；本准备未执行Go/PG/Docker/网络。
 
-本卡沿固定 `e6e94c4` 的 22 项实际源码输入及独立静态审查，原输入清单为 `/tmp/agenteam-d09-b01-prep-q49oerfz/inputs.sha256`。P仅作为待验依赖，不消费活动源码。本次只归位本卡及两份D09文档；源码、DDL与迁移未改，未运行Go/PG/Docker/网络。文档采纳不代表本块实现或验收完成。
+本卡原准备沿 `e6e94c4` 的 22 项实际源码输入及独立静态审查，原清单 `/tmp/agenteam-d09-b01-prep-q49oerfz/inputs.sha256` 与历史“未实施”结论保留在原提交。实现期间未消费活动 A/P/D12 服务源码；首轮真实组使用 `30f5c29` 固定 Git 来源加本块 34 源，精确来源差异、实际 argv、原日志、清理和检查见 `/tmp/agenteam-d09-b01-system-mh2pkw62/`。`pg1-result.json` 记录整条 exit0/163.387s，tests/model 12 个真实顶层 32.308s、internal/model 16 个纯顶层 1.045s；其余包的 no-tests 不计兼容。原 pure1 生产摘要编码错误及新增测试准备错误、首次 integration 编译错误、误 cwd 的排除执行均保留，不称首次全绿。独立 ModelEvents 定点核与 R01 同义并发重放修复已采纳；当前真实成功是作者证据，最终独立验收及 Git 交付由 root 收束。Project 分支、Resolver/Usage、Provider 网络调用及根 HTTP 继续不在本块完成范围。
