@@ -1,6 +1,6 @@
 # D09 Secret Model 精确 usage 读取与旧入口边界
 
-修订：rev1，2026-10-05，仅同步采纳状态，以下规格正文不变。状态：**独立规格静审通过，主线程已采纳；待本卡提交后另行授权业务实现。** 固定输入为已提交 `4cc4726b5707127f4b50c7da7023a3cd1f0b7f2d`。实现者为 `recovery_handoff`，独立验收者为 `restore_test_dependencies`；19 路径实际写入权与真实 fixture 均由主线程另行交接。零迁移，不修改或分配任何迁移编号；`00017` 仍仅为 R4 保留。
+修订：rev1.1，2026-10-05，仅追加 §8 的一行测试兼容修订，API、行为及验收规则不变。状态：**rev1 已独立静审通过并获主线程采纳；实现已获授权，rev1.1 窄修订已由主线程采纳。** 固定输入为已提交 `4cc4726b5707127f4b50c7da7023a3cd1f0b7f2d`。实现者为 `recovery_handoff`，独立验收者为 `restore_test_dependencies`；20 路径实际写入权已由主线程交接，真实 fixture 尚待另授。零迁移，不修改或分配任何迁移编号；`00017` 仍仅为 R4 保留。
 
 独立规格审查记录：`/tmp/agenteam-secret-model-usage-review-_9um2kj3/review.md`，SHA-256 `39f0260066e579264773d66eccdbba39b6ce3ba7c44f41648ee685daaa605adc`；被审 rev1 原稿 SHA-256 为 `7d6bb71bc236b8dd0dc102acaa21efb0d9b500cdb1081ad54121a9b3e21b9c97`。结论仅为规格 PASS，无实现、编译或动态通过声明。实施须保留审查重点：实际 purpose+owner 的精确拒绝（System+ModelCallOwner 旧合法路径不受影响）；新入口本地处理 nil/零 Service 与必需接口 typed nil（含具名 nil chan），不改共享旧 helper；旧 Model 用例迁入 planned 流后仍命中原强断言；Unknown 结果装饰不冒称真实后端 attempt/网络故障；生产 Model consumer/lease/Invocation/Runtime 与发送、actual join 仍未绑定。
 
@@ -86,7 +86,7 @@ checker 对新变体执行以下兼容 delta：
 
 ## 6. 精确实现白名单与兼容测试迁移
 
-采纳后由主线程另授一个实现者独占 **6 个生产路径 + 13 个测试路径**。本卡不授予立即开写权。必要的私有 helper 在下列源内组织，不为函数数量增加文件或生产接口。
+采纳后由主线程另授一个实现者独占 **6 个生产路径 + 14 个测试路径**。业务实现沿主线程对本结果的明确授权执行。必要的私有 helper 在下列源内组织，不为函数数量增加文件或生产接口。
 
 | 生产路径 | 修改边界 |
 | --- | --- |
@@ -105,6 +105,7 @@ checker 对新变体执行以下兼容 delta：
 | `internal/central/secret/model_usage_test.go`（新） | 新入口结构/依赖拒绝、原 Unknown attempt/cause 与安全投影；私有 proof 的完整绑定、锁复制与不可变性 |
 | `internal/central/secret/project_audit_witness_test.go` | `TestSecretProjectAuditResolutionEvidence` 迁为 Model validated-request 证明；新增缺 proof/改 RequestID 等反例，保留原 resolution/owner/grant/metadata/payload/released 反例；其它原测试语义不动 |
 | `tests/security/secret_model_usage_test.go`（新） | §7 新真实库风险组及严格 Model fixture provider；只能测试 schema 内造业务事实，不写生产 Model 表/stub |
+| `tests/security/secret_nonce_test.go` | 仅将位置字面量 `&secretAuthority{auth}` 改为 `&secretAuthority{auditAuthority: auth}`，适配测试 provider 新私有字段；nonce 行为与全部断言不变，见 §8 |
 | `tests/security/secret_common_test.go` | 必要的严格 UsagePlanner 测试实现、精确 lease/Invocation 准备及 Model acquire/read helpers；保留非 Model 原 helper 分支，不把旧 Model 测试改成 MCP |
 | `tests/security/secret_access_test.go` | 仅 `TestSecretBindingsAuthorizationAndReadAuditBoundary`、`TestSecretReadUnknownNeverReturnsMaterial` 的 Model planned 前置/入口；保留 retained/current gate/AEAD/Audit/Unknown 强断言与原 MCP 分支 |
 | `tests/security/secret_storage_test.go` | 仅 `TestSecretStorageReceiptAndCurrentLease` 的 Model acquire/read/release 前置；同 ID、不复活、稳定 ref、新旧材料、receipt/Audit 数量断言保持 |
@@ -139,3 +140,9 @@ checker 对新变体执行以下兼容 delta：
 独立验收按作者有效覆盖去重，至少补 exact Invocation/issuer/锁后映射反例、同 Tx RequestID witness 篡改、实际锁竞争撤权及 Unknown 零材料；保留所有原失败、修复与固定输入。未修改语义及依赖的历史证据可注明复用，改动后的关键路径必须真实重验。Docker/PG/MinIO 仅在主线程另授独占窗口后执行，沿既定版本和脚本；资源按实际 created IDs 清零，既有资源 ID/name/labels 不变，自有进程/runtime 清零后交窗。不得访问既有服务或把 no-tests/skip 计成通过。
 
 交付固定基线及全部实际输入 SHA、精确文件清单、实际命令/原始日志、新旧组真实结果、失败归因及未验范围；代码停止写入后交独立验证。采纳本卡不代表 D09、D08、D28/E01、生产 consumer/lease/Runtime 或根装配完成。需要扩大接口/文件、改变 Account/MCP 语义、增加迁移或依赖未实现事实时，暂停受影响部分并交主线程裁决。
+
+## 8. rev1.1：一行测试编译兼容 delta
+
+主线程于 2026-10-05 采纳此最小范围扩充：实现中的测试 `secretAuthority` 新增私有 planner issuer/once/反例控制状态，既有 `secret_nonce_test.go:26` 的位置字面量因此无法编译。只将该行改为显式 `auditAuthority: auth`，不引入测试全局 registry、不改 nonce 行为/断言；总范围由 6 生产 + 13 测试变为 **6 生产 + 14 测试（20 路径）**。公共 API、生产六路径、零迁移和全部验收要求保持。
+
+原失败保留于 `/workspace/agenteam-secret-model-usage-author-l4eactgz/logs/compile-integration-01.log` 与同名 `.json`（实际 argv/env/输入 SHA/exit）；首次 `go test -tags=integration -run '^$' ./tests/security ./tests/project ./tests/account` 在 33.489s 以 exit 1 结束，唯一编译错误为上述 too few values，Project/Account 当轮 compile-only 通过。原作者输入已保存于该目录 `inputs/compile-integration-01/`，不以修后输入覆盖首次失败。本修订记录范围授权，不预宣称修后编译或动态验收通过。
