@@ -1,0 +1,306 @@
+{
+  "scope": "all newly added files present before generated check/index metadata",
+  "commands": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/system-model-management-reads-spec-verification.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/README.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/acceptance/accepted-to-implementation.patch"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/acceptance/card.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/acceptance/implementation-status.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/acceptance/rev1-to-accepted.patch"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/feasibility/report.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/original-map.json"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/plan/index.json"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/plan/plan.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/review/index.json"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/review/input-check.json"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/review/metadata-callers.txt"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/review/read-commands.json"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/review/report.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/review/review-checks.json"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/spec/checks.json"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/spec/inputs.json"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/spec/rev1.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/verify_inputs.py"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 1,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "diagnostics": []
+}

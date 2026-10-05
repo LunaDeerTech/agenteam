@@ -1,0 +1,144 @@
+{
+  "decision": "STATIC PASS",
+  "card_sha256": "ddcb7225d809787f0987bf24ab13c5a3e6ea398d6f483c1f0de910c156da7d6b",
+  "inputs_sha256": "8a44abd6b86134df2cb938387cd71bb462fa38b38d729b83e6a87d7ff6a8ae39",
+  "base": "c54f73f3324caa11608d84e5d207141985eb6074",
+  "git_inputs_matched": 47,
+  "additional_fixed_sources": [
+    {
+      "path": "internal/central/secret/contract/write_lookup.go",
+      "git": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/secret/contract/write_lookup.go",
+      "sha256": "805e1f99c643cd574e6f9a18c9b99d0fba2ff27ec9276116636896e127d84558",
+      "bytes": 1769
+    }
+  ],
+  "local_links_checked_at_base": [
+    {
+      "link": "recovery-d09-system-model-http.md",
+      "git": "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/work-items/recovery-d09-system-model-http.md"
+    },
+    {
+      "link": "recovery-d09-system-model-root.md",
+      "git": "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/work-items/recovery-d09-system-model-root.md"
+    },
+    {
+      "link": "d09-model-system-token-usage-design.md",
+      "git": "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/work-items/d09-model-system-token-usage-design.md"
+    },
+    {
+      "link": "../../architecture/platform-infrastructure/model-system/model-configuration.md",
+      "git": "c54f73f3324caa11608d84e5d207141985eb6074:docs/architecture/platform-infrastructure/model-system/model-configuration.md"
+    },
+    {
+      "link": "../../frontend-design/layouts/system-settings.md",
+      "git": "c54f73f3324caa11608d84e5d207141985eb6074:docs/frontend-design/layouts/system-settings.md"
+    },
+    {
+      "link": "../../frontend-design/layouts/settings-shell.md",
+      "git": "c54f73f3324caa11608d84e5d207141985eb6074:docs/frontend-design/layouts/settings-shell.md"
+    },
+    {
+      "link": "../../../AGENTS.md",
+      "git": "c54f73f3324caa11608d84e5d207141985eb6074:AGENTS.md"
+    },
+    {
+      "link": "../agent-team/README.md",
+      "git": "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/agent-team/README.md"
+    },
+    {
+      "link": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "git": "c54f73f3324caa11608d84e5d207141985eb6074:.agents/skills/agenteam-design/SKILL.md"
+    },
+    {
+      "link": "../../../.agents/skills/agenteam-go-development/SKILL.md",
+      "git": "c54f73f3324caa11608d84e5d207141985eb6074:.agents/skills/agenteam-go-development/SKILL.md"
+    },
+    {
+      "link": "../../../.agents/skills/agenteam-verification/SKILL.md",
+      "git": "c54f73f3324caa11608d84e5d207141985eb6074:.agents/skills/agenteam-verification/SKILL.md"
+    }
+  ],
+  "scope": [
+    {
+      "path": "internal/central/secret/write.go",
+      "baseline_present": true,
+      "classification_matches": true
+    },
+    {
+      "path": "internal/central/model/http.go",
+      "baseline_present": true,
+      "classification_matches": true
+    },
+    {
+      "path": "internal/central/model/management_read.go",
+      "baseline_present": false,
+      "classification_matches": true
+    },
+    {
+      "path": "internal/central/model/http_management.go",
+      "baseline_present": false,
+      "classification_matches": true
+    },
+    {
+      "path": "api/openapi/model-system.json",
+      "baseline_present": true,
+      "classification_matches": true
+    },
+    {
+      "path": "internal/central/model/http_test.go",
+      "baseline_present": true,
+      "classification_matches": true
+    },
+    {
+      "path": "internal/central/secret/metadata_test.go",
+      "baseline_present": false,
+      "classification_matches": true
+    },
+    {
+      "path": "internal/central/model/management_read_test.go",
+      "baseline_present": false,
+      "classification_matches": true
+    },
+    {
+      "path": "internal/central/model/http_management_test.go",
+      "baseline_present": false,
+      "classification_matches": true
+    },
+    {
+      "path": "tests/model/system_management_metadata_test.go",
+      "baseline_present": false,
+      "classification_matches": true
+    },
+    {
+      "path": "tests/model/system_management_impact_test.go",
+      "baseline_present": false,
+      "classification_matches": true
+    },
+    {
+      "path": "tests/model/system_management_boundaries_test.go",
+      "baseline_present": false,
+      "classification_matches": true
+    },
+    {
+      "path": "tests/project/secret_metadata_read_test.go",
+      "baseline_present": false,
+      "classification_matches": true
+    }
+  ],
+  "route_count_at_base": {
+    "total": 22,
+    "get": 5,
+    "head": 5,
+    "new_explicit_get": 2,
+    "new_head": 2,
+    "planned_total": 26
+  },
+  "feasibility": {
+    "path": "/workspace/agenteam-system-model-ui-feasibility-ahjz1dbj/report.md",
+    "sha256": "2362593fb9d388ebe1bb177d0d71842f4a1f1277c63b7e21de49a2ff608a85bc"
+  },
+  "dynamic_executed": false,
+  "shared_writes": false,
+  "git_writes": false,
+  "resources_started": false
+}

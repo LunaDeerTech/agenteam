@@ -1,0 +1,282 @@
+[
+  {
+    "argv": [
+      "git",
+      "show",
+      "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/secret/contract/write_lookup.go"
+    ],
+    "exit": 0,
+    "stdout": "package contract\n\nimport (\n\t\"context\"\n\t\"math\"\n\n\tf \"github.com/LunaDeerTech/agenteam/internal/central/foundation\"\n\tid \"github.com/LunaDeerTech/agenteam/internal/central/identity/contract\"\n)\n\n// WriteCommandLookupRequest observes a Human's historical Model credential\n// receipt. It neither carries material nor authorizes replay of new material.\ntype WriteCommandLookupRequest struct {\n\tActor           id.Actor\n\tScope           id.Scope\n\tIdentity        f.CommandIdentity\n\tKind            MutationKind\n\tRef             CredentialRef\n\tExpectedVersion f.Version\n\tPurpose         Purpose\n}\n\nfunc (r WriteCommandLookupRequest) Validate() error {\n\tif r.Actor.Validate() != nil || r.Actor.Details().Kind != id.Human || !r.Scope.Equal(id.SystemScope()) || r.Purpose != Model || r.Identity.Validate() != nil || r.Identity.Namespace() != \"secret\" || r.Identity.Command() != string(r.Kind) {\n\t\treturn bad()\n\t}\n\towners := r.Identity.OwnerIDs()\n\tif len(owners) != 1 || owners[0] != r.Actor.Details().UserID {\n\t\treturn bad()\n\t}\n\tswitch r.Kind {\n\tcase Create:\n\t\tif r.Ref.Validate() == nil || r.ExpectedVersion != 0 {\n\t\t\treturn bad()\n\t\t}\n\tcase Update, Delete:\n\t\tif r.Ref.Validate() != nil || !r.Ref.Details().Scope.Equal(r.Scope) || r.ExpectedVersion.Validate() != nil || r.ExpectedVersion == f.Version(math.MaxInt64) {\n\t\t\treturn bad()\n\t\t}\n\tdefault:\n\t\treturn bad()\n\t}\n\treturn nil\n}\n\ntype WriteCommandObservation struct {\n\tObserved bool            `json:\"observed\"`\n\tResult   *MutationResult `json:\"result\"`\n}\n\ntype HumanWriteCommands interface {\n\tExecuteWrite(context.Context, WriteRequest) (MutationResult, error)\n\tMetadata(context.Context, id.Actor, CredentialRef) (Metadata, error)\n\tLookupWriteCommand(context.Context, WriteCommandLookupRequest) (WriteCommandObservation, error)\n}\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "grep",
+      "-n",
+      "-E",
+      "\\.Metadata\\(|func .*Metadata\\(",
+      "c54f73f3324caa11608d84e5d207141985eb6074",
+      "--",
+      "internal/central/secret",
+      "internal/central/model",
+      "tests/model",
+      "tests/project",
+      "tests/security"
+    ],
+    "exit": 0,
+    "stdout": "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/model/http_credentials.go:164:\t\tmetadata, beforeErr := h.writes.Metadata(ctx, r.Actor, r.Ref)\nc54f73f3324caa11608d84e5d207141985eb6074:internal/central/model/http_dto_test.go:119:func (s *httpWritesSpy) Metadata(_ context.Context, _ id.Actor, r sc.CredentialRef) (sc.Metadata, error) {\nc54f73f3324caa11608d84e5d207141985eb6074:internal/central/model/http_test.go:21:func (httpNilWrites) Metadata(context.Context, id.Actor, sc.CredentialRef) (sc.Metadata, error) {\nc54f73f3324caa11608d84e5d207141985eb6074:internal/central/secret/storage.go:74:func loadMetadata(ctx context.Context, e postgres.SQLExecutor, ref sc.CredentialRef) (sc.Metadata, payloadID, error) {\nc54f73f3324caa11608d84e5d207141985eb6074:internal/central/secret/write.go:458:func (s *Service) Metadata(ctx context.Context, actor identity.Actor, ref sc.CredentialRef) (sc.Metadata, error) {\nc54f73f3324caa11608d84e5d207141985eb6074:tests/model/system_http_credentials_test.go:32:func (w *systemHTTPWrites) Metadata(ctx context.Context, a id.Actor, r sc.CredentialRef) (sc.Metadata, error) {\nc54f73f3324caa11608d84e5d207141985eb6074:tests/model/system_http_credentials_test.go:33:\tout, err := w.HumanWriteCommands.Metadata(ctx, a, r)\nc54f73f3324caa11608d84e5d207141985eb6074:tests/model/system_http_credentials_test.go:112:\tmetadata, err := v.secrets.Metadata(testContext(t), v.admin, observed.Result.Metadata.CredentialRef)\nc54f73f3324caa11608d84e5d207141985eb6074:tests/project/b03_secret_audit_test.go:311:\t\t\tmetadata, err := f.bundle.secret.Metadata(ctxFor(t), f.owner, created.Metadata.CredentialRef)\nc54f73f3324caa11608d84e5d207141985eb6074:tests/security/secret_access_test.go:105:\t_, err = f.secret.Metadata(auditContext(t), f.actor, systemRef)\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/work-items/recovery-d09-system-model-http.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/work-items/recovery-d09-system-model-root.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/work-items/d09-model-system-token-usage-design.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:docs/architecture/platform-infrastructure/model-system/model-configuration.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:docs/frontend-design/layouts/system-settings.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:docs/frontend-design/layouts/settings-shell.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:AGENTS.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:docs/development/agent-team/README.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:.agents/skills/agenteam-design/SKILL.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:.agents/skills/agenteam-go-development/SKILL.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:.agents/skills/agenteam-verification/SKILL.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/secret/write.go"
+    ],
+    "exit": 0,
+    "expected_absent": false
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/model/http.go"
+    ],
+    "exit": 0,
+    "expected_absent": false
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/model/management_read.go"
+    ],
+    "exit": 128,
+    "expected_absent": true
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/model/http_management.go"
+    ],
+    "exit": 128,
+    "expected_absent": true
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:api/openapi/model-system.json"
+    ],
+    "exit": 0,
+    "expected_absent": false
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/model/http_test.go"
+    ],
+    "exit": 0,
+    "expected_absent": false
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/secret/metadata_test.go"
+    ],
+    "exit": 128,
+    "expected_absent": true
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/model/management_read_test.go"
+    ],
+    "exit": 128,
+    "expected_absent": true
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:internal/central/model/http_management_test.go"
+    ],
+    "exit": 128,
+    "expected_absent": true
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:tests/model/system_management_metadata_test.go"
+    ],
+    "exit": 128,
+    "expected_absent": true
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:tests/model/system_management_impact_test.go"
+    ],
+    "exit": 128,
+    "expected_absent": true
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:tests/model/system_management_boundaries_test.go"
+    ],
+    "exit": 128,
+    "expected_absent": true
+  },
+  {
+    "argv": [
+      "git",
+      "cat-file",
+      "-e",
+      "c54f73f3324caa11608d84e5d207141985eb6074:tests/project/secret_metadata_read_test.go"
+    ],
+    "exit": 128,
+    "expected_absent": true
+  }
+]

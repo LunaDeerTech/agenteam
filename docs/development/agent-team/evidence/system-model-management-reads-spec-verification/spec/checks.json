@@ -1,0 +1,136 @@
+{
+  "baseline": "c54f73f3324caa11608d84e5d207141985eb6074",
+  "card": "docs/development/work-items/recovery-d09-system-model-management-reads.md",
+  "sha256": "ddcb7225d809787f0987bf24ab13c5a3e6ea398d6f483c1f0de910c156da7d6b",
+  "bytes": 24091,
+  "lines": 168,
+  "utf8_lf_no_trailing_whitespace": true,
+  "fences_balanced": true,
+  "links": [
+    {
+      "target": "recovery-d09-system-model-http.md",
+      "resolved": "docs/development/work-items/recovery-d09-system-model-http.md",
+      "baseline": "c54f73f3324caa11608d84e5d207141985eb6074"
+    },
+    {
+      "target": "recovery-d09-system-model-root.md",
+      "resolved": "docs/development/work-items/recovery-d09-system-model-root.md",
+      "baseline": "c54f73f3324caa11608d84e5d207141985eb6074"
+    },
+    {
+      "target": "d09-model-system-token-usage-design.md",
+      "resolved": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "baseline": "c54f73f3324caa11608d84e5d207141985eb6074"
+    },
+    {
+      "target": "../../architecture/platform-infrastructure/model-system/model-configuration.md",
+      "resolved": "docs/architecture/platform-infrastructure/model-system/model-configuration.md",
+      "baseline": "c54f73f3324caa11608d84e5d207141985eb6074"
+    },
+    {
+      "target": "../../frontend-design/layouts/system-settings.md",
+      "resolved": "docs/frontend-design/layouts/system-settings.md",
+      "baseline": "c54f73f3324caa11608d84e5d207141985eb6074"
+    },
+    {
+      "target": "../../frontend-design/layouts/settings-shell.md",
+      "resolved": "docs/frontend-design/layouts/settings-shell.md",
+      "baseline": "c54f73f3324caa11608d84e5d207141985eb6074"
+    },
+    {
+      "target": "../../../AGENTS.md",
+      "resolved": "AGENTS.md",
+      "baseline": "c54f73f3324caa11608d84e5d207141985eb6074"
+    },
+    {
+      "target": "../agent-team/README.md",
+      "resolved": "docs/development/agent-team/README.md",
+      "baseline": "c54f73f3324caa11608d84e5d207141985eb6074"
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "resolved": ".agents/skills/agenteam-design/SKILL.md",
+      "baseline": "c54f73f3324caa11608d84e5d207141985eb6074"
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-go-development/SKILL.md",
+      "resolved": ".agents/skills/agenteam-go-development/SKILL.md",
+      "baseline": "c54f73f3324caa11608d84e5d207141985eb6074"
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-verification/SKILL.md",
+      "resolved": ".agents/skills/agenteam-verification/SKILL.md",
+      "baseline": "c54f73f3324caa11608d84e5d207141985eb6074"
+    }
+  ],
+  "implementation_scope": [
+    {
+      "path": "internal/central/secret/write.go",
+      "status": "old"
+    },
+    {
+      "path": "internal/central/model/http.go",
+      "status": "old"
+    },
+    {
+      "path": "internal/central/model/management_read.go",
+      "status": "new"
+    },
+    {
+      "path": "internal/central/model/http_management.go",
+      "status": "new"
+    },
+    {
+      "path": "api/openapi/model-system.json",
+      "status": "old"
+    },
+    {
+      "path": "internal/central/model/http_test.go",
+      "status": "old"
+    },
+    {
+      "path": "internal/central/secret/metadata_test.go",
+      "status": "new"
+    },
+    {
+      "path": "internal/central/model/management_read_test.go",
+      "status": "new"
+    },
+    {
+      "path": "internal/central/model/http_management_test.go",
+      "status": "new"
+    },
+    {
+      "path": "tests/model/system_management_metadata_test.go",
+      "status": "new"
+    },
+    {
+      "path": "tests/model/system_management_impact_test.go",
+      "status": "new"
+    },
+    {
+      "path": "tests/model/system_management_boundaries_test.go",
+      "status": "new"
+    },
+    {
+      "path": "tests/project/secret_metadata_read_test.go",
+      "status": "new"
+    }
+  ],
+  "paths": 13,
+  "git_diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "docs/development/work-items/recovery-d09-system-model-management-reads.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": "",
+    "limitation": "new untracked content additionally checked byte/line/fence/link assertions"
+  },
+  "scope": "design only; no business edits or dynamic checks",
+  "inputs_sha256": "8a44abd6b86134df2cb938387cd71bb462fa38b38d729b83e6a87d7ff6a8ae39"
+}

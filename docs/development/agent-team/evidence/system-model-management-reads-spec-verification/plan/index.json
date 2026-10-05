@@ -1,0 +1,47 @@
+{
+  "accepted_spec_commit": "bfae86b1b39d47c931d3be2071e76bd2b0e99a19",
+  "accepted_card_sha256": "871a69fe9e021487c5c834819da9a9d45a1853d111bf6c93a7fb82992dbfb3c1",
+  "base": "c54f73f3324caa11608d84e5d207141985eb6074",
+  "prior_review": {
+    "path": "/workspace/agenteam-model-management-reads-spec-v-ok5jcolo/report.md",
+    "sha256": "a65a76885b8735e5c6dbf952d58adc623afe37dc831ac01818417b6482ae5c38",
+    "index": "/workspace/agenteam-model-management-reads-spec-v-ok5jcolo/index.json",
+    "index_sha256": "929932b53f847028ecc11aa93175e238ab67161c24cc4fda42d87487f2fff092"
+  },
+  "inputs": {
+    "path": "/workspace/agenteam-model-management-reads-spec-v-ok5jcolo/inputs.json",
+    "sha256": "8a44abd6b86134df2cb938387cd71bb462fa38b38d729b83e6a87d7ff6a8ae39",
+    "extra": "/workspace/agenteam-model-management-reads-spec-v-ok5jcolo/review-checks.json"
+  },
+  "actual_commands": [
+    {
+      "argv": [
+        "git",
+        "show",
+        "bfae86b:docs/development/work-items/recovery-d09-system-model-management-reads.md"
+      ],
+      "exit": 0
+    },
+    {
+      "argv": [
+        "git",
+        "rev-parse",
+        "bfae86b^{commit}"
+      ],
+      "exit": 0
+    }
+  ],
+  "permissions": {
+    "plan_only": true,
+    "probe_written": false,
+    "go_run": false,
+    "resource_run": false,
+    "shared_write": false,
+    "git_write": false
+  },
+  "plan": {
+    "path": "plan.md",
+    "sha256": "381105a265d90aded3a2c9091d26a67b4c1878f8e0daf2397f5496faf808e25e",
+    "bytes": 5961
+  }
+}

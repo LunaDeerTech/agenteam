@@ -1,6 +1,6 @@
 # D09 恢复卡：System Model 管理读口
 
-> rev1 规格已独立静审通过（STATIC PASS）并获主线程采纳；固定业务 `c54f73f3324caa11608d84e5d207141985eb6074`，被审原卡 SHA-256 `ddcb7225d809787f0987bf24ab13c5a3e6ea398d6f483c1f0de910c156da7d6b`。本文只交付两个完整管理读取能力，不交付前端或完整 D09。主线程已采纳提交推送 `bfae86b1b39d47c931d3be2071e76bd2b0e99a19`，并正式授权 `d08_recovery_design` 在固定 c54 上实施 §8 精确 13 路径，作者已实际启动；`recovery_verification` 独立验收。当前未获真实测试资源运行权，尚无本卡业务验收结论。
+> rev1 规格已独立静审通过（STATIC PASS）并获主线程采纳；固定业务 `c54f73f3324caa11608d84e5d207141985eb6074`，被审原卡 SHA-256 `ddcb7225d809787f0987bf24ab13c5a3e6ea398d6f483c1f0de910c156da7d6b`。本文只交付两个完整管理读取能力，不交付前端或完整 D09。提交后由 `d08_recovery_design` 转 `backend_worker` 实施、`recovery_verification` 独立验收，均待主线程另授；当前尚未授权业务实施或测试资源，§8 的 13 路径仍是待授范围。
 
 ## 1. 结果与依据
 
@@ -163,7 +163,7 @@ HTTP 复用 `no-store`、`nosniff`、`no-referrer` 和 request_id；不加 ETag/
 
 ## 10. 交付与后继责任
 
-主线程已完整审阅本卡 rev1 与独立报告并采纳 13 路径范围。独立报告：`/workspace/agenteam-model-management-reads-spec-v-ok5jcolo/report.md`，SHA-256 `a65a76885b8735e5c6dbf952d58adc623afe37dc831ac01818417b6482ae5c38`；被审原卡 SHA-256 为页首所列 `ddcb7225d809787f0987bf24ab13c5a3e6ea398d6f483c1f0de910c156da7d6b`。本次仅归位行政状态，§1–9 技术、固定 c54 和 13 路径逐字不变。采纳不是业务或动态验收；主线程已在提交 `bfae86b1b39d47c931d3be2071e76bd2b0e99a19` 后授予 `d08_recovery_design` 精确 13 路径实施权并确认实际启动，`recovery_verification` 的独立计划已冻结，当前没有真实资源运行权。[规格持久记录](../agent-team/system-model-management-reads-spec-verification.md)保留原卡、独立报告及其 Unknown 措辞限定计划；Secret 原错误投影不公开 attempt/cause，物理信息仅由真实 Store 观测，Model 沿原 UnknownCommandError 合同。此限定不改本卡技术口或权限。
+主线程已完整审阅本卡 rev1 与独立报告并采纳 13 路径范围。独立报告：`/workspace/agenteam-model-management-reads-spec-v-ok5jcolo/report.md`，SHA-256 `a65a76885b8735e5c6dbf952d58adc623afe37dc831ac01818417b6482ae5c38`；被审原卡 SHA-256 为页首所列 `ddcb7225d809787f0987bf24ab13c5a3e6ea398d6f483c1f0de910c156da7d6b`。本次仅归位行政状态，§1–9 技术、固定 c54 和 13 路径逐字不变。采纳不是业务或动态验收；卡提交后由主线程另授 `d08_recovery_design` 以 `backend_worker` 实施、`recovery_verification` 独立验收，当前不开始源码修改或资源运行。
 
 最终证据应精确绑定 13 源、原失败/修复 delta、原命令/日志、当前依赖与实际资源清理；代码通过后由主线程统一安排能力文档及状态归位。源码提交、迁移、生产 rollout 不属于当前设计授权。
 

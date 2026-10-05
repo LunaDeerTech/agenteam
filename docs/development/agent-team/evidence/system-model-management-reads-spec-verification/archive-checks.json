@@ -1,0 +1,55 @@
+{
+  "result": "PASS",
+  "scope": "specification archive and administrative docs only",
+  "commands": [
+    {
+      "argv": [
+        "python3",
+        "docs/development/agent-team/evidence/system-model-management-reads-spec-verification/verify_inputs.py",
+        "--repo",
+        "."
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "stdout": "{\"result\": \"PASS\", \"raw_files\": 13, \"aliases\": 3, \"git_sources\": 48, \"accepted_card_matches_git\": true, \"technical_sections_1_to_9_identical\": true, \"derived_administrative_patches\": 2, \"checksum_files\": 0, \"business_tests_run\": false}\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--check",
+        "--",
+        "AGENTS.md",
+        "docs/development/agent-team/tasks.md",
+        "docs/development/agent-team/recovery-2026-10-05.md",
+        "docs/development/work-items/recovery-d09-system-model-management-reads.md"
+      ],
+      "cwd": "/workspace/agenteam",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "source_check_counts": {
+    "raw_files": 13,
+    "aliases": 3,
+    "git_sources": 48,
+    "copied_git_sources": 0
+  },
+  "links_checked": 209,
+  "fragments_checked": 12,
+  "link_errors": [],
+  "format": "UTF-8/LF/final-newline/no-trailing-whitespace/fenced-block-balance checked for 6 authored Markdown files",
+  "raw_original_markdown_links": "preserved in original source context; not rewritten for archive directories",
+  "whitespace_diagnostics": "whitespace-diagnostics.json",
+  "whitespace_exceptions": "whitespace-exceptions.json",
+  "card_technical_sections_1_to_9_unchanged": true,
+  "recovery_old_bytes_prefix_preserved": true,
+  "tasks_old_history_preserved": true,
+  "preliminary_generation_order": "first documentation link check found archive-checks.json before its generation; created before final link check, no content rule changed",
+  "business_tests_run": false,
+  "resources_started": false,
+  "git_write": false,
+  "narrow_link_followup": "current tasks entry now points to existing recovery section 32; fragment rechecked after edit"
+}

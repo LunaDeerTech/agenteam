@@ -1,0 +1,10 @@
+c54f73f3324caa11608d84e5d207141985eb6074:internal/central/model/http_credentials.go:164:		metadata, beforeErr := h.writes.Metadata(ctx, r.Actor, r.Ref)
+c54f73f3324caa11608d84e5d207141985eb6074:internal/central/model/http_dto_test.go:119:func (s *httpWritesSpy) Metadata(_ context.Context, _ id.Actor, r sc.CredentialRef) (sc.Metadata, error) {
+c54f73f3324caa11608d84e5d207141985eb6074:internal/central/model/http_test.go:21:func (httpNilWrites) Metadata(context.Context, id.Actor, sc.CredentialRef) (sc.Metadata, error) {
+c54f73f3324caa11608d84e5d207141985eb6074:internal/central/secret/storage.go:74:func loadMetadata(ctx context.Context, e postgres.SQLExecutor, ref sc.CredentialRef) (sc.Metadata, payloadID, error) {
+c54f73f3324caa11608d84e5d207141985eb6074:internal/central/secret/write.go:458:func (s *Service) Metadata(ctx context.Context, actor identity.Actor, ref sc.CredentialRef) (sc.Metadata, error) {
+c54f73f3324caa11608d84e5d207141985eb6074:tests/model/system_http_credentials_test.go:32:func (w *systemHTTPWrites) Metadata(ctx context.Context, a id.Actor, r sc.CredentialRef) (sc.Metadata, error) {
+c54f73f3324caa11608d84e5d207141985eb6074:tests/model/system_http_credentials_test.go:33:	out, err := w.HumanWriteCommands.Metadata(ctx, a, r)
+c54f73f3324caa11608d84e5d207141985eb6074:tests/model/system_http_credentials_test.go:112:	metadata, err := v.secrets.Metadata(testContext(t), v.admin, observed.Result.Metadata.CredentialRef)
+c54f73f3324caa11608d84e5d207141985eb6074:tests/project/b03_secret_audit_test.go:311:			metadata, err := f.bundle.secret.Metadata(ctxFor(t), f.owner, created.Metadata.CredentialRef)
+c54f73f3324caa11608d84e5d207141985eb6074:tests/security/secret_access_test.go:105:	_, err = f.secret.Metadata(auditContext(t), f.actor, systemRef)
