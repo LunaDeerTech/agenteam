@@ -51,6 +51,8 @@ B03额外旧account授权仅限下表、[人工邮件重试补遗](d07-account-m
 | B04 新 `object/contract/reference_cleanup.go`、`object/reference_cleanup.go`；限定 `object/contract/access.go`、`object/access.go`、`object/{references,upload}.go`，以及 `object/cleanup.go` 的两处运行时预算分支和相邻/真实组合测试 | §10 的 Avatar 已发布但尚未切换窗口；新增正式 cleanup-release variant/端口及旧 publish/consume 读取相同不可逆 gate，不放宽普通 Avatar grant或其他 owner。§10.1 两个 WithinBudget 入口仅收紧恢复预算；旧 cleanupIOContext/noteCleanupFailure 只在既有私有 runtimeRecoveryBudgetKey 分支合并 caller/force 的更短期限和取消，普通补偿与 service.go 不变 |
 | `foundation/fault.go`、`httpapi/problem.go`、`api/openapi/common.json` 及对应测试 | 新 `CHALLENGE_REQUIRED`（401）与 `CHALLENGE_INVALID`（400），提供统一机器判别；其余错误复用既有码+安全 FieldError，不回显输入 |
 
+B04验收中的挑战尺寸返修另由A唯一负责：仅解冻旧 `account/challenge.go` 的生成结果编码适配，并新增 `account/challenge_artwork_test.go` 确定性回归。旧 `challenge_test.go`、GoCaptcha SDK/模块依赖、公开接口、合法角度范围和5°验证容差保持；不扩大其他B02/B03文件范围。具体已证缺口、适配边界和证据要求见§6及T04补验。
+
 ## 2. 工程参数与部署输入
 
 邮箱接受单个裸 ASCII addr-spec，最长 254 bytes，拒 display name、注释、控制符与首尾空白；本版 canonical 为 ASCII 全部小写，不去点、不去 `+tag`。邀请/注册/登录/重置使用同一函数及唯一索引；email 永久只读。username 为 3–32 个 ASCII 字符，`[a-z0-9](?:[a-z0-9-]*[a-z0-9])?`，输入英文字母折为小写，无 trim；保留 `api, assets, auth, login, logout, invite, reset, settings, system, personal, diagnostics, livez, readyz, debug, support, root, admin`，bootstrap 的 admin 是唯一显式例外。保留字和 DB 唯一性两层验证。
@@ -200,6 +202,8 @@ LoginAttempt 本身是按 browser+login key 唯一的持久尝试，带完整HMA
 ## 6. GoCaptcha 协议与反滥用
 
 首版启用库的 rotate 模式：`rotate.NewBuilder().SetResources(rotate.WithImages(ownImages))`（按真实可编译调用分句）→`Make().Generate()`；`GetData().Angle`仅服务端保管，master220×220/thumb160×160图转DTO，`rotate.Validate(clientAngle,expectedAngle,5)`，角度只接受整数0–360。库不提供TTL/身份/一次性保障。Vue 使用官方 rotate 组件，经受控wrapper映射wire；键盘箭头/按钮调整角度、聚焦/ARIA/重试同一服务端验证，不另提供弱化免挑战分支。R01已证原组件无keyboard/slider ARIA；D07必须补键盘实测，但不声称解决依赖视觉判断的视障可达性，D26保留该明确限制及页面反馈，不能标完整无障碍通过。
+
+固定GoCaptcha v2.0.5已证在90/180/270°的160画布上执行overCrop时，把请求的末行/末列裁出画布，实际thumb Bounds为`(1,1)-(160,160)`、尺寸159×159。账户私有编码适配只修此精确角度及Bounds组合：按原裁切起点把现有像素复制到160×160透明画布，缺失末行/末列保持透明，不缩放、不移动已有图案、不改angle、不随机重抽。master必须220×220，正常160×160缩略图继续原像素和编码路径；其他非预期尺寸明确失败。实际编码结果再次核220/160尺寸及既有base64总长上限，SDK与验证语义不变。
 
 连续失败以所有输入邮箱的 HMAC key 计（存在/不存在同逻辑），达到当前 N 后必须挑战；按 RemoteAddr 的 HMAC IP key 在 15m 内 10×N 次失败也触发。邮箱计数成功登录后清零，连续无失败 24h 后清；IP 窗口自然滚动，不因有一个账号成功就清除整个地址历史。不设置账号锁定、逐次延迟、登录冷却或倒计时。容量/公开找回频次限额和挑战不是登录禁用。
 
@@ -501,6 +505,8 @@ app私有assembly保留同一真实Authority、Secret/OutboundClient/ObjectServi
 | T12 Avatar/profile | profile唯一性/version并发、email只读、旧username失效、稳定幂等结果；CurrentUserRouteInTx零/错/终局Tx、缺User锁、失效Session/非本人拒绝，User EX改名与同锁路由读取真实竞争，bootstrap admin可读且无touch/加锁；静态JPG/PNG/WebP和合法多扫描JPEG成功且元数据去除，SVG/APNG/动画/伪MIME/坏CRC/截断/像素边界/尾随拒绝，不以Decode或预读EOF代替容器解析；samekey不同原bytes冲突；Reserve映射同Tx、Publish后切换前crash/Session撤销、A→B→C替换/删除交错，旧cleanup gate随User切换同Tx提交；cleanup与迟到Reserve/Send/Publish/Attach/Consume及账户receipt竞争，无孤儿/复活；exact cause/owner/Upload/issuer/plan错配拒绝，Unknown先原writer锁核事实、不重PUT；canonical存在但非current的Read/Stat由Planner拒绝，current引用不删、暂停真reader时pending且负载保留，真实Close/join后才释放lease；解码取消不提前释放运行permit/guard；真实阻塞zero/remove及storage先失败后exact故障checkpoint锁等待均受恢复caller剩余预算，原失败输入/断言保留并独立复验 |
 | T13 根装配/停机 | A/B分别可构建验证且生产明确绑定真实ProfilePort，零/未绑不成功；真实typed catalog/handler在Outbox Initialize前就位、Authority.Initialize与一般Bootstrap/Recover不得被mail Start代替；Sink打开后各构造失败/late add同owner关闭，账户core未join但mail/Outbox已join时guard仍保留；真正非stub System端口；SMTP空仍技术健康；所有Initialize早退/late add/blockedI/O/第二信号/hash在算及response read未join，sharedguard不早退；单ticket Done不代替全Sink Joined，Wait取消不当join；Sink Write/Sync/Close阻塞耗尽原共享1s仍实际发起DB最后force，不延长预算/重复Close任务，日志准入1s不成为新增停机预算；账户启动剩余预算包含头像物理清理与故障checkpoint，caller/force两种先后较短deadline和取消均有效，超时不能替代实际I/O/DB join；既有全套app/PG/安全/对象/Outbox断言不放宽 |
 | T14 B04恢复索引 | 在B03提交的实际schema基线上验证fresh/升级保留avatar_changes各原阶段/映射及avatar_cleanup事实；新partial index覆盖/谓词与扫描一致、整迁移失败回滚、旧迁移字节不变；100条活操作/受保护前缀不饿死第101条可清项，exact死亡/foreign未知分别处理，无年龄接管或假join |
+
+T04挑战尺寸补验保留原随机失败日志及固定9角SDK直接探针的旧红；原随机失败未保存angle/生成图，不能把确定性复现倒推为该次样本的唯一原因。固定89/90/91、179/180/181、269/270/271°及同一自有输入图，逐张保存master/thumb、尺寸和hash；SDK直测在本地适配修后仍为旧红，另以仅机械接入正式编码helper的探针和精确diff验证同9角适配结果，不能声称原探针逐字转绿。回归还须证明正常图逐像素不变、缺失边缘透明且其余异常尺寸拒绝；随后用原完整check-go命令闭环，保留旧断言和预算。正常图路径证明未变时复用未受影响的浏览器/协议证据，不为求绿重复随机抽样或全套browser。
 
 执行门槛：`AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/check-go.sh`；真实模块测试 `AGENTEAM_GO=... sh scripts/test-accounts.sh`（脚本明确运行 `go test -tags=integration ./tests/account/... ./tests/accountmail/... ./internal/central/app/...` 普通及race）；模块最终保证既有 `scripts/test-postgres.sh`、`test-security.sh`、`test-objects.sh` 的旧域完整包覆盖，并对Account采用运行前冻结inventory证明穷尽的既有及新增分组，保留原每包6m预算、race及全部断言，加完整新HTTP/SMTP套件；不把已知增长的Account先塞入一次累计6m运行后再临时过滤。harness执行其固定package lock的 `npm ci && npm run test`，包含真正浏览器，不把仅单测/类型检查当端到端。具体命令与耗时由实施/V记录，本S01没有运行这些产品测试。
 
