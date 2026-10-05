@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	account "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	audit "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
@@ -18,9 +19,10 @@ type LifecycleFacts interface {
 	ValidateLifecycleInTx(context.Context, foundation.Tx, identity.Actor, c.LifecycleCause, c.ParticipantName, c.OperationPhase) error
 }
 type AuthorityDependencies struct {
-	Sessions  identity.SessionAuthority
-	Routes    account.CurrentUserRoutes
-	Lifecycle LifecycleFacts
+	Sessions   identity.SessionAuthority
+	Routes     account.CurrentUserRoutes
+	Lifecycle  LifecycleFacts
+	AuditFacts map[audit.Producer]audit.ProjectFactAuthority
 }
 type Authority struct{ data func() *authorityState }
 type authorityState struct {
@@ -28,6 +30,7 @@ type authorityState struct {
 	sessions      identity.SessionAuthority
 	routes        account.CurrentUserRoutes
 	lifecycle     LifecycleFacts
+	auditFacts    map[audit.Producer]audit.ProjectFactAuthority
 	eventIssuer   oc.PlanIssuer
 	projectIssuer oc.PlanIssuer
 }
@@ -39,7 +42,11 @@ func NewAuthority(store Store, d AuthorityDependencies) (*Authority, error) {
 	if facts, ok := d.Lifecycle.(*LifecycleAuthority); ok && (!facts.bound() || !sameStore(store, facts.store)) {
 		return nil, fault(foundation.DependencyUnbound)
 	}
-	st := &authorityState{store: store, sessions: d.Sessions, routes: d.Routes, lifecycle: d.Lifecycle, eventIssuer: oc.NewPlanIssuer(), projectIssuer: oc.NewPlanIssuer()}
+	facts, err := copyAuditFacts(d.AuditFacts)
+	if err != nil {
+		return nil, err
+	}
+	st := &authorityState{store: store, sessions: d.Sessions, routes: d.Routes, lifecycle: d.Lifecycle, auditFacts: facts, eventIssuer: oc.NewPlanIssuer(), projectIssuer: oc.NewPlanIssuer()}
 	return &Authority{data: func() *authorityState { return st }}, nil
 }
 func (a *Authority) state() *authorityState {

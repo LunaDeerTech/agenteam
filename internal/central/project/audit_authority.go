@@ -22,7 +22,7 @@ func (a *Authority) CheckAppendInTx(ctx context.Context, tx foundation.Tx, entry
 	}
 	f, k := entry.Fields(), key.Details()
 	if !audit.ProjectAction(f.Action) {
-		return fault(foundation.DependencyUnbound)
+		return a.checkDomainAuditInTx(ctx, tx, entry, key)
 	}
 	if f.Scope.Details().Kind != identity.ProjectScope || k.Producer != audit.ProjectProducer || k.Ordinal != 0 || f.Associations != (audit.Associations{}) {
 		return fault(foundation.Forbidden)
