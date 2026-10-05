@@ -137,6 +137,8 @@ func (a *Authority) CheckAppendInTx(ctx context.Context, tx foundation.Tx, entry
 			return fault(foundation.Forbidden)
 		}
 		return nil
+	case audit.ProjectArchiveAccepted, audit.ProjectDeleteAccepted:
+		return a.checkLifecycleAcceptedAudit(ctx, tx, x, p, entry, key)
 	default:
 		// B03 owns lifecycle acceptance/completion and other domain cause
 		// validators. Registering the typed schema cannot stand in for them.

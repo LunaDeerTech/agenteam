@@ -84,6 +84,16 @@ func canonicalPayload(kind event.StableName, raw []byte) ([]byte, error) {
 			return nil, e
 		}
 		return cursor.CanonicalJSON(raw)
+	case c.LifecycleChangedEventName:
+		var p c.LifecycleChangedPayload
+		if json.Unmarshal(raw, &p) != nil {
+			return nil, unavailable(nil)
+		}
+		raw, e := json.Marshal(p)
+		if e != nil {
+			return nil, e
+		}
+		return cursor.CanonicalJSON(raw)
 	default:
 		return nil, fault(foundation.DependencyUnbound)
 	}
@@ -104,12 +114,13 @@ func exactEvent(summary event.Summary, header, payload []byte) error {
 }
 
 type eventFact struct {
-	creation *creationRecord
-	command  *commandRecord
-	project  c.ProjectID
-	identity foundation.CommandIdentity
-	opaque   string
-	locks    []foundation.LockRequest
+	creation  *creationRecord
+	command   *commandRecord
+	lifecycle *lifecycleCommandRecord
+	project   c.ProjectID
+	identity  foundation.CommandIdentity
+	opaque    string
+	locks     []foundation.LockRequest
 }
 
 func (a *Authority) eventFact(ctx context.Context, x postgres.SQLExecutor, actor identity.Actor, summary event.Summary) (eventFact, error) {
@@ -188,6 +199,11 @@ func (a *Authority) eventFact(ctx context.Context, x postgres.SQLExecutor, actor
 		fact.identity = r.identity()
 		fact.opaque = r.id
 		fact.locks = append(fact.locks, userLock(actor.Details().UserID, foundation.Exclusive))
+	case c.LifecycleChangedEventName:
+		fact, e = a.lifecycleEventFact(ctx, x, actor, summary, project)
+		if e != nil {
+			return empty, e
+		}
 	default:
 		return empty, fault(foundation.DependencyUnbound)
 	}
@@ -241,6 +257,8 @@ func (a *Authority) validateEventFact(ctx context.Context, tx foundation.Tx, act
 		if stage == oc.NewFact && (r.operation.State != c.CreationCompleted || !p.initialized || p.ref.Version != 1) {
 			return fault(foundation.InvalidState)
 		}
+	} else if fact.lifecycle != nil {
+		return a.validateLifecycleEvent(ctx, tx, x, actor, p, fact.lifecycle, stage)
 	} else {
 		r := fact.command
 		if _, e = a.RequireOwnerInTx(ctx, tx, actor, fact.project, identity.Mutate); e != nil {

@@ -18,20 +18,22 @@ type ActivityAuthority interface {
 	TouchActivityInTx(context.Context, foundation.Tx, identity.Actor) error
 }
 type Dependencies struct {
-	Authority     *Authority
-	Activity      ActivityAuthority
-	Audit         audit.Appender
-	Events        oc.Appender
-	ProjectEvents c.ProjectEvents
-	Initializer   c.ProjectSkillInitializer
-	Processes     oc.ProcessAuthority
-	Cursors       cursor.Keyring
+	Authority         *Authority
+	Activity          ActivityAuthority
+	Audit             audit.Appender
+	Events            oc.Appender
+	ProjectEvents     c.ProjectEvents
+	Initializer       c.ProjectSkillInitializer
+	Processes         oc.ProcessAuthority
+	Cursors           cursor.Keyring
+	LifecycleRegistry *LifecycleRegistry
 }
 type Config struct{ MaxInitializing int }
 
 func DefaultConfig() Config { return Config{MaxInitializing: 16} }
 
-// Service implements the B02 methods, not the later lifecycle/HTTP adapters.
+// Service implements Project commands and lifecycle acceptance, not the later
+// participant runtime or HTTP adapters.
 // An absent initializer is allowed at construction for reading existing data;
 // a new Create explicitly fails before reserving a target or a name.
 type Service struct{ data func() *serviceState }
@@ -63,6 +65,15 @@ func New(store Store, d Dependencies, cfg Config) (*Service, error) {
 	}
 	if reflect.ValueOf(d.ProjectEvents).IsZero() {
 		return nil, invalid()
+	}
+	if d.LifecycleRegistry != nil {
+		manifest, err := d.LifecycleRegistry.Manifest()
+		if err != nil {
+			return nil, err
+		}
+		if _, err = d.LifecycleRegistry.Resolve(manifest); err != nil {
+			return nil, err
+		}
 	}
 	registration, e := identity.RegisterService(identity.ProjectInitialization)
 	if e != nil {

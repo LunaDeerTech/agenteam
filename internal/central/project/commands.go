@@ -318,6 +318,9 @@ func (s *Service) lookup(ctx context.Context, actor identity.Actor, request c.Co
 	if e := request.Validate(); e != nil {
 		return c.CommandLookupResult{}, e
 	}
+	if request.Command == c.ArchiveCommand || request.Command == c.DeleteCommand {
+		return s.lookupLifecycle(ctx, actor, request, expected)
+	}
 	if request.Command != c.CreateCommand && request.Command != c.UpdateCommand {
 		return c.CommandLookupResult{}, fault(foundation.DependencyUnbound)
 	}
