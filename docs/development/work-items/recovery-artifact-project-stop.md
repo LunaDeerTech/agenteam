@@ -1,6 +1,6 @@
 # 恢复：Artifact 项目范围停止与真实 join
 
-修订：rev2，仅更新已验输入与实施交接，rev1 API/行为及16路径不变。Object S2已完整独立验收，主线程已采纳接缝核查并按文末固定输入开放实施；本卡尚无Artifact停止行为验收结论。
+修订：rev3，追加真实反例与来源 hint、selector 分批验证的工程澄清，已通过本次限定 delta 复核并由主线程采纳；API、16路径、迁移范围及原预算不变。Object S2已完整独立验收；文末原采纳/交接记录保留当时事实，本轮定向修复通过不代表 Artifact 完整停止行为已独立验收。selector 修复按本次澄清在原16路径内继续，仍须最终独立行为验收。
 
 ## 完整结果与固定输入
 
@@ -148,3 +148,47 @@ S2最终28源已独立25顶层43子例全部通过，提交推送 `6658a6cb1f292
 S2已提供同Tx SourceLease/work、confirmed Open、真实release/join和完整writer引用。Artifact必须继续跟踪整次control、失败release和未知原writer；不能以既有defer调用已返回替代真实终局。service.go内为PrepareReadAccess补Read分派，并同Tx核SourceAuthority返回grant.Matches与ProjectGate，属于原授权接缝，不改Object端口。共享guard联合屏障仍由后继app绑定。
 
 唯一实施者`d08_registry_backend`仅可修改本卡16个源/测试路径；固定6658a6c加自己16源自测，不消费Object Audit或D09活动稿。当前无真实fixture权限，由主线程另行交接；无00017、无旧测试/contract/app扩权。自测冻结后须独立验收，不因S2通过宣称Artifact或完整D08完成。
+
+## rev3：已确认反例与有界验证澄清
+
+本节只补齐原“真实 join、完整身份、一次完整锁集合与有界扫描”的工程约束。rev2 固定卡为 `fcb83fcf35cf97dcd4cdc158192f37f5afafe875`，SHA-256 `51b7fee82b9a402fffa6fe5b93ef1b7b86c567267585f280aaabd6ec251e38d4`；此前 API/16路径/四持久游标/迁移与原请求、每包测试预算均保持。本节复用作者已保存的真实证据及独立验收者的限定协议核对，后者记录 `/tmp/agenteam-artifact-selector-review-7ko80vwr/review-plan.md` SHA-256 `6749f5ee9106c20933506fb28d9f7cc3595056f184301df17568ead7ec53c1ae`。本次文档修订没有运行 Go、PG/MinIO 或 Docker，不把尚未实施的 selector 方案写成已通过。
+
+### 原失败及已到达的修复边界
+
+- F2：本地 `settleProducer/recoverArtifactWork` 的真实 join checkpoint COMMIT Unknown 曾被吞为普通 WorkPending。修复须逐 work 保留 UnknownRefs/OutcomeUnknown，该轮不得据此写 stopped；Object 返回错误时仍保留原 Unknown Fault。现有定向通过只覆盖本地 settle，不能写成 dead-process 恢复分支也已通过。
+- F3 页内：只按 row.id 捕获本地 handle，未交叉核原 handle 的完整身份和 lease；DB 中 process/resource/command hash/source/epoch/lease 的合法 typed 篡改仍可能触发 cancel。修复在捕获阶段精确等式校验，拒绝错配。F2/F3 修后两个真实顶层 `TestArtifactProjectStopUnknownJoinCheckpointRemainsUnknown`、`TestArtifactProjectStopLocalWorkIdentityTamperingRejectsBeforeCancel` 通过，objects `11.061s`，exit 0；这不是完整 Artifact 验收结论。
+- source planning：在 `PrepareReadAccess` 调用正式 `base.Discover` 之前设确定性 barrier，尚未有来源授权，work=0、Resolve=0、公共调用尚未返回时，Source Delete 曾提前报告 stopped；放行后 gate 拒绝后续工作。本反例证明来源规划窗口漏计 join，未证明发生了未授权源 I/O。
+- 页外 selector：已确认的本地 S→T work，其 DB `source_project_id` 被改为 U 后移出 S 的扫描集合。S Delete 未 cancel 原 context，但仍产生 gate=1、Object Continue=1；仅核当前 SQL 页中已选出的行不足以发现被移出 selector 的原本地关系。该原红保留，修复须消费本节的完整本地快照与分批前置，不能只重复页内 F3 校验。
+
+原始输入/日志保存在 `/tmp/agenteam-artifact-stop-author-y597q6vl`：F2/F3 `red-input-join-identity-01/manifest.json` SHA `c2a5599b0fe5763cedbb047c1a355409498875d52d027c0af0d1f96ab443fd9c`、`logs/join-identity-red-01.log` SHA `f492ab3603d2c2bf15f97ee8cc653a3413cf14fb39b4ab1ccb7b465aae78031d`；修后输入 `input-join-identity-fix-01.json`、日志 `logs/join-identity-fix-01.log`，production-review-03 delta SHA `b8e15d6348264a213f1a6fa6c5233201c7e4f6bfd552a32d21ce803ad092941c`。source planning 原红输入清单 SHA `7940d118d2050610e97d2c3564b977e9a2c2bc424e79666497cfb457bf26ac92`，对应 `source-planning-red-input-01/manifest.json` 与 `logs/source-planning-red-01.log`；selector 原红输入清单 SHA `c10093d84f3e57b450cacafb4fe0bfe3e81d4c228d778168978e2a0fc9657217`，对应 `selector-red-input-01/manifest.json` 与 `logs/selector-red-01.log`。本节持久记录已确认事实，完整交付仍须按原门槛归档准确源、日志与重跑材料，不能依赖临时目录永久存在。
+
+### 来源规划 hint 的有限含义
+
+completed command 仍先当前目标可见性、完成 target-only replay；只有未从该路径返回、实际进入 source planning 的调用才登记本地 source hint。hint 来自本次合法语法输入的候选关系，只为保守识别尚在来源规划中的整次调用；不代表已授权源、不写 `source_project_id`、不构造 SourceLease、不凭 hint 取消任何来源侧 handle，也不给另一 Project 的 Read/Mutate 权限。
+
+本次停止请求的正式 Authority 已 confirmed 后，正常 gate/Object Continue 可以推进；hint 只令尚未真实退出的相关 whole call 保持 pending，不能提前报告 stopped/Joined。该调用完成前不能以 work=0、Resolve=0 或当前 selector 无行抹掉 hint；完成/失败仍须按原 producer 与 writer 终局规则退出。completed replay 不登记新 hint、不重新读取已删源。此处“hint 保守 pending”与下述“selector 验证未通过零 gate/Continue”是两个不同条件。
+
+### 同一请求内的完整快照与 ≤64 批验证
+
+1. 多批读取前登记本次唯一的 stop 请求 control，覆盖所有预检/最终 gate/确认事务及尾部，使用稳定 control EX 作为共同串行屏障。它是本请求的所有权，不是新增持久 work、来源事实或待自行 cancel 的业务 handle；其未终局仍阻止全局 producer Joined。相关业务本地集合在 registry 互斥下取快照：原 member pointer、私有 lifetime ID、完整 work tuple（id/kind/process/target/resource/command hash/登记 epoch/source）、当前 lease、hint、admitting/returned 状态、原 control Tx/锁 union 身份及可识别 ABA 的单调 revision。快照不能只记 work ID 或数量。
+2. 已确认的本地 S→T 关系必须按快照里的原 work/native identity 逐项读回匹配，不能先用当前 DB `source_project_id=S` 等可变 selector 把它过滤掉。合法 typed 值仍须与原 handle 的完整事实相等；失配拒绝，不取消、不修回数据库来掩盖原红。尚无 work 的 admitting/hint 成员仍保持其真实未确认状态，不能为满足核对补造持久 source。
+3. 每批最多 64 个相关本地成员，只作业务只读验证，仍使用本请求原 context/剩余预算；每个物理 Tx 一次取得当前完整 Authority 依赖、原 cause Project EX、该批原 work/native/command/相关另一侧 Project/control 等完整 union，重验 exact cause、mode、映射和完整 tuple。原业务 writer 及最终 gate 的完整 union 不得因新增预检而缩减；不在 Tx 内补锁或改用假的授权。
+4. 每个 batch 都包含同一请求的稳定 control EX，且只有本次 Tx confirmed 才进入下一批。若 AcquireAll 失败前尚未证实取得 control EX，不能只重取该 control 锁就推断原 writer 终局；须保留该失败/未确认批至多64项的原 union，并按原可能持锁的 EX 确认规则收束。已 confirmed 的历史 batch 不累计锁集合；不能在末尾构造所有批锁的无界 union。确认事务自身也属于原 control，NotCommitted 且可能残留域锁时同样不能提前注销。
+5. 只有全部批在原请求预算内 confirmed，相关完整快照及单调 revision仍一致，才允许进入原 gate 写事务。缺批、Unknown、NotCommitted 未证 writer 终局、预算耗尽，或成员/tuple/lease/hint/admitting/returned及原 control Tx/union 变化（包括增删后还原的 ABA），均不尝试新 gate/撤销语句，零 cancel、零 Object Continue；必要 owned control 保留到真实终局。公开 NotCommitted 保持原业务值，不改为业务 Unknown，不通过 fresh context 重开预算。
+6. 最终 gate 的线性化点在已持原 cause Project EX、当前 Authority 完整校验之后：按 registry 互斥核完整快照与 revision，并作 gate 决策；本次持久扫描页仍最多64项，原页及实际待 cancel 的原 handles在同一 Tx 以原完整 union 再核。不能把早前只读 batch 当永久授权，也不要求持 registry mutex跨所有批的 PG I/O。提交 confirmed 后仅取消仍精确匹配的原 handle。晚于该线性化点的新入场不追溯声称属于旧 snapshot，仍须纳入后续 whole-call join，不能因此空成功。
+7. 上述“零 gate”指只读预检未满足时不执行 gate 写；若原最终 gate 已尝试 COMMIT 而返回 Unknown，数据库可能已经提交，仍沿既有原 writer/完整事实确认，确认前零 cancel/Object Continue，不能声称 gate 必定不存在。final gate/后续确认的未知或未证回滚终局仍归原 control。
+8. 跨批成立依赖原正式协议：已登记 work 身份不可被正式 UPDATE 改指向；lease 单赋值、登记时 epoch 确定及其它合法本地 lease/epoch/hint/admitting/returned/成员、原 control Tx与union变化都在 registry 互斥下同步更新单调 revision，原 pointer/私有 ID也参与等式；所有相关正式 writer继续持原共同 Project 锁及本域稳定锁。这里不授权修改 immutable tuple，也不声称能对绕开协议、在批间任意直接 SQL 篡改全库提供单事务原子性。
+9. 相关 locals 超过64时按稳定快照分批完成，不能永久以“>64”拒绝。本轮未完成就安全返回，由下次请求重新取全快照/重验，不保留跨轮私有“已验证”状态。四个既有持久扫描游标的定义、字段与进度语义不扩展，不把本地分批游标写进它们。
+
+### 必须补验的真实反例
+
+在原16路径中的真实测试文件补齐，可增加必要顶层，不改旧断言或延长原预算：
+
+- formal Discover 前的来源规划 barrier：尚未授权、work/Resolve均为0而公共调用未返时保持 pending；放行并实际收尾后才 stopped。completed target-only replay无 hint/新源访问；hint不触发来源 cancel或冒充 durable source。
+- 页外 selector 原红，以及 >64个相关 local成员的实际多批读取；超过64仍能在真实确认后进展，不能只用mock计数证明分页或把永久busy当通过。按原 handle直接比对移出selector的记录，零gate/Continue。
+- 首批后、最终 gate 决策前的真实成员增删/ABA、lease/epoch/hint/admitting合法变化与 tuple错配：快照不稳定时零gate/Continue，不复用上一轮私有验证结果。线性化点之后的新调用计入后续join，并核不误取消新句柄。
+- batch/最终 gate/确认事务分别命中真实COMMIT丢ACK、ROLLBACK和原writer仍持锁；read-only batch未全confirmed不尝试gate，final gate Unknown不作不存在断言；精确backend/共享锁证明终局后才退control。含NotCommitted但实际ROLLBACK终局未证、AcquireAll部分失败尚未证controlEX的反例，验证保留当前≤64原union且没有累积历史批或绕开原预算。
+
+F2/F3、本节 hint/selector 与真实 join增量全部须在最终冻结源上按原独立验收门槛验证；定向作者通过、只读协议核对或规格采纳都不替代该结论。API、16个源/测试路径、四持久游标、ProcessGuard装配边界、Cleaner后继及“不占00017”保持。
+
+主线程采纳记录：2026-10-05，独立验收者对冻结候选 `65f744a2866b70e5c35d71478a3d31ad15c9426a987b56ba6cdac4752c6755bb` 的限定差量完成核对，原API/16路径/预算不扩。仅将hint段的Authority明确为本次停止请求的Authority，避免与Source Read授权混淆。主线程采纳工程澄清，继续原范围修复；本次没有新增动态通过声明。
