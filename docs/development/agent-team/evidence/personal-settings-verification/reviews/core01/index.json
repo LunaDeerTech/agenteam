@@ -1,0 +1,108 @@
+{
+  "kind": "independent static review",
+  "conclusion": "BLOCKED F1 and F2",
+  "baseline": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "manifest": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-review-01/manifest.json",
+    "sha256": "898f0bcf20f5d638b7662374ece881deb806b06c6bffde494a0dcf3cb2a39691"
+  },
+  "delta": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-review-01/delta.patch",
+    "sha256": "a39e27f756949dc2d029a207337bd2e32c816f54af7bfa1b6fc61712c5448bbf"
+  },
+  "source_directory": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-review-01/sources",
+  "source_files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "size": 10399
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "size": 13982
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "cd82a5fa94a3aac839255a27100fb0d1112d3282043df1a011ca8b99b6df6fa0",
+      "size": 34768
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "sha256": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+      "size": 8992
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "23e5a72eaa6d18211d5a723c659098c8634245af03c5783acced2312253a70ee",
+      "size": 15142
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "size": 18655
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "2f39515611b627488b26b553f0edd8300df957967892e68bbb4d7d611139afd6",
+      "size": 21781
+    }
+  ],
+  "author_evidence_verified": [
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-format-01.json",
+      "sha256": "9dd4c4efeb1dc47bc200caeb789838200df1f700dc117e8db8cc49ef6b5ddec9",
+      "argv": [
+        "web/node_modules/.bin/prettier",
+        "--write",
+        "/workspace/agenteam/web/src/api/client.ts",
+        "/workspace/agenteam/web/src/api/account.ts",
+        "/workspace/agenteam/web/src/composables/useSession.ts",
+        "/workspace/agenteam/web/src/tests/personal-settings-client.spec.ts",
+        "/workspace/agenteam/web/src/tests/personal-settings-state.spec.ts",
+        "/workspace/agenteam/web/src/tests/session.spec.ts",
+        "/workspace/agenteam/web/src/tests/authentication.spec.ts"
+      ],
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/core-format-01.log",
+      "log_sha256": "f7186409a9cd650c6925e0f18928e5b726a3ef1754ce09f7becbd99d476d2d4a"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-state-unit-02.json",
+      "sha256": "61ea48f3519680af0a377b33efcecd6461082bfd207b71d3550598da6828bf51",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings-state.spec.ts",
+        "src/tests/personal-settings-client.spec.ts",
+        "src/tests/session.spec.ts",
+        "src/tests/authentication.spec.ts"
+      ],
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/core-state-unit-02.log",
+      "log_sha256": "1d53109d8336de357c51fc9b8d7a54e5d7d26470762817808819e3a3040c9020"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-type-02.json",
+      "sha256": "ca3c901db0277bbe40614cf2e41519b1caf26daf08c7030f5c6a6aec6fb3edc4",
+      "argv": [
+        "npm",
+        "run",
+        "type-check",
+        "--prefix",
+        "web"
+      ],
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/core-type-02.log",
+      "log_sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373"
+    }
+  ],
+  "independent_dynamic_execution": false,
+  "activity_scope": "frozen 3 core production + 4 tests, no active UI",
+  "report_sha256": "dedf5cbc8fa626dea2d53d3ac35295d3a211aab13ba8ce69c18524ac44048cc2",
+  "repository_writes": false
+}

@@ -1,0 +1,153 @@
+import { test, expect, type Page, type Locator, type BrowserContext } from "@playwright/test";
+import { readFileSync, writeFileSync } from "node:fs";
+import { join } from "node:path";
+
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
+type Material = { admin: { email: string; password: string; user_id: string }; new_password: string };
+type Session = { status: number; userID: string; sessionID: string; csrf: string };
+type Body = { user: { id: string; version: string; display_name: string }; avatar: unknown };
+declare global { interface Window { independentOwner: { document: string; created: string[]; revoked: string[] } } }
+
+async function privateFill(input: Locator, value: string) {
+  try { await input.fill(value); } catch { throw new Error("independent private input failed"); }
+}
+async function session(page: Page): Promise<Session> {
+  return page.evaluate(async () => {
+    const response = await fetch("/api/v1/session", { credentials: "same-origin", cache: "no-store" });
+    if (response.status !== 200) return { status: response.status, userID: "", sessionID: "", csrf: "" };
+    const value = await response.json();
+    return { status: response.status, userID: value.user.id, sessionID: value.session.id, csrf: value.csrf_token };
+  });
+}
+async function profile(page: Page): Promise<Body> {
+  return page.evaluate(async () => {
+    const response = await fetch("/api/v1/me", { credentials: "same-origin", cache: "no-store" });
+    if (response.status !== 200) throw new Error("independent current profile unavailable");
+    return response.json();
+  });
+}
+async function login(page: Page, email: string, password: string) {
+  await expect(page.getByRole("heading", { name: "登录", exact: true })).toBeVisible();
+  await page.getByRole("textbox", { name: "邮箱", exact: true }).fill(email);
+  await privateFill(page.locator("#login-password"), password);
+  await page.getByRole("button", { name: "登录", exact: true }).click();
+  await expect(page.locator(".account-name")).toBeVisible();
+}
+async function openProfile(page: Page) {
+  await page.locator(".account-name").click();
+  await expect(page.locator("#profile-username")).toBeEditable();
+}
+async function waitForPersonal(page: Page, path: string, method: string, action: () => Promise<unknown>) {
+  const pending = page.waitForResponse((r) => new URL(r.url()).pathname === path && r.request().method() === method);
+  await action();
+  const response = await pending;
+  expect(response.status()).toBe(200);
+  return response;
+}
+
+test("live Session revocation retires the same document's draft and actual candidate Blob", async ({ page, browser }) => {
+  const data: Material = JSON.parse(readFileSync(join(directory, "personal-credentials.json"), "utf8"));
+  let second: BrowserContext | undefined;
+  let oldPersonalWrites = 0;
+  page.on("request", (request) => {
+    const path = new URL(request.url()).pathname;
+    if (path.startsWith("/api/v1/me") && !["GET", "HEAD"].includes(request.method())) oldPersonalWrites++;
+  });
+  // Transparent observation: each original browser operation still executes.
+  // There is no fetch/HTTP mocking, response replacement, or lifecycle control.
+  await page.addInitScript(() => {
+    const state = { document: crypto.randomUUID(), created: [] as string[], revoked: [] as string[] };
+    Object.defineProperty(window, "independentOwner", { value: state });
+    const create = URL.createObjectURL.bind(URL), revoke = URL.revokeObjectURL.bind(URL);
+    URL.createObjectURL = (blob) => { const value = create(blob); state.created.push(value); return value; };
+    URL.revokeObjectURL = (value) => { state.revoked.push(value); revoke(value); };
+  });
+  try {
+    await page.goto("/settings/profile");
+    await login(page, data.admin.email, data.admin.password);
+    await expect(page.locator("#profile-username")).toBeEditable();
+    const originalA = await session(page);
+    expect(originalA.status === 200 && originalA.userID === data.admin.user_id && originalA.csrf.length === 43).toBe(true);
+    const originalProfile = await profile(page);
+    expect(originalProfile.avatar === null).toBe(true);
+    const documentID = await page.evaluate(() => window.independentOwner.document);
+    await page.locator("#profile-display-name").fill("独立未保存的旧身份草稿");
+    await page.locator('input[type="file"]').setInputFiles(join(directory, "static.png"));
+    const preview = page.getByRole("img", { name: "尚未上传的头像预览", exact: true });
+    await expect(preview).toBeVisible();
+    const candidateURL = await preview.getAttribute("src");
+    expect(candidateURL?.startsWith("blob:")).toBe(true);
+    const checking = page.waitForResponse((r) => new URL(r.url()).pathname === "/api/v1/session" && r.request().method() === "GET" && r.status() === 200);
+    await page.evaluate(() => window.dispatchEvent(new Event("pageshow")));
+    await checking;
+    await expect(page.locator("#profile-display-name")).toBeEditable();
+    await expect(page.locator("#profile-display-name")).toHaveValue("独立未保存的旧身份草稿");
+    await expect(preview).toBeVisible();
+    expect((await preview.getAttribute("src")) === candidateURL).toBe(true);
+    const checkedA = await session(page);
+    expect(checkedA.sessionID === originalA.sessionID && checkedA.userID === originalA.userID).toBe(true);
+    const unchanged = await profile(page);
+    expect(unchanged.user.version === originalProfile.user.version && unchanged.user.display_name === originalProfile.user.display_name && unchanged.avatar === null).toBe(true);
+    expect(await page.evaluate(() => { const s = window.independentOwner; return s.created.length === 1 && s.revoked.length === 0; })).toBe(true);
+
+    second = await browser.newContext({ baseURL: process.env.AGENTEAM_AUTH_WEB_ORIGIN, viewport: { width: 1440, height: 1000 } });
+    const other = await second.newPage();
+    let passwordPosts = 0, profilePosts = 0;
+    other.on("request", (r) => {
+      if (new URL(r.url()).pathname === "/api/v1/me/change-password" && r.method() === "POST") passwordPosts++;
+      if (new URL(r.url()).pathname === "/api/v1/me" && r.method() === "PATCH") profilePosts++;
+    });
+    await other.goto("/settings/password");
+    await login(other, data.admin.email, data.admin.password);
+    await expect(other.locator("#settings-current_password")).toBeEditable();
+    const originalB = await session(other);
+    expect(originalB.status === 200 && originalB.userID === originalA.userID && originalB.sessionID !== originalA.sessionID).toBe(true);
+    await privateFill(other.locator("#settings-current_password"), data.admin.password);
+    await privateFill(other.locator("#settings-new_password"), data.new_password);
+    await privateFill(other.locator("#settings-confirmation"), data.new_password);
+    // Observe any genuine visibility revalidation too; the old Session is
+    // currently valid, and the following real mutation is its revocation cause.
+    const denied = page.waitForResponse((r) => new URL(r.url()).pathname === "/api/v1/session" && r.request().method() === "GET" && r.status() === 401);
+    await waitForPersonal(other, "/api/v1/me/change-password", "POST", () => other.getByRole("button", { name: "修改密码", exact: true }).click());
+    await expect(other.getByText("密码已修改，当前登录已更新，其他旧登录已失效。", { exact: true })).toBeVisible();
+    for (const field of ["current_password", "new_password", "confirmation"]) {
+      expect(await other.locator("#settings-" + field).evaluate((e) => (e as HTMLInputElement).value === "")).toBe(true);
+    }
+    const currentB = await session(other);
+    expect(currentB.status === 200 && currentB.userID === originalB.userID && currentB.sessionID !== originalB.sessionID && currentB.csrf.length === 43 && currentB.csrf !== originalB.csrf).toBe(true);
+    await openProfile(other);
+    await other.locator("#profile-display-name").fill("独立已确认资料");
+    const saved = await waitForPersonal(other, "/api/v1/me", "PATCH", () => other.getByRole("button", { name: "保存资料", exact: true }).click());
+    const currentCSRF = saved.request().headers()["x-csrf-token"] === currentB.csrf;
+    expect(currentCSRF).toBe(true);
+    expect(passwordPosts === 1 && profilePosts === 1).toBe(true);
+
+    await page.bringToFront();
+    await page.evaluate(() => window.dispatchEvent(new Event("pageshow")));
+    await denied;
+    await expect(page.getByRole("heading", { name: "登录", exact: true })).toBeVisible();
+    await expect(page.locator("#profile-display-name")).toHaveCount(0);
+    await expect(preview).toHaveCount(0);
+    await expect(page.getByRole("dialog")).toHaveCount(0);
+    const retired = await page.evaluate((url) => { const s = window.independentOwner; return { document: s.document, created: s.created.length, revoked: s.revoked.length, exact: s.created[0] === url && s.revoked[0] === url }; }, candidateURL);
+    expect(retired.document === documentID && retired.created === 1 && retired.revoked === 1 && retired.exact).toBe(true);
+    expect(oldPersonalWrites).toBe(0);
+    // The same SPA document logs in again; no reload may hide stale owner state.
+    await login(page, data.admin.email, data.new_password);
+    await openProfile(page);
+    const recoveredA = await session(page);
+    expect(recoveredA.status === 200 && recoveredA.userID === originalA.userID && recoveredA.sessionID !== originalA.sessionID && recoveredA.sessionID !== currentB.sessionID).toBe(true);
+    await expect(page.locator("#profile-display-name")).toHaveValue("独立已确认资料");
+    await expect(preview).toHaveCount(0);
+    await expect(page.getByRole("button", { name: "上传 / 替换头像", exact: true })).toBeDisabled();
+    const final = await profile(page);
+    const sameDocument = await page.evaluate((id) => window.independentOwner.document === id, documentID);
+    expect(sameDocument && final.avatar === null && final.user.display_name === "独立已确认资料" && oldPersonalWrites === 0).toBe(true);
+    expect(await page.evaluate(() => localStorage.length === 0 && sessionStorage.length === 0 && location.search === "" && location.hash === "")).toBe(true);
+    writeFileSync(join(directory, "independent-personal-owner-result.json"), JSON.stringify({ UserID: originalA.userID, OldSessionA: originalA.sessionID, OldSessionB: originalB.sessionID, CurrentSessionB: currentB.sessionID, RecoveredSessionA: recoveredA.sessionID, Version: final.user.version, CandidateCreated: retired.created, CandidateRevoked: retired.revoked, OldPersonalWrites: oldPersonalWrites, PasswordPosts: passwordPosts, ProfilePosts: profilePosts, SameDocument: sameDocument, CurrentCSRF: currentCSRF, Completed: true }), { mode: 0o600 });
+  } finally {
+    data.admin.password = "";
+    data.new_password = "";
+    await second?.close();
+  }
+});

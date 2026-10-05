@@ -1,0 +1,123 @@
+{
+  "baseline": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "cwd": "/workspace/agenteam-d26-settings-author-uydib5xi/input",
+  "argv": [
+    "web/node_modules/.bin/prettier",
+    "--write",
+    "/workspace/agenteam/web/src/api/client.ts",
+    "/workspace/agenteam/web/src/api/account.ts",
+    "/workspace/agenteam/web/src/composables/useSession.ts",
+    "/workspace/agenteam/web/src/router/auth.ts",
+    "/workspace/agenteam/web/src/views/auth/LoginView.vue",
+    "/workspace/agenteam/web/src/router/index.ts",
+    "/workspace/agenteam/web/src/App.vue",
+    "/workspace/agenteam/web/src/views/HomeView.vue",
+    "/workspace/agenteam/web/src/composables/usePersonalSettings.ts",
+    "/workspace/agenteam/web/src/components/layout/SettingsShell.vue",
+    "/workspace/agenteam/web/src/views/settings/PersonalSettingsView.vue",
+    "/workspace/agenteam/web/src/views/settings/ProfileSettings.vue",
+    "/workspace/agenteam/web/src/views/settings/AppearanceSettings.vue",
+    "/workspace/agenteam/web/src/views/settings/PasswordSettings.vue",
+    "/workspace/agenteam/web/src/tests/personal-settings-client.spec.ts",
+    "/workspace/agenteam/web/src/tests/personal-settings-state.spec.ts",
+    "/workspace/agenteam/web/src/tests/personal-settings.spec.ts",
+    "/workspace/agenteam/web/src/tests/session.spec.ts",
+    "/workspace/agenteam/web/src/tests/authentication.spec.ts"
+  ],
+  "environment": {
+    "TMPDIR": "/workspace/agenteam-d26-settings-author-uydib5xi/tmp",
+    "GOCACHE": "/workspace/agenteam-d26-settings-author-uydib5xi/go-cache",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly"
+  },
+  "input": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "bbe6a6c42f36d1d592218881ccfcb0a8e5d6db902a3c58eb492b9858c4ef67b8"
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "sha256": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "27f3292dc1f14e260a46f46c11fc015e0f4437b16ac4c3c37c94a2442011d668"
+    },
+    {
+      "path": "web/src/views/HomeView.vue",
+      "sha256": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69"
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "ac8debbf664f82c354f08dad8047ac58d6b59a8c8a19eb2183cf56e78266a1e3"
+    },
+    {
+      "path": "web/src/components/layout/SettingsShell.vue",
+      "sha256": "5b1e733237f540fcb00b99b6f453da020656b2d09c288a2759841dcab4125e94"
+    },
+    {
+      "path": "web/src/views/settings/PersonalSettingsView.vue",
+      "sha256": "1ca2b5927e62aa991a46b09bb937607c0e959c4d0de6dff8931729782f0d1e11"
+    },
+    {
+      "path": "web/src/views/settings/ProfileSettings.vue",
+      "sha256": "3be99f0cffedac8b2bd175b4ec29cad1d92fc1f2a2a6b5c3e310487bcb385925"
+    },
+    {
+      "path": "web/src/views/settings/AppearanceSettings.vue",
+      "sha256": "36326fc64ac5393dba0817b173e9f4a508390f618a361666f570a493fd56906f"
+    },
+    {
+      "path": "web/src/views/settings/PasswordSettings.vue",
+      "sha256": "6cc75641ebb44a843054559560ec2453c58489f976d459a7ee6dbd828d4f1c44"
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "sha256": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017"
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "d45416e3951d3fee2b8471aa0cfeb039f16c5754deb70d9381d30e4b532b09a0"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "5544c3327da4f3eb3d90f5671fa7e4f38a1a560ecc1ae7b2e2c404325db17477"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38"
+    },
+    {
+      "path": "tests/account/authentication_web_fixture_test.go",
+      "sha256": "95a635c182b81b82b78d97d7574a432c1d0a371a5ae84396bc95d6880a6ea3b7"
+    }
+  ],
+  "exit": 0,
+  "seconds": 1.0252221659975476,
+  "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-format-01.log",
+  "log_sha256": "e857e9669da663506b64e81473bede0a73d8deba6c88cdfb5ce2d2d605d6eb94"
+}

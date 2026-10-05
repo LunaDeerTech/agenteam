@@ -1,0 +1,110 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"syscall"
+	"testing"
+	"time"
+)
+
+type independentPersonalOwnerResult struct {
+	UserID, OldSessionA, OldSessionB, CurrentSessionB, RecoveredSessionA, Version      string
+	CandidateCreated, CandidateRevoked, OldPersonalWrites, PasswordPosts, ProfilePosts int
+	SameDocument, CurrentCSRF, Completed                                               bool
+}
+
+func TestIndependentPersonalSettingsLiveOwnerRevocation(t *testing.T) {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	f := newPersonalWebFixture(t, ctx)
+	r := independentPersonalOwnerBrowser(t, ctx, f)
+	if !r.Completed || r.UserID != f.admin.UserID || r.OldSessionA == r.OldSessionB || r.CurrentSessionB == r.RecoveredSessionA || !r.SameDocument || !r.CurrentCSRF || r.CandidateCreated != 1 || r.CandidateRevoked != 1 || r.OldPersonalWrites != 0 || r.PasswordPosts != 1 || r.ProfilePosts != 1 {
+		t.Fatal("independent live owner browser invariants incomplete")
+	}
+	conn := f.db.Connect(t)
+	var version string
+	var exact bool
+	var profileWrites, passwordWrites, avatarWrites, audits int
+	err := conn.QueryRow(ctx, "SELECT version::text,display_name='独立已确认资料' AND avatar_object_id IS NULL AND theme='system' AND role='admin' AND NOT initial_password_suggestion,(SELECT count(*) FROM agenteam_account.commands WHERE user_id=u.id AND command_name='profile-update' AND phase='committed'),(SELECT count(*) FROM agenteam_account.commands WHERE user_id=u.id AND command_name='password-change' AND phase='committed'),(SELECT count(*) FROM agenteam_account.commands WHERE user_id=u.id AND command_name='avatar-update' AND phase='committed'),(SELECT count(*) FROM agenteam_audit.audit_records WHERE producer='account' AND resource_id=u.id AND action IN ('account.profile.update','account.avatar.update','account.password.change') AND outcome='success') FROM agenteam_account.users u WHERE id=$1", r.UserID).Scan(&version, &exact, &profileWrites, &passwordWrites, &avatarWrites, &audits)
+	if err != nil || !exact || version != r.Version || profileWrites != 1 || passwordWrites != 1 || avatarWrites != 0 || audits != 2 {
+		t.Fatalf("independent persisted facts differ: error=%v exact=%t versionMatch=%t profile=%d password=%d avatar=%d audits=%d", err, exact, version == r.Version, profileWrites, passwordWrites, avatarWrites, audits)
+	}
+	for _, old := range []string{r.OldSessionA, r.OldSessionB} {
+		var revoked bool
+		if err = conn.QueryRow(ctx, "SELECT revoked_at IS NOT NULL AND revoked_reason='password_changed' FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2", old, r.UserID).Scan(&revoked); err != nil || !revoked || old == r.CurrentSessionB || old == r.RecoveredSessionA {
+			t.Fatal("original exact Session was not revoked", err)
+		}
+	}
+	for _, current := range []string{r.CurrentSessionB, r.RecoveredSessionA} {
+		var live bool
+		if err = conn.QueryRow(ctx, "SELECT revoked_at IS NULL FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2", current, r.UserID).Scan(&live); err != nil || !live {
+			t.Fatal("confirmed exact new Session unavailable", err)
+		}
+	}
+	t.Logf("independent exact user=%s version=%s profile=1 password=1 avatar=0 audits=2; same-document identity loss revoked candidate once; same-Session check retained draft; new CSRF write and two old Session revocations confirmed", r.UserID, version)
+}
+
+// Uses the unchanged frozen formal fixture and its private material. This
+// additional launcher selects only the independent case; no author assertion
+// or timeout is changed. Cmd.Wait is actual, and no sensitive body is logged.
+func independentPersonalOwnerBrowser(t *testing.T, ctx context.Context, f *personalWebFixture) independentPersonalOwnerResult {
+	t.Helper()
+	root, err := filepath.Abs("../account-captcha-web")
+	if err != nil {
+		t.Fatal(err)
+	}
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "independent-personal-owner.config.js"))
+	cmd.Dir = root
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	cmd.WaitDelay = time.Second
+	for _, value := range os.Environ() {
+		if !strings.HasPrefix(value, "TMPDIR=") && !strings.HasPrefix(value, "AGENTEAM_AUTH_WEB_") && !strings.HasPrefix(value, "AGENTEAM_PERSONAL_WEB_") && !strings.HasPrefix(value, "PLAYWRIGHT_NO_COPY_PROMPT=") && !strings.HasPrefix(value, "DEBUG=") && !strings.HasPrefix(value, "PWDEBUG=") {
+			cmd.Env = append(cmd.Env, value)
+		}
+	}
+	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "PLAYWRIGHT_NO_COPY_PROMPT=1")
+	var output bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &output, &output
+	if err = cmd.Start(); err != nil {
+		t.Fatal("independent locked browser runner could not start")
+	}
+	defer func() { _ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL); cmd.Env = nil }()
+	if stat, readErr := os.ReadFile(filepath.Join("/proc", strconv.Itoa(cmd.Process.Pid), "stat")); readErr == nil {
+		end := strings.LastIndexByte(string(stat), ')')
+		if end >= 0 {
+			fields := strings.Fields(string(stat[end+1:]))
+			if len(fields) > 19 {
+				t.Logf("independent Node actual pid=%d starttime=%s", cmd.Process.Pid, fields[19])
+			}
+		}
+	}
+	runErr := cmd.Wait()
+	safe := output.String()
+	for _, secret := range []string{f.admin.Password, f.member.Password, f.newPassword} {
+		safe = strings.ReplaceAll(safe, secret, "[redacted]")
+	}
+	t.Log(safe)
+	if runErr != nil {
+		t.Fatalf("independent actual browser failed: %v", runErr)
+	}
+	raw, err := os.ReadFile(filepath.Join(f.directory, "independent-personal-owner-result.json"))
+	if err != nil {
+		t.Fatal("independent safe result missing")
+	}
+	defer clear(raw)
+	var result independentPersonalOwnerResult
+	if json.Unmarshal(raw, &result) != nil || !result.Completed {
+		t.Fatal("independent safe result invalid")
+	}
+	return result
+}

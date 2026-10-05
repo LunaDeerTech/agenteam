@@ -1,0 +1,64 @@
+--- accepted-auth-run_fixture_v2.py
++++ settings-run_fixture.py
+@@ -7,7 +7,7 @@
+ plan_path = pathlib.Path(sys.argv[1]).resolve()
+ plan = json.loads(plan_path.read_text())
+ group = plan['groups'][int(sys.argv[2])]
+-base = pathlib.Path('/workspace/agenteam-d26-auth-author-jrfhr6h1')
++base = pathlib.Path(__file__).resolve().parent
+ record = base / 'evidence' / group['name']
+ record.mkdir(mode=0o700)
+ cwd = pathlib.Path(plan['cwd'])
+@@ -33,6 +33,13 @@
+ if any(v['expected'] != v['private'] or v['expected'] != v['shared'] for v in before.values()):
+     raise SystemExit('candidate source drift')
+ save('source-before.json', before)
++def dependency_state():
++    return {path: {'expected': expected, 'actual': hashlib.sha256((cwd / path).read_bytes()).hexdigest()}
++            for path, expected in manifest['fixed_dependencies_and_dist'].items()}
++deps_before = dependency_state()
++if any(v['expected'] != v['actual'] for v in deps_before.values()):
++    raise SystemExit('fixed dependency/dist drift')
++save('dependencies-before.json', deps_before)
+ # Only descendants of this observer can be adopted. Other agents/process trees
+ # are outside this subreaper, and only exact observed adopted PIDs are waited.
+ libc = ctypes.CDLL(None, use_errno=True)
+@@ -68,6 +75,16 @@
+ baseline_ids = {kind: ids(kind) for kind in ['containers', 'networks']}
+ baseline = {kind: {identifier: details(kind, identifier) for identifier in sorted(values)} for kind, values in baseline_ids.items()}
+ save('baseline.json', baseline)
++trusted_path = pathlib.Path(plan['trusted_baseline']['path'])
++trusted_raw = trusted_path.read_bytes()
++if hashlib.sha256(trusted_raw).hexdigest() != plan['trusted_baseline']['sha256']:
++    raise SystemExit('trusted baseline bytes changed')
++trusted = json.loads(trusted_raw)
++for kind, old_kind in [('containers', 'container'), ('networks', 'network')]:
++    expected = {v['ID']: {'name': v['Name'], 'labels': v['Labels'] or {}} for v in trusted[old_kind]}
++    actual = {identifier: {'name': v['name'], 'labels': v['labels'] or {}} for identifier, v in baseline[kind].items()}
++    if expected != actual:
++        raise SystemExit('Docker baseline differs from root-approved exact IDs/names/labels')
+ owned = {'containers': {}, 'networks': {}}
+ unexpected = {'containers': {}, 'networks': {}}
+ processes = {}
+@@ -140,7 +157,7 @@
+             else:
+                 unexpected[kind][identifier] = item
+ 
+-save('command.json', {'argv': group['argv'], 'cwd': str(cwd), 'env': plan['env'], 'input': str(manifest_path), 'input_sha256': plan['input_sha256'], 'plan_sha256': hashlib.sha256(plan_path.read_bytes()).hexdigest(), 'note': 'only safe explicit environment; credentials remain inside original owned fixture'})
++save('command.json', {'argv': group['argv'], 'cwd': str(cwd), 'env': plan['env'], 'input': str(manifest_path), 'input_sha256': plan['input_sha256'], 'plan_sha256': hashlib.sha256(plan_path.read_bytes()).hexdigest(), 'observer_argv': sys.argv, 'observer_sha256': hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest(), 'note': 'only safe explicit environment; credentials remain inside original owned fixture'})
+ start = time.time()
+ raw_log = base / 'logs' / (group['name'] + '.log')
+ with raw_log.open('wb') as log:
+@@ -203,9 +220,11 @@
+ save('cleanup-02.json', second)
+ after = source_state()
+ save('source-after.json', after)
++deps_after = dependency_state()
++save('dependencies-after.json', deps_after)
+ save('adopted-waits.json', adopted_waits)
+ clean = all(v['baseline_unchanged'] and not v['remaining_observed_processes'] and not v['remaining_owned_browser'] and not v['browser_runtime'] and not v['fixture_tmp'] and all(i['absent'] for values in v['resources'].values() for i in values.values()) for v in [first, second])
+-source_unchanged = before == after
++source_unchanged = before == after and deps_before == deps_after
+ summary = {'driver_exit': status, 'cleanup_pass': clean, 'source_unchanged': source_unchanged, 'owned_counts': {k: len(v) for k,v in owned.items()}, 'observed_browser_processes': len(processes), 'record': str(record)}
+ save('summary.json', summary)
+ print(json.dumps(summary), flush=True)

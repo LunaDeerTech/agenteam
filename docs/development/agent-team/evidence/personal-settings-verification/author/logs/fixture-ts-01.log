@@ -1,0 +1,7 @@
+tests/account-captcha-web/e2e/personal-settings.spec.ts(2,69): error TS2307: Cannot find module 'node:fs' or its corresponding type declarations.
+tests/account-captcha-web/e2e/personal-settings.spec.ts(3,22): error TS2307: Cannot find module 'node:path' or its corresponding type declarations.
+tests/account-captcha-web/e2e/personal-settings.spec.ts(5,19): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+tests/account-captcha-web/e2e/personal-settings.spec.ts(65,40): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+tests/account-captcha-web/e2e/personal-settings.spec.ts(98,19): error TS2488: Type 'NodeListOf<Element>' must have a '[Symbol.iterator]()' method that returns an iterator.
+tests/account-captcha-web/e2e/personal-settings.spec.ts(361,38): error TS2488: Type 'NodeListOf<Element>' must have a '[Symbol.iterator]()' method that returns an iterator.
+tests/account-captcha-web/e2e/personal-settings.spec.ts(386,18): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.

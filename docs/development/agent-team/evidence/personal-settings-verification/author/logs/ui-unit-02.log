@@ -1,0 +1,37 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/personal-settings.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam-d26-settings-author-uydib5xi/input/web
+
+ ❯ src/tests/personal-settings.spec.ts (11 tests | 1 failed) 513ms
+     × keeps selected avatar independent of dirty profile, reads confirmed bytes and revokes every owned URL on leave 86ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/personal-settings.spec.ts > personal settings pages > keeps selected avatar independent of dirty profile, reads confirmed bytes and revokes every owned URL on leave
+AssertionError: expected 3 to be 2 // Object.is equality
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ src/tests/personal-settings.spec.ts:168:39
+    166|     expect(p.api.updateProfile.mock.calls.length).toBe(0)
+    167|     const leave = p.router.push('/'); await flushPromises(); await cli…
+    168|     expect(created.mock.calls.length).toBe(2)
+       |                                       ^
+    169|     expect(new Set(revoked.mock.calls.map(([url]) => url))).toEqual(ne…
+    170|   })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 10 passed (11)
+   Start at  21:43:49
+   Duration  1.82s (transform 692ms, setup 0ms, import 825ms, tests 513ms, environment 363ms)
+

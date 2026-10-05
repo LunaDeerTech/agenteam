@@ -1,0 +1,124 @@
+--- a/web/src/composables/useSession.ts
++++ b/web/src/composables/useSession.ts
+@@ -89,7 +89,7 @@
+     }
+   | { kind: 'avatar-delete'; input: Readonly<{ version: Version }> }
+   | { kind: 'password'; input: PasswordInput | null }
+-) & { identity: PersonalIdentity; key: string; csrf: string; checked: boolean }
++) & { identity: PersonalIdentity; key: string; csrf: string; checked: boolean; unsettled: boolean }
+ const sameIdentity = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
+   !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
+ 
+@@ -488,7 +488,8 @@
+     })
+   }
+   function logout() {
+-    if (owner || pending || !state.session || !sessionCSRF) return Promise.resolve()
++    if (owner || pending || passwordSessionCheck || !state.session || !sessionCSRF)
++      return Promise.resolve()
+     try {
+       intent = { kind: 'logout', key: newKey(), session: state.session.id, csrf: sessionCSRF }
+       return performLogout(intent)
+@@ -686,7 +687,10 @@
+       () => undefined,
+     )
+     const unknown = (e: AccountFailure) => {
+-      if (command && personalIntent === command && isUnknown(e)) command.checked = false
++      if (command && personalIntent === command && isUnknown(e)) {
++        command.checked = false
++        command.unsettled = true
++      }
+       if (command?.kind === 'password' && sameIdentity(identity, personalContext.identity))
+         passwordSessionCheck = true
+     }
+@@ -731,8 +735,10 @@
+       .catch((error: unknown) => {
+         const e = personalFailure(identity, error)
+         if (command && personalIntent === command) {
+-          if (isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') command.checked = false
+-          else personalIntent = null
++          if (command.unsettled || isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') {
++            command.checked = false
++            command.unsettled = true
++          } else personalIntent = null
+         }
+         if (command?.kind === 'password' && !op.confirmed) {
+           if (isUnknown(e)) unknown(e)
+@@ -767,7 +773,7 @@
+     }
+   }
+   function startPersonal(
+-    command: Omit<PersonalCommand, 'identity' | 'key' | 'csrf' | 'checked'>,
++    command: Omit<PersonalCommand, 'identity' | 'key' | 'csrf' | 'checked' | 'unsettled'>,
+   ): Promise<PersonalMutationResult> {
+     try {
+       const identity = personalIdentity()
+@@ -779,6 +785,7 @@
+         key: newKey(),
+         csrf: sessionCSRF,
+         checked: true,
++        unsettled: false,
+       } as PersonalCommand
+       personalIntent = original
+       return performPersonal(original)
+--- a/web/src/tests/personal-settings-state.spec.ts
++++ b/web/src/tests/personal-settings-state.spec.ts
+@@ -98,6 +98,58 @@
+ })
+ 
+ describe('personal requests on the authentication owner', () => {
++  it('retains a historically uncertain File intent after a later definite replay rejection', async () => {
++    const { api, auth } = await fixture()
++    const file = new File(['original bytes'], 'original.png', { type: 'image/png' })
++    api.putAvatar.mockRejectedValueOnce(fault('COMMIT_UNKNOWN'))
++    await expect(
++      auth.personal.putAvatar({ version: '1', file, mediaType: 'image/png' }),
++    ).rejects.toMatchObject({ kind: 'problem' })
++    await auth.restore()
++    const later = fault('DEPENDENCY_UNAVAILABLE', 503, 'not_started')
++    api.putAvatar.mockRejectedValueOnce(later)
++    await expect(auth.personal.retryOriginal()).rejects.toBe(later)
++    const keys = vi.spyOn(crypto, 'randomUUID')
++    let blocked: unknown
++    try {
++      await auth.personal.putAvatar({
++        version: '2',
++        file: new File(['different'], 'other.png', { type: 'image/png' }),
++        mediaType: 'image/png',
++      })
++    } catch (error) {
++      blocked = error
++    }
++    expect(blocked instanceof AccountFailure && blocked.kind === 'busy').toBe(true)
++    expect(keys.mock.calls.length).toBe(0)
++    await auth.restore()
++    await auth.personal.retryOriginal()
++    expect(api.putAvatar.mock.calls.length).toBe(3)
++    const first = api.putAvatar.mock.calls[0]!
++    expect(
++      api.putAvatar.mock.calls.every(
++        ([input, options]) =>
++          input.file === file &&
++          input.version === '1' &&
++          input.mediaType === 'image/png' &&
++          options.key === first[1].key &&
++          options.csrfToken === first[1].csrfToken,
++      ),
++    ).toBe(true)
++  })
++  it('holds the password Cookie barrier after Unknown actual return until Session is explicitly checked', async () => {
++    const { api, auth } = await fixture()
++    api.changePassword.mockRejectedValueOnce(fault('COMMIT_UNKNOWN'))
++    await expect(auth.personal.changePassword(passwordInput())).rejects.toMatchObject({
++      kind: 'problem',
++    })
++    expect(auth.state.busy).toBe(false)
++    const keys = vi.spyOn(crypto, 'randomUUID')
++    await auth.logout()
++    expect(api.logout.mock.calls.length).toBe(0)
++    expect(keys.mock.calls.length).toBe(0)
++    expect(api.getSession).toHaveBeenCalledTimes(1)
++  })
+   it('returns typed results, rejects busy before key/transport, and retains ownership through a timeout and late 401', async () => {
+     vi.useFakeTimers()
+     const { api, auth } = await fixture()

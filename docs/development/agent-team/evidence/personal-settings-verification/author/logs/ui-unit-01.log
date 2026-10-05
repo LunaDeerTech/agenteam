@@ -1,0 +1,77 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/personal-settings.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam-d26-settings-author-uydib5xi/input/web
+
+ ❯ src/tests/personal-settings.spec.ts (11 tests | 4 failed) 458ms
+     × asks before route revalidation or logout, preserves edit/focus on continue and discards only on consent 53ms
+     × keeps the same draft and theme preview through hidden Session revalidation and cancels to the latest saved value 42ms
+     × preserves the original dirty version after conflict and requires explicit reload consent 36ms
+     × keeps selected avatar independent of dirty profile, reads confirmed bytes and revokes every owned URL on leave 27ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 4 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/personal-settings.spec.ts > personal settings pages > asks before route revalidation or logout, preserves edit/focus on continue and discards only on consent
+Error: button missing: 继续编辑
+ ❯ button src/tests/personal-settings.spec.ts:74:23
+     72| const button = (text: string) => {
+     73|   const element = [...document.querySelectorAll('button')].find((b) =>…
+     74|   if (!element) throw new Error(`button missing: ${text}`)
+       |                       ^
+     75|   return element
+     76| }
+ ❯ click src/tests/personal-settings.spec.ts:77:38
+ ❯ src/tests/personal-settings.spec.ts:105:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/4]⎯
+
+ FAIL  src/tests/personal-settings.spec.ts > personal settings pages > keeps the same draft and theme preview through hidden Session revalidation and cancels to the latest saved value
+Error: button missing: 取消预览
+ ❯ button src/tests/personal-settings.spec.ts:74:23
+     72| const button = (text: string) => {
+     73|   const element = [...document.querySelectorAll('button')].find((b) =>…
+     74|   if (!element) throw new Error(`button missing: ${text}`)
+       |                       ^
+     75|   return element
+     76| }
+ ❯ click src/tests/personal-settings.spec.ts:77:38
+ ❯ src/tests/personal-settings.spec.ts:132:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/4]⎯
+
+ FAIL  src/tests/personal-settings.spec.ts > personal settings pages > preserves the original dirty version after conflict and requires explicit reload consent
+Error: button missing: 重新加载最新资料
+ ❯ button src/tests/personal-settings.spec.ts:74:23
+     72| const button = (text: string) => {
+     73|   const element = [...document.querySelectorAll('button')].find((b) =>…
+     74|   if (!element) throw new Error(`button missing: ${text}`)
+       |                       ^
+     75|   return element
+     76| }
+ ❯ click src/tests/personal-settings.spec.ts:77:38
+ ❯ src/tests/personal-settings.spec.ts:144:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/4]⎯
+
+ FAIL  src/tests/personal-settings.spec.ts > personal settings pages > keeps selected avatar independent of dirty profile, reads confirmed bytes and revokes every owned URL on leave
+Error: button missing: 上传 / 替换头像
+ ❯ button src/tests/personal-settings.spec.ts:74:23
+     72| const button = (text: string) => {
+     73|   const element = [...document.querySelectorAll('button')].find((b) =>…
+     74|   if (!element) throw new Error(`button missing: ${text}`)
+       |                       ^
+     75|   return element
+     76| }
+ ❯ click src/tests/personal-settings.spec.ts:77:38
+ ❯ src/tests/personal-settings.spec.ts:160:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/4]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  4 failed | 7 passed (11)
+   Start at  21:43:27
+   Duration  1.75s (transform 652ms, setup 0ms, import 796ms, tests 458ms, environment 371ms)
+

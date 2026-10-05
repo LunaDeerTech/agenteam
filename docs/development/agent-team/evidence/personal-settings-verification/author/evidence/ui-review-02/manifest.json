@@ -1,0 +1,128 @@
+{
+  "baseline": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "previous": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-review-01/manifest.json",
+    "sha256": "8f5e5d95ec655b805f34bb614f39b78c335fcb6cf0f6d3014058fceca70dd890"
+  },
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "size": 10399
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "size": 13982
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+      "size": 34983
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "25099e3fb4b37e734274a10d8fccf7b9abb38a04105317f3f2a087db45030391",
+      "size": 1969
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "sha256": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd",
+      "size": 8978
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278",
+      "size": 1615
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "dccbda0b9349180d8a6dc8155fa5151856c5d77d992b86d8a314810259984ae4",
+      "size": 4236
+    },
+    {
+      "path": "web/src/views/HomeView.vue",
+      "sha256": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69",
+      "size": 790
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "91323ae0932dd95027a177d3ac438db0218e6ec45f20eb606100d3b137735021",
+      "size": 25012
+    },
+    {
+      "path": "web/src/components/layout/SettingsShell.vue",
+      "sha256": "ffb0ec3dad8c3b0bd9d5f6249431b6f099ddcb203ddfb8fac4efcff4019ac617",
+      "size": 3872
+    },
+    {
+      "path": "web/src/views/settings/PersonalSettingsView.vue",
+      "sha256": "9409f04f90dd93c6aab6b45dee1740f87ac87336da6f323d1f6ef586d0ffdf0b",
+      "size": 1890
+    },
+    {
+      "path": "web/src/views/settings/ProfileSettings.vue",
+      "sha256": "967f305f71043ab4ab77fced2baa107c2f11189645b6b766591b75c01131e0ae",
+      "size": 7399
+    },
+    {
+      "path": "web/src/views/settings/AppearanceSettings.vue",
+      "sha256": "7c0aa84feb7a6be4610a3f4e5b4f9d21cc80408a9a96510fa9d268075133d44f",
+      "size": 2579
+    },
+    {
+      "path": "web/src/views/settings/PasswordSettings.vue",
+      "sha256": "5ac4f544958025e6832458924d513d7a688a534ea7dea3b4a71a4267f1ae232b",
+      "size": 3430
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "sha256": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+      "size": 8992
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a",
+      "size": 22900
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "68aef7bf45d763e308721bde542ec3a0a9caa57d8832c7a84021fe4c7bd43007",
+      "size": 19909
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "size": 18655
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38",
+      "size": 21867
+    }
+  ],
+  "delta_sha256": "8cb3eb8f0c735ba9f033c797a0ccccb21a4a410285ee64eac62043c9ac8ae8b0",
+  "checks": [
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-f1-red-01.json",
+      "sha256": "6c8cc0a1892b38c86c01b10085bd74532fdffacc1ca4364f6ce97b550ba37f4a"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-f1-fix-01.json",
+      "sha256": "c47deb6eec9d18ed4194393695c5e454bb368c5d2a0ed1ceeee92b8f35f9a28e"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-f1-format-01.json",
+      "sha256": "4e222ccc669354db4b63f2222220936d9835cd10144adfa8e84d284434276c9a"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-f1-final-01.json",
+      "sha256": "906fade6d92c6c68db5ec84f54eb2adcc5c4c6c329ae32cfbdf98f126b0e6492"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-f1-type-01.json",
+      "sha256": "1648aa9e5d55f11aaf683b1b676215447e188b9ffdadb396b72dcbdf2a1ea9e1"
+    }
+  ],
+  "scope": "UI-F1 only: independent confirmed password feedback survives profile load/remount; subsequent read error retains confirmed fact. Core3 unchanged. No browser/Docker/Go fixture run."
+}

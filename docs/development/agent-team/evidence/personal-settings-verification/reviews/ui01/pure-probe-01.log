@@ -1,0 +1,30 @@
+
+ RUN  v4.1.11 /workspace/agenteam-personal-settings-ui01-v-rbhvu51t/tree/web
+
+ × src/tests/independent-settings-password-feedback.spec.ts > independent strict 200 password feedback > retains confirmed rotation feedback after a failed follow-up GET and explicit current Session check 119ms
+   → expected '跳转到内容aagenteamPerson退出登录处理中已完成个人设置个人资…' to contain '密码已修改，当前登录已更新，其他旧登录已失效。'
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/independent-settings-password-feedback.spec.ts > independent strict 200 password feedback > retains confirmed rotation feedback after a failed follow-up GET and explicit current Session check
+AssertionError: expected '跳转到内容aagenteamPerson退出登录处理中已完成个人设置个人资…' to contain '密码已修改，当前登录已更新，其他旧登录已失效。'
+
+Expected: "密码已修改，当前登录已更新，其他旧登录已失效。"
+Received: "跳转到内容aagenteamPerson退出登录处理中已完成个人设置个人资料基本资料界面偏好主题账号安全修改密码退出登录处理中已完成修改密码 新密码为 15–128 个字符，最多 512 字节。保留空格与中文，不会自动修剪；请避免弱密码。 当前密码 *新密码 *确认新密码 *修改密码处理中已完成清空输入处理中已完成返回首页"
+
+ ❯ src/tests/independent-settings-password-feedback.spec.ts:254:30
+    252|     for (const name of ['current_password', 'new_password', 'confirmat…
+    253|       expect(p.wrapper.get(`#settings-${name}`).element).toHavePropert…
+    254|     expect(p.wrapper.text()).toContain('密码已修改，当前登录已更新，其他旧登录已失效。')
+       |                              ^
+    255|   })
+    256| })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  21:51:10
+   Duration  1.43s (transform 648ms, setup 0ms, import 789ms, tests 120ms, environment 396ms)
+

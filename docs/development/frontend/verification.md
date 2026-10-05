@@ -2,7 +2,7 @@
 
 日期：2026-10-01。环境：Node 24.20.0、npm 11.19.0、Chromium / Playwright。此记录针对公共组件和 Debug，不代替业务页面验收。
 
-以下至“保留边界”为该日期的历史记录，原结果与当时未实现范围均保留。2026-10-05 的正式 Account 认证验收见文末追加记录。
+以下至“保留边界”为该日期的历史记录，原结果与当时未实现范围均保留。2026-10-05 的正式 Account 认证及个人设置验收分别见文末追加记录。
 
 ## 工程检查
 
@@ -69,3 +69,38 @@ Tab 指示线与内容滑动通过浏览器检查；过渡时只有当前面板�
 作者五轮、独立两轮各自实际捕获四个容器和三个网络的 nonce/label/exact ID，均两次确认 absent，原两个容器/四个网络基线不变。非空浏览器 PID/starttime 及收养后实际 wait 记录、两次进程终局检查、runtime/私有凭据目录清理和固定输入前后指纹见持久记录；不以单个 cleanup 布尔代替证据。
 
 本结果只关闭本卡认证完整结果。Unknown、畸形响应和迟到 transport 的纯模拟不代表真实服务端 COMMIT/网络故障或 Cookie 竞争验收。未单独运行真实 Vite 开发代理浏览器场景；未验 Firefox、Safari 或真实触屏设备。自有测试服务器不是生产 hosting，Central 仍未托管 SPA；完整 D26/D28、Provider 调用及既有 Object/Artifact/Project 未完成边界保持。
+
+## 2026-10-05：本人资料、主题与修改密码完整结果
+
+[个人设置工作项](../work-items/d26-personal-settings.md)的精确 24 个代码/测试路径已独立验收并获主线程采纳，源码提交推送为 `c54f73f3324caa11608d84e5d207141985eb6074`。固定业务基线为已验认证 `9a710f272026b41ef69852bbeb41cb7670b500a8`，最终 `fixture-input-01` SHA-256 为 `20d8fc5e3ec3ad3f5eb477345fd76d002eec057b4a0a2d0fad875e354c1a99fd`。24 源、11 项固定依赖及 9 项正式 dist 产物在各轮前后逐 SHA 相同；未消费活动 Resolver/Artifact，未改 Go 生产、API、迁移或包锁。精确输入、实际 argv/env/exit、原日志及独立报告见[个人设置验收记录](../agent-team/personal-settings-verification.md)。
+
+本轮沿 Node 24.19.0、npm 11.9.0、锁定 Playwright 1.56.1、系统 Chromium 151 和 Go 1.27.1，无新依赖。`npm run check --prefix web` 在私有固定输入实际通过格式、9 文件 110 个纯测试、类型检查和正式构建；新增 Go fixture 的 integration race compile、适用 vet、浏览器 spec TypeScript 和配置语法检查均通过。Unknown、忙碌、迟到请求及实际尾部责任由纯测试覆盖，未注入真实 COMMIT、ROLLBACK 或网络故障。
+
+### 四个新增真实顶层
+
+四个 Go 顶层分别对应一个真实浏览器 case，均通过，使用正式 dist、自有同源服务器和完整真实 Account/PG/MinIO。普通用户通过正式邀请、inspect、兑换建立，没有 SQL 造用户或权限。
+
+| 顶层 | 通过的实际行为与后态 |
+| --- | --- |
+| `TestAccountPersonalSettingsWebProfileAndAvatar` | 用户名规范及重复拒绝、空显示名、最终输入快照；JPG/PNG/WebP 上传、服务端重编码后的元数据/字节读回、替换与删除；SVG/动画/超限拒绝保留旧头像；精确 8 条成功命令及 8 条 Audit |
+| `TestAccountPersonalSettingsWebThemeAndNavigation` | 预览/取消的持久 version、theme、命令和 Audit 不变，3 次明确主题写入；两窗口真实版本冲突保留草稿；三叶子登录返回、dirty 菜单/back/logout、同 Session 重验与 system 变化 |
+| `TestAccountPersonalSettingsWebPasswordRotation` | 确认不一致零 POST、当前密码与弱密码反馈；严格 200 后密码清空，新 Session/CSRF 后再写资料；两个旧 Session 因 `password_changed` 撤销，新密码登录、旧密码拒绝及初始建议清除 |
+| `TestAccountPersonalSettingsWebAuthorityAndProduction` | 普通用户/管理员各操作本人；body 越权、Origin、CSRF 拒绝；失效隐藏；浅深/system × 1440/1024/834/390、长文本、CSS zoom=2（非浏览器原生缩放）、键盘/焦点/reduced-motion、无溢出及生产 Debug/API/资产边界 |
+
+作者及主线程实际查看了安全的深色窄屏设置截图，不含密码等敏感输入。
+
+### 认证回归与独立增量
+
+旧认证四个顶层名称、六个浏览器 case 采用分项组合覆盖：lifecycle 与 desktop 先通过，同轮 keyboard 在旧 spec 的 `Response.json()` 遇到 CDP `Network.getResponseBody: No data found for resource with given identifier`，原 RotateChallenge 父组及 driver 仍记 FAIL。该原日志没有记录这次响应的 status/body，原因未知，不能补推 401 或 ChallengeRequired。独立限定归因后，主线程仅授权一次原样 `-run '^TestAccountAuthenticationWebRotateChallenge$/^keyboard$'`，实际通过；源码、旧断言、预算和观察方式不变，没有 clone/tee 或 CDP 干预。revocation、expiry、layouts 随后原组通过。不能据此写成原认证父组一次全绿或首红根因已解决。
+
+独立真实增量 `TestIndependentPersonalSettingsLiveOwnerRevocation` 为一顶层、一浏览器 case，通过同 Session `pageshow` 后保留未保存资料和 File/Blob、另一窗口真实改密并以新 CSRF 写资料、原窗口真实 401 后清除旧草稿和候选头像且不被 dirty 确认阻挡、同文档重新登录不恢复旧稿。只读 PG 核对 profile/password 各一条、avatar 零条、Audit 两条及新旧 Session 后态；透明 URL 计数核原 `revokeObjectURL` 实际调用，不外推 JavaScript GC 或 Object guard。通过轮 account 11.591s、driver 0，raw SHA-256 为 `7a90444fc7aa7e8cf745d4b8332a2d2be4fc68a616c083a3ed4e8a37b1102d05`；独立最终报告 SHA-256 为 `ada59561329eb0c5d8b9b28720e6a548601a09b27966e04df4ea40897ae92b9c`。
+
+### 原失败、清理与限制
+
+Core F1/F2 的原红与修复保留：改密 Unknown 的实际尾部结束后仍须先确认 Session 才能注销；后继普通 `not_started` 拒绝不消解首次 Unknown，也不丢原 key/body/File。UI-F1 独立 pure 原红及同 probe 修后通过、UI-F2 后继真实 identity epoch 不得重建旧改密反馈的作者原红/修后检查和独立静审均有版本对应。
+
+原 TypeScript 分支类型、测试选择器/清理时点和 TS 检查命令缺现有类型路径的准备失败另行保留。Core F2 中间源和首 fixture TS 源是事后按原 SHA 精确重建，不能称为同期备份。独立真实首轮在运行目录长度检查失败，虽启动了后端前置，但 Node/browser 未启动，不能计行为验证；实际双清后仅将私有 runtime 改为短路径，同一探针和预算一次通过，未作产品修复。
+
+所有真实执行沿原 race/count1/每包 6m、Go 顶层 2m、Playwright 单例 45s/worker1/retry0。作者五轮、独立两轮均有自有 4 容器/3 网络的 live nonce/label/exact ID 和两次实际 absent，原 2 容器/4 网络不变。首作者组未采到 Node PID/starttime，仅有 Go launcher 实际 `cmd.Wait` 返回 0；后四轮和独立通过轮的非空 PID/starttime、收养后 wait 不能反填首组。每轮进程/runtime、私有 IPC 材料清零及输入末核见持久记录；trace/video/request-body 日志关闭。
+
+本结果关闭本卡本人设置范围，不代表完整 D26/D27。测试自有同源正式 dist 服务不等于 Central 生产 SPA 托管或真实 Vite 开发代理验收；正常头像读写和退出不证明既有 Object Runtime/guard 缺陷已修。Artifact、其它未绑定能力及未验浏览器/设备边界保持。

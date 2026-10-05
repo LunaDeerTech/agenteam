@@ -1,0 +1,28 @@
+{
+  "argv": [
+    "node",
+    "--check",
+    "tests/account-captcha-web/independent-personal-owner.config.js"
+  ],
+  "cwd": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/tree",
+  "environment": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-system-http-independent-v-3yb4qs32/gocache",
+    "TMPDIR": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/tmp"
+  },
+  "inputs": {
+    "tests/account/independent_personal_owner_test.go": "1d7cc17ee78302799c864052f0e9bcad773c2f8f6400f21daf346dd25c9391fc",
+    "tests/account-captcha-web/independent-personal-owner.config.js": "91c75467f0bb3804f1a9313486526d3ffcd2e66c811c86d464191ea05a280263",
+    "tests/account-captcha-web/e2e/independent-personal-owner.spec.ts": "171b514740dc6a6222d7fea6d41f53820c0b7ba00e8a1212899cb0ae24721a77"
+  },
+  "exit": 0,
+  "seconds": 0.026868343353271484,
+  "raw": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/logs/config-01.log",
+  "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

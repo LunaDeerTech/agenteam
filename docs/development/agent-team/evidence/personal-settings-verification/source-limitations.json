@@ -1,0 +1,523 @@
+{
+  "rule": "These intermediate records retain exact input hashes and actual command results but lack exact original bytes in the bounded frozen source pools. They are not counted as fully reconstructable inputs. No reconstruction invented.",
+  "intermediate_source_hashes_only": [
+    {
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "sha256": "1fdc62aebb9021e3f848614d6cb9b2d89219b83bcf835e5273d72e7823760b42",
+      "referenced_by": [
+        "author/evidence/fixture-spec-format-01.json",
+        "author/evidence/fixture-ts-02.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "sha256": "42b8a80ef2b85729753761aef166e567f88baa143463fee5750287c25beb3aa9",
+      "referenced_by": [
+        "author/evidence/fixture-spec-format-02.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "sha256": "bdb8835974e7b95c8f7de9a6e1c51734a8e803e289de622e9ca9aa1b4f5948d2",
+      "referenced_by": [
+        "author/evidence/fixture-config-01.json",
+        "author/evidence/fixture-go-vet-01.json",
+        "author/evidence/fixture-ts-final-01.json",
+        "author/evidence/web-check-02.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "tests/account-captcha-web/personal-settings.config.js",
+      "sha256": "148b06011f96b6ad98a6934aaf0e694c863c61c011359ecd2be78a0a54b92f5e",
+      "referenced_by": [
+        "author/evidence/fixture-format-01.json",
+        "author/evidence/fixture-go-compile-01.json",
+        "author/evidence/fixture-spec-format-01.json",
+        "author/evidence/fixture-ts-01.json",
+        "author/evidence/fixture-ts-02.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "d480882ea20e3c8ac1692823baa92d36e6de7bf5aedebfcee1cbbaff060c83ca",
+      "referenced_by": [
+        "author/evidence/core-client-unit-01.json",
+        "author/evidence/core-format-01.json",
+        "author/evidence/core-state-unit-01.json",
+        "author/evidence/core-type-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "75a769a153ecaa453ab213de787da7c384584fe0b7a1beff1c8ed4819d468540",
+      "referenced_by": [
+        "author/evidence/core-client-unit-01.json",
+        "author/evidence/core-format-01.json",
+        "author/evidence/core-state-unit-01.json",
+        "author/evidence/core-type-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/components/layout/SettingsShell.vue",
+      "sha256": "5b1e733237f540fcb00b99b6f453da020656b2d09c288a2759841dcab4125e94",
+      "referenced_by": [
+        "author/evidence/ui-format-01.json",
+        "author/evidence/ui-owner-unit-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "39d1ccf89b6fd3169944335d606a71b682fe9427cdaf978fc2d572870aca0d6a",
+      "referenced_by": [
+        "author/evidence/ui-f1-format-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "76623e86c313e054d135dbbbb9c51e84fe58ac4b39f26246f8afaaae7b3d3e11",
+      "referenced_by": [
+        "author/evidence/core-f1-fix-01.json",
+        "author/evidence/core-f1-red-01.json",
+        "author/evidence/core-f2-fix-01.json",
+        "author/evidence/core-f2-red-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "7e414db515d786637a48445d48900034f28ad6c26a638fc2d4071b9751dcd766",
+      "referenced_by": [
+        "author/evidence/ui-f1-fix-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "ac8debbf664f82c354f08dad8047ac58d6b59a8c8a19eb2183cf56e78266a1e3",
+      "referenced_by": [
+        "author/evidence/ui-format-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "d19b8be86f8e11ad47ac16e796da95962beb120179f3317e12952061dca53a29",
+      "referenced_by": [
+        "author/evidence/ui-owner-unit-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "5c990e8a1c8ea0f3058c3bf26eaed442238be58a62118147a4500892c903a366",
+      "referenced_by": [
+        "author/evidence/core-format-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "ccfc59833d0a8cad59d6c5db88695b8aab4c20b7e973c538e7930d4768a5ce45",
+      "referenced_by": [
+        "author/evidence/core-client-unit-01.json",
+        "author/evidence/core-state-unit-01.json",
+        "author/evidence/core-type-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "831e8c7618b333369586422dfce6775a12f828848e4ccd2e20ead132ec1bb058",
+      "referenced_by": [
+        "author/evidence/core-client-unit-01.json",
+        "author/evidence/core-format-01.json",
+        "author/evidence/core-state-unit-01.json",
+        "author/evidence/core-type-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "sha256": "493945887640ef0b34518c490cd515fd183083f86e7841ab939fc833960b991f",
+      "referenced_by": [
+        "author/evidence/core-client-unit-01.json",
+        "author/evidence/core-format-01.json",
+        "author/evidence/core-state-unit-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "148eb816878ffb60d719f74f7aedaeec2b332ba22cb5de9a99d91c78ac4bf43d",
+      "referenced_by": [
+        "author/evidence/core-f1-fix-01.json",
+        "reviews/core02/index.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "4d1bfadfebbab73da829ab96dda34408b8eb58ea2f086cd716dde33edc7ab12c",
+      "referenced_by": [
+        "author/evidence/core-format-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "cf4ce91462e9eac87fb0baebcddf25b0bcb4bc57264da9e57da9788345678e2e",
+      "referenced_by": [
+        "author/evidence/core-state-unit-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "d45416e3951d3fee2b8471aa0cfeb039f16c5754deb70d9381d30e4b532b09a0",
+      "referenced_by": [
+        "author/evidence/ui-format-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "fdf86cefdb70ce844f1420d77afad8cf58ccdf46666ec69fea13da68d470b6bb",
+      "referenced_by": [
+        "author/evidence/ui-owner-unit-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "5544c3327da4f3eb3d90f5671fa7e4f38a1a560ecc1ae7b2e2c404325db17477",
+      "referenced_by": [
+        "author/evidence/ui-format-01.json",
+        "author/evidence/ui-owner-unit-01.json",
+        "author/evidence/ui-unit-03.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "46a552fbe1ea06368a5080a02a0c89dfd536fcfe35f8c0f0634dff6a2b79a584",
+      "referenced_by": [
+        "author/evidence/core-client-unit-01.json",
+        "author/evidence/core-format-01.json",
+        "author/evidence/core-state-unit-01.json",
+        "author/evidence/core-type-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/views/settings/PersonalSettingsView.vue",
+      "sha256": "1ca2b5927e62aa991a46b09bb937607c0e959c4d0de6dff8931729782f0d1e11",
+      "referenced_by": [
+        "author/evidence/ui-format-01.json",
+        "author/evidence/ui-owner-unit-01.json"
+      ],
+      "kind": "missing"
+    },
+    {
+      "path": "web/src/views/settings/ProfileSettings.vue",
+      "sha256": "3be99f0cffedac8b2bd175b4ec29cad1d92fc1f2a2a6b5c3e310487bcb385925",
+      "referenced_by": [
+        "author/evidence/ui-format-01.json",
+        "author/evidence/ui-owner-unit-01.json"
+      ],
+      "kind": "missing"
+    }
+  ],
+  "affected_records": {
+    "author/evidence/fixture-spec-format-01.json": [
+      {
+        "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+        "sha256": "1fdc62aebb9021e3f848614d6cb9b2d89219b83bcf835e5273d72e7823760b42"
+      },
+      {
+        "path": "tests/account-captcha-web/personal-settings.config.js",
+        "sha256": "148b06011f96b6ad98a6934aaf0e694c863c61c011359ecd2be78a0a54b92f5e"
+      }
+    ],
+    "author/evidence/fixture-ts-02.json": [
+      {
+        "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+        "sha256": "1fdc62aebb9021e3f848614d6cb9b2d89219b83bcf835e5273d72e7823760b42"
+      },
+      {
+        "path": "tests/account-captcha-web/personal-settings.config.js",
+        "sha256": "148b06011f96b6ad98a6934aaf0e694c863c61c011359ecd2be78a0a54b92f5e"
+      }
+    ],
+    "author/evidence/fixture-spec-format-02.json": [
+      {
+        "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+        "sha256": "42b8a80ef2b85729753761aef166e567f88baa143463fee5750287c25beb3aa9"
+      }
+    ],
+    "author/evidence/fixture-config-01.json": [
+      {
+        "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+        "sha256": "bdb8835974e7b95c8f7de9a6e1c51734a8e803e289de622e9ca9aa1b4f5948d2"
+      }
+    ],
+    "author/evidence/fixture-go-vet-01.json": [
+      {
+        "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+        "sha256": "bdb8835974e7b95c8f7de9a6e1c51734a8e803e289de622e9ca9aa1b4f5948d2"
+      }
+    ],
+    "author/evidence/fixture-ts-final-01.json": [
+      {
+        "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+        "sha256": "bdb8835974e7b95c8f7de9a6e1c51734a8e803e289de622e9ca9aa1b4f5948d2"
+      }
+    ],
+    "author/evidence/web-check-02.json": [
+      {
+        "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+        "sha256": "bdb8835974e7b95c8f7de9a6e1c51734a8e803e289de622e9ca9aa1b4f5948d2"
+      }
+    ],
+    "author/evidence/fixture-format-01.json": [
+      {
+        "path": "tests/account-captcha-web/personal-settings.config.js",
+        "sha256": "148b06011f96b6ad98a6934aaf0e694c863c61c011359ecd2be78a0a54b92f5e"
+      }
+    ],
+    "author/evidence/fixture-go-compile-01.json": [
+      {
+        "path": "tests/account-captcha-web/personal-settings.config.js",
+        "sha256": "148b06011f96b6ad98a6934aaf0e694c863c61c011359ecd2be78a0a54b92f5e"
+      }
+    ],
+    "author/evidence/fixture-ts-01.json": [
+      {
+        "path": "tests/account-captcha-web/personal-settings.config.js",
+        "sha256": "148b06011f96b6ad98a6934aaf0e694c863c61c011359ecd2be78a0a54b92f5e"
+      }
+    ],
+    "author/evidence/core-client-unit-01.json": [
+      {
+        "path": "web/src/api/account.ts",
+        "sha256": "d480882ea20e3c8ac1692823baa92d36e6de7bf5aedebfcee1cbbaff060c83ca"
+      },
+      {
+        "path": "web/src/api/client.ts",
+        "sha256": "75a769a153ecaa453ab213de787da7c384584fe0b7a1beff1c8ed4819d468540"
+      },
+      {
+        "path": "web/src/composables/useSession.ts",
+        "sha256": "ccfc59833d0a8cad59d6c5db88695b8aab4c20b7e973c538e7930d4768a5ce45"
+      },
+      {
+        "path": "web/src/tests/authentication.spec.ts",
+        "sha256": "831e8c7618b333369586422dfce6775a12f828848e4ccd2e20ead132ec1bb058"
+      },
+      {
+        "path": "web/src/tests/personal-settings-client.spec.ts",
+        "sha256": "493945887640ef0b34518c490cd515fd183083f86e7841ab939fc833960b991f"
+      },
+      {
+        "path": "web/src/tests/session.spec.ts",
+        "sha256": "46a552fbe1ea06368a5080a02a0c89dfd536fcfe35f8c0f0634dff6a2b79a584"
+      }
+    ],
+    "author/evidence/core-format-01.json": [
+      {
+        "path": "web/src/api/account.ts",
+        "sha256": "d480882ea20e3c8ac1692823baa92d36e6de7bf5aedebfcee1cbbaff060c83ca"
+      },
+      {
+        "path": "web/src/api/client.ts",
+        "sha256": "75a769a153ecaa453ab213de787da7c384584fe0b7a1beff1c8ed4819d468540"
+      },
+      {
+        "path": "web/src/composables/useSession.ts",
+        "sha256": "5c990e8a1c8ea0f3058c3bf26eaed442238be58a62118147a4500892c903a366"
+      },
+      {
+        "path": "web/src/tests/authentication.spec.ts",
+        "sha256": "831e8c7618b333369586422dfce6775a12f828848e4ccd2e20ead132ec1bb058"
+      },
+      {
+        "path": "web/src/tests/personal-settings-client.spec.ts",
+        "sha256": "493945887640ef0b34518c490cd515fd183083f86e7841ab939fc833960b991f"
+      },
+      {
+        "path": "web/src/tests/personal-settings-state.spec.ts",
+        "sha256": "4d1bfadfebbab73da829ab96dda34408b8eb58ea2f086cd716dde33edc7ab12c"
+      },
+      {
+        "path": "web/src/tests/session.spec.ts",
+        "sha256": "46a552fbe1ea06368a5080a02a0c89dfd536fcfe35f8c0f0634dff6a2b79a584"
+      }
+    ],
+    "author/evidence/core-state-unit-01.json": [
+      {
+        "path": "web/src/api/account.ts",
+        "sha256": "d480882ea20e3c8ac1692823baa92d36e6de7bf5aedebfcee1cbbaff060c83ca"
+      },
+      {
+        "path": "web/src/api/client.ts",
+        "sha256": "75a769a153ecaa453ab213de787da7c384584fe0b7a1beff1c8ed4819d468540"
+      },
+      {
+        "path": "web/src/composables/useSession.ts",
+        "sha256": "ccfc59833d0a8cad59d6c5db88695b8aab4c20b7e973c538e7930d4768a5ce45"
+      },
+      {
+        "path": "web/src/tests/authentication.spec.ts",
+        "sha256": "831e8c7618b333369586422dfce6775a12f828848e4ccd2e20ead132ec1bb058"
+      },
+      {
+        "path": "web/src/tests/personal-settings-client.spec.ts",
+        "sha256": "493945887640ef0b34518c490cd515fd183083f86e7841ab939fc833960b991f"
+      },
+      {
+        "path": "web/src/tests/personal-settings-state.spec.ts",
+        "sha256": "cf4ce91462e9eac87fb0baebcddf25b0bcb4bc57264da9e57da9788345678e2e"
+      },
+      {
+        "path": "web/src/tests/session.spec.ts",
+        "sha256": "46a552fbe1ea06368a5080a02a0c89dfd536fcfe35f8c0f0634dff6a2b79a584"
+      }
+    ],
+    "author/evidence/core-type-01.json": [
+      {
+        "path": "web/src/api/account.ts",
+        "sha256": "d480882ea20e3c8ac1692823baa92d36e6de7bf5aedebfcee1cbbaff060c83ca"
+      },
+      {
+        "path": "web/src/api/client.ts",
+        "sha256": "75a769a153ecaa453ab213de787da7c384584fe0b7a1beff1c8ed4819d468540"
+      },
+      {
+        "path": "web/src/composables/useSession.ts",
+        "sha256": "ccfc59833d0a8cad59d6c5db88695b8aab4c20b7e973c538e7930d4768a5ce45"
+      },
+      {
+        "path": "web/src/tests/authentication.spec.ts",
+        "sha256": "831e8c7618b333369586422dfce6775a12f828848e4ccd2e20ead132ec1bb058"
+      },
+      {
+        "path": "web/src/tests/session.spec.ts",
+        "sha256": "46a552fbe1ea06368a5080a02a0c89dfd536fcfe35f8c0f0634dff6a2b79a584"
+      }
+    ],
+    "author/evidence/ui-format-01.json": [
+      {
+        "path": "web/src/components/layout/SettingsShell.vue",
+        "sha256": "5b1e733237f540fcb00b99b6f453da020656b2d09c288a2759841dcab4125e94"
+      },
+      {
+        "path": "web/src/composables/usePersonalSettings.ts",
+        "sha256": "ac8debbf664f82c354f08dad8047ac58d6b59a8c8a19eb2183cf56e78266a1e3"
+      },
+      {
+        "path": "web/src/tests/personal-settings-state.spec.ts",
+        "sha256": "d45416e3951d3fee2b8471aa0cfeb039f16c5754deb70d9381d30e4b532b09a0"
+      },
+      {
+        "path": "web/src/tests/personal-settings.spec.ts",
+        "sha256": "5544c3327da4f3eb3d90f5671fa7e4f38a1a560ecc1ae7b2e2c404325db17477"
+      },
+      {
+        "path": "web/src/views/settings/PersonalSettingsView.vue",
+        "sha256": "1ca2b5927e62aa991a46b09bb937607c0e959c4d0de6dff8931729782f0d1e11"
+      },
+      {
+        "path": "web/src/views/settings/ProfileSettings.vue",
+        "sha256": "3be99f0cffedac8b2bd175b4ec29cad1d92fc1f2a2a6b5c3e310487bcb385925"
+      }
+    ],
+    "author/evidence/ui-owner-unit-01.json": [
+      {
+        "path": "web/src/components/layout/SettingsShell.vue",
+        "sha256": "5b1e733237f540fcb00b99b6f453da020656b2d09c288a2759841dcab4125e94"
+      },
+      {
+        "path": "web/src/composables/usePersonalSettings.ts",
+        "sha256": "d19b8be86f8e11ad47ac16e796da95962beb120179f3317e12952061dca53a29"
+      },
+      {
+        "path": "web/src/tests/personal-settings-state.spec.ts",
+        "sha256": "fdf86cefdb70ce844f1420d77afad8cf58ccdf46666ec69fea13da68d470b6bb"
+      },
+      {
+        "path": "web/src/tests/personal-settings.spec.ts",
+        "sha256": "5544c3327da4f3eb3d90f5671fa7e4f38a1a560ecc1ae7b2e2c404325db17477"
+      },
+      {
+        "path": "web/src/views/settings/PersonalSettingsView.vue",
+        "sha256": "1ca2b5927e62aa991a46b09bb937607c0e959c4d0de6dff8931729782f0d1e11"
+      },
+      {
+        "path": "web/src/views/settings/ProfileSettings.vue",
+        "sha256": "3be99f0cffedac8b2bd175b4ec29cad1d92fc1f2a2a6b5c3e310487bcb385925"
+      }
+    ],
+    "author/evidence/ui-f1-format-01.json": [
+      {
+        "path": "web/src/composables/usePersonalSettings.ts",
+        "sha256": "39d1ccf89b6fd3169944335d606a71b682fe9427cdaf978fc2d572870aca0d6a"
+      }
+    ],
+    "author/evidence/core-f1-fix-01.json": [
+      {
+        "path": "web/src/composables/usePersonalSettings.ts",
+        "sha256": "76623e86c313e054d135dbbbb9c51e84fe58ac4b39f26246f8afaaae7b3d3e11"
+      },
+      {
+        "path": "web/src/tests/personal-settings-state.spec.ts",
+        "sha256": "148eb816878ffb60d719f74f7aedaeec2b332ba22cb5de9a99d91c78ac4bf43d"
+      }
+    ],
+    "author/evidence/core-f1-red-01.json": [
+      {
+        "path": "web/src/composables/usePersonalSettings.ts",
+        "sha256": "76623e86c313e054d135dbbbb9c51e84fe58ac4b39f26246f8afaaae7b3d3e11"
+      }
+    ],
+    "author/evidence/core-f2-fix-01.json": [
+      {
+        "path": "web/src/composables/usePersonalSettings.ts",
+        "sha256": "76623e86c313e054d135dbbbb9c51e84fe58ac4b39f26246f8afaaae7b3d3e11"
+      }
+    ],
+    "author/evidence/core-f2-red-01.json": [
+      {
+        "path": "web/src/composables/usePersonalSettings.ts",
+        "sha256": "76623e86c313e054d135dbbbb9c51e84fe58ac4b39f26246f8afaaae7b3d3e11"
+      }
+    ],
+    "author/evidence/ui-f1-fix-01.json": [
+      {
+        "path": "web/src/composables/usePersonalSettings.ts",
+        "sha256": "7e414db515d786637a48445d48900034f28ad6c26a638fc2d4071b9751dcd766"
+      }
+    ],
+    "reviews/core02/index.json": [
+      {
+        "path": "web/src/tests/personal-settings-state.spec.ts",
+        "sha256": "148eb816878ffb60d719f74f7aedaeec2b332ba22cb5de9a99d91c78ac4bf43d"
+      }
+    ],
+    "author/evidence/ui-unit-03.json": [
+      {
+        "path": "web/src/tests/personal-settings.spec.ts",
+        "sha256": "5544c3327da4f3eb3d90f5671fa7e4f38a1a560ecc1ae7b2e2c404325db17477"
+      }
+    ]
+  },
+  "final_web_check_110_boundary": "web-check-02 lists 24 paths administratively. All 19 web sources actually consumed by npm check match final accepted24. Missing bdb88359... browser harness spec is outside npm web check input scope; final browser TS and all real rounds bind final a91ec07d... bytes.",
+  "core_repair_boundary": "Original Core F1/F2 red core/test bytes and final Core02 state tests are located; selected transient preparation/fix records also list unrelated in-progress UI sources, and core-f1-fix-01 intermediate test148eb816... is not asserted reconstructable. Final Core02/pure110 and independent pure/real boundaries use exact available bytes.",
+  "historical_UI01_generated_assets": "Only hashes retained for six prior UI01 generated versions. No real browser acceptance uses them. Final9 original asset hashes verified during archive and not re-built or bundled."
+}

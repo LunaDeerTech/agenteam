@@ -1,0 +1,298 @@
+{
+  "kind": "independent bounded static delta review",
+  "conclusion": "PASS: close core01 F1 and F2 only",
+  "baseline": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "manifest": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-review-02/manifest.json",
+    "sha256": "84de3f8bc1a18a81377cb469e9e3f18e355e17c0187851085aaf70decbc4ac24"
+  },
+  "delta": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-review-02/delta.patch",
+    "sha256": "dbf5b90e68f54367e4a9dffefa25de339c0ea0b9261bac8b1d912507d8a2d5b3"
+  },
+  "fixed_sources": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "size": 10399
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "size": 13982
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+      "size": 34983
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "sha256": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+      "size": 8992
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "2681a83490e0386643cd72db4cbc257bbc0f9dd1bc1276810d92f02c84e4db5f",
+      "size": 17326
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "size": 18655
+    }
+  ],
+  "source_directory": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-review-02/sources",
+  "author_checks": [
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f1-red-01.json",
+      "sha256": "918715f6fcee7eb7e0e7a951f817c56b3a641a5dca1639e42e239149c3f52cf1",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings-state.spec.ts",
+        "-t",
+        "holds the password Cookie barrier"
+      ],
+      "environment": {
+        "TMPDIR": "/workspace/agenteam-d26-settings-author-uydib5xi/tmp",
+        "GOCACHE": "/workspace/agenteam-d26-settings-author-uydib5xi/go-cache",
+        "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+        "GOTOOLCHAIN": "local",
+        "GOENV": "off",
+        "GOWORK": "off",
+        "GOPROXY": "off",
+        "GOFLAGS": "-mod=readonly"
+      },
+      "exit": 1,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/core-f1-red-01.log",
+      "log_sha256": "be1d0759ad9cc805f43be03eb1dace7c2dffc5148b9a5354aa85476b74c66c27",
+      "input_core": {
+        "web/src/api/client.ts": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+        "web/src/api/account.ts": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+        "web/src/composables/useSession.ts": "cd82a5fa94a3aac839255a27100fb0d1112d3282043df1a011ca8b99b6df6fa0",
+        "web/src/tests/personal-settings-client.spec.ts": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+        "web/src/tests/personal-settings-state.spec.ts": "da11a0c7ac3292efc9c27413abd3c9397b18ba268d147e97ddfb9ad91ac42575",
+        "web/src/tests/session.spec.ts": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf"
+      }
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f1-fix-01.json",
+      "sha256": "06700a4e4a000e4b5c2aede339e2a9c5ce1fe3568fcbb99a806d8d35c7fb1f47",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings-state.spec.ts",
+        "-t",
+        "holds the password Cookie barrier"
+      ],
+      "environment": {
+        "TMPDIR": "/workspace/agenteam-d26-settings-author-uydib5xi/tmp",
+        "GOCACHE": "/workspace/agenteam-d26-settings-author-uydib5xi/go-cache",
+        "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+        "GOTOOLCHAIN": "local",
+        "GOENV": "off",
+        "GOWORK": "off",
+        "GOPROXY": "off",
+        "GOFLAGS": "-mod=readonly"
+      },
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/core-f1-fix-01.log",
+      "log_sha256": "3b72c0a516e7bd2d611425e10a6a628a6a17a9cadbabc69cad20ee1fd8d6c388",
+      "input_core": {
+        "web/src/api/client.ts": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+        "web/src/api/account.ts": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+        "web/src/composables/useSession.ts": "81e72685ec8e46e931b516ba046737322854cb800a80a9432f7a279e44a7ef41",
+        "web/src/tests/personal-settings-client.spec.ts": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+        "web/src/tests/personal-settings-state.spec.ts": "148eb816878ffb60d719f74f7aedaeec2b332ba22cb5de9a99d91c78ac4bf43d",
+        "web/src/tests/session.spec.ts": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf"
+      }
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f2-red-01.json",
+      "sha256": "b37a7e91caabc66b504c9d84aa23ff2fccf777a4d76292bf578e1da7b313525e",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings-state.spec.ts",
+        "-t",
+        "retains a historically uncertain File"
+      ],
+      "environment": {
+        "TMPDIR": "/workspace/agenteam-d26-settings-author-uydib5xi/tmp",
+        "GOCACHE": "/workspace/agenteam-d26-settings-author-uydib5xi/go-cache",
+        "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+        "GOTOOLCHAIN": "local",
+        "GOENV": "off",
+        "GOWORK": "off",
+        "GOPROXY": "off",
+        "GOFLAGS": "-mod=readonly"
+      },
+      "exit": 1,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/core-f2-red-01.log",
+      "log_sha256": "f2ee047086845f95e54c8af824a9a6a52105bb51fa62fdb8729cb4b948fcd6ad",
+      "input_core": {
+        "web/src/api/client.ts": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+        "web/src/api/account.ts": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+        "web/src/composables/useSession.ts": "81e72685ec8e46e931b516ba046737322854cb800a80a9432f7a279e44a7ef41",
+        "web/src/tests/personal-settings-client.spec.ts": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+        "web/src/tests/personal-settings-state.spec.ts": "61fa9a51dfff2d2aa67a1404fabad0e3f11e7033d2d4ff67de1df2c266a5e9c9",
+        "web/src/tests/session.spec.ts": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf"
+      }
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f2-fix-01.json",
+      "sha256": "1e5150bf89e0a00d4625ea482291a4c638230e2d6056cfd048fb83aad95597da",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings-state.spec.ts",
+        "-t",
+        "retains a historically uncertain File"
+      ],
+      "environment": {
+        "TMPDIR": "/workspace/agenteam-d26-settings-author-uydib5xi/tmp",
+        "GOCACHE": "/workspace/agenteam-d26-settings-author-uydib5xi/go-cache",
+        "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+        "GOTOOLCHAIN": "local",
+        "GOENV": "off",
+        "GOWORK": "off",
+        "GOPROXY": "off",
+        "GOFLAGS": "-mod=readonly"
+      },
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/core-f2-fix-01.log",
+      "log_sha256": "b2563c51214cadcbf003f4f02d2329605d0a5efa1ef63377a15a4d20412c8c9f",
+      "input_core": {
+        "web/src/api/client.ts": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+        "web/src/api/account.ts": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+        "web/src/composables/useSession.ts": "6c289626b8fdd6a00b5f57fd9d7c785e37b8ee9b9f6d45640cc0eaeae7a2651b",
+        "web/src/tests/personal-settings-client.spec.ts": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+        "web/src/tests/personal-settings-state.spec.ts": "61fa9a51dfff2d2aa67a1404fabad0e3f11e7033d2d4ff67de1df2c266a5e9c9",
+        "web/src/tests/session.spec.ts": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf"
+      }
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-only-unit-04.json",
+      "sha256": "9e10696d72ce138ca79dbaa23baa2d66fbfe2ebab06ee9848541bddb08e26e5b",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings-state.spec.ts",
+        "src/tests/personal-settings-client.spec.ts",
+        "src/tests/session.spec.ts"
+      ],
+      "environment": {
+        "TMPDIR": "/workspace/agenteam-d26-settings-author-uydib5xi/tmp",
+        "GOCACHE": "/workspace/agenteam-d26-settings-author-uydib5xi/go-cache",
+        "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+        "GOTOOLCHAIN": "local",
+        "GOENV": "off",
+        "GOWORK": "off",
+        "GOPROXY": "off",
+        "GOFLAGS": "-mod=readonly"
+      },
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/core-only-unit-04.log",
+      "log_sha256": "54d509a417d58adfee62ad97f574d03e7314395dc17bd4d7bd07066c59936d5e",
+      "input_core": {
+        "web/src/api/client.ts": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+        "web/src/api/account.ts": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+        "web/src/composables/useSession.ts": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+        "web/src/tests/personal-settings-client.spec.ts": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+        "web/src/tests/personal-settings-state.spec.ts": "2681a83490e0386643cd72db4cbc257bbc0f9dd1bc1276810d92f02c84e4db5f",
+        "web/src/tests/session.spec.ts": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf"
+      }
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-type-03.json",
+      "sha256": "2bfa468cee742893fd0f05e18f32ad368d44167155fbdbda738699fac1ee0fde",
+      "argv": [
+        "npm",
+        "run",
+        "type-check",
+        "--prefix",
+        "web"
+      ],
+      "environment": {
+        "TMPDIR": "/workspace/agenteam-d26-settings-author-uydib5xi/tmp",
+        "GOCACHE": "/workspace/agenteam-d26-settings-author-uydib5xi/go-cache",
+        "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+        "GOTOOLCHAIN": "local",
+        "GOENV": "off",
+        "GOWORK": "off",
+        "GOPROXY": "off",
+        "GOFLAGS": "-mod=readonly"
+      },
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/core-type-03.log",
+      "log_sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+      "input_core": {
+        "web/src/api/client.ts": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+        "web/src/api/account.ts": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+        "web/src/composables/useSession.ts": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+        "web/src/tests/personal-settings-client.spec.ts": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+        "web/src/tests/personal-settings-state.spec.ts": "2681a83490e0386643cd72db4cbc257bbc0f9dd1bc1276810d92f02c84e4db5f",
+        "web/src/tests/session.spec.ts": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf"
+      }
+    }
+  ],
+  "original_red_sources": [
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f1-red-input/web/src/composables/useSession.ts",
+      "sha256": "cd82a5fa94a3aac839255a27100fb0d1112d3282043df1a011ca8b99b6df6fa0"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f1-red-input/web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "da11a0c7ac3292efc9c27413abd3c9397b18ba268d147e97ddfb9ad91ac42575"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f2-red-input/web/src/composables/useSession.ts",
+      "sha256": "81e72685ec8e46e931b516ba046737322854cb800a80a9432f7a279e44a7ef41"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f2-red-input/web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "61fa9a51dfff2d2aa67a1404fabad0e3f11e7033d2d4ff67de1df2c266a5e9c9"
+    }
+  ],
+  "f2_fixed_reconstruction": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f2-fix-reconstructed/useSession.ts",
+    "sha256": "6c289626b8fdd6a00b5f57fd9d7c785e37b8ee9b9f6d45640cc0eaeae7a2651b",
+    "provenance_path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f2-fix-reconstructed/reconstruction.json",
+    "provenance_sha256": "b49f2e0c657be1887badeb45bf9bf4179b7b9dde7c0c1bd965a338987bff03a5",
+    "limitation": "post-hoc exact reconstruction, not contemporaneous raw backup; matches actual run input; final diff only two formatting line breaks"
+  },
+  "f1_fixed_test_reconstruction": {
+    "source": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f2-red-input/web/src/tests/personal-settings-state.spec.ts",
+    "operation": "Remove the newly appended F2 it block preceding F1 it block; exact SHA checked",
+    "sha256": "148eb816878ffb60d719f74f7aedaeec2b332ba22cb5de9a99d91c78ac4bf43d"
+  },
+  "prior_review": {
+    "path": "/workspace/agenteam-personal-settings-core01-v-8we83jg_/report.md",
+    "sha256": "dedf5cbc8fa626dea2d53d3ac35295d3a211aab13ba8ce69c18524ac44048cc2"
+  },
+  "independent_dynamic_execution": false,
+  "active_ui_read": false,
+  "repository_writes": false,
+  "report_sha256": "452632d82c4be1e997be76a0ae94849586898cd90df500eeb3fa991ef328f75e"
+}

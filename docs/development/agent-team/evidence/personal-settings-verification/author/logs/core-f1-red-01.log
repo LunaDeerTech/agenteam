@@ -1,0 +1,52 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/personal-settings-state.spec.ts -t holds the password Cookie barrier
+
+
+ RUN  v4.1.11 /workspace/agenteam-d26-settings-author-uydib5xi/input/web
+
+ ❯ src/tests/personal-settings-state.spec.ts (13 tests | 1 failed | 12 skipped) 15ms
+     × holds the password Cookie barrier after Unknown actual return until Session is explicitly checked 13ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/personal-settings-state.spec.ts > personal requests on the authentication owner > holds the password Cookie barrier after Unknown actual return until Session is explicitly checked
+AssertionError: expected "vi.fn()" to not be called at all, but actually been called 1 times
+
+Received:
+
+  1st vi.fn() call:
+
+    Array [
+      "SSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS",
+      "72b571a6-b1d4-45b0-9b34-7cda3a500cab",
+      AbortSignal {
+        Symbol(kEvents): undefined,
+        Symbol(events.maxEventTargetListeners): 0,
+        Symbol(events.maxEventTargetListenersWarned): false,
+        Symbol(kHandlers): undefined,
+        Symbol(kAborted): false,
+        Symbol(kReason): undefined,
+        Symbol(kComposite): false,
+      },
+    ]
+
+
+Number of calls: 1
+
+ ❯ src/tests/personal-settings-state.spec.ts:108:28
+    106|     const keys = vi.spyOn(crypto, 'randomUUID')
+    107|     await auth.logout()
+    108|     expect(api.logout).not.toHaveBeenCalled()
+       |                            ^
+    109|     expect(keys).not.toHaveBeenCalled()
+    110|     expect(api.getSession).toHaveBeenCalledTimes(1)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 skipped (13)
+   Start at  21:36:33
+   Duration  673ms (transform 91ms, setup 0ms, import 145ms, tests 15ms, environment 389ms)
+

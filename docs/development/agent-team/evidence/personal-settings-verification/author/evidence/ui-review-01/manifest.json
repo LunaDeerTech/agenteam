@@ -1,0 +1,162 @@
+{
+  "baseline": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "size": 10399
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "size": 13982
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+      "size": 34983
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "25099e3fb4b37e734274a10d8fccf7b9abb38a04105317f3f2a087db45030391",
+      "size": 1969
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "sha256": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd",
+      "size": 8978
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278",
+      "size": 1615
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "dccbda0b9349180d8a6dc8155fa5151856c5d77d992b86d8a314810259984ae4",
+      "size": 4236
+    },
+    {
+      "path": "web/src/views/HomeView.vue",
+      "sha256": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69",
+      "size": 790
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "b55d5046459db40f9094bd7be7d3c9f2e815c16960231c1cd6b5973f0e10db54",
+      "size": 24148
+    },
+    {
+      "path": "web/src/components/layout/SettingsShell.vue",
+      "sha256": "ffb0ec3dad8c3b0bd9d5f6249431b6f099ddcb203ddfb8fac4efcff4019ac617",
+      "size": 3872
+    },
+    {
+      "path": "web/src/views/settings/PersonalSettingsView.vue",
+      "sha256": "9409f04f90dd93c6aab6b45dee1740f87ac87336da6f323d1f6ef586d0ffdf0b",
+      "size": 1890
+    },
+    {
+      "path": "web/src/views/settings/ProfileSettings.vue",
+      "sha256": "967f305f71043ab4ab77fced2baa107c2f11189645b6b766591b75c01131e0ae",
+      "size": 7399
+    },
+    {
+      "path": "web/src/views/settings/AppearanceSettings.vue",
+      "sha256": "7c0aa84feb7a6be4610a3f4e5b4f9d21cc80408a9a96510fa9d268075133d44f",
+      "size": 2579
+    },
+    {
+      "path": "web/src/views/settings/PasswordSettings.vue",
+      "sha256": "5ac4f544958025e6832458924d513d7a688a534ea7dea3b4a71a4267f1ae232b",
+      "size": 3430
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "sha256": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+      "size": 8992
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a",
+      "size": 22900
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "b000380c758bd0c18cca83b085132cb01243aa2fa10c8c74aec350c137f46308",
+      "size": 17828
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "size": 18655
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38",
+      "size": 21867
+    }
+  ],
+  "accepted_core_manifest": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-review-02/manifest.json",
+  "checks": [
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-type-01.json",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-unit-01.json",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-unit-02.json",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-unit-03.json",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-owner-unit-01.json",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/web-check-01.json"
+  ],
+  "dist": [
+    {
+      "path": "web/dist/assets/AppearanceSettings-CR05TTtL.js",
+      "sha256": "76da390856bb7c5ed713239aebec3a233fbec20b31787bf0e9dde07098111fd4",
+      "size": 3576
+    },
+    {
+      "path": "web/dist/assets/PasswordSettings-CXo_WWuO.js",
+      "sha256": "13c8af8de6001bb46e78e25c29c6d1c0a5c8e0b10a6b07ef19154ceeab55e062",
+      "size": 3527
+    },
+    {
+      "path": "web/dist/assets/PersonalSettingsView-7sbR0V5t.css",
+      "sha256": "da317649fee920fa03961d44d9adce07017e30824f8ac83d21ee83eaccb217a4",
+      "size": 1284
+    },
+    {
+      "path": "web/dist/assets/PersonalSettingsView-BrpVLlDM.js",
+      "sha256": "7271580f603663ae44098ec0ee848219a00db7ff4be3ebc9629a3ea5d98d72b8",
+      "size": 4000
+    },
+    {
+      "path": "web/dist/assets/ProfileSettings-Bofqo8m5.css",
+      "sha256": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+      "size": 438
+    },
+    {
+      "path": "web/dist/assets/ProfileSettings-DcRs0w6l.js",
+      "sha256": "8afb1dbd68b27433d89a58681cb9fcba276980e11b35286f803bc33d1d58c7ee",
+      "size": 6839
+    },
+    {
+      "path": "web/dist/assets/index-0tIwF__l.js",
+      "sha256": "0eb96bf9cff281bb14ca0a0ab2308d4b3be34b39e200f57e22baf224f2c44df0",
+      "size": 192242
+    },
+    {
+      "path": "web/dist/assets/index-ClmoCfi4.css",
+      "sha256": "dc44159bb958409829264d80fb6a7c50dbb5dd174a8b9c722de0baafe386cf91",
+      "size": 29589
+    },
+    {
+      "path": "web/dist/index.html",
+      "sha256": "4ac8fd97d1cdedb2db0fa5143e5ff25537746aadf353f5dd0dfaf2f03f342df4",
+      "size": 647
+    }
+  ],
+  "limits": [
+    "UI is pure Vue/controller/router only; no browser/Go/Docker has been run for settings.",
+    "ui-unit-01 has four helper setup failures: textContent counted hidden UiButton loading/success labels. Fixed helper selects the active label.",
+    "ui-unit-02 asserted an exact creation count after a route revalidation; the guard can remount the old leaf before committing navigation. Candidate/upload two creations are now asserted before leaving, all created URLs are checked one-for-one against revocations after navigation and flush.",
+    "core production matches accepted core02; UI is not yet independently accepted."
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "baseline": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "cwd": "/workspace/agenteam-d26-settings-author-uydib5xi/input",
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/gofmt",
+    "-w",
+    "/workspace/agenteam/tests/account/authentication_web_fixture_test.go",
+    "/workspace/agenteam/tests/account/personal_settings_web_fixture_test.go",
+    "/workspace/agenteam/tests/account/personal_settings_web_test.go"
+  ],
+  "environment": {
+    "TMPDIR": "/workspace/agenteam-d26-settings-author-uydib5xi/tmp",
+    "GOCACHE": "/workspace/agenteam-d26-settings-author-uydib5xi/go-cache",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly"
+  },
+  "input": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "25099e3fb4b37e734274a10d8fccf7b9abb38a04105317f3f2a087db45030391"
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "sha256": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "dccbda0b9349180d8a6dc8155fa5151856c5d77d992b86d8a314810259984ae4"
+    },
+    {
+      "path": "web/src/views/HomeView.vue",
+      "sha256": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69"
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679"
+    },
+    {
+      "path": "web/src/components/layout/SettingsShell.vue",
+      "sha256": "ffb0ec3dad8c3b0bd9d5f6249431b6f099ddcb203ddfb8fac4efcff4019ac617"
+    },
+    {
+      "path": "web/src/views/settings/PersonalSettingsView.vue",
+      "sha256": "9409f04f90dd93c6aab6b45dee1740f87ac87336da6f323d1f6ef586d0ffdf0b"
+    },
+    {
+      "path": "web/src/views/settings/ProfileSettings.vue",
+      "sha256": "967f305f71043ab4ab77fced2baa107c2f11189645b6b766591b75c01131e0ae"
+    },
+    {
+      "path": "web/src/views/settings/AppearanceSettings.vue",
+      "sha256": "7c0aa84feb7a6be4610a3f4e5b4f9d21cc80408a9a96510fa9d268075133d44f"
+    },
+    {
+      "path": "web/src/views/settings/PasswordSettings.vue",
+      "sha256": "5ac4f544958025e6832458924d513d7a688a534ea7dea3b4a71a4267f1ae232b"
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "sha256": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017"
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "b897cbb1e1c09b64190a668fb2da94bf56a61ff43d5b9246205807a1b339a04f"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38"
+    },
+    {
+      "path": "tests/account-captcha-web/personal-settings.config.js",
+      "sha256": "148b06011f96b6ad98a6934aaf0e694c863c61c011359ecd2be78a0a54b92f5e"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "sha256": "ffe08f224ac4fc4ad3d65e34a8266d7e07fbdbbde6047034097df05277b7410d"
+    },
+    {
+      "path": "tests/account/authentication_web_fixture_test.go",
+      "sha256": "f91d23edb01dbc82f228c659288626529e68a1dfcf742b7d1f2961fa4f56c319"
+    },
+    {
+      "path": "tests/account/personal_settings_web_fixture_test.go",
+      "sha256": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b"
+    },
+    {
+      "path": "tests/account/personal_settings_web_test.go",
+      "sha256": "bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b"
+    }
+  ],
+  "exit": 0,
+  "seconds": 0.0034111580025637522,
+  "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-format-01.log",
+  "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

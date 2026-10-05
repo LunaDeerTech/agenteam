@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestAccountPersonalSettingsWeb(ProfileAndAvatar|ThemeAndNavigation)$"
+  ],
+  "cwd": "/workspace/agenteam-d26-settings-author-uydib5xi/input",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/browser-images-01",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/d26-settings-uydib5xi",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "DOCKER_CONFIG": "/workspace/agenteam-d26-settings-author-uydib5xi/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "GOCACHE": "/workspace/agenteam-d26-settings-author-uydib5xi/go-cache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/agenteam-d26-settings-author-uydib5xi/tmp"
+  },
+  "input": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-input-01/manifest.json",
+  "input_sha256": "20d8fc5e3ec3ad3f5eb477345fd76d002eec057b4a0a2d0fad875e354c1a99fd",
+  "note": "only safe explicit environment; credentials remain inside original owned fixture",
+  "observer_argv": [
+    "/workspace/agenteam-d26-settings-author-uydib5xi/run_fixture.py",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-plan-02.json",
+    "0"
+  ],
+  "observer_sha256": "7caedb55dbf820b605674942fd265389d3fe4fc3e513d6b835f3daa22d21f379",
+  "plan_sha256": "6b898466c9d7dfccf9a4b710badf3d91baae428c333a99c456bac6d3b7af3818"
+}

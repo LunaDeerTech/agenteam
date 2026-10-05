@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/personal-settings.spec.ts src/tests/personal-settings-state.spec.ts
+
+
+ RUN  v4.1.11 /workspace/agenteam-d26-settings-author-uydib5xi/input/web
+
+
+ Test Files  2 passed (2)
+      Tests  32 passed (32)
+   Start at  21:56:45
+   Duration  2.11s (transform 803ms, setup 0ms, import 1.11s, tests 952ms, environment 837ms)
+

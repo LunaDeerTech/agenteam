@@ -1,0 +1,292 @@
+{
+  "kind": "independent fixed static readiness; no resource execution",
+  "base": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "report": {
+    "path": "/workspace/agenteam-personal-settings-fixture-v-dgplf3y5/report.md",
+    "sha256": "4d4e2a279590ccaf7a725004486f0f5d17941c9ab119f401d2bbfda97133cefa"
+  },
+  "inputs": {
+    "manifest": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-input-01/manifest.json",
+      "sha256": "20d8fc5e3ec3ad3f5eb477345fd76d002eec057b4a0a2d0fad875e354c1a99fd"
+    },
+    "plan02": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-plan-02.json",
+      "sha256": "6b898466c9d7dfccf9a4b710badf3d91baae428c333a99c456bac6d3b7af3818"
+    },
+    "observer": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/run_fixture.py",
+      "sha256": "7caedb55dbf820b605674942fd265389d3fe4fc3e513d6b835f3daa22d21f379"
+    },
+    "observer_delta": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/observer-delta.patch",
+      "sha256": "13309b5af52373e099cd6816ad5f64b837f1e8d6000634230541953cfd74bd19"
+    },
+    "original_TS_reconstructed": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-ts-01-reconstructed/personal-settings.spec.ts",
+      "sha256": "ffe08f224ac4fc4ad3d65e34a8266d7e07fbdbbde6047034097df05277b7410d"
+    },
+    "reconstruction_provenance": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-ts-01-reconstructed/provenance.json",
+      "sha256": "16efd8d9a3c8cd0503612b414082fa1cfa09040dfa35ea256104586ecb7069b9"
+    }
+  },
+  "source_24_match": {
+    "web/src/api/client.ts": true,
+    "web/src/api/account.ts": true,
+    "web/src/composables/useSession.ts": true,
+    "web/src/router/auth.ts": true,
+    "web/src/views/auth/LoginView.vue": true,
+    "web/src/router/index.ts": true,
+    "web/src/App.vue": true,
+    "web/src/views/HomeView.vue": true,
+    "web/src/composables/usePersonalSettings.ts": true,
+    "web/src/components/layout/SettingsShell.vue": true,
+    "web/src/views/settings/PersonalSettingsView.vue": true,
+    "web/src/views/settings/ProfileSettings.vue": true,
+    "web/src/views/settings/AppearanceSettings.vue": true,
+    "web/src/views/settings/PasswordSettings.vue": true,
+    "web/src/tests/personal-settings-client.spec.ts": true,
+    "web/src/tests/personal-settings-state.spec.ts": true,
+    "web/src/tests/personal-settings.spec.ts": true,
+    "web/src/tests/session.spec.ts": true,
+    "web/src/tests/authentication.spec.ts": true,
+    "tests/account-captcha-web/personal-settings.config.js": true,
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts": true,
+    "tests/account/authentication_web_fixture_test.go": true,
+    "tests/account/personal_settings_web_fixture_test.go": true,
+    "tests/account/personal_settings_web_test.go": true
+  },
+  "ui03_19_match": {
+    "web/src/api/client.ts": true,
+    "web/src/api/account.ts": true,
+    "web/src/composables/useSession.ts": true,
+    "web/src/router/auth.ts": true,
+    "web/src/views/auth/LoginView.vue": true,
+    "web/src/router/index.ts": true,
+    "web/src/App.vue": true,
+    "web/src/views/HomeView.vue": true,
+    "web/src/composables/usePersonalSettings.ts": true,
+    "web/src/components/layout/SettingsShell.vue": true,
+    "web/src/views/settings/PersonalSettingsView.vue": true,
+    "web/src/views/settings/ProfileSettings.vue": true,
+    "web/src/views/settings/AppearanceSettings.vue": true,
+    "web/src/views/settings/PasswordSettings.vue": true,
+    "web/src/tests/personal-settings-client.spec.ts": true,
+    "web/src/tests/personal-settings-state.spec.ts": true,
+    "web/src/tests/personal-settings.spec.ts": true,
+    "web/src/tests/session.spec.ts": true,
+    "web/src/tests/authentication.spec.ts": true
+  },
+  "baseline_11_match": {
+    "go.mod": true,
+    "go.sum": true,
+    "web/package.json": true,
+    "web/package-lock.json": true,
+    "tests/account-captcha-web/package.json": true,
+    "tests/account-captcha-web/package-lock.json": true,
+    "docs/frontend-design/styles/colors-and-themes.md": true,
+    "tests/account/authentication_web_test.go": true,
+    "tests/account-captcha-web/authentication.config.js": true,
+    "tests/account-captcha-web/e2e/authentication.spec.ts": true,
+    "scripts/test-objects.sh": true
+  },
+  "dist_9_match": {
+    "web/dist/assets/AppearanceSettings-rdKgtSaY.js": true,
+    "web/dist/assets/PasswordSettings-CAwDyo9t.js": true,
+    "web/dist/assets/PersonalSettingsView-7sbR0V5t.css": true,
+    "web/dist/assets/PersonalSettingsView-DWJ3Aj28.js": true,
+    "web/dist/assets/ProfileSettings-AeMXcjY_.js": true,
+    "web/dist/assets/ProfileSettings-Bofqo8m5.css": true,
+    "web/dist/assets/index-ClmoCfi4.css": true,
+    "web/dist/assets/index-CxFR_VcR.js": true,
+    "web/dist/index.html": true
+  },
+  "author_checks_hash_verified": {
+    "web-check-02": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/web-check-02.json",
+      "sha256": "0b9b44e0eb0cb28a88a6a8879e5bce5de67a4d6a0827fbfc186908ddea4ad14a",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/web-check-02.log",
+      "log_sha256": "26c1c2c22f36f8851fc5904856384ac705b1c8ed21fa5bcd41ac567173853a3d",
+      "argv": [
+        "npm",
+        "run",
+        "check",
+        "--prefix",
+        "web"
+      ],
+      "final24_differences": [
+        "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+      ]
+    },
+    "fixture-go-compile-01": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-go-compile-01.json",
+      "sha256": "122a4eac2b8a0de1db63c43d6d67042ab7facc150afb8be5f295472ba5e302e1",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-go-compile-01.log",
+      "log_sha256": "2ba60ac0d5ee50c26d06af948a8f895104b35953327a0269b19d946f69c9c739",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "-count=1",
+        "./tests/account"
+      ],
+      "final24_differences": [
+        "tests/account-captcha-web/personal-settings.config.js",
+        "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+      ]
+    },
+    "fixture-go-vet-01": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-go-vet-01.json",
+      "sha256": "ee953ad6364befdaa068d91f860721ecc44c2e46c296a6e694f5bf97155937d2",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-go-vet-01.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./tests/account"
+      ],
+      "final24_differences": [
+        "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+      ]
+    },
+    "fixture-ts-01": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-ts-01.json",
+      "sha256": "194d36f2ea6e2afc8bf6e5dbefd8f3c062370214d1faef6236cce3030c0025e1",
+      "exit": 2,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-ts-01.log",
+      "log_sha256": "72c654a25865d7ce58a1fbbc654263b398d4b8a6d5652cb71ed1c6eb65014430",
+      "argv": [
+        "node",
+        "tests/account-captcha-web/node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--strict",
+        "--skipLibCheck",
+        "--target",
+        "ES2022",
+        "--module",
+        "ESNext",
+        "--moduleResolution",
+        "Bundler",
+        "--lib",
+        "ES2022,DOM",
+        "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+      ],
+      "final24_differences": [
+        "tests/account-captcha-web/personal-settings.config.js",
+        "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+      ]
+    },
+    "fixture-ts-02": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-ts-02.json",
+      "sha256": "0137df433dcaf6caa1b2db50bb3248328ec8ba868af40e354ef9b084ff38e532",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-ts-02.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argv": [
+        "node",
+        "tests/account-captcha-web/node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--strict",
+        "--skipLibCheck",
+        "--target",
+        "ES2022",
+        "--module",
+        "ESNext",
+        "--moduleResolution",
+        "Bundler",
+        "--lib",
+        "ES2022,DOM,DOM.Iterable",
+        "--typeRoots",
+        "web/node_modules/@types",
+        "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+      ],
+      "final24_differences": [
+        "tests/account-captcha-web/personal-settings.config.js",
+        "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+      ]
+    },
+    "fixture-ts-final-02": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-ts-final-02.json",
+      "sha256": "296e3473a0a00da267f652e9733403490d58600337686277cc9e5584a2961ee4",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-ts-final-02.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argv": [
+        "node",
+        "tests/account-captcha-web/node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--strict",
+        "--skipLibCheck",
+        "--target",
+        "ES2022",
+        "--module",
+        "ESNext",
+        "--moduleResolution",
+        "Bundler",
+        "--lib",
+        "ES2022,DOM,DOM.Iterable",
+        "--types",
+        "node",
+        "--typeRoots",
+        "web/node_modules/@types",
+        "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+      ],
+      "final24_differences": []
+    },
+    "fixture-config-01": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-config-01.json",
+      "sha256": "d33f405cf4f0768bac2201f30ce374f55b1c7c82e95249711baefcad992992ea",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-config-01.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "argv": [
+        "node",
+        "--check",
+        "tests/account-captcha-web/personal-settings.config.js"
+      ],
+      "final24_differences": [
+        "tests/account-captcha-web/e2e/personal-settings.spec.ts"
+      ]
+    }
+  },
+  "selectors": [
+    [
+      "sh",
+      "scripts/test-objects.sh",
+      "-run",
+      "^TestAccountPersonalSettingsWeb(ProfileAndAvatar|ThemeAndNavigation)$"
+    ],
+    [
+      "sh",
+      "scripts/test-objects.sh",
+      "-run",
+      "^TestAccountPersonalSettingsWeb(PasswordRotation|AuthorityAndProduction)$"
+    ],
+    [
+      "sh",
+      "scripts/test-objects.sh",
+      "-run",
+      "^TestAccountAuthenticationWeb(SessionLifecycle|RotateChallenge)$"
+    ],
+    [
+      "sh",
+      "scripts/test-objects.sh",
+      "-run",
+      "^TestAccountAuthenticationWeb(RevocationAndExpiry|LayoutsAndProduction)$"
+    ]
+  ],
+  "limits": [
+    "Static readiness only; no actual fixture PASS or cleanup conclusion",
+    "No new Go/npm/browser/Docker/network execution",
+    "Polling limited to observed lifetimes; actual census required",
+    "First TS reconstruction is posthoc, not contemporary backup"
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "env": {
+    "before": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOFLAGS": "-mod=readonly -v",
+      "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+      "GOCACHE": "/workspace/agenteam-system-http-independent-v-3yb4qs32/gocache",
+      "TMPDIR": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/tmp",
+      "DOCKER_CONFIG": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/docker-config",
+      "DOCKER_HOST": "unix:///var/run/docker.sock",
+      "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/browser-runtime",
+      "GOSUMDB": "off"
+    },
+    "after": {
+      "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+      "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOFLAGS": "-mod=readonly -v",
+      "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+      "GOCACHE": "/workspace/agenteam-system-http-independent-v-3yb4qs32/gocache",
+      "TMPDIR": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/tmp",
+      "DOCKER_CONFIG": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/docker-config",
+      "DOCKER_HOST": "unix:///var/run/docker.sock",
+      "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/d26-pv-rmdokamc",
+      "GOSUMDB": "off"
+    }
+  },
+  "groups": {
+    "before": [
+      {
+        "name": "independent-live-owner-01",
+        "argv": [
+          "sh",
+          "scripts/test-objects.sh",
+          "-run",
+          "^TestIndependentPersonalSettingsLiveOwnerRevocation$"
+        ],
+        "tops": 1,
+        "browser_cases": [
+          "independent-personal-owner"
+        ]
+      }
+    ],
+    "after": [
+      {
+        "name": "independent-live-owner-02",
+        "argv": [
+          "sh",
+          "scripts/test-objects.sh",
+          "-run",
+          "^TestIndependentPersonalSettingsLiveOwnerRevocation$"
+        ],
+        "tops": 1,
+        "browser_cases": [
+          "independent-personal-owner"
+        ]
+      }
+    ]
+  },
+  "status": {
+    "before": "prepared only; no fixture/browser/Docker execution; awaits root exclusive window",
+    "after": "root-authorized exact same probe once after runtime-only setup correction"
+  },
+  "previous_plan": {
+    "before": null,
+    "after": {
+      "path": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/fixture-plan.json",
+      "sha256": "2cdef805186a0220d716c6ebf72e89ff6d68e3ddf705a586ce1693a41a07941d",
+      "reason": "run01 actual fixture setup rejected runtime path length >45 before Node/browser; preserve original failed run; only shorter owned runtime and new record group"
+    }
+  }
+}

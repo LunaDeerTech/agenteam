@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/personal-settings-state.spec.ts -t holds the password Cookie barrier
+
+
+ RUN  v4.1.11 /workspace/agenteam-d26-settings-author-uydib5xi/input/web
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 12 skipped (13)
+   Start at  21:36:54
+   Duration  664ms (transform 99ms, setup 0ms, import 153ms, tests 11ms, environment 374ms)
+

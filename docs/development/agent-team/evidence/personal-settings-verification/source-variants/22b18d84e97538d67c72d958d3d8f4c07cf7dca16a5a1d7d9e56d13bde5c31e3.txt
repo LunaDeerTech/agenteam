@@ -1,0 +1,77 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { usePersonalSettings } from '../../composables/usePersonalSettings'
+import { UiButton, UiDialog, UiField, UiInput, UiState } from '../../components/ui'
+const s = usePersonalSettings()
+const form = ref<HTMLFormElement | null>(null), fileInput = ref<HTMLInputElement | null>(null)
+const removeOpen = ref(false)
+let removeVersion = ''
+function choose(event: Event) {
+  const input = event.target as HTMLInputElement
+  s.selectAvatar(input.files?.[0] ?? null)
+  input.value = ''
+}
+async function save() {
+  if (form.value) {
+    s.profileDraft.username = (form.value.elements.namedItem('username') as HTMLInputElement).value
+    s.profileDraft.display_name = (form.value.elements.namedItem('display_name') as HTMLInputElement).value
+  }
+  await s.saveProfile()
+}
+function confirmRemove() { removeVersion = s.savedProfile.value?.user.version ?? ''; removeOpen.value = true }
+async function remove() { removeOpen.value = false; await s.removeAvatar(removeVersion) }
+</script>
+<template>
+  <UiState v-if="!s.savedProfile.value" :kind="s.sections.profile.status === 'loading' ? 'loading' : 'error'" title="读取本人资料" :description="s.sections.profile.message">
+    <UiButton :disabled="s.auth.state.busy" @click="s.load('profile')">重新加载资料</UiButton>
+  </UiState>
+  <template v-else>
+    <form ref="form" class="ui-stack" @submit.prevent="save">
+      <UiField v-slot="field" label="邮箱" id="profile-email" hint="邮箱不能修改。"><UiInput :id="field.id" :model-value="s.savedProfile.value.user.email" readonly :aria-describedby="field.describedby" /></UiField>
+      <UiField v-slot="field" label="用户名" id="profile-username" :error="s.sections.profile.fields.username" hint="3–32 位英文字母、数字或中间连字符。">
+        <UiInput :id="field.id" v-model="s.profileDraft.username" name="username" autocomplete="username" :readonly="s.locked.value" :invalid="field.invalid" :aria-describedby="field.describedby" />
+      </UiField>
+      <p class="meta">更改用户名后，本人项目路径将变化；旧链接失效，没有别名或自动跳转。</p>
+      <UiField v-slot="field" label="显示名" id="profile-display-name" :error="s.sections.profile.fields.display_name" hint="最多 80 个字符、320 字节；留空时显示邮箱，保留输入的空格。">
+        <UiInput :id="field.id" v-model="s.profileDraft.display_name" name="display_name" autocomplete="nickname" :readonly="s.locked.value" :invalid="field.invalid" :aria-describedby="field.describedby" />
+      </UiField>
+      <p v-if="s.profileVersionChanged.value" role="status">服务端资料版本已变化，当前草稿仍保留原版本。</p>
+      <p v-if="s.sections.profile.message" :role="s.sections.profile.status === 'error' ? 'alert' : 'status'">{{ s.sections.profile.message }}</p>
+      <div class="ui-row">
+        <UiButton type="submit" :disabled="s.locked.value || !s.profileDirty.value" :state="s.mutation.value === 'profile' ? 'loading' : 'idle'">保存资料</UiButton>
+        <UiButton variant="ghost" :disabled="s.locked.value" @click="s.resetProfile">取消修改</UiButton>
+        <UiButton variant="ghost" :disabled="s.auth.state.busy" @click="s.reload('profile')">重新加载最新资料</UiButton>
+      </div>
+    </form>
+    <section class="avatar-section" aria-labelledby="avatar-title">
+      <h2 id="avatar-title">头像</h2>
+      <div class="avatar-row">
+        <img v-if="s.avatarURL.value" class="avatar" :src="s.avatarURL.value" alt="当前已保存头像" />
+        <div v-else-if="s.savedProfile.value.avatar === null" class="avatar avatar-default" role="img" aria-label="默认身份标识">{{ (s.savedProfile.value.user.display_name || s.savedProfile.value.user.email).slice(0, 1) }}</div>
+        <p v-else-if="s.avatarState.loading" role="status">正在读取头像…</p>
+        <div v-if="s.candidateURL.value"><img class="avatar" :src="s.candidateURL.value" alt="尚未上传的头像预览" /><p class="meta">尚未上传</p></div>
+      </div>
+      <p class="meta">静态 JPG、PNG、WebP，最多 5 MiB、单边 4096 像素，总计 16,777,216 像素。不支持 SVG 或动画。保存时服务器会缩放至最长 512 像素并移除元数据。</p>
+      <input ref="fileInput" class="sr-only" type="file" accept="image/jpeg,image/png,image/webp" aria-label="选择头像图片" :disabled="s.locked.value" @change="choose" />
+      <p v-if="s.avatarState.error" role="alert">{{ s.avatarState.error }}</p>
+      <p v-if="s.avatarState.message" role="status">{{ s.avatarState.message }}</p>
+      <div class="ui-row">
+        <UiButton :disabled="s.locked.value" @click="fileInput?.click()">选择图片</UiButton>
+        <UiButton :disabled="s.locked.value || !s.candidate.value" @click="s.uploadAvatar">上传 / 替换头像</UiButton>
+        <UiButton variant="ghost" :disabled="s.locked.value || !s.candidate.value" @click="s.clearCandidate">取消选择</UiButton>
+        <UiButton variant="ghost" :disabled="s.locked.value || s.savedProfile.value.avatar === null" @click="confirmRemove">移除头像</UiButton>
+      </div>
+    </section>
+  </template>
+  <div v-if="s.unresolved.value === 'profile'" class="ui-stack">
+    <p role="status">原提交仍未确认，当前资料不是原命令回执。</p>
+    <div class="ui-row"><UiButton :disabled="s.auth.state.busy" @click="s.checkCurrent('profile')">检查当前资料</UiButton><UiButton :disabled="s.auth.state.busy" @click="s.retryOriginal">重试原请求</UiButton><UiButton variant="ghost" @click="s.abandonOperation">放弃本次页面操作</UiButton></div>
+  </div>
+  <UiDialog v-model:open="removeOpen" title="移除当前头像？"><p>仅移除本次确认的已保存头像，不会保存其它资料字段。</p><template #footer="{ close }"><UiButton variant="ghost" @click="close">取消</UiButton><UiButton @click="remove">确认移除</UiButton></template></UiDialog>
+</template>
+<style scoped>
+.avatar-section { display: grid; gap: 12px; padding-block: 16px; border-top: 1px solid var(--border); min-width: 0; }
+.avatar-row { display: flex; align-items: start; gap: 20px; flex-wrap: wrap; }
+.avatar { width: 96px; height: 96px; object-fit: contain; border-radius: var(--radius); border: 1px solid var(--border); }
+.avatar-default { display: grid; place-items: center; background: var(--surface); font-size: 28px; }
+</style>

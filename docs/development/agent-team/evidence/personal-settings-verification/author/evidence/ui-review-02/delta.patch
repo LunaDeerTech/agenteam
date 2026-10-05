@@ -1,0 +1,116 @@
+--- a/web/src/composables/usePersonalSettings.ts
++++ b/web/src/composables/usePersonalSettings.ts
+@@ -259,8 +259,12 @@
+     const captured = identity.value,
+       own = revision
+     if (sections[section].status === 'loading' || auth.state.busy) return
++    const progress = auth.personal.passwordProgress
++    const passwordConfirmed =
++      section === 'password' && !!progress && progress.identity.userID === identity.value?.userID
++    let readError = ''
+     sections[section].status = 'loading'
+-    sections[section].message = ''
++    if (!passwordConfirmed) sections[section].message = ''
+     try {
+       if (section === 'appearance') {
+         const value = await auth.personal.getPreferences()
+@@ -275,7 +279,14 @@
+       sections[section].status = 'idle'
+       if (images) await loadAvatar()
+     } catch (error) {
+-      if (current(captured, own)) showError(section, error)
++      if (current(captured, own)) {
++        showError(section, error)
++        readError = sections[section].message
++      }
++    } finally {
++      // A profile read can refresh the version, but cannot erase the independent
++      // confirmed password command or turn its Session confirmation into a write retry.
++      if (section === 'password' && current(captured, own)) showPasswordProgress(readError)
+     }
+   }
+   function localError(section: SettingsSection, fields: Record<string, string>) {
+@@ -563,23 +574,30 @@
+     },
+     { flush: 'sync', immediate: true },
+   )
++  function showPasswordProgress(readError = '') {
++    const progress = auth.personal.passwordProgress
++    if (!progress || progress.identity.userID !== identity.value?.userID) return
++    sections.password.status = readError
++      ? 'error'
++      : progress.phase === 'confirming-session'
++        ? 'confirming-session'
++        : progress.phase === 'confirmed'
++          ? 'confirmed'
++          : 'error'
++    const confirmed =
++      progress.phase === 'confirmed'
++        ? '密码已修改，当前登录已更新，其他旧登录已失效。'
++        : progress.phase === 'confirming-session'
++          ? '密码修改已确认，正在确认新会话。'
++          : '密码修改已确认，但新会话尚未确认。请检查当前会话，不要再次提交改密。'
++    sections.password.message = readError ? `${confirmed} ${readError}` : confirmed
++  }
+   const stopPassword = watch(
+     () => auth.personal.passwordProgress,
+     (progress) => {
+       if (!progress || progress.identity.userID !== identity.value?.userID) return
+       clearPassword()
+-      sections.password.status =
+-        progress.phase === 'confirming-session'
+-          ? 'confirming-session'
+-          : progress.phase === 'confirmed'
+-            ? 'confirmed'
+-            : 'error'
+-      sections.password.message =
+-        progress.phase === 'confirmed'
+-          ? '密码已修改，当前登录已更新，其他旧登录已失效。'
+-          : progress.phase === 'confirming-session'
+-            ? '密码修改已确认，正在确认新会话。'
+-            : '密码修改已确认，但新会话尚未确认。请检查当前会话，不要再次提交改密。'
++      showPasswordProgress()
+     },
+     { flush: 'sync' },
+   )
+--- a/web/src/tests/personal-settings.spec.ts
++++ b/web/src/tests/personal-settings.spec.ts
+@@ -365,6 +365,38 @@
+     expect(p.auth.state.session?.id).toBe(rotated)
+     expect(p.api.changePassword.mock.calls.length).toBe(1)
+   })
++  it('retains confirmed password feedback after a failed Session confirmation and a successful explicit check', async () => {
++    const p = await page('/settings/password')
++    p.api.getSession.mockRejectedValueOnce(problem('DEPENDENCY_UNAVAILABLE', 503, 'not_started'))
++    await p.wrapper.get('#settings-current_password').setValue('Original password 123')
++    await p.wrapper.get('#settings-new_password').setValue(' New password 字符 123 ')
++    await p.wrapper.get('#settings-confirmation').setValue(' New password 字符 123 ')
++    await p.wrapper.get('form').trigger('submit')
++    await flushPromises()
++    expect(p.api.changePassword.mock.calls.length).toBe(1)
++    expect(p.auth.personal.passwordProgress?.phase).toBe('session-unconfirmed')
++    expect(p.auth.state.phase).toBe('unavailable')
++    expect(p.wrapper.text()).toContain('密码修改已确认')
++    expect(p.wrapper.find('#settings-current_password').exists()).toBe(false)
++    await click('检查当前会话')
++    expect(p.auth.state.phase).toBe('authenticated')
++    expect(p.auth.state.session?.id).toBe(rotated)
++    expect(p.auth.personal.passwordProgress?.phase).toBe('confirmed')
++    expect(p.api.changePassword.mock.calls.length).toBe(1)
++    expect(p.router.currentRoute.value.path).toBe('/settings/password')
++    for (const name of ['current_password', 'new_password', 'confirmation'])
++      expect(p.wrapper.get(`#settings-${name}`).element).toHaveProperty('value', '')
++    expect(p.wrapper.text()).toContain('密码已修改，当前登录已更新，其他旧登录已失效。')
++    await p.router.push('/settings/appearance')
++    await flushPromises()
++    p.api.getProfile.mockRejectedValueOnce(problem('DEPENDENCY_UNAVAILABLE', 503, 'not_started'))
++    await p.router.push('/settings/password')
++    await flushPromises()
++    expect(p.wrapper.text()).toContain('密码已修改，当前登录已更新，其他旧登录已失效。')
++    expect(p.wrapper.text()).toContain('操作未完成，请检查当前登录状态或重试。')
++    expect(p.api.changePassword.mock.calls.length).toBe(1)
++  })
++
+   it('uses section errors for ambiguous password paths and preserves ordinary failure inputs', async () => {
+     const p = await page('/settings/password')
+     p.api.changePassword.mockRejectedValueOnce(

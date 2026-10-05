@@ -1,0 +1,1523 @@
+--- a/web/src/api/client.ts
++++ b/web/src/api/client.ts
+@@ -60,6 +60,14 @@
+   logout: ['POST', '/api/v1/sessions/logout', 204],
+   challenge: ['POST', '/api/v1/auth/challenges', 201],
+   verify: ['POST', '/api/v1/auth/challenges/verify', 200],
++  profile: ['GET', '/api/v1/me', 200],
++  updateProfile: ['PATCH', '/api/v1/me', 200],
++  preferences: ['GET', '/api/v1/me/preferences', 200],
++  setPreferences: ['PUT', '/api/v1/me/preferences', 200],
++  avatar: ['GET', '/api/v1/me/avatar', 200],
++  putAvatar: ['PUT', '/api/v1/me/avatar', 200],
++  deleteAvatar: ['DELETE', '/api/v1/me/avatar', 204],
++  changePassword: ['POST', '/api/v1/me/change-password', 200],
+ } as const
+ export type Fetch = (input: string, init: RequestInit) => Promise<Response>
+ 
+@@ -147,15 +155,82 @@
+   }
+ }
+ 
++async function readAvatar(response: Response, signal: AbortSignal) {
++  const media = response.headers.get('Content-Type')
++  const length = response.headers.get('Content-Length')
++  const etag = response.headers.get('ETag')
++  if (
++    !['image/jpeg', 'image/png', 'image/webp'].includes(media ?? '') ||
++    !length ||
++    !/^[1-9][0-9]{0,6}$/.test(length) ||
++    Number(length) > 5 * 1024 * 1024 ||
++    !etag ||
++    !/^"sha256:[0-9a-f]{64}"$/.test(etag)
++  )
++    throw new AccountFailure('invalid-response')
++  const reader = response.body?.getReader()
++  if (!reader) throw new AccountFailure('invalid-response')
++  let cancelled: Promise<void> | undefined
++  const cancel = () => (cancelled ??= reader.cancel().catch(() => undefined))
++  const abort = () => {
++    void cancel()
++  }
++  signal.addEventListener('abort', abort, { once: true })
++  if (signal.aborted) abort()
++  const bytes = new Uint8Array(Number(length))
++  let offset = 0
++  try {
++    for (;;) {
++      const { done, value } = await reader.read()
++      if (done) break
++      if (offset + value.byteLength > bytes.byteLength) throw new AccountFailure('invalid-response')
++      bytes.set(value, offset)
++      offset += value.byteLength
++    }
++    if (signal.aborted) throw new AccountFailure('cancelled')
++    if (offset !== bytes.byteLength) throw new AccountFailure('invalid-response')
++    return {
++      metadata: { media_type: media, byte_size: length, sha256: etag.slice(1, -1) },
++      blob: new Blob([bytes], { type: media! }),
++    }
++  } catch (e) {
++    throw e instanceof AccountFailure
++      ? e
++      : new AccountFailure(signal.aborted ? 'cancelled' : 'invalid-response')
++  } finally {
++    signal.removeEventListener('abort', abort)
++    await cancel()
++    reader.releaseLock()
++  }
++}
++
+ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+   return async function request<T>(
+     endpoint: keyof typeof endpoints,
+     parse: (value: unknown) => T,
+-    options: { body?: unknown; csrf?: string; key?: string; signal: AbortSignal },
++    options: {
++      body?: unknown
++      csrf?: string
++      key?: string
++      signal: AbortSignal
++      avatar?: { file: File; mediaType: string; version: string }
++    },
+   ): Promise<T> {
+     const [method, path, status] = endpoints[endpoint]
+     const headers: Record<string, string> = { Accept: 'application/json, application/problem+json' }
+-    if (method === 'POST') headers['Content-Type'] = 'application/json'
++    let body: BodyInit | undefined
++    if (endpoint === 'putAvatar' && options.avatar) {
++      body = options.avatar.file
++      headers['Content-Type'] = options.avatar.mediaType
++      headers['If-Match'] = `"${options.avatar.version}"`
++    } else if (method !== 'GET') {
++      body = JSON.stringify(options.body)
++      if (!body || new TextEncoder().encode(body).byteLength > 16 * 1024)
++        throw new AccountFailure('invalid-input')
++      headers['Content-Type'] = 'application/json'
++    }
++    if (endpoint === 'avatar')
++      headers.Accept = 'image/jpeg, image/png, image/webp, application/problem+json'
+     if (options.csrf !== undefined) headers['X-CSRF-Token'] = options.csrf
+     if (options.key !== undefined) headers['Idempotency-Key'] = options.key
+     let response: Response
+@@ -167,7 +242,7 @@
+         cache: 'no-store',
+         redirect: 'error',
+         signal: options.signal,
+-        ...(method === 'POST' ? { body: JSON.stringify(options.body) } : {}),
++        ...(body === undefined ? {} : { body }),
+       })
+     } catch {
+       throw new AccountFailure(options.signal.aborted ? 'cancelled' : 'transport')
+@@ -177,6 +252,8 @@
+       if (response.redirected || response.type === 'opaqueredirect')
+         throw new AccountFailure('invalid-response')
+       if (response.status === 204 && status === 204) return parse(undefined)
++      if (endpoint === 'avatar' && response.status === 200)
++        return parse(await readAvatar(response, options.signal))
+       const contentType = response.headers.get('Content-Type')?.split(';')[0]?.trim().toLowerCase()
+       const success = response.status === status
+       if (contentType !== (success ? 'application/json' : 'application/problem+json'))
+--- a/web/src/api/account.ts
++++ b/web/src/api/account.ts
+@@ -54,6 +54,32 @@
+   challenge_id: string
+   proof: { angle: number }
+ }
++
++export type Version = string
++export type Progress = string
++export type Digest = string
++export type Theme = User['theme']
++export type AvatarMedia = 'image/jpeg' | 'image/png' | 'image/webp'
++export type AvatarMetadata = Readonly<{
++  media_type: AvatarMedia
++  byte_size: Progress
++  sha256: Digest
++}>
++export type ProfileView = Readonly<{ user: User; avatar: AvatarMetadata | null }>
++export type PreferencesView = Readonly<{ version: Version; theme: Theme }>
++export type ProfileInput = Readonly<
++  { version: Version } & (
++    { username: string; display_name?: string } | { username?: never; display_name: string }
++  )
++>
++export type PasswordInput = Readonly<{
++  version: Version
++  current_password: string
++  new_password: string
++  confirmation: string
++}>
++export type WriteOptions = Readonly<{ csrfToken: string; key: string; signal?: AbortSignal }>
++export type AvatarDownload = Readonly<{ metadata: AvatarMetadata; blob: Blob }>
+ 
+ function requireValue(condition: boolean) {
+   if (!condition) throw new AccountFailure('invalid-response')
+@@ -166,9 +192,165 @@
+   }
+ }
+ 
++function version(value: unknown, zero = false): string {
++  const result = string(value, 1, 19)
++  requireValue(
++    (zero ? /^(0|[1-9][0-9]*)$/ : /^[1-9][0-9]*$/).test(result) &&
++      BigInt(result) <= 9223372036854775807n,
++  )
++  return result
++}
++function theme(value: unknown): Theme {
++  requireValue(value === 'system' || value === 'light' || value === 'dark')
++  return value as Theme
++}
++function media(value: unknown): AvatarMedia {
++  requireValue(value === 'image/jpeg' || value === 'image/png' || value === 'image/webp')
++  return value as AvatarMedia
++}
++function avatarMetadata(value: unknown): AvatarMetadata {
++  const v = shape(value, ['media_type', 'byte_size', 'sha256'])
++  const digest = string(v.sha256, 71, 71)
++  requireValue(/^sha256:[0-9a-f]{64}$/.test(digest))
++  return { media_type: media(v.media_type), byte_size: version(v.byte_size, true), sha256: digest }
++}
++function profile(value: unknown): ProfileView {
++  const v = shape(value, ['user', 'avatar'])
++  return { user: user(v.user), avatar: v.avatar === null ? null : avatarMetadata(v.avatar) }
++}
++function preferences(value: unknown): PreferencesView {
++  const v = shape(value, ['version', 'theme'])
++  return { version: version(v.version), theme: theme(v.theme) }
++}
++function profileInput(value: ProfileInput): ProfileInput {
++  const v = shape(value, ['version'], ['username', 'display_name'])
++  requireValue(v.username !== undefined || v.display_name !== undefined)
++  let username: string | undefined, displayName: string | undefined
++  if (Object.hasOwn(v, 'username')) {
++    username = string(v.username, 3, 32)
++    requireValue(/^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(username))
++  }
++  if (Object.hasOwn(v, 'display_name')) {
++    displayName = string(v.display_name, 0, 80)
++    requireValue(
++      !/[\x00-\x1f\x7f-\x9f]/.test(displayName) &&
++        new TextEncoder().encode(displayName).byteLength <= 320,
++    )
++  }
++  return {
++    version: version(v.version),
++    ...(username === undefined ? {} : { username }),
++    ...(displayName === undefined ? {} : { display_name: displayName }),
++  } as ProfileInput
++}
++function passwordInput(value: PasswordInput): PasswordInput {
++  const v = shape(value, ['version', 'current_password', 'new_password', 'confirmation'])
++  const current = string(v.current_password, 1, 512),
++    next = string(v.new_password, 15, 128),
++    confirmation = string(v.confirmation, 15, 128)
++  requireValue(
++    [current, next, confirmation].every((s) => new TextEncoder().encode(s).byteLength <= 512) &&
++      next === confirmation,
++  )
++  return {
++    version: version(v.version),
++    current_password: current,
++    new_password: next,
++    confirmation,
++  }
++}
++function writeOptions(options: WriteOptions) {
++  return {
++    csrf: csrf(options.csrfToken),
++    key: key(options.key),
++    signal: options.signal ?? new AbortController().signal,
++  }
++}
++
+ export function createAccountAPI(fetcher?: Fetch) {
+   const request = accountTransport(fetcher)
+   return {
++    getProfile(signal = new AbortController().signal): Promise<ProfileView> {
++      return request('profile', profile, { signal })
++    },
++    updateProfile(value: ProfileInput, options: WriteOptions): Promise<ProfileView> {
++      return request(
++        'updateProfile',
++        profile,
++        input(() => ({ body: profileInput(value), ...writeOptions(options) })),
++      )
++    },
++    getPreferences(signal = new AbortController().signal): Promise<PreferencesView> {
++      return request('preferences', preferences, { signal })
++    },
++    setPreferences(value: PreferencesView, options: WriteOptions): Promise<PreferencesView> {
++      return request(
++        'setPreferences',
++        preferences,
++        input(() => ({ body: preferences(value), ...writeOptions(options) })),
++      )
++    },
++    readAvatar(signal = new AbortController().signal): Promise<AvatarDownload> {
++      return request(
++        'avatar',
++        (value) => {
++          const v = shape(value, ['metadata', 'blob'])
++          const metadata = avatarMetadata(v.metadata)
++          requireValue(
++            v.blob instanceof Blob &&
++              v.blob.size === Number(metadata.byte_size) &&
++              v.blob.type === metadata.media_type,
++          )
++          return { metadata, blob: v.blob as Blob }
++        },
++        { signal },
++      )
++    },
++    putAvatar(
++      value: Readonly<{ version: Version; file: File; mediaType: AvatarMedia }>,
++      options: WriteOptions,
++    ): Promise<ProfileView> {
++      return request(
++        'putAvatar',
++        profile,
++        input(() => {
++          const v = shape(value, ['version', 'file', 'mediaType'])
++          requireValue(v.file instanceof File && v.file.size > 0 && v.file.size <= 5 * 1024 * 1024)
++          return {
++            avatar: {
++              file: v.file as File,
++              version: version(v.version),
++              mediaType: media(v.mediaType),
++            },
++            ...writeOptions(options),
++          }
++        }),
++      )
++    },
++    deleteAvatar(value: Readonly<{ version: Version }>, options: WriteOptions): Promise<void> {
++      return request(
++        'deleteAvatar',
++        () => undefined,
++        input(() => ({
++          body: { version: version(shape(value, ['version']).version) },
++          ...writeOptions(options),
++        })),
++      )
++    },
++    changePassword(
++      value: PasswordInput,
++      options: WriteOptions,
++    ): Promise<Readonly<{ completed: true; next_path: '/' }>> {
++      return request(
++        'changePassword',
++        (value) => {
++          const v = shape(value, ['completed', 'next_path'])
++          requireValue(v.completed === true && v.next_path === '/')
++          return { completed: true, next_path: '/' }
++        },
++        input(() => ({ body: passwordInput(value), ...writeOptions(options) })),
++      )
++    },
+     bootstrap(signal: AbortSignal): Promise<Bootstrap> {
+       return request(
+         'bootstrap',
+--- a/web/src/composables/useSession.ts
++++ b/web/src/composables/useSession.ts
+@@ -7,6 +7,14 @@
+   type Session,
+   type SessionView,
+   type User,
++  type AvatarDownload,
++  type AvatarMedia,
++  type PasswordInput,
++  type PreferencesView,
++  type ProfileInput,
++  type ProfileView,
++  type Theme,
++  type Version,
+ } from '../api/account'
+ import { AccountFailure, type Problem } from '../api/client'
+ import { useTheme } from './useTheme'
+@@ -47,7 +55,7 @@
+   csrf: string
+ }
+ type Intent = LoginIntent | LogoutIntent
+-type Action = 'restore' | 'login' | 'logout'
++type Action = 'restore' | 'login' | 'logout' | 'personal'
+ interface Operation {
+   generation: number
+   kind: Action
+@@ -55,7 +63,35 @@
+   expired: boolean
+   confirmed: boolean
+   visible: Promise<void>
++  abandon?: () => void
+ }
++
++export type PersonalIdentity = Readonly<{ userID: string; sessionID: string; epoch: number }>
++export type PasswordConfirmation =
++  | Readonly<{ commandConfirmed: true; sessionConfirmed: true }>
++  | Readonly<{ commandConfirmed: true; sessionConfirmed: false; failure: AccountFailure }>
++export type PersonalMutationResult =
++  | Readonly<{ kind: 'profile' | 'avatar-put'; value: ProfileView }>
++  | Readonly<{ kind: 'preferences'; value: PreferencesView }>
++  | Readonly<{ kind: 'avatar-delete' }>
++  | Readonly<{ kind: 'password'; value: PasswordConfirmation }>
++type PasswordProgress = Readonly<{
++  identity: PersonalIdentity
++  requestGeneration: number
++  phase: 'confirming-session' | 'confirmed' | 'session-unconfirmed'
++}>
++type PersonalCommand = (
++  | { kind: 'profile'; input: ProfileInput }
++  | { kind: 'preferences'; input: PreferencesView }
++  | {
++      kind: 'avatar-put'
++      input: Readonly<{ version: Version; file: File; mediaType: AvatarMedia }>
++    }
++  | { kind: 'avatar-delete'; input: Readonly<{ version: Version }> }
++  | { kind: 'password'; input: PasswordInput | null }
++) & { identity: PersonalIdentity; key: string; csrf: string; checked: boolean }
++const sameIdentity = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
++  !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
+ 
+ const unavailableSession = (e: unknown) =>
+   e instanceof AccountFailure &&
+@@ -95,6 +131,20 @@
+   let challengeAbort: AbortController | null = null
+   const challengeTails = new Set<Promise<void>>()
+   let pending = false
++  const personalContext = shallowReactive<{
++    phase: 'current' | 'checking' | 'invalid'
++    identity: PersonalIdentity | null
++  }>({ phase: 'invalid', identity: null })
++  const personalState = shallowReactive<{ passwordProgress: PasswordProgress | null }>({
++    passwordProgress: null,
++  })
++  let identityEpoch = 0,
++    personalRevision = 0
++  let trustedUser: User | null = null
++  let personalIntent: PersonalCommand | null = null
++  let preview: { identity: PersonalIdentity; theme: Theme } | null = null
++  let passwordSessionCheck = false
++  let passwordExpected: PersonalIdentity | null = null
+   const valid = (op: Operation) => generation === op.generation && !op.expired
+   function clearChallenge() {
+     ++challengeGeneration
+@@ -105,11 +155,32 @@
+     state.passReady = false
+     if (intent?.kind === 'login') delete intent.pass
+   }
+-  function clearIdentity() {
++  function applyTheme() {
++    useTheme().setTheme(
++      sameIdentity(preview?.identity ?? null, personalContext.identity)
++        ? preview!.theme
++        : (trustedUser?.theme ?? 'system'),
++    )
++  }
++  function clearIdentity(invalidate = true) {
+     state.user = null
+     state.session = null
+-    sessionCSRF = ''
+-    useTheme().setTheme('system')
++    if (invalidate) {
++      sessionCSRF = ''
++      ++identityEpoch
++      ++personalRevision
++      personalContext.identity = null
++      personalContext.phase = 'invalid'
++      trustedUser = null
++      preview = null
++      personalIntent = null
++      personalState.passwordProgress = null
++      passwordSessionCheck = false
++      passwordExpected = null
++    } else {
++      personalContext.phase = 'checking'
++    }
++    applyTheme()
+   }
+   function forgetIntent() {
+     clearChallenge()
+@@ -132,7 +203,35 @@
+     )
+   }
+   function publish(view: SessionView) {
+-    state.user = view.user
++    if (
++      passwordExpected &&
++      (view.user.id !== passwordExpected.userID || view.session.id === passwordExpected.sessionID)
++    )
++      throw new AccountFailure('invalid-response')
++    const passwordChecked = passwordExpected
++    const previous = personalContext.identity
++    const same =
++      previous?.userID === view.user.id &&
++      previous.sessionID === view.session.id &&
++      (!sessionCSRF || sessionCSRF === view.csrf_token)
++    if (!same) {
++      ++personalRevision
++      personalContext.identity = Object.freeze({
++        userID: view.user.id,
++        sessionID: view.session.id,
++        epoch: ++identityEpoch,
++      })
++      personalIntent = null
++      preview = null
++    } else if (personalIntent) personalIntent.checked = true
++    personalContext.phase = 'current'
++    passwordSessionCheck = false
++    passwordExpected = null
++    trustedUser =
++      same && trustedUser && BigInt(trustedUser.version) > BigInt(view.user.version)
++        ? trustedUser
++        : Object.freeze({ ...view.user })
++    state.user = trustedUser
+     state.session = view.session
+     sessionCSRF = view.csrf_token
+     clearBrowser()
+@@ -141,7 +240,9 @@
+     state.phase = 'authenticated'
+     state.notice = ''
+     state.fields = {}
+-    useTheme().setTheme(view.user.theme)
++    if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
++      personalState.passwordProgress = { ...personalState.passwordProgress, phase: 'confirmed' }
++    applyTheme()
+   }
+   function fields(problem?: Problem) {
+     const result: Record<string, string> = {}
+@@ -156,7 +257,7 @@
+     const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+     state.fields = fields(e.problem)
+     if (op.kind === 'restore' || op.confirmed) {
+-      clearIdentity()
++      clearIdentity(false)
+       state.phase = pending ? 'uncertain' : 'unavailable'
+       state.notice = op.confirmed
+         ? '登录响应已接收，但当前会话尚未确认。请检查当前会话。'
+@@ -267,7 +368,7 @@
+       // A restored identity is never displayed while its current authority is unknown.
+       const previous = state.session?.id
+       const previousCSRF = sessionCSRF
+-      clearIdentity()
++      clearIdentity(false)
+       try {
+         const result = await api.getSession(op.abort.signal)
+         if (!valid(op)) return
+@@ -522,7 +623,355 @@
+       '验证未确认，请请求新题。',
+     )
+   }
++  function personalIdentity(): PersonalIdentity {
++    if (owner) throw new AccountFailure('busy')
++    if (
++      personalContext.phase !== 'current' ||
++      !personalContext.identity ||
++      state.phase !== 'authenticated' ||
++      !sessionCSRF ||
++      passwordSessionCheck
++    )
++      throw new AccountFailure('invalid-input')
++    return personalContext.identity
++  }
++  function personalFailure(identity: PersonalIdentity, error: unknown) {
++    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
++    if (
++      sameIdentity(identity, personalContext.identity) &&
++      (unavailableSession(e) || e.problem?.code === 'CSRF_FAILED')
++    ) {
++      clearIdentity()
++      clearBrowser()
++      state.phase = 'unavailable'
++      state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
++    }
++    return e
++  }
++  function acceptUser(identity: PersonalIdentity, value: User) {
++    if (!sameIdentity(identity, personalContext.identity) || value.id !== identity.userID)
++      throw new AccountFailure('invalid-response')
++    if (!trustedUser || BigInt(value.version) >= BigInt(trustedUser.version)) {
++      trustedUser = Object.freeze({ ...value })
++      if (state.phase === 'authenticated') state.user = trustedUser
++      applyTheme()
++    }
++  }
++  function runPersonal<T>(
++    identity: PersonalIdentity,
++    work: (op: Operation, current: () => boolean) => Promise<T>,
++    command?: PersonalCommand,
++  ): Promise<T> {
++    if (owner) return Promise.reject(new AccountFailure('busy'))
++    const revision = personalRevision
++    const op: Operation = {
++      kind: 'personal',
++      generation: ++generation,
++      abort: new AbortController(),
++      expired: false,
++      confirmed: false,
++      visible: Promise.resolve(),
++    }
++    const current = () =>
++      valid(op) && revision === personalRevision && sameIdentity(identity, personalContext.identity)
++    owner = op
++    state.busy = true
++    let resolveVisible!: (value: T) => void, rejectVisible!: (failure: AccountFailure) => void
++    const visible = new Promise<T>((resolve, reject) => {
++      resolveVisible = resolve
++      rejectVisible = reject
++    })
++    op.visible = visible.then(
++      () => undefined,
++      () => undefined,
++    )
++    const unknown = (e: AccountFailure) => {
++      if (command && personalIntent === command && isUnknown(e)) command.checked = false
++      if (command?.kind === 'password' && sameIdentity(identity, personalContext.identity))
++        passwordSessionCheck = true
++    }
++    const endVisible = (e: AccountFailure) => {
++      if (command?.kind === 'password' && op.confirmed) {
++        if (current())
++          personalState.passwordProgress = {
++            identity,
++            requestGeneration: op.generation,
++            phase: 'session-unconfirmed',
++          }
++        resolveVisible({
++          kind: 'password',
++          value: { commandConfirmed: true, sessionConfirmed: false, failure: e },
++        } as T)
++      } else {
++        unknown(e)
++        rejectVisible(e)
++      }
++    }
++    op.abandon = () => {
++      endVisible(new AccountFailure('cancelled'))
++      // A password response can rotate the Cookie. Keep its original bounded
++      // POST -> Session check alive even when its page no longer consumes it.
++      if (command?.kind !== 'password') op.abort.abort()
++    }
++    const timer = setTimeout(() => {
++      endVisible(new AccountFailure('cancelled'))
++      op.expired = true
++      op.abort.abort()
++    }, 30_000)
++    // This is the same owner as authentication, not another queue. The visible
++    // promise is bounded; actual body/cancel completion alone releases ownership.
++    const actual = Promise.resolve()
++      .then(async () => {
++        if (!current()) throw new AccountFailure('cancelled')
++        const result = await work(op, current)
++        const confirmedPassword = command?.kind === 'password' && op.confirmed
++        if (!current() && !confirmedPassword) throw new AccountFailure('cancelled')
++        return result
++      })
++      .catch((error: unknown) => {
++        const e = personalFailure(identity, error)
++        if (command && personalIntent === command) {
++          if (isUnknown(e) || e.problem?.code === 'IDEMPOTENCY_KEY_REUSED') command.checked = false
++          else personalIntent = null
++        }
++        if (command?.kind === 'password' && !op.confirmed) {
++          if (isUnknown(e)) unknown(e)
++          else if (sameIdentity(identity, personalContext.identity)) passwordSessionCheck = false
++        }
++        if (command?.kind === 'password' && op.confirmed)
++          return {
++            kind: 'password',
++            value: { commandConfirmed: true, sessionConfirmed: false, failure: e },
++          } as T
++        throw e
++      })
++      .finally(() => {
++        clearTimeout(timer)
++        op.abandon = undefined
++        if (owner === op) {
++          owner = null
++          state.busy = false
++        }
++      })
++    void actual.then(resolveVisible, rejectVisible)
++    return visible
++  }
++  function readPersonal<T>(
++    work: (identity: PersonalIdentity, op: Operation, current: () => boolean) => Promise<T>,
++  ): Promise<T> {
++    try {
++      const identity = personalIdentity()
++      return runPersonal(identity, (op, current) => work(identity, op, current))
++    } catch (e) {
++      return Promise.reject(e)
++    }
++  }
++  function startPersonal(
++    command: Omit<PersonalCommand, 'identity' | 'key' | 'csrf' | 'checked'>,
++  ): Promise<PersonalMutationResult> {
++    try {
++      const identity = personalIdentity()
++      if (personalIntent) throw new AccountFailure('busy')
++      personalState.passwordProgress = null
++      const original = {
++        ...command,
++        identity,
++        key: newKey(),
++        csrf: sessionCSRF,
++        checked: true,
++      } as PersonalCommand
++      personalIntent = original
++      return performPersonal(original)
++    } catch (e) {
++      return Promise.reject(e)
++    }
++  }
++  function performPersonal(original: PersonalCommand): Promise<PersonalMutationResult> {
++    const identity = original.identity
++    return runPersonal(
++      identity,
++      async (op, current) => {
++        const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
++        let result: PersonalMutationResult
++        switch (original.kind) {
++          case 'profile': {
++            const value = await api.updateProfile(original.input, options)
++            if (current()) acceptUser(identity, value.user)
++            result = { kind: original.kind, value }
++            break
++          }
++          case 'avatar-put': {
++            const value = await api.putAvatar(original.input, options)
++            if (current()) acceptUser(identity, value.user)
++            result = { kind: original.kind, value }
++            break
++          }
++          case 'preferences': {
++            const value = await api.setPreferences(original.input, options)
++            if (current() && trustedUser) acceptUser(identity, { ...trustedUser, ...value })
++            result = { kind: original.kind, value }
++            break
++          }
++          case 'avatar-delete':
++            await api.deleteAvatar(original.input, options)
++            result = { kind: original.kind }
++            break
++          case 'password': {
++            if (!original.input) throw new AccountFailure('invalid-input')
++            passwordSessionCheck = true
++            await api.changePassword(original.input, options)
++            // The exact 200 is a command fact, independent of the following GET.
++            original.input = null
++            op.confirmed = true
++            if (sameIdentity(identity, personalContext.identity)) passwordExpected = identity
++            if (personalIntent === original) personalIntent = null
++            if (current())
++              personalState.passwordProgress = {
++                identity,
++                requestGeneration: op.generation,
++                phase: 'confirming-session',
++              }
++            try {
++              if (op.abort.signal.aborted) throw new AccountFailure('cancelled')
++              const view = await api.getSession(op.abort.signal)
++              if (view.user.id !== identity.userID || view.session.id === identity.sessionID)
++                throw new AccountFailure('invalid-response')
++              // Page abandonment cannot skip Cookie reconciliation. Publication is
++              // still restricted to this original actual owner/identity and deadline.
++              if (valid(op) && sameIdentity(identity, personalContext.identity)) {
++                const showProgress = current()
++                publish(view)
++                if (showProgress)
++                  personalState.passwordProgress = {
++                    identity,
++                    requestGeneration: op.generation,
++                    phase: 'confirmed',
++                  }
++              } else throw new AccountFailure('cancelled')
++              result = {
++                kind: 'password',
++                value: { commandConfirmed: true, sessionConfirmed: true },
++              }
++            } catch (error) {
++              const e = personalFailure(identity, error)
++              if (valid(op) && sameIdentity(identity, personalContext.identity)) {
++                if (current())
++                  personalState.passwordProgress = {
++                    identity,
++                    requestGeneration: op.generation,
++                    phase: 'session-unconfirmed',
++                  }
++                clearIdentity(false)
++                state.phase = 'unavailable'
++                state.notice =
++                  '密码修改已确认，但新会话尚未确认。请检查当前会话或重新登录，不要再次提交改密。'
++              }
++              result = {
++                kind: 'password',
++                value: { commandConfirmed: true, sessionConfirmed: false, failure: e },
++              }
++            }
++            break
++          }
++        }
++        if (personalIntent === original) personalIntent = null
++        return result
++      },
++      original,
++    )
++  }
++  const personal = {
++    get passwordProgress() {
++      return readonly(personalState).passwordProgress
++    },
++    getProfile(): Promise<ProfileView> {
++      return readPersonal(async (identity, op, current) => {
++        const value = await api.getProfile(op.abort.signal)
++        if (current()) acceptUser(identity, value.user)
++        return value
++      })
++    },
++    getPreferences(): Promise<PreferencesView> {
++      return readPersonal(async (identity, op, current) => {
++        const value = await api.getPreferences(op.abort.signal)
++        if (current() && trustedUser) acceptUser(identity, { ...trustedUser, ...value })
++        return value
++      })
++    },
++    readAvatar(): Promise<AvatarDownload> {
++      return readPersonal((_identity, op) => api.readAvatar(op.abort.signal))
++    },
++    async updateProfile(input: ProfileInput): Promise<ProfileView> {
++      const result = await startPersonal({ kind: 'profile', input: Object.freeze({ ...input }) })
++      if (result.kind !== 'profile') throw new AccountFailure('invalid-response')
++      return result.value
++    },
++    async setPreferences(input: PreferencesView): Promise<PreferencesView> {
++      const result = await startPersonal({
++        kind: 'preferences',
++        input: Object.freeze({ ...input }),
++      })
++      if (result.kind !== 'preferences') throw new AccountFailure('invalid-response')
++      return result.value
++    },
++    async putAvatar(
++      input: Readonly<{ version: Version; file: File; mediaType: AvatarMedia }>,
++    ): Promise<ProfileView> {
++      const result = await startPersonal({ kind: 'avatar-put', input: Object.freeze({ ...input }) })
++      if (result.kind !== 'avatar-put') throw new AccountFailure('invalid-response')
++      return result.value
++    },
++    async deleteAvatar(input: Readonly<{ version: Version }>): Promise<void> {
++      const result = await startPersonal({
++        kind: 'avatar-delete',
++        input: Object.freeze({ ...input }),
++      })
++      if (result.kind !== 'avatar-delete') throw new AccountFailure('invalid-response')
++    },
++    async changePassword(input: PasswordInput): Promise<PasswordConfirmation> {
++      const result = await startPersonal({ kind: 'password', input: Object.freeze({ ...input }) })
++      if (result.kind !== 'password') throw new AccountFailure('invalid-response')
++      return result.value
++    },
++    retryOriginal(): Promise<PersonalMutationResult> {
++      try {
++        const identity = personalIdentity()
++        if (
++          !personalIntent ||
++          !personalIntent.checked ||
++          !sameIdentity(identity, personalIntent.identity) ||
++          personalIntent.csrf !== sessionCSRF
++        )
++          throw new AccountFailure('invalid-input')
++        return performPersonal(personalIntent)
++      } catch (e) {
++        return Promise.reject(e)
++      }
++    },
++    abandon() {
++      ++personalRevision
++      personalIntent = null
++      personalState.passwordProgress = null
++      owner?.abandon?.()
++    },
++    previewTheme(identity: PersonalIdentity, value: Theme) {
++      if (
++        personalContext.phase !== 'current' ||
++        !sameIdentity(identity, personalContext.identity) ||
++        !['system', 'light', 'dark'].includes(value)
++      )
++        return
++      preview = { identity, theme: value }
++      applyTheme()
++    },
++    clearThemePreview(identity: PersonalIdentity) {
++      if (!sameIdentity(identity, preview?.identity ?? null)) return
++      preview = null
++      applyTheme()
++    },
++  }
+   function leave() {
++    owner?.abandon?.()
+     ++generation
+     forgetIntent()
+     expectedSession = null
+@@ -546,6 +995,8 @@
+   }
+   return {
+     state: readonly(state),
++    personalContext: readonly(personalContext),
++    personal,
+     restore,
+     login,
+     logout,
+--- a/web/src/tests/personal-settings-client.spec.ts
++++ b/web/src/tests/personal-settings-client.spec.ts
+@@ -0,0 +1,231 @@
++import { describe, expect, it, vi } from 'vitest'
++import { createAccountAPI, type ProfileInput, type ProfileView } from '../api/account'
++import { AccountFailure } from '../api/client'
++
++const id = '01900000-0000-7000-8000-000000000001'
++const profile: ProfileView = {
++  user: {
++    id,
++    email: 'person@example.com',
++    username: 'admin',
++    display_name: ' 显示 ',
++    role: 'admin',
++    theme: 'system',
++    version: '9007199254740993',
++    initial_password_suggestion: true,
++  },
++  avatar: { media_type: 'image/png', byte_size: '12', sha256: 'sha256:' + 'a'.repeat(64) },
++}
++const options = { csrfToken: 'S'.repeat(43), key: 'original-key' }
++const json = (value: unknown, status = 200) =>
++  new Response(JSON.stringify(value), {
++    status,
++    headers: {
++      'Content-Type': status < 400 ? 'application/json' : 'application/problem+json',
++      'X-Request-ID': id,
++    },
++  })
++const capture = (response: () => Response) => {
++  const calls: { url: string; init: RequestInit }[] = []
++  const api = createAccountAPI(async (url, init) => {
++    calls.push({ url, init })
++    return response()
++  })
++  return { api, calls }
++}
++
++describe('personal Account wire', () => {
++  it('uses the eight exact methods and preserves explicit empty, optional absence and original File', async () => {
++    const response = vi.fn(() => json(profile))
++    const { api, calls } = capture(response)
++    expect(await api.getProfile()).toEqual(profile)
++    const update = { version: profile.user.version, display_name: '' }
++    await api.updateProfile(update, options)
++    expect(JSON.parse(calls[1]!.init.body as string)).toEqual(update)
++    expect(Object.hasOwn(JSON.parse(calls[1]!.init.body as string), 'username')).toBe(false)
++    response.mockImplementation(() => json({ version: profile.user.version, theme: 'dark' }))
++    await api.getPreferences()
++    await api.setPreferences({ version: profile.user.version, theme: 'dark' }, options)
++    response.mockImplementation(
++      () =>
++        new Response(new Uint8Array([137, 80, 78, 71]), {
++          status: 200,
++          headers: {
++            'Content-Type': 'image/png',
++            'Content-Length': '4',
++            ETag: '"sha256:' + 'b'.repeat(64) + '"',
++          },
++        }),
++    )
++    const image = await api.readAvatar()
++    expect(image.blob.size).toBe(4)
++    expect(image.metadata.byte_size).toBe('4')
++    response.mockImplementation(() => json(profile))
++    const file = new File([new Uint8Array([137, 80, 78, 71])], 'selected.png', {
++      type: 'image/png',
++    })
++    await api.putAvatar({ version: profile.user.version, file, mediaType: 'image/png' }, options)
++    expect(calls[5]!.init.body === file).toBe(true)
++    expect((calls[5]!.init.headers as Record<string, string>)['If-Match']).toBe(
++      '"9007199254740993"',
++    )
++    response.mockImplementation(() => new Response(null, { status: 204 }))
++    expect(await api.deleteAvatar({ version: profile.user.version }, options)).toBeUndefined()
++    response.mockImplementation(() => json({ completed: true, next_path: '/' }))
++    const password = '  原始 字符 123456789  '
++    await api.changePassword(
++      {
++        version: profile.user.version,
++        current_password: 'x',
++        new_password: password,
++        confirmation: password,
++      },
++      options,
++    )
++    const sent = JSON.parse(calls[7]!.init.body as string)
++    expect(
++      sent.new_password === password &&
++        sent.confirmation === password &&
++        sent.current_password === 'x',
++    ).toBe(true)
++    expect(calls.map((c) => [c.init.method, c.url])).toEqual([
++      ['GET', '/api/v1/me'],
++      ['PATCH', '/api/v1/me'],
++      ['GET', '/api/v1/me/preferences'],
++      ['PUT', '/api/v1/me/preferences'],
++      ['GET', '/api/v1/me/avatar'],
++      ['PUT', '/api/v1/me/avatar'],
++      ['DELETE', '/api/v1/me/avatar'],
++      ['POST', '/api/v1/me/change-password'],
++    ])
++    for (const { init } of calls) {
++      expect(init.credentials).toBe('same-origin')
++      expect(init.cache).toBe('no-store')
++      expect(init.redirect).toBe('error')
++      const headers = init.headers as Record<string, string>
++      expect(
++        Object.keys(headers).some((key) =>
++          ['Cookie', 'Host', 'Origin', 'Content-Length', 'Range'].includes(key),
++        ),
++      ).toBe(false)
++      if (init.method === 'GET') expect(init.body).toBeUndefined()
++      else
++        expect(
++          headers['X-CSRF-Token'] === options.csrfToken &&
++            headers['Idempotency-Key'] === options.key,
++        ).toBe(true)
++    }
++  })
++  it('rejects missing/null fields, invalid complete User and malformed scalar forms', async () => {
++    const malformed = [
++      { user: profile.user },
++      { user: { ...profile.user, role: 'owner' }, avatar: null },
++      { user: { ...profile.user, initial_password_suggestion: 1 }, avatar: null },
++      { user: { ...profile.user, version: 9007199254740992 }, avatar: null },
++      { user: { ...profile.user, version: '9223372036854775808' }, avatar: null },
++      { user: profile.user, avatar: { ...profile.avatar, byte_size: '-1' } },
++      { user: profile.user, avatar: { ...profile.avatar, byte_size: '01' } },
++      { user: profile.user, avatar: { ...profile.avatar, sha256: 'sha256:' + 'A'.repeat(64) } },
++    ]
++    for (const value of malformed)
++      await expect(capture(() => json(value)).api.getProfile()).rejects.toMatchObject({
++        kind: 'invalid-response',
++      })
++    const { api, calls } = capture(() => json(profile))
++    for (const value of [
++      { version: '1' },
++      { version: '1', username: null },
++      { version: '1', display_name: null },
++      { version: '1', display_name: '', role: 'admin' },
++      { version: '0', display_name: '' },
++    ])
++      await expect(
++        Promise.resolve().then(() => api.updateProfile(value as ProfileInput, options)),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(calls.length).toBe(0)
++    expect(await capture(() => json({ ...profile, avatar: null })).api.getProfile()).toEqual({
++      ...profile,
++      avatar: null,
++    })
++    expect(
++      (
++        await capture(() =>
++          json({ ...profile, avatar: { ...profile.avatar, byte_size: '9223372036854775807' } }),
++        ).api.getProfile()
++      ).avatar?.byte_size,
++    ).toBe('9223372036854775807')
++  })
++  it.each([
++    'length-zero',
++    'length-large',
++    'truncated',
++    'overflow',
++    'media',
++    'etag',
++    'partial',
++    'html',
++  ])('rejects unsafe avatar responses and closes their stream: %s', async (mode) => {
++    let cancelled = false
++    const stream = new ReadableStream<Uint8Array>({
++      start(s) {
++        s.enqueue(new Uint8Array(mode === 'overflow' ? 5 : 3))
++        s.close()
++      },
++      cancel() {
++        cancelled = true
++      },
++    })
++    const headers = {
++      'Content-Type':
++        mode === 'media' ? 'image/svg+xml' : mode === 'html' ? 'text/html' : 'image/png',
++      'Content-Length': mode === 'length-zero' ? '0' : mode === 'length-large' ? '5242881' : '4',
++      ETag: mode === 'etag' ? 'sha256:' + 'b'.repeat(64) : '"sha256:' + 'b'.repeat(64) + '"',
++    }
++    const response = new Response(stream, { status: mode === 'partial' ? 206 : 200, headers })
++    await expect(createAccountAPI(async () => response).readAvatar()).rejects.toMatchObject({
++      kind: 'invalid-response',
++    })
++    expect(response.body?.locked).toBe(false)
++    // The pre-read branches cancel queued bytes; consumed/truncated EOF is already terminal.
++    if (['length-zero', 'length-large', 'media', 'etag', 'partial', 'html'].includes(mode))
++      expect(cancelled).toBe(true)
++  })
++  it('preserves safe Problems and read/mutation commit states, and never parses a DELETE 204', async () => {
++    const problem = {
++      type: 'urn:agenteam:problem:dependency-unavailable',
++      title: 'Unavailable',
++      status: 503,
++      detail: 'Safe failure',
++      instance: '/api/v1/me',
++      code: 'DEPENDENCY_UNAVAILABLE',
++      request_id: id,
++      commit_state: 'unknown',
++      retry_hint: 'lookup',
++      field_errors: [{ path: '/password', code: 'INVALID' }],
++    }
++    const { api } = capture(() => json(problem, 503))
++    for (const call of [
++      () => api.getProfile(),
++      () => api.updateProfile({ version: '1', display_name: '' }, options),
++      () => api.readAvatar(),
++    ]) {
++      const e = await call().catch((e: unknown) => e)
++      expect(e).toBeInstanceOf(AccountFailure)
++      expect((e as AccountFailure).problem).toEqual(problem)
++    }
++    await expect(
++      capture(() => json({ ...problem, commit_state: ['unknown'] }, 503)).api.getPreferences(),
++    ).rejects.toMatchObject({ kind: 'invalid-response' })
++    await expect(
++      capture(() => json({ completed: true, next_path: '//example.com' })).api.changePassword(
++        {
++          version: '1',
++          current_password: 'x',
++          new_password: 'password 123456789',
++          confirmation: 'password 123456789',
++        },
++        options,
++      ),
++    ).rejects.toMatchObject({ kind: 'invalid-response' })
++  })
++})
+--- a/web/src/tests/personal-settings-state.spec.ts
++++ b/web/src/tests/personal-settings-state.spec.ts
+@@ -0,0 +1,349 @@
++import { afterEach, describe, expect, it, vi } from 'vitest'
++import {
++  createAccountAPI,
++  type AccountAPI,
++  type ProfileView,
++  type SessionView,
++} from '../api/account'
++import { AccountFailure, type Problem } from '../api/client'
++import { createSessionController } from '../composables/useSession'
++import { useTheme } from '../composables/useTheme'
++
++const userID = '01900000-0000-7000-8000-000000000001'
++const sessionID = '01900000-0000-7000-8000-000000000002'
++const nextSessionID = '01900000-0000-7000-8000-000000000003'
++const time = '2026-10-05T12:34:56.123456Z'
++const view = (
++  version = '1',
++  theme: 'system' | 'light' | 'dark' = 'dark',
++  id = sessionID,
++): SessionView => ({
++  user: {
++    id: userID,
++    email: 'person@example.com',
++    username: 'person',
++    display_name: 'Person',
++    role: 'user',
++    theme,
++    version,
++    initial_password_suggestion: true,
++  },
++  session: { id, issued_at: time, absolute_expires_at: time, idle_expires_at: time },
++  csrf_token: (id === sessionID ? 'S' : 'N').repeat(43),
++})
++const profile = (version = '1'): ProfileView => ({ user: view(version).user, avatar: null })
++function fault(code: string, status = 503, commit_state: Problem['commit_state'] = 'unknown') {
++  return new AccountFailure('problem', {
++    type: 'urn:agenteam:problem:test',
++    title: 'Test',
++    status,
++    detail: 'Safe failure',
++    instance: '/api/v1/me',
++    code,
++    request_id: userID,
++    commit_state,
++  })
++}
++function deferred<T>() {
++  let resolve!: (value: T) => void, reject!: (e: unknown) => void
++  const promise = new Promise<T>((a, b) => {
++    resolve = a
++    reject = b
++  })
++  return { promise, resolve, reject }
++}
++async function fixture() {
++  const unexpected = async (): Promise<never> => {
++    throw new Error('unexpected Account request')
++  }
++  const api = {
++    bootstrap: vi.fn<AccountAPI['bootstrap']>(unexpected),
++    login: vi.fn<AccountAPI['login']>(unexpected),
++    logout: vi.fn<AccountAPI['logout']>(async () => undefined),
++    createChallenge: vi.fn<AccountAPI['createChallenge']>(unexpected),
++    verifyChallenge: vi.fn<AccountAPI['verifyChallenge']>(unexpected),
++    getSession: vi.fn<AccountAPI['getSession']>(async () => view()),
++    getProfile: vi.fn<AccountAPI['getProfile']>(async () => profile()),
++    updateProfile: vi.fn<AccountAPI['updateProfile']>(async () => profile('2')),
++    getPreferences: vi.fn<AccountAPI['getPreferences']>(async () => ({
++      version: '1',
++      theme: 'dark',
++    })),
++    setPreferences: vi.fn<AccountAPI['setPreferences']>(async () => ({
++      version: '2',
++      theme: 'light',
++    })),
++    readAvatar: vi.fn<AccountAPI['readAvatar']>(unexpected),
++    putAvatar: vi.fn<AccountAPI['putAvatar']>(async () => profile('2')),
++    deleteAvatar: vi.fn<AccountAPI['deleteAvatar']>(async () => undefined),
++    changePassword: vi.fn<AccountAPI['changePassword']>(async () => ({
++      completed: true,
++      next_path: '/',
++    })),
++  }
++  const auth = createSessionController(api)
++  await auth.restore()
++  return { api, auth }
++}
++const passwordInput = () => ({
++  version: '1',
++  current_password: 'Original password 123',
++  new_password: ' New password 字符 123 ',
++  confirmation: ' New password 字符 123 ',
++})
++afterEach(() => {
++  vi.useRealTimers()
++  vi.restoreAllMocks()
++  useTheme().setTheme('system')
++})
++
++describe('personal requests on the authentication owner', () => {
++  it('returns typed results, rejects busy before key/transport, and retains ownership through a timeout and late 401', async () => {
++    vi.useFakeTimers()
++    const { api, auth } = await fixture()
++    const held = deferred<ProfileView>()
++    api.getProfile.mockReturnValueOnce(held.promise)
++    const key = vi.spyOn(crypto, 'randomUUID')
++    const running = auth.personal.getProfile()
++    const rejected = expect(running).rejects.toMatchObject({ kind: 'cancelled' })
++    await vi.advanceTimersByTimeAsync(0)
++    await expect(auth.personal.getPreferences()).rejects.toMatchObject({ kind: 'busy' })
++    await expect(
++      auth.personal.updateProfile({ version: '1', display_name: 'x' }),
++    ).rejects.toMatchObject({ kind: 'busy' })
++    expect(key).not.toHaveBeenCalled()
++    expect(api.getPreferences).not.toHaveBeenCalled()
++    expect(api.updateProfile).not.toHaveBeenCalled()
++    await vi.advanceTimersByTimeAsync(30000)
++    await rejected
++    expect(auth.state.busy).toBe(true)
++    await auth.restore()
++    await auth.logout()
++    expect(api.getSession).toHaveBeenCalledTimes(1)
++    expect(api.logout).not.toHaveBeenCalled()
++    held.reject(fault('UNAUTHENTICATED', 401, 'not_started'))
++    await vi.advanceTimersByTimeAsync(0)
++    expect(auth.state.busy).toBe(false)
++    expect(auth.state.user).toBeNull()
++    expect(auth.personalContext.phase).toBe('invalid')
++  })
++  it('keeps a real avatar stream cancellation in the same owner until its tail returns', async () => {
++    vi.useFakeTimers()
++    const tail = deferred<void>()
++    let cancelled = 0,
++      calls = 0
++    const api = createAccountAPI(async (url) => {
++      ++calls
++      if (url === '/api/v1/session')
++        return new Response(JSON.stringify(view()), {
++          headers: { 'Content-Type': 'application/json' },
++        })
++      return new Response(
++        new ReadableStream({
++          cancel() {
++            ++cancelled
++            return tail.promise
++          },
++        }),
++        { headers: { 'Content-Type': 'image/svg+xml', 'Content-Length': '4' } },
++      )
++    })
++    const auth = createSessionController(api)
++    await auth.restore()
++    const wait = expect(auth.personal.readAvatar()).rejects.toMatchObject({ kind: 'cancelled' })
++    await vi.advanceTimersByTimeAsync(0)
++    expect(cancelled).toBe(1)
++    await vi.advanceTimersByTimeAsync(30000)
++    await wait
++    await expect(auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
++    await auth.restore()
++    await auth.logout()
++    expect(calls).toBe(2)
++    tail.resolve()
++    await vi.advanceTimersByTimeAsync(0)
++    expect(auth.state.busy).toBe(false)
++  })
++  it('freezes an uncertain complete request and requires current Session confirmation before exact replay', async () => {
++    const { api, auth } = await fixture()
++    const input = { version: '1', display_name: ' Original ' }
++    const original = fault('COMMIT_UNKNOWN')
++    api.updateProfile.mockRejectedValueOnce(original)
++    await expect(auth.personal.updateProfile(input)).rejects.toBe(original)
++    input.display_name = 'Edited'
++    input.version = '99'
++    await expect(auth.personal.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++    await expect(
++      auth.personal.setPreferences({ version: '1', theme: 'light' }),
++    ).rejects.toMatchObject({ kind: 'busy' })
++    api.getSession.mockResolvedValue(view('5'))
++    await auth.restore()
++    api.updateProfile.mockResolvedValueOnce(profile('7'))
++    const result = await auth.personal.retryOriginal()
++    expect(result.kind).toBe('profile')
++    expect(api.updateProfile.mock.calls.length).toBe(2)
++    const [first, second] = api.updateProfile.mock.calls
++    expect(first![0]).toEqual({ version: '1', display_name: ' Original ' })
++    expect(second![0]).toEqual(first![0])
++    expect(second![1].key === first![1].key && second![1].csrfToken === first![1].csrfToken).toBe(
++      true,
++    )
++    expect(auth.state.user?.version).toBe('7')
++    api.getProfile.mockResolvedValueOnce(profile('2'))
++    await auth.personal.getProfile()
++    expect(auth.state.user?.version).toBe('7')
++  })
++  it('preserves exact File/media/version/key after Unknown and clears them on explicit abandonment', async () => {
++    const { api, auth } = await fixture()
++    const file = new File(['exact original bytes'], 'avatar.png', { type: 'image/png' })
++    api.putAvatar.mockRejectedValueOnce(fault('RESOURCE_BUSY', 409, 'not_committed'))
++    await expect(
++      auth.personal.putAvatar({ version: '1', file, mediaType: 'image/png' }),
++    ).rejects.toMatchObject({ kind: 'problem' })
++    await auth.restore()
++    await auth.personal.retryOriginal()
++    const [a, b] = api.putAvatar.mock.calls
++    expect(a![0].file === file && b![0].file === file && a![1].key === b![1].key).toBe(true)
++    api.putAvatar.mockRejectedValueOnce(fault('COMMIT_UNKNOWN'))
++    await expect(
++      auth.personal.putAvatar({ version: '2', file, mediaType: 'image/png' }),
++    ).rejects.toBeInstanceOf(AccountFailure)
++    auth.personal.abandon()
++    await expect(auth.personal.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++  })
++  it('uses a stable identity epoch and preserves dirty preview across a hidden Session revalidation', async () => {
++    const { api, auth } = await fixture()
++    const original = auth.personalContext.identity!
++    auth.personal.previewTheme(original, 'light')
++    const response = deferred<SessionView>()
++    api.getSession.mockReturnValueOnce(response.promise)
++    const running = auth.restore()
++    await Promise.resolve()
++    expect(auth.state.user).toBeNull()
++    expect(auth.personalContext.phase).toBe('checking')
++    expect(auth.personalContext.identity).toEqual(original)
++    expect(useTheme().mode.value).toBe('light')
++    response.resolve(view('2', 'system'))
++    await running
++    expect(auth.personalContext.identity).toEqual(original)
++    expect(useTheme().mode.value).toBe('light')
++    auth.personal.clearThemePreview(original)
++    expect(useTheme().mode.value).toBe('system')
++    api.getSession.mockResolvedValueOnce(view('3', 'dark', nextSessionID))
++    await auth.restore()
++    const next = auth.personalContext.identity!
++    expect(next.epoch).toBeGreaterThan(original.epoch)
++    auth.personal.previewTheme(next, 'light')
++    auth.personal.clearThemePreview(original)
++    expect(useTheme().mode.value).toBe('light')
++  })
++  it('publishes password confirmation at 200, keeps the owner through GET, and uses only the new Session CSRF afterward', async () => {
++    const { api, auth } = await fixture()
++    const previous = auth.personalContext.identity!
++    const check = deferred<SessionView>()
++    api.getSession.mockReturnValueOnce(check.promise)
++    const running = auth.personal.changePassword(passwordInput())
++    await vi.waitFor(() => expect(auth.personal.passwordProgress?.phase).toBe('confirming-session'))
++    expect(auth.personal.passwordProgress?.identity).toEqual(previous)
++    await expect(auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
++    await auth.logout()
++    expect(api.logout).not.toHaveBeenCalled()
++    check.resolve({
++      ...view('2', 'dark', nextSessionID),
++      user: { ...view('2').user, initial_password_suggestion: false },
++    })
++    expect(await running).toEqual({ commandConfirmed: true, sessionConfirmed: true })
++    expect(auth.personal.passwordProgress?.phase).toBe('confirmed')
++    expect(auth.personalContext.identity?.epoch).toBeGreaterThan(previous.epoch)
++    expect(auth.state.user?.initial_password_suggestion).toBe(false)
++    await auth.personal.updateProfile({ version: '2', display_name: 'Updated' })
++    expect(api.updateProfile.mock.calls[0]![1].csrfToken === 'N'.repeat(43)).toBe(true)
++  })
++  it('never degrades a confirmed password to Unknown when the Session check times out', async () => {
++    vi.useFakeTimers()
++    const { api, auth } = await fixture()
++    const check = deferred<SessionView>()
++    api.getSession.mockReturnValueOnce(check.promise)
++    const running = auth.personal.changePassword(passwordInput())
++    await vi.advanceTimersByTimeAsync(0)
++    expect(auth.personal.passwordProgress?.phase).toBe('confirming-session')
++    await vi.advanceTimersByTimeAsync(30000)
++    expect(await running).toMatchObject({
++      commandConfirmed: true,
++      sessionConfirmed: false,
++      failure: { kind: 'cancelled' },
++    })
++    expect(auth.personal.passwordProgress?.phase).toBe('session-unconfirmed')
++    expect(auth.state.busy).toBe(true)
++    await expect(auth.personal.retryOriginal()).rejects.toMatchObject({ kind: 'busy' })
++    check.resolve(view('2', 'light', nextSessionID))
++    await vi.advanceTimersByTimeAsync(0)
++    expect(auth.state.session?.id).toBe(sessionID)
++    await expect(
++      auth.personal.updateProfile({ version: '2', display_name: '' }),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    api.getSession.mockResolvedValueOnce(view('2', 'light', nextSessionID))
++    await auth.restore()
++    expect(auth.state.session?.id).toBe(nextSessionID)
++    expect(api.changePassword).toHaveBeenCalledTimes(1)
++  })
++  it.each(['same-session', 'other-user', 'failure'])(
++    'preserves the confirmed command and blocks old authority on bad password confirmation: %s',
++    async (mode) => {
++      const { api, auth } = await fixture()
++      if (mode === 'failure') api.getSession.mockRejectedValueOnce(fault('DEPENDENCY_UNAVAILABLE'))
++      else
++        api.getSession.mockResolvedValueOnce(
++          mode === 'same-session'
++            ? view()
++            : {
++                ...view('2', 'dark', nextSessionID),
++                user: { ...view('2').user, id: nextSessionID },
++              },
++        )
++      expect(await auth.personal.changePassword(passwordInput())).toMatchObject({
++        commandConfirmed: true,
++        sessionConfirmed: false,
++      })
++      expect(auth.state.user).toBeNull()
++      await expect(auth.personal.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++      api.getSession.mockResolvedValueOnce(view())
++      await auth.restore()
++      expect(auth.state.user).toBeNull()
++      await expect(
++        auth.personal.updateProfile({ version: '1', display_name: '' }),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++      expect(api.changePassword).toHaveBeenCalledTimes(1)
++    },
++  )
++  it('does not move an uncertain password command into a newly observed Session', async () => {
++    const { api, auth } = await fixture()
++    api.changePassword.mockRejectedValueOnce(fault('COMMIT_UNKNOWN'))
++    await expect(auth.personal.changePassword(passwordInput())).rejects.toMatchObject({
++      kind: 'problem',
++    })
++    api.getSession.mockResolvedValueOnce(view('2', 'dark', nextSessionID))
++    await auth.restore()
++    await expect(auth.personal.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(api.changePassword).toHaveBeenCalledTimes(1)
++  })
++  it('abandoning a password page retains actual ownership and still reconciles its rotated Cookie', async () => {
++    const { api, auth } = await fixture()
++    const post = deferred<{ completed: true; next_path: '/' }>()
++    api.changePassword.mockReturnValueOnce(post.promise)
++    api.getSession.mockResolvedValueOnce(view('2', 'dark', nextSessionID))
++    const running = expect(auth.personal.changePassword(passwordInput())).rejects.toMatchObject({
++      kind: 'cancelled',
++    })
++    await Promise.resolve()
++    auth.personal.abandon()
++    await running
++    expect(auth.state.busy).toBe(true)
++    await auth.logout()
++    expect(api.logout).not.toHaveBeenCalled()
++    post.resolve({ completed: true, next_path: '/' })
++    await vi.waitFor(() => expect(auth.state.busy).toBe(false))
++    expect(auth.state.session?.id).toBe(nextSessionID)
++    expect(auth.personal.passwordProgress).toBeNull()
++    expect(api.getSession).toHaveBeenCalledTimes(2)
++  })
++})
+--- a/web/src/tests/session.spec.ts
++++ b/web/src/tests/session.spec.ts
+@@ -49,6 +49,30 @@
+ }
+ function fixture() {
+   const api = {
++    getProfile: vi.fn<AccountAPI['getProfile']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    updateProfile: vi.fn<AccountAPI['updateProfile']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    getPreferences: vi.fn<AccountAPI['getPreferences']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    setPreferences: vi.fn<AccountAPI['setPreferences']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    readAvatar: vi.fn<AccountAPI['readAvatar']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    putAvatar: vi.fn<AccountAPI['putAvatar']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    deleteAvatar: vi.fn<AccountAPI['deleteAvatar']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    changePassword: vi.fn<AccountAPI['changePassword']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
+     bootstrap: vi.fn<AccountAPI['bootstrap']>(async () => ({
+       csrf_token: anonymous,
+       challenge_modes: ['rotate'] as ['rotate'],
+--- a/web/src/tests/authentication.spec.ts
++++ b/web/src/tests/authentication.spec.ts
+@@ -48,6 +48,30 @@
+ async function page(path = '/login', unavailable = false) {
+   let signedIn = false
+   const api = {
++    getProfile: vi.fn<AccountAPI['getProfile']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    updateProfile: vi.fn<AccountAPI['updateProfile']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    getPreferences: vi.fn<AccountAPI['getPreferences']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    setPreferences: vi.fn<AccountAPI['setPreferences']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    readAvatar: vi.fn<AccountAPI['readAvatar']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    putAvatar: vi.fn<AccountAPI['putAvatar']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    deleteAvatar: vi.fn<AccountAPI['deleteAvatar']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
++    changePassword: vi.fn<AccountAPI['changePassword']>(async () => {
++      throw new Error('unexpected personal request')
++    }),
+     bootstrap: vi.fn<AccountAPI['bootstrap']>(async () => ({
+       csrf_token: 'A'.repeat(43),
+       challenge_modes: ['rotate'],

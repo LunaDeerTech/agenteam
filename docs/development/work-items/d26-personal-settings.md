@@ -1,6 +1,6 @@
 # D26 本人资料、主题与修改密码
 
-修订：rev1.2，2026-10-05，独立差量静审及 §2 最终前置核查均通过，已获主线程采纳；被审卡 SHA-256 `65ff66b024de34b32f6b0fbc000f5d3e77a3e40ba7bf1b334045ee2d9b031631`。rev1.1 已独立静审通过并获采纳，提交 `ac653cfd099f959ae9bec2c3489e499351b0fdfd`（被审卡 SHA-256 `3c190ab7e068397a50edfe8061916409aa2a47ad0a3ef6e036054417cc9ead8d`，独立报告 SHA-256 `2593182a692eec16d986ff7ca6a378ed560345f7f34bca6d9342b2762e9e0161`）。本次仅据冻结认证源码明确实际接缝及必要范围，21路径增至24，产品规则不变。**D26 认证前端已最终通过并提交推送 `9a710f272026b41ef69852bbeb41cb7670b500a8`，§2 前置已关闭；本卡已提交推送 `e2ec65d4bb2bf220b67efb7a88d76bf4b2ceb901`，主线程已授权精确24源实施，尚无个人设置业务验收结论。** 固定后端与设计来源仍为 `ccf498d61152178c5b44994d4b9e8b8f4eb6813b`，最终认证基线为 `9a710f2`；不读取活动源码。实施者为 `d08_registry_backend`，独立验收者为 `skill_verification`；Docker/browser窗口尚未授予。正文保留规格冻结时的授权条件，当前状态以 §10 接续记录为准。无新包、后端 API 或迁移。
+修订：rev1.2（2026-10-05 验后行政接续），技术正文保持规格冻结版本。独立差量静审及 §2 最终前置核查均通过并获采纳；被审卡 SHA-256 `65ff66b024de34b32f6b0fbc000f5d3e77a3e40ba7bf1b334045ee2d9b031631`。rev1.1 已独立静审通过并获采纳，提交 `ac653cfd099f959ae9bec2c3489e499351b0fdfd`（被审卡 SHA-256 `3c190ab7e068397a50edfe8061916409aa2a47ad0a3ef6e036054417cc9ead8d`，独立报告 SHA-256 `2593182a692eec16d986ff7ca6a378ed560345f7f34bca6d9342b2762e9e0161`）。rev1.2 据冻结认证源码明确实际接缝及必要范围，21路径增至24，产品规则不变。**本卡精确24源已最终独立验收通过并获主线程采纳，源码提交推送 `c54f73f3324caa11608d84e5d207141985eb6074`；最终报告 SHA-256 `ada59561329eb0c5d8b9b28720e6a548601a09b27966e04df4ea40897ae92b9c`。** 实施固定业务基线为已验认证 `9a710f272026b41ef69852bbeb41cb7670b500a8`；规格后端与设计来源仍为 `ccf498d61152178c5b44994d4b9e8b8f4eb6813b`。实施者 `d08_registry_backend`、独立验收者 `skill_verification` 的动态执行均已结束，资源清零并交回主线程。正文保留规格冻结时的授权条件，当前状态与证据边界以 §10 接续及[持久验收记录](../agent-team/personal-settings-verification.md)为准。无新包、后端 API 或迁移。
 
 依据为 [D07 已验 Account](d07-account-session-smtp.md)、[认证卡 rev1.2](d26-account-authentication.md)、[个人设置](../../frontend-design/layouts/personal-settings.md)、[通用设置框架](../../frontend-design/layouts/settings-shell.md)、[账号生命周期](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)及固定可行性报告 `/workspace/agenteam-personal-settings-feasibility-d0bt0_z1/report.md`（SHA-256 `8d7839fcd20da4a8457b6483f72a9b86c3a10b02d2155e1f59db625372cc1e2c`）。报告只有静态分析。必读 [设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[Vue 开发](../../../.agents/skills/agenteam-vue-development/SKILL.md)、[Vue 测试](../../../.agents/skills/vue-testing-best-practices/SKILL.md)、[前端基础](../frontend/README.md)、[组件接口](../frontend/components.md)及[样式规范](../../frontend-design/styles/README.md)；浏览器阶段另读可用 Playwright 技能。
 
@@ -265,10 +265,20 @@ Unknown/迟到transport可用纯可控promise证明前端状态机；**本卡不
 
 ## 10. 当前交付状态
 
-rev1.1 已独立规格通过并提交 `ac653cf`；rev1.2 的实际接缝、24路径和必要回归已独立静审通过并获采纳，规格提交推送 `e2ec65d4bb2bf220b67efb7a88d76bf4b2ceb901`。认证业务已最终通过并提交推送 `9a710f272026b41ef69852bbeb41cb7670b500a8`，§2 最终提交/后端闭包/接缝核查已关闭。主线程现已授权24源实施，尚无本卡业务验收通过或动态结论。邀请/恢复等后继责任、生产SPA托管、Object/Artifact阻断、Summary待决及完整模块未完成均不变。
+本卡精确24路径的本人资料/头像、主题和修改密码已独立验收通过并获主线程采纳，源码提交推送 `c54f73f3324caa11608d84e5d207141985eb6074`，远端一致。最终候选 `fixture-input-01` SHA-256 为 `20d8fc5e3ec3ad3f5eb477345fd76d002eec057b4a0a2d0fad875e354c1a99fd`；实际来源、逐源指纹、原日志及独立结论见[个人设置验收记录](../agent-team/personal-settings-verification.md)。§1–9 技术正文、产品规则、24路径及原验收预算保持不变。
 
-### 实施授权接续
+### 授权与验收接续
 
-`d08_registry_backend` 独占 §8 精确24源，以已验认证 `9a710f272026b41ef69852bbeb41cb7670b500a8` 为固定业务基线；`skill_verification` 负责固定生产静审及独立验收。此段履行正文规格冻结时“实施待另授”的条件；§1–9 技术原文、产品规则、24路径和验收预算不变，不把新增personal接口当已实现。当前无Docker/browser窗口，实际资源仍由主线程另授。
+rev1.1 已独立规格通过并提交 `ac653cf`；rev1.2 的实际接缝、24路径和必要回归已独立静审通过，规格提交推送 `e2ec65d4bb2bf220b67efb7a88d76bf4b2ceb901`。§2 最终核查以已验认证 `9a710f272026b41ef69852bbeb41cb7670b500a8` 关闭；主线程随后将24源授予 `d08_registry_backend`、独立验收授予 `skill_verification`。实施只消费该固定业务基线和本卡源，未混入活动 Resolver/Artifact。原修订与预审/最终前置记录见[规格与前置验收记录](../agent-team/personal-settings-spec-verification.md)；其中“待授权/待认证提交”是历史状态，不代替本次已执行验收。
 
-原修订、预审/最终核查和后续独立风险计划见[规格与前置验收记录](../agent-team/personal-settings-spec-verification.md)。计划为准备证据，不是已执行测试；原报告中“待授权/待认证提交”保留当时事实，由此接续状态更新。
+作者实际通过完整工程检查的9文件110个纯测试、格式、类型及正式构建，以及离线 integration race compile/vet、浏览器 spec 类型和配置检查。新增4个完整Go顶层/4个真实浏览器case均通过，覆盖 §9 的资料/头像、主题/导航、改密和权限/生产布局。原认证4个顶层名称/6个浏览器case采用分项组合：lifecycle/desktop先通过，同轮keyboard在旧 `Response.json()` 发生CDP读取body失败；原父组与driver保留FAIL。原日志无该响应status/body，原因未知，不补推401或ChallengeRequired。主线程在限定归因后只授权一次原样keyboard子例，实际通过；随后revocation/expiry/layouts原组通过，不能称为原父组一次全绿或该首红已被产品修复。
+
+独立真实增量 `TestIndependentPersonalSettingsLiveOwnerRevocation` 一顶层/一case通过：同Session重验保留资料/File/Blob，另一窗口实际改密后用新CSRF写入，原窗口真实401清除旧草稿/头像且不被离页确认阻挡，同文档重新登录不复活旧稿；PG核对真实命令、Audit和Session后态。独立最终报告 SHA-256 为 `ada59561329eb0c5d8b9b28720e6a548601a09b27966e04df4ea40897ae92b9c`，主线程已读并采纳固定24范围。
+
+Core F1/F2、UI-F1/UI-F2的原红、修复与分版本复用均保留；原类型、测试选择器/清理时点及TS命令准备失败不与产品缺陷混称。Core F2中间源与首fixture TS源为事后按SHA精确重建。独立真实首轮因私有runtime路径长度前置失败，Node/browser未启动；清零后仅换短路径，同probe及原预算一次通过，不能称产品修复。作者首组缺Node PID/starttime采样，仅有launcher实际 `cmd.Wait` 返回0，不能用后续捕获反填。五轮作者、两轮独立的自有4容器/3网络均实际双清，原2容器/4网络不变，输入前后同SHA，所有动态命令已停止并交回资源窗口。
+
+### 完成边界
+
+三个真实叶子为 `/settings/profile`、`/settings/appearance`、`/settings/password`；`/settings`进入profile，右上本人入口及首页初始改密建议均指向已实现页面。资料、头像、主题和密码独立保存，仍复用唯一Session/request owner。Unknown和迟到transport只沿受控纯测试证据，不声称真实服务端COMMIT、ROLLBACK或网络故障验收。
+
+本次只关闭本卡个人设置完整结果；邀请/恢复等后继页面、生产SPA托管与真实Vite开发代理浏览器验收、Object既有Runtime/guard缺陷及Artifact阻断、Summary待决和完整D26/D27未完成边界保持。正常头像操作、Blob URL撤销与fixture退出不能证明Object异常join已修。验后只归位本卡及两份前端指南，状态页和证据主档由主线程另行安排。

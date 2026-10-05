@@ -1,0 +1,346 @@
+{
+  "status": "AUTHOR self-check coverage complete; final independent business acceptance pending. No afterdocs authorization consumed.",
+  "baseline": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "size": 10399
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "size": 13982
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+      "size": 34983
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "25099e3fb4b37e734274a10d8fccf7b9abb38a04105317f3f2a087db45030391",
+      "size": 1969
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "sha256": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd",
+      "size": 8978
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278",
+      "size": 1615
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "dccbda0b9349180d8a6dc8155fa5151856c5d77d992b86d8a314810259984ae4",
+      "size": 4236
+    },
+    {
+      "path": "web/src/views/HomeView.vue",
+      "sha256": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69",
+      "size": 790
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679",
+      "size": 25993
+    },
+    {
+      "path": "web/src/components/layout/SettingsShell.vue",
+      "sha256": "ffb0ec3dad8c3b0bd9d5f6249431b6f099ddcb203ddfb8fac4efcff4019ac617",
+      "size": 3872
+    },
+    {
+      "path": "web/src/views/settings/PersonalSettingsView.vue",
+      "sha256": "9409f04f90dd93c6aab6b45dee1740f87ac87336da6f323d1f6ef586d0ffdf0b",
+      "size": 1890
+    },
+    {
+      "path": "web/src/views/settings/ProfileSettings.vue",
+      "sha256": "967f305f71043ab4ab77fced2baa107c2f11189645b6b766591b75c01131e0ae",
+      "size": 7399
+    },
+    {
+      "path": "web/src/views/settings/AppearanceSettings.vue",
+      "sha256": "7c0aa84feb7a6be4610a3f4e5b4f9d21cc80408a9a96510fa9d268075133d44f",
+      "size": 2579
+    },
+    {
+      "path": "web/src/views/settings/PasswordSettings.vue",
+      "sha256": "5ac4f544958025e6832458924d513d7a688a534ea7dea3b4a71a4267f1ae232b",
+      "size": 3430
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "sha256": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+      "size": 8992
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a",
+      "size": 22900
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "b897cbb1e1c09b64190a668fb2da94bf56a61ff43d5b9246205807a1b339a04f",
+      "size": 21492
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "size": 18655
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38",
+      "size": 21867
+    },
+    {
+      "path": "tests/account-captcha-web/personal-settings.config.js",
+      "sha256": "7d74206e80d6d23838b6a4c4e1be50efa1366caffb5ace61fc0a8a6a6026ca16",
+      "size": 1157
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "sha256": "a91ec07ddcdf6e99d12c6e6214f6515462813b0fcdd02b991b16627a4105eda7",
+      "size": 33502
+    },
+    {
+      "path": "tests/account/authentication_web_fixture_test.go",
+      "sha256": "f91d23edb01dbc82f228c659288626529e68a1dfcf742b7d1f2961fa4f56c319",
+      "size": 14232
+    },
+    {
+      "path": "tests/account/personal_settings_web_fixture_test.go",
+      "sha256": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b",
+      "size": 12476
+    },
+    {
+      "path": "tests/account/personal_settings_web_test.go",
+      "sha256": "bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b",
+      "size": 6059
+    }
+  ],
+  "fixed_input": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-input-01/manifest.json",
+    "sha256": "20d8fc5e3ec3ad3f5eb477345fd76d002eec057b4a0a2d0fad875e354c1a99fd",
+    "patch": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-input-01/delta.patch",
+    "patch_sha256": "0b0c646065b7db436457c426188e06e6d8e37076ad15ab45d0fcdc3ce4f44fb7"
+  },
+  "fixed_dependencies_and_dist": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "tests/account-captcha-web/package.json": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58",
+    "tests/account-captcha-web/package-lock.json": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534",
+    "docs/frontend-design/styles/colors-and-themes.md": "a670fbdeeed8768fca9aa7d4b4956be018fdc20b0fc3f7c405b61f9a4001aae8",
+    "tests/account/authentication_web_test.go": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76",
+    "tests/account-captcha-web/authentication.config.js": "2f2a2921142b53eb4fbb9b103f4e59e06ab1619bb31ccce3e7677aa2d0e410c1",
+    "tests/account-captcha-web/e2e/authentication.spec.ts": "a87ba8393cd9702412725a1e41c4333bb7f9d00fa0af8e3a9a9f10841461f169",
+    "scripts/test-objects.sh": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+    "web/dist/assets/AppearanceSettings-rdKgtSaY.js": "6a5b472bca03198545b240d2e6f7eac5244b829bc8aa5faebf686de7de7ac60e",
+    "web/dist/assets/PasswordSettings-CAwDyo9t.js": "8be68bb03589289d432f41c14db68c7dd2a00826e651a6c8f14c3dec4424d731",
+    "web/dist/assets/PersonalSettingsView-7sbR0V5t.css": "da317649fee920fa03961d44d9adce07017e30824f8ac83d21ee83eaccb217a4",
+    "web/dist/assets/PersonalSettingsView-DWJ3Aj28.js": "00442ec68aceb014ad33e8c288fc0a072e7e3f432c55274c318d0a7905d1951b",
+    "web/dist/assets/ProfileSettings-AeMXcjY_.js": "de5f0a3876e753ea6cde22e66a9ec345b1dc8c40a9556c6df5b33044433c88f9",
+    "web/dist/assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+    "web/dist/assets/index-ClmoCfi4.css": "dc44159bb958409829264d80fb6a7c50dbb5dd174a8b9c722de0baafe386cf91",
+    "web/dist/assets/index-CxFR_VcR.js": "911a0cf61d27cfb1a563a7dcbefb86e0cbcca2e0353db015e35805c0d137023b",
+    "web/dist/index.html": "48a133338a85cbb4bc5b6aec9601c90918d8a78913dd9b4be801fd334c994bb0"
+  },
+  "checks": {
+    "web-check-02": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/web-check-02.json",
+      "sha256": "0b9b44e0eb0cb28a88a6a8879e5bce5de67a4d6a0827fbfc186908ddea4ad14a",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/web-check-02.log",
+      "log_sha256": "26c1c2c22f36f8851fc5904856384ac705b1c8ed21fa5bcd41ac567173853a3d"
+    },
+    "fixture-go-compile-01": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-go-compile-01.json",
+      "sha256": "122a4eac2b8a0de1db63c43d6d67042ab7facc150afb8be5f295472ba5e302e1",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-go-compile-01.log",
+      "log_sha256": "2ba60ac0d5ee50c26d06af948a8f895104b35953327a0269b19d946f69c9c739"
+    },
+    "fixture-go-vet-01": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-go-vet-01.json",
+      "sha256": "ee953ad6364befdaa068d91f860721ecc44c2e46c296a6e694f5bf97155937d2",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-go-vet-01.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fixture-ts-final-02": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-ts-final-02.json",
+      "sha256": "296e3473a0a00da267f652e9733403490d58600337686277cc9e5584a2961ee4",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-ts-final-02.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fixture-config-01": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-config-01.json",
+      "sha256": "d33f405cf4f0768bac2201f30ce374f55b1c7c82e95249711baefcad992992ea",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-config-01.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "runs": [
+    {
+      "name": "personal-profile-theme-01",
+      "index": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/personal-profile-theme-01/index.json",
+      "index_sha256": "50bfc7f3565c1cfd8576a89e849095e3710e2f5ef6e3d862efc10c330ea277f7",
+      "exit": 0,
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/personal-profile-theme-01.log",
+      "raw_sha256": "f0da6c65aaa0f7abc21134a3120740a92d08b5693e76427963edba73db2b2845",
+      "passed_go": [
+        "TestAccountPersonalSettingsWebProfileAndAvatar",
+        "TestAccountPersonalSettingsWebThemeAndNavigation"
+      ],
+      "failed_go": [],
+      "seconds": 55.096497535705566
+    },
+    {
+      "name": "personal-password-authority-01",
+      "index": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/personal-password-authority-01/index.json",
+      "index_sha256": "d0e85403da12d052f3706467961dbd67971da9b500d44df239db6c7b4ea5dad2",
+      "exit": 0,
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/personal-password-authority-01.log",
+      "raw_sha256": "0d682511feacde6e99c42fb281b778ff1598328ab8526faf47c7b1800629f38a",
+      "passed_go": [
+        "TestAccountPersonalSettingsWebPasswordRotation",
+        "TestAccountPersonalSettingsWebAuthorityAndProduction"
+      ],
+      "failed_go": [],
+      "seconds": 43.20562672615051
+    },
+    {
+      "name": "personal-auth-lifecycle-rotate-01",
+      "index": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/personal-auth-lifecycle-rotate-01/index.json",
+      "index_sha256": "0e24b09f0cdb94e6a260104375e94690ff42f76dd547cd4bd2938988c59742cf",
+      "exit": 1,
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/personal-auth-lifecycle-rotate-01.log",
+      "raw_sha256": "7474d388655df316309917bff9cc0cc644c42e228431d7f1de97c543f47fee0f",
+      "passed_go": [
+        "TestAccountAuthenticationWebSessionLifecycle",
+        "TestAccountAuthenticationWebRotateChallenge/desktop"
+      ],
+      "failed_go": [
+        "TestAccountAuthenticationWebRotateChallenge",
+        "TestAccountAuthenticationWebRotateChallenge/keyboard"
+      ],
+      "seconds": 35.68374419212341
+    },
+    {
+      "name": "personal-auth-keyboard-02",
+      "index": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/personal-auth-keyboard-02/index.json",
+      "index_sha256": "bb758302233578c63f455f7472f5e860da647b79f8b1446b42777bef0a73c40a",
+      "exit": 0,
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/personal-auth-keyboard-02.log",
+      "raw_sha256": "9f430ff2bfcfe9706f69b4ab47a69d2deb9ea97589340a91cff4c067c7c19bc2",
+      "passed_go": [
+        "TestAccountAuthenticationWebRotateChallenge",
+        "TestAccountAuthenticationWebRotateChallenge/keyboard"
+      ],
+      "failed_go": [],
+      "seconds": 26.58432412147522
+    },
+    {
+      "name": "personal-auth-revocation-layouts-01",
+      "index": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/personal-auth-revocation-layouts-01/index.json",
+      "index_sha256": "001a82157bf7ce30575e98c1657017d96f0527b75747586792ea54b7f130fba8",
+      "exit": 0,
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/personal-auth-revocation-layouts-01.log",
+      "raw_sha256": "6f2d8a11237885cb8d840f7901779995198cdcbcaa4add1c50479963d51ceb84",
+      "passed_go": [
+        "TestAccountAuthenticationWebRevocationAndExpiry",
+        "TestAccountAuthenticationWebRevocationAndExpiry/revocation",
+        "TestAccountAuthenticationWebRevocationAndExpiry/expiry",
+        "TestAccountAuthenticationWebLayoutsAndProduction"
+      ],
+      "failed_go": [],
+      "seconds": 34.96773862838745
+    }
+  ],
+  "coverage": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/author-final/coverage.json",
+    "sha256": "f3ed95ee301470ff085105f9e4eb70058dec205568f349324996d1e4de40b809"
+  },
+  "first_failures": [
+    {
+      "name": "core-f1-red-01",
+      "record": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f1-red-01.json",
+      "record_sha256": "918715f6fcee7eb7e0e7a951f817c56b3a641a5dca1639e42e239149c3f52cf1",
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/core-f1-red-01.log",
+      "raw_sha256": "be1d0759ad9cc805f43be03eb1dace7c2dffc5148b9a5354aa85476b74c66c27",
+      "exit": 1
+    },
+    {
+      "name": "core-f2-red-01",
+      "record": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f2-red-01.json",
+      "record_sha256": "b37a7e91caabc66b504c9d84aa23ff2fccf777a4d76292bf578e1da7b313525e",
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/core-f2-red-01.log",
+      "raw_sha256": "f2ee047086845f95e54c8af824a9a6a52105bb51fa62fdb8729cb4b948fcd6ad",
+      "exit": 1
+    },
+    {
+      "name": "ui-f1-red-01",
+      "record": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-f1-red-01.json",
+      "record_sha256": "6c8cc0a1892b38c86c01b10085bd74532fdffacc1ca4364f6ce97b550ba37f4a",
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-f1-red-01.log",
+      "raw_sha256": "07925e7c8d8a06d9889a423fa30fc33c6f554691c22e04eabfb643b21f1ecc05",
+      "exit": 1
+    },
+    {
+      "name": "ui-f2-red-01",
+      "record": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-f2-red-01.json",
+      "record_sha256": "21fefebdec0d81d24bab2877ac36d7db1bf38c5a6417ef3d24372df001bf77bc",
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-f2-red-01.log",
+      "raw_sha256": "d48fe9c1ff177a3ce80c4e6c4a3638795fcdc586ab57bbb515aa2a569fdd0148",
+      "exit": 1
+    },
+    {
+      "name": "ui-type-01",
+      "record": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-type-01.json",
+      "record_sha256": "835e69dd57943e114180082b67d62d29e6cd5c40a1fa1ef17c42ce587db12ce4",
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-type-01.log",
+      "raw_sha256": "fc1f941f18fb219ee9f9377036d4da2ec2ed81001d6d14c2f52f04c3dcf7a6bf",
+      "exit": 2
+    },
+    {
+      "name": "ui-unit-01",
+      "record": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-unit-01.json",
+      "record_sha256": "ba07811b7e9e283b45fb802e3f57e3cf4133c5dd410d008e1d97f1eb713bac19",
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-unit-01.log",
+      "raw_sha256": "3a97e79ac85cd2817981bec11e49f0afc4267c2e4da00fedd21c8986cbb561c8",
+      "exit": 1
+    },
+    {
+      "name": "ui-unit-02",
+      "record": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-unit-02.json",
+      "record_sha256": "84672d05fa4a787be39dd02daf99695de082222af91225659a03883675c2d23b",
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-unit-02.log",
+      "raw_sha256": "013bc06d3e37b0c84c9fcc597b68d395d0674c7a4ee034bad3541eeec602abaa",
+      "exit": 1
+    },
+    {
+      "name": "fixture-ts-01",
+      "record": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-ts-01.json",
+      "record_sha256": "194d36f2ea6e2afc8bf6e5dbefd8f3c062370214d1faef6236cce3030c0025e1",
+      "raw": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-ts-01.log",
+      "raw_sha256": "72c654a25865d7ce58a1fbbc654263b398d4b8a6d5652cb71ed1c6eb65014430",
+      "exit": 2
+    }
+  ],
+  "limits": [
+    "original CDP read failure status/body/cause unknown; only one root-authorized identical keyboard retry, no clone/tee/header/protocol intervention",
+    "first real group observer captured Chromium/Crashpad but no Node PID/starttime; Go cmd.Wait returned0; later observer02 Node IDs do not backfill first group",
+    "pure controlled failures prove client state only, not real COMMIT/ROLLBACK/transport loss",
+    "real same-origin test-owned dist hosting is not production Central SPA hosting or a real Vite dev-proxy run",
+    "normal avatar I/O and fixture cleanup do not repair known Object guard join defect; no complete D26 or paused Artifact/Resolver binding claim"
+  ],
+  "resource_state": "All 5 attempted real runs: 4 containers+3 networks exact-ID live capture/double absent, original2c4n unchanged, runtime/tmp/observed processes0; 24 and20 dependency/dist fingerprints equal before/after. No running Go/browser/Docker. Shared candidate frozen."
+}

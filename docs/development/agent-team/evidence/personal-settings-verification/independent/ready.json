@@ -1,0 +1,60 @@
+{
+  "status": "READY_FOR_ROOT_WINDOW_NO_RESOURCES_EXECUTED",
+  "selector": "^TestIndependentPersonalSettingsLiveOwnerRevocation$",
+  "go_tops": 1,
+  "browser_cases": 1,
+  "probe": {
+    "tests/account/independent_personal_owner_test.go": "1d7cc17ee78302799c864052f0e9bcad773c2f8f6400f21daf346dd25c9391fc",
+    "tests/account-captcha-web/independent-personal-owner.config.js": "91c75467f0bb3804f1a9313486526d3ffcd2e66c811c86d464191ea05a280263",
+    "tests/account-captcha-web/e2e/independent-personal-owner.spec.ts": "171b514740dc6a6222d7fea6d41f53820c0b7ba00e8a1212899cb0ae24721a77"
+  },
+  "input": {
+    "path": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/evidence/ready-input.json",
+    "sha256": "0ef5bf6c2ff331eccec7136d3465ad921771195d96293338fee71d6d1fff1901"
+  },
+  "plan": {
+    "path": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/fixture-plan.json",
+    "sha256": "2cdef805186a0220d716c6ebf72e89ff6d68e3ddf705a586ce1693a41a07941d"
+  },
+  "observer": {
+    "path": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/run_fixture.py",
+    "sha256": "e2f14a8e7fb84f353c0dd75c78f974bac4ec129e425b73ca1d794b5ecdd6f3f7",
+    "exact_from": "/workspace/agenteam-d26-settings-author-uydib5xi/run_fixture_02.py",
+    "author_observer02_sha256": "e2f14a8e7fb84f353c0dd75c78f974bac4ec129e425b73ca1d794b5ecdd6f3f7"
+  },
+  "checks": {
+    "go-race-compile-01": {
+      "path": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/evidence/go-race-compile-01.json",
+      "sha256": "94e37859beae53c41440ad61c880bddb0279f3da5fe664e4a7d5c17860d887da"
+    },
+    "go-vet-01": {
+      "path": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/evidence/go-vet-01.json",
+      "sha256": "1eb5b49e324c87eb51e7485ed87019cf2e957cec4be0ffe53374c3a837e142b7"
+    },
+    "typescript-01": {
+      "path": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/evidence/typescript-01.json",
+      "sha256": "b9977e28c4db3d4e1e4f7fa3df9b29559ad4fe709ff4e914e589d4fdf281e488"
+    },
+    "typescript-02": {
+      "path": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/evidence/typescript-02.json",
+      "sha256": "724428d55b94e453d1da8f2760aa9f3b3e6d43f53c4a0fd94d2f5200bffb7588"
+    },
+    "config-01": {
+      "path": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/evidence/config-01.json",
+      "sha256": "dd0bd5e85dd2452a500bcab377cb419ff9ab60d7d3de10a8c87a5baeb854e9c1"
+    }
+  },
+  "limits": [
+    "author new4 verified; original old rotate parent failure and later targeted keyboard pass remain distinct and root-managed",
+    "Go race compile/vet cover unchanged private Go+final candidate; TS01 source was type-only corrected, original exact source/raw retained; TS02/config0 final",
+    "no product edits, no changed author assertions, no Docker/browser invocation; exact run requires root grant",
+    "transparent URL calls prove observed browser revoke operation, not JavaScript GC or Object guard repair",
+    "first author group Node starttime missing remains limitation; second group cannot backfill it"
+  ],
+  "run_argv": [
+    "python3",
+    "/workspace/agenteam-personal-settings-independent-v-rmdokamc/run_fixture.py",
+    "/workspace/agenteam-personal-settings-independent-v-rmdokamc/fixture-plan.json",
+    "0"
+  ]
+}

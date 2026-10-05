@@ -1,0 +1,139 @@
+{
+  "baseline": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "card": "docs/development/work-items/d26-personal-settings.md rev1.2",
+  "files": {
+    "web/src/api/client.ts": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+    "web/src/api/account.ts": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+    "web/src/composables/useSession.ts": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+    "web/src/router/auth.ts": "25099e3fb4b37e734274a10d8fccf7b9abb38a04105317f3f2a087db45030391",
+    "web/src/views/auth/LoginView.vue": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd",
+    "web/src/router/index.ts": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278",
+    "web/src/App.vue": "dccbda0b9349180d8a6dc8155fa5151856c5d77d992b86d8a314810259984ae4",
+    "web/src/views/HomeView.vue": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69",
+    "web/src/composables/usePersonalSettings.ts": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679",
+    "web/src/components/layout/SettingsShell.vue": "ffb0ec3dad8c3b0bd9d5f6249431b6f099ddcb203ddfb8fac4efcff4019ac617",
+    "web/src/views/settings/PersonalSettingsView.vue": "9409f04f90dd93c6aab6b45dee1740f87ac87336da6f323d1f6ef586d0ffdf0b",
+    "web/src/views/settings/ProfileSettings.vue": "967f305f71043ab4ab77fced2baa107c2f11189645b6b766591b75c01131e0ae",
+    "web/src/views/settings/AppearanceSettings.vue": "7c0aa84feb7a6be4610a3f4e5b4f9d21cc80408a9a96510fa9d268075133d44f",
+    "web/src/views/settings/PasswordSettings.vue": "5ac4f544958025e6832458924d513d7a688a534ea7dea3b4a71a4267f1ae232b",
+    "web/src/tests/personal-settings-client.spec.ts": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+    "web/src/tests/personal-settings-state.spec.ts": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a",
+    "web/src/tests/personal-settings.spec.ts": "b897cbb1e1c09b64190a668fb2da94bf56a61ff43d5b9246205807a1b339a04f",
+    "web/src/tests/session.spec.ts": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+    "web/src/tests/authentication.spec.ts": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38",
+    "tests/account-captcha-web/personal-settings.config.js": "7d74206e80d6d23838b6a4c4e1be50efa1366caffb5ace61fc0a8a6a6026ca16",
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts": "a91ec07ddcdf6e99d12c6e6214f6515462813b0fcdd02b991b16627a4105eda7",
+    "tests/account/authentication_web_fixture_test.go": "f91d23edb01dbc82f228c659288626529e68a1dfcf742b7d1f2961fa4f56c319",
+    "tests/account/personal_settings_web_fixture_test.go": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b",
+    "tests/account/personal_settings_web_test.go": "bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b"
+  },
+  "sizes": {
+    "web/src/api/client.ts": 10399,
+    "web/src/api/account.ts": 13982,
+    "web/src/composables/useSession.ts": 34983,
+    "web/src/router/auth.ts": 1969,
+    "web/src/views/auth/LoginView.vue": 8978,
+    "web/src/router/index.ts": 1615,
+    "web/src/App.vue": 4236,
+    "web/src/views/HomeView.vue": 790,
+    "web/src/composables/usePersonalSettings.ts": 25993,
+    "web/src/components/layout/SettingsShell.vue": 3872,
+    "web/src/views/settings/PersonalSettingsView.vue": 1890,
+    "web/src/views/settings/ProfileSettings.vue": 7399,
+    "web/src/views/settings/AppearanceSettings.vue": 2579,
+    "web/src/views/settings/PasswordSettings.vue": 3430,
+    "web/src/tests/personal-settings-client.spec.ts": 8992,
+    "web/src/tests/personal-settings-state.spec.ts": 22900,
+    "web/src/tests/personal-settings.spec.ts": 21492,
+    "web/src/tests/session.spec.ts": 18655,
+    "web/src/tests/authentication.spec.ts": 21867,
+    "tests/account-captcha-web/personal-settings.config.js": 1157,
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts": 33502,
+    "tests/account/authentication_web_fixture_test.go": 14232,
+    "tests/account/personal_settings_web_fixture_test.go": 12476,
+    "tests/account/personal_settings_web_test.go": 6059
+  },
+  "fixed_dependencies_and_dist": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "tests/account-captcha-web/package.json": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58",
+    "tests/account-captcha-web/package-lock.json": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534",
+    "docs/frontend-design/styles/colors-and-themes.md": "a670fbdeeed8768fca9aa7d4b4956be018fdc20b0fc3f7c405b61f9a4001aae8",
+    "tests/account/authentication_web_test.go": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76",
+    "tests/account-captcha-web/authentication.config.js": "2f2a2921142b53eb4fbb9b103f4e59e06ab1619bb31ccce3e7677aa2d0e410c1",
+    "tests/account-captcha-web/e2e/authentication.spec.ts": "a87ba8393cd9702412725a1e41c4333bb7f9d00fa0af8e3a9a9f10841461f169",
+    "scripts/test-objects.sh": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+    "web/dist/assets/AppearanceSettings-rdKgtSaY.js": "6a5b472bca03198545b240d2e6f7eac5244b829bc8aa5faebf686de7de7ac60e",
+    "web/dist/assets/PasswordSettings-CAwDyo9t.js": "8be68bb03589289d432f41c14db68c7dd2a00826e651a6c8f14c3dec4424d731",
+    "web/dist/assets/PersonalSettingsView-7sbR0V5t.css": "da317649fee920fa03961d44d9adce07017e30824f8ac83d21ee83eaccb217a4",
+    "web/dist/assets/PersonalSettingsView-DWJ3Aj28.js": "00442ec68aceb014ad33e8c288fc0a072e7e3f432c55274c318d0a7905d1951b",
+    "web/dist/assets/ProfileSettings-AeMXcjY_.js": "de5f0a3876e753ea6cde22e66a9ec345b1dc8c40a9556c6df5b33044433c88f9",
+    "web/dist/assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+    "web/dist/assets/index-ClmoCfi4.css": "dc44159bb958409829264d80fb6a7c50dbb5dd174a8b9c722de0baafe386cf91",
+    "web/dist/assets/index-CxFR_VcR.js": "911a0cf61d27cfb1a563a7dcbefb86e0cbcca2e0353db015e35805c0d137023b",
+    "web/dist/index.html": "48a133338a85cbb4bc5b6aec9601c90918d8a78913dd9b4be801fd334c994bb0"
+  },
+  "checks": {
+    "web-check-02": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/web-check-02.json",
+      "sha256": "0b9b44e0eb0cb28a88a6a8879e5bce5de67a4d6a0827fbfc186908ddea4ad14a",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/web-check-02.log",
+      "log_sha256": "26c1c2c22f36f8851fc5904856384ac705b1c8ed21fa5bcd41ac567173853a3d"
+    },
+    "fixture-go-compile-01": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-go-compile-01.json",
+      "sha256": "122a4eac2b8a0de1db63c43d6d67042ab7facc150afb8be5f295472ba5e302e1",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-go-compile-01.log",
+      "log_sha256": "2ba60ac0d5ee50c26d06af948a8f895104b35953327a0269b19d946f69c9c739"
+    },
+    "fixture-go-vet-01": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-go-vet-01.json",
+      "sha256": "ee953ad6364befdaa068d91f860721ecc44c2e46c296a6e694f5bf97155937d2",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-go-vet-01.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fixture-ts-01": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-ts-01.json",
+      "sha256": "194d36f2ea6e2afc8bf6e5dbefd8f3c062370214d1faef6236cce3030c0025e1",
+      "exit": 2,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-ts-01.log",
+      "log_sha256": "72c654a25865d7ce58a1fbbc654263b398d4b8a6d5652cb71ed1c6eb65014430"
+    },
+    "fixture-ts-02": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-ts-02.json",
+      "sha256": "0137df433dcaf6caa1b2db50bb3248328ec8ba868af40e354ef9b084ff38e532",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-ts-02.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fixture-ts-final-02": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-ts-final-02.json",
+      "sha256": "296e3473a0a00da267f652e9733403490d58600337686277cc9e5584a2961ee4",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-ts-final-02.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "fixture-config-01": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-config-01.json",
+      "sha256": "d33f405cf4f0768bac2201f30ce374f55b1c7c82e95249711baefcad992992ea",
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/fixture-config-01.log",
+      "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "ui": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-review-03/manifest.json",
+    "sha256": "89a165c4f692efda9a58ef838a0a5719a4b8daaf31a689e5893a2e6f2d0962a7"
+  },
+  "delta_sha256": "0b0c646065b7db436457c426188e06e6d8e37076ad15ab45d0fcdc3ce4f44fb7",
+  "not_run": [
+    "all four personal settings real tops",
+    "all four affected original authentication real tops"
+  ],
+  "boundary": "fixed git archive baseline plus exact24; no active Resolver20/Artifact16; no packages, locks, Go production, API or migration changes. UI19 equals accepted UI03; browser selectors not yet executed. TS first command error is preserved, exact-SHA historical source reconstructed with provenance."
+}

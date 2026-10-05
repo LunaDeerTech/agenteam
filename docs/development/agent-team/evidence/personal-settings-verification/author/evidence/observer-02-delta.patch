@@ -1,0 +1,38 @@
+--- run_fixture.py
++++ run_fixture_02.py
+@@ -101,7 +101,11 @@
+             end = raw.rindex(')')
+             fields = raw[end + 2:].split()
+             command = (entry / 'cmdline').read_bytes().replace(b'\0', b' ').decode('utf8', 'replace')
+-            table[int(entry.name)] = {'state': fields[0], 'ppid': int(fields[1]), 'start': fields[19], 'executable': raw[raw.index('(')+1:end], 'command': command}
++            try:
++                binary = pathlib.Path(os.readlink(entry / 'exe')).name
++            except OSError:
++                binary = ''  # Zombies must remain observable and waitable.
++            table[int(entry.name)] = {'state': fields[0], 'ppid': int(fields[1]), 'start': fields[19], 'executable': raw[raw.index('(')+1:end], 'binary': binary, 'command': command}
+         except (OSError, ValueError, IndexError):
+             continue
+     return table
+@@ -116,11 +120,11 @@
+         descendants |= discovered
+     for pid, data in table.items():
+         relevant = any(token in data['command'] for token in process_tokens)
+-        browser = any(name in data['executable'].lower() for name in ['node', 'chrom', 'crashpad'])
++        browser = any(name in (data['executable'] + ' ' + data['binary']).lower() for name in ['node', 'chrom', 'crashpad'])
+         adopted = data['ppid'] == os.getpid() and pid != driver_pid
+         if pid != os.getpid() and ((pid in descendants and browser) or (relevant and browser) or adopted):
+             key = str(pid) + ':' + data['start']
+-            item = processes.setdefault(key, {'pid': pid, 'start': data['start'], 'parent': data['ppid'], 'executable': data['executable'], 'argv_sha256': hashlib.sha256(data['command'].encode()).hexdigest(), 'first_observed': time.time(), 'owned_path': relevant, 'driver_descendant': pid in descendants})
++            item = processes.setdefault(key, {'pid': pid, 'start': data['start'], 'parent': data['ppid'], 'executable': data['executable'], 'binary': data['binary'], 'argv_sha256': hashlib.sha256(data['command'].encode()).hexdigest(), 'first_observed': time.time(), 'owned_path': relevant, 'driver_descendant': pid in descendants})
+             item['last_observed'] = time.time()
+             if adopted:
+                 item.setdefault('adopted_by_subreaper_at', time.time())
+@@ -200,7 +204,7 @@
+         data = now.get(item['pid'])
+         if data and data['start'] == item['start']:
+             active.append({'pid': item['pid'], 'start': item['start'], 'state': data['state'], 'executable': data['executable']})
+-    unknown_browser = [{'pid': pid, 'start': v['start'], 'state': v['state'], 'executable': v['executable']} for pid,v in now.items() if any(token in v['command'] for token in process_tokens) and any(name in v['executable'].lower() for name in ['node', 'chrom', 'crashpad'])]
++    unknown_browser = [{'pid': pid, 'start': v['start'], 'state': v['state'], 'executable': v['executable']} for pid,v in now.items() if any(token in v['command'] for token in process_tokens) and any(name in (v['executable'] + ' ' + v['binary']).lower() for name in ['node', 'chrom', 'crashpad'])]
+     resources = {}
+     for kind in owned:
+         resources[kind] = {}

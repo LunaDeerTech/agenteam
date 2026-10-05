@@ -1,0 +1,103 @@
+{
+  "baseline": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "cwd": "/workspace/agenteam-d26-settings-author-uydib5xi/input",
+  "argv": [
+    "npm",
+    "run",
+    "type-check",
+    "--prefix",
+    "web"
+  ],
+  "environment": {
+    "TMPDIR": "/workspace/agenteam-d26-settings-author-uydib5xi/tmp",
+    "GOCACHE": "/workspace/agenteam-d26-settings-author-uydib5xi/go-cache",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly"
+  },
+  "input": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "6c289626b8fdd6a00b5f57fd9d7c785e37b8ee9b9f6d45640cc0eaeae7a2651b"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "bbe6a6c42f36d1d592218881ccfcb0a8e5d6db902a3c58eb492b9858c4ef67b8"
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "sha256": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "27f3292dc1f14e260a46f46c11fc015e0f4437b16ac4c3c37c94a2442011d668"
+    },
+    {
+      "path": "web/src/views/HomeView.vue",
+      "sha256": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69"
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "9d990462f076560e9da889c80185d8c6f253d1b0dd77f91913df7eea521bc738"
+    },
+    {
+      "path": "web/src/components/layout/SettingsShell.vue",
+      "sha256": "e0da9ce146ff5a74c9f0e4d501730a6582b20bbfabd2ed95de62fb01c353ee9d"
+    },
+    {
+      "path": "web/src/views/settings/PersonalSettingsView.vue",
+      "sha256": "286b30c9e5040013e60ba85a5fc5d2b63e63e058182a4b359ef75ed0e9d31a20"
+    },
+    {
+      "path": "web/src/views/settings/ProfileSettings.vue",
+      "sha256": "22b18d84e97538d67c72d958d3d8f4c07cf7dca16a5a1d7d9e56d13bde5c31e3"
+    },
+    {
+      "path": "web/src/views/settings/AppearanceSettings.vue",
+      "sha256": "36326fc64ac5393dba0817b173e9f4a508390f618a361666f570a493fd56906f"
+    },
+    {
+      "path": "web/src/views/settings/PasswordSettings.vue",
+      "sha256": "6cc75641ebb44a843054559560ec2453c58489f976d459a7ee6dbd828d4f1c44"
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "sha256": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017"
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "61fa9a51dfff2d2aa67a1404fabad0e3f11e7033d2d4ff67de1df2c266a5e9c9"
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38"
+    },
+    {
+      "path": "tests/account/authentication_web_fixture_test.go",
+      "sha256": "95a635c182b81b82b78d97d7574a432c1d0a371a5ae84396bc95d6880a6ea3b7"
+    }
+  ],
+  "exit": 2,
+  "seconds": 3.4071815670031356,
+  "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-type-01.log",
+  "log_sha256": "fc1f941f18fb219ee9f9377036d4da2ec2ed81001d6d14c2f52f04c3dcf7a6bf"
+}

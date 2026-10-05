@@ -1,0 +1,11 @@
+--- a/docs/development/frontend/verification.md
++++ b/docs/development/frontend/verification.md
+@@ -85,7 +85,7 @@
+ | `TestAccountPersonalSettingsWebProfileAndAvatar` | 用户名规范及重复拒绝、空显示名、最终输入快照；JPG/PNG/WebP 上传、服务端重编码后的元数据/字节读回、替换与删除；SVG/动画/超限拒绝保留旧头像；精确 8 条成功命令及 8 条 Audit |
+ | `TestAccountPersonalSettingsWebThemeAndNavigation` | 预览/取消的持久 version、theme、命令和 Audit 不变，3 次明确主题写入；两窗口真实版本冲突保留草稿；三叶子登录返回、dirty 菜单/back/logout、同 Session 重验与 system 变化 |
+ | `TestAccountPersonalSettingsWebPasswordRotation` | 确认不一致零 POST、当前密码与弱密码反馈；严格 200 后密码清空，新 Session/CSRF 后再写资料；两个旧 Session 因 `password_changed` 撤销，新密码登录、旧密码拒绝及初始建议清除 |
+-| `TestAccountPersonalSettingsWebAuthorityAndProduction` | 普通用户/管理员各操作本人；body 越权、Origin、CSRF 拒绝；失效隐藏；浅深/system × 1440/1024/834/390、长文本、200%、键盘/焦点/reduced-motion、无溢出及生产 Debug/API/资产边界 |
++| `TestAccountPersonalSettingsWebAuthorityAndProduction` | 普通用户/管理员各操作本人；body 越权、Origin、CSRF 拒绝；失效隐藏；浅深/system × 1440/1024/834/390、长文本、CSS zoom=2（非浏览器原生缩放）、键盘/焦点/reduced-motion、无溢出及生产 Debug/API/资产边界 |
+ 
+ 作者及主线程实际查看了安全的深色窄屏设置截图，不含密码等敏感输入。
+ 

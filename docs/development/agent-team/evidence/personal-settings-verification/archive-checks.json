@@ -1,0 +1,68 @@
+{
+  "status": "PASS bounded documentation/archive checks; product conclusions reused from frozen independent report",
+  "source_check": {
+    "argv": [
+      "python3",
+      "docs/development/agent-team/evidence/personal-settings-verification/verify_sources.py",
+      "--repo",
+      ".",
+      "--check"
+    ],
+    "cwd": "/workspace/agenteam",
+    "environment": "existing Python standard library; read-only git cat-file; no network or business execution",
+    "exit": 0,
+    "stdout": "{\"status\": \"PASS\", \"original_mappings\": 304, \"located_source_versions\": 962, \"git_objects\": 929, \"final_accepted_sources\": 24, \"web_check_final_sources\": 19, \"independent_fixed_source_entries\": 887, \"independent_dist_hashes_only\": 9, \"pure_source_entries\": {\"ui01\": 65, \"ui02\": 65}, \"intermediate_source_versions_not_reconstructed\": 25, \"dist_rebuilt\": false, \"business_tests_run\": false, \"materialized\": null}\n",
+    "stderr": ""
+  },
+  "documents": {
+    "local_links": 191,
+    "fragments": 11,
+    "link_errors": [],
+    "chronological_history_unchanged": true,
+    "AGENTS_rules_unchanged": true,
+    "new_files_whitespace_checked": 310,
+    "exact_whitespace_exceptions": 40,
+    "tracked_diff_check_exit": 0
+  },
+  "reference_closure": {
+    "declared_references_checked": 552,
+    "unique_archived_targets": 262,
+    "source_or_generated_hash_references": 1100,
+    "unresolved": []
+  },
+  "original_copy_count": 271,
+  "source_scope": "fixed9a+exact24 from c54; no entire c54 or active source tree input",
+  "original_material_safety": {
+    "high_specificity_real_private_key_or_authorization_markers_found": 0,
+    "environment_keys_checked": [
+      "AGENTEAM_AUTH_WEB_IMAGES",
+      "AGENTEAM_AUTH_WEB_RUNTIME",
+      "AGENTEAM_DEV_API_TARGET",
+      "AGENTEAM_GO",
+      "AGENTEAM_MINIO_BINARY",
+      "DOCKER_CONFIG",
+      "DOCKER_HOST",
+      "GOCACHE",
+      "GOENV",
+      "GOFLAGS",
+      "GOMODCACHE",
+      "GOPROXY",
+      "GOSUMDB",
+      "GOTOOLCHAIN",
+      "GOWORK",
+      "TMPDIR",
+      "after",
+      "before"
+    ],
+    "scope": "selected logs/JSON/reports plus manually inspected safe fixture image; synthetic pure values remain original. Not an assertion about unarchived private directories."
+  },
+  "limitations": "25 intermediate source versions carry only hashes; historical UI01 6 generated asset versions hash-only. Final web19, accepted24, independent fixed sources/pure inputs and final9 original dist SHA verified. No business re-run, package install, browser/Docker, network or Git mutation.",
+  "initial_archive_check_note": "First local archive-link check ran before archive-checks/source-limitations/whitespace-exceptions were generated and listed these 3 not-yet-created targets; final191 links/11fragments pass. Original product/raw failures are separately unchanged.",
+  "afterdocs_separate_review_group": {
+    "manifest": "afterdocs/rev02/manifest.json",
+    "sha256": "4cf97f4b5f3126f04e28491e2bb26302f0fcc9ebedc83507672e08a90c6909bf",
+    "scope": "three docs independently owned/frozen; no write by archiver"
+  },
+  "source_variant_files": 33,
+  "original_location_mappings": 304
+}

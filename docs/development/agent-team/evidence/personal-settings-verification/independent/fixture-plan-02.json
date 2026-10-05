@@ -1,0 +1,58 @@
+{
+  "input": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/evidence/ready-input.json",
+  "input_sha256": "0ef5bf6c2ff331eccec7136d3465ad921771195d96293338fee71d6d1fff1901",
+  "cwd": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/tree",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-system-http-independent-v-3yb4qs32/gocache",
+    "TMPDIR": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/tmp",
+    "DOCKER_CONFIG": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/d26-pv-rmdokamc",
+    "GOSUMDB": "off"
+  },
+  "groups": [
+    {
+      "name": "independent-live-owner-02",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestIndependentPersonalSettingsLiveOwnerRevocation$"
+      ],
+      "tops": 1,
+      "browser_cases": [
+        "independent-personal-owner"
+      ]
+    }
+  ],
+  "budgets": {
+    "driver": "original race/count1/6m per package",
+    "go_top": "2m including original formal fixture and actual browser Wait",
+    "playwright": "45s workers1 retries0"
+  },
+  "trusted_baseline": {
+    "path": "/workspace/agenteam-d26-root-baseline-before.json",
+    "sha256": "c3fde3481d423eaf1c97546b5549476ac98a992690bc2bee1c429407cbfff816"
+  },
+  "observer": {
+    "path": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/run_fixture.py",
+    "sha256": "e2f14a8e7fb84f353c0dd75c78f974bac4ec129e425b73ca1d794b5ecdd6f3f7",
+    "exact_from": "/workspace/agenteam-d26-settings-author-uydib5xi/run_fixture_02.py",
+    "author_observer02_sha256": "e2f14a8e7fb84f353c0dd75c78f974bac4ec129e425b73ca1d794b5ecdd6f3f7"
+  },
+  "status": "root-authorized exact same probe once after runtime-only setup correction",
+  "safety": "real same-origin Account API and fixed formal fixture; transparent original URL.create/revoke observation only; no fetch mock, network fault, SQL mutation, protocol or Unknown simulation",
+  "previous_plan": {
+    "path": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/fixture-plan.json",
+    "sha256": "2cdef805186a0220d716c6ebf72e89ff6d68e3ddf705a586ce1693a41a07941d",
+    "reason": "run01 actual fixture setup rejected runtime path length >45 before Node/browser; preserve original failed run; only shorter owned runtime and new record group"
+  }
+}

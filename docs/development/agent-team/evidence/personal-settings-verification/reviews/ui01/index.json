@@ -1,0 +1,252 @@
+{
+  "conclusion": "BLOCKED UI-F1; independent pure actual failure, no other confirmed blocker in bounded review",
+  "candidate_manifest": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-review-01/manifest.json",
+    "sha256": "8f5e5d95ec655b805f34bb614f39b78c335fcb6cf0f6d3014058fceca70dd890"
+  },
+  "candidate_delta": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-review-01/delta.patch",
+    "sha256": "ca94a1d24d6e4f26713eb62d50703f0d2bdee184deaaea2b0f7a8356207d6dce"
+  },
+  "candidate_files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "size": 10399
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "size": 13982
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+      "size": 34983
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "25099e3fb4b37e734274a10d8fccf7b9abb38a04105317f3f2a087db45030391",
+      "size": 1969
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "sha256": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd",
+      "size": 8978
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278",
+      "size": 1615
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "dccbda0b9349180d8a6dc8155fa5151856c5d77d992b86d8a314810259984ae4",
+      "size": 4236
+    },
+    {
+      "path": "web/src/views/HomeView.vue",
+      "sha256": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69",
+      "size": 790
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "b55d5046459db40f9094bd7be7d3c9f2e815c16960231c1cd6b5973f0e10db54",
+      "size": 24148
+    },
+    {
+      "path": "web/src/components/layout/SettingsShell.vue",
+      "sha256": "ffb0ec3dad8c3b0bd9d5f6249431b6f099ddcb203ddfb8fac4efcff4019ac617",
+      "size": 3872
+    },
+    {
+      "path": "web/src/views/settings/PersonalSettingsView.vue",
+      "sha256": "9409f04f90dd93c6aab6b45dee1740f87ac87336da6f323d1f6ef586d0ffdf0b",
+      "size": 1890
+    },
+    {
+      "path": "web/src/views/settings/ProfileSettings.vue",
+      "sha256": "967f305f71043ab4ab77fced2baa107c2f11189645b6b766591b75c01131e0ae",
+      "size": 7399
+    },
+    {
+      "path": "web/src/views/settings/AppearanceSettings.vue",
+      "sha256": "7c0aa84feb7a6be4610a3f4e5b4f9d21cc80408a9a96510fa9d268075133d44f",
+      "size": 2579
+    },
+    {
+      "path": "web/src/views/settings/PasswordSettings.vue",
+      "sha256": "5ac4f544958025e6832458924d513d7a688a534ea7dea3b4a71a4267f1ae232b",
+      "size": 3430
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "sha256": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+      "size": 8992
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a",
+      "size": 22900
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "b000380c758bd0c18cca83b085132cb01243aa2fa10c8c74aec350c137f46308",
+      "size": 17828
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "size": 18655
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38",
+      "size": 21867
+    }
+  ],
+  "author_evidence": [
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-type-01.json",
+      "sha256": "835e69dd57943e114180082b67d62d29e6cd5c40a1fa1ef17c42ce587db12ce4",
+      "argv": [
+        "npm",
+        "run",
+        "type-check",
+        "--prefix",
+        "web"
+      ],
+      "exit": 2,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-type-01.log",
+      "log_sha256": "fc1f941f18fb219ee9f9377036d4da2ec2ed81001d6d14c2f52f04c3dcf7a6bf"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-unit-01.json",
+      "sha256": "ba07811b7e9e283b45fb802e3f57e3cf4133c5dd410d008e1d97f1eb713bac19",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings.spec.ts"
+      ],
+      "exit": 1,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-unit-01.log",
+      "log_sha256": "3a97e79ac85cd2817981bec11e49f0afc4267c2e4da00fedd21c8986cbb561c8"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-unit-02.json",
+      "sha256": "84672d05fa4a787be39dd02daf99695de082222af91225659a03883675c2d23b",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings.spec.ts"
+      ],
+      "exit": 1,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-unit-02.log",
+      "log_sha256": "013bc06d3e37b0c84c9fcc597b68d395d0674c7a4ee034bad3541eeec602abaa"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-unit-03.json",
+      "sha256": "bed3f5668a67b5640c3205af17ffdbb7431cbe814349137fe8a554307b75df6f",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings.spec.ts"
+      ],
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-unit-03.log",
+      "log_sha256": "9937ee3ddfe33bd506c4a0d55e030ad3c3713fc02f651e39432e3047fa6288cf"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-owner-unit-01.json",
+      "sha256": "8e57809e80a2b43576d827e388f0dfd306a3e544f9ba3ff0f1fb86605d8d68d9",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings-state.spec.ts",
+        "src/tests/personal-settings.spec.ts"
+      ],
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-owner-unit-01.log",
+      "log_sha256": "cd071d6a2e2ec845031fad4d41229958341880418f9b27a66fd1640dd6d84bef"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/web-check-01.json",
+      "sha256": "3b4e1684c56b502aad27018a4ea9de502c953c8a133cd7e8d14b7c9a67f0d0d1",
+      "argv": [
+        "npm",
+        "run",
+        "check",
+        "--prefix",
+        "web"
+      ],
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/web-check-01.log",
+      "log_sha256": "742cb15c84c95e30d3641bc20c5933ca4ee8f8c8a6ec95b9ced543c50c0cf9f0"
+    }
+  ],
+  "author_early_failure_inputs": {
+    "ui_unit01_fixed_web_source_count": 19,
+    "ui_unit01_manifest": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-unit-01-input/manifest.json",
+      "sha256": "ba07811b7e9e283b45fb802e3f57e3cf4133c5dd410d008e1d97f1eb713bac19"
+    },
+    "type01_original_owner": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-type-01-usePersonalSettings.ts",
+      "sha256": "9d990462f076560e9da889c80185d8c6f253d1b0dd77f91913df7eea521bc738"
+    },
+    "unit02_original_test": {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-unit-02-personal-settings.spec.ts",
+      "sha256": "dbd3020016622ec236e6c2188468b983aca417626f329beb202f1d27f8e3e195"
+    }
+  },
+  "independent_files": [
+    {
+      "path": "/workspace/agenteam-personal-settings-ui01-v-rbhvu51t/input.json",
+      "sha256": "599227f3c69c1ce5b3f908a27ca033b446247479accd14b376e2c6c7e69107d6"
+    },
+    {
+      "path": "/workspace/agenteam-personal-settings-ui01-v-rbhvu51t/command.json",
+      "sha256": "92893228b769d86e00dc554891394884a55cd1eed5a3fa44613df0e1f3d84e69"
+    },
+    {
+      "path": "/workspace/agenteam-personal-settings-ui01-v-rbhvu51t/result.json",
+      "sha256": "8123b48bdbc5dbb956e520b0681d9a7544041152ae001cb2f766ab33839b0a3e"
+    },
+    {
+      "path": "/workspace/agenteam-personal-settings-ui01-v-rbhvu51t/pure-probe-01.log",
+      "sha256": "b8f5d7650c5050d6022f9db474407571676023d313ce8bb28f12973fed62a4b1"
+    },
+    {
+      "path": "/workspace/agenteam-personal-settings-ui01-v-rbhvu51t/postcheck.json",
+      "sha256": "2017cc55f984f6324caebdca778311589710dec3e47677be14816b1f8a239b44"
+    },
+    {
+      "path": "/workspace/agenteam-personal-settings-ui01-v-rbhvu51t/tree/web/src/tests/independent-settings-password-feedback.spec.ts",
+      "sha256": "8ae42c600f61fe4c35bd87755b93cc824f6c95152c706b8727a16bf8dd9dfe08"
+    },
+    {
+      "path": "/workspace/agenteam-personal-settings-ui01-v-rbhvu51t/tree/web/vite.config.ts",
+      "sha256": "1576ae48169a9aaf67595bf32da376b62f2f01403602c621eb081670296b4af4"
+    }
+  ],
+  "report_sha256": "7549d583cf2b906ea280df7bd10c13835ae9fc278839c3a01bd3759cf3214a4c",
+  "repository_writes": false,
+  "no_browser_docker_network": true,
+  "all_stop": true
+}

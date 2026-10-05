@@ -1,0 +1,182 @@
+{
+  "checked_at_utc": "2026-10-05T22:30:55.761435+00:00",
+  "cwd": "/workspace/agenteam",
+  "diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "c54f73f3324caa11608d84e5d207141985eb6074",
+      "--",
+      "docs/development/frontend/README.md",
+      "docs/development/frontend/verification.md",
+      "docs/development/work-items/d26-personal-settings.md"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "utf8_lf_eof_no_trailing_whitespace": true,
+  "heading_and_fence_structure": true,
+  "local_links": [
+    {
+      "source": "docs/development/frontend/README.md",
+      "target": "../work-items/d26-account-authentication.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/README.md",
+      "target": "../work-items/d26-personal-settings.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/README.md",
+      "target": "../backend/README.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/README.md",
+      "target": "../work-items/d26-account-authentication.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/README.md",
+      "target": "../work-items/d26-personal-settings.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/README.md",
+      "target": "../../../api/openapi/account.json",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/README.md",
+      "target": "../agent-team/personal-settings-verification.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/README.md",
+      "target": "../../frontend-design/styles/README.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/README.md",
+      "target": "components.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/README.md",
+      "target": "verification.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/verification.md",
+      "target": "../work-items/d26-account-authentication.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/verification.md",
+      "target": "../agent-team/d26-authentication-verification.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/verification.md",
+      "target": "../work-items/d26-personal-settings.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/frontend/verification.md",
+      "target": "../agent-team/personal-settings-verification.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../agent-team/personal-settings-verification.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "d07-account-session-smtp.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "d26-account-authentication.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../../frontend-design/layouts/personal-settings.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../../frontend-design/layouts/settings-shell.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../../architecture/platform-infrastructure/authentication/account-lifecycle.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../../../.agents/skills/agenteam-vue-development/SKILL.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../../../.agents/skills/vue-testing-best-practices/SKILL.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../frontend/README.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../frontend/components.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../../frontend-design/styles/README.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../../../api/openapi/account.json",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../../../api/openapi/common.json",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../agent-team/personal-settings-verification.md",
+      "exists": true
+    },
+    {
+      "source": "docs/development/work-items/d26-personal-settings.md",
+      "target": "../agent-team/personal-settings-spec-verification.md",
+      "exists": true
+    }
+  ],
+  "card_sections_1_through_9_unchanged_sha256": "b6ff7409b00967a3278378c773e5ed2619a3ebe73a419219f649c4b3ecdecd1f",
+  "previous_authentication_verification_unchanged": true,
+  "business_24_match": {
+    "manifest": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-input-01/manifest.json",
+    "sha256": "20d8fc5e3ec3ad3f5eb477345fd76d002eec057b4a0a2d0fad875e354c1a99fd",
+    "count": 24,
+    "all_match": true
+  },
+  "no_business_tests_or_resource_commands": true
+}

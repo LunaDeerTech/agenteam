@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/personal-settings-state.spec.ts -t retains a historically uncertain File
+
+
+ RUN  v4.1.11 /workspace/agenteam-d26-settings-author-uydib5xi/input/web
+
+
+ Test Files  1 passed (1)
+      Tests  1 passed | 13 skipped (14)
+   Start at  21:37:45
+   Duration  678ms (transform 91ms, setup 0ms, import 145ms, tests 11ms, environment 412ms)
+

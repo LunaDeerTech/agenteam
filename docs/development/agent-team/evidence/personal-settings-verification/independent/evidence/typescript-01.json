@@ -1,0 +1,49 @@
+{
+  "argv": [
+    "node",
+    "tests/account-captcha-web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--skipLibCheck",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--types",
+    "node",
+    "--typeRoots",
+    "web/node_modules/@types",
+    "tests/account-captcha-web/e2e/independent-personal-owner.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/tree",
+  "environment": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-system-http-independent-v-3yb4qs32/gocache",
+    "TMPDIR": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/tmp"
+  },
+  "inputs": {
+    "tests/account/independent_personal_owner_test.go": "1d7cc17ee78302799c864052f0e9bcad773c2f8f6400f21daf346dd25c9391fc",
+    "tests/account-captcha-web/independent-personal-owner.config.js": "91c75467f0bb3804f1a9313486526d3ffcd2e66c811c86d464191ea05a280263",
+    "tests/account-captcha-web/e2e/independent-personal-owner.spec.ts": "fcb4110138b8e16fdff24d14d5f1bea333a4e353a6320246c6a059a8f4c6faec"
+  },
+  "started": 1791238764.2587357,
+  "exit": 2,
+  "seconds": 0.818875789642334,
+  "raw": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/logs/typescript-01.log",
+  "raw_sha256": "79fae1992578dbf56fe4cabc42731a259eda0704a65cd14f1e56ce46039be065",
+  "after": {
+    "tests/account/independent_personal_owner_test.go": "1d7cc17ee78302799c864052f0e9bcad773c2f8f6400f21daf346dd25c9391fc",
+    "tests/account-captcha-web/independent-personal-owner.config.js": "91c75467f0bb3804f1a9313486526d3ffcd2e66c811c86d464191ea05a280263",
+    "tests/account-captcha-web/e2e/independent-personal-owner.spec.ts": "fcb4110138b8e16fdff24d14d5f1bea333a4e353a6320246c6a059a8f4c6faec"
+  }
+}

@@ -1,0 +1,77 @@
+{
+  "input": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-input-01/manifest.json",
+  "input_sha256": "20d8fc5e3ec3ad3f5eb477345fd76d002eec057b4a0a2d0fad875e354c1a99fd",
+  "rows": [
+    {
+      "kind": "new",
+      "go": "TestAccountPersonalSettingsWebProfileAndAvatar",
+      "browser_case": "profile",
+      "run": "personal-profile-theme-01",
+      "result": "PASS"
+    },
+    {
+      "kind": "new",
+      "go": "TestAccountPersonalSettingsWebThemeAndNavigation",
+      "browser_case": "theme",
+      "run": "personal-profile-theme-01",
+      "result": "PASS"
+    },
+    {
+      "kind": "new",
+      "go": "TestAccountPersonalSettingsWebPasswordRotation",
+      "browser_case": "password",
+      "run": "personal-password-authority-01",
+      "result": "PASS"
+    },
+    {
+      "kind": "new",
+      "go": "TestAccountPersonalSettingsWebAuthorityAndProduction",
+      "browser_case": "authority",
+      "run": "personal-password-authority-01",
+      "result": "PASS"
+    },
+    {
+      "kind": "original",
+      "go": "TestAccountAuthenticationWebSessionLifecycle",
+      "browser_case": "lifecycle",
+      "run": "personal-auth-lifecycle-rotate-01",
+      "result": "PASS"
+    },
+    {
+      "kind": "original",
+      "go": "TestAccountAuthenticationWebRotateChallenge/desktop",
+      "browser_case": "desktop",
+      "run": "personal-auth-lifecycle-rotate-01",
+      "result": "PASS in original failed parent group"
+    },
+    {
+      "kind": "original",
+      "go": "TestAccountAuthenticationWebRotateChallenge/keyboard",
+      "browser_case": "keyboard",
+      "run": "personal-auth-keyboard-02",
+      "result": "PASS once unchanged after unknown-cause CDP body-read failure; original parent FAIL preserved"
+    },
+    {
+      "kind": "original",
+      "go": "TestAccountAuthenticationWebRevocationAndExpiry/revocation",
+      "browser_case": "revocation",
+      "run": "personal-auth-revocation-layouts-01",
+      "result": "PASS"
+    },
+    {
+      "kind": "original",
+      "go": "TestAccountAuthenticationWebRevocationAndExpiry/expiry",
+      "browser_case": "expiry",
+      "run": "personal-auth-revocation-layouts-01",
+      "result": "PASS"
+    },
+    {
+      "kind": "original",
+      "go": "TestAccountAuthenticationWebLayoutsAndProduction",
+      "browser_case": "layouts",
+      "run": "personal-auth-revocation-layouts-01",
+      "result": "PASS"
+    }
+  ],
+  "scope": "4 new full tops/4 browser cases + original 4 top names/6 browser cases. Rotate is composed from original desktop PASS and one unchanged keyboard-only PASS; original full-parent/group failure not overwritten. No skipped selected case."
+}

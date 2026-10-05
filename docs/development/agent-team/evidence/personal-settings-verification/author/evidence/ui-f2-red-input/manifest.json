@@ -1,0 +1,13 @@
+{
+  "basis": "ui-review-02 + same-user later-Session regression, before fix",
+  "files": [
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "91323ae0932dd95027a177d3ac438db0218e6ec45f20eb606100d3b137735021"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "2b353b72d5e0053003a5de630f7e6557d240c81daabb75e458ab36d1c7ef2f07"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+{
+  "input": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-input-01/manifest.json",
+  "input_sha256": "20d8fc5e3ec3ad3f5eb477345fd76d002eec057b4a0a2d0fad875e354c1a99fd",
+  "cwd": "/workspace/agenteam-d26-settings-author-uydib5xi/input",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOFLAGS": "-mod=readonly -v",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-d26-settings-author-uydib5xi/go-cache",
+    "TMPDIR": "/workspace/agenteam-d26-settings-author-uydib5xi/tmp",
+    "DOCKER_CONFIG": "/workspace/agenteam-d26-settings-author-uydib5xi/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/workspace/d26-settings-uydib5xi",
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/browser-images-01",
+    "GOSUMDB": "off"
+  },
+  "groups": [
+    {
+      "name": "personal-profile-theme-01",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestAccountPersonalSettingsWeb(ProfileAndAvatar|ThemeAndNavigation)$"
+      ],
+      "tops": 2,
+      "browser_cases": [
+        "profile",
+        "theme"
+      ]
+    },
+    {
+      "name": "personal-password-authority-01",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestAccountPersonalSettingsWeb(PasswordRotation|AuthorityAndProduction)$"
+      ],
+      "tops": 2,
+      "browser_cases": [
+        "password",
+        "authority"
+      ]
+    },
+    {
+      "name": "personal-auth-lifecycle-rotate-01",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestAccountAuthenticationWeb(SessionLifecycle|RotateChallenge)$"
+      ],
+      "tops": 2,
+      "browser_cases": [
+        "lifecycle",
+        "desktop",
+        "keyboard"
+      ]
+    },
+    {
+      "name": "personal-auth-revocation-layouts-01",
+      "argv": [
+        "sh",
+        "scripts/test-objects.sh",
+        "-run",
+        "^TestAccountAuthenticationWeb(RevocationAndExpiry|LayoutsAndProduction)$"
+      ],
+      "tops": 2,
+      "browser_cases": [
+        "revocation",
+        "expiry",
+        "layouts"
+      ]
+    }
+  ],
+  "budgets": {
+    "driver": "original race/count1/6m per package",
+    "go_top": "original2m, including any original subcases",
+    "playwright": "45s workers1 retries0"
+  },
+  "trusted_baseline": {
+    "path": "/workspace/agenteam-d26-root-baseline-before.json",
+    "sha256": "c3fde3481d423eaf1c97546b5549476ac98a992690bc2bee1c429407cbfff816"
+  },
+  "observer": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/run_fixture.py",
+    "sha256": "7caedb55dbf820b605674942fd265389d3fe4fc3e513d6b835f3daa22d21f379",
+    "delta": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/observer-delta.patch",
+    "derived_from": "accepted auth run_fixture_v2.py SHA9f9e0b562e8d2d678bac073eb3f2d98eafdbc0231e19f09e6120d61dbb00ff05",
+    "changes": "task base only, exact root-approved baseline ID/name/label check, dependency+dist before/after check, own argv/hash recording; original subreaper/PID/starttime/adopted wait/double cleanup unchanged"
+  },
+  "status": "ready for independent static review; no current Docker/browser authorization",
+  "safety": "only owned normal same-origin HTTP, formal invitation/inspect/redeem, read-only owned user observation IPC; no network/COMMIT/ROLLBACK fault injection. No mocks/route.fulfill/material logs/trace/video. First unexpected failure stops later groups; only after actual double cleanup and root handoff.",
+  "previous_plan": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-plan-01.json",
+    "sha256": "04ca9b38c3d7b02f3c09fdc08c8737d33845019002c69b77b492183c82b1ebb9",
+    "change": "administrative environment only: explicit GOSUMDB=off; fixed24/dist, groups, budgets and observer unchanged"
+  }
+}

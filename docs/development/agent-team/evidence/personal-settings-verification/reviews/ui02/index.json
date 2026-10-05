@@ -1,0 +1,131 @@
+{
+  "conclusion": "UI-F1 PASS by same independent probe; UI-F2 BLOCKED static only",
+  "manifest": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-review-02/manifest.json",
+    "sha256": "47663d34814a455131565791a17efe122c20d3dd8478f936e4ab6f5acf9b7f3a"
+  },
+  "delta": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-review-02/delta.patch",
+    "sha256": "8cb3eb8f0c735ba9f033c797a0ccccb21a4a410285ee64eac62043c9ac8ae8b0"
+  },
+  "author_checks": [
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-f1-red-01.json",
+      "sha256": "6c8cc0a1892b38c86c01b10085bd74532fdffacc1ca4364f6ce97b550ba37f4a",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings.spec.ts",
+        "-t",
+        "retains confirmed password feedback"
+      ],
+      "exit": 1,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-f1-red-01.log",
+      "log_sha256": "07925e7c8d8a06d9889a423fa30fc33c6f554691c22e04eabfb643b21f1ecc05"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-f1-fix-01.json",
+      "sha256": "c47deb6eec9d18ed4194393695c5e454bb368c5d2a0ed1ceeee92b8f35f9a28e",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings.spec.ts",
+        "src/tests/personal-settings-state.spec.ts"
+      ],
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-f1-fix-01.log",
+      "log_sha256": "1e0ff0e20ad1af7a29406729c2a4f2ae23838a1ba3d76de4626b4bcf66986346"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-f1-format-01.json",
+      "sha256": "4e222ccc669354db4b63f2222220936d9835cd10144adfa8e84d284434276c9a",
+      "argv": [
+        "node",
+        "web/node_modules/prettier/bin/prettier.cjs",
+        "--write",
+        "/workspace/agenteam/web/src/composables/usePersonalSettings.ts",
+        "/workspace/agenteam/web/src/tests/personal-settings.spec.ts"
+      ],
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-f1-format-01.log",
+      "log_sha256": "368727141e5e2cb35bfb94464af82a54c19a706f12ac12fb33722169d7cb3b40"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-f1-final-01.json",
+      "sha256": "906fade6d92c6c68db5ec84f54eb2adcc5c4c6c329ae32cfbdf98f126b0e6492",
+      "argv": [
+        "npm",
+        "run",
+        "test:unit",
+        "--prefix",
+        "web",
+        "--",
+        "src/tests/personal-settings.spec.ts",
+        "src/tests/personal-settings-state.spec.ts"
+      ],
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-f1-final-01.log",
+      "log_sha256": "460ed39fc07436d8878f18500143fc24790533cef07eb9974e01455b1e556ea2"
+    },
+    {
+      "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/ui-f1-type-01.json",
+      "sha256": "1648aa9e5d55f11aaf683b1b676215447e188b9ffdadb396b72dcbdf2a1ea9e1",
+      "argv": [
+        "npm",
+        "run",
+        "type-check",
+        "--prefix",
+        "web"
+      ],
+      "exit": 0,
+      "log": "/workspace/agenteam-d26-settings-author-uydib5xi/logs/ui-f1-type-01.log",
+      "log_sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373"
+    }
+  ],
+  "independent_files": [
+    {
+      "path": "/workspace/agenteam-personal-settings-ui02-v-s0nwkywy/input.json",
+      "sha256": "d760821edd0653638b93d90cc000ec160d64d31c7dc24c78e11ce06594a49f28"
+    },
+    {
+      "path": "/workspace/agenteam-personal-settings-ui02-v-s0nwkywy/command.json",
+      "sha256": "9154edf66ae23d8c7b034aad5325de2da6cad4470cc2d18c41cb5630be29d010"
+    },
+    {
+      "path": "/workspace/agenteam-personal-settings-ui02-v-s0nwkywy/result.json",
+      "sha256": "d35415f864ca4692bc491b1aa3c72818d54984f6169a127ca2642d801d6edae2"
+    },
+    {
+      "path": "/workspace/agenteam-personal-settings-ui02-v-s0nwkywy/pure-probe-fixed-01.log",
+      "sha256": "2040069d2be1fe9e6bc629df3a4f8897e6d5939c5422f7f772a176165ef58a20"
+    },
+    {
+      "path": "/workspace/agenteam-personal-settings-ui02-v-s0nwkywy/postcheck.json",
+      "sha256": "a97a77b1a1ffc0b5e29848a6b1507c8dcdc574435c1b33bcc11342b7fbcfa6cd"
+    },
+    {
+      "path": "/workspace/agenteam-personal-settings-ui02-v-s0nwkywy/tree/web/src/tests/independent-settings-password-feedback.spec.ts",
+      "sha256": "8ae42c600f61fe4c35bd87755b93cc824f6c95152c706b8727a16bf8dd9dfe08"
+    },
+    {
+      "path": "/workspace/agenteam-personal-settings-ui02-v-s0nwkywy/tree/web/vite.config.ts",
+      "sha256": "7af50e35ae77bda2d3cc4cda95ac096fbcc361f371298c7711941112920be635"
+    }
+  ],
+  "prior_report": {
+    "path": "/workspace/agenteam-personal-settings-ui01-v-rbhvu51t/report.md",
+    "sha256": "7549d583cf2b906ea280df7bd10c13835ae9fc278839c3a01bd3759cf3214a4c"
+  },
+  "new_identity_case_executed": false,
+  "no_docker_browser": true,
+  "report_sha256": "7b0a23d90538fd087ae124d026b617a3912c1cffb86690ec0c0ea8d82798a6f9",
+  "all_stop": true
+}

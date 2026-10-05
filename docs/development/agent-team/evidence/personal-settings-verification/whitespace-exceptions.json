@@ -1,0 +1,327 @@
+{
+  "scope": "Only these exact bytes may be excluded from added-file whitespace checks. All original files remain unchanged.",
+  "files": [
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch",
+      "sha256": "c2a36e28dadc0311cba5ff2b07a23a7f5437809835f241a67c476dd13e911886",
+      "diagnostics": {
+        "trailing whitespace.": 28
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch",
+      "sha256": "077ec402ddeb2f8211697286f763583290880efd1bbb4e2feb6c980dd6156fc7",
+      "diagnostics": {
+        "trailing whitespace.": 28
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/revision-delta.patch",
+      "sha256": "0e2d19222268f68b23adc996323ffa51bbfed5967d791eada420eff04d8ff23b",
+      "diagnostics": {
+        "trailing whitespace.": 2,
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/evidence/core-review-01/delta.patch",
+      "sha256": "a39e27f756949dc2d029a207337bd2e32c816f54af7bfa1b6fc61712c5448bbf",
+      "diagnostics": {
+        "trailing whitespace.": 5
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/evidence/core-review-02/delta.patch",
+      "sha256": "dbf5b90e68f54367e4a9dffefa25de339c0ea0b9261bac8b1d912507d8a2d5b3",
+      "diagnostics": {
+        "trailing whitespace.": 2
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch",
+      "sha256": "0b0c646065b7db436457c426188e06e6d8e37076ad15ab45d0fcdc3ce4f44fb7",
+      "diagnostics": {
+        "trailing whitespace.": 9,
+        "space before tab in indent.": 9
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/evidence/observer-delta.patch",
+      "sha256": "13309b5af52373e099cd6816ad5f64b837f1e8d6000634230541953cfd74bd19",
+      "diagnostics": {
+        "trailing whitespace.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-01/delta.patch",
+      "sha256": "ca94a1d24d6e4f26713eb62d50703f0d2bdee184deaaea2b0f7a8356207d6dce",
+      "diagnostics": {
+        "trailing whitespace.": 8
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-03/delta.patch",
+      "sha256": "1e7eaf05c7a6cf98096491d803db9143999d37afda86147e501554a38b6cc3bc",
+      "diagnostics": {
+        "trailing whitespace.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-client-unit-01.log",
+      "sha256": "e04356f0a129718f72acae63da67d21b6c8932f86f58535d2bcb1dd3fa6351df",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-f1-fix-01.log",
+      "sha256": "3b72c0a516e7bd2d611425e10a6a628a6a17a9cadbabc69cad20ee1fd8d6c388",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-f1-red-01.log",
+      "sha256": "be1d0759ad9cc805f43be03eb1dace7c2dffc5148b9a5354aa85476b74c66c27",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-f2-fix-01.log",
+      "sha256": "b2563c51214cadcbf003f4f02d2329605d0a5efa1ef63377a15a4d20412c8c9f",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-f2-red-01.log",
+      "sha256": "f2ee047086845f95e54c8af824a9a6a52105bb51fa62fdb8729cb4b948fcd6ad",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-only-unit-04.log",
+      "sha256": "54d509a417d58adfee62ad97f574d03e7314395dc17bd4d7bd07066c59936d5e",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-state-unit-01.log",
+      "sha256": "7a0725f69aeea1fc555a413c9df743bbf964e8f912c097df6304b55fc218a8ff",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-state-unit-02.log",
+      "sha256": "1d53109d8336de357c51fc9b8d7a54e5d7d26470762817808819e3a3040c9020",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-state-unit-03.log",
+      "sha256": "38eecfbed9f477efce379f93fd1073313f8536f3b34bae35285e2be4b8d21069",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-type-01.log",
+      "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-type-02.log",
+      "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-type-03.log",
+      "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-keyboard-02.log",
+      "sha256": "9f430ff2bfcfe9706f69b4ab47a69d2deb9ea97589340a91cff4c067c7c19bc2",
+      "diagnostics": {
+        "trailing whitespace.": 7
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log",
+      "sha256": "7474d388655df316309917bff9cc0cc644c42e228431d7f1de97c543f47fee0f",
+      "diagnostics": {
+        "trailing whitespace.": 27
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log",
+      "sha256": "6f2d8a11237885cb8d840f7901779995198cdcbcaa4add1c50479963d51ceb84",
+      "diagnostics": {
+        "trailing whitespace.": 21
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log",
+      "sha256": "0d682511feacde6e99c42fb281b778ff1598328ab8526faf47c7b1800629f38a",
+      "diagnostics": {
+        "trailing whitespace.": 14
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log",
+      "sha256": "f0da6c65aaa0f7abc21134a3120740a92d08b5693e76427963edba73db2b2845",
+      "diagnostics": {
+        "trailing whitespace.": 14
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f1-final-01.log",
+      "sha256": "460ed39fc07436d8878f18500143fc24790533cef07eb9974e01455b1e556ea2",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f1-fix-01.log",
+      "sha256": "1e0ff0e20ad1af7a29406729c2a4f2ae23838a1ba3d76de4626b4bcf66986346",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f1-red-01.log",
+      "sha256": "07925e7c8d8a06d9889a423fa30fc33c6f554691c22e04eabfb643b21f1ecc05",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f1-type-01.log",
+      "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f2-final-01.log",
+      "sha256": "df44c40324f8a886dd2cdc0ebd05fc9af94a83d9ecce2133bf6524aede5f09d2",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f2-red-01.log",
+      "sha256": "d48fe9c1ff177a3ce80c4e6c4a3638795fcdc586ab57bbb515aa2a569fdd0148",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f2-type-01.log",
+      "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-owner-unit-01.log",
+      "sha256": "cd071d6a2e2ec845031fad4d41229958341880418f9b27a66fd1640dd6d84bef",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-unit-01.log",
+      "sha256": "3a97e79ac85cd2817981bec11e49f0afc4267c2e4da00fedd21c8986cbb561c8",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-unit-02.log",
+      "sha256": "013bc06d3e37b0c84c9fcc597b68d395d0674c7a4ee034bad3541eeec602abaa",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-unit-03.log",
+      "sha256": "9937ee3ddfe33bd506c4a0d55e030ad3c3713fc02f651e39432e3047fa6288cf",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/independent/logs/independent-live-owner-02.log",
+      "sha256": "7a90444fc7aa7e8cf745d4b8332a2d2be4fc68a616c083a3ed4e8a37b1102d05",
+      "diagnostics": {
+        "trailing whitespace.": 7
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/reviews/ui01/pure-probe-01.log",
+      "sha256": "b8f5d7650c5050d6022f9db474407571676023d313ce8bb28f12973fed62a4b1",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    },
+    {
+      "path": "docs/development/agent-team/evidence/personal-settings-verification/reviews/ui02/pure-probe-fixed-01.log",
+      "sha256": "2040069d2be1fe9e6bc629df3a4f8897e6d5939c5422f7f772a176165ef58a20",
+      "diagnostics": {
+        "new blank line at EOF.": 1
+      },
+      "reason": "Preserve exact historical bytes; not a formatting pass or product failure."
+    }
+  ]
+}

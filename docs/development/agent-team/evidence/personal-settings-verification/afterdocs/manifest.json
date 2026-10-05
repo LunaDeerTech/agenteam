@@ -1,0 +1,44 @@
+{
+  "status": "frozen",
+  "source_commit": "c54f73f3324caa11608d84e5d207141985eb6074",
+  "scope": "only three afterdocs; no business, dependencies, state pages, resources or Git mutation",
+  "files": {
+    "docs/development/frontend/README.md": {
+      "sha256": "fdb05d7a004ca35412132bb626e7556374731bf4b8cbdabdbb103f773e8f1f02",
+      "size": 9353,
+      "before_sha256": "ed965d9426cc25d5759435a8de445bdc7fa1c9de18c24f359b5d4f5fc9a2eb85"
+    },
+    "docs/development/frontend/verification.md": {
+      "sha256": "9f0d1cd8bbe7e1a21853944d41a40d7f4168d74e87041563982f54c1e2ef27b9",
+      "size": 14848,
+      "before_sha256": "7e7cec0d7ded3ccd774747e4dc018d387b71cc65a202852b9318952f34bbb9c7"
+    },
+    "docs/development/work-items/d26-personal-settings.md": {
+      "sha256": "981b22f271b1c172df314dec24958c4bf3262399d488f1a9df0820358821f94d",
+      "size": 44381,
+      "before_sha256": "dbe0d5afadf475c0e81faa9249450254b0c71f07890f1a18c936784b7fc71e37"
+    }
+  },
+  "diff": {
+    "path": "delta.patch",
+    "sha256": "c2a36e28dadc0311cba5ff2b07a23a7f5437809835f241a67c476dd13e911886",
+    "size": 27405
+  },
+  "checks": {
+    "path": "checks-final.json",
+    "sha256": "9f1c10a9d67b742268a94250879c23fc50b15b2cf596e96022316ca7834784f6"
+  },
+  "before": {
+    "path": "before.json",
+    "sha256": "a3ac2448e58515a4294587467b8afc40343889141ec8e326fc923a498c506738"
+  },
+  "author_report": {
+    "path": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/author-final/report.md",
+    "sha256": "9a99271765d7b99041e8ffb4c1e3de9003532aac8669d0c8c4ec2982198513c1"
+  },
+  "independent_report": {
+    "path": "/workspace/agenteam-personal-settings-independent-v-rmdokamc/final-report.md",
+    "sha256": "ada59561329eb0c5d8b9b28720e6a548601a09b27966e04df4ea40897ae92b9c"
+  },
+  "archive_link": "docs/development/agent-team/personal-settings-verification.md"
+}

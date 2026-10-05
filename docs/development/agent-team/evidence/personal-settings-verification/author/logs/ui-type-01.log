@@ -1,0 +1,8 @@
+
+> @agenteam/web@0.0.0 type-check
+> vue-tsc --noEmit
+
+src/composables/usePersonalSettings.ts(190,47): error TS2339: Property 'sessionConfirmed' does not exist on type 'Readonly<{ user: User; avatar: Readonly<{ media_type: AvatarMedia; byte_size: string; sha256: string; }> | null; }> | PasswordConfirmation'.
+  Property 'sessionConfirmed' does not exist on type 'Readonly<{ user: User; avatar: Readonly<{ media_type: AvatarMedia; byte_size: string; sha256: string; }> | null; }>'.
+src/composables/usePersonalSettings.ts(191,48): error TS2339: Property 'sessionConfirmed' does not exist on type 'Readonly<{ user: User; avatar: Readonly<{ media_type: AvatarMedia; byte_size: string; sha256: string; }> | null; }> | PasswordConfirmation'.
+  Property 'sessionConfirmed' does not exist on type 'Readonly<{ user: User; avatar: Readonly<{ media_type: AvatarMedia; byte_size: string; sha256: string; }> | null; }>'.

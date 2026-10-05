@@ -1,0 +1,131 @@
+--- a/web/src/composables/usePersonalSettings.ts
++++ b/web/src/composables/usePersonalSettings.ts
+@@ -72,6 +72,11 @@
+   let revision = 0,
+     imageRevision = 0
+   let disposed = false
++  let passwordFeedback: {
++    identity: PersonalIdentity
++    origin: PersonalIdentity
++    requestGeneration: number
++  } | null = null
+   const profileDirty = computed(
+     () =>
+       profileDraft.username !== profileBase.username ||
+@@ -156,6 +161,7 @@
+     Object.assign(avatarState, { loading: false, error: '', message: '' })
+     for (const section of Object.values(sections)) Object.assign(section, blank())
+     mutation.value = null
++    passwordFeedback = null
+     requiresReload.value = false
+     finishConfirmation(false)
+   }
+@@ -259,9 +265,7 @@
+     const captured = identity.value,
+       own = revision
+     if (sections[section].status === 'loading' || auth.state.busy) return
+-    const progress = auth.personal.passwordProgress
+-    const passwordConfirmed =
+-      section === 'password' && !!progress && progress.identity.userID === identity.value?.userID
++    const passwordConfirmed = section === 'password' && ownsPasswordProgress()
+     let readError = ''
+     sections[section].status = 'loading'
+     if (!passwordConfirmed) sections[section].message = ''
+@@ -548,13 +552,19 @@
+       if (phase === 'checking') return
+       if (phase === 'invalid' || !same(identity.value, value)) {
+         const progress = auth.personal.passwordProgress
++        const feedback = passwordFeedback
+         const keepPassword =
+           !!progress &&
++          !!feedback &&
++          ownsPasswordProgress() &&
+           same(identity.value, progress.identity) &&
+           value?.userID === identity.value?.userID
+         resetOwner()
+         identity.value = value
+-        if (keepPassword) {
++        if (keepPassword && value) {
++          // Only this command's first A -> B transition inherits its safe
++          // feedback. A later B -> C epoch retires it even for the same user.
++          passwordFeedback = { ...feedback, identity: value }
+           sections.password.status =
+             progress.phase === 'confirmed' ? 'confirmed' : 'confirming-session'
+           sections.password.message = '密码修改已确认，正在确认当前登录。'
+@@ -574,9 +584,19 @@
+     },
+     { flush: 'sync', immediate: true },
+   )
++  function ownsPasswordProgress() {
++    const progress = auth.personal.passwordProgress
++    return (
++      !!progress &&
++      !!passwordFeedback &&
++      same(passwordFeedback.identity, identity.value) &&
++      same(passwordFeedback.origin, progress.identity) &&
++      passwordFeedback.requestGeneration === progress.requestGeneration
++    )
++  }
+   function showPasswordProgress(readError = '') {
+     const progress = auth.personal.passwordProgress
+-    if (!progress || progress.identity.userID !== identity.value?.userID) return
++    if (!progress || !ownsPasswordProgress()) return
+     sections.password.status = readError
+       ? 'error'
+       : progress.phase === 'confirming-session'
+@@ -595,7 +615,17 @@
+   const stopPassword = watch(
+     () => auth.personal.passwordProgress,
+     (progress) => {
+-      if (!progress || progress.identity.userID !== identity.value?.userID) return
++      if (!progress) {
++        passwordFeedback = null
++        return
++      }
++      if (identity.value && same(progress.identity, identity.value))
++        passwordFeedback = {
++          identity: identity.value,
++          origin: progress.identity,
++          requestGeneration: progress.requestGeneration,
++        }
++      if (!ownsPasswordProgress()) return
+       clearPassword()
+       showPasswordProgress()
+     },
+--- a/web/src/tests/personal-settings.spec.ts
++++ b/web/src/tests/personal-settings.spec.ts
+@@ -397,6 +397,34 @@
+     expect(p.api.changePassword.mock.calls.length).toBe(1)
+   })
+ 
++  it('retires confirmed password feedback on a later same-user Session epoch', async () => {
++    const p = await page('/settings/password')
++    await p.wrapper.get('#settings-current_password').setValue('Original password 123')
++    await p.wrapper.get('#settings-new_password').setValue(' New password 字符 123 ')
++    await p.wrapper.get('#settings-confirmation').setValue(' New password 字符 123 ')
++    await p.wrapper.get('form').trigger('submit')
++    await flushPromises()
++    expect(p.auth.state.session?.id).toBe(rotated)
++    expect(p.wrapper.text()).toContain('密码已修改，当前登录已更新，其他旧登录已失效。')
++    await p.auth.restore()
++    await flushPromises()
++    expect(p.wrapper.text()).toContain('密码已修改，当前登录已更新，其他旧登录已失效。')
++    const priorEpoch = p.auth.personalContext.identity?.epoch
++    const later = {
++      ...p.current(),
++      session: { ...p.current().session, id: '01900000-0000-7000-8000-000000000004' },
++    }
++    p.api.getSession.mockResolvedValueOnce(later)
++    await p.auth.restore()
++    await flushPromises()
++    expect(p.auth.state.session?.id).toBe(later.session.id)
++    expect(p.auth.personalContext.identity?.epoch).not.toBe(priorEpoch)
++    expect(p.api.changePassword.mock.calls.length).toBe(1)
++    for (const name of ['current_password', 'new_password', 'confirmation'])
++      expect(p.wrapper.get(`#settings-${name}`).element).toHaveProperty('value', '')
++    expect(p.wrapper.text()).not.toContain('密码已修改，当前登录已更新，其他旧登录已失效。')
++  })
++
+   it('uses section errors for ambiguous password paths and preserves ordinary failure inputs', async () => {
+     const p = await page('/settings/password')
+     p.api.changePassword.mockRejectedValueOnce(

@@ -1,0 +1,565 @@
+{
+  "actual_command": "git diff --no-index --check -- /dev/null <each new file>",
+  "records": [
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:7: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:10: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:12: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:31: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:33: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:35: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:38: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:41: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:44: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:63: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:65: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:67: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:69: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:72: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:74: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:80: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:82: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:85: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:87: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:90: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:133: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:136: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:138: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:140: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:142: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:145: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:148: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/delta.patch:151: trailing whitespace.\n+ \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:7: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:10: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:12: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:31: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:33: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:35: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:38: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:41: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:44: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:63: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:65: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:67: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:69: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:72: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:74: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:80: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:82: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:85: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:87: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:90: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:133: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:136: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:138: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:140: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:142: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:145: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:148: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/delta.patch:151: trailing whitespace.\n+ \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/revision-delta.patch"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/revision-delta.patch:9: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/revision-delta.patch:11: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/afterdocs/rev02/revision-delta.patch:11: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/core-review-01/delta.patch"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/core-review-01/delta.patch:17: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/core-review-01/delta.patch:21: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/core-review-01/delta.patch:153: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/core-review-01/delta.patch:159: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/core-review-01/delta.patch:381: trailing whitespace.\n+ \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/core-review-02/delta.patch"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/core-review-02/delta.patch:11: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/core-review-02/delta.patch:68: trailing whitespace.\n+ \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:17: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:21: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:153: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:159: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:381: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:893: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:926: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:964: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:4741: space before tab in indent.\n+ \torigin, directory, webRoot string\n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:4742: space before tab in indent.\n+ \tentry                      httpRecoveryRecord\n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:4743: space before tab in indent.\n+ \tlog                        *httpFixtureLog\n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:4746: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:4749: space before tab in indent.\n+ \tif err := os.WriteFile(filepath.Join(directory, \"credentials.json\"), material, 0600); err != nil {\n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:4750: space before tab in indent.\n+ \t\tt.Fatal(\"private bootstrap transfer failed\")\n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:4751: space before tab in indent.\n+ \t}\n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:4754: space before tab in indent.\n+ \tt.Cleanup(func() {\n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:4755: space before tab in indent.\n+ \t\tif output.contains(entry.Password) {\n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/fixture-input-01/delta.patch:4756: space before tab in indent.\n+ \t\t\tt.Error(\"bootstrap material escaped the restricted recovery log\")\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/observer-delta.patch"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/observer-delta.patch:46: trailing whitespace.\n+ \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-01/delta.patch"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-01/delta.patch:17: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-01/delta.patch:21: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-01/delta.patch:153: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-01/delta.patch:159: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-01/delta.patch:381: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-01/delta.patch:893: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-01/delta.patch:926: trailing whitespace.\n+ \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-01/delta.patch:964: trailing whitespace.\n+ \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-03/delta.patch"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/evidence/ui-review-03/delta.patch:100: trailing whitespace.\n+ \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-client-unit-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-client-unit-01.log:13: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-f1-fix-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-f1-fix-01.log:13: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-f1-red-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-f1-red-01.log:52: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-f2-fix-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-f2-fix-01.log:13: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-f2-red-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-f2-red-01.log:37: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-only-unit-04.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-only-unit-04.log:13: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-state-unit-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-state-unit-01.log:13: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-state-unit-02.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-state-unit-02.log:13: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-state-unit-03.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-state-unit-03.log:13: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-type-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-type-01.log:4: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-type-02.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-type-02.log:4: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-type-03.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/core-type-03.log:4: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-keyboard-02.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-keyboard-02.log:32: trailing whitespace.\n+    authentication_web_test.go:38: \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-keyboard-02.log:34: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-keyboard-02.log:37: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-keyboard-02.log:38: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-keyboard-02.log:41: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-keyboard-02.log:42: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-keyboard-02.log:45: trailing whitespace.\n+        \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:31: trailing whitespace.\n+    authentication_web_test.go:15: \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:33: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:36: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:37: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:40: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:41: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:44: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:49: trailing whitespace.\n+    authentication_web_test.go:38: \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:51: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:54: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:55: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:58: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:59: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:62: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:65: trailing whitespace.\n+    authentication_web_test.go:38: \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:67: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:70: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:71: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:74: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:75: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:77: trailing whitespace.\n+        \u001b\u001b[1A\u001b\u001b[2K  1) e2e/authentication.spec.ts:199:45 › [keyboard] real rotate verification and one-time login consumption \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:78: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:80: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:89: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:90: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:92: trailing whitespace.\n+            e2e/authentication.spec.ts:199:45 › [keyboard] real rotate verification and one-time login consumption \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-lifecycle-rotate-01.log:93: trailing whitespace.\n+        \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:32: trailing whitespace.\n+    authentication_web_test.go:57: \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:34: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:37: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:38: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:41: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:42: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:45: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:49: trailing whitespace.\n+    authentication_web_test.go:57: \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:51: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:54: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:55: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:58: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:59: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:62: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:68: trailing whitespace.\n+    authentication_web_test.go:78: \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:70: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:73: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:74: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:77: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:78: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-auth-revocation-layouts-01.log:81: trailing whitespace.\n+        \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:31: trailing whitespace.\n+    personal_settings_web_test.go:60: \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:33: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:36: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:37: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:40: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:41: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:44: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:49: trailing whitespace.\n+    personal_settings_web_test.go:83: \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:51: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:54: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:55: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:58: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:59: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-password-authority-01.log:62: trailing whitespace.\n+        \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:48: trailing whitespace.\n+    personal_settings_web_test.go:26: \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:50: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:53: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:54: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:57: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:58: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:61: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:70: trailing whitespace.\n+    personal_settings_web_test.go:47: \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:72: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:75: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:76: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:79: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:80: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/personal-profile-theme-01.log:83: trailing whitespace.\n+        \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f1-final-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f1-final-01.log:13: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f1-fix-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f1-fix-01.log:13: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f1-red-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f1-red-01.log:34: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f1-type-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f1-type-01.log:4: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f2-final-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f2-final-01.log:13: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f2-red-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f2-red-01.log:34: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f2-type-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-f2-type-01.log:4: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-owner-unit-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-owner-unit-01.log:13: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-unit-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-unit-01.log:77: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-unit-02.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-unit-02.log:37: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-unit-03.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/author/logs/ui-unit-03.log:13: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/independent/logs/independent-live-owner-02.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/independent/logs/independent-live-owner-02.log:32: trailing whitespace.\n+    independent_personal_owner_test.go:29: \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/independent/logs/independent-live-owner-02.log:34: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/independent/logs/independent-live-owner-02.log:37: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/independent/logs/independent-live-owner-02.log:38: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/independent/logs/independent-live-owner-02.log:41: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/independent/logs/independent-live-owner-02.log:42: trailing whitespace.\n+        \n/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/independent/logs/independent-live-owner-02.log:45: trailing whitespace.\n+        \n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/reviews/ui01/pure-probe-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/reviews/ui01/pure-probe-01.log:30: new blank line at EOF.\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "git",
+        "diff",
+        "--no-index",
+        "--check",
+        "--",
+        "/dev/null",
+        "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/reviews/ui02/pure-probe-fixed-01.log"
+      ],
+      "exit": 3,
+      "stdout": "/workspace/agenteam/docs/development/agent-team/evidence/personal-settings-verification/reviews/ui02/pure-probe-fixed-01.log:10: new blank line at EOF.\n",
+      "stderr": ""
+    }
+  ]
+}

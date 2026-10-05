@@ -1,0 +1,256 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { createMemoryHistory, createRouter } from 'vue-router'
+import type { AccountAPI, AvatarMetadata, SessionView } from '../api/account'
+import { AccountFailure, type Problem } from '../api/client'
+import type { SessionController } from '../composables/useSession'
+const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
+vi.mock('../composables/useSession', async (original) => ({
+  ...(await original<typeof import('../composables/useSession')>()),
+  useSession: () => selected.auth!,
+}))
+import { createSessionController } from '../composables/useSession'
+import { useTheme } from '../composables/useTheme'
+import { installAuthentication, safeReturnTarget } from '../router/auth'
+import App from '../App.vue'
+import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/auth/LoginView.vue'
+import PersonalSettingsView from '../views/settings/PersonalSettingsView.vue'
+import ProfileSettings from '../views/settings/ProfileSettings.vue'
+import AppearanceSettings from '../views/settings/AppearanceSettings.vue'
+import PasswordSettings from '../views/settings/PasswordSettings.vue'
+
+const id = '01900000-0000-7000-8000-000000000001',
+  session = '01900000-0000-7000-8000-000000000002',
+  rotated = '01900000-0000-7000-8000-000000000003'
+const time = '2026-10-05T12:34:56.123456Z'
+function problem(
+  code: string,
+  status = 409,
+  state: Problem['commit_state'] = 'not_started',
+  path?: string,
+) {
+  return new AccountFailure('problem', {
+    type: 'urn:agenteam:problem:test',
+    title: 'Test',
+    status,
+    detail: 'Safe message',
+    instance: '/api/v1/me',
+    code,
+    request_id: id,
+    commit_state: state,
+    ...(path ? { field_errors: [{ path, code: 'INVALID' }] } : {}),
+  })
+}
+function deferred<T>() {
+  let resolve!: (v: T) => void
+  const promise = new Promise<T>((r) => {
+    resolve = r
+  })
+  return { promise, resolve }
+}
+let wrapper: VueWrapper | undefined
+let urls = 0
+const created = vi.fn(),
+  revoked = vi.fn()
+beforeEach(() => {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn((query: string) => ({
+      matches: false,
+      media: query,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })),
+  )
+  class TestURL extends URL {
+    static createObjectURL(blob: Blob) {
+      const value = `blob:owned-${++urls}`
+      created(value, blob)
+      return value
+    }
+    static revokeObjectURL(value: string) {
+      revoked(value)
+    }
+  }
+  vi.stubGlobal('URL', TestURL)
+  created.mockClear()
+  revoked.mockClear()
+})
+afterEach(() => {
+  wrapper?.unmount()
+  wrapper = undefined
+  document.body.innerHTML = ''
+  vi.restoreAllMocks()
+  vi.unstubAllGlobals()
+  useTheme().setTheme('system')
+})
+async function page(path = '/settings/profile', anonymous = false) {
+  let signedIn = !anonymous
+  let current: SessionView = {
+    user: {
+      id,
+      email: 'person@example.com',
+      username: 'admin',
+      display_name: 'Person',
+      role: 'user',
+      theme: 'dark',
+      version: '1',
+      initial_password_suggestion: true,
+    },
+    session: { id: session, issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+    csrf_token: 'S'.repeat(43),
+  }
+  let avatar: AvatarMetadata | null = null
+  const copy = <T>(value: T): T => JSON.parse(JSON.stringify(value))
+  const userChanged = (value: Partial<SessionView['user']>) => {
+    current = {
+      ...current,
+      user: { ...current.user, ...value, version: String(BigInt(current.user.version) + 1n) },
+    }
+  }
+  const unexpected = async (): Promise<never> => {
+    throw new Error('unexpected Account request')
+  }
+  const api = {
+    getSession: vi.fn<AccountAPI['getSession']>(async () => {
+      if (!signedIn) throw problem('UNAUTHENTICATED', 401)
+      return copy(current)
+    }),
+    bootstrap: vi.fn<AccountAPI['bootstrap']>(async () => ({
+      csrf_token: 'A'.repeat(43),
+      challenge_modes: ['rotate'],
+      delivery_channel: 'backend_log',
+    })),
+    login: vi.fn<AccountAPI['login']>(async () => {
+      signedIn = true
+      return { user: copy(current.user), session: copy(current.session), next_path: '/' }
+    }),
+    logout: vi.fn<AccountAPI['logout']>(async () => {
+      signedIn = false
+    }),
+    createChallenge: vi.fn<AccountAPI['createChallenge']>(unexpected),
+    verifyChallenge: vi.fn<AccountAPI['verifyChallenge']>(unexpected),
+    getProfile: vi.fn<AccountAPI['getProfile']>(async () => ({
+      user: copy(current.user),
+      avatar: copy(avatar),
+    })),
+    updateProfile: vi.fn<AccountAPI['updateProfile']>(async (input) => {
+      userChanged({
+        ...(input.username === undefined ? {} : { username: input.username.toLowerCase() }),
+        ...(input.display_name === undefined ? {} : { display_name: input.display_name }),
+      })
+      return { user: copy(current.user), avatar: copy(avatar) }
+    }),
+    getPreferences: vi.fn<AccountAPI['getPreferences']>(async () => ({
+      version: current.user.version,
+      theme: current.user.theme,
+    })),
+    setPreferences: vi.fn<AccountAPI['setPreferences']>(async (input) => {
+      userChanged({ theme: input.theme })
+      return { version: current.user.version, theme: current.user.theme }
+    }),
+    putAvatar: vi.fn<AccountAPI['putAvatar']>(async () => {
+      avatar = { media_type: 'image/png', byte_size: '4', sha256: 'sha256:' + 'a'.repeat(64) }
+      userChanged({})
+      return { user: copy(current.user), avatar: copy(avatar) }
+    }),
+    deleteAvatar: vi.fn<AccountAPI['deleteAvatar']>(async () => {
+      avatar = null
+      userChanged({})
+    }),
+    readAvatar: vi.fn<AccountAPI['readAvatar']>(async () => {
+      if (!avatar) throw problem('NOT_FOUND', 404)
+      return {
+        metadata: copy(avatar),
+        blob: new Blob([new Uint8Array(4)], { type: avatar.media_type }),
+      }
+    }),
+    changePassword: vi.fn<AccountAPI['changePassword']>(async () => {
+      userChanged({ initial_password_suggestion: false })
+      current = {
+        ...current,
+        session: { ...current.session, id: rotated },
+        csrf_token: 'N'.repeat(43),
+      }
+      return { completed: true, next_path: '/' }
+    }),
+  }
+  selected.auth = createSessionController(api)
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/', component: HomeView, meta: { protected: true, authentication: true } },
+      { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+      {
+        path: '/settings',
+        component: PersonalSettingsView,
+        redirect: '/settings/profile',
+        meta: { protected: true, authentication: true },
+        children: [
+          { path: 'profile', component: ProfileSettings },
+          { path: 'appearance', component: AppearanceSettings },
+          { path: 'password', component: PasswordSettings },
+        ],
+      },
+      { path: '/elsewhere', component: { template: '<p>Elsewhere</p>' } },
+    ],
+  })
+  installAuthentication(router, selected.auth)
+  await router.push(path)
+  await router.isReady()
+  wrapper = mount(App, { attachTo: document.body, global: { plugins: [router] } })
+  await flushPromises()
+  return {
+    api,
+    auth: selected.auth,
+    router,
+    wrapper,
+    userChanged,
+    current: () => copy(current),
+    invalidate: () => {
+      signedIn = false
+    },
+  }
+}
+const button = (text: string) => {
+  const element = [...document.querySelectorAll('button')].find(
+    (b) =>
+      (
+        b.querySelector('.button-label[aria-hidden="false"]')?.textContent ?? b.textContent
+      )?.trim() === text,
+  )
+  if (!element) throw new Error(`button missing: ${text}`)
+  return element
+}
+async function click(text: string) {
+  button(text).click()
+  await flushPromises()
+}
+
+describe('independent strict 200 password feedback', () => {
+  it('retains confirmed rotation feedback after a failed follow-up GET and explicit current Session check', async () => {
+    const p = await page('/settings/password')
+    p.api.getSession.mockRejectedValueOnce(problem('DEPENDENCY_UNAVAILABLE', 503, 'not_started'))
+    await p.wrapper.get('#settings-current_password').setValue('Original password 123')
+    await p.wrapper.get('#settings-new_password').setValue(' New password 字符 123 ')
+    await p.wrapper.get('#settings-confirmation').setValue(' New password 字符 123 ')
+    await p.wrapper.get('form').trigger('submit')
+    await flushPromises()
+    expect(p.api.changePassword.mock.calls.length).toBe(1)
+    expect(p.auth.personal.passwordProgress?.phase).toBe('session-unconfirmed')
+    expect(p.auth.state.phase).toBe('unavailable')
+    expect(p.wrapper.text()).toContain('密码修改已确认')
+    expect(p.wrapper.find('#settings-current_password').exists()).toBe(false)
+    await click('检查当前会话')
+    await flushPromises()
+    expect(p.auth.state.phase).toBe('authenticated')
+    expect(p.auth.state.session?.id).toBe(rotated)
+    expect(p.auth.personal.passwordProgress?.phase).toBe('confirmed')
+    expect(p.api.changePassword.mock.calls.length).toBe(1)
+    expect(p.router.currentRoute.value.path).toBe('/settings/password')
+    for (const name of ['current_password', 'new_password', 'confirmation'])
+      expect(p.wrapper.get(`#settings-${name}`).element).toHaveProperty('value', '')
+    expect(p.wrapper.text()).toContain('密码已修改，当前登录已更新，其他旧登录已失效。')
+  })
+})

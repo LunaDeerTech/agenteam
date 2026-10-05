@@ -1,0 +1,123 @@
+{
+  "baseline": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "card_sha256": "dbe0d5afadf475c0e81faa9249450254b0c71f07890f1a18c936784b7fc71e37",
+  "input": "/workspace/agenteam-d26-settings-author-uydib5xi/input",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "base_sha256": "1c5e303b42e4a948c2c2a40edd81b99651a9e118333e6b9d6009df120bcf7cad"
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "base_sha256": "c2294da72c54ef6d294576920601acc262af05083bb53249dad99104b8db9b34"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "base_sha256": "2e873b74b52c731b6be18c3953e2b2e471e8d20427fa391f48dc08c266632679"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "base_sha256": "723e489ea5ad1fb501d573386b3df3b01bbb88aa12f739af62d35693e7fa3c4c"
+    },
+    {
+      "path": "web/src/views/auth/LoginView.vue",
+      "base_sha256": "ff4f8706bfd1856bdbdddb2e894f637f4b5f4e225d32aea5b5e8c4146ed70223"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "base_sha256": "fb2ca02271811398a164ea7500ddb66585d9713b4302abf8694a75ca3653647b"
+    },
+    {
+      "path": "web/src/App.vue",
+      "base_sha256": "eb2e040336dba0664d58feb308c6d62364f1f9e34b239135730e1daa8446c51d"
+    },
+    {
+      "path": "web/src/views/HomeView.vue",
+      "base_sha256": "666bb17e2cc42913f9a9c1a061480cd48add72e5b3d3256e3eca5cdf2eb0273f"
+    },
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "base_sha256": null
+    },
+    {
+      "path": "web/src/components/layout/SettingsShell.vue",
+      "base_sha256": null
+    },
+    {
+      "path": "web/src/views/settings/PersonalSettingsView.vue",
+      "base_sha256": null
+    },
+    {
+      "path": "web/src/views/settings/ProfileSettings.vue",
+      "base_sha256": null
+    },
+    {
+      "path": "web/src/views/settings/AppearanceSettings.vue",
+      "base_sha256": null
+    },
+    {
+      "path": "web/src/views/settings/PasswordSettings.vue",
+      "base_sha256": null
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "base_sha256": null
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "base_sha256": null
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "base_sha256": null
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "base_sha256": "084bbdcc66fc15bf560b608a861792d73c9d712bd36f6ad5ca15a6b9aa5ec25c"
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "base_sha256": "90c9ef3fe2df6029fcc52ba8e72e78b8f686ea23b14896d0db31cc8ea3916e0d"
+    },
+    {
+      "path": "tests/account-captcha-web/personal-settings.config.js",
+      "base_sha256": null
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/personal-settings.spec.ts",
+      "base_sha256": null
+    },
+    {
+      "path": "tests/account/authentication_web_fixture_test.go",
+      "base_sha256": "95a635c182b81b82b78d97d7574a432c1d0a371a5ae84396bc95d6880a6ea3b7"
+    },
+    {
+      "path": "tests/account/personal_settings_web_fixture_test.go",
+      "base_sha256": null
+    },
+    {
+      "path": "tests/account/personal_settings_web_test.go",
+      "base_sha256": null
+    }
+  ],
+  "dependencies": [
+    {
+      "path": "web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    {
+      "path": "tests/account-captcha-web/package.json",
+      "sha256": "ffb289585d3cb1ed8e70c62ee55bd56ca66e2c79a807909e77630a4283a15e58"
+    },
+    {
+      "path": "tests/account-captcha-web/package-lock.json",
+      "sha256": "cb6dfd30b1fa05013b617e2dfb1c5d063115b4a7d231e368a24ffd14df03f534"
+    }
+  ],
+  "node_modules": "reused locked accepted auth package closure; no install",
+  "scope_count": 24
+}

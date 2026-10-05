@@ -1,0 +1,37 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/personal-settings-state.spec.ts -t retains a historically uncertain File
+
+
+ RUN  v4.1.11 /workspace/agenteam-d26-settings-author-uydib5xi/input/web
+
+ ❯ src/tests/personal-settings-state.spec.ts (14 tests | 1 failed | 13 skipped) 17ms
+     × retains a historically uncertain File intent after a later definite replay rejection 15ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/personal-settings-state.spec.ts > personal requests on the authentication owner > retains a historically uncertain File intent after a later definite replay rejection
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ src/tests/personal-settings-state.spec.ts:113:74
+    111|     let blocked: unknown
+    112|     try { await auth.personal.putAvatar({ version: '2', file: new File…
+    113|     expect(blocked instanceof AccountFailure && blocked.kind === 'busy…
+       |                                                                          ^
+    114|     expect(keys.mock.calls.length).toBe(0)
+    115|     await auth.restore()
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 13 skipped (14)
+   Start at  21:37:26
+   Duration  694ms (transform 92ms, setup 0ms, import 149ms, tests 17ms, environment 397ms)
+

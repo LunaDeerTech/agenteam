@@ -1,0 +1,18 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/tests/independent-settings-password-feedback.spec.ts",
+    "--reporter=verbose"
+  ],
+  "cwd": "/workspace/agenteam-personal-settings-ui01-v-rbhvu51t/tree/web",
+  "environment": {
+    "TMPDIR": "/workspace/agenteam-personal-settings-ui01-v-rbhvu51t/tmp",
+    "AGENTEAM_DEV_API_TARGET": "unset"
+  },
+  "node": "v24.19.0",
+  "input_sha256": "599227f3c69c1ce5b3f908a27ca033b446247479accd14b376e2c6c7e69107d6",
+  "probe_sha256": "8ae42c600f61fe4c35bd87755b93cc824f6c95152c706b8727a16bf8dd9dfe08",
+  "started_unix": 1791237069.6693313
+}

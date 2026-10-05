@@ -1,0 +1,34 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/personal-settings.spec.ts -t retires confirmed password feedback
+
+
+ RUN  v4.1.11 /workspace/agenteam-d26-settings-author-uydib5xi/input/web
+
+ ❯ src/tests/personal-settings.spec.ts (13 tests | 1 failed | 12 skipped) 164ms
+     × retires confirmed password feedback on a later same-user Session epoch 163ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/personal-settings.spec.ts > personal settings pages > retires confirmed password feedback on a later same-user Session epoch
+AssertionError: expected '跳转到内容aagenteamPerson退出登录处理中已完成个人设置个人资…' not to contain '密码已修改，当前登录已更新，其他旧登录已失效。'
+
+Expected: "密码已修改，当前登录已更新，其他旧登录已失效。"
+Received: "跳转到内容aagenteamPerson退出登录处理中已完成个人设置个人资料基本资料界面偏好主题账号安全修改密码退出登录处理中已完成修改密码 新密码为 15–128 个字符，最多 512 字节。保留空格与中文，不会自动修剪；请避免弱密码。 当前密码 *新密码 *确认新密码 *密码已修改，当前登录已更新，其他旧登录已失效。修改密码处理中已完成清空输入处理中已完成返回首页"
+
+ ❯ src/tests/personal-settings.spec.ts:422:34
+    420|     for (const name of ['current_password', 'new_password', 'confirmat…
+    421|       expect(p.wrapper.get(`#settings-${name}`).element).toHavePropert…
+    422|     expect(p.wrapper.text()).not.toContain('密码已修改，当前登录已更新，其他旧登录已失效。')
+       |                                  ^
+    423|   })
+    424|
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 12 skipped (13)
+   Start at  21:56:07
+   Duration  1.45s (transform 692ms, setup 0ms, import 823ms, tests 164ms, environment 352ms)
+

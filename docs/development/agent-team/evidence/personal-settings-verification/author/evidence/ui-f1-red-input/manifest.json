@@ -1,0 +1,13 @@
+{
+  "basis": "ui-review-01 + independent-derived regression; original production before fix",
+  "files": [
+    {
+      "path": "web/src/composables/usePersonalSettings.ts",
+      "sha256": "b55d5046459db40f9094bd7be7d3c9f2e815c16960231c1cd6b5973f0e10db54"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "76aefae7152625cfadc324161ce0f11e25fd3d1ca9194db9eb19cf59018144cf"
+    }
+  ]
+}

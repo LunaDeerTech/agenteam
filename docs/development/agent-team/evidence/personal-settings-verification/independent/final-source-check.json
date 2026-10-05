@@ -1,0 +1,158 @@
+{
+  "candidate_manifest": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/fixture-input-01/manifest.json",
+  "candidate_sha256": "20d8fc5e3ec3ad3f5eb477345fd76d002eec057b4a0a2d0fad875e354c1a99fd",
+  "base": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "files": {
+    "web/src/api/client.ts": {
+      "expected": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "fixed": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "independent": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "shared": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27"
+    },
+    "web/src/api/account.ts": {
+      "expected": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "fixed": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "independent": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "shared": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2"
+    },
+    "web/src/composables/useSession.ts": {
+      "expected": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+      "fixed": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+      "independent": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+      "shared": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a"
+    },
+    "web/src/router/auth.ts": {
+      "expected": "25099e3fb4b37e734274a10d8fccf7b9abb38a04105317f3f2a087db45030391",
+      "fixed": "25099e3fb4b37e734274a10d8fccf7b9abb38a04105317f3f2a087db45030391",
+      "independent": "25099e3fb4b37e734274a10d8fccf7b9abb38a04105317f3f2a087db45030391",
+      "shared": "25099e3fb4b37e734274a10d8fccf7b9abb38a04105317f3f2a087db45030391"
+    },
+    "web/src/views/auth/LoginView.vue": {
+      "expected": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd",
+      "fixed": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd",
+      "independent": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd",
+      "shared": "237bcc9a2c3342bcff97e7b4300310b9bf9682a2f75164d6e4138b70e62475bd"
+    },
+    "web/src/router/index.ts": {
+      "expected": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278",
+      "fixed": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278",
+      "independent": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278",
+      "shared": "a5465df8966dba4c3836ca723a3eac42cc43592f44010b348976a7feffdce278"
+    },
+    "web/src/App.vue": {
+      "expected": "dccbda0b9349180d8a6dc8155fa5151856c5d77d992b86d8a314810259984ae4",
+      "fixed": "dccbda0b9349180d8a6dc8155fa5151856c5d77d992b86d8a314810259984ae4",
+      "independent": "dccbda0b9349180d8a6dc8155fa5151856c5d77d992b86d8a314810259984ae4",
+      "shared": "dccbda0b9349180d8a6dc8155fa5151856c5d77d992b86d8a314810259984ae4"
+    },
+    "web/src/views/HomeView.vue": {
+      "expected": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69",
+      "fixed": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69",
+      "independent": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69",
+      "shared": "e5452bf10b8116911b908dcc0c78b2452b626bfb399b89f0e18970fad0adef69"
+    },
+    "web/src/composables/usePersonalSettings.ts": {
+      "expected": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679",
+      "fixed": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679",
+      "independent": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679",
+      "shared": "bdc6a6580e89b71de90176a0ba72884981a88de001a0a72b08a349f7acad1679"
+    },
+    "web/src/components/layout/SettingsShell.vue": {
+      "expected": "ffb0ec3dad8c3b0bd9d5f6249431b6f099ddcb203ddfb8fac4efcff4019ac617",
+      "fixed": "ffb0ec3dad8c3b0bd9d5f6249431b6f099ddcb203ddfb8fac4efcff4019ac617",
+      "independent": "ffb0ec3dad8c3b0bd9d5f6249431b6f099ddcb203ddfb8fac4efcff4019ac617",
+      "shared": "ffb0ec3dad8c3b0bd9d5f6249431b6f099ddcb203ddfb8fac4efcff4019ac617"
+    },
+    "web/src/views/settings/PersonalSettingsView.vue": {
+      "expected": "9409f04f90dd93c6aab6b45dee1740f87ac87336da6f323d1f6ef586d0ffdf0b",
+      "fixed": "9409f04f90dd93c6aab6b45dee1740f87ac87336da6f323d1f6ef586d0ffdf0b",
+      "independent": "9409f04f90dd93c6aab6b45dee1740f87ac87336da6f323d1f6ef586d0ffdf0b",
+      "shared": "9409f04f90dd93c6aab6b45dee1740f87ac87336da6f323d1f6ef586d0ffdf0b"
+    },
+    "web/src/views/settings/ProfileSettings.vue": {
+      "expected": "967f305f71043ab4ab77fced2baa107c2f11189645b6b766591b75c01131e0ae",
+      "fixed": "967f305f71043ab4ab77fced2baa107c2f11189645b6b766591b75c01131e0ae",
+      "independent": "967f305f71043ab4ab77fced2baa107c2f11189645b6b766591b75c01131e0ae",
+      "shared": "967f305f71043ab4ab77fced2baa107c2f11189645b6b766591b75c01131e0ae"
+    },
+    "web/src/views/settings/AppearanceSettings.vue": {
+      "expected": "7c0aa84feb7a6be4610a3f4e5b4f9d21cc80408a9a96510fa9d268075133d44f",
+      "fixed": "7c0aa84feb7a6be4610a3f4e5b4f9d21cc80408a9a96510fa9d268075133d44f",
+      "independent": "7c0aa84feb7a6be4610a3f4e5b4f9d21cc80408a9a96510fa9d268075133d44f",
+      "shared": "7c0aa84feb7a6be4610a3f4e5b4f9d21cc80408a9a96510fa9d268075133d44f"
+    },
+    "web/src/views/settings/PasswordSettings.vue": {
+      "expected": "5ac4f544958025e6832458924d513d7a688a534ea7dea3b4a71a4267f1ae232b",
+      "fixed": "5ac4f544958025e6832458924d513d7a688a534ea7dea3b4a71a4267f1ae232b",
+      "independent": "5ac4f544958025e6832458924d513d7a688a534ea7dea3b4a71a4267f1ae232b",
+      "shared": "5ac4f544958025e6832458924d513d7a688a534ea7dea3b4a71a4267f1ae232b"
+    },
+    "web/src/tests/personal-settings-client.spec.ts": {
+      "expected": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+      "fixed": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+      "independent": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+      "shared": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017"
+    },
+    "web/src/tests/personal-settings-state.spec.ts": {
+      "expected": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a",
+      "fixed": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a",
+      "independent": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a",
+      "shared": "c67caa249115d21df5370eebade9dabe15f2ea73e6bb18678abd175bb8a14b6a"
+    },
+    "web/src/tests/personal-settings.spec.ts": {
+      "expected": "b897cbb1e1c09b64190a668fb2da94bf56a61ff43d5b9246205807a1b339a04f",
+      "fixed": "b897cbb1e1c09b64190a668fb2da94bf56a61ff43d5b9246205807a1b339a04f",
+      "independent": "b897cbb1e1c09b64190a668fb2da94bf56a61ff43d5b9246205807a1b339a04f",
+      "shared": "b897cbb1e1c09b64190a668fb2da94bf56a61ff43d5b9246205807a1b339a04f"
+    },
+    "web/src/tests/session.spec.ts": {
+      "expected": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "fixed": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "independent": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "shared": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf"
+    },
+    "web/src/tests/authentication.spec.ts": {
+      "expected": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38",
+      "fixed": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38",
+      "independent": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38",
+      "shared": "b55e2c474ca0a12f6ee6db2cfad431ef79ab9fe83f1128e24b304341bf012e38"
+    },
+    "tests/account-captcha-web/personal-settings.config.js": {
+      "expected": "7d74206e80d6d23838b6a4c4e1be50efa1366caffb5ace61fc0a8a6a6026ca16",
+      "fixed": "7d74206e80d6d23838b6a4c4e1be50efa1366caffb5ace61fc0a8a6a6026ca16",
+      "independent": "7d74206e80d6d23838b6a4c4e1be50efa1366caffb5ace61fc0a8a6a6026ca16",
+      "shared": "7d74206e80d6d23838b6a4c4e1be50efa1366caffb5ace61fc0a8a6a6026ca16"
+    },
+    "tests/account-captcha-web/e2e/personal-settings.spec.ts": {
+      "expected": "a91ec07ddcdf6e99d12c6e6214f6515462813b0fcdd02b991b16627a4105eda7",
+      "fixed": "a91ec07ddcdf6e99d12c6e6214f6515462813b0fcdd02b991b16627a4105eda7",
+      "independent": "a91ec07ddcdf6e99d12c6e6214f6515462813b0fcdd02b991b16627a4105eda7",
+      "shared": "a91ec07ddcdf6e99d12c6e6214f6515462813b0fcdd02b991b16627a4105eda7"
+    },
+    "tests/account/authentication_web_fixture_test.go": {
+      "expected": "f91d23edb01dbc82f228c659288626529e68a1dfcf742b7d1f2961fa4f56c319",
+      "fixed": "f91d23edb01dbc82f228c659288626529e68a1dfcf742b7d1f2961fa4f56c319",
+      "independent": "f91d23edb01dbc82f228c659288626529e68a1dfcf742b7d1f2961fa4f56c319",
+      "shared": "f91d23edb01dbc82f228c659288626529e68a1dfcf742b7d1f2961fa4f56c319"
+    },
+    "tests/account/personal_settings_web_fixture_test.go": {
+      "expected": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b",
+      "fixed": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b",
+      "independent": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b",
+      "shared": "0b147495e0b14af9b44349f042121f7f31a9e703b4662716b38ebbebcd24a24b"
+    },
+    "tests/account/personal_settings_web_test.go": {
+      "expected": "bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b",
+      "fixed": "bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b",
+      "independent": "bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b",
+      "shared": "bb0855b76f323f793978b98c45723b60efd621e47ee7e2c36075d4b0a8fd941b"
+    }
+  },
+  "independent_probe": {
+    "tests/account/independent_personal_owner_test.go": "1d7cc17ee78302799c864052f0e9bcad773c2f8f6400f21daf346dd25c9391fc",
+    "tests/account-captcha-web/independent-personal-owner.config.js": "91c75467f0bb3804f1a9313486526d3ffcd2e66c811c86d464191ea05a280263",
+    "tests/account-captcha-web/e2e/independent-personal-owner.spec.ts": "171b514740dc6a6222d7fea6d41f53820c0b7ba00e8a1212899cb0ae24721a77"
+  },
+  "no_product_edits": true,
+  "no_resource_commands_after_handoff": true
+}

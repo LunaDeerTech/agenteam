@@ -1,0 +1,29 @@
+{
+  "manifest_sha256": "20d8fc5e3ec3ad3f5eb477345fd76d002eec057b4a0a2d0fad875e354c1a99fd",
+  "raw_sha256": "7474d388655df316309917bff9cc0cc644c42e228431d7f1de97c543f47fee0f",
+  "run_index_sha256": "0e24b09f0cdb94e6a260104375e94690ff42f76dd547cd4bd2938988c59742cf",
+  "fixed24_mismatches": [],
+  "run_index_entries": 13,
+  "run_index_mismatches": [],
+  "source_before_after_same": true,
+  "dependencies_before_after_same": true,
+  "original_go_config_spec": [
+    {
+      "path": "tests/account/authentication_web_test.go",
+      "git_sha256": "5773a99d9b335e24a18c1fd2e8b6c6a3e019ff475eb8158c64cd651e89c42e76",
+      "matches_fixed_manifest": true
+    },
+    {
+      "path": "tests/account-captcha-web/authentication.config.js",
+      "git_sha256": "2f2a2921142b53eb4fbb9b103f4e59e06ab1619bb31ccce3e7677aa2d0e410c1",
+      "matches_fixed_manifest": true
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/authentication.spec.ts",
+      "git_sha256": "a87ba8393cd9702412725a1e41c4333bb7f9d00fa0af8e3a9a9f10841461f169",
+      "matches_fixed_manifest": true
+    }
+  ],
+  "actual_commands": "Read frozen files/hash; read exact Git blobs with git show; no runtime or product commands",
+  "resource_scope": "root reports actual double-clean/window returned; this task checks original evidence identity, does not rerun resource inspection"
+}

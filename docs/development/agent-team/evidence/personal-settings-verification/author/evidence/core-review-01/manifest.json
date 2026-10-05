@@ -1,0 +1,47 @@
+{
+  "baseline": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "card_sha256": "f78fb7f883fcac25f598ca8b220ced0ed56219dec39f02d6815be9ad5c835fa9",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "size": 10399
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "size": 13982
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "cd82a5fa94a3aac839255a27100fb0d1112d3282043df1a011ca8b99b6df6fa0",
+      "size": 34768
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "sha256": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+      "size": 8992
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "23e5a72eaa6d18211d5a723c659098c8634245af03c5783acced2312253a70ee",
+      "size": 15142
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "size": 18655
+    },
+    {
+      "path": "web/src/tests/authentication.spec.ts",
+      "sha256": "2f39515611b627488b26b553f0edd8300df957967892e68bbb4d7d611139afd6",
+      "size": 21781
+    }
+  ],
+  "checks": [
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-format-01.json",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-state-unit-02.json",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-type-02.json"
+  ],
+  "scope": "3 core production + 2 new pure tests + 2 existing typed-mock adaptations; no UI/Go/browser/Docker result"
+}

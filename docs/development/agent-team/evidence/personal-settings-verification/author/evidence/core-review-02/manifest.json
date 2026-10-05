@@ -1,0 +1,53 @@
+{
+  "baseline": "9a710f272026b41ef69852bbeb41cb7670b500a8",
+  "previous_manifest": "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-review-01/manifest.json",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "5f4cfe3205ed8702b443cc8b7081093a07d5d28313822b054d74040b455edd27",
+      "size": 10399
+    },
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "b6e6b141970eb0f182bf4123c6155b7c8feede28a79c4cf1a1fb02008745b0a2",
+      "size": 13982
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "95fe6e764c485d97577010a0c103fecf137ecdf3e636796a1e96027090fe7f6a",
+      "size": 34983
+    },
+    {
+      "path": "web/src/tests/personal-settings-client.spec.ts",
+      "sha256": "5e49d23cb2ab3c5ef2989e86648ea91cbde02ee4b6dc39df83ce885cfa052017",
+      "size": 8992
+    },
+    {
+      "path": "web/src/tests/personal-settings-state.spec.ts",
+      "sha256": "2681a83490e0386643cd72db4cbc257bbc0f9dd1bc1276810d92f02c84e4db5f",
+      "size": 17326
+    },
+    {
+      "path": "web/src/tests/session.spec.ts",
+      "sha256": "1f1b497beaee4fdedbf3850e7189fba22ff18d9ed2d180a20101d2faadf5efcf",
+      "size": 18655
+    }
+  ],
+  "changed": [
+    "web/src/composables/useSession.ts",
+    "web/src/tests/personal-settings-state.spec.ts"
+  ],
+  "checks": [
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f1-red-01.json",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f1-fix-01.json",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f2-red-01.json",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-f2-fix-01.json",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-only-unit-04.json",
+    "/workspace/agenteam-d26-settings-author-uydib5xi/evidence/core-type-03.json"
+  ],
+  "notes": [
+    "F1 original red mock values are synthetic only; retained privately; subsequent equivalent numeric assertions avoid value output.",
+    "core-only-unit-04:39 cases; type03 checks current private UI preparation too, no UI dynamic acceptance claim.",
+    "Old authentication mock adaptation remains; its new navigation assertion will be part of UI review, not this delta."
+  ]
+}
