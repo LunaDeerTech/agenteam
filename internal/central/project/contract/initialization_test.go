@@ -16,7 +16,7 @@ func testInitialization() InitializationRequest {
 }
 
 // This is a discovery mapping fixture, not an initialization-authorized actor.
-// B01's fixed identity registry cannot mint project-initialization yet.
+// It deliberately uses the lifecycle role: discovery alone grants no authority.
 func testDiscoveryActor(request InitializationRequest) identity.Actor {
 	registration, err := identity.RegisterService(identity.ProjectLifecycle)
 	if err != nil {
@@ -137,8 +137,24 @@ func TestPlanIssuerRequestActorAndLockBinding(t *testing.T) {
 	if _, err := issuer.Plan(actor, request, foreign, plan.RequiredLocks()); err == nil {
 		t.Fatal("foreign Skill mapping accepted")
 	}
-	if _, err := identity.RegisterService(identity.ServiceName("project-initialization")); err == nil {
-		t.Fatal("B01 unexpectedly changed identity role registry")
+	registration, err := identity.RegisterService(identity.ProjectInitialization)
+	if err != nil {
+		t.Fatal("B02 initialization role missing", err)
+	}
+	scope, _ := identity.InProject(request.ProjectID)
+	initializationActor, err := registration.Actor(request.CreationID.String(), scope)
+	if err != nil || initializationActor.Details().ServiceName != identity.ProjectInitialization {
+		t.Fatal("initialization identity binding", err)
+	}
+	if _, err = issuer.Plan(initializationActor, request, receipt, plan.RequiredLocks()); err != nil {
+		t.Fatal("registered initialization discovery", err)
+	}
+	wrongCause, _ := registration.Actor(testID[Creation](9).String(), scope)
+	if _, err = issuer.Plan(wrongCause, request, receipt, plan.RequiredLocks()); err == nil {
+		t.Fatal("wrong initialization cause accepted")
+	}
+	if _, err = identity.RegisterService("project-initialization-unknown"); err == nil {
+		t.Fatal("initialization role closed set widened")
 	}
 }
 

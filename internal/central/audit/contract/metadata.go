@@ -381,6 +381,9 @@ func DecodeMetadata(action Action, raw []byte) (Metadata, error) {
 	if AccountAction(action) {
 		return decodeAccountMetadata(action, raw)
 	}
+	if ProjectAction(action) {
+		return decodeProjectMetadata(action, raw)
+	}
 	allowed := map[string]bool{}
 	var names []string
 	switch action {

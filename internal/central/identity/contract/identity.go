@@ -66,6 +66,8 @@ const (
 	AccountMail        ServiceName = "account-mail"
 )
 
+const ProjectInitialization ServiceName = "project-initialization"
+
 func invalid() error { return foundation.NewFault(foundation.InvalidArgument, foundation.NotStarted) }
 func Unbound() error { return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted) }
 
@@ -167,7 +169,7 @@ type ServiceRegistration struct{ data func() ServiceName }
 
 func RegisterService(name ServiceName) (ServiceRegistration, error) {
 	switch name {
-	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail:
+	case SecretService, SecretMaintenance, OutboundService, ObjectService, ObjectMaintenance, ProjectLifecycle, ProjectInitialization, OutboxDelivery, AccountBootstrap, AccountAuth, AccountMaintenance, AccountMail:
 	default:
 		return ServiceRegistration{}, invalid()
 	}
