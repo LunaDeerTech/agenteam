@@ -1,0 +1,130 @@
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import sys
+import threading
+import time
+
+review = Path(__file__).parent
+work = Path('/workspace/agenteam-d09-final-build-k1jf1jcx')
+snapshot = work / 'snapshot'
+docker_config = work / 'docker-empty'
+docker_config.mkdir(exist_ok=True)
+env = dict(os.environ,
+    GOTOOLCHAIN='local', GOENV='off', GOWORK='off', GOPROXY='off', GOSUMDB='off',
+    GOMODCACHE='/workspace/agenteam-dependency-cache/modcache',
+    GOCACHE=str(work / 'gocache'), GOTMPDIR=str(work / 'tmp'), TMPDIR=str(work / 'runtime'),
+    GOFLAGS='-mod=readonly -p=2 -v', GOMAXPROCS='2',
+    AGENTEAM_GO='/workspace/toolchains/go1.27.1/bin/go',
+    AGENTEAM_MINIO_BINARY='/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio',
+    DOCKER_HOST='unix:///var/run/docker.sock', DOCKER_CONFIG=str(docker_config))
+for key in list(env):
+    if key.startswith('AGENTEAM_TEST_'):
+        del env[key]
+
+def now():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+def docker(args):
+    return subprocess.run(['docker', *args], env=env, text=True, capture_output=True)
+
+def ids(kind):
+    args = [kind, 'ls', '-q', '--no-trunc']
+    if kind == 'container':
+        args.insert(2, '-a')
+    result = docker(args)
+    if result.returncode:
+        raise RuntimeError(result.stderr)
+    return sorted(result.stdout.split())
+
+def inspect(kind, ident):
+    labels = '.Config.Labels' if kind == 'container' else '.Labels'
+    template = '{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json ' + labels + '}}}'
+    result = docker([kind, 'inspect', '--format', template, ident])
+    if result.returncode:
+        return None
+    item = json.loads(result.stdout)
+    item['labels'] = item['labels'] or {}
+    return item
+
+def capture():
+    return {kind: [inspect(kind, ident) for ident in ids(kind)] for kind in ['container', 'network']}
+
+labels = {
+    'agenteam.d03.fixture': 'agenteam-d03-',
+    'agenteam.d04.networkfixture': 'agenteam-d04-net-',
+    'agenteam.d05.objectfixture': 'agenteam-d05-object-',
+}
+baseline = capture()
+if any(item is None for items in baseline.values() for item in items):
+    raise SystemExit('unstable baseline metadata')
+if len(baseline['container']) != 2 or len(baseline['network']) != 4:
+    raise SystemExit('baseline does not match authorized 2 containers / 4 networks')
+(review / 'docker-baseline.json').write_text(json.dumps({'at': now(), 'resources': baseline}, indent=2) + '\n')
+owned = {kind: {} for kind in baseline}
+unexpected = []
+observer_errors = []
+done = threading.Event()
+
+def observe_once():
+    for kind, original in baseline.items():
+        known = {v['id'] for v in original} | set(owned[kind])
+        for ident in set(ids(kind)) - known:
+            item = inspect(kind, ident)
+            if item is None:
+                continue
+            proven = False
+            for label, prefix in labels.items():
+                nonce = item['labels'].get(label, '')
+                if re.fullmatch('[0-9a-f]{32}', nonce) and item['name'].lstrip('/').startswith(prefix + nonce):
+                    proven = True
+                    break
+            if proven:
+                owned[kind][ident] = item
+            elif item not in unexpected:
+                unexpected.append(item)
+
+def observe():
+    while not done.is_set():
+        try:
+            observe_once()
+        except Exception as error:
+            observer_errors.append(str(error))
+        done.wait(0.2)
+
+regex = '^(TestModelProjectIndependentSixHistoricalReceiptsRequireCurrentRead|TestModelProjectIndependentLateGateBindingRollsBackAllFacts)$'
+argv = ['sh', 'scripts/test-objects.sh', '-run', regex]
+name = 'independent-real-1'
+log = review / 'logs' / (name + '.log')
+manifest = review / 'candidate-rev3-manifest.json'
+probe = snapshot / 'tests/model/d09_independent_test.go'
+record = {
+    'started': now(), 'argv': argv, 'cwd': str(snapshot),
+    'manifest_sha256': hashlib.sha256(manifest.read_bytes()).hexdigest(),
+    'probe_sha256': hashlib.sha256(probe.read_bytes()).hexdigest(),
+    'environment': {key: env[key] for key in ['GOTOOLCHAIN','GOENV','GOWORK','GOPROXY','GOSUMDB','GOMODCACHE','GOCACHE','GOTMPDIR','TMPDIR','GOFLAGS','GOMAXPROCS','AGENTEAM_GO','AGENTEAM_MINIO_BINARY','DOCKER_HOST','DOCKER_CONFIG']},
+    'baseline_resources': {'containers': 2, 'networks': 4},
+}
+(review / (name + '-input.json')).write_text(json.dumps(record, indent=2) + '\n')
+observer = threading.Thread(target=observe)
+observer.start()
+start = time.monotonic()
+print(json.dumps(record), flush=True)
+try:
+    with log.open('w') as stream:
+        stream.write(json.dumps(record) + '\n')
+        stream.flush()
+        result = subprocess.run(argv, cwd=snapshot, env=env, stdout=stream, stderr=subprocess.STDOUT)
+finally:
+    done.set()
+    observer.join()
+    (review / (name + '-owned.json')).write_text(json.dumps({'resources': owned, 'unexpected': unexpected, 'observer_errors': observer_errors}, indent=2) + '\n')
+record.update(exit=result.returncode, seconds=round(time.monotonic()-start, 3), ended=now(), log=str(log), log_sha256=hashlib.sha256(log.read_bytes()).hexdigest())
+(review / (name + '-result.json')).write_text(json.dumps(record, indent=2) + '\n')
+print(json.dumps(record), flush=True)
+print(log.read_text()[-14000:], flush=True)
+sys.exit(result.returncode)

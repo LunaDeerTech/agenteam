@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-05T14:43:17.163932+00:00",
+  "exact_resources": [
+    {
+      "kind": "containers",
+      "id": "50466ef3896c104d828ab0aacd81fab13ce307ddef9a6a5a84a9804916fe8589",
+      "absent": true
+    },
+    {
+      "kind": "containers",
+      "id": "b97026d6dc7559cae1379f827bd15b5001ba55ecdca8a2c6508b0ecf9ecd01d3",
+      "absent": true
+    },
+    {
+      "kind": "containers",
+      "id": "aeb850ded29b045648de94fd37eb015f90d3f09008793fbc73f8ea3197469801",
+      "absent": true
+    },
+    {
+      "kind": "containers",
+      "id": "1e890ad5c1d7c6a029d30fb4340ce908162ed43d70fd6a8df165524b1e19c810",
+      "absent": true
+    },
+    {
+      "kind": "networks",
+      "id": "5bae28636155e4ca94490f3da2b47339e7aa65da8c3b3cca7978dba62de7a64f",
+      "absent": true
+    },
+    {
+      "kind": "networks",
+      "id": "715050a4a9b3c7a2a084054ce883761d81228c62edd425a30597b2bc4f83a08d",
+      "absent": true
+    },
+    {
+      "kind": "networks",
+      "id": "50c6e6208b0399324a897cd29f78b1b184a37fbd050de1fd78674ae5349b2b55",
+      "absent": true
+    }
+  ],
+  "owned_processes": [],
+  "runtime_absent": true,
+  "baseline_two_checks": true
+}

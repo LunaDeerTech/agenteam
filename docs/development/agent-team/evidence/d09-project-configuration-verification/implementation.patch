@@ -1,0 +1,3950 @@
+diff --git a/internal/central/model/audit_authority.go b/internal/central/model/audit_authority.go
+index 23de882..1eab365 100644
+--- a/internal/central/model/audit_authority.go
++++ b/internal/central/model/audit_authority.go
+@@ -25,7 +25,7 @@ func auditEntry(actor id.Actor, p *mutationPlan) (ac.Entry, ac.AppendKey, error)
+ 	if e != nil {
+ 		return ac.Entry{}, ac.AppendKey{}, e
+ 	}
+-	entry, e := ac.NewEntry(ac.EntryFields{Scope: id.SystemScope(), Actor: actor, Action: ac.Action(p.Kind), Outcome: ac.Success, Resource: resource, Metadata: metadata})
++	entry, e := ac.NewEntry(ac.EntryFields{Scope: configurationScope(p.Project), Actor: actor, Action: ac.Action(p.Kind), Outcome: ac.Success, Resource: resource, Metadata: metadata})
+ 	if e != nil {
+ 		return ac.Entry{}, ac.AppendKey{}, e
+ 	}
+@@ -40,14 +40,14 @@ func (a *Authority) validatePreparedFact(ctx context.Context, tx f.Tx, p *prepar
+ 	if e := a.state().store.RequireHeldLocks(ctx, tx, p.locks); e != nil {
+ 		return portError(e)
+ 	}
+-	if e := a.current(ctx, tx, p.actor, id.Mutate); e != nil {
++	if e := a.currentScope(ctx, tx, p.actor, configurationScope(p.plan.Project), id.Mutate); e != nil {
+ 		return e
+ 	}
+ 	x, e := a.state().store.InTx(tx)
+ 	if e != nil {
+ 		return portError(e)
+ 	}
+-	r, e := loadCommand(ctx, x, p.identity)
++	r, e := loadCommandScope(ctx, x, p.identity, configurationScope(p.plan.Project))
+ 	if e != nil {
+ 		return e
+ 	}
+@@ -55,7 +55,7 @@ func (a *Authority) validatePreparedFact(ctx context.Context, tx f.Tx, p *prepar
+ 		return fault(f.Forbidden)
+ 	}
+ 	if p.plan.BeforeProvider != nil || p.plan.AfterProvider != nil {
+-		actual, e := loadProvider(ctx, x, p.plan.Resource)
++		actual, e := loadProviderScope(ctx, x, p.plan.Resource, configurationScope(p.plan.Project))
+ 		if e != nil {
+ 			return e
+ 		}
+@@ -64,7 +64,7 @@ func (a *Authority) validatePreparedFact(ctx context.Context, tx f.Tx, p *prepar
+ 		}
+ 	}
+ 	if p.plan.BeforeModel != nil || p.plan.AfterModel != nil {
+-		actual, e := loadModel(ctx, x, p.plan.Resource)
++		actual, e := loadModelScope(ctx, x, p.plan.Resource, configurationScope(p.plan.Project))
+ 		if e != nil {
+ 			return e
+ 		}
+diff --git a/internal/central/model/authority.go b/internal/central/model/authority.go
+index 9ebaf1b..35e00cb 100644
+--- a/internal/central/model/authority.go
++++ b/internal/central/model/authority.go
+@@ -2,6 +2,7 @@ package model
+ 
+ import (
+ 	"context"
++	"reflect"
+ 
+ 	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ 	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+@@ -9,9 +10,14 @@ import (
+ 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+ )
+ 
++type ProjectAuthority interface {
++	AuthorizeProject(context.Context, f.Tx, id.Actor, id.ProjectID, id.AccessIntent) (id.AccessGrant, error)
++}
++
+ type Authorizations struct {
+ 	Sessions id.SessionAuthority
+ 	System   id.SystemAuthority
++	Projects ProjectAuthority
+ }
+ type Authority struct{ data func() *authorityState }
+ type authorityState struct {
+@@ -25,9 +31,67 @@ func NewAuthority(store Store, d Authorizations) (*Authority, error) {
+ 	if nilPort(store) || nilPort(d.Sessions) || nilPort(d.System) {
+ 		return nil, fault(f.DependencyUnbound)
+ 	}
++	if d.Projects != nil {
++		value := reflect.ValueOf(d.Projects)
++		if nilPort(d.Projects) || value.Kind() == reflect.Chan && value.IsNil() {
++			return nil, fault(f.DependencyUnbound)
++		}
++	}
+ 	s := &authorityState{store: store, auth: d, usageIssuer: sc.NewPlanIssuer(), eventIssuer: oc.NewPlanIssuer()}
+ 	return &Authority{data: func() *authorityState { return s }}, nil
+ }
++
++// The Project port supplies current Owner facts. Model owns its transaction
++// and complete lock plan; an InTx check never acquires or opens a transaction.
++func (a *Authority) currentScope(ctx context.Context, tx f.Tx, actor id.Actor, scope id.Scope, intent id.AccessIntent) error {
++	if scope.Validate() != nil || (intent != id.Read && intent != id.Mutate) {
++		return fault(f.InvalidArgument)
++	}
++	if scope.Details().Kind == id.System {
++		return a.current(ctx, tx, actor, intent)
++	}
++	if a.state() == nil || nilPort(a.state().auth.Projects) {
++		return fault(f.DependencyUnbound)
++	}
++	if err := human(actor); err != nil {
++		return err
++	}
++	project, err := f.ParseID[id.Project](scope.Details().ProjectID)
++	if err != nil {
++		return fault(f.InvalidArgument)
++	}
++	locks := []f.LockRequest{userLock(actor.Details().UserID), projectLock(project.String())}
++	if !tx.Valid() {
++		cause, err := readCause("project-authorize")
++		if err != nil {
++			return err
++		}
++		result := a.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
++			if err := a.state().store.AcquireAll(ctx, tx, locks); err != nil {
++				return portError(err)
++			}
++			return a.currentScope(ctx, tx, actor, scope, intent)
++		})
++		return commitError(result)
++	}
++	if _, err := a.state().store.InTx(tx); err != nil {
++		return portError(err)
++	}
++	if err := a.state().store.RequireHeldLocks(ctx, tx, locks); err != nil {
++		return portError(err)
++	}
++	if err := a.state().auth.Sessions.RequireCurrentSession(ctx, tx, actor); err != nil {
++		return portError(err)
++	}
++	grant, err := a.state().auth.Projects.AuthorizeProject(ctx, tx, actor, project, intent)
++	if err != nil {
++		return portError(err)
++	}
++	if !grant.Matches(actor, scope, intent) {
++		return fault(f.Forbidden)
++	}
++	return nil
++}
+ func (a *Authority) state() *authorityState {
+ 	if a == nil || a.data == nil {
+ 		return nil
+diff --git a/internal/central/model/commands.go b/internal/central/model/commands.go
+index f504d5b..24d7418 100644
+--- a/internal/central/model/commands.go
++++ b/internal/central/model/commands.go
+@@ -35,6 +35,7 @@ type persistedEvent struct {
+ 	Payload json.RawMessage
+ }
+ type mutationPlan struct {
++	Project                                   string `json:",omitempty"`
+ 	CommandID, Identity, User, Kind, Resource string
+ 	Semantic                                  f.Digest
+ 	BeforeProvider, AfterProvider             *providerRecord
+@@ -81,6 +82,9 @@ func (a *Authority) contextPlan(ctx context.Context, actor id.Actor) (*preparedC
+ 
+ func validCommand(kind string) bool { return ac.ModelAction(ac.Action(kind)) }
+ func commandIdentity(meta mc.CommandMeta, kind string) (f.CommandIdentity, error) {
++	if meta.Scope.Details().Kind == id.ProjectScope {
++		return f.NewCommandIdentity("model.project", []string{meta.Scope.Details().ProjectID, meta.Actor.Details().UserID}, kind, meta.Key)
++	}
+ 	return f.NewCommandIdentity("model.system", []string{meta.Actor.Details().UserID}, kind, meta.Key)
+ }
+ func commandSemantic(r commandRequest) (f.Digest, error) {
+@@ -110,19 +114,53 @@ func commandSemantic(r commandRequest) (f.Digest, error) {
+ 	if e != nil {
+ 		return "", unavailable(e)
+ 	}
++	if r.Meta.Scope.Details().Kind == id.ProjectScope {
++		raw, e = json.Marshal(struct {
++			Format, Project, User string
++			Request               json.RawMessage
++		}{"model-project-command-v1", r.Meta.Scope.Details().ProjectID, r.Meta.Actor.Details().UserID, raw})
++		if e != nil {
++			return "", unavailable(e)
++		}
++	}
+ 	return cursor.Digest(raw)
+ }
+ func loadCommand(ctx context.Context, x postgres.SQLExecutor, identity f.CommandIdentity) (*commandRecord, error) {
++	return loadCommandScope(ctx, x, identity, id.SystemScope())
++}
++func loadCommandScope(ctx context.Context, x postgres.SQLExecutor, identity f.CommandIdentity, scope id.Scope) (*commandRecord, error) {
++	if scope.Validate() != nil || identity.Validate() != nil {
++		return nil, fault(f.InvalidArgument)
++	}
++	owners := identity.OwnerIDs()
++	if scope.Details().Kind == id.System {
++		if identity.Namespace() != "model.system" || len(owners) != 1 {
++			return nil, fault(f.Forbidden)
++		}
++	} else if identity.Namespace() != "model.project" || len(owners) != 2 || owners[0] != scope.Details().ProjectID {
++		return nil, fault(f.Forbidden)
++	}
+ 	var r commandRecord
+ 	var plan, receipt []byte
+-	e := x.QueryRow(ctx, `SELECT id::text,command_identity,user_id::text,command_name,resource_id::text,phase,semantic_digest,mutation_plan,safe_receipt FROM agenteam_model.commands WHERE command_identity=$1 AND scope='system'`, identity.Canonical()).Scan(&r.ID, &r.Identity, &r.User, &r.Kind, &r.Resource, &r.Phase, &r.Semantic, &plan, &receipt)
++	query := `SELECT id::text,command_identity,user_id::text,command_name,resource_id::text,phase,semantic_digest,mutation_plan,safe_receipt FROM agenteam_model.commands WHERE command_identity=$1 AND scope='system' AND project_id IS NULL`
++	args := []any{identity.Canonical()}
++	if scope.Details().Kind == id.ProjectScope {
++		query = `SELECT id::text,command_identity,user_id::text,command_name,resource_id::text,phase,semantic_digest,mutation_plan,safe_receipt FROM agenteam_model.commands WHERE command_identity=$1 AND scope='project' AND project_id=$2`
++		args = append(args, scope.Details().ProjectID)
++	}
++	e := x.QueryRow(ctx, query, args...).Scan(&r.ID, &r.Identity, &r.User, &r.Kind, &r.Resource, &r.Phase, &r.Semantic, &plan, &receipt)
+ 	if errors.Is(e, pgx.ErrNoRows) {
+ 		return nil, nil
+ 	}
+ 	if e != nil {
+ 		return nil, unavailable(e)
+ 	}
+-	if json.Unmarshal(plan, &r.Plan) != nil {
++	// Only the actual scope-filtered row and exact original identity can
++	// interpret a historical System plan without the Project discriminator.
++	if r.Identity != identity.Canonical() || r.User != owners[len(owners)-1] || r.Kind != identity.Command() {
++		return nil, unavailable(nil)
++	}
++	if json.Unmarshal(plan, &r.Plan) != nil || r.Plan.Project != scope.Details().ProjectID {
+ 		return nil, unavailable(nil)
+ 	}
+ 	if r.Phase == "committed" {
+@@ -142,10 +180,10 @@ func (s *Service) runCommand(ctx context.Context, r commandRequest) (mc.CommandR
+ 	if e := r.Meta.Validate(); e != nil {
+ 		return empty, e
+ 	}
+-	if r.Meta.Scope.Details().Kind != id.System {
++	if r.Meta.Scope.Details().Kind == id.ProjectScope && r.Kind == "model.selection.update" {
+ 		return empty, fault(f.DependencyUnbound)
+ 	}
+-	if e := s.state().authority.current(ctx, f.Tx{}, r.Meta.Actor, id.Mutate); e != nil {
++	if e := s.state().authority.currentScope(ctx, f.Tx{}, r.Meta.Actor, r.Meta.Scope, receiptIntent(r.Meta.Scope)); e != nil {
+ 		return empty, e
+ 	}
+ 	identity, e := commandIdentity(r.Meta, r.Kind)
+@@ -156,20 +194,23 @@ func (s *Service) runCommand(ctx context.Context, r commandRequest) (mc.CommandR
+ 	if e != nil {
+ 		return empty, e
+ 	}
+-	prior, e := loadCommand(ctx, s.state().store, identity)
++	prior, e := loadCommandScope(ctx, s.state().store, identity, r.Meta.Scope)
+ 	if e != nil {
+ 		return empty, e
+ 	}
+ 	if prior != nil {
+-		return s.replay(ctx, r.Meta.Actor, identity, semantic, nil)
++		return s.replayScope(ctx, r.Meta.Actor, r.Meta.Scope, identity, semantic, nil)
++	}
++	if e := s.state().authority.currentScope(ctx, f.Tx{}, r.Meta.Actor, r.Meta.Scope, id.Mutate); e != nil {
++		return s.recheckPreparationScope(ctx, r.Meta.Actor, r.Meta.Scope, identity, semantic, e)
+ 	}
+ 	p, e := s.prepare(ctx, r, identity, semantic)
+ 	if e != nil {
+-		return s.recheckPreparation(ctx, r.Meta.Actor, identity, semantic, e)
++		return s.recheckPreparationScope(ctx, r.Meta.Actor, r.Meta.Scope, identity, semantic, e)
+ 	}
+ 	ctx = commandContext(ctx, p)
+ 	if e = s.prepareEffects(ctx, p); e != nil {
+-		return s.recheckPreparation(ctx, r.Meta.Actor, identity, semantic, e)
++		return s.recheckPreparationScope(ctx, r.Meta.Actor, r.Meta.Scope, identity, semantic, e)
+ 	}
+ 	var receipt mc.CommandReceipt
+ 	cause, e := f.NewCommandsCause(identity)
+@@ -180,14 +221,14 @@ func (s *Service) runCommand(ctx context.Context, r commandRequest) (mc.CommandR
+ 		if e := s.state().store.AcquireAll(ctx, tx, p.locks); e != nil {
+ 			return portError(e)
+ 		}
+-		if e := s.state().authority.current(ctx, tx, r.Meta.Actor, id.Mutate); e != nil {
++		if e := s.state().authority.currentScope(ctx, tx, r.Meta.Actor, r.Meta.Scope, receiptIntent(r.Meta.Scope)); e != nil {
+ 			return e
+ 		}
+ 		x, e := s.state().store.InTx(tx)
+ 		if e != nil {
+ 			return portError(e)
+ 		}
+-		old, e := loadCommand(ctx, x, identity)
++		old, e := loadCommandScope(ctx, x, identity, r.Meta.Scope)
+ 		if e != nil {
+ 			return e
+ 		}
+@@ -201,6 +242,9 @@ func (s *Service) runCommand(ctx context.Context, r commandRequest) (mc.CommandR
+ 			receipt = *old.Receipt
+ 			return nil
+ 		}
++		if e = s.state().authority.currentScope(ctx, tx, r.Meta.Actor, r.Meta.Scope, id.Mutate); e != nil {
++			return e
++		}
+ 		if e = s.validateMapping(ctx, x, p); e != nil {
+ 			return e
+ 		}
+@@ -242,7 +286,7 @@ func (s *Service) runCommand(ctx context.Context, r commandRequest) (mc.CommandR
+ 		return nil
+ 	})
+ 	if result.State() == f.Unknown {
+-		return s.replay(ctx, r.Meta.Actor, identity, semantic, &result)
++		return s.replayScope(ctx, r.Meta.Actor, r.Meta.Scope, identity, semantic, &result)
+ 	}
+ 	if e = commitError(result); e != nil {
+ 		return empty, e
+@@ -255,23 +299,26 @@ func (s *Service) runCommand(ctx context.Context, r commandRequest) (mc.CommandR
+ // This confirmation does no discovery, adds no locks after AcquireAll, and
+ // preserves the original preparation error (including Unknown) on true absence.
+ func (s *Service) recheckPreparation(ctx context.Context, actor id.Actor, identity f.CommandIdentity, expected f.Digest, preparationError error) (mc.CommandReceipt, error) {
++	return s.recheckPreparationScope(ctx, actor, id.SystemScope(), identity, expected, preparationError)
++}
++func (s *Service) recheckPreparationScope(ctx context.Context, actor id.Actor, scope id.Scope, identity f.CommandIdentity, expected f.Digest, preparationError error) (mc.CommandReceipt, error) {
+ 	var receipt *mc.CommandReceipt
+ 	cause, err := f.NewCommandsCause(identity)
+ 	if err != nil {
+ 		return mc.CommandReceipt{}, portError(err)
+ 	}
+ 	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+-		if err := s.state().store.AcquireAll(ctx, tx, []f.LockRequest{commandLock(identity), userLock(actor.Details().UserID)}); err != nil {
++		if err := s.state().store.AcquireAll(ctx, tx, append([]f.LockRequest{commandLock(identity)}, scopeLocks(actor, scope)...)); err != nil {
+ 			return portError(err)
+ 		}
+-		if err := s.state().authority.current(ctx, tx, actor, id.Mutate); err != nil {
++		if err := s.state().authority.currentScope(ctx, tx, actor, scope, receiptIntent(scope)); err != nil {
+ 			return err
+ 		}
+ 		x, err := s.state().store.InTx(tx)
+ 		if err != nil {
+ 			return portError(err)
+ 		}
+-		r, err := loadCommand(ctx, x, identity)
++		r, err := loadCommandScope(ctx, x, identity, scope)
+ 		if err != nil {
+ 			return err
+ 		}
+@@ -306,21 +353,24 @@ func (s *Service) recheckPreparation(ctx context.Context, actor id.Actor, identi
+ // canonical writer lock and compares the original expected digest; public
+ // LookupCommand deliberately has no authority to confirm a different request.
+ func (s *Service) replay(ctx context.Context, actor id.Actor, identity f.CommandIdentity, expected f.Digest, unknown *f.CommitResult) (mc.CommandReceipt, error) {
++	return s.replayScope(ctx, actor, id.SystemScope(), identity, expected, unknown)
++}
++func (s *Service) replayScope(ctx context.Context, actor id.Actor, scope id.Scope, identity f.CommandIdentity, expected f.Digest, unknown *f.CommitResult) (mc.CommandReceipt, error) {
+ 	var receipt mc.CommandReceipt
+ 	found := false
+ 	cause, _ := f.NewCommandsCause(identity)
+ 	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+-		if e := s.state().store.AcquireAll(ctx, tx, []f.LockRequest{commandLock(identity), userLock(actor.Details().UserID)}); e != nil {
++		if e := s.state().store.AcquireAll(ctx, tx, append([]f.LockRequest{commandLock(identity)}, scopeLocks(actor, scope)...)); e != nil {
+ 			return portError(e)
+ 		}
+-		if e := s.state().authority.current(ctx, tx, actor, id.Mutate); e != nil {
++		if e := s.state().authority.currentScope(ctx, tx, actor, scope, receiptIntent(scope)); e != nil {
+ 			return e
+ 		}
+ 		x, e := s.state().store.InTx(tx)
+ 		if e != nil {
+ 			return portError(e)
+ 		}
+-		r, e := loadCommand(ctx, x, identity)
++		r, e := loadCommandScope(ctx, x, identity, scope)
+ 		if e != nil {
+ 			return e
+ 		}
+@@ -364,7 +414,7 @@ func (s *Service) insertCommand(ctx context.Context, x postgres.SQLExecutor, p *
+ 	if e != nil {
+ 		return e
+ 	}
+-	_, e = x.Exec(ctx, `INSERT INTO agenteam_model.commands(id,scope,user_id,command_name,command_identity,key_digest,semantic_digest,resource_id,phase,mutation_plan,event_id,event_header,event_payload,created_at) VALUES($1,'system',$2,$3,$4,$5,$6,$7,'prepared',$8,$9,$10,$11,$12)`, p.plan.CommandID, p.plan.User, p.plan.Kind, p.plan.Identity, hash([]byte(p.identity.Key())).String(), p.plan.Semantic.String(), p.plan.Resource, plan, p.plan.Events[0].Header.EventID.String(), header, []byte(p.plan.Events[0].Payload), p.plan.At.Time())
++	_, e = x.Exec(ctx, `INSERT INTO agenteam_model.commands(id,scope,project_id,user_id,command_name,command_identity,key_digest,semantic_digest,resource_id,phase,mutation_plan,event_id,event_header,event_payload,created_at) VALUES($1,$13,$14,$2,$3,$4,$5,$6,$7,'prepared',$8,$9,$10,$11,$12)`, p.plan.CommandID, p.plan.User, p.plan.Kind, p.plan.Identity, hash([]byte(p.identity.Key())).String(), p.plan.Semantic.String(), p.plan.Resource, plan, p.plan.Events[0].Header.EventID.String(), header, []byte(p.plan.Events[0].Payload), p.plan.At.Time(), string(configurationScope(p.plan.Project).Details().Kind), null(p.plan.Project))
+ 	return portError(e)
+ }
+ func nextVersion(v f.Version) (f.Version, error) {
+@@ -391,7 +441,7 @@ func sameValue(a, b any) bool {
+ }
+ 
+ func (s *Service) CreateProvider(ctx context.Context, r mc.CreateProviderRequest) (mc.CommandReceipt, error) {
+-	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil {
++	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil && (s.state() == nil || nilPort(s.state().authority.state().auth.Projects)) {
+ 		return mc.CommandReceipt{}, fault(f.DependencyUnbound)
+ 	}
+ 	if e := r.Validate(); e != nil {
+@@ -401,7 +451,7 @@ func (s *Service) CreateProvider(ctx context.Context, r mc.CreateProviderRequest
+ 	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "provider.create", ProviderInput: &v})
+ }
+ func (s *Service) UpdateProvider(ctx context.Context, r mc.UpdateProviderRequest) (mc.CommandReceipt, error) {
+-	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil {
++	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil && (s.state() == nil || nilPort(s.state().authority.state().auth.Projects)) {
+ 		return mc.CommandReceipt{}, fault(f.DependencyUnbound)
+ 	}
+ 	if e := r.Validate(); e != nil {
+@@ -411,7 +461,7 @@ func (s *Service) UpdateProvider(ctx context.Context, r mc.UpdateProviderRequest
+ 	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "provider.update", Resource: r.ID.String(), Expected: r.ExpectedVersion, ProviderInput: &v})
+ }
+ func (s *Service) DeleteProvider(ctx context.Context, r mc.DeleteProviderRequest) (mc.CommandReceipt, error) {
+-	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil {
++	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil && (s.state() == nil || nilPort(s.state().authority.state().auth.Projects)) {
+ 		return mc.CommandReceipt{}, fault(f.DependencyUnbound)
+ 	}
+ 	if e := r.Validate(); e != nil {
+@@ -420,7 +470,7 @@ func (s *Service) DeleteProvider(ctx context.Context, r mc.DeleteProviderRequest
+ 	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "provider.delete", Resource: r.ID.String(), Expected: r.ExpectedVersion})
+ }
+ func (s *Service) CreateModel(ctx context.Context, r mc.CreateModelRequest) (mc.CommandReceipt, error) {
+-	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil {
++	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil && (s.state() == nil || nilPort(s.state().authority.state().auth.Projects)) {
+ 		return mc.CommandReceipt{}, fault(f.DependencyUnbound)
+ 	}
+ 	if e := r.Validate(); e != nil {
+@@ -430,7 +480,7 @@ func (s *Service) CreateModel(ctx context.Context, r mc.CreateModelRequest) (mc.
+ 	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "model.create", Provider: r.ProviderID.String(), ModelInput: &v})
+ }
+ func (s *Service) UpdateModel(ctx context.Context, r mc.UpdateModelRequest) (mc.CommandReceipt, error) {
+-	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil {
++	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil && (s.state() == nil || nilPort(s.state().authority.state().auth.Projects)) {
+ 		return mc.CommandReceipt{}, fault(f.DependencyUnbound)
+ 	}
+ 	if e := r.Validate(); e != nil {
+@@ -440,7 +490,7 @@ func (s *Service) UpdateModel(ctx context.Context, r mc.UpdateModelRequest) (mc.
+ 	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "model.update", Resource: r.ID.String(), Expected: r.ExpectedVersion, ModelInput: &v})
+ }
+ func (s *Service) DeleteModel(ctx context.Context, r mc.DeleteModelRequest) (mc.CommandReceipt, error) {
+-	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil {
++	if r.Scope.Details().Kind == id.ProjectScope && r.CommandMeta.Validate() == nil && (s.state() == nil || nilPort(s.state().authority.state().auth.Projects)) {
+ 		return mc.CommandReceipt{}, fault(f.DependencyUnbound)
+ 	}
+ 	if e := r.Validate(); e != nil {
+@@ -462,3 +512,10 @@ func (s *Service) UpdatePlatformSelection(ctx context.Context, r mc.UpdatePlatfo
+ 	v := r.Selection.Clone()
+ 	return s.runCommand(ctx, commandRequest{Meta: r.CommandMeta, Kind: "model.selection.update", Resource: v.ID, Expected: r.ExpectedVersion, Selection: &v})
+ }
++
++func receiptIntent(scope id.Scope) id.AccessIntent {
++	if scope.Details().Kind == id.ProjectScope {
++		return id.Read
++	}
++	return id.Mutate
++}
+diff --git a/internal/central/model/configuration.go b/internal/central/model/configuration.go
+index fe82fe1..f66f27c 100644
+--- a/internal/central/model/configuration.go
++++ b/internal/central/model/configuration.go
+@@ -20,27 +20,33 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
+ 	if e != nil {
+ 		return nil, e
+ 	}
+-	p := &preparedCommand{authority: s.state().authority, actor: r.Meta.Actor, identity: identity, plan: mutationPlan{CommandID: id, Identity: identity.Canonical(), User: r.Meta.Actor.Details().UserID, Kind: r.Kind, Resource: r.Resource, Semantic: semantic, At: at}}
++	p := &preparedCommand{authority: s.state().authority, actor: r.Meta.Actor, identity: identity, plan: mutationPlan{Project: r.Meta.Scope.Details().ProjectID, CommandID: id, Identity: identity.Canonical(), User: r.Meta.Actor.Details().UserID, Kind: r.Kind, Resource: r.Resource, Semantic: semantic, At: at}}
+ 	plan := &p.plan
+ 	mode := f.Shared
+ 	if r.Kind == "model.delete" {
+ 		mode = f.Exclusive
+ 	}
+ 	p.locks = []f.LockRequest{commandLock(identity), userLock(plan.User), systemLock("model-references", mode), systemLock("outbox-registration", f.Shared), recordLock(f.CommandRecordLock, "model:"+id)}
++	if plan.Project != "" {
++		p.locks = append(p.locks, projectLock(plan.Project))
++	}
++	if plan.Project != "" && r.ModelInput != nil && r.ModelInput.Type != mc.ChatModel {
++		return nil, fault(f.InvalidArgument)
++	}
+ 	version := f.Version(1)
+ 	switch r.Kind {
+ 	case "provider.create":
+-		if e = providerPolicy(*r.ProviderInput); e != nil {
++		if e = providerPolicyScope(*r.ProviderInput, r.Meta.Scope); e != nil {
+ 			return nil, e
+ 		}
+ 		plan.Resource, e = newID()
+ 		if e != nil {
+ 			return nil, e
+ 		}
+-		plan.AfterProvider = &providerRecord{ID: plan.Resource, Input: providerFromInput(*r.ProviderInput), Version: 1, CreatedAt: at, UpdatedAt: at}
++		plan.AfterProvider = &providerRecord{Project: plan.Project, ID: plan.Resource, Input: providerFromInput(*r.ProviderInput), Version: 1, CreatedAt: at, UpdatedAt: at}
+ 		plan.Changed = []string{"created"}
+ 	case "provider.update", "provider.delete":
+-		old, e := loadProvider(ctx, x, r.Resource)
++		old, e := loadProviderScope(ctx, x, r.Resource, r.Meta.Scope)
+ 		if e != nil {
+ 			return nil, e
+ 		}
+@@ -56,7 +62,7 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
+ 			return nil, e
+ 		}
+ 		if r.Kind == "provider.update" {
+-			if e = providerPolicy(*r.ProviderInput); e != nil {
++			if e = providerPolicyScope(*r.ProviderInput, r.Meta.Scope); e != nil {
+ 				return nil, e
+ 			}
+ 			if r.ProviderInput.Protocol != old.Input.Protocol {
+@@ -79,7 +85,7 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
+ 			plan.Changed = []string{"deleted"}
+ 		}
+ 	case "model.create":
+-		provider, e := loadProvider(ctx, x, r.Provider)
++		provider, e := loadProviderScope(ctx, x, r.Provider, r.Meta.Scope)
+ 		if e != nil {
+ 			return nil, e
+ 		}
+@@ -95,10 +101,10 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
+ 			return nil, e
+ 		}
+ 		v := normalizedModel(*r.ModelInput)
+-		plan.AfterModel = &modelRecord{ID: plan.Resource, ProviderID: r.Provider, Input: v, Version: 1, CreatedAt: at, UpdatedAt: at}
++		plan.AfterModel = &modelRecord{Project: plan.Project, ID: plan.Resource, ProviderID: r.Provider, Input: v, Version: 1, CreatedAt: at, UpdatedAt: at}
+ 		plan.Changed = []string{"created"}
+ 	case "model.update", "model.delete":
+-		old, e := loadModel(ctx, x, r.Resource)
++		old, e := loadModelScope(ctx, x, r.Resource, r.Meta.Scope)
+ 		if e != nil {
+ 			return nil, e
+ 		}
+@@ -109,7 +115,7 @@ func (s *Service) prepare(ctx context.Context, r commandRequest, identity f.Comm
+ 			return nil, fault(f.VersionConflict)
+ 		}
+ 		plan.BeforeModel = old
+-		provider, e := loadProvider(ctx, x, old.ProviderID)
++		provider, e := loadProviderScope(ctx, x, old.ProviderID, r.Meta.Scope)
+ 		if e != nil {
+ 			return nil, e
+ 		}
+@@ -240,7 +246,7 @@ func normalizedModel(v mc.ModelInput) mc.ModelInput {
+ func (s *Service) validateMapping(ctx context.Context, x postgres.SQLExecutor, p *preparedCommand) error {
+ 	v := &p.plan
+ 	if v.BeforeProvider != nil {
+-		current, e := loadProvider(ctx, x, v.BeforeProvider.ID)
++		current, e := loadProviderScope(ctx, x, v.BeforeProvider.ID, configurationScope(v.BeforeProvider.Project))
+ 		if e != nil {
+ 			return e
+ 		}
+@@ -249,7 +255,7 @@ func (s *Service) validateMapping(ctx context.Context, x postgres.SQLExecutor, p
+ 		}
+ 	}
+ 	if v.BeforeModel != nil {
+-		current, e := loadModel(ctx, x, v.BeforeModel.ID)
++		current, e := loadModelScope(ctx, x, v.BeforeModel.ID, configurationScope(v.BeforeModel.Project))
+ 		if e != nil {
+ 			return e
+ 		}
+@@ -258,7 +264,7 @@ func (s *Service) validateMapping(ctx context.Context, x postgres.SQLExecutor, p
+ 		}
+ 	}
+ 	for _, old := range v.Providers {
+-		current, e := loadProvider(ctx, x, old.ID)
++		current, e := loadProviderScope(ctx, x, old.ID, configurationScope(old.Project))
+ 		if e != nil {
+ 			return e
+ 		}
+@@ -267,7 +273,7 @@ func (s *Service) validateMapping(ctx context.Context, x postgres.SQLExecutor, p
+ 		}
+ 	}
+ 	for _, old := range v.Models {
+-		current, e := loadModel(ctx, x, old.ID)
++		current, e := loadModelScope(ctx, x, old.ID, configurationScope(old.Project))
+ 		if e != nil {
+ 			return e
+ 		}
+@@ -317,7 +323,7 @@ func (s *Service) applyConfiguration(ctx context.Context, x postgres.SQLExecutor
+ 	v := &p.plan
+ 	if r := v.AfterProvider; r != nil {
+ 		if v.BeforeProvider == nil {
+-			_, e := x.Exec(ctx, `INSERT INTO agenteam_model.providers(id,scope,name,protocol,base_url,enabled,credential_id,provider_options,version,created_at,updated_at) VALUES($1,'system',$2,$3,$4,$5,$6,$7,$8,$9,$10)`, r.ID, r.Input.Name, string(r.Input.Protocol), r.Input.BaseURL, r.Input.Enabled, null(r.Input.CredentialID), []byte(r.Input.Options), int64(r.Version), r.CreatedAt.Time(), r.UpdatedAt.Time())
++			_, e := x.Exec(ctx, `INSERT INTO agenteam_model.providers(id,scope,project_id,name,protocol,base_url,enabled,credential_id,provider_options,version,created_at,updated_at) VALUES($1,$11,$12,$2,$3,$4,$5,$6,$7,$8,$9,$10)`, r.ID, r.Input.Name, string(r.Input.Protocol), r.Input.BaseURL, r.Input.Enabled, null(r.Input.CredentialID), []byte(r.Input.Options), int64(r.Version), r.CreatedAt.Time(), r.UpdatedAt.Time(), string(configurationScope(r.Project).Details().Kind), null(r.Project))
+ 			if e != nil {
+ 				return unavailable(e)
+ 			}
+diff --git a/internal/central/model/configuration_policy.go b/internal/central/model/configuration_policy.go
+index 67af6c8..4afd138 100644
+--- a/internal/central/model/configuration_policy.go
++++ b/internal/central/model/configuration_policy.go
+@@ -23,12 +23,21 @@ func normalizedObject(v json.RawMessage) json.RawMessage {
+ }
+ func emptyObject(v json.RawMessage) bool { return bytes.Equal(normalizedObject(v), []byte(`{}`)) }
+ func providerPolicy(v mc.ProviderInput) error {
++	return providerPolicyScope(v, id.SystemScope())
++}
++func providerPolicyScope(v mc.ProviderInput, scope id.Scope) error {
+ 	if e := v.Validate(); e != nil {
+ 		return e
+ 	}
+-	if v.CredentialRef != nil && !v.CredentialRef.Details().Scope.Equal(id.SystemScope()) {
++	if v.CredentialRef != nil && !v.CredentialRef.Details().Scope.Equal(scope) {
+ 		return fault(f.Forbidden)
+ 	}
++	if scope.Validate() != nil {
++		return fault(f.InvalidArgument)
++	}
++	if scope.Details().Kind == id.ProjectScope && !v.Protocol.Supports(mc.ChatModel) {
++		return fault(f.InvalidArgument)
++	}
+ 	// Native options have no verified profile schema in B01-K.
+ 	if !emptyObject(v.Options) {
+ 		return fault(f.CapabilityUnsupported)
+diff --git a/internal/central/model/events.go b/internal/central/model/events.go
+index 702e658..64235c4 100644
+--- a/internal/central/model/events.go
++++ b/internal/central/model/events.go
+@@ -76,7 +76,14 @@ func (s *Service) prepareEvents(p *preparedCommand) error {
+ 		if e != nil {
+ 			return e
+ 		}
+-		event, e := ec.NewEvent(s.state().deps.ConfigurationEvents.data().configuration, h, mc.ConfigurationChanged{AggregateID: resource, Version: version, Scope: "system", ChangedFields: append([]string(nil), changed...)})
++		if p.plan.Project != "" {
++			project, err := f.ParseID[ec.Project](p.plan.Project)
++			if err != nil {
++				return unavailable(err)
++			}
++			h.Scope = ec.Scope{Kind: ec.ProjectScope, ProjectID: project}
++		}
++		event, e := ec.NewEvent(s.state().deps.ConfigurationEvents.data().configuration, h, mc.ConfigurationChanged{AggregateID: resource, Version: version, Scope: string(configurationScope(p.plan.Project).Details().Kind), ProjectID: p.plan.Project, ChangedFields: append([]string(nil), changed...)})
+ 		if e != nil {
+ 			return e
+ 		}
+@@ -139,7 +146,7 @@ func matchingEvent(p *preparedCommand, summary ec.Summary) bool {
+ 		return false
+ 	}
+ 	for _, event := range p.plan.Events {
+-		if reflect.DeepEqual(event.Header, summary.Header) {
++		if validPersistedEvent(event) && reflect.DeepEqual(event.Header, summary.Header) {
+ 			canonical, e := cursor.CanonicalJSON(event.Payload)
+ 			return e == nil && hash(canonical) == summary.PayloadDigest
+ 		}
+@@ -207,7 +214,7 @@ func validPersistedEvent(v persistedEvent) bool {
+ 	switch v.Header.EventType {
+ 	case ConfigurationChangedEvent:
+ 		var p mc.ConfigurationChanged
+-		return json.Unmarshal(v.Payload, &p) == nil && p.Validate() == nil
++		return json.Unmarshal(v.Payload, &p) == nil && p.Validate() == nil && v.Header.SchemaVersion == 1 && v.Header.AggregateType == ConfigurationAggregate && v.Header.AggregateSequence == nil && v.Header.AggregateVersion != nil && *v.Header.AggregateVersion == p.Version && v.Header.AggregateID.String() == p.AggregateID && (v.Header.Scope.Kind == ec.SystemScope && p.Scope == "system" && p.ProjectID == "" || v.Header.Scope.Kind == ec.ProjectScope && p.Scope == "project" && v.Header.Scope.ProjectID.String() == p.ProjectID)
+ 	case EmbeddingSelectionChangedEvent:
+ 		var p mc.EmbeddingSelectionChanged
+ 		return json.Unmarshal(v.Payload, &p) == nil && p.Validate() == nil
+diff --git a/internal/central/model/project_authority_test.go b/internal/central/model/project_authority_test.go
+new file mode 100644
+index 0000000..e50ede8
+--- /dev/null
++++ b/internal/central/model/project_authority_test.go
+@@ -0,0 +1,157 @@
++package model
++
++import (
++	"context"
++	"errors"
++	"testing"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++)
++
++type projectGrantFunc func(context.Context, f.Tx, id.Actor, id.ProjectID, id.AccessIntent) (id.AccessGrant, error)
++
++type projectGrantChannel chan struct{}
++
++func (projectGrantChannel) AuthorizeProject(context.Context, f.Tx, id.Actor, id.ProjectID, id.AccessIntent) (id.AccessGrant, error) {
++	panic("constructor must not invoke the Project provider")
++}
++
++func (fn projectGrantFunc) AuthorizeProject(ctx context.Context, tx f.Tx, a id.Actor, p id.ProjectID, i id.AccessIntent) (id.AccessGrant, error) {
++	return fn(ctx, tx, a, p, i)
++}
++
++type projectScopeStore struct {
++	Store
++	tx                         f.Tx
++	locks                      []f.LockRequest
++	acquisitions, transactions int
++	row                        func(string, ...any) postgres.Row
++}
++
++func (s *projectScopeStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
++	if tx != s.tx || !tx.Valid() {
++		return nil, fault(f.InvalidArgument)
++	}
++	return s, nil
++}
++func (s *projectScopeStore) RequireHeldLocks(_ context.Context, tx f.Tx, want []f.LockRequest) error {
++	if tx != s.tx {
++		return fault(f.InvalidArgument)
++	}
++	for _, w := range want {
++		found := false
++		for _, have := range s.locks {
++			if have.Key.Canonical() == w.Key.Canonical() && (have.Mode == f.Exclusive || have.Mode == w.Mode) {
++				found = true
++			}
++		}
++		if !found {
++			return fault(f.InvalidState)
++		}
++	}
++	return nil
++}
++func (s *projectScopeStore) AcquireAll(_ context.Context, tx f.Tx, locks []f.LockRequest) error {
++	if tx != s.tx {
++		return fault(f.InvalidArgument)
++	}
++	s.acquisitions++
++	s.locks = append([]f.LockRequest(nil), locks...)
++	return nil
++}
++func (s *projectScopeStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
++	s.transactions++
++	s.tx = f.NewTx()
++	defer func() { s.tx = f.Tx{}; s.locks = nil }()
++	if err := fn(ctx, s.tx); err != nil {
++		var ff *f.Fault
++		if !errors.As(err, &ff) {
++			panic(err)
++		}
++		return f.NotCommittedResult(ff)
++	}
++	return f.CommittedResult()
++}
++func (s *projectScopeStore) QueryRow(_ context.Context, q string, args ...any) postgres.Row {
++	return s.row(q, args...)
++}
++func projectGrant(actor id.Actor, project id.ProjectID, intent id.AccessIntent) (id.AccessGrant, error) {
++	scope, _ := id.InProject(project)
++	at, _ := f.NewInstant(time.Now())
++	return id.NewAccessGrant(actor, scope, intent, at, 1)
++}
++func projectPureAuthority(t *testing.T, store Store, provider ProjectAuthority) *Authority {
++	t.Helper()
++	a, err := NewAuthority(store, Authorizations{Sessions: sessionFunc(func(context.Context, f.Tx, id.Actor) error { return nil }), System: systemFunc(func(_ context.Context, _ f.Tx, a id.Actor, i id.AccessIntent) (id.AccessGrant, error) {
++		return validGrant(a, i)
++	}), Projects: provider})
++	if err != nil {
++		t.Fatal(err)
++	}
++	return a
++}
++func TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks(t *testing.T) {
++	store := &projectScopeStore{tx: f.NewTx()}
++	actor := testActor(t)
++	project := mustID[id.Project](t)
++	scope, _ := id.InProject(project)
++	var typedNil projectGrantFunc
++	d := Authorizations{Sessions: sessionFunc(func(context.Context, f.Tx, id.Actor) error { return nil }), System: systemFunc(func(_ context.Context, _ f.Tx, a id.Actor, i id.AccessIntent) (id.AccessGrant, error) {
++		return validGrant(a, i)
++	}), Projects: typedNil}
++	_, err := NewAuthority(store, d)
++	requireCode(t, err, f.DependencyUnbound)
++	var nilChannel projectGrantChannel
++	d.Projects = nilChannel
++	_, err = NewAuthority(store, d)
++	requireCode(t, err, f.DependencyUnbound)
++	absent := projectPureAuthority(t, store, nil)
++	requireCode(t, absent.currentScope(context.Background(), store.tx, actor, scope, id.Read), f.DependencyUnbound)
++	calls := 0
++	provider := projectGrantFunc(func(_ context.Context, tx f.Tx, a id.Actor, p id.ProjectID, intent id.AccessIntent) (id.AccessGrant, error) {
++		calls++
++		if tx != store.tx || !a.Equal(actor) || p != project {
++			t.Fatal("changed identity/transaction")
++		}
++		return projectGrant(a, p, intent)
++	})
++	d.Projects = provider
++	a, err := NewAuthority(store, d)
++	if err != nil {
++		t.Fatal(err)
++	}
++	d.Projects = projectGrantFunc(func(context.Context, f.Tx, id.Actor, id.ProjectID, id.AccessIntent) (id.AccessGrant, error) {
++		t.Fatal("mutable selection")
++		return id.AccessGrant{}, nil
++	})
++	requireCode(t, a.currentScope(context.Background(), store.tx, actor, scope, id.Mutate), f.InvalidState)
++	store.locks = scopeLocks(actor, scope)
++	if err = a.currentScope(context.Background(), store.tx, actor, scope, id.Mutate); err != nil {
++		t.Fatal(err)
++	}
++	if calls != 1 || store.acquisitions != 0 || store.transactions != 0 {
++		t.Fatal("authority acquired late locks or created transaction")
++	}
++	requireCode(t, a.currentScope(context.Background(), f.NewTx(), actor, scope, id.Read), f.InvalidArgument)
++	for _, mode := range []string{"zero", "actor", "scope", "intent"} {
++		t.Run(mode, func(t *testing.T) {
++			bad := projectPureAuthority(t, store, projectGrantFunc(func(_ context.Context, _ f.Tx, a id.Actor, p id.ProjectID, i id.AccessIntent) (id.AccessGrant, error) {
++				switch mode {
++				case "zero":
++					return id.AccessGrant{}, nil
++				case "actor":
++					a = testActor(t)
++				case "scope":
++					p = mustID[id.Project](t)
++				case "intent":
++					i = id.Mutate
++				}
++				return projectGrant(a, p, i)
++			}))
++			requireCode(t, bad.currentScope(context.Background(), store.tx, actor, scope, id.Read), f.Forbidden)
++		})
++	}
++}
+diff --git a/internal/central/model/project_configuration_test.go b/internal/central/model/project_configuration_test.go
+new file mode 100644
+index 0000000..c0bf2f3
+--- /dev/null
++++ b/internal/central/model/project_configuration_test.go
+@@ -0,0 +1,170 @@
++package model
++
++import (
++	"context"
++	"encoding/json"
++	"strings"
++	"testing"
++	"time"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++	"github.com/jackc/pgx/v5"
++)
++
++func TestModelProjectCommandNamespacesPreserveOldSystemBytes(t *testing.T) {
++	uid, _ := f.ParseID[id.User]("01900000-0000-7000-8000-000000000001")
++	sid, _ := f.ParseID[id.Session]("01900000-0000-7000-8000-000000000002")
++	actor, _ := id.NewHuman(uid, sid)
++	r := commandRequest{Meta: mc.CommandMeta{Actor: actor, Scope: id.SystemScope(), Key: "fixture-key"}, Kind: "provider.create", ProviderInput: &mc.ProviderInput{Name: "original", Protocol: mc.OpenAIChat, BaseURL: "https://provider.example/v1", Enabled: true, Options: json.RawMessage(`{}`)}}
++	// Literal pre-Project anonymous-struct bytes, not generated by new code.
++	old := []byte(`{"Format":"model-command-v1","User":"01900000-0000-7000-8000-000000000001","Kind":"provider.create","Resource":"","Provider":"","Expected":"0","ProviderInput":{"Name":"original","Protocol":"openai-chat-completions","BaseURL":"https://provider.example/v1","Enabled":true,"CredentialID":"","Options":{}},"ModelInput":null,"Selection":null,"Replacement":""}`)
++	want, _ := cursor.Digest(old)
++	got, err := commandSemantic(r)
++	if err != nil || got != want {
++		t.Fatal("System semantic bytes changed", err)
++	}
++	ci, err := commandIdentity(r.Meta, r.Kind)
++	if err != nil || ci.Canonical() != `{"namespace":"model.system","owner_ids":["01900000-0000-7000-8000-000000000001"],"command":"provider.create","key":"fixture-key"}` {
++		t.Fatal("System original identity changed")
++	}
++	project := mustID[id.Project](t)
++	r.Meta.Scope, _ = id.InProject(project)
++	one, err := commandSemantic(r)
++	if err != nil || one == want {
++		t.Fatal("Project semantic not isolated")
++	}
++	pi, _ := commandIdentity(r.Meta, r.Kind)
++	if pi.Namespace() != "model.project" || strings.Join(pi.OwnerIDs(), ",") != project.String()+","+uid.String() {
++		t.Fatal("Project stable owners reordered")
++	}
++	r.Meta.Actor, _ = id.NewHuman(uid, mustID[id.Session](t))
++	two, _ := commandSemantic(r)
++	pj, _ := commandIdentity(r.Meta, r.Kind)
++	if two != one || pj.Canonical() != pi.Canonical() {
++		t.Fatal("renewed Session changed canonical command")
++	}
++	r.Meta.Scope, _ = id.InProject(mustID[id.Project](t))
++	three, _ := commandSemantic(r)
++	pk, _ := commandIdentity(r.Meta, r.Kind)
++	if three == one || pk.Canonical() == pi.Canonical() {
++		t.Fatal("cross Project receipt collision")
++	}
++}
++func scopeCommandRow(r *commandRecord) postgres.Row {
++	return scanFunc(func(out ...any) error {
++		if r == nil {
++			return pgx.ErrNoRows
++		}
++		*out[0].(*string) = r.ID
++		*out[1].(*string) = r.Identity
++		*out[2].(*string) = r.User
++		*out[3].(*string) = r.Kind
++		*out[4].(*string) = r.Resource
++		*out[5].(*string) = r.Phase
++		*out[6].(*f.Digest) = r.Semantic
++		*out[7].(*[]byte), _ = json.Marshal(r.Plan)
++		*out[8].(*[]byte), _ = json.Marshal(r.Receipt)
++		return nil
++	})
++}
++func TestModelProjectReceiptAndUnknownUseReadAndExactScope(t *testing.T) {
++	actor := testActor(t)
++	project := mustID[id.Project](t)
++	scope, _ := id.InProject(project)
++	meta := mc.CommandMeta{Actor: actor, Scope: scope, Key: "same-key"}
++	identity, _ := commandIdentity(meta, "model.update")
++	semantic := hash([]byte("original"))
++	receipt := mc.CommandReceipt{Kind: "model.update", ResourceID: mustID[mc.Model](t).String(), Version: 2}
++	row := &commandRecord{ID: mustID[struct{}](t).String(), Identity: identity.Canonical(), User: actor.Details().UserID, Kind: "model.update", Resource: receipt.ResourceID, Phase: "committed", Semantic: semantic, Receipt: &receipt, Plan: mutationPlan{Project: project.String(), Semantic: semantic, Receipt: receipt, Metadata: ac.ModelMetadataFields{Version: 2, ChangedFields: []string{"name"}}}}
++	st := &projectScopeStore{}
++	st.row = func(q string, args ...any) postgres.Row {
++		if !strings.Contains(q, "scope='project' AND project_id=$2") || len(args) != 2 || args[1] != project.String() {
++			t.Fatal("Project load omitted actual scope predicate")
++		}
++		return scopeCommandRow(row)
++	}
++	calls := 0
++	revoked := false
++	a := projectPureAuthority(t, st, projectGrantFunc(func(_ context.Context, _ f.Tx, a id.Actor, p id.ProjectID, i id.AccessIntent) (id.AccessGrant, error) {
++		calls++
++		if i != id.Read {
++			t.Fatal("receipt attempted new mutation permission")
++		}
++		if revoked {
++			return id.AccessGrant{}, fault(f.SessionRevoked)
++		}
++		return projectGrant(a, p, i)
++	}))
++	s, err := New(st, a, testDependencies(t))
++	if err != nil {
++		t.Fatal(err)
++	}
++	cause, _ := f.NewCommandsCause(identity)
++	original := f.UnknownResult(mustID[f.TransactionAttempt](t), cause)
++	got, err := s.replayScope(context.Background(), actor, scope, identity, semantic, &original)
++	if err != nil || got != receipt {
++		t.Fatal("exact Unknown receipt", err)
++	}
++	got, err = s.recheckPreparationScope(context.Background(), actor, scope, identity, semantic, fault(f.VersionConflict))
++	if err != nil || got != receipt {
++		t.Fatal("preparation failure preceded receipt", err)
++	}
++	row.Semantic = hash([]byte("different"))
++	_, err = s.replayScope(context.Background(), actor, scope, identity, semantic, &original)
++	requireCode(t, err, f.IdempotencyKeyReused)
++	row.Semantic = semantic
++	revoked = true
++	_, err = s.replayScope(context.Background(), actor, scope, identity, semantic, &original)
++	requireCode(t, err, f.CommitUnknown)
++	revoked = false
++	row.Plan.Project = ""
++	_, err = s.replayScope(context.Background(), actor, scope, identity, semantic, nil)
++	requireCode(t, err, f.DependencyUnavailable)
++	row = nil
++	_, err = s.replayScope(context.Background(), actor, scope, identity, semantic, &original)
++	requireCode(t, err, f.CommitUnknown)
++	if calls < 5 {
++		t.Fatal("confirmation skipped current authority")
++	}
++}
++func TestModelProjectViewsPolicyAndPrivateFactsCarryScope(t *testing.T) {
++	project := mustID[id.Project](t)
++	scope, _ := id.InProject(project)
++	cid := mustID[sc.Credential](t)
++	ref, _ := sc.NewCredentialRef(cid, scope)
++	now, _ := f.NewInstant(time.Now())
++	record := providerRecord{Project: project.String(), ID: mustID[mc.Provider](t).String(), Input: providerInput{Name: "Project", Protocol: mc.OpenAIChat, BaseURL: "https://provider.example/v1", CredentialID: cid.String(), Options: json.RawMessage(`{}`)}, Version: 1, CreatedAt: now, UpdatedAt: now}
++	v, err := record.view()
++	if err != nil || !v.Scope.Equal(scope) || !v.Input.CredentialRef.Equal(ref) {
++		t.Fatal("Provider lost actual scope", err)
++	}
++	if err = providerPolicyScope(v.Input, scope); err != nil {
++		t.Fatal(err)
++	}
++	requireCode(t, providerPolicy(v.Input), f.Forbidden)
++	other, _ := id.InProject(mustID[id.Project](t))
++	requireCode(t, providerPolicyScope(v.Input, other), f.Forbidden)
++	actor := testActor(t)
++	meta := mc.CommandMeta{Actor: actor, Scope: scope, Key: "fact"}
++	identity, _ := commandIdentity(meta, "provider.create")
++	p := mutationPlan{Project: project.String(), Identity: identity.Canonical(), Kind: "provider.create", Resource: record.ID, AfterProvider: &record, Metadata: ac.ModelMetadataFields{ProviderID: record.ID, Version: 1, ChangedFields: []string{"created"}}}
++	entry, _, err := auditEntry(actor, &p)
++	if err != nil || !entry.Fields().Scope.Equal(scope) {
++		t.Fatal("Audit lost Project scope", err)
++	}
++	prepared := &preparedCommand{actor: actor, plan: p}
++	request := sc.UsageRequest{Actor: actor, Ref: ref, Purpose: sc.Model, ReferenceOwner: record.ID, Action: sc.RetainReferenceUsage, Retain: true}
++	if !referenceMatches(prepared, request) {
++		t.Fatal("real Provider reference not planned")
++	}
++	request.Ref, _ = sc.NewCredentialRef(cid, id.SystemScope())
++	if referenceMatches(prepared, request) {
++		t.Fatal("same UUID accepted different credential scope")
++	}
++}
+diff --git a/internal/central/model/project_query.go b/internal/central/model/project_query.go
+new file mode 100644
+index 0000000..8dc2161
+--- /dev/null
++++ b/internal/central/model/project_query.go
+@@ -0,0 +1,292 @@
++package model
++
++import (
++	"context"
++	"encoding/json"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++)
++
++type ProjectQuery struct {
++	Cursor string
++	Limit  int
++}
++
++// AvailableChatModel is a selection projection, not a Provider configuration
++// or a claim that its endpoint/model has been exercised.
++type AvailableChatModel struct {
++	ID           mc.ModelID      `json:"id"`
++	ProviderID   mc.ProviderID   `json:"provider_id"`
++	Scope        id.Scope        `json:"scope"`
++	Name         string          `json:"name"`
++	ProviderName string          `json:"provider_name"`
++	Version      f.Version       `json:"version"`
++	Capabilities mc.Capabilities `json:"capabilities"`
++}
++type AvailableChatModelPage struct {
++	Items      []AvailableChatModel `json:"items"`
++	NextCursor string               `json:"next_cursor,omitempty"`
++}
++
++func projectQueryScope(project id.ProjectID) (id.Scope, error) {
++	scope, err := id.InProject(project)
++	if err != nil {
++		return id.Scope{}, fault(f.InvalidArgument)
++	}
++	return scope, nil
++}
++func projectListBinding(actor id.Actor, scope id.Scope, kind string) (cursor.Binding, error) {
++	if human(actor) != nil || scope.Validate() != nil || scope.Details().Kind != id.ProjectScope {
++		return cursor.Binding{}, fault(f.InvalidArgument)
++	}
++	switch kind {
++	case "providers", "models", "available-chat":
++	default:
++		return cursor.Binding{}, fault(f.InvalidArgument)
++	}
++	raw, err := encoded(struct{ Format, User, Project, Kind, Filter string }{"model-project-list-v1", actor.Details().UserID, scope.Details().ProjectID, kind, "chat;available=provider-enabled+model-enabled"})
++	if err != nil {
++		return cursor.Binding{}, err
++	}
++	digest, err := cursor.Digest(raw)
++	if err != nil {
++		return cursor.Binding{}, err
++	}
++	return cursor.Binding{Scope: scope, QueryDigest: digest, Order: cursor.AuditOrder}, nil
++}
++func (s *Service) GetProjectProvider(ctx context.Context, actor id.Actor, project id.ProjectID, provider mc.ProviderID) (mc.ProviderView, error) {
++	scope, err := projectQueryScope(project)
++	if err != nil || provider.Validate() != nil {
++		return mc.ProviderView{}, fault(f.InvalidArgument)
++	}
++	var out mc.ProviderView
++	err = s.readScope(ctx, actor, scope, []f.LockRequest{aggregateLock(f.ProviderAggregate, provider.String(), f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor) error {
++		row, err := loadProviderScope(ctx, x, provider.String(), scope)
++		if err != nil {
++			return err
++		}
++		if row == nil {
++			return fault(f.NotFound)
++		}
++		out, err = row.view()
++		return err
++	})
++	if err != nil {
++		return mc.ProviderView{}, err
++	}
++	return out, nil
++}
++func (s *Service) GetProjectModel(ctx context.Context, actor id.Actor, project id.ProjectID, model mc.ModelID) (mc.ModelView, error) {
++	scope, err := projectQueryScope(project)
++	if err != nil || model.Validate() != nil {
++		return mc.ModelView{}, fault(f.InvalidArgument)
++	}
++	var out mc.ModelView
++	err = s.readScope(ctx, actor, scope, []f.LockRequest{aggregateLock(f.ModelConfigAggregate, model.String(), f.Shared)}, func(ctx context.Context, x postgres.SQLExecutor) error {
++		row, err := loadModelScope(ctx, x, model.String(), scope)
++		if err != nil {
++			return err
++		}
++		if row == nil {
++			return fault(f.NotFound)
++		}
++		out, err = row.view()
++		return err
++	})
++	if err != nil {
++		return mc.ModelView{}, err
++	}
++	return out, nil
++}
++
++func (s *Service) ListProjectProviders(ctx context.Context, actor id.Actor, project id.ProjectID, q ProjectQuery) (ProviderPage, error) {
++	scope, err := projectQueryScope(project)
++	if err != nil {
++		return ProviderPage{}, err
++	}
++	out := ProviderPage{Items: []mc.ProviderView{}}
++	err = s.readScope(ctx, actor, scope, nil, func(ctx context.Context, x postgres.SQLExecutor) error {
++		binding, err := projectListBinding(actor, scope, "providers")
++		if err != nil {
++			return err
++		}
++		position, err := s.pagePosition(SystemQuery{q.Cursor, q.Limit}, binding)
++		if err != nil {
++			return err
++		}
++		query := `SELECT ` + providerColumns + ` FROM agenteam_model.providers WHERE scope='project' AND project_id=$1`
++		args := []any{project.String(), q.Limit + 1}
++		if position.Present {
++			query += ` AND (created_at,id)<=($3,$4::uuid) AND (created_at,id)<($5,$6::uuid)`
++			args = append(args, position.WaterAt.Time(), position.WaterID, position.AfterAt.Time(), position.AfterID)
++		}
++		query += ` ORDER BY created_at DESC,id DESC LIMIT $2`
++		rows, err := x.Query(ctx, query, args...)
++		if err != nil {
++			return unavailable(err)
++		}
++		defer rows.Close()
++		for rows.Next() {
++			row, err := scanProviderScope(rows, scope)
++			if err != nil {
++				return err
++			}
++			v, err := row.view()
++			if err != nil {
++				return err
++			}
++			out.Items = append(out.Items, v)
++		}
++		if err = rows.Err(); err != nil {
++			return unavailable(err)
++		}
++		if len(out.Items) > q.Limit {
++			out.Items = out.Items[:q.Limit]
++			first, last := out.Items[0], out.Items[q.Limit-1]
++			out.NextCursor, err = s.signPage(binding, position, first.CreatedAt, first.ID.String(), last.CreatedAt, last.ID.String())
++		}
++		return err
++	})
++	if err != nil {
++		return ProviderPage{}, err
++	}
++	return out, nil
++}
++func (s *Service) ListProjectModels(ctx context.Context, actor id.Actor, project id.ProjectID, q ProjectQuery) (ModelPage, error) {
++	scope, err := projectQueryScope(project)
++	if err != nil {
++		return ModelPage{}, err
++	}
++	out := ModelPage{Items: []mc.ModelView{}}
++	err = s.readScope(ctx, actor, scope, nil, func(ctx context.Context, x postgres.SQLExecutor) error {
++		binding, err := projectListBinding(actor, scope, "models")
++		if err != nil {
++			return err
++		}
++		position, err := s.pagePosition(SystemQuery{q.Cursor, q.Limit}, binding)
++		if err != nil {
++			return err
++		}
++		query := `SELECT ` + modelColumns + ` FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='project' AND p.project_id=$1 AND m.type='chat'`
++		args := []any{project.String(), q.Limit + 1}
++		if position.Present {
++			query += ` AND (m.created_at,m.id)<=($3,$4::uuid) AND (m.created_at,m.id)<($5,$6::uuid)`
++			args = append(args, position.WaterAt.Time(), position.WaterID, position.AfterAt.Time(), position.AfterID)
++		}
++		query += ` ORDER BY m.created_at DESC,m.id DESC LIMIT $2`
++		rows, err := x.Query(ctx, query, args...)
++		if err != nil {
++			return unavailable(err)
++		}
++		defer rows.Close()
++		for rows.Next() {
++			row, err := scanModelScope(rows, scope)
++			if err != nil {
++				return err
++			}
++			v, err := row.view()
++			if err != nil {
++				return err
++			}
++			out.Items = append(out.Items, v)
++		}
++		if err = rows.Err(); err != nil {
++			return unavailable(err)
++		}
++		if len(out.Items) > q.Limit {
++			out.Items = out.Items[:q.Limit]
++			first, last := out.Items[0], out.Items[q.Limit-1]
++			out.NextCursor, err = s.signPage(binding, position, first.CreatedAt, first.ID.String(), last.CreatedAt, last.ID.String())
++		}
++		return err
++	})
++	if err != nil {
++		return ModelPage{}, err
++	}
++	return out, nil
++}
++func (s *Service) ListAvailableChatModels(ctx context.Context, actor id.Actor, project id.ProjectID, q ProjectQuery) (AvailableChatModelPage, error) {
++	scope, err := projectQueryScope(project)
++	if err != nil {
++		return AvailableChatModelPage{}, err
++	}
++	out := AvailableChatModelPage{Items: []AvailableChatModel{}}
++	err = s.readScope(ctx, actor, scope, nil, func(ctx context.Context, x postgres.SQLExecutor) error {
++		binding, err := projectListBinding(actor, scope, "available-chat")
++		if err != nil {
++			return err
++		}
++		position, err := s.pagePosition(SystemQuery{q.Cursor, q.Limit}, binding)
++		if err != nil {
++			return err
++		}
++		// One statement snapshot observes both enabled flags and the safe projection.
++		// The global SH barrier alone does not freeze concurrent configuration edits.
++		query := `SELECT m.id::text,m.provider_id::text,p.scope,p.project_id::text,m.name,p.name,m.version,m.capabilities,m.created_at FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE m.type='chat' AND m.enabled AND p.enabled AND (p.scope='system' OR (p.scope='project' AND p.project_id=$1))`
++		args := []any{project.String(), q.Limit + 1}
++		if position.Present {
++			query += ` AND (m.created_at,m.id)<=($3,$4::uuid) AND (m.created_at,m.id)<($5,$6::uuid)`
++			args = append(args, position.WaterAt.Time(), position.WaterID, position.AfterAt.Time(), position.AfterID)
++		}
++		query += ` ORDER BY m.created_at DESC,m.id DESC LIMIT $2`
++		rows, err := x.Query(ctx, query, args...)
++		if err != nil {
++			return unavailable(err)
++		}
++		defer rows.Close()
++		var times []f.Instant
++		for rows.Next() {
++			var v AvailableChatModel
++			var model, provider, kind string
++			var owner *string
++			var caps []byte
++			var at time.Time
++			if err = rows.Scan(&model, &provider, &kind, &owner, &v.Name, &v.ProviderName, &v.Version, &caps, &at); err != nil {
++				return unavailable(err)
++			}
++			v.ID, err = f.ParseID[mc.Model](model)
++			if err != nil {
++				return unavailable(err)
++			}
++			v.ProviderID, err = f.ParseID[mc.Provider](provider)
++			if err != nil {
++				return unavailable(err)
++			}
++			if kind == "system" && owner == nil {
++				v.Scope = id.SystemScope()
++			} else if kind == "project" && owner != nil && *owner == project.String() {
++				v.Scope = scope
++			} else {
++				return unavailable(nil)
++			}
++			if v.Version.Validate() != nil || json.Unmarshal(caps, &v.Capabilities) != nil || v.Capabilities.Validate() != nil {
++				return unavailable(nil)
++			}
++			v.Capabilities = v.Capabilities.Clone()
++			out.Items = append(out.Items, v)
++			instant, err := f.NewInstant(at)
++			if err != nil {
++				return unavailable(err)
++			}
++			times = append(times, instant)
++		}
++		if err = rows.Err(); err != nil {
++			return unavailable(err)
++		}
++		if len(out.Items) > q.Limit {
++			out.Items = out.Items[:q.Limit]
++			first, last := out.Items[0], out.Items[q.Limit-1]
++			out.NextCursor, err = s.signPage(binding, position, times[0], first.ID.String(), times[q.Limit-1], last.ID.String())
++		}
++		return err
++	})
++	if err != nil {
++		return AvailableChatModelPage{}, err
++	}
++	return out, nil
++}
+diff --git a/internal/central/model/project_query_test.go b/internal/central/model/project_query_test.go
+new file mode 100644
+index 0000000..f21e7d4
+--- /dev/null
++++ b/internal/central/model/project_query_test.go
+@@ -0,0 +1,80 @@
++package model
++
++import (
++	"encoding/json"
++	"reflect"
++	"testing"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++)
++
++func TestModelProjectCursorBindsProjectUserKindButNotLimitOrSession(t *testing.T) {
++	actor := testActor(t)
++	project := mustID[id.Project](t)
++	scope, _ := id.InProject(project)
++	store := &noIOStore{}
++	s, err := New(store, pureAuthority(t, store), testDependencies(t))
++	if err != nil {
++		t.Fatal(err)
++	}
++	binding, _ := projectListBinding(actor, scope, "available-chat")
++	now, _ := f.NewInstant(time.Now())
++	older, _ := f.NewInstant(now.Time().Add(-time.Second))
++	token, err := s.signPage(binding, pagePosition{}, now, mustID[mc.Model](t).String(), older, mustID[mc.Model](t).String())
++	if err != nil {
++		t.Fatal(err)
++	}
++	user, _ := f.ParseID[id.User](actor.Details().UserID)
++	renewed, _ := id.NewHuman(user, mustID[id.Session](t))
++	same, _ := projectListBinding(renewed, scope, "available-chat")
++	for _, limit := range []int{1, 100} {
++		if _, err = s.pagePosition(SystemQuery{token, limit}, same); err != nil {
++			t.Fatal("limit/Session changed cursor", err)
++		}
++	}
++	other, _ := id.InProject(mustID[id.Project](t))
++	for _, tc := range []struct {
++		actor id.Actor
++		scope id.Scope
++		kind  string
++	}{{actor, other, "available-chat"}, {testActor(t), scope, "available-chat"}, {actor, scope, "models"}, {actor, scope, "providers"}} {
++		b, _ := projectListBinding(tc.actor, tc.scope, tc.kind)
++		if _, err = s.pagePosition(SystemQuery{token, 1}, b); err == nil {
++			t.Fatal("cross boundary cursor accepted")
++		}
++	}
++}
++func TestModelProjectAvailableDTOContainsOnlySelectionFields(t *testing.T) {
++	scope, _ := id.InProject(mustID[id.Project](t))
++	count := mc.TokenCount(123)
++	caps := mc.Capabilities{InputModalities: []string{"text"}, OutputModalities: []string{"text"}, StructuredOutputModes: []string{"text"}, Reasoning: true, ReasoningEfforts: []string{"medium"}, ContextLength: &count, MaxOutput: &count}
++	v := AvailableChatModel{ID: mustID[mc.Model](t), ProviderID: mustID[mc.Provider](t), Scope: scope, Name: "public model", ProviderName: "public provider", Version: 1, Capabilities: caps.Clone()}
++	caps.InputModalities[0] = "image"
++	caps.OutputModalities[0] = "image"
++	caps.StructuredOutputModes[0] = "json_schema"
++	caps.ReasoningEfforts[0] = "high"
++	count = 999
++	if v.Capabilities.InputModalities[0] != "text" || v.Capabilities.OutputModalities[0] != "text" || v.Capabilities.StructuredOutputModes[0] != "text" || v.Capabilities.ReasoningEfforts[0] != "medium" || *v.Capabilities.ContextLength != 123 || *v.Capabilities.MaxOutput != 123 {
++		t.Fatal("capabilities aliases caller storage")
++	}
++	raw, err := json.Marshal(v)
++	if err != nil {
++		t.Fatal(err)
++	}
++	var fields map[string]json.RawMessage
++	if err = json.Unmarshal(raw, &fields); err != nil {
++		t.Fatal(err)
++	}
++	want := []string{"id", "provider_id", "scope", "name", "provider_name", "version", "capabilities"}
++	if len(fields) != len(want) || reflect.TypeOf(v).NumField() != len(want) {
++		t.Fatal("configuration fields escaped safe DTO")
++	}
++	for _, key := range want {
++		if _, ok := fields[key]; !ok {
++			t.Fatal("missing public selection field", key)
++		}
++	}
++}
+diff --git a/internal/central/model/query.go b/internal/central/model/query.go
+index 0c38b30..993be31 100644
+--- a/internal/central/model/query.go
++++ b/internal/central/model/query.go
+@@ -38,7 +38,10 @@ type CommandLookup struct {
+ }
+ 
+ func (s *Service) read(ctx context.Context, actor id.Actor, locks []f.LockRequest, run func(context.Context, postgres.SQLExecutor) error) error {
+-	if s.state() == nil {
++	return s.readScope(ctx, actor, id.SystemScope(), locks, run)
++}
++func (s *Service) readScope(ctx context.Context, actor id.Actor, scope id.Scope, locks []f.LockRequest, run func(context.Context, postgres.SQLExecutor) error) error {
++	if s.state() == nil || scope.Details().Kind == id.ProjectScope && nilPort(s.state().authority.state().auth.Projects) {
+ 		return fault(f.DependencyUnbound)
+ 	}
+ 	if e := human(actor); e != nil {
+@@ -48,12 +51,13 @@ func (s *Service) read(ctx context.Context, actor id.Actor, locks []f.LockReques
+ 	if e != nil {
+ 		return e
+ 	}
+-	locks = append(locks, userLock(actor.Details().UserID), systemLock("model-references", f.Shared))
++	locks = append(locks, scopeLocks(actor, scope)...)
++	locks = append(locks, systemLock("model-references", f.Shared))
+ 	r := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+ 		if e := s.state().store.AcquireAll(ctx, tx, locks); e != nil {
+ 			return portError(e)
+ 		}
+-		if e := s.state().authority.current(ctx, tx, actor, id.Read); e != nil {
++		if e := s.state().authority.currentScope(ctx, tx, actor, scope, id.Read); e != nil {
+ 			return e
+ 		}
+ 		x, e := s.state().store.InTx(tx)
+@@ -166,7 +170,7 @@ func (s *Service) LookupCommand(ctx context.Context, r LookupCommandRequest) (Co
+ 	if r.Meta.Validate() != nil || !validCommand(r.Command) {
+ 		return CommandLookup{}, fault(f.InvalidArgument)
+ 	}
+-	if r.Meta.Scope.Details().Kind != id.System {
++	if r.Meta.Scope.Details().Kind == id.ProjectScope && r.Command == "model.selection.update" {
+ 		return CommandLookup{}, fault(f.DependencyUnbound)
+ 	}
+ 	identity, e := commandIdentity(r.Meta, r.Command)
+@@ -174,8 +178,8 @@ func (s *Service) LookupCommand(ctx context.Context, r LookupCommandRequest) (Co
+ 		return CommandLookup{}, e
+ 	}
+ 	var out CommandLookup
+-	e = s.read(ctx, r.Meta.Actor, []f.LockRequest{commandLock(identity)}, func(ctx context.Context, x postgres.SQLExecutor) error {
+-		row, e := loadCommand(ctx, x, identity)
++	e = s.readScope(ctx, r.Meta.Actor, r.Meta.Scope, []f.LockRequest{commandLock(identity)}, func(ctx context.Context, x postgres.SQLExecutor) error {
++		row, e := loadCommandScope(ctx, x, identity, r.Meta.Scope)
+ 		if e != nil {
+ 			return e
+ 		}
+diff --git a/internal/central/model/references.go b/internal/central/model/references.go
+index 9326b04..3132e22 100644
+--- a/internal/central/model/references.go
++++ b/internal/central/model/references.go
+@@ -65,13 +65,16 @@ func (s *Service) prepareReplacement(ctx context.Context, p *preparedCommand, re
+ 	}
+ 	plan.References = refs
+ 	for _, ref := range refs {
+-		if ref.Kind != "platform_selector" {
++		if plan.Project != "" || ref.Kind != "platform_selector" {
+ 			return fault(f.DependencyUnbound)
+ 		}
+ 	}
+ 	var next *modelRecord
+ 	if replacement != "" {
+-		next, e = loadModel(ctx, x, replacement)
++		next, e = loadModelScope(ctx, x, replacement, configurationScope(plan.Project))
++		if e == nil && next == nil && plan.Project != "" {
++			next, e = loadModel(ctx, x, replacement)
++		}
+ 		if e != nil {
+ 			return e
+ 		}
+@@ -81,7 +84,7 @@ func (s *Service) prepareReplacement(ctx context.Context, p *preparedCommand, re
+ 		if next.ID == plan.Resource || next.Input.Type != plan.BeforeModel.Input.Type || !next.Input.Enabled {
+ 			return fault(f.InvalidArgument)
+ 		}
+-		provider, e := loadProvider(ctx, x, next.ProviderID)
++		provider, e := loadProviderScope(ctx, x, next.ProviderID, configurationScope(next.Project))
+ 		if e != nil {
+ 			return e
+ 		}
+diff --git a/internal/central/model/secret_authority.go b/internal/central/model/secret_authority.go
+index 76fc0a1..7c7476d 100644
+--- a/internal/central/model/secret_authority.go
++++ b/internal/central/model/secret_authority.go
+@@ -30,7 +30,7 @@ func (s *Service) prepareSecret(ctx context.Context, p *preparedCommand) error {
+ 		if e != nil {
+ 			return unavailable(e)
+ 		}
+-		ref, e := sc.NewCredentialRef(cid, id.SystemScope())
++		ref, e := sc.NewCredentialRef(cid, configurationScope(p.plan.Project))
+ 		if e != nil {
+ 			return e
+ 		}
+@@ -54,7 +54,7 @@ func (s *Service) prepareSecret(ctx context.Context, p *preparedCommand) error {
+ 	return nil
+ }
+ func referenceMatches(p *preparedCommand, r sc.UsageRequest) bool {
+-	if r.Validate() != nil || r.Purpose != sc.Model || !r.Ref.Details().Scope.Equal(id.SystemScope()) || r.ReferenceOwner != p.plan.Resource {
++	if r.Validate() != nil || r.Purpose != sc.Model || !r.Ref.Details().Scope.Equal(configurationScope(p.plan.Project)) || r.ReferenceOwner != p.plan.Resource {
+ 		return false
+ 	}
+ 	old, next := "", ""
+diff --git a/internal/central/model/store.go b/internal/central/model/store.go
+index e7963c2..52e2fa7 100644
+--- a/internal/central/model/store.go
++++ b/internal/central/model/store.go
+@@ -133,6 +133,7 @@ type providerInput struct {
+ 	Options      json.RawMessage
+ }
+ type providerRecord struct {
++	Project              string `json:",omitempty"`
+ 	ID                   string
+ 	Input                providerInput
+ 	Version              f.Version
+@@ -153,7 +154,7 @@ func (r providerRecord) view() (mc.ProviderView, error) {
+ 		if e != nil {
+ 			return mc.ProviderView{}, unavailable(e)
+ 		}
+-		ref, e := sc.NewCredentialRef(cid, id.SystemScope())
++		ref, e := sc.NewCredentialRef(cid, configurationScope(r.Project))
+ 		if e != nil {
+ 			return mc.ProviderView{}, unavailable(e)
+ 		}
+@@ -163,7 +164,7 @@ func (r providerRecord) view() (mc.ProviderView, error) {
+ 	if e != nil {
+ 		return mc.ProviderView{}, unavailable(e)
+ 	}
+-	v := mc.ProviderView{ID: pid, Scope: id.SystemScope(), Input: i, Version: r.Version, CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt}
++	v := mc.ProviderView{ID: pid, Scope: configurationScope(r.Project), Input: i, Version: r.Version, CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt}
+ 	if e = v.Validate(); e != nil {
+ 		return mc.ProviderView{}, unavailable(e)
+ 	}
+@@ -175,7 +176,10 @@ type scanner interface{ Scan(...any) error }
+ const providerColumns = `id::text,name,protocol,base_url,enabled,credential_id::text,provider_options,version,created_at,updated_at`
+ 
+ func scanProvider(row scanner) (*providerRecord, error) {
+-	var r providerRecord
++	return scanProviderScope(row, id.SystemScope())
++}
++func scanProviderScope(row scanner, scope id.Scope) (*providerRecord, error) {
++	r := providerRecord{Project: scope.Details().ProjectID}
+ 	var cid *string
+ 	var created, updated time.Time
+ 	err := row.Scan(&r.ID, &r.Input.Name, &r.Input.Protocol, &r.Input.BaseURL, &r.Input.Enabled, &cid, &r.Input.Options, &r.Version, &created, &updated)
+@@ -200,6 +204,7 @@ func loadProvider(ctx context.Context, x postgres.SQLExecutor, id string) (*prov
+ }
+ 
+ type modelRecord struct {
++	Project              string `json:",omitempty"`
+ 	ID, ProviderID       string
+ 	Input                mc.ModelInput
+ 	Version              f.Version
+@@ -215,7 +220,7 @@ func (r modelRecord) view() (mc.ModelView, error) {
+ 	if e != nil {
+ 		return mc.ModelView{}, unavailable(e)
+ 	}
+-	v := mc.ModelView{ID: mid, ProviderID: pid, Scope: id.SystemScope(), Input: r.Input.Clone(), Version: r.Version, CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt}
++	v := mc.ModelView{ID: mid, ProviderID: pid, Scope: configurationScope(r.Project), Input: r.Input.Clone(), Version: r.Version, CreatedAt: r.CreatedAt, UpdatedAt: r.UpdatedAt}
+ 	if e = v.Validate(); e != nil {
+ 		return mc.ModelView{}, unavailable(e)
+ 	}
+@@ -225,7 +230,10 @@ func (r modelRecord) view() (mc.ModelView, error) {
+ const modelColumns = `m.id::text,m.provider_id::text,m.name,m.provider_model_id,m.type,m.enabled,m.parameters,m.request_overwrite,m.header_overwrite,m.capabilities,m.version,m.created_at,m.updated_at`
+ 
+ func scanModel(row scanner) (*modelRecord, error) {
+-	var r modelRecord
++	return scanModelScope(row, id.SystemScope())
++}
++func scanModelScope(row scanner, scope id.Scope) (*modelRecord, error) {
++	r := modelRecord{Project: scope.Details().ProjectID}
+ 	var headers, caps []byte
+ 	var created, updated time.Time
+ 	e := row.Scan(&r.ID, &r.ProviderID, &r.Input.Name, &r.Input.ProviderModelID, &r.Input.Type, &r.Input.Enabled, &r.Input.Parameters, &r.Input.RequestOverwrite, &headers, &caps, &r.Version, &created, &updated)
+@@ -274,3 +282,45 @@ func loadSelection(ctx context.Context, x postgres.SQLExecutor) (*selectionRecor
+ 	}
+ 	return &r, nil
+ }
++
++// Scope is inherited from the exact Provider row; no cross-scope bare-ID load.
++func configurationScope(project string) id.Scope {
++	if project == "" {
++		return id.SystemScope()
++	}
++	key, err := f.ParseID[id.Project](project)
++	if err != nil {
++		return id.Scope{}
++	}
++	scope, _ := id.InProject(key)
++	return scope
++}
++func projectLock(project string) f.LockRequest {
++	key, _ := f.ProjectLock(project)
++	return f.LockRequest{Key: key, Mode: f.Shared}
++}
++func scopeLocks(actor id.Actor, scope id.Scope) []f.LockRequest {
++	locks := []f.LockRequest{userLock(actor.Details().UserID)}
++	if scope.Details().Kind == id.ProjectScope {
++		locks = append(locks, projectLock(scope.Details().ProjectID))
++	}
++	return locks
++}
++func loadProviderScope(ctx context.Context, x postgres.SQLExecutor, key string, scope id.Scope) (*providerRecord, error) {
++	if scope.Validate() != nil {
++		return nil, fault(f.InvalidArgument)
++	}
++	if scope.Details().Kind == id.System {
++		return loadProvider(ctx, x, key)
++	}
++	return scanProviderScope(x.QueryRow(ctx, `SELECT `+providerColumns+` FROM agenteam_model.providers WHERE scope='project' AND project_id=$2 AND id=$1`, key, scope.Details().ProjectID), scope)
++}
++func loadModelScope(ctx context.Context, x postgres.SQLExecutor, key string, scope id.Scope) (*modelRecord, error) {
++	if scope.Validate() != nil {
++		return nil, fault(f.InvalidArgument)
++	}
++	if scope.Details().Kind == id.System {
++		return loadModel(ctx, x, key)
++	}
++	return scanModelScope(x.QueryRow(ctx, `SELECT `+modelColumns+` FROM agenteam_model.models m JOIN agenteam_model.providers p ON p.id=m.provider_id WHERE p.scope='project' AND p.project_id=$2 AND m.id=$1`, key, scope.Details().ProjectID), scope)
++}
+diff --git a/internal/central/project/events.go b/internal/central/project/events.go
+index b1fdea4..042897b 100644
+--- a/internal/central/project/events.go
++++ b/internal/central/project/events.go
+@@ -285,7 +285,7 @@ func (a *Authority) ValidateAppendInTx(ctx context.Context, tx foundation.Tx, ac
+ }
+ 
+ // Discover/ValidateInTx bind typed Project appends and explicitly configured
+-// lifecycle facts. Other producers and delivery remain unbound.
++// lifecycle facts, plus the Model-only Project gate. Other delivery remains unbound.
+ func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc.Dependencies, error) {
+ 	if a.state() == nil {
+ 		return oc.Dependencies{}, fault(foundation.DependencyUnbound)
+@@ -301,6 +301,9 @@ func (a *Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc
+ 		}
+ 		return facts.Discover(ctx, request)
+ 	}
++	if d.Kind == oc.AppendProject && d.Event.Producer == "model" {
++		return a.discoverModelEvent(request)
++	}
+ 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
+ 		return oc.Dependencies{}, fault(foundation.DependencyUnbound)
+ 	}
+@@ -329,6 +332,9 @@ func (a *Authority) ValidateInTx(ctx context.Context, tx foundation.Tx, request
+ 		}
+ 		return facts.ValidateInTx(ctx, tx, request, deps)
+ 	}
++	if d.Kind == oc.AppendProject && d.Event.Producer == "model" {
++		return a.validateModelEventInTx(ctx, tx, request, deps)
++	}
+ 	if d.Kind != oc.AppendProject || d.Event.Producer != c.ProjectProducer {
+ 		return fault(foundation.DependencyUnbound)
+ 	}
+diff --git a/internal/central/project/external_event_authority.go b/internal/central/project/external_event_authority.go
+new file mode 100644
+index 0000000..1e8d4fd
+--- /dev/null
++++ b/internal/central/project/external_event_authority.go
+@@ -0,0 +1,78 @@
++package project
++
++import (
++	"context"
++	"encoding/json"
++	"slices"
++
++	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
++)
++
++const modelEventPurpose = "project.model-configuration.append-v1"
++
++// This proves only the Project gate. The Model producer independently proves
++// its prepared command and canonical facts in the same physical transaction.
++func modelEventBinding(request oc.ProjectRequest) (foundation.Digest, []foundation.LockRequest, error) {
++	if request.Validate() != nil {
++		return "", nil, invalid()
++	}
++	d := request.Details()
++	h := d.Event.Header
++	if d.Kind != oc.AppendProject || d.Event.Producer != "model" || h.EventType != "model.configuration_changed" || h.SchemaVersion != 1 || h.AggregateType != "model.configuration" {
++		return "", nil, fault(foundation.DependencyUnbound)
++	}
++	if d.Actor.Details().Kind != identity.Human || h.AggregateVersion == nil || h.AggregateVersion.Validate() != nil || h.AggregateSequence != nil || h.Scope.Kind != event.ProjectScope || h.Scope.ProjectID.String() != d.ProjectID.String() {
++		return "", nil, fault(foundation.Forbidden)
++	}
++	// The same dependencies must authorize both Outbox stages. Binding only
++	// CurrentAccess would either reject NewFact or invite an unbound re-plan.
++	raw, err := json.Marshal(struct {
++		Purpose string
++		Actor   identity.ActorDetails
++		Summary event.Summary
++		Project identity.ProjectID
++		Stages  [2]oc.Stage
++	}{modelEventPurpose, d.Actor.Details(), d.Event, d.ProjectID, [2]oc.Stage{oc.CurrentAccess, oc.NewFact}})
++	if err != nil {
++		return "", nil, invalid()
++	}
++	locks := []foundation.LockRequest{userLock(d.Actor.Details().UserID, foundation.Shared), projectLock(d.ProjectID, foundation.Shared)}
++	return digest(raw), locks, nil
++}
++func (a *Authority) discoverModelEvent(request oc.ProjectRequest) (oc.Dependencies, error) {
++	if request.Details().Stage != oc.CurrentAccess {
++		return oc.Dependencies{}, fault(foundation.Forbidden)
++	}
++	binding, locks, err := modelEventBinding(request)
++	if err != nil {
++		return oc.Dependencies{}, err
++	}
++	return oc.NewDependencies(a.state().projectIssuer, binding, locks, []byte(modelEventPurpose))
++}
++func (a *Authority) validateModelEventInTx(ctx context.Context, tx foundation.Tx, request oc.ProjectRequest, deps oc.Dependencies) error {
++	binding, locks, err := modelEventBinding(request)
++	if err != nil {
++		return err
++	}
++	if !deps.Matches(a.state().projectIssuer, binding) || string(deps.Opaque()) != modelEventPurpose || !slices.EqualFunc(deps.Locks(), locks, func(a, b foundation.LockRequest) bool {
++		return a.Key.Canonical() == b.Key.Canonical() && a.Mode == b.Mode
++	}) {
++		return fault(foundation.Forbidden)
++	}
++	if _, err = a.state().store.InTx(tx); err != nil {
++		return unavailable(err)
++	}
++	if err = a.state().store.RequireHeldLocks(ctx, tx, locks); err != nil {
++		return unavailable(err)
++	}
++	d := request.Details()
++	intent := identity.Read
++	if d.Stage == oc.NewFact {
++		intent = identity.Mutate
++	}
++	_, err = a.RequireOwnerInTx(ctx, tx, d.Actor, d.ProjectID, intent)
++	return err
++}
+diff --git a/internal/central/project/external_event_authority_test.go b/internal/central/project/external_event_authority_test.go
+new file mode 100644
+index 0000000..5e3f32b
+--- /dev/null
++++ b/internal/central/project/external_event_authority_test.go
+@@ -0,0 +1,126 @@
++package project
++
++import (
++	"context"
++	"testing"
++	"time"
++
++	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
++	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
++)
++
++func modelProjectRequest(t *testing.T, f *auditGateFixture) oc.ProjectRequest {
++	t.Helper()
++	now, _ := foundation.NewInstant(time.Now())
++	p, _ := foundation.ParseID[event.Project](f.project.String())
++	version := foundation.Version(1)
++	r, err := oc.NewProjectRequest(oc.ProjectRequestDetails{Kind: oc.AppendProject, ProjectID: f.project, Actor: f.actor, Stage: oc.CurrentAccess, Event: event.Summary{Producer: "model", Header: event.Header{EventID: testID[event.EventIdentity](t), EventType: "model.configuration_changed", SchemaVersion: 1, OccurredAt: now, Scope: event.Scope{Kind: event.ProjectScope, ProjectID: p}, AggregateType: "model.configuration", AggregateID: testID[event.Aggregate](t), AggregateVersion: &version}, PayloadDigest: digest([]byte("exact prepared payload"))}})
++	if err != nil {
++		t.Fatal(err)
++	}
++	return r
++}
++func TestModelProjectEventUsesSameCompletePlanForReadAndMutate(t *testing.T) {
++	f := newAuditGateFixture(t, nil)
++	request := modelProjectRequest(t, f)
++	deps, err := f.a.Discover(context.Background(), request)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if len(f.order) != 0 {
++		t.Fatal("discovery authorized or queried")
++	}
++	for _, phase := range []c.Lifecycle{c.Active, c.Archiving, c.Archived, c.Deleting} {
++		f.lifecycle = phase
++		for _, stage := range []oc.Stage{oc.CurrentAccess, oc.NewFact} {
++			d := request.Details()
++			d.Stage = stage
++			r, err := oc.NewProjectRequest(d)
++			if err != nil {
++				t.Fatal(err)
++			}
++			err = f.a.ValidateInTx(context.Background(), f.store.tx, r, deps)
++			if phase == c.Active || (phase == c.Archiving || phase == c.Archived) && stage == oc.CurrentAccess {
++				if err != nil {
++					t.Fatalf("%s/%s: %v", phase, stage, err)
++				}
++			} else {
++				hasCode(t, err, foundation.ProjectNotActive)
++			}
++		}
++	}
++	f.lifecycle = c.Active
++	f.sessionErr = fault(foundation.SessionRevoked)
++	hasCode(t, f.a.ValidateInTx(context.Background(), f.store.tx, request, deps), foundation.SessionRevoked)
++	f.sessionErr = nil
++	hasCode(t, f.a.ValidateInTx(context.Background(), foundation.NewTx(), request, deps), foundation.DependencyUnavailable)
++	f.store.lockErr = fault(foundation.InvalidState)
++	hasCode(t, f.a.ValidateInTx(context.Background(), f.store.tx, request, deps), foundation.DependencyUnavailable)
++}
++func TestModelProjectEventPlanClosesActorSummaryIssuerAndPurpose(t *testing.T) {
++	f := newAuditGateFixture(t, nil)
++	request := modelProjectRequest(t, f)
++	deps, err := f.a.Discover(context.Background(), request)
++	if err != nil {
++		t.Fatal(err)
++	}
++	for _, change := range []string{"session", "user", "event", "digest", "time", "aggregate", "version", "schema", "type", "producer", "project", "service", "sequence"} {
++		t.Run(change, func(t *testing.T) {
++			d := request.Details()
++			switch change {
++			case "session":
++				user, _ := foundation.ParseID[identity.User](f.actor.Details().UserID)
++				d.Actor, _ = identity.NewHuman(user, testID[identity.Session](t))
++			case "user":
++				d.Actor = testActor(t)
++			case "event":
++				d.Event.Header.EventID = testID[event.EventIdentity](t)
++			case "digest":
++				d.Event.PayloadDigest = digest([]byte("changed"))
++			case "time":
++				d.Event.Header.OccurredAt, _ = foundation.NewInstant(time.Now().Add(time.Hour))
++			case "aggregate":
++				d.Event.Header.AggregateID = testID[event.Aggregate](t)
++			case "version":
++				v := foundation.Version(2)
++				d.Event.Header.AggregateVersion = &v
++			case "schema":
++				d.Event.Header.SchemaVersion = 2
++			case "type":
++				d.Event.Header.EventType = "model.embedding_selection_changed"
++			case "producer":
++				d.Event.Producer = "unknown"
++			case "project":
++				d.ProjectID = testID[identity.Project](t)
++				d.Event.Header.Scope.ProjectID, _ = foundation.ParseID[event.Project](d.ProjectID.String())
++			case "service":
++				role, _ := identity.RegisterService(identity.SecretService)
++				scope, _ := identity.InProject(f.project)
++				d.Actor, _ = role.Actor(testID[struct{}](t).String(), scope)
++			case "sequence":
++				v := foundation.Sequence(1)
++				d.Event.Header.AggregateSequence = &v
++			}
++			r, err := oc.NewProjectRequest(d)
++			if err != nil {
++				t.Fatal(err)
++			}
++			if err = f.a.ValidateInTx(context.Background(), f.store.tx, r, deps); err == nil {
++				t.Fatal("changed bound field accepted")
++			}
++		})
++	}
++	other, err := NewAuthority(f.store, AuthorityDependencies{Sessions: f.a.state().sessions})
++	if err != nil {
++		t.Fatal(err)
++	}
++	hasCode(t, other.ValidateInTx(context.Background(), f.store.tx, request, deps), foundation.Forbidden)
++	d := request.Details()
++	d.Stage = oc.NewFact
++	next, _ := oc.NewProjectRequest(d)
++	_, err = f.a.Discover(context.Background(), next)
++	hasCode(t, err, foundation.Forbidden)
++}
+diff --git a/tests/model/project_available_models_test.go b/tests/model/project_available_models_test.go
+new file mode 100644
+index 0000000..a0065ed
+--- /dev/null
++++ b/tests/model/project_available_models_test.go
+@@ -0,0 +1,170 @@
++//go:build integration
++
++package model_test
++
++import (
++	"encoding/json"
++	"reflect"
++	"strings"
++	"testing"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/model"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++)
++
++func TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion(t *testing.T) {
++	v := newProjectConfigurationFixture(t)
++	ctx := testContext(t)
++	ownProvider := v.projectProvider(t, nil)
++	own := v.projectModel(t, ownProvider)
++	systemCredential := v.credential(t, sc.Model)
++	systemProvider := v.provider(t, mc.OpenAIChat, &systemCredential.CredentialRef)
++	system := v.model(t, systemProvider, mc.ChatModel)
++	systemDisabledModel := v.model(t, systemProvider, mc.ChatModel)
++	disabledModelInput := systemDisabledModel.Input.Clone()
++	disabledModelInput.Enabled = false
++	if _, err := v.service.UpdateModel(ctx, mc.UpdateModelRequest{CommandMeta: v.meta(t, "disable-system-model"), ID: systemDisabledModel.ID, ExpectedVersion: 1, Input: disabledModelInput}); err != nil {
++		t.Fatal(err)
++	}
++	disabledProvider := v.provider(t, mc.OpenAIChat, nil)
++	v.model(t, disabledProvider, mc.ChatModel)
++	disabledProviderInput := disabledProvider.Input.Clone()
++	disabledProviderInput.Enabled = false
++	if _, err := v.service.UpdateProvider(ctx, mc.UpdateProviderRequest{CommandMeta: v.meta(t, "disable-system-provider"), ID: disabledProvider.ID, ExpectedVersion: 1, Input: disabledProviderInput}); err != nil {
++		t.Fatal(err)
++	}
++	ownDisabled := v.projectModel(t, ownProvider)
++	ownDisabledInput := ownDisabled.Input.Clone()
++	ownDisabledInput.Enabled = false
++	if _, err := v.service.UpdateModel(ctx, mc.UpdateModelRequest{CommandMeta: v.projectMeta(t, "disable-own-model"), ID: ownDisabled.ID, ExpectedVersion: 1, Input: ownDisabledInput}); err != nil {
++		t.Fatal(err)
++	}
++	for _, k := range []struct {
++		protocol mc.Protocol
++		kind     mc.ModelType
++	}{{mc.OpenAIEmbeddings, mc.EmbeddingModel}, {mc.JinaRerank, mc.RerankerModel}, {mc.OpenAIImages, mc.ImageModel}} {
++		v.model(t, v.provider(t, k.protocol, nil), k.kind)
++	}
++	foreign := *v
++	foreign.project = v.createProject(t, v.owner)
++	foreign.scope, _ = id.InProject(foreign.project.ID)
++	foreignModel := foreign.projectModel(t, foreign.projectProvider(t, nil))
++	// These legal persisted configuration values deliberately exceed the
++	// currently implemented conformance profiles. Directory reads must never
++	// load or serialize them; this does not claim Provider execution support.
++	canaries := []string{"directory-endpoint-canary", "directory-options-canary", "directory-provider-model-canary", "directory-parameters-canary", "directory-request-canary", "directory-header-canary"}
++	v.sql(t, `UPDATE agenteam_model.providers SET base_url='https://directory-endpoint-canary.example/api',provider_options='{"private":"directory-options-canary"}' WHERE id=$1`, systemProvider.ID.String())
++	v.sql(t, `UPDATE agenteam_model.models SET provider_model_id='directory-provider-model-canary',parameters='{"private":"directory-parameters-canary"}',request_overwrite='{"private":"directory-request-canary"}',header_overwrite='{"X-Test":"directory-header-canary"}' WHERE id=$1`, system.ID.String())
++	page, err := v.service.ListAvailableChatModels(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 100})
++	if err != nil || len(page.Items) != 2 || page.NextCursor != "" {
++		t.Fatal("enabled own + System exact union", len(page.Items), err)
++	}
++	want := map[mc.ModelID]id.Scope{own.ID: v.scope, system.ID: id.SystemScope()}
++	for _, item := range page.Items {
++		scope, ok := want[item.ID]
++		if !ok || !scope.Equal(item.Scope) || item.Version != 1 {
++			t.Fatal("foreign/disabled/non-chat or wrong version in selection directory")
++		}
++		delete(want, item.ID)
++	}
++	if len(want) != 0 {
++		t.Fatal("missing enabled chat")
++	}
++	raw, err := json.Marshal(page)
++	if err != nil {
++		t.Fatal(err)
++	}
++	canaries = append(canaries, systemCredential.CredentialRef.Details().ID.String(), foreignModel.ID.String(), foreign.project.ID.String(), "credential_ref", "base_url", "provider_model_id", "parameters", "request_overwrite", "header_overwrite", "options")
++	for _, canary := range canaries {
++		if strings.Contains(string(raw), canary) {
++			t.Fatalf("private directory field leaked: %s", canary)
++		}
++	}
++	if reflect.TypeFor[model.AvailableChatModel]().NumField() != 7 {
++		t.Fatal("selection DTO grew configuration fields")
++	}
++	page.Items[0].Capabilities.StructuredOutputModes[0] = "caller-owned-mutation"
++	again, err := v.service.ListAvailableChatModels(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 100})
++	if err != nil || again.Items[0].Capabilities.StructuredOutputModes[0] != "json_schema" {
++		t.Fatal("directory capability slice escaped", err)
++	}
++	models, err := v.service.ListProjectModels(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 100})
++	if err != nil || len(models.Items) != 2 {
++		t.Fatal("own configuration list must include disabled models", err)
++	}
++	providers, err := v.service.ListProjectProviders(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 100})
++	if err != nil || len(providers.Items) != 1 || providers.Items[0].ID != ownProvider.ID {
++		t.Fatal("own provider list scope", err)
++	}
++	_, err = v.service.ListModels(ctx, v.owner, systemProvider.ID, model.SystemQuery{Limit: 100})
++	requireCode(t, err, f.Forbidden)
++	v.gate(t, c.Archived)
++	archived, err := v.service.ListAvailableChatModels(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 100})
++	if err != nil || len(archived.Items) != 2 {
++		t.Fatal("archived selection directory remains Read", err)
++	}
++}
++
++func TestModelProjectQueryCursorsAndEveryPageCurrentAuthority(t *testing.T) {
++	v := newProjectConfigurationFixture(t)
++	ctx := testContext(t)
++	for range 4 {
++		v.projectModel(t, v.projectProvider(t, nil))
++	}
++	first, err := v.service.ListAvailableChatModels(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 1})
++	if err != nil || len(first.Items) != 1 || first.NextCursor == "" {
++		t.Fatal(err)
++	}
++	providers, err := v.service.ListProjectProviders(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 1})
++	if err != nil || len(providers.Items) != 1 || providers.NextCursor == "" {
++		t.Fatal(err)
++	}
++	models, err := v.service.ListProjectModels(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 1})
++	if err != nil || len(models.Items) != 1 || models.NextCursor == "" {
++		t.Fatal(err)
++	}
++	late := v.projectModel(t, v.projectProvider(t, nil))
++	uid, _ := f.ParseID[id.User](v.owner.Details().UserID)
++	newSession := v.session(t, uid)
++	next, err := v.service.ListAvailableChatModels(ctx, newSession, v.project.ID, model.ProjectQuery{Cursor: first.NextCursor, Limit: 100})
++	if err != nil || len(next.Items) != 3 || next.NextCursor != "" {
++		t.Fatal("watermark, changed limit and stable User", len(next.Items), err)
++	}
++	seen := map[mc.ModelID]bool{first.Items[0].ID: true}
++	for _, item := range next.Items {
++		if seen[item.ID] || item.ID == late.ID {
++			t.Fatal("duplicate/new-watermark row")
++		}
++		seen[item.ID] = true
++	}
++	for _, cursor := range []string{providers.NextCursor, models.NextCursor, first.NextCursor + "x"} {
++		_, err = v.service.ListAvailableChatModels(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 1, Cursor: cursor})
++		requireCode(t, err, f.CursorInvalid)
++	}
++	_, err = v.service.ListProjectProviders(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 1, Cursor: models.NextCursor})
++	requireCode(t, err, f.CursorInvalid)
++	_, err = v.service.ListProjectModels(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 1, Cursor: first.NextCursor})
++	requireCode(t, err, f.CursorInvalid)
++	other := v.createProject(t, v.owner)
++	_, err = v.service.ListAvailableChatModels(ctx, v.owner, other.ID, model.ProjectQuery{Limit: 1, Cursor: first.NextCursor})
++	requireCode(t, err, f.CursorInvalid)
++	otherUser := v.human(t, "user")
++	otherOwned := v.createProject(t, otherUser)
++	_, err = v.service.ListAvailableChatModels(ctx, otherUser, otherOwned.ID, model.ProjectQuery{Limit: 1, Cursor: first.NextCursor})
++	requireCode(t, err, f.CursorInvalid)
++	_, err = v.service.ListAvailableChatModels(ctx, v.admin, v.project.ID, model.ProjectQuery{Limit: 1, Cursor: first.NextCursor})
++	requireCode(t, err, f.NotFound)
++	v.revokeSession(t, newSession)
++	_, err = v.service.ListAvailableChatModels(ctx, newSession, v.project.ID, model.ProjectQuery{Limit: 1, Cursor: first.NextCursor})
++	requireCode(t, err, f.SessionRevoked)
++	// Revocation applies independently to configuration pages as well.
++	v.revokeSession(t, v.owner)
++	_, err = v.service.ListProjectProviders(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 1, Cursor: providers.NextCursor})
++	requireCode(t, err, f.SessionRevoked)
++	_, err = v.service.ListProjectModels(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 1, Cursor: models.NextCursor})
++	requireCode(t, err, f.SessionRevoked)
++}
+diff --git a/tests/model/project_configuration_fixture_test.go b/tests/model/project_configuration_fixture_test.go
+new file mode 100644
+index 0000000..dbe6c78
+--- /dev/null
++++ b/tests/model/project_configuration_fixture_test.go
+@@ -0,0 +1,508 @@
++//go:build integration
++
++package model_test
++
++import (
++	"context"
++	"encoding/json"
++	"errors"
++	"sync"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	"github.com/LunaDeerTech/agenteam/internal/central/account"
++	"github.com/LunaDeerTech/agenteam/internal/central/audit"
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	ec "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/model"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++	"github.com/LunaDeerTech/agenteam/internal/central/project"
++	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/secret"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
++	"github.com/jackc/pgx/v5"
++)
++
++// Only the unbound Skills initializer and lifecycle participant implementations
++// are isolated. Account, Project Owner/gate, Secret, Model, Audit and Outbox all
++// consume the same real Store. No test dependency grants Project access.
++type projectConfigurationFixture struct {
++	*fixture
++	projects       *project.Authority
++	projectService *project.Service
++	skills         *projectConfigurationSkills
++	owner          id.Actor
++	project        c.ProjectRef
++	scope          id.Scope
++	typed          model.ModelEvents
++}
++
++func newProjectConfigurationFixture(t *testing.T) *projectConfigurationFixture {
++	t.Helper()
++	db := newDatabase(t)
++	raw := openStore(t, db.Config(t, nil))
++	v := assembleProjectConfiguration(t, db, raw, raw)
++	v.admin = v.human(t, "admin")
++	v.regular = v.human(t, "user")
++	v.owner = v.regular
++	v.project = v.createProject(t, v.owner)
++	v.scope, _ = id.InProject(v.project.ID)
++	return v
++}
++func assembleProjectConfiguration(t *testing.T, db *pgfixture.Database, raw *postgres.Store, store sharedStore) *projectConfigurationFixture {
++	t.Helper()
++	ctx := testContext(t)
++	ak, ck, sk := testKeys(t)
++	accounts, err := account.NewAuthority(store, ak)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err = accounts.Initialize(ctx); err != nil {
++		t.Fatal(err)
++	}
++	facts, err := secret.NewProjectAuditAuthority(store)
++	if err != nil {
++		t.Fatal(err)
++	}
++	projects, err := project.NewAuthority(store, project.AuthorityDependencies{Sessions: accounts, Routes: accounts, AuditFacts: map[ac.Producer]ac.ProjectFactAuthority{ac.SecretProducer: facts}})
++	if err != nil {
++		t.Fatal(err)
++	}
++	delegate, err := project.NewSecretAuthority(projects)
++	if err != nil {
++		t.Fatal(err)
++	}
++	authority, err := model.NewAuthority(store, model.Authorizations{Sessions: accounts, System: accounts, Projects: projects})
++	if err != nil {
++		t.Fatal(err)
++	}
++	aud, err := audit.New(store, ck, audit.Authorizations{Sessions: accounts, System: accounts, Accounts: accounts, Projects: projects, Models: authority})
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err = aud.CheckStorage(ctx); err != nil {
++		t.Fatal(err)
++	}
++	usage, err := model.NewSecretUsageRouter(authority, accounts)
++	if err != nil {
++		t.Fatal(err)
++	}
++	secrets, err := secret.New(store, sk, aud, secret.Authorizations{Sessions: accounts, System: accounts, Projects: delegate, Usage: usage, AccountWrites: accounts})
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err = secrets.Initialize(ctx); err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(secrets.StopMaintenance)
++	catalog := ec.NewCatalog()
++	typed, err := model.DefineEvents(catalog)
++	if err != nil {
++		t.Fatal(err)
++	}
++	projectEvents, err := c.RegisterProjectEvents(catalog)
++	if err != nil {
++		t.Fatal(err)
++	}
++	process := liveProcess{newID[oc.Process](t)}
++	events, err := outbox.New(store, catalog, outbox.Authorizations{Producers: map[ec.StableName]oc.ProducerAuthority{model.ModelProducer: authority, c.ProjectProducer: projects}, Projects: projects, Sessions: accounts, System: accounts, Audit: aud, Cursors: ck, Processes: process})
++	if err != nil {
++		t.Fatal(err)
++	}
++	runtime, err := outbox.NewRuntime(events, nil, outbox.Options{})
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err = runtime.Initialize(ctx); err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(func() {
++		runtime.StopClaims()
++		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
++		defer cancel()
++		if err := runtime.Drain(ctx); err != nil {
++			_ = runtime.Force(ctx)
++			t.Error(err)
++		}
++	})
++	deps := model.Dependencies{Secret: secrets, Audit: aud, Events: events, ConfigurationEvents: typed, Cursors: ck}
++	service, err := model.New(store, authority, deps)
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err = service.Initialize(ctx); err != nil {
++		t.Fatal(err)
++	}
++	if _, err = raw.Exec(ctx, `CREATE SCHEMA IF NOT EXISTS model_project_fixture; CREATE TABLE IF NOT EXISTS model_project_fixture.skills(creation_id uuid PRIMARY KEY,project_id uuid NOT NULL UNIQUE,init_key text NOT NULL,skill_id uuid NOT NULL UNIQUE,revision bigint NOT NULL,protected boolean NOT NULL,published boolean NOT NULL)`); err != nil {
++		t.Fatal(err)
++	}
++	skills := &projectConfigurationSkills{store: store, authority: projects, issuer: c.NewInitializationPlanIssuer()}
++	projectService, err := project.New(store, project.Dependencies{Authority: projects, Activity: accounts, Audit: aud, Events: events, ProjectEvents: projectEvents, Initializer: skills, Processes: process, Cursors: ck, LifecycleRegistry: projectConfigurationRegistry(t)}, project.DefaultConfig())
++	if err != nil {
++		t.Fatal(err)
++	}
++	t.Cleanup(func() {
++		projectService.Stop()
++		ctx, cancel := context.WithTimeout(context.Background(), time.Second)
++		defer cancel()
++		if err := projectService.Drain(ctx); err != nil {
++			t.Error(err)
++		}
++	})
++	return &projectConfigurationFixture{fixture: &fixture{db: db, raw: raw, store: store, accounts: accounts, authority: authority, service: service, secrets: secrets, aud: aud, events: events, runtime: runtime, deps: deps}, projects: projects, projectService: projectService, skills: skills, typed: typed}
++}
++func (v *projectConfigurationFixture) createProject(t *testing.T, actor id.Actor) c.ProjectRef {
++	t.Helper()
++	target := newID[id.Project](t)
++	result, err := v.projectService.CreateProject(testContext(t), actor, f.CommandMeta{RequestID: newID[f.Request](t), IdempotencyKey: f.IdempotencyKey(target.String())}, c.CreateProjectRequest{ProjectID: target, Name: "project-" + target.String()[24:], Description: "owned configuration fixture"})
++	if err != nil || result.State != c.CreationReady || result.Project == nil {
++		t.Fatal("real Project creation", result.State, err)
++	}
++	return *result.Project
++}
++func (v *projectConfigurationFixture) projectMeta(t *testing.T, key string) mc.CommandMeta {
++	t.Helper()
++	return mc.CommandMeta{Actor: v.owner, Scope: v.scope, Key: f.IdempotencyKey(key)}
++}
++func projectProviderInput() mc.ProviderInput {
++	return mc.ProviderInput{Name: "Project provider", Protocol: mc.OpenAIChat, BaseURL: "https://project-provider.example/api", Enabled: true, Options: json.RawMessage(`{}`)}
++}
++func projectModelInput() mc.ModelInput {
++	return mc.ModelInput{Name: "Project chat", ProviderModelID: "explicit-chat", Type: mc.ChatModel, Enabled: true, Parameters: json.RawMessage(`{}`), RequestOverwrite: json.RawMessage(`{}`), Capabilities: mc.Capabilities{StructuredOutputModes: []string{"json_schema"}}}
++}
++func (v *projectConfigurationFixture) projectProvider(t *testing.T, ref *sc.CredentialRef) mc.ProviderView {
++	t.Helper()
++	input := projectProviderInput()
++	input.CredentialRef = ref
++	receipt, err := v.service.CreateProvider(testContext(t), mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, newID[struct{}](t).String()), Input: input})
++	if err != nil {
++		t.Fatal("Project Provider", err)
++	}
++	target, _ := f.ParseID[mc.Provider](receipt.ResourceID)
++	view, err := v.service.GetProjectProvider(testContext(t), v.owner, v.project.ID, target)
++	if err != nil {
++		t.Fatal(err)
++	}
++	return view
++}
++func (v *projectConfigurationFixture) projectModel(t *testing.T, p mc.ProviderView) mc.ModelView {
++	t.Helper()
++	receipt, err := v.service.CreateModel(testContext(t), mc.CreateModelRequest{CommandMeta: v.projectMeta(t, newID[struct{}](t).String()), ProviderID: p.ID, Input: projectModelInput()})
++	if err != nil {
++		t.Fatal("Project Model", err)
++	}
++	target, _ := f.ParseID[mc.Model](receipt.ResourceID)
++	view, err := v.service.GetProjectModel(testContext(t), v.owner, v.project.ID, target)
++	if err != nil {
++		t.Fatal(err)
++	}
++	return view
++}
++func (v *projectConfigurationFixture) projectCredential(t *testing.T, purpose sc.Purpose) sc.Metadata {
++	t.Helper()
++	material, err := sc.NewSecretMaterial([]byte("project-model-private-material"))
++	if err != nil {
++		t.Fatal(err)
++	}
++	defer material.Destroy()
++	command, err := f.NewCommandIdentity("secret", []string{v.project.ID.String(), v.owner.Details().UserID}, string(sc.Create), f.IdempotencyKey(newID[struct{}](t).String()))
++	if err != nil {
++		t.Fatal(err)
++	}
++	result, err := v.secrets.ExecuteWrite(testContext(t), sc.WriteRequest{Actor: v.owner, Scope: v.scope, Identity: command, Kind: sc.Create, Purpose: purpose, Value: material})
++	if err != nil {
++		t.Fatal("real Project Secret", err)
++	}
++	return result.Metadata
++}
++func (v *projectConfigurationFixture) sql(t *testing.T, query string, args ...any) {
++	t.Helper()
++	if _, err := v.raw.Exec(testContext(t), query, args...); err != nil {
++		t.Fatal(err)
++	}
++}
++
++func (v *projectConfigurationFixture) revokeSession(t *testing.T, actor id.Actor) {
++	t.Helper()
++	ctx := testContext(t)
++	tag, err := v.raw.Exec(ctx, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='administrative' WHERE id=$1 AND revoked_at IS NULL`, actor.Details().SessionID)
++	if err != nil || tag.RowsAffected() != 1 {
++		t.Fatal("complete Session revocation fact", err)
++	}
++	var revoked bool
++	if err = v.raw.QueryRow(ctx, `SELECT revoked_at IS NOT NULL AND revoked_reason='administrative' FROM agenteam_account.sessions WHERE id=$1`, actor.Details().SessionID).Scan(&revoked); err != nil || !revoked {
++		t.Fatal("Session revocation did not persist", err)
++	}
++	requireCode(t, v.accounts.RequireCurrentSession(ctx, f.Tx{}, actor), f.SessionRevoked)
++}
++
++// Adapter lock timeouts poison the actual transaction. They are distinct from
++// a domain ResourceBusy refusal after successfully acquiring its locks.
++func requireProjectLockTimeout(t *testing.T, err error) {
++	t.Helper()
++	var fault *f.Fault
++	var database *postgres.Error
++	if !errors.As(err, &fault) || fault.Code != f.InternalError || fault.CommitState != f.NotCommitted || !errors.As(err, &database) || database.Code() != postgres.LockFailed || database.SQLState() != "55P03" {
++		t.Fatal("expected NotCommitted InternalError + DATABASE_LOCK_FAILED/55P03", err, postgres.CodeOf(err))
++	}
++	t.Log("actual NotCommitted InternalError -> DATABASE_LOCK_FAILED SQLSTATE 55P03")
++}
++func (v *projectConfigurationFixture) modelCounts(t *testing.T) [6]int64 {
++	t.Helper()
++	p, m, c, a, e := v.facts(t)
++	var refs int64
++	if err := v.raw.QueryRow(testContext(t), `SELECT count(*) FROM agenteam_secret.secret_references`).Scan(&refs); err != nil {
++		t.Fatal(err)
++	}
++	return [6]int64{p, m, c, a, e, refs}
++}
++func (v *projectConfigurationFixture) unchanged(t *testing.T, want [6]int64) {
++	t.Helper()
++	if got := v.modelCounts(t); got != want {
++		t.Fatalf("Model/configuration/reference atomicity: got %v want %v", got, want)
++	}
++}
++
++// Real R2 acceptance persists the operation, manifest, participants, Audit and
++// Outbox. The optional terminal SQL is an explicit Authority input, not a claim
++// that an unbound participant runtime has stopped. One timestamp supplies every
++// terminal field, including the Ref validation ordering.
++func (v *projectConfigurationFixture) gate(t *testing.T, state c.Lifecycle) {
++	t.Helper()
++	version := v.project.Version
++	meta := f.CommandMeta{RequestID: newID[f.Request](t), IdempotencyKey: f.IdempotencyKey(newID[struct{}](t).String()), ExpectedVersion: &version}
++	if state == c.Deleting {
++		var username string
++		if err := v.raw.QueryRow(testContext(t), `SELECT username FROM agenteam_account.users WHERE id=$1`, v.owner.Details().UserID).Scan(&username); err != nil {
++			t.Fatal(err)
++		}
++		result, err := v.projectService.BeginDeleteProject(testContext(t), v.owner, meta, v.project.ID, c.DeleteProjectRequest{NormalizedCurrentPath: username + "/" + v.project.NormalizedName, Permanent: true})
++		if err != nil || result.Operation == nil {
++			t.Fatal("real delete acceptance", err)
++		}
++		return
++	}
++	op, err := v.projectService.BeginArchive(testContext(t), v.owner, meta, v.project.ID)
++	if err != nil {
++		t.Fatal("real archive acceptance", err)
++	}
++	if state == c.Archived {
++		result := v.raw.WithinTx(testContext(t), recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
++			key, _ := f.ProjectLock(v.project.ID.String())
++			if err := v.raw.AcquireAll(ctx, tx, []f.LockRequest{{Key: key, Mode: f.Exclusive}}); err != nil {
++				return err
++			}
++			x, err := v.raw.InTx(tx)
++			if err != nil {
++				return err
++			}
++			var at time.Time
++			if err = x.QueryRow(ctx, `SELECT clock_timestamp()`).Scan(&at); err != nil {
++				return err
++			}
++			if _, err = x.Exec(ctx, `UPDATE agenteam_project.lifecycle_participants SET stop_state='stopped' WHERE operation_id=$1`, op.ID.String()); err != nil {
++				return err
++			}
++			if _, err = x.Exec(ctx, `UPDATE agenteam_project.lifecycle_operations SET state='completed',completed_project_version=project_version+1,completed_at=$2,updated_at=$2,version=version+1 WHERE id=$1`, op.ID.String(), at); err != nil {
++				return err
++			}
++			_, err = x.Exec(ctx, `UPDATE agenteam_project.projects SET lifecycle='archived',archived_at=$2,updated_at=$2,version=version+1 WHERE id=$1`, v.project.ID.String(), at)
++			return err
++		})
++		if result.State() != f.Committed {
++			t.Fatal(result.Fault())
++		}
++	}
++}
++
++// This fixture persists protected/published Skill facts in a test-only schema.
++// It is not a D10 implementation or a default production initializer.
++type projectConfigurationSkills struct {
++	store     project.Store
++	authority *project.Authority
++	issuer    c.InitializationPlanIssuer
++	mu        sync.Mutex
++	mode      string
++	calls     int
++	extraLock f.LockKey
++}
++
++func (s *projectConfigurationSkills) setMode(mode string) { s.mu.Lock(); s.mode = mode; s.mu.Unlock() }
++func (s *projectConfigurationSkills) InspectProjectSkills(ctx context.Context, actor id.Actor, r c.InitializationRequest) (c.InitializationResult, error) {
++	if actor.Details().ServiceName != id.ProjectInitialization || actor.Details().CauseRef != r.CreationID.String() || actor.Details().ProjectID != r.ProjectID.String() {
++		return c.InitializationResult{}, f.NewFault(f.Forbidden, f.NotStarted)
++	}
++	var project, key, skill string
++	var revision int64
++	e := s.store.QueryRow(ctx, `SELECT project_id::text,init_key,skill_id::text,revision FROM model_project_fixture.skills WHERE creation_id=$1`, r.CreationID.String()).Scan(&project, &key, &skill, &revision)
++	if errors.Is(e, pgx.ErrNoRows) {
++		return c.InitializationResult{State: c.InitializationResultPending, CreationID: r.CreationID, ProjectID: r.ProjectID, SafeReason: c.ReasonWorkPending}, nil
++	}
++	if e != nil {
++		return c.InitializationResult{}, e
++	}
++	if project != r.ProjectID.String() || key != string(r.InitializationKey) {
++		return c.InitializationResult{}, f.NewFault(f.Forbidden, f.NotStarted)
++	}
++	skillID, e := f.ParseID[c.Skill](skill)
++	if e != nil {
++		return c.InitializationResult{}, e
++	}
++	rev := f.Revision(revision)
++	return c.InitializationResult{State: c.InitializationCompleted, CreationID: r.CreationID, ProjectID: r.ProjectID, AddSkillsID: &skillID, Revision: &rev}, nil
++}
++func (s *projectConfigurationSkills) InitializeProjectSkills(ctx context.Context, actor id.Actor, r c.InitializationRequest) (c.InitializationResult, error) {
++	s.mu.Lock()
++	mode := s.mode
++	s.calls++
++	s.mu.Unlock()
++	if mode == "failed" {
++		return c.InitializationResult{State: c.InitializationFailed, CreationID: r.CreationID, ProjectID: r.ProjectID, SafeReason: c.ReasonOperationFailed}, nil
++	}
++	if mode == "pending" {
++		return c.InitializationResult{State: c.InitializationResultPending, CreationID: r.CreationID, ProjectID: r.ProjectID, SafeReason: c.ReasonWorkPending}, nil
++	}
++	projectKey, _ := f.ProjectLock(r.ProjectID.String())
++	command, _ := f.NewRecoveryCause("project.fixture-skill", r.CreationID.String(), "")
++	result := s.store.WithinTx(ctx, command, func(ctx context.Context, tx f.Tx) error {
++		if e := s.store.AcquireAll(ctx, tx, []f.LockRequest{{Key: projectKey, Mode: f.Exclusive}}); e != nil {
++			return e
++		}
++		if e := s.authority.ValidateInitializationInTx(ctx, tx, actor, r.CreationID, r.ProjectID, r.InitializationKey); e != nil {
++			return e
++		}
++		x, e := s.store.InTx(tx)
++		if e != nil {
++			return e
++		}
++		skill, e := f.NewID[c.Skill]()
++		if e != nil {
++			return e
++		}
++		_, e = x.Exec(ctx, `INSERT INTO model_project_fixture.skills(creation_id,project_id,init_key,skill_id,revision,protected,published) VALUES($1,$2,$3,$4,1,true,true) ON CONFLICT(creation_id) DO NOTHING`, r.CreationID.String(), r.ProjectID.String(), string(r.InitializationKey), skill.String())
++		return e
++	})
++	if result.State() != f.Committed {
++		return c.InitializationResult{}, f.NewFault(f.DependencyUnavailable, result.State())
++	}
++	if mode == "unknown" {
++		return c.InitializationResult{}, f.NewFault(f.CommitUnknown, f.Unknown)
++	}
++	return s.InspectProjectSkills(ctx, actor, r)
++}
++func (s *projectConfigurationSkills) DiscoverConfirmation(ctx context.Context, actor id.Actor, r c.InitializationRequest) (c.InitializationConfirmationPlan, error) {
++	result, e := s.InspectProjectSkills(ctx, actor, r)
++	if e != nil {
++		return c.InitializationConfirmationPlan{}, e
++	}
++	if result.State != c.InitializationCompleted {
++		return c.InitializationConfirmationPlan{}, f.NewFault(f.InvalidState, f.NotStarted)
++	}
++	key, _ := f.ProjectLock(r.ProjectID.String())
++	locks := []f.LockRequest{{Key: key, Mode: f.Exclusive}}
++	s.mu.Lock()
++	extra := s.extraLock
++	s.mu.Unlock()
++	if extra.Validate() == nil {
++		locks = append(locks, f.LockRequest{Key: extra, Mode: f.Shared})
++	}
++	return s.issuer.Plan(actor, r, c.InitializationReceipt{CreationID: r.CreationID, ProjectID: r.ProjectID, AddSkillsID: *result.AddSkillsID, Revision: *result.Revision}, locks)
++}
++func (s *projectConfigurationSkills) ConfirmInitializedInTx(ctx context.Context, tx f.Tx, actor id.Actor, r c.InitializationRequest, plan c.InitializationConfirmationPlan) (c.InitializationReceipt, error) {
++	if !s.issuer.Matches(plan, actor, r) {
++		return c.InitializationReceipt{}, f.NewFault(f.Forbidden, f.NotStarted)
++	}
++	locks := plan.RequiredLocks()
++	s.mu.Lock()
++	extra := s.extraLock
++	s.mu.Unlock()
++	if extra.Validate() == nil {
++		locks = append(locks, f.LockRequest{Key: extra, Mode: f.Shared})
++	}
++	if e := s.store.RequireHeldLocks(ctx, tx, locks); e != nil {
++		return c.InitializationReceipt{}, e
++	}
++	if e := s.authority.ValidateInitializationInTx(ctx, tx, actor, r.CreationID, r.ProjectID, r.InitializationKey); e != nil {
++		return c.InitializationReceipt{}, e
++	}
++	x, e := s.store.InTx(tx)
++	if e != nil {
++		return c.InitializationReceipt{}, e
++	}
++	receipt := plan.ProposedReceipt()
++	var valid bool
++	e = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM model_project_fixture.skills WHERE creation_id=$1 AND project_id=$2 AND init_key=$3 AND skill_id=$4 AND revision=$5 AND protected AND published)`, r.CreationID.String(), r.ProjectID.String(), string(r.InitializationKey), receipt.AddSkillsID.String(), int64(receipt.Revision)).Scan(&valid)
++	if e != nil {
++		return c.InitializationReceipt{}, e
++	}
++	if !valid {
++		return c.InitializationReceipt{}, f.NewFault(f.InvalidState, f.NotStarted)
++	}
++	return receipt, nil
++}
++
++type projectConfigurationParticipant struct {
++	name  c.ParticipantName
++	calls atomic.Int64
++}
++
++func (p *projectConfigurationParticipant) Name() c.ParticipantName { return p.name }
++func (p *projectConfigurationParticipant) RequestStop(context.Context, id.Actor, c.LifecycleCause, c.ScopeRef) (c.StopReport, error) {
++	p.calls.Add(1)
++	return c.StopReport{}, errors.New("R2 must not call RequestStop")
++}
++func (p *projectConfigurationParticipant) InspectStop(context.Context, id.Actor, c.LifecycleCause, c.ScopeRef) (c.StopReport, error) {
++	p.calls.Add(1)
++	return c.StopReport{}, errors.New("R2 must not call InspectStop")
++}
++func (p *projectConfigurationParticipant) Cleanup(context.Context, id.Actor, c.LifecycleCause, c.ScopeRef, *c.CleanupCheckpoint) (c.CleanupReport, error) {
++	p.calls.Add(1)
++	return c.CleanupReport{}, errors.New("R2 must not call Cleanup")
++}
++func projectConfigurationEntries(version f.Version, skills bool) []c.ParticipantRegistration {
++	entries := []c.ParticipantRegistration{
++		{Name: c.ArtifactObjectParticipant, ContractVersion: version, OwnerModule: "artifact-object", ReferenceKinds: []c.ReferenceKind{"object"}},
++		{Name: c.SecretParticipant, ContractVersion: version, OwnerModule: "secret", ReferenceKinds: []c.ReferenceKind{"secret"}},
++		{Name: c.OutboxParticipant, ContractVersion: version, OwnerModule: "outbox", CleanupAfter: []c.ParticipantName{c.ArtifactObjectParticipant, c.SecretParticipant}},
++		{Name: c.AuditParticipant, ContractVersion: version, OwnerModule: "audit", CleanupAfter: []c.ParticipantName{c.OutboxParticipant}},
++	}
++	if skills {
++		entries = append(entries, c.ParticipantRegistration{Name: c.SkillsParticipant, ContractVersion: version, OwnerModule: "skills"})
++		entries[2].CleanupAfter = append(entries[2].CleanupAfter, c.SkillsParticipant)
++	}
++	return entries
++}
++func projectConfigurationRegistryWithEntries(t *testing.T, current []c.ParticipantRegistration, retained ...c.ParticipantRegistration) *project.LifecycleRegistry {
++	t.Helper()
++	manifest, err := c.NewRequiredManifest(current)
++	if err != nil {
++		t.Fatal(err)
++	}
++	bindings := []project.LifecycleParticipantBinding{}
++	for _, entry := range append(append([]c.ParticipantRegistration{}, current...), retained...) {
++		adapter := &projectConfigurationParticipant{name: entry.Name}
++		bindings = append(bindings, project.LifecycleParticipantBinding{Registration: entry, Participant: adapter})
++		t.Cleanup(func() {
++			if adapter.calls.Load() != 0 {
++				t.Errorf("acceptance invoked participant %s", adapter.name)
++			}
++		})
++	}
++	registry, err := project.NewLifecycleRegistry(manifest, bindings)
++	if err != nil {
++		t.Fatal(err)
++	}
++	return registry
++}
++
++func projectConfigurationRegistry(t *testing.T) *project.LifecycleRegistry {
++	t.Helper()
++	return projectConfigurationRegistryWithEntries(t, projectConfigurationEntries(1, false))
++}
+diff --git a/tests/model/project_configuration_integration_test.go b/tests/model/project_configuration_integration_test.go
+new file mode 100644
+index 0000000..d238cf0
+--- /dev/null
++++ b/tests/model/project_configuration_integration_test.go
+@@ -0,0 +1,948 @@
++//go:build integration
++
++package model_test
++
++import (
++	"bytes"
++	"context"
++	"encoding/json"
++	"errors"
++	"github.com/LunaDeerTech/agenteam/internal/central/cursor"
++	"strings"
++	"sync"
++	"testing"
++
++	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
++	ec "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/model"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++	"github.com/LunaDeerTech/agenteam/internal/central/project"
++	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
++	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
++	"github.com/jackc/pgx/v5"
++)
++
++func TestModelProjectCRUDScopeAndCanonicalReceipts(t *testing.T) {
++	v := newProjectConfigurationFixture(t)
++	ctx := testContext(t)
++	r := mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "provider-create"), Input: projectProviderInput()}
++	before := v.modelCounts(t)
++	for _, actor := range []id.Actor{v.admin, v.human(t, "user")} {
++		other := r
++		other.Actor = actor
++		_, err := v.service.CreateProvider(ctx, other)
++		requireCode(t, err, f.NotFound)
++		v.unchanged(t, before)
++	}
++	bad := r
++	bad.Input.Protocol = mc.OpenAIEmbeddings
++	_, err := v.service.CreateProvider(ctx, bad)
++	requireCode(t, err, f.InvalidArgument)
++	first, err := v.service.CreateProvider(ctx, r)
++	if err != nil {
++		t.Fatal(err)
++	}
++	pid, _ := f.ParseID[mc.Provider](first.ResourceID)
++	p, err := v.service.GetProjectProvider(ctx, v.owner, v.project.ID, pid)
++	if err != nil || !p.Scope.Equal(v.scope) || p.Version != 1 {
++		t.Fatal("exact Project Provider", err)
++	}
++	uid, _ := f.ParseID[id.User](v.owner.Details().UserID)
++	r.Actor = v.session(t, uid)
++	replayed, err := v.service.CreateProvider(ctx, r)
++	if err != nil || replayed != first {
++		t.Fatal("stable User receipt after Session renewal", err)
++	}
++	lookup, err := v.service.LookupCommand(ctx, model.LookupCommandRequest{Meta: r.CommandMeta, Command: "provider.create"})
++	if err != nil || !lookup.Found || lookup.Receipt == nil || *lookup.Receipt != first {
++		t.Fatal("Project lookup", err)
++	}
++	different := r
++	different.Input.Name = "different semantic request"
++	_, err = v.service.CreateProvider(ctx, different)
++	requireCode(t, err, f.IdempotencyKeyReused)
++	otherProject := v.createProject(t, v.owner)
++	otherScope, _ := id.InProject(otherProject.ID)
++	other := r
++	other.Scope = otherScope
++	otherReceipt, err := v.service.CreateProvider(ctx, other)
++	if err != nil || otherReceipt.ResourceID == first.ResourceID {
++		t.Fatal("cross Project key isolation", err)
++	}
++	otherID, _ := f.ParseID[mc.Provider](otherReceipt.ResourceID)
++	_, err = v.service.GetProjectProvider(ctx, v.owner, v.project.ID, otherID)
++	requireCode(t, err, f.NotFound)
++	system := v.provider(t, mc.OpenAIChat, nil)
++	_, err = v.service.GetProjectProvider(ctx, v.owner, v.project.ID, system.ID)
++	requireCode(t, err, f.NotFound)
++	_, err = v.service.GetProvider(ctx, v.admin, pid)
++	requireCode(t, err, f.NotFound)
++	for _, provider := range []mc.ProviderID{system.ID, otherID} {
++		_, err = v.service.CreateModel(ctx, mc.CreateModelRequest{CommandMeta: v.projectMeta(t, newID[struct{}](t).String()), ProviderID: provider, Input: projectModelInput()})
++		requireCode(t, err, f.NotFound)
++	}
++	changed := p.Input.Clone()
++	changed.Protocol = mc.AnthropicMessages
++	_, err = v.service.UpdateProvider(ctx, mc.UpdateProviderRequest{CommandMeta: v.projectMeta(t, "immutable-protocol"), ID: p.ID, ExpectedVersion: 1, Input: changed})
++	requireCode(t, err, f.InvalidArgument)
++	changed = p.Input.Clone()
++	changed.Name = "Changed Project Provider"
++	update := mc.UpdateProviderRequest{CommandMeta: v.projectMeta(t, "provider-update"), ID: p.ID, ExpectedVersion: 1, Input: changed}
++	updated, err := v.service.UpdateProvider(ctx, update)
++	if err != nil || updated.Version != 2 {
++		t.Fatal(err)
++	}
++	stale, err := v.service.UpdateProvider(ctx, update)
++	if err != nil || stale != updated {
++		t.Fatal("receipt before stale ExpectedVersion", err)
++	}
++	update.Key = "new-stale-command"
++	_, err = v.service.UpdateProvider(ctx, update)
++	requireCode(t, err, f.VersionConflict)
++	m := v.projectModel(t, p)
++	wrongType := projectModelInput()
++	wrongType.Type = mc.EmbeddingModel
++	_, err = v.service.CreateModel(ctx, mc.CreateModelRequest{CommandMeta: v.projectMeta(t, "not-chat"), ProviderID: p.ID, Input: wrongType})
++	requireCode(t, err, f.InvalidArgument)
++	changedModel := m.Input.Clone()
++	changedModel.Name = "Changed Project model"
++	mr, err := v.service.UpdateModel(ctx, mc.UpdateModelRequest{CommandMeta: v.projectMeta(t, "model-update"), ID: m.ID, ExpectedVersion: 1, Input: changedModel})
++	if err != nil || mr.Version != 2 {
++		t.Fatal(err)
++	}
++	_, err = v.service.DeleteProvider(ctx, mc.DeleteProviderRequest{CommandMeta: v.projectMeta(t, "nonempty-provider"), ID: p.ID, ExpectedVersion: 2})
++	requireCode(t, err, f.InvalidState)
++	_, err = v.service.DeleteModel(ctx, mc.DeleteModelRequest{CommandMeta: v.projectMeta(t, "model-delete"), ID: m.ID, ExpectedVersion: 2})
++	if err != nil {
++		t.Fatal(err)
++	}
++	_, err = v.service.DeleteProvider(ctx, mc.DeleteProviderRequest{CommandMeta: v.projectMeta(t, "provider-delete"), ID: p.ID, ExpectedVersion: 2})
++	if err != nil {
++		t.Fatal(err)
++	}
++	_, err = v.service.GetProjectModel(ctx, v.owner, v.project.ID, m.ID)
++	requireCode(t, err, f.NotFound)
++	_, err = v.service.GetProjectProvider(ctx, v.owner, v.project.ID, p.ID)
++	requireCode(t, err, f.NotFound)
++	var commands, audits, events int
++	err = v.raw.QueryRow(ctx, `SELECT (SELECT count(*) FROM agenteam_model.commands WHERE project_id=$1),(SELECT count(*) FROM agenteam_audit.audit_records WHERE producer='model' AND project_id=$1),(SELECT count(*) FROM agenteam_outbox.events WHERE producer='model' AND project_id=$1)`, v.project.ID.String()).Scan(&commands, &audits, &events)
++	if err != nil || commands != 6 || audits != 6 || events != 6 {
++		t.Fatal("six atomic configuration results", commands, audits, events, err)
++	}
++}
++
++func (v *projectConfigurationFixture) deleteProjectCredential(t *testing.T, metadata sc.Metadata) error {
++	t.Helper()
++	command, err := f.NewCommandIdentity("secret", []string{v.project.ID.String(), v.owner.Details().UserID}, string(sc.Delete), f.IdempotencyKey(newID[struct{}](t).String()))
++	if err != nil {
++		t.Fatal(err)
++	}
++	_, err = v.secrets.ExecuteWrite(testContext(t), sc.WriteRequest{Actor: v.owner, Scope: v.scope, Identity: command, Kind: sc.Delete, Purpose: metadata.Purpose, Ref: metadata.CredentialRef, ExpectedVersion: metadata.Version})
++	return err
++}
++
++type projectSecretReject struct{ sc.UsageOperations }
++
++func (s projectSecretReject) ApplyUsageInTx(ctx context.Context, tx f.Tx, r sc.UsageRequest, d sc.UsageDependencies) (sc.UsageResult, error) {
++	_, err := s.UsageOperations.ApplyUsageInTx(ctx, tx, r, d)
++	if err != nil {
++		return sc.UsageResult{}, err
++	}
++	return sc.UsageResult{}, f.NewFault(f.InvalidState, f.NotStarted)
++}
++
++func TestModelProjectSecretReferencesAndAtomicEffects(t *testing.T) {
++	v := newProjectConfigurationFixture(t)
++	ctx := testContext(t)
++	first := v.projectCredential(t, sc.Model)
++	second := v.projectCredential(t, sc.Model)
++	p := v.projectProvider(t, &first.CredentialRef)
++	requireCode(t, v.deleteProjectCredential(t, first), f.ResourceBusy)
++	input := p.Input.Clone()
++	input.CredentialRef = &second.CredentialRef
++	_, err := v.service.UpdateProvider(ctx, mc.UpdateProviderRequest{CommandMeta: v.projectMeta(t, "change-reference"), ID: p.ID, ExpectedVersion: 1, Input: input})
++	if err != nil {
++		t.Fatal(err)
++	}
++	if err = v.deleteProjectCredential(t, first); err != nil {
++		t.Fatal("old exact reference was not released", err)
++	}
++	requireCode(t, v.deleteProjectCredential(t, second), f.ResourceBusy)
++	_, err = v.service.DeleteProvider(ctx, mc.DeleteProviderRequest{CommandMeta: v.projectMeta(t, "delete-provider-release"), ID: p.ID, ExpectedVersion: 2})
++	if err != nil {
++		t.Fatal(err)
++	}
++	var stillPresent bool
++	if err = v.raw.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_secret.secrets WHERE id=$1) AND NOT EXISTS(SELECT 1 FROM agenteam_secret.secret_references WHERE credential_id=$1)`, second.CredentialRef.Details().ID.String()).Scan(&stillPresent); err != nil || !stillPresent {
++		t.Fatal("release must keep Secret material", err)
++	}
++	for _, stage := range []string{"secret", "audit", "event"} {
++		t.Run(stage, func(t *testing.T) {
++			credential := v.projectCredential(t, sc.Model)
++			before := v.modelCounts(t)
++			d := v.deps
++			switch stage {
++			case "secret":
++				d.Secret = projectSecretReject{v.secrets}
++			case "audit":
++				a := &rejectingAudit{inner: v.aud}
++				a.enabled.Store(true)
++				d.Audit = a
++			case "event":
++				e := &observedEvents{inner: v.events}
++				e.enabled.Store(true)
++				d.Events = e
++			}
++			input := projectProviderInput()
++			input.CredentialRef = &credential.CredentialRef
++			_, err := v.withDeps(t, d).CreateProvider(testContext(t), mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "reject-"+stage), Input: input})
++			requireCode(t, err, f.InvalidState)
++			v.unchanged(t, before)
++			if err = v.deleteProjectCredential(t, credential); err != nil {
++				t.Fatal("rolled back reference remained", err)
++			}
++		})
++	}
++	wrong := v.projectCredential(t, sc.MCP)
++	input = projectProviderInput()
++	input.CredentialRef = &wrong.CredentialRef
++	before := v.modelCounts(t)
++	_, err = v.service.CreateProvider(ctx, mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "wrong-purpose"), Input: input})
++	requireCode(t, err, f.Forbidden)
++	v.unchanged(t, before)
++	system := v.credential(t, sc.Model)
++	input.CredentialRef = &system.CredentialRef
++	_, err = v.service.CreateProvider(ctx, mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "wrong-scope"), Input: input})
++	requireCode(t, err, f.InvalidArgument)
++	v.unchanged(t, before)
++}
++
++func TestModelProjectSecretReleaseAndDeletionShareRealWriterLock(t *testing.T) {
++	v := newProjectConfigurationFixture(t)
++	ctx := testContext(t)
++	credential := v.projectCredential(t, sc.Model)
++	p := v.projectProvider(t, &credential.CredentialRef)
++	held, release := make(chan struct{}), make(chan struct{})
++	var once sync.Once
++	unblock := func() { once.Do(func() { close(release) }) }
++	t.Cleanup(unblock)
++	tap := &projectModelAuditTap{inner: v.aud}
++	tap.change = func(ctx context.Context, tx f.Tx, entry ac.Entry, key ac.AppendKey) (context.Context, ac.Entry, ac.AppendKey) {
++		// This callback follows the real canonical update and real Secret
++		// reference release, while their complete transaction locks are held.
++		x, err := v.raw.InTx(tx)
++		if err != nil {
++			t.Fatal(err)
++		}
++		var retained bool
++		if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_secret.secret_references WHERE credential_id=$1)`, credential.CredentialRef.Details().ID.String()).Scan(&retained); err != nil || retained {
++			t.Fatal("release was not executed before barrier", err)
++		}
++		close(held)
++		select {
++		case <-release:
++		case <-ctx.Done():
++		}
++		return ctx, entry, key
++	}
++	d := v.deps
++	d.Audit = tap
++	input := p.Input.Clone()
++	input.CredentialRef = nil
++	request := mc.UpdateProviderRequest{CommandMeta: v.projectMeta(t, "actual-held-reference-release"), ID: p.ID, ExpectedVersion: 1, Input: input}
++	service := v.withDeps(t, d)
++	done := make(chan error, 1)
++	go func() { _, err := service.UpdateProvider(ctx, request); done <- err }()
++	waitSignal(t, held)
++	requireProjectLockTimeout(t, v.deleteProjectCredential(t, credential))
++	unblock()
++	select {
++	case err := <-done:
++		if err != nil {
++			t.Fatal(err)
++		}
++	case <-ctx.Done():
++		t.Fatal("reference release did not join")
++	}
++	if err := v.deleteProjectCredential(t, credential); err != nil {
++		t.Fatal("released exact reference remained", err)
++	}
++	got, err := v.service.GetProjectProvider(ctx, v.owner, v.project.ID, p.ID)
++	if err != nil || got.Version != 2 || got.Input.CredentialRef != nil {
++		t.Fatal("release did not commit canonical Provider", err)
++	}
++}
++
++func TestModelProjectReceiptReadGateAndLegacySystemPlan(t *testing.T) {
++	for _, state := range []c.Lifecycle{c.Archiving, c.Archived, c.Deleting} {
++		t.Run(string(state), func(t *testing.T) {
++			v := newProjectConfigurationFixture(t)
++			ctx := testContext(t)
++			request := mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "before-gate"), Input: projectProviderInput()}
++			receipt, err := v.service.CreateProvider(ctx, request)
++			if err != nil {
++				t.Fatal(err)
++			}
++			v.gate(t, state)
++			before := v.modelCounts(t)
++			lookup, lookupErr := v.service.LookupCommand(ctx, model.LookupCommandRequest{Meta: request.CommandMeta, Command: "provider.create"})
++			again, replayErr := v.service.CreateProvider(ctx, request)
++			if state == c.Deleting {
++				requireCode(t, lookupErr, f.ProjectNotActive)
++				requireCode(t, replayErr, f.ProjectNotActive)
++			} else {
++				if lookupErr != nil || !lookup.Found || lookup.Receipt == nil || *lookup.Receipt != receipt || replayErr != nil || again != receipt {
++					t.Fatal("Read gate must preserve original receipt", lookupErr, replayErr)
++				}
++			}
++			request.Key = "new-after-gate"
++			_, err = v.service.CreateProvider(ctx, request)
++			requireCode(t, err, f.ProjectNotActive)
++			v.unchanged(t, before)
++		})
++	}
++	t.Run("uninitialized", func(t *testing.T) {
++		v := newProjectConfigurationFixture(t)
++		v.skills.setMode("pending")
++		target := newID[id.Project](t)
++		result, err := v.projectService.CreateProject(testContext(t), v.owner, f.CommandMeta{RequestID: newID[f.Request](t), IdempotencyKey: f.IdempotencyKey(target.String())}, c.CreateProjectRequest{ProjectID: target, Name: "pending-" + target.String()[24:]})
++		if err != nil || result.State != c.CreationPending {
++			t.Fatal("pending Skills setup", result.State, err)
++		}
++		scope, _ := id.InProject(target)
++		meta := v.projectMeta(t, "pending-config")
++		meta.Scope = scope
++		before := v.modelCounts(t)
++		_, err = v.service.CreateProvider(testContext(t), mc.CreateProviderRequest{CommandMeta: meta, Input: projectProviderInput()})
++		requireCode(t, err, f.ProjectNotActive)
++		v.unchanged(t, before)
++	})
++	t.Run("legacy-system", func(t *testing.T) {
++		v := newProjectConfigurationFixture(t)
++		ctx := testContext(t)
++		request := mc.CreateProviderRequest{CommandMeta: v.meta(t, "legacy-system"), Input: projectProviderInput()}
++		receipt, err := v.service.CreateProvider(ctx, request)
++		if err != nil {
++			t.Fatal(err)
++		}
++		identity, _ := f.NewCommandIdentity("model.system", []string{v.admin.Details().UserID}, "provider.create", request.Key)
++		var raw []byte
++		var canonical string
++		if err = v.raw.QueryRow(ctx, `SELECT mutation_plan,command_identity FROM agenteam_model.commands WHERE command_identity=$1 AND scope='system' AND project_id IS NULL`, identity.Canonical()).Scan(&raw, &canonical); err != nil {
++			t.Fatal(err)
++		}
++		var plan map[string]json.RawMessage
++		if err = json.Unmarshal(raw, &plan); err != nil {
++			t.Fatal(err)
++		}
++		if _, ok := plan["Project"]; ok || canonical != identity.Canonical() {
++			t.Fatal("new code changed legacy System representation")
++		}
++		v.sql(t, `UPDATE agenteam_model.commands SET mutation_plan=mutation_plan-'Project' WHERE command_identity=$1`, identity.Canonical())
++		before := v.modelCounts(t)
++		again, err := v.service.CreateProvider(ctx, request)
++		if err != nil || again != receipt {
++			t.Fatal("legacy scope-less plan receipt", err)
++		}
++		v.unchanged(t, before)
++	})
++	t.Run("project-cannot-adopt-scope-less-plan", func(t *testing.T) {
++		v := newProjectConfigurationFixture(t)
++		ctx := testContext(t)
++		request := mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "lost-project-discriminator"), Input: projectProviderInput()}
++		if _, err := v.service.CreateProvider(ctx, request); err != nil {
++			t.Fatal(err)
++		}
++		command, err := f.NewCommandIdentity("model.project", []string{v.project.ID.String(), v.owner.Details().UserID}, "provider.create", request.Key)
++		if err != nil {
++			t.Fatal(err)
++		}
++		v.sql(t, `UPDATE agenteam_model.commands SET mutation_plan=mutation_plan-'Project' WHERE command_identity=$1`, command.Canonical())
++		before := v.modelCounts(t)
++		lookup, err := v.service.LookupCommand(ctx, model.LookupCommandRequest{Meta: request.CommandMeta, Command: "provider.create"})
++		requireCode(t, err, f.DependencyUnavailable)
++		if lookup.Found || lookup.Receipt != nil {
++			t.Fatal("Project row adopted a legacy System plan")
++		}
++		_, err = v.service.CreateProvider(ctx, request)
++		requireCode(t, err, f.DependencyUnavailable)
++		v.unchanged(t, before)
++	})
++}
++
++func TestModelProjectPreparedAuthorizationAndReferenceMapping(t *testing.T) {
++	for _, scenario := range []string{"session", "owner", "archiving", "secret-deleted", "reference-added"} {
++		t.Run(scenario, func(t *testing.T) {
++			v := newProjectConfigurationFixture(t)
++			ctx := testContext(t)
++			request := mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "prepared-"+scenario), Input: projectProviderInput()}
++			var invoke func(*model.Service) error
++			var intervene func()
++			want := f.SessionRevoked
++			switch scenario {
++			case "session":
++				intervene = func() {
++					v.revokeSession(t, v.owner)
++				}
++			case "owner":
++				want = f.NotFound
++				next := v.human(t, "user")
++				intervene = func() {
++					v.sql(t, `UPDATE agenteam_project.projects SET owner_user_id=$2 WHERE id=$1`, v.project.ID.String(), next.Details().UserID)
++				}
++			case "archiving":
++				want = f.ProjectNotActive
++				intervene = func() { v.gate(t, c.Archiving) }
++			case "secret-deleted":
++				want = f.NotFound
++				credential := v.projectCredential(t, sc.Model)
++				request.Input.CredentialRef = &credential.CredentialRef
++				intervene = func() {
++					if err := v.deleteProjectCredential(t, credential); err != nil {
++						t.Fatal(err)
++					}
++				}
++			case "reference-added":
++				want = f.ResourceBusy
++				m := v.projectModel(t, v.projectProvider(t, nil))
++				invoke = func(s *model.Service) error {
++					_, err := s.DeleteModel(ctx, mc.DeleteModelRequest{CommandMeta: request.CommandMeta, ID: m.ID, ExpectedVersion: 1})
++					return err
++				}
++				intervene = func() { v.addReference(t, m.ID, "agent") }
++			}
++			if invoke == nil {
++				invoke = func(s *model.Service) error { _, err := s.CreateProvider(ctx, request); return err }
++			}
++			gate := &observedEvents{inner: v.events, entered: make(chan struct{}), release: make(chan struct{})}
++			var once sync.Once
++			release := func() { once.Do(func() { close(gate.release) }) }
++			t.Cleanup(release)
++			d := v.deps
++			d.Events = gate
++			s := v.withDeps(t, d)
++			before := v.modelCounts(t)
++			done := make(chan error, 1)
++			go func() { done <- invoke(s) }()
++			waitSignal(t, gate.entered)
++			intervene()
++			release()
++			select {
++			case err := <-done:
++				requireCode(t, err, want)
++			case <-ctx.Done():
++				t.Fatal("prepared command did not join")
++			}
++			v.unchanged(t, before)
++		})
++	}
++}
++
++func (v *projectConfigurationFixture) addReference(t *testing.T, modelID mc.ModelID, kind string) {
++	t.Helper()
++	owner := newID[struct{}](t).String()
++	role := "agent_model"
++	if kind == "project_summary" {
++		owner = v.project.ID.String()
++		role = "meeting_summary"
++	}
++	result := v.raw.WithinTx(testContext(t), recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
++		key, _ := f.SystemConfigLock("model-references")
++		if err := v.raw.AcquireAll(ctx, tx, []f.LockRequest{{Key: key, Mode: f.Shared}}); err != nil {
++			return err
++		}
++		x, err := v.raw.InTx(tx)
++		if err != nil {
++			return err
++		}
++		_, err = x.Exec(ctx, `INSERT INTO agenteam_model.references(owner_kind,owner_id,role,project_id,model_id,owner_version) VALUES($1,$2,$3,$4,$5,1)`, kind, owner, role, v.project.ID.String(), modelID.String())
++		return err
++	})
++	if result.State() != f.Committed {
++		t.Fatal(result.Fault())
++	}
++}
++
++func TestModelProjectUnboundReferencesAndDeleteBarrier(t *testing.T) {
++	for _, kind := range []string{"agent", "project_summary"} {
++		t.Run(kind, func(t *testing.T) {
++			v := newProjectConfigurationFixture(t)
++			ctx := testContext(t)
++			p := v.projectProvider(t, nil)
++			m := v.projectModel(t, p)
++			next := v.model(t, v.provider(t, mc.OpenAIChat, nil), mc.ChatModel)
++			v.addReference(t, m.ID, kind)
++			before := v.modelCounts(t)
++			for _, replacement := range []*mc.ModelID{nil, &next.ID} {
++				_, err := v.service.DeleteModel(ctx, mc.DeleteModelRequest{CommandMeta: v.projectMeta(t, newID[struct{}](t).String()), ID: m.ID, ExpectedVersion: 1, Replacement: replacement})
++				requireCode(t, err, f.DependencyUnbound)
++				v.unchanged(t, before)
++			}
++			var exact int
++			if err := v.raw.QueryRow(ctx, `SELECT count(*) FROM agenteam_model.references WHERE owner_kind=$1 AND model_id=$2 AND owner_version=1`, kind, m.ID.String()).Scan(&exact); err != nil || exact != 1 {
++				t.Fatal("unbound canonical owner/index changed", err)
++			}
++		})
++	}
++	t.Run("empty-index-system-replacement", func(t *testing.T) {
++		v := newProjectConfigurationFixture(t)
++		m := v.projectModel(t, v.projectProvider(t, nil))
++		next := v.model(t, v.provider(t, mc.OpenAIChat, nil), mc.ChatModel)
++		_, err := v.service.DeleteModel(testContext(t), mc.DeleteModelRequest{CommandMeta: v.projectMeta(t, "empty-replace"), ID: m.ID, ExpectedVersion: 1, Replacement: &next.ID})
++		if err != nil {
++			t.Fatal(err)
++		}
++		var affected int
++		if err = v.raw.QueryRow(testContext(t), `SELECT (metadata->>'affected_count')::int FROM agenteam_audit.audit_records WHERE producer='model' AND action='model.delete' AND resource_id=$1`, m.ID.String()).Scan(&affected); err != nil || affected != 0 {
++			t.Fatal("empty index cannot invent rewrites", err)
++		}
++	})
++	t.Run("shared-builder-excludes-delete", func(t *testing.T) {
++		v := newProjectConfigurationFixture(t)
++		ctx := testContext(t)
++		m := v.projectModel(t, v.projectProvider(t, nil))
++		held, release := make(chan struct{}), make(chan struct{})
++		done := make(chan f.CommitResult, 1)
++		var once sync.Once
++		unblock := func() { once.Do(func() { close(release) }) }
++		t.Cleanup(unblock)
++		cause := recoveryCause(t)
++		go func() {
++			done <- v.raw.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
++				key, _ := f.SystemConfigLock("model-references")
++				if err := v.raw.AcquireAll(ctx, tx, []f.LockRequest{{Key: key, Mode: f.Shared}}); err != nil {
++					return err
++				}
++				close(held)
++				select {
++				case <-release:
++					return nil
++				case <-ctx.Done():
++					return ctx.Err()
++				}
++			})
++		}()
++		waitSignal(t, held)
++		before := v.modelCounts(t)
++		_, err := v.service.DeleteModel(ctx, mc.DeleteModelRequest{CommandMeta: v.projectMeta(t, "blocked-by-builder"), ID: m.ID, ExpectedVersion: 1})
++		requireProjectLockTimeout(t, err)
++		v.unchanged(t, before)
++		unblock()
++		select {
++		case result := <-done:
++			if result.State() != f.Committed {
++				t.Fatal(result.Fault())
++			}
++		case <-ctx.Done():
++			t.Fatal("builder did not join")
++		}
++	})
++}
++
++// Pause only the actual optimistic Project command lookup. SQL and all current
++// authorization remain delegated; the row can become committed while the first
++// caller still believes discovery was absent.
++type projectDiscoveryStore struct {
++	*postgres.Store
++	target           string
++	entered, release chan struct{}
++	once             sync.Once
++}
++type projectDiscoveryRow struct {
++	postgres.Row
++	store *projectDiscoveryStore
++	ctx   context.Context
++}
++
++func (r projectDiscoveryRow) Scan(out ...any) error {
++	err := r.Row.Scan(out...)
++	if errors.Is(err, pgx.ErrNoRows) {
++		r.store.once.Do(func() {
++			close(r.store.entered)
++			select {
++			case <-r.store.release:
++			case <-r.ctx.Done():
++			}
++		})
++	}
++	return err
++}
++func (s *projectDiscoveryStore) QueryRow(ctx context.Context, q string, args ...any) postgres.Row {
++	row := s.Store.QueryRow(ctx, q, args...)
++	if strings.Contains(q, "FROM agenteam_model.commands") && len(args) > 0 && args[0] == s.target {
++		return projectDiscoveryRow{row, s, ctx}
++	}
++	return row
++}
++
++func TestModelProjectPreparationFailureRechecksReadReceipt(t *testing.T) {
++	for _, scenario := range []string{"active-update", "active-delete", "archiving-update", "archiving-delete"} {
++		t.Run(scenario, func(t *testing.T) {
++			operation := strings.Split(scenario, "-")[1]
++			v := newProjectConfigurationFixture(t)
++			ctx := testContext(t)
++			m := v.projectModel(t, v.projectProvider(t, nil))
++			meta := v.projectMeta(t, "concurrent-"+operation)
++			identity, _ := f.NewCommandIdentity("model.project", []string{v.project.ID.String(), v.owner.Details().UserID}, "model."+operation, meta.Key)
++			raw := openStore(t, v.db.Config(t, nil))
++			store := &projectDiscoveryStore{Store: raw, target: identity.Canonical(), entered: make(chan struct{}), release: make(chan struct{})}
++			other := assembleProjectConfiguration(t, v.db, raw, store)
++			var once sync.Once
++			release := func() { once.Do(func() { close(store.release) }) }
++			t.Cleanup(release)
++			invoke := func(s *model.Service) (mc.CommandReceipt, error) {
++				if operation == "delete" {
++					return s.DeleteModel(ctx, mc.DeleteModelRequest{CommandMeta: meta, ID: m.ID, ExpectedVersion: 1})
++				}
++				input := m.Input.Clone()
++				input.Name = "concurrent updated"
++				return s.UpdateModel(ctx, mc.UpdateModelRequest{CommandMeta: meta, ID: m.ID, ExpectedVersion: 1, Input: input})
++			}
++			type response struct {
++				receipt mc.CommandReceipt
++				err     error
++			}
++			done := make(chan response, 1)
++			go func() { r, e := invoke(other.service); done <- response{r, e} }()
++			waitSignal(t, store.entered)
++			first, err := invoke(v.service)
++			if err != nil {
++				t.Fatal(err)
++			}
++			if strings.HasPrefix(scenario, "archiving") {
++				v.gate(t, c.Archiving)
++			}
++			before := v.modelCounts(t)
++			release()
++			select {
++			case r := <-done:
++				if r.err != nil || r.receipt != first {
++					t.Fatal("preparation/gate failure hid committed Read receipt", r.err)
++				}
++			case <-ctx.Done():
++				t.Fatal("concurrent replay did not join")
++			}
++			v.unchanged(t, before)
++		})
++	}
++}
++
++// The typed verifier is reached through the real Appender. Every corruption
++// remains a structurally legal entry/key and must fail against the original
++// Model private command and actual resulting rows.
++type projectModelAuditTap struct {
++	inner    ac.Appender
++	change   func(context.Context, f.Tx, ac.Entry, ac.AppendKey) (context.Context, ac.Entry, ac.AppendKey)
++	captured context.Context
++	entry    ac.Entry
++	key      ac.AppendKey
++	innerErr error
++}
++
++type projectModelEventTap struct {
++	oc.Appender
++	check   func(context.Context, f.Tx, id.Actor, ec.Event, oc.AppendPlan) error
++	ctx     context.Context
++	actor   id.Actor
++	summary ec.Summary
++	plan    oc.AppendPlan
++}
++
++func (e *projectModelEventTap) AppendEventInTx(ctx context.Context, tx f.Tx, actor id.Actor, event ec.Event, plan oc.AppendPlan) (oc.AppendReceipt, error) {
++	e.ctx, e.actor, e.summary, e.plan = ctx, actor, event.Summary(), plan
++	if e.check != nil {
++		if err := e.check(ctx, tx, actor, event, plan); err != nil {
++			return oc.AppendReceipt{}, err
++		}
++	}
++	return e.Appender.AppendEventInTx(ctx, tx, actor, event, plan)
++}
++
++func TestModelProjectProducerFactsCannotBeReplayedOrRebound(t *testing.T) {
++	for _, scenario := range []string{"summary", "actor", "issuer", "context"} {
++		t.Run(scenario, func(t *testing.T) {
++			v := newProjectConfigurationFixture(t)
++			uid, _ := f.ParseID[id.User](v.owner.Details().UserID)
++			renewed := v.session(t, uid)
++			tap := &projectModelEventTap{Appender: v.events}
++			tap.check = func(ctx context.Context, tx f.Tx, actor id.Actor, event ec.Event, plan oc.AppendPlan) error {
++				summary, deps := event.Summary(), plan.Details().Producer
++				switch scenario {
++				case "summary":
++					summary.PayloadDigest = f.Digest("sha256:" + strings.Repeat("f", 64))
++				case "actor":
++					actor = renewed
++				case "issuer":
++					var err error
++					deps, err = oc.NewDependencies(oc.NewPlanIssuer(), deps.Binding(), deps.Locks(), deps.Opaque())
++					if err != nil {
++						t.Fatal(err)
++					}
++				case "context":
++					ctx = context.Background()
++				}
++				err := v.authority.ValidateAppendInTx(ctx, tx, actor, summary, deps, oc.NewFact)
++				requireCode(t, err, f.Forbidden)
++				return err
++			}
++			d := v.deps
++			d.Events = tap
++			before := v.modelCounts(t)
++			_, err := v.withDeps(t, d).CreateProvider(testContext(t), mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "producer-"+scenario), Input: projectProviderInput()})
++			requireCode(t, err, f.Forbidden)
++			v.unchanged(t, before)
++		})
++	}
++	t.Run("real-store-lock-and-transaction-boundary", func(t *testing.T) {
++		v := newProjectConfigurationFixture(t)
++		tap := &projectModelEventTap{Appender: v.events}
++		d := v.deps
++		d.Events = tap
++		_, err := v.withDeps(t, d).CreateProvider(testContext(t), mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "capture-committed-producer"), Input: projectProviderInput()})
++		if err != nil || tap.ctx == nil {
++			t.Fatal("real prepared producer capture", err)
++		}
++		before := v.modelCounts(t)
++		for _, mode := range []string{"new-transaction", "missing-locks", "foreign-store"} {
++			t.Run(mode, func(t *testing.T) {
++				store := v.raw
++				if mode == "foreign-store" {
++					store = openStore(t, v.db.Config(t, nil))
++				}
++				var callback error
++				// The new transaction starts from a fresh context. Only the fact
++				// checker receives the captured private command, so Nested cannot
++				// accidentally stand in for the boundary under test.
++				result := store.WithinTx(testContext(t), recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
++					if mode != "missing-locks" {
++						if err := store.AcquireAll(ctx, tx, tap.plan.Locks()); err != nil {
++							return err
++						}
++					}
++					callback = v.authority.ValidateAppendInTx(context.WithoutCancel(tap.ctx), tx, tap.actor, tap.summary, tap.plan.Details().Producer, oc.NewFact)
++					if mode != "new-transaction" {
++						return nil
++					} // ignored primitive failure must still poison
++					return callback
++				})
++				if result.State() != f.NotCommitted {
++					t.Fatal("rejected fact check did not roll back", result.State())
++				}
++				if mode == "new-transaction" {
++					requireCode(t, callback, f.Forbidden)
++					requireCode(t, result.Fault(), f.Forbidden)
++				} else {
++					requireCode(t, callback, f.DependencyUnavailable)
++					want := postgres.LockNotHeld
++					if mode == "foreign-store" {
++						want = postgres.InvalidTransaction
++					}
++					if postgres.CodeOf(callback) != want || postgres.CodeOf(result.Fault()) != want {
++						t.Fatal("wrong concrete callback/poison boundary", postgres.CodeOf(callback), postgres.CodeOf(result.Fault()))
++					}
++				}
++				v.unchanged(t, before)
++			})
++		}
++	})
++}
++
++func (a *projectModelAuditTap) AppendInTx(ctx context.Context, tx f.Tx, e ac.Entry, k ac.AppendKey) (ac.AppendReceipt, error) {
++	if ac.ModelAction(e.Fields().Action) {
++		a.captured = ctx
++		a.entry = e
++		a.key = k
++		if a.change != nil {
++			ctx, e, k = a.change(ctx, tx, e, k)
++		}
++	}
++	r, err := a.inner.AppendInTx(ctx, tx, e, k)
++	a.innerErr = err
++	return r, err
++}
++
++func TestModelProjectAuditPreparedFactsAndProjectEventStages(t *testing.T) {
++	for _, scenario := range []string{"cause", "ordinal", "session", "scope", "resource", "version", "fields", "missing-context", "canonical-row"} {
++		t.Run(scenario, func(t *testing.T) {
++			v := newProjectConfigurationFixture(t)
++			ctx := testContext(t)
++			uid, _ := f.ParseID[id.User](v.owner.Details().UserID)
++			renewed := v.session(t, uid)
++			var original mc.ProviderView
++			if scenario == "fields" {
++				original = v.projectProvider(t, nil)
++			}
++			tap := &projectModelAuditTap{inner: v.aud}
++			tap.change = func(ctx context.Context, tx f.Tx, e ac.Entry, k ac.AppendKey) (context.Context, ac.Entry, ac.AppendKey) {
++				fields := e.Fields()
++				var err error
++				switch scenario {
++				case "cause":
++					k, err = ac.NewAppendKey(ac.ModelProducer, "sha256:"+strings.Repeat("f", 64), 0)
++				case "ordinal":
++					details := k.Details()
++					k, err = ac.NewAppendKey(details.Producer, details.CauseRef, 1)
++				case "session":
++					fields.Actor = renewed
++				case "scope":
++					fields.Scope = id.SystemScope()
++				case "resource":
++					resource := newID[mc.Provider](t).String()
++					fields.Resource, err = ac.NewResource(ac.ModelProviderResource, resource)
++					if err != nil {
++						t.Fatal(err)
++					}
++					metadata, metadataErr := fields.Metadata.ModelFields()
++					if metadataErr != nil {
++						t.Fatal(metadataErr)
++					}
++					metadata.ProviderID = resource
++					fields.Metadata, err = ac.ModelMetadata(fields.Action, metadata)
++				case "version", "fields":
++					var metadata ac.ModelMetadataFields
++					if err = json.Unmarshal(fields.Metadata.JSON(), &metadata); err != nil {
++						t.Fatal(err)
++					}
++					if scenario == "version" {
++						metadata.Version++
++					} else {
++						metadata.ChangedFields = []string{"enabled"}
++					}
++					fields.Metadata, err = ac.ModelMetadata(fields.Action, metadata)
++				case "missing-context":
++					ctx = context.Background()
++				case "canonical-row":
++					x, xerr := v.raw.InTx(tx)
++					if xerr != nil {
++						t.Fatal(xerr)
++					}
++					_, err = x.Exec(ctx, `UPDATE agenteam_model.providers SET version=version+1 WHERE id=$1`, fields.Resource.Details().ID)
++				}
++				if err != nil {
++					t.Fatal(err)
++				}
++				e, err = ac.NewEntry(fields)
++				if err != nil {
++					t.Fatal(err)
++				}
++				return ctx, e, k
++			}
++			d := v.deps
++			d.Audit = tap
++			before := v.modelCounts(t)
++			service := v.withDeps(t, d)
++			var err error
++			if scenario == "fields" {
++				input := original.Input.Clone()
++				input.Name = "actual-name-change"
++				_, err = service.UpdateProvider(ctx, mc.UpdateProviderRequest{CommandMeta: v.projectMeta(t, "tamper-fields"), ID: original.ID, ExpectedVersion: 1, Input: input})
++			} else {
++				_, err = service.CreateProvider(ctx, mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "tamper-"+scenario), Input: projectProviderInput()})
++			}
++			requireCode(t, tap.innerErr, f.Forbidden)
++			requireCode(t, err, f.Forbidden)
++			v.unchanged(t, before)
++			if scenario == "fields" {
++				actual, readErr := v.service.GetProjectProvider(ctx, v.owner, v.project.ID, original.ID)
++				if readErr != nil {
++					t.Fatal("read Provider after rejected update", readErr)
++				}
++				beforeJSON, beforeErr := json.Marshal(original)
++				afterJSON, afterErr := json.Marshal(actual)
++				if beforeErr != nil || afterErr != nil || !bytes.Equal(beforeJSON, afterJSON) {
++					t.Fatal("rejected typed Audit did not restore the complete Provider view, including input/version/timestamps")
++				}
++			}
++		})
++	}
++	t.Run("two-stages-and-closed-summary", func(t *testing.T) {
++		v := newProjectConfigurationFixture(t)
++		ctx := testContext(t)
++		p := v.projectProvider(t, nil)
++		var rawHeader, rawPayload []byte
++		if err := v.raw.QueryRow(ctx, `SELECT header,payload FROM agenteam_outbox.events WHERE producer='model' AND aggregate_id=$1`, p.ID.String()).Scan(&rawHeader, &rawPayload); err != nil {
++			t.Fatal(err)
++		}
++		var header ec.Header
++		if err := json.Unmarshal(rawHeader, &header); err != nil {
++			t.Fatal(err)
++		}
++		payloadDigest, err := cursor.Digest(rawPayload)
++		if err != nil {
++			t.Fatal(err)
++		}
++		summary := ec.Summary{Producer: model.ModelProducer, Header: header, PayloadDigest: payloadDigest}
++		details := oc.ProjectRequestDetails{Kind: oc.AppendProject, ProjectID: v.project.ID, Actor: v.owner, Stage: oc.CurrentAccess, Event: summary}
++		request, err := oc.NewProjectRequest(details)
++		if err != nil {
++			t.Fatal(err)
++		}
++		deps, err := v.projects.Discover(ctx, request)
++		if err != nil {
++			t.Fatal(err)
++		}
++		check := func(stage oc.Stage, subject oc.ProjectRequestDetails, authority *project.Authority, locks bool) error {
++			subject.Stage = stage
++			r, err := oc.NewProjectRequest(subject)
++			if err != nil {
++				return err
++			}
++			var callback error
++			result := v.raw.WithinTx(ctx, recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
++				if locks {
++					if err := v.raw.AcquireAll(ctx, tx, deps.Locks()); err != nil {
++						return err
++					}
++				}
++				callback = authority.ValidateInTx(ctx, tx, r, deps)
++				if !locks {
++					return nil
++				} // ignored missing-lock error must still poison
++				return callback
++			})
++			if callback != nil && result.State() != f.NotCommitted {
++				t.Fatal("authorization failure did not roll back")
++			}
++			if !locks {
++				requireCode(t, callback, f.DependencyUnavailable)
++				requireCode(t, result.Fault(), f.InternalError)
++				if result.State() != f.NotCommitted || postgres.CodeOf(callback) != postgres.LockNotHeld || postgres.CodeOf(result.Fault()) != postgres.LockNotHeld {
++					t.Fatal("exact ignored missing-lock callback/poison boundary", callback, result.Fault())
++				}
++				t.Log("Project callback DependencyUnavailable/LOCK_NOT_HELD; ignored error still NotCommitted InternalError/LOCK_NOT_HELD")
++				return callback
++			}
++			if result.State() != f.Committed {
++				return result.Fault()
++			}
++			return nil
++		}
++		if err = check(oc.CurrentAccess, details, v.projects, true); err != nil {
++			t.Fatal(err)
++		}
++		if err = check(oc.NewFact, details, v.projects, true); err != nil {
++			t.Fatal(err)
++		}
++		changed := details
++		changed.Event.Header.AggregateID, _ = f.ParseID[ec.Aggregate](p.ID.String())
++		changed.Event.PayloadDigest = f.Digest("sha256:" + strings.Repeat("f", 64))
++		requireCode(t, check(oc.CurrentAccess, changed, v.projects, true), f.Forbidden)
++		foreign, err := project.NewAuthority(v.store, project.AuthorityDependencies{Sessions: v.accounts})
++		if err != nil {
++			t.Fatal(err)
++		}
++		requireCode(t, check(oc.CurrentAccess, details, foreign, true), f.Forbidden)
++		requireCode(t, check(oc.CurrentAccess, details, v.projects, false), f.DependencyUnavailable)
++		v.gate(t, c.Archived)
++		before := v.modelCounts(t)
++		if err = check(oc.CurrentAccess, details, v.projects, true); err != nil {
++			t.Fatal(err)
++		}
++		requireCode(t, check(oc.NewFact, details, v.projects, true), f.ProjectNotActive)
++		v.unchanged(t, before)
++	})
++}
+diff --git a/tests/model/project_configuration_unknown_test.go b/tests/model/project_configuration_unknown_test.go
+new file mode 100644
+index 0000000..cad1b00
+--- /dev/null
++++ b/tests/model/project_configuration_unknown_test.go
+@@ -0,0 +1,483 @@
++//go:build integration
++
++package model_test
++
++import (
++	"bytes"
++	"context"
++	"encoding/binary"
++	"errors"
++	"fmt"
++	"io"
++	"net"
++	"net/url"
++	"strings"
++	"sync"
++	"sync/atomic"
++	"testing"
++	"time"
++
++	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
++	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/model"
++	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
++	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
++	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
++)
++
++// The observer arms only after the target's real final callback has written
++// its committed receipt plus the actual Provider, typed Audit and Outbox event.
++// Read/preflight/replay commits cannot be mistaken for this boundary, and no
++// CommitResult is replaced by a preset Unknown.
++type projectModelCommitStore struct {
++	*postgres.Store
++	target                         string
++	arm                            func()
++	fired                          atomic.Bool
++	mu                             sync.Mutex
++	original                       f.CommitResult
++	finalFacts                     bool
++	unknownReached, confirmRelease chan struct{}
++}
++
++func (w *projectModelCommitStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
++	result := w.Store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
++		if err := fn(ctx, tx); err != nil {
++			return err
++		}
++		if cause.Kind() != f.CommandsCause || cause.Details().Primary.Namespace() != "model.project" || cause.Details().Primary.Canonical() != w.target || w.fired.Load() {
++			return nil
++		}
++		x, err := w.Store.InTx(tx)
++		if err != nil {
++			return err
++		}
++		var final bool
++		err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_model.commands c JOIN agenteam_model.providers p ON p.id=c.resource_id AND p.project_id=c.project_id WHERE c.command_identity=$1 AND c.scope='project' AND c.phase='committed' AND c.safe_receipt IS NOT NULL AND EXISTS(SELECT 1 FROM agenteam_audit.audit_records a WHERE a.producer='model' AND a.action='provider.create' AND a.project_id=c.project_id AND a.resource_id=c.resource_id) AND EXISTS(SELECT 1 FROM agenteam_outbox.events e WHERE e.id=c.event_id AND e.producer='model' AND e.project_id=c.project_id))`, w.target).Scan(&final)
++		if err != nil {
++			return err
++		}
++		if final && w.fired.CompareAndSwap(false, true) {
++			w.mu.Lock()
++			w.finalFacts = true
++			w.mu.Unlock()
++			w.arm()
++		}
++		return nil
++	})
++	if result.State() == f.Unknown && w.fired.Load() {
++		w.mu.Lock()
++		w.original = result
++		w.mu.Unlock()
++		close(w.unknownReached)
++		select {
++		case <-w.confirmRelease:
++		case <-ctx.Done():
++		}
++	}
++	return result
++}
++
++type projectModelUnknownFixture struct {
++	*projectConfigurationFixture
++	writer                             *projectModelCommitStore
++	held                               *modelCommitProxy
++	trace                              *projectModelPGTrace
++	releaseWriter, releaseConfirmation func()
++}
++
++func newProjectModelUnknownFixture(t *testing.T, committed bool) *projectModelUnknownFixture {
++	t.Helper()
++	db := newDatabase(t)
++	upstream := net.JoinHostPort("127.0.0.1", db.Fixture.Port)
++	out := &projectModelUnknownFixture{}
++	var address net.Addr
++	var arm func()
++	if committed {
++		out.trace = newProjectModelPGTrace(t, upstream)
++		address = out.trace.listener.Addr()
++		arm = func() { out.trace.dropCommitACK.Store(true) }
++	} else {
++		out.held = newModelCommitProxy(t, upstream, false)
++		address = out.held.listener.Addr()
++		arm = func() { out.held.armed.Store(true) }
++	}
++	u, err := url.Parse(db.Fixture.URL(db.Name))
++	if err != nil {
++		t.Fatal(err)
++	}
++	u.Host = address.String()
++	raw := openStore(t, db.Config(t, map[string]string{"URL": u.String(), "TLS_MODE": "disable"}))
++	w := &projectModelCommitStore{Store: raw, arm: arm, unknownReached: make(chan struct{}), confirmRelease: make(chan struct{})}
++	out.writer = w
++	out.projectConfigurationFixture = assembleProjectConfiguration(t, db, raw, w)
++	out.admin = out.human(t, "admin")
++	out.owner = out.human(t, "user")
++	out.regular = out.owner
++	out.project = out.createProject(t, out.owner)
++	out.scope, _ = id.InProject(out.project.ID)
++	var writerOnce, confirmOnce sync.Once
++	out.releaseWriter = func() {
++		writerOnce.Do(func() {
++			if out.held != nil {
++				close(out.held.release)
++			}
++		})
++	}
++	out.releaseConfirmation = func() { confirmOnce.Do(func() { close(w.confirmRelease) }) }
++	t.Cleanup(out.releaseWriter)
++	t.Cleanup(out.releaseConfirmation)
++	return out
++}
++func (v *projectModelUnknownFixture) request(t *testing.T) mc.CreateProviderRequest {
++	t.Helper()
++	r := mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "exact-unknown-command"), Input: projectProviderInput()}
++	command, err := f.NewCommandIdentity("model.project", []string{v.project.ID.String(), v.owner.Details().UserID}, "provider.create", r.Key)
++	if err != nil {
++		t.Fatal(err)
++	}
++	v.writer.target = command.Canonical()
++	return r
++}
++func (v *projectModelUnknownFixture) originalUnknown(t *testing.T, err error, receipt mc.CommandReceipt) {
++	t.Helper()
++	var unknown *model.UnknownCommandError
++	if !errors.As(err, &unknown) || receipt != (mc.CommandReceipt{}) {
++		t.Fatal("unconfirmed operation returned a receipt or lost Unknown", err)
++	}
++	v.writer.mu.Lock()
++	original, final := v.writer.original, v.writer.finalFacts
++	v.writer.mu.Unlock()
++	if !final || original.State() != f.Unknown || unknown.AttemptID() != original.AttemptID() || unknown.Cause().Details().Primary.Canonical() != original.Cause().Details().Primary.Canonical() {
++		t.Fatal("original final-COMMIT cause/attempt changed")
++	}
++}
++func (v *projectModelUnknownFixture) writerLock(t *testing.T) error {
++	t.Helper()
++	command, err := f.NewCommandIdentity("model.project", []string{v.project.ID.String(), v.owner.Details().UserID}, "provider.create", "exact-unknown-command")
++	if err != nil {
++		t.Fatal(err)
++	}
++	key, err := f.CommandLock(command)
++	if err != nil {
++		t.Fatal(err)
++	}
++	// The same exact writer lock is the terminal proof after the PG connection
++	// closes, not the proxy's socket-close signal alone.
++	result := v.raw.WithinTx(testContext(t), recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
++		return v.raw.AcquireAll(ctx, tx, []f.LockRequest{{Key: key, Mode: f.Exclusive}})
++	})
++	if result.State() != f.Committed {
++		return result.Fault()
++	}
++	return nil
++}
++func TestModelProjectRealFinalCommitUnknownThreeStates(t *testing.T) {
++	for _, mode := range []string{"committed", "committed-archived", "committed-revoked", "rollback", "pending"} {
++		t.Run(mode, func(t *testing.T) {
++			committed := strings.HasPrefix(mode, "committed")
++			v := newProjectModelUnknownFixture(t, committed)
++			request := v.request(t)
++			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
++			defer cancel()
++			type response struct {
++				receipt mc.CommandReceipt
++				err     error
++			}
++			done := make(chan response, 1)
++			go func() { r, err := v.service.CreateProvider(ctx, request); done <- response{r, err} }()
++			if committed {
++				waitSignal(t, v.trace.ackDropped)
++			} else {
++				waitSignal(t, v.held.reached)
++			}
++			waitSignal(t, v.writer.unknownReached)
++			if mode == "committed-archived" {
++				v.gate(t, c.Archived)
++			}
++			if mode == "committed-revoked" {
++				v.revokeSession(t, v.owner)
++			}
++			if mode == "rollback" {
++				v.releaseWriter()
++				waitSignal(t, v.held.completed)
++				if err := v.writerLock(t); err != nil {
++					t.Fatal("rollback writer not terminal", err)
++				}
++			}
++			if mode == "pending" {
++				requireProjectLockTimeout(t, v.writerLock(t))
++			}
++			v.releaseConfirmation()
++			var got response
++			select {
++			case got = <-done:
++			case <-time.After(5 * time.Second):
++				t.Fatal("Unknown confirmation did not return")
++			}
++			if mode == "committed" || mode == "committed-archived" {
++				if got.err != nil || got.receipt.ResourceID == "" {
++					t.Fatal("confirmed COMMIT did not recover exact Read receipt", got.err)
++				}
++				v.writer.mu.Lock()
++				original, final := v.writer.original, v.writer.finalFacts
++				v.writer.mu.Unlock()
++				if !final || original.State() != f.Unknown {
++					t.Fatal("did not fault final actual COMMIT")
++				}
++			} else {
++				v.originalUnknown(t, got.err, got.receipt)
++			}
++			if mode == "pending" {
++				v.releaseWriter()
++				waitSignal(t, v.held.completed)
++				if err := v.writerLock(t); err != nil {
++					t.Fatal("held writer not joined", err)
++				}
++			}
++			p, m, commands, audits, events := v.facts(t)
++			want := int64(0)
++			if committed {
++				want = 1
++			}
++			if p != want || m != 0 || commands != want || audits != want || events != want {
++				t.Fatal("Unknown duplicate/partial effects", p, m, commands, audits, events)
++			}
++			lookup, err := v.service.LookupCommand(testContext(t), model.LookupCommandRequest{Meta: request.CommandMeta, Command: "provider.create"})
++			if mode == "committed-revoked" {
++				requireCode(t, err, f.SessionRevoked)
++				if lookup.Found || lookup.Receipt != nil {
++					t.Fatal("revoked confirmation leaked receipt")
++				}
++			} else if err != nil || lookup.Found != committed || (lookup.Receipt != nil) != committed {
++				t.Fatal("public historical lookup", err)
++			}
++			if v.trace != nil {
++				events := strings.Join(v.trace.snapshot(), " ")
++				if !strings.Contains(events, "commit-idle-ack-dropped") {
++					t.Fatal("committed case lacked PG COMMIT and idle proof")
++				}
++				t.Log("protocol final COMMIT + idle ACK drop observed")
++			}
++		})
++	}
++}
++func TestModelProjectRollbackUnknownCannotAdoptDifferentSemanticReceipt(t *testing.T) {
++	v := newProjectModelUnknownFixture(t, false)
++	request := v.request(t)
++	ctx := testContext(t)
++	type response struct {
++		receipt mc.CommandReceipt
++		err     error
++	}
++	done := make(chan response, 1)
++	go func() { r, e := v.service.CreateProvider(ctx, request); done <- response{r, e} }()
++	waitSignal(t, v.held.reached)
++	waitSignal(t, v.writer.unknownReached)
++	v.releaseWriter()
++	waitSignal(t, v.held.completed)
++	if err := v.writerLock(t); err != nil {
++		t.Fatal(err)
++	}
++	raw := openStore(t, v.db.Config(t, nil))
++	other := assembleProjectConfiguration(t, v.db, raw, raw)
++	different := request
++	different.Input.Name = "different request B"
++	b, err := other.service.CreateProvider(ctx, different)
++	if err != nil {
++		t.Fatal("B after terminal rollback", err)
++	}
++	v.releaseConfirmation()
++	select {
++	case got := <-done:
++		requireCode(t, got.err, f.IdempotencyKeyReused)
++		if got.receipt != (mc.CommandReceipt{}) {
++			t.Fatal("A adopted B receipt")
++		}
++	case <-ctx.Done():
++		t.Fatal("A did not join")
++	}
++	lookup, err := v.service.LookupCommand(ctx, model.LookupCommandRequest{Meta: request.CommandMeta, Command: "provider.create"})
++	if err != nil || !lookup.Found || lookup.Receipt == nil || *lookup.Receipt != b {
++		t.Fatal("public lookup must report actual B", err)
++	}
++	p, m, commands, audits, events := v.facts(t)
++	if p != 1 || m != 0 || commands != 1 || audits != 1 || events != 1 {
++		t.Fatal("only B may have effects")
++	}
++}
++
++// An owned protocol observer and optional confirmed-COMMIT ACK fault. Only
++// command tags, SQLSTATE, backend PID and ReadyForQuery state are retained: no
++// startup credentials, cancellation keys, SQL statements, rows or Secret bytes.
++type projectModelPGTrace struct {
++	listener      net.Listener
++	upstream      string
++	mu            sync.Mutex
++	connections   map[net.Conn]bool
++	events        []string
++	next          int
++	wg            sync.WaitGroup
++	dropCommitACK atomic.Bool
++	ackDropped    chan struct{}
++}
++
++func newProjectModelPGTrace(t *testing.T, upstream string) *projectModelPGTrace {
++	t.Helper()
++	listener, err := net.Listen("tcp", "127.0.0.1:0")
++	if err != nil {
++		t.Fatal(err)
++	}
++	p := &projectModelPGTrace{listener: listener, upstream: upstream, connections: map[net.Conn]bool{}, ackDropped: make(chan struct{})}
++	p.wg.Add(1)
++	go func() {
++		defer p.wg.Done()
++		for {
++			client, err := listener.Accept()
++			if err != nil {
++				return
++			}
++			p.mu.Lock()
++			p.next++
++			n := p.next
++			p.connections[client] = true
++			p.mu.Unlock()
++			p.wg.Add(1)
++			go p.serve(client, n)
++		}
++	}()
++	t.Cleanup(func() {
++		_ = listener.Close()
++		p.mu.Lock()
++		for conn := range p.connections {
++			_ = conn.Close()
++		}
++		p.mu.Unlock()
++		p.wg.Wait()
++	})
++	return p
++}
++
++func (p *projectModelPGTrace) record(n int, event string) {
++	p.mu.Lock()
++	defer p.mu.Unlock()
++	p.events = append(p.events, fmt.Sprintf("%d:%s", n, event))
++}
++func (p *projectModelPGTrace) snapshot() []string {
++	p.mu.Lock()
++	defer p.mu.Unlock()
++	return append([]string(nil), p.events...)
++}
++func (p *projectModelPGTrace) serve(client net.Conn, n int) {
++	defer p.wg.Done()
++	defer func() { _ = client.Close(); p.mu.Lock(); delete(p.connections, client); p.mu.Unlock() }()
++	server, err := net.Dial("tcp", p.upstream)
++	if err != nil {
++		return
++	}
++	p.mu.Lock()
++	p.connections[server] = true
++	p.mu.Unlock()
++	defer func() { _ = server.Close(); p.mu.Lock(); delete(p.connections, server); p.mu.Unlock() }()
++	var header [4]byte
++	if _, err = io.ReadFull(client, header[:]); err != nil {
++		return
++	}
++	size := binary.BigEndian.Uint32(header[:])
++	if size < 8 || size > 1<<20 {
++		return
++	}
++	startup := make([]byte, int(size))
++	copy(startup, header[:])
++	if _, err = io.ReadFull(client, startup[4:]); err != nil {
++		return
++	}
++	if binary.BigEndian.Uint32(startup[4:8]) == 80877102 {
++		p.record(n, "cancel")
++	}
++	if _, err = server.Write(startup); err != nil {
++		return
++	}
++	done := make(chan struct{}, 2)
++	var dropACK atomic.Bool
++	go func() {
++		defer func() { done <- struct{}{} }()
++		for {
++			frame, err := readModelPGFrame(client)
++			if err != nil {
++				return
++			}
++			if frame[0] == 'Q' {
++				q := strings.Trim(string(frame[5:]), "\x00; \t\r\n")
++				if strings.EqualFold(q, "COMMIT") || strings.EqualFold(q, "ROLLBACK") {
++					p.record(n, "send-"+strings.ToUpper(q))
++				}
++				if strings.EqualFold(q, "COMMIT") && p.dropCommitACK.CompareAndSwap(true, false) {
++					dropACK.Store(true)
++				}
++			}
++			if _, err = server.Write(frame); err != nil {
++				return
++			}
++		}
++	}()
++	go func() {
++		defer func() { done <- struct{}{} }()
++		completion := false
++		for {
++			frame, err := readModelPGFrame(server)
++			if err != nil {
++				p.record(n, "backend-closed")
++				return
++			}
++			switch frame[0] {
++			case 'C':
++				if string(frame[5:]) == "COMMIT\x00" || string(frame[5:]) == "ROLLBACK\x00" {
++					p.record(n, "tag-"+strings.TrimRight(string(frame[5:]), "\x00"))
++					completion = true
++				}
++				if dropACK.Load() && string(frame[5:]) == "COMMIT\x00" {
++					ready, err := readModelPGFrame(server)
++					if err != nil || ready[0] != 'Z' || len(ready) != 6 || ready[5] != 'I' {
++						p.record(n, "commit-idle-unconfirmed")
++						return
++					}
++					// The committed case drops only a proven COMMIT + idle ACK.
++					// A later driver CancelRequest cannot race this transaction's
++					// commit. Pending/rollback use the unchanged held-writer proxy.
++					p.record(n, "commit-idle-ack-dropped")
++					_ = client.Close()
++					close(p.ackDropped)
++					return
++				}
++			case 'E':
++				for fields := frame[5:]; len(fields) > 1; {
++					i := bytes.IndexByte(fields[1:], 0)
++					if i < 0 {
++						break
++					}
++					if fields[0] == 'C' {
++						p.record(n, "sqlstate-"+string(fields[1:1+i]))
++					}
++					fields = fields[i+2:]
++				}
++			case 'Z':
++				if completion {
++					p.record(n, "ready-"+string(frame[5:]))
++					completion = false
++				}
++			case 'K':
++				if len(frame) >= 9 {
++					p.record(n, fmt.Sprintf("backend-%d", binary.BigEndian.Uint32(frame[5:9])))
++				}
++			}
++			if _, err = client.Write(frame); err != nil {
++				return
++			}
++		}
++	}()
++	<-done
++	_ = client.Close()
++	_ = server.Close()
++	<-done
++}

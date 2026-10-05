@@ -1,0 +1,5 @@
+--- FAIL: TestModelProjectAuthorityOptionalTypedNilExactGrantAndNoLateLocks (0.00s)
+    project_authority_test.go:110: code got <nil>, want DEPENDENCY_UNBOUND
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model	0.003s
+FAIL

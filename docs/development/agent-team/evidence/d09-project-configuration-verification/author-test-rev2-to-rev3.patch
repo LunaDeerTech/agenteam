@@ -1,0 +1,28 @@
+--- candidate-rev2/tests/model/project_configuration_integration_test.go
++++ candidate-rev3/tests/model/project_configuration_integration_test.go
+@@ -3,6 +3,7 @@
+ package model_test
+ 
+ import (
++	"bytes"
+ 	"context"
+ 	"encoding/json"
+ 	"errors"
+@@ -845,6 +846,17 @@
+ 			requireCode(t, tap.innerErr, f.Forbidden)
+ 			requireCode(t, err, f.Forbidden)
+ 			v.unchanged(t, before)
++			if scenario == "fields" {
++				actual, readErr := v.service.GetProjectProvider(ctx, v.owner, v.project.ID, original.ID)
++				if readErr != nil {
++					t.Fatal("read Provider after rejected update", readErr)
++				}
++				beforeJSON, beforeErr := json.Marshal(original)
++				afterJSON, afterErr := json.Marshal(actual)
++				if beforeErr != nil || afterErr != nil || !bytes.Equal(beforeJSON, afterJSON) {
++					t.Fatal("rejected typed Audit did not restore the complete Provider view, including input/version/timestamps")
++				}
++			}
+ 		})
+ 	}
+ 	t.Run("two-stages-and-closed-summary", func(t *testing.T) {

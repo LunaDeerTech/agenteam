@@ -1,0 +1,32 @@
+--- FAIL: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt (0.00s)
+    --- FAIL: TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt/same (0.00s)
+panic: missing original writer lock [recovered, repanicked]
+
+goroutine 12 [running]:
+testing.tRunner.func1.2({0xbdba00, 0x837450})
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2123 +0x232
+testing.tRunner.func1()
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2126 +0x329
+panic({0xbdba00?, 0x837450?})
+	/workspace/toolchains/go1.27.1/src/runtime/panic.go:859 +0x125
+github.com/LunaDeerTech/agenteam/internal/central/model.(*confirmationStore).AcquireAll(0x19ad04ee0a50?, {0xc45188?, 0x0?}, {0x0?}, {0x19ad04d9ba00?, 0x2?, 0x19ad04eeb4d0?})
+	/tmp/agenteam-d09-project-config-tycjqwxh/tree/internal/central/model/commands_test.go:84 +0x369
+github.com/LunaDeerTech/agenteam/internal/central/model.(*Service).replayScope.func1({0xc43218, 0xce33e0}, {0x8080808080808032?})
+	/tmp/agenteam-d09-project-config-tycjqwxh/tree/internal/central/model/commands.go:363 +0x1e3
+github.com/LunaDeerTech/agenteam/internal/central/model.(*confirmationStore).WithinTx(0xffffffffffffffff?, {0xc43218, 0xce33e0}, {0x3b3a393837363534?}, 0x19ad04ee0be0)
+	/tmp/agenteam-d09-project-config-tycjqwxh/tree/internal/central/model/commands_test.go:73 +0x2b8
+github.com/LunaDeerTech/agenteam/internal/central/model.(*Service).replayScope(0x19ad04d78438, {0xc43218, 0xce33e0}, {0x5?}, {0x2?}, {0x19ad04f139d0?}, {0x19ad04da4730, 0x47}, 0x19ad04f15470)
+	/tmp/agenteam-d09-project-config-tycjqwxh/tree/internal/central/model/commands.go:362 +0x3c7
+github.com/LunaDeerTech/agenteam/internal/central/model.(*Service).replay(0xc41290?, {0xc43218?, 0xce33e0?}, {0x19ad04dad900?}, {0xc412b8?}, {0x19ad04da4730?, 0x19ad04df0c40?}, 0x19ad04df0d20?)
+	/tmp/agenteam-d09-project-config-tycjqwxh/tree/internal/central/model/commands.go:356 +0x5d
+github.com/LunaDeerTech/agenteam/internal/central/model.TestModelUnknownConfirmationNeverAdoptsDifferentSemanticReceipt.func1(0x19ad04f38008)
+	/tmp/agenteam-d09-project-config-tycjqwxh/tree/internal/central/model/commands_test.go:168 +0x8f2
+testing.tRunner(0x19ad04f38008, 0x19ad04ee5650)
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2193 +0xea
+created by testing.(*T).Run in goroutine 11
+	/workspace/toolchains/go1.27.1/src/testing/testing.go:2258 +0x4d4
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model	0.007s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	0.006s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project	0.059s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project/contract	0.020s
+FAIL

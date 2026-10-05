@@ -1,0 +1,143 @@
+{
+  "changed_tests": [
+    "TestModelProjectQueryCursorsAndEveryPageCurrentAuthority",
+    "TestModelProjectSecretReferencesAndAtomicEffects",
+    "TestModelProjectSecretReleaseAndDeletionShareRealWriterLock",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping",
+    "TestModelProjectUnboundReferencesAndDeleteBarrier",
+    "TestModelProjectAuditPreparedFactsAndProjectEventStages",
+    "TestModelProjectRealFinalCommitUnknownThreeStates",
+    "TestModelProjectProducerFactsCannotBeReplayedOrRebound"
+  ],
+  "model_regression": [
+    "TestModelB01CRUDCurrentAuthorityAndCanonicalReplay",
+    "TestModelB01PlatformSelectionAndAtomicReplacement",
+    "TestModelB01SecretReferencesAndAllEffectsRollback",
+    "TestModelB01CursorAndScopeRemainCurrentlyAuthorized",
+    "TestModelB01WrongCatalogAndProjectScopeHaveNoBusinessWrites",
+    "TestModelB01RealLostCommitReplyPreservesOriginalCauseAndCurrentFacts",
+    "TestModelB01RollbackUnknownCannotAdoptDifferentRequestCommit",
+    "TestModelB01ConcurrentSameKeyPreparationFailureStillReplaysReceipt",
+    "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked",
+    "TestModelB01SecretReleaseSerializesWithActualDelete",
+    "TestModelB01MigrationFreshUpgradeAndAtomicRetry",
+    "TestModelB01SchemaRejectsNullAndInvalidCompositeFacts"
+  ],
+  "adjacent_regression": [
+    {
+      "group": "project Owner/events",
+      "test": "TestProjectB02OwnerSessionNamePathAndPaging",
+      "file": "tests/project/b02_owner_commands_test.go"
+    },
+    {
+      "group": "project Owner/events",
+      "test": "TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp",
+      "file": "tests/project/b02_owner_commands_test.go"
+    },
+    {
+      "group": "project Owner/events",
+      "test": "TestProjectB02OwnerPortRequiresCallerTransactionLocks",
+      "file": "tests/project/b02_owner_commands_test.go"
+    },
+    {
+      "group": "project Owner/events",
+      "test": "TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal",
+      "file": "tests/project/b02_owner_commands_test.go"
+    },
+    {
+      "group": "project Owner/events",
+      "test": "TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary",
+      "file": "tests/project/b02_owner_commands_test.go"
+    },
+    {
+      "group": "ProjectSecret binding",
+      "test": "TestProjectSecretAuditBindingConstruction",
+      "file": "tests/project/b03_secret_audit_test.go"
+    },
+    {
+      "group": "ProjectSecret binding",
+      "test": "TestProjectSecretAuditBindingCRUD",
+      "file": "tests/project/b03_secret_audit_test.go"
+    },
+    {
+      "group": "ProjectSecret binding",
+      "test": "TestProjectSecretAuditBindingCurrentAuthority",
+      "file": "tests/project/b03_secret_audit_test.go"
+    },
+    {
+      "group": "ProjectSecret binding",
+      "test": "TestProjectSecretAuditBindingFactRejection",
+      "file": "tests/project/b03_secret_audit_test.go"
+    },
+    {
+      "group": "ProjectSecret binding",
+      "test": "TestProjectSecretAuditBindingUnknown",
+      "file": "tests/project/b03_secret_audit_test.go"
+    },
+    {
+      "group": "ProjectSecret binding",
+      "test": "TestProjectSecretAuditBindingResolveGate",
+      "file": "tests/project/b03_secret_audit_test.go"
+    },
+    {
+      "group": "Secret checker/Audit",
+      "test": "TestSecretProjectAuditRealMutationAndReplay",
+      "file": "tests/security/secret_project_audit_test.go"
+    },
+    {
+      "group": "Secret checker/Audit",
+      "test": "TestSecretProjectAuditRealForgeryRollsBack",
+      "file": "tests/security/secret_project_audit_test.go"
+    },
+    {
+      "group": "Secret checker/Audit",
+      "test": "TestSecretProjectAuditCurrentAuthorityStillRequired",
+      "file": "tests/security/secret_project_audit_test.go"
+    },
+    {
+      "group": "Secret checker/Audit",
+      "test": "TestSecretProjectAuditLiveTxAndDirectAppend",
+      "file": "tests/security/secret_project_audit_test.go"
+    },
+    {
+      "group": "Secret checker/Audit",
+      "test": "TestAuditSameTxRollbackReplayAndCurrentAuthorization",
+      "file": "tests/security/audit_append_test.go"
+    },
+    {
+      "group": "Outbox append/Project routing",
+      "test": "TestOutboxAtomicAppendCurrentAuthorityAndReplay",
+      "file": "tests/outbox/append_registration_test.go"
+    },
+    {
+      "group": "Outbox append/Project routing",
+      "test": "TestOutboxMissingLocksPoisonAndMappingChangeRollsBack",
+      "file": "tests/outbox/append_registration_test.go"
+    },
+    {
+      "group": "Outbox append/Project routing",
+      "test": "TestOutboxUnboundProvidersAndForeignPlansFailClosed",
+      "file": "tests/outbox/catalog_boundaries_test.go"
+    },
+    {
+      "group": "Outbox append/Project routing",
+      "test": "TestOutboxIrreversibleDeleteGatePrecedesCompletedReplay",
+      "file": "tests/outbox/append_registration_test.go"
+    },
+    {
+      "group": "Outbox append/Project routing",
+      "test": "TestOutboxNewAuditProducerUsesCurrentHumanAuthorizationAndSameTx",
+      "file": "tests/outbox/audit_test.go"
+    },
+    {
+      "group": "Account current Session",
+      "test": "TestAccountCurrentSessionRequiresRealHeldUserAndCurrentRole",
+      "file": "tests/account/authority_test.go"
+    },
+    {
+      "group": "Account current Session",
+      "test": "TestAccountCurrentRegularHumanAuditDoesNotGrantSystem",
+      "file": "tests/account/privacy_test.go"
+    }
+  ]
+}

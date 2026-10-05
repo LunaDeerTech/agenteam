@@ -1,0 +1,105 @@
+{
+  "baseline": "81fe7427ceb4672247b3d30a51c10a2e2808ba04",
+  "status": "candidate frozen for first real fixture; pure unit/race/vet/build passed; real behavior not yet run",
+  "files": [
+    {
+      "path": "internal/central/model/authority.go",
+      "sha256": "a841fdb3841be814fb18e29c5b910050e07ce8b51bea287512e43077fc03dbe6"
+    },
+    {
+      "path": "internal/central/model/store.go",
+      "sha256": "726c777e5b549ff091e4134f1b82930a643197d24497b6cabb2813191c7657da"
+    },
+    {
+      "path": "internal/central/model/commands.go",
+      "sha256": "c801fae31f25815e00ebe82c41a363d53d9a6ff5c2f246f99541cac91de948e7"
+    },
+    {
+      "path": "internal/central/model/configuration.go",
+      "sha256": "2f09ab296c592c207fe63705e8b2a26ce7089130ae3d40e0071856b77a7d410a"
+    },
+    {
+      "path": "internal/central/model/configuration_policy.go",
+      "sha256": "0802ff9e5fbd14f485b91fb407fe86d1c46a2916469e1c8ac52e98ca21e5a912"
+    },
+    {
+      "path": "internal/central/model/query.go",
+      "sha256": "bcc0f680b3f45299249b405b69a64370a3a97699aae3232b36bc1c7b068d15fd"
+    },
+    {
+      "path": "internal/central/model/references.go",
+      "sha256": "880234288ab809df8ef1ad2af20d555ccd79ed6a6c31cd4a86d6883b3bd5c642"
+    },
+    {
+      "path": "internal/central/model/secret_authority.go",
+      "sha256": "9275aa79a95f8245d284f1fd93d2fd79ea13c06f8fd1459e6b499db0ebef0605"
+    },
+    {
+      "path": "internal/central/model/audit_authority.go",
+      "sha256": "462d2382b047c9cde5f834a41d0bcae16056206f9007c3dd6908dc3f5b4dcda1"
+    },
+    {
+      "path": "internal/central/model/events.go",
+      "sha256": "f7fc23a214eaa1464d18ded39bd8c68a75a206e08047d9c6c4a836643db5cbee"
+    },
+    {
+      "path": "internal/central/project/events.go",
+      "sha256": "4f97a16b6b9176f58c5ce05d22253664d602556a066a7c2ecec5f0995398d52d"
+    },
+    {
+      "path": "internal/central/model/project_query.go",
+      "sha256": "9ed9bf858b9b216e7c544dbe4fab92613c6371e5c97c1d94c905525b580f4602"
+    },
+    {
+      "path": "internal/central/project/external_event_authority.go",
+      "sha256": "d7d43050ca99e20dd221564ad3a3a12c018f9dd0505e6ad68e287e8cd353a519"
+    },
+    {
+      "path": "internal/central/model/project_authority_test.go",
+      "sha256": "e488524a68241f962464d1a63afa140733e87bfc58b7ab3c2f30e5dfa4cf7040"
+    },
+    {
+      "path": "internal/central/model/project_configuration_test.go",
+      "sha256": "2e05e71b103056f8342e4c9b7b8c0493d0ee0890d40e8caea41591ef490a98e0"
+    },
+    {
+      "path": "internal/central/model/project_query_test.go",
+      "sha256": "b8fc9b46d9bd4cd1b54fb255caed292ac4abeb838b8f259f2d4255deec398524"
+    },
+    {
+      "path": "internal/central/project/external_event_authority_test.go",
+      "sha256": "fc4c20657003ca7285fc928ba297e2cbccc8915e26bda1c1de7db144c14f6452"
+    },
+    {
+      "path": "tests/model/project_configuration_fixture_test.go",
+      "sha256": "dc7e575dd2083b73fe4b5b183f9b748c2a9a4db692b0d027230a6456c684947a"
+    },
+    {
+      "path": "tests/model/project_configuration_integration_test.go",
+      "sha256": "21c58aef66fcaddae1eb39ae93937b7553fab675d8ec532698cd5fb06bee3a8e"
+    },
+    {
+      "path": "tests/model/project_configuration_unknown_test.go",
+      "sha256": "f712536ea03590951a9509f8d378f6cfb8895daa77364ae15eddb293fa7b2a54"
+    },
+    {
+      "path": "tests/model/project_available_models_test.go",
+      "sha256": "d0358111f5d0e499eb0b66166aea43ff5641337784b230a7f42bb0efb7804037"
+    }
+  ],
+  "new_integration_tests": [
+    "TestModelProjectCRUDScopeAndCanonicalReceipts",
+    "TestModelProjectSecretReferencesAndAtomicEffects",
+    "TestModelProjectSecretReleaseAndDeletionShareRealWriterLock",
+    "TestModelProjectReceiptReadGateAndLegacySystemPlan",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping",
+    "TestModelProjectUnboundReferencesAndDeleteBarrier",
+    "TestModelProjectPreparationFailureRechecksReadReceipt",
+    "TestModelProjectProducerFactsCannotBeReplayedOrRebound",
+    "TestModelProjectAuditPreparedFactsAndProjectEventStages",
+    "TestModelProjectRealFinalCommitUnknownThreeStates",
+    "TestModelProjectRollbackUnknownCannotAdoptDifferentSemanticReceipt",
+    "TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion",
+    "TestModelProjectQueryCursorsAndEveryPageCurrentAuthority"
+  ]
+}

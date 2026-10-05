@@ -1,0 +1,11 @@
+--- first/project_configuration_test.go
++++ fixed/project_configuration_test.go
+@@ -81,7 +81,7 @@
+ 	identity, _ := commandIdentity(meta, "model.update")
+ 	semantic := hash([]byte("original"))
+ 	receipt := mc.CommandReceipt{Kind: "model.update", ResourceID: mustID[mc.Model](t).String(), Version: 2}
+-	row := &commandRecord{ID: mustID[struct{}](t).String(), Identity: identity.Canonical(), User: actor.Details().UserID, Kind: "model.update", Resource: receipt.ResourceID, Phase: "committed", Semantic: semantic, Receipt: &receipt, Plan: mutationPlan{Project: project.String(), Receipt: receipt}}
++	row := &commandRecord{ID: mustID[struct{}](t).String(), Identity: identity.Canonical(), User: actor.Details().UserID, Kind: "model.update", Resource: receipt.ResourceID, Phase: "committed", Semantic: semantic, Receipt: &receipt, Plan: mutationPlan{Project: project.String(), Semantic: semantic, Receipt: receipt, Metadata: ac.ModelMetadataFields{Version: 2, ChangedFields: []string{"name"}}}}
+ 	st := &projectScopeStore{}
+ 	st.row = func(q string, args ...any) postgres.Row {
+ 		if !strings.Contains(q, "scope='project' AND project_id=$2") || len(args) != 2 || args[1] != project.String() {

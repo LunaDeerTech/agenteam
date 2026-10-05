@@ -1,0 +1,193 @@
+{
+  "observed_at": "2026-10-05T15:01:28Z",
+  "observations": [
+    {
+      "observed_at": "2026-10-05T15:01:26Z",
+      "exact_ids": [
+        {
+          "kind": "containers",
+          "id": "107b7d2d340b71b27d5c88eaced0bc3d23c93f06c213ed621fd29b84a93a514b",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error: No such object: 107b7d2d340b71b27d5c88eaced0bc3d23c93f06c213ed621fd29b84a93a514b"
+        },
+        {
+          "kind": "containers",
+          "id": "27f0244f608eb61b828738f3780160c6a56933435c599784b55627b4b3fee6c0",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error: No such object: 27f0244f608eb61b828738f3780160c6a56933435c599784b55627b4b3fee6c0"
+        },
+        {
+          "kind": "containers",
+          "id": "4e60ce0d5ea455d08d4de571572d527aa847ca6136137344d42ab5d3f3bb46cd",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error: No such object: 4e60ce0d5ea455d08d4de571572d527aa847ca6136137344d42ab5d3f3bb46cd"
+        },
+        {
+          "kind": "containers",
+          "id": "545dbf038fb14bf402c6fe5e9875a36bdb09de859ddd96282b854dc13f0ca2bc",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error: No such object: 545dbf038fb14bf402c6fe5e9875a36bdb09de859ddd96282b854dc13f0ca2bc"
+        },
+        {
+          "kind": "networks",
+          "id": "da0dda1e0acf2d2e3ea7b13838930344de1494fd298d1536fad6c4a06e44de1a",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error response from daemon: network da0dda1e0acf2d2e3ea7b13838930344de1494fd298d1536fad6c4a06e44de1a not found"
+        },
+        {
+          "kind": "networks",
+          "id": "0f3feed2e1e50dd83e4551f72865a2f7720df4bfc19b735f9336b89d2263cbf2",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error response from daemon: network 0f3feed2e1e50dd83e4551f72865a2f7720df4bfc19b735f9336b89d2263cbf2 not found"
+        },
+        {
+          "kind": "networks",
+          "id": "06a6de8f60656409f1a17c4dc87d4f4114c2e648716cdd30fdb48c84b6b9c7da",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error response from daemon: network 06a6de8f60656409f1a17c4dc87d4f4114c2e648716cdd30fdb48c84b6b9c7da not found"
+        }
+      ],
+      "baseline_unchanged": true
+    },
+    {
+      "observed_at": "2026-10-05T15:01:28Z",
+      "exact_ids": [
+        {
+          "kind": "containers",
+          "id": "107b7d2d340b71b27d5c88eaced0bc3d23c93f06c213ed621fd29b84a93a514b",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error: No such object: 107b7d2d340b71b27d5c88eaced0bc3d23c93f06c213ed621fd29b84a93a514b"
+        },
+        {
+          "kind": "containers",
+          "id": "27f0244f608eb61b828738f3780160c6a56933435c599784b55627b4b3fee6c0",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error: No such object: 27f0244f608eb61b828738f3780160c6a56933435c599784b55627b4b3fee6c0"
+        },
+        {
+          "kind": "containers",
+          "id": "4e60ce0d5ea455d08d4de571572d527aa847ca6136137344d42ab5d3f3bb46cd",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error: No such object: 4e60ce0d5ea455d08d4de571572d527aa847ca6136137344d42ab5d3f3bb46cd"
+        },
+        {
+          "kind": "containers",
+          "id": "545dbf038fb14bf402c6fe5e9875a36bdb09de859ddd96282b854dc13f0ca2bc",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error: No such object: 545dbf038fb14bf402c6fe5e9875a36bdb09de859ddd96282b854dc13f0ca2bc"
+        },
+        {
+          "kind": "networks",
+          "id": "da0dda1e0acf2d2e3ea7b13838930344de1494fd298d1536fad6c4a06e44de1a",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error response from daemon: network da0dda1e0acf2d2e3ea7b13838930344de1494fd298d1536fad6c4a06e44de1a not found"
+        },
+        {
+          "kind": "networks",
+          "id": "0f3feed2e1e50dd83e4551f72865a2f7720df4bfc19b735f9336b89d2263cbf2",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error response from daemon: network 0f3feed2e1e50dd83e4551f72865a2f7720df4bfc19b735f9336b89d2263cbf2 not found"
+        },
+        {
+          "kind": "networks",
+          "id": "06a6de8f60656409f1a17c4dc87d4f4114c2e648716cdd30fdb48c84b6b9c7da",
+          "absent": true,
+          "exit_code": 1,
+          "stderr": "Error response from daemon: network 06a6de8f60656409f1a17c4dc87d4f4114c2e648716cdd30fdb48c84b6b9c7da not found"
+        }
+      ],
+      "baseline_unchanged": true
+    }
+  ],
+  "owned_processes": [],
+  "runtime_entries": [],
+  "known_fixture_runner_pid_absent": true,
+  "manifest_sha256": "6d122a4a34b9eb31421c0b795edfb22155dc26d5a50e93b02a3a1f964dee68d6",
+  "source_mismatches": [],
+  "sources_checked": 21,
+  "tops_passed": [
+    "TestAuditSameTxRollbackReplayAndCurrentAuthorization",
+    "TestSecretProjectAuditRealMutationAndReplay",
+    "TestSecretProjectAuditRealForgeryRollsBack",
+    "TestSecretProjectAuditCurrentAuthorityStillRequired",
+    "TestSecretProjectAuditLiveTxAndDirectAppend",
+    "TestOutboxAtomicAppendCurrentAuthorityAndReplay",
+    "TestOutboxMissingLocksPoisonAndMappingChangeRollsBack",
+    "TestOutboxIrreversibleDeleteGatePrecedesCompletedReplay",
+    "TestOutboxNewAuditProducerUsesCurrentHumanAuthorizationAndSameTx",
+    "TestOutboxUnboundProvidersAndForeignPlansFailClosed",
+    "TestAccountCurrentSessionRequiresRealHeldUserAndCurrentRole",
+    "TestAccountCurrentRegularHumanAuditDoesNotGrantSystem",
+    "TestProjectB02OwnerSessionNamePathAndPaging",
+    "TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp",
+    "TestProjectB02OwnerPortRequiresCallerTransactionLocks",
+    "TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal",
+    "TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary",
+    "TestProjectSecretAuditBindingConstruction",
+    "TestProjectSecretAuditBindingCRUD",
+    "TestProjectSecretAuditBindingCurrentAuthority",
+    "TestProjectSecretAuditBindingFactRejection",
+    "TestProjectSecretAuditBindingUnknown",
+    "TestProjectSecretAuditBindingResolveGate",
+    "TestModelProjectQueryCursorsAndEveryPageCurrentAuthority",
+    "TestModelProjectSecretReferencesAndAtomicEffects",
+    "TestModelProjectSecretReleaseAndDeletionShareRealWriterLock",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping",
+    "TestModelProjectUnboundReferencesAndDeleteBarrier",
+    "TestModelProjectProducerFactsCannotBeReplayedOrRebound",
+    "TestModelProjectAuditPreparedFactsAndProjectEventStages",
+    "TestModelProjectRealFinalCommitUnknownThreeStates",
+    "TestModelB01CRUDCurrentAuthorityAndCanonicalReplay",
+    "TestModelB01PlatformSelectionAndAtomicReplacement",
+    "TestModelB01SecretReferencesAndAllEffectsRollback",
+    "TestModelB01CursorAndScopeRemainCurrentlyAuthorized",
+    "TestModelB01WrongCatalogAndProjectScopeHaveNoBusinessWrites",
+    "TestModelB01RealLostCommitReplyPreservesOriginalCauseAndCurrentFacts",
+    "TestModelB01RollbackUnknownCannotAdoptDifferentRequestCommit",
+    "TestModelB01ConcurrentSameKeyPreparationFailureStillReplaysReceipt",
+    "TestModelB01PreparedReferencesAndCurrentAdminAreRechecked",
+    "TestModelB01SecretReleaseSerializesWithActualDelete",
+    "TestModelB01MigrationFreshUpgradeAndAtomicRetry",
+    "TestModelB01SchemaRejectsNullAndInvalidCompositeFacts"
+  ],
+  "tops_expected": 43,
+  "failures": [],
+  "missing": [],
+  "unexpected": [],
+  "subtests_passed": 117,
+  "package_results": [
+    "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/postgres\t1.013s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/tests/database\t1.015s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/app\t1.024s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/tests/process\t15.815s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/tests/security\t21.410s",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/tests/outbox\t6.159s",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox\t1.017s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/outbox/contract\t1.015s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/tests/account\t3.934s",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/tests/accountmail\t1.020s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/accountmail\t1.015s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/recoverylog\t1.018s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/tests/project\t46.424s",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model\t1.014s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/model/contract\t1.020s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/tests/model\t64.922s",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/tests/objects\t1.022s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object\t1.016s [no tests to run]",
+    "ok  \tgithub.com/LunaDeerTech/agenteam/internal/central/object/contract\t1.017s [no tests to run]"
+  ],
+  "log_sha256": "52460eb827cc3cfc30034d2eec952f01730fd176d55d9b98df1a1cb6fa9606eb"
+}

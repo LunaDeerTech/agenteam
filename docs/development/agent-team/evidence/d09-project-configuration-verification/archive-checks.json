@@ -1,0 +1,68 @@
+{
+  "scope": "only new D09 verification report/evidence",
+  "markdown_checks": [
+    {
+      "path": "docs/development/agent-team/d09-project-configuration-verification.md",
+      "utf8_lf_final_newline": true,
+      "trailing_whitespace": false,
+      "fences_balanced": true
+    },
+    {
+      "path": "docs/development/agent-team/evidence/d09-project-configuration-verification/independent-test-rev3-delta.md",
+      "utf8_lf_final_newline": true,
+      "trailing_whitespace": false,
+      "fences_balanced": true
+    },
+    {
+      "path": "docs/development/agent-team/evidence/d09-project-configuration-verification/independent-typednil-delta.md",
+      "utf8_lf_final_newline": true,
+      "trailing_whitespace": false,
+      "fences_balanced": true
+    },
+    {
+      "path": "docs/development/agent-team/evidence/d09-project-configuration-verification/independent-risk-plan.md",
+      "utf8_lf_final_newline": true,
+      "trailing_whitespace": false,
+      "fences_balanced": true
+    },
+    {
+      "path": "docs/development/agent-team/evidence/d09-project-configuration-verification/independent-production-static.md",
+      "utf8_lf_final_newline": true,
+      "trailing_whitespace": false,
+      "fences_balanced": true
+    },
+    {
+      "path": "docs/development/agent-team/evidence/d09-project-configuration-verification/independent-first-red-review.md",
+      "utf8_lf_final_newline": true,
+      "trailing_whitespace": false,
+      "fences_balanced": true
+    },
+    {
+      "path": "docs/development/agent-team/evidence/d09-project-configuration-verification/author-report.md",
+      "utf8_lf_final_newline": true,
+      "trailing_whitespace": false,
+      "fences_balanced": true
+    }
+  ],
+  "relative_links_checked": 35,
+  "json_parsed": 27,
+  "python_ast": "valid",
+  "raw_artifact_byte_provenance_verified": 59,
+  "implementation_patch_rebuild": "actual prepare-only rebuilt 21 exact hashes and independent probe; no Go/SQL/Docker in archive checks",
+  "git_diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "docs/development/agent-team/d09-project-configuration-verification.md",
+      "docs/development/agent-team/evidence/d09-project-configuration-verification"
+    ],
+    "exit": 0,
+    "output": "",
+    "new_file_note": "also explicitly checked new Markdown formatting and links; raw logs/patches preserved byte-exact, not whitespace-normalized"
+  },
+  "ignored_paths": [],
+  "git_writes": false,
+  "shared_state_or_production_writes": false
+}

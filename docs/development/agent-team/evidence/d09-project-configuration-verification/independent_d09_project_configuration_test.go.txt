@@ -1,0 +1,307 @@
+//go:build integration
+
+package model_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"testing"
+
+	ec "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/model"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+)
+
+// This independently composes the six real mutations with both retained Read
+// gates. The archived checkpoint is the accepted fixture's legal input, not a
+// claim that a production Archive/Restore runtime has been delivered.
+func TestModelProjectIndependentSixHistoricalReceiptsRequireCurrentRead(t *testing.T) {
+	for _, lifecycle := range []c.Lifecycle{c.Archiving, c.Archived} {
+		t.Run(string(lifecycle), func(t *testing.T) {
+			v := newProjectConfigurationFixture(t)
+			ctx := testContext(t)
+			credential := v.projectCredential(t, sc.Model)
+			providerInput := projectProviderInput()
+			providerInput.CredentialRef = &credential.CredentialRef
+			updatedProvider := providerInput.Clone()
+			updatedProvider.Name = "independent updated provider"
+			modelInput := projectModelInput()
+			updatedModel := modelInput.Clone()
+			updatedModel.Name = "independent updated model"
+			var provider mc.ProviderID
+			var selected mc.ModelID
+			type command struct {
+				name string
+				run  func(mc.CommandMeta) (mc.CommandReceipt, error)
+			}
+			commands := []command{
+				{"provider.create", func(meta mc.CommandMeta) (mc.CommandReceipt, error) {
+					return v.service.CreateProvider(ctx, mc.CreateProviderRequest{CommandMeta: meta, Input: providerInput})
+				}},
+				{"model.create", func(meta mc.CommandMeta) (mc.CommandReceipt, error) {
+					return v.service.CreateModel(ctx, mc.CreateModelRequest{CommandMeta: meta, ProviderID: provider, Input: modelInput})
+				}},
+				{"provider.update", func(meta mc.CommandMeta) (mc.CommandReceipt, error) {
+					return v.service.UpdateProvider(ctx, mc.UpdateProviderRequest{CommandMeta: meta, ID: provider, ExpectedVersion: 1, Input: updatedProvider})
+				}},
+				{"model.update", func(meta mc.CommandMeta) (mc.CommandReceipt, error) {
+					return v.service.UpdateModel(ctx, mc.UpdateModelRequest{CommandMeta: meta, ID: selected, ExpectedVersion: 1, Input: updatedModel})
+				}},
+				{"model.delete", func(meta mc.CommandMeta) (mc.CommandReceipt, error) {
+					return v.service.DeleteModel(ctx, mc.DeleteModelRequest{CommandMeta: meta, ID: selected, ExpectedVersion: 2})
+				}},
+				{"provider.delete", func(meta mc.CommandMeta) (mc.CommandReceipt, error) {
+					return v.service.DeleteProvider(ctx, mc.DeleteProviderRequest{CommandMeta: meta, ID: provider, ExpectedVersion: 2})
+				}},
+			}
+			receipts := make([]mc.CommandReceipt, len(commands))
+			for i, command := range commands {
+				r, err := command.run(v.projectMeta(t, "independent-original-"+command.name))
+				if err != nil {
+					t.Fatal("initial real mutation", command.name, err)
+				}
+				receipts[i] = r
+				if command.name == "provider.create" {
+					provider, err = f.ParseID[mc.Provider](r.ResourceID)
+				} else if command.name == "model.create" {
+					selected, err = f.ParseID[mc.Model](r.ResourceID)
+				}
+				if err != nil {
+					t.Fatal(err)
+				}
+			}
+			if got := v.modelCounts(t); got != [6]int64{0, 0, 6, 6, 6, 0} {
+				t.Fatal("six mutations must delete canonical rows and release the exact reference", got)
+			}
+			v.gate(t, lifecycle)
+			uid, err := f.ParseID[id.User](v.owner.Details().UserID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			current := v.session(t, uid)
+			v.revokeSession(t, v.owner)
+			before := v.modelCounts(t)
+			for i, command := range commands {
+				meta := v.projectMeta(t, "independent-original-"+command.name)
+				meta.Actor = current
+				r, err := command.run(meta)
+				if err != nil || r != receipts[i] {
+					t.Fatal("current Read must return historical exact receipt before Mutate or resource loading", command.name, err)
+				}
+				lookup, err := v.service.LookupCommand(ctx, model.LookupCommandRequest{Meta: meta, Command: command.name})
+				if err != nil || !lookup.Found || lookup.Receipt == nil || *lookup.Receipt != receipts[i] {
+					t.Fatal("current Read command lookup", command.name, err)
+				}
+				meta.Actor = v.owner
+				r, err = command.run(meta)
+				requireCode(t, err, f.SessionRevoked)
+				if r != (mc.CommandReceipt{}) {
+					t.Fatal("revoked Session received a historical receipt")
+				}
+				lookup, err = v.service.LookupCommand(ctx, model.LookupCommandRequest{Meta: meta, Command: command.name})
+				requireCode(t, err, f.SessionRevoked)
+				if lookup.Found || lookup.Receipt != nil {
+					t.Fatal("revoked Session command lookup leaked a receipt")
+				}
+				meta.Actor = current
+				meta.Key = f.IdempotencyKey("independent-new-" + command.name)
+				r, err = command.run(meta)
+				requireCode(t, err, f.ProjectNotActive)
+				if r != (mc.CommandReceipt{}) {
+					t.Fatal("inactive Project accepted a new mutation")
+				}
+			}
+			v.unchanged(t, before)
+			// A canonical Owner change is an explicit authority fixture input.
+			// It does not impersonate a delivered ownership-transfer command.
+			nextOwner := v.human(t, "user")
+			ownerKey, _ := f.UserLock(current.Details().UserID)
+			nextKey, _ := f.UserLock(nextOwner.Details().UserID)
+			projectKey, _ := f.ProjectLock(v.project.ID.String())
+			result := v.raw.WithinTx(ctx, recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
+				if err := v.raw.AcquireAll(ctx, tx, []f.LockRequest{{Key: ownerKey, Mode: f.Exclusive}, {Key: nextKey, Mode: f.Exclusive}, {Key: projectKey, Mode: f.Exclusive}}); err != nil {
+					return err
+				}
+				x, err := v.raw.InTx(tx)
+				if err != nil {
+					return err
+				}
+				tag, err := x.Exec(ctx, `UPDATE agenteam_project.projects SET owner_user_id=$2 WHERE id=$1 AND owner_user_id=$3`, v.project.ID.String(), nextOwner.Details().UserID, current.Details().UserID)
+				if err == nil && tag.RowsAffected() != 1 {
+					return f.NewFault(f.InvalidState, f.NotStarted)
+				}
+				return err
+			})
+			if result.State() != f.Committed {
+				t.Fatal("canonical Owner fixture", result.Fault())
+			}
+			for _, command := range commands {
+				meta := v.projectMeta(t, "independent-original-"+command.name)
+				meta.Actor = current
+				r, err := command.run(meta)
+				requireCode(t, err, f.NotFound)
+				if r != (mc.CommandReceipt{}) {
+					t.Fatal("former Owner received historical receipt")
+				}
+				lookup, err := v.service.LookupCommand(ctx, model.LookupCommandRequest{Meta: meta, Command: command.name})
+				requireCode(t, err, f.NotFound)
+				if lookup.Found || lookup.Receipt != nil {
+					t.Fatal("former Owner command lookup leaked a receipt")
+				}
+			}
+			v.unchanged(t, before)
+			t.Log("all six original receipts survived the Read gate; new mutations and both forms of lost current access had zero Model effects")
+		})
+	}
+}
+
+type independentLateProjectGate struct {
+	oc.Appender
+	check func(context.Context, f.Tx, id.Actor, ec.Event, oc.AppendPlan) error
+}
+
+func (p independentLateProjectGate) AppendEventInTx(ctx context.Context, tx f.Tx, actor id.Actor, event ec.Event, plan oc.AppendPlan) (oc.AppendReceipt, error) {
+	receipt, err := p.Appender.AppendEventInTx(ctx, tx, actor, event, plan)
+	if err != nil {
+		return receipt, err
+	}
+	if err = p.check(ctx, tx, actor, event, plan); err != nil {
+		return oc.AppendReceipt{}, err
+	}
+	return receipt, nil
+}
+
+// The negative Project request is checked after the actual Outbox row exists.
+// It therefore tests the real grant binding together with rollback of an old
+// Provider row, both Secret reference directions, Audit, event and command.
+func TestModelProjectIndependentLateGateBindingRollsBackAllFacts(t *testing.T) {
+	for _, mode := range []string{"same-user-session", "same-owner-other-project", "summary-header-version"} {
+		t.Run(mode, func(t *testing.T) {
+			v := newProjectConfigurationFixture(t)
+			ctx := testContext(t)
+			oldSecret := v.projectCredential(t, sc.Model)
+			newSecret := v.projectCredential(t, sc.Model)
+			original := v.projectProvider(t, &oldSecret.CredentialRef)
+			other := v.createProject(t, v.owner)
+			if other.ID == v.project.ID {
+				t.Fatal("cross-Project probe requires two distinct real Projects")
+			}
+			if _, err := v.service.ListProjectProviders(ctx, v.owner, other.ID, model.ProjectQuery{Limit: 1}); err != nil {
+				t.Fatal("second Project must be readable by the same actual Owner", err)
+			}
+			uid, err := f.ParseID[id.User](v.owner.Details().UserID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			otherSession := v.session(t, uid)
+			if err := v.accounts.RequireCurrentSession(ctx, f.Tx{}, otherSession); err != nil {
+				t.Fatal("alternate Session must be current", err)
+			}
+			input := original.Input.Clone()
+			input.Name = "independent real pending update"
+			input.CredentialRef = &newSecret.CredentialRef
+			request := mc.UpdateProviderRequest{CommandMeta: v.projectMeta(t, "independent-late-binding"), ID: original.ID, ExpectedVersion: 1, Input: input}
+			identity, err := f.NewCommandIdentity("model.project", []string{v.project.ID.String(), v.owner.Details().UserID}, "provider.update", request.Key)
+			if err != nil {
+				t.Fatal(err)
+			}
+			observed := false
+			typedAccepted := false
+			var gateErr error
+			wrapper := independentLateProjectGate{Appender: v.events}
+			wrapper.check = func(ctx context.Context, tx f.Tx, actor id.Actor, event ec.Event, plan oc.AppendPlan) error {
+				x, err := v.raw.InTx(tx)
+				if err != nil {
+					return err
+				}
+				var complete bool
+				err = x.QueryRow(ctx, `SELECT
+				 EXISTS(SELECT 1 FROM agenteam_model.providers WHERE id=$2 AND project_id=$1 AND version=2 AND credential_id=$3 AND name=$7)
+				 AND EXISTS(SELECT 1 FROM agenteam_secret.secret_references WHERE owner_id=$2 AND project_id=$1 AND credential_id=$3 AND consumer='model')
+				 AND NOT EXISTS(SELECT 1 FROM agenteam_secret.secret_references WHERE owner_id=$2 AND credential_id=$4 AND consumer='model')
+				 AND EXISTS(SELECT 1 FROM agenteam_audit.audit_records WHERE producer='model' AND action='provider.update' AND project_id=$1 AND resource_id=$2 AND (metadata->>'version')::bigint=2)
+				 AND EXISTS(SELECT 1 FROM agenteam_outbox.events WHERE id=$5 AND producer='model' AND project_id=$1 AND aggregate_id=$2 AND aggregate_version=2)
+				 AND EXISTS(SELECT 1 FROM agenteam_model.commands WHERE command_identity=$6 AND project_id=$1 AND resource_id=$2 AND event_id=$5 AND phase='prepared' AND safe_receipt IS NULL)`, v.project.ID.String(), original.ID.String(), newSecret.CredentialRef.Details().ID.String(), oldSecret.CredentialRef.Details().ID.String(), event.Header().EventID.String(), identity.Canonical(), input.Name).Scan(&complete)
+				if err != nil {
+					return err
+				}
+				if !complete {
+					return errors.New("late rejection did not follow all real transactional facts")
+				}
+				observed = true
+				details := oc.ProjectRequestDetails{Kind: oc.AppendProject, ProjectID: v.project.ID, Actor: actor, Stage: oc.NewFact, Event: event.Summary()}
+				switch mode {
+				case "same-user-session":
+					details.Actor = otherSession
+				case "same-owner-other-project":
+					details.ProjectID = other.ID
+					otherEventProject, err := f.ParseID[ec.Project](other.ID.String())
+					if err != nil {
+						return err
+					}
+					details.Event.Header.Scope.ProjectID = otherEventProject
+				case "summary-header-version":
+					version := f.Version(3)
+					details.Event.Header.AggregateVersion = &version
+				}
+				forged, err := oc.NewProjectRequest(details)
+				if err != nil {
+					return err
+				}
+				typedAccepted = true
+				gateErr = v.projects.ValidateInTx(ctx, tx, forged, plan.Details().Project)
+				return gateErr
+			}
+			deps := v.deps
+			deps.Events = wrapper
+			before := v.modelCounts(t)
+			receipt, err := v.withDeps(t, deps).UpdateProvider(ctx, request)
+			if !observed || !typedAccepted {
+				t.Fatal("probe did not reach real Project validation after real complete facts and legal typed construction", err)
+			}
+			requireCode(t, gateErr, f.Forbidden)
+			requireCode(t, err, f.Forbidden)
+			var fault *f.Fault
+			if !errors.As(err, &fault) || fault.CommitState != f.NotCommitted || receipt != (mc.CommandReceipt{}) {
+				t.Fatal("late forbidden result must prove rollback with no receipt", err)
+			}
+			v.unchanged(t, before)
+			actual, err := v.service.GetProjectProvider(ctx, v.owner, v.project.ID, original.ID)
+			if err != nil {
+				t.Fatal(err)
+			}
+			beforeJSON, e1 := json.Marshal(original)
+			afterJSON, e2 := json.Marshal(actual)
+			if e1 != nil || e2 != nil || !bytes.Equal(beforeJSON, afterJSON) {
+				t.Fatal("complete Provider state escaped rollback")
+			}
+			var exact bool
+			err = v.raw.QueryRow(ctx, `SELECT
+			 EXISTS(SELECT 1 FROM agenteam_secret.secret_references WHERE owner_id=$1 AND project_id=$2 AND credential_id=$3 AND consumer='model')
+			 AND NOT EXISTS(SELECT 1 FROM agenteam_secret.secret_references WHERE owner_id=$1 AND credential_id=$4 AND consumer='model')
+			 AND (SELECT count(*) FROM agenteam_secret.secrets WHERE id IN ($3,$4) AND project_id=$2 AND purpose='model' AND version=1)=2
+			 AND NOT EXISTS(SELECT 1 FROM agenteam_model.commands WHERE command_identity=$5)`, original.ID.String(), v.project.ID.String(), oldSecret.CredentialRef.Details().ID.String(), newSecret.CredentialRef.Details().ID.String(), identity.Canonical()).Scan(&exact)
+			if err != nil || !exact {
+				t.Fatal("exact old/new reference or Secret/command facts escaped rollback", err)
+			}
+			// The unchanged legitimate request must then commit exactly once.
+			receipt, err = v.service.UpdateProvider(ctx, request)
+			if err != nil || receipt.Version != 2 {
+				t.Fatal("valid retry after exact rollback", err)
+			}
+			want := before
+			want[2]++
+			want[3]++
+			want[4]++
+			v.unchanged(t, want)
+			t.Log("typed-valid Project rebinding refused after real update, both references, Audit, Outbox and command; complete rollback and one valid retry observed")
+		})
+	}
+}

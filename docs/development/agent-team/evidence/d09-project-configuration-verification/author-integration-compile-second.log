@@ -1,0 +1,10 @@
+# ./tests/secrets
+stat /tmp/agenteam-d09-project-config-tycjqwxh/tree/tests/secrets: directory not found
+FAIL	./tests/secrets [setup failed]
+# ./tests/accounts
+stat /tmp/agenteam-d09-project-config-tycjqwxh/tree/tests/accounts: directory not found
+FAIL	./tests/accounts [setup failed]
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.017s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.018s [no tests to run]
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.017s [no tests to run]
+FAIL

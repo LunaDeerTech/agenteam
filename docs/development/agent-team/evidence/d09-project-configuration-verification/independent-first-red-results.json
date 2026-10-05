@@ -1,0 +1,32 @@
+{
+  "top_level_failed": [
+    "TestModelProjectQueryCursorsAndEveryPageCurrentAuthority",
+    "TestModelProjectSecretReferencesAndAtomicEffects",
+    "TestModelProjectSecretReleaseAndDeletionShareRealWriterLock",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping",
+    "TestModelProjectUnboundReferencesAndDeleteBarrier",
+    "TestModelProjectAuditPreparedFactsAndProjectEventStages",
+    "TestModelProjectRealFinalCommitUnknownThreeStates"
+  ],
+  "top_level_failed_count": 7,
+  "failure_locations": [
+    "project_available_models_test.go:161: DATABASE_SQL_FAILED",
+    "project_configuration_integration_test.go:219: safe code got INVALID_ARGUMENT, want FORBIDDEN",
+    "project_configuration_integration_test.go:260: safe code got INTERNAL_ERROR, want RESOURCE_BUSY",
+    "project_configuration_integration_test.go:388: DATABASE_SQL_FAILED",
+    "project_configuration_integration_test.go:531: safe code got INTERNAL_ERROR, want RESOURCE_BUSY",
+    "project_configuration_integration_test.go:812: INVALID_ARGUMENT",
+    "project_configuration_integration_test.go:808: INVALID_ARGUMENT",
+    "project_configuration_integration_test.go:894: safe code got INTERNAL_ERROR, want DEPENDENCY_UNAVAILABLE",
+    "project_configuration_unknown_test.go:199: DATABASE_SQL_FAILED",
+    "project_configuration_unknown_test.go:209: safe code got INTERNAL_ERROR, want RESOURCE_BUSY"
+  ],
+  "failure_location_count": 10,
+  "dynamic_review_run": false,
+  "rev2_manifest_sha256": "8c4fd951ededc8933eabe58232a74f33943b90b1dcdfc4a776c7b93b972733d9",
+  "author_delta_sha256": "d4a79b3810df2de8626cb52d1da20618866753cebf4f009deb17a904d6afc9b4",
+  "production13_unchanged": true,
+  "pure_tests4_unchanged": true,
+  "integration_test_changes": 4,
+  "pending": "ProviderUpdate fields tamper canonical/view rollback assertion"
+}

@@ -1,0 +1,203 @@
+--- candidate-rev1/tests/model/project_configuration_fixture_test.go
++++ candidate-rev2/tests/model/project_configuration_fixture_test.go
+@@ -227,6 +227,32 @@
+ 	if _, err := v.raw.Exec(testContext(t), query, args...); err != nil {
+ 		t.Fatal(err)
+ 	}
++}
++
++func (v *projectConfigurationFixture) revokeSession(t *testing.T, actor id.Actor) {
++	t.Helper()
++	ctx := testContext(t)
++	tag, err := v.raw.Exec(ctx, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='administrative' WHERE id=$1 AND revoked_at IS NULL`, actor.Details().SessionID)
++	if err != nil || tag.RowsAffected() != 1 {
++		t.Fatal("complete Session revocation fact", err)
++	}
++	var revoked bool
++	if err = v.raw.QueryRow(ctx, `SELECT revoked_at IS NOT NULL AND revoked_reason='administrative' FROM agenteam_account.sessions WHERE id=$1`, actor.Details().SessionID).Scan(&revoked); err != nil || !revoked {
++		t.Fatal("Session revocation did not persist", err)
++	}
++	requireCode(t, v.accounts.RequireCurrentSession(ctx, f.Tx{}, actor), f.SessionRevoked)
++}
++
++// Adapter lock timeouts poison the actual transaction. They are distinct from
++// a domain ResourceBusy refusal after successfully acquiring its locks.
++func requireProjectLockTimeout(t *testing.T, err error) {
++	t.Helper()
++	var fault *f.Fault
++	var database *postgres.Error
++	if !errors.As(err, &fault) || fault.Code != f.InternalError || fault.CommitState != f.NotCommitted || !errors.As(err, &database) || database.Code() != postgres.LockFailed || database.SQLState() != "55P03" {
++		t.Fatal("expected NotCommitted InternalError + DATABASE_LOCK_FAILED/55P03", err, postgres.CodeOf(err))
++	}
++	t.Log("actual NotCommitted InternalError -> DATABASE_LOCK_FAILED SQLSTATE 55P03")
+ }
+ func (v *projectConfigurationFixture) modelCounts(t *testing.T) [6]int64 {
+ 	t.Helper()
+--- candidate-rev1/tests/model/project_configuration_integration_test.go
++++ candidate-rev2/tests/model/project_configuration_integration_test.go
+@@ -216,7 +216,7 @@
+ 	system := v.credential(t, sc.Model)
+ 	input.CredentialRef = &system.CredentialRef
+ 	_, err = v.service.CreateProvider(ctx, mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "wrong-scope"), Input: input})
+-	requireCode(t, err, f.Forbidden)
++	requireCode(t, err, f.InvalidArgument)
+ 	v.unchanged(t, before)
+ }
+ 
+@@ -257,7 +257,7 @@
+ 	done := make(chan error, 1)
+ 	go func() { _, err := service.UpdateProvider(ctx, request); done <- err }()
+ 	waitSignal(t, held)
+-	requireCode(t, v.deleteProjectCredential(t, credential), f.ResourceBusy)
++	requireProjectLockTimeout(t, v.deleteProjectCredential(t, credential))
+ 	unblock()
+ 	select {
+ 	case err := <-done:
+@@ -385,7 +385,7 @@
+ 			switch scenario {
+ 			case "session":
+ 				intervene = func() {
+-					v.sql(t, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp() WHERE id=$1`, v.owner.Details().SessionID)
++					v.revokeSession(t, v.owner)
+ 				}
+ 			case "owner":
+ 				want = f.NotFound
+@@ -528,7 +528,7 @@
+ 		waitSignal(t, held)
+ 		before := v.modelCounts(t)
+ 		_, err := v.service.DeleteModel(ctx, mc.DeleteModelRequest{CommandMeta: v.projectMeta(t, "blocked-by-builder"), ID: m.ID, ExpectedVersion: 1})
+-		requireCode(t, err, f.ResourceBusy)
++		requireProjectLockTimeout(t, err)
+ 		v.unchanged(t, before)
+ 		unblock()
+ 		select {
+@@ -723,6 +723,9 @@
+ 						}
+ 					}
+ 					callback = v.authority.ValidateAppendInTx(context.WithoutCancel(tap.ctx), tx, tap.actor, tap.summary, tap.plan.Details().Producer, oc.NewFact)
++					if mode != "new-transaction" {
++						return nil
++					} // ignored primitive failure must still poison
+ 					return callback
+ 				})
+ 				if result.State() != f.NotCommitted {
+@@ -768,6 +771,10 @@
+ 			ctx := testContext(t)
+ 			uid, _ := f.ParseID[id.User](v.owner.Details().UserID)
+ 			renewed := v.session(t, uid)
++			var original mc.ProviderView
++			if scenario == "fields" {
++				original = v.projectProvider(t, nil)
++			}
+ 			tap := &projectModelAuditTap{inner: v.aud}
+ 			tap.change = func(ctx context.Context, tx f.Tx, e ac.Entry, k ac.AppendKey) (context.Context, ac.Entry, ac.AppendKey) {
+ 				fields := e.Fields()
+@@ -783,7 +790,17 @@
+ 				case "scope":
+ 					fields.Scope = id.SystemScope()
+ 				case "resource":
+-					fields.Resource, err = ac.NewResource(ac.ModelProviderResource, newID[mc.Provider](t).String())
++					resource := newID[mc.Provider](t).String()
++					fields.Resource, err = ac.NewResource(ac.ModelProviderResource, resource)
++					if err != nil {
++						t.Fatal(err)
++					}
++					metadata, metadataErr := fields.Metadata.ModelFields()
++					if metadataErr != nil {
++						t.Fatal(metadataErr)
++					}
++					metadata.ProviderID = resource
++					fields.Metadata, err = ac.ModelMetadata(fields.Action, metadata)
+ 				case "version", "fields":
+ 					var metadata ac.ModelMetadataFields
+ 					if err = json.Unmarshal(fields.Metadata.JSON(), &metadata); err != nil {
+@@ -792,7 +809,7 @@
+ 					if scenario == "version" {
+ 						metadata.Version++
+ 					} else {
+-						metadata.ChangedFields = []string{"name"}
++						metadata.ChangedFields = []string{"enabled"}
+ 					}
+ 					fields.Metadata, err = ac.ModelMetadata(fields.Action, metadata)
+ 				case "missing-context":
+@@ -816,12 +833,16 @@
+ 			d := v.deps
+ 			d.Audit = tap
+ 			before := v.modelCounts(t)
+-			_, err := v.withDeps(t, d).CreateProvider(ctx, mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "tamper-"+scenario), Input: projectProviderInput()})
+-			if scenario == "missing-context" {
+-				requireCode(t, tap.innerErr, f.Forbidden)
++			service := v.withDeps(t, d)
++			var err error
++			if scenario == "fields" {
++				input := original.Input.Clone()
++				input.Name = "actual-name-change"
++				_, err = service.UpdateProvider(ctx, mc.UpdateProviderRequest{CommandMeta: v.projectMeta(t, "tamper-fields"), ID: original.ID, ExpectedVersion: 1, Input: input})
+ 			} else {
+-				requireCode(t, tap.innerErr, f.Forbidden)
+-			}
++				_, err = service.CreateProvider(ctx, mc.CreateProviderRequest{CommandMeta: v.projectMeta(t, "tamper-"+scenario), Input: projectProviderInput()})
++			}
++			requireCode(t, tap.innerErr, f.Forbidden)
+ 			requireCode(t, err, f.Forbidden)
+ 			v.unchanged(t, before)
+ 		})
+@@ -866,10 +887,22 @@
+ 					}
+ 				}
+ 				callback = authority.ValidateInTx(ctx, tx, r, deps)
++				if !locks {
++					return nil
++				} // ignored missing-lock error must still poison
+ 				return callback
+ 			})
+ 			if callback != nil && result.State() != f.NotCommitted {
+ 				t.Fatal("authorization failure did not roll back")
++			}
++			if !locks {
++				requireCode(t, callback, f.DependencyUnavailable)
++				requireCode(t, result.Fault(), f.InternalError)
++				if result.State() != f.NotCommitted || postgres.CodeOf(callback) != postgres.LockNotHeld || postgres.CodeOf(result.Fault()) != postgres.LockNotHeld {
++					t.Fatal("exact ignored missing-lock callback/poison boundary", callback, result.Fault())
++				}
++				t.Log("Project callback DependencyUnavailable/LOCK_NOT_HELD; ignored error still NotCommitted InternalError/LOCK_NOT_HELD")
++				return callback
+ 			}
+ 			if result.State() != f.Committed {
+ 				return result.Fault()
+--- candidate-rev1/tests/model/project_configuration_unknown_test.go
++++ candidate-rev2/tests/model/project_configuration_unknown_test.go
+@@ -196,7 +196,7 @@
+ 				v.gate(t, c.Archived)
+ 			}
+ 			if mode == "committed-revoked" {
+-				v.sql(t, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp() WHERE id=$1`, v.owner.Details().SessionID)
++				v.revokeSession(t, v.owner)
+ 			}
+ 			if mode == "rollback" {
+ 				v.releaseWriter()
+@@ -206,7 +206,7 @@
+ 				}
+ 			}
+ 			if mode == "pending" {
+-				requireCode(t, v.writerLock(t), f.ResourceBusy)
++				requireProjectLockTimeout(t, v.writerLock(t))
+ 			}
+ 			v.releaseConfirmation()
+ 			var got response
+--- candidate-rev1/tests/model/project_available_models_test.go
++++ candidate-rev2/tests/model/project_available_models_test.go
+@@ -158,11 +158,11 @@
+ 	requireCode(t, err, f.CursorInvalid)
+ 	_, err = v.service.ListAvailableChatModels(ctx, v.admin, v.project.ID, model.ProjectQuery{Limit: 1, Cursor: first.NextCursor})
+ 	requireCode(t, err, f.NotFound)
+-	v.sql(t, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp() WHERE id=$1`, newSession.Details().SessionID)
++	v.revokeSession(t, newSession)
+ 	_, err = v.service.ListAvailableChatModels(ctx, newSession, v.project.ID, model.ProjectQuery{Limit: 1, Cursor: first.NextCursor})
+ 	requireCode(t, err, f.SessionRevoked)
+ 	// Revocation applies independently to configuration pages as well.
+-	v.sql(t, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp() WHERE id=$1`, v.owner.Details().SessionID)
++	v.revokeSession(t, v.owner)
+ 	_, err = v.service.ListProjectProviders(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 1, Cursor: providers.NextCursor})
+ 	requireCode(t, err, f.SessionRevoked)
+ 	_, err = v.service.ListProjectModels(ctx, v.owner, v.project.ID, model.ProjectQuery{Limit: 1, Cursor: models.NextCursor})

@@ -1,0 +1,10 @@
+{
+  "path": "tests/model/d09_independent_test.go",
+  "sha256": "69827f5a7ad28ffed51f4c237dde14639c27cec8c48271ecf0817bb4918df5fd",
+  "top_tests": [
+    "TestModelProjectIndependentSixHistoricalReceiptsRequireCurrentRead",
+    "TestModelProjectIndependentLateGateBindingRollsBackAllFacts"
+  ],
+  "subtests": 5,
+  "compile_only": true
+}

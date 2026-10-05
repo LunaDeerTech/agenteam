@@ -1,0 +1,297 @@
+[
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/candidate-rev3-manifest.json",
+    "archived": "source-manifest.json",
+    "sha256": "6d122a4a34b9eb31421c0b795edfb22155dc26d5a50e93b02a3a1f964dee68d6"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/candidate-rev1/manifest.json",
+    "archived": "author-first-source-manifest.json",
+    "sha256": "d743fa508bea0477651b74b9848c5c2cd8e4d085a7c1857f2ec7fff30b3ec8ca"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/candidate-rev2/manifest.json",
+    "archived": "author-test-rev2-manifest.json",
+    "sha256": "8c4fd951ededc8933eabe58232a74f33943b90b1dcdfc4a776c7b93b972733d9"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/production-rev2/manifest.json",
+    "archived": "author-reviewed-production-manifest.json",
+    "sha256": "8e4fc45cf8396774172bfb191fb8fd22f99a5d4761f275aeb4595901639bcfaf"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/probes/d09_independent_test.go",
+    "archived": "independent_d09_project_configuration_test.go.txt",
+    "sha256": "69827f5a7ad28ffed51f4c237dde14639c27cec8c48271ecf0817bb4918df5fd"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/probe-manifest.json",
+    "archived": "independent-probe-manifest.json",
+    "sha256": "31e56103c4f5353923f451882de401ac8478184a9bbe90d225d2e5da494929f0"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/compile-input.json",
+    "archived": "independent-compile-input.json",
+    "sha256": "e2e6f79e6e3bbea53c1daf5dfb34cd234fbfc584095e5e735ad69013e0577c41"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/compile-result.json",
+    "archived": "independent-compile-result.json",
+    "sha256": "e110bfe9190af67cff3e8cf4b2f19b83fc8695402253f23b7fbd28143f95ac91"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/logs/probe-compile-1.log",
+    "archived": "independent-compile.log",
+    "sha256": "96e14891023369dc0444d9adf961a8ad542941733d2d30b3089ff768dc6b4524"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/independent-real-1-input.json",
+    "archived": "independent-real-input.json",
+    "sha256": "eabb12618649343a2921b74121741958515a055aa7b6522e54a52d58f7d2062e"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/independent-real-1-result.json",
+    "archived": "independent-real-result.json",
+    "sha256": "95863466c6220c722ea4e8a87aaf27c248a4c46f3173e054f1da936c187dcc9b"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/logs/independent-real-1.log",
+    "archived": "independent-real.log",
+    "sha256": "e9b555f4c5d7c4313c25a98e78d14c39442d63514b0f96f590d38fe06df8e300"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/independent-real-1-owned.json",
+    "archived": "independent-owned-resources.json",
+    "sha256": "013c748f6a5e2ff988b7c4e00d44d7c26b2550df88497d551a50be403b8ee744"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/docker-baseline.json",
+    "archived": "independent-docker-baseline.json",
+    "sha256": "259b21f744b1ef5827208b3adbd32f81e83b3b59c30f851bc69c30cbf47cb433"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/independent-handoff.json",
+    "archived": "independent-handoff.json",
+    "sha256": "8be832449a538afc178c752e1b6f274e2c8260556db20535a4f8523616741903"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/run_real.py",
+    "archived": "original-independent-runner.py.txt",
+    "sha256": "1d0bf561136a4631a427140ca3051c00748b94c165ec91c575adfebf96597cd9"
+  },
+  {
+    "source": "/tmp/agenteam-d09-final-verification-7he7srci/acceptance-prep.md",
+    "archived": "independent-risk-plan.md",
+    "sha256": "7760988c9a8076ed1059766fa314b1f7ac950b4d35d1fc3d30a59b5fe0765efb"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/author-report.md",
+    "archived": "author-report.md",
+    "sha256": "5f27349f3973839a51873d542889b8dfb13f2617a205a5938c8dd8e157c1c8ab"
+  },
+  {
+    "source": "/tmp/agenteam-d09-production-static-rfo58v0z/review.md",
+    "archived": "independent-production-static.md",
+    "sha256": "217e6fd47e5dc345cce1129e58dfd3bfac6336bcfb4f5aa3948f6c24a9edaa53"
+  },
+  {
+    "source": "/tmp/agenteam-d09-typednil-delta-review-735e0f1l/review.md",
+    "archived": "independent-typednil-delta.md",
+    "sha256": "7dc942291ebb7051a43cc1d3da3fca5fe482b9415c5b754b0777f1a3e87742d2"
+  },
+  {
+    "source": "/tmp/agenteam-d09-first-red-review-h0j354kq/review.md",
+    "archived": "independent-first-red-review.md",
+    "sha256": "f603c79580b33dbbe16cffef74545f5b30220d6cab7c52197cd8c161ee528d6f"
+  },
+  {
+    "source": "/tmp/agenteam-d09-first-red-review-h0j354kq/delta-rev3-review.md",
+    "archived": "independent-test-rev3-delta.md",
+    "sha256": "15d8b68570fc8b21dad6a94caa072518260b2e5b2ddb4d4e6c9705ec120345a0"
+  },
+  {
+    "source": "/tmp/agenteam-d09-first-red-review-h0j354kq/result.json",
+    "archived": "independent-first-red-results.json",
+    "sha256": "adf0eee1c772570041e60dd71e78465c78c2c8a03448c4de5ad7132492825f34"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/author-evidence-sha256.json",
+    "archived": "author-author-evidence-sha256.json",
+    "sha256": "6be4bbe8ad36f58319980da57d4583c0dae4094dc366e19e477220dab1765ae0"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/pure-race-rev2.log",
+    "archived": "author-pure-race-rev2.log",
+    "sha256": "73ba3571f69090d3c2207b31b34c6205947746f59f66c8cdda69b8a0fd05879f"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/pure-vet-rev2.log",
+    "archived": "author-pure-vet-rev2.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/integration-compile-final.log",
+    "archived": "author-integration-compile-final.log",
+    "sha256": "3129535a98b1c3ec7d3d46128f29ac9bbf03ffc6a976d09b44d557066e3fa2ae"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/integration-vet.log",
+    "archived": "author-integration-vet.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/fixture-rev3-compile.log",
+    "archived": "author-fixture-rev3-compile.log",
+    "sha256": "7396fffee5e39ab12278bc2e4953b14fdb06c17ecaa1e914aad122d4944ccf80"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/fixture-rev3-vet.log",
+    "archived": "author-fixture-rev3-vet.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/cmd-compile.log",
+    "archived": "author-cmd-compile.log",
+    "sha256": "16d4cfa8db4dc65b349b7af9a409a9b7c74293d416cdfbb864e053bac8532ccc"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/cmd-build.log",
+    "archived": "author-cmd-build.log",
+    "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/model-first-real.log",
+    "archived": "author-model-first-real.log",
+    "sha256": "347066082d33b4ac26f6c03c7d94495772db0f1d95abbd0d1f4a3c742c5dcc81"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/model-first-real-inputs.json",
+    "archived": "author-model-first-real-inputs.json",
+    "sha256": "33c2d8444fa4c960f483d06816de574bf52b77a2dc80eea4c173a0dbbe5bcde3"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/model-first-real-completion.json",
+    "archived": "author-model-first-real-completion.json",
+    "sha256": "2a0a18a9e43884c7c326351b1e3a46af34340fe764b61d8f0798145c59a36cbd"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/handoff-after-first-real.json",
+    "archived": "author-handoff-after-first-real.json",
+    "sha256": "40802b5062954d6d6950af4287ab1db2927f3da9624fb95d6c2a39a9857aa0a3"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/model-second-real.log",
+    "archived": "author-model-second-real.log",
+    "sha256": "52460eb827cc3cfc30034d2eec952f01730fd176d55d9b98df1a1cb6fa9606eb"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/model-second-real-inputs.json",
+    "archived": "author-model-second-real-inputs.json",
+    "sha256": "cab066a0743e0b530d2107a5001dcd5e88c723e7e2a8866d0fd3e90998c67c76"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/model-second-real-completion.json",
+    "archived": "author-model-second-real-completion.json",
+    "sha256": "ae487231bc5067de15d4c6d484413d094f47729e41fa43ff146a60f68bfd93af"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/second-real-selection.json",
+    "archived": "author-second-real-selection.json",
+    "sha256": "d5a39cdc98be0e656fec57f3d3e3633135379f759cc18669fd1c9e170947e259"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/second-real-regex.txt",
+    "archived": "author-second-real-regex.txt",
+    "sha256": "dcec9e1bc2e80580b6b6ee7eea129cfa55212e7b783028ef729e2caa20d9a9f1"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/handoff-after-second-real.json",
+    "archived": "author-handoff-after-second-real.json",
+    "sha256": "f18d0ad3ab0c4797e6ff7b699dfa0a981ac612d5c63046dcecb5b1a4307e31b6"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/test-rev1-to-rev2.patch",
+    "archived": "author-test-rev1-to-rev2.patch",
+    "sha256": "d4a79b3810df2de8626cb52d1da20618866753cebf4f009deb17a904d6afc9b4"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/test-rev2-to-rev3.patch",
+    "archived": "author-test-rev2-to-rev3.patch",
+    "sha256": "cea94bc620cb4319759ddeb0999c1962cfa18bf7bc546d1a345f1cbebb0023f0"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/production-rev1-to-rev2.patch",
+    "archived": "author-production-rev1-to-rev2.patch",
+    "sha256": "ce0d00732a6d56de48ff6745364b6ef0152c0c5dd827b261252a28b3ff9be07b"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/typednil-channel-rev1-red.log",
+    "archived": "author-typednil-channel-rev1-red.log",
+    "sha256": "100bf378c97886a4964a33e706223d67748c9189a8a774be71c1eaff3b64762d"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/unit-first.log",
+    "archived": "author-unit-first.log",
+    "sha256": "1510e42d56ecc34e8d6c7e41cdfeb1b605085454591b26c44330f4c2e765f728"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/unit-second.log",
+    "archived": "author-unit-second.log",
+    "sha256": "37cfdc3c187310e2959035a2bb521ec13a698206f4fed23f06bdfa7887905aa1"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/unit-new.log",
+    "archived": "author-unit-new.log",
+    "sha256": "49b6f5f94baba9e697acd042299cd96cbe0e99ef97f8a9531bf4f9689eb87118"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/unit-first-fix.patch",
+    "archived": "author-unit-first-fix.patch",
+    "sha256": "d407fbe1965e6f9562d3e83edfe90d1adac3bba1cea1bda7f7df24fcc51856ce"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/unit-second-fix.patch",
+    "archived": "author-unit-second-fix.patch",
+    "sha256": "f9e0c3e8f474f9e5dbc24dec776f1954cb9e176488f309c6226a8ec6d0f8e75b"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/unit-new-fix.patch",
+    "archived": "author-unit-new-fix.patch",
+    "sha256": "a7b093b178ecabc2cf5eb72688f414a7a536bc4b247bab01a5ad98c85cdf4558"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/fixture-first-compile.log",
+    "archived": "author-fixture-first-compile.log",
+    "sha256": "076e249c3f6efc7f89724050ce885726f88d28037baaa0cbcfdea0779512faff"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/fixture-second-compile.log",
+    "archived": "author-fixture-second-compile.log",
+    "sha256": "076e249c3f6efc7f89724050ce885726f88d28037baaa0cbcfdea0779512faff"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/integration-all-first-compile.log",
+    "archived": "author-integration-all-first-compile.log",
+    "sha256": "b1f5bfe8f9ed1e437c0196b097043fc068d44118d38c1f0e6346319152b037c0"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/integration-first-compile.log",
+    "archived": "author-integration-first-compile.log",
+    "sha256": "a6126996395ccf5caaedda152dc4adc5cdee78ceb09f60c444e3d80880841cb1"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/integration-compile-second.log",
+    "archived": "author-integration-compile-second.log",
+    "sha256": "2397640ceb0a5c823a1d07de1d10f189c349de07ec806890f13915724f81d01a"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/integration-compile-third.log",
+    "archived": "author-integration-compile-third.log",
+    "sha256": "c48417a881dc6973c2e39ddb6d5a44de498983401000cea16cadf72655104095"
+  },
+  {
+    "source": "/tmp/agenteam-d09-project-config-tycjqwxh/evidence/integration-compile-fourth.log",
+    "archived": "author-integration-compile-fourth.log",
+    "sha256": "bcd7889b5f97015509e46de240f7ebcb9455bbb80d079c70c0832122bb275ae9"
+  }
+]

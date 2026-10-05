@@ -1,0 +1,20 @@
+--- first/commands.go
++++ fixed/commands.go
+@@ -308,7 +308,7 @@
+ 		return mc.CommandReceipt{}, portError(err)
+ 	}
+ 	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+-		if err := s.state().store.AcquireAll(ctx, tx, append(scopeLocks(actor, scope), commandLock(identity))); err != nil {
++		if err := s.state().store.AcquireAll(ctx, tx, append([]f.LockRequest{commandLock(identity)}, scopeLocks(actor, scope)...)); err != nil {
+ 			return portError(err)
+ 		}
+ 		if err := s.state().authority.currentScope(ctx, tx, actor, scope, receiptIntent(scope)); err != nil {
+@@ -360,7 +360,7 @@
+ 	found := false
+ 	cause, _ := f.NewCommandsCause(identity)
+ 	result := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+-		if e := s.state().store.AcquireAll(ctx, tx, append(scopeLocks(actor, scope), commandLock(identity))); e != nil {
++		if e := s.state().store.AcquireAll(ctx, tx, append([]f.LockRequest{commandLock(identity)}, scopeLocks(actor, scope)...)); e != nil {
+ 			return portError(e)
+ 		}
+ 		if e := s.state().authority.currentScope(ctx, tx, actor, scope, receiptIntent(scope)); e != nil {

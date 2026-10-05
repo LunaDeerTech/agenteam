@@ -1,0 +1,11 @@
+--- second/query.go
++++ fixed/query.go
+@@ -41,7 +41,7 @@
+ 	return s.readScope(ctx, actor, id.SystemScope(), locks, run)
+ }
+ func (s *Service) readScope(ctx context.Context, actor id.Actor, scope id.Scope, locks []f.LockRequest, run func(context.Context, postgres.SQLExecutor) error) error {
+-	if s.state() == nil {
++	if s.state() == nil || scope.Details().Kind == id.ProjectScope && nilPort(s.state().authority.state().auth.Projects) {
+ 		return fault(f.DependencyUnbound)
+ 	}
+ 	if e := human(actor); e != nil {

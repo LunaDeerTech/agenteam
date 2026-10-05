@@ -1,0 +1,8 @@
+--- FAIL: TestModelProjectReceiptAndUnknownUseReadAndExactScope (0.00s)
+    project_configuration_test.go:112: exact Unknown receipt COMMIT_UNKNOWN
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/model	0.008s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	(cached)
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project	0.061s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/project/contract	(cached)
+FAIL

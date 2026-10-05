@@ -1,0 +1,38 @@
+{
+  "started": "2026-10-05T15:03:40.935957+00:00",
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestModelProjectIndependentSixHistoricalReceiptsRequireCurrentRead|TestModelProjectIndependentLateGateBindingRollsBackAllFacts)$"
+  ],
+  "cwd": "/workspace/agenteam-d09-final-build-k1jf1jcx/snapshot",
+  "manifest_sha256": "6d122a4a34b9eb31421c0b795edfb22155dc26d5a50e93b02a3a1f964dee68d6",
+  "probe_sha256": "69827f5a7ad28ffed51f4c237dde14639c27cec8c48271ecf0817bb4918df5fd",
+  "environment": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/workspace/agenteam-d09-final-build-k1jf1jcx/gocache",
+    "GOTMPDIR": "/workspace/agenteam-d09-final-build-k1jf1jcx/tmp",
+    "TMPDIR": "/workspace/agenteam-d09-final-build-k1jf1jcx/runtime",
+    "GOFLAGS": "-mod=readonly -p=2 -v",
+    "GOMAXPROCS": "2",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "DOCKER_HOST": "unix:///var/run/docker.sock",
+    "DOCKER_CONFIG": "/workspace/agenteam-d09-final-build-k1jf1jcx/docker-empty"
+  },
+  "baseline_resources": {
+    "containers": 2,
+    "networks": 4
+  },
+  "exit": 0,
+  "seconds": 92.523,
+  "ended": "2026-10-05T15:05:13.459763+00:00",
+  "log": "/tmp/agenteam-d09-final-verification-7he7srci/logs/independent-real-1.log",
+  "log_sha256": "e9b555f4c5d7c4313c25a98e78d14c39442d63514b0f96f590d38fe06df8e300"
+}

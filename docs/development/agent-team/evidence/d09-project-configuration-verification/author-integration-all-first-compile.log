@@ -1,0 +1,6 @@
+# github.com/LunaDeerTech/agenteam/tests/model_test [github.com/LunaDeerTech/agenteam/tests/model.test]
+tests/model/project_available_models_test.go:103:46: not enough arguments in call to v.service.ListModels
+	have (context.Context, "github.com/LunaDeerTech/agenteam/internal/central/identity/contract".Actor, model.SystemQuery)
+	want (context.Context, "github.com/LunaDeerTech/agenteam/internal/central/identity/contract".Actor, "github.com/LunaDeerTech/agenteam/internal/central/model/contract".ProviderID, model.SystemQuery)
+FAIL	github.com/LunaDeerTech/agenteam/tests/model [build failed]
+FAIL

@@ -1,0 +1,77 @@
+{
+  "scope": "recovery-d09-project-configuration rev1 only",
+  "status": "independent acceptance PASS; full D09 remains incomplete",
+  "source_commit": "de00c610da62cb77cc03efe7c3cc842cf81f1ba5",
+  "author_new_top_total": 13,
+  "author_new_second_round_pass": [
+    "TestModelProjectQueryCursorsAndEveryPageCurrentAuthority",
+    "TestModelProjectSecretReferencesAndAtomicEffects",
+    "TestModelProjectSecretReleaseAndDeletionShareRealWriterLock",
+    "TestModelProjectPreparedAuthorizationAndReferenceMapping",
+    "TestModelProjectUnboundReferencesAndDeleteBarrier",
+    "TestModelProjectProducerFactsCannotBeReplayedOrRebound",
+    "TestModelProjectAuditPreparedFactsAndProjectEventStages",
+    "TestModelProjectRealFinalCommitUnknownThreeStates"
+  ],
+  "author_new_unchanged_first_round_reuse": [
+    {
+      "name": "TestModelProjectCRUDScopeAndCanonicalReceipts",
+      "file": "project_configuration_integration_test.go",
+      "same_function_text": true,
+      "sha256": "d295546af81a53a138e86301892b774ccb84119dc9584457ce89a684c28af5be",
+      "evidence": "first full non-verbose run; no failure for this unchanged top; no separately emitted PASS line"
+    },
+    {
+      "name": "TestModelProjectReceiptReadGateAndLegacySystemPlan",
+      "file": "project_configuration_integration_test.go",
+      "same_function_text": true,
+      "sha256": "aa115231ee8b91a61befbf943f4f03bc2b2d1b18dfec1a02dcc518a3e740920e",
+      "evidence": "first full non-verbose run; no failure for this unchanged top; no separately emitted PASS line"
+    },
+    {
+      "name": "TestModelProjectPreparationFailureRechecksReadReceipt",
+      "file": "project_configuration_integration_test.go",
+      "same_function_text": true,
+      "sha256": "3b94971645c26aaef9240027f63c0950778ede1867028a6ed429989f5bae1bc5",
+      "evidence": "first full non-verbose run; no failure for this unchanged top; no separately emitted PASS line"
+    },
+    {
+      "name": "TestModelProjectRollbackUnknownCannotAdoptDifferentSemanticReceipt",
+      "file": "project_configuration_unknown_test.go",
+      "same_function_text": true,
+      "sha256": "36c8201a6975ae0dcebd65e36419ecf873a5cd52e0554cedb61d26befac591c5",
+      "evidence": "first full non-verbose run; no failure for this unchanged top; no separately emitted PASS line"
+    },
+    {
+      "name": "TestModelProjectAvailableDirectoryHasOnlyEnabledSafeUnion",
+      "file": "project_available_models_test.go",
+      "same_function_text": true,
+      "sha256": "2a782a619fb0f2ef69b4f9ef5bc17879219408965d05e9526c4bd7bd4fbddd76",
+      "evidence": "first full non-verbose run; no failure for this unchanged top; no separately emitted PASS line"
+    }
+  ],
+  "author_second_top_pass": 43,
+  "author_second_sub_pass": 117,
+  "author_second_fail": [],
+  "author_second_skip": [],
+  "independent_pass": [
+    "TestModelProjectIndependentSixHistoricalReceiptsRequireCurrentRead",
+    "TestModelProjectIndependentSixHistoricalReceiptsRequireCurrentRead/archiving",
+    "TestModelProjectIndependentSixHistoricalReceiptsRequireCurrentRead/archived",
+    "TestModelProjectIndependentLateGateBindingRollsBackAllFacts",
+    "TestModelProjectIndependentLateGateBindingRollsBackAllFacts/same-user-session",
+    "TestModelProjectIndependentLateGateBindingRollsBackAllFacts/same-owner-other-project",
+    "TestModelProjectIndependentLateGateBindingRollsBackAllFacts/summary-header-version"
+  ],
+  "independent_top_pass": 2,
+  "independent_sub_pass": 5,
+  "author_pure_evidence_limit": "Original stdout/stderr plus author contemporaneous tool success statement; exact early argv/exit were not separately persisted. Empty vet/build logs are not exit-status records. Independent compile/real have complete recorded argv/env/exit.",
+  "historical_fail_limit": "First real entire tests/model remains FAIL 76.871s, 7 failed tops/10 failure sites; no historical SQLSTATE proof. Actual 55P03 is observed only in second real log.",
+  "unverified": [
+    "Summary initial value/settings",
+    "D10 and project_summary canonical rewrite adapters",
+    "Resolver/Usage/Provider runtime",
+    "HTTP/app/root wiring",
+    "complete D09 and production Project Archive/Restore/ownership transfer workflow"
+  ]
+}
