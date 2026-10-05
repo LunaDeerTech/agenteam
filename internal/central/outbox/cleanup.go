@@ -132,6 +132,8 @@ func (s *Service) startLifecycle(ctx context.Context, p lifecyclePlan, write boo
 	// A read-only current authorization precedes cancellation; Discover alone is
 	// not authority to affect a callback. The later durable transition takes EX.
 	var targets []capturedCallback
+	var row lifecycleRow
+	terminal := false
 	preflight := s.state().store.WithinTx(ctx, recoveryCause("outbox.stop-authorize"), func(ctx context.Context, tx foundation.Tx) error {
 		if err := s.state().store.AcquireAll(ctx, tx, p.locks(foundation.Shared)); err != nil {
 			return unavailable(err)
@@ -150,6 +152,13 @@ func (s *Service) startLifecycle(ctx context.Context, p lifecyclePlan, write boo
 		if !write && (!found || !lifecycleMatches(old, p.cause)) {
 			return failure(foundation.InvalidState, nil)
 		}
+		// Inspect observes an exact terminal receipt under the same SH union as
+		// the current authorization and callback capture. A separate preflight
+		// would permit another instance to finish between the two transactions.
+		if p.request.Details().LifecycleStep == oc.LifecycleInspect && (old.phase == "stopped" || old.phase == "completed") {
+			row, terminal = old, true
+			return nil
+		}
 		if err = checkLifecycleTransition(old, found, p.cause); err != nil {
 			return err
 		}
@@ -159,8 +168,10 @@ func (s *Service) startLifecycle(ctx context.Context, p lifecyclePlan, write boo
 	if err := commitError(preflight); err != nil {
 		return lifecycleRow{}, err
 	}
+	if terminal {
+		return row, nil
+	}
 	cancelCapturedCallbacks(targets)
-	var row lifecycleRow
 	commit := s.state().store.WithinTx(ctx, recoveryCause("outbox.stop-gate"), func(ctx context.Context, tx foundation.Tx) error {
 		if err := s.state().store.AcquireAll(ctx, tx, p.locks(foundation.Exclusive)); err != nil {
 			return unavailable(err)
@@ -311,7 +322,7 @@ func (s *Service) stopProject(ctx context.Context, actor identity.Actor, cause o
 	if err != nil {
 		return report, err
 	}
-	if row.phase == "completed" {
+	if row.phase == "completed" || step == oc.LifecycleInspect && row.phase == "stopped" {
 		return oc.StopReport{Stopped: true}, nil
 	}
 	batch, err := s.lifecycleBatch(ctx, p, row.after)
@@ -338,6 +349,24 @@ func (s *Service) stopProject(ctx context.Context, actor identity.Actor, cause o
 			locks = append(locks, foundation.LockRequest{Key: deliveryLock(d.id), Mode: foundation.Exclusive})
 		}
 	}
+	terminal, err := s.progressLifecycleStop(ctx, p, batch, proof, locks)
+	if err != nil {
+		return report, err
+	}
+	if terminal {
+		return oc.StopReport{Stopped: true}, proofError
+	}
+	// The current authorization/report transaction has priority over an earlier
+	// proof error. A successful independent checkpoint must not erase that error.
+	report, err = s.stopReport(ctx, p)
+	if err != nil {
+		return report, err
+	}
+	return report, proofError
+}
+
+func (s *Service) progressLifecycleStop(ctx context.Context, p lifecyclePlan, batch []lifecycleEvent, proof map[oc.DeliveryID]bool, locks []foundation.LockRequest) (bool, error) {
+	terminal := false
 	commit := s.state().store.WithinTx(ctx, recoveryCause("outbox.stop-progress"), func(ctx context.Context, tx foundation.Tx) error {
 		if err := s.state().store.AcquireAll(ctx, tx, locks); err != nil {
 			return unavailable(err)
@@ -355,6 +384,12 @@ func (s *Service) stopProject(ctx context.Context, actor identity.Actor, cause o
 		}
 		if !found || !lifecycleMatches(current, p.cause) {
 			return failure(foundation.ResourceBusy, nil)
+		}
+		// A terminal transition can win while the bounded scan or attempt proof
+		// runs outside this transaction. Do not renew any progress after it.
+		if p.request.Details().LifecycleStep == oc.LifecycleInspect && (current.phase == "stopped" || current.phase == "completed") {
+			terminal = true
+			return nil
 		}
 		for _, e := range batch {
 			for _, d := range e.deliveries {
@@ -411,16 +446,7 @@ func (s *Service) stopProject(ctx context.Context, actor identity.Actor, cause o
 		}
 		return nil
 	})
-	if err = commitError(commit); err != nil {
-		return report, err
-	}
-	// The current authorization/report transaction has priority over an earlier
-	// proof error. A successful independent checkpoint must not erase that error.
-	report, err = s.stopReport(ctx, p)
-	if err != nil {
-		return report, err
-	}
-	return report, proofError
+	return terminal, commitError(commit)
 }
 func (s *Service) RequestStop(ctx context.Context, actor identity.Actor, cause oc.LifecycleCause) (oc.StopReport, error) {
 	return s.stopProject(ctx, actor, cause, oc.LifecycleStop)
