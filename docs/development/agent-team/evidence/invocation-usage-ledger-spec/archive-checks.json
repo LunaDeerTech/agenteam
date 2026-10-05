@@ -1,0 +1,399 @@
+{
+  "scope": "specification/archive only; no business tests",
+  "fixed_base": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+  "accepted_spec_commit": "9aad5f5d26bf5af066390a8bd35b91d57d6b8c8b",
+  "raw_files": 14,
+  "raw_bytes": 87089,
+  "raw_original_bytes": "all archived and deduplicated original aliases exact",
+  "git_objects_verified": 38,
+  "author_inputs": 19,
+  "independent_extra_seams": 13,
+  "sources_sha256": "8bd9035405f8aac2e11c4fc3e0dec62a06db6d64492c1c98bcfdceedcb7b7332",
+  "reviewed_card_sha256": "d53835cb79618b5cea487e8d84161cdc2e4f3a9900c6d35a86a258f75f795cab",
+  "accepted_card_sha256": "565bf9f2e0e819ede0286a47b2b5bc69aadb65c63b90538c7bff4289306724ca",
+  "current_card_sha256": "1e6b226cb61b6f620531ddcb24c54a1e3a63d888b455798034f12416d741c92d",
+  "technical_sections_1_to_10": "byte-identical to reviewed and accepted cards",
+  "independent_static_result": "PASS only; no implementation acceptance",
+  "independent_plan": "2top/3sub provisional; optional third only if evidence insufficient; no probe/run",
+  "original_admin_patch_reconstruction": {
+    "argv": [
+      "patch",
+      "--batch",
+      "--forward",
+      "--no-backup-if-mismatch",
+      "-p0",
+      "-i",
+      "/workspace/agenteam/docs/development/agent-team/evidence/invocation-usage-ledger-spec/administrative-delta.patch"
+    ],
+    "exit": 0,
+    "stdout": "patching file rev1-reviewed.md\n",
+    "stderr": "",
+    "result_sha256": "565bf9f2e0e819ede0286a47b2b5bc69aadb65c63b90538c7bff4289306724ca",
+    "matches_accepted_git": true
+  },
+  "markdown_links": [
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../agent-team/invocation-usage-ledger-spec-verification.md",
+      "resolved": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:.agents/skills/agenteam-design/SKILL.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../../.agents/skills/agenteam-go-development/SKILL.md",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:.agents/skills/agenteam-go-development/SKILL.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "d09-model-system-token-usage-design.md#5-调用reservation-与用量原子事实",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:docs/development/work-items/d09-model-system-token-usage-design.md",
+      "fragment": "5-调用reservation-与用量原子事实"
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../architecture/platform-infrastructure/model-token-usage.md",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:docs/architecture/platform-infrastructure/model-token-usage.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../architecture/platform-infrastructure/model-system/chat-model-runtime.md",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:docs/architecture/platform-infrastructure/model-system/chat-model-runtime.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../../internal/central/usage/contract/types.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:internal/central/usage/contract/types.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "recovery-d09-current-model-resolution.md",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../../db/migrations/00017_model_current_resolution.sql",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:db/migrations/00017_model_current_resolution.sql",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../../internal/central/secret/contract/model.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:internal/central/secret/contract/model.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../../internal/central/model/adapter/transport.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:internal/central/model/adapter/transport.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../../internal/central/usage/contract/types.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:internal/central/usage/contract/types.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../../internal/central/usage/contract/query.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:internal/central/usage/contract/query.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../agent-team/object-runtime-join-regression.md",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:docs/development/agent-team/object-runtime-join-regression.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../../internal/central/foundation/fault.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:internal/central/foundation/fault.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../../tests/model/current_resolution_fixture_test.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:tests/model/current_resolution_fixture_test.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../../tests/model/project_configuration_fixture_test.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:tests/model/project_configuration_fixture_test.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../../../tests/model/openai_chat_wire_fixture_test.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:tests/model/openai_chat_wire_fixture_test.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "target": "../agent-team/invocation-usage-ledger-spec-verification.md",
+      "resolved": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "../work-items/recovery-d09-invocation-usage-ledger.md",
+      "resolved": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/review.md",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/review.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/rev1.md",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/inputs.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/inputs.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/checks.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/checks.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/self-review.md",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/self-review.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/freeze.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/freeze.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/input-checks.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/input-checks.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/additional-inputs.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/additional-inputs.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/review-checks.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/review-checks.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/delivery-index.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/delivery-index.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/administrative-delta.patch",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/administrative-delta.patch",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/administrative-checks.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/administrative-checks.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/acceptance-plan.md",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/acceptance-plan.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/ready-plan.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/ready-plan.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/sources.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/sources.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/invocation-usage-ledger-spec-verification.md",
+      "target": "evidence/invocation-usage-ledger-spec/archive-checks.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/archive-checks.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:.agents/skills/agenteam-design/SKILL.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../../.agents/skills/agenteam-go-development/SKILL.md",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:.agents/skills/agenteam-go-development/SKILL.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "d09-model-system-token-usage-design.md#5-调用reservation-与用量原子事实",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:docs/development/work-items/d09-model-system-token-usage-design.md",
+      "fragment": "5-调用reservation-与用量原子事实"
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../architecture/platform-infrastructure/model-token-usage.md",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:docs/architecture/platform-infrastructure/model-token-usage.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../architecture/platform-infrastructure/model-system/chat-model-runtime.md",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:docs/architecture/platform-infrastructure/model-system/chat-model-runtime.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../../internal/central/usage/contract/types.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:internal/central/usage/contract/types.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "recovery-d09-current-model-resolution.md",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../../db/migrations/00017_model_current_resolution.sql",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:db/migrations/00017_model_current_resolution.sql",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../../internal/central/secret/contract/model.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:internal/central/secret/contract/model.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../../internal/central/model/adapter/transport.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:internal/central/model/adapter/transport.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../../internal/central/usage/contract/types.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:internal/central/usage/contract/types.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../../internal/central/usage/contract/query.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:internal/central/usage/contract/query.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../agent-team/object-runtime-join-regression.md",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:docs/development/agent-team/object-runtime-join-regression.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../../internal/central/foundation/fault.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:internal/central/foundation/fault.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../../tests/model/current_resolution_fixture_test.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:tests/model/current_resolution_fixture_test.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../../tests/model/project_configuration_fixture_test.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:tests/model/project_configuration_fixture_test.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "target": "../../../tests/model/openai_chat_wire_fixture_test.go",
+      "resolved": "git:4295df7d51c1f171df78ab3f0d9cef2fd241a505:tests/model/openai_chat_wire_fixture_test.go",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/review.md",
+      "target": "rev1.md",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/rev1.md",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/review.md",
+      "target": "input-checks.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/input-checks.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/review.md",
+      "target": "additional-inputs.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/additional-inputs.json",
+      "fragment": ""
+    },
+    {
+      "source": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/review.md",
+      "target": "review-checks.json",
+      "resolved": "docs/development/agent-team/evidence/invocation-usage-ledger-spec/review-checks.json",
+      "fragment": ""
+    }
+  ],
+  "relocated_original_markdown_links": 17,
+  "format": "UTF-8/LF/final newline/balanced fences/JSON parse pass; exact raw whitespace exception below",
+  "raw_whitespace_exceptions": [
+    {
+      "path": "administrative-delta.patch",
+      "lines": [
+        4,
+        7
+      ],
+      "reason": "Original unified-diff context lines; preserve exact raw bytes. This exact raw path only is excluded from whitespace normalization."
+    }
+  ],
+  "not_run": [
+    "Go",
+    "SQL",
+    "Docker",
+    "network",
+    "Provider",
+    "business tests"
+  ],
+  "no_source_tree_cache_binary_credentials": true
+}

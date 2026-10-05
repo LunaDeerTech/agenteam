@@ -1,6 +1,6 @@
 # D09 Invocation / Usage 事务账本恢复卡
 
-修订：rev1 已独立规格静审通过并获主线程采纳，接受提交已推送 `9aad5f5d26bf5af066390a8bd35b91d57d6b8c8b`；被审卡 SHA-256 `d53835cb79618b5cea487e8d84161cdc2e4f3a9900c6d35a86a258f75f795cab`，固定已验业务 `4295df7d51c1f171df78ab3f0d9cef2fd241a505` 不变。独立报告原定位 `/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/review.md`、SHA-256 `1fd29dfd4e7c9892440c8d6abbcb074f9e5f9964ec6b7535d3ba744f32576de0`，现见[持久规格档案](../agent-team/invocation-usage-ledger-spec-verification.md)。主线程已授权 `recovery_handoff`（backend_worker）实施 §9 精确 20 路径，独立验收负责人 `restore_test_dependencies`；含唯一 `00018_model_invocation_usage.sql` 的实施权，R4 不占 00018，但业务和迁移尚未验收。规格作者 `d08_recovery_design`（architecture_worker）；§1–10 保持被审原文，其中候选/待审/未授权表述为冻结时状态，当前行政状态以本段及末尾移交说明为准。不再委派。
+修订：rev1 候选，固定已验业务 `4295df7d51c1f171df78ab3f0d9cef2fd241a505`。本卡仅获规格编写授权，尚待独立规格审查与主线程采纳；§9 的业务、测试和 SQL 均未授权实施。主线程唯一规划预留 `00018_model_invocation_usage.sql` 给本结果，R4 不占 00018；这是迁移排期，不是已存在或已验迁移。规格作者 `d08_recovery_design`（architecture_worker），实施者及独立验收负责人待主线程指定，不再委派。
 
 必读 [设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)、[D09 工程规格 §5–8](d09-model-system-token-usage-design.md#5-调用reservation-与用量原子事实)、[Model / Usage 架构](../../architecture/platform-infrastructure/model-token-usage.md)、[Runtime 架构](../../architecture/platform-infrastructure/model-system/chat-model-runtime.md)及 [C0 Usage](../../../internal/central/usage/contract/types.go)。本卡精化一个完整库级结果，不复制 Runtime 的调用、恢复或产品规则。
 
@@ -254,9 +254,3 @@ DB Unknown 仅用实际 PG 事务结果的受控 Store 装饰器及普通 mutex/
 迁移只 Up，fresh / populated 保留旧数据，失败靠真正事务回滚及同字节重试或另审前向修复；不得添加 Down、删已确认ledger或调整既有00017。库级验收不表示生产迁移已部署。运行前核预期资源exact ID/name/labels，活动fixture观察nonce/labels，结束两次exact-ID absent、原基线不变、所属进程0/runtime空；及时交回窗口后整理报告，不拷全树/cache/binary/凭据。
 
 最终冻结20源/SQL及完整输入，交独立验收：静态权限/事务/查询审查 + 原失败与修后证据 + 必要真实补证。主线程采纳后才按精确路径提交。报告明确已实现账本和查询职责，以及未绑定 InvocationFacts生产owner、call/Provider编排、lease/Process/lifecycle/HTTP/root；不称完整D09，不将严格fixture端口写成生产allow。当前仍只是候选规格，无Go/SQL/Docker/Provider运行或业务改动。
-
-## 11. 规格采纳与实施移交
-
-主线程已采纳独立 STATIC PASS，精确提交推送本卡 `9aad5f5d26bf5af066390a8bd35b91d57d6b8c8b`，随后正式授权 `recovery_handoff` 按固定业务 `4295df7` 实施 §9 的 20 路径，含唯一 00018 迁移；`restore_test_dependencies` 负责独立验收。实施授权不等于业务、SQL、性能或真实运行通过，本次文档归位不授任何额外路径或共享资源窗口。
-
-[规格档案与原证据](../agent-team/invocation-usage-ledger-spec-verification.md)保留被审 rev1、19 输入 Git 定位、13 接缝指纹、作者及独立检查、采纳行政差量。§1–10 技术正文逐字保持，后续验收仍须满足其中全部门槛。生产 Facts/Runtime 绑定、DB Unknown/dispatch unknown 区分、暂停 Object/Artifact、Summary 与 ready503 等限制不变；尚无完整 D09 或生产装配交付结论。

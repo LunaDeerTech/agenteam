@@ -1,0 +1,102 @@
+{
+  "fixed_base": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+  "card_sha256": "d53835cb79618b5cea487e8d84161cdc2e4f3a9900c6d35a86a258f75f795cab",
+  "inputs": [
+    {
+      "path": "internal/central/usage/contract/types.go",
+      "sha256": "3845c7c7a75a93e9bf15813fca4d352a7da789c2b0db42bfc1cb9371cb8b38ad",
+      "read_from": "/workspace/agenteam/internal/central/usage/contract/types.go"
+    },
+    {
+      "path": "internal/central/usage/contract/query.go",
+      "sha256": "9d72156476c47d3d157a966542a0573e8a20ef75d3253bcb18140889cd648726",
+      "read_from": "/workspace/agenteam/internal/central/usage/contract/query.go"
+    },
+    {
+      "path": "internal/central/model/contract/authority.go",
+      "sha256": "358a96356382a651e5668a73962699ecfc39e2fbe27512af880e1ce3aef7e77a",
+      "read_from": "/workspace/agenteam/internal/central/model/contract/authority.go"
+    },
+    {
+      "path": "internal/central/model/contract/resolution.go",
+      "sha256": "151f89787aa0d35d016dd8d77b03f957548fd2f1c9b81cf44e646441867f9a64",
+      "read_from": "/workspace/agenteam/internal/central/model/contract/resolution.go"
+    },
+    {
+      "path": "internal/central/model/resolver.go",
+      "sha256": "0bdd3e30b286da45454b2930b3f2d6ed4a09e4f9ff15a3e8028f5880e5bdf13c",
+      "read_from": "/workspace/agenteam/internal/central/model/resolver.go"
+    },
+    {
+      "path": "internal/central/model/secret_router.go",
+      "sha256": "ca3ef3327494fb8858cb39cc399326f398dac6f9da76b65c3ff3ed14d815712c",
+      "read_from": "/workspace/agenteam/internal/central/model/secret_router.go"
+    },
+    {
+      "path": "internal/central/model/adapter/transport.go",
+      "sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf",
+      "read_from": "/workspace/agenteam/internal/central/model/adapter/transport.go"
+    },
+    {
+      "path": "internal/central/secret/contract/model.go",
+      "sha256": "f8bf949c3ac35a02351b61a7510609b2e86861b5ceffdddbf8fc54aa1dac2821",
+      "read_from": "/workspace/agenteam/internal/central/secret/contract/model.go"
+    },
+    {
+      "path": "internal/central/secret/model_usage.go",
+      "sha256": "1761db95df8cf641daa17ae926e9776e849731ae03b8a9efe05cf76ae96b844d",
+      "read_from": "/workspace/agenteam/internal/central/secret/model_usage.go"
+    },
+    {
+      "path": "internal/central/project/authority.go",
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "read_from": "/workspace/agenteam/internal/central/project/authority.go"
+    },
+    {
+      "path": "internal/central/identity/contract/identity.go",
+      "sha256": "845794400c185b5f00ef673007661ec1382d19b54ec82329d565567daa073ef4",
+      "read_from": "/workspace/agenteam/internal/central/identity/contract/identity.go"
+    },
+    {
+      "path": "internal/central/foundation/lock.go",
+      "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+      "read_from": "/workspace/agenteam/internal/central/foundation/lock.go"
+    },
+    {
+      "path": "internal/central/foundation/tx.go",
+      "sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+      "read_from": "/workspace/agenteam/internal/central/foundation/tx.go"
+    },
+    {
+      "path": "internal/central/foundation/cause.go",
+      "sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+      "read_from": "/workspace/agenteam/internal/central/foundation/cause.go"
+    },
+    {
+      "path": "internal/central/foundation/fault.go",
+      "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+      "read_from": "/workspace/agenteam/internal/central/foundation/fault.go"
+    },
+    {
+      "path": "internal/central/cursor/cursor.go",
+      "sha256": "c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f",
+      "read_from": "/workspace/agenteam/internal/central/cursor/cursor.go"
+    },
+    {
+      "path": "db/migrations/00015_model_configuration.sql",
+      "sha256": "c1f4c4685d1710be4850994ce3e216d98c43201ac38b03e932fd610ab38b17af",
+      "read_from": "/workspace/agenteam/db/migrations/00015_model_configuration.sql"
+    },
+    {
+      "path": "db/migrations/00017_model_current_resolution.sql",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837",
+      "read_from": "/workspace/agenteam/db/migrations/00017_model_current_resolution.sql"
+    },
+    {
+      "path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "sha256": "66f49baf7dde34c3c2b39e68f793d670074ed3479afd8d0940ffa6288518bb13",
+      "read_from": "/workspace/agenteam-current-resolution-archive/before/docs/development/work-items/d09-model-system-token-usage-design.md"
+    }
+  ],
+  "method": "author fixed-input hashes matched existing frozen or unchanged local bytes; no Git/Go/Docker"
+}

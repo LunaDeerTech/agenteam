@@ -1,0 +1,42 @@
+{
+  "status": "frozen independent static review",
+  "root": "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1",
+  "files": [
+    {
+      "path": "rev1.md",
+      "sha256": "d53835cb79618b5cea487e8d84161cdc2e4f3a9900c6d35a86a258f75f795cab",
+      "bytes": 44222
+    },
+    {
+      "path": "inputs.json",
+      "sha256": "5a541fa3d8d22754306693392e0979ba2a2c3c64f78336d430ae9bc0d0eae37d",
+      "bytes": 4598
+    },
+    {
+      "path": "checks.json",
+      "sha256": "d8af01bcb457baf0faede18bea0c933f2ae9008eccb702e407e527ba5cafad15",
+      "bytes": 6011
+    },
+    {
+      "path": "input-checks.json",
+      "sha256": "2fb0b3c092138178cefa9dabc83d29235cfa05f641cc990dce6d2bb4d32f3916",
+      "bytes": 4845
+    },
+    {
+      "path": "additional-inputs.json",
+      "sha256": "5fdcdfd752833a81eb611fcad032ebe82fc52f6a8c9a35a94bdd718c46d8a09c",
+      "bytes": 2655
+    },
+    {
+      "path": "review-checks.json",
+      "sha256": "1b41ba29c5da1b2f70ff16a2def594e91d88540997eff29eb0d493d844772174",
+      "bytes": 5955
+    },
+    {
+      "path": "review.md",
+      "sha256": "1fd29dfd4e7c9892440c8d6abbcb074f9e5f9964ec6b7535d3ba744f32576de0",
+      "bytes": 6185
+    }
+  ],
+  "source_payloads": "fixed/ bytes referenced by input-checks.json and additional-inputs.json; no full tree/cache/binary"
+}

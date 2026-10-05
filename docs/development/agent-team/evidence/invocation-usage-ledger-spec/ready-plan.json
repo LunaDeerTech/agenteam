@@ -1,0 +1,27 @@
+{
+  "status": "plan only; all-stop awaiting frozen implementation",
+  "source_baseline": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+  "accepted_spec_commit": "9aad5f5",
+  "reviewed_inputs": [
+    {
+      "path": "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/rev1.md",
+      "sha256": "d53835cb79618b5cea487e8d84161cdc2e4f3a9900c6d35a86a258f75f795cab"
+    },
+    {
+      "path": "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/review.md",
+      "sha256": "1fd29dfd4e7c9892440c8d6abbcb074f9e5f9964ec6b7535d3ba744f32576de0"
+    },
+    {
+      "path": "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/delivery-index.json",
+      "sha256": "150615ce15ebc2efe1f67797e83cd238bc7eb8b8bb292e7f2690fbc001d3d5ac"
+    }
+  ],
+  "plan_sha256": "3cddbc45678a5f949393f4ae78eb81bbd10ecadb1b0bed97282fd019147086cd",
+  "candidate_top_count": {
+    "recommended": 2,
+    "maximum": 3
+  },
+  "go_docker_network_git_execution": false,
+  "repository_or_business_writes": false,
+  "frozen_utc": "2026-10-05T22:02:46.833327+00:00"
+}

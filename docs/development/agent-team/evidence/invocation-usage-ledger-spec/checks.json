@@ -1,0 +1,141 @@
+{
+  "base": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+  "card": {
+    "path": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+    "sha256": "d53835cb79618b5cea487e8d84161cdc2e4f3a9900c6d35a86a258f75f795cab",
+    "bytes": 44222,
+    "lines": 256
+  },
+  "format": "UTF-8/no BOM/LF/final newline/no trailing whitespace/balanced fences PASS",
+  "fixed_git_links": [
+    {
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "fixed_path": ".agents/skills/agenteam-design/SKILL.md",
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81"
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-go-development/SKILL.md",
+      "fixed_path": ".agents/skills/agenteam-go-development/SKILL.md",
+      "sha256": "037910810b78e431d6c477677704cbcc746ea3d9db6448556221800661072b2b"
+    },
+    {
+      "target": "d09-model-system-token-usage-design.md#5-调用reservation-与用量原子事实",
+      "fixed_path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "sha256": "66f49baf7dde34c3c2b39e68f793d670074ed3479afd8d0940ffa6288518bb13"
+    },
+    {
+      "target": "../../architecture/platform-infrastructure/model-token-usage.md",
+      "fixed_path": "docs/architecture/platform-infrastructure/model-token-usage.md",
+      "sha256": "84c277f1e95fc8ede86ba80485ca0b90a9bb7986c2d1ef6177f0164eb12fa8a3"
+    },
+    {
+      "target": "../../architecture/platform-infrastructure/model-system/chat-model-runtime.md",
+      "fixed_path": "docs/architecture/platform-infrastructure/model-system/chat-model-runtime.md",
+      "sha256": "bc8179f1aedec56f7f67ff8bcbdbf534226bfa07a28b305796ca49a484c034e3"
+    },
+    {
+      "target": "../../../internal/central/usage/contract/types.go",
+      "fixed_path": "internal/central/usage/contract/types.go",
+      "sha256": "3845c7c7a75a93e9bf15813fca4d352a7da789c2b0db42bfc1cb9371cb8b38ad"
+    },
+    {
+      "target": "recovery-d09-current-model-resolution.md",
+      "fixed_path": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "sha256": "bb9e510f7619c6da50778244911b9cbb5cec862ad024e52e51567480316a64fe"
+    },
+    {
+      "target": "../../../db/migrations/00017_model_current_resolution.sql",
+      "fixed_path": "db/migrations/00017_model_current_resolution.sql",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837"
+    },
+    {
+      "target": "../../../internal/central/secret/contract/model.go",
+      "fixed_path": "internal/central/secret/contract/model.go",
+      "sha256": "f8bf949c3ac35a02351b61a7510609b2e86861b5ceffdddbf8fc54aa1dac2821"
+    },
+    {
+      "target": "../../../internal/central/model/adapter/transport.go",
+      "fixed_path": "internal/central/model/adapter/transport.go",
+      "sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf"
+    },
+    {
+      "target": "../../../internal/central/usage/contract/types.go",
+      "fixed_path": "internal/central/usage/contract/types.go",
+      "sha256": "3845c7c7a75a93e9bf15813fca4d352a7da789c2b0db42bfc1cb9371cb8b38ad"
+    },
+    {
+      "target": "../../../internal/central/usage/contract/query.go",
+      "fixed_path": "internal/central/usage/contract/query.go",
+      "sha256": "9d72156476c47d3d157a966542a0573e8a20ef75d3253bcb18140889cd648726"
+    },
+    {
+      "target": "../agent-team/object-runtime-join-regression.md",
+      "fixed_path": "docs/development/agent-team/object-runtime-join-regression.md",
+      "sha256": "44e3404084fc25174576f2d0f319ad067b3a4b079c5876db8d20b79a3894645f"
+    },
+    {
+      "target": "../../../internal/central/foundation/fault.go",
+      "fixed_path": "internal/central/foundation/fault.go",
+      "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de"
+    },
+    {
+      "target": "../../../tests/model/current_resolution_fixture_test.go",
+      "fixed_path": "tests/model/current_resolution_fixture_test.go",
+      "sha256": "669ccb190ae3c5043c104305a3116e1fc39ab28316983984ec0b261653a423b6"
+    },
+    {
+      "target": "../../../tests/model/project_configuration_fixture_test.go",
+      "fixed_path": "tests/model/project_configuration_fixture_test.go",
+      "sha256": "d19c5fb039e784e9747fe853261ceefa4ebdccba9659e5a1010e34832e5c523a"
+    },
+    {
+      "target": "../../../tests/model/openai_chat_wire_fixture_test.go",
+      "fixed_path": "tests/model/openai_chat_wire_fixture_test.go",
+      "sha256": "cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8"
+    }
+  ],
+  "candidate_paths": [
+    "internal/central/usage/contract/invocations.go",
+    "internal/central/usage/contract/authority.go",
+    "internal/central/usage/service.go",
+    "internal/central/usage/store.go",
+    "internal/central/usage/authority.go",
+    "internal/central/usage/invocations.go",
+    "internal/central/usage/summary.go",
+    "internal/central/usage/query.go",
+    "internal/central/identity/contract/identity.go",
+    "db/migrations/00018_model_invocation_usage.sql",
+    "internal/central/identity/contract/identity_test.go",
+    "internal/central/usage/contract/invocations_test.go",
+    "internal/central/usage/authority_test.go",
+    "internal/central/usage/summary_test.go",
+    "tests/model/usage_fixture_test.go",
+    "tests/model/usage_ledger_test.go",
+    "tests/model/usage_authorization_test.go",
+    "tests/model/usage_query_test.go",
+    "tests/model/usage_unknown_test.go",
+    "tests/model/usage_schema_test.go"
+  ],
+  "path_counts": {
+    "production": 9,
+    "migration": 1,
+    "test": 10,
+    "total": 20
+  },
+  "whitespace": {
+    "argv": [
+      "git",
+      "diff",
+      "--no-index",
+      "--check",
+      "--",
+      "/dev/null",
+      "docs/development/work-items/recovery-d09-invocation-usage-ledger.md"
+    ],
+    "exit": 1,
+    "stdout": "",
+    "stderr": "",
+    "interpretation": "new-file difference exit=1; zero whitespace diagnostics"
+  },
+  "dynamic_checks": "NONE; no Go/SQL/Docker/network/business/Git write"
+}

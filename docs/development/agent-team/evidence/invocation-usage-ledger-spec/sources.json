@@ -1,0 +1,766 @@
+{
+  "kind": "specification/static-review archive only; not implementation acceptance",
+  "base": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+  "accepted_spec_commit": "9aad5f5d26bf5af066390a8bd35b91d57d6b8c8b",
+  "current_authorization": "recovery_handoff owns exact20 including00018; restore_test_dependencies independent; implementation/migration unverified",
+  "raw_files": [
+    {
+      "archive": "rev1.md",
+      "sha256": "d53835cb79618b5cea487e8d84161cdc2e4f3a9900c6d35a86a258f75f795cab",
+      "bytes": 44222,
+      "originals": [
+        "/workspace/agenteam-invocation-usage-ledger-spec-y0dam2jl/rev1.md",
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/rev1.md"
+      ]
+    },
+    {
+      "archive": "inputs.json",
+      "sha256": "5a541fa3d8d22754306693392e0979ba2a2c3c64f78336d430ae9bc0d0eae37d",
+      "bytes": 4598,
+      "originals": [
+        "/workspace/agenteam-invocation-usage-ledger-spec-y0dam2jl/inputs.json",
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/inputs.json"
+      ]
+    },
+    {
+      "archive": "checks.json",
+      "sha256": "d8af01bcb457baf0faede18bea0c933f2ae9008eccb702e407e527ba5cafad15",
+      "bytes": 6011,
+      "originals": [
+        "/workspace/agenteam-invocation-usage-ledger-spec-y0dam2jl/checks.json",
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/checks.json"
+      ]
+    },
+    {
+      "archive": "self-review.md",
+      "sha256": "0b904083a5a62ee089d64f7db7a94856ef6caade3365e9cf0a491f120bc60c4f",
+      "bytes": 1228,
+      "originals": [
+        "/workspace/agenteam-invocation-usage-ledger-spec-y0dam2jl/self-review.md",
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/self-review.md"
+      ]
+    },
+    {
+      "archive": "freeze.json",
+      "sha256": "432ae3714a5caa9b27c9826cb4b19c9e86b0ff290e398a7aedd80a24e681dfb8",
+      "bytes": 606,
+      "originals": [
+        "/workspace/agenteam-invocation-usage-ledger-spec-y0dam2jl/freeze.json"
+      ]
+    },
+    {
+      "archive": "review.md",
+      "sha256": "1fd29dfd4e7c9892440c8d6abbcb074f9e5f9964ec6b7535d3ba744f32576de0",
+      "bytes": 6185,
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/review.md"
+      ]
+    },
+    {
+      "archive": "input-checks.json",
+      "sha256": "2fb0b3c092138178cefa9dabc83d29235cfa05f641cc990dce6d2bb4d32f3916",
+      "bytes": 4845,
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/input-checks.json"
+      ]
+    },
+    {
+      "archive": "additional-inputs.json",
+      "sha256": "5fdcdfd752833a81eb611fcad032ebe82fc52f6a8c9a35a94bdd718c46d8a09c",
+      "bytes": 2655,
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/additional-inputs.json"
+      ]
+    },
+    {
+      "archive": "review-checks.json",
+      "sha256": "1b41ba29c5da1b2f70ff16a2def594e91d88540997eff29eb0d493d844772174",
+      "bytes": 5955,
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/review-checks.json"
+      ]
+    },
+    {
+      "archive": "delivery-index.json",
+      "sha256": "150615ce15ebc2efe1f67797e83cd238bc7eb8b8bb292e7f2690fbc001d3d5ac",
+      "bytes": 1304,
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/delivery-index.json"
+      ]
+    },
+    {
+      "archive": "administrative-checks.json",
+      "sha256": "a0e4f1a6b7ab6c23d78c853f6e5b7bc16c71cfc132b9fe17ed0e2c55f89c3b32",
+      "bytes": 563,
+      "originals": [
+        "/workspace/agenteam-invocation-usage-ledger-spec-y0dam2jl/administrative/checks.json"
+      ]
+    },
+    {
+      "archive": "administrative-delta.patch",
+      "sha256": "56d4e887da95eab73c145e4a94fa5835bb055c43b6b97deef895636e60674754",
+      "bytes": 1487,
+      "originals": [
+        "/workspace/agenteam-invocation-usage-ledger-spec-y0dam2jl/administrative/delta.patch"
+      ]
+    },
+    {
+      "archive": "acceptance-plan.md",
+      "sha256": "3cddbc45678a5f949393f4ae78eb81bbd10ecadb1b0bed97282fd019147086cd",
+      "bytes": 6384,
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-independent-l941h8ye/acceptance-plan.md"
+      ],
+      "note": "Accepted risk plan only; no probe or execution."
+    },
+    {
+      "archive": "ready-plan.json",
+      "sha256": "a5d7bba2df1ed8d74c6342cb29cb877d09c0e5e0be78a37c703fa75dfa0c8aec",
+      "bytes": 1046,
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-independent-l941h8ye/ready-plan.json"
+      ],
+      "note": "Accepted risk plan only; no probe or execution."
+    }
+  ],
+  "fixed_git_sources": [
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/usage/contract/types.go",
+      "git_blob": "bf598f915fa4627da2a47d01c2e20c63aa05ee4a",
+      "sha256": "3845c7c7a75a93e9bf15813fca4d352a7da789c2b0db42bfc1cb9371cb8b38ad",
+      "bytes": 7475,
+      "groups": [
+        "author19",
+        "relocated_raw_markdown_link"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/usage/contract/types.go",
+        "/workspace/agenteam/internal/central/usage/contract/types.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/usage/contract/query.go",
+      "git_blob": "d6e32996fbdbf8cbf7980ac203864fcb1a44d79d",
+      "sha256": "9d72156476c47d3d157a966542a0573e8a20ef75d3253bcb18140889cd648726",
+      "bytes": 7042,
+      "groups": [
+        "author19",
+        "relocated_raw_markdown_link"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/usage/contract/query.go",
+        "/workspace/agenteam/internal/central/usage/contract/query.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/model/contract/authority.go",
+      "git_blob": "d4c28597592ae39d83579049e5187aa278ffbe12",
+      "sha256": "358a96356382a651e5668a73962699ecfc39e2fbe27512af880e1ce3aef7e77a",
+      "bytes": 16899,
+      "groups": [
+        "author19"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/model/contract/authority.go",
+        "/workspace/agenteam/internal/central/model/contract/authority.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/model/contract/resolution.go",
+      "git_blob": "8fdb16bd955703bec7bdf06114857d32d3c54e04",
+      "sha256": "151f89787aa0d35d016dd8d77b03f957548fd2f1c9b81cf44e646441867f9a64",
+      "bytes": 5129,
+      "groups": [
+        "author19"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/model/contract/resolution.go",
+        "/workspace/agenteam/internal/central/model/contract/resolution.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/model/resolver.go",
+      "git_blob": "eb452bc9f338e147e85f065276fac3ebfa2e817c",
+      "sha256": "0bdd3e30b286da45454b2930b3f2d6ed4a09e4f9ff15a3e8028f5880e5bdf13c",
+      "bytes": 14359,
+      "groups": [
+        "author19"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/model/resolver.go",
+        "/workspace/agenteam/internal/central/model/resolver.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/model/secret_router.go",
+      "git_blob": "d236b862a2322654db72957a58926f7ad35b6213",
+      "sha256": "ca3ef3327494fb8858cb39cc399326f398dac6f9da76b65c3ff3ed14d815712c",
+      "bytes": 2882,
+      "groups": [
+        "author19"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/model/secret_router.go",
+        "/workspace/agenteam/internal/central/model/secret_router.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/model/adapter/transport.go",
+      "git_blob": "b3dd84b0ece9f2e9fa6129c06dda0e18fafb949b",
+      "sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf",
+      "bytes": 11948,
+      "groups": [
+        "author19",
+        "relocated_raw_markdown_link"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/model/adapter/transport.go",
+        "/workspace/agenteam/internal/central/model/adapter/transport.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/secret/contract/model.go",
+      "git_blob": "58c5ea7678a641ec5523cf08034f69a4b6c8959e",
+      "sha256": "f8bf949c3ac35a02351b61a7510609b2e86861b5ceffdddbf8fc54aa1dac2821",
+      "bytes": 550,
+      "groups": [
+        "author19",
+        "relocated_raw_markdown_link"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/secret/contract/model.go",
+        "/workspace/agenteam/internal/central/secret/contract/model.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/secret/model_usage.go",
+      "git_blob": "f38e5672969085caaff7b3ddbdf0cf71c5520c80",
+      "sha256": "1761db95df8cf641daa17ae926e9776e849731ae03b8a9efe05cf76ae96b844d",
+      "bytes": 8595,
+      "groups": [
+        "author19"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/secret/model_usage.go",
+        "/workspace/agenteam/internal/central/secret/model_usage.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/project/authority.go",
+      "git_blob": "c8af518a1a99084f07f56633d1ec3e3afe774af4",
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "bytes": 9818,
+      "groups": [
+        "author19"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/project/authority.go",
+        "/workspace/agenteam/internal/central/project/authority.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/identity/contract/identity.go",
+      "git_blob": "fc92995ab8d917e2142329a7a8eb91ca7f13b0c6",
+      "sha256": "845794400c185b5f00ef673007661ec1382d19b54ec82329d565567daa073ef4",
+      "bytes": 8575,
+      "groups": [
+        "author19"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/identity/contract/identity.go",
+        "/workspace/agenteam/internal/central/identity/contract/identity.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/foundation/lock.go",
+      "git_blob": "f907283e5fc67482c99eb5c14add91923788ad2a",
+      "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+      "bytes": 5196,
+      "groups": [
+        "author19"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/foundation/lock.go",
+        "/workspace/agenteam/internal/central/foundation/lock.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/foundation/tx.go",
+      "git_blob": "3988c8d4ab53261e784fcd175f27b88395b5087d",
+      "sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+      "bytes": 2339,
+      "groups": [
+        "author19"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/foundation/tx.go",
+        "/workspace/agenteam/internal/central/foundation/tx.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/foundation/cause.go",
+      "git_blob": "4027e70d18735dd54d1f59b23382a0699022bee4",
+      "sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+      "bytes": 5490,
+      "groups": [
+        "author19"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/foundation/cause.go",
+        "/workspace/agenteam/internal/central/foundation/cause.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/foundation/fault.go",
+      "git_blob": "114e98b7b68d536be0dc9aad22221447b098991b",
+      "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+      "bytes": 5460,
+      "groups": [
+        "author19",
+        "relocated_raw_markdown_link"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/foundation/fault.go",
+        "/workspace/agenteam/internal/central/foundation/fault.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/cursor/cursor.go",
+      "git_blob": "f12c75aa6d76a3792b038c0bfdc04fe99da175e4",
+      "sha256": "c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f",
+      "bytes": 6023,
+      "groups": [
+        "author19"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/cursor/cursor.go",
+        "/workspace/agenteam/internal/central/cursor/cursor.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "db/migrations/00015_model_configuration.sql",
+      "git_blob": "c9daebf4f446f10fc060294760fe5b7c050ba394",
+      "sha256": "c1f4c4685d1710be4850994ce3e216d98c43201ac38b03e932fd610ab38b17af",
+      "bytes": 14847,
+      "groups": [
+        "author19"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/db/migrations/00015_model_configuration.sql",
+        "/workspace/agenteam/db/migrations/00015_model_configuration.sql"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "db/migrations/00017_model_current_resolution.sql",
+      "git_blob": "26999054f3a5335a50fa21edb920fbf392ae7a50",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837",
+      "bytes": 4094,
+      "groups": [
+        "author19",
+        "relocated_raw_markdown_link"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/db/migrations/00017_model_current_resolution.sql",
+        "/workspace/agenteam/db/migrations/00017_model_current_resolution.sql"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "git_blob": "e7cadfdbd70ee7bcb15f46f58db78a215139eb28",
+      "sha256": "66f49baf7dde34c3c2b39e68f793d670074ed3479afd8d0940ffa6288518bb13",
+      "bytes": 66469,
+      "groups": [
+        "author19",
+        "relocated_raw_markdown_link"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/docs/development/work-items/d09-model-system-token-usage-design.md",
+        "/workspace/agenteam-current-resolution-archive/before/docs/development/work-items/d09-model-system-token-usage-design.md"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/model/configuration.go",
+      "git_blob": "f66f27c0d36496e2ed51758a0d3b0afe9b6fe9db",
+      "sha256": "2f09ab296c592c207fe63705e8b2a26ce7089130ae3d40e0071856b77a7d410a",
+      "bytes": 13381,
+      "groups": [
+        "independent13"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/model/configuration.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/model/references.go",
+      "git_blob": "3132e2251dc4bcb90787109b99e0299bf89b9d4a",
+      "sha256": "880234288ab809df8ef1ad2af20d555ccd79ed6a6c31cd4a86d6883b3bd5c642",
+      "bytes": 5874,
+      "groups": [
+        "independent13"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/model/references.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/model/commands.go",
+      "git_blob": "24d74185e081bc2c2a3602b740bf12f4c1bedd8f",
+      "sha256": "c801fae31f25815e00ebe82c41a363d53d9a6ff5c2f246f99541cac91de948e7",
+      "bytes": 20400,
+      "groups": [
+        "independent13"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/model/commands.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/secret/usage_plan.go",
+      "git_blob": "5060ebfcae6927d25d99e900ca6acc96645ecd5f",
+      "sha256": "ad554aa10034aae01ca132ac6649bfecf8b8e894d14ba80faead61be1cc9c20b",
+      "bytes": 7108,
+      "groups": [
+        "independent13"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/secret/usage_plan.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/postgres/store.go",
+      "git_blob": "764a1aad5250b80e7c9990c9dd8d30917660c7ab",
+      "sha256": "6c2f607fd3c85aa9c5d65ff9c909c1b9012f10a2f62a340a34f6d17371798072",
+      "bytes": 7452,
+      "groups": [
+        "independent13"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/postgres/store.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "tests/model/current_resolution_selection_test.go",
+      "git_blob": "187f0dea601a4c329b37abf69444dc983d4c7e25",
+      "sha256": "e87158298aee54a2ead5b5aa10f36fadb7c08add1849e4323ac0ec8e19184562",
+      "bytes": 10326,
+      "groups": [
+        "independent13"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/tests/model/current_resolution_selection_test.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "tests/model/current_resolution_unknown_test.go",
+      "git_blob": "f61240d1111e4c95a8078ca5e7596e6be2fe54f0",
+      "sha256": "ccc2235ea76b078ef601488d95621b72787fbd342ea9908126bc7b324edc32fc",
+      "bytes": 6342,
+      "groups": [
+        "independent13"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/tests/model/current_resolution_unknown_test.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "tests/model/current_resolution_fixture_test.go",
+      "git_blob": "18cf848c4c1ef981f76ecd42e395362024e45663",
+      "sha256": "669ccb190ae3c5043c104305a3116e1fc39ab28316983984ec0b261653a423b6",
+      "bytes": 16271,
+      "groups": [
+        "independent13",
+        "relocated_raw_markdown_link"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/tests/model/current_resolution_fixture_test.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "tests/model/openai_chat_wire_fixture_test.go",
+      "git_blob": "48ee3589d6f49a9bbad4223fd517aedcf97b2183",
+      "sha256": "cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8",
+      "bytes": 10655,
+      "groups": [
+        "independent13",
+        "relocated_raw_markdown_link"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/tests/model/openai_chat_wire_fixture_test.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "tests/model/project_configuration_fixture_test.go",
+      "git_blob": "dbe6c78a0341891d57250bfa9f27b316f5ee1544",
+      "sha256": "d19c5fb039e784e9747fe853261ceefa4ebdccba9659e5a1010e34832e5c523a",
+      "bytes": 22720,
+      "groups": [
+        "independent13",
+        "relocated_raw_markdown_link"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/tests/model/project_configuration_fixture_test.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/model/adapter/openai_chat.go",
+      "git_blob": "86d47d135cea76014afefaaf4a0aca7a23bce73f",
+      "sha256": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556",
+      "bytes": 11254,
+      "groups": [
+        "independent13"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/model/adapter/openai_chat.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/model/contract/types.go",
+      "git_blob": "6616abfdfcb4d19f4c5a00fdce414bf1bc8b65fd",
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+      "bytes": 19439,
+      "groups": [
+        "independent13"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/model/contract/types.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "internal/central/model/secret_authority.go",
+      "git_blob": "44ec9514d94153deecb65a8a67a259cbf9b09ca4",
+      "sha256": "e312daae6e6887e399ffb20f875fac79bd88c80164987a80bb81407fb794271e",
+      "bytes": 4823,
+      "groups": [
+        "independent13"
+      ],
+      "originals": [
+        "/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/fixed/internal/central/model/secret_authority.go"
+      ]
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": ".agents/skills/agenteam-design/SKILL.md",
+      "git_blob": "dc06833821245cc578b46febc741c5740b3ec7f0",
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81",
+      "bytes": 3874,
+      "groups": [
+        "relocated_raw_markdown_link"
+      ],
+      "originals": []
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": ".agents/skills/agenteam-go-development/SKILL.md",
+      "git_blob": "316f6484066d76ecea3007274ad44f2b663e3851",
+      "sha256": "037910810b78e431d6c477677704cbcc746ea3d9db6448556221800661072b2b",
+      "bytes": 3637,
+      "groups": [
+        "relocated_raw_markdown_link"
+      ],
+      "originals": []
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "docs/architecture/platform-infrastructure/model-token-usage.md",
+      "git_blob": "3d9c19e2cb98a31fb9ecbae8e34fb61e0b6fa016",
+      "sha256": "84c277f1e95fc8ede86ba80485ca0b90a9bb7986c2d1ef6177f0164eb12fa8a3",
+      "bytes": 17774,
+      "groups": [
+        "relocated_raw_markdown_link"
+      ],
+      "originals": []
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "docs/architecture/platform-infrastructure/model-system/chat-model-runtime.md",
+      "git_blob": "8cb1e7f20fa8a55efa5b41a7b519aade5ff8ba4b",
+      "sha256": "bc8179f1aedec56f7f67ff8bcbdbf534226bfa07a28b305796ca49a484c034e3",
+      "bytes": 14910,
+      "groups": [
+        "relocated_raw_markdown_link"
+      ],
+      "originals": []
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "git_blob": "0fc4235608915ae83fc126f62ec31eca59e73784",
+      "sha256": "bb9e510f7619c6da50778244911b9cbb5cec862ad024e52e51567480316a64fe",
+      "bytes": 37804,
+      "groups": [
+        "relocated_raw_markdown_link"
+      ],
+      "originals": []
+    },
+    {
+      "commit": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+      "path": "docs/development/agent-team/object-runtime-join-regression.md",
+      "git_blob": "27cc0f1ebf59e44c79c885d6b91f8f288cabf2dd",
+      "sha256": "44e3404084fc25174576f2d0f319ad067b3a4b079c5876db8d20b79a3894645f",
+      "bytes": 6601,
+      "groups": [
+        "relocated_raw_markdown_link"
+      ],
+      "originals": []
+    }
+  ],
+  "accepted_card": {
+    "commit": "9aad5f5d26bf5af066390a8bd35b91d57d6b8c8b",
+    "path": "docs/development/work-items/recovery-d09-invocation-usage-ledger.md",
+    "git_blob": "0c79ae53e50080042d80c1cb3c15214a686e9a92",
+    "sha256": "565bf9f2e0e819ede0286a47b2b5bc69aadb65c63b90538c7bff4289306724ca",
+    "bytes": 44650,
+    "originals": [
+      "/workspace/agenteam-invocation-usage-ledger-spec-y0dam2jl/administrative/rev1-adopted.md"
+    ],
+    "note": "Exact accepted administrative revision retained by Git; no duplicate full card payload."
+  },
+  "original_markdown_links": [
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "fixed_path": ".agents/skills/agenteam-design/SKILL.md",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../../.agents/skills/agenteam-go-development/SKILL.md",
+      "fixed_path": ".agents/skills/agenteam-go-development/SKILL.md",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "d09-model-system-token-usage-design.md#5-调用reservation-与用量原子事实",
+      "fixed_path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "fragment": "5-调用reservation-与用量原子事实"
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../architecture/platform-infrastructure/model-token-usage.md",
+      "fixed_path": "docs/architecture/platform-infrastructure/model-token-usage.md",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../architecture/platform-infrastructure/model-system/chat-model-runtime.md",
+      "fixed_path": "docs/architecture/platform-infrastructure/model-system/chat-model-runtime.md",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../../internal/central/usage/contract/types.go",
+      "fixed_path": "internal/central/usage/contract/types.go",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "recovery-d09-current-model-resolution.md",
+      "fixed_path": "docs/development/work-items/recovery-d09-current-model-resolution.md",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../../db/migrations/00017_model_current_resolution.sql",
+      "fixed_path": "db/migrations/00017_model_current_resolution.sql",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../../internal/central/secret/contract/model.go",
+      "fixed_path": "internal/central/secret/contract/model.go",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../../internal/central/model/adapter/transport.go",
+      "fixed_path": "internal/central/model/adapter/transport.go",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../../internal/central/usage/contract/types.go",
+      "fixed_path": "internal/central/usage/contract/types.go",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../../internal/central/usage/contract/query.go",
+      "fixed_path": "internal/central/usage/contract/query.go",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../agent-team/object-runtime-join-regression.md",
+      "fixed_path": "docs/development/agent-team/object-runtime-join-regression.md",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../../internal/central/foundation/fault.go",
+      "fixed_path": "internal/central/foundation/fault.go",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../../tests/model/current_resolution_fixture_test.go",
+      "fixed_path": "tests/model/current_resolution_fixture_test.go",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../../tests/model/project_configuration_fixture_test.go",
+      "fixed_path": "tests/model/project_configuration_fixture_test.go",
+      "fragment": ""
+    },
+    {
+      "raw_document": "rev1.md",
+      "raw_target": "../../../tests/model/openai_chat_wire_fixture_test.go",
+      "fixed_path": "tests/model/openai_chat_wire_fixture_test.go",
+      "fragment": ""
+    }
+  ],
+  "raw_whitespace_exceptions": [
+    {
+      "path": "administrative-delta.patch",
+      "lines": [
+        4,
+        7
+      ],
+      "reason": "Original unified-diff context lines; preserve exact raw bytes. This exact raw path only is excluded from whitespace normalization."
+    }
+  ],
+  "rebuild": "For a fixed_git_sources or accepted_card entry, git show COMMIT:PATH must reproduce bytes, SHA-256 and Git blob. For author rev1, use archived rev1.md. Applying original administrative-delta.patch to it reproduces accepted_card. No source tree/cache/binary/credentials archived.",
+  "independent_plan": "Root accepted plan only: proposed2top/3sub; optional third only if actual author numeric/concurrency coverage is insufficient. No frozen probe/selector and no execution."
+}

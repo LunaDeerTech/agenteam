@@ -1,0 +1,7 @@
+--- rev1-reviewed.md
++++ rev1-adopted.md
+@@ -2,3 +2,3 @@
+ 
+-修订：rev1 候选，固定已验业务 `4295df7d51c1f171df78ab3f0d9cef2fd241a505`。本卡仅获规格编写授权，尚待独立规格审查与主线程采纳；§9 的业务、测试和 SQL 均未授权实施。主线程唯一规划预留 `00018_model_invocation_usage.sql` 给本结果，R4 不占 00018；这是迁移排期，不是已存在或已验迁移。规格作者 `d08_recovery_design`（architecture_worker），实施者及独立验收负责人待主线程指定，不再委派。
++修订：rev1 已独立规格静审通过并获主线程采纳，被审卡 SHA-256 `d53835cb79618b5cea487e8d84161cdc2e4f3a9900c6d35a86a258f75f795cab`；固定已验业务 `4295df7d51c1f171df78ab3f0d9cef2fd241a505` 不变。独立报告 `/workspace/agenteam-invocation-ledger-spec-review-_836hbd1/review.md`，SHA-256 `1fd29dfd4e7c9892440c8d6abbcb074f9e5f9964ec6b7535d3ba744f32576de0`。实施者 `recovery_handoff`（backend_worker），独立验收负责人 `restore_test_dependencies`；§9 精确 20 路径的业务、测试及 SQL 实施仍待主线程提交本卡后另行授权。主线程唯一规划预留 `00018_model_invocation_usage.sql` 给本结果，R4 不占 00018；这是迁移排期，不是已存在或已验迁移。规格作者 `d08_recovery_design`（architecture_worker）；§1–10 保持被审原文，其中候选/待审表述为冻结时状态，当前行政状态以本段为准。不再委派。
+ 

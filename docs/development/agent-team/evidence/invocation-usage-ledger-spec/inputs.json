@@ -1,0 +1,119 @@
+{
+  "base": "4295df7d51c1f171df78ab3f0d9cef2fd241a505",
+  "files": [
+    {
+      "path": "internal/central/usage/contract/types.go",
+      "git_blob": "bf598f915fa4627da2a47d01c2e20c63aa05ee4a",
+      "sha256": "3845c7c7a75a93e9bf15813fca4d352a7da789c2b0db42bfc1cb9371cb8b38ad",
+      "bytes": 7475
+    },
+    {
+      "path": "internal/central/usage/contract/query.go",
+      "git_blob": "d6e32996fbdbf8cbf7980ac203864fcb1a44d79d",
+      "sha256": "9d72156476c47d3d157a966542a0573e8a20ef75d3253bcb18140889cd648726",
+      "bytes": 7042
+    },
+    {
+      "path": "internal/central/model/contract/authority.go",
+      "git_blob": "d4c28597592ae39d83579049e5187aa278ffbe12",
+      "sha256": "358a96356382a651e5668a73962699ecfc39e2fbe27512af880e1ce3aef7e77a",
+      "bytes": 16899
+    },
+    {
+      "path": "internal/central/model/contract/resolution.go",
+      "git_blob": "8fdb16bd955703bec7bdf06114857d32d3c54e04",
+      "sha256": "151f89787aa0d35d016dd8d77b03f957548fd2f1c9b81cf44e646441867f9a64",
+      "bytes": 5129
+    },
+    {
+      "path": "internal/central/model/resolver.go",
+      "git_blob": "eb452bc9f338e147e85f065276fac3ebfa2e817c",
+      "sha256": "0bdd3e30b286da45454b2930b3f2d6ed4a09e4f9ff15a3e8028f5880e5bdf13c",
+      "bytes": 14359
+    },
+    {
+      "path": "internal/central/model/secret_router.go",
+      "git_blob": "d236b862a2322654db72957a58926f7ad35b6213",
+      "sha256": "ca3ef3327494fb8858cb39cc399326f398dac6f9da76b65c3ff3ed14d815712c",
+      "bytes": 2882
+    },
+    {
+      "path": "internal/central/model/adapter/transport.go",
+      "git_blob": "b3dd84b0ece9f2e9fa6129c06dda0e18fafb949b",
+      "sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf",
+      "bytes": 11948
+    },
+    {
+      "path": "internal/central/secret/contract/model.go",
+      "git_blob": "58c5ea7678a641ec5523cf08034f69a4b6c8959e",
+      "sha256": "f8bf949c3ac35a02351b61a7510609b2e86861b5ceffdddbf8fc54aa1dac2821",
+      "bytes": 550
+    },
+    {
+      "path": "internal/central/secret/model_usage.go",
+      "git_blob": "f38e5672969085caaff7b3ddbdf0cf71c5520c80",
+      "sha256": "1761db95df8cf641daa17ae926e9776e849731ae03b8a9efe05cf76ae96b844d",
+      "bytes": 8595
+    },
+    {
+      "path": "internal/central/project/authority.go",
+      "git_blob": "c8af518a1a99084f07f56633d1ec3e3afe774af4",
+      "sha256": "a9e7d5768a18c23abf9a1cf86a396bbe6901d348c70b16c48b32fa559fa95321",
+      "bytes": 9818
+    },
+    {
+      "path": "internal/central/identity/contract/identity.go",
+      "git_blob": "fc92995ab8d917e2142329a7a8eb91ca7f13b0c6",
+      "sha256": "845794400c185b5f00ef673007661ec1382d19b54ec82329d565567daa073ef4",
+      "bytes": 8575
+    },
+    {
+      "path": "internal/central/foundation/lock.go",
+      "git_blob": "f907283e5fc67482c99eb5c14add91923788ad2a",
+      "sha256": "5f328d35a0bf313f589654c9e52b5b6b0b9f8f3f3b8502e9d1f612b588220384",
+      "bytes": 5196
+    },
+    {
+      "path": "internal/central/foundation/tx.go",
+      "git_blob": "3988c8d4ab53261e784fcd175f27b88395b5087d",
+      "sha256": "b94efd2af7b01a3d857017cd4a4ffc5f577801044a203daff25a8746d80aec4f",
+      "bytes": 2339
+    },
+    {
+      "path": "internal/central/foundation/cause.go",
+      "git_blob": "4027e70d18735dd54d1f59b23382a0699022bee4",
+      "sha256": "1af9a1fe3dcb8bb3b8aabdc55eea4a70ed78da3f6abf9dbf7c2629ef05f934c7",
+      "bytes": 5490
+    },
+    {
+      "path": "internal/central/foundation/fault.go",
+      "git_blob": "114e98b7b68d536be0dc9aad22221447b098991b",
+      "sha256": "94a339976fb8f1e1173256aa840dd1273644cafd37dc6a3e96e33d1cb8ff09de",
+      "bytes": 5460
+    },
+    {
+      "path": "internal/central/cursor/cursor.go",
+      "git_blob": "f12c75aa6d76a3792b038c0bfdc04fe99da175e4",
+      "sha256": "c9f13d1cc4f40966cf545d0ea6dcc0f5c5ffc821982e54f3e680e1a604150e5f",
+      "bytes": 6023
+    },
+    {
+      "path": "db/migrations/00015_model_configuration.sql",
+      "git_blob": "c9daebf4f446f10fc060294760fe5b7c050ba394",
+      "sha256": "c1f4c4685d1710be4850994ce3e216d98c43201ac38b03e932fd610ab38b17af",
+      "bytes": 14847
+    },
+    {
+      "path": "db/migrations/00017_model_current_resolution.sql",
+      "git_blob": "26999054f3a5335a50fa21edb920fbf392ae7a50",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837",
+      "bytes": 4094
+    },
+    {
+      "path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "git_blob": "e7cadfdbd70ee7bcb15f46f58db78a215139eb28",
+      "sha256": "66f49baf7dde34c3c2b39e68f793d670074ed3479afd8d0940ffa6288518bb13",
+      "bytes": 66469
+    }
+  ]
+}
