@@ -1,0 +1,48 @@
+[
+  {
+    "label": "refs",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD",
+      "main",
+      "refs/remotes/origin/main"
+    ],
+    "exit": 0,
+    "output_sha256": "e2ec8039081a971316588a6c1e4f8dad78b076ce50dbd3f0f7e3d47020297620"
+  },
+  {
+    "label": "committed-recovery-seams",
+    "argv": [
+      "git",
+      "log",
+      "-5",
+      "--format=%h %s",
+      "--",
+      "db/migrations/00014_object_artifact_project_stop.sql",
+      "internal/central/object/contract/project_prepare_read_test.go",
+      "internal/central/audit/contract/project_fact_authority.go"
+    ],
+    "exit": 0,
+    "output_sha256": "6e4a6a5fd688d59f8f2aad1a649ca6393a17b0f42e126f93d11a39f54380fc78"
+  },
+  {
+    "label": "runtime-symbol-search",
+    "argv": [
+      "rg",
+      "-n",
+      "ProjectAuditAuthority|CheckProjectAuditInTx|RequestProjectStop|InspectProjectStop|DiscoverProjectStop|ValidateProjectStopInTx|project_stops|project_work",
+      "internal/central/project",
+      "internal/central/object",
+      "internal/central/artifact",
+      "internal/central/secret",
+      "internal/central/audit",
+      "-g",
+      "*.go",
+      "-g",
+      "!**/*_test.go"
+    ],
+    "exit": 0,
+    "output_sha256": "c97d41a115580fc19acc05cdfdf0c2f5ceeda8cbc30e01b3a782f17dbdc12f55"
+  }
+]

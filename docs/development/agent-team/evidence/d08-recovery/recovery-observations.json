@@ -1,0 +1,58 @@
+{
+  "paths": [
+    {
+      "path": "internal/central/project/lifecycle.go",
+      "exists": false
+    },
+    {
+      "path": "internal/central/project/participants.go",
+      "exists": false
+    },
+    {
+      "path": "internal/central/project/object_authority.go",
+      "exists": false
+    },
+    {
+      "path": "internal/central/project/outbox_authority.go",
+      "exists": false
+    },
+    {
+      "path": "internal/central/project/secret_authority.go",
+      "exists": false
+    },
+    {
+      "path": "internal/central/project/http.go",
+      "exists": false
+    },
+    {
+      "path": "internal/central/object/project_lifecycle.go",
+      "exists": false
+    },
+    {
+      "path": "internal/central/object/project_work.go",
+      "exists": false
+    },
+    {
+      "path": "internal/central/artifact/project_lifecycle.go",
+      "exists": false
+    },
+    {
+      "path": "internal/central/artifact/project_work.go",
+      "exists": false
+    },
+    {
+      "path": "internal/central/app/project.go",
+      "exists": false
+    },
+    {
+      "path": "api/openapi/project.json",
+      "exists": false
+    },
+    {
+      "path": "scripts/test-projects.sh",
+      "exists": false
+    }
+  ],
+  "toolchain_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "onboarding_minio_sha256": "fe58d3d9dcc652ae655b77e11a96549d9d76707246054dcc985580a3b48313d6"
+}

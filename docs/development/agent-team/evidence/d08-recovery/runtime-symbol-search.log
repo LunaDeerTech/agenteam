@@ -1,0 +1,9 @@
+internal/central/audit/contract/project_fact_authority.go:19:	CheckProjectAuditInTx(context.Context, foundation.Tx, Entry, AppendKey) error
+internal/central/object/contract/project_lifecycle.go:99:	RequestProjectStopStep ProjectStopStep = "request_stop"
+internal/central/object/contract/project_lifecycle.go:100:	InspectProjectStopStep ProjectStopStep = "inspect_stop"
+internal/central/object/contract/project_lifecycle.go:104:	return projectStopOneOf(v, RequestProjectStopStep, InspectProjectStopStep)
+internal/central/object/contract/project_lifecycle.go:221:	if !tx.Valid() || r.Validate() != nil || deps.Validate() != nil || mode.Validate() != nil || mode == ReadProjectStop && r.Details().Step != InspectProjectStopStep {
+internal/central/object/contract/project_lifecycle.go:264:	DiscoverProjectStop(context.Context, ProjectStopRequest) (AccessDependencies, error)
+internal/central/object/contract/project_lifecycle.go:265:	ValidateProjectStopInTx(context.Context, foundation.Tx, ProjectStopRequest, AccessDependencies) (ProjectStopAuthorization, error)
+internal/central/object/contract/project_lifecycle.go:417:	RequestProjectStop(context.Context, identity.Actor, ProjectStopCause) (ObjectStopReport, error)
+internal/central/object/contract/project_lifecycle.go:418:	InspectProjectStop(context.Context, identity.Actor, ProjectStopCause) (ObjectStopReport, error)

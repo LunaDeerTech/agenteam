@@ -1,0 +1,109 @@
+[
+  {
+    "label": "git-head",
+    "argv": [
+      "git",
+      "rev-parse",
+      "HEAD"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 0,
+    "seconds": 0.003,
+    "output_sha256": "c89146cf4ad4b890ca99764d0cb749d62f3bd2ca5327a68a6b2be301bdd72192"
+  },
+  {
+    "label": "git-status",
+    "argv": [
+      "git",
+      "status",
+      "--porcelain=v1"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 0,
+    "seconds": 0.007,
+    "output_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "label": "toolchain",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "version"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 0,
+    "seconds": 0.008,
+    "output_sha256": "f554cfdb85411c2bb1d503df3f53dfbad1f753eb8271938833166a5d26a7547c"
+  },
+  {
+    "label": "go-locations",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "env",
+      "GOMODCACHE",
+      "GOCACHE",
+      "GOOS",
+      "GOARCH",
+      "GOAMD64",
+      "CGO_ENABLED"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 0,
+    "seconds": 0.016,
+    "output_sha256": "5a101c34c66a101717cc9e682d8f4dea092d12094bf6a935deceb9fb3a843ce3"
+  },
+  {
+    "label": "docker-local-version",
+    "argv": [
+      "/usr/local/bin/docker",
+      "--config",
+      "/tmp/agenteam-d08-recovery-verification-tgryqyye/docker-config",
+      "--host",
+      "unix:///var/run/docker.sock",
+      "version",
+      "--format",
+      "{{.Client.Version}} {{.Server.Version}}"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 0,
+    "seconds": 0.088,
+    "output_sha256": "c81d4a93e2958a9543d2445b3f4db83c7698d78700893c4ffcfb42a0838df4f9"
+  },
+  {
+    "label": "image-pg17",
+    "argv": [
+      "/usr/local/bin/docker",
+      "--config",
+      "/tmp/agenteam-d08-recovery-verification-tgryqyye/docker-config",
+      "--host",
+      "unix:///var/run/docker.sock",
+      "image",
+      "inspect",
+      "--format",
+      "{{.Id}} {{json .RepoDigests}}",
+      "pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 1,
+    "seconds": 0.067,
+    "output_sha256": "ae8a8422ec7ef23c0ed6ff8609f3bbae15c18a844a4c9b9d19f52ec556ef844f"
+  },
+  {
+    "label": "image-pg16",
+    "argv": [
+      "/usr/local/bin/docker",
+      "--config",
+      "/tmp/agenteam-d08-recovery-verification-tgryqyye/docker-config",
+      "--host",
+      "unix:///var/run/docker.sock",
+      "image",
+      "inspect",
+      "--format",
+      "{{.Id}} {{json .RepoDigests}}",
+      "pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782"
+    ],
+    "cwd": "/workspace/agenteam",
+    "exit": 1,
+    "seconds": 0.038,
+    "output_sha256": "547477cf99fb648080c8c3394021c1eb7a2a8de816c7af66a0c6abd277855a11"
+  }
+]

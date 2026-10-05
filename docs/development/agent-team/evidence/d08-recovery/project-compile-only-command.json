@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-run",
+    "^$",
+    "-count=1",
+    "-timeout=2m",
+    "./internal/central/project"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=2",
+    "GOCACHE": "/tmp/agenteam-d08-recovery-verification-tgryqyye/gocache",
+    "GOTMPDIR": "/tmp/agenteam-d08-recovery-verification-tgryqyye/tmp"
+  },
+  "exit": 1,
+  "seconds": 0.134,
+  "log_sha256": "aa96a66ff0205fd4fd63a1726d96838cf695ffca918a4f3b2537b9e72658eb5f"
+}
