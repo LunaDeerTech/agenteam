@@ -230,7 +230,11 @@ func (t *TransferService) within(ctx context.Context, request oc.AccessRequest, 
 		plans[i] = p
 	}
 	return t.state().objects.state().store.WithinTx(ctx, recoveryCause(), func(ctx context.Context, tx foundation.Tx) error {
-		locked, err := t.state().objects.AcquireAccessPlansInTx(ctx, tx, plans, nil)
+		var extra []foundation.LockRequest
+		if h := projectContextWork(ctx); h != nil {
+			extra = append(extra, workLock(h.work.id))
+		}
+		locked, err := t.state().objects.AcquireAccessPlansInTx(ctx, tx, plans, extra)
 		if err != nil {
 			return err
 		}
@@ -240,6 +244,22 @@ func (t *TransferService) within(ctx context.Context, request oc.AccessRequest, 
 		}
 		for i := 1; i < len(requests); i++ {
 			if err = t.state().objects.ValidateAccessPlanInTx(ctx, tx, requests[i], plans[i], locked); err != nil {
+				return err
+			}
+		}
+		s := t.state().objects
+		s.observeOperationWriters(ctx, tx, locked.Locks())
+		h := projectContextWork(ctx)
+		if h != nil {
+			if h.work.project != workProject(request.Details().Transfer.Details().Spec.Details().Owner) {
+				return failure(foundation.Forbidden, nil)
+			}
+			if h.registered {
+				if err = s.requireProjectWork(ctx, tx, h); err != nil {
+					return err
+				}
+				s.observeProjectWriter(h, tx, locked.Locks())
+			} else if err = s.registerProjectWork(ctx, tx, h, locked.Locks()); err != nil {
 				return err
 			}
 		}

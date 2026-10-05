@@ -49,7 +49,11 @@ func NewTransferService(objects *Service, authority oc.RunnerTransferAuthority, 
 	state.transferBackend = backend
 	state.mu.Unlock()
 	r := &transferState{objects: objects, authority: authority, backend: backend, pendingJoins: make(map[oc.AttemptID]oc.UploadAttempt)}
-	return &TransferService{func() *transferState { return r }}, nil
+	out := &TransferService{func() *transferState { return r }}
+	state.mu.Lock()
+	state.transfers = out
+	state.mu.Unlock()
+	return out, nil
 }
 func sameTransferAuthority(a, b oc.RunnerTransferAuthority) bool {
 	if nilPort(a) || nilPort(b) {
@@ -141,6 +145,15 @@ func (t *TransferService) IssueTransfer(ctx context.Context, actor identity.Acto
 			}
 		}
 	}
+	kind := "transfer_get"
+	if d.Direction == oc.TransferPUT {
+		kind = "transfer_put"
+	}
+	work, err := s.newProjectWork(ctx, workProject(d.Owner), kind, r.id.String(), r.object)
+	if err != nil {
+		return oc.TransferGrant{}, err
+	}
+	ctx = context.WithValue(ctx, projectWorkContextKey{}, work)
 	request, err := r.request(actor, oc.TransferIssue, nil, nil, oc.PreparedPayload{})
 	if err != nil {
 		return oc.TransferGrant{}, err

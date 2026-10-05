@@ -69,6 +69,9 @@ func (s *Service) attach(ctx context.Context, tx foundation.Tx, actor identity.A
 	if !found || !u.owner.Equal(owner) {
 		return oc.ObjectReference{}, failure(foundation.Forbidden, nil)
 	}
+	if err = requireNativeWork(ctx, e, "preparation", u.attempt.String()); err != nil {
+		return oc.ObjectReference{}, err
+	}
 	if u.disposition == "revoked" {
 		return oc.ObjectReference{}, deleted(u.state == "committed")
 	}

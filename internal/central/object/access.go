@@ -48,6 +48,13 @@ func (s *Service) DiscoverAccess(ctx context.Context, request oc.AccessRequest) 
 		return oc.AccessLockPlan{}, unavailable(nil)
 	}
 	locks := append(facts.locks, dependencies.Locks()...)
+	if needsWorkIdentity(request) {
+		id, err := newWorkIdentity()
+		if err != nil {
+			return oc.AccessLockPlan{}, err
+		}
+		locks = append(locks, workLock(id))
+	}
 	plan, err := oc.NewAccessLockPlan(r.accessIssuer, oc.AccessPlanDetails{Request: request, DependencyRequest: dependencyRequest, Dependencies: dependencies, DomainBinding: facts.binding, Objects: facts.objects, Locks: locks})
 	if err != nil {
 		return oc.AccessLockPlan{}, invalid()
@@ -256,7 +263,7 @@ func (s *Service) accessFacts(ctx context.Context, e postgres.SQLExecutor, reque
 		}
 	}
 	mode := foundation.Exclusive
-	if d.Operation == oc.PrepareAccess || d.Operation == oc.LookupAccess || d.Operation == oc.StatAccess || d.Operation == oc.ValidateSourceAccess || d.Operation == oc.InspectAccess {
+	if d.Operation == oc.PrepareAccess || d.Operation == oc.PrepareReadAccess || d.Operation == oc.LookupAccess || d.Operation == oc.StatAccess || d.Operation == oc.ValidateSourceAccess || d.Operation == oc.InspectAccess {
 		mode = foundation.Shared
 	}
 	add := func(key foundation.LockKey, mode foundation.LockMode) {
@@ -367,7 +374,14 @@ func (s *Service) withinAccess(ctx context.Context, cause foundation.Transaction
 		if err = s.ValidateAccessPlanInTx(ctx, tx, request, plan, locked); err != nil {
 			return err
 		}
-		return fn(ctx, tx, plan, locked)
+		before, err := s.accessWorkBefore(ctx, tx, request, locked)
+		if err != nil {
+			return err
+		}
+		if err = fn(ctx, tx, plan, locked); err != nil {
+			return err
+		}
+		return s.accessWorkAfter(ctx, tx, request, locked, before)
 	})
 }
 func rejectedAccess(err error) foundation.CommitResult {
@@ -382,7 +396,7 @@ func ownerRequest(actor identity.Actor, owner oc.ObjectOwner, op oc.AccessOperat
 	extra.Owner = owner
 	extra.Operation = op
 	extra.Intent = identity.Mutate
-	if op == oc.LookupAccess {
+	if op == oc.LookupAccess || op == oc.PrepareReadAccess {
 		extra.Intent = identity.Read
 	}
 	if op == oc.CancelAccess || op == oc.ReleaseAccess {

@@ -76,7 +76,7 @@ func (d *Downloads) within(ctx context.Context, actor identity.Actor, c download
 		return reject(err)
 	}
 	return r.objects.state().store.WithinTx(ctx, recoveryCause(), func(ctx context.Context, tx foundation.Tx) error {
-		locked, err := r.objects.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, []foundation.LockRequest{downloadGrantLock(c.grant)})
+		locked, err := r.objects.AcquireAccessPlansInTx(ctx, tx, []oc.AccessLockPlan{plan}, downloadWorkLocks(ctx, c.grant))
 		if err != nil {
 			return err
 		}
@@ -89,6 +89,20 @@ func (d *Downloads) within(ctx context.Context, actor identity.Actor, c download
 		e, err := executor(r.objects, tx)
 		if err != nil {
 			return err
+		}
+		h := projectContextWork(ctx)
+		if h != nil {
+			if h.work.project != workProject(c.target.Details().Source.Details().Owner) {
+				return failure(foundation.Forbidden, nil)
+			}
+			if h.registered {
+				if err = r.objects.requireProjectWork(ctx, tx, h); err != nil {
+					return err
+				}
+				r.objects.observeProjectWriter(h, tx, locked.Locks())
+			} else if err = r.objects.registerProjectWork(ctx, tx, h, locked.Locks()); err != nil {
+				return err
+			}
 		}
 		return fn(ctx, tx, e, plan, locked)
 	})
@@ -172,16 +186,28 @@ func (d *Downloads) IssueDownload(ctx context.Context, actor identity.Actor, ref
 	}
 	defer finish()
 	ctx = op.ctx
+	owner, err := downloadReferenceOwner(ref)
+	if err != nil {
+		return oc.PrivateSignedURL{}, err
+	}
+	grant, err := foundation.NewID[oc.DownloadGrant]()
+	if err != nil {
+		return oc.PrivateSignedURL{}, unavailable(err)
+	}
+	work, err := r.objects.newProjectWork(ctx, workProject(owner), "download", grant.String(), oc.ObjectID{})
+	if err != nil {
+		return oc.PrivateSignedURL{}, err
+	}
+	if err = r.objects.admitProjectWork(ctx, actor, owner, oc.PrepareReadAccess, work); err != nil {
+		return oc.PrivateSignedURL{}, err
+	}
+	ctx = context.WithValue(ctx, projectWorkContextKey{}, work)
 	target, err := r.provider.ResolveDownload(ctx, actor, ref)
 	if err != nil {
 		return oc.PrivateSignedURL{}, portError(err)
 	}
 	if target.Validate() != nil || encodeDownloadRef(target.Details().Source.Details().Reference) != encodeDownloadRef(ref) {
 		return oc.PrivateSignedURL{}, failure(foundation.Forbidden, nil)
-	}
-	grant, err := foundation.NewID[oc.DownloadGrant]()
-	if err != nil {
-		return oc.PrivateSignedURL{}, unavailable(err)
 	}
 	user, _ := foundation.ParseID[identity.User](actor.Details().UserID)
 	expires, err := foundation.NewInstant(time.Now().Add(expiresIn))
@@ -258,3 +284,11 @@ func (d *Downloads) RevokeDownload(ctx context.Context, actor identity.Actor, id
 
 // Persisted JSON is explicit canonical binding data, never the safe display
 // projection of an opaque Actor, reference or DownloadTarget.
+
+func downloadWorkLocks(ctx context.Context, id oc.DownloadGrantID) []foundation.LockRequest {
+	locks := []foundation.LockRequest{downloadGrantLock(id)}
+	if h := projectContextWork(ctx); h != nil {
+		locks = append(locks, workLock(h.work.id))
+	}
+	return locks
+}

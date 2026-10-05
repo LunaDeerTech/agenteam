@@ -357,7 +357,13 @@ func (t *TransferService) recoverProgress(ctx context.Context, failures *recover
 			continue
 		}
 		if r.cleanup && r.spec.Details().Direction == oc.TransferPUT {
-			_, err = s.cleanObject(ctx, r.object)
+			child, done, childErr := s.childOperation(ctx)
+			if childErr != nil {
+				failures.remember(childErr)
+				continue
+			}
+			_, err = s.cleanObject(child.ctx, r.object)
+			done()
 			failures.remember(err)
 		}
 		if ctx.Err() != nil {

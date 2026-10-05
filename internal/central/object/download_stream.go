@@ -75,6 +75,15 @@ func (d *Downloads) OpenDownload(ctx context.Context, actor identity.Actor, toke
 			cancel()
 		}
 	}()
+	attempt, err := foundation.NewID[oc.DownloadAttempt]()
+	if err != nil {
+		return nil, unavailable(err)
+	}
+	work, err := r.objects.newProjectWork(ctx, workProject(c.target.Details().Source.Details().Owner), "download", attempt.String(), c.target.Details().Source.Details().Meta.ID)
+	if err != nil {
+		return nil, err
+	}
+	ctx = context.WithValue(ctx, projectWorkContextKey{}, work)
 	var offset, length int64
 	var partial bool
 	checked := d.within(ctx, actor, c, func(ctx context.Context, _ foundation.Tx, e postgres.SQLExecutor, _ oc.AccessLockPlan, _ oc.LockedAccess) error {
@@ -91,10 +100,6 @@ func (d *Downloads) OpenDownload(ctx context.Context, actor identity.Actor, toke
 			return nil, &downloadRangeError{func() int64 { return total }}
 		}
 		return nil, err
-	}
-	attempt, err := foundation.NewID[oc.DownloadAttempt]()
-	if err != nil {
-		return nil, unavailable(err)
 	}
 	if err = d.start(ctx, actor, c, attempt, offset, length); err != nil {
 		return nil, err

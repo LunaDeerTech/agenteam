@@ -31,12 +31,21 @@ func (t *TransferService) CompleteTransfer(ctx context.Context, actor identity.A
 	if !ok {
 		return oc.TransferStatusView{}, failure(foundation.NotFound, nil)
 	}
+	kind := "transfer_get"
+	if r.spec.Details().Direction == oc.TransferPUT {
+		kind = "transfer_put"
+	}
+	work, err := s.newProjectWork(ctx, workProject(r.spec.Details().Owner), kind, r.id.String(), r.object)
+	if err != nil {
+		return oc.TransferStatusView{}, err
+	}
+	ctx = context.WithValue(ctx, projectWorkContextKey{}, work)
 	request, err := r.request(actor, oc.TransferCapture, &evidence, nil, oc.PreparedPayload{})
 	if err != nil {
 		return oc.TransferStatusView{}, err
 	}
 	var already, needRead bool
-	result := t.within(ctx, request, nil, func(ctx context.Context, tx foundation.Tx, _ []oc.AccessLockPlan, _ oc.LockedAccess, a oc.TransferAuthorization) error {
+	result := t.within(ctx, request, nil, func(ctx context.Context, tx foundation.Tx, plans []oc.AccessLockPlan, locked oc.LockedAccess, a oc.TransferAuthorization) error {
 		if r.stable != stableActor(actor) {
 			return failure(foundation.Forbidden, nil)
 		}
@@ -107,7 +116,11 @@ func (t *TransferService) CompleteTransfer(ctx context.Context, actor identity.A
 		if !exists || stage.kind != "runner_staging" || stage.transfer != r.id || stage.cleaning {
 			return failure(foundation.InvalidState, nil)
 		}
-		lease, err := foundation.NewID[oc.Lease]()
+		raw, err := s.plannedWorkID(plans[0])
+		if err != nil {
+			return err
+		}
+		lease, err := foundation.ParseID[oc.Lease](raw)
 		if err != nil {
 			return unavailable(err)
 		}
@@ -118,6 +131,10 @@ func (t *TransferService) CompleteTransfer(ctx context.Context, actor identity.A
 		_, err = e.Exec(ctx, `UPDATE agenteam_object.object_transfers SET phase='completing',version=version+1,completed_evidence=$2,completed_digest=$3,source_lease_id=$4,source_process_id=$5 WHERE id=$1`, id.String(), evidence.ID.String(), digestBytes(proof.Digest), lease.String(), s.state().process.String())
 		if err != nil {
 			return unavailable(err)
+		}
+		h := s.projectWorkHandle(ctx, projectWork{id: raw, project: workProject(r.spec.Details().Owner), process: s.state().process, kind: "source", resource: raw, object: r.object})
+		if err = s.registerProjectWork(ctx, tx, h, locked.Locks()); err != nil {
+			return err
 		}
 		r.sourceLease = lease
 		r.sourceProcess = s.state().process

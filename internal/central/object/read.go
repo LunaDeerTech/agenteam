@@ -243,7 +243,15 @@ func (s *Service) openRead(ctx context.Context, actor identity.Actor, owner oc.O
 		requestDetails.Receipt = receipt
 	}
 	request, _ := oc.NewObjectReadAccess(requestDetails)
-	result := s.withinAccess(op.ctx, recoveryCause(), request, func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
+	workKind := "reader"
+	if kind == oc.SourceOwner {
+		workKind = "source"
+	}
+	work, err := s.newProjectWork(op.ctx, workProject(owner), workKind, leaseID.String(), id)
+	if err != nil {
+		return nil, err
+	}
+	result := s.withinProjectWork(op.ctx, request, work, func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
 		if _, err := s.authorize(ctx, tx, actor, owner, identity.Read); err != nil {
 			return err
 		}

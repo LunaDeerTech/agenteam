@@ -32,6 +32,7 @@ type sourceLeaseState struct {
 	done                     chan struct{}
 	reader                   *oc.ObjectReader
 	result                   error
+	work                     *projectWorkHandle
 }
 type SourceReads struct{ data func() *sourceReadsState }
 
@@ -75,7 +76,11 @@ func (r *SourceReads) AcquireSourceInTx(ctx context.Context, tx foundation.Tx, a
 	if err != nil {
 		return oc.SourceLease{}, err
 	}
-	id, err := foundation.NewID[oc.Lease]()
+	raw, err := s.plannedWorkID(plan)
+	if err != nil {
+		return oc.SourceLease{}, err
+	}
+	id, err := foundation.ParseID[oc.Lease](raw)
 	if err != nil {
 		return oc.SourceLease{}, unavailable(err)
 	}
@@ -84,6 +89,16 @@ func (r *SourceReads) AcquireSourceInTx(ctx context.Context, tx foundation.Tx, a
 		return oc.SourceLease{}, unavailable(err)
 	}
 	h := &sourceLeaseState{id: id, origin: tx, actor: actor, source: source, process: s.state().process}
+	project := workProject(source.Details().Owner)
+	if project.Validate() == nil {
+		h.work = s.projectWorkHandle(context.Background(), projectWork{id: raw, project: project, process: s.state().process, kind: "source", resource: raw, object: source.Details().Meta.ID})
+		handle, _ := oc.NewSourceLease(state.issuer, id)
+		h.work.stop = func(ctx context.Context) error { return r.CancelSourceLease(ctx, handle) }
+		if err = s.registerProjectWork(ctx, tx, h.work, locked.Locks()); err != nil {
+			return oc.SourceLease{}, err
+		}
+	}
+
 	state.mu.Lock()
 	state.leases[id] = h
 	state.mu.Unlock()
@@ -162,6 +177,10 @@ func (r *SourceReads) OpenLeasedSource(ctx context.Context, actor identity.Actor
 		if err := state.resolver.ValidateInTx(ctx, tx, actor, h.source, plan, locked); err != nil {
 			return portError(err)
 		}
+		if err := s.requireProjectWork(ctx, tx, h.work); err != nil {
+			return err
+		}
+		s.observeProjectWriter(h.work, tx, locked.Locks())
 		var err error
 		obj, err = s.sourceRow(ctx, tx, actor, h.source)
 		if err != nil {
@@ -194,8 +213,11 @@ func (r *SourceReads) OpenLeasedSource(ctx context.Context, actor identity.Actor
 	// From this point the handle can never issue another GET, including after a
 	// transport failure. A new attempt requires a newly authorized lease.
 	release := func() error {
-		err := s.releaseInternal(h.id, h.source.Details().Meta.ID)
+		cleanup, cleanupDone := s.cleanupContext()
+		defer cleanupDone()
+		err := s.releaseInternalContext(cleanup, h.id, h.source.Details().Meta.ID)
 		cancel()
+		s.finishProjectWorkContext(cleanup, h.work)
 		finish()
 		h.mu.Lock()
 		h.result = err
@@ -303,6 +325,7 @@ func (r *SourceReads) CancelSourceLease(ctx context.Context, lease oc.SourceLeas
 		go func() {
 			defer finished()
 			err := s.releaseInternalContext(cleanup, h.id, h.source.Details().Meta.ID)
+			s.finishProjectWorkContext(cleanup, h.work)
 			h.mu.Lock()
 			h.result = err
 			h.joined = true

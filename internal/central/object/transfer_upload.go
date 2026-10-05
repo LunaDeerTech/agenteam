@@ -44,8 +44,12 @@ func (s *Service) reserveObjectCommand(ctx context.Context, e postgres.SQLExecut
 	}
 	return u, nil
 }
-func (s *Service) newPrivateCandidate(ctx context.Context, e postgres.SQLExecutor, u uploadRow, p oc.PreparedPayload) (oc.UploadAttempt, error) {
-	id, err := foundation.NewID[oc.Attempt]()
+func (s *Service) newPrivateCandidate(ctx context.Context, tx foundation.Tx, e postgres.SQLExecutor, u uploadRow, p oc.PreparedPayload, plan oc.AccessLockPlan, locked oc.LockedAccess) (oc.UploadAttempt, error) {
+	raw, err := s.plannedWorkID(plan)
+	if err != nil {
+		return oc.UploadAttempt{}, err
+	}
+	id, err := foundation.ParseID[oc.Attempt](raw)
 	if err != nil {
 		return oc.UploadAttempt{}, unavailable(err)
 	}
@@ -69,6 +73,21 @@ func (s *Service) newPrivateCandidate(ctx context.Context, e postgres.SQLExecuto
 	_, err = e.Exec(ctx, `UPDATE agenteam_object.uploads SET current_attempt_id=$1,state='pending' WHERE id=$2`, id.String(), u.id.String())
 	if err != nil {
 		return oc.UploadAttempt{}, unavailable(err)
+	}
+
+	if project := workProject(u.owner); project.Validate() == nil {
+		r := s.state()
+		r.mu.Lock()
+		entry := r.prepared[p.Details().ID]
+		r.mu.Unlock()
+		workCtx := ctx
+		if entry != nil {
+			workCtx = entry.operation.ctx
+		}
+		h := s.projectWorkHandle(workCtx, projectWork{id: raw, project: project, process: r.process, kind: "preparation", resource: raw, object: u.object})
+		if err = s.registerProjectWork(ctx, tx, h, locked.Locks()); err != nil {
+			return oc.UploadAttempt{}, err
+		}
 	}
 	return oc.NewUploadAttempt(oc.AttemptDetails{ID: id, UploadID: u.id, ObjectID: u.object})
 }
@@ -251,5 +270,5 @@ func (t *TransferService) reserveTransferCandidateInTx(ctx context.Context, tx f
 	if err = checkAttemptQuota(ctx, e, u.id); err != nil {
 		return oc.UploadAttempt{}, err
 	}
-	return s.newPrivateCandidate(ctx, e, u, p)
+	return s.newPrivateCandidate(ctx, tx, e, u, p, plan, locked)
 }

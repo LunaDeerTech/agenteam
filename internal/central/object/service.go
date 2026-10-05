@@ -26,32 +26,37 @@ type Store interface {
 	AcquireAll(context.Context, foundation.Tx, []foundation.LockRequest) error
 }
 type Authorizations struct {
-	Planner   oc.AccessPlanner
-	Resources oc.ResourceAuthority
-	Read      oc.ObjectReadAuthority
-	Gate      oc.ProjectGate
-	Cleanup   oc.CleanupAuthority
-	Leases    oc.LeaseAuthority
-	Processes oc.ProcessAuthority
+	Planner     oc.AccessPlanner
+	Resources   oc.ResourceAuthority
+	Read        oc.ObjectReadAuthority
+	Gate        oc.ProjectGate
+	Cleanup     oc.CleanupAuthority
+	Leases      oc.LeaseAuthority
+	Processes   oc.ProcessAuthority
+	ProjectStop oc.ProjectStopAuthority
 }
 type operation struct {
-	ctx     context.Context
-	cancel  context.CancelFunc
-	done    chan struct{}
-	once    sync.Once
-	service *Service
+	ctx          context.Context
+	cancel       context.CancelFunc
+	done         chan struct{}
+	once         sync.Once
+	service      *Service
+	initializing bool // Admission granted by this Service, never a context flag.
 }
 type operationKey struct{}
 type preparation struct {
-	payload   oc.PreparedPayload
-	actor     string
-	owner     oc.ObjectOwner
-	objectID  oc.ObjectID
-	uploadID  oc.UploadID
-	receiptID oc.ReceiptID
-	operation *operation
-	release   func()
-	stop      func() bool
+	payload    oc.PreparedPayload
+	actor      string
+	owner      oc.ObjectOwner
+	objectID   oc.ObjectID
+	uploadID   oc.UploadID
+	receiptID  oc.ReceiptID
+	operation  *operation
+	release    func()
+	stop       func() bool
+	work       *projectWorkHandle
+	writers    int // Full UploadPrepared calls, including verification and DB tails.
+	discarding bool
 }
 type writer struct {
 	operation *operation
@@ -88,6 +93,8 @@ type serviceState struct {
 	workerOnce                   sync.Once
 	workerDone                   chan struct{}
 	maintenance                  MaintenanceStatus
+	projectWork                  map[string]*projectWorkHandle
+	transfers                    *TransferService
 }
 type Service struct{ data func() *serviceState }
 
@@ -109,6 +116,7 @@ func New(store Store, backend *Backend, spool *Spool, audit ac.Appender, auth Au
 	state := &serviceState{store: store, backend: backend, spool: spool, audit: audit, auth: auth, registration: r, process: spool.state().process, operations: map[*operation]bool{}, prepared: map[oc.PayloadID]*preparation{}, writers: map[oc.AttemptID]*writer{}, closedAttempts: map[oc.AttemptID]bool{}, closedLeases: map[oc.LeaseID]oc.ObjectID{}, cleanupRequests: map[*cleanupRequest]bool{}, changed: make(chan struct{}), workerStop: make(chan struct{})}
 	state.accessIssuer = oc.NewAccessIssuer()
 	state.accessTransactions = make(map[foundation.Tx]bool)
+	state.projectWork = make(map[string]*projectWorkHandle)
 	return &Service{func() *serviceState { return state }}, nil
 }
 func (s *Service) state() *serviceState        { return s.data() }
@@ -120,7 +128,7 @@ func (s *Service) begin(ctx context.Context) (*operation, func(), error) {
 	return s.admit(ctx, false)
 }
 func (s *Service) admit(ctx context.Context, initializing bool) (*operation, func(), error) {
-	if op, ok := ctx.Value(operationKey{}).(*operation); ok && op.service == s {
+	if op, ok := ctx.Value(operationKey{}).(*operation); ok && op != nil && op.service == s {
 		select {
 		case <-op.done:
 			return nil, nil, failure(foundation.ShuttingDown, nil)
@@ -140,16 +148,21 @@ func (s *Service) admit(ctx context.Context, initializing bool) (*operation, fun
 	if e := ctx.Err(); e != nil {
 		return nil, nil, unavailable(e)
 	}
-	if len(r.operations) >= 64 {
+	limit := 64
+	if ctx.Value(projectStopAdmissionKey{}) == true {
+		limit = 72
+	}
+	if len(r.operations) >= limit {
 		return nil, nil, failure(foundation.RateLimited, nil)
 	}
 	opCtx, cancel := context.WithTimeout(ctx, 30*time.Minute)
-	op := &operation{cancel: cancel, done: make(chan struct{}), service: s}
+	op := &operation{cancel: cancel, done: make(chan struct{}), service: s, initializing: initializing}
 	op.ctx = context.WithValue(opCtx, operationKey{}, op)
 	r.operations[op] = true
 	finish := func() {
 		op.once.Do(func() {
 			cancel()
+			s.finishOperationWork(op)
 			r.mu.Lock()
 			delete(r.operations, op)
 			close(op.done)
@@ -369,13 +382,11 @@ func (s *Service) PreparePayload(ctx context.Context, actor identity.Actor, owne
 		_ = source.Close()
 		return oc.PreparedPayload{}, e
 	}
-	checked := s.withinAccess(op.ctx, recoveryCause(), ownerRequest(actor, owner, oc.PrepareAccess, oc.AccessRequestDetails{}), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
-		if _, e := s.authorize(ctx, tx, actor, owner, identity.Mutate); e != nil {
-			return e
-		}
-		return nil
-	})
-	if e = commitError(checked); e != nil {
+	work, e := s.newProjectWork(op.ctx, workProject(owner), "preparation", "", oc.ObjectID{})
+	if e == nil {
+		e = s.admitProjectWork(op.ctx, actor, owner, oc.PrepareAccess, work)
+	}
+	if e != nil {
 		_ = source.Close()
 		return oc.PreparedPayload{}, e
 	}
@@ -398,7 +409,7 @@ func (s *Service) PreparePayload(ctx context.Context, actor identity.Actor, owne
 		_ = s.state().spool.Discard(p)
 		return oc.PreparedPayload{}, unavailable(e)
 	}
-	entry := &preparation{payload: p, actor: stableActor(actor), owner: owner, objectID: objectID, uploadID: uploadID, receiptID: receiptID, operation: op, release: release}
+	entry := &preparation{payload: p, actor: stableActor(actor), owner: owner, objectID: objectID, uploadID: uploadID, receiptID: receiptID, operation: op, release: release, work: work}
 	r := s.state()
 	r.mu.Lock()
 	r.prepared[p.Details().ID] = entry
@@ -414,11 +425,23 @@ func (s *Service) DiscardPrepared(p oc.PreparedPayload) error {
 	r := s.state()
 	r.mu.Lock()
 	entry := r.prepared[p.Details().ID]
-	r.mu.Unlock()
 	if entry == nil {
+		r.mu.Unlock()
 		return nil
 	}
+	// Closing the spool reader ends only its file ownership. A writer can
+	// still be verifying the remote body or finishing its native checkpoint.
+	// Serialize admission/discard around that complete lifetime, not busy.
+	if entry.writers != 0 || entry.discarding {
+		r.mu.Unlock()
+		return failure(foundation.ResourceBusy, nil)
+	}
+	entry.discarding = true
+	r.mu.Unlock()
 	if e := r.spool.Discard(p); e != nil {
+		r.mu.Lock()
+		entry.discarding = false
+		r.mu.Unlock()
 		return e
 	}
 	r.mu.Lock()

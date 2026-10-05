@@ -6,6 +6,7 @@ import (
 
 	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
 	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 )
 
@@ -46,6 +47,7 @@ func (s *Service) recoverProgress(ctx context.Context, failures *recoveryFailure
 	defer finish()
 	ctx = op.ctx
 	r := s.state()
+	s.recoverProjectWork(ctx, failures)
 	r.mu.Lock()
 	closed := make(map[oc.AttemptID]bool, len(r.closedAttempts))
 	for id, v := range r.closedAttempts {
@@ -142,7 +144,13 @@ func (s *Service) recoverProgress(ctx context.Context, failures *recoveryFailure
 		if err = ctx.Err(); err != nil {
 			return failures.remember(unavailable(err))
 		}
-		failures.remember(s.recoverAttempt(ctx, id))
+		child, done, err := s.childOperation(ctx)
+		if err != nil {
+			failures.remember(err)
+			continue
+		}
+		failures.remember(s.recoverAttempt(child.ctx, id))
+		done()
 	}
 	rows, err = r.store.Query(ctx, `SELECT id::text FROM agenteam_object.objects o WHERE cleaning AND state<>'deleted' OR EXISTS(SELECT 1 FROM agenteam_object.cleanup_operations c WHERE c.object_id=o.id AND c.phase<>'completed') ORDER BY created_at,id LIMIT 100`)
 	if err != nil {
@@ -171,7 +179,13 @@ func (s *Service) recoverProgress(ctx context.Context, failures *recoveryFailure
 		if err = ctx.Err(); err != nil {
 			return failures.remember(unavailable(err))
 		}
-		_, err = s.cleanObject(ctx, id)
+		child, done, childErr := s.childOperation(ctx)
+		if childErr != nil {
+			failures.remember(childErr)
+			continue
+		}
+		_, err = s.cleanObject(child.ctx, id)
+		done()
 		failures.remember(err)
 	}
 	if err = ctx.Err(); err != nil {
@@ -256,6 +270,38 @@ func (s *Service) recoverAttempt(ctx context.Context, id oc.AttemptID) error {
 	}
 	if !found || a.kind != "private_candidate" || !a.closed || a.cleaning {
 		return nil
+	}
+	obj, found, err := loadObject(ctx, s.state().store, a.object)
+	if err != nil {
+		return err
+	}
+	if !found {
+		return unavailable(nil)
+	}
+	project, _ := foundation.ParseID[identity.Project](obj.meta.Scope.Details().ProjectID)
+	work, err := s.newProjectWork(ctx, project, "verification", a.id.String(), a.object)
+	if err != nil {
+		return err
+	}
+	admission := s.withinProjectWork(ctx, s.maintenanceRequest(oc.RecoverAttemptAccess, a.object, oc.AccessRequestDetails{AttemptID: id}), work, func(ctx context.Context, tx foundation.Tx, _ oc.AccessLockPlan, _ oc.LockedAccess) error {
+		e, err := executor(s, tx)
+		if err != nil {
+			return err
+		}
+		current, ok, err := loadAttempt(ctx, e, id)
+		if err != nil {
+			return err
+		}
+		if !ok || current.kind != "private_candidate" || current.process != a.process || !current.closed || current.cleaning || current.phase == "verified" || current.phase == "published" {
+			return accessChanged()
+		}
+		if err = s.maintenanceAdmission(ctx, e, a.object); err != nil {
+			return err
+		}
+		return requireNativeWork(ctx, e, "preparation", id.String())
+	})
+	if err = commitError(admission); err != nil {
+		return err
 	}
 	verification := s.state().backend.verify(ctx, a.key, a.size, a.digest)
 	if verification != nil && !hasCode(verification, foundation.ObjectPayloadMissing) && !hasCode(verification, foundation.ObjectIntegrityMismatch) {

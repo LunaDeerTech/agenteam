@@ -126,6 +126,13 @@ func (r *Runtime) Check(ctx context.Context) error {
 func (r *Runtime) recover(ctx context.Context) error {
 	s := r.state().service
 	if !hasBusinessPlanner(s) {
+		var technical bool
+		if err := s.state().store.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_object.project_work WHERE joined_at IS NULL) OR EXISTS(SELECT 1 FROM agenteam_object.project_stops WHERE state='stopping')`).Scan(&technical); err != nil {
+			return unavailable(err)
+		}
+		if technical {
+			return failure(foundation.DependencyUnbound, nil)
+		}
 		return s.recoverEmpty(ctx, r.state().guard)
 	}
 	if err := s.checkRecoveryProtection(ctx); err != nil {

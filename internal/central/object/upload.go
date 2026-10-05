@@ -42,6 +42,9 @@ func (s *Service) ReserveUploadInTx(ctx context.Context, tx foundation.Tx, actor
 	if err = s.ValidateAccessPlanInTx(ctx, tx, request, plan, locked); err != nil {
 		return oc.UploadAttempt{}, err
 	}
+	if err = s.requireProjectWork(ctx, tx, prepared.work); err != nil {
+		return oc.UploadAttempt{}, err
+	}
 	e, err := executor(s, tx)
 	if err != nil {
 		return oc.UploadAttempt{}, err
@@ -151,7 +154,7 @@ func (s *Service) ReserveUploadInTx(ctx context.Context, tx foundation.Tx, actor
 			return oc.UploadAttempt{}, err
 		}
 	}
-	return s.newPrivateCandidate(ctx, e, current, p)
+	return s.newPrivateCandidate(ctx, tx, e, current, p, plan, locked)
 }
 
 // gateAttempt is called under the object and command locks. Even a never-sent
@@ -188,6 +191,9 @@ func (s *Service) PublishVerifiedInTx(ctx context.Context, tx foundation.Tx, act
 	}
 	physical, exists, err0 := loadAttempt(ctx, e0, d.ID)
 	if err0 != nil {
+		return oc.PutResult{}, err0
+	}
+	if err0 = requireNativeWork(ctx, e0, "preparation", d.ID.String()); err0 != nil {
 		return oc.PutResult{}, err0
 	}
 	if !exists || physical.kind != "private_candidate" {
@@ -435,16 +441,33 @@ func (s *Service) UploadPrepared(ctx context.Context, actor identity.Actor, owne
 	r := s.state()
 	w := &writer{operation: &operation{ctx: opCtx, cancel: cancel}, attempt: d.ID, done: make(chan struct{})}
 	r.mu.Lock()
-	if r.writers[d.ID] != nil || r.forced {
+	if r.writers[d.ID] != nil || r.forced || prepared.discarding || r.prepared[p.Details().ID] != prepared {
 		r.mu.Unlock()
 		return oc.UploadAttempt{}, failure(foundation.ResourceBusy, nil)
 	}
+	prepared.writers++
 	r.writers[d.ID] = w
 	r.mu.Unlock()
-	defer func() { r.mu.Lock(); delete(r.writers, d.ID); close(w.done); r.mu.Unlock() }()
+	defer func() {
+		r.mu.Lock()
+		delete(r.writers, d.ID)
+		prepared.writers--
+		close(w.done)
+		r.mu.Unlock()
+	}()
 	var attempt attemptRow
 	var noIO bool
 	result := s.withinAccess(opCtx, recoveryCause(), ownerRequest(actor, owner, oc.SendAccess, oc.AccessRequestDetails{Prepared: p, Attempt: handle}), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
+		if err := s.requireProjectWork(ctx, tx, prepared.work); err != nil {
+			return err
+		}
+		e0, err := executor(s, tx)
+		if err != nil {
+			return err
+		}
+		if err = requireNativeWork(ctx, e0, "preparation", handle.Details().ID.String()); err != nil {
+			return err
+		}
 		e, err := executor(s, tx)
 		if err != nil {
 			return err
