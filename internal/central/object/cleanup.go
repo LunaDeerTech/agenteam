@@ -386,11 +386,16 @@ func (s *Service) cleanupIOContext(parent context.Context) (context.Context, con
 	r.mu.Lock()
 	force := r.forceContext
 	r.mu.Unlock()
+	if parent.Value(runtimeRecoveryBudgetKey{}) == true {
+		bounded, cancel := context.WithTimeout(parent, 15*time.Second)
+		if force == nil {
+			return bounded, cancel
+		}
+		joined, finish := cleanupBudgetIntersection(bounded, force)
+		return joined, func() { finish(); cancel() }
+	}
 	if force != nil {
 		return context.WithTimeout(force, 15*time.Second)
-	}
-	if parent.Value(runtimeRecoveryBudgetKey{}) == true {
-		return context.WithTimeout(parent, 15*time.Second)
 	}
 	// A caller may cancel after the durable cleanup gate. Compensating storage
 	// I/O uses a fresh bounded context; force always substitutes its shared cap.
@@ -444,7 +449,13 @@ func (s *Service) cleanObject(ctx context.Context, object oc.ObjectID) (oc.Clean
 	return s.finalizeCleanup(ctx, object)
 }
 func (s *Service) noteCleanupFailure(ctx context.Context, c cleanupClaim, reason error) error {
-	bounded, cancel := s.cleanupContext()
+	var bounded context.Context
+	var cancel context.CancelFunc
+	if ctx.Value(runtimeRecoveryBudgetKey{}) == true {
+		bounded, cancel = s.cleanupCheckpointWithinBudget(ctx)
+	} else {
+		bounded, cancel = s.cleanupContext()
+	}
 	defer cancel()
 	result := s.withinAccess(bounded, recoveryCause(), s.checkpointRequest(c), func(ctx context.Context, tx foundation.Tx, plan oc.AccessLockPlan, locked oc.LockedAccess) error {
 		e, err := executor(s, tx)

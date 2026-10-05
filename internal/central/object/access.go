@@ -244,10 +244,15 @@ func (s *Service) accessFacts(ctx context.Context, e postgres.SQLExecutor, reque
 			return out, err
 		}
 		if found {
+			if d.Kind == oc.CleanupReleaseAccess && (!u.owner.Equal(d.Cleanup.Details().Owner) || u.id != d.UploadID) {
+				return out, failure(foundation.Forbidden, nil)
+			}
 			addOwner(u.owner)
 			if err = addCommand(u.owner, u.command); err != nil {
 				return out, err
 			}
+		} else if d.Kind == oc.CleanupReleaseAccess {
+			return out, failure(foundation.NotFound, nil)
 		}
 	}
 	mode := foundation.Exclusive

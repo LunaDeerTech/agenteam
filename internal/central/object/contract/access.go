@@ -26,6 +26,7 @@ const (
 	SourceAccess         AccessKind = "source"
 	MaintenanceAccess    AccessKind = "maintenance"
 	TransferAccess       AccessKind = "transfer"
+	CleanupReleaseAccess AccessKind = "cleanup_release"
 )
 
 type AccessOperation string
@@ -59,6 +60,7 @@ const (
 	ClaimCleanupAccess      AccessOperation = "claim_cleanup"
 	CheckpointCleanupAccess AccessOperation = "checkpoint_cleanup"
 	FinalizeCleanupAccess   AccessOperation = "finalize_cleanup"
+	ReleaseForCleanupAccess AccessOperation = "release_for_cleanup"
 )
 
 // AccessRequest is a non-authorizing, immutable description of one complete
@@ -88,6 +90,7 @@ type AccessRequestDetails struct {
 	Source                ResolvedSource
 	InstanceID, ProcessID ProcessID
 	AttemptID             AttemptID
+	UploadID              UploadID
 	LeaseID               LeaseID
 	CleanupID             CleanupID
 	WorkerID              CleanupID
@@ -106,6 +109,9 @@ func NewLeaseAccess(d AccessRequestDetails) (AccessRequest, error) {
 }
 func NewObjectCleanupAccess(d AccessRequestDetails) (AccessRequest, error) {
 	return newAccessRequest(ObjectCleanupAccess, d)
+}
+func NewCleanupReleaseAccess(d AccessRequestDetails) (AccessRequest, error) {
+	return newAccessRequest(CleanupReleaseAccess, d)
 }
 func NewProjectCleanupAccess(d AccessRequestDetails) (AccessRequest, error) {
 	return newAccessRequest(ProjectCleanupAccess, d)
@@ -212,6 +218,10 @@ func newAccessRequest(kind AccessKind, d AccessRequestDetails) (AccessRequest, e
 	case ObjectCleanupAccess:
 		allow("object", "cleanup")
 		err = require(d.Operation == CleanupObjectAccess && d.ObjectID.Validate() == nil && d.Cleanup.Validate() == nil)
+	case CleanupReleaseAccess:
+		allow("object", "cleanup", "upload")
+		cause := d.Cleanup.Details()
+		err = require(d.Operation == ReleaseForCleanupAccess && d.ObjectID.Validate() == nil && d.UploadID.Validate() == nil && d.Cleanup.Validate() == nil && cause.Owner.Details().Kind == Avatar && (cause.Reason == ReplacedObject || cause.Reason == CancelledUpload))
 	case ProjectCleanupAccess:
 		allow("actor", "project_cleanup")
 		err = require(d.Actor.Validate() == nil && d.ProjectCleanup.Validate() == nil)
@@ -269,6 +279,7 @@ func newAccessRequest(kind AccessKind, d AccessRequestDetails) (AccessRequest, e
 		"instance": d.InstanceID != (ProcessID{}), "process": d.ProcessID != (ProcessID{}), "attempt_id": d.AttemptID != (AttemptID{}), "lease_id": d.LeaseID != (LeaseID{}),
 		"cleanup_id": d.CleanupID != (CleanupID{}), "worker_id": d.WorkerID != (CleanupID{}), "fence": d.Fence != 0,
 		"transfer": d.Transfer.Validate() == nil,
+		"upload":   d.UploadID != (UploadID{}),
 	}
 	for name, p := range present {
 		if p && !allowed[name] {
@@ -343,6 +354,9 @@ func requestFingerprint(d AccessRequestDetails) string {
 	b, err := json.Marshal([]any{d.Kind, d.Operation, d.Actor.Details(), d.Owner.Details(), d.Intent, d.ObjectID.String(), command, string(d.Key), prepared.ID.String(), prepared.MediaType, prepared.Length, prepared.SHA256.String(), attempt.ID.String(), attempt.UploadID.String(), attempt.ObjectID.String(), receiptProjection(d.Receipt), d.ExpectedSemantic.String(), d.Range, d.LeaseOwner.Details(), cleanup.OperationID.String(), cleanup.Owner.Details(), cleanup.Reason, project.ProjectID.String(), project.OperationID.String(), int64(project.Version), objects, sourceProjection(d.Source), d.InstanceID.String(), d.ProcessID.String(), d.AttemptID.String(), d.LeaseID.String(), d.CleanupID.String(), d.WorkerID.String(), int64(d.Fence), d.Transfer.Fingerprint()})
 	if err != nil {
 		panic("primitive object access projection")
+	}
+	if d.Kind == CleanupReleaseAccess {
+		b = append(b, []byte("\x00"+d.UploadID.String())...)
 	}
 	h := sha256.Sum256(b)
 	return hex.EncodeToString(h[:])

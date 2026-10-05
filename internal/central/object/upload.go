@@ -82,6 +82,13 @@ func (s *Service) ReserveUploadInTx(ctx context.Context, tx foundation.Tx, actor
 		if current.disposition == "revoked" {
 			return oc.UploadAttempt{}, deleted(current.state == "committed")
 		}
+		obj, ok, objectErr := loadObject(ctx, e, object)
+		if objectErr != nil {
+			return oc.UploadAttempt{}, objectErr
+		}
+		if !ok || obj.cleaning || obj.meta.State == oc.Deleted {
+			return oc.UploadAttempt{}, deleted(current.state == "committed")
+		}
 		previous, found, err = loadAttempt(ctx, e, current.attempt)
 		if err != nil {
 			return oc.UploadAttempt{}, err
@@ -224,11 +231,11 @@ func (s *Service) PublishVerifiedInTx(ctx context.Context, tx foundation.Tx, act
 	if !found || !objectPartition(obj, owner) {
 		return oc.PutResult{}, failure(foundation.Forbidden, nil)
 	}
+	if obj.cleaning || obj.meta.State == oc.Deleted {
+		return oc.PutResult{}, deleted(u.state == "committed")
+	}
 	if u.state == "committed" {
 		return oc.PutResult{Meta: obj.meta, Receipt: receiptOf(u)}, nil
-	}
-	if obj.cleaning || obj.meta.State == oc.Deleted {
-		return oc.PutResult{}, deleted(false)
 	}
 	if err = s.gate(ctx, tx, actor, owner, identity.Mutate); err != nil {
 		return oc.PutResult{}, err
@@ -484,6 +491,9 @@ func (s *Service) UploadPrepared(ctx context.Context, actor identity.Actor, owne
 		}
 		if attempt.kind != "private_candidate" {
 			return failure(foundation.InvalidState, nil)
+		}
+		if obj.cleaning || obj.meta.State == oc.Deleted || attempt.cleaning || u.attempt != attempt.id {
+			return deleted(u.state == "committed")
 		}
 		if u.state == "committed" || attempt.phase == "verified" {
 			noIO = true
