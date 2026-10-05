@@ -1,6 +1,110 @@
 <script setup lang="ts">
+import { onMounted, onUnmounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import AppShell from './components/layout/AppShell.vue'
+import UiButton from './components/ui/UiButton.vue'
+import UiState from './components/ui/UiState.vue'
+import { useSession } from './composables/useSession'
+const auth = useSession(),
+  state = auth.state,
+  route = useRoute(),
+  router = useRouter()
+async function refreshVisible() {
+  if (document.visibilityState === 'hidden' || !route.meta.authentication || state.busy) return
+  await auth.restore()
+}
+let navigating = false
+watch(
+  () => [state.phase, state.busy] as const,
+  async ([phase, busy]) => {
+    if (phase === 'anonymous' && !busy && route.meta.protected && !navigating) {
+      navigating = true
+      try {
+        await router.replace('/login')
+      } finally {
+        navigating = false
+      }
+    }
+  },
+)
+onMounted(() => {
+  document.addEventListener('visibilitychange', refreshVisible)
+  window.addEventListener('pageshow', refreshVisible)
+})
+onUnmounted(() => {
+  document.removeEventListener('visibilitychange', refreshVisible)
+  window.removeEventListener('pageshow', refreshVisible)
+  auth.leave()
+})
 </script>
 <template>
-  <AppShell><RouterView /></AppShell>
+  <AppShell v-if="route.meta.protected" class="authentication-shell">
+    <template #account>
+      <div class="account-actions">
+        <span
+          v-if="state.user"
+          class="account-name"
+          :title="state.user.display_name || state.user.email"
+          >{{ state.user.display_name || state.user.email }}</span
+        >
+        <UiButton
+          v-if="state.phase === 'authenticated' || state.phase === 'signing-out'"
+          variant="ghost"
+          :state="state.phase === 'signing-out' ? 'loading' : 'idle'"
+          :disabled="state.busy"
+          @click="auth.logout"
+          >退出登录</UiButton
+        >
+      </div>
+    </template>
+    <RouterView v-if="state.phase === 'authenticated'" />
+    <div v-else class="session-check">
+      <UiState
+        :kind="state.busy ? 'loading' : 'error'"
+        :title="state.busy ? '正在确认会话' : '会话尚未确认'"
+        :description="state.notice"
+      >
+        <div class="ui-row">
+          <UiButton :disabled="state.busy" @click="auth.restore">检查当前会话</UiButton>
+          <UiButton v-if="state.canRetryOriginal" :disabled="state.busy" @click="auth.retryOriginal"
+            >重试原请求</UiButton
+          >
+          <UiButton variant="ghost" :disabled="state.busy" @click="auth.restart"
+            >放弃原请求，重新开始</UiButton
+          >
+        </div>
+      </UiState>
+    </div>
+  </AppShell>
+  <RouterView v-else />
 </template>
+<style scoped>
+.authentication-shell :deep(.system-nav) {
+  flex-wrap: wrap;
+  row-gap: 6px;
+  padding-block: 6px;
+}
+.account-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-inline-start: auto;
+  min-width: 0;
+  max-width: 100%;
+}
+.account-name {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 32ch;
+}
+.session-check {
+  padding: var(--space);
+}
+@media (max-width: 450px) {
+  .account-name {
+    max-width: 12ch;
+  }
+}
+</style>
