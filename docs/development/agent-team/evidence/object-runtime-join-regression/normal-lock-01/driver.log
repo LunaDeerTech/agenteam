@@ -1,0 +1,410 @@
+internal/byteorder
+internal/unsafeheader
+internal/coverage/rtcov
+internal/goarch
+internal/cpu
+internal/abi
+internal/godebugs
+internal/goexperiment
+internal/goos
+internal/profilerecord
+internal/runtime/atomic
+internal/runtime/syscall/linux
+math/bits
+internal/bytealg
+internal/chacha8rand
+internal/strconv
+internal/runtime/exithook
+internal/runtime/gc
+internal/runtime/sys
+internal/asan
+internal/msan
+internal/runtime/math
+internal/runtime/gc/scan
+internal/runtime/pprof/label
+internal/stringslite
+internal/race
+internal/trace/tracev2
+internal/runtime/maps
+sync/atomic
+internal/synctest
+internal/runtime/cgroup
+cmp
+unicode/utf8
+unicode
+internal/sync
+crypto/internal/fips140/alias
+crypto/internal/fips140deps/byteorder
+crypto/internal/fips140deps/cpu
+crypto/internal/constanttime
+crypto/internal/fips140deps/time
+math
+crypto/internal/fips140/subtle
+crypto/internal/boring/sig
+crypto/subtle
+unicode/utf16
+vendor/golang.org/x/crypto/cryptobyte/asn1
+internal/nettrace
+encoding
+container/list
+vendor/golang.org/x/crypto/internal/alias
+runtime
+log/internal
+log/slog/internal
+database/sql/internal
+github.com/jackc/puddle/v2/internal/genstack
+github.com/pressly/goose/v3/database/dialect
+github.com/klauspost/compress/internal/le
+github.com/klauspost/compress/internal/race
+internal/reflectlite
+iter
+weak
+sync
+slices
+maps
+sort
+errors
+internal/testlog
+internal/bisect
+crypto/internal/fips140cache
+internal/singleflight
+internal/oserror
+io
+syscall
+strconv
+internal/godebug
+crypto/internal/entropy/v1.0.0
+hash
+bytes
+strings
+crypto
+crypto/internal/fips140deps/godebug
+path
+math/rand/v2
+reflect
+math/rand
+crypto/internal/fips140
+crypto/internal/impl
+crypto/internal/fips140/sha3
+crypto/internal/fips140/sha256
+crypto/internal/fips140/sha512
+crypto/internal/randutil
+crypto/sha3
+internal/saferio
+crypto/internal/fips140hash
+encoding/base64
+crypto/internal/fips140/hmac
+vendor/golang.org/x/net/dns/dnsmessage
+time
+internal/syscall/unix
+crypto/internal/fips140/check
+crypto/internal/fips140/aes
+internal/syscall/execenv
+crypto/fips140
+crypto/internal/fips140/nistec/fiat
+crypto/internal/fips140/edwards25519/field
+crypto/internal/fips140/bigmod
+context
+io/fs
+internal/poll
+internal/filepathlite
+crypto/internal/fips140/edwards25519
+encoding/pem
+unique
+os
+crypto/internal/fips140/nistec
+internal/fmtsort
+net/netip
+encoding/json/internal
+encoding/base32
+encoding/binary
+encoding/json/internal/jsonflags
+crypto/internal/sysrand
+fmt
+runtime/cgo
+crypto/internal/fips140/drbg
+path/filepath
+crypto/internal/fips140/aes/gcm
+crypto/internal/fips140only
+crypto/internal/fips140/ecdh
+crypto/cipher
+crypto/internal/fips140/ecdsa
+crypto/internal/fips140/ed25519
+crypto/md5
+math/big
+crypto/internal/fips140/mldsa
+crypto/internal/boring
+crypto/des
+crypto/internal/rand
+crypto/sha512
+crypto/aes
+crypto/internal/fips140/rsa
+crypto/ecdh
+crypto/sha1
+crypto/mldsa
+crypto/sha256
+encoding/hex
+net/url
+encoding/json/internal/jsonopts
+encoding/json/internal/jsonwire
+flag
+crypto/internal/fips140/hkdf
+crypto/hmac
+encoding/json/jsontext
+crypto/hkdf
+crypto/internal/fips140/mlkem
+vendor/golang.org/x/crypto/chacha20
+crypto/elliptic
+crypto/internal/boring/bbig
+encoding/asn1
+crypto/rand
+crypto/dsa
+crypto/ed25519
+crypto/rsa
+vendor/golang.org/x/crypto/cryptobyte
+crypto/x509/pkix
+crypto/mlkem
+vendor/golang.org/x/crypto/internal/poly1305
+net
+vendor/golang.org/x/sys/cpu
+crypto/ecdsa
+encoding/json/v2
+crypto/internal/fips140/tls12
+crypto/internal/fips140/tls13
+vendor/golang.org/x/crypto/chacha20poly1305
+crypto/rc4
+crypto/tls/internal/fips140tls
+log
+crypto/hpke
+log/slog/internal/buffer
+regexp/syntax
+uuid
+database/sql/driver
+embed
+github.com/LunaDeerTech/agenteam/db/migrations
+github.com/jackc/pgx/v5/internal/pgio
+database/sql
+regexp
+github.com/jackc/pgx/v5/internal/pgdatetime
+github.com/jackc/pgx/v5/internal/sanitize
+crypto/internal/fips140/pbkdf2
+crypto/pbkdf2
+bufio
+github.com/jackc/pgx/v5/internal/iobufpool
+github.com/jackc/pgpassfile
+github.com/jackc/pgservicefile
+github.com/jackc/pgx/v5/pgconn/ctxwatch
+github.com/jackc/pgx/v5/pgconn/internal/bgreader
+encoding/xml
+golang.org/x/text/internal/tag
+golang.org/x/text/transform
+golang.org/x/text/internal/language
+golang.org/x/text/unicode/norm
+encoding/json
+log/slog
+crypto/x509
+github.com/jackc/pgx/v5/pgproto3
+golang.org/x/text/internal/language/compact
+github.com/jackc/pgx/v5/pgtype
+golang.org/x/text/language
+github.com/LunaDeerTech/agenteam/internal/central/foundation
+golang.org/x/text/internal
+golang.org/x/text/cases
+golang.org/x/text/runes
+golang.org/x/text/unicode/bidi
+golang.org/x/text/width
+golang.org/x/sync/semaphore
+golang.org/x/text/secure/bidirule
+github.com/jackc/puddle/v2
+golang.org/x/text/secure/precis
+github.com/pressly/goose/v3/internal/dialects
+github.com/pressly/goose/v3/database
+crypto/tls
+github.com/pressly/goose/v3/internal/controller
+os/user
+github.com/pressly/goose/v3/internal/gooseutil
+github.com/pressly/goose/v3/internal/legacystore
+github.com/mfridman/interpolate
+go.uber.org/multierr
+golang.org/x/sync/errgroup
+github.com/sethvargo/go-retry
+github.com/pressly/goose/v3/lock/internal/store
+github.com/pressly/goose/v3/internal/sqlparser
+runtime/debug
+text/template/parse
+github.com/pressly/goose/v3/lock/internal/table
+os/exec
+github.com/pressly/goose/v3/lock
+internal/sysinfo
+runtime/trace
+text/template
+archive/tar
+testing
+github.com/pressly/goose/v3
+github.com/cespare/xxhash/v2
+github.com/dustin/go-humanize
+github.com/google/uuid
+hash/crc32
+io/ioutil
+golang.org/x/sys/cpu
+github.com/klauspost/compress/s2
+github.com/klauspost/crc32
+github.com/klauspost/cpuid/v2
+github.com/minio/minio-go/v7/pkg/cors
+github.com/minio/minio-go/v7/pkg/s3utils
+golang.org/x/net/idna
+net/textproto
+compress/flate
+golang.org/x/net/http/httpguts
+vendor/golang.org/x/text/transform
+vendor/golang.org/x/text/unicode/bidi
+github.com/minio/crc64nvme
+github.com/minio/md5-simd
+vendor/golang.org/x/text/unicode/norm
+vendor/golang.org/x/text/secure/bidirule
+mime
+compress/gzip
+mime/quotedprintable
+net/http/httptrace
+net/http/internal
+net/http/internal/ascii
+vendor/golang.org/x/net/http2/hpack
+net/http/internal/httpsfv
+mime/multipart
+gopkg.in/ini.v1
+golang.org/x/crypto/blake2b
+github.com/minio/minio-go/v7/pkg/kvcache
+github.com/minio/minio-go/v7/pkg/lifecycle
+vendor/golang.org/x/net/idna
+golang.org/x/crypto/argon2
+github.com/philhofer/fwd
+github.com/rs/xid
+github.com/tinylib/msgp/msgp
+github.com/minio/minio-go/v7/pkg/replication
+github.com/minio/minio-go/v7/pkg/singleflight
+github.com/minio/minio-go/v7/pkg/sse
+vendor/golang.org/x/net/http/httpguts
+vendor/golang.org/x/net/http/httpproxy
+github.com/minio/minio-go/v7/pkg/tags
+net/http/internal/httpcommon
+github.com/zeebo/xxh3
+net/http/internal/http2
+go.yaml.in/yaml/v3
+os/signal
+github.com/tinylib/msgp/msgp/setof
+github.com/jackc/pgx/v5/pgconn
+github.com/minio/minio-go/v7/pkg/set
+net/http
+github.com/minio/minio-go/v7/pkg/notification
+github.com/minio/minio-go/v7/pkg/policy
+github.com/jackc/pgx/v5/internal/stmtcache
+github.com/jackc/pgx/v5
+github.com/jackc/pgx/v5/pgxpool
+github.com/jackc/pgx/v5/stdlib
+github.com/LunaDeerTech/agenteam/internal/central/postgres
+github.com/minio/minio-go/v7/pkg/signer
+net/http/cookiejar
+net/http/httputil
+github.com/minio/minio-go/v7/pkg/encrypt
+golang.org/x/net/publicsuffix
+github.com/minio/minio-go/v7/pkg/credentials
+github.com/minio/minio-go/v7
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.100.234.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=4c283ddbecb164b5109bd5c49ba59193
+github.com/LunaDeerTech/agenteam/internal/central/identity/contract
+github.com/LunaDeerTech/agenteam/internal/central/cursor
+github.com/LunaDeerTech/agenteam/internal/central/secret/contract
+github.com/LunaDeerTech/agenteam/internal/central/audit/contract
+github.com/LunaDeerTech/agenteam/internal/central/audit
+github.com/LunaDeerTech/agenteam/internal/central/outbound
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+net
+net/textproto
+vendor/golang.org/x/net/http/httpproxy
+crypto/x509
+vendor/golang.org/x/net/http/httpguts
+mime/multipart
+crypto/tls
+net/http/httptrace
+net/http/internal/httpcommon
+net/http/internal/http2
+net/http
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=0126e617b5bb206117b2173014e8bcf3
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.030s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.038s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.045s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	14.199s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.096s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.042s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.031s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.042s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.031s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.056s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.045s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.042s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.024s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.045s [no tests to run]
+=== RUN   TestObjectProjectWorkPendingJoinKeepsRuntimeGuard
+    project_work_lifecycle_probe_test.go:135: ordinary holder ready: work=01a10cc7-4b2e-72dd-ac16-a10a9504375e backend=125; no proxy
+    project_work_lifecycle_probe_test.go:143: public preparation returned its normal short-body error: INVALID_ARGUMENT
+    project_work_lifecycle_probe_test.go:160: Runtime.Drain completed while real registered work was still unjoined
+    project_work_lifecycle_probe_test.go:167: pending work did not keep process claim active: state=stopped
+    project_work_lifecycle_probe_test.go:176: ProcessGuard flock was released before pending work joined
+    project_work_lifecycle_probe_test.go:183: while ordinary holder remains: work_unjoined=true drain_error=<nil> claim=stopped flock_error=<nil>
+    project_work_lifecycle_probe_test.go:205: runtime exited without a confirmed project_work join checkpoint
+    project_work_lifecycle_probe_test.go:210: after confirmed normal holder release: work_joined=false claim=stopped
+--- FAIL: TestObjectProjectWorkPendingJoinKeepsRuntimeGuard (3.45s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/objects	3.502s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.065s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.010s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce 7a2e7b9417d7bb916ef192bd397eba8a
+D04 outbound fixture cleanup checked for nonce 0126e617b5bb206117b2173014e8bcf3
+D05 object fixture exact resource cleanup checked nonce=4c283ddbecb164b5109bd5c49ba59193

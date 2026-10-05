@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestObjectProjectWorkPendingJoinKeepsRuntimeGuard$"
+  ],
+  "authorization": "root granted the unique fixture window for ordinary owned lock contention only",
+  "baseline_commit": "42e3f7d59ceb65cb22cdd6b639608caa8830fae2",
+  "cwd": "/workspace/agenteam-object-join-probe-e__5hndp/snapshot",
+  "driver_inner_flags": [
+    "-tags=integration",
+    "-race",
+    "-count=1",
+    "-timeout=6m"
+  ],
+  "environment": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/agenteam-object-join-probe-e__5hndp/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -v",
+    "GOMODCACHE": "/workspace/agenteam-object-join-probe-e__5hndp/modcache",
+    "GONOPROXY": "",
+    "GONOSUMDB": "",
+    "GOPRIVATE": "",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTMPDIR": "/workspace/agenteam-object-join-probe-e__5hndp/gotmp",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/agenteam-object-join-probe-e__5hndp/runtime"
+  },
+  "input_sha256": "ec82e4b9f8eb2d48b9b57defe3b67aab3d1042f400f6a3754c67157ea713a572",
+  "network_fault_probe": "remains stopped; no new proxy/interruption/abandoned backend preservation",
+  "probe_sha256": "edfcc3d2eecb6157ce15ce0909d29af0c838d7f7831ac9309f72f3895bb1afb5"
+}

@@ -1,6 +1,6 @@
 # D05 恢复：Object 项目停止闭环
 
-修订：rev4，仅同步阶段状态，rev2冻结行为与既有历史记录不变。S1两源`49c6589`及S2 Object库级停止28源均已独立验收；S2已提交推送`6658a6cb1f29299521773bc8dc86b2f607b8c809`，远端一致。已验迁移前缀至00016，正式结果及后继边界见文末。
+修订：rev5，仅接续当前缺陷状态，rev2 冻结行为与既有历史记录不变。S1 两源 `49c6589`、S2 28 源 `6658a6cb1f29299521773bc8dc86b2f607b8c809` 的独立验收与提交历史保留。现有[普通锁竞争回归](../agent-team/object-runtime-join-regression.md)证明 Runtime 可在 work 未 join 时提前释放 process claim/flock，当前缺陷待修；Artifact 最终共享 guard 采纳须等待上游修复 delta 与验证。已验迁移前缀至 00016，详见文末新增记录。
 
 ## 输入、结果与依赖
 
@@ -227,3 +227,9 @@ S2 28源已独立验收并由主线程采纳、提交推送`6658a6cb1f2929952177
 独立4容器3网络exact-ID absent，既有2容器4网络ID/name/labels不变、runtime空、所属进程0，28源末检匹配。本次通过Object库级停止；Artifact stop、Object Audit facts checker、正式Project推进/参与者装配及生产root仍属后继，不据此宣告完整D05/D08或D28/E01完成。此前绑定验收的原Outbox首红未复现、原因未知，继续保留为完整模块测试关注项。
 
 当前fixture空闲；`d08_registry_backend`已按Artifact rev2 `fcb83fc`启动16源业务实施，设计负责人已按Object Audit rev2 `fcae355`启动13源业务实施、固定`6658a6c`，`restore_test_dependencies`已按独立静审通过的D09 Project配置`6e0bda1`启动21源业务实施；三线均无Docker权，`skill_verification`转Object Audit验收准备。后续验收与资源按主线程正式交接推进。
+
+## 当前已知退出缺陷：普通锁竞争回归
+
+固定 `42e3f7d` 加单一普通 PG mutex probe 的[原始失败及持久证据](../agent-team/object-runtime-join-regression.md)已由主线程核对：preparation work 已真实登记，join 被正常活事务持锁阻塞时，公共调用结束后 Runtime.Drain 仍 nil、claim stopped、实际 flock 可取；正常放行 holder 并确认 Committed 后，第二次 Drain 也未补 join checkpoint。当前缺陷待修，前述 S2 验收报告与历史通过记录原样保留；不能以既有通过证明此新增边界安全。
+
+Artifact 最终共享 guard 采纳须等待上游修复 delta 与相应验证；修复卡 `recovery-object-runtime-join.md` 由 `recovery_handoff` 唯一维护，本次不改既定公共契约、schema 或行为正文。原网络 ROLLBACK 任务因自动安全筛查中断而保持停止，仅静态、无 probe/compile/资源，未请求用户绕过；普通锁竞争结果不证明该网络场景可达。归档记录 4 容器/3 网络两次 exact-ID absent、原 2/4 基线不变与所属进程 0，本次只做文档与文件校验，不运行产品测试。

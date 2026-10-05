@@ -1,0 +1,93 @@
+{
+  "source": "resource-handoff.json",
+  "source_sha256": "1910201077a7ccd5963725d4cb980a308b3b68ef38aba3be8413910a884db42e",
+  "interpretation": "Original checker only recognized No such; Docker network inspect instead says network <exactID> not found. Both actual checks returned exit1 with their exact absent messages. Raw evidence unchanged. No fixtures restarted.",
+  "owned_container_count": 4,
+  "owned_network_count": 3,
+  "tracked_processes": 189,
+  "owned_nonce_checks": [
+    {
+      "kind": "containers",
+      "id": "433042c27ca902751ba2e56805f102e81b281f5114770e45ec21d2815162a9a6",
+      "name": "/agenteam-d04-net-0126e617b5bb206117b2173014e8bcf3",
+      "labels": {
+        "agenteam.d04.networkfixture": "0126e617b5bb206117b2173014e8bcf3"
+      },
+      "nonce_in_driver_log": true
+    },
+    {
+      "kind": "containers",
+      "id": "8cc48b7b32994624fd389fd71b0a9ec23b3c43594d091dcd9c2ec37b183a357c",
+      "name": "/agenteam-d03-7a2e7b9417d7bb916ef192bd397eba8a",
+      "labels": {
+        "agenteam.d03.fixture": "7a2e7b9417d7bb916ef192bd397eba8a"
+      },
+      "nonce_in_driver_log": true
+    },
+    {
+      "kind": "containers",
+      "id": "9b3bd32bb5d2590be4333285d544c9ede6730d1297d1718cb14019e96cba372f",
+      "name": "/agenteam-d05-object-4c283ddbecb164b5109bd5c49ba59193",
+      "labels": {
+        "agenteam.d05.objectfixture": "4c283ddbecb164b5109bd5c49ba59193"
+      },
+      "nonce_in_driver_log": true
+    },
+    {
+      "kind": "containers",
+      "id": "a000591fcce01c1305580a744cbbd76b29ab081af40d9079cbcc313688ac8300",
+      "name": "/agenteam-d03-7a2e7b9417d7bb916ef192bd397eba8a-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "7a2e7b9417d7bb916ef192bd397eba8a"
+      },
+      "nonce_in_driver_log": true
+    },
+    {
+      "kind": "networks",
+      "id": "083ac906283dc92e14eda223c189431437847088284d65ab01c1b9e4e1bdb629",
+      "name": "agenteam-d03-7a2e7b9417d7bb916ef192bd397eba8a",
+      "labels": {
+        "agenteam.d03.fixture": "7a2e7b9417d7bb916ef192bd397eba8a"
+      },
+      "nonce_in_driver_log": true
+    },
+    {
+      "kind": "networks",
+      "id": "0e378fea7313f8d6ce9e94cda812f218fd57bbff77ecfe3d917c82771bc12861",
+      "name": "agenteam-d04-net-0126e617b5bb206117b2173014e8bcf3",
+      "labels": {
+        "agenteam.d04.networkfixture": "0126e617b5bb206117b2173014e8bcf3"
+      },
+      "nonce_in_driver_log": true
+    },
+    {
+      "kind": "networks",
+      "id": "2dbc08017706c75939c4330efe8b1d6d4cf58935e23ed84789a6f0d79a6d9b38",
+      "name": "agenteam-d05-object-4c283ddbecb164b5109bd5c49ba59193",
+      "labels": {
+        "agenteam.d05.objectfixture": "4c283ddbecb164b5109bd5c49ba59193"
+      },
+      "nonce_in_driver_log": true
+    }
+  ],
+  "checks": [
+    {
+      "repetition": 1,
+      "owned_exact_ids_absent": true,
+      "baseline_unchanged": true,
+      "observed_processes_remaining": [],
+      "workspace_processes_remaining": [],
+      "runtime_remaining": [],
+      "gotmp_remaining": []
+    },
+    {
+      "repetition": 2,
+      "owned_exact_ids_absent": true,
+      "baseline_unchanged": true,
+      "observed_processes_remaining": [],
+      "workspace_processes_remaining": [],
+      "runtime_remaining": [],
+      "gotmp_remaining": []
+    }
+  ]
+}

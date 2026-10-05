@@ -1,0 +1,25 @@
+{
+  "baseline": "42e3f7d59ceb65cb22cdd6b639608caa8830fae2",
+  "input_sha256": "ec82e4b9f8eb2d48b9b57defe3b67aab3d1042f400f6a3754c67157ea713a572",
+  "tracked_inputs_checked_against_fixed_git_blobs": 766,
+  "archived_probe_checked": 1,
+  "all_match": true,
+  "driver_scripts_additionally_checked": [
+    {
+      "path": "scripts/test-objects.sh",
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+      "snapshot_equals_fixed_commit": true
+    },
+    {
+      "path": "scripts/test-postgres.sh",
+      "sha256": "eddfb4f44288f8ec448400b02435f5fd6d6c44b0d80003fd34f7785e2980cdfe",
+      "snapshot_equals_fixed_commit": true
+    },
+    {
+      "path": "scripts/test-security.sh",
+      "sha256": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be",
+      "snapshot_equals_fixed_commit": true
+    }
+  ],
+  "method": "read-only git show and SHA-256; no compile, Docker, SQL, network or runtime replay"
+}

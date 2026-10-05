@@ -1,0 +1,47 @@
+{
+  "base": "42e3f7d59ceb65cb22cdd6b639608caa8830fae2",
+  "source_access": "fixed git show only; no active candidate source",
+  "sources": [
+    {
+      "path": "internal/central/postgres/transaction.go",
+      "sha256": "aae85b4fcf7411e31dfedd7e125c4d0aa6119b41d7071ee1787e088c14cc83f3",
+      "bytes": 9811
+    },
+    {
+      "path": "internal/central/object/project_work.go",
+      "sha256": "9ff832c51857d8b89aa0b11ca6a6d40667691b6ef21c79782fc1293a33937dc4",
+      "bytes": 22495
+    },
+    {
+      "path": "internal/central/object/service.go",
+      "sha256": "c09d80f50c94ae431c7bd4fbdaa6078e92e2a38220ab4a6f481b63740fd6a1f0",
+      "bytes": 15211
+    },
+    {
+      "path": "internal/central/object/runtime.go",
+      "sha256": "1c16810426b77c01ea230bcd0c8b56d532081e6851ad4f34dd6b2a5a47f13485",
+      "bytes": 9214
+    },
+    {
+      "path": "internal/central/object/process.go",
+      "sha256": "e24dfc8335b41ed549a62547719d330ee59de9ce5f8339b8acdca30db023c5dc",
+      "bytes": 14256
+    },
+    {
+      "path": "internal/central/object/access.go",
+      "sha256": "b88cdb778da18534e93150ebf3e0e9eee889db1985ea183d8658918bf73c4062",
+      "bytes": 13272
+    },
+    {
+      "path": "internal/central/object/read.go",
+      "sha256": "b31f594ad8b1be271dc86bc8ecba2f93d32c1eec2f24220244129028b8ed4c20",
+      "bytes": 16687
+    }
+  ],
+  "probe": null,
+  "snapshot": null,
+  "compile": null,
+  "dynamic": null,
+  "docker": null,
+  "network_database_connections": false
+}

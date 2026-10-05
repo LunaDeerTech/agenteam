@@ -8,15 +8,15 @@
 
 恢复文档及此前已验结果按下文保留；Object Audit 13 源已独立验收并提交推送 `a716ae2a16bc24c115d0207557cada96a30f1049`，主线程已核远端一致。[Project 领域绑定 rev2](../work-items/recovery-project-domain-bindings.md)已独立静审采纳并提交 `086f984eeadadebddcbcaab2868af96f8dfe5ce7`，尚未实施，仍待 Artifact 最终验收、接缝 delta 与文件所有权交还。D09 Project 配置 21 源已验提交推送 `de00c610`；作者第二轮 43 顶层/117 子例、独立 2 顶层/5 子例通过，[正式报告及持久证据](d09-project-configuration-verification.md)已提交推送 `965da5d`。
 
-Artifact 两个定向顶层修后 PASS，但 source planning whole-call 与 selector 扫描集变化反例仍真实失败：源行移出扫描集后仍进入 gate/Object Continue，有限批验证修复尚待验收。R4 rev2 规格已独立静审采纳并提交推送 `18e5297d304ab175a6c49b18c6a1df4af747e1b5`，尚无业务实施权；OpenAI wire 仅规格准备。已验迁移前缀至 00016，R4 的 00017 completion_plan 仅保留规划、未写 SQL。原 Outbox 首红未复现、原因未知的关注项保留；完整 D08/D09/D28/E01 仍未完成。
+Object Runtime 的[普通锁竞争回归](object-runtime-join-regression.md)已确认：未 join work 仍在时，Drain 成功并释放 process claim/flock，正常放行 holder 后也未补 join；当前缺陷待修，既有 S2 验收历史保留。Artifact 最终共享 guard 采纳须等待该上游修复 delta 与相应验证。R4 rev2 规格已审提交 `18e5297d304ab175a6c49b18c6a1df4af747e1b5`，尚无业务实施权；[OpenAI wire](../work-items/recovery-d09-openai-chat-wire.md)规格 `9d64857` 已采纳，16 源 backend 已开工、尚未验收。已验迁移前缀至 00016，R4 的 00017 completion_plan 仅规划、未写 SQL。原 Outbox 首红未复现、原因未知的关注项保留；完整 D08/D09/D28/E01 仍未完成。
 
 以下为恢复后的摘要。下文旧阶段中的 `d02_backend`、`d08_design`、`parallel_plan`、`d01_verify`、acceptance 等所有权及“正在实施”描述保留为当时历史，不表示旧实例仍在运行或旧未提交源码已恢复。旧 `/tmp` 证据没有随仓库恢复；历史局部通过不能证明当前缺失实现已存在。本次实际分工见[恢复记录的所有权表](recovery-2026-10-05.md#4-本次所有权与下一步)。
 
 | 工作项 | 当前进度 | 所有权与下一步 |
 | --- | --- | --- |
 | D07 | 当前范围已关闭，文档提交 `0ed8085`；历史失败与组合验收边界保留 | 无活动 D07 实现；后续 UI、WS、Project/Runner 绑定按责任模块推进 |
-| D08 | R1 `98262b4`、R2 `73db0d4`、[R3](../work-items/recovery-d08-lifecycle-authority.md) `3e399c3`、D05 S1 `49c6589`、[Secret checker](../work-items/recovery-secret-project-audit.md) `7d7c50d`、[Project+Secret窄绑定](../work-items/recovery-project-secret-audit-binding.md) `81fe742`、[S2 Object stop](../work-items/recovery-d05-object-stop.md) `6658a6c`及[Object Audit](../work-items/recovery-object-project-audit.md) `a716ae2`均已独立验收提交；完整 B03 未完成 | Artifact 两个定向顶层修后 PASS，source planning whole-call 与 selector 扫描集变化反例仍红，待修复及整体独立验收；领域绑定规格 `086f984` 已采纳、未实施。R4 rev2 规格已审提交 `18e5297`、尚无业务实施权，00017 仅规划；最新验收接续见[恢复记录](recovery-2026-10-05.md#17-d09-正式验收归档与当前边界) |
-| D09 | C0 `e6e94c4`、B01-K System 配置及 00015 已独立验收，Audit 六源 `26622bc`、System 二十九源 `543511c` 已推送；[Project 配置窄块](../work-items/recovery-d09-project-configuration.md)21 源已验提交推送 `de00c610` | 作者 43 顶层/117 子例、独立 2 顶层/5 子例 PASS；[正式报告](d09-project-configuration-verification.md)及证据 `965da5d` 保留首 FAIL、五项非 verbose 复用与早期纯检查元数据限制。Summary 初值/Settings 待用户决定；Resolver/Usage、Provider 调用及根 HTTP 未交付，OpenAI wire 仅规格准备，完整 D09 未完成 |
+| D08 | R1 `98262b4`、R2 `73db0d4`、[R3](../work-items/recovery-d08-lifecycle-authority.md) `3e399c3`、D05 S1 `49c6589`、[Secret checker](../work-items/recovery-secret-project-audit.md) `7d7c50d`、[Project+Secret窄绑定](../work-items/recovery-project-secret-audit-binding.md) `81fe742`、[S2 Object stop](../work-items/recovery-d05-object-stop.md) `6658a6c`及[Object Audit](../work-items/recovery-object-project-audit.md) `a716ae2`均已独立验收提交；完整 B03 未完成 | Object Runtime 新已知退出缺陷待修；Artifact 最终共享 guard 采纳须等待上游修复 delta 与最终验证，领域绑定规格 `086f984` 仍未实施。R4 rev2 规格已审提交 `18e5297`、尚无业务实施权，00017 仅规划；当前接续见[恢复记录](recovery-2026-10-05.md#18-object-runtime-退出回归与后继边界) |
+| D09 | C0 `e6e94c4`、B01-K System 配置及 00015 已独立验收，Audit 六源 `26622bc`、System 二十九源 `543511c` 已推送；[Project 配置窄块](../work-items/recovery-d09-project-configuration.md)21 源已验提交推送 `de00c610` | 作者 43 顶层/117 子例、独立 2 顶层/5 子例 PASS；[正式报告](d09-project-configuration-verification.md)及证据 `965da5d` 保留首 FAIL、五项非 verbose 复用与早期纯检查元数据限制。Summary 初值/Settings 待用户决定；Resolver/Usage、Provider 调用及根 HTTP 未交付；OpenAI wire 规格 `9d64857` 已采纳、16 源 backend 已开工，业务未验，完整 D09 未完成 |
 | D10 | P1 真实 builtin/包载体 11 路径及两份文档已在 `8872110` 提交，并通过本轮固定输入独立验收；[主卡 rev2](../work-items/d10-skills-initialization.md)仅同步状态 | `skill_verification` 已冻结报告及持久证据；Go unit/race/vet与7项独立race探针通过。生产初始化仍须真实D08/D05、Object fact checker与生命周期组合，D10模块未完成 |
 | D12 | B01 `914fd84`、正式 B02 卡及 C1 `71dc176`、C2 `f401c15`、C3 `231a384` 的提交仍在；Knowledge 主体未验收且本次未恢复 | 当前仅有 Knowledge contract 12 文件；B02 新领域 29 路径均缺，未编号 SQL 草案也未恢复。按真实上游与新文件所有权重新下发，不以共享口通过替代真实 Knowledge/A/P 组合 |
 
@@ -976,3 +976,9 @@ Artifact F1修复静审通过；F2未知结果分类尚未完成动态修复验�
 [Project 配置恢复卡](../work-items/recovery-d09-project-configuration.md)的 21 源已独立验收并获主线程采纳，提交推送 `de00c610da62cb77cc03efe7c3cc842cf81f1ba5`，远端一致。作者第二轮 43 顶层/117 子例、独立真实 2 顶层/5 子例通过；[正式报告及可重建证据](d09-project-configuration-verification.md)已提交推送 `965da5dbbcabf4b2764a77789cbf8494e53fced8`，远端一致。
 
 首轮整包 FAIL 保留，5 个未变新顶层仅复用首轮非 verbose 的未失败结果，无单列 PASS 行；早期作者纯检查 exact argv/exit 未单独持久化，不能以空日志补证。具体复用、独立编译/真实检查及资源清零边界均见正式报告。通过仅覆盖 Project chat 配置、命令查证与安全目录；Summary 创建初值/Settings 待用户决定，真实引用替换、Resolver/Usage、Provider 调用与根装配未交付，完整 D09 未完成。本次四文档仅同步状态及验收链接，既定 API、产品规则和此前历史不变。
+
+### Object Runtime 普通锁竞争回归
+
+固定 `42e3f7d` 加单一普通 PG mutex probe 已真实失败；[正式报告及原始证据](object-runtime-join-regression.md)记录未 join work → Drain nil/claim stopped/flock 可取，以及 holder 正常提交后未补 join。原 17 项证据索引和四条失败断言保留，本轮 4 容器/3 网络两次 exact-ID absent、基线 2/4 不变、所属进程 0。当前是新已知退出缺陷待修，不改写此前 S2 历史验收；Artifact 最终共享 guard 采纳须等待上游修复 delta 与验证。
+
+先前受自动安全筛查中断的网络 ROLLBACK 任务仅静态、没有 probe/compile/资源，未恢复执行，也未请求用户绕过；普通锁竞争不证明该网络场景可达。修复卡 `recovery-object-runtime-join.md` 由 `recovery_handoff` 唯一维护；本次只归档报告/evidence 并更新三状态路径。OpenAI wire 规格 `9d64857` 已采纳并启动 16 源 backend，未验收；完整模块边界不变。
