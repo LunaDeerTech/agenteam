@@ -205,6 +205,12 @@ func (s *Service) authorizeAppend(ctx context.Context, tx foundation.Tx, entry c
 		}
 		return portError(s.auth.Accounts.CheckAppendInTx(ctx, tx, entry, key))
 	}
+	if contract.ProjectAction(f.Action) {
+		if nilPort(s.auth.Projects) {
+			return failure(foundation.DependencyUnbound, "project_gate_unbound", nil)
+		}
+		return portError(s.auth.Projects.CheckAppendInTx(ctx, tx, entry, key))
+	}
 	switch a.Kind {
 	case identity.Human:
 		intent := identity.Mutate
