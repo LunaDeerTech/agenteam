@@ -1,6 +1,6 @@
 # D09 Project chat 配置与安全目录恢复卡
 
-修订 1，2026-10-05。状态：**规格已独立静审并由主线程采纳，按文末授权实施；尚未验收新行为。** 固定生产基线 `81fe7427ceb4672247b3d30a51c10a2e2808ba04`；其已验 Project+Secret 窄绑定证据已归位于 `0e79a39186dd09461f29160ff3d6a395588c78c1`。本卡只恢复一个完整结果，不代表完整 D09 或根装配完成。
+修订 2，2026-10-05，仅同步验收状态；§1–8 的规格、API 与授权历史保持修订 1。状态：**本卡 21 源已独立验收并由主线程采纳，提交推送 `de00c610da62cb77cc03efe7c3cc842cf81f1ba5`。** 固定生产基线 `81fe7427ceb4672247b3d30a51c10a2e2808ba04`；其已验 Project+Secret 窄绑定证据已归位于 `0e79a39186dd09461f29160ff3d6a395588c78c1`。结果见[正式验收报告](../agent-team/d09-project-configuration-verification.md)，不代表完整 D09 或根装配完成。
 
 ## 1. 目标、依据与真实依赖
 
@@ -145,3 +145,11 @@ Model 公开历史命令重放在 receipt 分支完成，不重新调用 Audit/E
 独立verification_worker已对原候选SHA-256 `32a9ccc856bbb8f0a736b5f56c9fd0da3fb440de4afd032ba2f3d152bce7b608` 完成静审，未发现要求先修订的硬阻断；主线程复核API、真实双阶段授权、System旧字节兼容、引用缺adapter拒绝与安全目录后采纳。审查报告 `/tmp/agenteam-d09-project-config-static-cdxaosuw/review.md` SHA-256 `3eba6ec43ba94693199c68a90223401af0af4b57aae3a1a787ee887c91ece8d2`，固定输入清单 `inputs.json` SHA-256 `a9fde7f6d4b8bc7c6b169e95b81265998f558e17d0385ce2509f046fa56fc760`；本节持久记录结论，不依赖临时文件存续。静审没有Go/PG/行为通过声明。
 
 唯一实施者为`restore_test_dependencies`，仅开放本卡13生产+8新测试共21路径。使用固定81fe742生产输入加自己21源自测，不消费Object Audit或Artifact活动稿；不改旧测试、公共contract、Secret/Audit/Outbox核心、迁移或app。全部Project receipt路径必须按当前Read→原receipt→首次Mutate执行，System legacy缺scope只允许在真实System行且已核原身份的加载支路兼容。源码冻结后交未参与实现者独立验收；真实fixture须主线程交接，当前不占00017。Summary初值与完整D09待定边界保持。
+
+## 9. 窄块验收与提交接续
+
+本卡的 Project chat Provider/Model CRUD、当前项目配置查询、命令查证与安全可用目录已验收。作者第二轮 43 顶层/117 子例、独立真实 2 顶层/5 子例通过；21 源以 `de00c610` 提交推送，正式报告及可重建证据以 `965da5dbbcabf4b2764a77789cbf8494e53fced8` 提交推送，均由主线程核实远端一致。[正式报告](../agent-team/d09-project-configuration-verification.md)保存静审、固定输入、覆盖表、实际命令与资源清零证据。
+
+首轮整包 FAIL 保留；5 个未变新顶层复用该非 verbose 执行中的未失败结果，没有单列 PASS 行，不称首轮整包通过。早期作者纯检查保留 stdout/stderr 与当时执行声明，但 exact argv/exit 未单独持久化；空日志不作退出码证明。复用边界及后续完整元数据见报告的[实际检查](../agent-team/d09-project-configuration-verification.md#实际检查和复用证据)与[首红记录](../agent-team/d09-project-configuration-verification.md#首红修订与限制)。
+
+Summary 创建初值/Settings 仍待用户决定；真实 Agent/project_summary 引用替换、Resolver/Usage、Provider 调用及 HTTP/app/root 留后继，完整 D09 未完成。本次只同步状态和验收入口，不改既定行为，也不新增迁移。
