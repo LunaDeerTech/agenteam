@@ -1,0 +1,272 @@
+package secret
+
+import (
+	"context"
+	"errors"
+	"reflect"
+	"strings"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+	"github.com/jackc/pgx/v5"
+)
+
+type lookupUnitStore struct {
+	Store
+	t                            *testing.T
+	tx                           f.Tx
+	locks                        []f.LockRequest
+	row                          postgres.Row
+	queries, acquires, held      int
+	result                       f.CommitState
+	acquireErr, heldErr, inTxErr error
+	afterCommit                  func()
+}
+
+func (s *lookupUnitStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
+	s.tx = f.NewTx()
+	if err := fn(ctx, s.tx); err != nil {
+		var ff *f.Fault
+		if !errors.As(err, &ff) {
+			ff = f.NewFault(f.DependencyUnavailable, f.NotStarted)
+		}
+		return f.NotCommittedResult(ff)
+	}
+	switch s.result {
+	case f.Unknown:
+		attempt, _ := f.NewID[f.TransactionAttempt]()
+		return f.UnknownResult(attempt, cause)
+	case f.NotCommitted:
+		return f.NotCommittedResult(f.NewFault(f.DependencyUnavailable, f.NotStarted))
+	}
+	if s.afterCommit != nil {
+		s.afterCommit()
+	}
+	return f.CommittedResult()
+}
+func (s *lookupUnitStore) AcquireAll(_ context.Context, tx f.Tx, locks []f.LockRequest) error {
+	s.acquires++
+	if tx != s.tx {
+		s.t.Fatal("foreign Tx")
+	}
+	s.locks = append([]f.LockRequest(nil), locks...)
+	return s.acquireErr
+}
+func (s *lookupUnitStore) RequireHeldLocks(_ context.Context, tx f.Tx, locks []f.LockRequest) error {
+	s.held++
+	if tx != s.tx || !lookupSameLocks(locks, s.locks) {
+		s.t.Fatal("unheld union")
+	}
+	return s.heldErr
+}
+
+func lookupSameLocks(a, b []f.LockRequest) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i := range a {
+		if a[i].Mode != b[i].Mode || a[i].Key.Canonical() != b[i].Key.Canonical() {
+			return false
+		}
+	}
+	return true
+}
+func (s *lookupUnitStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
+	if tx != s.tx {
+		s.t.Fatal("foreign executor")
+	}
+	return s, s.inTxErr
+}
+func (s *lookupUnitStore) QueryRow(_ context.Context, sql string, args ...any) postgres.Row {
+	s.queries++
+	if !strings.Contains(sql, "FROM agenteam_secret.secret_command_receipts WHERE scope=$1 AND scope_key=$2 AND command_digest=$3") || strings.Contains(sql, "payload") || args[0] != "system" || args[1] != "system" {
+		s.t.Fatal("non-passive query")
+	}
+	return s.row
+}
+
+type lookupRow struct {
+	values []any
+	err    error
+}
+
+func (r lookupRow) Scan(dst ...any) error {
+	if r.err != nil {
+		return r.err
+	}
+	for i, v := range r.values {
+		reflect.ValueOf(dst[i]).Elem().Set(reflect.ValueOf(v))
+	}
+	return nil
+}
+
+type lookupSessions func(context.Context, f.Tx, id.Actor) error
+
+func (fn lookupSessions) RequireCurrentSession(c context.Context, tx f.Tx, a id.Actor) error {
+	return fn(c, tx, a)
+}
+
+type lookupSystem func(context.Context, f.Tx, id.Actor, id.AccessIntent) (id.AccessGrant, error)
+
+func (fn lookupSystem) AuthorizeSystem(c context.Context, tx f.Tx, a id.Actor, i id.AccessIntent) (id.AccessGrant, error) {
+	return fn(c, tx, a, i)
+}
+
+type lookupNilSessions chan int
+
+func (lookupNilSessions) RequireCurrentSession(context.Context, f.Tx, id.Actor) error {
+	panic("typed nil invoked")
+}
+
+type lookupNilSystem chan int
+
+func (lookupNilSystem) AuthorizeSystem(context.Context, f.Tx, id.Actor, id.AccessIntent) (id.AccessGrant, error) {
+	panic("typed nil invoked")
+}
+
+func lookupFixture(t *testing.T) (*Service, *lookupUnitStore, sc.WriteCommandLookupRequest) {
+	t.Helper()
+	user, _ := f.NewID[id.User]()
+	session, _ := f.NewID[id.Session]()
+	actor, _ := id.NewHuman(user, session)
+	command, _ := f.NewCommandIdentity("secret", []string{user.String()}, "create", "same-key")
+	r := sc.WriteCommandLookupRequest{Actor: actor, Scope: id.SystemScope(), Identity: command, Kind: sc.Create, Purpose: sc.Model}
+	store := &lookupUnitStore{t: t, row: lookupRow{err: pgx.ErrNoRows}}
+	state := &serviceState{store: store, unavailable: true, nonces: map[f.Version]*nonceRange{}}
+	state.auth.Sessions = lookupSessions(func(_ context.Context, tx f.Tx, a id.Actor) error {
+		if tx != store.tx || store.held != 1 || a.Details() != actor.Details() {
+			t.Fatal("Session outside held same Tx")
+		}
+		return nil
+	})
+	state.auth.System = lookupSystem(func(_ context.Context, tx f.Tx, a id.Actor, i id.AccessIntent) (id.AccessGrant, error) {
+		if tx != store.tx || i != id.Read {
+			t.Fatal("wrong authorization")
+		}
+		now, _ := f.NewInstant(time.Now())
+		return id.NewAccessGrant(a, id.SystemScope(), i, now, 1)
+	})
+	return &Service{data: func() *serviceState { return state }}, store, r
+}
+
+func TestSecretPassiveLookupOnlyPublishesCommittedObservation(t *testing.T) {
+	for _, state := range []f.CommitState{f.Committed, f.NotCommitted, f.Unknown} {
+		for _, present := range []bool{false, true} {
+			t.Run(string(state)+"/"+map[bool]string{false: "absent", true: "present"}[present], func(t *testing.T) {
+				s, store, r := lookupFixture(t)
+				store.result = state
+				credential, _ := f.NewID[sc.Credential]()
+				if present {
+					store.row = lookupRow{values: []any{"create", credential.String(), "model", int64(1), false}}
+				}
+				out, err := s.LookupWriteCommand(context.Background(), r)
+				if state != f.Committed {
+					if err == nil || out.Observed || out.Result != nil {
+						t.Fatal("unconfirmed observation escaped")
+					}
+				} else if err != nil || out.Observed != present || (out.Result != nil) != present {
+					t.Fatal("wrong observation", err)
+				}
+				command, _ := f.CommandLock(r.Identity)
+				user, _ := f.UserLock(r.Actor.Details().UserID)
+				if !lookupSameLocks(store.locks, []f.LockRequest{{Key: command, Mode: f.Shared}, {Key: user, Mode: f.Shared}}) || store.acquires != 1 || store.held != 1 || store.queries != 1 {
+					t.Fatal("passive lock plan")
+				}
+				if s.state().initialized || len(s.state().nonces) != 0 || s.state().epoch != 0 || s.state().writeVersion != 0 {
+					t.Fatal("lookup consumed write state")
+				}
+			})
+		}
+	}
+}
+
+func TestSecretPassiveLookupRejectsDependenciesFactsAndFailures(t *testing.T) {
+	ctx := context.Background()
+	for _, service := range []*Service{nil, {}, {data: func() *serviceState { return nil }}} {
+		out, err := service.LookupWriteCommand(ctx, sc.WriteCommandLookupRequest{})
+		projectAuditCode(t, err, f.DependencyUnbound)
+		if out.Result != nil || out.Observed {
+			t.Fatal("zero service result")
+		}
+		result, err := service.ExecuteWrite(ctx, sc.WriteRequest{})
+		projectAuditCode(t, err, f.DependencyUnbound)
+		if result.Metadata.Version != 0 {
+			t.Fatal("zero Execute result")
+		}
+	}
+	for _, change := range []func(*serviceState){func(s *serviceState) { s.store = nil }, func(s *serviceState) { s.auth.Sessions = lookupNilSessions(nil) }, func(s *serviceState) { s.auth.System = lookupNilSystem(nil) }} {
+		s, _, r := lookupFixture(t)
+		change(s.state())
+		_, err := s.LookupWriteCommand(ctx, r)
+		projectAuditCode(t, err, f.DependencyUnbound)
+	}
+	for _, failure := range []string{"acquire", "executor", "held", "session", "grant", "SQL"} {
+		t.Run(failure, func(t *testing.T) {
+			s, store, r := lookupFixture(t)
+			denied := f.NewFault(f.Forbidden, f.NotStarted)
+			switch failure {
+			case "acquire":
+				store.acquireErr = denied
+			case "executor":
+				store.inTxErr = denied
+			case "held":
+				store.heldErr = denied
+			case "session":
+				s.state().auth.Sessions = lookupSessions(func(context.Context, f.Tx, id.Actor) error { return denied })
+			case "grant":
+				s.state().auth.System = lookupSystem(func(context.Context, f.Tx, id.Actor, id.AccessIntent) (id.AccessGrant, error) {
+					return id.AccessGrant{}, nil
+				})
+			case "SQL":
+				store.row = lookupRow{err: errors.New("private SQL diagnostic")}
+			}
+			out, err := s.LookupWriteCommand(ctx, r)
+			if err == nil || out.Observed || out.Result != nil {
+				t.Fatal("failure disguised as absence")
+			}
+			if failure != "SQL" && store.queries != 0 {
+				t.Fatal("read before authority")
+			}
+		})
+	}
+	credential, _ := f.NewID[sc.Credential]()
+	for _, tc := range []struct {
+		kind, purpose string
+		version       int64
+		deleted       bool
+		code          f.Code
+	}{{"create", "smtp", 1, false, f.IdempotencyKeyReused}, {"update", "model", 2, false, f.IdempotencyKeyReused}, {"unknown", "model", 1, false, f.DependencyUnavailable}, {"create", "bad", 1, false, f.DependencyUnavailable}, {"create", "model", 2, false, f.DependencyUnavailable}, {"create", "model", 1, true, f.DependencyUnavailable}} {
+		s, store, r := lookupFixture(t)
+		store.row = lookupRow{values: []any{tc.kind, credential.String(), tc.purpose, tc.version, tc.deleted}}
+		out, err := s.LookupWriteCommand(ctx, r)
+		projectAuditCode(t, err, tc.code)
+		if out.Observed || out.Result != nil {
+			t.Fatal("invalid receipt exposed")
+		}
+	}
+}
+
+func TestSecretPassiveLookupCancellationAfterCommittedRead(t *testing.T) {
+	for _, present := range []bool{false, true} {
+		s, store, r := lookupFixture(t)
+		if present {
+			credential, _ := f.NewID[sc.Credential]()
+			store.row = lookupRow{values: []any{"create", credential.String(), "model", int64(1), false}}
+		}
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		store.afterCommit = cancel
+		out, err := s.LookupWriteCommand(ctx, r)
+		var fault *f.Fault
+		if !errors.As(err, &fault) || fault.Code != f.DependencyUnavailable || fault.CommitState != f.Committed || out.Observed || out.Result != nil {
+			t.Fatal("cancelled observation escaped or commit state changed", err)
+		}
+		if store.queries != 1 || len(s.state().nonces) != 0 {
+			t.Fatal("read/write boundary")
+		}
+	}
+}

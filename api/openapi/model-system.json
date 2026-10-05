@@ -1,0 +1,2716 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "agenteam System Model configuration HTTP",
+    "version": "0.1.0",
+    "description": "Library composition only; production root and Provider calls remain unbound. Canonical Host/Origin/Fetch-Metadata checked before route/auth/body; ambiguous paths rejected without redirects, no X-Forwarded trust or CORS. Current real Account Session/admin required. System scope and Purpose=Model are server-owned. Secret writes and later Provider binding are independent commands. Required embedding/memory cannot be cleared. All integers above int32 use canonical decimal strings; UUIDs canonical v7. All success is 200; unknown path404, unsupported method405 with exact Allow. Invalid sessions clear only the selected Session cookie."
+  },
+  "paths": {
+    "/api/v1/system/model-providers": {
+      "get": {
+        "operationId": "get_system_model_providers",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Single decimal integer; unknown, repeated, empty or noncanonical parameters rejected."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProviderPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "head_system_model_providers",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Same current permission and query as GET; no response body.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Single decimal integer; unknown, repeated, empty or noncanonical parameters rejected."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_system_model_providers",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Original command key, including POST lookup; never a new query command."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON object, maximum 1 MiB; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateProvider"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/model-providers/{id}": {
+      "get": {
+        "operationId": "get_system_model_providers_ByID",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Provider"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "head_system_model_providers_ByID",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Same current permission and query as GET; no response body.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "put_system_model_providers_ByID",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Original command key, including POST lookup; never a new query command."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON object, maximum 1 MiB; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateProvider"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_system_model_providers_ByID",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Original command key, including POST lookup; never a new query command."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON object, maximum 1 MiB; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpectedVersion"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/models": {
+      "get": {
+        "operationId": "get_system_models",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Single decimal integer; unknown, repeated, empty or noncanonical parameters rejected."
+          },
+          {
+            "in": "query",
+            "name": "provider_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ModelPage"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "head_system_models",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Same current permission and query as GET; no response body.",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "cursor",
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          {
+            "in": "query",
+            "name": "limit",
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 50
+            },
+            "description": "Single decimal integer; unknown, repeated, empty or noncanonical parameters rejected."
+          },
+          {
+            "in": "query",
+            "name": "provider_id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "operationId": "post_system_models",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Original command key, including POST lookup; never a new query command."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON object, maximum 1 MiB; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateModel"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/models/{id}": {
+      "get": {
+        "operationId": "get_system_models_ByID",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Model"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "head_system_models_ByID",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Same current permission and query as GET; no response body.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "put_system_models_ByID",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Original command key, including POST lookup; never a new query command."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON object, maximum 1 MiB; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateModel"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_system_models_ByID",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Original command key, including POST lookup; never a new query command."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON object, maximum 1 MiB; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DeleteModel"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/model-selection": {
+      "get": {
+        "operationId": "get_system_model_selection",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Selection"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "head": {
+        "operationId": "head_system_model_selection",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "Same current permission and query as GET; no response body.",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "operationId": "put_system_model_selection",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Original command key, including POST lookup; never a new query command."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Receipt"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON object, maximum 1 MiB; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectionInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/model-commands/lookup": {
+      "post": {
+        "operationId": "post_system_model_commands_lookup",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Read intent with POST CSRF checks. Uses original Model identity and key; historical receipt only.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Original command key, including POST lookup; never a new query command."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CommandLookup"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON object, maximum 1 MiB; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CommandLookupInput"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/model-credentials": {
+      "post": {
+        "operationId": "post_system_model_credentials",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Original command key, including POST lookup; never a new query command."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON object, maximum 1 MiB; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialCreate"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/model-credentials/{id}": {
+      "put": {
+        "operationId": "put_system_model_credentials_ByID",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Original command key, including POST lookup; never a new query command."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON object, maximum 1 MiB; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialUpdate"
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "operationId": "delete_system_model_credentials_ByID",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Current System administrator only. Business transaction rechecks current Session/admin. No queries accepted except documented list parameters.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/ID"
+            }
+          },
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Original command key, including POST lookup; never a new query command."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialResult"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON object, maximum 1 MiB; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExpectedVersion"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/v1/system/model-credential-commands/lookup": {
+      "post": {
+        "operationId": "post_system_model_credential_commands_lookup",
+        "security": [
+          {
+            "Session": [],
+            "CSRF": []
+          },
+          {
+            "LocalSession": [],
+            "CSRF": []
+          }
+        ],
+        "description": "Read intent with POST CSRF. Passive committed receipt SELECT only; no material, decrypt, nonce, audit or write/replay. Whole identity is current Human UserID, System scope, secret namespace, kind and original key.",
+        "parameters": [
+          {
+            "in": "header",
+            "name": "Idempotency-Key",
+            "required": true,
+            "schema": {
+              "$ref": "./common.json#/components/schemas/IdempotencyKey"
+            },
+            "description": "Original command key, including POST lookup; never a new query command."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Confirmed domain result. No extra canonical GET after write.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CredentialObservation"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 Problem. 400 InvalidArgument/CursorInvalid; 401 Unauthenticated/SessionRevoked clears Session cookie; 403 Forbidden/CSRFFailed/OriginDenied; 404 NotFound; 405 MethodNotAllowed with exact Allow; 409 VersionConflict/IdempotencyKeyReused/ResourceBusy/InvalidState; 413 PayloadTooLarge; 415 UnsupportedMediaType; 422 unsupported capability/schema; 503 unbound/unavailable/CommitUnknown; 500 InternalError. Only final service Unknown returns 503 and retry_hint=lookup: keep original key and use the corresponding lookup. Model recovery-confirmed receipt returns 200. No raw SQL/cause/material.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "requestBody": {
+          "required": true,
+          "description": "Strict JSON object, maximum 1 MiB; unknown/duplicate keys, trailing JSON, non-UTF-8, wrong media/encoding and invalid null/scalars rejected.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CredentialLookupInput"
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "Session": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "__Host-agenteam_session",
+        "description": "HTTPS host-only HttpOnly SameSite=Lax Secure Path=/."
+      },
+      "LocalSession": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "agenteam_local_session",
+        "description": "Isolated literal loopback HTTP mode, host-only HttpOnly SameSite=Lax Path=/."
+      },
+      "CSRF": {
+        "type": "apiKey",
+        "in": "header",
+        "name": "X-CSRF-Token"
+      }
+    },
+    "schemas": {
+      "ProviderInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "protocol",
+          "base_url",
+          "enabled",
+          "credential_ref",
+          "options"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "protocol": {
+            "type": "string",
+            "enum": [
+              "openai-chat-completions",
+              "anthropic-messages",
+              "openai-embeddings",
+              "jina-rerank",
+              "openai-images-generations"
+            ]
+          },
+          "base_url": {
+            "type": "string",
+            "maxLength": 8192
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "credential_ref": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "options": {
+            "type": "object",
+            "additionalProperties": true
+          }
+        }
+      },
+      "Capabilities": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tool_calls",
+          "parallel_tool_calls",
+          "streaming",
+          "reasoning",
+          "input_modalities",
+          "output_modalities",
+          "reasoning_efforts",
+          "structured_output_modes",
+          "context_length",
+          "max_output"
+        ],
+        "properties": {
+          "tool_calls": {
+            "type": "boolean"
+          },
+          "parallel_tool_calls": {
+            "type": "boolean"
+          },
+          "streaming": {
+            "type": "boolean"
+          },
+          "reasoning": {
+            "type": "boolean"
+          },
+          "input_modalities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "output_modalities": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "reasoning_efforts": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "structured_output_modes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "uniqueItems": true
+          },
+          "context_length": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/PositiveInt64String"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "max_output": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/PositiveInt64String"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "ModelInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "name",
+          "provider_model_id",
+          "type",
+          "enabled",
+          "parameters",
+          "request_overwrite",
+          "header_overwrite",
+          "capabilities"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 128
+          },
+          "provider_model_id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 256
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "chat",
+              "embedding",
+              "reranker",
+              "image_generation"
+            ]
+          },
+          "enabled": {
+            "type": "boolean"
+          },
+          "parameters": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "request_overwrite": {
+            "type": "object",
+            "additionalProperties": true
+          },
+          "header_overwrite": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "capabilities": {
+            "$ref": "#/components/schemas/Capabilities"
+          }
+        }
+      },
+      "Provider": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "input",
+          "version",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ProviderInput"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        }
+      },
+      "Model": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "provider_id",
+          "input",
+          "version",
+          "created_at",
+          "updated_at"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "provider_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ModelInput"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          },
+          "updated_at": {
+            "$ref": "./common.json#/components/schemas/Instant"
+          }
+        }
+      },
+      "ProviderPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Provider"
+            }
+          },
+          "next_cursor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "ModelPage": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "items",
+          "next_cursor"
+        ],
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Model"
+            }
+          },
+          "next_cursor": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "Selection": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "version",
+          "configured"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "configured": {
+            "oneOf": [
+              {
+                "type": "object",
+                "additionalProperties": false,
+                "required": [
+                  "embedding",
+                  "memory",
+                  "reranker",
+                  "image"
+                ],
+                "properties": {
+                  "embedding": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "memory": {
+                    "$ref": "./common.json#/components/schemas/ID"
+                  },
+                  "reranker": {
+                    "oneOf": [
+                      {
+                        "$ref": "./common.json#/components/schemas/ID"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "image": {
+                    "oneOf": [
+                      {
+                        "$ref": "./common.json#/components/schemas/ID"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  }
+                }
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "SelectionInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "expected_version",
+          "embedding",
+          "memory",
+          "reranker",
+          "image"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "embedding": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "memory": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "reranker": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "image": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      },
+      "Receipt": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "kind",
+          "resource_id",
+          "version",
+          "affected_references"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string",
+            "enum": [
+              "provider.create",
+              "provider.update",
+              "provider.delete",
+              "model.create",
+              "model.update",
+              "model.delete",
+              "model.selection.update"
+            ]
+          },
+          "resource_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "affected_references": {
+            "$ref": "./common.json#/components/schemas/NonnegativeInt64String"
+          }
+        }
+      },
+      "CommandLookupInput": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "command"
+        ],
+        "properties": {
+          "command": {
+            "type": "string",
+            "enum": [
+              "provider.create",
+              "provider.update",
+              "provider.delete",
+              "model.create",
+              "model.update",
+              "model.delete",
+              "model.selection.update"
+            ]
+          }
+        }
+      },
+      "CommandLookup": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "found",
+              "receipt"
+            ],
+            "properties": {
+              "found": {
+                "const": false
+              },
+              "receipt": {
+                "type": "null"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "found",
+              "receipt"
+            ],
+            "properties": {
+              "found": {
+                "const": true
+              },
+              "receipt": {
+                "$ref": "#/components/schemas/Receipt"
+              }
+            }
+          }
+        ],
+        "description": "Historical command identity observation, not material replay validation or original writer termination proof."
+      },
+      "CredentialResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "credential_id",
+          "purpose",
+          "version",
+          "deleted"
+        ],
+        "properties": {
+          "credential_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "purpose": {
+            "const": "model"
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "deleted": {
+            "type": "boolean"
+          }
+        }
+      },
+      "CredentialObservation": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "observed",
+              "result"
+            ],
+            "properties": {
+              "observed": {
+                "const": false
+              },
+              "result": {
+                "type": "null"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "observed",
+              "result"
+            ],
+            "properties": {
+              "observed": {
+                "const": true
+              },
+              "result": {
+                "$ref": "#/components/schemas/CredentialResult"
+              }
+            }
+          }
+        ],
+        "description": "Committed read observation of a historical receipt under current authorization. False does not prove NotCommitted, termination, or safe key replacement. True does not prove current credential availability or equivalence of new material."
+      },
+      "CredentialLookupInput": {
+        "oneOf": [
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind"
+            ],
+            "properties": {
+              "kind": {
+                "const": "create"
+              }
+            }
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "kind",
+              "credential_id",
+              "expected_version"
+            ],
+            "properties": {
+              "kind": {
+                "type": "string",
+                "enum": [
+                  "update",
+                  "delete"
+                ]
+              },
+              "credential_id": {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              "expected_version": {
+                "$ref": "./common.json#/components/schemas/Version"
+              }
+            }
+          }
+        ]
+      },
+      "CredentialCreate": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "value"
+        ],
+        "properties": {
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536,
+            "writeOnly": true,
+            "description": "Nonempty input only; maximum 65536 UTF-8 bytes. Never returned. No credential GET route."
+          }
+        }
+      },
+      "CredentialUpdate": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "value"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 65536,
+            "writeOnly": true,
+            "description": "Nonempty input only; maximum 65536 UTF-8 bytes. Never returned. No credential GET route."
+          }
+        }
+      },
+      "ExpectedVersion": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          }
+        }
+      },
+      "CreateProvider": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "input"
+        ],
+        "properties": {
+          "input": {
+            "$ref": "#/components/schemas/ProviderInput"
+          }
+        }
+      },
+      "UpdateProvider": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "input"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ProviderInput"
+          }
+        }
+      },
+      "CreateModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "provider_id",
+          "input"
+        ],
+        "properties": {
+          "provider_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ModelInput"
+          }
+        }
+      },
+      "UpdateModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "input"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "input": {
+            "$ref": "#/components/schemas/ModelInput"
+          }
+        }
+      },
+      "DeleteModel": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "expected_version",
+          "replacement"
+        ],
+        "properties": {
+          "expected_version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "replacement": {
+            "oneOf": [
+              {
+                "$ref": "./common.json#/components/schemas/ID"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        }
+      }
+    }
+  }
+}

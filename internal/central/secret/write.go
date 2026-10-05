@@ -216,6 +216,9 @@ func (s *Service) prepareWrite(ctx context.Context, r sc.WriteRequest, serviceRe
 	return PreparedWrite{data: func() preparedWrite { return p }}, nil
 }
 func (s *Service) ExecuteWrite(ctx context.Context, r sc.WriteRequest) (sc.MutationResult, error) {
+	if s == nil || s.data == nil || s.state() == nil {
+		return sc.MutationResult{}, failure(AuthorizationUnbound, foundation.DependencyUnbound, nil)
+	}
 	prepared, err := s.PrepareWrite(ctx, r)
 	if err != nil {
 		return sc.MutationResult{}, err
