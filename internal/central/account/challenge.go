@@ -1,6 +1,7 @@
 package account
 
 import (
+	"bytes"
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
@@ -9,6 +10,8 @@ import (
 	"fmt"
 	"image"
 	"image/color"
+	"image/draw"
+	"image/png"
 	"io"
 	"log/slog"
 	"strings"
@@ -18,6 +21,7 @@ import (
 	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+	"github.com/wenlng/go-captcha/v2/base/imagedata"
 	"github.com/wenlng/go-captcha/v2/rotate"
 )
 
@@ -243,18 +247,58 @@ func generateChallenge() (string, string, int, error) {
 	if e != nil {
 		return "", "", 0, unavailable(e)
 	}
-	master, e := v.GetMasterImage().ToBase64()
+	return encodeChallengeArtwork(v.GetMasterImage(), v.GetThumbImage(), v.GetData().Angle)
+}
+
+func encodeChallengeArtwork(masterImage, thumbImage imagedata.PNGImageData, angle int) (string, string, int, error) {
+	if masterImage == nil || thumbImage == nil || masterImage.Get() == nil || thumbImage.Get() == nil || angle < 0 || angle > 360 {
+		return "", "", 0, unavailable(nil)
+	}
+	masterBounds, thumbBounds := masterImage.Get().Bounds(), thumbImage.Get().Bounds()
+	if masterBounds.Dx() != 220 || masterBounds.Dy() != 220 {
+		return "", "", 0, unavailable(nil)
+	}
+	if thumbBounds.Dx() != 160 || thumbBounds.Dy() != 160 {
+		if (angle != 90 && angle != 180 && angle != 270) || thumbBounds != image.Rect(1, 1, 160, 160) {
+			return "", "", 0, unavailable(nil)
+		}
+		// go-captcha v2.0.5 over-crops cardinal rotations by one final row
+		// and column. PNG starts at Bounds.Min: preserve that encoded pixel
+		// origin and pad only the missing final edges, without mutating SDK data.
+		padded := image.NewNRGBA(image.Rect(0, 0, 160, 160))
+		draw.Draw(padded, image.Rect(0, 0, 159, 159), thumbImage.Get(), thumbBounds.Min, draw.Src)
+		thumbImage = imagedata.NewPNGImageData(padded)
+	}
+	master, e := masterImage.ToBase64()
 	if e != nil {
 		return "", "", 0, unavailable(e)
 	}
-	thumb, e := v.GetThumbImage().ToBase64()
+	thumb, e := thumbImage.ToBase64()
 	if e != nil {
 		return "", "", 0, unavailable(e)
 	}
 	if len(master)+len(thumb) > 256<<10 {
 		return "", "", 0, unavailable(nil)
 	}
-	return master, thumb, v.GetData().Angle, nil
+	for i, encoded := range []string{master, thumb} {
+		const prefix = "data:image/png;base64,"
+		if !strings.HasPrefix(encoded, prefix) {
+			return "", "", 0, unavailable(nil)
+		}
+		raw, e := base64.StdEncoding.Strict().DecodeString(encoded[len(prefix):])
+		if e != nil {
+			return "", "", 0, unavailable(e)
+		}
+		cfg, e := png.DecodeConfig(bytes.NewReader(raw))
+		if e != nil {
+			return "", "", 0, unavailable(e)
+		}
+		want := []int{220, 160}[i]
+		if cfg.Width != want || cfg.Height != want {
+			return "", "", 0, unavailable(nil)
+		}
+	}
+	return master, thumb, angle, nil
 }
 func (s *Service) VerifyChallenge(ctx context.Context, r c.ChallengeRequest, id c.ChallengeID, angle int) (sc.SecretMaterial, error) {
 	if r.Validate() != nil || id.Validate() != nil {
