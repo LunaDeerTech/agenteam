@@ -1,6 +1,6 @@
 # 账号邮件与恢复日志
 
-`accountmail` 消费真实账号投递端口、Secret lease、受控出站连接与受限日志 Sink，执行邀请、密码重置和 SMTP 测试邮件。实现没有生产 HTTP、Central 启动装配或测试成功开关；这些绑定属于 D07 后续块，诊断仍为 `ready=false`。正式规则和当前验收状态分别见 [D07 实施规格](../work-items/d07-account-session-smtp-design.md)与[主卡](../work-items/d07-account-session-smtp.md)。
+`accountmail` 已由 Central 生产根装配，消费真实账号投递端口、Secret lease、受控出站连接与受限日志 Sink，执行邀请、密码重置和 SMTP 测试邮件。账户 System HTTP 提供配置、测试、任务安全查询和人工重试；唯一 `account.mail-enqueue` Outbox handler 负责事务入队，独立 Mail Runtime 负责实际投递，没有生产成功开关。其它产品能力仍未齐，诊断保持 `ready=false`。正式规则和组合验收状态分别见 [D07 实施规格](../work-items/d07-account-session-smtp-design.md)与[主卡](../work-items/d07-account-session-smtp.md)。
 
 ## 受信组合
 
@@ -8,7 +8,9 @@
 
 不能只提供相同 Actor 数据却为失效操作另造 Authority：SMTP 设置、撤销/兑换邀请、重发、reset 建立/完成、普通改密和到期清理需要与发送共享可取消、writer 优先的 mailAdmission 门禁。完整锁计划在 Tx 外发现，门禁在 DB 事务前取得，事务只一次取得完整最强锁，不在 socket/文件 I/O 期间持有 DB 事务。
 
-`Start(ctx)` 用组合根剩余启动预算完成 canonical 与恢复；`Check(ctx)` 做技术检查。首停先 `StopAdmission`，再以原总期限 `Drain`；强停把同一个剩余 force context 传给 `Force`，不为每项追加时间。组合根必须等 `Runtime.Joined()`（含所有 worker、材料使用者和整个 Sink 的真实关闭）后才释放共享 ProcessGuard。取消、返回超时或数据 socket 已关闭均不构成 join；未 join 的实例保留 guard 至实际停止或 OS exit。当前库不负责关闭共享 DB。
+`Start(ctx)` 用组合根共享 30s 安全阶段的剩余预算完成 canonical 与恢复；`Check(ctx)` 只做技术检查，不尝试连接 SMTP，未配置 SMTP 不阻断账户初始化。首停先停止全部准入，再以原总期限先 Drain Mail，使协议最后回复、FinishDelivery、lease/Audit 收尾与 worker 真 join，之后才最终 Drain Account Runtime/Core。否则过早封闭 Core 会拒绝 Mail 的最后清理事务。
+
+强停同样按 Mail→Runtime/Core 顺序使用原 force context；前项耗完预算也实际发起其余必要取消，不为每项追加时间。根须核全部 HTTP/Outbox/Account/Mail、材料使用者、Avatar reader 和整个 Sink 真实关闭后才释放共享 ProcessGuard；超时/取消/socket 已关闭均不等于 join。未 join 时 guard 保留至实际停止或 OS exit；共享 DB 最后发起关闭，整体最多额外 1s。Mail 库本身不关闭共享 DB，完整责任见[停止与退出](README.md#停止与退出)。
 
 ## 持久事实与材料
 
@@ -28,6 +30,8 @@ SMTP 正式支持 `none`、必须 STARTTLS 的 `starttls`、以及连接即 TLS 
 
 仅 SMTP 未配置时，邀请/reset 使用 `backend_log`；已配置但发送失败绝不降级。Sink 为受限 0600 文件，最多 32 个排队和一个实际 writer。队首才同步当前授权并消费单次 `GrantOnce`；这个不可撤回资格点不声称 syscall 或首字节已发生。授予后的 Write/Sync 不持 SH，链接仍可被撤销。`ticket.Wait` 超时可返回 unknown，而 `ticket.Done` 只有实际 I/O 终局后才关闭；完整 Write+Sync 才是 written，部分/Sync 故障为 unknown。bootstrap 的旧一次受限尝试保持不自动重印。
 
+部署必须设置 `AGENTEAM_CENTRAL_ACCOUNT_RECOVERY_LOG`，即使已配置 SMTP 也不能省略首次管理员的受限输出渠道。路径、服务 UID、父目录 0700、文件 0600 和禁止符号链接的要求见[账号部署](account.md#部署输入与首次管理员)；`--check-config` 不打开文件，运行时失败阻断初始化。不要将该文件并入普通日志/Audit、HTTP DTO、模型上下文或测试报告；读取、备份与保留由操作者限制。公共邮件链接只基于已校验 `PUBLIC_ORIGIN`，不采信来访 Host/forwarded 头。
+
 ## 人工重试与检查
 
 `RetryMailJob` 要求当前 Human 管理员、source job 版本和 stable command key。当前授权先于历史 receipt；首次接受在完整 root/command/User/记录锁下同时增加源 version、创建新 intent/event、写 `smtp.delivery.retry` Audit 和 receipt，不制造 mail attempt，也不与旧 active/unknown attempt 或尚未 enqueue 的同根周期并行。新周期沿 exact 单跳原始 target/password_version/token 期限；retry-of-retry 不形成无限谱系。协议、计量与迁移规则见[人工重试补遗](../work-items/d07-account-mail-retry-addendum.md)。
@@ -39,4 +43,4 @@ AGENTEAM_MINIO_BINARY=/task-owned/cache/minio GOFLAGS=-p=1 \
   sh scripts/test-accounts.sh mail
 ```
 
-`test-accounts.sh` 不带组名还运行固定 mutations/identity 兼容组，所有组复用 `test-objects.sh` 的 owned PG/MinIO/私网 fixture 与原 6m 包限制。SMTP fixture 使用精确 private IP/port 规则、自有 CA、有限真实服务器和 nonce/label/exact-ID 清理；不放宽 loopback 分类或连接外部 SMTP。integration-tag 的 recoverylog writer 接缝只进入测试构建，用真实文件 Write/Sync/Close、Account/Secret/ProcessGuard 核实际 join，不是生产可替换 writer。未命中的旧包不计兼容通过，阶段结果以实际日志/输入指纹为准。
+`test-accounts.sh` 不带组名会顺序运行[账号说明](account.md#检查)中的九个固定组。`mail` 沿 `test-objects.sh` 的 owned PG/MinIO/私网 fixture 与原 6m 包限制，SMTP fixture 使用精确 private IP/port 规则、自有 CA、有限真实服务器和 nonce/label/exact-ID 清理；不放宽 loopback 分类或连接外部 SMTP。integration-tag 的 recoverylog writer 接缝只进入测试构建，用真实文件 Write/Sync/Close、Account/Secret/ProcessGuard 核实际 join，不是生产可替换 writer。另有冻结 `/tmp` overlay 验证真实根中阻塞的 Sink Write/Sync/Close，正常双 binary 不含 overlay。Mail31、真实 SMTP final-reply 根组与 Sink5 按各自输入分别形成证据；不承诺 exactly-once 或外部邮箱投递，也不把未命中的旧包当兼容通过，历史 setup 失败原因未定的限制见[主卡](../work-items/d07-account-session-smtp.md#当前进度)。

@@ -1,17 +1,19 @@
 # D07 账号、Session、SMTP 与个人资料
 
-- 修订：2；状态：实现中（B01–B03已采纳，B04实施中）；台账AT-0014，按真实依赖与D08并行。
+- 修订：2；状态：当前范围已完成（B01–B04 业务、测试与文档已独立核准，本次文档 Git 由 root 交付）；台账 AT-0014，后续模块按真实依赖并行。
 - 基线：`main@57bfadb`，D06完整独立验收后工作区干净；D01–D06前置通过，最终证据见[D06主卡](d06-transactional-outbox.md)。此前GitHub认证阻塞已解除；B03交付为`ffa65f0`，B04已提交纯块与当前后段边界见[当前进度](#当前进度)，已验小块及时提交推送。
 - 目标：实现正式人类身份/Session与System授权、初始化/邀请/密码恢复、内嵌挑战、SMTP持久投递及资料/头像/偏好；通过真实HTTP、数据库/SMTP/对象组合验证，不以生产stub代替后续领域绑定。
 - 依据：[计划D07](../development-plan.md#d07-账号-session-smtp-与个人资料)、[账号](../../architecture/platform-infrastructure/authentication/account-lifecycle.md)、[SMTP](../../architecture/platform-infrastructure/authentication/smtp-delivery.md)、[D01契约](d01-contracts/README.md)、[账号页面](../../frontend-design/layouts/account-entry.md)、[个人设置](../../frontend-design/layouts/personal-settings.md)、[系统设置](../../frontend-design/layouts/system-settings.md)。已确认产品规则不重复询问。
 
 ## 当前进度
 
-本段为当前状态；后文各阶段的候选、失败、授权与证据保留当时事实。00012 已验并提交推送 `61b4df4`；CAPTCHA artwork adapter 两源已独立验收并提交 `b9b0b86`；A2 Profile/Avatar/Runtime 与限定 D05 组合的 27 源已独立采纳并提交 `da5caab`。独立结论分别见 `/tmp/agenteam-d07-a2-business-acceptance-1javqkoe/acceptance.md` 与 `/tmp/agenteam-d07-artwork-repair-verify-_eei2ecm/report.md`；A2 分块通过不代表完整 B04 兼容通过。
+本段为当前状态；后文各阶段的候选、失败、授权与证据保留当时事实。B04 最后精确 37 源（12 新增、25 修改）已独立采纳并提交推送 `022dcea`，清单 SHA `ed21ee88c58e665a520c1df6121f843b9df59d9fe4743c3e965a75fabca6d0a7`。此前 00012 为 `61b4df4`、CAPTCHA artwork adapter 两源为 `b9b0b86`、A2 Profile/Avatar/Runtime 与限定 D05 组合的 27 源为 `da5caab`。真实账户/System HTTP、本人头像、SMTP/受限日志、唯一邮件 Outbox handler 和根生命周期已完整组合，不再处于仅库或纯 HTTP 阶段。
 
-B04 app 的 B37 候选仍未提交、未整体验收；B 与 acceptance 按既定真实组顺序执行，Docker 不再归 A2。旧 legacy 结果为 8 包 PASS、3 包 FAIL；随后完整 process 29 顶层 PASS（130.147s），SMTP/D05 原失败用例各单次 PASS，但两项历史 setup 失败的原因仍未确定，不能据复跑成功反推唯一根因或称旧组全绿。
+验收负责人已逐项核对 T01–T14，当前范围没有未闭合业务或测试门槛。关闭核对 `/tmp/agenteam-d07-close-gates-evpk9gwi/gate-map.md` SHA `e6a31ef1ac305bc6694843d2fa0391c8e1197ca4037b3073162d09f278fefef0`；B37 独立采纳 `/tmp/agenteam-d07-b37-independent-acceptance-0icmqfwo/acceptance.md` SHA `4ac94b0c723b0c426a25aa3ab8d70e4b4ac57d1248b2dab4156e6c53f03be30b`。本次十二份运行说明、部署样例与台账已归位，通过作者链接/格式自查及验收负责人独立核准；D07 当前范围已完成，本次文档 Git 由 root 交付，不再等待新业务实现或重复产品测试。命令、固定输入与覆盖摘要见[终局交付](#b04-终局采纳与文档关闭)。
 
-health 观察器的独立对照已确认同一持锁事务的统计快照漏看 waiter；仅把原测试轮询连接从 admin 改为 db.Connect(t)，原 EX 锁、30s、Signal 与退出断言保留，未改生产 health。修后 process 组通过；工具 session 在运行时恢复后丢失，原 runner 未写终态，outer exit0 由内核 /proc/stat 恢复。observer 为 SIGKILL9、相关进程为 PPID1 zombie，未观察 owner wait，不能称原 runner 已 joined；exact3 所列资源核零、输入无漂移，也未为补终态数字重跑。D07/B04 整体保持未完成。
+组合验收永久保留历史限制：legacy18 原为 8 包 PASS / 3 包 FAIL；SMTP Docker setup 与 D05 历史签发准备两项原红缺现场，后续同原断言各一次通过不能反推唯一原因，也不称首轮全绿。health 的独立双观察器对照证明持锁事务统计快照漏看 waiter，仅将原测试连接改为独立 autocommit，保留 EX 锁、30s、Signal/退出断言；这项测试修正不改生产 health。修后完整 process29 PASS 130.147s、exact3 清零，outer exit0 从内核 `/proc/stat` 恢复，但工具 session/原 runner result 丢失、observer SIGKILL9，未观察原 owner wait，不能称原 runner 已 joined，也未重跑补数字。CAPTCHA 原随机样本未保留，SDK 直角缺陷及修后固定九角通过不能唯一回溯原样本原因。
+
+D25 WS 撤销消费者、D26 账号/Profile 产品 UI、D27 System 页面及未来 Project/Runner 等生产绑定仍由相应模块承担。`/readyz` 继续 503，身份/System/avatar 已绑定不代表整个平台 ready；这些已明确的未来职责不属于 D07 当前缺口。B 源码与产品命令已全停，测试资源已交后续任务，文档作者独占本次十二路径，最终 Git 采纳由 root 执行。
 
 ## 所有权与任务
 
@@ -19,13 +21,13 @@ health 观察器的独立对照已确认同一持锁事务的统计快照漏看 
 | --- | --- | --- | --- |
 | S01 完整可实施规格 | architecture_worker | 新`d07-account-session-smtp-design.md`；其余源码/契约只读；不使用Docker | 已完成 |
 | R01 工程可行性与有界技术证据 | backend_worker，承担research_worker职责 | 仓库只读；只在任务自有`/tmp`作报告及隔离实验，不修改依赖锁/源码；不使用Docker | 已完成 |
-| V01 独立规格及实现审查 | verification_worker / acceptance_lead | 已验 B03/A1/B1/A2 证据封存；与 B 按固定输入顺序组织剩余真实组与资源交接 | A2 已采纳，B37 与 B04 整体待验 |
+| V01 独立规格及实现审查 | verification_worker / acceptance_lead | B01–B04 与组合证据已封存，T01–T14 逐项核对；不重复已验组 | 当前范围已验收，文档已独立核准 |
 | B01 身份与安全基础 | backend_worker | 90源/361依赖冻结，命令全停 | 已完成 |
 | B02 邀请、恢复与挑战 | backend_worker | 71源/442依赖冻结，作者/V全停 | 已完成 |
 | B03 持久投递 | backend_worker | 68源/498依赖冻结验收；原V资源已清零交回 | 已完成，`ffa65f0`已推送 |
-| B04 资料与正式入口 | A=d02_backend / B=d07_http | A2 与 00012 已验提交；B 独占 app/共享 fixture 接缝，Docker 与 acceptance 顺序交接 | 已列纯块、CAPTCHA 与 A2 已采纳；B37 未提交、整体验收中 |
+| B04 资料与正式入口 | A=d02_backend / B=d07_http | A/B 源码与产品命令全停；B37 已精确提交，资源已交后续任务 | 已独立采纳并提交 `022dcea`；当前范围完成 |
 
-root安排本卡/计划/台账的唯一写者并负责最终整合；设计规格独占给architecture，业务实现与测试证据分析分别交执行者/独立验收负责人。使用agenteam-design/go-development/verification/documentation技能，按AGENTS团队规则执行，子agent不得再委派或Git写。只审固定停写副本，按真实依赖和文件/迁移/资源唯一所有权并行；D08已满足前置的纯契约可先行，不以整个D07完成作统一等待门槛。
+root 安排本卡/计划/台账的唯一写者并负责最终整合；本次十二文档归位独占给 d07_http，业务证据保持封存。使用适用的 documentation/verification 技能，按 AGENTS 团队规则执行，子 agent 不得再委派或 Git 写。只审固定停写范围；以下阶段规格和历史记录保留当时任务、授权与结果，不作为当前所有权或未完成状态。
 
 ## S01交付要求
 
@@ -620,3 +622,15 @@ A2仍由`d02_backend`独占已授权Profile/Avatar/D05范围、00012头像恢复
 A2原红按实际原因保留：首两例新caller多传Account Audit闭集不允许的InitiatorID，已仅修新生产调用；第二轮撤销Session准备SQL漏revoked_reason，已仅修新测试。随后九顶层组在技术marker、短reader已EOF和空Consume receipt三处准备失败，没有证明对应COMMIT/受保护reader/gate行为；其余局部无失败不当整组通过。Avatar正式ExistingOwner绑定天然不产生Prospective Consume receipt，后续须保持实际Reserve/Publish/Attach/Lookup不可复活断言并明确空receipt事实；Consume/Cancel仅以既有D05真实Prospective两原用例单列相邻覆盖，不构造receipt或把构造器拒绝当Avatar gate验证。原日志、输入和断言保留，受影响实际场景仍在固定组验证中。
 
 A2/B2全部源码、00012与真实组合尚未采纳，D07/B04保持实施与验收中，诊断ready=false。下一步完成A后段异常/恢复/资源验证、独立风险审查和B正式装配/旧fixture适配；相关范围最终停写后按固定输入执行完整适用兼容，未变证据可复用，相关delta重新验证。D08状态与所有权沿其正式主卡及独立台账，本次记录不改写其验收结论。
+
+### B04 终局采纳与文档关闭
+
+本节为随后发生的终局记录，不覆盖上面的阶段原始状态。root 已精确采纳并推送 B37 `022dcea`；37 源清单 `/tmp/agenteam-d07-b04-source37-candidate-34hrm4kg/source37.sha256` SHA `ed21ee88c58e665a520c1df6121f843b9df59d9fe4743c3e965a75fabca6d0a7`。实际最终结果、逐组原命令/日志/清理与双 binary 均在作者短报告 `/tmp/agenteam-d07-post-read-b37-udrck9wp/final-report.md`，SHA `2273457e3d33f99bceb7d7733577ef5bd6a9ab8e214b91df4af61b815260fefb`；38 项引用索引 SHA `8d80901575fc94f5ef41c8c1d491074c48e5469471365b94750919e1dd6e5d50`。独立 B37 采纳与 T01–T14 关闭核对见[当前进度](#当前进度)，不以作者声明替代独立结论。
+
+当前生产根已接同一 Account Authority、Audit/Secret/Outbound/Outbox System 端口、真实 AvatarAuthority/ProfileService、Account/Mail Runtime、受限日志 Sink 与正式 HTTP。R1 公共 HTTP 双包装和 R2 Mail 收尾晚于 Core 封闭的原反例均以窄修及同断言闭环；真实 SMTP final-reply、持用 LoginResponse、Avatar/lease 与 Sink Write/Sync/Close 的根组合分别有实际 join/guard/DB-last 证据。health 超时后再次采样的四 owner 原反例已修，迟到成功不发布；健康 loop 退出不冒充所有 callback join。SQL 统计观察器修正另有独立双连接对照，不混为生产 health 修复。
+
+兼容证据按批准的组合成立：完整 check-go17 的普通测试、普通/integration vet、race、正常双构建；旧 11 包完整执行及其受影响补验；预冻结 Account 95 顶层穷尽映射、Mail 31 选择、library67 和 app12（11 功能加 1 child helper）。HTTP 六项由 HTTP14 的四个完整未失败函数、invitation15 和受 artwork adapter 影响的单项 HTTP26 组成；不把 no-tests、裸 helper 或复用项写成新执行通过。全部保留 Go1.27.1/local、原每包 6m/race/count1、包级 -p=1 与内部断言，原完整 Account 累计超时及其它历史红不抹去。
+
+最终交集分别绑定固定输入：899=`16595ad`+B37（已含 `6319d03` Project/SQL13），Audit/Project 完整 ordinary race、vet、object/contract 仅编译、正常双 binary、原 driver14 的真实 bootstrap+SMTP 两例均退出 0；900=`d2f46d6`+B37，只增加已提交 PrepareReadAccess 两源与行政文档，按影响补原单例 race、同包 vet 和正常双 binary，均退出 0。最终 900 项 SHA `8e60a8b79318acf11e7fe2060a2ac65d3a3191abc00856e2aae58572f810a629`；未混入活动 D08P/D05/00014、D06 候选或后续 D09 代码。正常产物无 overlay；899 根组 outer/observer 的 wait 已实际观察、exact4 清零。这些证据不改写 process19 的原 owner-wait 限制，也不把两个历史 setup 原因写成已确定。
+
+本次仅将已验事实归位到运行入口、账号/邮件说明、相邻当前装配说明、部署样例与三份台账。必填 Account keyring/recovery-log、安全 PublicOrigin、首次密码受限输出、SMTP 失败不回退、Account 健康、Mail 先 Core 和实际 join/DB-last 均按 `022dcea` 对照；CLI 仍保留 `scope=d05` 标签。作者文档自查通过 213 个本地链接、30 个 fragment、14 张表、12 个代码块、UTF-8/LF 与限定十二文件的 git diff --check；部署样例两新增字段及无效密钥占位与已提交 parser 一致，既有配置值、AGENTS 团队规则与阶段历史原字节保留。只验证文档和样例数据，不重新运行 Go/产品测试。本次十二文件已由验收负责人独立核准，D07 当前范围已完成；本次文档 Git 由 root 交付，D25–D27 与未来领域绑定仍按[开发计划](../development-plan.md)推进。

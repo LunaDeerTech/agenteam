@@ -1,6 +1,6 @@
 # Artifact 与浏览器业务下载
 
-D05 B02 提供 `internal/central/artifact` 与 `object.Downloads` 库，行为契约以[对象实施规格](../work-items/d05-object-storage-design.md)为准。它们消费已实现的 Object、SourceReads、Audit、cursor 和事务端口。Central 当前仍只提供 D04 诊断，没有安装 Artifact 或下载 HTTP 路由；真实 Session、Project、Agent、Execution、Operation 和 Tool 授权由后续领域组合根绑定，缺失依赖明确拒绝。Runner transfer 和对象进程装配属于 D05 B03。
+D05 B02 提供 `internal/central/artifact` 与 `object.Downloads` 库，行为契约以[对象实施规格](../work-items/d05-object-storage-design.md)为准。它们消费已实现的 Object、SourceReads、Audit、cursor 和事务端口。Central 已装配 D05 Object Runtime 及 D07 真实 Session、本人头像对象授权与账户 HTTP；Artifact 和通用下载 HTTP 本身仍未安装，Project、Agent、Execution、Operation 和 Tool 的相应生产授权仍待绑定，缺失依赖明确拒绝。头像读取不是 Artifact 下载适配，Runner transfer 授权仍未绑定。
 
 ## 创建、恢复与清理
 
@@ -28,7 +28,7 @@ Artifact 行、canonical reference、成功 Create Audit 与完成命令同 Tx �
 
 `object.NewDownloads` 接收实际 Object service、独立 DownloadKeyring 和 typed DownloadProvider。`artifact.Sources` 是当前唯一业务绑定：读取真实 Artifact/file/object 事实，生成 `ArtifactDownload`、原 Artifact resource 和 producer 的审计。Uploaded ref 仅在实际 Artifact canonical 已绑定时可以下载；prospective receipt 不授予普通下载。Knowledge、Execution 和非 Artifact Uploaded provider 未绑定返回 `DEPENDENCY_UNBOUND`，不会伪造 ArtifactID 或用对象维护 Audit 替代业务事件。
 
-`LoadDownloadKeyring` 使用独立随机 32-byte HMAC 材料、严格 canonical JSON/base64，支持 current/历史 kid；必须传入实际 cursor 和 Secret keyring，与两者全部当前/历史 key 做材料隔离比较。B02 尚未将该 keyring 并入 Central CLI 环境配置。签名固定 GET、原 User、完整业务 ref、对象内容事实、grant、模式、文件名和期限；默认 60s，最长 300s。`IssueDownload` 当前授权后将 grant 与 issued Audit 原子提交，未确认提交不返回 URL。私有 URL 只通过 `ForHuman` 输出给原 User；Agent、日志、模型结果和通用格式化不得获得 bearer。
+`LoadDownloadKeyring` 使用独立随机 32-byte HMAC 材料、严格 canonical JSON/base64，支持 current/历史 kid；必须传入实际 cursor 和 Secret keyring，与两者全部当前/历史 key 做材料隔离比较。Central 已必填配置 `AGENTEAM_CENTRAL_OBJECT_DOWNLOAD_KEYRING`，Account keyring 载入时再核验四用途材料独立。签名固定 GET、原 User、完整业务 ref、对象内容事实、grant、模式、文件名和期限；默认 60s，最长 300s。`IssueDownload` 当前授权后将 grant 与 issued Audit 原子提交，未确认提交不返回 URL。私有 URL 只通过 `ForHuman` 输出给原 User；Agent、日志、模型结果和通用格式化不得获得 bearer。
 
 `OpenDownload` 每次验证签名、期限、原 User、当前 Session/Owner、provider 映射及 grant，再确认 started Audit，取得真实 reader lease 后才 GET。支持单一 `bytes` range、前缀和后缀；不支持多区间。416 的总长度只通过已经授权的专用错误投影返回，不能从无效 token 探测对象大小。Range 不声称重算全文 SHA；完整响应沿 Object 的 64 KiB 尾部保留机制，实际 EOF/长度/SHA 通过才交付最后一段。
 
@@ -45,4 +45,4 @@ AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/check-go.sh
 AGENTEAM_GO=/workspace/toolchains/go1.27.1/bin/go sh scripts/test-objects.sh -run '^(TestArtifact|TestDownload|TestSource)'
 ```
 
-真实测试使用固定 PG 与 SHA 核验的源码构建 MinIO、临时凭据、内部网络和精确 nonce 清理；不连接现有部署。协议与构建来源见[固定研究报告](../work-items/d05-object-storage-research.md)，库/fixture配置见[后端说明](README.md)。阶段的实际通过、失败修复及未验证范围由[D05 主卡](../work-items/d05-object-storage-artifact.md)记录，不将库测试声称为生产 Session/HTTP、Runner 或 MinIO 进程装配已完成。
+真实测试使用固定 PG 与 SHA 核验的源码构建 MinIO、临时凭据、内部网络和精确 nonce 清理；不连接现有部署。协议与构建来源见[固定研究报告](../work-items/d05-object-storage-research.md)，库/fixture配置见[后端说明](README.md)。阶段的实际通过、失败修复及未验证范围由[D05 主卡](../work-items/d05-object-storage-artifact.md)记录；当前 D07 Session/头像与 MinIO 的生产组合另见[D07 主卡](../work-items/d07-account-session-smtp.md)，不把这些结果当作 Artifact/下载 HTTP 或 Runner 集成已完成。

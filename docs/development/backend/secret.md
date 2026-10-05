@@ -1,6 +1,6 @@
 # Secret 存储与主密钥维护
 
-D04 B02 的 `internal/central/secret/` 实现 envelope 加密、稳定凭据引用、lease、同事务 Audit、主密钥登记及可恢复重保护。`contract/` 拥有跨模块类型与端口。生产入口真实初始化加密存储和维护 worker；Session、系统/Project 授权、实际执行与 binding 适配仍未绑定，业务调用明确拒绝，没有匿名 Secret HTTP 或普通明文读取 DTO。后续责任见 [D01 Model/MCP 契约](../work-items/d01-contracts/model-tool.md) 和 [D04 实施规格](../work-items/d04-security-design.md)。
+D04 B02 的 `internal/central/secret/` 实现 envelope 加密、稳定凭据引用、lease、同事务 Audit、主密钥登记及可恢复重保护。`contract/` 拥有跨模块类型与端口。生产入口真实初始化加密存储和维护 worker，并已通过同一 Account Authority 绑定当前 Session/System 授权及账户写入、引用和材料使用，服务于登录响应、邀请/reset 与 SMTP 凭据。没有匿名 Secret HTTP 或普通明文读取 DTO；Project、Model/MCP、执行和其他 binding 的生产适配仍待对应模块。当前账户组合见[账号说明](account.md)，后续责任见 [D01 Model/MCP 契约](../work-items/d01-contracts/model-tool.md) 和 [D04 实施规格](../work-items/d04-security-design.md)。
 
 ## 部署配置与启动
 
@@ -66,4 +66,4 @@ AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-postgres.sh -run '^TestSecr
 AGENTEAM_GO=/path/to/go1.27.1/bin/go sh scripts/test-postgres.sh -run '^(TestRealSecret|TestCentralSecret)'
 ```
 
-普通 suite 无 Docker；专用脚本只使用经 nonce/label/exact-ID 核实的临时 PG fixture。`tests/security/secret_*` 覆盖实际并发 nonce、真实 COMMIT 回包丢失、SIGKILL 在准备/未提交/已提交 checkpoint 边界、旧 key 移除、AEAD/receipt/lease/Audit/Project gate；入口 integration 覆盖真实命令配置、启动 canary、诊断、HTTP+SQL worker drain 和 force。测试同步端口/路由仅在测试可执行文件内，未来身份/Model/MCP/Runner 产品集成仍由对应模块负责。
+普通 suite 无 Docker；专用脚本只使用经 nonce/label/exact-ID 核实的临时 PG fixture。`tests/security/secret_*` 覆盖实际并发 nonce、真实 COMMIT 回包丢失、SIGKILL 在准备/未提交/已提交 checkpoint 边界、旧 key 移除、AEAD/receipt/lease/Audit/Project gate；入口 integration 覆盖真实命令配置、启动 canary、诊断、HTTP+SQL worker drain 和 force。测试同步端口/路由仅在测试可执行文件内；D07 的真实身份/账户材料组合另见[主卡](../work-items/d07-account-session-smtp.md)，Project/Model/MCP/Runner 的剩余产品集成仍由对应模块负责。

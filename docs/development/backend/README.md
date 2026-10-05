@@ -2,11 +2,11 @@
 
 根 module 为 `github.com/LunaDeerTech/agenteam`，固定 Go 1.27.1。Central 已装配固定 pgx/Goose 数据库库，见[数据库说明](database.md)。Audit 的同事务追加、授权查询/生命周期清理端口与独立签名 cursor 已实现，见[Audit 说明](audit.md)。Secret 的 envelope、引用/lease、加密 receipt 和可恢复主密钥维护见 [Secret 说明](secret.md)。动态策略、受控 HTTP 与 SMTP 拨号端口见[出站说明](outbound.md)。D05 对象库提供受限流式存储、授权 reference/lease、Artifact/下载和 typed Runner transfer，接口与阶段见[对象实施规格](../work-items/d05-object-storage-design.md)。Central 与 Runner 分别装配；Runner 不导入 Central。中立 `internal/platform` 只处理进程日志和关闭协调，不提供授权、业务幂等、数据库事务或 Runner 设备协议。
 
-当前 Central 在真实数据库连接、迁移、首次读写检查及 Audit/cursor/Secret/出站策略/MinIO 安全初始化及 Outbox 注册/恢复检查后提供诊断，Runner 是未连接进程。对象 Runtime 实际核 store identity、双 origin probe、ProcessGuard 与恢复门禁；部署和 transfer 端口见[对象 Runtime 说明](object-runtime.md)。Artifact 与浏览器下载库见 [Artifact 说明](artifact.md)，真实身份/HTTP adapter、Runner/Operation authority 仍未绑定，整体 ready=false。身份、对象领域授权、Audit/Secret/出站管理授权、实际出站消费者和 Runner 协议仍未绑定；后续责任见 [D01 契约目录](../work-items/d01-contracts/README.md) 和 [D04 规格](../work-items/d04-security-foundation.md)。
+Central 已在真实数据库、安全初始化、Object/Outbox 注册恢复及 Account/Mail 启动后提供诊断和正式账户 HTTP。当前 Session/System 授权已接入 Audit、Secret、出站与 Outbox；Object 绑定本人当前头像，SMTP 使用受控出站和真实 Secret lease，Outbox 唯一生产 handler 为 `account.mail-enqueue`。对象 Runtime 实际核 store identity、双 origin probe、ProcessGuard 与恢复门禁，见[对象 Runtime 说明](object-runtime.md)。Artifact/通用下载 HTTP、Project 生产授权、Runner/Operation 和 Provider/MCP 等仍待后续绑定；Runner 是未连接进程，整体 ready=false。账户接口见 [OpenAPI](../../../api/openapi/account.json)，Artifact 与浏览器下载库边界见 [Artifact 说明](artifact.md)。
 
 ## 构建与验证
 
-D07 当前提供账号、Session、邀请、密码恢复和挑战库，以及真实 Outbox 入队 handler；构造、恢复与独立浏览器检查见[账号库说明](account.md)。SMTP 三模式、受限恢复日志、持久 attempt 与人工重试由[账号邮件库](accountmail.md)提供。这些库尚未装配进 Central 生产 HTTP/启动入口，不改变当前 `ready=false` 和其它业务未绑定状态。`scripts/test-accounts.sh` 沿原 fixture 路径分组运行账号及邮件测试，保留每组原 6m 包预算。
+D07 的账号、Session、邀请、密码恢复、挑战、Profile/Avatar/偏好和 System HTTP 已装配进 Central，构造、恢复与官方 Vue 浏览器 harness 见[账号说明](account.md)。SMTP 三模式、受限恢复日志、持久 attempt 与人工重试见[账号邮件说明](accountmail.md)。正式 D26/D27 页面仍未实现；独立测试 harness 不作为产品 UI。
 
 ```sh
 # 指向实际 Go 1.27.1；该环境可使用 /workspace/toolchains/go1.27.1/bin/go。
@@ -24,7 +24,7 @@ GOTOOLCHAIN=local "$AGENTEAM_GO" test -count=1 ./tests/process
 GOTOOLCHAIN=local "$AGENTEAM_GO" test -count=1 ./internal/central/app
 # 真实数据库、迁移及 Central 进程；需要 Docker 和固定 fixture 镜像。
 sh scripts/test-postgres.sh
-# 修改相关场景后可以只跑对应测试；最终验收使用不带 filter 的完整命令。
+# 受影响场景可定向运行；最终覆盖须按实际库存证明，不能只靠此 filter。
 sh scripts/test-postgres.sh -run '^TestSecret'
 sh scripts/test-postgres.sh -run '^(TestRealSecret|TestCentralSecret)'
 # 真实私网 socket、生成 CA、DNS/策略/HTTP/SMTP 端口和整组数据库/进程验证。
@@ -36,7 +36,14 @@ AGENTEAM_MINIO_BINARY=/task-owned/cache/minio sh scripts/test-objects.sh
 AGENTEAM_MINIO_BINARY=/task-owned/cache/minio sh scripts/test-objects.sh -run '^TestObject'
 # Outbox 数据库状态机、真实 Central 与共享 ProcessGuard。
 AGENTEAM_MINIO_BINARY=/task-owned/cache/minio sh scripts/test-postgres.sh -run '^(TestOutbox|TestCentralOutbox|TestRealOutbox)'
+# Account 固定分组；all 为默认，按顺序运行九组，浏览器组需先装锁定依赖。
+npm ci --prefix tests/account-captcha-web
+AGENTEAM_MINIO_BINARY=/task-owned/cache/minio GOFLAGS=-p=1 sh scripts/test-accounts.sh all
+# 单组示例；不会把其他 no-tests 包计为兼容通过。
+AGENTEAM_MINIO_BINARY=/task-owned/cache/minio GOFLAGS=-p=1 sh scripts/test-accounts.sh app
 ```
+
+`test-accounts.sh` 的固定组为 `mutations`、`identity`、`mail`、`profile`、`avatar`、`avatar-recovery`、`http`、`app`、`library`；前八组沿原 `test-objects.sh` 的精确选择，`library` 完整执行 `internal/central/account/...`。真实 fixture 保留 `-race -count=1 -timeout=6m` 和包级 `-p=1`，内部并发断言不变。完整兼容采用旧域完整包覆盖、运行前固定的 Account 穷尽分组及普通 `check-go.sh`，不把增长后的 Account 累计执行硬塞进一个 6m 包预算。D07 已采纳结果是明确输入上的分组、受影响补验和未变证据复用；原失败及限制见[D07 当前进度](../work-items/d07-account-session-smtp.md#当前进度)，不称一次整套全绿。临时验收 wrapper/overlay 不是生产接口或上述脚本的默认行为。
 
 `tests/process` 在临时目录构建真实 cmd，普通测试检查纯 CLI、配置拒绝、Runner SIGINT/SIGTERM 和依赖方向；Linux 下检查未连接 Runner 没有 socket descriptor。实际 Central 成功启动、迁移/对象初始化失败、监听冲突、启动信号、数据库/存储故障恢复与健康超时放在 integration suite；所有成功启动均使用真实 MinIO，不跳过对象阶段。Central app 普通测试覆盖装配顺序和时钟边界；integration 中的测试进程调用真实 Store/Migrator，通过真实 HTTP+Tx、Secret worker 与受控出站验证正常 drain、阻塞查询、第二信号和不合作 callback 的有限退出。测试专属 route/barrier 不进入生产入口。并发顺序用 channel、数据库锁和观测事实协调；测试不读取外部 `.env`、凭据或已有服务，本机监听用 loopback port 0，出站成功路径使用 owned internal Docker 私网与精确规则。
 
@@ -53,14 +60,16 @@ AGENTEAM_MINIO_BINARY=/task-owned/cache/minio sh scripts/test-postgres.sh -run '
 | `AGENTEAM_CENTRAL_HTTP_ADDR` | `127.0.0.1:8080` | host:port，1–65535；仅显式 loopback IP 允许 port 0 |
 | `AGENTEAM_CENTRAL_CURSOR_KEYRING` | 无，必填 | format=1、current_kid 与 1–32 把独立随机 32-byte key；严格带 padding base64，JSON ≤16 KiB，见 [Audit 配置](audit.md#cursor-与部署配置) |
 | `AGENTEAM_CENTRAL_SECRET_KEYRING` | 无，必填 | format=1、规范正 int64 current_version 与 1–32 把独立随机 32-byte AES key；材料不得与 cursor 重复，见 [Secret 配置](secret.md#部署配置与启动) |
+| `AGENTEAM_CENTRAL_ACCOUNT_KEYRING` | 无，必填 | format=1、current_kid 与 1–32 把独立随机 32-byte key；严格带 padding base64，JSON ≤16 KiB，与全部当前/历史 cursor、Secret、download 材料不同，见[账号部署](account.md#部署输入与首次管理员) |
+| `AGENTEAM_CENTRAL_ACCOUNT_RECOVERY_LOG` | 无，必填 | 规范绝对文件路径；配置阶段只验证路径，启动核服务 UID、0700 父目录、0600 常规文件及无符号链接，不自动创建父目录 |
 | `AGENTEAM_CENTRAL_OUTBOUND_CA_FILE` | 无，可选 | 追加到系统 trust roots 的部署 PEM CA，纯配置验证即读取，最多 1 MiB；与数据库 CA 独立，见[出站说明](outbound.md) |
-| `AGENTEAM_CENTRAL_PUBLIC_ORIGIN` | `http://localhost:8080` | 单一 http/https origin；无 userinfo/query/fragment，路径仅空或 `/`；规范化主机、IP、默认端口和尾 `/` |
+| `AGENTEAM_CENTRAL_PUBLIC_ORIGIN` | `http://localhost:8080` | 正式部署 HTTPS，仅字面 localhost/loopback 允许本地 HTTP；无 userinfo/query/fragment，路径仅空或 `/`；规范化主机、IP、默认端口和尾 `/`，代理须保留 canonical Host |
 
-Central 还必须配置 `AGENTEAM_CENTRAL_DATABASE_URL`；TLS 默认 verify-full，显式 CA 文件会在配置检查时读取验证，其余数据库参数及范围见[数据库配置表](database.md#版本与配置)。连接、迁移 guard、全部迁移和首次 Check 共用 `DATABASE_STARTUP_TIMEOUT`，随后在独立且共享的 30s 安全初始化预算内验证 cursor/Audit 存储、Secret registry/canary/write fence、DB 出站策略以及对象 bucket/双 origin 实际写读删 probe、ProcessGuard 与恢复门禁、Outbox 存储和注册/恢复门禁，再 HTTP bind；对象与 Outbox 不能重置前序步骤已消耗的预算。两个阶段都受启动停止信号取消。配置缺失退出 2，连接、版本、迁移、读写或安全初始化失败退出 1。
+Central 还必须配置 `AGENTEAM_CENTRAL_DATABASE_URL`；TLS 默认 verify-full，显式 CA 文件会在配置检查时读取验证，其余数据库参数及范围见[数据库配置表](database.md#版本与配置)。连接、迁移 guard、全部迁移和首次 Check 共用 `DATABASE_STARTUP_TIMEOUT`，随后在独立且共享的 30s 安全初始化预算内构造真实账户依赖并打开受限 Sink，验证 Account key registry、cursor/Audit、Secret registry/canary/write fence、DB 出站策略、对象 bucket/双 origin 实际写读删 probe、ProcessGuard 与恢复门禁、Outbox 唯一 handler 注册/恢复，再完成 Account bootstrap/账户及头像恢复、Mail canonical/恢复与技术 Check，最后 HTTP bind。后续步骤不能重置前序消耗的预算；SMTP 是否配置或远端可达不作为启动探测。两个阶段都受启动停止信号取消。配置缺失退出 2，连接、版本、迁移、受限日志打开或安全初始化失败退出 1。
 
-两个二进制接受 `--help`、`--version`、`--check-config`，无参数启动进程。未知参数和多余位置参数返回 2，不回显输入。help/version 不加载配置或启动服务；Central check-config 只验证当前 D05 参数（包括三个独立 keyring、必需存储坐标/凭据、spool 路径和显式 CA），不连接或创建目录，输出 `scope=d05, valid=true, ready=false`；Runner 保持 `scope=d02`，另有 `connected=false, authenticated=false`。check-config 不证明 canary/策略/对象 Runtime 已初始化。出站策略由 DB 管理，不接受环境规则绕过；RunnerLocalConfig 仍未实现。
+两个二进制接受 `--help`、`--version`、`--check-config`，无参数启动进程。未知参数和多余位置参数返回 2，不回显输入。help/version 不加载配置或启动服务；Central check-config 验证当前配置，包括四用途独立 keyring、Account 恢复日志路径、安全 PublicOrigin、必需存储坐标/凭据、spool 路径和显式 CA，不连接、创建目录或打开恢复日志。当前输出仍为 `scope=d05, valid=true, ready=false`，help/version 也保留 D05 标识，这不表示配置只到 D05；Runner 保持 `scope=d02`，另有 `connected=false, authenticated=false`。check-config 不证明日志权限、bootstrap、canary/策略或任一 Runtime 已初始化。出站策略由 DB 管理，不接受环境规则绕过；RunnerLocalConfig 仍未实现。
 
-Central 另接受成对的 `--repair-migration <version> --expected-checksum <sha256:...>`，只使用已编译迁移和精确指纹，不接受 SQL/文件路径。当前正式迁移 00001–00010 均为仅 Up 的 tx 迁移，不写 Down；修复明确失败为 `MIGRATION_REPAIR_UNSUPPORTED`；不得将 CLI 存在理解为任意版本都可强制修复。使用规则见[迁移与修复](database.md#迁移与修复)。
+Central 另接受成对的 `--repair-migration <version> --expected-checksum <sha256:...>`，只使用已编译迁移和精确指纹，不接受 SQL/文件路径。`022dcea` 已提交正式迁移为 00001–00013，均为仅 Up 的 tx 迁移，不写 Down；修复明确失败为 `MIGRATION_REPAIR_UNSUPPORTED`；不得将 CLI 存在理解为任意版本都可强制修复。使用规则见[迁移与修复](database.md#迁移与修复)。
 
 ```sh
 ./bin/agenteam --check-config
@@ -69,29 +78,31 @@ AGENTEAM_CENTRAL_HTTP_ADDR=127.0.0.1:8080 ./bin/agenteam
 ./bin/agenteam-runner
 ```
 
-上述 Central 命令要求事先设置本部署的数据库、MinIO 环境及独立的 cursor/Secret/download keyring；示例文件中的占位口令必须替换。纯 help/version 和 Runner 不需要 Central 数据库或 keyring 环境。
+上述 Central 命令要求事先设置本部署的数据库、MinIO、四用途 keyring 和 Account 恢复日志路径，并预建受限日志父目录；示例文件中的占位材料故意无效，必须由部署独立生成和替换。纯 help/version 和 Runner 不需要 Central 数据库或 keyring 环境。
 
 ## 诊断与日志
 
 | 路径 | GET / HEAD | 含义 |
 | --- | --- | --- |
 | `/livez` | 200 | `status=alive`，仅 HTTP loop 存活 |
-| `/readyz` | 503 Problem | 数据库、Secret、出站、对象或 Outbox 基础异常为 `DEPENDENCY_UNAVAILABLE`，已实现组件健康但业务未绑定时为 `DEPENDENCY_UNBOUND` |
-| `/diagnostics` | 200 | `ready=false`；数据库、object_storage 与 outbox 来自真实采样；安全组件报告各自状态；仅含安全技术字段，不含策略网段/存储坐标；audit_authorization/secret_authorization/outbound_authorization/object_authorization/runner_transfer_authorization/outbox_authorization/outbox_handlers/identity 等仍 unbound |
+| `/readyz` | 503 Problem | 数据库、Secret、出站、对象、Outbox 或 Account 基础异常为 `DEPENDENCY_UNAVAILABLE`；已实现组件健康时仍为 `DEPENDENCY_UNBOUND`，后续产品能力未齐 |
+| `/diagnostics` | 200 | `ready=false`；DB/Account 健康时 identity/outbox_handlers 为 `available`，Audit/Secret/outbound/Outbox 授权为 `system_bound`，对象授权为 `avatar_bound`；Project、Runner transfer 授权与 Runner protocol 仍 `unbound`；只含安全技术字段 |
 
-数据库、对象与 Outbox 健康由同一调度每 10s 并行采样，同轮共用 2s 且不重叠。样本超过 20s 或检查失败立即不再显示旧健康；重新验证成功后恢复对应子状态；对象结果不能刷新旧 DB 样本的时间。HTTP 仅读快照，健康故障不会使 `/livez` 失败。成功样本只含安全时间和版本等技术字段，健康写探针在事务中读回后 rollback，不留下历史记录。
+数据库、对象、Outbox 与 Account 健康由同一调度每 10s 并行采样，同轮共用 2s。Account 检查真实 Account/Mail 技术状态，不发 SMTP 探测；未配置 SMTP 不产生依赖故障。每项实际 Check 返回前不能再次采样，即使原轮已超时；迟到成功被丢弃，不能恢复旧健康。样本超过 20s 或检查失败不再显示旧健康；新检查成功才恢复，独立组件不能刷新旧 DB 样本时间。HTTP 仅读快照，健康故障不会使 `/livez` 失败。健康循环停止只表示不再调度，已发 SQL 和 I/O 仍由真实资源 owner 及 DB 最后关闭收束。
 
-只允许 GET/HEAD，HEAD 无 body；其他方法 405 且包含 Allow。未知 API、页面、静态资源均 404，不回退 HTML 或成功空结果。没有 Session 或业务写路由。HTTP 保留 B01 的服务端 request ID、安全 Problem、严格 JSON 和流式 writer 能力。
+上述三个诊断路径只允许 GET/HEAD，HEAD 无 body；其他方法 405 且包含 Allow。账户表面另有 `/api/v1` 的 34 个显式 method/path、26 条路径，包含 Session、本人资料/头像和账户系统写操作，详见[账号 HTTP](account.md#正式-http-与资料头像)。账户边界先核 canonical Host/Origin，再路由和解码；通过边界的未知 API、页面、静态资源返回 404，错误 Host 返回 403，不回退 HTML。组合根唯一一层公共 middleware 负责 request ID、安全 Problem、panic 恢复和 HTTP 日志，流式错误中断后仍关闭并等待 reader。
 
 日志用 `slog.JSONHandler` 写 stderr；stdout 仅输出 CLI 结果。正常日志包含 UTC 时间、level、service、event、随机进程 run_id。HTTP 另有 request_id、method、声明的 route、status、duration、bytes；未匹配路由用 `unknown_route`。数据库日志仅增加白名单阶段/错误码、五位 SQLSTATE 和迁移版本；安全日志仅输出 cursor_initializing/audit_initializing/secret_initializing/secret_maintenance_starting/secret_unavailable/outbound_initializing/object_initializing/object_available/object_unavailable/outbox_initializing/outbox_available/outbox_unavailable/initialized/failed 固定阶段。不记录原始错误、panic/堆栈、SQL/参数、DSN、证书路径、配置、body、query、Authorization、Cookie 或其他任意 header。原始 net/http 错误文本只投影为固定 `HTTP_SERVER_ERROR`。启动在实际 bind 后记录监听地址，Runner 明确 `unconnected`，不尝试连接、注册、认证或监听。
+
+受限 Account recovery log 是独立敏感渠道，不是上述普通日志：首次管理员密码只尝试写一次；SMTP 未配置时邀请/reset 链接可写入，配置后发送失败不改渠道。不得复制其正文到 stderr、Audit、诊断或报告；部署操作者管理读取、备份与保留权限。文件/目录安全检查、written/unknown 与真实 Close/join 语义见[账号邮件说明](accountmail.md#smtp-与日志)。
 
 ## 停止与退出
 
 入口在启动前注册 SIGINT/SIGTERM。第一次信号或调用方取消只进入一次 stopping，第二次信号强制关闭；重复程序化 Stop 不重置预算。Central 的 serving context 独立于停止请求，首次停止不取消正在执行的 handler；Shutdown 使用独立 deadline。
 
-仍交给 handler 的迟到请求返回 503 `SHUTTING_DOWN`。net/http Shutdown 接管监听或连接后，可直接拒绝连接或返回 EOF，不保证每个尚未分发的请求都经过 Problem handler。首信号停止健康领取、新 Secret batch、出站请求、对象/transfer 新领取与 Outbox 新回调领取；在途 handler、当前维护 batch、对象本地 I/O 与出站请求继续使用原预算。HTTP/producer 与 Outbox 在途回调及 Tx 先实际 join，之后才允许对象 Runtime 释放共享 ProcessGuard；HTTP、维护、对象 Runtime 与出站均 drain 后才 Store.StopAdmission，已有 Tx/Rows 按第一次停止的同一剩余 deadline 排空并关闭池。
+仍交给 handler 的迟到请求返回 503 `SHUTTING_DOWN`。net/http Shutdown 接管监听或连接后，可直接拒绝连接或返回 EOF，不保证每个尚未分发的请求都经过 Problem handler。首信号停止健康领取、新 Secret batch、出站请求、对象/transfer、Outbox 及 Account/Mail 新准入；在途工作继续使用原预算。Account 组合先等待 Mail 完成真实协议 I/O、FinishDelivery 与 join，再关闭 Account Runtime/Core 的最终收尾准入。HTTP/Outbox、LoginResponse 材料使用、Avatar 解码/reader、Mail worker 和整个 Sink 的 Write/Sync/Close 都须实际 join，才允许 Object Runtime 释放共享 ProcessGuard。HTTP、维护、对象与出站排空后才 Store.StopAdmission，已有 Tx/Rows 按同一剩余 deadline 排空并关闭池。
 
-超时或第二信号取消 Outbox、HTTP 和 owned 出站，随后实际发起 DB ForceClose（含 owned DB 操作的有界 CancelRequest）；HTTP、出站、对象主/transfer 两个 Transport、各 worker join 和最后的数据库关闭共用最多额外 1s，不逐阶段重置。若 Outbox callback 尚未真 join，只调用 Object Service.Force 关闭 Transport，不能调用 Runtime.Force/Drain 释放共享 guard；guard 保持到实际 join 或 OS 退出。DB 最后发起关闭，剩余预算已耗尽也不跳过。启动中的信号也取消连接/迁移/Secret/出站策略/对象初始化，第二信号受相同外层总预算约束；晚返回的已取得资源仍清理。日志区分 drained/forced；强制退出不证明事务、副作用已回滚或业务已停止。
+超时或第二信号取消 Outbox、HTTP、Account/Mail 和 owned 出站；Account Force 同样按 Mail→Runtime/Core 顺序，把原 context 传给每一项，即便前项耗尽预算也实际发起其余取消。HTTP、出站、对象主/transfer 两个 Transport、worker join 与最后的 DB ForceClose（含有界 CancelRequest）共用最多额外 1s，不逐阶段重置。任一 HTTP/Outbox/Account 材料、reader 或 Sink 尚未真 join 时，只强关 Object Service 的 I/O，不释放共享 guard；guard 保持到实际 join 或 OS 退出。DB 最后发起关闭，剩余预算已耗尽也不跳过。启动失败或信号覆盖已取得的部分账户/日志资源，晚返回资源仍清理。日志区分 drained/forced；强制退出不证明事务、副作用已回滚或业务已停止。
 
 | 退出码 | 含义 |
 | --- | --- |
@@ -103,7 +114,7 @@ Runner 当前没有 RPC、子进程或长连接；第一次信号停止真实未
 
 ## D05 B01 对象库
 
-`internal/central/object` 是组合根可使用的库；Central 已装配 Runtime 且必须配置 MinIO，但未注册对象业务 HTTP。`object/contract` 的 AccessPlanner、ResourceAuthority、精确 ObjectReadAuthority、ProjectGate、CleanupAuthority、LeaseAuthority、ProcessAuthority 均是正式端口，未绑定时拒绝依赖该端口的操作。只有领域确认的 existing owner 会在上传发布 Tx 获得 canonical reference；prospective owner 收到的 receipt 只证明存储成功，不能作为普通读取权限。Avatar 属 System 分区且普通权限限 exact User；维护取消经固定 ObjectMaintenance 与持久 cleanup cause 单独核验，不创建 Avatar 读取 grant。
+`internal/central/object` 是组合根可使用的库；Central 已装配 Runtime、必填 MinIO，并通过 D07 的真实 AvatarAuthority/ProfileService 提供本人头像 HTTP。通用 Object、Artifact、下载和 transfer HTTP 仍未注册。`object/contract` 的 AccessPlanner、ResourceAuthority、精确 ObjectReadAuthority、ProjectGate、CleanupAuthority、LeaseAuthority、ProcessAuthority 均是正式端口，Avatar 以外未绑定分支拒绝依赖该端口的操作。只有领域确认的 existing owner 会在上传发布 Tx 获得 canonical reference；prospective owner 收到的 receipt 只证明存储成功，不能作为普通读取权限。Avatar 属 System 分区且普通权限限 exact User 的当前对象；维护取消经固定 ObjectMaintenance 与持久 cleanup cause 单独核验，不创建 Avatar 读取 grant。
 
 每个数据库阶段先在 Tx 外调用 `DiscoverAccess`，取得绑定完整请求、真实 Actor/owner 父映射及模式的不可变计划。组合方把全部对象/source/lease 计划与自己的 `extraLocks` 交给 `AcquireAccessPlansInTx`，一次合并取最强模式的锁；各 InTx 显式接收对应 plan 和同 live Tx 的 token。`ValidateAccessPlanInTx` 在当前 Tx 重读映射，随后才检查当前权限；依赖变化返回 `RESOURCE_BUSY`，调用方必须回滚并重新规划，不补锁、不升级、不自动重试。ExecutionPayload 的 ID 是 PayloadID，Execution gate 来自真实映射；SkillRevision、MeetingFile 同样不能用 owner.ID 猜父实体。计划不是权限，也不参与业务语义摘要。
 
@@ -147,4 +158,4 @@ Runtime 默认 4 个全局/2 个每 handler 回调、每页 64、每 cycle 至�
 
 Human 重投先验证当前 Session/Owner 或 SystemAdmin，历史 receipt 也重新授权；首次重投另验当前 gate、版本、handler 和同 Tx Audit。归档只终止 domain_ingress，Restore 不自动重开旧 terminal；从未 claim 的停止项保留零 attempt/零 latency，显式重投后首次真实 claim 才建立 attempt。Project 删除先 stopping 允许真实收束事实，再 cleaning 封闭所有 Append（包括同 ID 重放）；每批至多 100 个 Event，保留未知原 writer，最后实际删除本域正文、attempt/marker/command，仅留技术 gate。恢复 worker 仅从已装配的 Project provider 检测可选 LifecycleActorResolver，按 exact 持久操作取当前注册 Actor，随后仍完整取锁与当前校验；有待恢复项但未绑定时明确拒绝，空态或仅 completed receipt 不需要伪造身份。预取消授权在 Project SH 下保留 provider 的全部锁，持锁捕获精确 run，提交确认后只取消原 handle，再以 EX 重验；提交未知或迟到旧操作不能广播取消 Restore 后的新任务。
 
-授权诊断库逐次验证当前权限；System 与 Project 独立，Summary 来自同一 SQL snapshot，固定 5m/1h/24h 窗口，旧积压不被窗口裁掉。分页只裁 Items，统计使用精确十进制标量，已知与未知延迟分开，最多 128 个 handler/type 与 20 条固定安全理由，共用 2s 上限；不返回 payload/原 error。业务 HTTP、Project 生命周期 provider 和真实消费者仍未绑定；生产空 catalog 仅是技术可用状态，`ready=false`，没有默认允许身份或自动历史 replay。接口和验收边界见 [D06 实施规格](../work-items/d06-transactional-outbox-design.md)。
+授权诊断库逐次验证当前权限；System 与 Project 独立，Summary 来自同一 SQL snapshot，固定 5m/1h/24h 窗口，旧积压不被窗口裁掉。分页只裁 Items，统计使用精确十进制标量，已知与未知延迟分开，最多 128 个 handler/type 与 20 条固定安全理由，共用 2s 上限；不返回 payload/原 error。生产根现已注册 Account 事件和唯一 `account.mail-enqueue` handler，并绑定真实 Session/System 授权；handler 只在原 Tx 建立邮件任务，实际投递由 Mail Runtime 完成。通用 Outbox 管理 HTTP、Project 生命周期 provider 与其它消费者仍未绑定，`ready=false`，没有默认允许身份或自动历史 replay。接口和验收边界见 [D06 实施规格](../work-items/d06-transactional-outbox-design.md)。

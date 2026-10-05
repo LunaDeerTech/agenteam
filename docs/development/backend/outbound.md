@@ -1,6 +1,6 @@
 # 受控出站
 
-`internal/central/outbound` 提供 DB 策略、固定地址分类、完整 DNS 审批、HTTP/1.1 client 和 SMTP 受控连接端口。全局迁移为 `00004_outbound.sql`。生产组合根载入真实策略后才监听诊断；身份/系统管理员适配、管理 HTTP、Provider/MCP SDK 和 SMTP 协议仍由 D07/D09/D20 绑定。当前没有匿名策略 API 或默认成功的授权实现。
+`internal/central/outbound` 提供 DB 策略、固定地址分类、完整 DNS 审批、HTTP/1.1 client 和 SMTP 受控连接端口。全局迁移为 `00004_outbound.sql`。生产组合根已绑定真实 Account Session/SystemAdmin 授权并载入策略；D07 的 [accountmail](accountmail.md) 已用该端口执行 SMTP 协议。出站策略管理 HTTP、Provider/MCP SDK 与 Project 授权仍待后续绑定；当前没有匿名策略 API 或默认成功的授权实现。
 
 产品规则见[出站架构](../../architecture/platform-infrastructure/outbound-network-policy.md)，工程接口与验收见 [D04 实施规格](../work-items/d04-security-design.md)。此实现依赖正式部署的单 Central 前提。
 
@@ -8,7 +8,7 @@
 
 `AGENTEAM_CENTRAL_OUTBOUND_CA_FILE` 可选，省略时使用系统 trust roots；设置后追加文件内 PEM CA，显式空值视为配置错误。文件必须可读、仅包含有效 CA certificate PEM，最多 1 MiB；不接受私钥、非 CA 证书、无 CA 或额外正文。它与数据库 CA 独立，无 skip-verify、业务自带 CA 或代理开关。配置加载后保留不可变 trust store，不保存文件路径。`--check-config` 读取并验证 CA，不连接网络或宣称 DB policy/canary 已初始化。
 
-数据库启动阶段后，cursor/Audit、Secret 初始验证、维护 worker 启动与策略载入共用 30s 安全阶段。策略载入失败不得监听；生产策略授权端口仍未绑定。`/diagnostics` 的 `outbound` 只包含 available 与 policy version，不含规则/IP 清单；DB 健康不可用时组件诊断也不再声称可用。`outbound_authorization` 继续 unbound，整体 ready=false。
+数据库启动阶段后，cursor/Audit、Secret 初始验证、维护 worker 启动与策略载入和后续 Object/Outbox/Account/Mail 初始化共用 30s 安全阶段。策略载入失败不得监听。`/diagnostics` 的 `outbound` 只包含 available 与 policy version，不含规则/IP 清单；DB 健康不可用时组件诊断也不再声称可用。Account/DB 健康时 `outbound_authorization=system_bound`，Project 仍未绑定，整体 ready=false。
 
 首个停止信号关闭出站准入及 idle 连接，保留已在途响应。HTTP、当前 Secret batch 和出站活动都完成后才停止 DB admission；所有 drain 使用同一个首停 deadline。超时/第二信号对 DB 和出站执行 force，HTTP 关闭及 worker join 共用额外 1s 总预算。初始化期间迟到的出站资源拒收并关闭。强制关闭不代表外部请求未发送。
 
@@ -48,7 +48,7 @@ HTTP 固定 H1、无代理、无 HTTP/2/coalescing/cookie jar，TLS 至少 1.2�
 
 ## SMTP 正式连接端口
 
-`DialTarget(ctx,host,port,SMTPProfile)` 只做同一完整 DNS/分类/pinning/当前策略控制下的连接。返回 Conn 兼容 net.Conn，由 Client 统一拥有取消和停机。D07 负责 TLS/STARTTLS/none、协议、认证和邮件结果；当前未实现发邮件。
+`DialTarget(ctx,host,port,SMTPProfile)` 只做同一完整 DNS/分类/pinning/当前策略控制下的连接。返回 Conn 兼容 net.Conn，由 Client 统一拥有取消和停机。已装配的 D07 accountmail 负责 TLS/STARTTLS/none、协议、认证和持久邮件结果；配置后 SMTP 失败不回退到恢复日志。
 
 可信 D07 adapter 初始写只能执行不带凭据的建连/TLS 协商，不能把初始握手计作 AUTH/邮件业务 sent。每次 AUTH 或每封邮件前调用 BeginSend(ctx)，重新完整 DNS 并核验固定 peer；真正底层首 Write 再持当前策略门禁并记录 sent。TLS 包装不会绕过该底层 Write。完成本次协议结果后 EndSend，之后禁止写到下一次 BeginSend。BeginSend/Write 必须串行，并发明确拒绝；BeginSend 失败关闭连接，不能回退沿用旧 attempt。StopAdmission 与新 attempt 发布共用同一准入锁；停止期间尚在 DNS 的 BeginSend 不能发布新 attempt，已准入发送可按在途规则完成。caller 设置 deadline 不能放宽持门禁首写的 2s 上限，caller 更短的期限在首写后仍保留。D07 不得省略 BeginSend 或在初始协商阶段泄露凭据。
 

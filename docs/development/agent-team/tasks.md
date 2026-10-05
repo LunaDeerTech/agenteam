@@ -364,7 +364,9 @@
 
 ## AT-0014：D07账号、Session、SMTP与个人资料
 
-当前：B01–B03 及已列 B04 纯块已验；00012 `61b4df4`、CAPTCHA 两源 `b9b0b86`、A2 Profile/Avatar 27 源 `da5caab` 已独立验收并提交推送。B37 app 未提交、B04/D07 未整体验收；B/acceptance 顺序执行既定真实组和交接 Docker，不再由 A2 占有。legacy 8 PASS/3 FAIL 后 process29 与 SMTP/D05 原例单次通过；两项历史 setup 根因未定。health 仅修测试观察器快照，外层 session/原 runner 终态与未观察 owner wait 的限制保留，不能把局部通过称整组或实际 joined。简要事实与两份独立结论见 [D07 当前进度](../work-items/d07-account-session-smtp.md#当前进度)。
+当前：D07 当前范围已完成，B01–B04 业务与测试门槛已通过，最后 B37 精确 37 源已独立采纳并提交推送 `022dcea`，清单 SHA `ed21ee88c58e665a520c1df6121f843b9df59d9fe4743c3e965a75fabca6d0a7`；此前 00012 `61b4df4`、CAPTCHA 两源 `b9b0b86` 与 A2 `da5caab` 保持各自已验归属。T01–T14 关闭核对 `/tmp/agenteam-d07-close-gates-evpk9gwi/gate-map.md`（SHA `e6a31ef1ac305bc6694843d2fa0391c8e1197ca4037b3073162d09f278fefef0`）确认无当前业务/测试缺口。本次十二文档与部署样例由 d07_http 唯一归位，作者格式/链接及样例字段自查和验收负责人独立核准均通过；D07 当前范围完成，本次文档 Git 由 root 交付，不需重复产品测试。源码及产品命令已全停，资源交后续任务，Git 由 root 执行。
+
+实际覆盖为完整 check-go、旧域完整包及受影响补验、Account95 穷尽映射、Mail31/library67/app12 和最后899/900已提交依赖交集，正常双 binary 均通过；精确输入、命令、日志与独立报告见[D07 终局记录](../work-items/d07-account-session-smtp.md#b04-终局采纳与文档关闭)。这是批准的组合验收，不是一次单体全绿：legacy18 原 8 PASS/3 FAIL、两个历史 SMTP setup/D05 签发准备原因未定；process29 后续 PASS/内核 outer exit0/exact3 清零，但原 owner wait 未观察、observer SIGKILL9，不能称原 runner joined；CAPTCHA 原随机样本未保存，固定 SDK 缺陷不能唯一回溯原样本。D25 WS、D26/D27 UI、未来 Project/Runner 绑定与 ready503 仍是明确后续边界。
 
 ### 立项与阶段历史记录
 
@@ -861,4 +863,4 @@ B03 C0 契约已独立验收并提交推送 `16595ad`。P=`d08_design` 仅写 Pr
 
 ## AT-0016：D09 Model System 与 Token Usage
 
-正式[主卡](../work-items/d09-model-system-token-usage.md)与[设计](../work-items/d09-model-system-token-usage-design.md)已归位并提交推送 `43b8886`。当前只到纯契约任务候选，尚无 D09 业务实现或模块验收；按正式稳定接口、真实依赖和独占范围另行派发，不因文档已归位视为能力已绑定。
+正式[主卡](../work-items/d09-model-system-token-usage.md)与[设计](../work-items/d09-model-system-token-usage-design.md)初次归位提交为 `43b8886`；C0 纯契约已独立验收并提交推送 `e6e94c4`。尚无 D09 业务实现或模块验收；按正式稳定接口、真实依赖和独占范围另行派发，不因契约已提交视为生产能力已绑定。
