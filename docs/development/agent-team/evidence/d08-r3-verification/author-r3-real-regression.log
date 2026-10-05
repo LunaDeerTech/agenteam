@@ -1,0 +1,604 @@
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.211.111.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=6f374753e9e670e3233f757b0bfd3c41
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=e776f4081a281884d81203701c871432
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	2.315s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.016s [no tests to run]
+=== RUN   TestOutboxLifecycleFinalCleanupUnknownAndRollback
+=== RUN   TestOutboxLifecycleFinalCleanupUnknownAndRollback/commit
+=== RUN   TestOutboxLifecycleFinalCleanupUnknownAndRollback/rollback
+--- PASS: TestOutboxLifecycleFinalCleanupUnknownAndRollback (2.50s)
+    --- PASS: TestOutboxLifecycleFinalCleanupUnknownAndRollback/commit (1.34s)
+    --- PASS: TestOutboxLifecycleFinalCleanupUnknownAndRollback/rollback (1.16s)
+=== RUN   TestOutboxStopCapturedRunDoesNotCancelRestoredAdmission
+--- PASS: TestOutboxStopCapturedRunDoesNotCancelRestoredAdmission (1.84s)
+=== RUN   TestOutboxStopUnknownAuthorizationDoesNotCancel
+--- PASS: TestOutboxStopUnknownAuthorizationDoesNotCancel (1.49s)
+=== RUN   TestOutboxStopPreservesProviderExclusiveDependency
+--- PASS: TestOutboxStopPreservesProviderExclusiveDependency (1.42s)
+=== RUN   TestOutboxLifecycleProofHardErrorsRemainVisibleAfterProgress
+=== RUN   TestOutboxLifecycleProofHardErrorsRemainVisibleAfterProgress/stop
+=== RUN   TestOutboxLifecycleProofHardErrorsRemainVisibleAfterProgress/inspect
+=== RUN   TestOutboxLifecycleProofHardErrorsRemainVisibleAfterProgress/cleanup
+--- PASS: TestOutboxLifecycleProofHardErrorsRemainVisibleAfterProgress (5.58s)
+    --- PASS: TestOutboxLifecycleProofHardErrorsRemainVisibleAfterProgress/stop (1.35s)
+    --- PASS: TestOutboxLifecycleProofHardErrorsRemainVisibleAfterProgress/inspect (1.74s)
+    --- PASS: TestOutboxLifecycleProofHardErrorsRemainVisibleAfterProgress/cleanup (2.50s)
+=== RUN   TestOutboxLifecycleProofRefusalsAndItemDeadlineRemainProtected
+=== RUN   TestOutboxLifecycleProofRefusalsAndItemDeadlineRemainProtected/stop
+=== RUN   TestOutboxLifecycleProofRefusalsAndItemDeadlineRemainProtected/inspect
+=== RUN   TestOutboxLifecycleProofRefusalsAndItemDeadlineRemainProtected/cleanup
+--- PASS: TestOutboxLifecycleProofRefusalsAndItemDeadlineRemainProtected (4.40s)
+    --- PASS: TestOutboxLifecycleProofRefusalsAndItemDeadlineRemainProtected/stop (1.37s)
+    --- PASS: TestOutboxLifecycleProofRefusalsAndItemDeadlineRemainProtected/inspect (1.51s)
+    --- PASS: TestOutboxLifecycleProofRefusalsAndItemDeadlineRemainProtected/cleanup (1.51s)
+=== RUN   TestOutboxLifecycleCurrentFailureOverridesEarlierProofError
+=== RUN   TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/stop/authorization
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.stop-progress state=not_committed database_code= sqlstate= position=0
+=== RUN   TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/stop/database
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.stop-progress state=not_committed database_code=DATABASE_SQL_FAILED sqlstate=42P01 position=75
+=== RUN   TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/stop/parent-cancel
+=== RUN   TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/inspect/authorization
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.stop-progress state=not_committed database_code= sqlstate= position=0
+=== RUN   TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/inspect/database
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.stop-progress state=not_committed database_code=DATABASE_SQL_FAILED sqlstate=42P01 position=75
+=== RUN   TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/inspect/parent-cancel
+=== RUN   TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/cleanup/authorization
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.cleanup-batch state=not_committed database_code= sqlstate= position=0
+=== RUN   TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/cleanup/database
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.cleanup-batch state=not_committed database_code=DATABASE_SQL_FAILED sqlstate=42P01 position=75
+=== RUN   TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/cleanup/parent-cancel
+--- PASS: TestOutboxLifecycleCurrentFailureOverridesEarlierProofError (10.42s)
+    --- PASS: TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/stop/authorization (1.21s)
+    --- PASS: TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/stop/database (1.10s)
+    --- PASS: TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/stop/parent-cancel (1.08s)
+    --- PASS: TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/inspect/authorization (1.17s)
+    --- PASS: TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/inspect/database (1.13s)
+    --- PASS: TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/inspect/parent-cancel (1.20s)
+    --- PASS: TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/cleanup/authorization (1.20s)
+    --- PASS: TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/cleanup/database (1.21s)
+    --- PASS: TestOutboxLifecycleCurrentFailureOverridesEarlierProofError/cleanup/parent-cancel (1.12s)
+=== RUN   TestOutboxLifecycleCommitUnknownOverridesEarlierProofError
+=== RUN   TestOutboxLifecycleCommitUnknownOverridesEarlierProofError/stop
+=== RUN   TestOutboxLifecycleCommitUnknownOverridesEarlierProofError/inspect
+=== RUN   TestOutboxLifecycleCommitUnknownOverridesEarlierProofError/cleanup
+--- PASS: TestOutboxLifecycleCommitUnknownOverridesEarlierProofError (3.67s)
+    --- PASS: TestOutboxLifecycleCommitUnknownOverridesEarlierProofError/stop (1.23s)
+    --- PASS: TestOutboxLifecycleCommitUnknownOverridesEarlierProofError/inspect (1.28s)
+    --- PASS: TestOutboxLifecycleCommitUnknownOverridesEarlierProofError/cleanup (1.15s)
+=== RUN   TestOutboxLifecycleFinalAuthorizationOverridesEarlierProofError
+=== RUN   TestOutboxLifecycleFinalAuthorizationOverridesEarlierProofError/stop
+=== RUN   TestOutboxLifecycleFinalAuthorizationOverridesEarlierProofError/inspect
+--- PASS: TestOutboxLifecycleFinalAuthorizationOverridesEarlierProofError (2.19s)
+    --- PASS: TestOutboxLifecycleFinalAuthorizationOverridesEarlierProofError/stop (1.14s)
+    --- PASS: TestOutboxLifecycleFinalAuthorizationOverridesEarlierProofError/inspect (1.05s)
+=== RUN   TestOutboxLifecycleStopsFactsBeforeFinalErasure
+    lifecycle_test.go:347: lifecycle transaction phase= state=not_committed database_code= sqlstate= position=0
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.claim state=not_committed database_code= sqlstate= position=0
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.claim state=not_committed database_code= sqlstate= position=0
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.recovery-inspect state=not_committed database_code= sqlstate= position=0
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.claim state=not_committed database_code= sqlstate= position=0
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.claim state=not_committed database_code= sqlstate= position=0
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.claim state=not_committed database_code= sqlstate= position=0
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.claim state=not_committed database_code= sqlstate= position=0
+--- PASS: TestOutboxLifecycleStopsFactsBeforeFinalErasure (1.38s)
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks/phase_revoked_after_Stop_discovery
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks/Stop_discovery_failure
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks/terminal_wins_after_observation
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks/full_union_and_actual_join
+--- PASS: TestOutboxLifecycleInspectionContinuationRechecks (4.86s)
+    --- PASS: TestOutboxLifecycleInspectionContinuationRechecks/phase_revoked_after_Stop_discovery (1.28s)
+    --- PASS: TestOutboxLifecycleInspectionContinuationRechecks/Stop_discovery_failure (1.17s)
+    --- PASS: TestOutboxLifecycleInspectionContinuationRechecks/terminal_wins_after_observation (1.19s)
+    --- PASS: TestOutboxLifecycleInspectionContinuationRechecks/full_union_and_actual_join (1.22s)
+=== RUN   TestOutboxLifecycleInspectionUnknownAndJoin
+=== RUN   TestOutboxLifecycleInspectionUnknownAndJoin/outbox.stop-observe/commit=true
+=== RUN   TestOutboxLifecycleInspectionUnknownAndJoin/outbox.stop-observe/commit=false
+=== RUN   TestOutboxLifecycleInspectionUnknownAndJoin/outbox.stop-authorize/commit=true
+=== RUN   TestOutboxLifecycleInspectionUnknownAndJoin/outbox.stop-authorize/commit=false
+--- PASS: TestOutboxLifecycleInspectionUnknownAndJoin (4.45s)
+    --- PASS: TestOutboxLifecycleInspectionUnknownAndJoin/outbox.stop-observe/commit=true (0.96s)
+    --- PASS: TestOutboxLifecycleInspectionUnknownAndJoin/outbox.stop-observe/commit=false (1.24s)
+    --- PASS: TestOutboxLifecycleInspectionUnknownAndJoin/outbox.stop-authorize/commit=true (1.03s)
+    --- PASS: TestOutboxLifecycleInspectionUnknownAndJoin/outbox.stop-authorize/commit=false (1.22s)
+=== RUN   TestOutboxLifecycleRebuiltRuntimeResolvesAndCompletesCleanup
+--- PASS: TestOutboxLifecycleRebuiltRuntimeResolvesAndCompletesCleanup (1.29s)
+=== RUN   TestOutboxLifecycleRecoveryRefusalDoesNotBlockIndependentWork
+=== RUN   TestOutboxLifecycleRecoveryRefusalDoesNotBlockIndependentWork/unbound
+=== RUN   TestOutboxLifecycleRecoveryRefusalDoesNotBlockIndependentWork/refused
+=== RUN   TestOutboxLifecycleRecoveryRefusalDoesNotBlockIndependentWork/wrong-actor
+=== RUN   TestOutboxLifecycleRecoveryRefusalDoesNotBlockIndependentWork/changed-after-resolution
+--- PASS: TestOutboxLifecycleRecoveryRefusalDoesNotBlockIndependentWork (4.52s)
+    --- PASS: TestOutboxLifecycleRecoveryRefusalDoesNotBlockIndependentWork/unbound (1.09s)
+    --- PASS: TestOutboxLifecycleRecoveryRefusalDoesNotBlockIndependentWork/refused (1.13s)
+    --- PASS: TestOutboxLifecycleRecoveryRefusalDoesNotBlockIndependentWork/wrong-actor (1.12s)
+    --- PASS: TestOutboxLifecycleRecoveryRefusalDoesNotBlockIndependentWork/changed-after-resolution (1.19s)
+=== RUN   TestOutboxLifecycleResolverSharesRecoveryDeadline
+--- PASS: TestOutboxLifecycleResolverSharesRecoveryDeadline (0.97s)
+=== RUN   TestOutboxLifecycleUnattemptedArchiveRestoreAndExplicitRequeue
+    lifecycle_test.go:347: lifecycle transaction phase= state=not_committed database_code= sqlstate= position=0
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.stop-authorize state=not_committed database_code= sqlstate= position=0
+--- PASS: TestOutboxLifecycleUnattemptedArchiveRestoreAndExplicitRequeue (1.25s)
+=== RUN   TestOutboxLifecycleDeleteGateBatchFairnessAndIsolation
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.stop-authorize state=not_committed database_code= sqlstate= position=0
+--- PASS: TestOutboxLifecycleDeleteGateBatchFairnessAndIsolation (1.92s)
+=== RUN   TestOutboxLifecycleActualClaimWinsStopAndMustJoin
+    lifecycle_test.go:347: lifecycle transaction phase=outbox.stop-gate state=not_committed database_code=DATABASE_LOCK_FAILED sqlstate= position=0
+    lifecycle_test.go:347: lifecycle transaction phase= state=not_committed database_code=DATABASE_SQL_FAILED sqlstate= position=0
+--- PASS: TestOutboxLifecycleActualClaimWinsStopAndMustJoin (1.16s)
+=== RUN   TestOutboxRuntimeProtectedSixtyFourDoNotStarveTail
+--- PASS: TestOutboxRuntimeProtectedSixtyFourDoNotStarveTail (2.35s)
+=== RUN   TestOutboxRuntimeCanonicalVersionSiblingsAndLateBootstrapDirty
+--- PASS: TestOutboxRuntimeCanonicalVersionSiblingsAndLateBootstrapDirty (1.10s)
+=== RUN   TestOutboxRuntimeUnknownDeathProofIsProtectedButHardDBFailureIsNotSwallowed
+--- PASS: TestOutboxRuntimeUnknownDeathProofIsProtectedButHardDBFailureIsNotSwallowed (1.05s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	60.848s
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks/terminal
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks/denied
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks/planning_failure
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks/phase_revoked_after_plan
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks/terminal_before_preflight
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks/terminal_before_gate
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks/terminal_before_progress
+=== RUN   TestOutboxLifecycleInspectionContinuationRechecks/terminal_before_report
+--- PASS: TestOutboxLifecycleInspectionContinuationRechecks (0.01s)
+    --- PASS: TestOutboxLifecycleInspectionContinuationRechecks/terminal (0.00s)
+    --- PASS: TestOutboxLifecycleInspectionContinuationRechecks/denied (0.00s)
+    --- PASS: TestOutboxLifecycleInspectionContinuationRechecks/planning_failure (0.00s)
+    --- PASS: TestOutboxLifecycleInspectionContinuationRechecks/phase_revoked_after_plan (0.00s)
+    --- PASS: TestOutboxLifecycleInspectionContinuationRechecks/terminal_before_preflight (0.00s)
+    --- PASS: TestOutboxLifecycleInspectionContinuationRechecks/terminal_before_gate (0.00s)
+    --- PASS: TestOutboxLifecycleInspectionContinuationRechecks/terminal_before_progress (0.00s)
+    --- PASS: TestOutboxLifecycleInspectionContinuationRechecks/terminal_before_report (0.00s)
+=== RUN   TestOutboxLifecycleInspectionUnknownNeverCancels
+=== RUN   TestOutboxLifecycleInspectionUnknownNeverCancels/outbox.stop-observe
+=== RUN   TestOutboxLifecycleInspectionUnknownNeverCancels/outbox.stop-authorize
+--- PASS: TestOutboxLifecycleInspectionUnknownNeverCancels (0.00s)
+    --- PASS: TestOutboxLifecycleInspectionUnknownNeverCancels/outbox.stop-observe (0.00s)
+    --- PASS: TestOutboxLifecycleInspectionUnknownNeverCancels/outbox.stop-authorize (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.021s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.025s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.018s [no tests to run]
+=== RUN   TestProjectB02MigrationFreshAndPopulatedUpgrade
+=== RUN   TestProjectB02MigrationFreshAndPopulatedUpgrade/fresh
+=== RUN   TestProjectB02MigrationFreshAndPopulatedUpgrade/populated-00012
+--- PASS: TestProjectB02MigrationFreshAndPopulatedUpgrade (3.37s)
+    --- PASS: TestProjectB02MigrationFreshAndPopulatedUpgrade/fresh (1.86s)
+    --- PASS: TestProjectB02MigrationFreshAndPopulatedUpgrade/populated-00012 (1.51s)
+=== RUN   TestProjectB02MigrationFailureRollsBackSchemaAndAudit
+--- PASS: TestProjectB02MigrationFailureRollsBackSchemaAndAudit (1.30s)
+=== RUN   TestProjectB02DescriptionSchemaMatchesControlAndByteRules
+--- PASS: TestProjectB02DescriptionSchemaMatchesControlAndByteRules (1.08s)
+=== RUN   TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts
+=== RUN   TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.create.accepted
+=== RUN   TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.create.completed
+=== RUN   TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.update
+=== RUN   TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.archive.accepted
+=== RUN   TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.archive.completed
+=== RUN   TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.restore
+=== RUN   TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.delete.accepted
+=== RUN   TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.lifecycle.retry
+--- PASS: TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts (1.51s)
+    --- PASS: TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.create.accepted (0.03s)
+    --- PASS: TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.create.completed (0.03s)
+    --- PASS: TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.update (0.02s)
+    --- PASS: TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.archive.accepted (0.03s)
+    --- PASS: TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.archive.completed (0.02s)
+    --- PASS: TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.restore (0.02s)
+    --- PASS: TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.delete.accepted (0.03s)
+    --- PASS: TestProjectB02AuditSchemaAcceptsOnlyTypedProjectFacts/project.lifecycle.retry (0.02s)
+=== RUN   TestProjectB02ClaimChild
+    b02_owner_commands_test.go:38: owned subprocess only
+--- SKIP: TestProjectB02ClaimChild (0.00s)
+=== RUN   TestProjectB02CreationClaimRequiresActualDeathAndFairRecovery
+--- PASS: TestProjectB02CreationClaimRequiresActualDeathAndFairRecovery (3.11s)
+=== RUN   TestProjectB02OwnerSessionNamePathAndPaging
+--- PASS: TestProjectB02OwnerSessionNamePathAndPaging (1.19s)
+=== RUN   TestProjectB02TargetIdentityAndDeletionTombstone
+--- PASS: TestProjectB02TargetIdentityAndDeletionTombstone (1.25s)
+=== RUN   TestProjectB02InitializerFailureUnknownUnboundAndReceiptOrder
+=== RUN   TestProjectB02InitializerFailureUnknownUnboundAndReceiptOrder/failed
+=== RUN   TestProjectB02InitializerFailureUnknownUnboundAndReceiptOrder/unknown
+=== RUN   TestProjectB02InitializerFailureUnknownUnboundAndReceiptOrder/pending
+--- PASS: TestProjectB02InitializerFailureUnknownUnboundAndReceiptOrder (1.35s)
+    --- PASS: TestProjectB02InitializerFailureUnknownUnboundAndReceiptOrder/failed (0.08s)
+    --- PASS: TestProjectB02InitializerFailureUnknownUnboundAndReceiptOrder/unknown (0.07s)
+    --- PASS: TestProjectB02InitializerFailureUnknownUnboundAndReceiptOrder/pending (0.08s)
+=== RUN   TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp
+=== RUN   TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp/audit
+=== RUN   TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp/event
+--- PASS: TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp (1.25s)
+    --- PASS: TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp/audit (0.03s)
+    --- PASS: TestProjectB02AuditEventReceiptTouchAtomicityAndNoOp/event (0.05s)
+=== RUN   TestProjectB02OwnerPortRequiresCallerTransactionLocks
+--- PASS: TestProjectB02OwnerPortRequiresCallerTransactionLocks (1.14s)
+=== RUN   TestProjectB02ConcurrentCreateKeepsOneReservationAndOriginalIdentity
+=== RUN   TestProjectB02ConcurrentCreateKeepsOneReservationAndOriginalIdentity/same-owner-name
+=== RUN   TestProjectB02ConcurrentCreateKeepsOneReservationAndOriginalIdentity/same-target-key
+--- PASS: TestProjectB02ConcurrentCreateKeepsOneReservationAndOriginalIdentity (2.31s)
+    --- PASS: TestProjectB02ConcurrentCreateKeepsOneReservationAndOriginalIdentity/same-owner-name (1.12s)
+    --- PASS: TestProjectB02ConcurrentCreateKeepsOneReservationAndOriginalIdentity/same-target-key (1.19s)
+=== RUN   TestProjectB02ConcurrentUpdateRejectsOldVersionWithoutExtraFacts
+--- PASS: TestProjectB02ConcurrentUpdateRejectsOldVersionWithoutExtraFacts (1.21s)
+=== RUN   TestProjectB02TwoPlannedTargetsCompeteForOneCanonicalName
+--- PASS: TestProjectB02TwoPlannedTargetsCompeteForOneCanonicalName (1.34s)
+=== RUN   TestProjectB02CreateReservesNameAfterAnotherTargetWasPlanned
+--- PASS: TestProjectB02CreateReservesNameAfterAnotherTargetWasPlanned (1.32s)
+=== RUN   TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal
+--- PASS: TestProjectB02ReceiptRequiresCurrentSessionAndReplaysAcrossRenewal (1.23s)
+=== RUN   TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts
+=== RUN   TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts/wrong-result-project
+=== RUN   TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts/wrong-issuer
+=== RUN   TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts/missing-plan
+=== RUN   TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts/unprotected
+=== RUN   TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts/unpublished
+=== RUN   TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts/changed-receipt
+--- PASS: TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts (6.87s)
+    --- PASS: TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts/wrong-result-project (1.16s)
+    --- PASS: TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts/wrong-issuer (1.12s)
+    --- PASS: TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts/missing-plan (1.13s)
+    --- PASS: TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts/unprotected (1.18s)
+    --- PASS: TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts/unpublished (1.15s)
+    --- PASS: TestProjectB02InitializationRejectsWrongMappingPlanAndActualSkillFacts/changed-receipt (1.13s)
+=== RUN   TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock
+--- PASS: TestProjectB02InitializationMergesCompleteLockPlanAndPoisonsMissingLock (1.21s)
+=== RUN   TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary
+=== RUN   TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary/accepted-audit
+=== RUN   TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary/completed-audit
+=== RUN   TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary/created-event
+--- PASS: TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary (3.81s)
+    --- PASS: TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary/accepted-audit (1.31s)
+    --- PASS: TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary/completed-audit (1.25s)
+    --- PASS: TestProjectB02CreateAuditEventFailuresRespectAcceptanceBoundary/created-event (1.25s)
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-accepted/late-commit
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-accepted/rollback
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-claim/late-commit
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-claim/rollback
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-plan/late-commit
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-plan/rollback
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-completed/late-commit
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-completed/rollback
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-checkpoint/late-commit
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-checkpoint/rollback
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/planned/late-commit
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/planned/rollback
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/completed/late-commit
+=== RUN   TestProjectB02UnknownWriterHeldThenCommitOrRollback/completed/rollback
+--- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback (29.12s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-accepted/late-commit (2.37s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-accepted/rollback (2.38s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-claim/late-commit (1.41s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-claim/rollback (1.34s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-plan/late-commit (1.36s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-plan/rollback (1.45s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-completed/late-commit (2.34s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-completed/rollback (2.46s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-checkpoint/late-commit (2.36s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/creation-checkpoint/rollback (2.25s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/planned/late-commit (2.42s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/planned/rollback (2.33s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/completed/late-commit (2.39s)
+    --- PASS: TestProjectB02UnknownWriterHeldThenCommitOrRollback/completed/rollback (2.27s)
+=== RUN   TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization
+=== RUN   TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization/creation-accepted/commit
+=== RUN   TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization/creation-accepted/rollback
+=== RUN   TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization/planned/commit
+=== RUN   TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization/planned/rollback
+=== RUN   TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization/completed/commit
+=== RUN   TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization/completed/rollback
+--- PASS: TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization (5.78s)
+    --- PASS: TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization/creation-accepted/commit (0.89s)
+    --- PASS: TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization/creation-accepted/rollback (0.89s)
+    --- PASS: TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization/planned/commit (1.04s)
+    --- PASS: TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization/planned/rollback (0.97s)
+    --- PASS: TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization/completed/commit (1.00s)
+    --- PASS: TestProjectB02UnknownOriginalCallResolvesAfterWriterSerialization/completed/rollback (0.99s)
+=== RUN   TestProjectB03R2AcceptReplayAndCurrentProgress
+=== RUN   TestProjectB03R2AcceptReplayAndCurrentProgress/archive
+=== RUN   TestProjectB03R2AcceptReplayAndCurrentProgress/delete
+--- PASS: TestProjectB03R2AcceptReplayAndCurrentProgress (1.18s)
+    --- PASS: TestProjectB03R2AcceptReplayAndCurrentProgress/archive (0.19s)
+    --- PASS: TestProjectB03R2AcceptReplayAndCurrentProgress/delete (0.19s)
+=== RUN   TestProjectB03R2AtomicRollbackAtAuditEventAndTouch
+=== RUN   TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/archive
+=== RUN   TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/archive/audit
+=== RUN   TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/archive/event
+=== RUN   TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/archive/touch
+=== RUN   TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/delete
+=== RUN   TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/delete/audit
+=== RUN   TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/delete/event
+=== RUN   TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/delete/touch
+--- PASS: TestProjectB03R2AtomicRollbackAtAuditEventAndTouch (1.28s)
+    --- PASS: TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/archive (0.24s)
+        --- PASS: TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/archive/audit (0.03s)
+        --- PASS: TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/archive/event (0.04s)
+        --- PASS: TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/archive/touch (0.06s)
+    --- PASS: TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/delete (0.22s)
+        --- PASS: TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/delete/audit (0.03s)
+        --- PASS: TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/delete/event (0.05s)
+        --- PASS: TestProjectB03R2AtomicRollbackAtAuditEventAndTouch/delete/touch (0.05s)
+=== RUN   TestProjectB03R2OwnerSessionDependenciesAndGates
+--- PASS: TestProjectB03R2OwnerSessionDependenciesAndGates (0.93s)
+=== RUN   TestProjectB03R2RetainsPlannedVersionsAcrossServiceRebuild
+--- PASS: TestProjectB03R2RetainsPlannedVersionsAcrossServiceRebuild (1.00s)
+=== RUN   TestProjectB03R2CorruptStoredManifestCannotShrinkProgress
+=== RUN   TestProjectB03R2CorruptStoredManifestCannotShrinkProgress/digest
+=== RUN   TestProjectB03R2CorruptStoredManifestCannotShrinkProgress/manifest
+=== RUN   TestProjectB03R2CorruptStoredManifestCannotShrinkProgress/participant
+=== RUN   TestProjectB03R2CorruptStoredManifestCannotShrinkProgress/version
+--- PASS: TestProjectB03R2CorruptStoredManifestCannotShrinkProgress (1.45s)
+    --- PASS: TestProjectB03R2CorruptStoredManifestCannotShrinkProgress/digest (0.12s)
+    --- PASS: TestProjectB03R2CorruptStoredManifestCannotShrinkProgress/manifest (0.12s)
+    --- PASS: TestProjectB03R2CorruptStoredManifestCannotShrinkProgress/participant (0.11s)
+    --- PASS: TestProjectB03R2CorruptStoredManifestCannotShrinkProgress/version (0.13s)
+=== RUN   TestProjectB03R2ConcurrentCommandsKeepOneOperation
+=== RUN   TestProjectB03R2ConcurrentCommandsKeepOneOperation/same-key
+=== RUN   TestProjectB03R2ConcurrentCommandsKeepOneOperation/different-keys
+=== RUN   TestProjectB03R2ConcurrentCommandsKeepOneOperation/archive-delete
+--- PASS: TestProjectB03R2ConcurrentCommandsKeepOneOperation (1.70s)
+    --- PASS: TestProjectB03R2ConcurrentCommandsKeepOneOperation/same-key (0.18s)
+    --- PASS: TestProjectB03R2ConcurrentCommandsKeepOneOperation/different-keys (0.16s)
+    --- PASS: TestProjectB03R2ConcurrentCommandsKeepOneOperation/archive-delete (0.24s)
+=== RUN   TestProjectB03R2FinalAcceptanceRechecksPathAndSession
+=== RUN   TestProjectB03R2FinalAcceptanceRechecksPathAndSession/project-name
+=== RUN   TestProjectB03R2FinalAcceptanceRechecksPathAndSession/username
+=== RUN   TestProjectB03R2FinalAcceptanceRechecksPathAndSession/session
+--- PASS: TestProjectB03R2FinalAcceptanceRechecksPathAndSession (1.50s)
+    --- PASS: TestProjectB03R2FinalAcceptanceRechecksPathAndSession/project-name (0.11s)
+    --- PASS: TestProjectB03R2FinalAcceptanceRechecksPathAndSession/username (0.07s)
+    --- PASS: TestProjectB03R2FinalAcceptanceRechecksPathAndSession/session (0.06s)
+=== RUN   TestProjectB03R2MinimalReceiptIsCurrentOwnerReadOnly
+--- PASS: TestProjectB03R2MinimalReceiptIsCurrentOwnerReadOnly (0.88s)
+=== RUN   TestProjectB03R2PlannedTypedFactsCannotForgeAcceptance
+=== RUN   TestProjectB03R2PlannedTypedFactsCannotForgeAcceptance/archive
+=== RUN   TestProjectB03R2PlannedTypedFactsCannotForgeAcceptance/delete
+--- PASS: TestProjectB03R2PlannedTypedFactsCannotForgeAcceptance (0.97s)
+    --- PASS: TestProjectB03R2PlannedTypedFactsCannotForgeAcceptance/archive (0.10s)
+    --- PASS: TestProjectB03R2PlannedTypedFactsCannotForgeAcceptance/delete (0.07s)
+=== RUN   TestProjectB03R2ArchivedPrerequisiteAcceptsDelete
+--- PASS: TestProjectB03R2ArchivedPrerequisiteAcceptsDelete (0.96s)
+=== RUN   TestProjectB03R2SharedGateBlocksAcceptanceBeforeAnyFacts
+--- PASS: TestProjectB03R2SharedGateBlocksAcceptanceBeforeAnyFacts (1.99s)
+=== RUN   TestProjectB03R2UnknownWriterHeldThenCommitOrRollback
+=== RUN   TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/archive/planned/commit=false
+=== RUN   TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/archive/planned/commit=true
+=== RUN   TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/archive/completed/commit=false
+=== RUN   TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/archive/completed/commit=true
+=== RUN   TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/delete/planned/commit=false
+=== RUN   TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/delete/planned/commit=true
+=== RUN   TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/delete/completed/commit=false
+=== RUN   TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/delete/completed/commit=true
+--- PASS: TestProjectB03R2UnknownWriterHeldThenCommitOrRollback (24.14s)
+    --- PASS: TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/archive/planned/commit=false (2.98s)
+    --- PASS: TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/archive/planned/commit=true (2.95s)
+    --- PASS: TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/archive/completed/commit=false (3.13s)
+    --- PASS: TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/archive/completed/commit=true (3.01s)
+    --- PASS: TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/delete/planned/commit=false (3.01s)
+    --- PASS: TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/delete/planned/commit=true (3.00s)
+    --- PASS: TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/delete/completed/commit=false (3.01s)
+    --- PASS: TestProjectB03R2UnknownWriterHeldThenCommitOrRollback/delete/completed/commit=true (3.04s)
+=== RUN   TestProjectB03R2UnknownOriginalCallSerializesWriter
+=== RUN   TestProjectB03R2UnknownOriginalCallSerializesWriter/archive/planned/commit=false
+=== RUN   TestProjectB03R2UnknownOriginalCallSerializesWriter/archive/planned/commit=true
+=== RUN   TestProjectB03R2UnknownOriginalCallSerializesWriter/archive/completed/commit=false
+=== RUN   TestProjectB03R2UnknownOriginalCallSerializesWriter/archive/completed/commit=true
+=== RUN   TestProjectB03R2UnknownOriginalCallSerializesWriter/delete/planned/commit=false
+=== RUN   TestProjectB03R2UnknownOriginalCallSerializesWriter/delete/planned/commit=true
+=== RUN   TestProjectB03R2UnknownOriginalCallSerializesWriter/delete/completed/commit=false
+=== RUN   TestProjectB03R2UnknownOriginalCallSerializesWriter/delete/completed/commit=true
+--- PASS: TestProjectB03R2UnknownOriginalCallSerializesWriter (8.93s)
+    --- PASS: TestProjectB03R2UnknownOriginalCallSerializesWriter/archive/planned/commit=false (1.09s)
+    --- PASS: TestProjectB03R2UnknownOriginalCallSerializesWriter/archive/planned/commit=true (1.07s)
+    --- PASS: TestProjectB03R2UnknownOriginalCallSerializesWriter/archive/completed/commit=false (1.31s)
+    --- PASS: TestProjectB03R2UnknownOriginalCallSerializesWriter/archive/completed/commit=true (1.04s)
+    --- PASS: TestProjectB03R2UnknownOriginalCallSerializesWriter/delete/planned/commit=false (1.08s)
+    --- PASS: TestProjectB03R2UnknownOriginalCallSerializesWriter/delete/planned/commit=true (1.18s)
+    --- PASS: TestProjectB03R2UnknownOriginalCallSerializesWriter/delete/completed/commit=false (1.08s)
+    --- PASS: TestProjectB03R2UnknownOriginalCallSerializesWriter/delete/completed/commit=true (1.08s)
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/archive/accepted
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/archive/stopping
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/archive/failed
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/archive/completed
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/delete/accepted
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/delete/stopping
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/delete/failed
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/delete/cleaning
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/owner
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/gate
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/project_version
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/request_version
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/request_action
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/pointer_cleared
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/new_pointer
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/uninitialized
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/missing_participant
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/extra_participant
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/participant_version
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/failed_participant
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/digest
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/manifest
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/live_plus_receipt
+=== RUN   TestLifecycleAuthorityPersistedCauseMatrix/completed_version_must_match
+--- PASS: TestLifecycleAuthorityPersistedCauseMatrix (3.56s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/archive/accepted (0.12s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/archive/stopping (0.09s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/archive/failed (0.09s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/archive/completed (0.11s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/delete/accepted (0.12s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/delete/stopping (0.11s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/delete/failed (0.09s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/delete/cleaning (0.10s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/owner (0.12s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/gate (0.10s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/project_version (0.09s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/request_version (0.11s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/request_action (0.11s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/pointer_cleared (0.10s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/new_pointer (0.21s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/uninitialized (0.09s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/missing_participant (0.10s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/extra_participant (0.11s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/participant_version (0.10s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/failed_participant (0.15s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/digest (0.12s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/manifest (0.09s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/live_plus_receipt (0.14s)
+    --- PASS: TestLifecycleAuthorityPersistedCauseMatrix/completed_version_must_match (0.13s)
+=== RUN   TestLifecycleAuthorityConstructionAndCompatibility
+=== RUN   TestLifecycleAuthorityConstructionAndCompatibility/reference_set
+=== RUN   TestLifecycleAuthorityConstructionAndCompatibility/dependency_set
+=== RUN   TestLifecycleAuthorityConstructionAndCompatibility/owner
+--- PASS: TestLifecycleAuthorityConstructionAndCompatibility (1.10s)
+    --- PASS: TestLifecycleAuthorityConstructionAndCompatibility/reference_set (0.00s)
+    --- PASS: TestLifecycleAuthorityConstructionAndCompatibility/dependency_set (0.00s)
+    --- PASS: TestLifecycleAuthorityConstructionAndCompatibility/owner (0.00s)
+=== RUN   TestLifecycleAuthorityLocksAndActors
+=== RUN   TestLifecycleAuthorityLocksAndActors/missing
+=== RUN   TestLifecycleAuthorityLocksAndActors/wrong_project
+=== RUN   TestLifecycleAuthorityLocksAndActors/foreign_store
+=== RUN   TestLifecycleAuthorityLocksAndActors/resolver_unknown_commit
+=== RUN   TestLifecycleAuthorityLocksAndActors/resolver_unknown_rollback
+--- PASS: TestLifecycleAuthorityLocksAndActors (1.28s)
+    --- PASS: TestLifecycleAuthorityLocksAndActors/missing (0.00s)
+    --- PASS: TestLifecycleAuthorityLocksAndActors/wrong_project (0.00s)
+    --- PASS: TestLifecycleAuthorityLocksAndActors/foreign_store (0.02s)
+    --- PASS: TestLifecycleAuthorityLocksAndActors/resolver_unknown_commit (0.13s)
+    --- PASS: TestLifecycleAuthorityLocksAndActors/resolver_unknown_rollback (0.12s)
+=== RUN   TestProjectStopAuthorityCurrentAndTerminal
+=== RUN   TestProjectStopAuthorityCurrentAndTerminal/accepted
+=== RUN   TestProjectStopAuthorityCurrentAndTerminal/stopping
+=== RUN   TestProjectStopAuthorityCurrentAndTerminal/failed
+=== RUN   TestProjectStopAuthorityCurrentAndTerminal/cleaning
+=== RUN   TestProjectStopAuthorityCurrentAndTerminal/completed
+=== RUN   TestProjectStopAuthorityCurrentAndTerminal/deleted
+--- PASS: TestProjectStopAuthorityCurrentAndTerminal (1.45s)
+    --- PASS: TestProjectStopAuthorityCurrentAndTerminal/accepted (0.11s)
+    --- PASS: TestProjectStopAuthorityCurrentAndTerminal/stopping (0.09s)
+    --- PASS: TestProjectStopAuthorityCurrentAndTerminal/failed (0.11s)
+    --- PASS: TestProjectStopAuthorityCurrentAndTerminal/cleaning (0.11s)
+    --- PASS: TestProjectStopAuthorityCurrentAndTerminal/completed (0.11s)
+    --- PASS: TestProjectStopAuthorityCurrentAndTerminal/deleted (0.01s)
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/changed_after_Stop_plan/phase
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/changed_after_Stop_plan/pointer
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/current_stopping
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed/missing
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed/wrong_action
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed/wrong_version
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed/wrong_operation
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed/stopping
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/failed/stopped
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/missing
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/wrong_action
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/wrong_version
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/wrong_operation
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/stopping
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/stopped
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/completed
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed/missing
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed/wrong_action
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed/wrong_version
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed/wrong_operation
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed/stopping
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/completed/stopped
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/missing
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/wrong_action
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/wrong_version
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/wrong_operation
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/stopping
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/stopped
+=== RUN   TestOutboxLifecycleInspectionAuthorityBoundary/deleted/completed
+--- PASS: TestOutboxLifecycleInspectionAuthorityBoundary (1.70s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/changed_after_Stop_plan/phase (0.11s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/changed_after_Stop_plan/pointer (0.10s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/current_stopping (0.13s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed (0.14s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed/missing (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed/wrong_action (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed/wrong_version (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed/wrong_operation (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed/stopping (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/failed/stopped (0.01s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning (0.15s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/missing (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/wrong_action (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/wrong_version (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/wrong_operation (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/stopping (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/stopped (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/cleaning/completed (0.01s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed (0.14s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed/missing (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed/wrong_action (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed/wrong_version (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed/wrong_operation (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed/stopping (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/completed/stopped (0.01s)
+    --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted (0.04s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/missing (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/wrong_action (0.00s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/wrong_version (0.00s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/wrong_operation (0.00s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/stopping (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/stopped (0.01s)
+        --- PASS: TestOutboxLifecycleInspectionAuthorityBoundary/deleted/completed (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	127.804s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.026s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.019s [no tests to run]
+D03 fixture cleanup checked for nonce 0e23ed5d0f28ae3103ba1ae86930b485
+D04 outbound fixture cleanup checked for nonce e776f4081a281884d81203701c871432
+D05 object fixture exact resource cleanup checked nonce=6f374753e9e670e3233f757b0bfd3c41

@@ -1,0 +1,6 @@
+--- FAIL: TestProjectStopAuthorityRejectsRebuiltWrongPlans (0.00s)
+    object_stop_authority_test.go:31: INVALID_ARGUMENT
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/project	0.273s
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	0.058s
+FAIL

@@ -1,0 +1,497 @@
+//go:build integration
+
+package project_test
+
+import (
+	"bytes"
+	"context"
+	"fmt"
+	"net"
+	"net/url"
+	"slices"
+	"sync"
+	"sync/atomic"
+	"testing"
+
+	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	identity "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/outbox/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/project"
+	c "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+)
+
+// These probes add observers at formal Store/ProjectAuthority boundaries. They
+// preserve real SQL, CommitResult, held-lock enforcement and Project authority.
+type vr3TxContext struct{}
+type vr3TxRecord struct {
+	owner    string
+	acquires int
+	locks    []foundation.LockRequest
+	steps    []oc.LifecycleStep
+	result   foundation.CommitResult
+}
+type vr3Store struct {
+	*postgres.Store
+	mu              sync.Mutex
+	records         map[foundation.Tx]*vr3TxRecord
+	readOnly        bool
+	before          func(string)
+	proxy           *vr3CommitProxy
+	target          string
+	expected        c.LifecycleOperation
+	expectedReceipt string
+	fired           atomic.Bool
+}
+
+func newVR3Store(raw *postgres.Store) *vr3Store {
+	return &vr3Store{Store: raw, records: make(map[foundation.Tx]*vr3TxRecord)}
+}
+func (s *vr3Store) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
+	owner := cause.Details().Owner
+	if s.before != nil {
+		s.before(owner)
+	}
+	var current *vr3TxRecord
+	result := s.Store.WithinTx(ctx, cause, func(ctx context.Context, tx foundation.Tx) error {
+		current = &vr3TxRecord{owner: owner}
+		s.mu.Lock()
+		s.records[tx] = current
+		s.mu.Unlock()
+		x, err := s.Store.InTx(tx)
+		if err != nil {
+			return err
+		}
+		if s.readOnly {
+			if _, err = x.Exec(ctx, `SET TRANSACTION READ ONLY`); err != nil {
+				return err
+			}
+		}
+		err = fn(context.WithValue(ctx, vr3TxContext{}, true), tx)
+		if err != nil {
+			return err
+		}
+		if current.acquires != 1 {
+			return fmt.Errorf("%s acquired %d times", owner, current.acquires)
+		}
+		if s.proxy == nil || owner != s.target || s.fired.Load() {
+			return nil
+		}
+		if err = s.Store.RequireHeldLocks(ctx, tx, []foundation.LockRequest{r3Lock(s.expected.ProjectID, foundation.Shared)}); err != nil {
+			return err
+		}
+		var pid int32
+		var pointer, phase, action string
+		var projectVersion, acceptVersion int64
+		err = x.QueryRow(ctx, `SELECT pg_backend_pid(),p.current_lifecycle_operation_id::text,p.version,o.state,o.action,o.project_version FROM agenteam_project.projects p JOIN agenteam_project.lifecycle_operations o ON o.id=p.current_lifecycle_operation_id WHERE p.id=$1`, s.expected.ProjectID.String()).Scan(&pid, &pointer, &projectVersion, &phase, &action, &acceptVersion)
+		if err != nil {
+			return err
+		}
+		if pointer != s.expected.ID.String() || phase != "stopping" || action != string(s.expected.Action) || projectVersion != int64(s.expected.ProjectVersion) || acceptVersion != projectVersion {
+			return fmt.Errorf("target Tx did not contain exact current facts")
+		}
+		wantSteps := []oc.LifecycleStep(nil)
+		if owner == "outbox.stop-observe" {
+			wantSteps = []oc.LifecycleStep{oc.LifecycleInspect}
+		}
+		if owner == "outbox.stop-authorize" {
+			wantSteps = []oc.LifecycleStep{oc.LifecycleInspect, oc.LifecycleStop}
+		}
+		if !slices.Equal(current.steps, wantSteps) {
+			return fmt.Errorf("target Tx steps=%v wanted=%v", current.steps, wantSteps)
+		}
+		if owner != "project.lifecycle-actor" {
+			var operation, localAction, localPhase string
+			var version int64
+			err = x.QueryRow(ctx, `SELECT operation_id::text,action,project_version,phase FROM agenteam_outbox.project_lifecycle WHERE project_id=$1`, s.expected.ProjectID.String()).Scan(&operation, &localAction, &version, &localPhase)
+			if err != nil {
+				return err
+			}
+			if operation != pointer || localAction != action || version != projectVersion || localPhase != s.expectedReceipt {
+				return fmt.Errorf("target Tx lacks exact original Outbox receipt")
+			}
+		}
+		if s.fired.CompareAndSwap(false, true) {
+			s.proxy.targetPID.Store(pid)
+			s.proxy.armed.Store(true)
+		}
+		return nil
+	})
+	if current != nil {
+		s.mu.Lock()
+		current.result = result
+		s.mu.Unlock()
+	}
+	return result
+}
+func (s *vr3Store) AcquireAll(ctx context.Context, tx foundation.Tx, locks []foundation.LockRequest) error {
+	s.mu.Lock()
+	if r := s.records[tx]; r != nil {
+		r.acquires++
+		r.locks = append([]foundation.LockRequest(nil), locks...)
+	}
+	s.mu.Unlock()
+	return s.Store.AcquireAll(ctx, tx, locks)
+}
+func (s *vr3Store) validated(tx foundation.Tx, step oc.LifecycleStep) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if r := s.records[tx]; r != nil {
+		r.steps = append(r.steps, step)
+	}
+}
+
+type vr3Plan struct {
+	request      oc.ProjectRequest
+	outer, inner oc.Dependencies
+}
+type vr3Authority struct {
+	base             oc.ProjectAuthority
+	store            *vr3Store
+	issuer           oc.PlanIssuer
+	mu               sync.Mutex
+	plans            map[foundation.Digest]vr3Plan
+	stopPlans        int
+	afterStop        func()
+	denyStopPlanning bool
+}
+
+func vr3EqualLocks(a, b []foundation.LockRequest) bool {
+	return slices.EqualFunc(a, b, func(a, b foundation.LockRequest) bool {
+		return a.Key.Canonical() == b.Key.Canonical() && a.Mode == b.Mode
+	})
+}
+func (a *vr3Authority) Discover(ctx context.Context, request oc.ProjectRequest) (oc.Dependencies, error) {
+	if ctx.Value(vr3TxContext{}) != nil {
+		return oc.Dependencies{}, fmt.Errorf("Discover inside caller Tx")
+	}
+	inner, err := a.base.Discover(ctx, request)
+	if err != nil {
+		return oc.Dependencies{}, err
+	}
+	step := request.Details().LifecycleStep
+	if step == oc.LifecycleStop {
+		a.stopPlans++
+		if a.denyStopPlanning {
+			return oc.Dependencies{}, fmt.Errorf("terminal path incorrectly discovered Stop")
+		}
+	}
+	// Discovery order is high EX then low EX. The overlap must become EX.
+	keyName := "01900000-0000-7000-8000-000000000092"
+	mode := foundation.Shared
+	if step == oc.LifecycleStop {
+		keyName = "01900000-0000-7000-8000-000000000091"
+		mode = foundation.Exclusive
+	}
+	key, _ := foundation.AggregateLock(foundation.ExecutionAggregate, keyName)
+	overlap, _ := foundation.AggregateLock(foundation.ExecutionAggregate, "01900000-0000-7000-8000-000000000093")
+	locks := append(inner.Locks(), foundation.LockRequest{Key: key, Mode: foundation.Exclusive}, foundation.LockRequest{Key: overlap, Mode: mode})
+	binding, _ := oc.LifecycleBinding(request)
+	outer, err := oc.NewDependencies(a.issuer, binding, locks, []byte(step))
+	if err != nil {
+		return oc.Dependencies{}, err
+	}
+	a.mu.Lock()
+	a.plans[binding] = vr3Plan{request: request, inner: inner, outer: outer}
+	a.mu.Unlock()
+	if step == oc.LifecycleStop && a.afterStop != nil {
+		a.afterStop()
+	}
+	return outer, nil
+}
+func (a *vr3Authority) ValidateInTx(ctx context.Context, tx foundation.Tx, request oc.ProjectRequest, deps oc.Dependencies) error {
+	binding, err := oc.LifecycleBinding(request)
+	if err != nil {
+		return err
+	}
+	a.mu.Lock()
+	plan, ok := a.plans[binding]
+	a.mu.Unlock()
+	if !ok || !deps.Matches(a.issuer, binding) || !bytes.Equal(deps.Opaque(), plan.outer.Opaque()) || !vr3EqualLocks(deps.Locks(), plan.outer.Locks()) {
+		return fmt.Errorf("lost complete original private plan")
+	}
+	if err = a.store.RequireHeldLocks(ctx, tx, plan.outer.Locks()); err != nil {
+		return err
+	}
+	if err = a.base.ValidateInTx(ctx, tx, request, plan.inner); err != nil {
+		return err
+	}
+	a.store.validated(tx, request.Details().LifecycleStep)
+	return nil
+}
+func vr3Assembly(t *testing.T, f *r3Fixture, store *vr3Store) (*outbox.Service, *project.LifecycleAuthority, *vr3Authority) {
+	t.Helper()
+	manifest, _ := f.registry.Manifest()
+	facts, err := project.NewLifecycleAuthority(store, manifest, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	base, err := project.NewAuthority(store, project.AuthorityDependencies{Sessions: f.accounts, Routes: f.accounts, Lifecycle: facts})
+	if err != nil {
+		t.Fatal(err)
+	}
+	a := &vr3Authority{base: base, store: store, issuer: oc.NewPlanIssuer(), plans: make(map[foundation.Digest]vr3Plan)}
+	s, err := outbox.New(store, event.NewCatalog(), outbox.Authorizations{Projects: a, Processes: f.process})
+	if err != nil {
+		t.Fatal(err)
+	}
+	return s, facts, a
+}
+func vr3Receipt(t *testing.T, f *r3Fixture, o c.LifecycleOperation, phase string) {
+	t.Helper()
+	f.sql(t, `INSERT INTO agenteam_outbox.project_lifecycle(project_id,operation_id,action,project_version,phase,completed_at) VALUES($1,$2,$3,$4,$5,CASE WHEN $5='completed' THEN clock_timestamp() ELSE NULL END)`, o.ProjectID.String(), o.ID.String(), string(o.Action), int64(o.ProjectVersion), phase)
+}
+
+// All interleaved changes acquire the actual Project EX in another transaction.
+func vr3Change(t *testing.T, f *r3Fixture, o c.LifecycleOperation, kind string) {
+	t.Helper()
+	result := f.raw.WithinTx(ctxFor(t), cause(t), func(ctx context.Context, tx foundation.Tx) error {
+		if err := f.raw.AcquireAll(ctx, tx, []foundation.LockRequest{r3Lock(o.ProjectID, foundation.Exclusive)}); err != nil {
+			return err
+		}
+		x, err := f.raw.InTx(tx)
+		if err != nil {
+			return err
+		}
+		if kind == "pointer" {
+			_, err = x.Exec(ctx, `UPDATE agenteam_project.projects SET lifecycle='active',current_lifecycle_operation_id=NULL,version=version+1 WHERE id=$1`, o.ProjectID.String())
+			return err
+		}
+		if kind == "cleaning" {
+			if _, err = x.Exec(ctx, `UPDATE agenteam_project.lifecycle_participants SET stop_state='stopped' WHERE operation_id=$1`, o.ID.String()); err != nil {
+				return err
+			}
+			_, err = x.Exec(ctx, `UPDATE agenteam_project.lifecycle_operations SET state='cleaning',cleanup_stage='final',version=version+1,updated_at=clock_timestamp() WHERE id=$1`, o.ID.String())
+			return err
+		}
+		if _, err = x.Exec(ctx, `UPDATE agenteam_project.lifecycle_operations SET state='failed',resume_phase='stop',safe_reason='operation_failed',version=version+1,updated_at=clock_timestamp() WHERE id=$1`, o.ID.String()); err != nil {
+			return err
+		}
+		_, err = x.Exec(ctx, `UPDATE agenteam_outbox.project_lifecycle SET phase='stopped' WHERE project_id=$1`, o.ProjectID.String())
+		return err
+	})
+	if result.State() != foundation.Committed {
+		t.Fatal("EX fixture transition", result.Fault())
+	}
+}
+
+func TestProjectR3IndependentDualPlansAndRevocation(t *testing.T) {
+	f := newR3Fixture(t)
+	for _, change := range []string{"normal", "cleaning", "pointer"} {
+		t.Run(change, func(t *testing.T) {
+			o, actor, cause := f.accept(t, c.Delete)
+			f.phase(t, o, c.OperationStopping)
+			vr3Receipt(t, f, o, "stopping")
+			store := newVR3Store(f.raw)
+			svc, _, a := vr3Assembly(t, f, store)
+			if change != "normal" {
+				a.afterStop = func() { vr3Change(t, f, o, change) }
+			}
+			before := f.outboxSnapshot(t)
+			report, err := svc.InspectStop(ctxFor(t), actor, cause)
+			if change != "normal" {
+				want := foundation.InvalidState
+				if change == "pointer" {
+					want = foundation.Forbidden
+				}
+				requireCode(t, err, want)
+				if report.Stopped || a.stopPlans != 1 || f.outboxSnapshot(t) != before {
+					t.Fatal("revoked continuation changed Outbox or succeeded")
+				}
+				return
+			}
+			if err != nil || !report.Stopped {
+				t.Fatal("real facts continuation", report, err)
+			}
+			owners := map[string]bool{}
+			for _, r := range store.records {
+				if r.owner == "outbox.stop-observe" {
+					if !slices.Equal(r.steps, []oc.LifecycleStep{oc.LifecycleInspect}) {
+						t.Fatal("observation sequence", r.steps)
+					}
+					continue
+				}
+				owners[r.owner] = true
+				if !slices.Equal(r.steps, []oc.LifecycleStep{oc.LifecycleInspect, oc.LifecycleStop}) {
+					t.Fatal("missing same-Tx dual validation", r.owner, r.steps)
+				}
+				overlap, _ := foundation.AggregateLock(foundation.ExecutionAggregate, "01900000-0000-7000-8000-000000000093")
+				seen := 0
+				for _, lock := range r.locks {
+					if lock.Key.Canonical() == overlap.Canonical() {
+						seen++
+						if lock.Mode != foundation.Exclusive {
+							t.Fatal("SH overlap weakened EX")
+						}
+					}
+				}
+				if seen != 1 {
+					t.Fatal("overlap not normalized once", seen)
+				}
+			}
+			for _, owner := range []string{"outbox.stop-authorize", "outbox.stop-gate", "outbox.stop-progress", "outbox.stop-inspect"} {
+				if !owners[owner] {
+					t.Fatal("missing physical boundary", owner)
+				}
+			}
+			t.Log("real Project facts: inspect/stop private plans, distinct EX dependencies, overlapping SH->EX, single union, four exact Tx dual validations")
+		})
+	}
+}
+
+func TestProjectR3IndependentTerminalReadOnly(t *testing.T) {
+	f := newR3Fixture(t)
+	for _, state := range []string{"failed", "deleted"} {
+		t.Run(state, func(t *testing.T) {
+			var o c.LifecycleOperation
+			var actor identity.Actor
+			var cause oc.LifecycleCause
+			phase := "stopped"
+			if state == "deleted" {
+				o, actor, cause = f.deletion(t)
+				phase = "completed"
+			} else {
+				o, actor, cause = f.accept(t, c.Archive)
+				f.phase(t, o, c.OperationFailed)
+			}
+			vr3Receipt(t, f, o, phase)
+			store := newVR3Store(f.raw)
+			store.readOnly = true
+			svc, _, a := vr3Assembly(t, f, store)
+			a.denyStopPlanning = true
+			before := f.outboxSnapshot(t)
+			report, err := svc.InspectStop(ctxFor(t), actor, cause)
+			if err != nil || !report.Stopped || a.stopPlans != 0 || len(store.records) != 1 || f.outboxSnapshot(t) != before {
+				t.Fatal("terminal not a committed single read-only transaction", report, err, a.stopPlans, len(store.records))
+			}
+			for _, r := range store.records {
+				if r.owner != "outbox.stop-observe" || r.result.State() != foundation.Committed {
+					t.Fatal("terminal wrong Tx/commit")
+				}
+			}
+			t.Log("real PostgreSQL READ ONLY transaction succeeded; no Stop discovery or checkpoint mutation")
+		})
+	}
+	for _, target := range []string{"outbox.stop-authorize", "outbox.stop-gate", "outbox.stop-progress", "outbox.stop-inspect"} {
+		t.Run("terminal-at/"+target, func(t *testing.T) {
+			o, actor, cause := f.accept(t, c.Archive)
+			f.phase(t, o, c.OperationStopping)
+			vr3Receipt(t, f, o, "stopping")
+			store := newVR3Store(f.raw)
+			svc, _, _ := vr3Assembly(t, f, store)
+			changed := false
+			afterTerminal := ""
+			store.before = func(owner string) {
+				if owner == target && !changed {
+					changed = true
+					vr3Change(t, f, o, "terminal")
+					afterTerminal = f.outboxSnapshot(t)
+				}
+			}
+			report, err := svc.InspectStop(ctxFor(t), actor, cause)
+			if err != nil || !report.Stopped || !changed || afterTerminal != f.outboxSnapshot(t) {
+				t.Fatal("terminal transition not read-only", report, err, changed)
+			}
+			found := false
+			for _, r := range store.records {
+				if r.owner == target {
+					found = true
+					if !slices.Equal(r.steps, []oc.LifecycleStep{oc.LifecycleInspect}) {
+						t.Fatal("terminal required Stop", r.steps)
+					}
+				}
+			}
+			if !found {
+				t.Fatal("target not entered")
+			}
+		})
+	}
+}
+
+func TestProjectR3IndependentExactCommitUnknown(t *testing.T) {
+	f := newR3Fixture(t)
+	for _, target := range []string{"project.lifecycle-actor", "outbox.stop-observe", "outbox.stop-authorize"} {
+		for _, commit := range []bool{true, false} {
+			t.Run(fmt.Sprintf("%s/commit=%t", target, commit), func(t *testing.T) {
+				o, actor, cause := f.accept(t, c.Archive)
+				f.phase(t, o, c.OperationStopping)
+				phase := "stopping"
+				if target == "outbox.stop-observe" {
+					phase = "stopped"
+				}
+				vr3Receipt(t, f, o, phase)
+				proxy := newVR3CommitProxy(t, net.JoinHostPort("127.0.0.1", f.db.Fixture.Port), commit)
+				u, err := url.Parse(f.db.Fixture.URL(f.db.Name))
+				if err != nil {
+					t.Fatal(err)
+				}
+				u.Host = proxy.listener.Addr().String()
+				raw := openStore(t, f.db.Config(t, map[string]string{"URL": u.String(), "TLS_MODE": "disable"}))
+				store := newVR3Store(raw)
+				store.proxy = proxy
+				store.target = target
+				store.expected = o
+				store.expectedReceipt = phase
+				svc, facts, _ := vr3Assembly(t, f, store)
+				before := f.outboxSnapshot(t)
+				if target == "project.lifecycle-actor" {
+					got, e := facts.ResolveLifecycleActor(ctxFor(t), cause)
+					err = e
+					if got.Validate() == nil {
+						t.Fatal("Unknown exposed actor")
+					}
+				} else {
+					got, e := svc.InspectStop(ctxFor(t), actor, cause)
+					err = e
+					if got.Stopped {
+						t.Fatal("Unknown exposed stopped")
+					}
+				}
+				requireCode(t, err, foundation.CommitUnknown)
+				await(t, proxy.reached)
+				if !store.fired.Load() || proxy.hitPID.Load() == 0 || proxy.hitPID.Load() != proxy.targetPID.Load() {
+					t.Fatal("wrong COMMIT backend")
+				}
+				var holders int
+				if err = f.raw.QueryRow(ctxFor(t), `SELECT count(*) FROM pg_locks WHERE pid=$1 AND locktype='advisory' AND mode='ShareLock' AND granted`, proxy.hitPID.Load()).Scan(&holders); err != nil || holders == 0 {
+					t.Fatal("original target lost live SH", holders, err)
+				}
+				targets := 0
+				for _, r := range store.records {
+					if r.owner == target {
+						targets++
+						if r.result.State() != foundation.Unknown || r.result.AttemptID().Validate() != nil {
+							t.Fatal("original physical CommitResult not Unknown")
+						}
+					}
+				}
+				if targets != 1 || f.outboxSnapshot(t) != before {
+					t.Fatal("Unknown target count or side effect", targets)
+				}
+				t.Logf("actual COMMIT held for target=%s backend=%d share-locks=%d, exact facts and Tx validation steps verified", target, proxy.hitPID.Load(), holders)
+				close(proxy.release)
+				await(t, proxy.completed)
+				vr3Change(t, f, o, "pointer")
+				if target == "project.lifecycle-actor" {
+					got, e := facts.ResolveLifecycleActor(ctxFor(t), cause)
+					err = e
+					if got.Validate() == nil {
+						t.Fatal("stale retry returned actor")
+					}
+				} else {
+					got, e := svc.InspectStop(ctxFor(t), actor, cause)
+					err = e
+					if got.Stopped {
+						t.Fatal("stale retry stopped")
+					}
+				}
+				requireCode(t, err, foundation.Forbidden)
+				if f.outboxSnapshot(t) != before {
+					t.Fatal("stale retry mutated Outbox")
+				}
+			})
+		}
+	}
+}

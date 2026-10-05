@@ -1,0 +1,90 @@
+{
+  "exit": 0,
+  "seconds": 148.7180884290001,
+  "after": {
+    "containers": [
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e"
+    ],
+    "networks": [
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+      "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5"
+    ]
+  },
+  "baseline_preserved": true,
+  "owned_create_events": [
+    {
+      "kind": "network",
+      "id": "8c29713398bfb9ba122542d12175f05e81f8cfa62935eb960582de0ada714670",
+      "name": "agenteam-d05-object-6f374753e9e670e3233f757b0bfd3c41",
+      "labels": {},
+      "inspect_exit": 1,
+      "inspect_stdout": "",
+      "inspect_stderr": "Error response from daemon: network 8c29713398bfb9ba122542d12175f05e81f8cfa62935eb960582de0ada714670 not found"
+    },
+    {
+      "kind": "container",
+      "id": "2e54935b09a9db1783f97eb9334a0f630c3c5d9ac07b5e4aec9937838a58134c",
+      "name": "agenteam-d05-object-6f374753e9e670e3233f757b0bfd3c41",
+      "labels": {
+        "agenteam.d05.objectfixture": "6f374753e9e670e3233f757b0bfd3c41"
+      },
+      "inspect_exit": 1,
+      "inspect_stdout": "",
+      "inspect_stderr": "Error: No such object: 2e54935b09a9db1783f97eb9334a0f630c3c5d9ac07b5e4aec9937838a58134c"
+    },
+    {
+      "kind": "network",
+      "id": "93afb99889e89cb55acced78dc8781d6e7dde8808a0d9656a35e5de49b00b5d6",
+      "name": "agenteam-d04-net-e776f4081a281884d81203701c871432",
+      "labels": {},
+      "inspect_exit": 1,
+      "inspect_stdout": "",
+      "inspect_stderr": "Error response from daemon: network 93afb99889e89cb55acced78dc8781d6e7dde8808a0d9656a35e5de49b00b5d6 not found"
+    },
+    {
+      "kind": "container",
+      "id": "c4640c66b3442dcbcc28da04a1eb6d846e7c43004151d8e3d347ec081953294c",
+      "name": "agenteam-d04-net-e776f4081a281884d81203701c871432",
+      "labels": {
+        "agenteam.d04.networkfixture": "e776f4081a281884d81203701c871432"
+      },
+      "inspect_exit": 1,
+      "inspect_stdout": "",
+      "inspect_stderr": "Error: No such object: c4640c66b3442dcbcc28da04a1eb6d846e7c43004151d8e3d347ec081953294c"
+    },
+    {
+      "kind": "network",
+      "id": "85f01a46d5aeab1f67ac40a03cc7c3bbffed4380b81deef9b340fbb610e7fd09",
+      "name": "agenteam-d03-0e23ed5d0f28ae3103ba1ae86930b485",
+      "labels": {},
+      "inspect_exit": 1,
+      "inspect_stdout": "",
+      "inspect_stderr": "Error response from daemon: network 85f01a46d5aeab1f67ac40a03cc7c3bbffed4380b81deef9b340fbb610e7fd09 not found"
+    },
+    {
+      "kind": "container",
+      "id": "ad6a59a5a1d41884479e76b9d1d4466ddc3b2a779ff56386f13428481adc27af",
+      "name": "agenteam-d03-0e23ed5d0f28ae3103ba1ae86930b485",
+      "labels": {
+        "agenteam.d03.fixture": "0e23ed5d0f28ae3103ba1ae86930b485"
+      },
+      "inspect_exit": 1,
+      "inspect_stdout": "",
+      "inspect_stderr": "Error: No such object: ad6a59a5a1d41884479e76b9d1d4466ddc3b2a779ff56386f13428481adc27af"
+    },
+    {
+      "kind": "container",
+      "id": "07d8dc6ba2ff12b3efd8bcf0ec1e65e7beb1e14cc2959750e765c83bcba75280",
+      "name": "agenteam-d03-0e23ed5d0f28ae3103ba1ae86930b485-pg16",
+      "labels": {
+        "agenteam.d03.fixture": "0e23ed5d0f28ae3103ba1ae86930b485"
+      },
+      "inspect_exit": 1,
+      "inspect_stdout": "",
+      "inspect_stderr": "Error: No such object: 07d8dc6ba2ff12b3efd8bcf0ec1e65e7beb1e14cc2959750e765c83bcba75280"
+    }
+  ]
+}

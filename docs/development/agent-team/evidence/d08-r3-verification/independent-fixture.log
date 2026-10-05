@@ -1,0 +1,114 @@
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.92.114.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=7bdd6e4d3d266ac195fe109fc931cd8f
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=126d7026292aab8735f7826befce4f20
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.038s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	4.808s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.040s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.059s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.047s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.055s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.026s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.023s [no tests to run]
+=== RUN   TestProjectR3IndependentDualPlansAndRevocation
+=== RUN   TestProjectR3IndependentDualPlansAndRevocation/normal
+    vr3_independent_test.go:339: real Project facts: inspect/stop private plans, distinct EX dependencies, overlapping SH->EX, single union, four exact Tx dual validations
+=== RUN   TestProjectR3IndependentDualPlansAndRevocation/cleaning
+=== RUN   TestProjectR3IndependentDualPlansAndRevocation/pointer
+--- PASS: TestProjectR3IndependentDualPlansAndRevocation (1.70s)
+    --- PASS: TestProjectR3IndependentDualPlansAndRevocation/normal (0.16s)
+    --- PASS: TestProjectR3IndependentDualPlansAndRevocation/cleaning (0.17s)
+    --- PASS: TestProjectR3IndependentDualPlansAndRevocation/pointer (0.28s)
+=== RUN   TestProjectR3IndependentTerminalReadOnly
+=== RUN   TestProjectR3IndependentTerminalReadOnly/failed
+    vr3_independent_test.go:374: real PostgreSQL READ ONLY transaction succeeded; no Stop discovery or checkpoint mutation
+=== RUN   TestProjectR3IndependentTerminalReadOnly/deleted
+    vr3_independent_test.go:374: real PostgreSQL READ ONLY transaction succeeded; no Stop discovery or checkpoint mutation
+=== RUN   TestProjectR3IndependentTerminalReadOnly/terminal-at/outbox.stop-authorize
+=== RUN   TestProjectR3IndependentTerminalReadOnly/terminal-at/outbox.stop-gate
+=== RUN   TestProjectR3IndependentTerminalReadOnly/terminal-at/outbox.stop-progress
+=== RUN   TestProjectR3IndependentTerminalReadOnly/terminal-at/outbox.stop-inspect
+--- PASS: TestProjectR3IndependentTerminalReadOnly (3.39s)
+    --- PASS: TestProjectR3IndependentTerminalReadOnly/failed (0.23s)
+    --- PASS: TestProjectR3IndependentTerminalReadOnly/deleted (0.01s)
+    --- PASS: TestProjectR3IndependentTerminalReadOnly/terminal-at/outbox.stop-authorize (0.28s)
+    --- PASS: TestProjectR3IndependentTerminalReadOnly/terminal-at/outbox.stop-gate (0.25s)
+    --- PASS: TestProjectR3IndependentTerminalReadOnly/terminal-at/outbox.stop-progress (0.33s)
+    --- PASS: TestProjectR3IndependentTerminalReadOnly/terminal-at/outbox.stop-inspect (0.39s)
+=== RUN   TestProjectR3IndependentExactCommitUnknown
+=== RUN   TestProjectR3IndependentExactCommitUnknown/project.lifecycle-actor/commit=true
+    vr3_independent_test.go:473: actual COMMIT held for target=project.lifecycle-actor backend=138 share-locks=1, exact facts and Tx validation steps verified
+=== RUN   TestProjectR3IndependentExactCommitUnknown/project.lifecycle-actor/commit=false
+    vr3_independent_test.go:473: actual COMMIT held for target=project.lifecycle-actor backend=141 share-locks=1, exact facts and Tx validation steps verified
+=== RUN   TestProjectR3IndependentExactCommitUnknown/outbox.stop-observe/commit=true
+    vr3_independent_test.go:473: actual COMMIT held for target=outbox.stop-observe backend=144 share-locks=2, exact facts and Tx validation steps verified
+=== RUN   TestProjectR3IndependentExactCommitUnknown/outbox.stop-observe/commit=false
+    vr3_independent_test.go:473: actual COMMIT held for target=outbox.stop-observe backend=147 share-locks=2, exact facts and Tx validation steps verified
+=== RUN   TestProjectR3IndependentExactCommitUnknown/outbox.stop-authorize/commit=true
+    vr3_independent_test.go:473: actual COMMIT held for target=outbox.stop-authorize backend=150 share-locks=1, exact facts and Tx validation steps verified
+=== RUN   TestProjectR3IndependentExactCommitUnknown/outbox.stop-authorize/commit=false
+    vr3_independent_test.go:473: actual COMMIT held for target=outbox.stop-authorize backend=153 share-locks=1, exact facts and Tx validation steps verified
+--- PASS: TestProjectR3IndependentExactCommitUnknown (4.94s)
+    --- PASS: TestProjectR3IndependentExactCommitUnknown/project.lifecycle-actor/commit=true (0.39s)
+    --- PASS: TestProjectR3IndependentExactCommitUnknown/project.lifecycle-actor/commit=false (0.41s)
+    --- PASS: TestProjectR3IndependentExactCommitUnknown/outbox.stop-observe/commit=true (0.32s)
+    --- PASS: TestProjectR3IndependentExactCommitUnknown/outbox.stop-observe/commit=false (0.53s)
+    --- PASS: TestProjectR3IndependentExactCommitUnknown/outbox.stop-authorize/commit=true (0.56s)
+    --- PASS: TestProjectR3IndependentExactCommitUnknown/outbox.stop-authorize/commit=false (0.39s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	11.057s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.024s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/model	1.028s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.031s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.028s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.024s [no tests to run]
+D03 fixture cleanup checked for nonce d3346fc3111b8aecaa45be92dd49a740
+D04 outbound fixture cleanup checked for nonce 126d7026292aab8735f7826befce4f20
+D05 object fixture exact resource cleanup checked nonce=7bdd6e4d3d266ac195fe109fc931cd8f

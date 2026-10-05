@@ -1,0 +1,5 @@
+{
+  "stage": "overlay path assembly before compile/fixture",
+  "error": "TypeError: unsupported operand type(s) for +: PosixPath and str",
+  "repair": "Use Path / filename instead of Path + filename; no source or fixture executed"
+}

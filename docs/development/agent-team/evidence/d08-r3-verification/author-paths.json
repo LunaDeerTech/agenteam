@@ -1,0 +1,18 @@
+[
+  "internal/central/project/authority.go",
+  "internal/central/project/events.go",
+  "internal/central/project/lifecycle_authority.go",
+  "internal/central/project/object_stop_authority.go",
+  "internal/central/project/outbox_lifecycle_authority.go",
+  "internal/central/project/lifecycle_authority_test.go",
+  "internal/central/project/object_stop_authority_test.go",
+  "internal/central/project/outbox_lifecycle_authority_test.go",
+  "internal/central/outbox/cleanup.go",
+  "internal/central/outbox/lifecycle_inspection.go",
+  "internal/central/outbox/lifecycle_inspection_test.go",
+  "tests/project/b03_r3_fixture_test.go",
+  "tests/project/b03_r3_authority_test.go",
+  "tests/project/b03_r3_object_stop_authority_test.go",
+  "tests/project/b03_r3_outbox_inspection_test.go",
+  "tests/outbox/lifecycle_inspection_continuation_test.go"
+]

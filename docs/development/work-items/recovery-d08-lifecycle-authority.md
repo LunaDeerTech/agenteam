@@ -1,6 +1,6 @@
 # D08 恢复：生命周期事实授权与只读停止查询
 
-修订：rev1。状态：R2 已独立验收；本卡已通过独立静审并获主线程采纳，代码实施与资源按下述范围另行下发。设计作者仅拥有本新增卡；不修改共享设计、台账、代码、迁移或 Git。
+修订：rev2，仅同步阶段状态，rev1冻结API与行为不变。R3十六源已独立验收通过并由主线程采纳、提交推送`3e399c3044fbd256994ad4bb6f184a0a26787ea0`，远端一致。下文规格与静审记录保留当时事实，正式验收及后继边界见文末。
 
 ## 输入、完整结果与边界
 
@@ -140,3 +140,9 @@ var _ ob.LifecycleActorResolver = (*Authority)(nil)
 2026-10-05，未参与本卡编写的 `skill_verification` 对冻结 SHA-256 `b10c340a922dbe09d59f2ee224fc18974e02138e34509719f43209e23bd0f766` 完成独立静审，通过且无确定硬阻断。API 与不可变声明装配无构造循环；当前 cause、完整 manifest、版本和 Object read_only 矩阵可落地；Outbox 私有双计划完整 union、每 Tx terminal 短路及双验证可在授权窄范围内实现，无需修改公共契约、普通 delivery 或 Audit。15 个链接/fragment、输入指纹及空白检查通过，未运行产品测试。报告为 `/tmp/agenteam-d08-r3-static-krsf3jml/review.md`，SHA-256 `9fb1b7a0e6130b6ad898725bf70743dfcd575f8e4e3a8f1ada86781cbc5f01f9`；此处持久保留结论，不依赖临时文件存续。
 
 实施须按本卡保留取消的准确边界：未获 committed preflight 前拒绝/Unknown 为零 cancel；已授权提交后的精确捕获仍沿原取消协议，不要求后续 gate 失败撤回此前合法取消。主线程采纳只更新状态与本记录，原行为要求不变；实现和独立真实验收仍待完成。
+
+## R3 独立验收与后继交接
+
+R3十六源已独立验收并由主线程采纳、提交推送`3e399c3`，精确匹配作者清单SHA-256 `d0e5fd1c03cf6b9a22c74ae299b324d983a537a90bab8dd329d79f572d8b25d9`。[正式报告](../agent-team/d08-r3-verification.md)复用作者pure race/vet/compile及修后Project 38顶层、Outbox 21顶层及包内2顶层通过，保留原始编译/fixture失败与修复；独立真实PG race 3顶层15子例通过（11.057s），两cmd构建及探针compile/vet通过，4容器3网络及所属进程清零。
+
+本次通过范围为事实Authority、Object typed port与Outbox只读Inspect；callback实际join复用作者真实Outbox协议证据，本次不覆盖实际Object stop、生命周期推进、cleanup、普通delivery、HTTP或root。[Secret checker](recovery-secret-project-audit.md) `d57ce0b`作者8源已冻结待独立验收，真实新/旧组完成且4容器2网络清零；唯一fixture已由主线程交S2作者，Secret验收者先静审、等待窗口。Project+Secret绑定卡由`restore_test_dependencies`准备、未实施；后继按正式已验输入另行下发。

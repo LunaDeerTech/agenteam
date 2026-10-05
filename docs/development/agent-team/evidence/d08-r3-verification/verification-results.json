@@ -1,0 +1,54 @@
+{
+  "status": "passed_with_explicit_scope",
+  "base": "49c6589c3919cad62a4bae2c993b5fd953d36b1e",
+  "source_manifest_sha256": "d0e5fd1c03cf6b9a22c74ae299b324d983a537a90bab8dd329d79f572d8b25d9",
+  "code_commit": "3e399c3044fbd256994ad4bb6f184a0a26787ea0",
+  "author_top_passes": {
+    "tests/project": 38,
+    "tests/outbox": 21,
+    "internal/central/outbox": 2
+  },
+  "author_skip": "TestProjectB02ClaimChild child-only helper",
+  "author_first_to_final_changed_inputs": [
+    "tests/project/b03_r3_fixture_test.go",
+    "tests/project/b03_r3_authority_test.go",
+    "tests/project/b03_r3_outbox_inspection_test.go",
+    "tests/outbox/lifecycle_inspection_continuation_test.go"
+  ],
+  "independent_top_passes": [
+    "TestProjectR3IndependentDualPlansAndRevocation",
+    "TestProjectR3IndependentTerminalReadOnly",
+    "TestProjectR3IndependentExactCommitUnknown"
+  ],
+  "independent_sub_passes": [
+    "TestProjectR3IndependentDualPlansAndRevocation/normal",
+    "TestProjectR3IndependentDualPlansAndRevocation/cleaning",
+    "TestProjectR3IndependentDualPlansAndRevocation/pointer",
+    "TestProjectR3IndependentTerminalReadOnly/failed",
+    "TestProjectR3IndependentTerminalReadOnly/deleted",
+    "TestProjectR3IndependentTerminalReadOnly/terminal-at/outbox.stop-authorize",
+    "TestProjectR3IndependentTerminalReadOnly/terminal-at/outbox.stop-gate",
+    "TestProjectR3IndependentTerminalReadOnly/terminal-at/outbox.stop-progress",
+    "TestProjectR3IndependentTerminalReadOnly/terminal-at/outbox.stop-inspect",
+    "TestProjectR3IndependentExactCommitUnknown/project.lifecycle-actor/commit=true",
+    "TestProjectR3IndependentExactCommitUnknown/project.lifecycle-actor/commit=false",
+    "TestProjectR3IndependentExactCommitUnknown/outbox.stop-observe/commit=true",
+    "TestProjectR3IndependentExactCommitUnknown/outbox.stop-observe/commit=false",
+    "TestProjectR3IndependentExactCommitUnknown/outbox.stop-authorize/commit=true",
+    "TestProjectR3IndependentExactCommitUnknown/outbox.stop-authorize/commit=false"
+  ],
+  "independent_project_seconds": 11.057,
+  "driver_seconds": 58.589902136999626,
+  "probe_files": {
+    "vr3_independent_test.go.txt": "018eb4dafc45bae6b7890ed6aefc20a2586598a03d6b82604f8629e2b95e2dba",
+    "vr3_commit_proxy_test.go.txt": "2942fec96f10cea7ee49d3a3feab9aad98012ad93ed76c2b2ab2c7b648ca0279"
+  },
+  "encoded_evidence": {
+    "author-first-repair.patch": "author-first-repair.patch.json",
+    "author-phase-race-coverage.patch": "author-phase-race-coverage.patch.json"
+  },
+  "fixture_handed_back": true,
+  "independent_probe_failures": 0,
+  "preparation_script_failure": "One Python Path concatenation error before compile/fixture; recorded separately.",
+  "commit_source_hashes_verified": true
+}

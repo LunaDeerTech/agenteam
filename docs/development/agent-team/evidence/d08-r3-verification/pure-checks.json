@@ -1,0 +1,69 @@
+[
+  {
+    "name": "compile-probes",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "test",
+      "-tags=integration",
+      "-run",
+      "^$",
+      "./tests/project"
+    ],
+    "environment": {
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+      "GOCACHE": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+      "GOTMPDIR": "/tmp/agenteam-d08-r3-verification-avo614i6/runtime",
+      "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-d08-r3-verification-avo614i6/overlay.json"
+    },
+    "exit": 0,
+    "seconds": 9.55
+  },
+  {
+    "name": "build-two-cmd",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "build",
+      "-o",
+      "/tmp/agenteam-d08-r3-verification-avo614i6/bin/",
+      "./cmd/agenteam",
+      "./cmd/agenteam-runner"
+    ],
+    "environment": {
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+      "GOCACHE": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+      "GOTMPDIR": "/tmp/agenteam-d08-r3-verification-avo614i6/runtime",
+      "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-d08-r3-verification-avo614i6/overlay.json"
+    },
+    "exit": 0,
+    "seconds": 1.879
+  },
+  {
+    "name": "vet-probes",
+    "argv": [
+      "/workspace/toolchains/go1.27.1/bin/go",
+      "vet",
+      "-tags=integration",
+      "./tests/project"
+    ],
+    "environment": {
+      "GOTOOLCHAIN": "local",
+      "GOENV": "off",
+      "GOWORK": "off",
+      "GOPROXY": "off",
+      "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+      "GOCACHE": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+      "GOTMPDIR": "/tmp/agenteam-d08-r3-verification-avo614i6/runtime",
+      "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-d08-r3-verification-avo614i6/overlay.json"
+    },
+    "exit": 0,
+    "seconds": 3.58
+  }
+]

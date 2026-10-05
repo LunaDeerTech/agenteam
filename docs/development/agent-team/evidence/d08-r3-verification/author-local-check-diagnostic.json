@@ -1,0 +1,17 @@
+{
+  "scope": "evidence/whitespace helper only; no product or test failure",
+  "first_command": [
+    "git",
+    "diff",
+    "--no-index",
+    "--check",
+    "/dev/null",
+    "/workspace/agenteam/internal/central/project/authority.go"
+  ],
+  "actual": {
+    "exit": 1,
+    "stdout": "",
+    "stderr": ""
+  },
+  "diagnosis": "--no-index implicitly uses --exit-code; an actual diff can return 1 without whitespace diagnostics. Explicit trailing-whitespace checks and diagnostic output are now checked."
+}

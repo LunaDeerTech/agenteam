@@ -1,0 +1,79 @@
+{
+  "command": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestProjectR3Independent"
+  ],
+  "cwd": "/tmp/agenteam-d08-r3-verification-avo614i6/snapshot",
+  "base": "49c6589c3919cad62a4bae2c993b5fd953d36b1e",
+  "environment": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOMODCACHE": "/workspace/agenteam-dependency-cache/modcache",
+    "GOCACHE": "/tmp/agenteam-d08-b02-baseline-2h_8imsq/cache",
+    "GOTMPDIR": "/tmp/agenteam-d08-r3-verification-avo614i6/runtime",
+    "TMPDIR": "/tmp/agenteam-d08-r3-verification-avo614i6/runtime",
+    "GOFLAGS": "-mod=readonly -overlay=/tmp/agenteam-d08-r3-verification-avo614i6/overlay.json -v",
+    "DOCKER_CONFIG": "/tmp/agenteam-d08-r3-verification-avo614i6/docker-config",
+    "DOCKER_HOST": "unix:///var/run/docker.sock"
+  },
+  "unset": [
+    "DOCKER_CONTEXT",
+    "DOCKER_TLS_VERIFY",
+    "DOCKER_CERT_PATH",
+    "DOCKER_API_VERSION",
+    "AGENTEAM_OBJECT_FIXTURE",
+    "AGENTEAM_POSTGRES_FIXTURE",
+    "AGENTEAM_NETWORK_FIXTURE"
+  ],
+  "before": {
+    "containers": [
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e"
+    ],
+    "networks": [
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+      "e26edecdda2f872a36a4f0fe2f1d9314daab5bbd3da2f1512f8bfa525e7589d5"
+    ]
+  },
+  "start": "2026-10-05T12:22:52.990804+00:00",
+  "source_hashes": {
+    "internal/central/project/authority.go": "3ff3d5077c5d2f1f95211bd84100ec4d337e55f0ae3fb401c5f9c5bc15a88523",
+    "internal/central/project/events.go": "bd0e1cd665db2810cd6c742629ae9829b6202518b0fd35d30565a360b472426c",
+    "internal/central/project/lifecycle_authority.go": "68991ca494de669782289bf07ea2dc34295420ce041219b20d301880602affc5",
+    "internal/central/project/object_stop_authority.go": "4364561fde869070d4da29d7b4be5ead4a2d8f7d28bd9a6d2946e7b8874cf7c4",
+    "internal/central/project/outbox_lifecycle_authority.go": "baa179061cd51e6b1b4896f3957bfcb914eb8bb8b0eb37df91f6947969f772e3",
+    "internal/central/project/lifecycle_authority_test.go": "09bdf522c8ac4d114800d4cb9d119bfff1f9ebe9eacfc1e58981ddb2fb4c0977",
+    "internal/central/project/object_stop_authority_test.go": "71149577c69e8bad2ffe3fae48fba58de21e602479bfbacca5d014e25e767f0f",
+    "internal/central/project/outbox_lifecycle_authority_test.go": "c213f98dfe45148095b3f669846da882f63fa8263834e81a4d492d54152de055",
+    "internal/central/outbox/cleanup.go": "4c46647768262cee346cdb2ceb275b8f1912211423b3484d739d712ae180cfef",
+    "internal/central/outbox/lifecycle_inspection.go": "05c7325f6e62ab01a0bc4400d7e921033770cb3b7314f7e9821bd9fa810f2c35",
+    "internal/central/outbox/lifecycle_inspection_test.go": "74c35fefbcd09f8766317a900ef83b7953f179c053a5da6b1cd6d8a5a7d5165b",
+    "tests/project/b03_r3_fixture_test.go": "08c648c44071db30f8635da8b526ca4f49858b240565045af3b23ee46c6273c8",
+    "tests/project/b03_r3_authority_test.go": "3c17e5dc6a64802b0c45f5f8e64f541dfa1545a04584247d8aca013d02f3fae7",
+    "tests/project/b03_r3_object_stop_authority_test.go": "50604c13956fea21252e2ca06607b2930bc509a10e975d3c0e9e65a82edb85be",
+    "tests/project/b03_r3_outbox_inspection_test.go": "8a1f8193270269ec7bad881cccfc2056d9027c438464187e28241773fe216272",
+    "tests/outbox/lifecycle_inspection_continuation_test.go": "f1e2350682271b47565414dd324f5242c2cd6a9c753abf437b0169c916e27808"
+  },
+  "probe_hashes": {
+    "vr3_independent_test.go": "018eb4dafc45bae6b7890ed6aefc20a2586598a03d6b82604f8629e2b95e2dba",
+    "vr3_commit_proxy_test.go": "2942fec96f10cea7ee49d3a3feab9aad98012ad93ed76c2b2ab2c7b648ca0279"
+  },
+  "tools": {
+    "AGENTEAM_GO": {
+      "path": "/workspace/toolchains/go1.27.1/bin/go",
+      "sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624"
+    },
+    "AGENTEAM_MINIO_BINARY": {
+      "path": "/workspace/agenteam-dependency-recovery-5drj88a2/bin/minio",
+      "sha256": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8"
+    }
+  }
+}

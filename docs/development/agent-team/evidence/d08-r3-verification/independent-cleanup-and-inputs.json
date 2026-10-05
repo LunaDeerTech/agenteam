@@ -1,0 +1,125 @@
+{
+  "verified_at": "2026-10-05T12:24:13.032813+00:00",
+  "owned_absent": [
+    {
+      "kind": "network",
+      "id": "e7a79d36d8aa45224b59b2a1409c7b3dae908d0a4309bb6dab5846e2620743f3",
+      "absent": true
+    },
+    {
+      "kind": "container",
+      "id": "f0be8b2cb078674f37ea50b387aecd8913b0298084d5c2f9f48a0040167cd6df",
+      "absent": true
+    },
+    {
+      "kind": "network",
+      "id": "4b89b67c0480e66fbeaacd75562f5472b3c140ccf831012376e4c8ed5f071f9c",
+      "absent": true
+    },
+    {
+      "kind": "container",
+      "id": "862daf7c306cc8534a0ae974957712f1c08e963a5016b3a5d7787b0e947f61b6",
+      "absent": true
+    },
+    {
+      "kind": "network",
+      "id": "1026b4c093945d6345919afc79e6832cdf7c79deae13df7b65eae6df3acb00a6",
+      "absent": true
+    },
+    {
+      "kind": "container",
+      "id": "59446044698f8656a3bd6ca22f9bbfafbad4ced40001957724a75c62216931e1",
+      "absent": true
+    },
+    {
+      "kind": "container",
+      "id": "3d6da3f234a580a42983a99fa8d347cd14a7f784119692765a09f124d3a959e1",
+      "absent": true
+    }
+  ],
+  "baseline_unchanged": true,
+  "processes": [],
+  "runtime_empty": true,
+  "all_16_source_matches": {
+    "internal/central/project/authority.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "internal/central/project/events.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "internal/central/project/lifecycle_authority.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "internal/central/project/object_stop_authority.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "internal/central/project/outbox_lifecycle_authority.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "internal/central/project/lifecycle_authority_test.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "internal/central/project/object_stop_authority_test.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "internal/central/project/outbox_lifecycle_authority_test.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "internal/central/outbox/cleanup.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "internal/central/outbox/lifecycle_inspection.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "internal/central/outbox/lifecycle_inspection_test.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "tests/project/b03_r3_fixture_test.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "tests/project/b03_r3_authority_test.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "tests/project/b03_r3_object_stop_authority_test.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "tests/project/b03_r3_outbox_inspection_test.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    },
+    "tests/outbox/lifecycle_inspection_continuation_test.go": {
+      "snapshot": true,
+      "author": true,
+      "workspace": true
+    }
+  }
+}

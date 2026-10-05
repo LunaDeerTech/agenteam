@@ -6,14 +6,14 @@
 
 2026-10-05 中断恢复以 `main = origin/main = 8872110099c84cf0600bb5b62cdcd6c0c6c843e3` 为初始基线，工作区当时干净、无未推送提交。主线程已实际核对远端并建立同提交的本地 `main`；详细现存源码、缺失产物和下一步见[本次恢复记录](recovery-2026-10-05.md)。
 
-恢复文档、D10 P1及D08 R1/R2已按下文提交；D05 S1两源已独立验收并提交推送`49c6589c3919cad62a4bae2c993b5fd953d36b1e`，主线程确认远端同SHA，已验迁移前缀至00016。R3与S2按文件隔离正式实施，完整D08仍未完成。
+恢复文档、D10 P1、D08 R1/R2及D05 S1已按下文提交；R3十六源已独立验收并提交推送`3e399c3044fbd256994ad4bb6f184a0a26787ea0`，主线程确认远端同SHA。已验迁移前缀至00016；Secret checker八源冻结待独立验收，唯一fixture已交S2作者，完整D08仍未完成。
 
 以下为恢复后的摘要。下文旧阶段中的 `d02_backend`、`d08_design`、`parallel_plan`、`d01_verify`、acceptance 等所有权及“正在实施”描述保留为当时历史，不表示旧实例仍在运行或旧未提交源码已恢复。旧 `/tmp` 证据没有随仓库恢复；历史局部通过不能证明当前缺失实现已存在。本次实际分工见[恢复记录的所有权表](recovery-2026-10-05.md#4-本次所有权与下一步)。
 
 | 工作项 | 当前进度 | 所有权与下一步 |
 | --- | --- | --- |
 | D07 | 当前范围已关闭，文档提交 `0ed8085`；历史失败与组合验收边界保留 | 无活动 D07 实现；后续 UI、WS、Project/Runner 绑定按责任模块推进 |
-| D08 | R1 `98262b4`、R2 `73db0d4`及D05 S1 schema `49c6589`均已独立验收提交；完整B03未完成 | [R3](../work-items/recovery-d08-lifecycle-authority.md) `ed7985a`已静审，由`restore_test_dependencies`实施16源并独占Docker；[S2](../work-items/recovery-d05-object-stop.md)由`d08_registry_backend`实施28源、无Docker权。stop/cleanup/HTTP/root/D10仍未完成 |
+| D08 | R1 `98262b4`、R2 `73db0d4`、[R3](../work-items/recovery-d08-lifecycle-authority.md) `3e399c3`及D05 S1 schema `49c6589`均已独立验收提交；完整B03未完成 | [S2](../work-items/recovery-d05-object-stop.md)作者28源已接收唯一fixture；[Secret checker](../work-items/recovery-secret-project-audit.md) `d57ce0b`的8源已由`d08_recovery_design`冻结，待独立验收，验收者先静审、等待窗口。Project+Secret绑定卡由`restore_test_dependencies`准备、未实施；实际Object stop/推进/cleanup/HTTP/root/D10仍未完成 |
 | D09 | C0 `e6e94c4`、B01-K System 配置及 00015 已独立验收，Audit 六源 `26622bc`、System 二十九源 `543511c` 已推送 | 本块不含 Project 配置、Resolver/Usage、Provider 调用或根 HTTP；后续范围另派，D09 模块未完成 |
 | D10 | P1 真实 builtin/包载体 11 路径及两份文档已在 `8872110` 提交，并通过本轮固定输入独立验收；[主卡 rev2](../work-items/d10-skills-initialization.md)仅同步状态 | `skill_verification` 已冻结报告及持久证据；Go unit/race/vet与7项独立race探针通过。生产初始化仍须真实D08/D05、Object fact checker与生命周期组合，D10模块未完成 |
 | D12 | B01 `914fd84`、正式 B02 卡及 C1 `71dc176`、C2 `f401c15`、C3 `231a384` 的提交仍在；Knowledge 主体未验收且本次未恢复 | 当前仅有 Knowledge contract 12 文件；B02 新领域 29 路径均缺，未编号 SQL 草案也未恢复。按真实上游与新文件所有权重新下发，不以共享口通过替代真实 Knowledge/A/P 组合 |
@@ -928,3 +928,9 @@ R2已由独立验收通过并获主线程采纳，15源提交推送`73db0d45d673
 D05 S1两源已独立验收并获采纳，提交推送`49c6589c3919cad62a4bae2c993b5fd953d36b1e`、远端一致。[报告](d05-s1-verification.md)记录作者4新+1旧真实race通过（7.247s）、独立4卡定+2探针真实race通过（9.126s），两源及39项固定输入在R3/S2开写前末检匹配，4容器3网络及所属进程清零。已验迁移前缀至00016，S2行为尚未交付。
 
 R3规格`ed7985a`已独立静审提交，`restore_test_dependencies`正式实施卡内16源并独占Docker；S2由`d08_registry_backend`正式实施卡内28源、无Docker权。两者文件隔离、各自固定快照验收；schema通过不替代实际停止、join、恢复或完整D05/D08验收。
+
+### R3 采纳提交与后继分工
+
+R3十六源已独立验收并获采纳，提交推送`3e399c3044fbd256994ad4bb6f184a0a26787ea0`、远端一致，精确匹配作者冻结清单。[正式报告](d08-r3-verification.md)复用作者pure race/vet/compile及修后Project 38顶层、Outbox 21顶层及包内2顶层通过，保留原始编译/fixture失败与修复；独立真实PG race 3顶层15子例通过（11.057s），两cmd构建及探针compile/vet通过，4容器3网络及所属进程清零。范围仅事实Authority、Object typed port与Outbox只读Inspect，不含实际Object stop、推进、cleanup、普通delivery、HTTP或root。
+
+Secret checker `d57ce0b`作者已完成真实新/旧组、清零4容器2网络并冻结8源，待独立验收；主线程已将唯一fixture交S2作者，Secret验收者先静审、等待窗口。Project+Secret绑定卡由`restore_test_dependencies`准备、尚未实施，须等待正式前置及下发；不将R3通过写成D08完成。

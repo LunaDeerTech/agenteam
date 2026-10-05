@@ -1,0 +1,82 @@
+[
+  {
+    "path": "internal/central/project/authority.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "internal/central/project/events.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "internal/central/project/lifecycle_authority.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "internal/central/project/object_stop_authority.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "internal/central/project/outbox_lifecycle_authority.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "internal/central/project/lifecycle_authority_test.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "internal/central/project/object_stop_authority_test.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "internal/central/project/outbox_lifecycle_authority_test.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "internal/central/outbox/cleanup.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "internal/central/outbox/lifecycle_inspection.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "internal/central/outbox/lifecycle_inspection_test.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "tests/project/b03_r3_fixture_test.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "tests/project/b03_r3_authority_test.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "tests/project/b03_r3_object_stop_authority_test.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "tests/project/b03_r3_outbox_inspection_test.go",
+    "exit": 1,
+    "output": ""
+  },
+  {
+    "path": "tests/outbox/lifecycle_inspection_continuation_test.go",
+    "exit": 1,
+    "output": ""
+  }
+]
