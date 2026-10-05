@@ -13,6 +13,7 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/config"
 	event "github.com/LunaDeerTech/agenteam/internal/central/event/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/model"
 	"github.com/LunaDeerTech/agenteam/internal/central/object"
 	objectcontract "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
 	"github.com/LunaDeerTech/agenteam/internal/central/outbox"
@@ -232,6 +233,18 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	modelStore, ok := db.(model.Store)
+	if !ok {
+		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
+	}
+	modelAuthority, err := model.NewAuthority(modelStore, model.Authorizations{Sessions: authority, System: authority})
+	if err != nil {
+		return err
+	}
+	usage, err := model.NewSecretUsageRouter(modelAuthority, authority)
+	if err != nil {
+		return err
+	}
 	accounts := &accountAssembly{constructing: true}
 	if !owned.addAccounts(ctx, accounts) {
 		accounts.constructionDone()
@@ -247,11 +260,11 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		return err
 	}
 	processes := accountProcessAuthority{process: process, guard: objects.guard}
-	auditor, err := createSecurity(cfg, db, authority)
+	auditor, err := createSecurity(cfg, db, authority, modelAuthority)
 	if err != nil {
 		return err
 	}
-	secrets, err := createSecret(cfg, db, auditor, authority)
+	secrets, err := createSecret(cfg, db, auditor, authority, usage)
 	if err != nil {
 		return err
 	}
@@ -284,15 +297,23 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
+	modelEvents, err := model.DefineEvents(catalog)
+	if err != nil {
+		return err
+	}
 	journalStore, ok := db.(outbox.Store)
 	if !ok {
 		return foundation.NewFault(foundation.DependencyUnbound, foundation.NotStarted)
 	}
 	journal, err := outbox.New(journalStore, catalog, outbox.Authorizations{
-		Producers: map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority},
+		Producers: map[event.StableName]oc.ProducerAuthority{c.AccountProducer: authority, model.ModelProducer: modelAuthority},
 		Processes: outboxProcessAuthority{process: objects.process, guard: objects.guard},
 		Sessions:  authority, System: authority, Audit: auditor, Cursors: cfg.CursorKeyring(),
 	})
+	if err != nil {
+		return err
+	}
+	models, err := model.New(modelStore, modelAuthority, model.Dependencies{Secret: secrets, Audit: auditor, Events: journal, ConfigurationEvents: modelEvents, Cursors: cfg.CursorKeyring()})
 	if err != nil {
 		return err
 	}
@@ -366,7 +387,11 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 	if err != nil {
 		return err
 	}
-	if !accounts.install(ctx, func() { accounts.handler = httpHandler }) {
+	modelHandler, err := model.NewSystemHTTPHandler(models, core, secrets, model.SystemHTTPOptions{PublicOrigin: cfg.PublicOrigin()})
+	if err != nil {
+		return err
+	}
+	if !accounts.install(ctx, func() { accounts.handler = systemModelRoutes(httpHandler, modelHandler) }) {
 		return context.Canceled
 	}
 	deps.security = func(ctx context.Context, _ config.Config, _ database) (*audit.Service, error) {
@@ -376,10 +401,19 @@ func bindAccounts(ctx context.Context, cfg config.Config, db database, owned *re
 		return auditor, auditor.CheckStorage(ctx)
 	}
 	deps.secret = func(ctx context.Context, _ config.Config, _ database, _ *audit.Service) (maintenance, error) {
+		var err error
 		if deps.secretInitialize != nil {
-			return secrets, deps.secretInitialize(ctx, secrets)
+			err = deps.secretInitialize(ctx, secrets)
+		} else {
+			err = secrets.Initialize(ctx)
 		}
-		return secrets, secrets.Initialize(ctx)
+		if err != nil {
+			return secrets, err
+		}
+		if err = ctx.Err(); err != nil {
+			return secrets, err
+		}
+		return secrets, models.Initialize(ctx)
 	}
 	deps.outbound = func(ctx context.Context, _ config.Config, _ database, _ *audit.Service) (egress, error) {
 		if deps.outboundInitialize != nil {
