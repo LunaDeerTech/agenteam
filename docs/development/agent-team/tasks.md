@@ -2,6 +2,17 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 当前恢复点与并行所有权
+
+以下为当前摘要；各工作项保留阶段历史，局部通过不代表整个模块已验收。
+
+| 工作项 | 当前进度 | 所有权与下一步 |
+| --- | --- | --- |
+| D07 | 当前范围已关闭，文档提交 `0ed8085`；历史失败与组合验收边界保留 | 无活动 D07 实现；后续 UI、WS、Project/Runner 绑定按责任模块推进 |
+| D08 | B03 C0 `16595ad` 已验；A 的 4+2 项真实局部通过，P 的目标 Unknown 反例尚未复现 | A=`d02_backend` 独占授权 D05 接缝及 00014；P=`d08_design` 独占 Project 主体；Docker 只按 root/acceptance 明确交接 |
+| D09 | C0 `e6e94c4` 已验，B01-K 卡 `7a6fcd8` 已提交且实施中 | B=`d07_http` 独占该卡授权的 System 配置范围；015 仅 `/tmp` 候选，等待 A 的 00014 验收和连续迁移前缀 |
+| D12 | B01 纯契约 `914fd84` 已验；B02 候选卡准备中、尚未采纳 | `parallel_plan` 准备固定候选；真实 Knowledge 业务、Object/Audit 适配与生命周期绑定另行验收 |
+
 ## AT-0001：建立串行开发团队与技能
 
 - 用户目标：主线程负责讨论、规划、下发与汇报；三个低思考强度专业角色执行明确小任务，在 main 串行开发。
@@ -364,7 +375,7 @@
 
 ## AT-0014：D07账号、Session、SMTP与个人资料
 
-当前：D07 当前范围已完成，B01–B04 业务与测试门槛已通过，最后 B37 精确 37 源已独立采纳并提交推送 `022dcea`，清单 SHA `ed21ee88c58e665a520c1df6121f843b9df59d9fe4743c3e965a75fabca6d0a7`；此前 00012 `61b4df4`、CAPTCHA 两源 `b9b0b86` 与 A2 `da5caab` 保持各自已验归属。T01–T14 关闭核对 `/tmp/agenteam-d07-close-gates-evpk9gwi/gate-map.md`（SHA `e6a31ef1ac305bc6694843d2fa0391c8e1197ca4037b3073162d09f278fefef0`）确认无当前业务/测试缺口。本次十二文档与部署样例由 d07_http 唯一归位，作者格式/链接及样例字段自查和验收负责人独立核准均通过；D07 当前范围完成，本次文档 Git 由 root 交付，不需重复产品测试。源码及产品命令已全停，资源交后续任务，Git 由 root 执行。
+当前：D07 当前范围已完成，B01–B04 业务与测试门槛已通过，最后 B37 精确 37 源已独立采纳并提交推送 `022dcea`，清单 SHA `ed21ee88c58e665a520c1df6121f843b9df59d9fe4743c3e965a75fabca6d0a7`；此前 00012 `61b4df4`、CAPTCHA 两源 `b9b0b86` 与 A2 `da5caab` 保持各自已验归属。T01–T14 关闭核对 `/tmp/agenteam-d07-close-gates-evpk9gwi/gate-map.md`（SHA `e6a31ef1ac305bc6694843d2fa0391c8e1197ca4037b3073162d09f278fefef0`）确认无当前业务/测试缺口。十二文档与部署样例已由 d07_http 归位，作者格式/链接及样例字段自查和验收负责人独立核准均通过；关闭文档已提交推送 `0ed8085`，D07 当前范围完成。源码及产品命令已全停，资源交后续任务；本次进度归位不重复产品测试。
 
 实际覆盖为完整 check-go、旧域完整包及受影响补验、Account95 穷尽映射、Mail31/library67/app12 和最后899/900已提交依赖交集，正常双 binary 均通过；精确输入、命令、日志与独立报告见[D07 终局记录](../work-items/d07-account-session-smtp.md#b04-终局采纳与文档关闭)。这是批准的组合验收，不是一次单体全绿：legacy18 原 8 PASS/3 FAIL、两个历史 SMTP setup/D05 签发准备原因未定；process29 后续 PASS/内核 outer exit0/exact3 清零，但原 owner wait 未观察、observer SIGKILL9，不能称原 runner joined；CAPTCHA 原随机样本未保存，固定 SDK 缺陷不能唯一回溯原样本。D25 WS、D26/D27 UI、未来 Project/Runner 绑定与 ready503 仍是明确后续边界。
 
@@ -838,7 +849,7 @@ A2继续独占00012/已授权D05窄口/Docker，B2按41路径后段卡推进app/
 
 ## AT-0015：D08 Project 与 Owner
 
-- 状态：S01 规格、B01 正式契约与纯规则库已验；B01 提交推送 `199554b`，B02 七个纯结果提交 `769ec8c`，其余 21 源与 00013/fixture 接缝已独立验收并提交推送 `6319d03`。生命周期 C0 四源已独立验收并提交推送 `16595ad`；P 主体与 D05 stop/00014 实施中、未验。D08 模块尚未完成，完整生命周期、HTTP/app 和 D10 真实初始化仍待集成。正式[主卡](../work-items/d08-project-owner.md)与[设计 rev2](../work-items/d08-project-owner-design.md)初次归位提交为 `08d119d`。
+- 状态：S01 规格、B01 正式契约与纯规则库已验；B01 提交推送 `199554b`，B02 七个纯结果提交 `769ec8c`，其余 21 源与 00013/fixture 接缝已独立验收并提交推送 `6319d03`。生命周期 C0 四源已独立验收并提交推送 `16595ad`；D05 stop/00014 仅有 A 的 4+2 项局部通过，P 主体仍在诊断，二者均未整体采纳。D08 模块尚未完成，完整生命周期、HTTP/app 和 D10 真实初始化仍待集成。正式[主卡](../work-items/d08-project-owner.md)与[设计 rev2](../work-items/d08-project-owner-design.md)初次归位提交为 `08d119d`。
 - 并行依据：D07 尚未完成不构成所有后续任务的统一等待门槛。B01 只消费已验 foundation/identity/event 的固定输入，不依赖活动 B03/B04 实现；按当前团队规则与唯一文件/资源所有权，实施时与 D07 B03 独立验收、B04 阶段 1 并行；当前 B03/00011 已验，A1 窄口已提交 `59b38c8`。
 - B01 交付时所有权：`d08_design` 独占主卡 B01 的 `internal/central/project/contract/` 下 12 个新文件（`types`、`commands`、`lifecycle`、`initialization`、`events`、`validation` 及各自测试）；不覆盖旧接口、不提前 schema/Service/HTTP、不改依赖/迁移/fixture，不使用 Docker。已由 `parallel_plan` 接收固定源码、依赖与作者证据完成独立验收，作者与验收者均 all-stop；后续任务不覆盖已验契约。
 - B01 固定基线：`062ae2c050e2f6fa1549d2e67f924b4e5160d754` 的 15 项非测试编译输入，manifest `/tmp/agenteam-d08-placement-se1meE/b01-compile-inputs.json` SHA `b1b09e4dbbace98085b60787243948e9e1f26a658489e66a15f32716c379eaaa`；Go `1.27.1`。此前静态编译基线不作执行证据；B01 实际验收见下。
@@ -859,8 +870,22 @@ root 已采纳并提交推送 `6319d03` 的精确 21 路径；此前 7 个纯契
 
 固定输入 `da5caab` 已含验收的 A2/00012，最终运行 manifest SHA `85792fe1e261dd304f430de338eaaf34140418ace4fd2875ca3445062df520d2`。首轮 Project67.631s exit1 保留：两同名23505→INTERNAL_ERROR及一处撤销fixture缺reason；四文件最小修复保旧D03/DB唯一约束和授权/receipt/版本顺序。作者在唯一授权窗口运行完整原fixture组合，Go1.27.1 race/count1/每包6m 下 Project95.075s exit0，实际20业务主例+独立1主6子，owned child普通入口跳过，其他包no-tests。原探针由 `parallel_plan` 编写并冻结，执行由 `d08_design` 完成；不称两次独立执行。21源/516固定/644外部/probe末次匹配，精确资源清零并交回B。
 
-B03 C0 契约已独立验收并提交推送 `16595ad`。P=`d08_design` 仅写 Project 主体；D05 第一段=`d02_backend` 独占已授权 Object/Artifact 接缝与 `00014_object_artifact_project_stop.sql`，两块实施中未验；Docker 由 root/acceptance 明确交接，Secret/Audit provider 后段仍须真实绑定。B02 路径已接入 CurrentUserRoute；完整生命周期、HTTP/app 和 D10 生产初始化仍未完成，契约或隔离 provider 不能冒称真实清理/初始化通过。
+### B03 当前局部验证与所有权
+
+B03 C0 契约已独立验收并提交推送 `16595ad`。P=`d08_design` 独占 Project 主体，15 个生产文件保持冻结；A=`d02_backend` 独占已授权 D05 15 个旧生产文件、新 helpers/tests 与 `00014_object_artifact_project_stop.sql`。A 第二轮固定 43 项输入下，原 4+2 项真实用例在 `tests/objects` 10.344s 通过，整条 fixture exit0/正常等待结束，精确三个 nonce 资源清零；这仅是局部结果，旧 fixture 适配与其余完整门槛未验。root 后续已授权 A 一次 16 个旧测试加 2 个新测试的真实装配适配，当前实施中，尚无运行结果。
+
+A 证据位于 `/tmp/agenteam-d08-b03-d05-implementation-9x51jy_i/second-input/inputs.json`、`second-real-result.json` 与 `second-cleanup.json`。P 的旧 r1 Unknown 确认缺口已静态确认，但首个单例仅在 checkpoint 前等待 5s 超时（整例 6.26s），未进入目标反例；原 exit1 日志 SHA `8f7f556096fab5233b654df000fdd3af747561f23f6f38d2c26a588e27b6476a` 和 `/tmp/agenteam-d08-b03-replaced-claim-red-9u0wipcf/` 的固定输入、命令、清理记录保留，精确三个 nonce 与 81 个 owned PID 已清零。仅加安全 Advance 结果观察的同 r1 单例已结束 exit1，目录 `/tmp/agenteam-d08-b03-replaced-claim-observe-i8z1cek_`，精确资源全部清零；Advance 正常返回 stopping，尚未触达 Unknown。静态定位为 Skills participant 排序先于 Artifact，且每次 Advance 只推进一项；正在修正测试准备顺序，仍未复现目标反例。
+
+A/P 均未整体采纳。Docker 由 acceptance 唯一调度并明确交接；Secret/Audit provider 后段须真实绑定。B02 路径已接入 CurrentUserRoute；完整生命周期、HTTP/app 和 D10 生产初始化仍未完成，契约或隔离 provider 不能冒称真实清理/初始化通过。
 
 ## AT-0016：D09 Model System 与 Token Usage
 
-正式[主卡](../work-items/d09-model-system-token-usage.md)与[设计](../work-items/d09-model-system-token-usage-design.md)初次归位提交为 `43b8886`；C0 纯契约已独立验收并提交推送 `e6e94c4`。尚无 D09 业务实现或模块验收；按正式稳定接口、真实依赖和独占范围另行派发，不因契约已提交视为生产能力已绑定。
+正式[主卡](../work-items/d09-model-system-token-usage.md)与[设计](../work-items/d09-model-system-token-usage-design.md)初次归位提交为 `43b8886`；C0 纯契约已独立验收并提交推送 `e6e94c4`。[B01-K System 配置任务卡](../work-items/d09-b01-system-configuration.md)已提交推送 `7a6fcd8`，B=`d07_http` 已开始该卡授权范围内的实现；System 配置、Secret planned reference、typed Model Audit、Outbox 与 Unknown 边界尚待真实验收。
+
+015 目前仅是 `/tmp` schema 候选，须等待 A 的 00014 验收并核连续迁移前缀后才能正式落位或执行真实 PG；不能以占号或未验前缀代替依赖。Project 路径继续 unbound，等待 P 的真实生命周期 gate；后续 Resolver planned read、Usage 与 Provider 不混入首块。D09 模块未完成，C0 通过不代表生产能力已绑定。
+
+## AT-0017：D12 Knowledge 文档与文档树
+
+正式[主卡](../work-items/d12-knowledge-documents.md)与[设计](../work-items/d12-knowledge-documents-design.md)、B01 十二个新纯契约源/测试已独立验收并提交推送 `914fd84`。固定 `16595ad` 输入上的作者 unit/race/vet 证据已核；独立 Source 实际 Close 等待、严格 DTO 与签名边界三项定向 race 通过（包 3.169s），报告 `/tmp/agenteam-d12-b01-verify-49kvfiqa/report.md` SHA `b95a4e96a583b3e72097d027f9e372d3f7dc5b58d1a031ed5634d08fc5b6523e`。该结论仅覆盖纯载体和规则，不证明真实业务授权、持锁、事务或对象 lease 生命周期。
+
+`parallel_plan` 正准备 B02 固定候选卡，root 尚未采纳范围；须完整列明 Human CRUD 的事实来源、正式 Object/Audit 最小适配口与真实依赖，不因避开活动文件而默认拆成缺少创建能力的长期服务。尚未实现 Knowledge 业务/PG/provider、D08 生命周期接入、cursor.Text 补口或 Agent destructive 后段；D13 不作为 canonical 写的全局前置，D12 模块未完成。
