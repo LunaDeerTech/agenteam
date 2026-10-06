@@ -1,0 +1,23 @@
+{
+  "scope": "private report only",
+  "links_checked": 5,
+  "whitespace": "PASS",
+  "argv": [
+    "git",
+    "diff",
+    "--no-index",
+    "--check",
+    "--",
+    "/dev/null",
+    "/workspace/scratch/agenteam-tools-spec-independent-818u6d8t/review.md"
+  ],
+  "exit": 1,
+  "stdout": "",
+  "stderr": "",
+  "exit_interpretation": "no-index exit 1 records added-file difference; no whitespace diagnostics; explicit byte check passed",
+  "prior_check_wrapper": "The first wrapper incorrectly required no-index exit 0 and raised AssertionError on (1, empty stdout, empty stderr); it wrote no evidence or report changes. Only the wrapper exit interpretation was corrected.",
+  "source_manifest_sha256": "4f28ba7834759fd87d0c595cce1b1aaee6b7b0d96fa985ffbcd15aaf0f14537d",
+  "final_spec_sha256": "5c9656cb8fa3f9a4785b701cee433f34f44fb244e0e4580c90920913ff33addb",
+  "report_sha256": "af779a8c0aacd88f9692cdff605c73d46084ba1bd7bfa534203df9cb20164450",
+  "state": "frozen; no product or shared document writes; no runtime/resource work"
+}

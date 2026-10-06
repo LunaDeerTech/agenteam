@@ -1,0 +1,26 @@
+{
+  "utc": "2026-10-06T01:18:07.048572+00:00",
+  "parent_sha256": "70124874fc746e751582eea9fdd0788e9d6a1edce1a4fd8d0284624f5d27d7df",
+  "original_sha256": "334fb1c95a392aa903cf080ed55892be24d9e03288916e74eecc7a514e3d0ec1",
+  "updated_sha256": "5c9656cb8fa3f9a4785b701cee433f34f44fb244e0e4580c90920913ff33addb",
+  "technical_delta": [
+    "Require successful existing C0 ToolCallPart.Validate for every ordinary returned tool and every SSE ToolComplete",
+    "Specify C0 root depth=1 and child values including scalar depth<=32; ParseFloat64 finite/error checking is validation only; preserve raw finite >2^53 number lexical bytes",
+    "NUL ID and exact C0 depth/numeric counterexamples for both response modes"
+  ],
+  "links_identical": true,
+  "paths14_unchanged": true,
+  "baseline14_unchanged": true,
+  "explicit_new_file_format_check": "PASS",
+  "argv": [
+    "git",
+    "diff",
+    "--check",
+    "--",
+    "docs/development/work-items/recovery-d09-openai-chat-tools-wire.md"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "product_or_tests_changed": false
+}

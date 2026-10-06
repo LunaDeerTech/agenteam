@@ -1,0 +1,12 @@
+--- reviewed-spec-c0-02.md
++++ docs/development/work-items/recovery-d09-openai-chat-tools-wire.md
+@@ -1,6 +1,8 @@
+ # D09 OpenAI Chat 原生工具调用 wire 恢复卡
+ 
+-修订：rev1 候选，待独立规格审查与主线程采纳；当前只授权本文件和任务私有来源证据，不授权下列产品实施路径。固定已验业务基线 `ecd733711caff5df46e423cadab52b32c34f785e`。规格作者为 `management_reads`（architecture_worker），不再委派；实施者、独立验收者与真实资源窗口由主线程另行指定。
++修订：rev1，已由 `recovery_documentation` 独立静审通过并获主线程采纳；尚未业务验收。当前只授权本文件和任务私有来源证据，不授权下列产品实施路径。固定已验业务基线 `ecd733711caff5df46e423cadab52b32c34f785e`。规格作者为 `management_reads`（architecture_worker），不再委派；实施者、独立验收者与真实资源窗口由主线程另行指定。
++
++独立静审对应技术稿 SHA-256 `5c9656cb8fa3f9a4785b701cee433f34f44fb244e0e4580c90920913ff33addb`；私有证据目录 `/workspace/scratch/agenteam-tools-spec-independent-818u6d8t`，其中 `static-checks.json` SHA-256 为 `b54f993fbe9fd71c5b0a8c86005f89e209b7a5e93108c2375087e15019b725e0`，`final-checks.json` 为 `e685d680000932d352cf8773805689d1a5a9e7fc328d280ee804be8ed80f99c0`。该结论只覆盖规格静审与差量闭合，不表示产品实施或真实业务验收已完成。
+ 
+ 必读 [AGENTS](../../../AGENTS.md)、[团队流程](../agent-team/README.md)、[设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[D09 主卡](d09-model-system-token-usage.md)、[D09 设计 §6–7](d09-model-system-token-usage-design.md#6-五种协议-profile固定源码事实与-conformance-边界)、[Chat 架构](../../architecture/platform-infrastructure/model-system/chat-model-runtime.md)、已验 [text wire](recovery-d09-openai-chat-wire.md)与 [structured wire](recovery-d09-openai-chat-structured-wire.md)。实施补读 [Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)，独立验收使用[验证技能](../../../.agents/skills/agenteam-verification/SKILL.md)；本卡只精化一个协议库结果。
+ 

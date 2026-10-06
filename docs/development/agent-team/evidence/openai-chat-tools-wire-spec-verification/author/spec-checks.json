@@ -1,0 +1,86 @@
+{
+  "checked_utc": "2026-10-06T01:13:58.625813+00:00",
+  "spec_sha256": "334fb1c95a392aa903cf080ed55892be24d9e03288916e74eecc7a514e3d0ec1",
+  "source_manifest_sha256": "4f28ba7834759fd87d0c595cce1b1aaee6b7b0d96fa985ffbcd15aaf0f14537d",
+  "candidate_paths": [
+    "internal/central/model/adapter/openai_chat.go",
+    "internal/central/model/adapter/errors.go",
+    "internal/central/model/adapter/sse.go",
+    "internal/central/model/adapter/transport.go",
+    "internal/central/model/adapter/openai_chat_tools.go",
+    "internal/central/model/adapter/tools_stream.go",
+    "internal/central/model/adapter/testdata/openai-chat-tools-v1.json",
+    "internal/central/model/adapter/openai_chat_tools_test.go",
+    "internal/central/model/adapter/tools_stream_test.go",
+    "internal/central/model/adapter/tools_limits_test.go",
+    "internal/central/model/adapter/tools_transport_test.go",
+    "tests/model/openai_chat_tools_http_test.go",
+    "tests/model/openai_chat_tools_stream_test.go",
+    "tests/model/openai_chat_tools_budget_test.go"
+  ],
+  "existing_paths": 4,
+  "new_paths": 10,
+  "local_links": [
+    {
+      "target": "../../../AGENTS.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/README.md",
+      "valid": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-design/SKILL.md",
+      "valid": true
+    },
+    {
+      "target": "d09-model-system-token-usage.md",
+      "valid": true
+    },
+    {
+      "target": "d09-model-system-token-usage-design.md#6-五种协议-profile固定源码事实与-conformance-边界",
+      "valid": true
+    },
+    {
+      "target": "../../architecture/platform-infrastructure/model-system/chat-model-runtime.md",
+      "valid": true
+    },
+    {
+      "target": "recovery-d09-openai-chat-wire.md",
+      "valid": true
+    },
+    {
+      "target": "recovery-d09-openai-chat-structured-wire.md",
+      "valid": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-go-development/SKILL.md",
+      "valid": true
+    },
+    {
+      "target": "../../../.agents/skills/agenteam-verification/SKILL.md",
+      "valid": true
+    },
+    {
+      "target": "recovery-d09-invocation-usage-ledger.md",
+      "valid": true
+    },
+    {
+      "target": "../agent-team/object-runtime-join-regression.md",
+      "valid": true
+    }
+  ],
+  "format_errors": [],
+  "git_diff_check_argv": [
+    "git",
+    "diff",
+    "--check",
+    "--",
+    "docs/development/work-items/recovery-d09-openai-chat-tools-wire.md"
+  ],
+  "git_diff_check_exit": 0,
+  "untracked_bytes_explicitly_format_checked": true,
+  "business_or_runtime_tests_run": false,
+  "baseline_14_unchanged": true,
+  "source_21_verified": true
+}

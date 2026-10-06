@@ -1,0 +1,23 @@
+{
+  "scope": "static specification delta/size arithmetic; not parser or network execution",
+  "original_sha256": "334fb1c95a392aa903cf080ed55892be24d9e03288916e74eecc7a514e3d0ec1",
+  "final_sha256": "5c9656cb8fa3f9a4785b701cee433f34f44fb244e0e4580c90920913ff33addb",
+  "frozen_author_copy_matches": true,
+  "paths14_unchanged": true,
+  "links_unchanged": true,
+  "whitespace_clean": true,
+  "findings_closed": [
+    "F1 refusal with null/omitted content preserves reliable usage and content_filter",
+    "F2 every ordinary ToolCall and every SSE completion satisfies fixed C0 Validate; depth/numeric/NUL counterexamples are explicit"
+  ],
+  "feasibility_example": {
+    "arguments_decoded_bytes": 327680,
+    "sse_payload_bytes": 328108,
+    "largest_sse_event_bytes": 327943,
+    "fixture_payload_cap": 524288,
+    "native_event_cap": 1048576,
+    "tool_fragment_cap": 65536,
+    "queue_payload_cap": 262144,
+    "production_executed": false
+  }
+}

@@ -1,0 +1,156 @@
+{
+  "official_repository": "https://github.com/openai/openai-python",
+  "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "commit_matches_previous_archive": true,
+  "commit_object_sha256": "4a18fa5995a190f5cbff6f3313422abbae18861e401e2251ba73e7c8a59a9702",
+  "files": [
+    {
+      "path": "LICENSE",
+      "bytes": 11336,
+      "sha256": "636eb7d79da9bb6d515a4b3fd417aa26679eb3cf16396ddab4bc55fa74e616e4",
+      "git_blob": "cbb5bb26e40dd13a02c7874298f70b9d68bab57e",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/LICENSE"
+    },
+    {
+      "path": "src/openai/_version.py",
+      "bytes": 72,
+      "sha256": "0359d19e96c6ef28c1b6a26fb1cd44a62e30819abbf02e4102bdccbd357fc738",
+      "git_blob": "0906b86257a4dcf8e3cf3e99eee599cfc5b12ff6",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/_version.py"
+    },
+    {
+      "path": "src/openai/types/shared_params/function_definition.py",
+      "bytes": 1521,
+      "sha256": "8306de541a2b447ce287bf02c2734519f892109c4552321d76dc58c9a29ed039",
+      "git_blob": "8837687028ce5a7a99aa2c1a8f7afccd7feed4bd",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/shared_params/function_definition.py"
+    },
+    {
+      "path": "src/openai/types/shared_params/function_parameters.py",
+      "bytes": 271,
+      "sha256": "4390566ffc280ad84104cb312d78501b29428e972e485d6b3538cb4cfa00f693",
+      "git_blob": "bdf53dab7c282a5b87a5450106433f5ca0831822",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/shared_params/function_parameters.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_function_tool_param.py",
+      "bytes": 586,
+      "sha256": "7a314ede1c99bcb57acb66f7c31bd3b6c6ea05999ff52d8f4afb594de6a6223f",
+      "git_blob": "11bee79258de3f613ab211ee49e48846a84b06c5",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_function_tool_param.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_tool_union_param.py",
+      "bytes": 503,
+      "sha256": "b99501132465c3d6d4cf6753fbe9e14d574de58ed007dab218e9b54720306ae6",
+      "git_blob": "94cc1ea2c7b0c72c5187892480d4fea06b7d8a1e",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_tool_union_param.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_tool_choice_option_param.py",
+      "bytes": 757,
+      "sha256": "28af6d64770806556f61013808e1f40f6a4765dd22d3548298e7132e0c04136b",
+      "git_blob": "93f215362830af514fe05f1064b1a1b6fdb7f335",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_tool_choice_option_param.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_named_tool_choice_param.py",
+      "bytes": 670,
+      "sha256": "903d5b6940c1ccf7fece668f055431db8b9ce67ecf44421e5b312d74a2633378",
+      "git_blob": "ebe8a011965ebd5a46d1f1ae1eaeac1a609ec78f",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_named_tool_choice_param.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_tool_message_param.py",
+      "bytes": 729,
+      "sha256": "d13cdc6ddafe1ce96f8d9eae26e251962c23b1f275d72c82add90b751419b046",
+      "git_blob": "2a9427eb26fa247852cf23884576f9deee230568",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_tool_message_param.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_message_function_tool_call.py",
+      "bytes": 1021,
+      "sha256": "37e08a2bbf210badaa9a9bc709b6e9ef73e9137ef58913e5927c5b8e4fd30b89",
+      "git_blob": "6c4fba252b65c9c1b1dff6aae3cf97446a30a9a1",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_message_function_tool_call.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_message_function_tool_call_param.py",
+      "bytes": 1130,
+      "sha256": "c31147416e0b11e9a344e02a706b252b279590d1be6a845a5b2e13840f1966e1",
+      "git_blob": "efaf9f9e9fd851fb31fe26cc477fce7b963d2a1f",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_message_function_tool_call_param.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_message_tool_call.py",
+      "bytes": 737,
+      "sha256": "e92d1fed0896f0e04588ad40e95298e8c5d26a8ececc09fc2d33ad10d1055f75",
+      "git_blob": "e876ac723aac4a032afc3c26728a6868e615db07",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_message_tool_call.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_message_tool_call_union_param.py",
+      "bytes": 601,
+      "sha256": "b7a3fcecc8ac1e19d74d0b0e509868101289d1392b0a7c6da00774e0474fd914",
+      "git_blob": "7baef8e67d48cb4141646d78a4404e8032fcf840",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_message_tool_call_union_param.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_assistant_message_param.py",
+      "bytes": 2808,
+      "sha256": "a435aae2c30ad1033fba3a053324c97060348acc709eaf47e7c3041027fc256f",
+      "git_blob": "0bf29fd77a157bce77f9a59f12fdd38bf3b7fb45",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_assistant_message_param.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_message.py",
+      "bytes": 2826,
+      "sha256": "9fb369e540871b3a7ddd5e8acd73cfc03b6973a52245514d750f00a977c74a34",
+      "git_blob": "a3064da854e1cddc0ddc25e16fc2a2d0ae7d1dcc",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_message.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_chunk.py",
+      "bytes": 11435,
+      "sha256": "44bc28a96e088a6aa176b9426c495649d52b708fd7dab7f652cad75cf188bb08",
+      "git_blob": "fd23828cddc93876648cfd50f32546afddd6d959",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_chunk.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion.py",
+      "bytes": 8770,
+      "sha256": "71b254f0b41d740bbbbc1a94a5298fec7fc58a9fccf2acec1948c2a1f2b62f16",
+      "git_blob": "9372c4a68c72cd6781bee9f77ba153cf22234b6d",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion.py"
+    },
+    {
+      "path": "src/openai/types/chat/completion_create_params.py",
+      "bytes": 23201,
+      "sha256": "58306f650519787342a3fc10f5500e90a17a882834e4b571e1e2f2c3c55b4f9c",
+      "git_blob": "dacf217b379a89867e9e73b19459f980629d7dca",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/completion_create_params.py"
+    },
+    {
+      "path": "src/openai/lib/streaming/chat/_completions.py",
+      "bytes": 31086,
+      "sha256": "a7c98ba7e43bfbcaa54cac470845523eef446239ff04624c542e2cff36d17a1d",
+      "git_blob": "3476314f7f47a6924cad78d3176391e769233280",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/lib/streaming/chat/_completions.py"
+    },
+    {
+      "path": "src/openai/lib/streaming/_deltas.py",
+      "bytes": 3061,
+      "sha256": "e296d090732c61b57f910c08f352711e70f189932530fd6197516787c4e75f52",
+      "git_blob": "dc80325eb456737fcb14e2068819879f04b0644b",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/lib/streaming/_deltas.py"
+    },
+    {
+      "path": "src/openai/types/chat/chat_completion_content_part_text_param.py",
+      "bytes": 1133,
+      "sha256": "06d1709d217212d5efb1030c53ae0b52fe3401be1d739fb0177bc04b08565a81",
+      "git_blob": "adee12ec16118d42a5f6507518285ab9f326ea49",
+      "url": "https://github.com/openai/openai-python/blob/becc1d20eed83c1b8d85e15dc131a372d9dc7813/src/openai/types/chat/chat_completion_content_part_text_param.py"
+    }
+  ],
+  "sdk_executed": false
+}

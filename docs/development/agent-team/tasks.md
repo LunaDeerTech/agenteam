@@ -2,6 +2,12 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：OpenAI Chat tools wire 规格采纳与实施分工
+
+- [tools wire rev1](../work-items/recovery-d09-openai-chat-tools-wire.md)已由 `recovery_documentation` 独立静审 PASS，主线程采纳提交推送 `b2be334cd8a78b904878bdbc388a43805390f7b7`、远端一致；[规格报告与来源证据](openai-chat-tools-wire-spec-verification.md)保留固定官方 21 原件、原 rev1 与 refusal/C0 两处窄修。当前只通过规格门槛，尚无产品、真实 Provider 或完整 D09 验收。
+- 主线程已授权 `management_reads` 以 backend_worker 身份唯一实施卡 §8 的 14 路径，`recovery_documentation` 负责后续独立验收，`verification_recovery` 协调独占 Docker 窗口；所有子 agent 不再委派。固定业务基线 ecd7337，沿已验 text/structured/C0/D04 接缝，不接入未验 ledger，不改 Resolver 或工具执行授权。
+- 下一步为实现、自测、冻结及独立真实补证；实际 320 KiB 参数与原 256 KiB 队列分开验证，1 MiB/16 MiB 极限按纯测试报告，原 text/structured 兼容和 actual join 继续作为门槛。管理读口 ecd7337 的已验结果不变；ledger 与公开入口仍未完成当前验收，Summary 待决、Object 原任务停止、Artifact/Project 阻塞及完整 D08–D28/E01 未完保持，E01 未开始。此前所有权和“实施中”按当时历史保留，当前本卡分工以上述新派工为准。
+
 ## 2026-10-06：System Model 管理读口验收提交
 
 - [管理读口 rev1](../work-items/recovery-d09-system-model-management-reads.md)精确 13 源已独立 PASS，主线程采纳提交推送 `ecd733711caff5df46e423cadab52b32c34f785e`、远端一致；[正式报告与证据](system-model-management-reads-verification.md)固定 c54 + input05。GET/HEAD 当前 Credential metadata、有限精确删除影响及 Secret.Metadata 同事务/Project Read 兼容已验；预览不授权删除。

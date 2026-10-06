@@ -1,0 +1,61 @@
+{
+  "baseline": "ecd733711caff5df46e423cadab52b32c34f785e",
+  "paths": [
+    {
+      "path": "internal/central/model/adapter/openai_chat.go",
+      "sha256": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556"
+    },
+    {
+      "path": "internal/central/model/adapter/errors.go",
+      "sha256": "24f7aa4cf23f3835bd911a2bb9fedee129045abde698c21bb5711a2ed494e499"
+    },
+    {
+      "path": "internal/central/model/adapter/sse.go",
+      "sha256": "2996e01864c0a0504a429e9bafb9e4305003bfe7a40270a1e75bf5aefec8f025"
+    },
+    {
+      "path": "internal/central/model/adapter/transport.go",
+      "sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf"
+    },
+    {
+      "path": "internal/central/model/adapter/budget.go",
+      "sha256": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a"
+    },
+    {
+      "path": "internal/central/model/adapter/structured_schema.go",
+      "sha256": "061e45a59fc575b8d7bdbcf9b1837bbe247b7e5ac9d382b32be9c7b77ebab575"
+    },
+    {
+      "path": "internal/central/model/contract/chat.go",
+      "sha256": "01f2abe8a8d5be54ed3193f22be75094f3868e2b09a6d8ca5dab6fb70aac2d88"
+    },
+    {
+      "path": "internal/central/model/contract/types.go",
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4"
+    },
+    {
+      "path": "internal/central/model/resolution_policy.go",
+      "sha256": "538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee"
+    },
+    {
+      "path": "tests/model/openai_chat_wire_fixture_test.go",
+      "sha256": "cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8"
+    },
+    {
+      "path": "tests/testsupport/outbound/fixture.go",
+      "sha256": "525e7cc33d887fb1d741a5c34fddd048c5827cdef1943bc9fae924ce4f754cbc"
+    },
+    {
+      "path": "tests/testsupport/outbound/cmd/server/main.go",
+      "sha256": "2ca0951c43f5dede7defd35443b67c31aa7e910f36ecdfe9fbb8212070ef6071"
+    },
+    {
+      "path": "go.mod",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758"
+    },
+    {
+      "path": "go.sum",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+    }
+  ]
+}

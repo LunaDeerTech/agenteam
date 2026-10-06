@@ -1,0 +1,41 @@
+[
+  {
+    "argv": [
+      "git",
+      "-c",
+      "credential.helper=",
+      "-c",
+      "http.extraHeader=",
+      "init",
+      "--bare",
+      "/workspace/scratch/agenteam-openai-tools-spec-opv8pnda/objects.git"
+    ],
+    "started": 1791248581.9158292,
+    "public_repository": "https://github.com/openai/openai-python.git",
+    "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+    "GIT_TERMINAL_PROMPT": "0",
+    "exit": 0,
+    "finished": 1791248581.9308977
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "credential.helper=",
+      "-c",
+      "http.extraHeader=",
+      "--git-dir=/workspace/scratch/agenteam-openai-tools-spec-opv8pnda/objects.git",
+      "fetch",
+      "--no-tags",
+      "--depth=1",
+      "https://github.com/openai/openai-python.git",
+      "becc1d20eed83c1b8d85e15dc131a372d9dc7813"
+    ],
+    "started": 1791248581.9311795,
+    "public_repository": "https://github.com/openai/openai-python.git",
+    "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+    "GIT_TERMINAL_PROMPT": "0",
+    "exit": 0,
+    "finished": 1791248583.3370895
+  }
+]

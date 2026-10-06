@@ -1,0 +1,20 @@
+--- original-rev1
++++ refusal01
+@@ -106,7 +106,7 @@
+ 
+ ## 5. 普通响应与完整工具结果
+ 
+-沿原 status=200、JSON MIME、单 choice index=0、严格 envelope/字段类型/Unicode/duplicate-key/usage 检查。仅新增 function tool_calls 与 finish=tool_calls 的闭集；custom、deprecated function_call、未知键/类型仍明确失败。content 可为 null/省略仅当有工具结果，不能把空结构当成功正文。
++沿原 status=200、JSON MIME、单 choice index=0、严格 envelope/字段类型/Unicode/duplicate-key/usage 检查。仅新增 function tool_calls 与 finish=tool_calls 的闭集；custom、deprecated function_call、未知键/类型仍明确失败。无非空 refusal 的成功响应仅在有工具结果时允许 content 为 null/省略，不能把空结构当成功正文。合法 refusal envelope 不受这项成功形状限制：非空 refusal 配 null/省略 content 仍先保存可靠 usage，再返回原 content_filter，不改成 content 缺失错误。
+ 
+ 每个工具必须具有完整非空 ID（最多256 UTF-8字节）、type=function、本次允许的精确 name、完整 arguments 字符串。arguments 解码后 ≤1 MiB，恰一个 JSON object，无重复键/尾随值/非法 Unicode/深度超过32；保留数字词法与原参数文本，不经 float64 舍入。最多128个工具，ID 唯一；JSON 数组位置即工具 Index，Result.ToolCalls 保留该顺序。混合响应的 Result.Text 是原文本，工具列表独立；本库不推断原生 content 与 tool_calls 两字段之间不存在的时间顺序。
+ 
+@@ -171,7 +171,7 @@
+ 
+ | 顶层 | 必须实际观察 |
+ | --- | --- |
+-| `TestModelOpenAIChatToolsHTTP` | POST原路径/Bearer/function schema/strict=false/四choice/parallel布尔；文本+多个工具、tool-only null content；历史tool调用及多结果乱序往返，IsError和OutputSchema的明确映射；无效/unsupported请求零server请求；未知name/重复ID/坏或非object arguments/选择违约无成功Result，可靠usage保留；0/NULL/>2^53精确用量；安全错误/日志无参数/schema/material canary |
++| `TestModelOpenAIChatToolsHTTP` | POST原路径/Bearer/function schema/strict=false/四choice/parallel布尔；文本+多个工具、tool-only null content；合法非空refusal配null/省略content仍为content_filter、零Result且保留可靠usage；历史tool调用及多结果乱序往返，IsError和OutputSchema的明确映射；无效/unsupported请求零server请求；未知name/重复ID/坏或非object arguments/选择违约无成功Result，可靠usage保留；0/NULL/>2^53精确用量；安全错误/日志无参数/schema/material canary |
+ | `TestModelOpenAIChatToolsStream` | 同chunk重复index、跨chunk交错、ID/name/arguments分别分片、UTF-8/escape边界；所有ToolComplete与重建参数逐字/长度一致且先于成功End；一个实际320KiB参数由≤64KiB事件交付，证明不因256KiB队列削低参数上限；缺DONE/半JSON/late delta/重复finish/refusal/length有工具时失败、一次错误后EOF；已交付片段/标记的PartialOutput、合法usage后断流；非法输入不能先在早期构造失败后冒充响应检查 |
+ | `TestModelOpenAIChatToolsCloseAndBudget` | 真实headers/body hold及工具片段背压期间取消，无迟到StreamEnd；server handler/connection与Client Drain双观察；同一具体Budget混用text/structured/tools保持64/8、超额零Do；取消未join保slot/material，正常与Force共用原剩余预算，其他Project不受错误释放影响 |
+ 

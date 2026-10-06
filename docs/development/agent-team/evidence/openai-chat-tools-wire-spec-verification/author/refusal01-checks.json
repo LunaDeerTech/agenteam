@@ -1,0 +1,26 @@
+{
+  "utc": "2026-10-06T01:16:53.451664+00:00",
+  "original_sha256": "334fb1c95a392aa903cf080ed55892be24d9e03288916e74eecc7a514e3d0ec1",
+  "updated_sha256": "70124874fc746e751582eea9fdd0788e9d6a1edce1a4fd8d0284624f5d27d7df",
+  "changed_lines": [
+    109,
+    174
+  ],
+  "technical_delta": [
+    "Restrict successful-content shape to non-refusal response; preserve original content_filter for valid refusal with null/absent content after reliable usage capture",
+    "Add exact HTTP conformance case for that refusal branch"
+  ],
+  "links_identical_to_original_checked_input": true,
+  "explicit_new_file_format_check": "PASS",
+  "argv": [
+    "git",
+    "diff",
+    "--check",
+    "--",
+    "docs/development/work-items/recovery-d09-openai-chat-tools-wire.md"
+  ],
+  "exit": 0,
+  "stdout": "",
+  "stderr": "",
+  "product_or_tests_changed": false
+}

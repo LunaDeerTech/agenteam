@@ -1,0 +1,239 @@
+{
+  "commit": "becc1d20eed83c1b8d85e15dc131a372d9dc7813",
+  "source_manifest_sha256": "4f28ba7834759fd87d0c595cce1b1aaee6b7b0d96fa985ffbcd15aaf0f14537d",
+  "entries": [
+    {
+      "area": "definition",
+      "path": "src/openai/types/shared_params/function_definition.py",
+      "sha256": "8306de541a2b447ce287bf02c2734519f892109c4552321d76dc58c9a29ed039",
+      "declarations": [
+        {
+          "line": 13,
+          "text": "class FunctionDefinition(TypedDict, total=False):"
+        },
+        {
+          "line": 14,
+          "text": "    name: Required[str]"
+        },
+        {
+          "line": 21,
+          "text": "    description: str"
+        },
+        {
+          "line": 27,
+          "text": "    parameters: FunctionParameters"
+        },
+        {
+          "line": 38,
+          "text": "    strict: Optional[bool]"
+        }
+      ]
+    },
+    {
+      "area": "native-function",
+      "path": "src/openai/types/chat/chat_completion_function_tool_param.py",
+      "sha256": "7a314ede1c99bcb57acb66f7c31bd3b6c6ea05999ff52d8f4afb594de6a6223f",
+      "declarations": [
+        {
+          "line": 12,
+          "text": "class ChatCompletionFunctionToolParam(TypedDict, total=False):"
+        },
+        {
+          "line": 15,
+          "text": "    function: Required[FunctionDefinition]"
+        },
+        {
+          "line": 17,
+          "text": "    type: Required[Literal[\"function\"]]"
+        }
+      ]
+    },
+    {
+      "area": "choices",
+      "path": "src/openai/types/chat/chat_completion_tool_choice_option_param.py",
+      "sha256": "28af6d64770806556f61013808e1f40f6a4765dd22d3548298e7132e0c04136b",
+      "declarations": [
+        {
+          "line": 14,
+          "text": "ChatCompletionToolChoiceOptionParam: TypeAlias = Union["
+        }
+      ]
+    },
+    {
+      "area": "named",
+      "path": "src/openai/types/chat/chat_completion_named_tool_choice_param.py",
+      "sha256": "903d5b6940c1ccf7fece668f055431db8b9ce67ecf44421e5b312d74a2633378",
+      "declarations": [
+        {
+          "line": 10,
+          "text": "class Function(TypedDict, total=False):"
+        },
+        {
+          "line": 11,
+          "text": "    name: Required[str]"
+        },
+        {
+          "line": 15,
+          "text": "class ChatCompletionNamedToolChoiceParam(TypedDict, total=False):"
+        },
+        {
+          "line": 21,
+          "text": "    function: Required[Function]"
+        },
+        {
+          "line": 23,
+          "text": "    type: Required[Literal[\"function\"]]"
+        }
+      ]
+    },
+    {
+      "area": "tool-result",
+      "path": "src/openai/types/chat/chat_completion_tool_message_param.py",
+      "sha256": "d13cdc6ddafe1ce96f8d9eae26e251962c23b1f275d72c82add90b751419b046",
+      "declarations": [
+        {
+          "line": 13,
+          "text": "class ChatCompletionToolMessageParam(TypedDict, total=False):"
+        },
+        {
+          "line": 14,
+          "text": "    content: Required[Union[str, Iterable[ChatCompletionContentPartTextParam]]]"
+        },
+        {
+          "line": 17,
+          "text": "    role: Required[Literal[\"tool\"]]"
+        },
+        {
+          "line": 20,
+          "text": "    tool_call_id: Required[str]"
+        }
+      ]
+    },
+    {
+      "area": "ordinary-response",
+      "path": "src/openai/types/chat/chat_completion_message_function_tool_call.py",
+      "sha256": "37e08a2bbf210badaa9a9bc709b6e9ef73e9137ef58913e5927c5b8e4fd30b89",
+      "declarations": [
+        {
+          "line": 10,
+          "text": "class Function(BaseModel):"
+        },
+        {
+          "line": 13,
+          "text": "    arguments: str"
+        },
+        {
+          "line": 21,
+          "text": "    name: str"
+        },
+        {
+          "line": 25,
+          "text": "class ChatCompletionMessageFunctionToolCall(BaseModel):"
+        },
+        {
+          "line": 28,
+          "text": "    id: str"
+        },
+        {
+          "line": 31,
+          "text": "    function: Function"
+        },
+        {
+          "line": 34,
+          "text": "    type: Literal[\"function\"]"
+        }
+      ]
+    },
+    {
+      "area": "stream-fragments",
+      "path": "src/openai/types/chat/chat_completion_chunk.py",
+      "sha256": "44bc28a96e088a6aa176b9426c495649d52b708fd7dab7f652cad75cf188bb08",
+      "declarations": [
+        {
+          "line": 49,
+          "text": "class ChoiceDeltaToolCallFunction(BaseModel):"
+        },
+        {
+          "line": 50,
+          "text": "    arguments: Optional[str] = None"
+        },
+        {
+          "line": 58,
+          "text": "    name: Optional[str] = None"
+        },
+        {
+          "line": 62,
+          "text": "class ChoiceDeltaToolCall(BaseModel):"
+        },
+        {
+          "line": 63,
+          "text": "    index: int"
+        },
+        {
+          "line": 65,
+          "text": "    id: Optional[str] = None"
+        },
+        {
+          "line": 68,
+          "text": "    function: Optional[ChoiceDeltaToolCallFunction] = None"
+        },
+        {
+          "line": 70,
+          "text": "    type: Optional[Literal[\"function\"]] = None"
+        }
+      ]
+    },
+    {
+      "area": "request-selection",
+      "path": "src/openai/types/chat/completion_create_params.py",
+      "sha256": "58306f650519787342a3fc10f5500e90a17a882834e4b571e1e2f2c3c55b4f9c",
+      "declarations": [
+        {
+          "line": 169,
+          "text": "    parallel_tool_calls: bool"
+        },
+        {
+          "line": 329,
+          "text": "    tool_choice: ChatCompletionToolChoiceOptionParam"
+        },
+        {
+          "line": 342,
+          "text": "    tools: Iterable[ChatCompletionToolUnionParam]"
+        }
+      ]
+    },
+    {
+      "area": "merge",
+      "path": "src/openai/lib/streaming/_deltas.py",
+      "sha256": "e296d090732c61b57f910c08f352711e70f189932530fd6197516787c4e75f52",
+      "declarations": [
+        {
+          "line": 6,
+          "text": "def _has_indexed_entries(value: object) -> bool:"
+        },
+        {
+          "line": 10,
+          "text": "def accumulate_delta(acc: dict[object, object], delta: dict[object, object]) -> dict[object, object]:"
+        },
+        {
+          "line": 29,
+          "text": "        if key == \"index\" or key == \"type\":"
+        },
+        {
+          "line": 33,
+          "text": "        if isinstance(acc_value, str) and isinstance(delta_value, str):"
+        },
+        {
+          "line": 50,
+          "text": "            for delta_entry in delta_value:"
+        }
+      ]
+    }
+  ],
+  "not_claimed": [
+    "SDK execution",
+    "provider account/model support",
+    "adapter conformance",
+    "production Runtime or Tool execution"
+  ]
+}

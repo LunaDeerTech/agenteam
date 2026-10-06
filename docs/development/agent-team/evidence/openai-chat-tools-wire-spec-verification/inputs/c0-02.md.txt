@@ -1,0 +1,186 @@
+# D09 OpenAI Chat 原生工具调用 wire 恢复卡
+
+修订：rev1 候选，待独立规格审查与主线程采纳；当前只授权本文件和任务私有来源证据，不授权下列产品实施路径。固定已验业务基线 `ecd733711caff5df46e423cadab52b32c34f785e`。规格作者为 `management_reads`（architecture_worker），不再委派；实施者、独立验收者与真实资源窗口由主线程另行指定。
+
+必读 [AGENTS](../../../AGENTS.md)、[团队流程](../agent-team/README.md)、[设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[D09 主卡](d09-model-system-token-usage.md)、[D09 设计 §6–7](d09-model-system-token-usage-design.md#6-五种协议-profile固定源码事实与-conformance-边界)、[Chat 架构](../../architecture/platform-infrastructure/model-system/chat-model-runtime.md)、已验 [text wire](recovery-d09-openai-chat-wire.md)与 [structured wire](recovery-d09-openai-chat-structured-wire.md)。实施补读 [Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)，独立验收使用[验证技能](../../../.agents/skills/agenteam-verification/SKILL.md)；本卡只精化一个协议库结果。
+
+## 1. 完整结果与真实依赖
+
+交付同一 `adapter.OpenAIChat` 的 `openai-chat-tools-v1` 修订：原生 function tools、四种 ToolChoice、历史 assistant tool calls 与文本 tool results 编码；普通响应与多工具交错 SSE 的有界解码、完整参数 JSON 校验、可靠 usage、安全错误、取消背压和 actual join。工具协议完成不表示工具已获授权或执行，也不表示 Invocation/Usage 的数据库终态已经确认。
+
+| 已验输入 | 本卡消费及限制 |
+| --- | --- |
+| text `9c72190`、structured `be0bd07` | 原 `Start/Exchange`、D04 单次 POST、usage、安全错误、具体 Budget、reader/Client 关闭；原修订及旧测试保持 |
+| C0 `model/contract/chat.go` | 已有 Tool、ToolChoice、ToolCallPart、ToolResultPart、ModelFrame；保持全部 C0 形状、上限与语义，不增加工具执行或授权端口 |
+| D04 PolicyService/TrustStore/Client/Decision | 真实受控 HTTP、凭据 origin binding、实际发送与 Drain；不直接创建推理 HTTP client、不放宽地址或证书策略 |
+| 原 `tests/model/openai_chat_wire_fixture_test.go` 与 outbound fixture | 真实 Account/Audit/PG policy 和 owned 私网 server；合成 snapshot/material 仍明确为协议输入，不是 consumer 或 Secret Model 调用授权 |
+| current Resolution `4295df7` | 本卡只读依赖边界：当前 `resolution_policy.go` 明确拒绝 ToolCalls/ParallelToolCalls，不因新 wire 修订自动接通 Resolver |
+
+已审 [ledger rev1](recovery-d09-invocation-usage-ledger.md)只作为未来接缝依据，本卡不读取或依赖其未验实施源码/00018。生产 InvocationFacts、canonical call/send gate、Secret exact read/release、Outbound 委派、真实 consumer、Runtime 重试/恢复和 root 留给各自完整任务。管理 UI、Summary 初值/Settings、其他协议/型号 conformance 及暂停的 [Object join 缺陷](../agent-team/object-runtime-join-regression.md)均不在本卡；`ready=false`/503 不变。
+
+## 2. 固定官方来源
+
+采用同一 [OpenAI 官方 SDK 提交](https://github.com/openai/openai-python/tree/becc1d20eed83c1b8d85e15dc131a372d9dc7813) `becc1d20eed83c1b8d85e15dc131a372d9dc7813`，SDK 3.24.0；不安装、导入或运行 SDK，不引入 Go 依赖。本轮通过无交互公开 Git 读取固定提交，commit object 与已验 text 来源档案逐字一致，SHA-256 `4a18fa5995a190f5cbff6f3313422abbae18861e401e2251ba73e7c8a59a9702`。
+
+私有证据 `/workspace/scratch/agenteam-openai-tools-spec-opv8pnda` 含原 `fetch-commands.json`/stdout/stderr、21 个限定文件共 104254 字节、`source-manifest.json` 的官方 URL/Git blob/SHA-256、原 LICENSE、字段定位和基线指纹。来源 manifest SHA-256 为 `4f28ba7834759fd87d0c595cce1b1aaee6b7b0d96fa985ffbcd15aaf0f14537d`；root 采纳时归档轻量证据，不把临时路径当跨会话唯一来源。固定来源中每个文件可按 manifest 从同一提交复原，禁止换 latest 或借兼容厂商惯例补字段。
+
+下表路径相对 SDK `src/openai/`；行号是完整原文件行号。
+
+| 采用事实 | 固定来源 |
+| --- | --- |
+| function `name/description/parameters/strict`；name 字符集为字母、数字、下划线或短横线，最多64；本修订结合 C0 要求非空；strict 可选 | `types/shared_params/function_definition.py:13–45`，`types/chat/chat_completion_function_tool_param.py:12–18` |
+| tools 为 function/custom union；本修订只支持 function | `types/chat/chat_completion_tool_union_param.py:14`；响应 union 见 `chat_completion_message_tool_call.py` |
+| none/auto/required 与 named function；parallel 是显式请求字段 | `types/chat/completion_create_params.py:169–174,329–350`；`chat_completion_tool_choice_option_param.py:14–19`；`chat_completion_named_tool_choice_param.py:10–24` |
+| assistant content 可为 null/省略且携 tool_calls；tool 消息用 content、role、tool_call_id，没有 is_error 字段 | `chat_completion_assistant_message_param.py:46–86`；`chat_completion_tool_message_param.py:13–21`；`chat_completion_content_part_text_param.py` |
+| 普通 function call 的 id/type/name/arguments；arguments 是 JSON 字符串，供应商不保证合法或符合 schema | `chat_completion_message_function_tool_call.py:10–35` 及对应 `_param.py` |
+| SSE index 必填，id/function/type 可选，function.name/arguments 可选 | `chat_completion_chunk.py:49–72`；原 envelope/finish/usage 沿旧来源 |
+| 按 index 合并；字符串片段追加，index/type 不相加；同一 chunk 的同一 index 可出现多个片段 | `lib/streaming/_deltas.py:5–74`，`lib/streaming/chat/_completions.py:360–466` |
+
+字段存在及 SDK 累积算法不等于供应商账号、型号或本实现 conformance 通过。只采原生 function 协议；不采 custom tools、allowed-tools 扩展、deprecated function_call、SDK 自动解析/自动工具执行，也不把 SDK 的中途 done 事件当本库的协议终止。实施 manifest 须列采用/拒绝字段、固定源码指纹与真实正反测试定位。
+
+## 3. 修订与正式 wire 增量
+
+保持 `NewOpenAIChat`、`Start`、`Request`、`CallOptions`、`Exchange.Observe/Result/Next/Close/Joined` 方法签名；保持原 `End`、`Observation`。只新增下列导出载体/常量和两个现有结构的字段；`mc` 为既有 model contract。
+
+```go
+const OpenAIChatToolsRevision = "openai-chat-tools-v1"
+const (
+    ToolDelta    EventKind = "tool_delta"
+    ToolComplete EventKind = "tool_complete"
+)
+type ToolDeltaEvent struct {
+    Index             int
+    IDFragment        string
+    NameFragment      string
+    ArgumentsFragment string
+}
+type ToolCompleteEvent struct {
+    Index          int
+    ID             string
+    Name           string
+    ArgumentsBytes int
+}
+// Result 原 Text/End 字段保持；新字段只有 JSONResponse 成功才返回。
+type Result struct {
+    Text      string
+    End       End
+    ToolCalls []mc.ToolCallPart
+}
+// Event 原 Kind/Text/Usage/End 字段保持；新分支恰一个 payload。
+type Event struct {
+    Kind         EventKind
+    Text         string
+    Usage        *mc.Usage
+    End          *End
+    ToolDelta    *ToolDeltaEvent
+    ToolComplete *ToolCompleteEvent
+}
+```
+
+`ToolDeltaEvent` 每项恰有一个非空 fragment，Index 为 0..127；fragment 是已解码 UTF-8 字节，不是 raw JSON 转义。`ToolCompleteEvent` 是已验证完整参数的元数据标记，**不含**完整 Arguments、私有缓存引用、取回参数方法或任何执行能力。SSE 消费者按 index 拼接已收到的片段，核完整 ID/name/ArgumentsBytes 后可在自己的有界内存中重建 C0 ToolCallPart；这只是未来 Runtime 的投影责任，本卡不实现它，也不为 wire 事件分配 CallID/InvocationID/ModelFrame sequence。
+
+新载体提供安全 Format/LogValue/MarshalJSON，只输出固定 marker，不暴露 name/ID/片段/参数；Result/Event 继续原安全格式化。接受请求和返回结果均复制可变切片/指针/RawMessage，调用方修改不能改变本次编码、请求工具集合或后续事件。旧修订所有 Result 的 ToolCalls 为 nil，旧 Event 新字段均 nil；未知 revision/未支持组合在准入前拒绝。
+
+新 revision 只接受 OpenAIChatV1/OpenAIChat/Chat、text 输入输出、ToolCalls=true、ParallelToolCalls 为既有显式布尔；Streaming 沿原能力检查。Parameters/RequestOverwrite 必须空对象，HeaderOverwrite 为空，无 reasoning，StructuredOutputModes 为空或仅 text，ResponseFormat=text。tools+json_schema 组合不属于本修订；旧 structured 修订仍拒绝 tools，不修改旧 snapshot 的含义。
+
+## 4. 请求、历史消息与能力限制
+
+Start 在 Budget.accept、Client/worker/Do 之前完成本节全部校验与不可变请求编码。C0 的合法结构是起点，native function name 另限 `[A-Za-z0-9_-]{1,64}`；工具定义名唯一、最多128个，description/InputSchema/OutputSchema 保留 C0 上限，输入 messages 1..256、累计 MessagePart 至多256。请求编码总量仍 ≤16 MiB，分配前检查累计预算，不先展开大数组再判大小。
+
+每个 Tool 映射 `{"type":"function","function":{"name":Name,"description":Description,"parameters":InputSchema,"strict":false}}`。InputSchema 是有界完整 JSON object，保留原字段和精确数字；本修订不编译它、不展开 `$ref`、不改 required/additionalProperties，不冒充 strict-schema 保证。OutputSchema 是平台工具结果契约，不发送为 native 参数。本库只检查返回 arguments 的完整 JSON object 与声明工具名，实际 schema/权限/业务验证仍归未来 Tool/Runtime，不能据 ToolComplete 自动调用工具。
+
+| 工具选择 | 编码与结果约束 |
+| --- | --- |
+| tools 非空，none/auto/required | 原生同名字符串；none 只允许零工具结果，auto 允许零或多个，required 必须至少一个 |
+| named | Name 必须精确命中本次工具集合；编码 function named choice，结果只能调用该 name |
+| tools 为空 | 只接受 none/auto；两者均不发送 tools/tool_choice/parallel_tool_calls，使用官方无 tools 的 none 默认；required/named 为 InvalidArgument |
+| parallel | tools 非空时总是显式发送 capability 的 true/false；false 时本次输出最多一个工具调用，true 时仍最多128，不表示上层必须并行执行 |
+
+system/user 保留单一 TextPart。assistant 接受至多一个 TextPart 加 function ToolCallPart；普通文本仍使用 string content，只有 tool calls 时 content=null；tool_calls 按原 Parts 中的工具顺序编码，arguments 是保存原 JSON 文本的 native 字符串。历史工具 name 不要求仍在本次可选工具集合，以免配置工具集合变化改写历史；仍执行 native 名称、JSON 与字节限制。
+
+role=tool 只接受 ToolResultPart；同一 Message 的多个结果按原 Parts 顺序展开为 native tool 消息，每项精确 tool_call_id。Text ResultPart 按原顺序编码原生 text content 数组，空 Parts 编码空字符串；image/file/其他类型在准入前明确 unsupported，不读取 Object。原 IsError 属平台执行结果状态，OpenAI 没有对应字段：发送调用者已构造的原文本，不新增 is_error 键、不添加或伪造错误正文/前缀；其 true/false 均不能改变调用权限或工具执行，验收明确核这一映射。错误状态的持久化和对模型可见的 canonical 文本由未来 consumer 提供，本库不生成工具结果。
+
+历史每个 assistant 工具组的 ID 非空且唯一；随后的 tool results 必须各命中该组尚未匹配的 ID，允许组内结果乱序，不允许缺失、重复、孤立结果或未完成组被下一条普通消息跨越。一个完整组结束后才可进入下一组；不同完整组可复用相同文本 ID，不将它当全局 Operation 身份。展开后仍受256消息与16 MiB上界。输入不合法为 InvalidArgument/NotStarted；C0 合法但能力/修订/媒体等不支持为原 unsupported_feature，均零 slot/Exchange/Do。
+
+原 endpoint 路径/Bearer origin binding/POST 禁重定向、include_usage、max_completion_tokens、实际 D04 网络策略及错误保持。无 SDK/adapter 重试，无新 URL/header/任意 native JSON 入口。
+
+## 5. 普通响应与完整工具结果
+
+沿原 status=200、JSON MIME、单 choice index=0、严格 envelope/字段类型/Unicode/duplicate-key/usage 检查。仅新增 function tool_calls 与 finish=tool_calls 的闭集；custom、deprecated function_call、未知键/类型仍明确失败。无非空 refusal 的成功响应仅在有工具结果时允许 content 为 null/省略，不能把空结构当成功正文。合法 refusal envelope 不受这项成功形状限制：非空 refusal 配 null/省略 content 仍先保存可靠 usage，再返回原 content_filter，不改成 content 缺失错误。
+
+每个工具必须具有完整非空且不含 NUL 的 ID（最多256 UTF-8字节）、type=function、本次允许的精确 name、完整 arguments 字符串。arguments 解码后 ≤1 MiB，恰一个 JSON object，无重复键/尾随值/非法 Unicode。普通 Result.ToolCalls 及每个 SSE ToolComplete 都须以既有 `mc.ToolCallPart{ID, Name, Arguments}.Validate()` 成功为完成门槛，再满足本修订的 native 名称与工具集合约束；C0 只读不变，不能仅用 adapter.jsonShape 的较宽检查代替。
+
+C0 `objectJSON/jsonBody` 的根 depth=1，每个子 value（包括标量）递增且不得超过32；其 json.Number 经 `strconv.ParseFloat(...,64)` 检查错误、Inf/NaN，仅用于验证范围，不能把该浮点值写回参数。有限且大于2^53的数字仍逐字保留原 RawMessage/片段词法，`1e400` 等 C0 拒绝的值安全失败，不交普通工具结果或 SSE 完成标记。最多128个工具，ID 唯一；JSON 数组位置即工具 Index，Result.ToolCalls 保留该顺序。混合响应的 Result.Text 是原文本，工具列表独立；本库不推断原生 content 与 tool_calls 两字段之间不存在的时间顺序。
+
+finish=tool_calls 必须有合法非空工具结果且符合 ToolChoice/parallel 约束；finish=stop 不得带工具，required/named 不得零工具成功。已有工具片段却以 length/content_filter 结束不交完整 ToolCalls；length 安全失败为 provider_error/wire_protocol_invalid，content_filter 或非空 refusal 为 content_filter。没有工具且 choice 不强制工具时，stop/length/content_filter 保持原文本修订的已知 finish 含义；非空 refusal 仍错误。成功 Result 必须全部工具通过，不返回部分工具数组。
+
+先保存通过原 envelope/usage 类型校验的可靠 usage，再验证工具参数或拒绝结果；普通响应参数坏、截断或 refusal 不丢已收到的合法 usage。无法合法解析 envelope/usage 时不虚构用量。未知字段为 NULL、明确0为0、六字段映射和 int64 溢出拒绝沿旧规则。只有原 Client/body/parser actual join 且本次 ctx 仍有效，Result 才返回完整文本和工具；失败/取消返回零 Result。
+
+合法但未支持的 custom/deprecated 协议变体沿 unsupported_feature/wire_unsupported_feature；未知字段、坏类型/工具名绑定/ID或选择关系、参数JSON错误沿 provider_error/wire_protocol_invalid；字节/数量/深度预算超限沿 provider_error/wire_limit_exceeded。拒绝结果不回显参数或原诊断文本，Dispatched 仍只来自实际 Decision，取消/超时/HTTP/D04 fault 沿原安全映射；不能为使新测试通过而重写旧 text/structured 错误分类。
+
+## 6. SSE 组装、队列与终止
+
+按原协议读取每个 ≤1 MiB event，支持 UTF-8/JSON 转义拆片、obfuscation、最终空 choices usage 和必需 `[DONE]`。每个原生 tool delta 要求 Index 为整数0..127；同一 chunk 的重复 Index 按出现顺序合并，不同工具可交错，不能在 index 切换时提前认定前一工具结束。id/name/arguments 的非 null 字符串按序追加；缺失/null 不覆盖已得内容。type 缺失可等待，出现则必须为 function，重复 function 合法，其他值失败。最终每个工具必须实际见过 function 类型。
+
+每个 native entry 的输出次序固定为非空 IDFragment、NameFragment、ArgumentsFragment；一个 native chunk 同时带文本和工具时先 TextDelta，再按工具数组顺序发片段。不声称该工程顺序是供应商跨字段时序。ID/name 的累计上限分别256/64字节；argument片段拆成 ≤64 KiB、保持 UTF-8 边界的 ToolDelta。空字段/index-only delta 只更新受限状态，不发空事件。单个 event 的工具数组至多256项，distinct Index 最多128；最终 Index 集必须恰为0..N-1，不能把稀疏巨大 index 用作分配长度。
+
+parser 保存每个工具的有界 argument 累积和名称/ID，接受片段前核累计长度。整个响应 TextDelta 原文字节与各工具 arguments 解码后字节合计 ≤16 MiB；单工具上限仍1 MiB。SSE 不另存完整文本或第二份完整工具列表。组装使用有界 append/chunk buffer，避免每个小片段复制完整前缀；临时完整参数校验副本一次最多1 MiB，逐工具用完释放。ID/name/index元数据最多128组；不能预分配128个1 MiB buffer或从 index/长度声明直接分配无界内存。新的长扫描/逐节点检查服从原 ctx，不另起验证 goroutine。
+
+在唯一合法 finish=tool_calls 处，先完整验证**全部**工具、密集 index、唯一ID、工具集合/ToolChoice/parallel、§5 的 C0 ToolCallPart.Validate 及参数 JSON 和累计预算，随后按 index 升序发 ToolComplete。验证一项失败则本轮零 ToolComplete；已经交付的片段保持 partial 事实。工具 buffers 在不再用于校验后释放，ToolComplete 仅保存 Index/完整ID/name/ArgumentsBytes；不把参数挪到隐藏队列或共享取回仓库。finish 后只有至多一次最终空 choices usage 和 `[DONE]` 可继续，拒绝工具/文本迟到增量、第二finish或第二完成标记。零工具的文本路径不发 ToolComplete。
+
+队列仍最多32项、按所有 payload 字符串及标量保守计量合计 ≤256 KiB；ToolDelta 的 ID/name/Arguments 片段和 ToolComplete 的 ID/name 都进入 `eventBytes`。新 payload 字符串须复制为独立有界值，不能以短 substring 保留整块 event/argument buffer。不存在带1 MiB Arguments的队列项、绕过预算的缓存指针或完整工具结果随 StreamEnd 附送。parser 的累计校验缓冲与队列是两个分别受限的预算，不能把一个未计量的完整结果伪装成元数据项。满队列只在原 parser worker 内等待且可取消，不能每片段另起 goroutine。
+
+ToolComplete 仅表示参数已经组装校验；它可在 usage/[DONE]/actual join 前交付，仍不得执行工具。缺 `[DONE]`、后续协议错误、取消、超时或 join 不成立，最终必须是一次安全错误再 EOF，零 StreamEnd；已交付的完成标记不能变成业务成功。StreamEnd 沿原 Next 路径，在原 Client/body/parser 真实 join 后恰一次交付，只含原 End。未来 Runtime 还须持久确认本次业务终态后才能发布 C0 message_end 或分派 Tool，本卡没有该能力。
+
+PartialOutput 只依已经从 Next 返回的非空 TextDelta/ToolDelta 或 ToolComplete；只收到 UsageUpdate、只入队未交付、纯 index-only delta 都不算。仍结合实际 Decision.Sent；不能按累计 buffer 是否非空代替已交付事实。合法 usage 后的协议错误继续保留 Observe().Usage。
+
+## 7. 唯一资源 owner 与兼容
+
+继续共用一个具体 Budget：全局64、每Project8、无队列的准入上限不变；本卡不是业务128项等待队列。新增 parser/缓冲属于原 Exchange，沿同一个 overall≤120s、read-idle≤60s及更早 caller budget，不新增超时、WithoutCancel、后台收尾或独立 client 池。
+
+取消 Close/Force 须唤醒片段背压、参数校验和原读等待；返回错误或 ctx.Done 不等于 join。真实 Body.Close、parser 返回及独占 Client.StopAdmission/Drain 成功之前保留 slot/handle/material 使用边界。Result、ToolComplete、观察到 Decision 或 finish 都不能自行释放槽；借用 SecretMaterial 由调用者在实际 Joined 后 Destroy。旧 text/structured 的错误分类、前缀/usage、单次错误后EOF、未join保槽及正常/强制关闭行为原样保留。
+
+本卡只证明 wire owner 的真实终局，不证明外层 DB writer、工具执行、Project lifecycle 或共享 Object ProcessGuard 已终局；不运行暂停的 Object/网络 ROLLBACK 探针。
+
+## 8. 精确候选实施所有权
+
+以下 **14 路径**只供独立规格审查，采纳后由主线程授权单一实施者；其余路径只读，无迁移/SQL/依赖/环境配置/HTTP/root变更。
+
+| # | 路径 | 唯一职责 |
+| --- | --- | --- |
+| 1 | `internal/central/model/adapter/openai_chat.go`（旧） | 新 revision/载体、准入分派、安全格式；原修订保持 |
+| 2 | `internal/central/model/adapter/errors.go`（旧） | 保留旧 decodeNative 接缝，按新修订复用严格 envelope/usage 核；不放宽旧闭集 |
+| 3 | `internal/central/model/adapter/sse.go`（旧） | 新修订的组装分派及原协议终止组合 |
+| 4 | `internal/central/model/adapter/transport.go`（旧） | Result/Event 深复制、全payload队列计量、实际交付 PartialOutput；原 owner/关闭链不变 |
+| 5 | `internal/central/model/adapter/openai_chat_tools.go`（新） | 工具请求/历史消息编码、普通响应、名称/完整JSON/选择约束 |
+| 6 | `internal/central/model/adapter/tools_stream.go`（新） | 有界分片累计、全工具校验、ToolDelta/ToolComplete生成 |
+| 7 | `internal/central/model/adapter/testdata/openai-chat-tools-v1.json`（新） | 固定来源/修订/采用与拒绝字段、测试定位的 manifest |
+| 8 | `internal/central/model/adapter/openai_chat_tools_test.go`（新） | 原生编码/普通响应、深复制/安全投影与修订反例 |
+| 9 | `internal/central/model/adapter/tools_stream_test.go`（新） | 交错/重复index/分片/终止、PartialOutput与可靠usage |
+| 10 | `internal/central/model/adapter/tools_limits_test.go`（新） | 1MiB/16MiB/128/256/深度等精确边界、长输入取消 |
+| 11 | `internal/central/model/adapter/tools_transport_test.go`（新） | 全payload计量、背压/clone/取消与旧模式混用 |
+| 12 | `tests/model/openai_chat_tools_http_test.go`（新） | 真实请求、历史往返、普通输出与安全错误 |
+| 13 | `tests/model/openai_chat_tools_stream_test.go`（新） | 真实交错SSE、>256KiB参数、断流/错误/取消 |
+| 14 | `tests/model/openai_chat_tools_budget_test.go`（新） | 三修订同Budget、真实Client/body/parser终局与保槽 |
+
+`budget.go`、`structured_schema.go`、全部旧测试/manifest、C0、Resolver、Secret、D04、Account/Project、ledger20、app、迁移、go.mod/go.sum和脚本均只读。复用原 fixture 的 Chunks/HoldAfter/DisconnectAfter/Release/请求及连接观察，不修改其512 KiB场景总payload上限。需要范围外接缝时先报告实际阻塞与最小delta，不改旧断言或复制宽松服务。
+
+## 9. 验收与交接
+
+固定 Go1.27.1、离线 readonly 依赖、私有 GOCACHE/TMPDIR；记录14路径与实际编译闭包、argv/env/exit/raw。先 adapter 全部 unit/race/vet、受影响 Model/C0 编译、integration compile、Central/Runner build。原失败保留，修后按受影响范围复验；不因未改产品路径而无条件跑其他域。
+
+真实 fixture 按主线程独占窗口，沿原 `scripts/test-security.sh` 的 race/count1/每包6m。三个新顶层：
+
+| 顶层 | 必须实际观察 |
+| --- | --- |
+| `TestModelOpenAIChatToolsHTTP` | POST原路径/Bearer/function schema/strict=false/四choice/parallel布尔；文本+多个工具、tool-only null content；合法非空refusal配null/省略content仍为content_filter、零Result且保留可靠usage；历史tool调用及多结果乱序往返，IsError和OutputSchema的明确映射；无效/unsupported请求零server请求；未知name/重复ID/坏或非object arguments/选择违约无成功Result，可靠usage保留；0/NULL/>2^53精确用量；安全错误/日志无参数/schema/material canary |
+| `TestModelOpenAIChatToolsStream` | 同chunk重复index、跨chunk交错、ID/name/arguments分别分片、UTF-8/escape边界；所有ToolComplete与重建参数逐字/长度一致且先于成功End；一个实际320KiB参数由≤64KiB事件交付，证明不因256KiB队列削低参数上限；缺DONE/半JSON/late delta/重复finish/refusal/length有工具时失败、一次错误后EOF；已交付片段/标记的PartialOutput、合法usage后断流；非法输入不能先在早期构造失败后冒充响应检查 |
+| `TestModelOpenAIChatToolsCloseAndBudget` | 真实headers/body hold及工具片段背压期间取消，无迟到StreamEnd；server handler/connection与Client Drain双观察；同一具体Budget混用text/structured/tools保持64/8、超额零Do；取消未join保slot/material，正常与Force共用原剩余预算，其他Project不受错误释放影响 |
+
+每场景实际请求计数必须支持“一个 Start、原 D04 规则、无adapter重发”的结论。复跑原三个 text 顶层和三个 structured 顶层，旧断言不弱化。按revision选择的 private helper 可以保持旧纯测试调用形状；不改变 public C0 或在测试里签发工具执行grant。
+
+纯测试补齐实际1 MiB单工具（合法精确上界及+1）、16 MiB总content（含文本和工具）、128工具/129反例、C0根depth=1且含标量的32/33边界、重复key/尾随JSON、有限且>2^53数字词法原样及1e400拒绝、name/ID上界和NUL ID拒绝、稀疏index、单event256条目、schema与request总大小、请求/结果深复制。上述 C0 反例同时覆盖普通结果和 SSE 完成门槛；每个成功工具结果/按片段重建的完成工具必须实际通过既有 C0 Validate。完整参数>256KiB时所有队列项仍逐项计量≤256KiB、fragment≤64KiB；慢消费者与取消的顺序使用确定 channel/barrier，不靠sleep猜。新增参数扫描的校验中取消由纯测试以原 ctx 的确定信号验证，不以未进入校验的早取消替代，也不为测试新增生产回调口。512KiB真实fixture装不下的1MiB/16MiB极限只按纯parser实测报告，不扩大fixture或伪称真实网络已验。
+
+独立验收者未参与实现；核官方指纹、原两修订兼容、新载体无执行能力、所有权/上界及原失败，至少补真实“合法envelope而arguments无效/选择不符”和“工具片段已交付后取消/缺DONE仍零成功”探针。运行前核基线exact IDs/name/labels，运行时观察nonce资源；结束两次exact-ID absent、基线不变、所属进程0/runtime空，及时交还窗口，再整理报告。
+
+最终证据精确绑定14路径、来源manifest、原命令/日志/失败与delta、actual join和资源清理。root核准后单独提交完整库结果；本候选规格本身不代表实施、Go/PG/Docker/Provider运行或业务已验。本轮只做公开源码读取、固定输入静态核对与规格自查；规格必须由未参与者独立静审后再决定实施。

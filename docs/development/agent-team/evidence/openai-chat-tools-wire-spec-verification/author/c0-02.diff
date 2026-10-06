@@ -1,0 +1,31 @@
+--- refusal01
++++ c0-02
+@@ -108,7 +108,9 @@
+ 
+ 沿原 status=200、JSON MIME、单 choice index=0、严格 envelope/字段类型/Unicode/duplicate-key/usage 检查。仅新增 function tool_calls 与 finish=tool_calls 的闭集；custom、deprecated function_call、未知键/类型仍明确失败。无非空 refusal 的成功响应仅在有工具结果时允许 content 为 null/省略，不能把空结构当成功正文。合法 refusal envelope 不受这项成功形状限制：非空 refusal 配 null/省略 content 仍先保存可靠 usage，再返回原 content_filter，不改成 content 缺失错误。
+ 
+-每个工具必须具有完整非空 ID（最多256 UTF-8字节）、type=function、本次允许的精确 name、完整 arguments 字符串。arguments 解码后 ≤1 MiB，恰一个 JSON object，无重复键/尾随值/非法 Unicode/深度超过32；保留数字词法与原参数文本，不经 float64 舍入。最多128个工具，ID 唯一；JSON 数组位置即工具 Index，Result.ToolCalls 保留该顺序。混合响应的 Result.Text 是原文本，工具列表独立；本库不推断原生 content 与 tool_calls 两字段之间不存在的时间顺序。
++每个工具必须具有完整非空且不含 NUL 的 ID（最多256 UTF-8字节）、type=function、本次允许的精确 name、完整 arguments 字符串。arguments 解码后 ≤1 MiB，恰一个 JSON object，无重复键/尾随值/非法 Unicode。普通 Result.ToolCalls 及每个 SSE ToolComplete 都须以既有 `mc.ToolCallPart{ID, Name, Arguments}.Validate()` 成功为完成门槛，再满足本修订的 native 名称与工具集合约束；C0 只读不变，不能仅用 adapter.jsonShape 的较宽检查代替。
++
++C0 `objectJSON/jsonBody` 的根 depth=1，每个子 value（包括标量）递增且不得超过32；其 json.Number 经 `strconv.ParseFloat(...,64)` 检查错误、Inf/NaN，仅用于验证范围，不能把该浮点值写回参数。有限且大于2^53的数字仍逐字保留原 RawMessage/片段词法，`1e400` 等 C0 拒绝的值安全失败，不交普通工具结果或 SSE 完成标记。最多128个工具，ID 唯一；JSON 数组位置即工具 Index，Result.ToolCalls 保留该顺序。混合响应的 Result.Text 是原文本，工具列表独立；本库不推断原生 content 与 tool_calls 两字段之间不存在的时间顺序。
+ 
+ finish=tool_calls 必须有合法非空工具结果且符合 ToolChoice/parallel 约束；finish=stop 不得带工具，required/named 不得零工具成功。已有工具片段却以 length/content_filter 结束不交完整 ToolCalls；length 安全失败为 provider_error/wire_protocol_invalid，content_filter 或非空 refusal 为 content_filter。没有工具且 choice 不强制工具时，stop/length/content_filter 保持原文本修订的已知 finish 含义；非空 refusal 仍错误。成功 Result 必须全部工具通过，不返回部分工具数组。
+ 
+@@ -124,7 +126,7 @@
+ 
+ parser 保存每个工具的有界 argument 累积和名称/ID，接受片段前核累计长度。整个响应 TextDelta 原文字节与各工具 arguments 解码后字节合计 ≤16 MiB；单工具上限仍1 MiB。SSE 不另存完整文本或第二份完整工具列表。组装使用有界 append/chunk buffer，避免每个小片段复制完整前缀；临时完整参数校验副本一次最多1 MiB，逐工具用完释放。ID/name/index元数据最多128组；不能预分配128个1 MiB buffer或从 index/长度声明直接分配无界内存。新的长扫描/逐节点检查服从原 ctx，不另起验证 goroutine。
+ 
+-在唯一合法 finish=tool_calls 处，先完整验证**全部**工具、密集 index、唯一ID、工具集合/ToolChoice/parallel、参数 JSON 和累计预算，随后按 index 升序发 ToolComplete。验证一项失败则本轮零 ToolComplete；已经交付的片段保持 partial 事实。工具 buffers 在不再用于校验后释放，ToolComplete 仅保存 Index/完整ID/name/ArgumentsBytes；不把参数挪到隐藏队列或共享取回仓库。finish 后只有至多一次最终空 choices usage 和 `[DONE]` 可继续，拒绝工具/文本迟到增量、第二finish或第二完成标记。零工具的文本路径不发 ToolComplete。
++在唯一合法 finish=tool_calls 处，先完整验证**全部**工具、密集 index、唯一ID、工具集合/ToolChoice/parallel、§5 的 C0 ToolCallPart.Validate 及参数 JSON 和累计预算，随后按 index 升序发 ToolComplete。验证一项失败则本轮零 ToolComplete；已经交付的片段保持 partial 事实。工具 buffers 在不再用于校验后释放，ToolComplete 仅保存 Index/完整ID/name/ArgumentsBytes；不把参数挪到隐藏队列或共享取回仓库。finish 后只有至多一次最终空 choices usage 和 `[DONE]` 可继续，拒绝工具/文本迟到增量、第二finish或第二完成标记。零工具的文本路径不发 ToolComplete。
+ 
+ 队列仍最多32项、按所有 payload 字符串及标量保守计量合计 ≤256 KiB；ToolDelta 的 ID/name/Arguments 片段和 ToolComplete 的 ID/name 都进入 `eventBytes`。新 payload 字符串须复制为独立有界值，不能以短 substring 保留整块 event/argument buffer。不存在带1 MiB Arguments的队列项、绕过预算的缓存指针或完整工具结果随 StreamEnd 附送。parser 的累计校验缓冲与队列是两个分别受限的预算，不能把一个未计量的完整结果伪装成元数据项。满队列只在原 parser worker 内等待且可取消，不能每片段另起 goroutine。
+ 
+@@ -177,7 +179,7 @@
+ 
+ 每场景实际请求计数必须支持“一个 Start、原 D04 规则、无adapter重发”的结论。复跑原三个 text 顶层和三个 structured 顶层，旧断言不弱化。按revision选择的 private helper 可以保持旧纯测试调用形状；不改变 public C0 或在测试里签发工具执行grant。
+ 
+-纯测试补齐实际1 MiB单工具（合法精确上界及+1）、16 MiB总content（含文本和工具）、128工具/129反例、32层/重复key/尾随JSON/巨大数字词法、name/ID上界、稀疏index、单event256条目、schema与request总大小、请求/结果深复制。完整参数>256KiB时所有队列项仍逐项计量≤256KiB、fragment≤64KiB；慢消费者与取消的顺序使用确定 channel/barrier，不靠sleep猜。新增参数扫描的校验中取消由纯测试以原 ctx 的确定信号验证，不以未进入校验的早取消替代，也不为测试新增生产回调口。512KiB真实fixture装不下的1MiB/16MiB极限只按纯parser实测报告，不扩大fixture或伪称真实网络已验。
++纯测试补齐实际1 MiB单工具（合法精确上界及+1）、16 MiB总content（含文本和工具）、128工具/129反例、C0根depth=1且含标量的32/33边界、重复key/尾随JSON、有限且>2^53数字词法原样及1e400拒绝、name/ID上界和NUL ID拒绝、稀疏index、单event256条目、schema与request总大小、请求/结果深复制。上述 C0 反例同时覆盖普通结果和 SSE 完成门槛；每个成功工具结果/按片段重建的完成工具必须实际通过既有 C0 Validate。完整参数>256KiB时所有队列项仍逐项计量≤256KiB、fragment≤64KiB；慢消费者与取消的顺序使用确定 channel/barrier，不靠sleep猜。新增参数扫描的校验中取消由纯测试以原 ctx 的确定信号验证，不以未进入校验的早取消替代，也不为测试新增生产回调口。512KiB真实fixture装不下的1MiB/16MiB极限只按纯parser实测报告，不扩大fixture或伪称真实网络已验。
+ 
+ 独立验收者未参与实现；核官方指纹、原两修订兼容、新载体无执行能力、所有权/上界及原失败，至少补真实“合法envelope而arguments无效/选择不符”和“工具片段已交付后取消/缺DONE仍零成功”探针。运行前核基线exact IDs/name/labels，运行时观察nonce资源；结束两次exact-ID absent、基线不变、所属进程0/runtime空，及时交还窗口，再整理报告。
+ 

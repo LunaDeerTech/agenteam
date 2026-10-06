@@ -1,0 +1,1027 @@
+{
+  "checked_utc": "2026-10-06T01:24:39.348554+00:00",
+  "scope": "new specification archive and two status additions only; no product/runtime tests",
+  "source_verification": "archive-verify01.json",
+  "original_records": 57,
+  "unique_original_stored_files": 54,
+  "official_source_files": 21,
+  "official_source_bytes": 104254,
+  "markdown_files": [
+    {
+      "path": "docs/development/agent-team/openai-chat-tools-wire-spec-verification.md",
+      "sha256": "1a998229a3fc5b4fafcbdda3933f181865f1cdd966a76e29a3fca1a5ecacdd14",
+      "utf8_lf_eof_whitespace_fences": "PASS"
+    },
+    {
+      "path": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "sha256": "69604694f49a898163bd53c951c2434dcc047d8fdaf9f0adc947ef308522aca0",
+      "utf8_lf_eof_whitespace_fences": "PASS"
+    },
+    {
+      "path": "docs/development/agent-team/tasks.md",
+      "sha256": "5a8d009b9da3f49d98f6e2f5bf6be1495a90d6e79aa8fee299bcc89abdef3aa7",
+      "utf8_lf_eof_whitespace_fences": "PASS"
+    },
+    {
+      "path": "docs/development/agent-team/recovery-2026-10-06.md",
+      "sha256": "e87ae333f5cda39ccdb34fd29610df365663eaed0e62f1a9949f9573346e1ac3",
+      "utf8_lf_eof_whitespace_fences": "PASS"
+    }
+  ],
+  "local_link_count": 144,
+  "fragment_count": 8,
+  "all_links_passed": true,
+  "links": [
+    {
+      "from": "docs/development/agent-team/openai-chat-tools-wire-spec-verification.md",
+      "target": "../work-items/recovery-d09-openai-chat-tools-wire.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/openai-chat-tools-wire-spec-verification.md",
+      "target": "evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/openai-chat-tools-wire-spec-verification.md",
+      "target": "evidence/openai-chat-tools-wire-spec-verification/independent/review.md.txt",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/openai-chat-tools-wire-spec-verification.md",
+      "target": "evidence/openai-chat-tools-wire-spec-verification/independent/static-checks.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/openai-chat-tools-wire-spec-verification.md",
+      "target": "evidence/openai-chat-tools-wire-spec-verification/independent/final-checks.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/openai-chat-tools-wire-spec-verification.md",
+      "target": "evidence/openai-chat-tools-wire-spec-verification/archive-checks.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "../../openai-chat-tools-wire-spec-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "../../../work-items/recovery-d09-openai-chat-tools-wire.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "source-manifest.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "field-manifest.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "source-files.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "LICENSE.openai",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "commit-object.base64",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "../d09-openai-chat-wire-source/README.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "author/fetch-commands.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "author/author-handoff.md.txt",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "inputs/rev1.md.txt",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "inputs/refusal01.md.txt",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "inputs/c0-02.md.txt",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "inputs/adopted.md.txt",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "independent/review.md.txt",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "independent/static-checks.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "independent/final-checks.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "baseline-inputs.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "acceptance.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "original-map.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "author/fetch-commands.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "archive-checks.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "SHA256SUMS.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "target": "whitespace-exceptions.json",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-openai-chat-tools-wire.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "openai-chat-tools-wire-spec-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-system-model-management-reads.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "system-model-management-reads-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "recovery-2026-10-06.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "recovery-2026-10-05.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-project-domain-bindings.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d09-project-configuration-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "object-runtime-join-regression.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-object-runtime-join.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "artifact-project-stop-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-openai-chat-wire.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d09-openai-chat-wire-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "recovery-2026-10-05.md#32-system-model-管理读口规格与当前分工",
+      "fragment": true,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "system-model-management-reads-spec-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d08-lifecycle-authority.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-secret-project-audit.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-project-secret-audit-binding.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d05-object-stop.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-object-project-audit.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "artifact-project-stop-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "recovery-2026-10-05.md#26-current-resolution-迁移排期",
+      "fragment": true,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-project-configuration.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d09-project-configuration-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d09-openai-chat-wire-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-secret-model-usage.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d09-secret-model-usage-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-system-model-http.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d09-system-model-http-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-system-model-root.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "system-model-root-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-openai-chat-structured-wire.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d09-openai-chat-structured-wire-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-current-model-resolution.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "current-model-resolution-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "current-model-resolution-spec-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-invocation-usage-ledger.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d26-authentication-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "personal-settings-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "public-account-entry-spec-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d10-skills-initialization.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../development-plan.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-baseline-audit.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-baseline-audit-report.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-decision-sync.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-audit-decisions.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-baseline-audit-report.md#7-at-0005-决策处置映射",
+      "fragment": true,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-skills-design-proposal.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d00-tool-call-harness-research.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "model-update.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "workflow-upgrade.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d01-cross-module-contracts.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d02-engineering-foundation.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d03-postgresql-foundation.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d04-security-foundation.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d05-object-storage-artifact.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d06-transactional-outbox.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d07-account-session-smtp.md#b04-终局采纳与文档关闭",
+      "fragment": true,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d07-account-session-smtp.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d07-account-mail-retry-addendum.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "README.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../development-plan.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d07-account-session-smtp.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d07-account-session-smtp.md#b04纯块采纳与后段候选并行",
+      "fragment": true,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d08-project-owner.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d08-project-owner-design.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d08-project-owner.md#b01-独立验收与提交",
+      "fragment": true,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d08-project-owner.md#b02-独立验收与提交",
+      "fragment": true,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d09-model-system-token-usage.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d09-model-system-token-usage-design.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d09-b01-system-configuration.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d12-knowledge-documents.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d12-knowledge-documents-design.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d12-b02-knowledge-service.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "recovery-2026-10-05.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d08-b03.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d10-p1-recovery-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d08-r1-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d08-b03-acceptance.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d08-r2-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d05-s1-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d08-r3-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "secret-project-audit-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-object-project-audit.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "project-secret-audit-binding-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d05-s2-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "object-project-audit-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-project-configuration.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d09-project-configuration-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "object-runtime-join-regression.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-object-runtime-join.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "recovery-2026-10-05.md#19-object-修复业务执行中断",
+      "fragment": true,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-openai-chat-wire.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d09-openai-chat-wire-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "d26-authentication-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "current-model-resolution-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "personal-settings-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-invocation-usage-ledger.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/d26-public-account-entry.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "public-account-entry-spec-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "../work-items/recovery-d09-system-model-management-reads.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/tasks.md",
+      "target": "system-model-management-reads-spec-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/recovery-2026-10-06.md",
+      "target": "tasks.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/recovery-2026-10-06.md",
+      "target": "recovery-2026-10-05.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/recovery-2026-10-06.md",
+      "target": "../work-items/recovery-d09-invocation-usage-ledger.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/recovery-2026-10-06.md",
+      "target": "../work-items/d26-public-account-entry.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/recovery-2026-10-06.md",
+      "target": "../work-items/recovery-d09-system-model-management-reads.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/recovery-2026-10-06.md",
+      "target": "README.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/recovery-2026-10-06.md",
+      "target": "../../../.agents/skills/agenteam-documentation/SKILL.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/recovery-2026-10-06.md",
+      "target": "../development-plan.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/recovery-2026-10-06.md",
+      "target": "system-model-management-reads-verification.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/recovery-2026-10-06.md",
+      "target": "../work-items/recovery-d09-openai-chat-tools-wire.md",
+      "fragment": false,
+      "passed": true
+    },
+    {
+      "from": "docs/development/agent-team/recovery-2026-10-06.md",
+      "target": "openai-chat-tools-wire-spec-verification.md",
+      "fragment": false,
+      "passed": true
+    }
+  ],
+  "history_preserved": [
+    {
+      "path": "docs/development/agent-team/tasks.md",
+      "old_sha256": "625d59ea6db82aba4c5619298917d76859675527b5c1a18022c2750180b8f0d5",
+      "old_bytes_preserved": true
+    },
+    {
+      "path": "docs/development/agent-team/recovery-2026-10-06.md",
+      "old_sha256": "b8919ce2914535d6ac204a811289efd1f1ba999005deae818b724b3713033ea4",
+      "old_bytes_preserved": true
+    }
+  ],
+  "scoped_diff_check": {
+    "argv": [
+      "git",
+      "diff",
+      "--check",
+      "--",
+      "docs/development/agent-team/openai-chat-tools-wire-spec-verification.md",
+      "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/README.md",
+      "docs/development/agent-team/tasks.md",
+      "docs/development/agent-team/recovery-2026-10-06.md",
+      "docs/development/agent-team/evidence/openai-chat-tools-wire-spec-verification/verify_archive.py"
+    ],
+    "exit": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "explicit_new_file_format_check": true,
+  "immutable_whitespace_exceptions": [
+    {
+      "path": "author/adoption.diff",
+      "sha256": "964a5a69b3b703e67a4cc7dd3ac34863c8fb2a66a759200be87dbccbe9bfd5c7",
+      "trailing_whitespace_lines": [
+        5,
+        10,
+        12
+      ],
+      "contains_cr": false,
+      "no_final_newline": false,
+      "reason": "Immutable original bytes; preserved for source/delta evidence, not rewritten for formatting."
+    },
+    {
+      "path": "author/c0-02.diff",
+      "sha256": "fcde97e09685d5e8fd77b9e166ee48f320ee6c5d0748cc23cf01141565ae9dd0",
+      "trailing_whitespace_lines": [
+        4,
+        6,
+        11,
+        13,
+        15,
+        17,
+        20,
+        22,
+        24,
+        26,
+        29,
+        31
+      ],
+      "contains_cr": false,
+      "no_final_newline": false,
+      "reason": "Immutable original bytes; preserved for source/delta evidence, not rewritten for formatting."
+    },
+    {
+      "path": "author/original-to-c0-02.diff",
+      "sha256": "7d981b01f5c269d823e6b10747581810bbf60895b0726c20f7f47d2568b517af",
+      "trailing_whitespace_lines": [
+        4,
+        6,
+        9,
+        14,
+        16,
+        18,
+        20,
+        23,
+        25,
+        27,
+        34,
+        36,
+        39,
+        41
+      ],
+      "contains_cr": false,
+      "no_final_newline": false,
+      "reason": "Immutable original bytes; preserved for source/delta evidence, not rewritten for formatting."
+    },
+    {
+      "path": "author/refusal01.diff",
+      "sha256": "a5553593b8e4e2ebb71c97c3f6c9b9c52d3bb0e896acc4a4581e19efa797f3ef",
+      "trailing_whitespace_lines": [
+        4,
+        6,
+        9,
+        11,
+        13,
+        20
+      ],
+      "contains_cr": false,
+      "no_final_newline": false,
+      "reason": "Immutable original bytes; preserved for source/delta evidence, not rewritten for formatting."
+    },
+    {
+      "path": "independent/review-delta.diff",
+      "sha256": "011b93c2bd29a0a0c96276f31cd0f67234befe48b9b05a91dc23926707dfde63",
+      "trailing_whitespace_lines": [
+        4,
+        6,
+        9,
+        14,
+        16,
+        18,
+        20,
+        23,
+        25,
+        27,
+        34,
+        36,
+        39,
+        41
+      ],
+      "contains_cr": false,
+      "no_final_newline": false,
+      "reason": "Immutable original bytes; preserved for source/delta evidence, not rewritten for formatting."
+    }
+  ],
+  "fixed_accepted_commit": "b2be334cd8a78b904878bdbc388a43805390f7b7",
+  "source_tree_current_implementation_not_reviewed": true
+}

@@ -1,0 +1,44 @@
+# OpenAI Chat tools wire 独立规格审查
+
+结论：**PASS（规格静审）**。可采纳最终候选 `5c9656cb8fa3f9a4785b701cee433f34f44fb244e0e4580c90920913ff33addb`，由主线程另行授权实施。原候选的两处接缝歧义均已窄修并复核；当前没有剩余规格阻断。此结论不代表产品实现、编译、协议行为或真实供应商能力已经通过。
+
+审查者 `recovery_documentation` 未参与本卡设计或实现，按 verification 技能独立静审，仅写本私有目录，无共享文档、产品或 Git 写入，无再委派。固定业务输入为 `ecd733711caff5df46e423cadab52b32c34f785e`；不消费活动实现或未验 ledger。作者来源根为 `/workspace/scratch/agenteam-openai-tools-spec-opv8pnda`。
+
+## 输入与实际检查
+
+- [原 rev1](reviewed-spec-original.md)：SHA-256 `334fb1c95a392aa903cf080ed55892be24d9e03288916e74eecc7a514e3d0ec1`。
+- [最终冻结规格](reviewed-spec-final.md)：SHA-256 `5c9656cb8fa3f9a4785b701cee433f34f44fb244e0e4580c90920913ff33addb`，与作者 `reviewed-spec-c0-02.md` 及当次共享卡逐字相同；[精确差量](review-delta.diff)保留原歧义。
+- [静态身份核对](static-checks.json)：实际执行 `python3 check_inputs.py`，exit 0，66 项通过。脚本逐项验证 21 官方文件共 104254 B 的 SHA-256、Git blob、固定提交树、原 URL、字段行和 SDK 3.24.0；commit object SHA-1 为 `becc1d20eed83c1b8d85e15dc131a372d9dc7813`，SHA-256 `4a18fa5995a190f5cbff6f3313422abbae18861e401e2251ba73e7c8a59a9702`，与已采纳 text 来源原档逐字相同。来源 manifest SHA-256 为 `4f28ba7834759fd87d0c595cce1b1aaee6b7b0d96fa985ffbcd15aaf0f14537d`。未重新联网或执行 SDK。
+- 同一脚本验证 14 个基线指纹；已验 structured 的 4 个生产接缝、text 的 errors/budget/3 个 fixture 路径、Resolution `4295df7` 的目标文件均与 ecd7337 对应 Git blob 相同。实施所有权精确为 4 旧、10 新，旧测试/manifest、C0、预算、D04、fixture、迁移和依赖不在写集。
+- [最终差量检查](final-checks.json)确认两次窄修没有扩路径或改变链接，新增 Markdown 显式 whitespace 检查通过。Git 读取命令及退出值保存在静态核对记录；未执行 Go、Docker、SQL、Provider 或业务 Runtime。
+
+## 原发现与关闭
+
+| 发现 | 固定输入证据与风险 | 最终关闭条件 |
+| --- | --- | --- |
+| F1：refusal 与 content 成功形状冲突 | 原 §5 限定只有工具结果才能缺 content，但 `errors.go:decodeNative` 原有 `!streaming && !v.refusal` 条件，`transport.go:perform` 将合法非空 refusal 归 content_filter。null/省略 content 的有效拒绝不能误归字段缺失。 | 最终 §5 明确成功形状只限制无非空 refusal 的响应，先保可靠 usage 再 content_filter；HTTP 门槛增加两种缺 content 场景。 |
+| F2：C0 ToolCallPart 接缝不完整 | `contract/chat.go:ToolCallPart.Validate` 要求非 NUL ID 与 `objectJSON`；`contract/types.go:objectJSON/jsonBody` 从根 1 计深度且包含标量，校验 ParseFloat64 错误/Inf/NaN。旧 adapter.jsonShape 从根 0 计深度且不检查数值有限性。原文若直接采用后者，会使 `{"n":1e400}` 或越层对象在 wire 成功而 C0 无效。 | 最终普通 ToolCalls 和全部 SSE 完成门槛均要求既有 C0 Validate 成功，保持原参数字节；明确 >2^53 finite 原词法、1e400/NUL 拒绝、32/33 精确边界，并要求双模式正反例。C0 不修改。 |
+
+这两项为静态规格发现，没有倒写为动态复现。作者的中间 refusal 修订 SHA 为 `70124874fc746e751582eea9fdd0788e9d6a1edce1a4fd8d0284624f5d27d7df`；原件及两次 diff 仍在作者私有根，最终差量已独立核对。
+
+## 风险矩阵与可实施性
+
+| 风险 | 规格与现有接缝判断 | 实施后必须保留的门槛 |
+| --- | --- | --- |
+| 官方字段/原生累积 | 固定 SDK `_deltas.py` 明确首个 indexed list 也逐 entry 合并；字符串 append、index/type 不相加，`_completions.py` 的初始和后续 chunk 均调用该算法。规格支持同 chunk 重复 index、跨 index 交错和空/null 字段，不把 SDK 中途 done 当协议终局。 | 精确来源 manifest，原生重复 index/分片/未知字段/unsupported 分支正反测试；不声称 SDK 执行或型号 conformance。 |
+| 公共端口与旧修订 | 增加 Result.ToolCalls、Event 两分支及安全载体即可；Start/Exchange/End/Observation/C0 形状不变。受控修订分派能放在 4 旧和 2 新生产路径内。预算创建接口仍可保持原形状，工具私有状态在 Start 启动 worker 前冻结。 | 原修订新字段为 nil、原 decodeNative/helper 调用形状可保持；旧 unit/race/vet 和 3 text + 3 structured 真实顶层均复跑。新增可变切片/指针/RawMessage 深复制和安全日志必须真实验证。 |
+| 参数累积/队列内存 | 单工具 1 MiB、全部 text+arguments 16 MiB 与 32 项/256 KiB 队列是分别受限的预算。≤64 KiB UTF-8 fragment 与不含 arguments 的完成元数据可避免把队列限额误当参数限额；全部工具先验证再完成，至多一个 1 MiB 临时副本；短 substring 必须独立 clone。 | 无 128×1 MiB 预分配、隐藏完整结果或每片段 goroutine；累积接受前核限、全 payload 计量、队列清理、确定背压/取消与扫描中取消。不能用旧无 ctx 的完整检查代替新增长扫描预算。 |
+| 请求/历史/选择 | function strict=false、四种 choice、显式 parallel、历史 ID 组匹配、文本 tool result、IsError/OutputSchema 的边界均明确。真实定义名绑定与历史工具集合变化分开；schema 原文传递不表示 schema/权限保证。 | 全部准入检查早于 slot/worker/Do；超限、媒体不支持、未完成历史组等零请求。输出 none/required/named/parallel 限制与不变历史逐字编码分别覆盖。 |
+| 错误与可靠 usage | 新响应先解析可信 envelope/usage，再检查工具语义；不把可靠 usage 随参数/refusal 失败丢弃。两项窄修使零 Result、C0 成功语义与旧安全分类一致。 | 合法 envelope 内坏 arguments/错误选择的真实反例，0/NULL/>2^53 int64 用量准确，无参数/schema/material canary 泄露。旧 text/structured 分类不得为新测试改变。 |
+| finish/DONE/actual join | ToolComplete 只表示全部参数完成验证；可早于 usage/DONE/actual join，缺 DONE/后续错误必须零 StreamEnd。transport 现有 consumerJoin 可复用真实 body/parser/Client.Drain，Next 实际交付才更新 PartialOutput。 | 真实片段/完成标记已交付后取消或断流，错误一次后 EOF；usage 保留、零迟到 End；未 join 保 slot/material，实际放行 writer 后才复用。|
+| 库与业务授权 | Wire 不新增执行/grant/CallID/InvocationID/sequence；Resolver 固定源码仍拒绝 tools 能力，ledger 只作未来接缝，合成 snapshot/material 仅为协议输入。 | 完整成功 wire 也不表示 Tool 执行或 DB 终态已确认；保持独立 consumer/Runtime/Secret/ledger 任务及 Object 停止、Artifact/Project 阻塞、Summary 待决边界。 |
+
+## 真实与纯测试门槛
+
+原 fixture `validWire` 将每场景 Chunks 限为 512 项、总 payload 512 KiB；HoldAfter/DisconnectAfter/Release 及请求、handler、connection 观察可复用，毋须改旧 fixture。静态尺寸算例中恰 320 KiB 的 JSON object 参数，包含工具 delta、finish 和 DONE 后总 SSE payload 为 328108 B，最大 native event 为 327943 B，均在原限制内。此计算只证明该验收场景可构造，没有运行 parser 或网络。
+
+真实 320 KiB 场景必须验证参数逐字重建及 ≤64 KiB 输出片段，并跨越 256 KiB 队列总 payload；不能只用小参数或只检查事件个数。1 MiB 与 +1、16 MiB 与 +1、128/129、256 event entries、C0 深度/数字/NUL 和长扫描取消在纯 parser/transport 测试证明。单事件 1 MiB 限制仍适用；精确 1 MiB 参数通过多个 native events 组成，不能把外层 SSE/JSON 额外字节误计成参数能力下降。真实与纯门槛必须分别报告。
+
+独立动态验收仍需合法 envelope 内 arguments/choice 失败和工具输出已交付后的取消/缺 DONE；使用主线程独占窗口、原 race/count1/6m、固定输入/argv/env/exit/raw 与双次 exact-ID 清理。当前未运行这些检查，不占资源窗口。最终只推荐规格采纳，不替代后续作者自测和未参与实施者的独立验收。
+
+本目录报告和证据冻结交主线程；不修改卡片或已归档文档。

@@ -1,0 +1,109 @@
+#!/usr/bin/env python3
+"""Read-only static identity/locator checks; no SDK, Go, network or fixtures."""
+from pathlib import Path
+import base64
+import hashlib
+import json
+import re
+import subprocess
+import sys
+from datetime import datetime, timezone
+
+ROOT = Path('/workspace/agenteam')
+AUTHOR = Path('/workspace/scratch/agenteam-openai-tools-spec-opv8pnda')
+OUT = Path(__file__).parent
+BASE = 'ecd733711caff5df46e423cadab52b32c34f785e'
+SDK = 'becc1d20eed83c1b8d85e15dc131a372d9dc7813'
+CARD = 'docs/development/work-items/recovery-d09-openai-chat-tools-wire.md'
+checks = []
+commands = []
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+def check(name, ok, **details):
+    checks.append({'check': name, 'passed': bool(ok), **details})
+
+def git(args, cwd=ROOT):
+    argv = ['git', *args]
+    p = subprocess.run(argv, cwd=cwd, capture_output=True, check=False)
+    commands.append({'argv': argv, 'cwd': str(cwd), 'exit': p.returncode,
+                     'stdout_sha256': sha(p.stdout), 'stderr_sha256': sha(p.stderr)})
+    if p.returncode != 0:
+        raise RuntimeError(f'Git read failed: {argv!r}: {p.stderr.decode()}')
+    return p.stdout
+
+manifest_raw = (AUTHOR/'source-manifest.json').read_bytes()
+manifest = json.loads(manifest_raw)
+check('source-manifest SHA', sha(manifest_raw) == '4f28ba7834759fd87d0c595cce1b1aaee6b7b0d96fa985ffbcd15aaf0f14537d')
+check('official source locator', manifest['official_repository'] == 'https://github.com/openai/openai-python' and manifest['commit'] == SDK)
+gitdir = '--git-dir=' + str(AUTHOR/'objects.git')
+commit = git([gitdir, 'cat-file', 'commit', SDK])
+commit_oid = hashlib.sha1(b'commit '+str(len(commit)).encode()+b'\0'+commit).hexdigest()
+previous = base64.b64decode((ROOT/'docs/development/agent-team/evidence/d09-openai-chat-wire-source/commit-object.base64').read_bytes())
+check('commit object identity and previous accepted archive', commit_oid == SDK and commit == previous and commit == (AUTHOR/'commit-object.txt').read_bytes(), sha256=sha(commit), git_commit=commit_oid)
+source_total = 0
+for item in manifest['files']:
+    path = item['path']
+    raw = (AUTHOR/'source'/path).read_bytes()
+    source_total += len(raw)
+    blob = hashlib.sha1(b'blob '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+    locator = git([gitdir, 'rev-parse', SDK+':'+path]).decode().strip()
+    object_raw = git([gitdir, 'cat-file', 'blob', SDK+':'+path])
+    url = f'https://github.com/openai/openai-python/blob/{SDK}/{path}'
+    check('official file '+path, len(raw) == item['bytes'] and sha(raw) == item['sha256'] and blob == item['git_blob'] == locator and raw == object_raw and item['url'] == url, bytes=len(raw), sha256=sha(raw), git_blob=blob)
+check('21 source files / exact bytes', len(manifest['files']) == 21 and source_total == 104254, count=len(manifest['files']), bytes=source_total)
+
+fields = json.loads((AUTHOR/'field-manifest.json').read_bytes())
+check('field-manifest binding', fields['commit'] == SDK and fields['source_manifest_sha256'] == sha(manifest_raw))
+for entry in fields['entries']:
+    raw = (AUTHOR/'source'/entry['path']).read_bytes()
+    lines = raw.decode().splitlines()
+    check('field lines '+entry['area'], sha(raw) == entry['sha256'] and all(lines[d['line']-1] == d['text'] for d in entry['declarations']), path=entry['path'])
+
+inputs = json.loads((AUTHOR/'baseline-inputs.json').read_bytes())
+check('baseline manifest revision', inputs['baseline'] == BASE)
+for item in inputs['paths']:
+    raw = git(['show', BASE+':'+item['path']])
+    check('baseline '+item['path'], sha(raw) == item['sha256'], sha256=sha(raw))
+
+for revision, paths in [
+    ('be0bd07b1dc1fcd91ad217c9bdbfe5a14003ce74', ['internal/central/model/adapter/openai_chat.go', 'internal/central/model/adapter/transport.go', 'internal/central/model/adapter/sse.go', 'internal/central/model/adapter/structured_schema.go']),
+    ('9c72190fc1600f27c3607a3315854967ae008138', ['internal/central/model/adapter/errors.go', 'internal/central/model/adapter/budget.go', 'tests/model/openai_chat_wire_fixture_test.go', 'tests/testsupport/outbound/fixture.go', 'tests/testsupport/outbound/cmd/server/main.go']),
+    ('4295df7', ['internal/central/model/resolution_policy.go'])
+]:
+    for path in paths:
+        current = git(['rev-parse', BASE+':'+path]).strip()
+        accepted = git(['rev-parse', revision+':'+path]).strip()
+        check('accepted dependency '+path, current == accepted, accepted_revision=revision, git_blob=current.decode())
+
+raw = (AUTHOR/'reviewed-spec.md').read_bytes()
+check('original rev1 SHA', sha(raw) == '334fb1c95a392aa903cf080ed55892be24d9e03288916e74eecc7a514e3d0ec1')
+(OUT/'reviewed-spec-original.md').write_bytes(raw)
+source = raw.decode()
+paths = re.findall(r'^\| \d+ \| `([^`]+)`', source, re.M)
+entries = git(['ls-tree', '-r', '--name-only', BASE, '--', *paths]).decode().splitlines()
+check('candidate 14 path ownership', len(paths) == len(set(paths)) == 14 and len(entries) == 4, paths=paths, existing=entries, new=sorted(set(paths)-set(entries)))
+check('new source declarations remain specification-only', not any((ROOT/p).exists() for p in set(paths)-set(entries)))
+
+local_links = []
+for target in re.findall(r'\[[^\]]*\]\(([^)]+)\)', source):
+    if '://' in target:
+        continue
+    target_path, _, fragment = target.partition('#')
+    resolved = ((ROOT/CARD).parent/target_path).resolve()
+    valid = resolved.is_file()
+    if valid and fragment:
+        headings = re.findall(r'^#{1,6}\s+(.+?)\s*$', resolved.read_text(), re.M)
+        slugs = [re.sub(r'[^\w\- ]', '', h.lower()).replace(' ', '-') for h in headings]
+        valid = fragment in slugs
+    local_links.append({'target': target, 'passed': valid})
+check('relative paths and fragments', all(x['passed'] for x in local_links), links=local_links)
+check('original Markdown whitespace', raw.endswith(b'\n') and not any(line.rstrip(b' \t') != line for line in raw.splitlines()))
+
+sdk_version = (AUTHOR/'source/src/openai/_version.py').read_text()
+check('SDK declared version', '__version__ = "3.24.0"' in sdk_version)
+result = {'checked_utc': datetime.now(timezone.utc).isoformat(), 'review_kind': 'static specification only', 'baseline': BASE, 'sdk_commit': SDK, 'checks': checks, 'commands': commands, 'all_passed': all(c['passed'] for c in checks), 'not_run': ['Go', 'SDK execution', 'network fetch', 'Docker', 'SQL', 'provider account', 'business runtime'], 'scope': 'private evidence only'}
+(OUT/'static-checks.json').write_text(json.dumps(result, ensure_ascii=False, indent=2)+'\n')
+print(json.dumps({'checks': len(checks), 'all_passed': result['all_passed'], 'failed': [c for c in checks if not c['passed']], 'output': str(OUT/'static-checks.json')}, ensure_ascii=False))
+sys.exit(0 if result['all_passed'] else 1)
