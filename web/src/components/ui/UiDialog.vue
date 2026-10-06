@@ -27,6 +27,11 @@ function close(reason: CloseReason) {
   emit('close', reason)
 }
 const layer = useLayer(open, panel, close, true)
+function outsidePointerDown(event: PointerEvent) {
+  if (!layer.isTop() || !props.closeOnOutside) return
+  event.preventDefault()
+  close('outside')
+}
 function beforeLeave(el: Element) {
   ;(el as HTMLElement).inert = true
   el.setAttribute('aria-hidden', 'true')
@@ -39,7 +44,7 @@ function beforeLeave(el: Element) {
         v-if="open"
         class="ui-overlay"
         :class="{ 'drawer-overlay': drawer }"
-        @pointerdown.self="layer.isTop() && close('outside')"
+        @pointerdown.self="outsidePointerDown"
       >
         <section
           ref="panel"
