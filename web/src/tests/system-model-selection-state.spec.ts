@@ -1210,6 +1210,342 @@ async function choose(
   f.page.selectModel(model!)
 }
 
+function pendingObservation(value: unknown) {
+  const reading = barrier(),
+    cancelled = barrier(),
+    tail = barrier()
+  let stream!: ReadableStreamDefaultController<Uint8Array>
+  const response = new Response(
+    new ReadableStream<Uint8Array>({
+      start(valueStream) {
+        stream = valueStream
+        stream.enqueue(new TextEncoder().encode(JSON.stringify(value)))
+      },
+      pull() {
+        reading.resolve()
+      },
+      cancel() {
+        cancelled.resolve()
+        return tail.promise
+      },
+    }),
+    { headers: { 'Content-Type': 'application/json' } },
+  )
+  return { response, reading, cancelled, tail, finish: () => stream.close() }
+}
+async function pendingDiscard(f: Awaited<ReturnType<typeof pageFixture>>) {
+  f.page.openEditor()
+  f.page.clearOptional('image')
+  const done = f.page.closeEditor()
+  await flushPromises()
+  expect(f.page.confirmation.open).toBe(true)
+  f.page.detach()
+  await f.auth.restore()
+  return { done }
+}
+const referencePhases = (page: SystemModelSelectionController) =>
+  Object.fromEntries(
+    (['embedding', 'memory', 'reranker', 'image'] as const).map((purpose) => [
+      purpose,
+      page.references[purpose].phase,
+    ]),
+  )
+
+describe('Selection cancelled observation batches', () => {
+  it.each(['identity', 'route'] as const)(
+    'does not publish retired native observations after %s invalidation',
+    async (change) => {
+      const f = await pageFixture(),
+        close = await pendingDiscard(f),
+        pending = pendingObservation(f.records.get(id(21)))
+      f.setReferences((path, init) =>
+        path.endsWith('/models/' + id(21))
+          ? Promise.resolve(pending.response)
+          : f.readReference(path, init),
+      )
+      try {
+        f.page.attach()
+        await pending.reading.promise
+        if (change === 'identity') f.auth.leave()
+        else f.page.afterNavigation('/settings/profile', '/system/model-selection')
+        await pending.cancelled.promise
+        await flushPromises()
+        await close.done
+        expect(f.page.confirmation.open).toBe(false)
+        expect(f.page.editor.open).toBe(false)
+        expect(f.page.selection).toMatchObject({ phase: 'inactive', value: null })
+        expect(referencePhases(f.page)).toEqual({
+          embedding: 'empty',
+          memory: 'empty',
+          reranker: 'empty',
+          image: 'empty',
+        })
+        expect(f.auth.state.busy).toBe(true)
+        const count = f.fetch.mock.calls.length
+        pending.tail.resolve()
+        await flushPromises()
+        expect(f.auth.state.busy).toBe(false)
+        expect(pending.response.body!.locked).toBe(false)
+        expect(f.fetch.mock.calls).toHaveLength(count)
+        if (change === 'identity') {
+          f.setReferences(f.readReference)
+          f.setObserved({ ...selectionValue(), version: '2' })
+          f.setSession(view(id(3)))
+          await f.auth.restore()
+          await flushPromises()
+          expect(f.auth.personalContext.identity?.sessionID).toBe(id(3))
+          expect(f.page.selection.value?.version).toBe('2')
+          expect(f.page.references.memory.phase).toBe('ready')
+        } else expect(f.page.selection.phase).toBe('inactive')
+        expect(f.writes()).toHaveLength(0)
+      } finally {
+        f.auth.leave()
+        pending.tail.resolve()
+        await flushPromises()
+      }
+    },
+  )
+
+  it.each(['model', 'provider'] as const)(
+    'retires a pending %s read and unsent saved references without crossing native cancel',
+    async (stage) => {
+      const f = await pageFixture(),
+        close = await pendingDiscard(f),
+        pending = pendingObservation(
+          stage === 'model' ? f.records.get(id(21)) : f.sources.get(id(10)),
+        ),
+        target = stage === 'model' ? '/models/' + id(21) : '/model-providers/' + id(10)
+      f.setReferences((path, init) =>
+        path.endsWith(target) ? Promise.resolve(pending.response) : f.readReference(path, init),
+      )
+      try {
+        f.page.attach()
+        await pending.reading.promise
+        await flushPromises()
+        const saved = f.page.selection.value,
+          embedding = f.page.references.embedding.value,
+          count = f.fetch.mock.calls.length
+        expect(referencePhases(f.page)).toEqual({
+          embedding: 'ready',
+          memory: 'loading',
+          reranker: 'loading',
+          image: 'loading',
+        })
+        f.page.finishConfirmation(true)
+        await close.done
+        await pending.cancelled.promise
+        expect(f.page.selection.value).toBe(saved)
+        expect(f.page.references.embedding.value).toBe(embedding)
+        expect(referencePhases(f.page)).toEqual({
+          embedding: 'ready',
+          memory: 'error',
+          reranker: 'error',
+          image: 'error',
+        })
+        for (const purpose of ['memory', 'reranker', 'image'] as const) {
+          expect(f.page.references[purpose].id).toBe(saved!.configured![purpose])
+          expect(f.page.references[purpose].value).toBeNull()
+          expect(f.page.references[purpose].message).toContain('读取已取消')
+        }
+        expect(f.auth.state.busy).toBe(true)
+        expect(pending.response.body!.locked).toBe(true)
+        await f.page.retryReference('memory')
+        await f.page.refresh()
+        expect(f.fetch.mock.calls).toHaveLength(count)
+        pending.tail.resolve()
+        await flushPromises()
+        expect(pending.response.body!.locked).toBe(false)
+        expect(f.auth.state.busy).toBe(false)
+        await flushPromises()
+        expect(f.fetch.mock.calls).toHaveLength(count)
+        expect(f.writes()).toHaveLength(0)
+        f.setReferences(f.readReference)
+        f.page.openEditor()
+        f.page.clearOptional('image')
+        expect(f.page.canSave.value).toBe(false)
+        await f.page.retryReference('memory')
+        expect(f.page.canSave.value).toBe(false)
+        await f.page.retryReference('reranker')
+        expect(f.page.canSave.value).toBe(true)
+        expect(f.page.draftDetails.memory?.model.id).toBe(id(21))
+        expect(f.writes()).toHaveLength(0)
+      } finally {
+        f.auth.leave()
+        pending.tail.resolve()
+        await flushPromises()
+        expect(pending.response.body!.locked).toBe(false)
+      }
+    },
+  )
+
+  it('retires a pending singleton without inventing references and recovers only on explicit refresh', async () => {
+    const f = await pageFixture(),
+      close = await pendingDiscard(f),
+      saved = f.page.selection.value!,
+      pending = pendingObservation(saved)
+    f.setPerform(async () => pending.response)
+    try {
+      f.page.attach()
+      await pending.reading.promise
+      const count = f.fetch.mock.calls.length
+      f.page.finishConfirmation(true)
+      await close.done
+      await pending.cancelled.promise
+      expect(f.page.selection).toMatchObject({ phase: 'error', value: null })
+      expect(f.page.selection.message).toContain('读取已取消')
+      expect(referencePhases(f.page)).toEqual({
+        embedding: 'empty',
+        memory: 'empty',
+        reranker: 'empty',
+        image: 'empty',
+      })
+      expect(f.auth.state.busy).toBe(true)
+      await f.page.refresh()
+      expect(f.fetch.mock.calls).toHaveLength(count)
+      pending.tail.resolve()
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(false)
+      expect(pending.response.body!.locked).toBe(false)
+      expect(f.fetch.mock.calls).toHaveLength(count)
+      f.setPerform(async () => json(saved))
+      await f.page.refresh()
+      expect(f.page.selection.value).toEqual(saved)
+      expect(referencePhases(f.page)).toEqual({
+        embedding: 'ready',
+        memory: 'ready',
+        reranker: 'ready',
+        image: 'ready',
+      })
+      expect(f.writes()).toHaveLength(0)
+    } finally {
+      f.auth.leave()
+      pending.tail.resolve()
+      await flushPromises()
+      expect(pending.response.body!.locked).toBe(false)
+    }
+  })
+
+  it('preserves completed errors and optional empty slots while retiring only unfinished references', async () => {
+    const f = await pageFixture({
+        ...selectionValue(),
+        configured: { ...configured(), image: id(23) },
+      }),
+      close = await pendingDiscard(f),
+      pending = pendingObservation(f.records.get(id(21)))
+    f.setReferences((path, init) =>
+      path.endsWith('/models/' + id(20))
+        ? Promise.resolve(problem('NOT_FOUND', 404))
+        : path.endsWith('/models/' + id(21))
+          ? Promise.resolve(pending.response)
+          : f.readReference(path, init),
+    )
+    try {
+      f.page.attach()
+      await pending.reading.promise
+      const error = { ...f.page.references.embedding },
+        empty = { ...f.page.references.reranker }
+      expect(error.phase).toBe('error')
+      expect(empty).toMatchObject({ phase: 'empty', id: null, value: null })
+      f.page.finishConfirmation(true)
+      await close.done
+      await pending.cancelled.promise
+      expect(f.page.references.embedding).toEqual(error)
+      expect(f.page.references.reranker).toEqual(empty)
+      expect(f.page.references.memory.phase).toBe('error')
+      expect(f.page.references.image.phase).toBe('error')
+    } finally {
+      f.auth.leave()
+      pending.tail.resolve()
+      await flushPromises()
+    }
+  })
+
+  it('lets a continued valid batch finish and preserves all ready observations on a later discard', async () => {
+    const f = await pageFixture(),
+      close = await pendingDiscard(f),
+      pending = pendingObservation(f.sources.get(id(10)))
+    f.setReferences((path, init) =>
+      path.endsWith('/model-providers/' + id(10))
+        ? Promise.resolve(pending.response)
+        : f.readReference(path, init),
+    )
+    try {
+      f.page.attach()
+      await pending.reading.promise
+      f.page.finishConfirmation(false)
+      await close.done
+      expect(f.page.editor.open).toBe(true)
+      expect(f.page.references.memory.phase).toBe('loading')
+      pending.finish()
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(false)
+      expect(referencePhases(f.page)).toEqual({
+        embedding: 'ready',
+        memory: 'ready',
+        reranker: 'ready',
+        image: 'ready',
+      })
+      const ready = Object.fromEntries(
+        Object.entries(f.page.references).map(([name, value]) => [name, value.value]),
+      )
+      const done = f.page.closeEditor()
+      f.page.finishConfirmation(true)
+      await done
+      for (const purpose of ['embedding', 'memory', 'reranker', 'image'] as const)
+        expect(f.page.references[purpose].value).toBe(ready[purpose])
+      expect(f.writes()).toHaveLength(0)
+    } finally {
+      f.auth.leave()
+      pending.tail.resolve()
+      await flushPromises()
+    }
+  })
+
+  it.each(['success', 'error'] as const)(
+    'isolates a late old-generation %s from an explicit same-ID new observation',
+    async (outcome) => {
+      const f = await pageFixture(),
+        close = await pendingDiscard(f),
+        entered = barrier(),
+        pending = barrier<Response>()
+      f.setReferences((path, init) => {
+        if (path.endsWith('/model-providers/' + id(10))) {
+          entered.resolve()
+          return pending.promise
+        }
+        return f.readReference(path, init)
+      })
+      f.page.attach()
+      await entered.promise
+      f.page.finishConfirmation(true)
+      await close.done
+      try {
+        expect(f.page.references.memory.phase).toBe('error')
+        expect(f.auth.state.busy).toBe(true)
+        const count = f.fetch.mock.calls.length
+        await f.page.retryReference('memory')
+        expect(f.fetch.mock.calls).toHaveLength(count)
+      } finally {
+        pending.resolve(
+          outcome === 'success' ? json(f.sources.get(id(10))) : problem('FORBIDDEN', 403),
+        )
+        await flushPromises()
+      }
+      expect(f.auth.system.denied).toBe(false)
+      expect(f.auth.state.busy).toBe(false)
+      expect(f.page.references.memory.phase).toBe('error')
+      f.setReferences(f.readReference)
+      const fresh = { ...f.sources.get(id(10))!, version: '2' }
+      f.sources.set(id(10), fresh)
+      await f.page.retryReference('memory')
+      expect(f.page.references.memory.value?.provider).toEqual(fresh)
+      await flushPromises()
+      expect(f.page.references.memory.phase).toBe('ready')
+      expect(f.writes()).toHaveLength(0)
+    },
+  )
+})
+
 describe('Selection App-lifetime controller and explicit choices', () => {
   it('keeps null/v1 unconfigured, selects only the active purpose, and saves a complete group once', async () => {
     const f = await pageFixture({ id: id(100), version: '1', configured: null })

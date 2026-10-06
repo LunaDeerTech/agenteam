@@ -326,6 +326,9 @@ async function page(
     setRead(value: Fetch) {
       read = value
     },
+    resetRead() {
+      read = async () => json(observed)
+    },
     setObserved(value: SelectionState) {
       observed = value
     },
@@ -345,6 +348,129 @@ async function page(
     },
   }
 }
+
+function pendingRead(value: unknown) {
+  const reading = barrier<void>(),
+    cancelled = barrier<void>(),
+    tail = barrier<void>()
+  const response = new Response(
+    new ReadableStream<Uint8Array>({
+      start(stream) {
+        stream.enqueue(new TextEncoder().encode(JSON.stringify(value)))
+      },
+      pull() {
+        reading.resolve()
+      },
+      cancel() {
+        cancelled.resolve()
+        return tail.promise
+      },
+    }),
+    { headers: { 'Content-Type': 'application/json' } },
+  )
+  return { response, reading, cancelled, tail }
+}
+
+describe('Selection cancelled read recovery through public App controls', () => {
+  it.each(['reference', 'current'] as const)(
+    'retires the restored %s read to a recoverable error without releasing its native tail',
+    async (scope) => {
+      const f = await page()
+      expect(document.querySelectorAll('.current-references dl')).toHaveLength(4)
+      await dirty()
+      await click('取消', dialog())
+      confirmationRestored()
+      f.setSessionRequest(async () => problem('DEPENDENCY_UNAVAILABLE'))
+      window.dispatchEvent(new Event('pageshow'))
+      await flushPromises()
+      expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+      expect(button('检查当前会话').disabled).toBe(false)
+      const pending = pendingRead(
+        scope === 'reference'
+          ? f.sources.get(id(10))
+          : { id: id(100), version: '1', configured: bindings() },
+      )
+      if (scope === 'reference')
+        f.setProvider(async (path) =>
+          path.endsWith(id(10)) ? pending.response : json(f.sources.get(path.split('/').at(-1)!)),
+        )
+      else f.setRead(async () => pending.response)
+      try {
+        f.resetSession()
+        await click('检查当前会话')
+        await pending.reading.promise
+        confirmationRestored()
+        expect(f.auth.state.busy).toBe(true)
+        expect(pending.response.body!.locked).toBe(true)
+        expect(button('放弃修改', dialog()).disabled).toBe(false)
+        const before = f.fetch.mock.calls.length
+        await click('放弃修改', dialog())
+        await pending.cancelled.promise
+        expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+        expect(f.auth.state.busy).toBe(true)
+        expect(button('刷新配置').disabled).toBe(true)
+        expect(f.writes()).toHaveLength(0)
+        if (scope === 'reference') {
+          const rows = [...document.querySelectorAll('.current-references > li')]
+          expect(rows[0]!.querySelector('dl')).not.toBeNull()
+          for (const row of rows.slice(1)) {
+            expect(row.textContent).toContain('读取已取消')
+            expect(row.querySelector('[role="status"]')).toBeNull()
+            expect(row.querySelector('code')).not.toBeNull()
+          }
+        } else {
+          expect(f.wrapper.text()).toContain('用途配置读取失败')
+          expect(button('重新读取配置').disabled).toBe(true)
+          expect(document.querySelectorAll('.current-references > li')).toHaveLength(0)
+        }
+        pending.tail.resolve()
+        await flushPromises()
+        expect(pending.response.body!.locked).toBe(false)
+        expect(f.auth.state.busy).toBe(false)
+        await flushPromises()
+        expect(f.fetch.mock.calls).toHaveLength(before)
+        expect(document.activeElement).not.toBe(document.body)
+        expect(document.activeElement?.isConnected).toBe(true)
+        expect(document.activeElement?.closest('[inert]')).toBeNull()
+        if (scope === 'reference') {
+          f.setProvider(async (path) => json(f.sources.get(path.split('/').at(-1)!)))
+          await click('编辑用途')
+          await click('不配置 Image Generation', dialog())
+          expect(button('保存用途配置', dialog()).disabled).toBe(true)
+          await click('重读 Memory', dialog())
+          expect(button('保存用途配置', dialog()).disabled).toBe(true)
+          await click('重读 Reranker', dialog())
+        } else {
+          f.resetRead()
+          await click('重新读取配置')
+          expect(document.querySelectorAll('.current-references dl')).toHaveLength(4)
+          await click('编辑用途')
+          await click('不配置 Image Generation', dialog())
+        }
+        expect(button('保存用途配置', dialog()).disabled).toBe(false)
+        expect(f.writes()).toHaveLength(0)
+        await click('保存用途配置', dialog())
+        expect(f.writes()).toHaveLength(1)
+        expect(JSON.parse(f.writes()[0]![1].body as string)).toEqual({
+          id: id(100),
+          expected_version: '1',
+          ...bindings(),
+          image: null,
+        })
+        expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(0)
+        expect(f.wrapper.text()).toContain('平台模型用途配置已保存')
+        expect(
+          f.fetch.mock.calls.filter(([path]) => path.includes('/account-settings')),
+        ).toHaveLength(0)
+      } finally {
+        f.auth.leave()
+        pending.tail.resolve()
+        await flushPromises()
+        expect(pending.response.body!.locked).toBe(false)
+      }
+    },
+  )
+})
 function button(label: string, root: ParentNode = document) {
   const found = [...root.querySelectorAll<HTMLButtonElement>('button')].find(
     (value) =>

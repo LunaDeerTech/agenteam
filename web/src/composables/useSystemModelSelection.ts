@@ -493,6 +493,14 @@ export function createSystemModelSelection(auth: SessionController = useSession(
   function discard(reload = false) {
     ++revision
     api.abandon()
+    // This revision retires every outstanding observation in the current batch.
+    // Settle it here; old continuations must never publish into a later batch.
+    const message = '读取已取消，请在请求结束后明确重读。'
+    if (selection.phase === 'loading')
+      Object.assign(selection, { phase: 'error', value: null, message })
+    for (const purpose of selectionPurposes)
+      if (references[purpose].phase === 'loading')
+        Object.assign(references[purpose], { phase: 'error', value: null, message })
     clearBusiness()
     stopFeedback()
     state.writeMessage = ''

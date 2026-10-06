@@ -1724,6 +1724,7 @@ async function checkingConfirmation(
   fail: boolean,
   business: string,
   decision: "continue" | "discard" = "continue",
+  heldProvider?: string,
 ) {
   const before = await session(page),
     after = await seq(page),
@@ -1788,6 +1789,28 @@ async function checkingConfirmation(
       );
     }, business),
   ).toBe(true);
+  if (heldProvider) {
+    await expect.poll(async () => (await ipc("hold-facts")).started).toBe(true);
+    await factAfter(
+      page,
+      after,
+      (f) =>
+        f.path === "/api/v1/system/model-providers/" + heldProvider &&
+        f.method === "GET" &&
+        !f.ended,
+    );
+    await expect(
+      page.locator(".current-references > li").nth(0).locator("dl"),
+    ).toHaveCount(1);
+    await expect(page.locator(".current-references > li").nth(1)).toContainText(
+      "正在读取 Model 与 Provider 详情",
+    );
+    // A hold that already expired is not evidence of cancelling a pending read.
+    expect(await ipc("hold-facts")).toMatchObject({
+      started: true,
+      finished: false,
+    });
+  }
   await top(page)
     .getByRole("button", {
       name: decision === "continue" ? "继续编辑" : "放弃修改",
@@ -1799,6 +1822,41 @@ async function checkingConfirmation(
   );
   if (decision === "continue") await focusContained(page);
   expect((await writes(page)).length).toBe(count);
+  return after;
+}
+
+async function rereadSavedReference(page: Page, purpose: Purpose) {
+  const after = await seq(page),
+    target = material().ids[purpose]!;
+  await savedRow(page, purpose)
+    .getByRole("button", {
+      name: "重读 " + purposeLabels[purpose] + " 详情",
+      exact: true,
+    })
+    .click();
+  const model = await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === "/api/v1/system/models/" + target &&
+      f.method === "GET" &&
+      f.status === 200 &&
+      f.ended &&
+      !!f.model,
+  );
+  await factAfter(
+    page,
+    model.sequence,
+    (f) =>
+      f.path === "/api/v1/system/model-providers/" + model.model!.provider_id &&
+      f.method === "GET" &&
+      f.status === 200 &&
+      f.ended &&
+      !!f.provider,
+  );
+  await expect(savedRow(page, purpose).locator("dl")).toHaveCount(1);
+  await expect(savedRow(page, purpose)).not.toContainText("读取已取消");
+  await expect(button(page, "刷新配置")).toBeEnabled();
 }
 async function layout(page: Page, width: number) {
   const facts = await page
@@ -1878,7 +1936,14 @@ test("[navigation] five leaves, restored cohost focus and eight real layouts", a
   await openEditor(page);
   await clearOptional(page, "reranker");
   await top(page).getByRole("button", { name: "取消", exact: true }).click();
-  await checkingConfirmation(page, true, "配置平台模型用途");
+  const continuedRead = await checkingConfirmation(
+    page,
+    true,
+    "配置平台模型用途",
+  );
+  // The continue decision lets its valid batch finish; the next round cancels
+  // an independently held batch instead of relying on response timing.
+  await currentRead(page, continuedRead);
   await expect(draftRow(page, "reranker")).toContainText("不配置");
   await page.keyboard.press("Escape");
   await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
@@ -1890,7 +1955,60 @@ test("[navigation] five leaves, restored cohost focus and eight real layouts", a
     .last()
     .click({ position: { x: 3, y: 3 } });
   await expect(top(page)).toHaveAccessibleName("放弃未保存修改？");
-  await checkingConfirmation(page, false, "配置平台模型用途", "discard");
+  const beforeCancellation = await dbFacts();
+  await ipc("hold-get", { id: material().ids.memory_provider! });
+  let cancelledAfter: number;
+  try {
+    cancelledAfter = await checkingConfirmation(
+      page,
+      false,
+      "配置平台模型用途",
+      "discard",
+      material().ids.memory_provider!,
+    );
+    await expect(savedRow(page, "embedding").locator("dl")).toHaveCount(1);
+    for (const purpose of ["memory", "reranker", "image"] as const) {
+      await expect(savedRow(page, purpose)).toContainText(
+        material().ids[purpose]!,
+      );
+      await expect(savedRow(page, purpose)).toContainText("读取已取消");
+      await expect(
+        savedRow(page, purpose).locator('[role="status"]'),
+      ).toHaveCount(0);
+    }
+  } finally {
+    await ipc("release-get");
+  }
+  // The server hold ending is separate from the application's native tail.
+  // The pure stream tests prove cancel joining; here retain the real observer
+  // completion and enabled owner-gated control before starting explicit reads.
+  await expect.poll(async () => (await ipc("hold-facts")).finished).toBe(true);
+  await factAfter(
+    page,
+    cancelledAfter,
+    (f) =>
+      f.path ===
+        "/api/v1/system/model-providers/" + material().ids.memory_provider! &&
+      f.method === "GET" &&
+      f.ended,
+  );
+  await expect(button(page, "刷新配置")).toBeEnabled();
+  const cancelledReads = (await facts(page)).filter(
+    (f) =>
+      f.sequence > cancelledAfter &&
+      /^\/api\/v1\/system\/(models|model-providers)\//.test(f.path),
+  );
+  expect(cancelledReads.map((f) => f.path)).toEqual([
+    "/api/v1/system/models/" + material().ids.embedding!,
+    "/api/v1/system/model-providers/" + material().ids.embedding_provider!,
+    "/api/v1/system/models/" + material().ids.memory!,
+    "/api/v1/system/model-providers/" + material().ids.memory_provider!,
+  ]);
+  expect(canonical(await dbFacts())).toBe(canonical(beforeCancellation));
+  expect((await writes(page)).length).toBe(0);
+  for (const purpose of ["memory", "reranker", "image"] as const)
+    await rereadSavedReference(page, purpose);
+  expect(canonical(await dbFacts())).toBe(canonical(beforeCancellation));
   expect((await writes(page)).length).toBe(0);
   await openEditor(page);
   await clearOptional(page, "image");
