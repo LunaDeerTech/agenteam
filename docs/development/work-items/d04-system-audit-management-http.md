@@ -1,0 +1,163 @@
+# D04 / D27：System Audit 管理 HTTP
+
+修订：rev1。状态：已获独立有界 STATIC PASS，主线程已采纳规格。被审私稿全文 SHA `91d576400771047c9abda0c5d4fd983d331bfd8c1ff86096701c8edd641756b0`，技术§1–7 SHA `687c85d4a41880828d038251bf6321accc48092aa043a10addb1606ab02c6f21` 原字节保持；固定主线 `f843506d9ec991be1c334a81b88d5cbacc277467`、产品基线 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93` 及十四候选范围不变。仅规格接受；产品作者、实施和动态验收/资源窗口均由主线程另授，尚未实施，未消费 Outbound UI 活动源码。
+
+独立冻结报告：`/workspace/scratch/agenteam-audit-http-spec-independent-dtmkm41p/review.md`，SHA `ed4cc13288cdb39218e68a53a1b92ac0b622e813d81e4534673136ee42befb79`；同目录 `review.json` SHA `17ad628661a4a4fe7e9d9fb0572b7fca91ae8ca2a54118591441146bb08dde22`。该结论证明固定规格的可实施性，不是编译、产品或动态通过。原私稿和依据保留在 `/workspace/scratch/agenteam-system-audit-http-spec-65p1thtl/`。
+
+§7 当前失权代表按独立报告落实为现有正式 Logout（User Exclusive）撤销 Session，分别验证预认证后撤销与 User SH/EX 串行；普通用户403使用正式邀请账户。固定 Account 没有正式降权写入口，本卡不新增该接口或 SQL 改 role。这是原可选代表的工程落实，不改变技术正文、十四路径或权限语义。下文保留被审技术正文及原实施门槛。
+
+## 1. 完整结果、来源与前置
+
+当前管理员可以通过正式 HTTP 分页、结构化筛选 System 审计记录并查看安全详情；每次读取在保护当前 User 的同一事务内核 Session/admin，完整读取且正常结束事务后才发布。只接已有 Audit 查询和正式 typed 事实，不提供 Project Audit、全文搜索、导出、编辑、删除、任意 metadata 或关联对象正文读取。
+
+沿 [AGENTS](../../../AGENTS.md)、[设计技能](../../../.agents/skills/agenteam-design/SKILL.md)、[D04 设计](d04-security-design.md)、[Audit 架构](../../architecture/security-governance/audit.md)、[系统设置](../../frontend-design/layouts/system-settings.md#6-安全审计与平台配置)及[后端 Audit 说明](../backend/audit.md)。源码均按页首固定 Git 读取；本稿不以早期替身权限或 `Tx{}` 的预授权作为新读口的当前权限证据。
+
+| 前置 | 已接受事实及消费边界 |
+| --- | --- |
+| D04 Audit/cursor `088185e2070a0dd7c888c97fb8ace42ec412d95a` | 原 `audit.Service.List/Get`、参数化 Filter、签名 cursor、typed scanner、安全元数据及真实分页/撤权/索引证据；`audit/query.go` 至固定基线未变。旧 scope/查询算法可复用，新 HTTP 和同 Tx 管理入口尚未交付。 |
+| D07 Account `022dcea693fd7880cc6836706094c5b69fe8437f` 与后续正式管理读 `819aba1b8f764328f1e2e67b53c274fad0db877d` | 当前 Session/admin、User 锁与 `account.HTTPBoundary` 已验。`app/security.go` 已将正式 Account Authority 绑定到原 auditor 的 Sessions/System；无需新增 Account 授权接口。 |
+| [System 出站 HTTP](d04-system-outbound-policy-http.md) `a94277982620f01dc15488b09ae6ea9064977b5a` | 同 core 的 HTTPBoundary、精确 app 分流、单 RequestID、安全 Problem、本地期限与实际尾部模式；只复用未变接缝，不改变出站引擎或重跑外部请求。 |
+| 固定 root / OpenAPI | `app/account.go` 的原 auditor 同时供 Account、Secret、出站和 Model 正式 producer 使用；当前连续迁移1–19已接受。OpenAPI 是独立 common/account/model-system/outbound-policy 文档，common 的 paths 必须仍为空，无聚合注册表需要扩改。 |
+
+无新产品待决。新增方法/DTO、GET-only、响应预算和子包是本稿明确的工程选择。D08 Project/Owner、Object 原 join、tools、SPA publication 停止任务和 Summary 待定均不作为前置，不重启、替代或绕过这些任务；完整 D04/D27、UI、未绑定 Runtime 和 ready503 边界不因本卡接受而完成。
+
+## 2. 正式路由、筛选与 cursor
+
+恰两个 operation：`GET /api/v1/system/audit`（`listSystemAudit`）与 `GET /api/v1/system/audit/{id}`（`getSystemAudit`）。这是管理观察读口，本结果选择 **GET-only**；HEAD/POST/PUT/PATCH/DELETE/OPTIONS 等为405，精确 `Allow: GET`，HEAD 错误无 body，不使用 ServeMux 的隐式 GET→HEAD。无 scope/project/user/actor 身份输入、body、写 CSRF 或幂等键。读取依旧接受既有 Origin/Fetch-Metadata 安全检查，不增加跨域访问。
+
+集合成功200为恰 `{items,next_cursor}`，两字段必需，items 为0–200个非 null 记录的数组，空为 `[]`；next_cursor 为非空安全 ASCII token 或 null，原 domain 空 NextCursor 仅在此新 wire 映射为 null。详情成功200为单条 §3 DTO；不存在或属于其他 scope 的 ID 均404，不泄露其存在。`{id}` 必须单段 canonical 小写 UUIDv7，非法单段400；多段/尾斜线/未知子资源404。近似前缀不属于本 handler。原 HTTPBoundary 先拒歧义 Path/RawPath，不先规范化或重定向路径。
+
+列表只允许以下16个标量 query key；每个至多出现一次，重复（即使相同）、未知、数组式字段、解码错误、非法分隔符均400。`RawQuery` 最多32 KiB，decoded cursor 最多8192字节；超界400且不查询。无参数表示默认第一页，裸 `?` 拒绝。详情任何 query（含裸 `?`）均400。
+
+| Query | 解析与现有领域约束 |
+| --- | --- |
+| `limit`、`cursor` | limit 省略50，显式值为 canonical 十进制整数1–200，空/前导零/正号/指数/溢出拒绝；cursor 省略或空为第一页，其他值交现 keyring 验证，不 trim 或自行 base64 修复。 |
+| `from`、`to` | 空或省略无边界；非空用 `foundation.ParseInstant`，保留原合法时区和0–6位小数输入，归一化为 UTC Instant；时间范围 `[from,to)`，同时存在必须 from<to。 |
+| `actor_kind`、`actor_id`、`action`、`outcome`、`resource_kind`、`resource_id` | 空或省略无约束；枚举和 ID 严格按 `audit/contract.Filter.Validate`。actor_kind 为 service 时非空 actor_id 非法；不扩充 service_name/自由文本筛选。 |
+| `tool_id`、`execution_id`、`operation_id`、`approval_id`、`runner_id`、`agent_id` | 空或省略无约束，非空须 UUIDv7；保留原 Filter 的 AND 与 agent_id 特殊表达式，不另发关联查询。 |
+
+Filter 接受集合沿原 contract，不能因本输出只含 System 就删掉原合法枚举：例如合法 Project action、agent_run 或 execution_id 筛选在 System 谓词下返回空，而不是新增400规则。固定 scope 永远是 System；客户端提供 `scope`/`project_id` 等未知字段直接拒绝。
+
+继续使用原 `filterDigest`、`cursor.AuditOrder`、`created_at DESC,id DESC` 和 tuple `<` 的 limit+1 查询。cursor 绑定 System scope、完整规范 Filter 与固定 order；limit 不参与摘要，允许换页大小；不承诺跨页数据库快照，不添加主体或新的版本语义。坏签名、跨 scope、换 filter、错误标量数量/类型/OrderGeneration 沿原 CURSOR_INVALID。cursor 不是权限凭证，每次翻页和详情重新核当前 Session/admin。
+
+## 3. 安全 DTO、条件 metadata 与编码上界
+
+新 wire 显式映射，不直接 `json.Marshal(SafeRecord)`、原 Actor、DB row 或错误 cause。`SystemAuditRecord` 恰十个必需字段：`audit_id,created_at,scope,actor,action,outcome,resource,metadata,associations,summary`；所有对象闭合、拒绝未知字段，未定义的可选值省略而不输出 null。scope 是本新 DTO 的字面字符串 `"system"`。audit_id 为 UUIDv7；created_at 为合法 canonical UTC 微秒 Instant，显式处理 `NewInstant`/标量校验错误，不能忽略错误或补零时间。
+
+actor 是两个互斥闭合分支：Human 恰 `{kind:"human",id:<UUIDv7>}`；Service 恰 `{kind:"service",service:<registered name>,cause_ref:<UUIDv7 或 canonical Digest>}`。System 不允许 AgentRun actor，不输出 project_id/execution_id 或原 Human Session 字段。注册 ServiceName 保留全部13个合法值：`secret,secret-maintenance,outbound,object,object-maintenance,project-lifecycle,outbox-delivery,account-bootstrap,account-auth,account-maintenance,account-mail,model-runtime,project-initialization`；不因当前 producer 没使用而裁剪。
+
+resource 恰 `{kind}` 或 `{kind,id}`：`secret_master,outbound_policy` 必须无 id；其余本 System 合法 kind 为 `secret,secret_rotation,stored_object,outbox_delivery,user,session,account_attempt,invitation,password_reset,account_settings,smtp_settings,mail_job,model_provider,model_config,model_selection`，必须有 UUIDv7 id。action/resource/id/outcome 的关联继续由正式 `NewEntry` 各分支验证；例如 Account logout 的 resource 是其 Session ID，Model 删除的 resource 是内部 Model ID。这里的 Session ID 是正式审计身份标识，不是 Cookie/token；允许既有 typed metadata/resource 的 session_id，绝不输出原认证 Actor、Session token、CSRF、密码/邮件/Secret 正文。
+
+associations 必须为闭合对象，空为 `{}`；仅可省略式包含五字段 `tool_id,request_id,runner_id,correlation_id,http_trace_id`。每个值均须恰36 ASCII字节 canonical UUIDv7；空值不输出，null/非法ID拒绝。System 禁止 execution_id/tool_call_id/operation_id/approval_id；Model action 还沿原 `validateModelEntry` 只允许 correlation_id/http_trace_id。不能因字段名像 request 而猜测它是 HTTP RequestID：保持原事实，不补关联值。
+
+输出 action 闭集为下表覆盖的37种；outcome 为原 `success,denied,failed,unknown`，按动作约束而非自由组合。summary 沿原 query.go 固定10个 D04 文案，其余为 `Audit event`，不从 metadata 拼接用户文本。metadata 必须是原 typed object，而非 JSON 字符串、宽松 map 或扩展入口；先 `Validate(action)`，经 `DecodeMetadata(action, JSON())` 重建安全规范形状。真实 SQL scanner 继续以完整原 actor/资源/关联构造 `NewEntry` 校验；wire 不伪造 Human Session 来重建已裁剪的 ActorSummary。wire 再核 System、输出分支/标量、动作匹配 metadata、resource 和关联范围，失败整页零发布。
+
+所有 metadata 的 ID 均 UUIDv7；version 为1–MaxInt64的规范十进制字符串，progress/count 为0–MaxInt64规范字符串；枚举、排序/去重、条件必需性沿三个正式构造族，schema 必须逐 action 条件闭合，不能用一个所有字段可选的大对象。以下表中只列动作允许字段；未列字段即禁止，`?` 表示该分支可省略，均不接受 null。
+
+| Action / 族 | Metadata 条件字段与现有约束 |
+| --- | --- |
+| secret.create / update / delete | create/update 恰 version、非空 changed_fields（purpose/value，构造器规范排序去重）；delete 恰 version。resource 为 secret；不擅加原 NewEntry 没有的 outcome/actor 限制。 |
+| secret.resolve | lease_id、consumer、reason?；consumer 为正式6值，reason 若有须原 Reason 枚举；resource 为 secret。 |
+| secret.master.register；rotation.start / complete / failed | register 恰 version，System secret_master/Success；rotation 为 version、rotation_id、count，failed 另必需 reason，其余禁止 reason。secret_rotation.id=rotation_id；failed/其余 outcome 分别 failed/success。 |
+| outbound.policy.update；outbound.access.deny | update 为 version、rule_count（"0"–"256"），resource 为 outbound_policy，不新增 outcome 约束。deny 为 consumer、reason、version，outcome=denied，System resource 仅 outbound_policy 或 secret。 |
+| object.upload.complete / failed；object.delete | object_id、initiator_kind、initiator_id、media_type、byte_size、sent_bytes、phase；initiator_execution_id 当且仅当 initiator_kind=agent_run；failed 必需 reason，另两项禁止 reason。phase 分别 published/failed/deleted；sent_bytes≤byte_size，不能给 upload.complete 擅加 sent_bytes=byte_size。media_type 是≤256字节的正式 canonical MIME，参数仅受限 charset；无路径/文件名。actor 必须 object 或 object-maintenance Service，resource.id=object_id；failed outcome 可 failed/unknown，其余 success。保留合法 initiator_kind，不把 actor 的 System 限制误套 metadata。 |
+| outbox.delivery.requeue | delivery_id、event_id、handler_id、from_state、redrive_cycle、reason_code；handler_id 为1–128字节原 stable name，from_state=failed/dead_letter，cycle 为正版本，reason 为 operator_retry/schema_available/dependency_restored；Human/Success，resource.id=delivery_id。 |
+| 全部16个 Account action 的共同规则 | version、phase 必需。bootstrap：user_id，created；login：attempt_id，authenticated 时必需 user_id/session_id，rejected 时 user_id? 且禁止 session_id；logout：user_id/session_id，revoked。login rejected 的 reason 为原 credentials_rejected/challenge_required/challenge_invalid/session_invalid，其他正常阶段禁止 reason。 |
+| account.invite.create / revoke / redeem；password.reset.request / complete | create/revoke：invitation_id、initiator_id?，phase created/revoked；仅 create 可 channel?=smtp/log。redeem：user_id/invitation_id、redeemed。reset.request：attempt_id、user_id?、accepted；reset.complete：user_id/reset_id、redeemed。各自 resource/id 映射及 outcome 沿 validateAccountEntry。 |
+| account.password.change；profile.update；avatar.update；account.settings.update；smtp.settings.update | phase=updated，changed_fields 非空原允许集合且规范排序去重。password 另 user_id 且字段 password；profile 另 user_id 且字段 username/display_name/theme；avatar 必需 user_id、可 object_id?（正式清空头像可省略），字段 avatar。两个 settings 可 initiator_id?；Account 字段为 session_idle_seconds/session_absolute_seconds/password_reset_seconds/challenge_after_failures，SMTP 为 host/port/tls_mode/auth_username/password/from/enabled/sender_name/auto_retry_count/retry_interval_seconds；不能回显相应配置值。 |
+| smtp.test.request；smtp.delivery.retry；smtp.delivery | test：job_id、initiator_id?、accepted、channel?=smtp/log；retry：job_id、initiator_id、accepted，禁止 channel 且 Human；delivery：job_id/attempt_id、initiator_id?、channel 必需 smtp/log、phase sent/failed/unknown，后两者必需 reason（delivery_rejected/timeout/cancelled/delivery_unknown），sent 禁止 reason。outcome 按原 phase→success/denied/failed/unknown 映射，不把 accepted 当已发送。 |
+| provider.create / update / delete；model.create / update / delete；model.selection.update | 全部 Human/Success，version、非空 changed_fields；Provider 必需 provider_id，Model 必需 provider_id/model_id，Selection 必需 selection_id 且 selector_kind=platform、changed_fields=[selection]。create/delete 字段 created/deleted；update 仅原各自允许字段。Model delete 另必需非负 affected_count，可 replacement_id?，changed_fields 精确 deleted 或 deleted+replacement。禁止不属于动作的 ID/计数/selector 字段；对应资源ID相等。 |
+
+OpenAPI metadata 采用上述 action discriminator 的条件 schema，细分 Account phase/Model delete/actor/resource/association 限制；所有分支 `additionalProperties:false`，必要跨字段相等关系写入规范说明并由正式 constructor/scanner 强制。Version/Progress 引用 common 的字符串标量；有限枚举要枚举固定 contract 的全部值，不能任意字符串。Project/Knowledge/Object transfer/Artifact 动作不在 System 输出闭集，但 §2 原 Filter 合法输入不裁剪。不能据本 DTO 推断关联对象当前仍存在、可访问或可执行。
+
+**最终 UTF-8 JSON 预算为1 MiB（1048576B），列表和详情成功响应在写 header 前完整编码并检查；不改变其他 endpoint 或通用600000B客户端上限。** 后续 UI 必须给本列表显式1 MiB读取预算，不能把本卡当 UI 已实现。上界按最坏合法字段长度的保守笛卡尔积计算，不声称极值可同时由某 producer 产生：
+
+| 字段 / 组成 | 最长字节及依据 |
+| --- | --- |
+| audit_id / created_at / scope | 36 / 27 / 6；canonical UUIDv7、UTC微秒时间、system。 |
+| actor | service 分支最长：kind=service 为7，最长注册名 project-initialization 为22，cause_ref 为 `sha256:`+64小写hex，共71；Human ID 为36，完整 actor 较短。 |
+| action / outcome / resource / summary | 31（secret.master.rotation.complete）/7（success 或 unknown）；resource kind≤16且 id≤36；固定 summary≤29（Master key rotation completed）。 |
+| associations | 五个上文固定字段名全部存在，每值36；键名、引号、冒号、逗号均计入下行固定壳。 |
+| 单记录固定壳（不含 metadata 值） | 739B，包含上述最大长度字符串、全部键名/容器/分隔符；字段本身均安全 ASCII，无额外 HTML/Unicode 转义膨胀。 |
+| metadata 最终值 | ≤4096B。`metadata()`、`AccountMetadata()`、`ModelMetadata()` 都先用默认 `json.Marshal`（HTML escaping 开启）生成私有 canonical bytes，再检查4096；DecodeMetadata 也重建这些构造结果，不能把 DB 原始 JSON 文本当安全值。MIME 可含需转义字符，已在4096内计入；既有 `\u003c`/`\u003e`/`\u0026`/U+2028/U+2029转义经外层 RawMessage marshal 保持，不作为字符串二次编码。最终编码仍显式核界，不能仅信原始 RawMessage 长度。 |
+| 200条页 + cursor | 每条≤4835；200条、199逗号、页包装及≤8192B安全ASCII cursor 合计≤975420B，低于1MiB。cursor 保持原签名编码，禁止使用会引入未知转义的任意文本。 |
+
+## 4. System 专用读取、事务与实际尾部
+
+在 audit 父包新增方法，不更改原 `contract.Reader`：
+
+```go
+func (s *Service) ListSystem(ctx context.Context, actor identity.Actor, filter contract.Filter, page foundation.PageRequest) (foundation.Page[contract.SafeRecord], error)
+func (s *Service) GetSystem(ctx context.Context, actor identity.Actor, id contract.ID) (contract.SafeRecord, error)
+```
+
+只接受合法 Human actor，scope 在方法内固定 System。方法自身取最长3s与更早 parent 的最小期限；HTTP 已设相同或更早 deadline 时不续期。使用原 Store.WithinTx/Acquire/InTx、私有唯一 recovery cause（不外露、无命令回执）；先 User Shared lock，再原 `authorizeHuman(ctx, sameTx, actor, SystemScope(), Read)`，然后该 Tx 的 SQL executor 完成查询、完整行校验、游标签名、rows.Err/Close。无新锁类别、不写 Audit/receipt/outbox、不进行关联表/对象补读。
+
+候选页/记录仅为回调私有值，新 System 入口在回调内逐项确认记录 Scope 精确为 System；**WithinTx 正常 Committed、实际事务尾部结束且 ctx 仍有效后**才能返回，失败/取消/Unknown 均为零候选。NotCommitted 的原 typed Fault/commit_state 保留；Unknown 明确 COMMIT_UNKNOWN/unknown，不经旧 audit.portError 降成 dependency/not_started。这里只读，不用候选推断提交、不自动重读、不开通用结果仓或 lookup；GET 再读只是新观察。旧通用 Problem 对 COMMIT_UNKNOWN 的 retry_hint=lookup 保持并在新 OpenAPI 说明本域无 lookup，不能制造端点或写命令恢复规则。
+
+`query.go` 仅将现 Get/List 中的 SQL/scanner/Filter/cursor 算法窄抽为接受 `postgres.SQLExecutor` 的私有 helper。旧 Get/List 仍先原 Tx{} authorize，再原参数验证及 store 查询；SQL、scope键、顺序、limit+1、scanner、错误投影和旧 Project/LookupAppend/Append/Cleanup 行为保持。新 System 方法在同 Tx executor 上调用同 helper，不能把父包所有读口悄悄改成新锁/权限/预算。`scanRecord` 继续重建完整正式 NewEntry；无效 metadata/非法 System actor/错误ID或时间/rows后段错误，全部安全失败且无部分页。
+
+新子包 `internal/central/audit/http`（package audithttp）提供纯构造：
+
+```go
+type SystemHTTPOptions struct { PublicOrigin string }
+func NewSystemHTTPHandler(auditor *audit.Service, accounts *account.Service, options SystemHTTPOptions) (http.Handler, error)
+```
+
+拒绝 nil auditor 或无效 Account boundary；不试调不透明服务、不建第二 audit.Service、不做 I/O/监听/后台任务。生产只接具体服务；包内私有窄接口可支持纯测试，不增加公开 setter/注册替身。复用原 account.NewHTTPBoundary / CheckRequest / RequireSystem(Read) / WriteProblem；在当前预算中依次 CheckRequest、精确资源/方法归属、RequireSystem，再解析ID/query和检查空body。原 Cookie/Host/Origin/Fetch-Metadata、安全headers及401清cookie保持；当前 HTTP 预认证绝不能替代内层同Tx权限。
+
+本 handler 请求从入口起取3s或更早 parent（因此预认证、路径/query、空body检查、权限锁、查询、编码与响应实际写均在同一预算内），不逐阶段续期。局部 ResponseController 读写 deadline/可停止取消回调沿已接受模式，不改服务器/公共 httpapi。能力不足或期限设置失败，在 Account/Audit 调用前 abort，不以无界读取/写 Problem 降级。GET 拒非零/未知 Content-Length、Transfer-Encoding 和实际非空 body；实际 EOF/Body.Close 不能只信声明或留下后台读。回调只终止本请求实际 I/O，退出必须 stop 或等 callback 完结，不得仅 cancel ctx 后放后台 SQL/read/write。
+
+完整 DTO 校验、编码预算和最后 ctx 检查后才提交200；安全错误也在当前期限内写出。同步 response write/必要 Flush、Body.Close、SQL/事务返回及已触发取消回调全部实际结束，才清本次期限并返回，不能污染同连接后续请求。短写/写错/Flush失败或响应已经无法完整发送时以 http.ErrAbortHandler 终止，不追加第二份 Problem；已经发出的字节不能撤回。此为新 handler 正常读/错误路径的局部边界，外层唯一 RequestID/Recover、admission/关闭及其他 API 原链不扩改，不重建全域 HTTP 生命周期框架。
+
+安全错误沿正式注册表：400 INVALID_ARGUMENT/CURSOR_INVALID，401 UNAUTHENTICATED/SESSION_REVOKED，403 FORBIDDEN/ORIGIN_DENIED（以及原 boundary 实际分类），404 NOT_FOUND，405方法错误，503 DEPENDENCY_UNBOUND/DEPENDENCY_UNAVAILABLE/COMMIT_UNKNOWN，未知内部错误500；不把 scope不存在、admin失权或存储异常伪装成空页。响应 no-store/nosniff/no-referrer、唯一 X-Request-ID；本 handler 显式错误的 Problem instance 使用现 HTTPBoundary 常量投影，不反射请求路径，外层意外 panic 仍沿原公共 Recover。普通 fmt/log/显式Problem 不带审计内容、filter/cursor、记录内关联ID、Cookie/token/CSRF、SQL或嵌套 cause；当前请求自己的安全 request_id 日志沿原链保持，授权 DTO 才承载既定审计事实。
+
+## 5. root、OpenAPI 与兼容
+
+`app/account.go` 在现 handlers 装配处将既有 `auditor`、同 `core`、cfg.PublicOrigin 传入新构造；不再调用 audit.New。新增 `systemAuditRoutes(existing, auditHTTP)` 仅将 `/api/v1/system/audit` 及完整 `/` 子路径交新边界（后者统一拒绝未知资源），其他请求原样送原 `systemOutboundPolicyRoutes(systemModelRoutes(account,model),policy)`。保留 method/URL/RawPath/body/Host/header、原中间件一次、所有 Account/Model/Outbound 分派及 ready503。没有新 HTTP root、诊断、测试目标、外网请求或 Object 操作。
+
+依赖方向为 app→audithttp→audit 与 account；audit 父包不导入子包，Account 仍使用既有 Audit contract，因此无 account↔audit/http 环。不搬权限实现，不增加 Account 端口/迁移/初始化钩子。原 auditor 身份由构造图中精确同一变量传参证明；真实 root 通过原 Account/Model/出站正式 producer 造事实，再由新端点读回验证可达性，不把另建同库 auditor 冒充 root 同实例证据。
+
+新增独立 OpenAPI3.1.0 `api/openapi/audit.json`，恰两 GET，复用 common 的 ID/Instant/InstantInput/Version/Progress/Problem。每口 security 显式为 Session cookie 或 LocalSession cookie 二选一，没有 `{}`/空匿名分支；GET 不要求写 CSRF。路径、query、limit/cursor、GET-only/HEAD405无body、严格 DTO、typed条件 schema、1MiB成功预算/安全错误与只读Unknown语义齐全。common.paths 保持空，旧 account/model-system/outbound-policy 文档及原 route-count 断言不修改；新 handler_test 双向核新 operation 与实际路由/参数/security/schema。
+
+现有 Audit append/MAC/lookup/清理、Project责任、索引、旧安全错误和所有业务 producer 不改。旧查询 helper 的等价性及扫描防御需要有意义回归；未经新证据不能把新管理HTTP称为所有Audit/平台功能交付。既有 typed Object/Service schema 可公开描述，但本卡验收不启动被停止的 Object 工作来补数据。
+
+## 6. 唯一候选路径与实施门槛
+
+以下14条是完整结果候选，数量来自实际编译/装配/验证边界；独立静审、主线程指定唯一 backend_worker 和另授私有实施后才可写。与活动 Outbound UI 前端文件无交叉；共享 app/account.go 和最后 backend/audit.md 必须由主线程移交。
+
+| # | 路径 | 限定用途 |
+| --- | --- | --- |
+| 1 | `internal/central/audit/query.go` | 仅 SQLExecutor 私有查询 helper 抽取，旧公开路径/语义等价。 |
+| 2 | `internal/central/audit/system_query.go`（新） | 两 System 专用方法、同Tx当前授权、预算及终局零候选。 |
+| 3 | `internal/central/audit/system_query_test.go`（新） | 同Tx/锁/终局、受控 rows/authority/cancel 与旧helper等价测试。 |
+| 4 | `internal/central/audit/http/handler.go`（新） | 纯构造、两GET、Account边界、本地期限/实际尾部。 |
+| 5 | `internal/central/audit/http/wire.go`（新） | 闭合query、显式DTO/typed metadata投影、最终编码预算。 |
+| 6 | `internal/central/audit/http/handler_test.go`（新） | query/DTO/OpenAPI、受控I/O及最小原生连接证明；不放业务fixture。 |
+| 7 | `internal/central/app/account.go` | 仅用原auditor/core接新handler和原链外层分派。 |
+| 8 | `internal/central/app/audit_http.go`（新） | 完整路径根的精确分派，不normalize请求。 |
+| 9 | `internal/central/app/audit_http_test.go`（新） | 原分派/请求/单中间件、构造图接缝纯检查。 |
+| 10 | `api/openapi/audit.json`（新） | 两只读operation与本卡安全条件schema。 |
+| 11 | `tests/account/audit_http_test.go`（新） | 真实管理员、正式producer、查询/投影/分页与HTTP安全边界。 |
+| 12 | `tests/account/audit_http_transaction_test.go`（新） | 正式Authority/PG同Tx、撤权/共享锁/期限与实际尾部。 |
+| 13 | `internal/central/app/audit_http_process_test.go`（新） | 原root正式producer→新读口、旧API链/正常关闭；复用原app fixture。 |
+| 14 | `docs/development/backend/audit.md` | 独立产品接受前最后授权，局部补System HTTP、事务/DTO/预算与原边界。 |
+
+不改 audit/contract、service.go/error.go、Account/HTTPBoundary、common httpapi/OpenAPI、app 全局router/lifecycle、go.mod/lock、迁移、旧fixture/guard、前端、任务台账或归档。若实际需要新公共接口、额外路径或改变旧错误/Project语义，先报主线程修卡；不可用跨卡文件临时补洞。实现沿 [Go 技能](../../../.agents/skills/agenteam-go-development/SKILL.md)；独立验收沿[验证技能](../../../.agents/skills/agenteam-verification/SKILL.md)，最后局部说明沿[文档技能](../../../.agents/skills/agenteam-documentation/SKILL.md)。
+
+## 7. 验收与交付
+
+| 有界组 | 必须证明的结果与证据精度 |
+| --- | --- |
+| 纯 query / schema / DTO | 原14 Filter字段/默认50及1–200、空与重复/未知/非法query、规范化时间和签名cursor绑定、limit可变、相同时间ID稳定排序；固定System谓词及ProjectID不能跨scope。两actor/17resource/37action条件分支、五关联与Model限制、SessionID安全事实、metadata错分支/null/重复/未知/非法时间ID全页失败。200项合法typed记录及最大cause代表、cursor常量上界的纯编码算术和超界负例；正式json.Marshal的HTML转义闭包/最终长度，U+2028/2029只在合成JSON重编码检查中证明不二次膨胀，不声称该字符是合法typed metadata。>1MiB拒绝由受控异常候选证明，不能伪造超界合法producer。检查新OpenAPI实际路由/参数/security以及所有闭合分支，不弱化旧断言。 |
+| 纯事务与故障 | 相同非零Tx内 User SH→当前Session/admin→SQL/完整scan→rows.Close→callback/事务终局，Committed且未过期才发布。授权后撤权、伪grant/缺锁、rows后段错误、无效metadata/Scope、NotCommitted/Unknown/ctx过期均零候选；Unknown分类保留，不用已拿到记录证明成功。受控store证明3s或更早parent从预认证计起、原调用和取消callback实际join，旧catch/迟到return不能发布。异常DB行只受控纯构造，不作为正式业务producer证据。 |
+| 原生HTTP最小代表 | 自有loopback临时端口/单连接，实际空体EOF/慢body、期限取消、response短写/Flush失败、callback实际尾部与复用连接后续请求不受旧deadline污染；三秒本地/更早parent与受控证据分列。native listener/client/conns/所有callback实际关闭join，非httptest Recorder替代。授权窗口另授，无既有服务/外网。 |
+| 真实QueryAndProjection | `TestSystemAuditHTTPQueryAndProjection`（tests/account）：正式bootstrap/login/Account设置或Profile/Model/出站命令产生若干可精确识别记录，分页（小limit跨页）、Filter、详情、安全typed字段/空页、坏cursor与当前匿名/普通用户/撤销Session/Host/Origin拒绝。值只经正式服务产生；SQL可读比对数量/字段，不能直接INSERT审计或改phase/role。纯200项覆盖上界，真实组无需机械造200次写；Project scope隔离复用原D04并结合新固定谓词检查，不为新root引未绑定Project服务。 |
+| 真实TransactionAndBudget | `TestSystemAuditHTTPTransactionAndBudget`（tests/account）：复用 `newB02Account(t).fixture` 完整依赖，不能用缺边界依赖的最小 newAccount。在HTTP预认证后经正式操作撤销Session，再放入新读Tx必须拒绝；已持User SH读取与正式撤销/降权按锁串行，随后新请求拒绝。SQL仅任务自有锁屏障/旁证，读取候选不得在实际Tx结束前越界。fixture既定 LOCK_TIMEOUT=1s：真实等待验证min(parent,3s,DB1s)、typed安全错误/零候选和实际退出，不保证errors.Is(ctxDeadline)，不冒称等3s自然到期；自然3s由受控端口证明。 |
+| 真实RootProducerBinding | `TestSystemAuditHTTPRootProducerBinding`（app）：复用原 `newModelRootApp`/bindAccounts、任务自有PG/MinIO，登录后用正式Account和至少一个Model或出站配置producer造记录，新HTTP按resource/action读回；根构造图确认同auditor，无额外audit.New。实际检查原Account/Model/Outbound读口、唯一RequestID、safe headers/日志与ready503保持，正常关闭实际终局。无新Object work、SMTP发送、目标网络或停止任务探针。 |
+
+只运行受影响 audit/audithttp/app 纯测与race/vet、受影响集成编译/vet及Central/Runner兼容构建；新3个真实顶层与已实核的原 `TestAuditPaginationBindingsFiltersAndRevocation`（tests/security/audit_query_test.go）的必要旧查询回归，不机械重跑全D04/D07。原Append/COMMIT两方向/清理/索引EXPLAIN证据在未改算法范围复用，原拒绝Project/缺绑定不能被新System入口变为默认空成功。查询SQL计划不变；若helper实现偏离原谓词/排序/有界查询，必须先修规格与证据，不能悄悄加索引。
+
+Go1.27.1；正式检查 `GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off GOFLAGS=-mod=readonly`，缓存/临时目录自有且与依赖准备分开。普通受控/native单场景45s内、新真实场景2m内、原每包 `-race -count=1 -timeout=6m` 不加时；按组精确selector、实际命中/退出和原始失败保留，skip/空跑不算通过。主线程另授原生/真实资源，作者固定最小编译闭包与输入/runtime指纹；exact fixture IDs、PID/starttime、owner/adopted实际wait、前后双扫清零后交窗。
+
+交付固定十四路径/必要依赖SHA、精确diff、命令/原raw/actual exit、首红与复用/未验边界，独立验证重点当前权限和终局零发布、安全DTO/上界、原helper等价、实际I/O尾部及rootproducer装配。当前仅私有规格，没有产品/动态PASS；最终局部说明和正式归档分别由主线程另授，不能用规格通过代替实现接受。
