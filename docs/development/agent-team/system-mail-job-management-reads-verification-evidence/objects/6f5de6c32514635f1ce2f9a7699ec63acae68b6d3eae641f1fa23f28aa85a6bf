@@ -1,0 +1,11 @@
+# D07 input02 独立窄审（永久冻结）
+
+**STATIC PASS；input01 的 P-MAIL-TEST-01 条件关闭。** 原 review.md 保持 SHA 6d0c30a87b5509405ebd6c74bb642de89582968f9d284a31d588307b0716ef50，不回写原条件或虚构实际首红。
+
+固定 input02/manifest.json SHA `37de7e3d685f2e6c95a375cc3996059fe78f9bf8d49f671ad3695d74fc112674`；input01-to02.diff SHA `401a80bec5b90a9b00cf7ef4717e2eaabda919820d0afdff4ebbc49a69c3d529`。独立读取并计算八源 SHA，全部匹配；严格只有 tests/accountmail/mail_job_management_test.go 变为 `ab13666ab0ea795bb6c1c514ac78d4bb70ff24c8c57a70a592fb87932464c0ed`，另七源逐字节相同，包含生产/API五源；935非候选依赖清单与 input01 相等。没有重新独立遍历935实际文件，留给冻结执行driver门禁。
+
+窄修在同一正式只读SELECT取得 delay=next_at−completed_at 与 observedAfterCompletion=DB clock_timestamp−completed_at；保留 delay≥10，新增非负时间差，使用 delay≤11+observedAfterCompletion。正式 finish 先写 completed_at，随后 loadSMTP 和再次取 schedule 时钟；新界覆盖该真实时钟采样间隔，而非任意增加固定时间。等价地 next_at 不晚于该实际观察时刻+11秒。原12秒due context、数据库到期轮询、正式第二次RunJob及后续实际attempt/I/O join断言完全不变，没有改策略/next_at/资源预算。安全日志仅两个时长。
+
+已核作者 repair-integration-race-compile01 原command/result/raw：Go1.27.1 `test -tags=integration -race -run ^$ ./tests/accountmail` actual0/2.729s，raw SHA `980dbf754a699c0ebc16838e5fedc73d8254089289f6bb6d0e308880a86eb041`；repair-integration-vet01 `vet -tags=integration ./tests/accountmail` actual0/0.351s，空raw SHA `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855`。两者固定私有workspace、off/readonly、输入不变；只编译/静检，不是实际integration执行。本验证者未重跑任何测试/真实资源。
+
+原生产静审结论按字节复用。待作者driver/gate固定后，继续核实际cwd/完整Go及fixture闭包/工具与锁/预算/ownedPIDstarttime及exactID双清；本点核不授资源窗口、不代表真实三组或整卡通过。

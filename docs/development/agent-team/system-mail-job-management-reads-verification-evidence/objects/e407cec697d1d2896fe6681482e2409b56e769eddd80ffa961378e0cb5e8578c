@@ -1,0 +1,5 @@
+# SMTP input04 / driver-stage03 独立点核
+
+STATIC PASS，rev1.2撤销测试前提已闭合。manifest 4e3bee7144106e9b183977a8306314f08732a18ef54111997fbfb9a3a7ada5c4，diff 4ccfa310db8cdd4079704558340c2e67408978745dc808d42bd951f6ff7d1ae8；八源实际hash匹配，严格只accountmail撤销段变化。先正式read cancelled/attempt0/两个actual null，并与旧GetMailJob状态及管理list一致；再RunJob硬验ResourceBusy，前后完整DTO（含version/reason/created等）、DB intents/jobs/attempts/outbox/Audit五计数与SMTP Connections/Auth/Mail/Messages不增。无SQL伪造/策略变更。另七源、935依赖清单、后三子例及原预算保持。
+
+作者原target race compile/list恰一顶层 actual0/2.942s、vet actual0/.372s，原command/raw/result/input未变已读；仅离线编译，不计行为执行。driver-stage03 input c53706ae319b7293345b6245ca421277ab90d26c52be1f524feab05ed028030d 与stage02严格仅候选文件及product_manifest映射变化，driver仍3f822063c2b77f857a247c190c32951b2d8303d38e95353c0e70d1f0138b28a0，runtime字节清单完全不变。原两实际失败及后续未执行限制保留；待主线程按资源窗口顺序授new-attempt02，未由本验证者运行真实资源。

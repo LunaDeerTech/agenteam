@@ -1,0 +1,11 @@
+--- real-b01.go.txt
++++ real-b02.go.txt
+@@ -75,7 +75,7 @@
+ 	if e=m.worker.RunJob(ctxFor(t),next.JobID);e!=nil||!m.registry.Joined() { t.Fatal("unconfigured child log worker did not actually join") }
+ 	completed:=read(next.JobID);assertShape(completed,"sent","backend_log","sent",1)
+ 	child:=exactAttempt(next.JobID)
+-	if child.id==u.id||child.channel!="backend_log"||child.result!="sent"||!child.terminal||!child.joined { t.Fatal("new cycle did not retain exact actual log attempt") }
++	if child.id==u.id||child.channel!=string(c.RecoveryLogChannel)||child.result!="sent"||!child.terminal||!child.joined { t.Fatal("new cycle did not retain exact actual log attempt") }
+ 	if smtpCounts()!=wire||!reflect.DeepEqual(read(invitation.JobID),source)||exactAttempt(invitation.JobID)!=u { t.Fatal("log cycle changed source history or sent SMTP") }
+ 	before=counts();replayed,err=f.service.RetryMailJob(ctxFor(t),q)
+ 	if err!=nil||replayed.JobID!=next.JobID||replayed.Version!=completed.Status.Version||replayed.Version<=1||counts()!=before||smtpCounts()!=wire { t.Fatal("original retry did not return child current version without side effects") }

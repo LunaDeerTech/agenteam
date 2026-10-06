@@ -1,0 +1,70 @@
+{
+  "status": "offline preparation PASS; real representatives unexecuted",
+  "product_manifest_sha256": "4e3bee7144106e9b183977a8306314f08732a18ef54111997fbfb9a3a7ada5c4",
+  "artifacts": {
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/preparation-ready01.md": "b32e259106637511dcd74a0261d1f32bfe6e9134d8aa0933f58971034bc4fc1c",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/plan.md": "dff9ae26788cda7f7e0d61c1d602c7f9c96099f9d97c808de2727586e22af372",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/execution01.json": "ff82ef52d2b424b122c588054b0aee6f7a40246cd21af29bc78de12e2de3de37",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/run-independent01.py": "6da84adcfc33d88742ebdf4acbebeefef622ca4b45d1beb5e7e1fdd78c9040ef",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/driver-author-to-independent01.diff": "e972f68cf3338c826e6eddf21b448d1c013771b273a670e37bc0e8318c5c48de",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/real-input01.json": "5fe7069e2759b5325532014b17460512b08eae6c69d93b4860228e403347a2e5",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/real-input02.json": "7b386057694615c5f3c43637c8b02e055d6f99f552de779969304699ac9af607",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/real01-to02.diff": "b77e562aa449e2923f75cb432f4357932606137c64dfa98eebf92c752efe7956",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/pure-input01.json": "8455c8106a3996ffb4f83aa41ca10b30d6af4118b9ead9a4d9cf12175eedde79",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/pure-input02.json": "8008839a224da43cbdaca0a607d43649dd41ce3b1d61c6c86380b475ca7c7124",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/pure01-to02.diff": "14592e78fcf084532b90697ec925cf9d1b5e9534ff874fa4a9beacd0bf2689ba",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/run-offline01.py": "7bdab2afef20e2775dda6d0bec698786fba5b8d31b66ca798295206cf905aed4"
+  },
+  "checks": {
+    "pure01": {
+      "result": "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/checks/pure01/result.json",
+      "result_sha256": "197bce7ae8fd08d857322a2b76465d56d9ccd5c4619c55fbc4862e588d71abe6",
+      "raw_sha256": "f5451c72b6d7559c1e3fd30851054069e2a8727fa954601eb1851f6e403f0566",
+      "exit": 1,
+      "actual_wait": true,
+      "seconds": 11.139
+    },
+    "pure02": {
+      "result": "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/checks/pure02/result.json",
+      "result_sha256": "a2e7d51e5c87865ccbd67beee043bbfc7e5ee7f37ec27ac7a24e7c48cf3dcfd8",
+      "raw_sha256": "1a7aac201fd50763655bc051dc0eb9a4e2e42017b7b4fdac018df56038ece2c3",
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 13.792
+    },
+    "compile-list01": {
+      "result": "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/checks/compile-list01/result.json",
+      "result_sha256": "c4b3de9c8c509f6c1efb09eff1886c9fa2c9930b0c24db4bf44771dcb0234ffc",
+      "raw_sha256": "5d8aa821cfba8d50df3e0a475d37ab387f04a1f818673651188db202c9b2c887",
+      "exit": 1,
+      "actual_wait": true,
+      "seconds": 3.46
+    },
+    "compile-list02": {
+      "result": "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/checks/compile-list02/result.json",
+      "result_sha256": "4df3e4dc64af415be46684fcec3b5306a4e6949603b136117f581f883effb780",
+      "raw_sha256": "1890bfc075309ead31864162aea6c105ac0b6e2882469f85d448b13c5ce23b5a",
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 8.038
+    },
+    "real-vet01": {
+      "result": "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/checks/real-vet01/result.json",
+      "result_sha256": "2bcd7db05149d54a1280e67f0f3951cba55692f076e0d57713c4fb060dbfef99",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 0.585
+    },
+    "real-gate01": {
+      "result": "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/checks/real-gate01/result.json",
+      "result_sha256": "bb69fc4e4d6ed3d9b077a7cf3489dee902bf764decdb7227c027bee60cadfcbd",
+      "raw_sha256": "327eea634a1d81aa53412ee7f1616fadd254b8b8aa5ae7ff0f0b5bc3f95382ac",
+      "exit": 0,
+      "actual_wait": true,
+      "seconds": 3.583
+    }
+  },
+  "no_active_commands": true,
+  "no_owned_real_resources": true
+}

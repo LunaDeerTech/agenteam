@@ -1,0 +1,17 @@
+# D07 管理邮件任务读口 input01 独立静审
+
+**生产/API五源 STATIC PASS；完整八源存在一项测试前提阻断，等待 input02 点核。** 仅只读审查，没有执行 Go 测试或任何真实资源，不把作者纯检查/编译通过冒充独立动态。
+
+固定 `3c79fd4069837c4cee0b1ed37e00480ea8f1909f`；作者 `/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/input01/manifest.json` SHA `5fd577ceffe8488d2ccb7bcddf317d1f431661d0d4048ba190bd7833a54c2b82`。八份 source 逐SHA匹配，api-stage01五源全字节相同；只读取固定 workspace 的已提交依赖，未读活动driver/gate。manifest的935依赖整体执行门禁留给冻结driver后独立审查，不冒称已核真实运行闭包。
+
+生产结论：
+- http.go 只新增两个精确 GET/集合查询分类；3s从dispatch预认证前开始，facet直接调用同样受限且继承更早parent。GET-only和Allow、旧查询/安全边界保持。
+- 旧operation/schema结构全部不变，仅增两path与两新闭合schema，九required+可省reason、显式nullable实际attempt字段，旧channel语义准确说明。
+- 一次httpRead/AcquireAll(account-mail SH+current User SH)/同Tx AuthorizeSystem(Read)保持原字节；单statement先materialized intents page(limit+1)，两个job唯一映射交叉核与exact current attempt左连，坏行不被过滤或回退旧attempt。
+- scanner严格ID/Instant/claim/version/reason/phase/mapping/fence/protocol/terminal/result/nullable；保留旧processing/unknown和cancelled/null合法形状，joined未终局不误造result。哨兵、Close后Err、ctx、签cursor、事务Unknown均零候选；独立cursor域与编码前后取消检查满足卡。
+
+三真实组的静态前提：formal HTTP创建/旧shape和cursor/权限；正式enqueue precommit gate与真实PG1s advisory等待、父75ms typed错误不强求errors.Is；当前role在观察到lock等待后改变；真实log/SMTP三kind、失败、unknown/retry_wait/下次claim与I/O join；没有SQL改mail phase/result/next_at。读取副作用计数仅作为隔离测试库范围事实。查询计划只3正式intents，不冒规模SLA。原fixture预算/正式操作及清理路径未发现第二项明确阻断；实际执行仍未发生。
+
+唯一阻断 P-MAIL-TEST-01：`tests/accountmail/mail_job_management_test.go:264` 将 `next_at - attempt.completed_at` 硬限10–11秒。接受代码 `delivery_finish.go:204` 先 UPDATE completed_at=clock_timestamp，随后loadSMTP，217再次SELECT databaseNow，219才加mailRetryDelay。该策略本身最大恰11秒，两个时刻间的SQL耗时另加，合法结果可能>11。它不是读口产品缺陷；不能修改next_at/重试策略/fixture限时迎合。建议按已有runtime_test.go:60的采样偏差纪律或实际schedule基点证明修窄测试，保留首版原件并以新input02冻结；主线程已批准只该断言返修。
+
+作者原 api-pure01 编译前提失败及后续pure/race/vet/build/tagged compile结果在其报告保留；本静审不重写这些历史。后续先审上述单测试delta+driver实际cwd/完整固定依赖和资源exactID/PIDstarttime/actualwait门禁，主线程另授作者真实窗口。独立动态在作者冻结和双清后按风险补充，不重复旧SMTP/TLS全矩阵。

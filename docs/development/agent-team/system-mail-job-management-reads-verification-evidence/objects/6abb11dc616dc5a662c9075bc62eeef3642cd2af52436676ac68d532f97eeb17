@@ -1,0 +1,11 @@
+--- run-independent01.py
++++ run-independent02.py
+@@ -18,7 +18,7 @@
+ ROOT = Path(__file__).resolve().parent
+ REPO = Path('/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/workspace')
+ CACHE = Path('/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/gocache')
+-OVERLAY = ROOT / 'real-overlay02.json'
++OVERLAY = ROOT / 'real-overlay03.json'
+ GIT_REPO = Path('/workspace/agenteam')
+ BASE = '3c79fd4069837c4cee0b1ed37e00480ea8f1909f'
+ GO = '/workspace/toolchains/go1.27.1/bin/go'

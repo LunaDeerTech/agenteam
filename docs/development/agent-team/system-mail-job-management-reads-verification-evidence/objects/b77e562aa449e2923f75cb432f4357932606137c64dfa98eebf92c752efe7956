@@ -1,0 +1,12 @@
+--- real-a01.go.txt
++++ real-a02.go.txt
+@@ -18,8 +18,7 @@
+ 	page, e := facade.ListMailJobManagement(ctxFor(t), admin, account.HTTPListRequest{Limit: 1})
+ 	if e != nil || len(page.Items) != 1 || page.Items[0].Status.JobID != invitation.JobID || page.Items[0].Status.Phase != "enqueue_pending" || page.Items[0].AttemptChannel != nil || page.Items[0].AttemptResult != nil { t.Fatal("formal initial management result") }
+ 	store.mu.Lock(); store.reads = map[foundation.Tx]*mailManagementReadRecord{}; store.mu.Unlock()
+-	conn, e := db.Connect(ctxFor(t), nil)
+-	if e != nil { t.Fatal("owned blocker connection") }
++	conn := db.Connect(t)
+ 	t.Cleanup(func() { ctx, cancel := context.WithTimeout(context.Background(), time.Second); defer cancel(); _ = conn.Close(ctx) })
+ 	lock, e := foundation.SystemConfigLock("account-mail")
+ 	if e != nil { t.Fatal("formal lock identity") }

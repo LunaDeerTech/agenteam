@@ -1,0 +1,6 @@
+# github.com/LunaDeerTech/agenteam/internal/central/account [github.com/LunaDeerTech/agenteam/internal/central/account.test]
+internal/central/account/http_mail_job_management_test.go:19:2: "github.com/LunaDeerTech/agenteam/internal/central/identity/contract" imported as identity and not used
+internal/central/account/http_mail_job_management_test.go:38:30: undefined: c.MailAttempt
+internal/central/account/http_mail_job_management_test.go:123:57: undefined: c.DeliverySentReason
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/account [build failed]
+FAIL

@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：System 邮件任务管理事实读口接受
+
+- [D07 管理读口 rev1.2](../work-items/d07-system-mail-job-management-reads.md)八路径获作者新三组／旧两组及独立风险PASS、主线程采纳，提交推送 `819aba1b8f764328f1e2e67b53c274fad0db877d`，远端一致。[正式报告与不可变证据](system-mail-job-management-reads-verification.md)固定input04、3c79fd4私有基线及935依赖／3501运行时指纹；卡技术§1–6保持原字节。
+- 两个GET专用闭合DTO区分kind、兼容channel和exact current attempt事实；同事务当前授权、预认证起最长3s、实际尾部join及失败零候选保持。旧DTO／cursor／写receipt不变，GET不授retry也不作命令确认，没有公共lookup、新索引或迁移。
+- 作者新三组按ReadBudget／HTTP／AttemptFacts未变输入组合、旧两HTTP回归通过。独立两纯组各两例＋真实A/B组合通过；原作者两真实红、backoff静态前提、编译及独立三事务／log映射前提错误保留，首轮未到边界不补写。最终独立B actual0/56.339s、9IDs72PID双清；七轮均实际wait、各自双absent／所属PID空，adopted wait为0，历史PPID1 Z不计回收。
+- 529逻辑／237去重原件只离线核字节和固定Git。真实PG1s不当作HTTP本地3s自然到期，三行EXPLAIN不称规模SLA；A是facade/PG，B无外部邮箱。SMTP配置／投递UI及完整D07/D27另验，D08–D28/E01未完成、E01未开始；Summary待决、Object/tools原停止及生产未绑定／ready503边界不变。
+
 ## 2026-10-06：System 账号安全 UI 完整卡接受
 
 - [账号安全 rev2](../work-items/d27-system-account-security-ui.md)27路径获独立最终组合PASS、主线程采纳，提交推送 `40c904c0dd88420fc621f40c0a737d243d514ec1`，远端一致。[正式报告与不可变证据](system-account-security-ui-verification.md)固定input06的26源／33dist指纹、debbb28基线1051件及最后README，卡技术§1–7原字节保持。

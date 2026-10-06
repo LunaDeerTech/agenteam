@@ -1,0 +1,34 @@
+# 邮件任务管理读口独立最终验收
+
+**PASS：固定 input04 八候选可交主线程整合。** 作者 input04 SHA `4e3bee7144106e9b183977a8306314f08732a18ef54111997fbfb9a3a7ada5c4`；私有实际工作区基于接受提交 `3c79fd4069837c4cee0b1ed37e00480ea8f1909f`，八候选及其余935输入、锁与运行时均被冻结。未改产品、作者fixture或Git；共享主树整合/提交由主线程完成。
+
+两个精确GET的封闭路由/管理DTO、exact current-attempt映射、单事务当前授权、扫描哨兵与失败零候选、预认证起3秒预算及原接口兼容，已先独立静审，再按风险组合纯/真实验证。旧MailJob和写资格/receipt语义没有被新读口替代，不接受SMTP UI或新增写操作。
+
+独立实际结果：
+
+| 代表 | 实际事实与原件 |
+| --- | --- |
+| HTTP预算与实际尾部 | `checks/pure02` 两例PASS，actual0/13.792s。原认证与facade读共享本地3s或更早150ms deadline；实际ctx到期后尾部屏障未放行时仍持operation/零响应，释放并join后安全503、auth1/tx3/单读/active0。 |
+| candidate/Close退役 | `checks/pure01` 中该组两例PASS：合法页在原rows.Close未结束时取消，以及坏exact fence的sentinel，均实际Close后零页/零cursor。该整轮另一个组失败仍保留为exit1。 |
+| A当前权限与原PG预算 | `runs/independent01` 的 `TestIndependentMailManagementCurrentPermission` 完整PASS3.05s。实际150ms父期限在154.411383ms返回typed NotCommitted/LockFailed/SQLSTATE57014及零候选；两个真实读在精确自有advisory锁等待时由正式Logout撤销Session，释放后list/detail均SessionRevoked，事务内当前授权执行、候选SQL0、零读取副作用、两个原调用实际join。 |
+| B真实attempt与重试 | `runs/independent02` 的 `TestIndependentMailManagementActualAttemptAndRetry` 完整PASS4.58s。真实SMTP暂停时actual smtp/null，丢accepted后unknown且原worker/attempt实际join；其后才正式unconfigure/manualretry。旧exact pointer/fence/unknown保持，源version按正式retry增加1，新周期无attempt时null、实际日志发送后sent；同原key返回子周期当前version，重复读和重放无新增DB或SMTP工作。 |
+
+A真实直调正式facade/PG；HTTP preauth传播由独立真实context纯handler及作者正式HTTP组补足，不称A运行了HTTP端到端。pure Store尾部不替代真实PG错误契约；原fixture DB锁1秒不冒充本地3秒自然到期。
+
+首轮 `independent01` 整轮actual wait exit1/55.476s：A通过，B在已完成新log子周期DTO后，私有SQL把DB `log`误断为公开 `backend_log`。原综合错误没有逐字段日志；静因来自固定 `RecoveryLogChannel="log"`、正式writer及scanner的公开映射，未反填旧现场。仅该条件改为正式常量；公开backend_log与ID/result/terminal/io_joined/后半same-key强断言完全保留。A源原字节复用，第二轮只运行B，不把第一轮改写为全绿。详见 `independent01-attribution.md` 与 `real-b01-to02.diff`。
+
+第二轮 `independent02` actual wait exit0/56.339s，9 exact IDs两次absent、72 owned PID/starttime两次空、0 adopted waits、monitor0/runtime空；第一轮相应9 IDs/75 PID双清。两轮原基线及8/935/3501运行时/私有输入均前后相同，无浏览器/Node或外部邮箱。历史PPID1 Z未触及，不声称全宿主回收。所有命令实际结束，唯一资源窗口已交回。
+
+- B raw `fe9d354d0f0dc84fbde11d2ad3ce7650a5425d694d3051420fa4c1ee4903dcd1`
+- B result `4ed3cf6420736e6948195e658a8ae1e54a464b331ea8c7e3532d54788e8ad929`
+- B cleanup `59d61fc1d3bf70aee7bf64ade6338f9479975dd6320bc5fb5a9bf588935a729a`
+- B command `4271dd4f33dff079152065492e7d10db2646dd3dee54a281183d1967e7beac7c`
+- B input前后同 `e9b82bfe50a0812fb2b7296064830178896a516d292ffbfcd1e75bb5ec1f638e`
+
+固定运行：`execution01.json` / `run-independent01.py` 的both包含A/B；`execution02.json` SHA `da0fd00eead7d1351e04f93ca152c76decf2a4f032034f2cd5a02a6ef5e3b9d9` / driver02 `4b2c5703618365e34c44f76fe6f92e36cbd68578dbc5ad345dc9d246573a0977` 只选B。actual command均为私有工作区 `sh scripts/test-security.sh -run '<exact selector>'`，Go1.27.1/race/count1/原6m及fixture期限、只读锁依赖和原MinIO SHA保持。只追加私有Go overlay，不复制全源码/依赖树。
+
+复用作者未变证据：新ReadBudget=`new-read01`、HTTP=`new-http02`、完整AttemptFacts=`new-attempt02`，旧两个HTTP回归=`old01`；全纯/race/vet/build、实际SQL计划和固定拓扑原件见作者 `author-stage-report.md`（`2af3123baed4dd8dfc9c3a06a4abfaa8a9bcf5f41503d59c6dae1dedf3792fe2`）及 `author-regression-addendum.md`（`f57e2281f458b3107139e9ccfff500b61647a7ef3b593c450f409150ac19f746`）。独立静审链位于 `/workspace/scratch/agenteam-mail-management-static-sf1itc_x`。作者8193cursor错误预期、Revoke已取消后worker应Busy的规格/测试前提错误、backoff两时钟前提及初始编译错误均保留；未将未到达后段倒填为已验。
+
+本方更早纯首红为误将完整HTTP三事务当一事务，修后安全计数实际证明；首离线编译红为私有Database.Connect签名错误。原源/命令/raw/退出均保留，修后仅受影响预算组或目标编译/发现/vet/gate重验，没有产品返修或放宽断言。
+
+限制：历史排序无新索引，三条正式intent的EXPLAIN不证明规模SLA；开始HTTP写出后的字节不承诺撤回。SMTP真实仅自有安全fixture和受限日志，未测外部邮箱/SMTP UI/生产SPA或Runtime。停止的Object/tools任务未触碰。最终八源/精确SHA见 `submission-8.sha256`，机器可复核原件索引见同名JSON报告。上述输入、两轮原件和本最终报告现永久冻结。

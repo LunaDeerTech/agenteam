@@ -1,0 +1,110 @@
+// Independent composition: authentication and read must share the original
+// request budget; real PostgreSQL mapping is deliberately outside this probe.
+type independentMailAuthStore struct {
+    *mailManagementStore
+    authEntered chan context.Context
+    authRelease <-chan struct{}
+}
+func (s *independentMailAuthStore) QueryRow(ctx context.Context, sql string, args ...any) postgres.Row {
+    if !strings.Contains(sql, "WHERE token_verifier=") { return s.mailManagementStore.QueryRow(ctx, sql, args...) }
+    return directoryScanFunc(func(dest ...any) error {
+        s.authCalls++
+        s.authEntered <- ctx
+        <-s.authRelease
+        if err := ctx.Err(); err != nil { return err }
+        *dest[0].(*string), *dest[1].(*string) = s.actor.Details().UserID, s.actor.Details().SessionID
+        return nil
+    })
+}
+func TestIndependentMailManagementBudgetAndActualJoin(t *testing.T) {
+    for _, detail := range []bool{false, true} {
+        t.Run(map[bool]string{false:"list-local",true:"detail-parent"}[detail], func(t *testing.T) {
+            f,s,st := mailManagementFacade(t)
+            s.row = mailManagementRow(t)
+            authRelease, tailRelease := make(chan struct{}), make(chan struct{})
+            authDone, tailDone := false, false
+            wrapped := &independentMailAuthStore{mailManagementStore:s, authEntered:make(chan context.Context,1), authRelease:authRelease}
+            authority,err := NewAuthority(wrapped,st.keys)
+            if err != nil { t.Fatal(err) }
+            st.store,st.deps.Authority = wrapped,authority
+            readEntered := make(chan context.Context,1)
+            expired,joined := make(chan struct{}),make(chan struct{})
+            hook := func(ctx context.Context) error {
+                readEntered <- ctx
+                <-ctx.Done()
+                close(expired)
+                <-tailRelease
+                return ctx.Err()
+            }
+            path := "/api/v1/system/mail-jobs/management"
+            duration := 10*time.Second
+            if detail { path = "/api/v1/system/mail-jobs/"+s.row[0].(string)+"/management"; duration=150*time.Millisecond; s.detailHook=hook } else { s.queryHook=hook }
+            parent,cancel := context.WithTimeout(context.Background(),duration)
+            parentDeadline,_ := parent.Deadline()
+            boundary,err := csrfNewBoundary("https://example.test")
+            if err != nil { t.Fatal(err) }
+            handler := (&accountHTTP{core:f.core,system:f,csrf:boundary}).httpHandler()
+            request := httptest.NewRequest("GET","https://example.test"+path,nil).WithContext(parent)
+            request.AddCookie(&http.Cookie{Name:boundary.sessionName, Value:base64.RawURLEncoding.EncodeToString(make([]byte,32))})
+            response := httptest.NewRecorder()
+            t.Cleanup(func(){
+                cancel()
+                if !authDone { close(authRelease) }
+                if !tailDone { close(tailRelease) }
+                select { case <-joined: case <-time.After(time.Second):t.Error("independent original HTTP call did not join") }
+            })
+            started := time.Now()
+            go func(){handler.ServeHTTP(response,request);close(joined)}()
+            var authCtx,readCtx context.Context
+            select { case authCtx= <-wrapped.authEntered: case <-time.After(time.Second):t.Fatal("authentication not entered") }
+            authDeadline,ok := authCtx.Deadline()
+            if !ok { t.Fatal("authentication deadline absent") }
+            if detail { if !authDeadline.Equal(parentDeadline) { t.Fatal("earlier parent was reset") } } else if authDeadline.Before(started.Add(3*time.Second)) || authDeadline.After(time.Now().Add(3*time.Second)) || !authDeadline.Before(parentDeadline) { t.Fatal("dispatch local deadline wrong") }
+            close(authRelease);authDone=true
+            select { case readCtx= <-readEntered: case <-time.After(time.Second):t.Fatal("authenticated read not entered") }
+            readDeadline,ok := readCtx.Deadline()
+            if !ok || !readDeadline.Equal(authDeadline) { t.Fatal("facade reset the preauthentication budget") }
+            select { case <-expired: case <-time.After(4*time.Second):t.Fatal("original read context did not expire") }
+            if readCtx.Err()!=context.DeadlineExceeded { t.Fatal("original context cause differs") }
+            st.mu.Lock();active:=len(st.operations);st.mu.Unlock()
+            if active!=1 { t.Fatal("read operation disappeared before actual tail") }
+            select { case <-joined:t.Fatal("HTTP returned before actual read tail");default: }
+            if response.Body.Len()!=0 { t.Fatal("candidate or error published before original tail") }
+            close(tailRelease);tailDone=true
+            select { case <-joined: case <-time.After(time.Second):t.Fatal("released original HTTP call did not return") }
+            if response.Code!=503 || strings.Contains(response.Body.String(),"items") || strings.Contains(response.Body.String(),"job_id") || strings.Contains(response.Body.String(),"deadline") || len(st.operations)!=0 || s.authCalls!=1 || s.txCalls!=1 || s.queryCalls+s.detailCalls!=1 { t.Fatal("failure did not stay safe and empty",response.Code) }
+            httpAssertSecurityHeaders(t,response)
+            t.Logf("detail=%t original authentication/read deadline shared; tail joined, elapsed=%s",detail,time.Since(started))
+        })
+    }
+}
+
+type independentMailCloseRows struct {
+    *invitationRows
+    entered chan struct{}
+    release <-chan struct{}
+}
+func (r *independentMailCloseRows) Close(){ close(r.entered); <-r.release; r.invitationRows.Close() }
+func TestIndependentMailManagementCandidateRetiresAfterClose(t *testing.T) {
+    for _, badSentinel := range []bool{false,true} {
+        t.Run(map[bool]string{false:"cancel-after-safe-page",true:"bad-exact-attempt-sentinel"}[badSentinel],func(t *testing.T){
+            ring,_,_ := testRings(t);facade:=&SystemHTTPFacade{pagination:ring}
+            first,second := mailManagementAttempt(t,"sent","log","sent"),mailManagementAttempt(t,"unknown","smtp","unknown")
+            if badSentinel { second[13]=int64(2) } // exact current fence must not be silently skipped
+            release,entered,joined:=make(chan struct{}),make(chan struct{}),make(chan struct{})
+            rows:=&independentMailCloseRows{invitationRows:&invitationRows{values:[][]any{first,second}},entered:entered,release:release}
+            ctx,cancel:=context.WithCancel(context.Background());released:=false
+            var result HTTPMailJobManagementList;var readError error
+            t.Cleanup(func(){cancel();if !released {close(release)};select{case <-joined:case <-time.After(time.Second):t.Error("scanner Close did not join")}})
+            go func(){result,readError=facade.httpScanMailJobManagementList(ctx,rows,1);close(joined)}()
+            select{case <-entered:case <-time.After(time.Second):t.Fatal("Close gate not reached")}
+            if rows.index!=2 || rows.closed!=0 {t.Fatal("bounded page/sentinel did not reach pending Close")}
+            if !badSentinel {cancel()}
+            select{case <-joined:t.Fatal("page published before actual Close");default:}
+            close(release);released=true
+            select{case <-joined:case <-time.After(time.Second):t.Fatal("released scanner did not return")}
+            if readError==nil || result.Items!=nil || result.NextCursor!="" || rows.closed!=1 {t.Fatal("late cancellation or invalid sentinel retained candidates")}
+            t.Logf("badSentinel=%t exact two rows; Close actually joined; zero page/cursor",badSentinel)
+        })
+    }
+}

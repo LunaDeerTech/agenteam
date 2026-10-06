@@ -1,0 +1,27 @@
+# SMTP management 独立准备
+
+**离线准备完成；两代表真实测试尚未运行，等待主线程移交资源窗口。** 只消费作者 input04 `4e3bee7144106e9b183977a8306314f08732a18ef54111997fbfb9a3a7ada5c4`、固定接受基线 `3c79fd4`。产品、作者工作区及原日志没有改写。
+
+独立 pure 两组已形成有界 PASS：
+
+- `checks/pure01` 的 candidate-retirement 组两例通过：rows.Close 实际阻塞期间不能发布已形成页，取消或坏 sentinel/fence 后实际 Close 再返回零候选。该轮另一 budget 组末断言因私有 HTTP 总事务数误期望1失败；正式 HTTP 链含鉴权、路由授权、facade三个事务。原raw只记录综合终态失败，未反填该轮实际计数。
+- `checks/pure02` 只重跑 budget 组；实际 exit0/13.792s。实测本地3s及更早150ms从认证到查询共享原deadline，真实ctx到期后尾部未放行期间operation仍1/零响应，放行后实际join、安全503、active0，auth1/tx3/单query或detail。raw `1a7aac201fd50763655bc051dc0eb9a4e2e42017b7b4fdac018df56038ece2c3`。纯Store不代表真实PG错误映射。
+
+两个真实代表只在私有Go overlay新增测试，正式服务与fixture原字节：
+
+- `TestIndependentMailManagementCurrentPermission`：原DB1s不变；150ms父deadline的实际锁错误/零候选；随后两个读在精确owned PG锁等待期间，由正式Logout撤销Session，再释放，要求当前权限拒绝、零候选/零读副作用及原调用实际join。没有直接更新权限表。
+- `TestIndependentMailManagementActualAttemptAndRetry`：真实SMTP greeting暂停、accepted丢响应，原worker实际join后才正式unconfigure/manualretry；旧exact attempt未知结果不漂移，新周期真实backend_log发送，原same-key仍返回子周期当前version，GET不产生DB或SMTP副作用。只输出布尔/计数，不输出材料或其摘要。
+
+`checks/compile-list02` 实际exit0/8.038s，-race/readonly/integration仅编译并精确发现各1顶层；`real-vet01` exit0/.585s。首 `compile-list01` 因私有代码把 `Database.Connect(t)`误用为Descriptor签名而编译退出1，旧源/raw永久保留；只私有A调用修正，B原字节。
+
+`execution01.json` SHA `ff82ef52d2b424b122c588054b0aee6f7a40246cd21af29bc78de12e2de3de37`；`run-independent01.py` SHA `6da84adcfc33d88742ebdf4acbebeefef622ca4b45d1beb5e7e1fdd78c9040ef`；差量 `driver-author-to-independent01.diff`。固定实际cwd是作者停写的私有 `workspace`，不消费活动main/Account组合。前后核8候选/935接受依赖、相同3501运行时文件及31锁模块、私有5文件/overlay；唯一变化是两个精确selector与私有overlay/证据根。缓存复用原任务GOCACHE，TMP、运行资源与记录属于本任务。保留原-race/-count=1/-timeout=6m和fixture期限，不启动浏览器。原subreaper/actualwait/owned PID-starttime双扫、exact ID/nonce拓扑、历史Z不触等清理逻辑未减少。
+
+`checks/real-gate01` actual exit0，输入发现和门禁合计3.583s；8/935/3501/5均匹配，无missing/unexpected/mismatch，未启动资源。门禁发现包集合与作者完全相同；私有新增测试没有引入新库或工具。
+
+待授权唯一实际命令：
+
+```sh
+python3 /workspace/scratch/agenteam-mail-management-independent-SU2QTntj/run-independent01.py --name independent01 --group both --frozen /workspace/scratch/agenteam-mail-management-independent-SU2QTntj/execution01.json --modcache /workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache --execute-authorized
+```
+
+two tops 横跨 account/accountmail，合用一次原test-security fixture；预期9 exact资源（PG/安全网络/MinIO原7 + 自有SMTP2）。原失败、静态审查与作者完整新3/旧2保留复用，不机械重跑。所有离线命令实际结束，私有源/manifest/driver和本准备记录现冻结；当前没有本任务真实资源。

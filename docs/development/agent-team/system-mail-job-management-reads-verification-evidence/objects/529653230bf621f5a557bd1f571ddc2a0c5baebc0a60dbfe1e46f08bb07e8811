@@ -1,0 +1,18 @@
+{
+  "product_manifest": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/input04/manifest.json",
+  "product_manifest_sha256": "4e3bee7144106e9b183977a8306314f08732a18ef54111997fbfb9a3a7ada5c4",
+  "workspace": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/workspace",
+  "private": {
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/real-a02.go.txt": "74042d4f87460c8a0f4bb823f95370f122d9f54b82f671e6534054fbcf1e34e5",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/real-b02.go.txt": "3a670cf64e400a6835a913e654da3b60d10e7afd307718bb0e94eba79aec53e9",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/real-overlay03.json": "3316a041c39414f6abae3364e851bd9065da773e95ccfaec77ac1f00bb01f0c5",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/overlay/mail_job_management_query_independent02.go": "fa8812b45de19c20f12cfa1c06902969250f5308ecaab6bd12f9da6907b26772",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/overlay/mail_job_management_independent02.go": "e9e55f5dc3c3cd111ed794aa9dbaf829b134e9ba2e2d697bddf85f0dc286a7cd"
+  },
+  "overlay": "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/real-overlay03.json",
+  "selector": "^TestIndependentMailManagementActualAttemptAndRetry$",
+  "packages": [
+    "./tests/accountmail"
+  ],
+  "no_real_resources": true
+}

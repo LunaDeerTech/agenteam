@@ -1,0 +1,20 @@
+--- input01/tests/accountmail/mail_job_management_test.go
++++ input02/tests/accountmail/mail_job_management_test.go
+@@ -260,10 +260,13 @@
+ 			t.Fatal("nonterminal retry_wait admitted manual retry", e)
+ 		}
+ 		var previous string
+-		var delay float64
+-		if e = f.store.QueryRow(ctxFor(t), `SELECT a.id::text,extract(epoch FROM (j.next_at-a.completed_at))::float8 FROM agenteam_account.mail_jobs j JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id WHERE j.id=$1`, job.String()).Scan(&previous, &delay); e != nil || delay < 10 || delay > 11 {
+-			t.Fatal("formal first backoff delay", delay, e)
+-		}
++		var delay, observedAfterCompletion float64
++		// Finish samples its schedule clock after completed_at and loadSMTP.
++		// This later DB observation bounds that sampling gap without changing next_at.
++		if e = f.store.QueryRow(ctxFor(t), `SELECT a.id::text,extract(epoch FROM (j.next_at-a.completed_at))::float8,extract(epoch FROM (clock_timestamp()-a.completed_at))::float8 FROM agenteam_account.mail_jobs j JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id WHERE j.id=$1`, job.String()).Scan(&previous, &delay, &observedAfterCompletion); e != nil || observedAfterCompletion < 0 || delay < 10 || delay > 11+observedAfterCompletion {
++			t.Fatal("formal first backoff delay and DB observation gap", delay, observedAfterCompletion, e)
++		}
++		t.Logf("formal first backoff seconds=%f observed_after_completion_seconds=%f", delay, observedAfterCompletion)
+ 		configure(t, f, paused, "none", false)
+ 		// Wait against the database clock; never rewrite next_at or shorten policy.
+ 		dueCtx, stopDue := context.WithTimeout(ctxFor(t), 12*time.Second)

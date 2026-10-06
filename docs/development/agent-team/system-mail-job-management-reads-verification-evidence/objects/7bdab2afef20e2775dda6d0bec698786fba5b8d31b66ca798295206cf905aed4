@@ -1,0 +1,43 @@
+from pathlib import Path
+import os,sys,json,hashlib,subprocess,time,datetime,ctypes,signal
+ROOT=Path(__file__).resolve().parent
+manifest_path=ROOT/sys.argv[1];name=sys.argv[2];mode=sys.argv[3]
+assert mode in ('pure','compile-list','vet') and '/' not in name
+v=json.loads(manifest_path.read_text());product_path=Path(v['product_manifest']);product=json.loads(product_path.read_text());repo=Path(v['workspace'])
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+assert sha(product_path)==v['product_manifest_sha256']
+expected=dict(product['dependencies'],**product['files'])
+def source():
+ values={n:sha(repo/n) for n in expected};private={n:sha(Path(n)) for n in v['private']}
+ if values!=expected or private!=v['private']:raise RuntimeError('fixed input changed')
+ return {'product_manifest_sha256':sha(product_path),'actual_fixed_files':values,'private':private,'execution_sha256':sha(manifest_path)}
+before=source();log=ROOT/'checks'/name;log.mkdir(parents=True,exist_ok=False)
+go='/workspace/toolchains/go1.27.1/bin/go'
+argv=[go,'test','-race','-count=1','-timeout=6m']
+if mode=='pure':argv+=['-run',v['selector'],'-v',v['package']]
+elif mode=='compile-list':argv+=['-tags=integration','-run','^$','-list',v['selector']]+v['packages']
+else:argv=[go,'vet','-tags=integration']+v['packages']
+env=os.environ.copy();overrides={'GOTOOLCHAIN':'local','GOENV':'off','GOWORK':'off','GOPROXY':'off','GOSUMDB':'off','GOMODCACHE':product['modcache'],'GOCACHE':'/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/gocache','TMPDIR':str(ROOT/'tmp'),'CGO_ENABLED':'1','GOFLAGS':'-mod=readonly -buildvcs=false -p=1 -overlay='+v['overlay']}
+env.update(overrides);meta={'argv':argv,'cwd':str(repo),'env_overrides':overrides,'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'before':before,'no_real_resources':True}
+(log/'command.json').write_text(json.dumps(meta,indent=2)+'\n');(log/'driver.py.txt').write_bytes(Path(__file__).read_bytes())
+assert ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0)==0
+start=time.monotonic()
+with (log/'raw.log').open('wb') as out:
+ p=subprocess.Popen(argv,cwd=repo,env=env,stdin=subprocess.DEVNULL,stdout=out,stderr=subprocess.STDOUT,start_new_session=True)
+ print(json.dumps({'name':name,'pid':p.pid,'run':str(log)}),flush=True)
+ try:p.wait(timeout=360)
+ except subprocess.TimeoutExpired:
+  meta['outer_timeout']=True;os.killpg(p.pid,signal.SIGTERM)
+  try:p.wait(timeout=5)
+  except subprocess.TimeoutExpired:os.killpg(p.pid,signal.SIGKILL);p.wait()
+waits=[]
+while True:
+ try:pid,status=os.waitpid(-1,os.WNOHANG)
+ except ChildProcessError:break
+ if not pid:break
+ waits.append({'pid':pid,'status':status,'actual_wait':True})
+after=source();meta.update({'exit':p.returncode,'pid':p.pid,'seconds':round(time.monotonic()-start,3),'actual_wait':True,'adopted_waits':waits,'after':after,'inputs_unchanged':before==after,'raw_sha256':sha(log/'raw.log'),'ended_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()})
+(log/'result.json').write_text(json.dumps(meta,indent=2)+'\n')
+print(json.dumps({k:meta[k] for k in ['exit','seconds','actual_wait','inputs_unchanged','raw_sha256']}),flush=True)
+print((log/'raw.log').read_text(),end='')
+sys.exit(p.returncode or (0 if meta['inputs_unchanged'] else 1))

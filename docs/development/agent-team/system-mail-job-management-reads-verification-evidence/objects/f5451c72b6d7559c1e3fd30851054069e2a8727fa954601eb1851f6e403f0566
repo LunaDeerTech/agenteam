@@ -1,0 +1,19 @@
+=== RUN   TestIndependentMailManagementBudgetAndActualJoin
+=== RUN   TestIndependentMailManagementBudgetAndActualJoin/list-local
+    http_mail_job_management_test.go:952: failure did not stay safe and empty 503
+=== RUN   TestIndependentMailManagementBudgetAndActualJoin/detail-parent
+    http_mail_job_management_test.go:952: failure did not stay safe and empty 503
+--- FAIL: TestIndependentMailManagementBudgetAndActualJoin (3.16s)
+    --- FAIL: TestIndependentMailManagementBudgetAndActualJoin/list-local (3.00s)
+    --- FAIL: TestIndependentMailManagementBudgetAndActualJoin/detail-parent (0.15s)
+=== RUN   TestIndependentMailManagementCandidateRetiresAfterClose
+=== RUN   TestIndependentMailManagementCandidateRetiresAfterClose/cancel-after-safe-page
+    http_mail_job_management_test.go:1020: badSentinel=false exact two rows; Close actually joined; zero page/cursor
+=== RUN   TestIndependentMailManagementCandidateRetiresAfterClose/bad-exact-attempt-sentinel
+    http_mail_job_management_test.go:1020: badSentinel=true exact two rows; Close actually joined; zero page/cursor
+--- PASS: TestIndependentMailManagementCandidateRetiresAfterClose (0.00s)
+    --- PASS: TestIndependentMailManagementCandidateRetiresAfterClose/cancel-after-safe-page (0.00s)
+    --- PASS: TestIndependentMailManagementCandidateRetiresAfterClose/bad-exact-attempt-sentinel (0.00s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/internal/central/account	3.176s
+FAIL

@@ -1,0 +1,12 @@
+=== RUN   TestIndependentMailManagementBudgetAndActualJoin
+=== RUN   TestIndependentMailManagementBudgetAndActualJoin/list-local
+    http_mail_job_management_test.go:951: safe terminal facts: status=503 auth=1 tx=3 query=1 detail=0 active=0
+    http_mail_job_management_test.go:956: detail=false original authentication/read deadline shared; tail joined, elapsed=3.002493932s
+=== RUN   TestIndependentMailManagementBudgetAndActualJoin/detail-parent
+    http_mail_job_management_test.go:951: safe terminal facts: status=503 auth=1 tx=3 query=0 detail=1 active=0
+    http_mail_job_management_test.go:956: detail=true original authentication/read deadline shared; tail joined, elapsed=150.263551ms
+--- PASS: TestIndependentMailManagementBudgetAndActualJoin (3.16s)
+    --- PASS: TestIndependentMailManagementBudgetAndActualJoin/list-local (3.01s)
+    --- PASS: TestIndependentMailManagementBudgetAndActualJoin/detail-parent (0.15s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/account	4.179s

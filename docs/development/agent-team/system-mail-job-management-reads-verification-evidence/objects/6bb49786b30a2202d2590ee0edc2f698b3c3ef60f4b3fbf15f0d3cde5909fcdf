@@ -1,0 +1,84 @@
+
+func TestIndependentMailManagementActualAttemptAndRetry(t *testing.T) {
+	network := startSMTP(t)
+	f := newAccount(t)
+	facade := invitationMailFacade(t,f)
+	endpoint,e:=network.Create(ctxFor(t),smtpfixture.Scenario{Mode:"none",PauseStage:"greeting",CloseStage:"accepted"})
+	if e!=nil { t.Fatal("owned SMTP endpoint") }
+	configure(t,f,endpoint,"none",false)
+	setRetryCount(t,f,0)
+	m:=composeMail(t,f,network,uint16(endpoint.Port))
+	invitation:=createMailInvitation(t,f)
+	counts:=func() [6]int64 {
+		t.Helper(); var n [6]int64
+		if err:=f.store.QueryRow(ctxFor(t),`SELECT (SELECT count(*) FROM agenteam_account.delivery_intents),(SELECT count(*) FROM agenteam_account.mail_jobs),(SELECT count(*) FROM agenteam_account.mail_attempts),(SELECT count(*) FROM agenteam_outbox.events),(SELECT count(*) FROM agenteam_audit.audit_records),(SELECT count(*) FROM agenteam_account.commands)`).Scan(&n[0],&n[1],&n[2],&n[3],&n[4],&n[5]);err!=nil { t.Fatal("safe DB counts") }; return n
+	}
+	smtpCounts:=func() [4]int {
+		t.Helper(); state,err:=network.State(ctxFor(t),endpoint.ID);if err!=nil { t.Fatal("safe SMTP counters") };return [4]int{state.Connections,state.Auth,state.Mail,state.Messages}
+	}
+	read:=func(job c.JobID) account.HTTPMailJobManagement {
+		t.Helper(); item,err:=facade.GetMailJobManagement(ctxFor(t),f.admin,job);if err!=nil { t.Fatal("formal management detail") }
+		page,err:=facade.ListMailJobManagement(ctxFor(t),f.admin,account.HTTPListRequest{Limit:100});if err!=nil { t.Fatal("formal management list") }
+		matches:=0;for _,candidate:=range page.Items { if candidate.Status.JobID==job { matches++;if !reflect.DeepEqual(candidate,item) { t.Fatal("stable list/detail differ") } } }
+		if matches!=1||item.Status.JobID!=job||item.Kind!=c.InvitationDelivery { t.Fatal("exact invitation projection") }
+		return item
+	}
+	assertShape:=func(item account.HTTPMailJobManagement,phase,channel,result string,attempts int64) {
+		t.Helper();if item.Status.Phase!=phase||item.Channel!=channel||int64(item.Status.Attempts)!=attempts { t.Fatal("phase/summary/attempt count mismatch") }
+		if attempts==0 { if item.AttemptChannel!=nil||item.AttemptResult!=nil { t.Fatal("unattempted work invented actual facts") };return }
+		if item.AttemptChannel==nil||*item.AttemptChannel!=channel { t.Fatal("exact actual channel mismatch") }
+		if result=="" { if item.AttemptResult!=nil { t.Fatal("active attempt invented result") } } else if item.AttemptResult==nil||string(*item.AttemptResult)!=result { t.Fatal("exact actual outcome mismatch") }
+	}
+	readOnly:=func(jobs ...c.JobID) {
+		t.Helper();before,wire:=counts(),smtpCounts();for range 2 { for _,job:=range jobs { read(job) } };if counts()!=before||smtpCounts()!=wire { t.Fatal("management reads caused DB or outbound side effects") }
+	}
+	type attempt struct { id,channel,result string;exact,terminal,joined bool }
+	exactAttempt:=func(job c.JobID) attempt {
+		t.Helper();var a attempt
+		if err:=f.store.QueryRow(ctxFor(t),`SELECT a.id::text,a.channel,coalesce(a.result,''),(a.id=j.current_attempt_id AND a.job_id=j.id AND a.fence=j.fence),a.terminal,a.io_joined FROM agenteam_account.mail_jobs j JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id WHERE j.id=$1`,job.String()).Scan(&a.id,&a.channel,&a.result,&a.exact,&a.terminal,&a.joined);err!=nil||!a.exact { t.Fatal("exact attempt pointer/fence read") };return a
+	}
+	assertShape(read(invitation.JobID),"pending","smtp","",0)
+	workerCtx,cancel:=context.WithTimeout(context.Background(),15*time.Second)
+	joined:=make(chan struct{});var workerError error
+	go func(){workerError=m.worker.RunJob(workerCtx,invitation.JobID);close(joined)}()
+	t.Cleanup(func(){cancel();cleanup,stop:=context.WithTimeout(context.Background(),time.Second);_ = network.Release(cleanup,endpoint.ID);stop();select{case <-joined:case <-time.After(time.Second):t.Error("original SMTP owner did not actually join")}})
+	waitSMTPPhase(t,network,endpoint,"greeting")
+	active:=read(invitation.JobID)
+	if active.Status.Phase!="claimed"&&active.Status.Phase!="sending" { t.Fatal("paused wire is not active work") }
+	assertShape(active,active.Status.Phase,"smtp","",1)
+	a:=exactAttempt(invitation.JobID)
+	if a.channel!="smtp"||a.result!=""||a.terminal||a.joined { t.Fatal("paused attempt prematurely terminal or joined") }
+	readOnly(invitation.JobID)
+	select{case <-joined:t.Fatal("paused owner already ended");default:}
+	if e=network.Release(ctxFor(t),endpoint.ID);e!=nil { t.Fatal("release real SMTP gate") }
+	select{case <-joined:case <-time.After(5*time.Second):t.Fatal("released SMTP owner did not join")}
+	if workerError==nil||!m.registry.Joined() { t.Fatal("lost accepted response or original actual join missing") }
+	unknown:=read(invitation.JobID);assertShape(unknown,"unknown","smtp","unknown",1)
+	u:=exactAttempt(invitation.JobID)
+	if u.id!=a.id||u.channel!="smtp"||u.result!="unknown"||!u.terminal||!u.joined { t.Fatal("unknown does not retain exact joined attempt") }
+	if smtpCounts()[3]!=1 { t.Fatal("lost acceptance did not record one actual message") }
+	readOnly(invitation.JobID)
+	// Only after the original actual join change current configuration formally.
+	unconfigure(t,f)
+	if !reflect.DeepEqual(read(invitation.JobID),unknown)||exactAttempt(invitation.JobID)!=u { t.Fatal("current config rewrote historical actual SMTP facts") }
+	q:=retryRequest(t,f,invitation.JobID)
+	next,err:=f.service.RetryMailJob(ctxFor(t),q)
+	if err!=nil||next.JobID==invitation.JobID||next.Version!=1 { t.Fatal("formal retry did not create one fresh cycle") }
+	assertShape(read(next.JobID),"enqueue_pending","backend_log","",0)
+	source:=read(invitation.JobID);assertShape(source,"unknown","smtp","unknown",1)
+	if source.Status.Version!=unknown.Status.Version+1||exactAttempt(invitation.JobID)!=u { t.Fatal("retry modified source attempt or wrong source version") }
+	before:=counts();wire:=smtpCounts()
+	replayed,err:=f.service.RetryMailJob(ctxFor(t),q)
+	if err!=nil||replayed!=next||counts()!=before||smtpCounts()!=wire { t.Fatal("same original retry changed receipt or side effects") }
+	readOnly(invitation.JobID,next.JobID)
+	if _,e=f.service.ReconcileDeliveryIntents(ctxFor(t));e!=nil { t.Fatal("formal child enqueue") }
+	if e=m.worker.RunJob(ctxFor(t),next.JobID);e!=nil||!m.registry.Joined() { t.Fatal("unconfigured child log worker did not actually join") }
+	completed:=read(next.JobID);assertShape(completed,"sent","backend_log","sent",1)
+	child:=exactAttempt(next.JobID)
+	if child.id==u.id||child.channel!="backend_log"||child.result!="sent"||!child.terminal||!child.joined { t.Fatal("new cycle did not retain exact actual log attempt") }
+	if smtpCounts()!=wire||!reflect.DeepEqual(read(invitation.JobID),source)||exactAttempt(invitation.JobID)!=u { t.Fatal("log cycle changed source history or sent SMTP") }
+	before=counts();replayed,err=f.service.RetryMailJob(ctxFor(t),q)
+	if err!=nil||replayed.JobID!=next.JobID||replayed.Version!=completed.Status.Version||replayed.Version<=1||counts()!=before||smtpCounts()!=wire { t.Fatal("original retry did not return child current version without side effects") }
+	readOnly(invitation.JobID,next.JobID)
+	t.Log("safe attempt facts: paused_actual_smtp_null=true original_actual_join=true one_accepted_unknown=true old_exact_attempt_preserved=true formal_unconfigure=true new_actual_log_sent=true same_key_current_child=true read_side_effects=0")
+}

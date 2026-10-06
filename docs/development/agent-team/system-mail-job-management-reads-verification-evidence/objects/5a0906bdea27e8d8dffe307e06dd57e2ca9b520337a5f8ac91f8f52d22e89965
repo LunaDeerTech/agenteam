@@ -1,0 +1,211 @@
+//go:build integration
+
+package account_test
+
+import (
+	"net/url"
+	"reflect"
+	"strconv"
+	"strings"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+)
+
+func mailManagementHTTPShape(t *testing.T, item map[string]any) {
+	t.Helper()
+	allowed := map[string]bool{"job_id": true, "kind": true, "phase": true, "attempts": true, "version": true, "created_at": true, "channel": true, "attempt_channel": true, "attempt_result": true, "reason": true}
+	for key := range item {
+		if !allowed[key] {
+			t.Fatal("unsafe management field", key)
+		}
+	}
+	for key := range allowed {
+		if key != "reason" {
+			if _, ok := item[key]; !ok {
+				t.Fatal("missing required management field", key)
+			}
+		}
+	}
+	if len(item) != 9 && len(item) != 10 {
+		t.Fatal("management field count")
+	}
+	if _, e := foundation.ParseID[struct{}](httpString(t, item, "job_id")); e != nil {
+		t.Fatal("noncanonical job ID")
+	}
+	at, e := foundation.ParseInstant(httpString(t, item, "created_at"))
+	if e != nil || at.String() != item["created_at"] {
+		t.Fatal("noncanonical intent creation time")
+	}
+	attempts, e := strconv.ParseInt(httpString(t, item, "attempts"), 10, 64)
+	if e != nil || attempts < 0 || attempts > 6 || strconv.FormatInt(attempts, 10) != item["attempts"] {
+		t.Fatal("invalid claim count")
+	}
+	version, e := strconv.ParseInt(httpString(t, item, "version"), 10, 64)
+	if e != nil || version < 1 || strconv.FormatInt(version, 10) != item["version"] {
+		t.Fatal("invalid current version")
+	}
+	if item["kind"] != "invitation" && item["kind"] != "password_reset" && item["kind"] != "test" {
+		t.Fatal("invalid intent kind")
+	}
+	for _, key := range []string{"channel", "attempt_channel"} {
+		if item[key] != "smtp" && item[key] != "backend_log" && (key != "attempt_channel" || item[key] != nil) {
+			t.Fatal("invalid channel", key)
+		}
+	}
+	if item["attempt_result"] != nil && item["attempt_result"] != "sent" && item["attempt_result"] != "failed" && item["attempt_result"] != "unknown" && item["attempt_result"] != "cancelled" {
+		t.Fatal("invalid current result")
+	}
+}
+func TestAccountHTTPMailJobManagement(t *testing.T) {
+	f := newHTTPFixture(t)
+	admin := f.admin()
+	const path = "/api/v1/system/mail-jobs/management"
+	empty := admin.request("GET", path, nil, "", "").want(t, 200).object(t)
+	if len(empty) != 1 || len(httpItems(t, empty)) != 0 {
+		t.Fatal("empty management list shape")
+	}
+	admin.request("GET", "/api/v1/system/mail-jobs/"+id[struct{}](t).String()+"/management", nil, "", "").problem(t, 404, "NOT_FOUND")
+	member := f.invite(admin, "management-member@example.test", "management-member")
+	var receipts []map[string]any
+	for _, email := range []string{"management-one@example.test", "management-two@example.test"} {
+		receipt := admin.request("POST", "/api/v1/system/invitations", map[string]any{"email": email}, id[struct{}](t).String(), admin.csrf).want(t, 201).object(t)
+		receipts = append(receipts, receipt)
+		admin.waitMail(httpString(t, receipt, "job_id"), "sent")
+	}
+	conn := f.db.Connect(t)
+	rows, e := conn.Query(ctxFor(t), `SELECT job_id::text,created_at FROM agenteam_account.delivery_intents ORDER BY created_at DESC,job_id DESC`)
+	if e != nil {
+		t.Fatal(e)
+	}
+	var expected []string
+	created := map[string]string{}
+	for rows.Next() {
+		var job string
+		var at time.Time
+		if e = rows.Scan(&job, &at); e != nil {
+			rows.Close()
+			t.Fatal(e)
+		}
+		instant, e := foundation.NewInstant(at)
+		if e != nil {
+			rows.Close()
+			t.Fatal(e)
+		}
+		expected = append(expected, job)
+		created[job] = instant.String()
+	}
+	rows.Close()
+	if rows.Err() != nil {
+		t.Fatal(rows.Err())
+	}
+	if len(expected) != 3 {
+		t.Fatal("formal HTTP setup did not create three intents")
+	}
+	// The redeemed member's delivery is also retained; GET does not filter history.
+	for _, job := range expected {
+		admin.waitMail(job, "sent")
+	}
+	var seen []string
+	cursor := ""
+	firstCursor := ""
+	for n := 0; ; n++ {
+		if n >= len(expected)+1 {
+			t.Fatal("pagination did not terminate")
+		}
+		next := path + "?limit=1"
+		if cursor != "" {
+			next += "&cursor=" + url.QueryEscape(cursor)
+		}
+		page := admin.request("GET", next, nil, "", "").want(t, 200).object(t)
+		items := httpItems(t, page)
+		if len(items) != 1 {
+			t.Fatal("limit1 lost an intent")
+		}
+		item := items[0].(map[string]any)
+		mailManagementHTTPShape(t, item)
+		job := httpString(t, item, "job_id")
+		if item["created_at"] != created[job] || item["kind"] != "invitation" || item["phase"] != "sent" || item["attempt_channel"] != "backend_log" || item["attempt_result"] != "sent" {
+			t.Fatal("management facts differ from formal log delivery")
+		}
+		detail := admin.request("GET", "/api/v1/system/mail-jobs/"+job+"/management", nil, "", "").want(t, 200).object(t)
+		if !reflect.DeepEqual(item, detail) {
+			t.Fatal("stable list/detail mismatch")
+		}
+		old := admin.request("GET", "/api/v1/system/mail-jobs/"+job, nil, "", "").want(t, 200).object(t)
+		if len(old) != 7 {
+			t.Fatal("legacy sent MailJob field count changed")
+		}
+		for _, key := range []string{"job_id", "phase", "attempts", "version", "reason", "created_at", "channel"} {
+			if old[key] != item[key] {
+				t.Fatal("legacy compatibility value changed", key)
+			}
+		}
+		seen = append(seen, job)
+		raw, more := page["next_cursor"]
+		if !more {
+			if len(page) != 1 {
+				t.Fatal("extra empty-page field")
+			}
+			break
+		}
+		cursor, _ = raw.(string)
+		if cursor == "" || len(page) != 2 {
+			t.Fatal("cursor omitted/nullable shape")
+		}
+		if firstCursor == "" {
+			firstCursor = cursor
+		}
+	}
+	if !reflect.DeepEqual(expected, seen) {
+		t.Fatal("intent creation order lost")
+	}
+	oldPage := admin.request("GET", "/api/v1/system/mail-jobs?limit=1", nil, "", "").want(t, 200).object(t)
+	oldCursor := httpString(t, oldPage, "next_cursor")
+	for _, bad := range []struct{ query, code string }{
+		{"limit=0", "INVALID_ARGUMENT"}, {"limit=101", "INVALID_ARGUMENT"}, {"limit=01", "INVALID_ARGUMENT"}, {"limit=", "INVALID_ARGUMENT"},
+		{"limit=1&limit=2", "INVALID_ARGUMENT"}, {"cursor=a&cursor=b", "INVALID_ARGUMENT"}, {"cursor=", "INVALID_ARGUMENT"}, {"filter=all", "INVALID_ARGUMENT"},
+		{"cursor=" + strings.Repeat("x", 8193), "CURSOR_INVALID"}, {"cursor=bad", "CURSOR_INVALID"}, {"cursor=" + url.QueryEscape(firstCursor+"x"), "CURSOR_INVALID"}, {"cursor=" + url.QueryEscape(oldCursor), "CURSOR_INVALID"},
+	} {
+		admin.request("GET", path+"?"+bad.query, nil, "", "").problem(t, 400, bad.code)
+	}
+	admin.request("GET", "/api/v1/system/mail-jobs?cursor="+url.QueryEscape(firstCursor), nil, "", "").problem(t, 400, "CURSOR_INVALID")
+	detailPath := "/api/v1/system/mail-jobs/" + expected[0] + "/management"
+	admin.request("GET", "/api/v1/system/mail-jobs/not-an-id/management", nil, "", "").problem(t, 400, "INVALID_ARGUMENT")
+	for _, suffix := range []string{"?", "?limit=1", "?cursor=x"} {
+		admin.request("GET", detailPath+suffix, nil, "", "").problem(t, 400, "INVALID_ARGUMENT")
+	}
+	for _, endpoint := range []string{path, detailPath} {
+		admin.request("GET", endpoint, map[string]any{}, "", "").problem(t, 400, "INVALID_ARGUMENT")
+		for _, method := range []string{"HEAD", "POST", "PUT", "DELETE", "OPTIONS"} {
+			r := admin.request(method, endpoint, nil, "", "").want(t, 405)
+			if r.headers.Get("Allow") != "GET" || method == "HEAD" && len(r.data) != 0 {
+				t.Fatal("management GET-only boundary", method)
+			}
+		}
+		member.request("GET", endpoint, nil, "", "").problem(t, 403, "FORBIDDEN")
+		f.browser().request("GET", endpoint, nil, "", "").problem(t, 401, "UNAUTHENTICATED")
+	}
+	if r := admin.request("HEAD", "/api/v1/system/mail-jobs", nil, "", "").want(t, 405); r.headers.Get("Allow") != "GET" {
+		t.Fatal("legacy GET-only behavior changed")
+	}
+	// Revoke the link through the original write route; safe job history survives.
+	receipt := receipts[0]
+	admin.request("POST", "/api/v1/system/invitations/"+httpString(t, receipt, "id")+"/revoke", map[string]any{"version": receipt["version"]}, id[struct{}](t).String(), admin.csrf).want(t, 204)
+	source := admin.request("GET", "/api/v1/system/mail-jobs/"+httpString(t, receipt, "job_id")+"/management", nil, "", "").want(t, 200).object(t)
+	admin.request("POST", "/api/v1/system/mail-jobs/"+httpString(t, receipt, "job_id")+"/retry", map[string]any{"version": source["version"]}, id[struct{}](t).String(), admin.csrf).problem(t, 410, "RESOURCE_DELETED")
+	revoked := admin.cookie("agenteam_local_session")
+	admin.request("POST", "/api/v1/sessions/logout", map[string]any{}, id[struct{}](t).String(), admin.csrf).want(t, 204)
+	for _, endpoint := range []string{path, detailPath} {
+		admin.setCookie("agenteam_local_session", revoked)
+		r := admin.request("GET", endpoint, nil, "", "")
+		r.problem(t, 401, "SESSION_REVOKED")
+		for _, key := range []string{"items", "next_cursor", "job_id", "attempt_channel"} {
+			if _, ok := r.object(t)[key]; ok {
+				t.Fatal("denial leaked candidate", key)
+			}
+		}
+	}
+	t.Log("formal HTTP: empty/page/detail/immutable intent times, old DTO and cursor isolation, admin/member/revoked Session, body/query/method/Allow all checked")
+}

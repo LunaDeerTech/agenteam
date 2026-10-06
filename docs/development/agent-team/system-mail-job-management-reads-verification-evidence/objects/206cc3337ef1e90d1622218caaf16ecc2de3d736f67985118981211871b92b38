@@ -1,0 +1,86 @@
+
+// Independent authority scenario: only formal Account mutations, with native
+// PG advisory waiting. The Store wrapper delegates every SQL/transaction.
+func TestIndependentMailManagementCurrentPermission(t *testing.T) {
+	db, raw, _ := database(t)
+	store := &mailManagementPGStore{Store: raw, reads: map[foundation.Tx]*mailManagementReadRecord{}}
+	accountKeys, ring, _ := keys(t)
+	authority, e := account.NewAuthority(store, accountKeys)
+	if e != nil { t.Fatal("authority setup") }
+	f := assembleB02(t, db, raw, store, authority, nil)
+	admin := b02Admin(t, f)
+	facade, e := account.NewSystemHTTPFacade(f.service, ring)
+	if e != nil { t.Fatal("facade setup") }
+	q, e := c.NewInvitationCreate(c.InvitationCreateFields{Actor: admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Email: "independent-management@example.test"})
+	if e != nil { t.Fatal("formal invitation input") }
+	invitation, e := f.service.CreateInvitation(ctxFor(t), q)
+	if e != nil { t.Fatal("formal invitation setup") }
+	page, e := facade.ListMailJobManagement(ctxFor(t), admin, account.HTTPListRequest{Limit: 1})
+	if e != nil || len(page.Items) != 1 || page.Items[0].Status.JobID != invitation.JobID || page.Items[0].Status.Phase != "enqueue_pending" || page.Items[0].AttemptChannel != nil || page.Items[0].AttemptResult != nil { t.Fatal("formal initial management result") }
+	store.mu.Lock(); store.reads = map[foundation.Tx]*mailManagementReadRecord{}; store.mu.Unlock()
+	conn, e := db.Connect(ctxFor(t), nil)
+	if e != nil { t.Fatal("owned blocker connection") }
+	t.Cleanup(func() { ctx, cancel := context.WithTimeout(context.Background(), time.Second); defer cancel(); _ = conn.Close(ctx) })
+	lock, e := foundation.SystemConfigLock("account-mail")
+	if e != nil { t.Fatal("formal lock identity") }
+	hold := func() (pgx.Tx, func()) {
+		t.Helper()
+		tx, err := conn.Begin(ctxFor(t)); if err != nil { t.Fatal("owned blocker begin") }
+		if _, err = tx.Exec(ctxFor(t), `SELECT pg_advisory_xact_lock($1)`, lock.AdvisoryKey()); err != nil { t.Fatal("owned blocker acquire") }
+		var once sync.Once
+		release := func() { once.Do(func() { ctx, cancel := context.WithTimeout(context.Background(), time.Second); defer cancel(); if err := tx.Rollback(ctx); err != nil { t.Error("owned blocker rollback failed") } }) }
+		t.Cleanup(release)
+		return tx, release
+	}
+	waitBlocked := func(want int) {
+		t.Helper()
+		ctx, cancel := context.WithTimeout(context.Background(), time.Second); defer cancel()
+		tick := time.NewTicker(2*time.Millisecond); defer tick.Stop()
+		for {
+			var count int
+			if err := raw.QueryRow(ctx, `SELECT count(*) FROM pg_stat_activity WHERE datname=current_database() AND wait_event_type='Lock' AND wait_event='advisory' AND $1=ANY(pg_blocking_pids(pid))`, int64(conn.PgConn().PID())).Scan(&count); err != nil { t.Fatal("owned blocked-reader observation") }
+			if count == want { return }
+			select { case <-ctx.Done(): t.Fatal("readers did not reach exact owned native wait"); case <-tick.C: }
+		}
+	}
+	type result struct { page account.HTTPMailJobManagementList; item account.HTTPMailJobManagement; err error }
+	start := func(ctx context.Context, detail bool, release func()) func() result {
+		ctx, cancel := context.WithCancel(ctx)
+		joined := make(chan struct{}); var out result
+		go func() { if detail { out.item, out.err = facade.GetMailJobManagement(ctx, admin, invitation.JobID) } else { out.page, out.err = facade.ListMailJobManagement(ctx, admin, account.HTTPListRequest{}) }; close(joined) }()
+		t.Cleanup(func() { cancel(); release(); select { case <-joined: case <-time.After(time.Second): t.Error("original owned read did not join") } })
+		return func() result { t.Helper(); select { case <-joined: return out; case <-time.After(3500*time.Millisecond): t.Fatal("original read did not join inside existing bound"); return result{} } }
+	}
+	zero := func(out result) bool { return out.page.Items == nil && out.page.NextCursor == "" && reflect.DeepEqual(out.item, account.HTTPMailJobManagement{}) }
+	counts := func() [6]int64 {
+		t.Helper(); var n [6]int64
+		if err := raw.QueryRow(ctxFor(t), `SELECT (SELECT count(*) FROM agenteam_account.delivery_intents),(SELECT count(*) FROM agenteam_account.mail_jobs),(SELECT count(*) FROM agenteam_account.mail_attempts),(SELECT count(*) FROM agenteam_outbox.events),(SELECT count(*) FROM agenteam_audit.audit_records),(SELECT count(*) FROM agenteam_account.commands)`).Scan(&n[0], &n[1], &n[2], &n[3], &n[4], &n[5]); err != nil { t.Fatal("safe read-only counts") }; return n
+	}
+	if db.Config(t,nil).LockTimeout() != time.Second { t.Fatal("fixed DB1s budget changed") }
+	_, release := hold()
+	parent, cancel := context.WithTimeout(context.Background(), 150*time.Millisecond); defer cancel()
+	before := counts(); began := time.Now(); join := start(parent, false, release)
+	waitBlocked(1); short := join(); elapsed := time.Since(began)
+	var fault *foundation.Fault; var dbError *postgres.Error
+	if !errors.As(short.err,&fault) || fault.Code != foundation.InternalError || fault.CommitState != foundation.NotCommitted || !errors.As(short.err,&dbError) || dbError.Code()!=postgres.LockFailed || !zero(short) || parent.Err()!=context.DeadlineExceeded || elapsed>650*time.Millisecond { t.Fatal("earlier-parent native failure contract or zero candidate") }
+	release()
+	if counts()!=before { t.Fatal("failed read produced side effects") }
+	store.mu.Lock(); records := store.reads; store.reads = map[foundation.Tx]*mailManagementReadRecord{}; store.mu.Unlock()
+	if len(records)!=1 { t.Fatal("short read used more than one read transaction") }
+	for _,r := range records { if r.acquires!=1 || r.authority!=0 || r.statements!=0 || r.state!=foundation.NotCommitted { t.Fatal("short read escaped lock/auth/statement boundary") } }
+	t.Logf("safe earlier-parent facts: actual_join=true elapsed=%s typed_lock_failed=true SQLSTATE=%q zero=true",elapsed,dbError.SQLState())
+	if _,e=authority.AuthorizeSystem(ctxFor(t),foundation.Tx{},admin,identity.Read); e!=nil { t.Fatal("prior formal current authorization") }
+	_, release = hold()
+	listJoin, detailJoin := start(ctxFor(t),false,release),start(ctxFor(t),true,release)
+	waitBlocked(2)
+	if e=f.service.Logout(ctxFor(t),account.LogoutRequest{Actor:admin,Key:foundation.IdempotencyKey(id[struct{}](t).String())});e!=nil { t.Fatal("formal Logout did not commit while reads waited") }
+	var revoked bool
+	if e=raw.QueryRow(ctxFor(t),`SELECT revoked_at IS NOT NULL AND revoked_reason='logout' FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2`,admin.Details().SessionID,admin.Details().UserID).Scan(&revoked);e!=nil||!revoked { t.Fatal("formal Session revocation missing") }
+	before=counts(); release()
+	for _,out:=range []result{listJoin(),detailJoin()} { var denied *foundation.Fault; if !errors.As(out.err,&denied)||denied.Code!=foundation.SessionRevoked||denied.CommitState!=foundation.NotCommitted||!zero(out) { t.Fatal("stale grant survived in-transaction Session revocation") } }
+	if counts()!=before { t.Fatal("denied reads produced side effects") }
+	store.mu.Lock(); records=store.reads; store.mu.Unlock()
+	if len(records)!=2 { t.Fatal("permission pair did not use exactly two owned transactions") }
+	for _,r:=range records { if r.acquires!=1||r.authority!=1||r.statements!=0||r.state!=foundation.NotCommitted { t.Fatal("revoked read reached candidate statement or skipped current authority") } }
+	t.Log("safe permission facts: exact_native_waiters=2 formal_logout=true list_and_detail_session_revoked=true zero_candidates=true statements=0 read_side_effects=0 actual_join=true")
+}

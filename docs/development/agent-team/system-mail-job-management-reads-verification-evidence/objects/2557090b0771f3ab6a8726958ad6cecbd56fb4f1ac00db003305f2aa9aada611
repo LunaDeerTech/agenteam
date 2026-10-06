@@ -1,0 +1,13 @@
+# SMTP rev1.2 / input03 独立窄审（冻结）
+
+**rev1.2 STATIC PASS；input03 单测试期望与 driver-stage02 窄差量 PASS。** 未启动任何真实资源；下面实际运行来自已冻结作者原件，独立只读核验，不冒称自己执行。
+
+卡实际全文 SHA `06cf9691217466c2245538dace4033d146ba033e5e9872a444e100445dea334d`，技术 §1–6 SHA `137e6a302a1f1a2b49076d6406ded7ff61a3c3ffccc939d4fb909640d8f176bc`。对接受 ec5a3b9 的 rev1.1 只改header及§6一行；§1–5、八候选、预算/写契约不变。固定3c79fd4 cleanup.go85在正式Revoke同Tx将pending/retry_wait任务改cancelled/token_invalid/version+1；delivery.go175对已非pending/retry_wait的Claim直接ResourceBusy，未新建attempt。故新卡准确限定无attempt pending邀请：先读Revoke结果cancelled及actual两个null，再验证workerBusy/任务状态不变/零新attempt和发送；不通过修改正式写服务、SQL伪造或放宽worker错误来配合旧卡。
+
+作者new-attempt01冻结raw SHA `955f1f7e770c8adf0774a3e9ccd499bbb6028e15dfa51f3347084ae924f9cdcd`，确在新test180期望ResourceDeleted实得ResourceBusy；top10.01s FAIL，外层actual1/60.533s。result `346c8690dc554660e5d5d6d15a12ca32a0f328115024c032229215a435b54196` / cleanup `1b301d3e3b61a73172fbad65b34547e31c5c1a112832e8527718be997c392336` 已实读：9exact IDs两扫absent、80owned PID/starttime清零、原基线及输入不变。后failed/unknown/retry_wait三子例没有执行，不计通过；卡修订不补造旧轮已读Revoke后状态的事实。测试修后input04仍待冻结及授权复验。
+
+前轮input03 manifest SHA `d11353473fec8bf902bcb0bcd25cb1ed09e8698a5fcc606e1c0f93d560ff00f5`，source delta SHA `885a7d2f9e86eba3c30150a911210f75c7099f4c36ab24d68f701ea73d26f88e`；八源实际hash均匹配、只有HTTP测试8193B cursor从INVALID_ARGUMENT改CURSOR_INVALID，另七源/935依赖清单相同。固定httpListQuery原>8192分支正是CursorInvalid，其他表项无更改。driver-stage02 input SHA `b45b7fd311b5cacc6afc7d1895dcd18df6a772cd5527accabe467ba583af6861` / driver `3f822063c2b77f857a247c190c32951b2d8303d38e95353c0e70d1f0138b28a0`；相对stage01只增加new-http枚举和单顶层selector，所有预算/门禁/清理原字节保持。
+
+new-read01 原HTTP FAIL与ReadTransactionAndBudget PASS4.12s分列保留；原raw `8e8225849d7125354027ec5ee56e3bf0e8fbabdb7907629a5de1003108ac1a71` 只记code mismatch没有逐query标记，8193定位基于固定循环和正式分支，不追补为额外实测。new-http02 单HTTP完整PASS5.45s、外层actual0/55.529s；raw `4ba147921144aaa2b8215774eb5aafd17dca12d3708d66e25356a3b05440e873`，result `9957d47c265f43135e5a86743c9c23b1b58b95343261421de90c2b42c6684f43`，cleanup `bfa4c6608896effa9616c8085c21f0d287df28d5756cababc0b22a739cd10936`。已独立读两扫7IDs/69PID清零、输入原基线不变。ReadBudget仅按其未变输入复用，HTTP重跑不扩大到它。
+
+原input01/backoff时间前提、input02静核及driver-static报告均永久不变。本件不宣称SMTP全组或整卡已通过；后续先修唯一撤销测试前提并复核固定差量，再由root授权实际Attempt余下边界。

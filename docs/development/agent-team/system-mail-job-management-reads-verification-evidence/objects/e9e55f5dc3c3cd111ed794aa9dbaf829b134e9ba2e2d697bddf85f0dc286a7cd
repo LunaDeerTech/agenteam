@@ -1,0 +1,555 @@
+//go:build integration
+
+package accountmail_test
+
+import (
+	"bytes"
+	"context"
+	"os"
+	"reflect"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	smtpfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/smtp"
+)
+
+func TestAccountMailJobManagementAttemptFacts(t *testing.T) {
+	network := startSMTP(t)
+	f := newAccount(t)
+	facade := invitationMailFacade(t, f)
+	success, e := network.Create(ctxFor(t), smtpfixture.Scenario{Mode: "none"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	composition := composeMail(t, f, network, uint16(success.Port))
+	create := func(t *testing.T, email string) c.InvitationReceipt {
+		t.Helper()
+		q, e := c.NewInvitationCreate(c.InvitationCreateFields{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Email: email})
+		if e != nil {
+			t.Fatal(e)
+		}
+		v, e := f.service.CreateInvitation(ctxFor(t), q)
+		if e != nil {
+			t.Fatal(e)
+		}
+		return v
+	}
+	enqueue := func(t *testing.T) {
+		t.Helper()
+		if _, e := f.service.ReconcileDeliveryIntents(ctxFor(t)); e != nil {
+			t.Fatal(e)
+		}
+	}
+	read := func(t *testing.T, job c.JobID, kind c.DeliveryKind, phase, summary, actual, result string, attempts int64) account.HTTPMailJobManagement {
+		t.Helper()
+		item, e := facade.GetMailJobManagement(ctxFor(t), f.admin, job)
+		if e != nil {
+			t.Fatal("formal management detail", e)
+		}
+		if item.Status.JobID != job || item.Kind != kind || item.Status.Phase != phase || item.Channel != summary || int64(item.Status.Attempts) != attempts {
+			t.Fatal("current management facts differ")
+		}
+		if actual == "" {
+			if item.AttemptChannel != nil {
+				t.Fatal("configured route invented actual channel")
+			}
+		} else if item.AttemptChannel == nil || *item.AttemptChannel != actual {
+			t.Fatal("exact current channel differs")
+		}
+		if result == "" {
+			if item.AttemptResult != nil {
+				t.Fatal("invented terminal result")
+			}
+		} else if item.AttemptResult == nil || string(*item.AttemptResult) != result {
+			t.Fatal("exact current outcome differs")
+		}
+		legacy, e := f.service.GetMailJob(ctxFor(t), f.admin, job)
+		if e != nil || legacy != item.Status {
+			t.Fatal("old current status semantics changed", e)
+		}
+		var created time.Time
+		if e = f.store.QueryRow(ctxFor(t), `SELECT created_at FROM agenteam_account.delivery_intents WHERE job_id=$1`, job.String()).Scan(&created); e != nil || !created.Equal(item.CreatedAt.Time()) {
+			t.Fatal("created_at is not original intent time", e)
+		}
+		page, e := facade.ListMailJobManagement(ctxFor(t), f.admin, account.HTTPListRequest{Limit: 100})
+		if e != nil {
+			t.Fatal(e)
+		}
+		found := 0
+		for _, candidate := range page.Items {
+			if candidate.Status.JobID == job {
+				found++
+				if !reflect.DeepEqual(candidate, item) {
+					t.Fatal("stable list and detail disagree")
+				}
+			}
+		}
+		if found != 1 {
+			t.Fatal("current job missing or duplicated")
+		}
+		return item
+	}
+	counts := func(t *testing.T) [5]int64 {
+		t.Helper()
+		var n [5]int64
+		e := f.store.QueryRow(ctxFor(t), `SELECT (SELECT count(*) FROM agenteam_account.delivery_intents),(SELECT count(*) FROM agenteam_account.mail_jobs),(SELECT count(*) FROM agenteam_account.mail_attempts),(SELECT count(*) FROM agenteam_outbox.events),(SELECT count(*) FROM agenteam_audit.audit_records)`).Scan(&n[0], &n[1], &n[2], &n[3], &n[4])
+		if e != nil {
+			t.Fatal(e)
+		}
+		return n
+	}
+	assertReadOnly := func(t *testing.T, job c.JobID, endpoint smtpfixture.Endpoint) {
+		t.Helper()
+		before := counts(t)
+		smtpBefore, e := network.State(ctxFor(t), endpoint.ID)
+		if e != nil {
+			t.Fatal(e)
+		}
+		for range 3 {
+			if _, e = facade.GetMailJobManagement(ctxFor(t), f.admin, job); e != nil {
+				t.Fatal(e)
+			}
+			if _, e = facade.ListMailJobManagement(ctxFor(t), f.admin, account.HTTPListRequest{Limit: 100}); e != nil {
+				t.Fatal(e)
+			}
+		}
+		after := counts(t)
+		smtpAfter, e := network.State(ctxFor(t), endpoint.ID)
+		if e != nil || before != after || smtpBefore.Mail != smtpAfter.Mail || smtpBefore.Messages != smtpAfter.Messages || smtpBefore.Connections != smtpAfter.Connections {
+			t.Fatal("GET caused writes or outbound work", e)
+		}
+	}
+	logged := create(t, "management-log@example.test")
+	read(t, logged.JobID, c.InvitationDelivery, "enqueue_pending", "backend_log", "", "", 0)
+	enqueue(t)
+	read(t, logged.JobID, c.InvitationDelivery, "pending", "backend_log", "", "", 0)
+	if e = composition.worker.RunJob(ctxFor(t), logged.JobID); e != nil {
+		t.Fatal("formal log delivery", e)
+	}
+	read(t, logged.JobID, c.InvitationDelivery, "sent", "backend_log", "backend_log", "sent", 1)
+	// Password recovery uses the real request/coordinator and real log worker.
+	reset := resetMail(t, f)
+	read(t, reset, c.ResetDelivery, "pending", "backend_log", "", "", 0)
+	if e = composition.worker.RunJob(ctxFor(t), reset); e != nil {
+		t.Fatal("formal password-reset log delivery", e)
+	}
+	read(t, reset, c.ResetDelivery, "sent", "backend_log", "backend_log", "sent", 1)
+	raw, e := os.ReadFile(f.log)
+	if e != nil {
+		t.Fatal(e)
+	}
+	lines := bytes.Count(raw, []byte("\n"))
+	clear(raw)
+	if lines != 3 {
+		t.Fatal("bootstrap plus invitation and password-reset log writes", lines)
+	}
+	untouched := create(t, "management-config-switch@example.test")
+	read(t, untouched.JobID, c.InvitationDelivery, "enqueue_pending", "backend_log", "", "", 0)
+	configure(t, f, success, "none", false)
+	read(t, untouched.JobID, c.InvitationDelivery, "enqueue_pending", "smtp", "", "", 0)
+	read(t, logged.JobID, c.InvitationDelivery, "sent", "backend_log", "backend_log", "sent", 1)
+	read(t, reset, c.ResetDelivery, "sent", "backend_log", "backend_log", "sent", 1)
+	enqueue(t)
+	if e = composition.worker.RunJob(ctxFor(t), untouched.JobID); e != nil {
+		t.Fatal(e)
+	}
+	read(t, untouched.JobID, c.InvitationDelivery, "sent", "smtp", "smtp", "sent", 1)
+	// TestSMTP supplies the third formal kind; the facade exposes no recipient.
+	accepted, e := f.service.TestSMTP(ctxFor(t), c.SMTPTest{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Recipient: "management-test@example.test"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	read(t, accepted.JobID, c.TestDelivery, "enqueue_pending", "smtp", "", "", 0)
+	enqueue(t)
+	if e = composition.worker.RunJob(ctxFor(t), accepted.JobID); e != nil {
+		t.Fatal(e)
+	}
+	read(t, accepted.JobID, c.TestDelivery, "sent", "smtp", "smtp", "sent", 1)
+	assertReadOnly(t, accepted.JobID, success)
+	revoked := create(t, "management-revoked@example.test")
+	enqueue(t)
+	read(t, revoked.JobID, c.InvitationDelivery, "pending", "smtp", "", "", 0)
+	if e = f.service.RevokeInvitation(ctxFor(t), c.InvitationRevoke{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), ID: revoked.ID, ExpectedVersion: revoked.Version}); e != nil {
+		t.Fatal(e)
+	}
+	// Formal revocation cancels pending work in the same transaction, without an attempt.
+	cancelledBefore := read(t, revoked.JobID, c.InvitationDelivery, "cancelled", "smtp", "", "", 0)
+	countsBeforeClaim := counts(t)
+	smtpBeforeClaim, e := network.State(ctxFor(t), success.ID)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = composition.worker.RunJob(ctxFor(t), revoked.JobID); !faultCode(e, foundation.ResourceBusy) {
+		t.Fatal("worker admitted a formally cancelled task", e)
+	}
+	cancelledAfter := read(t, revoked.JobID, c.InvitationDelivery, "cancelled", "smtp", "", "", 0)
+	countsAfterClaim := counts(t)
+	smtpAfterClaim, e := network.State(ctxFor(t), success.ID)
+	if e != nil || !reflect.DeepEqual(cancelledBefore, cancelledAfter) || countsBeforeClaim != countsAfterClaim || smtpBeforeClaim.Connections != smtpAfterClaim.Connections || smtpBeforeClaim.Auth != smtpAfterClaim.Auth || smtpBeforeClaim.Mail != smtpAfterClaim.Mail || smtpBeforeClaim.Messages != smtpAfterClaim.Messages {
+		t.Fatal("rejected cancelled-task claim changed facts, attempts or SMTP counts", e)
+	}
+	t.Log("formal revocation retained cancelled/null; worker rejected with ResourceBusy and unchanged DTO, attempt and SMTP counts")
+	t.Run("failed-cycle-and-explicit-retry", func(t *testing.T) {
+		endpoint, e := network.Create(ctxFor(t), smtpfixture.Scenario{Mode: "none", MailCode: 550})
+		if e != nil {
+			t.Fatal(e)
+		}
+		configure(t, f, endpoint, "none", false)
+		m := composeMail(t, f, network, uint16(endpoint.Port))
+		job := testJob(t, f)
+		if e = m.worker.RunJob(ctxFor(t), job); e == nil {
+			t.Fatal("SMTP550 not observed")
+		}
+		source := read(t, job, c.TestDelivery, "failed", "smtp", "smtp", "failed", 1)
+		retry := retryRequest(t, f, job)
+		next, e := f.service.RetryMailJob(ctxFor(t), retry)
+		if e != nil || next.JobID == job {
+			t.Fatal("formal retry", e)
+		}
+		read(t, next.JobID, c.TestDelivery, "enqueue_pending", "smtp", "", "", 0)
+		updated := read(t, job, c.TestDelivery, "failed", "smtp", "smtp", "failed", 1)
+		if updated.Status.Version != source.Status.Version+1 {
+			t.Fatal("retry source version not advanced")
+		}
+		replay, e := f.service.RetryMailJob(ctxFor(t), retry)
+		if e != nil || replay.JobID != next.JobID || replay.Version != 1 {
+			t.Fatal("same key changed initial retry cycle", e)
+		}
+		if _, e = f.service.RetryMailJob(ctxFor(t), retryRequest(t, f, job)); !faultCode(e, foundation.ResourceBusy) {
+			t.Fatal("same root busy retry rule changed", e)
+		}
+		assertReadOnly(t, next.JobID, endpoint)
+		enqueue(t)
+		if e = m.worker.RunJob(ctxFor(t), next.JobID); e == nil {
+			t.Fatal("retry SMTP failure absent")
+		}
+		current := read(t, next.JobID, c.TestDelivery, "failed", "smtp", "smtp", "failed", 1)
+		replay, e = f.service.RetryMailJob(ctxFor(t), retry)
+		if e != nil || replay.JobID != next.JobID || replay.Version != current.Status.Version || replay.Version <= 1 {
+			t.Fatal("historical retry did not return new cycle current version", e)
+		}
+		assertReadOnly(t, next.JobID, endpoint)
+	})
+	t.Run("unknown-terminal", func(t *testing.T) {
+		endpoint, e := network.Create(ctxFor(t), smtpfixture.Scenario{Mode: "none", CloseStage: "accepted"})
+		if e != nil {
+			t.Fatal(e)
+		}
+		configure(t, f, endpoint, "none", false)
+		setRetryCount(t, f, 0)
+		m := composeMail(t, f, network, uint16(endpoint.Port))
+		job := testJob(t, f)
+		if e = m.worker.RunJob(ctxFor(t), job); e == nil {
+			t.Fatal("lost acceptance not observed")
+		}
+		read(t, job, c.TestDelivery, "unknown", "smtp", "smtp", "unknown", 1)
+		state, e := network.State(ctxFor(t), endpoint.ID)
+		if e != nil || state.Messages != 1 {
+			t.Fatal("unknown may already have delivered", e)
+		}
+		assertReadOnly(t, job, endpoint)
+	})
+	t.Run("retry-wait-and-real-next-claim", func(t *testing.T) {
+		unknown, e := network.Create(ctxFor(t), smtpfixture.Scenario{Mode: "none", CloseStage: "accepted"})
+		if e != nil {
+			t.Fatal(e)
+		}
+		paused, e := network.Create(ctxFor(t), smtpfixture.Scenario{Mode: "none", PauseStage: "greeting"})
+		if e != nil {
+			t.Fatal(e)
+		}
+		configure(t, f, unknown, "none", false)
+		m := composeMail(t, f, network, uint16(unknown.Port), uint16(paused.Port))
+		job := testJob(t, f)
+		if e = m.worker.RunJob(ctxFor(t), job); e == nil {
+			t.Fatal("first unknown attempt absent")
+		}
+		read(t, job, c.TestDelivery, "retry_wait", "smtp", "smtp", "unknown", 1)
+		if _, e = f.service.RetryMailJob(ctxFor(t), retryRequest(t, f, job)); !faultCode(e, foundation.ResourceBusy) {
+			t.Fatal("nonterminal retry_wait admitted manual retry", e)
+		}
+		var previous string
+		var delay, observedAfterCompletion float64
+		// Finish samples its schedule clock after completed_at and loadSMTP.
+		// This later DB observation bounds that sampling gap without changing next_at.
+		if e = f.store.QueryRow(ctxFor(t), `SELECT a.id::text,extract(epoch FROM (j.next_at-a.completed_at))::float8,extract(epoch FROM (clock_timestamp()-a.completed_at))::float8 FROM agenteam_account.mail_jobs j JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id WHERE j.id=$1`, job.String()).Scan(&previous, &delay, &observedAfterCompletion); e != nil || observedAfterCompletion < 0 || delay < 10 || delay > 11+observedAfterCompletion {
+			t.Fatal("formal first backoff delay and DB observation gap", delay, observedAfterCompletion, e)
+		}
+		t.Logf("formal first backoff seconds=%f observed_after_completion_seconds=%f", delay, observedAfterCompletion)
+		configure(t, f, paused, "none", false)
+		// Wait against the database clock; never rewrite next_at or shorten policy.
+		dueCtx, stopDue := context.WithTimeout(ctxFor(t), 12*time.Second)
+		defer stopDue()
+		ticker := time.NewTicker(20 * time.Millisecond)
+		defer ticker.Stop()
+		for {
+			var due bool
+			if e = f.store.QueryRow(dueCtx, `SELECT next_at<=clock_timestamp() FROM agenteam_account.mail_jobs WHERE id=$1`, job.String()).Scan(&due); e != nil {
+				t.Fatal(e)
+			}
+			if due {
+				break
+			}
+			select {
+			case <-dueCtx.Done():
+				t.Fatal("real retry delay did not elapse")
+			case <-ticker.C:
+			}
+		}
+		ctx, cancel := context.WithCancel(ctxFor(t))
+		joined := make(chan struct{})
+		var workerError error
+		go func() { workerError = m.worker.RunJob(ctx, job); close(joined) }()
+		t.Cleanup(func() {
+			cancel()
+			cleanup, stop := context.WithTimeout(context.Background(), time.Second)
+			_ = network.Release(cleanup, paused.ID)
+			stop()
+			select {
+			case <-joined:
+			case <-time.After(time.Second):
+				t.Error("owned original SMTP worker did not join")
+			}
+		})
+		waitSMTPPhase(t, network, paused, "greeting")
+		active, e := facade.GetMailJobManagement(ctxFor(t), f.admin, job)
+		if e != nil || active.Status.Attempts != 2 || active.Status.Phase != "sending" && active.Status.Phase != "claimed" || active.AttemptChannel == nil || *active.AttemptChannel != "smtp" || active.AttemptResult != nil {
+			t.Fatal("new current attempt retained old outcome", e)
+		}
+		var current string
+		if e = f.store.QueryRow(ctxFor(t), `SELECT current_attempt_id::text FROM agenteam_account.mail_jobs WHERE id=$1`, job.String()).Scan(&current); e != nil || current == previous {
+			t.Fatal("next claim did not replace exact attempt", e)
+		}
+		if _, e = f.service.RetryMailJob(ctxFor(t), retryRequest(t, f, job)); !faultCode(e, foundation.ResourceBusy) {
+			t.Fatal("active actual SMTP attempt admitted retry", e)
+		}
+		if e = network.Release(ctxFor(t), paused.ID); e != nil {
+			t.Fatal(e)
+		}
+		select {
+		case <-joined:
+		case <-time.After(5 * time.Second):
+			t.Fatal("released SMTP did not join")
+		}
+		if workerError != nil {
+			t.Fatal(workerError)
+		}
+		read(t, job, c.TestDelivery, "sent", "smtp", "smtp", "sent", 2)
+		var oldResult string
+		var terminal, ioJoined bool
+		if e = f.store.QueryRow(ctxFor(t), `SELECT result,terminal,io_joined FROM agenteam_account.mail_attempts WHERE id=$1`, previous).Scan(&oldResult, &terminal, &ioJoined); e != nil || oldResult != "unknown" || !terminal || !ioJoined {
+			t.Fatal("previous actual unknown history changed", e)
+		}
+		assertReadOnly(t, job, paused)
+		t.Logf("actual first retry delay %.6fs observed without row mutation; next attempt paused, rejected manual retry, then actually joined", delay)
+	})
+	raw, e = os.ReadFile(f.log)
+	if e != nil {
+		t.Fatal(e)
+	}
+	defer clear(raw)
+	if bytes.Count(raw, []byte("\n")) != lines {
+		t.Fatal("configured SMTP failure fell back to restricted log")
+	}
+}
+
+func TestIndependentMailManagementActualAttemptAndRetry(t *testing.T) {
+	network := startSMTP(t)
+	f := newAccount(t)
+	facade := invitationMailFacade(t, f)
+	endpoint, e := network.Create(ctxFor(t), smtpfixture.Scenario{Mode: "none", PauseStage: "greeting", CloseStage: "accepted"})
+	if e != nil {
+		t.Fatal("owned SMTP endpoint")
+	}
+	configure(t, f, endpoint, "none", false)
+	setRetryCount(t, f, 0)
+	m := composeMail(t, f, network, uint16(endpoint.Port))
+	invitation := createMailInvitation(t, f)
+	counts := func() [6]int64 {
+		t.Helper()
+		var n [6]int64
+		if err := f.store.QueryRow(ctxFor(t), `SELECT (SELECT count(*) FROM agenteam_account.delivery_intents),(SELECT count(*) FROM agenteam_account.mail_jobs),(SELECT count(*) FROM agenteam_account.mail_attempts),(SELECT count(*) FROM agenteam_outbox.events),(SELECT count(*) FROM agenteam_audit.audit_records),(SELECT count(*) FROM agenteam_account.commands)`).Scan(&n[0], &n[1], &n[2], &n[3], &n[4], &n[5]); err != nil {
+			t.Fatal("safe DB counts")
+		}
+		return n
+	}
+	smtpCounts := func() [4]int {
+		t.Helper()
+		state, err := network.State(ctxFor(t), endpoint.ID)
+		if err != nil {
+			t.Fatal("safe SMTP counters")
+		}
+		return [4]int{state.Connections, state.Auth, state.Mail, state.Messages}
+	}
+	read := func(job c.JobID) account.HTTPMailJobManagement {
+		t.Helper()
+		item, err := facade.GetMailJobManagement(ctxFor(t), f.admin, job)
+		if err != nil {
+			t.Fatal("formal management detail")
+		}
+		page, err := facade.ListMailJobManagement(ctxFor(t), f.admin, account.HTTPListRequest{Limit: 100})
+		if err != nil {
+			t.Fatal("formal management list")
+		}
+		matches := 0
+		for _, candidate := range page.Items {
+			if candidate.Status.JobID == job {
+				matches++
+				if !reflect.DeepEqual(candidate, item) {
+					t.Fatal("stable list/detail differ")
+				}
+			}
+		}
+		if matches != 1 || item.Status.JobID != job || item.Kind != c.InvitationDelivery {
+			t.Fatal("exact invitation projection")
+		}
+		return item
+	}
+	assertShape := func(item account.HTTPMailJobManagement, phase, channel, result string, attempts int64) {
+		t.Helper()
+		if item.Status.Phase != phase || item.Channel != channel || int64(item.Status.Attempts) != attempts {
+			t.Fatal("phase/summary/attempt count mismatch")
+		}
+		if attempts == 0 {
+			if item.AttemptChannel != nil || item.AttemptResult != nil {
+				t.Fatal("unattempted work invented actual facts")
+			}
+			return
+		}
+		if item.AttemptChannel == nil || *item.AttemptChannel != channel {
+			t.Fatal("exact actual channel mismatch")
+		}
+		if result == "" {
+			if item.AttemptResult != nil {
+				t.Fatal("active attempt invented result")
+			}
+		} else if item.AttemptResult == nil || string(*item.AttemptResult) != result {
+			t.Fatal("exact actual outcome mismatch")
+		}
+	}
+	readOnly := func(jobs ...c.JobID) {
+		t.Helper()
+		before, wire := counts(), smtpCounts()
+		for range 2 {
+			for _, job := range jobs {
+				read(job)
+			}
+		}
+		if counts() != before || smtpCounts() != wire {
+			t.Fatal("management reads caused DB or outbound side effects")
+		}
+	}
+	type attempt struct {
+		id, channel, result     string
+		exact, terminal, joined bool
+	}
+	exactAttempt := func(job c.JobID) attempt {
+		t.Helper()
+		var a attempt
+		if err := f.store.QueryRow(ctxFor(t), `SELECT a.id::text,a.channel,coalesce(a.result,''),(a.id=j.current_attempt_id AND a.job_id=j.id AND a.fence=j.fence),a.terminal,a.io_joined FROM agenteam_account.mail_jobs j JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id WHERE j.id=$1`, job.String()).Scan(&a.id, &a.channel, &a.result, &a.exact, &a.terminal, &a.joined); err != nil || !a.exact {
+			t.Fatal("exact attempt pointer/fence read")
+		}
+		return a
+	}
+	assertShape(read(invitation.JobID), "pending", "smtp", "", 0)
+	workerCtx, cancel := context.WithTimeout(context.Background(), 15*time.Second)
+	joined := make(chan struct{})
+	var workerError error
+	go func() { workerError = m.worker.RunJob(workerCtx, invitation.JobID); close(joined) }()
+	t.Cleanup(func() {
+		cancel()
+		cleanup, stop := context.WithTimeout(context.Background(), time.Second)
+		_ = network.Release(cleanup, endpoint.ID)
+		stop()
+		select {
+		case <-joined:
+		case <-time.After(time.Second):
+			t.Error("original SMTP owner did not actually join")
+		}
+	})
+	waitSMTPPhase(t, network, endpoint, "greeting")
+	active := read(invitation.JobID)
+	if active.Status.Phase != "claimed" && active.Status.Phase != "sending" {
+		t.Fatal("paused wire is not active work")
+	}
+	assertShape(active, active.Status.Phase, "smtp", "", 1)
+	a := exactAttempt(invitation.JobID)
+	if a.channel != "smtp" || a.result != "" || a.terminal || a.joined {
+		t.Fatal("paused attempt prematurely terminal or joined")
+	}
+	readOnly(invitation.JobID)
+	select {
+	case <-joined:
+		t.Fatal("paused owner already ended")
+	default:
+	}
+	if e = network.Release(ctxFor(t), endpoint.ID); e != nil {
+		t.Fatal("release real SMTP gate")
+	}
+	select {
+	case <-joined:
+	case <-time.After(5 * time.Second):
+		t.Fatal("released SMTP owner did not join")
+	}
+	if workerError == nil || !m.registry.Joined() {
+		t.Fatal("lost accepted response or original actual join missing")
+	}
+	unknown := read(invitation.JobID)
+	assertShape(unknown, "unknown", "smtp", "unknown", 1)
+	u := exactAttempt(invitation.JobID)
+	if u.id != a.id || u.channel != "smtp" || u.result != "unknown" || !u.terminal || !u.joined {
+		t.Fatal("unknown does not retain exact joined attempt")
+	}
+	if smtpCounts()[3] != 1 {
+		t.Fatal("lost acceptance did not record one actual message")
+	}
+	readOnly(invitation.JobID)
+	// Only after the original actual join change current configuration formally.
+	unconfigure(t, f)
+	if !reflect.DeepEqual(read(invitation.JobID), unknown) || exactAttempt(invitation.JobID) != u {
+		t.Fatal("current config rewrote historical actual SMTP facts")
+	}
+	q := retryRequest(t, f, invitation.JobID)
+	next, err := f.service.RetryMailJob(ctxFor(t), q)
+	if err != nil || next.JobID == invitation.JobID || next.Version != 1 {
+		t.Fatal("formal retry did not create one fresh cycle")
+	}
+	assertShape(read(next.JobID), "enqueue_pending", "backend_log", "", 0)
+	source := read(invitation.JobID)
+	assertShape(source, "unknown", "smtp", "unknown", 1)
+	if source.Status.Version != unknown.Status.Version+1 || exactAttempt(invitation.JobID) != u {
+		t.Fatal("retry modified source attempt or wrong source version")
+	}
+	before := counts()
+	wire := smtpCounts()
+	replayed, err := f.service.RetryMailJob(ctxFor(t), q)
+	if err != nil || replayed != next || counts() != before || smtpCounts() != wire {
+		t.Fatal("same original retry changed receipt or side effects")
+	}
+	readOnly(invitation.JobID, next.JobID)
+	if _, e = f.service.ReconcileDeliveryIntents(ctxFor(t)); e != nil {
+		t.Fatal("formal child enqueue")
+	}
+	if e = m.worker.RunJob(ctxFor(t), next.JobID); e != nil || !m.registry.Joined() {
+		t.Fatal("unconfigured child log worker did not actually join")
+	}
+	completed := read(next.JobID)
+	assertShape(completed, "sent", "backend_log", "sent", 1)
+	child := exactAttempt(next.JobID)
+	if child.id == u.id || child.channel != string(c.RecoveryLogChannel) || child.result != "sent" || !child.terminal || !child.joined {
+		t.Fatal("new cycle did not retain exact actual log attempt")
+	}
+	if smtpCounts() != wire || !reflect.DeepEqual(read(invitation.JobID), source) || exactAttempt(invitation.JobID) != u {
+		t.Fatal("log cycle changed source history or sent SMTP")
+	}
+	before = counts()
+	replayed, err = f.service.RetryMailJob(ctxFor(t), q)
+	if err != nil || replayed.JobID != next.JobID || replayed.Version != completed.Status.Version || replayed.Version <= 1 || counts() != before || smtpCounts() != wire {
+		t.Fatal("original retry did not return child current version without side effects")
+	}
+	readOnly(invitation.JobID, next.JobID)
+	t.Log("safe attempt facts: paused_actual_smtp_null=true original_actual_join=true one_accepted_unknown=true old_exact_attempt_preserved=true formal_unconfigure=true new_actual_log_sent=true same_key_current_child=true read_side_effects=0")
+}

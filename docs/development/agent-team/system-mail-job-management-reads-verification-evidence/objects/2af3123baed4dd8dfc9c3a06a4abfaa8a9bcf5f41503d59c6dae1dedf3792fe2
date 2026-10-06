@@ -1,0 +1,67 @@
+# D07 邮件任务管理读口：作者阶段报告
+
+新三个顶层已按未变化的生产输入组合通过；**旧两个回归、独立真实验证和共享主树集成尚待执行**。本报告是私有作者阶段结果，不是整卡最终接受。报告和已列原件停止写入，后续旧回归另增补。
+
+规格 rev1.2 已由主线程采纳并提交 `f59d4c5506e62bcc9757edb69726e62aa23e5147`，技术 SHA256 `137e6a302a1f1a2b49076d6406ded7ff61a3c3ffccc939d4fb909640d8f176bc`。所有依赖固定来自 `3c79fd4069837c4cee0b1ed37e00480ea8f1909f`；当前主树后继提交没有进入私有 Go 编译或执行输入。
+
+交付为 [input04/source](input04/source) 中精确八文件，[清单](author-delivery8.json) SHA256 `a18068de3cf3a1384fcd970da88837fa26020d6b85081c1388e10026e502461b`，[完整基线差异](author-delivery8.diff) SHA256 `957b3d465b969eadc3c363cf45d4d1b33180ccbb6c24de8123e7c796ce014c2c`。其余935个原文件未变，最终私有 workspace 共943文件。共享八路径仍为开始前原字节或不存在；没有 Git、锁文件、迁移、旧 fixture 或旧测试写入。
+
+| 文件 | SHA256 |
+| --- | --- |
+| `api/openapi/account.json` | `8395b445f7ba422dc72b1cf35f047fb8380f271b4f9d96cf039640e3aa9c1d64` |
+| `internal/central/account/http.go` | `e87f71d7954ad9c1620bc90b47b1fb6b483ffeb1410668f6a1c2e93765fe93a1` |
+| `internal/central/account/http_mail_job_management.go` | `8a72129fd594522752462d61f6bf5568acc1223e0369a168e96f6fdce0a44532` |
+| `internal/central/account/http_mail_job_management_reads.go` | `e056a7e109ac78ae51600758858b80aba2b07aa5b22590eaf89080bfceddac14` |
+| `internal/central/account/http_mail_job_management_test.go` | `976d4c43342db11057fb8a485f34b93d1f3cbb606c8d0e248da3cd55469a7ddb` |
+| `tests/account/http_mail_job_management_test.go` | `5a0906bdea27e8d8dffe307e06dd57e2ca9b520337a5f8ac91f8f52d22e89965` |
+| `tests/account/mail_job_management_query_test.go` | `a3fd503d785ad5f855aa781cd0a322a505958c9b13bbfa577af961ea9e1bf0ae` |
+| `tests/accountmail/mail_job_management_test.go` | `7fbb6b7b25dfc146859f9f4be34fcf393aa529160c37f31d3272c6f4d6559fb8` |
+
+[input04 清单](input04/manifest.json) SHA256 `4e3bee7144106e9b183977a8306314f08732a18ef54111997fbfb9a3a7ada5c4`；[实际运行输入](driver-stage03/input.json) SHA256 `c53706ae319b7293345b6245ca421277ab90d26c52be1f524feab05ed028030d`。driver 源码 SHA256 `3f822063c2b77f857a247c190c32951b2d8303d38e95353c0e70d1f0138b28a0`，保留已验 subreaper、实际 wait 与双清主逻辑。运行清单同时绑定实际 Go 编译图的3501个外部文件、452个包、31个锁定模块、工具路径和固定 MinIO 二进制；没有复制安装依赖树。
+
+新增 `GET /api/v1/system/mail-jobs/management` 与 `GET /api/v1/system/mail-jobs/{id}/management`。新平坦 DTO 九字段必需，reason 可省，attempt_channel/attempt_result 必需但可 null；旧 channel 仍是兼容摘要。旧 MailJob、InvitationDelivery、写 receipt/schema 和旧 GET/重试语义保持。两新口 GET-only，HEAD/其他方法405及 `Allow: GET`；当前管理员、严格 query/body、canonical ID、分页/详情和安全 Problem 已由真实 HTTP 根执行。GET 不授重试权限，当前状态不等于命令 receipt。
+
+列表在单 statement 中先 materialize `limit+1` 个 intent，再校验双向 job 映射及 exact current attempt；不读 recipient、正文、token 或完整谱系。新 cursor 分域，扫描包含哨兵，实际 Close/Err、映射错误、签发错误、取消和事务 Unknown 均丢弃候选。共享 httpRead 和旧 cursor allowlist 未改。
+
+局部3s预算从两新 HTTP dispatch 的预认证之前开始，并继承更早 parent；facade、扫描和 Tx 尾部实际 join 后才返回。纯测使用真实 context 到期和受控正式端口尾部证明本地3s，不将模拟 I/O 当真实PG。真实PG在 `new-read01` 验证了更早75ms parent（实际82.46/83.02ms，SQLSTATE57014）与原DB1s锁等待（实际1.015/1.023s，55P03，caller仍live），两者 `errorIsDeadline=false` 符合现有Mapper；没有宣称该DB1s结果触发了本地3s deadline。JSON写出前后检查取消；已经开始的 HTTP 字节写出不承诺撤回。
+
+| 真实轮 / 固定输入 | 实际整轮退出 / 耗时 | 实际结果 |
+| --- | --- | --- |
+| [new-read01](runs/new-read01/command.json) / input02 | 1 / 116.618s | HTTP FAIL5.23s；ReadTransactionAndBudget完整PASS4.12s |
+| [new-http02](runs/new-http02/command.json) / input03 | 0 / 55.529s | HTTP完整PASS5.45s |
+| [new-attempt01](runs/new-attempt01/command.json) / input03 | 1 / 60.533s | AttemptFacts在撤销段FAIL10.01s；后三个子例未到 |
+| [new-attempt02](runs/new-attempt02/command.json) / input04 | 0 / 71.448s | AttemptFacts完整PASS16.65s；后三子例0.34/0.23/10.71s均PASS |
+
+实际命令均为各 command.json 中的 `sh scripts/test-security.sh -run '<exact anchored selector>'`，固定 Go1.27.1、`-tags=integration -race -count=1 -timeout=6m`；离线和真实均 `GOTOOLCHAIN=local GOPROXY=off GOSUMDB=off`、只读锁依赖。三个新测试名分别为 `TestAccountHTTPMailJobManagement`、`TestAccountMailJobManagementReadTransactionAndBudget`、`TestAccountMailJobManagementAttemptFacts`。新三组结论由上述通过部分组合，**不把任一失败整轮改写为全绿**。五个 API阶段源自冻结后一直同字节；两次实际修复仅新 integration 测试，未变 ReadBudget 与生产证据复用。
+
+`new-read01` 的真实 HTTP 原错为新测试L171期待 INVALID_ARGUMENT，却得到400/CURSOR_INVALID；JSON解码已经通过。原raw没有逐项 query 名称，8193字节条目的定位依据固定循环顺序与原 httpListQuery 分支，不冒充原日志直接标记该query。此前三个正式历史行的分页、详情、旧DTO、顺序已经过；之后 method/权限等当时未执行。仅 [input02→03](input03/input02-to03.diff) 改这一项期望，new-http02完整执行后段并通过。
+
+`new-attempt01` 的原错为撤销后期待 ResourceDeleted，实际 ResourceBusy。正式 Revoke 在同Tx已将 pending/retry_wait 取消，worker随后按既有规则拒绝；这是测试和原卡的前提错误。原轮已走过三个kind、日志/SMTP sent、配置前后实际渠道稳定及只读计数，尚未到后三子例。rev1.2与 [input03→04](input04/input03-to04.diff) 修正撤销段：先读cancelled/null，worker硬验ResourceBusy，随后DTO、DB五项计数（含attempt）和SMTP Connections/Auth/Mail/Messages均不变；生产写服务未改。
+
+更早的静态时间前提修正 [input01→02](input02/input01-to02.diff) 保留10s下界，并以同次DB观测差涵盖 completed_at→正式schedule取样间隔；没有把两种时刻当同一时刻。new-attempt02记录真实差值10.472498s、观测间隔0.025851s，原12s等待内自然到期，未改 next_at。随后新current attempt替换旧attempt、活跃结果null、人工重试拒绝、释放后实际join并sent；旧unknown终局和join事实保留。SMTP550 failed/显式retry/current version/同根busy及未知终局实际完成。restricted log最终无新增fallback写。旧processing例外与扫描坏值为纯覆盖，不宣称本次worker产生旧形状。
+
+真实 EXPLAIN 使用三个正式创建的intent、原SQL与现有索引；normal/next/empty实际返回3/2/0行，执行0.108/0.082/0.032ms，分页上限为25+哨兵。原始计划见 [new-read01 raw](runs/new-read01/raw.log) 第59/445/833行；现有 intent排序没有新建复合索引，materialized page只约束后续关联量，不能据三行小表推导历史排序或无限规模SLA。
+
+每轮资源原件含 command/raw/input-before/input-after/result/cleanup、PID/starttime、实际 wait 和 exact-ID 两扫。new-read01/new-http02分别7个资源与113/69个owned进程；new-attempt01/new-attempt02分别9个资源与80/74个owned进程。全部实际退出，所见精确ID两次absent、原2容器4网络基线保持、owned PID/starttime与运行目录为空、monitor错误0，输入/driver前后相同。PG实际17.8/16.12及pgvector0.8.1，MinIO固定SHA与受控TLS/SMTP nonce均记录。历史PPID1 Z未触碰、不声称由本轮回收；这不是全宿主进程清零声明。
+
+| 离线检查（精确命令链接） | 实际退出 | 耗时 |
+| --- | ---: | ---: |
+| [api-pure03](runs/api-pure03/command.json) | 0 | 14.560s |
+| [pure-full01](runs/pure-full01/command.json) | 0 | 15.975s |
+| [race-full01](runs/race-full01/command.json) | 0 | 102.189s |
+| [vet-account01](runs/vet-account01/command.json) | 0 | 5.779s |
+| [integration-compile01](runs/integration-compile01/command.json) | 0 | 8.859s |
+| [integration-race-compile01](runs/integration-race-compile01/command.json) | 0 | 22.428s |
+| [integration-vet01](runs/integration-vet01/command.json) | 0 | 9.350s |
+| [build01](runs/build01/command.json) | 0 | 4.062s |
+| [repair-integration-race-compile01](runs/repair-integration-race-compile01/command.json) | 0 | 2.729s |
+| [repair-integration-vet01](runs/repair-integration-vet01/command.json) | 0 | 0.351s |
+| [http-repair-compile-list01](runs/http-repair-compile-list01/command.json) | 0 | 6.017s |
+| [http-repair-vet01](runs/http-repair-vet01/command.json) | 0 | 0.576s |
+| [revoke-repair-compile-list01](runs/revoke-repair-compile-list01/command.json) | 0 | 2.942s |
+| [revoke-repair-vet01](runs/revoke-repair-vet01/command.json) | 0 | 0.372s |
+| [driver-gate03](runs/driver-gate03/command.json) | 0 | 1.391s |
+
+`api-pure03` 包含九个新增纯顶层与原 TestB04HTTPOpenAPIRoutesAgree；全Account pure/race/vet及Central/Runner构建输入未变。后续 integration 变化均有对应 race编译、vet、精确发现和运行前门禁；`^$`/`-list` 是编译或发现，不计真实行为。最初 [api-pure01](runs/api-pure01/raw.log) 的两个测试符号和unused import编译失败永久保留，没有行为结论。所有原始command/env/源码副本、实际退出与SHA见 [结构化索引](author-stage-report.json)，不复造旧输入。
+
+待执行：旧 `TestAccountHTTPInvitationAndMailAdministration` 和 `TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority`；独立真实风险组合；主线程另授共享主树同步及最终接受。当前作者无活动命令或自有资源，八源/driver均停写；全局资源窗口由主线程另行分配。SMTP配置/管理UI、真实外部邮箱、全D07/D27或Runtime不随本阶段接受。

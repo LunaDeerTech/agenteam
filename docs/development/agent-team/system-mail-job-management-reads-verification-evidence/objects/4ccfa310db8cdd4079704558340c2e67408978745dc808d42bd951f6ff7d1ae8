@@ -1,0 +1,31 @@
+--- input03/tests/accountmail/mail_job_management_test.go
++++ input04/tests/accountmail/mail_job_management_test.go
+@@ -175,11 +175,23 @@
+ 	if e = f.service.RevokeInvitation(ctxFor(t), c.InvitationRevoke{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), ID: revoked.ID, ExpectedVersion: revoked.Version}); e != nil {
+ 		t.Fatal(e)
+ 	}
+-	// A formerly pending task is cancelled by formal worker admission, with no attempt.
+-	if e = composition.worker.RunJob(ctxFor(t), revoked.JobID); !faultCode(e, foundation.ResourceDeleted) {
+-		t.Fatal("revoked worker admission did not return the original link rejection", e)
+-	}
+-	read(t, revoked.JobID, c.InvitationDelivery, "cancelled", "smtp", "", "", 0)
++	// Formal revocation cancels pending work in the same transaction, without an attempt.
++	cancelledBefore := read(t, revoked.JobID, c.InvitationDelivery, "cancelled", "smtp", "", "", 0)
++	countsBeforeClaim := counts(t)
++	smtpBeforeClaim, e := network.State(ctxFor(t), success.ID)
++	if e != nil {
++		t.Fatal(e)
++	}
++	if e = composition.worker.RunJob(ctxFor(t), revoked.JobID); !faultCode(e, foundation.ResourceBusy) {
++		t.Fatal("worker admitted a formally cancelled task", e)
++	}
++	cancelledAfter := read(t, revoked.JobID, c.InvitationDelivery, "cancelled", "smtp", "", "", 0)
++	countsAfterClaim := counts(t)
++	smtpAfterClaim, e := network.State(ctxFor(t), success.ID)
++	if e != nil || !reflect.DeepEqual(cancelledBefore, cancelledAfter) || countsBeforeClaim != countsAfterClaim || smtpBeforeClaim.Connections != smtpAfterClaim.Connections || smtpBeforeClaim.Auth != smtpAfterClaim.Auth || smtpBeforeClaim.Mail != smtpAfterClaim.Mail || smtpBeforeClaim.Messages != smtpAfterClaim.Messages {
++		t.Fatal("rejected cancelled-task claim changed facts, attempts or SMTP counts", e)
++	}
++	t.Log("formal revocation retained cancelled/null; worker rejected with ResourceBusy and unchanged DTO, attempt and SMTP counts")
+ 	t.Run("failed-cycle-and-explicit-retry", func(t *testing.T) {
+ 		endpoint, e := network.Create(ctxFor(t), smtpfixture.Scenario{Mode: "none", MailCode: 550})
+ 		if e != nil {

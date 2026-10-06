@@ -1,0 +1,27 @@
+# D07 mail-job management reads — private author input01
+
+Private candidate is ready for independent review; real HTTP/PG/SMTP execution is not authorized and has not run. No shared repository candidate was written. No Git mutation, resource startup, migration, lockfile or old fixture/test change.
+
+Fixed dependencies: `3c79fd4069837c4cee0b1ed37e00480ea8f1909f`. The initial bounded archive contains 937 files; the final private workspace contains 943, consisting of the original 935 noncandidate dependencies plus exactly eight authorized files. `baseline.json`, `closure-check01.json` and `input01/manifest.json` bind those facts. The source copy is `input01/source/`; `input01/candidate.diff` compares only the eight paths to the fixed base. API-stage01's five files remain byte-identical.
+
+The two GETs use a separate flat nine-required-field projection and cursor binding. The dispatcher adds only their exact preauthentication budget; the legacy read helper, DTOs, operations and schemas are unchanged. One statement limits intents before both unique job joins, preserves absent/bad rows for validation, and joins only the exact current attempt. Scanner failure, sentinel failure, actual Close/Err, cancellation and transaction Unknown discard candidates. Response encoding is followed by a cancellation check before writing.
+
+The new integration sources use the accepted fixture/service/worker. They prepare formal intent creation, list/detail and immutable creation-time comparisons, a formal enqueue precommit snapshot gate, current-role denial after an observed PG advisory wait, the existing 1s DB lock timeout and earlier parent cancellation, actual restricted-log/SMTP outcomes, a real 10–11s first retry delay, a paused next attempt with actual join, and existing manual-retry rules. No mail phase, attempt, fence, result or next_at is changed by SQL. EXPLAIN will report three formal intents and existing indexes only; no scale/SLA conclusion is claimed. These are compiled scenarios, not real-run evidence.
+
+| Check | Actual exit | Elapsed | Meaning |
+| --- | ---: | ---: | --- |
+| api-pure01 | 1 | 32.165s | Preserved first compile failure: new test used two incorrect contract symbols and an unused import. No behavioral result. |
+| api-pure02 | 0 | 11.878s | New unit group and old route agreement passed after test symbol correction. |
+| api-pure03 | 0 | 14.560s | Final nine new top levels plus unchanged route agreement; actual 3s authentication contexts, earlier parents and blocked tails joined. |
+| build01 | 0 | 4.062s | Central and Runner built without starting either binary. |
+| integration-compile01 | 0 | 8.859s | Both integration packages compiled; ^$ deliberately runs zero real tests. |
+| integration-list01 | 0 | 0.797s | Exactly the three new and two original top-level selectors discovered; not execution. |
+| integration-race-compile01 | 0 | 22.428s | Both integration packages race-compiled; zero real tests. |
+| integration-vet01 | 0 | 9.350s | Both integration packages tagged vet passed. |
+| pure-full01 | 0 | 15.975s | Full Account package tree ordinary tests passed. |
+| race-full01 | 0 | 102.189s | Full Account package tree race tests passed; cold private build cache included. |
+| vet-account01 | 0 | 5.779s | Full Account package tree vet passed. |
+
+Every check has `runs/<name>/{command.json,input-before.json,input-after.json,raw.log,result.json,source/}`. Actual wait and unchanged candidate inputs are recorded per run. All raw failures remain. The full unit/race/vet checks precede only changes to the three new integration files, which are outside their compilation scope; their tested production/unit input remains unchanged.
+
+No active command or resource remains. Eight private sources and their snapshots are stopped. Next step: independent fixed-source review, then root-authorized real three-top-level execution and original two-top-level regression. Main-tree synchronization remains separately unapproved. This does not accept SMTP UI or complete D07/D27.

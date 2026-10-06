@@ -1,0 +1,94 @@
+{
+  "active_author_resources": false,
+  "delivery8": {
+    "path": "author-delivery8.json",
+    "sha256": "a18068de3cf3a1384fcd970da88837fa26020d6b85081c1388e10026e502461b"
+  },
+  "driver_input_sha256": "c53706ae319b7293345b6245ca421277ab90d26c52be1f524feab05ed028030d",
+  "driver_sha256": "3f822063c2b77f857a247c190c32951b2d8303d38e95353c0e70d1f0138b28a0",
+  "final_source_check": {
+    "935_accepted_dependencies_match": true,
+    "eight_sources_match": true,
+    "shared_eight_unchanged": true
+  },
+  "input04_manifest_sha256": "4e3bee7144106e9b183977a8306314f08732a18ef54111997fbfb9a3a7ada5c4",
+  "old01": {
+    "artifacts": {
+      "cleanup.json": "29ada50eef89cd81e31c82ba1d4568452d9b6d49f4a4f45fe89f3b141bf05301",
+      "command.json": "341214f13294c3eaa4e7bb503123bb4eeefb968faad3a8a6ab06fb601d30d2c4",
+      "input-after.json": "edceb8eab7c3d847bdeac08fe3a31d921f56d1b26c58b2abac93002798f6882c",
+      "input-before.json": "edceb8eab7c3d847bdeac08fe3a31d921f56d1b26c58b2abac93002798f6882c",
+      "raw.log": "130c16ecb3babb0fcfc9a66af68a85f793b381a00068f0f245c66efdbcd55f20",
+      "result.json": "6dbb7c71de2f61d381e0ac1ff9e056cfa2c5ec9fd71eae94a2c6d2bb8b1cb0b8",
+      "verification-input.json": "b06e2c3f6fc75d770e783f3abb0f212afbae6a40be2350237bb494da01c35d14"
+    },
+    "command": {
+      "actual_wait_completed": true,
+      "argv": [
+        "sh",
+        "scripts/test-security.sh",
+        "-run",
+        "^(TestAccountHTTPInvitationAndMailAdministration|TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority)$"
+      ],
+      "cwd": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/workspace",
+      "ended_utc": "2026-10-06T15:18:01.837068+00:00",
+      "env": {
+        "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+        "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+        "CGO_ENABLED": "1",
+        "GOCACHE": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/gocache",
+        "GOENV": "off",
+        "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+        "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "GOPROXY": "off",
+        "GOSUMDB": "off",
+        "GOTOOLCHAIN": "local",
+        "GOWORK": "off",
+        "TMPDIR": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/runs/old01/runtime"
+      },
+      "exit": 0,
+      "seconds": 61.503,
+      "started_utc": "2026-10-06T15:17:00.334388+00:00"
+    },
+    "historical_ppid1_zombies_untouched_count": 311,
+    "summary": {
+      "accepted_baseline_after": true,
+      "accepted_baseline_before": true,
+      "adopted_waits": 0,
+      "browser_processes": 0,
+      "double_cleanup": true,
+      "driver_exit": 0,
+      "monitor_errors": 0,
+      "node_processes": 0,
+      "observed_processes": 70,
+      "observed_resources": 7,
+      "resource_topology_matches": true,
+      "run": "old01",
+      "run_directory": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/runs/old01",
+      "selected_tests_passed": true,
+      "source_files_unchanged": true,
+      "top_levels": [
+        [
+          "PASS",
+          "TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority"
+        ],
+        [
+          "PASS",
+          "TestAccountHTTPInvitationAndMailAdministration"
+        ]
+      ],
+      "verification_inputs_unchanged": true
+    }
+  },
+  "pending": [
+    "Independent real risk verification",
+    "Root-authorized synchronization to shared repository",
+    "Root final acceptance"
+  ],
+  "stage_report": {
+    "path": "author-stage-report.md",
+    "sha256": "2af3123baed4dd8dfc9c3a06a4abfaa8a9bcf5f41503d59c6dae1dedf3792fe2"
+  },
+  "status": "Author three new plus two original integration groups passed by unchanged-input composition; independent real verification and shared-tree integration pending",
+  "stopped_writing": true
+}

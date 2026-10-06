@@ -1,0 +1,12 @@
+--- private/pure-addon01
++++ private/pure-addon02
+@@ -72,7 +72,8 @@
+             if response.Body.Len()!=0 { t.Fatal("candidate or error published before original tail") }
+             close(tailRelease);tailDone=true
+             select { case <-joined: case <-time.After(time.Second):t.Fatal("released original HTTP call did not return") }
+-            if response.Code!=503 || strings.Contains(response.Body.String(),"items") || strings.Contains(response.Body.String(),"job_id") || strings.Contains(response.Body.String(),"deadline") || len(st.operations)!=0 || s.authCalls!=1 || s.txCalls!=1 || s.queryCalls+s.detailCalls!=1 { t.Fatal("failure did not stay safe and empty",response.Code) }
++            t.Logf("safe terminal facts: status=%d auth=%d tx=%d query=%d detail=%d active=%d",response.Code,s.authCalls,s.txCalls,s.queryCalls,s.detailCalls,len(st.operations))
++            if response.Code!=503 || strings.Contains(response.Body.String(),"items") || strings.Contains(response.Body.String(),"job_id") || strings.Contains(response.Body.String(),"deadline") || len(st.operations)!=0 || s.authCalls!=1 || s.txCalls!=3 || s.queryCalls+s.detailCalls!=1 { t.Fatal("failure did not stay safe and empty",response.Code) }
+             httpAssertSecurityHeaders(t,response)
+             t.Logf("detail=%t original authentication/read deadline shared; tail joined, elapsed=%s",detail,time.Since(started))
+         })

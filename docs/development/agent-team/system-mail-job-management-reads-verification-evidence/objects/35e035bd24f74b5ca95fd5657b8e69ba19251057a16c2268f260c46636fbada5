@@ -1,0 +1,150 @@
+=== RUN   TestHTTPMailJobManagementFacts
+--- PASS: TestHTTPMailJobManagementFacts (0.00s)
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/job-id
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/kind
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/created
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/mapping
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/missing-config
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/attempts-negative
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/attempts-seven
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/version-zero
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/reason
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/fence-negative
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/absent-job-phase
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/absent-job-attempts
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/absent-job-version
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/absent-job-reason
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/absent-job-fence
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/existing-enqueue
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/phase
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/pointer-id
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/pointer-missing-row
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/attempt-job
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/attempt-fence
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/no-claims
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/zero-fence
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/channel-null
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/channel-enum
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/protocol
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/closed-without-result
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/terminal-without-result
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/result-not-closed
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/result-not-terminal
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/result-not-joined
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/result-enum
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/no-current-claimed
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/no-current-sending
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/no-current-retry_wait
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/no-current-sent
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/no-current-failed
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-l
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-m
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-n
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-o
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-p
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-q
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-r
+=== RUN   TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-s
+--- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/job-id (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/kind (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/created (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/mapping (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/missing-config (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/attempts-negative (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/attempts-seven (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/version-zero (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/reason (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/fence-negative (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/absent-job-phase (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/absent-job-attempts (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/absent-job-version (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/absent-job-reason (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/absent-job-fence (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/existing-enqueue (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/phase (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/pointer-id (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/pointer-missing-row (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/attempt-job (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/attempt-fence (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/no-claims (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/zero-fence (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/channel-null (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/channel-enum (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/protocol (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/closed-without-result (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/terminal-without-result (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/result-not-closed (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/result-not-terminal (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/result-not-joined (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/result-enum (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/no-current-claimed (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/no-current-sending (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/no-current-retry_wait (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/no-current-sent (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/no-current-failed (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-l (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-m (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-n (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-o (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-p (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-q (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-r (0.00s)
+    --- PASS: TestHTTPMailJobManagementRejectsBadFactsAndSentinel/orphan-column-s (0.00s)
+=== RUN   TestHTTPMailJobManagementScanCloseCancelAndCursor
+=== RUN   TestHTTPMailJobManagementScanCloseCancelAndCursor/scan
+=== RUN   TestHTTPMailJobManagementScanCloseCancelAndCursor/rows
+=== RUN   TestHTTPMailJobManagementScanCloseCancelAndCursor/close
+=== RUN   TestHTTPMailJobManagementScanCloseCancelAndCursor/cancel-at-close
+=== RUN   TestHTTPMailJobManagementScanCloseCancelAndCursor/cursor
+--- PASS: TestHTTPMailJobManagementScanCloseCancelAndCursor (0.00s)
+    --- PASS: TestHTTPMailJobManagementScanCloseCancelAndCursor/scan (0.00s)
+    --- PASS: TestHTTPMailJobManagementScanCloseCancelAndCursor/rows (0.00s)
+    --- PASS: TestHTTPMailJobManagementScanCloseCancelAndCursor/close (0.00s)
+    --- PASS: TestHTTPMailJobManagementScanCloseCancelAndCursor/cancel-at-close (0.00s)
+    --- PASS: TestHTTPMailJobManagementScanCloseCancelAndCursor/cursor (0.00s)
+=== RUN   TestHTTPMailJobManagementTransactionZeroAndBudget
+=== RUN   TestHTTPMailJobManagementTransactionZeroAndBudget/unknown-detail
+=== RUN   TestHTTPMailJobManagementTransactionZeroAndBudget/cancel-after-detail
+=== RUN   TestHTTPMailJobManagementTransactionZeroAndBudget/wrong-detail-id
+=== RUN   TestHTTPMailJobManagementTransactionZeroAndBudget/missing-detail
+=== RUN   TestHTTPMailJobManagementTransactionZeroAndBudget/query
+=== RUN   TestHTTPMailJobManagementTransactionZeroAndBudget/unknown-list
+--- PASS: TestHTTPMailJobManagementTransactionZeroAndBudget (0.00s)
+    --- PASS: TestHTTPMailJobManagementTransactionZeroAndBudget/unknown-detail (0.00s)
+    --- PASS: TestHTTPMailJobManagementTransactionZeroAndBudget/cancel-after-detail (0.00s)
+    --- PASS: TestHTTPMailJobManagementTransactionZeroAndBudget/wrong-detail-id (0.00s)
+    --- PASS: TestHTTPMailJobManagementTransactionZeroAndBudget/missing-detail (0.00s)
+    --- PASS: TestHTTPMailJobManagementTransactionZeroAndBudget/query (0.00s)
+    --- PASS: TestHTTPMailJobManagementTransactionZeroAndBudget/unknown-list (0.00s)
+=== RUN   TestHTTPMailJobManagementPreauthenticationDeadlineAndJoin
+=== RUN   TestHTTPMailJobManagementPreauthenticationDeadlineAndJoin//system/mail-jobs/management/10s
+    http_mail_job_management_test.go:518: original authentication context expired; blocked tail joined; elapsed=3.02124495s, no read transaction
+=== RUN   TestHTTPMailJobManagementPreauthenticationDeadlineAndJoin//system/mail-jobs/management/75ms
+    http_mail_job_management_test.go:518: original authentication context expired; blocked tail joined; elapsed=96.007954ms, no read transaction
+=== RUN   TestHTTPMailJobManagementPreauthenticationDeadlineAndJoin//system/mail-jobs/0199b4d2-5c00-7000-8000-000000000001/management/10s
+    http_mail_job_management_test.go:518: original authentication context expired; blocked tail joined; elapsed=3.02071004s, no read transaction
+=== RUN   TestHTTPMailJobManagementPreauthenticationDeadlineAndJoin//system/mail-jobs/0199b4d2-5c00-7000-8000-000000000001/management/75ms
+    http_mail_job_management_test.go:518: original authentication context expired; blocked tail joined; elapsed=95.765192ms, no read transaction
+--- PASS: TestHTTPMailJobManagementPreauthenticationDeadlineAndJoin (6.24s)
+    --- PASS: TestHTTPMailJobManagementPreauthenticationDeadlineAndJoin//system/mail-jobs/management/10s (3.02s)
+    --- PASS: TestHTTPMailJobManagementPreauthenticationDeadlineAndJoin//system/mail-jobs/management/75ms (0.10s)
+    --- PASS: TestHTTPMailJobManagementPreauthenticationDeadlineAndJoin//system/mail-jobs/0199b4d2-5c00-7000-8000-000000000001/management/10s (3.02s)
+    --- PASS: TestHTTPMailJobManagementPreauthenticationDeadlineAndJoin//system/mail-jobs/0199b4d2-5c00-7000-8000-000000000001/management/75ms (0.10s)
+=== RUN   TestHTTPMailJobManagementWireRoutesAndEncoding
+--- PASS: TestHTTPMailJobManagementWireRoutesAndEncoding (0.01s)
+=== RUN   TestHTTPMailJobManagementOpenAPIClosedSchemas
+--- PASS: TestHTTPMailJobManagementOpenAPIClosedSchemas (0.00s)
+=== RUN   TestHTTPMailJobManagementFacadeCancelledTailJoins
+=== RUN   TestHTTPMailJobManagementFacadeCancelledTailJoins/list
+=== RUN   TestHTTPMailJobManagementFacadeCancelledTailJoins/detail
+--- PASS: TestHTTPMailJobManagementFacadeCancelledTailJoins (0.19s)
+    --- PASS: TestHTTPMailJobManagementFacadeCancelledTailJoins/list (0.10s)
+    --- PASS: TestHTTPMailJobManagementFacadeCancelledTailJoins/detail (0.10s)
+=== RUN   TestHTTPMailJobManagementAuthenticatedRoutingAndQueries
+--- PASS: TestHTTPMailJobManagementAuthenticatedRoutingAndQueries (0.00s)
+=== RUN   TestB04HTTPOpenAPIRoutesAgree
+--- PASS: TestB04HTTPOpenAPIRoutesAgree (0.01s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/account	6.470s

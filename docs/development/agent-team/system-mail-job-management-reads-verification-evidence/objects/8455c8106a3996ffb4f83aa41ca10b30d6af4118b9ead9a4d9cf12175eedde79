@@ -1,0 +1,14 @@
+{
+  "product_manifest": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/input04/manifest.json",
+  "product_manifest_sha256": "4e3bee7144106e9b183977a8306314f08732a18ef54111997fbfb9a3a7ada5c4",
+  "workspace": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/workspace",
+  "private": {
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/overlay/http_mail_job_management_test.go": "56ecdce9316913f947d1177016d0d60bad13541673b497d25e5e1987dde25c48",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/pure-addon.go.txt": "9db77d3c694bce4cbca2aa52303a3cb5bc7d640b3a2b2cbdb663b68f5966b814",
+    "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/pure-overlay01.json": "b691709d4d08c0b5b0df138b7a0469694f6b085d222a28820ae60871a2687627"
+  },
+  "overlay": "/workspace/scratch/agenteam-mail-management-independent-SU2QTntj/pure-overlay01.json",
+  "selector": "^TestIndependentMailManagement(BudgetAndActualJoin|CandidateRetiresAfterClose)$",
+  "package": "./internal/central/account",
+  "no_real_resources": true
+}

@@ -202,3 +202,19 @@ controller仅在公开主动放弃的同步退役边界将本批未完current/re
 最终十六图仅作者逐张检查，主线程仅读报告，独立及归档不新增图审声明；窄屏下方字段需主区域滚动。早期Go编译未消费browser前态72e3a507…40d37无精确副本，仅保留原fingerprint/command/raw/exit，不重复搜索或补造，最终失败源与受测源齐全。早期env只据原记录，不扩为完整环境。本次559逻辑／388唯一SHA对象中353新增、35复用既有永久档，离线核27Git路径／1051基线／64原检查含十轮终局，不复制依赖/dist实体／二进制或重跑产品。
 
 §16–17所述Account待组合现由本节独立接受闭合，旧正文不改。本次不写SMTP卡、前端README或产品；不接受SMTP发送／新后端／迁移、生产SPA／Vite代理浏览器、BFCache、原生缩放或Runtime。完整D09/D26/D27及D08–D28/E01未完成，E01未开始；Summary待决、Object/tools原停止、Artifact/Project与生产未绑定及ready503等边界保持。
+
+## 19. System 邮件任务管理事实读口接受
+
+§1–18保持原阶段事实。[管理读口 rev1.2](../work-items/d07-system-mail-job-management-reads.md)八路径已获作者新三组／旧两组、独立风险验收及主线程采纳，提交推送 `819aba1b8f764328f1e2e67b53c274fad0db877d`，主线程核远端一致。[正式报告与不可变证据](system-mail-job-management-reads-verification.md)固定input04 `4e3bee7144106e9b183977a8306314f08732a18ef54111997fbfb9a3a7ada5c4`、八交付源与私有3c79fd4基线935文件；Go1.27.1／3501运行时文件指纹、锁和固定MinIO均有原门禁。卡技术§1–6保持137e6a30…176bc原字节。
+
+新增列表／详情两个GET-only管理投影，九required字段和可省reason、真实attempt渠道／结果nullable，旧channel仍是兼容摘要。单statement先materialize intent页、核双向job及exact current attempt；同Tx当前管理员授权，哨兵／Close／取消／Unknown等失败零候选，预认证前建立最长3s并继承更早期限，实际尾部join后返回。旧MailJob／InvitationDelivery／写receipt／cursor与正式retry资格不变；GET不是命令receipt，不新增lookup、自动重试／轮询、索引或迁移。
+
+作者new-read01的HTTP原CURSOR_INVALID期望错误保留，同轮ReadBudget PASS；input03仅修该8193B期望，完整HTTP复验通过。new-attempt01撤销后期待ResourceDeleted而正式workerBusy的原卡／测试前提错误保留；rev1.2/input04先读cancelled/null再硬验Busy及DTO／五DB计数／SMTP零新增，完整AttemptFacts随后通过。backoff静态修正分清completed_at与schedule两时钟，保留10s下界及原12s期限，不伪造状态。api-pure01编译首红保留；全pure/race/vet/build、受影响integration编译／发现均已完成，编译不计行为。
+
+新三组和旧两组按未变输入组合。独立pure01候选Close退役两例通过，预算组三事务计数前提错误由pure02两例复验闭合，原exit1不改；原Database.Connect准备编译错误也保留。真实A在independent01完整PASS3.05s：150ms父期限typed57014零候选，正式Logout发生在两读真实advisory等待期间，释放后同Tx授权拒绝、候选SQL0和实际join。A直调facade/PG，HTTP预认证由纯handler＋作者正式HTTP补足。
+
+真实B首轮已到新log子周期DTO，却以公开backend_log误断DB原log，综合原raw无逐字段诊断，归因据固定writer/scanner/SQL，不能追填旧现场。只修该私有条件，independent02只B完整PASS4.58s、actual0/56.339s；旧unknown/fence/actual join、retry源版本增加1、新周期null→日志sent、same-key当前版本及重复读零新DB／SMTP全部通过。A原字节复用，未称首轮全绿。作者五轮＋独立两轮原command实际wait、7或9exact IDs双absent、各所属PID/starttime双空、monitor0/runtime空及原2容器4网络不变；最终B72PID，所有adopted wait为0，历史PPID1 Z不触碰、不计已回收，窗口释放。
+
+受控handler真实context本地3s／更早150ms与真实PG75ms父期限／原1s锁超时分别记录，不能把DB1s说成3s自然到期。三个正式intent的normal/next/empty EXPLAIN返回3/2/0行，只证明小表计划和分页后关联限制，不证明无索引历史排序规模SLA。B仅自有受控SMTP和受限日志，没有外部邮箱／SMTP UI／浏览器／生产SPA或Runtime验收。
+
+归档529逻辑／237去重原件，仅离线核八Git路径／935固定依赖／3501原运行时指纹与38检查含七轮终局，不复制完整树／依赖／dist／二进制或重新执行产品。Account§18接受不被改写，SMTP配置首卡及后继页面仍各自另验。本次只更新授权入口；完整D07/D27及D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project及生产未绑定／ready503等边界保持。

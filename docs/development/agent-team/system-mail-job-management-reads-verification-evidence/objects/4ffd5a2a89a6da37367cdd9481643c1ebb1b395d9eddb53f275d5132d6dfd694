@@ -1,0 +1,47 @@
+from pathlib import Path
+import hashlib
+import importlib.util
+import json
+import subprocess
+import time
+import datetime
+
+root=Path(__file__).resolve().parent
+author=Path('/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i')
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+source_manifest=author/'driver-stage03/input.json'
+assert sha(source_manifest)=='c53706ae319b7293345b6245ca421277ab90d26c52be1f524feab05ed028030d'
+original=json.loads(source_manifest.read_text())
+private=json.loads((root/'real-input03.json').read_text())
+driver=root/'run-independent02.py'
+spec=importlib.util.spec_from_file_location('independent_driver',driver)
+module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+execution={
+    'product_base': original['product_base'], 'product_manifest': original['product_manifest'],
+    'accepted_baseline': original['accepted_baseline'], 'files': original['files'],
+    'driver_sha256':sha(driver), 'private':private['private'],
+    'overlay_replacements':json.loads((root/'real-overlay03.json').read_text())['Replace'],
+    'author_driver_input':{'path':str(source_manifest),'sha256':sha(source_manifest)},
+    'limits':{'package_seconds':360,'count':1,'race':True,'fixture_budgets_unchanged':True,'actual_resources_authorized':False},
+}
+module.FROZEN=execution
+started=time.monotonic()
+runtime=module.runtime_input()
+for key in ['files','modules','packages','go_environment','executables','generated_test_mains','discovery_argv']:
+    assert runtime[key]==original['runtime'][key],key
+execution['runtime']=runtime
+actual=module.source_input()
+assert actual['accepted_baseline']['accepted'] and actual['files']==execution['files'] and actual['private']==execution['private'] and actual['runtime']==runtime
+path=root/'execution02.json';assert not path.exists();path.write_text(json.dumps(execution,indent=2,sort_keys=True)+'\n')
+log=root/'checks/real-gate02';log.mkdir(parents=True,exist_ok=False)
+argv=['python3',str(driver),'--name','read-only-gate02','--group','attempt','--frozen',str(path),'--modcache',module.MODCACHE,'--check-input-only']
+command={'argv':argv,'cwd':str(root),'started_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'before_sha256':sha(path),'resource_execution':False}
+(log/'command.json').write_text(json.dumps(command,indent=2)+'\n')
+with (log/'raw.log').open('wb') as out:
+    process=subprocess.Popen(argv,cwd=root,stdin=subprocess.DEVNULL,stdout=out,stderr=subprocess.STDOUT)
+    process.wait(timeout=120)
+command.update(exit=process.returncode,actual_wait=True,seconds=round(time.monotonic()-started,3),after_sha256=sha(path),raw_sha256=sha(log/'raw.log'))
+(log/'result.json').write_text(json.dumps(command,indent=2)+'\n')
+print(json.dumps({'exit':process.returncode,'seconds':command['seconds'],'execution_sha256':sha(path),'driver_sha256':sha(driver),'runtime_files':len(runtime['files']),'accepted_baseline':len(execution['accepted_baseline']['files']),'candidate_files':len(execution['files']),'private_files':len(execution['private'])}))
+print((log/'raw.log').read_text())
+raise SystemExit(process.returncode)

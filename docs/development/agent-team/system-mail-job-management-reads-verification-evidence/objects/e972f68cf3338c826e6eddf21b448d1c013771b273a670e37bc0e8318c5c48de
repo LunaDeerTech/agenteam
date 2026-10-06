@@ -1,0 +1,152 @@
+--- /workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/driver-stage02/driver.py.txt
++++ /workspace/scratch/agenteam-mail-management-independent-SU2QTntj/run-independent01.py
+@@ -1,5 +1,5 @@
+ #!/usr/bin/env python3
+-"""Run only frozen mail-job management groups and record actual resources."""
++"""Independent fixed SMTP management representatives; explicit resource authorization required."""
+ import argparse
+ import datetime
+ import ctypes
+@@ -16,7 +16,9 @@
+ 
+ 
+ ROOT = Path(__file__).resolve().parent
+-REPO = ROOT / 'workspace'
++REPO = Path('/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/workspace')
++CACHE = Path('/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/gocache')
++OVERLAY = ROOT / 'real-overlay02.json'
+ GIT_REPO = Path('/workspace/agenteam')
+ BASE = '3c79fd4069837c4cee0b1ed37e00480ea8f1909f'
+ GO = '/workspace/toolchains/go1.27.1/bin/go'
+@@ -178,8 +180,8 @@
+     env = {key: value for key, value in os.environ.items() if not key.startswith('AGENTEAM_')}
+     env.update({'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': MODCACHE,
+-                'GOCACHE': str(ROOT / 'gocache'), 'TMPDIR': str(ROOT / 'tmp'),
+-                'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1'})
++                'GOCACHE': str(CACHE), 'TMPDIR': str(ROOT / 'tmp'),
++                'CGO_ENABLED': '1', 'GOFLAGS': '-mod=readonly -buildvcs=false -p=1 -overlay=' + str(OVERLAY)})
+     return env
+ 
+ 
+@@ -225,7 +227,7 @@
+                 path = (directory / name).resolve()
+                 if path.is_relative_to(REPO):
+                     continue  # Entire fixed source tree is independently bound.
+-                if path.is_relative_to(ROOT / 'gocache') or path.is_relative_to(ROOT / 'tmp'):
++                if path.is_relative_to(CACHE) or path.is_relative_to(ROOT / 'tmp'):
+                     if not package['ImportPath'].endswith('.test'):
+                         raise RuntimeError('unexpected generated compilation input')
+                     generated.add(package['ImportPath'])
+@@ -266,6 +268,22 @@
+     return found == expected
+ 
+ 
++def private_input():
++    actual = {}
++    for name in FROZEN['private']:
++        path = Path(name)
++        if path.is_symlink() or not path.is_file() or not path.is_relative_to(ROOT):
++            raise RuntimeError('invalid private verification input')
++        actual[name] = hashlib.sha256(path.read_bytes()).hexdigest()
++    mapping = json.loads(OVERLAY.read_text())
++    if mapping != {'Replace': FROZEN['overlay_replacements']}:
++        raise RuntimeError('private overlay changed')
++    product = FROZEN['product_manifest']
++    if hashlib.sha256(Path(product['path']).read_bytes()).hexdigest() != product['sha256']:
++        raise RuntimeError('frozen author manifest changed')
++    return actual
++
++
+ def source_input():
+     sha = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+     return {
+@@ -273,6 +291,7 @@
+         'accepted_baseline': accepted_baseline_input(),
+         'files': {name: sha(REPO / name) for name in FROZEN['files']},
+         'runtime': runtime_input(),
++        'private': private_input(),
+     }
+ 
+ 
+@@ -280,7 +299,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new-read', 'new-http', 'new-attempt', 'old'], required=True)
++    parser.add_argument('--group', choices=['both', 'permission', 'attempt'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     mode = parser.add_mutually_exclusive_group(required=True)
+@@ -290,10 +309,9 @@
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+     groups = {
+-        'new-read': ['TestAccountHTTPMailJobManagement', 'TestAccountMailJobManagementReadTransactionAndBudget'],
+-        'new-http': ['TestAccountHTTPMailJobManagement'],
+-        'new-attempt': ['TestAccountMailJobManagementAttemptFacts'],
+-        'old': ['TestAccountHTTPInvitationAndMailAdministration', 'TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority'],
++        'permission': ['TestIndependentMailManagementCurrentPermission'],
++        'attempt': ['TestIndependentMailManagementActualAttemptAndRetry'],
++        'both': ['TestIndependentMailManagementCurrentPermission', 'TestIndependentMailManagementActualAttemptAndRetry'],
+     }
+     if str(Path(args.modcache).resolve()) != MODCACHE:
+         raise ValueError('modcache differs from frozen runtime')
+@@ -307,7 +325,7 @@
+         raise RuntimeError('driver differs from frozen input')
+     if args.check_input_only:
+         current = source_input()
+-        same = all(current[key] == FROZEN[key] for key in ['files', 'runtime'])
++        same = all(current[key] == FROZEN[key] for key in ['files', 'runtime', 'private'])
+         accepted = current['accepted_baseline']['accepted']
+         print(json.dumps({'candidate_runtime_match': same, 'accepted_baseline': accepted,
+                           'accepted_count': current['accepted_baseline']['accepted_count'],
+@@ -330,7 +348,7 @@
+     if not before['accepted_baseline']['accepted']:
+         write(run / 'input-rejected.json', before)
+         raise RuntimeError('accepted baseline gate failed before any resource or fixture starts')
+-    if any(before[key] != FROZEN[key] for key in ['files', 'runtime']):
++    if any(before[key] != FROZEN[key] for key in ['files', 'runtime', 'private']):
+         raise RuntimeError('candidate source/runtime differs from frozen input')
+     if args.frozen.read_bytes() != frozen_bytes:
+         raise RuntimeError('frozen manifest changed during input gate')
+@@ -341,12 +359,12 @@
+     baseline = resources()
+     write(run / 'baseline.json', baseline)
+     env = runtime_environment()
+-    flags = '-mod=readonly -buildvcs=false -p=1 -v'
++    flags = '-mod=readonly -buildvcs=false -p=1 -v -overlay=' + str(OVERLAY)
+     env.update({'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+                 'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                 'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': args.modcache,
+-                'GOCACHE': str(ROOT / 'gocache'), 'TMPDIR': str(runtime),
++                'GOCACHE': str(CACHE), 'TMPDIR': str(runtime),
+                 'CGO_ENABLED': '1', 'GOFLAGS': flags})
+     argv = ['sh', 'scripts/test-security.sh', '-run', args.selector]
+     record = {'argv': argv, 'cwd': str(REPO), 'started_utc': utc(),
+@@ -419,7 +437,7 @@
+     after = source_input()
+     write(run / 'input-after.json', after)
+     clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+-    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['runtime'] == after['runtime'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
++    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['runtime'] == after['runtime'] and before['private'] == after['private'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
+                'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
+                'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+                'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}
+@@ -429,13 +447,13 @@
+     summary['browser_processes'] = sum(row['name'] in {'chromium', 'chrome', 'chrome_crashpad'} for row in observed_processes.values())
+     summary['node_processes'] = sum(row['executable'] in {'node', 'nodejs'} for row in observed_processes.values())
+     summary['adopted_waits'] = len(adopted_waits)
+-    summary['resource_topology_matches'] = resource_topology(observed_resources, args.group == 'new-attempt')
++    summary['resource_topology_matches'] = resource_topology(observed_resources, args.group in ('both', 'attempt'))
+     summary['top_levels'] = tops
+     summary['selected_tests_passed'] = len(tops) == len(expected) and {name for state, name in tops if state == 'PASS'} == expected
+     summary['historical_zombies_untouched'] = [{key: row[key] for key in ['ppid','starttime','state','name']} | {'pid':pid} for pid,row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z']
+     write(run / 'result.json', summary)
+     print(json.dumps(summary), flush=True)
+-    return 0 if exit_code == 0 and clean and len(observed_resources) == (9 if args.group == 'new-attempt' else 7) and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] and not summary['browser_processes'] and not summary['node_processes'] and summary['resource_topology_matches'] else 1
++    return 0 if exit_code == 0 and clean and len(observed_resources) == (9 if args.group in ('both', 'attempt') else 7) and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] and not summary['browser_processes'] and not summary['node_processes'] and summary['resource_topology_matches'] else 1
+ 
+ 
+ if __name__ == '__main__':

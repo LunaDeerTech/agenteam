@@ -1,0 +1,20 @@
+# D07 管理读口：作者旧回归增补
+
+[作者阶段报告](author-stage-report.md)原件保持。现已补齐旧两个顶层，因此作者范围内的新三组与旧两组全部通过；**独立真实验证、共享主树同步及主线程最终接受仍待完成**。
+
+`old01` 使用固定 input04（SHA256 `4e3bee7144106e9b183977a8306314f08732a18ef54111997fbfb9a3a7ada5c4`）、driver-stage03 输入（`c53706ae319b7293345b6245ca421277ab90d26c52be1f524feab05ed028030d`）与未变 driver（`3f822063c2b77f857a247c190c32951b2d8303d38e95353c0e70d1f0138b28a0`）。[实际命令/环境](runs/old01/command.json)为 `sh scripts/test-security.sh -run '^(TestAccountHTTPInvitationAndMailAdministration|TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority)$'`，原 Go1.27.1、race/count1/6m及fixture期限保持；没有重跑新三组。
+
+| 原顶层 | 实际结果 |
+| --- | --- |
+| TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority | PASS，4.49s |
+| TestAccountHTTPInvitationAndMailAdministration | PASS，4.74s |
+
+[整轮结果](runs/old01/result.json)：实际 exit0/61.503s，已实际 wait。 [双清原件](runs/old01/cleanup.json)：7个精确资源ID两次absent，70个owned PID/starttime无残留，运行目录为空，原2容器4网络保持，monitor错误0；输入和driver前后相同。历史PPID1 Z未触碰，不声称回收；没有浏览器或外部Provider/邮箱调用。
+
+- result SHA256 `6dbb7c71de2f61d381e0ac1ff9e056cfa2c5ec9fd71eae94a2c6d2bb8b1cb0b8`
+- cleanup SHA256 `29ada50eef89cd81e31c82ba1d4568452d9b6d49f4a4f45fe89f3b141bf05301`
+- [原raw](runs/old01/raw.log) SHA256 `130c16ecb3babb0fcfc9a66af68a85f793b381a00068f0f245c66efdbcd55f20`
+
+最终交付仍为[八源清单](author-delivery8.json)（SHA256 `a18068de3cf3a1384fcd970da88837fa26020d6b85081c1388e10026e502461b`）与[完整差异](author-delivery8.diff)，未修改任何八源、935个依赖、driver或共享主树。新组结论仍由 new-read01 的 ReadBudget、new-http02 的 HTTP、new-attempt02 的 AttemptFacts组合；new-read01和new-attempt01两个失败整轮及更早编译失败全部保留，不能因本回归成功改称它们整轮通过。
+
+[结构化增补](author-regression-addendum.json)保存完整命令、结果/原件SHA及最终只读核验。作者已无活动命令、自有资源或后续写入，窗口已交还主线程，等待独立验证和后续整合授权。

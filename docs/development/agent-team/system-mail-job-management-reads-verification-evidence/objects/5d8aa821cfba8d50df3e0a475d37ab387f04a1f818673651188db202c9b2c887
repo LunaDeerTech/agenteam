@@ -1,0 +1,9 @@
+# github.com/LunaDeerTech/agenteam/tests/account_test [github.com/LunaDeerTech/agenteam/tests/account.test]
+../../agenteam-mail-management-independent-SU2QTntj/overlay/mail_job_management_query_independent01.go:453:13: assignment mismatch: 2 variables but db.Connect returns 1 value
+../../agenteam-mail-management-independent-SU2QTntj/overlay/mail_job_management_query_independent01.go:453:35: too many arguments in call to db.Connect
+	have (context.Context, nil)
+	want (*testing.T)
+FAIL	github.com/LunaDeerTech/agenteam/tests/account [build failed]
+TestIndependentMailManagementActualAttemptAndRetry
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.018s
+FAIL

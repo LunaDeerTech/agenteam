@@ -1,0 +1,13 @@
+# 独立 B 窄修准备
+
+仅私有 DB channel 条件改为 `string(c.RecoveryLogChannel)`，不改变公开 `backend_log`、新ID/result/terminal/io_joined、源事实不漂移、SMTP零新增与原same-key当前version断言。`real-b01-to02.diff` SHA `786d1c4ace9d4486c8caef3092936d7f3a5ee87494a6c86c24d3e84b6aaecadc`。无新增日志。A addon/实际overlay逐字节未变，复用 independent01 完整PASS，不运行A。
+
+原01源/driver/execution/raw/result/cleanup及归因完整保留；归因 `independent01-attribution.md` SHA `9505c7f188afd1c9772ee22cc2268caded1000eb4b8cff62b91e87887a2f0c7d`。新B addon在 `real-b02.go.txt`，实际固定overlay在 `overlay/mail_job_management_independent02.go`，映射为 `real-overlay03.json`。driver02仅常量指向新overlay，执行/预算/清理逻辑完全未变，见 `driver01-to02.diff`。
+
+必要离线检查均 actual wait exit0，输入不变：`compile-list03` 2.904秒（仅accountmail/-race/integration/原6m/精确B发现1例），`real-vet02` .336秒；`real-gate02` 输入发现和门禁3.535秒，8候选/935基线/3501runtime/5私有文件全部匹配，未启动资源。
+
+新 execution02 SHA `da0fd00eead7d1351e04f93ca152c76decf2a4f032034f2cd5a02a6ef5e3b9d9`，driver02 SHA `4b2c5703618365e34c44f76fe6f92e36cbd68578dbc5ad345dc9d246573a0977`。本次未动产品/作者输入，真实B尚未重跑，无活动命令/资源，等待root正式移窗。获授后的唯一命令：
+
+```sh
+python3 /workspace/scratch/agenteam-mail-management-independent-SU2QTntj/run-independent02.py --name independent02 --group attempt --frozen /workspace/scratch/agenteam-mail-management-independent-SU2QTntj/execution02.json --modcache /workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache --execute-authorized
+```

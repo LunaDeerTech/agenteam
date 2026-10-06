@@ -1,0 +1,15 @@
+# 独立真实首轮归因（不改原件）
+
+固定 execution01 `ff82ef52d2b424b122c588054b0aee6f7a40246cd21af29bc78de12e2de3de37`、作者 input04。`runs/independent01` actual wait exit1/55.476秒；9 exact IDs两扫absent、75 owned PID/starttime两扫空、0 adopted waits、monitor0、runtime空、原基线和8/935/runtime/private输入前后相同。没有后续活动命令/资源，也没有自动重跑。
+
+A `TestIndependentMailManagementCurrentPermission` 完整PASS3.05秒：实际父期限150ms，原调用154.411383ms结束，typed NotCommitted/LockFailed，SQLSTATE57014，零候选。两个读均实在自有PG advisory锁等待期间正式Logout提交撤销，释放后list/detail均SessionRevoked、每个原事务当前授权1次/候选SQL0、零读取副作用并实际join。
+
+B `TestIndependentMailManagementActualAttemptAndRetry` 在5.02秒处失败：私有overlay第542–543行综合条件 `child.id == u.id || child.channel != "backend_log" || child.result != "sent" || !child.terminal || !child.joined`。原raw未逐字段输出，不能倒填该轮各DB值。
+
+静态正式规则已确认：固定 `internal/central/account/contract/delivery.go:35` 的 `RecoveryLogChannel` 是 `log`；`delivery.go:205/233` 将该枚举原样存 attempt.channel；候选 `http_mail_job_management_reads.go:198–206` 将DB `log` 映射为公开 `backend_log`。私有exactAttempt原SQL直接读取a.channel，末条件错误套用了公开名称。该归因是固定writer/serializer和私有SQL的确定冲突，不是新产品故障，也不把原raw升级成逐字段诊断。
+
+到达该断言前：active真实SMTP/null、丢accepted后的unknown和原actualjoin、正式unconfigure后旧exact事实保留、正式manualretry新周期/源version+1、初次same-key重放零新增、child真实log worker正常结束且registry.Joined，以及child list/detail的sent/backend_log/sent都已走过。后续“child完成后source仍不漂移/SMTP不新增”和“原same-key返回child当前version”尚未到达，不计通过。
+
+建议最小返修仅私有DB断言改为 `child.channel != string(c.RecoveryLogChannel)`；公开backend_log断言、精确ID/result/terminal/io_joined及所有后半强断言保持。原A不变可复用。未经主线程授权，本记录不修改探针/driver、不启动重跑。
+
+原件SHA：raw `e2ee971dce1adab8f3c6bba190f45f5c79e47d7c52e93cd0c70d22be41c2e6bb`；result `f38ccf675f0d69cf9ac39881a3f75bc234ddf0e86b1cca4eed4b7f10649f65b8`；cleanup `6e623bf6b8bbd93d695fb905a8f0310d20e5fac28c771de034b278befa0874af`；command `9d6fdd3d3651effcbe0f94d3b439f41d98ffb2e5e5b2edd54abb5086f84fa354`；input前后同 `66573d6cbf288d0bd90f107c7faba41de1feee7d2284ff1617ef71d2581797ab`。本首轮source/execution/driver/raw/result/cleanup现永久冻结。

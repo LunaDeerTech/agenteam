@@ -1,0 +1,13 @@
+# SMTP 管理读口冻结 driver 静核
+
+有界 STATIC PASS；没有执行 driver、Go discovery 或任何真实资源，也未读作者活动 new-read01 日志。独立真实计划等待作者终局和主线程另授窗口。
+
+固定 driver-stage01/input.json SHA `453d48eccb70ab78596967473f5c333059bfd09fadb0dc63d2ee63b0a43cd2f4`；driver.py.txt SHA `854720f79244fc2ed9a13c28dda9f3e305856a8807b79419c96f544053d19fe8`，已实际匹配。产品 input02 SHA `37de7e3d685f2e6c95a375cc3996059fe78f9bf8d49f671ad3695d74fc112674`。静读全部driver及相对已验Selection的diff；本次实际逐文件hash核935固定workspace依赖及8候选全部匹配，无symlink文件。原input01/input02报告未核全部935的历史限制保留，本次只补该时点事实。
+
+实际cwd为作者私有 workspace，base精确3c79fd4，候选不来自活动main。driver校Git tree/blob/SHA和完整后端根，拒绝新增/missing/目录symlink/额外Go输入；runtime按固定PG driver package set与helper的实际Go1.27.1 -race -deps -test -tags=integration图，绑定模块、工具链、Go/CGO源码、嵌入数据、固定MinIO及9执行入口（3501文件），排除的generated testmain由同图生成。全runtime实际哈希相等留给每轮driver前后检查，本次没有重新启动Go list。AGENTEAM环境先清再明确固定，GOWORK/GOENV/off/readonly、唯一modcache及自有TMP保持。
+
+真实入口只允许new-read两顶层、new-attempt一顶层、old两顶层，原PG fixture -race/-count=1/-timeout=6m及测试内部预算不改。new-read/old要求精确7资源，new-attempt加SMTP为9；每家fixture nonce单值32hex，具体container/network拓扑闭合；不得以其他UI进程凑资源。仅选过滤测试，不重跑停止的Object/tools任务，底层固定helper链复用。
+
+启动前prctl child-subreaper、自有进程与Docker资源基线；主shell传递TERM交原fixture清理，最终process.wait。子孙以PID+starttime绑定，adopted只对自己孩子实际waitpid；历史PPID1 Z只记录不处理。monitor错误不得成功；最终两次exact-ID absence+无新资源+旧baseline不变+所属PID空+runtime空，并核source/runtime/driver/manifest前后相同与全部精确顶层PASS。没有全局删除/kill或以取消替代实际wait。
+
+本件说明静态链路可用于后续独立受控运行，不声称作者本轮已结束、资源已清或产品动态已通过。后续独立优先复用作者实际SMTP矩阵，补最小高风险读快照/坏映射零候选/当前权限或原预算代表；依据最终作者覆盖再冻结精确probe，不扩旧SMTP/TLS全套。

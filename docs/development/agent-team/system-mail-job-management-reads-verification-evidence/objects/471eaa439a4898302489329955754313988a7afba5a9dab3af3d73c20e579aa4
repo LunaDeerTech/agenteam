@@ -1,0 +1,27 @@
+{
+  "command": [
+    "python3",
+    "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/run-mail-management-fixture.py",
+    "--name",
+    "gate-only",
+    "--group",
+    "new-read",
+    "--frozen",
+    "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/driver-stage01/input.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "--check-input-only"
+  ],
+  "cwd": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/workspace",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/tmp"
+  }
+}

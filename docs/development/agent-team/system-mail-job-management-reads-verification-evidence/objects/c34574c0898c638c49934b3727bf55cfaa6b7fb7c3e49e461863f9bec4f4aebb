@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "vet",
+    "-tags=integration",
+    "./tests/account"
+  ],
+  "cwd": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/workspace",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-mail-job-management-author-eg0kw_7i/tmp"
+  }
+}

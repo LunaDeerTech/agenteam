@@ -1,0 +1,11 @@
+--- input02/tests/account/http_mail_job_management_test.go
++++ input03/tests/account/http_mail_job_management_test.go
+@@ -166,7 +166,7 @@
+ 	for _, bad := range []struct{ query, code string }{
+ 		{"limit=0", "INVALID_ARGUMENT"}, {"limit=101", "INVALID_ARGUMENT"}, {"limit=01", "INVALID_ARGUMENT"}, {"limit=", "INVALID_ARGUMENT"},
+ 		{"limit=1&limit=2", "INVALID_ARGUMENT"}, {"cursor=a&cursor=b", "INVALID_ARGUMENT"}, {"cursor=", "INVALID_ARGUMENT"}, {"filter=all", "INVALID_ARGUMENT"},
+-		{"cursor=" + strings.Repeat("x", 8193), "INVALID_ARGUMENT"}, {"cursor=bad", "CURSOR_INVALID"}, {"cursor=" + url.QueryEscape(firstCursor+"x"), "CURSOR_INVALID"}, {"cursor=" + url.QueryEscape(oldCursor), "CURSOR_INVALID"},
++		{"cursor=" + strings.Repeat("x", 8193), "CURSOR_INVALID"}, {"cursor=bad", "CURSOR_INVALID"}, {"cursor=" + url.QueryEscape(firstCursor+"x"), "CURSOR_INVALID"}, {"cursor=" + url.QueryEscape(oldCursor), "CURSOR_INVALID"},
+ 	} {
+ 		admin.request("GET", path+"?"+bad.query, nil, "", "").problem(t, 400, bad.code)
+ 	}

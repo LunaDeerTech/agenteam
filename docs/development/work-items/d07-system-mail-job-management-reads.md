@@ -1,6 +1,12 @@
 # D07：系统邮件任务管理事实读口
 
-状态：rev1.2，2026-10-06 **已独立静审通过（STATIC PASS），主线程已采纳规格**；被审全文 SHA256 `06cf9691217466c2245538dace4033d146ba033e5e9872a444e100445dea334d`，技术 §1–6 SHA256 `137e6a302a1f1a2b49076d6406ded7ff61a3c3ffccc939d4fb909640d8f176bc` 保持。窄测试修权与真实资源窗口由主线程另行授权。原 rev1.1 已独立静审通过并采纳，接受副本固定于 Git `ec5a3b9`（被审全文 SHA256 `9a966815ccbe5ecc41a0c0b8708824ca223b0398e22897424fed092c3a44d2ff`，原技术 §1–6 SHA256 `36b0a57fc4a06c6efa23600a572b83bba8072ab950c1997e7ef000d4319360c2`）。本次依据保留的 `new-attempt01` 首红及固定源码，仅修 §6 撤销先产生 cancelled、随后 worker 拒绝 ResourceBusy 的验收前提；§1–5、八条路径、写服务语义和预算不变。固定输入为 `3c79fd4069837c4cee0b1ed37e00480ea8f1909f`，未消费活动账号安全或共享焦点候选。本修订不新增产品或资源授权，既有实施及资源窗口以主线程授权为准；规格通过不代表实现、独立验收或后继 SMTP 页面接受。
+状态：rev1.2，2026-10-06 八路径已完成作者新三组／旧两组与独立风险验收，主线程采纳提交推送 `819aba1b8f764328f1e2e67b53c274fad0db877d`，远端一致。[正式报告与不可变证据](../agent-team/system-mail-job-management-reads-verification.md)绑定input04 `4e3bee7144106e9b183977a8306314f08732a18ef54111997fbfb9a3a7ada5c4`、八源及实际私有基线3c79fd4／935依赖／3501运行时指纹。所有命令实际结束、资源窗口已释放。
+
+本次只更新接受页首，技术§1–6保持SHA256 `137e6a302a1f1a2b49076d6406ded7ff61a3c3ffccc939d4fb909640d8f176bc`；原rev1.2被审全文 `06cf9691217466c2245538dace4033d146ba033e5e9872a444e100445dea334d`及规格提交 `f59d4c5506e62bcc9757edb69726e62aa23e5147`保留。正文中的待实施／静态时点按原审稿保留，当前接受范围以本页首与报告为准。
+
+新HTTP／ReadBudget／AttemptFacts按未变输入组合通过，旧两个HTTP回归通过；独立候选Close退役组及预算组各两纯例、A当前授权／真实PG和B真实attempt／retry组合通过。独立01整轮exit1的A通过部分复用，02只复验B，actual0/56.339s、9exact IDs双absent／72所属PID双空／0adopted wait；不称每轮全绿。原作者两真实失败、backoff静态前提、编译和独立三事务／DB log前提错误全部保留。
+
+新读口不变更旧DTO／receipt、retry资格或迁移索引。局部3s纯handler与真实PG1s锁等待分列，三行EXPLAIN不证明规模SLA；A直调facade不是HTTP端到端，B仅自有SMTP／受限日志。SMTP配置首卡及后继测试／任务／重试UI另验，本结果不代表完整D07/D27或生产Runtime。
 
 ## 1. 完整结果与已验前置
 
