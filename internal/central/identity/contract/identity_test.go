@@ -10,6 +10,29 @@ import (
 	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
 )
 
+func TestModelRuntimeRegistrationAddsNoGrant(t *testing.T) {
+	project, _ := foundation.NewID[Project]()
+	invocation, _ := foundation.NewID[struct{}]()
+	scope, _ := InProject(project)
+	r, e := RegisterService(ModelRuntime)
+	if e != nil {
+		t.Fatal(e)
+	}
+	a, e := r.Actor(invocation.String(), scope)
+	if e != nil || a.Details().ServiceName != ModelRuntime || a.Details().ProjectID != project.String() || a.Details().CauseRef != invocation.String() {
+		t.Fatal("runtime identity", e)
+	}
+	if (AccessGrant{}).Matches(a, scope, Read) {
+		t.Fatal("registration granted Owner access")
+	}
+	if _, e = RegisterService("model-runtime-admin"); e == nil {
+		t.Fatal("unknown role accepted")
+	}
+	if _, e = r.Actor("caller-claims-joined", scope); e == nil {
+		t.Fatal("arbitrary cause accepted")
+	}
+}
+
 func TestTrustedIdentityCannotBeDeserializedOrUsedAsBearerGrant(t *testing.T) {
 	u, _ := foundation.ParseID[User]("01900000-0000-7000-8000-000000000001")
 	s, _ := foundation.ParseID[Session]("01900000-0000-7000-8000-000000000002")

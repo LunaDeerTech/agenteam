@@ -1,0 +1,384 @@
+package usage
+
+import (
+	"context"
+	"errors"
+	"math"
+	"math/big"
+	"reflect"
+	"strconv"
+	"strings"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
+	"github.com/jackc/pgx/v5"
+)
+
+const summaryColumns = `confirmed_invocations,dispatch_unknown,succeeded,failed,cancelled,unknown,input_sum,input_known_count,input_unknown_count,output_sum,output_known_count,output_unknown_count,total_sum,total_known_count,total_unknown_count,cached_input_sum,cached_input_known_count,cached_input_unknown_count,cache_write_sum,cache_write_known_count,cache_write_unknown_count,reasoning_sum,reasoning_known_count,reasoning_unknown_count`
+
+var tokenNames = []string{"input", "output", "total", "cached_input", "cache_write", "reasoning"}
+
+func tokens(u mc.Usage) []*mc.TokenCount {
+	return []*mc.TokenCount{u.InputTokens, u.OutputTokens, u.TotalTokens, u.CachedInputTokens, u.CacheWriteTokens, u.ReasoningTokens}
+}
+func summaryFields(v *uc.Summary) []*uc.FieldSummary {
+	return []*uc.FieldSummary{&v.Input, &v.Output, &v.Total, &v.CachedInput, &v.CacheWrite, &v.Reasoning}
+}
+func summaryCounts(v *uc.Summary) []*mc.TokenCount {
+	return []*mc.TokenCount{&v.ConfirmedInvocations, &v.DispatchUnknown, &v.Succeeded, &v.Failed, &v.Cancelled, &v.Unknown}
+}
+func emptySummary(now f.Instant) uc.Summary {
+	s := uc.Summary{AsOf: now}
+	for _, v := range summaryFields(&s) {
+		z := mc.TokenCount(0)
+		v.Sum = &z
+	}
+	return s
+}
+func contribution(v *uc.Invocation, now f.Instant) uc.Summary {
+	s := emptySummary(now)
+	if v == nil {
+		return s
+	}
+	if v.Dispatch == uc.Sent {
+		s.ConfirmedInvocations = 1
+		for i, p := range tokens(v.Usage) {
+			field := summaryFields(&s)[i]
+			if p != nil {
+				n := *p
+				field.Sum = &n
+				field.KnownCount = 1
+			} else {
+				field.Sum = nil
+				field.UnknownCount = 1
+			}
+		}
+	} else if v.Dispatch == uc.DispatchUnknown {
+		s.DispatchUnknown = 1
+	}
+	if v.Final != nil && (v.Dispatch == uc.Sent || v.Dispatch == uc.DispatchUnknown) {
+		switch v.Final.Status {
+		case uc.Succeeded:
+			s.Succeeded = 1
+		case uc.Failed:
+			s.Failed = 1
+		case uc.Cancelled:
+			s.Cancelled = 1
+		case uc.Unknown:
+			s.Unknown = 1
+		}
+	}
+	return s
+}
+func deltaNumber(base, before, after mc.TokenCount) (mc.TokenCount, error) {
+	v := big.NewInt(int64(base))
+	v.Sub(v, big.NewInt(int64(before)))
+	v.Add(v, big.NewInt(int64(after)))
+	if !v.IsInt64() || v.Sign() < 0 {
+		return 0, fault(f.InvalidState)
+	}
+	return mc.TokenCount(v.Int64()), nil
+}
+func sumNumber(v *mc.TokenCount) mc.TokenCount {
+	if v == nil {
+		return 0
+	}
+	return *v
+}
+func summaryDelta(base uc.Summary, before, after *uc.Invocation, now f.Instant) (uc.Summary, error) {
+	out := base.Clone()
+	out.AsOf = now
+	b, a := contribution(before, now), contribution(after, now)
+	for i, p := range summaryCounts(&out) {
+		v, e := deltaNumber(*p, *summaryCounts(&b)[i], *summaryCounts(&a)[i])
+		if e != nil {
+			return uc.Summary{}, e
+		}
+		*p = v
+	}
+	for i, p := range summaryFields(&out) {
+		old, next := summaryFields(&b)[i], summaryFields(&a)[i]
+		known, e := deltaNumber(p.KnownCount, old.KnownCount, next.KnownCount)
+		if e != nil {
+			return uc.Summary{}, e
+		}
+		unknown, e := deltaNumber(p.UnknownCount, old.UnknownCount, next.UnknownCount)
+		if e != nil {
+			return uc.Summary{}, e
+		}
+		sum, e := deltaNumber(sumNumber(p.Sum), sumNumber(old.Sum), sumNumber(next.Sum))
+		if e != nil {
+			return uc.Summary{}, e
+		}
+		p.KnownCount, p.UnknownCount = known, unknown
+		if known == 0 && out.ConfirmedInvocations > 0 {
+			p.Sum = nil
+		} else {
+			p.Sum = &sum
+		}
+	}
+	if out.Validate() != nil {
+		return uc.Summary{}, fault(f.InvalidState)
+	}
+	return out, nil
+}
+func summaryDest(v *uc.Summary) []any {
+	var d []any
+	for _, p := range summaryCounts(v) {
+		d = append(d, p)
+	}
+	for _, p := range summaryFields(v) {
+		d = append(d, &p.Sum, &p.KnownCount, &p.UnknownCount)
+	}
+	return d
+}
+func summaryArgs(v uc.Summary) []any {
+	var d []any
+	for _, p := range summaryCounts(&v) {
+		d = append(d, int64(*p))
+	}
+	for _, p := range summaryFields(&v) {
+		var sum any
+		if p.Sum != nil {
+			sum = int64(*p.Sum)
+		}
+		d = append(d, sum, int64(p.KnownCount), int64(p.UnknownCount))
+	}
+	return d
+}
+
+type summaryRecord struct {
+	version f.Version
+	summary uc.Summary
+}
+
+func loadSummary(ctx context.Context, x postgres.SQLExecutor, p id.ProjectID, e id.ExecutionID) (*summaryRecord, error) {
+	var r summaryRecord
+	var updated time.Time
+	dest := append([]any{&r.version, &updated}, summaryDest(&r.summary)...)
+	err := x.QueryRow(ctx, `SELECT version,updated_at,`+summaryColumns+` FROM agenteam_model.execution_usage_summaries WHERE project_id=$1 AND execution_id=$2`, p.String(), e.String()).Scan(dest...)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, nil
+	}
+	if err != nil {
+		return nil, dbError(err)
+	}
+	r.summary.AsOf, _ = f.NewInstant(updated)
+	if r.version.Validate() != nil || r.summary.Validate() != nil {
+		return nil, corrupt(nil)
+	}
+	return &r, nil
+}
+func nextSummary(ctx context.Context, x postgres.SQLExecutor, v uc.Invocation, old *uc.Invocation, now f.Instant) (*summaryRecord, error) {
+	if v.Consumer.ExecutionID == nil {
+		return nil, nil
+	}
+	r, e := loadSummary(ctx, x, v.Consumer.ProjectID, *v.Consumer.ExecutionID)
+	if e != nil {
+		return nil, e
+	}
+	if r == nil {
+		if old != nil {
+			return nil, corrupt(nil)
+		}
+		r = &summaryRecord{version: 1, summary: emptySummary(now)}
+	} else {
+		if r.version == math.MaxInt64 {
+			return nil, fault(f.InvalidState)
+		}
+		r.version++
+	}
+	r.summary, e = summaryDelta(r.summary, old, &v, now)
+	if e != nil {
+		return nil, e
+	}
+	return r, nil
+}
+
+// Numeric SUM never narrows in SQL; each result is checked before a C0 int64 exists.
+func aggregateParts() []string {
+	parts := []string{`count(*) FILTER(WHERE dispatch='sent')::text`, `count(*) FILTER(WHERE dispatch='unknown')::text`}
+	for _, status := range []string{"succeeded", "failed", "cancelled", "unknown"} {
+		parts = append(parts, `count(*) FILTER(WHERE dispatch IN ('sent','unknown') AND final_status='`+status+`')::text`)
+	}
+	for _, name := range tokenNames {
+		parts = append(parts, `CASE WHEN count(*) FILTER(WHERE dispatch='sent')=0 THEN '0' ELSE sum(`+name+`_tokens) FILTER(WHERE dispatch='sent')::text END`, `count(*) FILTER(WHERE dispatch='sent' AND `+name+`_tokens IS NOT NULL)::text`, `count(*) FILTER(WHERE dispatch='sent' AND `+name+`_tokens IS NULL)::text`)
+	}
+	return parts
+}
+func aggregateExpressions() string { return strings.Join(aggregateParts(), ",") }
+func scanAggregate(row scanner, now f.Instant, prefix ...any) (uc.Summary, error) {
+	var values [24]*string
+	dest := append([]any{}, prefix...)
+	for i := range values {
+		dest = append(dest, &values[i])
+	}
+	if e := row.Scan(dest...); e != nil {
+		return uc.Summary{}, dbError(e)
+	}
+	s := uc.Summary{AsOf: now}
+	parse := func(v *string) (mc.TokenCount, error) {
+		if v == nil {
+			return 0, corrupt(nil)
+		}
+		n, e := strconv.ParseInt(*v, 10, 64)
+		if e != nil || n < 0 {
+			return 0, fault(f.InvalidState).WithCause(e)
+		}
+		return mc.TokenCount(n), nil
+	}
+	for i, p := range summaryCounts(&s) {
+		n, e := parse(values[i])
+		if e != nil {
+			return uc.Summary{}, e
+		}
+		*p = n
+	}
+	for i, p := range summaryFields(&s) {
+		j := 6 + i*3
+		if values[j] != nil {
+			n, e := parse(values[j])
+			if e != nil {
+				return uc.Summary{}, e
+			}
+			p.Sum = &n
+		}
+		var e error
+		p.KnownCount, e = parse(values[j+1])
+		if e != nil {
+			return uc.Summary{}, e
+		}
+		p.UnknownCount, e = parse(values[j+2])
+		if e != nil {
+			return uc.Summary{}, e
+		}
+	}
+	if s.Validate() != nil {
+		return uc.Summary{}, corrupt(nil)
+	}
+	return s, nil
+}
+func (s *Service) executionSummary(ctx context.Context, a id.Actor, p id.ProjectID, e id.ExecutionID, rebuild bool) (uc.ExecutionSummary, error) {
+	if contextError(ctx) != nil {
+		return uc.ExecutionSummary{}, contextError(ctx)
+	}
+	if s.state() == nil {
+		return uc.ExecutionSummary{}, fault(f.DependencyUnbound)
+	}
+	if p.Validate() != nil || e.Validate() != nil || a.Validate() != nil {
+		return uc.ExecutionSummary{}, fault(f.InvalidArgument)
+	}
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+	cause, err := readCause("summary")
+	if err != nil {
+		return uc.ExecutionSummary{}, err
+	}
+	var out uc.ExecutionSummary
+	r := s.state().store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		var extra []f.LockRequest
+		if rebuild {
+			extra = []f.LockRequest{summaryLock(p, e)}
+		}
+		x, err := s.authorizeReader(ctx, tx, a, p, extra)
+		if err != nil {
+			return err
+		}
+		var exists bool
+		if err = x.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_model.invocations WHERE project_id=$1 AND execution_id=$2)`, p.String(), e.String()).Scan(&exists); err != nil {
+			return dbError(err)
+		}
+		if !exists {
+			return fault(f.NotFound)
+		}
+		now, err := dbNow(ctx, x)
+		if err != nil {
+			return err
+		}
+		old, err := loadSummary(ctx, x, p, e)
+		if err != nil {
+			return err
+		}
+		if rebuild {
+			// Validate canonical rows before trusting their statistical projection.
+			rows, err := x.Query(ctx, `SELECT `+invocationColumns+` FROM agenteam_model.invocations WHERE project_id=$1 AND execution_id=$2`, p.String(), e.String())
+			if err != nil {
+				return dbError(err)
+			}
+			for rows.Next() {
+				if _, err = scanInvocation(rows); err != nil {
+					rows.Close()
+					return err
+				}
+			}
+			rows.Close()
+			if err = rows.Err(); err != nil {
+				return dbError(err)
+			}
+			canonical, err := scanAggregate(x.QueryRow(ctx, `SELECT `+aggregateExpressions()+` FROM agenteam_model.invocations WHERE project_id=$1 AND execution_id=$2`, p.String(), e.String()), now)
+			if err != nil {
+				return err
+			}
+			changed := old == nil
+			if old != nil {
+				copy := old.summary.Clone()
+				copy.AsOf = now
+				changed = !reflect.DeepEqual(copy, canonical)
+			}
+			if changed {
+				version := f.Version(1)
+				if old != nil {
+					if old.version == math.MaxInt64 {
+						return fault(f.InvalidState)
+					}
+					version = old.version + 1
+				}
+				q, args := summaryUpsert(p, e, &summaryRecord{version, canonical}, "", nil)
+				if _, err = x.Exec(ctx, q, args...); err != nil {
+					return dbError(err)
+				}
+				old = &summaryRecord{version, canonical}
+			}
+		}
+		if old == nil {
+			return corrupt(nil)
+		}
+		old.summary.AsOf = now
+		out = uc.ExecutionSummary{ProjectID: p, ExecutionID: e, Version: old.version, Summary: old.summary.Clone()}
+		return contextError(ctx)
+	})
+	if err = completedRead(ctx, r); err != nil {
+		return uc.ExecutionSummary{}, err
+	}
+	return out, nil
+}
+func (s *Service) GetExecutionSummary(ctx context.Context, a id.Actor, p id.ProjectID, e id.ExecutionID) (uc.ExecutionSummary, error) {
+	return s.executionSummary(ctx, a, p, e, false)
+}
+func (s *Service) RebuildExecutionSummary(ctx context.Context, a id.Actor, p id.ProjectID, e id.ExecutionID) (uc.ExecutionSummary, error) {
+	return s.executionSummary(ctx, a, p, e, true)
+}
+
+// source is either empty or the fixed CTE name, never user SQL.
+func summaryUpsert(p id.ProjectID, e id.ExecutionID, r *summaryRecord, source string, args []any) (string, []any) {
+	values := append([]any{p.String(), e.String(), int64(r.version), r.summary.AsOf.Time()}, summaryArgs(r.summary)...)
+	names := `project_id,execution_id,version,updated_at,` + summaryColumns
+	var places []string
+	for _, v := range values {
+		args = append(args, v)
+		places = append(places, "$"+strconv.Itoa(len(args)))
+	}
+	selectSQL := `VALUES (` + strings.Join(places, ",") + `)`
+	if source != "" {
+		selectSQL = `SELECT ` + strings.Join(places, ",") + ` FROM ` + source
+	}
+	var updates []string
+	for _, c := range strings.Split(`version,updated_at,`+summaryColumns, ",") {
+		updates = append(updates, c+`=EXCLUDED.`+c)
+	}
+	return `INSERT INTO agenteam_model.execution_usage_summaries (` + names + `) ` + selectSQL + ` ON CONFLICT(project_id,execution_id) DO UPDATE SET ` + strings.Join(updates, ",") + ` RETURNING version`, args
+}
