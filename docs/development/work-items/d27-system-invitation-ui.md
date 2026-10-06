@@ -1,6 +1,6 @@
 # D27：系统待注册邀请管理页面
 
-状态：rev2，2026-10-06 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳；被审稿 SHA256 `cacdbc8bf2fc2c6daa18a8d27c2e447b5b3f8b37495b314069a93a275e68ab58`。rev1 的 SettingsShell 单叶子范围阻断已由 rev2 兼容两级菜单契约及两条候选路径闭合。本次仅更新页首，技术 §1–7 保持被审稿原字节。§6 二十二条产品路径仍未授权实施，真实资源窗口仍未授予；邀请投递读口 rev1 尚未产品接受，本卡须等待该上游接受及主线程明确移交，不以规格采纳代替依赖、实施权或产品通过。
+状态：rev3，2026-10-06 已获 `recovery_documentation`（verification_worker）独立静审通过（STATIC PASS），主线程已采纳；被审稿 SHA256 `7944834eedbc4a9be829e168bb40cfc452965fbb5a724aef367827a2a4355204`。本修订按正式 producer 历史与读口契约纠正 §2 的无 attempt 兼容表述，保留 cancelled/null 与 processing/unknown 的既定例外，不放宽后端 scanner 或新增产品规则。本次仅更新页首，技术 §1–7 保持被审稿原字节。§6 二十二条产品路径仍未授权实施，真实资源窗口仍未授予；邀请投递读口 rev1 尚未产品接受，本卡须等待该上游接受及主线程明确移交，不以规格采纳代替依赖、实施权或产品通过。
 
 ## 1. 完整结果与依赖
 
@@ -49,7 +49,7 @@ type SettingsGroup =
 | 重试投递 | 使用该行 latest_delivery.job_id 与其 job.version，不能传 invitation.version。这是新投递周期，沿原有效链接及当前合法配置。显示可能重复投递的说明，尤其不能把 unknown 解释为从未发送。202返回新 JobID及其当前 version，后者允许已大于1。 |
 | 撤销邀请 | 必须先确认，明确邮箱与“链接将失效”；取消不发请求。确认后 POST 所选 InvitationID/version，严格204才显示“邀请已撤销”。不能提前移除行；失败保留原观察与安全错误，成功再刷新列表。 |
 
-重发、重试与撤销各自使用点击时捕获的目标和版本，不因后台刷新自动换目标或版本。重试按钮的必要条件沿既有 retryEligible：enqueue_pending/pending/claimed/sending/retry_wait 不可重试；unknown 无已报告终局 attempt_result 时不可重试；有渠道而尚无终局结果时亦不声称已结束。sent/failed/cancelled 的合法旧无 attempt 记录不得仅因 channel=null 被误判永远不可重试。提供可见禁用原因；即使按钮可用，同 root 其他周期、当前材料有效性、version 和管理员资格仍由服务原子裁决，页面不授予重试权。未知投递的终局证据来自投影，不自行创造 io_joined。
+重发、重试与撤销各自使用点击时捕获的目标和版本，不因后台刷新自动换目标或版本。重试按钮的必要条件沿既有 retryEligible：enqueue_pending/pending/claimed/sending/retry_wait 不可重试；unknown 无已报告终局 attempt_result 时不可重试；有渠道而尚无终局结果时亦不声称已结束。cancelled 的合法无 attempt 记录不得仅因 channel=null 禁用；sent/failed 必须具有读口确认的合法真实 current attempt，旧 processing/unknown 的投影与例外严格沿读口契约。提供可见禁用原因；即使按钮可用，同 root 其他周期、当前材料有效性、version 和管理员资格仍由服务原子裁决，页面不授予重试权。未知投递的终局证据来自投影，不自行创造 io_joined。
 
 阶段采用固定中文标签：等待入队、等待投递、已领取、投递中、等待自动重试、已完成投递、投递失败、结果未知、已取消。smtp 表示本次实际 SMTP 尝试，backend_log 表示后台恢复日志；null 显示“尚未记录尝试渠道”。特别是旧 unknown/null 不能写“从未发送”。sent 只表示 SMTP 接受或受限日志写入，不保证收件箱到达；配置改变不能改写历史渠道。backend_log 仅说明需由有权限的日志接收者协助转交，页面没有查看链接的入口。原因仅从读口闭集映射静态文案，不展示服务端自由文本或邮件正文。
 
