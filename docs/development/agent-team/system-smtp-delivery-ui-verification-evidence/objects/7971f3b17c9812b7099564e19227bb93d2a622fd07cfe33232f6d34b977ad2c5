@@ -1,0 +1,165 @@
+{
+  "decision": "BOUNDED PAGE-STAGE PASS; no card-level real-browser acceptance",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/web-stage01/manifest.json",
+    "sha256": "59fa487e63032624e23700f89937180a1db02f4dcee7e56346762677ea28513f"
+  },
+  "product_base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "candidate_files": {
+    "web/src/App.vue": "b29265ff52081c42336413eea262461bba8af8b1ac78f57d834e0c2582e66172",
+    "web/src/api/client.ts": "2e331d9361257433cf399ce516facdf6efa420d0f0df400306bbaaf07be1442e",
+    "web/src/api/system-smtp-delivery.ts": "b4044f5ae4477cb904d2891a635bf10a77b0888b4376525dfc0989ee2023ccfd",
+    "web/src/api/system-smtp-settings.ts": "0f015823398fe909688dd0ec7b2cf2a99ca9b82b8963fda5dfb96b13c7864311",
+    "web/src/composables/useSession.ts": "bb670ae33e7d4d846d517b394689d8b7328ec22f03bd6306ef51be5403c4f2cc",
+    "web/src/composables/useSystemSMTPDelivery.ts": "7313d2608ad83af4f311e124b2c46d501836007de9393faf8352d4a33bc1e29c",
+    "web/src/tests/system-smtp-delivery-client.spec.ts": "4d5be3e29f4cffcf232356f4ec26b6da557c66e2a4197a1ed468b48e1bb80529",
+    "web/src/tests/system-smtp-delivery-state.spec.ts": "faedaf94d021265dc97b3105037724ba227e929c0cfd3b8095797da35757fc88",
+    "web/src/tests/system-smtp-delivery.spec.ts": "fb9321606c9469c07e2d37e87ea7bab18eef689ac06ee222975431126ce363f1",
+    "web/src/tests/system-smtp-settings.spec.ts": "d52692e26755bc38602c4de86128ef075ff7988b7adc8d477f9048e0dbeed7d5",
+    "web/src/views/system/SystemSMTPDeliveryPanel.vue": "2cace6a0621fd43c0182dfbeb71573ed072d7aa7b0f5fe506c70d0c0522a5a56",
+    "web/src/views/system/SystemSMTPSettingsView.vue": "d2842173aed715b46fa2982d37f0b851eae83cfa6637f42005a5e78b7d95d6a5"
+  },
+  "bound_scope": {
+    "candidate_files": 12,
+    "accepted_dependencies": 92,
+    "dist_files_hash_only_not_executed": 36,
+    "run_bound_files": 278,
+    "accepted_dependencies_git_byte_equal": true
+  },
+  "phase_reuse": {
+    "API_four_files_same_sha": true,
+    "owner_two_files_same_sha": true,
+    "API_review": "../api-stage01/review.md",
+    "owner_review": "../owner-stage01/review.md"
+  },
+  "author_original_red_green": {
+    "red_exit": 1,
+    "red_duration": 2.231,
+    "green_exit": 0,
+    "green_duration": 2.159,
+    "selected_callbacks_ast_equal": true,
+    "whole_spec_byte_equal": false,
+    "other_delta": "Formatting and /settings/profile route placeholder. No selected action/assertion weakening.",
+    "defects": [
+      "Confirmed retry child version floor missing from list observations",
+      "True route leave reset active panel before detaching old delivery controller"
+    ],
+    "bindings": {
+      "page-probe01": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/page-probe01/command.json",
+          "sha256": "248cd2e3b74b47270d9cbab68a0367857b53f77d86598f0cd0ec9402c7ad8d59"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/page-probe01/input-after.json",
+          "sha256": "c640b975c52dff6ac9fed9936d86e821a6c2406c2510adb20463fe1df8655785"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/page-probe01/input-before.json",
+          "sha256": "c640b975c52dff6ac9fed9936d86e821a6c2406c2510adb20463fe1df8655785"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/page-probe01/raw.log",
+          "sha256": "d9bc74452e36000fea15cd6d6fa1cd162955adfc072097e9d772a598aabc88f5"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/page-probe01/result.json",
+          "sha256": "873deef394a012786bf6a91817c4abd0173caeefef85557c9cb8c54180f03b3c"
+        }
+      },
+      "page-probe02": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/page-probe02/command.json",
+          "sha256": "248cd2e3b74b47270d9cbab68a0367857b53f77d86598f0cd0ec9402c7ad8d59"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/page-probe02/input-after.json",
+          "sha256": "831484ab04307853e8e4577333ef0a81b5fc87dfa78c6d3fa9d19585e15d9509"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/page-probe02/input-before.json",
+          "sha256": "831484ab04307853e8e4577333ef0a81b5fc87dfa78c6d3fa9d19585e15d9509"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/page-probe02/raw.log",
+          "sha256": "83cd61fec4a781a6d483f900c07b5a5e58d0971390098cb24a1d53b36a71d071"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/page-probe02/result.json",
+          "sha256": "3dbd3f14f20ef1f97c14f531a3c8357711022e4fa645a476862271a0c138a98a"
+        }
+      }
+    }
+  },
+  "independent": {
+    "selected_tests": 2,
+    "passed": 2,
+    "run_result": {
+      "actual_exit": 0,
+      "elapsed_seconds": 3.155271,
+      "inputs_unchanged": true,
+      "cleanup": true,
+      "raw_sha256": "8b1e247a882bd236b27c2107e3279411afcac7f9b417f61748d25463cd42fc04",
+      "command_sha256": "09fb7fc69d41c9fe37f2c25f2f17fa5787cfcf40b40181a59e57f518e2fa4ab1"
+    },
+    "cleanup": {
+      "owned_pid_starttime": {
+        "1982791": 5298283,
+        "1982837": 5298318
+      },
+      "actual_wait_pid": 1982791,
+      "actual_wait_exit": 0,
+      "adopted_waits": [],
+      "scans": [
+        [],
+        []
+      ],
+      "clean": true,
+      "resources_started": "none; pure node/Vitest only"
+    },
+    "A": [
+      "Configuration dirty switch cancelled retains private material; explicit discard clears DOM/material before delivery attach",
+      "Native response cancel tail keeps real owner busy until released; visible list error remains and no automatic reread",
+      "Explicit retry source v5 receives child v27; old detail v5 and list v5 cannot replace confirmed floor or expose a candidate",
+      "Retired old detail fetch v999 arriving after panel switch cannot publish; explicit v28 reread recovers",
+      "True route leave/reenter returns configuration without inactive delivery GET"
+    ],
+    "B": [
+      "Fresh pageshow Session request physically unmounts both dialogs while route decision remains pending",
+      "503 retains pending decisions; explicit fresh same-identity Session success restores lower retry + top discard layering",
+      "Real top continue button returns pending router failure; lower cancel returns current heading in jsdom",
+      "Fresh changed Session returns old pending navigation false and destroys draft/confirmation; zero write requests"
+    ]
+  },
+  "static_findings": [
+    "Latest version floor applies before list/detail publication and clears with identity/page invalidation",
+    "Section generation isolates awaited public navigation/panel continuations",
+    "Configuration material/progress synchronous observers only clear password DOM; App synchronous availability watcher only stores identity; no synchronous write initiation found",
+    "Panel does not register competing attach/detach; View owns the coordinator lifecycle"
+  ],
+  "limitations": [
+    "Private Node/Vitest controlled Fetch and native Response/ReadableStream; no real HTTP/database/SMTP/worker/browser, Docker or port",
+    "Synthetic getClientRects permits jsdom DOM/state focus assertions only; no native focus/Tab/pointer/geometry claim",
+    "Dist is byte-bound to author build; tests execute Vue/TypeScript source rather than dist",
+    "API and owner contracts reused only by exact unchanged files; no rerun of full author 1303 cases",
+    "Real card integration/harness independent verification remains pending separate authorization"
+  ],
+  "artifacts": {
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/input-static01.json": "9f55e5523657a4845784f8b7fc5ffb2ff79c56a4669419af237cf8d38789ef63",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/controller-initial-to-stage01.diff": "32ff0aa03ce05735b1b67610f39eee799534086f51f60b403c76d6e9125d1b6e",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/author-red-green-static.json": "8054d1410d3a0c1718143a38027c89720bd28e397b71f641c4d7b07836c0d3a5",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/inspect-author.mjs": "f649b4e0e73e85355847cc0ba3cd5f8068387daaacda60029d105ddf08337326",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/probe/page.spec.ts": "90d1e22c9d490fd0dad8bdc5e1de46a081ec3ec9d219638b273f8d0fcee5215c",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/run01.py": "0703287b2bb80e746500fc4a246272c68334127ceae4f2c0d4edba6637cde25f",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/vitest.config.ts": "73135c9549d86bcd9ddb2a89d91576110c022e1dd9cec78e57359d2c18469a05",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/package.json": "1239d4d885dcad42201a27ed9324f8f0f760b78700d8db9ced39a511cffe7eae",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/runs/app01/cleanup.json": "b670d21a6c6d08291175de48e713270bd14f445611930f51ef7d6d871449418f",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/runs/app01/command.json": "09fb7fc69d41c9fe37f2c25f2f17fa5787cfcf40b40181a59e57f518e2fa4ab1",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/runs/app01/input-after.json": "772860e9ecae46cc78bb9735811832f1302d18d6eb12e7f3d57e4f4154afb800",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/runs/app01/input-before.json": "772860e9ecae46cc78bb9735811832f1302d18d6eb12e7f3d57e4f4154afb800",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/runs/app01/result.json": "9c9c51d754bad152edaea05810d96f98507c5f8c9f45e9441be3679d34c43e05",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/runs/app01/started.json": "f059053ae3bd0bc3fcd54522f1bde62b0e96f4631ffc1f2646bcdc2b362c91e2",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/runs/app01/raw.log": "8b1e247a882bd236b27c2107e3279411afcac7f9b417f61748d25463cd42fc04"
+  },
+  "frozen": true
+}

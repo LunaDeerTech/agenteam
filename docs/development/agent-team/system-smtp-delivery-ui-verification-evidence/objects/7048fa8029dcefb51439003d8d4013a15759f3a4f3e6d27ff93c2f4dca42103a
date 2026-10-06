@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestIndependentSMTPDeliveryTestReplay|TestIndependentSMTPDeliveryRetryRecovery)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/runs/independent-real01/images",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtdel-22c3xlf4",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/bound03/overlay.json",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/runs/independent-real01/runtime"
+  },
+  "started_utc": "2026-10-06T20:15:35.753828+00:00"
+}

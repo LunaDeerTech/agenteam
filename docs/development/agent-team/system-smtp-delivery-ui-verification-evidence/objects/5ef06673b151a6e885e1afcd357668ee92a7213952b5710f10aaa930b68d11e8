@@ -1,0 +1,61 @@
+{
+  "captured_utc": "2026-10-06T20:24:07.760442+00:00",
+  "original_files": {
+    "frozen-input.json": "7dc487086b7fe67e4403fce972183cf8d68bea0cc825431057f698bb3e7a9462",
+    "command.json": "7048fa8029dcefb51439003d8d4013a15759f3a4f3e6d27ff93c2f4dca42103a",
+    "verification-input.json": "e9da82be362b1e8243bcd34f13f8f95d6caba2601556963c7a46ab653af120a4",
+    "input-before.json": "61fcce5e008867f7a7a55508a03eaf78e5c5abc6b7a4c966a5a7aaeb2dec5cb8",
+    "baseline.json": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+    "driver.py.txt": "99fe6accf069c6c6b2f905c07258ea1fdaa6b389e6af11e51e1ee749007d4227",
+    "process-baseline.json": "19a0f92f99d9fe6258975b3f051f378571ef2b865961538e827aa2e900d33b07",
+    "raw.log": "16380a3f95339d95aa415e4815007d83fc193730289a804a0d3f7be0ff85ca34"
+  },
+  "original_completion_files_missing": [
+    "result.json",
+    "cleanup.json",
+    "input-after.json",
+    "observed-processes.json",
+    "observed-resources.json",
+    "monitor-errors.json",
+    "adopted-waits.json"
+  ],
+  "original_actual_wait_recorded": false,
+  "baseline_resource_count": 6,
+  "current_resource_count": 13,
+  "new_resource_ids": [
+    "72be2049077487593e9ceaf902312bd324c02f6ef1df6d4711aa7e9bfe84b0a5",
+    "c1dda61efdee3dbb124832d2d430575162981f7a056a30acb4161907c1ddff50",
+    "e775659277075a30397dadb2b5107cf4ae9579349551f39474f08a51cac7016a",
+    "02242403b0de8372fd02757592970b61c8a23d9cf4fff26c2907d1444d469df2",
+    "d5c62ec08f56a771febce62f85cf7ede2d77781554ada7eeb3b2e1118ac2d3ed",
+    "084e75daa2599ea76d30a11b2499ce79e51a5c7babf9fe5c8debfca32578bac0",
+    "1412023c24655f5a2bd9c0548d5ee33a544a85cfc60ffe77023c930deffdf07b",
+    "f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e"
+  ],
+  "baseline_missing": [
+    "00eaaf1938199607fdf240f6e3d50e4fcb70c4d102ec06f06fc1b28b66c08686"
+  ],
+  "baseline_changed": [],
+  "matching_processes_count": 0,
+  "current_input_matches": {
+    "files": true,
+    "dist": true,
+    "dependencies": true,
+    "private_inputs": true,
+    "private_links": true,
+    "accepted_baseline": true
+  },
+  "disk": {
+    "/workspace": {
+      "total": 33770192896,
+      "used": 29826965504,
+      "free": 2208464896
+    },
+    "/tmp": {
+      "total": 9441349632,
+      "used": 4096,
+      "free": 9441345536
+    }
+  },
+  "no_resource_mutation": true
+}

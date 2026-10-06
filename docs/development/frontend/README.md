@@ -341,7 +341,7 @@ sh scripts/test-security.sh -run '^TestAccountSystemSMTPSettingsWeb(Lifecycle|Cr
 
 投递是第九个独立状态域，与配置域分离并共用唯一 Cookie owner。30 秒可见截止、取消或离页不会提前释放实际 fetch/body/read/cancel 尾部；取消列表/详情读取后须显式重读。普通用户不发管理请求，当前身份失效或本身份 403 清理系统私有材料；旧身份的待决确认不能使旧导航继续。切换区块、离页和注销保护草稿及未确认请求；checking/失败共同卸载确认 DOM，同 Session 恢复保留待决 Promise，关闭恢复当前合法焦点。已清理的匿名或拒绝状态仍允许新的合法离页动作。
 
-页面阶段完整 `npm run check` 通过 38 文件、1303 项测试及格式/类型/构建，后续窄修通过受影响 App、类型与构建检查，Go1.27.1 integration-tag race 编译和 vet 通过。作者五新五旧按 `input01`–`input04` 的固定版本组合通过，独立最终 A/B 在 `input04` 完整通过；不称最终输入重跑全部十组或 1303 全套。原失败及独立 `real01` 环境监督中断记录均保留，后者不算完整通过轮。
+页面阶段完整 `npm run check` 通过 38 文件、1303 项测试及格式/类型/构建，后续窄修通过受影响 App、类型与构建检查，Go1.27.1 integration-tag race 编译和 vet 通过。作者五新五旧按 `input01`–`input04` 的固定版本组合通过，独立最终 A/B 在 `input04` 完整通过；不称最终输入重跑全部十组或 1303 全套。原失败及独立 `real01` 环境监督中断记录均保留，后者不算完整通过轮。 完整来源、分版本复用和恢复边界见[SMTP投递验收记录](../agent-team/system-smtp-delivery-ui-verification.md)。
 
 以下为精确目标集合；真实验收按固定输入与独占资源分批执行，沿原 45 秒浏览器、2 分钟顶层、每包 6 分钟、race/count1、workers=1/retries=0 及实际退出/双扫清理预算：
 

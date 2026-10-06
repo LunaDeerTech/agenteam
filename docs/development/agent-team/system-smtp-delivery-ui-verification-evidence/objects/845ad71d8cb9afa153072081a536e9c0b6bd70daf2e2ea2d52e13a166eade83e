@@ -1,0 +1,18 @@
+# SMTP delivery 独立 A/B 离线准备终局
+
+**OFFLINE READY：冻结六项全部实际退出 0。** 输入仍为作者 input04（620e8888…4439e）+ 私有 bound03 / execution01（7dc48708…a9462）；产品 16 源、36 dist、Git 628612c 的 1083 固定依赖及私有源/工具/链接门禁前后匹配。没有真实 A/B、浏览器、SMTP、Docker/PG 或监听启动。
+
+| 实际命令 | 退出/秒 | 到达事实 |
+|---|---:|---|
+| Go integration race `-run ^$ -list` | 0 / 7.101958 | 精确两顶层；零测试体执行 |
+| Go integration vet | 0 / 0.672740 | 私有 overlay 编译图通过 |
+| 浏览器 TS strict | 0 / 2.357826 | 固定绝对 Node/tsc 与锁定类型依赖 |
+| Playwright test 模式 `--list` | 0 / 0.926304 | 恰 1 例、1 文件 |
+| Playwright retry 模式 `--list` | 0 / 0.843118 | 恰 1 例、1 文件 |
+| driver `--check-input-only` | 0 / 0.406708 | 1083 接受依赖、候选/dist/private 全匹配，无缺失/额外/漂移 |
+
+六项分别记录 exact argv/cwd/env、原 raw、actual wait 与前后指纹；累计观察 12 owned PID/starttime、0 adopted wait，每项两扫均空，自有 TMP 已移除。监督命令工具 session12604 实际退出 0。本轮无失败；先前 bound02、准备稿与页面各原失败保持，不覆盖。
+
+fixture overlay 仍只替换 Playwright config 的绝对路径，原 proxy/worker/IPC/资源/实际 join 未改。browser A/B 与 Go 两顶层、config 和 driver 均未为离线检查改字节。未来 both 预计 11 exact IDs，单组 9；每顶层2m/browser45s/pkg6m、worker1/retry0/noTrace 与 actual wait/双清保持。真实执行须 root 另授唯一窗口；离线通过不证明任何业务断言已运行。
+
+精确执行输入在 `execution01.json`，批准的六命令在 `offline-commands01.json`，原件在 `offline-runs/`，本报告对应 SHA/原件索引在 `preparation-ready01.json`。不需要重复产品全套或已通过离线检查。

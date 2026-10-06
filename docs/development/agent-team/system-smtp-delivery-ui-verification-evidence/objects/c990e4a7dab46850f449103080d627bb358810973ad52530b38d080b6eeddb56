@@ -1,0 +1,70 @@
+import { expect } from 'vitest'
+import { AccountFailure } from '../source/web/src/api/client'
+import type { SMTPDeliveryJob } from '../source/web/src/api/system-smtp-delivery'
+
+export const sourceID = '019a1234-1234-7123-8123-000000000020'
+export const childID = '019a1234-1234-7123-8123-000000000021'
+export const requestID = '019a1234-1234-7123-8123-000000000022'
+export const maxVersion = '9223372036854775807'
+export const encoder = new TextEncoder()
+export const signal = () => new AbortController().signal
+export const write = (s = signal()) => ({ csrfToken: 'c'.repeat(43), key: 'private-probe-1', signal: s })
+export function job(change: Partial<SMTPDeliveryJob> = {}): SMTPDeliveryJob {
+  return {
+    job_id: sourceID,
+    kind: 'test',
+    phase: 'sent',
+    attempts: '1',
+    version: '4',
+    channel: 'smtp',
+    created_at: '2026-10-06T01:02:03.000001Z',
+    attempt_channel: 'smtp',
+    attempt_result: 'sent',
+    ...change,
+  }
+}
+export function fullPage() {
+  return Array.from({ length: 25 }, (_, index) =>
+    job({ job_id: '019a1234-1234-7123-8123-' + (100 - index).toString(16).padStart(12, '0') }),
+  )
+}
+export function json(value: unknown, status = 200) {
+  return new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json' } })
+}
+export function problemValue(status = 404, code = 'NOT_FOUND') {
+  return {
+    type: 'urn:agenteam:problem:not-found', title: '安全诊断', status,
+    detail: '', instance: '/api/v1/system/smtp/test', code,
+    request_id: requestID, commit_state: 'not_started',
+  }
+}
+export function problemResponse(value = problemValue()) {
+  return new Response(JSON.stringify(value), {
+    status: value.status,
+    headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': requestID },
+  })
+}
+export function defer<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  let reject!: (error: unknown) => void
+  const promise = new Promise<T>((yes, no) => { resolve = yes; reject = no })
+  return { promise, resolve, reject }
+}
+export const turn = () => new Promise<void>((resolve) => setImmediate(resolve))
+export function track<T>(pending: Promise<T>) {
+  let settled = false
+  const result = pending.then(
+    value => { settled = true; return { ok: true as const, value } },
+    error => { settled = true; return { ok: false as const, error } },
+  )
+  return { result, settled: () => settled }
+}
+export function fault(value: Awaited<ReturnType<typeof track>['result']>, kind: string) {
+  expect(value.ok).toBe(false)
+  if (!value.ok) {
+    expect(value.error instanceof AccountFailure).toBe(true)
+    expect(value.error.kind).toBe(kind)
+    return value.error as AccountFailure
+  }
+  throw new Error('missing failure')
+}

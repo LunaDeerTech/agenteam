@@ -1,0 +1,26 @@
+{
+  "diff": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/change.diff",
+    "sha256": "ffcdeafcea7dfca9a7b2a2bb6479b57a67660ac496c696a90498a97cefa9602b"
+  },
+  "dist_count": 36,
+  "driver": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver01.py",
+    "sha256": "a5c97153e7feb94292b16d884c5c79458af4f2b14451397ecc78abb6804bdc62"
+  },
+  "manifest": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/manifest.json",
+    "sha256": "a65e6e028bb5ffe5c700753577d027c18ab360924fe0c2e03bb604886557a085"
+  },
+  "original_input_preserved": true,
+  "source_changed": {
+    "web/src/composables/useSystemSMTPDelivery.ts": {
+      "after": "fcc769b85c66b8c2289b1092d961abdb5d3554a6346f31c0aca89b4f3cf35ca7",
+      "before": "7313d2608ad83af4f311e124b2c46d501836007de9393faf8352d4a33bc1e29c"
+    },
+    "web/src/tests/system-smtp-delivery.spec.ts": {
+      "after": "634d556eac16a0bbcf2074d64cb50bc1439a54c9e3c825db12964476733d5bc4",
+      "before": "fb9321606c9469c07e2d37e87ea7bab18eef689ac06ee222975431126ce363f1"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+SMTP delivery UI harness / startup 独立静审：STATIC PASS。支持主线程先授 read 单组，不能据此宣布真实功能或资源清理已通过。
+
+固定产品基线 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`。input01 manifest `9850d4ad68980d96eebfa9c9aa73dc996e85a0a3409f538e9ea586c241d4ac2a`；harness manifest `7b282bf92c4740c15a8a68cd6be72f998b44a9abd9e74c9ed416bb596be0f611`。已独立核冻结副本的 16 源、36 dist 和四 harness SHA，原 12 web / 36 dist 与已审 web-stage01 原字节一致。精确路径与 SHA 见 review.json。
+
+四个 harness 的静态契约成立：真实 app.Run 使用任务自有 PG / SMTP / MinIO；配置、测试发送、重试、邀请创建/撤销与密码重置走正式入口。邮件状态、attempt、join、命令版本不通过 SQL 伪造；权限负例仅改明确自有管理员/Session。原 command identity 使用 Account 的 canonical SHA-256 规则，intent/event 与原 command ID 关联，Audit 用 Account command ID cause_ref / ordinal 0，未套用 Model cursor digest。
+
+取消只读样本用两个实际 MAIL hold 占用 worker；目标 pending/attempts=0/current_attempt=NULL/pass>0 后正式 Revoke，再核 cancelled、两个 actual 字段 null、零 attempt 行。pass>0 仅是持久扫描事实；不证明入队、目标 RunJob 或本轮直接 ClaimBusy。后者仅复用已接受管理读/固定实现。释放的两个合法 hold job 自身须 terminal/io_joined；不能以它们结束倒推目标被 worker 消费。hold 的真实时序仍待 read01。
+
+响应截断在正式 202 后保留原状态/headers 并截断原 body；原 method/path/body/key/合法 CSRF 留在私有内存比较，外部只输出安全计数/布尔/允许的 DTO。原生观察不替换 fetch / Response / reader / read Promise 或 cancel，不 clone/tee/再次读取；600000 字节上限及闭合集合投影保留。成功 DTO 依赖实际 reader.done，错误 ended 标志不等于 EOF，更不能代 owner 实际 join。trace/video/自动失败截图关闭；布局图前清材料并核物理 overlay 已移除。
+
+启动 driver `a5c97153e7feb94292b16d884c5c79458af4f2b14451397ecc78abb6804bdc62` 精确继承已接受 SMTP settings driver04 `3b3c876495c6578f5d782d3c6ee8bdf9be90d12108ddbc6475988dca83468928`。实际 Go cwd 为私有 workspace，1083 固定 Git 文件、16 候选、36 dist 与显式依赖在运行前后门禁；无意外文件/链接。Go1.27.1 / readonly / offline / race / count1，唯一锁定绝对 Playwright CLI。read 只选 `TestAccountSystemSMTPDeliveryWebReadAndPagination`，拓扑 7 外层 + 1 SMTP 容器/网络 = 9 exact IDs；new 五组累计 17、旧配置 7、旧邀请组合 9 仅为其它计划，不由本报告授窗。
+
+原 browser 45s、Go 顶层 2m、包 6m 保持。子进程实际 wait、启动前 subreaper、owned PID/starttime 与 exact nonce/ID 两扫、原资源基线不变、runtime 空及输入前后一致仍是每轮必需结果。这里核的是代码和门禁契约，尚未产生本轮真实清理事实。
+
+已读并核 SHA 的作者结果：race compile03、type03、vet01、Central/Runner build、Go 精确发现 5 新 + 5 旧、五 browser mode 各 1、native observer 11 例、input-gate01 全 actual exit0；gate 0.316s / 1083 / 无资源。未重复运行上述检查。最初 unused import、缺 cancellation 字段、typeRoots 准备失败原件保留。静读中无匹配文件的路径搜索/路径更正只是定位前提，不计测试执行。
+
+本次只写私有简报、只读固定证据；未启动 Docker、PG、SMTP、浏览器、监听端口或业务程序，未改产品 / 主树 / Git。真实结果与最终整卡接受待后续授权执行。

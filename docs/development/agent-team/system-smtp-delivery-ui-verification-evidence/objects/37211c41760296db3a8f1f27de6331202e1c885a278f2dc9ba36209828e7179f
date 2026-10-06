@@ -1,0 +1,81 @@
+{
+  "conclusion": "BOUNDED PASS: input02 anonymous-navigation repair; real Authority retest still separate",
+  "author_manifest": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/manifest.json",
+  "author_manifest_sha256": "a65e6e028bb5ffe5c700753577d027c18ab360924fe0c2e03bb604886557a085",
+  "base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "static": [
+    "clearedAnonymous requires anonymous + personal invalid/null identity + no busy + both domains clean at entry and after await",
+    "generation, active section and disposed guards preserved; old pending decisions cannot retroactively acquire anonymous or inactive-entry authority",
+    "two source changes only; other14/API/owner/App/router/config-controller/harness/driver unchanged;36 rebuilt dist bound in input-static01"
+  ],
+  "independent": [
+    {
+      "run": "app01",
+      "exit": 1,
+      "seconds": 2.934089,
+      "A": "private oracle premise failure: expected one Session GET; formal login authentication guard performs second restore",
+      "B": "PASS unchanged original checking503/same identity dual confirmation/different identity retirement combination",
+      "actualwait": true,
+      "owned": 2,
+      "adopted": 0,
+      "double_scan_empty": true,
+      "input_unchanged": true
+    },
+    {
+      "run": "app02",
+      "exit": 0,
+      "seconds": 2.807111,
+      "A": "PASS: exact two Session/bootstrap pairs; /login + empty enabled controls; null private progress/material; no additional SMTP writes/reads",
+      "B": "filtered; reuse app01 only",
+      "actualwait": true,
+      "owned": 2,
+      "adopted": 0,
+      "double_scan_empty": true,
+      "input_unchanged": true
+    }
+  ],
+  "author_evidence": "same exact test bytes 3 RED -> 3 GREEN; impacted15 PASS; type/build/format PASS, original results retained",
+  "limitations": [
+    "jsdom App/router/factory and controlled fetch; not native focus/Tab or real HTTP authority proof",
+    "API/owner unchanged evidence reused; no new API/owner matrix",
+    "no Docker/browser/server/listener/SMTP or product/Git mutation",
+    "private /forgot-password route placeholder warning preserved; not navigated"
+  ],
+  "artifact_hashes": {
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/input-static01.json": "e3f26830bc75b661bd5bd321e0b1475f488eb58af787023720c6210ef39abad2",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/input-static02.json": "98f9117668a95439f94743b7ab8db042067c5c797e60d1fb29e0562788a840e0",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/probe/page.spec.ts": "03dd2e56ad872242d77025e7bdb3b24b1a64ce22c13d01700319c2fce5f4dfc8",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/probe/page02.spec.ts": "bc3acd7c6bba4398da9964834cac647c8f8a317edac6579612e95edfeb56b23b",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/probe01-to02.diff": "e080673e4ef1baa20e87c7db13d626ed50c7794d5785f761224b58b5e2f4f8aa",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/run01.py": "0703287b2bb80e746500fc4a246272c68334127ceae4f2c0d4edba6637cde25f",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/run02.py": "67b6574f361869e1c32c8fbfd0a3128726c558e83edc41a4e87c52c39f2bbdd1",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/vitest.config.ts": "73135c9549d86bcd9ddb2a89d91576110c022e1dd9cec78e57359d2c18469a05",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/vitest02.config.ts": "219f738425035d0175b51ddc23237fb0140f854b7c99759ed1e76f34b18f6d2f",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runs/app01/command.json": "786499fbebb7eab44f4ced95d284d01c1fc5e96d71e4ba1d209f599dc4ea2de9",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runs/app01/input-before.json": "f6b7b4a0b1d66e94ca688278296b160c6e1f90fe685218948906390d0027b7d2",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runs/app01/input-after.json": "f6b7b4a0b1d66e94ca688278296b160c6e1f90fe685218948906390d0027b7d2",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runs/app01/raw.log": "83b2814a9ad68092d0189f4fe534ee88e7344d9f4f2e0515eb7587e52ddd9b6a",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runs/app01/result.json": "c93692b371a756b17dcd62a723a7a43b2c6f7fc62b61e0e19adc57966d0d2297",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runs/app01/cleanup.json": "a9fd803495b8283910c15c22c8a7138e7e11dfbd41549bb898493659ffaca2c4",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runs/app02/command.json": "8e3dcea273209f167ee6bc9331525866d78a15bc9657974b919ec8c4ddf03af8",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runs/app02/input-before.json": "28058f7e0e7bf9ab6f31b246c2a4c89e9e871127b86da00312c7f6c4ad414d9c",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runs/app02/input-after.json": "28058f7e0e7bf9ab6f31b246c2a4c89e9e871127b86da00312c7f6c4ad414d9c",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runs/app02/raw.log": "04304396c272947141f42cef2e7f96e264b28617bc4a6228ffc4fe3fc3a00d74",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runs/app02/result.json": "f850773387a100bb6a0c5c6949e0d53518d867c662f391ecff6da3632b5226b1",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runs/app02/cleanup.json": "e11859799542491fbead2034ad0c415848aaaac15e3ab790fa0d7b4c6edb8c7e",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority-probe01/raw.log": "eefe808bf50ff40903c3813577906d18b14b9fd515cd021c2ba0943706f1d6a8",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority-probe01/result.json": "1098f0aa4f7794bb8232edfe1cf6e24d64d3725850f7f590464a6b7325343818",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority-probe02/raw.log": "d5fed02c3ee6d6ba34f414dc197ff790a983951502a3b6d115cb5bb3b64b8485",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority-probe02/result.json": "0c96d3bb0731e10d01e60f545a2930f705b9fcc3078708ff35370eed1ec727ba",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority-page01/raw.log": "58c920e466f48cfde4b8f3a10965e626add95d8b666253870c63e0f264e707aa",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority-page01/result.json": "dc79ddc12b411bb7608b249c53e46c0be692148a0f2ba8c4d3037a7b9980bc5c",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority-build01/raw.log": "4a449963fb522abe66892ab5a97917bab2bc15ea948d557cc599ff8b39fbb56a",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority-build01/result.json": "7d01f3102d6b66e4cfab225c7d2187d5ac8390c1b7cef7cac2a748ea6f9a638e",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority-format01/raw.log": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority-format01/result.json": "b2aa05858bf05559b7e1ae8a0a93969c4f739e3d5e02bcf153e9ab67a1306a03",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/manifest.json": "a65e6e028bb5ffe5c700753577d027c18ab360924fe0c2e03bb604886557a085",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/change.diff": "ffcdeafcea7dfca9a7b2a2bb6479b57a67660ac496c696a90498a97cefa9602b",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/authority-probe01-source/web/src/tests/system-smtp-delivery.spec.ts": "634d556eac16a0bbcf2074d64cb50bc1439a54c9e3c825db12964476733d5bc4",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/authority-probe02-source/web/src/tests/system-smtp-delivery.spec.ts": "634d556eac16a0bbcf2074d64cb50bc1439a54c9e3c825db12964476733d5bc4"
+  }
+}

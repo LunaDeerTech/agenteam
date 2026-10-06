@@ -1,0 +1,936 @@
+import { test, expect, type Page, type Locator } from "@playwright/test";
+import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
+import { join } from "node:path";
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
+const listPath = "/api/v1/system/mail-jobs/management";
+const testPath = "/api/v1/system/smtp/test";
+const jobPath = (id: string) => `/api/v1/system/mail-jobs/${id}/management`;
+const retryPath = (id: string) => `/api/v1/system/mail-jobs/${id}/retry`;
+type Job = {
+  job_id: string;
+  kind: string;
+  phase: string;
+  attempts: string;
+  version: string;
+  channel: string | null;
+  created_at: string;
+  attempt_channel: string | null;
+  attempt_result: string | null;
+  reason?: string;
+};
+type Fact = {
+  sequence: number;
+  path: string;
+  query: string;
+  method: string;
+  status: number;
+  bytes: number;
+  ended: boolean;
+  code?: string;
+  commit_state?: string;
+  session?: { user_id: string; session_id: string; role: string };
+  configured?: boolean;
+  job?: Job;
+  items?: Job[];
+  next_cursor?: string;
+  receipt?: { job_id: string; version?: string };
+};
+type ObservedWindow = Window & {
+  __smtpFacts?: Fact[];
+  __smtpSequence?: number;
+};
+type Credential = { email: string; password: string; user_id: string };
+const material = (): {
+  admin: Credential;
+  member: Credential;
+  source_id: string;
+} =>
+  JSON.parse(
+    readFileSync(join(directory, "smtp-delivery-material.json"), "utf8"),
+  );
+function result(value: Record<string, unknown>) {
+  writeFileSync(
+    join(directory, "smtp-delivery-result.json"),
+    JSON.stringify({ completed: true, ...value }),
+    { mode: 0o600 },
+  );
+}
+let ipcSequence = 0;
+async function ipc(
+  action: string,
+  fields: Record<string, string> = {},
+): Promise<Record<string, any>> {
+  const sequence = ++ipcSequence,
+    request = join(directory, "smtp-delivery-ipc.json"),
+    ack = join(directory, `smtp-delivery-ack-${sequence}.json`);
+  writeFileSync(
+    request + ".tmp",
+    JSON.stringify({ sequence, action, ...fields }),
+    { mode: 0o600 },
+  );
+  renameSync(request + ".tmp", request);
+  await expect.poll(() => existsSync(ack), { timeout: 14000 }).toBe(true);
+  const value = JSON.parse(readFileSync(ack, "utf8"));
+  expect(value.ok === true && value.sequence === sequence).toBe(true);
+  return value;
+}
+// Side observations of the application's original fetch/read Promises only.
+// No clone, tee, second read or request; original cancel and abort are untouched.
+// Ended below is a projection marker, never proof of Cookie-owner release.
+function observeNative() {
+  const scope = window as ObservedWindow;
+  scope.__smtpFacts = [];
+  scope.__smtpSequence = 0;
+  const object = (value: unknown): Record<string, unknown> | null =>
+    value !== null && typeof value === "object" && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : null;
+  const closed = (value: Record<string, unknown>, keys: string[]) =>
+    Object.keys(value).length === keys.length &&
+    keys.every((key) => Object.hasOwn(value, key));
+  const id = (value: unknown): value is string =>
+    typeof value === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+      value,
+    );
+  const decimal = (value: unknown, min: bigint, max: bigint): value is string =>
+    typeof value === "string" &&
+    /^(?:0|[1-9][0-9]{0,18})$/.test(value) &&
+    BigInt(value) >= min &&
+    BigInt(value) <= max;
+  const nativeFetch = window.fetch;
+  window.fetch = function (...args: Parameters<typeof fetch>) {
+    const original = Reflect.apply(nativeFetch, this, args) as ReturnType<
+      typeof fetch
+    >;
+    try {
+      const [input, init] = args,
+        url = new URL(
+          input instanceof Request ? input.url : String(input),
+          location.origin,
+        );
+      if (
+        url.origin !== location.origin ||
+        !(
+          url.pathname === "/api/v1/session" ||
+          url.pathname.startsWith("/api/v1/system/")
+        )
+      )
+        return original;
+      const fact: Fact = {
+        sequence: ++scope.__smtpSequence!,
+        path: url.pathname,
+        query: url.search,
+        method:
+          init?.method ?? (input instanceof Request ? input.method : "GET"),
+        status: 0,
+        bytes: 0,
+        ended: false,
+      };
+      scope.__smtpFacts!.push(fact);
+      void original
+        .then(
+          (response) => {
+            fact.status = response.status;
+            if (!(
+              fact.path === "/api/v1/session" ||
+              fact.path === "/api/v1/system/smtp" ||
+              fact.path === "/api/v1/system/smtp/test" ||
+              /^\/api\/v1\/system\/mail-jobs\/(?:management|[0-9a-f-]{36}\/(?:management|retry))$/.test(
+                fact.path,
+              )
+            ))
+              return;
+            const body = response.body,
+              media = response.headers
+                .get("Content-Type")
+                ?.split(";", 1)[0]
+                ?.trim()
+                .toLowerCase();
+            if (
+              !body ||
+              media !==
+                (response.status === 200 || response.status === 202
+                  ? "application/json"
+                  : "application/problem+json")
+            ) {
+              fact.ended = true;
+              return;
+            }
+            let text = "",
+              collect = true;
+            const decoder = new TextDecoder();
+            function project() {
+              if (!collect) return;
+              const value = object(JSON.parse(text + decoder.decode()));
+              if (!value) return;
+              if (response.status !== 200 && response.status !== 202) {
+                if (
+                  typeof value.code === "string" &&
+                  [
+                    "UNAUTHENTICATED",
+                    "SESSION_REVOKED",
+                    "CSRF_FAILED",
+                    "FORBIDDEN",
+                    "INVALID_ARGUMENT",
+                    "VERSION_CONFLICT",
+                    "INVALID_STATE",
+                    "RATE_LIMITED",
+                    "RESOURCE_DELETED",
+                    "RESOURCE_BUSY",
+                    "NOT_FOUND",
+                    "COMMIT_UNKNOWN",
+                    "IDEMPOTENCY_KEY_REUSED",
+                    "DEPENDENCY_UNAVAILABLE",
+                    "INTERNAL_ERROR",
+                  ].includes(value.code)
+                )
+                  fact.code = value.code;
+                if (
+                  typeof value.commit_state === "string" &&
+                  [
+                    "not_started",
+                    "not_committed",
+                    "committed",
+                    "unknown",
+                  ].includes(value.commit_state)
+                )
+                  fact.commit_state = value.commit_state;
+                return;
+              }
+              if (fact.path === "/api/v1/session") {
+                const user = object(value.user),
+                  session = object(value.session);
+                if (
+                  closed(value, ["user", "session", "csrf_token"]) &&
+                  user &&
+                  session &&
+                  id(user.id) &&
+                  id(session.id) &&
+                  (user.role === "admin" || user.role === "user")
+                )
+                  fact.session = {
+                    user_id: user.id,
+                    session_id: session.id,
+                    role: user.role,
+                  };
+                return;
+              }
+              if (fact.path === "/api/v1/system/smtp") {
+                if (
+                  fact.method === "GET" &&
+                  closed(value, [
+                    "id",
+                    "version",
+                    "configured",
+                    "host",
+                    "port",
+                    "encryption",
+                    "username",
+                    "sender_email",
+                    "sender_name",
+                    "credential_present",
+                    "auto_retry_count",
+                    "retry_interval_seconds",
+                  ]) &&
+                  id(value.id) &&
+                  decimal(value.version, 1n, 9223372036854775807n) &&
+                  typeof value.configured === "boolean"
+                )
+                  fact.configured = value.configured;
+                return;
+              }
+              if (fact.method === "POST") {
+                const retry = fact.path.endsWith("/retry");
+                if (
+                  response.status === 202 &&
+                  closed(value, retry ? ["job_id", "version"] : ["job_id"]) &&
+                  id(value.job_id) &&
+                  (!retry ||
+                    (decimal(value.version, 1n, 9223372036854775807n) &&
+                      value.job_id !== fact.path.split("/")[5]))
+                )
+                  fact.receipt = retry
+                    ? { job_id: value.job_id, version: value.version as string }
+                    : { job_id: value.job_id };
+                return;
+              }
+              function instant(value: unknown): value is string {
+                if (
+                  typeof value !== "string" ||
+                  !/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{6}Z$/.test(value)
+                )
+                  return false;
+                const date = new Date(value.slice(0, 23) + "Z");
+                return (
+                  Number.isFinite(date.getTime()) &&
+                  date.toISOString() === value.slice(0, 23) + "Z"
+                );
+              }
+              function job(raw: unknown): Job | undefined {
+                const v = object(raw);
+                if (!v) return;
+                const required = [
+                  "job_id",
+                  "kind",
+                  "phase",
+                  "attempts",
+                  "version",
+                  "channel",
+                  "created_at",
+                  "attempt_channel",
+                  "attempt_result",
+                ];
+                if (
+                  !closed(
+                    v,
+                    Object.hasOwn(v, "reason")
+                      ? [...required, "reason"]
+                      : required,
+                  ) ||
+                  !id(v.job_id) ||
+                  !["invitation", "password_reset", "test"].includes(
+                    v.kind as string,
+                  ) ||
+                  ![
+                    "enqueue_pending",
+                    "pending",
+                    "claimed",
+                    "sending",
+                    "retry_wait",
+                    "sent",
+                    "failed",
+                    "unknown",
+                    "cancelled",
+                  ].includes(v.phase as string) ||
+                  !decimal(v.attempts, 0n, 6n) ||
+                  !decimal(v.version, 1n, 9223372036854775807n) ||
+                  !instant(v.created_at) ||
+                  ![null, "smtp", "backend_log"].includes(
+                    v.channel as string | null,
+                  ) ||
+                  ![null, "smtp", "backend_log"].includes(
+                    v.attempt_channel as string | null,
+                  ) ||
+                  ![null, "sent", "failed", "unknown", "cancelled"].includes(
+                    v.attempt_result as string | null,
+                  ) ||
+                  (Object.hasOwn(v, "reason") &&
+                    ![
+                      "sent",
+                      "token_invalid",
+                      "configuration_invalid",
+                      "policy_rejected",
+                      "network_failed",
+                      "smtp_rejected",
+                      "timeout",
+                      "cancelled",
+                      "unknown",
+                    ].includes(v.reason as string))
+                )
+                  return;
+                if (v.attempt_channel === null) {
+                  if (
+                    v.attempt_result !== null ||
+                    [
+                      "claimed",
+                      "sending",
+                      "retry_wait",
+                      "sent",
+                      "failed",
+                    ].includes(v.phase as string)
+                  )
+                    return;
+                } else if (
+                  v.attempt_channel !== v.channel ||
+                  BigInt(v.attempts) < 1n
+                )
+                  return;
+                if (
+                  v.phase === "enqueue_pending" &&
+                  (v.attempts !== "0" ||
+                    v.version !== "1" ||
+                    v.attempt_channel !== null ||
+                    Object.hasOwn(v, "reason"))
+                )
+                  return;
+                const output: Job = {
+                  job_id: v.job_id,
+                  kind: v.kind as string,
+                  phase: v.phase as string,
+                  attempts: v.attempts,
+                  version: v.version,
+                  channel: v.channel as string | null,
+                  created_at: v.created_at,
+                  attempt_channel: v.attempt_channel as string | null,
+                  attempt_result: v.attempt_result as string | null,
+                };
+                if (Object.hasOwn(v, "reason"))
+                  output.reason = v.reason as string;
+                return output;
+              }
+              if (fact.path === "/api/v1/system/mail-jobs/management") {
+                if (
+                  !closed(
+                    value,
+                    Object.hasOwn(value, "next_cursor")
+                      ? ["items", "next_cursor"]
+                      : ["items"],
+                  ) ||
+                  !Array.isArray(value.items) ||
+                  value.items.length > 25
+                )
+                  return;
+                if (
+                  Object.hasOwn(value, "next_cursor") &&
+                  (typeof value.next_cursor !== "string" ||
+                    !value.next_cursor ||
+                    new TextEncoder().encode(value.next_cursor).byteLength >
+                      8192 ||
+                    value.items.length !== 25)
+                )
+                  return;
+                const rows = value.items.map(job);
+                if (rows.some((v) => !v)) return;
+                const ids = new Set<string>();
+                for (let i = 0; i < rows.length; i++) {
+                  const v = rows[i]!;
+                  if (ids.has(v.job_id)) return;
+                  ids.add(v.job_id);
+                  if (
+                    i &&
+                    !(
+                      rows[i - 1]!.created_at > v.created_at ||
+                      (rows[i - 1]!.created_at === v.created_at &&
+                        rows[i - 1]!.job_id > v.job_id)
+                    )
+                  )
+                    return;
+                }
+                fact.items = rows as Job[];
+                if (Object.hasOwn(value, "next_cursor"))
+                  fact.next_cursor = value.next_cursor as string;
+              } else {
+                const v = job(value);
+                if (v && v.job_id === fact.path.split("/")[5]) fact.job = v;
+              }
+            }
+            try {
+              const nativeGet = body.getReader;
+              Object.defineProperty(body, "getReader", {
+                configurable: true,
+                writable: true,
+                value: function (
+                  this: ReadableStream<Uint8Array>,
+                  ...args: unknown[]
+                ) {
+                  const reader = Reflect.apply(
+                    nativeGet,
+                    this,
+                    args,
+                  ) as ReadableStreamDefaultReader<Uint8Array>;
+                  try {
+                    Object.defineProperty(body, "getReader", {
+                      value: nativeGet,
+                    });
+                    const nativeRead = reader.read;
+                    Object.defineProperty(reader, "read", {
+                      configurable: true,
+                      writable: true,
+                      value: function (
+                        this: ReadableStreamDefaultReader<Uint8Array>,
+                        ...args: unknown[]
+                      ) {
+                        const original = Reflect.apply(
+                          nativeRead,
+                          this,
+                          args,
+                        ) as Promise<ReadableStreamReadResult<Uint8Array>>;
+                        void original
+                          .then(
+                            ({ done, value }) => {
+                              try {
+                                if (value) {
+                                  fact.bytes += value.byteLength;
+                                  if (fact.bytes > 600000) {
+                                    text = "";
+                                    collect = false;
+                                  } else if (collect)
+                                    text += decoder.decode(value, {
+                                      stream: true,
+                                    });
+                                }
+                                if (done) {
+                                  fact.ended = true;
+                                  try {
+                                    project();
+                                  } finally {
+                                    text = "";
+                                    collect = false;
+                                  }
+                                }
+                              } catch {
+                                text = "";
+                                collect = false;
+                              }
+                            },
+                            () => {
+                              text = "";
+                              collect = false;
+                              fact.ended = true;
+                            },
+                          )
+                          .catch(() => {
+                            text = "";
+                            collect = false;
+                          });
+                        return original;
+                      },
+                    });
+                  } catch {
+                    text = "";
+                    collect = false;
+                  }
+                  return reader;
+                },
+              });
+            } catch {
+              text = "";
+              collect = false;
+            }
+          },
+          () => {
+            fact.ended = true;
+          },
+        )
+        .catch(() => undefined);
+    } catch {
+      /* Observation failures cannot change the native result. */
+    }
+    return original;
+  };
+}
+
+const button = (page: Page, name: string) =>
+  page.getByRole("button", { name, exact: true });
+const title = (page: Page, name: string) =>
+  page.getByRole("heading", { name, exact: true });
+const panel = (page: Page) =>
+  page.getByRole("region", { name: "SMTP 测试与任务", exact: true });
+const top = (page: Page) => page.getByRole("dialog");
+const recipient = (page: Page) =>
+  page.getByRole("textbox", { name: "测试收件邮箱", exact: true });
+const facts = (page: Page) =>
+  page.evaluate(() => (window as ObservedWindow).__smtpFacts ?? []);
+const seq = (page: Page) =>
+  page.evaluate(() => (window as ObservedWindow).__smtpSequence ?? 0);
+const writes = async (page: Page) =>
+  (await facts(page)).filter(
+    (f) =>
+      f.method === "POST" && (f.path === testPath || f.path.endsWith("/retry")),
+  );
+async function factAfter(
+  page: Page,
+  after: number,
+  predicate: (fact: Fact) => boolean,
+) {
+  let found: Fact | undefined;
+  await expect
+    .poll(async () => {
+      found = (await facts(page)).find(
+        (f) => f.sequence > after && predicate(f),
+      );
+      return !!found;
+    })
+    .toBe(true);
+  return found!;
+}
+async function login(page: Page, who: "admin" | "member" = "admin") {
+  const v = material()[who],
+    after = await seq(page);
+  try {
+    await page.locator("#login-email").fill(v.email);
+    await page.locator("#login-password").fill(v.password);
+  } catch {
+    throw Error("private delivery login input failed");
+  }
+  await button(page, "登录").click();
+  const s = await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === "/api/v1/session" &&
+      f.status === 200 &&
+      f.ended &&
+      f.session?.user_id === v.user_id &&
+      f.session.role === (who === "member" ? "user" : "admin"),
+  );
+  await expect(button(page, "退出登录")).toBeEnabled();
+  await expect(page).not.toHaveURL(/\/login(?:\?|$)/);
+  return s.session!;
+}
+async function setup(page: Page) {
+  await page.addInitScript(observeNative);
+  await page.goto("/system/smtp");
+  const identity = await login(page);
+  await factAfter(
+    page,
+    0,
+    (f) =>
+      f.path === "/api/v1/system/smtp" &&
+      f.method === "GET" &&
+      f.status === 200 &&
+      f.ended &&
+      typeof f.configured === "boolean",
+  );
+  await expect(button(page, "读取当前配置")).toBeEnabled();
+  expect(
+    (await facts(page)).filter((f) =>
+      f.path.startsWith("/api/v1/system/mail-jobs"),
+    ).length,
+  ).toBe(0);
+  return identity;
+}
+async function switchDelivery(page: Page) {
+  const before = await seq(page);
+  await button(page, "测试与任务").click();
+  await expect(panel(page)).toBeVisible();
+  return factAfter(
+    page,
+    before,
+    (f) =>
+      f.path === listPath &&
+      f.method === "GET" &&
+      f.status === 200 &&
+      f.ended &&
+      !!f.items,
+  );
+}
+async function refresh(page: Page) {
+  const after = await seq(page);
+  await button(page, "刷新任务列表").click();
+  const f = await factAfter(
+    page,
+    after,
+    (f) => f.path === listPath && f.status === 200 && f.ended && !!f.items,
+  );
+  await expect(button(page, "刷新任务列表")).toBeEnabled();
+  return f;
+}
+async function detail(page: Page, id: string) {
+  if (await button(page, "返回任务列表").count())
+    await button(page, "返回任务列表").click();
+  await refresh(page);
+  const after = await seq(page);
+  await button(page, "查看任务 " + id).click();
+  const f = await factAfter(
+    page,
+    after,
+    (f) => f.path === jobPath(id) && f.status === 200 && f.ended && !!f.job,
+  );
+  await expect(button(page, "重新读取任务详情")).toBeEnabled();
+  return f.job!;
+}
+async function reread(page: Page, id: string) {
+  const after = await seq(page);
+  await button(page, "重新读取任务详情").click();
+  const f = await factAfter(
+    page,
+    after,
+    (f) => f.path === jobPath(id) && f.status === 200 && f.ended && !!f.job,
+  );
+  await expect(button(page, "重新读取任务详情")).toBeEnabled();
+  return f.job!;
+}
+async function accepted(page: Page, after: number, path: string) {
+  const f = await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === path &&
+      f.method === "POST" &&
+      f.status === 202 &&
+      f.ended &&
+      !!f.receipt,
+  );
+  await factAfter(
+    page,
+    f.sequence,
+    (g) =>
+      g.path === jobPath(f.receipt!.job_id) &&
+      g.method === "GET" &&
+      g.status !== 0,
+  );
+  await expect(button(page, "重新读取任务详情")).toBeEnabled();
+  return f.receipt!;
+}
+async function requestTest(page: Page) {
+  await recipient(page).fill("Owned.Test@example.test");
+  const after = await seq(page);
+  await button(page, "请求测试发送").click();
+  return accepted(page, after, testPath);
+}
+async function applyRetry(page: Page, id: string) {
+  await button(page, "申请新重试周期").click();
+  await expect(top(page)).toHaveAccessibleName("申请新重试周期？");
+  const after = await seq(page);
+  await top(page)
+    .getByRole("button", { name: "确认申请新周期", exact: true })
+    .click();
+  return accepted(page, after, retryPath(id));
+}
+async function session(page: Page) {
+  const f = (await facts(page))
+    .filter(
+      (f) =>
+        f.path === "/api/v1/session" &&
+        f.status === 200 &&
+        f.ended &&
+        !!f.session,
+    )
+    .at(-1);
+  expect(!!f?.session).toBe(true);
+  return f!.session!;
+}
+async function focusContained(page: Page) {
+  await expect(top(page)).toHaveCount(1);
+  await expect
+    .poll(() => top(page).evaluate((d) => d.contains(document.activeElement)))
+    .toBe(true);
+  for (let n = 0; n < 6; n++) {
+    await page.keyboard.press("Tab");
+    expect(
+      await top(page).evaluate((d) => d.contains(document.activeElement)),
+    ).toBe(true);
+  }
+  await page.keyboard.press("Shift+Tab");
+  expect(
+    await top(page).evaluate((d) => d.contains(document.activeElement)),
+  ).toBe(true);
+}
+async function fallback(page: Page) {
+  await expect(page.locator(".ui-overlay")).toHaveCount(0);
+  await expect(title(page, "SMTP")).toBeFocused();
+  await page.keyboard.press("Tab");
+  expect(
+    await page.evaluate(
+      () =>
+        document.activeElement instanceof HTMLElement &&
+        document.activeElement !== document.body &&
+        document.activeElement.isConnected &&
+        !document.activeElement.closest('[inert],[aria-hidden="true"]'),
+    ),
+  ).toBe(true);
+}
+async function restored(page: Page, count: number) {
+  const original = await session(page),
+    after = await seq(page),
+    before = (await writes(page)).length;
+  const oldHeading = await page
+    .locator(".system-smtp-settings > h1")
+    .elementHandle();
+  await ipc("arm-session-fail");
+  // Synthetic pageshow exercises the production listener, not browser BFCache.
+  const checking = await page.evaluate(async () => {
+    let observer: MutationObserver | undefined;
+    try {
+      return await new Promise<{
+        zero: boolean;
+        unlocked: boolean;
+        operative: boolean;
+      }>((resolve) => {
+        observer = new MutationObserver(() => {
+          const check = document.querySelector<HTMLElement>(".session-check");
+          if (!check) return;
+          resolve({
+            zero: document.querySelectorAll(".ui-overlay").length === 0,
+            unlocked:
+              document.body.style.overflow !== "hidden" &&
+              document.documentElement.style.overflow !== "hidden",
+            operative: check.closest("[inert]") === null,
+          });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+        window.dispatchEvent(new Event("pageshow"));
+      });
+    } finally {
+      observer?.disconnect();
+    }
+  });
+  expect(checking).toEqual({ zero: true, unlocked: true, operative: true });
+  await expect(button(page, "检查当前会话")).toBeEnabled();
+  await button(page, "检查当前会话").click();
+  await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === "/api/v1/session" &&
+      f.status === 200 &&
+      f.ended &&
+      f.session?.user_id === original.user_id &&
+      f.session.session_id === original.session_id &&
+      f.session.role === original.role,
+  );
+  await expect(page.locator('[role="dialog"]')).toHaveCount(count);
+  await expect(top(page)).toHaveCount(1);
+  if (count === 2)
+    expect(
+      await page
+        .locator('[role="dialog"]')
+        .first()
+        .evaluate(
+          (node) =>
+            (node as HTMLElement).inert &&
+            node.getAttribute("aria-hidden") === "true",
+        ),
+    ).toBe(true);
+  expect(
+    await top(page).evaluate(
+      (node) =>
+        !(node as HTMLElement).inert &&
+        node.getAttribute("aria-hidden") !== "true",
+    ),
+  ).toBe(true);
+  await focusContained(page);
+  expect(await oldHeading!.evaluate((node) => node.isConnected)).toBe(false);
+  await oldHeading!.dispose();
+  expect((await writes(page)).length === before).toBe(true);
+}
+
+
+async function originalFacts(dispatched: number) {
+  const f = (await ipc("cut-facts")).facts;
+  expect(
+    f.commands === 1 && f.intents === 1 && f.events === 1 && f.audits === 1 &&
+    f.dropped === 1 && f.dispatched === dispatched && f.replays === dispatched - 1 &&
+    f.same_body === true && f.same_csrf === true && f.same_method_path === true,
+  ).toBe(true);
+  return f as { job_id: string };
+}
+async function originalSession(page: Page, after: number, identity: NonNullable<Fact["session"]>) {
+  return factAfter(page, after, f => f.path === "/api/v1/session" && f.method === "GET" &&
+    f.status === 200 && f.ended && f.session?.user_id === identity.user_id &&
+    f.session.session_id === identity.session_id && f.session.role === identity.role);
+}
+
+test("[independent-test] accepted test replay survives current unconfigure and confirmed detail failure", async ({ page }) => {
+  const identity = await setup(page);
+  await switchDelivery(page);
+  await ipc("arm-drop");
+  await recipient(page).fill("Independent.History@example.test");
+  let after = await seq(page);
+  await button(page, "请求测试发送").click();
+  await expect(title(page, "请求结果未确认")).toBeVisible();
+  const cut = await factAfter(page, after, f => f.path === testPath && f.method === "POST" && f.status === 202);
+  expect(!cut.receipt).toBe(true);
+  const terminal = await ipc("wait-cut", { phase: "sent" });
+  const firstFacts = await originalFacts(1);
+  expect(terminal.job_id === firstFacts.job_id).toBe(true);
+  // A separate formal administrator client changes current configuration. The
+  // browser keeps the original intent and never switches out of this section.
+  await ipc("unconfigure");
+  after = await seq(page);
+  await button(page, "检查当前状态").click();
+  await originalSession(page, after, identity);
+  const observed = await factAfter(page, after, f => f.path === listPath && f.method === "GET" && f.status === 200 && f.ended && !!f.items);
+  expect(observed.items!.some(j => j.job_id === firstFacts.job_id && j.phase === "sent" && j.attempt_channel === "smtp" && j.attempt_result === "sent")).toBe(true);
+  await expect(title(page, "请求结果未确认")).toBeVisible();
+  await expect(title(page, "测试请求已接受")).toHaveCount(0);
+  await expect(button(page, "重试原请求")).toBeEnabled();
+  expect((await writes(page)).length === 1).toBe(true);
+  await originalFacts(1);
+  await ipc("arm-get-fail");
+  after = await seq(page);
+  await button(page, "重试原请求").click();
+  const receipt = await accepted(page, after, testPath);
+  expect(receipt.job_id === firstFacts.job_id && receipt.version === undefined).toBe(true);
+  await factAfter(page, after, f => f.path === jobPath(receipt.job_id) && f.method === "GET" && f.status === 503);
+  await expect(title(page, "请求已确认，任务详情读取失败")).toBeVisible();
+  await expect(title(page, "测试请求已接受")).toBeVisible();
+  await expect(title(page, "请求结果未确认")).toHaveCount(0);
+  await expect(button(page, "重试原请求")).toHaveCount(0);
+  expect((await ipc("failure-facts")).read_failures === 1).toBe(true);
+  expect((await writes(page)).length === 2).toBe(true);
+  const final = await reread(page, receipt.job_id);
+  expect(final.phase === "sent" && final.attempt_result === "sent" && final.attempt_channel === "smtp" && BigInt(final.version) > 1n).toBe(true);
+  await expect(title(page, "测试请求已接受")).toBeVisible();
+  expect((await writes(page)).length === 2).toBe(true);
+  expect((await originalFacts(2)).job_id === receipt.job_id).toBe(true);
+  result({ original_test_cut: true, current_read_not_receipt: true,
+    strict_original_replay: true, confirmed_get_failure: true, readonly_recovery: true,
+    browser_write_count: 2, exact_command: true, original_material_equal: true,
+    browser_session_id: identity.session_id, confirmed_job_id: receipt.job_id });
+});
+
+test("[independent-retry] delivery unknown and request unknown remain distinct through native confirmation recovery", async ({ page }) => {
+  await setup(page);
+  // Establish a genuine previous route for the pending public Back navigation.
+  await page.goto("/system/users");
+  const nav = page.getByRole("navigation", { name: "系统设置", exact: true });
+  let after = await seq(page);
+  await nav.getByRole("link", { name: "SMTP", exact: true }).click();
+  await factAfter(page, after, f => f.path === "/api/v1/system/smtp" && f.status === 200 && f.ended && f.configured === true);
+  await expect(button(page, "读取当前配置")).toBeEnabled();
+  const identity = await session(page);
+  await switchDelivery(page);
+  await ipc("configure", { endpoint: "unknown" });
+  const initial = await requestTest(page);
+  await expect(title(page, "测试请求已接受")).toBeVisible();
+  await expect(title(page, "请求结果未确认")).toHaveCount(0);
+  await ipc("wait", { id: initial.job_id, phase: "unknown" });
+  const source = await reread(page, initial.job_id);
+  expect(source.phase === "unknown" && source.attempt_channel === "smtp" && source.attempt_result === "unknown" && source.attempts === "1").toBe(true);
+  await expect(title(page, "测试请求已接受")).toBeVisible();
+  await expect(title(page, "请求结果未确认")).toHaveCount(0);
+  await ipc("configure", { endpoint: "success" });
+  await button(page, "申请新重试周期").click();
+  await expect(top(page)).toHaveAccessibleName("申请新重试周期？");
+  const back = page.goBack();
+  await expect(page.locator('[role="dialog"]')).toHaveCount(2);
+  await expect(top(page)).toHaveAccessibleName("放弃投递草稿或原请求追踪？");
+  const beforeChecking = await seq(page);
+  await restored(page, 2);
+  await factAfter(page, beforeChecking, f => f.path === "/api/v1/session" && f.method === "GET" && f.status === 503);
+  expect((await ipc("failure-facts")).session_failures === 1).toBe(true);
+  await top(page).getByRole("button", { name: "继续编辑", exact: true }).click();
+  await back;
+  await expect(page).toHaveURL(/\/system\/smtp$/);
+  await expect(page.locator('[role="dialog"]')).toHaveCount(1);
+  await expect(top(page)).toHaveAccessibleName("申请新重试周期？");
+  await focusContained(page);
+  expect((await writes(page)).length === 1).toBe(true);
+  await ipc("arm-drop", { id: source.job_id });
+  after = await seq(page);
+  await top(page).getByRole("button", { name: "确认申请新周期", exact: true }).click();
+  await expect(title(page, "请求结果未确认")).toBeVisible();
+  const cut = await factAfter(page, after, f => f.path === retryPath(source.job_id) && f.method === "POST" && f.status === 202);
+  expect(!cut.receipt).toBe(true);
+  const child = (await ipc("wait-cut", { phase: "sent" })).job_id as string;
+  expect(child !== source.job_id && (await originalFacts(1)).job_id === child).toBe(true);
+  after = await seq(page);
+  await button(page, "检查当前状态").click();
+  await originalSession(page, after, identity);
+  const observed = await factAfter(page, after, f => f.path === jobPath(source.job_id) && f.status === 200 && f.ended && !!f.job);
+  expect(observed.job!.phase === "unknown" && observed.job!.attempt_result === "unknown" && BigInt(observed.job!.version) === BigInt(source.version) + 1n).toBe(true);
+  await expect(title(page, "请求结果未确认")).toBeVisible();
+  await expect(title(page, "新重试周期已接受")).toHaveCount(0);
+  await expect(button(page, "重试原请求")).toBeEnabled();
+  expect((await writes(page)).length === 2).toBe(true);
+  await originalFacts(1);
+  after = await seq(page);
+  await button(page, "重试原请求").click();
+  const replay = await accepted(page, after, retryPath(source.job_id));
+  expect(replay.job_id === child && BigInt(replay.version!) > 1n).toBe(true);
+  await factAfter(page, after, f => f.path === jobPath(child) && f.status === 200 && f.ended && f.job?.phase === "sent" && f.job.attempt_channel === "smtp" && f.job.attempt_result === "sent" && f.job.version === replay.version);
+  await expect(title(page, "新重试周期已接受")).toBeVisible();
+  await expect(title(page, "请求结果未确认")).toHaveCount(0);
+  await expect(button(page, "重试原请求")).toHaveCount(0);
+  expect((await writes(page)).length === 3).toBe(true);
+  expect((await originalFacts(2)).job_id === child).toBe(true);
+  result({ delivery_unknown_confirmed: true, retry_request_unknown: true,
+    native_two_confirmations: true, same_identity_recovery: true, native_tab: true,
+    original_version_replay: true, current_read_not_receipt: true, exact_command: true,
+    original_material_equal: true, browser_write_count: 3,
+    browser_session_id: identity.session_id, source_job_id: source.job_id,
+    source_version: source.version, confirmed_job_id: child, receipt_version: replay.version });
+});

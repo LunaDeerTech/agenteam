@@ -1,0 +1,13 @@
+--- probe/page.spec.ts
++++ probe/page02.spec.ts
+@@ -160,8 +160,9 @@
+   const revoked = vi.fn<Fetch>(async () => json({ type: 'urn:agenteam:problem:session-revoked', title: 'Session revoked', status: 401, code: 'SESSION_REVOKED', detail: 'Controlled current Session invalidation', instance: '/api/v1/session', request_id: id(9), commit_state: 'not_started' }, 401))
+   f.sessionRequest(revoked)
+   await click('检查当前状态')
+-  expect(revoked).toHaveBeenCalledTimes(1)
++  expect(revoked).toHaveBeenCalledTimes(2)
+   expect(f.transport.mock.calls.slice(before).map(([path, init]) => [path, init.method])).toEqual([
++    ['/api/v1/session', 'GET'], ['/api/v1/auth/bootstrap', 'GET'],
+     ['/api/v1/session', 'GET'], ['/api/v1/auth/bootstrap', 'GET'],
+   ])
+   expect(f.auth.state.phase).toBe('anonymous')

@@ -1,0 +1,30 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestAccountSystemSMTPDeliveryWebNavigationAndLayouts)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace",
+  "ended_utc": "2026-10-06T19:39:22.110459+00:00",
+  "env": {
+    "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/navigation01/images",
+    "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtdel-b058hmwe",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/navigation01/runtime"
+  },
+  "exit": 1,
+  "seconds": 102.297,
+  "started_utc": "2026-10-06T19:37:39.813049+00:00"
+}

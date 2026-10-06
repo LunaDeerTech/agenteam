@@ -1,0 +1,112 @@
+{
+  "kind": "frozen-read-only-causal-review",
+  "verdict": "PRODUCT_REGRESSION_CONFIRMED_STATIC",
+  "date_utc": "2026-10-06T19:52:18.165108+00:00",
+  "manifest": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input03/manifest.json",
+    "sha256": "e9c21c795e2fcb983fd0d1e97e29117b04fa5c49be314c4f908f4704d1d097a4"
+  },
+  "base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "candidate_source_root": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input03/source",
+  "candidate_hashes": {
+    "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": "b6ee5a2447594b979e977c533a4ecab0c2c943912bd702a2849778d5a2d3195a",
+    "tests/account-captcha-web/system-smtp-delivery.config.js": "5f3ee77faffa572e484551f88d4696345baf95310098d27fcf2a78fc1c1350ac",
+    "tests/account/system_smtp_delivery_web_fixture_test.go": "ee59afe7ddadaa09784cb4a25709bd37f6370499433215dd1d8e3489a129ee3c",
+    "tests/account/system_smtp_delivery_web_test.go": "9cb43e944cfdfaed19955dd80c6646e576aa8a2500b669888755129389196f52",
+    "web/src/App.vue": "b29265ff52081c42336413eea262461bba8af8b1ac78f57d834e0c2582e66172",
+    "web/src/api/client.ts": "2e331d9361257433cf399ce516facdf6efa420d0f0df400306bbaaf07be1442e",
+    "web/src/api/system-smtp-delivery.ts": "b4044f5ae4477cb904d2891a635bf10a77b0888b4376525dfc0989ee2023ccfd",
+    "web/src/api/system-smtp-settings.ts": "0f015823398fe909688dd0ec7b2cf2a99ca9b82b8963fda5dfb96b13c7864311",
+    "web/src/composables/useSession.ts": "bb670ae33e7d4d846d517b394689d8b7328ec22f03bd6306ef51be5403c4f2cc",
+    "web/src/composables/useSystemSMTPDelivery.ts": "fcc769b85c66b8c2289b1092d961abdb5d3554a6346f31c0aca89b4f3cf35ca7",
+    "web/src/tests/system-smtp-delivery-client.spec.ts": "4d5be3e29f4cffcf232356f4ec26b6da557c66e2a4197a1ed468b48e1bb80529",
+    "web/src/tests/system-smtp-delivery-state.spec.ts": "faedaf94d021265dc97b3105037724ba227e929c0cfd3b8095797da35757fc88",
+    "web/src/tests/system-smtp-delivery.spec.ts": "634d556eac16a0bbcf2074d64cb50bc1439a54c9e3c825db12964476733d5bc4",
+    "web/src/tests/system-smtp-settings.spec.ts": "d52692e26755bc38602c4de86128ef075ff7988b7adc8d477f9048e0dbeed7d5",
+    "web/src/views/system/SystemSMTPDeliveryPanel.vue": "2cace6a0621fd43c0182dfbeb71573ed072d7aa7b0f5fe506c70d0c0522a5a56",
+    "web/src/views/system/SystemSMTPSettingsView.vue": "d2842173aed715b46fa2982d37f0b851eae83cfa6637f42005a5e78b7d95d6a5"
+  },
+  "fixed_git_dependencies": {
+    "tests/account-captcha-web/e2e/system-smtp-settings.spec.ts": {
+      "git": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+      "sha256": "70b9366f86cec834910e27fdb4963ed0f40586993f0670e477a253140ea98e16"
+    },
+    "web/src/composables/useSystemSMTPSettings.ts": {
+      "git": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+      "sha256": "2baf377922d3f04cbb553b2d6ff85c3ef92334ed10ee00661c66682640519296"
+    },
+    "web/src/router/auth.ts": {
+      "git": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+      "sha256": "99a361b8a6408c37ab7fed927225bcb0c6279fac75054a8fe7011d780c1afc1e"
+    }
+  },
+  "run": {
+    "directory": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/oldsettings01",
+    "artifacts": {
+      "raw.log": "58902e6be383bc3269ba29b28d18fa46b5b24508989e727daab22d1b7ad10cfe",
+      "result.json": "2696be8ac7edb6c8bd5ae46510130234d66314589bd649984a7d11b4df655a6d",
+      "command.json": "2552192a45b7a23bad4a29bf1d0523451557dc1cc158369de3ec8cd778223029",
+      "cleanup.json": "5f686a71f526174309911f4822b9368e36cbd47c659cef430c58e895a34b85b1"
+    },
+    "argv": [
+      "sh",
+      "scripts/test-security.sh",
+      "-run",
+      "^(TestAccountSystemSMTPSettingsWebOutcomeRecovery|TestAccountSystemSMTPSettingsWebAuthorityAndIdentity|TestAccountSystemSMTPSettingsWebNavigationAndLayouts)$"
+    ],
+    "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace",
+    "actual_exit": 1,
+    "seconds": 136.911,
+    "actual_wait_completed": true,
+    "top_levels": [
+      [
+        "PASS",
+        "TestAccountSystemSMTPSettingsWebOutcomeRecovery"
+      ],
+      [
+        "FAIL",
+        "TestAccountSystemSMTPSettingsWebAuthorityAndIdentity"
+      ],
+      [
+        "PASS",
+        "TestAccountSystemSMTPSettingsWebNavigationAndLayouts"
+      ]
+    ],
+    "expected_exact_resources": 7,
+    "owned_pid_starttime_count": 103,
+    "adopted_actual_waits": 12,
+    "two_cleanup_scans_clear": true,
+    "inputs_unchanged": true,
+    "historical_zombies_untouched": true
+  },
+  "finding": {
+    "id": "SMTP-SECTIONS-CLEAN-DENIED-LEAVE",
+    "classification": "new-product-navigation-eligibility-regression",
+    "observed_failure": "accepted old member→logout→admin-login path times out waiting for #login-email; no original DOM snapshot",
+    "static_cause": "underlying clean configuration confirmLeave returns true, but new active-route coordinator requires authorized admin, inactive entry or anonymous cleared entry; stable authenticated member satisfies none",
+    "minimum_scope": [
+      "web/src/composables/useSystemSMTPDelivery.ts",
+      "web/src/tests/system-smtp-delivery.spec.ts"
+    ],
+    "preserve": [
+      "old browser strong assertions",
+      "45s/2m/6m original budgets",
+      "admin-only switching and writes",
+      "same full identity/generation/section/disposal guards",
+      "old pending decisions cannot gain permission after identity/role loss",
+      "checking/failed are not stable denied identities"
+    ]
+  },
+  "next_independent_regressions": [
+    "real App ordinary-user fresh logout and current-identity denied clean route leave",
+    "old pending admin route/logout rejects on role or identity change; only later fresh eligible leave succeeds"
+  ],
+  "limits": [
+    "read-only source diagnosis; no new test or resource execution",
+    "no DOM/request backfill into original browser failure",
+    "post-login admin/role/Session portion not reached",
+    "original A/B preparation paused",
+    "no API/owner matrix rerun"
+  ],
+  "review_md_sha256": "8da2c47e015dbeab13a5300d65de22334ff921c65374f838ba7fbb6b497f7050"
+}

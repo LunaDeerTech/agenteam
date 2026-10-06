@@ -1,0 +1,69 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-smtp-delivery.spec.ts -t does not publish a list row|detaches delivery before
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web
+
+stderr | src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > detaches delivery before resetting the next visit to configuration, with zero inactive delivery reads
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stderr | src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > detaches delivery before resetting the next visit to configuration, with zero inactive delivery reads
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stderr | src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > detaches delivery before resetting the next visit to configuration, with zero inactive delivery reads
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stderr | src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > detaches delivery before resetting the next visit to configuration, with zero inactive delivery reads
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stderr | src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > detaches delivery before resetting the next visit to configuration, with zero inactive delivery reads
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+ ❯ src/tests/system-smtp-delivery.spec.ts (25 tests | 2 failed | 23 skipped) 272ms
+     × does not publish a list row below the version already confirmed by a retry receipt 29ms
+     × detaches delivery before resetting the next visit to configuration, with zero inactive delivery reads 242ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-smtp-delivery.spec.ts > SMTP delivery controller observations and explicit commands > does not publish a list row below the version already confirmed by a retry receipt
+AssertionError: expected 'ready' to be 'error' // Object.is equality
+
+Expected: "error"
+Received: "ready"
+
+ ❯ src/tests/system-smtp-delivery.spec.ts:311:26
+    309|     p.backToList()
+    310|     await p.refresh()
+    311|     expect(p.list.phase).toBe('error')
+       |                          ^
+    312|     expect(p.list.rows).toHaveLength(0)
+    313|     expect(p.state.confirmed?.version).toBe('27')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > detaches delivery before resetting the next visit to configuration, with zero inactive delivery reads
+AssertionError: expected [ [ …(2) ], [ …(2) ] ] to have a length of 1 but got 2
+
+- Expected
++ Received
+
+- 1
++ 2
+
+ ❯ src/tests/system-smtp-delivery.spec.ts:605:23
+    603|     expect(button('配置').getAttribute('aria-pressed')).toBe('true')
+    604|     expect(f.wrapper.find('[aria-label="SMTP 测试与任务"]').exists()).toBe(…
+    605|     expect(f.reads()).toHaveLength(count)
+       |                       ^
+    606|   })
+    607|   it('keeps the default configuration read-only to delivery, discards …
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed | 23 skipped (25)
+   Start at  18:39:13
+   Duration  1.76s (transform 856ms, setup 0ms, import 1.01s, tests 272ms, environment 362ms)
+

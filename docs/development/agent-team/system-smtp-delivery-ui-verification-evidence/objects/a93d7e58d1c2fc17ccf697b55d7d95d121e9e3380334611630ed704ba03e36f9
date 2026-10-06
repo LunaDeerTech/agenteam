@@ -1,0 +1,103 @@
+--- accepted-prior-driver04.py
++++ driver01.py
+@@ -1,9 +1,10 @@
+ #!/usr/bin/env python3
+-"""Run only an explicitly authorized frozen SMTP settings group in a private fixed workspace."""
++"""Run only an explicitly authorized frozen SMTP delivery group in a private fixed workspace."""
+ import argparse
+ import datetime
+ import ctypes
+ import tempfile
++import shutil
+ import hashlib
+ import json
+ import os
+@@ -16,7 +17,7 @@
+ ROOT = Path(__file__).resolve().parent
+ REPO = ROOT / 'workspace'
+ GIT_OBJECT_REPO = Path('/workspace/agenteam')
+-BASE = 'f670cb1fe1f07ebd21bdb90a2b96cd565c33f05a'
++BASE = '628612cdfc730cc1d89cad4e24a5d20f36cc6812'
+ FROZEN = {}
+ 
+ 
+@@ -150,23 +151,24 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new','lifecycle','credential','concurrency','outcome','authority','navigation','old-core','old-providers','old-models','old-selection','old-security'], required=True)
++    parser.add_argument('--group', choices=['new','read','test','outcome','authority','navigation','old-settings','old-invitations'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+     args = parser.parse_args()
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+-    smtp_names={'lifecycle':'Lifecycle','credential':'CredentialLifecycle','concurrency':'Concurrency','outcome':'OutcomeRecovery','authority':'AuthorityAndIdentity','navigation':'NavigationAndLayouts'}
+-    groups={key:['TestAccountSystemSMTPSettingsWeb'+value] for key,value in smtp_names.items()}
++    smtp_names={'read':'ReadAndPagination','test':'TestAndRetry','outcome':'OutcomeRecovery','authority':'AuthorityAndIdentity','navigation':'NavigationAndLayouts'}
++    groups={key:['TestAccountSystemSMTPDeliveryWeb'+value] for key,value in smtp_names.items()}
+     groups.update({
+       'new':[v[0] for v in groups.values()],
+-      'old-core':['TestAccountAuthenticationWebSessionLifecycle','TestAccountPersonalSettingsWebThemeAndNavigation','TestAccountPublicEntryWebIdentityNavigation','TestAccountSystemUserDirectoryWebAuthorityAndIdentity','TestAccountSystemUserDirectoryWebNavigationAndLayouts','TestAccountSystemInvitationsWebOutcomeRecovery','TestAccountSystemInvitationsWebNavigationAndLayouts'],
+-      'old-providers':['TestAccountSystemProvidersWeb'+x for x in ['CredentialReplacement','OutcomeRecovery','NavigationAndLayouts']],
+-      'old-models':['TestAccountSystemModelsWeb'+x for x in ['DeletionAndReplacement','OutcomeRecovery','NavigationAndLayouts']],
+-      'old-selection':['TestAccountSystemModelSelectionWeb'+x for x in ['OutcomeRecovery','AuthorityAndIdentity','NavigationAndLayouts']],
+-      'old-security':['TestAccountSystemAccountSecurityWeb'+x for x in ['OutcomeRecovery','AuthorityAndIdentity','NavigationAndLayouts']],
++      'old-settings':['TestAccountSystemSMTPSettingsWeb'+x for x in ['OutcomeRecovery','AuthorityAndIdentity','NavigationAndLayouts']],
++      'old-invitations':['TestAccountSystemInvitationsWebDeliveryRetry','TestAccountSystemInvitationsWebOutcomeRecovery'],
+     })
++    # Seven outer PG/MinIO/Outbound resources, plus one container and network
++    # for every selected SMTP-owning top. Each fixture verifies nonce/exact IDs.
++    smtp_tops=sum(name.startswith('TestAccountSystemSMTPDeliveryWeb') or name=='TestAccountSystemInvitationsWebDeliveryRetry' for name in groups[args.group])
++    expected_resource_count=7+2*smtp_tops
+     expected = set(groups[args.group])
+     args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
+     frozen_bytes = args.frozen.read_bytes()
+@@ -185,6 +187,10 @@
+                           'mismatches': current['accepted_baseline']['mismatches'], 'errors': current['accepted_baseline']['errors'],
+                           'product_base': BASE, 'resources_started': False}), flush=True)
+         return 0 if same and accepted else 1
++    if (ROOT/'runs'/args.name).exists():
++        raise RuntimeError('run name already exists; preserve original evidence')
++    if shutil.disk_usage(ROOT).free < 2*1024**3:
++        raise RuntimeError('less than 2 GiB free before starting owned resources')
+     if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+         raise RuntimeError('cannot become task child subreaper')
+     run = ROOT / 'runs' / args.name
+@@ -202,7 +208,7 @@
+     if before['files'] != FROZEN['files'] or before['dist'] != FROZEN['dist'] or before['dependencies'] != FROZEN['dependencies']:
+         raise RuntimeError('candidate source/dist differs from frozen input')
+     (run / 'frozen-input.json').write_bytes(args.frozen.read_bytes())
+-    browser_runtime = Path(tempfile.mkdtemp(prefix='agtsmtp-', dir='/tmp'))
++    browser_runtime = Path(tempfile.mkdtemp(prefix='agtdel-', dir='/tmp'))
+     if len(str(browser_runtime)) > 45:
+         raise RuntimeError('browser runtime is not short')
+     images = run / 'images'
+@@ -222,7 +228,7 @@
+                 'AGENTEAM_AUTH_WEB_RUNTIME': str(browser_runtime), 'AGENTEAM_AUTH_WEB_IMAGES': str(images),
+                 'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                 'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': args.modcache,
+-                'GOCACHE': str(ROOT / 'gocache'), 'TMPDIR': str(runtime),
++                'GOCACHE': '/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache', 'TMPDIR': str(runtime),
+                 'CGO_ENABLED': '1', 'GOFLAGS': flags})
+     argv = ['sh', 'scripts/test-security.sh', '-run', args.selector]
+     record = {'argv': argv, 'cwd': str(REPO), 'started_utc': utc(),
+@@ -291,7 +297,7 @@
+     clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and not row['browser_runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+     summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
+                'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
+-               'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
++               'expected_resources': expected_resource_count, 'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+                'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}
+     verification_unchanged = Path(__file__).read_bytes() == driver_bytes and args.frozen.read_bytes() == frozen_bytes
+     summary['verification_inputs_unchanged'] = verification_unchanged
+@@ -305,7 +311,7 @@
+     summary['historical_zombies_untouched'] = [{key: row[key] for key in ['ppid','starttime','state','name']} | {'pid':pid} for pid,row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z']
+     write(run / 'result.json', summary)
+     print(json.dumps(summary), flush=True)
+-    return 0 if exit_code == 0 and clean and len(observed_resources) == 7 and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] and summary['browser_processes'] and summary['node_processes'] and summary['browser_runtime_removed'] else 1
++    return 0 if exit_code == 0 and clean and len(observed_resources) == expected_resource_count and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] and summary['browser_processes'] and summary['node_processes'] and summary['browser_runtime_removed'] else 1
+ 
+ 
+ if __name__ == '__main__':

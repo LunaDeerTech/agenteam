@@ -1,0 +1,34 @@
+{
+  "diff": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input04/change.diff",
+    "sha256": "ff4a780de306b5008815f9374e0d35c7d18cb67edfca87f0fbdc202b90f33eeb"
+  },
+  "dist_count": 36,
+  "driver": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver02.py",
+    "sha256": "a78f8daf1d203f884b4a9d117c1ab0c6f5f1611a33e442e06cf53a52b6ab1693"
+  },
+  "driver_diff": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver02.diff",
+    "sha256": "592e6d5e8eba48b86b799b422caa4942aa92a93b18522b18a6ff118b8b06a23e"
+  },
+  "files": {
+    "web/src/composables/useSystemSMTPDelivery.ts": {
+      "after": "cdeec662a025f429c13f6c840c895e699010982bf19f635e880f75a6c00468bf",
+      "before": "fcc769b85c66b8c2289b1092d961abdb5d3554a6346f31c0aca89b4f3cf35ca7"
+    },
+    "web/src/tests/system-smtp-delivery.spec.ts": {
+      "after": "b77f8e4575807e8dad38b6677b5bf3dc74c0d49b7cea5acefb96454b64fb12cf",
+      "before": "634d556eac16a0bbcf2074d64cb50bc1439a54c9e3c825db12964476733d5bc4"
+    }
+  },
+  "manifest": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input04/manifest.json",
+    "sha256": "620e88880ce309ee524d7670e1892e718b5b091e1dd2c1a15789fcab2464439e"
+  },
+  "original_inputs_preserved": {
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/manifest.json": "9850d4ad68980d96eebfa9c9aa73dc996e85a0a3409f538e9ea586c241d4ac2a",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/manifest.json": "a65e6e028bb5ffe5c700753577d027c18ab360924fe0c2e03bb604886557a085",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input03/manifest.json": "e9c21c795e2fcb983fd0d1e97e29117b04fa5c49be314c4f908f4704d1d097a4"
+  }
+}

@@ -1,0 +1,19 @@
+--- driver01.py
++++ driver02.py
+@@ -151,7 +151,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new','read','test','outcome','authority','navigation','old-settings','old-invitations'], required=True)
++    parser.add_argument('--group', choices=['new','read','test','outcome','authority','navigation','old-settings','old-settings-authority','old-invitations'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+@@ -163,6 +163,7 @@
+     groups.update({
+       'new':[v[0] for v in groups.values()],
+       'old-settings':['TestAccountSystemSMTPSettingsWeb'+x for x in ['OutcomeRecovery','AuthorityAndIdentity','NavigationAndLayouts']],
++      'old-settings-authority':['TestAccountSystemSMTPSettingsWebAuthorityAndIdentity'],
+       'old-invitations':['TestAccountSystemInvitationsWebDeliveryRetry','TestAccountSystemInvitationsWebOutcomeRecovery'],
+     })
+     # Seven outer PG/MinIO/Outbound resources, plus one container and network

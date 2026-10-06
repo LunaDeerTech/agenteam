@@ -1,0 +1,78 @@
+import { describe, expect, it } from 'vitest'
+import { equalOriginal, fixture, id, json, observe, problem, recipient, row, session, settings } from './helpers'
+
+describe('independent delivery owner original-request recovery', () => {
+  it('keeps post-write 404 unknown across observation and later known refusal, then confirms only exact replay', async () => {
+    const f = await fixture(), api = f.auth.system.smtpDelivery
+    f.control.delivery = async () => problem('NOT_FOUND', 404)
+    const mutable = { recipient }
+    const started = api.startTest(mutable); mutable.recipient = 'new-draft@example.invalid'
+    await expect(started).rejects.toMatchObject({ kind: 'problem' })
+    expect(api.progress).toMatchObject({ phase: 'uncertain', result: null, canRetryOriginal: false })
+    const original = f.writes()[0]!
+    expect(original.init.body === JSON.stringify({ recipient })).toBe(true)
+    await expect(api.startTest({ recipient })).rejects.toMatchObject({ kind: 'busy' })
+    await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(f.writes().length).toBe(1)
+    f.control.smtp = async () => json({ ...settings(), configured: false, host: '', port: 0, encryption: '', sender_email: '' })
+    expect((await f.auth.system.smtp.get()).configured).toBe(false)
+    f.control.delivery = async (_, init) => init.method === 'GET' ? json({ items: [row(id(21), '14')] }) : problem('INVALID_STATE', 409, 'not_committed')
+    const identity = f.auth.personalContext.identity, checkpoint = f.calls.length
+    await api.checkOriginal()
+    expect(f.calls.slice(checkpoint).map(c => [c.path, c.init.method])).toEqual([
+      ['/api/v1/session', 'GET'], ['/api/v1/system/mail-jobs/management?limit=25', 'GET'],
+    ])
+    expect(f.auth.personalContext.identity).toEqual(identity)
+    expect(api.progress).toMatchObject({ phase: 'uncertain', result: null, observation: 'current', canRetryOriginal: true })
+    await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'problem' })
+    expect(equalOriginal(original, f.writes()[1]!)).toBe(true)
+    expect(api.progress?.phase).toBe('uncertain')
+    expect(() => api.editRejected()).toThrow()
+    f.control.delivery = async (_, init) => init.method === 'GET' ? problem('DEPENDENCY_UNBOUND', 503) : json({ job_id: id(21) }, 202)
+    await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'problem' })
+    expect(api.progress).toMatchObject({ phase: 'uncertain', observation: 'failed', canRetryOriginal: true })
+    expect(await api.retryOriginal()).toEqual({ kind: 'test', value: { job_id: id(21) } })
+    expect(equalOriginal(original, f.writes()[2]!)).toBe(true)
+    await expect(api.get(id(21))).rejects.toMatchObject({ kind: 'problem' })
+    expect(api.progress).toMatchObject({ phase: 'confirmed', result: { value: { job_id: id(21) } }, canRetryOriginal: false })
+    await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(f.writes().length).toBe(3)
+    expect(f.calls.some(c => c.path.includes('lookup'))).toBe(false)
+    expect(JSON.stringify(api).includes(recipient)).toBe(false)
+  })
+
+  it('keeps retry source and expected version despite a newer detail and a subsequent source 404', async () => {
+    const f = await fixture(), api = f.auth.system.smtpDelivery
+    f.control.delivery = async () => problem('UNAVAILABLE', 503, 'not_committed')
+    const input = { job_id: id(20), version: '2' }
+    await expect(api.startRetry(input)).rejects.toMatchObject({ kind: 'problem' })
+    input.job_id = id(29); input.version = '99'
+    const original = f.writes()[0]!
+    f.control.delivery = async (_, init) => init.method === 'GET' ? json(row(id(20), '19')) : problem('VERSION_CONFLICT', 409, 'not_committed')
+    expect(await api.checkOriginal()).toMatchObject({ kind: 'detail', value: { job_id: id(20), version: '19' } })
+    await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'problem' })
+    expect(api.progress?.phase).toBe('uncertain')
+    f.control.delivery = async (_, init) => init.method === 'GET' ? problem('NOT_FOUND', 404) : json({ job_id: id(21), version: '27' }, 202)
+    await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'problem' })
+    expect(api.progress?.canRetryOriginal).toBe(true)
+    expect(await api.retryOriginal()).toEqual({ kind: 'retry', value: { job_id: id(21), version: '27' } })
+    expect(f.writes().every(c => equalOriginal(original, c))).toBe(true)
+    expect(original.path === `/api/v1/system/mail-jobs/${id(20)}/retry` && original.init.body === JSON.stringify({ version: '2' })).toBe(true)
+    expect(f.calls.filter(c => c.init.method === 'GET' && c.path.includes('/mail-jobs/')).every(c => c.path === `/api/v1/system/mail-jobs/${id(20)}/management`)).toBe(true)
+    expect(api.progress?.phase).toBe('confirmed')
+  })
+
+  it('invalidates the old complete identity on CSRF rotation instead of grafting a new token onto its intent', async () => {
+    const f = await fixture(), api = f.auth.system.smtpDelivery
+    f.control.delivery = async () => problem('NOT_FOUND', 404)
+    await observe(api.startTest({ recipient })).result
+    const identity = f.auth.personalContext.identity, count = f.calls.length
+    f.control.current = session(id(2), 'n'.repeat(43))
+    await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'cancelled' })
+    expect(f.calls.slice(count).map(c => c.path)).toEqual(['/api/v1/session'])
+    expect(f.auth.personalContext.identity?.epoch).not.toBe(identity?.epoch)
+    expect(api.progress).toBeNull()
+    await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(f.writes().length).toBe(1)
+  })
+})

@@ -1,0 +1,760 @@
+import {
+  computed,
+  inject,
+  reactive,
+  readonly,
+  ref,
+  shallowReactive,
+  watch,
+  type InjectionKey,
+} from 'vue'
+import { AccountFailure } from '../api/client'
+import { captureSMTPEmail } from '../api/system-smtp-settings'
+import type {
+  SMTPDeliveryJob,
+  SMTPDeliveryPage,
+  SMTPDeliveryResult,
+  SMTPRetryInput,
+} from '../api/system-smtp-delivery'
+import { useSession, type PersonalIdentity, type SessionController } from './useSession'
+import type { SystemSMTPSettingsController } from './useSystemSMTPSettings'
+
+export type SMTPAvailability = Readonly<{ ready: boolean; configured: boolean }>
+export type SMTPSection = 'configuration' | 'delivery'
+type ReadPhase = 'inactive' | 'waiting' | 'loading' | 'ready' | 'empty' | 'error'
+type PageTarget = Readonly<{ index: number; cursor?: string }>
+const empty: readonly SMTPDeliveryJob[] = Object.freeze([])
+const same = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
+  !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
+const isPage = (path: string) => path.split(/[?#]/, 1)[0] === '/system/smtp'
+
+export const smtpJobKinds = {
+  invitation: '邀请邮件',
+  password_reset: '密码重置邮件',
+  test: '测试邮件',
+} as const
+export const smtpJobPhases = {
+  enqueue_pending: '等待任务入队',
+  pending: '等待投递',
+  claimed: '已领取',
+  sending: '正在投递',
+  retry_wait: '等待自动重试',
+  sent: '已报告接受',
+  failed: '投递失败',
+  unknown: '任务结果未知',
+  cancelled: '已取消',
+} as const
+export const smtpAttemptResults = {
+  sent: '已报告接受',
+  failed: '失败',
+  unknown: '结果未知',
+  cancelled: '已取消',
+} as const
+export const smtpJobReasons = {
+  sent: '已报告接受',
+  token_invalid: '业务材料已失效',
+  configuration_invalid: '配置无效',
+  policy_rejected: '出站策略拒绝',
+  network_failed: '网络失败',
+  smtp_rejected: 'SMTP 拒绝',
+  timeout: '等待超时',
+  cancelled: '已取消',
+  unknown: '原因未知',
+} as const
+export const smtpChannelLabel = (channel: SMTPDeliveryJob['channel']) =>
+  channel === 'smtp' ? 'SMTP' : channel === 'backend_log' ? '后台日志' : '未记录'
+export function smtpJobRetryReason(value: SMTPDeliveryJob): string {
+  if (!['sent', 'failed', 'cancelled', 'unknown'].includes(value.phase))
+    return '当前投递周期尚未结束。'
+  if (value.version === '9223372036854775807') return '当前版本已达到上限，不能申请新周期。'
+  if (value.attempt_channel === null)
+    return value.phase === 'cancelled' ? '' : '实际渠道未记录，尚不能依据此观察申请重试。'
+  return value.attempt_result === null ? '当前尝试尚未报告结束结果。' : ''
+}
+
+// The App owns this state; only useSession owns Cookie I/O and private commands.
+export function createSystemSMTPDelivery(
+  auth: SessionController = useSession(),
+  availability: () => SMTPAvailability = () => ({ ready: false, configured: false }),
+) {
+  const api = auth.system.smtpDelivery
+  const list = shallowReactive({
+    phase: 'inactive' as ReadPhase,
+    rows: empty,
+    message: '',
+    page: 1,
+    hasPrevious: false,
+    hasNext: false,
+  })
+  const detail = shallowReactive({
+    phase: 'inactive' as ReadPhase,
+    jobID: '',
+    value: null as SMTPDeliveryJob | null,
+    message: '',
+  })
+  const mode = ref<'list' | 'detail'>('list'),
+    draft = reactive({ recipient: '' })
+  const state = shallowReactive({
+    confirmed: null as Readonly<{
+      kind: 'test' | 'retry'
+      jobID: string
+      sourceID?: string
+      version?: string
+    }> | null,
+    writeMessage: '',
+    requiresRead: false,
+  })
+  const confirmation = reactive({ open: false, title: '', message: '' })
+  const retryConfirmation = shallowReactive({ open: false, target: null as SMTPRetryInput | null })
+  const checking = ref(false),
+    feedback = ref<'idle' | 'loading'>('idle')
+  const progress = computed(() => api.progress)
+  const unsettled = computed(() =>
+    ['submitting', 'uncertain'].includes(progress.value?.phase ?? ''),
+  )
+  const blocked = computed(() => auth.state.busy || checking.value)
+  const locked = computed(
+    () =>
+      blocked.value ||
+      unsettled.value ||
+      state.requiresRead ||
+      confirmation.open ||
+      retryConfirmation.open,
+  )
+  const dirty = computed(() => !!draft.recipient || unsettled.value || retryConfirmation.open)
+  const available = computed(availability)
+  const recipientError = computed(() => {
+    if (!draft.recipient) return ''
+    try {
+      captureSMTPEmail(draft.recipient)
+      return ''
+    } catch {
+      return '请输入完整的裸 ASCII 邮箱地址，最多 254 字节，不加空格。'
+    }
+  })
+  const canTest = computed(
+    () =>
+      authorized() &&
+      available.value.ready &&
+      available.value.configured &&
+      !!draft.recipient &&
+      !recipientError.value &&
+      !locked.value,
+  )
+  const retryReason = computed(() =>
+    detail.value ? smtpJobRetryReason(detail.value) : '请先完整读取任务详情。',
+  )
+  // Opening the modal must not disable its still-connected native trigger.
+  const retryReady = computed(
+    () =>
+      authorized() &&
+      detail.phase === 'ready' &&
+      !retryReason.value &&
+      !blocked.value &&
+      !unsettled.value &&
+      !state.requiresRead,
+  )
+  let identity = auth.personalContext.identity,
+    revision = 0,
+    listRevision = 0,
+    detailRevision = 0
+  let listReading = false,
+    detailReading = false,
+    attached = false,
+    activeRoute = false,
+    disposed = false,
+    initial = true
+  let history: (string | undefined)[] = [],
+    index = 0,
+    nextCursor: string | undefined
+  const latest = new Map<string, SMTPDeliveryJob>()
+  let confirmResult: ((answer: boolean) => void) | null = null,
+    retryResult: ((answer: boolean) => void) | null = null
+  const authorized = () =>
+    auth.state.phase === 'authenticated' &&
+    auth.personalContext.phase === 'current' &&
+    !!auth.personalContext.identity &&
+    auth.state.user?.role === 'admin' &&
+    !auth.system.denied
+  const current = (own: number, captured: PersonalIdentity | null) =>
+    !disposed &&
+    activeRoute &&
+    revision === own &&
+    authorized() &&
+    same(captured, auth.personalContext.identity)
+  function finishConfirmation(answer: boolean) {
+    confirmation.open = false
+    const done = confirmResult
+    confirmResult = null
+    done?.(answer)
+  }
+  function finishRetry(answer: boolean) {
+    if (answer && confirmation.open) return
+    retryConfirmation.open = false
+    const done = retryResult
+    retryResult = null
+    done?.(answer)
+  }
+  function requestConfirmation(title: string) {
+    if (confirmResult) return Promise.resolve(false)
+    Object.assign(confirmation, {
+      open: true,
+      title,
+      message:
+        '将清除本次收件草稿和原请求追踪。此前请求仍可能生效；放弃不会取消、撤回或回滚已经接受的投递。',
+    })
+    return new Promise<boolean>((resolve) => {
+      confirmResult = resolve
+    })
+  }
+  function retireList() {
+    ++listRevision
+    if (listReading) api.abandonRead()
+    listReading = false
+    if (list.phase === 'loading')
+      Object.assign(list, {
+        phase: 'error',
+        rows: empty,
+        message: '读取已取消，请在当前请求结束后明确重新读取。',
+      })
+  }
+  function retireDetail() {
+    ++detailRevision
+    if (detailReading) api.abandonRead()
+    detailReading = false
+    if (detail.phase === 'loading')
+      Object.assign(detail, {
+        phase: 'error',
+        value: null,
+        message: '读取已取消，请在当前请求结束后明确重新读取。',
+      })
+  }
+  function discard(requireRead: boolean) {
+    ++revision
+    retireList()
+    retireDetail()
+    api.abandon()
+    draft.recipient = ''
+    feedback.value = 'idle'
+    state.writeMessage = ''
+    state.requiresRead = requireRead
+    finishRetry(false)
+    retryConfirmation.target = null
+  }
+  function invalidate() {
+    discard(false)
+    finishConfirmation(false)
+    Object.assign(list, {
+      phase: 'inactive',
+      rows: empty,
+      message: '',
+      page: 1,
+      hasPrevious: false,
+      hasNext: false,
+    })
+    Object.assign(detail, { phase: 'inactive', jobID: '', value: null, message: '' })
+    state.confirmed = null
+    checking.value = false
+    mode.value = 'list'
+    initial = true
+    history = []
+    index = 0
+    nextCursor = undefined
+    latest.clear()
+  }
+  function observeJob(value: SMTPDeliveryJob) {
+    const previous = latest.get(value.job_id)
+    if (!previous || BigInt(value.version) >= BigInt(previous.version))
+      latest.set(value.job_id, value)
+    return latest.get(value.job_id)!
+  }
+  function observeList(value: SMTPDeliveryPage, target: PageTarget) {
+    const rows = Object.freeze(value.items.map(observeJob))
+    history = [...history.slice(0, target.index), target.cursor]
+    index = target.index
+    nextCursor = value.next_cursor
+    Object.assign(list, {
+      phase: rows.length ? 'ready' : 'empty',
+      rows,
+      message: '',
+      page: index + 1,
+      hasPrevious: index > 0,
+      hasNext: nextCursor !== undefined,
+    })
+    state.requiresRead = false
+  }
+  function observeDetail(value: SMTPDeliveryJob) {
+    const confirmed = state.confirmed
+    const current = observeJob(value)
+    if (
+      confirmed?.jobID === value.job_id &&
+      confirmed.version &&
+      BigInt(current.version) < BigInt(confirmed.version)
+    )
+      throw new AccountFailure('invalid-response')
+    Object.assign(detail, { phase: 'ready', jobID: current.job_id, value: current, message: '' })
+    state.requiresRead = false
+  }
+  function readMessage(error: unknown) {
+    return error instanceof AccountFailure && error.kind === 'cancelled'
+      ? '读取已取消或等待超时，请在请求结束后明确重新读取。'
+      : '未取得完整任务观察，请明确重新读取；这不能确认原请求是否接受。'
+  }
+  async function readList(target: PageTarget) {
+    if (!attached || !authorized() || blocked.value || disposed) return
+    initial = false
+    retireList()
+    retireDetail()
+    const own = revision,
+      captured = auth.personalContext.identity,
+      read = ++listRevision
+    const valid = () => attached && current(own, captured) && read === listRevision
+    listReading = true
+    Object.assign(list, { phase: 'loading', rows: empty, message: '' })
+    try {
+      const value = await api.list(target.cursor === undefined ? {} : { cursor: target.cursor })
+      if (valid()) observeList(value, target)
+    } catch (error) {
+      if (valid()) Object.assign(list, { phase: 'error', rows: empty, message: readMessage(error) })
+    } finally {
+      if (read === listRevision) listReading = false
+    }
+  }
+  async function readDetail(jobID: string) {
+    if (!attached || !authorized() || blocked.value || disposed) return
+    initial = false
+    retireDetail()
+    retireList()
+    const own = revision,
+      captured = auth.personalContext.identity,
+      read = ++detailRevision
+    const valid = () => attached && current(own, captured) && read === detailRevision
+    detailReading = true
+    Object.assign(detail, { phase: 'loading', jobID, value: null, message: '' })
+    try {
+      const value = await api.get(jobID)
+      if (valid()) observeDetail(value)
+    } catch (error) {
+      if (valid()) {
+        Object.assign(detail, { phase: 'error', value: null, message: readMessage(error) })
+        if (state.confirmed?.jobID === jobID)
+          state.writeMessage = '请求已确认，任务详情读取失败。请仅重新读取，不要重复提交。'
+      }
+    } finally {
+      if (read === detailRevision) detailReading = false
+    }
+  }
+  async function confirmDiscard(title = '放弃投递草稿或原请求追踪？') {
+    if (!dirty.value) return true
+    const own = revision,
+      captured = auth.personalContext.identity
+    return (await requestConfirmation(title)) && current(own, captured)
+  }
+  async function confirmLeave() {
+    if (!(await confirmDiscard())) return false
+    if (!authorized() || disposed || !activeRoute) return !dirty.value
+    discard(unsettled.value)
+    return true
+  }
+  function prepareNewOperation() {
+    if (progress.value?.phase === 'rejected') api.editRejected()
+    state.writeMessage = ''
+  }
+  function writeMessage(error: unknown) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    if (progress.value?.phase === 'uncertain')
+      return e.problem?.code === 'IDEMPOTENCY_KEY_REUSED'
+        ? '原请求标识与输入冲突。原请求保持不变，请明确放弃追踪后重新读取。'
+        : '请求结果未确认。检查当前状态后可显式重试原请求；任务观察不等于接受确认。'
+    if (e.problem?.code === 'VERSION_CONFLICT')
+      return '任务版本冲突。请明确重新读取、核对当前任务后重新确认申请，不自动更新原版本。'
+    if (e.problem?.code === 'RESOURCE_DELETED')
+      return '原业务材料已失效。请重新读取任务并核对；没有自动申请新周期。'
+    if (e.problem?.code === 'INVALID_STATE')
+      return '当前任务或配置不允许此操作。请明确重新读取并核对。'
+    if (e.problem?.code === 'RATE_LIMITED') return '当前请求受到限制。请稍后明确核对并重新操作。'
+    if (e.problem?.code === 'INVALID_ARGUMENT')
+      return '请求被拒绝，请核对收件邮箱或当前任务，再明确操作。'
+    return '本次操作未完成，请核对输入和当前状态。'
+  }
+  async function mutate(
+    kind: 'test' | 'retry',
+    sourceID: string | undefined,
+    work: () => Promise<SMTPDeliveryResult>,
+  ) {
+    const own = revision,
+      captured = auth.personalContext.identity
+    initial = false
+    feedback.value = 'loading'
+    state.writeMessage = ''
+    state.confirmed = null
+    try {
+      const result = await work()
+      if (!current(own, captured)) return
+      state.confirmed = Object.freeze({
+        kind: result.kind,
+        jobID: result.value.job_id,
+        ...(sourceID ? { sourceID } : {}),
+        ...(result.kind === 'retry' ? { version: result.value.version } : {}),
+      })
+      draft.recipient = ''
+      feedback.value = 'idle'
+      state.requiresRead = false
+      state.writeMessage =
+        result.kind === 'test'
+          ? '测试请求已接受；这不代表投递或收件成功。'
+          : '新重试周期已接受；这不代表投递或收件成功。'
+      mode.value = 'detail'
+      detail.jobID = result.value.job_id
+      // Save the strict receipt first. A single subsequent GET is only observation.
+      await readDetail(result.value.job_id)
+    } catch (error) {
+      if (current(own, captured)) {
+        feedback.value = 'idle'
+        state.writeMessage = writeMessage(error)
+        if (kind === 'retry' && progress.value?.phase === 'rejected') state.requiresRead = true
+      }
+    }
+  }
+  async function resume() {
+    if (disposed || !attached || !activeRoute || !authorized() || !initial) return
+    if (blocked.value) {
+      if (list.phase === 'inactive') list.phase = 'waiting'
+      return
+    }
+    await readList({ index: 0 })
+  }
+  function afterNavigation(to: string, from: string) {
+    if (isPage(from) && !isPage(to)) {
+      activeRoute = false
+      invalidate()
+    } else if (isPage(to)) activeRoute = true
+  }
+  const stopIdentity = watch(
+    () =>
+      [
+        auth.personalContext.phase,
+        auth.personalContext.identity,
+        auth.state.user?.role,
+        auth.system.denied,
+        auth.state.busy,
+      ] as const,
+    ([phase, value]) => {
+      if (phase === 'checking') return
+      if (
+        phase === 'invalid' ||
+        !same(identity, value) ||
+        auth.state.user?.role !== 'admin' ||
+        auth.system.denied
+      ) {
+        invalidate()
+        identity = value
+      }
+      void resume()
+    },
+  )
+  function beforeUnload(event: BeforeUnloadEvent) {
+    if (dirty.value) {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+  }
+  window.addEventListener('beforeunload', beforeUnload)
+  return {
+    auth,
+    list: readonly(list),
+    detail: readonly(detail),
+    mode: readonly(mode),
+    draft: readonly(draft),
+    state: readonly(state),
+    confirmation: readonly(confirmation),
+    retryConfirmation: readonly(retryConfirmation),
+    feedback,
+    checking,
+    progress,
+    available,
+    recipientError,
+    canTest,
+    retryReason,
+    retryReady,
+    blocked,
+    locked,
+    dirty,
+    attach() {
+      if (attached) return
+      attached = true
+      activeRoute = true
+      void resume()
+    },
+    detach() {
+      attached = false
+      retireList()
+      retireDetail()
+    },
+    afterNavigation,
+    confirmLeave,
+    finishConfirmation,
+    finishRetry,
+    updateRecipient(value: string) {
+      if (!authorized() || locked.value || draft.recipient === value) return
+      prepareNewOperation()
+      draft.recipient = value
+    },
+    requestTest() {
+      if (!canTest.value) return Promise.resolve()
+      const recipient = captureSMTPEmail(draft.recipient)
+      prepareNewOperation()
+      return mutate('test', undefined, () => api.startTest({ recipient }))
+    },
+    async requestRetry() {
+      if (!retryReady.value || retryConfirmation.open || confirmation.open) return
+      if (!(await confirmDiscard('放弃收件草稿并申请重试？'))) return
+      if (!retryReady.value || !detail.value) return
+      const value = detail.value
+      discard(false)
+      const own = revision,
+        captured = auth.personalContext.identity
+      const target = Object.freeze({ job_id: value.job_id, version: value.version })
+      Object.assign(retryConfirmation, { open: true, target })
+      const answer = await new Promise<boolean>((resolve) => {
+        retryResult = resolve
+      })
+      if (!answer || !current(own, captured) || blocked.value) return
+      prepareNewOperation()
+      await mutate('retry', target.job_id, () => api.startRetry(target))
+    },
+    refresh() {
+      return readList({
+        index,
+        ...(history[index] !== undefined ? { cursor: history[index] } : {}),
+      })
+    },
+    firstPage() {
+      return readList({ index: 0 })
+    },
+    previousPage() {
+      return index > 0
+        ? readList({
+            index: index - 1,
+            ...(history[index - 1] !== undefined ? { cursor: history[index - 1] } : {}),
+          })
+        : Promise.resolve()
+    },
+    nextPage() {
+      return nextCursor !== undefined
+        ? readList({ index: index + 1, cursor: nextCursor })
+        : Promise.resolve()
+    },
+    async openDetail(jobID: string) {
+      if (blocked.value || confirmation.open || retryConfirmation.open) return
+      mode.value = 'detail'
+      await readDetail(jobID)
+    },
+    rereadDetail() {
+      return detail.jobID ? readDetail(detail.jobID) : Promise.resolve()
+    },
+    backToList() {
+      retireDetail()
+      mode.value = 'list'
+    },
+    cancelList() {
+      retireList()
+      initial = false
+    },
+    cancelDetail() {
+      retireDetail()
+      initial = false
+    },
+    async checkOriginal() {
+      if (blocked.value || progress.value?.phase !== 'uncertain') return
+      const own = revision,
+        captured = auth.personalContext.identity,
+        kind = progress.value.kind
+      initial = false
+      checking.value = true
+      try {
+        const observed = await api.checkOriginal()
+        if (!current(own, captured)) return
+        if (observed.kind === 'list') observeList(observed.value, { index: 0 })
+        else observeDetail(observed.value)
+        state.writeMessage = '当前状态已读取；这不确认原请求是否接受。请显式重试原请求。'
+      } catch (error) {
+        if (current(own, captured)) {
+          if (kind === 'test')
+            Object.assign(list, { phase: 'error', rows: empty, message: readMessage(error) })
+          else Object.assign(detail, { phase: 'error', value: null, message: readMessage(error) })
+          state.writeMessage =
+            '原请求仍未确认，管理读取失败不证明原写未接受。会话确认且实际请求结束后可显式重试原请求。'
+        }
+      } finally {
+        if (own === revision) checking.value = false
+      }
+    },
+    retryOriginal() {
+      if (blocked.value || !progress.value?.canRetryOriginal) return Promise.resolve()
+      const kind = progress.value.kind,
+        sourceID = kind === 'retry' ? retryConfirmation.target?.job_id : undefined
+      return mutate(kind, sourceID, () => api.retryOriginal())
+    },
+    async abandonOperation() {
+      const own = revision,
+        captured = auth.personalContext.identity
+      if ((await requestConfirmation('放弃追踪本次操作？')) && current(own, captured)) {
+        discard(true)
+        state.writeMessage =
+          '已放弃本地追踪；此前请求仍可能生效。请在当前请求结束后明确重新读取，再开始新操作。'
+      }
+    },
+    dispose() {
+      if (disposed) return
+      disposed = true
+      stopIdentity()
+      invalidate()
+      window.removeEventListener('beforeunload', beforeUnload)
+    },
+  }
+}
+
+export type SystemSMTPDeliveryController = ReturnType<typeof createSystemSMTPDelivery>
+export const systemSMTPDeliveryKey: InjectionKey<SystemSMTPDeliveryController> =
+  Symbol('system-smtp-delivery')
+export function useSystemSMTPDelivery() {
+  const page = inject(systemSMTPDeliveryKey)
+  if (!page) throw new Error('SMTP delivery requires the App controller')
+  return page
+}
+
+export function createSMTPSections(
+  auth: SessionController,
+  configuration: SystemSMTPSettingsController,
+  delivery: SystemSMTPDeliveryController,
+) {
+  const active = ref<SMTPSection>('configuration'),
+    switching = ref(false)
+  let generation = 0,
+    viewAttached = false,
+    activeRoute = false,
+    disposed = false,
+    identity = auth.personalContext.identity
+  const controller = (section = active.value) =>
+    section === 'configuration' ? configuration : delivery
+  const authorized = () =>
+    auth.state.phase === 'authenticated' &&
+    auth.personalContext.phase === 'current' &&
+    auth.state.user?.role === 'admin' &&
+    !auth.system.denied
+  const live = (own: number, section: SMTPSection, captured: PersonalIdentity | null) =>
+    !disposed &&
+    activeRoute &&
+    generation === own &&
+    active.value === section &&
+    authorized() &&
+    same(captured, auth.personalContext.identity)
+  const stop = watch(
+    () =>
+      [
+        auth.personalContext.phase,
+        auth.personalContext.identity,
+        auth.state.user?.role,
+        auth.system.denied,
+      ] as const,
+    ([phase, value]) => {
+      if (phase === 'checking') return
+      if (
+        phase === 'invalid' ||
+        !same(identity, value) ||
+        auth.state.user?.role !== 'admin' ||
+        auth.system.denied
+      ) {
+        ++generation
+        switching.value = false
+        if (viewAttached) controller().detach()
+        viewAttached = false
+        active.value = 'configuration'
+        identity = value
+      }
+    },
+  )
+  return {
+    active: readonly(active),
+    switching: readonly(switching),
+    configuration,
+    delivery,
+    get generation() {
+      return generation
+    },
+    attach() {
+      if (disposed || viewAttached) return
+      viewAttached = true
+      activeRoute = true
+      controller().attach()
+    },
+    detach() {
+      if (!viewAttached) return
+      viewAttached = false
+      controller().detach()
+    },
+    async switchTo(next: SMTPSection) {
+      if (
+        !['configuration', 'delivery'].includes(next) ||
+        disposed ||
+        !activeRoute ||
+        !authorized() ||
+        switching.value
+      )
+        return false
+      if (next === active.value) return true
+      const own = ++generation,
+        section = active.value,
+        captured = auth.personalContext.identity,
+        previous = controller(section)
+      switching.value = true
+      try {
+        if (!(await previous.confirmLeave()) || !live(own, section, captured)) return false
+        previous.detach()
+        active.value = next
+        if (viewAttached && authorized()) controller(next).attach()
+        return true
+      } finally {
+        if (own === generation) switching.value = false
+      }
+    },
+    async confirmLeave() {
+      const own = generation,
+        section = active.value,
+        captured = auth.personalContext.identity
+      const result = await controller(section).confirmLeave()
+      return (
+        result &&
+        (live(own, section, captured) || (!activeRoute && !controller(section).dirty.value))
+      )
+    },
+    afterNavigation(to: string, from: string) {
+      configuration.afterNavigation(to, from)
+      delivery.afterNavigation(to, from)
+      if (isPage(from) && !isPage(to)) {
+        ++generation
+        activeRoute = false
+        switching.value = false
+        active.value = 'configuration'
+      } else if (isPage(to)) activeRoute = true
+    },
+    dispose() {
+      if (disposed) return
+      disposed = true
+      ++generation
+      viewAttached = false
+      switching.value = false
+      stop()
+      configuration.dispose()
+      delivery.dispose()
+    },
+  }
+}
+export type SMTPSections = ReturnType<typeof createSMTPSections>
+export const smtpSectionsKey: InjectionKey<SMTPSections> = Symbol('smtp-sections')
+export function useSMTPSections() {
+  const sections = inject(smtpSectionsKey)
+  if (!sections) throw new Error('SMTP sections require the App coordinator')
+  return sections
+}

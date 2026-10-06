@@ -1,0 +1,206 @@
+{
+  "status": "OFFLINE_READY_NO_REAL_EXECUTION",
+  "execution": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/execution01.json",
+    "sha256": "7dc487086b7fe67e4403fce972183cf8d68bea0cc825431057f698bb3e7a9462"
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/driver01.py",
+    "sha256": "99fe6accf069c6c6b2f905c07258ea1fdaa6b389e6af11e51e1ee749007d4227"
+  },
+  "commands": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-commands01.json",
+    "sha256": "b3eec1d649192c75af190ddc4db205583762825855ccba9e442430112b9abe5d"
+  },
+  "supervisor": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-run01.py",
+    "sha256": "0e3c45f95df2378f60f15be146a88e704fbb75382e987795f63919488efc0a14"
+  },
+  "summary": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-summary01.json",
+    "sha256": "783a8dc0eecbebf441c216c852006158622da82c9431b5c2f2b86ce68257be73"
+  },
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input04/manifest.json",
+    "sha256": "620e88880ce309ee524d7670e1892e718b5b091e1dd2c1a15789fcab2464439e"
+  },
+  "fixed_counts": {
+    "candidates": 16,
+    "dist": 36,
+    "accepted_dependencies": 1083,
+    "private_source_files": 4
+  },
+  "runs": {
+    "go-race-discovery01": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-runs/go-race-discovery01",
+      "result": {
+        "name": "go-race-discovery01",
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 7.101958,
+        "inputs_unchanged": true,
+        "clean": true,
+        "owned_pid_count": 6,
+        "adopted_wait_count": 0,
+        "raw_sha256": "7afd1bd07a33beadd52c8187c1c9ce2806b33ca71cc31fb8160a4478c42d6330",
+        "command_sha256": "968895e7bd402b2ed4f5db78e95a6603f905ae7f2ec6c2bab29a160bc23fb87b",
+        "cleanup_sha256": "9ddaabe54e2827cfec9bd4b11ab13a304658a350682da80f9fb6a62706d544eb",
+        "supervisor_timeout": false
+      },
+      "files": {
+        "command.json": "968895e7bd402b2ed4f5db78e95a6603f905ae7f2ec6c2bab29a160bc23fb87b",
+        "raw.log": "7afd1bd07a33beadd52c8187c1c9ce2806b33ca71cc31fb8160a4478c42d6330",
+        "result.json": "0f928e6f3b50e0194037dea3c71efc9c17eb93c5e19fb8719946ca3a9b2fa0a6",
+        "cleanup.json": "9ddaabe54e2827cfec9bd4b11ab13a304658a350682da80f9fb6a62706d544eb",
+        "input-before.json": "d9b80d1a77874cf444d78f61b7cc6134e987a0377a9d10d668b873f97463ac79",
+        "input-after.json": "d9b80d1a77874cf444d78f61b7cc6134e987a0377a9d10d668b873f97463ac79",
+        "started.json": "448a18314a0527592a5a4e71f2386bf1c8d6fdf0e3fbb87bc5fe5a747595755d"
+      }
+    },
+    "go-vet01": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-runs/go-vet01",
+      "result": {
+        "name": "go-vet01",
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 0.67274,
+        "inputs_unchanged": true,
+        "clean": true,
+        "owned_pid_count": 2,
+        "adopted_wait_count": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "command_sha256": "f29c503582d8c3a16e9fd4a75e8cda33b3487be44ed7fd85b408df9790ea1700",
+        "cleanup_sha256": "c87df8626bb9e99ddedacfd803c4cf61bacc2ffbfa2d786e82c3c804990efacf",
+        "supervisor_timeout": false
+      },
+      "files": {
+        "command.json": "f29c503582d8c3a16e9fd4a75e8cda33b3487be44ed7fd85b408df9790ea1700",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "dd768488a6e39a27a93c6732d3cc2460f52b1d20404336a61779e629bb0e3841",
+        "cleanup.json": "c87df8626bb9e99ddedacfd803c4cf61bacc2ffbfa2d786e82c3c804990efacf",
+        "input-before.json": "d9b80d1a77874cf444d78f61b7cc6134e987a0377a9d10d668b873f97463ac79",
+        "input-after.json": "d9b80d1a77874cf444d78f61b7cc6134e987a0377a9d10d668b873f97463ac79",
+        "started.json": "47fde315aac9975dbe1fb5fc58af4a863d4a0a369839491b6b1e1aceb6a9e361"
+      }
+    },
+    "browser-type01": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-runs/browser-type01",
+      "result": {
+        "name": "browser-type01",
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 2.357826,
+        "inputs_unchanged": true,
+        "clean": true,
+        "owned_pid_count": 1,
+        "adopted_wait_count": 0,
+        "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "command_sha256": "5bdfea95e22b1f309788dd6f913e01f44468ff45e5867c48b861d715fb979761",
+        "cleanup_sha256": "12fdf86d2a34486df9e55d2b6173c07fb984db9cf79600ef40a6094a31107684",
+        "supervisor_timeout": false
+      },
+      "files": {
+        "command.json": "5bdfea95e22b1f309788dd6f913e01f44468ff45e5867c48b861d715fb979761",
+        "raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "result.json": "a659d6073d06a22870a6327a477a42ef8141b4a9777b768fb992abdc7bb72af8",
+        "cleanup.json": "12fdf86d2a34486df9e55d2b6173c07fb984db9cf79600ef40a6094a31107684",
+        "input-before.json": "d9b80d1a77874cf444d78f61b7cc6134e987a0377a9d10d668b873f97463ac79",
+        "input-after.json": "d9b80d1a77874cf444d78f61b7cc6134e987a0377a9d10d668b873f97463ac79",
+        "started.json": "6c36a6cda600151e24859ded6954e2594411f9d66411b89957a88f3bc728b722"
+      }
+    },
+    "browser-list-independent-test01": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-runs/browser-list-independent-test01",
+      "result": {
+        "name": "browser-list-independent-test01",
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 0.926304,
+        "inputs_unchanged": true,
+        "clean": true,
+        "owned_pid_count": 1,
+        "adopted_wait_count": 0,
+        "raw_sha256": "f4e49b1938aa2b027b35fbc64cfbce06e33f6e14c67780a3ecef327330698b69",
+        "command_sha256": "dbb3fd7e77f7f7419611fcc2cab43ab40bff8f2c7c590586b1bece08ddc9c39b",
+        "cleanup_sha256": "1ec36d23ded01d4a15d759162487440f9cb2034b8c34e589917d31ff81ee9fe4",
+        "supervisor_timeout": false
+      },
+      "files": {
+        "command.json": "dbb3fd7e77f7f7419611fcc2cab43ab40bff8f2c7c590586b1bece08ddc9c39b",
+        "raw.log": "f4e49b1938aa2b027b35fbc64cfbce06e33f6e14c67780a3ecef327330698b69",
+        "result.json": "9e3e11db4322a909d77a468e834fcd5e30d977a57cfdb95f0c45784565c402cf",
+        "cleanup.json": "1ec36d23ded01d4a15d759162487440f9cb2034b8c34e589917d31ff81ee9fe4",
+        "input-before.json": "d9b80d1a77874cf444d78f61b7cc6134e987a0377a9d10d668b873f97463ac79",
+        "input-after.json": "d9b80d1a77874cf444d78f61b7cc6134e987a0377a9d10d668b873f97463ac79",
+        "started.json": "b0e530795578e652e0e39c94d8e2e55b8fbc94b066b9035d0cbe81b93a22c20a"
+      }
+    },
+    "browser-list-independent-retry01": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-runs/browser-list-independent-retry01",
+      "result": {
+        "name": "browser-list-independent-retry01",
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 0.843118,
+        "inputs_unchanged": true,
+        "clean": true,
+        "owned_pid_count": 1,
+        "adopted_wait_count": 0,
+        "raw_sha256": "7b566132b5587a6facbd7a15fb242203c51d87ece773a4c67ff1542e1d801688",
+        "command_sha256": "f6e68f0ab84f8223d5ac26fbb08405e20c86fda72d89e1ac7414f4fa157fd3ed",
+        "cleanup_sha256": "7c852da41a0b1370307dc4775c69ce4850d06baf1a25d3d2005bbf9be8eaa4aa",
+        "supervisor_timeout": false
+      },
+      "files": {
+        "command.json": "f6e68f0ab84f8223d5ac26fbb08405e20c86fda72d89e1ac7414f4fa157fd3ed",
+        "raw.log": "7b566132b5587a6facbd7a15fb242203c51d87ece773a4c67ff1542e1d801688",
+        "result.json": "a766fa44a441693bfafc1711c1327ca8cf7d2d8fddad5c3198629ed46519058f",
+        "cleanup.json": "7c852da41a0b1370307dc4775c69ce4850d06baf1a25d3d2005bbf9be8eaa4aa",
+        "input-before.json": "d9b80d1a77874cf444d78f61b7cc6134e987a0377a9d10d668b873f97463ac79",
+        "input-after.json": "d9b80d1a77874cf444d78f61b7cc6134e987a0377a9d10d668b873f97463ac79",
+        "started.json": "5f9c876e8b9fba6025f907bb0acc199b2a87bcf09eb9d39a56a00a8a0a7bbc21"
+      }
+    },
+    "private-gate01": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-runs/private-gate01",
+      "result": {
+        "name": "private-gate01",
+        "actual_exit": 0,
+        "actual_wait": true,
+        "seconds": 0.406708,
+        "inputs_unchanged": true,
+        "clean": true,
+        "owned_pid_count": 1,
+        "adopted_wait_count": 0,
+        "raw_sha256": "9cb411c1b955a7ad7c453c60ea0e2013e9788e2740814c3cdb0dc198743fb098",
+        "command_sha256": "1b014a26154a297dbe237296aef1f6e7489a4892858cc2575ff46a617676dc2e",
+        "cleanup_sha256": "cf7569d0ed9c04206b4d5f9f38f089a82a7d237508d35fe21d487d80a327b7eb",
+        "supervisor_timeout": false
+      },
+      "files": {
+        "command.json": "1b014a26154a297dbe237296aef1f6e7489a4892858cc2575ff46a617676dc2e",
+        "raw.log": "9cb411c1b955a7ad7c453c60ea0e2013e9788e2740814c3cdb0dc198743fb098",
+        "result.json": "adeb0828b501d478f9d71f391016c5f05226bfdb13bdbdb88e2b9874054e58ca",
+        "cleanup.json": "cf7569d0ed9c04206b4d5f9f38f089a82a7d237508d35fe21d487d80a327b7eb",
+        "input-before.json": "d9b80d1a77874cf444d78f61b7cc6134e987a0377a9d10d668b873f97463ac79",
+        "input-after.json": "d9b80d1a77874cf444d78f61b7cc6134e987a0377a9d10d668b873f97463ac79",
+        "started.json": "58f50c1d19a114a6ea577408c226aa2ccef0605e23351d50aa406455cbe77736"
+      }
+    }
+  },
+  "cleanup": {
+    "all_actual_waits_completed": true,
+    "all_double_scans_empty": true,
+    "observed_pid_count_sum": 12,
+    "adopted_wait_count_sum": 0,
+    "all_input_before_after_equal": true,
+    "no_business_resources": true
+  },
+  "limits": [
+    "no real A/B execution or browser launched",
+    "zero Go test body execution; list-only",
+    "private source semantic assertions not claimed passed from compile",
+    "root real resource authorization still required"
+  ],
+  "report_sha256": "845ad71d8cb9afa153072081a536e9c0b6bd70daf2e2ea2d52e13a166eade83e"
+}

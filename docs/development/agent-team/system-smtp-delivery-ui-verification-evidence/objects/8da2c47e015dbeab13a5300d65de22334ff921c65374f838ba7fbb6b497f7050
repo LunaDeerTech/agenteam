@@ -1,0 +1,17 @@
+# SMTP delivery oldsettings01 独立归因
+
+结论：**产品资格回归，需修新 coordinator；旧 Authority 测试、强断言和预算保持。** 仅只读冻结 input03 与 Git 628612c；本次未运行测试、浏览器、服务或 fixture，未修改产品。A/B 草稿保持暂停。
+
+`runs/oldsettings01` 实际退出 1 / 136.911s。Outcome 与 Navigation 通过；Authority 在普通用户无权页点击退出后，调用旧 login helper 的 `#login-email.fill` 等待至原 45s 总预算，顶层 51.36s 失败。后续 admin 角色与 Session 场景未到。原 raw 没有现场 DOM 或该时刻请求快照；以下因果链是固定源码证明，不补造现场观察。
+
+固定旧 browser `system-smtp-settings.spec.ts:1109–1115` 先正式登录 member、确认无权标题和零 system 请求，再点击退出并登录 admin。新 `App.vue:96–106` 先等待 `smtpSections.confirmLeave()` 才调用 `auth.logout()`。新 coordinator 的 `afterNavigation:752–766` 对 `/system/smtp` 置 `activeRoute=true`，不以挂载管理员 View 为条件。
+
+在此稳定 member/current 身份、双域 clean 的公开动作中，既有配置 controller `confirmLeave:365–369` 返回 true；新 coordinator `confirmLeave:733–750` 却返回 false：`live` 要求 admin，`inactiveAtEntry` 为 false，`clearedAnonymous` 也为 false。故新 logout 被挡在 `auth.logout()` 之前。相同 coordinator 还供正式 router 离页 guard 使用。该问题区别于上一轮已经修好的身份失效后 anonymous 新导航。
+
+最小修复契约：在调用底层确认前另捕获稳定的 clean 拒绝身份资格：authenticated/current、非空完整 identity、非 busy、非 admin 或当前 identity 的 system denied、configuration/delivery 均无草稿。await 后仍须完整 identity 相同、generation/section 未变、未 dispose，且相同稳定拒绝与双 clean 条件仍成立。system.denied 已由 useSession 同完整 identity 绑定。仅允许该入口的新离页/退出；不改变 switchTo 或写入的 admin 门禁。不得用泛化 `!authorized()` 放行 checking、failed、身份过渡或旧 pending；旧 admin pending 不得在随后降权、403、身份失效后追获此入口资格。
+
+受影响最小回归建议：①真实 App/router/factory 从普通用户无权页点击退出，实际 logout 后到 /login、控件可操作且零 SMTP 写；同类当前 identity 403 拒绝后显式离页可完成。②原 admin 的待决 route/logout 在 role/identity 变化后仍拒绝，随后新的 clean 拒绝身份操作才可离开；checking/失败恢复和既有 fresh anonymous 行为保持。作者可原同断言 RED→GREEN；独立只需这两个风险组合，不重跑 API/owner 矩阵。
+
+终局原件确认：command 标记实际 wait 完成；7 exact IDs 两扫均 absent、103 owned PID/starttime 无残留、12 adopted 实际 wait，runtime/browser runtime 空、输入与基线不变、monitor 0。历史 PPID1 Z 未触及。本次仅核冻结原件，未重新检查或操作任何运行资源。
+
+精确输入与原件路径/SHA 见同目录 `review.json`。16 候选 SHA 均匹配 input03；三个所用旧依赖匹配 Git 628612c 与该 manifest 的 accepted_baseline 清单。没有动态修复验收结论。

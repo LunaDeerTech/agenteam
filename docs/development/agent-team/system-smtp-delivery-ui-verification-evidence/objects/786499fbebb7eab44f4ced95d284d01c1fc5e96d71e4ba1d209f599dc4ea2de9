@@ -1,0 +1,23 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/vitest.config.ts",
+    "probe/page.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runtime/app01"
+  },
+  "runner_sha256": "0703287b2bb80e746500fc4a246272c68334127ceae4f2c0d4edba6637cde25f",
+  "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+  "no_business_resources": true
+}

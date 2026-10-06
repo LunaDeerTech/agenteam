@@ -1,0 +1,111 @@
+{
+  "decision": "PRODUCT STATIC CAUSE CONFIRMED; preserve real Authority failure and original /login assertion",
+  "fixed_input": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/manifest.json",
+    "sha256": "9850d4ad68980d96eebfa9c9aa73dc996e85a0a3409f538e9ea586c241d4ac2a"
+  },
+  "frozen_run": {
+    "raw.log": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority01/raw.log",
+      "sha256": "c2eaf40ea41b6657c03490830e3e740f31afeb232cafa891192d97dc730c889a"
+    },
+    "result.json": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority01/result.json",
+      "sha256": "eac113aa1a6fc5be5e06df6d5046f5ea1c0d54939fc77cdedbac1f1c53101e60"
+    },
+    "command.json": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority01/command.json",
+      "sha256": "eed81768f10aa945c5052a87c571a1dd39b46b9ee955a74f142f5db491b97668"
+    },
+    "cleanup.json": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/authority01/cleanup.json",
+      "sha256": "1f734f69d375098038d75d9d845d644e1af3cf3f907df63861607e4f5551bd48"
+    }
+  },
+  "actual_result": {
+    "exit": 1,
+    "seconds": 69.374,
+    "actual_wait_completed": true,
+    "observed_resources": 9,
+    "observed_processes": 85,
+    "adopted_waits": 4,
+    "double_cleanup": [
+      {
+        "time": "2026-10-06T19:20:46.925120+00:00",
+        "exact_absent": 9,
+        "baseline_unchanged": true,
+        "owned_processes": 0,
+        "runtime_entries": 0,
+        "browser_runtime_entries": 0
+      },
+      {
+        "time": "2026-10-06T19:20:47.709130+00:00",
+        "exact_absent": 9,
+        "baseline_unchanged": true,
+        "owned_processes": 0,
+        "runtime_entries": 0,
+        "browser_runtime_entries": 0
+      }
+    ],
+    "source_unchanged": true
+  },
+  "source_inputs": {
+    "App.vue": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/source/web/src/App.vue",
+      "sha256": "b29265ff52081c42336413eea262461bba8af8b1ac78f57d834e0c2582e66172"
+    },
+    "useSession.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/source/web/src/composables/useSession.ts",
+      "sha256": "bb670ae33e7d4d846d517b394689d8b7328ec22f03bd6306ef51be5403c4f2cc"
+    },
+    "useSystemSMTPDelivery.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/source/web/src/composables/useSystemSMTPDelivery.ts",
+      "sha256": "7313d2608ad83af4f311e124b2c46d501836007de9393faf8352d4a33bc1e29c"
+    },
+    "system-smtp-delivery.spec.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/source/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts",
+      "sha256": "beb70c3c3e0956fb913a2f4c98e5c27aa5eb6d671d39f3a0e089580cc3d64e3b"
+    },
+    "router/auth.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/src/router/auth.ts",
+      "sha256": "99a361b8a6408c37ab7fed927225bcb0c6279fac75054a8fe7011d780c1afc1e"
+    },
+    "useSystemSMTPSettings.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/src/composables/useSystemSMTPSettings.ts",
+      "sha256": "2baf377922d3f04cbb553b2d6ff85c3ef92334ed10ee00661c66682640519296"
+    },
+    "app-test": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/source/web/src/tests/system-smtp-delivery.spec.ts",
+      "sha256": "fb9321606c9469c07e2d37e87ea7bab18eef689ac06ee222975431126ce363f1"
+    }
+  },
+  "cause_chain": [
+    "Native Session 401 SESSION_REVOKED predicate precedes and passed before the URL assertion; raw failure is /system/smtp remaining after 5000ms.",
+    "restore() treats unavailable Session as identity invalidation then anonymous bootstrap when no auth-operation pending/expectedSession; SMTP private intent is a separate domain.",
+    "App watch explicitly router.replace(/login) for anonymous and !busy on protected route.",
+    "Fixed router beforeEach first awaits current SMTP coordinator confirmLeave; false cancels route.",
+    "New coordinator gates successful child confirmLeave by live(), which requires authenticated/current/admin/same identity, or !activeRoute. Identity invalidation resets active/view attachment but leaves activeRoute true until afterNavigation, which never occurs after false.",
+    "Accepted configuration controller already permits a new leave when unauthorized and clean; coordinator wrongly removes that behavior."
+  ],
+  "minimal_repair_contract": [
+    "Only new SMTP coordinator and corresponding scoped tests. No redirect/owner/router/shared UI change, no weakening URL predicate.",
+    "Distinguish eligibility captured when a new leave starts already anonymously invalidated/clean from a previously authorized pending confirmation.",
+    "A fresh invalidated/clean navigation may exit only while still in that same invalidated state/generation and clean; do not permit checking/failed state to destroy retained intent.",
+    "An earlier authorized pending confirmation must remain false across identity/generation loss; never convert it into true by checking only the post-await anonymous state."
+  ],
+  "affected_verification": [
+    "Actual App/router/factory controlled Session401 then bootstrap200 using public current-state button: preserve old-input RED, same-assertion candidate GREEN; login route/form, destroyed old private eligibility and zero extra SMTP writes.",
+    "Existing new-Session pending switch false, pending route/logout and pageshow503/same-Session double-confirm protections.",
+    "Original Authority browser exact /login/new Session/member assertions remain, rerun affected group after frozen candidate; API/owner unchanged evidence reuse."
+  ],
+  "limitations": [
+    "No new dynamic probe or resource run by independent verifier; static chain explains original URL failure but raw does not itself capture DOM or bootstrap response.",
+    "Do not call later new Session/member assertions executed; failure stops before them.",
+    "Private A/B preparation remains paused with no test bodies or driver/compile/type/list started."
+  ],
+  "paused_preparation": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/preparation/paused01.json",
+    "sha256": "2df3c38d476870a485fe1c00ba563265e11668f55e2e2d6ec67b88d94559e781"
+  },
+  "reviewed_utc": "2026-10-06T19:23:49.975426+00:00"
+}

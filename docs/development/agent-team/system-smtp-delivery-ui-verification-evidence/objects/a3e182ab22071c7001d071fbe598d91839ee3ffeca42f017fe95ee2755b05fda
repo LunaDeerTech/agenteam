@@ -1,0 +1,32 @@
+{
+  "scope": "read-only confirmation of authorized recovery cleanup; no resource mutation",
+  "recovery_owned_resources_clear": true,
+  "exact_ids_absent_in_each_scan": 7,
+  "associated_volumes_absent_in_each_scan": 2,
+  "scans": 2,
+  "original_evidence_unchanged": true,
+  "previous_cleanup_result_preserved": "cleanup-result01.json (exit 1; case-sensitive volume absence oracle)",
+  "original_real01_actual_wait_missing": true,
+  "original_real01_not_completed_or_backfilled": true,
+  "preserved_nonowned_resource_ids": [
+    "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+    "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+    "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+    "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+    "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+    "f5d87ca724e94cf31ca35d15740830863462ff82fdbb6171cc611d8f5f6a569e"
+  ],
+  "disk": {
+    "/workspace": {
+      "total": 33770192896,
+      "used": 25997537280,
+      "free": 6037893120
+    },
+    "/tmp": {
+      "total": 9441349632,
+      "used": 4096,
+      "free": 9441345536
+    }
+  },
+  "exit": 0
+}

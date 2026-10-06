@@ -1,0 +1,22 @@
+{
+  "old_source": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/page-probe01-source/web/src/tests/system-smtp-delivery.spec.ts",
+    "sha256": "e4ed458f5c17c06b378d2c3f9062151963c13a8016f305324c4cb4f38aa0170d"
+  },
+  "current_source": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/web-stage01/source/web/src/tests/system-smtp-delivery.spec.ts",
+    "sha256": "fb9321606c9469c07e2d37e87ea7bab18eef689ac06ee222975431126ce363f1"
+  },
+  "whole_file_equal": false,
+  "selected_callbacks": [
+    {
+      "name": "does not publish a list row below the version already confirmed by a retry receipt",
+      "ast_equal": true
+    },
+    {
+      "name": "detaches delivery before resetting the next visit to configuration, with zero inactive delivery reads",
+      "ast_equal": true
+    }
+  ],
+  "whole_file_delta": "same selected action/assertion AST; formatting plus accepted /settings/profile route stub added to suppress unrelated router warning"
+}

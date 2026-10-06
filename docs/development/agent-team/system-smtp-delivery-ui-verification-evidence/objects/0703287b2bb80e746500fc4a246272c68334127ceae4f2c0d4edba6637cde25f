@@ -1,0 +1,97 @@
+import ctypes
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import time
+
+ROOT = Path(__file__).resolve().parent
+NODE = Path('/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node')
+MODULES = (ROOT / 'node_modules').resolve()
+
+def sha(path):
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
+
+def write(path, value):
+    path.write_text(json.dumps(value, indent=2, ensure_ascii=False) + '\n')
+
+def process_table():
+    result = {}
+    for path in Path('/proc').glob('[0-9]*/stat'):
+        try:
+            raw = path.read_text()
+            rest = raw[raw.rfind(')') + 2:].split()
+            result[int(path.parent.name)] = (int(rest[1]), rest[0], int(rest[19]))
+        except (FileNotFoundError, ProcessLookupError, PermissionError, ValueError):
+            pass
+    return result
+
+def fingerprints():
+    known = json.loads((ROOT / 'input-static01.json').read_text())['files']
+    for path in [ROOT / 'run01.py', ROOT / 'input-static01.json', ROOT / 'package.json', ROOT / 'vitest.config.ts', *sorted((ROOT / 'probe').glob('*.ts'))]:
+        known[str(path)] = sha(path)
+    return {path: sha(path) for path in sorted(known)}
+
+name, selected = sys.argv[1:]
+assert name == 'app01'
+assert selected == 'page.spec.ts'
+run = ROOT / 'runs' / name
+run.mkdir(parents=True, exist_ok=False)
+runtime = ROOT / 'runtime'
+runtime.mkdir(exist_ok=True)
+tmp = runtime / name
+tmp.mkdir(exist_ok=False)
+before = fingerprints()
+expected = json.loads((ROOT / 'input-static01.json').read_text())['files']
+assert all(before[path] == value for path, value in expected.items())
+write(run / 'input-before.json', before)
+argv = [str(NODE), str(MODULES / 'vitest/vitest.mjs'), 'run', '--config', str(ROOT / 'vitest.config.ts'), 'probe/' + selected]
+env = {k: os.environ[k] for k in ('PATH', 'HOME', 'LANG') if k in os.environ}
+env.update({'CI': '1', 'NO_COLOR': '1', 'TZ': 'UTC', 'TMPDIR': str(tmp)})
+write(run / 'command.json', {'argv': argv, 'cwd': str(ROOT), 'env': env, 'runner_sha256': sha(__file__), 'node_sha256': sha(NODE), 'no_business_resources': True})
+assert ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0
+start = time.monotonic()
+owned = {}
+adopted = []
+with (run / 'raw.log').open('wb') as out:
+    child = subprocess.Popen(argv, cwd=ROOT, env=env, stdin=subprocess.DEVNULL, stdout=out, stderr=subprocess.STDOUT)
+    write(run / 'started.json', {'pid': child.pid, 'supervisor_pid': os.getpid()})
+    while True:
+        table = process_table()
+        parents = {os.getpid(), *owned.keys()}
+        changed = True
+        while changed:
+            changed = False
+            for pid, (ppid, state, born) in table.items():
+                if ppid in parents and pid not in parents:
+                    parents.add(pid); owned[pid] = born; changed = True
+        status = child.poll()
+        if status is not None:
+            break
+        if time.monotonic() - start > 90:
+            write(run / 'unexpected-timeout.json', {'pid': child.pid, 'elapsed': time.monotonic() - start})
+            raise RuntimeError('private pure subprocess exceeded expected bound; retained for diagnosis')
+        time.sleep(0.01)
+    actual = child.wait()
+while True:
+    try:
+        pid, status = os.waitpid(-1, os.WNOHANG)
+    except ChildProcessError:
+        break
+    if pid == 0:
+        break
+    adopted.append({'pid': pid, 'status': status})
+scans = []
+for _ in range(2):
+    table = process_table()
+    scans.append([{'pid': pid, 'starttime': born, 'state': table[pid][1]} for pid, born in owned.items() if pid in table and table[pid][2] == born])
+    time.sleep(0.05)
+after = fingerprints()
+write(run / 'input-after.json', after)
+write(run / 'cleanup.json', {'owned_pid_starttime': owned, 'actual_wait_pid': child.pid, 'actual_wait_exit': actual, 'adopted_waits': adopted, 'scans': scans, 'clean': scans == [[], []], 'resources_started': 'none; pure node/Vitest only'})
+result = {'actual_exit': actual, 'elapsed_seconds': round(time.monotonic() - start, 6), 'inputs_unchanged': before == after, 'cleanup': scans == [[], []], 'raw_sha256': sha(run / 'raw.log'), 'command_sha256': sha(run / 'command.json')}
+write(run / 'result.json', result)
+print(json.dumps({'run': str(run), **result}), flush=True)
+sys.exit(0 if actual == 0 and before == after and scans == [[], []] else 1)

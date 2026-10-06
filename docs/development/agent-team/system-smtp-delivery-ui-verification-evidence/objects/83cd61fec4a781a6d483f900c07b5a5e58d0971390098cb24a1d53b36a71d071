@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-smtp-delivery.spec.ts -t does not publish a list row|detaches delivery before
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web
+
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 23 skipped (25)
+   Start at  18:40:14
+   Duration  1.70s (transform 824ms, setup 0ms, import 982ms, tests 228ms, environment 371ms)
+

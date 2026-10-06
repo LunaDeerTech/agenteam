@@ -1,0 +1,163 @@
+//go:build integration
+
+package account_test
+
+import (
+    "context"
+    "crypto/sha256"
+    "encoding/hex"
+    "encoding/json"
+    "strconv"
+    "testing"
+    "time"
+
+    "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+)
+
+func independentDeliveryResult(t *testing.T, value map[string]any, fields ...string) {
+    t.Helper()
+    for _, field := range fields {
+        if value[field] != true { t.Fatalf("independent safe browser predicate missing: %s", field) }
+    }
+}
+func independentDeliveryID(t *testing.T, value map[string]any, field string) string {
+    t.Helper()
+    v, ok := value[field].(string)
+    if !ok { t.Fatal("independent safe ID missing") }
+    if _, err := foundation.ParseID[struct{}](v); err != nil { t.Fatal("independent safe ID invalid") }
+    return v
+}
+func independentDeliveryVersion(t *testing.T, value map[string]any, field string) int64 {
+    t.Helper()
+    v, ok := value[field].(string)
+    if !ok || v == "" { t.Fatal("independent safe version missing") }
+    parsed, err := strconv.ParseInt(v, 10, 64)
+    if err != nil || parsed < 1 || strconv.FormatInt(parsed, 10) != v { t.Fatal("independent safe version invalid") }
+    return parsed
+}
+func independentDeliveryOriginal(t *testing.T, ctx context.Context, f *smtpDeliveryWebFixture) (smtpDeliveryCut, string) {
+    t.Helper()
+    facts := f.cutFacts(ctx)
+    for _, key := range []string{"commands", "intents", "events", "audits", "dropped", "replays"} {
+        if facts[key] != 1 { t.Fatalf("independent exact original predicate failed: %s", key) }
+    }
+    if facts["dispatched"] != 2 || facts["same_body"] != true || facts["same_csrf"] != true || facts["same_method_path"] != true {
+        t.Fatal("independent original byte/method/path/CSRF comparison failed")
+    }
+    f.mu.Lock()
+    captured := f.cut
+    captured.body = append([]byte(nil), f.cut.body...)
+    f.mu.Unlock()
+    if captured.key == "" || captured.csrf == "" || captured.method != "POST" || captured.armed {
+        clear(captured.body)
+        t.Fatal("independent original capture incomplete")
+    }
+    namespace, command := "account.smtp", "smtp-test"
+    if captured.sourceID != "" { namespace, command = "account.mail-retry", "mail-retry" }
+    identity, err := foundation.NewCommandIdentity(namespace, []string{f.admin.UserID}, command, foundation.IdempotencyKey(captured.key))
+    if err != nil { clear(captured.body); t.Fatal("independent original identity invalid") }
+    digest := sha256.Sum256([]byte(identity.Canonical()))
+    return captured, "sha256:" + hex.EncodeToString(digest[:])
+}
+func independentDeliverySMTP(t *testing.T, ctx context.Context, f *smtpDeliveryWebFixture, success, unknown int) {
+    t.Helper()
+    if err := f.smtp.Verify(ctx); err != nil { t.Fatal("owned SMTP identity changed") }
+    good, err := f.smtp.State(ctx, f.smtpSuccess.ID)
+    if err != nil { t.Fatal("independent successful SMTP fact unavailable") }
+    lost, err := f.smtp.State(ctx, f.smtpUnknown.ID)
+    if err != nil { t.Fatal("independent unknown SMTP fact unavailable") }
+    if good.Messages != success || lost.Messages != unknown { t.Fatal("independent SMTP acceptance count changed after replay") }
+    for _, id := range []string{f.smtpFailed.ID, f.smtpHeld.ID} {
+        value, err := f.smtp.State(ctx, id)
+        if err != nil || value.Mail != 0 || value.Messages != 0 { t.Fatal("independent unused SMTP endpoint received a message") }
+    }
+}
+
+func TestIndependentSMTPDeliveryTestReplay(t *testing.T) {
+    ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+    defer cancel()
+    f := newSMTPDeliveryWebFixture(t, ctx, "independent-test")
+    conn, done := invitationsWebConnect(t, ctx, f.db)
+    var originalVersion int64
+    err := conn.QueryRow(ctx, `SELECT version FROM agenteam_account.smtp_settings WHERE singleton AND id=$1 AND configured`, f.singletonID).Scan(&originalVersion)
+    done()
+    if err != nil || originalVersion < 1 { t.Fatal("independent initial SMTP version unavailable") }
+    result := f.browserSMTPDelivery(ctx)
+    independentDeliveryResult(t, result, "original_test_cut", "current_read_not_receipt", "strict_original_replay", "confirmed_get_failure", "readonly_recovery", "exact_command", "original_material_equal")
+    if result["browser_write_count"] != float64(2) { t.Fatal("independent browser write count mismatch") }
+    job := independentDeliveryID(t, result, "confirmed_job_id")
+    session := independentDeliveryID(t, result, "browser_session_id")
+    captured, digest := independentDeliveryOriginal(t, ctx, f)
+    defer clear(captured.body)
+    if captured.sourceID != "" || captured.path != "/api/v1/system/smtp/test" || captured.jobID != job { t.Fatal("independent original test target mismatch") }
+    var body map[string]json.RawMessage
+    if json.Unmarshal(captured.body, &body) != nil || len(body) != 1 || body["recipient"] == nil { t.Fatal("independent original test body closure mismatch") }
+    conn, done = invitationsWebConnect(t, ctx, f.db)
+    defer done()
+    var exact bool
+    err = conn.QueryRow(ctx, `SELECT EXISTS(
+      SELECT 1 FROM agenteam_account.commands c
+      JOIN agenteam_account.delivery_intents i ON i.id=c.id AND i.job_id=c.attempt_id AND i.kind='test' AND i.initiator_id=c.user_id
+      JOIN agenteam_account.mail_jobs j ON j.id=i.job_id AND j.intent_id=i.id
+      JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id AND a.job_id=j.id
+      CROSS JOIN agenteam_account.smtp_settings cfg
+      WHERE c.identity_digest=$1 AND c.namespace='account.smtp' AND c.command_name='smtp-test'
+        AND c.owner_id=$2 AND c.user_id=$2 AND c.session_id=$3 AND c.resource_id=$4 AND c.attempt_id=$5
+        AND c.phase='committed' AND c.expected_version=$6 AND c.result_version=1
+        AND cfg.singleton AND cfg.id=$4 AND NOT cfg.configured AND cfg.version=$6+1
+        AND j.phase='sent' AND j.attempts=1 AND j.version>1
+        AND a.channel='smtp' AND a.result='sent' AND a.phase='closed' AND a.terminal AND a.io_joined AND a.config_version=$6
+        AND (SELECT count(*) FROM agenteam_account.mail_attempts m WHERE m.job_id=j.id)=1
+        AND (SELECT count(*) FROM agenteam_account.delivery_intents x WHERE x.origin_intent_id=i.id)=1
+    )`, digest, f.admin.UserID, session, f.singletonID, job, originalVersion).Scan(&exact)
+    if err != nil || !exact { t.Fatal("independent exact committed test/current-policy/terminal-join facts failed") }
+    if f.readFailures.Load() != 1 { t.Fatal("independent confirmed GET failure was not exactly once") }
+    independentDeliverySMTP(t, ctx, f, 1, 0)
+    t.Log("SAFE independent A: original command/intent/event/Audit exactly one; current unconfigured; strict original receipt; one joined SMTP acceptance; confirmed GET failure only reread")
+}
+
+func TestIndependentSMTPDeliveryRetryRecovery(t *testing.T) {
+    ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+    defer cancel()
+    f := newSMTPDeliveryWebFixture(t, ctx, "independent-retry")
+    result := f.browserSMTPDelivery(ctx)
+    independentDeliveryResult(t, result, "delivery_unknown_confirmed", "retry_request_unknown", "native_two_confirmations", "same_identity_recovery", "native_tab", "original_version_replay", "current_read_not_receipt", "exact_command", "original_material_equal")
+    if result["browser_write_count"] != float64(3) { t.Fatal("independent browser write count mismatch") }
+    source := independentDeliveryID(t, result, "source_job_id")
+    child := independentDeliveryID(t, result, "confirmed_job_id")
+    session := independentDeliveryID(t, result, "browser_session_id")
+    sourceVersion := independentDeliveryVersion(t, result, "source_version")
+    receiptVersion := independentDeliveryVersion(t, result, "receipt_version")
+    captured, digest := independentDeliveryOriginal(t, ctx, f)
+    defer clear(captured.body)
+    if captured.sourceID != source || captured.jobID != child || source == child || captured.path != "/api/v1/system/mail-jobs/"+source+"/retry" { t.Fatal("independent original retry target mismatch") }
+    var body map[string]string
+    if json.Unmarshal(captured.body, &body) != nil || len(body) != 1 || body["version"] != strconv.FormatInt(sourceVersion, 10) { t.Fatal("independent retry original version/body changed") }
+    conn, done := invitationsWebConnect(t, ctx, f.db)
+    defer done()
+    var exact bool
+    err := conn.QueryRow(ctx, `SELECT EXISTS(
+      SELECT 1 FROM agenteam_account.commands c
+      JOIN agenteam_account.delivery_intents i ON i.id=c.id AND i.job_id=c.attempt_id AND i.kind='test' AND i.initiator_id=c.user_id
+      JOIN agenteam_account.mail_jobs j ON j.id=i.job_id AND j.intent_id=i.id
+      JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id AND a.job_id=j.id
+      JOIN agenteam_account.mail_jobs source ON source.id=c.resource_id
+      JOIN agenteam_account.delivery_intents original ON original.id=source.intent_id
+      JOIN agenteam_account.mail_attempts previous ON previous.id=source.current_attempt_id AND previous.job_id=source.id
+      WHERE c.identity_digest=$1 AND c.namespace='account.mail-retry' AND c.command_name='mail-retry'
+        AND c.owner_id=$2 AND c.user_id=$2 AND c.session_id=$3 AND c.resource_id=$4 AND c.attempt_id=$5
+        AND c.phase='committed' AND c.expected_version=$6::bigint
+        AND source.phase='unknown' AND source.version=$6::bigint+1 AND source.attempts=1
+        AND original.kind='test' AND i.origin_intent_id=original.origin_intent_id
+        AND previous.channel='smtp' AND previous.result='unknown' AND previous.phase='closed' AND previous.terminal AND previous.io_joined
+        AND j.phase='sent' AND j.version=$7::bigint AND j.version>1 AND j.attempts=1
+        AND a.channel='smtp' AND a.result='sent' AND a.phase='closed' AND a.terminal AND a.io_joined
+        AND (SELECT count(*) FROM agenteam_account.mail_attempts m WHERE m.job_id=source.id)=1
+        AND (SELECT count(*) FROM agenteam_account.mail_attempts m WHERE m.job_id=j.id)=1
+        AND (SELECT count(*) FROM agenteam_account.delivery_intents x WHERE x.origin_intent_id=original.origin_intent_id)=2
+    )`, digest, f.admin.UserID, session, source, child, sourceVersion, receiptVersion).Scan(&exact)
+    if err != nil || !exact { t.Fatal("independent exact retry/original-version/two-cycle terminal-join facts failed") }
+    if f.sessionFailures.Load() != 1 { t.Fatal("independent current Session failure was not exactly once") }
+    independentDeliverySMTP(t, ctx, f, 1, 1)
+    t.Log("SAFE independent B: confirmed delivery unknown distinct from request uncertainty; same-identity native confirmation/Tab; original-version replay; exact command/intent/event/Audit; two joined cycles only")
+}

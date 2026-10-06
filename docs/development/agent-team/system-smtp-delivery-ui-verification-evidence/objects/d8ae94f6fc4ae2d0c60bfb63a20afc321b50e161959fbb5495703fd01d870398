@@ -1,0 +1,23 @@
+{
+  "recovery_cleanup_actual_exit": 1,
+  "exact_owned_ids_removed": 7,
+  "associated_volumes_removed": 2,
+  "recovery_double_scans_clear": false,
+  "current_input_matches_frozen": true,
+  "original_run_actual_wait_missing": true,
+  "original_completion_not_backfilled": true,
+  "original_evidence_unchanged": true,
+  "disk": {
+    "/workspace": {
+      "total": 33770192896,
+      "used": 25995841536,
+      "free": 6039588864
+    },
+    "/tmp": {
+      "total": 9441349632,
+      "used": 4096,
+      "free": 9441345536
+    }
+  },
+  "result_scope": "recovery cleanup only; original real01 remains supervision-interrupted, not a completed run"
+}

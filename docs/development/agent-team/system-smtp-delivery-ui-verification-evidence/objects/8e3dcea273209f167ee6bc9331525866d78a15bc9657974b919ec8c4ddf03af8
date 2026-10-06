@@ -1,0 +1,25 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/vitest02.config.ts",
+    "probe/page02.spec.ts",
+    "-t",
+    "^new public checking after revoked identity reaches login without releasing any old SMTP request$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02/runtime/app02"
+  },
+  "runner_sha256": "67b6574f361869e1c32c8fbfd0a3128726c558e83edc41a4e87c52c39f2bbdd1",
+  "node_sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+  "no_business_resources": true
+}

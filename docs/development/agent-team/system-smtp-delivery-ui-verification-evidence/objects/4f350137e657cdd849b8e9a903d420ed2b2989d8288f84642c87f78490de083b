@@ -1,0 +1,37 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-smtp-delivery.spec.ts -t stable rejected|old administrator
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web
+
+ ❯ src/tests/system-smtp-delivery.spec.ts (33 tests | 1 failed | 28 skipped) 426ms
+     × allows a fresh route for a stable rejected current403 identity after both SMTP domains are clear 99ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > allows a fresh route for a stable rejected current403 identity after both SMTP domains are clear
+AssertionError: expected [ …(3) ] to have a length of 2 but got 3
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ src/tests/system-smtp-delivery.spec.ts:655:83
+    653|       expect(f.wrapper.get('h1').text()).toBe('个人资料')
+    654|       expect(f.writes()).toHaveLength(0)
+    655|       expect(f.fetch.mock.calls.filter(([p]) => p.startsWith('/api/v1/…
+       |                                                                                   ^
+    656|         reads,
+    657|       )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 4 passed | 28 skipped (33)
+   Start at  19:55:03
+   Duration  1.88s (transform 850ms, setup 0ms, import 997ms, tests 426ms, environment 349ms)
+

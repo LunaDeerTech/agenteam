@@ -300,3 +300,13 @@ SMTP投递UI的authority01失败已有静态产品归因，私有修复仍未验
 新增独立rev1.1证据子目录，旧report正文、index、objects、checker均保留；新checker用6267717历史文档执行旧核验，再按272c6c1核修订和追加。只收两脚本、原manifest及必要probe/运行原件，26既有依赖用固定Git引用；其余7候选/原完整candidate.diff/作者检查及工具实体未收，故不声称旧全阶段可由此包直接重放。初rev1.1/v2/v3与各diff/check保留；据主线程最新调度通知，SPA stage02两脚本修复及原两probe作者重跑PASS已收到，尚待独立验收，修后产品未接受。
 
 主线程另通知SMTP oldauthority02 actual0／59.566s、窗口释放，新五组和旧五组按版本通过；独立A/B仅六项离线检查进行中，仍未产品接受。以上是调度状态而非本档验收，本档未读取这些新增/活动原件。核心16产品、正式发布/native/两真实代表仍待验；完整D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project及生产未绑定/ready503不变。这里是规格修订和原失败持久记录，不扩产品/资源授权。
+
+## 26. SMTP 测试与投递任务 UI 接受及监督中断恢复
+
+主线程采纳17路径，提交推送 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93`，已核远端一致。[正式报告](system-smtp-delivery-ui-verification.md)绑定628612c、input04的16源/36dist/1083Git依赖和README末件；[卡技术](../work-items/d27-system-smtp-delivery-ui.md)bee4f7…54cda保持。新五/旧五是input01–04分版组合；原三个真实失败、页面两产品红、各准备/断言前提和四份历史page-type01源缺件保留。
+
+独立最终real02两顶层PASS，actual0/73.874s、11 IDs双absent、111 owned PID/starttime清零、8adopted实际wait、输入/本轮基线不变/runtime空。原real01业务两PASS但监督中断，缺actualwait和终局账，未算完整轮；后续恢复7IDs+2volume与大小写oracle首错、只读复核0分别保留，默认bridge重建不能称原六基线完全不变。新轮不补造旧记录。八当前图只有作者逐图检查。
+
+四API没有lookup，Session/GET不是receipt；原请求重放保持同完整identity、合法原CSRF/key/body/version，实际尾部结束才释放第九域owner。取消due-scan不是queue/逐次ClaimBusy证明，hold自身发送单列。外部邮箱、生产SPA、Runtime及完整D27不在本次通过范围。
+
+另据主线程调度通知：SPA scope controlled01/native01已实际PASS双清，但concurrent-publication探针被平台内容安全机制终止，run目录不存在、无执行证据，stage02竞态静态缺口未关闭，脚本返修/发布暂停。该新停止项不得重试、改写或转交。已冻harness三文件仅格式/type/list，Go compile/真实build/两top尚未执行，SPA产品仍未接受；此处不扩本档证据。原Object/tools停止、Summary待决、未绑定能力与ready503保持；完整D08–D28/E01未完成，E01未开始。

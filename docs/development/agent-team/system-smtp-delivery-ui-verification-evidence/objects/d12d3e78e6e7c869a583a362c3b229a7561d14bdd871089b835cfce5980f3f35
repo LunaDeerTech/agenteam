@@ -1,0 +1,113 @@
+import { describe, expect, it, vi } from 'vitest'
+import { defer, fixture, id, json, observe, problem, recipient, session, settings, turn } from './helpers'
+
+describe('independent delivery actual owner and authority', () => {
+  it('holds native retry cancel after the visible 30s deadline and rejects cross-domain traffic until actual join', async () => {
+    const f = await fixture(), api = f.auth.system.smtpDelivery
+    await f.auth.system.smtp.get(); f.auth.system.smtp.setMaterial('synthetic-private-material')
+    const tail = defer(), cancelled = defer(); let signal: AbortSignal | undefined, cancels = 0
+    f.control.delivery = async (_, init) => {
+      signal = init.signal as AbortSignal
+      return new Response(new ReadableStream<Uint8Array>({
+        start(c) { c.enqueue(new TextEncoder().encode(JSON.stringify({ job_id: id(21), version: '9' }))) },
+        cancel() { cancels++; cancelled.resolve(); return tail.promise },
+      }), { status: 202, headers: { 'Content-Type': 'application/json' } })
+    }
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    const pending = observe(api.startRetry({ job_id: id(20), version: '2' }))
+    try {
+      await turn()
+      f.auth.personal.abandon(); f.auth.system.smtp.abandonRead(); f.auth.system.providers.abandon()
+      expect(signal?.aborted).toBe(false)
+      await vi.advanceTimersByTimeAsync(29999)
+      expect(pending.settled()).toBe(false)
+      expect(api.progress?.phase).toBe('submitting')
+      await vi.advanceTimersByTimeAsync(1); await cancelled.promise
+      expect(await pending.result).toMatchObject({ ok: false, error: { kind: 'cancelled' } })
+      expect(cancels).toBe(1); expect(f.auth.state.busy).toBe(true)
+      expect(api.progress?.phase).toBe('uncertain')
+      const count = f.calls.length
+      await expect(f.auth.system.smtp.get()).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
+      await expect(api.list()).rejects.toMatchObject({ kind: 'busy' })
+      expect(f.calls.length).toBe(count)
+      api.abandon()
+      expect(api.progress).toBeNull(); expect(f.auth.state.busy).toBe(true)
+      expect(f.auth.system.smtp.material.present).toBe(true)
+    } finally { tail.resolve() }
+    await turn()
+    expect(f.auth.state.busy).toBe(false); expect(api.progress).toBeNull()
+  })
+
+  it('does not abandon configuration material or its native read, and waits after configuration cancellation', async () => {
+    const f = await fixture(), api = f.auth.system.smtpDelivery
+    await f.auth.system.smtp.get(); f.auth.system.smtp.setMaterial('synthetic-private-material')
+    const tail = defer(), cancelled = defer(); let cancels = 0
+    f.control.smtp = async () => new Response(new ReadableStream<Uint8Array>({
+      start(c) { c.enqueue(new TextEncoder().encode(JSON.stringify(settings()))) },
+      cancel() { cancels++; cancelled.resolve(); return tail.promise },
+    }), { headers: { 'Content-Type': 'application/json' } })
+    const pending = observe(f.auth.system.smtp.get())
+    try {
+      await turn(); api.abandon()
+      expect(cancels).toBe(0); expect(pending.settled()).toBe(false)
+      expect(f.auth.system.smtp.material.present).toBe(true)
+      f.auth.system.smtp.abandonRead(); await cancelled.promise
+      expect(await pending.result).toMatchObject({ ok: false, error: { kind: 'cancelled' } })
+      expect(f.auth.state.busy).toBe(true)
+      await expect(api.startTest({ recipient })).rejects.toMatchObject({ kind: 'busy' })
+      expect(f.writes().length).toBe(0)
+    } finally { tail.resolve() }
+    await turn(); expect(f.auth.state.busy).toBe(false)
+    expect(f.auth.system.smtp.material.present).toBe(true)
+  })
+
+  it('clears all system private material on current 403, and clears the identity on a current write CSRF failure', async () => {
+    const f = await fixture(), api = f.auth.system.smtpDelivery
+    await f.auth.system.smtp.get()
+    f.auth.system.smtp.setMaterial('synthetic-private-material')
+    f.auth.system.providers.setMaterial('synthetic-provider-material')
+    f.control.delivery = async () => problem('NOT_FOUND', 404)
+    await observe(api.startTest({ recipient })).result
+    expect(api.progress?.phase).toBe('uncertain')
+    f.control.delivery = async () => problem('FORBIDDEN', 403)
+    await observe(api.list()).result; await turn()
+    expect(api.progress).toBeNull()
+    expect(f.auth.system.smtp.material.present || f.auth.system.providers.material.present).toBe(false)
+    expect(f.auth.system.denied).toBe(true)
+    expect(f.auth.state.phase).toBe('authenticated')
+    const count = f.calls.length
+    await expect(api.list()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(f.calls.length).toBe(count)
+    await f.auth.restore()
+    expect(f.auth.system.denied).toBe(false)
+    f.control.delivery = async () => problem('CSRF_FAILED', 403)
+    await observe(api.startRetry({ job_id: id(20), version: '2' })).result; await turn()
+    expect(api.progress).toBeNull()
+    expect(f.auth.personalContext.identity).toBeNull()
+    expect(f.auth.state.phase).toBe('unavailable')
+  })
+
+  it('cannot release ownership or republish an old identity when a fetch ignores cancellation after leave', async () => {
+    const f = await fixture(), api = f.auth.system.smtpDelivery, held = defer<Response>()
+    const originalIdentity = f.auth.personalContext.identity
+    f.control.delivery = () => held.promise
+    const pending = observe(api.startTest({ recipient }))
+    await turn()
+    f.auth.leave()
+    expect(await pending.result).toMatchObject({ ok: false, error: { kind: 'cancelled' } })
+    expect(f.auth.state.busy).toBe(true)
+    expect(f.auth.personalContext.identity).toBeNull(); expect(api.progress).toBeNull()
+    f.control.current = session(id(3), 'n'.repeat(43))
+    const count = f.calls.length
+    await f.auth.restore()
+    expect(f.calls.length).toBe(count)
+    held.resolve(json({ job_id: id(21) }, 202)); await turn()
+    expect(f.auth.state.busy).toBe(false)
+    expect(f.auth.personalContext.identity).toBeNull(); expect(api.progress).toBeNull()
+    await f.auth.restore()
+    expect(f.auth.personalContext.identity?.sessionID).toBe(id(3))
+    expect(f.auth.personalContext.identity?.epoch).not.toBe(originalIdentity?.epoch)
+    expect(api.progress).toBeNull(); expect(f.writes().length).toBe(1)
+  })
+})

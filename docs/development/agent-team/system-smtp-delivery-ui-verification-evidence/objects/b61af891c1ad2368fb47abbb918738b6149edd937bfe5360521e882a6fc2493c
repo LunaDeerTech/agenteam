@@ -1,0 +1,942 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { reactive } from 'vue'
+import { createMemoryHistory, createRouter, isNavigationFailure } from 'vue-router'
+import type { SessionController } from '../composables/useSession'
+const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
+vi.mock('../composables/useSession', async (original) => ({
+  ...(await original<typeof import('../composables/useSession')>()),
+  useSession: () => selected.auth!,
+}))
+import { createSessionController } from '../composables/useSession'
+import {
+  createSystemSMTPDelivery,
+  createSMTPSections,
+  smtpJobRetryReason,
+} from '../composables/useSystemSMTPDelivery'
+import { createSystemSMTPSettings } from '../composables/useSystemSMTPSettings'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI } from '../api/system-providers'
+import { createSystemModelAPI } from '../api/system-models'
+import { createSystemModelSelectionAPI } from '../api/system-model-selection'
+import { createSystemAccountSecurityAPI } from '../api/system-account-security'
+import { createSystemSMTPSettingsAPI } from '../api/system-smtp-settings'
+import { createSystemSMTPDeliveryAPI, type SMTPDeliveryJob } from '../api/system-smtp-delivery'
+import type { Fetch } from '../api/client'
+import { installAuthentication } from '../router/auth'
+import { useTheme } from '../composables/useTheme'
+import App from '../App.vue'
+import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/auth/LoginView.vue'
+import SystemSettingsView from '../views/system/SystemSettingsView.vue'
+import SystemUsersView from '../views/system/SystemUsersView.vue'
+import SystemSMTPSettingsView from '../views/system/SystemSMTPSettingsView.vue'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z'
+const view = (): SessionView => ({
+  user: {
+    id: id(1),
+    email: 'admin@example.test',
+    username: 'admin',
+    display_name: 'Admin',
+    role: 'admin',
+    theme: 'system',
+    version: '1',
+    initial_password_suggestion: false,
+  },
+  session: { id: id(2), issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const settings = (configured = true) => ({
+  id: id(10),
+  version: '1',
+  configured,
+  host: configured ? 'mail.example' : '',
+  port: configured ? 25 : 0,
+  encryption: configured ? 'none' : '',
+  username: '',
+  sender_email: configured ? 'sender@example.test' : '',
+  sender_name: '',
+  credential_present: false,
+  auto_retry_count: '0',
+  retry_interval_seconds: '10',
+})
+const job = (n = 20, version = '5'): SMTPDeliveryJob => ({
+  job_id: id(n),
+  kind: 'test',
+  phase: 'sent',
+  attempts: '1',
+  version,
+  channel: 'smtp',
+  created_at: time,
+  attempt_channel: 'smtp',
+  attempt_result: 'sent',
+  reason: 'sent',
+})
+const json = (value: unknown, status = 200) =>
+  new Response(JSON.stringify(value), {
+    status,
+    headers: {
+      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+      'X-Request-ID': id(9),
+    },
+  })
+const problem = (code: string, status = 503) =>
+  json(
+    {
+      type: 'urn:agenteam:problem:test',
+      title: 'Failure',
+      status,
+      code,
+      detail: '<private error>',
+      instance: '/api/v1/system/smtp/test',
+      request_id: id(9),
+      commit_state: 'not_started',
+    },
+    status,
+  )
+function barrier<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((r) => {
+    resolve = r
+  })
+  return { promise, resolve }
+}
+const disposers: (() => void)[] = []
+let wrapper: VueWrapper | undefined
+beforeEach(() => {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn((media: string) => ({
+      media,
+      matches: false,
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    })),
+  )
+  // jsdom DOM/state only; native pointer defaults, Tab and geometry remain browser checks.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
+    () => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList,
+  )
+})
+afterEach(() => {
+  wrapper?.unmount()
+  wrapper = undefined
+  for (const dispose of disposers.splice(0)) dispose()
+  selected.auth?.leave()
+  selected.auth = null
+  document.body.innerHTML = ''
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+  useTheme().setTheme('system')
+})
+async function fixture(initial = view()) {
+  let current = initial,
+    session: Fetch = async () => json(current),
+    configuration: Fetch = async () => json(settings())
+  let delivery: Fetch = async (path, init) =>
+    init.method === 'POST'
+      ? json(path.endsWith('/test') ? { job_id: id(21) } : { job_id: id(21), version: '7' }, 202)
+      : json(path.includes('?') ? { items: [job()] } : job(path.includes(id(21)) ? 21 : 20))
+  const fetch = vi.fn<Fetch>(async (path, init) => {
+    if (path === '/api/v1/session') return session(path, init)
+    if (path === '/api/v1/system/smtp/test' || path.startsWith('/api/v1/system/mail-jobs/'))
+      return delivery(path, init)
+    if (path.startsWith('/api/v1/system/smtp')) return configuration(path, init)
+    if (path.startsWith('/api/v1/system/users?')) return json({ items: [] })
+    if (path.endsWith('/logout')) {
+      session = async () => problem('SESSION_REVOKED', 401)
+      return new Response(null, { status: 204 })
+    }
+    if (path.endsWith('/bootstrap'))
+      return json({
+        csrf_token: 'A'.repeat(43),
+        challenge_modes: ['rotate'],
+        delivery_channel: 'backend_log',
+      })
+    throw new Error('Unexpected controlled route')
+  })
+  const auth = createSessionController(
+    createAccountAPI(fetch),
+    createSystemAccountAPI(fetch),
+    createSystemInvitationAPI(fetch),
+    createSystemProviderAPI(fetch),
+    createSystemModelAPI(fetch),
+    createSystemModelSelectionAPI(fetch),
+    createSystemAccountSecurityAPI(fetch),
+    createSystemSMTPSettingsAPI(fetch),
+    createSystemSMTPDeliveryAPI(fetch),
+  )
+  selected.auth = auth
+  disposers.push(() => auth.leave())
+  await auth.restore()
+  return {
+    auth,
+    fetch,
+    setDelivery(value: Fetch) {
+      delivery = value
+    },
+    setConfiguration(value: Fetch) {
+      configuration = value
+    },
+    setSession(value: SessionView) {
+      current = value
+    },
+    setSessionRequest(value: Fetch) {
+      session = value
+    },
+    resetSession() {
+      session = async () => json(current)
+    },
+    writes() {
+      return fetch.mock.calls.filter(
+        ([p, i]) =>
+          (p === '/api/v1/system/smtp/test' || p.endsWith('/retry')) && i.method === 'POST',
+      )
+    },
+    reads() {
+      return fetch.mock.calls.filter(([p, i]) => p.includes('/mail-jobs/') && i.method === 'GET')
+    },
+  }
+}
+async function controller() {
+  const f = await fixture(),
+    available = reactive({ ready: true, configured: true })
+  const page = createSystemSMTPDelivery(f.auth, () => available)
+  disposers.push(page.dispose)
+  page.afterNavigation('/system/smtp', '')
+  page.attach()
+  await flushPromises()
+  return { ...f, page, available }
+}
+async function app(initial = view()) {
+  const f = await fixture(initial)
+  const router = createRouter({
+    history: createMemoryHistory(),
+    routes: [
+      { path: '/', component: HomeView, meta: { authentication: true, protected: true } },
+      { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+      {
+        path: '/settings/profile',
+        component: { template: '<h1>个人资料</h1>' },
+        meta: { authentication: true, protected: true },
+      },
+      {
+        path: '/system',
+        component: SystemSettingsView,
+        redirect: '/system/users',
+        meta: {
+          authentication: true,
+          protected: true,
+          systemAdmin: true,
+          navigation: { label: '系统设置', order: 20 },
+        },
+        children: [
+          { path: 'users', component: SystemUsersView },
+          { path: 'smtp', component: SystemSMTPSettingsView },
+          ...['invitations', 'providers', 'models', 'model-selection', 'account-security'].map(
+            (path) => ({ path, component: { template: '<p>Accepted leaf</p>' } }),
+          ),
+        ],
+      },
+    ],
+  })
+  installAuthentication(router, f.auth)
+  await router.push('/system/smtp')
+  await router.isReady()
+  const host = document.createElement('div')
+  host.id = 'app'
+  document.body.append(host)
+  wrapper = mount(App, { attachTo: host, global: { plugins: [router] } })
+  await flushPromises()
+  return { ...f, router, wrapper }
+}
+function button(label: string, root: ParentNode = document) {
+  const value = [...root.querySelectorAll<HTMLButtonElement>('button')].find(
+    (node) =>
+      (
+        node.querySelector('.button-label[aria-hidden="false"]')?.textContent ?? node.textContent
+      )?.trim() === label || node.getAttribute('aria-label') === label,
+  )
+  expect(value, `button ${label}`).toBeTruthy()
+  return value!
+}
+async function click(label: string, root: ParentNode = document) {
+  button(label, root).click()
+  await flushPromises()
+}
+function field(label: string) {
+  const node = [...document.querySelectorAll<HTMLLabelElement>('label')].find(
+    (value) => value.textContent?.replace(/\s*\*$/, '') === label,
+  )
+  expect(node, `field ${label}`).toBeTruthy()
+  return document.getElementById(node!.htmlFor) as HTMLInputElement
+}
+async function change(label: string, value: string) {
+  const node = field(label)
+  node.value = value
+  node.dispatchEvent(new Event('input', { bubbles: true }))
+  await flushPromises()
+}
+async function submit(label = '请求测试发送') {
+  const submitter = button(label)
+  submitter.form!.dispatchEvent(
+    new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter }),
+  )
+  await flushPromises()
+}
+function dialogs(count = 1) {
+  const layers = [...document.querySelectorAll<HTMLElement>('[role="dialog"]')]
+  expect(layers).toHaveLength(count)
+  for (const layer of layers.slice(0, -1)) {
+    expect(layer.inert).toBe(true)
+    expect(layer.getAttribute('aria-hidden')).toBe('true')
+  }
+  const top = layers.at(-1)!
+  expect(top.inert).toBe(false)
+  expect(top.getAttribute('aria-hidden')).toBeNull()
+  return { layers, top }
+}
+
+describe('SMTP delivery controller observations and explicit commands', () => {
+  it('does not publish a list row below the version already confirmed by a retry receipt', async () => {
+    const f = await controller(),
+      p = f.page
+    await p.openDetail(id(20))
+    const pending = p.requestRetry()
+    await flushPromises()
+    f.setDelivery(async (path, init) =>
+      init.method === 'POST'
+        ? json({ job_id: id(21), version: '27' }, 202)
+        : json(path.includes('?') ? { items: [job(21, '5')] } : job(21, '5')),
+    )
+    p.finishRetry(true)
+    await pending
+    expect(p.state.confirmed?.version).toBe('27')
+    expect(p.detail.phase).toBe('error')
+    p.backToList()
+    await p.refresh()
+    expect(p.list.phase).toBe('error')
+    expect(p.list.rows).toHaveLength(0)
+    expect(p.state.confirmed?.version).toBe('27')
+  })
+  it('gates only new tests by complete configured observation and separates receipt from failed post-read', async () => {
+    const f = await controller(),
+      p = f.page
+    p.updateRecipient('Recipient@[IPv6:2001:DB8::7]')
+    f.available.ready = false
+    await p.requestTest()
+    expect(f.writes()).toHaveLength(0)
+    f.available.ready = true
+    f.available.configured = false
+    await p.requestTest()
+    expect(f.writes()).toHaveLength(0)
+    f.available.configured = true
+    p.updateRecipient('bad address')
+    await p.requestTest()
+    expect(f.writes()).toHaveLength(0)
+    p.updateRecipient('Recipient@[IPv6:2001:DB8::7]')
+    f.setDelivery(async (_, i) =>
+      i.method === 'POST' ? json({ job_id: id(21) }, 202) : problem('UNAVAILABLE'),
+    )
+    await p.requestTest()
+    expect(p.state.confirmed).toEqual({ kind: 'test', jobID: id(21) })
+    expect(p.progress.value?.phase).toBe('confirmed')
+    expect(p.detail.phase).toBe('error')
+    expect(p.state.writeMessage).toContain('请求已确认，任务详情读取失败')
+    expect(p.draft.recipient).toBe('')
+    expect(f.writes()).toHaveLength(1)
+    expect(JSON.parse(f.writes()[0]![1].body as string)).toEqual({
+      recipient: 'Recipient@[IPv6:2001:DB8::7]',
+    })
+    f.setDelivery(async () => json(job(21, '9')))
+    await p.rereadDetail()
+    expect(p.detail.value?.version).toBe('9')
+    expect(p.state.confirmed?.jobID).toBe(id(21))
+    expect(f.writes()).toHaveLength(1)
+    p.updateRecipient('next@example.test')
+    expect(p.canTest.value).toBe(true)
+    expect(p.feedback.value).toBe('idle')
+  })
+  it('commits only whole successful pages and retains the exact previous cursor across inline detail', async () => {
+    const f = await controller(),
+      p = f.page,
+      rows = Array.from({ length: 25 }, (_, n) => job(100 - n))
+    f.setDelivery(async (path) =>
+      path.includes('cursor=opaque%2Bnext')
+        ? json({ items: [job(70, '8')] })
+        : path.includes('?')
+          ? json({ items: rows, next_cursor: 'opaque+next' })
+          : json(job(70, '6')),
+    )
+    await p.firstPage()
+    expect(p.list.rows).toHaveLength(25)
+    expect(p.list.hasNext).toBe(true)
+    await p.nextPage()
+    expect(p.list.page).toBe(2)
+    expect(p.list.rows[0]?.version).toBe('8')
+    await p.openDetail(id(70))
+    expect(p.detail.value?.version).toBe('8')
+    p.backToList()
+    expect(p.list.page).toBe(2)
+    expect(p.list.rows[0]?.job_id).toBe(id(70))
+    await p.refresh()
+    expect(f.reads().at(-1)![0]).toContain('cursor=opaque%2Bnext')
+    await p.previousPage()
+    expect(p.list.page).toBe(1)
+    f.setDelivery(async () => json({ items: [job(60), { ...job(59), recipient: 'unexpected' }] }))
+    await p.nextPage()
+    expect(p.list.phase).toBe('error')
+    expect(p.list.rows).toHaveLength(0)
+    expect(p.list.page).toBe(1)
+    f.setDelivery(async () => json({ items: [] }))
+    await p.refresh()
+    expect(f.reads().at(-1)![0]).toBe('/api/v1/system/mail-jobs/management?limit=25')
+    expect(p.list.phase).toBe('empty')
+  })
+  it.each(['list', 'detail'] as const)(
+    'retires cancelled %s synchronously and never auto-restarts after detach/reattach or native join',
+    async (scope) => {
+      const f = await controller(),
+        p = f.page,
+        tail = barrier(),
+        cancel = vi.fn(() => tail.promise)
+      f.setDelivery(
+        async () =>
+          new Response(new ReadableStream<Uint8Array>({ cancel }), {
+            headers: { 'Content-Type': 'application/json' },
+          }),
+      )
+      const task = scope === 'list' ? p.refresh() : p.openDetail(id(20))
+      await flushPromises()
+      expect(p[scope].phase).toBe('loading')
+      p.detach()
+      expect(p[scope].phase).toBe('error')
+      expect(p[scope].message).toContain('读取已取消')
+      p.attach()
+      const count = f.reads().length
+      try {
+        await task
+        expect(cancel).toHaveBeenCalledTimes(1)
+        expect(f.auth.state.busy).toBe(true)
+        await flushPromises()
+        expect(f.reads()).toHaveLength(count)
+      } finally {
+        tail.resolve()
+      }
+      await flushPromises()
+      expect(p[scope].phase).toBe('error')
+      expect(f.reads()).toHaveLength(count)
+      f.setDelivery(async () => json(scope === 'list' ? { items: [] } : job()))
+      await (scope === 'list' ? p.refresh() : p.rereadDetail())
+      expect(p[scope].phase).toBe(scope === 'list' ? 'empty' : 'ready')
+    },
+  )
+  it('waits for a preceding actual owner only for a never-started initial read', async () => {
+    const f = await fixture(),
+      held = barrier<Response>()
+    f.setConfiguration(() => held.promise)
+    const request = f.auth.system.smtp.get()
+    await flushPromises()
+    const p = createSystemSMTPDelivery(f.auth, () => ({ ready: true, configured: true }))
+    disposers.push(p.dispose)
+    p.afterNavigation('/system/smtp', '')
+    p.attach()
+    expect(p.list.phase).toBe('waiting')
+    expect(f.reads()).toHaveLength(0)
+    held.resolve(json(settings()))
+    await request
+    await flushPromises()
+    expect(f.reads()).toHaveLength(1)
+    expect(p.list.phase).toBe('ready')
+    p.detach()
+    p.attach()
+    await flushPromises()
+    expect(f.reads()).toHaveLength(1)
+  })
+  it.each([
+    [job(), true],
+    [{ ...job(), phase: 'failed', attempt_result: 'unknown' }, true],
+    [
+      { ...job(), phase: 'cancelled', attempts: '0', attempt_channel: null, attempt_result: null },
+      true,
+    ],
+    [{ ...job(), phase: 'unknown', attempt_channel: null, attempt_result: null }, false],
+    [{ ...job(), phase: 'unknown', attempt_result: 'unknown' }, true],
+    [{ ...job(), phase: 'sent', attempt_result: null }, false],
+    [{ ...job(), phase: 'retry_wait' }, false],
+    [{ ...job(), version: '9223372036854775807' }, false],
+  ] as const)(
+    'uses necessary retry eligibility without equating phase and result %#',
+    (value, allowed) => {
+      expect(smtpJobRetryReason(value as SMTPDeliveryJob) === '').toBe(allowed)
+    },
+  )
+  it('captures retry source/version, requires reread after known refusal, and accepts a new current version greater than one', async () => {
+    const f = await controller(),
+      p = f.page
+    await p.openDetail(id(20))
+    const first = p.requestRetry()
+    await flushPromises()
+    expect(p.retryConfirmation.target).toEqual({ job_id: id(20), version: '5' })
+    f.setDelivery(async (_, i) =>
+      i.method === 'GET' ? json(job(20, '9')) : problem('VERSION_CONFLICT', 409),
+    )
+    await p.rereadDetail()
+    expect(p.detail.value?.version).toBe('9')
+    expect(p.retryConfirmation.target?.version).toBe('5')
+    p.finishRetry(true)
+    await first
+    expect(JSON.parse(f.writes()[0]![1].body as string)).toEqual({ version: '5' })
+    expect(p.state.requiresRead).toBe(true)
+    expect(p.retryReady.value).toBe(false)
+    expect(p.progress.value?.phase).toBe('rejected')
+    await p.rereadDetail()
+    const next = p.requestRetry()
+    await flushPromises()
+    expect(p.retryConfirmation.target?.version).toBe('9')
+    expect(f.writes()).toHaveLength(1)
+    f.setDelivery(async (_, i) =>
+      i.method === 'POST' ? json({ job_id: id(21), version: '27' }, 202) : json(job(21, '29')),
+    )
+    p.finishRetry(true)
+    await next
+    expect(p.state.confirmed).toEqual({
+      kind: 'retry',
+      sourceID: id(20),
+      jobID: id(21),
+      version: '27',
+    })
+    expect(p.detail.value?.version).toBe('29')
+    expect(f.writes()).toHaveLength(2)
+    f.setDelivery(async () => json(job(21, '1')))
+    await p.rereadDetail()
+    expect(p.detail.value?.version).toBe('29')
+  })
+  it('retains an uncertain original across failed management reads and disabled current configuration', async () => {
+    const f = await controller(),
+      p = f.page
+    f.setDelivery(async () => problem('NOT_FOUND', 404))
+    p.updateRecipient('Original@Example.Test')
+    await p.requestTest()
+    const original = f.writes()[0]![1]
+    expect(p.progress.value?.phase).toBe('uncertain')
+    f.available.configured = false
+    await p.checkOriginal()
+    expect(p.progress.value?.canRetryOriginal).toBe(true)
+    expect(p.state.confirmed).toBeNull()
+    expect(p.list.phase).toBe('error')
+    f.setDelivery(async (_, i) =>
+      i.method === 'POST'
+        ? json({ job_id: id(21) }, 202)
+        : json({ ...job(21), phase: 'unknown', attempt_result: 'unknown', reason: 'unknown' }),
+    )
+    await p.retryOriginal()
+    expect(p.state.confirmed?.jobID).toBe(id(21))
+    expect(p.detail.value?.phase).toBe('unknown')
+    expect(
+      f.writes()[1]![1].body === original.body &&
+        JSON.stringify(f.writes()[1]![1].headers) === JSON.stringify(original.headers),
+    ).toBe(true)
+  })
+  it('does not permit a fresh key after explicit abandon until a successful explicit read', async () => {
+    const f = await controller(),
+      p = f.page
+    f.setDelivery(async () => problem('UNAVAILABLE'))
+    p.updateRecipient('a@example.test')
+    await p.requestTest()
+    const abandoned = p.abandonOperation()
+    await flushPromises()
+    p.finishConfirmation(true)
+    await abandoned
+    expect(p.progress.value).toBeNull()
+    expect(p.state.requiresRead).toBe(true)
+    expect(f.writes()).toHaveLength(1)
+    p.updateRecipient('b@example.test')
+    expect(p.draft.recipient).toBe('')
+    await p.refresh()
+    expect(p.state.requiresRead).toBe(true)
+    f.setDelivery(async () => json({ items: [] }))
+    await p.refresh()
+    p.updateRecipient('b@example.test')
+    expect(p.canTest.value).toBe(true)
+  })
+  it('uses a coordinator generation independent of configuration discard and detaches before attaching', async () => {
+    const f = await fixture(),
+      configuration = createSystemSMTPSettings(f.auth),
+      delivery = createSystemSMTPDelivery(f.auth)
+    const sections = createSMTPSections(f.auth, configuration, delivery)
+    disposers.push(sections.dispose)
+    sections.afterNavigation('/system/smtp', '')
+    sections.attach()
+    await flushPromises()
+    configuration.updateField('sender_name', 'draft')
+    const order: string[] = []
+    const detach = configuration.detach.bind(configuration),
+      attach = delivery.attach.bind(delivery)
+    vi.spyOn(configuration, 'detach').mockImplementation(() => {
+      order.push('old-detach:' + sections.active.value)
+      detach()
+    })
+    vi.spyOn(delivery, 'attach').mockImplementation(() => {
+      order.push('new-attach:' + sections.active.value)
+      attach()
+    })
+    const pending = sections.switchTo('delivery')
+    await flushPromises()
+    expect(await sections.switchTo('delivery')).toBe(false)
+    expect(f.reads()).toHaveLength(0)
+    configuration.finishConfirmation(true)
+    expect(await pending).toBe(true)
+    await flushPromises()
+    expect(order).toEqual(['old-detach:configuration', 'new-attach:delivery'])
+    expect(f.reads()).toHaveLength(1)
+    expect(configuration.draft.sender_name).toBe('')
+    expect(sections.active.value).toBe('delivery')
+    sections.afterNavigation('/system/users', '/system/smtp')
+    expect(sections.active.value).toBe('configuration')
+  })
+})
+
+describe('SMTP sections in the real App and router', () => {
+  it('allows a stable rejected ordinary user to log out through the real App button', async () => {
+    const ordinary = view()
+    ordinary.user.role = 'user'
+    const f = await app(ordinary)
+    expect(f.wrapper.get('h1').text()).toBe('无权访问系统设置')
+    expect(f.auth.state.phase).toBe('authenticated')
+    expect(f.auth.personalContext.phase).toBe('current')
+    expect(f.auth.personalContext.identity).not.toBeNull()
+    expect(f.fetch.mock.calls.filter(([p]) => p.startsWith('/api/v1/system/'))).toHaveLength(0)
+    await click('退出登录')
+    expect(f.fetch.mock.calls.filter(([p]) => p.endsWith('/logout'))).toHaveLength(1)
+    expect(f.router.currentRoute.value.path).toBe('/login')
+    expect(f.auth.state.phase).toBe('anonymous')
+    expect(f.auth.personalContext.identity).toBeNull()
+    expect(f.auth.system.smtp.progress).toBeNull()
+    expect(f.auth.system.smtpDelivery.progress).toBeNull()
+    expect(f.auth.system.smtp.material.present).toBe(false)
+    expect(f.wrapper.get<HTMLInputElement>('#login-email').element.readOnly).toBe(false)
+    expect(f.wrapper.get<HTMLInputElement>('#login-password').element.readOnly).toBe(false)
+    expect(button('登录').disabled).toBe(false)
+    expect(f.writes()).toHaveLength(0)
+    expect(f.fetch.mock.calls.filter(([p]) => p.startsWith('/api/v1/system/'))).toHaveLength(0)
+  })
+  it.each(['ordinary', 'current403'] as const)(
+    'allows a fresh route for a stable rejected %s identity after both SMTP domains are clear',
+    async (kind) => {
+      const current = view()
+      if (kind === 'ordinary') current.user.role = 'user'
+      const f = await app(current)
+      if (kind === 'current403') {
+        await change('认证用户名', 'auth')
+        await change('新密码（仅写入）', 'synthetic-private')
+        f.setConfiguration(async () => problem('FORBIDDEN', 403))
+        await click('读取当前配置')
+        expect(f.auth.system.denied).toBe(true)
+        expect(f.auth.state.user?.role).toBe('admin')
+      }
+      expect(f.wrapper.get('h1').text()).toBe('无权访问系统设置')
+      expect(f.auth.state.phase).toBe('authenticated')
+      expect(f.auth.personalContext.phase).toBe('current')
+      expect(f.auth.state.busy).toBe(false)
+      expect(f.auth.system.smtp.material.present).toBe(false)
+      expect(f.auth.system.smtp.material.invalid).toBe(false)
+      expect(f.auth.system.smtp.progress).toBeNull()
+      expect(f.auth.system.smtpDelivery.progress).toBeNull()
+      expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+      const reads = f.fetch.mock.calls.filter(([p]) => p.startsWith('/api/v1/system/')).length
+      expect(await f.router.push('/settings/profile')).toBeUndefined()
+      await flushPromises()
+      expect(f.router.currentRoute.value.path).toBe('/settings/profile')
+      expect(f.wrapper.get('h1').text()).toBe('个人资料')
+      expect(f.writes()).toHaveLength(0)
+      expect(f.fetch.mock.calls.filter(([p]) => p.startsWith('/api/v1/system/'))).toHaveLength(
+        reads,
+      )
+    },
+  )
+  it.each(['route', 'logout'] as const)(
+    'rejects the old administrator %s decision after same-Session role-loss even though the page is now clear',
+    async (action) => {
+      const f = await app()
+      await click('测试与任务')
+      await click('查看任务 ' + id(20))
+      await click('申请新重试周期')
+      const pending = action === 'route' ? f.router.push('/settings/profile') : null
+      if (action === 'logout') button('退出登录').click()
+      await flushPromises()
+      dialogs(2)
+      const identity = f.auth.personalContext.identity,
+        ordinary = view()
+      ordinary.user.role = 'user'
+      ordinary.user.version = '2'
+      f.setSession(ordinary)
+      window.dispatchEvent(new Event('pageshow'))
+      await flushPromises()
+      if (pending) expect(isNavigationFailure(await pending)).toBe(true)
+      expect(f.auth.personalContext.identity).toEqual(identity)
+      expect(f.auth.state.user?.role).toBe('user')
+      expect(f.auth.personalContext.phase).toBe('current')
+      expect(f.router.currentRoute.value.path).toBe('/system/smtp')
+      expect(f.wrapper.get('h1').text()).toBe('无权访问系统设置')
+      expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+      expect(f.fetch.mock.calls.filter(([p]) => p.endsWith('/logout'))).toHaveLength(0)
+      expect(f.writes()).toHaveLength(0)
+    },
+  )
+  it('allows a fresh login navigation after public current-state checking destroys a revoked SMTP identity', async () => {
+    const f = await app()
+    await click('测试与任务')
+    await change('测试收件邮箱', 'revoked.original@example.test')
+    f.setDelivery(async () => problem('UNAVAILABLE'))
+    await submit()
+    expect(f.auth.system.smtpDelivery.progress?.phase).toBe('uncertain')
+    expect(f.writes()).toHaveLength(1)
+    const reads = f.reads().length,
+      beforeCheck = f.fetch.mock.calls.length,
+      revoked = vi.fn<Fetch>(async () => problem('SESSION_REVOKED', 401))
+    f.setSessionRequest(revoked)
+    await click('检查当前状态')
+    expect(revoked).toHaveBeenCalled()
+    const checkingCalls = f.fetch.mock.calls.slice(beforeCheck)
+    expect(checkingCalls[0]?.[0]).toBe('/api/v1/session')
+    expect(checkingCalls[1]?.[0]).toBe('/api/v1/auth/bootstrap')
+    expect(f.auth.state.phase).toBe('anonymous')
+    expect(f.auth.state.busy).toBe(false)
+    expect(f.auth.personalContext.phase).toBe('invalid')
+    expect(f.auth.personalContext.identity).toBeNull()
+    expect(f.auth.system.smtpDelivery.progress).toBeNull()
+    expect(f.auth.system.smtp.progress).toBeNull()
+    expect(f.auth.system.smtp.material.present).toBe(false)
+    expect(f.auth.system.smtp.material.invalid).toBe(false)
+    expect(f.wrapper.find('[aria-label="SMTP 测试与任务"]').exists()).toBe(false)
+    expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+    expect(f.reads()).toHaveLength(reads)
+    expect(f.writes()).toHaveLength(1)
+    expect(f.router.currentRoute.value.path).toBe('/login')
+    for (const selector of ['#login-email', '#login-password']) {
+      const input = f.wrapper.get<HTMLInputElement>(selector).element
+      expect(input.readOnly).toBe(false)
+      expect(input.disabled).toBe(false)
+      expect(input.value).toBe('')
+    }
+    expect(button('登录').disabled).toBe(false)
+  })
+  it.each(['route', 'logout'] as const)(
+    'rejects the old valid-identity %s decision while a separate fresh anonymous navigation reaches login',
+    async (action) => {
+      const f = await app()
+      await click('测试与任务')
+      await click('查看任务 ' + id(20))
+      await click('申请新重试周期')
+      const pending = action === 'route' ? f.router.push('/system/users') : null
+      if (action === 'logout') button('退出登录').click()
+      await flushPromises()
+      dialogs(2)
+      const accepted: string[] = []
+      const stop = f.router.afterEach((to, _, failure) => {
+        if (!failure) accepted.push(to.path)
+      })
+      try {
+        f.setSessionRequest(async () => problem('SESSION_REVOKED', 401))
+        window.dispatchEvent(new Event('pageshow'))
+        await flushPromises()
+        if (pending) expect(isNavigationFailure(await pending)).toBe(true)
+        expect(f.fetch.mock.calls.filter(([p]) => p.endsWith('/logout'))).toHaveLength(0)
+        expect(f.writes()).toHaveLength(0)
+        expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+        expect(f.auth.system.smtpDelivery.progress).toBeNull()
+        expect(f.auth.personalContext.identity).toBeNull()
+        expect(accepted).toEqual(['/login'])
+        expect(f.router.currentRoute.value.path).toBe('/login')
+        expect(button('登录').disabled).toBe(false)
+      } finally {
+        stop()
+      }
+    },
+  )
+  it('detaches delivery before resetting the next visit to configuration, with zero inactive delivery reads', async () => {
+    const f = await app()
+    await click('测试与任务')
+    expect(f.reads()).toHaveLength(1)
+    await f.router.push('/system/users')
+    await flushPromises()
+    const count = f.reads().length
+    await f.router.push('/system/smtp')
+    await flushPromises()
+    expect(button('配置').getAttribute('aria-pressed')).toBe('true')
+    expect(f.wrapper.find('[aria-label="SMTP 测试与任务"]').exists()).toBe(false)
+    expect(f.reads()).toHaveLength(count)
+  })
+  it('keeps the default configuration read-only to delivery, discards password only after one actual switch decision', async () => {
+    const f = await app()
+    expect(f.reads()).toHaveLength(0)
+    expect(f.writes()).toHaveLength(0)
+    expect(f.wrapper.find('[aria-label="SMTP 测试与任务"]').exists()).toBe(false)
+    await change('认证用户名', 'auth')
+    await change('新密码（仅写入）', 'synthetic-private')
+    button('测试与任务').focus()
+    await click('测试与任务')
+    await click('测试与任务')
+    dialogs()
+    expect(f.reads()).toHaveLength(0)
+    await click('继续编辑', dialogs().top)
+    expect(f.auth.system.smtp.material.present).toBe(true)
+    expect(document.activeElement).toBe(button('测试与任务'))
+    await click('测试与任务')
+    await click('放弃修改', dialogs().top)
+    expect(f.auth.system.smtp.material.present).toBe(false)
+    expect(f.wrapper.find('input[type="password"]').exists()).toBe(false)
+    expect(f.reads()).toHaveLength(1)
+    expect(button('测试与任务').getAttribute('aria-pressed')).toBe('true')
+    await change('测试收件邮箱', 'a@example.test')
+    expect(button('请求测试发送').disabled).toBe(false)
+    await click('配置')
+    await click('继续编辑', dialogs().top)
+    expect(field('测试收件邮箱').value).toBe('a@example.test')
+    expect(f.writes()).toHaveLength(0)
+    await click('配置')
+    await click('放弃草稿和追踪', dialogs().top)
+    expect(button('配置').getAttribute('aria-pressed')).toBe('true')
+    expect(f.reads()).toHaveLength(1)
+    expect(field('新密码（仅写入）').value).toBe('')
+  })
+  it.each(['route', 'logout'] as const)(
+    'keeps two delivery decisions across pageshow/503 and settles pending %s by the real top button',
+    async (action) => {
+      const f = await app()
+      await click('测试与任务')
+      await click('查看任务 ' + id(20))
+      const oldHeading = f.wrapper.get('h1').element,
+        trigger = button('申请新重试周期')
+      trigger.focus()
+      await click('申请新重试周期')
+      expect(trigger.disabled).toBe(false)
+      dialogs()
+      const pending = action === 'route' ? f.router.push('/system/users') : null
+      if (action === 'logout') button('退出登录').click()
+      await flushPromises()
+      dialogs(2)
+      const held = barrier<Response>()
+      f.setSessionRequest(() => held.promise)
+      window.dispatchEvent(new Event('pageshow'))
+      await flushPromises()
+      expect(f.wrapper.find('.session-check').exists()).toBe(true)
+      expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+      expect(document.getElementById('app')!.inert).toBe(false)
+      expect(document.documentElement.style.overflow).toBe('')
+      held.resolve(problem('UNAVAILABLE'))
+      await flushPromises()
+      expect(button('检查当前会话').disabled).toBe(false)
+      f.resetSession()
+      await click('检查当前会话')
+      const restored = dialogs(2)
+      expect(restored.top.contains(document.activeElement)).toBe(true)
+      expect(oldHeading.isConnected).toBe(false)
+      expect(button('测试与任务').getAttribute('aria-pressed')).toBe('true')
+      await click('继续编辑', restored.top)
+      if (pending) expect(isNavigationFailure(await pending)).toBe(true)
+      const lower = dialogs().top
+      expect(lower.contains(document.activeElement)).toBe(true)
+      await click('取消申请', lower)
+      expect(document.activeElement).toBe(f.wrapper.get('h1').element)
+      expect(f.writes()).toHaveLength(0)
+      expect(f.fetch.mock.calls.filter(([p]) => p.endsWith('/logout'))).toHaveLength(0)
+      await click('申请新重试周期')
+      const leaving = f.router.push('/system/users')
+      await flushPromises()
+      await click('放弃草稿和追踪', dialogs(2).top)
+      await leaving
+      await flushPromises()
+      expect(f.router.currentRoute.value.path).toBe('/system/users')
+      expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+      await f.router.push('/system/smtp')
+      await flushPromises()
+      expect(button('配置').getAttribute('aria-pressed')).toBe('true')
+    },
+  )
+  it('keeps a delivery draft through failed checking but resolves its old switch false after a new Session', async () => {
+    const f = await app()
+    await click('测试与任务')
+    await change('测试收件邮箱', 'draft@example.test')
+    await click('配置')
+    dialogs()
+    const held = barrier<Response>()
+    f.setSessionRequest(() => held.promise)
+    window.dispatchEvent(new Event('pageshow'))
+    await flushPromises()
+    held.resolve(problem('UNAVAILABLE'))
+    await flushPromises()
+    f.resetSession()
+    await click('检查当前会话')
+    expect(field('测试收件邮箱').value).toBe('draft@example.test')
+    await click('继续编辑', dialogs().top)
+    expect(button('测试与任务').getAttribute('aria-pressed')).toBe('true')
+    await click('配置')
+    const next = view()
+    next.session.id = id(3)
+    f.setSession(next)
+    window.dispatchEvent(new Event('pageshow'))
+    await flushPromises()
+    expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+    expect(button('配置').getAttribute('aria-pressed')).toBe('true')
+    await click('测试与任务')
+    expect(field('测试收件邮箱').value).toBe('')
+    expect(f.writes()).toHaveLength(0)
+  })
+  it('renders accepted request and failed task observation separately with no inherited completion label on new input', async () => {
+    const f = await app()
+    await click('测试与任务')
+    await change('测试收件邮箱', 'a@example.test')
+    f.setDelivery(async (_, i) =>
+      i.method === 'POST' ? json({ job_id: id(21) }, 202) : problem('UNAVAILABLE'),
+    )
+    await submit()
+    expect(f.writes()).toHaveLength(1)
+    expect(
+      [...document.querySelectorAll('h3')].some((n) =>
+        n.textContent?.includes('请求已确认，任务详情读取失败'),
+      ),
+    ).toBe(true)
+    expect(f.wrapper.text()).toContain('测试请求已接受')
+    expect(f.auth.system.smtpDelivery.progress?.phase).toBe('confirmed')
+    await change('测试收件邮箱', 'b@example.test')
+    expect(button('请求测试发送').disabled).toBe(false)
+    expect(button('请求测试发送').getAttribute('aria-label')).not.toBe('已完成')
+    expect(f.writes()).toHaveLength(1)
+    await click('重新读取已确认任务')
+    expect(f.writes()).toHaveLength(1)
+  })
+  it('does not let the old configuration submit continuation focus or read through the new section while its actual tail is held', async () => {
+    const f = await app(),
+      held = barrier<Response>()
+    await change('发件显示名', 'changed')
+    f.setConfiguration((_, i) =>
+      i.method === 'GET' ? Promise.resolve(json(settings())) : held.promise,
+    )
+    await submit('保存 SMTP 配置')
+    expect(f.auth.state.busy).toBe(true)
+    await click('测试与任务')
+    await click('放弃修改', dialogs().top)
+    expect(button('测试与任务').getAttribute('aria-pressed')).toBe('true')
+    expect(f.reads()).toHaveLength(0)
+    expect(f.wrapper.text()).toContain('等待当前请求结束后读取任务')
+    const marker = button('配置')
+    marker.focus()
+    held.resolve(
+      json({
+        applied_version: '2',
+        settings: { ...settings(), version: '2', sender_name: 'changed' },
+      }),
+    )
+    await flushPromises()
+    expect(document.activeElement).toBe(marker)
+    expect(f.reads()).toHaveLength(1)
+    expect(f.writes()).toHaveLength(0)
+    expect(f.wrapper.text()).not.toContain('SMTP 配置已保存')
+  })
+})

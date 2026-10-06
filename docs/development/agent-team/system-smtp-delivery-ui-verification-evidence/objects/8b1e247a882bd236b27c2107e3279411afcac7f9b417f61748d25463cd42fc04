@@ -1,0 +1,17 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01
+
+stdout | probe/page.spec.ts > public panels retire native reads, protect accepted version in both observations, and leave no inactive reader
+SAFE page-combination-A: native cancel joined; explicit retry only; confirmed floor list+detail; retired late read; route reset without inactive GET
+
+stdout | probe/page.spec.ts > public pending route and retry decisions survive real checking and fail closed after identity changes
+SAFE page-combination-B: pageshow fresh Session; 503 preserves decisions; same identity dual-layer restore; real top action settles false; changed identity retires draft and pending navigation
+
+ ✓ probe/page.spec.ts (2 tests) 805ms
+   ✓ public panels retire native reads, protect accepted version in both observations, and leave no inactive reader  595ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed (2)
+   Start at  18:47:10
+   Duration  2.46s (transform 930ms, setup 0ms, import 1.10s, tests 805ms, environment 420ms)
+

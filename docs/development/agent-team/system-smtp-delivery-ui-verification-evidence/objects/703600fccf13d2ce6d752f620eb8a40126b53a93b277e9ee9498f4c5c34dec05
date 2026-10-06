@@ -1,0 +1,20 @@
+# SMTP 测试发送与投递任务 UI 独立验收
+
+**PASS，限本卡冻结 16 源及其正式集成范围。** 最终输入为作者 `input04/manifest.json`（`620e88880ce309ee524d7670e1892e718b5b091e1dd2c1a15789fcab2464439e`），固定产品基线 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`。精确 16 路径见 `delivery16.json`；README 第 17 路径尚不在本结论中。
+
+独立 `independent-real02` 两顶层完整通过：A 12.11s、B 13.72s；监督 command 实际 exit 0 / 73.874s，工具 session 88437 实际返回 exit 0。11 exact IDs 两次 absent、111 owned PID/starttime 清零、8 adopted children 已实际 wait，monitor 0、runtime 空、browser runtime 移除；本轮恢复后 2 容器/4 网络基线保持。16 源、36 dist、1083 接受依赖及私有输入前后逐字节一致。
+
+- A：正式 test202 已接受后截断响应；真实 SMTP sent/terminal/io_joined。另一个正式管理员停用配置后，Session/列表读取仍不代替 receipt；显式原 key/body/合法同身份 CSRF 重放得到原 job。原命令、intent、事件、Audit 各恰一，真实发送一次；当前配置保持停用，历史配置事实保留。确认后 detail GET503 只允许重读，不产生第二写。
+- B：区分投递 unknown 与 retry 请求 unknown。真实确认操作经 pageshow→Session503→同完整身份新 Session200/EOF 恢复，原生顶层焦点与 Tab 通过。retry 接受后截断，child 实际 sent/joined；Session/源任务读取不确认该请求。原源 ID/version/key/body/CSRF 显式重放返回同 child 当前 receipt version；精确原命令/Audit/事件唯一，源版本只推进一次，两代各一个 attempt，真实 SMTP 接受次数吻合。
+
+测试使用正式 app、Account、PG、SMTP worker 和现有 fixture 控制；私有 overlay 只替换浏览器配置路径并增加两个顶层，未改 proxy/worker 事实。原 2m/top、45s/browser、6m/package、race/count1/worker1/retry0/noTrace 保持；不输出密码、正文或请求材料。
+
+分阶段证据按原输入复用：API-stage01 两组合各 4 PASS，验证严格 DTO/202、600000B 真实 EOF、超限/取消的实际尾部；owner-stage01 的 3+4 PASS 验证 404/503 后 unknown 粘性、当前 CSRF/身份、跨域隔离和真实 cancel 屏障；web-stage01 两个真实 App/router/factory 组合 PASS。后续 input02 匿名失效新导航修复、input04 普通/当前拒绝身份新 clean 离页修复均经独立 App 定点回归；旧待决确认不会因身份变化后获权。jsdom 证据不外推原生焦点，真实 A/B 和作者浏览器证据另列。
+
+作者新五组与旧五组为分版本组合：input01 的 Read/Test/Outcome；input02 的 Authority；input03 的 Navigation、旧 SMTP Outcome/Navigation、旧 Invitation 两组；input04 的旧 SMTP Authority。`oldsettings01` 仍保留整轮 exit1，其两个已过顶层只按明确后缀复用。API/owner/共享 App/router/配置 controller/旧浏览器不变；input02/04 生产增量仅 coordinator 新 clean 离页资格及等待后门禁，input03 仅严格详情→列表的测试动作。结合定点回归与最终 input04 A/B，可有界复用，**不声称 input04 一轮跑过全部十组或重新跑过 1303 全套**。作者原始矩阵与实际终局见 `author-result01/manifest.json`（`795ecfd43128e2b30f274373d89afe40b718d4b0fad530dad273881593a0e8dd`）。八布局仅引用作者逐图检查，不冒称本独立者或主线程亲自看过当前八图。
+
+失败与限制保持：作者原页面两产品红、authority01 匿名导航产品红、oldsettings01 普通用户退出产品红及各同源修复证据；navigation01 为缺少返回列表动作的测试前提红，原轮无 DOM/图片不倒填。独立 authority app01 的 Session 请求次数前提红、作者早期准备错误和四份历史 page-type01 源缺件均保留。取消任务 pass>0 仅证明 due-scan 处理，不证明内部入队或逐次 ClaimBusy；后者引用固定已验服务语义。
+
+原 `independent-real01` 两业务 PASS 后监督遭环境中断，缺 actual wait/终局文件，不能算完整验收。恢复清理仅按授权 7 剩余 IDs/2 volume/runtime；首次缺失判断大小写误判 exit1 保留，后续只读双确认 actual0。详情与准确基线 bridge 变化见 `recovery01/review.md`（`473663ed242632fb7a8a078f92e5d5b997a92ce939bf1bbf026a54375a8373f4`）。real02 是另授同冻结输入新轮，未覆盖或补造 real01 终局。
+
+主线程已核 `628612c..3981888` 仅 AGENTS/docs 变化、无产品差量，因此本固定产品闭包可对应该 main；这不改写实际受测基线。最终报告、16 清单、原探针和所有运行原件现停止写入；资源窗口已释放。不外推外部邮箱、生产托管或其他 D27 范围。精确命令/raw/result/cleanup 与各阶段报告 SHA 见同目录 `verification-report.json`。

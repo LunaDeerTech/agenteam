@@ -1,0 +1,74 @@
+--- 3981888/docs/development/frontend/README.md
++++ final17/docs/development/frontend/README.md
+@@ -1,6 +1,6 @@
+ # 前端开发基础
+ 
+-前端位于 `web/`，使用 Vue 3、TypeScript、Vite、Vue Router 和自定义组件；旋转验证使用精确版本 `go-captcha-vue 2.0.7`。npm 锁文件固定依赖，Node 版本要求见 `web/package.json`。正式 Account 客户端已连接真实 Go 服务，提供登录、旋转挑战、Session 恢复、注销、受保护的空首页，以及本人资料/头像、主题和修改密码、邀请兑换与找回/重置密码。管理员用户目录、邀请管理、Provider/Model 配置、平台模型用途、账号安全与 SMTP 配置也已实现，验收状态见下节。范围分别见 [D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)、[公开入口工作项](../work-items/d26-public-account-entry.md)、[目录工作项](../work-items/d27-system-user-directory-ui.md)、[邀请管理工作项](../work-items/d27-system-invitation-ui.md)、[Provider 工作项](../work-items/d27-system-provider-management-ui.md)、[Model 工作项](../work-items/d27-system-model-management-ui.md)、[平台用途工作项](../work-items/d27-system-model-selection-ui.md)、[账号安全工作项](../work-items/d27-system-account-security-ui.md)及[SMTP 配置工作项](../work-items/d27-system-smtp-settings-ui.md)；其余业务页面及完整 D26/D27 仍待后续交付。
++前端位于 `web/`，使用 Vue 3、TypeScript、Vite、Vue Router 和自定义组件；旋转验证使用精确版本 `go-captcha-vue 2.0.7`。npm 锁文件固定依赖，Node 版本要求见 `web/package.json`。正式 Account 客户端已连接真实 Go 服务，提供登录、旋转挑战、Session 恢复、注销、受保护的空首页，以及本人资料/头像、主题和修改密码、邀请兑换与找回/重置密码。管理员用户目录、邀请管理、Provider/Model 配置、平台模型用途、账号安全、SMTP 配置与测试/投递任务也已实现，验收状态见下节。范围分别见 [D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)、[公开入口工作项](../work-items/d26-public-account-entry.md)、[目录工作项](../work-items/d27-system-user-directory-ui.md)、[邀请管理工作项](../work-items/d27-system-invitation-ui.md)、[Provider 工作项](../work-items/d27-system-provider-management-ui.md)、[Model 工作项](../work-items/d27-system-model-management-ui.md)、[平台用途工作项](../work-items/d27-system-model-selection-ui.md)、[账号安全工作项](../work-items/d27-system-account-security-ui.md)、[SMTP 配置工作项](../work-items/d27-system-smtp-settings-ui.md)及[SMTP 投递工作项](../work-items/d27-system-smtp-delivery-ui.md)；其余业务页面及完整 D26/D27 仍待后续交付。
+ 
+ ## 启动与检查
+ 
+@@ -37,8 +37,8 @@
+ | --- | --- |
+ | `web/src/components/ui/` | 可复用控件和内容组件；公开导出及接口类型在 `index.ts` 和 `types.ts` |
+ | `web/src/components/layout/` | AppShell、SystemNav 与 SettingsShell；系统导航、路由内容区和设置侧栏 |
+-| `web/src/api/` | 六项认证、八项个人设置、五项公开入口 Account 调用、System 用户目录 GET、邀请管理、十个固定 Provider/Credential 管理端点、九项受限 Model API、七项受限平台用途 API、账号安全 GET/PUT 及 SMTP 配置三项 API；运行时 DTO、头像字节与安全 Problem 解析 |
+-| `web/src/composables/` | 同一 Cookie 请求协调者、公开入口 owner、页面期用户目录状态与 App 生命周期内的本人设置/邀请/Provider/Model/平台用途/账号安全/SMTP 草稿，以及主题、按钮反馈、浮层与键盘工具 |
++| `web/src/api/` | 六项认证、八项个人设置、五项公开入口 Account 调用、System 用户目录 GET、邀请管理、十个固定 Provider/Credential 管理端点、九项受限 Model API、七项受限平台用途 API、账号安全 GET/PUT、SMTP 配置三项 API 及测试/投递任务四项 API；运行时 DTO、头像字节与安全 Problem 解析 |
++| `web/src/composables/` | 同一 Cookie 请求协调者、公开入口 owner、页面期用户目录状态与 App 生命周期内的本人设置/邀请/Provider/Model/平台用途/账号安全/SMTP 配置与投递草稿，以及主题、按钮反馈、浮层与键盘工具 |
+ | `web/src/styles/` | 唯一共享 token、基础规则与公共组件样式 |
+ | `web/src/router/` | 路由和导航元数据 |
+ | `web/src/views/auth/` 与 `HomeView.vue` | 正式登录/挑战、邀请/找回/重置页面与受保护空首页 |
+@@ -46,7 +46,7 @@
+ | `web/src/views/system/` | 管理员系统设置壳、用户、待注册邀请、Providers、Models、平台模型用途、账号安全与 SMTP 七个叶子，含非管理员及权限拒绝状态 |
+ | `web/src/views/debug/` | 开发环境组件展示、演示数据与展示布局 |
+ | `web/src/tests/` | Vitest + Vue Test Utils 交互与基线检查 |
+-| `tests/account/` 与 `tests/account-captcha-web/` | 正式构建、完整真实后端与浏览器的认证、个人设置、公开入口、系统用户目录、邀请、Provider/Model 管理、平台用途、账号安全与 SMTP 配置组合验收 |
++| `tests/account/` 与 `tests/account-captcha-web/` | 正式构建、完整真实后端与浏览器的认证、个人设置、公开入口、系统用户目录、邀请、Provider/Model 管理、平台用途、账号安全与 SMTP 配置/投递组合验收 |
+ 
+ 公共组件不能导入 `views/debug/`，不能包含演示数据、业务 API 或业务状态规则。正式页面直接引用相同公共组件；Debug 不是组件定义的位置。展示网格、目录和示例编排不约束正式业务布局。
+ 
+@@ -56,9 +56,9 @@
+ 
+ 在 `router/index.ts` 的 `routes` 注册正式页面，使用懒加载 `component`，为需要导航的路由声明 `meta.navigation: { label, order }`。SystemNav 从路由元数据读取入口，不需要复制导航数组或改写骨架。认证路由通过 `router/auth.ts` 及单一 `useSession` 协调，登录返回目标仅接受十一个精确路径：`/`、`/settings/profile`、`/settings/appearance`、`/settings/password`、`/system/users`、`/system/invitations`、`/system/providers`、`/system/models`、`/system/model-selection`、`/system/account-security`、`/system/smtp`。`/settings`、`/system`、query/hash、数组、外部 URL、动态子路径与未知系统叶子均不是返回目标；未知路径显示未找到提示。系统导航只向当前已确认且未被系统权限拒绝的 admin 展示“系统设置”。
+ 
+-客户端使用固定同源相对 Account/System 路径，写操作分别传递匿名或 Session CSRF，不持久化密码、challenge pass 或 token。登录成功后还需 GET Session 确认身份及 Session CSRF；注销确认后才退出。认证、本人设置、公开入口、系统目录、邀请、Provider/Model、平台用途、账号安全与 SMTP 配置操作复用同一个请求协调者，逻辑超时不会提前释放尚未结束的实际请求。具体状态、取消和迟到结果规则见[D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)及[正式 Account API](../../../api/openapi/account.json)。
+-
+-采用 HTML5 History。开发服务器和 Vite preview 支持回退；生产资源托管属于 D28，Central 当前未托管 SPA。非 API 的 History 页面才能回退到 `index.html`，API、缺失资产和服务端错误不能直接回退。认证、个人设置、公开入口、系统目录、邀请、Provider/Model 管理、平台用途、账号安全与 SMTP 配置的实际浏览器验收使用自有测试服务器托管冻结候选的生产 dist 并反代完整 Central，不把该测试服务器或 `vite preview` 当作生产部署；开发代理另有静态/类型检查，未单独进行真实 dev-server 浏览器验收。
++客户端使用固定同源相对 Account/System 路径，写操作分别传递匿名或 Session CSRF，不持久化密码、challenge pass 或 token。登录成功后还需 GET Session 确认身份及 Session CSRF；注销确认后才退出。认证、本人设置、公开入口、系统目录、邀请、Provider/Model、平台用途、账号安全与 SMTP 配置/投递操作复用同一个请求协调者，逻辑超时不会提前释放尚未结束的实际请求。具体状态、取消和迟到结果规则见[D26 认证工作项](../work-items/d26-account-authentication.md)、[个人设置工作项](../work-items/d26-personal-settings.md)及[正式 Account API](../../../api/openapi/account.json)。
++
++采用 HTML5 History。开发服务器和 Vite preview 支持回退；生产资源托管属于 D28，Central 当前未托管 SPA。非 API 的 History 页面才能回退到 `index.html`，API、缺失资产和服务端错误不能直接回退。认证、个人设置、公开入口、系统目录、邀请、Provider/Model 管理、平台用途、账号安全与 SMTP 配置/投递的实际浏览器验收使用自有测试服务器托管冻结候选的生产 dist 并反代完整 Central，不把该测试服务器或 `vite preview` 当作生产部署；开发代理另有静态/类型检查，未单独进行真实 dev-server 浏览器验收。
+ 
+ ## 本人设置
+ 
+@@ -329,7 +329,29 @@
+ 
+ `navigation04` 的 light/dark × 1440/1024/834/390 八张 900px 高视口图由作者逐张查看，主线程未作图审；窄屏下方表单仍需滚动。截图仅在材料输入清空后采集，禁用 trace/video 与请求 body 收集。响应截断、精确读取/Session 503 和合成 `pageshow` 是自有 fixture 控制，不代表真实 BFCache；reader 旁路不代替实际 owner 尾部证明。
+ 
+-保存只确认配置持久化，不证明 SMTP 连接、认证、发送或外部邮箱收件成功。本页没有测试发送、连接检查或投递任务管理入口，不调用 Runtime；生产 SPA 托管、真实 Vite 代理浏览器、原生缩放、ready503 和完整 D27 的边界保持。
++保存只确认配置持久化，不证明 SMTP 连接、认证、发送或外部邮箱收件成功。配置区不提供连接检查；同页测试发送与投递任务管理见下节，不调用 Runtime；生产 SPA 托管、真实 Vite 代理浏览器、原生缩放、ready503 和完整 D27 的边界保持。
++
++## SMTP 测试与投递任务
++
++[SMTP 投递工作项](../work-items/d27-system-smtp-delivery-ui.md)在 `/system/smtp` 增加“测试与投递任务”区，与配置区显式切换；仍为七叶子、三组、十一个精确登录返回目标。本区调用四口：POST `/api/v1/system/smtp/test`、GET `/api/v1/system/mail-jobs/management`、GET `/api/v1/system/mail-jobs/{job_id}/management` 与原 POST `/api/v1/system/mail-jobs/{job_id}/retry`。列表每页 25 项，cursor 仅在本身份内存中保存；上页重新读取、刷新返回首页。详情只展示正式安全投影的邀请、密码重置或测试任务，不推断历史收件人、链接、root/谱系或完整 attempt 历史。
++
++新测试需要当前已配置的合法观察，保留输入邮箱原文；严格 `{job_id}` 202 只确认测试请求接受。人工重试从详情捕获源 JobID/version，明确提示可能重复投递，由服务裁决当前配置、业务材料和并发资格；严格 202 确认一个不同 JobID 的新周期，源与新周期分开显示。任务 phase、实际 attempt 渠道/结果与请求是否确认分别表达；`sent` 不等于外部收件箱送达，满足按钮条件也不保证服务接受重试。确认后至多读取一次对应新任务；后读失败只重试 GET，不重发已确认 POST。
++
++没有公开 command lookup，Session、列表、详情、相同值或版本推进都不是原写 receipt。派发后 404/5xx、截断响应等即使标为 `not_started`，也可能发生在已接受后的读取，须保留原请求；曾经未确认后，后续业务拒绝也不抹除此前不确定性。显式恢复使用原 method/path/key/body/version，只在同完整 identity（userID/sessionID/epoch）、当前管理员且原 CSRF 仍为合法当前值时重放；token 变化会更换 epoch 并销毁旧 intent，不把新 token 移植给旧请求。当前停用或旧任务版本推进不预先阻挡合法历史确认。放弃只终止客户端追踪，不撤销发送。
++
++投递是第九个独立状态域，与配置域分离并共用唯一 Cookie owner。30 秒可见截止、取消或离页不会提前释放实际 fetch/body/read/cancel 尾部；取消列表/详情读取后须显式重读。普通用户不发管理请求，当前身份失效或本身份 403 清理系统私有材料；旧身份的待决确认不能使旧导航继续。切换区块、离页和注销保护草稿及未确认请求；checking/失败共同卸载确认 DOM，同 Session 恢复保留待决 Promise，关闭恢复当前合法焦点。已清理的匿名或拒绝状态仍允许新的合法离页动作。
++
++页面阶段完整 `npm run check` 通过 38 文件、1303 项测试及格式/类型/构建，后续窄修通过受影响 App、类型与构建检查，Go1.27.1 integration-tag race 编译和 vet 通过。作者五新五旧按 `input01`–`input04` 的固定版本组合通过，独立最终 A/B 在 `input04` 完整通过；不称最终输入重跑全部十组或 1303 全套。原失败及独立 `real01` 环境监督中断记录均保留，后者不算完整通过轮。
++
++以下为精确目标集合；真实验收按固定输入与独占资源分批执行，沿原 45 秒浏览器、2 分钟顶层、每包 6 分钟、race/count1、workers=1/retries=0 及实际退出/双扫清理预算：
++
++```sh
++npm run test:unit --prefix web -- src/tests/system-smtp-delivery-client.spec.ts src/tests/system-smtp-delivery-state.spec.ts src/tests/system-smtp-delivery.spec.ts
++sh scripts/test-security.sh -run '^TestAccountSystemSMTPDeliveryWeb(ReadAndPagination|TestAndRetry|OutcomeRecovery|AuthorityAndIdentity|NavigationAndLayouts)$'
++sh scripts/test-security.sh -run '^TestAccount(SystemSMTPSettingsWeb(OutcomeRecovery|AuthorityAndIdentity|NavigationAndLayouts)|SystemInvitationsWeb(DeliveryRetry|OutcomeRecovery))$'
++```
++
++`navigation02` 的 light/dark × 1440/1024/768/390 八图由作者逐张审阅，主线程未作图审；桌面六列换行、窄屏逐字段堆叠，下方内容仍需滚动。真实浏览器验证原生焦点/Tab 与同 Session 确认恢复，合成 `pageshow` 不称真实 BFCache。实际 SMTP 仅使用自有私网 `none` 模式成功/失败/未知及人工重试，未重验全部 TLS/崩溃恢复；取消样本的 due 扫描不证明内部入队或目标 ClaimBusy。外部邮箱、生产 SPA 托管、真实 Vite 代理浏览器、原生缩放、Runtime、ready503 和完整 D27 仍不在本次通过范围内。
+ 
+ ## Debug 与主题
+ 

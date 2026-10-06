@@ -1,0 +1,931 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"io"
+	"log/slog"
+	"net"
+	"net/http"
+	"net/http/httputil"
+	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"strconv"
+	"strings"
+	"sync"
+	"sync/atomic"
+	"syscall"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/app"
+	"github.com/LunaDeerTech/agenteam/internal/central/config"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/platform/logging"
+	"github.com/LunaDeerTech/agenteam/tests/testsupport/accountenv"
+	objectfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore"
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+	smtpfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/smtp"
+)
+
+// All controls are task-owned. Production requests, job state, command/audit
+// transactions and SMTP attempts run unchanged; no mail phase/version is seeded.
+type smtpDeliveryCut struct {
+	path, method, key, csrf, jobID, sourceID string
+	body                                     []byte
+	armed                                    bool
+	dispatched, dropped, replays             int
+	sameBody, sameCSRF, sameMethodPath       bool
+}
+type smtpDeliveryWebFixture struct {
+	*authenticationWebFixture
+	mode                                           string
+	admin, member                                  personalWebCredential
+	setup                                          *entryWebFixture
+	adminClient                                    *http.Client
+	csrf                                           string
+	smtp                                           *smtpfixture.Fixture
+	smtpFailed, smtpSuccess, smtpUnknown, smtpHeld smtpfixture.Endpoint
+	mu                                             sync.Mutex
+	cut                                            smtpDeliveryCut
+	failRead, failSession                          atomic.Bool
+	readFailures, sessionFailures                  atomic.Int32
+	invitationID, sourceID, singletonID            string
+	secrets                                        []string
+}
+
+func newSMTPDeliveryWebFixture(t *testing.T, ctx context.Context, mode string) *smtpDeliveryWebFixture {
+	t.Helper()
+	f := &smtpDeliveryWebFixture{mode: mode}
+	var e error
+	f.smtp, e = smtpfixture.Start(ctx)
+	if e != nil {
+		t.Fatal("owned SMTP delivery fixture unavailable", e)
+	}
+	t.Cleanup(func() {
+		c, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+		if e := f.smtp.Close(c); e != nil {
+			t.Error(e)
+		}
+	})
+	for _, item := range []struct {
+		target   *smtpfixture.Endpoint
+		scenario smtpfixture.Scenario
+	}{
+		{&f.smtpSuccess, smtpfixture.Scenario{Mode: "none"}},
+		{&f.smtpFailed, smtpfixture.Scenario{Mode: "none", MailCode: 550}},
+		{&f.smtpUnknown, smtpfixture.Scenario{Mode: "none", CloseStage: "accepted"}},
+		{&f.smtpHeld, smtpfixture.Scenario{Mode: "none", PauseStage: "mail"}},
+	} {
+		*item.target, e = f.smtp.Create(ctx, item.scenario)
+		if e != nil {
+			t.Fatal(e)
+		}
+	}
+	f.authenticationWebFixture = newSMTPDeliveryWebRoot(t, ctx, f)
+	t.Cleanup(func() {
+		c, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer cancel()
+		if e := f.smtp.Release(c, f.smtpHeld.ID); e != nil {
+			t.Error("owned paused SMTP release failed", e)
+		}
+	})
+	f.admin = personalWebCredential{Email: f.entry.Email, Password: f.entry.Password, UserID: f.entry.ID}
+	f.setup = &entryWebFixture{authenticationWebFixture: f.authenticationWebFixture}
+	f.adminClient = f.setup.entryClient()
+	anonymous := f.setup.entryHTTP(ctx, f.adminClient, "GET", "/api/v1/auth/bootstrap", nil, "", false, 200)
+	f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/sessions/login", map[string]string{"email": f.admin.Email, "password": f.admin.Password}, httpString(t, anonymous, "csrf_token"), true, 200)
+	session := f.setup.entryHTTP(ctx, f.adminClient, "GET", "/api/v1/session", nil, "", false, 200)
+	f.csrf = httpString(t, session, "csrf_token")
+	configuration := f.setup.entryHTTP(ctx, f.adminClient, "GET", "/api/v1/system/smtp", nil, "", false, 200)
+	f.singletonID = httpString(t, configuration, "id")
+	if mode == "authority" {
+		helper := &personalWebFixture{authenticationWebFixture: f.authenticationWebFixture}
+		f.member = helper.inviteMember(ctx, f.adminClient, f.csrf, "smtp-delivery-member@example.test", "smtp-delivery-member")
+	}
+	if mode != "read" {
+		receipt := f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/system/invitations", map[string]string{"email": "smtp-delivery-source@example.test"}, f.csrf, true, 201)
+		f.invitationID = httpString(t, receipt, "id")
+		f.sourceID = httpString(t, receipt, "job_id")
+		f.waitJob(ctx, f.sourceID, "sent")
+		f.configureSMTP(ctx, f.smtpSuccess)
+	}
+	f.secrets = []string{f.admin.Password, f.member.Password}
+	f.private("smtp-delivery-material.json", map[string]any{"admin": f.admin, "member": f.member, "source_id": f.sourceID})
+	t.Cleanup(func() {
+		for _, secret := range f.secrets {
+			if secret != "" && f.log.contains(secret) {
+				t.Error("SMTP delivery private material escaped restricted fixture")
+			}
+		}
+		f.mu.Lock()
+		clear(f.cut.body)
+		f.cut = smtpDeliveryCut{}
+		f.mu.Unlock()
+		f.admin.Password = ""
+		f.member.Password = ""
+		f.secrets = nil
+	})
+	return f
+}
+
+func (f *smtpDeliveryWebFixture) private(name string, value any) {
+	f.t.Helper()
+	raw, e := json.Marshal(value)
+	if e != nil {
+		f.t.Fatal("private delivery encoding failed")
+	}
+	defer clear(raw)
+	path := filepath.Join(f.directory, name)
+	if os.WriteFile(path+".tmp", raw, 0600) != nil || os.Rename(path+".tmp", path) != nil {
+		f.t.Fatal("private delivery transfer failed")
+	}
+}
+func (f *smtpDeliveryWebFixture) configureSMTP(ctx context.Context, endpoint smtpfixture.Endpoint) {
+	f.t.Helper()
+	if e := f.smtp.Verify(ctx); e != nil {
+		f.t.Fatal(e)
+	}
+	current := f.setup.entryHTTP(ctx, f.adminClient, "GET", "/api/v1/system/smtp", nil, "", false, 200)
+	f.setup.entryHTTP(ctx, f.adminClient, "PUT", "/api/v1/system/smtp", map[string]any{"version": current["version"], "host": f.smtp.PrivateIP, "port": endpoint.Port, "encryption": "none", "username": "", "sender_email": "sender@example.test", "sender_name": "Owned SMTP delivery", "credential_action": "keep", "password": "", "auto_retry_count": "0", "retry_interval_seconds": "10"}, f.csrf, true, 200)
+}
+func (f *smtpDeliveryWebFixture) unconfigureSMTP(ctx context.Context) {
+	current := f.setup.entryHTTP(ctx, f.adminClient, "GET", "/api/v1/system/smtp", nil, "", false, 200)
+	f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/system/smtp/unconfigure", map[string]any{"version": current["version"], "auto_retry_count": current["auto_retry_count"], "retry_interval_seconds": current["retry_interval_seconds"]}, f.csrf, true, 200)
+}
+func (f *smtpDeliveryWebFixture) captureRequest(w http.ResponseWriter, r *http.Request) bool {
+	if r.Method != "POST" || (r.URL.Path != "/api/v1/system/smtp/test" && !strings.HasPrefix(r.URL.Path, "/api/v1/system/mail-jobs/")) {
+		return true
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if !(f.cut.armed && f.cut.path == r.URL.Path) && (f.cut.key == "" || r.Header.Get("Idempotency-Key") != f.cut.key) {
+		return true
+	}
+	raw, e := io.ReadAll(io.LimitReader(r.Body, 16385))
+	_ = r.Body.Close()
+	if e != nil || len(raw) > 16384 {
+		clear(raw)
+		http.Error(w, "owned request capture failed", 400)
+		return false
+	}
+	r.Body = &smtpDeliveryCapturedBody{Reader: bytes.NewReader(raw), raw: raw}
+	if f.cut.armed && f.cut.key == "" {
+		f.cut.method = r.Method
+		f.cut.key = r.Header.Get("Idempotency-Key")
+		f.cut.csrf = r.Header.Get("X-CSRF-Token")
+		f.cut.body = append([]byte(nil), raw...)
+		f.cut.sameBody = true
+		f.cut.sameCSRF = true
+		f.cut.sameMethodPath = true
+	} else {
+		f.cut.replays++
+		f.cut.sameBody = f.cut.sameBody && bytes.Equal(f.cut.body, raw)
+		f.cut.sameCSRF = f.cut.sameCSRF && f.cut.csrf == r.Header.Get("X-CSRF-Token")
+		f.cut.sameMethodPath = f.cut.sameMethodPath && f.cut.method == r.Method && f.cut.path == r.URL.Path
+	}
+	f.cut.dispatched++
+	return true
+}
+func (f *smtpDeliveryWebFixture) controlResponse(response *http.Response) error {
+	r := response.Request
+	if r == nil {
+		return nil
+	}
+	f.mu.Lock()
+	defer f.mu.Unlock()
+	if !f.cut.armed || r.Method != f.cut.method || r.URL.Path != f.cut.path || r.Header.Get("Idempotency-Key") != f.cut.key {
+		return nil
+	}
+	if response.StatusCode != 202 {
+		return nil
+	}
+	raw, e := io.ReadAll(io.LimitReader(response.Body, 600001))
+	_ = response.Body.Close()
+	defer clear(raw)
+	var value map[string]any
+	if e != nil || len(raw) > 600000 || json.Unmarshal(raw, &value) != nil {
+		return errors.New("owned cut requires original accepted response")
+	}
+	job, ok := value["job_id"].(string)
+	if !ok {
+		return errors.New("owned cut accepted job missing")
+	}
+	if _, e = foundation.ParseID[struct{}](job); e != nil {
+		return errors.New("owned cut accepted job invalid")
+	}
+	retry := strings.HasSuffix(r.URL.Path, "/retry")
+	if (!retry && len(value) != 1) || (retry && (len(value) != 2 || value["version"] == nil || job == f.cut.sourceID)) {
+		return errors.New("owned cut accepted response shape mismatch")
+	}
+	f.cut.jobID = job
+	f.cut.armed = false
+	f.cut.dropped++
+	return &invitationResponseLost{status: response.StatusCode, header: response.Header.Clone(), prefix: append([]byte(nil), raw[:len(raw)/2]...), length: len(raw)}
+}
+func (f *smtpDeliveryWebFixture) waitJob(ctx context.Context, jobID, phase string) {
+	f.t.Helper()
+	bounded, cancel := context.WithTimeout(ctx, 12*time.Second)
+	defer cancel()
+	conn, closeConnection := invitationsWebConnect(f.t, bounded, f.db)
+	defer closeConnection()
+	tick := time.NewTicker(20 * time.Millisecond)
+	defer tick.Stop()
+	for {
+		var actual string
+		var joined bool
+		e := conn.QueryRow(bounded, `SELECT j.phase,(j.current_attempt_id IS NULL AND j.phase='cancelled') OR (a.job_id=j.id AND a.phase='closed' AND a.terminal AND a.io_joined AND a.result IS NOT NULL) FROM agenteam_account.mail_jobs j LEFT JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id WHERE j.id=$1`, jobID).Scan(&actual, &joined)
+		if e == nil && actual == phase && joined {
+			return
+		}
+		select {
+		case <-bounded.Done():
+			f.t.Fatal("owned current delivery did not terminally join", phase)
+		case <-tick.C:
+		}
+	}
+}
+func (f *smtpDeliveryWebFixture) databaseJobs(ctx context.Context) []map[string]any {
+	f.t.Helper()
+	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+	defer closeConnection()
+	rows, e := conn.Query(ctx, `SELECT i.job_id::text,i.kind,coalesce(j.phase,'enqueue_pending'),coalesce(j.attempts,0)::text,coalesce(j.version,1)::text,i.created_at,a.channel,a.result,coalesce(j.reason,''),cfg.configured,coalesce(a.terminal,false),coalesce(a.io_joined,false),coalesce(a.phase,'')
+ FROM agenteam_account.delivery_intents i LEFT JOIN agenteam_account.mail_jobs j ON j.id=i.job_id AND j.intent_id=i.id LEFT JOIN agenteam_account.mail_attempts a ON a.id=j.current_attempt_id AND a.job_id=j.id CROSS JOIN agenteam_account.smtp_settings cfg WHERE cfg.singleton ORDER BY i.created_at DESC,i.job_id DESC`)
+	if e != nil {
+		f.t.Fatal("owned management database observation failed", e)
+	}
+	defer rows.Close()
+	out := []map[string]any{}
+	for rows.Next() {
+		var job, kind, phase, attempts, version, reason, protocol string
+		var created time.Time
+		var channel, result *string
+		var configured, terminal, joined bool
+		if e = rows.Scan(&job, &kind, &phase, &attempts, &version, &created, &channel, &result, &reason, &configured, &terminal, &joined, &protocol); e != nil {
+			f.t.Fatal(e)
+		}
+		at, e := foundation.NewInstant(created)
+		if e != nil {
+			f.t.Fatal(e)
+		}
+		compatibility := "backend_log"
+		if configured {
+			compatibility = "smtp"
+		}
+		var actual any
+		if channel != nil {
+			if *channel == "log" {
+				actual = "backend_log"
+			} else if *channel == "smtp" {
+				actual = "smtp"
+			} else {
+				f.t.Fatal("unrecognized owned actual channel")
+			}
+			compatibility = actual.(string)
+		}
+		if result != nil && (!terminal || !joined || protocol != "closed") {
+			f.t.Fatal("owned result was not the actually joined current attempt")
+		}
+		if phase == "processing" {
+			phase = "unknown"
+		}
+		item := map[string]any{"job_id": job, "kind": kind, "phase": phase, "attempts": attempts, "version": version, "created_at": at.String(), "channel": compatibility, "attempt_channel": actual, "attempt_result": result}
+		if reason != "" {
+			item["reason"] = reason
+		}
+		out = append(out, item)
+	}
+	if e = rows.Err(); e != nil {
+		f.t.Fatal(e)
+	}
+	return out
+}
+func (f *smtpDeliveryWebFixture) waitHeld(ctx context.Context, connections int) {
+	bounded, cancel := context.WithTimeout(ctx, 5*time.Second)
+	defer cancel()
+	tick := time.NewTicker(20 * time.Millisecond)
+	defer tick.Stop()
+	for {
+		v, e := f.smtp.State(bounded, f.smtpHeld.ID)
+		if e == nil && v.Connections == connections && v.Mail == connections && v.Closed == 0 {
+			return
+		}
+		select {
+		case <-bounded.Done():
+			f.t.Fatal("owned actual SMTP hold was not reached")
+		case <-tick.C:
+		}
+	}
+}
+func (f *smtpDeliveryWebFixture) seedRead(ctx context.Context) {
+	f.t.Helper()
+	if f.mode != "read" || len(f.databaseJobs(ctx)) != 0 {
+		f.t.Fatal("owned empty read premise changed")
+	}
+	// Both accepted production worker slots are occupied by real SMTP I/O.
+	// A due scan is observed in SQL before formal revoke. This does not prove
+	// an in-memory enqueue or the return code of a later root ClaimDelivery call.
+	f.configureSMTP(ctx, f.smtpHeld)
+	held := []string{}
+	for range 2 {
+		r := f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/system/smtp/test", map[string]string{"recipient": "read-held@example.test"}, f.csrf, true, 202)
+		held = append(held, httpString(f.t, r, "job_id"))
+	}
+	f.waitHeld(ctx, 2)
+	f.unconfigureSMTP(ctx)
+	cancelled := ""
+	for n := range 23 {
+		r := f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/system/invitations", map[string]string{"email": fmt.Sprintf("smtp-delivery-read-%02d@example.test", n)}, f.csrf, true, 201)
+		if n == 0 {
+			f.waitQueued(ctx, httpString(f.t, r, "job_id"))
+			f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/system/invitations/"+httpString(f.t, r, "id")+"/revoke", map[string]any{"version": r["version"]}, f.csrf, true, 204)
+			cancelled = httpString(f.t, r, "job_id")
+			f.cancelledID = cancelled
+		}
+	}
+	client := f.setup.entryClient()
+	anonymous := f.setup.entryHTTP(ctx, client, "GET", "/api/v1/auth/bootstrap", nil, "", false, 200)
+	f.setup.entryHTTP(ctx, client, "POST", "/api/v1/password-resets/request", map[string]string{"email": f.admin.Email}, httpString(f.t, anonymous, "csrf_token"), true, 202)
+	if e := f.smtp.Release(ctx, f.smtpHeld.ID); e != nil {
+		f.t.Fatal(e)
+	}
+	for _, job := range held {
+		f.waitJob(ctx, job, "sent")
+	}
+	f.waitJob(ctx, cancelled, "cancelled")
+	bounded, cancel := context.WithTimeout(ctx, 15*time.Second)
+	defer cancel()
+	tick := time.NewTicker(25 * time.Millisecond)
+	defer tick.Stop()
+	for {
+		rows := f.databaseJobs(bounded)
+		ready := len(rows) == 26
+		resets := 0
+		for _, row := range rows {
+			if row["kind"] == "password_reset" {
+				resets++
+			}
+			if row["phase"] != "sent" && row["phase"] != "cancelled" {
+				ready = false
+			}
+			if row["job_id"] == cancelled && (row["attempt_channel"] != nil || row["attempts"] != "0") {
+				f.t.Fatal("formal revocation acquired an unexpected attempt")
+			}
+		}
+		if ready && resets == 1 {
+			f.cancelledFacts(bounded)
+			return
+		}
+		select {
+		case <-bounded.Done():
+			f.t.Fatal("formal three-kind continuous read preparation did not join")
+		case <-tick.C:
+		}
+	}
+}
+func (f *smtpDeliveryWebFixture) cutFacts(ctx context.Context) map[string]any {
+	f.mu.Lock()
+	c := f.cut
+	c.body = nil
+	f.mu.Unlock()
+	if c.key == "" || c.jobID == "" {
+		f.t.Fatal("owned accepted cut missing")
+	}
+	namespace, name, resource, action, auditResource := "account.smtp", "smtp-test", f.singletonID, "smtp.test.request", c.jobID
+	if c.sourceID != "" {
+		namespace, name, resource, action, auditResource = "account.mail-retry", "mail-retry", c.sourceID, "smtp.delivery.retry", c.sourceID
+	}
+	key, e := foundation.NewCommandIdentity(namespace, []string{f.admin.UserID}, name, foundation.IdempotencyKey(c.key))
+	if e != nil {
+		f.t.Fatal("owned command identity invalid")
+	}
+	digest := sha256.Sum256([]byte(key.Canonical()))
+	identityDigest := "sha256:" + hex.EncodeToString(digest[:])
+	conn, closeConnection := invitationsWebConnect(f.t, ctx, f.db)
+	defer closeConnection()
+	var commands, intents, events, audits int
+	if e = conn.QueryRow(ctx, `WITH owned AS (SELECT * FROM agenteam_account.commands WHERE identity_digest=$1 AND namespace=$2 AND command_name=$3 AND owner_id=$4 AND user_id=$4 AND resource_id=$5 AND attempt_id=$6 AND phase='committed')
+ SELECT (SELECT count(*) FROM owned),
+ (SELECT count(*) FROM agenteam_account.delivery_intents i JOIN owned c ON i.id=c.id AND i.job_id=c.attempt_id AND i.initiator_id=c.user_id),
+ (SELECT count(*) FROM agenteam_outbox.events e JOIN owned c ON e.id=c.id WHERE e.event_type='account.delivery-requested' AND e.producer='account'),
+ (SELECT count(*) FROM agenteam_audit.audit_records a JOIN owned c ON a.cause_ref=c.id::text WHERE a.scope='system' AND a.producer='account' AND a.action=$7 AND a.resource_kind='mail_job' AND a.resource_id=$8 AND a.user_id=$4 AND a.outcome='success' AND a.ordinal=0)`, identityDigest, namespace, name, f.admin.UserID, resource, c.jobID, action, auditResource).Scan(&commands, &intents, &events, &audits); e != nil {
+		f.t.Fatal("owned exact command/intent/event/audit facts unavailable", e)
+	}
+	return map[string]any{"commands": commands, "intents": intents, "events": events, "audits": audits, "dropped": c.dropped, "replays": c.replays, "dispatched": c.dispatched, "same_body": c.sameBody, "same_csrf": c.sameCSRF, "same_method_path": c.sameMethodPath, "job_id": c.jobID}
+}
+func newSMTPDeliveryWebRoot(t *testing.T, ctx context.Context, own *smtpDeliveryWebFixture) *authenticationWebFixture {
+	t.Helper()
+	db := pgfixture.NewDatabase(t)
+	conn, closeConnection := invitationsWebConnect(t, ctx, db)
+	defer closeConnection()
+	if own.smtp != nil {
+		migrator, e := postgres.NewMigrator(db.Config(t, nil))
+		if e != nil {
+			t.Fatal("owned SMTP policy migration setup failed", e)
+		}
+		if result := migrator.Migrate(ctx); !result.Migrated {
+			t.Fatal("owned SMTP policy migrations failed", result.Fault)
+		}
+		ports, e := outbound.SelectedPorts(uint16(own.smtpFailed.Port), uint16(own.smtpSuccess.Port), uint16(own.smtpUnknown.Port), uint16(own.smtpHeld.Port))
+		if e != nil {
+			t.Fatal(e)
+		}
+		rule, e := outbound.NewRule(own.smtp.PrivateIP+"/32", ports, false)
+		if e != nil {
+			t.Fatal(e)
+		}
+		_, e = outbound.NewRules(rule)
+		if e != nil {
+			t.Fatal(e)
+		}
+		raw, e := json.Marshal([]map[string]any{{"cidr": own.smtp.PrivateIP + "/32", "ports": []int{own.smtpFailed.Port, own.smtpSuccess.Port, own.smtpUnknown.Port, own.smtpHeld.Port}, "allow_http": false}})
+		if e != nil {
+			t.Fatal(e)
+		}
+		if _, e = conn.Exec(ctx, `UPDATE agenteam_outbound.outbound_policy SET rules=$1::jsonb WHERE singleton AND version=1`, string(raw)); e != nil {
+			t.Fatal("owned exact SMTP policy seed failed", e)
+		}
+	}
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal("owned frontend listener unavailable")
+	}
+	t.Cleanup(func() { _ = listener.Close() })
+	origin := "http://" + listener.Addr().String()
+	inputs := accountenv.New(t)
+	objects, err := objectfixture.Environment(ctx, db.Name)
+	if err != nil {
+		t.Fatal("owned object fixture unavailable")
+	}
+	values := inputs.Values()
+	for _, v := range objects {
+		k, value, _ := strings.Cut(v, "=")
+		values[k] = value
+	}
+	for k, v := range map[string]string{
+		"DATABASE_URL": db.Fixture.URL(db.Name), "DATABASE_CA_FILE": db.Fixture.CAFile,
+		"DATABASE_STARTUP_TIMEOUT": "15s", "HTTP_ADDR": "127.0.0.1:0", "PUBLIC_ORIGIN": origin, "SHUTDOWN_TIMEOUT": "2s",
+		"CURSOR_KEYRING": `{"format":1,"current_kid":"test","keys":[{"kid":"test","key_b64":"AAECAwQFBgcICQoLDA0ODxAREhMUFRYXGBkaGxwdHh8="}]}`,
+		"SECRET_KEYRING": `{"format":1,"current_version":"1","keys":[{"version":"1","key_b64":"ICEiIyQlJicoKSorLC0uLzAxMjM0NTY3ODk6Ozw9Pj8="}]}`,
+	} {
+		values[config.Prefix+k] = v
+	}
+	var environment []string
+	for k, v := range values {
+		environment = append(environment, k+"="+v)
+	}
+	cfg, err := config.Load(func(k string) (string, bool) { v, ok := values[k]; return v, ok }, environment)
+	if err != nil {
+		t.Fatal("owned root configuration invalid")
+	}
+	output := &httpFixtureLog{listening: make(chan string, 1)}
+	logger, err := logging.New(logging.Central, slog.LevelInfo, output)
+	if err != nil {
+		t.Fatal(err)
+	}
+	rootCtx, cancel := context.WithCancel(ctx)
+	rootDone := make(chan error, 1)
+	go func() { rootDone <- app.Run(rootCtx, cfg, logger, nil) }()
+	t.Cleanup(func() {
+		cancel()
+		select {
+		case err := <-rootDone:
+			if err != nil {
+				t.Error("full Account/Secret/Model root shutdown failed", err)
+			}
+		case <-time.After(5 * time.Second):
+			t.Error("full root did not join within its original shutdown budget")
+		}
+	})
+	var address string
+	select {
+	case address = <-output.listening:
+	case err := <-rootDone:
+		rootDone <- err
+		t.Fatal("full root initialization failed", err)
+	case <-ctx.Done():
+		t.Fatal("shared browser budget ended during root startup")
+	}
+	backend, err := url.Parse("http://" + address)
+	if err != nil {
+		t.Fatal(err)
+	}
+	transport := &http.Transport{Proxy: nil}
+	proxy := httputil.NewSingleHostReverseProxy(backend)
+	proxy.Transport = transport // NewSingleHostReverseProxy preserves the original Host.
+	proxy.ModifyResponse = own.controlResponse
+	proxy.ErrorHandler = func(w http.ResponseWriter, _ *http.Request, e error) {
+		var lost *invitationResponseLost
+		if errors.As(e, &lost) {
+			defer clear(lost.prefix)
+			for name, values := range lost.header {
+				w.Header()[name] = append([]string(nil), values...)
+			}
+			w.Header().Del("Transfer-Encoding")
+			w.Header().Set("Content-Length", strconv.Itoa(lost.length))
+			w.Header().Set("Connection", "close")
+			w.WriteHeader(lost.status)
+			_, _ = w.Write(lost.prefix)
+			// Flush the real success headers and a prefix of its original body
+			// before closing. A connection lost before any headers can be retried
+			// by a browser; this bounded control must never deliver a receipt.
+			_ = http.NewResponseController(w).Flush()
+			if h, ok := w.(http.Hijacker); ok {
+				c, _, err := h.Hijack()
+				if err == nil {
+					_ = c.Close()
+					return
+				}
+			}
+			return
+		}
+		http.Error(w, "owned API unavailable", 502)
+	}
+	root, err := filepath.Abs("../../web/dist")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = os.Stat(filepath.Join(root, "index.html")); err != nil {
+		t.Fatal("formal production dist must be built before browser execution")
+	}
+	assets := http.FileServer(http.Dir(root))
+	server := &http.Server{ReadHeaderTimeout: 5 * time.Second, Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/api/v1" || strings.HasPrefix(r.URL.Path, "/api/v1/") {
+			failedSession := r.Method == http.MethodGet && r.URL.Path == "/api/v1/session" && own.failSession.CompareAndSwap(true, false)
+			if failedSession {
+				own.sessionFailures.Add(1)
+			}
+			failedRead := r.Method == http.MethodGet && (r.URL.Path == "/api/v1/system/mail-jobs/management" || strings.HasSuffix(r.URL.Path, "/management")) && own.failRead.CompareAndSwap(true, false)
+			if failedRead {
+				own.readFailures.Add(1)
+			}
+			if failedSession || failedRead {
+				requestID := id[struct{}](t).String()
+				w.Header().Set("Content-Type", "application/problem+json")
+				w.Header().Set("X-Request-ID", requestID)
+				w.WriteHeader(503)
+				_ = json.NewEncoder(w).Encode(map[string]any{"type": "urn:agenteam:problem:dependency-unavailable", "title": "Unavailable", "status": 503, "detail": "owned bounded response control", "instance": r.URL.Path, "code": "DEPENDENCY_UNAVAILABLE", "request_id": requestID, "commit_state": "not_started"})
+				return
+			}
+			if !own.captureRequest(w, r) {
+				return
+			}
+			proxy.ServeHTTP(w, r)
+			return
+		}
+		if r.Method != http.MethodGet && r.Method != http.MethodHead {
+			http.Error(w, "method unavailable", 405)
+			return
+		}
+		clean := filepath.Clean("/" + r.URL.Path)
+		if info, e := os.Stat(filepath.Join(root, clean)); e == nil && !info.IsDir() {
+			assets.ServeHTTP(w, r)
+			return
+		}
+		if strings.HasPrefix(clean, "/assets/") || filepath.Ext(clean) != "" {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set("Cache-Control", "no-store")
+		http.ServeFile(w, r, filepath.Join(root, "index.html"))
+	})}
+	serverDone := make(chan error, 1)
+	go func() { serverDone <- server.Serve(listener) }()
+	t.Cleanup(func() {
+		shutdown, stop := context.WithTimeout(context.Background(), 2*time.Second)
+		defer stop()
+		if err := server.Shutdown(shutdown); err != nil {
+			t.Error("frontend server did not drain")
+			_ = server.Close()
+		}
+		if err := <-serverDone; !errors.Is(err, http.ErrServerClosed) {
+			t.Error("owned frontend server failed", err)
+		}
+		transport.CloseIdleConnections()
+	})
+	runtimeRoot := os.Getenv("AGENTEAM_AUTH_WEB_RUNTIME")
+	if !filepath.IsAbs(runtimeRoot) || len(runtimeRoot) > 45 {
+		t.Fatal("explicit short task-owned browser runtime is required")
+	}
+	directory, err := os.MkdirTemp(runtimeRoot, "run-")
+	if err != nil {
+		t.Fatal("private browser runtime creation failed")
+	}
+	if err := os.Chmod(directory, 0700); err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		if err := os.RemoveAll(directory); err != nil {
+			t.Error("private browser runtime cleanup failed")
+		}
+		if _, err := os.Stat(directory); !errors.Is(err, os.ErrNotExist) {
+			t.Error("private browser runtime still exists")
+		}
+	})
+	old := &httpFixture{t: t, db: db, config: cfg, address: address, log: output}
+	entry := old.record("bootstrap", "admin@mail.com", "")
+	material, err := json.Marshal(map[string]string{"email": entry.Email, "password": entry.Password})
+	if err != nil {
+		t.Fatal("private bootstrap encoding failed")
+	}
+	defer clear(material)
+	if err := os.WriteFile(filepath.Join(directory, "credentials.json"), material, 0600); err != nil {
+		t.Fatal("private bootstrap transfer failed")
+	}
+	f := &authenticationWebFixture{t: t, db: db, origin: origin, directory: directory, webRoot: root, entry: entry, log: output, record: old.record, recoveryLogPath: cfg.AccountRecoveryLog()}
+	t.Cleanup(func() {
+		if output.contains(entry.Password) {
+			t.Error("bootstrap material escaped the restricted recovery log")
+		}
+	})
+	var configured bool
+	if err := conn.QueryRow(ctx, `SELECT configured FROM agenteam_model.platform_selection WHERE singleton`).Scan(&configured); err != nil || configured {
+		t.Fatal("real Model Initialize technical singleton missing", err)
+	}
+	return f
+}
+
+// A private forward-only copy is cleared when the proxy has consumed it.
+// Capture never changes request bytes, metadata, response or app-side readers.
+type smtpDeliveryCapturedBody struct {
+	*bytes.Reader
+	raw []byte
+}
+
+func (b *smtpDeliveryCapturedBody) Close() error { clear(b.raw); b.raw = nil; return nil }
+func (f *smtpDeliveryWebFixture) waitQueued(ctx context.Context, job string) {
+	c, cancel := context.WithTimeout(ctx, 4*time.Second)
+	defer cancel()
+	conn, done := invitationsWebConnect(f.t, c, f.db)
+	defer done()
+	tick := time.NewTicker(20 * time.Millisecond)
+	defer tick.Stop()
+	for {
+		var scanned bool
+		e := conn.QueryRow(c, `SELECT j.phase='pending' AND j.attempts=0 AND j.current_attempt_id IS NULL AND j.pass>0 FROM agenteam_account.mail_jobs j JOIN agenteam_account.delivery_intents i ON i.id=j.intent_id AND i.job_id=j.id WHERE j.id=$1 AND i.kind='invitation' AND i.initiator_id=$2`, job, f.admin.UserID).Scan(&scanned)
+		if e == nil && scanned {
+			return
+		}
+		select {
+		case <-c.Done():
+			f.t.Fatal("formal worker queue premise was not reached")
+		case <-tick.C:
+		}
+	}
+}
+
+type smtpDeliveryWebIPC struct {
+	Sequence  int    `json:"sequence"`
+	Action    string `json:"action"`
+	ID        string `json:"id"`
+	Phase     string `json:"phase"`
+	Endpoint  string `json:"endpoint"`
+	UserID    string `json:"user_id"`
+	SessionID string `json:"session_id"`
+}
+
+func (f *smtpDeliveryWebFixture) deliveryIPC(ctx context.Context, r smtpDeliveryWebIPC) map[string]any {
+	out := map[string]any{"ok": true, "sequence": r.Sequence}
+	validID := func(raw string) {
+		if _, e := foundation.ParseID[struct{}](raw); e != nil {
+			f.t.Fatal("invalid owned delivery ID")
+		}
+	}
+	switch r.Action {
+	case "snapshot":
+		out["jobs"] = f.databaseJobs(ctx)
+		if f.cancelledID != "" {
+			out["cancelled_unattempted"] = f.cancelledFacts(ctx)
+		}
+	case "seed-read":
+		f.seedRead(ctx)
+		out["jobs"] = f.databaseJobs(ctx)
+	case "wait":
+		validID(r.ID)
+		if r.Phase != "sent" && r.Phase != "failed" && r.Phase != "unknown" && r.Phase != "cancelled" {
+			f.t.Fatal("invalid owned terminal phase")
+		}
+		f.waitJob(ctx, r.ID, r.Phase)
+		out["jobs"] = f.databaseJobs(ctx)
+	case "configure":
+		endpoints := map[string]smtpfixture.Endpoint{"success": f.smtpSuccess, "failed": f.smtpFailed, "unknown": f.smtpUnknown, "held": f.smtpHeld}
+		endpoint, ok := endpoints[r.Endpoint]
+		if !ok {
+			f.t.Fatal("unknown owned SMTP endpoint")
+		}
+		f.configureSMTP(ctx, endpoint)
+	case "unconfigure":
+		f.unconfigureSMTP(ctx)
+	case "release":
+		if e := f.smtp.Release(ctx, f.smtpHeld.ID); e != nil {
+			f.t.Fatal(e)
+		}
+	case "wait-held":
+		f.waitHeld(ctx, 1)
+	case "compete":
+		validID(r.ID)
+		observed := f.setup.entryHTTP(ctx, f.adminClient, "GET", "/api/v1/system/mail-jobs/"+r.ID+"/management", nil, "", false, 200)
+		out["receipt"] = f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/system/mail-jobs/"+r.ID+"/retry", map[string]any{"version": observed["version"]}, f.csrf, true, 202)
+	case "revoke-source":
+		list := f.setup.entryHTTP(ctx, f.adminClient, "GET", "/api/v1/system/invitations?limit=25", nil, "", false, 200)
+		found := false
+		for _, item := range httpItems(f.t, list) {
+			v, ok := item.(map[string]any)
+			if !ok {
+				f.t.Fatal("formal source observation invalid")
+			}
+			if v["id"] == f.invitationID {
+				f.setup.entryHTTP(ctx, f.adminClient, "POST", "/api/v1/system/invitations/"+f.invitationID+"/revoke", map[string]any{"version": v["version"]}, f.csrf, true, 204)
+				found = true
+			}
+		}
+		if !found {
+			f.t.Fatal("exact formal source missing before revoke")
+		}
+	case "arm-drop":
+		path := "/api/v1/system/smtp/test"
+		if r.ID != "" {
+			validID(r.ID)
+			path = "/api/v1/system/mail-jobs/" + r.ID + "/retry"
+		}
+		f.mu.Lock()
+		clear(f.cut.body)
+		f.cut = smtpDeliveryCut{path: path, sourceID: r.ID, armed: true}
+		f.mu.Unlock()
+		out["armed"] = true
+	case "cut-facts":
+		out["facts"] = f.cutFacts(ctx)
+	case "wait-cut":
+		f.mu.Lock()
+		job := f.cut.jobID
+		f.mu.Unlock()
+		validID(job)
+		f.waitJob(ctx, job, r.Phase)
+		out["job_id"] = job
+	case "arm-get-fail":
+		f.failRead.Store(true)
+		out["armed"] = true
+	case "arm-session-fail":
+		f.failSession.Store(true)
+		out["armed"] = true
+	case "failure-facts":
+		out["read_failures"] = f.readFailures.Load()
+		out["session_failures"] = f.sessionFailures.Load()
+	case "demote", "promote", "revoke-session":
+		if f.mode != "authority" || r.UserID != f.admin.UserID {
+			f.t.Fatal("exact delivery authority target rejected")
+		}
+		validID(r.SessionID)
+		conn, done := invitationsWebConnect(f.t, ctx, f.db)
+		defer done()
+		var exists bool
+		if e := conn.QueryRow(ctx, `SELECT EXISTS(SELECT 1 FROM agenteam_account.sessions WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL)`, r.SessionID, r.UserID).Scan(&exists); e != nil || !exists {
+			f.t.Fatal("exact owned active Session missing")
+		}
+		if r.Action == "revoke-session" {
+			tag, e := conn.Exec(ctx, `UPDATE agenteam_account.sessions SET revoked_at=clock_timestamp(),revoked_reason='administrative' WHERE id=$1 AND user_id=$2 AND revoked_at IS NULL`, r.SessionID, r.UserID)
+			if e != nil || tag.RowsAffected() != 1 {
+				f.t.Fatal("exact owned Session revoke failed")
+			}
+		} else {
+			role, old := "user", "admin"
+			if r.Action == "promote" {
+				role, old = "admin", "user"
+			}
+			tag, e := conn.Exec(ctx, `UPDATE agenteam_account.users SET role=$1,version=version+1,updated_at=clock_timestamp() WHERE id=$2 AND role=$3`, role, r.UserID, old)
+			if e != nil || tag.RowsAffected() != 1 {
+				f.t.Fatal("exact owned role transition failed")
+			}
+		}
+	default:
+		f.t.Fatal("unknown SMTP delivery IPC action")
+	}
+	return out
+}
+
+func (f *smtpDeliveryWebFixture) browserSMTPDelivery(ctx context.Context) map[string]any {
+	f.t.Helper()
+	root, e := filepath.Abs("../account-captcha-web")
+	if e != nil {
+		f.t.Fatal(e)
+	}
+	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "system-smtp-delivery.config.js"))
+	cmd.Dir = root
+	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }
+	cmd.WaitDelay = time.Second
+	for _, value := range os.Environ() {
+		if !strings.HasPrefix(value, "TMPDIR=") && !strings.HasPrefix(value, "AGENTEAM_AUTH_WEB_") && !strings.HasPrefix(value, "AGENTEAM_SMTP_DELIVERY_WEB_") && !strings.HasPrefix(value, "PLAYWRIGHT_NO_COPY_PROMPT=") && !strings.HasPrefix(value, "DEBUG=") && !strings.HasPrefix(value, "PWDEBUG=") {
+			cmd.Env = append(cmd.Env, value)
+		}
+	}
+	cmd.Env = append(cmd.Env, "TMPDIR="+f.directory, "AGENTEAM_AUTH_WEB_ORIGIN="+f.origin, "AGENTEAM_SMTP_DELIVERY_WEB_CASE="+f.mode, "AGENTEAM_AUTH_WEB_PRIVATE="+f.directory, "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium", "PLAYWRIGHT_NO_COPY_PROMPT=1")
+	if images := os.Getenv("AGENTEAM_AUTH_WEB_IMAGES"); images != "" {
+		if !filepath.IsAbs(images) {
+			f.t.Fatal("SMTP delivery image path must be absolute")
+		}
+		cmd.Env = append(cmd.Env, "AGENTEAM_AUTH_WEB_IMAGES="+images)
+	}
+	var output bytes.Buffer
+	cmd.Stdout, cmd.Stderr = &output, &output
+	if e = cmd.Start(); e != nil {
+		f.t.Fatal("locked SMTP delivery browser runner could not start")
+	}
+	done := make(chan error, 1)
+	go func() { done <- cmd.Wait() }()
+	joined := false
+	defer func() {
+		if !joined {
+			_ = cmd.Cancel()
+			<-done
+		}
+		_ = syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
+		cmd.Env = nil
+	}()
+	tick := time.NewTicker(20 * time.Millisecond)
+	defer tick.Stop()
+	sequence := 0
+	var runErr error
+wait:
+	for {
+		select {
+		case runErr = <-done:
+			joined = true
+			break wait
+		case <-tick.C:
+			raw, err := os.ReadFile(filepath.Join(f.directory, "smtp-delivery-ipc.json"))
+			if errors.Is(err, os.ErrNotExist) {
+				continue
+			}
+			var request smtpDeliveryWebIPC
+			decode := json.Unmarshal(raw, &request)
+			clear(raw)
+			if err != nil || decode != nil || request.Sequence < 1 || request.Sequence > 128 {
+				f.t.Error("private SMTP delivery IPC rejected")
+				_ = cmd.Cancel()
+				continue
+			}
+			if request.Sequence <= sequence {
+				continue
+			}
+			if request.Sequence != sequence+1 {
+				f.t.Error("private SMTP delivery IPC sequence invalid")
+				_ = cmd.Cancel()
+				continue
+			}
+			reply := f.deliveryIPC(ctx, request)
+			sequence = request.Sequence
+			f.private("smtp-delivery-ack-"+strconv.Itoa(sequence)+".json", reply)
+		}
+	}
+	safe := output.String()
+	for _, secret := range f.secrets {
+		if secret != "" {
+			safe = strings.ReplaceAll(safe, secret, "[redacted]")
+		}
+	}
+	f.mu.Lock()
+	for _, secret := range []string{f.cut.key, f.cut.csrf, string(f.cut.body)} {
+		if secret != "" {
+			safe = strings.ReplaceAll(safe, secret, "[redacted]")
+		}
+	}
+	f.mu.Unlock()
+	f.t.Log(safe)
+	if runErr != nil {
+		f.t.Fatalf("actual SMTP delivery production browser failed: %v", runErr)
+	}
+	raw, e := os.ReadFile(filepath.Join(f.directory, "smtp-delivery-result.json"))
+	if e != nil {
+		f.t.Fatal("safe SMTP delivery browser result missing")
+	}
+	defer clear(raw)
+	var result map[string]any
+	if json.Unmarshal(raw, &result) != nil || result["completed"] != true {
+		f.t.Fatal("safe SMTP delivery browser result invalid")
+	}
+	return result
+}
+
+func (f *smtpDeliveryWebFixture) cancelledFacts(ctx context.Context) bool {
+	conn, done := invitationsWebConnect(f.t, ctx, f.db)
+	defer done()
+	var exact bool
+	e := conn.QueryRow(ctx, `SELECT j.phase='cancelled' AND j.attempts=0 AND j.current_attempt_id IS NULL AND NOT EXISTS(SELECT 1 FROM agenteam_account.mail_attempts a WHERE a.job_id=j.id) FROM agenteam_account.mail_jobs j JOIN agenteam_account.delivery_intents i ON i.id=j.intent_id AND i.job_id=j.id WHERE j.id=$1 AND i.kind='invitation' AND i.initiator_id=$2`, f.cancelledID, f.admin.UserID).Scan(&exact)
+	if e != nil || !exact {
+		f.t.Fatal("exact formally revoked job gained an attempt", e)
+	}
+	return exact
+}

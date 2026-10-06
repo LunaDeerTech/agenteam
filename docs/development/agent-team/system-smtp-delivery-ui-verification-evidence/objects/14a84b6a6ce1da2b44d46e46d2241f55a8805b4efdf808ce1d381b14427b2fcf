@@ -1,0 +1,6 @@
+# github.com/LunaDeerTech/agenteam/tests/account_test [github.com/LunaDeerTech/agenteam/tests/account.test]
+tests/account/system_smtp_delivery_web_fixture_test.go:355:6: f.cancelledID undefined (type *smtpDeliveryWebFixture has no field or method cancelledID)
+tests/account/system_smtp_delivery_web_fixture_test.go:709:8: f.cancelledID undefined (type *smtpDeliveryWebFixture has no field or method cancelledID)
+tests/account/system_smtp_delivery_web_fixture_test.go:926: f.cancelledID undefined (type *smtpDeliveryWebFixture has no field or method cancelledID)
+FAIL	github.com/LunaDeerTech/agenteam/tests/account [build failed]
+FAIL

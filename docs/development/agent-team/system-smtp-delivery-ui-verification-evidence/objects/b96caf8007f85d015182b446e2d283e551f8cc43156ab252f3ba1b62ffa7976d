@@ -1,0 +1,11 @@
+--- author-input04/tests/account/system_smtp_delivery_web_fixture_test.go
++++ private-bound03/source/fixture-overlay_test.go
+@@ -821,7 +821,7 @@
+ 	if e != nil {
+ 		f.t.Fatal(e)
+ 	}
+-	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", filepath.Join(root, "system-smtp-delivery.config.js"))
++	cmd := exec.CommandContext(ctx, "node", filepath.Join(root, "node_modules/@playwright/test/cli.js"), "test", "--config", "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/bound03/source/browser/independent.config.js")
+ 	cmd.Dir = root
+ 	cmd.SysProcAttr = &syscall.SysProcAttr{Setpgid: true}
+ 	cmd.Cancel = func() error { return syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL) }

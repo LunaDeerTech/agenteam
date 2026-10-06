@@ -1,0 +1,86 @@
+import { describe, expect, it } from 'vitest'
+import { createSystemSMTPDeliveryAPI } from '../source/web/src/api/system-smtp-delivery'
+import { childID, defer, encoder, fault, job, problemValue, requestID, signal, sourceID, track, turn, write } from './helpers'
+
+describe('independent SMTP delivery native read and cancellation tails', () => {
+  it('does not publish a complete 600000-byte page before native EOF despite a misleading length header', async () => {
+    let controller!: ReadableStreamDefaultController<Uint8Array>
+    const pulled = defer(), stream = new ReadableStream<Uint8Array>({ start(c) { controller = c }, pull() { pulled.resolve() } })
+    const value = { items: [job()] }, bytes = new Uint8Array(600000).fill(32)
+    bytes.set(encoder.encode(JSON.stringify(value)))
+    const response = new Response(stream, { headers: { 'Content-Type': 'application/json', 'Content-Length': '2' } })
+    const operation = track(createSystemSMTPDeliveryAPI(async () => response).listJobs({}, signal()))
+    controller.enqueue(bytes.subarray(0, 390000)); controller.enqueue(bytes.subarray(390000))
+    try {
+      await pulled.promise; await turn()
+      expect(operation.settled()).toBe(false)
+    } finally { controller.close() }
+    expect(await operation.result).toEqual({ ok: true, value })
+    expect(response.body?.locked).toBe(false)
+  })
+
+  it('bounds native Problem bodies to 600000 bytes and joins a 600001-byte cancellation tail', async () => {
+    const value = problemValue(), jsonBytes = encoder.encode(JSON.stringify(value))
+    for (const size of [600000, 600001]) {
+      const tail = defer(), cancelled = defer()
+      let controller!: ReadableStreamDefaultController<Uint8Array>, cancels = 0
+      const stream = new ReadableStream<Uint8Array>({ start(c) { controller = c }, cancel() { cancels++; cancelled.resolve(); return tail.promise } })
+      const response = new Response(stream, { status: 404, headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': requestID } })
+      const operation = track(createSystemSMTPDeliveryAPI(async () => response).testSMTP({ recipient: 'a@example.invalid' }, write()))
+      const bytes = new Uint8Array(size).fill(32); bytes.set(jsonBytes)
+      // Deliberately split inside a UTF-8 title character; native decoder must carry the partial code point.
+      const split = bytes.findIndex(v => v > 127) + 1
+      controller.enqueue(bytes.subarray(0, split)); controller.enqueue(bytes.subarray(split))
+      try {
+        if (size === 600000) {
+          await turn(); expect(operation.settled()).toBe(false); controller.close()
+        } else {
+          await cancelled.promise; await turn()
+          expect(cancels).toBe(1); expect(operation.settled()).toBe(false)
+        }
+      } finally { tail.resolve() }
+      const err = fault(await operation.result, size === 600000 ? 'problem' : 'invalid-response')
+      if (size === 600000) expect(err.problem).toEqual(value)
+      expect(response.body?.locked).toBe(false)
+    }
+  })
+
+  it('keeps an aborted retry unresolved through actual cancel completion and never confirms buffered JSON', async () => {
+    const tail = defer(), cancelled = defer(), pulled = defer(), abort = new AbortController()
+    let cancels = 0
+    const stream = new ReadableStream<Uint8Array>({
+      start(c) { c.enqueue(encoder.encode(JSON.stringify({ job_id: childID, version: '9' }))) },
+      pull() { pulled.resolve() },
+      cancel() { cancels++; cancelled.resolve(); return tail.promise },
+    })
+    const response = new Response(stream, { status: 202, headers: { 'Content-Type': 'application/json' } })
+    const operation = track(createSystemSMTPDeliveryAPI(async () => response).retryJob({ job_id: sourceID, version: '2' }, write(abort.signal)))
+    try {
+      await pulled.promise; await turn()
+      expect(operation.settled()).toBe(false)
+      abort.abort(); await cancelled.promise; await turn()
+      expect(cancels).toBe(1); expect(operation.settled()).toBe(false)
+    } finally { tail.resolve() }
+    fault(await operation.result, 'cancelled')
+    expect(response.body?.locked).toBe(false)
+  })
+
+  it('joins rejected-media cancel without claiming EOF, and rejects a truncated successful body at its actual EOF', async () => {
+    const tail = defer(), cancelled = defer()
+    let cancels = 0
+    const stream = new ReadableStream<Uint8Array>({ cancel() { cancels++; cancelled.resolve(); return tail.promise } })
+    const response = new Response(stream, { status: 503, headers: { 'Content-Type': 'text/plain' } })
+    const operation = track(createSystemSMTPDeliveryAPI(async () => response).getJob(sourceID, signal()))
+    try {
+      await cancelled.promise; await turn()
+      expect(cancels).toBe(1); expect(operation.settled()).toBe(false)
+      expect(response.body?.locked).toBe(false)
+    } finally { tail.resolve() }
+    fault(await operation.result, 'invalid-response')
+    let controller!: ReadableStreamDefaultController<Uint8Array>
+    const truncated = new ReadableStream<Uint8Array>({ start(c) { controller = c; c.enqueue(encoder.encode('{"job_id":')) } })
+    const second = track(createSystemSMTPDeliveryAPI(async () => new Response(truncated, { status: 202, headers: { 'Content-Type': 'application/json' } })).testSMTP({ recipient: 'a@example.invalid' }, write()))
+    try { await turn(); expect(second.settled()).toBe(false) } finally { controller.close() }
+    fault(await second.result, 'invalid-response')
+  })
+})

@@ -1,0 +1,4861 @@
+--- a/web/src/api/client.ts
++++ b/web/src/api/client.ts
+@@ -94,6 +94,9 @@
+   getSMTPSettings: ['GET', '/api/v1/system/smtp', 200],
+   updateSMTPSettings: ['PUT', '/api/v1/system/smtp', 200],
+   unconfigureSMTP: ['POST', '/api/v1/system/smtp/unconfigure', 200],
++  testSMTP: ['POST', '/api/v1/system/smtp/test', 202],
++  listMailJobManagement: ['GET', '/api/v1/system/mail-jobs/management', 200],
++  getMailJobManagement: ['GET', '/api/v1/system/mail-jobs/{id}/management', 200],
+   createModelCredential: ['POST', '/api/v1/system/model-credentials', 200],
+   getModelCredentialMetadata: ['GET', '/api/v1/system/model-credentials/{id}', 200],
+   lookupProviderCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
+@@ -366,7 +369,24 @@
+   'unconfigureSMTP',
+ ]
+ 
++type SMTPDeliveryEndpoint = 'testSMTP' | 'listMailJobManagement' | 'getMailJobManagement'
++type SMTPDeliveryOptions<E extends SMTPDeliveryEndpoint> = E extends 'listMailJobManagement'
++  ? { signal: AbortSignal; mailJobs: Readonly<{ cursor?: string }> }
++  : E extends 'getMailJobManagement'
++    ? { signal: AbortSignal; target: string }
++    : { signal: AbortSignal; body: unknown; csrf: string; key: string }
++const smtpDeliveryEndpoints: readonly SMTPDeliveryEndpoint[] = [
++  'testSMTP',
++  'listMailJobManagement',
++  'getMailJobManagement',
++]
++
+ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
++  function request<T, E extends SMTPDeliveryEndpoint>(
++    endpoint: E,
++    parse: (value: unknown) => T,
++    options: SMTPDeliveryOptions<E>,
++  ): Promise<T>
+   function request<T, E extends SMTPEndpoint>(
+     endpoint: E,
+     parse: (value: unknown) => T,
+@@ -418,6 +438,7 @@
+       | SelectionEndpoint
+       | AccountSecurityEndpoint
+       | SMTPEndpoint
++      | SMTPDeliveryEndpoint
+     >,
+     parse: (value: unknown) => T,
+     options: RequestOptions & { users?: never; invitations?: never; target?: never },
+@@ -430,6 +451,7 @@
+       invitations?: Readonly<{ cursor?: string }>
+       providers?: Readonly<{ cursor?: string }>
+       models?: Readonly<{ provider_id: string; cursor?: string }>
++      mailJobs?: Readonly<{ cursor?: string }>
+       target?: string
+     },
+   ): Promise<T> {
+@@ -441,7 +463,8 @@
+       modelEndpoints.includes(endpoint as ModelEndpoint) ||
+       selectionEndpoints.includes(endpoint as SelectionEndpoint) ||
+       accountSecurityEndpoints.includes(endpoint as AccountSecurityEndpoint) ||
+-      smtpEndpoints.includes(endpoint as SMTPEndpoint)
++      smtpEndpoints.includes(endpoint as SMTPEndpoint) ||
++      smtpDeliveryEndpoints.includes(endpoint as SMTPDeliveryEndpoint)
+     ) {
+       try {
+         const target = basePath.includes('{id}')
+@@ -450,7 +473,9 @@
+             ? 'providers'
+             : endpoint === 'listProviderModels'
+               ? 'models'
+-              : undefined
++              : endpoint === 'listMailJobManagement'
++                ? 'mailJobs'
++                : undefined
+         shape(options, [
+           'signal',
+           ...(method === 'GET' ? [] : ['body', 'csrf', 'key']),
+@@ -472,7 +497,12 @@
+             params.set('provider_id', provider)
+           }
+           params.set('limit', '25')
+-          if (Object.hasOwn(query, 'cursor')) params.set('cursor', string(query.cursor, 1, 8192))
++          if (Object.hasOwn(query, 'cursor')) {
++            const cursor = string(query.cursor, 1, 8192)
++            if (queryKey === 'mailJobs' && new TextEncoder().encode(cursor).byteLength > 8192)
++              throw new Error()
++            params.set('cursor', cursor)
++          }
+           path += '?' + params.toString()
+         }
+         if (
+@@ -519,6 +549,7 @@
+       Object.hasOwn(options, 'invitations') ||
+       Object.hasOwn(options, 'providers') ||
+       Object.hasOwn(options, 'models') ||
++      Object.hasOwn(options, 'mailJobs') ||
+       Object.hasOwn(options, 'target')
+     ) {
+       throw new AccountFailure('invalid-input')
+--- a/web/src/api/system-smtp-delivery.ts
++++ b/web/src/api/system-smtp-delivery.ts
+@@ -0,0 +1,259 @@
++import { AccountFailure, accountTransport, shape, string, uuid7, type Fetch } from './client'
++import type { WriteOptions } from './account'
++import { parseSystemInstant } from './system-account'
++import { captureSMTPEmail } from './system-smtp-settings'
++
++export const smtpDeliveryPhases = [
++  'enqueue_pending',
++  'pending',
++  'claimed',
++  'sending',
++  'retry_wait',
++  'sent',
++  'failed',
++  'unknown',
++  'cancelled',
++] as const
++export const smtpDeliveryReasons = [
++  'sent',
++  'token_invalid',
++  'configuration_invalid',
++  'policy_rejected',
++  'network_failed',
++  'smtp_rejected',
++  'timeout',
++  'cancelled',
++  'unknown',
++] as const
++export type SMTPDeliveryJob = Readonly<{
++  job_id: string
++  kind: 'invitation' | 'password_reset' | 'test'
++  phase: (typeof smtpDeliveryPhases)[number]
++  attempts: string
++  version: string
++  channel: 'smtp' | 'backend_log' | null
++  created_at: string
++  attempt_channel: 'smtp' | 'backend_log' | null
++  attempt_result: 'sent' | 'failed' | 'unknown' | 'cancelled' | null
++  reason?: (typeof smtpDeliveryReasons)[number]
++}>
++export type SMTPDeliveryQuery = Readonly<{ cursor?: string }>
++export type SMTPDeliveryPage = Readonly<{
++  items: readonly SMTPDeliveryJob[]
++  next_cursor?: string
++}>
++export type SMTPTestInput = Readonly<{ recipient: string }>
++export type SMTPRetryInput = Readonly<{ job_id: string; version: string }>
++export type SMTPTestReceipt = Readonly<{ job_id: string }>
++export type SMTPRetryReceipt = Readonly<{ job_id: string; version: string }>
++export type SMTPDeliveryCommand =
++  | Readonly<{ kind: 'test'; input: SMTPTestInput }>
++  | Readonly<{ kind: 'retry'; input: SMTPRetryInput }>
++export type SMTPDeliveryResult =
++  | Readonly<{ kind: 'test'; value: SMTPTestReceipt }>
++  | Readonly<{ kind: 'retry'; value: SMTPRetryReceipt }>
++export interface SystemSMTPDeliveryAPI {
++  testSMTP(input: SMTPTestInput, options: WriteOptions): Promise<SMTPTestReceipt>
++  listJobs(query: SMTPDeliveryQuery, signal: AbortSignal): Promise<SMTPDeliveryPage>
++  getJob(jobID: string, signal: AbortSignal): Promise<SMTPDeliveryJob>
++  retryJob(input: SMTPRetryInput, options: WriteOptions): Promise<SMTPRetryReceipt>
++}
++
++const encoder = new TextEncoder()
++const maximumVersion = 9223372036854775807n
++function requireValue(value: boolean) {
++  if (!value) throw new AccountFailure('invalid-response')
++}
++function input<T>(work: () => T): T {
++  try {
++    return work()
++  } catch {
++    throw new AccountFailure('invalid-input')
++  }
++}
++function id(value: unknown) {
++  const result = string(value, 36, 36)
++  requireValue(uuid7.test(result))
++  return result
++}
++function version(value: unknown, maximum = maximumVersion) {
++  const result = string(value, 1, 19)
++  requireValue(/^[1-9][0-9]*$/.test(result) && BigInt(result) <= maximum)
++  return result
++}
++function cursor(value: unknown) {
++  const result = string(value, 1, 8192)
++  requireValue(encoder.encode(result).byteLength <= 8192)
++  return result
++}
++function query(value: SMTPDeliveryQuery): SMTPDeliveryQuery {
++  const v = shape(value, [], ['cursor'])
++  return Object.freeze(Object.hasOwn(v, 'cursor') ? { cursor: cursor(v.cursor) } : {})
++}
++function options(value: WriteOptions) {
++  return input(() => {
++    const v = shape(value, ['csrfToken', 'key'], ['signal'])
++    const csrf = string(v.csrfToken, 43, 43),
++      key = string(v.key, 1, 128)
++    requireValue(/^[A-Za-z0-9_-]{43}$/.test(csrf) && /^[A-Za-z0-9._:/-]{1,128}$/.test(key))
++    return { csrf, key, signal: value.signal ?? new AbortController().signal }
++  })
++}
++
++// Capture before creating a private intent/key. Do not canonicalize the original
++// recipient or replace a retry's source/version with a later observation.
++export function captureSMTPDeliveryCommand(command: SMTPDeliveryCommand): SMTPDeliveryCommand {
++  return input(() => {
++    const c = shape(command, ['kind', 'input'])
++    if (c.kind === 'test') {
++      const v = shape(c.input, ['recipient'])
++      const captured = Object.freeze({ recipient: captureSMTPEmail(v.recipient) })
++      requireValue(encoder.encode(JSON.stringify(captured)).byteLength <= 16 * 1024)
++      return Object.freeze({ kind: 'test', input: captured })
++    }
++    if (c.kind === 'retry') {
++      const v = shape(c.input, ['job_id', 'version'])
++      const captured = Object.freeze({
++        job_id: id(v.job_id),
++        version: version(v.version, maximumVersion - 1n),
++      })
++      requireValue(
++        encoder.encode(JSON.stringify({ version: captured.version })).byteLength <= 16 * 1024,
++      )
++      return Object.freeze({ kind: 'retry', input: captured })
++    }
++    throw new AccountFailure('invalid-input')
++  })
++}
++
++function job(value: unknown): SMTPDeliveryJob {
++  const v = shape(
++    value,
++    [
++      'job_id',
++      'kind',
++      'phase',
++      'attempts',
++      'version',
++      'channel',
++      'created_at',
++      'attempt_channel',
++      'attempt_result',
++    ],
++    ['reason'],
++  )
++  requireValue(['invitation', 'password_reset', 'test'].includes(v.kind as string))
++  requireValue(smtpDeliveryPhases.includes(v.phase as SMTPDeliveryJob['phase']))
++  requireValue(typeof v.attempts === 'string' && /^[0-6]$/.test(v.attempts))
++  requireValue(v.channel === null || v.channel === 'smtp' || v.channel === 'backend_log')
++  requireValue(
++    v.attempt_channel === null ||
++      v.attempt_channel === 'smtp' ||
++      v.attempt_channel === 'backend_log',
++  )
++  requireValue(
++    v.attempt_result === null ||
++      ['sent', 'failed', 'unknown', 'cancelled'].includes(v.attempt_result as string),
++  )
++  if (Object.hasOwn(v, 'reason'))
++    requireValue(smtpDeliveryReasons.includes(v.reason as NonNullable<SMTPDeliveryJob['reason']>))
++  if (v.attempt_channel === null) {
++    requireValue(
++      v.attempt_result === null &&
++        !['claimed', 'sending', 'retry_wait', 'sent', 'failed'].includes(v.phase as string),
++    )
++  } else requireValue(v.attempt_channel === v.channel && v.attempts !== '0')
++  if (v.phase === 'enqueue_pending')
++    requireValue(
++      v.attempts === '0' &&
++        v.version === '1' &&
++        v.attempt_channel === null &&
++        !Object.hasOwn(v, 'reason'),
++    )
++  // Only the exact current attempt is projected. Its result is independent from
++  // the job phase; compatibility channel alone does not establish any attempt.
++  return Object.freeze({
++    job_id: id(v.job_id),
++    kind: v.kind as SMTPDeliveryJob['kind'],
++    phase: v.phase as SMTPDeliveryJob['phase'],
++    attempts: v.attempts as string,
++    version: version(v.version),
++    channel: v.channel as SMTPDeliveryJob['channel'],
++    created_at: parseSystemInstant(v.created_at),
++    attempt_channel: v.attempt_channel as SMTPDeliveryJob['attempt_channel'],
++    attempt_result: v.attempt_result as SMTPDeliveryJob['attempt_result'],
++    ...(Object.hasOwn(v, 'reason')
++      ? { reason: v.reason as NonNullable<SMTPDeliveryJob['reason']> }
++      : {}),
++  })
++}
++function page(value: unknown): SMTPDeliveryPage {
++  const v = shape(value, ['items'], ['next_cursor'])
++  requireValue(Array.isArray(v.items) && v.items.length <= 25)
++  const ids = new Set<string>()
++  let previous: SMTPDeliveryJob | undefined
++  const items = (v.items as unknown[]).map((value) => {
++    const item = job(value)
++    requireValue(!ids.has(item.job_id))
++    ids.add(item.job_id)
++    if (previous)
++      requireValue(
++        previous.created_at > item.created_at ||
++          (previous.created_at === item.created_at && previous.job_id > item.job_id),
++      )
++    previous = item
++    return item
++  })
++  if (Object.hasOwn(v, 'next_cursor')) requireValue(items.length === 25)
++  return Object.freeze({
++    items: Object.freeze(items),
++    ...(Object.hasOwn(v, 'next_cursor') ? { next_cursor: cursor(v.next_cursor) } : {}),
++  })
++}
++
++export function createSystemSMTPDeliveryAPI(fetcher?: Fetch): SystemSMTPDeliveryAPI {
++  const request = accountTransport(fetcher)
++  return {
++    async testSMTP(value, write) {
++      const captured = captureSMTPDeliveryCommand({ kind: 'test', input: value })
++      return request(
++        'testSMTP',
++        (value) => Object.freeze({ job_id: id(shape(value, ['job_id']).job_id) }),
++        { ...options(write), body: captured.input },
++      )
++    },
++    async listJobs(value, signal) {
++      return request('listMailJobManagement', page, { signal, mailJobs: input(() => query(value)) })
++    },
++    async getJob(value, signal) {
++      const target = input(() => id(value))
++      return request(
++        'getMailJobManagement',
++        (value) => {
++          const result = job(value)
++          requireValue(result.job_id === target)
++          return result
++        },
++        { signal, target },
++      )
++    },
++    async retryJob(value, write) {
++      const captured = captureSMTPDeliveryCommand({ kind: 'retry', input: value })
++      if (captured.kind !== 'retry') throw new AccountFailure('invalid-input')
++      return request(
++        'retrySystemDelivery',
++        (value) => {
++          const v = shape(value, ['job_id', 'version']),
++            job_id = id(v.job_id)
++          requireValue(job_id !== captured.input.job_id)
++          return Object.freeze({ job_id, version: version(v.version) })
++        },
++        {
++          ...options(write),
++          target: captured.input.job_id,
++          body: { version: captured.input.version },
++        },
++      )
++    },
++  }
++}
+--- a/web/src/api/system-smtp-settings.ts
++++ b/web/src/api/system-smtp-settings.ts
+@@ -130,6 +130,9 @@
+   } else requireValue(atom.test(domain.toLowerCase()))
+   return result
+ }
++export function captureSMTPEmail(value: unknown): string {
++  return input(() => email(value))
++}
+ function retry(value: Record<string, unknown>) {
+   return {
+     auto_retry_count: decimal(value.auto_retry_count, 0n, 5n),
+--- a/web/src/tests/system-smtp-delivery-client.spec.ts
++++ b/web/src/tests/system-smtp-delivery-client.spec.ts
+@@ -0,0 +1,550 @@
++import { describe, expect, it, vi } from 'vitest'
++import { flushPromises } from '@vue/test-utils'
++import { accountTransport, type Fetch } from '../api/client'
++import { captureSMTPEmail } from '../api/system-smtp-settings'
++import {
++  captureSMTPDeliveryCommand,
++  createSystemSMTPDeliveryAPI,
++  type SMTPDeliveryCommand,
++  type SMTPDeliveryJob,
++  type SMTPDeliveryQuery,
++  type SMTPRetryInput,
++  type SMTPTestInput,
++  type SystemSMTPDeliveryAPI,
++} from '../api/system-smtp-delivery'
++
++const id = '01900000-0000-7000-8000-000000000001'
++const nextID = '01900000-0000-7000-8000-000000000002'
++const requestID = '01900000-0000-7000-8000-000000000003'
++const maximum = '9223372036854775807'
++const recipient = 'Sender@[IPv6:2001:DB8::7]'
++const signal = () => new AbortController().signal
++const options = () => ({ signal: signal(), csrfToken: 'S'.repeat(43), key: 'smtp/test:original' })
++const json = (value: unknown, status = 200) =>
++  new Response(JSON.stringify(value), { status, headers: { 'Content-Type': 'application/json' } })
++const job = (change: Partial<SMTPDeliveryJob> = {}): SMTPDeliveryJob => ({
++  job_id: id,
++  kind: 'test',
++  phase: 'sent',
++  attempts: '1',
++  version: '9007199254740993',
++  channel: 'smtp',
++  created_at: '2026-10-06T01:02:03.123456Z',
++  attempt_channel: 'smtp',
++  attempt_result: 'sent',
++  reason: 'sent',
++  ...change,
++})
++function deferred<T = void>() {
++  let resolve!: (value: T | PromiseLike<T>) => void
++  const promise = new Promise<T>((r) => (resolve = r))
++  return { promise, resolve }
++}
++function fullPage() {
++  return Array.from({ length: 25 }, (_, index) =>
++    job({ job_id: `01900000-0000-7000-8000-${(30 - index).toString(16).padStart(12, '0')}` }),
++  )
++}
++type Mode = 'test' | 'list' | 'detail' | 'retry'
++const invoke = (api: SystemSMTPDeliveryAPI, mode: Mode, abort = signal()) => {
++  if (mode === 'test') return api.testSMTP({ recipient }, { ...options(), signal: abort })
++  if (mode === 'list') return api.listJobs({}, abort)
++  if (mode === 'detail') return api.getJob(id, abort)
++  return api.retryJob({ job_id: id, version: '9007199254740993' }, { ...options(), signal: abort })
++}
++const successful = (mode: Mode) =>
++  mode === 'test'
++    ? { job_id: nextID }
++    : mode === 'retry'
++      ? { job_id: nextID, version: maximum }
++      : mode === 'list'
++        ? { items: [job()] }
++        : job()
++
++describe('SMTP delivery four fixed APIs and current-attempt facts', () => {
++  it('uses exact routes/options and preserves captured input bytes without inventing receipt fields', async () => {
++    const write = options(),
++      fetch = vi.fn<Fetch>(async (path, init) => {
++        if (init.method === 'POST')
++          return json(
++            path.endsWith('/test') ? { job_id: nextID } : { job_id: nextID, version: '7' },
++            202,
++          )
++        return json(path.includes('?') ? { items: [job()] } : job())
++      }),
++      api = createSystemSMTPDeliveryAPI(fetch),
++      original = { recipient },
++      captured = captureSMTPDeliveryCommand({ kind: 'test', input: original })
++    original.recipient = 'later@example.test'
++    expect(captured.kind).toBe('test')
++    if (captured.kind !== 'test') throw new Error('test capture required')
++    const accepted = await api.testSMTP(captured.input, write),
++      page = await api.listJobs({ cursor: 'opaque+/=' }, write.signal),
++      detail = await api.getJob(id, write.signal),
++      retried = await api.retryJob({ job_id: id, version: '9007199254740993' }, write)
++    expect(fetch.mock.calls.map(([path, init]) => [path, init.method])).toEqual([
++      ['/api/v1/system/smtp/test', 'POST'],
++      ['/api/v1/system/mail-jobs/management?limit=25&cursor=opaque%2B%2F%3D', 'GET'],
++      [`/api/v1/system/mail-jobs/${id}/management`, 'GET'],
++      [`/api/v1/system/mail-jobs/${id}/retry`, 'POST'],
++    ])
++    expect(accepted).toEqual({ job_id: nextID })
++    expect(retried).toEqual({ job_id: nextID, version: '7' })
++    expect(
++      [captured, captured.input, accepted, page, page.items, page.items[0], detail, retried].every(
++        Object.isFrozen,
++      ),
++    ).toBe(true)
++    for (const [, init] of fetch.mock.calls) {
++      expect(init).toMatchObject({
++        credentials: 'same-origin',
++        cache: 'no-store',
++        redirect: 'error',
++        signal: write.signal,
++      })
++      if (init.method === 'GET') {
++        expect(init.body).toBeUndefined()
++        expect(init.headers).not.toHaveProperty('Idempotency-Key')
++        expect(init.headers).not.toHaveProperty('X-CSRF-Token')
++      } else
++        expect(init.headers).toMatchObject({
++          'Idempotency-Key': write.key,
++          'X-CSRF-Token': write.csrfToken,
++        })
++    }
++    expect(fetch.mock.calls[0]![1].body === JSON.stringify({ recipient })).toBe(true)
++    expect(fetch.mock.calls[3]![1].body === JSON.stringify({ version: '9007199254740993' })).toBe(
++      true,
++    )
++  })
++
++  it.each([
++    'A@EXAMPLE.test',
++    'a@[192.0.2.1]',
++    'A@[IPv6:2001:DB8::7]',
++    'a@[ipv6:2001:db8::7]',
++    'A@[IPv6:192.0.2.1]',
++    'a@[ipv6:192.0.2.1]',
++    'a@[::ffff:192.0.2.1]',
++    'a@[0:0:0:0:0:ffff:c000:201]',
++    "a+b!#$%&'*-/=?^_`{|}~@domain",
++  ])('reuses the accepted mailbox qualification and preserves %s', async (value) => {
++    const fetch = vi.fn<Fetch>(async () => json({ job_id: nextID }, 202)),
++      api = createSystemSMTPDeliveryAPI(fetch)
++    expect(captureSMTPEmail(value)).toBe(value)
++    await api.testSMTP({ recipient: value }, options())
++    expect(fetch.mock.calls[0]![1].body === JSON.stringify({ recipient: value })).toBe(true)
++  })
++
++  it('rejects invalid inputs before dispatch and does not retain their material in errors', async () => {
++    const fetch = vi.fn<Fetch>(),
++      api = createSystemSMTPDeliveryAPI(fetch)
++    for (const recipient of [
++      '',
++      ' a@example.test',
++      'a@example.test ',
++      'A@[ipv6:2001:db8::7]',
++      'a@[ipv6:2001:DB8::7]',
++      'a@[iPv6:2001:db8::7]',
++      'a@[2001:db8::7]',
++      'a@[::ffff:0:1:2]',
++      'a@[192.000.2.1]',
++      'a@例子.test',
++      'a\n@example.test',
++      'a\0@example.test',
++      'a'.repeat(250) + '@test',
++    ]) {
++      const error = await api.testSMTP({ recipient }, options()).catch((e) => e)
++      expect(error.kind).toBe('invalid-input')
++      expect(Object.keys(error).sort()).toEqual(['kind', 'name', 'problem'])
++    }
++    for (const input of [{}, { recipient: null }, { recipient, version: '1' }])
++      await expect(api.testSMTP(input as SMTPTestInput, options())).rejects.toMatchObject({
++        kind: 'invalid-input',
++      })
++    for (const change of [
++      { job_id: id.toUpperCase().replace('01900000', '0190000A') },
++      { job_id: id.replace('-7000-', '-4000-') },
++      { job_id: `../${id}` },
++      { version: '0' },
++      { version: '01' },
++      { version: maximum },
++      { version: '9223372036854775808' },
++      { version: 1 },
++      { version: null },
++      { recipient },
++    ])
++      await expect(
++        api.retryJob({ job_id: id, version: '1', ...change } as SMTPRetryInput, options()),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    for (const bad of [
++      { kind: 'resend', input: {} },
++      { kind: 'test', input: { recipient }, extra: true },
++    ])
++      expect(() => captureSMTPDeliveryCommand(bad as SMTPDeliveryCommand)).toThrow(
++        expect.objectContaining({ kind: 'invalid-input' }),
++      )
++    for (const query of [
++      { cursor: '' },
++      { cursor: null },
++      { cursor: '🧩'.repeat(2049) },
++      { limit: 25 },
++    ])
++      await expect(api.listJobs(query as SMTPDeliveryQuery, signal())).rejects.toMatchObject({
++        kind: 'invalid-input',
++      })
++    await expect(api.getJob(id + '/management', signal())).rejects.toMatchObject({
++      kind: 'invalid-input',
++    })
++    for (const change of [{ csrfToken: '' }, { key: '' }, { key: '\n' }, { headers: {} }])
++      await expect(api.testSMTP({ recipient }, { ...options(), ...change })).rejects.toMatchObject({
++        kind: 'invalid-input',
++      })
++    expect(fetch).not.toHaveBeenCalled()
++  })
++
++  it('requires exact 202 receipts and treats retry version as the new current cycle version', async () => {
++    for (const value of [
++      null,
++      {},
++      { job_id: id, version: '1' },
++      { job_id: 'bad' },
++      { job_id: id, phase: 'sent' },
++    ])
++      await expect(
++        createSystemSMTPDeliveryAPI(async () => json(value, 202)).testSMTP(
++          { recipient },
++          options(),
++        ),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++    for (const value of [
++      { job_id: id, version: '2' },
++      { job_id: nextID },
++      { job_id: nextID, version: '0' },
++      { job_id: nextID, version: '01' },
++      { job_id: nextID, version: 1 },
++      { job_id: nextID, version: '9223372036854775808' },
++      { job_id: nextID, version: '3', recipient },
++    ])
++      await expect(
++        createSystemSMTPDeliveryAPI(async () => json(value, 202)).retryJob(
++          { job_id: id, version: '5' },
++          options(),
++        ),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++    for (const version of ['1', '7', maximum])
++      expect(
++        await createSystemSMTPDeliveryAPI(async () =>
++          json({ job_id: nextID, version }, 202),
++        ).retryJob({ job_id: id, version: '5' }, options()),
++      ).toEqual({ job_id: nextID, version })
++    await expect(
++      createSystemSMTPDeliveryAPI(async () => json({ job_id: nextID }, 200)).testSMTP(
++        { recipient },
++        options(),
++      ),
++    ).rejects.toMatchObject({ kind: 'invalid-response' })
++  })
++
++  it('accepts only projected current-attempt facts without equating job phase and attempt result', async () => {
++    const cases: SMTPDeliveryJob[] = []
++    for (const kind of ['invitation', 'password_reset', 'test'] as const)
++      cases.push(job({ kind, channel: 'backend_log', attempt_channel: 'backend_log' }))
++    for (const phase of ['pending', 'unknown', 'cancelled'] as const)
++      cases.push(
++        job({ phase, attempts: '0', channel: 'smtp', attempt_channel: null, attempt_result: null }),
++      )
++    for (const phase of [
++      'claimed',
++      'sending',
++      'retry_wait',
++      'sent',
++      'failed',
++      'unknown',
++      'cancelled',
++    ] as const)
++      cases.push(job({ phase, attempt_result: null }))
++    cases.push(job({ phase: 'cancelled', attempt_result: 'sent' }))
++    cases.push(job({ phase: 'retry_wait', attempt_result: 'failed' }))
++    cases.push(
++      job({ phase: 'unknown', channel: null, attempt_channel: null, attempt_result: null }),
++    )
++    const queued = job({
++      phase: 'enqueue_pending',
++      attempts: '0',
++      version: '1',
++      attempt_channel: null,
++      attempt_result: null,
++    })
++    const { reason: _reason, ...enqueue } = queued
++    cases.push(enqueue)
++    for (const value of cases)
++      expect(
++        await createSystemSMTPDeliveryAPI(async () => json(value)).getJob(id, signal()),
++      ).toEqual(value)
++  })
++
++  it('rejects missing, unknown and inconsistent row facts as a whole response', async () => {
++    const invalid: unknown[] = [null, [], { ...job(), recipient }, { ...job(), root_id: id }]
++    for (const key of Object.keys(job()).filter((key) => key !== 'reason')) {
++      const incomplete = { ...job() } as Record<string, unknown>
++      delete incomplete[key]
++      invalid.push(incomplete)
++    }
++    for (const change of [
++      { kind: 'reset' },
++      { phase: 'processing' },
++      { attempts: '7' },
++      { attempts: '01' },
++      { attempts: 1 },
++      { version: '0' },
++      { version: maximum + '0' },
++      { channel: 'log' },
++      { channel: null },
++      { attempt_channel: 'log' },
++      { attempt_channel: 'backend_log' },
++      { attempts: '0' },
++      { attempt_result: 'retrying' },
++      { attempt_channel: null },
++      { phase: 'failed', attempt_channel: null, attempt_result: null },
++      {
++        phase: 'enqueue_pending',
++        attempt_channel: null,
++        attempt_result: null,
++        attempts: '0',
++        version: '1',
++      },
++      { reason: '' },
++      { reason: null },
++      { reason: 'server_exception' },
++      { created_at: '2026-02-29T01:02:03.123456Z' },
++      { created_at: '2026-10-06T01:02:03.123Z' },
++      { created_at: '2026-10-06T01:02:03.123456+00:00' },
++    ])
++      invalid.push({ ...job(), ...change })
++    for (const value of invalid) {
++      await expect(
++        createSystemSMTPDeliveryAPI(async () => json(value)).getJob(id, signal()),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++      await expect(
++        createSystemSMTPDeliveryAPI(async () => json({ items: [value] })).listJobs({}, signal()),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++    }
++    await expect(
++      createSystemSMTPDeliveryAPI(async () => json(job({ job_id: nextID }))).getJob(id, signal()),
++    ).rejects.toMatchObject({ kind: 'invalid-response' })
++  })
++
++  it('keeps complete microsecond ordering, Gregorian years and opaque byte-bounded cursors', async () => {
++    for (const created_at of ['0000-02-29T00:00:00.000001Z', '0099-12-31T23:59:59.999999Z'])
++      expect(
++        (
++          await createSystemSMTPDeliveryAPI(async () => json(job({ created_at }))).getJob(
++            id,
++            signal(),
++          )
++        ).created_at,
++      ).toBe(created_at)
++    const items = [
++      job({ job_id: id, created_at: '2026-10-06T01:02:03.123456Z' }),
++      job({ job_id: nextID, created_at: '2026-10-06T01:02:03.123455Z' }),
++    ]
++    expect(
++      (await createSystemSMTPDeliveryAPI(async () => json({ items })).listJobs({}, signal())).items,
++    ).toEqual(items)
++    const cursor = '🧩'.repeat(2048)
++    expect(
++      (
++        await createSystemSMTPDeliveryAPI(async () =>
++          json({ items: fullPage(), next_cursor: cursor }),
++        ).listJobs({ cursor }, signal())
++      ).next_cursor,
++    ).toBe(cursor)
++    expect(
++      await createSystemSMTPDeliveryAPI(async () => json({ items: [] })).listJobs({}, signal()),
++    ).toEqual({ items: [] })
++    for (const value of [
++      { items: [...items].reverse() },
++      { items: [job(), job()] },
++      { items: [job(), job({ job_id: nextID })] },
++      { items: fullPage().concat(job()) },
++      { items: [], next_cursor: 'opaque' },
++      { items: fullPage(), next_cursor: null },
++      { items: fullPage(), next_cursor: '' },
++      { items: fullPage(), next_cursor: cursor + 'a' },
++      { items: [], total: 0 },
++      { items: null },
++    ])
++      await expect(
++        createSystemSMTPDeliveryAPI(async () => json(value)).listJobs({}, signal()),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++  })
++
++  it('closes the three added transport option shapes and retains the 16 KiB request boundary', async () => {
++    const fetch = vi.fn<Fetch>(async () => json({}, 202)),
++      request = accountTransport(fetch),
++      write = options()
++    for (const extra of [
++      { body: {} },
++      { csrf: write.csrfToken },
++      { key: write.key },
++      { target: id },
++      { models: {} },
++      { query: '' },
++    ])
++      await expect(
++        request('listMailJobManagement', (v) => v, {
++          signal: write.signal,
++          mailJobs: {},
++          ...extra,
++        }),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    for (const extra of [
++      { body: {} },
++      { mailJobs: {} },
++      { key: write.key },
++      { csrf: write.csrfToken },
++    ])
++      await expect(
++        request('getMailJobManagement', (v) => v, { signal: write.signal, target: id, ...extra }),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    for (const extra of [{ target: id }, { mailJobs: {} }, { csrf: '' }, { key: '' }])
++      await expect(
++        request('testSMTP', (v) => v, {
++          signal: write.signal,
++          body: {},
++          csrf: write.csrfToken,
++          key: write.key,
++          ...extra,
++        }),
++      ).rejects.toMatchObject({ kind: 'invalid-input' })
++    await expect(
++      request('listMailJobManagement', (v) => v, {
++        signal: write.signal,
++        mailJobs: { cursor: '🧩'.repeat(2049) },
++      }),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(fetch).not.toHaveBeenCalled()
++    const body = { value: '🧩' + 'x'.repeat(16384 - 16) },
++      wire = { signal: write.signal, csrf: write.csrfToken, key: write.key, body }
++    expect(new TextEncoder().encode(JSON.stringify(body)).byteLength).toBe(16384)
++    await request('testSMTP', () => true, wire)
++    await expect(
++      request('testSMTP', () => true, { ...wire, body: { value: body.value + 'x' } }),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(fetch).toHaveBeenCalledTimes(1)
++  })
++
++  it.each(['test', 'list', 'detail', 'retry'] as const)(
++    'joins %s native EOF at exactly 600000 bytes',
++    async (mode) => {
++      let controller!: ReadableStreamDefaultController<Uint8Array>
++      const stream = new ReadableStream<Uint8Array>({
++          start(c) {
++            controller = c
++          },
++        }),
++        value = successful(mode),
++        bytes = new Uint8Array(600000)
++      bytes.fill(32)
++      bytes.set(new TextEncoder().encode(JSON.stringify(value)))
++      const api = createSystemSMTPDeliveryAPI(
++        async () =>
++          new Response(stream, {
++            status: mode === 'test' || mode === 'retry' ? 202 : 200,
++            headers: { 'Content-Type': 'application/json' },
++          }),
++      )
++      let settled = false
++      const result = invoke(api, mode).then((value) => {
++        settled = true
++        return value
++      })
++      controller.enqueue(bytes)
++      try {
++        await flushPromises()
++        expect(settled).toBe(false)
++      } finally {
++        controller.close()
++      }
++      expect(await result).toEqual(value)
++    },
++  )
++
++  it.each(['test', 'list', 'detail', 'retry'] as const)(
++    'holds %s through real native overflow, abort and rejected-media cancellation',
++    async (mode) => {
++      for (const failure of ['overflow', 'abort', 'media'] as const) {
++        const tail = deferred(),
++          abort = new AbortController(),
++          cancel = vi.fn(() => tail.promise)
++        const stream = new ReadableStream<Uint8Array>({
++          start(c) {
++            if (failure === 'overflow') c.enqueue(new Uint8Array(600001))
++          },
++          cancel,
++        })
++        const api = createSystemSMTPDeliveryAPI(
++          async () =>
++            new Response(stream, {
++              status: mode === 'test' || mode === 'retry' ? 202 : 200,
++              headers: { 'Content-Type': failure === 'media' ? 'text/plain' : 'application/json' },
++            }),
++        )
++        let settled = false
++        const result = invoke(api, mode, abort.signal).catch((e) => {
++          settled = true
++          return e
++        })
++        try {
++          await flushPromises()
++          if (failure === 'abort') abort.abort()
++          await flushPromises()
++          expect(cancel).toHaveBeenCalledTimes(1)
++          expect(settled).toBe(false)
++        } finally {
++          tail.resolve()
++        }
++        expect(await result).toMatchObject({
++          kind: failure === 'abort' ? 'cancelled' : 'invalid-response',
++        })
++      }
++    },
++  )
++
++  it('preserves a strict post-read 404 Problem as an error and rejects malformed success bodies', async () => {
++    const value = {
++      type: 'urn:agenteam:problem:not-found',
++      title: 'Not found',
++      status: 404,
++      detail: '',
++      instance: '/api/v1/system/smtp/test',
++      code: 'NOT_FOUND',
++      request_id: requestID,
++      commit_state: 'not_started',
++    }
++    await expect(
++      createSystemSMTPDeliveryAPI(
++        async () =>
++          new Response(JSON.stringify(value), {
++            status: 404,
++            headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': requestID },
++          }),
++      ).testSMTP({ recipient }, options()),
++    ).rejects.toMatchObject({
++      kind: 'problem',
++      problem: { code: 'NOT_FOUND', commit_state: 'not_started' },
++    })
++    for (const response of [
++      new Response(null, { status: 204 }),
++      new Response('{', { status: 202, headers: { 'Content-Type': 'application/json' } }),
++      new Response(new Uint8Array([255]), {
++        status: 202,
++        headers: { 'Content-Type': 'application/json' },
++      }),
++    ])
++      await expect(
++        createSystemSMTPDeliveryAPI(async () => response).testSMTP({ recipient }, options()),
++      ).rejects.toMatchObject({ kind: 'invalid-response' })
++  })
++})
+--- a/web/src/composables/useSession.ts
++++ b/web/src/composables/useSession.ts
+@@ -90,6 +90,38 @@
+   type SMTPUnconfigureInput,
+   type SMTPResult,
+ } from '../api/system-smtp-settings'
++import {
++  createSystemSMTPDeliveryAPI,
++  captureSMTPDeliveryCommand,
++  type SystemSMTPDeliveryAPI,
++  type SMTPDeliveryCommand,
++  type SMTPDeliveryResult,
++  type SMTPDeliveryQuery,
++  type SMTPDeliveryPage,
++  type SMTPDeliveryJob,
++  type SMTPTestInput,
++  type SMTPRetryInput,
++} from '../api/system-smtp-delivery'
++
++type SMTPDeliveryAction = 'smtp-delivery-read' | 'smtp-delivery-write'
++export type SystemSMTPDeliveryProgress = Readonly<{
++  kind: SMTPDeliveryCommand['kind']
++  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
++  result: SMTPDeliveryResult | null
++  observation: 'none' | 'current' | 'failed'
++  contextValid: boolean
++  canRetryOriginal: boolean
++}>
++export type SMTPDeliveryObservation =
++  | Readonly<{ kind: 'list'; value: SMTPDeliveryPage }>
++  | Readonly<{ kind: 'detail'; value: SMTPDeliveryJob }>
++type SystemSMTPDeliveryIntent = Readonly<{
++  kind: SMTPDeliveryCommand['kind']
++  payload: { command: SMTPDeliveryCommand | null; body: string | null }
++  identity: PersonalIdentity
++  csrf: string
++  key: string
++}>
+ 
+ type SMTPAction = 'smtp-settings-read' | 'smtp-settings-write'
+ export type SystemSMTPKind = 'configure' | 'policy' | 'unconfigure'
+@@ -252,6 +284,7 @@
+   | SelectionAction
+   | AccountSecurityAction
+   | SMTPAction
++  | SMTPDeliveryAction
+ interface Operation {
+   generation: number
+   kind: Action
+@@ -355,6 +388,7 @@
+   selectionAPI: SystemModelSelectionAPI = createSystemModelSelectionAPI(),
+   accountSecurityAPI: SystemAccountSecurityAPI = createSystemAccountSecurityAPI(),
+   smtpAPI: SystemSMTPSettingsAPI = createSystemSMTPSettingsAPI(),
++  smtpDeliveryAPI: SystemSMTPDeliveryAPI = createSystemSMTPDeliveryAPI(),
+ ) {
+   const state = shallowReactive<PublicState>({
+     phase: 'checking',
+@@ -418,6 +452,19 @@
+     materialInvalid: boolean
+     materialRevision: number
+   }>({ progress: null, hasMaterial: false, materialInvalid: false, materialRevision: 0 })
++  const smtpDeliveryRevisions: Record<SMTPDeliveryAction, number> = {
++    'smtp-delivery-read': 0,
++    'smtp-delivery-write': 0,
++  }
++  const isSMTPDeliveryAction = (kind: Action): kind is SMTPDeliveryAction =>
++    Object.hasOwn(smtpDeliveryRevisions, kind)
++  let smtpDeliveryIntent: SystemSMTPDeliveryIntent | null = null,
++    smtpDeliveryUncertain = false,
++    smtpDeliveryChecked = false,
++    smtpDeliveryKeyConflict = false
++  const smtpDeliveryState = shallowReactive<{
++    progress: Omit<SystemSMTPDeliveryProgress, 'contextValid' | 'canRetryOriginal'> | null
++  }>({ progress: null })
+   const modelRevisions: Record<ModelAction, number> = {
+     'model-providers': 0,
+     'model-provider': 0,
+@@ -526,6 +573,7 @@
+       clearSelectionState()
+       clearAccountSecurityState(true)
+       clearSMTPState(true)
++      clearSMTPDeliveryState()
+       ++systemRevision
+       systemState.deniedIdentity = null
+       sessionCSRF = ''
+@@ -629,6 +677,12 @@
+       clearAccountSecurityState(true)
+     if (!same || view.user.role !== 'admin' || (smtpIntent && smtpIntent.csrf !== sessionCSRF))
+       clearSMTPState(true)
++    if (
++      !same ||
++      view.user.role !== 'admin' ||
++      (smtpDeliveryIntent && smtpDeliveryIntent.csrf !== sessionCSRF)
++    )
++      clearSMTPDeliveryState()
+     state.notice = ''
+     state.fields = {}
+     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
+@@ -1064,7 +1118,8 @@
+       | ModelAction
+       | SelectionAction
+       | AccountSecurityAction
+-      | SMTPAction = 'personal',
++      | SMTPAction
++      | SMTPDeliveryAction = 'personal',
+   ): Promise<T> {
+     if (owner) return Promise.reject(new AccountFailure('busy'))
+     const revisionNow = () =>
+@@ -1084,7 +1139,9 @@
+                     ? accountSecurityRevisions[kind]
+                     : isSMTPAction(kind)
+                       ? smtpRevisions[kind]
+-                      : providerRevisions[kind]
++                      : isSMTPDeliveryAction(kind)
++                        ? smtpDeliveryRevisions[kind]
++                        : providerRevisions[kind]
+     const revision = revisionNow()
+     const op: Operation = {
+       kind,
+@@ -1337,6 +1394,7 @@
+           'selection-lookup',
+           'account-security-write',
+           'smtp-settings-write',
++          'smtp-delivery-write',
+         ].includes(op.kind) &&
+           e.problem?.code === 'CSRF_FAILED')
+       ) {
+@@ -1351,6 +1409,7 @@
+         clearSelectionState()
+         clearAccountSecurityState(true)
+         clearSMTPState(true)
++        clearSMTPDeliveryState()
+         systemState.deniedIdentity = identity
+       }
+     }
+@@ -2761,7 +2820,242 @@
+       return performSMTP(smtpIntent)
+     },
+   }
++  function clearSMTPDeliveryPayload(original: SystemSMTPDeliveryIntent | null) {
++    if (!original) return
++    original.payload.command = null
++    original.payload.body = null
++  }
++  function clearSMTPDeliveryState() {
++    const retiring = owner && isSMTPDeliveryAction(owner.kind) ? owner : null
++    ++smtpDeliveryRevisions['smtp-delivery-read']
++    ++smtpDeliveryRevisions['smtp-delivery-write']
++    clearSMTPDeliveryPayload(smtpDeliveryIntent)
++    smtpDeliveryIntent = null
++    smtpDeliveryUncertain = smtpDeliveryChecked = smtpDeliveryKeyConflict = false
++    smtpDeliveryState.progress = null
++    retiring?.abandon?.()
++  }
++  function readSMTPDelivery<T>(work: (signal: AbortSignal) => Promise<T>): Promise<T> {
++    try {
++      return runAuthorized(
++        invitationIdentity(),
++        (op) => work(op.abort.signal),
++        undefined,
++        'smtp-delivery-read',
++      )
++    } catch (error) {
++      return Promise.reject(error)
++    }
++  }
++  function smtpDeliveryBody(command: SMTPDeliveryCommand) {
++    return JSON.stringify(
++      command.kind === 'test' ? command.input : { version: command.input.version },
++    )
++  }
++  function publishSMTPDelivery(
++    original: SystemSMTPDeliveryIntent,
++    phase: SystemSMTPDeliveryProgress['phase'],
++    result: SMTPDeliveryResult | null = null,
++  ) {
++    smtpDeliveryState.progress = Object.freeze({
++      kind: original.kind,
++      phase,
++      result,
++      observation: 'none',
++    })
++  }
++  function performSMTPDelivery(original: SystemSMTPDeliveryIntent): Promise<SMTPDeliveryResult> {
++    if (owner) return Promise.reject(new AccountFailure('busy'))
++    if (
++      smtpDeliveryIntent !== original ||
++      !original.payload.command ||
++      !original.payload.body ||
++      !invitationContext(original)
++    )
++      return Promise.reject(new AccountFailure('invalid-input'))
++    const revision = smtpDeliveryRevisions['smtp-delivery-write']
++    const live = () =>
++      smtpDeliveryIntent === original &&
++      revision === smtpDeliveryRevisions['smtp-delivery-write'] &&
++      invitationContext(original)
++    let dispatched = false
++    smtpDeliveryChecked = false
++    publishSMTPDelivery(original, 'submitting')
++    if (!live()) return Promise.reject(new AccountFailure('cancelled'))
++    return runAuthorized<SMTPDeliveryResult>(
++      original.identity,
++      async (op, current) => {
++        if (!current() || !live()) throw new AccountFailure('cancelled')
++        const command = original.payload.command
++        if (!command || smtpDeliveryBody(command) !== original.payload.body)
++          throw new AccountFailure('invalid-input')
++        const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
++        dispatched = true
++        try {
++          return command.kind === 'test'
++            ? { kind: 'test', value: await smtpDeliveryAPI.testSMTP(command.input, options) }
++            : { kind: 'retry', value: await smtpDeliveryAPI.retryJob(command.input, options) }
++        } finally {
++          if (smtpDeliveryIntent !== original) clearSMTPDeliveryPayload(original)
++        }
++      },
++      undefined,
++      'smtp-delivery-write',
++    ).then(
++      (result) => {
++        if (!live()) throw new AccountFailure('cancelled')
++        clearSMTPDeliveryPayload(original)
++        publishSMTPDelivery(original, 'confirmed', result)
++        if (!live()) throw new AccountFailure('cancelled')
++        smtpDeliveryIntent = null
++        smtpDeliveryUncertain = smtpDeliveryChecked = smtpDeliveryKeyConflict = false
++        return result
++      },
++      (error: unknown) => {
++        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
++        if (
++          smtpDeliveryIntent === original &&
++          revision === smtpDeliveryRevisions['smtp-delivery-write'] &&
++          sameIdentity(original.identity, personalContext.identity)
++        ) {
++          const p = e.problem
++          const known =
++            !dispatched ||
++            (p &&
++              ['not_started', 'not_committed'].includes(p.commit_state) &&
++              p.status < 500 &&
++              [
++                'INVALID_ARGUMENT',
++                'VERSION_CONFLICT',
++                'INVALID_STATE',
++                'RATE_LIMITED',
++                'RESOURCE_DELETED',
++              ].includes(p.code))
++          // Test and retry both read the current job after a commit or historical
++          // match. In particular 404/not_started does not reject that command.
++          smtpDeliveryKeyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
++          smtpDeliveryUncertain ||= !known || smtpDeliveryKeyConflict
++          smtpDeliveryChecked = false
++          publishSMTPDelivery(original, smtpDeliveryUncertain ? 'uncertain' : 'rejected')
++        }
++        throw e
++      },
++    )
++  }
++  function startSMTPDelivery(command: SMTPDeliveryCommand) {
++    try {
++      const identity = invitationIdentity()
++      if (owner || smtpDeliveryIntent || personalIntent || pending) throw new AccountFailure('busy')
++      const captured = captureSMTPDeliveryCommand(command)
++      const original: SystemSMTPDeliveryIntent = Object.freeze({
++        kind: captured.kind,
++        payload: { command: captured, body: smtpDeliveryBody(captured) },
++        identity,
++        csrf: sessionCSRF,
++        key: newKey(),
++      })
++      smtpDeliveryIntent = original
++      smtpDeliveryUncertain = smtpDeliveryChecked = smtpDeliveryKeyConflict = false
++      return performSMTPDelivery(original)
++    } catch (error) {
++      return Promise.reject(error)
++    }
++  }
++  const smtpDelivery = {
++    get progress(): SystemSMTPDeliveryProgress | null {
++      const value = smtpDeliveryState.progress
++      if (!value) return null
++      const contextValid = !!smtpDeliveryIntent && invitationContext(smtpDeliveryIntent)
++      return Object.freeze({
++        ...value,
++        contextValid,
++        canRetryOriginal:
++          !!smtpDeliveryIntent?.payload.command &&
++          smtpDeliveryUncertain &&
++          smtpDeliveryChecked &&
++          !smtpDeliveryKeyConflict &&
++          contextValid &&
++          !state.busy,
++      })
++    },
++    list(query: SMTPDeliveryQuery = {}) {
++      return readSMTPDelivery((signal) => smtpDeliveryAPI.listJobs(query, signal))
++    },
++    get(jobID: string) {
++      return readSMTPDelivery((signal) => smtpDeliveryAPI.getJob(jobID, signal))
++    },
++    abandonRead() {
++      ++smtpDeliveryRevisions['smtp-delivery-read']
++      if (owner?.kind === 'smtp-delivery-read') owner.abandon?.()
++    },
++    abandon: clearSMTPDeliveryState,
++    editRejected() {
++      if (
++        !smtpDeliveryIntent ||
++        smtpDeliveryUncertain ||
++        smtpDeliveryState.progress?.phase !== 'rejected' ||
++        owner ||
++        !invitationContext(smtpDeliveryIntent)
++      )
++        throw new AccountFailure('invalid-input')
++      clearSMTPDeliveryState()
++    },
++    startTest(input: SMTPTestInput) {
++      return startSMTPDelivery({ kind: 'test', input })
++    },
++    startRetry(input: SMTPRetryInput) {
++      return startSMTPDelivery({ kind: 'retry', input })
++    },
++    async checkOriginal(): Promise<SMTPDeliveryObservation> {
++      const original = smtpDeliveryIntent
++      if (!original?.payload.command || !smtpDeliveryUncertain || owner)
++        throw new AccountFailure('invalid-input')
++      smtpDeliveryChecked = false
++      await restore()
++      if (
++        smtpDeliveryIntent !== original ||
++        !original.payload.command ||
++        !invitationContext(original)
++      )
++        throw new AccountFailure('cancelled')
++      smtpDeliveryChecked = true
++      try {
++        const command = original.payload.command
++        const value: SMTPDeliveryObservation =
++          command.kind === 'test'
++            ? Object.freeze({ kind: 'list', value: await smtpDelivery.list() })
++            : Object.freeze({ kind: 'detail', value: await smtpDelivery.get(command.input.job_id) })
++        if (
++          smtpDeliveryIntent === original &&
++          invitationContext(original) &&
++          smtpDeliveryState.progress
++        )
++          smtpDeliveryState.progress = Object.freeze({
++            ...smtpDeliveryState.progress,
++            observation: 'current',
++          })
++        return value
++      } catch (error) {
++        if (
++          smtpDeliveryIntent === original &&
++          invitationContext(original) &&
++          smtpDeliveryState.progress
++        )
++          smtpDeliveryState.progress = Object.freeze({
++            ...smtpDeliveryState.progress,
++            observation: 'failed',
++          })
++        throw error
++      }
++    },
++    retryOriginal() {
++      if (!smtpDeliveryIntent || !smtpDelivery.progress?.canRetryOriginal)
++        return Promise.reject(new AccountFailure('invalid-input'))
++      return performSMTPDelivery(smtpDeliveryIntent)
++    },
++  }
+   const system = {
++    smtpDelivery,
+     smtp,
+     accountSecurity,
+     selection,
+--- a/web/src/tests/system-smtp-delivery-state.spec.ts
++++ b/web/src/tests/system-smtp-delivery-state.spec.ts
+@@ -0,0 +1,811 @@
++import { afterEach, describe, expect, it, vi } from 'vitest'
++import { flushPromises } from '@vue/test-utils'
++import { watch } from 'vue'
++import { createAccountAPI, type SessionView } from '../api/account'
++import { type CommitState, type Fetch } from '../api/client'
++import { createSystemAccountAPI } from '../api/system-account'
++import { createSystemInvitationAPI } from '../api/system-invitations'
++import { createSystemProviderAPI } from '../api/system-providers'
++import { createSystemModelAPI } from '../api/system-models'
++import { createSystemModelSelectionAPI } from '../api/system-model-selection'
++import { createSystemAccountSecurityAPI } from '../api/system-account-security'
++import { createSystemSMTPSettingsAPI } from '../api/system-smtp-settings'
++import { createSystemSMTPDeliveryAPI } from '../api/system-smtp-delivery'
++import { createSessionController, type SessionController } from '../composables/useSession'
++import { useTheme } from '../composables/useTheme'
++
++const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
++const time = '2026-10-06T12:34:56.123456Z'
++const recipient = 'Sender@[IPv6:2001:DB8::7]'
++const view = (sessionID = id(2), role: 'admin' | 'user' = 'admin'): SessionView => ({
++  user: {
++    id: id(1),
++    email: 'admin@example.test',
++    username: 'admin',
++    display_name: 'Admin',
++    role,
++    theme: 'system',
++    version: '1',
++    initial_password_suggestion: false,
++  },
++  session: { id: sessionID, issued_at: time, idle_expires_at: time, absolute_expires_at: time },
++  csrf_token: 'S'.repeat(43),
++})
++const settings = () => ({
++  id: id(10),
++  version: '1',
++  configured: true,
++  host: 'mail.example',
++  port: 25,
++  encryption: 'none',
++  username: '',
++  sender_email: 'sender@example.test',
++  sender_name: '',
++  credential_present: false,
++  auto_retry_count: '0',
++  retry_interval_seconds: '10',
++})
++const job = (jobID = id(20), version = '1') => ({
++  job_id: jobID,
++  kind: 'test',
++  phase: 'sent',
++  attempts: '1',
++  version,
++  channel: 'smtp',
++  created_at: time,
++  attempt_channel: 'smtp',
++  attempt_result: 'sent',
++  reason: 'sent',
++})
++const json = (value: unknown, status = 200) =>
++  new Response(JSON.stringify(value), {
++    status,
++    headers: {
++      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
++      'X-Request-ID': id(9),
++    },
++  })
++const problem = (code: string, status = 503, commit_state: CommitState = 'not_started') =>
++  json(
++    {
++      type: 'urn:agenteam:problem:test',
++      title: 'Failure',
++      status,
++      code,
++      detail: '',
++      instance: '/api/v1/system/smtp/test',
++      request_id: id(9),
++      commit_state,
++    },
++    status,
++  )
++function barrier<T = void>() {
++  let resolve!: (value: T | PromiseLike<T>) => void
++  const promise = new Promise<T>((r) => {
++    resolve = r
++  })
++  return { promise, resolve }
++}
++const owners: SessionController[] = []
++async function fixture() {
++  let current = view(),
++    session: Fetch = async () => json(current),
++    smtp: Fetch = async () => json(settings()),
++    delivery: Fetch = async (path, init) =>
++      init.method === 'POST'
++        ? json(path.endsWith('/test') ? { job_id: id(21) } : { job_id: id(21), version: '7' }, 202)
++        : json(path.includes('?') ? { items: [job()] } : job()),
++    other: Fetch = async (path) => {
++      if (path === '/api/v1/me') return json({ user: current.user, avatar: null })
++      if (path.startsWith('/api/v1/system/model-providers'))
++        return json({ items: [], next_cursor: null })
++      return json({ items: [] })
++    }
++  const fetch = vi.fn<Fetch>(async (path, init) => {
++    if (path === '/api/v1/session') return session(path, init)
++    if (path === '/api/v1/auth/bootstrap')
++      return json({
++        csrf_token: 'A'.repeat(43),
++        challenge_modes: ['rotate'],
++        delivery_channel: 'backend_log',
++      })
++    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
++    if (path === '/api/v1/system/smtp/test' || path.startsWith('/api/v1/system/mail-jobs/'))
++      return delivery(path, init)
++    if (path.startsWith('/api/v1/system/smtp')) return smtp(path, init)
++    return other(path, init)
++  })
++  const auth = createSessionController(
++    createAccountAPI(fetch),
++    createSystemAccountAPI(fetch),
++    createSystemInvitationAPI(fetch),
++    createSystemProviderAPI(fetch),
++    createSystemModelAPI(fetch),
++    createSystemModelSelectionAPI(fetch),
++    createSystemAccountSecurityAPI(fetch),
++    createSystemSMTPSettingsAPI(fetch),
++    createSystemSMTPDeliveryAPI(fetch),
++  )
++  owners.push(auth)
++  await auth.restore()
++  return {
++    auth,
++    fetch,
++    setDelivery(value: Fetch) {
++      delivery = value
++    },
++    setSMTP(value: Fetch) {
++      smtp = value
++    },
++    setOther(value: Fetch) {
++      other = value
++    },
++    setSession(value: SessionView) {
++      current = value
++    },
++    setSessionRequest(value: Fetch) {
++      session = value
++    },
++    writes() {
++      return fetch.mock.calls.filter(
++        ([path, init]) =>
++          (path === '/api/v1/system/smtp/test' || path.endsWith('/retry')) &&
++          init.method === 'POST',
++      )
++    },
++  }
++}
++afterEach(() => {
++  for (const auth of owners.splice(0)) auth.leave()
++  vi.useRealTimers()
++  vi.restoreAllMocks()
++  useTheme().setTheme('system')
++})
++
++describe('SMTP delivery ninth Cookie owner domain', () => {
++  it('captures before key/dispatch, blocks double starts and publishes only safe confirmations', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtpDelivery
++    const random = vi.spyOn(crypto, 'randomUUID')
++    await expect(api.startTest({ recipient: '' })).rejects.toMatchObject({ kind: 'invalid-input' })
++    await expect(
++      api.startRetry({ job_id: id(20), version: '9223372036854775807' }),
++    ).rejects.toMatchObject({ kind: 'invalid-input' })
++    expect(random).not.toHaveBeenCalled()
++    expect(f.writes()).toHaveLength(0)
++    const held = barrier<Response>(),
++      input = { recipient }
++    f.setDelivery(() => held.promise)
++    const started = api.startTest(input)
++    input.recipient = 'later@example.test'
++    await flushPromises()
++    const generated = random.mock.calls.length
++    expect(generated).toBe(1)
++    await expect(api.startTest({ recipient })).rejects.toMatchObject({ kind: 'busy' })
++    expect(random).toHaveBeenCalledTimes(generated)
++    expect(f.writes()).toHaveLength(1)
++    expect(f.writes()[0]![1].body === JSON.stringify({ recipient })).toBe(true)
++    expect(JSON.stringify(api).includes(recipient)).toBe(false)
++    held.resolve(json({ job_id: id(21) }, 202))
++    expect(await started).toEqual({ kind: 'test', value: { job_id: id(21) } })
++    expect(api.progress).toMatchObject({
++      phase: 'confirmed',
++      result: { kind: 'test', value: { job_id: id(21) } },
++      canRetryOriginal: false,
++    })
++    expect(f.fetch.mock.calls.some(([path]) => path.includes('management'))).toBe(false)
++    await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++  })
++
++  it.each([
++    ['NOT_FOUND', 404, 'not_started'],
++    ['UNAVAILABLE', 503, 'not_committed'],
++    ['RESOURCE_BUSY', 409, 'not_started'],
++    ['COMMIT_UNKNOWN', 503, 'unknown'],
++    ['INVALID_ARGUMENT', 400, 'committed'],
++    ['OTHER_CODE', 400, 'not_started'],
++    ['transport', 0, 'not_started'],
++  ] as const)(
++    'keeps dispatched %s uncertain and replays exact original bytes after observation failure',
++    async (code, status, commit) => {
++      const f = await fixture(),
++        api = f.auth.system.smtpDelivery
++      f.setDelivery(async () => {
++        if (code === 'transport') throw new Error('lost')
++        return problem(code, status, commit)
++      })
++      await api.startTest({ recipient }).catch(() => undefined)
++      const first = f.writes()[0]!
++      expect(api.progress).toMatchObject({
++        phase: 'uncertain',
++        result: null,
++        canRetryOriginal: false,
++      })
++      f.setSMTP(async () =>
++        json({
++          ...settings(),
++          configured: false,
++          host: '',
++          port: 0,
++          encryption: '',
++          sender_email: '',
++        }),
++      )
++      expect((await f.auth.system.smtp.get()).configured).toBe(false)
++      const from = f.fetch.mock.calls.length
++      f.setDelivery(async (_, init) =>
++        init.method === 'GET' ? problem('NOT_FOUND', 404) : json({ job_id: id(21) }, 202),
++      )
++      await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'problem' })
++      expect(f.fetch.mock.calls.slice(from).map(([p, i]) => [p, i.method])).toEqual([
++        ['/api/v1/session', 'GET'],
++        ['/api/v1/system/mail-jobs/management?limit=25', 'GET'],
++      ])
++      expect(api.progress).toMatchObject({
++        phase: 'uncertain',
++        observation: 'failed',
++        result: null,
++        canRetryOriginal: true,
++      })
++      await api.retryOriginal()
++      const second = f.writes()[1]!
++      expect(
++        first[0] === second[0] &&
++          first[1].body === second[1].body &&
++          JSON.stringify(first[1].headers) === JSON.stringify(second[1].headers),
++      ).toBe(true)
++      expect(api.progress?.phase).toBe('confirmed')
++      expect(f.fetch.mock.calls.some(([path]) => path.includes('lookup'))).toBe(false)
++    },
++  )
++
++  it.each([
++    ['INVALID_ARGUMENT', 400],
++    ['VERSION_CONFLICT', 409],
++    ['INVALID_STATE', 409],
++    ['RATE_LIMITED', 429],
++    ['RESOURCE_DELETED', 410],
++  ] as const)(
++    'allows explicit editing after first %s but never clears older uncertainty on that rejection',
++    async (code, status) => {
++      const f = await fixture(),
++        api = f.auth.system.smtpDelivery
++      f.setDelivery(async () => problem(code, status, 'not_committed'))
++      await api.startRetry({ job_id: id(20), version: '5' }).catch(() => undefined)
++      expect(api.progress?.phase).toBe('rejected')
++      api.editRejected()
++      expect(api.progress).toBeNull()
++      f.setDelivery(async () => problem('NOT_FOUND', 404))
++      await api.startRetry({ job_id: id(20), version: '5' }).catch(() => undefined)
++      f.setDelivery(async (_, init) =>
++        init.method === 'GET' ? json(job(id(20), '19')) : problem(code, status),
++      )
++      const before = f.fetch.mock.calls.length
++      const observed = await api.checkOriginal()
++      expect(observed).toMatchObject({ kind: 'detail', value: { job_id: id(20), version: '19' } })
++      expect(f.fetch.mock.calls.slice(before).map(([p]) => p)).toEqual([
++        '/api/v1/session',
++        `/api/v1/system/mail-jobs/${id(20)}/management`,
++      ])
++      await api.retryOriginal().catch(() => undefined)
++      expect(api.progress?.phase).toBe('uncertain')
++      expect(() => api.editRejected()).toThrow()
++      const writes = f.writes()
++      expect(
++        writes[1]![1].body === writes[2]![1].body &&
++          JSON.stringify(writes[1]![1].headers) === JSON.stringify(writes[2]![1].headers),
++      ).toBe(true)
++      f.setDelivery(async (_, init) =>
++        init.method === 'GET'
++          ? problem('NOT_FOUND', 404)
++          : json({ job_id: id(21), version: '27' }, 202),
++      )
++      await api.checkOriginal().catch(() => undefined)
++      expect((await api.retryOriginal()).value).toEqual({ job_id: id(21), version: '27' })
++      expect(f.writes()[3]![1].body === writes[1]![1].body).toBe(true)
++    },
++  )
++
++  it('keeps failed Session checks unqualified, locks key reuse and lets explicit abandon end only tracking', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtpDelivery
++    f.setDelivery(async () => problem('UNAVAILABLE'))
++    await api.startTest({ recipient }).catch(() => undefined)
++    f.setSessionRequest(async () => problem('UNAVAILABLE'))
++    const count = f.fetch.mock.calls.length
++    await expect(api.checkOriginal()).rejects.toMatchObject({ kind: 'cancelled' })
++    expect(f.fetch.mock.calls.slice(count).map(([path]) => path)).toEqual(['/api/v1/session'])
++    expect(api.progress?.canRetryOriginal).toBe(false)
++    f.setSessionRequest(async () => json(view()))
++    f.setDelivery(async (_, init) =>
++      init.method === 'GET' ? json({ items: [] }) : problem('IDEMPOTENCY_KEY_REUSED', 409),
++    )
++    await api.checkOriginal()
++    await api.retryOriginal().catch(() => undefined)
++    await api.checkOriginal()
++    expect(api.progress).toMatchObject({
++      phase: 'uncertain',
++      result: null,
++      canRetryOriginal: false,
++    })
++    const sent = f.writes().length
++    api.abandon()
++    expect(api.progress).toBeNull()
++    expect(f.writes()).toHaveLength(sent)
++  })
++
++  it.each(['test', 'retry'] as const)(
++    'requires complete %s native EOF and holds actual cancel after 30 seconds',
++    async (kind) => {
++      const f = await fixture(),
++        api = f.auth.system.smtpDelivery
++      vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
++      const tail = barrier(),
++        cancel = vi.fn(() => tail.promise)
++      let stream!: ReadableStreamDefaultController<Uint8Array>
++      f.setDelivery(
++        async () =>
++          new Response(
++            new ReadableStream<Uint8Array>({
++              start(c) {
++                stream = c
++              },
++              cancel,
++            }),
++            {
++              status: 202,
++              headers: { 'Content-Type': 'application/json' },
++            },
++          ),
++      )
++      const task = (
++        kind === 'test'
++          ? api.startTest({ recipient })
++          : api.startRetry({ job_id: id(20), version: '5' })
++      ).catch((e) => e)
++      await flushPromises()
++      stream.enqueue(
++        new TextEncoder().encode(
++          JSON.stringify(kind === 'test' ? { job_id: id(21) } : { job_id: id(21), version: '7' }),
++        ),
++      )
++      try {
++        await flushPromises()
++        expect(api.progress?.phase).toBe('submitting')
++        await vi.advanceTimersByTimeAsync(30000)
++        expect(await task).toMatchObject({ kind: 'cancelled' })
++        expect(api.progress?.phase).toBe('uncertain')
++        expect(cancel).toHaveBeenCalledTimes(1)
++        expect(f.auth.state.busy).toBe(true)
++        const count = f.fetch.mock.calls.length
++        await f.auth.restore()
++        await f.auth.logout()
++        await expect(f.auth.system.smtp.get()).rejects.toMatchObject({ kind: 'busy' })
++        await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
++        await expect(api.list()).rejects.toMatchObject({ kind: 'busy' })
++        expect(f.fetch.mock.calls).toHaveLength(count)
++      } finally {
++        tail.resolve()
++      }
++      await flushPromises()
++      expect(f.auth.state.busy).toBe(false)
++      expect(api.progress?.phase).toBe('uncertain')
++    },
++  )
++
++  it('keeps fetch ownership when cancellation is ignored and never publishes the late accepted response', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtpDelivery,
++      held = barrier<Response>()
++    f.setDelivery(() => held.promise)
++    const task = api.startTest({ recipient }).catch((e) => e)
++    await flushPromises()
++    api.abandon()
++    expect(await task).toMatchObject({ kind: 'cancelled' })
++    expect(api.progress).toBeNull()
++    expect(f.auth.state.busy).toBe(true)
++    await expect(f.auth.system.smtp.get()).rejects.toMatchObject({ kind: 'busy' })
++    held.resolve(json({ job_id: id(21) }, 202))
++    await flushPromises()
++    expect(f.auth.state.busy).toBe(false)
++    expect(api.progress).toBeNull()
++  })
++
++  it('keeps replay disabled until the failed observation body cancellation actually joins', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtpDelivery
++    f.setDelivery(async () => problem('NOT_FOUND', 404))
++    await api.startRetry({ job_id: id(20), version: '5' }).catch(() => undefined)
++    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
++    const tail = barrier(),
++      cancel = vi.fn(() => tail.promise)
++    f.setDelivery(
++      async () =>
++        new Response(new ReadableStream<Uint8Array>({ cancel }), {
++          status: 503,
++          headers: { 'Content-Type': 'text/plain' },
++        }),
++    )
++    const checked = api.checkOriginal().catch((e) => e)
++    try {
++      await flushPromises()
++      expect(cancel).toHaveBeenCalledTimes(1)
++      expect(api.progress?.canRetryOriginal).toBe(false)
++      await vi.advanceTimersByTimeAsync(30000)
++      expect(await checked).toMatchObject({ kind: 'cancelled' })
++      expect(api.progress).toMatchObject({
++        phase: 'uncertain',
++        observation: 'failed',
++        canRetryOriginal: false,
++      })
++      const count = f.writes().length
++      await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++      expect(f.writes()).toHaveLength(count)
++    } finally {
++      tail.resolve()
++    }
++    await flushPromises()
++    expect(api.progress?.canRetryOriginal).toBe(true)
++  })
++
++  it('isolates configuration and delivery abandon in both directions without releasing their native tails', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtpDelivery,
++      smtp = f.auth.system.smtp
++    await smtp.get()
++    smtp.setMaterial('synthetic-private')
++    let close!: ReadableStreamDefaultController<Uint8Array>
++    f.setDelivery(
++      async () =>
++        new Response(
++          new ReadableStream<Uint8Array>({
++            start(c) {
++              close = c
++            },
++          }),
++          { headers: { 'Content-Type': 'application/json' } },
++        ),
++    )
++    const read = api.list()
++    await flushPromises()
++    close.enqueue(new TextEncoder().encode(JSON.stringify({ items: [] })))
++    smtp.abandon()
++    expect(f.auth.state.busy).toBe(true)
++    expect(smtp.material.present).toBe(false)
++    close.close()
++    expect(await read).toEqual({ items: [] })
++    const tail = barrier(),
++      cancel = vi.fn(() => tail.promise)
++    f.setSMTP(
++      async () =>
++        new Response(new ReadableStream<Uint8Array>({ cancel }), {
++          headers: { 'Content-Type': 'application/json' },
++        }),
++    )
++    const old = smtp.get().catch((e) => e)
++    await flushPromises()
++    api.abandon()
++    expect(cancel).not.toHaveBeenCalled()
++    expect(f.auth.state.busy).toBe(true)
++    smtp.abandonRead()
++    try {
++      expect(await old).toMatchObject({ kind: 'cancelled' })
++      await expect(api.list()).rejects.toMatchObject({ kind: 'busy' })
++      expect(cancel).toHaveBeenCalledTimes(1)
++    } finally {
++      tail.resolve()
++    }
++    await flushPromises()
++    expect(f.auth.state.busy).toBe(false)
++  })
++
++  it('cancels a delivery read without deleting a pending original request', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtpDelivery
++    f.setDelivery(async () => problem('NOT_FOUND', 404))
++    await api.startTest({ recipient }).catch(() => undefined)
++    const first = f.writes()[0]![1],
++      tail = barrier()
++    f.setDelivery(
++      async () =>
++        new Response(new ReadableStream<Uint8Array>({ cancel: () => tail.promise }), {
++          headers: { 'Content-Type': 'application/json' },
++        }),
++    )
++    const read = api.list().catch((e) => e)
++    await flushPromises()
++    api.abandonRead()
++    try {
++      expect(await read).toMatchObject({ kind: 'cancelled' })
++      expect(api.progress?.phase).toBe('uncertain')
++      expect(f.auth.state.busy).toBe(true)
++    } finally {
++      tail.resolve()
++    }
++    await flushPromises()
++    f.setDelivery(async (_, init) =>
++      init.method === 'GET' ? json({ items: [] }) : json({ job_id: id(21) }, 202),
++    )
++    await api.checkOriginal()
++    await api.retryOriginal()
++    expect(
++      f.writes()[1]![1].body === first.body &&
++        JSON.stringify(f.writes()[1]![1].headers) === JSON.stringify(first.headers),
++    ).toBe(true)
++  })
++
++  it.each([
++    'personal',
++    'users',
++    'invitations',
++    'providers',
++    'models',
++    'selection',
++    'accountSecurity',
++  ] as const)(
++    'keeps %s abandonment and actual ownership independent in both directions',
++    async (domain) => {
++      const f = await fixture(),
++        api = f.auth.system.smtpDelivery
++      const read = () =>
++        ({
++          personal: () => f.auth.personal.getProfile(),
++          users: () => f.auth.system.listUsers({}),
++          invitations: () => f.auth.system.listInvitations({}),
++          providers: () => f.auth.system.providers.list({}),
++          models: () => f.auth.system.models.listProviders({}),
++          selection: () => f.auth.system.selection.get(),
++          accountSecurity: () => f.auth.system.accountSecurity.get(),
++        })[domain]()
++      const abandon = () =>
++        ({
++          personal: () => f.auth.personal.abandon(),
++          users: () => f.auth.system.abandon(),
++          invitations: () => f.auth.system.abandonInvitations(),
++          providers: () => f.auth.system.providers.abandon(),
++          models: () => f.auth.system.models.abandon(),
++          selection: () => f.auth.system.selection.abandon(),
++          accountSecurity: () => f.auth.system.accountSecurity.abandon(),
++        })[domain]()
++      const held = barrier<Response>()
++      f.setDelivery(() => held.promise)
++      const current = api.list()
++      await flushPromises()
++      abandon()
++      expect(f.fetch.mock.calls.at(-1)![1].signal?.aborted).toBe(false)
++      await expect(read()).rejects.toMatchObject({ kind: 'busy' })
++      held.resolve(json({ items: [] }))
++      await current
++      const otherTail = barrier(),
++        cancelled = vi.fn(() => otherTail.promise)
++      f.setOther(
++        async () =>
++          new Response(new ReadableStream<Uint8Array>({ cancel: cancelled }), {
++            headers: { 'Content-Type': 'application/json' },
++          }),
++      )
++      const other = read().catch((e) => e)
++      await flushPromises()
++      api.abandon()
++      expect(cancelled).not.toHaveBeenCalled()
++      expect(f.auth.state.busy).toBe(true)
++      abandon()
++      try {
++        expect(await other).toMatchObject({ kind: 'cancelled' })
++        expect(cancelled).toHaveBeenCalledTimes(1)
++        await expect(api.list()).rejects.toMatchObject({ kind: 'busy' })
++      } finally {
++        otherTail.resolve()
++      }
++      await flushPromises()
++      expect(f.auth.state.busy).toBe(false)
++    },
++  )
++
++  it('holds both native Provider stages against delivery and preserves staged material during delivery', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtpDelivery,
++      providers = f.auth.system.providers
++    const command = {
++      kind: 'provider.create' as const,
++      input: {
++        name: 'Provider',
++        protocol: 'openai-chat-completions' as const,
++        base_url: 'https://provider.example/v1',
++        enabled: true,
++        credential_ref: null,
++        options: {},
++      },
++    }
++    const first = barrier<Response>()
++    providers.setMaterial('synthetic-provider-only')
++    f.setDelivery(() => first.promise)
++    const delivery = api.startTest({ recipient })
++    await flushPromises()
++    await expect(providers.start(command)).rejects.toMatchObject({ kind: 'busy' })
++    expect(providers.material.present).toBe(true)
++    first.resolve(json({ job_id: id(21) }, 202))
++    await delivery
++    let credentialStream!: ReadableStreamDefaultController<Uint8Array>
++    const nativeTail = barrier(),
++      cancel = vi.fn(() => nativeTail.promise)
++    f.setOther(async (path) =>
++      path.endsWith('/model-credentials')
++        ? new Response(
++            new ReadableStream<Uint8Array>({
++              start(c) {
++                credentialStream = c
++              },
++            }),
++            { headers: { 'Content-Type': 'application/json' } },
++          )
++        : new Response(new ReadableStream<Uint8Array>({ cancel }), {
++            headers: { 'Content-Type': 'application/json' },
++          }),
++    )
++    const provider = providers.start(command).catch((e) => e)
++    await flushPromises()
++    credentialStream.enqueue(
++      new TextEncoder().encode(
++        JSON.stringify({ credential_id: id(11), purpose: 'model', version: '1', deleted: false }),
++      ),
++    )
++    api.abandon()
++    expect(providers.material.present).toBe(true)
++    expect(providers.progress?.stage).toBe('credential')
++    await expect(api.list()).rejects.toMatchObject({ kind: 'busy' })
++    expect(
++      f.fetch.mock.calls.filter(([p, i]) => p.endsWith('/model-providers') && i.method === 'POST'),
++    ).toHaveLength(0)
++    credentialStream.close()
++    await flushPromises()
++    expect(providers.material.present).toBe(false)
++    expect(providers.progress?.stage).toBe('provider')
++    expect(
++      f.fetch.mock.calls.filter(([p, i]) => p.endsWith('/model-providers') && i.method === 'POST'),
++    ).toHaveLength(1)
++    api.abandon()
++    expect(cancel).not.toHaveBeenCalled()
++    providers.abandon()
++    try {
++      expect(await provider).toMatchObject({ kind: 'cancelled' })
++      expect(cancel).toHaveBeenCalledTimes(1)
++      expect(f.auth.state.busy).toBe(true)
++      await expect(api.startTest({ recipient })).rejects.toMatchObject({ kind: 'busy' })
++    } finally {
++      nativeTail.resolve()
++    }
++    await flushPromises()
++    expect(f.auth.state.busy).toBe(false)
++  })
++
++  it.each([401, 403] as const)(
++    'handles already-parsed late %i only for the same identity and current revision',
++    async (status) => {
++      const f = await fixture(),
++        api = f.auth.system.smtpDelivery,
++        tail = barrier(),
++        entered = barrier()
++      const response = problem(status === 401 ? 'SESSION_REVOKED' : 'FORBIDDEN', status)
++      const cancel = response.body!.cancel.bind(response.body)
++      response.body!.cancel = async () => {
++        entered.resolve()
++        await tail.promise
++        return cancel()
++      }
++      f.setDelivery(async () => response)
++      const pending = api.list().catch((e) => e)
++      await entered.promise
++      api.abandonRead()
++      try {
++        expect(await pending).toMatchObject({ kind: 'cancelled' })
++        expect(f.auth.state.busy).toBe(true)
++      } finally {
++        tail.resolve()
++      }
++      await flushPromises()
++      expect(f.auth.system.denied).toBe(false)
++      expect(f.auth.personalContext.identity === null).toBe(status === 401)
++    },
++  )
++
++  it.each(['session', 'csrf', 'role'] as const)(
++    'destroys recovery on %s change without replacing the original context',
++    async (kind) => {
++      const f = await fixture(),
++        api = f.auth.system.smtpDelivery
++      f.setDelivery(async () => problem('NOT_FOUND', 404))
++      await api.startTest({ recipient }).catch(() => undefined)
++      f.setSession(
++        kind === 'session'
++          ? view(id(3))
++          : kind === 'role'
++            ? view(id(2), 'user')
++            : { ...view(), csrf_token: 'N'.repeat(43) },
++      )
++      await f.auth.restore()
++      expect(api.progress).toBeNull()
++      await expect(api.retryOriginal()).rejects.toMatchObject({ kind: 'invalid-input' })
++      expect(f.writes()).toHaveLength(1)
++    },
++  )
++
++  it.each(['test', 'retry', 'read'] as const)(
++    'clears every system domain on current %s 403 and requires successful Session recheck',
++    async (kind) => {
++      const f = await fixture(),
++        api = f.auth.system.smtpDelivery
++      await f.auth.system.smtp.get()
++      f.auth.system.smtp.setMaterial('synthetic-private')
++      f.auth.system.providers.setMaterial('provider-private')
++      f.setDelivery(async () => problem('FORBIDDEN', 403))
++      await (
++        kind === 'test'
++          ? api.startTest({ recipient })
++          : kind === 'retry'
++            ? api.startRetry({ job_id: id(20), version: '5' })
++            : api.list()
++      ).catch(() => undefined)
++      expect(api.progress).toBeNull()
++      expect(f.auth.system.smtp.material.present).toBe(false)
++      expect(f.auth.system.providers.material.present).toBe(false)
++      expect(f.auth.system.denied).toBe(true)
++      expect(f.auth.state.user?.role).toBe('admin')
++      expect(f.auth.state.phase).toBe('authenticated')
++      await expect(api.list()).rejects.toMatchObject({ kind: 'invalid-input' })
++      await f.auth.restore()
++      expect(f.auth.system.denied).toBe(false)
++    },
++  )
++
++  it.each(['test', 'retry'] as const)(
++    'handles current %s CSRF failure through the shared identity guard',
++    async (kind) => {
++      const f = await fixture(),
++        api = f.auth.system.smtpDelivery
++      f.setDelivery(async () => problem('CSRF_FAILED', 403))
++      await (
++        kind === 'test'
++          ? api.startTest({ recipient })
++          : api.startRetry({ job_id: id(20), version: '5' })
++      ).catch(() => undefined)
++      expect(api.progress).toBeNull()
++      expect(f.auth.personalContext.identity).toBeNull()
++      expect(f.auth.state.phase).toBe('unavailable')
++    },
++  )
++
++  it('does not let a retiring confirmed continuation clear a synchronously started successor', async () => {
++    const f = await fixture(),
++      api = f.auth.system.smtpDelivery,
++      held = barrier<Response>()
++    let count = 0,
++      successor: Promise<unknown> | null = null
++    f.setDelivery(async () => (++count === 1 ? json({ job_id: id(21) }, 202) : held.promise))
++    const stop = watch(
++      () => api.progress?.phase,
++      (phase) => {
++        if (phase === 'confirmed' && !successor) {
++          api.abandon()
++          successor = api.startTest({ recipient: 'next@example.test' })
++        }
++      },
++      { flush: 'sync' },
++    )
++    try {
++      await api.startTest({ recipient }).catch(() => undefined)
++      await flushPromises()
++      expect(f.writes()).toHaveLength(2)
++      expect(api.progress?.phase).toBe('submitting')
++      held.resolve(json({ job_id: id(22) }, 202))
++      await successor
++      expect(api.progress).toMatchObject({
++        phase: 'confirmed',
++        result: { value: { job_id: id(22) } },
++      })
++    } finally {
++      stop()
++      held.resolve(json({ job_id: id(22) }, 202))
++    }
++  })
++})
+--- a/web/src/composables/useSystemSMTPDelivery.ts
++++ b/web/src/composables/useSystemSMTPDelivery.ts
+@@ -0,0 +1,770 @@
++import {
++  computed,
++  inject,
++  reactive,
++  readonly,
++  ref,
++  shallowReactive,
++  watch,
++  type InjectionKey,
++} from 'vue'
++import { AccountFailure } from '../api/client'
++import { captureSMTPEmail } from '../api/system-smtp-settings'
++import type {
++  SMTPDeliveryJob,
++  SMTPDeliveryPage,
++  SMTPDeliveryResult,
++  SMTPRetryInput,
++} from '../api/system-smtp-delivery'
++import { useSession, type PersonalIdentity, type SessionController } from './useSession'
++import type { SystemSMTPSettingsController } from './useSystemSMTPSettings'
++
++export type SMTPAvailability = Readonly<{ ready: boolean; configured: boolean }>
++export type SMTPSection = 'configuration' | 'delivery'
++type ReadPhase = 'inactive' | 'waiting' | 'loading' | 'ready' | 'empty' | 'error'
++type PageTarget = Readonly<{ index: number; cursor?: string }>
++const empty: readonly SMTPDeliveryJob[] = Object.freeze([])
++const same = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
++  !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
++const isPage = (path: string) => path.split(/[?#]/, 1)[0] === '/system/smtp'
++
++export const smtpJobKinds = {
++  invitation: '邀请邮件',
++  password_reset: '密码重置邮件',
++  test: '测试邮件',
++} as const
++export const smtpJobPhases = {
++  enqueue_pending: '等待任务入队',
++  pending: '等待投递',
++  claimed: '已领取',
++  sending: '正在投递',
++  retry_wait: '等待自动重试',
++  sent: '已报告接受',
++  failed: '投递失败',
++  unknown: '任务结果未知',
++  cancelled: '已取消',
++} as const
++export const smtpAttemptResults = {
++  sent: '已报告接受',
++  failed: '失败',
++  unknown: '结果未知',
++  cancelled: '已取消',
++} as const
++export const smtpJobReasons = {
++  sent: '已报告接受',
++  token_invalid: '业务材料已失效',
++  configuration_invalid: '配置无效',
++  policy_rejected: '出站策略拒绝',
++  network_failed: '网络失败',
++  smtp_rejected: 'SMTP 拒绝',
++  timeout: '等待超时',
++  cancelled: '已取消',
++  unknown: '原因未知',
++} as const
++export const smtpChannelLabel = (channel: SMTPDeliveryJob['channel']) =>
++  channel === 'smtp' ? 'SMTP' : channel === 'backend_log' ? '后台日志' : '未记录'
++export function smtpJobRetryReason(value: SMTPDeliveryJob): string {
++  if (!['sent', 'failed', 'cancelled', 'unknown'].includes(value.phase))
++    return '当前投递周期尚未结束。'
++  if (value.version === '9223372036854775807') return '当前版本已达到上限，不能申请新周期。'
++  if (value.attempt_channel === null)
++    return value.phase === 'cancelled' ? '' : '实际渠道未记录，尚不能依据此观察申请重试。'
++  return value.attempt_result === null ? '当前尝试尚未报告结束结果。' : ''
++}
++
++// The App owns this state; only useSession owns Cookie I/O and private commands.
++export function createSystemSMTPDelivery(
++  auth: SessionController = useSession(),
++  availability: () => SMTPAvailability = () => ({ ready: false, configured: false }),
++) {
++  const api = auth.system.smtpDelivery
++  const list = shallowReactive({
++    phase: 'inactive' as ReadPhase,
++    rows: empty,
++    message: '',
++    page: 1,
++    hasPrevious: false,
++    hasNext: false,
++  })
++  const detail = shallowReactive({
++    phase: 'inactive' as ReadPhase,
++    jobID: '',
++    value: null as SMTPDeliveryJob | null,
++    message: '',
++  })
++  const mode = ref<'list' | 'detail'>('list'),
++    draft = reactive({ recipient: '' })
++  const state = shallowReactive({
++    confirmed: null as Readonly<{
++      kind: 'test' | 'retry'
++      jobID: string
++      sourceID?: string
++      version?: string
++    }> | null,
++    writeMessage: '',
++    requiresRead: false,
++  })
++  const confirmation = reactive({ open: false, title: '', message: '' })
++  const retryConfirmation = shallowReactive({ open: false, target: null as SMTPRetryInput | null })
++  const checking = ref(false),
++    feedback = ref<'idle' | 'loading'>('idle')
++  const progress = computed(() => api.progress)
++  const unsettled = computed(() =>
++    ['submitting', 'uncertain'].includes(progress.value?.phase ?? ''),
++  )
++  const blocked = computed(() => auth.state.busy || checking.value)
++  const locked = computed(
++    () =>
++      blocked.value ||
++      unsettled.value ||
++      state.requiresRead ||
++      confirmation.open ||
++      retryConfirmation.open,
++  )
++  const dirty = computed(() => !!draft.recipient || unsettled.value || retryConfirmation.open)
++  const available = computed(availability)
++  const recipientError = computed(() => {
++    if (!draft.recipient) return ''
++    try {
++      captureSMTPEmail(draft.recipient)
++      return ''
++    } catch {
++      return '请输入完整的裸 ASCII 邮箱地址，最多 254 字节，不加空格。'
++    }
++  })
++  const canTest = computed(
++    () =>
++      authorized() &&
++      available.value.ready &&
++      available.value.configured &&
++      !!draft.recipient &&
++      !recipientError.value &&
++      !locked.value,
++  )
++  const retryReason = computed(() =>
++    detail.value ? smtpJobRetryReason(detail.value) : '请先完整读取任务详情。',
++  )
++  // Opening the modal must not disable its still-connected native trigger.
++  const retryReady = computed(
++    () =>
++      authorized() &&
++      detail.phase === 'ready' &&
++      !retryReason.value &&
++      !blocked.value &&
++      !unsettled.value &&
++      !state.requiresRead,
++  )
++  let identity = auth.personalContext.identity,
++    revision = 0,
++    listRevision = 0,
++    detailRevision = 0
++  let listReading = false,
++    detailReading = false,
++    attached = false,
++    activeRoute = false,
++    disposed = false,
++    initial = true
++  let history: (string | undefined)[] = [],
++    index = 0,
++    nextCursor: string | undefined
++  const latest = new Map<string, SMTPDeliveryJob>()
++  const confirmedVersions = new Map<string, string>()
++  let confirmResult: ((answer: boolean) => void) | null = null,
++    retryResult: ((answer: boolean) => void) | null = null
++  const authorized = () =>
++    auth.state.phase === 'authenticated' &&
++    auth.personalContext.phase === 'current' &&
++    !!auth.personalContext.identity &&
++    auth.state.user?.role === 'admin' &&
++    !auth.system.denied
++  const current = (own: number, captured: PersonalIdentity | null) =>
++    !disposed &&
++    activeRoute &&
++    revision === own &&
++    authorized() &&
++    same(captured, auth.personalContext.identity)
++  function finishConfirmation(answer: boolean) {
++    confirmation.open = false
++    const done = confirmResult
++    confirmResult = null
++    done?.(answer)
++  }
++  function finishRetry(answer: boolean) {
++    if (answer && confirmation.open) return
++    retryConfirmation.open = false
++    const done = retryResult
++    retryResult = null
++    done?.(answer)
++  }
++  function requestConfirmation(title: string) {
++    if (confirmResult) return Promise.resolve(false)
++    Object.assign(confirmation, {
++      open: true,
++      title,
++      message:
++        '将清除本次收件草稿和原请求追踪。此前请求仍可能生效；放弃不会取消、撤回或回滚已经接受的投递。',
++    })
++    return new Promise<boolean>((resolve) => {
++      confirmResult = resolve
++    })
++  }
++  function retireList() {
++    ++listRevision
++    if (listReading) api.abandonRead()
++    listReading = false
++    if (list.phase === 'loading')
++      Object.assign(list, {
++        phase: 'error',
++        rows: empty,
++        message: '读取已取消，请在当前请求结束后明确重新读取。',
++      })
++  }
++  function retireDetail() {
++    ++detailRevision
++    if (detailReading) api.abandonRead()
++    detailReading = false
++    if (detail.phase === 'loading')
++      Object.assign(detail, {
++        phase: 'error',
++        value: null,
++        message: '读取已取消，请在当前请求结束后明确重新读取。',
++      })
++  }
++  function discard(requireRead: boolean) {
++    ++revision
++    retireList()
++    retireDetail()
++    api.abandon()
++    draft.recipient = ''
++    feedback.value = 'idle'
++    state.writeMessage = ''
++    state.requiresRead = requireRead
++    finishRetry(false)
++    retryConfirmation.target = null
++  }
++  function invalidate() {
++    discard(false)
++    finishConfirmation(false)
++    Object.assign(list, {
++      phase: 'inactive',
++      rows: empty,
++      message: '',
++      page: 1,
++      hasPrevious: false,
++      hasNext: false,
++    })
++    Object.assign(detail, { phase: 'inactive', jobID: '', value: null, message: '' })
++    state.confirmed = null
++    checking.value = false
++    mode.value = 'list'
++    initial = true
++    history = []
++    index = 0
++    nextCursor = undefined
++    latest.clear()
++    confirmedVersions.clear()
++  }
++  function observeJob(value: SMTPDeliveryJob) {
++    const previous = latest.get(value.job_id)
++    const observed =
++      !previous || BigInt(value.version) >= BigInt(previous.version) ? value : previous
++    const floor = confirmedVersions.get(value.job_id)
++    if (floor && BigInt(observed.version) < BigInt(floor))
++      throw new AccountFailure('invalid-response')
++    latest.set(value.job_id, observed)
++    return observed
++  }
++  function observeList(value: SMTPDeliveryPage, target: PageTarget) {
++    const rows = Object.freeze(value.items.map(observeJob))
++    history = [...history.slice(0, target.index), target.cursor]
++    index = target.index
++    nextCursor = value.next_cursor
++    Object.assign(list, {
++      phase: rows.length ? 'ready' : 'empty',
++      rows,
++      message: '',
++      page: index + 1,
++      hasPrevious: index > 0,
++      hasNext: nextCursor !== undefined,
++    })
++    state.requiresRead = false
++  }
++  function observeDetail(value: SMTPDeliveryJob) {
++    const current = observeJob(value)
++    Object.assign(detail, { phase: 'ready', jobID: current.job_id, value: current, message: '' })
++    state.requiresRead = false
++  }
++  function readMessage(error: unknown) {
++    return error instanceof AccountFailure && error.kind === 'cancelled'
++      ? '读取已取消或等待超时，请在请求结束后明确重新读取。'
++      : '未取得完整任务观察，请明确重新读取；这不能确认原请求是否接受。'
++  }
++  async function readList(target: PageTarget) {
++    if (!attached || !authorized() || blocked.value || disposed) return
++    initial = false
++    retireList()
++    retireDetail()
++    const own = revision,
++      captured = auth.personalContext.identity,
++      read = ++listRevision
++    const valid = () => attached && current(own, captured) && read === listRevision
++    listReading = true
++    Object.assign(list, { phase: 'loading', rows: empty, message: '' })
++    try {
++      const value = await api.list(target.cursor === undefined ? {} : { cursor: target.cursor })
++      if (valid()) observeList(value, target)
++    } catch (error) {
++      if (valid()) Object.assign(list, { phase: 'error', rows: empty, message: readMessage(error) })
++    } finally {
++      if (read === listRevision) listReading = false
++    }
++  }
++  async function readDetail(jobID: string) {
++    if (!attached || !authorized() || blocked.value || disposed) return
++    initial = false
++    retireDetail()
++    retireList()
++    const own = revision,
++      captured = auth.personalContext.identity,
++      read = ++detailRevision
++    const valid = () => attached && current(own, captured) && read === detailRevision
++    detailReading = true
++    Object.assign(detail, { phase: 'loading', jobID, value: null, message: '' })
++    try {
++      const value = await api.get(jobID)
++      if (valid()) observeDetail(value)
++    } catch (error) {
++      if (valid()) {
++        Object.assign(detail, { phase: 'error', value: null, message: readMessage(error) })
++        if (state.confirmed?.jobID === jobID)
++          state.writeMessage = '请求已确认，任务详情读取失败。请仅重新读取，不要重复提交。'
++      }
++    } finally {
++      if (read === detailRevision) detailReading = false
++    }
++  }
++  async function confirmDiscard(title = '放弃投递草稿或原请求追踪？') {
++    if (!dirty.value) return true
++    const own = revision,
++      captured = auth.personalContext.identity
++    return (await requestConfirmation(title)) && current(own, captured)
++  }
++  async function confirmLeave() {
++    if (!(await confirmDiscard())) return false
++    if (!authorized() || disposed || !activeRoute) return !dirty.value
++    discard(unsettled.value)
++    return true
++  }
++  function prepareNewOperation() {
++    if (progress.value?.phase === 'rejected') api.editRejected()
++    state.writeMessage = ''
++  }
++  function writeMessage(error: unknown) {
++    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
++    if (progress.value?.phase === 'uncertain')
++      return e.problem?.code === 'IDEMPOTENCY_KEY_REUSED'
++        ? '原请求标识与输入冲突。原请求保持不变，请明确放弃追踪后重新读取。'
++        : '请求结果未确认。检查当前状态后可显式重试原请求；任务观察不等于接受确认。'
++    if (e.problem?.code === 'VERSION_CONFLICT')
++      return '任务版本冲突。请明确重新读取、核对当前任务后重新确认申请，不自动更新原版本。'
++    if (e.problem?.code === 'RESOURCE_DELETED')
++      return '原业务材料已失效。请重新读取任务并核对；没有自动申请新周期。'
++    if (e.problem?.code === 'INVALID_STATE')
++      return '当前任务或配置不允许此操作。请明确重新读取并核对。'
++    if (e.problem?.code === 'RATE_LIMITED') return '当前请求受到限制。请稍后明确核对并重新操作。'
++    if (e.problem?.code === 'INVALID_ARGUMENT')
++      return '请求被拒绝，请核对收件邮箱或当前任务，再明确操作。'
++    return '本次操作未完成，请核对输入和当前状态。'
++  }
++  async function mutate(
++    kind: 'test' | 'retry',
++    sourceID: string | undefined,
++    work: () => Promise<SMTPDeliveryResult>,
++  ) {
++    const own = revision,
++      captured = auth.personalContext.identity
++    initial = false
++    feedback.value = 'loading'
++    state.writeMessage = ''
++    state.confirmed = null
++    try {
++      const result = await work()
++      if (!current(own, captured)) return
++      if (result.kind === 'retry') {
++        const previous = confirmedVersions.get(result.value.job_id)
++        if (!previous || BigInt(result.value.version) > BigInt(previous))
++          confirmedVersions.set(result.value.job_id, result.value.version)
++      }
++      state.confirmed = Object.freeze({
++        kind: result.kind,
++        jobID: result.value.job_id,
++        ...(sourceID ? { sourceID } : {}),
++        ...(result.kind === 'retry' ? { version: result.value.version } : {}),
++      })
++      draft.recipient = ''
++      feedback.value = 'idle'
++      state.requiresRead = false
++      state.writeMessage =
++        result.kind === 'test'
++          ? '测试请求已接受；这不代表投递或收件成功。'
++          : '新重试周期已接受；这不代表投递或收件成功。'
++      mode.value = 'detail'
++      detail.jobID = result.value.job_id
++      // Save the strict receipt first. A single subsequent GET is only observation.
++      await readDetail(result.value.job_id)
++    } catch (error) {
++      if (current(own, captured)) {
++        feedback.value = 'idle'
++        state.writeMessage = writeMessage(error)
++        if (kind === 'retry' && progress.value?.phase === 'rejected') state.requiresRead = true
++      }
++    }
++  }
++  async function resume() {
++    if (disposed || !attached || !activeRoute || !authorized() || !initial) return
++    if (blocked.value) {
++      if (list.phase === 'inactive') list.phase = 'waiting'
++      return
++    }
++    await readList({ index: 0 })
++  }
++  function afterNavigation(to: string, from: string) {
++    if (isPage(from) && !isPage(to)) {
++      activeRoute = false
++      invalidate()
++    } else if (isPage(to)) activeRoute = true
++  }
++  const stopIdentity = watch(
++    () =>
++      [
++        auth.personalContext.phase,
++        auth.personalContext.identity,
++        auth.state.user?.role,
++        auth.system.denied,
++        auth.state.busy,
++      ] as const,
++    ([phase, value]) => {
++      if (phase === 'checking') return
++      if (
++        phase === 'invalid' ||
++        !same(identity, value) ||
++        auth.state.user?.role !== 'admin' ||
++        auth.system.denied
++      ) {
++        invalidate()
++        identity = value
++      }
++      void resume()
++    },
++  )
++  function beforeUnload(event: BeforeUnloadEvent) {
++    if (dirty.value) {
++      event.preventDefault()
++      event.returnValue = ''
++    }
++  }
++  window.addEventListener('beforeunload', beforeUnload)
++  return {
++    auth,
++    list: readonly(list),
++    detail: readonly(detail),
++    mode: readonly(mode),
++    draft: readonly(draft),
++    state: readonly(state),
++    confirmation: readonly(confirmation),
++    retryConfirmation: readonly(retryConfirmation),
++    feedback,
++    checking,
++    progress,
++    available,
++    recipientError,
++    canTest,
++    retryReason,
++    retryReady,
++    blocked,
++    locked,
++    dirty,
++    attach() {
++      if (attached) return
++      attached = true
++      activeRoute = true
++      void resume()
++    },
++    detach() {
++      attached = false
++      retireList()
++      retireDetail()
++    },
++    afterNavigation,
++    confirmLeave,
++    finishConfirmation,
++    finishRetry,
++    updateRecipient(value: string) {
++      if (!authorized() || locked.value || draft.recipient === value) return
++      prepareNewOperation()
++      draft.recipient = value
++    },
++    requestTest() {
++      if (!canTest.value) return Promise.resolve()
++      const recipient = captureSMTPEmail(draft.recipient)
++      prepareNewOperation()
++      return mutate('test', undefined, () => api.startTest({ recipient }))
++    },
++    async requestRetry() {
++      if (!retryReady.value || retryConfirmation.open || confirmation.open) return
++      if (!(await confirmDiscard('放弃收件草稿并申请重试？'))) return
++      if (!retryReady.value || !detail.value) return
++      const value = detail.value
++      discard(false)
++      const own = revision,
++        captured = auth.personalContext.identity
++      const target = Object.freeze({ job_id: value.job_id, version: value.version })
++      Object.assign(retryConfirmation, { open: true, target })
++      const answer = await new Promise<boolean>((resolve) => {
++        retryResult = resolve
++      })
++      if (!answer || !current(own, captured) || blocked.value) return
++      prepareNewOperation()
++      await mutate('retry', target.job_id, () => api.startRetry(target))
++    },
++    refresh() {
++      return readList({
++        index,
++        ...(history[index] !== undefined ? { cursor: history[index] } : {}),
++      })
++    },
++    firstPage() {
++      return readList({ index: 0 })
++    },
++    previousPage() {
++      return index > 0
++        ? readList({
++            index: index - 1,
++            ...(history[index - 1] !== undefined ? { cursor: history[index - 1] } : {}),
++          })
++        : Promise.resolve()
++    },
++    nextPage() {
++      return nextCursor !== undefined
++        ? readList({ index: index + 1, cursor: nextCursor })
++        : Promise.resolve()
++    },
++    async openDetail(jobID: string) {
++      if (blocked.value || confirmation.open || retryConfirmation.open) return
++      mode.value = 'detail'
++      await readDetail(jobID)
++    },
++    rereadDetail() {
++      return detail.jobID ? readDetail(detail.jobID) : Promise.resolve()
++    },
++    backToList() {
++      retireDetail()
++      mode.value = 'list'
++    },
++    cancelList() {
++      retireList()
++      initial = false
++    },
++    cancelDetail() {
++      retireDetail()
++      initial = false
++    },
++    async checkOriginal() {
++      if (blocked.value || progress.value?.phase !== 'uncertain') return
++      const own = revision,
++        captured = auth.personalContext.identity,
++        kind = progress.value.kind
++      initial = false
++      checking.value = true
++      try {
++        const observed = await api.checkOriginal()
++        if (!current(own, captured)) return
++        if (observed.kind === 'list') observeList(observed.value, { index: 0 })
++        else observeDetail(observed.value)
++        state.writeMessage = '当前状态已读取；这不确认原请求是否接受。请显式重试原请求。'
++      } catch (error) {
++        if (current(own, captured)) {
++          if (kind === 'test')
++            Object.assign(list, { phase: 'error', rows: empty, message: readMessage(error) })
++          else Object.assign(detail, { phase: 'error', value: null, message: readMessage(error) })
++          state.writeMessage =
++            '原请求仍未确认，管理读取失败不证明原写未接受。会话确认且实际请求结束后可显式重试原请求。'
++        }
++      } finally {
++        if (own === revision) checking.value = false
++      }
++    },
++    retryOriginal() {
++      if (blocked.value || !progress.value?.canRetryOriginal) return Promise.resolve()
++      const kind = progress.value.kind,
++        sourceID = kind === 'retry' ? retryConfirmation.target?.job_id : undefined
++      return mutate(kind, sourceID, () => api.retryOriginal())
++    },
++    async abandonOperation() {
++      const own = revision,
++        captured = auth.personalContext.identity
++      if ((await requestConfirmation('放弃追踪本次操作？')) && current(own, captured)) {
++        discard(true)
++        state.writeMessage =
++          '已放弃本地追踪；此前请求仍可能生效。请在当前请求结束后明确重新读取，再开始新操作。'
++      }
++    },
++    dispose() {
++      if (disposed) return
++      disposed = true
++      stopIdentity()
++      invalidate()
++      window.removeEventListener('beforeunload', beforeUnload)
++    },
++  }
++}
++
++export type SystemSMTPDeliveryController = ReturnType<typeof createSystemSMTPDelivery>
++export const systemSMTPDeliveryKey: InjectionKey<SystemSMTPDeliveryController> =
++  Symbol('system-smtp-delivery')
++export function useSystemSMTPDelivery() {
++  const page = inject(systemSMTPDeliveryKey)
++  if (!page) throw new Error('SMTP delivery requires the App controller')
++  return page
++}
++
++export function createSMTPSections(
++  auth: SessionController,
++  configuration: SystemSMTPSettingsController,
++  delivery: SystemSMTPDeliveryController,
++) {
++  const active = ref<SMTPSection>('configuration'),
++    switching = ref(false)
++  let generation = 0,
++    viewAttached = false,
++    activeRoute = false,
++    disposed = false,
++    identity = auth.personalContext.identity
++  const controller = (section = active.value) =>
++    section === 'configuration' ? configuration : delivery
++  const authorized = () =>
++    auth.state.phase === 'authenticated' &&
++    auth.personalContext.phase === 'current' &&
++    auth.state.user?.role === 'admin' &&
++    !auth.system.denied
++  const live = (own: number, section: SMTPSection, captured: PersonalIdentity | null) =>
++    !disposed &&
++    activeRoute &&
++    generation === own &&
++    active.value === section &&
++    authorized() &&
++    same(captured, auth.personalContext.identity)
++  const stop = watch(
++    () =>
++      [
++        auth.personalContext.phase,
++        auth.personalContext.identity,
++        auth.state.user?.role,
++        auth.system.denied,
++      ] as const,
++    ([phase, value]) => {
++      if (phase === 'checking') return
++      if (
++        phase === 'invalid' ||
++        !same(identity, value) ||
++        auth.state.user?.role !== 'admin' ||
++        auth.system.denied
++      ) {
++        ++generation
++        switching.value = false
++        if (viewAttached) controller().detach()
++        viewAttached = false
++        active.value = 'configuration'
++        identity = value
++      }
++    },
++  )
++  return {
++    active: readonly(active),
++    switching: readonly(switching),
++    configuration,
++    delivery,
++    get generation() {
++      return generation
++    },
++    attach() {
++      if (disposed || viewAttached) return
++      viewAttached = true
++      activeRoute = true
++      controller().attach()
++    },
++    detach() {
++      if (!viewAttached) return
++      viewAttached = false
++      controller().detach()
++    },
++    async switchTo(next: SMTPSection) {
++      if (
++        !['configuration', 'delivery'].includes(next) ||
++        disposed ||
++        !activeRoute ||
++        !authorized() ||
++        switching.value
++      )
++        return false
++      if (next === active.value) return true
++      const own = ++generation,
++        section = active.value,
++        captured = auth.personalContext.identity,
++        previous = controller(section)
++      switching.value = true
++      try {
++        if (!(await previous.confirmLeave()) || !live(own, section, captured)) return false
++        previous.detach()
++        active.value = next
++        if (viewAttached && authorized()) controller(next).attach()
++        return true
++      } finally {
++        if (own === generation) switching.value = false
++      }
++    },
++    async confirmLeave() {
++      const own = generation,
++        section = active.value,
++        captured = auth.personalContext.identity
++      const result = await controller(section).confirmLeave()
++      return (
++        result &&
++        (live(own, section, captured) || (!activeRoute && !controller(section).dirty.value))
++      )
++    },
++    afterNavigation(to: string, from: string) {
++      if (isPage(from) && !isPage(to)) {
++        // The mounted View still belongs to the old active controller here.
++        // Resetting active first would detach configuration instead of delivery.
++        if (viewAttached) controller().detach()
++        viewAttached = false
++      }
++      configuration.afterNavigation(to, from)
++      delivery.afterNavigation(to, from)
++      if (isPage(from) && !isPage(to)) {
++        ++generation
++        activeRoute = false
++        switching.value = false
++        active.value = 'configuration'
++      } else if (isPage(to)) activeRoute = true
++    },
++    dispose() {
++      if (disposed) return
++      disposed = true
++      ++generation
++      viewAttached = false
++      switching.value = false
++      stop()
++      configuration.dispose()
++      delivery.dispose()
++    },
++  }
++}
++export type SMTPSections = ReturnType<typeof createSMTPSections>
++export const smtpSectionsKey: InjectionKey<SMTPSections> = Symbol('smtp-sections')
++export function useSMTPSections() {
++  const sections = inject(smtpSectionsKey)
++  if (!sections) throw new Error('SMTP sections require the App coordinator')
++  return sections
++}
+--- a/web/src/App.vue
++++ b/web/src/App.vue
+@@ -1,11 +1,11 @@
+ <script setup lang="ts">
+-import { onMounted, onUnmounted, provide, watch } from 'vue'
++import { computed, onMounted, onUnmounted, provide, shallowRef, watch } from 'vue'
+ import { useRoute, useRouter } from 'vue-router'
+ import AppShell from './components/layout/AppShell.vue'
+ import UiButton from './components/ui/UiButton.vue'
+ import UiState from './components/ui/UiState.vue'
+ import UiDialog from './components/ui/UiDialog.vue'
+-import { useSession } from './composables/useSession'
++import { useSession, type PersonalIdentity } from './composables/useSession'
+ import { createPersonalSettings, personalSettingsKey } from './composables/usePersonalSettings'
+ import {
+   installPersonalNavigation,
+@@ -33,6 +33,12 @@
+   createSystemSMTPSettings,
+   systemSMTPSettingsKey,
+ } from './composables/useSystemSMTPSettings'
++import {
++  createSystemSMTPDelivery,
++  createSMTPSections,
++  systemSMTPDeliveryKey,
++  smtpSectionsKey,
++} from './composables/useSystemSMTPDelivery'
+ const auth = useSession(),
+   state = auth.state,
+   route = useRoute(),
+@@ -60,7 +66,33 @@
+ const stopAccountSecurityNavigation = installAccountSecurityNavigation(router, accountSecurity)
+ const smtp = createSystemSMTPSettings(auth)
+ provide(systemSMTPSettingsKey, smtp)
+-const stopSMTPNavigation = installSMTPSettingsNavigation(router, smtp)
++const smtpObservationIdentity = shallowRef<PersonalIdentity | null>(null)
++const stopSMTPAvailability = watch(
++  () => smtp.observation.value,
++  (value) => {
++    smtpObservationIdentity.value = value ? auth.personalContext.identity : null
++  },
++  { flush: 'sync' },
++)
++const smtpAvailability = computed(() => {
++  const observed = smtpObservationIdentity.value,
++    current = auth.personalContext.identity
++  return Object.freeze({
++    ready:
++      smtp.observation.phase === 'ready' &&
++      !!observed &&
++      !!current &&
++      observed.userID === current.userID &&
++      observed.sessionID === current.sessionID &&
++      observed.epoch === current.epoch,
++    configured: smtp.observation.value?.configured === true,
++  })
++})
++const smtpDelivery = createSystemSMTPDelivery(auth, () => smtpAvailability.value)
++provide(systemSMTPDeliveryKey, smtpDelivery)
++const smtpSections = createSMTPSections(auth, smtp, smtpDelivery)
++provide(smtpSectionsKey, smtpSections)
++const stopSMTPNavigation = installSMTPSettingsNavigation(router, smtpSections)
+ async function logout() {
+   if (
+     (await settings.confirmLeave()) &&
+@@ -69,7 +101,7 @@
+     (await models.confirmLeave()) &&
+     (await selection.confirmLeave()) &&
+     (await accountSecurity.confirmLeave()) &&
+-    (await smtp.confirmLeave())
++    (await smtpSections.confirmLeave())
+   )
+     await auth.logout()
+ }
+@@ -104,7 +136,7 @@
+   models.afterNavigation(route.fullPath, '')
+   selection.afterNavigation(route.fullPath, '')
+   accountSecurity.afterNavigation(route.fullPath, '')
+-  smtp.afterNavigation(route.fullPath, '')
++  smtpSections.afterNavigation(route.fullPath, '')
+   document.addEventListener('visibilitychange', refreshVisible)
+   window.addEventListener('pageshow', refreshVisible)
+ })
+@@ -119,7 +151,8 @@
+   stopSelectionNavigation()
+   stopAccountSecurityNavigation()
+   stopSMTPNavigation()
+-  smtp.dispose()
++  stopSMTPAvailability()
++  smtpSections.dispose()
+   accountSecurity.dispose()
+   selection.dispose()
+   models.dispose()
+--- a/web/src/views/system/SystemSMTPSettingsView.vue
++++ b/web/src/views/system/SystemSMTPSettingsView.vue
+@@ -7,12 +7,33 @@
+ import UiInput from '../../components/ui/UiInput.vue'
+ import UiSelect from '../../components/ui/UiSelect.vue'
+ import UiState from '../../components/ui/UiState.vue'
++import SystemSMTPDeliveryPanel from './SystemSMTPDeliveryPanel.vue'
++import { useSMTPSections } from '../../composables/useSystemSMTPDelivery'
+ import {
+   smtpFields,
+   smtpRetryFields,
+   useSystemSMTPSettings,
+ } from '../../composables/useSystemSMTPSettings'
+ const page = useSystemSMTPSettings()
++const sections = useSMTPSections(),
++  { active } = sections,
++  delivery = sections.delivery
++const activeConfirmation = computed(() =>
++  active.value === 'configuration' ? page.confirmation : delivery.confirmation,
++)
++const businessOpen = computed(() =>
++  active.value === 'configuration'
++    ? page.disableConfirmation.open
++    : delivery.retryConfirmation.open,
++)
++function finishBusiness(value: boolean) {
++  if (active.value === 'configuration') page.finishDisable(value)
++  else delivery.finishRetry(value)
++}
++function finishDiscard(value: boolean) {
++  if (active.value === 'configuration') page.finishConfirmation(value)
++  else delivery.finishConfirmation(value)
++}
+ const {
+   observation,
+   draft,
+@@ -61,7 +82,7 @@
+   if (feedback.value === 'loading' && progress.value?.kind !== kind) return 'idle'
+   return feedback.value
+ })
+-const dialogOpen = () => confirmation.open || disableConfirmation.open
++const dialogOpen = () => activeConfirmation.value.open || businessOpen.value
+ function clearPasswordDOM() {
+   if (passwordInput.value) passwordInput.value.value = ''
+ }
+@@ -86,11 +107,27 @@
+   return true
+ }
+ async function perform(work: () => Promise<unknown>, event: Event) {
++  const section = active.value,
++    generation = sections.generation
+   const previous = event instanceof SubmitEvent ? event.submitter : event.currentTarget
+   await work()
+-  if (!alive.value || !fallbackFocus.value) return
++  if (
++    !alive.value ||
++    !fallbackFocus.value ||
++    active.value !== section ||
++    generation !== sections.generation
++  )
++    return
+   await nextTick()
+-  if (!alive.value || !fallbackFocus.value || blocked.value || dialogOpen()) return
++  if (
++    !alive.value ||
++    !fallbackFocus.value ||
++    active.value !== section ||
++    generation !== sections.generation ||
++    blocked.value ||
++    dialogOpen()
++  )
++    return
+   const focused = document.activeElement
+   if (focused instanceof HTMLElement && focused !== document.body && operable(focused)) return
+   const target =
+@@ -100,279 +137,325 @@
+   if (target && operable(target)) target.focus()
+ }
+ onMounted(async () => {
+-  page.attach()
++  const generation = sections.generation
++  sections.attach()
+   await nextTick()
+-  if (alive.value && !dialogOpen() && fallbackFocus.value && operable(fallbackFocus.value))
++  if (
++    alive.value &&
++    generation === sections.generation &&
++    !dialogOpen() &&
++    fallbackFocus.value &&
++    operable(fallbackFocus.value)
++  )
+     fallbackFocus.value.focus()
+ })
+ onBeforeUnmount(() => {
+   alive.value = false
+   clearPasswordDOM()
+ })
+-onUnmounted(page.detach)
++onUnmounted(sections.detach)
+ </script>
+ <template>
+   <div class="system-smtp-settings">
+     <h1 ref="heading" tabindex="-1">SMTP</h1>
+-    <p class="meta">
+-      配置邮件传输与重试策略。保存只确认配置持久化，不证明连接、认证、发送或收件成功。
+-    </p>
+-    <div ref="actions" class="smtp-actions" aria-label="SMTP 页面操作">
+-      <UiButton :disabled="blocked" @click="page.refresh">读取当前配置</UiButton>
+-      <UiButton v-if="observation.phase === 'loading'" variant="ghost" @click="page.cancelRead"
+-        >取消读取</UiButton
++    <div class="smtp-actions" role="group" aria-label="SMTP 区块">
++      <UiButton
++        :aria-pressed="active === 'configuration'"
++        @click="sections.switchTo('configuration')"
++        >配置</UiButton
+       >
+-      <UiButton v-if="observation.value?.configured" :disabled="!disableReady" @click="page.disable"
+-        >停用并清除配置</UiButton
++      <UiButton :aria-pressed="active === 'delivery'" @click="sections.switchTo('delivery')"
++        >测试与任务</UiButton
+       >
+     </div>
+-    <p v-if="page.auth.state.busy" class="meta" role="status">正在等待当前请求结束。</p>
+-    <p v-if="state.writeMessage" class="notice" role="status">{{ state.writeMessage }}</p>
+-    <p v-if="state.confirmed" class="meta" aria-label="本次原操作的历史确认">
+-      原操作已确认，applied_version：<code>{{ state.confirmed.applied_version }}</code
+-      >。历史确认独立于当前配置。
+-    </p>
+-    <UiState
+-      v-if="progress?.phase === 'uncertain'"
+-      kind="error"
+-      title="请求结果未确认"
+-      description="当前配置不能证明原请求是否接受。检查会话后显式重试原请求将使用原密码和完整原输入；明确放弃只停止客户端追踪。"
+-    >
+-      <div class="smtp-actions">
+-        <UiButton :disabled="blocked" @click="page.checkOriginal">检查当前会话与配置</UiButton>
++    <div v-if="active === 'configuration'" class="smtp-section">
++      <p class="meta">
++        配置邮件传输与重试策略。保存只确认配置持久化，不证明连接、认证、发送或收件成功。
++      </p>
++      <div ref="actions" class="smtp-actions" aria-label="SMTP 页面操作">
++        <UiButton :disabled="blocked" @click="page.refresh">读取当前配置</UiButton>
++        <UiButton v-if="observation.phase === 'loading'" variant="ghost" @click="page.cancelRead"
++          >取消读取</UiButton
++        >
+         <UiButton
+-          :disabled="blocked || !progress.canRetryOriginal"
+-          @click="perform(page.retryOriginal, $event)"
+-          >重试原请求</UiButton
++          v-if="observation.value?.configured"
++          :disabled="!disableReady"
++          @click="page.disable"
++          >停用并清除配置</UiButton
+         >
+-        <UiButton variant="ghost" @click="page.abandonOperation">放弃本次操作</UiButton>
+       </div>
+-    </UiState>
+-    <UiState v-if="observation.phase === 'loading'" kind="loading" title="正在读取 SMTP 配置" />
+-    <UiState
+-      v-else-if="observation.phase === 'error'"
+-      kind="error"
+-      :title="state.confirmed ? '原操作已确认，当前配置读取失败' : 'SMTP 配置读取失败'"
+-      :description="observation.message"
+-    />
+-    <section v-else-if="observation.value" aria-label="当前读取的 SMTP 配置">
+-      <h2>当前读取值</h2>
+-      <p class="meta">
+-        当前配置版本：<code>{{ observation.value.version }}</code
+-        >；SMTP：{{ observation.value.configured ? '已配置' : '未配置' }}；凭据：{{
+-          observation.value.credential_present ? '已配置' : '未配置'
+-        }}。
++      <p v-if="page.auth.state.busy" class="meta" role="status">正在等待当前请求结束。</p>
++      <p v-if="state.writeMessage" class="notice" role="status">{{ state.writeMessage }}</p>
++      <p v-if="state.confirmed" class="meta" aria-label="本次原操作的历史确认">
++        原操作已确认，applied_version：<code>{{ state.confirmed.applied_version }}</code
++        >。历史确认独立于当前配置。
+       </p>
+-      <p v-if="!observation.value.configured" class="notice">
+-        SMTP 未配置。后台恢复链接由授权运维获取并转交；本页不读取恢复日志、链接或 token。
+-      </p>
+-      <dl class="current-values">
+-        <template v-if="observation.value.configured">
+-          <div v-for="field in smtpFields" :key="field.key">
+-            <dt>{{ field.label }}</dt>
+-            <dd>{{ observation.value[field.key] || '空' }}</dd>
+-          </div>
+-          <div>
+-            <dt>加密方式</dt>
+-            <dd>{{ observation.value.encryption }}</dd>
+-          </div>
+-        </template>
+-        <div v-for="field in smtpRetryFields" :key="field.key">
+-          <dt>{{ field.label }}</dt>
+-          <dd>{{ observation.value[field.key] }}</dd>
+-        </div>
+-      </dl>
+-    </section>
+-    <p v-if="state.requiresRead" class="notice">
+-      请在当前请求结束后明确读取配置；新的编辑基线必须来自成功的当前读取。
+-    </p>
+-    <form
+-      v-if="editor.ready"
+-      aria-label="修改 SMTP 配置"
+-      novalidate
+-      @submit.prevent="perform(page.save, $event)"
+-    >
+-      <h2>{{ editor.configuring ? '修改 SMTP 配置' : '修改未配置时的重试策略' }}</h2>
+-      <p class="meta">
+-        编辑基线版本：<code>{{ editor.version }}</code>
+-      </p>
+-      <p v-if="editor.message" class="notice" role="status">{{ editor.message }}</p>
+       <UiState
+-        v-if="editor.conflict && progress?.phase !== 'uncertain'"
++        v-if="progress?.phase === 'uncertain'"
+         kind="error"
+-        title="需要核对最新配置"
+-        description="当前读取不会改写原草稿、新密码或编辑版本。核对后明确采用最新值，再重新编辑。"
++        title="请求结果未确认"
++        description="当前配置不能证明原请求是否接受。检查会话后显式重试原请求将使用原密码和完整原输入；明确放弃只停止客户端追踪。"
+       >
+         <div class="smtp-actions">
+-          <UiButton :disabled="blocked" @click="page.readLatest">读取最新配置</UiButton
+-          ><UiButton :disabled="blocked || observation.phase !== 'ready'" @click="page.adoptLatest"
+-            >采用最新值重新编辑</UiButton
+-          >
++          <UiButton :disabled="blocked" @click="page.checkOriginal">检查当前会话与配置</UiButton>
++          <UiButton
++            :disabled="blocked || !progress.canRetryOriginal"
++            @click="perform(page.retryOriginal, $event)"
++            >重试原请求</UiButton
++          >
++          <UiButton variant="ghost" @click="page.abandonOperation">放弃本次操作</UiButton>
+         </div>
+       </UiState>
+-      <p v-if="maximumVersion" class="notice">配置版本已达上限；当前值可读取，不能继续保存。</p>
+-      <UiButton
+-        v-if="!editor.configuring"
+-        :disabled="blocked || locked || maximumVersion"
+-        @click="page.configure"
+-        >配置 SMTP</UiButton
++      <UiState v-if="observation.phase === 'loading'" kind="loading" title="正在读取 SMTP 配置" />
++      <UiState
++        v-else-if="observation.phase === 'error'"
++        kind="error"
++        :title="state.confirmed ? '原操作已确认，当前配置读取失败' : 'SMTP 配置读取失败'"
++        :description="observation.message"
++      />
++      <section v-else-if="observation.value" aria-label="当前读取的 SMTP 配置">
++        <h2>当前读取值</h2>
++        <p class="meta">
++          当前配置版本：<code>{{ observation.value.version }}</code
++          >；SMTP：{{ observation.value.configured ? '已配置' : '未配置' }}；凭据：{{
++            observation.value.credential_present ? '已配置' : '未配置'
++          }}。
++        </p>
++        <p v-if="!observation.value.configured" class="notice">
++          SMTP 未配置。后台恢复链接由授权运维获取并转交；本页不读取恢复日志、链接或 token。
++        </p>
++        <dl class="current-values">
++          <template v-if="observation.value.configured">
++            <div v-for="field in smtpFields" :key="field.key">
++              <dt>{{ field.label }}</dt>
++              <dd>{{ observation.value[field.key] || '空' }}</dd>
++            </div>
++            <div>
++              <dt>加密方式</dt>
++              <dd>{{ observation.value.encryption }}</dd>
++            </div>
++          </template>
++          <div v-for="field in smtpRetryFields" :key="field.key">
++            <dt>{{ field.label }}</dt>
++            <dd>{{ observation.value[field.key] }}</dd>
++          </div>
++        </dl>
++      </section>
++      <p v-if="state.requiresRead" class="notice">
++        请在当前请求结束后明确读取配置；新的编辑基线必须来自成功的当前读取。
++      </p>
++      <form
++        v-if="editor.ready"
++        aria-label="修改 SMTP 配置"
++        novalidate
++        @submit.prevent="perform(page.save, $event)"
+       >
+-      <div v-if="editor.configuring" class="smtp-fields">
+-        <UiField
+-          v-for="field in smtpFields"
+-          :key="field.key"
+-          v-slot="control"
+-          :label="field.label"
+-          :hint="field.hint"
+-          :error="errors[field.key]"
+-          :required="['host', 'port', 'sender_email'].includes(field.key)"
++        <h2>{{ editor.configuring ? '修改 SMTP 配置' : '修改未配置时的重试策略' }}</h2>
++        <p class="meta">
++          编辑基线版本：<code>{{ editor.version }}</code>
++        </p>
++        <p v-if="editor.message" class="notice" role="status">{{ editor.message }}</p>
++        <UiState
++          v-if="editor.conflict && progress?.phase !== 'uncertain'"
++          kind="error"
++          title="需要核对最新配置"
++          description="当前读取不会改写原草稿、新密码或编辑版本。核对后明确采用最新值，再重新编辑。"
+         >
+-          <UiInput
+-            :id="control.id"
+-            :model-value="draft[field.key]"
+-            :invalid="control.invalid"
+-            :aria-describedby="control.describedby"
+-            :inputmode="field.key === 'port' ? 'numeric' : undefined"
+-            autocomplete="off"
+-            :disabled="
+-              blocked ||
+-              locked ||
+-              maximumVersion ||
+-              (editor.removeCredential && field.key === 'username')
+-            "
+-            @update:model-value="page.updateField(field.key, $event)"
+-          />
+-        </UiField>
+-        <UiField
+-          v-slot="control"
+-          label="加密方式"
+-          hint="明确选择 TLS、STARTTLS 或无加密；失败时不会自动降级。"
+-          :error="errors.encryption"
+-          required
++          <div class="smtp-actions">
++            <UiButton :disabled="blocked" @click="page.readLatest">读取最新配置</UiButton
++            ><UiButton
++              :disabled="blocked || observation.phase !== 'ready'"
++              @click="page.adoptLatest"
++              >采用最新值重新编辑</UiButton
++            >
++          </div>
++        </UiState>
++        <p v-if="maximumVersion" class="notice">配置版本已达上限；当前值可读取，不能继续保存。</p>
++        <UiButton
++          v-if="!editor.configuring"
++          :disabled="blocked || locked || maximumVersion"
++          @click="page.configure"
++          >配置 SMTP</UiButton
+         >
+-          <UiSelect
+-            :id="control.id"
+-            :model-value="draft.encryption"
+-            :options="encryptionOptions"
++        <div v-if="editor.configuring" class="smtp-fields">
++          <UiField
++            v-for="field in smtpFields"
++            :key="field.key"
++            v-slot="control"
++            :label="field.label"
++            :hint="field.hint"
++            :error="errors[field.key]"
++            :required="['host', 'port', 'sender_email'].includes(field.key)"
++          >
++            <UiInput
++              :id="control.id"
++              :model-value="draft[field.key]"
++              :invalid="control.invalid"
++              :aria-describedby="control.describedby"
++              :inputmode="field.key === 'port' ? 'numeric' : undefined"
++              autocomplete="off"
++              :disabled="
++                blocked ||
++                locked ||
++                maximumVersion ||
++                (editor.removeCredential && field.key === 'username')
++              "
++              @update:model-value="page.updateField(field.key, $event)"
++            />
++          </UiField>
++          <UiField
++            v-slot="control"
+             label="加密方式"
++            hint="明确选择 TLS、STARTTLS 或无加密；失败时不会自动降级。"
++            :error="errors.encryption"
++            required
++          >
++            <UiSelect
++              :id="control.id"
++              :model-value="draft.encryption"
++              :options="encryptionOptions"
++              label="加密方式"
++              :disabled="blocked || locked || maximumVersion"
++              :aria-describedby="control.describedby"
++              @update:model-value="page.updateField('encryption', $event as string)"
++            />
++          </UiField>
++          <UiField
++            v-slot="control"
++            label="新密码（仅写入）"
++            hint="留空保持旧凭据；非空材料替换。1–2048 UTF-8 字节，不自动修整合法空格。"
++            :error="errors.password || state.materialMessage"
++          >
++            <!-- Material is never a Vue model/prop. It stays in this input DOM and the private Session owner only. -->
++            <input
++              :id="control.id"
++              ref="passwordInput"
++              class="ui-input"
++              type="password"
++              autocomplete="off"
++              autocapitalize="off"
++              spellcheck="false"
++              :disabled="blocked || locked || maximumVersion || editor.removeCredential"
++              :aria-invalid="control.invalid || undefined"
++              :aria-describedby="control.describedby"
++              @input="page.setMaterial(($event.target as HTMLInputElement).value)"
++            />
++          </UiField>
++        </div>
++        <template v-if="editor.configuring">
++          <p v-if="material.present" class="meta" role="status">
++            已保留新密码输入；重挂后不会回显。<UiButton
++              variant="ghost"
++              :disabled="blocked || locked"
++              @click="page.setMaterial('')"
++              >清除新密码输入</UiButton
++            >
++          </p>
++          <UiCheckbox
++            :model-value="editor.removeCredential"
+             :disabled="blocked || locked || maximumVersion"
+-            :aria-describedby="control.describedby"
+-            @update:model-value="page.updateField('encryption', $event as string)"
+-          />
+-        </UiField>
+-        <UiField
+-          v-slot="control"
+-          label="新密码（仅写入）"
+-          hint="留空保持旧凭据；非空材料替换。1–2048 UTF-8 字节，不自动修整合法空格。"
+-          :error="errors.password || state.materialMessage"
+-        >
+-          <!-- Material is never a Vue model/prop. It stays in this input DOM and the private Session owner only. -->
+-          <input
+-            :id="control.id"
+-            ref="passwordInput"
+-            class="ui-input"
+-            type="password"
+-            autocomplete="off"
+-            autocapitalize="off"
+-            spellcheck="false"
+-            :disabled="blocked || locked || maximumVersion || editor.removeCredential"
+-            :aria-invalid="control.invalid || undefined"
+-            :aria-describedby="control.describedby"
+-            @input="page.setMaterial(($event.target as HTMLInputElement).value)"
+-          />
+-        </UiField>
+-      </div>
+-      <template v-if="editor.configuring">
+-        <p v-if="material.present" class="meta" role="status">
+-          已保留新密码输入；重挂后不会回显。<UiButton
+-            variant="ghost"
+-            :disabled="blocked || locked"
+-            @click="page.setMaterial('')"
+-            >清除新密码输入</UiButton
+-          >
+-        </p>
+-        <UiCheckbox
+-          :model-value="editor.removeCredential"
+-          :disabled="blocked || locked || maximumVersion"
+-          @update:model-value="page.setRemoveCredential"
+-          >移除凭据并清空用户名</UiCheckbox
+-        >
+-        <p class="meta">移除凭据不等于停用 SMTP；取消尚未保存的移除会回到保持原凭据。</p>
+-        <p v-if="errors.transport" class="notice" role="status">{{ errors.transport }}</p>
++            @update:model-value="page.setRemoveCredential"
++            >移除凭据并清空用户名</UiCheckbox
++          >
++          <p class="meta">移除凭据不等于停用 SMTP；取消尚未保存的移除会回到保持原凭据。</p>
++          <p v-if="errors.transport" class="notice" role="status">{{ errors.transport }}</p>
++        </template>
++        <div class="smtp-fields">
++          <UiField
++            v-for="field in smtpRetryFields"
++            :key="field.key"
++            v-slot="control"
++            :label="field.label"
++            :hint="field.hint"
++            :error="errors[field.key]"
++            required
++          >
++            <UiInput
++              :id="control.id"
++              :model-value="draft[field.key]"
++              :invalid="control.invalid"
++              :aria-describedby="control.describedby"
++              inputmode="numeric"
++              autocomplete="off"
++              :disabled="blocked || locked || maximumVersion"
++              @update:model-value="page.updateField(field.key, $event)"
++            />
++          </UiField>
++        </div>
++        <div class="smtp-actions">
++          <UiButton
++            type="submit"
++            variant="primary"
++            :disabled="!canSave"
++            :state="saveFeedback"
++            :success-label="editor.configuring ? 'SMTP 配置已保存' : '重试策略已保存'"
++            >{{ editor.configuring ? '保存 SMTP 配置' : '保存重试策略' }}</UiButton
++          ><UiButton variant="ghost" :disabled="page.checking.value" @click="page.cancel"
++            >取消修改</UiButton
++          >
++        </div>
++      </form>
++      <p class="meta">
++        停用会清除传输配置和凭据引用，保留已保存重试策略；不保证立即物理擦除旧材料或终止已开始的投递。测试请求与投递任务请切换到“测试与任务”。
++      </p>
++    </div>
++    <SystemSMTPDeliveryPanel v-else />
++    <UiDialog
++      :open="businessOpen"
++      :title="active === 'configuration' ? '停用并清除 SMTP 配置？' : '申请新重试周期？'"
++      :fallback-focus="fallbackFocus"
++      @update:open="!$event && finishBusiness(false)"
++    >
++      <template v-if="active === 'configuration'">
++        <p>
++          将清除主机、认证、发件信息和凭据，保留已保存的重试策略；不撤回邮件或保证终止在途投递。
++        </p>
++        <p>
++          目标版本：<code>{{ disableConfirmation.version }}</code
++          >。保留自动重试 {{ disableConfirmation.auto_retry_count }} 次、间隔
++          {{ disableConfirmation.retry_interval_seconds }} 秒。
++        </p>
+       </template>
+-      <div class="smtp-fields">
+-        <UiField
+-          v-for="field in smtpRetryFields"
+-          :key="field.key"
+-          v-slot="control"
+-          :label="field.label"
+-          :hint="field.hint"
+-          :error="errors[field.key]"
+-          required
+-        >
+-          <UiInput
+-            :id="control.id"
+-            :model-value="draft[field.key]"
+-            :invalid="control.invalid"
+-            :aria-describedby="control.describedby"
+-            inputmode="numeric"
+-            autocomplete="off"
+-            :disabled="blocked || locked || maximumVersion"
+-            @update:model-value="page.updateField(field.key, $event)"
+-          />
+-        </UiField>
+-      </div>
+-      <div class="smtp-actions">
+-        <UiButton
+-          type="submit"
+-          variant="primary"
+-          :disabled="!canSave"
+-          :state="saveFeedback"
+-          :success-label="editor.configuring ? 'SMTP 配置已保存' : '重试策略已保存'"
+-          >{{ editor.configuring ? '保存 SMTP 配置' : '保存重试策略' }}</UiButton
+-        ><UiButton variant="ghost" :disabled="page.checking.value" @click="page.cancel"
+-          >取消修改</UiButton
+-        >
+-      </div>
+-    </form>
+-    <p class="meta">
+-      停用会清除传输配置和凭据引用，保留已保存重试策略；不保证立即物理擦除旧材料或终止已开始的投递。这里不提供连接检查、测试发送或投递任务管理。
+-    </p>
+-    <UiDialog
+-      :open="disableConfirmation.open"
+-      title="停用并清除 SMTP 配置？"
+-      :fallback-focus="fallbackFocus"
+-      @update:open="!$event && page.finishDisable(false)"
+-    >
+-      <p>将清除主机、认证、发件信息和凭据，保留已保存的重试策略；不撤回邮件或保证终止在途投递。</p>
+-      <p>
+-        目标版本：<code>{{ disableConfirmation.version }}</code
+-        >。保留自动重试 {{ disableConfirmation.auto_retry_count }} 次、间隔
+-        {{ disableConfirmation.retry_interval_seconds }} 秒。
+-      </p>
++      <template v-else>
++        <p>
++          将使用当前合法配置和原业务材料，申请一个新的投递周期；可能重复投递。当前权限、同一业务材料的在途任务和材料有效性仍由服务裁决。
++        </p>
++        <p>
++          源 JobID：<code>{{ delivery.retryConfirmation.target?.job_id }}</code
++          >；捕获版本：<code>{{ delivery.retryConfirmation.target?.version }}</code
++          >。
++        </p>
++      </template>
+       <template #footer
+-        ><UiButton variant="ghost" @click="page.finishDisable(false)">取消停用</UiButton
+-        ><UiButton :disabled="blocked" @click="page.finishDisable(true)"
+-          >确认停用并清除</UiButton
++        ><UiButton variant="ghost" @click="finishBusiness(false)">{{
++          active === 'configuration' ? '取消停用' : '取消申请'
++        }}</UiButton
++        ><UiButton
++          :disabled="active === 'configuration' ? blocked : delivery.blocked.value"
++          @click="finishBusiness(true)"
++          >{{ active === 'configuration' ? '确认停用并清除' : '确认申请新周期' }}</UiButton
+         ></template
+       >
+     </UiDialog>
+     <UiDialog
+-      :open="confirmation.open"
+-      :title="confirmation.title"
++      :open="activeConfirmation.open"
++      :title="activeConfirmation.title"
+       :fallback-focus="fallbackFocus"
+-      @update:open="!$event && page.finishConfirmation(false)"
++      @update:open="!$event && finishDiscard(false)"
+     >
+-      <p>{{ confirmation.message }}</p>
++      <p>{{ activeConfirmation.message }}</p>
+       <template #footer
+-        ><UiButton variant="ghost" @click="page.finishConfirmation(false)">继续编辑</UiButton
+-        ><UiButton @click="page.finishConfirmation(true)">放弃修改</UiButton></template
++        ><UiButton variant="ghost" @click="finishDiscard(false)">继续编辑</UiButton
++        ><UiButton @click="finishDiscard(true)">{{
++          active === 'configuration' ? '放弃修改' : '放弃草稿和追踪'
++        }}</UiButton></template
+       >
+     </UiDialog>
+   </div>
+ </template>
+ <style scoped>
+ .system-smtp-settings,
++.smtp-section,
+ form,
+ section {
+   display: grid;
+--- a/web/src/views/system/SystemSMTPDeliveryPanel.vue
++++ b/web/src/views/system/SystemSMTPDeliveryPanel.vue
+@@ -0,0 +1,451 @@
++<script setup lang="ts">
++import { nextTick, onBeforeUnmount, ref } from 'vue'
++import UiButton from '../../components/ui/UiButton.vue'
++import UiField from '../../components/ui/UiField.vue'
++import UiInput from '../../components/ui/UiInput.vue'
++import UiState from '../../components/ui/UiState.vue'
++import {
++  useSystemSMTPDelivery,
++  useSMTPSections,
++  smtpJobKinds,
++  smtpJobPhases,
++  smtpAttemptResults,
++  smtpJobReasons,
++  smtpChannelLabel,
++} from '../../composables/useSystemSMTPDelivery'
++const page = useSystemSMTPDelivery(),
++  sections = useSMTPSections()
++const {
++  list,
++  detail,
++  mode,
++  draft,
++  state,
++  progress,
++  feedback,
++  blocked,
++  locked,
++  recipientError,
++  canTest,
++  available,
++  retryReady,
++  retryReason,
++} = page
++const actions = ref<HTMLElement | null>(null)
++let alive = true
++const identity = page.auth.personalContext.identity
++function current() {
++  const value = page.auth.personalContext.identity
++  return (
++    alive &&
++    sections.active.value === 'delivery' &&
++    page.auth.state.phase === 'authenticated' &&
++    page.auth.personalContext.phase === 'current' &&
++    identity &&
++    value &&
++    identity.userID === value.userID &&
++    identity.sessionID === value.sessionID &&
++    identity.epoch === value.epoch &&
++    page.auth.state.user?.role === 'admin' &&
++    !page.auth.system.denied
++  )
++}
++function operable(node: HTMLElement) {
++  if (!node.isConnected || node.matches(':disabled') || !node.getClientRects().length) return false
++  for (let a: HTMLElement | null = node; a; a = a.parentElement)
++    if (a.inert || a.hidden || a.getAttribute('aria-hidden') === 'true') return false
++  return true
++}
++async function perform(work: () => Promise<unknown>, event: Event) {
++  const generation = sections.generation,
++    previous = event instanceof SubmitEvent ? event.submitter : event.currentTarget
++  await work()
++  if (!current() || generation !== sections.generation) return
++  await nextTick()
++  if (
++    !current() ||
++    generation !== sections.generation ||
++    blocked.value ||
++    page.confirmation.open ||
++    page.retryConfirmation.open
++  )
++    return
++  const focused = document.activeElement
++  if (focused instanceof HTMLElement && focused !== document.body && operable(focused)) return
++  const target =
++    previous instanceof HTMLElement && operable(previous)
++      ? previous
++      : actions.value?.querySelector<HTMLElement>('button:not(:disabled)')
++  if (target && operable(target)) target.focus()
++}
++onBeforeUnmount(() => {
++  alive = false
++})
++</script>
++<template>
++  <section class="smtp-delivery" aria-label="SMTP 测试与任务">
++    <p class="meta">
++      测试使用服务端已保存配置；请求接受、任务当前状态和实际尝试结果分别记录。已报告接受不保证收件箱送达。
++    </p>
++    <form class="test-form" @submit.prevent="perform(page.requestTest, $event)">
++      <h2>请求一次测试</h2>
++      <UiField
++        v-slot="control"
++        label="测试收件邮箱"
++        hint="仅为本次请求输入，不是任何历史任务的收件人字段。"
++        :error="recipientError"
++        required
++      >
++        <UiInput
++          :id="control.id"
++          :model-value="draft.recipient"
++          :invalid="control.invalid"
++          :aria-describedby="control.describedby"
++          autocomplete="off"
++          inputmode="email"
++          :disabled="locked"
++          @update:model-value="page.updateRecipient($event)"
++        />
++      </UiField>
++      <div class="actions">
++        <UiButton
++          type="submit"
++          variant="primary"
++          :disabled="!canTest"
++          :state="feedback === 'loading' && progress?.kind === 'test' ? 'loading' : 'idle'"
++          >请求测试发送</UiButton
++        >
++      </div>
++      <p v-if="!available.ready" class="notice">
++        尚无本会话下完整的配置观察。请返回配置区明确读取，再请求测试。
++      </p>
++      <p v-else-if="!available.configured" class="notice">
++        当前观察为 SMTP 未配置，不能开始新的测试请求。
++      </p>
++      <div v-if="!available.ready || !available.configured" class="actions">
++        <UiButton variant="ghost" @click="sections.switchTo('configuration')">返回配置区</UiButton>
++      </div>
++    </form>
++    <p v-if="page.auth.state.busy" class="meta" role="status">正在等待当前请求结束。</p>
++    <p v-if="state.writeMessage" class="notice" role="status">{{ state.writeMessage }}</p>
++    <section v-if="state.confirmed" class="confirmation-fact" aria-label="本次请求的接受确认">
++      <h2>{{ state.confirmed.kind === 'test' ? '测试请求已接受' : '新重试周期已接受' }}</h2>
++      <p>
++        新 JobID：<code>{{ state.confirmed.jobID }}</code
++        ><span v-if="state.confirmed.version"
++          >；响应时新周期版本：<code>{{ state.confirmed.version }}</code></span
++        >。
++      </p>
++      <p v-if="state.confirmed.sourceID">
++        本次申请的源 JobID：<code>{{ state.confirmed.sourceID }}</code
++        >。只表示本次操作的关联，不是完整投递历史。
++      </p>
++      <div class="actions">
++        <UiButton
++          :disabled="blocked"
++          @click="perform(() => page.openDetail(state.confirmed!.jobID), $event)"
++          >重新读取已确认任务</UiButton
++        >
++      </div>
++    </section>
++    <UiState
++      v-if="progress?.phase === 'uncertain'"
++      kind="error"
++      title="请求结果未确认"
++      description="没有匹配的完整接受确认。任务列表、详情和会话都不能证明原请求是否接受；明确放弃只停止客户端追踪。"
++    >
++      <div class="actions">
++        <UiButton :disabled="blocked" @click="perform(page.checkOriginal, $event)"
++          >检查当前状态</UiButton
++        >
++        <UiButton
++          :disabled="blocked || !progress.canRetryOriginal"
++          @click="perform(page.retryOriginal, $event)"
++          >重试原请求</UiButton
++        >
++        <UiButton variant="ghost" @click="page.abandonOperation">放弃追踪本次操作</UiButton>
++      </div>
++    </UiState>
++    <p v-if="state.requiresRead" class="notice">请先明确重新读取并核对任务，再开始新操作。</p>
++    <div ref="actions" class="actions" aria-label="投递任务读取操作">
++      <template v-if="mode === 'list'">
++        <UiButton :disabled="blocked" @click="perform(page.refresh, $event)">刷新任务列表</UiButton>
++        <UiButton v-if="list.phase === 'loading'" variant="ghost" @click="page.cancelList"
++          >取消列表读取</UiButton
++        >
++      </template>
++      <template v-else>
++        <UiButton variant="ghost" @click="page.backToList">返回任务列表</UiButton>
++        <UiButton :disabled="blocked" @click="perform(page.rereadDetail, $event)"
++          >重新读取任务详情</UiButton
++        >
++        <UiButton v-if="detail.phase === 'loading'" variant="ghost" @click="page.cancelDetail"
++          >取消详情读取</UiButton
++        >
++      </template>
++    </div>
++    <section v-if="mode === 'list'" aria-label="投递任务列表">
++      <h2>投递任务</h2>
++      <UiState v-if="list.phase === 'waiting'" kind="loading" title="等待当前请求结束后读取任务" />
++      <UiState v-else-if="list.phase === 'loading'" kind="loading" title="正在读取任务列表" />
++      <UiState
++        v-else-if="list.phase === 'error'"
++        kind="error"
++        title="任务列表读取失败"
++        :description="list.message"
++      />
++      <UiState v-else-if="list.phase === 'empty'" kind="empty" title="当前页没有投递任务" />
++      <div v-else-if="list.phase === 'ready'" class="table-container">
++        <table>
++          <caption class="sr-only">
++            当前页投递任务的完整安全观察
++          </caption>
++          <thead>
++            <tr>
++              <th scope="col">任务</th>
++              <th scope="col">阶段</th>
++              <th scope="col">实际尝试</th>
++              <th scope="col">次数与版本</th>
++              <th scope="col">创建时间</th>
++              <th scope="col">操作</th>
++            </tr>
++          </thead>
++          <tbody>
++            <tr v-for="row in list.rows" :key="row.job_id">
++              <td data-label="任务">
++                <span>{{ smtpJobKinds[row.kind] }}</span
++                ><code>{{ row.job_id }}</code>
++              </td>
++              <td data-label="阶段">{{ smtpJobPhases[row.phase] }}</td>
++              <td data-label="实际尝试">
++                <span>{{ smtpChannelLabel(row.attempt_channel) }}</span
++                ><span>{{
++                  row.attempt_result === null
++                    ? '尚无已报告终局结果'
++                    : smtpAttemptResults[row.attempt_result]
++                }}</span>
++              </td>
++              <td data-label="次数与版本">
++                <span>尝试 {{ row.attempts }} 次</span><span>版本 {{ row.version }}</span>
++              </td>
++              <td data-label="创建时间">
++                <time :datetime="row.created_at">{{ row.created_at }}</time>
++              </td>
++              <td data-label="操作">
++                <UiButton
++                  :disabled="blocked"
++                  :aria-label="'查看任务 ' + row.job_id"
++                  @click="perform(() => page.openDetail(row.job_id), $event)"
++                  >查看详情</UiButton
++                >
++              </td>
++            </tr>
++          </tbody>
++        </table>
++      </div>
++      <div class="actions" aria-label="任务分页">
++        <UiButton
++          :disabled="blocked || !list.hasPrevious"
++          @click="perform(page.previousPage, $event)"
++          >上一页</UiButton
++        >
++        <span>第 {{ list.page }} 页，每页最多 25 条</span>
++        <UiButton :disabled="blocked || !list.hasNext" @click="perform(page.nextPage, $event)"
++          >下一页</UiButton
++        >
++        <UiButton
++          v-if="list.phase === 'error'"
++          variant="ghost"
++          :disabled="blocked"
++          @click="perform(page.firstPage, $event)"
++          >重新读取第一页</UiButton
++        >
++      </div>
++    </section>
++    <section v-else aria-label="投递任务详情">
++      <h2>任务详情</h2>
++      <p>
++        精确 JobID：<code>{{ detail.jobID }}</code>
++      </p>
++      <UiState v-if="detail.phase === 'loading'" kind="loading" title="正在读取任务详情" />
++      <UiState
++        v-else-if="detail.phase === 'error'"
++        kind="error"
++        :title="
++          state.confirmed?.jobID === detail.jobID
++            ? '请求已确认，任务详情读取失败'
++            : '任务详情读取失败'
++        "
++        :description="detail.message"
++      />
++      <template v-else-if="detail.value">
++        <dl class="job-values">
++          <div>
++            <dt>任务类型</dt>
++            <dd>{{ smtpJobKinds[detail.value.kind] }}</dd>
++          </div>
++          <div>
++            <dt>当前阶段</dt>
++            <dd>{{ smtpJobPhases[detail.value.phase] }}</dd>
++          </div>
++          <div>
++            <dt>尝试次数</dt>
++            <dd>{{ detail.value.attempts }}</dd>
++          </div>
++          <div>
++            <dt>当前版本</dt>
++            <dd>{{ detail.value.version }}</dd>
++          </div>
++          <div>
++            <dt>实际当前尝试渠道</dt>
++            <dd>{{ smtpChannelLabel(detail.value.attempt_channel) }}</dd>
++          </div>
++          <div>
++            <dt>实际当前尝试结果</dt>
++            <dd>
++              {{
++                detail.value.attempt_result === null
++                  ? '尚无已报告终局结果'
++                  : smtpAttemptResults[detail.value.attempt_result]
++              }}
++            </dd>
++          </div>
++          <div>
++            <dt>创建时间</dt>
++            <dd>
++              <time :datetime="detail.value.created_at">{{ detail.value.created_at }}</time>
++            </dd>
++          </div>
++          <div>
++            <dt>安全原因</dt>
++            <dd>
++              {{
++                detail.value.reason === undefined ? '未报告' : smtpJobReasons[detail.value.reason]
++              }}
++            </dd>
++          </div>
++          <div>
++            <dt>兼容渠道摘要</dt>
++            <dd>{{ smtpChannelLabel(detail.value.channel) }}；不证明已尝试或下次使用渠道。</dd>
++          </div>
++        </dl>
++        <p class="meta">
++          任务结果未知与客户端请求未确认是两个不同状态。已报告接受表示 SMTP
++          接受或后台日志持久写入，不保证收件箱送达。本页没有历史收件人、恢复链接或完整尝试记录。
++        </p>
++        <p v-if="retryReason" class="notice">{{ retryReason }}</p>
++        <div class="actions">
++          <UiButton :disabled="!retryReady" @click="page.requestRetry">申请新重试周期</UiButton>
++        </div>
++      </template>
++    </section>
++  </section>
++</template>
++<style scoped>
++.smtp-delivery,
++section,
++form {
++  display: grid;
++  gap: 20px;
++  min-width: 0;
++}
++h2 {
++  font-size: 1.1rem;
++}
++.meta,
++dt {
++  color: var(--muted);
++}
++p,
++dt,
++dd,
++code,
++time {
++  overflow-wrap: anywhere;
++}
++.actions {
++  display: flex;
++  flex-wrap: wrap;
++  gap: 10px;
++  align-items: center;
++}
++.test-form {
++  max-width: 720px;
++}
++.table-container {
++  position: relative;
++  min-width: 0;
++}
++table {
++  width: 100%;
++  table-layout: fixed;
++}
++th,
++td {
++  white-space: normal;
++  overflow-wrap: anywhere;
++  vertical-align: top;
++}
++td > span,
++td > code {
++  display: block;
++}
++.sr-only {
++  position: absolute;
++  width: 1px;
++  height: 1px;
++  margin: -1px;
++  padding: 0;
++  overflow: hidden;
++  clip: rect(0, 0, 0, 0);
++  white-space: nowrap;
++  border: 0;
++}
++.job-values {
++  display: grid;
++  grid-template-columns: repeat(2, minmax(0, 1fr));
++  gap: 20px;
++  margin: 0;
++}
++.job-values > div {
++  display: grid;
++  gap: 6px;
++  min-width: 0;
++}
++dd {
++  margin: 0;
++}
++@media (max-width: 760px) {
++  table,
++  tbody,
++  tr,
++  td {
++    display: block;
++  }
++  thead {
++    display: none;
++  }
++  tr {
++    padding-block: 12px;
++    border-bottom: 1px solid var(--border);
++  }
++  td {
++    display: grid;
++    grid-template-columns: 96px minmax(0, 1fr);
++    gap: 6px 12px;
++    padding: 10px 0;
++  }
++  td::before {
++    content: attr(data-label);
++    color: var(--muted);
++    grid-column: 1;
++    grid-row: 1 / span 3;
++  }
++  td > * {
++    grid-column: 2;
++  }
++  .job-values {
++    grid-template-columns: minmax(0, 1fr);
++  }
++}
++</style>
+--- a/web/src/tests/system-smtp-delivery.spec.ts
++++ b/web/src/tests/system-smtp-delivery.spec.ts
+@@ -0,0 +1,782 @@
++import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
++import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
++import { reactive } from 'vue'
++import { createMemoryHistory, createRouter, isNavigationFailure } from 'vue-router'
++import type { SessionController } from '../composables/useSession'
++const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
++vi.mock('../composables/useSession', async (original) => ({
++  ...(await original<typeof import('../composables/useSession')>()),
++  useSession: () => selected.auth!,
++}))
++import { createSessionController } from '../composables/useSession'
++import {
++  createSystemSMTPDelivery,
++  createSMTPSections,
++  smtpJobRetryReason,
++} from '../composables/useSystemSMTPDelivery'
++import { createSystemSMTPSettings } from '../composables/useSystemSMTPSettings'
++import { createAccountAPI, type SessionView } from '../api/account'
++import { createSystemAccountAPI } from '../api/system-account'
++import { createSystemInvitationAPI } from '../api/system-invitations'
++import { createSystemProviderAPI } from '../api/system-providers'
++import { createSystemModelAPI } from '../api/system-models'
++import { createSystemModelSelectionAPI } from '../api/system-model-selection'
++import { createSystemAccountSecurityAPI } from '../api/system-account-security'
++import { createSystemSMTPSettingsAPI } from '../api/system-smtp-settings'
++import { createSystemSMTPDeliveryAPI, type SMTPDeliveryJob } from '../api/system-smtp-delivery'
++import type { Fetch } from '../api/client'
++import { installAuthentication } from '../router/auth'
++import { useTheme } from '../composables/useTheme'
++import App from '../App.vue'
++import HomeView from '../views/HomeView.vue'
++import LoginView from '../views/auth/LoginView.vue'
++import SystemSettingsView from '../views/system/SystemSettingsView.vue'
++import SystemUsersView from '../views/system/SystemUsersView.vue'
++import SystemSMTPSettingsView from '../views/system/SystemSMTPSettingsView.vue'
++
++const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
++const time = '2026-10-06T12:34:56.123456Z'
++const view = (): SessionView => ({
++  user: {
++    id: id(1),
++    email: 'admin@example.test',
++    username: 'admin',
++    display_name: 'Admin',
++    role: 'admin',
++    theme: 'system',
++    version: '1',
++    initial_password_suggestion: false,
++  },
++  session: { id: id(2), issued_at: time, idle_expires_at: time, absolute_expires_at: time },
++  csrf_token: 'S'.repeat(43),
++})
++const settings = (configured = true) => ({
++  id: id(10),
++  version: '1',
++  configured,
++  host: configured ? 'mail.example' : '',
++  port: configured ? 25 : 0,
++  encryption: configured ? 'none' : '',
++  username: '',
++  sender_email: configured ? 'sender@example.test' : '',
++  sender_name: '',
++  credential_present: false,
++  auto_retry_count: '0',
++  retry_interval_seconds: '10',
++})
++const job = (n = 20, version = '5'): SMTPDeliveryJob => ({
++  job_id: id(n),
++  kind: 'test',
++  phase: 'sent',
++  attempts: '1',
++  version,
++  channel: 'smtp',
++  created_at: time,
++  attempt_channel: 'smtp',
++  attempt_result: 'sent',
++  reason: 'sent',
++})
++const json = (value: unknown, status = 200) =>
++  new Response(JSON.stringify(value), {
++    status,
++    headers: {
++      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
++      'X-Request-ID': id(9),
++    },
++  })
++const problem = (code: string, status = 503) =>
++  json(
++    {
++      type: 'urn:agenteam:problem:test',
++      title: 'Failure',
++      status,
++      code,
++      detail: '<private error>',
++      instance: '/api/v1/system/smtp/test',
++      request_id: id(9),
++      commit_state: 'not_started',
++    },
++    status,
++  )
++function barrier<T = void>() {
++  let resolve!: (value: T | PromiseLike<T>) => void
++  const promise = new Promise<T>((r) => {
++    resolve = r
++  })
++  return { promise, resolve }
++}
++const disposers: (() => void)[] = []
++let wrapper: VueWrapper | undefined
++beforeEach(() => {
++  vi.stubGlobal(
++    'matchMedia',
++    vi.fn((media: string) => ({
++      media,
++      matches: false,
++      addEventListener: vi.fn(),
++      removeEventListener: vi.fn(),
++    })),
++  )
++  // jsdom DOM/state only; native pointer defaults, Tab and geometry remain browser checks.
++  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(
++    () => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList,
++  )
++})
++afterEach(() => {
++  wrapper?.unmount()
++  wrapper = undefined
++  for (const dispose of disposers.splice(0)) dispose()
++  selected.auth?.leave()
++  selected.auth = null
++  document.body.innerHTML = ''
++  vi.unstubAllGlobals()
++  vi.restoreAllMocks()
++  useTheme().setTheme('system')
++})
++async function fixture() {
++  let current = view(),
++    session: Fetch = async () => json(current),
++    configuration: Fetch = async () => json(settings())
++  let delivery: Fetch = async (path, init) =>
++    init.method === 'POST'
++      ? json(path.endsWith('/test') ? { job_id: id(21) } : { job_id: id(21), version: '7' }, 202)
++      : json(path.includes('?') ? { items: [job()] } : job(path.includes(id(21)) ? 21 : 20))
++  const fetch = vi.fn<Fetch>(async (path, init) => {
++    if (path === '/api/v1/session') return session(path, init)
++    if (path === '/api/v1/system/smtp/test' || path.startsWith('/api/v1/system/mail-jobs/'))
++      return delivery(path, init)
++    if (path.startsWith('/api/v1/system/smtp')) return configuration(path, init)
++    if (path.startsWith('/api/v1/system/users?')) return json({ items: [] })
++    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
++    if (path.endsWith('/bootstrap'))
++      return json({
++        csrf_token: 'A'.repeat(43),
++        challenge_modes: ['rotate'],
++        delivery_channel: 'backend_log',
++      })
++    throw new Error('Unexpected controlled route')
++  })
++  const auth = createSessionController(
++    createAccountAPI(fetch),
++    createSystemAccountAPI(fetch),
++    createSystemInvitationAPI(fetch),
++    createSystemProviderAPI(fetch),
++    createSystemModelAPI(fetch),
++    createSystemModelSelectionAPI(fetch),
++    createSystemAccountSecurityAPI(fetch),
++    createSystemSMTPSettingsAPI(fetch),
++    createSystemSMTPDeliveryAPI(fetch),
++  )
++  selected.auth = auth
++  disposers.push(() => auth.leave())
++  await auth.restore()
++  return {
++    auth,
++    fetch,
++    setDelivery(value: Fetch) {
++      delivery = value
++    },
++    setConfiguration(value: Fetch) {
++      configuration = value
++    },
++    setSession(value: SessionView) {
++      current = value
++    },
++    setSessionRequest(value: Fetch) {
++      session = value
++    },
++    resetSession() {
++      session = async () => json(current)
++    },
++    writes() {
++      return fetch.mock.calls.filter(
++        ([p, i]) =>
++          (p === '/api/v1/system/smtp/test' || p.endsWith('/retry')) && i.method === 'POST',
++      )
++    },
++    reads() {
++      return fetch.mock.calls.filter(([p, i]) => p.includes('/mail-jobs/') && i.method === 'GET')
++    },
++  }
++}
++async function controller() {
++  const f = await fixture(),
++    available = reactive({ ready: true, configured: true })
++  const page = createSystemSMTPDelivery(f.auth, () => available)
++  disposers.push(page.dispose)
++  page.afterNavigation('/system/smtp', '')
++  page.attach()
++  await flushPromises()
++  return { ...f, page, available }
++}
++async function app() {
++  const f = await fixture()
++  const router = createRouter({
++    history: createMemoryHistory(),
++    routes: [
++      { path: '/', component: HomeView, meta: { authentication: true, protected: true } },
++      { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
++      {
++        path: '/settings/profile',
++        component: { template: '<h1>个人资料</h1>' },
++        meta: { authentication: true, protected: true },
++      },
++      {
++        path: '/system',
++        component: SystemSettingsView,
++        redirect: '/system/users',
++        meta: {
++          authentication: true,
++          protected: true,
++          systemAdmin: true,
++          navigation: { label: '系统设置', order: 20 },
++        },
++        children: [
++          { path: 'users', component: SystemUsersView },
++          { path: 'smtp', component: SystemSMTPSettingsView },
++          ...['invitations', 'providers', 'models', 'model-selection', 'account-security'].map(
++            (path) => ({ path, component: { template: '<p>Accepted leaf</p>' } }),
++          ),
++        ],
++      },
++    ],
++  })
++  installAuthentication(router, f.auth)
++  await router.push('/system/smtp')
++  await router.isReady()
++  const host = document.createElement('div')
++  host.id = 'app'
++  document.body.append(host)
++  wrapper = mount(App, { attachTo: host, global: { plugins: [router] } })
++  await flushPromises()
++  return { ...f, router, wrapper }
++}
++function button(label: string, root: ParentNode = document) {
++  const value = [...root.querySelectorAll<HTMLButtonElement>('button')].find(
++    (node) =>
++      (
++        node.querySelector('.button-label[aria-hidden="false"]')?.textContent ?? node.textContent
++      )?.trim() === label || node.getAttribute('aria-label') === label,
++  )
++  expect(value, `button ${label}`).toBeTruthy()
++  return value!
++}
++async function click(label: string, root: ParentNode = document) {
++  button(label, root).click()
++  await flushPromises()
++}
++function field(label: string) {
++  const node = [...document.querySelectorAll<HTMLLabelElement>('label')].find(
++    (value) => value.textContent?.replace(/\s*\*$/, '') === label,
++  )
++  expect(node, `field ${label}`).toBeTruthy()
++  return document.getElementById(node!.htmlFor) as HTMLInputElement
++}
++async function change(label: string, value: string) {
++  const node = field(label)
++  node.value = value
++  node.dispatchEvent(new Event('input', { bubbles: true }))
++  await flushPromises()
++}
++async function submit(label = '请求测试发送') {
++  const submitter = button(label)
++  submitter.form!.dispatchEvent(
++    new SubmitEvent('submit', { bubbles: true, cancelable: true, submitter }),
++  )
++  await flushPromises()
++}
++function dialogs(count = 1) {
++  const layers = [...document.querySelectorAll<HTMLElement>('[role="dialog"]')]
++  expect(layers).toHaveLength(count)
++  for (const layer of layers.slice(0, -1)) {
++    expect(layer.inert).toBe(true)
++    expect(layer.getAttribute('aria-hidden')).toBe('true')
++  }
++  const top = layers.at(-1)!
++  expect(top.inert).toBe(false)
++  expect(top.getAttribute('aria-hidden')).toBeNull()
++  return { layers, top }
++}
++
++describe('SMTP delivery controller observations and explicit commands', () => {
++  it('does not publish a list row below the version already confirmed by a retry receipt', async () => {
++    const f = await controller(),
++      p = f.page
++    await p.openDetail(id(20))
++    const pending = p.requestRetry()
++    await flushPromises()
++    f.setDelivery(async (path, init) =>
++      init.method === 'POST'
++        ? json({ job_id: id(21), version: '27' }, 202)
++        : json(path.includes('?') ? { items: [job(21, '5')] } : job(21, '5')),
++    )
++    p.finishRetry(true)
++    await pending
++    expect(p.state.confirmed?.version).toBe('27')
++    expect(p.detail.phase).toBe('error')
++    p.backToList()
++    await p.refresh()
++    expect(p.list.phase).toBe('error')
++    expect(p.list.rows).toHaveLength(0)
++    expect(p.state.confirmed?.version).toBe('27')
++  })
++  it('gates only new tests by complete configured observation and separates receipt from failed post-read', async () => {
++    const f = await controller(),
++      p = f.page
++    p.updateRecipient('Recipient@[IPv6:2001:DB8::7]')
++    f.available.ready = false
++    await p.requestTest()
++    expect(f.writes()).toHaveLength(0)
++    f.available.ready = true
++    f.available.configured = false
++    await p.requestTest()
++    expect(f.writes()).toHaveLength(0)
++    f.available.configured = true
++    p.updateRecipient('bad address')
++    await p.requestTest()
++    expect(f.writes()).toHaveLength(0)
++    p.updateRecipient('Recipient@[IPv6:2001:DB8::7]')
++    f.setDelivery(async (_, i) =>
++      i.method === 'POST' ? json({ job_id: id(21) }, 202) : problem('UNAVAILABLE'),
++    )
++    await p.requestTest()
++    expect(p.state.confirmed).toEqual({ kind: 'test', jobID: id(21) })
++    expect(p.progress.value?.phase).toBe('confirmed')
++    expect(p.detail.phase).toBe('error')
++    expect(p.state.writeMessage).toContain('请求已确认，任务详情读取失败')
++    expect(p.draft.recipient).toBe('')
++    expect(f.writes()).toHaveLength(1)
++    expect(JSON.parse(f.writes()[0]![1].body as string)).toEqual({
++      recipient: 'Recipient@[IPv6:2001:DB8::7]',
++    })
++    f.setDelivery(async () => json(job(21, '9')))
++    await p.rereadDetail()
++    expect(p.detail.value?.version).toBe('9')
++    expect(p.state.confirmed?.jobID).toBe(id(21))
++    expect(f.writes()).toHaveLength(1)
++    p.updateRecipient('next@example.test')
++    expect(p.canTest.value).toBe(true)
++    expect(p.feedback.value).toBe('idle')
++  })
++  it('commits only whole successful pages and retains the exact previous cursor across inline detail', async () => {
++    const f = await controller(),
++      p = f.page,
++      rows = Array.from({ length: 25 }, (_, n) => job(100 - n))
++    f.setDelivery(async (path) =>
++      path.includes('cursor=opaque%2Bnext')
++        ? json({ items: [job(70, '8')] })
++        : path.includes('?')
++          ? json({ items: rows, next_cursor: 'opaque+next' })
++          : json(job(70, '6')),
++    )
++    await p.firstPage()
++    expect(p.list.rows).toHaveLength(25)
++    expect(p.list.hasNext).toBe(true)
++    await p.nextPage()
++    expect(p.list.page).toBe(2)
++    expect(p.list.rows[0]?.version).toBe('8')
++    await p.openDetail(id(70))
++    expect(p.detail.value?.version).toBe('8')
++    p.backToList()
++    expect(p.list.page).toBe(2)
++    expect(p.list.rows[0]?.job_id).toBe(id(70))
++    await p.refresh()
++    expect(f.reads().at(-1)![0]).toContain('cursor=opaque%2Bnext')
++    await p.previousPage()
++    expect(p.list.page).toBe(1)
++    f.setDelivery(async () => json({ items: [job(60), { ...job(59), recipient: 'unexpected' }] }))
++    await p.nextPage()
++    expect(p.list.phase).toBe('error')
++    expect(p.list.rows).toHaveLength(0)
++    expect(p.list.page).toBe(1)
++    f.setDelivery(async () => json({ items: [] }))
++    await p.refresh()
++    expect(f.reads().at(-1)![0]).toBe('/api/v1/system/mail-jobs/management?limit=25')
++    expect(p.list.phase).toBe('empty')
++  })
++  it.each(['list', 'detail'] as const)(
++    'retires cancelled %s synchronously and never auto-restarts after detach/reattach or native join',
++    async (scope) => {
++      const f = await controller(),
++        p = f.page,
++        tail = barrier(),
++        cancel = vi.fn(() => tail.promise)
++      f.setDelivery(
++        async () =>
++          new Response(new ReadableStream<Uint8Array>({ cancel }), {
++            headers: { 'Content-Type': 'application/json' },
++          }),
++      )
++      const task = scope === 'list' ? p.refresh() : p.openDetail(id(20))
++      await flushPromises()
++      expect(p[scope].phase).toBe('loading')
++      p.detach()
++      expect(p[scope].phase).toBe('error')
++      expect(p[scope].message).toContain('读取已取消')
++      p.attach()
++      const count = f.reads().length
++      try {
++        await task
++        expect(cancel).toHaveBeenCalledTimes(1)
++        expect(f.auth.state.busy).toBe(true)
++        await flushPromises()
++        expect(f.reads()).toHaveLength(count)
++      } finally {
++        tail.resolve()
++      }
++      await flushPromises()
++      expect(p[scope].phase).toBe('error')
++      expect(f.reads()).toHaveLength(count)
++      f.setDelivery(async () => json(scope === 'list' ? { items: [] } : job()))
++      await (scope === 'list' ? p.refresh() : p.rereadDetail())
++      expect(p[scope].phase).toBe(scope === 'list' ? 'empty' : 'ready')
++    },
++  )
++  it('waits for a preceding actual owner only for a never-started initial read', async () => {
++    const f = await fixture(),
++      held = barrier<Response>()
++    f.setConfiguration(() => held.promise)
++    const request = f.auth.system.smtp.get()
++    await flushPromises()
++    const p = createSystemSMTPDelivery(f.auth, () => ({ ready: true, configured: true }))
++    disposers.push(p.dispose)
++    p.afterNavigation('/system/smtp', '')
++    p.attach()
++    expect(p.list.phase).toBe('waiting')
++    expect(f.reads()).toHaveLength(0)
++    held.resolve(json(settings()))
++    await request
++    await flushPromises()
++    expect(f.reads()).toHaveLength(1)
++    expect(p.list.phase).toBe('ready')
++    p.detach()
++    p.attach()
++    await flushPromises()
++    expect(f.reads()).toHaveLength(1)
++  })
++  it.each([
++    [job(), true],
++    [{ ...job(), phase: 'failed', attempt_result: 'unknown' }, true],
++    [
++      { ...job(), phase: 'cancelled', attempts: '0', attempt_channel: null, attempt_result: null },
++      true,
++    ],
++    [{ ...job(), phase: 'unknown', attempt_channel: null, attempt_result: null }, false],
++    [{ ...job(), phase: 'unknown', attempt_result: 'unknown' }, true],
++    [{ ...job(), phase: 'sent', attempt_result: null }, false],
++    [{ ...job(), phase: 'retry_wait' }, false],
++    [{ ...job(), version: '9223372036854775807' }, false],
++  ] as const)(
++    'uses necessary retry eligibility without equating phase and result %#',
++    (value, allowed) => {
++      expect(smtpJobRetryReason(value as SMTPDeliveryJob) === '').toBe(allowed)
++    },
++  )
++  it('captures retry source/version, requires reread after known refusal, and accepts a new current version greater than one', async () => {
++    const f = await controller(),
++      p = f.page
++    await p.openDetail(id(20))
++    const first = p.requestRetry()
++    await flushPromises()
++    expect(p.retryConfirmation.target).toEqual({ job_id: id(20), version: '5' })
++    f.setDelivery(async (_, i) =>
++      i.method === 'GET' ? json(job(20, '9')) : problem('VERSION_CONFLICT', 409),
++    )
++    await p.rereadDetail()
++    expect(p.detail.value?.version).toBe('9')
++    expect(p.retryConfirmation.target?.version).toBe('5')
++    p.finishRetry(true)
++    await first
++    expect(JSON.parse(f.writes()[0]![1].body as string)).toEqual({ version: '5' })
++    expect(p.state.requiresRead).toBe(true)
++    expect(p.retryReady.value).toBe(false)
++    expect(p.progress.value?.phase).toBe('rejected')
++    await p.rereadDetail()
++    const next = p.requestRetry()
++    await flushPromises()
++    expect(p.retryConfirmation.target?.version).toBe('9')
++    expect(f.writes()).toHaveLength(1)
++    f.setDelivery(async (_, i) =>
++      i.method === 'POST' ? json({ job_id: id(21), version: '27' }, 202) : json(job(21, '29')),
++    )
++    p.finishRetry(true)
++    await next
++    expect(p.state.confirmed).toEqual({
++      kind: 'retry',
++      sourceID: id(20),
++      jobID: id(21),
++      version: '27',
++    })
++    expect(p.detail.value?.version).toBe('29')
++    expect(f.writes()).toHaveLength(2)
++    f.setDelivery(async () => json(job(21, '1')))
++    await p.rereadDetail()
++    expect(p.detail.value?.version).toBe('29')
++  })
++  it('retains an uncertain original across failed management reads and disabled current configuration', async () => {
++    const f = await controller(),
++      p = f.page
++    f.setDelivery(async () => problem('NOT_FOUND', 404))
++    p.updateRecipient('Original@Example.Test')
++    await p.requestTest()
++    const original = f.writes()[0]![1]
++    expect(p.progress.value?.phase).toBe('uncertain')
++    f.available.configured = false
++    await p.checkOriginal()
++    expect(p.progress.value?.canRetryOriginal).toBe(true)
++    expect(p.state.confirmed).toBeNull()
++    expect(p.list.phase).toBe('error')
++    f.setDelivery(async (_, i) =>
++      i.method === 'POST'
++        ? json({ job_id: id(21) }, 202)
++        : json({ ...job(21), phase: 'unknown', attempt_result: 'unknown', reason: 'unknown' }),
++    )
++    await p.retryOriginal()
++    expect(p.state.confirmed?.jobID).toBe(id(21))
++    expect(p.detail.value?.phase).toBe('unknown')
++    expect(
++      f.writes()[1]![1].body === original.body &&
++        JSON.stringify(f.writes()[1]![1].headers) === JSON.stringify(original.headers),
++    ).toBe(true)
++  })
++  it('does not permit a fresh key after explicit abandon until a successful explicit read', async () => {
++    const f = await controller(),
++      p = f.page
++    f.setDelivery(async () => problem('UNAVAILABLE'))
++    p.updateRecipient('a@example.test')
++    await p.requestTest()
++    const abandoned = p.abandonOperation()
++    await flushPromises()
++    p.finishConfirmation(true)
++    await abandoned
++    expect(p.progress.value).toBeNull()
++    expect(p.state.requiresRead).toBe(true)
++    expect(f.writes()).toHaveLength(1)
++    p.updateRecipient('b@example.test')
++    expect(p.draft.recipient).toBe('')
++    await p.refresh()
++    expect(p.state.requiresRead).toBe(true)
++    f.setDelivery(async () => json({ items: [] }))
++    await p.refresh()
++    p.updateRecipient('b@example.test')
++    expect(p.canTest.value).toBe(true)
++  })
++  it('uses a coordinator generation independent of configuration discard and detaches before attaching', async () => {
++    const f = await fixture(),
++      configuration = createSystemSMTPSettings(f.auth),
++      delivery = createSystemSMTPDelivery(f.auth)
++    const sections = createSMTPSections(f.auth, configuration, delivery)
++    disposers.push(sections.dispose)
++    sections.afterNavigation('/system/smtp', '')
++    sections.attach()
++    await flushPromises()
++    configuration.updateField('sender_name', 'draft')
++    const order: string[] = []
++    const detach = configuration.detach.bind(configuration),
++      attach = delivery.attach.bind(delivery)
++    vi.spyOn(configuration, 'detach').mockImplementation(() => {
++      order.push('old-detach:' + sections.active.value)
++      detach()
++    })
++    vi.spyOn(delivery, 'attach').mockImplementation(() => {
++      order.push('new-attach:' + sections.active.value)
++      attach()
++    })
++    const pending = sections.switchTo('delivery')
++    await flushPromises()
++    expect(await sections.switchTo('delivery')).toBe(false)
++    expect(f.reads()).toHaveLength(0)
++    configuration.finishConfirmation(true)
++    expect(await pending).toBe(true)
++    await flushPromises()
++    expect(order).toEqual(['old-detach:configuration', 'new-attach:delivery'])
++    expect(f.reads()).toHaveLength(1)
++    expect(configuration.draft.sender_name).toBe('')
++    expect(sections.active.value).toBe('delivery')
++    sections.afterNavigation('/system/users', '/system/smtp')
++    expect(sections.active.value).toBe('configuration')
++  })
++})
++
++describe('SMTP sections in the real App and router', () => {
++  it('detaches delivery before resetting the next visit to configuration, with zero inactive delivery reads', async () => {
++    const f = await app()
++    await click('测试与任务')
++    expect(f.reads()).toHaveLength(1)
++    await f.router.push('/system/users')
++    await flushPromises()
++    const count = f.reads().length
++    await f.router.push('/system/smtp')
++    await flushPromises()
++    expect(button('配置').getAttribute('aria-pressed')).toBe('true')
++    expect(f.wrapper.find('[aria-label="SMTP 测试与任务"]').exists()).toBe(false)
++    expect(f.reads()).toHaveLength(count)
++  })
++  it('keeps the default configuration read-only to delivery, discards password only after one actual switch decision', async () => {
++    const f = await app()
++    expect(f.reads()).toHaveLength(0)
++    expect(f.writes()).toHaveLength(0)
++    expect(f.wrapper.find('[aria-label="SMTP 测试与任务"]').exists()).toBe(false)
++    await change('认证用户名', 'auth')
++    await change('新密码（仅写入）', 'synthetic-private')
++    button('测试与任务').focus()
++    await click('测试与任务')
++    await click('测试与任务')
++    dialogs()
++    expect(f.reads()).toHaveLength(0)
++    await click('继续编辑', dialogs().top)
++    expect(f.auth.system.smtp.material.present).toBe(true)
++    expect(document.activeElement).toBe(button('测试与任务'))
++    await click('测试与任务')
++    await click('放弃修改', dialogs().top)
++    expect(f.auth.system.smtp.material.present).toBe(false)
++    expect(f.wrapper.find('input[type="password"]').exists()).toBe(false)
++    expect(f.reads()).toHaveLength(1)
++    expect(button('测试与任务').getAttribute('aria-pressed')).toBe('true')
++    await change('测试收件邮箱', 'a@example.test')
++    expect(button('请求测试发送').disabled).toBe(false)
++    await click('配置')
++    await click('继续编辑', dialogs().top)
++    expect(field('测试收件邮箱').value).toBe('a@example.test')
++    expect(f.writes()).toHaveLength(0)
++    await click('配置')
++    await click('放弃草稿和追踪', dialogs().top)
++    expect(button('配置').getAttribute('aria-pressed')).toBe('true')
++    expect(f.reads()).toHaveLength(1)
++    expect(field('新密码（仅写入）').value).toBe('')
++  })
++  it.each(['route', 'logout'] as const)(
++    'keeps two delivery decisions across pageshow/503 and settles pending %s by the real top button',
++    async (action) => {
++      const f = await app()
++      await click('测试与任务')
++      await click('查看任务 ' + id(20))
++      const oldHeading = f.wrapper.get('h1').element,
++        trigger = button('申请新重试周期')
++      trigger.focus()
++      await click('申请新重试周期')
++      expect(trigger.disabled).toBe(false)
++      dialogs()
++      const pending = action === 'route' ? f.router.push('/system/users') : null
++      if (action === 'logout') button('退出登录').click()
++      await flushPromises()
++      dialogs(2)
++      const held = barrier<Response>()
++      f.setSessionRequest(() => held.promise)
++      window.dispatchEvent(new Event('pageshow'))
++      await flushPromises()
++      expect(f.wrapper.find('.session-check').exists()).toBe(true)
++      expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
++      expect(document.getElementById('app')!.inert).toBe(false)
++      expect(document.documentElement.style.overflow).toBe('')
++      held.resolve(problem('UNAVAILABLE'))
++      await flushPromises()
++      expect(button('检查当前会话').disabled).toBe(false)
++      f.resetSession()
++      await click('检查当前会话')
++      const restored = dialogs(2)
++      expect(restored.top.contains(document.activeElement)).toBe(true)
++      expect(oldHeading.isConnected).toBe(false)
++      expect(button('测试与任务').getAttribute('aria-pressed')).toBe('true')
++      await click('继续编辑', restored.top)
++      if (pending) expect(isNavigationFailure(await pending)).toBe(true)
++      const lower = dialogs().top
++      expect(lower.contains(document.activeElement)).toBe(true)
++      await click('取消申请', lower)
++      expect(document.activeElement).toBe(f.wrapper.get('h1').element)
++      expect(f.writes()).toHaveLength(0)
++      expect(f.fetch.mock.calls.filter(([p]) => p.endsWith('/logout'))).toHaveLength(0)
++      await click('申请新重试周期')
++      const leaving = f.router.push('/system/users')
++      await flushPromises()
++      await click('放弃草稿和追踪', dialogs(2).top)
++      await leaving
++      await flushPromises()
++      expect(f.router.currentRoute.value.path).toBe('/system/users')
++      expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
++      await f.router.push('/system/smtp')
++      await flushPromises()
++      expect(button('配置').getAttribute('aria-pressed')).toBe('true')
++    },
++  )
++  it('keeps a delivery draft through failed checking but resolves its old switch false after a new Session', async () => {
++    const f = await app()
++    await click('测试与任务')
++    await change('测试收件邮箱', 'draft@example.test')
++    await click('配置')
++    dialogs()
++    const held = barrier<Response>()
++    f.setSessionRequest(() => held.promise)
++    window.dispatchEvent(new Event('pageshow'))
++    await flushPromises()
++    held.resolve(problem('UNAVAILABLE'))
++    await flushPromises()
++    f.resetSession()
++    await click('检查当前会话')
++    expect(field('测试收件邮箱').value).toBe('draft@example.test')
++    await click('继续编辑', dialogs().top)
++    expect(button('测试与任务').getAttribute('aria-pressed')).toBe('true')
++    await click('配置')
++    const next = view()
++    next.session.id = id(3)
++    f.setSession(next)
++    window.dispatchEvent(new Event('pageshow'))
++    await flushPromises()
++    expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
++    expect(button('配置').getAttribute('aria-pressed')).toBe('true')
++    await click('测试与任务')
++    expect(field('测试收件邮箱').value).toBe('')
++    expect(f.writes()).toHaveLength(0)
++  })
++  it('renders accepted request and failed task observation separately with no inherited completion label on new input', async () => {
++    const f = await app()
++    await click('测试与任务')
++    await change('测试收件邮箱', 'a@example.test')
++    f.setDelivery(async (_, i) =>
++      i.method === 'POST' ? json({ job_id: id(21) }, 202) : problem('UNAVAILABLE'),
++    )
++    await submit()
++    expect(f.writes()).toHaveLength(1)
++    expect(
++      [...document.querySelectorAll('h3')].some((n) =>
++        n.textContent?.includes('请求已确认，任务详情读取失败'),
++      ),
++    ).toBe(true)
++    expect(f.wrapper.text()).toContain('测试请求已接受')
++    expect(f.auth.system.smtpDelivery.progress?.phase).toBe('confirmed')
++    await change('测试收件邮箱', 'b@example.test')
++    expect(button('请求测试发送').disabled).toBe(false)
++    expect(button('请求测试发送').getAttribute('aria-label')).not.toBe('已完成')
++    expect(f.writes()).toHaveLength(1)
++    await click('重新读取已确认任务')
++    expect(f.writes()).toHaveLength(1)
++  })
++  it('does not let the old configuration submit continuation focus or read through the new section while its actual tail is held', async () => {
++    const f = await app(),
++      held = barrier<Response>()
++    await change('发件显示名', 'changed')
++    f.setConfiguration((_, i) =>
++      i.method === 'GET' ? Promise.resolve(json(settings())) : held.promise,
++    )
++    await submit('保存 SMTP 配置')
++    expect(f.auth.state.busy).toBe(true)
++    await click('测试与任务')
++    await click('放弃修改', dialogs().top)
++    expect(button('测试与任务').getAttribute('aria-pressed')).toBe('true')
++    expect(f.reads()).toHaveLength(0)
++    expect(f.wrapper.text()).toContain('等待当前请求结束后读取任务')
++    const marker = button('配置')
++    marker.focus()
++    held.resolve(
++      json({
++        applied_version: '2',
++        settings: { ...settings(), version: '2', sender_name: 'changed' },
++      }),
++    )
++    await flushPromises()
++    expect(document.activeElement).toBe(marker)
++    expect(f.reads()).toHaveLength(1)
++    expect(f.writes()).toHaveLength(0)
++    expect(f.wrapper.text()).not.toContain('SMTP 配置已保存')
++  })
++})
+--- a/web/src/tests/system-smtp-settings.spec.ts
++++ b/web/src/tests/system-smtp-settings.spec.ts
+@@ -314,6 +314,9 @@
+     await f.wrapper.get('a[href="/system/smtp"]').trigger('click')
+     await flushPromises()
+     expect(f.wrapper.get('h1').text()).toBe('SMTP')
++    expect(button('配置').getAttribute('aria-pressed')).toBe('true')
++    expect(button('测试与任务').getAttribute('aria-pressed')).toBe('false')
++    expect(f.wrapper.find('[aria-label="SMTP 测试与任务"]').exists()).toBe(false)
+     expect(f.wrapper.findAll('form')).toHaveLength(1)
+     expect(f.wrapper.findAll('input')).toHaveLength(2)
+     expect(f.wrapper.text()).toContain('后台恢复链接由授权运维获取并转交')

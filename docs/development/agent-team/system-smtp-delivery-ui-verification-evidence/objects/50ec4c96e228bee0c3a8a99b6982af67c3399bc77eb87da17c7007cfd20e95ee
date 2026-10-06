@@ -1,0 +1,286 @@
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { createMemoryHistory, createRouter, isNavigationFailure } from 'vue-router'
+import type { SessionController } from '../source/web/src/composables/useSession'
+
+// Only singleton acquisition is replaced; factories, App, controllers, views and guards are real.
+const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
+vi.mock('../source/web/src/composables/useSession', async (original) => ({
+  ...(await original<typeof import('../source/web/src/composables/useSession')>()),
+  useSession: () => selected.auth!,
+}))
+import { createSessionController } from '../source/web/src/composables/useSession'
+import { createAccountAPI, type SessionView } from '../source/web/src/api/account'
+import { createSystemAccountAPI } from '../source/web/src/api/system-account'
+import { createSystemInvitationAPI } from '../source/web/src/api/system-invitations'
+import { createSystemProviderAPI } from '../source/web/src/api/system-providers'
+import { createSystemModelAPI } from '../source/web/src/api/system-models'
+import { createSystemModelSelectionAPI } from '../source/web/src/api/system-model-selection'
+import { createSystemAccountSecurityAPI } from '../source/web/src/api/system-account-security'
+import { createSystemSMTPSettingsAPI } from '../source/web/src/api/system-smtp-settings'
+import { createSystemSMTPDeliveryAPI } from '../source/web/src/api/system-smtp-delivery'
+import type { Fetch } from '../source/web/src/api/client'
+import { installAuthentication } from '../source/web/src/router/auth'
+import { useTheme } from '../source/web/src/composables/useTheme'
+import App from '../source/web/src/App.vue'
+import HomeView from '../source/web/src/views/HomeView.vue'
+import LoginView from '../source/web/src/views/auth/LoginView.vue'
+import SystemSettingsView from '../source/web/src/views/system/SystemSettingsView.vue'
+import SystemUsersView from '../source/web/src/views/system/SystemUsersView.vue'
+import SystemSMTPSettingsView from '../source/web/src/views/system/SystemSMTPSettingsView.vue'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const instant = '2026-10-06T12:34:56.123456Z'
+const session = (n = 2): SessionView => ({
+  user: { id: id(1), email: 'admin@example.test', username: 'admin', display_name: 'Admin', role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false },
+  session: { id: id(n), issued_at: instant, idle_expires_at: instant, absolute_expires_at: instant },
+  csrf_token: 'S'.repeat(43),
+})
+const configuration = () => ({ id: id(10), version: '1', configured: true, host: 'mail.example.test', port: 25, encryption: 'none', username: '', sender_email: 'sender@example.test', sender_name: '', credential_present: false, auto_retry_count: '0', retry_interval_seconds: '10' })
+const job = (n = 20, version = '5') => ({ job_id: id(n), kind: 'test', phase: 'sent', attempts: '1', version, channel: 'smtp', created_at: instant, attempt_channel: 'smtp', attempt_result: 'sent', reason: 'sent' })
+const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': status < 400 ? 'application/json' : 'application/problem+json', 'X-Request-ID': id(9) } })
+const unavailable = () => json({ type: 'urn:agenteam:problem:test', title: 'Unavailable', status: 503, code: 'UNAVAILABLE', detail: 'Controlled failure', instance: '/api/v1/session', request_id: id(9), commit_state: 'not_started' }, 503)
+function gate<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((done) => { resolve = done })
+  return { promise, resolve }
+}
+let mounted: VueWrapper | undefined
+const release: Array<() => void> = []
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', vi.fn((media: string) => ({ media, matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
+  // Layout visibility is synthetic. These tests do not establish native focus, pointer or Tab behavior.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(() => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList)
+})
+async function resetApp() {
+  for (const finish of release.splice(0)) finish()
+  await flushPromises()
+  mounted?.unmount()
+  mounted = undefined
+  selected.auth?.leave()
+  selected.auth = null
+  await flushPromises()
+  document.body.innerHTML = ''
+  useTheme().setTheme('system')
+}
+afterEach(async () => {
+  await resetApp()
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
+async function setup(initial = session()) {
+  let current = initial
+  let getConfiguration: Fetch = async () => json(configuration())
+  let getSession: Fetch = async () => json(current)
+  let delivery: Fetch = async (path, init) => {
+    if (init.method === 'POST') return json({ job_id: id(21), version: '27' }, 202)
+    return json(path.includes('?') ? { items: [job()] } : job(path.includes(id(21)) ? 21 : 20))
+  }
+  const transport = vi.fn<Fetch>(async (path, init) => {
+    if (path === '/api/v1/session') return getSession(path, init)
+    if (path === '/api/v1/system/smtp/test' || path.startsWith('/api/v1/system/mail-jobs/')) return delivery(path, init)
+    if (path === '/api/v1/system/smtp' && init.method === 'GET') return getConfiguration(path, init)
+    if (path.startsWith('/api/v1/system/users?')) return json({ items: [] })
+    if (path.endsWith('/logout')) {
+      getSession = async () => json({ type: 'urn:agenteam:problem:session-revoked', title: 'Revoked', status: 401, code: 'SESSION_REVOKED', detail: 'Controlled logged-out Session', instance: '/api/v1/session', request_id: id(9), commit_state: 'not_started' }, 401)
+      return new Response(null, { status: 204 })
+    }
+    if (path.endsWith('/bootstrap')) return json({ csrf_token: 'A'.repeat(43), challenge_modes: ['rotate'], delivery_channel: 'backend_log' })
+    throw new Error('Unexpected controlled endpoint/method')
+  })
+  const auth = createSessionController(createAccountAPI(transport), createSystemAccountAPI(transport), createSystemInvitationAPI(transport), createSystemProviderAPI(transport), createSystemModelAPI(transport), createSystemModelSelectionAPI(transport), createSystemAccountSecurityAPI(transport), createSystemSMTPSettingsAPI(transport), createSystemSMTPDeliveryAPI(transport))
+  selected.auth = auth
+  await auth.restore()
+  const router = createRouter({ history: createMemoryHistory(), routes: [
+    { path: '/', component: HomeView, meta: { authentication: true, protected: true } },
+    { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+    { path: '/settings/profile', component: { template: '<h1>个人资料</h1>' }, meta: { authentication: true, protected: true } },
+    { path: '/system', component: SystemSettingsView, redirect: '/system/users', meta: { authentication: true, protected: true, systemAdmin: true, navigation: { label: '系统设置', order: 20 } }, children: [
+      { path: 'users', component: SystemUsersView }, { path: 'smtp', component: SystemSMTPSettingsView },
+      ...['invitations', 'providers', 'models', 'model-selection', 'account-security'].map((path) => ({ path, component: { template: '<p>Unused accepted leaf</p>' } })),
+    ] },
+  ] })
+  installAuthentication(router, auth)
+  await router.push('/system/smtp')
+  await router.isReady()
+  const host = document.createElement('div'); host.id = 'app'; document.body.append(host)
+  mounted = mount(App, { attachTo: host, global: { plugins: [router] } })
+  await flushPromises()
+  return {
+    auth, router, transport,
+    delivery(value: Fetch) { delivery = value },
+    sessionRequest(value: Fetch) { getSession = value },
+    configurationRequest(value: Fetch) { getConfiguration = value },
+    current(value: SessionView) { current = value; getSession = async () => json(current) },
+    restoreSession(n = 2) { current = session(n); getSession = async () => json(current) },
+    reads: () => transport.mock.calls.filter(([path, init]) => path.startsWith('/api/v1/system/mail-jobs/') && init.method === 'GET'),
+    writes: () => transport.mock.calls.filter(([, init]) => !['GET', 'HEAD'].includes(init.method)),
+    sessions: () => transport.mock.calls.filter(([path]) => path === '/api/v1/session'),
+  }
+}
+function button(label: string, within: ParentNode = document) {
+  const matches = [...within.querySelectorAll<HTMLButtonElement>('button')].filter((node) => node.getAttribute('aria-label') === label || (node.querySelector('.button-label[aria-hidden="false"]')?.textContent ?? node.textContent)?.trim() === label)
+  expect(matches.length, 'unique named public button: ' + label).toBe(1)
+  return matches[0]!
+}
+async function click(label: string, within: ParentNode = document) {
+  const target = button(label, within)
+  expect(target.disabled, 'public action enabled: ' + label).toBe(false)
+  target.click(); await flushPromises()
+}
+function field(label: string) {
+  const found = [...document.querySelectorAll<HTMLLabelElement>('label')].find((node) => node.textContent?.replace(/\s*\*$/, '') === label)
+  expect(!!found, 'label exists: ' + label).toBe(true)
+  return document.getElementById(found!.htmlFor) as HTMLInputElement
+}
+async function input(label: string, value: string) {
+  const target = field(label); target.value = value; target.dispatchEvent(new Event('input', { bubbles: true })); await flushPromises()
+}
+function title(label: string, within: ParentNode = document) {
+  return [...within.querySelectorAll('h1,h2,h3')].find((node) => {
+    const copy = node.cloneNode(true) as HTMLElement
+    for (const decorative of copy.querySelectorAll('[aria-hidden="true"]')) decorative.remove()
+    return copy.textContent?.trim() === label
+  })
+}
+function layers(count: number) {
+  const result = [...document.querySelectorAll<HTMLElement>('[role="dialog"]')]
+  expect(result).toHaveLength(count)
+  for (const lower of result.slice(0, -1)) { expect(lower.inert).toBe(true); expect(lower.getAttribute('aria-hidden')).toBe('true') }
+  if (count) { expect(result.at(-1)!.inert).toBe(false); expect(result.at(-1)!.getAttribute('aria-hidden')).toBeNull() }
+  return result
+}
+function region(label: string) {
+  const node = document.querySelector<HTMLElement>('[aria-label="' + label + '"]')
+  expect(!!node, 'region exists: ' + label).toBe(true)
+  return node!
+}
+
+
+const ordinary = (n = 2) => {
+  const value = session(n)
+  value.user.role = 'user'
+  value.user.version = '2'
+  return value
+}
+const forbidden = () => json({ type: 'urn:agenteam:problem:forbidden', title: 'Forbidden', status: 403, code: 'FORBIDDEN', detail: 'Controlled current identity rejection', instance: '/api/v1/system/smtp', request_id: id(9), commit_state: 'not_started' }, 403)
+function clearedSMTP(auth: SessionController) {
+  expect(auth.system.smtp.progress).toBeNull()
+  expect(auth.system.smtpDelivery.progress).toBeNull()
+  expect(auth.system.smtp.material.present).toBe(false)
+  expect(auth.system.smtp.material.invalid).toBe(false)
+  expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+}
+
+it('fresh stable ordinary logout and current-403 public leave are allowed only after both SMTP domains are clear', async () => {
+  const member = await setup(ordinary())
+  expect(!!title('无权访问系统设置')).toBe(true)
+  expect(member.auth.state.phase).toBe('authenticated')
+  expect(member.auth.personalContext.phase).toBe('current')
+  expect(member.auth.personalContext.identity?.sessionID).toBe(id(2))
+  expect(member.auth.state.busy).toBe(false)
+  clearedSMTP(member.auth)
+  expect(member.transport.mock.calls.filter(([path]) => path.startsWith('/api/v1/system/'))).toHaveLength(0)
+  await click('退出登录')
+  expect(member.transport.mock.calls.filter(([path]) => path.endsWith('/logout'))).toHaveLength(1)
+  expect(member.router.currentRoute.value.path).toBe('/login')
+  expect(member.auth.state.phase).toBe('anonymous')
+  expect(member.auth.personalContext.identity).toBeNull()
+  clearedSMTP(member.auth)
+  for (const selector of ['#login-email', '#login-password']) {
+    const target = document.querySelector<HTMLInputElement>(selector)
+    expect(!!target && target.isConnected && !target.disabled && !target.readOnly && target.value === '').toBe(true)
+  }
+  expect(button('登录').disabled).toBe(false)
+  expect(member.transport.mock.calls.filter(([path]) => path.startsWith('/api/v1/system/'))).toHaveLength(0)
+  expect(member.writes()).toHaveLength(1)
+  await resetApp()
+
+  const denied = await setup()
+  const identity = denied.auth.personalContext.identity
+  denied.configurationRequest(async () => forbidden())
+  await click('读取当前配置')
+  expect(denied.auth.system.denied).toBe(true)
+  expect(denied.auth.personalContext.identity).toEqual(identity)
+  expect(denied.auth.state.user?.role).toBe('admin')
+  expect(denied.auth.state.phase).toBe('authenticated')
+  expect(denied.auth.personalContext.phase).toBe('current')
+  expect(denied.auth.state.busy).toBe(false)
+  expect(!!title('无权访问系统设置')).toBe(true)
+  clearedSMTP(denied.auth)
+  const before = denied.transport.mock.calls.length
+  const readContext: unknown[] = []
+  denied.configurationRequest(async (path, init) => {
+    readContext.push({ path, method: init.method, route: denied.router.currentRoute.value.path, phase: denied.auth.state.phase, context: denied.auth.personalContext.phase, role: denied.auth.state.user?.role, denied: denied.auth.system.denied })
+    return forbidden()
+  })
+  const link = document.querySelector<HTMLAnchorElement>('a.account-name')
+  expect(link?.getAttribute('href')).toBe('/settings/profile')
+  link!.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }))
+  await flushPromises()
+  expect(denied.router.currentRoute.value.path).toBe('/settings/profile')
+  expect(!!title('个人资料')).toBe(true)
+  expect(denied.transport.mock.calls.slice(before).map(([path, init]) => [init.method, path])).toEqual([
+    ['GET', '/api/v1/session'], ['GET', '/api/v1/system/smtp'],
+  ])
+  expect(readContext).toEqual([{ path: '/api/v1/system/smtp', method: 'GET', route: '/system/smtp', phase: 'authenticated', context: 'current', role: 'admin', denied: false }])
+  expect(denied.writes()).toHaveLength(0)
+  const ended = denied.transport.mock.calls.length
+  await flushPromises()
+  expect(denied.transport.mock.calls).toHaveLength(ended)
+  console.log('SAFE fresh rejected identity: member public logout once/login controls empty and enabled; current403 public profile link; exact Session then authorized old-route read; zero SMTP writes and zero post-leave reads')
+})
+
+it('old administrator route and logout decisions do not gain later rejected-identity permission', async () => {
+  for (const kind of ['same-role-loss-route', 'changed-identity-logout'] as const) {
+    const f = await setup()
+    await click('测试与任务')
+    await input('测试收件邮箱', 'old.unsent@example.test')
+    const original = f.auth.personalContext.identity
+    let settled = false
+    const pending = kind === 'same-role-loss-route'
+      ? f.router.push('/settings/profile').then((result) => { settled = true; return result })
+      : null
+    if (!pending) button('退出登录').click()
+    await flushPromises()
+    expect(!!title('放弃投递草稿或原请求追踪？', layers(1)[0])).toBe(true)
+    const next = ordinary(kind === 'same-role-loss-route' ? 2 : 3)
+    const check = gate<Response>()
+    release.push(() => check.resolve(json(next)))
+    f.sessionRequest(() => check.promise)
+    window.dispatchEvent(new Event('pageshow'))
+    await flushPromises()
+    expect(document.querySelector('.session-check')).not.toBeNull()
+    expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+    expect(f.auth.state.busy).toBe(true)
+    if (pending) expect(settled).toBe(false)
+    expect(f.transport.mock.calls.filter(([path]) => path.endsWith('/logout'))).toHaveLength(0)
+    check.resolve(json(next))
+    await flushPromises()
+    if (pending) expect(isNavigationFailure(await pending)).toBe(true)
+    expect(f.router.currentRoute.value.path).toBe('/system/smtp')
+    expect(f.auth.state.phase).toBe('authenticated')
+    expect(f.auth.personalContext.phase).toBe('current')
+    expect(f.auth.state.user?.role).toBe('user')
+    expect(f.auth.state.busy).toBe(false)
+    if (kind === 'same-role-loss-route') expect(f.auth.personalContext.identity).toEqual(original)
+    else {
+      expect(f.auth.personalContext.identity?.sessionID).toBe(id(3))
+      expect(f.auth.personalContext.identity?.epoch).not.toBe(original?.epoch)
+    }
+    expect(!!title('无权访问系统设置')).toBe(true)
+    clearedSMTP(f.auth)
+    expect(f.transport.mock.calls.filter(([path]) => path.endsWith('/logout'))).toHaveLength(0)
+    expect(f.writes()).toHaveLength(0)
+    f.current(next)
+    const after = f.transport.mock.calls.length
+    const link = document.querySelector<HTMLAnchorElement>('a.account-name')!
+    link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }))
+    await flushPromises()
+    expect(f.router.currentRoute.value.path).toBe('/settings/profile')
+    expect(f.transport.mock.calls.slice(after).map(([path, init]) => [init.method, path])).toEqual([['GET', '/api/v1/session']])
+    expect(f.writes()).toHaveLength(0)
+    await resetApp()
+  }
+  console.log('SAFE old pending: checking keeps route unresolved/zero logout; same-session role loss and changed identity reject old action; only separate fresh clean public route succeeds; zero SMTP writes')
+})

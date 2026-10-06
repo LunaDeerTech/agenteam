@@ -1,0 +1,120 @@
+--- author-input04/driver02.py
++++ independent/driver01.py
+@@ -15,7 +15,7 @@
+ 
+ 
+ ROOT = Path(__file__).resolve().parent
+-REPO = ROOT / 'workspace'
++REPO = Path('/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace')
+ GIT_OBJECT_REPO = Path('/workspace/agenteam')
+ BASE = '628612cdfc730cc1d89cad4e24a5d20f36cc6812'
+ FROZEN = {}
+@@ -144,32 +144,57 @@
+     for name,expected in FROZEN['dependencies'].items():
+         path=Path(name)
+         dependencies[name]={'realpath':str(path.resolve(strict=True)),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+-    return {'product_base':BASE,'accepted_baseline':accepted_baseline_input(),'files':{name:sha(REPO/name) for name in FROZEN['files']},'dist':{str(path.relative_to(REPO)):sha(path) for path in sorted((REPO/'web/dist').rglob('*')) if path.is_file()},'dependencies':dependencies}
+-
++    return {'private_inputs':private_inputs(),'private_links':private_links(),'product_base':BASE,'accepted_baseline':accepted_baseline_input(),'files':{name:sha(REPO/name) for name in FROZEN['files']},'dist':{str(path.relative_to(REPO)):sha(path) for path in sorted((REPO/'web/dist').rglob('*')) if path.is_file()},'dependencies':dependencies}
++
++
++
++def private_inputs():
++    hashes={}
++    for name in FROZEN['private_inputs']:
++        path=Path(name)
++        if not path.is_file() or path.is_symlink() or any(parent.is_symlink() for parent in path.parents):
++            raise RuntimeError('nonregular private input')
++        hashes[name]=hashlib.sha256(path.read_bytes()).hexdigest()
++    source=Path(FROZEN['private_source_root'])
++    actual=set()
++    for directory, dirs, files in os.walk(source):
++        dirs[:]=[n for n in dirs if str(Path(directory)/n) not in FROZEN['private_links']]
++        if any((Path(directory)/n).is_symlink() for n in dirs):
++            raise RuntimeError('unbound private source symlink')
++        actual.update(str(Path(directory)/n) for n in files)
++    if actual != set(FROZEN['private_source_files']):
++        raise RuntimeError('private runnable source inventory differs')
++    return hashes
++
++def private_links():
++    result={}
++    for name in FROZEN['private_links']:
++        path=Path(name)
++        if not path.is_symlink(): raise RuntimeError('private module link missing')
++        result[name]=str(path.resolve(strict=True))
++    return result
+ 
+ def main():
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new','read','test','outcome','authority','navigation','old-settings','old-settings-authority','old-invitations'], required=True)
++    parser.add_argument('--group', choices=['both','test','retry'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
++    parser.add_argument('--execute-authorized', action='store_true')
+     args = parser.parse_args()
++    if not args.check_input_only and not args.execute_authorized:
++        raise RuntimeError('explicit root execution authorization flag required')
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+-    smtp_names={'read':'ReadAndPagination','test':'TestAndRetry','outcome':'OutcomeRecovery','authority':'AuthorityAndIdentity','navigation':'NavigationAndLayouts'}
+-    groups={key:['TestAccountSystemSMTPDeliveryWeb'+value] for key,value in smtp_names.items()}
+-    groups.update({
+-      'new':[v[0] for v in groups.values()],
+-      'old-settings':['TestAccountSystemSMTPSettingsWeb'+x for x in ['OutcomeRecovery','AuthorityAndIdentity','NavigationAndLayouts']],
+-      'old-settings-authority':['TestAccountSystemSMTPSettingsWebAuthorityAndIdentity'],
+-      'old-invitations':['TestAccountSystemInvitationsWebDeliveryRetry','TestAccountSystemInvitationsWebOutcomeRecovery'],
+-    })
+-    # Seven outer PG/MinIO/Outbound resources, plus one container and network
+-    # for every selected SMTP-owning top. Each fixture verifies nonce/exact IDs.
+-    smtp_tops=sum(name.startswith('TestAccountSystemSMTPDeliveryWeb') or name=='TestAccountSystemInvitationsWebDeliveryRetry' for name in groups[args.group])
+-    expected_resource_count=7+2*smtp_tops
++    groups={
++      'test':['TestIndependentSMTPDeliveryTestReplay'],
++      'retry':['TestIndependentSMTPDeliveryRetryRecovery'],
++      'both':['TestIndependentSMTPDeliveryTestReplay','TestIndependentSMTPDeliveryRetryRecovery'],
++    }
++    # Seven unchanged outer exact resources, plus one SMTP pair for each top.
++    expected_resource_count=7+2*len(groups[args.group])
+     expected = set(groups[args.group])
+     args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
+     frozen_bytes = args.frozen.read_bytes()
+@@ -180,7 +205,7 @@
+         raise RuntimeError('driver differs from frozen input')
+     if args.check_input_only:
+         current = source_input()
+-        same = all(current[key] == FROZEN[key] for key in ['files', 'dist', 'dependencies'])
++        same = all(current[key] == FROZEN[key] for key in ['files', 'dist', 'dependencies', 'private_inputs', 'private_links'])
+         accepted = current['accepted_baseline']['accepted']
+         print(json.dumps({'candidate_dist_dependencies_match': same, 'accepted_baseline': accepted,
+                           'accepted_count': current['accepted_baseline']['accepted_count'],
+@@ -206,7 +231,7 @@
+     if not before['accepted_baseline']['accepted']:
+         write(run / 'input-rejected.json', before)
+         raise RuntimeError('accepted baseline gate failed before any resource or fixture starts')
+-    if before['files'] != FROZEN['files'] or before['dist'] != FROZEN['dist'] or before['dependencies'] != FROZEN['dependencies']:
++    if any(before[key] != FROZEN[key] for key in ['files','dist','dependencies','private_inputs','private_links']):
+         raise RuntimeError('candidate source/dist differs from frozen input')
+     (run / 'frozen-input.json').write_bytes(args.frozen.read_bytes())
+     browser_runtime = Path(tempfile.mkdtemp(prefix='agtdel-', dir='/tmp'))
+@@ -223,7 +248,7 @@
+     baseline = resources()
+     write(run / 'baseline.json', baseline)
+     env = os.environ.copy()
+-    flags = '-mod=readonly -buildvcs=false -p=1 -v'
++    flags = '-mod=readonly -buildvcs=false -p=1 -v -overlay=' + FROZEN['overlay_path']
+     env.update({'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+                 'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                 'AGENTEAM_AUTH_WEB_RUNTIME': str(browser_runtime), 'AGENTEAM_AUTH_WEB_IMAGES': str(images),
+@@ -296,7 +321,7 @@
+     after = source_input()
+     write(run / 'input-after.json', after)
+     clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and not row['browser_runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+-    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
++    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['private_inputs'] == after['private_inputs'] and before['private_links'] == after['private_links'] and before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
+                'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
+                'expected_resources': expected_resource_count, 'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+                'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}

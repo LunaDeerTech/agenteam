@@ -1,0 +1,74 @@
+import { afterEach, vi } from 'vitest'
+import { setImmediate } from 'node:timers'
+import { createAccountAPI, type SessionView } from '../source/web/src/api/account'
+import type { Fetch, CommitState } from '../source/web/src/api/client'
+import { createSystemAccountAPI } from '../source/web/src/api/system-account'
+import { createSystemInvitationAPI } from '../source/web/src/api/system-invitations'
+import { createSystemProviderAPI } from '../source/web/src/api/system-providers'
+import { createSystemModelAPI } from '../source/web/src/api/system-models'
+import { createSystemModelSelectionAPI } from '../source/web/src/api/system-model-selection'
+import { createSystemAccountSecurityAPI } from '../source/web/src/api/system-account-security'
+import { createSystemSMTPSettingsAPI } from '../source/web/src/api/system-smtp-settings'
+import { createSystemSMTPDeliveryAPI } from '../source/web/src/api/system-smtp-delivery'
+import { createSessionController, type SessionController } from '../source/web/src/composables/useSession'
+import { useTheme } from '../source/web/src/composables/useTheme'
+
+export const id = (n: number) => '019a0000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+export const recipient = 'Original.Case@[IPv6:2001:DB8::7]'
+export function session(sessionID = id(2), token = 's'.repeat(43)): SessionView {
+  return {
+    user: { id: id(1), email: 'admin@example.invalid', username: 'admin', display_name: 'Admin', role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false },
+    session: { id: sessionID, issued_at: '2026-10-06T00:00:00.000000Z', idle_expires_at: '2026-10-06T01:00:00.000000Z', absolute_expires_at: '2026-10-06T02:00:00.000000Z' },
+    csrf_token: token,
+  }
+}
+export const settings = () => ({ id: id(10), version: '1', configured: true, host: 'smtp.example.invalid', port: 25, encryption: 'none', username: '', sender_email: 'sender@example.invalid', sender_name: '', credential_present: false, auto_retry_count: '0', retry_interval_seconds: '10' })
+export const row = (jobID = id(20), version = '1') => ({ job_id: jobID, kind: 'test', phase: 'sent', attempts: '1', version, channel: 'smtp', created_at: '2026-10-06T00:00:00.000000Z', attempt_channel: 'smtp', attempt_result: 'sent' })
+export function json(value: unknown, status = 200) {
+  return new Response(JSON.stringify(value), { status, headers: { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', 'X-Request-ID': id(9) } })
+}
+export function problem(code: string, status = 503, commit: CommitState = 'not_started') {
+  return json({ type: 'urn:agenteam:problem:test', title: 'Safe failure', status, detail: '', instance: '/api/v1/system/smtp/test', code, request_id: id(9), commit_state: commit }, status)
+}
+export function defer<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>(yes => { resolve = yes })
+  return { promise, resolve }
+}
+export const turn = () => new Promise<void>(yes => setImmediate(yes))
+export function observe<T>(promise: Promise<T>) {
+  let settled = false
+  const result = promise.then(value => { settled = true; return { ok: true as const, value } }, error => { settled = true; return { ok: false as const, error } })
+  return { result, settled: () => settled }
+}
+const owners: SessionController[] = []
+afterEach(() => { for (const auth of owners.splice(0)) auth.leave(); vi.useRealTimers(); useTheme().setTheme('system') })
+export async function fixture() {
+  const calls: { path: string; init: RequestInit }[] = []
+  const f = {
+    current: session(),
+    delivery: (async (path, init) => init.method === 'POST'
+      ? json(path.endsWith('/test') ? { job_id: id(21) } : { job_id: id(21), version: '9' }, 202)
+      : json(path.includes('?') ? { items: [row()] } : row())) as Fetch,
+    smtp: (async () => json(settings())) as Fetch,
+    sessionRead: null as Fetch | null,
+    other: (async () => { throw new Error('unexpected independent fixture route') }) as Fetch,
+  }
+  const fetcher: Fetch = async (path, init) => {
+    calls.push({ path, init })
+    if (path === '/api/v1/session') return f.sessionRead ? f.sessionRead(path, init) : json(f.current)
+    if (path === '/api/v1/auth/bootstrap') return json({ csrf_token: 'a'.repeat(43), challenge_modes: ['rotate'], delivery_channel: 'backend_log' })
+    if (path === '/api/v1/system/smtp/test' || path.startsWith('/api/v1/system/mail-jobs/')) return f.delivery(path, init)
+    if (path === '/api/v1/system/smtp') return f.smtp(path, init)
+    if (path === '/api/v1/me') return json({ user: f.current.user, avatar: null })
+    return f.other(path, init)
+  }
+  const auth = createSessionController(createAccountAPI(fetcher), createSystemAccountAPI(fetcher), createSystemInvitationAPI(fetcher), createSystemProviderAPI(fetcher), createSystemModelAPI(fetcher), createSystemModelSelectionAPI(fetcher), createSystemAccountSecurityAPI(fetcher), createSystemSMTPSettingsAPI(fetcher), createSystemSMTPDeliveryAPI(fetcher))
+  owners.push(auth)
+  await auth.restore()
+  return { auth, control: f, calls, writes: () => calls.filter(c => c.init.method === 'POST' && (c.path.endsWith('/test') || c.path.endsWith('/retry'))) }
+}
+export function equalOriginal(a: { path: string; init: RequestInit }, b: { path: string; init: RequestInit }) {
+  const ah = new Headers(a.init.headers), bh = new Headers(b.init.headers)
+  return a.path === b.path && a.init.method === b.init.method && a.init.body === b.init.body && ah.get('Idempotency-Key') === bh.get('Idempotency-Key') && ah.get('X-CSRF-Token') === bh.get('X-CSRF-Token')
+}

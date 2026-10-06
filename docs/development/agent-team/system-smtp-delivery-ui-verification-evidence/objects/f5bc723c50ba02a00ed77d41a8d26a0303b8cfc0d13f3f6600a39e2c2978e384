@@ -1,0 +1,13 @@
+# SMTP delivery harness offline freeze
+
+4 candidate harness files are frozen; product 12web/36dist stay at web-stage01. No real resource started.
+
+Actual offline results: harness-type03 PASS, race integration compile03 PASS (6.968s), vet01 PASS (30.377s), Central/Runner build01 PASS (22.765s); Go discovery exactly 5 new + 5 old tops. Browser discovery uses one absolute locked CLI and config from the actual Go browser cwd, 5 modes each exactly 1 test; zero browser launch. Native observer private probe 11 cases PASS, original fetch/Response/reader/read-Promise/cancel preserved; observer is not owner-tail evidence.
+
+Initial harness errors preserved: compile01 unused pgx import; compile02 new exact-cancellation field missing; type01 missing command typeRoots (existing locked web Node types). No product change. Earlier product two REDs and stage evidence remain immutable.
+
+Formal app.Run + owned SMTP none-mode controls; API setup creates/retries/revokes/configures through formal HTTP. Read sample's exact job/intent due scan is only a persisted SQL observation. It does not prove in-memory queue enqueue/target RunJob or direct ClaimBusy. Formal revoked target remains cancelled/null, current_attempt NULL and exact attempt rows zero; the two independent real hold jobs may send and must terminally join. ClaimBusy semantic is reused from accepted implementation/management-read evidence. There is no SQL mail state/version/fence/join fabrication.
+
+Two response-loss controls act only after a real strict202: same success headers then truncated original body; original key/body/CSRF compared in private memory, exact namespace/name/actor/resource/command joins intent/event/Audit; only safe booleans/counts leave runtime. Native observation uses the app's original native read Promises, no clone/tee/second read or fetch, bound600000 and closed projection.
+
+Each browser45s/top2m/package6m/race,count1,workers1,retry0. Fixed eight layouts: light/dark ×390/768/1024/1440, native pointer/Escape/Tab and synthetic pageshow clearly separated. Real pass and screenshots are pending explicit root resource grant. Driver/input closure is being frozen separately.

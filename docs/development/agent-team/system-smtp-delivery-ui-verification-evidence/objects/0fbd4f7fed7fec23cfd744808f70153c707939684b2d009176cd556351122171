@@ -1,0 +1,194 @@
+{
+  "scope": "SMTP delivery harness/startup STATIC review only",
+  "conclusion": "STATIC PASS; read single top may be authorized by root; no independent real run",
+  "reviewed_utc": "2026-10-06T19:09:39.222635+00:00",
+  "base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "fixed_inputs": {
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/manifest.json": "9850d4ad68980d96eebfa9c9aa73dc996e85a0a3409f538e9ea586c241d4ac2a",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/harness-stage01/manifest.json": "7b282bf92c4740c15a8a68cd6be72f998b44a9abd9e74c9ed416bb596be0f611",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver01.py": "a5c97153e7feb94292b16d884c5c79458af4f2b14451397ecc78abb6804bdc62",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver01.diff": "a93d7e58d1c2fc17ccf697b55d7d95d121e9e3380334611630ed704ba03e36f9",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/driver04.py": "3b3c876495c6578f5d782d3c6ee8bdf9be90d12108ddbc6475988dca83468928"
+  },
+  "candidate_files": {
+    "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": "beb70c3c3e0956fb913a2f4c98e5c27aa5eb6d671d39f3a0e089580cc3d64e3b",
+    "tests/account-captcha-web/system-smtp-delivery.config.js": "5f3ee77faffa572e484551f88d4696345baf95310098d27fcf2a78fc1c1350ac",
+    "tests/account/system_smtp_delivery_web_fixture_test.go": "ee59afe7ddadaa09784cb4a25709bd37f6370499433215dd1d8e3489a129ee3c",
+    "tests/account/system_smtp_delivery_web_test.go": "9cb43e944cfdfaed19955dd80c6646e576aa8a2500b669888755129389196f52",
+    "web/src/App.vue": "b29265ff52081c42336413eea262461bba8af8b1ac78f57d834e0c2582e66172",
+    "web/src/api/client.ts": "2e331d9361257433cf399ce516facdf6efa420d0f0df400306bbaaf07be1442e",
+    "web/src/api/system-smtp-delivery.ts": "b4044f5ae4477cb904d2891a635bf10a77b0888b4376525dfc0989ee2023ccfd",
+    "web/src/api/system-smtp-settings.ts": "0f015823398fe909688dd0ec7b2cf2a99ca9b82b8963fda5dfb96b13c7864311",
+    "web/src/composables/useSession.ts": "bb670ae33e7d4d846d517b394689d8b7328ec22f03bd6306ef51be5403c4f2cc",
+    "web/src/composables/useSystemSMTPDelivery.ts": "7313d2608ad83af4f311e124b2c46d501836007de9393faf8352d4a33bc1e29c",
+    "web/src/tests/system-smtp-delivery-client.spec.ts": "4d5be3e29f4cffcf232356f4ec26b6da557c66e2a4197a1ed468b48e1bb80529",
+    "web/src/tests/system-smtp-delivery-state.spec.ts": "faedaf94d021265dc97b3105037724ba227e929c0cfd3b8095797da35757fc88",
+    "web/src/tests/system-smtp-delivery.spec.ts": "fb9321606c9469c07e2d37e87ea7bab18eef689ac06ee222975431126ce363f1",
+    "web/src/tests/system-smtp-settings.spec.ts": "d52692e26755bc38602c4de86128ef075ff7988b7adc8d477f9048e0dbeed7d5",
+    "web/src/views/system/SystemSMTPDeliveryPanel.vue": "2cace6a0621fd43c0182dfbeb71573ed072d7aa7b0f5fe506c70d0c0522a5a56",
+    "web/src/views/system/SystemSMTPSettingsView.vue": "d2842173aed715b46fa2982d37f0b851eae83cfa6637f42005a5e78b7d95d6a5"
+  },
+  "harness_files": {
+    "tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": "beb70c3c3e0956fb913a2f4c98e5c27aa5eb6d671d39f3a0e089580cc3d64e3b",
+    "tests/account-captcha-web/system-smtp-delivery.config.js": "5f3ee77faffa572e484551f88d4696345baf95310098d27fcf2a78fc1c1350ac",
+    "tests/account/system_smtp_delivery_web_fixture_test.go": "ee59afe7ddadaa09784cb4a25709bd37f6370499433215dd1d8e3489a129ee3c",
+    "tests/account/system_smtp_delivery_web_test.go": "9cb43e944cfdfaed19955dd80c6646e576aa8a2500b669888755129389196f52"
+  },
+  "counts": {
+    "candidate": 16,
+    "harness": 4,
+    "dist": 36,
+    "accepted_baseline": 1083,
+    "explicit_dependency_entries": 12
+  },
+  "snapshot_bytes_verified": true,
+  "previous_web_source_and_dist_unchanged": true,
+  "author_offline_evidence_read_and_hash_checked": {
+    "input-gate01": {
+      "result": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/input-gate01/result.json",
+      "result_sha256": "5d389b1a19c0125a4d9f63b3fed111777dd37e8a300a8722cbea96ace7bdfdd0",
+      "raw": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/input-gate01/raw.log",
+      "raw_sha256": "9cb411c1b955a7ad7c453c60ea0e2013e9788e2740814c3cdb0dc198743fb098",
+      "exit_code": 0,
+      "duration_seconds": 0.316,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "independently_rerun": false
+    },
+    "native-observer01": {
+      "result": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/native-observer01/result.json",
+      "result_sha256": "28ba8e68d4d5fef30598942b3c073191dcc744b6afafadcecdf0591fda8931f0",
+      "raw": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/native-observer01/raw.log",
+      "raw_sha256": "acd3bb7e23b8d2ec1f51a377b632e4178bdaa8036d3b4832a50a413e08b463da",
+      "exit_code": 0,
+      "duration_seconds": 0.35,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "independently_rerun": false
+    },
+    "harness-compile03": {
+      "result": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/harness-compile03/result.json",
+      "result_sha256": "93d99eb89ea4970c87dc85daba134316a92c869c094085da86d40487a14033da",
+      "raw": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/harness-compile03/raw.log",
+      "raw_sha256": "695a00a2e3c06db5727c46234772fb5e8e224393c620abb930d55e0960265eb6",
+      "exit_code": 0,
+      "duration_seconds": 6.968,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "independently_rerun": false
+    },
+    "harness-type03": {
+      "result": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/harness-type03/result.json",
+      "result_sha256": "155820db6497c85476cac36c29bc83d1f0dc2ff255785e6108ee83823e2b04f9",
+      "raw": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/harness-type03/raw.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "duration_seconds": 4.918,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "independently_rerun": false
+    },
+    "harness-vet01": {
+      "result": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/harness-vet01/result.json",
+      "result_sha256": "8cc218274ad74688e5b74afc5182331266fc12962b96d0682883e3a66f14ab4d",
+      "raw": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/harness-vet01/raw.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "duration_seconds": 30.377,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "independently_rerun": false
+    },
+    "binary-build01": {
+      "result": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/binary-build01/result.json",
+      "result_sha256": "e96cf26dd9695f7cd7a5a55f558ec2cefe0a2691642c9b1a3b074319c08dd36e",
+      "raw": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/binary-build01/raw.log",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0,
+      "duration_seconds": 22.765,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "independently_rerun": false
+    },
+    "go-discovery01": {
+      "result": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/go-discovery01/result.json",
+      "result_sha256": "bcf7b0230ea283a2f438ed1d12cbb64c4d8aea485522aefff0319b3f24bdce7a",
+      "raw": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/go-discovery01/raw.log",
+      "raw_sha256": "26f4a43950e2ce39747dff4cc689fbb1f1311abef622985b13f936580c11ec5b",
+      "exit_code": 0,
+      "duration_seconds": 2.211,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "independently_rerun": false
+    },
+    "browser-list-read01": {
+      "result": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/browser-list-read01/result.json",
+      "result_sha256": "7ef6f90f61904b4ad074bbc8bddbd5e0cdd13260337029cc1a72bea4e6d01511",
+      "raw": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/browser-list-read01/raw.log",
+      "raw_sha256": "318c3c9ed1b5f726088c133299e02cbc96e215222d6c9a7fb22cccd9a6cbf91b",
+      "exit_code": 0,
+      "duration_seconds": 1.016,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "independently_rerun": false
+    },
+    "browser-list-test01": {
+      "result": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/browser-list-test01/result.json",
+      "result_sha256": "61b0bd7e7cd089fad5619ab4745691ea483f1b61f4aae923800ed65970bd1349",
+      "raw": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/browser-list-test01/raw.log",
+      "raw_sha256": "73e70e5e02680b741a5a3f5e1f2b52a169a1fb84890de498f4755d14428c09d1",
+      "exit_code": 0,
+      "duration_seconds": 0.724,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "independently_rerun": false
+    },
+    "browser-list-outcome01": {
+      "result": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/browser-list-outcome01/result.json",
+      "result_sha256": "51244812ce9f83b7389d1747b3e2253d2f0cf80d31978faedb5fe44219065aae",
+      "raw": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/browser-list-outcome01/raw.log",
+      "raw_sha256": "3927ef74caf9185400f431ed0161903731af6eb3e7b2c6b9ca4cf212e1a5f8dd",
+      "exit_code": 0,
+      "duration_seconds": 0.722,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "independently_rerun": false
+    },
+    "browser-list-authority01": {
+      "result": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/browser-list-authority01/result.json",
+      "result_sha256": "ef0c9f80731976629502194c2589cc956e4a2760a9f7e7c21310b98a985e444b",
+      "raw": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/browser-list-authority01/raw.log",
+      "raw_sha256": "43476b9375da13893e0cf9ae061cc1d7256cb8cd2f1e11234ffa769fad74053e",
+      "exit_code": 0,
+      "duration_seconds": 0.716,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "independently_rerun": false
+    },
+    "browser-list-navigation01": {
+      "result": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/browser-list-navigation01/result.json",
+      "result_sha256": "fa983cea04cf0c26c705f9e53ee81d41db9cb65bf277d6b076b2e64f2dcf7f84",
+      "raw": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/browser-list-navigation01/raw.log",
+      "raw_sha256": "17e3ba6709251f3724487886dc72f27e78459c25477a66a46ae828f49af66c0d",
+      "exit_code": 0,
+      "duration_seconds": 0.744,
+      "actual_wait": true,
+      "input_unchanged": true,
+      "independently_rerun": false
+    }
+  },
+  "first_group": {
+    "selector": "^(TestAccountSystemSMTPDeliveryWebReadAndPagination)$",
+    "expected_exact_resources": 9,
+    "planned_cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace"
+  },
+  "resource_execution": false,
+  "compile_or_discovery_rerun": false,
+  "limits": [
+    "Static startup judgment only; no browser/SMTP/PG outcome or cleanup was executed by this review.",
+    "pass>0 is persisted due-scan evidence, not queue enqueue, target RunJob, or directly observed ClaimBusy.",
+    "Success DTO projection requires native reader done; ended error marker does not establish EOF or owner join.",
+    "Author compile/type/list/gate results are reused and individually attributed, not independent execution.",
+    "Initial author preparation errors remain preserved; this review does not alter original exit codes."
+  ]
+}

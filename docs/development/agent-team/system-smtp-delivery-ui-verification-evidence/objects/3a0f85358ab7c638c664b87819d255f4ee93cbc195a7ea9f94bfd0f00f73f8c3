@@ -1,0 +1,18 @@
+SMTP 投递 UI web-stage01：有界独立 PASS。
+
+固定作者 manifest `59fa487e63032624e23700f89937180a1db02f4dcee7e56346762677ea28513f`，产品基线 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`。12 候选、36 dist 均匹配清单；92 接受依赖逐字节匹配固定 Git。API 四源和 owner 两源与已验阶段完全相同，沿原报告复用。
+
+两处作者原产品失败已闭合：确认 child v27 后旧 list v5 曾被发布；真正离页先 reset active 曾漏 detach delivery。原 page-probe01 实际退出 1/2.231s，page-probe02 为 2/2、退出 0/2.159s。两选中测试动作/断言 AST 相同；整个 spec 不同（格式化与补 `/settings/profile` 路由占位），不声称全文件同字节。
+
+独立私有 probe 首轮 **2/2 PASS，实际退出 0/3.155271s**。运行 real App、Vue Router/正式认证 guard、真实 Session/API factory，只控制 Fetch 和浏览器环境前提。
+
+- A：配置材料在取消切换时保留、明确放弃后清除；native cancel 尾部未结束仍 busy，结束后保持 error 且零自动读取。真实按钮执行 retry 原 v5→child receipt v27，detail/list 的 v5 均不发布；晚旧 detail v999 不进入新代，显式 v28 读取恢复。离页返页默认配置，零 inactive delivery GET。
+- B：pageshow 实际发出新 Session 读取，checking 卸载两 Dialog，503 保留待决路由/重试决定；再次新 Session 成功且完整身份相同后恢复上下层和顶层交互。真实顶层“继续编辑”使路由返回失败，取消下层使用当前标题。随后改变 Session，原待决路由 false、草稿/确认清除、零 POST。
+
+静态核对：View 同步材料/progress watcher 仅清 DOM；App 的同步 availability watcher 仅记录观察身份，没有同步新写入口。View 独占 coordinator attach/detach，Panel 不重复注册；当前代次与身份门禁约束 awaited 续体。
+
+实际 argv/env、输入前后、raw/result/cleanup 在 `/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/web-stage01/runs/app01`。Node 子进程 actual wait 已收回，2 个所属 PID/starttime 两扫为空、0 adopted waits，输入前后相同；未启动服务、真实浏览器、Docker、监听端口或业务资源。raw SHA `8b1e247a882bd236b27c2107e3279411afcac7f9b417f61748d25463cd42fc04`，cleanup SHA `b670d21a6c6d08291175de48e713270bd14f445611930f51ef7d6d871449418f`。
+
+限制：这是受控 Fetch/jsdom 的页面与状态证据，getClientRects 为合成布局，不证明原生焦点、Tab、pointer 或几何；dist 只校验字节，执行源文件。未重复作者 1303 全套，也未据此宣称正式 HTTP/数据库/SMTP worker 或整卡真实验收。原作者两红及所有本轮原件保留。
+
+精确 12 源、复用边界和小原件索引见同目录 review.json；probe/page.spec.ts、run01.py、vitest.config.ts 与 runs/app01 已停写。

@@ -1,0 +1,47 @@
+{
+  "authorized_scope": "root explicitly approved exact 7 owned IDs, 2 associated anonymous volumes, real01/runtime only",
+  "container_ids": [
+    "72be2049077487593e9ceaf902312bd324c02f6ef1df6d4711aa7e9bfe84b0a5",
+    "c1dda61efdee3dbb124832d2d430575162981f7a056a30acb4161907c1ddff50",
+    "e775659277075a30397dadb2b5107cf4ae9579349551f39474f08a51cac7016a",
+    "02242403b0de8372fd02757592970b61c8a23d9cf4fff26c2907d1444d469df2"
+  ],
+  "network_ids": [
+    "d5c62ec08f56a771febce62f85cf7ede2d77781554ada7eeb3b2e1118ac2d3ed",
+    "084e75daa2599ea76d30a11b2499ce79e51a5c7babf9fe5c8debfca32578bac0",
+    "1412023c24655f5a2bd9c0548d5ee33a544a85cfc60ffe77023c930deffdf07b"
+  ],
+  "anonymous_volumes": {
+    "c5a39f15fe1763e1f1e025f103bc49f55057e2ec5ba5a74871571f8cb7d48e29": {
+      "name": "c5a39f15fe1763e1f1e025f103bc49f55057e2ec5ba5a74871571f8cb7d48e29",
+      "driver": "local",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      },
+      "created": "2026-10-06T20:15:40Z",
+      "container": "e775659277075a30397dadb2b5107cf4ae9579349551f39474f08a51cac7016a"
+    },
+    "45bf322a25ff204527149fe8108834eb0a6eee00e8661c38b1019a30afe04eef": {
+      "name": "45bf322a25ff204527149fe8108834eb0a6eee00e8661c38b1019a30afe04eef",
+      "driver": "local",
+      "labels": {
+        "com.docker.volume.anonymous": ""
+      },
+      "created": "2026-10-06T20:15:37Z",
+      "container": "02242403b0de8372fd02757592970b61c8a23d9cf4fff26c2907d1444d469df2"
+    }
+  },
+  "runtime": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/runs/independent-real01/runtime",
+  "preserve_original_files": {
+    "frozen-input.json": "7dc487086b7fe67e4403fce972183cf8d68bea0cc825431057f698bb3e7a9462",
+    "command.json": "7048fa8029dcefb51439003d8d4013a15759f3a4f3e6d27ff93c2f4dca42103a",
+    "verification-input.json": "e9da82be362b1e8243bcd34f13f8f95d6caba2601556963c7a46ab653af120a4",
+    "input-before.json": "61fcce5e008867f7a7a55508a03eaf78e5c5abc6b7a4c966a5a7aaeb2dec5cb8",
+    "baseline.json": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+    "driver.py.txt": "99fe6accf069c6c6b2f905c07258ea1fdaa6b389e6af11e51e1ee749007d4227",
+    "process-baseline.json": "19a0f92f99d9fe6258975b3f051f378571ef2b865961538e827aa2e900d33b07",
+    "raw.log": "16380a3f95339d95aa415e4815007d83fc193730289a804a0d3f7be0ff85ca34"
+  },
+  "preserve": "original baseline surviving 5 plus recreated default bridge; all nonowned resources; raw/input/command/evidence",
+  "original_actual_wait_not_recorded": true
+}

@@ -1,0 +1,40 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-smtp-delivery.spec.ts -t stable rejected current403
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web
+
+stdout | src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > allows a fresh route for a stable rejected current403 identity after both SMTP domains are clear
+{"kind":"safe-navigation-read-diagnostic","navigationReads":[{"method":"GET","path":"/api/v1/system/smtp","route":"/system/smtp","phase":"authenticated","context":"current","role":"admin","denied":false}]}
+
+ ❯ src/tests/system-smtp-delivery.spec.ts (33 tests | 1 failed | 32 skipped) 198ms
+     × allows a fresh route for a stable rejected current403 identity after both SMTP domains are clear 196ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > allows a fresh route for a stable rejected current403 identity after both SMTP domains are clear
+AssertionError: expected [ …(3) ] to have a length of 2 but got 3
+
+- Expected
++ Received
+
+- 2
++ 3
+
+ ❯ src/tests/system-smtp-delivery.spec.ts:670:83
+    668|       console.info(JSON.stringify({ kind: 'safe-navigation-read-diagno…
+    669|       expect(f.writes()).toHaveLength(0)
+    670|       expect(f.fetch.mock.calls.filter(([p]) => p.startsWith('/api/v1/…
+       |                                                                                   ^
+    671|         reads,
+    672|       )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 32 skipped (33)
+   Start at  19:56:21
+   Duration  1.65s (transform 845ms, setup 0ms, import 1.00s, tests 198ms, environment 347ms)
+

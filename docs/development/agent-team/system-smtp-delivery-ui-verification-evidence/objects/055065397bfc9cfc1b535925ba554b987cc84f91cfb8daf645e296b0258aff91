@@ -1,0 +1,18 @@
+SMTP delivery owner-stage01：独立有界 PASS，未发现本阶段产品阻断；不是页面或整卡接受。
+
+固定 `/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/owner-stage01/manifest.json`，SHA `86a486532d5bb2bef69d2bd66f33681244d0f32494f8cf3e9a556ab773cbfa4a`，产品628612c。useSession `bb670ae33e7d4d846d517b394689d8b7328ec22f03bd6306ef51be5403c4f2cc`、state spec `faedaf94d021265dc97b3105037724ba227e929c0cfd3b8095797da35757fc88`。API四源同已独验阶段；19接受依赖逐字匹配固定Git。最小12执行源副本、47输入指纹见 `input-static01.json`；没有复制全树或读取活动页面。
+
+| 独立组合 | 实际结果 | raw SHA256 |
+| --- | --- | --- |
+| recovery01 | 3/3 PASS，actual exit0 / 1.452501s | 0bb06d83fc2693ceff06a6e8446934af61eb5e51606818f6f6e9b875da94b0b4 |
+| ownership01 | 4/4 PASS，actual exit0 / 1.437507s | c5e41cd9535e0b722c21682aab16479c507529687e1c4c083e3b057c39d87fd1 |
+
+实际命令为 `/usr/bin/python3 /workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/run01.py recovery01 recovery.spec.ts` 及同脚本 `ownership01 ownership.spec.ts`。内层Node24.19.0、原锁Vitest4.1.11、jsdom、单worker/retry0/每例5s；精确argv/cwd/env和输入前后在各 `runs/*`。两命令均实际wait，各观测2个owned PID/starttime、0 adopted，结束两次扫描空、输入完全相同。本轮7例没有失败；最初只读命令误将diff文件名写为owner.diff，exit1后按manifest读candidate.diff，未启动测试/资源，记于preparation-notes。
+
+恢复组合通过生产factory和九个生产API完成：TestSMTP派发404→读取sent不确认→原重放收到确定INVALID_STATE仍unknown→Session恢复而列表503仍可显式原重放→严格202才confirmed→后继GET503不倒退。当前配置停用未堵历史重放；原recipient/路径/body/key/CSRF比较仅安全布尔。Retry503→源详情version19→409不抹先前unknown→源404→原源ID/version2重放确认child/version27，未从观察替换原请求。相同User/Session发生CSRF轮换会变epoch、清旧intent，零后续management读取或旧意图移植。
+
+实际尾部组合以原生Response/ReadableStream构造完整JSON但不EOF。虚拟时钟29999+1ms触发原30s可见取消；native cancel Promise保持未决期间busy仍true，配置/个人/投递请求均零派发。明确abandon仅销毁追踪，仍不提前释放owner；实际cancel释放后才空。反向配置read的actual tail不被delivery abandon误取消，配置私有材料保留。Current403清投递进度和SMTP/Provider材料并保持身份绑定denied；显式Session重查才能恢复，当前write CSRF失败则销毁身份。公共leave后忽略abort的旧fetch即使返回202也不能重发旧进度；实际join前不派发新Session，join后恢复新Session/epoch。
+
+静态逐接缝核第九依赖、独立revision、runAuthorized resolver、currentCSRF/403和global清理、五确定拒绝码与unknown粘性、Session→至多一读以及!busy门禁。原API/邮箱矩阵不重跑。作者78/78和补测后72/72为新旧混合选择，生产useSession不变；其五拒绝码全表、所有域成对隔离、Provider两阶段和already-parsed late401/403按冻结源/原raw引用，没有算成本次7例实际覆盖。
+
+限制：30s是虚拟计时推进，实际body/cancel屏障真实，不称墙钟网络测量；当前403实际只选SMTP/Provider材料，其他域清理调用静核；独立旧身份案例是leave/late202，不冒称独立parsed-late401。App/panel、确认/焦点、正式权限事务/SMTP投递、真实服务/browser/PG/Docker均未验。未新增任意flush:sync主动发写门槛；无主树/产品/Git或作者活动源改动。原probe/命令/raw/报告现全停写，后续仅按新冻结差量复用。

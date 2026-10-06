@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-smtp-delivery-state.spec.ts src/tests/system-providers-state.spec.ts
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web
+
+
+ Test Files  2 passed (2)
+      Tests  72 passed (72)
+   Start at  18:30:06
+   Duration  1.19s (transform 313ms, setup 0ms, import 626ms, tests 297ms, environment 1.06s)
+

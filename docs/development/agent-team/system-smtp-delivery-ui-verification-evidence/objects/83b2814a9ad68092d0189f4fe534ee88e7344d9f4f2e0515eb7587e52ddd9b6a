@@ -1,0 +1,33 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/authority-repair02
+
+stderr | probe/page.spec.ts > new public checking after revoked identity reaches login without releasing any old SMTP request
+[Vue Router warn]: No match found for location with path "/forgot-password"
+
+stdout | probe/page.spec.ts > public pending route and retry decisions survive real checking and fail closed after identity changes
+SAFE page-combination-B: pageshow fresh Session; 503 preserves decisions; same identity dual-layer restore; real top action settles false; changed identity retires draft and pending navigation
+
+ ❯ probe/page.spec.ts (2 tests | 1 failed) 595ms
+   × new public checking after revoked identity reaches login without releasing any old SMTP request 249ms
+   ✓ public pending route and retry decisions survive real checking and fail closed after identity changes  345ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  probe/page.spec.ts > new public checking after revoked identity reaches login without releasing any old SMTP request
+AssertionError: expected "vi.fn()" to be called 1 times, but got 2 times
+ ❯ probe/page.spec.ts:163:19
+    161|   f.sessionRequest(revoked)
+    162|   await click('检查当前状态')
+    163|   expect(revoked).toHaveBeenCalledTimes(1)
+       |                   ^
+    164|   expect(f.transport.mock.calls.slice(before).map(([path, init]) => [p…
+    165|     ['/api/v1/session', 'GET'], ['/api/v1/auth/bootstrap', 'GET'],
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 1 passed (2)
+   Start at  19:32:20
+   Duration  2.22s (transform 919ms, setup 0ms, import 1.10s, tests 595ms, environment 416ms)
+

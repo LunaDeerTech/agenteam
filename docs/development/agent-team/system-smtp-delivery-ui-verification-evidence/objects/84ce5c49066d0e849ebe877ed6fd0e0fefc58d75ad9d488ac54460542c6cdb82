@@ -1,0 +1,13 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01
+
+ ✓ probe/strict-wire.spec.ts > independent SMTP delivery strict wire > captures original input and uses exact four routes, without inventing a retry source version receipt 29ms
+ ✓ probe/strict-wire.spec.ts > independent SMTP delivery strict wire > rejects request pollution before fetch and enforces the UTF8 request/cursor boundaries 3ms
+ ✓ probe/strict-wire.spec.ts > independent SMTP delivery strict wire > preserves distinct exact-attempt facts and rejects an entire otherwise valid page with one bad row 6ms
+ ✓ probe/strict-wire.spec.ts > independent SMTP delivery strict wire > requires exact 202 receipts, keeps post-write Problems intact, and drops raw malformed material 4ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:25:29
+   Duration  301ms (transform 101ms, setup 0ms, import 127ms, tests 44ms, environment 0ms)
+

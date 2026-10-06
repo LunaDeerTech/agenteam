@@ -1,0 +1,32 @@
+{
+  "baseline_sha256": "460b0fb647eedb005cdf36ba0c7e379175aaa56b59d5dbad8b3bbfac08fd2831",
+  "candidate_check": "readonly hashes of frozen input04, final17 copies and private workspace; no product rerun",
+  "documentation_only": true,
+  "fences_balanced": true,
+  "input04_candidates_unchanged": 16,
+  "input04_dist_unchanged": 36,
+  "main_readme_unchanged": true,
+  "missing_links": [],
+  "new_link": "../work-items/d27-system-smtp-delivery-ui.md",
+  "no_trailing_whitespace": true,
+  "product_tests_run": false,
+  "readme_sha256": "112a6fe33110a44e49a9eb6cc6a79bf0505fdbb73c7d6ccc31f1cea96998cc43",
+  "relative_links_checked": 38,
+  "selector_static_matches": {
+    "new": [
+      "TestAccountSystemSMTPDeliveryWebAuthorityAndIdentity",
+      "TestAccountSystemSMTPDeliveryWebNavigationAndLayouts",
+      "TestAccountSystemSMTPDeliveryWebOutcomeRecovery",
+      "TestAccountSystemSMTPDeliveryWebReadAndPagination",
+      "TestAccountSystemSMTPDeliveryWebTestAndRetry"
+    ],
+    "old": [
+      "TestAccountSystemInvitationsWebDeliveryRetry",
+      "TestAccountSystemInvitationsWebOutcomeRecovery",
+      "TestAccountSystemSMTPSettingsWebAuthorityAndIdentity",
+      "TestAccountSystemSMTPSettingsWebNavigationAndLayouts",
+      "TestAccountSystemSMTPSettingsWebOutcomeRecovery"
+    ]
+  },
+  "utf8_lf": true
+}

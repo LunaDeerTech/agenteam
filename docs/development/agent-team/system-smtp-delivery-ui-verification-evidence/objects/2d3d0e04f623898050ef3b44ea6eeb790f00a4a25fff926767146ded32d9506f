@@ -1,0 +1,20 @@
+{
+  "argv": [
+    "env",
+    "AGENTEAM_AUTH_WEB_ORIGIN=http://127.0.0.1:1",
+    "AGENTEAM_AUTH_WEB_PRIVATE=/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/discovery-only",
+    "AGENTEAM_AUTH_WEB_CHROMIUM=/usr/bin/chromium",
+    "AGENTEAM_SMTP_DELIVERY_WEB_CASE=outcome",
+    "node",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/tests/account-captcha-web/system-smtp-delivery.config.js",
+    "--list"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/tests/account-captcha-web",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "runner_sha256": "16b62f8e822211a9c826ba9b49f25204a1613c86e37d023287e8192eb24c85f9"
+}

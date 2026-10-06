@@ -1,0 +1,9 @@
+SMTP delivery input02 Authority 窄修：有界 PASS。受测 manifest 为 `a65e6e028bb5ffe5c700753577d027c18ab360924fe0c2e03bb604886557a085`，固定基线 `628612c`。仅协调器与 App 测试变化；其余 14 源、API/owner、App/router、配置 controller、harness/driver 原字节，36 个新 dist 已绑定。
+
+入口例外严格要求新导航在进入时及等待后均为 cleared anonymous（invalid/null identity、非 busy、两域无草稿），且保留 generation/active/disposed 门禁。旧身份待决确认不能在身份失效后追获资格。作者同测试字节 3 RED→3 GREEN、15 项受影响组合及类型/构建/格式原证据已核。
+
+独立 real App/router/factory + controlled fetch：`runs/app02` 新 A 实际 exit0 / 2.807111s，验证当前 401 后自动进入 `/login`、空且可用登录控件、私有进度/材料清除、零额外 SMTP 写读。原 B 在 `runs/app01` 已 PASS，按未改字节复用：503 保留双确认、同身份恢复、旧导航 false、不同 Session 销毁旧草稿与待决操作。app02 的 B 是过滤，未重跑。
+
+`app01` 保持实际 exit1 / 2.934089s。唯一 A 红是私有预期只一次 Session 请求；固定 login authentication guard 会再次 restore，实际为两次 Session→bootstrap。经 root 授权，`probe01-to02.diff` 仅将调用数与完整 GET 顺序改为两组；其余断言未削。两轮均 actualwait、输入前后相同，各 2 个 owned PID/starttime、0 adopted、两扫为空。精确 argv/env/source/raw/result/cleanup 均在对应 run，SHA 清单见 `review.json`。
+
+这证明离线状态与公开导航组合，不证明原生焦点/Tab 或真实 HTTP Authority；真实 authority02 仍由作者另跑。未启动 Docker、浏览器、服务或监听器；未改产品或 Git。原 authority01 产品红和本轮私有前提红均保留。当前报告和本目录验证输入/原件冻结；后续 A/B 仅在独立目录静态准备。

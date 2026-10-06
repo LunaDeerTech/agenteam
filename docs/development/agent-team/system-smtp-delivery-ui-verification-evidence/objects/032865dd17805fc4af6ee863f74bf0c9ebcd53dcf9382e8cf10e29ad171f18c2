@@ -1,0 +1,13 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-smtp-delivery.spec.ts src/tests/system-smtp-settings.spec.ts -t SMTP sections in the real App and router|coordinator generation|pending .* discard|both Dialog|pending old decisions
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web
+
+
+ Test Files  2 passed (2)
+      Tests  20 passed | 28 skipped (48)
+   Start at  19:58:14
+   Duration  3.28s (transform 1.75s, setup 0ms, import 2.36s, tests 2.40s, environment 756ms)
+

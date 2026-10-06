@@ -1,0 +1,63 @@
+from pathlib import Path
+import json,subprocess,hashlib,os,shutil,time,datetime,importlib.util
+R=Path('/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h');run=R/'runs/independent-real01';OUT=R/'recovery01';attr=json.loads((OUT/'owned-resource-attribution01.json').read_text());assert len(attr)==7
+sha=lambda p:hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def write(p,x):p.write_text(json.dumps(x,ensure_ascii=False,indent=2)+'\n')
+def utc():return datetime.datetime.now(datetime.timezone.utc).isoformat()
+original={p.name:sha(p) for p in run.iterdir() if p.is_file()}
+cmd=json.loads((run/'command.json').read_text());runtime=Path(cmd['env']['TMPDIR']);assert runtime==run/'runtime' and runtime.resolve()==runtime and not any(p.is_symlink() for p in [runtime,*runtime.parents])
+filelist=[]
+for p in sorted(runtime.rglob('*')):
+ if p.is_symlink():filelist.append({'path':str(p.relative_to(runtime)),'kind':'symlink'})
+ elif p.is_file():filelist.append({'path':str(p.relative_to(runtime)),'kind':'file','bytes':p.stat().st_size})
+write(OUT/'runtime-safe-inventory01.json',{'runtime':str(runtime),'file_count':len(filelist),'file_bytes':sum(x.get('bytes',0) for x in filelist),'files':filelist,'no_file_contents_or_material_hashes':True})
+records=[]
+def read(argv):return json.loads(subprocess.check_output(argv,text=True,timeout=20))[0]
+containers=[];networks=[];volumes={}
+for rid,wanted in attr.items():
+ kind='container' if 'state' in wanted else 'network';current=read(['docker',kind,'inspect',rid]);assert current['Id']==rid and current['Name']==wanted['name']
+ labels=current['Config']['Labels'] if kind=='container' else current['Labels'];assert labels==wanted['labels'] and labels and all(v in wanted['name'] for v in labels.values())
+ if kind=='container':
+  assert current['State']['Status']=='exited' and not current['State']['Running'] and current['State']['Pid']==0
+  assert any(x['Type']=='bind' and Path(x['Source']).is_relative_to(runtime) for x in current['Mounts'])
+  containers.append(rid)
+  for x in current['Mounts']:
+   if x['Type']=='volume':
+    name=x['Name'];assert len(name)==64 and all(c in '0123456789abcdef' for c in name)
+    v=read(['docker','volume','inspect',name]);volumes[name]={'name':v['Name'],'driver':v['Driver'],'labels':v.get('Labels'),'created':v.get('CreatedAt'),'container':rid}
+ else:
+  assert not current['Containers'];networks.append(rid)
+assert len(containers)==4 and len(networks)==3 and len(volumes)==2
+allids=subprocess.check_output(['docker','container','ls','-aq','--no-trunc'],text=True,timeout=20).split()
+for rid in allids:
+ current=read(['docker','container','inspect',rid])
+ used=[x.get('Name') for x in current.get('Mounts',[]) if x['Type']=='volume' and x.get('Name') in volumes]
+ assert not used or rid in containers
+write(OUT/'cleanup-plan01.json',{'authorized_scope':'root explicitly approved exact 7 owned IDs, 2 associated anonymous volumes, real01/runtime only','container_ids':containers,'network_ids':networks,'anonymous_volumes':volumes,'runtime':str(runtime),'preserve_original_files':original,'preserve':'original baseline surviving 5 plus recreated default bridge; all nonowned resources; raw/input/command/evidence','original_actual_wait_not_recorded':True})
+def mutate(argv):
+ started=utc();p=subprocess.run(argv,text=True,capture_output=True,timeout=30)
+ records.append({'argv':argv,'started_utc':started,'ended_utc':utc(),'actual_wait_completed':True,'exit':p.returncode,'stdout':p.stdout,'stderr':p.stderr});write(OUT/'cleanup-commands01.json',records)
+ if p.returncode:raise RuntimeError('exact owned cleanup command failed')
+for rid in containers:mutate(['docker','container','rm','--volumes',rid])
+for rid in networks:mutate(['docker','network','rm',rid])
+# Only the approved run-local reconstructable runtime; all original evidence is outside it.
+shutil.rmtree(runtime);write(OUT/'runtime-removal01.json',{'path':str(runtime),'exists_after':runtime.exists(),'completed_utc':utc(),'original_evidence_unchanged':{p.name:sha(p) for p in run.iterdir() if p.is_file()}==original})
+spec=importlib.util.spec_from_file_location('readonly_driver',R/'driver01.py');mod=importlib.util.module_from_spec(spec);spec.loader.exec_module(mod);mod.FROZEN=json.loads((run/'frozen-input.json').read_text())
+initial=json.loads((OUT/'resources-current01.json').read_text());nonowned={k:v for k,v in initial.items() if k not in attr};scans=[]
+for _ in range(2):
+ current=mod.resources();exact={};volume_absent={}
+ for rid in attr:
+  kind='container' if rid in containers else 'network';p=subprocess.run(['docker',kind,'inspect',rid],capture_output=True,text=True,timeout=20);exact[rid]={'absent':p.returncode!=0 and ('No such' in p.stderr or 'not found' in p.stderr) and rid not in current,'inspect_exit':p.returncode}
+ for name in volumes:
+  p=subprocess.run(['docker','volume','inspect',name],capture_output=True,text=True,timeout=20);volume_absent[name]={'absent':p.returncode!=0 and ('No such' in p.stderr or 'not found' in p.stderr),'inspect_exit':p.returncode}
+ table=mod.processes();parents={os.getpid()};pid=os.getpid()
+ while pid in table and table[pid]['ppid']>0 and table[pid]['ppid'] not in parents:pid=table[pid]['ppid'];parents.add(pid)
+ needles=[str(R/'driver01.py').encode(),str(runtime).encode(),cmd['env']['AGENTEAM_AUTH_WEB_RUNTIME'].encode()]
+ matches={pid:{k:v[k] for k in ['ppid','starttime','state','name','executable']} for pid,v in table.items() if pid not in parents and any(n in v['raw'] for n in needles)}
+ scans.append({'utc':utc(),'exact_owned_ids':exact,'associated_anonymous_volumes':volume_absent,'current_resources':current,'nonowned_unchanged_from_recovery_snapshot':current==nonowned,'current_matching_task_processes':matches,'runtime_exists':runtime.exists(),'browser_runtime_exists':Path(cmd['env']['AGENTEAM_AUTH_WEB_RUNTIME']).exists(),'original_owned_process_ledger_missing':True});time.sleep(.5)
+write(OUT/'cleanup-after-recovery01.json',scans)
+currentinputs=mod.source_input();write(OUT/'input-after-recovery01.json',currentinputs)
+match=all(currentinputs[k]==mod.FROZEN[k] for k in ['files','dist','dependencies','private_inputs','private_links']) and currentinputs['accepted_baseline']['accepted']
+clean=all(all(v['absent'] for v in x['exact_owned_ids'].values()) and all(v['absent'] for v in x['associated_anonymous_volumes'].values()) and x['nonowned_unchanged_from_recovery_snapshot'] and not x['current_matching_task_processes'] and not x['runtime_exists'] and not x['browser_runtime_exists'] for x in scans)
+summary={'recovery_cleanup_actual_exit':0 if clean and match else 1,'exact_owned_ids_removed':len(attr),'associated_volumes_removed':len(volumes),'recovery_double_scans_clear':clean,'current_input_matches_frozen':match,'original_run_actual_wait_missing':True,'original_completion_not_backfilled':True,'original_evidence_unchanged':{p.name:sha(p) for p in run.iterdir() if p.is_file()}==original,'disk':{p:dict(zip(['total','used','free'],shutil.disk_usage(p))) for p in ['/workspace','/tmp']},'result_scope':'recovery cleanup only; original real01 remains supervision-interrupted, not a completed run'}
+write(OUT/'cleanup-result01.json',summary);print(json.dumps(summary));assert clean and match and summary['original_evidence_unchanged']

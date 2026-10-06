@@ -1,0 +1,18 @@
+import argparse,datetime,hashlib,json,os,pathlib,subprocess,time
+s=pathlib.Path(__file__).resolve().parent
+parser=argparse.ArgumentParser();parser.add_argument('--name',required=True);parser.add_argument('--cwd',default='workspace/web');parser.add_argument('argv',nargs=argparse.REMAINDER);args=parser.parse_args()
+assert args.argv and args.name.replace('-','').isalnum()
+r=s/'runs'/args.name;r.mkdir(parents=True,exist_ok=False)
+paths=['web/src/api/client.ts','web/src/api/system-smtp-settings.ts','web/src/api/system-smtp-delivery.ts','web/src/tests/system-smtp-delivery-client.spec.ts']
+sha=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+write=lambda p,v:p.write_text(json.dumps(v,ensure_ascii=False,sort_keys=True,indent=2)+'\n')
+inputs=lambda:{'candidate_files':{p:sha(s/'workspace'/p) for p in paths if (s/'workspace'/p).is_file()},'product_base':'628612cdfc730cc1d89cad4e24a5d20f36cc6812','fixed_web_baseline_manifest':sha(s/'web-baseline.json'),'package_lock':sha(s/'workspace/web/package-lock.json'),'locked_metadata':sha(s/'workspace/web/node_modules/.package-lock.json')}
+before=inputs();write(r/'input-before.json',before)
+command={'argv':args.argv,'cwd':str(s/args.cwd),'env':{k:os.environ[k] for k in ['PATH','NODE_ENV','CI'] if k in os.environ},'runner_sha256':sha(pathlib.Path(__file__))};write(r/'command.json',command)
+start=time.monotonic();at=datetime.datetime.now(datetime.timezone.utc).isoformat()
+with (r/'raw.log').open('wb') as raw:
+ child=subprocess.Popen(args.argv,cwd=s/args.cwd,stdout=raw,stderr=subprocess.STDOUT)
+ code=child.wait()
+end=datetime.datetime.now(datetime.timezone.utc).isoformat();after=inputs();write(r/'input-after.json',after)
+result={**command,'started_utc':at,'ended_utc':end,'duration_seconds':round(time.monotonic()-start,3),'child_pid':child.pid,'actual_wait':True,'exit_code':code,'input_before_sha256':sha(r/'input-before.json'),'input_after_sha256':sha(r/'input-after.json'),'input_unchanged':before==after,'raw_sha256':sha(r/'raw.log'),'resource_execution':False}
+write(r/'result.json',result);print(json.dumps({'name':args.name,'actual_exit':code,'actual_wait':True,'seconds':result['duration_seconds'],'input_unchanged':before==after,'raw_sha256':result['raw_sha256'],'result':str(r/'result.json')},sort_keys=True));raise SystemExit(code)

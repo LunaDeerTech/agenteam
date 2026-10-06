@@ -1,0 +1,130 @@
+import { describe, expect, it } from 'vitest'
+import { accountTransport, type Fetch } from '../source/web/src/api/client'
+import { captureSMTPDeliveryCommand, createSystemSMTPDeliveryAPI } from '../source/web/src/api/system-smtp-delivery'
+import { childID, encoder, fullPage, job, json, maxVersion, problemResponse, problemValue, signal, sourceID, track, fault, write } from './helpers'
+
+describe('independent SMTP delivery strict wire', () => {
+  it('captures original input and uses exact four routes, without inventing a retry source version receipt', async () => {
+    const originalRecipient = 'Keep.Case@[IPv6:2001:DB8::7]'
+    const input = { recipient: originalRecipient }
+    const captured = captureSMTPDeliveryCommand({ kind: 'test', input })
+    input.recipient = 'changed@example.invalid'
+    expect(Object.isFrozen(captured) && Object.isFrozen(captured.input)).toBe(true)
+    expect(captured.kind === 'test' && captured.input.recipient === originalRecipient).toBe(true)
+    let calls = 0
+    const fetcher: Fetch = async (path, init) => {
+      calls++
+      expect(init.credentials === 'same-origin' && init.cache === 'no-store' && init.redirect === 'error').toBe(true)
+      const headers = new Headers(init.headers)
+      if (calls === 1) {
+        expect(path).toBe('/api/v1/system/smtp/test')
+        expect(init.method).toBe('POST')
+        expect(init.body === JSON.stringify({ recipient: originalRecipient })).toBe(true)
+        expect(headers.get('X-CSRF-Token') === 'c'.repeat(43)).toBe(true)
+        expect(headers.get('Idempotency-Key') === 'private-probe-1').toBe(true)
+        return json({ job_id: sourceID }, 202)
+      }
+      if (calls === 2) {
+        expect(path).toBe(`/api/v1/system/mail-jobs/${sourceID}/retry`)
+        expect(init.method).toBe('POST')
+        expect(init.body === JSON.stringify({ version: '2' })).toBe(true)
+        return json({ job_id: childID, version: maxVersion }, 202)
+      }
+      expect(init.method === 'GET' && init.body === undefined).toBe(true)
+      expect(!headers.has('X-CSRF-Token') && !headers.has('Idempotency-Key')).toBe(true)
+      if (calls === 3) {
+        const query = new URL(path, 'https://owned.invalid')
+        expect(query.pathname).toBe('/api/v1/system/mail-jobs/management')
+        expect([...query.searchParams.keys()]).toEqual(['limit', 'cursor'])
+        expect(query.searchParams.get('limit')).toBe('25')
+        expect(query.searchParams.get('cursor') === 'opaque+/=🧩').toBe(true)
+        return json({ items: [] })
+      }
+      expect(path).toBe(`/api/v1/system/mail-jobs/${childID}/management`)
+      return json(job({ job_id: childID, version: maxVersion }))
+    }
+    const api = createSystemSMTPDeliveryAPI(fetcher)
+    if (captured.kind !== 'test') throw new Error('wrong capture kind')
+    expect(await api.testSMTP(captured.input, write())).toEqual({ job_id: sourceID })
+    expect(await api.retryJob({ job_id: sourceID, version: '2' }, write())).toEqual({ job_id: childID, version: maxVersion })
+    expect(await api.listJobs({ cursor: 'opaque+/=🧩' }, signal())).toEqual({ items: [] })
+    expect((await api.getJob(childID, signal())).version).toBe(maxVersion)
+    expect(calls).toBe(4)
+  })
+
+  it('rejects request pollution before fetch and enforces the UTF8 request/cursor boundaries', async () => {
+    let calls = 0
+    const fetcher: Fetch = async () => { calls++; return json({ job_id: childID }, 202) }
+    const api = createSystemSMTPDeliveryAPI(fetcher)
+    const bad = [
+      () => api.testSMTP({ recipient: 'a@example.invalid', password: 'private-canary' } as never, write()),
+      () => api.retryJob({ job_id: sourceID, version: maxVersion }, write()),
+      () => api.listJobs({ limit: 25 } as never, signal()),
+      () => api.listJobs({ cursor: '🧩'.repeat(2048) + 'a' }, signal()),
+      () => api.getJob(sourceID + '?extra=1', signal()),
+      () => api.testSMTP({ recipient: 'a@example.invalid' }, { ...write(), key: 'bad key' }),
+    ]
+    for (const call of bad) await expect(call()).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(calls).toBe(0)
+    const request = accountTransport(fetcher)
+    const body = { x: '🧩' + 'x'.repeat(16384 - 12) }
+    expect(encoder.encode(JSON.stringify(body)).byteLength).toBe(16384)
+    await request('testSMTP', () => true, { body, csrf: write().csrfToken, key: write().key, signal: signal() })
+    await expect(request('testSMTP', () => true, {
+      body: { x: body.x + 'x' }, csrf: write().csrfToken, key: write().key, signal: signal(),
+    })).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(calls).toBe(1)
+  })
+
+  it('preserves distinct exact-attempt facts and rejects an entire otherwise valid page with one bad row', async () => {
+    const cases = [
+      job({ phase: 'cancelled', attempts: '0', attempt_channel: null, attempt_result: null, reason: 'token_invalid' }),
+      job({ phase: 'unknown', channel: null, attempt_channel: null, attempt_result: null }),
+      job({ phase: 'retry_wait', attempt_result: 'unknown', reason: 'unknown' }),
+    ]
+    for (const row of cases) expect(await createSystemSMTPDeliveryAPI(async () => json(row)).getJob(sourceID, signal())).toEqual(row)
+    const items = fullPage(), cursor = '🧩'.repeat(2048)
+    const result = await createSystemSMTPDeliveryAPI(async () => json({ items, next_cursor: cursor })).listJobs({}, signal())
+    expect(Object.isFrozen(result) && Object.isFrozen(result.items) && result.items.every(Object.isFrozen)).toBe(true)
+    expect(result.next_cursor === cursor && result.items.length === 25).toBe(true)
+    const badRows = [
+      { ...items[12], recipient: 'private-canary' },
+      { ...items[12], attempt_result: undefined },
+      { ...items[12], phase: 'failed', attempt_channel: null, attempt_result: null },
+      { ...items[12], channel: 'backend_log', attempt_channel: 'smtp' },
+      { ...items[12], reason: null },
+    ]
+    for (const badRow of badRows) {
+      const poisoned = items.map((row, index) => index === 12 ? badRow : row)
+      await expect(createSystemSMTPDeliveryAPI(async () => json({ items: poisoned })).listJobs({}, signal())).rejects.toMatchObject({ kind: 'invalid-response' })
+    }
+    for (const invalid of [
+      { items: [...items].reverse() },
+      { items: [items[0], items[0]] },
+      { items: [items[0]], next_cursor: 'opaque' },
+      { items, next_cursor: cursor + 'x' },
+    ]) await expect(createSystemSMTPDeliveryAPI(async () => json(invalid)).listJobs({}, signal())).rejects.toMatchObject({ kind: 'invalid-response' })
+    await expect(createSystemSMTPDeliveryAPI(async () => json(job({ job_id: childID }))).getJob(sourceID, signal())).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+
+  it('requires exact 202 receipts, keeps post-write Problems intact, and drops raw malformed material', async () => {
+    for (const response of [
+      json({ job_id: childID, version: '1' }, 202),
+      json({ job_id: childID }, 200),
+      new Response(null, { status: 204, headers: { 'X-Mail-Job-ID': childID } }),
+      json({ job_id: childID, password: 'private-canary' }, 202),
+    ]) {
+      const err = fault(await track(createSystemSMTPDeliveryAPI(async () => response).testSMTP({ recipient: 'a@example.invalid' }, write())).result, 'invalid-response')
+      expect(!JSON.stringify(err).includes('private-canary') && !err.message.includes('private-canary')).toBe(true)
+    }
+    for (const value of [{ job_id: sourceID, version: '3' }, { job_id: childID, version: '01' }, { job_id: childID, version: '9223372036854775808' }])
+      await expect(createSystemSMTPDeliveryAPI(async () => json(value, 202)).retryJob({ job_id: sourceID, version: '2' }, write())).rejects.toMatchObject({ kind: 'invalid-response' })
+    for (const [status, code] of [[404, 'NOT_FOUND'], [503, 'DEPENDENCY_UNBOUND']] as const) {
+      const expected = problemValue(status, code)
+      const err = fault(await track(createSystemSMTPDeliveryAPI(async () => problemResponse(expected)).testSMTP({ recipient: 'a@example.invalid' }, write())).result, 'problem')
+      expect(err.problem).toEqual(expected)
+    }
+    const err = fault(await track(createSystemSMTPDeliveryAPI(async () => { throw new Error('private-canary') }).testSMTP({ recipient: 'a@example.invalid' }, write())).result, 'transport')
+    expect(!JSON.stringify(err).includes('private-canary') && !err.stack?.includes('private-canary')).toBe(true)
+  })
+})

@@ -1,0 +1,11 @@
+Authority01 独立归因：新 SMTP 协调器的产品门禁缺陷；保留原 `/login` 强断言，不将首红改称 harness 误前提。
+
+固定 input01 `9850d4ad68980d96eebfa9c9aa73dc996e85a0a3409f538e9ea586c241d4ac2a`。原 actual exit1 / 69.374s，Authority 顶层20.82s；原 native Session401 / SESSION_REVOKED 谓词已到达，随后5s URL仍 `/system/smtp`。旧身份后新Session/member段未执行。原raw `c2eaf40ea41b6657c03490830e3e740f31afeb232cafa891192d97dc730c889a`；result `eac113aa1a6fc5be5e06df6d5046f5ea1c0d54939fc77cdedbac1f1c53101e60`。已独立读 command actual wait及两扫：9 exact IDs absent、85 owned PID/starttime清零、4 adopted wait，输入/原资源基线不变。cleanup `1f734f69d375098038d75d9d845d644e1af3cf3f907df63861607e4f5551bd48`。
+
+固定源码因果链：useSession.restore（845–856）对有效失效Session清identity，非认证操作pending时bootstrap成anonymous；App.vue（122–128）明确要求 protected页的anonymous且不busy时 replace('/login')。router/auth.ts（65–71）先调用新SMTP协调器confirmLeave，false直接取消导航。新useSystemSMTPDelivery.ts（724–734）的协调器即使子controller允许离开，仍要求live()；live（约648）要求authenticated/current/admin/同identity，另一分支又要求!activeRoute。身份失效watch（约674–687）只重置active/view附着，不置activeRoute=false；而真正afterNavigation因false不会发生。因此新的匿名/login导航被拒绝。旧已接受配置controller（365–369）原本允许“身份已无效且dirty已清”的新离页，新增包装错误收紧了这一语义。
+
+最小返修限定新协调器及对应本卡测试。必须在调用入口区别“已失效/匿名且状态已清的新导航”和“有效旧身份发起、后来失效的待决确认”：前者在仍同失效状态/代次且无dirty时可离开；后者继续完整live门禁、失效必false，不能简单把所有live失败改true，也不能把checking/503保留状态当成可丢弃匿名态。不改正式App跳转、router、owner或共享focus。
+
+建议先用真实App/router/factory、受控401→bootstrap200及原公开“检查当前状态”建立旧版RED，再同断言验证候选到/login与真实登录控件、旧intent/草稿/确认销毁、零额外POST。保留并复验不同Session待决false、route/logout待决和pageshow503同Session双确认代表。之后修后固定浏览器只复验Authority所需原强断言；API/owner未变证据按SHA复用，不重矩阵。
+
+本结论为原真实URL失败 + 固定源码归因，原raw没有DOM或bootstrap响应实录，不补造这些观察。本人未新增动态测试或启动资源。A/B准备现有五私有文件及链接已记录于 `../` 对应 real-independent 根 preparation/paused01.json，SHA `2df3c38d476870a485fe1c00ba563265e11668f55e2e2d6ec67b88d94559e781`；未写测试体/driver，未compile/type/list。

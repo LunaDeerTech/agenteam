@@ -1,0 +1,22 @@
+{
+  "status": "RECOVERY_CLEAN; ORIGINAL_RUN_SUPERVISION_INTERRUPTED",
+  "original_business_top_passes": 2,
+  "original_actual_wait_missing": true,
+  "no_original_completion_backfilled": true,
+  "recovery_only_readonly_verification_exit": 0,
+  "exact_owned_ids_double_absent": 7,
+  "associated_volumes_double_absent": 2,
+  "artifact_hashes": {
+    "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/recovery01/snapshot01.json": "5ef06673b151a6e885e1afcd357668ee92a7213952b5710f10aaa930b68d11e8",
+    "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/recovery01/owned-resource-attribution01.json": "3c02a7dfa050ae760c809e82bc2de7ed565e33a8b493dce98c1e31d8b44a4c71",
+    "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/recovery01/runtime-safe-inventory01.json": "21218d514a11929ff5bc767fb55926f0da4ed2d16a78a5b7bca16aa86c495706",
+    "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/recovery01/cleanup-plan01.json": "6d42d745b826234a19b81efbcc8a2db09f7e560c9be03c81c99e8964e71e234f",
+    "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/recovery01/cleanup-commands01.json": "98b2e775985096c3d2ef3445712125e002c5449a5414c00f620a5cdab44f21d2",
+    "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/recovery01/cleanup-result01.json": "d8ae94f6fc4ae2d0c60bfb63a20afc321b50e161959fbb5495703fd01d870398",
+    "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/recovery01/verification-command02.json": "0e8f91904fbdab7d487ee5bb04c269a3837dd2e3040906ce7da45d8cde8bf35e",
+    "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/recovery01/verification-commands02.json": "9d74164c98fab891c856e6b7f0b8bb6c7124c5d6a427c50c53b37710b37ae1a9",
+    "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/recovery01/verification-scans02.json": "f5ec7d4526492388446956976760fca932a5f9d06f18b5af7625710ad02e97de",
+    "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/recovery01/verification-result02.json": "a3e182ab22071c7001d071fbe598d91839ee3ffeca42f017fe95ee2755b05fda",
+    "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/recovery01/review.md": "473663ed242632fb7a8a078f92e5d5b997a92ce939bf1bbf026a54375a8373f4"
+  }
+}

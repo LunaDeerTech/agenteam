@@ -1,0 +1,30 @@
+{
+  "accepted_baseline_after": true,
+  "accepted_baseline_before": true,
+  "adopted_waits": 8,
+  "browser_processes": 22,
+  "browser_runtime_removed": true,
+  "double_cleanup": true,
+  "driver_exit": 0,
+  "expected_resources": 11,
+  "historical_zombies_untouched": [],
+  "monitor_errors": 0,
+  "node_processes": 4,
+  "observed_processes": 111,
+  "observed_resources": 11,
+  "run": "independent-real02",
+  "run_directory": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/runs/independent-real02",
+  "selected_tests_passed": true,
+  "source_files_unchanged": true,
+  "top_levels": [
+    [
+      "PASS",
+      "TestIndependentSMTPDeliveryTestReplay"
+    ],
+    [
+      "PASS",
+      "TestIndependentSMTPDeliveryRetryRecovery"
+    ]
+  ],
+  "verification_inputs_unchanged": true
+}

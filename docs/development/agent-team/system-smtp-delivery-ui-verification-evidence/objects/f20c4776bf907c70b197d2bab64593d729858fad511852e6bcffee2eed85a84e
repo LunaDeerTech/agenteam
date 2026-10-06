@@ -1,0 +1,99 @@
+from pathlib import Path
+import datetime
+import hashlib
+import importlib.util
+import json
+import os
+import shutil
+import subprocess
+import time
+
+R = Path('/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h')
+OUT = R / 'recovery01'
+RUN = R / 'runs/independent-real01'
+plan = json.loads((OUT / 'cleanup-plan01.json').read_text())
+old = json.loads((OUT / 'resources-current01.json').read_text())
+owned = set(plan['container_ids'] + plan['network_ids'])
+nonowned = {k: v for k, v in old.items() if k not in owned}
+cmd = json.loads((RUN / 'command.json').read_text())
+commands = []
+
+def utc():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+def write(name, value):
+    (OUT / name).write_text(json.dumps(value, ensure_ascii=False, indent=2) + '\n')
+
+def read(argv):
+    started = utc()
+    result = subprocess.run(argv, text=True, capture_output=True, timeout=20)
+    commands.append({'argv': argv, 'started_utc': started, 'ended_utc': utc(),
+                     'actual_wait_completed': True, 'exit': result.returncode,
+                     'stdout': result.stdout, 'stderr': result.stderr})
+    write('verification-commands02.json', commands)
+    return result
+
+spec = importlib.util.spec_from_file_location('readonly_driver', R / 'driver01.py')
+driver = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(driver)
+scans = []
+for index in range(2):
+    current = driver.resources()
+    ids = {}
+    for kind, names in [('container', plan['container_ids']), ('network', plan['network_ids'])]:
+        for name in names:
+            result = read(['docker', kind, 'inspect', name])
+            error = result.stderr.casefold()
+            ids[name] = {'absent': result.returncode == 1 and
+                         ('no such' in error or 'not found' in error) and name not in current,
+                         'inspect_exit': result.returncode}
+    listed = read(['docker', 'volume', 'ls', '-q'])
+    assert listed.returncode == 0
+    volume_names = set(listed.stdout.split())
+    volumes = {}
+    for name in plan['anonymous_volumes']:
+        result = read(['docker', 'volume', 'inspect', name])
+        error = result.stderr.casefold()
+        volumes[name] = {'absent': result.returncode == 1 and 'no such volume' in error and
+                         name not in volume_names, 'inspect_exit': result.returncode,
+                         'absent_from_successful_volume_list': name not in volume_names}
+    table = driver.processes()
+    ancestors = {os.getpid()}
+    pid = os.getpid()
+    while pid in table and table[pid]['ppid'] > 0 and table[pid]['ppid'] not in ancestors:
+        pid = table[pid]['ppid']
+        ancestors.add(pid)
+    needles = [str(R / 'driver01.py').encode(), plan['runtime'].encode(),
+               cmd['env']['AGENTEAM_AUTH_WEB_RUNTIME'].encode()]
+    matches = {pid: {k: value[k] for k in ['ppid', 'starttime', 'state', 'name', 'executable']}
+               for pid, value in table.items() if pid not in ancestors and
+               any(needle in value['raw'] for needle in needles)}
+    scans.append({'utc': utc(), 'exact_owned_ids': ids, 'associated_anonymous_volumes': volumes,
+                  'current_resources': current, 'nonowned_unchanged_from_recovery_snapshot': current == nonowned,
+                  'current_matching_task_processes': matches,
+                  'runtime_exists': Path(plan['runtime']).exists(),
+                  'browser_runtime_exists': Path(cmd['env']['AGENTEAM_AUTH_WEB_RUNTIME']).exists()})
+    write('verification-scans02.json', scans)
+    if index == 0:
+        time.sleep(0.5)
+
+sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
+original_unchanged = {p.name: sha(p) for p in RUN.iterdir() if p.is_file()} == plan['preserve_original_files']
+clean = all(all(v['absent'] for v in s['exact_owned_ids'].values()) and
+            all(v['absent'] for v in s['associated_anonymous_volumes'].values()) and
+            s['nonowned_unchanged_from_recovery_snapshot'] and
+            not s['current_matching_task_processes'] and
+            not s['runtime_exists'] and not s['browser_runtime_exists'] for s in scans)
+result = {'scope': 'read-only confirmation of authorized recovery cleanup; no resource mutation',
+          'recovery_owned_resources_clear': clean,
+          'exact_ids_absent_in_each_scan': len(owned), 'associated_volumes_absent_in_each_scan': len(plan['anonymous_volumes']),
+          'scans': len(scans), 'original_evidence_unchanged': original_unchanged,
+          'previous_cleanup_result_preserved': 'cleanup-result01.json (exit 1; case-sensitive volume absence oracle)',
+          'original_real01_actual_wait_missing': True,
+          'original_real01_not_completed_or_backfilled': True,
+          'preserved_nonowned_resource_ids': sorted(nonowned),
+          'disk': {p: dict(zip(['total', 'used', 'free'], shutil.disk_usage(p))) for p in ['/workspace', '/tmp']},
+          'exit': 0 if clean and original_unchanged else 1}
+write('verification-result02.json', result)
+print(json.dumps(result, ensure_ascii=False))
+raise SystemExit(result['exit'])

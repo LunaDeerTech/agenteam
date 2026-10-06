@@ -1,0 +1,429 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-smtp-delivery.spec.ts -t stable rejected|old administrator
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web
+
+ ❯ src/tests/system-smtp-delivery.spec.ts (33 tests | 3 failed | 28 skipped) 489ms
+     × allows a stable rejected ordinary user to log out through the real App button 116ms
+     × allows a fresh route for a stable rejected ordinary identity after both SMTP domains are clear 33ms
+     × allows a fresh route for a stable rejected current403 identity after both SMTP domains are clear 96ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > allows a stable rejected ordinary user to log out through the real App button
+AssertionError: expected [] to have a length of 1 but got +0
+
+- Expected
++ Received
+
+- 1
++ 0
+
+ ❯ src/tests/system-smtp-delivery.spec.ts:615:71
+    613|     expect(f.fetch.mock.calls.filter(([p]) => p.startsWith('/api/v1/sy…
+    614|     await click('退出登录')
+    615|     expect(f.fetch.mock.calls.filter(([p]) => p.endsWith('/logout'))).…
+       |                                                                       ^
+    616|     expect(f.router.currentRoute.value.path).toBe('/login')
+    617|     expect(f.auth.state.phase).toBe('anonymous')
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > allows a fresh route for a stable rejected ordinary identity after both SMTP domains are clear
+AssertionError: expected Error: Navigation aborted from "/system/s… { …(3) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+Error {
+  "message": "Navigation aborted from \"/system/smtp\" to \"/settings/profile\" via a navigation guard.",
+  "type": 4,
+  "from": {
+    "fullPath": "/system/smtp",
+    "hash": "",
+    "href": "/system/smtp",
+    "matched": [
+      {
+        "aliasOf": undefined,
+        "beforeEnter": undefined,
+        "children": [
+          {
+            "component": {
+              "__file": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/src/views/system/SystemUsersView.vue",
+              "__name": "SystemUsersView",
+              "__scopeId": "data-v-c08b391e",
+              "render": [Function _sfc_render],
+              "setup": [Function setup],
+            },
+            "path": "users",
+          },
+          {
+            "component": {
+              "__file": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/src/views/system/SystemSMTPSettingsView.vue",
+              "__name": "SystemSMTPSettingsView",
+              "__scopeId": "data-v-c87c39ab",
+              "render": [Function _sfc_render],
+              "setup": [Function setup],
+            },
+            "path": "smtp",
+          },
+          {
+            "component": {
+              "template": "<p>Accepted leaf</p>",
+            },
+            "path": "invitations",
+          },
+          {
+            "component": {
+              "template": "<p>Accepted leaf</p>",
+            },
+            "path": "providers",
+          },
+          {
+            "component": {
+              "template": "<p>Accepted leaf</p>",
+            },
+            "path": "models",
+          },
+          {
+            "component": {
+              "template": "<p>Accepted leaf</p>",
+            },
+            "path": "model-selection",
+          },
+          {
+            "component": {
+              "template": "<p>Accepted leaf</p>",
+            },
+            "path": "account-security",
+          },
+        ],
+        "components": {
+          "default": {
+            "__file": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/src/views/system/SystemSettingsView.vue",
+            "__name": "SystemSettingsView",
+            "__scopeId": "data-v-bb68ba37",
+            "render": [Function _sfc_render],
+            "setup": [Function setup],
+          },
+        },
+        "enterCallbacks": {},
+        "instances": {
+          "default": {},
+        },
+        "leaveGuards": Set {},
+        "meta": {
+          "authentication": true,
+          "navigation": {
+            "label": "系统设置",
+            "order": 20,
+          },
+          "protected": true,
+          "systemAdmin": true,
+        },
+        "name": undefined,
+        "path": "/system",
+        "props": {
+          "default": false,
+        },
+        "redirect": "/system/users",
+        "updateGuards": Set {},
+      },
+      {
+        "aliasOf": undefined,
+        "beforeEnter": undefined,
+        "children": [],
+        "components": {
+          "default": {
+            "__file": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/src/views/system/SystemSMTPSettingsView.vue",
+            "__name": "SystemSMTPSettingsView",
+            "__scopeId": "data-v-c87c39ab",
+            "render": [Function _sfc_render],
+            "setup": [Function setup],
+          },
+        },
+        "enterCallbacks": {},
+        "instances": {},
+        "leaveGuards": Set {},
+        "meta": {},
+        "name": undefined,
+        "path": "/system/smtp",
+        "props": {
+          "default": false,
+        },
+        "redirect": undefined,
+        "updateGuards": Set {},
+      },
+    ],
+    "meta": {
+      "authentication": true,
+      "navigation": {
+        "label": "系统设置",
+        "order": 20,
+      },
+      "protected": true,
+      "systemAdmin": true,
+    },
+    "name": undefined,
+    "params": {},
+    "path": "/system/smtp",
+    "query": {},
+    "redirectedFrom": undefined,
+  },
+  "to": {
+    "fullPath": "/settings/profile",
+    "hash": "",
+    "href": "/settings/profile",
+    "matched": [
+      {
+        "aliasOf": undefined,
+        "beforeEnter": undefined,
+        "children": [],
+        "components": {
+          "default": {
+            "template": "<h1>个人资料</h1>",
+          },
+        },
+        "enterCallbacks": {},
+        "instances": {},
+        "leaveGuards": Set {},
+        "meta": {
+          "authentication": true,
+          "protected": true,
+        },
+        "name": undefined,
+        "path": "/settings/profile",
+        "props": {
+          "default": false,
+        },
+        "redirect": undefined,
+        "updateGuards": Set {},
+      },
+    ],
+    "meta": {
+      "authentication": true,
+      "protected": true,
+    },
+    "name": undefined,
+    "params": {},
+    "path": "/settings/profile",
+    "query": {},
+    "redirectedFrom": undefined,
+  },
+}
+
+ ❯ src/tests/system-smtp-delivery.spec.ts:650:56
+    648|       expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+    649|       const reads = f.fetch.mock.calls.filter(([p]) => p.startsWith('/…
+    650|       expect(await f.router.push('/settings/profile')).toBeUndefined()
+       |                                                        ^
+    651|       await flushPromises()
+    652|       expect(f.router.currentRoute.value.path).toBe('/settings/profile…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+ FAIL  src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > allows a fresh route for a stable rejected current403 identity after both SMTP domains are clear
+AssertionError: expected Error: Navigation aborted from "/system/s… { …(3) } to be undefined
+
+- Expected:
+undefined
+
++ Received:
+Error {
+  "message": "Navigation aborted from \"/system/smtp\" to \"/settings/profile\" via a navigation guard.",
+  "type": 4,
+  "from": {
+    "fullPath": "/system/smtp",
+    "hash": "",
+    "href": "/system/smtp",
+    "matched": [
+      {
+        "aliasOf": undefined,
+        "beforeEnter": undefined,
+        "children": [
+          {
+            "component": {
+              "__file": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/src/views/system/SystemUsersView.vue",
+              "__name": "SystemUsersView",
+              "__scopeId": "data-v-c08b391e",
+              "render": [Function _sfc_render],
+              "setup": [Function setup],
+            },
+            "path": "users",
+          },
+          {
+            "component": {
+              "__file": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/src/views/system/SystemSMTPSettingsView.vue",
+              "__name": "SystemSMTPSettingsView",
+              "__scopeId": "data-v-c87c39ab",
+              "render": [Function _sfc_render],
+              "setup": [Function setup],
+            },
+            "path": "smtp",
+          },
+          {
+            "component": {
+              "template": "<p>Accepted leaf</p>",
+            },
+            "path": "invitations",
+          },
+          {
+            "component": {
+              "template": "<p>Accepted leaf</p>",
+            },
+            "path": "providers",
+          },
+          {
+            "component": {
+              "template": "<p>Accepted leaf</p>",
+            },
+            "path": "models",
+          },
+          {
+            "component": {
+              "template": "<p>Accepted leaf</p>",
+            },
+            "path": "model-selection",
+          },
+          {
+            "component": {
+              "template": "<p>Accepted leaf</p>",
+            },
+            "path": "account-security",
+          },
+        ],
+        "components": {
+          "default": {
+            "__file": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/src/views/system/SystemSettingsView.vue",
+            "__name": "SystemSettingsView",
+            "__scopeId": "data-v-bb68ba37",
+            "render": [Function _sfc_render],
+            "setup": [Function setup],
+          },
+        },
+        "enterCallbacks": {},
+        "instances": {
+          "default": {},
+        },
+        "leaveGuards": Set {},
+        "meta": {
+          "authentication": true,
+          "navigation": {
+            "label": "系统设置",
+            "order": 20,
+          },
+          "protected": true,
+          "systemAdmin": true,
+        },
+        "name": undefined,
+        "path": "/system",
+        "props": {
+          "default": false,
+        },
+        "redirect": "/system/users",
+        "updateGuards": Set {},
+      },
+      {
+        "aliasOf": undefined,
+        "beforeEnter": undefined,
+        "children": [],
+        "components": {
+          "default": {
+            "__file": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/src/views/system/SystemSMTPSettingsView.vue",
+            "__name": "SystemSMTPSettingsView",
+            "__scopeId": "data-v-c87c39ab",
+            "render": [Function _sfc_render],
+            "setup": [Function setup],
+          },
+        },
+        "enterCallbacks": {},
+        "instances": {
+          "default": null,
+        },
+        "leaveGuards": Set {},
+        "meta": {},
+        "name": undefined,
+        "path": "/system/smtp",
+        "props": {
+          "default": false,
+        },
+        "redirect": undefined,
+        "updateGuards": Set {},
+      },
+    ],
+    "meta": {
+      "authentication": true,
+      "navigation": {
+        "label": "系统设置",
+        "order": 20,
+      },
+      "protected": true,
+      "systemAdmin": true,
+    },
+    "name": undefined,
+    "params": {},
+    "path": "/system/smtp",
+    "query": {},
+    "redirectedFrom": undefined,
+  },
+  "to": {
+    "fullPath": "/settings/profile",
+    "hash": "",
+    "href": "/settings/profile",
+    "matched": [
+      {
+        "aliasOf": undefined,
+        "beforeEnter": undefined,
+        "children": [],
+        "components": {
+          "default": {
+            "template": "<h1>个人资料</h1>",
+          },
+        },
+        "enterCallbacks": {},
+        "instances": {},
+        "leaveGuards": Set {},
+        "meta": {
+          "authentication": true,
+          "protected": true,
+        },
+        "name": undefined,
+        "path": "/settings/profile",
+        "props": {
+          "default": false,
+        },
+        "redirect": undefined,
+        "updateGuards": Set {},
+      },
+    ],
+    "meta": {
+      "authentication": true,
+      "protected": true,
+    },
+    "name": undefined,
+    "params": {},
+    "path": "/settings/profile",
+    "query": {},
+    "redirectedFrom": undefined,
+  },
+}
+
+ ❯ src/tests/system-smtp-delivery.spec.ts:650:56
+    648|       expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+    649|       const reads = f.fetch.mock.calls.filter(([p]) => p.startsWith('/…
+    650|       expect(await f.router.push('/settings/profile')).toBeUndefined()
+       |                                                        ^
+    651|       await flushPromises()
+    652|       expect(f.router.currentRoute.value.path).toBe('/settings/profile…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 2 passed | 28 skipped (33)
+   Start at  19:54:30
+   Duration  2.05s (transform 905ms, setup 0ms, import 1.08s, tests 489ms, environment 363ms)
+

@@ -1,0 +1,284 @@
+import { afterEach, beforeEach, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { createMemoryHistory, createRouter, isNavigationFailure } from 'vue-router'
+import type { SessionController } from '../source/web/src/composables/useSession'
+
+// Only singleton acquisition is replaced; factories, App, controllers, views and guards are real.
+const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
+vi.mock('../source/web/src/composables/useSession', async (original) => ({
+  ...(await original<typeof import('../source/web/src/composables/useSession')>()),
+  useSession: () => selected.auth!,
+}))
+import { createSessionController } from '../source/web/src/composables/useSession'
+import { createAccountAPI, type SessionView } from '../source/web/src/api/account'
+import { createSystemAccountAPI } from '../source/web/src/api/system-account'
+import { createSystemInvitationAPI } from '../source/web/src/api/system-invitations'
+import { createSystemProviderAPI } from '../source/web/src/api/system-providers'
+import { createSystemModelAPI } from '../source/web/src/api/system-models'
+import { createSystemModelSelectionAPI } from '../source/web/src/api/system-model-selection'
+import { createSystemAccountSecurityAPI } from '../source/web/src/api/system-account-security'
+import { createSystemSMTPSettingsAPI } from '../source/web/src/api/system-smtp-settings'
+import { createSystemSMTPDeliveryAPI } from '../source/web/src/api/system-smtp-delivery'
+import type { Fetch } from '../source/web/src/api/client'
+import { installAuthentication } from '../source/web/src/router/auth'
+import { useTheme } from '../source/web/src/composables/useTheme'
+import App from '../source/web/src/App.vue'
+import HomeView from '../source/web/src/views/HomeView.vue'
+import LoginView from '../source/web/src/views/auth/LoginView.vue'
+import SystemSettingsView from '../source/web/src/views/system/SystemSettingsView.vue'
+import SystemUsersView from '../source/web/src/views/system/SystemUsersView.vue'
+import SystemSMTPSettingsView from '../source/web/src/views/system/SystemSMTPSettingsView.vue'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const instant = '2026-10-06T12:34:56.123456Z'
+const session = (n = 2): SessionView => ({
+  user: { id: id(1), email: 'admin@example.test', username: 'admin', display_name: 'Admin', role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false },
+  session: { id: id(n), issued_at: instant, idle_expires_at: instant, absolute_expires_at: instant },
+  csrf_token: 'S'.repeat(43),
+})
+const configuration = () => ({ id: id(10), version: '1', configured: true, host: 'mail.example.test', port: 25, encryption: 'none', username: '', sender_email: 'sender@example.test', sender_name: '', credential_present: false, auto_retry_count: '0', retry_interval_seconds: '10' })
+const job = (n = 20, version = '5') => ({ job_id: id(n), kind: 'test', phase: 'sent', attempts: '1', version, channel: 'smtp', created_at: instant, attempt_channel: 'smtp', attempt_result: 'sent', reason: 'sent' })
+const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': status < 400 ? 'application/json' : 'application/problem+json', 'X-Request-ID': id(9) } })
+const unavailable = () => json({ type: 'urn:agenteam:problem:test', title: 'Unavailable', status: 503, code: 'UNAVAILABLE', detail: 'Controlled failure', instance: '/api/v1/session', request_id: id(9), commit_state: 'not_started' }, 503)
+function gate<T = void>() {
+  let resolve!: (value: T | PromiseLike<T>) => void
+  const promise = new Promise<T>((done) => { resolve = done })
+  return { promise, resolve }
+}
+let mounted: VueWrapper | undefined
+const release: Array<() => void> = []
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', vi.fn((media: string) => ({ media, matches: false, addEventListener: vi.fn(), removeEventListener: vi.fn() })))
+  // Layout visibility is synthetic. These tests do not establish native focus, pointer or Tab behavior.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(() => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList)
+})
+afterEach(async () => {
+  for (const finish of release.splice(0)) finish()
+  await flushPromises()
+  mounted?.unmount()
+  mounted = undefined
+  selected.auth?.leave()
+  selected.auth = null
+  await flushPromises()
+  document.body.innerHTML = ''
+  useTheme().setTheme('system')
+  vi.unstubAllGlobals()
+  vi.restoreAllMocks()
+})
+async function setup() {
+  let current = session()
+  let getSession: Fetch = async () => json(current)
+  let delivery: Fetch = async (path, init) => {
+    if (init.method === 'POST') return json({ job_id: id(21), version: '27' }, 202)
+    return json(path.includes('?') ? { items: [job()] } : job(path.includes(id(21)) ? 21 : 20))
+  }
+  const transport = vi.fn<Fetch>(async (path, init) => {
+    if (path === '/api/v1/session') return getSession(path, init)
+    if (path === '/api/v1/system/smtp/test' || path.startsWith('/api/v1/system/mail-jobs/')) return delivery(path, init)
+    if (path === '/api/v1/system/smtp' && init.method === 'GET') return json(configuration())
+    if (path.startsWith('/api/v1/system/users?')) return json({ items: [] })
+    if (path.endsWith('/bootstrap')) return json({ csrf_token: 'A'.repeat(43), challenge_modes: ['rotate'], delivery_channel: 'backend_log' })
+    throw new Error('Unexpected controlled endpoint/method')
+  })
+  const auth = createSessionController(createAccountAPI(transport), createSystemAccountAPI(transport), createSystemInvitationAPI(transport), createSystemProviderAPI(transport), createSystemModelAPI(transport), createSystemModelSelectionAPI(transport), createSystemAccountSecurityAPI(transport), createSystemSMTPSettingsAPI(transport), createSystemSMTPDeliveryAPI(transport))
+  selected.auth = auth
+  await auth.restore()
+  const router = createRouter({ history: createMemoryHistory(), routes: [
+    { path: '/', component: HomeView, meta: { authentication: true, protected: true } },
+    { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+    { path: '/settings/profile', component: { template: '<h1>个人资料</h1>' }, meta: { authentication: true, protected: true } },
+    { path: '/system', component: SystemSettingsView, redirect: '/system/users', meta: { authentication: true, protected: true, systemAdmin: true, navigation: { label: '系统设置', order: 20 } }, children: [
+      { path: 'users', component: SystemUsersView }, { path: 'smtp', component: SystemSMTPSettingsView },
+      ...['invitations', 'providers', 'models', 'model-selection', 'account-security'].map((path) => ({ path, component: { template: '<p>Unused accepted leaf</p>' } })),
+    ] },
+  ] })
+  installAuthentication(router, auth)
+  await router.push('/system/smtp')
+  await router.isReady()
+  const host = document.createElement('div'); host.id = 'app'; document.body.append(host)
+  mounted = mount(App, { attachTo: host, global: { plugins: [router] } })
+  await flushPromises()
+  return {
+    auth, router, transport,
+    delivery(value: Fetch) { delivery = value },
+    sessionRequest(value: Fetch) { getSession = value },
+    restoreSession(n = 2) { current = session(n); getSession = async () => json(current) },
+    reads: () => transport.mock.calls.filter(([path, init]) => path.startsWith('/api/v1/system/mail-jobs/') && init.method === 'GET'),
+    writes: () => transport.mock.calls.filter(([, init]) => !['GET', 'HEAD'].includes(init.method)),
+    sessions: () => transport.mock.calls.filter(([path]) => path === '/api/v1/session'),
+  }
+}
+function button(label: string, within: ParentNode = document) {
+  const matches = [...within.querySelectorAll<HTMLButtonElement>('button')].filter((node) => node.getAttribute('aria-label') === label || (node.querySelector('.button-label[aria-hidden="false"]')?.textContent ?? node.textContent)?.trim() === label)
+  expect(matches.length, 'unique named public button: ' + label).toBe(1)
+  return matches[0]!
+}
+async function click(label: string, within: ParentNode = document) {
+  const target = button(label, within)
+  expect(target.disabled, 'public action enabled: ' + label).toBe(false)
+  target.click(); await flushPromises()
+}
+function field(label: string) {
+  const found = [...document.querySelectorAll<HTMLLabelElement>('label')].find((node) => node.textContent?.replace(/\s*\*$/, '') === label)
+  expect(!!found, 'label exists: ' + label).toBe(true)
+  return document.getElementById(found!.htmlFor) as HTMLInputElement
+}
+async function input(label: string, value: string) {
+  const target = field(label); target.value = value; target.dispatchEvent(new Event('input', { bubbles: true })); await flushPromises()
+}
+function title(label: string, within: ParentNode = document) {
+  return [...within.querySelectorAll('h1,h2,h3')].find((node) => {
+    const copy = node.cloneNode(true) as HTMLElement
+    for (const decorative of copy.querySelectorAll('[aria-hidden="true"]')) decorative.remove()
+    return copy.textContent?.trim() === label
+  })
+}
+function layers(count: number) {
+  const result = [...document.querySelectorAll<HTMLElement>('[role="dialog"]')]
+  expect(result).toHaveLength(count)
+  for (const lower of result.slice(0, -1)) { expect(lower.inert).toBe(true); expect(lower.getAttribute('aria-hidden')).toBe('true') }
+  if (count) { expect(result.at(-1)!.inert).toBe(false); expect(result.at(-1)!.getAttribute('aria-hidden')).toBeNull() }
+  return result
+}
+function region(label: string) {
+  const node = document.querySelector<HTMLElement>('[aria-label="' + label + '"]')
+  expect(!!node, 'region exists: ' + label).toBe(true)
+  return node!
+}
+
+it('public panels retire native reads, protect accepted version in both observations, and leave no inactive reader', async () => {
+  const f = await setup()
+  expect(f.reads()).toHaveLength(0)
+  await input('认证用户名', 'test-user')
+  await input('新密码（仅写入）', 'controlled-private-material')
+  await click('测试与任务')
+  await click('继续编辑', layers(1)[0])
+  expect(f.auth.system.smtp.material.present).toBe(true)
+  expect(f.reads()).toHaveLength(0)
+
+  const cancelled = vi.fn(), tail = gate()
+  release.push(() => tail.resolve())
+  f.delivery(async () => new Response(new ReadableStream<Uint8Array>({ cancel() { cancelled(); return tail.promise } }), { headers: { 'Content-Type': 'application/json' } }))
+  await click('测试与任务')
+  await click('放弃修改', layers(1)[0])
+  expect(f.auth.system.smtp.material.present).toBe(false)
+  expect(document.querySelector('input[type="password"]')).toBeNull()
+  expect(f.reads()).toHaveLength(1)
+  await click('取消列表读取')
+  expect(cancelled).toHaveBeenCalledTimes(1)
+  expect(!!title('任务列表读取失败')).toBe(true)
+  expect(f.auth.state.busy).toBe(true)
+  tail.resolve(); await flushPromises()
+  expect(f.auth.state.busy).toBe(false)
+  expect(!!title('任务列表读取失败')).toBe(true)
+  expect(f.reads()).toHaveLength(1)
+  f.delivery(async (path) => json(path.includes('?') ? { items: [job()] } : job()))
+  await click('刷新任务列表')
+  await click('查看任务 ' + id(20))
+  await click('申请新重试周期')
+  f.delivery(async (path, init) => init.method === 'POST' ? json({ job_id: id(21), version: '27' }, 202) : json(path.includes('?') ? { items: [job(21, '5')] } : job(21, '5')))
+  await click('确认申请新周期', layers(1)[0])
+  expect(f.writes()).toHaveLength(1)
+  expect(JSON.parse(f.writes()[0]![1].body as string)).toEqual({ version: '5' })
+  expect(f.auth.system.smtpDelivery.progress?.phase).toBe('confirmed')
+  expect(!!title('新重试周期已接受', region('本次请求的接受确认'))).toBe(true)
+  expect(!!title('请求已确认，任务详情读取失败')).toBe(true)
+  expect(region('投递任务详情').querySelector('dl')).toBeNull()
+  await click('返回任务列表')
+  await click('刷新任务列表')
+  expect(!!title('任务列表读取失败')).toBe(true)
+  expect(region('投递任务列表').querySelectorAll('tbody tr')).toHaveLength(0)
+  expect(region('本次请求的接受确认').textContent).toContain('27')
+
+  f.delivery(async (path) => json(path.includes('?') ? { items: [job(21, '28')] } : job(21, '28')))
+  await click('刷新任务列表')
+  expect(region('投递任务列表').textContent).toContain('版本 28')
+  const oldDetail = gate<Response>()
+  release.push(() => oldDetail.resolve(json(job(21, '999'))))
+  f.delivery(() => oldDetail.promise)
+  await click('查看任务 ' + id(21))
+  expect(f.auth.state.busy).toBe(true)
+  await click('配置')
+  await click('测试与任务')
+  const watermark = f.reads().length
+  expect(!!title('请求已确认，任务详情读取失败')).toBe(true)
+  oldDetail.resolve(json(job(21, '999'))); await flushPromises()
+  expect(f.auth.state.busy).toBe(false)
+  expect(f.reads()).toHaveLength(watermark)
+  expect(region('投递任务详情').textContent?.includes('999')).toBe(false)
+  f.delivery(async () => json(job(21, '28')))
+  await click('重新读取任务详情')
+  expect(region('投递任务详情').textContent).toContain('28')
+  expect(f.writes()).toHaveLength(1)
+  await f.router.push('/system/users'); await flushPromises()
+  const inactiveReads = f.reads().length
+  await f.router.push('/system/smtp'); await flushPromises()
+  expect(button('配置').getAttribute('aria-pressed')).toBe('true')
+  expect(f.reads()).toHaveLength(inactiveReads)
+  expect(f.writes()).toHaveLength(1)
+  console.log('SAFE page-combination-A: native cancel joined; explicit retry only; confirmed floor list+detail; retired late read; route reset without inactive GET')
+})
+
+it('public pending route and retry decisions survive real checking and fail closed after identity changes', async () => {
+  const f = await setup()
+  await click('测试与任务')
+  await click('查看任务 ' + id(20))
+  const oldHeading = document.querySelector('h1')!
+  button('申请新重试周期').focus()
+  await click('申请新重试周期')
+  expect(!!title('申请新重试周期？', layers(1)[0])).toBe(true)
+  let settled = false
+  const pending = f.router.push('/system/users').then((result) => { settled = true; return result })
+  await flushPromises(); layers(2)
+  const check = gate<Response>()
+  release.push(() => check.resolve(unavailable()))
+  f.sessionRequest(() => check.promise)
+  const beforeChecking = f.sessions().length
+  window.dispatchEvent(new Event('pageshow')); await flushPromises()
+  expect(f.sessions()).toHaveLength(beforeChecking + 1)
+  expect(!!document.querySelector('.session-check')).toBe(true)
+  expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+  expect(settled).toBe(false)
+  expect(document.getElementById('app')!.inert).toBe(false)
+  check.resolve(unavailable()); await flushPromises()
+  expect(settled).toBe(false)
+  expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
+  f.restoreSession()
+  const beforeRestoring = f.sessions().length
+  await click('检查当前会话')
+  expect(f.sessions()).toHaveLength(beforeRestoring + 1)
+  expect(f.auth.state.phase).toBe('authenticated')
+  expect(f.auth.personalContext.identity?.sessionID).toBe(id(2))
+  const restored = layers(2)
+  expect(restored[1]!.contains(document.activeElement)).toBe(true)
+  expect(oldHeading.isConnected).toBe(false)
+  expect(settled).toBe(false)
+  await click('继续编辑', restored[1])
+  expect(isNavigationFailure(await pending)).toBe(true)
+  expect(f.router.currentRoute.value.path).toBe('/system/smtp')
+  const lower = layers(1)[0]!
+  expect(lower.contains(document.activeElement)).toBe(true)
+  await click('取消申请', lower)
+  layers(0)
+  expect(document.activeElement).toBe(document.querySelector('h1'))
+  expect(f.writes()).toHaveLength(0)
+
+  await input('测试收件邮箱', 'kept@example.test')
+  const abandonedRoute = f.router.push('/system/users')
+  await flushPromises(); layers(1)
+  f.restoreSession(3)
+  const beforeChanging = f.sessions().length
+  window.dispatchEvent(new Event('pageshow')); await flushPromises()
+  expect(f.sessions()).toHaveLength(beforeChanging + 1)
+  expect(isNavigationFailure(await abandonedRoute)).toBe(true)
+  expect(f.auth.personalContext.identity?.sessionID).toBe(id(3))
+  expect(f.router.currentRoute.value.path).toBe('/system/smtp')
+  layers(0)
+  expect(button('配置').getAttribute('aria-pressed')).toBe('true')
+  expect(f.writes()).toHaveLength(0)
+  await click('测试与任务')
+  expect(field('测试收件邮箱').value).toBe('')
+  expect(f.auth.system.smtpDelivery.progress).toBeNull()
+  expect(f.writes()).toHaveLength(0)
+  console.log('SAFE page-combination-B: pageshow fresh Session; 503 preserves decisions; same identity dual-layer restore; real top action settles false; changed identity retires draft and pending navigation')
+})

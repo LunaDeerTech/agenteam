@@ -1,0 +1,210 @@
+--- input03/web/src/composables/useSystemSMTPDelivery.ts
++++ input04/web/src/composables/useSystemSMTPDelivery.ts
+@@ -654,6 +654,20 @@
+     !auth.state.busy &&
+     !configuration.dirty.value &&
+     !delivery.dirty.value
++  const clearedRejected = () => {
++    const current = auth.personalContext.identity
++    return (
++      auth.state.phase === 'authenticated' &&
++      auth.personalContext.phase === 'current' &&
++      !!current &&
++      auth.state.user?.id === current.userID &&
++      auth.state.session?.id === current.sessionID &&
++      (auth.state.user?.role !== 'admin' || auth.system.denied) &&
++      !auth.state.busy &&
++      !configuration.dirty.value &&
++      !delivery.dirty.value
++    )
++  }
+   const live = (own: number, section: SMTPSection, captured: PersonalIdentity | null) =>
+     !disposed &&
+     activeRoute &&
+@@ -735,7 +749,8 @@
+         section = active.value,
+         captured = auth.personalContext.identity,
+         inactiveAtEntry = !activeRoute,
+-        clearedAtEntry = clearedAnonymous()
++        clearedAtEntry = clearedAnonymous(),
++        rejectedAtEntry = clearedRejected()
+       const result = await controller(section).confirmLeave()
+       // A fresh anonymous navigation may leave the cleared page; an old
+       // identity's pending decision never gains this permission retroactively.
+@@ -746,7 +761,8 @@
+         active.value === section &&
+         (live(own, section, captured) ||
+           (inactiveAtEntry && !activeRoute && !controller(section).dirty.value) ||
+-          (clearedAtEntry && clearedAnonymous()))
++          (clearedAtEntry && clearedAnonymous()) ||
++          (rejectedAtEntry && clearedRejected() && same(captured, auth.personalContext.identity)))
+       )
+     },
+     afterNavigation(to: string, from: string) {
+--- input03/web/src/tests/system-smtp-delivery.spec.ts
++++ input04/web/src/tests/system-smtp-delivery.spec.ts
+@@ -133,8 +133,8 @@
+   vi.restoreAllMocks()
+   useTheme().setTheme('system')
+ })
+-async function fixture() {
+-  let current = view(),
++async function fixture(initial = view()) {
++  let current = initial,
+     session: Fetch = async () => json(current),
+     configuration: Fetch = async () => json(settings())
+   let delivery: Fetch = async (path, init) =>
+@@ -147,7 +147,10 @@
+       return delivery(path, init)
+     if (path.startsWith('/api/v1/system/smtp')) return configuration(path, init)
+     if (path.startsWith('/api/v1/system/users?')) return json({ items: [] })
+-    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
++    if (path.endsWith('/logout')) {
++      session = async () => problem('SESSION_REVOKED', 401)
++      return new Response(null, { status: 204 })
++    }
+     if (path.endsWith('/bootstrap'))
+       return json({
+         csrf_token: 'A'.repeat(43),
+@@ -209,8 +212,8 @@
+   await flushPromises()
+   return { ...f, page, available }
+ }
+-async function app() {
+-  const f = await fixture()
++async function app(initial = view()) {
++  const f = await fixture(initial)
+   const router = createRouter({
+     history: createMemoryHistory(),
+     routes: [
+@@ -599,6 +602,130 @@
+ })
+ 
+ describe('SMTP sections in the real App and router', () => {
++  it('allows a stable rejected ordinary user to log out through the real App button', async () => {
++    const ordinary = view()
++    ordinary.user.role = 'user'
++    const f = await app(ordinary)
++    expect(f.wrapper.get('h1').text()).toBe('无权访问系统设置')
++    expect(f.auth.state.phase).toBe('authenticated')
++    expect(f.auth.personalContext.phase).toBe('current')
++    expect(f.auth.personalContext.identity).not.toBeNull()
++    expect(f.fetch.mock.calls.filter(([p]) => p.startsWith('/api/v1/system/'))).toHaveLength(0)
++    await click('退出登录')
++    expect(f.fetch.mock.calls.filter(([p]) => p.endsWith('/logout'))).toHaveLength(1)
++    expect(f.router.currentRoute.value.path).toBe('/login')
++    expect(f.auth.state.phase).toBe('anonymous')
++    expect(f.auth.personalContext.identity).toBeNull()
++    expect(f.auth.system.smtp.progress).toBeNull()
++    expect(f.auth.system.smtpDelivery.progress).toBeNull()
++    expect(f.auth.system.smtp.material.present).toBe(false)
++    expect(f.wrapper.get<HTMLInputElement>('#login-email').element.readOnly).toBe(false)
++    expect(f.wrapper.get<HTMLInputElement>('#login-password').element.readOnly).toBe(false)
++    expect(button('登录').disabled).toBe(false)
++    expect(f.writes()).toHaveLength(0)
++    expect(f.fetch.mock.calls.filter(([p]) => p.startsWith('/api/v1/system/'))).toHaveLength(0)
++  })
++  it.each(['ordinary', 'current403'] as const)(
++    'allows a fresh route for a stable rejected %s identity after both SMTP domains are clear',
++    async (kind) => {
++      const current = view()
++      if (kind === 'ordinary') current.user.role = 'user'
++      const f = await app(current)
++      if (kind === 'current403') {
++        f.setConfiguration(async () => problem('FORBIDDEN', 403))
++        await click('读取当前配置')
++        expect(f.auth.system.denied).toBe(true)
++        expect(f.auth.state.user?.role).toBe('admin')
++      }
++      expect(f.wrapper.get('h1').text()).toBe('无权访问系统设置')
++      expect(f.auth.state.phase).toBe('authenticated')
++      expect(f.auth.personalContext.phase).toBe('current')
++      expect(f.auth.state.busy).toBe(false)
++      expect(f.auth.system.smtp.material.present).toBe(false)
++      expect(f.auth.system.smtp.material.invalid).toBe(false)
++      expect(f.auth.system.smtp.progress).toBeNull()
++      expect(f.auth.system.smtpDelivery.progress).toBeNull()
++      expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
++      const beforeNavigation = f.fetch.mock.calls.length,
++        navigationReads: Record<string, unknown>[] = []
++      if (kind === 'current403')
++        f.setConfiguration(async (path, init) => {
++          navigationReads.push({
++            method: init.method,
++            path,
++            route: f.router.currentRoute.value.path,
++            phase: f.auth.state.phase,
++            context: f.auth.personalContext.phase,
++            role: f.auth.state.user?.role,
++            denied: f.auth.system.denied,
++          })
++          return problem('FORBIDDEN', 403)
++        })
++      expect(await f.router.push('/settings/profile')).toBeUndefined()
++      await flushPromises()
++      expect(f.router.currentRoute.value.path).toBe('/settings/profile')
++      expect(f.wrapper.get('h1').text()).toBe('个人资料')
++      expect(
++        f.fetch.mock.calls.slice(beforeNavigation).map(([path, init]) => [init.method, path]),
++      ).toEqual([
++        ['GET', '/api/v1/session'],
++        ...(kind === 'current403' ? [['GET', '/api/v1/system/smtp']] : []),
++      ])
++      expect(navigationReads).toEqual(
++        kind === 'current403'
++          ? [
++              {
++                method: 'GET',
++                path: '/api/v1/system/smtp',
++                route: '/system/smtp',
++                phase: 'authenticated',
++                context: 'current',
++                role: 'admin',
++                denied: false,
++              },
++            ]
++          : [],
++      )
++      expect(f.writes()).toHaveLength(0)
++      expect(
++        f.fetch.mock.calls.filter(
++          ([p, i]) => p.startsWith('/api/v1/system/') && i.method !== 'GET',
++        ),
++      ).toHaveLength(0)
++      const afterLeave = f.fetch.mock.calls.length
++      await flushPromises()
++      expect(f.fetch.mock.calls).toHaveLength(afterLeave)
++    },
++  )
++  it.each(['route', 'logout'] as const)(
++    'rejects the old administrator %s decision after same-Session role-loss even though the page is now clear',
++    async (action) => {
++      const f = await app()
++      await click('测试与任务')
++      await click('查看任务 ' + id(20))
++      await click('申请新重试周期')
++      const pending = action === 'route' ? f.router.push('/settings/profile') : null
++      if (action === 'logout') button('退出登录').click()
++      await flushPromises()
++      dialogs(2)
++      const identity = f.auth.personalContext.identity,
++        ordinary = view()
++      ordinary.user.role = 'user'
++      ordinary.user.version = '2'
++      f.setSession(ordinary)
++      window.dispatchEvent(new Event('pageshow'))
++      await flushPromises()
++      if (pending) expect(isNavigationFailure(await pending)).toBe(true)
++      expect(f.auth.personalContext.identity).toEqual(identity)
++      expect(f.auth.state.user?.role).toBe('user')
++      expect(f.auth.personalContext.phase).toBe('current')
++      expect(f.router.currentRoute.value.path).toBe('/system/smtp')
++      expect(f.wrapper.get('h1').text()).toBe('无权访问系统设置')
++      expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
++      expect(f.fetch.mock.calls.filter(([p]) => p.endsWith('/logout'))).toHaveLength(0)
++      expect(f.writes()).toHaveLength(0)
++    },
++  )
+   it('allows a fresh login navigation after public current-state checking destroys a revoked SMTP identity', async () => {
+     const f = await app()
+     await click('测试与任务')

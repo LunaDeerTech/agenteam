@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：SMTP 测试与投递任务 UI 完整结果接受
+
+- [工作卡rev1](../work-items/d27-system-smtp-delivery-ui.md)17路径已由主线程采纳、提交推送 `213cf5c3f552e6b05b541ce02afc1dd65ce9db93` 并核远端一致；[正式报告与原件](system-smtp-delivery-ui-verification.md)绑定628612c真实基线、input04及README末件。四API、第九域actual owner、原请求恢复及新clean匿名/拒绝身份导航已经按范围验证。
+- 作者新五/旧五按input01–04组合，旧整轮exit1及三个真实原失败保留；最终独立real02两代表actual0/73.874s，11 IDs/111 PID/8actualwait双清。real01两业务PASS后监督中断、缺原终局，恢复7IDs+2vol与首次大小写oracle误判单列，不补造原wait。四旧source缺件与作者独看八图限制保持。
+- 924逻辑原件/504对象，1083依赖用固定Git、36dist仅指纹；离线checker只核原字节/来源/实际记录，不重跑产品。卡技术与历史正文保持，完整D08–D28/E01未完成、E01未开始，Summary待决、生产未绑定/ready503保持。
+- 同期SPA只记录root通知：scope controlled/native已PASS双清；concurrent-publication探针被平台内容安全机制终止、无run目录或执行证据，stage02竞态静态未关闭，脚本返修/发布暂停，不重试/改写/转交。新harness仅格式/type/list，Go compile/真实build/两top未跑，SPA未接受；Object/tools原停止不变。
+
 ## 2026-10-06：Central SPA rev1.1 发布脚本边界修订，原两产品失败保留
 
 - [正式卡rev1.1](../work-items/d28-central-spa-hosting.md)已由主线程审查采纳并提交推送 `272c6c178462b4da72ac0eda69278e8dbde61f30`、远端一致；[追加规格与原失败证据](system-central-spa-hosting-spec-verification.md#6-rev11-发布脚本边界修订与原失败)固定技术cfa6d8…4056f8，仅Linux启动前门禁与commit-last顺序，16路径不变。

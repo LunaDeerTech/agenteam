@@ -1,0 +1,177 @@
+[
+  {
+    "argv": [
+      "python3",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver01.py",
+      "--name",
+      "read01",
+      "--group",
+      "read",
+      "--frozen",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/manifest.json",
+      "--modcache",
+      "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+    ],
+    "authorization": "pending root exclusive grant; proposal only",
+    "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd",
+    "expected_resources": 9,
+    "group": "read",
+    "top_levels": [
+      "TestAccountSystemSMTPDeliveryWebReadAndPagination"
+    ]
+  },
+  {
+    "argv": [
+      "python3",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver01.py",
+      "--name",
+      "test01",
+      "--group",
+      "test",
+      "--frozen",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/manifest.json",
+      "--modcache",
+      "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+    ],
+    "authorization": "pending root exclusive grant; proposal only",
+    "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd",
+    "expected_resources": 9,
+    "group": "test",
+    "top_levels": [
+      "TestAccountSystemSMTPDeliveryWebTestAndRetry"
+    ]
+  },
+  {
+    "argv": [
+      "python3",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver01.py",
+      "--name",
+      "outcome01",
+      "--group",
+      "outcome",
+      "--frozen",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/manifest.json",
+      "--modcache",
+      "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+    ],
+    "authorization": "pending root exclusive grant; proposal only",
+    "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd",
+    "expected_resources": 9,
+    "group": "outcome",
+    "top_levels": [
+      "TestAccountSystemSMTPDeliveryWebOutcomeRecovery"
+    ]
+  },
+  {
+    "argv": [
+      "python3",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver01.py",
+      "--name",
+      "authority01",
+      "--group",
+      "authority",
+      "--frozen",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/manifest.json",
+      "--modcache",
+      "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+    ],
+    "authorization": "pending root exclusive grant; proposal only",
+    "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd",
+    "expected_resources": 9,
+    "group": "authority",
+    "top_levels": [
+      "TestAccountSystemSMTPDeliveryWebAuthorityAndIdentity"
+    ]
+  },
+  {
+    "argv": [
+      "python3",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver01.py",
+      "--name",
+      "navigation01",
+      "--group",
+      "navigation",
+      "--frozen",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/manifest.json",
+      "--modcache",
+      "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+    ],
+    "authorization": "pending root exclusive grant; proposal only",
+    "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd",
+    "expected_resources": 9,
+    "group": "navigation",
+    "top_levels": [
+      "TestAccountSystemSMTPDeliveryWebNavigationAndLayouts"
+    ]
+  },
+  {
+    "argv": [
+      "python3",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver01.py",
+      "--name",
+      "new01",
+      "--group",
+      "new",
+      "--frozen",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/manifest.json",
+      "--modcache",
+      "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+    ],
+    "authorization": "pending root exclusive grant; proposal only",
+    "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd",
+    "expected_resources": 17,
+    "group": "new",
+    "top_levels": [
+      "TestAccountSystemSMTPDeliveryWebReadAndPagination",
+      "TestAccountSystemSMTPDeliveryWebTestAndRetry",
+      "TestAccountSystemSMTPDeliveryWebOutcomeRecovery",
+      "TestAccountSystemSMTPDeliveryWebAuthorityAndIdentity",
+      "TestAccountSystemSMTPDeliveryWebNavigationAndLayouts"
+    ]
+  },
+  {
+    "argv": [
+      "python3",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver01.py",
+      "--name",
+      "oldsettings01",
+      "--group",
+      "old-settings",
+      "--frozen",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/manifest.json",
+      "--modcache",
+      "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+    ],
+    "authorization": "pending root exclusive grant; proposal only",
+    "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd",
+    "expected_resources": 7,
+    "group": "old-settings",
+    "top_levels": [
+      "TestAccountSystemSMTPSettingsWebOutcomeRecovery",
+      "TestAccountSystemSMTPSettingsWebAuthorityAndIdentity",
+      "TestAccountSystemSMTPSettingsWebNavigationAndLayouts"
+    ]
+  },
+  {
+    "argv": [
+      "python3",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver01.py",
+      "--name",
+      "oldinvitations01",
+      "--group",
+      "old-invitations",
+      "--frozen",
+      "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input01/manifest.json",
+      "--modcache",
+      "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+    ],
+    "authorization": "pending root exclusive grant; proposal only",
+    "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd",
+    "expected_resources": 9,
+    "group": "old-invitations",
+    "top_levels": [
+      "TestAccountSystemInvitationsWebDeliveryRetry",
+      "TestAccountSystemInvitationsWebOutcomeRecovery"
+    ]
+  }
+]

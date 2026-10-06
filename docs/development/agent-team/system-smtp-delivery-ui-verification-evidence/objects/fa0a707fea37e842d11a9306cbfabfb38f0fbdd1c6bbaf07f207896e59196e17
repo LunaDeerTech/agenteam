@@ -1,0 +1,18 @@
+SMTP delivery API-stage01：独立有界 PASS。仅 API wire/解析/实际流尾部，不是整卡接受。
+
+固定作者 manifest `/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/manifest.json`（SHA `4f2468f3d1b86875fc69ab4414f98b4188138791a1c897991b429188a3356553`），产品 `628612cdfc730cc1d89cad4e24a5d20f36cc6812`，规格 `8bdfb006b32fbbc8889a190d7829f05e93e29787`。四源逐 SHA 匹配，11 份接受依赖逐字匹配固定 Git；配置 email 仅三行窄导出，原 native readers 字节未变。候选指纹与最小执行闭包见 `input-static01.json`/`review.json`。
+
+实际执行 `/usr/bin/python3 /workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/run01.py strict01 strict-wire.spec.ts` 与同脚本 `native01 native-tail.spec.ts`。内层精确 Node24.19.0 + 原锁 Vitest4.1.11/单 worker、retry0、每例5s，cwd 本目录；argv/env/Node与CLI指纹均在各 `runs/*/command.json`，未使用 npm 下载。
+
+| 组 | 实际结果 | 原始日志 SHA256 |
+| --- | --- | --- |
+| strict01 | 4/4 PASS，actual exit0，0.870885s | 84ce5c49066d0e849ebe877ed6fd0e0fefc58d75ad9d488ac54460542c6cdb82 |
+| native01 | 4/4 PASS，actual exit0，0.811007s | 43d57ae4ea098e0bf6436b10e09a4abf7d61d46b0d2df78174e29868ec748db1 |
+
+严格组合实证四固定路由/GET无写材料、原 recipient 不 canonicalize、不可变捕获、请求16KiB/opaque cursor8192B、test job-only202、retry新child及整个正int64回执（不套源version+1）、exact-attempt三代表与闭合分页/详情。非法输入零fetch；页中一行缺字段/隐私字段/矛盾渠道整体拒绝；错误/旧204或多字段回执拒绝。post-write404/503原Problem完整保留；坏DTO/transport原异常不进入AccountFailure。
+
+Native组合实证：完整600000B页面虽JSON已齐且Content-Length较小，仍等真实EOF；600000B Problem分片跨UTF8字符正确解析且同样等EOF；600001B实际超限后等cancel屏障；retry已缓冲完整JSON但未EOF时AbortSignal取消实际等cancel完成后仅cancelled；text/plain503等body.cancel但不伪称EOF；截断202到实际EOF后拒绝。屏障均为原生ReadableStream，未替换产品reader/read/cancel或用立即mock证明join。
+
+两命令均实际 wait。各观测2个自有PID/starttime、0 adopted，结束两次扫描空；执行输入前后完全相同。原命令、raw/result、输入前后及cleanup永久保留，8例没有失败轮。未启动业务服务、浏览器、SMTP、Postgres或Docker，未改产品/作者源/Git。这里只创建最小5个被执行的源副本和私有探针，不复制全树。
+
+复用已验邮箱集合/时间parser及锁依赖；作者156/type/format只作为另列作者证据，没有宣称再次独立执行。404未知粘性、shared owner/30s预算、当前身份/CSRF、页面/视觉、真实投递均留后续阶段；不把wire成功当邮件接受或owner已验。两类原probe/runner/固定输入、报告现均停写。

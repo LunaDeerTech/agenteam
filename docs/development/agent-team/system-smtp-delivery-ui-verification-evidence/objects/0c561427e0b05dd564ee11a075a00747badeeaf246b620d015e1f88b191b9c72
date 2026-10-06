@@ -1,0 +1,27 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "npm",
+    "run",
+    "test:unit",
+    "--",
+    "src/tests/system-smtp-delivery.spec.ts",
+    "-t",
+    "stable rejected|old administrator"
+  ],
+  "child_pid": 2141410,
+  "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web",
+  "duration_seconds": 2.371,
+  "ended_utc": "2026-10-06T19:55:05.403551+00:00",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 1,
+  "input_after_sha256": "8b8a1db6b3ab3b1407edb4497822d02a967c5466c819a13311c904171d1d48e6",
+  "input_before_sha256": "8b8a1db6b3ab3b1407edb4497822d02a967c5466c819a13311c904171d1d48e6",
+  "input_unchanged": true,
+  "raw_sha256": "4f350137e657cdd849b8e9a903d420ed2b2989d8288f84642c87f78490de083b",
+  "resource_execution": false,
+  "runner_sha256": "5addd8353b3baebfecab24e19f50831543258d92a3866e4eb32f411eddf114d1",
+  "started_utc": "2026-10-06T19:55:03.034019+00:00"
+}

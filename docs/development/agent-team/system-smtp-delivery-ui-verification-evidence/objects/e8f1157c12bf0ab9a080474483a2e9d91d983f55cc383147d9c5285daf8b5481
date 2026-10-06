@@ -1,0 +1,16 @@
+import { defineConfig } from 'vitest/config'
+export default defineConfig({
+  cacheDir: './runtime/vite-cache',
+  test: {
+    environment: 'jsdom',
+    include: ['./probe/*.spec.ts'],
+    fileParallelism: false,
+    maxWorkers: 1,
+    minWorkers: 1,
+    retry: 0,
+    testTimeout: 5000,
+    hookTimeout: 5000,
+    restoreMocks: true,
+    reporters: ['verbose'],
+  },
+})

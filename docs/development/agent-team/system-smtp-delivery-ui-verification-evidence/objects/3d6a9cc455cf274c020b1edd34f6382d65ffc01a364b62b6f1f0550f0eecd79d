@@ -1,0 +1,49 @@
+{
+  "conclusion": "STATIC CLOSED: Navigation browser premise error; no product change warranted by this failure",
+  "input_manifest": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/manifest.json",
+  "sha256": "a65e6e028bb5ffe5c700753577d027c18ab360924fe0c2e03bb604886557a085",
+  "observed": {
+    "driver_exit": 1,
+    "seconds": 102.297,
+    "top_seconds": 52.27,
+    "browser_budget_ms": 45000,
+    "failure": "exact button 刷新任务列表 locator.click at helper611 called by Navigation1539",
+    "images": 0,
+    "layouts_not_reached": 8,
+    "resources": 9,
+    "owned_pid_starttime": 87,
+    "adopted_actual_waits": 4,
+    "actual_wait_completed": true,
+    "double_cleanup": true,
+    "inputs_unchanged": true
+  },
+  "static_chain": [
+    "Panel171-185 renders refresh only in list mode; detail renders return-to-list and detail refresh; list phase does not rename refresh",
+    "Earlier detail(source) calls openDetail setting mode=detail; no later backToList action before1539",
+    "Same identity checking, discard, detach/attach and section switch do not reset mode; resume does not auto-read once initial=false",
+    "Only invalidate(true identity/route boundary) or backToList resets list mode; failed/lost test response does not change existing mode",
+    "Spec46 explicitly supplies inline return-to-original-list and separate cancelled read states; no requirement to reset detail on same-page section return"
+  ],
+  "minimum_repair": "At this Navigation point only: assert detail region visible and refresh count0, click exact 返回任务列表, then retain original refresh fresh-sequence GET200/ended/parsed-items and all focus/layout/budget assertions",
+  "limits": [
+    "No DOM/trace/screenshot of original failure; detail mode is source deduction, not retroactive observed DOM",
+    "Raw does not establish busy/overlay/owner state or elapsed substep timings",
+    "Original FAIL remains; no claim that eight layouts passed",
+    "No dynamic diagnostic or product/test modification during this review"
+  ],
+  "artifacts": {
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/manifest.json": "a65e6e028bb5ffe5c700753577d027c18ab360924fe0c2e03bb604886557a085",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/card.md": "c7cb2de94d800e5578f5a0eb288d41853c8c7beeb0d0528ae50aceed3fb4be3f",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/source/web/src/views/system/SystemSMTPDeliveryPanel.vue": "2cace6a0621fd43c0182dfbeb71573ed072d7aa7b0f5fe506c70d0c0522a5a56",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/source/web/src/composables/useSystemSMTPDelivery.ts": "fcc769b85c66b8c2289b1092d961abdb5d3554a6346f31c0aca89b4f3cf35ca7",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/source/web/src/views/system/SystemSMTPSettingsView.vue": "d2842173aed715b46fa2982d37f0b851eae83cfa6637f42005a5e78b7d95d6a5",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/source/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts": "beb70c3c3e0956fb913a2f4c98e5c27aa5eb6d671d39f3a0e089580cc3d64e3b",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/navigation01/raw.log": "f4890002122ef10b353b20873d89481399babcbf458db91f75c627c66a19fe9e",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/navigation01/result.json": "e417e8bad5c338c05b705adc0e8557ea2a13d61b157649191592ed5932052877",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/navigation01/command.json": "81fc7ea053f53e471b9e6ef8f3bbd3bb605c6e141c5e812523466c5dbf33902e",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/navigation01/cleanup.json": "06b8bc3b10caa80e562a653c733ab0cd84d1fccec8e010a49ef3fbc0c4bf4682",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/navigation01/input-before.json": "555149168ea75bb0adc1e9c726af5edc78feab21e2c169f46624e792f814f927",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/navigation01/input-after.json": "555149168ea75bb0adc1e9c726af5edc78feab21e2c169f46624e792f814f927",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/navigation01/adopted-waits.json": "e32416c690172640e5afd17be907c35215c0a00b72e779e0027fa889705ec6a8"
+  }
+}

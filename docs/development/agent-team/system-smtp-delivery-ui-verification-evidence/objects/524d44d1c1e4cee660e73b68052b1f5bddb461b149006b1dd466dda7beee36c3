@@ -1,0 +1,22 @@
+{
+  "direct_cli": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/rejected-repair04/vitest.config.ts",
+    "probe/page.spec.ts"
+  ],
+  "supervisor_argv": [
+    "/usr/bin/python3",
+    "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/rejected-repair04/run.py",
+    "app01",
+    "page.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/rejected-repair04",
+  "probe_sha256": "50ec4c96e228bee0c3a8a99b6982af67c3399bc77eb87da17c7007cfd20e95ee",
+  "runner_sha256": "75a1bfea0f9c5269e2468f8a5b5547da86f9f19762867535ce5cb2da26ff70c3",
+  "input_sha256": "715705cfcedc80e36c44537de059da232ee6359a8d882a570c3632e138a1ce9d",
+  "config_sha256": "73135c9549d86bcd9ddb2a89d91576110c022e1dd9cec78e57359d2c18469a05",
+  "resources": "none; private Node/jsdom only; no server/browser/listener/PG/Docker"
+}

@@ -1,0 +1,318 @@
+#!/usr/bin/env python3
+"""Run only an explicitly authorized frozen SMTP delivery group in a private fixed workspace."""
+import argparse
+import datetime
+import ctypes
+import tempfile
+import shutil
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import time
+
+
+ROOT = Path(__file__).resolve().parent
+REPO = ROOT / 'workspace'
+GIT_OBJECT_REPO = Path('/workspace/agenteam')
+BASE = '628612cdfc730cc1d89cad4e24a5d20f36cc6812'
+FROZEN = {}
+
+
+def utc():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def write(path, value):
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+
+def command(argv):
+    result = subprocess.run(argv, cwd=REPO, capture_output=True, text=True, timeout=20)
+    if result.returncode:
+        raise RuntimeError('read command failed: ' + ' '.join(argv) + ': ' + result.stderr[:300])
+    return result.stdout
+
+
+def resources():
+    result = {}
+    for kind in ['container', 'network']:
+        for resource_id in command(['docker', kind, 'ls', '-q', '--no-trunc'] if kind == 'network' else ['docker', kind, 'ls', '-aq', '--no-trunc']).split():
+            label = '.Config.Labels' if kind == 'container' else '.Labels'
+            try:
+                raw = command(['docker', kind, 'inspect', '--format', '{{json .Id}}\t{{json .Name}}\t{{json ' + label + '}}', resource_id]).strip().split('\t')
+            except RuntimeError as exc:
+                if 'No such' in str(exc) or 'not found' in str(exc):
+                    continue  # The fixture may remove an ID after the list call.
+                raise
+            value = dict(zip(['id', 'name', 'labels'], map(json.loads, raw)))
+            value['kind'] = kind
+            result[resource_id] = value
+    return result
+
+
+def processes():
+    result = {}
+    for entry in Path('/proc').iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            stat = (entry / 'stat').read_text().rsplit(')', 1)[1].split()
+            raw = (entry / 'cmdline').read_bytes()
+            try:
+                executable = Path(os.readlink(entry / 'exe')).name
+            except OSError:
+                executable = ''
+            result[int(entry.name)] = {'ppid': int(stat[1]), 'starttime': stat[19],
+                                      'state': stat[0], 'name': (entry / 'comm').read_text().strip(),
+                                      'executable': executable, 'raw': raw}
+        except (OSError, ValueError, IndexError):
+            pass
+    return result
+
+
+def reap_adopted(observed, main_pid, waited):
+    current = processes()
+    for key, value in observed.items():
+        pid = value['pid']
+        row = current.get(pid)
+        if pid == main_pid or not row or row['starttime'] != value['starttime'] or row['ppid'] != os.getpid() or row['state'] != 'Z':
+            continue
+        try:
+            got, status = os.waitpid(pid, os.WNOHANG)
+        except ChildProcessError:
+            continue
+        if got == pid:
+            waited.append({'pid': pid, 'starttime': value['starttime'], 'actual_wait': True, 'exit': os.waitstatus_to_exitcode(status), 'time': utc()})
+
+
+# This private cwd contains only the compiled/runnable fixed closure plus candidates.
+# All filesystem additions within it are rejected; dependencies are explicit locked links.
+IGNORED_PATHS = {'web/node_modules', 'web/dist', 'tests/account-captcha-web/node_modules'}
+
+def fixed_tree():
+    raw = subprocess.check_output(['git', 'ls-tree', '-r', '-z', BASE], cwd=GIT_OBJECT_REPO, timeout=20)
+    entries = {}
+    for record in raw.split(b'\0'):
+        if not record:
+            continue
+        header, name = record.split(b'\t', 1)
+        mode, kind, oid = header.decode().split()
+        entries[name.decode()] = {'mode': mode, 'kind': kind, 'git_blob': oid}
+    return raw, entries
+
+
+def accepted_baseline_input():
+    expected = FROZEN['accepted_baseline']
+    raw, tree = fixed_tree()
+    tree_sha = hashlib.sha256(raw).hexdigest()
+    if expected['product_base'] != BASE or expected['git_tree_sha256'] != tree_sha:
+        raise RuntimeError('fixed accepted Git tree differs from frozen baseline')
+    selected = expected['files']
+    if any(name not in tree or any(row[key] != tree[name][key] for key in ['git_blob','mode','kind']) for name,row in selected.items()):
+        raise RuntimeError('accepted input is not a file in the fixed product object')
+    actual,errors=set(),[]
+    for directory,directories,files in os.walk(REPO):
+        directories[:] = [name for name in directories if str((Path(directory)/name).relative_to(REPO)) not in IGNORED_PATHS]
+        for name in directories:
+            path=Path(directory)/name
+            if path.is_symlink():errors.append({'path':str(path.relative_to(REPO)),'reason':'symlink directory'})
+        for name in files:
+            relative=str((Path(directory)/name).relative_to(REPO))
+            if relative not in FROZEN['files']:actual.add(relative)
+    hashes,mismatches={},[]
+    for name in sorted(set(selected)&actual):
+        path=REPO/name
+        if path.is_symlink() or not path.is_file():
+            errors.append({'path':name,'reason':'nonregular accepted input'});continue
+        data=path.read_bytes();sha=hashlib.sha256(data).hexdigest()
+        oid=hashlib.sha1(b'blob '+str(len(data)).encode()+b'\0'+data).hexdigest()
+        hashes[name]=sha
+        if sha!=selected[name]['sha256'] or oid!=selected[name]['git_blob']:mismatches.append(name)
+    missing,unexpected=sorted(set(selected)-actual),sorted(actual-set(selected))
+    return {'product_base':BASE,'git_tree_sha256':tree_sha,'accepted_count':len(selected),'files':hashes,'missing':missing,'unexpected':unexpected,'mismatches':mismatches,'errors':errors,'accepted':not(missing or unexpected or mismatches or errors)}
+
+
+def source_input():
+    def sha(path):
+        if not path.is_file() or path.is_symlink() or any(parent.is_symlink() for parent in path.parents if parent!=REPO.parent):
+            raise RuntimeError('nonregular candidate or artifact')
+        return hashlib.sha256(path.read_bytes()).hexdigest()
+    dependencies={}
+    for name,expected in FROZEN['dependencies'].items():
+        path=Path(name)
+        dependencies[name]={'realpath':str(path.resolve(strict=True)),'sha256':hashlib.sha256(path.read_bytes()).hexdigest()}
+    return {'product_base':BASE,'accepted_baseline':accepted_baseline_input(),'files':{name:sha(REPO/name) for name in FROZEN['files']},'dist':{str(path.relative_to(REPO)):sha(path) for path in sorted((REPO/'web/dist').rglob('*')) if path.is_file()},'dependencies':dependencies}
+
+
+def main():
+    global FROZEN
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--name', required=True)
+    parser.add_argument('--group', choices=['new','read','test','outcome','authority','navigation','old-settings','old-invitations'], required=True)
+    parser.add_argument('--frozen', type=Path, required=True)
+    parser.add_argument('--modcache', required=True)
+    parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+    args = parser.parse_args()
+    if '/' in args.name or '..' in args.name:
+        raise ValueError('invalid run name')
+    smtp_names={'read':'ReadAndPagination','test':'TestAndRetry','outcome':'OutcomeRecovery','authority':'AuthorityAndIdentity','navigation':'NavigationAndLayouts'}
+    groups={key:['TestAccountSystemSMTPDeliveryWeb'+value] for key,value in smtp_names.items()}
+    groups.update({
+      'new':[v[0] for v in groups.values()],
+      'old-settings':['TestAccountSystemSMTPSettingsWeb'+x for x in ['OutcomeRecovery','AuthorityAndIdentity','NavigationAndLayouts']],
+      'old-invitations':['TestAccountSystemInvitationsWebDeliveryRetry','TestAccountSystemInvitationsWebOutcomeRecovery'],
+    })
+    # Seven outer PG/MinIO/Outbound resources, plus one container and network
+    # for every selected SMTP-owning top. Each fixture verifies nonce/exact IDs.
+    smtp_tops=sum(name.startswith('TestAccountSystemSMTPDeliveryWeb') or name=='TestAccountSystemInvitationsWebDeliveryRetry' for name in groups[args.group])
+    expected_resource_count=7+2*smtp_tops
+    expected = set(groups[args.group])
+    args.selector = '^(' + '|'.join(groups[args.group]) + ')$'
+    frozen_bytes = args.frozen.read_bytes()
+    FROZEN = json.loads(frozen_bytes)
+    if FROZEN['product_base'] != BASE:
+        raise ValueError('wrong accepted backend baseline')
+    if hashlib.sha256(Path(__file__).read_bytes()).hexdigest() != FROZEN['driver_sha256']:
+        raise RuntimeError('driver differs from frozen input')
+    if args.check_input_only:
+        current = source_input()
+        same = all(current[key] == FROZEN[key] for key in ['files', 'dist', 'dependencies'])
+        accepted = current['accepted_baseline']['accepted']
+        print(json.dumps({'candidate_dist_dependencies_match': same, 'accepted_baseline': accepted,
+                          'accepted_count': current['accepted_baseline']['accepted_count'],
+                          'missing': current['accepted_baseline']['missing'], 'unexpected': current['accepted_baseline']['unexpected'],
+                          'mismatches': current['accepted_baseline']['mismatches'], 'errors': current['accepted_baseline']['errors'],
+                          'product_base': BASE, 'resources_started': False}), flush=True)
+        return 0 if same and accepted else 1
+    if (ROOT/'runs'/args.name).exists():
+        raise RuntimeError('run name already exists; preserve original evidence')
+    if shutil.disk_usage(ROOT).free < 2*1024**3:
+        raise RuntimeError('less than 2 GiB free before starting owned resources')
+    if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+        raise RuntimeError('cannot become task child subreaper')
+    run = ROOT / 'runs' / args.name
+    run.mkdir(parents=True, mode=0o700)
+    driver_bytes = Path(__file__).read_bytes()
+    (run / 'driver.py.txt').write_bytes(driver_bytes)
+    verification_inputs = {'driver_sha256': hashlib.sha256(driver_bytes).hexdigest()}
+    write(run / 'verification-input.json', verification_inputs)
+    runtime = run / 'runtime'
+    runtime.mkdir(mode=0o700)
+    before = source_input()
+    if not before['accepted_baseline']['accepted']:
+        write(run / 'input-rejected.json', before)
+        raise RuntimeError('accepted baseline gate failed before any resource or fixture starts')
+    if before['files'] != FROZEN['files'] or before['dist'] != FROZEN['dist'] or before['dependencies'] != FROZEN['dependencies']:
+        raise RuntimeError('candidate source/dist differs from frozen input')
+    (run / 'frozen-input.json').write_bytes(args.frozen.read_bytes())
+    browser_runtime = Path(tempfile.mkdtemp(prefix='agtdel-', dir='/tmp'))
+    if len(str(browser_runtime)) > 45:
+        raise RuntimeError('browser runtime is not short')
+    images = run / 'images'
+    images.mkdir(mode=0o700)
+    write(run / 'input-before.json', before)
+    minio = Path('/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio')
+    if hashlib.sha256(minio.read_bytes()).hexdigest() != 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8':
+        raise RuntimeError('fixed MinIO binary mismatch')
+    baseline_processes = processes()
+    write(run / 'process-baseline.json', {pid: {key: row[key] for key in ['ppid','starttime','state','name','executable']} for pid,row in baseline_processes.items()})
+    baseline = resources()
+    write(run / 'baseline.json', baseline)
+    env = os.environ.copy()
+    flags = '-mod=readonly -buildvcs=false -p=1 -v'
+    env.update({'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+                'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                'AGENTEAM_AUTH_WEB_RUNTIME': str(browser_runtime), 'AGENTEAM_AUTH_WEB_IMAGES': str(images),
+                'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': args.modcache,
+                'GOCACHE': '/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache', 'TMPDIR': str(runtime),
+                'CGO_ENABLED': '1', 'GOFLAGS': flags})
+    argv = ['sh', 'scripts/test-security.sh', '-run', args.selector]
+    record = {'argv': argv, 'cwd': str(REPO), 'started_utc': utc(),
+              'env': {key: env[key] for key in ['AGENTEAM_GO', 'AGENTEAM_MINIO_BINARY', 'AGENTEAM_AUTH_WEB_RUNTIME', 'AGENTEAM_AUTH_WEB_IMAGES', 'GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
+    write(run / 'command.json', record)
+    observed_resources, observed_processes, errors, adopted_waits = {}, {}, [], []
+    start = time.monotonic()
+    with (run / 'raw.log').open('wb') as raw:
+        process = subprocess.Popen(argv, cwd=REPO, env=env, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)
+        print(json.dumps({'run': args.name, 'pid': process.pid, 'selector': args.selector}), flush=True)
+        next_resources = 0.0
+        while True:
+            current = processes()
+            owned = {process.pid} | {pid for pid, row in current.items() if row['ppid'] == os.getpid() or str(runtime).encode() in row['raw'] or str(browser_runtime).encode() in row['raw']}
+            for _ in range(12):
+                larger = owned | {pid for pid, row in current.items() if row['ppid'] in owned}
+                if larger == owned:
+                    break
+                owned = larger
+            for pid in owned:
+                if pid in current:
+                    row = current[pid]
+                    key = str(pid) + ':' + row['starttime']
+                    observed_processes[key] = {'pid': pid, 'starttime': row['starttime'], 'ppid': row['ppid'], 'name': row['name'],
+                                               'executable': row['executable'] or observed_processes.get(key, {}).get('executable', '')}
+            if time.monotonic() >= next_resources:
+                try:
+                    observed_resources.update({key: value for key, value in resources().items() if key not in baseline})
+                except Exception as exc:
+                    errors.append({'time': utc(), 'error': str(exc)})
+                next_resources = time.monotonic() + 1.0
+            reap_adopted(observed_processes, process.pid, adopted_waits)
+            if process.poll() is not None:
+                break
+            time.sleep(0.25)
+        exit_code = process.wait()
+    record.update({'exit': exit_code, 'seconds': round(time.monotonic() - start, 3), 'ended_utc': utc(), 'actual_wait_completed': True})
+    write(run / 'command.json', record)
+    write(run / 'observed-resources.json', observed_resources)
+    write(run / 'observed-processes.json', observed_processes)
+    write(run / 'monitor-errors.json', errors)
+    cleanups = []
+    reap_adopted(observed_processes, process.pid, adopted_waits)
+    for _ in range(2):
+        reap_adopted(observed_processes, process.pid, adopted_waits)
+        current, proc = resources(), processes()
+        exact = {}
+        for resource_id, row in observed_resources.items():
+            result = subprocess.run(['docker', row['kind'], 'inspect', '--format', '{{json .Id}}', resource_id], capture_output=True, timeout=20)
+            missing = b'No such' in result.stderr or b'not found' in result.stderr
+            exact[resource_id] = {'absent': result.returncode != 0 and resource_id not in current and missing}
+        remaining = [row for row in observed_processes.values() if row['pid'] in proc and proc[row['pid']]['starttime'] == row['starttime']]
+        cleanups.append({'time': utc(), 'exact_absent': exact,
+                         'baseline_unchanged': {key: current.get(key) for key in baseline} == baseline,
+                         'remaining_new': sorted(set(current) - set(baseline)), 'owned_processes': remaining,
+                         'runtime_entries': sorted(path.name for path in runtime.iterdir()),
+                         'browser_runtime': str(browser_runtime),
+                         'browser_runtime_entries': sorted(path.name for path in browser_runtime.iterdir())})
+        time.sleep(0.5)
+    write(run / 'cleanup.json', cleanups)
+    write(run / 'adopted-waits.json', adopted_waits)
+    if not list(browser_runtime.iterdir()):
+        browser_runtime.rmdir()
+    after = source_input()
+    write(run / 'input-after.json', after)
+    clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and not row['browser_runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
+               'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
+               'expected_resources': expected_resource_count, 'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+               'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}
+    verification_unchanged = Path(__file__).read_bytes() == driver_bytes and args.frozen.read_bytes() == frozen_bytes
+    summary['verification_inputs_unchanged'] = verification_unchanged
+    tops = re.findall(r'^--- (PASS|FAIL|SKIP): (\S+)', (run / 'raw.log').read_text(errors='replace'), re.MULTILINE)
+    summary['browser_processes'] = sum(row['name'] in {'chromium', 'chrome', 'chrome_crashpad'} for row in observed_processes.values())
+    summary['node_processes'] = sum(row['executable'] in {'node', 'nodejs'} for row in observed_processes.values())
+    summary['adopted_waits'] = len(adopted_waits)
+    summary['browser_runtime_removed'] = not browser_runtime.exists()
+    summary['top_levels'] = tops
+    summary['selected_tests_passed'] = len(tops) == len(expected) and {name for state, name in tops if state == 'PASS'} == expected
+    summary['historical_zombies_untouched'] = [{key: row[key] for key in ['ppid','starttime','state','name']} | {'pid':pid} for pid,row in baseline_processes.items() if row['ppid'] == 1 and row['state'] == 'Z']
+    write(run / 'result.json', summary)
+    print(json.dumps(summary), flush=True)
+    return 0 if exit_code == 0 and clean and len(observed_resources) == expected_resource_count and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] and summary['browser_processes'] and summary['node_processes'] and summary['browser_runtime_removed'] else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

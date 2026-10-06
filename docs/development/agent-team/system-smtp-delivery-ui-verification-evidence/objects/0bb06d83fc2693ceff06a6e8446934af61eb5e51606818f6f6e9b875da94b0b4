@@ -1,0 +1,12 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01
+
+ ✓ probe/recovery.spec.ts > independent delivery owner original-request recovery > keeps post-write 404 unknown across observation and later known refusal, then confirms only exact replay 29ms
+ ✓ probe/recovery.spec.ts > independent delivery owner original-request recovery > keeps retry source and expected version despite a newer detail and a subsequent source 404 5ms
+ ✓ probe/recovery.spec.ts > independent delivery owner original-request recovery > invalidates the old complete identity on CSRF rotation instead of grafting a new token onto its intent 2ms
+
+ Test Files  1 passed (1)
+      Tests  3 passed (3)
+   Start at  18:34:54
+   Duration  870ms (transform 209ms, setup 0ms, import 289ms, tests 37ms, environment 427ms)
+

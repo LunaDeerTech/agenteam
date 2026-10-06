@@ -1,0 +1,13 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01
+
+ ✓ probe/ownership.spec.ts > independent delivery actual owner and authority > holds native retry cancel after the visible 30s deadline and rejects cross-domain traffic until actual join 33ms
+ ✓ probe/ownership.spec.ts > independent delivery actual owner and authority > does not abandon configuration material or its native read, and waits after configuration cancellation 3ms
+ ✓ probe/ownership.spec.ts > independent delivery actual owner and authority > clears all system private material on current 403, and clears the identity on a current write CSRF failure 5ms
+ ✓ probe/ownership.spec.ts > independent delivery actual owner and authority > cannot release ownership or republish an old identity when a fetch ignores cancellation after leave 2ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:34:58
+   Duration  869ms (transform 195ms, setup 0ms, import 271ms, tests 45ms, environment 421ms)
+

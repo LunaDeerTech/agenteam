@@ -1,0 +1,17 @@
+import { defineConfig } from 'vitest/config'
+import vue from '@vitejs/plugin-vue'
+
+export default defineConfig({
+  plugins: [vue()],
+  cacheDir: './runtime/vite-cache',
+  test: {
+    environment: 'jsdom',
+    include: ['probe/page.spec.ts'],
+    minWorkers: 1,
+    maxWorkers: 1,
+    retry: 0,
+    testTimeout: 12000,
+    hookTimeout: 12000,
+    restoreMocks: true,
+  },
+})

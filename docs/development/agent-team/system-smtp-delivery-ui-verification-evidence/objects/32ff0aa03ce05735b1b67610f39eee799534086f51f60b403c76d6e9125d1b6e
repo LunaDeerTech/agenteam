@@ -1,0 +1,71 @@
+--- /workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/page-initial01-source/web/src/composables/useSystemSMTPDelivery.ts
++++ /workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/web-stage01/source/web/src/composables/useSystemSMTPDelivery.ts
+@@ -168,6 +168,7 @@
+     index = 0,
+     nextCursor: string | undefined
+   const latest = new Map<string, SMTPDeliveryJob>()
++  const confirmedVersions = new Map<string, string>()
+   let confirmResult: ((answer: boolean) => void) | null = null,
+     retryResult: ((answer: boolean) => void) | null = null
+   const authorized = () =>
+@@ -261,12 +262,17 @@
+     index = 0
+     nextCursor = undefined
+     latest.clear()
++    confirmedVersions.clear()
+   }
+   function observeJob(value: SMTPDeliveryJob) {
+     const previous = latest.get(value.job_id)
+-    if (!previous || BigInt(value.version) >= BigInt(previous.version))
+-      latest.set(value.job_id, value)
+-    return latest.get(value.job_id)!
++    const observed =
++      !previous || BigInt(value.version) >= BigInt(previous.version) ? value : previous
++    const floor = confirmedVersions.get(value.job_id)
++    if (floor && BigInt(observed.version) < BigInt(floor))
++      throw new AccountFailure('invalid-response')
++    latest.set(value.job_id, observed)
++    return observed
+   }
+   function observeList(value: SMTPDeliveryPage, target: PageTarget) {
+     const rows = Object.freeze(value.items.map(observeJob))
+@@ -284,14 +290,7 @@
+     state.requiresRead = false
+   }
+   function observeDetail(value: SMTPDeliveryJob) {
+-    const confirmed = state.confirmed
+     const current = observeJob(value)
+-    if (
+-      confirmed?.jobID === value.job_id &&
+-      confirmed.version &&
+-      BigInt(current.version) < BigInt(confirmed.version)
+-    )
+-      throw new AccountFailure('invalid-response')
+     Object.assign(detail, { phase: 'ready', jobID: current.job_id, value: current, message: '' })
+     state.requiresRead = false
+   }
+@@ -391,6 +390,11 @@
+     try {
+       const result = await work()
+       if (!current(own, captured)) return
++      if (result.kind === 'retry') {
++        const previous = confirmedVersions.get(result.value.job_id)
++        if (!previous || BigInt(result.value.version) > BigInt(previous))
++          confirmedVersions.set(result.value.job_id, result.value.version)
++      }
+       state.confirmed = Object.freeze({
+         kind: result.kind,
+         jobID: result.value.job_id,
+@@ -730,6 +734,12 @@
+       )
+     },
+     afterNavigation(to: string, from: string) {
++      if (isPage(from) && !isPage(to)) {
++        // The mounted View still belongs to the old active controller here.
++        // Resetting active first would detach configuration instead of delivery.
++        if (viewAttached) controller().detach()
++        viewAttached = false
++      }
+       configuration.afterNavigation(to, from)
+       delivery.afterNavigation(to, from)
+       if (isPage(from) && !isPage(to)) {

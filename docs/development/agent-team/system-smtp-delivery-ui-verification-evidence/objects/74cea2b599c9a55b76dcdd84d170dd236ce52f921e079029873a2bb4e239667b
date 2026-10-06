@@ -1,0 +1,30 @@
+# SMTP delivery UI author results
+
+Five new and five existing browser top-levels have actual PASS evidence across input01–04. Final independent acceptance remains pending; input04 was not used to rerun all ten.
+
+| Kind | Target | Frozen input / run | Browser / Go top (s) | Command exit |
+| --- | --- | --- | --- | --- |
+| new | ReadAndPagination | input01 / read01 | 11.5 / 22.42 | 0 |
+| new | TestAndRetry | input01 / test01 | 16.1 / 23.18 | 0 |
+| new | OutcomeRecovery | input01 / outcome01 | 7.4 / 13.88 | 0 |
+| new | AuthorityAndIdentity | input02 / authority02 | 10.6 / 17.78 | 0 |
+| new | NavigationAndLayouts | input03 / navigation02 | 13.8 / 20.21 | 0 |
+| old | SMTPSettings OutcomeRecovery | input03 / oldsettings01 | 6.5 / 11.99 | 1 |
+| old | SMTPSettings AuthorityAndIdentity | input04 / oldauthority02 | 7.3 / 13.06 | 0 |
+| old | SMTPSettings NavigationAndLayouts | input03 / oldsettings01 | 19.4 / 25.04 | 1 |
+| old | Invitations DeliveryRetry | input03 / oldinvitations01 | 4.6 / 13.26 | 0 |
+| old | Invitations OutcomeRecovery | input03 / oldinvitations01 | 6.8 / 11.46 | 0 |
+
+`oldsettings01` retains exit1 and its original Authority failure. Its Outcome and Navigation top-levels passed. The unchanged Authority browser passed in `oldauthority02` after the second coordinator qualification repair.
+
+The last run actually exited0 in59.566s; seven exact resources were absent in both cleanup scans, eighty owned PID/starttime records were gone, four adopted children were waited, both runtimes were empty, baseline and input gates were unchanged. Tool session86295 actually closed with exit0. The resource window is released.
+
+Three real failures remain indexed: fresh anonymous navigation (authority01, product); missing explicit detail-to-list action (navigation01, test premise); and fresh ordinary/denied navigation (oldsettings01 Authority, product). All fourteen nonzero author runs, including offline red probes and preparation errors, retain their original paths and hashes in manifest.json.
+
+Input02 changed only the coordinator and its App test plus build output. Input03 changed only five browser lines adding the required explicit return-to-list action. Input04 changed only the coordinator and its App test plus build output. API/owner, shared App/router/configuration controller and all old browser assertions remain fixed.
+
+Author individually viewed the eight navigation02 light/dark390/768/1024/1440 PNGs. The frozen visual-review01 records each image; no root image review is claimed. No visible material leak, overlapping content or horizontal overflow was observed; browser reachability assertions remain separate evidence.
+
+Scope limits: cancelled pass>0 establishes due-scan processing, not internal queue/ClaimBusy observation; two holder jobs own legitimate sends are excluded from target zero-attempt assertions. The four missing historical page-type01 source versions remain a documented gap. README is deferred. No external mailbox/production hosting/full D27 acceptance is claimed.
+
+All original source snapshots, inputs, logs, raw failures and diagnostic records remain untouched. Only this private result index was written.

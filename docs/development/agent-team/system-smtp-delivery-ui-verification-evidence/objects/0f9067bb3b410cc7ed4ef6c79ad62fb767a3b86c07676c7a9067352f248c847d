@@ -1,0 +1,240 @@
+{
+  "verdict": "BOUNDED_PASS",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input04/manifest.json",
+    "sha256": "620e88880ce309ee524d7670e1892e718b5b091e1dd2c1a15789fcab2464439e"
+  },
+  "base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "delta": {
+    "web/src/composables/useSystemSMTPDelivery.ts": {
+      "before": "fcc769b85c66b8c2289b1092d961abdb5d3554a6346f31c0aca89b4f3cf35ca7",
+      "after": "cdeec662a025f429c13f6c840c895e699010982bf19f635e880f75a6c00468bf"
+    },
+    "web/src/tests/system-smtp-delivery.spec.ts": {
+      "before": "634d556eac16a0bbcf2074d64cb50bc1439a54c9e3c825db12964476733d5bc4",
+      "after": "b77f8e4575807e8dad38b6677b5bf3dc74c0d49b7cea5acefb96454b64fb12cf"
+    }
+  },
+  "unchanged_candidates": 14,
+  "unchanged_fixed_dependencies": 1083,
+  "dist_hashes": {
+    "web/dist/assets/AppearanceSettings-B9JsaqAW.js": "ca504c8a8658452170c20a7ef67716baaf2ecf11a0ac10b8804b29c49f2730a0",
+    "web/dist/assets/ForgotPasswordView-BIywMkJO.js": "e79ad1f77b3a5602a837ea5883db05a292fa8304270f57955c5db80ffcf90d32",
+    "web/dist/assets/ForgotPasswordView-DJSF_FFM.css": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2",
+    "web/dist/assets/InvitationView-B4wTz1D4.css": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177",
+    "web/dist/assets/InvitationView-CKeZQW_j.js": "945aecb6190f7948d4160b0acccc2e0551b8b0f4c84102514287cdc74df55556",
+    "web/dist/assets/PasswordSettings-CxsABM4X.js": "ace6f63f191cb6b89577574d14a6c1eff2aabf140fce40083ae394c3439f22d9",
+    "web/dist/assets/PersonalSettingsView-BC2DFbS_.js": "2e1097b8f049fd01cb80a2498942b74197814fa7dbb617fe56fb0ec52b5c8a75",
+    "web/dist/assets/PersonalSettingsView-BLWru9en.css": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5",
+    "web/dist/assets/ProfileSettings-BSPu2WKO.js": "3ef647b6a5a76999765e219d4589663a462e3911114a869f7dcdf6dfe4e13baa",
+    "web/dist/assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+    "web/dist/assets/ResetPasswordView-CYpQINhO.js": "cd4c537e1de81d4ab88b600cb650222b368b8cbca0c8fc91902176d2018f86f8",
+    "web/dist/assets/ResetPasswordView-DSiu2awb.css": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527",
+    "web/dist/assets/SettingsShell-BZMXxpTQ.js": "5e86b4f38241fa952efcedbbfc86d201d774138439e33e473b35cfece638fda7",
+    "web/dist/assets/SettingsShell-D9S1S_aF.css": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e",
+    "web/dist/assets/SystemAccountSecurityView-CSXU4fs8.js": "5a2963d3068b127ab8d9ae216cf161df59a5f8ce4e0d83caea0d25e7afb96e9b",
+    "web/dist/assets/SystemAccountSecurityView-DDeXsGVz.css": "8c0710c7f46cdaa82fd01031381969c02672f16825b06eea24840a2770b25e7e",
+    "web/dist/assets/SystemInvitationsView-B2WN39OX.js": "77649b70efc21b836c81d38f1fd3a8004f11b9e1ea639842b6e2bdb1f89f0717",
+    "web/dist/assets/SystemInvitationsView-QSKOYHWH.css": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f",
+    "web/dist/assets/SystemModelSelectionView-CWrrWEzf.js": "060e90c9b88a292fa9539531590d631443f21ba5ecb17bbb09d90522faaab317",
+    "web/dist/assets/SystemModelSelectionView-Dpau881F.css": "3db921aee5324ed2c41c87284a1ef1ae79f34a9f4bee83ceac7cc05412398edb",
+    "web/dist/assets/SystemModelsView-6nzUQodS.css": "7697fe537f40b60c922c38227e7ddfff8a6e1c44514ff2efadb12808f1563a5f",
+    "web/dist/assets/SystemModelsView-DTV4c9up.js": "06671b526666aaa8b42d9e48fe66f408db635c70fa77db3380718b478eefe7b0",
+    "web/dist/assets/SystemProvidersView-CzYiYVxl.js": "60dda1a9eb12586b9d44863dff1416fb9df793134f4d7a4ef507404b64587edc",
+    "web/dist/assets/SystemProvidersView-elJ_-cRG.css": "495c2154ff8c96cfdbfb6e79d76bc39c11e20b046af85227d8bd27d3d7336c2c",
+    "web/dist/assets/SystemSMTPSettingsView-D4cuT2fU.js": "b6ecbac291cd04e42b0398159832a489cec4253032ea1f7c29ca6b0d84485cac",
+    "web/dist/assets/SystemSMTPSettingsView-D8y_A8gg.css": "c29e8ce53af05f7e736565081e3e4e6cf4bb61e3cdabd73d5e7911842dddc531",
+    "web/dist/assets/SystemSettingsView-BX10visq.css": "6de9e3e18be52c14800373fb630b81cbae0c8ae3780b15fab34ec980217e62f0",
+    "web/dist/assets/SystemSettingsView-DFn3WMpC.js": "ea8d534a5b9bd3821721a4729a522accc015f18eddbe523b0df8238061ac46c4",
+    "web/dist/assets/SystemUsersView-B41TxT1D.css": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3",
+    "web/dist/assets/SystemUsersView-COkcuphv.js": "ac01e281b8b04ba931a4986fb3b668492d74dd5c44a035abf68ac0bd911e5c7c",
+    "web/dist/assets/UiButton-Iz2V5oaw.js": "d6f38b4df6168907595dc8cbcd2ce913c8a09bfc82c73c7f0f035507b5d37c7e",
+    "web/dist/assets/UiCheckbox-F-yISctX.js": "e9ee09eb409b9d141a0afa4c022608cc50b6795d86a9a8e835cd3d27a8444401",
+    "web/dist/assets/UiSelect-LvoVUry4.js": "5db05ec4563b2685698b4bac7066d82cef8c51f903b5e65127fa3b7d28f27fb1",
+    "web/dist/assets/index-Caenza2j.js": "8d9e620adc6cd7b758e83752c89763b82ef06949b55cff29163e987293560564",
+    "web/dist/assets/index-mPshNWX-.css": "927b0f47b7efa5be3606f7acad20daa4c75d496949a3caa5cd316f94eb21e28f",
+    "web/dist/index.html": "6a824800b166e451c9b9b7f6f2fab90b070c0161a3ede0c44757e9a7479bcf18"
+  },
+  "private_input": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/rejected-repair04/input.json",
+    "sha256": "715705cfcedc80e36c44537de059da232ee6359a8d882a570c3632e138a1ce9d"
+  },
+  "probe": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/rejected-repair04/probe/page.spec.ts",
+    "sha256": "50ec4c96e228bee0c3a8a99b6982af67c3399bc77eb87da17c7007cfd20e95ee"
+  },
+  "preparation": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/rejected-repair04/preparation.json",
+    "sha256": "524d44d1c1e4cee660e73b68052b1f5bddb461b149006b1dd466dda7beee36c3"
+  },
+  "run": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/rejected-repair04/runs/app01",
+    "result": {
+      "actual_exit": 0,
+      "elapsed_seconds": 2.562353,
+      "inputs_unchanged": true,
+      "cleanup": true,
+      "raw_sha256": "e882639f6ae584126c710a18b6476ce6291b01503e8006951dd7ab3484a544fa",
+      "command_sha256": "6241b9afae72650070d55996a6dbf5bb956d013e0f66fb79837e9589d445f8a8"
+    },
+    "actual_wait_pid": 2153196,
+    "actual_wait_exit": 0,
+    "owned_pid_starttime": {
+      "2153196": 5759668,
+      "2153220": 5759703
+    },
+    "adopted_waits": [],
+    "two_scans": [
+      [],
+      []
+    ],
+    "files": {
+      "raw.log": "e882639f6ae584126c710a18b6476ce6291b01503e8006951dd7ab3484a544fa",
+      "command.json": "6241b9afae72650070d55996a6dbf5bb956d013e0f66fb79837e9589d445f8a8",
+      "result.json": "66595ebd1cd639cc986871fd0559ee8cce920dc61b10b731760a7d70b55e29d1",
+      "cleanup.json": "99933405494825db589343e8dfd0e51c3833094481346f192b05ca246c85b6a2",
+      "input-before.json": "e596c67464a8e90521cd5889b63dcc3e6026b700d676c2e552e0139291882b01",
+      "input-after.json": "e596c67464a8e90521cd5889b63dcc3e6026b700d676c2e552e0139291882b01",
+      "started.json": "2093696e3ffb27a0344b35ff92ac80c77f6aeedcf381eda2b8597004536316f9"
+    }
+  },
+  "author_red_green": {
+    "same_spec_sha256": "b77f8e4575807e8dad38b6677b5bf3dc74c0d49b7cea5acefb96454b64fb12cf",
+    "old_run": "rejected-probe05",
+    "old_exit": 1,
+    "old_result": "3 RED + 2 PASS",
+    "new_run": "rejected-probe06",
+    "new_exit": 0,
+    "new_result": "5 PASS",
+    "hashes": {
+      "rejected-probe05": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-probe05/command.json",
+          "sha256": "cf100f920d51f20e9234a350ba4da7be1a96e71e02c7d40a1098d811b564b28e"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-probe05/input-after.json",
+          "sha256": "5bab0b820181a8a63bf1667897fbf3626ab6eb799e85219a60d10c201cf7fab2"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-probe05/input-before.json",
+          "sha256": "5bab0b820181a8a63bf1667897fbf3626ab6eb799e85219a60d10c201cf7fab2"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-probe05/raw.log",
+          "sha256": "b7f384ae643aec5c7f859c45348d7b3a582ce4c3e44b51f9ebcc4ced7b06be65"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-probe05/result.json",
+          "sha256": "3cf40a21fd7b607850bbf95e1b4f6e23952a091e4fe46cd5c7dd83808b97eb0d"
+        }
+      },
+      "rejected-probe06": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-probe06/command.json",
+          "sha256": "cf100f920d51f20e9234a350ba4da7be1a96e71e02c7d40a1098d811b564b28e"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-probe06/input-after.json",
+          "sha256": "d9dd40af3dd8b3dd44a3ba170914365ba0516898daef7945619ecffb2b749b50"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-probe06/input-before.json",
+          "sha256": "d9dd40af3dd8b3dd44a3ba170914365ba0516898daef7945619ecffb2b749b50"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-probe06/raw.log",
+          "sha256": "590d0a438ea42569979118cc37708b30c4beb87135ae0575170a4649df79992c"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-probe06/result.json",
+          "sha256": "0b8426a03a3c838f1e383d7b17d07bae9c5be812484405881d8d3d393e1bf485"
+        }
+      },
+      "rejected-page01": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-page01/command.json",
+          "sha256": "bc2284c943e18d6d2ceff394e18fce57299e3ce9e6b4527f63fc5e1be86b7b7a"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-page01/input-after.json",
+          "sha256": "d9dd40af3dd8b3dd44a3ba170914365ba0516898daef7945619ecffb2b749b50"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-page01/input-before.json",
+          "sha256": "d9dd40af3dd8b3dd44a3ba170914365ba0516898daef7945619ecffb2b749b50"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-page01/raw.log",
+          "sha256": "032865dd17805fc4af6ee863f74bf0c9ebcd53dcf9382e8cf10e29ad171f18c2"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-page01/result.json",
+          "sha256": "5a78fd3fcdbb2ca6cd2fb8ec9afb0f196d37db7c4c525a18fbb15670f49aa610"
+        }
+      },
+      "rejected-build01": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-build01/command.json",
+          "sha256": "563aad02f4f8d86d0b66b18978c49a0d4fdabb28ab1a939760266ee3384d51c3"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-build01/input-after.json",
+          "sha256": "d9dd40af3dd8b3dd44a3ba170914365ba0516898daef7945619ecffb2b749b50"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-build01/input-before.json",
+          "sha256": "d9dd40af3dd8b3dd44a3ba170914365ba0516898daef7945619ecffb2b749b50"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-build01/raw.log",
+          "sha256": "58a375d7c744c39f5f6e3346edea40040696c3e34b7a57f5d55d34bb31e05e9f"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/rejected-build01/result.json",
+          "sha256": "4df381f3f3729d46e6ffda5d6cc1e763686995bf2942c309284f988499550bc4"
+        }
+      },
+      "old-authority-list04": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/old-authority-list04/command.json",
+          "sha256": "9aa00ebf35c4e01dc1ca5b439597a8741df09afa38624e1da61c85b35cbd78a7"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/old-authority-list04/input-after.json",
+          "sha256": "1f5a17d81c43ede9876dfcc12a0f272852ca15eb969da778683124324f3a1290"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/old-authority-list04/input-before.json",
+          "sha256": "1f5a17d81c43ede9876dfcc12a0f272852ca15eb969da778683124324f3a1290"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/old-authority-list04/raw.log",
+          "sha256": "567fa0e9b3dbc1a13e876e101ce5a8360b3dd9cd227b4e6ad2999640c35bb73f"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/old-authority-list04/result.json",
+          "sha256": "7f7a5ec4a6b7126b5a8c283d918e29969f616e20d5c5ef8ed24a50d4834e43f2"
+        }
+      }
+    }
+  },
+  "driver": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver02.py",
+    "sha256": "a78f8daf1d203f884b4a9d117c1ab0c6f5f1611a33e442e06cf53a52b6ab1693",
+    "diff": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver02.diff",
+      "sha256": "592e6d5e8eba48b86b799b422caa4942aa92a93b18522b18a6ff118b8b06a23e"
+    },
+    "static": "only one new old-settings-authority selector; 7 exact IDs and original cleanup/budget/gate unchanged"
+  },
+  "limits": [
+    "pure App/router/factory with controlled Fetch; no browser or business resource",
+    "no new native focus/Tab/layout proof",
+    "previous new5/old4 only reuse under unchanged administrator paths and bounded pending-state verification",
+    "old Authority true browser replay still required",
+    "API/owner unchanged; no matrix rerun",
+    "early preparation exact-title correction recorded before any execution"
+  ],
+  "review_md_sha256": "86d5c7d1476369e842026d1e77d251d8a26b8baa51278a0dd840644664a01519"
+}

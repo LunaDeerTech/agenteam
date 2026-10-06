@@ -1,0 +1,14 @@
+--- input02/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts
++++ input03/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts
+@@ -1536,6 +1536,11 @@
+   await expect(panel(page)).toBeVisible();
+   await expect(button(page, "重试原请求")).toHaveCount(0);
+   await expect(recipient(page)).toHaveValue("");
++  await expect(
++    page.getByRole("region", { name: "投递任务详情", exact: true }),
++  ).toBeVisible();
++  await expect(button(page, "刷新任务列表")).toHaveCount(0);
++  await button(page, "返回任务列表").click();
+   await refresh(page);
+   let layouts = 0;
+   for (const theme of ["light", "dark"] as const) {

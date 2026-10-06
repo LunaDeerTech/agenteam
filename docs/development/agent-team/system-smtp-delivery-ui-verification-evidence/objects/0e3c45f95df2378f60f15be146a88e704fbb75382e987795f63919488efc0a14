@@ -1,0 +1,76 @@
+import ctypes,datetime,hashlib,json,os,shutil,signal,subprocess,sys,time
+from pathlib import Path
+R=Path(__file__).resolve().parent
+EXEC=R/'execution01.json';COMMANDS=R/'offline-commands01.json'
+def sha(p):return hashlib.sha256(Path(p).read_bytes()).hexdigest()
+def write(p,x):p.write_text(json.dumps(x,ensure_ascii=False,indent=2)+'\n')
+def utc():return datetime.datetime.now(datetime.timezone.utc).isoformat()
+assert sha(EXEC)=='7dc487086b7fe67e4403fce972183cf8d68bea0cc825431057f698bb3e7a9462'
+assert sha(COMMANDS)=='b3eec1d649192c75af190ddc4db205583762825855ccba9e442430112b9abe5d'
+frozen=json.loads(EXEC.read_text());plans=json.loads(COMMANDS.read_text())['commands']
+REPO=Path('/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace')
+expected={str(REPO/k):v['sha256'] for k,v in frozen['accepted_baseline']['files'].items()}
+expected.update({str(REPO/k):v for k,v in frozen['files'].items()})
+expected.update({str(REPO/k):v for k,v in frozen['dist'].items()})
+expected.update(frozen['private_inputs']);expected.update({k:v['sha256'] for k,v in frozen['dependencies'].items()})
+expected.update({str(EXEC):sha(EXEC),str(COMMANDS):sha(COMMANDS),str(Path(__file__)):sha(__file__)})
+def fingerprint():return {p:sha(p) for p in sorted(expected)}
+def processes():
+ out={}
+ for p in Path('/proc').glob('[0-9]*/stat'):
+  try:
+   s=p.read_text();tail=s[s.rfind(')')+2:].split();out[int(p.parent.name)]={'ppid':int(tail[1]),'state':tail[0],'starttime':tail[19]}
+  except (OSError,ValueError,IndexError):pass
+ return out
+assert ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0)==0
+results=[]
+for plan in plans:
+ name=plan['name'];run=R/'offline-runs'/name;run.mkdir(parents=True,exist_ok=False)
+ tmp=R/'offline-runtime'/name;tmp.mkdir(parents=True,exist_ok=False)
+ before=fingerprint();assert before==dict(sorted(expected.items())), 'frozen input mismatch before offline command'
+ write(run/'input-before.json',before)
+ env={k:os.environ[k] for k in ['PATH','HOME','LANG'] if k in os.environ};env.update({'CI':'1','NO_COLOR':'1','TZ':'UTC','TMPDIR':str(tmp)});env.update(plan['env'])
+ command={'argv':plan['argv'],'cwd':plan['cwd'],'env':env,'started_utc':utc(),'supervisor_sha256':sha(__file__),'no_business_resources':True}
+ write(run/'command.json',command)
+ owned={};adopted=[];timed_out=False;start=time.monotonic()
+ with (run/'raw.log').open('wb') as out:
+  child=subprocess.Popen(plan['argv'],cwd=plan['cwd'],env=env,stdin=subprocess.DEVNULL,stdout=out,stderr=subprocess.STDOUT,start_new_session=True)
+  write(run/'started.json',{'pid':child.pid,'supervisor_pid':os.getpid()});print(json.dumps({'started':name,'pid':child.pid,'run':str(run)}),flush=True)
+  while True:
+   table=processes();parents={os.getpid(),*owned}
+   for _ in range(12):
+    new={pid for pid,v in table.items() if v['ppid'] in parents};larger=parents|new
+    for pid in new:
+     if pid!=os.getpid():owned[pid]=table[pid]['starttime']
+    if larger==parents:break
+    parents=larger
+   if child.poll() is not None:break
+   if time.monotonic()-start>480:
+    timed_out=True;os.killpg(child.pid,signal.SIGTERM)
+    try:child.wait(timeout=2)
+    except subprocess.TimeoutExpired:os.killpg(child.pid,signal.SIGKILL)
+    break
+   time.sleep(.01)
+  actual=child.wait()
+ command.update({'actual_wait_completed':True,'exit':actual,'seconds':round(time.monotonic()-start,6),'ended_utc':utc(),'supervisor_timeout':timed_out});write(run/'command.json',command)
+ for _ in range(5):
+  while True:
+   try:pid,status=os.waitpid(-1,os.WNOHANG)
+   except ChildProcessError:break
+   if pid==0:break
+   adopted.append({'pid':pid,'actual_wait':True,'exit':os.waitstatus_to_exitcode(status)})
+  if not any(pid in processes() and processes()[pid]['starttime']==born for pid,born in owned.items()):break
+  time.sleep(.05)
+ scans=[]
+ for _ in range(2):
+  table=processes();scans.append([{'pid':pid,'starttime':born,'state':table[pid]['state']} for pid,born in owned.items() if pid in table and table[pid]['starttime']==born]);time.sleep(.05)
+ runtime_before=sorted(p.name for p in tmp.iterdir());runtime_removed=False
+ if scans==[[],[]]:shutil.rmtree(tmp);runtime_removed=not tmp.exists()
+ after=fingerprint();write(run/'input-after.json',after)
+ cleanup={'owned_pid_starttime':owned,'main_actual_wait_pid':child.pid,'main_actual_exit':actual,'adopted_actual_waits':adopted,'scans':scans,'runtime_pre_cleanup_entries':runtime_before,'runtime_removed':runtime_removed,'business_resources_started':False}
+ write(run/'cleanup.json',cleanup)
+ result={'name':name,'actual_exit':actual,'actual_wait':True,'seconds':command['seconds'],'inputs_unchanged':before==after,'clean':scans==[[],[]] and runtime_removed,'owned_pid_count':len(owned),'adopted_wait_count':len(adopted),'raw_sha256':sha(run/'raw.log'),'command_sha256':sha(run/'command.json'),'cleanup_sha256':sha(run/'cleanup.json'),'supervisor_timeout':timed_out}
+ write(run/'result.json',result);results.append(result);print(json.dumps(result),flush=True)
+ if before!=after or not result['clean']:break
+write(R/'offline-summary01.json',results)
+sys.exit(0 if len(results)==6 and all(x['actual_exit']==0 and x['clean'] and x['inputs_unchanged'] for x in results) else 1)

@@ -1,0 +1,32 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "node",
+    "node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--target",
+    "ES2022",
+    "--module",
+    "NodeNext",
+    "--moduleResolution",
+    "NodeNext",
+    "--skipLibCheck",
+    "e2e/system-smtp-delivery.spec.ts"
+  ],
+  "child_pid": 1989056,
+  "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/tests/account-captcha-web",
+  "duration_seconds": 1.07,
+  "ended_utc": "2026-10-06T18:56:44.460748+00:00",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 2,
+  "input_after_sha256": "00c52227817220801128560fb30af9698ec868f5678e3804a96cb9b08545afa9",
+  "input_before_sha256": "00c52227817220801128560fb30af9698ec868f5678e3804a96cb9b08545afa9",
+  "input_unchanged": true,
+  "raw_sha256": "a2ece9eec55c3711eead8fd7a7b2d11a61a26bce25b606d86e66b3b38cfa5248",
+  "resource_execution": false,
+  "runner_sha256": "16b62f8e822211a9c826ba9b49f25204a1613c86e37d023287e8192eb24c85f9",
+  "started_utc": "2026-10-06T18:56:43.392358+00:00"
+}

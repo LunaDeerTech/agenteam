@@ -1,0 +1,10 @@
+{
+  "preparation_read_error": {
+    "attempted": "owner-stage01/owner.diff",
+    "actual_shell_exit": 1,
+    "cause": "manifest names candidate.diff, not owner.diff",
+    "correction": "read exact manifest candidate.diff; no test or resource started in failed read"
+  },
+  "API_reuse_report": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/review.md",
+  "API_reuse_sha256": "fa0a707fea37e842d11a9306cbfabfb38f0fbdd1c6bbaf07f207896e59196e17"
+}

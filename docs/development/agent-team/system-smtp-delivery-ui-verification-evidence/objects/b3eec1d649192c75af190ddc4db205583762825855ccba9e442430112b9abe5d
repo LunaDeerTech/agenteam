@@ -1,0 +1,152 @@
+{
+  "execution": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/execution01.json",
+    "sha256": "7dc487086b7fe67e4403fce972183cf8d68bea0cc825431057f698bb3e7a9462"
+  },
+  "status": "prepared-not-executed-await-root-offline-grant",
+  "commands": [
+    {
+      "name": "go-race-discovery01",
+      "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-tags",
+        "integration",
+        "-run",
+        "^$",
+        "-count=1",
+        "-timeout=6m",
+        "-list",
+        "^(TestIndependentSMTPDeliveryTestReplay|TestIndependentSMTPDeliveryRetryRecovery)$",
+        "./tests/account"
+      ],
+      "env": {
+        "GOTOOLCHAIN": "local",
+        "GOENV": "off",
+        "GOWORK": "off",
+        "GOPROXY": "off",
+        "GOSUMDB": "off",
+        "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+        "CGO_ENABLED": "1",
+        "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/bound03/overlay.json"
+      },
+      "resources": "none; zero test execution, exact discovery 2 expected"
+    },
+    {
+      "name": "go-vet01",
+      "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace",
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags",
+        "integration",
+        "./tests/account"
+      ],
+      "env": {
+        "GOTOOLCHAIN": "local",
+        "GOENV": "off",
+        "GOWORK": "off",
+        "GOPROXY": "off",
+        "GOSUMDB": "off",
+        "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "GOCACHE": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/gocache",
+        "CGO_ENABLED": "1",
+        "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/bound03/overlay.json"
+      },
+      "resources": "none"
+    },
+    {
+      "name": "browser-type01",
+      "cwd": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/bound03/source/browser",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/node_modules/typescript/bin/tsc",
+        "--noEmit",
+        "--strict",
+        "--target",
+        "ES2022",
+        "--module",
+        "ESNext",
+        "--moduleResolution",
+        "bundler",
+        "--types",
+        "node",
+        "--typeRoots",
+        "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/node_modules/@types",
+        "--lib",
+        "ES2022,DOM,DOM.Iterable",
+        "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/bound03/source/browser/e2e/independent.spec.ts"
+      ],
+      "env": {},
+      "resources": "none"
+    },
+    {
+      "name": "browser-list-independent-test01",
+      "cwd": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/bound03/source/browser",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/bound03/source/browser/independent.config.js",
+        "--list"
+      ],
+      "env": {
+        "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:9",
+        "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-runtime/discovery",
+        "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+        "AGENTEAM_SMTP_DELIVERY_WEB_CASE": "independent-test"
+      },
+      "resources": "none; list only, exactly 1 expected; no browser/listener"
+    },
+    {
+      "name": "browser-list-independent-retry01",
+      "cwd": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/bound03/source/browser",
+      "argv": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+        "test",
+        "--config",
+        "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/bound03/source/browser/independent.config.js",
+        "--list"
+      ],
+      "env": {
+        "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:9",
+        "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-runtime/discovery",
+        "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+        "AGENTEAM_SMTP_DELIVERY_WEB_CASE": "independent-retry"
+      },
+      "resources": "none; list only, exactly 1 expected; no browser/listener"
+    },
+    {
+      "name": "private-gate01",
+      "cwd": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h",
+      "argv": [
+        "/usr/bin/python3",
+        "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/driver01.py",
+        "--name",
+        "private-gate01",
+        "--group",
+        "both",
+        "--frozen",
+        "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/execution01.json",
+        "--modcache",
+        "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "--check-input-only"
+      ],
+      "env": {},
+      "resources": "none; returns before Docker/process monitor/fixture"
+    }
+  ],
+  "execution_controls": {
+    "actual_wait": true,
+    "subreaper": true,
+    "owned_pid_starttime_double_scan": true,
+    "raw_and_before_after_fingerprints": true,
+    "private_TMPDIR_per_command": true,
+    "no_business_resources": true
+  }
+}

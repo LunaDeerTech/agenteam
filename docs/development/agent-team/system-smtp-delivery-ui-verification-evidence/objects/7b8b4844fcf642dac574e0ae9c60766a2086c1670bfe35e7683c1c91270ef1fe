@@ -1,0 +1,248 @@
+{
+  "conclusion": "PASS — bounded independent owner stage only",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/owner-stage01/manifest.json",
+    "sha256": "86a486532d5bb2bef69d2bd66f33681244d0f32494f8cf3e9a556ab773cbfa4a"
+  },
+  "product_base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "source_sha256": {
+    "web/src/composables/useSession.ts": "bb670ae33e7d4d846d517b394689d8b7328ec22f03bd6306ef51be5403c4f2cc",
+    "web/src/tests/system-smtp-delivery-state.spec.ts": "faedaf94d021265dc97b3105037724ba227e929c0cfd3b8095797da35757fc88"
+  },
+  "API4_reused_unchanged": {
+    "web/src/api/client.ts": "2e331d9361257433cf399ce516facdf6efa420d0f0df400306bbaaf07be1442e",
+    "web/src/api/system-smtp-delivery.ts": "b4044f5ae4477cb904d2891a635bf10a77b0888b4376525dfc0989ee2023ccfd",
+    "web/src/api/system-smtp-settings.ts": "0f015823398fe909688dd0ec7b2cf2a99ca9b82b8963fda5dfb96b13c7864311",
+    "web/src/tests/system-smtp-delivery-client.spec.ts": "4d5be3e29f4cffcf232356f4ec26b6da557c66e2a4197a1ed468b48e1bb80529"
+  },
+  "API_independent_report": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/review.md",
+    "sha256": "fa0a707fea37e842d11a9306cbfabfb38f0fbdd1c6bbaf07f207896e59196e17"
+  },
+  "runs": {
+    "recovery01": {
+      "tests_passed": 3,
+      "actual_exit": 0,
+      "elapsed_seconds": 1.452501,
+      "inputs_unchanged": true,
+      "cleanup": true,
+      "raw_sha256": "0bb06d83fc2693ceff06a6e8446934af61eb5e51606818f6f6e9b875da94b0b4",
+      "command_sha256": "6edeb80f2a01b9e9a2b20a12d3dfbc56b6990c35491a4e2b14ac74d203333469",
+      "observed_owned_pid_count": 2,
+      "adopted_waits": [],
+      "artifacts": {
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/recovery01/raw.log",
+          "sha256": "0bb06d83fc2693ceff06a6e8446934af61eb5e51606818f6f6e9b875da94b0b4"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/recovery01/command.json",
+          "sha256": "6edeb80f2a01b9e9a2b20a12d3dfbc56b6990c35491a4e2b14ac74d203333469"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/recovery01/input-before.json",
+          "sha256": "3097b99c0687a0e0f13c06df195c061b6c50afa3dc2bd932f5798dc5c7fc80f0"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/recovery01/input-after.json",
+          "sha256": "3097b99c0687a0e0f13c06df195c061b6c50afa3dc2bd932f5798dc5c7fc80f0"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/recovery01/cleanup.json",
+          "sha256": "1694417cdd4a47e36c77276acec1b49542b5f426168e2cadb9332056397fc500"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/recovery01/result.json",
+          "sha256": "c31aea512773b914d0547284e6c503618a2800a4f16d203b0ac6b4c7ceba2a8a"
+        },
+        "started.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/recovery01/started.json",
+          "sha256": "9c7411d4513ac8516a05becc2faf59532ec11c528990c1c8ef38b571a7c6ac55"
+        }
+      }
+    },
+    "ownership01": {
+      "tests_passed": 4,
+      "actual_exit": 0,
+      "elapsed_seconds": 1.437507,
+      "inputs_unchanged": true,
+      "cleanup": true,
+      "raw_sha256": "c5e41cd9535e0b722c21682aab16479c507529687e1c4c083e3b057c39d87fd1",
+      "command_sha256": "19ed16c87ceed1138a03504894c38b006ccdd408bc5d5f7d4df0229ffecdc6c1",
+      "observed_owned_pid_count": 2,
+      "adopted_waits": [],
+      "artifacts": {
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/ownership01/raw.log",
+          "sha256": "c5e41cd9535e0b722c21682aab16479c507529687e1c4c083e3b057c39d87fd1"
+        },
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/ownership01/command.json",
+          "sha256": "19ed16c87ceed1138a03504894c38b006ccdd408bc5d5f7d4df0229ffecdc6c1"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/ownership01/input-before.json",
+          "sha256": "3097b99c0687a0e0f13c06df195c061b6c50afa3dc2bd932f5798dc5c7fc80f0"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/ownership01/input-after.json",
+          "sha256": "3097b99c0687a0e0f13c06df195c061b6c50afa3dc2bd932f5798dc5c7fc80f0"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/ownership01/cleanup.json",
+          "sha256": "bdd28f4c1b8ffcee37bc0d0d99024ba38100be34e3099325a5835d44f1991970"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/ownership01/result.json",
+          "sha256": "5ce23a14c33a7fcdf5b307e5f4d39c87e37ede3a9ffb42ec5de762ef77c950f8"
+        },
+        "started.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/runs/ownership01/started.json",
+          "sha256": "3f700cef6dd672bf7ebdef3737ffed5400d3571df2206a72fc19f69babd5db98"
+        }
+      }
+    }
+  },
+  "private_sources": {
+    "input-static01.json": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/input-static01.json",
+      "sha256": "d6a2e4d05994b9e46318e0bdedbd3fd52b521fb534b7b763fdbabcb43628930b"
+    },
+    "run01.py": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/run01.py",
+      "sha256": "c9a71374c5b4057dbcdd4b6c8df78571f28c99b1323547cc7722b393c3af0051"
+    },
+    "vitest.config.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/vitest.config.ts",
+      "sha256": "e8f1157c12bf0ab9a080474483a2e9d91d983f55cc383147d9c5285daf8b5481"
+    },
+    "package.json": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/package.json",
+      "sha256": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428"
+    },
+    "preparation-notes.json": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/preparation-notes.json",
+      "sha256": "95209fed175d573ebf51a2af778e02159b6c567b7c11303dd183601484abd589"
+    },
+    "probe/helpers.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/probe/helpers.ts",
+      "sha256": "f57652ef0933627c4e4cea67274effe9ca1d20655bba2653185134630e4b3204"
+    },
+    "probe/recovery.spec.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/probe/recovery.spec.ts",
+      "sha256": "eef428c4dc6f246b35f6f50bedbe4c0cd72f610b055682dd1e7a2a00ab22667b"
+    },
+    "probe/ownership.spec.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/owner-stage01/probe/ownership.spec.ts",
+      "sha256": "d12d3e78e6e7c869a583a362c3b229a7561d14bdd871089b835cfce5980f3f35"
+    }
+  },
+  "static_findings": [
+    "The ninth optional factory API is separate from SMTP settings and shares runAuthorized ownership.",
+    "Current revision/generation and identity guard includes delivery read/write and CSRF write classification; clearIdentity and current-403 system cleanup include the new domain.",
+    "404/5xx are excluded from the five first-refusal codes. Earlier uncertainty uses sticky OR and original method/target/body/key/CSRF are private.",
+    "checkOriginal serializes Session and at most one observation; canRetryOriginal requires successful same-context restore and !busy, not a successful observation.",
+    "Identity token rotation invalidates the original epoch/intent; successful receipt remains separate from a later get error."
+  ],
+  "author_evidence_reused": {
+    "owner-pure01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-pure01/command.json",
+        "sha256": "6fe99a987e362f735522b586e1e0af34544b7918ba4a6463233b5180ced38180"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-pure01/input-after.json",
+        "sha256": "a21111bf320dc61393df2e85e60107301b290473d54703e07595ca2c53911098"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-pure01/input-before.json",
+        "sha256": "a21111bf320dc61393df2e85e60107301b290473d54703e07595ca2c53911098"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-pure01/raw.log",
+        "sha256": "8649f02d5bb0a9d50b7df02c69295997d5f924f21f5a74a955d493169dc07936"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-pure01/result.json",
+        "sha256": "fce6d0d94c9078a9e8f465d1bdeb3cb18075620144b0b38fbf66936b2026e948"
+      }
+    },
+    "owner-pure02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-pure02/command.json",
+        "sha256": "a18086b4da495be961332041db9c86747002615dfe8b7a988a6c6cffc718a177"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-pure02/input-after.json",
+        "sha256": "daf5590c89004d314ba99975e55788d009f2f18a01a5806261402a4197c4ced9"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-pure02/input-before.json",
+        "sha256": "daf5590c89004d314ba99975e55788d009f2f18a01a5806261402a4197c4ced9"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-pure02/raw.log",
+        "sha256": "72bbc63a11b67c9b4928f5d5dc8f7665beb92541c99db57142473358a3e50000"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-pure02/result.json",
+        "sha256": "fc1212c0d69c2cbb78dd47e674f90665ae0a6be948b7001f28d06d00af0e92ac"
+      }
+    },
+    "owner-type02": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-type02/command.json",
+        "sha256": "3ca3b2709a1c33ac1d0f3fc75fbf0a3d3ed6093b7a9e31ffb56330c4b81e32f8"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-type02/input-after.json",
+        "sha256": "daf5590c89004d314ba99975e55788d009f2f18a01a5806261402a4197c4ced9"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-type02/input-before.json",
+        "sha256": "daf5590c89004d314ba99975e55788d009f2f18a01a5806261402a4197c4ced9"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-type02/raw.log",
+        "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-type02/result.json",
+        "sha256": "e6747d514783e987993ffd5c6408953c374a260eae086f5c05bf8740700903dd"
+      }
+    },
+    "owner-format-check01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-format-check01/command.json",
+        "sha256": "a17e5e6e75e9dcef651c84189057bd209967120e4bb4bf056668967156188bf8"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-format-check01/input-after.json",
+        "sha256": "daf5590c89004d314ba99975e55788d009f2f18a01a5806261402a4197c4ced9"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-format-check01/input-before.json",
+        "sha256": "daf5590c89004d314ba99975e55788d009f2f18a01a5806261402a4197c4ced9"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-format-check01/raw.log",
+        "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/owner-format-check01/result.json",
+        "sha256": "c560c3f6a6bbe5bb560ee3342d934fd317f194e994b23f26fb971893efbc6167"
+      }
+    }
+  },
+  "author_only_boundaries": [
+    "All five first-refusal codes, all cross-domain pair matrix, parsed late401/403 and Provider actual two-step body/cancel are source-reviewed and author-evidenced, not independently rerun here."
+  ],
+  "limits": [
+    "Timer advanced virtually by 29999+1ms; native Response/ReadableStream cancel promise itself is real and held. This is not a 30-second wall-clock/network deadline measurement.",
+    "The independent old-identity case uses public leave, ignored fetch abort, late202, then a new Session after actual join; it does not claim independently exercising already-parsed late401.",
+    "Current403 dynamically checks delivery state and SMTP/Provider materials; remaining system domains are covered by explicit static cleanup calls and accepted author tests.",
+    "Only real factories with controlled injected Fetch/native streams in Node/jsdom. No real Account server, browser, DB, Docker, SMTP, authority transaction, App/panel or visual result.",
+    "No arbitrary synchronous watch that starts new writes was added as a gate. No author source or main/Git changes."
+  ],
+  "frozen": true
+}

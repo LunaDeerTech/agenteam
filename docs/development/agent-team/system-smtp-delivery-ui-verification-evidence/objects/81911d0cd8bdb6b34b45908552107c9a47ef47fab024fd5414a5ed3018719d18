@@ -1,0 +1,148 @@
+{
+  "conclusion": "PASS — API stage only",
+  "author_manifest": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/manifest.json",
+    "sha256": "4f2468f3d1b86875fc69ab4414f98b4188138791a1c897991b429188a3356553"
+  },
+  "product_base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "card_commit": "8bdfb006b32fbbc8889a190d7829f05e93e29787",
+  "candidate_sha256": {
+    "web/src/api/client.ts": "2e331d9361257433cf399ce516facdf6efa420d0f0df400306bbaaf07be1442e",
+    "web/src/api/system-smtp-delivery.ts": "b4044f5ae4477cb904d2891a635bf10a77b0888b4376525dfc0989ee2023ccfd",
+    "web/src/api/system-smtp-settings.ts": "0f015823398fe909688dd0ec7b2cf2a99ca9b82b8963fda5dfb96b13c7864311",
+    "web/src/tests/system-smtp-delivery-client.spec.ts": "4d5be3e29f4cffcf232356f4ec26b6da557c66e2a4197a1ed468b48e1bb80529"
+  },
+  "actual_runs": {
+    "strict01": {
+      "tests_passed": 4,
+      "actual_exit": 0,
+      "elapsed_seconds": 0.870885,
+      "inputs_unchanged": true,
+      "cleanup": true,
+      "raw_sha256": "84ce5c49066d0e849ebe877ed6fd0e0fefc58d75ad9d488ac54460542c6cdb82",
+      "command_sha256": "6229ac196a9c713c57f8436a89afc1031bdfa00458b070d3dec1765fa27a7685",
+      "observed_owned_pid_count": 2,
+      "adopted_wait_count": 0,
+      "artifacts": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/strict01/command.json",
+          "sha256": "6229ac196a9c713c57f8436a89afc1031bdfa00458b070d3dec1765fa27a7685"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/strict01/raw.log",
+          "sha256": "84ce5c49066d0e849ebe877ed6fd0e0fefc58d75ad9d488ac54460542c6cdb82"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/strict01/result.json",
+          "sha256": "a00d438c0e5ac0b6847712c341b277519bc7b60ec49c971b0caac15b0f4449ce"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/strict01/cleanup.json",
+          "sha256": "3465967c3dc8423e5e01acf992b665a46869de80b3be89b3f6fa719b2d373d51"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/strict01/input-before.json",
+          "sha256": "dcb7cd585b1fe0bc00ed0b0bc9677f218fa282b155776a32760aefe3d9f1a7db"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/strict01/input-after.json",
+          "sha256": "dcb7cd585b1fe0bc00ed0b0bc9677f218fa282b155776a32760aefe3d9f1a7db"
+        },
+        "started.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/strict01/started.json",
+          "sha256": "c4c98c9c337eb8af1a8058cc297a018b4c7140819d55ff3bfef5097cbbe4c071"
+        }
+      }
+    },
+    "native01": {
+      "tests_passed": 4,
+      "actual_exit": 0,
+      "elapsed_seconds": 0.811007,
+      "inputs_unchanged": true,
+      "cleanup": true,
+      "raw_sha256": "43d57ae4ea098e0bf6436b10e09a4abf7d61d46b0d2df78174e29868ec748db1",
+      "command_sha256": "f91c29f9bbf7634220a4c8e066bfd45cca89c668b06253cc91b5a78dcf0576bc",
+      "observed_owned_pid_count": 2,
+      "adopted_wait_count": 0,
+      "artifacts": {
+        "command.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/native01/command.json",
+          "sha256": "f91c29f9bbf7634220a4c8e066bfd45cca89c668b06253cc91b5a78dcf0576bc"
+        },
+        "raw.log": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/native01/raw.log",
+          "sha256": "43d57ae4ea098e0bf6436b10e09a4abf7d61d46b0d2df78174e29868ec748db1"
+        },
+        "result.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/native01/result.json",
+          "sha256": "74e21e73cda8a99a45a29a7c04b6d4617037437c940ff6b59f51ba7c8cb69994"
+        },
+        "cleanup.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/native01/cleanup.json",
+          "sha256": "00491f35943e633605760b6f53c9019a70bf0e002397ded821d7a5580f672ed7"
+        },
+        "input-before.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/native01/input-before.json",
+          "sha256": "dcb7cd585b1fe0bc00ed0b0bc9677f218fa282b155776a32760aefe3d9f1a7db"
+        },
+        "input-after.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/native01/input-after.json",
+          "sha256": "dcb7cd585b1fe0bc00ed0b0bc9677f218fa282b155776a32760aefe3d9f1a7db"
+        },
+        "started.json": {
+          "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/runs/native01/started.json",
+          "sha256": "683aebf14645a190f3587109861015c558331dbcfedaa5230e5146ffe88ee68f"
+        }
+      }
+    }
+  },
+  "independent_files": {
+    "input-static01.json": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/input-static01.json",
+      "sha256": "1365a6404f252184b2f40f6f218161a316922abaee8695e1e56bc381f291a25d"
+    },
+    "run01.py": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/run01.py",
+      "sha256": "128c877988d9f7caecf2baa9fe4283624ca75de1d4c7205cbad3cdf651c98314"
+    },
+    "vitest.config.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/vitest.config.ts",
+      "sha256": "c53843a4290b2356a68f12d5b066702df73d35ebd2a577e9df679472cc77ab8d"
+    },
+    "package.json": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/package.json",
+      "sha256": "a90fc33418afa2b9cbf4768524b021135b965ecdf993457505bfae3ac44a8428"
+    },
+    "probe/helpers.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/probe/helpers.ts",
+      "sha256": "c990e4a7dab46850f449103080d627bb358810973ad52530b38d080b6eeddb56"
+    },
+    "probe/strict-wire.spec.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/probe/strict-wire.spec.ts",
+      "sha256": "5cf1df64d839774692c82120750101e72df24a60cc98ead6df6241f38687149b"
+    },
+    "probe/native-tail.spec.ts": {
+      "path": "/workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01/probe/native-tail.spec.ts",
+      "sha256": "72952acc8e25643b2bd3804c458345fdf6003a1f550f43aa9df7a6ba3e7f49bc"
+    }
+  },
+  "static_checks": {
+    "4_candidate_hashes": true,
+    "11_accepted_dependencies_match_git": true,
+    "narrow_email_export_only": true,
+    "native_readers_unchanged": true
+  },
+  "reuse": [
+    "Existing accepted email parser semantics and strict instant parser unchanged; selected raw-email preservation checked, not full email set rerun.",
+    "Author 156 client tests/type/format are separately bound by author manifest; not claimed as independent execution.",
+    "Existing locked node_modules reused read-only; package lock/CLI/package metadata/Node fingerprints recorded rather than copying its tree."
+  ],
+  "limits": [
+    "Controlled injected Fetch and native Node Response/ReadableStream, no HTTP server/browser/SMTP/DB/Docker.",
+    "Does not establish owner unknown stickiness, authorization, 30s UI budget, lifecycle, visual behavior or production delivery.",
+    "Problem 404/503 retained at wire boundary, no owner classification asserted.",
+    "Privacy assertions cover malformed DTO and underlying transport error non-retention; existing valid Problem schema is unchanged.",
+    "No product/author source/Git mutations; only this private probe/report root written."
+  ],
+  "frozen": true
+}

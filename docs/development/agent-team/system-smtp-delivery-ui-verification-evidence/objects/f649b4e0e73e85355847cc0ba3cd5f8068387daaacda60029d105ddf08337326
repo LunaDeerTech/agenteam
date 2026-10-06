@@ -1,0 +1,23 @@
+import fs from 'node:fs'
+import crypto from 'node:crypto'
+import ts from './node_modules/typescript/lib/typescript.js'
+const root='/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/'
+const old=root+'page-probe01-source/web/src/tests/system-smtp-delivery.spec.ts'
+const current=root+'web-stage01/source/web/src/tests/system-smtp-delivery.spec.ts'
+const names=['does not publish a list row below the version already confirmed by a retry receipt','detaches delivery before resetting the next visit to configuration, with zero inactive delivery reads']
+const sha=(p)=>crypto.createHash('sha256').update(fs.readFileSync(p)).digest('hex')
+function cases(path) {
+ const source=ts.createSourceFile(path,fs.readFileSync(path,'utf8'),ts.ScriptTarget.Latest,true)
+ const found={}
+ function shape(node) { const children=[];node.forEachChild(n=>{children.push(shape(n))});return children.length?[node.kind,children]:[node.kind,node.getText(source)] }
+ function visit(node) {
+  if(ts.isCallExpression(node)&&node.expression.getText(source)==='it'&&node.arguments[0]&&ts.isStringLiteral(node.arguments[0])&&names.includes(node.arguments[0].text)) found[node.arguments[0].text]=shape(node.arguments[1])
+  ts.forEachChild(node,visit)
+ }
+ visit(source);return found
+}
+const a=cases(old),b=cases(current)
+const result={old_source:{path:old,sha256:sha(old)},current_source:{path:current,sha256:sha(current)},whole_file_equal:sha(old)===sha(current),selected_callbacks:names.map(name=>({name,ast_equal:JSON.stringify(a[name])===JSON.stringify(b[name])&&!!a[name]})),whole_file_delta:'same selected action/assertion AST; formatting plus accepted /settings/profile route stub added to suppress unrelated router warning'}
+fs.writeFileSync(new URL('./author-red-green-static.json',import.meta.url),JSON.stringify(result,null,2)+'\n')
+console.log(JSON.stringify(result))
+if(!result.selected_callbacks.every(v=>v.ast_equal))process.exitCode=1

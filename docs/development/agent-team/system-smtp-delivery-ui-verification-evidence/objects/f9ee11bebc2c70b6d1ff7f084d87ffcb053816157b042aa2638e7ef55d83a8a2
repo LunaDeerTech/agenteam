@@ -1,0 +1,11 @@
+--- preflight00/page.spec.ts
++++ probe/page.spec.ts
+@@ -243,7 +243,7 @@
+       : null
+     if (!pending) button('退出登录').click()
+     await flushPromises()
+-    expect(!!title('放弃本页未完成操作？', layers(1)[0])).toBe(true)
++    expect(!!title('放弃投递草稿或原请求追踪？', layers(1)[0])).toBe(true)
+     const next = ordinary(kind === 'same-role-loss-route' ? 2 : 3)
+     const check = gate<Response>()
+     release.push(() => check.resolve(json(next)))

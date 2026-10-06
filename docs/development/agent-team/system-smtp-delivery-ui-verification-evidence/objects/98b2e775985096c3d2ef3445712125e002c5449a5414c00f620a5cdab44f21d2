@@ -1,0 +1,104 @@
+[
+  {
+    "argv": [
+      "docker",
+      "container",
+      "rm",
+      "--volumes",
+      "72be2049077487593e9ceaf902312bd324c02f6ef1df6d4711aa7e9bfe84b0a5"
+    ],
+    "started_utc": "2026-10-06T20:25:53.650324+00:00",
+    "ended_utc": "2026-10-06T20:25:54.171308+00:00",
+    "actual_wait_completed": true,
+    "exit": 0,
+    "stdout": "72be2049077487593e9ceaf902312bd324c02f6ef1df6d4711aa7e9bfe84b0a5\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "docker",
+      "container",
+      "rm",
+      "--volumes",
+      "c1dda61efdee3dbb124832d2d430575162981f7a056a30acb4161907c1ddff50"
+    ],
+    "started_utc": "2026-10-06T20:25:54.171512+00:00",
+    "ended_utc": "2026-10-06T20:25:54.665611+00:00",
+    "actual_wait_completed": true,
+    "exit": 0,
+    "stdout": "c1dda61efdee3dbb124832d2d430575162981f7a056a30acb4161907c1ddff50\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "docker",
+      "container",
+      "rm",
+      "--volumes",
+      "e775659277075a30397dadb2b5107cf4ae9579349551f39474f08a51cac7016a"
+    ],
+    "started_utc": "2026-10-06T20:25:54.665818+00:00",
+    "ended_utc": "2026-10-06T20:25:55.096640+00:00",
+    "actual_wait_completed": true,
+    "exit": 0,
+    "stdout": "e775659277075a30397dadb2b5107cf4ae9579349551f39474f08a51cac7016a\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "docker",
+      "container",
+      "rm",
+      "--volumes",
+      "02242403b0de8372fd02757592970b61c8a23d9cf4fff26c2907d1444d469df2"
+    ],
+    "started_utc": "2026-10-06T20:25:55.096855+00:00",
+    "ended_utc": "2026-10-06T20:25:55.514699+00:00",
+    "actual_wait_completed": true,
+    "exit": 0,
+    "stdout": "02242403b0de8372fd02757592970b61c8a23d9cf4fff26c2907d1444d469df2\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "docker",
+      "network",
+      "rm",
+      "d5c62ec08f56a771febce62f85cf7ede2d77781554ada7eeb3b2e1118ac2d3ed"
+    ],
+    "started_utc": "2026-10-06T20:25:55.514924+00:00",
+    "ended_utc": "2026-10-06T20:25:55.575903+00:00",
+    "actual_wait_completed": true,
+    "exit": 0,
+    "stdout": "d5c62ec08f56a771febce62f85cf7ede2d77781554ada7eeb3b2e1118ac2d3ed\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "docker",
+      "network",
+      "rm",
+      "084e75daa2599ea76d30a11b2499ce79e51a5c7babf9fe5c8debfca32578bac0"
+    ],
+    "started_utc": "2026-10-06T20:25:55.576181+00:00",
+    "ended_utc": "2026-10-06T20:25:55.658504+00:00",
+    "actual_wait_completed": true,
+    "exit": 0,
+    "stdout": "084e75daa2599ea76d30a11b2499ce79e51a5c7babf9fe5c8debfca32578bac0\n",
+    "stderr": ""
+  },
+  {
+    "argv": [
+      "docker",
+      "network",
+      "rm",
+      "1412023c24655f5a2bd9c0548d5ee33a544a85cfc60ffe77023c930deffdf07b"
+    ],
+    "started_utc": "2026-10-06T20:25:55.658740+00:00",
+    "ended_utc": "2026-10-06T20:25:55.726049+00:00",
+    "actual_wait_completed": true,
+    "exit": 0,
+    "stdout": "1412023c24655f5a2bd9c0548d5ee33a544a85cfc60ffe77023c930deffdf07b\n",
+    "stderr": ""
+  }
+]

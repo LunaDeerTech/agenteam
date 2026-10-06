@@ -1,0 +1,21 @@
+{
+  "argv": [
+    "python3",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/driver01.py",
+    "--name",
+    "authority02",
+    "--group",
+    "authority",
+    "--frozen",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/input02/manifest.json",
+    "--modcache",
+    "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache"
+  ],
+  "authorization": "proposal only; root exclusive grant required",
+  "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd",
+  "expected_resources": 9,
+  "group": "authority",
+  "top_levels": [
+    "TestAccountSystemSMTPDeliveryWebAuthorityAndIdentity"
+  ]
+}

@@ -1,0 +1,17 @@
+# SMTP delivery input04 独立窄验收
+
+**有界 PASS。** 固定 input04 的新 clean 拒绝身份离页资格符合修复契约；两个私有真实 App/router/factory + 受控 Fetch 组合 2/2 PASS，actual exit 0 / 2.562353s。Node 子进程已实际 wait，2 owned PID/starttime 两扫空、0 adopted wait，输入前后相同。没有浏览器、服务、监听端口、Docker/PG 或 SMTP 资源。
+
+生产仅 `useSystemSMTPDelivery.ts` 加 `clearedRejected` 与入口捕获：authenticated/current，identity 与当前 user/session 对应，非 admin 或当前 identity denied，非 busy、两域 clean；await 后仍核 generation/section、未 dispose、同完整 identity 和仍成立的拒绝资格。旧 anonymous 分支、admin live/switch/write、旧 pending 隔离不变。另一变更仅 App 测试；其余 14 候选、1083 固定依赖不变，36 dist 已按 manifest 验 SHA（本轮 jsdom 不执行 dist）。
+
+组合 A：初始普通用户无权页，公开退出按钮实际产生一次 logout，最终 /login 且空登录控件可操作、零 system 请求。另从 admin 当前 403 明确拒绝后点真实个人资料 RouterLink，合法离页；精确核 Session GET 后的旧 SMTP 路由重验 GET 发生在 authenticated/current admin、denied=false，零 SMTP 写、离页后零读。未把该合法 guard 中读误计为离页后请求。
+
+组合 B：admin 公开待决 route 在同 Session 降为普通用户、公开待决 logout 在变为另一普通 Session 后均没有后获权；受控 checking 屏障时仍待决且零 logout，身份发布后旧操作拒绝、草稿与模态清除。随后单独的新 clean 普通用户链接允许离页，只有一次 Session GET、零 SMTP 写。
+
+作者原同完整 App spec 的 `rejected-probe05` 3 RED + 2 PASS → `06` 5 PASS 已核源 SHA 与实际 raw/result；原 15 + 新 5 组合 20 PASS、type/build 实际 0 复用。早期作者 dirty/read 与总 GET 前提错误保持原件，不归产品；独立 probe 执行前仅把一处准备稿确认标题对齐固定 controller，未执行该准备稿，副本在 `preflight00/`。
+
+`driver02` 差量只加入 `old-settings-authority` 单 selector，仍精确唯一旧顶层、7 IDs，原实际 cwd/完整输入门禁、预算、subreaper、actual wait 和双清逻辑原字节。可用该组闭合旧 Authority 原红；本报告不宣称它已实际通过。
+
+复用条件：已通过的新五组与旧四组保留各自原输入/终局，不能称 input04 单轮全回归。此次生产差量仅增加稳定 clean 非管理员/当前拒绝身份的新离页分支；管理员读写、receipt/unknown、API/owner、原匿名失效与其他旧页面逻辑原字节，结合本轮新资格和旧 pending 隔离证据可有界复用。root 已采纳的原生焦点/布局证据不由 jsdom 重做；原旧 Authority 真实成员退出链需单独重验。保留所有历史失败，API/owner 不重复运行。
+
+执行输入、直接锁定 CLI、原 raw/result/cleanup、源及 dist SHA 见 `input.json`、`preparation.json` 与 `runs/app01/`；精确索引在 `review.json`。私有路由省略未执行的 forgot-password 叶子，产生一条 Router warn；本轮所验 App/SMTP/login/guard 为真实实现，个人资料目标为最小只读标题壳。合成 layout 不证明 native focus/Tab，也不证明后端或实际权限服务。

@@ -1,0 +1,7 @@
+Navigation01：静态归因为浏览器操作前提错误，本次不支持产品返修。固定 input02 manifest `a65e6e028bb5ffe5c700753577d027c18ab360924fe0c2e03bb604886557a085`。
+
+原 raw 只证明 helper611 在 Nav1539 等待精确“刷新任务列表”至浏览器总45s超时。driver actual1 / 102.297s，Go顶层52.27s；9 exact IDs、87 owned PID/starttime、4 adopted actualwait、两扫清零、输入不变。0图片，后续8布局未执行。不得补造原DOM、遮罩、busy或各步耗时。
+
+固定 Panel171–185 仅 list 模式渲染刷新按钮；detail 模式提供“返回任务列表”和“重新读取任务详情”，列表 error/loading 不改按钮名称。此前 detail(source) 已设置 detail 模式；同身份 checking、discard、detach/attach、两区切换均保留该模式，且 initial=false 不自动重读。1539之前没有返回列表；只有显式 backToList 或真离页/身份失效 invalidate 才恢复 list。规格§3保留内联返回原列表入口，并不要求同页切区重置详情。
+
+最小返修仅该Nav位置：严格详情region可见、刷新count0，点击精确“返回任务列表”，随后保持原refresh的新序号GET200/ended/完整items以及全部焦点、布局、45s/2m/6m断言。原首红保持；无需修改产品或扩大locator。静态因果与原轮观察分列，SHA及精确来源在review.json。未运行新测试、浏览器、服务或资源。

@@ -1,0 +1,168 @@
+{
+  "accepted_dependencies": {
+    "web/.prettierignore": {
+      "git_blob": "68f9def844de5455943aa43e740899dc57f31ae0",
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/dependencies/web/.prettierignore",
+      "sha256": "0b737e348f781f0573ef62ae5f68f984eca718f732a9fb9c95054f57363e1a50"
+    },
+    "web/.prettierrc.json": {
+      "git_blob": "23e147a2f8482e7b8dead18a192a50a870af0a26",
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/dependencies/web/.prettierrc.json",
+      "sha256": "247948f37fa595cc5c84503e35dcb06706b874f01777807691e11a4fc8ee4431"
+    },
+    "web/package-lock.json": {
+      "git_blob": "5fada3969e90bb48ad582cb4fda659cf741e689b",
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/dependencies/web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    "web/package.json": {
+      "git_blob": "f4c678be98e404989c80b8cedbc74cedc5fc3800",
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/dependencies/web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    "web/src/api/account.ts": {
+      "git_blob": "43eb1e384093014945d3e7dcf5a87f31567bb795",
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/dependencies/web/src/api/account.ts",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+    },
+    "web/src/api/system-account.ts": {
+      "git_blob": "b1126fd95c23db81300d4edb85a01076a9e4729d",
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/dependencies/web/src/api/system-account.ts",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+    },
+    "web/src/api/system-invitations.ts": {
+      "git_blob": "07692ec91b2e3c1153831a4c2e508182b9a24fce",
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/dependencies/web/src/api/system-invitations.ts",
+      "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e"
+    },
+    "web/src/tests/system-invitations-client.spec.ts": {
+      "git_blob": "b7206adf737cb5944340e6558ebcc27e284d18c1",
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/dependencies/web/src/tests/system-invitations-client.spec.ts",
+      "sha256": "20aa1a1dee349d545ac98867bcec50f0486f8036d3153fc518971475b66bb1bf"
+    },
+    "web/src/tests/system-smtp-settings-client.spec.ts": {
+      "git_blob": "af8d6c7930129155a20a265cf614ad2a516e231f",
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/dependencies/web/src/tests/system-smtp-settings-client.spec.ts",
+      "sha256": "0fa109711f474a99aeb4214e0dcba5886b3537c1bd1cbc66003cf9b8fbe93062"
+    },
+    "web/tsconfig.json": {
+      "git_blob": "0aa1b9504de5b09008303e1aad9b767df88ea5c4",
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/dependencies/web/tsconfig.json",
+      "sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18"
+    },
+    "web/vite.config.ts": {
+      "git_blob": "6daa9c5c7984caf95ca92db519fe7f8099c9bae6",
+      "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/dependencies/web/vite.config.ts",
+      "sha256": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+    }
+  },
+  "actual_typecheck_web_closure": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/web-baseline.json",
+    "sha256": "cbca08b524b4539defd009217329070e0dc9075e8f350b39b88710b495ec2364"
+  },
+  "card": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/card.md",
+    "sha256": "c7cb2de94d800e5578f5a0eb288d41853c8c7beeb0d0528ae50aceed3fb4be3f"
+  },
+  "checks": {
+    "api-format-check01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-format-check01/command.json",
+        "sha256": "7a3f3155cf1dc1056d40694f97c72cbd88814e16730273872bc483809134ff36"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-format-check01/input-after.json",
+        "sha256": "b446d7cce87c2fa649fcfb8df4e2ea142609c48406af7e5c720368bdd81456d2"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-format-check01/input-before.json",
+        "sha256": "b446d7cce87c2fa649fcfb8df4e2ea142609c48406af7e5c720368bdd81456d2"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-format-check01/raw.log",
+        "sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-format-check01/result.json",
+        "sha256": "ad8358d9fc1815a94ac26c74008727e777c8707b024387bb878fa934e96ae7dd"
+      }
+    },
+    "api-pure01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-pure01/command.json",
+        "sha256": "d2e59ef917e56e349778d7b654237bacac4021b2e350a590c2e32775114a02e9"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-pure01/input-after.json",
+        "sha256": "b446d7cce87c2fa649fcfb8df4e2ea142609c48406af7e5c720368bdd81456d2"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-pure01/input-before.json",
+        "sha256": "b446d7cce87c2fa649fcfb8df4e2ea142609c48406af7e5c720368bdd81456d2"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-pure01/raw.log",
+        "sha256": "a2ad3e20fd69b18e9fd68022ef474660ba89f9730f3059c6178082f79e9fde5d"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-pure01/result.json",
+        "sha256": "7f002b3f8a91448c68bf1a28e8f35051a66f23a9261e54fa3b1f0d2c49f34453"
+      }
+    },
+    "api-type01": {
+      "command.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-type01/command.json",
+        "sha256": "f2de420f0dba8b44f86e4a3bda91abadd5145ae3a72f31fda425cefc459e8de2"
+      },
+      "input-after.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-type01/input-after.json",
+        "sha256": "b446d7cce87c2fa649fcfb8df4e2ea142609c48406af7e5c720368bdd81456d2"
+      },
+      "input-before.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-type01/input-before.json",
+        "sha256": "b446d7cce87c2fa649fcfb8df4e2ea142609c48406af7e5c720368bdd81456d2"
+      },
+      "raw.log": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-type01/raw.log",
+        "sha256": "6f8160ae63c864aff4e638f3bcd7899888e64a0c9b634115c8edd7bbc9d8c373"
+      },
+      "result.json": {
+        "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/runs/api-type01/result.json",
+        "sha256": "86682e638e74b0945f14c96177cff45ca83bc5c6d3431042fcbf497351309077"
+      }
+    }
+  },
+  "dependency_root": "/workspace/scratch/agenteam-smtp-settings-frontend-e_vcgwya/workspace/web/node_modules",
+  "diff": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/candidate.diff",
+    "sha256": "a85145e6692317e8b04de72ee8cf712a9f8b20d4cacf353f6146e3f32e68a326"
+  },
+  "files": {
+    "web/src/api/client.ts": "2e331d9361257433cf399ce516facdf6efa420d0f0df400306bbaaf07be1442e",
+    "web/src/api/system-smtp-delivery.ts": "b4044f5ae4477cb904d2891a635bf10a77b0888b4376525dfc0989ee2023ccfd",
+    "web/src/api/system-smtp-settings.ts": "0f015823398fe909688dd0ec7b2cf2a99ca9b82b8963fda5dfb96b13c7864311",
+    "web/src/tests/system-smtp-delivery-client.spec.ts": "4d5be3e29f4cffcf232356f4ec26b6da557c66e2a4197a1ed468b48e1bb80529"
+  },
+  "limits": [
+    "API only; no owner/page or actual resource execution",
+    "Original 404 Problem is preserved; unknown classification is not yet an owner result",
+    "Full application check/build deferred until later combined page stage"
+  ],
+  "locked_metadata": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web/node_modules/.package-lock.json",
+    "sha256": "b3c46d4d6d7d25282ef60c069e02b181792731f0975e0cd19f62fbb8363ec071"
+  },
+  "product_base": "628612cdfc730cc1d89cad4e24a5d20f36cc6812",
+  "review": {
+    "path": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/review.md",
+    "sha256": "1cdedcdf2da8fe9b8b047d9f0912590af8cc6bf8acd7c3dd26a74fa9617453bc"
+  },
+  "source_frozen": true,
+  "source_resolution": {
+    "web/src/api/client.ts": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/source/web/src/api/client.ts",
+    "web/src/api/system-smtp-delivery.ts": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/source/web/src/api/system-smtp-delivery.ts",
+    "web/src/api/system-smtp-settings.ts": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/source/web/src/api/system-smtp-settings.ts",
+    "web/src/tests/system-smtp-delivery-client.spec.ts": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/api-stage01/source/web/src/tests/system-smtp-delivery-client.spec.ts"
+  },
+  "stage": "api-stage01"
+}

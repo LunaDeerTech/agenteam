@@ -1,0 +1,58 @@
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run src/tests/system-smtp-delivery.spec.ts -t fresh login navigation|old valid-identity
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/web
+
+ ❯ src/tests/system-smtp-delivery.spec.ts (28 tests | 3 failed | 25 skipped) 407ms
+     × allows a fresh login navigation after public current-state checking destroys a revoked SMTP identity 215ms
+     × rejects the old valid-identity route decision while a separate fresh anonymous navigation reaches login 119ms
+     × rejects the old valid-identity logout decision while a separate fresh anonymous navigation reaches login 72ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 3 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > allows a fresh login navigation after public current-state checking destroys a revoked SMTP identity
+AssertionError: expected '/system/smtp' to be '/login' // Object.is equality
+
+Expected: "/login"
+Received: "/system/smtp"
+
+ ❯ src/tests/system-smtp-delivery.spec.ts:631:46
+    629|     expect(f.reads()).toHaveLength(reads)
+    630|     expect(f.writes()).toHaveLength(1)
+    631|     expect(f.router.currentRoute.value.path).toBe('/login')
+       |                                              ^
+    632|     for (const selector of ['#login-email', '#login-password']) {
+    633|       const input = f.wrapper.get<HTMLInputElement>(selector).element
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/3]⎯
+
+ FAIL  src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > rejects the old valid-identity route decision while a separate fresh anonymous navigation reaches login
+ FAIL  src/tests/system-smtp-delivery.spec.ts > SMTP sections in the real App and router > rejects the old valid-identity logout decision while a separate fresh anonymous navigation reaches login
+AssertionError: expected [] to deeply equal [ '/login' ]
+
+- Expected
++ Received
+
+- [
+-   "/login",
+- ]
++ []
+
+ ❯ src/tests/system-smtp-delivery.spec.ts:665:26
+    663|         expect(f.auth.system.smtpDelivery.progress).toBeNull()
+    664|         expect(f.auth.personalContext.identity).toBeNull()
+    665|         expect(accepted).toEqual(['/login'])
+       |                          ^
+    666|         expect(f.router.currentRoute.value.path).toBe('/login')
+    667|         expect(button('登录').disabled).toBe(false)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/3]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  3 failed | 25 skipped (28)
+   Start at  19:27:36
+   Duration  1.92s (transform 852ms, setup 0ms, import 1.00s, tests 407ms, environment 388ms)
+

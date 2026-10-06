@@ -1,0 +1,40 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ts=require('./workspace/web/node_modules/typescript');
+const source=fs.readFileSync('./workspace/tests/account-captcha-web/e2e/system-smtp-delivery.spec.ts','utf8');
+const parsed=ts.createSourceFile('spec.ts',source,ts.ScriptTarget.Latest,true);
+const node=parsed.statements.find(v=>ts.isFunctionDeclaration(v)&&v.name?.text==='observeNative');assert(node);
+const js=ts.transpileModule(node.getText(parsed),{compilerOptions:{target:ts.ScriptTarget.ES2022}}).outputText;
+const a='01980000-0000-7000-8000-000000000001',b='01980000-0000-7000-8000-000000000002';
+const job=(id,at)=>({job_id:id,kind:'test',phase:'sent',attempts:'1',version:'9',channel:'smtp',created_at:at,attempt_channel:'smtp',attempt_result:'sent',reason:'sent'});
+async function run(path,status,data,options={}){
+ const raw=new TextEncoder().encode(options.raw??JSON.stringify(data)),chunks=[raw.slice(0,Math.min(raw.length,8)),raw.slice(Math.min(raw.length,8))];
+ let index=0,nativePromise,lastRead,cancels=0,getCalls=0;
+ const cancel=()=>{cancels++;return Promise.resolve()},reader={read(){lastRead=options.reject?Promise.reject(Error('owned read rejection')):Promise.resolve(index<chunks.length?{done:false,value:chunks[index++]}:{done:true});return lastRead},cancel};
+ const originalGet=()=>{getCalls++;return reader},body={getReader:originalGet,cancel};
+ const response={status,headers:new Headers({'Content-Type':options.media??(status===200||status===202?'application/json':'application/problem+json')}),body};
+ const scope={fetch(){nativePromise=Promise.resolve(response);return nativePromise}};
+ const context={window:scope,location:{origin:'http://127.0.0.1:1'},URL,Request,TextDecoder,TextEncoder,Headers,Reflect,Promise,Set,BigInt,Date,Object,Array,Number,JSON};
+ vm.runInNewContext(js+';observeNative()',context);
+ const returned=scope.fetch(path,{method:status===202?'POST':'GET'});assert.equal(returned,nativePromise);assert.equal(await returned,response);
+ if(options.media){assert.equal(body.getReader,originalGet);assert.equal(body.cancel,cancel);await body.cancel();assert.equal(cancels,1);assert.equal(scope.__smtpFacts[0].job,undefined);return;}
+ assert.equal(getCalls,0);const actual=body.getReader();assert.equal(actual,reader);assert.equal(actual.cancel,cancel);assert.equal(body.cancel,cancel);
+ assert.equal(scope.__smtpFacts[0].receipt,undefined);assert.equal(scope.__smtpFacts[0].items,undefined);
+ for(;;){const value=actual.read();assert.equal(value,lastRead);let r;try{r=await value}catch{break};if(r.done)break}
+ await Promise.resolve();const fact=scope.__smtpFacts[0];assert.equal(fact.ended,true);assert.equal(getCalls,1);assert.equal(cancels,0);return fact;
+}
+(async()=>{
+ let count=0;
+ let f=await run('/api/v1/system/smtp/test',202,{job_id:b});assert.equal(f.receipt.job_id,b);assert.equal(f.receipt.version,undefined);count++;
+ f=await run(`/api/v1/system/mail-jobs/${a}/retry`,202,{job_id:b,version:'7'});assert.equal(f.receipt.version,'7');count++;
+ f=await run(`/api/v1/system/mail-jobs/${a}/retry`,202,{job_id:a,version:'7'});assert.equal(f.receipt,undefined);count++;
+ const items=[job(b,'2026-10-06T12:00:00.000002Z'),job(a,'2026-10-06T12:00:00.000001Z')];
+ f=await run('/api/v1/system/mail-jobs/management',200,{items});assert.equal(f.items.length,2);assert.equal(f.items[0].created_at,items[0].created_at);count++;
+ f=await run('/api/v1/system/mail-jobs/management',200,{items:[items[0],{...items[1],recipient:'forbidden@example.test'}]});assert.equal(f.items,undefined);count++;
+ f=await run(`/api/v1/system/mail-jobs/${a}/management`,200,{...items[1],created_at:'2026-02-30T12:00:00.000001Z'});assert.equal(f.job,undefined);count++;
+ f=await run('/api/v1/system/mail-jobs/management',200,{items:[items[1],items[0]]});assert.equal(f.items,undefined);count++;
+ const raw=JSON.stringify({job_id:b});f=await run('/api/v1/system/smtp/test',202,null,{raw:raw+' '.repeat(600000-raw.length)});assert.equal(f.receipt.job_id,b);assert.equal(f.bytes,600000);count++;
+ f=await run('/api/v1/system/smtp/test',202,null,{raw:raw+' '.repeat(600001-raw.length)});assert.equal(f.receipt,undefined);assert.equal(f.bytes,600001);count++;
+ f=await run('/api/v1/system/smtp/test',202,{job_id:b},{reject:true});assert.equal(f.receipt,undefined);count++;
+ await run('/api/v1/system/mail-jobs/management',503,{}, {media:'text/plain'});count++;
+ console.log(JSON.stringify({passed:count,original_fetch_response_reader_read_cancel:true,closed_projection:true,actual_extra_requests:0,observer_is_not_owner_evidence:true}));
+})().catch(error=>{console.error(error);process.exitCode=1});

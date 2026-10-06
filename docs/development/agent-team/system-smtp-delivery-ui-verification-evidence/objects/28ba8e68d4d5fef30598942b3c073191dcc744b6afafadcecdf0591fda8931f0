@@ -1,0 +1,22 @@
+{
+  "actual_wait": true,
+  "argv": [
+    "node",
+    "native-observer-probe01.cjs"
+  ],
+  "child_pid": 1994538,
+  "cwd": "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd",
+  "duration_seconds": 0.35,
+  "ended_utc": "2026-10-06T19:00:08.918035+00:00",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback"
+  },
+  "exit_code": 0,
+  "input_after_sha256": "7a9e68ca1fd3464d9bd68e2cc40d808c09cef1dcccd33825570e7d2ae7f036e0",
+  "input_before_sha256": "7a9e68ca1fd3464d9bd68e2cc40d808c09cef1dcccd33825570e7d2ae7f036e0",
+  "input_unchanged": true,
+  "raw_sha256": "acd3bb7e23b8d2ec1f51a377b632e4178bdaa8036d3b4832a50a413e08b463da",
+  "resource_execution": false,
+  "runner_sha256": "16b62f8e822211a9c826ba9b49f25204a1613c86e37d023287e8192eb24c85f9",
+  "started_utc": "2026-10-06T19:00:08.569443+00:00"
+}

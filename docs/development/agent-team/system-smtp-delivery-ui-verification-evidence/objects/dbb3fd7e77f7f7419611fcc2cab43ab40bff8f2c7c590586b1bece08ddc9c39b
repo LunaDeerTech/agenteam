@@ -1,0 +1,32 @@
+{
+  "argv": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "/workspace/scratch/agenteam-smtp-delivery-frontend-fpf9njbd/workspace/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/bound03/source/browser/independent.config.js",
+    "--list"
+  ],
+  "cwd": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/bound03/source/browser",
+  "env": {
+    "PATH": "/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override:/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin:/opt/codex/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/agent/.local/bin:/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/fallback",
+    "HOME": "/home/agent",
+    "LANG": "C.UTF-8",
+    "CI": "1",
+    "NO_COLOR": "1",
+    "TZ": "UTC",
+    "TMPDIR": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-runtime/browser-list-independent-test01",
+    "AGENTEAM_AUTH_WEB_ORIGIN": "http://127.0.0.1:9",
+    "AGENTEAM_AUTH_WEB_PRIVATE": "/workspace/scratch/agenteam-smtp-delivery-real-independent-3u4cdb_h/offline-runtime/discovery",
+    "AGENTEAM_AUTH_WEB_CHROMIUM": "/usr/bin/chromium",
+    "AGENTEAM_SMTP_DELIVERY_WEB_CASE": "independent-test"
+  },
+  "started_utc": "2026-10-06T20:14:28.302541+00:00",
+  "supervisor_sha256": "0e3c45f95df2378f60f15be146a88e704fbb75382e987795f63919488efc0a14",
+  "no_business_resources": true,
+  "actual_wait_completed": true,
+  "exit": 0,
+  "seconds": 0.926304,
+  "ended_utc": "2026-10-06T20:14:29.229100+00:00",
+  "supervisor_timeout": false
+}

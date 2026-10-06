@@ -1,0 +1,13 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-smtp-delivery-ui-independent-g32d2ev6/api-stage01
+
+ ✓ probe/native-tail.spec.ts > independent SMTP delivery native read and cancellation tails > does not publish a complete 600000-byte page before native EOF despite a misleading length header 28ms
+ ✓ probe/native-tail.spec.ts > independent SMTP delivery native read and cancellation tails > bounds native Problem bodies to 600000 bytes and joins a 600001-byte cancellation tail 5ms
+ ✓ probe/native-tail.spec.ts > independent SMTP delivery native read and cancellation tails > keeps an aborted retry unresolved through actual cancel completion and never confirms buffered JSON 1ms
+ ✓ probe/native-tail.spec.ts > independent SMTP delivery native read and cancellation tails > joins rejected-media cancel without claiming EOF, and rejects a truncated successful body at its actual EOF 1ms
+
+ Test Files  1 passed (1)
+      Tests  4 passed (4)
+   Start at  18:25:35
+   Duration  261ms (transform 91ms, setup 0ms, import 112ms, tests 37ms, environment 0ms)
+

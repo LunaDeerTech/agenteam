@@ -1,0 +1,119 @@
+--- input01/web/src/composables/useSystemSMTPDelivery.ts
++++ input02/web/src/composables/useSystemSMTPDelivery.ts
+@@ -647,6 +647,13 @@
+     auth.personalContext.phase === 'current' &&
+     auth.state.user?.role === 'admin' &&
+     !auth.system.denied
++  const clearedAnonymous = () =>
++    auth.state.phase === 'anonymous' &&
++    auth.personalContext.phase === 'invalid' &&
++    auth.personalContext.identity === null &&
++    !auth.state.busy &&
++    !configuration.dirty.value &&
++    !delivery.dirty.value
+   const live = (own: number, section: SMTPSection, captured: PersonalIdentity | null) =>
+     !disposed &&
+     activeRoute &&
+@@ -726,11 +733,20 @@
+     async confirmLeave() {
+       const own = generation,
+         section = active.value,
+-        captured = auth.personalContext.identity
++        captured = auth.personalContext.identity,
++        inactiveAtEntry = !activeRoute,
++        clearedAtEntry = clearedAnonymous()
+       const result = await controller(section).confirmLeave()
++      // A fresh anonymous navigation may leave the cleared page; an old
++      // identity's pending decision never gains this permission retroactively.
+       return (
+         result &&
+-        (live(own, section, captured) || (!activeRoute && !controller(section).dirty.value))
++        !disposed &&
++        generation === own &&
++        active.value === section &&
++        (live(own, section, captured) ||
++          (inactiveAtEntry && !activeRoute && !controller(section).dirty.value) ||
++          (clearedAtEntry && clearedAnonymous()))
+       )
+     },
+     afterNavigation(to: string, from: string) {
+--- input01/web/src/tests/system-smtp-delivery.spec.ts
++++ input02/web/src/tests/system-smtp-delivery.spec.ts
+@@ -599,6 +599,77 @@
+ })
+ 
+ describe('SMTP sections in the real App and router', () => {
++  it('allows a fresh login navigation after public current-state checking destroys a revoked SMTP identity', async () => {
++    const f = await app()
++    await click('测试与任务')
++    await change('测试收件邮箱', 'revoked.original@example.test')
++    f.setDelivery(async () => problem('UNAVAILABLE'))
++    await submit()
++    expect(f.auth.system.smtpDelivery.progress?.phase).toBe('uncertain')
++    expect(f.writes()).toHaveLength(1)
++    const reads = f.reads().length,
++      beforeCheck = f.fetch.mock.calls.length,
++      revoked = vi.fn<Fetch>(async () => problem('SESSION_REVOKED', 401))
++    f.setSessionRequest(revoked)
++    await click('检查当前状态')
++    expect(revoked).toHaveBeenCalled()
++    const checkingCalls = f.fetch.mock.calls.slice(beforeCheck)
++    expect(checkingCalls[0]?.[0]).toBe('/api/v1/session')
++    expect(checkingCalls[1]?.[0]).toBe('/api/v1/auth/bootstrap')
++    expect(f.auth.state.phase).toBe('anonymous')
++    expect(f.auth.state.busy).toBe(false)
++    expect(f.auth.personalContext.phase).toBe('invalid')
++    expect(f.auth.personalContext.identity).toBeNull()
++    expect(f.auth.system.smtpDelivery.progress).toBeNull()
++    expect(f.auth.system.smtp.progress).toBeNull()
++    expect(f.auth.system.smtp.material.present).toBe(false)
++    expect(f.auth.system.smtp.material.invalid).toBe(false)
++    expect(f.wrapper.find('[aria-label="SMTP 测试与任务"]').exists()).toBe(false)
++    expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
++    expect(f.reads()).toHaveLength(reads)
++    expect(f.writes()).toHaveLength(1)
++    expect(f.router.currentRoute.value.path).toBe('/login')
++    for (const selector of ['#login-email', '#login-password']) {
++      const input = f.wrapper.get<HTMLInputElement>(selector).element
++      expect(input.readOnly).toBe(false)
++      expect(input.disabled).toBe(false)
++      expect(input.value).toBe('')
++    }
++    expect(button('登录').disabled).toBe(false)
++  })
++  it.each(['route', 'logout'] as const)(
++    'rejects the old valid-identity %s decision while a separate fresh anonymous navigation reaches login',
++    async (action) => {
++      const f = await app()
++      await click('测试与任务')
++      await click('查看任务 ' + id(20))
++      await click('申请新重试周期')
++      const pending = action === 'route' ? f.router.push('/system/users') : null
++      if (action === 'logout') button('退出登录').click()
++      await flushPromises()
++      dialogs(2)
++      const accepted: string[] = []
++      const stop = f.router.afterEach((to, _, failure) => {
++        if (!failure) accepted.push(to.path)
++      })
++      try {
++        f.setSessionRequest(async () => problem('SESSION_REVOKED', 401))
++        window.dispatchEvent(new Event('pageshow'))
++        await flushPromises()
++        if (pending) expect(isNavigationFailure(await pending)).toBe(true)
++        expect(f.fetch.mock.calls.filter(([p]) => p.endsWith('/logout'))).toHaveLength(0)
++        expect(f.writes()).toHaveLength(0)
++        expect(document.querySelectorAll('.ui-overlay')).toHaveLength(0)
++        expect(f.auth.system.smtpDelivery.progress).toBeNull()
++        expect(f.auth.personalContext.identity).toBeNull()
++        expect(accepted).toEqual(['/login'])
++        expect(f.router.currentRoute.value.path).toBe('/login')
++        expect(button('登录').disabled).toBe(false)
++      } finally {
++        stop()
++      }
++    },
++  )
+   it('detaches delivery before resetting the next visit to configuration, with zero inactive delivery reads', async () => {
+     const f = await app()
+     await click('测试与任务')
