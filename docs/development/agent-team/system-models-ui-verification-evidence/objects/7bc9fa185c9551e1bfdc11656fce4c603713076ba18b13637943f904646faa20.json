@@ -1,0 +1,440 @@
+{
+  "stage": "web-stage01",
+  "scope": "19 web paths fixed; browser fixtures pending; no real-resource execution",
+  "base": "f465f45b899e21c225e7d4107c099b256538239c",
+  "card_sha256": "69afe186e3aea37d63ee8b8d9a9583c210e8d71efef7fe9cc90e0a45d946e524",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "82ef064f3c6378ac81fc871c0c8b2f3b11a05ff975f54eba57256c43a4b40757"
+    },
+    {
+      "path": "web/src/api/system-providers.ts",
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade"
+    },
+    {
+      "path": "web/src/api/system-models.ts",
+      "sha256": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "d067000e728da5ffc267a4cbdbbb147d456f2ea5a91b09cf214d30da42c78042"
+    },
+    {
+      "path": "web/src/composables/useSystemModels.ts",
+      "sha256": "a5d572cab5f56115793d00aeaf502838510c1d8b97dfbcb58dd29cad57aca172"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "964ac3660e74da088db6e9dc47231a996b92764e3df3fbbe7af3e0eac103d49f"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "bcd8938c6c5e81f69845d59954b856f89b6da4a37831be06f5b72ea2a4f4834e"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "8fccadfa6c22c0d22322982d52c8dd617a343cb44fe12b917c6cb49646414a68"
+    },
+    {
+      "path": "web/src/views/system/SystemSettingsView.vue",
+      "sha256": "2759bf4faec5addc382b02f94b1f06797383374b5c9e087ea89b94944e6c21dd"
+    },
+    {
+      "path": "web/src/views/system/SystemModelsView.vue",
+      "sha256": "1e3104f85d1156b32be63385e07968cf2fda1d18071a349774e48ea5cda6b269"
+    },
+    {
+      "path": "web/src/views/system/SystemModelEditor.vue",
+      "sha256": "6315b3731c2fe52b18fc9b51b37dc3aa3f96b96bb67692292749b920d8107941"
+    },
+    {
+      "path": "web/src/views/system/SystemModelDeleteDialog.vue",
+      "sha256": "df056eac828da1e756c9cec52182bf83680e1c6e6f0b9d34751d05069afd2872"
+    },
+    {
+      "path": "web/src/tests/system-models-client.spec.ts",
+      "sha256": "05a6431ba1bcd8c195d6db2ac3d74f0847bdd7034e00151e10a6b7a8c1737b04"
+    },
+    {
+      "path": "web/src/tests/system-models-state.spec.ts",
+      "sha256": "69f15bc2108ec55369321401d3a447bcffaa16c6e92fb4e194deefa75cb5b649"
+    },
+    {
+      "path": "web/src/tests/system-models.spec.ts",
+      "sha256": "b2c9f75017e61d859e24ff391089bc6645c4bf1f1e61760936a13c0fcb560cac"
+    },
+    {
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "sha256": "c3e3652553c76d18a9601b73a6e1c7999663ddafa3a4ccf435a6b703e8e7c90a"
+    },
+    {
+      "path": "web/src/tests/system-invitations.spec.ts",
+      "sha256": "980a6219bc9caf5e2071f68559b8c15cf3d3b14183eac80b1914ada6d80fa620"
+    },
+    {
+      "path": "web/src/tests/system-providers.spec.ts",
+      "sha256": "a95fdbadd834c32ee45a8e29250901662c5d30adca404125354ab45abe8234de"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "022cff548f5b99c8b02ce261a1128af2107f8418cf6aec0595137333c30f6c9a"
+    }
+  ],
+  "accepted_dependencies": [
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+    },
+    {
+      "path": "web/src/api/system-account.ts",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+    },
+    {
+      "path": "web/src/api/system-invitations.ts",
+      "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e"
+    },
+    {
+      "path": "web/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13"
+    },
+    {
+      "path": "web/src/tests/system-providers-state.spec.ts",
+      "sha256": "eaefcd259350221b3cf912813704d93c7076f10ae5d60d8525fd096c5924c246"
+    },
+    {
+      "path": "web/src/tests/system-providers-client.spec.ts",
+      "sha256": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c"
+    },
+    {
+      "path": "web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    {
+      "path": "web/tsconfig.json",
+      "sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18"
+    },
+    {
+      "path": "web/vite.config.ts",
+      "sha256": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+    },
+    {
+      "path": "web/src/components/ui/UiDialog.vue",
+      "sha256": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065"
+    },
+    {
+      "path": "web/src/composables/useLayer.ts",
+      "sha256": "92de6b58cd53e813cd8c90bc23478ce935eca36ddc88ce96fdd2caf7a3f3227f"
+    },
+    {
+      "path": "web/src/components/layout/SettingsShell.vue",
+      "sha256": "8815f6b4ccae1afbaeef4edd3e18ae92d700a791ea156bb97204069e0859feac"
+    },
+    {
+      "path": "web/src/composables/useSystemProviders.ts",
+      "sha256": "79e92bc3f18a9045d5eacf0de425df128997940b31958aee65ae795728ff7488"
+    },
+    {
+      "path": "web/src/views/system/SystemProvidersView.vue",
+      "sha256": "7a220565bfca21d70f56f087a66ff713e5cee9d53546bcce73a4eadf347b3b89"
+    }
+  ],
+  "dist_metadata_only": [
+    {
+      "path": "web/dist/assets/AppearanceSettings-VOOCO0oJ.js",
+      "sha256": "7cb5e74f5dfd612a2f8e45c59a13fa951f9f7bbad7b8934e88c901ec4dfd5a50"
+    },
+    {
+      "path": "web/dist/assets/ForgotPasswordView-DJSF_FFM.css",
+      "sha256": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2"
+    },
+    {
+      "path": "web/dist/assets/ForgotPasswordView-gtcx-Qke.js",
+      "sha256": "1be02b40ed9be5d0e8663a930958339ce2ca6b6c6cadb7f6553414baa0f5feef"
+    },
+    {
+      "path": "web/dist/assets/InvitationView-B4wTz1D4.css",
+      "sha256": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177"
+    },
+    {
+      "path": "web/dist/assets/InvitationView-CCFJw-b7.js",
+      "sha256": "89219a23ffc7deb3d2571d3130b218f3ff95d2d344cd28100aa87f8afdc0a5fd"
+    },
+    {
+      "path": "web/dist/assets/PasswordSettings-BATRi16k.js",
+      "sha256": "ecff050423e33ab9ad1dc468c70797504c6d3ae267d481296e5854ab15902c03"
+    },
+    {
+      "path": "web/dist/assets/PersonalSettingsView-BHoI1xYG.js",
+      "sha256": "17cd8814c79ffe711c445ba8fc97471a9a3d254078cf7b3e27ab04f4b6fc9ddc"
+    },
+    {
+      "path": "web/dist/assets/PersonalSettingsView-BLWru9en.css",
+      "sha256": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5"
+    },
+    {
+      "path": "web/dist/assets/ProfileSettings-BVi-yHdq.js",
+      "sha256": "e5375839dbfaeeb6e6078bd28e9d4c7249dbb1d0e3032088261f755e81333e43"
+    },
+    {
+      "path": "web/dist/assets/ProfileSettings-Bofqo8m5.css",
+      "sha256": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303"
+    },
+    {
+      "path": "web/dist/assets/ResetPasswordView-DNLUABBG.js",
+      "sha256": "ada66d20549f5f34f33dfb9ae7411ecabc2579134d21ba470153174406ee2988"
+    },
+    {
+      "path": "web/dist/assets/ResetPasswordView-DSiu2awb.css",
+      "sha256": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527"
+    },
+    {
+      "path": "web/dist/assets/SettingsShell-D-wq8keY.js",
+      "sha256": "3aadc5d3d120ecd92b63da9d94167f7964958a48ce03275fcaa8fb30c499dbf6"
+    },
+    {
+      "path": "web/dist/assets/SettingsShell-D9S1S_aF.css",
+      "sha256": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e"
+    },
+    {
+      "path": "web/dist/assets/SystemInvitationsView-BCwM-45_.js",
+      "sha256": "1f1a3fec4bb72093bf51fe148290e92e318f75c8c07a9db710321e5b126ae3a5"
+    },
+    {
+      "path": "web/dist/assets/SystemInvitationsView-QSKOYHWH.css",
+      "sha256": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f"
+    },
+    {
+      "path": "web/dist/assets/SystemModelsView-6nzUQodS.css",
+      "sha256": "7697fe537f40b60c922c38227e7ddfff8a6e1c44514ff2efadb12808f1563a5f"
+    },
+    {
+      "path": "web/dist/assets/SystemModelsView-CDmE0M2Z.js",
+      "sha256": "cbf1a417e2f4ce7126b61487d086dcbe39f8d5b8c98c834af10e572acbb8babd"
+    },
+    {
+      "path": "web/dist/assets/SystemProvidersView-CynyyPxA.js",
+      "sha256": "a633140496cc59b52a9e26c745dfbb75e1b1b2e6bf10f8b4d9ad4be7d45b0486"
+    },
+    {
+      "path": "web/dist/assets/SystemProvidersView-elJ_-cRG.css",
+      "sha256": "495c2154ff8c96cfdbfb6e79d76bc39c11e20b046af85227d8bd27d3d7336c2c"
+    },
+    {
+      "path": "web/dist/assets/SystemSettingsView-6JbP9xcQ.css",
+      "sha256": "e823e79a3574baf2d1775c1a5c566a44055d94c236cac67c81fa6d344ba82a63"
+    },
+    {
+      "path": "web/dist/assets/SystemSettingsView-hgukBYJG.js",
+      "sha256": "818fa7d1f258ccbd6c16d8133457bafaf969ee383dba84fc13f811703a9cd86b"
+    },
+    {
+      "path": "web/dist/assets/SystemUsersView-B41TxT1D.css",
+      "sha256": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3"
+    },
+    {
+      "path": "web/dist/assets/SystemUsersView-DczsSLQM.js",
+      "sha256": "7fa5569397bb60372f6b153d116c65daa366b229db32ab112d2bbb4035d800df"
+    },
+    {
+      "path": "web/dist/assets/UiButton-Cqzh9aHo.js",
+      "sha256": "16e4f84be3c07d2644d3780f8b3e508c4256f058ff0f8388580919448a9512ed"
+    },
+    {
+      "path": "web/dist/assets/UiSelect-B1plFekf.js",
+      "sha256": "88f8c70b00ae44d77989dd5c8bdb7ff33e97ac508a63c041407fb1af606209a8"
+    },
+    {
+      "path": "web/dist/assets/index-CXWbIy1n.js",
+      "sha256": "7bef0b4f195ad29860b2f01a6672cb76d0bcbe86e5b3869966ecf1b0324dc194"
+    },
+    {
+      "path": "web/dist/assets/index-D_qZnKhl.css",
+      "sha256": "779ffe7a2e5e48e74cdc93d40636b696b2550af3ecd4f8bb5f8ac779fdf6af83"
+    },
+    {
+      "path": "web/dist/index.html",
+      "sha256": "41fe1e38ab40fad9a2bdca46b98fd54d81f963a24cf91849d8708f99c9d2ee96"
+    }
+  ],
+  "checks": [
+    {
+      "path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/page-state03/result.json",
+      "sha256": "20a6e22e7d224d0fc6b2f4ca0aeb7f14e7274ab90d4a7a62666d2a747e9c4b8d",
+      "result": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "src/tests/system-models-state.spec.ts",
+          "src/tests/system-models.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam/web",
+        "started_utc": "2026-10-06T10:37:14.798096+00:00",
+        "elapsed_seconds": 5.39118311400307,
+        "exit_code": 0,
+        "actual_wait": true,
+        "raw_sha256": "664ecd8a5837cfe7a62f0c0f876a22739c9dcdc2cd23b207c8a81186331b334c"
+      }
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/web-check02/result.json",
+      "sha256": "a5a12b32101ac922e9821d41341b7e56ad34c2c5aa775010413028033e86fa86",
+      "result": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": "/workspace/agenteam/web",
+        "started_utc": "2026-10-06T10:37:57.216647+00:00",
+        "elapsed_seconds": 23.215613866999774,
+        "exit_code": 0,
+        "actual_wait": true,
+        "raw_sha256": "c31e94c78eeab7ca8a505a7155bf6876107f21d8193d74c8def8b1557e338a09"
+      }
+    }
+  ],
+  "unchanged_phase1": [
+    "web/src/api/client.ts",
+    "web/src/api/system-providers.ts",
+    "web/src/api/system-models.ts",
+    "web/src/composables/useSession.ts",
+    "web/src/tests/system-models-client.spec.ts"
+  ],
+  "owner_61_test_bodies_unchanged": true,
+  "owner_test_body_sha256": "bbf60731777f096a4f2b463e08cd6478beceb7d870787a902a04ebb550a32186",
+  "old_browser_count_only": [
+    {
+      "path": "tests/account-captcha-web/e2e/system-invitations.spec.ts",
+      "sha256": "d65d96211d633b734f4a0c9018b90533df7860a845f3e62aac1dfa9255678649",
+      "delta": "the one authorized whole-menu link count 3 to 4 only"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/system-providers.spec.ts",
+      "sha256": "658ea469a6eccbe84d6188d068b2f35ba896f9b5df2c8d691dea41ec5b067929",
+      "delta": "the one authorized whole-menu link count 3 to 4 only"
+    }
+  ],
+  "retained_failures": [
+    {
+      "run": "page-pure01",
+      "result_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/page-pure01/result.json",
+      "result": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "src/tests/system-models.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam/web",
+        "started_utc": "2026-10-06T10:33:37.174873+00:00",
+        "elapsed_seconds": 3.230153620999772,
+        "exit_code": 1,
+        "actual_wait": true,
+        "raw_sha256": "d9d3519f30d9e03912fb7e2888f5fdd5984a3db5c3178da59764b337c6121675"
+      },
+      "classification": "test helper used replacement selector label for main table; 28 branches never reached product actions"
+    },
+    {
+      "run": "page-type03",
+      "result_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/page-type03/result.json",
+      "result": {
+        "argv": [
+          "npm",
+          "run",
+          "type-check"
+        ],
+        "cwd": "/workspace/agenteam/web",
+        "started_utc": "2026-10-06T10:33:37.176996+00:00",
+        "elapsed_seconds": 5.973826648001705,
+        "exit_code": 2,
+        "actual_wait": true,
+        "raw_sha256": "42bd89950343876fb1f7e0024c69e8b63d5009945dbe933f82c121f2ba369bb3"
+      },
+      "classification": "fixture SessionView literal theme inference"
+    },
+    {
+      "run": "page-pure02",
+      "result_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/page-pure02/result.json",
+      "result": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "src/tests/system-models.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam/web",
+        "started_utc": "2026-10-06T10:34:01.213104+00:00",
+        "elapsed_seconds": 5.069388159998198,
+        "exit_code": 1,
+        "actual_wait": true,
+        "raw_sha256": "47d9f13bde29a0a6792461e0d6a7ea6724cfa50a2c3bac0d1c0908766b72cf73"
+      },
+      "classification": "fixture resetSession ignored signed-out state"
+    },
+    {
+      "run": "page-state01",
+      "result_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/page-state01/result.json",
+      "result": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "src/tests/system-models-state.spec.ts",
+          "src/tests/system-models.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam/web",
+        "started_utc": "2026-10-06T10:35:29.455009+00:00",
+        "elapsed_seconds": 6.036505115000182,
+        "exit_code": 1,
+        "actual_wait": true,
+        "raw_sha256": "fe74e95dc97b381c2c348855d394e046778ab4ba2d2a9b32cff88897cde83a95"
+      },
+      "classification": "product stale replacement observation and detached review publication; one visible-cancel vs actual-tail test observation"
+    },
+    {
+      "run": "page-state02",
+      "result_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/page-state02/result.json",
+      "result": {
+        "argv": [
+          "node",
+          "node_modules/vitest/vitest.mjs",
+          "run",
+          "src/tests/system-models-state.spec.ts",
+          "src/tests/system-models.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam/web",
+        "started_utc": "2026-10-06T10:36:43.735867+00:00",
+        "elapsed_seconds": 5.12175398600084,
+        "exit_code": 1,
+        "actual_wait": true,
+        "raw_sha256": "e0a27f0af0bce5f19f5faf3f7946696b2ee5b2460ff67a927e4738d15d9714d3"
+      },
+      "classification": "product first deletion read treated as explicit version review"
+    },
+    {
+      "run": "web-check01",
+      "result_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/web-check01/result.json",
+      "result": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": "/workspace/agenteam/web",
+        "started_utc": "2026-10-06T10:37:25.112045+00:00",
+        "elapsed_seconds": 16.84824984399893,
+        "exit_code": 1,
+        "actual_wait": true,
+        "raw_sha256": "7530a68cc541a595bfde4d5b8d822822910de7fff570597e98cc9e38e425f2d0"
+      },
+      "classification": "old directory test rejected the newly authorized exact Models return"
+    }
+  ],
+  "actual_real_resources_started": false
+}

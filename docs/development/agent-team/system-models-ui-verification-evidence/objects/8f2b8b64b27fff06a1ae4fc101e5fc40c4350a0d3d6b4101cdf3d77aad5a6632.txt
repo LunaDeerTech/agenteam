@@ -1,0 +1,42 @@
+--- input01/tests/account-captcha-web/e2e/system-models.spec.ts
++++ input02/tests/account-captcha-web/e2e/system-models.spec.ts
+@@ -68,6 +68,7 @@
+   bytes: number;
+   ended: boolean;
+   code?: string;
++  commit_state?: "not_started" | "not_committed" | "committed" | "unknown";
+   receipt?: Receipt;
+   providers?: { items: Provider[]; next_cursor: string | null };
+   models?: { items: Model[]; next_cursor: string | null };
+@@ -528,6 +529,13 @@
+                   ].includes(r.code)
+                 )
+                   fact.code = r.code;
++                if (
++                  r.commit_state === "not_started" ||
++                  r.commit_state === "not_committed" ||
++                  r.commit_state === "committed" ||
++                  r.commit_state === "unknown"
++                )
++                  fact.commit_state = r.commit_state;
+                 return;
+               }
+               if (session) {
+@@ -1197,9 +1205,14 @@
+   await factAfter(
+     page,
+     after,
+-    (f) => f.status === 409 && f.code === "INVALID_STATE",
+-  );
+-  await expect(top(page)).toContainText("操作未完成");
++    (f) =>
++      f.status === 400 &&
++      f.code === "INVALID_ARGUMENT" &&
++      f.commit_state === "not_started",
++  );
++  await expect(top(page)).toContainText(
++    "请检查原字段长度、Unicode、启用状态及能力声明。输入不会自动改写。",
++  );
+   expect((await writes(page)).length).toBe(count + 1);
+   expect(canonical(await dbFacts(ids.memory!)) === canonical(baseline)).toBe(
+     true,

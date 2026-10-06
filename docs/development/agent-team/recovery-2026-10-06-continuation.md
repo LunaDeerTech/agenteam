@@ -143,3 +143,15 @@ input01作者287项完整纯测及30项真实矩阵通过后，独立仍发现�
 独立真实01因两物理Playwright副本注册失败，未进入浏览器业务；02 Replay PASS而Partial错要求text/plain503 reader EOF，原失败不记产品红。私有probe只删不可能的503EOF前提，成功恢复200仍需新seq EOF与精确身份；03仅Partial实际exit0/56.399s、top9.93/browser5.6，复用未变02 Replay11.35/browser7.5组成最终PASS。覆盖两阶段接受回执截断与原key/body/CSRF重放、唯一DB事实、确认后GET503、部分成功材料销毁、same Session503/200共同宿主恢复、真实焦点/Tab及只重基Provider，未以lookup或列表代receipt。
 
 九真实轮各自actual wait/输入不变/原2容器4网络基线不变、exact资源和PID-starttime终局保留；最终独立7IDs双absent、82所属PIDgone、4adopted wait、monitor0/runtime空，窗口释放。历史非自有PPID1 Z未触碰且不称已wait。归档676逻辑/409物理原件与16Git引用，离线verify核固定f465f45的22路径和原字节，不读活动Model树、不复制dist/依赖/二进制、不重跑产品。Model后继按其独立卡推进；完整D09/D26/D27及D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503及生产SPA/Vite/Runtime/其他浏览器等边界保持。
+
+## 14. System Model 管理 UI 完整卡接受
+
+§1–13保留各阶段原事实。[Model rev2](../work-items/d27-system-model-management-ui.md)已完成并获独立最终PASS、主线程采纳，26路径提交推送 `bc17167c42ee5d5fc1427adaac099ff888ca959b`，主线程核远端一致。[正式报告与最小证据](system-models-ui-verification.md)绑定input03 `d12df3fe63fdb9a405db2ef72864acb48a6de3280d7938559f78272128754ff6`的25源/29dist指纹和末件README，固定Provider f465f45、后端9b32015/迁移1–19及1030基线；卡技术§1–7原字节保持。
+
+作者829测试/format/type/build通过，19个Web源与29个dist从input01至03保持相同。新6由input02/new01的Lifecycle/Outcome与input03/new02其余四组组合通过，旧core7和Provider3在input03通过，不称同一最终整轮全绿。三处页面产品红为陈旧替代候选、离场编辑器晚到复核、首次删除误作版本复核，原source/raw/result与返修绿保留；409错误预期和36路径运行期绑定不足是先于真实运行的静态阻断。new01四个snapshot比较失败没有现场字段差异原件，后续真实httpModelDTO五形状serializer与固定源码支持input03仅DB→wire形状投影，全DTO比较不削弱。
+
+独立API16、owner8、page/App5按未变输入复用；真实首轮Replay9.58s/browser5.0s与Replacement10.44s/browser6.0s均PASS，driver实际exit0/155.994s。覆盖Model版本不变时正式新增引用、截断接受响应后原key/body/CSRF重放与affected_refs1、当前跨Provider候选400/not_started零部分副作用、显式复核、同身份503/200恢复待决确认和原生焦点/Tab，再以新命令原子替代required memory；最终Go核唯一command/Audit/event与selector/索引。私有enum类型准备原红保持，独立真实无首红；native观察器不替代纯API/owner实际尾部证明。
+
+作者四轮及独立一轮原command实际wait、7exact资源各自双absent、原2容器/4网络基线不变、源码/dist/私有输入不变、所属PID/runtime清零。独立最终212所属PID/starttime、8adopted wait、monitor0，窗口释放；历史PPID1 Z未触碰、不称已wait。早期pure没有完整env照实保留。作者八图全部实际查看，主线程接受light1440/dark390；归档不重跑资源。README首稿及最终单处说明差量都保留：引用变化本身不必拒绝，正式DELETE事务重新裁决；无业务改动。
+
+本次档案按SHA去重为794逻辑/302物理原件，离线核固定bc17167的26路径与1030基线；不复制依赖/dist实体/缓存/二进制，不读取后继Selection活动产品作结论。唯一agent负例只用自有Model反向索引模拟未绑定引用，UI零DELETE与另次正式HTTP503/零副作用分列，不声称Agent正式存在；selector引用全部正式GET/PUT。Selection UI、外部调用、Runtime、生产SPA/Vite/其他引擎/native zoom不在本卡接受内。完整D09/D26/D27及D08–D28/E01未完成、E01未开始，Summary待决、Object/tools原停止、Artifact/Project与生产未绑定、ready503等边界保持。

@@ -1,0 +1,998 @@
+import { test, expect, type Page, type Locator } from "@playwright/test";
+import { readFileSync, writeFileSync, renameSync, existsSync } from "node:fs";
+import { join } from "node:path";
+const directory = process.env.AGENTEAM_AUTH_WEB_PRIVATE!;
+type Credential = { email: string; password: string; user_id: string };
+type Provider = {
+  id: string;
+  input: {
+    name: string;
+    protocol: string;
+    base_url: string;
+    enabled: boolean;
+    credential_ref: string | null;
+    options: object;
+  };
+  version: string;
+  created_at: string;
+  updated_at: string;
+};
+type Capabilities = {
+  tool_calls: boolean;
+  parallel_tool_calls: boolean;
+  streaming: boolean;
+  reasoning: boolean;
+  input_modalities: string[];
+  output_modalities: string[];
+  reasoning_efforts: string[];
+  structured_output_modes: string[];
+  context_length: string | null;
+  max_output: string | null;
+};
+type Model = {
+  id: string;
+  provider_id: string;
+  input: {
+    name: string;
+    provider_model_id: string;
+    type: string;
+    enabled: boolean;
+    parameters: object;
+    request_overwrite: object;
+    header_overwrite: object;
+    capabilities: Capabilities;
+  };
+  version: string;
+  created_at: string;
+  updated_at: string;
+};
+type Impact = {
+  model_id: string;
+  version: string;
+  reference_count: string;
+  reference_groups: { owner_kind: string; role: string; count: string }[];
+  replacement_requirement: string;
+  delete_blocker: string | null;
+};
+type Receipt = {
+  kind: string;
+  resource_id: string;
+  version: string;
+  affected_references: string;
+};
+type Fact = {
+  sequence: number;
+  path: string;
+  method: string;
+  status: number;
+  bytes: number;
+  ended: boolean;
+  eof?: boolean;
+  commit_state?: "not_started" | "not_committed" | "committed" | "unknown";
+  code?: string;
+  receipt?: Receipt;
+  providers?: { items: Provider[]; next_cursor: string | null };
+  models?: { items: Model[]; next_cursor: string | null };
+  provider?: Provider;
+  model?: Model;
+  impact?: Impact;
+  session?: { user_id: string; session_id: string; role: string };
+  found?: boolean;
+};
+type ObservedWindow = Window & {
+  __modelFacts?: Fact[];
+  __modelSequence?: number;
+};
+const material = (): {
+  admin: Credential;
+  member: Credential;
+  ids: Record<string, string>;
+  providers: Provider[];
+  models: Model[];
+} => JSON.parse(readFileSync(join(directory, "models-material.json"), "utf8"));
+function result(value: Record<string, unknown>) {
+  writeFileSync(
+    join(directory, "models-result.json"),
+    JSON.stringify({ completed: true, ...value }),
+    { mode: 0o600 },
+  );
+}
+let ipcSequence = 0;
+async function ipc(
+  action: string,
+  fields: Record<string, string> = {},
+): Promise<Record<string, any>> {
+  const sequence = ++ipcSequence,
+    request = join(directory, "models-ipc.json"),
+    ack = join(directory, `models-ack-${sequence}.json`);
+  writeFileSync(
+    request + ".tmp",
+    JSON.stringify({ sequence, action, ...fields }),
+    { mode: 0o600 },
+  );
+  renameSync(request + ".tmp", request);
+  await expect.poll(() => existsSync(ack), { timeout: 14_000 }).toBe(true);
+  const value = JSON.parse(readFileSync(ack, "utf8"));
+  expect(value.ok === true && value.sequence === sequence).toBe(true);
+  return value;
+}
+// A side observation of the application's exact native promise/reader. It never
+// clones/tees, re-fetches, consumes an additional read, or wraps/delays cancel.
+// Only closed safe projections survive; raw bounded bytes are cleared at EOF.
+function observeNative() {
+  const scope = window as ObservedWindow;
+  scope.__modelFacts = [];
+  scope.__modelSequence = 0;
+  const object = (v: unknown): Record<string, unknown> | null =>
+    v !== null && typeof v === "object" && !Array.isArray(v)
+      ? (v as Record<string, unknown>)
+      : null;
+  const closed = (v: Record<string, unknown>, keys: string[]) =>
+    Object.keys(v).length === keys.length &&
+    keys.every((k) => Object.hasOwn(v, k));
+  const id = (v: unknown): v is string =>
+    typeof v === "string" &&
+    /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/.test(
+      v,
+    );
+  const integer = (v: unknown, zero = false): v is string =>
+    typeof v === "string" &&
+    (zero ? /^(0|[1-9][0-9]{0,18})$/ : /^[1-9][0-9]{0,18}$/).test(v) &&
+    BigInt(v) <= 9223372036854775807n;
+  const string = (v: unknown, max: number): v is string =>
+    typeof v === "string" &&
+    !/[\u0000\uD800-\uDFFF]/u.test(v) &&
+    new TextEncoder().encode(v).length <= max;
+  const instant = (v: unknown): v is string => {
+    if (
+      typeof v !== "string" ||
+      !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{6}Z$/.test(v)
+    )
+      return false;
+    const y = Number(v.slice(0, 4)),
+      m = Number(v.slice(5, 7)),
+      d = Number(v.slice(8, 10));
+    const days = [
+      31,
+      y % 4 === 0 && (y % 100 !== 0 || y % 400 === 0) ? 29 : 28,
+      31,
+      30,
+      31,
+      30,
+      31,
+      31,
+      30,
+      31,
+      30,
+      31,
+    ];
+    return (
+      m >= 1 &&
+      m <= 12 &&
+      d >= 1 &&
+      d <= days[m - 1]! &&
+      Number(v.slice(11, 13)) < 24 &&
+      Number(v.slice(14, 16)) < 60 &&
+      Number(v.slice(17, 19)) < 60
+    );
+  };
+  const empty = (v: unknown) => {
+    const o = object(v);
+    return !!o && Object.keys(o).length === 0;
+  };
+  const strings = (v: unknown, allowed: string[]): v is string[] =>
+    Array.isArray(v) &&
+    v.every((x) => typeof x === "string" && allowed.includes(x)) &&
+    new Set(v).size === v.length;
+  const protocols = [
+    "openai-chat-completions",
+    "anthropic-messages",
+    "openai-embeddings",
+    "jina-rerank",
+    "openai-images-generations",
+  ];
+  function provider(v: unknown): Provider | null {
+    const r = object(v),
+      i = object(r?.input);
+    if (
+      !r ||
+      !i ||
+      !closed(r, ["id", "input", "version", "created_at", "updated_at"]) ||
+      !closed(i, [
+        "name",
+        "protocol",
+        "base_url",
+        "enabled",
+        "credential_ref",
+        "options",
+      ]) ||
+      !id(r.id) ||
+      !integer(r.version) ||
+      !instant(r.created_at) ||
+      !instant(r.updated_at) ||
+      r.updated_at < r.created_at ||
+      !string(i.name, 512) ||
+      Array.from(i.name).length < 1 ||
+      Array.from(i.name).length > 128 ||
+      typeof i.protocol !== "string" ||
+      !protocols.includes(i.protocol) ||
+      !string(i.base_url, 8192) ||
+      typeof i.enabled !== "boolean" ||
+      !(i.credential_ref === null || id(i.credential_ref)) ||
+      !empty(i.options)
+    )
+      return null;
+    return {
+      id: r.id,
+      input: {
+        name: i.name,
+        protocol: i.protocol,
+        base_url: i.base_url,
+        enabled: i.enabled,
+        credential_ref: i.credential_ref,
+        options: {},
+      },
+      version: r.version,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
+    };
+  }
+  function model(v: unknown): Model | null {
+    const r = object(v),
+      i = object(r?.input),
+      c = object(i?.capabilities);
+    if (
+      !r ||
+      !i ||
+      !c ||
+      !closed(r, [
+        "id",
+        "provider_id",
+        "input",
+        "version",
+        "created_at",
+        "updated_at",
+      ]) ||
+      !closed(i, [
+        "name",
+        "provider_model_id",
+        "type",
+        "enabled",
+        "parameters",
+        "request_overwrite",
+        "header_overwrite",
+        "capabilities",
+      ]) ||
+      !closed(c, [
+        "tool_calls",
+        "parallel_tool_calls",
+        "streaming",
+        "reasoning",
+        "input_modalities",
+        "output_modalities",
+        "reasoning_efforts",
+        "structured_output_modes",
+        "context_length",
+        "max_output",
+      ]) ||
+      !id(r.id) ||
+      !id(r.provider_id) ||
+      !integer(r.version) ||
+      !instant(r.created_at) ||
+      !instant(r.updated_at) ||
+      r.updated_at < r.created_at ||
+      !string(i.name, 512) ||
+      Array.from(i.name).length < 1 ||
+      Array.from(i.name).length > 128 ||
+      !string(i.provider_model_id, 256) ||
+      !i.provider_model_id.length ||
+      typeof i.type !== "string" ||
+      !["chat", "embedding", "reranker", "image_generation"].includes(i.type) ||
+      typeof i.enabled !== "boolean" ||
+      !empty(i.parameters) ||
+      !empty(i.request_overwrite) ||
+      !empty(i.header_overwrite) ||
+      ![c.tool_calls, c.parallel_tool_calls, c.streaming, c.reasoning].every(
+        (x) => typeof x === "boolean",
+      ) ||
+      !strings(c.input_modalities, ["text", "image", "file", "vector"]) ||
+      !strings(c.output_modalities, ["text", "image", "file", "vector"]) ||
+      !strings(c.reasoning_efforts, []) ||
+      !strings(c.structured_output_modes, ["text", "json_schema"]) ||
+      !(c.context_length === null || integer(c.context_length)) ||
+      !(c.max_output === null || integer(c.max_output)) ||
+      (c.context_length !== null &&
+        c.max_output !== null &&
+        BigInt(c.max_output) > BigInt(c.context_length)) ||
+      (c.parallel_tool_calls && !c.tool_calls)
+    )
+      return null;
+    return {
+      id: r.id,
+      provider_id: r.provider_id,
+      input: {
+        name: i.name,
+        provider_model_id: i.provider_model_id,
+        type: i.type,
+        enabled: i.enabled,
+        parameters: {},
+        request_overwrite: {},
+        header_overwrite: {},
+        capabilities: {
+          tool_calls: c.tool_calls as boolean,
+          parallel_tool_calls: c.parallel_tool_calls as boolean,
+          streaming: c.streaming as boolean,
+          reasoning: c.reasoning as boolean,
+          input_modalities: [...c.input_modalities],
+          output_modalities: [...c.output_modalities],
+          reasoning_efforts: [],
+          structured_output_modes: [...c.structured_output_modes],
+          context_length: c.context_length,
+          max_output: c.max_output,
+        },
+      },
+      version: r.version,
+      created_at: r.created_at,
+      updated_at: r.updated_at,
+    };
+  }
+  const pairs = [
+    "agent/agent_model",
+    "agent/approval_model",
+    "platform_selector/embedding",
+    "platform_selector/image",
+    "platform_selector/memory",
+    "platform_selector/reranker",
+    "project_summary/meeting_summary",
+  ];
+  function impact(v: unknown): Impact | null {
+    const r = object(v);
+    if (
+      !r ||
+      !closed(r, [
+        "model_id",
+        "version",
+        "reference_count",
+        "reference_groups",
+        "replacement_requirement",
+        "delete_blocker",
+      ]) ||
+      !id(r.model_id) ||
+      !integer(r.version) ||
+      !integer(r.reference_count, true) ||
+      BigInt(r.reference_count) > 10000n ||
+      !Array.isArray(r.reference_groups) ||
+      r.reference_groups.length > 7
+    )
+      return null;
+    const groups: Impact["reference_groups"] = [];
+    let last = "",
+      sum = 0n,
+      required = false,
+      unbound = false;
+    for (const raw of r.reference_groups) {
+      const g = object(raw);
+      if (
+        !g ||
+        !closed(g, ["owner_kind", "role", "count"]) ||
+        typeof g.owner_kind !== "string" ||
+        typeof g.role !== "string" ||
+        !integer(g.count)
+      )
+        return null;
+      const key = g.owner_kind + "/" + g.role;
+      if (!pairs.includes(key) || key <= last) return null;
+      last = key;
+      sum += BigInt(g.count);
+      required ||= ![
+        "platform_selector/image",
+        "platform_selector/reranker",
+      ].includes(key);
+      unbound ||= g.owner_kind !== "platform_selector";
+      groups.push({ owner_kind: g.owner_kind, role: g.role, count: g.count });
+    }
+    const requirement =
+        sum === 0n ? "none" : required ? "required" : "optional",
+      blocker = unbound ? "reference_adapter_unbound" : null;
+    if (
+      String(sum) !== r.reference_count ||
+      r.replacement_requirement !== requirement ||
+      r.delete_blocker !== blocker
+    )
+      return null;
+    return {
+      model_id: r.model_id,
+      version: r.version,
+      reference_count: r.reference_count,
+      reference_groups: groups,
+      replacement_requirement: requirement,
+      delete_blocker: blocker,
+    };
+  }
+  function receipt(v: unknown): Receipt | null {
+    const r = object(v);
+    return r &&
+      closed(r, ["kind", "resource_id", "version", "affected_references"]) &&
+      typeof r.kind === "string" &&
+      ["model.create", "model.update", "model.delete"].includes(r.kind) &&
+      id(r.resource_id) &&
+      integer(r.version) &&
+      integer(r.affected_references, true) &&
+      (r.kind === "model.delete" || r.affected_references === "0")
+      ? {
+          kind: r.kind,
+          resource_id: r.resource_id,
+          version: r.version,
+          affected_references: r.affected_references,
+        }
+      : null;
+  }
+  const nativeFetch = window.fetch;
+  window.fetch = function (this: unknown, ...args) {
+    const pending = Reflect.apply(nativeFetch, this, args) as Promise<Response>;
+    try {
+      const [input, init] = args,
+        request = input instanceof Request ? input : null,
+        url = new URL(request ? request.url : String(input), location.href),
+        path = url.pathname,
+        method = init?.method ?? request?.method ?? "GET";
+      const providers = path === "/api/v1/system/model-providers",
+        providerID =
+          path.startsWith("/api/v1/system/model-providers/") &&
+          id(path.slice("/api/v1/system/model-providers/".length)),
+        models = path === "/api/v1/system/models",
+        modelID =
+          path.startsWith("/api/v1/system/models/") &&
+          id(path.slice("/api/v1/system/models/".length)),
+        isImpact =
+          /^\/api\/v1\/system\/models\/[^/]+\/deletion-impact$/.test(path) &&
+          id(path.split("/")[5]),
+        session = path === "/api/v1/session",
+        lookup = path === "/api/v1/system/model-commands/lookup";
+      const watched =
+        (method === "GET" &&
+          (providers ||
+            providerID ||
+            models ||
+            modelID ||
+            isImpact ||
+            session)) ||
+        (method === "POST" && (models || lookup)) ||
+        ((method === "PUT" || method === "DELETE") && modelID);
+      const allowed =
+          method === "GET" && providers
+            ? ["limit", "cursor"]
+            : method === "GET" && models
+              ? ["limit", "provider_id", "cursor"]
+              : [],
+        keys = [...url.searchParams.keys()];
+      if (
+        url.origin !== location.origin ||
+        !watched ||
+        keys.some((k) => !allowed.includes(k)) ||
+        new Set(keys).size !== keys.length
+      )
+        return pending;
+      const fact: Fact = {
+        sequence: ++scope.__modelSequence!,
+        path: path + url.search,
+        method,
+        status: 0,
+        bytes: 0,
+        ended: false,
+      };
+      scope.__modelFacts!.push(fact);
+      void pending
+        .then(
+          (response) => {
+            fact.status = response.status;
+            const body = response.body;
+            if (!body) {
+              fact.ended = true;
+              return;
+            }
+            const max =
+              providers &&
+              method === "GET" &&
+              response.status === 200 &&
+              response.headers
+                .get("Content-Type")
+                ?.split(";", 1)[0]
+                ?.trim()
+                .toLowerCase() === "application/json"
+                ? 2097152
+                : 600000;
+            let text = "",
+              collect = true;
+            const decoder = new TextDecoder();
+            function project() {
+              if (!collect) return;
+              const r = object(JSON.parse(text + decoder.decode()));
+              if (!r) return;
+              if (response.status !== 200) {
+                if (
+                  typeof r.code === "string" &&
+                  [
+                    "UNAUTHENTICATED",
+                    "SESSION_REVOKED",
+                    "CSRF_FAILED",
+                    "FORBIDDEN",
+                    "CURSOR_INVALID",
+                    "VERSION_CONFLICT",
+                    "INVALID_ARGUMENT",
+                    "INVALID_STATE",
+                    "NOT_FOUND",
+                    "RESOURCE_BUSY",
+                    "INTERNAL_ERROR",
+                    "DEPENDENCY_UNBOUND",
+                    "CAPABILITY_UNSUPPORTED",
+                    "IDEMPOTENCY_KEY_REUSED",
+                  ].includes(r.code)
+                )
+                  fact.code = r.code;
+                if (["not_started", "not_committed", "committed", "unknown"].includes(r.commit_state))
+                  fact.commit_state = r.commit_state;
+                return;
+              }
+              if (session) {
+                const u = object(r.user),
+                  s = object(r.session);
+                if (
+                  id(u?.id) &&
+                  id(s?.id) &&
+                  (u?.role === "admin" || u?.role === "user")
+                )
+                  fact.session = {
+                    user_id: u.id,
+                    session_id: s.id,
+                    role: u.role,
+                  };
+                return;
+              }
+              if (lookup) {
+                if (typeof r.found === "boolean") fact.found = r.found;
+                return;
+              }
+              if (method !== "GET") {
+                const value = receipt(r);
+                if (value) fact.receipt = value;
+                return;
+              }
+              if (isImpact) {
+                const value = impact(r);
+                if (value) fact.impact = value;
+                return;
+              }
+              if (providerID) {
+                const value = provider(r);
+                if (value) fact.provider = value;
+                return;
+              }
+              if (modelID) {
+                const value = model(r);
+                if (value) fact.model = value;
+                return;
+              }
+              if (
+                !closed(r, ["items", "next_cursor"]) ||
+                !Array.isArray(r.items) ||
+                r.items.length > 25 ||
+                !(
+                  r.next_cursor === null ||
+                  (string(r.next_cursor, 8192) &&
+                    r.next_cursor.length > 0 &&
+                    r.items.length === 25)
+                )
+              )
+                return;
+              const rows = providers
+                ? r.items.map(provider)
+                : r.items.map(model);
+              if (rows.some((x) => x === null)) return;
+              for (let n = 1; n < rows.length; n++) {
+                const a = rows[n - 1]!,
+                  b = rows[n]!;
+                if (
+                  a.created_at < b.created_at ||
+                  (a.created_at === b.created_at && a.id <= b.id)
+                )
+                  return;
+              }
+              if (providers)
+                fact.providers = {
+                  items: rows as Provider[],
+                  next_cursor: r.next_cursor,
+                };
+              else
+                fact.models = {
+                  items: rows as Model[],
+                  next_cursor: r.next_cursor,
+                };
+            }
+            try {
+              const nativeGet = body.getReader;
+              Object.defineProperty(body, "getReader", {
+                configurable: true,
+                writable: true,
+                value: function (
+                  this: ReadableStream<Uint8Array>,
+                  ...getArgs: unknown[]
+                ) {
+                  const reader = Reflect.apply(
+                    nativeGet,
+                    this,
+                    getArgs,
+                  ) as ReadableStreamDefaultReader<Uint8Array>;
+                  Object.defineProperty(body, "getReader", {
+                    value: nativeGet,
+                  });
+                  const nativeRead = reader.read;
+                  Object.defineProperty(reader, "read", {
+                    configurable: true,
+                    writable: true,
+                    value: function (
+                      this: ReadableStreamDefaultReader<Uint8Array>,
+                      ...readArgs: unknown[]
+                    ) {
+                      const original = Reflect.apply(
+                        nativeRead,
+                        this,
+                        readArgs,
+                      ) as Promise<ReadableStreamReadResult<Uint8Array>>;
+                      void original
+                        .then(
+                          ({ done, value }) => {
+                            try {
+                              if (value) {
+                                fact.bytes += value.byteLength;
+                                if (fact.bytes > max) {
+                                  collect = false;
+                                  text = "";
+                                } else if (collect)
+                                  text += decoder.decode(value, {
+                                    stream: true,
+                                  });
+                              }
+                              if (done) {
+                                fact.eof = true;
+                                fact.ended = true;
+                                try {
+                                  project();
+                                } finally {
+                                  text = "";
+                                  collect = false;
+                                }
+                              }
+                            } catch {
+                              text = "";
+                              collect = false;
+                            }
+                          },
+                          () => {
+                            text = "";
+                            collect = false;
+                            fact.ended = true;
+                          },
+                        )
+                        .catch(() => {
+                          text = "";
+                          collect = false;
+                        });
+                      return original;
+                    },
+                  });
+                  return reader;
+                },
+              });
+            } catch {
+              text = "";
+              collect = false;
+            }
+          },
+          () => {
+            fact.ended = true;
+          },
+        )
+        .catch(() => {});
+    } catch {
+      /* Side observation cannot change fetch or native reader results. */
+    }
+    return pending;
+  };
+}
+const top = (page: Page) => page.getByRole("dialog").last();
+const button = (page: Page, name: string) =>
+  (name === "创建 Model"
+    ? page.locator('[aria-label="Model 页面操作"]')
+    : page
+  ).getByRole("button", { name, exact: true });
+const title = (page: Page, name: string) =>
+  page.getByRole("heading", { name, exact: true });
+async function facts(page: Page) {
+  return page.evaluate(() => (window as ObservedWindow).__modelFacts ?? []);
+}
+async function seq(page: Page) {
+  return page.evaluate(() => (window as ObservedWindow).__modelSequence ?? 0);
+}
+async function writes(page: Page) {
+  return (await facts(page)).filter(
+    (f) => f.method !== "GET" && !f.path.endsWith("/lookup"),
+  );
+}
+function canonical(value: unknown): string {
+  if (Array.isArray(value)) return "[" + value.map(canonical).join(",") + "]";
+  if (value && typeof value === "object")
+    return (
+      "{" +
+      Object.entries(value)
+        .sort(([a], [b]) => a.localeCompare(b))
+        .map(([k, v]) => JSON.stringify(k) + ":" + canonical(v))
+        .join(",") +
+      "}"
+    );
+  return JSON.stringify(value);
+}
+async function factAfter(
+  page: Page,
+  after: number,
+  predicate: (fact: Fact) => boolean,
+) {
+  let found: Fact | undefined;
+  await expect
+    .poll(async () => {
+      found = (await facts(page)).find(
+        (f) => f.sequence > after && predicate(f),
+      );
+      return !!found;
+    })
+    .toBe(true);
+  return found!;
+}
+async function session(page: Page) {
+  let found: Fact["session"];
+  await expect
+    .poll(async () => {
+      found = (await facts(page))
+        .filter((f) => f.status === 200 && f.ended && f.session)
+        .at(-1)?.session;
+      return !!found;
+    })
+    .toBe(true);
+  return found!;
+}
+async function privateFill(input: Locator, value: string) {
+  try {
+    await input.fill(value);
+  } catch {
+    throw new Error("private Model login input failed");
+  }
+}
+async function login(page: Page, who: "admin" | "member") {
+  const after = await seq(page);
+  await page.locator("#login-email").fill(material()[who].email);
+  await privateFill(page.locator("#login-password"), material()[who].password);
+  await button(page, "登录").click();
+  await factAfter(
+    page,
+    after,
+    (f) =>
+      f.path === "/api/v1/session" &&
+      f.method === "GET" &&
+      f.status === 200 &&
+      f.ended &&
+      f.session?.user_id === material()[who].user_id &&
+      f.session.role === (who === "admin" ? "admin" : "user"),
+  );
+  await expect(button(page, "退出登录")).toBeEnabled();
+  await expect(page).not.toHaveURL(/\/login(?:\?|$)/);
+}
+async function setup(
+  page: Page,
+  who: "admin" | "member" = "admin",
+  path = "/system/models",
+) {
+  await page.addInitScript(observeNative);
+  await page.goto(path);
+  await login(page, who);
+  await expect(page).toHaveURL(new RegExp(path + "$"));
+  if (who === "admin")
+    await expect(
+      title(page, path.endsWith("users") ? "用户" : "Models"),
+    ).toBeVisible();
+}
+async function providerRow(page: Page, providerID: string) {
+  const source = (await ipc("snapshot")).providers.find(
+    (p: Provider) => p.id === providerID,
+  ) as Provider;
+  expect(!!source).toBe(true);
+  return page
+    .locator(".model-table tbody tr")
+    .filter({ has: page.getByText(source.input.name, { exact: true }) });
+}
+async function selectProvider(
+  page: Page,
+  providerID = material().ids.target_provider!,
+) {
+  if (await button(page, "返回 Providers").count())
+    await button(page, "返回 Providers").click();
+  const row = await providerRow(page, providerID);
+  await row.getByRole("button", { name: "选择 Provider", exact: true }).click();
+  await expect(button(page, "创建 Model")).toBeEnabled();
+  await expect(button(page, "刷新列表")).toBeEnabled();
+}
+async function selectModel(page: Page, modelID = material().ids.target!) {
+  const row = (await ipc("snapshot")).models.find(
+    (m: Model) => m.id === modelID,
+  ) as Model;
+  expect(!!row).toBe(true);
+  const after = await seq(page);
+  await page
+    .locator(".model-table tbody tr")
+    .filter({ has: page.getByText(row.input.name, { exact: true }) })
+    .getByRole("button", { name: "查看 Model", exact: true })
+    .click();
+  const observed = await factAfter(
+    page,
+    after,
+    (f) =>
+      f.method === "GET" &&
+      f.path === "/api/v1/system/models/" + modelID &&
+      f.status === 200 &&
+      f.ended &&
+      !!f.model,
+  );
+  expect(canonical(observed.model) === canonical(row)).toBe(true);
+  await expect(button(page, "编辑 Model")).toBeEnabled();
+  return row;
+}
+async function openCreate(page: Page) {
+  await button(page, "创建 Model").click();
+  await expect(top(page)).toHaveAccessibleName("创建 Model");
+}
+async function fill(
+  page: Page,
+  name: string,
+  kind = "chat",
+  native = " native exact ",
+) {
+  const d = top(page);
+  await d.getByRole("textbox", { name: "名称", exact: true }).fill(name);
+  await d
+    .getByRole("textbox", { name: "原生 Model ID", exact: true })
+    .fill(native);
+  await d.getByRole("button", { name: "启用状态", exact: true }).click();
+  await page.getByRole("option", { name: "启用", exact: true }).click();
+  await d
+    .getByRole("group", { name: "输入模态", exact: true })
+    .getByRole("checkbox", { name: "text", exact: true })
+    .check();
+  if (kind !== "reranker")
+    await d
+      .getByRole("group", { name: "输出模态", exact: true })
+      .getByRole("checkbox", {
+        name:
+          kind === "embedding"
+            ? "vector"
+            : kind === "image_generation"
+              ? "image"
+              : "text",
+        exact: true,
+      })
+      .check();
+  if (kind === "chat")
+    await d
+      .getByRole("group", { name: "结构化输出声明", exact: true })
+      .getByRole("checkbox", { name: "text", exact: true })
+      .check();
+}
+async function perform(page: Page, name: string) {
+  const after = await seq(page);
+  await top(page).getByRole("button", { name, exact: true }).click();
+  return after;
+}
+async function confirmed(page: Page, after: number, kind: string) {
+  const fact = await factAfter(
+    page,
+    after,
+    (f) => f.status === 200 && f.ended && f.receipt?.kind === kind,
+  );
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(button(page, "刷新列表")).toBeEnabled();
+  return fact.receipt!;
+}
+async function saved(page: Page, after: number, kind: string) {
+  const receipt = await confirmed(page, after, kind);
+  const observed = await factAfter(
+    page,
+    after,
+    (f) => f.status === 200 && f.ended && f.model?.id === receipt.resource_id,
+  );
+  expect(observed.model!.version).toBe(receipt.version);
+  return observed.model!;
+}
+async function edit(page: Page) {
+  await button(page, "编辑 Model").click();
+  await expect(top(page)).toHaveAccessibleName("编辑 Model");
+}
+async function removePreview(page: Page) {
+  const after = await seq(page);
+  await button(page, "删除 Model").click();
+  await expect(top(page)).toHaveAccessibleName("删除 Model");
+  const fact = await factAfter(
+    page,
+    after,
+    (f) => f.status === 200 && f.ended && !!f.impact,
+  );
+  return fact.impact!;
+}
+async function discard(page: Page) {
+  await top(page).getByRole("button", { name: "取消", exact: true }).click();
+  if (
+    await top(page)
+      .getByRole("heading", { name: "放弃未保存修改？", exact: true })
+      .count()
+  )
+    await top(page)
+      .getByRole("button", { name: "放弃修改", exact: true })
+      .click();
+  await expect(page.getByRole("dialog")).toHaveCount(0);
+  await expect(page.locator(".ui-overlay")).toHaveCount(0);
+}
+async function dbFacts(id?: string) {
+  return (await ipc("facts", id ? { id } : {})).facts;
+}
+async function candidateProvider(page: Page, id: string) {
+  const source = (await ipc("snapshot")).providers.find(
+    (p: Provider) => p.id === id,
+  ) as Provider;
+  if (
+    await top(page)
+      .getByRole("button", { name: "返回替代 Providers", exact: true })
+      .count()
+  )
+    await top(page)
+      .getByRole("button", { name: "返回替代 Providers", exact: true })
+      .click();
+  await top(page)
+    .locator(".choices li")
+    .filter({ hasText: source.input.name })
+    .getByRole("button", { name: "查看此 Provider 的 Models", exact: true })
+    .click();
+  await expect(
+    top(page).getByRole("heading", {
+      name: "替代 Models：" + source.input.name,
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    top(page).getByRole("button", { name: "返回替代 Providers", exact: true }),
+  ).toBeEnabled();
+}
+async function candidateRow(page: Page, id: string) {
+  const row = (await ipc("snapshot")).models.find(
+    (m: Model) => m.id === id,
+  ) as Model;
+  return top(page).locator(".choices li").filter({ hasText: row.input.name });
+}
+async function choose(page: Page, id: string) {
+  await (
+    await candidateRow(page, id)
+  )
+    .getByRole("button", { name: "选择此替代 Model", exact: true })
+    .click();
+  await expect(
+    top(page).getByRole("button", { name: "确认删除 Model", exact: true }),
+  ).toBeEnabled();
+}
+async function focusContained(page: Page) {
+  for (const key of ["Tab", "Tab", "Shift+Tab", "Shift+Tab"]) {
+    await page.keyboard.press(key);
+    expect(
+      await top(page).evaluate((n) => n.contains(document.activeElement)),
+    ).toBe(true);
+  }
+}
+
+
+export { material, result, ipc, top, button, title, facts, seq, writes, canonical, factAfter, session, setup, selectProvider, selectModel, removePreview, candidateProvider, choose, perform, confirmed, dbFacts, focusContained };
+export type { Fact, Model, Impact, Receipt };

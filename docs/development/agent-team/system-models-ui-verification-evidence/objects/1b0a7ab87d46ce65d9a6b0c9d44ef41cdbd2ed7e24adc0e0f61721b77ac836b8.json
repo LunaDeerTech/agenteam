@@ -1,0 +1,155 @@
+{
+  "verdict": "OWNER-STAGE INDEPENDENT PASS; not Model page/browser/real backend acceptance",
+  "frozen_utc": "2026-10-06T10:26:47.411291+00:00",
+  "author_manifest": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/owner-stage01/manifest.json",
+  "author_manifest_sha256": "7d8dc4b2086a98bccd03ab33bb07ac3368118885ad747eb3709d51e2cc17bf3f",
+  "base": "f465f45b899e21c225e7d4107c099b256538239c",
+  "candidate_sources": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "82ef064f3c6378ac81fc871c0c8b2f3b11a05ff975f54eba57256c43a4b40757"
+    },
+    {
+      "path": "web/src/api/system-providers.ts",
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade"
+    },
+    {
+      "path": "web/src/api/system-models.ts",
+      "sha256": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "d067000e728da5ffc267a4cbdbbb147d456f2ea5a91b09cf214d30da42c78042"
+    },
+    {
+      "path": "web/src/tests/system-models-client.spec.ts",
+      "sha256": "05a6431ba1bcd8c195d6db2ac3d74f0847bdd7034e00151e10a6b7a8c1737b04"
+    },
+    {
+      "path": "web/src/tests/system-models-state.spec.ts",
+      "sha256": "d22aad1826b0dc6a41588474efa3187c68aa9c0450eea9f49b554817fe348a15"
+    }
+  ],
+  "accepted_dependencies": [
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+    },
+    {
+      "path": "web/src/api/system-account.ts",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+    },
+    {
+      "path": "web/src/api/system-invitations.ts",
+      "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e"
+    },
+    {
+      "path": "web/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13"
+    },
+    {
+      "path": "web/src/tests/system-providers-state.spec.ts",
+      "sha256": "eaefcd259350221b3cf912813704d93c7076f10ae5d60d8525fd096c5924c246"
+    },
+    {
+      "path": "web/src/tests/system-providers-client.spec.ts",
+      "sha256": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c"
+    },
+    {
+      "path": "web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    {
+      "path": "web/tsconfig.json",
+      "sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18"
+    },
+    {
+      "path": "web/vite.config.ts",
+      "sha256": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+    }
+  ],
+  "api_reuse": {
+    "report": "/workspace/scratch/agenteam-model-api-verification-899tcz5x/api-stage01-report.json",
+    "sha256": "dca901ba26e772bce583b32e6bac1a335de475aa030d3fd01871f8b03726c367",
+    "reason": "All four prior API-stage candidates match byte for byte; independent16 API checks not rerun."
+  },
+  "probe": "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/candidate/web/src/tests/independent-model-owner.spec.ts",
+  "probe_sha256": "73205de2fd02ee56d9599ed75fc6a049a7839f8538bb9282eda85ac84e8f8161",
+  "actual": {
+    "tests": 8,
+    "exit": 0,
+    "seconds": 1.118,
+    "actual_wait": true,
+    "inputs_unchanged": true,
+    "raw_sha256": "8059c1b3a18f51b1e12e33d53545cdf3b8040ea533d6e7e3455af4d24e3b8429",
+    "command": "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/logs/independent01/command.json",
+    "result": "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/logs/independent01/result.json",
+    "outer_limit_seconds": 45,
+    "test_timeout_ms": 5000
+  },
+  "static_conclusions": [
+    "Fifth optional default Model API preserves original first four parameters. Eight Model read scopes plus write/lookup own revision map and explicit isModelAction branch; no fallback into Provider revisions.",
+    "clearModelState invalidates only Model revisions/intent/progress and abandons only a Model operation. Other abandon functions unchanged. Identity/Session/CSRF/admin changes and global leave still clear appropriate Model private state.",
+    "Current model-write/model-lookup CSRF_FAILED enter existing exact identity+owner generation failure handling. Current403 clears invitation/Provider/Model state and sets identity-bound denial; original role/login semantics unchanged.",
+    "Original command/context/key/CSRF captured privately; Model start validates before key creation, dispatched historical uncertainty survives later known refusal, reused-key lock prevents replay, lookup is history only, and confirmed synchronous successor is guarded before old clear.",
+    "Actual shared runAuthorized tail and finally are retained; visible timer/abandon do not release owner. New model scope classification and identity cleanup are the affected shared seams.",
+    "Author61 new+33 Provider and783 complete checks are reported in frozen manifest; owner-pure01 cursor omission/restore-busy fixture errors retained. Type/build and dist metadata are not Model page acceptance."
+  ],
+  "independent_cases": [
+    {
+      "case": "Model native read tail and opposite-domain abandon",
+      "evidence": "Complete native Impact JSON held before EOF; personal/users/invitation/Provider/entry and unrelated Model read abandonment do not abort it. Visible30s triggers cancellation but actual native cancel gate keeps busy and blocks Provider/personal/restore. Release gate joins, clears busy, no stale candidate."
+    },
+    {
+      "case": "Provider two-step reverse compatibility",
+      "evidence": "Native Credential EOF held, then Provider text/plain503 body.cancel held. Model abandon/read-abandon affects neither signal nor prepared ref; first material clears once and no Model request/key can enter before actual tail. Provider uncertain prepared ref survives Model cleanup; public state contains neither private value nor CSRF."
+    },
+    {
+      "case": "DELETE recovery and exact captured fields",
+      "evidence": "Fresh known version refusal is rejected; later transport loss followed by Model/Impact404 and lookup missing remains uncertain. Wrong-media lookup actual cancel tail blocks retry after visible30s until release. Later known refusal does not erase history; found lookup remains observation. Explicit Execute retains exact key/body/version/replacement/CSRF and confirms receipt with references10001, even after oldImpact/current object absence. Subsequent GET failure preserves confirmed receipt."
+    },
+    {
+      "case": "Current Model authority and CSRF",
+      "evidence": "Real API-parsed current403 while Provider prepared ref and Model intent both exist clears both; role stays admin/authenticated with denial and no logout. Same Session restore clears denial. Current Model write and lookup CSRF_FAILED invalidate identity and Model tracking."
+    },
+    {
+      "case": "Late parsed same-identity401",
+      "evidence": "An explicit test port gate delays a real API-parsed401 rejection beyond own-read abandon. Shared mapper still marks same identity unavailable after actual port return; no new network/real Cookie claim."
+    },
+    {
+      "case": "Late parsed same-identity403",
+      "evidence": "The same parsed-error port gate with403 after own-read abandon does not publish current denial. This gate is outside the already joined native body; distinguished from native read/cancel evidence."
+    },
+    {
+      "case": "Old identity fetch/body tail",
+      "evidence": "Fetch ignores abort until resolved, then its already-aborted response waits native body.cancel. Global leave and requested same-User/newSession cannot issue restore through old owner. After actual join, newSession establishes with no old progress/denial. Aborted old401 body is not parsed, so not claimed as late parsed401 evidence."
+    },
+    {
+      "case": "Synchronous confirmed successor",
+      "evidence": "Public confirmation watch abandons old Model intent and starts new update. Native update EOF gate keeps new owner active; old completion returns cancelled without clearing successor. Different key, original new input and version2 confirmation survive actual EOF."
+    }
+  ],
+  "limitations": [
+    "All API calls in independent tests use production API/parser/Session controller and controlled Fetch/native streams. Same-identity parsed-error cases additionally gate the returned Model API error to exercise mapper timing; they do not claim an outstanding native reader.",
+    "30s visible timers use Vitest fake time; transport gates and actual join are real promises/native streams. No real browser, Cookie processing, database, selector transaction or external Provider behavior is inferred.",
+    "API4-source result reused; Model controller/View/Editor/DeleteDialog/App combinations and real migration1–19/HTTP authority/reference race remain pending frozen full input and resource authorization.",
+    "No active page source, author evolving tree or metadata-only dist consumed for this result. No network, PG, Docker, browser, product writes or Git mutation.",
+    "Eight cases are representative combinations, not a full cross-product of all owners/errors. Remaining unmodified accepted contracts and author fixed cases are reused after static seam review."
+  ],
+  "artifact_hashes": {
+    "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/input.json": "7d8dc4b2086a98bccd03ab33bb07ac3368118885ad747eb3709d51e2cc17bf3f",
+    "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/useSession.diff": "74d62cd8921e21c34af0313c1cde96e565e6665d0c50d66b1f29120e1aa9ae5d",
+    "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/run-pure.py": "a4cc04e7de4ec37356ee38c21df64b00ac9ba4c620f067356a2dc0dc547fc78a",
+    "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/candidate/web/vitest.config.mjs": "ef3ab88566b1f79f00e0eac5ef1aad35e0989931d40eeacee8014f881a36d4a8",
+    "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/candidate/web/src/tests/independent-model-owner.spec.ts": "73205de2fd02ee56d9599ed75fc6a049a7839f8538bb9282eda85ac84e8f8161",
+    "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/logs/independent01/command.json": "249a9c201656e2fd97c5f819b5dcbe394568a048a4064742b68f4d50fec8f709",
+    "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/logs/independent01/result.json": "2fbb39517722596315370ffb4a5fd126a00e89be9e2970955297ce34e7dec0d9",
+    "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/logs/independent01/raw.log": "8059c1b3a18f51b1e12e33d53545cdf3b8040ea533d6e7e3455af4d24e3b8429",
+    "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/logs/independent01/driver.py.txt": "a4cc04e7de4ec37356ee38c21df64b00ac9ba4c620f067356a2dc0dc547fc78a"
+  },
+  "status": "Private source/report/logs frozen, actual command ended; no active resources."
+}

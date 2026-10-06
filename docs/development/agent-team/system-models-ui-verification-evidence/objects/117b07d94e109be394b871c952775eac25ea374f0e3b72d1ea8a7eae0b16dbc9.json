@@ -1,0 +1,19 @@
+{
+  "product_base": "f465f45b899e21c225e7d4107c099b256538239c",
+  "product_manifest": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/input03/manifest.json",
+  "product_manifest_sha256": "d12df3fe63fdb9a405db2ef72864acb48a6de3280d7938559f78272128754ff6",
+  "driver_path": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/run-independent01.py",
+  "driver_sha256": "edb02c46489681c37a859a801540c378ee682a94fe886c7aa22dfc2902abbe7f",
+  "overlay_path": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/overlay.json",
+  "private": {
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/system_models_web_test.go": "b272df0917c65526cff82507ee78d132bc3bfa7d6b6f9800ecc61ae005903c03",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/system_models_web_fixture_test.go": "1b10cf97689d67ea1ed5f49430b09e1e60f01586d1258e7858aa3250f1ff41ec",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/independent.spec.ts": "56fed513336655e6020613c22feabf8af7665cc59a9b8ea4cac1e45fb2f82ff9",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/fixed-helpers.ts": "8e552d53917aa2968a4aff48266cf0c6898cb27de6e9f6bab83082f6d2491cd2",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/overlay.json": "7d582d9e0899b872a8ac9d900ac0a9001b297c08ed0ec820f8db33a1166a47ba",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/playwright.config.mjs": "e4f1ef25f5aa71f9b9d1e40234bd2cbfb930ff3b8fd5ae2add50025ed4e80e1d",
+    "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/input03/manifest.json": "d12df3fe63fdb9a405db2ef72864acb48a6de3280d7938559f78272128754ff6"
+  },
+  "scope": "Only independent-replay and independent-replacement; formal commands/selector, bounded safe comparisons; root real window required before execution.",
+  "budgets": "45s browser / 2m top / 6m package; workers1 retries0; task resources with actual wait/subreaper/double cleanup."
+}

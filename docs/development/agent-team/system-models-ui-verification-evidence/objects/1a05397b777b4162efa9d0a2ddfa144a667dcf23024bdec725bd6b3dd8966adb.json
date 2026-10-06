@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "web/node_modules/.bin/prettier",
+    "--check",
+    "tests/account-captcha-web/e2e/system-models.spec.ts",
+    "tests/account-captcha-web/system-models.config.js"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/compile-tmp",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2"
+  },
+  "started_utc": "2026-10-06T11:00:44.953269+00:00",
+  "elapsed_seconds": 0.5827569459979713,
+  "exit_code": 0,
+  "actual_wait": true,
+  "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+}

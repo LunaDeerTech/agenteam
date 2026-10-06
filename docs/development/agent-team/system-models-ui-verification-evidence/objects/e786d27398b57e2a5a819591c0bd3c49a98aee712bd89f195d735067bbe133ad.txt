@@ -1,0 +1,78 @@
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-models-state.spec.ts (54 tests | 13 failed) 164ms
+     × retains 'read' 'fetch' after the visible 30s cutoff until actual join 14ms
+     × retains 'read' 'read' after the visible 30s cutoff until actual join 4ms
+     × retains 'read' 'reader-cancel' after the visible 30s cutoff until actual join 3ms
+     × retains 'read' 'body-cancel' after the visible 30s cutoff until actual join 3ms
+     × retains 'write' 'fetch' after the visible 30s cutoff until actual join 3ms
+     × retains 'write' 'read' after the visible 30s cutoff until actual join 3ms
+     × retains 'write' 'reader-cancel' after the visible 30s cutoff until actual join 3ms
+     × retains 'write' 'body-cancel' after the visible 30s cutoff until actual join 4ms
+     × retains 'lookup' 'fetch' after the visible 30s cutoff until actual join 4ms
+     × retains 'lookup' 'read' after the visible 30s cutoff until actual join 3ms
+     × retains 'lookup' 'reader-cancel' after the visible 30s cutoff until actual join 2ms
+     × retains 'lookup' 'body-cancel' after the visible 30s cutoff until actual join 3ms
+     × Model abandonment cannot cancel restore, whose own tail remains owned 6ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 13 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'read' 'fetch' after the visible 30s cutoff until actual join
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'read' 'read' after the visible 30s cutoff until actual join
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'read' 'reader-cancel' after the visible 30s cutoff until actual join
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'read' 'body-cancel' after the visible 30s cutoff until actual join
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'write' 'fetch' after the visible 30s cutoff until actual join
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'write' 'read' after the visible 30s cutoff until actual join
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'write' 'reader-cancel' after the visible 30s cutoff until actual join
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'write' 'body-cancel' after the visible 30s cutoff until actual join
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'lookup' 'fetch' after the visible 30s cutoff until actual join
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'lookup' 'read' after the visible 30s cutoff until actual join
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'lookup' 'reader-cancel' after the visible 30s cutoff until actual join
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > retains 'lookup' 'body-cancel' after the visible 30s cutoff until actual join
+AssertionError: promise rejected "AccountFailure: invalid-response { …(2) }" instead of resolving
+ ❯ src/tests/system-models-state.spec.ts:337:48
+    335|       expect(f.auth.state.busy).toBe(false)
+    336|       expect(f.auth.system.models.progress).toBeNull()
+    337|       await expect(f.auth.system.listUsers({})).resolves.toEqual({ ite…
+       |                                                ^
+    338|     },
+    339|   )
+
+Caused by: AccountFailure: invalid-response
+ ❯ request src/api/client.ts:554:15
+ ❯ src/composables/useSession.ts:991:24
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯
+Serialized Error: { kind: 'invalid-response', problem: undefined }
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/13]⎯
+
+ FAIL  src/tests/system-models-state.spec.ts > Model commands on the original Cookie owner > Model abandonment cannot cancel restore, whose own tail remains owned
+AssertionError: expected AccountFailure: busy { …(2) } to match object { kind: 'invalid-input' }
+(2 matching properties omitted from actual)
+
+- Expected
++ Received
+
+- {
+-   "kind": "invalid-input",
++ AccountFailure {
++   "kind": "busy",
+  }
+
+ ❯ src/tests/system-models-state.spec.ts:414:53
+    412|       expect((signal as AbortSignal | null)?.aborted).toBe(false)
+    413|       expect(f.auth.state.busy).toBe(true)
+    414|       await expect(f.auth.system.models.get(target)).rejects.toMatchOb…
+       |                                                     ^
+    415|         kind: operation === 'restore' ? 'invalid-input' : 'busy',
+    416|       })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/13]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  13 failed | 74 passed (87)
+   Start at  10:18:15
+   Duration  945ms (transform 340ms, setup 0ms, import 526ms, tests 266ms, environment 781ms)
+

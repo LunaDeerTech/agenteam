@@ -1,0 +1,91 @@
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-models-state.spec.ts (73 tests | 6 failed) 262ms
+     × stops continuation and rejects a stale main Provider response after detach until its native operation really ends 5ms
+     × invalidates a retained replacement when its restored current observation is disabled 5ms
+     × invalidates a retained replacement when its restored current observation is changed 5ms
+     × invalidates a retained replacement when its restored current observation is missing 6ms
+     × invalidates a retained replacement when its restored current observation is provider-disabled 6ms
+     × does not publish a detached explicit edit review or silently replace its captured version 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 6 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > stops continuation and rejects a stale main Provider response after detach until its native operation really ends
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/tests/system-models-state.spec.ts:1002:31
+    1000|     held.resolve(json(provider()))
+    1001|     await pending
+    1002|     expect(f.auth.state.busy).toBe(false)
+       |                               ^
+    1003|     expect(f.fetch.mock.calls).toHaveLength(before)
+    1004|     expect(f.page.pages.models.rows).toHaveLength(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/6]⎯
+
+ FAIL  src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > invalidates a retained replacement when its restored current observation is disabled
+ FAIL  src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > invalidates a retained replacement when its restored current observation is changed
+ FAIL  src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > invalidates a retained replacement when its restored current observation is missing
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ src/tests/system-models-state.spec.ts:1118:38
+    1116|       f.page.attach()
+    1117|       await flushPromises()
+    1118|       expect(f.page.canDelete.value).toBe(false)
+       |                                      ^
+    1119|       expect(f.page.deletion.choice).toBe('unselected')
+    1120|       expect(f.writes()).toHaveLength(0)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/6]⎯
+
+ FAIL  src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > invalidates a retained replacement when its restored current observation is provider-disabled
+AssertionError: expected 'replacement' to be 'unselected' // Object.is equality
+
+Expected: "unselected"
+Received: "replacement"
+
+ ❯ src/tests/system-models-state.spec.ts:1119:38
+    1117|       await flushPromises()
+    1118|       expect(f.page.canDelete.value).toBe(false)
+    1119|       expect(f.page.deletion.choice).toBe('unselected')
+       |                                      ^
+    1120|       expect(f.writes()).toHaveLength(0)
+    1121|     },
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/6]⎯
+
+ FAIL  src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > does not publish a detached explicit edit review or silently replace its captured version
+AssertionError: expected '2' to be '1' // Object.is equality
+
+Expected: "1"
+Received: "2"
+
+ ❯ src/tests/system-models-state.spec.ts:1162:35
+    1160|     held.resolve(json({ ...model(), version: '2' }))
+    1161|     await review
+    1162|     expect(f.page.editor.version).toBe('1')
+       |                                   ^
+    1163|     expect(f.page.editor.reviewed).toBe(false)
+    1164|     expect(f.writes()).toHaveLength(1)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/6]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  6 failed | 98 passed (104)
+   Start at  10:35:29
+   Duration  5.61s (transform 1.54s, setup 0ms, import 1.88s, tests 3.83s, environment 998ms)
+

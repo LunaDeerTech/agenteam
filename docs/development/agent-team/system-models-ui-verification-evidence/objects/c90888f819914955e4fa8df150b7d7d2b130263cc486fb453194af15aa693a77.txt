@@ -1,0 +1,81 @@
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-models-client.spec.ts (117 tests | 2 failed) 121ms
+     × rejects invalid Model field created_at=0000-01-01T00:00:00.000000Z 6ms
+     × keeps the 2MiB Provider success exception, 600000B Model/error cap and 16KiB write cap 8ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-models-client.spec.ts > Model closed API and immutable contracts > rejects invalid Model field created_at=0000-01-01T00:00:00.000000Z
+AssertionError: promise resolved "{ …(6) }" instead of rejecting
+
+- Expected
++ Received
+
+- Error {
+-   "message": "rejected promise",
++ {
++   "created_at": "0000-01-01T00:00:00.000000Z",
++   "id": "01900000-0000-7000-8000-000000000064",
++   "input": {
++     "capabilities": {
++       "context_length": "9007199254740993",
++       "input_modalities": [
++         "text",
++       ],
++       "max_output": "9007199254740992",
++       "output_modalities": [
++         "text",
++       ],
++       "parallel_tool_calls": true,
++       "reasoning": true,
++       "reasoning_efforts": [],
++       "streaming": true,
++       "structured_output_modes": [
++         "text",
++       ],
++       "tool_calls": true,
++     },
++     "enabled": true,
++     "header_overwrite": {},
++     "name": "模型 🧩",
++     "parameters": {},
++     "provider_model_id": " Native/模型 ",
++     "request_overwrite": {},
++     "type": "chat",
++   },
++   "provider_id": "01900000-0000-7000-8000-000000000001",
++   "updated_at": "2026-10-06T12:34:56.123456Z",
++   "version": "9007199254740993",
+  }
+
+ ❯ src/tests/system-models-client.spec.ts:236:70
+    234|     ['input.capabilities.extra', true],
+    235|   ])('rejects invalid Model field %s=%s', async (path, value) => {
+    236|     await expect(parseModel(changed(model(), path as string, value))).…
+       |                                                                      ^
+    237|       kind: 'invalid-response',
+    238|     })
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/tests/system-models-client.spec.ts > Model transport retains inherited page and stream limits > keeps the 2MiB Provider success exception, 600000B Model/error cap and 16KiB write cap
+AccountFailure: invalid-response
+ ❯ request src/api/client.ts:543:15
+    541|         )
+    542|       } catch {
+    543|         throw new AccountFailure(options.signal.aborted ? 'cancelled' …
+       |               ^
+    544|       }
+    545|       if (options.signal.aborted) throw new AccountFailure('cancelled')
+ ❯ src/tests/system-models-client.spec.ts:533:7
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  2 failed | 216 passed (218)
+   Start at  10:13:56
+   Duration  874ms (transform 216ms, setup 0ms, import 302ms, tests 276ms, environment 925ms)
+

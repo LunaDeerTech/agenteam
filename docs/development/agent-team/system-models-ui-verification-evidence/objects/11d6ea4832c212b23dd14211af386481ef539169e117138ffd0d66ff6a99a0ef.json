@@ -1,0 +1,236 @@
+{
+  "active_commands": 0,
+  "author_index": {
+    "path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/author-index.json",
+    "sha256": "5bb955c1389bc78c3c73b3f6ea33dff9327635913936f54786ef7d7d28f51404"
+  },
+  "checks": {
+    "code_fences": "balanced",
+    "git_operations": false,
+    "local_links": 26,
+    "markdown_parser": "PASS using installed Prettier markdown parser; no rewrite",
+    "missing_local_links": 0,
+    "new_tests_or_resources": false,
+    "real_test_selector_exact": {
+      "new_models": 6,
+      "old_core": 7,
+      "old_provider": 3,
+      "total": 16
+    },
+    "tested_source25_dist29_dependencies36_unchanged": true,
+    "trailing_whitespace": false
+  },
+  "delivery_list": {
+    "path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/final-delivery/26-paths.sha256",
+    "sha256": "f087bb4351ca80bd1c571371749eb68f5da5d0ee359eceb7864a64cb106c982e"
+  },
+  "dist": {
+    "web/dist/assets/AppearanceSettings-VOOCO0oJ.js": "7cb5e74f5dfd612a2f8e45c59a13fa951f9f7bbad7b8934e88c901ec4dfd5a50",
+    "web/dist/assets/ForgotPasswordView-DJSF_FFM.css": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2",
+    "web/dist/assets/ForgotPasswordView-gtcx-Qke.js": "1be02b40ed9be5d0e8663a930958339ce2ca6b6c6cadb7f6553414baa0f5feef",
+    "web/dist/assets/InvitationView-B4wTz1D4.css": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177",
+    "web/dist/assets/InvitationView-CCFJw-b7.js": "89219a23ffc7deb3d2571d3130b218f3ff95d2d344cd28100aa87f8afdc0a5fd",
+    "web/dist/assets/PasswordSettings-BATRi16k.js": "ecff050423e33ab9ad1dc468c70797504c6d3ae267d481296e5854ab15902c03",
+    "web/dist/assets/PersonalSettingsView-BHoI1xYG.js": "17cd8814c79ffe711c445ba8fc97471a9a3d254078cf7b3e27ab04f4b6fc9ddc",
+    "web/dist/assets/PersonalSettingsView-BLWru9en.css": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5",
+    "web/dist/assets/ProfileSettings-BVi-yHdq.js": "e5375839dbfaeeb6e6078bd28e9d4c7249dbb1d0e3032088261f755e81333e43",
+    "web/dist/assets/ProfileSettings-Bofqo8m5.css": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303",
+    "web/dist/assets/ResetPasswordView-DNLUABBG.js": "ada66d20549f5f34f33dfb9ae7411ecabc2579134d21ba470153174406ee2988",
+    "web/dist/assets/ResetPasswordView-DSiu2awb.css": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527",
+    "web/dist/assets/SettingsShell-D-wq8keY.js": "3aadc5d3d120ecd92b63da9d94167f7964958a48ce03275fcaa8fb30c499dbf6",
+    "web/dist/assets/SettingsShell-D9S1S_aF.css": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e",
+    "web/dist/assets/SystemInvitationsView-BCwM-45_.js": "1f1a3fec4bb72093bf51fe148290e92e318f75c8c07a9db710321e5b126ae3a5",
+    "web/dist/assets/SystemInvitationsView-QSKOYHWH.css": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f",
+    "web/dist/assets/SystemModelsView-6nzUQodS.css": "7697fe537f40b60c922c38227e7ddfff8a6e1c44514ff2efadb12808f1563a5f",
+    "web/dist/assets/SystemModelsView-CDmE0M2Z.js": "cbf1a417e2f4ce7126b61487d086dcbe39f8d5b8c98c834af10e572acbb8babd",
+    "web/dist/assets/SystemProvidersView-CynyyPxA.js": "a633140496cc59b52a9e26c745dfbb75e1b1b2e6bf10f8b4d9ad4be7d45b0486",
+    "web/dist/assets/SystemProvidersView-elJ_-cRG.css": "495c2154ff8c96cfdbfb6e79d76bc39c11e20b046af85227d8bd27d3d7336c2c",
+    "web/dist/assets/SystemSettingsView-6JbP9xcQ.css": "e823e79a3574baf2d1775c1a5c566a44055d94c236cac67c81fa6d344ba82a63",
+    "web/dist/assets/SystemSettingsView-hgukBYJG.js": "818fa7d1f258ccbd6c16d8133457bafaf969ee383dba84fc13f811703a9cd86b",
+    "web/dist/assets/SystemUsersView-B41TxT1D.css": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3",
+    "web/dist/assets/SystemUsersView-DczsSLQM.js": "7fa5569397bb60372f6b153d116c65daa366b229db32ab112d2bbb4035d800df",
+    "web/dist/assets/UiButton-Cqzh9aHo.js": "16e4f84be3c07d2644d3780f8b3e508c4256f058ff0f8388580919448a9512ed",
+    "web/dist/assets/UiSelect-B1plFekf.js": "88f8c70b00ae44d77989dd5c8bdb7ff33e97ac508a63c041407fb1af606209a8",
+    "web/dist/assets/index-CXWbIy1n.js": "7bef0b4f195ad29860b2f01a6672cb76d0bcbe86e5b3869966ecf1b0324dc194",
+    "web/dist/assets/index-D_qZnKhl.css": "779ffe7a2e5e48e74cdc93d40636b696b2550af3ecd4f8bb5f8ac779fdf6af83",
+    "web/dist/index.html": "41fe1e38ab40fad9a2bdca46b98fd54d81f963a24cf91849d8708f99c9d2ee96"
+  },
+  "documentation_count": 1,
+  "files": [
+    {
+      "card_item": 1,
+      "kind": "frozen-tested-source",
+      "path": "web/src/api/client.ts",
+      "sha256": "82ef064f3c6378ac81fc871c0c8b2f3b11a05ff975f54eba57256c43a4b40757"
+    },
+    {
+      "card_item": 2,
+      "kind": "frozen-tested-source",
+      "path": "web/src/api/system-providers.ts",
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade"
+    },
+    {
+      "card_item": 3,
+      "kind": "frozen-tested-source",
+      "path": "web/src/api/system-models.ts",
+      "sha256": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8"
+    },
+    {
+      "card_item": 4,
+      "kind": "frozen-tested-source",
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "d067000e728da5ffc267a4cbdbbb147d456f2ea5a91b09cf214d30da42c78042"
+    },
+    {
+      "card_item": 5,
+      "kind": "frozen-tested-source",
+      "path": "web/src/composables/useSystemModels.ts",
+      "sha256": "a5d572cab5f56115793d00aeaf502838510c1d8b97dfbcb58dd29cad57aca172"
+    },
+    {
+      "card_item": 6,
+      "kind": "frozen-tested-source",
+      "path": "web/src/App.vue",
+      "sha256": "964ac3660e74da088db6e9dc47231a996b92764e3df3fbbe7af3e0eac103d49f"
+    },
+    {
+      "card_item": 7,
+      "kind": "frozen-tested-source",
+      "path": "web/src/router/index.ts",
+      "sha256": "bcd8938c6c5e81f69845d59954b856f89b6da4a37831be06f5b72ea2a4f4834e"
+    },
+    {
+      "card_item": 8,
+      "kind": "frozen-tested-source",
+      "path": "web/src/router/auth.ts",
+      "sha256": "8fccadfa6c22c0d22322982d52c8dd617a343cb44fe12b917c6cb49646414a68"
+    },
+    {
+      "card_item": 9,
+      "kind": "frozen-tested-source",
+      "path": "web/src/views/system/SystemSettingsView.vue",
+      "sha256": "2759bf4faec5addc382b02f94b1f06797383374b5c9e087ea89b94944e6c21dd"
+    },
+    {
+      "card_item": 10,
+      "kind": "frozen-tested-source",
+      "path": "web/src/views/system/SystemModelsView.vue",
+      "sha256": "1e3104f85d1156b32be63385e07968cf2fda1d18071a349774e48ea5cda6b269"
+    },
+    {
+      "card_item": 11,
+      "kind": "frozen-tested-source",
+      "path": "web/src/views/system/SystemModelEditor.vue",
+      "sha256": "6315b3731c2fe52b18fc9b51b37dc3aa3f96b96bb67692292749b920d8107941"
+    },
+    {
+      "card_item": 12,
+      "kind": "frozen-tested-source",
+      "path": "web/src/views/system/SystemModelDeleteDialog.vue",
+      "sha256": "df056eac828da1e756c9cec52182bf83680e1c6e6f0b9d34751d05069afd2872"
+    },
+    {
+      "card_item": 13,
+      "kind": "frozen-tested-source",
+      "path": "web/src/tests/system-models-client.spec.ts",
+      "sha256": "05a6431ba1bcd8c195d6db2ac3d74f0847bdd7034e00151e10a6b7a8c1737b04"
+    },
+    {
+      "card_item": 14,
+      "kind": "frozen-tested-source",
+      "path": "web/src/tests/system-models-state.spec.ts",
+      "sha256": "69f15bc2108ec55369321401d3a447bcffaa16c6e92fb4e194deefa75cb5b649"
+    },
+    {
+      "card_item": 15,
+      "kind": "frozen-tested-source",
+      "path": "web/src/tests/system-models.spec.ts",
+      "sha256": "b2c9f75017e61d859e24ff391089bc6645c4bf1f1e61760936a13c0fcb560cac"
+    },
+    {
+      "card_item": 16,
+      "kind": "frozen-tested-source",
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "sha256": "c3e3652553c76d18a9601b73a6e1c7999663ddafa3a4ccf435a6b703e8e7c90a"
+    },
+    {
+      "card_item": 17,
+      "kind": "frozen-tested-source",
+      "path": "web/src/tests/system-invitations.spec.ts",
+      "sha256": "980a6219bc9caf5e2071f68559b8c15cf3d3b14183eac80b1914ada6d80fa620"
+    },
+    {
+      "card_item": 18,
+      "kind": "frozen-tested-source",
+      "path": "web/src/tests/system-providers.spec.ts",
+      "sha256": "a95fdbadd834c32ee45a8e29250901662c5d30adca404125354ab45abe8234de"
+    },
+    {
+      "card_item": 19,
+      "kind": "frozen-tested-source",
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "022cff548f5b99c8b02ce261a1128af2107f8418cf6aec0595137333c30f6c9a"
+    },
+    {
+      "card_item": 20,
+      "kind": "frozen-tested-source",
+      "path": "tests/account/system_models_web_test.go",
+      "sha256": "d05ac43aca6998bd251d40d9ec4a41b0f33b399490e555faa18d13dd68132038"
+    },
+    {
+      "card_item": 21,
+      "kind": "frozen-tested-source",
+      "path": "tests/account/system_models_web_fixture_test.go",
+      "sha256": "cadc81a997b1b3cb77bef578eac5e84f82d8e40adcc6ff1bd105948c9b727e0a"
+    },
+    {
+      "card_item": 22,
+      "kind": "frozen-tested-source",
+      "path": "tests/account-captcha-web/system-models.config.js",
+      "sha256": "9d0205c0bd41435c79e2d74ddebf40e712e6abd91b0af6306b137011cbdf09fb"
+    },
+    {
+      "card_item": 23,
+      "kind": "frozen-tested-source",
+      "path": "tests/account-captcha-web/e2e/system-models.spec.ts",
+      "sha256": "3a033251892135254d6bf20ae5507a7aba9fd6041b941cc13b61f46b5e7f2c45"
+    },
+    {
+      "card_item": 24,
+      "kind": "documentation-only",
+      "path": "docs/development/frontend/README.md",
+      "sha256": "b66c7f7c9ae5b444e4a9b128a1ab704bdf2a26f65fd30331994d41b8748a0246"
+    },
+    {
+      "card_item": 25,
+      "kind": "frozen-tested-source",
+      "path": "tests/account-captcha-web/e2e/system-invitations.spec.ts",
+      "sha256": "d65d96211d633b734f4a0c9018b90533df7860a845f3e62aac1dfa9255678649"
+    },
+    {
+      "card_item": 26,
+      "kind": "frozen-tested-source",
+      "path": "tests/account-captcha-web/e2e/system-providers.spec.ts",
+      "sha256": "658ea469a6eccbe84d6188d068b2f35ba896f9b5df2c8d691dea41ec5b067929"
+    }
+  ],
+  "product_base": "f465f45b899e21c225e7d4107c099b256538239c",
+  "readme": {
+    "before_sha256": "16ec1f74dc723537a187161abc5b93f9c509a4a1b3c2bdaf07c859ddfa61a340",
+    "diff_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/final-delivery/README.diff",
+    "diff_sha256": "882d5118aa2de67ad4ac9803033de1dc3b72073e2cc7211db868b648b169a922",
+    "path": "/workspace/agenteam/docs/development/frontend/README.md",
+    "sha256": "b66c7f7c9ae5b444e4a9b128a1ab704bdf2a26f65fd30331994d41b8748a0246"
+  },
+  "scope_card": {
+    "path": "/workspace/agenteam/docs/development/work-items/d27-system-model-management-ui.md",
+    "sha256": "69afe186e3aea37d63ee8b8d9a9583c210e8d71efef7fe9cc90e0a45d946e524"
+  },
+  "source_count": 25,
+  "status": "Final README handoff; root adoption/Git handled by parent",
+  "tested_input03": {
+    "path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/input03/manifest.json",
+    "sha256": "d12df3fe63fdb9a405db2ef72864acb48a6de3280d7938559f78272128754ff6"
+  },
+  "writes_stopped": true
+}

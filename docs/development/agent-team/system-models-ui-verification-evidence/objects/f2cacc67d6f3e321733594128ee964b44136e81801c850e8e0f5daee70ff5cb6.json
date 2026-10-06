@@ -1,0 +1,22 @@
+{
+  "status": "STATIC PASS for input03 projection delta only",
+  "manifest": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/input03/manifest.json",
+  "manifest_sha256": "d12df3fe63fdb9a405db2ef72864acb48a6de3280d7938559f78272128754ff6",
+  "source_delta_sha256": "11d041d83ecd3366edd994dda5ee3749cdc48d7660f46002e82a5b379dce8dd7",
+  "driver_delta_sha256": "5ca6910a8582cae81f08afe39c814da9097dd2f927d5af8b83942c3812c6f267",
+  "formal_basis": "Fixed f465f45 internal/central/model/http_dto.go:154-168 uses append([]string{},...) for4 slices and httpRawNullable for2 counts; contract omits absent counts in storage.",
+  "checks": [
+    "All25 source and29dist hashes match; only Go fixture differs from02; complete browser equality assertions retained;19web and1030 accepted dependency manifest unchanged.",
+    "Projection preserves existing values and other keys. Missing context_length/max_output become null; nil/absent4 slices become empty arrays.",
+    "Private serializer probe executes real accepted httpModelDTO with5 shapes including exact>2^53 token string; copied projection helper bytes exactly equal candidate fixture. Full equality remains false for changed boolean and unexpected field.",
+    "Driver only adds exact prior4 failed group selectors; runtime input gates,budgets,cleanup unchanged."
+  ],
+  "serializer_probe_sha256": "c57f982923cb94cf8becb46f4cfc0ba4633985a74bbdbe41da23b2bb1a32ea3c",
+  "serializer_raw_sha256": "0f0bbeea81a43875773cbbd2e461a0e37847bef464de6385041bb7d6f56e0413",
+  "limits": [
+    "This review reran no dynamic resource/test. Existing author serializer actual0/8.026s reused after source/raw review.",
+    "Original new01 has no runtime per-field difference capture; serializer/static attribution does not manufacture old field observations.",
+    "Actual4group rerun remains author/root responsibility."
+  ],
+  "resources_started": false
+}

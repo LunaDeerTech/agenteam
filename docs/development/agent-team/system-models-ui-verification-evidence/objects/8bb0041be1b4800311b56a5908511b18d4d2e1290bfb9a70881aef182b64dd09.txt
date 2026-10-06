@@ -1,0 +1,8 @@
+
+> @agenteam/web@0.0.0 type-check
+> vue-tsc --noEmit
+
+src/tests/system-models-client.spec.ts(338,28): error TS2339: Property 'input' does not exist on type 'ModelCommand'.
+  Property 'input' does not exist on type 'Readonly<{ provider_id: string; protocol: "openai-chat-completions" | "anthropic-messages" | "openai-embeddings" | "jina-rerank" | "openai-images-generations"; }> & Readonly<...> & Readonly<...>'.
+src/tests/system-models-client.spec.ts(498,30): error TS2550: Property 'toReversed' does not exist on type '{ owner_kind: string; role: string; count: string; }[]'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2023' or later.
+src/tests/system-models-client.spec.ts(518,21): error TS2550: Property 'toReversed' does not exist on type '{ id: string; provider_id: string; input: Readonly<{ name: string; provider_model_id: string; type: ModelType; enabled: boolean; parameters: Readonly<Record<string, never>>; request_overwrite: Readonly<...>; header_overwrite: Readonly<...>; capabilities: Readonly<...>; }>; version: string; created_at: string; update...'. Do you need to change your target library? Try changing the 'lib' compiler option to 'es2023' or later.

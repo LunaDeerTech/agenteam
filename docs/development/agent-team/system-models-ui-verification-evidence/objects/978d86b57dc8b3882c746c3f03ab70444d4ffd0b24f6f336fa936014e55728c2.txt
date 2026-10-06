@@ -1,0 +1,26 @@
+import argparse,subprocess,os,time,json,hashlib,datetime
+from pathlib import Path
+root=Path("/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r")
+bound=root/"bound03"
+p=argparse.ArgumentParser();p.add_argument("kind",choices=["type","discovery-replay","discovery-replacement","compile"]);a=p.parse_args()
+run=root/"logs"/(a.kind+"-bound03");run.mkdir()
+tracked=[x for x in bound.iterdir() if x.is_file()]
+hashs=lambda:{x.name:hashlib.sha256(x.read_bytes()).hexdigest() for x in tracked}
+before=hashs();env=os.environ.copy();controlled={};cwd=str(bound)
+if a.kind=="type":
+ argv=["node","/workspace/agenteam/tests/account-captcha-web/node_modules/typescript/bin/tsc","--noEmit","--strict","--target","ES2022","--module","ESNext","--moduleResolution","Bundler","--lib","ES2022,DOM,DOM.Iterable","--skipLibCheck","--typeRoots","/workspace/agenteam/web/node_modules/@types","--types","node",str(bound/"independent.spec.ts")]
+elif a.kind.startswith("discovery"):
+ mode="independent-replay" if a.kind.endswith("replay") else "independent-replacement"
+ controlled={"AGENTEAM_AUTH_WEB_ORIGIN":"http://127.0.0.1:1","AGENTEAM_AUTH_WEB_PRIVATE":str(run),"AGENTEAM_AUTH_WEB_CHROMIUM":"/usr/bin/chromium","AGENTEAM_MODELS_WEB_CASE":mode}
+ argv=["node","/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js","test","--config",str(bound/"playwright.config.mjs"),"--list"]
+else:
+ for name in ["gocache","gotmp"]:(root/name).mkdir(exist_ok=True)
+ controlled={"GOTOOLCHAIN":"local","GOENV":"off","GOWORK":"off","GOPROXY":"off","GOSUMDB":"off","GOMODCACHE":"/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache","GOCACHE":str(root/"gocache"),"GOTMPDIR":str(root/"gotmp"),"CGO_ENABLED":"1","GOFLAGS":"-mod=readonly -buildvcs=false -p=2"}
+ argv=["/workspace/toolchains/go1.27.1/bin/go","test","-tags=integration","-race","-c","-overlay",str(bound/"overlay.json"),"-o",str(run/"model.test"),"./tests/account"];cwd="/workspace/agenteam"
+env.update(controlled)
+(run/"command.json").write_text(json.dumps({"argv":argv,"cwd":cwd,"env":controlled,"input_before":before,"resource_execution":False},indent=2)+"\n")
+start=time.monotonic()
+with (run/"raw.log").open("wb") as f: result=subprocess.run(argv,cwd=cwd,env=env,stdout=f,stderr=subprocess.STDOUT)
+after=hashs();summary={"exit_code":result.returncode,"actual_wait":True,"elapsed_seconds":time.monotonic()-start,"input_unchanged":before==after,"input_after":after,"raw_sha256":hashlib.sha256((run/"raw.log").read_bytes()).hexdigest(),"resource_execution":False}
+(run/"result.json").write_text(json.dumps(summary,indent=2)+"\n");print(json.dumps({"kind":a.kind,"run":str(run),**summary}))
+raise SystemExit(result.returncode)

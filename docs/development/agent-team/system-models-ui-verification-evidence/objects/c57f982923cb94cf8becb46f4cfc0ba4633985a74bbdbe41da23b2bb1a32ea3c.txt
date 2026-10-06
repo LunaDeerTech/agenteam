@@ -1,0 +1,60 @@
+package model
+
+import (
+ "encoding/json"
+ "reflect"
+ "sort"
+ "strings"
+ "testing"
+ "time"
+ f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+ mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+func safeShape(v any, present bool) string {
+ if !present { return "absent" }
+ if v == nil { return "null" }
+ switch v.(type) { case []any: return "array"; case string: return "string"; case bool: return "boolean"; default: return "other" }
+}
+func TestModelWebSnapshotWireShape(t *testing.T) {
+ n:=mc.TokenCount(9007199254740993)
+ cases:=[]struct{name string; caps mc.Capabilities}{
+  {"chat-empty-counts",mc.Capabilities{InputModalities:[]string{"text"},OutputModalities:[]string{"text"},ReasoningEfforts:[]string{},StructuredOutputModes:[]string{"text","json_schema"}}},
+  {"embedding-empty-structure",mc.Capabilities{InputModalities:[]string{"text"},OutputModalities:[]string{"vector"},ReasoningEfforts:[]string{},StructuredOutputModes:[]string{}}},
+  {"reranker-empty-arrays",mc.Capabilities{InputModalities:[]string{"text"},OutputModalities:[]string{},ReasoningEfforts:[]string{},StructuredOutputModes:[]string{}}},
+  {"image-empty-structure",mc.Capabilities{InputModalities:[]string{"text"},OutputModalities:[]string{"image"},ReasoningEfforts:[]string{},StructuredOutputModes:[]string{}}},
+  {"exact-large-count",mc.Capabilities{InputModalities:[]string{"text"},OutputModalities:[]string{"text"},StructuredOutputModes:[]string{"text"},ContextLength:&n,MaxOutput:&n}},
+ }
+ at,err:=f.NewInstant(time.Date(2026,10,6,11,0,0,123456000,time.UTC));if err!=nil {t.Fatal("private instant")}
+ for _,c:=range cases {t.Run(c.name,func(t *testing.T){
+  caps:=c.caps.Clone()
+  stored,err:=json.Marshal(caps);if err!=nil {t.Fatal("stored serialize")}
+  var old map[string]any;if json.Unmarshal(stored,&old)!=nil {t.Fatal("stored decode")}
+  wire,err:=json.Marshal(httpModelDTO(mc.ModelView{ID:mustID[mc.Model](t),ProviderID:mustID[mc.Provider](t),Version:1,CreatedAt:at,UpdatedAt:at,Input:mc.ModelInput{Name:"private-probe",ProviderModelID:"native",Type:mc.ChatModel,Parameters:json.RawMessage(`{}`),RequestOverwrite:json.RawMessage(`{}`),HeaderOverwrite:map[string]string{},Capabilities:caps}}));if err!=nil {t.Fatal("formal DTO serialize")}
+  var dto map[string]any;if json.Unmarshal(wire,&dto)!=nil {t.Fatal("formal DTO decode")}
+  want:=dto["input"].(map[string]any)["capabilities"].(map[string]any)
+  if reflect.DeepEqual(old,want) {t.Fatal("old raw DB shape unexpectedly equals required-null/array DTO")}
+  differences:=[]string{}
+  for k,v:=range want {previous,has:=old[k];if !has||!reflect.DeepEqual(previous,v){differences=append(differences,k+":"+safeShape(previous,has)+"->"+safeShape(v,true))}}
+  sort.Strings(differences);t.Log("safe shape delta: "+strings.Join(differences,","))
+  modelsWebSnapshotCapabilityDTO(old)
+  if !reflect.DeepEqual(old,want) {t.Fatal("projected complete capability DTO differs")}
+  old["tool_calls"]=true;modelsWebSnapshotCapabilityDTO(old)
+  if reflect.DeepEqual(old,want) {t.Fatal("projection concealed changed boolean")}
+  old["tool_calls"]=false;old["unknown_field"]=true;modelsWebSnapshotCapabilityDTO(old)
+  if reflect.DeepEqual(old,want) {t.Fatal("projection concealed extra field")}
+ })}
+}
+
+func modelsWebSnapshotCapabilityDTO(value map[string]any) {
+	for _, field := range []string{"context_length", "max_output"} {
+		if _, present := value[field]; !present {
+			value[field] = nil
+		}
+	}
+	for _, field := range []string{"input_modalities", "output_modalities", "reasoning_efforts", "structured_output_modes"} {
+		if value[field] == nil {
+			value[field] = []any{}
+		}
+	}
+}

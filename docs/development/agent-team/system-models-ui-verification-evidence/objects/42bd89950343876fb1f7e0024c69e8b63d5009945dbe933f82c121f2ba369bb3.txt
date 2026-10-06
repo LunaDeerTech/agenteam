@@ -1,0 +1,8 @@
+
+> @agenteam/web@0.0.0 type-check
+> vue-tsc --noEmit
+
+src/tests/system-models.spec.ts(311,7): error TS2322: Type 'SessionView' is not assignable to type '{ user: { role: "admin" | "user"; id: string; email: string; username: string; display_name: string; theme: "dark"; version: string; initial_password_suggestion: boolean; }; session: Session; csrf_token: string; }'.
+  The types of 'user.theme' are incompatible between these types.
+    Type '"system" | "light" | "dark"' is not assignable to type '"dark"'.
+      Type '"system"' is not assignable to type '"dark"'.

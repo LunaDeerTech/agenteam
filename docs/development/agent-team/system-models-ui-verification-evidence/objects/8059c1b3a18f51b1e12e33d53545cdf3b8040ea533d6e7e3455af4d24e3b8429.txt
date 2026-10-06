@@ -1,0 +1,17 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/candidate/web
+
+ ✓ src/tests/independent-model-owner.spec.ts > Independent Model owner fixed transport compositions > keeps native Model read cancellation owned after visible timeout and isolates other-domain abandon 26ms
+ ✓ src/tests/independent-model-owner.spec.ts > Independent Model owner fixed transport compositions > keeps Provider two-step native EOF and body-cancel boundaries intact under Model cleanup 6ms
+ ✓ src/tests/independent-model-owner.spec.ts > Independent Model owner fixed transport compositions > preserves uncertain DELETE through current404, failed lookup tail and known refusal until exact replay receipt 9ms
+ ✓ src/tests/independent-model-owner.spec.ts > Independent Model owner fixed transport compositions > clears all system intent on current Model403 and handles Model write/lookup CSRF without rewriting role or using logout 4ms
+ ✓ src/tests/independent-model-owner.spec.ts > Independent Model owner fixed transport compositions > applies the existing late parsed SESSION_REVOKED rule to the new Model read domain 1ms
+ ✓ src/tests/independent-model-owner.spec.ts > Independent Model owner fixed transport compositions > applies the existing late parsed FORBIDDEN rule to the new Model read domain 1ms
+ ✓ src/tests/independent-model-owner.spec.ts > Independent Model owner fixed transport compositions > does not release an abandoned old-identity Model fetch before native cancellation completes 2ms
+ ✓ src/tests/independent-model-owner.spec.ts > Independent Model owner fixed transport compositions > does not erase a successor Model intent started synchronously from the old receipt 3ms
+
+ Test Files  1 passed (1)
+      Tests  8 passed (8)
+   Start at  10:25:25
+   Duration  808ms (transform 161ms, setup 0ms, import 240ms, tests 55ms, environment 383ms)
+

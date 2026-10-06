@@ -1,0 +1,29 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-model-page-verification-marvsfu5/candidate/web
+
+stderr | src/tests/independent-model-page.spec.ts > Independent Model actual App composition > keeps a rejected draft and pending navigation across actual pageshow failure/recovery, then confirms a write despite GET failure and immediately opens an ordinary new form
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+ ↓ src/tests/independent-model-page.spec.ts > Independent Model page observations > holds captured deletion version and revalidates the complete cross-Provider choice after fresh observations actually finish
+ ↓ src/tests/independent-model-page.spec.ts > Independent Model page observations > registers explicit editor review through detach and reattach while its native cancel tail remains owned, then rebases only on a new explicit review
+ ↓ src/tests/independent-model-page.spec.ts > Independent Model page observations > keeps four cursor histories separate and publishes zero replacement candidates on a real read failure without scanning more pages
+stderr | src/tests/independent-model-page.spec.ts > Independent Model actual App composition > keeps a rejected draft and pending navigation across actual pageshow failure/recovery, then confirms a write despite GET failure and immediately opens an ordinary new form
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stderr | src/tests/independent-model-page.spec.ts > Independent Model actual App composition > keeps the deletion confirmation above its remounted business layer and prevents the old button closure from stealing focus
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+ ✓ src/tests/independent-model-page.spec.ts > Independent Model actual App composition > keeps a rejected draft and pending navigation across actual pageshow failure/recovery, then confirms a write despite GET failure and immediately opens an ordinary new form 534ms
+stderr | src/tests/independent-model-page.spec.ts > Independent Model actual App composition > keeps the deletion confirmation above its remounted business layer and prevents the old button closure from stealing focus
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+stderr | src/tests/independent-model-page.spec.ts > Independent Model actual App composition > keeps the deletion confirmation above its remounted business layer and prevents the old button closure from stealing focus
+[Vue Router warn]: No match found for location with path "/settings/profile"
+
+ ✓ src/tests/independent-model-page.spec.ts > Independent Model actual App composition > keeps the deletion confirmation above its remounted business layer and prevents the old button closure from stealing focus 232ms
+
+ Test Files  1 passed (1)
+      Tests  2 passed | 3 skipped (5)
+   Start at  10:43:38
+   Duration  2.32s (transform 871ms, setup 0ms, import 1.05s, tests 767ms, environment 375ms)
+

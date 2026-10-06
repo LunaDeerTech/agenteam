@@ -1,0 +1,347 @@
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-models.spec.ts (31 tests | 28 failed) 939ms
+     × submits the current legal complete openai-chat-completions shape without normalizing ordinary fields 33ms
+     × submits the current legal complete anthropic-messages shape without normalizing ordinary fields 32ms
+     × submits the current legal complete openai-embeddings shape without normalizing ordinary fields 24ms
+     × submits the current legal complete jina-rerank shape without normalizing ordinary fields 30ms
+     × submits the current legal complete openai-images-generations shape without normalizing ordinary fields 45ms
+     × retains rejected parallel fields, dispatches zero writes and restores the submitter 24ms
+     × retains rejected capacity fields, dispatches zero writes and restores the submitter 25ms
+     × retains rejected unicode fields, dispatches zero writes and restores the submitter 26ms
+     × retains rejected native-bytes fields, dispatches zero writes and restores the submitter 22ms
+     × retains rejected unset-enabled fields, dispatches zero writes and restores the submitter 25ms
+     × keeps confirmed receipt separate from a failed refresh and opens a new form with an ordinary submit label immediately 23ms
+     × requires explicit current-version review after a real structured conflict and preserves the ordinary draft 26ms
+     × cannot dispatch a DELETE from error Impact 23ms
+     × cannot dispatch a DELETE from mismatch Impact 22ms
+     × cannot dispatch a DELETE from unbound Impact 31ms
+     × confirms no-reference DELETE once and renders the actual unbounded nonnegative receipt count 21ms
+     × requires an explicit optional clear and records that choice as null only after confirmation 20ms
+     × enforces same type, nonself, enabled Provider/Model and memory json_schema before choosing a cross-Provider replacement 19ms
+     × replays the original DELETE after an actual current GET404 and failed Impact without using those reads as permission 20ms
+     × preserves pending close across Session503 and same-identity restoration without new writes 24ms
+     × preserves pending route across Session503 and same-identity restoration without new writes 21ms
+     × preserves pending logout across Session503 and same-identity restoration without new writes 19ms
+     × resumes only the original pending route when discard is explicitly chosen after restoration 37ms
+     × resumes only the original pending logout when discard is explicitly chosen after restoration 17ms
+     × ends pending old navigation false on session and cannot transfer its answer 18ms
+     × ends pending old navigation false on role and cannot transfer its answer 20ms
+     × ends pending old navigation false on dispose and cannot transfer its answer 19ms
+     × blocks dirty beforeunload and removes its listener when App is disposed 21ms
+
+⎯⎯⎯⎯⎯⎯ Failed Tests 28 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete openai-chat-completions shape without normalizing ordinary fields
+ FAIL  src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete anthropic-messages shape without normalizing ordinary fields
+ FAIL  src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete openai-embeddings shape without normalizing ordinary fields
+ FAIL  src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete jina-rerank shape without normalizing ordinary fields
+ FAIL  src/tests/system-models.spec.ts > Model actual App/router/form composition > submits the current legal complete openai-images-generations shape without normalizing ordinary fields
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ src/tests/system-models.spec.ts:496:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/28]⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected parallel fields, dispatches zero writes and restores the submitter
+ FAIL  src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected capacity fields, dispatches zero writes and restores the submitter
+ FAIL  src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected unicode fields, dispatches zero writes and restores the submitter
+ FAIL  src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected native-bytes fields, dispatches zero writes and restores the submitter
+ FAIL  src/tests/system-models.spec.ts > Model actual App/router/form composition > retains rejected unset-enabled fields, dispatches zero writes and restores the submitter
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ src/tests/system-models.spec.ts:531:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/28]⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model actual App/router/form composition > keeps confirmed receipt separate from a failed refresh and opens a new form with an ordinary submit label immediately
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ dirty src/tests/system-models.spec.ts:412:9
+ ❯ src/tests/system-models.spec.ts:556:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[3/28]⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model actual App/router/form composition > requires explicit current-version review after a real structured conflict and preserves the ordinary draft
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ src/tests/system-models.spec.ts:570:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[4/28]⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model deletion previews and original command recovery > cannot dispatch a DELETE from error Impact
+ FAIL  src/tests/system-models.spec.ts > Model deletion previews and original command recovery > cannot dispatch a DELETE from mismatch Impact
+ FAIL  src/tests/system-models.spec.ts > Model deletion previews and original command recovery > cannot dispatch a DELETE from unbound Impact
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ src/tests/system-models.spec.ts:606:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[5/28]⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model deletion previews and original command recovery > confirms no-reference DELETE once and renders the actual unbounded nonnegative receipt count
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ src/tests/system-models.spec.ts:638:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[6/28]⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model deletion previews and original command recovery > requires an explicit optional clear and records that choice as null only after confirmation
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ src/tests/system-models.spec.ts:653:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[7/28]⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model deletion previews and original command recovery > enforces same type, nonself, enabled Provider/Model and memory json_schema before choosing a cross-Provider replacement
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ src/tests/system-models.spec.ts:690:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[8/28]⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model deletion previews and original command recovery > replays the original DELETE after an actual current GET404 and failed Impact without using those reads as permission
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ src/tests/system-models.spec.ts:726:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[9/28]⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > preserves pending close across Session503 and same-identity restoration without new writes
+ FAIL  src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > preserves pending route across Session503 and same-identity restoration without new writes
+ FAIL  src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > preserves pending logout across Session503 and same-identity restoration without new writes
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ dirty src/tests/system-models.spec.ts:412:9
+ ❯ src/tests/system-models.spec.ts:772:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[10/28]⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > resumes only the original pending route when discard is explicitly chosen after restoration
+ FAIL  src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > resumes only the original pending logout when discard is explicitly chosen after restoration
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ dirty src/tests/system-models.spec.ts:412:9
+ ❯ src/tests/system-models.spec.ts:814:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[11/28]⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > ends pending old navigation false on session and cannot transfer its answer
+ FAIL  src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > ends pending old navigation false on role and cannot transfer its answer
+ FAIL  src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > ends pending old navigation false on dispose and cannot transfer its answer
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ dirty src/tests/system-models.spec.ts:412:9
+ ❯ src/tests/system-models.spec.ts:842:13
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[12/28]⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > blocks dirty beforeunload and removes its listener when App is disposed
+AssertionError: button 查看此 Provider 的 Models: expected undefined to be truthy
+
+- Expected:
+true
+
++ Received:
+undefined
+
+ ❯ button src/tests/system-models.spec.ts:354:36
+    352|       )?.trim() === label || b.getAttribute('aria-label') === label,
+    353|   )
+    354|   expect(found, `button ${label}`).toBeTruthy()
+       |                                    ^
+    355|   return found!
+    356| }
+ ❯ click src/tests/system-models.spec.ts:358:3
+ ❯ selectProvider src/tests/system-models.spec.ts:392:9
+ ❯ dirty src/tests/system-models.spec.ts:412:9
+ ❯ src/tests/system-models.spec.ts:866:11
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[13/28]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  28 failed | 3 passed (31)
+   Start at  10:33:37
+   Duration  2.79s (transform 1.07s, setup 0ms, import 1.27s, tests 939ms, environment 469ms)
+

@@ -1,0 +1,105 @@
+import { expect, type Page } from '@playwright/test'
+
+// Preparation only: this file registers no tests and starts no fixture. The
+// frozen author adapter must supply facts from the original native reader.
+// eof means an actual successful done:true read, never rejection/cancel.
+export type SafeFact = {
+  sequence: number
+  path: string
+  method: string
+  status: number
+  eof: boolean
+  code?: string
+  commit_state?: string
+  session?: { user_id: string; session_id: string; role: 'admin' | 'user' }
+  receipt?: {
+    kind: 'model.create' | 'model.update' | 'model.delete'
+    resource_id: string
+    version: string
+    affected_references: string
+  }
+  found?: boolean
+}
+export type ReadFacts = () => Promise<readonly SafeFact[]>
+export type PublicTarget = {
+  providerName: string
+  modelName: string
+  modelID: string
+  capturedVersion: string
+}
+export const top = (page: Page) => page.getByRole('dialog').last()
+export async function watermark(facts: ReadFacts) {
+  return Math.max(0, ...(await facts()).map((fact) => fact.sequence))
+}
+export function executions(facts: readonly SafeFact[]) {
+  return facts.filter((fact) =>
+    (fact.method === 'POST' && fact.path === '/api/v1/system/models') ||
+    (['PUT', 'DELETE'].includes(fact.method) && /^\/api\/v1\/system\/models\/[0-9a-f-]{36}$/.test(fact.path)),
+  )
+}
+export async function openTarget(page: Page, target: PublicTarget) {
+  await page.goto('/system/models')
+  await expect(page.getByRole('heading', { name: 'Models', exact: true })).toBeVisible()
+  const providers = page.getByRole('table', { name: '可管理配置的 Providers', exact: true })
+  const providerRow = providers.getByRole('row').filter({
+    has: page.getByRole('cell', { name: target.providerName, exact: true }),
+  })
+  await expect(providerRow).toHaveCount(1)
+  await providerRow.getByRole('button', { name: '选择 Provider', exact: true }).click()
+  const modelRow = page.locator('.model-table tbody tr').filter({
+    has: page.getByRole('cell', { name: target.modelName, exact: true }),
+  })
+  await expect(modelRow).toHaveCount(1)
+  await modelRow.getByRole('button', { name: '查看 Model', exact: true }).click()
+  await expect(page.getByRole('region', { name: 'Model 安全详情', exact: true })).toContainText(target.modelID)
+  await page.getByRole('button', { name: '删除 Model', exact: true }).click()
+  await expect(top(page)).toHaveAccessibleName('删除 Model')
+}
+export async function chooseReplacement(page: Page, providerName: string, modelName: string) {
+  const providerRow = top(page).locator('.choices > li').filter({ hasText: providerName })
+  await expect(providerRow).toHaveCount(1)
+  await providerRow.getByRole('button', { name: '查看此 Provider 的 Models', exact: true }).click()
+  const candidateRow = top(page).locator('.choices > li').filter({ hasText: modelName })
+  await expect(candidateRow).toHaveCount(1)
+  await candidateRow.getByRole('button', { name: '选择此替代 Model', exact: true }).click()
+  await expect(top(page).getByRole('button', { name: '确认删除 Model', exact: true })).toBeEnabled()
+}
+export async function confirmationLayers(page: Page) {
+  await expect(page.locator('[role="dialog"]')).toHaveCount(2)
+  await expect(page.getByRole('dialog')).toHaveCount(1)
+  expect(await page.locator('[role="dialog"]').evaluateAll((nodes) => nodes.map((node) => ({
+    inert: node instanceof HTMLElement && node.inert,
+    hidden: node.getAttribute('aria-hidden') === 'true',
+  })))).toEqual([{ inert: true, hidden: true }, { inert: false, hidden: false }])
+}
+export async function failedSession(page: Page, facts: ReadFacts, after: number) {
+  // A text/plain 503 is rejected by Content-Type and cancelled by the product;
+  // there need not be a native reader, so EOF is deliberately not asserted.
+  await expect.poll(async () => (await facts()).some((fact) => fact.sequence > after &&
+    fact.path === '/api/v1/session' && fact.method === 'GET' && fact.status === 503)).toBe(true)
+  await expect(page.getByRole('heading', { name: '会话尚未确认', exact: true })).toBeVisible()
+  await expect(page.locator('[role="dialog"]')).toHaveCount(0)
+  const restore = page.getByRole('button', { name: '检查当前会话', exact: true })
+  await expect(restore).toBeEnabled()
+  expect(await restore.evaluate((node) => node.closest('[inert]') === null)).toBe(true)
+}
+export async function restoredSession(facts: ReadFacts, after: number, original: NonNullable<SafeFact['session']>) {
+  await expect.poll(async () => (await facts()).some((fact) => fact.sequence > after &&
+    fact.path === '/api/v1/session' && fact.method === 'GET' && fact.status === 200 && fact.eof &&
+    fact.session?.user_id === original.user_id && fact.session.session_id === original.session_id &&
+    fact.session.role === original.role)).toBe(true)
+}
+export async function continueInsideBusiness(page: Page) {
+  await top(page).getByRole('button', { name: '继续编辑', exact: true }).click()
+  await expect(page.locator('[role="dialog"]')).toHaveCount(1)
+  await expect.poll(() => top(page).evaluate((node) => node.contains(document.activeElement))).toBe(true)
+  await page.keyboard.press('Tab')
+  await expect.poll(() => top(page).evaluate((node) => node.contains(document.activeElement))).toBe(true)
+}
+export async function deleteReceipt(facts: ReadFacts, after: number, target: PublicTarget, affected: string) {
+  await expect.poll(async () => (await facts()).some((fact) => fact.sequence > after &&
+    fact.path === '/api/v1/system/models/' + target.modelID && fact.method === 'DELETE' &&
+    fact.status === 200 && fact.eof && fact.receipt?.kind === 'model.delete' &&
+    fact.receipt.resource_id === target.modelID && fact.receipt.version === String(BigInt(target.capturedVersion) + 1n) &&
+    fact.receipt.affected_references === affected)).toBe(true)
+}

@@ -1,0 +1,11 @@
+--- final-delivery/docs/development/frontend/README.md
++++ final-delivery02/docs/development/frontend/README.md
+@@ -202,7 +202,7 @@
+ 
+ 非 chat 的四个布尔声明固定 false，结构化输出固定空数组；所有数组不允许重复。四种 type 的 `parameters`、`request_overwrite`、`header_overwrite` 固定 `{}`，`reasoning_efforts` 固定 `[]`，没有任意 JSON/Header/effort 编辑入口。容量 `context_length`、`max_output` 可空；有值时为精确正 int64 十进制字符串，两者都有值时要求 `max_output ≤ context_length`。能力声明与配置保存均不证明外部模型支持这些能力。
+ 
+-删除先捕获目标及版本，再读取完整详情和 Impact。Impact 只说明当前登记引用：`none` 明确提交空替代，`optional` 要求明确选择清空相应用途引用或替代，`required` 必须选合法替代。替代可跨 Provider，但须非自身、同 type、Model 与 Provider 均启用；含 memory 引用时还须声明 `json_schema`。未绑定的外域引用 adapter 阻止页面提交。Impact 不授予写权，也不冻结引用集合；旧预览的目标版本、引用或候选变化后须明确重读核对，正式 DELETE 仍重新检查当前权限、引用与候选，并在同一事务处理合法平台引用及删除。页面不预先修改 selector、不级联删除其他配置；只有严格 receipt 才确认，并显示其实际 `affected_references`。
++删除先捕获目标及版本，再读取完整详情和 Impact。Impact 只说明当前登记引用：`none` 明确提交空替代，`optional` 要求明确选择清空相应用途引用或替代，`required` 必须选合法替代。替代可跨 Provider，但须非自身、同 type、Model 与 Provider 均启用；含 memory 引用时还须声明 `json_schema`。未绑定的外域引用 adapter 阻止页面提交。Impact 不授予写权，也不冻结引用集合；读取发现目标版本变化，或提交因版本、候选不相容被拒绝时，须显式重读核对。Model 版本不随所有引用变化；正式 DELETE 重新发现并检查当前引用集，同时核对权限与候选，在同一事务处理合法平台引用及删除。合法新增引用可能体现在实际 `affected_references` 中。页面不预先修改 selector、不级联删除其他配置；只有严格 receipt 才确认，并显示其实际 `affected_references`。
+ 
+ Model 操作沿唯一 Cookie owner 私有保留原 key、path、完整 body、版本、替代和 Session CSRF。检查原请求的 lookup 只提供历史观察，不能作为本次写入的确认回执；必须显式以原材料重放 Execute，不能更换 key 或自动重发。删除已生效后的 GET 404、Impact 失败或旧候选消失不阻挡合法原请求恢复；放弃只停止前端追踪，不回滚已经接受的操作。严格写确认后若 GET 失败，只提供读取重试，不重新提交写入。
+ 

@@ -1,0 +1,33 @@
+const fs=require('node:fs'),vm=require('node:vm'),assert=require('node:assert/strict');
+const ts=require('/workspace/agenteam/tests/account-captcha-web/node_modules/typescript');
+const source=fs.readFileSync('/workspace/agenteam/tests/account-captcha-web/e2e/system-models.spec.ts','utf8');
+const start=source.indexOf('function observeNative()'),end=source.indexOf('\nconst top =',start);assert(start>=0&&end>start);
+const js=ts.transpileModule(source.slice(start,end)+'\nobserveNative();',{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
+const id='01900000-0000-7000-8000-000000000001',at='2026-10-06T12:34:56.123456Z';
+const input={name:'Model',provider_model_id:' native ',type:'chat',enabled:true,parameters:{},request_overwrite:{},header_overwrite:{},capabilities:{tool_calls:false,parallel_tool_calls:false,streaming:false,reasoning:false,input_modalities:['text'],output_modalities:['text'],reasoning_efforts:[],structured_output_modes:['text'],context_length:null,max_output:null}};
+const row={id,provider_id:id,input,version:'1',created_at:at,updated_at:at};
+async function run(path,method,value,status=200,pad=0){
+ const body=JSON.stringify(value);const bytes=new TextEncoder().encode(body+' '.repeat(Math.max(0,pad-new TextEncoder().encode(body).length)));
+ const response=new Response(bytes,{status,headers:{'Content-Type':status===200?'application/json':'application/problem+json'}}),nativePromise=Promise.resolve(response);let reads=0,expectedPromise,expectedReader;
+ const originalGet=response.body.getReader,originalCancel=response.body.cancel;
+ Object.defineProperty(response.body,'getReader',{configurable:true,writable:true,value:function(...args){const reader=Reflect.apply(originalGet,this,args);expectedReader=reader;const read=reader.read;Object.defineProperty(reader,'read',{configurable:true,writable:true,value:function(...args){reads++;expectedPromise=Reflect.apply(read,this,args);return expectedPromise}});return reader}});
+ const window={fetch:()=>nativePromise,location:{origin:'http://127.0.0.1:1',href:'http://127.0.0.1:1/system/models'}};
+ vm.runInNewContext(js,{window,location:window.location,URL,Request,Response,TextEncoder,TextDecoder});
+ const returned=window.fetch(path,{method});assert.equal(returned,nativePromise);const r=await returned;assert.equal(r,response);assert.equal(r.body.cancel,originalCancel);const reader=r.body.getReader();assert.equal(reader,expectedReader);let total=0;
+ while(true){const pending=reader.read();assert.equal(pending,expectedPromise);const x=await pending;if(x.value)total+=x.value.length;if(x.done)break}
+ await Promise.resolve();assert.equal(total,bytes.length);assert.equal(reads,2);assert.equal(window.__modelFacts.length,1);const fact=window.__modelFacts[0];assert.equal(fact.ended,true);assert.equal(fact.bytes,bytes.length);return fact;
+}
+(async()=>{
+ const receipt={kind:'model.create',resource_id:id,version:'1',affected_references:'0'};
+ assert.equal((await run('/api/v1/system/models','POST',receipt)).receipt.kind,'model.create');
+ assert.equal((await run('/api/v1/system/models/'+id,'GET',row)).model.input.provider_model_id,' native ');
+ const impact={model_id:id,version:'1',reference_count:'1',reference_groups:[{owner_kind:'platform_selector',role:'memory',count:'1'}],replacement_requirement:'required',delete_blocker:null};
+ assert.equal((await run('/api/v1/system/models/'+id+'/deletion-impact','GET',impact)).impact.reference_count,'1');
+ assert.equal((await run('/api/v1/system/models/'+id+'/deletion-impact','GET',{...impact,owner_name:'not permitted'})).impact,undefined);
+ assert.equal((await run('/api/v1/system/models/'+id,'GET',row,200,600001)).model,undefined);
+ const provider={id,input:{name:'Provider',protocol:'openai-chat-completions',base_url:'https://provider.invalid',enabled:true,credential_ref:null,options:{}},version:'1',created_at:at,updated_at:at};
+ assert.equal((await run('/api/v1/system/model-providers?limit=25','GET',{items:[provider],next_cursor:null},200,600001)).providers.items.length,1);
+ assert.equal((await run('/api/v1/session','GET',{code:'SESSION_REVOKED'},401)).code,'SESSION_REVOKED');
+ assert.equal((await run('/api/v1/system/models?provider_id='+id+'&limit=25','GET',{items:[row],next_cursor:null})).models.items[0].id,id);
+ console.log('PASS 8 native observation projections; original fetch/read promises, reader identity, cancel function, native read count and byte delivery preserved; no browser/network resources');
+})().catch(e=>{console.error(e);process.exitCode=1});

@@ -1,0 +1,70 @@
+--- f465f45b899e21c225e7d4107c099b256538239c/web/src/api/client.ts
++++ api-stage01/web/src/api/client.ts
+@@ -80,6 +80,12 @@
+   updateProvider: ['PUT', '/api/v1/system/model-providers/{id}', 200],
+   deleteProvider: ['DELETE', '/api/v1/system/model-providers/{id}', 200],
+   listProviderModels: ['GET', '/api/v1/system/models', 200],
++  getModel: ['GET', '/api/v1/system/models/{id}', 200],
++  createModel: ['POST', '/api/v1/system/models', 200],
++  updateModel: ['PUT', '/api/v1/system/models/{id}', 200],
++  deleteModel: ['DELETE', '/api/v1/system/models/{id}', 200],
++  getModelDeletionImpact: ['GET', '/api/v1/system/models/{id}/deletion-impact', 200],
++  lookupModelCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
+   createModelCredential: ['POST', '/api/v1/system/model-credentials', 200],
+   getModelCredentialMetadata: ['GET', '/api/v1/system/model-credentials/{id}', 200],
+   lookupProviderCommand: ['POST', '/api/v1/system/model-commands/lookup', 200],
+@@ -303,8 +309,33 @@
+   'lookupProviderCommand',
+   'lookupModelCredentialCreate',
+ ]
++type ModelEndpoint =
++  | 'getModel'
++  | 'createModel'
++  | 'updateModel'
++  | 'deleteModel'
++  | 'getModelDeletionImpact'
++  | 'lookupModelCommand'
++type ModelOptions<E extends ModelEndpoint> = E extends 'getModel' | 'getModelDeletionImpact'
++  ? { signal: AbortSignal; target: string }
++  : E extends 'updateModel' | 'deleteModel'
++    ? RequestOptions & { target: string; body: unknown; csrf: string; key: string }
++    : RequestOptions & { body: unknown; csrf: string; key: string }
++const modelEndpoints: readonly ModelEndpoint[] = [
++  'getModel',
++  'createModel',
++  'updateModel',
++  'deleteModel',
++  'getModelDeletionImpact',
++  'lookupModelCommand',
++]
+ 
+ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
++  function request<T, E extends ModelEndpoint>(
++    endpoint: E,
++    parse: (value: unknown) => T,
++    options: ModelOptions<E>,
++  ): Promise<T>
+   function request<T, E extends ProviderEndpoint>(
+     endpoint: E,
+     parse: (value: unknown) => T,
+@@ -328,7 +359,7 @@
+   function request<T>(
+     endpoint: Exclude<
+       keyof typeof endpoints,
+-      'systemUsers' | 'systemInvitations' | InvitationTarget | ProviderEndpoint
++      'systemUsers' | 'systemInvitations' | InvitationTarget | ProviderEndpoint | ModelEndpoint
+     >,
+     parse: (value: unknown) => T,
+     options: RequestOptions & { users?: never; invitations?: never; target?: never },
+@@ -347,7 +378,10 @@
+     if (!Object.hasOwn(endpoints, endpoint)) throw new AccountFailure('invalid-input')
+     const [method, basePath, status] = endpoints[endpoint]
+     let path: string = basePath
+-    if (providerEndpoints.includes(endpoint as ProviderEndpoint)) {
++    if (
++      providerEndpoints.includes(endpoint as ProviderEndpoint) ||
++      modelEndpoints.includes(endpoint as ModelEndpoint)
++    ) {
+       try {
+         const target = basePath.includes('{id}')
+         const queryKey =

@@ -1,0 +1,272 @@
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises, mount, type VueWrapper } from '@vue/test-utils'
+import { createMemoryHistory, createRouter, isNavigationFailure, NavigationFailureType } from 'vue-router'
+import type { SessionController } from '../composables/useSession'
+const selected = vi.hoisted(() => ({ auth: null as SessionController | null }))
+vi.mock('../composables/useSession', async (original) => ({
+  ...(await original<typeof import('../composables/useSession')>()),
+  useSession: () => selected.auth!,
+}))
+import { createSessionController } from '../composables/useSession'
+import { createSystemModels, type SystemModelsController } from '../composables/useSystemModels'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI, type Provider } from '../api/system-providers'
+import { createSystemModelAPI, type ModelInput, type SystemModel, type ModelDeletionImpact } from '../api/system-models'
+import type { Fetch } from '../api/client'
+import { installAuthentication } from '../router/auth'
+import { useTheme } from '../composables/useTheme'
+import App from '../App.vue'
+import HomeView from '../views/HomeView.vue'
+import LoginView from '../views/auth/LoginView.vue'
+import SystemSettingsView from '../views/system/SystemSettingsView.vue'
+import SystemUsersView from '../views/system/SystemUsersView.vue'
+import SystemInvitationsView from '../views/system/SystemInvitationsView.vue'
+import SystemProvidersView from '../views/system/SystemProvidersView.vue'
+import SystemModelsView from '../views/system/SystemModelsView.vue'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z'
+const session = (n = 2): SessionView => ({
+  user: { id: id(1), email: 'admin@example.invalid', username: 'admin', display_name: 'Admin', role: 'admin', theme: 'system', version: '1', initial_password_suggestion: false },
+  session: { id: id(n), issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const provider = (n = 100): Provider => ({ id: id(n), input: { name: n === 100 ? 'Target Provider' : 'Replacement Provider ' + n, protocol: 'openai-chat-completions', base_url: 'https://provider.invalid/v1', enabled: true, credential_ref: null, options: {} }, version: '1', created_at: time, updated_at: time })
+const input = (name = 'Target Model'): ModelInput => ({ name, provider_model_id: ' exact native ', type: 'chat', enabled: true, parameters: {}, request_overwrite: {}, header_overwrite: {}, capabilities: { tool_calls: false, parallel_tool_calls: false, streaming: false, reasoning: false, input_modalities: ['text'], output_modalities: ['text'], reasoning_efforts: [], structured_output_modes: ['text', 'json_schema'], context_length: null, max_output: null } })
+const model = (n = 200, p = 100): SystemModel => ({ id: id(n), provider_id: id(p), input: input(n === 200 ? 'Target Model' : 'Replacement Model ' + n), version: '1', created_at: time, updated_at: time })
+const json = (value: unknown, status = 200) => new Response(JSON.stringify(value), { status, headers: { 'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json', 'X-Request-ID': id(9) } })
+const problem = (code = 'DEPENDENCY_UNAVAILABLE', status = 503) => json({ type: 'urn:agenteam:problem:independent', title: 'Failure', status, code, detail: '', instance: '/api/v1/system/models', request_id: id(9), commit_state: status < 500 ? 'not_committed' : 'not_started' }, status)
+function gate<T>() { let resolve!: (value: T) => void; const promise = new Promise<T>((done) => { resolve = done }); return { promise, resolve } }
+function nativeBody(value: unknown) {
+  const cancelled = gate<void>(), cancelTail = gate<void>()
+  let controller!: ReadableStreamDefaultController<Uint8Array>
+  const response = new Response(new ReadableStream<Uint8Array>({
+    start(c) { controller = c; c.enqueue(new TextEncoder().encode(JSON.stringify(value))) },
+    cancel() { cancelled.resolve(); return cancelTail.promise },
+  }), { headers: { 'Content-Type': 'application/json' } })
+  return { response, eof: () => controller.close(), cancelled, cancelTail }
+}
+let mounted: VueWrapper | undefined
+const controllers: SystemModelsController[] = []
+beforeEach(() => {
+  vi.stubGlobal('matchMedia', (media: string) => ({ media, matches: false, addEventListener() {}, removeEventListener() {} }))
+  // jsdom layout surrogate, not native browser hit testing or visual evidence.
+  vi.spyOn(HTMLElement.prototype, 'getClientRects').mockImplementation(() => [new DOMRect(0, 0, 80, 24)] as unknown as DOMRectList)
+})
+afterEach(async () => {
+  mounted?.unmount(); mounted = undefined
+  for (const page of controllers.splice(0)) page.dispose()
+  selected.auth?.leave(); selected.auth = null
+  await flushPromises()
+  document.body.innerHTML = ''
+  vi.unstubAllGlobals(); vi.restoreAllMocks(); useTheme().setTheme('system')
+})
+
+async function fixture(app = false) {
+  const sources = new Map([[id(100), provider()], [id(110), provider(110)]])
+  const records = new Map([[id(200), model()], [id(300), model(300, 110)]])
+  let current = session(), memory = false, conflict = false, failRefresh = false
+  let sessionReply: Fetch = async () => json(current)
+  let providersReply: Fetch = async () => json({ items: [...sources.values()].sort((a, b) => b.id.localeCompare(a.id)), next_cursor: null })
+  let modelsReply: Fetch = async (path) => json({ items: [...records.values()].filter((m) => m.provider_id === new URL(path, 'http://fixture.invalid').searchParams.get('provider_id')).sort((a, b) => b.id.localeCompare(a.id)), next_cursor: null })
+  let detailReply: Fetch = async (path) => {
+    if (failRefresh) { failRefresh = false; return problem() }
+    return records.has(path.split('/').at(-1)!) ? json(records.get(path.split('/').at(-1)!)) : problem('NOT_FOUND', 404)
+  }
+  const calls: { path: string; init: RequestInit }[] = []
+  const fetcher: Fetch = async (path, init) => {
+    calls.push({ path, init })
+    if (path === '/api/v1/session') return sessionReply(path, init)
+    if (path.startsWith('/api/v1/system/model-providers?')) return providersReply(path, init)
+    if (path.startsWith('/api/v1/system/model-providers/') && init.method === 'GET') return json(sources.get(path.split('/').at(-1)!))
+    if (path.startsWith('/api/v1/system/models?')) return modelsReply(path, init)
+    if (path.endsWith('/deletion-impact')) {
+      const value: ModelDeletionImpact = { model_id: id(200), version: records.get(id(200))!.version, reference_count: memory ? '1' : '0', reference_groups: memory ? [{ owner_kind: 'platform_selector', role: 'memory', count: '1' }] : [], replacement_requirement: memory ? 'required' : 'none', delete_blocker: null }
+      return json(value)
+    }
+    if (path.startsWith('/api/v1/system/models/') && init.method === 'GET') return detailReply(path, init)
+    if (path.startsWith('/api/v1/system/models') && init.method !== 'GET') {
+      if (conflict) { conflict = false; records.set(id(200), { ...records.get(id(200))!, version: '2' }); return problem('VERSION_CONFLICT', 409) }
+      const body = JSON.parse(String(init.body)), creating = init.method === 'POST', target = creating ? id(201) : path.split('/').at(-1)!, version = creating ? '1' : String(BigInt(body.expected_version) + 1n)
+      if (init.method === 'DELETE') records.delete(target)
+      else records.set(target, { id: target, provider_id: creating ? body.provider_id : records.get(target)!.provider_id, input: body.input, version, created_at: time, updated_at: time })
+      return json({ kind: creating ? 'model.create' : init.method === 'DELETE' ? 'model.delete' : 'model.update', resource_id: target, version, affected_references: init.method === 'DELETE' ? '1' : '0' })
+    }
+    if (path.startsWith('/api/v1/system/users?') || path.startsWith('/api/v1/system/invitations?')) return json({ items: [] })
+    if (path.endsWith('/bootstrap')) return json({ csrf_token: 'A'.repeat(43), challenge_modes: ['rotate'], delivery_channel: 'backend_log' })
+    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
+    throw new Error('independent unexpected route')
+  }
+  const auth = createSessionController(createAccountAPI(fetcher), createSystemAccountAPI(fetcher), createSystemInvitationAPI(fetcher), createSystemProviderAPI(fetcher), createSystemModelAPI(fetcher))
+  selected.auth = auth
+  let page: SystemModelsController | undefined
+  const router = createRouter({ history: createMemoryHistory(), routes: [
+    { path: '/', component: HomeView, meta: { authentication: true, protected: true } },
+    { path: '/login', name: 'login', component: LoginView, meta: { authentication: true } },
+    { path: '/system', component: SystemSettingsView, redirect: '/system/users', meta: { authentication: true, protected: true, systemAdmin: true, navigation: { label: '系统设置', order: 20 } }, children: [ { path: 'users', component: SystemUsersView }, { path: 'invitations', component: SystemInvitationsView }, { path: 'providers', component: SystemProvidersView }, { path: 'models', component: SystemModelsView } ] },
+  ] })
+  if (app) {
+    installAuthentication(router, auth)
+    await router.push('/system/models'); await router.isReady()
+    const host = document.createElement('div'); host.id = 'app'; document.body.append(host)
+    mounted = mount(App, { attachTo: host, global: { plugins: [router] } })
+  } else {
+    await auth.restore()
+    page = createSystemModels(auth); controllers.push(page); page.attach()
+  }
+  await flushPromises()
+  return { auth, page: page!, router, sources, records, calls,
+    memory: () => { memory = true }, conflict: () => { conflict = true }, failRefresh: () => { failRefresh = true },
+    setSession: (reply: Fetch) => { sessionReply = reply }, resetSession: (n = 2) => { current = session(n); sessionReply = async () => json(current) },
+    setProviders: (reply: Fetch) => { providersReply = reply }, setModels: (reply: Fetch) => { modelsReply = reply }, setDetail: (reply: Fetch) => { detailReply = reply },
+    resetDetail: () => { detailReply = async (p) => records.has(p.split('/').at(-1)!) ? json(records.get(p.split('/').at(-1)!)) : problem('NOT_FOUND', 404) },
+    writes: () => calls.filter((c) => c.path.startsWith('/api/v1/system/models') && c.init.method !== 'GET'),
+  }
+}
+async function chooseSource(f: Awaited<ReturnType<typeof fixture>>) {
+  await f.page.selectProvider(f.page.pages.providers.rows.find((p) => p.id === id(100))!)
+  await f.page.selectModel(f.page.pages.models.rows.find((m) => m.id === id(200))!)
+}
+function label(button: HTMLButtonElement) { return button.getAttribute('aria-label') ?? button.querySelector('.button-label[aria-hidden="false"]')?.textContent?.trim() ?? button.textContent?.trim() }
+function button(text: string, within: ParentNode = document) { const b = [...within.querySelectorAll<HTMLButtonElement>('button')].find((node) => label(node) === text); if (!b) throw new Error('missing actual button: ' + text); return b }
+async function click(text: string, within: ParentNode = document) { const b = button(text, within); expect(b.disabled).toBe(false); b.click(); await flushPromises() }
+const dialogs = () => [...document.querySelectorAll<HTMLElement>('[role="dialog"]')]
+function top() { const d = dialogs().at(-1); if (!d) throw new Error('missing dialog'); return d }
+function field(text: string, within: ParentNode = top()) { const l = [...within.querySelectorAll<HTMLLabelElement>('label')].find((node) => node.textContent?.replace(' *', '').trim() === text); if (!l) throw new Error('missing label: ' + text); return document.getElementById(l.htmlFor) as HTMLInputElement }
+async function set(text: string, value: string) { const node = field(text); node.value = value; node.dispatchEvent(new Event('input', { bubbles: true })); await flushPromises() }
+async function clickRow(table: string, value: string, action: string) { const row = [...document.querySelectorAll(`${table} tbody tr`)].find((r) => r.textContent?.includes(value)); if (!row) throw new Error('missing row: ' + value); await click(action, row) }
+async function openTarget() { await clickRow('.model-table', 'Target Provider', '选择 Provider'); await click('查看 Model') }
+function heading(text: string) { return [...document.querySelectorAll('h3')].some((h) => [...h.childNodes].filter((n) => !(n instanceof HTMLElement && n.getAttribute('aria-hidden') === 'true')).map((n) => n.textContent).join('').trim() === text) }
+
+describe('Independent Model page observations', () => {
+  it('holds captured deletion version and revalidates the complete cross-Provider choice after fresh observations actually finish', async () => {
+    const f = await fixture(); f.memory(); await chooseSource(f)
+    f.records.set(id(200), { ...f.records.get(id(200))!, version: '2' })
+    await f.page.openDelete()
+    expect({ version: f.page.deletion.model?.version, phase: f.page.impact.phase, canDelete: f.page.canDelete.value }).toEqual({ version: '1', phase: 'error', canDelete: false })
+    await f.page.remove(); expect(f.writes()).toHaveLength(0)
+    await f.page.reviewDeletion()
+    expect(f.page.deletion.model?.version).toBe('2')
+    await f.page.selectReplacementProvider(f.page.pages.replacementProviders.rows.find((p) => p.id === id(110))!)
+    await f.page.selectReplacement(f.page.pages.replacementModels.rows[0]!)
+    expect(f.page.canDelete.value).toBe(true)
+    const body = nativeBody({ items: [f.records.get(id(300))!], next_cursor: null })
+    f.setModels(async (path) => new URL(path, 'http://fixture.invalid').searchParams.get('provider_id') === id(110) ? body.response : json({ items: [f.records.get(id(200))!], next_cursor: null }))
+    f.page.detach(); f.page.attach(); await flushPromises()
+    expect({ busy: f.auth.state.busy, phase: f.page.pages.replacementModels.phase, canDelete: f.page.canDelete.value }).toEqual({ busy: true, phase: 'loading', canDelete: false })
+    body.eof(); await flushPromises()
+    expect({ busy: f.auth.state.busy, choice: f.page.deletion.choice, selected: f.page.deletion.replacement?.id, canDelete: f.page.canDelete.value }).toEqual({ busy: false, choice: 'replacement', selected: id(300), canDelete: true })
+    f.records.set(id(300), { ...f.records.get(id(300))!, version: '2' })
+    f.setModels(async (path) => json({ items: [f.records.get(new URL(path, 'http://fixture.invalid').searchParams.get('provider_id') === id(110) ? id(300) : id(200))!], next_cursor: null }))
+    f.page.detach(); f.page.attach(); await flushPromises()
+    expect({ choice: f.page.deletion.choice, selected: f.page.deletion.replacement, canDelete: f.page.canDelete.value }).toEqual({ choice: 'unselected', selected: null, canDelete: false })
+    await f.page.selectReplacement(f.page.pages.replacementModels.rows[0]!)
+    expect(f.page.canDelete.value).toBe(true)
+    f.sources.set(id(110), { ...f.sources.get(id(110))!, input: { ...f.sources.get(id(110))!.input, enabled: false } })
+    f.page.detach(); f.page.attach(); await flushPromises()
+    expect({ choice: f.page.deletion.choice, selected: f.page.deletion.replacement, canDelete: f.page.canDelete.value }).toEqual({ choice: 'unselected', selected: null, canDelete: false })
+    await f.page.remove(); expect(f.writes()).toHaveLength(0)
+  })
+
+  it('registers explicit editor review through detach and reattach while its native cancel tail remains owned, then rebases only on a new explicit review', async () => {
+    const f = await fixture(); await chooseSource(f); await f.page.openEdit()
+    f.page.draft.name = ' Exact retained draft '; f.conflict(); await f.page.save()
+    expect(f.auth.system.models.progress?.phase).toBe('rejected')
+    const body = nativeBody(f.records.get(id(200)))
+    f.setDetail(async () => body.response)
+    const review = f.page.reviewEditor(); await flushPromises()
+    f.page.detach(); f.page.attach(); await body.cancelled.promise; await review
+    expect({ busy: f.auth.state.busy, version: f.page.editor.version, reviewed: f.page.editor.reviewed, draft: f.page.draft.name }).toEqual({ busy: true, version: '1', reviewed: false, draft: ' Exact retained draft ' })
+    const before = f.calls.length
+    await f.page.save(); await flushPromises()
+    expect(f.calls).toHaveLength(before); expect(f.writes()).toHaveLength(1)
+    f.resetDetail(); body.cancelTail.resolve(); await flushPromises()
+    expect({ busy: f.auth.state.busy, version: f.page.editor.version, reviewed: f.page.editor.reviewed }).toEqual({ busy: false, version: '1', reviewed: false })
+    await f.page.reviewEditor()
+    expect({ version: f.page.editor.version, reviewed: f.page.editor.reviewed, draft: f.page.draft.name }).toEqual({ version: '2', reviewed: true, draft: ' Exact retained draft ' })
+    expect(f.writes()).toHaveLength(1)
+    await f.page.save()
+    expect(f.writes()).toHaveLength(2)
+    const [oldWrite, newWrite] = f.writes()
+    expect(JSON.parse(String(oldWrite!.init.body)).expected_version).toBe('1')
+    expect(JSON.parse(String(newWrite!.init.body)).expected_version).toBe('2')
+    expect(new Headers(oldWrite!.init.headers).get('Idempotency-Key')).not.toBe(new Headers(newWrite!.init.headers).get('Idempotency-Key'))
+  })
+
+  it('keeps four cursor histories separate and publishes zero replacement candidates on a real read failure without scanning more pages', async () => {
+    const f = await fixture(); f.memory()
+    const sourcePage = Array.from({ length: 25 }, (_, n) => provider(500 - n))
+    const modelPage = Array.from({ length: 25 }, (_, n) => model(900 - n))
+    f.setProviders(async (path) => json(path.includes('cursor=') ? { items: [provider()], next_cursor: null } : { items: sourcePage, next_cursor: 'providers-more' }))
+    f.setModels(async (path) => json(path.includes('cursor=') ? { items: [model()], next_cursor: null } : { items: modelPage, next_cursor: 'models-more' }))
+    await f.page.refresh(); await f.page.pageAction('providers', 'next')
+    await f.page.selectProvider(f.page.pages.providers.rows[0]!)
+    await f.page.pageAction('models', 'next'); await f.page.selectModel(f.page.pages.models.rows[0]!); await f.page.openDelete()
+    expect([f.page.pages.providers.hasPrevious, f.page.pages.models.hasPrevious, f.page.pages.replacementProviders.hasPrevious]).toEqual([true, true, false])
+    await f.page.pageAction('replacementProviders', 'next')
+    await f.page.selectReplacementProvider(f.page.pages.replacementProviders.rows[0]!)
+    expect(f.page.pages.replacementModels.hasPrevious).toBe(false)
+    await f.page.pageAction('replacementModels', 'next'); await f.page.pageAction('replacementModels', 'previous')
+    expect([f.page.pages.providers.hasPrevious, f.page.pages.models.hasPrevious, f.page.pages.replacementProviders.hasPrevious, f.page.pages.replacementModels.hasPrevious]).toEqual([true, true, true, false])
+    f.setModels(async () => problem())
+    await f.page.pageAction('replacementModels', 'retry')
+    const after = f.calls.length
+    expect({ phase: f.page.pages.replacementModels.phase, count: f.page.pages.replacementModels.rows.length, mainCount: f.page.pages.models.rows.length, canDelete: f.page.canDelete.value }).toEqual({ phase: 'error', count: 0, mainCount: 1, canDelete: false })
+    await flushPromises(); expect(f.calls).toHaveLength(after); expect(f.writes()).toHaveLength(0)
+  })
+})
+
+describe('Independent Model actual App composition', () => {
+  it('keeps a rejected draft and pending navigation across actual pageshow failure/recovery, then confirms a write despite GET failure and immediately opens an ordinary new form', async () => {
+    const f = await fixture(true); await openTarget(); await click('编辑 Model'); await set('名称', ' Exact app draft ')
+    f.conflict(); await click('保存 Model 配置', top())
+    expect(f.auth.system.models.progress?.phase).toBe('rejected')
+    let settled = 0
+    const pending = f.router.push('/system/providers').then((value) => { settled++; return value })
+    await flushPromises(); expect(dialogs()).toHaveLength(2)
+    const old = dialogs()[0]!, sessionHold = gate<Response>(), count = f.calls.filter((c) => c.path === '/api/v1/session').length
+    f.setSession(() => sessionHold.promise); window.dispatchEvent(new Event('pageshow')); await flushPromises()
+    expect({ checking: f.auth.state.phase, dialogs: dialogs().length, oldDetached: !old.isConnected, settled, requests: f.calls.filter((c) => c.path === '/api/v1/session').length }).toEqual({ checking: 'checking', dialogs: 0, oldDetached: true, settled: 0, requests: count + 1 })
+    sessionHold.resolve(problem()); await flushPromises()
+    expect(heading('会话尚未确认')).toBe(true)
+    expect({ enabled: !button('检查当前会话').disabled, inert: button('检查当前会话').closest('[inert]'), settled }).toEqual({ enabled: true, inert: null, settled: 0 })
+    f.resetSession(); await click('检查当前会话')
+    expect(dialogs()).toHaveLength(2)
+    expect({ lowerInert: dialogs()[0]!.inert, topInert: top().inert, topHidden: top().getAttribute('aria-hidden'), retained: field('名称', dialogs()[0]!).value, settled }).toEqual({ lowerInert: true, topInert: false, topHidden: null, retained: ' Exact app draft ', settled: 0 })
+    await click('继续编辑', top())
+    expect(isNavigationFailure(await pending, NavigationFailureType.aborted)).toBe(true)
+    expect({ path: f.router.currentRoute.value.path, dialogs: dialogs().length, focusInside: top().contains(document.activeElement), writes: f.writes().length, settled }).toEqual({ path: '/system/models', dialogs: 1, focusInside: true, writes: 1, settled: 1 })
+    await click('读取当前版本并核对', top())
+    f.failRefresh(); await click('保存 Model 配置', top())
+    expect({ phase: f.auth.system.models.progress?.phase, version: f.auth.system.models.progress?.receipt?.version, dialogs: dialogs().length, failedRead: heading('操作已确认，当前配置读取失败') }).toEqual({ phase: 'confirmed', version: '3', dialogs: 0, failedRead: true })
+    const before = f.writes().length
+    await click('创建 Model')
+    expect({ name: field('名称').value, native: field('原生 Model ID').value, label: label(button('保存 Model 配置', top())), busy: button('保存 Model 配置', top()).getAttribute('aria-busy'), progress: f.auth.system.models.progress, writes: f.writes().length }).toEqual({ name: '', native: '', label: '保存 Model 配置', busy: null, progress: null, writes: before })
+  })
+
+  it('keeps the deletion confirmation above its remounted business layer and prevents the old button closure from stealing focus', async () => {
+    const f = await fixture(true); f.memory(); await openTarget(); await click('删除 Model')
+    const row = [...top().querySelectorAll('li')].find((n) => n.textContent?.includes('Replacement Provider 110'))!
+    await click('查看此 Provider 的 Models', row)
+    await click('选择此替代 Model', top())
+    expect(button('确认删除 Model', top()).disabled).toBe(false)
+    const oldButton = button('返回替代 Providers', top()), oldFocus = vi.spyOn(oldButton, 'focus')
+    oldButton.click(); await flushPromises(); expect(dialogs()).toHaveLength(2)
+    const hold = gate<Response>(); f.setSession(() => hold.promise)
+    window.dispatchEvent(new Event('pageshow')); await flushPromises()
+    expect(dialogs()).toHaveLength(0); expect(oldButton.isConnected).toBe(false)
+    hold.resolve(json(session())); await flushPromises()
+    expect(dialogs()).toHaveLength(2)
+    expect({ lowerInert: dialogs()[0]!.inert, topInert: top().inert, topHidden: top().getAttribute('aria-hidden') }).toEqual({ lowerInert: true, topInert: false, topHidden: null })
+    await click('继续编辑', top())
+    expect(dialogs()).toHaveLength(1); expect(top().contains(document.activeElement)).toBe(true); expect(oldFocus).not.toHaveBeenCalled()
+    expect(button('确认删除 Model', top()).disabled).toBe(false); expect(f.writes()).toHaveLength(0)
+    f.resetSession()
+    const pending = f.router.push('/system/users'); await flushPromises(); expect(dialogs()).toHaveLength(2)
+    f.resetSession(3); window.dispatchEvent(new Event('pageshow')); await flushPromises()
+    expect(isNavigationFailure(await pending, NavigationFailureType.aborted)).toBe(true)
+    expect(dialogs()).toHaveLength(0); expect(f.writes()).toHaveLength(0)
+  })
+})

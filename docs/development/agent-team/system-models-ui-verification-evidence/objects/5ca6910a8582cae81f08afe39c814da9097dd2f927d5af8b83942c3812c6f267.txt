@@ -1,0 +1,19 @@
+--- input02/driver.py
++++ input03/driver.py
+@@ -176,7 +176,7 @@
+     global FROZEN
+     parser = argparse.ArgumentParser()
+     parser.add_argument('--name', required=True)
+-    parser.add_argument('--group', choices=['new', 'old-core', 'old-provider', 'lifecycle', 'deletion', 'outcome', 'read', 'authority', 'navigation'], required=True)
++    parser.add_argument('--group', choices=['new', 'new-remaining', 'old-core', 'old-provider', 'lifecycle', 'deletion', 'outcome', 'read', 'authority', 'navigation'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
+     parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+@@ -186,6 +186,7 @@
+     modes = dict(lifecycle='Lifecycle', deletion='DeletionAndReplacement', outcome='OutcomeRecovery', read='ReadAndPagination', authority='AuthorityAndIdentity', navigation='NavigationAndLayouts')
+     groups = {mode: ['TestAccountSystemModelsWeb' + suffix] for mode, suffix in modes.items()}
+     groups['new'] = ['TestAccountSystemModelsWeb' + suffix for suffix in modes.values()]
++    groups['new-remaining'] = [groups[mode][0] for mode in ['deletion', 'read', 'authority', 'navigation']]
+     groups['old-core'] = ['TestAccountAuthenticationWebSessionLifecycle', 'TestAccountPersonalSettingsWebThemeAndNavigation', 'TestAccountPublicEntryWebIdentityNavigation', 'TestAccountSystemUserDirectoryWebAuthorityAndIdentity', 'TestAccountSystemUserDirectoryWebNavigationAndLayouts', 'TestAccountSystemInvitationsWebOutcomeRecovery', 'TestAccountSystemInvitationsWebNavigationAndLayouts']
+     groups['old-provider'] = ['TestAccountSystemProvidersWebCredentialReplacement', 'TestAccountSystemProvidersWebOutcomeRecovery', 'TestAccountSystemProvidersWebNavigationAndLayouts']
+     expected = set(groups[args.group])

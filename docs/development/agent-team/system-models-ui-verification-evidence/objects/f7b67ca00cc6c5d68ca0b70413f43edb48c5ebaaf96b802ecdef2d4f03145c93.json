@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "node",
+    "/workspace/agenteam/web/node_modules/vitest/vitest.mjs",
+    "run",
+    "--config",
+    "vitest.config.mjs",
+    "src/tests/independent-model-api.spec.ts",
+    "--reporter=verbose"
+  ],
+  "cwd": "/workspace/scratch/agenteam-model-api-verification-899tcz5x/candidate/web",
+  "started_utc": "2026-10-06T10:19:36.520844+00:00",
+  "env_overrides": {
+    "CI": "1",
+    "NO_COLOR": "1",
+    "FORCE_COLOR": "0"
+  },
+  "manifest_sha256": "40ce72dcc250d86fcfb68f3a471a675401760daa89a26c3f0b84ca0b48da8ab1",
+  "before": {
+    "candidate/web/src/api/client.ts": "82ef064f3c6378ac81fc871c0c8b2f3b11a05ff975f54eba57256c43a4b40757",
+    "candidate/web/src/api/system-providers.ts": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade",
+    "candidate/web/src/api/system-models.ts": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8",
+    "candidate/web/src/tests/system-models-client.spec.ts": "05a6431ba1bcd8c195d6db2ac3d74f0847bdd7034e00151e10a6b7a8c1737b04",
+    "candidate/web/src/api/account.ts": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37",
+    "candidate/web/src/api/system-account.ts": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6",
+    "candidate/web/src/tests/system-providers-client.spec.ts": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c",
+    "candidate/web/package.json": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c",
+    "candidate/web/package-lock.json": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17",
+    "candidate/web/tsconfig.json": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18",
+    "candidate/web/vite.config.ts": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7",
+    "candidate/web/src/tests/independent-model-api.spec.ts": "efb283a4714917c4b75d4e8e1198e2fd04194f2b4ace3c5ae68a42e9abb7cd5b",
+    "candidate/web/vitest.config.mjs": "091e62e78a6faf1cebcbf6b910469441522b1430a198d933bafdec4c63824e88",
+    "input.json": "40ce72dcc250d86fcfb68f3a471a675401760daa89a26c3f0b84ca0b48da8ab1",
+    "run-pure.py": "2919f896906f1e911893afab0374319e5a93b95f2dcbc1b5aef9b12ed93372bf"
+  },
+  "outer_limit_seconds": 45,
+  "test_timeout_ms": 5000,
+  "no_real_resources": true
+}

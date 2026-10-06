@@ -1,0 +1,165 @@
+{
+  "status": "PASS for frozen25 Model UI source delivery; README is separate final documentation",
+  "input": {
+    "manifest": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/input03/manifest.json",
+    "sha256": "d12df3fe63fdb9a405db2ef72864acb48a6de3280d7938559f78272128754ff6",
+    "base": "f465f45b899e21c225e7d4107c099b256538239c",
+    "dist_count": 29,
+    "accepted_baseline_count": 1030,
+    "commit_manifest": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/commit-source-manifest.json",
+    "commit_manifest_sha256": "fac9dd248cea4cae71f9e421183bb4bab4d32ebf361dd8b7177cef06453aaf42"
+  },
+  "independent_stage_reuse": [
+    {
+      "path": "/workspace/scratch/agenteam-model-api-verification-899tcz5x/api-stage01-report.md",
+      "sha256": "7af8f51724395f555534570ac5e7f32a8929c4e555643386d428e170347bee0a",
+      "summary": "API16/16 pure PASS; actual bounded EOF/overflow/cancel gates and closed Model/Impact/receipt contracts."
+    },
+    {
+      "path": "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/owner-stage01-report.md",
+      "sha256": "01ee2ddface188662ce54e17a15bd9d0abca238af9fa00bd1a6d83322b98af2a",
+      "summary": "Owner8/8 pure PASS; fifth-domain isolation, actual tail, authority/CSRF, original intent and historical replay."
+    },
+    {
+      "path": "/workspace/scratch/agenteam-model-page-verification-marvsfu5/web-stage01-report.md",
+      "sha256": "f53f7ab119fbabb96e8637b98cc9bdd19ab798d8480eef2ca04c516a33b0d39e",
+      "summary": "Page5/5 pure PASS; candidates/current review/late old scope, actual App listener/cohost/failed sameidentity recovery and four page isolation."
+    }
+  ],
+  "harness_static_records": [
+    {
+      "path": "/workspace/scratch/agenteam-model-harness-verification-avvoecy7/static01-report.md",
+      "sha256": "b3d31499fcb39a7f8a413c772c4782d25f834d275222f9937310057eb890c1b6"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-model-harness-verification-avvoecy7/static02-report.json",
+      "sha256": "a4eb739a7117675bf71054445c719ff3166ea2c821e9414005d4eedc2bf6aa4f"
+    },
+    {
+      "path": "/workspace/scratch/agenteam-model-harness-verification-avvoecy7/static03-report.json",
+      "sha256": "f2cacc67d6f3e321733594128ee964b44136e81801c850e8e0f5daee70ff5cb6"
+    }
+  ],
+  "author_reuse": {
+    "report": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/author-report.md",
+    "report_sha256": "554019a0acb8c03a099a7b4c08f2b31bdd979f365c24adc51cc3f7e6c3cc48c5",
+    "index": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/author-index.json",
+    "index_sha256": "5bb955c1389bc78c3c73b3f6ea33dff9327635913936f54786ef7d7d28f51404",
+    "full_web_check": "829 tests/26 files plus format/type/build PASS",
+    "new_six": "Lifecycle+Outcome new01/input02; remaining4 new02/input03. Only DB-to-wire snapshot projection changed.",
+    "old_ten": "old-core01 seven + old-provider01 three; actualwait+doublecleanup author evidence.",
+    "visuals": "Author viewed all8 new02 images; root viewed/accepted light1440 and dark390 representatives. No independent screenshot generated."
+  },
+  "real_independent": {
+    "run": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01",
+    "command": {
+      "actual_wait_completed": true,
+      "argv": [
+        "sh",
+        "scripts/test-security.sh",
+        "-run",
+        "^(TestAccountSystemModelsIndependentReplay|TestAccountSystemModelsIndependentReplacement)$"
+      ],
+      "cwd": "/workspace/agenteam",
+      "ended_utc": "2026-10-06T11:21:16.572862+00:00",
+      "env": {
+        "AGENTEAM_AUTH_WEB_IMAGES": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/images",
+        "AGENTEAM_AUTH_WEB_RUNTIME": "/tmp/agtmodel-sp_cwgjy",
+        "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+        "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+        "CGO_ENABLED": "1",
+        "GOCACHE": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/gocache",
+        "GOENV": "off",
+        "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/overlay.json",
+        "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+        "GOPROXY": "off",
+        "GOSUMDB": "off",
+        "GOTOOLCHAIN": "local",
+        "GOWORK": "off",
+        "TMPDIR": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/runtime"
+      },
+      "exit": 0,
+      "seconds": 155.994,
+      "started_utc": "2026-10-06T11:18:40.578638+00:00"
+    },
+    "summary": {
+      "accepted_baseline_after": true,
+      "accepted_baseline_before": true,
+      "adopted_waits": 8,
+      "browser_processes": 22,
+      "browser_runtime_removed": true,
+      "double_cleanup": true,
+      "driver_exit": 0,
+      "monitor_errors": 0,
+      "node_processes": 4,
+      "observed_processes": 212,
+      "observed_resources": 7,
+      "run": "independent01",
+      "run_directory": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01",
+      "selected_tests_passed": true,
+      "source_files_unchanged": true,
+      "top_levels": [
+        [
+          "PASS",
+          "TestAccountSystemModelsIndependentReplay"
+        ],
+        [
+          "PASS",
+          "TestAccountSystemModelsIndependentReplacement"
+        ]
+      ],
+      "verification_inputs_unchanged": true
+    },
+    "browser_tests": [
+      "Replay actual9.58s/browser5.0s",
+      "Replacement actual10.44s/browser6.0s"
+    ],
+    "checks": [
+      "Actual none/zero preview precedes formal optional reranker reference with unchanged target version; accepted valid DELETE receipt truncated after headers; Session/lookup/currentGET404 do not settle Execute; exact original key/body/CSRF replay returns refs1 and creates no duplicate committed facts.",
+      "Current formal crossProvider memory candidate disable yields400 INVALID_ARGUMENT/not_started and no partial facts; explicit review+candidate restoration, Session503 error has noEOF claim, new sameidentity Session200 EOF restores pending confirmation/top/Tab; explicit new key confirms refs1 atomically.",
+      "Both Go tops verify database safe receipt, actual browser request equality booleans, unique command/Audit/event and selector/index consistency after browser process wait.",
+      "Driver exit0/155.994s; 7exactIDs twiceabsent,212ownPID/starttime clear,8actual adoptedwaits,baseline unchanged,runtimeempty,browser rootremoved,monitor0;1030+25source29dist+private before/after match."
+    ],
+    "cleanup_scans": 2
+  },
+  "retained_failures_and_limits": [
+    "Author page-state01/02 preserve three real page defects: stale replacement candidate state, detached late editor review updating old version, and initial delete preview silently adopting newer target version. Final controller and independent page probes passed; no claim of independent original RED.",
+    "Static harness issues retained in static01: disabled-Model expected409 was wrong (formal400/not_started); runner initially lacked full runtime baseline binding. Fixed before the author first real run.",
+    "Author new01 four original full-snapshot comparison failures retained. No old runtime per-field differences captured. Fixed actual httpModelDTO serializer and static source show absent counts/nil slices versus requirednull/arrays; input03 projects only that storage shape and retains whole DTO equality.",
+    "Private type-bound01 preparation error (unknown enum narrowing) retained; corrected with the fixed closed enum. No private real failure: independent01 passed on first real attempt.",
+    "Earlier author pure runs lack full saved environment snapshots; keep their indexed evidence boundary.",
+    "Pure App tests use jsdom layout surrogate; real representative validates current native focus/Tab. Native observer is not an owner-finally proof; actual tail comes from independent API/owner gates and resource wait evidence.",
+    "No external Provider invocation, foreign Agent/Project producer, live deployment credentials, stopped Object/tools repair, fullUI/SMTP rerun or product/Git mutation performed.",
+    "Historical preexisting PPID1 zombies were untouched and recorded; this run's doublecleanup applies only to its own resources/process identities."
+  ],
+  "artifact_hashes": {
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/execution01.json": "117b07d94e109be394b871c952775eac25ea374f0e3b72d1ea8a7eae0b16dbc9",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/preparation03.json": "86affc6a9a8da590198f4b64b397a3bc8f2a7dbf5da1b5e7e91955ed81033ac6",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/commit-source-manifest.json": "fac9dd248cea4cae71f9e421183bb4bab4d32ebf361dd8b7177cef06453aaf42",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/run-independent01.py": "edb02c46489681c37a859a801540c378ee682a94fe886c7aa22dfc2902abbe7f",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/system_models_web_test.go": "b272df0917c65526cff82507ee78d132bc3bfa7d6b6f9800ecc61ae005903c03",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/system_models_web_fixture_test.go": "1b10cf97689d67ea1ed5f49430b09e1e60f01586d1258e7858aa3250f1ff41ec",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/independent.spec.ts": "56fed513336655e6020613c22feabf8af7665cc59a9b8ea4cac1e45fb2f82ff9",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/fixed-helpers.ts": "8e552d53917aa2968a4aff48266cf0c6898cb27de6e9f6bab83082f6d2491cd2",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/overlay.json": "7d582d9e0899b872a8ac9d900ac0a9001b297c08ed0ec820f8db33a1166a47ba",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03/playwright.config.mjs": "e4f1ef25f5aa71f9b9d1e40234bd2cbfb930ff3b8fd5ae2add50025ed4e80e1d",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/frozen-input.json": "117b07d94e109be394b871c952775eac25ea374f0e3b72d1ea8a7eae0b16dbc9",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/command.json": "e84fd23bf41462310067d929207b826ae5bf5ec80b00b0feb0f1da39a6fa565d",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/input-after.json": "961951052a40d9006a393cff0d8f86323fe8a1852e5315b0557c3242b1afb6bf",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/monitor-errors.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/adopted-waits.json": "28ac4d3c2c97803853627ec12693fb1d851a7b3f4fb332d955590ad6ff073bf6",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/observed-resources.json": "742eee78685b15b9e83115e9bf6ea60a190525b527f475bc52c8c51c12b652b7",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/verification-input.json": "2bb91892b7ad6a9440664329716da047ca69c0aa7f170a6f04207dfcce402a6f",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/cleanup.json": "a6f4b46dceb76bded757632939650ab65b3aa977c7cec60fb4ef131e998d9677",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/input-before.json": "961951052a40d9006a393cff0d8f86323fe8a1852e5315b0557c3242b1afb6bf",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/baseline.json": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/driver.py.txt": "edb02c46489681c37a859a801540c378ee682a94fe886c7aa22dfc2902abbe7f",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/result.json": "dca6d20cd1defada2fdcb8ac54d5427bbf3be110a712c8ccc5e6f69d08e2a3e6",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/process-baseline.json": "3171f7d5aceb7e4ecb525cfdaa1ef601014f1452dfa8e311b0165d60f52fc0cb",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/raw.log": "8a003a57724ce1b4db90d552e620752ade02391aee780230585052003a4e2cdb",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/runs/independent01/observed-processes.json": "24634e7a1b247310b63d5c0ef3b7052900a44283818c67765d4846a3bd8dacc9"
+  },
+  "frozen": true,
+  "active_resources": false,
+  "no_further_test_runs": true
+}

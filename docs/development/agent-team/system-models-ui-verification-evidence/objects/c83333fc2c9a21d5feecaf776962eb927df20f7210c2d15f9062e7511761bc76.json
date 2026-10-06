@@ -1,0 +1,15 @@
+{
+  "argv": [
+    "node",
+    "node_modules/vitest/vitest.mjs",
+    "run",
+    "src/tests/system-models-state.spec.ts",
+    "src/tests/system-models.spec.ts"
+  ],
+  "cwd": "/workspace/agenteam/web",
+  "started_utc": "2026-10-06T10:35:29.455009+00:00",
+  "elapsed_seconds": 6.036505115000182,
+  "exit_code": 1,
+  "actual_wait": true,
+  "raw_sha256": "fe74e95dc97b381c2c348855d394e046778ab4ba2d2a9b32cff88897cde83a95"
+}

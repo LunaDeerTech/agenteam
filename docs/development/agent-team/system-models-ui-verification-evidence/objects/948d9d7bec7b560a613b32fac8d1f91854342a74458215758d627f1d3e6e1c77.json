@@ -1,0 +1,29 @@
+{
+  "web_stage": "web-stage01",
+  "files": [
+    {
+      "path": "tests/account/system_models_web_test.go",
+      "sha256": "d05ac43aca6998bd251d40d9ec4a41b0f33b399490e555faa18d13dd68132038"
+    },
+    {
+      "path": "tests/account/system_models_web_fixture_test.go",
+      "sha256": "619b10906b65d24f2aeacd0a1a33b72ed87af9cf8440266608a708e63ff7ca76"
+    },
+    {
+      "path": "tests/account-captcha-web/system-models.config.js",
+      "sha256": "9d0205c0bd41435c79e2d74ddebf40e712e6abd91b0af6306b137011cbdf09fb"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/system-models.spec.ts",
+      "sha256": "e1493f23c4ff02a2cd1bd4bcb54a60e7b4235feebc1f782e99dd5d3d317bab8e"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/system-invitations.spec.ts",
+      "sha256": "d65d96211d633b734f4a0c9018b90533df7860a845f3e62aac1dfa9255678649"
+    },
+    {
+      "path": "tests/account-captcha-web/e2e/system-providers.spec.ts",
+      "sha256": "658ea469a6eccbe84d6188d068b2f35ba896f9b5df2c8d691dea41ec5b067929"
+    }
+  ]
+}

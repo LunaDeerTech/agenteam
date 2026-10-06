@@ -1,0 +1,768 @@
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import { flushPromises } from '@vue/test-utils'
+import { watch } from 'vue'
+import { createAccountAPI, type SessionView } from '../api/account'
+import { AccountFailure, type Fetch, type CommitState } from '../api/client'
+import { createSystemAccountAPI } from '../api/system-account'
+import { createSystemInvitationAPI } from '../api/system-invitations'
+import { createSystemProviderAPI, type ProviderInput } from '../api/system-providers'
+import { createSystemModelAPI, type ModelCommand, type ModelInput } from '../api/system-models'
+import { createSessionController, type SessionController } from '../composables/useSession'
+import { useTheme } from '../composables/useTheme'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z'
+const context = { provider_id: id(10), protocol: 'openai-chat-completions' as const }
+const target = { ...context, id: id(20) }
+const view = (sessionID = id(2), role: 'admin' | 'user' = 'admin'): SessionView => ({
+  user: {
+    id: id(1),
+    email: 'admin@example.com',
+    username: 'admin',
+    display_name: 'Admin',
+    role,
+    theme: 'system',
+    version: role === 'admin' ? '1' : '2',
+    initial_password_suggestion: false,
+  },
+  session: { id: sessionID, issued_at: time, idle_expires_at: time, absolute_expires_at: time },
+  csrf_token: 'S'.repeat(43),
+})
+const providerInput = (): ProviderInput => ({
+  name: 'Provider',
+  protocol: context.protocol,
+  base_url: 'https://example.invalid',
+  enabled: true,
+  credential_ref: null,
+  options: {},
+})
+const input = (): ModelInput => ({
+  name: 'Model',
+  provider_model_id: ' native ',
+  type: 'chat',
+  enabled: true,
+  parameters: {},
+  request_overwrite: {},
+  header_overwrite: {},
+  capabilities: {
+    tool_calls: false,
+    parallel_tool_calls: false,
+    streaming: false,
+    reasoning: false,
+    input_modalities: ['text'],
+    output_modalities: ['text'],
+    reasoning_efforts: [],
+    structured_output_modes: ['text'],
+    context_length: null,
+    max_output: null,
+  },
+})
+const command = (kind: ModelCommand['kind'] = 'model.create'): ModelCommand =>
+  kind === 'model.create'
+    ? { ...context, kind, input: input() }
+    : kind === 'model.update'
+      ? { ...target, kind, input: input(), expected_version: '1' }
+      : { ...target, kind, expected_version: '1', replacement: id(21) }
+const receipt = (kind: ModelCommand['kind'] = 'model.create') => ({
+  kind,
+  resource_id: target.id,
+  version: kind === 'model.create' ? '1' : '2',
+  affected_references: kind === 'model.delete' ? '10001' : '0',
+})
+const model = () => ({
+  id: target.id,
+  provider_id: context.provider_id,
+  input: input(),
+  version: '1',
+  created_at: time,
+  updated_at: time,
+})
+const provider = () => ({
+  id: context.provider_id,
+  input: providerInput(),
+  version: '1',
+  created_at: time,
+  updated_at: time,
+})
+const impact = () => ({
+  model_id: target.id,
+  version: '1',
+  reference_count: '0',
+  reference_groups: [],
+  replacement_requirement: 'none',
+  delete_blocker: null,
+})
+const json = (value: unknown, status = 200) =>
+  new Response(JSON.stringify(value), {
+    status,
+    headers: {
+      'Content-Type': status >= 400 ? 'application/problem+json' : 'application/json',
+      'X-Request-ID': id(9),
+    },
+  })
+const problemValue = (code: string, status = 503, commit_state: CommitState = 'not_started') => ({
+  type: 'urn:agenteam:problem:test',
+  title: 'Failure',
+  status,
+  code,
+  detail: '',
+  instance: '/api/v1/system/models',
+  request_id: id(9),
+  commit_state,
+})
+const problem = (code: string, status = 503, state: CommitState = 'not_started') =>
+  json(problemValue(code, status, state), status)
+function barrier<T>() {
+  let resolve!: (value: T) => void
+  const promise = new Promise<T>((done) => {
+    resolve = done
+  })
+  return { promise, resolve }
+}
+const owners: SessionController[] = []
+async function fixture() {
+  let current = view()
+  let session: Fetch = async () => json(current)
+  let perform: Fetch = async (path, init) => {
+    if (path.endsWith('/lookup'))
+      return json({ found: true, receipt: receipt(JSON.parse(init.body as string).command) })
+    if (path.endsWith('/deletion-impact')) return json(impact())
+    if (init.method === 'GET')
+      return json(path.includes('?') ? { items: [model()], next_cursor: null } : model())
+    return json(
+      receipt(
+        init.method === 'PUT'
+          ? 'model.update'
+          : init.method === 'DELETE'
+            ? 'model.delete'
+            : 'model.create',
+      ),
+    )
+  }
+  let other: Fetch = async (path, init) => {
+    if (path === '/api/v1/me') return json({ user: current.user, avatar: null })
+    if (path === '/api/v1/me/preferences') return json({ theme: 'dark', version: '2' })
+    if (path.endsWith('/model-credentials'))
+      return json({ credential_id: id(11), purpose: 'model', version: '1', deleted: false })
+    if (path.endsWith('/model-providers') && init.method === 'POST')
+      return json({
+        kind: 'provider.create',
+        resource_id: context.provider_id,
+        version: '1',
+        affected_references: '0',
+      })
+    if (path.includes('/model-providers'))
+      return json(path.includes('?') ? { items: [provider()], next_cursor: null } : provider())
+    if (path.endsWith('/invitations') && init.method === 'POST')
+      return json({ id: id(30), job_id: id(31), version: '1' }, 201)
+    if (path === '/api/v1/password-resets/request') return json({ accepted: true }, 202)
+    return json({ items: [] })
+  }
+  const fetch = vi.fn<Fetch>(async (path, init) => {
+    if (path === '/api/v1/session') return session(path, init)
+    if (path.endsWith('/bootstrap'))
+      return json({
+        csrf_token: 'A'.repeat(43),
+        challenge_modes: ['rotate'],
+        delivery_channel: 'backend_log',
+      })
+    if (path.endsWith('/logout')) return new Response(null, { status: 204 })
+    if (
+      path.startsWith('/api/v1/system/models') ||
+      (path.endsWith('/model-commands/lookup') &&
+        JSON.parse(init.body as string).command.startsWith('model.'))
+    )
+      return perform(path, init)
+    return other(path, init)
+  })
+  const modelAPI = createSystemModelAPI(fetch)
+  const auth = createSessionController(
+    createAccountAPI(fetch),
+    createSystemAccountAPI(fetch),
+    createSystemInvitationAPI(fetch),
+    createSystemProviderAPI(fetch),
+    modelAPI,
+  )
+  owners.push(auth)
+  await auth.restore()
+  return {
+    auth,
+    fetch,
+    modelAPI,
+    setPerform(value: Fetch) {
+      perform = value
+    },
+    setOther(value: Fetch) {
+      other = value
+    },
+    setSession(value: SessionView) {
+      current = value
+    },
+    setSessionRequest(value: Fetch) {
+      session = value
+    },
+    writes() {
+      return fetch.mock.calls.filter(
+        ([path, init]) => path.startsWith('/api/v1/system/models') && init.method !== 'GET',
+      )
+    },
+  }
+}
+afterEach(() => {
+  for (const auth of owners.splice(0)) auth.leave()
+  vi.useRealTimers()
+  vi.restoreAllMocks()
+  useTheme().setTheme('system')
+})
+
+describe('Model commands on the original Cookie owner', () => {
+  it('validates the whole original command before intent/key allocation and freezes its fields', async () => {
+    const f = await fixture(),
+      key = vi.spyOn(crypto, 'randomUUID')
+    await expect(
+      f.auth.system.models.start({
+        ...context,
+        kind: 'model.create',
+        input: { ...input(), provider_model_id: '\ud800' },
+      }),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(key).not.toHaveBeenCalled()
+    expect(f.writes()).toHaveLength(0)
+    expect(f.auth.system.models.progress).toBeNull()
+    const held = barrier<Response>(),
+      original = command()
+    f.setPerform(() => held.promise)
+    const result = f.auth.system.models.start(original)
+    if (original.kind === 'model.create')
+      Object.assign(original.input, { name: 'changed after capture' })
+    await flushPromises()
+    expect(JSON.parse(f.writes()[0]![1].body as string).input.name).toBe('Model')
+    expect(key).toHaveBeenCalledTimes(1)
+    const publicState = JSON.stringify([f.auth.state, f.auth.system.models.progress])
+    expect(publicState.includes(view().csrf_token)).toBe(false)
+    expect(
+      publicState.includes(new Headers(f.writes()[0]![1].headers).get('Idempotency-Key')!),
+    ).toBe(false)
+    held.resolve(json(receipt()))
+    expect(await result).toEqual(receipt())
+  })
+
+  it.each(
+    (['read', 'write', 'lookup'] as const).flatMap((operation) =>
+      (['fetch', 'read', 'reader-cancel', 'body-cancel'] as const).map((tail) => ({
+        operation,
+        tail,
+      })),
+    ),
+  )(
+    'retains $operation $tail after the visible 30s cutoff until actual join',
+    async ({ operation, tail }) => {
+      vi.useFakeTimers()
+      const f = await fixture(),
+        fetched = barrier<Response>(),
+        read = barrier<{ done: boolean; value?: Uint8Array }>(),
+        cancelled = barrier<void>(),
+        bodyCancelled = barrier<void>()
+      if (operation === 'lookup') {
+        f.setPerform(async () => {
+          throw new Error('lost')
+        })
+        await f.auth.system.models.start(command()).catch(() => undefined)
+      }
+      const payload =
+        operation === 'read'
+          ? model()
+          : operation === 'write'
+            ? receipt()
+            : { found: false, receipt: null }
+      const response = json(payload)
+      const reader = {
+        read: vi.fn(() => read.promise),
+        cancel: vi.fn(() => (tail === 'reader-cancel' ? cancelled.promise : Promise.resolve())),
+        releaseLock: vi.fn(),
+      }
+      if (tail === 'body-cancel') {
+        reader.read.mockImplementationOnce(async () => ({
+          done: false,
+          value: new TextEncoder().encode(JSON.stringify(payload)),
+        }))
+        read.resolve({ done: true })
+      } else if (tail === 'reader-cancel') read.resolve({ done: true })
+      if (tail !== 'fetch')
+        Object.defineProperty(response, 'body', {
+          value: {
+            getReader: () => reader,
+            cancel: () => (tail === 'body-cancel' ? bodyCancelled.promise : Promise.resolve()),
+          },
+        })
+      f.setPerform(() => (tail === 'fetch' ? fetched.promise : Promise.resolve(response)))
+      const actual = (
+        operation === 'read'
+          ? f.auth.system.models.get(target)
+          : operation === 'write'
+            ? f.auth.system.models.start(command())
+            : f.auth.system.models.checkOriginal()
+      ).catch((error: unknown) => error)
+      await flushPromises()
+      await vi.advanceTimersByTimeAsync(30_000)
+      expect(await actual).toMatchObject({ kind: 'cancelled' })
+      expect(f.auth.state.busy).toBe(true)
+      const before = f.fetch.mock.calls.length,
+        key = vi.spyOn(crypto, 'randomUUID')
+      await f.auth.restore()
+      await f.auth.logout()
+      await f.auth.login('admin@example.com', 'generated password 123')
+      await expect(f.auth.personal.getProfile()).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.system.listUsers({})).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.system.listInvitations({})).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.system.providers.list({})).rejects.toMatchObject({ kind: 'busy' })
+      await expect(
+        f.auth.system.providers.start({ kind: 'provider.create', input: providerInput() }),
+      ).rejects.toMatchObject({ kind: 'busy' })
+      await expect(f.auth.system.models.start(command())).rejects.toMatchObject({ kind: 'busy' })
+      await expect(
+        f.auth.entry.requestPasswordReset({ email: 'generated@example.com' }),
+      ).rejects.toMatchObject({ kind: 'busy' })
+      expect(key).not.toHaveBeenCalled()
+      expect(f.fetch.mock.calls).toHaveLength(before)
+      f.auth.system.models.abandon()
+      expect(f.auth.state.busy).toBe(true)
+      fetched.resolve(response)
+      read.resolve({ done: true })
+      cancelled.resolve()
+      bodyCancelled.resolve()
+      await flushPromises()
+      expect(f.auth.state.busy).toBe(false)
+      expect(f.auth.system.models.progress).toBeNull()
+      await expect(f.auth.system.listUsers({})).resolves.toEqual({ items: [] })
+    },
+  )
+
+  it.each(['read', 'write', 'lookup'] as const)(
+    'other domain abandonment cannot cancel Model %s',
+    async (operation) => {
+      const f = await fixture(),
+        held = barrier<Response>()
+      if (operation === 'lookup') {
+        f.setPerform(async () => {
+          throw new Error('lost')
+        })
+        await f.auth.system.models.start(command()).catch(() => undefined)
+      }
+      let signal: AbortSignal | null = null
+      f.setPerform((_path, init) => {
+        signal = init.signal!
+        return held.promise
+      })
+      const result = (
+        operation === 'read'
+          ? f.auth.system.models.get(target)
+          : operation === 'write'
+            ? f.auth.system.models.start(command())
+            : f.auth.system.models.checkOriginal()
+      ).catch((e: unknown) => e)
+      await flushPromises()
+      f.auth.personal.abandon()
+      f.auth.system.abandon()
+      f.auth.system.abandonInvitations()
+      f.auth.system.providers.abandon()
+      f.auth.entry.abandon()
+      expect((signal as AbortSignal | null)?.aborted).toBe(false)
+      expect(f.auth.state.busy).toBe(true)
+      held.resolve(
+        json(
+          operation === 'read'
+            ? model()
+            : operation === 'write'
+              ? receipt()
+              : { found: false, receipt: null },
+        ),
+      )
+      await result
+      expect(f.auth.state.busy).toBe(false)
+      if (operation === 'lookup') expect(f.auth.system.models.progress?.phase).toBe('uncertain')
+    },
+  )
+
+  it.each(['personal', 'users', 'invitations', 'provider', 'restore'] as const)(
+    'Model abandonment cannot cancel %s, whose own tail remains owned',
+    async (operation) => {
+      const f = await fixture(),
+        held = barrier<Response>()
+      let signal: AbortSignal | null = null
+      const hold: Fetch = (_path, init) => {
+        signal = init.signal!
+        return held.promise
+      }
+      if (operation === 'restore') f.setSessionRequest(hold)
+      else f.setOther(hold)
+      const result = (
+        operation === 'personal'
+          ? f.auth.personal.getProfile()
+          : operation === 'users'
+            ? f.auth.system.listUsers({})
+            : operation === 'invitations'
+              ? f.auth.system.listInvitations({})
+              : operation === 'provider'
+                ? f.auth.system.providers.list({})
+                : f.auth.restore()
+      ).catch((e: unknown) => e)
+      await flushPromises()
+      f.auth.system.models.abandon()
+      expect((signal as AbortSignal | null)?.aborted).toBe(false)
+      expect(f.auth.state.busy).toBe(true)
+      await expect(f.auth.system.models.get(target)).rejects.toMatchObject({
+        kind: 'busy',
+      })
+      held.resolve(
+        json(
+          operation === 'personal'
+            ? { user: view().user, avatar: null }
+            : operation === 'restore'
+              ? view()
+              : operation === 'provider'
+                ? { items: [], next_cursor: null }
+                : { items: [] },
+        ),
+      )
+      expect(await result).not.toBeInstanceOf(AccountFailure)
+      expect(f.auth.state.busy).toBe(false)
+    },
+  )
+
+  it('keeps Provider Credential→Provider stages on the owner despite Model cleanup', async () => {
+    const f = await fixture(),
+      credentialTail = barrier<Response>(),
+      providerTail = barrier<Response>()
+    f.setOther((path) =>
+      path.endsWith('/model-credentials') ? credentialTail.promise : providerTail.promise,
+    )
+    f.auth.system.providers.setMaterial('generated-only')
+    const result = f.auth.system.providers.start({
+      kind: 'provider.create',
+      input: providerInput(),
+    })
+    await flushPromises()
+    f.auth.system.models.abandon()
+    expect(f.auth.system.providers.progress?.stage).toBe('credential')
+    credentialTail.resolve(
+      json({ credential_id: id(11), purpose: 'model', version: '1', deleted: false }),
+    )
+    await flushPromises()
+    expect(f.auth.system.providers.progress?.stage).toBe('provider')
+    expect(f.auth.state.busy).toBe(true)
+    f.auth.system.models.abandon()
+    await expect(f.auth.system.models.start(command())).rejects.toMatchObject({ kind: 'busy' })
+    providerTail.resolve(
+      json({
+        kind: 'provider.create',
+        resource_id: context.provider_id,
+        version: '1',
+        affected_references: '0',
+      }),
+    )
+    await result
+    expect(f.auth.system.providers.progress?.phase).toBe('confirmed')
+    expect(f.writes()).toHaveLength(0)
+  })
+
+  it('keeps main and replacement read abandonment separate and joins the cancelled read', async () => {
+    const f = await fixture(),
+      held = barrier<Response>()
+    let signal: AbortSignal | null = null
+    f.setOther((_path, init) => {
+      signal = init.signal!
+      return held.promise
+    })
+    const pending = f.auth.system.models.listProviders({}, true).catch((e: unknown) => e)
+    await flushPromises()
+    f.auth.system.models.abandonRead('model-providers')
+    expect((signal as AbortSignal | null)?.aborted).toBe(false)
+    f.auth.system.models.abandonRead('model-replacement-providers')
+    expect((signal as AbortSignal | null)?.aborted).toBe(true)
+    expect(await pending).toMatchObject({ kind: 'cancelled' })
+    expect(f.auth.state.busy).toBe(true)
+    held.resolve(json({ items: [], next_cursor: null }))
+    await flushPromises()
+    expect(f.auth.state.busy).toBe(false)
+  })
+
+  it.each(
+    (['model.create', 'model.update', 'model.delete'] as const).flatMap((kind) =>
+      (['found', 'missing', 'failed'] as const).map((observation) => ({ kind, observation })),
+    ),
+  )(
+    '$kind $observation lookup only observes; explicit retry preserves original key/body/CSRF',
+    async ({ kind, observation }) => {
+      const f = await fixture(),
+        original = command(kind)
+      f.setPerform(async () => {
+        throw new Error('lost receipt')
+      })
+      await expect(f.auth.system.models.start(original)).rejects.toMatchObject({
+        kind: 'transport',
+      })
+      const first = f.writes()[0]!
+      expect(f.auth.system.models.progress?.canRetryOriginal).toBe(false)
+      if (original.kind === 'model.delete')
+        Object.assign(original, { replacement: id(22), expected_version: '7' })
+      else Object.assign(original.input, { name: 'later draft' })
+      f.setPerform(async (path) =>
+        path.endsWith('/lookup')
+          ? observation === 'failed'
+            ? problem('INTERNAL_ERROR')
+            : json({
+                found: observation === 'found',
+                receipt: observation === 'found' ? receipt(kind) : null,
+              })
+          : json(receipt(kind)),
+      )
+      await f.auth.system.models.checkOriginal().catch(() => undefined)
+      expect(f.auth.system.models.progress).toMatchObject({
+        phase: 'uncertain',
+        observation,
+        receipt: null,
+        canRetryOriginal: true,
+      })
+      expect(f.writes()).toHaveLength(1)
+      expect(await f.auth.system.models.retryOriginal()).toEqual(receipt(kind))
+      const repeated = f.writes()[1]!
+      expect(repeated[0]).toBe(first[0])
+      expect(repeated[1].method).toBe(first[1].method)
+      expect(repeated[1].body).toBe(first[1].body)
+      expect(new Headers(repeated[1].headers).get('Idempotency-Key')).toBe(
+        new Headers(first[1].headers).get('Idempotency-Key'),
+      )
+      expect(new Headers(repeated[1].headers).get('X-CSRF-Token')).toBe(
+        new Headers(first[1].headers).get('X-CSRF-Token'),
+      )
+      expect(f.auth.system.models.progress).toMatchObject({
+        phase: 'confirmed',
+        receipt: receipt(kind),
+      })
+    },
+  )
+
+  it('does not let deleted-target GET404 or failed Impact block historical DELETE replay', async () => {
+    const f = await fixture()
+    f.setPerform(async () => {
+      throw new Error('lost delete receipt')
+    })
+    await f.auth.system.models.start(command('model.delete')).catch(() => undefined)
+    f.setPerform(async (path, init) =>
+      init.method === 'GET'
+        ? problem('NOT_FOUND', 404)
+        : path.endsWith('/lookup')
+          ? json({ found: true, receipt: receipt('model.delete') })
+          : json(receipt('model.delete')),
+    )
+    await expect(f.auth.system.models.get(target)).rejects.toMatchObject({
+      problem: { status: 404 },
+    })
+    await expect(f.auth.system.models.impact(target.id)).rejects.toMatchObject({
+      problem: { status: 404 },
+    })
+    expect(f.auth.system.models.progress?.phase).toBe('uncertain')
+    await f.auth.system.models.checkOriginal()
+    expect(await f.auth.system.models.retryOriginal()).toEqual(receipt('model.delete'))
+    f.setPerform(async () => problem('INTERNAL_ERROR'))
+    await f.auth.system.models.get(target).catch(() => undefined)
+    expect(f.auth.system.models.progress).toMatchObject({
+      phase: 'confirmed',
+      receipt: receipt('model.delete'),
+    })
+  })
+
+  it.each([
+    ['INVALID_ARGUMENT', 400, 'not_started', 'rejected'],
+    ['VERSION_CONFLICT', 409, 'not_committed', 'rejected'],
+    ['NOT_FOUND', 404, 'not_started', 'rejected'],
+    ['CAPABILITY_UNSUPPORTED', 422, 'not_committed', 'rejected'],
+    ['INTERNAL_ERROR', 500, 'not_started', 'uncertain'],
+    ['DEPENDENCY_UNAVAILABLE', 503, 'not_started', 'uncertain'],
+    ['RESOURCE_BUSY', 409, 'not_started', 'uncertain'],
+    ['COMMIT_UNKNOWN', 503, 'unknown', 'uncertain'],
+    ['INVALID_ARGUMENT', 400, 'committed', 'uncertain'],
+  ] as const)(
+    'classifies %s/%s/%s as %s without silent resubmission',
+    async (code, status, commit, phase) => {
+      const f = await fixture()
+      f.setPerform(async () => problem(code, status, commit))
+      await f.auth.system.models.start(command()).catch(() => undefined)
+      expect(f.auth.system.models.progress?.phase).toBe(phase)
+      expect(f.writes()).toHaveLength(1)
+      await expect(f.auth.system.models.start(command())).rejects.toMatchObject({ kind: 'busy' })
+      expect(f.writes()).toHaveLength(1)
+    },
+  )
+  it('preserves historical uncertainty through a later known refusal and locks a reused key', async () => {
+    const f = await fixture()
+    f.setPerform(async () => {
+      throw new Error('lost')
+    })
+    await f.auth.system.models.start(command()).catch(() => undefined)
+    f.setPerform(async (path) =>
+      path.endsWith('/lookup')
+        ? json({ found: false, receipt: null })
+        : problem('VERSION_CONFLICT', 409, 'not_committed'),
+    )
+    await f.auth.system.models.checkOriginal()
+    await f.auth.system.models.retryOriginal().catch(() => undefined)
+    expect(f.auth.system.models.progress?.phase).toBe('uncertain')
+    await f.auth.system.models.checkOriginal()
+    f.setPerform(async () => problem('IDEMPOTENCY_KEY_REUSED', 409, 'not_started'))
+    await f.auth.system.models.retryOriginal().catch(() => undefined)
+    f.setPerform(async () => json({ found: false, receipt: null }))
+    await f.auth.system.models.checkOriginal()
+    expect(f.auth.system.models.progress?.canRetryOriginal).toBe(false)
+    const count = f.writes().length
+    await expect(f.auth.system.models.retryOriginal()).rejects.toMatchObject({
+      kind: 'invalid-input',
+    })
+    expect(f.writes()).toHaveLength(count)
+  })
+  it('keeps same-identity pending intent during Session checking and failure, but clears new Sessions', async () => {
+    const f = await fixture()
+    f.setPerform(async () => {
+      throw new Error('lost')
+    })
+    await f.auth.system.models.start(command()).catch(() => undefined)
+    const held = barrier<Response>()
+    f.setSessionRequest(() => held.promise)
+    const checking = f.auth.restore()
+    await flushPromises()
+    expect(f.auth.personalContext.phase).toBe('checking')
+    expect(f.auth.system.models.progress).toMatchObject({ phase: 'uncertain', contextValid: false })
+    held.resolve(problem('DEPENDENCY_UNAVAILABLE'))
+    await checking
+    expect(f.auth.system.models.progress?.phase).toBe('uncertain')
+    f.setSessionRequest(async () => json(view()))
+    await f.auth.restore()
+    expect(f.auth.system.models.progress?.contextValid).toBe(true)
+    f.setSessionRequest(async () => json(view(id(3))))
+    const count = f.fetch.mock.calls.length
+    await expect(f.auth.system.models.checkOriginal()).rejects.toMatchObject({ kind: 'cancelled' })
+    expect(f.auth.system.models.progress).toBeNull()
+    expect(f.fetch.mock.calls.slice(count).map(([path]) => path)).toEqual(['/api/v1/session'])
+  })
+  it.each(['write', 'lookup'] as const)(
+    'invalidates exact identity on current Model %s CSRF_FAILED',
+    async (operation) => {
+      const f = await fixture()
+      if (operation === 'lookup') {
+        f.setPerform(async () => {
+          throw new Error('lost')
+        })
+        await f.auth.system.models.start(command()).catch(() => undefined)
+      }
+      f.setPerform(async () => problem('CSRF_FAILED', 403))
+      await (
+        operation === 'lookup'
+          ? f.auth.system.models.checkOriginal()
+          : f.auth.system.models.start(command())
+      ).catch(() => undefined)
+      expect(f.auth.state.phase).toBe('unavailable')
+      expect(f.auth.personalContext.identity).toBeNull()
+      expect(f.auth.system.models.progress).toBeNull()
+    },
+  )
+  it('clears every system domain on current FORBIDDEN, without rewriting role or logging out', async () => {
+    const f = await fixture()
+    f.auth.system.providers.setMaterial('generated-only')
+    f.setPerform(async () => {
+      throw new Error('lost')
+    })
+    await f.auth.system.models.start(command()).catch(() => undefined)
+    f.setPerform(async () => problem('FORBIDDEN', 403))
+    await f.auth.system.models.impact(target.id).catch(() => undefined)
+    expect(f.auth.system.denied).toBe(true)
+    expect(f.auth.state.phase).toBe('authenticated')
+    expect(f.auth.state.user?.role).toBe('admin')
+    expect(f.auth.system.models.progress).toBeNull()
+    expect(f.auth.system.providers.material.present).toBe(false)
+    await expect(f.auth.system.models.get(target)).rejects.toMatchObject({ kind: 'invalid-input' })
+    await f.auth.restore()
+    expect(f.auth.system.denied).toBe(false)
+  })
+  it.each(['read', 'write', 'lookup'] as const)(
+    'rejects current revoked Session during Model %s and clears its private state',
+    async (operation) => {
+      const f = await fixture()
+      if (operation === 'lookup') {
+        f.setPerform(async () => {
+          throw new Error('lost')
+        })
+        await f.auth.system.models.start(command()).catch(() => undefined)
+      }
+      f.setPerform(async () => problem('SESSION_REVOKED', 401))
+      await (
+        operation === 'read'
+          ? f.auth.system.models.get(target)
+          : operation === 'write'
+            ? f.auth.system.models.start(command())
+            : f.auth.system.models.checkOriginal()
+      ).catch(() => undefined)
+      expect(f.auth.personalContext.identity).toBeNull()
+      expect(f.auth.system.models.progress).toBeNull()
+      expect(f.auth.state.phase).toBe('unavailable')
+    },
+  )
+  it.each(['FORBIDDEN', 'SESSION_REVOKED', 'CSRF_FAILED'] as const)(
+    'does not apply old-generation %s after global leave; still blocks the new identity until join',
+    async (code) => {
+      const f = await fixture()
+      // This barrier models an already parsed API failure arriving after abandon;
+      // transport EOF/cancel behavior is separately exercised above.
+      let reject!: (error: unknown) => void
+      const failure = new Promise<never>((_resolve, fail) => {
+        reject = fail
+      })
+      f.modelAPI.getModel = () => failure
+      const old = f.auth.system.models.get(target).catch((e: unknown) => e)
+      await flushPromises()
+      f.auth.leave()
+      expect(await old).toMatchObject({ kind: 'cancelled' })
+      const count = f.fetch.mock.calls.length
+      f.setSession(view(id(3)))
+      await f.auth.restore()
+      expect(f.fetch.mock.calls).toHaveLength(count)
+      expect(f.auth.state.busy).toBe(true)
+      reject(
+        new AccountFailure('problem', problemValue(code, code === 'SESSION_REVOKED' ? 401 : 403)),
+      )
+      await flushPromises()
+      expect(f.auth.system.denied).toBe(false)
+      expect(f.auth.state.phase).toBe('checking')
+      expect(f.auth.state.busy).toBe(false)
+      await f.auth.restore()
+      expect(f.auth.personalContext.identity?.sessionID).toBe(id(3))
+      expect(f.auth.system.models.progress).toBeNull()
+    },
+  )
+  it('does not erase a successor started synchronously from confirmation', async () => {
+    const f = await fixture(),
+      held = barrier<Response>()
+    let next: Promise<unknown> | undefined,
+      once = false
+    const stop = watch(
+      () => f.auth.system.models.progress?.phase,
+      (phase) => {
+        if (phase !== 'confirmed' || once) return
+        once = true
+        f.auth.system.models.abandon()
+        f.setPerform(() => held.promise)
+        next = f.auth.system.models.start(command())
+      },
+      { flush: 'sync' },
+    )
+    await expect(f.auth.system.models.start(command())).rejects.toMatchObject({ kind: 'cancelled' })
+    await flushPromises()
+    expect(f.auth.system.models.progress?.phase).toBe('submitting')
+    expect(f.auth.state.busy).toBe(true)
+    held.resolve(json(receipt()))
+    await next
+    stop()
+    expect(f.auth.system.models.progress?.phase).toBe('confirmed')
+    expect(f.writes()).toHaveLength(2)
+  })
+})

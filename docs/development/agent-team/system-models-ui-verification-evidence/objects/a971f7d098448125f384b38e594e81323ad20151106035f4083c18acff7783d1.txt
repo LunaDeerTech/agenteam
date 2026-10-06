@@ -1,0 +1,12 @@
+--- f465f45b899e21c225e7d4107c099b256538239c/web/src/api/system-providers.ts
++++ api-stage01/web/src/api/system-providers.ts
+@@ -395,6 +395,9 @@
+     }),
+   })
+ }
++// Model management shares these exact read/configuration rules. Provider
++// commands and their zero-reference receipt contract remain separate.
++export { model as parseProviderModel, capabilities as parseModelCapabilities }
+ function page<T extends { id: string; created_at: string }>(
+   value: unknown,
+   parse: (value: unknown) => T,

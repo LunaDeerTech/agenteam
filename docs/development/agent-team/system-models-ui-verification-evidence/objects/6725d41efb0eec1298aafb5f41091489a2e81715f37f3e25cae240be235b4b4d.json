@@ -1,0 +1,33 @@
+{
+  "argv": [
+    "node",
+    "/workspace/agenteam/tests/account-captcha-web/node_modules/typescript/bin/tsc",
+    "--noEmit",
+    "--strict",
+    "--target",
+    "ES2022",
+    "--module",
+    "ESNext",
+    "--moduleResolution",
+    "Bundler",
+    "--lib",
+    "ES2022,DOM,DOM.Iterable",
+    "--skipLibCheck",
+    "--typeRoots",
+    "/workspace/agenteam/web/node_modules/@types",
+    "--types",
+    "node",
+    "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound01/independent.spec.ts"
+  ],
+  "cwd": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound01",
+  "env": {},
+  "input_before": {
+    "system_models_web_test.go": "5933f28932113cadd2483d267039750247c795fdf306d6c779ccfbe252df86e9",
+    "system_models_web_fixture_test.go": "2288227c6907c8e7964eac6a2993dfaa9e35cd832576f73cf8c2def76256665e",
+    "independent.spec.ts": "56fed513336655e6020613c22feabf8af7665cc59a9b8ea4cac1e45fb2f82ff9",
+    "fixed-helpers.ts": "17c133ddadd8e82530e63f23801e3dc14d5e3a46edef6999802db68b42c270ab",
+    "overlay.json": "b81df7803646b01488d3e3c01d512208a5cbd9ac3fe87f0a047c47f054c4c909",
+    "playwright.config.mjs": "e4f1ef25f5aa71f9b9d1e40234bd2cbfb930ff3b8fd5ae2add50025ed4e80e1d"
+  },
+  "resource_execution": false
+}

@@ -1,0 +1,29 @@
+{
+  "base": "f465f45b899e21c225e7d4107c099b256538239c",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "82ef064f3c6378ac81fc871c0c8b2f3b11a05ff975f54eba57256c43a4b40757"
+    },
+    {
+      "path": "web/src/api/system-providers.ts",
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade"
+    },
+    {
+      "path": "web/src/api/system-models.ts",
+      "sha256": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "d067000e728da5ffc267a4cbdbbb147d456f2ea5a91b09cf214d30da42c78042"
+    },
+    {
+      "path": "web/src/tests/system-models-client.spec.ts",
+      "sha256": "05a6431ba1bcd8c195d6db2ac3d74f0847bdd7034e00151e10a6b7a8c1737b04"
+    },
+    {
+      "path": "web/src/tests/system-models-state.spec.ts",
+      "sha256": "d22aad1826b0dc6a41588474efa3187c68aa9c0450eea9f49b554817fe348a15"
+    }
+  ]
+}

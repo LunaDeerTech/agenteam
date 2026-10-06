@@ -1,0 +1,222 @@
+{
+  "stage": "owner-stage01",
+  "scope": "six API/owner source and test candidates; no Model page or real-resource evidence",
+  "base": "f465f45b899e21c225e7d4107c099b256538239c",
+  "card_sha256": "69afe186e3aea37d63ee8b8d9a9583c210e8d71efef7fe9cc90e0a45d946e524",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "82ef064f3c6378ac81fc871c0c8b2f3b11a05ff975f54eba57256c43a4b40757"
+    },
+    {
+      "path": "web/src/api/system-providers.ts",
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade"
+    },
+    {
+      "path": "web/src/api/system-models.ts",
+      "sha256": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "d067000e728da5ffc267a4cbdbbb147d456f2ea5a91b09cf214d30da42c78042"
+    },
+    {
+      "path": "web/src/tests/system-models-client.spec.ts",
+      "sha256": "05a6431ba1bcd8c195d6db2ac3d74f0847bdd7034e00151e10a6b7a8c1737b04"
+    },
+    {
+      "path": "web/src/tests/system-models-state.spec.ts",
+      "sha256": "d22aad1826b0dc6a41588474efa3187c68aa9c0450eea9f49b554817fe348a15"
+    }
+  ],
+  "accepted_dependencies": [
+    {
+      "path": "web/src/api/account.ts",
+      "sha256": "7d84b31d141932dc38673f8fc4e9a739b5f97f78b34fcec6a2a510a810af2f37"
+    },
+    {
+      "path": "web/src/api/system-account.ts",
+      "sha256": "84e39fbc4378c5e779096aa09b9a8052a23a1c3aa93915b3abd1e674a71c01a6"
+    },
+    {
+      "path": "web/src/api/system-invitations.ts",
+      "sha256": "de2e4abd82b973d4810424c07e93d9ebe3efeb834778c474c21c5bca89ea761e"
+    },
+    {
+      "path": "web/src/composables/useTheme.ts",
+      "sha256": "983e72b2b928d0d3fd839ad59a6507634bc229e4c2f717f9e88780f6c1b36d13"
+    },
+    {
+      "path": "web/src/tests/system-providers-state.spec.ts",
+      "sha256": "eaefcd259350221b3cf912813704d93c7076f10ae5d60d8525fd096c5924c246"
+    },
+    {
+      "path": "web/src/tests/system-providers-client.spec.ts",
+      "sha256": "01cf548303d859c3d8b91d27a1ae034c9e1e15806eb75abe318cd7437e24c33c"
+    },
+    {
+      "path": "web/package.json",
+      "sha256": "20951cd8bd5687d40700328af4fef60e3585c638b57ec939e5f2a54dbbbbed4c"
+    },
+    {
+      "path": "web/package-lock.json",
+      "sha256": "7988ff1052b8f164913d96f29857cbc4a0196ae13ac45b367e413d86b5ccaa17"
+    },
+    {
+      "path": "web/tsconfig.json",
+      "sha256": "bead3f9d04e58ab0862ca71237283c24cb2723e7afc849e9d925572159b54a18"
+    },
+    {
+      "path": "web/vite.config.ts",
+      "sha256": "7a063e4032ece76cd4300176d78066dac721d34eb0e59c5c12bdb4dac142dcf7"
+    }
+  ],
+  "dist_metadata_only": [
+    {
+      "path": "web/dist/assets/AppearanceSettings-B2R-zMEH.js",
+      "sha256": "a87f633a146a4f27bf895f5a4c36e8575735c0b029732f8fdf37d7762dda872e"
+    },
+    {
+      "path": "web/dist/assets/ForgotPasswordView-BfZTz4tJ.js",
+      "sha256": "92143e1ca23f3b0b347b16df5b95c0493b6e12120c53c9bdf7f5cefeccdd9580"
+    },
+    {
+      "path": "web/dist/assets/ForgotPasswordView-DJSF_FFM.css",
+      "sha256": "dd55523ebe275670abaf3699bf4a5a8fe9e78514c82d4e85d1cae08dcad210f2"
+    },
+    {
+      "path": "web/dist/assets/InvitationView-B27Xwep7.js",
+      "sha256": "2fdc40da732ecc4a87dd865be9bc2adb987c975d463aaffa049aed19d6090e81"
+    },
+    {
+      "path": "web/dist/assets/InvitationView-B4wTz1D4.css",
+      "sha256": "826ed51ee140a0acbbdd49cbcaa2ba774d581a50c7e6b6851b10cfec68132177"
+    },
+    {
+      "path": "web/dist/assets/PasswordSettings-CTQPWaDB.js",
+      "sha256": "b2a677cc9dfed16440604c8c1e75718a5f8e945cacbc1ccfad98629360075485"
+    },
+    {
+      "path": "web/dist/assets/PersonalSettingsView-BLWru9en.css",
+      "sha256": "cb4fef850a09d25b252d07fe84aecdc5a0c4632d6b61963dc3400bd46892d9d5"
+    },
+    {
+      "path": "web/dist/assets/PersonalSettingsView-Cx3k0EJ0.js",
+      "sha256": "e058d8bdebb8686ba09735c85b210fe411abd95d968e0cc882be839b69c54dfb"
+    },
+    {
+      "path": "web/dist/assets/ProfileSettings-Bofqo8m5.css",
+      "sha256": "8aee3f4901559bcd05fedf4ac42778c7262b028c6b8a9687bf899c609a0a9303"
+    },
+    {
+      "path": "web/dist/assets/ProfileSettings-dmxs-gCn.js",
+      "sha256": "f062ec40cef5bf4df7e34e9037251fbd734a6ec9ed5497625768347de89712d8"
+    },
+    {
+      "path": "web/dist/assets/ResetPasswordView-DSiu2awb.css",
+      "sha256": "4ae5e821834fa46a8a210be5d61d0976880359c678ab50f3c5e5f3e8b92e9527"
+    },
+    {
+      "path": "web/dist/assets/ResetPasswordView-DkO7LVzy.js",
+      "sha256": "a632ebcbf11c54169d67e9006a08b364bebeee640fa5dabfd60fd5e685bfc2af"
+    },
+    {
+      "path": "web/dist/assets/SettingsShell-D9S1S_aF.css",
+      "sha256": "5537da30454e581d29770e3d3bc1c3a401b10dbe32d462d0a8d536c9be319e9e"
+    },
+    {
+      "path": "web/dist/assets/SettingsShell-d8HLLPw6.js",
+      "sha256": "47ea4ecf73013a20ac26758f4aeb1d26110d0e6f978d17ea27db550f8a905c35"
+    },
+    {
+      "path": "web/dist/assets/SystemInvitationsView-CHORDqqE.js",
+      "sha256": "ce2d2ffb0020137d273736e11997e3bde66c4b9bbcf1add3659f8e9f12014156"
+    },
+    {
+      "path": "web/dist/assets/SystemInvitationsView-QSKOYHWH.css",
+      "sha256": "88211e661769f7dffc311d04f59fa9fd31e02dfa9fda3acfecce5c362c7a789f"
+    },
+    {
+      "path": "web/dist/assets/SystemProvidersView-LYKgO0qq.js",
+      "sha256": "beec7490d7b01505dec1a0579efc80c0eb7d79b1ca7c507801aa9575ddaaec76"
+    },
+    {
+      "path": "web/dist/assets/SystemProvidersView-elJ_-cRG.css",
+      "sha256": "495c2154ff8c96cfdbfb6e79d76bc39c11e20b046af85227d8bd27d3d7336c2c"
+    },
+    {
+      "path": "web/dist/assets/SystemSettingsView-Bcy2Pt0J.css",
+      "sha256": "fc2a135659069de626bef08f19c3618cebe879499136ef9dbfc8a79ccf4a86ec"
+    },
+    {
+      "path": "web/dist/assets/SystemSettingsView-Dp_0lNw0.js",
+      "sha256": "2dba2bbfd6e86263cd7ea5a92f0118a7941b10c6229c0bc58c1d68cc361ed018"
+    },
+    {
+      "path": "web/dist/assets/SystemUsersView-B41TxT1D.css",
+      "sha256": "82e8f9541c3e7d1874adfd1ca32a80087584ea0ed1d915b6ebf1274176f00df3"
+    },
+    {
+      "path": "web/dist/assets/SystemUsersView-djo-b4s-.js",
+      "sha256": "bc0ad9eda9f82beed6abfca8974897c789418c00614936e158999357a3feee8d"
+    },
+    {
+      "path": "web/dist/assets/UiButton-D_f9r1KY.js",
+      "sha256": "0b5100b70f0d5c418686ac10f3fd14d83abd0f46f94e0e8f63955ad66f27e43c"
+    },
+    {
+      "path": "web/dist/assets/index-BW4v0bXs.js",
+      "sha256": "6c476e61453ebcb697b7f165b99bfb9f5a7e5de2fe90e9aef7af9b1d2ad795ab"
+    },
+    {
+      "path": "web/dist/assets/index-CzWm7msp.css",
+      "sha256": "d03d4169b13af3130a201171eab07c8e966d8dea38fdfc8d0a52fc337d6f06bf"
+    },
+    {
+      "path": "web/dist/index.html",
+      "sha256": "b74700acde9d8e63f3b3224666784ec3a89ba4e1980d867b45335b00faebc40b"
+    }
+  ],
+  "checks": [
+    {
+      "path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/owner-pure03/result.json",
+      "result": {
+        "argv": [
+          "./node_modules/.bin/vitest",
+          "run",
+          "src/tests/system-models-state.spec.ts",
+          "src/tests/system-providers-state.spec.ts"
+        ],
+        "cwd": "/workspace/agenteam/web",
+        "started_utc": "2026-10-06T10:20:07.843254+00:00",
+        "elapsed_seconds": 1.302024103999429,
+        "exit_code": 0,
+        "actual_wait": true,
+        "raw_sha256": "d7e871125485000b8182d7d8c1f62f358122f420ffa0304534b7b13f89c684a9"
+      }
+    },
+    {
+      "path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/stage1-check01/result.json",
+      "result": {
+        "argv": [
+          "npm",
+          "run",
+          "check"
+        ],
+        "cwd": "/workspace/agenteam/web",
+        "started_utc": "2026-10-06T10:20:28.248732+00:00",
+        "elapsed_seconds": 20.22242795400234,
+        "exit_code": 0,
+        "actual_wait": true,
+        "raw_sha256": "51130aac051032116d0b40604a61e27246df604574d92ab65418caa15ce223fb"
+      }
+    }
+  ],
+  "previous_api_stage": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/api-stage01/manifest.json",
+  "retained_failures": [
+    "api-pure01",
+    "api-type01",
+    "owner-pure01"
+  ],
+  "actual_real_resources_started": false
+}

@@ -1,0 +1,568 @@
+import { describe, expect, it, vi } from 'vitest'
+import { accountTransport, type Fetch } from '../api/client'
+import {
+  createSystemProviderAPI,
+  type ModelType,
+  type ProviderProtocol,
+} from '../api/system-providers'
+import {
+  captureModelCommand,
+  createSystemModelAPI,
+  modelCommandBody,
+  type ModelCommand,
+  type ModelInput,
+} from '../api/system-models'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const time = '2026-10-06T12:34:56.123456Z'
+const context = { provider_id: id(1), protocol: 'openai-chat-completions' as const }
+const target = { ...context, id: id(100) }
+const input = (type: ModelType = 'chat'): ModelInput => ({
+  name: '模型 🧩',
+  provider_model_id: ' Native/模型 ',
+  type,
+  enabled: true,
+  parameters: {},
+  request_overwrite: {},
+  header_overwrite: {},
+  capabilities: {
+    tool_calls: type === 'chat',
+    parallel_tool_calls: type === 'chat',
+    streaming: type === 'chat',
+    reasoning: type === 'chat',
+    input_modalities: ['text'],
+    output_modalities:
+      type === 'reranker'
+        ? []
+        : [type === 'embedding' ? 'vector' : type === 'image_generation' ? 'image' : 'text'],
+    reasoning_efforts: [],
+    structured_output_modes: type === 'chat' ? ['text'] : [],
+    context_length: '9007199254740993',
+    max_output: '9007199254740992',
+  },
+})
+const model = (n = 100, type: ModelType = 'chat') => ({
+  id: id(n),
+  provider_id: id(1),
+  input: input(type),
+  version: '9007199254740993',
+  created_at: time,
+  updated_at: time,
+})
+const provider = (n = 1) => ({
+  id: id(n),
+  version: '1',
+  created_at: time,
+  updated_at: time,
+  input: {
+    name: 'Provider',
+    protocol: context.protocol,
+    base_url: 'https://example.invalid',
+    enabled: false,
+    credential_ref: null,
+    options: {},
+  },
+})
+const command = (): ModelCommand => ({ ...context, kind: 'model.create', input: input() })
+const deletion = (): ModelCommand => ({
+  ...target,
+  kind: 'model.delete',
+  expected_version: '9007199254740993',
+  replacement: id(101),
+})
+const receipt = (kind: ModelCommand['kind'] = 'model.create') => ({
+  kind,
+  resource_id: target.id,
+  version: kind === 'model.create' ? '1' : '9007199254740994',
+  affected_references: kind === 'model.delete' ? '9223372036854775807' : '0',
+})
+const emptyImpact = () => ({
+  model_id: target.id,
+  version: '9007199254740993',
+  reference_count: '0',
+  reference_groups: [],
+  replacement_requirement: 'none',
+  delete_blocker: null,
+})
+const json = (value: unknown) =>
+  new Response(JSON.stringify(value), { headers: { 'Content-Type': 'application/json' } })
+const signal = () => new AbortController().signal
+const options = () => ({ signal: signal(), csrfToken: 'S'.repeat(43), key: 'model/original:1' })
+const parseModel = (value: unknown) =>
+  createSystemModelAPI(async () => json(value)).getModel(target, signal())
+const parseImpact = (value: unknown) =>
+  createSystemModelAPI(async () => json(value)).getDeletionImpact(target.id, signal())
+function changed(value: unknown, path: string, replacement?: unknown, remove = false) {
+  const result = JSON.parse(JSON.stringify(value)) as Record<string, unknown>
+  const keys = path.split('.')
+  let parent = result
+  for (const key of keys.slice(0, -1)) parent = parent[key] as Record<string, unknown>
+  if (remove) delete parent[keys.at(-1)!]
+  else parent[keys.at(-1)!] = replacement
+  return result
+}
+
+describe('Model closed API and immutable contracts', () => {
+  it('uses only the nine fixed operations and keeps Provider context off the wire', async () => {
+    const fetch = vi.fn<Fetch>(async (path, init) => {
+      if (path.endsWith('/lookup')) return json({ found: true, receipt: receipt('model.delete') })
+      if (path.endsWith('/deletion-impact')) return json(emptyImpact())
+      if (init.method !== 'GET')
+        return json(
+          receipt(
+            init.method === 'PUT'
+              ? 'model.update'
+              : init.method === 'DELETE'
+                ? 'model.delete'
+                : 'model.create',
+          ),
+        )
+      if (path.includes('/model-providers'))
+        return json(path.includes('?') ? { items: [provider()], next_cursor: null } : provider())
+      return json(path.includes('?') ? { items: [model()], next_cursor: null } : model())
+    })
+    const api = createSystemModelAPI(fetch),
+      write = options(),
+      cursor = 'next/+?&='
+    await api.listProviders({ cursor }, write.signal)
+    await api.getProvider(id(1), write.signal)
+    await api.listModels({ ...context, cursor }, write.signal)
+    const value = await api.getModel(target, write.signal)
+    await api.createModel(context, input(), write)
+    await api.updateModel(target, '9007199254740993', input(), write)
+    const removed = await api.deleteModel(target, '9007199254740993', id(101), write)
+    await api.getDeletionImpact(target.id, write.signal)
+    await api.lookupModelCommand(deletion(), write)
+    expect(fetch.mock.calls.map(([path, init]) => [init.method, path])).toEqual([
+      ['GET', '/api/v1/system/model-providers?limit=25&cursor=next%2F%2B%3F%26%3D'],
+      ['GET', '/api/v1/system/model-providers/' + id(1)],
+      [
+        'GET',
+        '/api/v1/system/models?provider_id=' + id(1) + '&limit=25&cursor=next%2F%2B%3F%26%3D',
+      ],
+      ['GET', '/api/v1/system/models/' + target.id],
+      ['POST', '/api/v1/system/models'],
+      ['PUT', '/api/v1/system/models/' + target.id],
+      ['DELETE', '/api/v1/system/models/' + target.id],
+      ['GET', '/api/v1/system/models/' + target.id + '/deletion-impact'],
+      ['POST', '/api/v1/system/model-commands/lookup'],
+    ])
+    for (const [, init] of fetch.mock.calls) {
+      expect(init).toMatchObject({
+        credentials: 'same-origin',
+        redirect: 'error',
+        cache: 'no-store',
+        signal: write.signal,
+      })
+      if (init.method === 'GET') {
+        expect(init.body).toBeUndefined()
+        expect(init.headers).not.toHaveProperty('Idempotency-Key')
+        expect(init.headers).not.toHaveProperty('X-CSRF-Token')
+      } else
+        expect(init.headers).toMatchObject({
+          'Idempotency-Key': write.key,
+          'X-CSRF-Token': write.csrfToken,
+        })
+    }
+    expect(JSON.parse(fetch.mock.calls[4]![1].body as string)).toEqual({
+      provider_id: id(1),
+      input: input(),
+    })
+    expect(JSON.parse(fetch.mock.calls[5]![1].body as string)).toEqual({
+      expected_version: '9007199254740993',
+      input: input(),
+    })
+    expect(JSON.parse(fetch.mock.calls[6]![1].body as string)).toEqual({
+      expected_version: '9007199254740993',
+      replacement: id(101),
+    })
+    expect(JSON.parse(fetch.mock.calls[8]![1].body as string)).toEqual({ command: 'model.delete' })
+    expect(removed.affected_references).toBe('9223372036854775807')
+    expect(value.input.provider_model_id).toBe(' Native/模型 ')
+    expect(Object.isFrozen(value.input.capabilities.input_modalities)).toBe(true)
+  })
+
+  it.each([
+    ['openai-chat-completions', 'chat'],
+    ['anthropic-messages', 'chat'],
+    ['openai-embeddings', 'embedding'],
+    ['jina-rerank', 'reranker'],
+    ['openai-images-generations', 'image_generation'],
+  ] as const)(
+    'accepts complete %s/%s configuration for reads and writes',
+    async (protocol, type) => {
+      const ctx = { provider_id: id(1), protocol },
+        row = model(100, type)
+      const api = createSystemModelAPI(async () => json(row))
+      expect(await api.getModel({ id: target.id, ...ctx }, signal())).toEqual(row)
+      const captured = captureModelCommand({ kind: 'model.create', ...ctx, input: input(type) })
+      expect(captured).toMatchObject({ input: input(type) })
+      expect(Object.isFrozen(captured)).toBe(true)
+      expect(Object.isFrozen(modelCommandBody(captured))).toBe(true)
+    },
+  )
+
+  const fields = [
+    'id',
+    'provider_id',
+    'input',
+    'version',
+    'created_at',
+    'updated_at',
+    ...Object.keys(input()).map((key) => 'input.' + key),
+    ...Object.keys(input().capabilities).map((key) => 'input.capabilities.' + key),
+  ]
+  it.each(fields)('rejects missing complete Model field %s', async (path) => {
+    await expect(parseModel(changed(model(), path, undefined, true))).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+  })
+  it.each([
+    ['id', id(101)],
+    ['provider_id', id(2)],
+    ['version', 1],
+    ['version', '01'],
+    ['version', '9223372036854775808'],
+    ['created_at', '2026-02-29T12:34:56.123456Z'],
+    ['created_at', '0099-02-29T00:00:00.000000Z'],
+    ['updated_at', '2026-10-06T12:34:56.123455Z'],
+    ['created_at', '2026-10-06T12:34:56.123Z'],
+    ['extra', true],
+    ['input.extra', true],
+    ['input.name', '\ud800'],
+    ['input.provider_model_id', '\udc00'],
+    ['input.capabilities.extra', true],
+  ])('rejects invalid Model field %s=%s', async (path, value) => {
+    await expect(parseModel(changed(model(), path as string, value))).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+  })
+  it.each(['0000-02-29T00:00:00.000000Z', '0099-01-01T00:00:00.000001Z'])(
+    'retains valid foundation Instant %s without Date year normalization',
+    async (created_at) => {
+      expect((await parseModel({ ...model(), created_at })).created_at).toBe(created_at)
+    },
+  )
+  const invalidInputs: [string, unknown][] = [
+    ['name', ''],
+    ['name', 'x'.repeat(129)],
+    ['name', '\0'],
+    ['name', '\ud800'],
+    ['provider_model_id', '界'.repeat(86)],
+    ['provider_model_id', '\udc00'],
+    ['provider_model_id', '\0'],
+    ['type', 'embedding'],
+    ['enabled', 'true'],
+    ['parameters', { temperature: 1 }],
+    ['request_overwrite', { model: 'other' }],
+    ['header_overwrite', { authorization: 'text' }],
+    ['capabilities.tool_calls', null],
+    ['capabilities.context_length', 1],
+    ['capabilities.context_length', '0'],
+    ['capabilities.context_length', '01'],
+    ['capabilities.context_length', '9223372036854775808'],
+    ['capabilities.max_output', '9007199254740994'],
+    ['capabilities.reasoning_efforts', ['high']],
+    ['capabilities.input_modalities', ['text', 'text']],
+    ['capabilities.input_modalities', ['audio']],
+    ['capabilities.output_modalities', ['image']],
+    ['capabilities.structured_output_modes', ['json_object']],
+  ]
+  it.each(invalidInputs)(
+    'rejects invalid configuration %s before dispatch',
+    async (path, value) => {
+      const fetch = vi.fn<Fetch>(),
+        api = createSystemModelAPI(fetch)
+      const bad = changed(input(), path, value)
+      expect(() =>
+        captureModelCommand({ ...context, kind: 'model.create', input: bad as never }),
+      ).toThrow('invalid-input')
+      await expect(api.createModel(context, bad as never, options())).rejects.toMatchObject({
+        kind: 'invalid-input',
+      })
+      expect(fetch).not.toHaveBeenCalled()
+    },
+  )
+  it('enforces protocol-specific capabilities and conditional tool/decimal rules', async () => {
+    const api = createSystemModelAPI(vi.fn())
+    await expect(
+      api.createModel(
+        context,
+        changed(input(), 'capabilities.tool_calls', false) as never,
+        options(),
+      ),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    await expect(
+      api.createModel(
+        { ...context, protocol: 'anthropic-messages' },
+        changed(input(), 'capabilities.structured_output_modes', ['json_schema']) as never,
+        options(),
+      ),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    for (const [type, protocol] of [
+      ['embedding', 'openai-embeddings'],
+      ['reranker', 'jina-rerank'],
+      ['image_generation', 'openai-images-generations'],
+    ] as const) {
+      for (const field of ['tool_calls', 'parallel_tool_calls', 'streaming', 'reasoning'])
+        await expect(
+          api.createModel(
+            { ...context, protocol },
+            changed(input(type), 'capabilities.' + field, true) as never,
+            options(),
+          ),
+        ).rejects.toMatchObject({ kind: 'invalid-input' })
+      await expect(
+        api.createModel(
+          { ...context, protocol },
+          changed(input(type), 'capabilities.input_modalities', ['image']) as never,
+          options(),
+        ),
+      ).rejects.toMatchObject({ kind: 'invalid-input' })
+    }
+    const maximal = { ...input(), name: '🧩'.repeat(128), provider_model_id: '🧩'.repeat(64) }
+    expect(() =>
+      captureModelCommand({ ...context, kind: 'model.create', input: maximal }),
+    ).not.toThrow()
+    expect(() =>
+      captureModelCommand({
+        ...context,
+        kind: 'model.create',
+        input: changed(input(), 'capabilities.context_length', null) as never,
+      }),
+    ).not.toThrow()
+  })
+  it('captures independent immutable fields and rejects unknown command/options before sending', async () => {
+    const original = command(),
+      captured = captureModelCommand(original)
+    Object.assign(original.input, { name: 'later' })
+    expect(captured).toMatchObject({ input: { name: '模型 🧩' } })
+    const fetch = vi.fn<Fetch>(),
+      api = createSystemModelAPI(fetch)
+    for (const bad of [
+      { ...command(), hidden: true },
+      { ...deletion(), replacement: undefined },
+      { ...deletion(), replacement: target.id },
+      { ...deletion(), expected_version: '9223372036854775807' },
+      { ...deletion(), id: id(255).toUpperCase() },
+      { ...command(), kind: 'provider.create' },
+    ])
+      expect(() => captureModelCommand(bad as never)).toThrow('invalid-input')
+    await expect(api.getModel({ ...target, query: '' } as never, signal())).rejects.toMatchObject({
+      kind: 'invalid-input',
+    })
+    await expect(
+      api.createModel(context, input(), { ...options(), headers: {} } as never),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    await expect(
+      api.lookupModelCommand({ ...command(), kind: 'provider.create' } as never, options()),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetch).not.toHaveBeenCalled()
+  })
+  it.each([
+    ['kind', 'provider.delete'],
+    ['resource_id', id(200)],
+    ['version', '9007199254740993'],
+    ['affected_references', '-1'],
+    ['affected_references', 0],
+    ['affected_references', '00'],
+    ['affected_references', '9223372036854775808'],
+    ['extra', true],
+  ])('rejects wrong delete receipt %s=%s', async (path, value) => {
+    const api = createSystemModelAPI(async () =>
+      json(changed(receipt('model.delete'), path as string, value)),
+    )
+    await expect(
+      api.deleteModel(target, '9007199254740993', null, options()),
+    ).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+  it('allows delete counts beyond old impact/10000 but requires create/update counts zero', async () => {
+    for (const count of ['0', '10001', '9007199254740993', '9223372036854775807']) {
+      const api = createSystemModelAPI(async () =>
+        json({ ...receipt('model.delete'), affected_references: count }),
+      )
+      expect(
+        (await api.deleteModel(target, '9007199254740993', null, options())).affected_references,
+      ).toBe(count)
+    }
+    for (const kind of ['model.create', 'model.update'] as const) {
+      const api = createSystemModelAPI(async () =>
+        json({ ...receipt(kind), affected_references: '1' }),
+      )
+      await expect(
+        kind === 'model.create'
+          ? api.createModel(context, input(), options())
+          : api.updateModel(target, '9007199254740993', input(), options()),
+      ).rejects.toMatchObject({ kind: 'invalid-response' })
+    }
+    const oldAPI = createSystemProviderAPI(async () =>
+      json({ kind: 'provider.delete', resource_id: id(1), version: '2', affected_references: '1' }),
+    )
+    await expect(oldAPI.deleteProvider(id(1), '1', options())).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+  })
+  it.each([
+    { found: false },
+    { found: null, receipt: null },
+    { found: false, receipt: receipt() },
+    { found: true, receipt: null },
+    { found: true, receipt: receipt('model.update') },
+    { found: false, receipt: null, extra: true },
+  ])('rejects invalid historical observation %#', async (response) => {
+    const api = createSystemModelAPI(async () => json(response))
+    await expect(api.lookupModelCommand(command(), options())).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+  })
+})
+
+describe('Exact registered Model deletion impact', () => {
+  const all = () => ({
+    ...emptyImpact(),
+    reference_count: '10000',
+    replacement_requirement: 'required',
+    delete_blocker: 'reference_adapter_unbound',
+    reference_groups: [
+      { owner_kind: 'agent', role: 'agent_model', count: '9994' },
+      { owner_kind: 'agent', role: 'approval_model', count: '1' },
+      { owner_kind: 'platform_selector', role: 'embedding', count: '1' },
+      { owner_kind: 'platform_selector', role: 'image', count: '1' },
+      { owner_kind: 'platform_selector', role: 'memory', count: '1' },
+      { owner_kind: 'platform_selector', role: 'reranker', count: '1' },
+      { owner_kind: 'project_summary', role: 'meeting_summary', count: '1' },
+    ],
+  })
+  it('accepts zero, exact 10000 and every closed group with the correct requirement/blocker', async () => {
+    expect(await parseImpact(emptyImpact())).toEqual(emptyImpact())
+    expect(await parseImpact(all())).toEqual(all())
+    for (const group of all().reference_groups) {
+      const value = {
+        ...emptyImpact(),
+        reference_count: group.count,
+        reference_groups: [group],
+        replacement_requirement: ['image', 'reranker'].includes(group.role)
+          ? 'optional'
+          : 'required',
+        delete_blocker:
+          group.owner_kind === 'platform_selector' ? null : 'reference_adapter_unbound',
+      }
+      const result = await parseImpact(value)
+      expect(result).toEqual(value)
+      expect(Object.isFrozen(result.reference_groups[0])).toBe(true)
+    }
+  })
+  it.each(Object.keys(emptyImpact()))('rejects missing required Impact %s', async (field) => {
+    await expect(parseImpact(changed(emptyImpact(), field, undefined, true))).rejects.toMatchObject(
+      { kind: 'invalid-response' },
+    )
+  })
+  it.each([
+    ['model_id', id(101)],
+    ['version', '0'],
+    ['reference_count', '10001'],
+    ['reference_count', 0],
+    ['reference_count', '00'],
+    ['reference_groups', null],
+    ['reference_groups', [{}]],
+    ['replacement_requirement', 'optional'],
+    ['replacement_requirement', null],
+    ['delete_blocker', 'reference_adapter_unbound'],
+    ['delete_blocker', 'unknown'],
+    ['owner_id', id(200)],
+  ])('rejects invalid zero Impact %s=%s', async (field, value) => {
+    await expect(parseImpact(changed(emptyImpact(), field as string, value))).rejects.toMatchObject(
+      { kind: 'invalid-response' },
+    )
+  })
+  it.each([
+    ['reference_count', '9999'],
+    ['reference_count', '10001'],
+    ['reference_groups.0.count', '0'],
+    ['reference_groups.0.count', '9995'],
+    ['reference_groups.0.count', '01'],
+    ['reference_groups.0.name', 'private'],
+    ['reference_groups.0.owner_kind', 'project'],
+    ['reference_groups.0.role', 'embedding'],
+    ['reference_groups.0.count', null],
+    ['replacement_requirement', 'optional'],
+    ['delete_blocker', null],
+  ])('rejects invalid grouped Impact %s=%s', async (field, value) => {
+    await expect(parseImpact(changed(all(), field as string, value))).rejects.toMatchObject({
+      kind: 'invalid-response',
+    })
+  })
+  it('rejects order changes, duplicate groups and eight groups rather than publishing a partial candidate', async () => {
+    const value = all()
+    for (const groups of [
+      value.reference_groups.toReversed(),
+      [...value.reference_groups, value.reference_groups[0]!],
+      [value.reference_groups[0]!, value.reference_groups[0]!],
+    ])
+      await expect(parseImpact({ ...value, reference_groups: groups })).rejects.toMatchObject({
+        kind: 'invalid-response',
+      })
+  })
+})
+
+describe('Model transport retains inherited page and stream limits', () => {
+  it('checks full microseconds, duplicate IDs, Provider identity and complete pages', async () => {
+    const rows = Array.from({ length: 25 }, (_, index) => model(100 - index))
+    const api = (value: unknown) =>
+      createSystemModelAPI(async () => json(value)).listModels(context, signal())
+    expect((await api({ items: rows, next_cursor: 'next' })).items).toHaveLength(25)
+    for (const value of [
+      { items: rows.slice(1), next_cursor: 'next' },
+      { items: rows, next_cursor: '' },
+      { items: [model(), model()], next_cursor: null },
+      { items: rows.toReversed(), next_cursor: null },
+      { items: [{ ...model(), provider_id: id(2) }], next_cursor: null },
+      { items: rows, next_cursor: 'x'.repeat(8193) },
+      { items: rows },
+      {
+        items: [{ ...model(101), created_at: '2026-10-06T12:34:56.123455Z' }, model(100)],
+        next_cursor: null,
+      },
+    ])
+      await expect(api(value)).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+  it('keeps the 2MiB Provider success exception, 600000B Model/error cap and 16KiB write cap', async () => {
+    const large = JSON.stringify({ items: [provider()], next_cursor: null }).padEnd(600001, ' ')
+    const fetch: Fetch = async () =>
+      new Response(large, { headers: { 'Content-Type': 'application/json' } })
+    expect((await createSystemModelAPI(fetch).listProviders({}, signal())).items).toHaveLength(1)
+    await expect(
+      createSystemModelAPI(fetch).getDeletionImpact(target.id, signal()),
+    ).rejects.toMatchObject({ kind: 'invalid-response' })
+    const encoded = JSON.stringify(model())
+    const long = encoded + ' '.repeat(600000 - new TextEncoder().encode(encoded).byteLength)
+    expect(
+      await createSystemModelAPI(
+        async () => new Response(long, { headers: { 'Content-Type': 'application/json' } }),
+      ).getModel(target, signal()),
+    ).toEqual(model())
+    await expect(
+      createSystemModelAPI(
+        async () => new Response(long + ' ', { headers: { 'Content-Type': 'application/json' } }),
+      ).getModel(target, signal()),
+    ).rejects.toMatchObject({ kind: 'invalid-response' })
+    const noFetch = vi.fn<Fetch>(),
+      request = accountTransport(noFetch)
+    await expect(
+      request('createModel', (v) => v, {
+        signal: signal(),
+        csrf: 'S'.repeat(43),
+        key: 'model',
+        body: { value: 'x'.repeat(16 * 1024) },
+      }),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    await expect(
+      request('getModelDeletionImpact', (v) => v, {
+        signal: signal(),
+        target: target.id,
+        cursor: 'extra',
+      } as never),
+    ).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(noFetch).not.toHaveBeenCalled()
+  })
+})

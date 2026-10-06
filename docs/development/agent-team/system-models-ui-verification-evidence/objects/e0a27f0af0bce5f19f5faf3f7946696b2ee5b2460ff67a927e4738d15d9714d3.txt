@@ -1,0 +1,30 @@
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-models-state.spec.ts (74 tests | 1 failed) 193ms
+     × requires explicit review if the selected detail changes before the first deletion preview 5ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-models-state.spec.ts > Model App-lifetime page observations and independent paging > requires explicit review if the selected detail changes before the first deletion preview
+AssertionError: expected '2' to be '1' // Object.is equality
+
+Expected: "1"
+Received: "2"
+
+ ❯ src/tests/system-models-state.spec.ts:1061:44
+    1059|     )
+    1060|     await f.page.openDelete()
+    1061|     expect(f.page.deletion.model?.version).toBe('1')
+       |                                            ^
+    1062|     expect(f.page.impact.phase).toBe('error')
+    1063|     expect(f.page.canDelete.value).toBe(false)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 1 passed (2)
+      Tests  1 failed | 106 passed (107)
+   Start at  10:36:44
+   Duration  4.73s (transform 1.01s, setup 0ms, import 1.28s, tests 3.45s, environment 715ms)
+

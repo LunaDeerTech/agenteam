@@ -1,0 +1,48 @@
+{
+  "status": "PREPARATION ONLY; fixture adapter and runtime binding intentionally absent",
+  "frozen_at_utc": "2026-10-06T10:53:33.787599+00:00",
+  "product_base": "f465f45b899e21c225e7d4107c099b256538239c",
+  "web_manifest": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/web-stage01/manifest.json",
+  "web_manifest_sha256": "7bc9fa185c9551e1bfdc11656fce4c603713076ba18b13637943f904646faa20",
+  "files": {
+    "PLAN.md": "44058fd1c938b428ba5652b9613df10f028cb0c6636e7944167000b22b900a2d",
+    "model-dom.ts": "0032c99576ab993dcdbc2f1c490c08585218d9ad4271d42c01ac49f9e6c29eaa",
+    "logs/type01/command.json": "b796618ab392989a2ac3e7ca228eab7832a9a47d35582be85befdfd8f6d935e6",
+    "logs/type01/result.json": "47be3dcef3533dc999fdb4c68b5a7b49ac636f3e161989020fdd75faef8e7e65",
+    "logs/type01/raw.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "compile": {
+    "actual_exit": 0,
+    "actual_wait": true,
+    "elapsed_seconds": 1.142,
+    "inputs_unchanged": true,
+    "dynamic_tests": 0
+  },
+  "fixed_backend_review": {
+    "internal/central/model/references.go": "880234288ab809df8ef1ad2af20d555ccd79ed6a6c31cd4a86d6883b3bd5c642",
+    "internal/central/model/configuration.go": "2f09ab296c592c207fe63705e8b2a26ce7089130ae3d40e0071856b77a7d410a",
+    "internal/central/model/commands.go": "c801fae31f25815e00ebe82c41a363d53d9a6ff5c2f246f99541cac91de948e7",
+    "internal/central/model/store.go": "726c777e5b549ff091e4134f1b82930a643197d24497b6cabb2813191c7657da",
+    "internal/central/model/http.go": "cfd317a2df00e1307ee01e9f51e3b97f1ba941e267000787ecc33c75be71d6bc",
+    "internal/central/model/http_configuration.go": "3fb993de05f6c5a613280fed2863e23e787daab426b67a94afddca85ab8a5f0e",
+    "internal/central/httpapi/problem.go": "613140e4513630376fcd4ff77725cd3812e3ce4508edef823a550f40459e3cde"
+  },
+  "accepted_reuse_sources_read_only": {
+    "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/e2e/fixed-helpers.ts": "705964a0d89f2b21a50f240cf76601b1351831c9241bb270f43d274b09a064b5",
+    "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/e2e/independent-providers.spec.ts": "f7e2852f16016e7bf9fcc497f3682a575068adc01222636057621401249a3d21",
+    "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/run-real03.py": "743027d7bbdf4a81357d4ab4d10ae373e0a4bb5d0a8e261644c1048038d17b9d",
+    "/workspace/scratch/agenteam-provider-ui-verification-uwx8amdz/real-probe01/independent.config.js": "068133d505cb1a61a5a09f64db6c735dd236a6a384024d2d387a42a537ff1c94"
+  },
+  "binding_pending": [
+    "author final source/fixtures/dist manifest",
+    "formal seed/IPC action names and parameters",
+    "precise actual successful DELETE cut and private equality counters",
+    "limited database success/Audit/event/selector/reference facts",
+    "independent-only mode allowance for one-shot Session503",
+    "root explicit unique resource window and exact same Playwright CLI module"
+  ],
+  "resources_started": false,
+  "active_commands": false,
+  "product_or_git_mutations": false,
+  "limits": "TypeScript only; DOM selectors/source reasoning have no browser result; plan-only fixture capabilities are requirements, not existing IPC claims; old runner was read but not copied or executed."
+}

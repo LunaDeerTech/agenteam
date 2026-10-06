@@ -1,0 +1,57 @@
+{
+  "active_commands": 0,
+  "baseline_accepted_files": 1030,
+  "candidate25_frozen": true,
+  "checks": {
+    "harness-baseline02": {
+      "actual_wait": true,
+      "exit": 0,
+      "raw_sha256": "9bbbe6ca55a844806f27133b68779a1fc76bac77c8e7dfede83b88d8013c5a2a",
+      "result_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/harness-baseline02/result.json",
+      "result_sha256": "f91aac1a0670ad7aee8e46397629ae0c9293bd7ec9bd5f5d8e90a98940992709",
+      "seconds": 0.477
+    },
+    "harness-format02": {
+      "actual_wait": true,
+      "exit": 0,
+      "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20",
+      "result_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/harness-format02/result.json",
+      "result_sha256": "1a05397b777b4162efa9d0a2ddfa144a667dcf23024bdec725bd6b3dd8966adb",
+      "seconds": 0.583
+    },
+    "harness-gate-probe02": {
+      "actual_wait": true,
+      "exit": 0,
+      "raw_sha256": "7a773e681873a09ee701b8c61a72f117ca51b2657de04796d3867d8b328e0cfd",
+      "result_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/harness-gate-probe02/result.json",
+      "result_sha256": "cc4c39430b0ec1e9f296e6ec9b77dafabf4acd2c0bf3e05fcd8408669f7ee6ed",
+      "seconds": 0.046
+    },
+    "harness-observer02": {
+      "actual_wait": true,
+      "exit": 0,
+      "raw_sha256": "d11d7ce03e963cb1f75ec483e9bdb745e224a38f34fa33423192348595908e05",
+      "result_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/harness-observer02/result.json",
+      "result_sha256": "e145e1ca6a96d503e0f6a28c399417e46c82170f7eac80631c317c00591fca85",
+      "seconds": 0.374
+    },
+    "harness-types04": {
+      "actual_wait": true,
+      "exit": 0,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "result_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/harness-types04/result.json",
+      "result_sha256": "8c2185635c2e3d0e1df40a0cb5bb4dc0622c392256ca95693f3b41332504aceb",
+      "seconds": 1.193
+    }
+  },
+  "driver_delta_sha256": "ee0e991af81c60d75a301aaf4d86475af4b02199e6fe3e171671e40e30c90797",
+  "driver_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/run-model-fixture-input02.py",
+  "driver_sha256": "09929652bf3e05d525cfb4f90fa347f3656e06748298da28179cccee2ed269e3",
+  "fixed_product_base": "f465f45b899e21c225e7d4107c099b256538239c",
+  "input01_and_original_driver_preserved": true,
+  "manifest_path": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/input02/manifest.json",
+  "manifest_sha256": "2cf6565245e301da3272853a4422f15180277c80592c0c98688a331aeee07aae",
+  "product_web19_dist29_unchanged": true,
+  "real_resources_started": false,
+  "source_delta_sha256": "8f2b8b64b27fff06a1ae4fc101e5fc40c4350a0d3d6b4101cdf3d77aad5a6632"
+}

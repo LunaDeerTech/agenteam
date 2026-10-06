@@ -1,0 +1,31 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-overlay",
+    "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/serializer03/overlay.json",
+    "-count=1",
+    "-run",
+    "^TestModelWebSnapshotWireShape$",
+    "-v",
+    "./internal/central/model"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/compile-tmp",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2"
+  },
+  "started_utc": "2026-10-06T11:09:07.902340+00:00",
+  "elapsed_seconds": 8.025566420998075,
+  "exit_code": 0,
+  "actual_wait": true,
+  "raw_sha256": "0f0bbeea81a43875773cbbd2e461a0e37847bef464de6385041bb7d6f56e0413"
+}

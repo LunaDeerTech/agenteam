@@ -1,0 +1,30 @@
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-models.spec.ts (31 tests | 1 failed) 3237ms
+     × resumes only the original pending logout when discard is explicitly chosen after restoration 165ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-models.spec.ts > Model cohosted confirmation through the actual App lifecycle > resumes only the original pending logout when discard is explicitly chosen after restoration
+AssertionError: expected '/' to be '/login' // Object.is equality
+
+Expected: "/login"
+Received: "/"
+
+ ❯ src/tests/system-models.spec.ts:832:48
+    830|       await flushPromises()
+    831|       expect(document.querySelectorAll('[role="dialog"]')).toHaveLengt…
+    832|       expect(f.router.currentRoute.value.path).toBe(
+       |                                                ^
+    833|         action === 'route' ? '/system/providers' : '/login',
+    834|       )
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 30 passed (31)
+   Start at  10:34:01
+   Duration  4.66s (transform 830ms, setup 0ms, import 976ms, tests 3.24s, environment 344ms)
+

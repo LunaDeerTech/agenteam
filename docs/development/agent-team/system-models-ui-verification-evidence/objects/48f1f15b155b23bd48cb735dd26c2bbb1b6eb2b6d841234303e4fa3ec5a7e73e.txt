@@ -1,0 +1,25 @@
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-model-api-verification-899tcz5x/candidate/web
+
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > preserves complete disabled openai-chat-completions/chat configuration and frozen original input 29ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > preserves complete disabled anthropic-messages/chat configuration and frozen original input 1ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > preserves complete disabled openai-embeddings/embedding configuration and frozen original input 1ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > preserves complete disabled jina-rerank/reranker configuration and frozen original input 1ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > preserves complete disabled openai-images-generations/image_generation configuration and frozen original input 1ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > rejects protocol/capability and encoded input errors before any request 3ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > distinguishes exact seven-group edge counts, optional choices, blockers and the 10000 boundary 2ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > publishes no candidate for malformed cross-field Impact combinations or an overflow sentinel 4ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > keeps receipt reference/version arithmetic separate from Impact and old Provider receipts 5ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > does not preflight current objects or Impact before explicit historical lookup and DELETE execution 2ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > keeps new endpoint options closed and UTF8 JSON writes exactly at 16KiB 2ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > retains 25-item context and exact microsecond sorting through delegated Model pages 3ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > withholds a complete valid 600000-byte Impact until actual native EOF 2ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > joins native 600001-byte Model overflow cancellation before rejecting 1ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > joins native cancel after aborting a partially read valid Impact 1ms
+ ✓ src/tests/independent-model-api.spec.ts > Independent Model API on fixed API-stage01 > joins wrong-media body cancellation without claiming a reader EOF 0ms
+
+ Test Files  1 passed (1)
+      Tests  16 passed (16)
+   Start at  10:19:36
+   Duration  312ms (transform 98ms, setup 0ms, import 125ms, tests 58ms, environment 0ms)
+

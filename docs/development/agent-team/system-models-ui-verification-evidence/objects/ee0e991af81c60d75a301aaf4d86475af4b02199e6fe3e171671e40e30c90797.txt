@@ -1,0 +1,136 @@
+--- input01/driver.py
++++ input02/driver.py
+@@ -86,10 +86,86 @@
+             waited.append({'pid': pid, 'starttime': value['starttime'], 'actual_wait': True, 'exit': os.waitstatus_to_exitcode(status), 'time': utc()})
+ 
+ 
++# Compile/execution inputs come from this fixed accepted Git object, never HEAD.
++# Broad product roots include go:embed assets, scripts, browser configs and locks.
++BASELINE_ROOTS = {'api', 'cmd', 'db', 'deploy', 'internal', 'scripts', 'tests', 'web'}
++BASELINE_EXCLUDED_DIRS = {'node_modules', 'dist', 'test-results', 'playwright-report', 'coverage'}
++GO_INPUT_SUFFIXES = {'.go', '.s', '.S', '.c', '.h', '.cc', '.cpp', '.cxx', '.m', '.mm', '.f', '.F', '.for', '.f90', '.swig', '.swigcxx', '.syso'}
++
++
++def fixed_tree():
++    raw = subprocess.check_output(['git', 'ls-tree', '-r', '-z', BASE], cwd=REPO, timeout=20)
++    entries = {}
++    for record in raw.split(b'\0'):
++        if not record:
++            continue
++        header, name = record.split(b'\t', 1)
++        mode, kind, oid = header.decode().split()
++        entries[name.decode()] = {'mode': mode, 'kind': kind, 'git_blob': oid}
++    return raw, entries
++
++
++def baseline_scope(name, outside_packages):
++    parts = Path(name).parts
++    if any(part in BASELINE_EXCLUDED_DIRS or part.startswith('.') for part in parts[:-1]):
++        return False
++    return (Path(name).name in {'go.mod', 'go.sum'} or parts[0] in BASELINE_ROOTS or
++            Path(name).suffix in GO_INPUT_SUFFIXES or
++            any(name.startswith(parent + '/') for parent in outside_packages))
++
++
++def accepted_baseline_input():
++    expected = FROZEN['accepted_baseline']
++    raw, tree = fixed_tree()
++    outside_packages = {str(Path(name).parent) for name in tree
++                        if name.endswith('.go') and Path(name).parts[0] not in BASELINE_ROOTS}
++    selected = {name: row for name, row in tree.items()
++                if baseline_scope(name, outside_packages) and name not in FROZEN['files']}
++    tree_sha = hashlib.sha256(raw).hexdigest()
++    if expected['product_base'] != BASE or expected['git_tree_sha256'] != tree_sha:
++        raise RuntimeError('fixed accepted Git tree differs from frozen baseline')
++    if set(selected) != set(expected['files']) or any(
++        any(expected['files'][name][key] != value for key, value in row.items())
++        for name, row in selected.items()
++    ):
++        raise RuntimeError('baseline does not cover the fixed accepted compile/execution scope')
++    actual, errors = set(), []
++    for directory, directories, files in os.walk(REPO):
++        directories[:] = [name for name in directories
++                          if name not in BASELINE_EXCLUDED_DIRS and not name.startswith('.')]
++        for name in directories:
++            path = Path(directory) / name
++            relative = str(path.relative_to(REPO))
++            if path.is_symlink() and baseline_scope(relative, outside_packages):
++                errors.append({'path': relative, 'reason': 'symlink directory'})
++        for name in files:
++            relative = str((Path(directory) / name).relative_to(REPO))
++            if baseline_scope(relative, outside_packages) and relative not in FROZEN['files']:
++                actual.add(relative)
++    hashes, mismatches = {}, []
++    for name in sorted(set(selected) & actual):
++        path = REPO / name
++        if path.is_symlink() or not path.is_file():
++            errors.append({'path': name, 'reason': 'not a regular accepted file'})
++            continue
++        data = path.read_bytes()
++        sha = hashlib.sha256(data).hexdigest()
++        oid = hashlib.sha1(b'blob ' + str(len(data)).encode() + b'\0' + data).hexdigest()
++        hashes[name] = sha
++        if sha != expected['files'][name]['sha256'] or oid != selected[name]['git_blob']:
++            mismatches.append(name)
++    missing, unexpected = sorted(set(selected) - actual), sorted(actual - set(selected))
++    return {'product_base': BASE, 'git_tree_sha256': tree_sha, 'accepted_count': len(selected),
++            'files': hashes, 'missing': missing, 'unexpected': unexpected,
++            'mismatches': mismatches, 'errors': errors,
++            'accepted': not (missing or unexpected or mismatches or errors)}
++
++
+ def source_input():
+     sha = lambda path: hashlib.sha256(path.read_bytes()).hexdigest()
+     return {
+         'product_base': BASE,
++        'accepted_baseline': accepted_baseline_input(),
+         'files': {name: sha(REPO / name) for name in FROZEN['files']},
+         'dist': {str(path.relative_to(REPO)): sha(path) for path in sorted((REPO / 'web/dist').rglob('*')) if path.is_file()},
+         'dependencies': {name: sha(REPO / name) for name in FROZEN['dependencies']},
+@@ -103,6 +179,7 @@
+     parser.add_argument('--group', choices=['new', 'old-core', 'old-provider', 'lifecycle', 'deletion', 'outcome', 'read', 'authority', 'navigation'], required=True)
+     parser.add_argument('--frozen', type=Path, required=True)
+     parser.add_argument('--modcache', required=True)
++    parser.add_argument('--check-input-only', action='store_true', help='read-only gate; no fixture, Docker, process monitor or browser')
+     args = parser.parse_args()
+     if '/' in args.name or '..' in args.name:
+         raise ValueError('invalid run name')
+@@ -116,6 +193,18 @@
+     FROZEN = json.loads(args.frozen.read_text())
+     if FROZEN['product_base'] != BASE:
+         raise ValueError('wrong accepted backend baseline')
++    if hashlib.sha256(Path(__file__).read_bytes()).hexdigest() != FROZEN['driver_sha256']:
++        raise RuntimeError('driver differs from frozen input')
++    if args.check_input_only:
++        current = source_input()
++        same = all(current[key] == FROZEN[key] for key in ['files', 'dist', 'dependencies'])
++        accepted = current['accepted_baseline']['accepted']
++        print(json.dumps({'candidate_dist_dependencies_match': same, 'accepted_baseline': accepted,
++                          'accepted_count': current['accepted_baseline']['accepted_count'],
++                          'missing': current['accepted_baseline']['missing'], 'unexpected': current['accepted_baseline']['unexpected'],
++                          'mismatches': current['accepted_baseline']['mismatches'], 'errors': current['accepted_baseline']['errors'],
++                          'product_base': BASE, 'resources_started': False}), flush=True)
++        return 0 if same and accepted else 1
+     if ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) != 0:
+         raise RuntimeError('cannot become task child subreaper')
+     run = ROOT / 'runs' / args.name
+@@ -127,6 +216,9 @@
+     runtime = run / 'runtime'
+     runtime.mkdir(mode=0o700)
+     before = source_input()
++    if not before['accepted_baseline']['accepted']:
++        write(run / 'input-rejected.json', before)
++        raise RuntimeError('accepted baseline gate failed before any resource or fixture starts')
+     if before['files'] != FROZEN['files'] or before['dist'] != FROZEN['dist'] or before['dependencies'] != FROZEN['dependencies']:
+         raise RuntimeError('candidate source/dist differs from frozen input')
+     (run / 'frozen-input.json').write_bytes(args.frozen.read_bytes())
+@@ -217,7 +309,8 @@
+     after = source_input()
+     write(run / 'input-after.json', after)
+     clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and not row['browser_runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+-    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'],
++    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'] and before['dist'] == after['dist'] and before['dependencies'] == after['dependencies'] and before['accepted_baseline'] == after['accepted_baseline'] and after['accepted_baseline']['accepted'],
++               'accepted_baseline_before': before['accepted_baseline']['accepted'], 'accepted_baseline_after': after['accepted_baseline']['accepted'],
+                'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+                'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}
+     verification_unchanged = Path(__file__).read_bytes() == driver_bytes

@@ -1,0 +1,940 @@
+import {
+  computed,
+  inject,
+  reactive,
+  readonly,
+  ref,
+  shallowReactive,
+  watch,
+  type InjectionKey,
+} from 'vue'
+import { AccountFailure } from '../api/client'
+import {
+  captureModelCommand,
+  modelTypeForProtocol,
+  type SystemModel,
+  type ModelInput,
+  type ModelCommand,
+  type ModelReceipt,
+  type ModelDeletionImpact,
+  type ModelContext,
+  type ModelTarget,
+} from '../api/system-models'
+import type { Provider } from '../api/system-providers'
+import {
+  useSession,
+  type SessionController,
+  type PersonalIdentity,
+  type SystemModelRead,
+} from './useSession'
+
+type Phase = 'inactive' | 'loading' | 'ready' | 'empty' | 'error'
+type PageName = 'providers' | 'models' | 'replacementProviders' | 'replacementModels'
+type PageTarget = Readonly<{ index: number; cursor?: string }>
+const same = (a: PersonalIdentity | null, b: PersonalIdentity | null) =>
+  !!a && !!b && a.userID === b.userID && a.sessionID === b.sessionID && a.epoch === b.epoch
+const contextFor = (provider: Provider): ModelContext => ({
+  provider_id: provider.id,
+  protocol: provider.input.protocol,
+})
+function pageState<T>() {
+  return shallowReactive({
+    phase: 'inactive' as Phase,
+    rows: Object.freeze([]) as readonly T[],
+    message: '',
+    cursorInvalid: false,
+    hasPrevious: false,
+    hasNext: false,
+  })
+}
+function observation<T>() {
+  return shallowReactive({ phase: 'inactive' as Phase, value: null as T | null, message: '' })
+}
+const emptyDraft = () => ({
+  name: '',
+  provider_model_id: '',
+  enabled: '' as '' | 'true' | 'false',
+  tool_calls: false,
+  parallel_tool_calls: false,
+  streaming: false,
+  reasoning: false,
+  input_modalities: [] as string[],
+  output_modalities: [] as string[],
+  structured_output_modes: [] as string[],
+  context_length: '',
+  max_output: '',
+})
+const pageScopes: Record<PageName, SystemModelRead> = {
+  providers: 'model-providers',
+  models: 'model-list',
+  replacementProviders: 'model-replacement-providers',
+  replacementModels: 'model-replacement-list',
+}
+
+// App owns drafts, observations and the one confirmation Promise. Only Session
+// owns command keys, CSRF and the immutable historical Execute input.
+export function createSystemModels(auth: SessionController = useSession()) {
+  const api = auth.system.models
+  const pages = {
+    providers: pageState<Provider>(),
+    models: pageState<SystemModel>(),
+    replacementProviders: pageState<Provider>(),
+    replacementModels: pageState<SystemModel>(),
+  }
+  const provider = observation<Provider>(),
+    detail = observation<SystemModel>(),
+    replacementProvider = observation<Provider>(),
+    impact = observation<ModelDeletionImpact>()
+  const editor = shallowReactive({
+    mode: null as 'create' | 'edit' | null,
+    provider: null as Provider | null,
+    type: 'chat' as ModelInput['type'],
+    version: '',
+    message: '',
+    reviewed: false,
+  })
+  const deletion = shallowReactive({
+    open: false,
+    model: null as SystemModel | null,
+    provider: null as Provider | null,
+    choice: 'unselected' as 'unselected' | 'clear' | 'replacement',
+    replacement: null as SystemModel | null,
+    message: '',
+  })
+  const draft = reactive(emptyDraft())
+  const state = shallowReactive({
+    writeMessage: '',
+    confirmed: null as ModelReceipt | null,
+    requiresReload: false,
+  })
+  const confirmation = reactive({ open: false, title: '', message: '' })
+  const feedback = ref<'idle' | 'loading' | 'success'>('idle'),
+    checking = ref(false)
+  const progress = computed(() => api.progress)
+  const blocked = computed(() => auth.state.busy || checking.value)
+  const locked = computed(
+    () =>
+      blocked.value ||
+      state.requiresReload ||
+      ['submitting', 'uncertain', 'rejected'].includes(progress.value?.phase ?? ''),
+  )
+  let editBase: SystemModel | null = null,
+    draftBaseline = JSON.stringify(emptyDraft())
+  let selectedProviderID: string | null = null,
+    selectedModelID: string | null = null,
+    replacementProviderID: string | null = null
+  let identity = auth.personalContext.identity,
+    revision = 0,
+    attached = false,
+    activeRoute = false,
+    disposed = false,
+    initial = true
+  let timer: ReturnType<typeof setTimeout> | undefined,
+    confirmationResult: ((value: boolean) => void) | null = null
+  const reads = new Map<SystemModelRead, number>(),
+    activeReads = new Set<SystemModelRead>()
+  const cursors: Record<
+    PageName,
+    { history: (string | undefined)[]; index: number; next: string | null; target: PageTarget }
+  > = {
+    providers: { history: [], index: 0, next: null, target: { index: 0 } },
+    models: { history: [], index: 0, next: null, target: { index: 0 } },
+    replacementProviders: { history: [], index: 0, next: null, target: { index: 0 } },
+    replacementModels: { history: [], index: 0, next: null, target: { index: 0 } },
+  }
+  const changed = computed(() => editor.mode !== null && JSON.stringify(draft) !== draftBaseline)
+  const selectedReplacement = computed(
+    () =>
+      deletion.open &&
+      deletion.choice !== 'unselected' &&
+      impact.value?.replacement_requirement !== 'none',
+  )
+  const dirty = computed(
+    () =>
+      changed.value ||
+      selectedReplacement.value ||
+      ['submitting', 'uncertain', 'rejected'].includes(progress.value?.phase ?? ''),
+  )
+  const authorized = () =>
+    auth.state.phase === 'authenticated' &&
+    auth.personalContext.phase === 'current' &&
+    !!auth.personalContext.identity &&
+    auth.state.user?.role === 'admin' &&
+    !auth.system.denied
+  const current = (own: number, captured: PersonalIdentity | null) =>
+    !disposed &&
+    activeRoute &&
+    own === revision &&
+    authorized() &&
+    same(captured, auth.personalContext.identity)
+  function stopFeedback() {
+    clearTimeout(timer)
+    timer = undefined
+    feedback.value = 'idle'
+  }
+  function finishConfirmation(value: boolean) {
+    confirmation.open = false
+    const done = confirmationResult
+    confirmationResult = null
+    done?.(value)
+  }
+  function resetChoice() {
+    Object.assign(deletion, { choice: 'unselected', replacement: null })
+  }
+  function clearBusiness() {
+    editBase = null
+    Object.assign(editor, { mode: null, provider: null, version: '', message: '', reviewed: false })
+    Object.assign(draft, emptyDraft())
+    draftBaseline = JSON.stringify(draft)
+    Object.assign(deletion, { open: false, model: null, provider: null, message: '' })
+    resetChoice()
+    replacementProviderID = null
+  }
+  function resetPage(name: PageName) {
+    const cursor = cursors[name]
+    cursor.history = []
+    cursor.index = 0
+    cursor.next = null
+    cursor.target = { index: 0 }
+    Object.assign(pages[name], {
+      phase: 'inactive',
+      rows: Object.freeze([]),
+      message: '',
+      cursorInvalid: false,
+      hasPrevious: false,
+      hasNext: false,
+    })
+  }
+  function clearObservation(value: ReturnType<typeof observation<unknown>>) {
+    Object.assign(value, { phase: 'inactive', value: null, message: '' })
+  }
+  function clearReads() {
+    for (const scope of activeReads) {
+      reads.set(scope, (reads.get(scope) ?? 0) + 1)
+      api.abandonRead(scope)
+    }
+    activeReads.clear()
+    for (const name of Object.keys(pages) as PageName[]) resetPage(name)
+    for (const value of [provider, detail, replacementProvider, impact]) clearObservation(value)
+  }
+  function discard(reload = false) {
+    ++revision
+    api.abandon()
+    clearBusiness()
+    stopFeedback()
+    state.writeMessage = ''
+    state.confirmed = null
+    state.requiresReload = reload
+    if (reload) {
+      clearReads()
+      initial = false
+    }
+  }
+  function invalidate() {
+    discard()
+    clearReads()
+    selectedProviderID = selectedModelID = null
+    initial = true
+    finishConfirmation(false)
+  }
+  function readContext(scope: SystemModelRead) {
+    const own = revision,
+      captured = auth.personalContext.identity,
+      generation = (reads.get(scope) ?? 0) + 1
+    reads.set(scope, generation)
+    activeReads.add(scope)
+    return {
+      valid: () => attached && current(own, captured) && reads.get(scope) === generation,
+      finish: () => {
+        if (reads.get(scope) === generation) activeReads.delete(scope)
+      },
+    }
+  }
+  function readFailure(error: unknown) {
+    const failure = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    return failure.problem?.code === 'CURSOR_INVALID'
+      ? '分页链接已失效，请明确返回首页重新加载。'
+      : failure.kind === 'cancelled'
+        ? '读取已取消或等待超时，请在请求结束后重试。'
+        : failure.problem?.code === 'RESOURCE_BUSY'
+          ? '当前资源繁忙，尚未获得完整观察。请稍后明确重读。'
+          : '读取失败，尚未获得当前完整配置。请重试。'
+  }
+  async function readPage(name: PageName, target: PageTarget): Promise<boolean> {
+    if (!attached || !authorized() || blocked.value) return false
+    const replacing = name.startsWith('replacement'),
+      isModels = name === 'models' || name === 'replacementModels'
+    const selected = replacing ? replacementProvider.value : provider.value
+    if (isModels && !selected) return false
+    const op = readContext(pageScopes[name]),
+      state = pages[name],
+      cursor = cursors[name]
+    cursor.target = target
+    Object.assign(state, {
+      phase: 'loading',
+      rows: Object.freeze([]),
+      message: '',
+      cursorInvalid: false,
+      hasPrevious: false,
+      hasNext: false,
+    })
+    try {
+      const query = target.cursor === undefined ? {} : { cursor: target.cursor }
+      const result = isModels
+        ? await api.list({ ...contextFor(selected!), ...query }, replacing)
+        : await api.listProviders(query, replacing)
+      if (
+        !op.valid() ||
+        (isModels && (replacing ? replacementProvider.value : provider.value)?.id !== selected?.id)
+      )
+        return false
+      cursor.history = [...cursor.history.slice(0, target.index), target.cursor]
+      cursor.index = target.index
+      cursor.next = result.next_cursor
+      Object.assign(state, {
+        phase: result.items.length ? 'ready' : 'empty',
+        rows: result.items,
+        hasPrevious: target.index > 0,
+        hasNext: result.next_cursor !== null,
+      })
+      return true
+    } catch (error) {
+      if (op.valid())
+        Object.assign(state, {
+          phase: 'error',
+          message: readFailure(error),
+          cursorInvalid:
+            error instanceof AccountFailure && error.problem?.code === 'CURSOR_INVALID',
+        })
+      return false
+    } finally {
+      op.finish()
+    }
+  }
+  async function readProvider(id: string, replacing = false): Promise<boolean> {
+    if (!attached || !authorized() || blocked.value) return false
+    const value = replacing ? replacementProvider : provider
+    const op = readContext(replacing ? 'model-replacement-provider' : 'model-provider')
+    Object.assign(value, { phase: 'loading', value: null, message: '' })
+    try {
+      const result = await api.getProvider(id, replacing)
+      if (!op.valid() || id !== (replacing ? replacementProviderID : selectedProviderID))
+        return false
+      Object.assign(value, { phase: 'ready', value: result })
+      return true
+    } catch (error) {
+      if (op.valid()) Object.assign(value, { phase: 'error', message: readFailure(error) })
+      return false
+    } finally {
+      op.finish()
+    }
+  }
+  async function readDetail(id: string): Promise<SystemModel | null> {
+    const selected = provider.value
+    if (!selected || !attached || !authorized() || blocked.value) return null
+    const op = readContext('model-detail')
+    Object.assign(detail, { phase: 'loading', value: null, message: '' })
+    try {
+      const result = await api.get({ ...contextFor(selected), id })
+      if (!op.valid() || selectedProviderID !== result.provider_id || selectedModelID !== result.id)
+        return null
+      Object.assign(detail, { phase: 'ready', value: result })
+      return result
+    } catch (error) {
+      if (op.valid()) Object.assign(detail, { phase: 'error', message: readFailure(error) })
+      return null
+    } finally {
+      op.finish()
+    }
+  }
+  async function refreshSelected(): Promise<boolean> {
+    const own = revision,
+      captured = auth.personalContext.identity,
+      selected = selectedProviderID,
+      model = selectedModelID
+    if (!selected) return readPage('providers', { index: 0 })
+    if (!(await readProvider(selected)) || !current(own, captured)) return false
+    if (!(await readPage('models', { index: 0 })) || !current(own, captured)) return false
+    if (model) return !!(await readDetail(model))
+    return true
+  }
+  async function readDeletion(review = false): Promise<boolean> {
+    const selected = deletion.model,
+      source = deletion.provider
+    if (!selected || !source || !deletion.open || !attached || !authorized() || blocked.value)
+      return false
+    const op = readContext('model-detail')
+    let impactRead: ReturnType<typeof readContext> | undefined
+    Object.assign(impact, { phase: 'loading', value: null, message: '' })
+    deletion.message = ''
+    try {
+      const latest = await api.get({ ...contextFor(source), id: selected.id })
+      if (!op.valid() || !deletion.open) return false
+      impactRead = readContext('model-impact')
+      const result = await api.impact(selected.id)
+      if (!op.valid() || !impactRead.valid() || !deletion.open) return false
+      if (result.version !== latest.version || (!review && selected.version !== latest.version)) {
+        Object.assign(impact, {
+          phase: 'error',
+          value: null,
+          message: 'Model配置已变化。请明确重新读取并核对删除预览。',
+        })
+        return false
+      }
+      deletion.model = latest
+      if (review) resetChoice()
+      Object.assign(impact, { phase: 'ready', value: result, message: '' })
+      if (result.replacement_requirement === 'none') deletion.choice = 'clear'
+      return true
+    } catch (error) {
+      if (op.valid())
+        Object.assign(impact, { phase: 'error', value: null, message: readFailure(error) })
+      return false
+    } finally {
+      op.finish()
+      impactRead?.finish()
+    }
+  }
+  function replacementReason(value: SystemModel) {
+    if (!deletion.model || value.id === deletion.model.id) return '不能选择待删除的 Model。'
+    if (value.input.type !== deletion.model.input.type) return '类型不一致。'
+    if (!value.input.enabled) return 'Model 已禁用。'
+    if (
+      !replacementProvider.value?.input.enabled ||
+      value.provider_id !== replacementProvider.value.id
+    )
+      return 'Provider 已禁用或尚未读取。'
+    if (
+      impact.value?.reference_groups.some(
+        (group) => group.owner_kind === 'platform_selector' && group.role === 'memory',
+      ) &&
+      !value.input.capabilities.structured_output_modes.includes('json_schema')
+    )
+      return 'memory 用途要求 json_schema 能力声明。'
+    return ''
+  }
+  const canDelete = computed(() => {
+    const value = impact.value
+    if (
+      !deletion.open ||
+      !deletion.model ||
+      locked.value ||
+      impact.phase !== 'ready' ||
+      !value ||
+      value.model_id !== deletion.model.id ||
+      value.version !== deletion.model.version ||
+      value.delete_blocker !== null
+    )
+      return false
+    if (value.replacement_requirement === 'none') return deletion.choice === 'clear'
+    if (deletion.choice === 'clear') return value.replacement_requirement === 'optional'
+    return (
+      deletion.choice === 'replacement' &&
+      !!deletion.replacement &&
+      !replacementReason(deletion.replacement)
+    )
+  })
+  function requestConfirmation(title: string) {
+    if (confirmationResult) return Promise.resolve(false)
+    Object.assign(confirmation, {
+      open: true,
+      title,
+      message:
+        '将清除本地草稿和本次请求的追踪。此前请求仍可能生效；放弃不会撤销服务端配置、删除或引用替换。',
+    })
+    return new Promise<boolean>((resolve) => {
+      confirmationResult = resolve
+    })
+  }
+  async function confirmLeave() {
+    if (!dirty.value) return true
+    const own = revision,
+      captured = auth.personalContext.identity
+    const uncertain = ['submitting', 'uncertain'].includes(progress.value?.phase ?? '')
+    const accepted = await requestConfirmation('放弃未保存修改？')
+    if (!accepted || !current(own, captured)) return false
+    discard(uncertain)
+    return true
+  }
+  async function guarded(work: () => void | Promise<unknown>) {
+    if (!(await confirmLeave()) || disposed || !activeRoute || !authorized()) return
+    await work()
+  }
+  async function guardedReplacement(work: () => void | Promise<unknown>) {
+    if (locked.value || !deletion.open) return
+    const own = revision,
+      captured = auth.personalContext.identity
+    if (selectedReplacement.value) {
+      if (
+        !(await requestConfirmation('放弃当前替代选择？')) ||
+        !current(own, captured) ||
+        !deletion.open
+      )
+        return
+      resetChoice()
+    }
+    if (!current(own, captured) || !deletion.open) return
+    await work()
+  }
+  function populate(value: SystemModel | null, selected: Provider) {
+    clearBusiness()
+    editBase = value
+    Object.assign(editor, {
+      mode: value ? 'edit' : 'create',
+      provider: selected,
+      type: modelTypeForProtocol(selected.input.protocol),
+      version: value?.version ?? '',
+      message: '',
+      reviewed: false,
+    })
+    const v = value?.input,
+      c = v?.capabilities
+    Object.assign(
+      draft,
+      emptyDraft(),
+      v
+        ? {
+            name: v.name,
+            provider_model_id: v.provider_model_id,
+            enabled: String(v.enabled),
+            tool_calls: c!.tool_calls,
+            parallel_tool_calls: c!.parallel_tool_calls,
+            streaming: c!.streaming,
+            reasoning: c!.reasoning,
+            input_modalities: [...c!.input_modalities],
+            output_modalities: [...c!.output_modalities],
+            structured_output_modes: [...c!.structured_output_modes],
+            context_length: c!.context_length ?? '',
+            max_output: c!.max_output ?? '',
+          }
+        : {},
+    )
+    draftBaseline = JSON.stringify(draft)
+  }
+  function ordinaryInput(): ModelInput {
+    if (!editor.provider || draft.enabled === '') throw new AccountFailure('invalid-input')
+    return {
+      name: draft.name,
+      provider_model_id: draft.provider_model_id,
+      type: editor.type,
+      enabled: draft.enabled === 'true',
+      parameters: {},
+      request_overwrite: {},
+      header_overwrite: {},
+      capabilities: {
+        tool_calls: draft.tool_calls,
+        parallel_tool_calls: draft.parallel_tool_calls,
+        streaming: draft.streaming,
+        reasoning: draft.reasoning,
+        input_modalities: [...draft.input_modalities],
+        output_modalities: [...draft.output_modalities],
+        reasoning_efforts: [],
+        structured_output_modes: [...draft.structured_output_modes],
+        context_length: draft.context_length === '' ? null : draft.context_length,
+        max_output: draft.max_output === '' ? null : draft.max_output,
+      },
+    }
+  }
+  function showFailure(error: unknown) {
+    const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+    state.writeMessage =
+      progress.value?.phase === 'uncertain'
+        ? e.problem?.code === 'IDEMPOTENCY_KEY_REUSED'
+          ? '原请求标识与输入冲突，原意图已锁定。请明确放弃后重新读取。'
+          : '请求结果未确认。请检查原请求，再显式重试原请求；此前请求仍可能生效。'
+        : e.kind === 'invalid-input' || e.problem?.code === 'INVALID_ARGUMENT'
+          ? '请检查原字段长度、Unicode、启用状态及能力声明。输入不会自动改写。'
+          : e.problem?.code === 'VERSION_CONFLICT'
+            ? '当前版本已变化，请明确读取当前配置并核对。'
+            : '操作未完成，请明确重新读取并核对当前配置或删除预览。'
+  }
+  async function mutate(work: () => Promise<ModelReceipt>) {
+    const own = revision,
+      captured = auth.personalContext.identity
+    stopFeedback()
+    feedback.value = 'loading'
+    state.writeMessage = ''
+    editor.message = ''
+    deletion.message = ''
+    try {
+      const result = await work()
+      if (!current(own, captured)) return
+      state.confirmed = result
+      clearBusiness()
+      feedback.value = 'success'
+      state.writeMessage =
+        result.kind === 'model.delete'
+          ? `Model已删除，实际处理 ${result.affected_references} 条登记引用。`
+          : 'Model配置已保存。此结果不表示已经验证运行或连接。'
+      timer = setTimeout(() => {
+        if (current(own, captured)) feedback.value = 'idle'
+      }, 2400)
+      selectedModelID = result.kind === 'model.delete' ? null : result.resource_id
+      clearReads()
+      if (!(await refreshSelected()) && current(own, captured))
+        state.writeMessage = '操作已确认，当前配置读取失败。请仅重读当前配置。'
+    } catch (error) {
+      if (!current(own, captured)) return
+      feedback.value = 'idle'
+      showFailure(error)
+    }
+  }
+  async function initialRead() {
+    if (disposed || !attached || !activeRoute || !initial || !authorized() || blocked.value) return
+    initial = false
+    const own = revision,
+      captured = auth.personalContext.identity
+    await refreshSelected()
+    if (!current(own, captured) || !attached || blocked.value || !deletion.open) return
+    if (!(await readDeletion())) return
+    if (
+      !current(own, captured) ||
+      blocked.value ||
+      !impact.value ||
+      impact.value.delete_blocker ||
+      impact.value.replacement_requirement === 'none'
+    )
+      return
+    if (!(await readPage('replacementProviders', { index: 0 })) || !current(own, captured)) return
+    const candidate = replacementProviderID
+    if (candidate && (await readProvider(candidate, true)) && current(own, captured))
+      await readPage('replacementModels', { index: 0 })
+  }
+  function afterNavigation(to: string, from: string) {
+    const page = (value: string) => value.split(/[?#]/, 1)[0] === '/system/models'
+    if (page(from) && !page(to)) {
+      activeRoute = false
+      invalidate()
+    } else if (page(to)) activeRoute = true
+  }
+  const stopIdentity = watch(
+    () =>
+      [
+        auth.personalContext.phase,
+        auth.personalContext.identity,
+        auth.state.user?.role,
+        auth.system.denied,
+        auth.state.busy,
+      ] as const,
+    ([phase, value]) => {
+      if (phase === 'checking') return
+      if (
+        phase === 'invalid' ||
+        !same(identity, value) ||
+        auth.state.user?.role !== 'admin' ||
+        auth.system.denied
+      ) {
+        invalidate()
+        identity = value
+      }
+      void initialRead()
+    },
+  )
+  function beforeUnload(event: BeforeUnloadEvent) {
+    if (dirty.value) {
+      event.preventDefault()
+      event.returnValue = ''
+    }
+  }
+  window.addEventListener('beforeunload', beforeUnload)
+  function pageAction(name: PageName, action: 'previous' | 'next' | 'retry') {
+    const work = () => {
+      if (blocked.value) return
+      const cursor = cursors[name],
+        page = pages[name]
+      if (action === 'previous' && page.hasPrevious)
+        return readPage(name, { index: cursor.index - 1, cursor: cursor.history[cursor.index - 1] })
+      if (action === 'next' && cursor.next !== null)
+        return readPage(name, { index: cursor.index + 1, cursor: cursor.next })
+      if (action === 'retry')
+        return readPage(name, page.cursorInvalid ? { index: 0 } : cursor.target)
+    }
+    return name.startsWith('replacement') ? guardedReplacement(work) : guarded(work)
+  }
+  return {
+    auth,
+    pages: readonly(pages),
+    provider: readonly(provider),
+    detail: readonly(detail),
+    replacementProvider: readonly(replacementProvider),
+    impact: readonly(impact),
+    editor: readonly(editor),
+    deletion: readonly(deletion),
+    draft,
+    state: readonly(state),
+    confirmation: readonly(confirmation),
+    progress,
+    feedback,
+    checking,
+    blocked,
+    locked,
+    changed,
+    dirty,
+    canDelete,
+    attach() {
+      attached = true
+      activeRoute = true
+      void initialRead()
+    },
+    detach() {
+      attached = false
+      clearReads()
+      initial = true
+    },
+    afterNavigation,
+    confirmLeave,
+    finishConfirmation,
+    pageAction,
+    replacementReason,
+    selectProvider(value: Provider) {
+      return guarded(async () => {
+        if (blocked.value) return
+        selectedProviderID = value.id
+        selectedModelID = null
+        clearObservation(detail)
+        resetPage('models')
+        if (await readProvider(value.id)) await readPage('models', { index: 0 })
+      })
+    },
+    back() {
+      return guarded(async () => {
+        if (blocked.value) return
+        selectedProviderID = selectedModelID = null
+        clearObservation(provider)
+        clearObservation(detail)
+        resetPage('models')
+        await readPage('providers', { index: 0 })
+      })
+    },
+    refresh() {
+      return guarded(async () => {
+        if (blocked.value) return
+        state.requiresReload = false
+        clearReads()
+        await refreshSelected()
+      })
+    },
+    retryProvider() {
+      return guarded(async () => {
+        if (selectedProviderID && (await readProvider(selectedProviderID)))
+          await readPage('models', { index: 0 })
+      })
+    },
+    selectModel(value: SystemModel) {
+      return guarded(async () => {
+        if (!blocked.value) {
+          selectedModelID = value.id
+          await readDetail(value.id)
+        }
+      })
+    },
+    retryDetail() {
+      return guarded(() => (selectedModelID ? readDetail(selectedModelID) : undefined))
+    },
+    openCreate() {
+      return guarded(() => {
+        if (locked.value || !provider.value) return
+        stopFeedback()
+        api.abandon()
+        state.writeMessage = ''
+        state.confirmed = null
+        populate(null, provider.value)
+      })
+    },
+    openEdit() {
+      return guarded(async () => {
+        const selected = detail.value,
+          source = provider.value
+        if (locked.value || !selected || !source) return
+        stopFeedback()
+        api.abandon()
+        state.writeMessage = ''
+        state.confirmed = null
+        const value = await readDetail(selected.id)
+        if (value) populate(value, source)
+      })
+    },
+    openDelete() {
+      return guarded(async () => {
+        if (locked.value || !detail.value || !provider.value) return
+        stopFeedback()
+        api.abandon()
+        state.writeMessage = ''
+        state.confirmed = null
+        clearBusiness()
+        Object.assign(deletion, { open: true, model: detail.value, provider: provider.value })
+        const own = revision,
+          captured = auth.personalContext.identity
+        if (
+          (await readDeletion(true)) &&
+          current(own, captured) &&
+          impact.value &&
+          impact.value.delete_blocker === null &&
+          impact.value.replacement_requirement !== 'none'
+        )
+          await readPage('replacementProviders', { index: 0 })
+      })
+    },
+    closeEditor() {
+      return guarded(() => clearBusiness())
+    },
+    closeDelete() {
+      return guarded(() => clearBusiness())
+    },
+    save() {
+      if (locked.value || !editor.mode || !editor.provider || (!changed.value && !editor.reviewed))
+        return Promise.resolve()
+      try {
+        const ctx = contextFor(editor.provider),
+          input = ordinaryInput()
+        const command = captureModelCommand(
+          editor.mode === 'create'
+            ? { ...ctx, kind: 'model.create', input }
+            : {
+                ...ctx,
+                kind: 'model.update',
+                id: editBase!.id,
+                expected_version: editBase!.version,
+                input,
+              },
+        )
+        return mutate(() => api.start(command))
+      } catch (error) {
+        showFailure(error)
+        return Promise.resolve()
+      }
+    },
+    remove() {
+      if (!canDelete.value || !deletion.model || !deletion.provider) return Promise.resolve()
+      const command: ModelCommand = {
+        ...contextFor(deletion.provider),
+        kind: 'model.delete',
+        id: deletion.model.id,
+        expected_version: deletion.model.version,
+        replacement: deletion.choice === 'replacement' ? deletion.replacement!.id : null,
+      }
+      return mutate(() => api.start(command))
+    },
+    selectReplacementProvider(value: Provider) {
+      return guardedReplacement(async () => {
+        replacementProviderID = value.id
+        clearObservation(replacementProvider)
+        resetPage('replacementModels')
+        if (await readProvider(value.id, true)) await readPage('replacementModels', { index: 0 })
+      })
+    },
+    backReplacement() {
+      return guardedReplacement(async () => {
+        replacementProviderID = null
+        clearObservation(replacementProvider)
+        resetPage('replacementModels')
+        await readPage('replacementProviders', { index: 0 })
+      })
+    },
+    retryReplacementProvider() {
+      return guardedReplacement(async () => {
+        if (replacementProviderID && (await readProvider(replacementProviderID, true)))
+          await readPage('replacementModels', { index: 0 })
+      })
+    },
+    selectReplacement(value: SystemModel) {
+      return guardedReplacement(() => {
+        if (!pages.replacementModels.rows.some((row) => row === value) || replacementReason(value))
+          return
+        Object.assign(deletion, { choice: 'replacement', replacement: value })
+      })
+    },
+    chooseClear() {
+      return guardedReplacement(() => {
+        if (impact.value?.replacement_requirement === 'optional')
+          Object.assign(deletion, { choice: 'clear', replacement: null })
+      })
+    },
+    async reviewDeletion() {
+      if (blocked.value || !deletion.open || progress.value?.phase === 'uncertain') return
+      const own = revision,
+        captured = auth.personalContext.identity
+      if ((await readDeletion(true)) && current(own, captured)) {
+        api.abandon()
+        state.writeMessage = ''
+        deletion.message = '已重新读取。请核对影响并重新明确选择，再确认删除。'
+        clearObservation(replacementProvider)
+        resetPage('replacementModels')
+        replacementProviderID = null
+        if (
+          impact.value &&
+          impact.value.delete_blocker === null &&
+          impact.value.replacement_requirement !== 'none'
+        )
+          await readPage('replacementProviders', { index: 0 })
+      }
+    },
+    async reviewEditor() {
+      if (blocked.value || progress.value?.phase !== 'rejected' || !editor.mode || !editor.provider)
+        return
+      if (editor.mode === 'create') {
+        api.abandon()
+        editor.message = '请修改并核对输入，再明确保存。'
+        return
+      }
+      const own = revision,
+        captured = auth.personalContext.identity
+      try {
+        const latest = await api.get({ ...contextFor(editor.provider), id: editBase!.id })
+        if (!current(own, captured) || editor.mode !== 'edit') return
+        editBase = latest
+        editor.version = latest.version
+        editor.reviewed = true
+        api.abandon()
+        state.writeMessage = ''
+        editor.message = '已读取当前版本。保留输入，请核对后再次明确保存。'
+      } catch {
+        if (current(own, captured)) editor.message = '当前配置读取失败，尚不能重新保存。'
+      }
+    },
+    async checkOriginal() {
+      if (blocked.value || progress.value?.phase !== 'uncertain') return
+      checking.value = true
+      const own = revision,
+        captured = auth.personalContext.identity
+      try {
+        const result = await api.checkOriginal()
+        if (current(own, captured))
+          state.writeMessage = result.found
+            ? '已观察到历史回执，但尚未核对原输入。请显式重试原请求以确认。'
+            : '本次未观察到历史回执，不代表此前请求未提交。可以显式重试原请求或放弃。'
+      } catch {
+        if (current(own, captured))
+          state.writeMessage = '本次查证失败，不代表此前请求未提交。请保留原请求或明确放弃。'
+      } finally {
+        checking.value = false
+        void initialRead()
+      }
+    },
+    retryOriginal() {
+      return !blocked.value && progress.value?.canRetryOriginal
+        ? mutate(() => api.retryOriginal())
+        : Promise.resolve()
+    },
+    async abandonOperation() {
+      const own = revision,
+        captured = auth.personalContext.identity
+      if ((await requestConfirmation('放弃本次请求的追踪？')) && current(own, captured))
+        discard(true)
+    },
+    dispose() {
+      if (disposed) return
+      disposed = true
+      stopIdentity()
+      invalidate()
+      window.removeEventListener('beforeunload', beforeUnload)
+    },
+  }
+}
+export type SystemModelsController = ReturnType<typeof createSystemModels>
+export const systemModelsKey: InjectionKey<SystemModelsController> = Symbol('system-models')
+export function useSystemModels() {
+  const page = inject(systemModelsKey)
+  if (!page) throw new Error('System Models require the App controller')
+  return page
+}

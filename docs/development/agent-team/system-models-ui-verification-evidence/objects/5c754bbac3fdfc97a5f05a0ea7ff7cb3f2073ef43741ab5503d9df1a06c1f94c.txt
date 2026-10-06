@@ -1,0 +1,36 @@
+{"mode": "lifecycle", "cwd": "/workspace/agenteam/tests/account-captcha-web", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-models.config.js", "--list"], "exit": 0, "actual_wait": true, "elapsed": 1.0419999290024862}
+Listing tests:
+  system-models.spec.ts:583:1 › [lifecycle] four legal types, safe details, configuration edits and unreferenced deletion
+Total: 1 test in 1 file
+
+
+{"mode": "deletion", "cwd": "/workspace/agenteam/tests/account-captcha-web", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-models.config.js", "--list"], "exit": 0, "actual_wait": true, "elapsed": 0.668498646999069}
+Listing tests:
+  system-models.spec.ts:701:1 › [deletion] exact Impact, legal replacement, concurrent facts and the isolated unbound negative
+Total: 1 test in 1 file
+
+
+{"mode": "outcome", "cwd": "/workspace/agenteam/tests/account-captcha-web", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-models.config.js", "--list"], "exit": 0, "actual_wait": true, "elapsed": 0.6949998460004281}
+Listing tests:
+  system-models.spec.ts:857:1 › [outcome] accepted create/update/delete response loss preserves one original command and facts
+Total: 1 test in 1 file
+
+
+{"mode": "read", "cwd": "/workspace/agenteam/tests/account-captcha-web", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-models.config.js", "--list"], "exit": 0, "actual_wait": true, "elapsed": 0.6615278019999096}
+Listing tests:
+  system-models.spec.ts:961:1 › [read] canonical bounded pages, explicit cursors and independent replacement browsing
+Total: 1 test in 1 file
+
+
+{"mode": "authority", "cwd": "/workspace/agenteam/tests/account-captcha-web", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-models.config.js", "--list"], "exit": 0, "actual_wait": true, "elapsed": 0.694110141001147}
+Listing tests:
+  system-models.spec.ts:1079:1 › [authority] real CRUD/Impact/lookup authorization and exact Session invalidation
+Total: 1 test in 1 file
+
+
+{"mode": "navigation", "cwd": "/workspace/agenteam/tests/account-captcha-web", "argv": ["node", "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js", "test", "--config", "/workspace/agenteam/tests/account-captcha-web/system-models.config.js", "--list"], "exit": 0, "actual_wait": true, "elapsed": 0.6688539069982653}
+Listing tests:
+  system-models.spec.ts:1318:1 › [navigation] same-session cohost recovery, real focus and eight layouts
+Total: 1 test in 1 file
+
+

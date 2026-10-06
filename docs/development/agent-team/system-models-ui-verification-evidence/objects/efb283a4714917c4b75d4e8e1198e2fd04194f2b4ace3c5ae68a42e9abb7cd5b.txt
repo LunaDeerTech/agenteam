@@ -1,0 +1,205 @@
+import { describe, expect, it, vi } from 'vitest'
+import { accountTransport, type Fetch } from '../api/client'
+import { createSystemProviderAPI, type ModelType } from '../api/system-providers'
+import { captureModelCommand, createSystemModelAPI, modelCommandBody, type ModelInput, type ModelCommand } from '../api/system-models'
+
+const id = (n: number) => '01900000-0000-7000-8000-' + n.toString(16).padStart(12, '0')
+const context = { provider_id: id(1), protocol: 'openai-chat-completions' as const }
+const target = { ...context, id: id(2) }
+const instant = '2026-10-06T12:34:56.123456Z'
+const signal = () => new AbortController().signal
+const options = () => ({ signal: signal(), csrfToken: 'x'.repeat(43), key: 'independent-model:1' })
+const json = (value: unknown) => new Response(JSON.stringify(value), { headers: { 'Content-Type': 'application/json' } })
+const encoder = new TextEncoder()
+function deferred() { let resolve!: () => void; const promise = new Promise<void>(r => { resolve = r }); return { promise, resolve } }
+function modelInput(type: ModelType = 'chat'): ModelInput {
+  return {
+    name: '  原名🧩  ', provider_model_id: ' Native/原生 ', type, enabled: false,
+    parameters: {}, request_overwrite: {}, header_overwrite: {},
+    capabilities: { tool_calls: false, parallel_tool_calls: false, streaming: false, reasoning: false,
+      input_modalities: ['text'], output_modalities: type === 'chat' ? ['text'] : type === 'embedding' ? ['vector'] : type === 'image_generation' ? ['image'] : [],
+      reasoning_efforts: [], structured_output_modes: [], context_length: '9007199254740993', max_output: '9007199254740992' },
+  }
+}
+const model = (type: ModelType = 'chat') => ({ id: target.id, provider_id: context.provider_id, input: modelInput(type), version: '9007199254740993', created_at: instant, updated_at: instant })
+const emptyImpact = () => ({ model_id: target.id, version: '9007199254740993', reference_count: '0', reference_groups: [] as unknown[], replacement_requirement: 'none', delete_blocker: null as string | null })
+const parseImpact = (value: unknown) => createSystemModelAPI(async () => json(value)).getDeletionImpact(target.id, signal())
+const deleteCommand = (): ModelCommand => ({ ...target, kind: 'model.delete', expected_version: '9007199254740993', replacement: null })
+const deleteReceipt = (affected_references = '10001') => ({ kind: 'model.delete', resource_id: target.id, version: '9007199254740994', affected_references })
+
+describe('Independent Model API on fixed API-stage01', () => {
+  it.each([
+    ['openai-chat-completions', 'chat'], ['anthropic-messages', 'chat'],
+    ['openai-embeddings', 'embedding'], ['jina-rerank', 'reranker'], ['openai-images-generations', 'image_generation'],
+  ] as const)('preserves complete disabled %s/%s configuration and frozen original input', async (protocol, type) => {
+    const original = modelInput(type), captured = captureModelCommand({ provider_id: id(1), protocol, kind: 'model.create', input: original })
+    const expected = structuredClone(original)
+    ;(original.capabilities.input_modalities as string[]).push('image')
+    ;(original as { name: string }).name = 'changed later'
+    expect(captured.kind === 'model.create' && captured.input).toEqual(expected)
+    expect(Object.isFrozen(captured) && Object.isFrozen(captured.kind === 'model.create' && captured.input.capabilities.input_modalities)).toBe(true)
+    const response = model(type)
+    const api = createSystemModelAPI(async () => json(response))
+    expect(await api.getModel({ ...target, protocol }, signal())).toEqual(response)
+    expect(modelCommandBody(captured)).toEqual({ provider_id: id(1), input: expected })
+  })
+
+  it('rejects protocol/capability and encoded input errors before any request', async () => {
+    const fetch = vi.fn<Fetch>(), api = createSystemModelAPI(fetch)
+    const bad = modelInput('chat')
+    ;(bad.capabilities.structured_output_modes as string[]).push('json_schema')
+    await expect(api.createModel({ ...context, protocol: 'anthropic-messages' }, bad, options())).rejects.toMatchObject({ kind: 'invalid-input' })
+    const reranker = modelInput('reranker')
+    ;(reranker.capabilities.output_modalities as string[]).push('text')
+    await expect(api.createModel({ ...context, protocol: 'jina-rerank' }, reranker, options())).rejects.toMatchObject({ kind: 'invalid-input' })
+    for (const change of [{ provider_model_id: '界'.repeat(85) + 'ab' }, { name: '\ud800' }, { parameters: { temperature: 1 } }])
+      await expect(api.createModel(context, { ...modelInput(), ...change } as ModelInput, options())).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetch).not.toHaveBeenCalled()
+    const legal = captureModelCommand({ ...context, kind: 'model.create', input: { ...modelInput(), name: '🧩'.repeat(128), provider_model_id: '界'.repeat(85) + 'a' } })
+    expect(legal.kind === 'model.create' && encoder.encode(legal.input.provider_model_id).length).toBe(256)
+  })
+
+  it('distinguishes exact seven-group edge counts, optional choices, blockers and the 10000 boundary', async () => {
+    const all = [
+      { owner_kind: 'agent', role: 'agent_model', count: '1' },
+      { owner_kind: 'agent', role: 'approval_model', count: '2' },
+      { owner_kind: 'platform_selector', role: 'embedding', count: '3' },
+      { owner_kind: 'platform_selector', role: 'image', count: '4' },
+      { owner_kind: 'platform_selector', role: 'memory', count: '5' },
+      { owner_kind: 'platform_selector', role: 'reranker', count: '6' },
+      { owner_kind: 'project_summary', role: 'meeting_summary', count: '7' },
+    ]
+    for (const value of [
+      emptyImpact(),
+      { ...emptyImpact(), reference_groups: [all[3], all[5]], reference_count: '10', replacement_requirement: 'optional' },
+      { ...emptyImpact(), reference_groups: [all[2], all[4]], reference_count: '8', replacement_requirement: 'required' },
+      { ...emptyImpact(), reference_groups: all, reference_count: '28', replacement_requirement: 'required', delete_blocker: 'reference_adapter_unbound' },
+      { ...emptyImpact(), reference_groups: [{ ...all[0], count: '10000' }], reference_count: '10000', replacement_requirement: 'required', delete_blocker: 'reference_adapter_unbound' },
+    ]) {
+      const parsed = await parseImpact(value)
+      expect(parsed).toEqual(value)
+      expect(Object.isFrozen(parsed) && Object.isFrozen(parsed.reference_groups) && parsed.reference_groups.every(Object.isFrozen)).toBe(true)
+    }
+  })
+
+  it('publishes no candidate for malformed cross-field Impact combinations or an overflow sentinel', async () => {
+    const optional = { ...emptyImpact(), reference_count: '1', reference_groups: [{ owner_kind: 'platform_selector', role: 'image', count: '1' }], replacement_requirement: 'optional' }
+    const noBlocker = { ...emptyImpact() } as Record<string, unknown>; delete noBlocker.delete_blocker
+    const invalid = [
+      { ...emptyImpact(), model_id: id(3) }, noBlocker, { ...emptyImpact(), owner_id: id(9) },
+      { ...emptyImpact(), reference_count: '10001' }, { ...emptyImpact(), reference_count: 0 },
+      { ...emptyImpact(), reference_groups: null }, { ...emptyImpact(), delete_blocker: 'reference_adapter_unbound' },
+      { ...optional, reference_count: '2' }, { ...optional, replacement_requirement: 'none' }, { ...optional, replacement_requirement: 'required' },
+      { ...optional, reference_groups: [{ owner_kind: 'agent', role: 'image', count: '1' }] },
+      { ...optional, reference_groups: [{ owner_kind: 'agent', role: 'agent_model', count: '1' }], replacement_requirement: 'required' },
+      { ...optional, reference_groups: [{ ...optional.reference_groups[0], count: '0' }] },
+      { ...optional, reference_groups: [{ ...optional.reference_groups[0], count: '01' }] },
+      { ...optional, reference_groups: [{ ...optional.reference_groups[0], name: 'unpermitted' }] },
+      { ...optional, reference_count: '2', reference_groups: [optional.reference_groups[0], optional.reference_groups[0]] },
+      { ...optional, reference_count: '2', reference_groups: [{ ...optional.reference_groups[0], role: 'reranker' }, optional.reference_groups[0]] },
+    ]
+    for (const value of invalid) await expect(parseImpact(value)).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+
+  it('keeps receipt reference/version arithmetic separate from Impact and old Provider receipts', async () => {
+    for (const count of ['1', '10001', '9223372036854775807']) {
+      const expected = deleteReceipt(count), api = createSystemModelAPI(async () => json(expected))
+      expect(await api.deleteModel(target, '9007199254740993', null, options())).toEqual(expected)
+    }
+    for (const patch of [{ version: '9007199254740993' }, { version: 9007199254740994 }, { resource_id: id(4) }, { affected_references: '9223372036854775808' }, { kind: 'provider.delete' }])
+      await expect(createSystemModelAPI(async () => json({ ...deleteReceipt(), ...patch })).deleteModel(target, '9007199254740993', null, options())).rejects.toMatchObject({ kind: 'invalid-response' })
+    for (const kind of ['model.create', 'model.update'] as const) {
+      const api = createSystemModelAPI(async () => json({ ...deleteReceipt('1'), kind, version: kind === 'model.create' ? '1' : '2' }))
+      await expect(kind === 'model.create' ? api.createModel(context, modelInput(), options()) : api.updateModel(target, '1', modelInput(), options())).rejects.toMatchObject({ kind: 'invalid-response' })
+    }
+    await expect(createSystemProviderAPI(async () => json({ ...deleteReceipt('1'), kind: 'provider.delete', version: '2' })).deleteProvider(target.id, '1', options())).rejects.toMatchObject({ kind: 'invalid-response' })
+    expect(() => captureModelCommand({ ...deleteCommand(), expected_version: '9223372036854775807' } as ModelCommand)).toThrow('invalid-input')
+  })
+
+  it('does not preflight current objects or Impact before explicit historical lookup and DELETE execution', async () => {
+    const calls: { method: string; path: string; body?: string; csrf?: string; key?: string }[] = []
+    const expected = deleteReceipt('1'), write = options()
+    const fetch: Fetch = async (path, init) => {
+      const headers = init.headers as Record<string, string>
+      calls.push({ method: init.method!, path, body: init.body as string | undefined, csrf: headers['X-CSRF-Token'], key: headers['Idempotency-Key'] })
+      if (init.method === 'GET') return new Response(JSON.stringify({ type: 'urn:agenteam:problem:not-found', title: '', detail: '', instance: path, status: 404, code: 'NOT_FOUND', request_id: id(99), commit_state: 'not_started' }), { status: 404, headers: { 'Content-Type': 'application/problem+json', 'X-Request-ID': id(99) } })
+      return json(path.endsWith('/lookup') ? { found: true, receipt: expected } : expected)
+    }
+    const api = createSystemModelAPI(fetch)
+    await expect(api.getModel(target, write.signal)).rejects.toMatchObject({ kind: 'problem', problem: { status: 404 } })
+    await expect(api.getDeletionImpact(target.id, write.signal)).rejects.toMatchObject({ kind: 'problem', problem: { status: 404 } })
+    expect(await api.lookupModelCommand(deleteCommand(), write)).toEqual({ found: true, receipt: expected })
+    expect(await api.deleteModel(target, '9007199254740993', null, write)).toEqual(expected)
+    expect(calls.map(x => x.method)).toEqual(['GET', 'GET', 'POST', 'DELETE'])
+    expect(calls.slice(2).every(x => x.key === write.key && x.csrf === write.csrfToken)).toBe(true)
+    expect(JSON.parse(calls[2]!.body!)).toEqual({ command: 'model.delete' })
+    expect(JSON.parse(calls[3]!.body!)).toEqual({ expected_version: '9007199254740993', replacement: null })
+    expect((await createSystemModelAPI(async () => json({ found: false, receipt: null })).lookupModelCommand(deleteCommand(), write)).found).toBe(false)
+  })
+
+  it('keeps new endpoint options closed and UTF8 JSON writes exactly at 16KiB', async () => {
+    const fetch = vi.fn<Fetch>(async () => json({ accepted: true })), request = accountTransport(fetch)
+    const write = { signal: signal(), csrf: 'x'.repeat(43), key: 'independent' }
+    for (const options of [{ ...write, target: target.id, body: {}, method: 'PATCH' }, { ...write, target: target.id, body: {}, maximum: 2000000 }])
+      await expect(request('deleteModel', x => x, options as never)).rejects.toMatchObject({ kind: 'invalid-input' })
+    await expect(request('getModelDeletionImpact', x => x, { signal: signal(), target: target.id, body: {} } as never)).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetch).not.toHaveBeenCalled()
+    const text = 'x'.repeat(16384 - encoder.encode(JSON.stringify({ value: '' })).length)
+    await request('createModel', x => x, { ...write, body: { value: text } })
+    expect(encoder.encode(fetch.mock.calls[0]![1].body as string).length).toBe(16384)
+    await expect(request('createModel', x => x, { ...write, body: { value: text + 'x' } })).rejects.toMatchObject({ kind: 'invalid-input' })
+    expect(fetch).toHaveBeenCalledTimes(1)
+  })
+
+  it('retains 25-item context and exact microsecond sorting through delegated Model pages', async () => {
+    const rows = [{ ...model(), id: id(5) }, { ...model(), id: id(4), created_at: '2026-10-06T12:34:56.123455Z' }]
+    const page = (items: unknown[], next_cursor: string | null = null) => createSystemModelAPI(async () => json({ items, next_cursor })).listModels(context, signal())
+    expect((await page(rows)).items).toEqual(rows)
+    for (const items of [[...rows].reverse(), [rows[0], { ...rows[1], provider_id: id(99) }], [rows[0], { ...rows[1], input: { ...rows[1]!.input, type: 'embedding' } }]])
+      await expect(page(items)).rejects.toMatchObject({ kind: 'invalid-response' })
+    await expect(page(rows, 'next')).rejects.toMatchObject({ kind: 'invalid-response' })
+  })
+
+  it('withholds a complete valid 600000-byte Impact until actual native EOF', async () => {
+    const eof = deferred(), pull = deferred(), dto = JSON.stringify(emptyImpact())
+    const bytes = encoder.encode(dto + ' '.repeat(600000 - encoder.encode(dto).length))
+    let settled = false
+    const stream = new ReadableStream<Uint8Array>({ start(c) { c.enqueue(bytes) }, pull(c) { pull.resolve(); return eof.promise.then(() => c.close()) } })
+    const pending = createSystemModelAPI(async () => new Response(stream, { headers: { 'Content-Type': 'application/json', 'Content-Length': '1' } })).getDeletionImpact(target.id, signal()).then(v => { settled = true; return v })
+    await pull.promise
+    let before = false
+    try { before = !settled } finally { eof.resolve() }
+    expect(await pending).toEqual(emptyImpact())
+    expect(before).toBe(true)
+  })
+
+  it('joins native 600001-byte Model overflow cancellation before rejecting', async () => {
+    const gate = deferred(), entered = deferred(); let cancels = 0, settled = false, published = false
+    const stream = new ReadableStream<Uint8Array>({ start(c) { c.enqueue(new Uint8Array(300000)); c.enqueue(new Uint8Array(300000)); c.enqueue(new Uint8Array(1)) }, cancel() { cancels++; entered.resolve(); return gate.promise } })
+    const pending = createSystemModelAPI(async () => new Response(stream, { headers: { 'Content-Type': 'application/json', 'Content-Length': '1' } })).getDeletionImpact(target.id, signal()).then(() => { settled = true; published = true; return '' }, e => { settled = true; return e.kind })
+    await entered.promise
+    let before = false
+    try { before = !settled && !published && cancels === 1 } finally { gate.resolve() }
+    expect(await pending).toBe('invalid-response'); expect(before).toBe(true); expect(published).toBe(false)
+  })
+
+  it('joins native cancel after aborting a partially read valid Impact', async () => {
+    const gate = deferred(), entered = deferred(), reading = deferred(), abort = new AbortController(); let settled = false, published = false
+    const stream = new ReadableStream<Uint8Array>({ start(c) { c.enqueue(encoder.encode(JSON.stringify(emptyImpact()))) }, pull() { reading.resolve() }, cancel() { entered.resolve(); return gate.promise } })
+    const pending = createSystemModelAPI(async () => new Response(stream, { headers: { 'Content-Type': 'application/json' } })).getDeletionImpact(target.id, abort.signal).then(() => { settled = true; published = true; return '' }, e => { settled = true; return e.kind })
+    await reading.promise; abort.abort(); await entered.promise
+    let before = false
+    try { before = !settled && !published } finally { gate.resolve() }
+    expect(await pending).toBe('cancelled'); expect(before).toBe(true); expect(published).toBe(false)
+  })
+
+  it('joins wrong-media body cancellation without claiming a reader EOF', async () => {
+    const gate = deferred(), entered = deferred(); let settled = false, cancels = 0
+    const stream = new ReadableStream<Uint8Array>({ cancel() { cancels++; entered.resolve(); return gate.promise } })
+    const pending = createSystemModelAPI(async () => new Response(stream, { status: 503, headers: { 'Content-Type': 'text/plain' } })).getDeletionImpact(target.id, signal()).then(() => { settled = true; return '' }, e => { settled = true; return e.kind })
+    await entered.promise
+    let before = false
+    try { before = !settled && cancels === 1 } finally { gate.resolve() }
+    expect(await pending).toBe('invalid-response'); expect(before).toBe(true)
+  })
+})

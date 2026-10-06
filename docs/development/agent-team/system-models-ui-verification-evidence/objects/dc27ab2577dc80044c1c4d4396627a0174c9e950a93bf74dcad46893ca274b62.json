@@ -1,0 +1,37 @@
+{
+  "input_sha256": "e1491bcd239f354a360c0e64fd6ae786d7824d9f74084dcaf797b7f294ed39ec",
+  "checks": [
+    {
+      "kind": "files",
+      "count": 25,
+      "mismatches": []
+    },
+    {
+      "kind": "dist",
+      "count": 29,
+      "mismatches": []
+    },
+    {
+      "kind": "declared_dependencies_against_git",
+      "count": 36,
+      "mismatches": []
+    },
+    {
+      "kind": "web_stage_reuse_files",
+      "count": 19,
+      "mismatches": []
+    },
+    {
+      "kind": "web_stage_reuse_dist",
+      "count": 29,
+      "mismatches": []
+    }
+  ],
+  "old_browser_diffs": {
+    "tests/account-captcha-web/e2e/system-invitations.spec.ts": "--- git/tests/account-captcha-web/e2e/system-invitations.spec.ts\n+++ candidate/tests/account-captcha-web/e2e/system-invitations.spec.ts\n@@ -1525,7 +1525,7 @@\n           name: \"\u7cfb\u7edf\u8bbe\u7f6e\u680f\u76ee\",\n           exact: true,\n         });\n-        await expect(drawer.getByRole(\"link\")).toHaveCount(3);\n+        await expect(drawer.getByRole(\"link\")).toHaveCount(4);\n         for (let n = 0; n < 6; n++) {\n           await page.keyboard.press(\"Tab\");\n           expect(\n",
+    "tests/account-captcha-web/e2e/system-providers.spec.ts": "--- git/tests/account-captcha-web/e2e/system-providers.spec.ts\n+++ candidate/tests/account-captcha-web/e2e/system-providers.spec.ts\n@@ -1189,7 +1189,7 @@\n     page\n       .getByRole(\"navigation\", { name: \"\u7cfb\u7edf\u8bbe\u7f6e\", exact: true })\n       .getByRole(\"link\"),\n-  ).toHaveCount(3);\n+  ).toHaveCount(4);\n   await page.getByRole(\"link\", { name: \"\u5f85\u6ce8\u518c\u9080\u8bf7\", exact: true }).click();\n   await expect(\n     page.getByRole(\"heading\", { name: \"\u5f85\u6ce8\u518c\u9080\u8bf7\", exact: true }),\n"
+  },
+  "resources_started": false,
+  "method": "Read frozen candidates; git show accepted product base for declared dependencies. No active main source consumed.",
+  "preparation_error": "First read-only helper assumed web-stage files mapping; actual list caused TypeError before artifact creation. Corrected data-shape handling; no product or resource action."
+}

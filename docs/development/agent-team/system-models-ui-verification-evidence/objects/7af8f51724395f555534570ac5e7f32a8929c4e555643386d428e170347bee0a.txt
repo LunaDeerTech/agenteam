@@ -1,0 +1,9 @@
+Model API-stage01 独立 PASS，范围仅四个冻结 API/测试候选。原 manifest `40ce72dcc250d86fcfb68f3a471a675401760daa89a26c3f0b84ca0b48da8ab1`，基线 Provider `f465f45b899e21c225e7d4107c099b256538239c`；7个必要接受依赖逐项与 Git 核字节。
+
+私有独立 probe 16/16 PASS，actual exit0 / 0.667s，原45秒进程/5秒单例预算，actual wait、输入前后相同。真实原生流验证：600000B完整Impact仍等EOF；600001B超限、read中abort均等待实际cancel门闩；text/plain503不伪造reader EOF，等待原body.cancel再失败。未提前发布候选。
+
+同时核七组Impact闭集/排序/总和/none-optional-required-blocker、10000/10001及17个组合反例；delete receipt非零/10001/maxint64与旧Impact分离，精确版本与原Provider零引用语义保持；四type/五protocol、原文/UTF8/不可变/分页微秒/目标及16KiB边界通过。API层在当前对象/Impact404后仍可显式原lookup与DELETE，未先读取当前对象来阻挡；不外推owner或真实重放事务。
+
+静态diff只有client六新端点分类及system-providers两个原解析器别名导出，旧readJSON与transport预算、fetch、解析、finally字节不变。原Provider URL/2MiB流证据按这些未变语义复用，不重复整套。命令/env/原raw、probe SHA、四源SHA与差量见同名JSON。
+
+无独立RED，无真实资源、网络或产品/Git改写；不读取活动owner。作者119+101与type/format证据沿原manifest；其year0000/UTF8及union/ES测试前提诊断保留，type包含owner上下文不等于owner接受。本报告不表示整卡/浏览器/实际授权/selector事务通过。原件已冻结，无活动命令。

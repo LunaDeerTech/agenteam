@@ -1,0 +1,81 @@
+{
+  "base": "f465f45b899e21c225e7d4107c099b256538239c",
+  "files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "82ef064f3c6378ac81fc871c0c8b2f3b11a05ff975f54eba57256c43a4b40757"
+    },
+    {
+      "path": "web/src/api/system-providers.ts",
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade"
+    },
+    {
+      "path": "web/src/api/system-models.ts",
+      "sha256": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "d067000e728da5ffc267a4cbdbbb147d456f2ea5a91b09cf214d30da42c78042"
+    },
+    {
+      "path": "web/src/composables/useSystemModels.ts",
+      "sha256": "d63531cc19e1118ddfabca495fd7565c4348892c13a210eee4c801c7b3d64476"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "964ac3660e74da088db6e9dc47231a996b92764e3df3fbbe7af3e0eac103d49f"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "bcd8938c6c5e81f69845d59954b856f89b6da4a37831be06f5b72ea2a4f4834e"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "8fccadfa6c22c0d22322982d52c8dd617a343cb44fe12b917c6cb49646414a68"
+    },
+    {
+      "path": "web/src/views/system/SystemSettingsView.vue",
+      "sha256": "2759bf4faec5addc382b02f94b1f06797383374b5c9e087ea89b94944e6c21dd"
+    },
+    {
+      "path": "web/src/views/system/SystemModelsView.vue",
+      "sha256": "1e3104f85d1156b32be63385e07968cf2fda1d18071a349774e48ea5cda6b269"
+    },
+    {
+      "path": "web/src/views/system/SystemModelEditor.vue",
+      "sha256": "6315b3731c2fe52b18fc9b51b37dc3aa3f96b96bb67692292749b920d8107941"
+    },
+    {
+      "path": "web/src/views/system/SystemModelDeleteDialog.vue",
+      "sha256": "df056eac828da1e756c9cec52182bf83680e1c6e6f0b9d34751d05069afd2872"
+    },
+    {
+      "path": "web/src/tests/system-models-client.spec.ts",
+      "sha256": "05a6431ba1bcd8c195d6db2ac3d74f0847bdd7034e00151e10a6b7a8c1737b04"
+    },
+    {
+      "path": "web/src/tests/system-models-state.spec.ts",
+      "sha256": "69f15bc2108ec55369321401d3a447bcffaa16c6e92fb4e194deefa75cb5b649"
+    },
+    {
+      "path": "web/src/tests/system-models.spec.ts",
+      "sha256": "b2c9f75017e61d859e24ff391089bc6645c4bf1f1e61760936a13c0fcb560cac"
+    },
+    {
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "sha256": "d1443fb6285f03cbdd6cd8f8d109daa100001a14ef8ebbd441e4610017e94b70"
+    },
+    {
+      "path": "web/src/tests/system-invitations.spec.ts",
+      "sha256": "7fec8bc35f236c06439093589de224912d02193dcb0b0eeecfd35e4f29de1e4c"
+    },
+    {
+      "path": "web/src/tests/system-providers.spec.ts",
+      "sha256": "90641e15c55825d0cd719809d43682ddda04eea2e10556f3cb509108bb1b5631"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "5822218206cd6a0017d027765e5b8789fdf1ba735b370d76875eb156e96f4610"
+    }
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "status": "private source preparation only; no real resources authorized or executed",
+  "accepted_backend_base": "f465f45b899e21c225e7d4107c099b256538239c",
+  "author_input02_manifest_sha256": "2cf6565245e301da3272853a4422f15180277c80592c0c98688a331aeee07aae",
+  "bounds": "45s browser /2m each top /6m package; same physical locked Playwright CLI; retries0 workers1",
+  "source_snapshots": {
+    "bound01": {
+      "system_models_web_test.go": "5933f28932113cadd2483d267039750247c795fdf306d6c779ccfbe252df86e9",
+      "system_models_web_fixture_test.go": "2288227c6907c8e7964eac6a2993dfaa9e35cd832576f73cf8c2def76256665e",
+      "independent.spec.ts": "56fed513336655e6020613c22feabf8af7665cc59a9b8ea4cac1e45fb2f82ff9",
+      "fixed-helpers.ts": "17c133ddadd8e82530e63f23801e3dc14d5e3a46edef6999802db68b42c270ab",
+      "overlay.json": "b81df7803646b01488d3e3c01d512208a5cbd9ac3fe87f0a047c47f054c4c909",
+      "playwright.config.mjs": "e4f1ef25f5aa71f9b9d1e40234bd2cbfb930ff3b8fd5ae2add50025ed4e80e1d"
+    },
+    "bound02": {
+      "system_models_web_test.go": "5933f28932113cadd2483d267039750247c795fdf306d6c779ccfbe252df86e9",
+      "system_models_web_fixture_test.go": "01d20c17604effb60f3fdf49c0540d3989152006fd23ad7289d600fac5c7cf7b",
+      "independent.spec.ts": "56fed513336655e6020613c22feabf8af7665cc59a9b8ea4cac1e45fb2f82ff9",
+      "fixed-helpers.ts": "8e552d53917aa2968a4aff48266cf0c6898cb27de6e9f6bab83082f6d2491cd2",
+      "overlay.json": "4365edbf5cb118c70752cd65356f50a148838b7cee2fa3e95378c96cc7f84ae1",
+      "playwright.config.mjs": "e4f1ef25f5aa71f9b9d1e40234bd2cbfb930ff3b8fd5ae2add50025ed4e80e1d"
+    }
+  },
+  "checks": {
+    "type-bound01": {
+      "path": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/logs/type-bound01/result.json",
+      "sha256": "8026876dc216149338c9a52958908ee870a310d7df409b1f53548242410b026b",
+      "exit_code": 2,
+      "actual_wait": true,
+      "elapsed_seconds": 3.4323170190000383,
+      "inputs_unchanged": true,
+      "raw_sha256": "0d6d47ccdaf3b38777d46a9fa8b7e52d8cf2a98f7a1a5c712b06b65168a42c63"
+    },
+    "compile-bound01": {
+      "path": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/logs/compile-bound01/result.json",
+      "sha256": "b4fb1a68fcd1872d8954e39798ebface8eae2031e7a8fd57220302fde77db9ce",
+      "exit_code": 0,
+      "actual_wait": true,
+      "elapsed_seconds": 68.5999050620012,
+      "inputs_unchanged": true,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "discovery-replay-bound01": {
+      "path": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/logs/discovery-replay-bound01/result.json",
+      "sha256": "b6c64fca093dcf9be483b75b1a0c4cb7b03bb289a423c2b89163315297212a22",
+      "exit_code": 0,
+      "actual_wait": true,
+      "elapsed_seconds": 3.4818050779977057,
+      "inputs_unchanged": true,
+      "raw_sha256": "430e5fd1ca2fd3ceafe81395a0d0490ddbf1b49a4908232905a7b3b3449ebe95"
+    },
+    "discovery-replacement-bound01": {
+      "path": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/logs/discovery-replacement-bound01/result.json",
+      "sha256": "49856fbf923b97481800579b58887806168a6410a6f8c2e47ccff088ec1f58db",
+      "exit_code": 0,
+      "actual_wait": true,
+      "elapsed_seconds": 3.6098263849999057,
+      "inputs_unchanged": true,
+      "raw_sha256": "151cf19688c055f7e53f59b3f7888e83c536ce8c7e2db81c57fdae90f2c6a602"
+    },
+    "type-bound02": {
+      "path": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/logs/type-bound02/result.json",
+      "sha256": "8b4553985a18b03bbbfec0283d7d807af27169f841c01801f2490a4fa4005e9b",
+      "exit_code": 0,
+      "actual_wait": true,
+      "elapsed_seconds": 1.3368184430000838,
+      "inputs_unchanged": true,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "pending": [
+    "Author input03 snapshotModels projection correction; keep full wire versus readonly-DB projection comparison.",
+    "Publish the private request capture target under its mutex before browser execution.",
+    "Bind final accepted product snapshot and private overlay/probe/runner hashes, final type/discovery/compile; await root exclusive real window."
+  ],
+  "original_failure": "type-bound01 only: private commit_state unknown union narrowing missing; no runtime/product failure. Original raw and bound01 retained; input02 same closed enum used in bound02.",
+  "no_dynamic_resources": true
+}

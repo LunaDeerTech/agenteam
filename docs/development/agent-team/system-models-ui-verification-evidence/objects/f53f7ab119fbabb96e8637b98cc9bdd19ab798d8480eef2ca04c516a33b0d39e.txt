@@ -1,0 +1,12 @@
+Model web-stage01：有界 PASS，尚非整卡接受。固定 manifest `7bc9fa185c9551e1bfdc11656fce4c603713076ba18b13637943f904646faa20`，base `f465f45b899e21c225e7d4107c099b256538239c`。19 源末次 SHA 全匹配；私有运行只复制 48 个必要闭包文件（约 532 KB），未复制全 web/依赖/dist。
+
+- `observations01`：3/3 PASS，actual exit 0 / 2.023s，raw `932e54cb480f8a16efbd51cd5d7f12919fe89258383e6bce7c0b5cec18bdac4b`。覆盖捕获版本/显式重验、跨 Provider 替代完整观察与实际 EOF、变版/禁用清选择、显式 editor review 跨 detach+reattach 的实际 cancel 尾部、四分页与失败零候选/零写/不轮询。
+- `app01`：2/2 PASS，actual exit 0 / 2.723s，raw `5eb7638e6b47f59d74dcdfff5832c03934770e804fd941c4d294e72094f31fab`。真实 App/按钮/pageshow Session503→同身份恢复保持待决导航与草稿；Dialog 0→2、下层 inert、继续焦点回业务层；旧已卸载按钮闭包不抢焦点；新身份使待决导航 false。已确认写后 GET 失败及立即新表单普通保存状态/空草稿/null progress/零新 POST 通过。
+- 两命令实际 wait、输入前后相同、0 adopted waits，均已退出。本阶段未启动浏览器、HTTP/PG/Docker 或业务资源；未改产品/Git。
+- API/owner 四生产源原字节，复用已冻 API 16 案与 owner 8 案，不重复完整作者 829 项。静审确认首次删除 non-review、读取 scope/generation、完整替代重验及 App/View 共宿主接入。
+
+原作者 page-state01（98/104、exit1/6.0365s）与 page-state02（106/107、exit1/5.1218s）的固定 source/input/raw/result 已只读核 SHA；两处旧缺陷和首次删除版本漂移已按本轮组合复验，busy 即刻释放首红仍属可见取消/实际尾部测试前提。未覆盖分支沿作者最终检查复用，不将其 PASS 当独立全矩阵。
+
+限制：纯组合使用正式 client/Session/controller 与受控 Fetch；不证明 HTTP/数据库事务、引用竞态或回执持久事实。App 使用 jsdom 与 getClientRects 布局替身，不冒充 Chromium 原生焦点/Tab/视觉。私有路由未挂无关 /settings/profile，原日志含未点击账户链接警告；不影响本次断言，也不宣称个人导航通过。dist 尚未执行。详细原 argv/env/输入/退出见 logs/{observations01,app01}/command.json、result.json、raw.log，精确 19 源及原件定位见同名 JSON。
+
+本根证据现停止写入；后续修订另建轮次，保留全部原件。

@@ -1,0 +1,44 @@
+
+> @agenteam/web@0.0.0 check
+> npm run format:check && npm run test:unit && npm run build
+
+
+> @agenteam/web@0.0.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /workspace/agenteam/web
+
+ ❯ src/tests/system-user-directory.spec.ts (12 tests | 1 failed) 792ms
+     × restores only the exact system leaf after real controller login 6ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/system-user-directory.spec.ts > System user directory page and shared shells > restores only the exact system leaf after real controller login
+AssertionError: expected '/system/models' to be '/' // Object.is equality
+
+Expected: "/"
+Received: "/system/models"
+
+ ❯ src/tests/system-user-directory.spec.ts:403:39
+    401|       ['/system/users'],
+    402|     ])
+    403|       expect(safeReturnTarget(value)).toBe('/')
+       |                                       ^
+    404|     expect(safeReturnTarget('/system/users')).toBe('/system/users')
+    405|     const p = await page('/system/users', 'admin', true)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 25 passed (26)
+      Tests  1 failed | 828 passed (829)
+   Start at  10:37:28
+   Duration  12.92s (transform 3.24s, setup 0ms, import 5.58s, tests 16.85s, environment 11.82s)
+

@@ -1,0 +1,60 @@
+{
+  "status": "Preparation READY, stopped, no real resources. Root exclusive window still required.",
+  "execution_binding": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/execution01.json",
+  "execution_binding_sha256": "117b07d94e109be394b871c952775eac25ea374f0e3b72d1ea8a7eae0b16dbc9",
+  "checks": {
+    "type-bound03": {
+      "path": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/logs/type-bound03/result.json",
+      "sha256": "42eff6979eb8f1cdcadff0a03656448c4dde50726a648172986ca6078e63b1f8",
+      "exit_code": 0,
+      "actual_wait": true,
+      "elapsed_seconds": 1.8835507199983113,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "compile-bound03": {
+      "path": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/logs/compile-bound03/result.json",
+      "sha256": "7eb85aebbf3ac93c187f669d0f812526411aec9bc2b588229c61c4ae8a71e85f",
+      "exit_code": 0,
+      "actual_wait": true,
+      "elapsed_seconds": 6.960294914999395,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "discovery-replay-bound03": {
+      "path": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/logs/discovery-replay-bound03/result.json",
+      "sha256": "c8cb0844a7bdc70f35a82889902a2911afb285b9c2d32a174ec437ea34853ce9",
+      "exit_code": 0,
+      "actual_wait": true,
+      "elapsed_seconds": 1.7771801050002978,
+      "raw_sha256": "430e5fd1ca2fd3ceafe81395a0d0490ddbf1b49a4908232905a7b3b3449ebe95"
+    },
+    "discovery-replacement-bound03": {
+      "path": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/logs/discovery-replacement-bound03/result.json",
+      "sha256": "286adbe2115be19f80244ea719405de36f5c08a5c820457a71b893b807e4e325",
+      "exit_code": 0,
+      "actual_wait": true,
+      "elapsed_seconds": 1.8862243590010621,
+      "raw_sha256": "151cf19688c055f7e53f59b3f7888e83c536ce8c7e2db81c57fdae90f2c6a602"
+    },
+    "input-gate-bound03": {
+      "path": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/logs/input-gate-bound03/result.json",
+      "sha256": "0ccb7176e4c517822100d010807d94d5bfd5fefc6914322baaa6e3c9a6c22493",
+      "exit_code": 0,
+      "actual_wait": true,
+      "elapsed_seconds": 0.49691319199700956,
+      "raw_sha256": "9bbbe6ca55a844806f27133b68779a1fc76bac77c8e7dfede83b88d8013c5a2a"
+    }
+  },
+  "frozen_private_scope": "/workspace/scratch/agenteam-model-real-preparation-v2l8kf_r/bound03",
+  "sources": "Two representative browser tests, exact fixed observer/helper with only safe actual-EOF tag, task-only Go fixture+top overlay, exact config; no product writes.",
+  "fixture_boundary": [
+    "Reuses input03 snapshotModels and capability projection exact bytes; full observed wire versus projected DB comparison retained.",
+    "Formal System Provider/Model/selector setup; no foreign-index insert in private modes.",
+    "Independent-replay: no-ref actual preview before formal optional reranker reference, unchanged targetversion, exact completed successful DELETE receipt cut, currentGET404/history nonreceipt, same key/body/CSRF on explicit Execute replay, Go verifies unique command/receipt/Audit/event/selector/index after actual browser wait.",
+    "Independent-replacement: current formal Model disable produces400 INVALID_ARGUMENT/not_started without partial facts, formal enable plus explicit review, sameidentity Session503 restoration/top/Tab, new command key and atomic required memory replacement.",
+    "Proxy reads wrap original server ReadCloser without extra reads, preserve exact n/error/Close; bytes bounded16384 and private, target published under mutex; only equality booleans survive, no value or hash emitted.",
+    "One-shot Session control is restricted to independent-replacement; browser fetch/Response/reader/read/cancel identities retained and error503 has noEOF assumption."
+  ],
+  "source_binding": "Execution manifest hashes author input03 and7 private files. Driver imports fixed1030 Git baseline pre/post inventory/blob/SHA gate,25product/dist/deps and private overlay/probe hashes separately; all current checks match. No active HEAD baseline.",
+  "originals": "bound01/02 and original private unknown-enum TS preparation error retained. No original product/browser failures manufactured.",
+  "limits": "All tests in this report are type/compile/list/read-only gate only. No PG, Docker, Central, browser, network Provider, or actual business assertion has run."
+}

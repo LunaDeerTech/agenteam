@@ -1,0 +1,374 @@
+//go:build integration
+
+package account_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"io"
+	"net/http"
+	"strconv"
+	"sync"
+	"testing"
+	"time"
+
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+)
+
+// These task-private probes use formal production commands and selectors. No
+// foreign reference insert, fake permission, or product source change is used.
+type modelsIndependentRequest struct {
+	method, path, key, csrf string
+	length                  int64
+	body                    []byte
+	eof, overflow           bool
+}
+type modelsIndependentState struct {
+	mu       sync.Mutex
+	target   string
+	requests []*modelsIndependentRequest
+	initial  map[string]any
+	points   map[string]map[string]any
+	final    bool
+}
+type modelsIndependentBody struct {
+	io.ReadCloser
+	state   *modelsIndependentState
+	request *modelsIndependentRequest
+}
+
+func (b *modelsIndependentBody) Read(p []byte) (int, error) {
+	n, err := b.ReadCloser.Read(p)
+	b.state.mu.Lock()
+	if n > 0 && !b.request.overflow {
+		if len(b.request.body)+n > 16384 {
+			b.request.overflow = true
+			clear(b.request.body)
+			b.request.body = nil
+		} else {
+			b.request.body = append(b.request.body, p[:n]...)
+		}
+	}
+	if err == io.EOF {
+		b.request.eof = true
+	}
+	b.state.mu.Unlock()
+	return n, err // Original read result and Close method are preserved.
+}
+func (f *modelsWebFixture) captureIndependentRequest(r *http.Request) {
+	if f.independent == nil || r.Method != "DELETE" {
+		return
+	}
+	s := f.independent
+	s.mu.Lock()
+	if s.target == "" || r.URL.Path != "/api/v1/system/models/"+s.target {
+		s.mu.Unlock()
+		return
+	}
+	q := &modelsIndependentRequest{method: r.Method, path: r.URL.Path, key: r.Header.Get("Idempotency-Key"), csrf: r.Header.Get("X-CSRF-Token"), length: r.ContentLength}
+	s.requests = append(s.requests, q)
+	s.mu.Unlock()
+	if r.Body != nil {
+		r.Body = &modelsIndependentBody{ReadCloser: r.Body, state: s, request: q}
+	}
+}
+func (f *modelsWebFixture) clearIndependentRequests() {
+	if f.independent == nil {
+		return
+	}
+	s := f.independent
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, q := range s.requests {
+		clear(q.body)
+		q.body = nil
+		q.key = ""
+		q.csrf = ""
+	}
+	s.requests = nil
+}
+func (f *modelsWebFixture) validateIndependentCut(value map[string]any) error {
+	if f.mode != "independent-replay" || f.independent == nil {
+		return errors.New("cut outside exact independent mode")
+	}
+	raw, err := json.Marshal(value)
+	if err != nil {
+		return err
+	}
+	defer clear(raw)
+	f.independent.mu.Lock()
+	target := f.independent.target
+	f.independent.mu.Unlock()
+	var receipt mc.CommandReceipt
+	if json.Unmarshal(raw, &receipt) != nil || receipt.Validate() != nil || receipt.Kind != "model.delete" || receipt.ResourceID != target || int64(receipt.Version) != 2 || int64(receipt.AffectedReferences) != 1 || len(value) != 4 {
+		return errors.New("cut requires exact complete formal deletion receipt")
+	}
+	return nil
+}
+func independentEqual(a, b any) bool {
+	x, _ := json.Marshal(a)
+	y, _ := json.Marshal(b)
+	return bytes.Equal(x, y)
+}
+func independentNumber(v any) int64 {
+	switch n := v.(type) {
+	case float64:
+		return int64(n)
+	case int:
+		return int64(n)
+	}
+	return -1
+}
+func (f *modelsWebFixture) independentFacts(ctx context.Context) map[string]any {
+	raw, err := json.Marshal(f.facts(ctx, f.ids["target"]))
+	if err != nil {
+		f.t.Fatal("independent public facts encoding failed")
+	}
+	value := map[string]any{}
+	if json.Unmarshal(raw, &value) != nil {
+		f.t.Fatal("independent public facts decoding failed")
+	}
+	conn, closeOwned := invitationsWebConnect(f.t, ctx, f.db)
+	defer closeOwned()
+	var consistent bool
+	// Every index row is owned by the real singleton and matches its current
+	// selector version and selected field. No reference row is synthesized here.
+	if err = conn.QueryRow(ctx, `SELECT NOT EXISTS(SELECT 1 FROM agenteam_model.references r LEFT JOIN agenteam_model.platform_selection p ON p.id=r.owner_id WHERE r.owner_kind='platform_selector' AND (p.id IS NULL OR r.project_id IS NOT NULL OR r.owner_version<>p.version OR r.model_id IS DISTINCT FROM CASE r.role WHEN 'embedding' THEN p.embedding_id WHEN 'memory' THEN p.memory_id WHEN 'reranker' THEN p.reranker_id WHEN 'image' THEN p.image_id ELSE NULL END)) AND (SELECT count(*) FROM agenteam_model.references WHERE owner_kind='platform_selector')=(SELECT (CASE WHEN embedding_id IS NULL THEN 0 ELSE 1 END)+(CASE WHEN memory_id IS NULL THEN 0 ELSE 1 END)+(CASE WHEN reranker_id IS NULL THEN 0 ELSE 1 END)+(CASE WHEN image_id IS NULL THEN 0 ELSE 1 END) FROM agenteam_model.platform_selection WHERE singleton)`).Scan(&consistent); err != nil {
+		f.t.Fatal("independent selector index read failed")
+	}
+	value["index_consistent"] = consistent
+	if !consistent {
+		f.t.Fatal("formal selector/index is inconsistent")
+	}
+	if independentNumber(value["delete_receipts"]) == 1 {
+		var rawReceipt []byte
+		if err = conn.QueryRow(ctx, `SELECT safe_receipt FROM agenteam_model.commands WHERE resource_id=$1 AND command_name='model.delete' AND phase='committed' AND scope='system' AND project_id IS NULL AND user_id=$2`, f.ids["target"], f.admin.UserID).Scan(&rawReceipt); err != nil {
+			f.t.Fatal("owned formal deletion receipt missing")
+		}
+		var receipt mc.CommandReceipt
+		if json.Unmarshal(rawReceipt, &receipt) != nil || receipt.Validate() != nil || receipt.Kind != "model.delete" || receipt.ResourceID != f.ids["target"] || int64(receipt.Version) != 2 || int64(receipt.AffectedReferences) != 1 {
+			f.t.Fatal("owned formal deletion receipt mismatch")
+		}
+		clear(rawReceipt)
+		value["receipt_exact"] = true
+	}
+	return value
+}
+func (f *modelsWebFixture) configureIndependent(ctx context.Context) {
+	if f.mode != "independent-replay" && f.mode != "independent-replacement" {
+		f.t.Fatal("independent mode invalid")
+	}
+	f.ids["embedding_provider"] = f.createProvider(ctx, "Independent embedding Provider", "openai-embeddings", "https://provider.invalid/v1", true)
+	f.ids["embedding"] = f.createModel(ctx, f.ids["embedding_provider"], modelsWebInput("Independent embedding", "embedding"))
+	f.ids["memory"] = f.ids["target"]
+	if f.mode == "independent-replay" {
+		f.ids["target_provider"] = f.createProvider(ctx, "Independent reranker Provider", "jina-rerank", "https://provider.invalid/v1", true)
+		f.ids["target"] = f.createModel(ctx, f.ids["target_provider"], modelsWebInput("Independent initially unreferenced reranker", "reranker"))
+	} else {
+		f.ids["replacement_provider"] = f.createProvider(ctx, "Independent cross Provider", "openai-chat-completions", "https://provider.invalid/v1", true)
+		f.ids["replacement"] = f.createModel(ctx, f.ids["replacement_provider"], modelsWebInput("Independent schema replacement", "chat"))
+	}
+	f.selection(ctx, "memory", f.ids["memory"])
+	f.private("models-material.json", map[string]any{"admin": f.admin, "member": f.member, "ids": f.ids, "providers": f.snapshotProviders(ctx), "models": f.snapshotModels(ctx)})
+	f.independent.initial = f.independentFacts(ctx)
+	f.independent.mu.Lock()
+	f.independent.target = f.ids["target"]
+	f.independent.mu.Unlock()
+}
+func (f *modelsWebFixture) independentRequests(final bool) map[string]any {
+	s := f.independent
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	want := 1
+	if final {
+		want = 2
+	}
+	if len(s.requests) != want {
+		f.t.Fatal("independent exact browser DELETE count failed")
+	}
+	complete := true
+	for _, q := range s.requests {
+		if q.overflow || len(q.body) == 0 || q.key == "" || q.csrf == "" || q.method != "DELETE" || q.path != "/api/v1/system/models/"+f.ids["target"] || !(q.eof || q.length >= 0 && int64(len(q.body)) == q.length) {
+			complete = false
+		}
+		var body map[string]any
+		if json.Unmarshal(q.body, &body) != nil || len(body) != 2 || body["expected_version"] != "1" {
+			f.t.Fatal("original DELETE body target version changed")
+		}
+		if f.mode == "independent-replay" {
+			if body["replacement"] != nil {
+				f.t.Fatal("original optional deletion replacement changed")
+			}
+		} else if body["replacement"] != f.ids["replacement"] {
+			f.t.Fatal("original required replacement changed")
+		}
+	}
+	if !complete {
+		f.t.Fatal("original request bytes were not fully observed")
+	}
+	out := map[string]any{"complete_requests": true}
+	if final {
+		a, b := s.requests[0], s.requests[1]
+		out["same_key"] = a.key == b.key
+		out["new_key"] = a.key != b.key
+		out["same_body"] = bytes.Equal(a.body, b.body)
+		out["same_csrf"] = a.csrf == b.csrf
+		out["same_path"] = a.path == b.path && a.method == b.method
+		if out["same_csrf"] != true || out["same_body"] != true || out["same_path"] != true {
+			f.t.Fatal("independent original request fields changed")
+		}
+		if f.mode == "independent-replay" && out["same_key"] != true || f.mode == "independent-replacement" && out["new_key"] != true {
+			f.t.Fatal("independent command identity rule failed")
+		}
+	}
+	return out
+}
+func (f *modelsWebFixture) assertIndependentDeletion(before, after map[string]any, role string) {
+	if after["exists"] != false || independentNumber(after["target_references"]) != 0 || independentNumber(after["delete_receipts"]) != 1 || after["receipt_exact"] != true || after["index_consistent"] != true {
+		f.t.Fatal("independent committed deletion facts incomplete")
+	}
+	for _, key := range []string{"commands", "audits", "events", "target_events"} {
+		if independentNumber(after[key]) != independentNumber(before[key])+1 {
+			f.t.Fatal("independent successful deletion is not unique")
+		}
+	}
+	if independentNumber(after["models"]) != independentNumber(before["models"])-1 || after["invocations"] != before["invocations"] || after["credentials"] != before["credentials"] {
+		f.t.Fatal("independent deletion changed unrelated execution/material facts")
+	}
+	a, b := before["selection"].(map[string]any), after["selection"].(map[string]any)
+	version, err := strconv.ParseInt(a["version"].(string), 10, 64)
+	if err != nil || b["version"] != strconv.FormatInt(version+1, 10) {
+		f.t.Fatal("selector version did not advance once")
+	}
+	for _, name := range []string{"embedding", "memory", "reranker", "image"} {
+		expected := a[name]
+		if name == role {
+			if role == "reranker" {
+				expected = nil
+			} else {
+				expected = f.ids["replacement"]
+			}
+		}
+		if b[name] != expected {
+			f.t.Fatal("selector was not changed atomically with exact deletion")
+		}
+	}
+}
+func (f *modelsWebFixture) independentCheckpoint(ctx context.Context, stage string) map[string]any {
+	s := f.independent
+	now := f.independentFacts(ctx)
+	out := map[string]any{}
+	if f.mode == "independent-replay" {
+		switch stage {
+		case "preview":
+			if !independentEqual(now, s.initial) || independentNumber(now["target_references"]) != 0 {
+				f.t.Fatal("initial none preview facts changed")
+			}
+		case "referenced":
+			if _, ok := s.points["preview"]; !ok {
+				f.t.Fatal("reference must follow actual none preview")
+			}
+			if now["version"] != "1" || independentNumber(now["target_references"]) != 1 || now["selection"].(map[string]any)["reranker"] != f.ids["target"] {
+				f.t.Fatal("formal optional reference preparation failed")
+			}
+			for _, key := range []string{"commands", "audits", "events", "models"} {
+				if now[key] != s.initial[key] {
+					f.t.Fatal("selector preparation mutated Model facts")
+				}
+			}
+		case "accepted":
+			before := s.points["referenced"]
+			if before == nil {
+				f.t.Fatal("reference checkpoint absent")
+			}
+			f.assertIndependentDeletion(before, now, "reranker")
+			f.independentRequests(false)
+			f.mu.Lock()
+			exact := f.dropped == 1 && f.replayed == 0 && !f.dropNext && f.lostID == f.ids["target"]
+			f.mu.Unlock()
+			if !exact {
+				f.t.Fatal("formal accepted cut evidence incomplete")
+			}
+		case "replayed":
+			if s.points["accepted"] == nil || !independentEqual(now, s.points["accepted"]) {
+				f.t.Fatal("historical replay duplicated committed facts")
+			}
+			out = f.independentRequests(true)
+			f.mu.Lock()
+			exact := f.dropped == 1 && f.replayed == 1 && !f.dropNext
+			f.mu.Unlock()
+			if !exact {
+				f.t.Fatal("historical Execute count changed")
+			}
+			out["unique_facts"] = true
+			s.final = true
+		default:
+			f.t.Fatal("independent replay stage invalid")
+		}
+	} else {
+		switch stage {
+		case "candidate-disabled":
+			if now["version"] != "1" || independentNumber(now["target_references"]) != 1 {
+				f.t.Fatal("candidate update changed target")
+			}
+		case "rejected":
+			if s.points["candidate-disabled"] == nil || !independentEqual(now, s.points["candidate-disabled"]) {
+				f.t.Fatal("candidate rejection partially changed facts")
+			}
+			f.independentRequests(false)
+		case "candidate-restored":
+			if s.points["rejected"] == nil || now["version"] != "1" || independentNumber(now["delete_receipts"]) != 0 {
+				f.t.Fatal("explicit review changed target or committed deletion")
+			}
+		case "confirmed":
+			before := s.points["candidate-restored"]
+			if before == nil {
+				f.t.Fatal("explicit review checkpoint absent")
+			}
+			f.assertIndependentDeletion(before, now, "memory")
+			out = f.independentRequests(true)
+			if f.sessionFailures.Load() != 1 {
+				f.t.Fatal("exact one-shot Session control not consumed")
+			}
+			out["unique_facts"] = true
+			out["index_consistent"] = true
+			s.final = true
+		default:
+			f.t.Fatal("independent replacement stage invalid")
+		}
+	}
+	s.points[stage] = now
+	return out
+}
+func runIndependentModel(t *testing.T, mode string) {
+	t.Helper()
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Minute)
+	defer cancel()
+	f := newModelsWebFixture(t, ctx, mode)
+	f.configureIndependent(ctx)
+	outcome := f.browserModels(ctx)
+	required := []string{"replay", "zero_preview", "optional_reference", "current_404", "reads_not_receipt", "exact_replay", "affected_one", "unique_facts"}
+	final := "replayed"
+	if mode == "independent-replacement" {
+		required = []string{"rejection", "atomic_failure", "explicit_review", "checking", "same_identity", "focus", "cross_provider", "unique_facts"}
+		final = "confirmed"
+	}
+	for _, key := range required {
+		if outcome[key] != true {
+			t.Fatal("independent browser assertion group incomplete")
+		}
+	}
+	if !f.independent.final || !independentEqual(f.independentFacts(ctx), f.independent.points[final]) {
+		t.Fatal("independent actual browser exit final DB facts changed")
+	}
+	f.independentRequests(true)
+	t.Logf("independent Model %s: exact browser request booleans, formal receipt, selector/index, unique command/audit/event verified after actual browser wait; no material values or hashes", mode)
+}
+func TestAccountSystemModelsIndependentReplay(t *testing.T) {
+	runIndependentModel(t, "independent-replay")
+}
+func TestAccountSystemModelsIndependentReplacement(t *testing.T) {
+	runIndependentModel(t, "independent-replacement")
+}

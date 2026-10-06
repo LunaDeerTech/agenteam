@@ -1,0 +1,18 @@
+# Model UI author evidence
+
+Frozen input03: `d12df3fe63fdb9a405db2ef72864acb48a6de3280d7938559f78272128754ff6`. Fixed product base f465f45; source25/dist29/accepted1030 remain unchanged.
+
+Author new six passed by composition: Lifecycle and Outcome from new01/input02; Deletion, Read, Authority and Navigation from new02/input03. Old core seven and Provider three passed against input03. All four real commands actually exited and completed exact seven-resource double cleanup, owned PID/starttime cleanup, empty runtime, unchanged baseline and frozen inputs.
+
+| Run | Exit | Seconds | Top-level result |
+| --- | ---: | ---: | --- |
+| new01 | 1 | 201.587 | PASS:SystemModelsWebLifecycle, FAIL:SystemModelsWebDeletionAndReplacement, PASS:SystemModelsWebOutcomeRecovery, FAIL:SystemModelsWebReadAndPagination, FAIL:SystemModelsWebAuthorityAndIdentity, FAIL:SystemModelsWebNavigationAndLayouts |
+| new02 | 0 | 124.100 | PASS:SystemModelsWebDeletionAndReplacement, PASS:SystemModelsWebReadAndPagination, PASS:SystemModelsWebAuthorityAndIdentity, PASS:SystemModelsWebNavigationAndLayouts |
+| old-core01 | 0 | 125.801 | PASS:PublicEntryWebIdentityNavigation, PASS:AuthenticationWebSessionLifecycle, PASS:PersonalSettingsWebThemeAndNavigation, PASS:SystemInvitationsWebOutcomeRecovery, PASS:SystemInvitationsWebNavigationAndLayouts, PASS:SystemUserDirectoryWebAuthorityAndIdentity, PASS:SystemUserDirectoryWebNavigationAndLayouts |
+| old-provider01 | 0 | 88.181 | PASS:SystemProvidersWebCredentialReplacement, PASS:SystemProvidersWebOutcomeRecovery, PASS:SystemProvidersWebNavigationAndLayouts |
+
+The original new01 four comparison failures are retained. No actual field-level differences were captured there. Fixed-source analysis plus the private real httpModelDTO serializer probe established the DB/HTTP shape mismatch; only the owned snapshot projection changed, and all four groups then passed with complete DTO assertions intact. The earlier disable-Model 409 expectation was a static premise correction, not a real failure.
+
+The eight new02 images were all viewed by the author; root accepted light1440/dark390 representatives. Early API/owner/page failures and three actual page-state defects are indexed through the unchanged stage manifest and original run results. Early pure runs have no complete saved environment snapshot.
+
+The JSON index binds every input, actual command/result/raw/cleanup, offline result and image by SHA256. Independent final acceptance is still pending; README remains deferred. No author command or real resource is active.

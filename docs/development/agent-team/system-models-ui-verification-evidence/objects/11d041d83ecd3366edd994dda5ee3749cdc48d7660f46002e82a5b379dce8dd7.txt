@@ -1,0 +1,34 @@
+--- input02/tests/account/system_models_web_fixture_test.go
++++ input03/tests/account/system_models_web_fixture_test.go
+@@ -509,6 +509,9 @@
+ 			if json.Unmarshal(raw, &value) != nil {
+ 				f.t.Fatal("stored Model projection invalid")
+ 			}
++			if field == "capabilities" {
++				modelsWebSnapshotCapabilityDTO(value)
++			}
+ 			config[field] = value
+ 		}
+ 		out = append(out, map[string]any{"id": key, "provider_id": parent, "input": config, "version": version, "created_at": created.UTC().Format("2006-01-02T15:04:05.000000Z"), "updated_at": updated.UTC().Format("2006-01-02T15:04:05.000000Z")})
+@@ -517,6 +520,21 @@
+ 		f.t.Fatal("owned Model snapshot scan failed")
+ 	}
+ 	return out
++}
++
++// Storage omits absent token counts and may encode empty slices as null. The
++// accepted HTTP DTO emits required null counts and arrays, preserving values.
++func modelsWebSnapshotCapabilityDTO(value map[string]any) {
++	for _, field := range []string{"context_length", "max_output"} {
++		if _, present := value[field]; !present {
++			value[field] = nil
++		}
++	}
++	for _, field := range []string{"input_modalities", "output_modalities", "reasoning_efforts", "structured_output_modes"} {
++		if value[field] == nil {
++			value[field] = []any{}
++		}
++	}
+ }
+ 
+ // This sole foreign-index negative does not create an Agent or Project and does

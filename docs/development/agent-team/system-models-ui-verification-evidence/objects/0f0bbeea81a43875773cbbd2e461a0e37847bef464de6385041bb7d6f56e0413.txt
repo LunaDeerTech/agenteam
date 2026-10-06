@@ -1,0 +1,19 @@
+=== RUN   TestModelWebSnapshotWireShape
+=== RUN   TestModelWebSnapshotWireShape/chat-empty-counts
+    model_ui_snapshot_projection_private_test.go:39: safe shape delta: context_length:absent->null,max_output:absent->null,reasoning_efforts:null->array
+=== RUN   TestModelWebSnapshotWireShape/embedding-empty-structure
+    model_ui_snapshot_projection_private_test.go:39: safe shape delta: context_length:absent->null,max_output:absent->null,reasoning_efforts:null->array,structured_output_modes:null->array
+=== RUN   TestModelWebSnapshotWireShape/reranker-empty-arrays
+    model_ui_snapshot_projection_private_test.go:39: safe shape delta: context_length:absent->null,max_output:absent->null,output_modalities:null->array,reasoning_efforts:null->array,structured_output_modes:null->array
+=== RUN   TestModelWebSnapshotWireShape/image-empty-structure
+    model_ui_snapshot_projection_private_test.go:39: safe shape delta: context_length:absent->null,max_output:absent->null,reasoning_efforts:null->array,structured_output_modes:null->array
+=== RUN   TestModelWebSnapshotWireShape/exact-large-count
+    model_ui_snapshot_projection_private_test.go:39: safe shape delta: reasoning_efforts:null->array
+--- PASS: TestModelWebSnapshotWireShape (0.00s)
+    --- PASS: TestModelWebSnapshotWireShape/chat-empty-counts (0.00s)
+    --- PASS: TestModelWebSnapshotWireShape/embedding-empty-structure (0.00s)
+    --- PASS: TestModelWebSnapshotWireShape/reranker-empty-arrays (0.00s)
+    --- PASS: TestModelWebSnapshotWireShape/image-empty-structure (0.00s)
+    --- PASS: TestModelWebSnapshotWireShape/exact-large-count (0.00s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	0.005s

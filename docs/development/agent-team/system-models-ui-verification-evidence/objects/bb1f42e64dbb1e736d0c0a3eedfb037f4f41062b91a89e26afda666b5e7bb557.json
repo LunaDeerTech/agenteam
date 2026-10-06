@@ -1,0 +1,200 @@
+{
+  "scope": "Model web-stage01 independent static and controlled-transport/controller/jsdom App composition only",
+  "conclusion": "PASS within stated scope; full card pending real HTTP/DB/browser verification",
+  "frozen_at_utc": "2026-10-06T10:45:00.317939+00:00",
+  "author_manifest": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/web-stage01/manifest.json",
+  "author_manifest_sha256": "7bc9fa185c9551e1bfdc11656fce4c603713076ba18b13637943f904646faa20",
+  "base": "f465f45b899e21c225e7d4107c099b256538239c",
+  "candidate_files": [
+    {
+      "path": "web/src/api/client.ts",
+      "sha256": "82ef064f3c6378ac81fc871c0c8b2f3b11a05ff975f54eba57256c43a4b40757"
+    },
+    {
+      "path": "web/src/api/system-providers.ts",
+      "sha256": "b0b9c0bbc8f342cb1a4b98c237d0951faccaf94f681c734eae696c5e4fa48ade"
+    },
+    {
+      "path": "web/src/api/system-models.ts",
+      "sha256": "0b1da64d3e2c116a567213484550f2bb617fe29b48c0290f7be4965fc1cefde8"
+    },
+    {
+      "path": "web/src/composables/useSession.ts",
+      "sha256": "d067000e728da5ffc267a4cbdbbb147d456f2ea5a91b09cf214d30da42c78042"
+    },
+    {
+      "path": "web/src/composables/useSystemModels.ts",
+      "sha256": "a5d572cab5f56115793d00aeaf502838510c1d8b97dfbcb58dd29cad57aca172"
+    },
+    {
+      "path": "web/src/App.vue",
+      "sha256": "964ac3660e74da088db6e9dc47231a996b92764e3df3fbbe7af3e0eac103d49f"
+    },
+    {
+      "path": "web/src/router/index.ts",
+      "sha256": "bcd8938c6c5e81f69845d59954b856f89b6da4a37831be06f5b72ea2a4f4834e"
+    },
+    {
+      "path": "web/src/router/auth.ts",
+      "sha256": "8fccadfa6c22c0d22322982d52c8dd617a343cb44fe12b917c6cb49646414a68"
+    },
+    {
+      "path": "web/src/views/system/SystemSettingsView.vue",
+      "sha256": "2759bf4faec5addc382b02f94b1f06797383374b5c9e087ea89b94944e6c21dd"
+    },
+    {
+      "path": "web/src/views/system/SystemModelsView.vue",
+      "sha256": "1e3104f85d1156b32be63385e07968cf2fda1d18071a349774e48ea5cda6b269"
+    },
+    {
+      "path": "web/src/views/system/SystemModelEditor.vue",
+      "sha256": "6315b3731c2fe52b18fc9b51b37dc3aa3f96b96bb67692292749b920d8107941"
+    },
+    {
+      "path": "web/src/views/system/SystemModelDeleteDialog.vue",
+      "sha256": "df056eac828da1e756c9cec52182bf83680e1c6e6f0b9d34751d05069afd2872"
+    },
+    {
+      "path": "web/src/tests/system-models-client.spec.ts",
+      "sha256": "05a6431ba1bcd8c195d6db2ac3d74f0847bdd7034e00151e10a6b7a8c1737b04"
+    },
+    {
+      "path": "web/src/tests/system-models-state.spec.ts",
+      "sha256": "69f15bc2108ec55369321401d3a447bcffaa16c6e92fb4e194deefa75cb5b649"
+    },
+    {
+      "path": "web/src/tests/system-models.spec.ts",
+      "sha256": "b2c9f75017e61d859e24ff391089bc6645c4bf1f1e61760936a13c0fcb560cac"
+    },
+    {
+      "path": "web/src/tests/system-user-directory.spec.ts",
+      "sha256": "c3e3652553c76d18a9601b73a6e1c7999663ddafa3a4ccf435a6b703e8e7c90a"
+    },
+    {
+      "path": "web/src/tests/system-invitations.spec.ts",
+      "sha256": "980a6219bc9caf5e2071f68559b8c15cf3d3b14183eac80b1914ada6d80fa620"
+    },
+    {
+      "path": "web/src/tests/system-providers.spec.ts",
+      "sha256": "a95fdbadd834c32ee45a8e29250901662c5d30adca404125354ab45abe8234de"
+    },
+    {
+      "path": "web/src/tests/personal-settings.spec.ts",
+      "sha256": "022cff548f5b99c8b02ce261a1128af2107f8418cf6aec0595137333c30f6c9a"
+    }
+  ],
+  "minimal_closure_files": 48,
+  "api_owner_reuse": {
+    "unchanged_products": [
+      "web/src/api/client.ts",
+      "web/src/api/system-providers.ts",
+      "web/src/api/system-models.ts",
+      "web/src/composables/useSession.ts"
+    ],
+    "api_report": "/workspace/scratch/agenteam-model-api-verification-899tcz5x/api-stage01-report.json",
+    "api_report_sha256": "dca901ba26e772bce583b32e6bac1a335de475aa030d3fd01871f8b03726c367",
+    "owner_report": "/workspace/scratch/agenteam-model-owner-verification-0p1dz6c5/owner-stage01-report.json",
+    "owner_report_sha256": "1b0a7ab87d46ce65d9a6b0c9d44ef41cdbd2ed7e24adc0e0f61721b77ac836b8"
+  },
+  "static_findings": [
+    "App owns Model controller and disposes its navigation/listeners; View cohosts editor/deletion/confirmation in that order; original shared components unchanged",
+    "Exact Model return target and fourth system leaf added; users default and earlier auth/navigation branches retained",
+    "openDelete now uses non-review read preserving captured version; only explicit reviewDeletion accepts current version",
+    "retained replacement requires matching complete Provider/Model observations and current ready page membership; explicit editor review uses scoped generation invalidated on detach"
+  ],
+  "independent_runs": [
+    {
+      "run": "observations01",
+      "executed_tests": 3,
+      "selected_other_tests_skipped": 2,
+      "exit_code": 0,
+      "elapsed_seconds": 2.023,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "raw_sha256": "932e54cb480f8a16efbd51cd5d7f12919fe89258383e6bce7c0b5cec18bdac4b",
+      "result_path": "/workspace/scratch/agenteam-model-page-verification-marvsfu5/logs/observations01/result.json"
+    },
+    {
+      "run": "app01",
+      "executed_tests": 2,
+      "selected_other_tests_skipped": 3,
+      "exit_code": 0,
+      "elapsed_seconds": 2.723,
+      "actual_wait": true,
+      "inputs_unchanged": true,
+      "adopted_waits": [],
+      "raw_sha256": "5eb7638e6b47f59d74dcdfff5832c03934770e804fd941c4d294e72094f31fab",
+      "result_path": "/workspace/scratch/agenteam-model-page-verification-marvsfu5/logs/app01/result.json"
+    }
+  ],
+  "verified_cases": [
+    "Captured target v1 cannot be silently replaced by initial v2 GET/Impact; explicit review then cross-Provider selection; native list EOF gate blocks restoration; unchanged full observation preserves selection; changed Model version or disabled Provider clears it; zero DELETE",
+    "Rejected edit explicit GET registers cancellation: detach+reattach preserves busy until actual native cancel tail gate joins; old result does not replace v1/draft; only explicit new review adopts v2; subsequent PUT uses v2/new key",
+    "Main Provider/Model and replacement Provider/Model cursor histories remain separate; failed replacement read publishes no rows, preserves main page, performs no write or automatic scan/retry",
+    "Actual App buttons and pageshow listener: pending route and rejected ordinary draft survive Session503 then same identity restore; zero dialogs while checking/failed; recovered confirmation is top with lower inert; continue leaves focus in editor and rejects original navigation",
+    "Explicit version review and successful write remain confirmed when following GET fails; immediate new form has empty fields, ordinary save label, no busy state/null progress, no new POST without advancing feedback timer",
+    "Actual deletion replacement/back button awaits confirmation across detach/remount; old button focus method never executes; same identity preserves current valid choice/focus; new Session ends later pending navigation false without writes"
+  ],
+  "original_author_reds": [
+    {
+      "run": "page-state01",
+      "input": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/page-state01/input.json",
+      "input_sha256": "8fbdfc93a4cb09be90b0f89f537b01e344c62935c490c2a3e0a32635c91715f0",
+      "controller_sha256": "43a5291adf8ae5392c6b5b70c4dfe4db05152344def5bc7c7f28a659b3f95092",
+      "raw": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/page-state01/raw.log",
+      "raw_sha256": "fe74e95dc97b381c2c348855d394e046778ab4ba2d2a9b32cff88897cde83a95",
+      "result": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/page-state01/result.json",
+      "result_sha256": "c83333fc2c9a21d5feecaf776962eb927df20f7210c2d15f9062e7511761bc76",
+      "actual_wait": true,
+      "exit_code": 1,
+      "elapsed_seconds": 6.036505115000182,
+      "classification": "product retained replacement and detached editor review defects; one visible-cancel/actual-tail assertion premise failure"
+    },
+    {
+      "run": "page-state02",
+      "input": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/page-state02/input.json",
+      "input_sha256": "1963c62303109226aaf777525289c0bd56f977b02976e88873b1a7ca8258490b",
+      "controller_sha256": "d63531cc19e1118ddfabca495fd7565c4348892c13a210eee4c801c7b3d64476",
+      "raw": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/page-state02/raw.log",
+      "raw_sha256": "e0a27f0af0bce5f19f5faf3f7946696b2ee5b2460ff67a927e4738d15d9714d3",
+      "result": "/workspace/scratch/agenteam-system-models-frontend-6oTSCa8h/page-state02/result.json",
+      "result_sha256": "35b0dabe4ec973b4086bc9c651342953198a0a12560b3565d5b2a776792c6a84",
+      "actual_wait": true,
+      "exit_code": 1,
+      "elapsed_seconds": 5.12175398600084,
+      "classification": "product initial deletion preview implicitly adopted newer version"
+    }
+  ],
+  "independent_reds": [],
+  "limits": [
+    "Native ReadableStream gates are real local stream mechanics through production client/Session, using controlled Fetch. No HTTP server, Cookie transport, DB transaction, reference producer, audit or external Provider proof.",
+    "App/router/components are actual Vue under jsdom with getClientRects surrogate. This is DOM/state/programmatic-focus evidence, not real browser pointer, native Tab, CSS layout or screenshots.",
+    "Private memory router omits unrelated /settings/profile target; retained Vue Router warnings reflect the unused account-link route. Personal navigation was not exercised, and no test was rerun to suppress warnings.",
+    "No full 829-suite duplicate; existing exact API/owner evidence and author full check are reused within their original scope.",
+    "Metadata-only dist is not independently executed at this stage. Browser/Go fixture final freeze and unique resource window remain pending."
+  ],
+  "resources": {
+    "real_resources_started": false,
+    "all_started_commands_actually_waited": true,
+    "active_commands": false,
+    "product_or_git_mutations": false
+  },
+  "artifact_hashes": {
+    "author-manifest.json": "7bc9fa185c9551e1bfdc11656fce4c603713076ba18b13637943f904646faa20",
+    "input.json": "f0a4960f241fc586d51c1e52f07e3dc14009eefb4ec62f923c84ed921f5d7b71",
+    "run-pure.py": "ed4f59fda5789b179e22318ad5c5d93bb422d036c25a8d1b74c7715f806229f5",
+    "candidate/web/vitest.config.mjs": "b9a8ff7ce3da44b1547377a364f3b433bfda28dac63535c0b6fa7d330a7a897c",
+    "candidate/web/src/tests/independent-model-page.spec.ts": "76c025df8b43bc386426ca7c34335be3a97daec5d0d1e911fd9cda4c3222ddf5",
+    "logs/observations01/command.json": "5ab34dd9213cdcaa4153ddf6c2f9a0e1065cd977aca3d8c49cb39e9e874433e7",
+    "logs/observations01/result.json": "56126259be2035056ebd096c1bf1ae771308d9e352b6ed6b2edb9fcd053469d6",
+    "logs/observations01/raw.log": "932e54cb480f8a16efbd51cd5d7f12919fe89258383e6bce7c0b5cec18bdac4b",
+    "logs/observations01/driver.py.txt": "ed4f59fda5789b179e22318ad5c5d93bb422d036c25a8d1b74c7715f806229f5",
+    "logs/observations01/probe.ts.txt": "76c025df8b43bc386426ca7c34335be3a97daec5d0d1e911fd9cda4c3222ddf5",
+    "logs/app01/command.json": "49c957062634de2d878b59061b733fdb04bd7aa3d235de2126096d2ce5b2e8f6",
+    "logs/app01/result.json": "dd67f0c9e0aa64232548d091c382ff731c868ce295fbf53ee6731477a0463e6c",
+    "logs/app01/raw.log": "5eb7638e6b47f59d74dcdfff5832c03934770e804fd941c4d294e72094f31fab",
+    "logs/app01/driver.py.txt": "ed4f59fda5789b179e22318ad5c5d93bb422d036c25a8d1b74c7715f806229f5",
+    "logs/app01/probe.ts.txt": "76c025df8b43bc386426ca7c34335be3a97daec5d0d1e911fd9cda4c3222ddf5"
+  }
+}
