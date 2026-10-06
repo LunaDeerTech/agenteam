@@ -71,6 +71,30 @@ import {
   type SelectionCommand,
   type SelectionReceipt,
 } from '../api/system-model-selection'
+import {
+  createSystemAccountSecurityAPI,
+  captureAccountSecurityUpdate,
+  type SystemAccountSecurityAPI,
+  type AccountSecuritySettings,
+  type AccountSecurityUpdateInput,
+} from '../api/system-account-security'
+
+type AccountSecurityAction = 'account-security-read' | 'account-security-write'
+export type SystemAccountSecurityProgress = Readonly<{
+  phase: 'submitting' | 'uncertain' | 'rejected' | 'confirmed'
+  settings: AccountSecuritySettings | null
+  observation: 'none' | 'current' | 'failed'
+  contextValid: boolean
+  canRetryOriginal: boolean
+}>
+type SystemAccountSecurityIntent = Readonly<{
+  input: AccountSecurityUpdateInput
+  body: string
+  singletonID: string
+  identity: PersonalIdentity
+  csrf: string
+  key: string
+}>
 
 export type SystemModelSelectionRead =
   | 'selection-state'
@@ -195,6 +219,7 @@ type Action =
   | ProviderAction
   | ModelAction
   | SelectionAction
+  | AccountSecurityAction
 interface Operation {
   generation: number
   kind: Action
@@ -296,6 +321,7 @@ export function createSessionController(
   providerAPI: SystemProviderAPI = createSystemProviderAPI(),
   modelAPI: SystemModelAPI = createSystemModelAPI(),
   selectionAPI: SystemModelSelectionAPI = createSystemModelSelectionAPI(),
+  accountSecurityAPI: SystemAccountSecurityAPI = createSystemAccountSecurityAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -397,6 +423,20 @@ export function createSessionController(
   const selectionState = shallowReactive<{
     progress: Omit<SystemModelSelectionProgress, 'contextValid' | 'canRetryOriginal'> | null
   }>({ progress: null })
+  const accountSecurityRevisions: Record<AccountSecurityAction, number> = {
+    'account-security-read': 0,
+    'account-security-write': 0,
+  }
+  const isAccountSecurityAction = (kind: Action): kind is AccountSecurityAction =>
+    Object.hasOwn(accountSecurityRevisions, kind)
+  let accountSecurityIntent: SystemAccountSecurityIntent | null = null,
+    accountSecuritySingleton: Readonly<{ identity: PersonalIdentity; id: string }> | null = null,
+    accountSecurityUncertain = false,
+    accountSecurityChecked = false,
+    accountSecurityKeyConflict = false
+  const accountSecurityState = shallowReactive<{
+    progress: Omit<SystemAccountSecurityProgress, 'contextValid' | 'canRetryOriginal'> | null
+  }>({ progress: null })
   const systemDenied = () => sameIdentity(systemState.deniedIdentity, personalContext.identity)
   let identityEpoch = 0,
     personalRevision = 0
@@ -434,6 +474,7 @@ export function createSessionController(
       clearProviderState()
       clearModelState()
       clearSelectionState()
+      clearAccountSecurityState(true)
       ++systemRevision
       systemState.deniedIdentity = null
       sessionCSRF = ''
@@ -529,6 +570,12 @@ export function createSessionController(
       (selectionIntent && selectionIntent.csrf !== sessionCSRF)
     )
       clearSelectionState()
+    if (
+      !same ||
+      view.user.role !== 'admin' ||
+      (accountSecurityIntent && accountSecurityIntent.csrf !== sessionCSRF)
+    )
+      clearAccountSecurityState(true)
     state.notice = ''
     state.fields = {}
     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
@@ -962,7 +1009,8 @@ export function createSessionController(
       | 'invitation-write'
       | ProviderAction
       | ModelAction
-      | SelectionAction = 'personal',
+      | SelectionAction
+      | AccountSecurityAction = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
     const revisionNow = () =>
@@ -978,7 +1026,9 @@ export function createSessionController(
                 ? modelRevisions[kind]
                 : isSelectionAction(kind)
                   ? selectionRevisions[kind]
-                  : providerRevisions[kind]
+                  : isAccountSecurityAction(kind)
+                    ? accountSecurityRevisions[kind]
+                    : providerRevisions[kind]
     const revision = revisionNow()
     const op: Operation = {
       kind,
@@ -1229,6 +1279,7 @@ export function createSessionController(
           'model-lookup',
           'selection-write',
           'selection-lookup',
+          'account-security-write',
         ].includes(op.kind) &&
           e.problem?.code === 'CSRF_FAILED')
       ) {
@@ -1241,6 +1292,7 @@ export function createSessionController(
         clearProviderState()
         clearModelState()
         clearSelectionState()
+        clearAccountSecurityState(true)
         systemState.deniedIdentity = identity
       }
     }
@@ -2162,7 +2214,209 @@ export function createSessionController(
       return performSelection(selectionIntent)
     },
   }
+  function clearAccountSecurityState(clearSingleton = false) {
+    const retiring = owner && isAccountSecurityAction(owner.kind) ? owner : null
+    ++accountSecurityRevisions['account-security-read']
+    ++accountSecurityRevisions['account-security-write']
+    accountSecurityIntent = null
+    accountSecurityUncertain = accountSecurityChecked = accountSecurityKeyConflict = false
+    accountSecurityState.progress = null
+    if (clearSingleton) accountSecuritySingleton = null
+    retiring?.abandon?.()
+  }
+  function readAccountSecurity(): Promise<AccountSecuritySettings> {
+    try {
+      const identity = invitationIdentity()
+      return runAuthorized(
+        identity,
+        async (op, current) => {
+          const value = await accountSecurityAPI.getSettings(op.abort.signal)
+          if (!current()) throw new AccountFailure('cancelled')
+          if (
+            accountSecuritySingleton &&
+            (!sameIdentity(accountSecuritySingleton.identity, identity) ||
+              value.id !== accountSecuritySingleton.id)
+          )
+            throw new AccountFailure('invalid-response')
+          accountSecuritySingleton ??= Object.freeze({ identity, id: value.id })
+          return value
+        },
+        undefined,
+        'account-security-read',
+      )
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
+  function publishAccountSecurity(
+    phase: SystemAccountSecurityProgress['phase'],
+    settings: AccountSecuritySettings | null = null,
+  ) {
+    accountSecurityState.progress = Object.freeze({ phase, settings, observation: 'none' })
+  }
+  function performAccountSecurity(
+    original: SystemAccountSecurityIntent,
+  ): Promise<AccountSecuritySettings> {
+    if (owner) return Promise.reject(new AccountFailure('busy'))
+    if (accountSecurityIntent !== original || !invitationContext(original))
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const revision = accountSecurityRevisions['account-security-write']
+    const live = () =>
+      accountSecurityIntent === original &&
+      revision === accountSecurityRevisions['account-security-write'] &&
+      invitationContext(original)
+    let dispatched = false
+    accountSecurityChecked = false
+    publishAccountSecurity('submitting')
+    if (!live()) return Promise.reject(new AccountFailure('cancelled'))
+    return runAuthorized(
+      original.identity,
+      async (op, current) => {
+        if (!current() || !live()) throw new AccountFailure('cancelled')
+        // The private bytes, values and version stay bound to one original intent.
+        if (JSON.stringify(original.input) !== original.body)
+          throw new AccountFailure('invalid-input')
+        dispatched = true
+        const value = await accountSecurityAPI.updateSettings(original.input, {
+          csrfToken: original.csrf,
+          key: original.key,
+          signal: op.abort.signal,
+        })
+        if (value.id !== original.singletonID) throw new AccountFailure('invalid-response')
+        return value
+      },
+      undefined,
+      'account-security-write',
+    ).then(
+      (value) => {
+        if (!live()) throw new AccountFailure('cancelled')
+        publishAccountSecurity('confirmed', value)
+        // A synchronous consumer can abandon or start another operation here.
+        if (!live()) throw new AccountFailure('cancelled')
+        accountSecurityIntent = null
+        accountSecurityUncertain = accountSecurityChecked = accountSecurityKeyConflict = false
+        return value
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          accountSecurityIntent === original &&
+          revision === accountSecurityRevisions['account-security-write'] &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const p = e.problem
+          const known =
+            !dispatched ||
+            (p &&
+              ['not_started', 'not_committed'].includes(p.commit_state) &&
+              p.status < 500 &&
+              [
+                'INVALID_ARGUMENT',
+                'VERSION_CONFLICT',
+                'NOT_FOUND',
+                'INVALID_STATE',
+                'RATE_LIMITED',
+                'RESOURCE_DELETED',
+              ].includes(p.code))
+          accountSecurityKeyConflict ||= p?.code === 'IDEMPOTENCY_KEY_REUSED'
+          accountSecurityUncertain ||= !known || accountSecurityKeyConflict
+          accountSecurityChecked = false
+          publishAccountSecurity(accountSecurityUncertain ? 'uncertain' : 'rejected')
+        }
+        throw e
+      },
+    )
+  }
+  const accountSecurity = {
+    get progress(): SystemAccountSecurityProgress | null {
+      const value = accountSecurityState.progress
+      if (!value) return null
+      const contextValid = !!accountSecurityIntent && invitationContext(accountSecurityIntent)
+      return Object.freeze({
+        ...value,
+        contextValid,
+        canRetryOriginal:
+          !!accountSecurityIntent &&
+          accountSecurityUncertain &&
+          accountSecurityChecked &&
+          !accountSecurityKeyConflict &&
+          contextValid &&
+          !state.busy,
+      })
+    },
+    get: readAccountSecurity,
+    abandonRead() {
+      ++accountSecurityRevisions['account-security-read']
+      if (owner?.kind === 'account-security-read') owner.abandon?.()
+    },
+    abandon() {
+      clearAccountSecurityState()
+    },
+    start(input: AccountSecurityUpdateInput) {
+      try {
+        const identity = invitationIdentity()
+        if (owner || accountSecurityIntent || personalIntent || pending)
+          throw new AccountFailure('busy')
+        if (!accountSecuritySingleton || !sameIdentity(accountSecuritySingleton.identity, identity))
+          throw new AccountFailure('invalid-input')
+        const captured = captureAccountSecurityUpdate(input)
+        const original: SystemAccountSecurityIntent = Object.freeze({
+          input: captured,
+          body: JSON.stringify(captured),
+          singletonID: accountSecuritySingleton.id,
+          identity,
+          csrf: sessionCSRF,
+          key: newKey(),
+        })
+        accountSecurityIntent = original
+        accountSecurityUncertain = accountSecurityChecked = accountSecurityKeyConflict = false
+        return performAccountSecurity(original)
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    async checkOriginal() {
+      const original = accountSecurityIntent
+      if (!original || !accountSecurityUncertain || owner) throw new AccountFailure('invalid-input')
+      accountSecurityChecked = false
+      await restore()
+      if (accountSecurityIntent !== original || !invitationContext(original))
+        throw new AccountFailure('cancelled')
+      accountSecurityChecked = true
+      // Account exposes no command lookup. This GET is only a current observation.
+      try {
+        const value = await readAccountSecurity()
+        if (
+          accountSecurityIntent === original &&
+          invitationContext(original) &&
+          accountSecurityState.progress
+        )
+          accountSecurityState.progress = Object.freeze({
+            ...accountSecurityState.progress,
+            observation: 'current',
+          })
+        return value
+      } catch (error) {
+        if (
+          accountSecurityIntent === original &&
+          invitationContext(original) &&
+          accountSecurityState.progress
+        )
+          accountSecurityState.progress = Object.freeze({
+            ...accountSecurityState.progress,
+            observation: 'failed',
+          })
+        throw error
+      }
+    },
+    retryOriginal() {
+      if (!accountSecurityIntent || !accountSecurity.progress?.canRetryOriginal)
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performAccountSecurity(accountSecurityIntent)
+    },
+  }
   const system = {
+    accountSecurity,
     selection,
     models,
     providers,

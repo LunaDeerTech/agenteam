@@ -11,6 +11,7 @@ const returnTargets = [
   '/system/providers',
   '/system/models',
   '/system/model-selection',
+  '/system/account-security',
 ] as const
 type ReturnTarget = (typeof returnTargets)[number]
 export function safeReturnTarget(value: unknown): ReturnTarget {
@@ -61,6 +62,12 @@ export function installPersonalNavigation(
 export function installAuthentication(router: Router, auth: SessionController = useSession()) {
   router.beforeEach(async (to, from) => {
     // Ask before Session revalidation can temporarily unmount the dirty page.
+    if (
+      from.path === '/system/account-security' &&
+      to.fullPath !== from.fullPath &&
+      !((await accountSecurityNavigation.get(router)?.confirmLeave()) ?? true)
+    )
+      return false
     if (
       from.path === '/system/model-selection' &&
       to.fullPath !== from.fullPath &&
@@ -115,6 +122,7 @@ export function installAuthentication(router: Router, auth: SessionController = 
     return true
   })
   router.afterEach((to, from, failure) => {
+    if (!failure) accountSecurityNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) modelSelectionNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) modelNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) providerNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
@@ -123,6 +131,26 @@ export function installAuthentication(router: Router, auth: SessionController = 
     if (!failure && from.meta.authentication && !to.meta.authentication) auth.leave()
     if (!failure) accountEntryNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
   })
+}
+
+const accountSecurityNavigation = new WeakMap<
+  Router,
+  {
+    confirmLeave: () => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  }
+>()
+export function installAccountSecurityNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: () => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  accountSecurityNavigation.set(router, owner)
+  return () => {
+    if (accountSecurityNavigation.get(router) === owner) accountSecurityNavigation.delete(router)
+  }
 }
 
 const invitationNavigation = new WeakMap<

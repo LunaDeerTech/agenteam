@@ -29,6 +29,11 @@ const groups = [
       { label: '平台模型用途', path: '/system/model-selection' },
     ],
   },
+  {
+    key: 'platform-configuration',
+    label: '平台配置',
+    children: [{ label: '账号安全', path: '/system/account-security' }],
+  },
 ]
 const heading = ref<HTMLElement | null>(null)
 watch(

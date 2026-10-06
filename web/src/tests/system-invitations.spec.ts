@@ -277,13 +277,13 @@ describe('real App, router and invitations controller composition', () => {
     expect(f.wrapper.get('nav[aria-label="系统设置"] [aria-current="page"]').text()).toBe(
       '待注册邀请',
     )
-    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(2)
+    expect(f.wrapper.findAll('.settings-group-toggle')).toHaveLength(3)
     expect(
       f.wrapper
         .get('nav[aria-label="系统设置"]')
         .findAll('a')
         .map((a) => a.text()),
-    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途'])
+    ).toEqual(['用户', '待注册邀请', 'Providers', 'Models', '平台模型用途', '账号安全'])
     expect(f.reads()).toHaveLength(1)
     expect(f.wrapper.findAll('th').map((n) => n.text())).toEqual([
       '邮箱',

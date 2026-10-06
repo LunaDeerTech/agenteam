@@ -14,6 +14,7 @@ import {
   installProviderNavigation,
   installModelNavigation,
   installModelSelectionNavigation,
+  installAccountSecurityNavigation,
 } from './router/auth'
 import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'
 import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'
@@ -23,6 +24,10 @@ import {
   createSystemModelSelection,
   systemModelSelectionKey,
 } from './composables/useSystemModelSelection'
+import {
+  createSystemAccountSecurity,
+  systemAccountSecurityKey,
+} from './composables/useSystemAccountSecurity'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
@@ -45,13 +50,17 @@ const stopModelNavigation = installModelNavigation(router, models)
 const selection = createSystemModelSelection(auth)
 provide(systemModelSelectionKey, selection)
 const stopSelectionNavigation = installModelSelectionNavigation(router, selection)
+const accountSecurity = createSystemAccountSecurity(auth)
+provide(systemAccountSecurityKey, accountSecurity)
+const stopAccountSecurityNavigation = installAccountSecurityNavigation(router, accountSecurity)
 async function logout() {
   if (
     (await settings.confirmLeave()) &&
     (await invitations.confirmLeave()) &&
     (await providers.confirmLeave()) &&
     (await models.confirmLeave()) &&
-    (await selection.confirmLeave())
+    (await selection.confirmLeave()) &&
+    (await accountSecurity.confirmLeave())
   )
     await auth.logout()
 }
@@ -85,6 +94,7 @@ onMounted(() => {
   providers.afterNavigation(route.fullPath, '')
   models.afterNavigation(route.fullPath, '')
   selection.afterNavigation(route.fullPath, '')
+  accountSecurity.afterNavigation(route.fullPath, '')
   document.addEventListener('visibilitychange', refreshVisible)
   window.addEventListener('pageshow', refreshVisible)
 })
@@ -97,6 +107,8 @@ onUnmounted(() => {
   stopProviderNavigation()
   stopModelNavigation()
   stopSelectionNavigation()
+  stopAccountSecurityNavigation()
+  accountSecurity.dispose()
   selection.dispose()
   models.dispose()
   providers.dispose()
