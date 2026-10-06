@@ -35,6 +35,7 @@ function createdAt(value: unknown): string {
   )
   return result
 }
+export { createdAt as parseSystemInstant }
 function parsePage(value: unknown): SystemUserPage {
   const page = shape(value, ['items'], ['next_cursor'])
   requireValue(Array.isArray(page.items) && page.items.length <= 25)

@@ -198,7 +198,7 @@ async function click(label: string) {
 }
 
 describe('System user directory page and shared shells', () => {
-  it('opens the sole leaf from the real administrator entry with separately labelled fields', async () => {
+  it('opens users from the two-leaf administrator entry with separately labelled fields', async () => {
     const p = await page('/')
     await p.wrapper.get('nav[aria-label="系统导航"] a[href="/system"]').trigger('click')
     await flushPromises()
@@ -207,7 +207,7 @@ describe('System user directory page and shared shells', () => {
     expect(p.wrapper.find('nav[aria-label="个人设置"]').exists()).toBe(false)
     const menu = p.wrapper.get('nav[aria-label="系统设置"]')
     expect(menu.text()).toContain('用户与邀请')
-    expect(menu.findAll('a').map((a) => a.text())).toEqual(['用户'])
+    expect(menu.findAll('a').map((a) => a.text())).toEqual(['用户', '待注册邀请'])
     expect(menu.get('a').attributes('aria-current')).toBe('page')
     expect(menu.findAll('button').map((b) => b.text())).not.toContain('退出登录')
     expect(p.wrapper.findAll('thead th').map((th) => th.text())).toEqual([

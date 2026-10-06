@@ -1,14 +1,23 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, reactive, ref } from 'vue'
+import { computed, onMounted, onUnmounted, reactive, ref, useId, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import UiButton from '../ui/UiButton.vue'
 import UiDrawer from '../ui/UiDrawer.vue'
 const emit = defineEmits<{ logout: [] }>()
 const route = useRoute()
+type SettingsGroup =
+  | Readonly<{ label: string; path: string; leaf: string; key?: never; children?: never }>
+  | Readonly<{
+      key: string
+      label: string
+      children: readonly Readonly<{ label: string; path: string }>[]
+      path?: never
+      leaf?: never
+    }>
 const props = withDefaults(
   defineProps<{
     title?: string
-    groups?: readonly { label: string; path: string; leaf: string }[]
+    groups?: readonly SettingsGroup[]
     showLogout?: boolean
   }>(),
   {
@@ -21,7 +30,34 @@ const props = withDefaults(
     showLogout: true,
   },
 )
-const expanded = reactive(new Set(props.groups.map((g) => g.path)))
+const instance = useId()
+let sequence = 0
+const ids = new Map<string, string>()
+const expanded = reactive(new Set<string>())
+const groups = computed(() =>
+  props.groups.map((group) => ({
+    key: group.children ? `group:${group.key}` : `path:${group.path}`,
+    label: group.label,
+    children: group.children ?? [{ label: group.leaf!, path: group.path! }],
+  })),
+)
+watch(
+  groups,
+  (value) => {
+    const present = new Set(value.map((group) => group.key))
+    for (const key of ids.keys())
+      if (!present.has(key)) {
+        ids.delete(key)
+        expanded.delete(key)
+      }
+    for (const group of value)
+      if (!ids.has(group.key)) {
+        ids.set(group.key, `settings-${instance}-${++sequence}`)
+        expanded.add(group.key)
+      }
+  },
+  { immediate: true, flush: 'sync' },
+)
 const narrow = ref(false),
   open = ref(false)
 let media: MediaQueryList | undefined
@@ -48,33 +84,33 @@ onUnmounted(() => media?.removeEventListener('change', resize))
       :is="narrow ? UiDrawer : 'aside'"
       :open="open"
       :title="title + '栏目'"
-      :class="narrow ? undefined : 'settings-sidebar'"
+      v-bind="narrow ? {} : { class: 'settings-sidebar' }"
       @update:open="open = $event"
     >
       <nav class="settings-menu" :aria-label="title">
         <h2>{{ title }}</h2>
         <div
           v-for="group in groups"
-          :key="group.path"
+          :key="group.key"
           class="settings-group"
-          :class="{ selected: route.path === group.path }"
+          :class="{ selected: group.children.some((leaf) => route.path === leaf.path) }"
         >
           <button
             type="button"
             class="settings-group-toggle"
-            :aria-expanded="expanded.has(group.path)"
-            :aria-controls="`settings-${group.leaf}`"
-            @click="toggle(group.path)"
+            :aria-expanded="expanded.has(group.key)"
+            :aria-controls="ids.get(group.key)"
+            @click="toggle(group.key)"
           >
             {{ group.label }}
           </button>
-          <ul v-if="expanded.has(group.path)" :id="`settings-${group.leaf}`">
-            <li>
+          <ul v-if="expanded.has(group.key)" :id="ids.get(group.key)">
+            <li v-for="leaf in group.children" :key="leaf.path">
               <RouterLink
-                :to="group.path"
-                :aria-current="route.path === group.path ? 'page' : undefined"
+                :to="leaf.path"
+                :aria-current="route.path === leaf.path ? 'page' : undefined"
                 @click="open = false"
-                >{{ group.leaf }}</RouterLink
+                >{{ leaf.label }}</RouterLink
               >
             </li>
           </ul>

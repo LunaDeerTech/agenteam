@@ -74,6 +74,11 @@ const endpoints = {
   inspectPasswordReset: ['POST', '/api/v1/password-resets/inspect', 200],
   completePasswordReset: ['POST', '/api/v1/password-resets/complete', 204],
   systemUsers: ['GET', '/api/v1/system/users', 200],
+  systemInvitations: ['GET', '/api/v1/system/invitations', 200],
+  createSystemInvitation: ['POST', '/api/v1/system/invitations', 201],
+  resendSystemInvitation: ['POST', '/api/v1/system/invitations/{id}/resend', 202],
+  revokeSystemInvitation: ['POST', '/api/v1/system/invitations/{id}/revoke', 204],
+  retrySystemDelivery: ['POST', '/api/v1/system/mail-jobs/{id}/retry', 202],
 } as const
 export type Fetch = (input: string, init: RequestInit) => Promise<Response>
 
@@ -248,22 +253,43 @@ type UsersOptions = {
   key?: never
   avatar?: never
 }
+type InvitationTarget = 'resendSystemInvitation' | 'revokeSystemInvitation' | 'retrySystemDelivery'
+type InvitationReadOptions = Omit<UsersOptions, 'users'> & {
+  invitations: Readonly<{ cursor?: string }>
+}
 
 export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init)) {
+  function request<T>(
+    endpoint: 'systemInvitations',
+    parse: (value: unknown) => T,
+    options: InvitationReadOptions,
+  ): Promise<T>
+  function request<T>(
+    endpoint: InvitationTarget,
+    parse: (value: unknown) => T,
+    options: RequestOptions & { target: string; users?: never; invitations?: never },
+  ): Promise<T>
   function request<T>(
     endpoint: 'systemUsers',
     parse: (value: unknown) => T,
     options: UsersOptions,
   ): Promise<T>
   function request<T>(
-    endpoint: Exclude<keyof typeof endpoints, 'systemUsers'>,
+    endpoint: Exclude<
+      keyof typeof endpoints,
+      'systemUsers' | 'systemInvitations' | InvitationTarget
+    >,
     parse: (value: unknown) => T,
-    options: RequestOptions & { users?: never },
+    options: RequestOptions & { users?: never; invitations?: never; target?: never },
   ): Promise<T>
   async function request<T>(
     endpoint: keyof typeof endpoints,
     parse: (value: unknown) => T,
-    options: RequestOptions & { users?: Readonly<{ cursor?: string }> },
+    options: RequestOptions & {
+      users?: Readonly<{ cursor?: string }>
+      invitations?: Readonly<{ cursor?: string }>
+      target?: string
+    },
   ): Promise<T> {
     const [method, basePath, status] = endpoints[endpoint]
     let path: string = basePath
@@ -277,8 +303,39 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       } catch {
         throw new AccountFailure('invalid-input')
       }
-    } else if (Object.hasOwn(options, 'users')) {
+    } else if (endpoint === 'systemInvitations') {
+      try {
+        shape(options, ['signal', 'invitations'])
+        const query = shape(options.invitations, [], ['cursor'])
+        const params = new URLSearchParams({ limit: '25' })
+        if (Object.hasOwn(query, 'cursor')) params.set('cursor', string(query.cursor, 1, 8192))
+        path += '?' + params.toString()
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if (
+      ['resendSystemInvitation', 'revokeSystemInvitation', 'retrySystemDelivery'].includes(endpoint)
+    ) {
+      try {
+        shape(options, ['signal', 'body', 'csrf', 'key', 'target'])
+        if (!uuid7.test(string(options.target, 36, 36))) throw new AccountFailure('invalid-input')
+        path = path.replace('{id}', options.target!)
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
+    } else if (
+      Object.hasOwn(options, 'users') ||
+      Object.hasOwn(options, 'invitations') ||
+      Object.hasOwn(options, 'target')
+    ) {
       throw new AccountFailure('invalid-input')
+    }
+    if (endpoint === 'createSystemInvitation') {
+      try {
+        shape(options, ['signal', 'body', 'csrf', 'key'])
+      } catch {
+        throw new AccountFailure('invalid-input')
+      }
     }
     const headers: Record<string, string> = { Accept: 'application/json, application/problem+json' }
     let body: BodyInit | undefined
@@ -315,7 +372,7 @@ export function accountTransport(fetcher: Fetch = (url, init) => fetch(url, init
       if (response.redirected || response.type === 'opaqueredirect')
         throw new AccountFailure('invalid-response')
       if (response.status === 204 && status === 204) {
-        if (endpoint === 'completePasswordReset') {
+        if (endpoint === 'completePasswordReset' || endpoint === 'revokeSystemInvitation') {
           // A network 204 may expose an empty stream. Confirm its actual EOF,
           // rather than requiring the Fetch implementation to return null.
           try {

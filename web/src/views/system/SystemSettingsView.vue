@@ -11,7 +11,16 @@ const allowed = computed(
     auth.state.user?.role === 'admin' &&
     !auth.system.denied,
 )
-const groups = [{ label: '用户与邀请', path: '/system/users', leaf: '用户' }]
+const groups = [
+  {
+    key: 'users-invitations',
+    label: '用户与邀请',
+    children: [
+      { label: '用户', path: '/system/users' },
+      { label: '待注册邀请', path: '/system/invitations' },
+    ],
+  },
+]
 const heading = ref<HTMLElement | null>(null)
 watch(
   allowed,
@@ -30,7 +39,7 @@ watch(
   </SettingsShell>
   <section v-else class="system-denied">
     <h1 ref="heading" tabindex="-1">无权访问系统设置</h1>
-    <UiState kind="error" title="需要系统管理员权限" description="当前身份无法读取系统用户目录。">
+    <UiState kind="error" title="需要系统管理员权限" description="当前身份无法访问系统设置。">
       <div class="ui-row">
         <RouterLink to="/">返回首页</RouterLink>
         <UiButton :disabled="auth.state.busy" @click="auth.restore">重新检查权限</UiButton>

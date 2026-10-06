@@ -31,6 +31,17 @@ import {
   type SystemUserQuery,
 } from '../api/system-account'
 import { useTheme } from './useTheme'
+import {
+  createSystemInvitationAPI,
+  captureInvitationCommand,
+  type SystemInvitationAPI,
+  type InvitationCommand,
+  type InvitationMutationResult,
+  type InvitationCreate,
+  type InvitationTarget,
+  type DeliveryTarget,
+  type InvitationQuery,
+} from '../api/system-invitations'
 
 export type SessionPhase =
   | 'checking'
@@ -68,7 +79,15 @@ interface LogoutIntent {
   csrf: string
 }
 type Intent = LoginIntent | LogoutIntent
-type Action = 'restore' | 'login' | 'logout' | 'personal' | 'entry' | 'system'
+type Action =
+  | 'restore'
+  | 'login'
+  | 'logout'
+  | 'personal'
+  | 'entry'
+  | 'system'
+  | 'invitation-read'
+  | 'invitation-write'
 interface Operation {
   generation: number
   kind: Action
@@ -81,6 +100,18 @@ interface Operation {
 }
 
 export type PersonalIdentity = Readonly<{ userID: string; sessionID: string; epoch: number }>
+export type SystemInvitationProgress = Readonly<{
+  kind: InvitationCommand['kind']
+  phase: 'submitting' | 'uncertain' | 'confirmed'
+  canRetryOriginal: boolean
+  contextValid: boolean
+}>
+type SystemInvitationIntent = Readonly<{
+  command: InvitationCommand
+  identity: PersonalIdentity
+  key: string
+  csrf: string
+}>
 export type EntrySession =
   Readonly<{ kind: 'anonymous' }> | Readonly<{ kind: 'authenticated'; identity: PersonalIdentity }>
 export type EntryPreparation = Readonly<{ deliveryChannel: DeliveryChannel; session: EntrySession }>
@@ -154,6 +185,7 @@ const isUnknown = (e: AccountFailure) =>
 export function createSessionController(
   api: AccountAPI = createAccountAPI(),
   systemAPI: SystemAccountAPI = createSystemAccountAPI(),
+  invitationAPI: SystemInvitationAPI = createSystemInvitationAPI(),
 ) {
   const state = shallowReactive<PublicState>({
     phase: 'checking',
@@ -190,6 +222,17 @@ export function createSessionController(
     deniedIdentity: null,
   })
   let systemRevision = 0
+  let invitationReadRevision = 0,
+    invitationRevision = 0
+  let invitationIntent: SystemInvitationIntent | null = null
+  let invitationUncertain = false,
+    invitationChecked = false
+  const invitationState = shallowReactive<{
+    progress: Readonly<{
+      kind: InvitationCommand['kind']
+      phase: SystemInvitationProgress['phase']
+    }> | null
+  }>({ progress: null })
   const systemDenied = () => sameIdentity(systemState.deniedIdentity, personalContext.identity)
   let identityEpoch = 0,
     personalRevision = 0
@@ -223,6 +266,7 @@ export function createSessionController(
     state.user = null
     state.session = null
     if (invalidate) {
+      clearInvitationState()
       ++systemRevision
       systemState.deniedIdentity = null
       sessionCSRF = ''
@@ -299,6 +343,11 @@ export function createSessionController(
     forgetIntent()
     expectedSession = null
     state.phase = 'authenticated'
+    if (invitationIntent) {
+      if (!same || view.user.role !== 'admin' || invitationIntent.csrf !== sessionCSRF)
+        clearInvitationState()
+      else invitationChecked = true
+    }
     state.notice = ''
     state.fields = {}
     if (passwordChecked && personalState.passwordProgress?.identity === passwordChecked)
@@ -725,10 +774,18 @@ export function createSessionController(
     identity: PersonalIdentity,
     work: (op: Operation, current: () => boolean) => Promise<T>,
     command?: PersonalCommand,
-    kind: 'personal' | 'system' = 'personal',
+    kind: 'personal' | 'system' | 'invitation-read' | 'invitation-write' = 'personal',
   ): Promise<T> {
     if (owner) return Promise.reject(new AccountFailure('busy'))
-    const revision = kind === 'system' ? systemRevision : personalRevision
+    const revisionNow = () =>
+      kind === 'system'
+        ? systemRevision
+        : kind === 'invitation-read'
+          ? invitationReadRevision
+          : kind === 'invitation-write'
+            ? invitationRevision
+            : personalRevision
+    const revision = revisionNow()
     const op: Operation = {
       kind,
       generation: ++generation,
@@ -739,9 +796,9 @@ export function createSessionController(
     }
     const current = () =>
       valid(op) &&
-      revision === (kind === 'system' ? systemRevision : personalRevision) &&
+      revision === revisionNow() &&
       sameIdentity(identity, personalContext.identity) &&
-      (kind !== 'system' ||
+      (kind === 'personal' ||
         (state.phase === 'authenticated' && state.user?.role === 'admin' && !systemDenied()))
     owner = op
     state.busy = true
@@ -802,7 +859,7 @@ export function createSessionController(
       })
       .catch((error: unknown) => {
         const e =
-          kind === 'system'
+          kind !== 'personal'
             ? systemFailure(identity, op, current, error)
             : personalFailure(identity, error)
         if (command && personalIntent === command) {
@@ -968,20 +1025,204 @@ export function createSessionController(
     if (sameIdentity(identity, personalContext.identity) && generation === op.generation) {
       // A late 401 may already have removed this same Session Cookie. It still
       // invalidates that identity, but never a later identity or another owner.
-      if (unavailableSession(e)) {
+      if (
+        unavailableSession(e) ||
+        (op.kind === 'invitation-write' && e.problem?.code === 'CSRF_FAILED')
+      ) {
         clearIdentity()
         clearBrowser()
         state.phase = 'unavailable'
         state.notice = '当前登录上下文已失效，请检查当前会话或重新登录。'
       } else if (current() && e.problem?.status === 403 && e.problem.code === 'FORBIDDEN') {
+        clearInvitationState()
         systemState.deniedIdentity = identity
       }
     }
     return e
   }
+  function clearInvitationState() {
+    ++invitationRevision
+    ++invitationReadRevision
+    invitationIntent = null
+    invitationUncertain = false
+    invitationChecked = false
+    invitationState.progress = null
+    if (owner?.kind === 'invitation-read' || owner?.kind === 'invitation-write') owner.abandon?.()
+  }
+  function invitationContext(original: SystemInvitationIntent) {
+    return (
+      sameIdentity(original.identity, personalContext.identity) &&
+      personalContext.phase === 'current' &&
+      state.phase === 'authenticated' &&
+      state.user?.role === 'admin' &&
+      !systemDenied() &&
+      !!sessionCSRF &&
+      original.csrf === sessionCSRF
+    )
+  }
+  function invitationIdentity() {
+    const identity = personalIdentity()
+    if (state.user?.role !== 'admin' || systemDenied()) throw new AccountFailure('invalid-input')
+    return identity
+  }
+  function performInvitation(original: SystemInvitationIntent): Promise<InvitationMutationResult> {
+    if (!invitationContext(original) || invitationIntent !== original)
+      return Promise.reject(new AccountFailure('invalid-input'))
+    const revision = invitationRevision
+    let dispatched = false
+    invitationState.progress = { kind: original.command.kind, phase: 'submitting' }
+    return runAuthorized<InvitationMutationResult>(
+      original.identity,
+      async (op) => {
+        const command = original.command
+        const options = { csrfToken: original.csrf, key: original.key, signal: op.abort.signal }
+        dispatched = true
+        switch (command.kind) {
+          case 'create':
+            return {
+              kind: 'create',
+              value: await invitationAPI.createInvitation(command.input, options),
+            }
+          case 'resend':
+            return {
+              kind: 'resend',
+              value: await invitationAPI.resendInvitation(command.input, options),
+            }
+          case 'revoke':
+            await invitationAPI.revokeInvitation(command.input, options)
+            return { kind: 'revoke' }
+          case 'retry':
+            return {
+              kind: 'retry',
+              value: await invitationAPI.retryDelivery(command.input, options),
+            }
+        }
+      },
+      undefined,
+      'invitation-write',
+    ).then(
+      (result) => {
+        if (
+          invitationIntent !== original ||
+          revision !== invitationRevision ||
+          !invitationContext(original)
+        )
+          throw new AccountFailure('cancelled')
+        invitationIntent = null
+        invitationUncertain = false
+        invitationChecked = false
+        invitationState.progress = { kind: result.kind, phase: 'confirmed' }
+        return result
+      },
+      (error: unknown) => {
+        const e = error instanceof AccountFailure ? error : new AccountFailure('transport')
+        if (
+          invitationIntent === original &&
+          revision === invitationRevision &&
+          sameIdentity(original.identity, personalContext.identity)
+        ) {
+          const problem = e.problem
+          // RetryMailJob can commit and then fail its read with 5xx/not_started.
+          // A later refusal never erases an earlier unconfirmed attempt.
+          if (
+            invitationUncertain ||
+            (dispatched &&
+              (isUnknown(e) ||
+                (problem?.status ?? 0) >= 500 ||
+                problem?.commit_state === 'committed' ||
+                problem?.code === 'IDEMPOTENCY_KEY_REUSED'))
+          ) {
+            invitationUncertain = true
+            invitationChecked = false
+            invitationState.progress = { kind: original.command.kind, phase: 'uncertain' }
+          } else {
+            invitationIntent = null
+            invitationState.progress = null
+          }
+        }
+        throw e
+      },
+    )
+  }
+  function startInvitation(command: InvitationCommand) {
+    try {
+      const captured = captureInvitationCommand(command)
+      const identity = invitationIdentity()
+      if (invitationIntent || personalIntent || pending) throw new AccountFailure('busy')
+      const original = Object.freeze({
+        command: captured,
+        identity,
+        key: newKey(),
+        csrf: sessionCSRF,
+      })
+      invitationIntent = original
+      invitationChecked = true
+      invitationUncertain = false
+      return performInvitation(original)
+    } catch (error) {
+      return Promise.reject(error)
+    }
+  }
   const system = {
     get denied() {
       return systemDenied()
+    },
+    get invitationProgress(): SystemInvitationProgress | null {
+      const progress = invitationState.progress
+      if (!progress) return null
+      const contextValid = !!invitationIntent && invitationContext(invitationIntent)
+      return Object.freeze({
+        ...progress,
+        contextValid,
+        canRetryOriginal:
+          progress.phase === 'uncertain' && contextValid && invitationChecked && !state.busy,
+      })
+    },
+    listInvitations(query: InvitationQuery) {
+      try {
+        const identity = invitationIdentity()
+        if (!query || typeof query !== 'object' || Array.isArray(query))
+          throw new AccountFailure('invalid-input')
+        const captured = Object.freeze({ ...query })
+        return runAuthorized(
+          identity,
+          (op) => invitationAPI.listInvitations(captured, op.abort.signal),
+          undefined,
+          'invitation-read',
+        )
+      } catch (error) {
+        return Promise.reject(error)
+      }
+    },
+    createInvitation(input: InvitationCreate) {
+      return startInvitation({ kind: 'create', input })
+    },
+    resendInvitation(input: InvitationTarget) {
+      return startInvitation({ kind: 'resend', input })
+    },
+    revokeInvitation(input: InvitationTarget) {
+      return startInvitation({ kind: 'revoke', input })
+    },
+    retryDelivery(input: DeliveryTarget) {
+      return startInvitation({ kind: 'retry', input })
+    },
+    retryInvitationOriginal() {
+      if (
+        !invitationIntent ||
+        !invitationUncertain ||
+        !invitationChecked ||
+        !invitationContext(invitationIntent) ||
+        owner
+      )
+        return Promise.reject(new AccountFailure('invalid-input'))
+      return performInvitation(invitationIntent)
+    },
+    abandonInvitationRead() {
+      ++invitationReadRevision
+      if (owner?.kind === 'invitation-read') owner.abandon?.()
+    },
+    abandonInvitations() {
+      clearInvitationState()
     },
     listUsers(query: SystemUserQuery) {
       try {

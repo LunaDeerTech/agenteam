@@ -7,6 +7,7 @@ const returnTargets = [
   '/settings/appearance',
   '/settings/password',
   '/system/users',
+  '/system/invitations',
 ] as const
 type ReturnTarget = (typeof returnTargets)[number]
 export function safeReturnTarget(value: unknown): ReturnTarget {
@@ -58,6 +59,12 @@ export function installAuthentication(router: Router, auth: SessionController = 
   router.beforeEach(async (to, from) => {
     // Ask before Session revalidation can temporarily unmount the dirty page.
     if (
+      from.path === '/system/invitations' &&
+      to.fullPath !== from.fullPath &&
+      !((await invitationNavigation.get(router)?.confirmLeave()) ?? true)
+    )
+      return false
+    if (
       from.path.startsWith('/settings') &&
       to.fullPath !== from.fullPath &&
       !((await personalNavigation.get(router)?.confirmLeave()) ?? true)
@@ -87,8 +94,29 @@ export function installAuthentication(router: Router, auth: SessionController = 
     return true
   })
   router.afterEach((to, from, failure) => {
+    if (!failure) invitationNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure) personalNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
     if (!failure && from.meta.authentication && !to.meta.authentication) auth.leave()
     if (!failure) accountEntryNavigation.get(router)?.afterNavigation(to.fullPath, from.fullPath)
   })
+}
+
+const invitationNavigation = new WeakMap<
+  Router,
+  {
+    confirmLeave: () => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  }
+>()
+export function installInvitationNavigation(
+  router: Router,
+  owner: {
+    confirmLeave: () => Promise<boolean>
+    afterNavigation: (to: string, from: string) => void
+  },
+) {
+  invitationNavigation.set(router, owner)
+  return () => {
+    if (invitationNavigation.get(router) === owner) invitationNavigation.delete(router)
+  }
 }

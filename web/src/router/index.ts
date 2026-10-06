@@ -52,7 +52,13 @@ export const router = createRouter({
         navigation: { label: '系统设置', order: 20 },
       },
       redirect: '/system/users',
-      children: [{ path: 'users', component: () => import('../views/system/SystemUsersView.vue') }],
+      children: [
+        { path: 'users', component: () => import('../views/system/SystemUsersView.vue') },
+        {
+          path: 'invitations',
+          component: () => import('../views/system/SystemInvitationsView.vue'),
+        },
+      ],
     },
     {
       path: '/settings',

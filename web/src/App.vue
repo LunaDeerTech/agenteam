@@ -7,8 +7,13 @@ import UiState from './components/ui/UiState.vue'
 import UiDialog from './components/ui/UiDialog.vue'
 import { useSession } from './composables/useSession'
 import { createPersonalSettings, personalSettingsKey } from './composables/usePersonalSettings'
-import { installPersonalNavigation, installAccountEntryNavigation } from './router/auth'
+import {
+  installPersonalNavigation,
+  installAccountEntryNavigation,
+  installInvitationNavigation,
+} from './router/auth'
 import { createAccountEntry, accountEntryKey } from './composables/useAccountEntry'
+import { createSystemInvitations, systemInvitationsKey } from './composables/useSystemInvitations'
 const auth = useSession(),
   state = auth.state,
   route = useRoute(),
@@ -19,8 +24,11 @@ const stopPersonalNavigation = installPersonalNavigation(router, settings)
 const entry = createAccountEntry(auth)
 provide(accountEntryKey, entry)
 const stopEntryNavigation = installAccountEntryNavigation(router, entry)
+const invitations = createSystemInvitations(auth)
+provide(systemInvitationsKey, invitations)
+const stopInvitationNavigation = installInvitationNavigation(router, invitations)
 async function logout() {
-  if (await settings.confirmLeave()) await auth.logout()
+  if ((await settings.confirmLeave()) && (await invitations.confirmLeave())) await auth.logout()
 }
 async function refreshVisible() {
   if (
@@ -48,6 +56,7 @@ watch(
 )
 onMounted(() => {
   entry.afterNavigation(route.fullPath, '')
+  invitations.afterNavigation(route.fullPath, '')
   document.addEventListener('visibilitychange', refreshVisible)
   window.addEventListener('pageshow', refreshVisible)
 })
@@ -56,6 +65,8 @@ onUnmounted(() => {
   window.removeEventListener('pageshow', refreshVisible)
   stopPersonalNavigation()
   stopEntryNavigation()
+  stopInvitationNavigation()
+  invitations.dispose()
   entry.dispose()
   settings.dispose()
   auth.leave()
