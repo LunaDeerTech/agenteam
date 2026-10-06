@@ -1,0 +1,180 @@
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.42.67.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=71ffc4ed9311c93ae3b7fefd93098020
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=f27d19277ee3bf26a405ceeadeeca9c8
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.011s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	3.049s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.015s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.022s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.023s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.021s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.015s [no tests to run]
+=== RUN   TestUsageInvocationIdentityAndAuthority
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/same-owner-other-real-project
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/input
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/snapshot
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/process
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/fence
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/call
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/ordinal
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/schema
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/actor
+=== RUN   TestUsageInvocationIdentityAndAuthority/cross-instance-and-missing-original-writer-lock
+=== RUN   TestUsageInvocationIdentityAndAuthority/mapping-and-full-session-plans-are-current
+=== RUN   TestUsageInvocationIdentityAndAuthority/current-owner-required-for-all-reads
+=== RUN   TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request
+=== RUN   TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request/invocation-as-owner-cause
+=== RUN   TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request/foreign-exact-request
+=== RUN   TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request/unknown-request
+=== RUN   TestUsageInvocationIdentityAndAuthority/already-sent-facts-survive-revocation-and-gate
+--- PASS: TestUsageInvocationIdentityAndAuthority (4.90s)
+    --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches (0.07s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/same-owner-other-real-project (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/input (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/snapshot (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/process (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/fence (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/call (0.00s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/ordinal (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/schema (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/actor (0.01s)
+    --- PASS: TestUsageInvocationIdentityAndAuthority/cross-instance-and-missing-original-writer-lock (0.05s)
+    --- PASS: TestUsageInvocationIdentityAndAuthority/mapping-and-full-session-plans-are-current (0.06s)
+    --- PASS: TestUsageInvocationIdentityAndAuthority/current-owner-required-for-all-reads (0.04s)
+    --- PASS: TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request (0.69s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request/invocation-as-owner-cause (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request/foreign-exact-request (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request/unknown-request (0.00s)
+    --- PASS: TestUsageInvocationIdentityAndAuthority/already-sent-facts-survive-revocation-and-gate (0.57s)
+=== RUN   TestUsageReaderNonemptyPagination
+=== RUN   TestUsageReaderNonemptyPagination/nonempty-pages-and-current-new-session
+    usage_query_test.go:51: revoked Session continued signed page UNAUTHENTICATED
+=== RUN   TestUsageReaderNonemptyPagination/consumer-without-execution-does-not-create-summary
+=== RUN   TestUsageReaderNonemptyPagination/all-filter-dimensions
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/consumer
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/agent
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/model
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/provider
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/execution
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/meeting
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/purpose
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/day
+=== RUN   TestUsageReaderNonemptyPagination/cursor-binding-and-tamper
+=== RUN   TestUsageReaderNonemptyPagination/explicit-history-range-versus-default-thirty-days
+=== RUN   TestUsageReaderNonemptyPagination/archived-owner-read-and-deleting-rejection
+--- FAIL: TestUsageReaderNonemptyPagination (4.66s)
+    --- FAIL: TestUsageReaderNonemptyPagination/nonempty-pages-and-current-new-session (0.01s)
+    --- PASS: TestUsageReaderNonemptyPagination/consumer-without-execution-does-not-create-summary (0.00s)
+    --- PASS: TestUsageReaderNonemptyPagination/all-filter-dimensions (0.01s)
+    --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups (0.20s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/consumer (0.02s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/agent (0.04s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/model (0.04s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/provider (0.03s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/execution (0.03s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/meeting (0.01s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/purpose (0.02s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/day (0.01s)
+    --- PASS: TestUsageReaderNonemptyPagination/cursor-binding-and-tamper (0.06s)
+    --- PASS: TestUsageReaderNonemptyPagination/explicit-history-range-versus-default-thirty-days (0.02s)
+    --- PASS: TestUsageReaderNonemptyPagination/archived-owner-read-and-deleting-rejection (0.12s)
+=== RUN   TestUsageExecutionSummaryRebuild
+=== RUN   TestUsageExecutionSummaryRebuild/canonical-totals-and-unknown-execution
+=== RUN   TestUsageExecutionSummaryRebuild/repair-missing-and-valid-but-wrong-projection
+=== RUN   TestUsageExecutionSummaryRebuild/ordinary-concurrent-final-and-rebuild
+--- PASS: TestUsageExecutionSummaryRebuild (3.16s)
+    --- PASS: TestUsageExecutionSummaryRebuild/canonical-totals-and-unknown-execution (0.06s)
+    --- PASS: TestUsageExecutionSummaryRebuild/repair-missing-and-valid-but-wrong-projection (0.03s)
+    --- PASS: TestUsageExecutionSummaryRebuild/ordinary-concurrent-final-and-rebuild (0.14s)
+=== RUN   TestUsageQueryBudgetAndSafety
+=== RUN   TestUsageQueryBudgetAndSafety/full-statistical-set-and-real-index-plan
+    usage_query_test.go:407: synthetic full aggregate: confirmed=1201 input_sum=1201 elapsed=1.361191577s budget=2s
+    usage_query_test.go:424: Limit  (cost=0.28..13.45 rows=20 width=24)  ->  Index Only Scan using model_invocation_project_page on invocations  (cost=0.28..791.04 rows=1201 width=24)        Index Cond: (project_id = '01a10ecc-6385-7f3a-ab22-df81ab85cdbc'::uuid)
+=== RUN   TestUsageQueryBudgetAndSafety/whole-call-budget-includes-lock-wait
+=== RUN   TestUsageQueryBudgetAndSafety/list-actual-two-second-service-deadline
+    usage_query_test.go:500: real authorized SQL completed; service_budget=2s remaining=1.856535708s elapsed=2.007499668s caller_live=true actual=not_committed zero_DTO=true
+=== RUN   TestUsageQueryBudgetAndSafety/aggregate-actual-two-second-service-deadline
+    usage_query_test.go:500: real authorized SQL completed; service_budget=2s remaining=597.967921ms elapsed=2.008173695s caller_live=true actual=not_committed zero_DTO=true
+=== RUN   TestUsageQueryBudgetAndSafety/oversized-cursor-and-safe-projections
+=== RUN   TestUsageQueryBudgetAndSafety/bad-persistent-json-and-numeric-overflow-fail-safely
+--- PASS: TestUsageQueryBudgetAndSafety (9.63s)
+    --- PASS: TestUsageQueryBudgetAndSafety/full-statistical-set-and-real-index-plan (1.36s)
+    --- PASS: TestUsageQueryBudgetAndSafety/whole-call-budget-includes-lock-wait (0.09s)
+    --- PASS: TestUsageQueryBudgetAndSafety/list-actual-two-second-service-deadline (2.01s)
+    --- PASS: TestUsageQueryBudgetAndSafety/aggregate-actual-two-second-service-deadline (2.01s)
+    --- PASS: TestUsageQueryBudgetAndSafety/oversized-cursor-and-safe-projections (0.16s)
+    --- PASS: TestUsageQueryBudgetAndSafety/bad-persistent-json-and-numeric-overflow-fail-safely (0.07s)
+=== RUN   TestUsageInvocationUnknownConfirmation
+=== RUN   TestUsageInvocationUnknownConfirmation/committed
+=== RUN   TestUsageInvocationUnknownConfirmation/committed/original-writer-lock-is-required
+=== RUN   TestUsageInvocationUnknownConfirmation/rolled-back
+=== RUN   TestUsageInvocationUnknownConfirmation/rolled-back/original-writer-lock-is-required
+--- PASS: TestUsageInvocationUnknownConfirmation (2.02s)
+    --- PASS: TestUsageInvocationUnknownConfirmation/committed (0.38s)
+        --- PASS: TestUsageInvocationUnknownConfirmation/committed/original-writer-lock-is-required (0.11s)
+    --- PASS: TestUsageInvocationUnknownConfirmation/rolled-back (0.35s)
+        --- PASS: TestUsageInvocationUnknownConfirmation/rolled-back/original-writer-lock-is-required (0.10s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/model	24.390s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.012s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce 166ef949c90c73293aea19101fef1975
+D04 outbound fixture cleanup checked for nonce f27d19277ee3bf26a405ceeadeeca9c8
+D05 object fixture exact resource cleanup checked nonce=71ffc4ed9311c93ae3b7fefd93098020

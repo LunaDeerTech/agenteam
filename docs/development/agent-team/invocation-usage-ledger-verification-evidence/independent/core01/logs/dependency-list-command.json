@@ -1,0 +1,26 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "list",
+    "-deps",
+    "-test",
+    "-json",
+    "./internal/central/usage/...",
+    "./internal/central/identity/contract"
+  ],
+  "cwd": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/core01-review/src",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/core01-review/cache",
+    "TMPDIR": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/core01-review/tmp",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1"
+  },
+  "start": 1791247137.1869254,
+  "end": 1791247137.5343459,
+  "exit": 0
+}

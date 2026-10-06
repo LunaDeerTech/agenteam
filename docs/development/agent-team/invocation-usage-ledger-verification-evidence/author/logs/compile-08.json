@@ -1,0 +1,27 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-tags=integration",
+    "-run=^$",
+    "./tests/model"
+  ],
+  "cwd": "/workspace/scratch/agenteam-d09-ledger-author/input08/src",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d09-ledger-author/cache",
+    "TMPDIR": "/workspace/scratch/agenteam-d09-ledger-author/tmp",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio"
+  },
+  "start": 1791248821.0220935,
+  "input_manifest_sha256": "e5cf2197cc4a73df7cefe411c7787a2a0e180cf6eecce19834e8577e653f5154",
+  "exit": 0,
+  "end": 1791248838.026031
+}

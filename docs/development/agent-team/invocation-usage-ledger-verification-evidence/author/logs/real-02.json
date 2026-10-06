@@ -1,0 +1,235 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestUsage(InvocationIdentityAndAuthority|ReaderNonemptyPagination|ExecutionSummaryRebuild|QueryBudgetAndSafety|InvocationUnknownConfirmation)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-d09-ledger-author/input11/src",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d09-ledger-author/cache",
+    "TMPDIR": "/workspace/scratch/agenteam-d09-ledger-author/tmp",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -v",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio"
+  },
+  "start": 1791249523.3293364,
+  "input_manifest_sha256": "f6b9847f0fb69ff9ad5400ccb3f75c0eb383d53821be2aebae865b11eae2c7eb",
+  "baseline": {
+    "containers": {
+      "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e": {
+        "id": "a2d6322fd9b3cb53c6ccd7c3458af38e150461c52de13fb61b9a49cf7f4c3a5e",
+        "name": "/agenteam-dev-infra-minio-1",
+        "labels": {
+          "com.docker.compose.config-hash": "0c805ce33ac0d20e54be275823fed32f616efba19992c54772f4db0d51026d2b",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:2871daf1ac7360e070fc8427df79625f53bf99684a704a8db15e00971c4a4801",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "minio",
+          "com.docker.compose.version": "2.40.3"
+        }
+      },
+      "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c": {
+        "id": "9e070ad982e18b894c0dab83b62e719d597bcbb1bd06e5f79626f2b134f80f3c",
+        "name": "/agenteam-dev-infra-postgres-1",
+        "labels": {
+          "com.docker.compose.config-hash": "14a2e7cca855263792de18b1474ed0eee9ae8bf3ed35cec49d902a164679d305",
+          "com.docker.compose.container-number": "1",
+          "com.docker.compose.depends_on": "",
+          "com.docker.compose.image": "sha256:5090c7fd921d75d8984233faaf8fb0d8ad18ddc38f912fd1261f9999b5d214a7",
+          "com.docker.compose.oneoff": "False",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.project.config_files": "/workspace/agenteam-onboarding/infra/compose.yaml",
+          "com.docker.compose.project.environment_file": "/workspace/agenteam-onboarding/infra/secrets.env",
+          "com.docker.compose.project.working_dir": "/workspace/agenteam-onboarding/infra",
+          "com.docker.compose.service": "postgres",
+          "com.docker.compose.version": "2.40.3"
+        }
+      }
+    },
+    "networks": {
+      "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468": {
+        "id": "142b317b8e6a6727e5a0aa554d40a558dfd1df60928e23d65c4a756ecc241468",
+        "name": "agenteam-dev-infra_default",
+        "labels": {
+          "com.docker.compose.config-hash": "9334037082617931c8d576f86feab46359230da51d0f3b07853ccddc89a991e1",
+          "com.docker.compose.network": "default",
+          "com.docker.compose.project": "agenteam-dev-infra",
+          "com.docker.compose.version": "2.40.3"
+        }
+      },
+      "7247b82ec2e184ed21463ec5b95a221a0155e24583305192e631ed1d1eb41cc3": {
+        "id": "7247b82ec2e184ed21463ec5b95a221a0155e24583305192e631ed1d1eb41cc3",
+        "name": "bridge",
+        "labels": {}
+      },
+      "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed": {
+        "id": "af11c85ea6d7274e0fd67704744e010536f423c79add734b6f06784df84dfaed",
+        "name": "host",
+        "labels": {}
+      },
+      "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96": {
+        "id": "9a138e5ad1421f1304de39508152d76bba44449c631328f39fc1b39dc81a6d96",
+        "name": "none",
+        "labels": {}
+      }
+    }
+  },
+  "pid": 293170,
+  "exit": 1,
+  "end": 1791249667.0969005,
+  "observed_resources": {
+    "containers": {
+      "e97f6296db8ab7a5e60996ed49b87ebf39c1aab9a3379d49a7ea1a6e73d28307": {
+        "id": "e97f6296db8ab7a5e60996ed49b87ebf39c1aab9a3379d49a7ea1a6e73d28307",
+        "name": "/agenteam-d05-object-71ffc4ed9311c93ae3b7fefd93098020",
+        "labels": {
+          "agenteam.d05.objectfixture": "71ffc4ed9311c93ae3b7fefd93098020"
+        }
+      },
+      "b1d539556524818a5ab9fe9368a91b9381cce6e618376616db577a8718bd2c6f": {
+        "id": "b1d539556524818a5ab9fe9368a91b9381cce6e618376616db577a8718bd2c6f",
+        "name": "/agenteam-d04-net-f27d19277ee3bf26a405ceeadeeca9c8",
+        "labels": {
+          "agenteam.d04.networkfixture": "f27d19277ee3bf26a405ceeadeeca9c8"
+        }
+      },
+      "b4f993857139cece20330a3740f2ea0f35a04f08c3425ae0a2e96929afba6339": {
+        "id": "b4f993857139cece20330a3740f2ea0f35a04f08c3425ae0a2e96929afba6339",
+        "name": "/agenteam-d03-166ef949c90c73293aea19101fef1975",
+        "labels": {
+          "agenteam.d03.fixture": "166ef949c90c73293aea19101fef1975"
+        }
+      },
+      "cc0666924e80e82695922dde0a6c708d1a7008f1198d18a6fe494767572194fa": {
+        "id": "cc0666924e80e82695922dde0a6c708d1a7008f1198d18a6fe494767572194fa",
+        "name": "/agenteam-d03-166ef949c90c73293aea19101fef1975-pg16",
+        "labels": {
+          "agenteam.d03.fixture": "166ef949c90c73293aea19101fef1975"
+        }
+      }
+    },
+    "networks": {
+      "3de45114712736b69661fbfa4f36a4b58121d8f9e5cc8ae7d8256fac30d51bbe": {
+        "id": "3de45114712736b69661fbfa4f36a4b58121d8f9e5cc8ae7d8256fac30d51bbe",
+        "name": "agenteam-d05-object-71ffc4ed9311c93ae3b7fefd93098020",
+        "labels": {
+          "agenteam.d05.objectfixture": "71ffc4ed9311c93ae3b7fefd93098020"
+        }
+      },
+      "3e631302d525b86d86c5fe0449a2dd82aa5709d2da6a42d1f4ed234dd2865b73": {
+        "id": "3e631302d525b86d86c5fe0449a2dd82aa5709d2da6a42d1f4ed234dd2865b73",
+        "name": "agenteam-d04-net-f27d19277ee3bf26a405ceeadeeca9c8",
+        "labels": {
+          "agenteam.d04.networkfixture": "f27d19277ee3bf26a405ceeadeeca9c8"
+        }
+      },
+      "63e766398387b2f1eb35b8e40153a878ec3042ce8b4c07dab6cdf24cf00db8b9": {
+        "id": "63e766398387b2f1eb35b8e40153a878ec3042ce8b4c07dab6cdf24cf00db8b9",
+        "name": "agenteam-d03-166ef949c90c73293aea19101fef1975",
+        "labels": {
+          "agenteam.d03.fixture": "166ef949c90c73293aea19101fef1975"
+        }
+      }
+    }
+  },
+  "cleanup": [
+    {
+      "time": 1791249667.3506465,
+      "baseline_unchanged": true,
+      "exact_absence": [
+        {
+          "kind": "containers",
+          "id": "e97f6296db8ab7a5e60996ed49b87ebf39c1aab9a3379d49a7ea1a6e73d28307",
+          "absent": true
+        },
+        {
+          "kind": "containers",
+          "id": "b1d539556524818a5ab9fe9368a91b9381cce6e618376616db577a8718bd2c6f",
+          "absent": true
+        },
+        {
+          "kind": "containers",
+          "id": "b4f993857139cece20330a3740f2ea0f35a04f08c3425ae0a2e96929afba6339",
+          "absent": true
+        },
+        {
+          "kind": "containers",
+          "id": "cc0666924e80e82695922dde0a6c708d1a7008f1198d18a6fe494767572194fa",
+          "absent": true
+        },
+        {
+          "kind": "networks",
+          "id": "3de45114712736b69661fbfa4f36a4b58121d8f9e5cc8ae7d8256fac30d51bbe",
+          "absent": true
+        },
+        {
+          "kind": "networks",
+          "id": "3e631302d525b86d86c5fe0449a2dd82aa5709d2da6a42d1f4ed234dd2865b73",
+          "absent": true
+        },
+        {
+          "kind": "networks",
+          "id": "63e766398387b2f1eb35b8e40153a878ec3042ce8b4c07dab6cdf24cf00db8b9",
+          "absent": true
+        }
+      ],
+      "owned_processes_remaining": []
+    },
+    {
+      "time": 1791249668.5825865,
+      "baseline_unchanged": true,
+      "exact_absence": [
+        {
+          "kind": "containers",
+          "id": "e97f6296db8ab7a5e60996ed49b87ebf39c1aab9a3379d49a7ea1a6e73d28307",
+          "absent": true
+        },
+        {
+          "kind": "containers",
+          "id": "b1d539556524818a5ab9fe9368a91b9381cce6e618376616db577a8718bd2c6f",
+          "absent": true
+        },
+        {
+          "kind": "containers",
+          "id": "b4f993857139cece20330a3740f2ea0f35a04f08c3425ae0a2e96929afba6339",
+          "absent": true
+        },
+        {
+          "kind": "containers",
+          "id": "cc0666924e80e82695922dde0a6c708d1a7008f1198d18a6fe494767572194fa",
+          "absent": true
+        },
+        {
+          "kind": "networks",
+          "id": "3de45114712736b69661fbfa4f36a4b58121d8f9e5cc8ae7d8256fac30d51bbe",
+          "absent": true
+        },
+        {
+          "kind": "networks",
+          "id": "3e631302d525b86d86c5fe0449a2dd82aa5709d2da6a42d1f4ed234dd2865b73",
+          "absent": true
+        },
+        {
+          "kind": "networks",
+          "id": "63e766398387b2f1eb35b8e40153a878ec3042ce8b4c07dab6cdf24cf00db8b9",
+          "absent": true
+        }
+      ],
+      "owned_processes_remaining": []
+    }
+  ],
+  "tmpdir_entries": [],
+  "source_manifest_unchanged": true
+}

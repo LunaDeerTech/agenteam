@@ -1,0 +1,44 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-count=1",
+    "./internal/central/usage/...",
+    "./internal/central/identity/contract"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d09-ledger-author/cache",
+    "TMPDIR": "/workspace/scratch/agenteam-d09-ledger-author/tmp",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1"
+  },
+  "start": 1791246915.1197777,
+  "files": {
+    "internal/central/usage/authority.go": "830ff92eb7a30c8a4fae64a3d604b3c9d3bc114641384671d4d5ccf82cf16221",
+    "internal/central/usage/authority_test.go": "60410a5dcadea2575bb991a63d981d028ceff4fbebe65ce9c995872168154cb1",
+    "internal/central/usage/contract/authority.go": "c35f5810e8cd6184ed2b071c8149691d84a809f2e1d38d94001000338bae451d",
+    "internal/central/usage/contract/invocations.go": "e2e782b55321ac9bfd4b90164c11a8d8d8ce75d1f2b87d6871952e1fa5a76707",
+    "internal/central/usage/contract/invocations_test.go": "7e90ed84c25d0116127a49fe9a1e4b0e1b5a689270ec5fbac10e259405a27a87",
+    "internal/central/usage/contract/query.go": "9d72156476c47d3d157a966542a0573e8a20ef75d3253bcb18140889cd648726",
+    "internal/central/usage/contract/query_test.go": "56ccb3d8e4cb67a5cb448695a04d22e5073a34529503b49ae4b46713cce8aa9d",
+    "internal/central/usage/contract/types.go": "3845c7c7a75a93e9bf15813fca4d352a7da789c2b0db42bfc1cb9371cb8b38ad",
+    "internal/central/usage/contract/types_test.go": "2107b5be21bade969608e7b8591cb188f413d75c8f9923eba257b190f99d820f",
+    "internal/central/usage/invocations.go": "5ba6d0e8be08978ed2d249065bcb7c86e1e79e634f8e9cbe60c280f39b48ce6e",
+    "internal/central/usage/query.go": "ae7aef7a47871dcc699e5db2256cf0c69528d3ad2a1479622f47b06283e554eb",
+    "internal/central/usage/service.go": "7a475e186679f11a01423fa5857aa288ab1369cb3f81a5b828f0bc959f329608",
+    "internal/central/usage/store.go": "4c2025d6422a86f2efdd0561ea6b7a3f8370c2db3ebe96cd4cb957c194d13b19",
+    "internal/central/usage/summary.go": "12233af80169263d4e05e393e24296e8b0477ced127ac886c84b7001aae58a85",
+    "internal/central/usage/summary_test.go": "78cbdd25e4a98da76de76fb2f2ee676a01e6c1ef52994cf854b869bc846af1ea",
+    "internal/central/identity/contract/identity.go": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+    "internal/central/identity/contract/identity_test.go": "14a778eb74d859062a0f7208f06d62a954a14feb78c2fed3cb8513354912d15c",
+    "db/migrations/00018_model_invocation_usage.sql": "30a062941805bc2809e9404883a32aa90949dea51f7d5ed05bf29566a5cb4ffd"
+  },
+  "exit": 0,
+  "end": 1791246917.0868058
+}

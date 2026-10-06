@@ -1,0 +1,184 @@
+import hashlib
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import threading
+import time
+
+root = Path(__file__).resolve().parent
+manifest_path = Path(sys.argv[1]).resolve()
+source = manifest_path.parent / "src"
+run = root / sys.argv[2]
+window = sys.argv[3]
+overlay_path = Path(sys.argv[4]).resolve()
+selector = sys.argv[5]
+window_record = json.loads((root.parent / "docker-current-window.json").read_text())
+if window_record.get("owner") != "/root/verification_recovery" or window_record.get("window") != window:
+    raise SystemExit("independent Docker window is not owned")
+run.mkdir(exist_ok=False)
+manifest = json.loads(manifest_path.read_text())
+
+def matches():
+    return all(hashlib.sha256((source / name).read_bytes()).hexdigest() == digest
+               for name, digest in manifest["closure"].items())
+
+if not matches():
+    raise SystemExit("frozen source mismatch")
+(run / "input.json").write_bytes(manifest_path.read_bytes())
+overlay_map = json.loads(overlay_path.read_text())["Replace"]
+if not all(Path(dst).is_relative_to(source) for dst in overlay_map):
+    raise SystemExit("overlay source differs from frozen manifest")
+probe_hashes = {str(Path(src)): hashlib.sha256(Path(src).read_bytes()).hexdigest() for src in overlay_map.values()}
+fixed = {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOTOOLCHAIN": "local", "GOENV": "off", "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off", "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -v -overlay=" + str(overlay_path),
+    "GOCACHE": str(root / "gocache"), "TMPDIR": str(root / "tmp"),
+}
+if "TestIndependentUsageAggregateTiming" in selector:
+    fixed["AGENTEAM_USAGE_CPU_PROFILE"] = str(run / "aggregate.cpu")
+env = os.environ.copy()
+env.update(fixed)
+for key in ["AGENTEAM_OBJECT_FIXTURE", "AGENTEAM_PG_FIXTURE",
+            "AGENTEAM_PG_UNSUPPORTED_FIXTURE", "AGENTEAM_OUTBOUND_FIXTURE"]:
+    env.pop(key, None)
+argv = ["sh", "scripts/test-objects.sh", "-run", selector]
+
+def save(name, value):
+    (run / name).write_text(json.dumps(value, indent=2) + "\n")
+
+def command(args):
+    return subprocess.run(args, capture_output=True, text=True, timeout=15)
+
+def resources():
+    result = {}
+    for kind in ["container", "network"]:
+        args = ["docker", "ps", "-aq", "--no-trunc"] if kind == "container" else ["docker", "network", "ls", "-q", "--no-trunc"]
+        listed = command(args)
+        if listed.returncode:
+            raise RuntimeError("Docker resource list unavailable")
+        for exact_id in listed.stdout.split():
+            label = ".Config.Labels" if kind == "container" else ".Labels"
+            fmt = '{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json ' + label + '}}}'
+            inspected = command(["docker", kind, "inspect", "--format", fmt, exact_id])
+            if inspected.returncode:
+                continue
+            row = json.loads(inspected.stdout)
+            row["kind"] = kind
+            result[row["id"]] = row
+    return result
+
+baseline = resources()
+save("baseline.json", baseline)
+trusted_path = root.parent / "trusted-baseline.json"
+trusted = json.loads(trusted_path.read_text())
+expected = {}
+for kind in ["container", "network"]:
+    for row in trusted[kind]:
+        expected[row["ID"]] = {"id": row["ID"], "name": row["Name"], "labels": row["Labels"], "kind": kind}
+if baseline != expected:
+    raise SystemExit("trusted Docker baseline differs; no fixture launched")
+seen = {}
+sampled_processes = {}
+monitor_errors = []
+stop = threading.Event()
+driver_pid = 0
+
+def processes():
+    current = {}
+    for path in Path("/proc").iterdir():
+        if not path.name.isdigit():
+            continue
+        try:
+            raw = (path / "stat").read_text()
+            tail = raw[raw.rfind(")") + 2:].split()
+            pid = int(path.name)
+            current[pid] = {
+                "pid": pid, "ppid": int(tail[1]), "session": int(tail[3]),
+                "start_ticks": int(tail[19]),
+                "comm": raw[raw.find("(") + 1:raw.rfind(")")],
+            }
+        except (OSError, ValueError, IndexError):
+            continue
+    owned = {pid for pid, row in current.items()
+             if row["session"] == driver_pid or
+             (pid in sampled_processes and sampled_processes[pid]["start_ticks"] == row["start_ticks"])}
+    while True:
+        expanded = owned | {pid for pid, row in current.items() if row["ppid"] in owned}
+        if expanded == owned:
+            break
+        owned = expanded
+    for pid in owned:
+        sampled_processes[pid] = current[pid]
+    return {str(pid): current[pid] for pid in owned}
+
+def monitor():
+    while not stop.is_set():
+        try:
+            for exact_id, row in resources().items():
+                if exact_id not in baseline:
+                    seen.setdefault(exact_id, dict(row, first_seen=time.time()))
+            processes()
+            save("observed-resources.json", seen)
+            save("observed-processes.json", sampled_processes)
+        except Exception as exc:
+            monitor_errors.append(type(exc).__name__ + ": " + str(exc))
+        stop.wait(0.5)
+
+record = {
+    "argv": argv, "cwd": str(source), "env": fixed, "window": window,
+    "manifest_path": str(manifest_path),
+    "manifest_sha256": hashlib.sha256(manifest_path.read_bytes()).hexdigest(),
+    "probe_sha256": probe_hashes,
+    "overlay_path": str(overlay_path),
+    "overlay_sha256": hashlib.sha256(overlay_path.read_bytes()).hexdigest(),
+    "started": time.time(),
+}
+with (run / "raw.log").open("w") as log:
+    proc = subprocess.Popen(argv, cwd=source, env=env, stdout=log, stderr=subprocess.STDOUT, start_new_session=True)
+    driver_pid = proc.pid
+    record["driver_pid"] = driver_pid
+    save("command.json", record)
+    thread = threading.Thread(target=monitor)
+    thread.start()
+    code = proc.wait()
+    stop.set()
+    thread.join()
+record.update(exit=code, finished=time.time(), final_manifest_matches=matches(), final_probe_matches=all(hashlib.sha256(Path(src).read_bytes()).hexdigest() == digest for src, digest in probe_hashes.items()))
+save("command.json", record)
+
+cleanup = []
+for check in [1, 2]:
+    current = resources()
+    absent = {}
+    for exact_id, row in seen.items():
+        inspected = command(["docker", row["kind"], "inspect", "--format", "{{.Id}}", exact_id])
+        absent[exact_id] = {
+            "exit": inspected.returncode,
+            "absent": inspected.returncode != 0 and
+                      ("No such" in inspected.stderr or "not found" in inspected.stderr),
+        }
+    cleanup.append({
+        "check": check, "time": time.time(), "exact_absent": absent,
+        "baseline_unchanged": all(current.get(key) == value for key, value in baseline.items()),
+        "remaining_new": sorted(set(current) - set(baseline)),
+        "owned_processes": processes(),
+        "runtime_entries": [str(p.relative_to(root / "tmp")) for p in (root / "tmp").rglob("*")],
+    })
+    if check == 1:
+        threading.Event().wait(0.75)
+save("cleanup.json", cleanup)
+save("monitor-errors.json", monitor_errors)
+print(json.dumps({
+    "exit": code, "resource_count": len(seen), "final_manifest_matches": record["final_manifest_matches"],
+    "cleanup": [{"check": c["check"], "all_exact_absent": all(v["absent"] for v in c["exact_absent"].values()),
+                 "baseline_unchanged": c["baseline_unchanged"], "remaining_new": c["remaining_new"],
+                 "owned_process_count": len(c["owned_processes"]), "runtime_entries": c["runtime_entries"]}
+                for c in cleanup],
+    "monitor_errors": monitor_errors, "record": str(run / "command.json"),
+}), flush=True)

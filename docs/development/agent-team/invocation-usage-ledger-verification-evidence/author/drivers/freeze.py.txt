@@ -1,0 +1,29 @@
+from pathlib import Path
+import json,hashlib,os,time,shutil,sys
+base=Path('/workspace/scratch/agenteam-d09-ledger-author')
+previous,dest=[base/x for x in sys.argv[1:]]
+assert not dest.exists()
+m=json.loads((previous/'manifest.json').read_text())
+for path,digest in m['closure'].items():
+    source=previous/'src'/path
+    assert hashlib.sha256(source.read_bytes()).hexdigest()==digest,path
+    target=dest/'src'/path
+    target.parent.mkdir(parents=True,exist_ok=True)
+    os.link(source,target)
+deltas=[]
+for path,digest in m['owned'].items():
+    source=Path('/workspace/agenteam')/path
+    current=hashlib.sha256(source.read_bytes()).hexdigest()
+    if current!=digest:
+        target=dest/'src'/path
+        target.unlink()
+        shutil.copy2(source,target)
+        deltas.append(path)
+    m['owned'][path]=current
+    m['closure'][path]=current
+m['previous_manifest']=str(previous/'manifest.json')
+m['previous_manifest_sha256']=hashlib.sha256((previous/'manifest.json').read_bytes()).hexdigest()
+m['delta_paths']=deltas
+m['created']=time.time()
+(dest/'manifest.json').write_text(json.dumps(m,indent=2)+'\n')
+print(json.dumps({'manifest':str(dest/'manifest.json'),'sha256':hashlib.sha256((dest/'manifest.json').read_bytes()).hexdigest(),'delta':deltas,'files':len(m['closure'])},indent=2))

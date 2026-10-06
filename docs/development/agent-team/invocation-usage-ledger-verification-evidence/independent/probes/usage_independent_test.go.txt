@@ -1,0 +1,219 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"reflect"
+	"sync"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
+)
+
+// Probe A combines current admission rejection with original technical closure.
+// Session revocation uses the existing complete administrative SQL fixture;
+// the check consumes actual Account authority. Formal Logout is separately
+// exercised by the author Reader test in this same frozen input.
+func TestIndependentUsageCurrentAdmissionAndTechnicalClosure(t *testing.T) {
+	v := newUsageFixture(t, true)
+	scenario := wireJSON(wireReply("independent result", "stop", json.RawMessage(`{"prompt_tokens":9,"completion_tokens":0,"total_tokens":9}`), nil))
+	sent := v.newCase(t, &scenario, nil)
+	v.reserve(t, sent)
+	v.authorize(t, sent)
+	v.startWire(t, sent, wire.JSONResponse)
+	if _, e := sent.exchange.Result(testContext(t)); e != nil {
+		t.Fatal(e)
+	}
+	if observation := sent.exchange.Observe(); observation.Decision == nil || !observation.Decision.Sent || observation.Usage.InputTokens == nil || *observation.Usage.InputTokens != 9 {
+		t.Fatal("actual sent observation missing")
+	}
+	reserve := v.newCase(t, nil, nil)
+	reserveRequest := v.stage(t, reserve.event)
+	reservePlan, e := v.ledger.DiscoverInvocation(testContext(t), reserveRequest)
+	if e != nil {
+		t.Fatal(e)
+	}
+	authorized := v.newCase(t, nil, nil)
+	v.reserve(t, authorized)
+	authorized.event.Sequence++
+	authorized.event.Action = uc.ObserveAction
+	authorized.event.Authorized = true
+	authorized.event.Value.Dispatch = uc.Authorized
+	authorizedRequest := v.stage(t, authorized.event)
+	authorizedPlan, e := v.ledger.DiscoverInvocation(testContext(t), authorizedRequest)
+	if e != nil {
+		t.Fatal(e)
+	}
+	uid, _ := f.ParseID[id.User](v.owner.Details().UserID)
+	freshSession := v.session(t, uid)
+	v.gate(t, pc.Archived)
+	v.revokeSession(t, v.owner)
+	before := usageLedgerState(t, v)
+	for _, item := range []struct {
+		request uc.InvocationRequest
+		plan    uc.InvocationPlan
+	}{{reserveRequest, reservePlan}, {authorizedRequest, authorizedPlan}} {
+		receipt, result := v.applyPlan(t, item.request, item.plan, false, false)
+		if result.State() != f.NotCommitted || usageErrorCode(result.Fault()) != f.SessionRevoked || !reflect.DeepEqual(receipt, uc.InvocationReceipt{}) || usageLedgerState(t, v) != before {
+			t.Fatalf("revoked current admission: state=%v code=%v", result.State(), usageErrorCode(result.Fault()))
+		}
+	}
+	// Both observations are first persisted only after the current Session and
+	// gate changed; the original exact technical actor may close actual I/O.
+	v.observeWire(t, sent)
+	v.finishWire(t, sent, uc.Succeeded, nil)
+	confirm := uc.InvocationRequest{Actor: v.technical(t, sent.event.Identity), Access: uc.ConfirmInvocation, Action: uc.FinalizeAction, Identity: sent.event.Identity.Clone(), Sequence: sent.event.Sequence}
+	found, e := v.ledger.LookupInvocation(testContext(t), confirm)
+	if e != nil || !found.Observed || found.Receipt == nil || found.Receipt.Value.Final == nil || found.Receipt.Value.Final.Status != uc.Succeeded {
+		t.Fatal("original technical closure denied", e)
+	}
+	summary, e := v.ledger.GetExecutionSummary(testContext(t), freshSession, v.project.ID, *sent.call.Consumer.ExecutionID)
+	if e != nil || summary.Summary.ConfirmedInvocations != 1 || summary.Summary.Succeeded != 1 || summary.Summary.Input.Sum == nil || *summary.Summary.Input.Sum != 9 || summary.Summary.Output.Sum == nil || *summary.Summary.Output.Sum != 0 {
+		t.Fatal("current archived owner summary lost reliable usage", e)
+	}
+	page, e := v.ledger.List(testContext(t), v.owner, uc.Query{Filter: uc.Filter{ProjectID: v.project.ID}, Limit: 10})
+	if usageErrorCode(e) != f.SessionRevoked || len(page.Items) != 0 || page.NextCursor != "" {
+		t.Fatal("revoked Session published query output", e)
+	}
+	if !sent.exchange.Joined() || len(v.wire.state(t, sent.key).Requests) != sent.priorRequests+1 {
+		t.Fatal("closure without actual join or with second send")
+	}
+	t.Log("A: reserve/authorized both SESSION_REVOKED + NotCommitted with three-table equality; actual sent observation and Joined final survived revocation/archive; exactly one provider request")
+}
+
+func TestIndependentUsageAtomicityAndHistoricalUnknown(t *testing.T) {
+	t.Run("ignored-inner-overflow-is-exact-and-atomic", func(t *testing.T) {
+		v := newUsageFixture(t, false)
+		c := v.newCase(t, nil, nil)
+		v.reserve(t, c)
+		c.event.Sequence++
+		c.event.Action = uc.ObserveAction
+		c.event.Authorized = true
+		c.event.Value.Dispatch = uc.Authorized
+		r := v.stage(t, c.event)
+		plan, e := v.ledger.DiscoverInvocation(testContext(t), r)
+		if e != nil {
+			t.Fatal(e)
+		}
+		if _, e = v.raw.Exec(testContext(t), `UPDATE agenteam_model.execution_usage_summaries SET version=9223372036854775807 WHERE project_id=$1 AND execution_id=$2`, v.project.ID.String(), c.call.Consumer.ExecutionID.String()); e != nil {
+			t.Fatal(e)
+		}
+		before := usageLedgerState(t, v)
+		var inner error
+		var receipt uc.InvocationReceipt
+		result := v.raw.WithinTx(testContext(t), plan.Cause(), func(ctx context.Context, tx f.Tx) error {
+			if e := v.raw.AcquireAll(ctx, tx, plan.RequiredLocks()); e != nil {
+				return e
+			}
+			receipt, inner = v.ledger.ObserveInvocationInTx(ctx, tx, r, plan)
+			return nil // Deliberately swallow this exact entry error.
+		})
+		if usageErrorCode(inner) != f.InvalidState || result.State() != f.Committed || result.Fault() != nil || !reflect.DeepEqual(receipt, uc.InvocationReceipt{}) || usageLedgerState(t, v) != before {
+			t.Fatalf("ignored entry error: inner=%v outer=%v fault=%v", usageErrorCode(inner), result.State(), result.Fault())
+		}
+		t.Log("B1: inner INVALID_STATE; outer actual Committed; empty receipt and byte-exact all-three-table equality")
+	})
+	t.Run("actual-commit-unknown-old-receipt-and-original-writer", func(t *testing.T) {
+		v := newUsageFixture(t, true)
+		scenario := wireJSON(wireReply("independent unknown result", "stop", json.RawMessage(`{"prompt_tokens":4,"completion_tokens":2,"total_tokens":6}`), nil))
+		c := v.newCase(t, &scenario, nil)
+		v.reserve(t, c)
+		v.authorize(t, c)
+		v.startWire(t, c, wire.JSONResponse)
+		if _, e := c.exchange.Result(testContext(t)); e != nil {
+			t.Fatal(e)
+		}
+		observation := c.exchange.Observe()
+		if observation.Decision == nil || !observation.Decision.Sent {
+			t.Fatal("missing exact Exchange Decision")
+		}
+		c.event.Sequence++
+		c.event.Action = uc.ObserveAction
+		c.event.Sent = true
+		c.event.Value.Dispatch = uc.Sent
+		now := usageNow(t, v)
+		c.event.Value.DispatchedAt = &now
+		c.event.Value.Usage = observation.Usage.Clone()
+		c.event.DoStarted = observation.DoStarted
+		c.event.Decision = observation.Decision
+		r := v.stage(t, c.event)
+		plan, e := v.ledger.DiscoverInvocation(testContext(t), r)
+		if e != nil {
+			t.Fatal(e)
+		}
+		marker := newID[f.TransactionAttempt](t)
+		v.storeView.mu.Lock()
+		v.storeView.armed, v.storeView.rollback, v.storeView.marker = true, false, marker
+		v.storeView.mu.Unlock()
+		callbackReceipt, reported := v.applyPlan(t, r, plan, false, false)
+		v.storeView.mu.Lock()
+		actual := v.storeView.actual
+		v.storeView.armed = false
+		v.storeView.mu.Unlock()
+		if actual.State() != f.Committed || reported.State() != f.Unknown || reported.AttemptID() != marker || reported.Cause().Details().Primary.Canonical() != plan.Cause().Details().Primary.Canonical() {
+			t.Fatal("decorated PG outcome/cause/attempt changed")
+		}
+		confirm := r.Clone()
+		confirm.Access = uc.ConfirmInvocation
+		confirmed, e := v.ledger.LookupInvocation(testContext(t), confirm)
+		if e != nil || !confirmed.Observed || confirmed.Receipt == nil || !reflect.DeepEqual(*confirmed.Receipt, callbackReceipt) || confirmed.Receipt.Value.Dispatch != uc.Sent || confirmed.Receipt.Value.Final != nil {
+			t.Fatal("original observation not confirmed independently", e)
+		}
+		v.finishWire(t, c, uc.Succeeded, nil)
+		before := usageLedgerState(t, v)
+		held, release, done := make(chan struct{}), make(chan struct{}), make(chan f.CommitResult, 1)
+		var once sync.Once
+		unlock := func() { once.Do(func() { close(release) }) }
+		var joinOnce sync.Once
+		var writerResult f.CommitResult
+		join := func() f.CommitResult {
+			joinOnce.Do(func() {
+				unlock()
+				writerResult = <-done
+			})
+			return writerResult
+		}
+		t.Cleanup(func() { join() })
+		go func() {
+			done <- v.raw.WithinTx(testContext(t), plan.Cause(), func(ctx context.Context, tx f.Tx) error {
+				if e := v.raw.AcquireAll(ctx, tx, []f.LockRequest{usageWriterKey(r.Identity)}); e != nil {
+					return e
+				}
+				close(held)
+				select {
+				case <-release:
+					return nil
+				case <-ctx.Done():
+					return ctx.Err()
+				}
+			})
+		}()
+		waitSignal(t, held)
+		ctx, cancel := context.WithTimeout(testContext(t), 80*time.Millisecond)
+		started := time.Now()
+		blocked, e := v.ledger.LookupInvocation(ctx, confirm)
+		cancel()
+		elapsed := time.Since(started)
+		if join().State() != f.Committed {
+			t.Fatal("original writer did not join")
+		}
+		if e == nil || blocked.Observed || blocked.Receipt != nil || elapsed > time.Second {
+			t.Fatal("blocked confirmation falsely published absence/receipt", e)
+		}
+		after, e := v.ledger.LookupInvocation(testContext(t), confirm)
+		if e != nil || !after.Observed || after.Receipt == nil || !reflect.DeepEqual(*after.Receipt, callbackReceipt) || after.Receipt.Sequence >= c.event.Sequence || after.Receipt.Value.Final != nil || usageLedgerState(t, v) != before {
+			t.Fatal("old Action/Sequence collapsed to latest terminal or mutated state", e)
+		}
+		if !c.exchange.Joined() || len(v.wire.state(t, c.key).Requests) != c.priorRequests+1 {
+			t.Fatal("Unknown led to second provider request")
+		}
+		t.Logf("B2: actual Committed decorated Unknown, exact original cause/attempt; historical sent receipt after later final; original writer blocked %.0fms; actual Joined and exactly one provider request", float64(elapsed)/float64(time.Millisecond))
+	})
+}

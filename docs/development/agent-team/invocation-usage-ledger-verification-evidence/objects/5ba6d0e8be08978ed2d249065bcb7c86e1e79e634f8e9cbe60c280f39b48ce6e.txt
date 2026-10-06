@@ -1,0 +1,361 @@
+package usage
+
+import (
+	"context"
+	"math"
+	"strconv"
+	"strings"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
+)
+
+func validLedgerValue(v uc.Invocation) error {
+	if v.Validate() != nil {
+		return fault(f.InvalidState)
+	}
+	if v.Final != nil && (v.Final.Version != 1 || v.Dispatch == uc.Reserved || v.Dispatch == uc.Authorized || v.Dispatch == uc.NotSent && v.Final.Status != uc.Failed && v.Final.Status != uc.Cancelled || v.Dispatch == uc.DispatchUnknown && v.Final.Status != uc.Unknown) {
+		return fault(f.InvalidState)
+	}
+	return nil
+}
+func transition(old, next uc.Invocation, a uc.InvocationAction) error {
+	if old.Final != nil {
+		if a == uc.FinalizeAction && sameValue(old, next) {
+			return nil
+		}
+		return fault(f.IdempotencyKeyReused)
+	}
+	if a == uc.ReserveAction {
+		return fault(f.InvalidState)
+	}
+	if a == uc.FinalizeAction {
+		if next.Final == nil || next.Dispatch != old.Dispatch || old.Dispatch == uc.Reserved || old.Dispatch == uc.Authorized {
+			return fault(f.InvalidState)
+		}
+	} else {
+		if next.Final != nil {
+			return fault(f.InvalidState)
+		}
+		switch old.Dispatch {
+		case uc.Reserved:
+			if next.Dispatch != uc.Authorized && next.Dispatch != uc.NotSent {
+				return fault(f.InvalidState)
+			}
+		case uc.Authorized:
+			if next.Dispatch != uc.Sent && next.Dispatch != uc.NotSent && next.Dispatch != uc.DispatchUnknown {
+				return fault(f.InvalidState)
+			}
+		case uc.Sent:
+			if next.Dispatch != uc.Sent {
+				return fault(f.InvalidState)
+			}
+		default:
+			return fault(f.InvalidState)
+		}
+	}
+	if old.DispatchedAt != nil && (next.DispatchedAt == nil || *old.DispatchedAt != *next.DispatchedAt) {
+		return fault(f.InvalidState)
+	}
+	for i, p := range tokens(old.Usage) {
+		n := tokens(next.Usage)[i]
+		if p != nil && (n == nil || *n < *p) {
+			return fault(f.InvalidState)
+		}
+	}
+	if old.ProviderRequestID != "" && next.ProviderRequestID != old.ProviderRequestID {
+		return fault(f.InvalidState)
+	}
+	return nil
+}
+func (s *Service) ReserveInvocationInTx(ctx context.Context, tx f.Tx, r uc.InvocationRequest, p uc.InvocationPlan) (uc.InvocationReceipt, error) {
+	return s.applyInvocation(ctx, tx, r, p, uc.ReserveAction)
+}
+func (s *Service) ObserveInvocationInTx(ctx context.Context, tx f.Tx, r uc.InvocationRequest, p uc.InvocationPlan) (uc.InvocationReceipt, error) {
+	return s.applyInvocation(ctx, tx, r, p, uc.ObserveAction)
+}
+func (s *Service) FinalizeInvocationInTx(ctx context.Context, tx f.Tx, r uc.InvocationRequest, p uc.InvocationPlan) (uc.InvocationReceipt, error) {
+	return s.applyInvocation(ctx, tx, r, p, uc.FinalizeAction)
+}
+func (s *Service) applyInvocation(ctx context.Context, tx f.Tx, r uc.InvocationRequest, p uc.InvocationPlan, action uc.InvocationAction) (uc.InvocationReceipt, error) {
+	var empty uc.InvocationReceipt
+	if r.Action != action || r.Access != uc.ApplyInvocation {
+		return empty, fault(f.InvalidArgument)
+	}
+	x, fact, e := s.validateInvocation(ctx, tx, r, p)
+	if e != nil {
+		return empty, e
+	}
+	v := fact.Value.Clone()
+	h := headerFor(fact)
+	if e = validLedgerValue(v); e != nil {
+		return empty, e
+	}
+	if action == uc.ReserveAction && (v.Dispatch != uc.Reserved || v.Final != nil) || action == uc.ObserveAction && v.Final != nil || action == uc.FinalizeAction && v.Final == nil {
+		return empty, fault(f.InvalidState)
+	}
+	old, e := loadInvocation(ctx, x, v.ID)
+	if e != nil {
+		return empty, e
+	}
+	if old != nil {
+		if !sameHeader(old.header, h) {
+			return empty, fault(f.IdempotencyKeyReused)
+		}
+		v.LiveProviderID = old.value.Clone().LiveProviderID
+		v.LiveModelID = old.value.Clone().LiveModelID
+		receipt, e := loadReceipt(ctx, x, r, h)
+		if e != nil {
+			return empty, e
+		}
+		if receipt != nil {
+			if receipt.Action != action || receipt.Digest != digestFact(h, action, r.Sequence, v) || !sameValue(receipt.Value, v) {
+				return empty, fault(f.IdempotencyKeyReused)
+			}
+			receipt.Value.LiveProviderID = v.LiveProviderID
+			receipt.Value.LiveModelID = v.LiveModelID
+			return receipt.Clone(), nil
+		}
+		if old.sequence == math.MaxInt64 || r.Sequence != old.sequence+1 {
+			return empty, fault(f.ResourceBusy)
+		}
+		if e = transition(old.value, v, action); e != nil {
+			return empty, e
+		}
+	} else {
+		if action != uc.ReserveAction || r.Sequence != 1 {
+			return empty, fault(f.ResourceBusy)
+		}
+		if e = s.validateNewAttempt(ctx, tx, x, fact); e != nil {
+			return empty, e
+		}
+	}
+	now, e := dbNow(ctx, x)
+	if e != nil {
+		return empty, e
+	}
+	if now.Time().Before(v.StartedAt.Time()) {
+		return empty, fault(f.InvalidState)
+	}
+	receipt := uc.InvocationReceipt{Action: action, Sequence: r.Sequence, Digest: digestFact(h, action, r.Sequence, v), Value: historyValue(v)}
+	if receipt.Validate() != nil {
+		return empty, fault(f.InvalidState)
+	}
+	raw, e := encode(receiptDTO{1, receipt})
+	if e != nil {
+		return empty, e
+	}
+	if len(raw) > 16<<10 {
+		return empty, fault(f.InvalidState)
+	}
+	var before *uc.Invocation
+	if old != nil {
+		b := old.value.Clone()
+		before = &b
+	}
+	var summary *summaryRecord
+	if old == nil || old.value.Final == nil {
+		summary, e = nextSummary(ctx, x, v, before, now)
+		if e != nil {
+			return empty, e
+		}
+	}
+	q, args, e := invocationStatement(h, v, r.Sequence, now, raw, receipt.Digest, action, summary)
+	if e != nil {
+		return empty, e
+	}
+	if e = contextError(ctx); e != nil {
+		return empty, e
+	}
+	// A single statement changes all three tables. There is no post-write Go
+	// validation that a caller could ignore and commit as a partial operation.
+	if _, e = x.Exec(ctx, q, args...); e != nil {
+		return empty, dbError(e)
+	}
+	receipt.Value = v.Clone()
+	return receipt, nil
+}
+func (s *Service) validateNewAttempt(ctx context.Context, tx f.Tx, x postgres.SQLExecutor, fact uc.InvocationFact) error {
+	v, h := fact.Value, headerFor(fact)
+	rows, e := x.Query(ctx, `SELECT `+invocationColumns+` FROM agenteam_model.invocations WHERE call_id=$1 ORDER BY attempt_index`, v.CallID.String())
+	if e != nil {
+		return dbError(e)
+	}
+	var ordinal f.Sequence
+	for rows.Next() {
+		old, e := scanInvocation(rows)
+		if e != nil {
+			rows.Close()
+			return e
+		}
+		ordinal++
+		if old.value.AttemptIndex != ordinal || old.value.Final == nil {
+			rows.Close()
+			return fault(f.ResourceBusy)
+		}
+		a, b := old.header, h
+		if !a.Identity.Consumer.Equal(b.Identity.Consumer) || a.Identity.SnapshotID != b.Identity.SnapshotID || !sameInput(a.Identity.Input, b.Identity.Input) || a.Initiator != b.Initiator || a.Model != b.Model {
+			rows.Close()
+			return fault(f.IdempotencyKeyReused)
+		}
+	}
+	rows.Close()
+	if e = rows.Err(); e != nil {
+		return dbError(e)
+	}
+	if ordinal == math.MaxInt64 || v.AttemptIndex != ordinal+1 {
+		return fault(f.ResourceBusy)
+	}
+	var locks []f.LockRequest
+	if v.LiveProviderID != nil {
+		k, _ := f.AggregateLock(f.ProviderAggregate, v.LiveProviderID.String())
+		locks = append(locks, f.LockRequest{Key: k, Mode: f.Shared})
+	}
+	if v.LiveModelID != nil {
+		k, _ := f.AggregateLock(f.ModelConfigAggregate, v.LiveModelID.String())
+		locks = append(locks, f.LockRequest{Key: k, Mode: f.Shared})
+	}
+	if len(locks) > 0 {
+		return portError(s.state().store.RequireHeldLocks(ctx, tx, locks))
+	}
+	return nil
+}
+func sameInput(a, b mc.InputIdentity) bool {
+	aa, _ := encode(a)
+	bb, _ := encode(b)
+	return string(aa) == string(bb)
+}
+
+func invocationStatement(h headerDTO, v uc.Invocation, seq f.Sequence, now f.Instant, receipt []byte, digest f.Digest, action uc.InvocationAction, summary *summaryRecord) (string, []any, error) {
+	consumer, e := encode(consumerDTO{1, v.Consumer})
+	if e != nil {
+		return "", nil, e
+	}
+	input, e := encode(inputDTO{1, h.Identity.Input})
+	if e != nil {
+		return "", nil, e
+	}
+	initiator, e := encode(initiatorDTO{1, h.Initiator})
+	if e != nil {
+		return "", nil, e
+	}
+	identity, e := encode(identityDTO{1, v.Identity})
+	if e != nil {
+		return "", nil, e
+	}
+	for _, b := range [][]byte{consumer, input, initiator, identity} {
+		if len(b) > 16<<10 {
+			return "", nil, fault(f.InvalidState)
+		}
+	}
+	var status, version, finished, finalDigest, errorData, dispatched any
+	if v.DispatchedAt != nil {
+		dispatched = v.DispatchedAt.Time()
+	}
+	if v.Final != nil {
+		status = string(v.Final.Status)
+		version = int64(v.Final.Version)
+		finished = v.Final.FinishedAt.Time()
+		finalDigest = string(digestFinal(h, v))
+		if v.Final.Error != nil {
+			b, e := encode(v.Final.Error)
+			if e != nil {
+				return "", nil, e
+			}
+			if len(b) > 4<<10 {
+				return "", nil, fault(f.InvalidState)
+			}
+			errorData = b
+		}
+	}
+	args := []any{v.ID.String(), v.CallID.String(), int64(v.AttemptIndex), v.Consumer.ProjectID.String(), v.SnapshotID.String(), v.ProcessID.String(), int64(v.Fence), consumer, input, initiator, identity, string(digestHeader(h)), string(v.Consumer.Kind), string(v.Consumer.Purpose), nullString(nullableID(v.Consumer.AgentID)), nullString(nullableID(v.Consumer.ExecutionID)), nullString(v.Consumer.MeetingID), nullString(v.Consumer.OperationID), v.Identity.ProviderID.String(), v.Identity.ModelID.String(), nullString(nullableID(v.LiveProviderID)), nullString(nullableID(v.LiveModelID)), string(v.Dispatch), v.StartedAt.Time(), dispatched, int64(seq), now.Time(), status, version, finished, errorData, finalDigest}
+	for _, p := range tokens(v.Usage) {
+		if p == nil {
+			args = append(args, nil)
+		} else {
+			args = append(args, int64(*p))
+		}
+	}
+	args = append(args, string(v.Usage.Source), v.ProviderRequestID)
+	columns := strings.ReplaceAll(invocationColumns, "::text", "")
+	var places, updates []string
+	for i := range args {
+		places = append(places, "$"+strconv.Itoa(i+1))
+	}
+	for _, c := range strings.Split(columns, ",") {
+		if c != "id" {
+			updates = append(updates, c+"=EXCLUDED."+c)
+		}
+	}
+	q := `WITH invocation_written AS (INSERT INTO agenteam_model.invocations (` + columns + `) VALUES (` + strings.Join(places, ",") + `) ON CONFLICT(id) DO UPDATE SET ` + strings.Join(updates, ",") + ` RETURNING id), observation_written AS (INSERT INTO agenteam_model.invocation_observations(invocation_id,project_id,sequence,action,fact_digest,receipt_data,recorded_at) SELECT id,$4,$26,$41,$42,$43,$27 FROM invocation_written RETURNING invocation_id)`
+	args = append(args, string(action), string(digest), receipt)
+	if summary != nil {
+		sq, sa := summaryUpsert(v.Consumer.ProjectID, *v.Consumer.ExecutionID, summary, "observation_written", args)
+		args = sa
+		q += `, summary_written AS (` + sq + `)`
+	}
+	q += ` SELECT invocation_id FROM observation_written`
+	return q, args, nil
+}
+func nullString(s string) any {
+	if s == "" {
+		return nil
+	}
+	return s
+}
+func (s *Service) LookupInvocation(ctx context.Context, r uc.InvocationRequest) (uc.InvocationLookup, error) {
+	if r.Access != uc.ConfirmInvocation {
+		return uc.InvocationLookup{}, fault(f.InvalidArgument)
+	}
+	if e := s.writerReady(ctx, r); e != nil {
+		return uc.InvocationLookup{}, e
+	}
+	ctx, cancel := context.WithTimeout(ctx, 2*time.Second)
+	defer cancel()
+	p, e := s.DiscoverInvocation(ctx, r)
+	if e != nil {
+		return uc.InvocationLookup{}, e
+	}
+	var out uc.InvocationLookup
+	result := s.state().store.WithinTx(ctx, p.Cause(), func(ctx context.Context, tx f.Tx) error {
+		if e := s.state().store.AcquireAll(ctx, tx, p.RequiredLocks()); e != nil {
+			return portError(e)
+		}
+		x, fact, e := s.validateInvocation(ctx, tx, r, p)
+		if e != nil {
+			return e
+		}
+		old, e := loadInvocation(ctx, x, r.Identity.Attempt.InvocationID)
+		if e != nil {
+			return e
+		}
+		if old == nil {
+			return nil
+		}
+		h := headerFor(fact)
+		if !sameHeader(old.header, h) {
+			return fault(f.IdempotencyKeyReused)
+		}
+		receipt, e := loadReceipt(ctx, x, r, h)
+		if e != nil {
+			return e
+		}
+		if receipt == nil {
+			return nil
+		}
+		if receipt.Action != r.Action || receipt.Digest != digestFact(h, r.Action, r.Sequence, fact.Value) || !sameValue(receipt.Value, fact.Value) {
+			return fault(f.IdempotencyKeyReused)
+		}
+		receipt.Value.LiveProviderID = old.value.Clone().LiveProviderID
+		receipt.Value.LiveModelID = old.value.Clone().LiveModelID
+		out = uc.InvocationLookup{Observed: true, Receipt: receipt}
+		return contextError(ctx)
+	})
+	if e = commitError(result); e != nil {
+		return uc.InvocationLookup{}, e
+	}
+	return out.Clone(), nil
+}

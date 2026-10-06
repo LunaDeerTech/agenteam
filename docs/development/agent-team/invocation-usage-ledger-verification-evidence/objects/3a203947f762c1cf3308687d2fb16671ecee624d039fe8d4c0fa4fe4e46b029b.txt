@@ -1,0 +1,275 @@
+//go:build integration
+
+package model_test
+
+import (
+	"encoding/json"
+	"errors"
+	"sync"
+	"testing"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
+)
+
+func usageLedgerState(t *testing.T, v *usageFixture) string {
+	t.Helper()
+	var state string
+	e := v.raw.QueryRow(testContext(t), `SELECT jsonb_build_array((SELECT coalesce(jsonb_agg(to_jsonb(i) ORDER BY id),'[]') FROM agenteam_model.invocations i),(SELECT coalesce(jsonb_agg(to_jsonb(o) ORDER BY invocation_id,sequence),'[]') FROM agenteam_model.invocation_observations o),(SELECT coalesce(jsonb_agg(to_jsonb(s) ORDER BY project_id,execution_id),'[]') FROM agenteam_model.execution_usage_summaries s))::text`).Scan(&state)
+	if e != nil {
+		t.Fatal(e)
+	}
+	return state
+}
+func TestUsageInvocationWireLedger(t *testing.T) {
+	v := newUsageFixture(t, true)
+	for _, tc := range []struct {
+		name  string
+		raw   json.RawMessage
+		known bool
+	}{{"provider-usage", json.RawMessage(`{"prompt_tokens":3,"completion_tokens":2,"total_tokens":5}`), true}, {"explicit-zero", json.RawMessage(`{"prompt_tokens":0,"completion_tokens":0,"total_tokens":0}`), true}, {"success-without-usage", nil, false}} {
+		t.Run(tc.name, func(t *testing.T) {
+			c := v.success(t, tc.raw, nil)
+			summary, e := v.ledger.GetExecutionSummary(testContext(t), v.owner, v.project.ID, *c.call.Consumer.ExecutionID)
+			if e != nil || summary.Summary.ConfirmedInvocations != 1 || summary.Summary.Succeeded != 1 || (summary.Summary.Input.Sum != nil) != tc.known {
+				t.Fatal("wire summary", e)
+			}
+			if tc.name == "explicit-zero" && *summary.Summary.Total.Sum != 0 {
+				t.Fatal("zero lost")
+			}
+		})
+	}
+	t.Run("reliable-usage-followed-by-stream-failure", func(t *testing.T) {
+		scenario := wireSSE(wireChunk(map[string]any{"content": "prefix"}, "stop", nil, nil, false), wireChunk(nil, nil, json.RawMessage(`{"prompt_tokens":7,"completion_tokens":1,"total_tokens":8}`), nil, true))
+		c := v.newCase(t, &scenario, nil)
+		v.reserve(t, c)
+		v.authorize(t, c)
+		v.startWire(t, c, wire.SSEResponse)
+		_, e := wireDrain(t, c.exchange)
+		var modelError *mc.ModelError
+		if !errors.As(e, &modelError) {
+			t.Fatal("expected failed protocol terminal", e)
+		}
+		v.observeWire(t, c)
+		v.finishWire(t, c, uc.Failed, modelError)
+		summary, e := v.ledger.GetExecutionSummary(testContext(t), v.owner, v.project.ID, *c.call.Consumer.ExecutionID)
+		if e != nil || summary.Summary.Failed != 1 || summary.Summary.Input.Sum == nil || *summary.Summary.Input.Sum != 7 {
+			t.Fatal("reliable usage lost", e)
+		}
+	})
+	t.Run("actual-live-exchange-cannot-finalize", func(t *testing.T) {
+		scenario := wireSSE(wireChunk(map[string]any{"content": "prefix"}, nil, nil, nil, false))
+		hold := 1
+		scenario.HoldAfter = &hold
+		c := v.newCase(t, &scenario, nil)
+		v.reserve(t, c)
+		v.authorize(t, c)
+		v.startWire(t, c, wire.SSEResponse)
+		if _, e := c.exchange.Next(testContext(t)); e != nil {
+			t.Fatal(e)
+		}
+		if c.exchange.Joined() {
+			t.Fatal("held exchange already joined")
+		}
+		v.observeWire(t, c)
+		before := usageLedgerState(t, v)
+		pending := c.event
+		pending.Sequence++
+		pending.Action = uc.FinalizeAction
+		pending.Value = pending.Value.Clone()
+		pending.Value.Final = &uc.Final{Status: uc.Cancelled, Version: 1, FinishedAt: usageNow(t, v)}
+		r := v.stage(t, pending)
+		_, e := v.ledger.DiscoverInvocation(testContext(t), r)
+		requireCode(t, e, f.InvalidState)
+		if usageLedgerState(t, v) != before {
+			t.Fatal("unjoined final wrote ledger")
+		}
+		wireClose(t, c.exchange)
+		c.event.Joined = true
+		c.event.Sequence = pending.Sequence
+		c.event.Action = uc.FinalizeAction
+		c.event.Value.Final = &uc.Final{Status: uc.Cancelled, Version: 1, FinishedAt: usageNow(t, v)}
+		// Replace only the explicitly rejected test-owner candidate with a new
+		// durable version after the real Exchange has joined.
+		if _, e = v.raw.Exec(testContext(t), `UPDATE usage_runtime_fixture.events SET data=$3,version=version+1 WHERE invocation_id=$1 AND sequence=$2`, c.event.Identity.Attempt.InvocationID.String(), int64(c.event.Sequence), resolutionJSON(c.event)); e != nil {
+			t.Fatal(e)
+		}
+		r.Sequence = c.event.Sequence
+		v.apply(t, r)
+		if len(v.wire.state(t, c.key).Requests) != 1 {
+			t.Fatal("implicit resend")
+		}
+	})
+	t.Run("actual-zero-send-do-and-protocol-unknown-stay-separate", func(t *testing.T) {
+		for _, dispatch := range []uc.Dispatch{uc.NotSent, uc.DispatchUnknown} {
+			scenario := wireJSON(wireReply("must not send", "stop", nil, nil))
+			c := v.newCase(t, &scenario, nil)
+			v.reserve(t, c)
+			v.authorize(t, c)
+			if dispatch == uc.NotSent {
+				v.wire.allow(t, false)
+				v.startWire(t, c, wire.JSONResponse)
+				_, e := c.exchange.Result(testContext(t))
+				if e == nil {
+					t.Fatal("denied Do succeeded")
+				}
+				wireClose(t, c.exchange)
+				o := c.exchange.Observe()
+				if !c.exchange.Joined() || !o.DoStarted || o.Decision == nil || o.Decision.Sent || o.Decision.Reason == "" || len(v.wire.state(t, c.key).Requests) != 0 {
+					t.Fatal("missing real ended zero-send operation")
+				}
+				c.event.DoStarted, c.event.Decision = o.DoStarted, o.Decision
+				c.event.Joined, c.event.LocalDone = c.exchange.Joined(), true
+				v.wire.allow(t, true)
+			}
+			c.event.Sequence++
+			c.event.Action = uc.ObserveAction
+			c.event.Value.Dispatch = dispatch
+			c.event.ProtocolUnknown = dispatch == uc.DispatchUnknown
+			v.apply(t, v.stage(t, c.event))
+			c.event.Sequence++
+			c.event.Action = uc.FinalizeAction
+			// Unknown is an explicit durable terminal-protocol fixture; it is
+			// separate from the actual D04 zero-send operation above.
+			c.event.Joined = true
+			status := uc.Failed
+			if dispatch == uc.DispatchUnknown {
+				status = uc.Unknown
+			}
+			c.event.Value.Final = &uc.Final{Status: status, Version: 1, FinishedAt: usageNow(t, v)}
+			v.apply(t, v.stage(t, c.event))
+			sum, e := v.ledger.GetExecutionSummary(testContext(t), v.owner, v.project.ID, *c.call.Consumer.ExecutionID)
+			if e != nil || sum.Summary.ConfirmedInvocations != 0 {
+				t.Fatal("unsent counted", e)
+			}
+			if dispatch == uc.DispatchUnknown && (sum.Summary.DispatchUnknown != 1 || sum.Summary.Unknown != 1) {
+				t.Fatal("unknown discarded")
+			}
+		}
+	})
+}
+func TestUsageInvocationReplayAndAtomicity(t *testing.T) {
+	v := newUsageFixture(t, false)
+	c := v.newCase(t, nil, nil)
+	r := v.stage(t, c.event)
+	p, e := v.ledger.DiscoverInvocation(testContext(t), r)
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Run("concurrent-reservation-and-old-receipt", func(t *testing.T) {
+		var wg sync.WaitGroup
+		results := make(chan f.CommitResult, 2)
+		for range 2 {
+			wg.Add(1)
+			go func() { defer wg.Done(); _, result := v.applyPlan(t, r, p, false, false); results <- result }()
+		}
+		wg.Wait()
+		close(results)
+		for result := range results {
+			if result.State() != f.Committed {
+				t.Fatal(result.Fault())
+			}
+		}
+		before := usageLedgerState(t, v)
+		v.apply(t, r)
+		if before != usageLedgerState(t, v) {
+			t.Fatal("replay changed row or summary")
+		}
+	})
+	t.Run("outer-rollback-and-ignored-overflow-have-no-effects", func(t *testing.T) {
+		c.event.Sequence = 2
+		c.event.Action = uc.ObserveAction
+		c.event.Value.Dispatch = uc.Authorized
+		c.event.Authorized = true
+		next := v.stage(t, c.event)
+		plan, e := v.ledger.DiscoverInvocation(testContext(t), next)
+		if e != nil {
+			t.Fatal(e)
+		}
+		before := usageLedgerState(t, v)
+		_, result := v.applyPlan(t, next, plan, false, true)
+		if result.State() != f.NotCommitted || usageLedgerState(t, v) != before {
+			t.Fatal("outer rollback partial effects")
+		}
+		if _, e = v.raw.Exec(testContext(t), `UPDATE agenteam_model.execution_usage_summaries SET version=9223372036854775807 WHERE execution_id=$1`, c.call.Consumer.ExecutionID.String()); e != nil {
+			t.Fatal(e)
+		}
+		before = usageLedgerState(t, v)
+		receipt, result := v.applyPlan(t, next, plan, true, false)
+		if result.State() != f.Committed || receipt.Value.ID.Validate() == nil || usageLedgerState(t, v) != before {
+			t.Fatal("ignored overflow left partial state", result.Fault())
+		}
+		if _, e = v.raw.Exec(testContext(t), `UPDATE agenteam_model.execution_usage_summaries SET version=1 WHERE execution_id=$1`, c.call.Consumer.ExecutionID.String()); e != nil {
+			t.Fatal(e)
+		}
+		v.apply(t, next)
+		original := usageLedgerState(t, v)
+		v.apply(t, r)
+		if usageLedgerState(t, v) != original {
+			t.Fatal("old reservation rewound latest")
+		}
+	})
+	t.Run("same-sequence-conflict-and-gap", func(t *testing.T) {
+		var raw []byte
+		if e := v.raw.QueryRow(testContext(t), `SELECT data FROM usage_runtime_fixture.events WHERE invocation_id=$1 AND sequence=2`, c.event.Identity.Attempt.InvocationID.String()).Scan(&raw); e != nil {
+			t.Fatal(e)
+		}
+		changed := c.event
+		changed.Value.ProviderRequestID = "other"
+		if _, e := v.raw.Exec(testContext(t), `UPDATE usage_runtime_fixture.events SET data=$2,version=version+1 WHERE invocation_id=$1 AND sequence=2`, c.event.Identity.Attempt.InvocationID.String(), resolutionJSON(changed)); e != nil {
+			t.Fatal(e)
+		}
+		next := r
+		next.Sequence = 2
+		next.Action = uc.ObserveAction
+		plan, e := v.ledger.DiscoverInvocation(testContext(t), next)
+		if e != nil {
+			t.Fatal(e)
+		}
+		before := usageLedgerState(t, v)
+		_, result := v.applyPlan(t, next, plan, false, false)
+		if result.State() != f.NotCommitted || usageErrorCode(result.Fault()) != f.IdempotencyKeyReused || usageLedgerState(t, v) != before {
+			t.Fatal("same-sequence semantic conflict")
+		}
+		if _, e = v.raw.Exec(testContext(t), `UPDATE usage_runtime_fixture.events SET data=$2,version=version+1 WHERE invocation_id=$1 AND sequence=2`, c.event.Identity.Attempt.InvocationID.String(), raw); e != nil {
+			t.Fatal(e)
+		}
+		gap := c.event
+		gap.Sequence = 4
+		gap.Value.Dispatch = uc.DispatchUnknown
+		gap.ProtocolUnknown = true
+		request := v.stage(t, gap)
+		plan, e = v.ledger.DiscoverInvocation(testContext(t), request)
+		if e != nil {
+			t.Fatal(e)
+		}
+		_, result = v.applyPlan(t, request, plan, false, false)
+		if usageErrorCode(result.Fault()) != f.ResourceBusy {
+			t.Fatal("observation gap accepted")
+		}
+	})
+	t.Run("constraint-error-is-one-statement", func(t *testing.T) {
+		next := c.event
+		next.Sequence = 3
+		next.Value.Dispatch = uc.DispatchUnknown
+		next.ProtocolUnknown = true
+		request := v.stage(t, next)
+		plan, e := v.ledger.DiscoverInvocation(testContext(t), request)
+		if e != nil {
+			t.Fatal(e)
+		}
+		before := usageLedgerState(t, v)
+		if _, e = v.raw.Exec(testContext(t), `ALTER TABLE agenteam_model.invocation_observations ADD CONSTRAINT fixture_reject_observe CHECK(action!='observe') NOT VALID`); e != nil {
+			t.Fatal(e)
+		}
+		_, result := v.applyPlan(t, request, plan, true, false)
+		if result.State() != f.NotCommitted || usageLedgerState(t, v) != before {
+			t.Fatal("ignored SQL constraint left partial effects")
+		}
+		if _, e = v.raw.Exec(testContext(t), `ALTER TABLE agenteam_model.invocation_observations DROP CONSTRAINT fixture_reject_observe`); e != nil {
+			t.Fatal(e)
+		}
+	})
+}

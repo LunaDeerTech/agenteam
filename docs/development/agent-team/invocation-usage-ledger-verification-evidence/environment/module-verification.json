@@ -1,0 +1,22 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "mod",
+    "verify"
+  ],
+  "cwd": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/module-input",
+  "environment_overrides": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/gocache",
+    "GOFLAGS": "-mod=readonly"
+  },
+  "exit": 0,
+  "raw_output": "all modules verified\n",
+  "recorded_utc": "2026-10-06T00:29:45.812848+00:00",
+  "source": "observed tool process session 74226 completion; no source tests run"
+}

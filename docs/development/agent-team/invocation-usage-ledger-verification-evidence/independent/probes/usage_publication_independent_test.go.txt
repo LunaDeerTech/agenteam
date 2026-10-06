@@ -1,0 +1,124 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"errors"
+	"reflect"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/usage"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
+)
+
+// This wrapper returns the unchanged result of a real PostgreSQL transaction.
+// Only after that transaction has actually committed does it cancel the caller.
+type independentUsagePublicationStore struct {
+	usage.Store
+	caller        context.Context
+	cancel        context.CancelFunc
+	expectedOwner string
+	locks         []f.LockRequest
+	actual        f.CommitResult
+	calls         int
+	callbackDone  bool
+	callerLive    bool
+	derivedBudget time.Duration
+	derivedEnded  error
+	callbackError error
+}
+
+func (s *independentUsagePublicationStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
+	if cause.Details().Owner != s.expectedOwner {
+		return s.Store.WithinTx(ctx, cause, fn)
+	}
+	s.calls++
+	s.callerLive = s.caller.Err() == nil && ctx.Err() == nil
+	if deadline, ok := ctx.Deadline(); ok {
+		s.derivedBudget = time.Until(deadline)
+	}
+	s.actual = s.Store.WithinTx(ctx, cause, func(txctx context.Context, tx f.Tx) error {
+		e := fn(txctx, tx)
+		if e != nil {
+			s.callbackError = e
+			return e
+		}
+		if e = s.Store.RequireHeldLocks(txctx, tx, s.locks); e != nil {
+			s.callbackError = e
+			return e
+		}
+		s.callbackDone = true
+		return nil
+	})
+	if s.actual.State() == f.Committed {
+		s.cancel()
+		s.derivedEnded = ctx.Err()
+	}
+	return s.actual
+}
+
+func TestIndependentUsageReaderPublicationCancellation(t *testing.T) {
+	v := newUsageFixture(t, false)
+	c := v.newCase(t, nil, nil)
+	v.reserve(t, c)
+	query := uc.Query{Filter: uc.Filter{ProjectID: v.project.ID}, Limit: 10}
+	user, _ := f.UserLock(v.owner.Details().UserID)
+	project, _ := f.ProjectLock(v.project.ID.String())
+	for _, name := range []string{"list", "aggregate", "get", "rebuild"} {
+		t.Run(name, func(t *testing.T) {
+			if name == "rebuild" {
+				if _, e := v.raw.Exec(testContext(t), `DELETE FROM agenteam_model.execution_usage_summaries WHERE project_id=$1 AND execution_id=$2`, v.project.ID.String(), c.call.Consumer.ExecutionID.String()); e != nil {
+					t.Fatal(e)
+				}
+			}
+			caller, cancel := context.WithCancel(testContext(t))
+			defer cancel()
+			owner := name
+			if name == "get" || name == "rebuild" {
+				owner = "summary"
+			}
+			store := &independentUsagePublicationStore{Store: v.raw, caller: caller, cancel: cancel, expectedOwner: "model.usage." + owner, locks: []f.LockRequest{{Key: user, Mode: f.Shared}, {Key: project, Mode: f.Shared}}}
+			authority, e := usage.NewAuthority(store, usage.Authorizations{Sessions: v.accounts, Projects: v.projects})
+			if e != nil {
+				t.Fatal(e)
+			}
+			_, cursors, _ := testKeys(t)
+			reader, e := usage.New(store, authority, usage.Dependencies{Cursors: cursors})
+			if e != nil {
+				t.Fatal(e)
+			}
+			var zero bool
+			var resultError error
+			switch name {
+			case "list":
+				out, e := reader.List(caller, v.owner, query)
+				resultError, zero = e, reflect.DeepEqual(out, uc.Page{})
+			case "aggregate":
+				out, e := reader.Aggregate(caller, v.owner, uc.AggregateQuery{Filter: query.Filter, GroupBy: uc.ByProvider, Limit: 10})
+				resultError, zero = e, reflect.DeepEqual(out, uc.AggregatePage{})
+			case "get":
+				out, e := reader.GetExecutionSummary(caller, v.owner, v.project.ID, *c.call.Consumer.ExecutionID)
+				resultError, zero = e, reflect.DeepEqual(out, uc.ExecutionSummary{})
+			case "rebuild":
+				out, e := reader.RebuildExecutionSummary(caller, v.owner, v.project.ID, *c.call.Consumer.ExecutionID)
+				resultError, zero = e, reflect.DeepEqual(out, uc.ExecutionSummary{})
+			}
+			t.Logf("owner=%s callback_done=%t callback_error=%v actual=%s caller_live_before=%t derived_budget=%s caller_after=%v derived_after=%v returned_error=%v zero_DTO=%t", store.expectedOwner, store.callbackDone, store.callbackError, store.actual.State(), store.callerLive, store.derivedBudget, caller.Err(), store.derivedEnded, resultError, zero)
+			if store.calls != 1 || !store.callbackDone || store.callbackError != nil || !store.callerLive || store.derivedBudget <= 0 || store.derivedBudget > 2*time.Second || store.actual.State() != f.Committed || !errors.Is(caller.Err(), context.Canceled) || !errors.Is(store.derivedEnded, context.Canceled) {
+				t.Fatal("publication probe did not reach exact real-commit cancellation boundary")
+			}
+			if name == "rebuild" {
+				var count int
+				if e := v.raw.QueryRow(testContext(t), `SELECT count(*) FROM agenteam_model.execution_usage_summaries WHERE project_id=$1 AND execution_id=$2`, v.project.ID.String(), c.call.Consumer.ExecutionID.String()).Scan(&count); e != nil || count != 1 {
+					t.Fatal("real rebuild did not commit its repaired projection", e)
+				}
+			}
+			if !errors.Is(resultError, context.Canceled) || !zero {
+				t.Fatal("committed read published candidate after caller cancellation")
+			}
+		})
+	}
+}

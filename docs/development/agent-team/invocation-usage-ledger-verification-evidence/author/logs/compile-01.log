@@ -1,0 +1,4 @@
+# github.com/LunaDeerTech/agenteam/tests/model_test [github.com/LunaDeerTech/agenteam/tests/model.test]
+tests/model/usage_fixture_test.go:128:25: cannot use store (variable of type *usageObservedStore) as secret.Store value in argument to secret.New: *usageObservedStore does not implement secret.Store (missing method Acquire)
+FAIL	github.com/LunaDeerTech/agenteam/tests/model [build failed]
+FAIL

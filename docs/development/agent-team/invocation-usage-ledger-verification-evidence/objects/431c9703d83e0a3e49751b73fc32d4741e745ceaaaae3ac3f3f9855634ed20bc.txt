@@ -1,0 +1,724 @@
+//go:build integration
+
+package model_test
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"sort"
+	"sync"
+	"testing"
+	"time"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/project"
+	"github.com/LunaDeerTech/agenteam/internal/central/secret"
+	sc "github.com/LunaDeerTech/agenteam/internal/central/secret/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/usage"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
+	netfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/outbound"
+)
+
+// Only the future Runtime owner is isolated. Its call/input/attempt/event rows
+// are durable and protected by its own writer locks, separate from ledger locks.
+type usageCall struct {
+	ID           mc.CallID
+	Consumer     mc.Consumer
+	Snapshot     mc.SnapshotID
+	Model        mc.ModelIdentity
+	Input        mc.InputIdentity
+	Messages     []mc.Message
+	Initiator    id.ActorDetails
+	LeaseOwner   sc.OwnerDetails
+	LeaseID      string
+	CredentialID string
+}
+type usageEvent struct {
+	Identity        uc.InvocationIdentity
+	Action          uc.InvocationAction
+	Sequence        f.Sequence
+	Value           uc.Invocation
+	Authorized      bool
+	Sent            bool
+	Joined          bool
+	LocalDone       bool
+	ProtocolUnknown bool
+	DoStarted       bool
+	Decision        *outbound.Decision
+}
+type usageRuntime struct {
+	store        usage.Store
+	base         *currentResolutionFixture
+	issuer       uc.PlanIssuer
+	secretIssuer sc.PlanIssuer
+}
+type usageFixture struct {
+	*currentResolutionFixture
+	runtimeOwner *usageRuntime
+	ledger       *usage.Service
+	reads        *secret.Service
+	wire         *wireFixture
+	storeView    *usageObservedStore
+}
+type usageObservedStore struct {
+	usage.Store
+	mu               sync.Mutex
+	armed, rollback  bool
+	actual, reported f.CommitResult
+	marker           f.ID[f.TransactionAttempt]
+	afterRead        func(context.Context, f.Tx, f.TransactionCause) error
+}
+
+func (s *usageObservedStore) Acquire(ctx context.Context, tx f.Tx, key f.LockKey, mode f.LockMode) error {
+	return s.Store.AcquireAll(ctx, tx, []f.LockRequest{{Key: key, Mode: mode}})
+}
+
+func (s *usageObservedStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
+	s.mu.Lock()
+	armed, rollback, marker, afterRead := s.armed, s.rollback, s.marker, s.afterRead
+	s.mu.Unlock()
+	armed = armed && cause.Kind() == f.CommandsCause && cause.Details().Primary.Namespace() == "model.usage"
+	actual := s.Store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		e := fn(ctx, tx)
+		if e == nil && afterRead != nil {
+			e = afterRead(ctx, tx, cause)
+		}
+		if e == nil && armed && rollback {
+			return f.NewFault(f.DependencyUnavailable, f.NotStarted)
+		}
+		return e
+	})
+	s.mu.Lock()
+	s.actual = actual
+	s.mu.Unlock()
+	if !armed {
+		return actual
+	}
+	reported := f.UnknownResult(marker, cause)
+	s.mu.Lock()
+	s.reported = reported
+	s.mu.Unlock()
+	return reported
+}
+func newUsageFixture(t *testing.T, network bool) *usageFixture {
+	t.Helper()
+	base := newCurrentResolutionFixture(t)
+	_, e := base.raw.Exec(testContext(t), `CREATE SCHEMA usage_runtime_fixture;
+CREATE TABLE usage_runtime_fixture.calls(id uuid PRIMARY KEY,data jsonb NOT NULL,version bigint NOT NULL);
+CREATE TABLE usage_runtime_fixture.attempts(id uuid PRIMARY KEY,call_id uuid NOT NULL,identity_data jsonb NOT NULL);
+CREATE UNIQUE INDEX usage_runtime_attempt_ordinal ON usage_runtime_fixture.attempts(call_id,(identity_data->>'attempt_index'));
+CREATE TABLE usage_runtime_fixture.events(invocation_id uuid NOT NULL,sequence bigint NOT NULL,data jsonb NOT NULL,version bigint NOT NULL,PRIMARY KEY(invocation_id,sequence));`)
+	if e != nil {
+		t.Fatal(e)
+	}
+	store := &usageObservedStore{Store: base.raw}
+	runtime := &usageRuntime{store: store, base: base, issuer: uc.NewPlanIssuer(), secretIssuer: sc.NewPlanIssuer()}
+	a, e := usage.NewAuthority(store, usage.Authorizations{Sessions: base.accounts, Projects: base.projects, Invocations: runtime})
+	if e != nil {
+		t.Fatal(e)
+	}
+	_, ck, sk := testKeys(t)
+	ledger, e := usage.New(store, a, usage.Dependencies{Cursors: ck})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = ledger.Initialize(testContext(t)); e != nil {
+		t.Fatal(e)
+	}
+	projectSecrets, e := project.NewSecretAuthority(base.projects)
+	if e != nil {
+		t.Fatal(e)
+	}
+	reads, e := secret.New(store, sk, base.aud, secret.Authorizations{Sessions: base.accounts, System: base.accounts, Projects: projectSecrets, Usage: runtime, AccountWrites: base.accounts})
+	if e != nil {
+		t.Fatal(e)
+	}
+	if e = reads.Initialize(testContext(t)); e != nil {
+		t.Fatal(e)
+	}
+	t.Cleanup(reads.StopMaintenance)
+	v := &usageFixture{currentResolutionFixture: base, runtimeOwner: runtime, ledger: ledger, reads: reads, storeView: store}
+	if network {
+		v.wire = newWireFixture(t)
+		v.wire.allow(t, true)
+	}
+	return v
+}
+func usageStable(a id.Actor) id.ActorDetails {
+	d := a.Details()
+	if d.Kind == id.Human {
+		d.SessionID = ""
+	}
+	return d
+}
+func usageWriterKey(i uc.InvocationIdentity) f.LockRequest {
+	c, _ := f.NewCommandIdentity("fixture.runtime", []string{i.Consumer.ProjectID.String()}, "call", f.IdempotencyKey(i.Attempt.CallID.String()))
+	k, _ := f.CommandLock(c)
+	return f.LockRequest{Key: k, Mode: f.Exclusive}
+}
+func usageRuntimeLocks(r uc.InvocationRequest, owner id.Actor) []f.LockRequest {
+	locks := []f.LockRequest{usageWriterKey(r.Identity)}
+	add := func(k f.LockKey, e error) {
+		if e != nil {
+			panic(e)
+		}
+		locks = append(locks, f.LockRequest{Key: k, Mode: f.Shared})
+	}
+	add(f.UserLock(owner.Details().UserID))
+	if r.Actor.Details().Kind == id.Human {
+		add(f.UserLock(r.Actor.Details().UserID))
+	}
+	add(f.ProjectLock(r.Identity.Consumer.ProjectID.String()))
+	if r.Identity.Consumer.AgentID != nil {
+		add(f.AgentLock(r.Identity.Consumer.AgentID.String()))
+	}
+	if r.Identity.Consumer.ExecutionID != nil {
+		add(f.AggregateLock(f.ExecutionAggregate, r.Identity.Consumer.ExecutionID.String()))
+	}
+	if r.Identity.Consumer.OperationID != "" {
+		add(f.AggregateLock(f.OperationAggregate, r.Identity.Consumer.OperationID))
+	}
+	k, _ := f.RecordLock(f.CommandRecordLock, "fixture-attempt:"+r.Identity.Attempt.InvocationID.String())
+	locks = append(locks, f.LockRequest{Key: k, Mode: f.Exclusive})
+	sort.Slice(locks, func(i, j int) bool { return f.CompareLockKeys(locks[i].Key, locks[j].Key) < 0 })
+	return locks
+}
+func (p *usageRuntime) load(ctx context.Context, x postgres.SQLExecutor, r uc.InvocationRequest) (usageCall, usageEvent, f.Digest, error) {
+	var callRaw, attemptRaw, eventRaw []byte
+	var cv, ev int64
+	e := x.QueryRow(ctx, `SELECT c.data,a.identity_data,e.data,c.version,e.version FROM usage_runtime_fixture.calls c JOIN usage_runtime_fixture.attempts a ON a.call_id=c.id JOIN usage_runtime_fixture.events e ON e.invocation_id=a.id WHERE c.id=$1 AND a.id=$2 AND e.sequence=$3`, r.Identity.Attempt.CallID.String(), r.Identity.Attempt.InvocationID.String(), int64(r.Sequence)).Scan(&callRaw, &attemptRaw, &eventRaw, &cv, &ev)
+	if e != nil {
+		return usageCall{}, usageEvent{}, "", f.NewFault(f.Forbidden, f.NotStarted).WithCause(e)
+	}
+	var c usageCall
+	var a mc.AttemptIdentity
+	var v usageEvent
+	if json.Unmarshal(callRaw, &c) != nil || json.Unmarshal(attemptRaw, &a) != nil || json.Unmarshal(eventRaw, &v) != nil || a != r.Identity.Attempt || !v.Identity.Equal(r.Identity) || c.ID != a.CallID || !c.Consumer.Equal(r.Identity.Consumer) || c.Snapshot != r.Identity.SnapshotID || !bytes.Equal(resolutionJSON(c.Input), resolutionJSON(r.Identity.Input)) || c.Input.Digest != resolutionDigest(c.Messages) || c.Input.SchemaVersion != 1 || v.Action != r.Action || v.Sequence != r.Sequence || c.Initiator != usageStable(p.base.owner) || v.Value.Identity != c.Model {
+		return c, v, "", f.NewFault(f.Forbidden, f.NotStarted)
+	}
+	var snapshot []byte
+	if e = x.QueryRow(ctx, `SELECT snapshot_data->'Identity' FROM agenteam_model.snapshots WHERE id=$1 AND project_id=$2`, c.Snapshot.String(), c.Consumer.ProjectID.String()).Scan(&snapshot); e != nil {
+		return c, v, "", e
+	}
+	var model mc.ModelIdentity
+	if json.Unmarshal(snapshot, &model) != nil || model != c.Model {
+		return c, v, "", f.NewFault(f.Forbidden, f.NotStarted)
+	}
+	return c, v, resolutionDigest(struct {
+		Call    json.RawMessage
+		Attempt json.RawMessage
+		Event   json.RawMessage
+		CV, EV  int64
+	}{callRaw, attemptRaw, eventRaw, cv, ev}), nil
+}
+func (p *usageRuntime) authorize(ctx context.Context, tx f.Tx, r uc.InvocationRequest, c usageCall, v usageEvent) error {
+	current := r.Access == uc.ApplyInvocation && (r.Action == uc.ReserveAction || r.Action == uc.ObserveAction && v.Value.Dispatch == uc.Authorized)
+	if current {
+		if r.Actor.Details().Kind != id.Human {
+			return f.NewFault(f.DependencyUnbound, f.NotStarted)
+		}
+		if usageStable(r.Actor) != c.Initiator {
+			return f.NewFault(f.Forbidden, f.NotStarted)
+		}
+		if e := p.base.accounts.RequireCurrentSession(ctx, tx, r.Actor); e != nil {
+			return e
+		}
+		grant, e := p.base.projects.AuthorizeProject(ctx, tx, r.Actor, c.Consumer.ProjectID, id.Mutate)
+		if e != nil {
+			return e
+		}
+		scope, _ := id.InProject(c.Consumer.ProjectID)
+		if !grant.Matches(r.Actor, scope, id.Mutate) {
+			return f.NewFault(f.Forbidden, f.NotStarted)
+		}
+	} else {
+		a := r.Actor.Details()
+		if a.Kind != id.Service || a.ServiceName != id.ModelRuntime || a.CauseRef != r.Identity.Attempt.InvocationID.String() || a.ProjectID != c.Consumer.ProjectID.String() {
+			return f.NewFault(f.Forbidden, f.NotStarted)
+		}
+	}
+	if v.Value.Dispatch == uc.Authorized && !v.Authorized || v.Value.Dispatch == uc.Sent && (!v.Authorized || !v.Sent || !v.DoStarted || v.Decision == nil || !v.Decision.Sent) || v.Value.Dispatch == uc.NotSent && (!v.LocalDone || !v.Joined || v.Sent || !v.DoStarted || v.Decision == nil || v.Decision.Sent || v.Decision.Reason == "") || v.Value.Dispatch == uc.DispatchUnknown && (!v.Authorized || !v.ProtocolUnknown) || v.Value.Final != nil && !v.Joined {
+		return f.NewFault(f.InvalidState, f.NotStarted)
+	}
+	if r.Action == uc.ReserveAction && r.Identity.Attempt.AttemptIndex > 1 {
+		x, e := p.store.InTx(tx)
+		if e != nil {
+			return e
+		}
+		var raw []byte
+		e = x.QueryRow(ctx, `SELECT e.data FROM usage_runtime_fixture.attempts a JOIN usage_runtime_fixture.events e ON e.invocation_id=a.id WHERE a.call_id=$1 AND (a.identity_data->>'attempt_index')::bigint=$2 ORDER BY e.sequence DESC LIMIT 1`, c.ID.String(), int64(r.Identity.Attempt.AttemptIndex)-1).Scan(&raw)
+		var previous usageEvent
+		if e != nil || json.Unmarshal(raw, &previous) != nil || !previous.Joined || previous.Value.Final == nil {
+			return f.NewFault(f.ResourceBusy, f.NotStarted)
+		}
+	}
+	return nil
+}
+func (p *usageRuntime) Discover(ctx context.Context, r uc.InvocationRequest) (uc.InvocationDependencies, error) {
+	if r.Validate() != nil {
+		return uc.InvocationDependencies{}, f.NewFault(f.InvalidArgument, f.NotStarted)
+	}
+	var deps uc.InvocationDependencies
+	cause, _ := f.NewRecoveryCause("usage-fixture-discover", r.Identity.Attempt.InvocationID.String(), "")
+	result := p.store.WithinTx(ctx, cause, func(ctx context.Context, tx f.Tx) error {
+		locks := usageRuntimeLocks(r, p.base.owner)
+		if e := p.store.AcquireAll(ctx, tx, locks); e != nil {
+			return e
+		}
+		x, e := p.store.InTx(tx)
+		if e != nil {
+			return e
+		}
+		c, v, m, e := p.load(ctx, x, r)
+		if e != nil {
+			return e
+		}
+		if e = p.authorize(ctx, tx, r, c, v); e != nil {
+			return e
+		}
+		if r.Action == uc.ReserveAction {
+			for _, item := range []struct {
+				k  f.AggregateKind
+				id string
+			}{{f.ProviderAggregate, c.Model.ProviderID.String()}, {f.ModelConfigAggregate, c.Model.ModelID.String()}} {
+				k, _ := f.AggregateLock(item.k, item.id)
+				locks = append(locks, f.LockRequest{Key: k, Mode: f.Shared})
+			}
+		}
+		b, _ := uc.InvocationBinding(r)
+		deps, e = uc.NewInvocationDependencies(p.issuer, uc.InvocationDependencyDetails{Binding: b, Mapping: m, Locks: locks})
+		return e
+	})
+	if result.State() != f.Committed {
+		return uc.InvocationDependencies{}, result.Fault()
+	}
+	return deps, nil
+}
+func (p *usageRuntime) ValidateInTx(ctx context.Context, tx f.Tx, r uc.InvocationRequest, dep uc.InvocationDependencies) (uc.InvocationFact, error) {
+	x, e := p.store.InTx(tx)
+	if e != nil {
+		return uc.InvocationFact{}, e
+	}
+	if e = p.store.RequireHeldLocks(ctx, tx, dep.RequiredLocks()); e != nil {
+		return uc.InvocationFact{}, e
+	}
+	if e = p.store.RequireHeldLocks(ctx, tx, usageRuntimeLocks(r, p.base.owner)); e != nil {
+		return uc.InvocationFact{}, e
+	}
+	c, v, m, e := p.load(ctx, x, r)
+	if e != nil {
+		return uc.InvocationFact{}, e
+	}
+	b, _ := uc.InvocationBinding(r)
+	if !dep.Matches(p.issuer, b, m) {
+		return uc.InvocationFact{}, f.NewFault(f.ResourceBusy, f.NotStarted)
+	}
+	if e = p.authorize(ctx, tx, r, c, v); e != nil {
+		return uc.InvocationFact{}, e
+	}
+	return uc.InvocationFact{Identity: v.Identity.Clone(), Initiator: p.base.owner, Sequence: v.Sequence, Value: v.Value.Clone()}, nil
+}
+func (v *usageFixture) technical(t *testing.T, i uc.InvocationIdentity) id.Actor {
+	t.Helper()
+	reg, _ := id.RegisterService(id.ModelRuntime)
+	scope, _ := id.InProject(i.Consumer.ProjectID)
+	a, e := reg.Actor(i.Attempt.InvocationID.String(), scope)
+	if e != nil {
+		t.Fatal(e)
+	}
+	return a
+}
+func (v *usageFixture) stage(t *testing.T, event usageEvent) uc.InvocationRequest {
+	t.Helper()
+	a := v.technical(t, event.Identity)
+	if event.Action == uc.ReserveAction || event.Action == uc.ObserveAction && event.Value.Dispatch == uc.Authorized {
+		a = v.owner
+	}
+	r := uc.InvocationRequest{Actor: a, Access: uc.ApplyInvocation, Action: event.Action, Identity: event.Identity.Clone(), Sequence: event.Sequence}
+	result := v.raw.WithinTx(testContext(t), recoveryCause(t), func(ctx context.Context, tx f.Tx) error {
+		if e := v.raw.AcquireAll(ctx, tx, usageRuntimeLocks(r, v.owner)); e != nil {
+			return e
+		}
+		x, e := v.raw.InTx(tx)
+		if e != nil {
+			return e
+		}
+		_, e = x.Exec(ctx, `INSERT INTO usage_runtime_fixture.events(invocation_id,sequence,data,version)VALUES($1,$2,$3,1)`, event.Identity.Attempt.InvocationID.String(), int64(event.Sequence), resolutionJSON(event))
+		return e
+	})
+	if result.State() != f.Committed {
+		t.Fatal("stage canonical event", result.Fault())
+	}
+	return r
+}
+func (v *usageFixture) apply(t *testing.T, r uc.InvocationRequest) uc.InvocationReceipt {
+	t.Helper()
+	p, e := v.ledger.DiscoverInvocation(testContext(t), r)
+	if e != nil {
+		t.Fatal("discover usage", e)
+	}
+	receipt, result := v.applyPlan(t, r, p, false, false)
+	if result.State() != f.Committed {
+		t.Fatal("apply usage", result.Fault())
+	}
+	return receipt
+}
+func (v *usageFixture) applyPlan(t *testing.T, r uc.InvocationRequest, p uc.InvocationPlan, ignore, rollback bool) (uc.InvocationReceipt, f.CommitResult) {
+	t.Helper()
+	var receipt uc.InvocationReceipt
+	result := v.storeView.WithinTx(testContext(t), p.Cause(), func(ctx context.Context, tx f.Tx) error {
+		if e := v.storeView.AcquireAll(ctx, tx, p.RequiredLocks()); e != nil {
+			return e
+		}
+		var e error
+		switch r.Action {
+		case uc.ReserveAction:
+			receipt, e = v.ledger.ReserveInvocationInTx(ctx, tx, r, p)
+		case uc.ObserveAction:
+			receipt, e = v.ledger.ObserveInvocationInTx(ctx, tx, r, p)
+		case uc.FinalizeAction:
+			receipt, e = v.ledger.FinalizeInvocationInTx(ctx, tx, r, p)
+		}
+		if rollback {
+			return f.NewFault(f.DependencyUnavailable, f.NotStarted)
+		}
+		if ignore {
+			return nil
+		}
+		return e
+	})
+	return receipt, result
+}
+func usageNow(t *testing.T, v *usageFixture) f.Instant {
+	t.Helper()
+	var now time.Time
+	if e := v.raw.QueryRow(testContext(t), `SELECT clock_timestamp()`).Scan(&now); e != nil {
+		t.Fatal(e)
+	}
+	out, _ := f.NewInstant(now)
+	return out
+}
+
+type usageCase struct {
+	call          usageCall
+	event         usageEvent
+	resolved      mc.ResolvedModel
+	request       mc.ResolveRequest
+	key           string
+	exchange      *wire.Exchange
+	credential    sc.SecretMaterial
+	priorRequests int
+}
+
+func (v *usageFixture) newCase(t *testing.T, scenario *netfixture.WireScenario, consumer *mc.Consumer) *usageCase {
+	t.Helper()
+	p, m, _ := v.config(t, false, true)
+	modelInput := m.Input.Clone()
+	modelInput.ProviderModelID = "fixture-native-model"
+	modelInput.Capabilities.Streaming = true
+	modelReceipt, modelErr := v.service.UpdateModel(testContext(t), mc.UpdateModelRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ID: m.ID, ExpectedVersion: m.Version, Input: modelInput})
+	if modelErr != nil {
+		t.Fatal(modelErr)
+	}
+	m.Version = modelReceipt.Version
+	m.Input = modelInput
+	key := ""
+	if scenario != nil {
+		key = v.wire.scenario(t, *scenario)
+		input := p.Input.Clone()
+		input.BaseURL = "https://fixture.test:8443/case/" + key
+		receipt, e := v.service.UpdateProvider(testContext(t), mc.UpdateProviderRequest{CommandMeta: v.meta(t, newID[struct{}](t).String()), ID: p.ID, ExpectedVersion: p.Version, Input: input})
+		if e != nil {
+			t.Fatal(e)
+		}
+		p.Version = receipt.Version
+	}
+	r := v.request(t, m, true)
+	if consumer != nil {
+		r.Consumer = consumer.Clone()
+		r.Purpose = r.Consumer.Purpose
+		if r.Consumer.ExecutionID != nil {
+			r.LeaseOwner, _ = sc.NewCredentialLeaseOwner(sc.ExecutionOwner, r.Consumer.ExecutionID.String())
+		} else {
+			r.LeaseOwner, _ = sc.NewCredentialLeaseOwner(sc.ModelCallOwner, newID[mc.Call](t).String())
+		}
+		v.bind(t, r)
+	}
+	resolved := v.resolve(t, r)
+	messages := []mc.Message{{Role: "user", Parts: []mc.MessagePart{{Text: &mc.TextPart{Text: "usage canonical input"}}}}}
+	input := mc.InputIdentity{Digest: resolutionDigest(messages), SchemaVersion: 1}
+	if r.Consumer.ExecutionID != nil {
+		input.ExecutionID = r.Consumer.ExecutionID
+		input.RoundID = newID[struct{}](t).String()
+	} else {
+		input.OperationID = r.Consumer.OperationID
+	}
+	callID := newID[mc.Call](t)
+	if r.LeaseOwner.Details().Kind == sc.ModelCallOwner {
+		callID, _ = f.ParseID[mc.Call](r.LeaseOwner.Details().ID)
+	}
+	call := usageCall{ID: callID, Consumer: r.Consumer.Clone(), Snapshot: resolved.Snapshot.ID, Model: resolved.Snapshot.Identity, Input: input, Messages: messages, Initiator: usageStable(v.owner), LeaseOwner: r.LeaseOwner.Details(), LeaseID: resolved.CredentialLease.LeaseID.String(), CredentialID: resolved.Snapshot.CredentialRef.Details().ID.String()}
+	identity := uc.InvocationIdentity{Attempt: mc.AttemptIdentity{CallID: callID, InvocationID: newID[mc.Invocation](t), AttemptIndex: 1, ProcessID: newID[oc.Process](t), Fence: 1}, Consumer: call.Consumer.Clone(), SnapshotID: call.Snapshot, Input: input.Clone()}
+	now := usageNow(t, v)
+	event := usageEvent{Identity: identity, Action: uc.ReserveAction, Sequence: 1, Value: uc.Invocation{ID: identity.Attempt.InvocationID, CallID: callID, AttemptIndex: 1, Consumer: call.Consumer.Clone(), SnapshotID: call.Snapshot, Identity: call.Model, LiveProviderID: &call.Model.ProviderID, LiveModelID: &call.Model.ModelID, ProcessID: identity.Attempt.ProcessID, Fence: 1, Dispatch: uc.Reserved, StartedAt: now, Usage: mc.Usage{Source: mc.UnknownUsage}}}
+	_, e := v.raw.Exec(testContext(t), `INSERT INTO usage_runtime_fixture.calls(id,data,version)VALUES($1,$2,1);`, callID.String(), resolutionJSON(call))
+	if e != nil {
+		t.Fatal(e)
+	}
+	_, e = v.raw.Exec(testContext(t), `INSERT INTO usage_runtime_fixture.attempts(id,call_id,identity_data)VALUES($1,$2,$3)`, identity.Attempt.InvocationID.String(), callID.String(), resolutionJSON(identity.Attempt))
+	if e != nil {
+		t.Fatal(e)
+	}
+	return &usageCase{call: call, event: event, resolved: resolved, request: r, key: key}
+}
+func (v *usageFixture) reserve(t *testing.T, c *usageCase) {
+	t.Helper()
+	v.apply(t, v.stage(t, c.event))
+}
+func (v *usageFixture) authorize(t *testing.T, c *usageCase) {
+	t.Helper()
+	c.event.Action = uc.ObserveAction
+	c.event.Sequence++
+	c.event.Value.Dispatch = uc.Authorized
+	c.event.Authorized = true
+	v.apply(t, v.stage(t, c.event))
+}
+func (v *usageFixture) startWire(t *testing.T, c *usageCase, mode wire.ResponseMode) {
+	t.Helper()
+	c.priorRequests = len(v.wire.state(t, c.key).Requests)
+	reg, _ := id.RegisterService(id.SecretService)
+	actor, _ := reg.Actor(c.resolved.LeaseOwner.Details().ID, c.resolved.Snapshot.CredentialRef.Details().Scope)
+	material, e := v.reads.ReadCredentialForUsage(testContext(t), sc.UsageRequest{Actor: actor, Ref: *c.resolved.Snapshot.CredentialRef, Purpose: sc.Model, LeaseOwner: c.resolved.LeaseOwner, LeaseID: c.resolved.CredentialLease.LeaseID, Action: sc.ReadLeaseUsage, RequestID: c.event.Identity.Attempt.InvocationID.String()})
+	if e != nil {
+		t.Fatal("exact invocation Secret read", e)
+	}
+	c.credential = material
+	v.wire.materials = append(v.wire.materials, material)
+	appendKey, _ := ac.NewAppendKey(ac.AccessProducer, newID[struct{}](t).String(), 0)
+	outboundContext, e := outbound.NewCallContext(v.wire.actor, id.SystemScope(), appendKey, ac.Associations{HTTPTraceID: newID[struct{}](t).String()})
+	if e != nil {
+		t.Fatal(e)
+	}
+	req := wire.Request{Snapshot: c.resolved.Snapshot.Clone(), Messages: c.call.Messages, ToolChoice: mc.ToolChoice{Kind: "none"}, ResponseFormat: mc.ResponseFormat{Kind: "text"}, Mode: mode}
+	options := wire.CallOptions{ProjectID: c.call.Consumer.ProjectID, Context: outboundContext, Credential: material, Limits: outbound.Limits{Overall: 20 * time.Second}}
+	c.exchange = v.wire.start(t, testContext(t), v.wire.adapter, req, options)
+}
+func (v *usageFixture) observeWire(t *testing.T, c *usageCase) {
+	t.Helper()
+	observation := c.exchange.Observe()
+	if observation.Decision == nil || !observation.Decision.Sent {
+		t.Fatal("exact exchange has no sent witness")
+	}
+	c.event.Action = uc.ObserveAction
+	c.event.Sequence++
+	c.event.Value.Dispatch = uc.Sent
+	if c.event.Value.DispatchedAt == nil {
+		now := usageNow(t, v)
+		c.event.Value.DispatchedAt = &now
+	}
+	c.event.Value.Usage = observation.Usage.Clone()
+	c.event.Sent = true
+	c.event.DoStarted = observation.DoStarted
+	c.event.Decision = observation.Decision
+	v.apply(t, v.stage(t, c.event))
+}
+func (v *usageFixture) finishWire(t *testing.T, c *usageCase, status uc.TerminalStatus, modelError *mc.ModelError) {
+	t.Helper()
+	wireClose(t, c.exchange)
+	if !c.exchange.Joined() {
+		t.Fatal("actual join missing")
+	}
+	c.event.Joined = true
+	c.event.Action = uc.FinalizeAction
+	c.event.Sequence++
+	c.event.Value.Final = &uc.Final{Status: status, Version: 1, FinishedAt: usageNow(t, v), Error: modelError}
+	v.apply(t, v.stage(t, c.event))
+	if got := len(v.wire.state(t, c.key).Requests); got != c.priorRequests+1 {
+		t.Fatalf("exact exchange added requests=%d", got-c.priorRequests)
+	}
+}
+func (v *usageFixture) success(t *testing.T, usageJSON json.RawMessage, consumer *mc.Consumer) *usageCase {
+	t.Helper()
+	scenario := wireJSON(wireReply("result", "stop", usageJSON, nil))
+	c := v.newCase(t, &scenario, consumer)
+	v.reserve(t, c)
+	v.authorize(t, c)
+	v.startWire(t, c, wire.JSONResponse)
+	_, e := c.exchange.Result(testContext(t))
+	if e != nil {
+		t.Fatal(e)
+	}
+	v.observeWire(t, c)
+	v.finishWire(t, c, uc.Succeeded, nil)
+	return c
+}
+
+func (v *usageFixture) nextExecutionCall(t *testing.T, old *usageCase) *usageCase {
+	t.Helper()
+	if old.call.Consumer.ExecutionID == nil {
+		t.Fatal("helper requires Execution")
+	}
+	c := &usageCase{call: old.call, resolved: old.resolved.Clone(), request: old.request.Clone(), key: old.key}
+	c.call.ID = newID[mc.Call](t)
+	c.call.Input = c.call.Input.Clone()
+	c.call.Input.RoundID = newID[struct{}](t).String()
+	identity := old.event.Identity.Clone()
+	identity.Attempt.CallID = c.call.ID
+	identity.Attempt.InvocationID = newID[mc.Invocation](t)
+	identity.Attempt.ProcessID = newID[oc.Process](t)
+	identity.Input = c.call.Input.Clone()
+	value := old.event.Value.Clone()
+	value.ID = identity.Attempt.InvocationID
+	value.CallID = c.call.ID
+	value.ProcessID = identity.Attempt.ProcessID
+	value.Dispatch = uc.Reserved
+	value.StartedAt = usageNow(t, v)
+	value.DispatchedAt = nil
+	value.Final = nil
+	value.Usage = mc.Usage{Source: mc.UnknownUsage}
+	value.ProviderRequestID = ""
+	c.event = usageEvent{Identity: identity, Action: uc.ReserveAction, Sequence: 1, Value: value}
+	if _, e := v.raw.Exec(testContext(t), `INSERT INTO usage_runtime_fixture.calls(id,data,version)VALUES($1,$2,1)`, c.call.ID.String(), resolutionJSON(c.call)); e != nil {
+		t.Fatal(e)
+	}
+	if _, e := v.raw.Exec(testContext(t), `INSERT INTO usage_runtime_fixture.attempts(id,call_id,identity_data)VALUES($1,$2,$3)`, identity.Attempt.InvocationID.String(), c.call.ID.String(), resolutionJSON(identity.Attempt)); e != nil {
+		t.Fatal(e)
+	}
+	return c
+}
+
+// Secret's missing invocation dispatch is isolated by the same persisted owner.
+// Acquire remains handled by the accepted resolution router; no witness is reused.
+func (p *usageRuntime) CheckReferenceInTx(ctx context.Context, tx f.Tx, a id.Actor, ref sc.CredentialRef, purpose sc.Purpose, owner string, retain bool) error {
+	return p.base.router.CheckReferenceInTx(ctx, tx, a, ref, purpose, owner, retain)
+}
+func (p *usageRuntime) secretRequest(ctx context.Context, x postgres.SQLExecutor, r sc.UsageRequest) (uc.InvocationRequest, usageCall, f.Digest, error) {
+	var raw []byte
+	if e := x.QueryRow(ctx, `SELECT data FROM usage_runtime_fixture.events WHERE invocation_id=$1 ORDER BY sequence DESC LIMIT 1`, r.RequestID).Scan(&raw); e != nil {
+		return uc.InvocationRequest{}, usageCall{}, "", e
+	}
+	var v usageEvent
+	if json.Unmarshal(raw, &v) != nil {
+		return uc.InvocationRequest{}, usageCall{}, "", f.NewFault(f.Forbidden, f.NotStarted)
+	}
+	request := uc.InvocationRequest{Actor: p.base.owner, Access: uc.ApplyInvocation, Action: v.Action, Identity: v.Identity.Clone(), Sequence: v.Sequence}
+	c, v, m, e := p.load(ctx, x, request)
+	if e != nil {
+		return request, c, m, e
+	}
+	a := r.Actor.Details()
+	if r.Validate() != nil || r.Action != sc.ReadLeaseUsage || r.Purpose != sc.Model || a.Kind != id.Service || a.ServiceName != id.SecretService || a.CauseRef != r.LeaseOwner.Details().ID || a.ProjectID != r.Ref.Details().Scope.Details().ProjectID || c.CredentialID != r.Ref.Details().ID.String() || c.LeaseID != r.LeaseID.String() || c.LeaseOwner != r.LeaseOwner.Details() || v.Value.Dispatch != uc.Authorized || !v.Authorized || v.Sent || v.Joined {
+		return request, c, m, f.NewFault(f.Forbidden, f.NotStarted)
+	}
+	return request, c, m, nil
+}
+func (p *usageRuntime) DiscoverUsage(ctx context.Context, r sc.UsageRequest) (sc.UsageDependencies, error) {
+	if r.Action != sc.ReadLeaseUsage {
+		return p.base.router.DiscoverUsage(ctx, r)
+	}
+	request, _, m, e := p.secretRequest(ctx, p.store, r)
+	if e != nil {
+		return sc.UsageDependencies{}, e
+	}
+	b, _ := sc.UsageBinding(r)
+	return sc.NewUsageDependencies(p.secretIssuer, b, m, usageRuntimeLocks(request, p.base.owner))
+}
+func (p *usageRuntime) ValidateUsageInTx(ctx context.Context, tx f.Tx, r sc.UsageRequest, plan sc.UsageDependencies) error {
+	if r.Action != sc.ReadLeaseUsage {
+		return p.base.router.ValidateUsageInTx(ctx, tx, r, plan)
+	}
+	x, e := p.store.InTx(tx)
+	if e != nil {
+		return e
+	}
+	request, c, m, e := p.secretRequest(ctx, x, r)
+	if e != nil {
+		return e
+	}
+	if e = p.store.RequireHeldLocks(ctx, tx, usageRuntimeLocks(request, p.base.owner)); e != nil {
+		return e
+	}
+	b, _ := sc.UsageBinding(r)
+	if !plan.Matches(p.secretIssuer, b, m) {
+		return f.NewFault(f.ResourceBusy, f.NotStarted)
+	}
+	if e = p.base.accounts.RequireCurrentSession(ctx, tx, p.base.owner); e != nil {
+		return e
+	}
+	_, e = p.base.projects.AuthorizeProject(ctx, tx, p.base.owner, c.Consumer.ProjectID, id.Mutate)
+	return e
+}
+func (p *usageRuntime) AuthorizeLeaseInTx(ctx context.Context, tx f.Tx, a id.Actor, ref sc.CredentialRef, owner sc.CredentialLeaseOwner, action sc.LeaseAction) (sc.UseGrant, error) {
+	if action != sc.ReadLease {
+		return p.base.router.AuthorizeLeaseInTx(ctx, tx, a, ref, owner, action)
+	}
+	x, e := p.store.InTx(tx)
+	if e != nil {
+		return sc.UseGrant{}, e
+	}
+	if ref.Validate() != nil || owner.Validate() != nil || a.Validate() != nil || a.Details().CauseRef != owner.Details().ID {
+		return sc.UseGrant{}, f.NewFault(f.Forbidden, f.NotStarted)
+	}
+	// This legacy port receives an owner, not an invocation RequestID. The
+	// planner above already validates the exact RequestID. Re-read that owner's
+	// persisted attempts and require the original writer locks in this same Tx;
+	// an unrelated authorized attempt or a different lease cannot grant access.
+	rows, e := x.Query(ctx, `SELECT a.id::text,c.data->>'LeaseID' FROM usage_runtime_fixture.calls c JOIN usage_runtime_fixture.attempts a ON a.call_id=c.id WHERE c.data->'LeaseOwner'=$1::jsonb AND c.data->>'CredentialID'=$2 ORDER BY a.id`, resolutionJSON(owner.Details()), ref.Details().ID.String())
+	if e != nil {
+		return sc.UseGrant{}, e
+	}
+	type candidate struct{ invocation, lease string }
+	var candidates []candidate
+	for rows.Next() {
+		var c candidate
+		if e = rows.Scan(&c.invocation, &c.lease); e != nil {
+			rows.Close()
+			return sc.UseGrant{}, e
+		}
+		candidates = append(candidates, c)
+	}
+	e = rows.Err()
+	rows.Close()
+	if e != nil {
+		return sc.UseGrant{}, e
+	}
+	for _, c := range candidates {
+		leaseID, e := f.ParseID[sc.Lease](c.lease)
+		if e != nil {
+			return sc.UseGrant{}, e
+		}
+		r := sc.UsageRequest{Actor: a, Ref: ref, Purpose: sc.Model, LeaseOwner: owner, LeaseID: leaseID, Action: sc.ReadLeaseUsage, RequestID: c.invocation}
+		request, call, _, e := p.secretRequest(ctx, x, r)
+		if e != nil {
+			continue
+		}
+		if e = p.store.RequireHeldLocks(ctx, tx, usageRuntimeLocks(request, p.base.owner)); e != nil {
+			continue
+		}
+		if e = p.base.accounts.RequireCurrentSession(ctx, tx, p.base.owner); e != nil {
+			return sc.UseGrant{}, e
+		}
+		if _, e = p.base.projects.AuthorizeProject(ctx, tx, p.base.owner, call.Consumer.ProjectID, id.Mutate); e != nil {
+			return sc.UseGrant{}, e
+		}
+		return sc.UseGrant{Subject: a, Consumer: sc.Model}, nil
+	}
+	return sc.UseGrant{}, f.NewFault(f.Forbidden, f.NotStarted)
+}
+
+func usageErrorCode(e error) f.Code {
+	var ff *f.Fault
+	if errors.As(e, &ff) {
+		return ff.Code
+	}
+	return ""
+}

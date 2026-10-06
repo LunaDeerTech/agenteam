@@ -1,0 +1,39 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-c",
+    "-race",
+    "-tags=integration",
+    "-o",
+    "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/bin/model-input13-independent.test",
+    "./tests/model"
+  ],
+  "cwd": "/workspace/scratch/agenteam-d09-ledger-author/input13/src",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/compile-tmp",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay06.json"
+  },
+  "input_manifest": "/workspace/scratch/agenteam-d09-ledger-author/input13/manifest.json",
+  "input_sha256": "b0dbeefe78312c2b2ca81f7e6de80fc8cde6b4f3354cfd3d6c7497a847b3009e",
+  "probes": {
+    "usage_independent_test.go": "221850c5162cd4d4103b2a0d5b26c704549099a5051ccb10b013236da11122de",
+    "usage_publication_independent_test.go": "dea05f5195d14604d28c83eeafc5f430d1222788712aaf8468a1466168742d01",
+    "usage_lookup_publication_independent_test.go": "d9229f09ac0baa11f4a6bf5568858a94e4834e5ab7d6b838c4617749c7e589b9"
+  },
+  "selector": "^(TestIndependentUsageCurrentAdmissionAndTechnicalClosure|TestIndependentUsageAtomicityAndHistoricalUnknown|TestIndependentUsageReaderPublicationCancellation|TestIndependentUsageLookupPublicationCancellation|TestModelCurrentResolutionAuthorization|TestModelCurrentResolutionCanonicalLease|TestModelProjectCRUDScopeAndCanonicalReceipts|TestSecretModelUsagePlannedReadAndAudit|TestModelOpenAIChatWireHTTP|TestModelOpenAIChatStructuredHTTP|TestUsageReaderNonemptyPagination)$",
+  "started_utc": "2026-10-06T01:25:37.782006+00:00",
+  "pid": 351581,
+  "exit": 0,
+  "finished_utc": "2026-10-06T01:26:17.761052+00:00",
+  "probe_final_matches": true,
+  "source_final_matches": true,
+  "tmp_entries": []
+}

@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-c",
+    "-race",
+    "-tags=integration",
+    "-o",
+    "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/bin/model-input07.test",
+    "./tests/model"
+  ],
+  "cwd": "/workspace/scratch/agenteam-d09-ledger-author/input07/src",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/tmp",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay02.json"
+  },
+  "input_manifest": "/workspace/scratch/agenteam-d09-ledger-author/input07/manifest.json",
+  "input_sha256": "ec8a86c784d7ff64110ac774cb480de4c8a0492d72fdc0f4b974308f74729ff4",
+  "probes": {
+    "usage_independent_test.go": "514111b83d68617b6f7521c7aa8b9798b92937354c3228bc36820d9509c0049c",
+    "usage_publication_independent_test.go": "dea05f5195d14604d28c83eeafc5f430d1222788712aaf8468a1466168742d01"
+  },
+  "first_selector": "^TestIndependentUsageReaderPublicationCancellation$",
+  "started_utc": "2026-10-06T01:05:34.489014+00:00",
+  "pid": 213615,
+  "exit": 0,
+  "finished_utc": "2026-10-06T01:06:18.681303+00:00",
+  "probe_final_matches": true,
+  "source_final_matches": true,
+  "tmp_entries": []
+}

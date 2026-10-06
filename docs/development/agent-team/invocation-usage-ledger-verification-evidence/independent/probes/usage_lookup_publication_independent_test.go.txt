@@ -1,0 +1,49 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"errors"
+	"reflect"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/usage"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
+)
+
+func TestIndependentUsageLookupPublicationCancellation(t *testing.T) {
+	v := newUsageFixture(t, false)
+	c := v.newCase(t, nil, nil)
+	v.reserve(t, c)
+	caller, cancel := context.WithCancel(testContext(t))
+	defer cancel()
+	// Lookup's transaction uses the original Commands cause (Owner is empty).
+	// The provider's discovery uses its existing Store and is not decorated.
+	store := &independentUsagePublicationStore{Store: v.raw, caller: caller, cancel: cancel, expectedOwner: "", locks: usageRuntimeLocks(uc.InvocationRequest{Actor: v.technical(t, c.event.Identity), Identity: c.event.Identity}, v.owner)}
+	authority, e := usage.NewAuthority(store, usage.Authorizations{Sessions: v.accounts, Projects: v.projects, Invocations: v.runtimeOwner})
+	if e != nil {
+		t.Fatal(e)
+	}
+	_, cursors, _ := testKeys(t)
+	service, e := usage.New(store, authority, usage.Dependencies{Cursors: cursors})
+	if e != nil {
+		t.Fatal(e)
+	}
+	request := uc.InvocationRequest{Actor: v.technical(t, c.event.Identity), Access: uc.ConfirmInvocation, Action: uc.ReserveAction, Identity: c.event.Identity.Clone(), Sequence: 1}
+	result, resultError := service.LookupInvocation(caller, request)
+	zero := reflect.DeepEqual(result, uc.InvocationLookup{})
+	t.Logf("lookup callback_done=%t callback_error=%v actual=%s caller_live_before=%t derived_budget=%s caller_after=%v derived_after=%v returned_error=%v zero_DTO=%t", store.callbackDone, store.callbackError, store.actual.State(), store.callerLive, store.derivedBudget, caller.Err(), store.derivedEnded, resultError, zero)
+	if store.calls != 1 || !store.callbackDone || store.callbackError != nil || !store.callerLive || store.derivedBudget <= 0 || store.derivedBudget > 2*time.Second || store.actual.State() != f.Committed || !errors.Is(caller.Err(), context.Canceled) || !errors.Is(store.derivedEnded, context.Canceled) {
+		t.Fatal("Lookup probe did not reach exact real-commit cancellation boundary")
+	}
+	if !errors.Is(resultError, context.Canceled) || !zero {
+		t.Fatal("committed lookup published receipt after caller cancellation")
+	}
+	var fault *f.Fault
+	if !errors.As(resultError, &fault) || fault.CommitState != f.Committed {
+		t.Fatal("cancelled publication obscured the known committed transaction")
+	}
+}

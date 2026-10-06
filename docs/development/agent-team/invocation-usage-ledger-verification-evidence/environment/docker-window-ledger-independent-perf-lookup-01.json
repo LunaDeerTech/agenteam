@@ -1,0 +1,63 @@
+{
+  "window": "ledger-independent-perf-lookup-01",
+  "owner": "/root/verification_recovery",
+  "state": "returned; driver exit1; Lookup U-R02 confirmed, 1201-row timing passed 1.379s",
+  "granted_utc": "2026-10-06T01:15:28.093498+00:00",
+  "source": "/workspace/scratch/agenteam-d09-ledger-author/input07/src",
+  "input_manifest": "/workspace/scratch/agenteam-d09-ledger-author/input07/manifest.json",
+  "input_manifest_sha256": "ec8a86c784d7ff64110ac774cb480de4c8a0492d72fdc0f4b974308f74729ff4",
+  "probes": {
+    "usage_independent_test.go": "514111b83d68617b6f7521c7aa8b9798b92937354c3228bc36820d9509c0049c",
+    "usage_publication_independent_test.go": "dea05f5195d14604d28c83eeafc5f430d1222788712aaf8468a1466168742d01",
+    "usage_performance_independent_test.go": "8ba8ea0b91c799a604dfcfb80325361ca801a524d131b90ca8456b814592a29c",
+    "usage_lookup_publication_independent_test.go": "d9229f09ac0baa11f4a6bf5568858a94e4834e5ab7d6b838c4617749c7e589b9"
+  },
+  "overlay": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay04.json",
+  "selector": "^(TestIndependentUsageAggregateTiming|TestIndependentUsageLookupPublicationCancellation)$",
+  "compile_evidence": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/compile04.json",
+  "baseline": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/trusted-baseline.json",
+  "coordinator_baseline_checked": true,
+  "budget": "original test-objects race/count1/6m; 1200 synthetic rows unchanged; API2s unchanged",
+  "root_authorization": "minimal same-family Lookup publication counterexample plus actual performance phase/SQL analysis",
+  "returned_utc": "2026-10-06T01:18:08.405181+00:00",
+  "evidence": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/perf-lookup01/command.json",
+  "cleanup": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/perf-lookup01/cleanup.json",
+  "coordinator_exact_id_absent": {
+    "9049105b6ba222e8d3479efbb1e77f6054c343ace65df339f91f8edfa34f1fab": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "45feeac7228d6fe24d1e944973a022c7df9f31ef5cd86ecc3104b284fdf9bf2d": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "f9ca2434a934872929d37ce7fbcfc396401b43e8d7a80845571827a130d297d0": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "2fdb049c777157b6ba88d1095b82b0e80bf01dd02450a4219ac22b108cccf53b": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "87abec44fcce4cec4d6fddbc3535c4478f3824563446686c71ad260a157b24c5": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "15bfb706e283eca1acdb2b624f69bdc0927f82062bf472eafaca5eb43529202f": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "cc912d9c4eb78e9fb20065a119d4195d19ef41fec7bb52e3d50db30bfd7a71a0": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    }
+  },
+  "coordinator_baseline_unchanged": true
+}

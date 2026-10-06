@@ -1,0 +1,60 @@
+{
+  "window": "ledger-independent-publication-01",
+  "owner": "/root/verification_recovery",
+  "state": "returned; driver exit1; U-R02 confirmed in four reader paths",
+  "granted_utc": "2026-10-06T01:08:47.372987+00:00",
+  "source": "/workspace/scratch/agenteam-d09-ledger-author/input07/src",
+  "input_manifest": "/workspace/scratch/agenteam-d09-ledger-author/input07/manifest.json",
+  "input_manifest_sha256": "ec8a86c784d7ff64110ac774cb480de4c8a0492d72fdc0f4b974308f74729ff4",
+  "probes": {
+    "usage_independent_test.go": "514111b83d68617b6f7521c7aa8b9798b92937354c3228bc36820d9509c0049c",
+    "usage_publication_independent_test.go": "dea05f5195d14604d28c83eeafc5f430d1222788712aaf8468a1466168742d01"
+  },
+  "overlay": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay02.json",
+  "selector": "^TestIndependentUsageReaderPublicationCancellation$",
+  "baseline": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/trusted-baseline.json",
+  "coordinator_baseline_checked": true,
+  "budget": "original test-objects race/count1/6m; readonly -p1",
+  "root_authorization": "explicit minimal real committed-then-caller-cancel probe 2026-10-06",
+  "returned_utc": "2026-10-06T01:12:04.279955+00:00",
+  "evidence": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/publication01/command.json",
+  "cleanup": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/publication01/cleanup.json",
+  "coordinator_exact_id_absent": {
+    "5f22d4c3a1420d946fdd79ae60b8846bedf537f8f1929edfc8da283e750fb231": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "05286fc4bf0a936875bea34990dac92861b8815251cc03d2c67e17d7ef87f879": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "b8a445fb15d8af1655e310740fd95c7b7acd8d1d255ae0200e3a0f81f6bef26d": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "021a7626884b237f4154ab8f28fd7e5e6b8ea37f3e0b790b0758682e69cc2dc8": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "69d74ed92552d24233ef1b848d80e4368c4b6642bc511f71fc5903bbe57f9e4f": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "a84d907a6006657f8abb76be7302b2791921049d44c5702733b93bd53d3efe65": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "792afa74b746414bdac6c013e942094ae4916cb1ffa095d335e0d844c724eedd": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    }
+  },
+  "coordinator_baseline_unchanged": true
+}

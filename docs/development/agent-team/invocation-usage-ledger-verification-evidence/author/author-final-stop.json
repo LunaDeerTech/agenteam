@@ -1,0 +1,15 @@
+{
+  "recorded_utc": "2026-10-06T01:37:18.059170+00:00",
+  "input_manifest": "/workspace/scratch/agenteam-d09-ledger-author/input13/manifest.json",
+  "input_manifest_sha256": "b0dbeefe78312c2b2ca81f7e6de80fc8cde6b4f3354cfd3d6c7497a847b3009e",
+  "owned_live_mismatches": [],
+  "owned_paths": 20,
+  "closure_paths": 871,
+  "author_tmp_entries": [],
+  "processes_with_author_cwd_or_exe": [],
+  "author_handoff": "/workspace/scratch/agenteam-d09-ledger-author/author-handoff.md",
+  "author_handoff_sha256": "a046901b62eb9cc20abd48895b6ae08bf8740d1c1ca941098051ed2d3b255983",
+  "independent_final01": "exit0; 11PASS; 0SKIP; dual cleanup",
+  "independent_combined01": "exit0; 3PASS; 0SKIP; dual cleanup; input13+ecd7337 management13",
+  "combined_manifest_sha256": "8d97aef145a9582ac35444c9d7ba64688f0c74baec637f4bcbeba07e1ab30b23"
+}

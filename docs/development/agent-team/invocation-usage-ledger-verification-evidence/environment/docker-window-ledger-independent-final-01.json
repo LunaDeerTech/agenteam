@@ -1,0 +1,61 @@
+{
+  "window": "ledger-independent-final-01",
+  "owner": "/root/verification_recovery",
+  "state": "returned; original driver exit0; exact eleven tops PASS, zero skips",
+  "granted_utc": "2026-10-06T01:28:17.941894+00:00",
+  "plan": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/final-plan01.json",
+  "plan_sha256": "297fbc3ad427b4a1ee0270d46786d34c68f43de9b74ef3b94cc3bd6977799e8d",
+  "input_manifest": "/workspace/scratch/agenteam-d09-ledger-author/input13/manifest.json",
+  "input_manifest_sha256": "b0dbeefe78312c2b2ca81f7e6de80fc8cde6b4f3354cfd3d6c7497a847b3009e",
+  "checked_closure": 871,
+  "probes": {
+    "usage_independent_test.go": "221850c5162cd4d4103b2a0d5b26c704549099a5051ccb10b013236da11122de",
+    "usage_publication_independent_test.go": "dea05f5195d14604d28c83eeafc5f430d1222788712aaf8468a1466168742d01",
+    "usage_lookup_publication_independent_test.go": "d9229f09ac0baa11f4a6bf5568858a94e4834e5ab7d6b838c4617749c7e589b9"
+  },
+  "selector": "^(TestIndependentUsageCurrentAdmissionAndTechnicalClosure|TestIndependentUsageAtomicityAndHistoricalUnknown|TestIndependentUsageReaderPublicationCancellation|TestIndependentUsageLookupPublicationCancellation|TestModelCurrentResolutionAuthorization|TestModelCurrentResolutionCanonicalLease|TestModelProjectCRUDScopeAndCanonicalReceipts|TestSecretModelUsagePlannedReadAndAudit|TestModelOpenAIChatWireHTTP|TestModelOpenAIChatStructuredHTTP|TestUsageReaderNonemptyPagination)$",
+  "baseline": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/trusted-baseline.json",
+  "coordinator_baseline_checked": true,
+  "root_authorization": "combine fixed input13 4 independent + 6 compatible old + 1 affected author Reader in independent window",
+  "budget": "original sh scripts/test-objects.sh, race/count1/6m; no performance timing repeat",
+  "returned_utc": "2026-10-06T01:31:38.677039+00:00",
+  "evidence": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/final01",
+  "coordinator_exact_id_absent": {
+    "bc22d77b5c6d0bb694c7080647e41177c94e8ae5b8afa71b5d3e5bf5c8a32a55": {
+      "kind": "network",
+      "absent": true,
+      "exit": 1
+    },
+    "b59d6faa5c83787586f078ac33a22bb1b43c388f2529ec18f1a1fee8d0f54fd4": {
+      "kind": "container",
+      "absent": true,
+      "exit": 1
+    },
+    "773a1e6789b8c218fca686ad0e4809bf3bc8c83396e3a7c30d9456d857125c3f": {
+      "kind": "network",
+      "absent": true,
+      "exit": 1
+    },
+    "07acaa68e9ef7c89128cf1828ae53607158c6c9e10dc98d6e30d0e5ab403843a": {
+      "kind": "container",
+      "absent": true,
+      "exit": 1
+    },
+    "6211f9e753d7280a520d6a322315e4e69d829a902a3b4993677d75624f0cd603": {
+      "kind": "network",
+      "absent": true,
+      "exit": 1
+    },
+    "998642ad83375ae79333481b7c750601bfb23d8c9b3fa1a69f2d590e566324db": {
+      "kind": "container",
+      "absent": true,
+      "exit": 1
+    },
+    "1c7bd6ea25bed240f057b9ff4b8fb19178554c95e5adeb44f257ef93ef1a68ab": {
+      "kind": "container",
+      "absent": true,
+      "exit": 1
+    }
+  },
+  "coordinator_baseline_unchanged": true
+}

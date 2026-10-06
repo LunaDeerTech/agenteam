@@ -6,11 +6,13 @@ Central 已在真实数据库、安全初始化、Object/Outbox 注册恢复及 
 
 System Model 管理读口已实现并通过[独立验收](../agent-team/system-model-management-reads-verification.md)：GET/HEAD `/api/v1/system/model-credentials/{id}` 只返回当前安全 metadata（credential ID、purpose、version）；GET/HEAD `/api/v1/system/models/{id}/deletion-impact` 返回有界精确引用统计、替换要求和已知 adapter 阻断。两类读取各自拥有完整锁 union 的读取事务，在同一 Tx 内重验当前 Session/admin 后读取；最长 3 秒预算包含 HTTP 认证、锁等待和 SQL，并继承更早的调用方取消。仅确认 Committed 且 context 仍有效才返回结果，失败、Unknown 或取消不返回候选数据，也不自动重读。预览不授予删除权限，后续 DeleteModel 仍重验当前引用与替换事实；管理 UI、外域引用 adapter 仍未绑定。精确接口与边界见[管理读口规格](../work-items/recovery-d09-system-model-management-reads.md)。
 
-OpenAI Chat wire 库已验 `openai-chat-text-v1` 与 `openai-chat-structured-v1`：后者支持有界 strict `json_schema` 的请求、普通响应及 SSE 完整结果验证，保留原文本、usage、安全错误、同一 Budget 和实际 join；text 修订闭集不放宽。子集、资源上限与拒绝语义见[structured 规格](../work-items/recovery-d09-openai-chat-structured-wire.md)，原失败及真实验收见[报告](../agent-team/d09-openai-chat-structured-wire-verification.md)。这是受控本地服务上的库能力，尚未绑定 Resolver/生产 consumer、Invocation/Usage 或真实 Provider 账号；不改变上述 root、Object 缺陷和 ready503 边界。
+[Invocation/Usage 账本库与 00018](../agent-team/invocation-usage-ledger-verification.md)已独立验收并以 `36e5ff1` 提交推送，连续已验迁移前缀至 18。可信 InvocationFacts 在完整同 Store/Tx/锁计划下驱动调用状态、历史回执与执行汇总三表原子更新；当前 Human Owner 的 List/Aggregate/Get/Rebuild 和 exact Lookup 均有 2 秒预算，提交后取消不发布候选 DTO，实际 Committed/Unknown 状态保留。PG17.x（最低17.8）fresh/populated、约束、nullable 历史链接、真实 wire/Secret 链及相关旧回归通过；独立最终 11 组与叠加已提交管理读口的 3 组均 PASS。这里是库/schema 验收，生产 Facts owner、Runtime 发送/重试、lease/Process/lifecycle 与 Usage HTTP/root 仍未绑定，测试回执不授重发权限。
+
+OpenAI Chat wire 库已验 `openai-chat-text-v1` 与 `openai-chat-structured-v1`：后者支持有界 strict `json_schema` 的请求、普通响应及 SSE 完整结果验证，保留原文本、usage、安全错误、同一 Budget 和实际 join；text 修订闭集不放宽。子集、资源上限与拒绝语义见[structured 规格](../work-items/recovery-d09-openai-chat-structured-wire.md)，原失败及真实验收见[报告](../agent-team/d09-openai-chat-structured-wire-verification.md)。这是受控本地服务上的库能力；生产 root 尚未组合 Resolver/consumer、Invocation/Usage 账本或真实 Provider 账号。OpenAI Chat tools wire 规格已采纳、14 路径实施中，尚无产品验收；不改变上述 root、Object 缺陷和 ready503 边界。
 
 ## 构建与验证
 
-D07 的账号、Session、邀请、密码恢复、挑战、Profile/Avatar/偏好和 System HTTP 已装配进 Central，构造、恢复与官方 Vue 浏览器 harness 见[账号说明](account.md)。SMTP 三模式、受限恢复日志、持久 attempt 与人工重试见[账号邮件说明](accountmail.md)。正式 D26/D27 页面仍未实现；独立测试 harness 不作为产品 UI。
+D07 的账号、Session、邀请、密码恢复、挑战、Profile/Avatar/偏好和 System HTTP 已装配进 Central，构造、恢复与官方 Vue 浏览器 harness 见[账号说明](account.md)。SMTP 三模式、受限恢复日志、持久 attempt 与人工重试见[账号邮件说明](accountmail.md)。D26 [认证](../agent-team/d26-authentication-verification.md)和[个人设置](../agent-team/personal-settings-verification.md)已有各自产品页面验收，公开 Account 入口当前仍在实现/真实浏览器验证，其他 D26/D27 页面未完成；独立测试 harness 本身不作为产品 UI。
 
 ```sh
 # 指向实际 Go 1.27.1；该环境可使用 /workspace/toolchains/go1.27.1/bin/go。

@@ -2,6 +2,15 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：Invocation/Usage 账本库与 00018 验收交付
+
+- [ledger rev1](../work-items/recovery-d09-invocation-usage-ledger.md)的 20 路径由 `backend_recovery` 恢复实现，`verification_recovery` 独立 PASS；主线程核最终 input13 SHA 与源码匹配，提交推送 `36e5ff1a124c957d200888ad2e40bdc4ecb01305`，推送后远端一致。[正式报告与可离线核 SHA 的证据](invocation-usage-ledger-verification.md)保留旧原件遗失、本轮原失败/修复、精确输入、命令和资源记录。连续已验迁移前缀至 00018，PG17.x（最低17.8）fresh/populated 均通过；PG16 仅不支持版本反例。
+- 八个作者新组按未变语义分版本复用：real01 八组 7 PASS / 1 FAIL，real02 五组 4 PASS / 1 FAIL，均保留 driver exit1；修后的 Reader 由独立 final01 执行。final01 **4 独立 + 6 旧 + 1 作者 Reader = 11 指定顶层全 PASS**，combined01 叠加已提交 ecd7337 管理 13 路径后 **gate-only + UsageWireLedger + SystemManagementMetadata = 3 顶层全 PASS**，两条 driver exit0、0 skip。U-R02 五个提交后取消反例修复，Actual Committed 事实与零 DTO 同时保持；不称单次八组全绿。
+- 本卡源码与作者/独立关联命令已停止，逐轮自有 4 容器/3 网络双清、原 2 容器/4 网络基线不变，所属进程/runtime 清零；原 real01 无持续 PID 树监视的限制保留。生产 Facts/Runtime、调用/重试、lease/Process/lifecycle、Usage HTTP/default root 仍未绑定；完整 D09 未完成。
+- 当前其他工作：公开 Account 入口由 `frontend_recovery` / `frontend_verification` 继续真实浏览器验证，尚无本轮页面接受；OpenAI tools wire 由 `management_reads` 实施 14 路径、`recovery_documentation` 负责独立验收，仍未产品验收，`verification_recovery` 统一协调真实资源。`backend_recovery` 本次仅归档本账本报告/证据及授权状态入口。Summary 待决、Object 原中断任务停止、Artifact/Project 阻塞和 E01 未开始保持。
+
+以下同日各阶段与更早记录保留当时输入、分工和未完成事实；当前账本交付及其余活动项以上述入口为准。
+
 ## 2026-10-06：OpenAI Chat tools wire 规格采纳与实施分工
 
 - [tools wire rev1](../work-items/recovery-d09-openai-chat-tools-wire.md)已由 `recovery_documentation` 独立静审 PASS，主线程采纳提交推送 `b2be334cd8a78b904878bdbc388a43805390f7b7`、远端一致；[规格报告与来源证据](openai-chat-tools-wire-spec-verification.md)保留固定官方 21 原件、原 rev1 与 refusal/C0 两处窄修。当前只通过规格门槛，尚无产品、真实 Provider 或完整 D09 验收。
@@ -14,7 +23,7 @@
 - 作者 5 新 + 12 旧顶层为 real01 的 16 PASS 与 real02 的预算 1 顶层/13 子例组合；原 pure 红、real01 三个错误时长断言及修正差量保留，不称单轮 17 顶层全绿。独立 2 顶层/3 子例全 PASS，覆盖当前身份与实际 metadata 同 Tx、确认后失败零数据、引用变化后的正式删除。作者两轮及独立一轮均完成资源双清、原基线不变、所属进程/runtime 清零。
 - 本组 13 源已停止写入并交付；此前恢复快照中的“未恢复/实施中”保留为当时事实。ledger 与公开入口仍未完成当前验收；Summary 待决、Object 原停止任务、Artifact/Project 阻塞及完整 D08–D28/E01 未完成的边界不变，E01 尚未开始。
 
-## 2026-10-06：恢复交接与当前所有权
+## 2026-10-06：恢复起点与当时所有权
 
 - 本轮初始为干净的 `work / 1613583`，`origin/main` 本地缓存仍为 `fe5b833`；主线程实际查询远端、fetch 后确认 `bfae86b`、`846f1d4`、`d09e8ef` 三个后续提交，创建 `main` 并 ff-only 到 `d09e8ef294d8c51a8f82ec7d536fb573753ed42a`，与远端一致、无未推送提交。详细固定输入与交接见[本轮恢复记录](recovery-2026-10-06.md)。
 - 固定 `d09e8ef` 已核：ledger 20 路径中的 18 新源全缺、identity 两旧源未改；公开入口 23 路径中的 12 新源全缺、11 旧源未改；管理读口 13 路径中的 9 新源全缺、4 旧源未改。旧临时候选未恢复；本轮 `/tmp` 仅有 executor 日志，不能承接为当前验收。
@@ -22,7 +31,7 @@
 - ledger 旧 wire03 三红四绿、真实 SQLSTATE `2201B`、两处 `{1,256}` 原因候选及 schema02 旧输入局部 PASS 保留；原因未定，SQL 改后须重跑。公开入口 UI01 两缺口的具体详情未恢复，旧 pure 2 PASS 不证明当前页面通过。管理读口只有规格 STATIC PASS，尚无业务验收。下一步为重建、自测、冻结与独立验收，通过的小块即时提交推送。
 - Object 历史自动安全中断任务继续停止、不改派或重试；Artifact / Project 阻塞、Summary 待用户决定及生产未绑定边界不变。完整 D08–D28 / E01 尚未完成，E01 尚未开始。
 
-本节是当前恢复入口；以下同日配置记录、旧“当前恢复点与并行所有权”及更早阶段保留原历史。其旧实例名、“正在实施”和局部通过不表示本轮状态，当前所有权与缺口以上文及新恢复记录为准。
+本节保存恢复起点；以下同日配置记录、旧“当前恢复点与并行所有权”及更早阶段保留原历史。其旧实例名、“正在实施”和局部通过不表示最终状态，当前交付/所有权以页首及新恢复记录的后续接续为准。
 
 ## 2026-10-06：项目快速模式配置
 

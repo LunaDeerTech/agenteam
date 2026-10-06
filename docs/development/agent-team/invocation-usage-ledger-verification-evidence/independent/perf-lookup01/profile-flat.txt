@@ -1,0 +1,43 @@
+File: model-input07-perf-lookup.test
+Build ID: 6f7b95e4014f5bdfe0bf887988a586c97d255a68
+Type: cpu
+Time: 2026-10-06 01:16:20 UTC
+Duration: 1.38s, Total samples = 1.42s (102.98%)
+Showing nodes accounting for 1.24s, 87.32% of 1.42s total
+Showing top 35 nodes out of 177
+      flat  flat%   sum%        cum   cum%
+     0.32s 22.54% 22.54%      0.32s 22.54%  __tsan_read
+     0.20s 14.08% 36.62%      0.20s 14.08%  racecall
+     0.10s  7.04% 43.66%      0.10s  7.04%  __tsan::MemoryAccessRangeT
+     0.08s  5.63% 49.30%      0.08s  5.63%  racecalladdr
+     0.05s  3.52% 52.82%      0.05s  3.52%  __tsan_write
+     0.04s  2.82% 55.63%      0.04s  2.82%  __tsan_func_enter
+     0.03s  2.11% 57.75%      0.03s  2.11%  __tsan::VectorClock::Acquire
+     0.03s  2.11% 59.86%      0.05s  3.52%  encoding/json/internal/jsonwire.AppendQuote
+     0.03s  2.11% 61.97%      0.06s  4.23%  encoding/json/jsontext.(*decoderState).consumeValue
+     0.03s  2.11% 64.08%      0.05s  3.52%  runtime.checkptrBase
+     0.02s  1.41% 65.49%      0.02s  1.41%  __tsan::ShadowSet
+     0.02s  1.41% 66.90%      0.02s  1.41%  __tsan::TraceRestartMemoryAccess
+     0.02s  1.41% 68.31%      0.02s  1.41%  __tsan_go_atomic64_load
+     0.02s  1.41% 69.72%      0.03s  2.11%  encoding/json/jsontext.(*decoderState).consumeObject
+     0.02s  1.41% 71.13%      0.02s  1.41%  runtime.findObject
+     0.02s  1.41% 72.54%      0.04s  2.82%  runtime.mallocgcSmallNoscan
+     0.02s  1.41% 73.94%      0.02s  1.41%  runtime.osyield
+     0.02s  1.41% 75.35%      0.02s  1.41%  runtime.raceread
+     0.01s   0.7% 76.06%      0.01s   0.7%  __tsan::MemoryRangeSet
+     0.01s   0.7% 76.76%      0.01s   0.7%  __tsan::MetaMap::GetSync
+     0.01s   0.7% 77.46%      0.01s   0.7%  __tsan::SlotUnlock
+     0.01s   0.7% 78.17%      0.01s   0.7%  __tsan::TraceSwitchPartImpl
+     0.01s   0.7% 78.87%      0.01s   0.7%  __tsan_func_exit
+     0.01s   0.7% 79.58%      0.01s   0.7%  __tsan_go_atomic32_load
+     0.01s   0.7% 80.28%      0.04s  2.82%  encoding/json/jsontext.(*Encoder).WriteToken
+     0.01s   0.7% 80.99%      0.01s   0.7%  encoding/json/jsontext.(*decoderState).ReadToken
+     0.01s   0.7% 81.69%      0.03s  2.11%  encoding/json/jsontext.(*encoderState).WriteToken
+     0.01s   0.7% 82.39%      0.01s   0.7%  encoding/json/jsontext.putBufferedEncoder
+     0.01s   0.7% 83.10%      0.32s 22.54%  encoding/json/v2.Marshal
+     0.01s   0.7% 83.80%      0.18s 12.68%  encoding/json/v2.makeMethodArshaler.func3
+     0.01s   0.7% 84.51%      0.31s 21.83%  encoding/json/v2.makeStructArshaler.func2
+     0.01s   0.7% 85.21%      0.02s  1.41%  github.com/LunaDeerTech/agenteam/internal/central/foundation.Digest.MarshalJSON
+     0.01s   0.7% 85.92%      0.01s   0.7%  github.com/LunaDeerTech/agenteam/internal/central/foundation.ParseID[go.shape.struct {}]
+     0.01s   0.7% 86.62%      0.01s   0.7%  github.com/LunaDeerTech/agenteam/internal/central/model/contract.InputIdentity.ValidateFor
+     0.01s   0.7% 87.32%      0.01s   0.7%  github.com/LunaDeerTech/agenteam/internal/central/model/contract.Usage.Validate

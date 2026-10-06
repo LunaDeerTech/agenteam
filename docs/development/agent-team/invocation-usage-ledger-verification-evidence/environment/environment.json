@@ -1,0 +1,37 @@
+{
+  "root": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq",
+  "go": "/workspace/toolchains/go1.27.1/bin/go",
+  "go_version": "go version go1.27.1 linux/amd64",
+  "go_sha256": "30969f97169d7f43fe6a085873d75613adc21e30818a8c61d95bd27275df4624",
+  "images": [
+    "pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc",
+    "pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782"
+  ],
+  "required_minio_sha256": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+  "status": "ready for frozen-input author fixture window; no fixture or product test launched",
+  "go_input_sha256": {
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+  },
+  "minio_binary": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+  "minio_actual_sha256": "dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8",
+  "minio_sha256_matches": true,
+  "command_exit_summary": {
+    "image-pull-1": 0,
+    "image-pull-2": 0,
+    "repository-modules-download": 0,
+    "minio-source-download": 0,
+    "minio-build": 0,
+    "minio-version": 0
+  },
+  "ready": true,
+  "repository_modules_verified": true,
+  "fixed_image_metadata": "images.json",
+  "final_checks": "preparation-final-checks.json",
+  "minio_version_output": "minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a)\nRuntime: go1.27.1 linux/amd64\nLicense: GNU AGPLv3 - https://www.gnu.org/licenses/agpl-3.0.html\nCopyright: 2015-2025 MinIO, Inc.\n",
+  "queue": [
+    "ledger author",
+    "ledger independent verifier",
+    "frontend and management reads candidates"
+  ]
+}

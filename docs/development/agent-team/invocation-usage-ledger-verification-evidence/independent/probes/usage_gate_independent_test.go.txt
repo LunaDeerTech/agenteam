@@ -1,0 +1,77 @@
+//go:build integration
+
+package model_test
+
+import (
+	"reflect"
+	"testing"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
+)
+
+func TestIndependentUsageCurrentProjectGate(t *testing.T) {
+	for _, gate := range []pc.Lifecycle{pc.Archiving, pc.Deleting} {
+		t.Run(string(gate), func(t *testing.T) {
+			v := newUsageFixture(t, false)
+			reserve := v.newCase(t, nil, nil)
+			reserveRequest := v.stage(t, reserve.event)
+			reservePlan, e := v.ledger.DiscoverInvocation(testContext(t), reserveRequest)
+			if e != nil {
+				t.Fatal("active reserve discovery", e)
+			}
+			authorized := v.newCase(t, nil, nil)
+			v.reserve(t, authorized)
+			authorized.event.Sequence++
+			authorized.event.Action = uc.ObserveAction
+			authorized.event.Authorized = true
+			authorized.event.Value.Dispatch = uc.Authorized
+			authorizedRequest := v.stage(t, authorized.event)
+			authorizedPlan, e := v.ledger.DiscoverInvocation(testContext(t), authorizedRequest)
+			if e != nil {
+				t.Fatal("active authorized discovery", e)
+			}
+			runtimeState := func() string {
+				var out string
+				e := v.raw.QueryRow(testContext(t), `SELECT jsonb_build_array(
+				  (SELECT coalesce(jsonb_agg(to_jsonb(r) ORDER BY id),'[]'::jsonb) FROM usage_runtime_fixture.calls r),
+				  (SELECT coalesce(jsonb_agg(to_jsonb(r) ORDER BY id),'[]'::jsonb) FROM usage_runtime_fixture.attempts r),
+				  (SELECT coalesce(jsonb_agg(to_jsonb(r) ORDER BY invocation_id,sequence),'[]'::jsonb) FROM usage_runtime_fixture.events r)
+				)::text`).Scan(&out)
+				if e != nil {
+					t.Fatal("private canonical facts snapshot", e)
+				}
+				return out
+			}
+			canonicalBefore := runtimeState()
+			ledgerBefore := usageLedgerState(t, v)
+			// These two gate values use actual BeginArchive/BeginDeleteProject.
+			// No Session or canonical Runtime fact is changed by the probe.
+			v.gate(t, gate)
+			if e := v.accounts.RequireCurrentSession(testContext(t), f.Tx{}, v.owner); e != nil {
+				t.Fatal("gate test lost its current Session", e)
+			}
+			if runtimeState() != canonicalBefore || usageLedgerState(t, v) != ledgerBefore {
+				t.Fatal("gate fixture changed Runtime or ledger facts")
+			}
+			for _, item := range []struct {
+				name    string
+				request uc.InvocationRequest
+				plan    uc.InvocationPlan
+			}{{"reserve", reserveRequest, reservePlan}, {"authorized", authorizedRequest, authorizedPlan}} {
+				receipt, result := v.applyPlan(t, item.request, item.plan, false, false)
+				if result.State() != f.NotCommitted || usageErrorCode(result.Fault()) != f.ProjectNotActive || !reflect.DeepEqual(receipt, uc.InvocationReceipt{}) || usageLedgerState(t, v) != ledgerBefore || runtimeState() != canonicalBefore {
+					t.Fatalf("%s gate=%s state=%s code=%s or partial effects", item.name, gate, result.State(), usageErrorCode(result.Fault()))
+				}
+				if e := v.accounts.RequireCurrentSession(testContext(t), f.Tx{}, v.owner); e != nil {
+					t.Fatal("gate rejection was confounded by Session rejection", e)
+				}
+				if _, e := v.ledger.DiscoverInvocation(testContext(t), item.request); usageErrorCode(e) != f.ProjectNotActive {
+					t.Fatal("fresh discovery bypassed current gate", e)
+				}
+			}
+			t.Logf("gate=%s actual lifecycle acceptance; Session remains current; both old reserve/authorized plans PROJECT_NOT_ACTIVE+NotCommitted, zero receipt and unchanged Runtime/three-table facts", gate)
+		})
+	}
+}

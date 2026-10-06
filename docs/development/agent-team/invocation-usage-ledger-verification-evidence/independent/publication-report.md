@@ -1,0 +1,13 @@
+# U-R02: committed query publishes after caller cancellation
+
+Confirmed against frozen author input07, manifest `ec8a86c784d7ff64110ac774cb480de4c8a0492d72fdc0f4b974308f74729ff4`. The private publication probe is `dea05f5195d14604d28c83eeafc5f430d1222788712aaf8468a1466168742d01`; offline race compilation succeeded in compile02.json.
+
+Actual command was the original `scripts/test-objects.sh -run '^TestIndependentUsageReaderPublicationCancellation$'`, retaining race/count=1/6m, Go 1.27.1, offline readonly modules and a private cache/tmp. `publication01/command.json` records the exact argv/environment/input/overlay. The command exited 1; all four named cases failed: List, Aggregate, GetExecutionSummary and RebuildExecutionSummary.
+
+The probe forwarded the real original Store transaction unchanged. Inside its callback it completed actual authorized SQL and verified held User/Project locks. The caller was initially live and the service-derived deadline was approximately two seconds. Only after the real Store returned Committed did the wrapper cancel the caller and return that same Committed result. Both original caller and derived context then reported context.Canceled. Every public API nevertheless returned nil error with a nonzero candidate DTO. Rebuild had actually committed its repaired summary row; the issue is publication, not a rollback claim. The decisive original log is publication01/raw.log lines 389–406.
+
+Reported immediately to root and author. The required behavior is to preserve the actual transaction outcome and original Unknown identity, then recheck the context before publishing a successful result. A committed but cancelled read must return a cancellation-linked error and a zero DTO. Author input11 adds this gate for the four readers and the same-family Lookup confirmation; those replacement bytes are statically reviewed but have not yet passed this real probe.
+
+The fixture reported PostgreSQL 170008/vector 0.8.1 and the separate unsupported PostgreSQL 160012, with the verified MinIO binary. Four containers and three networks were observed by exact ID/labels; 139 task-process PID/starttime records were sampled. The actual driver terminated, both cleanup passes found all seven exact IDs absent, the original 2-container/4-network baseline unchanged, no remaining owned processes and empty runtime/tmp, with no monitor errors. Source and both probe hashes remained unchanged. Original evidence is preserved under publication01/. The Docker window was returned at 2026-10-06T01:12:04Z.
+
+This is a focused failure report, not overall ledger acceptance. The fixture isolates future Runtime facts; no production Runtime or HTTP/root binding is claimed.

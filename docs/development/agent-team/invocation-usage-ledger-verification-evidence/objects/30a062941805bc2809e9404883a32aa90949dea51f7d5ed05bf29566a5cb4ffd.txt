@@ -1,0 +1,172 @@
+-- agenteam:transaction tx
+-- +goose Up
+-- Runtime supplies canonical facts; these tables do not create call authority.
+CREATE TABLE agenteam_model.invocations (
+ id agenteam_model.safe_id PRIMARY KEY,
+ call_id agenteam_model.safe_id NOT NULL,
+ attempt_index bigint NOT NULL CHECK(attempt_index>0),
+ project_id agenteam_model.safe_id NOT NULL,
+ snapshot_id agenteam_model.safe_id NOT NULL,
+ process_id agenteam_model.safe_id NOT NULL,
+ fence bigint NOT NULL CHECK(fence>0),
+ consumer_data jsonb NOT NULL,
+ input_data jsonb NOT NULL,
+ initiator_data jsonb NOT NULL,
+ identity_data jsonb NOT NULL,
+ header_digest text NOT NULL CHECK(header_digest ~ '^sha256:[0-9a-f]{64}$'),
+ consumer_kind text NOT NULL,
+ purpose text NOT NULL,
+ agent_id agenteam_model.safe_id,
+ execution_id agenteam_model.safe_id,
+ meeting_id agenteam_model.safe_id,
+ operation_id agenteam_model.safe_id,
+ historical_provider_id agenteam_model.safe_id NOT NULL,
+ historical_model_id agenteam_model.safe_id NOT NULL,
+ live_provider_id agenteam_model.safe_id REFERENCES agenteam_model.providers(id) ON DELETE SET NULL,
+ live_model_id agenteam_model.safe_id REFERENCES agenteam_model.models(id) ON DELETE SET NULL,
+ dispatch text NOT NULL CHECK(dispatch IN ('reserved','authorized','sent','not_sent','unknown')),
+ started_at timestamptz(6) NOT NULL,
+ dispatched_at timestamptz(6),
+ last_sequence bigint NOT NULL CHECK(last_sequence>0),
+ updated_at timestamptz(6) NOT NULL CHECK(updated_at>=started_at),
+ final_status text CHECK(final_status IN ('succeeded','failed','cancelled','unknown')),
+ terminal_version bigint CHECK(terminal_version=1),
+ finished_at timestamptz(6),
+ error_data jsonb,
+ final_digest text CHECK(final_digest ~ '^sha256:[0-9a-f]{64}$'),
+ input_tokens bigint CHECK(input_tokens>=0),
+ output_tokens bigint CHECK(output_tokens>=0),
+ total_tokens bigint CHECK(total_tokens>=0),
+ cached_input_tokens bigint CHECK(cached_input_tokens>=0),
+ cache_write_tokens bigint CHECK(cache_write_tokens>=0),
+ reasoning_tokens bigint CHECK(reasoning_tokens>=0),
+ usage_source text NOT NULL CHECK(usage_source IN ('provider','unknown')),
+ -- PostgreSQL ARE repetition bounds stop at 255. Length and alphabet are separate.
+ provider_request_id text NOT NULL CHECK(octet_length(provider_request_id)<=256 AND provider_request_id ~ '^[A-Za-z0-9_.:-]*$'),
+ UNIQUE(call_id,attempt_index),
+ UNIQUE(id,project_id),
+ FOREIGN KEY(snapshot_id,project_id) REFERENCES agenteam_model.snapshots(id,project_id) ON DELETE RESTRICT,
+ CHECK(live_provider_id IS NULL OR live_provider_id=historical_provider_id),
+ CHECK(live_model_id IS NULL OR live_model_id=historical_model_id),
+ CHECK((dispatch='sent')=(dispatched_at IS NOT NULL)),
+ CHECK(dispatched_at IS NULL OR dispatched_at>=started_at),
+ CHECK((usage_source='unknown' AND input_tokens IS NULL AND output_tokens IS NULL AND total_tokens IS NULL AND cached_input_tokens IS NULL AND cache_write_tokens IS NULL AND reasoning_tokens IS NULL) OR (usage_source='provider' AND dispatch='sent' AND (input_tokens IS NOT NULL OR output_tokens IS NOT NULL OR total_tokens IS NOT NULL OR cached_input_tokens IS NOT NULL OR cache_write_tokens IS NOT NULL OR reasoning_tokens IS NOT NULL))),
+ CHECK(dispatch='sent' OR usage_source='unknown'),
+ CHECK((final_status IS NULL AND terminal_version IS NULL AND finished_at IS NULL AND error_data IS NULL AND final_digest IS NULL)
+ OR (final_status IS NOT NULL AND terminal_version=1 AND finished_at IS NOT NULL AND final_digest IS NOT NULL AND finished_at>=started_at AND (dispatched_at IS NULL OR finished_at>=dispatched_at))),
+ CHECK(final_status IS NULL OR dispatch NOT IN ('reserved','authorized')),
+ CHECK(final_status IS NULL OR dispatch!='not_sent' OR final_status IN ('failed','cancelled')),
+ CHECK(final_status IS NULL OR dispatch!='unknown' OR final_status='unknown'),
+ CHECK(final_status!='succeeded' OR (dispatch='sent' AND error_data IS NULL)),
+ CHECK(error_data IS NULL OR (jsonb_typeof(error_data)='object' AND octet_length(error_data::text)<=4096
+ AND error_data->>'category' IN ('invalid_request','authentication','permission','model_not_found','rate_limited','context_too_large','provider_unavailable','timeout','network','cancelled','content_filter','unsupported_feature','provider_error','unknown')
+ AND jsonb_typeof(error_data->'dispatched')='boolean' AND jsonb_typeof(error_data->'retryable')='boolean' AND jsonb_typeof(error_data->'partial_output')='boolean'
+ AND (NOT (error_data->>'partial_output')::boolean OR (error_data->>'dispatched')::boolean)
+ AND (NOT (error_data->>'retryable')::boolean OR error_data->>'category' IN ('rate_limited','provider_unavailable','timeout','network','provider_error'))
+ AND (NOT error_data ? 'code' OR (octet_length(error_data->>'code') BETWEEN 1 AND 128 AND error_data->>'code' ~ '^[A-Za-z0-9_.:-]+$'))
+ AND (NOT error_data ? 'provider_request_id' OR (octet_length(error_data->>'provider_request_id') BETWEEN 1 AND 256 AND error_data->>'provider_request_id' ~ '^[A-Za-z0-9_.:-]+$'))
+ AND (dispatch!='not_sent' OR NOT (error_data->>'dispatched')::boolean)) IS TRUE),
+ CHECK((jsonb_typeof(consumer_data)='object' AND consumer_data->'format_version'='1'::jsonb AND jsonb_typeof(consumer_data->'value')='object' AND octet_length(consumer_data::text)<=16384) IS TRUE),
+ CHECK((jsonb_typeof(input_data)='object' AND input_data->'format_version'='1'::jsonb AND jsonb_typeof(input_data->'value')='object' AND octet_length(input_data::text)<=16384) IS TRUE),
+ CHECK((jsonb_typeof(initiator_data)='object' AND initiator_data->'format_version'='1'::jsonb AND jsonb_typeof(initiator_data->'value')='object' AND octet_length(initiator_data::text)<=16384) IS TRUE),
+ CHECK((jsonb_typeof(identity_data)='object' AND identity_data->'format_version'='1'::jsonb AND jsonb_typeof(identity_data->'value')='object' AND octet_length(identity_data::text)<=16384) IS TRUE),
+ CHECK((consumer_data#>>'{value,kind}'=consumer_kind AND consumer_data#>>'{value,purpose}'=purpose AND consumer_data#>>'{value,project_id}'=project_id::text) IS TRUE),
+ CHECK((consumer_data#>>'{value,agent_id}') IS NOT DISTINCT FROM agent_id::text),
+ CHECK((consumer_data#>>'{value,execution_id}') IS NOT DISTINCT FROM execution_id::text),
+ CHECK((consumer_data#>>'{value,meeting_id}') IS NOT DISTINCT FROM meeting_id::text),
+ CHECK((consumer_data#>>'{value,operation_id}') IS NOT DISTINCT FROM operation_id::text),
+ CHECK(
+ (consumer_kind='agent' AND agent_id IS NOT NULL AND execution_id IS NOT NULL AND operation_id IS NULL AND purpose IN ('agent_generation','agent_compaction'))
+ OR (consumer_kind='meeting' AND agent_id IS NULL AND execution_id IS NULL AND meeting_id IS NOT NULL AND operation_id IS NOT NULL AND purpose IN ('meeting_summary_initial','meeting_summary_update'))
+ OR (consumer_kind='knowledge' AND agent_id IS NULL AND execution_id IS NULL AND meeting_id IS NULL AND operation_id IS NOT NULL AND purpose IN ('knowledge_embedding','rerank'))
+ OR (consumer_kind='memory' AND agent_id IS NOT NULL AND execution_id IS NULL AND meeting_id IS NULL AND operation_id IS NOT NULL AND purpose IN ('memory_embedding','memory_extraction','memory_consolidation','memory_reflection','rerank'))
+ OR (consumer_kind='tool' AND agent_id IS NULL AND meeting_id IS NULL AND operation_id IS NOT NULL AND purpose IN ('approval_auto','image_generation'))),
+ CHECK((input_data#>>'{value,digest}' ~ '^sha256:[0-9a-f]{64}$' AND input_data#>>'{value,schema_version}' ~ '^[1-9][0-9]*$' AND (input_data#>>'{value,schema_version}')::numeric BETWEEN 1 AND 9223372036854775807) IS TRUE),
+ CHECK(((execution_id IS NOT NULL AND input_data#>>'{value,execution_id}'=execution_id::text AND input_data#>>'{value,round_id}' ~ '^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$' AND NOT (input_data->'value') ? 'operation_id')
+ OR (execution_id IS NULL AND NOT (input_data->'value') ? 'execution_id' AND NOT (input_data->'value') ? 'round_id' AND input_data#>>'{value,operation_id}'=operation_id::text)) IS TRUE),
+ CHECK((initiator_data#>>'{value,SessionID}'='' AND initiator_data#>>'{value,Kind}' IN ('human','agent_run','service')) IS TRUE),
+ CHECK((identity_data#>>'{value,provider_id}'=historical_provider_id::text AND identity_data#>>'{value,model_id}'=historical_model_id::text
+ AND length(identity_data#>>'{value,provider_name}') BETWEEN 1 AND 128 AND length(identity_data#>>'{value,model_name}') BETWEEN 1 AND 128
+ AND length(identity_data#>>'{value,provider_model_id}') BETWEEN 1 AND 256
+ AND octet_length(identity_data#>>'{value,adapter_revision}') BETWEEN 1 AND 128 AND identity_data#>>'{value,adapter_revision}' ~ '^[A-Za-z0-9_.:-]+$') IS TRUE),
+ CHECK(((identity_data#>>'{value,protocol}'='openai-chat-completions' AND identity_data#>>'{value,profile}'='openai-chat-completions-v1' AND identity_data#>>'{value,model_type}'='chat')
+ OR (identity_data#>>'{value,protocol}'='anthropic-messages' AND identity_data#>>'{value,profile}'='anthropic-messages-2023-06-01' AND identity_data#>>'{value,model_type}'='chat')
+ OR (identity_data#>>'{value,protocol}'='openai-embeddings' AND identity_data#>>'{value,profile}'='openai-embeddings-v1' AND identity_data#>>'{value,model_type}'='embedding')
+ OR (identity_data#>>'{value,protocol}'='jina-rerank' AND identity_data#>>'{value,profile}'='jina-rerank-v1' AND identity_data#>>'{value,model_type}'='reranker')
+ OR (identity_data#>>'{value,protocol}'='openai-images-generations' AND identity_data#>>'{value,profile}'='openai-images-generations-v1' AND identity_data#>>'{value,model_type}'='image_generation')) IS TRUE)
+);
+CREATE UNIQUE INDEX model_invocation_active_call ON agenteam_model.invocations(call_id) WHERE finished_at IS NULL;
+CREATE INDEX model_invocation_project_page ON agenteam_model.invocations(project_id,started_at DESC,id DESC);
+CREATE INDEX model_invocation_execution_id_page ON agenteam_model.invocations(project_id,execution_id,started_at DESC,id DESC) WHERE execution_id IS NOT NULL;
+CREATE INDEX model_invocation_agent_id_page ON agenteam_model.invocations(project_id,agent_id,started_at DESC,id DESC) WHERE agent_id IS NOT NULL;
+CREATE INDEX model_invocation_meeting_id_page ON agenteam_model.invocations(project_id,meeting_id,started_at DESC,id DESC) WHERE meeting_id IS NOT NULL;
+CREATE INDEX model_invocation_historical_provider_id_page ON agenteam_model.invocations(project_id,historical_provider_id,started_at DESC,id DESC);
+CREATE INDEX model_invocation_historical_model_id_page ON agenteam_model.invocations(project_id,historical_model_id,started_at DESC,id DESC);
+CREATE INDEX model_invocation_purpose_page ON agenteam_model.invocations(project_id,purpose,started_at DESC,id DESC);
+CREATE INDEX model_invocation_consumer_kind_page ON agenteam_model.invocations(project_id,consumer_kind,started_at DESC,id DESC);
+CREATE INDEX model_invocation_final_status_page ON agenteam_model.invocations(project_id,final_status,started_at DESC,id DESC) WHERE final_status IS NOT NULL;
+CREATE INDEX model_invocation_execution_scan ON agenteam_model.invocations(project_id,execution_id,id);
+
+CREATE TABLE agenteam_model.invocation_observations (
+ invocation_id agenteam_model.safe_id NOT NULL,
+ sequence bigint NOT NULL CHECK(sequence>0),
+ project_id agenteam_model.safe_id NOT NULL,
+ action text NOT NULL CHECK(action IN ('reserve','observe','finalize')),
+ fact_digest text NOT NULL CHECK(fact_digest ~ '^sha256:[0-9a-f]{64}$'),
+ receipt_data jsonb NOT NULL CHECK((jsonb_typeof(receipt_data)='object' AND receipt_data->'format_version'='1'::jsonb AND octet_length(receipt_data::text)<=16384) IS TRUE),
+ recorded_at timestamptz(6) NOT NULL,
+ PRIMARY KEY(invocation_id,sequence),
+ FOREIGN KEY(invocation_id,project_id) REFERENCES agenteam_model.invocations(id,project_id) ON DELETE CASCADE
+);
+
+CREATE TABLE agenteam_model.execution_usage_summaries (
+ project_id agenteam_model.safe_id NOT NULL,
+ execution_id agenteam_model.safe_id NOT NULL,
+ version bigint NOT NULL CHECK(version>0),
+ updated_at timestamptz(6) NOT NULL,
+ confirmed_invocations bigint NOT NULL CHECK(confirmed_invocations>=0),
+ dispatch_unknown bigint NOT NULL CHECK(dispatch_unknown>=0),
+ succeeded bigint NOT NULL CHECK(succeeded>=0),
+ failed bigint NOT NULL CHECK(failed>=0),
+ cancelled bigint NOT NULL CHECK(cancelled>=0),
+ unknown bigint NOT NULL CHECK(unknown>=0),
+ input_sum bigint CHECK(input_sum>=0),
+ input_known_count bigint NOT NULL CHECK(input_known_count>=0),
+ input_unknown_count bigint NOT NULL CHECK(input_unknown_count>=0),
+ CHECK(input_known_count::numeric+input_unknown_count::numeric=confirmed_invocations),
+ CHECK((input_sum IS NULL)=(confirmed_invocations>0 AND input_known_count=0)),
+ CHECK(confirmed_invocations!=0 OR input_sum=0),
+ output_sum bigint CHECK(output_sum>=0),
+ output_known_count bigint NOT NULL CHECK(output_known_count>=0),
+ output_unknown_count bigint NOT NULL CHECK(output_unknown_count>=0),
+ CHECK(output_known_count::numeric+output_unknown_count::numeric=confirmed_invocations),
+ CHECK((output_sum IS NULL)=(confirmed_invocations>0 AND output_known_count=0)),
+ CHECK(confirmed_invocations!=0 OR output_sum=0),
+ total_sum bigint CHECK(total_sum>=0),
+ total_known_count bigint NOT NULL CHECK(total_known_count>=0),
+ total_unknown_count bigint NOT NULL CHECK(total_unknown_count>=0),
+ CHECK(total_known_count::numeric+total_unknown_count::numeric=confirmed_invocations),
+ CHECK((total_sum IS NULL)=(confirmed_invocations>0 AND total_known_count=0)),
+ CHECK(confirmed_invocations!=0 OR total_sum=0),
+ cached_input_sum bigint CHECK(cached_input_sum>=0),
+ cached_input_known_count bigint NOT NULL CHECK(cached_input_known_count>=0),
+ cached_input_unknown_count bigint NOT NULL CHECK(cached_input_unknown_count>=0),
+ CHECK(cached_input_known_count::numeric+cached_input_unknown_count::numeric=confirmed_invocations),
+ CHECK((cached_input_sum IS NULL)=(confirmed_invocations>0 AND cached_input_known_count=0)),
+ CHECK(confirmed_invocations!=0 OR cached_input_sum=0),
+ cache_write_sum bigint CHECK(cache_write_sum>=0),
+ cache_write_known_count bigint NOT NULL CHECK(cache_write_known_count>=0),
+ cache_write_unknown_count bigint NOT NULL CHECK(cache_write_unknown_count>=0),
+ CHECK(cache_write_known_count::numeric+cache_write_unknown_count::numeric=confirmed_invocations),
+ CHECK((cache_write_sum IS NULL)=(confirmed_invocations>0 AND cache_write_known_count=0)),
+ CHECK(confirmed_invocations!=0 OR cache_write_sum=0),
+ reasoning_sum bigint CHECK(reasoning_sum>=0),
+ reasoning_known_count bigint NOT NULL CHECK(reasoning_known_count>=0),
+ reasoning_unknown_count bigint NOT NULL CHECK(reasoning_unknown_count>=0),
+ CHECK(reasoning_known_count::numeric+reasoning_unknown_count::numeric=confirmed_invocations),
+ CHECK((reasoning_sum IS NULL)=(confirmed_invocations>0 AND reasoning_known_count=0)),
+ CHECK(confirmed_invocations!=0 OR reasoning_sum=0),
+ CHECK(succeeded::numeric+failed::numeric+cancelled::numeric+unknown::numeric<=confirmed_invocations::numeric+dispatch_unknown::numeric),
+ CHECK(confirmed_invocations::numeric+dispatch_unknown::numeric<=9223372036854775807),
+ PRIMARY KEY(project_id,execution_id)
+);

@@ -1,0 +1,35 @@
+{
+  "command_exit": 0,
+  "packages": [
+    "github.com/LunaDeerTech/agenteam/internal/central/foundation",
+    "github.com/LunaDeerTech/agenteam/internal/central/identity/contract",
+    "github.com/LunaDeerTech/agenteam/internal/central/cursor",
+    "github.com/LunaDeerTech/agenteam/internal/central/object/contract",
+    "github.com/LunaDeerTech/agenteam/internal/central/secret/contract",
+    "github.com/LunaDeerTech/agenteam/internal/central/model/contract",
+    "github.com/LunaDeerTech/agenteam/db/migrations",
+    "github.com/LunaDeerTech/agenteam/internal/central/postgres",
+    "github.com/LunaDeerTech/agenteam/internal/central/usage/contract",
+    "github.com/LunaDeerTech/agenteam/internal/central/usage",
+    "github.com/LunaDeerTech/agenteam/internal/central/usage [github.com/LunaDeerTech/agenteam/internal/central/usage.test]",
+    "github.com/LunaDeerTech/agenteam/internal/central/usage.test",
+    "github.com/LunaDeerTech/agenteam/internal/central/usage/contract [github.com/LunaDeerTech/agenteam/internal/central/usage/contract.test]",
+    "github.com/LunaDeerTech/agenteam/internal/central/usage/contract.test",
+    "github.com/LunaDeerTech/agenteam/internal/central/identity/contract [github.com/LunaDeerTech/agenteam/internal/central/identity/contract.test]",
+    "github.com/LunaDeerTech/agenteam/internal/central/identity/contract.test"
+  ],
+  "reads_model_implementation": false,
+  "all_local_package_dirs_owned": true,
+  "external_modules": [
+    "github.com/jackc/pgpassfile@v1.0.0",
+    "github.com/jackc/pgservicefile@v0.0.0-20240606120523-5a60cdf6a761",
+    "github.com/jackc/pgx/v5@v5.11.0",
+    "github.com/jackc/puddle/v2@v2.2.2",
+    "github.com/mfridman/interpolate@v0.0.2",
+    "github.com/pressly/goose/v3@v3.28.0",
+    "github.com/sethvargo/go-retry@v0.4.0",
+    "go.uber.org/multierr@v1.11.0",
+    "golang.org/x/sync@v0.22.0",
+    "golang.org/x/text@v0.41.0"
+  ]
+}

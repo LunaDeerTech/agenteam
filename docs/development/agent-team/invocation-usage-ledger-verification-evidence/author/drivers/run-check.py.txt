@@ -1,0 +1,19 @@
+from pathlib import Path
+import subprocess,json,os,sys,time,hashlib
+base=Path('/workspace/scratch/agenteam-d09-ledger-author')
+label,revision,*argv=sys.argv[1:]
+root=base/revision/'src'
+manifest=base/revision/'manifest.json'
+m=json.loads(manifest.read_text())
+for p,digest in m['closure'].items():
+    assert hashlib.sha256((root/p).read_bytes()).hexdigest()==digest,p
+env=dict(GOTOOLCHAIN='local',GOENV='off',GOWORK='off',GOMODCACHE='/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache',GOCACHE=str(base/'cache'),TMPDIR=str(base/'tmp'),GOPROXY='off',GOSUMDB='off',GOFLAGS='-mod=readonly -p=1',AGENTEAM_GO='/workspace/toolchains/go1.27.1/bin/go',AGENTEAM_MINIO_BINARY='/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio')
+meta={'argv':argv,'cwd':str(root),'env':env,'start':time.time(),'input_manifest_sha256':hashlib.sha256(manifest.read_bytes()).hexdigest()}
+log=base/'logs'/(label+'.log')
+with log.open('w') as out:
+    proc=subprocess.run(argv,cwd=root,env={**os.environ,**env},stdout=out,stderr=subprocess.STDOUT)
+meta.update(exit=proc.returncode,end=time.time())
+(base/'logs'/(label+'.json')).write_text(json.dumps(meta,indent=2)+'\n')
+print(log.read_text())
+print(json.dumps(meta,indent=2))
+sys.exit(proc.returncode)

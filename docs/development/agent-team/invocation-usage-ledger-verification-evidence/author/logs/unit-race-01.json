@@ -1,0 +1,29 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-count=1",
+    "./internal/central/usage/...",
+    "./internal/central/identity/contract",
+    "./internal/central/model/..."
+  ],
+  "cwd": "/workspace/scratch/agenteam-d09-ledger-author/input02/src",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d09-ledger-author/cache",
+    "TMPDIR": "/workspace/scratch/agenteam-d09-ledger-author/tmp",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1",
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio"
+  },
+  "start": 1791248082.3978822,
+  "input_manifest_sha256": "aa176f93ab056e35ee610efa040582d3a5d9e2a54a91d334a43828efc9413b41",
+  "exit": 1,
+  "end": 1791248241.4339058
+}

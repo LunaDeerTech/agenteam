@@ -1,0 +1,70 @@
+{
+  "window": "ledger-author-01",
+  "owner": "/root/backend_recovery",
+  "state": "returned; driver exit1; one EXPLAIN assertion failure",
+  "granted_utc": "2026-10-06T01:02:56.968590+00:00",
+  "source": "/workspace/scratch/agenteam-d09-ledger-author/input07/src",
+  "input_manifest": "/workspace/scratch/agenteam-d09-ledger-author/input07/manifest.json",
+  "input_manifest_sha256": "ec8a86c784d7ff64110ac774cb480de4c8a0492d72fdc0f4b974308f74729ff4",
+  "checked_owned": 20,
+  "checked_closure": 871,
+  "selector": "^TestUsage(InvocationWireLedger|InvocationIdentityAndAuthority|InvocationReplayAndAtomicity|InvocationUnknownConfirmation|ReaderNonemptyPagination|ExecutionSummaryRebuild|SchemaAndHistory|QueryBudgetAndSafety)$",
+  "launcher": [
+    "python3",
+    "/workspace/scratch/agenteam-d09-ledger-author/run-real.py",
+    "real-01",
+    "input07",
+    "^TestUsage(InvocationWireLedger|InvocationIdentityAndAuthority|InvocationReplayAndAtomicity|InvocationUnknownConfirmation|ReaderNonemptyPagination|ExecutionSummaryRebuild|SchemaAndHistory|QueryBudgetAndSafety)$"
+  ],
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestUsage(InvocationWireLedger|InvocationIdentityAndAuthority|InvocationReplayAndAtomicity|InvocationUnknownConfirmation|ReaderNonemptyPagination|ExecutionSummaryRebuild|SchemaAndHistory|QueryBudgetAndSafety)$"
+  ],
+  "baseline": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/trusted-baseline.json",
+  "coordinator_baseline_checked": true,
+  "budget": "original -race -count=1 -timeout=6m; GOFLAGS readonly -p=1 -v",
+  "root_authorization": "ledger first real priority once ready",
+  "returned_utc": "2026-10-06T01:08:47.372987+00:00",
+  "author_evidence": "/workspace/scratch/agenteam-d09-ledger-author/logs/real-01.json",
+  "coordinator_exact_id_absent": {
+    "4bd872e195f3dd23eb5245aafea7930edacdcabd5980c068c0334d980a42c7f5": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "f732fd515146d0c0153e88fabeda43136b7dd2d6aa0f20000fb7e820de4134cd": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "92948d8d3d2bcb7fb48a2b361a871db64516aa6d6418215d5dd5de3f162fd01f": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "9e395aa82023df4a1ddf47e27b25b434827d778b02391f64a9983d128032ed0d": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "7fd53dc84143cc0303b73f00ead215c1edec03fca9901878222fd09cb431a99b": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "71035bc29635c6fd029657e3fda4a31e749f7c190d50c91d9c9c23675944f875": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "e725ee6a8d22489912347289a9d221a91e42bab8aefed1cd12ef10cfc3375ba7": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    }
+  },
+  "coordinator_baseline_unchanged": true,
+  "process_evidence_note": "Original monitor sampled Docker resources and driver PID but not the process tree. Coordinator end check found driver absent and no cwd/exe rooted in author task directory; private TMPDIR empty. Author will add explicit PID/starttime tree monitoring for later runs."
+}

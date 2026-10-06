@@ -1,0 +1,185 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"testing"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	id "github.com/LunaDeerTech/agenteam/internal/central/identity/contract"
+	wire "github.com/LunaDeerTech/agenteam/internal/central/model/adapter"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	oc "github.com/LunaDeerTech/agenteam/internal/central/object/contract"
+	pc "github.com/LunaDeerTech/agenteam/internal/central/project/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/usage"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
+)
+
+func TestUsageInvocationIdentityAndAuthority(t *testing.T) {
+	v := newUsageFixture(t, true)
+	c := v.newCase(t, nil, nil)
+	r := v.stage(t, c.event)
+	plan, e := v.ledger.DiscoverInvocation(testContext(t), r)
+	if e != nil {
+		t.Fatal(e)
+	}
+	t.Run("complete-valid-identity-mismatches", func(t *testing.T) {
+		for name, change := range map[string]func(*uc.InvocationRequest){"project": func(q *uc.InvocationRequest) { q.Identity.Consumer.ProjectID = newID[id.Project](t) }, "call": func(q *uc.InvocationRequest) { q.Identity.Attempt.CallID = newID[mc.Call](t) }, "ordinal": func(q *uc.InvocationRequest) { q.Identity.Attempt.AttemptIndex++ }, "input": func(q *uc.InvocationRequest) { q.Identity.Input.Digest = resolutionDigest("different") }, "schema": func(q *uc.InvocationRequest) { q.Identity.Input.SchemaVersion++ }, "snapshot": func(q *uc.InvocationRequest) { q.Identity.SnapshotID = newID[mc.Snapshot](t) }, "process": func(q *uc.InvocationRequest) { q.Identity.Attempt.ProcessID = newID[oc.Process](t) }, "fence": func(q *uc.InvocationRequest) { q.Identity.Attempt.Fence++ }, "actor": func(q *uc.InvocationRequest) { q.Actor = v.admin }} {
+			t.Run(name, func(t *testing.T) {
+				q := r.Clone()
+				change(&q)
+				if q.Validate() != nil {
+					t.Fatal("negative DTO invalid")
+				}
+				before := usageLedgerState(t, v)
+				_, result := v.applyPlan(t, q, plan, false, false)
+				if result.State() != f.NotCommitted || usageLedgerState(t, v) != before {
+					t.Fatal("foreign request accepted")
+				}
+				_, e := v.ledger.DiscoverInvocation(testContext(t), q)
+				if e == nil {
+					t.Fatal("foreign canonical request discovered")
+				}
+			})
+		}
+	})
+	t.Run("cross-instance-and-missing-original-writer-lock", func(t *testing.T) {
+		_, ck, _ := testKeys(t)
+		authority, e := usage.NewAuthority(v.storeView, usage.Authorizations{Sessions: v.accounts, Projects: v.projects, Invocations: v.runtimeOwner})
+		if e != nil {
+			t.Fatal(e)
+		}
+		other, e := usage.New(v.storeView, authority, usage.Dependencies{Cursors: ck})
+		if e != nil {
+			t.Fatal(e)
+		}
+		result := v.raw.WithinTx(testContext(t), plan.Cause(), func(ctx context.Context, tx f.Tx) error {
+			if e := v.raw.AcquireAll(ctx, tx, plan.RequiredLocks()); e != nil {
+				return e
+			}
+			_, e := other.ReserveInvocationInTx(ctx, tx, r, plan)
+			return e
+		})
+		if usageErrorCode(result.Fault()) != f.Forbidden {
+			t.Fatal("cross-instance plan accepted")
+		}
+		result = v.raw.WithinTx(testContext(t), plan.Cause(), func(ctx context.Context, tx f.Tx) error {
+			key := usageWriterKey(r.Identity).Key
+			var locks []f.LockRequest
+			for _, l := range plan.RequiredLocks() {
+				if f.CompareLockKeys(l.Key, key) != 0 {
+					locks = append(locks, l)
+				}
+			}
+			if e := v.raw.AcquireAll(ctx, tx, locks); e != nil {
+				return e
+			}
+			_, e := v.ledger.ReserveInvocationInTx(ctx, tx, r, plan)
+			return e
+		})
+		if result.State() != f.NotCommitted {
+			t.Fatal("missing canonical writer accepted")
+		}
+		foreign := openStore(t, v.db.Config(t, nil))
+		result = foreign.WithinTx(testContext(t), plan.Cause(), func(ctx context.Context, tx f.Tx) error {
+			_, e := v.ledger.ReserveInvocationInTx(ctx, tx, r, plan)
+			return e
+		})
+		if result.State() != f.NotCommitted {
+			t.Fatal("foreign Tx accepted")
+		}
+		var expired f.Tx
+		v.raw.WithinTx(testContext(t), plan.Cause(), func(ctx context.Context, tx f.Tx) error { expired = tx; return nil })
+		if _, e := v.ledger.ReserveInvocationInTx(testContext(t), expired, r, plan); e == nil {
+			t.Fatal("expired Tx accepted")
+		}
+	})
+	t.Run("mapping-and-full-session-plans-are-current", func(t *testing.T) {
+		uid, _ := f.ParseID[id.User](v.owner.Details().UserID)
+		q := r
+		q.Actor = v.session(t, uid)
+		_, result := v.applyPlan(t, q, plan, false, false)
+		if usageErrorCode(result.Fault()) != f.Forbidden {
+			t.Fatal("new Session reused old plan")
+		}
+		fresh, e := v.ledger.DiscoverInvocation(testContext(t), q)
+		if e != nil {
+			t.Fatal(e)
+		}
+		if _, e = v.raw.Exec(testContext(t), `UPDATE usage_runtime_fixture.events SET version=version+1 WHERE invocation_id=$1`, r.Identity.Attempt.InvocationID.String()); e != nil {
+			t.Fatal(e)
+		}
+		_, result = v.applyPlan(t, q, fresh, false, false)
+		if usageErrorCode(result.Fault()) != f.ResourceBusy {
+			t.Fatal("changed facts reused plan")
+		}
+		fresh, e = v.ledger.DiscoverInvocation(testContext(t), q)
+		if e != nil {
+			t.Fatal(e)
+		}
+		if _, e = v.raw.Exec(testContext(t), `DELETE FROM agenteam_account.sessions WHERE id=$1`, q.Actor.Details().SessionID); e != nil {
+			t.Fatal(e)
+		}
+		before := usageLedgerState(t, v)
+		_, result = v.applyPlan(t, q, fresh, false, false)
+		if result.State() != f.NotCommitted || usageLedgerState(t, v) != before {
+			t.Fatal("revoked session wrote")
+		}
+		tech := r
+		tech.Actor = v.technical(t, r.Identity)
+		if _, e = v.ledger.DiscoverInvocation(testContext(t), tech); e == nil {
+			t.Fatal("technical role reserved")
+		}
+	})
+	t.Run("current-owner-required-for-all-reads", func(t *testing.T) {
+		v.apply(t, r)
+		q := uc.Query{Filter: uc.Filter{ProjectID: v.project.ID}, Limit: 5}
+		for _, a := range []id.Actor{v.admin, v.technical(t, r.Identity)} {
+			page, e := v.ledger.List(testContext(t), a, q)
+			if e == nil || len(page.Items) != 0 {
+				t.Fatal("nonowner read")
+			}
+			_, e = v.ledger.Aggregate(testContext(t), a, uc.AggregateQuery{Filter: q.Filter, GroupBy: uc.ByModel, Limit: 5})
+			if e == nil {
+				t.Fatal("nonowner aggregate")
+			}
+			_, e = v.ledger.GetExecutionSummary(testContext(t), a, v.project.ID, *r.Identity.Consumer.ExecutionID)
+			if e == nil {
+				t.Fatal("nonowner summary")
+			}
+			_, e = v.ledger.RebuildExecutionSummary(testContext(t), a, v.project.ID, *r.Identity.Consumer.ExecutionID)
+			if e == nil {
+				t.Fatal("nonowner rebuild")
+			}
+		}
+	})
+	t.Run("already-sent-facts-survive-revocation-and-gate", func(t *testing.T) {
+		scenario := wireJSON(wireReply("done", "stop", json.RawMessage(`{"prompt_tokens":2,"completion_tokens":1,"total_tokens":3}`), nil))
+		sent := v.newCase(t, &scenario, nil)
+		v.reserve(t, sent)
+		v.authorize(t, sent)
+		v.startWire(t, sent, wire.JSONResponse)
+		if _, e := sent.exchange.Result(testContext(t)); e != nil {
+			t.Fatal(e)
+		}
+		v.observeWire(t, sent)
+		v.gate(t, pc.Archived)
+		if _, e = v.raw.Exec(testContext(t), `DELETE FROM agenteam_account.sessions WHERE id=$1`, v.owner.Details().SessionID); e != nil {
+			t.Fatal(e)
+		}
+		v.finishWire(t, sent, uc.Succeeded, nil)
+		confirm := uc.InvocationRequest{Actor: v.technical(t, sent.event.Identity), Access: uc.ConfirmInvocation, Action: uc.FinalizeAction, Identity: sent.event.Identity, Sequence: sent.event.Sequence}
+		lookup, e := v.ledger.LookupInvocation(testContext(t), confirm)
+		if e != nil || !lookup.Observed {
+			t.Fatal("technical final confirmation denied", e)
+		}
+		uid, _ := f.ParseID[id.User](v.owner.Details().UserID)
+		fresh := v.session(t, uid)
+		sum, e := v.ledger.GetExecutionSummary(testContext(t), fresh, v.project.ID, *sent.call.Consumer.ExecutionID)
+		if e != nil || sum.Summary.Succeeded != 1 {
+			t.Fatal("archived real owner read", e)
+		}
+	})
+}

@@ -1,0 +1,38 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestIndependentUsageCurrentAdmissionAndTechnicalClosure|TestIndependentUsageAtomicityAndHistoricalUnknown|TestIndependentUsageReaderPublicationCancellation|TestIndependentUsageLookupPublicationCancellation|TestModelCurrentResolutionAuthorization|TestModelCurrentResolutionCanonicalLease|TestModelProjectCRUDScopeAndCanonicalReceipts|TestSecretModelUsagePlannedReadAndAudit|TestModelOpenAIChatWireHTTP|TestModelOpenAIChatStructuredHTTP|TestUsageReaderNonemptyPagination)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-d09-ledger-author/input13/src",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -v -overlay=/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay06.json",
+    "GOCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/tmp"
+  },
+  "window": "ledger-independent-final-01",
+  "manifest_path": "/workspace/scratch/agenteam-d09-ledger-author/input13/manifest.json",
+  "manifest_sha256": "b0dbeefe78312c2b2ca81f7e6de80fc8cde6b4f3354cfd3d6c7497a847b3009e",
+  "probe_sha256": {
+    "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/usage_independent_test.go": "221850c5162cd4d4103b2a0d5b26c704549099a5051ccb10b013236da11122de",
+    "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/usage_publication_independent_test.go": "dea05f5195d14604d28c83eeafc5f430d1222788712aaf8468a1466168742d01",
+    "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/usage_lookup_publication_independent_test.go": "d9229f09ac0baa11f4a6bf5568858a94e4834e5ab7d6b838c4617749c7e589b9"
+  },
+  "overlay_path": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay06.json",
+  "overlay_sha256": "f65883b812f74a82c97e40322df75a3c8ef5886072e638ab0b28465512172bc1",
+  "started": 1791250098.3440528,
+  "driver_pid": 363237,
+  "exit": 0,
+  "finished": 1791250246.888042,
+  "final_manifest_matches": true,
+  "final_probe_matches": true
+}

@@ -1,0 +1,18 @@
+{
+  "input": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/combined-input01/manifest.json",
+  "input_sha256": "8d97aef145a9582ac35444c9d7ba64688f0c74baec637f4bcbeba07e1ab30b23",
+  "overlay": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay07.json",
+  "probes": {
+    "usage_gate_independent_test.go": "ef6a3780388e8554f5f1afa49b103cfbfb15d7edad50dce933cd5e29894e98a2"
+  },
+  "selector": "^(TestIndependentUsageCurrentProjectGate|TestUsageInvocationWireLedger|TestSystemModelManagementMetadata)$",
+  "definitions": {
+    "TestUsageInvocationWireLedger": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/combined-input01/src/tests/model/usage_ledger_test.go",
+    "TestSystemModelManagementMetadata": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/combined-input01/src/tests/model/system_management_metadata_test.go",
+    "TestIndependentUsageCurrentProjectGate": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/usage_gate_independent_test.go"
+  },
+  "owned_ledger_unchanged": true,
+  "scope": "one independent gate-only top; original UsageWireLedger + current management Metadata exact upstream seams",
+  "budget": "original test-objects.sh race/count1/6m; no budget changes",
+  "root_authorization": "gate-only plus committed ecd7337 13-source upstream composition; no active tools14"
+}

@@ -1,0 +1,36 @@
+# Frozen author fixture review
+
+This review is static. The verifier has not yet run a ledger product test or a Docker fixture. Compilation of the private independent probes is preparation only.
+
+Reviewed author manifests:
+
+- input01 `b12401992a9e7f15c424a8a121e41223cca25648a58e394ef84d3dee01636023`: all 20 owned source hashes matched. Relative to core-freeze-01, production/SQL changed only the explicit terminal-version non-null correction U-R01.
+- input02 `aa176f93ab056e35ee610efa040582d3a5d9e2a54a91d334a43828efc9413b41`: all 20 hashes matched; four new test files changed, no production delta.
+- input03 `8112326d51f8b2de3b4ac04f1781ee12c7216fdea43079722b066b32eeb7d562`: all 20 hashes matched; four lines change two negative cases to explicit persisted dispatch-unknown facts. No production delta.
+- input05 `2c4008a1e682759dc53e3efb5ceaadd5a0998726017a82e88b16017854a5ac94`: all 20 hashes matched; fixture/replay tests add distinct-sequence concurrency, terminal receipt replay/conflict, and predecessor terminal/join gating. A required baseline OpenAPI asset is added to the closure; production remains unchanged.
+
+Findings were sent to the author and root immediately:
+
+1. U-F01: input01 SecretService actor CauseRef was InvocationID, but accepted Secret lease read binds CauseRef to LeaseOwner.ID. The usage RequestID is the separate exact InvocationID. input02 fixes actor construction, exact planner RequestID, and legacy owner-based authorization using persisted candidates in the original Tx under the required writer locks. It adds structurally valid wrong-cause/wrong-request negatives. Actual credential read is still pending.
+2. U-F02: input01 not_sent positive only assigned LocalDone and Joined booleans. The card requires an actual ended local/Do operation. input02 runs the actual adapter against denied D04 policy, requires DoStarted, Decision.Sent=false with a reason, actual Joined and zero controlled-server requests, then persists that observation. Dispatch unknown remains an explicitly limited durable protocol fixture. Dynamic evidence is pending.
+3. U-F03: input01 numeric overflow altered a terminal token field without updating final_digest, making the test input invalid for more than one reason. The initial message overstated that loader failure would necessarily occur first: Aggregate performs numeric scanning before full-row validation, so that ordering claim was corrected. input02 separates bad-final-digest rejection and computes a valid statistical digest before the overflow case.
+4. Budget evidence: input01 had only an earlier 80ms caller deadline. input02 adds List/Aggregate tests that first complete real authorized SQL, observe the service-provided two-second callback context and held User/Project locks, wait for that deadline, and require actual NotCommitted and a zero DTO. This supplements, rather than increases, the existing one-second fixture lock timeout and original overall test budget.
+5. input05's new semantic-final replay assertion compared complete results of two GetExecutionSummary calls, including per-call Summary.AsOf. The contract requires a fresh DB time on each call. Reported before the real run; author accepted a test-only correction to check time validity/monotonicity and normalize AsOf before comparing persistent version/counts/all six fields. Replacement input is pending.
+
+Reviewed fixture boundary: call/input/attempt/event records are persisted in a private test schema; Validate rereads canonical identity and versions under original Store/Tx/locks. Sent/usage observations use each exact Exchange. The Secret planner isolates the future Runtime invocation route only; production Runtime/Outbound delegation is not bound. Statistical bulk rows are explicitly labeled as synthetic and are not wire evidence. The actual-commit Unknown decorator does not test network ACK loss.
+
+Independent probes remain A+B: current Session rejection versus original technical finalization; exact swallowed INVALID_STATE with outer Committed and unchanged three-table facts; actual commit decorated Unknown followed by a historical receipt after later final, bounded original-writer lock contention, and exactly one Provider request. No optional C is scheduled because the author has prepared nonempty aggregate/rebuild tests; their actual results still require review.
+
+## Subsequent fixed-input review
+
+Input07 repaired the legacy Secret candidate selector to inspect the current transaction's actual advisory locks before full RequireHeldLocks. It filters current PID/database, advisory kind, objsubid=1, granted ExclusiveLock and both unsigned AdvisoryKey halves, then rechecks the selected canonical record and complete union locks in the original Tx. It does not use RequireHeldLocks failures as harmless candidate probes. The author added two active calls for the same Execution; real01 passed this path.
+
+U-R02 expanded the independent work beyond the original A+B plan. Original input07 really committed List, Aggregate, GetExecutionSummary, RebuildExecutionSummary and LookupInvocation transactions, then a Store decorator cancelled the actual caller before result publication. All five original readers published nonzero DTOs without error. The four-reader and Lookup raw failures are preserved in `independent/publication01` and `independent/perf-lookup01`. Input11 adds a shared completedRead check: preserve NotCommitted/Unknown faults first, then reject cancellation after Committed with a Committed DependencyUnavailable fault and zero DTO. The actual fixed-input post-repair run remains required.
+
+Input13 differs from input11 only in usage_fixture_test.go and usage_query_test.go. It replaces the mistaken deleted-Session/SessionRevoked expectation with actual Account.Logout on the same Store, real Authority/Audit/Secrets and typed Outbox append. It verifies a persisted logout command, Session revocation and typed event, with actual StopAdmission/Drain/Joined cleanup. The cursor binding, 30-day effective range and same-User new-Session assertions remain. No production byte changed for this repair.
+
+The independent A probe also had an unexecuted DELETE/SessionRevoked mismatch. Its old source SHA and compilation evidence were preserved under `independent/probe-archive`; the final probe now uses the baseline's complete administrative-revocation SQL fixture and actual Account authority. This remains a labelled test fact mutation, distinct from the author's formal Logout case. Its writer-lock goroutine now always joins during cleanup as well as on the success path.
+
+Final planned input is input13 manifest b0dbeefe78312c2b2ca81f7e6de80fc8cde6b4f3354cfd3d6c7497a847b3009e: four independent tops, six explicitly authorized original compatibility tops and the one affected author Reader top, in one original driver invocation. Reader is the author's test executed by the independent worker; it is not an additional author self-test. Exact input, probes, definitions and selector are recorded in `independent/final-plan01.json`.
+
+Final acceptance requires completed author matrix evidence, applicable existing regressions, independent A+B results, final-input matching and real cleanup. Eight named groups alone are not proof of every required case.

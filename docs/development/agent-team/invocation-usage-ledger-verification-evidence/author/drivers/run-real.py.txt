@@ -1,0 +1,103 @@
+from pathlib import Path
+import subprocess,json,os,sys,time,hashlib,threading
+base=Path('/workspace/scratch/agenteam-d09-ledger-author')
+label,revision,selector=sys.argv[1:]
+root=base/revision/'src'
+manifest=base/revision/'manifest.json'
+m=json.loads(manifest.read_text())
+for p,digest in m['closure'].items():
+    assert hashlib.sha256((root/p).read_bytes()).hexdigest()==digest,p
+env=dict(GOTOOLCHAIN='local',GOENV='off',GOWORK='off',GOMODCACHE='/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache',GOCACHE=str(base/'cache'),TMPDIR=str(base/'tmp'),GOPROXY='off',GOSUMDB='off',GOFLAGS='-mod=readonly -p=1 -v',AGENTEAM_GO='/workspace/toolchains/go1.27.1/bin/go',AGENTEAM_MINIO_BINARY='/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio')
+commands=[]
+def call(argv):
+    r=subprocess.run(argv,stdout=subprocess.PIPE,stderr=subprocess.PIPE,text=True)
+    commands.append({'time':time.time(),'argv':argv,'exit':r.returncode,'stdout':r.stdout,'stderr':r.stderr})
+    return r
+
+def snapshot():
+    result={'containers':{},'networks':{}}
+    for kind,argv in [('containers',['docker','ps','-aq','--no-trunc']),('networks',['docker','network','ls','-q','--no-trunc'])]:
+        listing=call(argv)
+        assert listing.returncode==0,listing.stderr
+        for ident in listing.stdout.split():
+            if kind=='containers':
+                args=['docker','inspect','--format','{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Config.Labels}}}',ident]
+            else:
+                args=['docker','network','inspect','--format','{"id":{{json .Id}},"name":{{json .Name}},"labels":{{json .Labels}}}',ident]
+            r=call(args)
+            if r.returncode==0:
+                obj=json.loads(r.stdout)
+                result[kind][ident]=obj
+    return result
+known_processes={}
+process_observations=[]
+def process_snapshot(root_pid):
+    all_processes={}
+    for entry in Path('/proc').iterdir():
+        if not entry.name.isdigit(): continue
+        try:
+            stat=(entry/'stat').read_text()
+            fields=stat[stat.rfind(')')+2:].split()
+            pid=int(entry.name)
+            info={'pid':pid,'ppid':int(fields[1]),'starttime':fields[19],'comm':stat[stat.find('(')+1:stat.rfind(')')]}
+            for key in ('cwd','exe'):
+                try: info[key]=os.readlink(entry/key)
+                except OSError: info[key]=''
+            all_processes[pid]=info
+        except (OSError,ValueError,IndexError): continue
+    owned={root_pid}
+    while True:
+        previous=len(owned)
+        owned.update(pid for pid,x in all_processes.items() if x['ppid'] in owned)
+        if len(owned)==previous: break
+    current=[]
+    for pid,x in all_processes.items():
+        key=str(pid)+':'+x['starttime']
+        if pid in owned or key in known_processes or x['cwd'].startswith(str(base)+'/') or x['exe'].startswith(str(base)+'/'):
+            known_processes[key]=x
+            current.append(x)
+    return sorted(current,key=lambda x:x['pid'])
+baseline=snapshot()
+assert len(baseline['containers'])==2 and len(baseline['networks'])==4,'window not empty'
+argv=['sh','scripts/test-objects.sh','-run',selector]
+meta={'argv':argv,'cwd':str(root),'env':env,'start':time.time(),'input_manifest_sha256':hashlib.sha256(manifest.read_bytes()).hexdigest(),'baseline':baseline}
+log=base/'logs'/(label+'.log')
+known={'containers':{},'networks':{}}
+snapshots=[]
+with log.open('w') as out:
+    proc=subprocess.Popen(argv,cwd=root,env={**os.environ,**env},stdout=out,stderr=subprocess.STDOUT)
+    meta['pid']=proc.pid
+    (base/'logs'/(label+'.running.json')).write_text(json.dumps(meta,indent=2)+'\n')
+    while proc.poll() is None:
+        process_observations.append({'time':time.time(),'processes':process_snapshot(proc.pid)})
+        current=snapshot()
+        for kind in known:
+            for ident,obj in current[kind].items():
+                if ident not in baseline[kind]:
+                    labels=obj.get('labels') or {}
+                    if not any(k in {'agenteam.d03.fixture','agenteam.d04.networkfixture','agenteam.d05.objectfixture'} for k in labels):
+                        meta.setdefault('unrecognized_resources',[]).append(ident)
+                    known[kind][ident]=obj
+        if current!=baseline and (not snapshots or snapshots[-1]['resources']!=current):
+            snapshots.append({'time':time.time(),'resources':current})
+            (base/'logs'/(label+'.live.json')).write_text(json.dumps({'baseline':baseline,'known':known,'snapshots':snapshots,'known_processes':known_processes},indent=2)+'\n')
+        time.sleep(0.5)
+    exit_code=proc.wait()
+meta.update(exit=exit_code,end=time.time(),observed_resources=known)
+cleanup=[]
+for i in range(2):
+    current=snapshot()
+    checks=[]
+    for kind in known:
+        for ident in known[kind]:
+            args=['docker','inspect','--format','{{.Id}}',ident] if kind=='containers' else ['docker','network','inspect','--format','{{.Id}}',ident]
+            r=call(args)
+            checks.append({'kind':kind,'id':ident,'absent':r.returncode!=0})
+    cleanup.append({'time':time.time(),'baseline_unchanged':current==baseline,'exact_absence':checks,'owned_processes_remaining':process_snapshot(proc.pid)})
+    if i==0: time.sleep(1)
+meta.update(cleanup=cleanup,tmpdir_entries=[p.name for p in (base/'tmp').iterdir()],source_manifest_unchanged=hashlib.sha256(manifest.read_bytes()).hexdigest()==meta['input_manifest_sha256'] and all(hashlib.sha256((root/p).read_bytes()).hexdigest()==digest for p,digest in m['closure'].items()))
+(base/'logs'/(label+'.processes.json')).write_text(json.dumps({'known':known_processes,'observations':process_observations,'final':cleanup[-1]['owned_processes_remaining']},indent=2)+'\n')
+(base/'logs'/(label+'.resources.json')).write_text(json.dumps({'commands':commands,'snapshots':snapshots,'known_processes':known_processes},indent=2)+'\n')
+(base/'logs'/(label+'.json')).write_text(json.dumps(meta,indent=2)+'\n')
+print(json.dumps({'label':label,'exit':exit_code,'log':str(log),'observed_containers':len(known['containers']),'observed_networks':len(known['networks']),'clean':all(x['baseline_unchanged'] and all(c['absent'] for c in x['exact_absence']) for x in cleanup),'tmpdir_entries':meta['tmpdir_entries'],'joined':not cleanup[-1]['owned_processes_remaining']},indent=2))
+sys.exit(exit_code)

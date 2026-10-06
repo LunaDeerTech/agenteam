@@ -1,0 +1,28 @@
+{
+  "baseline": "d09e8ef",
+  "scope": "14 core paths for static review; real acceptance pending",
+  "previous_manifest": "/workspace/scratch/agenteam-d09-ledger-author/core-freeze-01/manifest.json",
+  "previous_sha256": "c9f0c583ae690c40b8b59e0fb7e8b10a42a1ff7a1dea67cc7b8d5b105871f251",
+  "source_manifest": "/workspace/scratch/agenteam-d09-ledger-author/input07/manifest.json",
+  "source_sha256": "ec8a86c784d7ff64110ac774cb480de4c8a0492d72fdc0f4b974308f74729ff4",
+  "files": {
+    "internal/central/usage/contract/invocations.go": "e2e782b55321ac9bfd4b90164c11a8d8d8ce75d1f2b87d6871952e1fa5a76707",
+    "internal/central/usage/contract/authority.go": "c35f5810e8cd6184ed2b071c8149691d84a809f2e1d38d94001000338bae451d",
+    "internal/central/usage/service.go": "7a475e186679f11a01423fa5857aa288ab1369cb3f81a5b828f0bc959f329608",
+    "internal/central/usage/store.go": "4c2025d6422a86f2efdd0561ea6b7a3f8370c2db3ebe96cd4cb957c194d13b19",
+    "internal/central/usage/authority.go": "830ff92eb7a30c8a4fae64a3d604b3c9d3bc114641384671d4d5ccf82cf16221",
+    "internal/central/usage/invocations.go": "5ba6d0e8be08978ed2d249065bcb7c86e1e79e634f8e9cbe60c280f39b48ce6e",
+    "internal/central/usage/summary.go": "12233af80169263d4e05e393e24296e8b0477ced127ac886c84b7001aae58a85",
+    "internal/central/usage/query.go": "ae7aef7a47871dcc699e5db2256cf0c69528d3ad2a1479622f47b06283e554eb",
+    "internal/central/identity/contract/identity.go": "35403f72515c25c7950e0c199e73ce5b18e0f81f3363bb9dfb200f795ac8e8b0",
+    "db/migrations/00018_model_invocation_usage.sql": "b5d3f487853ff26bc2964a5c0958198c65f5048896935ed3fbfffc667c16a101",
+    "internal/central/identity/contract/identity_test.go": "14a778eb74d859062a0f7208f06d62a954a14feb78c2fed3cb8513354912d15c",
+    "internal/central/usage/contract/invocations_test.go": "7e90ed84c25d0116127a49fe9a1e4b0e1b5a689270ec5fbac10e259405a27a87",
+    "internal/central/usage/authority_test.go": "60410a5dcadea2575bb991a63d981d028ceff4fbebe65ce9c995872168154cb1",
+    "internal/central/usage/summary_test.go": "78cbdd25e4a98da76de76fb2f2ee676a01e6c1ef52994cf854b869bc846af1ea"
+  },
+  "delta": [
+    "db/migrations/00018_model_invocation_usage.sql"
+  ],
+  "change": "U-R01 terminal_version IS NOT NULL in SQL CHECK"
+}

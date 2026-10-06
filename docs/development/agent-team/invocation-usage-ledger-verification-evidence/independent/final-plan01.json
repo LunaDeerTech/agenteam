@@ -1,0 +1,73 @@
+{
+  "input": "/workspace/scratch/agenteam-d09-ledger-author/input13/manifest.json",
+  "input_sha256": "b0dbeefe78312c2b2ca81f7e6de80fc8cde6b4f3354cfd3d6c7497a847b3009e",
+  "baseline": "d09e8ef",
+  "owned_paths": 20,
+  "closure_paths": 871,
+  "delta_from_input11": [
+    "tests/model/usage_fixture_test.go",
+    "tests/model/usage_query_test.go"
+  ],
+  "overlay": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay06.json",
+  "probes": {
+    "usage_independent_test.go": "221850c5162cd4d4103b2a0d5b26c704549099a5051ccb10b013236da11122de",
+    "usage_publication_independent_test.go": "dea05f5195d14604d28c83eeafc5f430d1222788712aaf8468a1466168742d01",
+    "usage_lookup_publication_independent_test.go": "d9229f09ac0baa11f4a6bf5568858a94e4834e5ab7d6b838c4617749c7e589b9"
+  },
+  "selector": "^(TestIndependentUsageCurrentAdmissionAndTechnicalClosure|TestIndependentUsageAtomicityAndHistoricalUnknown|TestIndependentUsageReaderPublicationCancellation|TestIndependentUsageLookupPublicationCancellation|TestModelCurrentResolutionAuthorization|TestModelCurrentResolutionCanonicalLease|TestModelProjectCRUDScopeAndCanonicalReceipts|TestSecretModelUsagePlannedReadAndAudit|TestModelOpenAIChatWireHTTP|TestModelOpenAIChatStructuredHTTP|TestUsageReaderNonemptyPagination)$",
+  "independent_tops": [
+    "TestIndependentUsageCurrentAdmissionAndTechnicalClosure",
+    "TestIndependentUsageAtomicityAndHistoricalUnknown",
+    "TestIndependentUsageReaderPublicationCancellation",
+    "TestIndependentUsageLookupPublicationCancellation"
+  ],
+  "compatibility_tops": [
+    "TestModelCurrentResolutionAuthorization",
+    "TestModelCurrentResolutionCanonicalLease",
+    "TestModelProjectCRUDScopeAndCanonicalReceipts",
+    "TestSecretModelUsagePlannedReadAndAudit",
+    "TestModelOpenAIChatWireHTTP",
+    "TestModelOpenAIChatStructuredHTTP"
+  ],
+  "author_reader_top_executed_by_independent": [
+    "TestUsageReaderNonemptyPagination"
+  ],
+  "test_definitions": {
+    "TestUsageReaderNonemptyPagination": [
+      "/workspace/scratch/agenteam-d09-ledger-author/input13/src/tests/model/usage_query_test.go"
+    ],
+    "TestModelCurrentResolutionCanonicalLease": [
+      "/workspace/scratch/agenteam-d09-ledger-author/input13/src/tests/model/current_resolution_atomicity_test.go"
+    ],
+    "TestModelCurrentResolutionAuthorization": [
+      "/workspace/scratch/agenteam-d09-ledger-author/input13/src/tests/model/current_resolution_authorization_test.go"
+    ],
+    "TestModelOpenAIChatWireHTTP": [
+      "/workspace/scratch/agenteam-d09-ledger-author/input13/src/tests/model/openai_chat_wire_http_test.go"
+    ],
+    "TestModelOpenAIChatStructuredHTTP": [
+      "/workspace/scratch/agenteam-d09-ledger-author/input13/src/tests/model/openai_chat_structured_http_test.go"
+    ],
+    "TestModelProjectCRUDScopeAndCanonicalReceipts": [
+      "/workspace/scratch/agenteam-d09-ledger-author/input13/src/tests/model/project_configuration_integration_test.go"
+    ],
+    "TestSecretModelUsagePlannedReadAndAudit": [
+      "/workspace/scratch/agenteam-d09-ledger-author/input13/src/tests/security/secret_model_usage_test.go"
+    ],
+    "TestIndependentUsageCurrentAdmissionAndTechnicalClosure": [
+      "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/usage_independent_test.go"
+    ],
+    "TestIndependentUsageAtomicityAndHistoricalUnknown": [
+      "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/usage_independent_test.go"
+    ],
+    "TestIndependentUsageReaderPublicationCancellation": [
+      "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/usage_publication_independent_test.go"
+    ],
+    "TestIndependentUsageLookupPublicationCancellation": [
+      "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/usage_lookup_publication_independent_test.go"
+    ]
+  },
+  "budget": "original sh scripts/test-objects.sh, race/count1/6m; no performance timing repeat",
+  "created_utc": "2026-10-06T01:25:37.781485+00:00",
+  "root_authorization": "combine fixed input13 4 independent + 6 compatible old + 1 affected author Reader in independent window"
+}

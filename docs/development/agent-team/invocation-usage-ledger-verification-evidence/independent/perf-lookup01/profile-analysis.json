@@ -1,0 +1,36 @@
+{
+  "binary": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/bin/model-input07-perf-lookup.test",
+  "binary_sha256": "e38e7303dc49a24a0cd5727261d7d3e1d3b803e97a01f824ed71ce89b477909b",
+  "profile_sha256": "1682fbdc5943c9e7bcb3d026e3db391b5e7697f61f9d5062bc52b0de2a0027ad",
+  "commands": [
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "tool",
+        "pprof",
+        "-top",
+        "-cum",
+        "-nodecount=35",
+        "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/bin/model-input07-perf-lookup.test",
+        "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/perf-lookup01/aggregate.cpu"
+      ],
+      "exit": 0,
+      "stdout": "profile-cumulative.txt",
+      "stderr": "profile-cumulative.stderr"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "tool",
+        "pprof",
+        "-top",
+        "-nodecount=35",
+        "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/bin/model-input07-perf-lookup.test",
+        "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/perf-lookup01/aggregate.cpu"
+      ],
+      "exit": 0,
+      "stdout": "profile-flat.txt",
+      "stderr": "profile-flat.stderr"
+    }
+  ]
+}

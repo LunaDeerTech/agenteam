@@ -1,0 +1,36 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^(TestIndependentUsageCurrentProjectGate|TestUsageInvocationWireLedger|TestSystemModelManagementMetadata)$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/combined-input01/src",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -v -overlay=/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay07.json",
+    "GOCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/tmp"
+  },
+  "window": "ledger-independent-combined-01",
+  "manifest_path": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/combined-input01/manifest.json",
+  "manifest_sha256": "8d97aef145a9582ac35444c9d7ba64688f0c74baec637f4bcbeba07e1ab30b23",
+  "probe_sha256": {
+    "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/usage_gate_independent_test.go": "ef6a3780388e8554f5f1afa49b103cfbfb15d7edad50dce933cd5e29894e98a2"
+  },
+  "overlay_path": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay07.json",
+  "overlay_sha256": "c6bc5b3d7ba2e149af85e13845be72066dd35bc06fffd7d3599a1ea1198e5478",
+  "started": 1791250424.6394994,
+  "driver_pid": 402383,
+  "exit": 0,
+  "finished": 1791250549.0297737,
+  "final_manifest_matches": true,
+  "final_probe_matches": true
+}

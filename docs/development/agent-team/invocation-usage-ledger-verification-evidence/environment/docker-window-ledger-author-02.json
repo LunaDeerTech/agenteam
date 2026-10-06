@@ -1,0 +1,57 @@
+{
+  "window": "ledger-author-02",
+  "owner": "/root/backend_recovery",
+  "state": "returned; driver exit1; four affected tops pass, Reader fixture wrong deleted-Session expectation",
+  "granted_utc": "2026-10-06T01:18:08.405181+00:00",
+  "source": "/workspace/scratch/agenteam-d09-ledger-author/input11/src",
+  "input_manifest": "/workspace/scratch/agenteam-d09-ledger-author/input11/manifest.json",
+  "input_manifest_sha256": "f6b9847f0fb69ff9ad5400ccb3f75c0eb383d53821be2aebae865b11eae2c7eb",
+  "checked_owned": 20,
+  "checked_closure": 871,
+  "selector": "^TestUsage(InvocationIdentityAndAuthority|ReaderNonemptyPagination|ExecutionSummaryRebuild|QueryBudgetAndSafety|InvocationUnknownConfirmation)$",
+  "compile_evidence": "/workspace/scratch/agenteam-d09-ledger-author/logs/compile-11.json",
+  "baseline": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/trusted-baseline.json",
+  "coordinator_baseline_checked": true,
+  "budget": "original test-objects race/count1/6m; 1200 synthetic rows and API2s unchanged",
+  "root_authorization": "targeted five groups after U-R02 fix and missing explicit coverage",
+  "returned_utc": "2026-10-06T01:23:36.119717+00:00",
+  "evidence": "/workspace/scratch/agenteam-d09-ledger-author/logs/real-02.json",
+  "coordinator_exact_id_absent": {
+    "e97f6296db8ab7a5e60996ed49b87ebf39c1aab9a3379d49a7ea1a6e73d28307": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "b1d539556524818a5ab9fe9368a91b9381cce6e618376616db577a8718bd2c6f": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "b4f993857139cece20330a3740f2ea0f35a04f08c3425ae0a2e96929afba6339": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "cc0666924e80e82695922dde0a6c708d1a7008f1198d18a6fe494767572194fa": {
+      "kind": "container",
+      "exit": 1,
+      "absent": true
+    },
+    "3de45114712736b69661fbfa4f36a4b58121d8f9e5cc8ae7d8256fac30d51bbe": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "3e631302d525b86d86c5fe0449a2dd82aa5709d2da6a42d1f4ed234dd2865b73": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    },
+    "63e766398387b2f1eb35b8e40153a878ec3042ce8b4c07dab6cdf24cf00db8b9": {
+      "kind": "network",
+      "exit": 1,
+      "absent": true
+    }
+  },
+  "coordinator_baseline_unchanged": true
+}

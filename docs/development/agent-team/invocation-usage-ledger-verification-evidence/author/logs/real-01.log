@@ -1,0 +1,240 @@
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore
+github.com/LunaDeerTech/agenteam/tests/testsupport/objectstore/cmd/fixture
+D05 actual source-built MinIO minio version RELEASE.2025-10-15T17-29-55Z (commit-id=9e49d5e7a648f00e26f2246f4dc28e6b07f8c84a) binary_sha256=dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8
+D05 object fixture isolated TLS=10.35.217.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=73e221aa246b1bead7df3f21a43f03ab
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/fixture
+net
+crypto/x509
+crypto/tls
+net/textproto
+vendor/golang.org/x/net/http/httpguts
+vendor/golang.org/x/net/http/httpproxy
+mime/multipart
+net/http/httptrace
+net/http/internal/httpcommon
+net/http/internal/http2
+net/http
+github.com/LunaDeerTech/agenteam/tests/testsupport/outbound/cmd/server
+D04 outbound fixture actual private_socket=172.19.0.2 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc nonce=fa524fa9102313fa1653be03ea251e7d
+github.com/LunaDeerTech/agenteam/tests/testsupport/postgres/cmd/fixture
+D03 fixture actual PostgreSQL=170008 available_vector=0.8.1 image=pgvector/pgvector@sha256:99a149d3c84cfb0f32d8da7d72737e4643468787220af2223418730f8e9e9cdc
+D03 fixture actual PostgreSQL=160012 available_vector=0.8.1 image=pgvector/pgvector@sha256:16e62164a405447dca191079a924ee5b8a9dbf04fe53128701ffbea857b37782
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/postgres	1.012s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/database	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/app	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/process	4.061s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/security	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/outbox	1.024s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox	1.014s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/outbox/contract	1.010s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/account	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/accountmail	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/accountmail	1.019s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/recoverylog	1.017s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/project	1.020s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model	1.018s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/adapter	1.013s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/model/contract	1.014s [no tests to run]
+=== RUN   TestUsageInvocationIdentityAndAuthority
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/project
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/call
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/input
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/schema
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/process
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/fence
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/actor
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/ordinal
+=== RUN   TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/snapshot
+=== RUN   TestUsageInvocationIdentityAndAuthority/cross-instance-and-missing-original-writer-lock
+=== RUN   TestUsageInvocationIdentityAndAuthority/mapping-and-full-session-plans-are-current
+=== RUN   TestUsageInvocationIdentityAndAuthority/current-owner-required-for-all-reads
+=== RUN   TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request
+=== RUN   TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request/invocation-as-owner-cause
+=== RUN   TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request/foreign-exact-request
+=== RUN   TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request/unknown-request
+=== RUN   TestUsageInvocationIdentityAndAuthority/already-sent-facts-survive-revocation-and-gate
+--- PASS: TestUsageInvocationIdentityAndAuthority (3.99s)
+    --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches (0.06s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/project (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/call (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/input (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/schema (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/process (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/fence (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/actor (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/ordinal (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/complete-valid-identity-mismatches/snapshot (0.01s)
+    --- PASS: TestUsageInvocationIdentityAndAuthority/cross-instance-and-missing-original-writer-lock (0.03s)
+    --- PASS: TestUsageInvocationIdentityAndAuthority/mapping-and-full-session-plans-are-current (0.03s)
+    --- PASS: TestUsageInvocationIdentityAndAuthority/current-owner-required-for-all-reads (0.03s)
+    --- PASS: TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request (0.61s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request/invocation-as-owner-cause (0.01s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request/foreign-exact-request (0.00s)
+        --- PASS: TestUsageInvocationIdentityAndAuthority/secret-owner-cause-and-exact-invocation-request/unknown-request (0.00s)
+    --- PASS: TestUsageInvocationIdentityAndAuthority/already-sent-facts-survive-revocation-and-gate (0.43s)
+=== RUN   TestUsageInvocationWireLedger
+=== RUN   TestUsageInvocationWireLedger/provider-usage
+=== RUN   TestUsageInvocationWireLedger/explicit-zero
+=== RUN   TestUsageInvocationWireLedger/success-without-usage
+=== RUN   TestUsageInvocationWireLedger/reliable-usage-followed-by-stream-failure
+=== RUN   TestUsageInvocationWireLedger/actual-live-exchange-cannot-finalize
+=== RUN   TestUsageInvocationWireLedger/actual-zero-send-do-and-protocol-unknown-stay-separate
+--- PASS: TestUsageInvocationWireLedger (4.98s)
+    --- PASS: TestUsageInvocationWireLedger/provider-usage (0.36s)
+    --- PASS: TestUsageInvocationWireLedger/explicit-zero (0.42s)
+    --- PASS: TestUsageInvocationWireLedger/success-without-usage (0.32s)
+    --- PASS: TestUsageInvocationWireLedger/reliable-usage-followed-by-stream-failure (0.36s)
+    --- PASS: TestUsageInvocationWireLedger/actual-live-exchange-cannot-finalize (0.33s)
+    --- PASS: TestUsageInvocationWireLedger/actual-zero-send-do-and-protocol-unknown-stay-separate (0.72s)
+=== RUN   TestUsageInvocationReplayAndAtomicity
+=== RUN   TestUsageInvocationReplayAndAtomicity/concurrent-reservation-and-old-receipt
+=== RUN   TestUsageInvocationReplayAndAtomicity/outer-rollback-and-ignored-overflow-have-no-effects
+=== RUN   TestUsageInvocationReplayAndAtomicity/same-sequence-conflict-and-gap
+=== RUN   TestUsageInvocationReplayAndAtomicity/constraint-error-is-one-statement
+=== RUN   TestUsageInvocationReplayAndAtomicity/different-sequences-and-terminal-receipts
+=== RUN   TestUsageInvocationReplayAndAtomicity/attempt-predecessor-must-be-terminal-and-joined
+--- PASS: TestUsageInvocationReplayAndAtomicity (3.51s)
+    --- PASS: TestUsageInvocationReplayAndAtomicity/concurrent-reservation-and-old-receipt (0.08s)
+    --- PASS: TestUsageInvocationReplayAndAtomicity/outer-rollback-and-ignored-overflow-have-no-effects (0.09s)
+    --- PASS: TestUsageInvocationReplayAndAtomicity/same-sequence-conflict-and-gap (0.03s)
+    --- PASS: TestUsageInvocationReplayAndAtomicity/constraint-error-is-one-statement (0.02s)
+    --- PASS: TestUsageInvocationReplayAndAtomicity/different-sequences-and-terminal-receipts (0.43s)
+    --- PASS: TestUsageInvocationReplayAndAtomicity/attempt-predecessor-must-be-terminal-and-joined (0.42s)
+=== RUN   TestUsageReaderNonemptyPagination
+=== RUN   TestUsageReaderNonemptyPagination/nonempty-pages-and-current-new-session
+=== RUN   TestUsageReaderNonemptyPagination/all-filter-dimensions
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/consumer
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/agent
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/model
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/provider
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/execution
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/meeting
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/purpose
+=== RUN   TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/day
+=== RUN   TestUsageReaderNonemptyPagination/cursor-binding-and-tamper
+=== RUN   TestUsageReaderNonemptyPagination/archived-owner-read-and-deleting-rejection
+--- PASS: TestUsageReaderNonemptyPagination (3.88s)
+    --- PASS: TestUsageReaderNonemptyPagination/nonempty-pages-and-current-new-session (0.01s)
+    --- PASS: TestUsageReaderNonemptyPagination/all-filter-dimensions (0.01s)
+    --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups (0.16s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/consumer (0.02s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/agent (0.03s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/model (0.03s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/provider (0.02s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/execution (0.02s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/meeting (0.01s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/purpose (0.02s)
+        --- PASS: TestUsageReaderNonemptyPagination/eight-group-keys-and-null-groups/day (0.01s)
+    --- PASS: TestUsageReaderNonemptyPagination/cursor-binding-and-tamper (0.07s)
+    --- PASS: TestUsageReaderNonemptyPagination/archived-owner-read-and-deleting-rejection (0.12s)
+=== RUN   TestUsageExecutionSummaryRebuild
+=== RUN   TestUsageExecutionSummaryRebuild/canonical-totals-and-unknown-execution
+=== RUN   TestUsageExecutionSummaryRebuild/repair-missing-and-valid-but-wrong-projection
+=== RUN   TestUsageExecutionSummaryRebuild/ordinary-concurrent-final-and-rebuild
+--- PASS: TestUsageExecutionSummaryRebuild (3.39s)
+    --- PASS: TestUsageExecutionSummaryRebuild/canonical-totals-and-unknown-execution (0.09s)
+    --- PASS: TestUsageExecutionSummaryRebuild/repair-missing-and-valid-but-wrong-projection (0.04s)
+    --- PASS: TestUsageExecutionSummaryRebuild/ordinary-concurrent-final-and-rebuild (0.24s)
+=== RUN   TestUsageQueryBudgetAndSafety
+=== RUN   TestUsageQueryBudgetAndSafety/full-statistical-set-and-real-index-plan
+    usage_query_test.go:331: expected keyset index plan: Limit  (cost=54.83..54.87 rows=15 width=24)  ->  Sort  (cost=54.83..54.87 rows=15 width=24)        Sort Key: started_at DESC, id DESC        ->  Bitmap Heap Scan on invocations  (cost=4.40..54.54 rows=15 width=24)              Recheck Cond: ((project_id)::uuid = '01a10ebe-a2d5-7868-92b8-3d4e250fdfcd'::uuid)              ->  Bitmap Index Scan on model_invocation_execution_scan  (cost=0.00..4.39 rows=15 width=0)                    Index Cond: ((project_id)::uuid = '01a10ebe-a2d5-7868-92b8-3d4e250fdfcd'::uuid)
+=== RUN   TestUsageQueryBudgetAndSafety/whole-call-budget-includes-lock-wait
+=== RUN   TestUsageQueryBudgetAndSafety/list-actual-two-second-service-deadline
+    usage_query_test.go:409: real authorized SQL completed; service_budget=2s remaining=1.801372814s elapsed=2.016915278s caller_live=true actual=not_committed zero_DTO=true
+=== RUN   TestUsageQueryBudgetAndSafety/aggregate-actual-two-second-service-deadline
+    usage_query_test.go:409: real authorized SQL completed; service_budget=2s remaining=25.342118ms elapsed=2.017952967s caller_live=true actual=not_committed zero_DTO=true
+=== RUN   TestUsageQueryBudgetAndSafety/oversized-cursor-and-safe-projections
+=== RUN   TestUsageQueryBudgetAndSafety/bad-persistent-json-and-numeric-overflow-fail-safely
+--- FAIL: TestUsageQueryBudgetAndSafety (16.31s)
+    --- FAIL: TestUsageQueryBudgetAndSafety/full-statistical-set-and-real-index-plan (1.92s)
+    --- PASS: TestUsageQueryBudgetAndSafety/whole-call-budget-includes-lock-wait (0.09s)
+    --- PASS: TestUsageQueryBudgetAndSafety/list-actual-two-second-service-deadline (2.02s)
+    --- PASS: TestUsageQueryBudgetAndSafety/aggregate-actual-two-second-service-deadline (2.02s)
+    --- PASS: TestUsageQueryBudgetAndSafety/oversized-cursor-and-safe-projections (0.24s)
+    --- PASS: TestUsageQueryBudgetAndSafety/bad-persistent-json-and-numeric-overflow-fail-safely (3.65s)
+=== RUN   TestUsageSchemaAndHistory
+=== RUN   TestUsageSchemaAndHistory/pg17-fresh-continuous-18
+    usage_schema_test.go:33: PostgreSQL 170008; schema prefix 1..18
+=== RUN   TestUsageSchemaAndHistory/pg17-populated-17-failure-rollback-same-bytes-retry
+=== RUN   TestUsageSchemaAndHistory/pg16-remains-unsupported
+=== RUN   TestUsageSchemaAndHistory/constraints-and-live-fk-history
+=== RUN   TestUsageSchemaAndHistory/constraints-and-live-fk-history/sent-without-time
+=== RUN   TestUsageSchemaAndHistory/constraints-and-live-fk-history/wrong-consumer-projection
+=== RUN   TestUsageSchemaAndHistory/constraints-and-live-fk-history/zero-sequence
+=== RUN   TestUsageSchemaAndHistory/constraints-and-live-fk-history/unsafe-request-id
+=== RUN   TestUsageSchemaAndHistory/constraints-and-live-fk-history/U-R01-null-terminal-version
+=== RUN   TestUsageSchemaAndHistory/constraints-and-live-fk-history/partial-terminal
+=== RUN   TestUsageSchemaAndHistory/constraints-and-live-fk-history/negative-token
+=== RUN   TestUsageSchemaAndHistory/constraints-and-live-fk-history/known-unknown-source
+--- PASS: TestUsageSchemaAndHistory (9.71s)
+    --- PASS: TestUsageSchemaAndHistory/pg17-fresh-continuous-18 (1.78s)
+    --- PASS: TestUsageSchemaAndHistory/pg17-populated-17-failure-rollback-same-bytes-retry (2.71s)
+    --- PASS: TestUsageSchemaAndHistory/pg16-remains-unsupported (0.14s)
+    --- PASS: TestUsageSchemaAndHistory/constraints-and-live-fk-history (5.08s)
+        --- PASS: TestUsageSchemaAndHistory/constraints-and-live-fk-history/sent-without-time (0.00s)
+        --- PASS: TestUsageSchemaAndHistory/constraints-and-live-fk-history/wrong-consumer-projection (0.01s)
+        --- PASS: TestUsageSchemaAndHistory/constraints-and-live-fk-history/zero-sequence (0.00s)
+        --- PASS: TestUsageSchemaAndHistory/constraints-and-live-fk-history/unsafe-request-id (0.00s)
+        --- PASS: TestUsageSchemaAndHistory/constraints-and-live-fk-history/U-R01-null-terminal-version (0.00s)
+        --- PASS: TestUsageSchemaAndHistory/constraints-and-live-fk-history/partial-terminal (0.00s)
+        --- PASS: TestUsageSchemaAndHistory/constraints-and-live-fk-history/negative-token (0.00s)
+        --- PASS: TestUsageSchemaAndHistory/constraints-and-live-fk-history/known-unknown-source (0.00s)
+=== RUN   TestUsageInvocationUnknownConfirmation
+=== RUN   TestUsageInvocationUnknownConfirmation/committed
+=== RUN   TestUsageInvocationUnknownConfirmation/committed/original-writer-lock-is-required
+=== RUN   TestUsageInvocationUnknownConfirmation/rolled-back
+=== RUN   TestUsageInvocationUnknownConfirmation/rolled-back/original-writer-lock-is-required
+--- PASS: TestUsageInvocationUnknownConfirmation (3.04s)
+    --- PASS: TestUsageInvocationUnknownConfirmation/committed (0.54s)
+        --- PASS: TestUsageInvocationUnknownConfirmation/committed/original-writer-lock-is-required (0.12s)
+    --- PASS: TestUsageInvocationUnknownConfirmation/rolled-back (0.51s)
+        --- PASS: TestUsageInvocationUnknownConfirmation/rolled-back/original-writer-lock-is-required (0.12s)
+FAIL
+FAIL	github.com/LunaDeerTech/agenteam/tests/model	48.857s
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/tests/objects	1.026s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object	1.023s [no tests to run]
+testing: warning: no tests to run
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/object/contract	1.030s [no tests to run]
+FAIL
+D03 fixture cleanup checked for nonce 1d13fd4b6e92eb1b0fc525b4daabb215
+D04 outbound fixture cleanup checked for nonce fa524fa9102313fa1653be03ea251e7d
+D05 object fixture exact resource cleanup checked nonce=73e221aa246b1bead7df3f21a43f03ab

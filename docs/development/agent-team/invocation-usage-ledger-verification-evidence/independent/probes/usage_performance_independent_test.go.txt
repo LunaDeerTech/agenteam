@@ -1,0 +1,137 @@
+//go:build integration
+
+package model_test
+
+import (
+	"context"
+	"encoding/json"
+	"os"
+	"runtime/pprof"
+	"strings"
+	"testing"
+	"time"
+
+	f "github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	"github.com/LunaDeerTech/agenteam/internal/central/usage"
+	uc "github.com/LunaDeerTech/agenteam/internal/central/usage/contract"
+)
+
+type independentUsageQueryTiming struct {
+	name       string
+	query      string
+	args       []any
+	started    time.Time
+	returned   time.Time
+	phaseEnded time.Time
+}
+
+type independentUsageTimingStore struct {
+	usage.Store
+	stages       []*independentUsageQueryTiming
+	callbackDone time.Time
+	committed    time.Time
+	actual       f.CommitResult
+}
+
+type independentUsageTimedExecutor struct {
+	postgres.SQLExecutor
+	store *independentUsageTimingStore
+}
+
+func (s *independentUsageTimingStore) InTx(tx f.Tx) (postgres.SQLExecutor, error) {
+	x, e := s.Store.InTx(tx)
+	if e != nil {
+		return nil, e
+	}
+	return &independentUsageTimedExecutor{SQLExecutor: x, store: s}, nil
+}
+
+func (x *independentUsageTimedExecutor) Query(ctx context.Context, query string, args ...any) (*postgres.Rows, error) {
+	name := ""
+	if strings.HasPrefix(query, "WITH matching AS") {
+		name = "aggregate_sql_and_group_scan"
+	} else if strings.HasPrefix(query, "SELECT id::text,call_id::text,") {
+		name = "private_rows_transfer_scan_json_digest_validation"
+	}
+	if name == "" {
+		return x.SQLExecutor.Query(ctx, query, args...)
+	}
+	now := time.Now()
+	if len(x.store.stages) > 0 {
+		x.store.stages[len(x.store.stages)-1].phaseEnded = now
+	}
+	stage := &independentUsageQueryTiming{name: name, query: query, args: append([]any(nil), args...), started: now}
+	x.store.stages = append(x.store.stages, stage)
+	rows, e := x.SQLExecutor.Query(ctx, query, args...)
+	stage.returned = time.Now()
+	return rows, e
+}
+
+func (s *independentUsageTimingStore) WithinTx(ctx context.Context, cause f.TransactionCause, fn func(context.Context, f.Tx) error) f.CommitResult {
+	s.actual = s.Store.WithinTx(ctx, cause, func(txctx context.Context, tx f.Tx) error {
+		e := fn(txctx, tx)
+		s.callbackDone = time.Now()
+		if len(s.stages) > 0 {
+			s.stages[len(s.stages)-1].phaseEnded = s.callbackDone
+		}
+		return e
+	})
+	s.committed = time.Now()
+	return s.actual
+}
+
+// The same 1,200 explicitly synthetic statistical rows are retained. Real SQL
+// is forwarded unchanged; EXPLAIN ANALYZE is a separate diagnostic execution.
+func TestIndependentUsageAggregateTiming(t *testing.T) {
+	v := newUsageFixture(t, true)
+	c := v.success(t, json.RawMessage(`{"prompt_tokens":1,"completion_tokens":0,"total_tokens":1}`), nil)
+	usagePerformanceRows(t, v, c, 1200)
+	if _, e := v.raw.Exec(testContext(t), `ANALYZE agenteam_model.invocations`); e != nil {
+		t.Fatal(e)
+	}
+	store := &independentUsageTimingStore{Store: v.raw}
+	authority, e := usage.NewAuthority(store, usage.Authorizations{Sessions: v.accounts, Projects: v.projects})
+	if e != nil {
+		t.Fatal(e)
+	}
+	_, cursors, _ := testKeys(t)
+	reader, e := usage.New(store, authority, usage.Dependencies{Cursors: cursors})
+	if e != nil {
+		t.Fatal(e)
+	}
+	profilePath := os.Getenv("AGENTEAM_USAGE_CPU_PROFILE")
+	var profile *os.File
+	if profilePath != "" {
+		profile, e = os.OpenFile(profilePath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0600)
+		if e != nil {
+			t.Fatal(e)
+		}
+		if e = pprof.StartCPUProfile(profile); e != nil {
+			_ = profile.Close()
+			t.Fatal(e)
+		}
+	}
+	started := time.Now()
+	page, resultError := reader.Aggregate(testContext(t), v.owner, uc.AggregateQuery{Filter: uc.Filter{ProjectID: v.project.ID}, GroupBy: uc.ByProvider, Limit: 1})
+	elapsed := time.Since(started)
+	if profile != nil {
+		pprof.StopCPUProfile()
+		if e = profile.Close(); e != nil {
+			t.Fatal(e)
+		}
+	}
+	t.Logf("public_total=%s actual_tx=%s returned_error=%v groups=%d profile=%t", elapsed, store.actual.State(), resultError, len(page.Items), profile != nil)
+	for _, stage := range store.stages {
+		t.Logf("stage=%s query_return=%s phase_total=%s", stage.name, stage.returned.Sub(stage.started), stage.phaseEnded.Sub(stage.started))
+		var explain []byte
+		if e = v.raw.QueryRow(testContext(t), "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) "+stage.query, stage.args...).Scan(&explain); e != nil {
+			t.Fatal("diagnostic EXPLAIN of exact forwarded SQL", e)
+		}
+		t.Logf("stage=%s separate_explain_analyze=%s", stage.name, explain)
+	}
+	t.Logf("after_callback_to_commit_return=%s", store.committed.Sub(store.callbackDone))
+	if len(store.stages) != 2 || resultError != nil || store.actual.State() != f.Committed || len(page.Items) != 1 || page.Items[0].Summary.ConfirmedInvocations != 1201 || page.Items[0].Summary.Input.Sum == nil || *page.Items[0].Summary.Input.Sum != 1201 || elapsed > 2*time.Second {
+		t.Fatal("complete 1,201-row result did not satisfy original two-second API budget")
+	}
+}

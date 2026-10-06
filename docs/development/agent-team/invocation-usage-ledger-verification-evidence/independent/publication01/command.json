@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "sh",
+    "scripts/test-objects.sh",
+    "-run",
+    "^TestIndependentUsageReaderPublicationCancellation$"
+  ],
+  "cwd": "/workspace/scratch/agenteam-d09-ledger-author/input07/src",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/bin/minio",
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -v -overlay=/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay02.json",
+    "GOCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/tmp"
+  },
+  "window": "ledger-independent-publication-01",
+  "manifest_path": "/workspace/scratch/agenteam-d09-ledger-author/input07/manifest.json",
+  "manifest_sha256": "ec8a86c784d7ff64110ac774cb480de4c8a0492d72fdc0f4b974308f74729ff4",
+  "probe_sha256": {
+    "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/usage_independent_test.go": "514111b83d68617b6f7521c7aa8b9798b92937354c3228bc36820d9509c0049c",
+    "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/usage_publication_independent_test.go": "dea05f5195d14604d28c83eeafc5f430d1222788712aaf8468a1466168742d01"
+  },
+  "overlay_path": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay02.json",
+  "overlay_sha256": "15bf0aea2b6d27438f008192e2fe74deaecdae200444da786b9b13cfbe116309",
+  "started": 1791248930.8937037,
+  "driver_pid": 227203,
+  "exit": 1,
+  "finished": 1791249088.3819885,
+  "final_manifest_matches": true,
+  "final_probe_matches": true
+}

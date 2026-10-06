@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-c",
+    "-race",
+    "-tags=integration",
+    "-o",
+    "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/bin/model-combined-input01.test",
+    "./tests/model"
+  ],
+  "cwd": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/combined-input01/src",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/compile-tmp",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -p=1 -overlay=/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/overlay07.json"
+  },
+  "input_manifest": "/workspace/scratch/agenteam-d09-ledger-verification-y4jvpxmq/independent/combined-input01/manifest.json",
+  "input_sha256": "8d97aef145a9582ac35444c9d7ba64688f0c74baec637f4bcbeba07e1ab30b23",
+  "probes": {
+    "usage_gate_independent_test.go": "ef6a3780388e8554f5f1afa49b103cfbfb15d7edad50dce933cd5e29894e98a2"
+  },
+  "selector": "^(TestIndependentUsageCurrentProjectGate|TestUsageInvocationWireLedger|TestSystemModelManagementMetadata)$",
+  "started_utc": "2026-10-06T01:32:52.256213+00:00",
+  "pid": 401092,
+  "exit": 0,
+  "finished_utc": "2026-10-06T01:33:23.289948+00:00",
+  "source_final_matches": true,
+  "probe_final_matches": true,
+  "tmp_entries": []
+}
