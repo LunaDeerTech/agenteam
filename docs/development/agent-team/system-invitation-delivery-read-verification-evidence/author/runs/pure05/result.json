@@ -1,0 +1,41 @@
+{
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/tmp",
+    "CGO_ENABLED": "1"
+  },
+  "input_sha256": "41382f9f482ddad686d76ae1492361031fe6a2485fa012c2a10708ee09b9fe12",
+  "commands": [
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/account"
+      ],
+      "exit": 0,
+      "seconds": 2.459,
+      "raw_sha256": "511d7ac1b1ccd539006c3ebc6bae5275e766f92a8980f7f4188461f8a7dfae6b"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./tests/account"
+      ],
+      "exit": 0,
+      "seconds": 0.369,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

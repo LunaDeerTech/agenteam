@@ -1,0 +1,611 @@
+//go:build integration
+
+package account_test
+
+import (
+	"context"
+	"encoding/json"
+	"fmt"
+	"github.com/LunaDeerTech/agenteam/db/migrations"
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"io/fs"
+	"os"
+	"strconv"
+	"strings"
+	"sync/atomic"
+	"testing"
+	"testing/fstest"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	"github.com/LunaDeerTech/agenteam/internal/central/postgres"
+	pgfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/postgres"
+	"github.com/jackc/pgx/v5"
+)
+
+const invitationIndexMigration = "-- agenteam:transaction tx\n-- +goose Up\nCREATE INDEX account_invitation_delivery_link ON agenteam_account.delivery_intents(link_id,id) WHERE kind='invitation';\n"
+
+// Read the actual private SQL literal rather than maintaining a second query.
+func invitationReadSQL(t *testing.T) string {
+	t.Helper()
+	raw, e := os.ReadFile("../../internal/central/account/http_facade.go")
+	if e != nil {
+		t.Fatal(e)
+	}
+	tree, e := parser.ParseFile(token.NewFileSet(), "http_facade.go", raw, 0)
+	if e != nil {
+		t.Fatal(e)
+	}
+	var query string
+	ast.Inspect(tree, func(node ast.Node) bool {
+		v, ok := node.(*ast.ValueSpec)
+		if ok && len(v.Names) == 1 && v.Names[0].Name == "accountHTTPInvitationSelect" {
+			literal, ok := v.Values[0].(*ast.BasicLit)
+			if !ok {
+				t.Fatal("query is no longer one literal")
+			}
+			query, e = strconv.Unquote(literal.Value)
+			if e != nil {
+				t.Fatal(e)
+			}
+		}
+		return true
+	})
+	if query == "" {
+		t.Fatal("actual invitation query missing")
+	}
+	return query
+}
+func invitationSeedScale(t *testing.T, conn *pgx.Conn) {
+	t.Helper()
+	// Deterministic SQL-only cost fixture, not accepted invitation or mail writes.
+	// 30 live invitations, 100000 unrelated histories and 2048 cycles on link 1.
+	for _, sql := range []string{
+		`INSERT INTO agenteam_account.account_key_registry(kid,fingerprint) VALUES('plan',decode(repeat('11',32),'hex'))`,
+		`INSERT INTO agenteam_account.users(id,email,username,display_name,role,password_phc,password_version,version,auth_sequence,initial_password_suggestion,theme) VALUES('01900000-0000-7000-8000-000000000001','plan@example.test','plan-user','Scale fixture','admin','not-a-password-proof',1,1,1,true,'system')`,
+		`WITH at AS (SELECT clock_timestamp()-interval '1 hour' AS created)
+ INSERT INTO agenteam_account.invitations(id,canonical_email,token_verifier,material_ref,version,created_at,expires_at,created_by)
+ SELECT ('01930000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,'scale-'||n||'@example.test',decode(lpad(to_hex(n),64,'0'),'hex'),('01940000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,1,at.created,at.created+interval '24 hours','01900000-0000-7000-8000-000000000001' FROM generate_series(1,30) n CROSS JOIN at`,
+		`WITH numbers AS (SELECT generate_series(1,102048) AS n UNION ALL SELECT generate_series(200001,200030))
+ INSERT INTO agenteam_account.commands(id,namespace,owner_id,command_key,command_name,identity_digest,semantic_kid,semantic_mac,actor_kind,user_id,session_id,origin_process_id,attempt_id,resource_id,phase,created_at,completed_at)
+ SELECT ('01910000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,'account.invitation','01900000-0000-7000-8000-000000000001','scale-'||n,'invite-create','sha256:'||lpad(to_hex(n),64,'0'),'plan',decode(repeat('00',32),'hex'),'human','01900000-0000-7000-8000-000000000001','01900000-0000-7000-8000-000000000002','01900000-0000-7000-8000-000000000003',('01920000-0000-7000-8000-'||lpad(to_hex(n),12,'0'))::uuid,
+ (CASE WHEN n>200000 THEN '01930000-0000-7000-8000-'||lpad(to_hex(n-200000),12,'0') WHEN n>100000 THEN '01930000-0000-7000-8000-000000000001' ELSE '01950000-0000-7000-8000-'||lpad(to_hex(n),12,'0') END)::uuid,'committed','2026-01-01Z'::timestamptz+n*interval '1 microsecond','2026-01-02Z'::timestamptz+(CASE WHEN n>200000 THEN 1 ELSE least(n,102047) END)*interval '1 microsecond' FROM numbers`,
+		`INSERT INTO agenteam_account.delivery_intents(id,origin_intent_id,job_id,kind,link_id,initiator_id,created_at) SELECT id,id,attempt_id,'invitation',resource_id,user_id,created_at FROM agenteam_account.commands WHERE semantic_kid='plan'`,
+		`INSERT INTO agenteam_account.mail_jobs(id,intent_id,phase,attempts,version,fence,current_attempt_id,reason) SELECT job_id,id,'sent',1,3,1,('01960000'||substring(id::text,9))::uuid,'sent' FROM agenteam_account.delivery_intents WHERE id>'01910000-0000-7000-8000-000000030d40'`,
+		`INSERT INTO agenteam_account.mail_attempts(id,job_id,fence,process_id,config_version,phase,result,io_joined,channel,terminal,completed_at) SELECT current_attempt_id,id,1,'01900000-0000-7000-8000-000000000003',1,'closed','sent',true,'log',true,clock_timestamp() FROM agenteam_account.mail_jobs`,
+	} {
+		if _, e := conn.Exec(ctxFor(t), sql); e != nil {
+			t.Fatal("scale fixture", e)
+		}
+	}
+	var unrelated, cycles, live int
+	if e := conn.QueryRow(ctxFor(t), `SELECT (SELECT count(*) FROM agenteam_account.delivery_intents WHERE link_id::text LIKE '01950000%'),(SELECT count(*) FROM agenteam_account.delivery_intents WHERE link_id='01930000-0000-7000-8000-000000000001'),(SELECT count(*) FROM agenteam_account.invitations)`).Scan(&unrelated, &cycles, &live); e != nil || unrelated != 100000 || cycles != 2049 || live != 30 {
+		t.Fatal("scale cardinality", unrelated, cycles, live, e)
+	}
+	t.Logf("SQL-only scale: unrelated=%d skew-history=%d (+ live root), live=%d", unrelated, cycles-1, live)
+}
+func invitationExplain(t *testing.T, conn *pgx.Conn, query, stage string) {
+	t.Helper()
+	if _, e := conn.Exec(ctxFor(t), `ANALYZE agenteam_account.invitations; ANALYZE agenteam_account.delivery_intents; ANALYZE agenteam_account.commands; ANALYZE agenteam_account.mail_jobs; ANALYZE agenteam_account.mail_attempts`); e != nil {
+		t.Fatal(e)
+	}
+	var created time.Time
+	if e := conn.QueryRow(ctxFor(t), `SELECT created_at FROM agenteam_account.invitations LIMIT 1`).Scan(&created); e != nil {
+		t.Fatal(e)
+	}
+	for _, tc := range []struct {
+		name  string
+		at    any
+		id    any
+		limit int
+	}{
+		{"normal", nil, nil, 26}, {"next-page", created, "01930000-0000-7000-8000-000000000015", 26},
+		{"empty", time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC), "01930000-0000-7000-8000-000000000001", 26},
+		{"time-ties", nil, nil, 31}, {"skew", created, "01930000-0000-7000-8000-000000000002", 2},
+	} {
+		ctx, cancel := context.WithTimeout(context.Background(), 3*time.Second)
+		var raw []byte
+		e := conn.QueryRow(ctx, `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) `+query, tc.at, tc.id, tc.limit).Scan(&raw)
+		cancel()
+		if e != nil {
+			t.Fatalf("%s/%s actual plan within budget: %v", stage, tc.name, e)
+		}
+		if !json.Valid(raw) {
+			t.Fatal("plan JSON invalid")
+		}
+		t.Logf("EXPLAIN %s/%s %s", stage, tc.name, raw)
+		if stage == "after" && tc.name != "empty" && !strings.Contains(string(raw), "account_invitation_delivery_link") {
+			t.Fatal("scale plan did not locate invitation history with link index", tc.name)
+		}
+	}
+}
+func TestAccountInvitationDeliveryReadMigrationAndPlan(t *testing.T) {
+	raw, e := fs.ReadFile(migrations.SQL, "00019_account_invitation_delivery_read.sql")
+	if e != nil || string(raw) != invitationIndexMigration {
+		t.Fatal("fixed migration bytes", e)
+	}
+	db := pgfixture.NewDatabase(t)
+	cfg := db.Config(t, nil)
+	files := migrationFiles(t, "00018")
+	source, e := postgres.NewSource(files, nil)
+	if e != nil {
+		t.Fatal(e)
+	}
+	migrate(t, cfg, source)
+	conn := db.Connect(t)
+	invitationSeedScale(t, conn)
+	query := invitationReadSQL(t)
+	rows, e := conn.Query(ctxFor(t), `SELECT pg_get_indexdef(indexrelid) FROM pg_index WHERE indrelid='agenteam_account.delivery_intents'::regclass ORDER BY indexrelid`)
+	if e != nil {
+		t.Fatal(e)
+	}
+	for rows.Next() {
+		var definition string
+		if e = rows.Scan(&definition); e != nil {
+			t.Fatal(e)
+		}
+		t.Log("BEFORE pg_index", definition)
+	}
+	rows.Close()
+	if rows.Err() != nil {
+		t.Fatal(rows.Err())
+	}
+	invitationExplain(t, conn, query, "before")
+	var before string
+	fingerprint := `SELECT md5(concat((SELECT string_agg(row_to_json(i)::text,',' ORDER BY id) FROM agenteam_account.delivery_intents i),(SELECT string_agg((id,intent_id,phase,attempts,version,fence,current_attempt_id,reason)::text,',' ORDER BY id) FROM agenteam_account.mail_jobs),(SELECT string_agg((id,job_id,fence,channel,result,phase,terminal,io_joined,token_ref,credential_ref)::text,',' ORDER BY id) FROM agenteam_account.mail_attempts),(SELECT string_agg((id,version,created_at,expires_at,material_ref)::text,',' ORDER BY id) FROM agenteam_account.invitations),(SELECT string_agg((id,version,password_version,auth_sequence)::text,',' ORDER BY id) FROM agenteam_account.users)))`
+	if e = conn.QueryRow(ctxFor(t), fingerprint).Scan(&before); e != nil {
+		t.Fatal(e)
+	}
+	// The same candidate first passed the private before/after plan before the
+	// global file was written; the final run binds its exact repository bytes.
+	files["00019_account_invitation_delivery_read.sql"] = &fstest.MapFile{Data: []byte(invitationIndexMigration)}
+	proposed, e := postgres.NewSource(files, nil)
+	if e != nil {
+		t.Fatal(e)
+	}
+	migrate(t, cfg, proposed)
+	invitationExplain(t, conn, query, "after")
+	var after, definition string
+	if e = conn.QueryRow(ctxFor(t), fingerprint).Scan(&after); e != nil || before != after {
+		t.Fatal("migration modified history", e)
+	}
+	if e = conn.QueryRow(ctxFor(t), `SELECT pg_get_indexdef('agenteam_account.account_invitation_delivery_link'::regclass)`).Scan(&definition); e != nil || definition != "CREATE INDEX account_invitation_delivery_link ON agenteam_account.delivery_intents USING btree (link_id, id) WHERE (kind = 'invitation'::text)" {
+		t.Fatal("index definition", definition, e)
+	}
+	t.Log("AFTER pg_index", definition)
+	// Exercise the actual SELECT, including the 2048-cycle tie break.
+	rows, e = conn.Query(ctxFor(t), query, nil, nil, 31)
+	if e != nil {
+		t.Fatal(e)
+	}
+	count := 0
+	for rows.Next() {
+		values, e := rows.Values()
+		if e != nil {
+			t.Fatal(e)
+		}
+		count++
+		if values[0] == "01930000-0000-7000-8000-000000000001" && values[5] != "01920000-0000-7000-8000-000000018ea0" {
+			t.Fatal("skew latest accepted tie-break", values[5])
+		}
+	}
+	rows.Close()
+	if e = rows.Err(); e != nil || count != 30 {
+		t.Fatal("bounded query", count, e)
+	}
+	// With all live rows expired but retained, the same statement is empty.
+	tx, e := conn.Begin(ctxFor(t))
+	if e != nil {
+		t.Fatal(e)
+	}
+	if _, e = tx.Exec(ctxFor(t), `WITH at AS MATERIALIZED (SELECT clock_timestamp()-interval '1 hour' AS value) UPDATE agenteam_account.invitations SET expires_at=at.value,created_at=at.value-interval '24 hours' FROM at`); e != nil {
+		t.Fatal(e)
+	}
+	var emptyPlan []byte
+	if e = tx.QueryRow(ctxFor(t), `EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) `+query, nil, nil, 26).Scan(&emptyPlan); e != nil {
+		t.Fatal(e)
+	}
+	t.Logf("EXPLAIN after/no-live %s", emptyPlan)
+	empty, e := tx.Query(ctxFor(t), query, nil, nil, 26)
+	if e != nil {
+		t.Fatal(e)
+	}
+	if empty.Next() {
+		t.Fatal("expired scale rows visible")
+	}
+	empty.Close()
+	if e = empty.Err(); e != nil {
+		t.Fatal(e)
+	}
+	if e = tx.Rollback(ctxFor(t)); e != nil {
+		t.Fatal(e)
+	}
+	t.Run("fresh-1-19", func(t *testing.T) {
+		fresh := pgfixture.NewDatabase(t)
+		migrate(t, fresh.Config(t, nil))
+		var applied int
+		if e := fresh.Connect(t).QueryRow(ctxFor(t), `SELECT count(*) FROM agenteam_meta.goose_db_version WHERE version_id>0 AND is_applied`).Scan(&applied); e != nil || applied != 19 {
+			t.Fatal("fresh contiguous migrations", applied, e)
+		}
+	})
+	t.Run("fault-rollback-and-same-bytes-recovery", func(t *testing.T) {
+		broken := pgfixture.NewDatabase(t)
+		cfg := broken.Config(t, nil)
+		files := migrationFiles(t, "00018")
+		base, e := postgres.NewSource(files, nil)
+		if e != nil {
+			t.Fatal(e)
+		}
+		migrate(t, cfg, base)
+		conn := broken.Connect(t)
+		files["00019_account_invitation_delivery_read.sql"] = &fstest.MapFile{Data: append(append([]byte{}, raw...), []byte("SELECT invitation_owned_migration_failure();\n")...)}
+		bad, e := postgres.NewSource(files, nil)
+		if e != nil {
+			t.Fatal(e)
+		}
+		m, e := postgres.NewMigrator(cfg, bad)
+		if e != nil {
+			t.Fatal(e)
+		}
+		if result := m.Migrate(ctxFor(t)); result.Migrated {
+			t.Fatal("faulting index DDL committed")
+		}
+		var absent bool
+		var pending, applied int
+		if e = conn.QueryRow(ctxFor(t), `SELECT to_regclass('agenteam_account.account_invitation_delivery_link') IS NULL,(SELECT count(*) FROM agenteam_meta.migration_journal WHERE version=19 AND state='pending'),(SELECT count(*) FROM agenteam_meta.goose_db_version WHERE version_id=19 AND is_applied)`).Scan(&absent, &pending, &applied); e != nil || !absent || pending != 1 || applied != 0 {
+			t.Fatal("index/journal rollback", absent, pending, applied, e)
+		}
+		if _, e = conn.Exec(ctxFor(t), `CREATE FUNCTION public.invitation_owned_migration_failure() RETURNS void LANGUAGE SQL AS 'SELECT NULL::void'`); e != nil {
+			t.Fatal(e)
+		}
+		migrate(t, cfg, bad) // Exact same pending bytes; only the owned failing dependency is repaired.
+		if e = conn.QueryRow(ctxFor(t), `SELECT count(*) FROM agenteam_meta.goose_db_version WHERE version_id=19 AND is_applied`).Scan(&applied); e != nil || applied != 1 {
+			t.Fatal("same-byte recovery journal", applied, e)
+		}
+	})
+
+}
+
+type invitationPlannedGate struct {
+	*postgres.Store
+	fired            atomic.Bool
+	arrived, release chan struct{}
+}
+
+func (s *invitationPlannedGate) WithinTx(ctx context.Context, cause foundation.TransactionCause, fn func(context.Context, foundation.Tx) error) foundation.CommitResult {
+	result := s.Store.WithinTx(ctx, cause, fn)
+	if result.State() == foundation.Committed && cause.Details().Primary.Key() == "directory-early-plan" && s.fired.CompareAndSwap(false, true) {
+		close(s.arrived)
+		select {
+		case <-s.release:
+		case <-ctx.Done():
+		}
+	}
+	return result
+}
+func TestAccountInvitationDeliveryReadSelectionAndBudget(t *testing.T) {
+	db, store, authority := database(t)
+	gate := &invitationPlannedGate{Store: store, arrived: make(chan struct{}), release: make(chan struct{})}
+	f := assembleB02(t, db, store, gate, authority, nil)
+	admin := b02Admin(t, f)
+	_, ring, _ := keys(t)
+	facade, e := account.NewSystemHTTPFacade(f.service, ring)
+	if e != nil {
+		t.Fatal(e)
+	}
+	create := func(key, email string) (c.InvitationReceipt, error) {
+		q, e := c.NewInvitationCreate(c.InvitationCreateFields{Actor: admin, Key: foundation.IdempotencyKey(key), Email: email})
+		if e != nil {
+			return c.InvitationReceipt{}, e
+		}
+		return f.service.CreateInvitation(ctxFor(t), q)
+	}
+	initial, e := create("directory-initial", "selection@example.test")
+	if e != nil {
+		t.Fatal(e)
+	}
+	other, e := create("directory-other", "other@example.test")
+	if e != nil {
+		t.Fatal(e)
+	}
+	read := func() account.HTTPInvitationList {
+		t.Helper()
+		v, e := facade.ListInvitations(ctxFor(t), admin, account.HTTPListRequest{Limit: 100})
+		if e != nil {
+			t.Fatal("list", e)
+		}
+		return v
+	}
+	find := func(inv c.InvitationID) account.HTTPInvitation {
+		t.Helper()
+		for _, v := range read().Items {
+			if v.ID == inv {
+				return v
+			}
+		}
+		t.Fatal("invitation missing")
+		return account.HTTPInvitation{}
+	}
+	check := func(job c.JobID) {
+		t.Helper()
+		v := find(initial.ID)
+		if v.LatestDelivery.Status.JobID != job {
+			t.Fatal("latest accepted task", v.LatestDelivery.Status.JobID.String(), job.String())
+		}
+	}
+	check(initial.JobID)
+	if v := find(initial.ID); v.LatestDelivery.Channel != nil || v.LatestDelivery.AttemptResult != nil || v.LatestDelivery.Status.Phase != "enqueue_pending" {
+		t.Fatal("unenqueued projection")
+	}
+	cooldown := func() {
+		t.Helper()
+		if _, e := store.Exec(ctxFor(t), `UPDATE agenteam_account.invitations SET last_delivery_at=clock_timestamp()-interval '61 seconds' WHERE id=$1`, initial.ID.String()); e != nil {
+			t.Fatal(e)
+		}
+	}
+	cooldown()
+	type accepted struct {
+		receipt c.InvitationReceipt
+		err     error
+	}
+	done := make(chan accepted, 1)
+	go func() { v, e := create("directory-early-plan", "selection@example.test"); done <- accepted{v, e} }()
+	released := false
+	defer func() {
+		if !released {
+			close(gate.release)
+		}
+	}()
+	await(t, gate.arrived)
+	newer, e := create("directory-newer-plan", "selection@example.test")
+	if e != nil {
+		t.Fatal(e)
+	}
+	check(newer.JobID)
+	cooldown()
+	close(gate.release)
+	released = true
+	var late accepted
+	select {
+	case late = <-done:
+	case <-time.After(5 * time.Second):
+		t.Fatal("late acceptance did not join")
+	}
+	if late.err != nil {
+		t.Fatal(late.err)
+	}
+	check(late.receipt.JobID)
+	var earlyPlan, newerPlan, earlyAccepted, newerAccepted time.Time
+	if e = store.QueryRow(ctxFor(t), `SELECT a.created_at,b.created_at,a.completed_at,b.completed_at FROM agenteam_account.commands a CROSS JOIN agenteam_account.commands b WHERE a.attempt_id=$1 AND b.attempt_id=$2`, late.receipt.JobID.String(), newer.JobID.String()).Scan(&earlyPlan, &newerPlan, &earlyAccepted, &newerAccepted); e != nil || !earlyPlan.Before(newerPlan) || !earlyAccepted.After(newerAccepted) {
+		t.Fatal("controlled planned/accepted order absent", e)
+	}
+	t.Log("real early-planned/late-accepted transaction wins across roots")
+	if _, e = f.service.ReconcileDeliveryIntents(ctxFor(t)); e != nil {
+		t.Fatal(e)
+	}
+	port, runtime := newManualMail(t, f)
+	cancelMailAttempt(t, port, runtime, initial.JobID, true)
+	check(late.receipt.JobID) // Old completion must not become newest acceptance.
+	current := initial.JobID
+	for cycle := range 2 {
+		status, e := f.service.GetMailJob(ctxFor(t), admin, current)
+		if e != nil {
+			t.Fatal(e)
+		}
+		q := c.MailJobRetry{Actor: admin, Key: foundation.IdempotencyKey(fmt.Sprintf("directory-retry-%d", cycle)), JobID: current, ExpectedVersion: status.Version}
+		before := find(initial.ID).LatestDelivery.Status.JobID
+		type observed struct {
+			page account.HTTPInvitationList
+			err  error
+		}
+		observations := make(chan observed, 8)
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		go func() {
+			for range 8 {
+				p, e := facade.ListInvitations(ctx, admin, account.HTTPListRequest{Limit: 100})
+				observations <- observed{p, e}
+			}
+		}()
+		retry, e := f.service.RetryMailJob(ctxFor(t), q)
+		if e != nil {
+			cancel()
+			t.Fatal(e)
+		}
+		for range 8 {
+			select {
+			case got := <-observations:
+				if got.err != nil {
+					cancel()
+					t.Fatal(got.err)
+				}
+				for _, v := range got.page.Items {
+					if v.ID == initial.ID && v.LatestDelivery.Status.JobID != before && v.LatestDelivery.Status.JobID != retry.JobID {
+						t.Fatal("mixed concurrent retry snapshot")
+					}
+				}
+			case <-ctx.Done():
+				t.Fatal("concurrent reads did not join")
+			}
+		}
+		cancel()
+		replay, e := f.service.RetryMailJob(ctxFor(t), q)
+		if e != nil || replay.JobID != retry.JobID {
+			t.Fatal("same-key retry changed", e)
+		}
+		check(retry.JobID)
+		if _, e = f.service.ReconcileDeliveryIntents(ctxFor(t)); e != nil {
+			t.Fatal(e)
+		}
+		cancelMailAttempt(t, port, runtime, retry.JobID, true)
+		current = retry.JobID
+	}
+	// Fixture ties prove the declared stable job ID order, not acceptance timing.
+	tie := time.Now().UTC().Add(time.Second).Truncate(time.Microsecond)
+	if _, e = store.Exec(ctxFor(t), `UPDATE agenteam_account.commands SET completed_at=$3 WHERE attempt_id IN ($1,$2)`, newer.JobID.String(), current.String(), tie); e != nil {
+		t.Fatal(e)
+	}
+	want := current
+	if newer.JobID.String() > current.String() {
+		want = newer.JobID
+	}
+	check(want)
+	if _, e = store.Exec(ctxFor(t), `UPDATE agenteam_account.commands SET completed_at=$2 WHERE attempt_id=$1`, current.String(), tie.Add(time.Second)); e != nil {
+		t.Fatal(e)
+	}
+	check(current)
+	assertZero := func(ctx context.Context) {
+		t.Helper()
+		v, e := facade.ListInvitations(ctx, admin, account.HTTPListRequest{})
+		if e == nil || v.Items != nil || v.NextCursor != "" {
+			t.Fatal("failed read published candidates", e)
+		}
+	}
+	if _, e = store.Exec(ctxFor(t), `UPDATE agenteam_account.commands SET completed_at='10000-01-01Z'::timestamptz WHERE attempt_id=$1`, current.String()); e != nil {
+		t.Fatal(e)
+	}
+	assertZero(ctxFor(t))
+	if _, e = store.Exec(ctxFor(t), `UPDATE agenteam_account.commands SET completed_at=$2 WHERE attempt_id=$1`, current.String(), tie.Add(time.Second)); e != nil {
+		t.Fatal(e)
+	}
+	var exact string
+	if e = store.QueryRow(ctxFor(t), `SELECT current_attempt_id::text FROM agenteam_account.mail_jobs WHERE id=$1`, current.String()).Scan(&exact); e != nil {
+		t.Fatal(e)
+	}
+	for _, replacement := range []string{id[struct{}](t).String(), initial.JobID.String()} {
+		if _, e = store.Exec(ctxFor(t), `UPDATE agenteam_account.mail_jobs SET current_attempt_id=$2 WHERE id=$1`, current.String(), replacement); e != nil {
+			t.Fatal(e)
+		}
+		assertZero(ctxFor(t))
+	}
+	if _, e = store.Exec(ctxFor(t), `UPDATE agenteam_account.mail_jobs SET current_attempt_id=$2 WHERE id=$1`, current.String(), exact); e != nil {
+		t.Fatal(e)
+	}
+	if _, e = store.Exec(ctxFor(t), `UPDATE agenteam_account.mail_attempts SET fence=fence+100 WHERE id=$1`, exact); e != nil {
+		t.Fatal(e)
+	}
+	assertZero(ctxFor(t))
+	if _, e = store.Exec(ctxFor(t), `UPDATE agenteam_account.mail_attempts SET fence=fence-100 WHERE id=$1`, exact); e != nil {
+		t.Fatal(e)
+	}
+	check(current)
+	// Actual advisory wait uses the same global configuration key as production.
+	lock, _ := foundation.SystemConfigLock("account-directory")
+	conn := db.Connect(t)
+	hold := func() pgx.Tx {
+		t.Helper()
+		tx, e := conn.Begin(ctxFor(t))
+		if e != nil {
+			t.Fatal(e)
+		}
+		if _, e = tx.Exec(ctxFor(t), `SELECT pg_advisory_xact_lock($1)`, lock.AdvisoryKey()); e != nil {
+			t.Fatal(e)
+		}
+		return tx
+	}
+	for _, budget := range []time.Duration{60 * time.Millisecond, 5 * time.Second} {
+		tx := hold()
+		ctx, cancel := context.WithTimeout(context.Background(), budget)
+		started := time.Now()
+		assertZero(ctx)
+		elapsed := time.Since(started)
+		cancel()
+		if e = tx.Rollback(ctxFor(t)); e != nil {
+			t.Fatal(e)
+		}
+		expected := budget
+		if expected > 3*time.Second {
+			expected = 3 * time.Second
+		}
+		if elapsed < expected-30*time.Millisecond || elapsed > expected+500*time.Millisecond {
+			t.Fatal("local/parent budget was extended", elapsed, expected)
+		}
+		t.Log("actual lock wait bounded", elapsed)
+	}
+	// Expiry cutoff is acquired after a lock wait, not at transaction entry.
+	var originalCreated, originalExpires time.Time
+	if e = store.QueryRow(ctxFor(t), `SELECT created_at,expires_at FROM agenteam_account.invitations WHERE id=$1`, other.ID.String()).Scan(&originalCreated, &originalExpires); e != nil {
+		t.Fatal(e)
+	}
+	if _, e = store.Exec(ctxFor(t), `WITH at AS MATERIALIZED (SELECT clock_timestamp()+interval '250 milliseconds' AS value) UPDATE agenteam_account.invitations SET expires_at=at.value,created_at=at.value-interval '24 hours' FROM at WHERE id=$1`, other.ID.String()); e != nil {
+		t.Fatal(e)
+	}
+	tx := hold()
+	results := make(chan struct {
+		page account.HTTPInvitationList
+		err  error
+	}, 1)
+	go func() {
+		v, e := facade.ListInvitations(ctxFor(t), admin, account.HTTPListRequest{})
+		results <- struct {
+			page account.HTTPInvitationList
+			err  error
+		}{v, e}
+	}()
+	deadline := time.Now().Add(time.Second)
+	for {
+		var expired bool
+		if e = store.QueryRow(ctxFor(t), `SELECT clock_timestamp()>expires_at FROM agenteam_account.invitations WHERE id=$1`, other.ID.String()).Scan(&expired); e != nil {
+			t.Fatal(e)
+		}
+		if expired {
+			break
+		}
+		if time.Now().After(deadline) {
+			t.Fatal("expiry fixture deadline")
+		}
+		time.Sleep(5 * time.Millisecond)
+	}
+	if e = tx.Rollback(ctxFor(t)); e != nil {
+		t.Fatal(e)
+	}
+	result := <-results
+	if result.err != nil {
+		t.Fatal(result.err)
+	}
+	for _, v := range result.page.Items {
+		if v.ID == other.ID {
+			t.Fatal("lock wait reused stale expiry cutoff")
+		}
+	}
+	var retained int
+	if e = store.QueryRow(ctxFor(t), `SELECT count(*) FROM agenteam_account.invitations WHERE id=$1`, other.ID.String()).Scan(&retained); e != nil || retained != 1 {
+		t.Fatal("read deleted expired record", e)
+	}
+	if _, e = store.Exec(ctxFor(t), `UPDATE agenteam_account.invitations SET created_at=$2,expires_at=$3 WHERE id=$1`, other.ID.String(), originalCreated, originalExpires); e != nil {
+		t.Fatal(e)
+	}
+	tx = hold()
+	go func() {
+		v, e := facade.ListInvitations(ctxFor(t), admin, account.HTTPListRequest{})
+		results <- struct {
+			page account.HTTPInvitationList
+			err  error
+		}{v, e}
+	}()
+	if _, e = store.Exec(ctxFor(t), `UPDATE agenteam_account.users SET role='user' WHERE id=$1`, admin.Details().UserID); e != nil {
+		t.Fatal(e)
+	}
+	if e = tx.Rollback(ctxFor(t)); e != nil {
+		t.Fatal(e)
+	}
+	result = <-results
+	if !hasCode(result.err, foundation.Forbidden) || result.page.Items != nil {
+		t.Fatal("old authenticated actor bypassed current transaction authority", result.err)
+	}
+	if _, e = store.Exec(ctxFor(t), `UPDATE agenteam_account.users SET role='admin' WHERE id=$1`, admin.Details().UserID); e != nil {
+		t.Fatal(e)
+	}
+	// Real revoke/consume boundary remains owned by the existing write service.
+	if e = f.service.RevokeInvitation(ctxFor(t), c.InvitationRevoke{Actor: admin, Key: "directory-revoke", ID: other.ID, ExpectedVersion: other.Version}); e != nil {
+		t.Fatal(e)
+	}
+	for _, v := range read().Items {
+		if v.ID == other.ID {
+			t.Fatal("revoked row visible")
+		}
+	}
+}

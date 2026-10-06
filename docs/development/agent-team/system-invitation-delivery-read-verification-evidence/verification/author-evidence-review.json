@@ -1,0 +1,96 @@
+{
+  "real_records": [
+    {
+      "run": "plan01",
+      "raw_sha256": "036f4f1c8fe76fd240bf84d43808a52802776bbf640e26cf459b075855f558c8",
+      "actual_exit": 0,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "top_levels": [
+        [
+          "PASS",
+          "TestAccountInvitationDeliveryReadMigrationAndPlan"
+        ]
+      ]
+    },
+    {
+      "run": "author01",
+      "raw_sha256": "a5e0b30d763281fa0052a41dcb7bcdc36d9b92b74b6b7d5bc7d30b7cc42e9681",
+      "actual_exit": 1,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "top_levels": [
+        [
+          "PASS",
+          "TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority"
+        ],
+        [
+          "PASS",
+          "TestAccountHTTPInvitationAndMailAdministration"
+        ],
+        [
+          "PASS",
+          "TestAccountHTTPInvitationDeliveryDirectory"
+        ],
+        [
+          "PASS",
+          "TestAccountHTTPSystemUserDirectory"
+        ],
+        [
+          "PASS",
+          "TestAccountInvitationDeliveryReadMigrationAndPlan"
+        ],
+        [
+          "FAIL",
+          "TestAccountInvitationDeliveryReadSelectionAndBudget"
+        ],
+        [
+          "PASS",
+          "TestAccountMailInvitationDirectoryChannelsAndOutcomes"
+        ]
+      ]
+    },
+    {
+      "run": "author02",
+      "raw_sha256": "efd4ee7af678c7356d84531ca23f435eb8b560d7accd672249ffa4dabceaa27c",
+      "actual_exit": 1,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "top_levels": [
+        [
+          "FAIL",
+          "TestAccountInvitationDeliveryReadSelectionAndBudget"
+        ]
+      ]
+    },
+    {
+      "run": "author03",
+      "raw_sha256": "6dff4f2a32531f2e6837d4e5bf72fe7a291962a9d5d16231a9198abc8bc53bc2",
+      "actual_exit": 1,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "top_levels": [
+        [
+          "FAIL",
+          "TestAccountInvitationDeliveryReadSelectionAndBudget"
+        ]
+      ]
+    },
+    {
+      "run": "author04",
+      "raw_sha256": "252760ec67eaad76ffd28e3903739b9e3a3dfbf5a581d07ef41ef7fa8f60b101",
+      "actual_exit": 0,
+      "actual_wait": true,
+      "double_cleanup": true,
+      "top_levels": [
+        [
+          "PASS",
+          "TestAccountInvitationDeliveryReadSelectionAndBudget"
+        ]
+      ]
+    }
+  ],
+  "unchanged_migration_and_plan_section_sha256": "c71803406c7e0fc7d9087e303e4ac13627d31a3b6e3cfdb2351895cfd5ebdef2",
+  "reuse_only_unchanged_green_top_levels": true,
+  "preparation_note": "Initial section extraction used a misspelled type boundary and failed before writing a review. Corrected after reading actual declaration; excludes changed Selection-only imports."
+}

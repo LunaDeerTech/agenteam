@@ -1,0 +1,217 @@
+#!/usr/bin/env python3
+"""Run the two authorized independent invitation probes and record actual resources."""
+import argparse
+import ctypes
+import datetime
+import hashlib
+import json
+import os
+from pathlib import Path
+import re
+import subprocess
+import time
+
+
+ROOT = Path(__file__).resolve().parent
+REPO = Path('/workspace/agenteam')
+OWNED = ['internal/central/account/http_facade.go', 'internal/central/account/http_system.go', 'api/openapi/account.json', 'db/migrations/00019_account_invitation_delivery_read.sql', 'internal/central/account/http_invitation_delivery_test.go', 'tests/account/http_invitation_delivery_test.go', 'tests/account/invitation_delivery_query_test.go', 'tests/accountmail/invitation_directory_test.go']
+
+
+def utc():
+    return datetime.datetime.now(datetime.timezone.utc).isoformat()
+
+
+def write(path, value):
+    path.write_text(json.dumps(value, indent=2, sort_keys=True) + '\n')
+
+
+def command(argv):
+    result = subprocess.run(argv, cwd=REPO, capture_output=True, text=True, timeout=20)
+    if result.returncode:
+        raise RuntimeError('read command failed: ' + ' '.join(argv) + ': ' + result.stderr[:300])
+    return result.stdout
+
+
+def resources():
+    result = {}
+    for kind in ['container', 'network']:
+        for resource_id in command(['docker', kind, 'ls', '-q', '--no-trunc'] if kind == 'network' else ['docker', kind, 'ls', '-aq', '--no-trunc']).split():
+            label = '.Config.Labels' if kind == 'container' else '.Labels'
+            try:
+                raw = command(['docker', kind, 'inspect', '--format', '{{json .Id}}\t{{json .Name}}\t{{json ' + label + '}}', resource_id]).strip().split('\t')
+            except RuntimeError as exc:
+                if 'No such' in str(exc) or 'not found' in str(exc):
+                    continue  # The fixture may remove an ID after the list call.
+                raise
+            value = dict(zip(['id', 'name', 'labels'], map(json.loads, raw)))
+            value['kind'] = kind
+            result[resource_id] = value
+    return result
+
+
+def processes():
+    result = {}
+    for entry in Path('/proc').iterdir():
+        if not entry.name.isdigit():
+            continue
+        try:
+            stat = (entry / 'stat').read_text().rsplit(')', 1)[1].split()
+            raw = (entry / 'cmdline').read_bytes()
+            result[int(entry.name)] = {'ppid': int(stat[1]), 'starttime': stat[19],
+                                      'state': stat[0], 'raw': raw}
+        except (OSError, ValueError, IndexError):
+            pass
+    return result
+
+
+def source_input():
+    paths = OWNED + ['go.mod', 'go.sum']
+    return {
+        'head': command(['git', 'rev-parse', 'HEAD']).strip(),
+        'files': {name: hashlib.sha256((REPO / name).read_bytes()).hexdigest() if (REPO / name).exists() else None for name in paths},
+        'tracked_product_delta': command(['git', 'diff', '--no-ext-diff', '--name-only', 'HEAD', '--', 'internal', 'tests', 'db', 'api', 'scripts', 'go.mod', 'go.sum']).splitlines(),
+        'untracked_product_paths': command(['git', 'ls-files', '--others', '--exclude-standard', '--', 'internal', 'tests', 'db', 'api', 'scripts']).splitlines(),
+    }
+
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--name', required=True)
+    parser.add_argument('--selector', required=True)
+    parser.add_argument('--modcache', required=True)
+    parser.add_argument('--overlay', type=Path)
+    args = parser.parse_args()
+    if '/' in args.name or '..' in args.name:
+        raise ValueError('invalid run name')
+    expected = set(args.selector.removeprefix('^(').removesuffix(')$').removeprefix('^').removesuffix('$').split('|'))
+    allowed = {'TestInvitationIndependentHTTPAtomicProjection', 'TestInvitationIndependentMailOriginsAndLifecycle'}
+    if not expected or not expected <= allowed: raise ValueError('selector outside authorized task')
+    if ctypes.CDLL(None,use_errno=True).prctl(36,1,0,0,0) != 0: raise RuntimeError('subreaper unavailable')
+    run = ROOT / 'runs' / args.name
+    run.mkdir(parents=True, mode=0o700)
+    driver_bytes = Path(__file__).read_bytes()
+    (run / 'driver.py.txt').write_bytes(driver_bytes)
+    verification_inputs = {'driver_sha256': hashlib.sha256(driver_bytes).hexdigest()}
+    if args.overlay:
+        overlay_bytes = args.overlay.read_bytes()
+        (run / 'overlay.json').write_bytes(overlay_bytes)
+        replacements = json.loads(overlay_bytes)['Replace']
+        expected_paths = {str(REPO / 'tests/account/invitation_independent_test.go'), str(REPO / 'tests/accountmail/invitation_independent_test.go')}
+        if set(replacements) != expected_paths:
+            raise ValueError('overlay is outside the two independent invitation probes')
+        probe_inputs = {}
+        for target, source in replacements.items():
+            probe_path = Path(source)
+            probe_bytes = probe_path.read_bytes()
+            (run / (Path(target).parent.name + '-invitation_independent_test.go.txt')).write_bytes(probe_bytes)
+            probe_inputs[str(probe_path)] = hashlib.sha256(probe_bytes).hexdigest()
+        verification_inputs.update({'overlay_sha256': hashlib.sha256(overlay_bytes).hexdigest(), 'probe_sha256': probe_inputs})
+    write(run / 'verification-input.json', verification_inputs)
+    runtime = run / 'runtime'
+    runtime.mkdir(mode=0o700)
+    before = source_input()
+    write(run / 'input-before.json', before)
+    if before['files'] != json.loads((ROOT / 'candidate-input.json').read_text()):
+        raise RuntimeError('candidate differs from frozen input04')
+    minio = Path('/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio')
+    if hashlib.sha256(minio.read_bytes()).hexdigest() != 'dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8':
+        raise RuntimeError('MinIO exact binary mismatch')
+    if set(before['tracked_product_delta'] + before['untracked_product_paths']) - set(OWNED):
+        raise RuntimeError('product changes outside frozen directory ownership')
+    baseline = resources()
+    write(run / 'baseline.json', baseline)
+    env = os.environ.copy()
+    flags = '-mod=readonly -buildvcs=false -p=1 -v'
+    if args.overlay:
+        flags += ' -overlay=' + str(args.overlay.resolve())
+    env.update({'AGENTEAM_GO': '/workspace/toolchains/go1.27.1/bin/go',
+                'AGENTEAM_MINIO_BINARY': '/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio',
+                'GOTOOLCHAIN': 'local', 'GOENV': 'off', 'GOWORK': 'off',
+                'GOPROXY': 'off', 'GOSUMDB': 'off', 'GOMODCACHE': args.modcache,
+                'GOCACHE': str(ROOT / 'gocache'), 'TMPDIR': str(runtime),
+                'CGO_ENABLED': '1', 'GOFLAGS': flags})
+    argv = ['sh', 'scripts/test-security.sh', '-run', args.selector]
+    record = {'argv': argv, 'cwd': str(REPO), 'started_utc': utc(),
+              'env': {key: env[key] for key in ['AGENTEAM_GO', 'AGENTEAM_MINIO_BINARY', 'GOTOOLCHAIN', 'GOENV', 'GOWORK', 'GOPROXY', 'GOSUMDB', 'GOMODCACHE', 'GOCACHE', 'TMPDIR', 'CGO_ENABLED', 'GOFLAGS']}}
+    if args.overlay:
+        record['overlay_sha256'] = hashlib.sha256(args.overlay.read_bytes()).hexdigest()
+    write(run / 'command.json', record)
+    observed_resources, observed_processes, errors = {}, {}, []
+    start = time.monotonic()
+    with (run / 'raw.log').open('wb') as raw:
+        process = subprocess.Popen(argv, cwd=REPO, env=env, stdout=raw, stderr=subprocess.STDOUT, start_new_session=True)
+        print(json.dumps({'run': args.name, 'pid': process.pid, 'selector': args.selector}), flush=True)
+        next_resources = 0.0
+        while True:
+            current = processes()
+            owned = {process.pid} | {pid for pid, row in current.items() if str(runtime).encode() in row['raw']}
+            for _ in range(12):
+                larger = owned | {pid for pid, row in current.items() if row['ppid'] in owned}
+                if larger == owned:
+                    break
+                owned = larger
+            for pid in owned:
+                if pid in current:
+                    row = current[pid]
+                    key = str(pid) + ':' + row['starttime']
+                    observed_processes[key] = {'pid': pid, 'starttime': row['starttime'], 'ppid': row['ppid']}
+            if time.monotonic() >= next_resources:
+                try:
+                    observed_resources.update({key: value for key, value in resources().items() if key not in baseline})
+                except Exception as exc:
+                    errors.append({'time': utc(), 'error': str(exc)})
+                next_resources = time.monotonic() + 1.0
+            if process.poll() is not None:
+                break
+            time.sleep(0.25)
+        exit_code = process.wait()
+    adopted = []
+    for _ in range(20):
+        while True:
+            try: pid, status = os.waitpid(-1, os.WNOHANG)
+            except ChildProcessError: break
+            if not pid: break
+            adopted.append({'pid':pid,'status':status})
+        if not any(row['ppid']==os.getpid() for row in processes().values()): break
+        time.sleep(.05)
+    write(run / 'adopted-waits.json', adopted)
+    record.update({'exit': exit_code, 'seconds': round(time.monotonic() - start, 3), 'ended_utc': utc(), 'actual_wait_completed': True})
+    write(run / 'command.json', record)
+    write(run / 'observed-resources.json', observed_resources)
+    write(run / 'observed-processes.json', observed_processes)
+    write(run / 'monitor-errors.json', errors)
+    cleanups = []
+    for _ in range(2):
+        current, proc = resources(), processes()
+        exact = {}
+        for resource_id, row in observed_resources.items():
+            result = subprocess.run(['docker', row['kind'], 'inspect', '--format', '{{json .Id}}', resource_id], capture_output=True, timeout=20)
+            missing = b'No such' in result.stderr or b'not found' in result.stderr
+            exact[resource_id] = {'absent': result.returncode != 0 and resource_id not in current and missing}
+        remaining = [row for row in observed_processes.values() if row['pid'] in proc and proc[row['pid']]['starttime'] == row['starttime']]
+        cleanups.append({'time': utc(), 'exact_absent': exact,
+                         'baseline_unchanged': {key: current.get(key) for key in baseline} == baseline,
+                         'remaining_new': sorted(set(current) - set(baseline)), 'owned_processes': remaining,
+                         'runtime_entries': sorted(path.name for path in runtime.iterdir())})
+        time.sleep(0.5)
+    write(run / 'cleanup.json', cleanups)
+    after = source_input()
+    write(run / 'input-after.json', after)
+    clean = all(row['baseline_unchanged'] and not row['remaining_new'] and not row['owned_processes'] and not row['runtime_entries'] and all(value['absent'] for value in row['exact_absent'].values()) for row in cleanups)
+    summary = {'run': args.name, 'driver_exit': exit_code, 'source_files_unchanged': before['files'] == after['files'],
+               'observed_resources': len(observed_resources), 'observed_processes': len(observed_processes),
+               'monitor_errors': len(errors), 'double_cleanup': clean, 'run_directory': str(run)}
+    verification_unchanged = Path(__file__).read_bytes() == driver_bytes
+    if args.overlay:
+        verification_unchanged = verification_unchanged and args.overlay.read_bytes() == overlay_bytes and all(hashlib.sha256(Path(path).read_bytes()).hexdigest() == sha for path, sha in probe_inputs.items())
+    summary['verification_inputs_unchanged'] = verification_unchanged
+    tops = re.findall(r'^--- (PASS|FAIL|SKIP): (\S+)', (run / 'raw.log').read_text(errors='replace'), re.MULTILINE)
+    summary['top_levels'] = tops
+    summary['selected_tests_passed'] = len(tops) == len(expected) and {name for state, name in tops if state == 'PASS'} == expected
+    write(run / 'result.json', summary)
+    print(json.dumps(summary), flush=True)
+    return 0 if exit_code == 0 and clean and len(observed_resources) >= 7 and not errors and summary['source_files_unchanged'] and verification_unchanged and summary['selected_tests_passed'] else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

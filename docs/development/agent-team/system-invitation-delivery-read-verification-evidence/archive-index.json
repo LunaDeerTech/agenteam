@@ -1,0 +1,1381 @@
+{
+  "format": 1,
+  "scope": "Accepted D27 invitation latest-delivery backend and migration 00019; saved evidence verification only",
+  "product_base": "7ef3e30cf06b5df6d19516f24c34855a8308ef05",
+  "accepted_commit": "9b3201547f9b7b61fd9716a6ba6540084961496c",
+  "author_root": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW",
+  "verification_root": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3",
+  "originals": [
+    {
+      "logical": "author/input04.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input04.json",
+      "archive": "author/inputs/input04.json",
+      "sha256": "41382f9f482ddad686d76ae1492361031fe6a2485fa012c2a10708ee09b9fe12",
+      "bytes": 1109,
+      "role": "original source/lock manifest"
+    },
+    {
+      "logical": "author/input04/internal/central/account/http_facade.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input04/internal/central/account/http_facade.go",
+      "archive": "author/input04/internal/central/account/http_facade.go.txt",
+      "sha256": "6e8ca0b3ad8b8f18fbfeafb1981752239daeaca6f9953cbc1475261d72baf222",
+      "bytes": 27494,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input04/internal/central/account/http_system.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input04/internal/central/account/http_system.go",
+      "archive": "author/input04/internal/central/account/http_system.go.txt",
+      "sha256": "e25b35999c04cddbf64a6f03e573999e0bafae3a39d933c8163a32ca82269248",
+      "bytes": 14811,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input04/api/openapi/account.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input04/api/openapi/account.json",
+      "archive": "author/input04/api/openapi/account.json.txt",
+      "sha256": "7f922623652a67f3e56aa013c8da571ca2d79f7454e212b67f04be22edb5fa41",
+      "bytes": 135534,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input04/db/migrations/00019_account_invitation_delivery_read.sql",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input04/db/migrations/00019_account_invitation_delivery_read.sql",
+      "archive": "author/input04/db/migrations/00019_account_invitation_delivery_read.sql.txt",
+      "sha256": "618c53b3621d2bbe57c18d3e9626e38e9492faa95036ad1526e74772fa3e4100",
+      "bytes": 160,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input04/internal/central/account/http_invitation_delivery_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input04/internal/central/account/http_invitation_delivery_test.go",
+      "archive": "author/input04/internal/central/account/http_invitation_delivery_test.go.txt",
+      "sha256": "b1dd7ae12d75dad928c8a2ff717aa150638d8e0b2382abfd0b386120d668a07d",
+      "bytes": 16391,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input04/tests/account/http_invitation_delivery_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input04/tests/account/http_invitation_delivery_test.go",
+      "archive": "author/input04/tests/account/http_invitation_delivery_test.go.txt",
+      "sha256": "dbc231d71487b48881e91211d0f85424d03117793e212ac210fc78900a03901a",
+      "bytes": 7149,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input04/tests/account/invitation_delivery_query_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input04/tests/account/invitation_delivery_query_test.go",
+      "archive": "author/input04/tests/account/invitation_delivery_query_test.go.txt",
+      "sha256": "19484f9b238b34c7832beb01adb1c73b9228413907e81a908585131b358717bc",
+      "bytes": 30467,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input04/tests/accountmail/invitation_directory_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input04/tests/accountmail/invitation_directory_test.go",
+      "archive": "author/input04/tests/accountmail/invitation_directory_test.go.txt",
+      "sha256": "169ec07ed5fa2a99d37a2803d0fe2fdf4aec9ee6e6fca804592108521717073f",
+      "bytes": 8713,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input04/go.mod",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input04/go.mod",
+      "archive": "author/input04/go.mod.txt",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "bytes": 1468,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input04/go.sum",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input04/go.sum",
+      "archive": "author/input04/go.sum.txt",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "bytes": 8391,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input03.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input03.json",
+      "archive": "author/inputs/input03.json",
+      "sha256": "b47da79991dc9a643fb694e2d925b22cd0bcc732e5b38844f772d62c399c9f6e",
+      "bytes": 1109,
+      "role": "original source/lock manifest"
+    },
+    {
+      "logical": "author/input03/internal/central/account/http_facade.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input03/internal/central/account/http_facade.go",
+      "archive": "author/input04/internal/central/account/http_facade.go.txt",
+      "sha256": "6e8ca0b3ad8b8f18fbfeafb1981752239daeaca6f9953cbc1475261d72baf222",
+      "bytes": 27494,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input03/internal/central/account/http_system.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input03/internal/central/account/http_system.go",
+      "archive": "author/input04/internal/central/account/http_system.go.txt",
+      "sha256": "e25b35999c04cddbf64a6f03e573999e0bafae3a39d933c8163a32ca82269248",
+      "bytes": 14811,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input03/api/openapi/account.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input03/api/openapi/account.json",
+      "archive": "author/input04/api/openapi/account.json.txt",
+      "sha256": "7f922623652a67f3e56aa013c8da571ca2d79f7454e212b67f04be22edb5fa41",
+      "bytes": 135534,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input03/db/migrations/00019_account_invitation_delivery_read.sql",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input03/db/migrations/00019_account_invitation_delivery_read.sql",
+      "archive": "author/input04/db/migrations/00019_account_invitation_delivery_read.sql.txt",
+      "sha256": "618c53b3621d2bbe57c18d3e9626e38e9492faa95036ad1526e74772fa3e4100",
+      "bytes": 160,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input03/internal/central/account/http_invitation_delivery_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input03/internal/central/account/http_invitation_delivery_test.go",
+      "archive": "author/input04/internal/central/account/http_invitation_delivery_test.go.txt",
+      "sha256": "b1dd7ae12d75dad928c8a2ff717aa150638d8e0b2382abfd0b386120d668a07d",
+      "bytes": 16391,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input03/tests/account/http_invitation_delivery_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input03/tests/account/http_invitation_delivery_test.go",
+      "archive": "author/input04/tests/account/http_invitation_delivery_test.go.txt",
+      "sha256": "dbc231d71487b48881e91211d0f85424d03117793e212ac210fc78900a03901a",
+      "bytes": 7149,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input03/tests/account/invitation_delivery_query_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input03/tests/account/invitation_delivery_query_test.go",
+      "archive": "author/input03/tests/account/invitation_delivery_query_test.go.txt",
+      "sha256": "3a729bcbd29d6b8268050d6a5d3d9fe3ec2e81058a140bbf6813bb263d79a220",
+      "bytes": 28950,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input03/tests/accountmail/invitation_directory_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input03/tests/accountmail/invitation_directory_test.go",
+      "archive": "author/input04/tests/accountmail/invitation_directory_test.go.txt",
+      "sha256": "169ec07ed5fa2a99d37a2803d0fe2fdf4aec9ee6e6fca804592108521717073f",
+      "bytes": 8713,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input03/go.mod",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input03/go.mod",
+      "archive": "author/input04/go.mod.txt",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "bytes": 1468,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input03/go.sum",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input03/go.sum",
+      "archive": "author/input04/go.sum.txt",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "bytes": 8391,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input02.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input02.json",
+      "archive": "author/inputs/input02.json",
+      "sha256": "db030d2d0bc0ba44e8beb26e8cc2ef00f5d5d82c490be63ef4756f3a6f444c1b",
+      "bytes": 1109,
+      "role": "original source/lock manifest"
+    },
+    {
+      "logical": "author/runs/author02/input/internal/central/account/http_facade.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/input/internal/central/account/http_facade.go",
+      "archive": "author/input04/internal/central/account/http_facade.go.txt",
+      "sha256": "6e8ca0b3ad8b8f18fbfeafb1981752239daeaca6f9953cbc1475261d72baf222",
+      "bytes": 27494,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author02/input/internal/central/account/http_system.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/input/internal/central/account/http_system.go",
+      "archive": "author/input04/internal/central/account/http_system.go.txt",
+      "sha256": "e25b35999c04cddbf64a6f03e573999e0bafae3a39d933c8163a32ca82269248",
+      "bytes": 14811,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author02/input/api/openapi/account.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/input/api/openapi/account.json",
+      "archive": "author/input04/api/openapi/account.json.txt",
+      "sha256": "7f922623652a67f3e56aa013c8da571ca2d79f7454e212b67f04be22edb5fa41",
+      "bytes": 135534,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author02/input/db/migrations/00019_account_invitation_delivery_read.sql",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/input/db/migrations/00019_account_invitation_delivery_read.sql",
+      "archive": "author/input04/db/migrations/00019_account_invitation_delivery_read.sql.txt",
+      "sha256": "618c53b3621d2bbe57c18d3e9626e38e9492faa95036ad1526e74772fa3e4100",
+      "bytes": 160,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author02/input/internal/central/account/http_invitation_delivery_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/input/internal/central/account/http_invitation_delivery_test.go",
+      "archive": "author/input02/internal/central/account/http_invitation_delivery_test.go.txt",
+      "sha256": "5dda731148dadd8e01cf52fa7421ce100165cf4ca71cb6d2ad78cb783c27483b",
+      "bytes": 11855,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author02/input/tests/account/http_invitation_delivery_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/input/tests/account/http_invitation_delivery_test.go",
+      "archive": "author/input04/tests/account/http_invitation_delivery_test.go.txt",
+      "sha256": "dbc231d71487b48881e91211d0f85424d03117793e212ac210fc78900a03901a",
+      "bytes": 7149,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author02/input/tests/account/invitation_delivery_query_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/input/tests/account/invitation_delivery_query_test.go",
+      "archive": "author/input02/tests/account/invitation_delivery_query_test.go.txt",
+      "sha256": "b69aea745ad5197954886ebde3e32e23f48543acdd724df2869b03d18096c94a",
+      "bytes": 26084,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author02/input/tests/accountmail/invitation_directory_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/input/tests/accountmail/invitation_directory_test.go",
+      "archive": "author/input04/tests/accountmail/invitation_directory_test.go.txt",
+      "sha256": "169ec07ed5fa2a99d37a2803d0fe2fdf4aec9ee6e6fca804592108521717073f",
+      "bytes": 8713,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author02/input/go.mod",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/input/go.mod",
+      "archive": "author/input04/go.mod.txt",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "bytes": 1468,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author02/input/go.sum",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/input/go.sum",
+      "archive": "author/input04/go.sum.txt",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "bytes": 8391,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/input01.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input01.json",
+      "archive": "author/inputs/input01.json",
+      "sha256": "5d7456b6b5bc986a8c40b9a1c7e8094f98106d8c7e583b8ae5edfa68133000ff",
+      "bytes": 1109,
+      "role": "original source/lock manifest"
+    },
+    {
+      "logical": "author/runs/author01/input/internal/central/account/http_facade.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/input/internal/central/account/http_facade.go",
+      "archive": "author/input04/internal/central/account/http_facade.go.txt",
+      "sha256": "6e8ca0b3ad8b8f18fbfeafb1981752239daeaca6f9953cbc1475261d72baf222",
+      "bytes": 27494,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author01/input/internal/central/account/http_system.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/input/internal/central/account/http_system.go",
+      "archive": "author/input04/internal/central/account/http_system.go.txt",
+      "sha256": "e25b35999c04cddbf64a6f03e573999e0bafae3a39d933c8163a32ca82269248",
+      "bytes": 14811,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author01/input/api/openapi/account.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/input/api/openapi/account.json",
+      "archive": "author/input04/api/openapi/account.json.txt",
+      "sha256": "7f922623652a67f3e56aa013c8da571ca2d79f7454e212b67f04be22edb5fa41",
+      "bytes": 135534,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author01/input/db/migrations/00019_account_invitation_delivery_read.sql",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/input/db/migrations/00019_account_invitation_delivery_read.sql",
+      "archive": "author/input04/db/migrations/00019_account_invitation_delivery_read.sql.txt",
+      "sha256": "618c53b3621d2bbe57c18d3e9626e38e9492faa95036ad1526e74772fa3e4100",
+      "bytes": 160,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author01/input/internal/central/account/http_invitation_delivery_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/input/internal/central/account/http_invitation_delivery_test.go",
+      "archive": "author/input02/internal/central/account/http_invitation_delivery_test.go.txt",
+      "sha256": "5dda731148dadd8e01cf52fa7421ce100165cf4ca71cb6d2ad78cb783c27483b",
+      "bytes": 11855,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author01/input/tests/account/http_invitation_delivery_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/input/tests/account/http_invitation_delivery_test.go",
+      "archive": "author/input04/tests/account/http_invitation_delivery_test.go.txt",
+      "sha256": "dbc231d71487b48881e91211d0f85424d03117793e212ac210fc78900a03901a",
+      "bytes": 7149,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author01/input/tests/account/invitation_delivery_query_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/input/tests/account/invitation_delivery_query_test.go",
+      "archive": "author/input01/tests/account/invitation_delivery_query_test.go.txt",
+      "sha256": "ef6c917bbb930804726a10fb270b18484da69770181ab8301c10245e5cb5dd04",
+      "bytes": 25259,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author01/input/tests/accountmail/invitation_directory_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/input/tests/accountmail/invitation_directory_test.go",
+      "archive": "author/input04/tests/accountmail/invitation_directory_test.go.txt",
+      "sha256": "169ec07ed5fa2a99d37a2803d0fe2fdf4aec9ee6e6fca804592108521717073f",
+      "bytes": 8713,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author01/input/go.mod",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/input/go.mod",
+      "archive": "author/input04/go.mod.txt",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "bytes": 1468,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/runs/author01/input/go.sum",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/input/go.sum",
+      "archive": "author/input04/go.sum.txt",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "bytes": 8391,
+      "role": "exact tested source or fixed lock text"
+    },
+    {
+      "logical": "author/author-report.md",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/author-report.md",
+      "archive": "author/author-report.md.txt",
+      "sha256": "6e87f584400953a6833e9dd9fd40a26139db6cf4819e59ce549080d8fd2d5be2",
+      "bytes": 12193,
+      "role": "original author report/static/reuse record"
+    },
+    {
+      "logical": "author/static.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/static.json",
+      "archive": "author/static.json",
+      "sha256": "be742a517c678773008437f0ede225316a5ee432831e84658d4a8501748fe970",
+      "bytes": 2867,
+      "role": "original author report/static/reuse record"
+    },
+    {
+      "logical": "author/static03.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/static03.json",
+      "archive": "author/static03.json",
+      "sha256": "f2fd620654a2c6224f15d87746fde1e5569138d8916c6856bc6f72846bb04f9e",
+      "bytes": 2434,
+      "role": "original author report/static/reuse record"
+    },
+    {
+      "logical": "author/static04.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/static04.json",
+      "archive": "author/static04.json",
+      "sha256": "036e31489db7d3b89d20de3a3d8251257182feea9d716cf98cbdf4317d094ebe",
+      "bytes": 2504,
+      "role": "original author report/static/reuse record"
+    },
+    {
+      "logical": "author/evidence-reuse.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/evidence-reuse.json",
+      "archive": "author/evidence-reuse.json",
+      "sha256": "7408e0472beb863430ded749737f7d775be300fd31c86c1f9a9460fc5d880cac",
+      "bytes": 411,
+      "role": "original author report/static/reuse record"
+    },
+    {
+      "logical": "author/checkpoint-evidence.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/checkpoint-evidence.json",
+      "archive": "author/checkpoint-evidence.json",
+      "sha256": "1cec677235119891be8c532535554aa052c90fd583527dcd1efeb20d9dec6a6c",
+      "bytes": 2520,
+      "role": "original author report/static/reuse record"
+    },
+    {
+      "logical": "author/real-evidence-summary.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/real-evidence-summary.json",
+      "archive": "author/real-evidence-summary.json",
+      "sha256": "39ca8b6e986b9ef422c3274680154cb946bc1d88d66f3a83ae68b060e42fbfa2",
+      "bytes": 2538,
+      "role": "original author report/static/reuse record"
+    },
+    {
+      "logical": "author/run_pure.py",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/run_pure.py",
+      "archive": "author/drivers/run_pure.py.txt",
+      "sha256": "509a9bf96c43caa83dbbfb9e2e4431e48200abfec48e4ef2be786e5a9840abd9",
+      "bytes": 1737,
+      "role": "preserved pure command recorder source; not executed here"
+    },
+    {
+      "logical": "author/run_pure04.py",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/run_pure04.py",
+      "archive": "author/drivers/run_pure04.py.txt",
+      "sha256": "9fff09719ee4d745552b0d0451d1b2f8265fc2cc71d566ee91a1149b3c0a93b9",
+      "bytes": 1692,
+      "role": "preserved pure command recorder source; not executed here"
+    },
+    {
+      "logical": "author/run_pure05.py",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/run_pure05.py",
+      "archive": "author/drivers/run_pure05.py.txt",
+      "sha256": "05a5fa4645759139b157623bb49b5b4a32d459d8d47867b4cf5fba14d36660fe",
+      "bytes": 1461,
+      "role": "preserved pure command recorder source; not executed here"
+    },
+    {
+      "logical": "author/runs/pure02/01.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure02/01.raw.log",
+      "archive": "author/runs/pure02/01.raw.log",
+      "sha256": "13c6ce2a0811abc4e09a11b752259382d0098050e1ff1609a171fe6893d0785e",
+      "bytes": 149,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure02/02.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure02/02.raw.log",
+      "archive": "author/runs/pure02/02.raw.log",
+      "sha256": "db910a28e80197278583171443dbc583f6788a0ac9136120f5d97205f28aadbb",
+      "bytes": 150,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure02/03.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure02/03.raw.log",
+      "archive": "author/runs/pure02/03.raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure02/04.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure02/04.raw.log",
+      "archive": "author/runs/pure02/04.raw.log",
+      "sha256": "53baef17edfb7b27638662fdf6d743ae1a38e83924fdabd4c332315b00703d2b",
+      "bytes": 160,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure02/05.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure02/05.raw.log",
+      "archive": "author/runs/pure02/03.raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure02/06.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure02/06.raw.log",
+      "archive": "author/runs/pure02/03.raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure02/result.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure02/result.json",
+      "archive": "author/runs/pure02/result.json",
+      "sha256": "0e79cd1cace698888b4db7f466a0225cec27903e8f14c6835d961358fd75f980",
+      "bytes": 2495,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure03/1.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure03/1.raw.log",
+      "archive": "author/runs/pure03/1.raw.log",
+      "sha256": "12205f05c843336d120f4944fe6edea827c6a522da9f82a7cc0aa6ad9dcfa676",
+      "bytes": 77,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure03/2.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure03/2.raw.log",
+      "archive": "author/runs/pure02/03.raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure03/result.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure03/result.json",
+      "archive": "author/runs/pure03/result.json",
+      "sha256": "5becd5cce7cccf4ba2e9f852beff67acf793b54e67429aa546c7b95e4361d403",
+      "bytes": 710,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure04/01.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure04/01.raw.log",
+      "archive": "author/runs/pure04/01.raw.log",
+      "sha256": "acdcdd33d363eb053aa6c0bc73ba684ad608918f872311653a3c9130ce324ee8",
+      "bytes": 15760,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure04/02.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure04/02.raw.log",
+      "archive": "author/runs/pure04/02.raw.log",
+      "sha256": "626a3bdc6102f2a5903acdbe40570dc442e7ed913604c6f7bb0f9adfc2eb6aba",
+      "bytes": 15760,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure04/03.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure04/03.raw.log",
+      "archive": "author/runs/pure02/03.raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure04/04.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure04/04.raw.log",
+      "archive": "author/runs/pure04/04.raw.log",
+      "sha256": "511d7ac1b1ccd539006c3ebc6bae5275e766f92a8980f7f4188461f8a7dfae6b",
+      "bytes": 77,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure04/05.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure04/05.raw.log",
+      "archive": "author/runs/pure02/03.raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure04/result.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure04/result.json",
+      "archive": "author/runs/pure04/result.json",
+      "sha256": "92b4167a7a0fbe060a0a1222f32cf77c4662c8c7b98fce30f09d21e6a8f15fac",
+      "bytes": 2181,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure05/01.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure05/01.raw.log",
+      "archive": "author/runs/pure04/04.raw.log",
+      "sha256": "511d7ac1b1ccd539006c3ebc6bae5275e766f92a8980f7f4188461f8a7dfae6b",
+      "bytes": 77,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure05/02.raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure05/02.raw.log",
+      "archive": "author/runs/pure02/03.raw.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/pure05/result.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/pure05/result.json",
+      "archive": "author/runs/pure05/result.json",
+      "sha256": "95963b5cdfccb35d19151ede67b66c9033ca0bf2d2f9de791d7d5d7d958813ff",
+      "bytes": 1178,
+      "role": "original pure/check metadata and raw"
+    },
+    {
+      "logical": "author/runs/plan01/adopted-waits.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/adopted-waits.json",
+      "archive": "author/runs/plan01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/plan01/baseline.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/baseline.json",
+      "archive": "author/runs/plan01/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/plan01/cleanup.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/cleanup.json",
+      "archive": "author/runs/plan01/cleanup.json",
+      "sha256": "fdf689dff24732122a8cc8fbe3a942485c6877370fe91f95176b71edad4bbd83",
+      "bytes": 1905,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/plan01/command.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/command.json",
+      "archive": "author/runs/plan01/command.json",
+      "sha256": "d81fa8f398bb4126824c91245934cb4fcb0fd6b6c835322754852b2126012ca7",
+      "bytes": 989,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/plan01/driver.py.txt",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/driver.py.txt",
+      "archive": "author/runs/plan01/driver.py.txt",
+      "sha256": "cf0ff370041d791f18c42df87a577f626826a538d95fe057aaefe5f1ec03ff01",
+      "bytes": 11753,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/plan01/input-after.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/input-after.json",
+      "archive": "author/runs/plan01/input-after.json",
+      "sha256": "14645730038999d82e3c0b9e9c6feae8f58924f78cbd5ecac623af871a217e9c",
+      "bytes": 1328,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/plan01/input-before.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/input-before.json",
+      "archive": "author/runs/plan01/input-after.json",
+      "sha256": "14645730038999d82e3c0b9e9c6feae8f58924f78cbd5ecac623af871a217e9c",
+      "bytes": 1328,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/plan01/monitor-errors.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/monitor-errors.json",
+      "archive": "author/runs/plan01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/plan01/observed-processes.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/observed-processes.json",
+      "archive": "author/runs/plan01/observed-processes.json",
+      "sha256": "10d0b043e41b4f43b7986d633039cd2ae292e96dcc48a8751ac46dba834432a7",
+      "bytes": 25210,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/plan01/observed-resources.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/observed-resources.json",
+      "archive": "author/runs/plan01/observed-resources.json",
+      "sha256": "38bfb02817674f99789f6af0cab4bc616d24c4ef83fa609853b14657a64fb619",
+      "bytes": 2350,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/plan01/plans-summary.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/plans-summary.json",
+      "archive": "author/runs/plan01/plans-summary.json",
+      "sha256": "7c36991c951d4f7c2e71462ba99cfbe8ae1181e223b8edb94e0f9d2f3d13577f",
+      "bytes": 9595,
+      "role": "derived plan summary, reproducible from untouched raw"
+    },
+    {
+      "logical": "author/runs/plan01/raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/raw.log",
+      "archive": "author/runs/plan01/raw.log",
+      "sha256": "036f4f1c8fe76fd240bf84d43808a52802776bbf640e26cf459b075855f558c8",
+      "bytes": 399484,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/plan01/result.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/result.json",
+      "archive": "author/runs/plan01/result.json",
+      "sha256": "c7616ee695e2bcc6774af343f9ec93686f87ab4f0b4ed1f92baf1c605a4ec3b4",
+      "bytes": 460,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/plan01/verification-input.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/plan01/verification-input.json",
+      "archive": "author/runs/plan01/verification-input.json",
+      "sha256": "17afbc78379f09945248447f161d97b05f28a337e93d7832050dd2676f04d80d",
+      "bytes": 90,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/adopted-waits.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/adopted-waits.json",
+      "archive": "author/runs/plan01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/baseline.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/baseline.json",
+      "archive": "author/runs/plan01/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/cleanup.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/cleanup.json",
+      "archive": "author/runs/author01/cleanup.json",
+      "sha256": "27f8933b9a10edb9696909d7c6a26dfb1d01c3df5f049921dd32658b4e27a49a",
+      "bytes": 2337,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/command.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/command.json",
+      "archive": "author/runs/author01/command.json",
+      "sha256": "15aaad41717c58b8118badd3a7ff322a308bbdd9a2cdf9f2028f937416b2d722",
+      "bytes": 1284,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/driver.py.txt",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/driver.py.txt",
+      "archive": "author/runs/plan01/driver.py.txt",
+      "sha256": "cf0ff370041d791f18c42df87a577f626826a538d95fe057aaefe5f1ec03ff01",
+      "bytes": 11753,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/input-after.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/input-after.json",
+      "archive": "author/runs/author01/input-after.json",
+      "sha256": "e09ca1de2797172816b835d02e18c36061f52a6164a0aafa9e93ffa947ec6215",
+      "bytes": 1686,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/input-before.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/input-before.json",
+      "archive": "author/runs/author01/input-before.json",
+      "sha256": "ac7f86293cdf9ab9fb429ff28e62afecb7272369ff83b3421c78c35e6c33fe01",
+      "bytes": 1686,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/monitor-errors.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/monitor-errors.json",
+      "archive": "author/runs/plan01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/observed-processes.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/observed-processes.json",
+      "archive": "author/runs/author01/observed-processes.json",
+      "sha256": "35be253e32787ba3f7bf116ce6c09754e19b2868962e8ccf86e148b637d8d721",
+      "bytes": 8557,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/observed-resources.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/observed-resources.json",
+      "archive": "author/runs/author01/observed-resources.json",
+      "sha256": "1a883179e39d48869bd23a3eb1cdc73db5f4bbe36f208c887f211ef4d195eae3",
+      "bytes": 3023,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/plans-summary.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/plans-summary.json",
+      "archive": "author/runs/author01/plans-summary.json",
+      "sha256": "edf62a666c8cf23094cd4d00696c046fde25ccd7470804a3751c67b361233efe",
+      "bytes": 11542,
+      "role": "derived plan summary, reproducible from untouched raw"
+    },
+    {
+      "logical": "author/runs/author01/raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/raw.log",
+      "archive": "author/runs/author01/raw.log",
+      "sha256": "a5e0b30d763281fa0052a41dcb7bcdc36d9b92b74b6b7d5bc7d30b7cc42e9681",
+      "bytes": 524630,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/result.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/result.json",
+      "archive": "author/runs/author01/result.json",
+      "sha256": "073d894160b880b8420cc4d79c768c9012fa36455a34d63d8cd6a9af632d647c",
+      "bytes": 966,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author01/verification-input.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/verification-input.json",
+      "archive": "author/runs/plan01/verification-input.json",
+      "sha256": "17afbc78379f09945248447f161d97b05f28a337e93d7832050dd2676f04d80d",
+      "bytes": 90,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/adopted-waits.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/adopted-waits.json",
+      "archive": "author/runs/plan01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/baseline.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/baseline.json",
+      "archive": "author/runs/plan01/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/cleanup.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/cleanup.json",
+      "archive": "author/runs/author02/cleanup.json",
+      "sha256": "249b4e46d61857e060195bcc373cec87eb30c195c8d22761d72ebf3d801c720d",
+      "bytes": 1905,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/command.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/command.json",
+      "archive": "author/runs/author02/command.json",
+      "sha256": "c3032dee463cb9805df28f7b15711ca046fa4b5d313da9f8b5783b41ca9a8898",
+      "bytes": 992,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/driver.py.txt",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/driver.py.txt",
+      "archive": "author/runs/plan01/driver.py.txt",
+      "sha256": "cf0ff370041d791f18c42df87a577f626826a538d95fe057aaefe5f1ec03ff01",
+      "bytes": 11753,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/input-after.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/input-after.json",
+      "archive": "author/runs/author02/input-after.json",
+      "sha256": "6b0a6a4b07130023223c9e07cec5cae7e069c84117593aa86aecdf97e44962ef",
+      "bytes": 1686,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/input-before.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/input-before.json",
+      "archive": "author/runs/author02/input-after.json",
+      "sha256": "6b0a6a4b07130023223c9e07cec5cae7e069c84117593aa86aecdf97e44962ef",
+      "bytes": 1686,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/monitor-errors.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/monitor-errors.json",
+      "archive": "author/runs/plan01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/observed-processes.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/observed-processes.json",
+      "archive": "author/runs/author02/observed-processes.json",
+      "sha256": "1d52d916d64b6dbba0883aaef9163273917dc9c96c669184e5a5a1a6ea3f7a78",
+      "bytes": 7010,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/observed-resources.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/observed-resources.json",
+      "archive": "author/runs/author02/observed-resources.json",
+      "sha256": "4f3b50499bd5bfb5c3ed60c530c1313ffcd6963362f24d27e43987d1683591f0",
+      "bytes": 2350,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/raw.log",
+      "archive": "author/runs/author02/raw.log",
+      "sha256": "efd4ee7af678c7356d84531ca23f435eb8b560d7accd672249ffa4dabceaa27c",
+      "bytes": 3961,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/result.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/result.json",
+      "archive": "author/runs/author02/result.json",
+      "sha256": "80a84fed3c6a213cd4da447764884b2d389672a2854ff8d32b8f82914ac8f934",
+      "bytes": 466,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author02/verification-input.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author02/verification-input.json",
+      "archive": "author/runs/plan01/verification-input.json",
+      "sha256": "17afbc78379f09945248447f161d97b05f28a337e93d7832050dd2676f04d80d",
+      "bytes": 90,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/adopted-waits.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/adopted-waits.json",
+      "archive": "author/runs/plan01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/baseline.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/baseline.json",
+      "archive": "author/runs/plan01/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/cleanup.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/cleanup.json",
+      "archive": "author/runs/author03/cleanup.json",
+      "sha256": "bcdb1b5cd310479593b67d1caca891d78b9c08d26487a8e7a6bc542ee003d986",
+      "bytes": 1905,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/command.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/command.json",
+      "archive": "author/runs/author03/command.json",
+      "sha256": "6dee9c360b5585a01e1bfc9b4382d9bb7160d1c22333c438c4c770b7f62cda53",
+      "bytes": 991,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/driver.py.txt",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/driver.py.txt",
+      "archive": "author/runs/plan01/driver.py.txt",
+      "sha256": "cf0ff370041d791f18c42df87a577f626826a538d95fe057aaefe5f1ec03ff01",
+      "bytes": 11753,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/input-after.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/input-after.json",
+      "archive": "author/runs/author03/input-after.json",
+      "sha256": "3e8ec5fb99d40f5ee18da176a9ea6659a982e003bb6a9a0746f72edf8b0c5f9b",
+      "bytes": 1686,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/input-before.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/input-before.json",
+      "archive": "author/runs/author03/input-after.json",
+      "sha256": "3e8ec5fb99d40f5ee18da176a9ea6659a982e003bb6a9a0746f72edf8b0c5f9b",
+      "bytes": 1686,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/monitor-errors.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/monitor-errors.json",
+      "archive": "author/runs/plan01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/observed-processes.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/observed-processes.json",
+      "archive": "author/runs/author03/observed-processes.json",
+      "sha256": "0c6de1aa502707057f31c83327d5163e3e48b24d15ebbaa3f7119929c677f308",
+      "bytes": 6737,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/observed-resources.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/observed-resources.json",
+      "archive": "author/runs/author03/observed-resources.json",
+      "sha256": "3aedd968840305f12cdd5f89bc6bdb0419665f60cd5a5d3a21bfac0664c25e1f",
+      "bytes": 2350,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/raw.log",
+      "archive": "author/runs/author03/raw.log",
+      "sha256": "6dff4f2a32531f2e6837d4e5bf72fe7a291962a9d5d16231a9198abc8bc53bc2",
+      "bytes": 4207,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/result.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/result.json",
+      "archive": "author/runs/author03/result.json",
+      "sha256": "1197607a60f6764b390d820d2fd57e354e055584b81bc0d0a198fe0afcb03767",
+      "bytes": 466,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author03/verification-input.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author03/verification-input.json",
+      "archive": "author/runs/plan01/verification-input.json",
+      "sha256": "17afbc78379f09945248447f161d97b05f28a337e93d7832050dd2676f04d80d",
+      "bytes": 90,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/adopted-waits.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/adopted-waits.json",
+      "archive": "author/runs/plan01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/baseline.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/baseline.json",
+      "archive": "author/runs/plan01/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/cleanup.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/cleanup.json",
+      "archive": "author/runs/author04/cleanup.json",
+      "sha256": "791e904e76536747bb5ab070eb7823205ea376ec17addb4579b86b60843549d1",
+      "bytes": 1905,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/command.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/command.json",
+      "archive": "author/runs/author04/command.json",
+      "sha256": "b7feeea1e104e2bd8fde0a3a3e80f264fd58343c1490909ad932371b96ca8cc0",
+      "bytes": 992,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/driver.py.txt",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/driver.py.txt",
+      "archive": "author/runs/plan01/driver.py.txt",
+      "sha256": "cf0ff370041d791f18c42df87a577f626826a538d95fe057aaefe5f1ec03ff01",
+      "bytes": 11753,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/input-after.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/input-after.json",
+      "archive": "author/runs/author04/input-after.json",
+      "sha256": "14559a8fa06368a8d7ca5c61a422a70e71e3f0fd2e2bd74dbe956a1700e4b7e1",
+      "bytes": 1686,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/input-before.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/input-before.json",
+      "archive": "author/runs/author04/input-after.json",
+      "sha256": "14559a8fa06368a8d7ca5c61a422a70e71e3f0fd2e2bd74dbe956a1700e4b7e1",
+      "bytes": 1686,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/monitor-errors.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/monitor-errors.json",
+      "archive": "author/runs/plan01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/observed-processes.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/observed-processes.json",
+      "archive": "author/runs/author04/observed-processes.json",
+      "sha256": "c05e746e93eff8ebd19ef5fabf70a0bd049260cd7a5c32e505f3a062845a3e1a",
+      "bytes": 6464,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/observed-resources.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/observed-resources.json",
+      "archive": "author/runs/author04/observed-resources.json",
+      "sha256": "2ddadcb4720ca2680f725f291f3b11a379e72ea4b9d7a9eee984cac705ee359f",
+      "bytes": 2350,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/raw.log",
+      "archive": "author/runs/author04/raw.log",
+      "sha256": "252760ec67eaad76ffd28e3903739b9e3a3dfbf5a581d07ef41ef7fa8f60b101",
+      "bytes": 5263,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/result.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/result.json",
+      "archive": "author/runs/author04/result.json",
+      "sha256": "ee4de661df9db75ec7de776ab89fdef5a6f612d22c298ca1c15b178d4d404b03",
+      "bytes": 465,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "author/runs/author04/verification-input.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/verification-input.json",
+      "archive": "author/runs/plan01/verification-input.json",
+      "sha256": "17afbc78379f09945248447f161d97b05f28a337e93d7832050dd2676f04d80d",
+      "bytes": 90,
+      "role": "original actual run command/input/raw/process/resource record"
+    },
+    {
+      "logical": "verification/verification-report.md",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/verification-report.md",
+      "archive": "verification/verification-report.md.txt",
+      "sha256": "e0f192e6b35c7f760e8195ae895b1910bc9a14e6cec38084b293c75539f8223b",
+      "bytes": 7893,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/verification-report.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/verification-report.json",
+      "archive": "verification/verification-report.json",
+      "sha256": "6911ee217cab30f17b770f5444930a731b1c450a3d6ec9d150f18219248ab22d",
+      "bytes": 6927,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/candidate-input.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/candidate-input.json",
+      "archive": "author/inputs/input04.json",
+      "sha256": "41382f9f482ddad686d76ae1492361031fe6a2485fa012c2a10708ee09b9fe12",
+      "bytes": 1109,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/candidate-binding.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/candidate-binding.json",
+      "archive": "verification/candidate-binding.json",
+      "sha256": "c0750e44de647a4ed1961580ec8add51aed9dd1b8ba0513e4d4da057a7576775",
+      "bytes": 321,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/static-review.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/static-review.json",
+      "archive": "verification/static-review.json",
+      "sha256": "010eb3b919b3c012e3328a61a0f58f62c149edf72e5e96e8a1bb28837cd09aab",
+      "bytes": 4585,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/author-evidence-review.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/author-evidence-review.json",
+      "archive": "verification/author-evidence-review.json",
+      "sha256": "782165d1f7b8ec6eab0798c7327259fb05610ffa8e5cd8d20b3a4a914483ed10",
+      "bytes": 2685,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/probes/invitation_http_independent_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/probes/invitation_http_independent_test.go",
+      "archive": "verification/probes/invitation_http_independent_test.go.txt",
+      "sha256": "4bda35ef09bbdb8df09db9cc8d66701a9c3164952f0b7c3832526588035e8099",
+      "bytes": 7807,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/probes/invitation_mail_independent_test.go",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/probes/invitation_mail_independent_test.go",
+      "archive": "verification/probes/invitation_mail_independent_test.go.txt",
+      "sha256": "5e20398054ff9b7e7d2b511ea604192d8b0397291c6d2b12422082ca49dcfcf0",
+      "bytes": 7952,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/overlay.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/overlay.json",
+      "archive": "verification/overlay.json",
+      "sha256": "e34aa1ce636f687d95b6e5dd7cf0ab3d7a5054d4dcc205102b01bb51ca788933",
+      "bytes": 402,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/run_fixture.py",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/run_fixture.py",
+      "archive": "verification/run_fixture.py.txt",
+      "sha256": "3e55fc022c0ce3a75e4a07c3c14dbc75341dbe6ea88aa4971fe6b4407951cbac",
+      "bytes": 12219,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/compile01/command.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/compile01/command.json",
+      "archive": "verification/runs/compile01/command.json",
+      "sha256": "008330f88361087ab5403b953fdd66dc546f3dae8151b73110098ae95e0c6f75",
+      "bytes": 1380,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/compile01/raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/compile01/raw.log",
+      "archive": "verification/runs/compile01/raw.log",
+      "sha256": "8a6011b5b066d1c33c9ffa42ac7d272a576777e0d3965b1a19a748bc5af9fa9c",
+      "bytes": 158,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/account-invitation_independent_test.go.txt",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/account-invitation_independent_test.go.txt",
+      "archive": "verification/probes/invitation_http_independent_test.go.txt",
+      "sha256": "4bda35ef09bbdb8df09db9cc8d66701a9c3164952f0b7c3832526588035e8099",
+      "bytes": 7807,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/accountmail-invitation_independent_test.go.txt",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/accountmail-invitation_independent_test.go.txt",
+      "archive": "verification/probes/invitation_mail_independent_test.go.txt",
+      "sha256": "5e20398054ff9b7e7d2b511ea604192d8b0397291c6d2b12422082ca49dcfcf0",
+      "bytes": 7952,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/adopted-waits.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/adopted-waits.json",
+      "archive": "author/runs/plan01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/baseline.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/baseline.json",
+      "archive": "author/runs/plan01/baseline.json",
+      "sha256": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+      "bytes": 3240,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/cleanup.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/cleanup.json",
+      "archive": "verification/runs/independent01/cleanup.json",
+      "sha256": "81fd8c9426f3fd2fd73a8f31f592af0708a1cb8b964baafd132575c8b524ffe1",
+      "bytes": 2337,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/command.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/command.json",
+      "archive": "verification/runs/independent01/command.json",
+      "sha256": "78522bae28c8794e58186c4f138a11f54ee438b20d1ee960c34069e763d1f1e6",
+      "bytes": 1235,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/driver.py.txt",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/driver.py.txt",
+      "archive": "verification/run_fixture.py.txt",
+      "sha256": "3e55fc022c0ce3a75e4a07c3c14dbc75341dbe6ea88aa4971fe6b4407951cbac",
+      "bytes": 12219,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/input-after.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/input-after.json",
+      "archive": "verification/runs/independent01/input-after.json",
+      "sha256": "1b1f55008e3f3454bf2df37fa7a5d39f2d1ee77758b8407e44d3371378f7a20e",
+      "bytes": 1686,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/input-before.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/input-before.json",
+      "archive": "verification/runs/independent01/input-after.json",
+      "sha256": "1b1f55008e3f3454bf2df37fa7a5d39f2d1ee77758b8407e44d3371378f7a20e",
+      "bytes": 1686,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/monitor-errors.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/monitor-errors.json",
+      "archive": "author/runs/plan01/adopted-waits.json",
+      "sha256": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+      "bytes": 3,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/observed-processes.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/observed-processes.json",
+      "archive": "verification/runs/independent01/observed-processes.json",
+      "sha256": "9bac1ade7d37465702c4715314214f95fb308b0a210809bf7ed0e1f70d22ebed",
+      "bytes": 19295,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/observed-resources.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/observed-resources.json",
+      "archive": "verification/runs/independent01/observed-resources.json",
+      "sha256": "f9e0867fc022ea31f550a0b153a94a9e28218bcad325d01034d4d6d0cb1f30e7",
+      "bytes": 3023,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/overlay.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/overlay.json",
+      "archive": "verification/overlay.json",
+      "sha256": "e34aa1ce636f687d95b6e5dd7cf0ab3d7a5054d4dcc205102b01bb51ca788933",
+      "bytes": 402,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/raw.log",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/raw.log",
+      "archive": "verification/runs/independent01/raw.log",
+      "sha256": "fc39453f682e209294f9fab5e30071c823f0cc975c2ae1d3eedf2501690bda75",
+      "bytes": 13101,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/result.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/result.json",
+      "archive": "verification/runs/independent01/result.json",
+      "sha256": "c4ed76c437e2c4d955cd3477c471e0334786edadaa9e29a42271beb75505a82c",
+      "bytes": 560,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    },
+    {
+      "logical": "verification/runs/independent01/verification-input.json",
+      "source": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/verification-input.json",
+      "archive": "verification/runs/independent01/verification-input.json",
+      "sha256": "8f10a209960483059949d24094126146f1079287b2d987c7438732e83598cfbd",
+      "bytes": 578,
+      "role": "frozen independent report, review, probe, command or raw termination evidence"
+    }
+  ],
+  "historical_limits": [
+    "plan01 two old test-source originals not yet located; no substitute reconstruction claimed",
+    "pure03 original result contains argv/exit/rawSHA/input but omits env; do not invent it",
+    "go test -tags=integration -run ^$ is recorded exactly; no-tests packages are not dynamic PASS",
+    "author01 HEAD changed only while all recorded source hashes remained equal; source binding is by hashes",
+    "author02/03 failed before later Selection cases; only author04 reached those later cases",
+    "local actual three-second ordinary/race context tests and earlier PostgreSQL one-second lock timeout are separate evidence",
+    "author01 six groups + author04 Selection is combined result, not a single green seven-test run",
+    "SQL-only scale 100000 unrelated intents/2049 skew histories is not formal business-delivery evidence"
+  ],
+  "missing_plan01_source_originals": [
+    {
+      "path": "internal/central/account/http_invitation_delivery_test.go",
+      "sha256": "205ceee05e2e19839c46cb5fc43c7e42badb6ef0ca903781b9d2d2b48d94a27e",
+      "status": "original copy not found in frozen author top-level/four source snapshots; author asked for exact saved path"
+    },
+    {
+      "path": "tests/account/invitation_delivery_query_test.go",
+      "sha256": "29ca3605d5eea7cb42498452c2f78be28b9df5e5399c088991331ffa44d5869d",
+      "status": "original copy not found in frozen author top-level/four source snapshots; author asked for exact saved path"
+    }
+  ],
+  "not_archived": [
+    "dependency/cache/binary/runtime trees",
+    "21 derived full EXPLAIN JSON duplicates already contained in original plan01/author01 raw",
+    "unexecuted draft scripts and early checks not used as final evidence"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "files": {
+    "api/openapi/account.json": "7f922623652a67f3e56aa013c8da571ca2d79f7454e212b67f04be22edb5fa41",
+    "db/migrations/00019_account_invitation_delivery_read.sql": "618c53b3621d2bbe57c18d3e9626e38e9492faa95036ad1526e74772fa3e4100",
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "internal/central/account/http_facade.go": "6e8ca0b3ad8b8f18fbfeafb1981752239daeaca6f9953cbc1475261d72baf222",
+    "internal/central/account/http_invitation_delivery_test.go": "b1dd7ae12d75dad928c8a2ff717aa150638d8e0b2382abfd0b386120d668a07d",
+    "internal/central/account/http_system.go": "e25b35999c04cddbf64a6f03e573999e0bafae3a39d933c8163a32ca82269248",
+    "tests/account/http_invitation_delivery_test.go": "dbc231d71487b48881e91211d0f85424d03117793e212ac210fc78900a03901a",
+    "tests/account/invitation_delivery_query_test.go": "3a729bcbd29d6b8268050d6a5d3d9fe3ec2e81058a140bbf6813bb263d79a220",
+    "tests/accountmail/invitation_directory_test.go": "169ec07ed5fa2a99d37a2803d0fe2fdf4aec9ee6e6fca804592108521717073f"
+  },
+  "head": "5683de244cf21f22d37e44957b5ca9996289e289",
+  "tracked_product_delta": [
+    "api/openapi/account.json",
+    "internal/central/account/http_facade.go",
+    "internal/central/account/http_system.go"
+  ],
+  "untracked_product_paths": [
+    "db/migrations/00019_account_invitation_delivery_read.sql",
+    "internal/central/account/http_invitation_delivery_test.go",
+    "tests/account/http_invitation_delivery_test.go",
+    "tests/account/invitation_delivery_query_test.go",
+    "tests/accountmail/invitation_directory_test.go"
+  ]
+}

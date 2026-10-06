@@ -1,0 +1,89 @@
+{
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/tmp",
+    "CGO_ENABLED": "1"
+  },
+  "input_sha256": "5d7456b6b5bc986a8c40b9a1c7e8094f98106d8c7e583b8ae5edfa68133000ff",
+  "commands": [
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-count=1",
+        "./internal/central/account/..."
+      ],
+      "exit": 0,
+      "seconds": 8.467,
+      "raw_sha256": "13c6ce2a0811abc4e09a11b752259382d0098050e1ff1609a171fe6893d0785e"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-count=1",
+        "./internal/central/account/..."
+      ],
+      "exit": 0,
+      "seconds": 38.561,
+      "raw_sha256": "db910a28e80197278583171443dbc583f6788a0ac9136120f5d97205f28aadbb"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "./internal/central/account/..."
+      ],
+      "exit": 0,
+      "seconds": 6.316,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/account",
+        "./tests/accountmail"
+      ],
+      "exit": 0,
+      "seconds": 2.87,
+      "raw_sha256": "53baef17edfb7b27638662fdf6d743ae1a38e83924fdabd4c332315b00703d2b"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./tests/account",
+        "./tests/accountmail"
+      ],
+      "exit": 0,
+      "seconds": 7.098,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "build",
+        "-o",
+        "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/bin/",
+        "./cmd/agenteam",
+        "./cmd/agenteam-runner"
+      ],
+      "exit": 0,
+      "seconds": 1.14,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

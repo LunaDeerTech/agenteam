@@ -1,0 +1,14 @@
+import hashlib,json,os,pathlib,subprocess,time
+root=pathlib.Path(__file__).parent;repo=pathlib.Path('/workspace/agenteam');run=root/'runs/pure05';run.mkdir()
+go='/workspace/toolchains/go1.27.1/bin/go'
+env=dict(os.environ,AGENTEAM_GO=go,GOTOOLCHAIN='local',GOENV='off',GOWORK='off',GOPROXY='off',GOSUMDB='off',GOFLAGS='-mod=readonly -buildvcs=false -p=2',GOMODCACHE='/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache',GOCACHE=str(root/'gocache'),TMPDIR=str(root/'tmp'),CGO_ENABLED='1')
+commands=[['test','-tags=integration','-run','^$','./tests/account'],['vet','-tags=integration','./tests/account']]
+records=[]
+for n,command in enumerate(commands):
+    log=run/f'{n+1:02d}.raw.log';started=time.monotonic()
+    with log.open('wb') as out: result=subprocess.run([go,*command],cwd=repo,env=env,stdout=out,stderr=subprocess.STDOUT)
+    record={'argv':[go,*command],'exit':result.returncode,'seconds':round(time.monotonic()-started,3),'raw_sha256':hashlib.sha256(log.read_bytes()).hexdigest()};records.append(record)
+    (run/'result.json').write_text(json.dumps({'env':{k:env[k] for k in ['GOTOOLCHAIN','GOENV','GOWORK','GOPROXY','GOSUMDB','GOFLAGS','GOMODCACHE','GOCACHE','TMPDIR','CGO_ENABLED']},'input_sha256':hashlib.sha256((root/'input04.json').read_bytes()).hexdigest(),'commands':records},indent=2)+'\n')
+    print(json.dumps(record),flush=True)
+    if result.returncode:
+        print(log.read_text());raise SystemExit(result.returncode)

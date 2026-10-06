@@ -99,3 +99,13 @@ new01/new02原红及原输入保留：尾空格比较错误、clone在真实401�
 new03的light1440/dark390已由验收者、主线程及文档负责人实际查看，八主题尺寸组合的25行五列几何及窄屏标签顺序有真实断言；独立最终两截图也经验收者实际查看。七轮各自actual wait、7资源exact-ID双次absent、原2容器/4网络不变，所属PID/runtime清零；最终独立86PID、4实际adopted wait，源/dist/验证输入不变，窗口已交还。共享焦点旧作者两个PPID1 Z已退出但未由当前父wait的限制继续沿旧档保留，不以后轮清理倒推旧轮。
 
 本次只追加报告/证据、台账页首、本节与UI卡接受页首，技术正文和旧焦点档不变。证据按SHA去重，22dist只留哈希/输入/构建原log，不复制依赖缓存、可执行文件或完整web；离线脚本只核原字节及固定Git，未重跑浏览器、业务或资源。仅此目录UI卡接受，生产SPA、Vite真实代理、原生zoom、其他浏览器及完整D26/D27未验。Summary待决、Object/tools原停止、Artifact/Project阻塞、生产未绑定与ready503保持；完整D08–D28/E01未完成，E01未开始。
+
+## 10. 系统邀请最近投递读口与 00019 接受
+
+§1–9保留各次恢复和交付的原时态。[邀请最近投递读口 rev1](../work-items/d27-system-invitation-delivery-read.md)现已独立最终 PASS、主线程采纳并提交推送 `9b3201547f9b7b61fd9716a6ba6540084961496c`，主线程核实远端一致。[正式报告与最小证据](system-invitation-delivery-read-verification.md)绑定 input04 SHA-256 `41382f9f482ddad686d76ae1492361031fe6a2485fa012c2a10708ee09b9fe12`；八源与Git一致，产品基线为 `7ef3e30`，两Go锁和迁移00001–00018不变。00019只增加已规定的 invitation link 部分索引，跨root最近接受排序、同Tx当前授权、单statement分页/投递投影和失败零候选均已验。
+
+作者原三红与真实输入均保留：planned gate装配错误、误期待原DB锁等待至少3s、误要求所有PG取消都进入DeadlineExceeded错误链；生产未为测试假设变化。最终为author01六组PASS加author04完整Selection一组PASS，不称一次七组全绿。pure实际3s/父约75ms与query尾部join，和实库约1s锁超时/父约68ms分别记录。plan01两份旧测试原件缺失、pure03缺env不补造；最终规模/迁移结论由author01冻结源码与11份原计划支持，100000无关intent/2049偏斜历史只是SQL成本fixture，不是业务发送或无限规模SLA。
+
+独立两项原子HTTP投影与跨root真实邮件/生命周期首次均PASS，分别6.74s/10.34s，whole actualexit0/145.337s。9个资源exact ID双次absent、212个所属PID/starttime消失、原两容器/四网络baseline不变、runtime空、monitor0；主命令实际wait，adopted-waits为空，窗口已释放。真实日志→SMTP接受后丢回复保留unknown，与旧root人工重试的新接受时间、到期只读/同邮箱新ID隔离均有独立证据。
+
+本次新增报告与去重原件，更新台账页首、本节和read卡接受页首；read技术正文及旧档不改，邀请UI卡由其负责人独占。离线核168逻辑/101物理原件、四版源、八交付源、两锁、迁移、六轮原结果/清理及固定Git通过，没有重跑产品或资源。邀请UI与完整D27仍未接受，旧目录UI的1–18证据不外推00019组合；Summary待决、Object/tools原停止、Artifact/Project阻塞、生产未绑定/ready503、完整D08–D28/E01未完成与E01未开始继续保持。

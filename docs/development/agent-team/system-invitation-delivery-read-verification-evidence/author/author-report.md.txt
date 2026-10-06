@@ -1,0 +1,87 @@
+# Invitation delivery directory — author handoff
+
+Author result: PASS by the explicitly combined unchanged evidence below. Independent acceptance remains the verifier/root responsibility. Eight candidate files are frozen; no Git mutation was performed. The real resource window was released after author04 actually exited and both cleanup scans passed.
+
+## Fixed input and environment
+
+- Repository: `/workspace/agenteam`; accepted product baseline `7ef3e30cf06b5df6d19516f24c34855a8308ef05`. Later documentation commits did not change product dependencies.
+- Final manifest: `input04.json`, SHA256 `41382f9f482ddad686d76ae1492361031fe6a2485fa012c2a10708ee09b9fe12`. Exact copies of the eight files and Go locks: `input04/`.
+- Explicit Go: `/workspace/toolchains/go1.27.1/bin/go`; formal checks use GOTOOLCHAIN=local, GOENV=off, GOWORK=off, GOPROXY=off, GOSUMDB=off and GOFLAGS beginning `-mod=readonly -buildvcs=false`. Complete argv/env/actual exits are in each run record.
+- Read-only shared module cache: `/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache`; private GOCACHE and TMPDIR under this evidence root.
+- MinIO: `/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio`, SHA256 `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8`; every real run records the checked binary. PostgreSQL fixture reports 170008 (17.8); no existing credentials/infrastructure were consumed.
+
+| Exact candidate path | SHA256 |
+| --- | --- |
+| `internal/central/account/http_facade.go` | `6e8ca0b3ad8b8f18fbfeafb1981752239daeaca6f9953cbc1475261d72baf222` |
+| `internal/central/account/http_system.go` | `e25b35999c04cddbf64a6f03e573999e0bafae3a39d933c8163a32ca82269248` |
+| `api/openapi/account.json` | `7f922623652a67f3e56aa013c8da571ca2d79f7454e212b67f04be22edb5fa41` |
+| `db/migrations/00019_account_invitation_delivery_read.sql` | `618c53b3621d2bbe57c18d3e9626e38e9492faa95036ad1526e74772fa3e4100` |
+| `internal/central/account/http_invitation_delivery_test.go` | `b1dd7ae12d75dad928c8a2ff717aa150638d8e0b2382abfd0b386120d668a07d` |
+| `tests/account/http_invitation_delivery_test.go` | `dbc231d71487b48881e91211d0f85424d03117793e212ac210fc78900a03901a` |
+| `tests/account/invitation_delivery_query_test.go` | `19484f9b238b34c7832beb01adb1c73b9228413907e81a908585131b358717bc` |
+| `tests/accountmail/invitation_directory_test.go` | `169ec07ed5fa2a99d37a2803d0fe2fdf4aec9ee6e6fca804592108521717073f` |
+
+## Implementation
+
+ListInvitations alone has a maximum three-second context. It uses the existing httpRead, one directory/mail/user shared-lock union, current same-transaction administrator authority, and one statement for invitation cutoff/page/latest intent/job/current attempt. A single database clock is evaluated after lock waits. Latest selection spans self-origin and manual retry roots by commands.completed_at DESC then JobID DESC. Provenance and exact mappings are validated; an invalid latest record never falls back to an older success.
+
+The closed latest_delivery projection preserves the original five invitation fields and reports actual current-attempt channel/result, including required nulls and retry_wait/unknown. No SMTP configuration fallback, secret/token/material projection, delivery write, cleanup write, new method or shared Account/User/MailJob/receipt change was introduced. The private invitation row helper closes exactly once, checks post-close Err/context, validates the limit+1 sentinel and zeroes all accumulated items/cursor on every failure.
+
+00019 adds only the approved partial `(link_id,id)` invitation index. Migrations 1–18 and go.mod/go.sum are unchanged. `static04.json` records scoped whitespace/gofmt, exact allowed OpenAPI semantic changes and 213 resolvable references; its unchanged OpenAPI/migration proofs reuse `static03.json`.
+
+## Pure and build checks
+
+| Evidence | Actual result | Reuse boundary |
+| --- | --- | --- |
+| `runs/pure02/result.json`, `01`–`06.raw.log` | All six commands exit 0: full Account ordinary/race/vet, integration compile/vet of account+accountmail, Central+Runner builds | All production source and mail/HTTP tests stayed unchanged afterward |
+| `runs/pure03/result.json` | Account integration compile/vet exit 0 | Test assembly correction for input02 |
+| `runs/pure04/result.json`, `01`–`05.raw.log` | New invitation pure suite ordinary/race, Account vet, affected integration compile/vet all exit 0 | Final internal tests are identical to input03 |
+| `runs/pure05/result.json`, `01`–`02.raw.log` | Final Selection integration compile/vet exit 0 | Exact input04 |
+
+The pure suite actually waited for the original query context: local deadline 3.002109s ordinary / 3.001275s race; earlier parent 75.269ms / 75.383ms. The longer local-case parent remained live. The held query tail prevented facade return and kept its operation present; release then joined the actual call, with one transaction/query, NotCommitted, preserved DeadlineExceeded cause, zero items/cursor and no retained operation. The scanner first/middle/sentinel invalid scalars, mappings, post-close errors, cancellation and cursor-sign failures all ran and passed. This is separate from the real fixture’s earlier one-second lock timeout.
+
+## Real tests and preserved failures
+
+Every real command uses the existing `scripts/test-security.sh`, original `-race -count=1 -timeout=6m`, task-owned nonces/exact IDs, the original fixture timeouts and a private copied evidence recorder with a child subreaper. The seven-test selector in author01 is the card selector; later rounds select only `^TestAccountInvitationDeliveryReadSelectionAndBudget$`. See each `command.json`, `driver.py.txt`, `raw.log`, input-before/after and resource/process/cleanup files. `[no tests to run]` packages are not counted as tests or compatibility verification.
+
+| Final applicable top level | Source of PASS |
+| --- | --- |
+| TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority | author01, 6.20s |
+| TestAccountHTTPInvitationAndMailAdministration | author01, 4.95s |
+| TestAccountHTTPInvitationDeliveryDirectory | author01, 6.59s |
+| TestAccountHTTPSystemUserDirectory | author01, 7.34s |
+| TestAccountInvitationDeliveryReadMigrationAndPlan | author01, 10.97s |
+| TestAccountMailInvitationDirectoryChannelsAndOutcomes | author01, 10.93s |
+| TestAccountInvitationDeliveryReadSelectionAndBudget | author04, 3.65s |
+
+author01 as a whole exited 1: its new Selection test mistakenly assembled Authority against the raw Store, bypassing the owned planned-command gate. The six other real groups actually passed. author02 exited 1 after the gate correction: the new timing test incorrectly expected a minimum three seconds despite the unchanged fixture’s one-second DB lock timeout. author03 exited 1: the new test incorrectly required errors.Is(DeadlineExceeded) on every PostgreSQL cancellation response. All original failures and fixed inputs are retained; none is reported as a green full run. Input01 bytes are under `runs/author01/input/`, input02 under `runs/author02/input/`, and input03 under `input03/`. No production change was made to fix those test assumptions.
+
+author04 exercised the complete Selection sequence: actual early-planned/late-accepted ordering; older-job completion not becoming newest; manual retry and retry-of-retry with eight concurrent complete snapshots, target exactly once, same-key replay and completed_at tie; invalid accepted time, missing and foreign current attempt, wrong fence all zero; earlier parent cancellation and DB timeout with observed exact-lock waiting and actual join; expiry after witnessed lock wait; same-email new ID; current administrator denial and formal revoke.
+
+The real earlier-parent case joined after 68.108ms with original PostgreSQL SQLSTATE 57014, InternalError/NotCommitted/LockFailed, caller DeadlineExceeded, zero candidates, and error_is_deadline=false. The DB timeout case joined after 1.002682s with SQLSTATE 55P03 and the caller still live. Both preserve the existing mapper. They do not substitute for the separate actual three-second pure context test. GET excluded expired invitations from its response while the expired database row remained present: GET did not delete it. The subsequent formal Create retired that old link, created a different InvitationID for the same email, preserved old intent linkage and returned only the new delivery. The original failed rounds did not reach these later cases; author04 did.
+
+The HTTP group covers real wire/old field equality, pagination and signed cursor, resend without boundary movement, empty/live filtering, bad time zero response, real redemption/revoke, current role and session restrictions, and unchanged invitation HEAD 405. The mail group uses actual restricted log and owned SMTP workers for preclaim null, smtp/log history, configuration switch, failed, manual retry, real unknown acceptance/retry_wait, next claim replacing current facts, and configuration failure without log fallback.
+
+## Scale, migration and cost
+
+Before writing 00019, `runs/plan01` completed exit 0 and double cleanup; root accepted the index necessity from that evidence. The same production query was used before/after on unchanged deterministic SQL-only data: 30 live invitation rows, 100000 unrelated intents, and 2048 history roots plus the live root for the skewed invitation (2049 matches). The normal query limit 26 includes the limit+1 sentinel, not 26 returned page items. This SQL seeding is a cost/migration fixture, not proof of 100000 business deliveries.
+
+Initial plan01 normal: sequential intent scan repeated 26 times, 102077 rows filtered per loop, 43524 hit buffers, 216.105ms; after the exact partial index: 26 link scans, 101 hit + 3 read buffers, 0.392ms. Skew 2049 matched histories: 11.990ms → 4.066ms. No planner forcing or scale reduction was used.
+
+The full author01 migration test repeated actual before/after query plans with the persisted job/attempt fixture included: normal 224.587ms → 0.701ms with the same 26 loops and buffers; skew 12.614ms → 3.728ms, still reading its own 2049 histories. Before/after normal, next page, empty cursor page, equal times and skew plans are preserved. An additional all-expired/no-live after-index plan returned zero rows (0.094ms); that transaction rolls back its fixture expiry changes. `runs/author01/plans-summary.json` and plan-*.json are explicitly derived from the untouched original raw log.
+
+Fresh 1–19, populated 18→19, safe-history fingerprint equality, exact index definition, private faulting migration rollback/journal state, and recovery using the exact same pending fault-copy bytes after repairing its owned missing dependency all passed. Migration/plan test helpers are byte-identical between author01 and input04 (`evidence-reuse.json`). The index avoids page-row scans of unrelated history but does not make a heavily skewed invitation constant time or establish an unlimited-scale SLA.
+
+## Actual termination and handoff
+
+| Run | Actual exit / seconds | Exact resources / observed PID-starttimes | Double cleanup |
+| --- | --- | --- | --- |
+| plan01 | 0 / 192.986s | 7 / 277 | True |
+| author01 | 1 / 118.32s | 9 / 94 | True |
+| author02 | 1 / 58.519s | 7 / 77 | True |
+| author03 | 1 / 48.29s | 7 / 74 | True |
+| author04 | 0 / 53.908s | 7 / 71 | True |
+
+Each double cleanup found every observed exact container/network ID absent twice, no new resources, original baseline unchanged, no matching owned PID/starttime, empty runtime directory and no monitor errors. author04 command actual wait completed at 2026-10-06T06:00:01.481899+00:00; its script elapsed 53.908s and exit was 0. No browser, backend server, fixture, or child remains owned by this task. Historical unrelated baseline processes were neither claimed as ours nor altered.
+
+All eight source paths, their private fixed copies, raw runs and this final report are now stopped. The resource window has been returned to root/recovery_verification. Ready for independent validation; no independent PASS is claimed here. No frontend work, new write capability, generic route/fixture change or stopped Object/tools probe is part of this result.

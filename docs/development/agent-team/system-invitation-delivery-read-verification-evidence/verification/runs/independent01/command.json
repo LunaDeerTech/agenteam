@@ -1,0 +1,29 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestInvitationIndependentHTTPAtomicProjection|TestInvitationIndependentMailOriginsAndLifecycle)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-06T06:11:41.145984+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v -overlay=/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/overlay.json",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/runs/independent01/runtime"
+  },
+  "exit": 0,
+  "overlay_sha256": "e34aa1ce636f687d95b6e5dd7cf0ab3d7a5054d4dcc205102b01bb51ca788933",
+  "seconds": 145.337,
+  "started_utc": "2026-10-06T06:09:15.809126+00:00"
+}

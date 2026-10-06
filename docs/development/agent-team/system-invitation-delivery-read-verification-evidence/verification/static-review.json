@@ -1,0 +1,92 @@
+{
+  "candidate_manifest_sha256": "41382f9f482ddad686d76ae1492361031fe6a2485fa012c2a10708ee09b9fe12",
+  "author_report_sha256": "6e87f584400953a6833e9dd9fd40a26139db6cf4819e59ce549080d8fd2d5be2",
+  "author01_raw_sha256": "a5e0b30d763281fa0052a41dcb7bcdc36d9b92b74b6b7d5bc7d30b7cc42e9681",
+  "author04_raw_sha256": "252760ec67eaad76ffd28e3903739b9e3a3dfbf5a581d07ef41ef7fa8f60b101",
+  "plans_summary_sha256": "edf62a666c8cf23094cd4d00696c046fde25ccd7470804a3751c67b361233efe",
+  "exact_explain_records_reparsed": 11,
+  "migrations_1_18_unchanged": [
+    {
+      "path": "db/migrations/00001_database_foundation.sql",
+      "sha256": "76e8ea46d34e0c24ed6a6e46c5f480301ba3fd60662ad803a8eb805ab4ed88ab"
+    },
+    {
+      "path": "db/migrations/00002_audit.sql",
+      "sha256": "89afdb623e7293dc83a189ff0cbed3a3a407794d0a2bd0ae26167d7d9517a45c"
+    },
+    {
+      "path": "db/migrations/00003_secret.sql",
+      "sha256": "485302f3dddc0acfb1439206322d7f4a4b0610eddaa3d3517ef7e39cb9e84c2f"
+    },
+    {
+      "path": "db/migrations/00004_outbound.sql",
+      "sha256": "07dfed945570b1ec4fe430106507244c3004c7cb1ac5bc3a7c169257df6c9739"
+    },
+    {
+      "path": "db/migrations/00005_object_storage.sql",
+      "sha256": "7a9e10648b856587baf4169ad08041e130e67b25fb38879947e89677211cb178"
+    },
+    {
+      "path": "db/migrations/00006_artifact_download.sql",
+      "sha256": "8196d8ca9671c821605a8949cefc0c6c4b90d557d8fc4ccb95674ebd0e14ac3e"
+    },
+    {
+      "path": "db/migrations/00007_object_transfer.sql",
+      "sha256": "d9986325ee017696cf0489357c8821f97be87349fea55a1e34ca8ef1b1f54ad7"
+    },
+    {
+      "path": "db/migrations/00008_transactional_outbox.sql",
+      "sha256": "53c89147a94e90466d0d97a634a8d2fab0455a1c5ebfc2554baa712e42f568a9"
+    },
+    {
+      "path": "db/migrations/00009_outbox_unattempted_stop.sql",
+      "sha256": "32e6243a75ec26bedee810bd326feabc64f5a48c5b19986232027eee954b4c8f"
+    },
+    {
+      "path": "db/migrations/00010_account_session_smtp.sql",
+      "sha256": "5a24fb23d01d706bf0548b8d667dc4754a3e7e558ef6fb104d396763d084a7ed"
+    },
+    {
+      "path": "db/migrations/00011_account_mail_delivery.sql",
+      "sha256": "0ba952c449bef67f0eee422d19ec8138f948f551340534f5da9b735568b3fd3f"
+    },
+    {
+      "path": "db/migrations/00012_account_avatar_recovery.sql",
+      "sha256": "9b9736b5f1dd0646c165533b3932929171289aeef9a80e4c965942f4a47c84c1"
+    },
+    {
+      "path": "db/migrations/00013_project_owner.sql",
+      "sha256": "6ec8c84b7fcedd538550ece134c2df3e35febfe13e4906c74aa91dd1fe878cc0"
+    },
+    {
+      "path": "db/migrations/00014_object_artifact_project_stop.sql",
+      "sha256": "3988694baa98efdfbe9e7b9cef8dfcca51a55be5e9b4880c0b72bb2c71907bd1"
+    },
+    {
+      "path": "db/migrations/00015_model_configuration.sql",
+      "sha256": "c1f4c4685d1710be4850994ce3e216d98c43201ac38b03e932fd610ab38b17af"
+    },
+    {
+      "path": "db/migrations/00016_object_project_work_maintenance.sql",
+      "sha256": "176ffc2d6bbaa9dbd1d1fb5fe7ea53692cb4d16d066aa82650baa2d49ebaa034"
+    },
+    {
+      "path": "db/migrations/00017_model_current_resolution.sql",
+      "sha256": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837"
+    },
+    {
+      "path": "db/migrations/00018_model_invocation_usage.sql",
+      "sha256": "b5d3f487853ff26bc2964a5c0958198c65f5048896935ed3fbfffc667c16a101"
+    }
+  ],
+  "static_conclusion": "No product blocker found in frozen eight paths; original shared read/write/mail/root contracts unchanged. Latest invalid provenance is rejected, not skipped. Legacy terminal-null ambiguity resolved by formal producer history, not SQL CHECK permissiveness.",
+  "history_review": {
+    "old_producer_commit": "c07ebcc",
+    "old_enqueue": "internal/central/account/delivery_handler.go:121-132 produces pending/cancelled only",
+    "old_cleanup": "internal/central/account/cleanup.go:82 cancels pending without attempts",
+    "current_claim": "internal/central/account/delivery.go:237 binds current attempt before work",
+    "current_finish": "internal/central/account/delivery_finish.go:227-237 finishes exact current attempt/fence",
+    "compatibility": "00010 permissive SQL and 00011 retention plus retryEligible broad terminal admission do not establish a legal sent/failed no-attempt producer. Root adopted narrowing downstream UI wording; read scanner remains unchanged."
+  },
+  "preparation_note": "First read-only plan extraction tried line-wise JSON and failed on pretty-printed multiline record; corrected bounded JSONDecoder extraction from same untouched raw, no product/test change."
+}

@@ -1,0 +1,28 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^(TestAccountHTTPInvitationDeliveryDirectory|TestAccountInvitationDeliveryReadSelectionAndBudget|TestAccountInvitationDeliveryReadMigrationAndPlan|TestAccountMailInvitationDirectoryChannelsAndOutcomes|TestAccountHTTPInvitationAndMailAdministration|TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority|TestAccountHTTPSystemUserDirectory)$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-06T05:44:26.706551+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01/runtime"
+  },
+  "exit": 1,
+  "seconds": 118.32,
+  "started_utc": "2026-10-06T05:42:28.385897+00:00"
+}

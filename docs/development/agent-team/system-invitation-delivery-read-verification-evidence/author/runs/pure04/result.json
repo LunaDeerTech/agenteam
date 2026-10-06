@@ -1,0 +1,80 @@
+{
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=2",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/gocache",
+    "TMPDIR": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/tmp",
+    "CGO_ENABLED": "1"
+  },
+  "input_sha256": "b47da79991dc9a643fb694e2d925b22cd0bcc732e5b38844f772d62c399c9f6e",
+  "commands": [
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-v",
+        "-count=1",
+        "-run",
+        "^TestHTTPInvitationDelivery",
+        "./internal/central/account"
+      ],
+      "exit": 0,
+      "seconds": 7.141,
+      "raw_sha256": "acdcdd33d363eb053aa6c0bc73ba684ad608918f872311653a3c9130ce324ee8"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-race",
+        "-v",
+        "-count=1",
+        "-run",
+        "^TestHTTPInvitationDelivery",
+        "./internal/central/account"
+      ],
+      "exit": 0,
+      "seconds": 11.063,
+      "raw_sha256": "626a3bdc6102f2a5903acdbe40570dc442e7ed913604c6f7bb0f9adfc2eb6aba"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "./internal/central/account/..."
+      ],
+      "exit": 0,
+      "seconds": 0.379,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/account"
+      ],
+      "exit": 0,
+      "seconds": 2.328,
+      "raw_sha256": "511d7ac1b1ccd539006c3ebc6bae5275e766f92a8980f7f4188461f8a7dfae6b"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./tests/account"
+      ],
+      "exit": 0,
+      "seconds": 0.353,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

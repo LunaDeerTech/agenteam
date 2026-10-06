@@ -1,0 +1,106 @@
+[
+  {
+    "run": "plan01",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "seconds": 192.986,
+    "raw_sha256": "036f4f1c8fe76fd240bf84d43808a52802776bbf640e26cf459b075855f558c8",
+    "top_levels": [
+      [
+        "PASS",
+        "TestAccountInvitationDeliveryReadMigrationAndPlan"
+      ]
+    ],
+    "double_cleanup": true,
+    "observed_resources": 7,
+    "observed_processes": 277
+  },
+  {
+    "run": "author01",
+    "exit": 1,
+    "actual_wait_completed": true,
+    "seconds": 118.32,
+    "raw_sha256": "a5e0b30d763281fa0052a41dcb7bcdc36d9b92b74b6b7d5bc7d30b7cc42e9681",
+    "top_levels": [
+      [
+        "PASS",
+        "TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority"
+      ],
+      [
+        "PASS",
+        "TestAccountHTTPInvitationAndMailAdministration"
+      ],
+      [
+        "PASS",
+        "TestAccountHTTPInvitationDeliveryDirectory"
+      ],
+      [
+        "PASS",
+        "TestAccountHTTPSystemUserDirectory"
+      ],
+      [
+        "PASS",
+        "TestAccountInvitationDeliveryReadMigrationAndPlan"
+      ],
+      [
+        "FAIL",
+        "TestAccountInvitationDeliveryReadSelectionAndBudget"
+      ],
+      [
+        "PASS",
+        "TestAccountMailInvitationDirectoryChannelsAndOutcomes"
+      ]
+    ],
+    "double_cleanup": true,
+    "observed_resources": 9,
+    "observed_processes": 94
+  },
+  {
+    "run": "author02",
+    "exit": 1,
+    "actual_wait_completed": true,
+    "seconds": 58.519,
+    "raw_sha256": "efd4ee7af678c7356d84531ca23f435eb8b560d7accd672249ffa4dabceaa27c",
+    "top_levels": [
+      [
+        "FAIL",
+        "TestAccountInvitationDeliveryReadSelectionAndBudget"
+      ]
+    ],
+    "double_cleanup": true,
+    "observed_resources": 7,
+    "observed_processes": 77
+  },
+  {
+    "run": "author03",
+    "exit": 1,
+    "actual_wait_completed": true,
+    "seconds": 48.29,
+    "raw_sha256": "6dff4f2a32531f2e6837d4e5bf72fe7a291962a9d5d16231a9198abc8bc53bc2",
+    "top_levels": [
+      [
+        "FAIL",
+        "TestAccountInvitationDeliveryReadSelectionAndBudget"
+      ]
+    ],
+    "double_cleanup": true,
+    "observed_resources": 7,
+    "observed_processes": 74
+  },
+  {
+    "run": "author04",
+    "exit": 0,
+    "actual_wait_completed": true,
+    "seconds": 53.908,
+    "raw_sha256": "252760ec67eaad76ffd28e3903739b9e3a3dfbf5a581d07ef41ef7fa8f60b101",
+    "top_levels": [
+      [
+        "PASS",
+        "TestAccountInvitationDeliveryReadSelectionAndBudget"
+      ]
+    ],
+    "double_cleanup": true,
+    "observed_resources": 7,
+    "observed_processes": 71
+  }
+]

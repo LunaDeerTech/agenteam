@@ -1,0 +1,93 @@
+{
+  "result": "PASS",
+  "scope": "Independent acceptance of D27 invitation latest-delivery read, eight fixed candidate files and 00019; not invitation UI or full D27.",
+  "candidate_manifest": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/input04.json",
+  "candidate_manifest_sha256": "41382f9f482ddad686d76ae1492361031fe6a2485fa012c2a10708ee09b9fe12",
+  "accepted_product_baseline": "7ef3e30cf06b5df6d19516f24c34855a8308ef05",
+  "before_head": "963ce3ffd150c4a23ba2bee9e791fad4d060fb77",
+  "after_head": "963ce3ffd150c4a23ba2bee9e791fad4d060fb77",
+  "source_hashes_unchanged": true,
+  "author_report": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/author-report.md",
+  "author_report_sha256": "6e87f584400953a6833e9dd9fd40a26139db6cf4819e59ce549080d8fd2d5be2",
+  "author_evidence": "Six unchanged passing groups from author01 (whole command exit1) plus final Selection author04 exit0; all original author01/02/03 failures retained. Full ordinary/race/vet/compile/build and actual 3s/parent/tail tests reused by identical final source.",
+  "static_review": "All eight files reviewed; SQL latest selection/provenance/current-attempt/sentinel, snapshot cutoff/current authority, DTO/schema closure, 3s local cancellation, sole index migration. Actual raw 11 EXPLAIN records reparsed; migration helper section matches old evidence SHA c71803406c7e0fc7d9087e303e4ac13627d31a3b6e3cfdb2351895cfd5ebdef2.",
+  "independent_compile": {
+    "actual_exit": 0,
+    "seconds": 89.223,
+    "actual_wait": true,
+    "raw_sha256": "8a6011b5b066d1c33c9ffa42ac7d272a576777e0d3965b1a19a748bc5af9fa9c",
+    "meaning": "race integration compile only; no-tests output is not counted as behavioral PASS"
+  },
+  "independent_dynamic": {
+    "actual_exit": 0,
+    "seconds": 145.337,
+    "actual_wait": true,
+    "ended_utc": "2026-10-06T06:11:41.145984+00:00",
+    "raw_sha256": "fc39453f682e209294f9fab5e30071c823f0cc975c2ae1d3eedf2501690bda75",
+    "tests": [
+      {
+        "name": "TestInvitationIndependentHTTPAtomicProjection",
+        "seconds": 6.74,
+        "result": "PASS"
+      },
+      {
+        "name": "TestInvitationIndependentMailOriginsAndLifecycle",
+        "seconds": 10.34,
+        "result": "PASS"
+      }
+    ],
+    "original_budgets_unchanged": true
+  },
+  "termination": {
+    "exact_resource_ids_double_absent": 9,
+    "observed_pid_starttimes_all_gone": 212,
+    "monitor_errors": 0,
+    "baseline_unchanged": true,
+    "runtime_empty": true,
+    "subreaper_enabled": true,
+    "adopted_waits": [],
+    "resource_window_released": true
+  },
+  "limits": [
+    "No invitation UI/browser work, production deployment, mail inbox-arrival promise, new delivery write capability or entire D27 acceptance.",
+    "Cost scale is deterministic SQL seeding, not real 100000 business deliveries; indexed skew still scans its own 2049 histories.",
+    "Earlier DB LOCK_TIMEOUT=1s is distinct from true local3s cancellation; PG57014 need not wrap context.DeadlineExceeded.",
+    "Old sent/failed without attempt is not established by formal producer history; SQL CHECK permissiveness and retryEligible admission are not historical legality proof. Root narrowed downstream UI wording, read scanner unchanged.",
+    "No stopped Object/tools task was resumed. Mandatory object fixture was used only as the existing Account test-security dependency.",
+    "Diagnostic plan01 has two old test-source originals missing from its archive; use author01 exact migration/plan source and actual raw as the reconstructable final migration evidence.",
+    "Historical pure03 result lacks recorded environment; it is not the sole final compile/vet evidence, which is provided by complete later pure04/pure05 and independent compile01 records."
+  ],
+  "writes": "Only this private verifier scratch; no product file, lock, fixture, migration or Git mutation.",
+  "frozen": true,
+  "frozen_at_utc": "2026-10-06T06:13:26.811697+00:00",
+  "artifact_hashes": {
+    "candidate-input.json": "41382f9f482ddad686d76ae1492361031fe6a2485fa012c2a10708ee09b9fe12",
+    "candidate-binding.json": "c0750e44de647a4ed1961580ec8add51aed9dd1b8ba0513e4d4da057a7576775",
+    "static-review.json": "010eb3b919b3c012e3328a61a0f58f62c149edf72e5e96e8a1bb28837cd09aab",
+    "author-evidence-review.json": "782165d1f7b8ec6eab0798c7327259fb05610ffa8e5cd8d20b3a4a914483ed10",
+    "probes/invitation_http_independent_test.go": "4bda35ef09bbdb8df09db9cc8d66701a9c3164952f0b7c3832526588035e8099",
+    "probes/invitation_mail_independent_test.go": "5e20398054ff9b7e7d2b511ea604192d8b0397291c6d2b12422082ca49dcfcf0",
+    "overlay.json": "e34aa1ce636f687d95b6e5dd7cf0ab3d7a5054d4dcc205102b01bb51ca788933",
+    "run_fixture.py": "3e55fc022c0ce3a75e4a07c3c14dbc75341dbe6ea88aa4971fe6b4407951cbac",
+    "runs/compile01/command.json": "008330f88361087ab5403b953fdd66dc546f3dae8151b73110098ae95e0c6f75",
+    "runs/compile01/raw.log": "8a6011b5b066d1c33c9ffa42ac7d272a576777e0d3965b1a19a748bc5af9fa9c",
+    "runs/independent01/account-invitation_independent_test.go.txt": "4bda35ef09bbdb8df09db9cc8d66701a9c3164952f0b7c3832526588035e8099",
+    "runs/independent01/accountmail-invitation_independent_test.go.txt": "5e20398054ff9b7e7d2b511ea604192d8b0397291c6d2b12422082ca49dcfcf0",
+    "runs/independent01/adopted-waits.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "runs/independent01/baseline.json": "ae4d9070aaed47667742152e284fc31716cca0ac4d636d0d92a95033643503a3",
+    "runs/independent01/cleanup.json": "81fd8c9426f3fd2fd73a8f31f592af0708a1cb8b964baafd132575c8b524ffe1",
+    "runs/independent01/command.json": "78522bae28c8794e58186c4f138a11f54ee438b20d1ee960c34069e763d1f1e6",
+    "runs/independent01/driver.py.txt": "3e55fc022c0ce3a75e4a07c3c14dbc75341dbe6ea88aa4971fe6b4407951cbac",
+    "runs/independent01/input-after.json": "1b1f55008e3f3454bf2df37fa7a5d39f2d1ee77758b8407e44d3371378f7a20e",
+    "runs/independent01/input-before.json": "1b1f55008e3f3454bf2df37fa7a5d39f2d1ee77758b8407e44d3371378f7a20e",
+    "runs/independent01/monitor-errors.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
+    "runs/independent01/observed-processes.json": "9bac1ade7d37465702c4715314214f95fb308b0a210809bf7ed0e1f70d22ebed",
+    "runs/independent01/observed-resources.json": "f9e0867fc022ea31f550a0b153a94a9e28218bcad325d01034d4d6d0cb1f30e7",
+    "runs/independent01/overlay.json": "e34aa1ce636f687d95b6e5dd7cf0ab3d7a5054d4dcc205102b01bb51ca788933",
+    "runs/independent01/raw.log": "fc39453f682e209294f9fab5e30071c823f0cc975c2ae1d3eedf2501690bda75",
+    "runs/independent01/result.json": "c4ed76c437e2c4d955cd3477c471e0334786edadaa9e29a42271beb75505a82c",
+    "runs/independent01/verification-input.json": "8f10a209960483059949d24094126146f1079287b2d987c7438732e83598cfbd"
+  },
+  "accepted_product_commit": "9b3201547f9b7b61fd9716a6ba6540084961496c",
+  "accepted_commit_ten_file_hashes_match": true
+}

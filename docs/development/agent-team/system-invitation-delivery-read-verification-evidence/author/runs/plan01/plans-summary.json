@@ -1,0 +1,372 @@
+[
+  {
+    "stage": "before",
+    "case": "normal",
+    "execution_ms": 216.105,
+    "intent_nodes": [
+      {
+        "Node Type": "Seq Scan",
+        "Alias": "i",
+        "Index Name": null,
+        "Actual Rows": 1,
+        "Actual Loops": 26,
+        "Rows Removed by Filter": 102077,
+        "Shared Hit Blocks": 43524,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "r",
+        "Index Name": "delivery_intents_pkey",
+        "Actual Rows": 1,
+        "Actual Loops": 26,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 104,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "parent_intent",
+        "Index Name": "delivery_intents_job_id_key",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": 0,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      }
+    ]
+  },
+  {
+    "stage": "before",
+    "case": "next-page",
+    "execution_ms": 175.756,
+    "intent_nodes": [
+      {
+        "Node Type": "Seq Scan",
+        "Alias": "i",
+        "Index Name": null,
+        "Actual Rows": 103,
+        "Actual Loops": 20,
+        "Rows Removed by Filter": 101975,
+        "Shared Hit Blocks": 33480,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "r",
+        "Index Name": "delivery_intents_pkey",
+        "Actual Rows": 1,
+        "Actual Loops": 20,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 80,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "parent_intent",
+        "Index Name": "account_delivery_origin",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": 0,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      }
+    ]
+  },
+  {
+    "stage": "before",
+    "case": "empty",
+    "execution_ms": 0.086,
+    "intent_nodes": [
+      {
+        "Node Type": "Seq Scan",
+        "Alias": "i",
+        "Index Name": null,
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": 0,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "r",
+        "Index Name": "delivery_intents_pkey",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "parent_intent",
+        "Index Name": "account_delivery_origin",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": 0,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      }
+    ]
+  },
+  {
+    "stage": "before",
+    "case": "time-ties",
+    "execution_ms": 284.932,
+    "intent_nodes": [
+      {
+        "Node Type": "Seq Scan",
+        "Alias": "i",
+        "Index Name": null,
+        "Actual Rows": 69,
+        "Actual Loops": 30,
+        "Rows Removed by Filter": 102009,
+        "Shared Hit Blocks": 50220,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "r",
+        "Index Name": "delivery_intents_pkey",
+        "Actual Rows": 1,
+        "Actual Loops": 30,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 120,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "parent_intent",
+        "Index Name": "delivery_intents_job_id_key",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": 0,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      }
+    ]
+  },
+  {
+    "stage": "before",
+    "case": "skew",
+    "execution_ms": 11.99,
+    "intent_nodes": [
+      {
+        "Node Type": "Seq Scan",
+        "Alias": "i",
+        "Index Name": null,
+        "Actual Rows": 2049,
+        "Actual Loops": 1,
+        "Rows Removed by Filter": 100029,
+        "Shared Hit Blocks": 1674,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "r",
+        "Index Name": "delivery_intents_pkey",
+        "Actual Rows": 1,
+        "Actual Loops": 1,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 4,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "parent_intent",
+        "Index Name": "account_delivery_origin",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": 0,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      }
+    ]
+  },
+  {
+    "stage": "after",
+    "case": "normal",
+    "execution_ms": 0.392,
+    "intent_nodes": [
+      {
+        "Node Type": "Index Scan",
+        "Alias": "i",
+        "Index Name": "account_invitation_delivery_link",
+        "Actual Rows": 1,
+        "Actual Loops": 26,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 101,
+        "Shared Read Blocks": 3
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "r",
+        "Index Name": "delivery_intents_pkey",
+        "Actual Rows": 1,
+        "Actual Loops": 26,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 104,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "parent_intent",
+        "Index Name": "delivery_intents_job_id_key",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": 0,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      }
+    ]
+  },
+  {
+    "stage": "after",
+    "case": "next-page",
+    "execution_ms": 3.754,
+    "intent_nodes": [
+      {
+        "Node Type": "Index Scan",
+        "Alias": "i",
+        "Index Name": "account_invitation_delivery_link",
+        "Actual Rows": 103,
+        "Actual Loops": 20,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 113,
+        "Shared Read Blocks": 12
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "r",
+        "Index Name": "delivery_intents_pkey",
+        "Actual Rows": 1,
+        "Actual Loops": 20,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 80,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "parent_intent",
+        "Index Name": "account_invitation_delivery_link",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": 0,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      }
+    ]
+  },
+  {
+    "stage": "after",
+    "case": "empty",
+    "execution_ms": 0.072,
+    "intent_nodes": [
+      {
+        "Node Type": "Index Scan",
+        "Alias": "i",
+        "Index Name": "account_invitation_delivery_link",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "r",
+        "Index Name": "delivery_intents_pkey",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "parent_intent",
+        "Index Name": "account_invitation_delivery_link",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": 0,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      }
+    ]
+  },
+  {
+    "stage": "after",
+    "case": "time-ties",
+    "execution_ms": 4.569,
+    "intent_nodes": [
+      {
+        "Node Type": "Index Scan",
+        "Alias": "i",
+        "Index Name": "account_invitation_delivery_link",
+        "Actual Rows": 69,
+        "Actual Loops": 30,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 165,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "r",
+        "Index Name": "delivery_intents_pkey",
+        "Actual Rows": 1,
+        "Actual Loops": 30,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 120,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "parent_intent",
+        "Index Name": "delivery_intents_job_id_key",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": 0,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      }
+    ]
+  },
+  {
+    "stage": "after",
+    "case": "skew",
+    "execution_ms": 4.066,
+    "intent_nodes": [
+      {
+        "Node Type": "Index Scan",
+        "Alias": "i",
+        "Index Name": "account_invitation_delivery_link",
+        "Actual Rows": 2049,
+        "Actual Loops": 1,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 49,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "r",
+        "Index Name": "delivery_intents_pkey",
+        "Actual Rows": 1,
+        "Actual Loops": 1,
+        "Rows Removed by Filter": null,
+        "Shared Hit Blocks": 4,
+        "Shared Read Blocks": 0
+      },
+      {
+        "Node Type": "Index Scan",
+        "Alias": "parent_intent",
+        "Index Name": "account_invitation_delivery_link",
+        "Actual Rows": 0,
+        "Actual Loops": 0,
+        "Rows Removed by Filter": 0,
+        "Shared Hit Blocks": 0,
+        "Shared Read Blocks": 0
+      }
+    ]
+  }
+]

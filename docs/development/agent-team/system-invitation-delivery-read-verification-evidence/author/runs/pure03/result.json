@@ -1,0 +1,29 @@
+{
+  "input_sha256": "db030d2d0bc0ba44e8beb26e8cc2ef00f5d5d82c490be63ef4756f3a6f444c1b",
+  "commands": [
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "test",
+        "-tags=integration",
+        "-run",
+        "^$",
+        "./tests/account"
+      ],
+      "exit": 0,
+      "seconds": 3.037,
+      "raw_sha256": "12205f05c843336d120f4944fe6edea827c6a522da9f82a7cc0aa6ad9dcfa676"
+    },
+    {
+      "argv": [
+        "/workspace/toolchains/go1.27.1/bin/go",
+        "vet",
+        "-tags=integration",
+        "./tests/account"
+      ],
+      "exit": 0,
+      "seconds": 0.437,
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -1,0 +1,42 @@
+{
+  "double_cleanup": true,
+  "driver_exit": 1,
+  "monitor_errors": 0,
+  "observed_processes": 94,
+  "observed_resources": 9,
+  "run": "author01",
+  "run_directory": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author01",
+  "selected_tests_passed": false,
+  "source_files_unchanged": true,
+  "top_levels": [
+    [
+      "PASS",
+      "TestAccountHTTPAdministratorPagesSettingsAndCurrentAuthority"
+    ],
+    [
+      "PASS",
+      "TestAccountHTTPInvitationAndMailAdministration"
+    ],
+    [
+      "PASS",
+      "TestAccountHTTPInvitationDeliveryDirectory"
+    ],
+    [
+      "PASS",
+      "TestAccountHTTPSystemUserDirectory"
+    ],
+    [
+      "PASS",
+      "TestAccountInvitationDeliveryReadMigrationAndPlan"
+    ],
+    [
+      "FAIL",
+      "TestAccountInvitationDeliveryReadSelectionAndBudget"
+    ],
+    [
+      "PASS",
+      "TestAccountMailInvitationDirectoryChannelsAndOutcomes"
+    ]
+  ],
+  "verification_inputs_unchanged": true
+}

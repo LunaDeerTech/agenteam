@@ -1,0 +1,34 @@
+{
+  "input_sha256": "b47da79991dc9a643fb694e2d925b22cd0bcc732e5b38844f772d62c399c9f6e",
+  "base": "7ef3e30cf06b5df6d19516f24c34855a8308ef05",
+  "scoped_diff_check_exit": 0,
+  "new_and_existing_files_whitespace_clean": true,
+  "gofmt_clean": true,
+  "openapi_semantic_changes": [
+    "/components/schemas/Invitation/properties/latest_delivery",
+    "/components/schemas/Invitation/required",
+    "/components/schemas/InvitationDelivery",
+    "/paths//api/v1/system/invitations/get/description"
+  ],
+  "resolved_refs": 213,
+  "migration_prefix_sha256": {
+    "00001_database_foundation.sql": "76e8ea46d34e0c24ed6a6e46c5f480301ba3fd60662ad803a8eb805ab4ed88ab",
+    "00002_audit.sql": "89afdb623e7293dc83a189ff0cbed3a3a407794d0a2bd0ae26167d7d9517a45c",
+    "00003_secret.sql": "485302f3dddc0acfb1439206322d7f4a4b0610eddaa3d3517ef7e39cb9e84c2f",
+    "00004_outbound.sql": "07dfed945570b1ec4fe430106507244c3004c7cb1ac5bc3a7c169257df6c9739",
+    "00005_object_storage.sql": "7a9e10648b856587baf4169ad08041e130e67b25fb38879947e89677211cb178",
+    "00006_artifact_download.sql": "8196d8ca9671c821605a8949cefc0c6c4b90d557d8fc4ccb95674ebd0e14ac3e",
+    "00007_object_transfer.sql": "d9986325ee017696cf0489357c8821f97be87349fea55a1e34ca8ef1b1f54ad7",
+    "00008_transactional_outbox.sql": "53c89147a94e90466d0d97a634a8d2fab0455a1c5ebfc2554baa712e42f568a9",
+    "00009_outbox_unattempted_stop.sql": "32e6243a75ec26bedee810bd326feabc64f5a48c5b19986232027eee954b4c8f",
+    "00010_account_session_smtp.sql": "5a24fb23d01d706bf0548b8d667dc4754a3e7e558ef6fb104d396763d084a7ed",
+    "00011_account_mail_delivery.sql": "0ba952c449bef67f0eee422d19ec8138f948f551340534f5da9b735568b3fd3f",
+    "00012_account_avatar_recovery.sql": "9b9736b5f1dd0646c165533b3932929171289aeef9a80e4c965942f4a47c84c1",
+    "00013_project_owner.sql": "6ec8c84b7fcedd538550ece134c2df3e35febfe13e4906c74aa91dd1fe878cc0",
+    "00014_object_artifact_project_stop.sql": "3988694baa98efdfbe9e7b9cef8dfcca51a55be5e9b4880c0b72bb2c71907bd1",
+    "00015_model_configuration.sql": "c1f4c4685d1710be4850994ce3e216d98c43201ac38b03e932fd610ab38b17af",
+    "00016_object_project_work_maintenance.sql": "176ffc2d6bbaa9dbd1d1fb5fe7ea53692cb4d16d066aa82650baa2d49ebaa034",
+    "00017_model_current_resolution.sql": "e419763fbbedfaea773f0dba37bec584fbfa7993f07d6d1e66f2547818abc837",
+    "00018_model_invocation_usage.sql": "b5d3f487853ff26bc2964a5c0958198c65f5048896935ed3fbfffc667c16a101"
+  }
+}

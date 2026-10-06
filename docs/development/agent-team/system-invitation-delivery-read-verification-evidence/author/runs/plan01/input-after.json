@@ -1,0 +1,24 @@
+{
+  "files": {
+    "api/openapi/account.json": "7f922623652a67f3e56aa013c8da571ca2d79f7454e212b67f04be22edb5fa41",
+    "db/migrations/00019_account_invitation_delivery_read.sql": null,
+    "go.mod": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+    "go.sum": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+    "internal/central/account/http_facade.go": "6e8ca0b3ad8b8f18fbfeafb1981752239daeaca6f9953cbc1475261d72baf222",
+    "internal/central/account/http_invitation_delivery_test.go": "205ceee05e2e19839c46cb5fc43c7e42badb6ef0ca903781b9d2d2b48d94a27e",
+    "internal/central/account/http_system.go": "e25b35999c04cddbf64a6f03e573999e0bafae3a39d933c8163a32ca82269248",
+    "tests/account/http_invitation_delivery_test.go": null,
+    "tests/account/invitation_delivery_query_test.go": "29ca3605d5eea7cb42498452c2f78be28b9df5e5399c088991331ffa44d5869d",
+    "tests/accountmail/invitation_directory_test.go": null
+  },
+  "head": "d06afca8558a2579a646714f3fd8a0968d8827b1",
+  "tracked_product_delta": [
+    "api/openapi/account.json",
+    "internal/central/account/http_facade.go",
+    "internal/central/account/http_system.go"
+  ],
+  "untracked_product_paths": [
+    "internal/central/account/http_invitation_delivery_test.go",
+    "tests/account/invitation_delivery_query_test.go"
+  ]
+}

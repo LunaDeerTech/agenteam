@@ -1,0 +1,37 @@
+{
+  "argv": [
+    "/workspace/toolchains/go1.27.1/bin/go",
+    "test",
+    "-race",
+    "-tags=integration",
+    "-run",
+    "^$",
+    "-count=1",
+    "./tests/account",
+    "./tests/accountmail"
+  ],
+  "cwd": "/workspace/agenteam",
+  "env": {
+    "GOTOOLCHAIN": "local",
+    "GOENV": "off",
+    "GOWORK": "off",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOCACHE": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/gocache",
+    "GOTMPDIR": "/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/tmp",
+    "CGO_ENABLED": "1",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -overlay=/workspace/scratch/agenteam-invitation-delivery-verification-k987kbp3/overlay.json"
+  },
+  "inputs": {
+    "overlay.json": "e34aa1ce636f687d95b6e5dd7cf0ab3d7a5054d4dcc205102b01bb51ca788933",
+    "probes/invitation_http_independent_test.go": "4bda35ef09bbdb8df09db9cc8d66701a9c3164952f0b7c3832526588035e8099",
+    "probes/invitation_mail_independent_test.go": "5e20398054ff9b7e7d2b511ea604192d8b0397291c6d2b12422082ca49dcfcf0"
+  },
+  "start_utc": "2026-10-06T06:07:33.279436+00:00",
+  "exit": 0,
+  "actual_wait_completed": true,
+  "seconds": 89.223,
+  "inputs_unchanged": true,
+  "raw_sha256": "8a6011b5b066d1c33c9ffa42ac7d272a576777e0d3965b1a19a748bc5af9fa9c"
+}

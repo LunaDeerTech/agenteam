@@ -1,0 +1,161 @@
+//go:build integration
+
+package account_test
+
+import (
+	"net/url"
+	"strconv"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+)
+
+// This independent overlay exercises the actual HTTP root. Direct SQL below
+// changes only this test's rows to create otherwise unreachable corrupt facts.
+func TestInvitationIndependentHTTPAtomicProjection(t *testing.T) {
+	f := newHTTPFixture(t)
+	admin := f.admin()
+	member := f.invite(admin, "independent-member@example.test", "independent-member")
+	adminID := httpString(t, httpObject(t, admin.profile(), "user"), "id")
+	memberID := httpString(t, httpObject(t, member.profile(), "user"), "id")
+	const path = "/api/v1/system/invitations"
+	for _, email := range []string{"independent-a@example.test", "independent-b@example.test", "independent-c@example.test"} {
+		receipt := admin.request("POST", path, map[string]any{"email": email}, id[struct{}](t).String(), admin.csrf).want(t, 201).object(t)
+		if len(receipt) != 3 {
+			t.Fatal("old receipt shape changed")
+		}
+		admin.waitMail(httpString(t, receipt, "job_id"), "sent")
+	}
+	conn := f.db.Connect(t)
+	page := admin.request("GET", path+"?limit=2", nil, "", "").want(t, 200).object(t)
+	if len(page) != 2 || len(httpItems(t, page)) != 2 {
+		t.Fatal("page and cursor cardinality")
+	}
+	cursor := httpString(t, page, "next_cursor")
+	first := httpItems(t, page)[0].(map[string]any)
+	firstID := httpString(t, first, "id")
+	oldJob := httpString(t, httpObject(t, first, "latest_delivery"), "job_id")
+	next := admin.request("GET", path+"?limit=2&cursor="+url.QueryEscape(cursor), nil, "", "").want(t, 200).object(t)
+	if len(next) != 1 || len(httpItems(t, next)) != 1 {
+		t.Fatal("last page cardinality")
+	}
+	sentinel := httpItems(t, next)[0].(map[string]any)
+	sentinelJob := httpString(t, httpObject(t, sentinel, "latest_delivery"), "job_id")
+	if sentinel["id"] == firstID {
+		t.Fatal("cursor duplicated invitation")
+	}
+	// The unreturned limit+1 row must be validated before any successful page.
+	var originalAttempt, foreignAttempt string
+	if e := conn.QueryRow(ctxFor(t), `SELECT current_attempt_id::text FROM agenteam_account.mail_jobs WHERE id=$1`, sentinelJob).Scan(&originalAttempt); e != nil {
+		t.Fatal(e)
+	}
+	if e := conn.QueryRow(ctxFor(t), `SELECT current_attempt_id::text FROM agenteam_account.mail_jobs WHERE id=$1`, oldJob).Scan(&foreignAttempt); e != nil || originalAttempt == foreignAttempt {
+		t.Fatal("two independent completed attempts required", e)
+	}
+	zeroFailure := func() {
+		t.Helper()
+		response := admin.request("GET", path+"?limit=2", nil, "", "")
+		response.problem(t, 503, "DEPENDENCY_UNAVAILABLE")
+		body := response.object(t)
+		for _, name := range []string{"items", "next_cursor", "latest_delivery", "email", "job_id", "channel", "attempt_result"} {
+			if _, exists := body[name]; exists {
+				t.Fatal("failure exposed projection member", name)
+			}
+		}
+	}
+	func() {
+		defer func() {
+			if _, e := conn.Exec(ctxFor(t), `UPDATE agenteam_account.mail_jobs SET current_attempt_id=$2 WHERE id=$1`, sentinelJob, originalAttempt); e != nil {
+				t.Error("restore owned attempt mapping", e)
+			}
+		}()
+		if _, e := conn.Exec(ctxFor(t), `UPDATE agenteam_account.mail_jobs SET current_attempt_id=$2 WHERE id=$1`, sentinelJob, foreignAttempt); e != nil {
+			t.Fatal(e)
+		}
+		zeroFailure()
+	}()
+	admin.request("GET", path+"?limit=2", nil, "", "").want(t, 200)
+	t.Log("foreign current attempt on unreturned sentinel: HTTP 503 and no page, restored actual success")
+	// A new formal self-origin must change delivery without moving the cursor.
+	if _, e := conn.Exec(ctxFor(t), `UPDATE agenteam_account.invitations SET last_delivery_at=clock_timestamp()-interval '61 seconds' WHERE id=$1`, firstID); e != nil {
+		t.Fatal(e)
+	}
+	resent := admin.request("POST", path+"/"+firstID+"/resend", map[string]any{"version": first["version"]}, id[struct{}](t).String(), admin.csrf).want(t, 202).object(t)
+	newJob := httpString(t, resent, "job_id")
+	if newJob == oldJob {
+		t.Fatal("resend did not accept a new job")
+	}
+	admin.waitMail(newJob, "sent")
+	changed := admin.request("GET", path+"?limit=2", nil, "", "").want(t, 200).object(t)
+	current := httpItems(t, changed)[0].(map[string]any)
+	if changed["next_cursor"] != cursor || current["id"] != firstID || current["version"] != resent["version"] {
+		t.Fatal("resend moved invitation boundary or lost actual version")
+	}
+	for _, field := range []string{"email", "created_at", "expires_at"} {
+		if first[field] != current[field] {
+			t.Fatal("resend altered invitation field", field)
+		}
+	}
+	delivery := httpObject(t, current, "latest_delivery")
+	wantedKeys := []string{"job_id", "accepted_at", "phase", "attempts", "version", "channel", "attempt_result", "reason"}
+	if len(current) != 6 || len(delivery) != len(wantedKeys) {
+		t.Fatal("wire is not closed six/eight field projection")
+	}
+	for _, key := range wantedKeys {
+		if _, exists := delivery[key]; !exists {
+			t.Fatal("missing delivery key", key)
+		}
+	}
+	var accepted time.Time
+	var jobVersion int64
+	var ownOrigin bool
+	if e := conn.QueryRow(ctxFor(t), `SELECT c.completed_at,j.version,i.id=i.origin_intent_id FROM agenteam_account.delivery_intents i JOIN agenteam_account.commands c ON c.id=i.id JOIN agenteam_account.mail_jobs j ON j.id=i.job_id WHERE i.job_id=$1`, newJob).Scan(&accepted, &jobVersion, &ownOrigin); e != nil {
+		t.Fatal(e)
+	}
+	instant, e := foundation.NewInstant(accepted)
+	if e != nil || !ownOrigin || delivery["job_id"] != newJob || delivery["accepted_at"] != instant.String() || delivery["version"] != strconv.FormatInt(jobVersion, 10) || delivery["phase"] != "sent" || delivery["channel"] != "backend_log" || delivery["attempt_result"] != "sent" || delivery["attempts"] != "1" || delivery["reason"] != "sent" {
+		t.Fatal("selected receipt/accepted time/current attempt differs from persisted safe facts", e)
+	}
+	// Corrupt the newest source's provenance, retaining the older successful
+	// self-origin. A successful fallback would hide the corruption.
+	func() {
+		defer func() {
+			if _, e := conn.Exec(ctxFor(t), `UPDATE agenteam_account.delivery_intents SET initiator_id=$2 WHERE job_id=$1`, newJob, adminID); e != nil {
+				t.Error("restore owned provenance", e)
+			}
+		}()
+		if _, e := conn.Exec(ctxFor(t), `UPDATE agenteam_account.delivery_intents SET initiator_id=$2 WHERE job_id=$1`, newJob, memberID); e != nil {
+			t.Fatal(e)
+		}
+		zeroFailure()
+	}()
+	admin.request("GET", path, nil, "", "").want(t, 200)
+	t.Log("newest self-origin selected by formal acceptance; corrupt newest provenance does not fall back; cursor unchanged")
+	member.request("GET", path+"?cursor="+url.QueryEscape(cursor), nil, "", "").problem(t, 403, "FORBIDDEN")
+	func() {
+		defer func() {
+			if _, e := conn.Exec(ctxFor(t), `UPDATE agenteam_account.users SET role='admin' WHERE id=$1`, adminID); e != nil {
+				t.Error("restore owned role", e)
+			}
+		}()
+		if _, e := conn.Exec(ctxFor(t), `UPDATE agenteam_account.users SET role='user' WHERE id=$1`, adminID); e != nil {
+			t.Fatal(e)
+		}
+		admin.request("GET", path+"?cursor="+url.QueryEscape(cursor), nil, "", "").problem(t, 403, "FORBIDDEN")
+	}()
+	revoked := admin.request("POST", path+"/"+firstID+"/revoke", map[string]any{"version": resent["version"]}, id[struct{}](t).String(), admin.csrf).want(t, 204)
+	if len(revoked.data) != 0 {
+		t.Fatal("revoke 204 body is not empty")
+	}
+	remaining := httpItems(t, admin.request("GET", path, nil, "", "").want(t, 200).object(t))
+	if len(remaining) != 2 {
+		t.Fatal("formal revoke changed unrelated invitation rows")
+	}
+	for _, raw := range remaining {
+		if raw.(map[string]any)["id"] == firstID {
+			t.Fatal("formally revoked invitation remains visible")
+		}
+	}
+	t.Log("same signed cursor grants no role authority; formal revoke returns actual empty 204 and removes only its row")
+}

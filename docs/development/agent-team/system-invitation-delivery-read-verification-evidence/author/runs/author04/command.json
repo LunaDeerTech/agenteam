@@ -1,0 +1,28 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "sh",
+    "scripts/test-security.sh",
+    "-run",
+    "^TestAccountInvitationDeliveryReadSelectionAndBudget$"
+  ],
+  "cwd": "/workspace/agenteam",
+  "ended_utc": "2026-10-06T06:00:01.481899+00:00",
+  "env": {
+    "AGENTEAM_GO": "/workspace/toolchains/go1.27.1/bin/go",
+    "AGENTEAM_MINIO_BINARY": "/workspace/scratch/agenteam-d27-directory-verification-hyadlp89/bin/minio",
+    "CGO_ENABLED": "1",
+    "GOCACHE": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/gocache",
+    "GOENV": "off",
+    "GOFLAGS": "-mod=readonly -buildvcs=false -p=1 -v",
+    "GOMODCACHE": "/workspace/scratch/agenteam-d27-directory-author-EvHmqxns/modcache",
+    "GOPROXY": "off",
+    "GOSUMDB": "off",
+    "GOTOOLCHAIN": "local",
+    "GOWORK": "off",
+    "TMPDIR": "/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW/runs/author04/runtime"
+  },
+  "exit": 0,
+  "seconds": 53.908,
+  "started_utc": "2026-10-06T05:59:07.573664+00:00"
+}

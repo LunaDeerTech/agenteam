@@ -1,0 +1,186 @@
+=== RUN   TestHTTPInvitationDeliveryProjectionAndSchema
+--- PASS: TestHTTPInvitationDeliveryProjectionAndSchema (0.00s)
+=== RUN   TestHTTPInvitationDeliveryCurrentAttemptAndLegacy
+=== RUN   TestHTTPInvitationDeliveryCurrentAttemptAndLegacy/sent
+=== RUN   TestHTTPInvitationDeliveryCurrentAttemptAndLegacy/failed
+=== RUN   TestHTTPInvitationDeliveryCurrentAttemptAndLegacy/unknown
+=== RUN   TestHTTPInvitationDeliveryCurrentAttemptAndLegacy/cancelled
+--- PASS: TestHTTPInvitationDeliveryCurrentAttemptAndLegacy (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryCurrentAttemptAndLegacy/sent (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryCurrentAttemptAndLegacy/failed (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryCurrentAttemptAndLegacy/unknown (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryCurrentAttemptAndLegacy/cancelled (0.00s)
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/provenance/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/provenance/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/provenance/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/job-version/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/job-version/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/job-version/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/protocol/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/protocol/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/protocol/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/channel/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/channel/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/channel/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-closed/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-closed/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-closed/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-joined/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-joined/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-joined/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/job/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/job/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/job/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/source/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/source/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/source/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/phase/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/phase/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/phase/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-terminal/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-terminal/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-terminal/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/expires/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/expires/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/expires/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/mapping/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/mapping/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/mapping/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/fence/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/fence/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/fence/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/wrong-job/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/wrong-job/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/wrong-job/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/result/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/result/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/result/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/id/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/id/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/id/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/created/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/created/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/created/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/missing-accepted/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/missing-accepted/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/missing-accepted/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/negative/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/negative/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/negative/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/too-many/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/too-many/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/too-many/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/reason/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/reason/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/reason/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/missing-attempt/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/missing-attempt/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/missing-attempt/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/wrong-fence/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/wrong-fence/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/wrong-fence/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/version/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/version/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/version/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/accepted/0
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/accepted/1
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/accepted/2
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/scan
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/rows
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/after-close
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/cancel
+=== RUN   TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/cursor
+--- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/provenance/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/provenance/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/provenance/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/job-version/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/job-version/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/job-version/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/protocol/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/protocol/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/protocol/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/channel/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/channel/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/channel/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-closed/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-closed/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-closed/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-joined/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-joined/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-joined/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/job/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/job/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/job/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/source/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/source/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/source/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/phase/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/phase/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/phase/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-terminal/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-terminal/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/not-terminal/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/expires/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/expires/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/expires/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/mapping/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/mapping/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/mapping/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/fence/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/fence/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/fence/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/wrong-job/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/wrong-job/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/wrong-job/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/result/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/result/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/result/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/id/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/id/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/id/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/created/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/created/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/created/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/missing-accepted/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/missing-accepted/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/missing-accepted/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/negative/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/negative/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/negative/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/too-many/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/too-many/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/too-many/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/reason/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/reason/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/reason/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/missing-attempt/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/missing-attempt/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/missing-attempt/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/wrong-fence/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/wrong-fence/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/wrong-fence/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/version/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/version/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/version/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/accepted/0 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/accepted/1 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/accepted/2 (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/scan (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/rows (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/after-close (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/cancel (0.00s)
+    --- PASS: TestHTTPInvitationDeliveryBadRowsAndCancellationReturnZero/cursor (0.00s)
+=== RUN   TestHTTPInvitationDeliveryLocalBudgetAndLockUnion
+--- PASS: TestHTTPInvitationDeliveryLocalBudgetAndLockUnion (0.00s)
+=== RUN   TestHTTPInvitationDeliveryDeadlineCancellationAndJoin
+=== RUN   TestHTTPInvitationDeliveryDeadlineCancellationAndJoin/local-three-seconds
+    http_invitation_delivery_test.go:427: original query context expired after 3.002108959s; blocked tail then joined; NotCommitted, zero candidates, one transaction/query
+=== RUN   TestHTTPInvitationDeliveryDeadlineCancellationAndJoin/earlier-parent
+    http_invitation_delivery_test.go:427: original query context expired after 75.268703ms; blocked tail then joined; NotCommitted, zero candidates, one transaction/query
+--- PASS: TestHTTPInvitationDeliveryDeadlineCancellationAndJoin (3.12s)
+    --- PASS: TestHTTPInvitationDeliveryDeadlineCancellationAndJoin/local-three-seconds (3.02s)
+    --- PASS: TestHTTPInvitationDeliveryDeadlineCancellationAndJoin/earlier-parent (0.10s)
+PASS
+ok  	github.com/LunaDeerTech/agenteam/internal/central/account	3.128s

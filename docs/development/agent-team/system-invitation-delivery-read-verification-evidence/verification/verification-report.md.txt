@@ -1,0 +1,42 @@
+# 系统邀请最近投递读口：独立验收
+
+结论：**PASS**，仅针对 input04 冻结八源及 00019。独立真实两组首轮通过，原命令已实际退出，资源窗口已交回；不再追加重复运行。本结果不代表邀请 UI 或完整 D27 完成。root 已采纳并提交推送 `9b3201547f9b7b61fd9716a6ba6540084961496c`；独立逐 Git blob 核八源与两个锁均匹配本轮输入，不需要提交后重跑。
+
+## 固定输入与独立性
+
+- 作者根 `/workspace/scratch/agenteam-invitation-delivery-author-t41JhbFW`，`input04.json` SHA256 `41382f9f482ddad686d76ae1492361031fe6a2485fa012c2a10708ee09b9fe12`；精确八源和 Go 锁副本在 `input04/`。本轮实际树与副本逐项相同，运行前后不变。
+- 已接受产品基线 `7ef3e30cf06b5df6d19516f24c34855a8308ef05`；运行前 HEAD `963ce3ffd150c4a23ba2bee9e791fad4d060fb77`，结束 HEAD `963ce3ffd150c4a23ba2bee9e791fad4d060fb77`。后续文档提交不改变产品输入。
+- 作者报告 SHA256 `6e87f584400953a6833e9dd9fd40a26139db6cf4819e59ce549080d8fd2d5be2`。验证者没有参与产品实现；仅在本私有根写两份 Go overlay 探针、观察 driver 与验证记录，没有改产品、锁、fixture 或 Git。
+- 显式 Go1.27.1，正式检查 `GOTOOLCHAIN=local GOENV=off GOWORK=off GOPROXY=off GOSUMDB=off -mod=readonly`；原模块缓存只读复用，GOCACHE/TMP 自有。完整 argv/env 在各 `command.json`。
+- 实际 PostgreSQL 170008、vector0.8.1，原固定 PG17/PG16 镜像 digest 与 MinIO RELEASE.2025-10-15/精确 BinarySHA `dc5298474f0bc87a068f0b1135c583bb1278c17c11c512212ed7644a238c89c8` 由原 fixture 报告；PG16 仅原组合 fixture，不额外声称本轮重新执行其最低版本拒绝测试。
+
+## 独立审查与真实结果
+
+八源静审通过：一个 statement 先按邀请分页与一次 cutoff 取 live rows，再按 command.completed_at/JobID 跨全部 root 选最新；最新坏出处不可被较旧成功掩盖。exact job/intent/current-attempt/fence、必需 null、真实渠道/终局结果、哨兵扫描/关闭后错误和所有失败零候选保持。权限在同 Tx 当前核实，3s 仅属于该 facade，继承更早 parent；原 httpRead、路由、其他 receipt/User/MailJob 和写服务保持。00019 只新增约定 partial index，1–18 逐字节同基线。
+
+| 实际检查 | 结果与含义 |
+| --- | --- |
+| `runs/compile01` | race integration 仅编译，两包实际 exit0 / 89.223s；no-tests 不算行为验收。 |
+| `TestInvitationIndependentHTTPAtomicProjection` | PASS / 6.74s。真实 HTTP/三条正式邀请；未返回的 limit+1 哨兵 current attempt 绑到别的 job 时503零页；正式 resend 产生新 self-origin、cursor 不变；最新坏 initiator 不能回退旧成功，恢复原事实后200；实际 accepted_at/job.version/channel/result 等值核 DB，原 receipt 保持；普通用户/降级 Session+旧 cursor 拒绝，真实撤销204空体只删除目标可见行。 |
+| `TestInvitationIndependentMailOriginsAndLifecycle` | PASS / 10.34s。两个真实后台日志成功后切 SMTP；同邀请新 root 实际在 SMTP 接受后丢回复，读口为 retry_wait/smtp/unknown；另一邀请仍 backend_log/sent。再正式重试较旧 root，最新 child 的 accepted 时间胜出且 channel/result 为 null，同 key 同 JobID。已捕获 Actor 降级后库结果 Forbidden/零候选；到期行 GET 排除且 DB 保留，正规同邮箱新建使用新 ID、旧历史不串。 |
+| 原 `test-security.sh` 完整退出 | `runs/independent01` actual wait exit0 / 145.337s，仍为 `-race -count=1 -timeout=6m` 和原 fixture/内部预算；只计两个精确目标组。其他固定包的 no-tests 不列兼容通过。 |
+
+独立真实 raw SHA256 `fc39453f682e209294f9fab5e30071c823f0cc975c2ae1d3eedf2501690bda75`。两个探针只为自有坏映射、冷却/过期边界进行明确 SQL fixture 修改；SMTP/日志、创建、重发、重试、同 key 与撤销均走正式服务。没有将直接播种说成真实发送。
+
+## 复用证据与原失败
+
+已逐原 raw、actual wait 和双清记录核作者 plan01/author01–04。author01 整命令 exit1，但其 HTTP新组、mail新组、migration/plan 以及三个旧组共六个顶层实际 PASS；这些生产与测试语义未变。最终 Selection 在 author04 完整 PASS3.65s，含计划/接受顺序、跨 root/retry-of-retry/并发完整页、坏行零候选、parent/DB锁、锁后到期与当前授权/正规同邮箱创建及撤销。两部分组合明确，不能称 author01 整轮绿。
+
+原三轮失败保留：author01 的测试 Authority 绕开自有计划 gate；author02 新断言误把固定 DB LOCK_TIMEOUT=1s 当作实际3s等待；author03 错要求所有 PG取消错误都能 errors.Is(DeadlineExceeded)。生产没有为这些测试假设修改。author04 实际 parent=68.108ms/SQLSTATE57014、DB=1.002682s/55P03；PG原 mapper 允许 DeadlineExceeded 不进入 errors.Is 链。pure04 另真实等待局部3s与parent75ms，并证明 held query tail 阻止 facade 返回/operation清零直到实际 join；其最终 internal 测试字节与 input04 相同。
+
+作者 full Account ordinary/race/vet、两集成包 compile/vet、Central/Runner 构建按未变生产复用，返修只补受影响检查。归档准备发现 plan01 两份旧测试源码原件缺失，其诊断记录不能单独完整重建；最终迁移结论依赖后续 author01 的实际 raw 与可重建同字节测试段。历史 pure03 缺 env 记录，不作为最终编译/vet 的唯一证据，后续 pure04/pure05 及独立 compile01 已有完整记录。独立复核 author01 原 raw 的11份 EXPLAIN JSON，迁移/plan完整 helper段 SHA `c71803406c7e0fc7d9087e303e4ac13627d31a3b6e3cfdb2351895cfd5ebdef2` 与 author01 完全相同。normal 224.587→0.701ms；skew2049 自身历史 12.614→3.728ms。100000无关历史与30邀请是确定性 SQL 成本 fixture，非业务发送证明，也不形成无限规模 SLA。fresh1–19、18升级历史指纹、精确索引、失败副本回滚/journal/同字节恢复复用其未变实际绿证据。
+
+跨卡静态问题已闭合：c07ebcc `delivery_handler.go:121–132` 只正式产生 pending/cancelled，`cleanup.go:82` 取消 pending；B03 `delivery.go:237` 先绑定 current attempt，`delivery_finish.go:227–237` 按 exact current attempt/fence 写终局。没有找到正式 producer 产生 sent/failed 无 attempt 的历史。00010 CHECK宽容、00011保留和 retryEligible宽终止门槛不能代替合法来源证明；root据此收窄下游UI卡单句，read卡/scanner不变。明确约定的旧 processing/unknown 兼容仍保留。
+
+## 终局与交接
+
+`independent01` 结束 `2026-10-06T06:11:41.145984+00:00`。9个实际 container/network exact ID 连续两次 absent，212个观察 PID/starttime 均已消失，既有 baseline 不变、runtime空、monitor错误0。driver 在子进程前启用 subreaper，主命令实际 wait；本轮未产生需额外 wait 的 adopted child，记录为空数组，不借别轮回收证明。源码、driver、overlay、两probe前后指纹相同。
+
+`verification-report.json` 给最小原件路径和 SHA；`candidate-input.json`/`candidate-binding.json` 绑定最终源，`static-review.json`/`author-evidence-review.json` 给审查与复用边界，`probes/`、`overlay.json`、`run_fixture.py` 和两个 `runs/` 保留实际命令/raw/终局。无需复制全部仓库、模块缓存、binary 或 runtime。两次离线分析准备错误（多行 EXPLAIN 按单行解析、helper边界名拼写）在对应 review JSON 中如实记载，均未改输入或启动额外业务轮。
+
+所有本轮源码、报告和运行证据已停止写入。真实窗口已释放；没有启动浏览器、生产部署或被停止的 Object/tools 原任务。本轮 mandatory Object fixture 仅是已授权 Account test-security 的原依赖。

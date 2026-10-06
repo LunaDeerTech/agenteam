@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：系统邀请最近投递读口与 00019 接受
+
+- [邀请读口 rev1](../work-items/d27-system-invitation-delivery-read.md)八路径由 `directory_backend` 完成、`recovery_verification` 独立最终 PASS；主线程采纳提交推送 `9b3201547f9b7b61fd9716a6ba6540084961496c`，远端一致。[正式报告与最小证据](system-invitation-delivery-read-verification.md)绑定 input04 `41382f9f482ddad686d76ae1492361031fe6a2485fa012c2a10708ee09b9fe12`；八源与交付 Git 相同，两锁及迁移00001–00018不变，00019仅增加既定 invitation link 部分索引。
+- 作者原三红保留，最终按未变语义组合 author01 六个通过顶层与 author04 Selection 一组，不称一次七组全绿。真正局部3s/父75ms/调用尾部证据与实库1s锁超时/原PG取消映射分开；规模/迁移最终依据可重建 author01 原源码与 raw，plan01两份历史源码缺件、pure03缺env照实保留。
+- 独立两项 HTTP 原子投影/哨兵/当前授权，以及跨root真实日志→SMTP unknown/旧root人工重试/同邮箱生命周期均首轮 PASS；driver实际exit0/145.337s，9个exact资源双次absent、212个所属PID消失、baseline不变、runtime空、monitor0，窗口释放。归档只读检查168逻辑/101物理原件、四输入、六轮原结果/终局与固定Git，没有重跑产品或资源。
+- 仅此后端和00019接受；邀请 UI 仍有独立实现/验收门槛，旧目录 UI 的1–18证据不外推新迁移组合。Summary待决、Object/tools原停止、Artifact/Project阻塞、生产未绑定、ready503及完整D08–D28/E01未完成保持，E01未开始。以下旧记录保留当时事实。
+
 ## 2026-10-06：系统设置壳与用户目录 UI 完整卡接受
 
 - [用户目录 UI rev1](../work-items/d27-system-user-directory-ui.md)已由前端作者完成、`recovery_verification` 独立最终 PASS；主线程采纳提交推送 `7ef3e30cf06b5df6d19516f24c34855a8308ef05`，远端一致。[正式报告与去重证据](system-user-directory-ui-verification.md)固定作者 input04 `c8f823330cd8ab9a226f96d5b2bdc6cbe9ec3d5d4a81080080ca8bdcc4b35966`：19个已测源码与22项dist哈希，后补README为第20路径，交付源全部与Git匹配。

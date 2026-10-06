@@ -1,0 +1,188 @@
+//go:build integration
+
+package accountmail_test
+
+import (
+	"bytes"
+	"os"
+	"testing"
+	"time"
+
+	"github.com/LunaDeerTech/agenteam/internal/central/account"
+	c "github.com/LunaDeerTech/agenteam/internal/central/account/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/foundation"
+	smtpfixture "github.com/LunaDeerTech/agenteam/tests/testsupport/smtp"
+)
+
+// Reuses only fixture assembly. This independently chosen sequence combines
+// two self-origins and a later retry of the older origin with actual I/O facts.
+func TestInvitationIndependentMailOriginsAndLifecycle(t *testing.T) {
+	network := startSMTP(t)
+	endpoint, e := network.Create(ctxFor(t), smtpfixture.Scenario{Mode: "none", CloseStage: "accepted"})
+	if e != nil {
+		t.Fatal(e)
+	}
+	f := newAccount(t)
+	facade := invitationMailFacade(t, f)
+	m := composeMail(t, f, network, uint16(endpoint.Port))
+	create := func(email string) c.InvitationReceipt {
+		t.Helper()
+		request, e := c.NewInvitationCreate(c.InvitationCreateFields{Actor: f.admin, Key: foundation.IdempotencyKey(id[struct{}](t).String()), Email: email})
+		if e != nil {
+			t.Fatal(e)
+		}
+		receipt, e := f.service.CreateInvitation(ctxFor(t), request)
+		if e != nil {
+			t.Fatal(e)
+		}
+		return receipt
+	}
+	enqueue := func() {
+		t.Helper()
+		if _, e := f.service.ReconcileDeliveryIntents(ctxFor(t)); e != nil {
+			t.Fatal(e)
+		}
+	}
+	check := func(inv c.InvitationID, job c.JobID, phase, channel, outcome string, attempts int64) {
+		t.Helper()
+		page, e := facade.ListInvitations(ctxFor(t), f.admin, account.HTTPListRequest{Limit: 100})
+		if e != nil {
+			t.Fatal(e)
+		}
+		count := 0
+		for _, item := range page.Items {
+			if item.ID != inv {
+				continue
+			}
+			count++
+			d := item.LatestDelivery
+			var actualChannel, actualResult string
+			if d.Channel != nil {
+				actualChannel = *d.Channel
+			}
+			if d.AttemptResult != nil {
+				actualResult = string(*d.AttemptResult)
+			}
+			var accepted time.Time
+			if e = f.store.QueryRow(ctxFor(t), `SELECT c.completed_at FROM agenteam_account.commands c JOIN agenteam_account.delivery_intents i ON i.id=c.id WHERE i.job_id=$1`, job.String()).Scan(&accepted); e != nil {
+				t.Fatal(e)
+			}
+			instant, e := foundation.NewInstant(accepted)
+			if e != nil || d.Status.JobID != job || d.Status.Phase != phase || int64(d.Status.Attempts) != attempts || actualChannel != channel || actualResult != outcome || d.AcceptedAt.String() != instant.String() {
+				t.Fatal("independent current projection mismatch", phase, channel, outcome, e)
+			}
+		}
+		if count != 1 {
+			t.Fatal("target count is not one", count)
+		}
+	}
+	first := create("independent-origin@example.test")
+	stable := create("independent-stable@example.test")
+	enqueue()
+	for _, job := range []c.JobID{first.JobID, stable.JobID} {
+		if e = m.worker.RunJob(ctxFor(t), job); e != nil {
+			t.Fatal("actual unconfigured log delivery", e)
+		}
+	}
+	check(first.ID, first.JobID, "sent", "backend_log", "sent", 1)
+	check(stable.ID, stable.JobID, "sent", "backend_log", "sent", 1)
+	logCount := func() int {
+		t.Helper()
+		data, e := os.ReadFile(f.log)
+		if e != nil {
+			t.Fatal(e)
+		}
+		defer clear(data)
+		return bytes.Count(data, []byte("\n"))
+	}
+	if logCount() != 3 {
+		t.Fatal("bootstrap and two real log deliveries were not recorded")
+	}
+	configure(t, f, endpoint, "none", false)
+	check(first.ID, first.JobID, "sent", "backend_log", "sent", 1)
+	if _, e = f.store.Exec(ctxFor(t), `UPDATE agenteam_account.invitations SET last_delivery_at=clock_timestamp()-interval '61 seconds' WHERE id=$1`, first.ID.String()); e != nil {
+		t.Fatal(e)
+	}
+	second := create("independent-origin@example.test")
+	if second.ID != first.ID || second.JobID == first.JobID {
+		t.Fatal("formal resend did not preserve link and create a distinct self-origin")
+	}
+	check(second.ID, second.JobID, "enqueue_pending", "", "", 0)
+	enqueue()
+	if e = m.worker.RunJob(ctxFor(t), second.JobID); e == nil {
+		t.Fatal("controlled lost acceptance reply did not produce an uncertain outcome")
+	}
+	check(second.ID, second.JobID, "retry_wait", "smtp", "unknown", 1)
+	check(stable.ID, stable.JobID, "sent", "backend_log", "sent", 1)
+	state, e := network.State(ctxFor(t), endpoint.ID)
+	if e != nil || state.Messages != 1 || state.Phase != "accepted" {
+		t.Fatal("actual SMTP acceptance was not witnessed", e)
+	}
+	if logCount() != 3 {
+		t.Fatal("configured unknown delivery fell back to recovery log")
+	}
+	// The latest accepted cycle is now a child of the older self-origin.
+	// It must outrank the more recently created root, without copying either
+	// root's actual channel/outcome into the new unattempted task.
+	retry := retryRequest(t, f, first.JobID)
+	third, e := f.service.RetryMailJob(ctxFor(t), retry)
+	if e != nil || third.JobID == first.JobID || third.JobID == second.JobID {
+		t.Fatal("formal retry of older completed origin", e)
+	}
+	check(first.ID, third.JobID, "enqueue_pending", "", "", 0)
+	again, e := f.service.RetryMailJob(ctxFor(t), retry)
+	if e != nil || again.JobID != third.JobID {
+		t.Fatal("same-key retry changed latest task", e)
+	}
+	var oldRoot, newRoot, retryRoot string
+	for _, pair := range []struct {
+		job  c.JobID
+		root *string
+	}{{first.JobID, &oldRoot}, {second.JobID, &newRoot}, {third.JobID, &retryRoot}} {
+		if e = f.store.QueryRow(ctxFor(t), `SELECT origin_intent_id::text FROM agenteam_account.delivery_intents WHERE job_id=$1`, pair.job.String()).Scan(pair.root); e != nil {
+			t.Fatal(e)
+		}
+	}
+	if oldRoot == newRoot || retryRoot != oldRoot {
+		t.Fatal("independent test did not exercise two roots and older-root retry")
+	}
+	t.Log("actual log -> newer SMTP accepted/unknown -> latest older-root retry: order, nulls and historical channels all match")
+	// Reuse a captured authenticated Actor after the database role changes.
+	func() {
+		defer func() {
+			if _, e := f.store.Exec(ctxFor(t), `UPDATE agenteam_account.users SET role='admin' WHERE id=$1`, f.admin.Details().UserID); e != nil {
+				t.Error("restore owned role", e)
+			}
+		}()
+		if _, e = f.store.Exec(ctxFor(t), `UPDATE agenteam_account.users SET role='user' WHERE id=$1`, f.admin.Details().UserID); e != nil {
+			t.Fatal(e)
+		}
+		page, e := facade.ListInvitations(ctxFor(t), f.admin, account.HTTPListRequest{Limit: 100})
+		if !faultCode(e, foundation.Forbidden) || page.Items != nil || page.NextCursor != "" {
+			t.Fatal("captured actor bypassed current authority or leaked candidates", e)
+		}
+	}()
+	// This service fixture has no maintenance loop: expiry is owned SQL data,
+	// not a claim of elapsed business time or a call to the read path's cleanup.
+	if _, e = f.store.Exec(ctxFor(t), `WITH at AS MATERIALIZED (SELECT clock_timestamp()-interval '1 second' AS value) UPDATE agenteam_account.invitations SET expires_at=at.value,created_at=at.value-interval '24 hours' FROM at WHERE id=$1`, stable.ID.String()); e != nil {
+		t.Fatal(e)
+	}
+	page, e := facade.ListInvitations(ctxFor(t), f.admin, account.HTTPListRequest{Limit: 100})
+	if e != nil || len(page.Items) != 1 || page.Items[0].ID != first.ID {
+		t.Fatal("expired row included or unrelated live row lost", e)
+	}
+	var retained int
+	if e = f.store.QueryRow(ctxFor(t), `SELECT count(*) FROM agenteam_account.invitations WHERE id=$1`, stable.ID.String()).Scan(&retained); e != nil || retained != 1 {
+		t.Fatal("read mutated expired live table", e)
+	}
+	replacement := create("independent-stable@example.test")
+	if replacement.ID == stable.ID {
+		t.Fatal("same email revived old invitation identity")
+	}
+	check(replacement.ID, replacement.JobID, "enqueue_pending", "", "", 0)
+	var oldLink string
+	if e = f.store.QueryRow(ctxFor(t), `SELECT link_id::text FROM agenteam_account.delivery_intents WHERE job_id=$1`, stable.JobID.String()).Scan(&oldLink); e != nil || oldLink != stable.ID.String() {
+		t.Fatal("same-email replacement changed old delivery identity", e)
+	}
+	t.Log("captured actor denied with zero candidates; expired row excluded without deletion; formal same-email replacement has separate history")
+}
