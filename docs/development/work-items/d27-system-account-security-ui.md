@@ -1,6 +1,10 @@
 # D27：System 账号安全配置 UI
 
-状态：rev1，2026-10-06 已获独立静审通过（STATIC PASS）并由主线程采纳；被审全文 SHA256 `06602abcb845274af15f72e9f744a9487db59f156f8eda6ac397edb4f95125e5`，技术§1–7 SHA256 `e83033c44b4eff79987913dc9baf9f2a82fe4a5d77a5e175e37663d22c7dbc1a`。本次仅同步页首，技术正文保持被审原字节；architecture_worker 仅获本规格唯一写权，§6 的27条产品/测试/文档路径均为候选，未授权实施或真实资源。固定已接受基线为 `a55e250`（含 Model 产品 `bc17167c42ee5d5fc1427adaac099ff888ca959b` 及其档案）；[Selection rev2](d27-system-model-selection-ui.md)只作为已采纳契约，不读取其活动实现、不视为产品已通过。必须等 Selection 完整独立接受、实际资源清零，再固定其提交并复核第七依赖签名、六叶子菜单和候选文件名单，由主线程另授唯一作者与窗口。规格不改变既定后端或产品规则，不代表完整 D27 交付。
+状态：rev1，2026-10-06 已获独立静审通过（STATIC PASS）并由主线程采纳；被审全文 SHA256 `06602abcb845274af15f72e9f744a9487db59f156f8eda6ac397edb4f95125e5`，技术§1–7 SHA256 `e83033c44b4eff79987913dc9baf9f2a82fe4a5d77a5e175e37663d22c7dbc1a`。本次仅同步页首实施前置，技术正文保持被审原字节及采纳语义；architecture_worker仅获本规格页首唯一写权，产品实施和真实资源仍待主线程正式授予，不得自行启动。
+
+[Selection rev2](d27-system-model-selection-ui.md)的26路径完整结果已获独立最终PASS、主线程采纳，提交推送 `870ebbb986f56bb62be34ccdfa2c77819ce995a6`，远端一致且所有资源已双清；本卡前置已满足，后继固定产品/前端基线采用该提交，沿已接受后端及迁移1–19。已只读核实该固定提交的六依赖签名（useSession第292–299行）、分域/CSRF/当前权限及实际尾部分类、公开WriteOptions/PersonalIdentity/SessionController和client严格纯工具、五叶子/九return、App期controller/Promise与View末尾确认宿主；不存在为接本卡第七依赖而新增导出或扩路径的缺口。Account后端、Account OpenAPI、迁移、共享Ui/SettingsShell/useLayer及account.ts相对原`a55e250`均无差量。
+
+实际移交范围建议保留§6原27候选及原编号，无须增删；各新增源/测试、两固定endpoint、owner/controller/路由/菜单接入及末件README均有本卡唯一用途。固定`870ebbb`的旧纯测定位为：第13路径用户目录第210–215行五叶子；第14邀请第286行五叶子/第280行两组；第15 Provider第327/328行、第16 Model第449/450行、第17 Selection第401/402行分别为五叶子/两组，均只按本次六叶子/三组适配。第18个人设置第474行用例仍名为“nine exact return targets”，保留该路径仅精确更新十项说明及新合法/非法目标覆盖，原本人草稿/退出/失效断言保持。第23–26浏览器路径均确有必要：邀请第1528行、Provider第1192行、Model第1923及1991行、Selection第1864及1963行，共六处全部系统navigation/Drawer链接计数仅作`toHaveCount(5)`→`toHaveCount(6)`；这些浏览器位置没有分组数量适配需求，不新增其它改动用途，原其余动作/强断言/预算保持。第27路径仍在产品独立接受后最后完成。正文中旧基线、Selection待验和实施前复核表述保留原审稿状态，当前前置与实际范围以本页首为准；主线程尚未正式下发这27路径产品写权或资源窗口，规格与上游接受不代表本卡产品通过。
 
 ## 1. 完整结果与真实依赖
 
