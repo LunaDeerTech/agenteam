@@ -1,0 +1,48 @@
+# Anthropic Messages 工程规格独立静审
+
+最终结论：**STATIC PASS（规格静审）**。接受审查输入为 freeze03，SHA256 `abbed65ecd40a99336a05f281c33c0efa8992883df2f55f9c44758da426f4d18`。两处文字歧义已闭环，无剩余阻断发现；实施依赖仍未满足，不授权实施。
+
+本次只审新工程规格、已下载官方原件和固定 Git 输入。未运行 Go、产品测试、probe、Docker、浏览器或网络，未导入或执行 SDK，未改仓库文件。原 OpenAI tools 独立动态任务保持 **NOT RUN / 停止**，其原件未改。本报告不构成任何产品验收或实施授权。
+
+## 固定输入与来源
+
+- 原规格：`spec-freeze01/spec.md`，SHA256 `bc3830cf43ca262e560ac7668f2cc1547c33aedb264fef432bd9d00c2335d2b7`。
+- 第一处窄修：`spec-freeze02/spec.md`，SHA256 `31d2ca9247e2b41b7432bf94e5bef06748166c54e6f00ae41111b84443535e00`；`delta.patch` SHA256 `8305083204fe2afe514cfca307ede763b648222b29c758ba672351c75a2672b9`。独立重算 unified diff 与作者差量逐字一致。
+- 最终措辞：`spec-freeze03/spec.md`，SHA256 `abbed65ecd40a99336a05f281c33c0efa8992883df2f55f9c44758da426f4d18`；`delta.patch` SHA256 `5fa2fc477c10e85c0d81f730d4fa36524b3fb0c314c917b3f99cefd911e9aeae`。仅替换 §8 诊断输出范围的一句；原来源和其余技术条款不变。
+- 作者来源根：`/workspace/scratch/agenteam-anthropic-spec-76c077li`。官方仓库 `https://github.com/anthropics/anthropic-sdk-python`，固定提交 `18f25547f20cf5f01da69ac611e700e3bc9ebf21`，SDK 版本 1.11.0。
+- 已独立核 66 个官方文件，共 297,810 bytes：SHA256、长度、Git blob SHA1、固定提交树路径和官方固定 URL 一致；commit 原件及 Git 对象一致。包含完整 LICENSE，许可文本为 MIT 条款。只审文件，没有执行 SDK。
+- 已核 27 个固定 Git 输入：25 个来自接受基线 `0d22c7fd9202a81478804f2b810ebaddc350e856`，2 个状态文档来自 `71f276f374fb1846adcd94bbc2dec2285be63e59`。未消费活动 tools 实现。
+- 已核 9 组来源事实的 75 个精确行定位、19 个不重复候选路径、14 个本地链接及其片段、UTF-8/LF/尾部空白。原输入结果见 `static-input-checks.json`；修订结论另记，不能将输入指纹通过等同语义通过。
+
+## 发现与修订
+
+| 项 | 原问题与风险 | 所需修订 / 状态 |
+| --- | --- | --- |
+| F1 | §5 的 stop_sequence 行未明确工具存在或 required/named 未满足时能否成功；§6.5 的交叉引用不能排除歧义。 | freeze02 已闭环：只允许无工具且非 required/named 的文本成功；其他情形 protocol_invalid。HTTP/SSE 各要求三个已合法准入、合法 envelope/usage 的反例，工具参数本身须完整通过 C0；另有 none/auto 无工具成功控制。SSE 成功仍需 message_stop 与实际 join。 |
+| F2 | §8 将 Request/Result/Event 与日志、错误混称全部不得含正文/参数，和 typed 业务字段的明确用途冲突。 | freeze03 已闭环：限定到这些载体的 Format/LogValue/安全 JSON、日志、错误与诊断输出，正常 typed 业务载荷按原契约保留；不改 API 或协议语义。 |
+
+## 语义审查矩阵
+
+| 风险面 | 独立静审结论与依据 |
+| --- | --- |
+| C0、profile 与 URL | 显式绑定 Anthropic Messages 2023-06-01，API base 保留 escaped path 并只追加 `/messages`；不猜补 `/v1`。固定 D09 profile 与 C0 一致；X-Api-Key、版本头、Request-Id 与 OpenAI 的头及后缀隔离。明确正整数 MaxOutput，不隐式默认。 |
+| 有序最小载体与兼容 | 仅追加 `Result.Message *mc.Message`、`Event.PartIndex *int`；Message 依原 C0 保序，native part index 与 dense tool index 分离。空 text 合法且保结构位置，不构成 PartialOutput。旧 OpenAI 修订新字段保持 nil，旧构造/预算/生命周期不变；新普通结果不再复制完整 Text/ToolCalls，mutable parts/参数与指针须深 clone。 |
+| 请求关系和能力边界 | 前置 system、assistant text/tool 混排、紧随工具结果和原调用 ID 一一对应、四种 choice/parallel 均有闭合规则。拒绝不支持能力时零 Exchange/slot/Do；工程名称子集、C0 schema 校验、encoded request 限额明确为本修订约束，没有误称 SDK 全部能力。 |
+| 普通响应与 C0 | 非 refusal 成功需 1–256 个有序合法 parts；空 text 内容本身可通过 C0。refusal 可零 content，返回零成功结果并保可靠 usage。对象 input 的 1 MiB、根深度 1/上限 32、有限数值而保 >2^53 原词法，与固定 C0 一致；outer envelope 深度单独容纳嵌套，不挤占 C0 input 深度。 |
+| 原生 SSE | 官方 `_messages.py` 的 start input / nonempty partial_json 替换关系与本规格一致；没有把 `{}` 误拼到参数前。block start 连续 index、允许活块交错、stop 一次且禁止 late delta。block stop 只验证并释放，不早发 ToolComplete；最终 message_delta 先全局校验，再发 complete；message_stop、原 ctx 和实际 join 决定唯一 End。 |
+| Usage 可靠性 | 对照 Usage、MessageDeltaUsage 与官方合并实现：input/output/cache 创建/cache 读取独立，不加成 input，不推 total；累计非 null 覆盖而非求和/取 max，允许 1→0，null/省略保值。整个候选原子验证后发布，非法后续候选保前值。thinking detail 不重复加 output。先保存合法 usage，再处理 refusal、坏工具、断流、原生 error。 |
+| 终止与错误 | end_turn、tool_use、max_tokens、refusal、context window、pause_turn、未知值各有明确成功/错误门槛；F1 已补 stop_sequence 关系。HTTP 与原生 error 的固定分类不依赖供应商自由文本，404 不猜 model_not_found；529/限流可重试标记不授权 adapter 自行重发。 |
+| 有界内存与取消 | 1 MiB 单工具、16 MiB 逻辑累计、256 parts/128 tools、32 项/256 KiB 队列、≤64 KiB UTF-8 拆片与 bounded validation copy 分工明确；替换起始候选和关闭 block 的 buffer 生命周期不等于重置整个逻辑累计。长扫描和背压须响应原 ctx；Material/slot 必须等 Body/worker/Client 实际 join 后归还，message_stop 或 ctx.Done 均不能代替 join。 |
+| 候选路径与未来验证 | 19 个唯一路径覆盖 4 共享 adapter 文件、3 新生产文件、1 manifest、5 pure、4 真实测试文件、2 fixture 文件。fixture 只增本模式，旧闭集/上界保持。320 KiB 真实参数与 1 MiB/16 MiB pure 极限严格区分；旧 OpenAI 三修订和 ledger 真实回归精确命名，no-tests 不能算通过。 |
+
+## 实施依赖与结论边界
+
+候选路径可以表达完整增量，但当前没有实施写权。必须先由 root 接受 tools 产品并固定实际依赖提交，停止四个共享 adapter 文件的原作者写入，再核与本规格固定基线的差量、授予单一作者。当前 tools 独立动态验收停止，不能把它作为已通过依赖；规格静审不解除该停止条件。
+
+本规格保持单次 wire exchange，未绑定 Resolver 的 Anthropic 能力、应用调用、DB writer、ProcessGuard、Project 生命周期或工具执行；ToolComplete 不构成执行授权。完整 D09 及其他既有阻塞项不因此完成。
+
+## 证据解释
+
+独立元数据检查首次 `static-check01.json` 为 exit 1：检查器误要求 LICENSE 含字面标题 “MIT License”，原官方文件使用 MIT 许可正文而无该标题。原脚本保留为 `static-check01-runner.py.txt`；修为检查实际许可正文后，`static-check02.json` 记录 argv/cwd/起止/exit 0 与原始 stdout/stderr 指纹。该过程仅校验文档元数据，不是产品测试，也未修改原件。
+
+最终修订身份、差量和报告完整性见 `final-checks.json` 与 `evidence-index.json`；`check_final_revision.py` 可在固定原件仍存在时重现文档元数据核对。所有结论仅限本轮规格静审。

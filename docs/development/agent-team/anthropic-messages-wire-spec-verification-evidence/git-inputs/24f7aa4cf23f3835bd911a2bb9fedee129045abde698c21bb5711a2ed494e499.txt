@@ -1,0 +1,432 @@
+package adapter
+
+import (
+	"bytes"
+	"context"
+	"encoding/json"
+	"errors"
+	"io"
+	"strconv"
+	"strings"
+	"unicode/utf8"
+
+	ac "github.com/LunaDeerTech/agenteam/internal/central/audit/contract"
+	mc "github.com/LunaDeerTech/agenteam/internal/central/model/contract"
+	"github.com/LunaDeerTech/agenteam/internal/central/outbound"
+)
+
+const (
+	maxTextBytes  = 16 << 20
+	maxEventBytes = 1 << 20
+)
+
+func failure(category mc.ErrorCategory, code string) *mc.ModelError {
+	return &mc.ModelError{Category: category, Code: code}
+}
+func protocolFailure() error { return failure("provider_error", "wire_protocol_invalid") }
+func unsupported() error     { return failure("unsupported_feature", "wire_unsupported_feature") }
+func limitFailure() error    { return failure("provider_error", "wire_limit_exceeded") }
+func contextFailure(err error) error {
+	if errors.Is(err, context.DeadlineExceeded) {
+		return &mc.ModelError{Category: "timeout", Code: "wire_transport_error", Retryable: true}
+	}
+	return failure("cancelled", "wire_cancelled")
+}
+func transportFailure(err error) error {
+	if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+		return contextFailure(err)
+	}
+	var n *outbound.NetworkError
+	if errors.As(err, &n) {
+		switch n.Decision().Reason {
+		case ac.Timeout:
+			return contextFailure(context.DeadlineExceeded)
+		case ac.Cancelled:
+			return contextFailure(context.Canceled)
+		case ac.ResponseLimit:
+			return limitFailure()
+		case ac.CredentialDenied, ac.ConsumerDenied, ac.AddressForbidden, ac.HTTPDenied, ac.PrivateNotAllowed, ac.PortDenied, ac.OriginDenied, ac.BindingInvalid, ac.PermissionDenied, ac.RedirectDenied:
+			return failure("permission", "wire_transport_error")
+		}
+	}
+	return failure("network", "wire_transport_error")
+}
+func statusFailure(status int) error {
+	e := failure("provider_error", "wire_http_error")
+	switch status {
+	case 401:
+		e.Category = "authentication"
+	case 403:
+		e.Category = "permission"
+	case 429:
+		e.Category, e.Retryable = "rate_limited", true
+	case 502, 503, 504:
+		e.Category, e.Retryable = "provider_unavailable", true
+	}
+	return e
+}
+func requestID(s string) string {
+	if len(s) == 0 || len(s) > 256 {
+		return ""
+	}
+	for _, c := range s {
+		if !(c >= 'a' && c <= 'z' || c >= 'A' && c <= 'Z' || c >= '0' && c <= '9' || strings.ContainsRune("-_.:", c)) {
+			return ""
+		}
+	}
+	return s
+}
+
+// jsonShape checks duplicate keys and depth without constructing a second
+// object tree. Numeric tokens stay json.Number, never float64.
+func jsonShape(raw []byte) error {
+	if !utf8.Valid(raw) || !unicodeEscapes(raw) {
+		return protocolFailure()
+	}
+	d := json.NewDecoder(bytes.NewReader(raw))
+	d.UseNumber()
+	var value func(int) error
+	value = func(depth int) error {
+		if depth > 32 {
+			return limitFailure()
+		}
+		t, err := d.Token()
+		if err != nil {
+			return protocolFailure()
+		}
+		delim, ok := t.(json.Delim)
+		if !ok {
+			return nil
+		}
+		switch delim {
+		case '{':
+			seen := map[string]bool{}
+			for d.More() {
+				key, err := d.Token()
+				name, ok := key.(string)
+				if err != nil || !ok || seen[name] {
+					return protocolFailure()
+				}
+				seen[name] = true
+				if err := value(depth + 1); err != nil {
+					return err
+				}
+			}
+		case '[':
+			for d.More() {
+				if err := value(depth + 1); err != nil {
+					return err
+				}
+			}
+		default:
+			return protocolFailure()
+		}
+		end, err := d.Token()
+		if err != nil || delim == '{' && end != json.Delim('}') || delim == '[' && end != json.Delim(']') {
+			return protocolFailure()
+		}
+		return nil
+	}
+	if err := value(0); err != nil {
+		return err
+	}
+	if _, err := d.Token(); err != io.EOF {
+		return protocolFailure()
+	}
+	return nil
+}
+
+// encoding/json replaces unmatched UTF-16 surrogates. This profile rejects
+// them instead of silently changing provider text (including object keys).
+func unicodeEscapes(raw []byte) bool {
+	for i := 0; i < len(raw); i++ {
+		if raw[i] != '"' {
+			continue
+		}
+		i++
+		for i < len(raw) && raw[i] != '"' {
+			if raw[i] != '\\' {
+				i++
+				continue
+			}
+			i++
+			if i >= len(raw) {
+				return false
+			}
+			if raw[i] != 'u' {
+				i++
+				continue
+			}
+			if i+5 > len(raw) {
+				return false
+			}
+			u, err := strconv.ParseUint(string(raw[i+1:i+5]), 16, 16)
+			if err != nil || u >= 0xdc00 && u <= 0xdfff {
+				return false
+			}
+			i += 5
+			if u >= 0xd800 && u <= 0xdbff {
+				if i+6 > len(raw) || raw[i] != '\\' || raw[i+1] != 'u' {
+					return false
+				}
+				low, err := strconv.ParseUint(string(raw[i+2:i+6]), 16, 16)
+				if err != nil || low < 0xdc00 || low > 0xdfff {
+					return false
+				}
+				i += 6
+			}
+		}
+	}
+	return true
+}
+
+type nativeObject map[string]json.RawMessage
+
+func object(raw []byte, keys string) (nativeObject, error) {
+	if err := jsonShape(raw); err != nil {
+		return nil, err
+	}
+	var obj nativeObject
+	if json.Unmarshal(raw, &obj) != nil || obj == nil {
+		return nil, protocolFailure()
+	}
+	allowed := make(map[string]bool)
+	for _, key := range strings.Fields(keys) {
+		allowed[key] = true
+	}
+	for key := range obj {
+		if !allowed[key] {
+			return nil, protocolFailure()
+		}
+	}
+	return obj, nil
+}
+func null(raw []byte) bool { return len(raw) == 0 || bytes.Equal(bytes.TrimSpace(raw), []byte("null")) }
+func nativeString(raw []byte, cap int, required bool) (string, error) {
+	if null(raw) {
+		if required {
+			return "", protocolFailure()
+		}
+		return "", nil
+	}
+	var s string
+	if json.Unmarshal(raw, &s) != nil || !utf8.ValidString(s) {
+		return "", protocolFailure()
+	}
+	if len(s) > cap {
+		return "", limitFailure()
+	}
+	return s, nil
+}
+func count(raw []byte) (*mc.TokenCount, error) {
+	if null(raw) {
+		return nil, nil
+	}
+	s := string(bytes.TrimSpace(raw))
+	if s == "" {
+		return nil, protocolFailure()
+	}
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return nil, protocolFailure()
+		}
+	}
+	v, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return nil, protocolFailure()
+	}
+	n := mc.TokenCount(v)
+	return &n, nil
+}
+func parseUsage(raw []byte) (mc.Usage, error) {
+	u := mc.Usage{Source: mc.UnknownUsage}
+	if null(raw) {
+		return u, nil
+	}
+	o, err := object(raw, "prompt_tokens completion_tokens total_tokens prompt_tokens_details completion_tokens_details")
+	if err != nil {
+		return u, err
+	}
+	for _, item := range []struct {
+		name string
+		dst  **mc.TokenCount
+	}{{"prompt_tokens", &u.InputTokens}, {"completion_tokens", &u.OutputTokens}, {"total_tokens", &u.TotalTokens}} {
+		*item.dst, err = count(o[item.name])
+		if err != nil {
+			return mc.Usage{}, err
+		}
+	}
+	for _, detail := range []struct {
+		name, keys string
+		targets    map[string]**mc.TokenCount
+	}{
+		{"prompt_tokens_details", "audio_tokens cache_write_tokens cached_tokens image_tokens text_tokens", map[string]**mc.TokenCount{"cached_tokens": &u.CachedInputTokens, "cache_write_tokens": &u.CacheWriteTokens}},
+		{"completion_tokens_details", "accepted_prediction_tokens audio_tokens reasoning_tokens rejected_prediction_tokens text_tokens", map[string]**mc.TokenCount{"reasoning_tokens": &u.ReasoningTokens}},
+	} {
+		if null(o[detail.name]) {
+			continue
+		}
+		d, e := object(o[detail.name], detail.keys)
+		if e != nil {
+			return mc.Usage{}, e
+		}
+		for key, raw := range d {
+			n, e := count(raw)
+			if e != nil {
+				return mc.Usage{}, e
+			}
+			if dst := detail.targets[key]; dst != nil {
+				*dst = n
+			}
+		}
+	}
+	for _, n := range []*mc.TokenCount{u.InputTokens, u.OutputTokens, u.TotalTokens, u.CachedInputTokens, u.CacheWriteTokens, u.ReasoningTokens} {
+		if n != nil {
+			u.Source = mc.ProviderUsage
+			break
+		}
+	}
+	return u, nil
+}
+
+type decoded struct {
+	text                            string
+	finish                          mc.FinishReason
+	usage                           mc.Usage
+	hasUsage, emptyChoices, refusal bool
+}
+
+func decodeNative(raw []byte, streaming bool) (decoded, error) {
+	v := decoded{usage: mc.Usage{Source: mc.UnknownUsage}}
+	keys := "id object created model choices usage system_fingerprint service_tier"
+	if streaming {
+		keys += " obfuscation"
+	}
+	o, err := object(raw, keys)
+	if err != nil {
+		return v, err
+	}
+	for _, name := range []string{"id", "model"} {
+		s, e := nativeString(o[name], 256, true)
+		if e != nil {
+			return v, e
+		}
+		if s == "" {
+			return v, protocolFailure()
+		}
+	}
+	obj, err := nativeString(o["object"], 64, true)
+	if err != nil || !streaming && obj != "chat.completion" || streaming && obj != "chat.completion.chunk" {
+		return v, protocolFailure()
+	}
+	created, err := count(o["created"])
+	if err != nil || created == nil {
+		return v, protocolFailure()
+	}
+	if _, err = nativeString(o["system_fingerprint"], 256, false); err != nil {
+		return v, err
+	}
+	tier, err := nativeString(o["service_tier"], 32, false)
+	if err != nil {
+		return v, err
+	}
+	if !null(o["service_tier"]) {
+		switch tier {
+		case "auto", "default", "flex", "scale", "priority", "fast":
+		default:
+			return v, protocolFailure()
+		}
+	}
+	if streaming {
+		if _, err := nativeString(o["obfuscation"], maxEventBytes, false); err != nil {
+			return v, err
+		}
+	}
+	v.usage, err = parseUsage(o["usage"])
+	if err != nil {
+		return v, err
+	}
+	v.hasUsage = !null(o["usage"])
+	d := json.NewDecoder(bytes.NewReader(o["choices"]))
+	if token, err := d.Token(); err != nil || token != json.Delim('[') {
+		return v, protocolFailure()
+	}
+	if !d.More() {
+		v.emptyChoices = true
+		if !streaming {
+			return v, protocolFailure()
+		}
+		return v, nil
+	}
+	var choiceRaw json.RawMessage
+	if d.Decode(&choiceRaw) != nil || d.More() {
+		return v, protocolFailure()
+	}
+	choiceKeys := "index finish_reason logprobs message"
+	if streaming {
+		choiceKeys = "index finish_reason logprobs delta"
+	}
+	c, err := object(choiceRaw, choiceKeys)
+	if err != nil {
+		return v, err
+	}
+	index, err := count(c["index"])
+	if err != nil || index == nil || *index != 0 {
+		return v, protocolFailure()
+	}
+	if !null(c["logprobs"]) {
+		return v, unsupported()
+	}
+	finish, err := nativeString(c["finish_reason"], 32, !streaming)
+	if err != nil {
+		return v, err
+	}
+	switch finish {
+	case "":
+		if !streaming || !null(c["finish_reason"]) {
+			return v, protocolFailure()
+		}
+	case "stop", "length", "content_filter":
+		v.finish = mc.FinishReason(finish)
+	case "tool_calls", "function_call":
+		return v, unsupported()
+	default:
+		return v, protocolFailure()
+	}
+	name, messageKeys := "message", "role content refusal tool_calls function_call annotations audio"
+	if streaming {
+		name, messageKeys = "delta", "role content refusal tool_calls function_call"
+	}
+	m, err := object(c[name], messageKeys)
+	if err != nil {
+		return v, err
+	}
+	role, err := nativeString(m["role"], 32, !streaming)
+	if err != nil || !null(m["role"]) && role != "assistant" || !streaming && role != "assistant" {
+		return v, protocolFailure()
+	}
+	refusal, err := nativeString(m["refusal"], maxTextBytes, false)
+	if err != nil {
+		return v, err
+	}
+	v.refusal = refusal != ""
+	for _, key := range []string{"function_call", "audio"} {
+		if !null(m[key]) {
+			return v, unsupported()
+		}
+	}
+	for _, key := range []string{"tool_calls", "annotations"} {
+		if null(m[key]) {
+			continue
+		}
+		var items []json.RawMessage
+		if json.Unmarshal(m[key], &items) != nil {
+			return v, protocolFailure()
+		}
+		if len(items) != 0 {
+			return v, unsupported()
+		}
+	}
+	v.text, err = nativeString(m["content"], maxTextBytes, !streaming && !v.refusal)
+	return v, err
+}

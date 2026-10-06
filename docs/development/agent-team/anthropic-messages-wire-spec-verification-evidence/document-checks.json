@@ -1,0 +1,102 @@
+{
+  "status": "PASS",
+  "files": [
+    "docs/development/agent-team/anthropic-messages-wire-spec-verification.md",
+    "docs/development/agent-team/anthropic-messages-wire-spec-verification-evidence/README.md",
+    "docs/development/agent-team/tasks.md",
+    "docs/development/agent-team/recovery-2026-10-06.md"
+  ],
+  "links": 147,
+  "fragments": 9,
+  "tables": 10,
+  "format": "UTF-8/LF/final newline/no trailing whitespace/balanced fences/table widths",
+  "tasks_historical_bytes_identical": true,
+  "recovery_historical_bytes_identical": true,
+  "scoped_diff_check_argv": [
+    "git",
+    "diff",
+    "--check",
+    "--",
+    "docs/development/agent-team/anthropic-messages-wire-spec-verification.md",
+    "docs/development/agent-team/anthropic-messages-wire-spec-verification-evidence/README.md",
+    "docs/development/agent-team/tasks.md",
+    "docs/development/agent-team/recovery-2026-10-06.md"
+  ],
+  "scoped_diff_check_exit": 0,
+  "new_files_checked_by_byte_and_line_scan": true,
+  "original_evidence_format_exceptions_preserved": [
+    {
+      "path": "author/commit-object.txt",
+      "trailing_lines": [
+        7,
+        22
+      ],
+      "has_cr": false,
+      "final_newline": false
+    },
+    {
+      "path": "author/spec-freeze02/delta.patch",
+      "trailing_lines": [
+        13,
+        21,
+        25
+      ],
+      "has_cr": false,
+      "final_newline": true
+    },
+    {
+      "path": "author/spec-freeze03/delta.patch",
+      "trailing_lines": [
+        4,
+        6,
+        9,
+        11
+      ],
+      "has_cr": false,
+      "final_newline": true
+    },
+    {
+      "path": "author/spec-adopted01/delta.patch",
+      "trailing_lines": [
+        5,
+        10,
+        12
+      ],
+      "has_cr": false,
+      "final_newline": true
+    },
+    {
+      "path": "official/tests/lib/streaming/fixtures/basic_response.txt.txt",
+      "trailing_lines": [],
+      "has_cr": false,
+      "final_newline": false
+    },
+    {
+      "path": "official/tests/lib/streaming/fixtures/tool_use_response.txt.txt",
+      "trailing_lines": [],
+      "has_cr": false,
+      "final_newline": false
+    },
+    {
+      "path": "official/tests/lib/streaming/fixtures/incomplete_partial_json_response.txt.txt",
+      "trailing_lines": [],
+      "has_cr": false,
+      "final_newline": false
+    },
+    {
+      "path": "official/tests/lib/streaming/fixtures/tool_use_invalid_json_response.txt.txt",
+      "trailing_lines": [],
+      "has_cr": false,
+      "final_newline": false
+    }
+  ],
+  "errors": [],
+  "product_execution": false,
+  "checker_argv": [
+    "python3",
+    "/workspace/scratch/agenteam-anthropic-spec-archive-handoff/check_documents.py"
+  ],
+  "checker_sha256": "6f02ca1493e8967ba58dd64289f245e0740b4011b26ebbbc4d3e7faf0367c6ba",
+  "checker_archive_path": "document-checker.py.txt",
+  "history_comparison_inputs": "The two before-files have the same bytes as the archived 71f276f status Git inputs."
+}

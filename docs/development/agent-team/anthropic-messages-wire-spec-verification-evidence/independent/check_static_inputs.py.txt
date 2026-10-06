@@ -1,0 +1,108 @@
+"""Read-only document/source fingerprint verification; no SDK/product execution."""
+from pathlib import Path
+import hashlib
+import json
+import re
+import subprocess
+from urllib.parse import unquote
+
+HERE = Path(__file__).parent
+AUTHOR = Path('/workspace/scratch/agenteam-anthropic-spec-76c077li')
+REPO = Path('/workspace/agenteam')
+EXPECTED = 'bc3830cf43ca262e560ac7668f2cc1547c33aedb264fef432bd9d00c2335d2b7'
+
+def sha(raw): return hashlib.sha256(raw).hexdigest()
+def git_hash(kind, raw):
+    return hashlib.sha1(kind.encode()+b' '+str(len(raw)).encode()+b'\0'+raw).hexdigest()
+def local_git(*args, sdk=False):
+    argv = ['git']
+    if sdk: argv.append('--git-dir='+str(AUTHOR/'objects.git'))
+    return subprocess.check_output([*argv, *args], cwd=REPO)
+
+freeze = json.loads((AUTHOR/'spec-freeze01/manifest.json').read_bytes())
+spec = (AUTHOR/'spec-freeze01/spec.md').read_bytes()
+assert sha(spec) == freeze['sha256'] == EXPECTED
+assert len(spec) == freeze['bytes']
+(HERE/'reviewed-spec01.md').write_bytes(spec)
+docs = {}
+for name, expected in freeze['documents'].items():
+    raw = (AUTHOR/name).read_bytes()
+    assert sha(raw) == expected['sha256'] and len(raw) == expected['bytes'], name
+    docs[name] = expected
+
+manifest = json.loads((AUTHOR/'source-manifest.json').read_bytes())
+commit = manifest['commit']
+raw_commit = (AUTHOR/'commit-object.txt').read_bytes()
+assert sha(raw_commit) == manifest['commit_object_sha256']
+assert git_hash('commit',raw_commit) == commit
+assert local_git('cat-file','commit',commit,sdk=True) == raw_commit
+tree = {}
+for row in local_git('ls-tree','-r',commit,sdk=True).decode().splitlines():
+    metadata, path = row.split('\t',1)
+    tree[path] = metadata.split()[2]
+official = []
+sources = manifest.get('sources', manifest.get('files'))
+for row in sources:
+    path = row['path']
+    physical = (AUTHOR/'source'/path).resolve()
+    assert physical.is_relative_to(AUTHOR/'source')
+    raw = physical.read_bytes()
+    assert len(raw) == row['bytes'] and sha(raw) == row['sha256'], path
+    assert git_hash('blob',raw) == row['git_blob'] == tree[path], path
+    assert row['url'] == manifest['official_repository']+'/blob/'+commit+'/'+path
+    official.append({'path':path,'sha256':row['sha256'],'git_blob':row['git_blob'],'bytes':len(raw)})
+assert len(official) == 66 and sum(x['bytes'] for x in official) == 297810
+assert 'Permission is hereby granted, free of charge' in (AUTHOR/'source/LICENSE').read_text()
+
+baseline = json.loads((AUTHOR/'baseline-inputs.json').read_bytes())
+fixed = []
+for key, commit_key in [('sources','baseline'), ('status_sources','status_commit')]:
+    for path, expected in baseline[key].items():
+        raw = local_git('show',baseline[commit_key]+':'+path)
+        assert len(raw) == expected['bytes'] and sha(raw) == expected['sha256'], path
+        fixed.append({'path':path,'commit':baseline[commit_key],**expected})
+assert len(fixed) == 27
+
+fields = json.loads((AUTHOR/'field-manifest.json').read_bytes())
+field_count = 0
+for fact in fields['facts']:
+    for entry in fact['files']:
+        raw = (AUTHOR/'source'/entry['path']).read_bytes()
+        assert sha(raw) == entry['sha256']
+        lines = raw.decode().splitlines()
+        for match in entry['matches']:
+            assert lines[match['line']-1].strip() == match['text'].strip(), (entry['path'],match)
+            field_count += 1
+
+text = spec.decode('utf-8')
+assert text.endswith('\n') and '\r' not in text
+assert not [i for i,line in enumerate(text.splitlines(),1) if line.rstrip()!=line]
+paths = re.findall(r'^\|\s*(\d+)\s*\|\s*`([^`]+)`',text,re.M)
+assert len(paths)==19 and [int(i) for i,_ in paths]==list(range(1,20))
+assert len({p for _,p in paths})==19
+links=[]
+for target in re.findall(r'\[[^\]]*\]\(([^)]+)\)',text):
+    if target.startswith(('https://','http://')): continue
+    base, _, fragment = target.partition('#')
+    resolved = (REPO/freeze['repo_path']).parent.joinpath(unquote(base)).resolve()
+    assert resolved.is_file(), target
+    if fragment:
+        headings = re.findall(r'^#{1,6}\s+(.+?)\s*#*$',resolved.read_text(),re.M)
+        slugs = [re.sub(r'[^\w\-\s]','',h.lower()).replace(' ','-') for h in headings]
+        assert unquote(fragment) in slugs, (target,slugs)
+    links.append(target)
+
+report = {
+    'kind':'independent static document/source inspection only',
+    'spec_sha256':EXPECTED,'official_commit':commit,
+    'commit_object_sha256':sha(raw_commit),'frozen_metadata':docs,
+    'official_sources':official,'official_source_count':len(official),'official_source_bytes':297810,
+    'fixed_git_inputs':fixed,'fixed_git_input_count':len(fixed),
+    'field_fact_groups':len(fields['facts']),'field_line_matches':field_count,
+    'implementation_paths':[p for _,p in paths],'local_links':links,
+    'utf8_lf_no_trailing_whitespace':True,
+    'boundaries':{'implementation_authorized':False,'tools_product_accepted':False,'go_or_product_execution':False,'docker_or_browser':False,'network':False,'sdk_execution':False,'blocked_tools_dynamic_task':'NOT RUN; remains stopped; originals untouched'},
+    'result':'input identity/source/field/document checks PASS; semantic review recorded separately',
+}
+(HERE/'static-input-checks.json').write_text(json.dumps(report,indent=2,ensure_ascii=False)+'\n')
+print(json.dumps({'official_sources':66,'source_bytes':297810,'fixed_git_inputs':27,'field_lines':field_count,'implementation_paths':19,'local_links':len(links),'result':'STATIC INPUT CHECKS PASS'}))

@@ -1,0 +1,11 @@
+--- spec-freeze02/spec.md
++++ spec-freeze03/spec.md
+@@ -144,7 +144,7 @@
+ 
+ 200 SSE的error采用固定error.type：authentication_error/permission_error/invalid_request_error分别映射同名语义；rate_limit_error→rate_limited、timeout_error→timeout、overloaded_error→provider_unavailable并可重试；api_error/not_found_error/billing_error→provider_error且不重试。未知type安全unknown且不重试。有效error envelope的Code固定为wire_anthropic_error，坏形状为原wire_protocol_invalid，不复制供应商自由文本；header request-id安全过滤，body request_id不覆盖header。流内error不当HTTP200成功，也不丢已有usage。
+ 
+-本地C0/消息关系错误为InvalidArgument/NotStarted；合法但不支持的能力为unsupported_feature/wire_unsupported_feature，均零slot/Exchange/Do。收到的坏协议为provider_error/wire_protocol_invalid，上界为wire_limit_exceeded；Refusal/上下文耗尽按§5。Dispatched仅来自D04 Decision.Sent，PartialOutput按§6，不凭Start或HTTP headers猜发送。所有Request/Result/Event/日志/错误都不得出现key、输入/答案、tool schema/args或供应商诊断canary。
++本地C0/消息关系错误为InvalidArgument/NotStarted；合法但不支持的能力为unsupported_feature/wire_unsupported_feature，均零slot/Exchange/Do。收到的坏协议为provider_error/wire_protocol_invalid，上界为wire_limit_exceeded；Refusal/上下文耗尽按§5。Dispatched仅来自D04 Decision.Sent，PartialOutput按§6，不凭Start或HTTP headers猜发送。Request/Result/Event载体的Format/LogValue/安全JSON及日志/错误/诊断输出不得泄露key、输入/答案、tool schema/args或供应商诊断canary；正常typed Request/Result.Message/Event业务字段仍按契约承载正文/参数，不受此诊断输出禁令限制。
+ 
+ constructor无I/O/worker；overall≤120s、read-idle≤60s并不超剩余overall、caller更早取消、Close/Force原预算和真实Join规则全部沿已验Exchange。新parser/校验在原worker内，取消唤醒读/背压/长扫描；Body.Close/worker/Client.Drain前保slot与借用材料边界。ctx.Done或合法message_stop不代替Join，无WithoutCancel/新超时/后台无限等待/第二client池。结果发布前复核原ctx，失败/取消零Message、一次错误后EOF。其外层DB writer、ProcessGuard、Project生命周期和工具side effects仍未绑定。
+ 

@@ -1,0 +1,11 @@
+{
+  "argv": [
+    "python3",
+    "check_static_inputs.py"
+  ],
+  "exit": 1,
+  "stage": "license title assertion after all66 source SHA/blob/tree checks",
+  "reason": "checker required literal MIT License title; inspect actual pinned license wording and fingerprint instead",
+  "runner_sha256": "003ebce39947221dde7ee0b6a270ac6a29a2b6ec9e3fa2cb8a939885f698dd8f",
+  "product_or_sdk_execution": false
+}

@@ -1,0 +1,12 @@
+--- spec-freeze03/spec.md
++++ spec-adopted01/spec.md
+@@ -1,6 +1,8 @@
+ # D09 Anthropic Messages text/tools wire 工程卡
+ 
+-修订：rev1 候选，待独立静审与主线程采纳。当前仅授权本文件及私有研究证据，**不授权下列实施路径或任何产品运行**。作者 `backend_recovery`，architecture_worker / research_worker；已读 [design 技能](../../../.agents/skills/agenteam-design/SKILL.md)，不再委派。固定已接受基线 `0d22c7fd9202a81478804f2b810ebaddc350e856`；活动 OpenAI tools 实现尚待验收，本卡的共享载体与实施顺序以 §3、§10 为门槛，不把活动源码当成已验依赖。
++修订：rev1，已由 `recovery_documentation` 独立静审通过并由主线程采纳。当前仍仅授权本文件及私有研究证据，**实施未授权；共享 tools 最终接受这一依赖尚未满足**。作者 `backend_recovery`，architecture_worker / research_worker；已读 [design 技能](../../../.agents/skills/agenteam-design/SKILL.md)，不再委派。固定已接受基线 `0d22c7fd9202a81478804f2b810ebaddc350e856`；活动 OpenAI tools 实现尚待验收，本卡的共享载体与实施顺序以 §3、§10 为门槛，不把活动源码当成已验依赖。
++
++独立 STATIC PASS 对应 freeze03 技术稿 SHA-256 `abbed65ecd40a99336a05f281c33c0efa8992883df2f55f9c44758da426f4d18`；报告 `/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/review.md`，SHA-256 `6be56df7a56463d7c5791b87b79d35a0ca8ee2decc69ada006b930b374dccfbf`；同目录 `final-checks.json` SHA-256 `732b10e27cce50763743edb93cdfaf9217e3a6b3e5ab18beff0d3792d9d9f787`。stop_sequence 与诊断输出措辞两项窄修已闭合，本次采纳页首同步不改技术 §1–11；结论仅为规格静审，不表示产品、Go、Provider 或 Docker 验收。
+ 
+ 当前补充边界：tools 原独立动态启动被自动安全筛查以“possible cybersecurity risk”中断、实际 NOT RUN，原任务停止且待用户确认，准确状态见[恢复记录 §9](../agent-team/recovery-2026-10-06.md#9-tools-独立启动被筛查中断not-run)。本卡仅继续未受影响的新规格研究，不承担、重建或替代被拦任务；tools 仍无最终接受，实施依赖未满足。
+ 

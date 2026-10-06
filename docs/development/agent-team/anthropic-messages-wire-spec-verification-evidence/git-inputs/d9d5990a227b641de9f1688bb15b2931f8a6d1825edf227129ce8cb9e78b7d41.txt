@@ -90,11 +90,3 @@ Summary 创建初值 / Settings 仍待用户决定。主线程本轮已询问“
 未受影响的作者/前端工作继续：tools 作者已有 8/9 组证据，Budget 定向补验继续；公开 Account 入口仍由原作者/独立负责人验证。tools 尚无独立动态 PASS/最终产品接受。Anthropic Messages 当前仅新规格及公开官方来源研究，不实施、不占 Docker；共享 tools 接口上游仍未验，实施依赖不满足，不承担或重建被拦独立测试。ledger、管理读口已接受结果及生产未绑定、Summary 待决、Object 原停止任务、Artifact/Project 阻塞、ready503、完整 D09 未完边界保持。
 
 本次低影响状态同步只写本记录与台账两文件，保留此前各段历史原事实；限定文档链接/格式/SHA 检查后单独冻结交主线程即时提交，不把 Anthropic 候选规格混入本次状态交付。
-
-## 10. Anthropic Messages 规格接受与证据归档
-
-[Anthropic Messages rev1](../work-items/recovery-d09-anthropic-messages-wire.md)已由 `recovery_documentation` 独立 STATIC PASS 并获主线程采纳，提交推送 `f349303bf6aa8b5c796f76cc43a34271e8c186e0`，主线程确认远端一致。作者 `backend_recovery` 完成官方固定来源研究与完整 text/client-tools JSON/SSE、usage、错误/actual join 工程规格；F1 stop_sequence 关系经 freeze02 澄清，F2 诊断输出范围经 freeze03 窄修。采纳稿 SHA256 `506f2a11a049f69e14d2a097c99c7594071df248b2244bf33deda06abacb374d`，技术 §1–11 与独立接受的 freeze03 原字节相同。
-
-[正式报告与持久证据](anthropic-messages-wire-spec-verification.md)保存 66 个官方原件及完整 LICENSE/commit 证据、27 个 Git 基线原件、三版规格与采纳页首差量、独立最终 report/checks/index 和原元数据首失败。新增轻量脚本只读取仓库内证据，可离线核 SHA/长度/Git 路径和修订链，不依赖原 scratch、bare SDK 或缓存。本次 documentation_worker 只归档已确认结果及追加两状态入口，不改正式技术条款或业务源，不执行网络/SDK/Go/Docker/浏览器/产品检查；独立结论只为规格 STATIC PASS。
-
-19 条候选实施路径仍无写权，OpenAI tools 产品最终接受及四个共享 adapter 文件停写/交权的前置未满足。未来由主线程固定实际依赖、核差量再派实施；本次不恢复、改派、重建 §9 被拦的独立动态任务。reasoning/thinking 与 structured 的后继完整卡、生产 Resolver/Runtime/consumer/工具执行/HTTP/root 未绑定及完整 D09 未完成保持；本次不改变其他作者或前端工作状态。§1–9 原字节保留，后续进度以新记录接续。

@@ -1,0 +1,118 @@
+{
+  "baseline": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+  "accepted_tools_product": false,
+  "sources": {
+    "AGENTS.md": {
+      "bytes": 18245,
+      "sha256": "392dec49ba8a7781adf7af1ac28d5a93e8abadbf339db724e2375c9c91538df0"
+    },
+    ".agents/skills/agenteam-design/SKILL.md": {
+      "bytes": 3874,
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81"
+    },
+    "docs/development/agent-team/README.md": {
+      "bytes": 14169,
+      "sha256": "484c5c9998cffee13083df540e389d02e885fe8da57248636ee9aa8ad2b71116"
+    },
+    "docs/development/work-items/d09-model-system-token-usage-design.md": {
+      "bytes": 66903,
+      "sha256": "2c362366c8e52f28b16b92aa574e6a245489ba17eaaff79ac27aacffc704c133"
+    },
+    "docs/development/work-items/d09-model-system-token-usage.md": {
+      "bytes": 11913,
+      "sha256": "928c20d4f29586622e615af2c8a3f6b6d9fcd0db425951a13158b722f6f4831e"
+    },
+    "docs/development/work-items/recovery-d09-openai-chat-wire.md": {
+      "bytes": 29152,
+      "sha256": "ed7c50ecd20156362dfbfab2a2e542ddec2b64c89d816a73a4db1843599ab824"
+    },
+    "docs/development/work-items/recovery-d09-openai-chat-structured-wire.md": {
+      "bytes": 21860,
+      "sha256": "7774aff73cec0626271895a3abcb1f3c88e5ff9efdd05382777c6c0894b56356"
+    },
+    "docs/development/work-items/recovery-d09-openai-chat-tools-wire.md": {
+      "bytes": 28164,
+      "sha256": "bd20d74ce497df08fe3276387e5d143b7dc5f8deeb2ceef89905cb6e2f186e37"
+    },
+    "docs/architecture/platform-infrastructure/model-system/chat-model-runtime.md": {
+      "bytes": 14910,
+      "sha256": "bc8179f1aedec56f7f67ff8bcbdbf534226bfa07a28b305796ca49a484c034e3"
+    },
+    "internal/central/model/contract/chat.go": {
+      "bytes": 16536,
+      "sha256": "01f2abe8a8d5be54ed3193f22be75094f3868e2b09a6d8ca5dab6fb70aac2d88"
+    },
+    "internal/central/model/contract/types.go": {
+      "bytes": 19439,
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4"
+    },
+    "internal/central/model/resolution_policy.go": {
+      "bytes": 4230,
+      "sha256": "538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee"
+    },
+    "internal/central/model/adapter/openai_chat.go": {
+      "bytes": 11254,
+      "sha256": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556"
+    },
+    "internal/central/model/adapter/transport.go": {
+      "bytes": 11948,
+      "sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf"
+    },
+    "internal/central/model/adapter/errors.go": {
+      "bytes": 11274,
+      "sha256": "24f7aa4cf23f3835bd911a2bb9fedee129045abde698c21bb5711a2ed494e499"
+    },
+    "internal/central/model/adapter/sse.go": {
+      "bytes": 3680,
+      "sha256": "2996e01864c0a0504a429e9bafb9e4305003bfe7a40270a1e75bf5aefec8f025"
+    },
+    "internal/central/model/adapter/budget.go": {
+      "bytes": 2607,
+      "sha256": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a"
+    },
+    "tests/model/openai_chat_wire_fixture_test.go": {
+      "bytes": 10655,
+      "sha256": "cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8"
+    },
+    "tests/testsupport/outbound/cmd/server/main.go": {
+      "bytes": 10592,
+      "sha256": "2ca0951c43f5dede7defd35443b67c31aa7e910f36ecdfe9fbb8212070ef6071"
+    },
+    "tests/testsupport/outbound/fixture.go": {
+      "bytes": 5394,
+      "sha256": "525e7cc33d887fb1d741a5c34fddd048c5827cdef1943bc9fae924ce4f754cbc"
+    },
+    "scripts/test-security.sh": {
+      "bytes": 1117,
+      "sha256": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be"
+    },
+    "scripts/test-objects.sh": {
+      "bytes": 1029,
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87"
+    },
+    "scripts/test-models.sh": {
+      "bytes": 290,
+      "sha256": "f9187e2e17cd58bc22557d75af8cf60ab32362a6e9a6848569c298860291374b"
+    },
+    "go.mod": {
+      "bytes": 1468,
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758"
+    },
+    "go.sum": {
+      "bytes": 8391,
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245"
+    }
+  },
+  "status_commit": "71f276f374fb1846adcd94bbc2dec2285be63e59",
+  "notes": "Shared adapter files read from accepted Git baseline; active tools implementation excluded; status update is documentation-only.",
+  "status_sources": {
+    "docs/development/agent-team/tasks.md": {
+      "sha256": "268fdff145c9048bb4a3ba2c2845ce57baa1790254eff65035f67453d9a4cc76",
+      "bytes": 224679
+    },
+    "docs/development/agent-team/recovery-2026-10-06.md": {
+      "sha256": "d9d5990a227b641de9f1688bb15b2931f8a6d1825edf227129ce8cb9e78b7d41",
+      "bytes": 14344
+    }
+  }
+}

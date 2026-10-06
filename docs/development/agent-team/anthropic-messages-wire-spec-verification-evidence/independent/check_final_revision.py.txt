@@ -1,0 +1,101 @@
+"""Static document/hash inspection only. No product, SDK or network execution."""
+from pathlib import Path
+import datetime
+import difflib
+import hashlib
+import json
+import re
+
+HERE = Path(__file__).parent
+AUTHOR = Path('/workspace/scratch/agenteam-anthropic-spec-76c077li')
+REPO = Path('/workspace/agenteam')
+EXPECTED = [
+    'bc3830cf43ca262e560ac7668f2cc1547c33aedb264fef432bd9d00c2335d2b7',
+    '31d2ca9247e2b41b7432bf94e5bef06748166c54e6f00ae41111b84443535e00',
+    'abbed65ecd40a99336a05f281c33c0efa8992883df2f55f9c44758da426f4d18',
+]
+
+def sha(raw):
+    return hashlib.sha256(raw).hexdigest()
+
+def identity(path):
+    raw = path.read_bytes()
+    return {'path': str(path), 'sha256': sha(raw), 'bytes': len(raw)}
+
+inputs = json.loads((HERE / 'static-input-checks.json').read_bytes())
+original_manifest = json.loads((AUTHOR / 'spec-freeze01/manifest.json').read_bytes())
+for path, expected in original_manifest['documents'].items():
+    actual = identity(AUTHOR / path)
+    assert actual['sha256'] == expected['sha256'] and actual['bytes'] == expected['bytes'], path
+for entry in inputs['official_sources']:
+    actual = identity(AUTHOR / 'source' / entry['path'])
+    assert actual['sha256'] == entry['sha256'] and actual['bytes'] == entry['bytes'], entry['path']
+
+chain = []
+previous = None
+for index, expected in enumerate(EXPECTED, 1):
+    directory = AUTHOR / f'spec-freeze{index:02d}'
+    raw = (directory / 'spec.md').read_bytes()
+    meta = json.loads((directory / 'manifest.json').read_bytes())
+    assert sha(raw) == meta['sha256'] == expected
+    assert len(raw) == meta['bytes']
+    item = {'spec': identity(directory / 'spec.md'), 'manifest': identity(directory / 'manifest.json')}
+    if previous is not None:
+        expected_diff = ''.join(difflib.unified_diff(
+            previous.decode().splitlines(True), raw.decode().splitlines(True),
+            fromfile=f'spec-freeze{index-1:02d}/spec.md', tofile=f'spec-freeze{index:02d}/spec.md')).encode()
+        assert (directory / 'delta.patch').read_bytes() == expected_diff
+        assert sha(expected_diff) == meta['delta_sha256']
+        assert sha((directory / 'checks.json').read_bytes()) == meta['checks_sha256']
+        assert meta['prior_sha256'] == EXPECTED[index-2]
+        item['delta'] = identity(directory / 'delta.patch')
+        item['author_checks'] = identity(directory / 'checks.json')
+    chain.append(item)
+    if index == 3:
+        old_sentence = '所有Request/Result/Event/日志/错误都不得出现key、输入/答案、tool schema/args或供应商诊断canary。'
+        new_sentence = 'Request/Result/Event载体的Format/LogValue/安全JSON及日志/错误/诊断输出不得泄露key、输入/答案、tool schema/args或供应商诊断canary；正常typed Request/Result.Message/Event业务字段仍按契约承载正文/参数，不受此诊断输出禁令限制。'
+        assert previous.count(old_sentence.encode()) == 1
+        assert raw == previous.replace(old_sentence.encode(), new_sentence.encode())
+        for name in ['spec.md', 'manifest.json', 'delta.patch', 'checks.json']:
+            (HERE / ('reviewed-spec-freeze03-' + name)).write_bytes((directory / name).read_bytes())
+    previous = raw
+
+text = previous.decode('utf-8')
+assert text.endswith('\n') and '\r' not in text
+assert all(line.rstrip() == line for line in text.splitlines())
+paths = re.findall(r'^\|\s*(\d+)\s*\|\s*`([^`]+)`', text, re.M)
+assert [int(index) for index, _ in paths] == list(range(1, 20))
+assert [path for _, path in paths] == inputs['implementation_paths']
+links = [target for target in re.findall(r'\[[^\]]*\]\(([^)]+)\)', text)
+         if not target.startswith(('https://', 'http://'))]
+assert links == inputs['local_links']
+assert sha((REPO / original_manifest['repo_path']).read_bytes()) == EXPECTED[-1]
+report = (HERE / 'review.md').read_text()
+assert EXPECTED[-1] in report and '**STATIC PASS（规格静审）**' in report
+assert report.endswith('\n') and '\r' not in report
+assert all(line.rstrip() == line for line in report.splitlines())
+
+result = {
+    'kind': 'independent document static review',
+    'checked_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+    'result': 'STATIC PASS',
+    'accepted_spec_sha256': EXPECTED[-1],
+    'chain': chain,
+    'original_input_checks': identity(HERE / 'static-input-checks.json'),
+    'all_7_metadata_and_66_official_sources_unchanged': True,
+    'prior_fixed_git_inputs_verified': 27,
+    'official_source_bytes': 297810,
+    'field_fact_groups': 9,
+    'field_line_matches': 75,
+    'candidate_paths': 19,
+    'local_links_unchanged': 14,
+    'format_utf8_lf_no_trailing_whitespace': True,
+    'findings': {'F1_stop_sequence': 'CLOSED in freeze02', 'F2_diagnostic_output_scope': 'CLOSED in freeze03'},
+    'remaining_blocking_spec_findings': [],
+    'report': identity(HERE / 'review.md'),
+    'execution_boundaries': inputs['boundaries'],
+    'implementation_dependency': 'tools product acceptance and shared-file handoff remain unmet; specification review grants no implementation authority',
+}
+(HERE / 'final-checks.json').write_text(json.dumps(result, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps({'result': result['result'], 'accepted_spec_sha256': EXPECTED[-1],
+                  'closed_findings': 2, 'official_sources': 66, 'fixed_git_inputs': 27}, ensure_ascii=False))

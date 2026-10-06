@@ -1,0 +1,522 @@
+{
+  "commit": "18f25547f20cf5f01da69ac611e700e3bc9ebf21",
+  "facts": [
+    {
+      "fact": "native_endpoint_headers",
+      "files": [
+        {
+          "path": "src/anthropic/resources/messages/messages.py",
+          "sha256": "84cdd72a903199e010076ba41aebb62e54c3ab3d0bf8109d51ad37935ab8dbd0",
+          "matches": [
+            {
+              "line": 1030,
+              "text": "\"/v1/messages\","
+            },
+            {
+              "line": 1147,
+              "text": "\"/v1/messages\","
+            },
+            {
+              "line": 1265,
+              "text": "\"/v1/messages\","
+            },
+            {
+              "line": 2512,
+              "text": "\"/v1/messages\","
+            },
+            {
+              "line": 2628,
+              "text": "\"/v1/messages\","
+            },
+            {
+              "line": 2746,
+              "text": "\"/v1/messages\","
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/_client.py",
+          "sha256": "ac8af83df47c29a246ca31f09c6c933eee3ca8a16f59a5d11a8c0ced976202ed",
+          "matches": [
+            {
+              "line": 374,
+              "text": "return {\"X-Api-Key\": api_key}"
+            },
+            {
+              "line": 395,
+              "text": "\"anthropic-version\": \"2023-06-01\","
+            },
+            {
+              "line": 412,
+              "text": "if self._token_cache is not None and not headers.get(\"X-Api-Key\") and not headers.get(\"Authorization\"):"
+            },
+            {
+              "line": 415,
+              "text": "if headers.get(\"Authorization\") or headers.get(\"X-Api-Key\"):"
+            },
+            {
+              "line": 419,
+              "text": "if headers.get(\"X-Api-Key\") or \"x-api-key\" in omitted:"
+            },
+            {
+              "line": 806,
+              "text": "return {\"X-Api-Key\": api_key}"
+            },
+            {
+              "line": 827,
+              "text": "\"anthropic-version\": \"2023-06-01\","
+            },
+            {
+              "line": 838,
+              "text": "if self._token_cache is not None and not headers.get(\"X-Api-Key\") and not headers.get(\"Authorization\"):"
+            },
+            {
+              "line": 841,
+              "text": "if headers.get(\"Authorization\") or headers.get(\"X-Api-Key\"):"
+            },
+            {
+              "line": 845,
+              "text": "if headers.get(\"X-Api-Key\") or \"x-api-key\" in omitted:"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/_exceptions.py",
+          "sha256": "10418f63dd4396903f6da4e90d4b776704a5438bb3b67b8023c4c20db075618d",
+          "matches": [
+            {
+              "line": 85,
+              "text": "self.request_id = response.headers.get(\"request-id\")"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fact": "request_shape_and_source_internal_boundary",
+      "files": [
+        {
+          "path": "src/anthropic/types/message_create_params.py",
+          "sha256": "d845662fe7f49f21231c38ca82ec8756a8b10fbb4353f1364b458f6c1dfc65ea",
+          "matches": [
+            {
+              "line": 35,
+              "text": "max_tokens: Required[int]"
+            },
+            {
+              "line": 113,
+              "text": "you can use the top-level `system` parameter — there is no `\"system\"` role for"
+            },
+            {
+              "line": 177,
+              "text": "system: Union[str, Iterable[TextBlockParam]]"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/types/message_param.py",
+          "sha256": "0b2e98db9187b43ac288596a56dcf5ae6346f72931b0845f0ffd9c5665ba74b2",
+          "matches": [
+            {
+              "line": 55,
+              "text": "role: Required[Literal[\"user\", \"assistant\", \"system\"]]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fact": "ordered_blocks_and_empty_text",
+      "files": [
+        {
+          "path": "src/anthropic/types/message.py",
+          "sha256": "cdf6b3feba97d806d76922253de41539cb36b2c87d911052d1412fd16b4f3da4",
+          "matches": [
+            {
+              "line": 30,
+              "text": "content: List[ContentBlock]"
+            },
+            {
+              "line": 145,
+              "text": "return MessageParam(role=self.role, content=list(self.content))"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/types/text_block.py",
+          "sha256": "8a2fa22bdec6b206ff52603468f1c3a39e59a3d68c4554ceb65f79ba19cc29ea",
+          "matches": [
+            {
+              "line": 19,
+              "text": "text: str"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/types/tool_use_block.py",
+          "sha256": "a4e5a1e312b86c6ae639b6941bfb1fe3d61a87eb1e5f018eebba490b0894dd14",
+          "matches": [
+            {
+              "line": 21,
+              "text": "input: Dict[str, object]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fact": "choice_native",
+      "files": [
+        {
+          "path": "src/anthropic/types/tool_choice_auto_param.py",
+          "sha256": "40168cd069dfdcdcbbf1b7b6cb2df69049f351ead2778e65e24176f45951d63a",
+          "matches": [
+            {
+              "line": 11,
+              "text": "type: Required[Literal[\"auto\"]]"
+            },
+            {
+              "line": 13,
+              "text": "disable_parallel_tool_use: bool"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/types/tool_choice_any_param.py",
+          "sha256": "8ade1b2bfe0f33680db2530b7e62f6c78a18ad4d42d3d9136884026c92453abf",
+          "matches": [
+            {
+              "line": 11,
+              "text": "type: Required[Literal[\"any\"]]"
+            },
+            {
+              "line": 13,
+              "text": "disable_parallel_tool_use: bool"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/types/tool_choice_tool_param.py",
+          "sha256": "7a5f58a37f771b9e392d023ba95691829eb44583f3d3839ced0716a0df33f443",
+          "matches": [
+            {
+              "line": 14,
+              "text": "type: Required[Literal[\"tool\"]]"
+            },
+            {
+              "line": 16,
+              "text": "disable_parallel_tool_use: bool"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/types/tool_choice_none_param.py",
+          "sha256": "c50272a4ad4c88f2f5f4ad4bfd9aebba0af0b9f0479b2bfd8f6e61acb34b90f3",
+          "matches": [
+            {
+              "line": 11,
+              "text": "type: Required[Literal[\"none\"]]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fact": "cumulative_nullable_usage",
+      "files": [
+        {
+          "path": "src/anthropic/types/usage.py",
+          "sha256": "067d4e2d9fa8b623af5d05010351709078d803234260569b841a0f9ba460c271",
+          "matches": [
+            {
+              "line": 16,
+              "text": "cache_creation_input_tokens: Optional[int] = None"
+            },
+            {
+              "line": 19,
+              "text": "cache_read_input_tokens: Optional[int] = None"
+            },
+            {
+              "line": 25,
+              "text": "input_tokens: int"
+            },
+            {
+              "line": 28,
+              "text": "output_tokens: int"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/types/message_delta_usage.py",
+          "sha256": "8ad15dff7eb7dee758ac8370a7ee9525a6e0cc32ac671c11e3e176aaf62d9b4e",
+          "matches": [
+            {
+              "line": 11,
+              "text": "cache_creation_input_tokens: Optional[int] = None"
+            },
+            {
+              "line": 14,
+              "text": "cache_read_input_tokens: Optional[int] = None"
+            },
+            {
+              "line": 17,
+              "text": "input_tokens: Optional[int] = None"
+            },
+            {
+              "line": 20,
+              "text": "output_tokens: int"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/types/output_tokens_details.py",
+          "sha256": "691e4e601042536f65d67db6655c52cc622efab2a82dde7e640033c68f9e0592",
+          "matches": [
+            {
+              "line": 7,
+              "text": "thinking_tokens: int"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/lib/streaming/_messages.py",
+          "sha256": "b628629188df66541a35d052a0ebdbfb4d5d18efd17d25f3655e9cd28c1204af",
+          "matches": [
+            {
+              "line": 99,
+              "text": "assert self.__final_message_snapshot is not None"
+            },
+            {
+              "line": 129,
+              "text": "assert self.__final_message_snapshot is not None"
+            },
+            {
+              "line": 182,
+              "text": "if self.__stream is not None:"
+            },
+            {
+              "line": 252,
+              "text": "assert self.__final_message_snapshot is not None"
+            },
+            {
+              "line": 282,
+              "text": "assert self.__final_message_snapshot is not None"
+            },
+            {
+              "line": 337,
+              "text": "if self.__stream is not None:"
+            },
+            {
+              "line": 518,
+              "text": "if event.delta.container is not None:"
+            },
+            {
+              "line": 522,
+              "text": "# Usage counts on a message_delta are cumulative totals, so they overwrite rather"
+            },
+            {
+              "line": 525,
+              "text": "if event.usage.input_tokens is not None:"
+            },
+            {
+              "line": 527,
+              "text": "if event.usage.cache_creation_input_tokens is not None:"
+            },
+            {
+              "line": 529,
+              "text": "if event.usage.cache_read_input_tokens is not None:"
+            },
+            {
+              "line": 531,
+              "text": "if event.usage.server_tool_use is not None:"
+            },
+            {
+              "line": 533,
+              "text": "if event.usage.output_tokens_details is not None:"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fact": "stream_positions_and_completion",
+      "files": [
+        {
+          "path": "src/anthropic/types/raw_content_block_start_event.py",
+          "sha256": "5b113dd03313910a8181ae7c48afb5e965ece9b37d1cd70e40f31cddc531e3bc",
+          "matches": [
+            {
+              "line": 42,
+              "text": "index: int"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/types/raw_content_block_delta_event.py",
+          "sha256": "a154d67c32e80549a3bcd85bea7cfa3bbd2a2fd3165f44d1ca250959a4961519",
+          "matches": [
+            {
+              "line": 12,
+              "text": "index: int"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/types/raw_content_block_stop_event.py",
+          "sha256": "94ffc25bd0a1831711583cc3b2eaf08fa1ed77c0e1c9179e37f0aba54b319838",
+          "matches": [
+            {
+              "line": 9,
+              "text": "index: int"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/types/raw_message_stop_event.py",
+          "sha256": "0f69a4dcca8ce04ec6168f2462f49a9eca2a01424a27cbd9ff672e5114beb780",
+          "matches": [
+            {
+              "line": 9,
+              "text": "type: Literal[\"message_stop\"]"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/lib/streaming/_messages.py",
+          "sha256": "b628629188df66541a35d052a0ebdbfb4d5d18efd17d25f3655e9cd28c1204af",
+          "matches": [
+            {
+              "line": 352,
+              "text": "elif event.type == \"message_stop\":"
+            },
+            {
+              "line": 354,
+              "text": "build(ParsedMessageStopEvent[ResponseFormatT], type=\"message_stop\", message=message_snapshot)"
+            },
+            {
+              "line": 378,
+              "text": "partial_json=event.delta.partial_json,"
+            },
+            {
+              "line": 474,
+              "text": "content = current_snapshot.content[event.index]"
+            },
+            {
+              "line": 483,
+              "text": "json_buf += bytes(event.delta.partial_json, \"utf-8\")"
+            },
+            {
+              "line": 511,
+              "text": "content_block = current_snapshot.content[event.index]"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fact": "safe_errors",
+      "files": [
+        {
+          "path": "src/anthropic/types/shared/error_type.py",
+          "sha256": "6008bc83d9a8c963cb71cdc1151fcec96fa8dbcaebdc5c0ed3ebb6888fe14589",
+          "matches": [
+            {
+              "line": 5,
+              "text": "ErrorType: TypeAlias = Literal["
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/_client.py",
+          "sha256": "ac8af83df47c29a246ca31f09c6c933eee3ca8a16f59a5d11a8c0ced976202ed",
+          "matches": [
+            {
+              "line": 579,
+              "text": "if response.status_code == 529:"
+            },
+            {
+              "line": 1005,
+              "text": "if response.status_code == 529:"
+            }
+          ]
+        },
+        {
+          "path": "src/anthropic/_streaming.py",
+          "sha256": "1bd8aa290b9583992bdaa63772735300ecca47d63c99bf2e489e53d8753eca3e",
+          "matches": [
+            {
+              "line": 129,
+              "text": "if sse.event == \"ping\":"
+            },
+            {
+              "line": 132,
+              "text": "if sse.event == \"error\":"
+            },
+            {
+              "line": 281,
+              "text": "if sse.event == \"ping\":"
+            },
+            {
+              "line": 284,
+              "text": "if sse.event == \"error\":"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fact": "official_refusal_zero_fixture",
+      "files": [
+        {
+          "path": "tests/lib/streaming/fixtures/refusal_response.txt",
+          "sha256": "13f671d69252664542d26b8e85a5c29406eb349b1d77ef13127c39b76ceb7f5e",
+          "matches": [
+            {
+              "line": 2,
+              "text": "data: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_01RefusalTestMessage123456789\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[],\"model\":\"claude-opus-4-7\",\"stop_reason\":null,\"stop_sequence\":null,\"usage\":{\"input_tokens\":20,\"output_tokens\":1}}}"
+            },
+            {
+              "line": 11,
+              "text": "data: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"refusal\",\"stop_sequence\":null,\"stop_details\":{\"type\":\"refusal\",\"category\":\"cyber\",\"explanation\":\"This request was refused due to policy.\"}},\"usage\":{\"output_tokens\":0}}"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fact": "official_optional_cache_fixture",
+      "files": [
+        {
+          "path": "tests/lib/streaming/fixtures/message_delta_omitted_usage_response.txt",
+          "sha256": "163b57c8fbb83a2bd74c474b8afa130159a00c8fbce96d7d24e42c082f1fb76f",
+          "matches": [
+            {
+              "line": 2,
+              "text": "data: {\"type\":\"message_start\",\"message\":{\"id\":\"msg_01MessageDeltaOmitted00000001\",\"type\":\"message\",\"role\":\"assistant\",\"content\":[],\"model\":\"claude-sonnet-4-5\",\"stop_reason\":null,\"stop_sequence\":null,\"stop_details\":null,\"usage\":{\"input_tokens\":25,\"cache_creation_input_tokens\":10,\"cache_read_input_tokens\":5,\"cache_creation\":{\"ephemeral_5m_input_tokens\":10,\"ephemeral_1h_input_tokens\":0},\"output_tokens\":1,\"service_tier\":\"priority\"}}}"
+            },
+            {
+              "line": 14,
+              "text": "data: {\"type\":\"message_delta\",\"delta\":{\"stop_reason\":\"end_turn\",\"stop_sequence\":null,\"stop_details\":null},\"usage\":{\"output_tokens\":8}}"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "project_decisions": [
+    "API base_url exact path plus /messages (different configuration convention from SDK origin)",
+    "No tool SDK/runtime execution or generic transport; product waits for accepted tools",
+    "Ordered C0 Message plus optional Event.PartIndex; empty TextPart permitted by C0 and preserved as structure",
+    "Bounded native name subset, strict unknown fields, explicit unsupported features, no capability inference",
+    "Nullable usage tolerance is project normalization; SDK Required annotation does not authorize invented zero"
+  ],
+  "c0_evidence": {
+    "path": "internal/central/model/contract/chat.go",
+    "baseline": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+    "sha256": "01f2abe8a8d5be54ed3193f22be75094f3868e2b09a6d8ca5dab6fb70aac2d88",
+    "functions": [
+      "TextPart.Validate permits empty text; Message.Validate requires one or more actual parts",
+      "Message.Clone preserves Parts order; ToolCallPart.Validate is final object/number/depth boundary"
+    ]
+  }
+}

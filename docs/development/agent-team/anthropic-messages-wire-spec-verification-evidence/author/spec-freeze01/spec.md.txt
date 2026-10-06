@@ -1,0 +1,203 @@
+# D09 Anthropic Messages text/tools wire 工程卡
+
+修订：rev1 候选，待独立静审与主线程采纳。当前仅授权本文件及私有研究证据，**不授权下列实施路径或任何产品运行**。作者 `backend_recovery`，architecture_worker / research_worker；已读 [design 技能](../../../.agents/skills/agenteam-design/SKILL.md)，不再委派。固定已接受基线 `0d22c7fd9202a81478804f2b810ebaddc350e856`；活动 OpenAI tools 实现尚待验收，本卡的共享载体与实施顺序以 §3、§10 为门槛，不把活动源码当成已验依赖。
+
+当前补充边界：tools 原独立动态启动被自动安全筛查以“possible cybersecurity risk”中断、实际 NOT RUN，原任务停止且待用户确认，准确状态见[恢复记录 §9](../agent-team/recovery-2026-10-06.md#9-tools-独立启动被筛查中断not-run)。本卡仅继续未受影响的新规格研究，不承担、重建或替代被拦任务；tools 仍无最终接受，实施依赖未满足。
+
+必读 [AGENTS](../../../AGENTS.md)、[团队流程](../agent-team/README.md)、[D09 主卡](d09-model-system-token-usage.md)、[正式设计 §6–7](d09-model-system-token-usage-design.md#6-五种协议-profile固定源码事实与-conformance-边界)、[Chat 架构](../../architecture/platform-infrastructure/model-system/chat-model-runtime.md)、[C0](../../../internal/central/model/contract/chat.go)、已验 [text](recovery-d09-openai-chat-wire.md) / [structured](recovery-d09-openai-chat-structured-wire.md)、待验 [tools 卡](recovery-d09-openai-chat-tools-wire.md)和已接受[账本报告](../agent-team/invocation-usage-ledger-verification.md)。实施/独立验收分别补读 [Go](../../../.agents/skills/agenteam-go-development/SKILL.md) / [verification](../../../.agents/skills/agenteam-verification/SKILL.md) 技能。
+
+## 1. 完整结果、前置与后续责任
+
+本卡交付 `adapter.AnthropicMessages` 的 `anthropic-messages-text-tools-v1`：普通 JSON 与 SSE、原生 text/client tool_use/tool_result、四种工具选择、有序多 content block、可靠 nullable/cumulative usage、安全错误、背压/取消/actual join。它是一次受控 wire exchange，不是模型业务调用、工具执行或新的 transport owner。
+
+| 输入 | 本卡实际依赖及边界 |
+| --- | --- |
+| text `9c72190`、structured `be0bd07` | 已验 D04 单次 POST、Transport / Request / CallOptions / Exchange / Budget 和原结果发布、关闭链；原修订含义不变 |
+| C0 `e6e94c4` | 复用有序 `mc.Message.Parts`、ToolCallPart/ToolResultPart、ToolChoice、Usage、ModelError；不改 C0、opaque metadata 或工具授权契约 |
+| OpenAI tools | 只采用已静审的载体方向；**其产品接受、共享四源冻结并交权后**才能实施本卡，届时固定提交/SHA，核 §3 无冲突后开工；不得复制活动候选当成前置已通过 |
+| D04 / Account / Audit / outbound fixture | 正式策略、TLS、origin-bound Credential 与 Decision/Drain；真实测试借用已验私有服务与 Account/Audit 策略，不用任意 HTTP client 或宽松地址分类 |
+| ledger `36e5ff1`、Resolver `4295df7` | 只读已接受上游。账本旧 wire 回归保护共享 Observe/Join 语义；不新增 InvocationFacts 或数据库发送授权。当前 Resolver 仍只接受 OpenAI text/structured，Anthropic 及 tools 生产选择未绑定 |
+
+不在此卡实现 reasoning/thinking、structured output、image/file、server tools、cache-control、任意 native 参数/headers、Provider registry、Secret planned read/release、Runtime retry/recovery、consumer/HTTP/root 或 Project lifecycle。未知/未支持显式能力在准入前 unsupported，不静默降级；响应出现未支持内容也失败，不跳过该块而破坏顺序。`ready=false`/503、Summary 待决及停止的 Object 原任务不变。
+
+D09 的 reasoning 与 structured 义务仍保留，后继须各立完整卡：reasoning 要有逐型号 thinking enabled/adaptive、effort/预算/工具选择相容性及原序 thinking/signature/redacted opaque roundtrip，当前 C0 OpaqueRef 的真实材料 owner/保留与权限端口尚未绑定；structured 要验证 `output_config.format` 的字段、保守 schema 子集、型号与 text/tools/thinking 相容性及失败终止，不能把 OpenAI strict schema 实现直接改名使用。之后 Resolver/真实 Runtime/consumer 装配另行验收。上述技术拆分不代决 Summary，也不表示完整 D09 已完成。
+
+## 2. 固定官方来源与实际观察
+
+仅公开只读 Git 取证，采用正式 D09 已固定的 [Anthropic Python SDK](https://github.com/anthropics/anthropic-sdk-python/tree/18f25547f20cf5f01da69ac611e700e3bc9ebf21) 提交 `18f25547f20cf5f01da69ac611e700e3bc9ebf21`（1.11.0）。没有安装、导入或运行 SDK，没有访问真实供应商账号。SDK 是字段/累积算法证据，不是本库或全部型号 conformance。
+
+私有证据目录 `/workspace/scratch/agenteam-anthropic-spec-76c077li`：`fetch-commands.json` 与原 stdout/stderr、commit object、66 个限定原件（含 LICENSE，297810 bytes）、逐 URL/Git blob/SHA 的 `source-manifest.json`。来源 manifest SHA-256 `28ea317726e14967d13f17197c9f4b1c2cd9980bba41f815dbddcbec5259c3b8`；commit object SHA-256 `da45a0b4c47f608723323e876bbac8e73c972839fd677d8ce0d8071354a31d1d`。采纳时须归档这些轻量原件/校验与字段定位，不能以临时目录为唯一恢复来源；不搬 SDK bare repository 或执行其代码。
+
+下表路径相对 SDK `src/anthropic/`；`tests/` 行相对仓库根。完整原字节与各文件 SHA 见 manifest，不用 latest 或第三方兼容约定补字段。
+
+| 采用事实 | 固定来源 |
+| --- | --- |
+| 原生 POST `/v1/messages`；`max_tokens/messages/model`、顶层 system、stream、tools/tool_choice | `resources/messages/messages.py` create；`types/message_create_params.py`。SDK 默认 origin 与平台 API base 的区别见 §4 |
+| API key `X-Api-Key`；`anthropic-version: 2023-06-01`；响应 `request-id` | `_client.py` `_api_key_auth/default_headers`；`_exceptions.py:85`。本修订不采用 SDK Bearer/OAuth、beta 或自动重试 |
+| content 是有序 block 数组；text 原字符串、tool_use 的 id/name/input object；tool_result 的 tool_use_id/content/is_error | `types/{message,message_param,text_block,text_block_param,tool_use_block,tool_use_block_param,tool_result_block_param}.py`。`message.to_param` 按原 content 顺序返回 |
+| client tool 的 name/description/input_schema；auto/any/tool/none；disable_parallel 在 auto/any/tool | `types/tool_param.py`、`tool_choice_{auto,any,tool,none}_param.py`；none 类型没有 parallel 字段 |
+| SSE event 名称、index、text_delta/input_json_delta.partial_json、message_stop；ping/error | `types/raw_*_event.py`、`text_delta.py`、`input_json_delta.py`，`_streaming.py`；`lib/streaming/_messages.py` 按 index 累积 |
+| 起始 input/output 与缓存、最终累计覆盖；optional omitted/null 保留旧值；thinking 是 output 细分、无 total | `types/{usage,message_delta_usage,output_tokens_details}.py`；`lib/streaming/_messages.py:514–534`；`types/message.py` 说明 input 与 cache 是不同组成 |
+| usage 已知旁字段及 direct caller | `types/{cache_creation,server_tool_usage,direct_caller}.py`；不能把 cache TTL / server tool 次数再加到 token |
+| 终止枚举、refusal 与安全 error 类型 | `types/stop_reason.py`、`refusal_stop_details.py`、`shared/{error_response,error_object,error_type}.py` 及其九个成员；`_client.py` 对 529 的 OverloadedError 分派 |
+| 可核对的顺序/省略/归零反例 | `tests/lib/streaming/fixtures/{basic_response,tool_use_response,message_delta_fields_response,message_delta_omitted_usage_response,refusal_response,incomplete_partial_json_response,tool_use_invalid_json_response}.txt`；refusal 样例 output 从初始1覆盖为0，不能用 max 或单调断言代替覆盖 |
+
+两个来源内部边界必须明示：`message_param.py` 的宽 Literal 含 system，但 `message_create_params.py` 注释仍要求顶层 system；本卡遵循正式 D09 的独立 system，不输出 native role=system。SDK 另允许 max_tokens=0 预热缓存，而 C0 MaxOutput 必为正；本卡不引入 cache warming，也不将 nil MaxOutput 猜成默认值。这些是本项目明确子集，不声称 SDK 类型等于所有型号/账号的完整能力矩阵。
+
+## 3. 最小公共载体与同一传输
+
+保留 `NewOpenAIChat`、所有旧 revision、`Request` / `CallOptions` / `End` / `Observation` 与 Exchange 方法签名。待 tools 最终接受后，仅增加以下公开形状；`mc` 为既有 model contract：
+
+```go
+const AnthropicMessagesTextToolsRevision = "anthropic-messages-text-tools-v1"
+type AnthropicMessages struct { /* private Transport and *Budget */ }
+func NewAnthropicMessages(Transport, *Budget) (*AnthropicMessages, error)
+func (*AnthropicMessages) Start(context.Context, Request, CallOptions) (*Exchange, error)
+// 两个现有载体只追加以下字段：
+// Result.Message *mc.Message
+// Event.PartIndex *int
+```
+
+Anthropic JSON 成功结果只填 `Message` 与原 `End`；Message.Role=assistant、Parts 按 native content 原序，只含 TextPart/ToolCallPart，必须通过 C0 Validate。原 `Text` 为空、tools 候选的 `ToolCalls` 为 nil，避免两份可分歧正文。OpenAI 三修订的 `Message` / `PartIndex` 恒 nil，既有 Text/ToolCalls/Event 含义保持；错误一律零 Result，SSE 不通过 Result 或 StreamEnd 夹带整条 Message/Arguments。
+
+Anthropic SSE 的 TextDelta/ToolDelta/ToolComplete 都携 native `PartIndex`（0..255）；ToolDelta.Index/ToolComplete.Index 继续是遇到工具的稠密序号0..127，不能以 native part index 直接替代。文本块之间即使相邻也不拼成同一 part，text/tool/text 的顺序必须可重建。为了保留 `content:[{"type":"text","text":""}]` 的已有 C0 合法结构，空 text block 的 start 发一次 `TextDelta{Text:"", PartIndex:&i}` 结构标记；只有此新 revision 有该规则，不算 PartialOutput，不产生伪造正文。非空初始 text 直接发带该 index 的片段，随后 delta 续在同一 part。未来消费者须按冻结 revision 解释，不能套 OpenAI 无位置文本拼接器；本卡不实现未来 Runtime 投影。
+
+不新增泛型 parser/transport 公共接口、不复制 Exchange/Client/Budget。使用私有 protocol 分派选择 native 请求/响应/SSE、header request ID 与错误解析；复用一个具体 Budget 的64全局/8 Project、原 Exchange worker 与 D04 client。新结构和 adapter 沿原安全 Format/LogValue/MarshalJSON；克隆 Message 的全部可变 parts/RawMessage，Event.PartIndex/工具 payload 指针也独立复制。Result 生命周期结束及时清掉私有结果；不把整 native buffer 经短 substring 留给小事件。
+
+## 4. 准入、endpoint 与请求编码
+
+Start 在 accept/Client/worker/Do 之前完成 C0、闭集、历史关系、大小和不可变编码检查。只接受 `AnthropicMessagesV1` / `AnthropicMessages` / Chat / 本 revision；输入输出 modalities 仅 text，ResponseFormat=text，StructuredOutputModes 空或仅 text；Parameters/RequestOverwrite 必须空 object，HeaderOverwrite 为空。Reasoning=false、无 efforts；流需 Streaming=true，工具历史/本次 tools 需 ToolCalls=true，ParallelToolCalls 沿 C0 显式值。MaxOutput 必须已配置正数；nil 为当前 profile unsupported，零/负数按 C0 InvalidArgument。没有型号猜测、静默参数丢弃或未验 beta。
+
+**平台 Endpoint 是 API base_url**：保留既有 escaped path，只沿旧 wire 的单个尾斜杠规则追加固定 `/messages`，不猜测补/删版本、不调用 path.Clean。原生配置示例 `https://api.anthropic.com/v1` → `/v1/messages`；`https://host/proxy/v1` → `/proxy/v1/messages`；origin-only → `/messages`，不会自动变成 `/v1/messages`。SDK 默认 origin 后调用 `/v1/messages` 只是原生终点证据，平台 base 约定由本卡按 D09 §2 固定。无 userinfo/query/fragment；编码斜杠、代理前缀及精确 RequestURI 均需真实验证。
+
+固定 POST；D04 `HeaderCredential("X-Api-Key", "", material)` 只绑定本次 target origin；请求显式 `anthropic-version: 2023-06-01`、Content-Type application/json，Accept 按 JSON/SSE。不发 Bearer、anthropic-beta、SDK 特有 headers、用户 metadata 或任意 overwrite；不把 key 转成长期 string 或日志。认证材料仍由调用方在实际 Joined 后销毁。POST 3xx 不跟随，HTTP 只在 CallOptions 与 D04 都显式允许时使用，实际首写门禁/透明零字节重试沿 D04，不加 SDK/adapter 重试。
+
+| 输入 | native 编码与关系 |
+| --- | --- |
+| 开头 system 消息 | 只接受开头连续 system/text parts，按原序构成顶层 system text block 数组，不 trim/合并字符串/补分隔符；后置 system 拒绝，至少有一个非 system 的 user turn |
+| user / assistant | user 仅 text；assistant 按原 parts 编码 text 与 `tool_use{id,name,input}`。保留空 text 与混排顺序；合法最后 assistant text prefill 不被改写。历史工具名不要求仍在本次工具集合 |
+| role=tool | 仅 ToolResultPart，编码下一 user turn 的 `tool_result{tool_use_id,content:[text…],is_error}`，显式保留 true/false；空结果 parts 编码空字符串。OutputSchema 不发 native 请求，不编造错误文本 |
+| 历史分组 | 每 assistant 工具组 ID 非空唯一；紧随结果恰一一匹配，可乱序，拒孤立/重复/遗漏/普通消息跨越未完成组。连续 tool 消息同组收敛到同一 user content，结果在后续普通 user text 之前；同 native role 连续消息仅按原 block 顺序组合，不插字/换序。完成组之后 ID 可复用，不成为全局执行身份 |
+| tools | 最多128、name 唯一；发送 name/description/input_schema 原 object，`strict:false`；不发 OutputSchema、server tools、allowed_callers、defer_loading、cache_control 或 eager_input_streaming。输入 schema 仅保留并验 C0 object/深度/64KiB，不编译/$ref 解析，不承诺供应商 strict-schema 保证 |
+| ToolChoice | none→`{type:none}`，auto→`{type:auto}`，required→`{type:any}`，named→`{type:tool,name:…}` 且命中声明工具。auto/any/tool 显式发送 `disable_parallel_tool_use: !ParallelToolCalls`；none 不发该字段。tools 为空只接受 none/auto并省略两字段，required/named 拒绝 |
+
+本修订工具名保守限制为 `[A-Za-z0-9_-]{1,64}`，这是工程子集，固定 SDK 只声明 string，并未证明这一正则是供应商全型号规则。ID 沿 C0 的非空、无 NUL、≤256 UTF-8 bytes。image/file/provider_metadata、非 text tool result 等在 accept 前 unsupported，不读取 Object。输入最多256 messages、展开后的所有 content blocks（含 system/嵌套 tool result text）合计最多256；请求编码总量≤16MiB，先累计上界再分配/编码。全部可变输入在返回 Start 前复制，调用方修改不会改本次请求/允许工具集合/校验规则。
+
+## 5. JSON 响应、内容与终止
+
+仅200和正确 JSON MIME 进入成功解码；完整严格 UTF-8/Unicode escape、duplicate-key、单 JSON 值与类型校验。核心 message 必有 type=message、role=assistant、非空且无NUL的id/model（各≤256 UTF-8 bytes）、content array、非空已知 stop_reason。响应 model 可为请求 alias 的解析结果，不擅自要求与 snapshot 字符串相等，也不据它改写 snapshot。native message id 不冒充 ProviderRequestID；后者只取 `request-id` header 的既有安全 ASCII/256字节投影，缺失/非法则空。
+
+先独立验证完整 envelope/usage 候选并保存可靠 usage，再处理内容的语义失败/refusal/unsupported。合法 refusal 允许空 content，仍先保存 usage 后报 content_filter；不能改成缺少成功正文的错误。其他成功要求1..256 content blocks，所有 Text/ToolCallPart 合并成有序 C0 Message。text 保原文及空块，citations 仅省略/null/空数组；非空 citations 明确 unsupported。tool_use 的 input 是**JSON object，不是 OpenAI arguments 字符串**，按原 RawMessage 保留数字词法，不 float64 往返；每项≤1MiB、C0 ToolCallPart.Validate 成功、最多128、ID唯一、name命中本次集合及 choice/parallel。
+
+tool caller 允许省略/null或精确 `{type:direct}`；server caller、toolset_name 非空、server_tool_use、thinking/redacted、其他已知不支持内容失败，不悄悄丢 part。container/diagnostics 只允许省略/null。stop_details 仅在 refusal 时允许type=refusal、可空category（固定SDK五值）及可空explanation（≤64KiB），读后丢弃，解释正文不进入错误；非 refusal 的非空扩展为 unsupported。其他未知字段/类型为 protocol_invalid。不能把合法 usage 当整个 content 已验。
+
+| stop_reason | 本修订结果 |
+| --- | --- |
+| end_turn | stop；不得带工具，required/named不得零工具成功 |
+| stop_sequence | stop；stop_sequence 必须为非空字符串且≤4KiB，其余正常 stop_sequence 字段只能 null/省略；本卡不发送自定义 stop_sequences，不将原停止串投影成正文 |
+| tool_use | tool_calls；至少一个完整合法工具，none不得工具，named只能该名，parallel=false最多一个；全部校验后才发布 |
+| max_tokens | 无工具且非强制工具时为 length 的文本结果；任何工具内容/强制工具不满足均安全 protocol_invalid，不能发可执行的半工具 |
+| refusal | content_filter，零 Result/零成功 StreamEnd，保可靠 usage |
+| model_context_window_exceeded | context_too_large，零成功，不猜成正常stop或自动压缩/续发 |
+| pause_turn | unsupported_feature；不自动继续 server-side turn |
+| 未知/空原因 | protocol_invalid；HTTP EOF不补出原因 |
+
+普通 JSON 全响应总量≤16MiB，解码正文 text + tool arguments 的总量也≤16MiB。Args 的 object 根 depth=1、子 value（含 scalar）≤32、重复键/尾随/非法 Unicode/NUL ID/`1e400` 沿 C0 拒绝；>2^53 的有限数字保原词法。Anthropic input 本身嵌入 envelope，不能直接套“整个 native JSON 深度32”把合法 C0深度32缩成28：新 parser 按固定 envelope 开销最多36层防护，再对子 input 独立跑 C0深度32。旧 OpenAI jsonShape 闭集/默认深度不放宽。长扫描每有界步检查原ctx，无脱离 Exchange 的验证 goroutine；取消后不发布 Message。
+
+## 6. SSE 状态机与位置
+
+复用有界 SSE framing；私有 reader 可暴露 event name/data，原 OpenAI `next` wrapper 仍只接受其旧 event 名。Anthropic 要求 event 名与 JSON type 精确相同，支持下面六个 message/content 事件与 ping/error；未知 event/未知type/不匹配不忽略。保留 comment、多 data 行、CRLF、跨网络 UTF-8/JSON 转义拆片；每 event（含注释/字段行）≤1MiB，EOF 中断不当正常结束。
+
+1. 恰一次 message_start：message的核心身份与§5一致，content=[]、stop_reason/stop_sequence为null/省略。初始 usage 按§7原值观察并发 UsageUpdate，不补 output=0。ping 可在非终局任意位置出现，仅校验固定type，不改变状态/PartialOutput。
+2. content_block_start 按0起连续 native index 创建，最多256part/128工具；拒负数、非整数、稀疏巨大index/重复start。可有多个已start未stop块，delta/stop只许作用于对应活块，不能在index切换时猜另一块结束。工具index另按工具遇见顺序分配。text初值按§3发位置片段/空标记；tool id/name完整校验后分两项 ToolDelta 发出，不能因先见一个完整名字便执行。
+3. text_delta 只属于text；input_json_delta只属于tool。partial_json 解码后的原字符串按顺序累积，空片段不发空工具事件；分为≤64KiB且不拆UTF-8的 ToolDelta。tool start 的 input object 先有界保存；首个非空 partial_json 到来时按官方累积语义替换 start input，不把`{}`拼到 JSON 前面。若直到stop无非空delta，采用显式start input并在stop前按同样片段规则交付。因此参数完全来自供应商，不把“无输入字段”补成空object。
+4. content_block_stop 恰一次，校验本块最终 text/tool 形状、完整 object/C0 与全部独立上限，之后拒该块late delta。工具完整输入验证后即可释放参数 buffer，只留有界ID/name/字节数/part索引；尚不发 ToolComplete，避免后续同响应另一工具坏时先给“全部工具已合法”的暗示。已经给出的片段只为 partial。
+5. message_delta 只在全部已开始块stop之后；允许 stop_reason null 的中间累计usage更新。恰一次非null终止原因，按§5全响应的工具集合/选择/parallel及usage语义校验；全部成功后按工具dense index发 ToolComplete（含对应PartIndex、原metadata-only ArgumentsBytes），不含完整Arguments/隐藏句柄/取回口。终止原因后只接受message_stop或ping/error，拒第二终止/内容增量。
+6. message_stop 必须在已知终止原因、所有块完成与全响应校验之后；它是必要协议终止，不使用 `[DONE]`。缺message_delta、缺message_stop、半JSON、流内error、取消或后续协议错误都零成功StreamEnd，已观察usage仍留存。message_stop后原parser返回/Body.Close/Client.StopAdmission+Drain实际完成且ctx有效，Next才恰一次返回StreamEnd，随后EOF；已交付ToolComplete不等于上述成功或业务提交。
+
+text累计只计字节，不在SSE保留第二份全文/Message。工具initial input候选、当前参数buffer、所有已接受文本/参数字节共同受16MiB总上限；start input被首delta替换时原候选释放且不当已交付参数，不能一边保留128份大初值一边把其排除预算。每工具最多1MiB，最多128工具；metadata有界。每工具只在完整校验时临时有一次≤1MiB副本，之后释放；小片段按append/chunk增长，不能每delta复制完整前缀。
+
+队列仍≤32项且所有payload合计≤256KiB；计入Text、全部ToolDelta/ToolComplete字符串、Usage/End和PartIndex等标量/指针指向值，新的独立clone字符串不能漏计。空text结构标记也占一项及位置成本。SSE没有整体Message/Arguments队列项，不用私有缓存句柄绕过上界。满队列仅原worker可取消等待，不为每part起goroutine。PartialOutput只依据Next已交付的非空TextDelta/ToolDelta或ToolComplete，再结合真实Sent；空text/仅usage/ping/只入队都不算。
+
+## 7. usage：原值、覆盖与失败保留
+
+| Anthropic 字段 | C0 |
+| --- | --- |
+| input_tokens | InputTokens，保该原值，不加cache |
+| output_tokens | OutputTokens，已包含thinking，不再加reasoning |
+| cache_read_input_tokens | CachedInputTokens |
+| cache_creation_input_tokens | CacheWriteTokens |
+| output_tokens_details.thinking_tokens | ReasoningTokens；有明确值才填，不从可见thinking文本估计 |
+| 没有total字段 | TotalTokens始终NULL，不从input/output/cache估算 |
+
+初始/普通结果缺失或null为未知，明确0为0；本库沿D09允许整个usage或计数字段缺失/null，不把SDK的必填注解变成伪造计数。现有已知字段保持ProviderUsage，无任何已知值则UnknownUsage。只接受原生非负十进制整数≤MaxInt64，不接受字符串、小数、指数、负数、溢出；>2^53精确保存。
+
+每次 message_delta 先完整解析候选，再一次更新：非null的新值**覆盖**旧值，不加和、不取max、不要求单调；optional omitted/null保先前值，output缺失/null也不把最后可靠值归零。output_tokens_details缺失/null保旧Reasoning，合法新thinking才覆盖；不以本地推算修正、夹断或归零其他供应商计数。非法字段不能先提交其中几个合法值，Observe/UsageUpdate必须同一完整候选，满足既有C0 Usage.Validate。
+
+cache_creation 的两个TTL细分、server_tool_use的两个请求计数只按固定来源检查非负整数，不计为token；service_tier只允许固定standard/priority/batch，inference_geo为≤128 UTF-8 bytes的字符串，这些旁字段均可省略/null且不进入Usage。server工具计数非零属本修订不支持的实际能力，先保存已合法token再失败，不宣称本地工具执行。未知usage字段或错类型失败，保此前合法观察。
+
+初始usage、普通envelope usage或后续累计更新一旦合法，不因坏工具JSON、refusal、网络断流/error、超时/取消撤销。例如start output=1而final output=0要得到0；start有cache、final只给output须保cache；start之后缺message_delta/message_stop为失败但保start值。此为最后可靠观测，不声称已取得供应商最终完整账单。成功terminal确无任何usage时仍可成功且全NULL；不从正文、max_tokens、工具个数或HTTP状态估算。Observe只有wire事实，不是ledger已提交确认。
+
+## 8. 安全错误、取消与唯一 owner
+
+HTTP非200最多读64KiB错误body；已知error envelope只验证type/error.type与有界message等固定字段，原message/诊断正文一律丢弃。可信分类来自HTTP状态和固定error.type，不解析英文message猜model不存在/上下文长度；404/not_found_error都不自动变model_not_found。HTTP401→authentication，403→permission，429→rate_limited，408→timeout，500/502/503/504/529→provider_unavailable；其中rate_limited/timeout/provider_unavailable设Retryable=true，仍不在adapter重发。400/413/422→invalid_request，其余→provider_error且不重试；非法body仍按安全HTTP状态fallback，不泄露body/cause。HTTP Code固定为wire_http_error，body不能把401改成可重试错误。
+
+200 SSE的error采用固定error.type：authentication_error/permission_error/invalid_request_error分别映射同名语义；rate_limit_error→rate_limited、timeout_error→timeout、overloaded_error→provider_unavailable并可重试；api_error/not_found_error/billing_error→provider_error且不重试。未知type安全unknown且不重试。有效error envelope的Code固定为wire_anthropic_error，坏形状为原wire_protocol_invalid，不复制供应商自由文本；header request-id安全过滤，body request_id不覆盖header。流内error不当HTTP200成功，也不丢已有usage。
+
+本地C0/消息关系错误为InvalidArgument/NotStarted；合法但不支持的能力为unsupported_feature/wire_unsupported_feature，均零slot/Exchange/Do。收到的坏协议为provider_error/wire_protocol_invalid，上界为wire_limit_exceeded；Refusal/上下文耗尽按§5。Dispatched仅来自D04 Decision.Sent，PartialOutput按§6，不凭Start或HTTP headers猜发送。所有Request/Result/Event/日志/错误都不得出现key、输入/答案、tool schema/args或供应商诊断canary。
+
+constructor无I/O/worker；overall≤120s、read-idle≤60s并不超剩余overall、caller更早取消、Close/Force原预算和真实Join规则全部沿已验Exchange。新parser/校验在原worker内，取消唤醒读/背压/长扫描；Body.Close/worker/Client.Drain前保slot与借用材料边界。ctx.Done或合法message_stop不代替Join，无WithoutCancel/新超时/后台无限等待/第二client池。结果发布前复核原ctx，失败/取消零Message、一次错误后EOF。其外层DB writer、ProcessGuard、Project生命周期和工具side effects仍未绑定。
+
+## 9. 有界 fixture 增量
+
+当前 `tests/testsupport/outbound/cmd/server/main.go` 只允许 openai_chat_wire 的 `/chat/completions` suffix、X-Request-Id和旧HTTP状态，不能直接承载本profile。只在同一既有服务增加 `anthropic_messages_wire` 模式，重用原WireScenario/nonce控制/计数/连接观察/Release，不增端口或第二套服务：默认suffix=`/messages`，可显式代理前缀并必须以`/messages`结束；仍保EscapedPath精确匹配、无query、原长度/URI校验。
+
+新mode沿原HTTP状态列表，另允许413/422/529；响应header允许原Content-Type/Retry-After/Location及Request-Id（保留X-Request-Id作为“错误header不应取用”反例），拒其他任意header。**旧mode的suffix/status/header闭集原样不变**。原512KiB场景payload、512chunks、16KiBheaders、16MiB请求、nonce/id/labels/网络所有权与各包race/6m不变。新邻测直接验证mode/路径/状态/重复header/超限边界，原fixture与旧协议测试不能弱化。
+
+## 10. 精确候选实施路径与交权
+
+下列19路径只为完整实施候选；root须在tools接受并停止共享源码写入后固定实际依赖、核差量并授权单一作者。当前只写本卡，不取得这些路径写权。
+
+| # | 路径 | 唯一职责 |
+| --- | --- | --- |
+| 1 | `internal/central/model/adapter/openai_chat.go`（旧） | 仅追加Result.Message/Event.PartIndex公开载体；旧修订/构造与准入保持 |
+| 2 | `internal/central/model/adapter/transport.go`（旧） | 私有协议分派、request-id/错误/响应选择、clone/计量/交付边界；同一owner |
+| 3 | `internal/central/model/adapter/sse.go`（旧） | 私有有界framing提取event name；旧next及OpenAI状态机闭集保持 |
+| 4 | `internal/central/model/adapter/errors.go`（旧） | 必要的ctx/固定envelope深度helper；旧错误/JSON闭集与默认上限不变 |
+| 5 | `internal/central/model/adapter/anthropic_messages.go`（新） | constructor/Start、请求与历史有序编码、正式认证/endpoint |
+| 6 | `internal/central/model/adapter/anthropic_response.go`（新） | JSON/usage/终止/安全error和完整C0结果校验 |
+| 7 | `internal/central/model/adapter/anthropic_stream.go`（新） | native事件状态、位置与有界参数组装 |
+| 8 | `internal/central/model/adapter/testdata/anthropic-messages-text-tools-v1.json`（新） | 官方commit/文件SHA、采用/拒绝字段、revision与真实反例定位 |
+| 9 | `internal/central/model/adapter/anthropic_messages_test.go`（新） | 准入/编码/历史/不可变输入 |
+| 10 | `internal/central/model/adapter/anthropic_response_test.go`（新） | JSON/usage/安全错误/有序Message |
+| 11 | `internal/central/model/adapter/anthropic_stream_test.go`（新） | 状态/初值/覆盖/块位置/原样参数 |
+| 12 | `internal/central/model/adapter/anthropic_limits_test.go`（新） | 精确1MiB/16MiB/深度/数量及长扫描取消 |
+| 13 | `internal/central/model/adapter/anthropic_transport_test.go`（新） | clone/全部payload计量/空标记PartialOutput/旧模式nil |
+| 14 | `tests/model/anthropic_messages_fixture_test.go`（新） | 组合原wireFixture的正式策略/资源观察，不替代事实授权 |
+| 15 | `tests/model/anthropic_messages_http_test.go`（新） | 真实请求/历史往返/JSON及安全反例 |
+| 16 | `tests/model/anthropic_messages_stream_test.go`（新） | 真实text/tool混排、320KiB参数、usage和失败终止 |
+| 17 | `tests/model/anthropic_messages_budget_test.go`（新） | 跨协议同Budget/保槽/取消/actual join |
+| 18 | `tests/testsupport/outbound/cmd/server/main.go`（旧） | §9独立mode的窄扩展；不改旧mode语义 |
+| 19 | `tests/testsupport/outbound/cmd/server/main_test.go`（新） | 原/新mode的闭集、路径、header/status/预算纯反例 |
+
+其余只读，包括全部旧tests/manifest、tools新文件、budget.go、structured_schema.go、C0、Resolver、ledger20、Secret/D04、Account/Project、app、SQL、go.mod/go.sum和scripts。必要接缝超此表先报告实际缺口与最小delta，不用复制宽松服务或修改旧断言补洞。新fixture路径按统一Docker窗口串行使用；源码静审不需要Docker。
+
+## 11. 作者检查、独立验收与交付门槛
+
+开工先固定tools已接受commit与本19源/必要闭包，Go1.27.1、readonly/offline modules、私有GOCACHE/TMPDIR；adapter全部unit/race/vet（含原三修订）、fixture server纯测试、受影响C0/Model、integration compile与两个cmd build。未运行不标PASS，原红/对应输入/修复delta保留；没有真实Provider账号请求时只称受控conformance。
+
+真实验收沿原 `scripts/test-objects.sh -run <明确selector>`（或等价原test-security分派），race/count1/每包6m/`-p=1`及固定PG/MinIO资产不变。`TestUsageInvocationWireLedger`不命中test-models固定`^TestModel`，须显式selector。三个新顶层如下：
+
+| 顶层 | 必须实际观察 |
+| --- | --- |
+| `TestModelAnthropicMessagesHTTP` | base `/v1`/代理escaped prefix/origin的精确RequestURI，无双v1/猜补；X-Api-Key而非Bearer、版本header、POST/零重定向/请求计数；system/多text/assistant混排/空块/多工具历史/乱序结果/is_error/四choice/parallel native编码；有序JSON Message通过C0；不支持请求零Do；有效usage后坏工具/拒绝仍保usage、零Result；529/错误body/安全request-id/诊断canary，无自动重发 |
+| `TestModelAnthropicMessagesStream` | text/tool/text及空块位置、native index与dense工具index分离、活块交错/重复/late/缺stop反例；start input与partial_json替换/无delta直接input、UTF-8拆片、完整C0工具；实际320KiB参数以≤64KiB片段过256KiB队列；累计覆盖/省略/null保值/1→0/cache独立/无total/>2^53；startusage后断流/error、缺message_delta/message_stop、一错误后EOF；ToolComplete后取消仍零StreamEnd |
+| `TestModelAnthropicMessagesCloseAndBudget` | JSON headers/body hold与SSE背压/校验期间取消，无迟到Message/End；同一具体Budget混用OpenAI text/structured/tools/Anthropic保持64/8，超额零Do；未join保slot/material，正常/Force同剩余预算；server handler/connection+Client.Drain双观察，真实零发送拒绝与实际Sent分别断言 |
+
+纯测精确补1MiB单工具及+1、16MiB总content及+1、256parts/257、128tools/129、32/33 C0深度（Anthropic input嵌入普通JSON和start事件、SSE partial JSON分别验证）、有限>2^53词法原样与1e400、重复key/尾随/非法Unicode/NUL、索引稀疏/溢出、声明/选择/ID约束、request/schema大小和全部深clone。实际1MiB/16MiB超过既有512KiB场景cap，只能按纯parser检查报告，不扩大fixture或假称真实网络已跑。取消在长扫描/背压内部用确定信号/channel观察，不用早取消冒充处理中取消，也不为测试加生产hook。
+
+复用/补验依语义逐组记录：原text三组 `TestModelOpenAIChatWireHTTP/Stream/JoinAndBudget`、structured三组 `TestModelOpenAIChatStructuredHTTP/Stream/CloseAndBudget`、tools已接受的三组 `TestModelOpenAIChatToolsHTTP/Stream/CloseAndBudget`，以及未改作者 `TestUsageInvocationWireLedger`。保原断言与真实模式覆盖；可以按原预算分组，不称一次单体全绿，不把no-tests算PASS。当前卡不运行这些命令。
+
+独立验收者不参与实现：核官方原件/字段、API base决定、C0有序结构/空块、两个index语义、未支持块不跳过、累计usage原值与无total、所有payload内存和唯一owner；至少自补真实“start有cache、delta省略且output归0、随后error”和“混排工具已完成但message_stop缺失/取消，零成功而已交付partial及usage保留”两个风险probe。共享transport/fixture旧协议结果必须与最终组合匹配。
+
+作者及独立真实运行各自记录原argv/env/退出/raw、精确源manifest与官方profile manifest；运行前baseline exact IDs/name/labels，过程中观察PID/ppid/starttime及nonce资源，原driver实际退出后两次exact-ID absent、基线不变、所属PID0/runtime空，及时交还资源。发现安全阻塞按真实事实停止，不碰Object原停止任务。完整规格仍须独立静审；本次研究与文档不构成任何产品/Provider/Go/PG/Docker验收。

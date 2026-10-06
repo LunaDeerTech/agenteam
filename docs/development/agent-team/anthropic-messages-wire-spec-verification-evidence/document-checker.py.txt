@@ -1,0 +1,118 @@
+from pathlib import Path
+import hashlib
+import json
+import re
+import subprocess
+import unicodedata
+from urllib.parse import unquote
+
+ROOT = Path('/workspace/agenteam')
+SCRATCH = Path(__file__).resolve().parent
+EVIDENCE = ROOT / 'docs/development/agent-team/anthropic-messages-wire-spec-verification-evidence'
+REPORT = ROOT / 'docs/development/agent-team/anthropic-messages-wire-spec-verification.md'
+TASKS = ROOT / 'docs/development/agent-team/tasks.md'
+RECOVERY = ROOT / 'docs/development/agent-team/recovery-2026-10-06.md'
+DOCS = [REPORT, EVIDENCE / 'README.md', TASKS, RECOVERY]
+errors = []
+link_count = fragment_count = table_count = 0
+
+def require(ok, message):
+    if not ok:
+        errors.append(message)
+
+def anchors(text):
+    found = set()
+    counts = {}
+    fenced = False
+    for line in text.splitlines():
+        if re.match(r'^\s*(```|~~~)', line):
+            fenced = not fenced
+        if fenced:
+            continue
+        m = re.match(r'^#{1,6}\s+(.+?)\s*#*$', line)
+        if not m:
+            continue
+        label = re.sub(r'[*`_]', '', m.group(1)).lower()
+        label = ''.join(c for c in label if c in '-_' or unicodedata.category(c)[0] not in 'PS')
+        label = label.replace(' ', '-')
+        prior = counts.get(label, 0)
+        counts[label] = prior + 1
+        found.add(label + ('-' + str(prior) if prior else ''))
+    return found
+
+for path in DOCS:
+    raw = path.read_bytes()
+    text = raw.decode('utf-8')
+    require(b'\r' not in raw and raw.endswith(b'\n'), str(path) + ': LF/final newline')
+    require(all(line == line.rstrip() for line in text.splitlines()), str(path) + ': trailing whitespace')
+    fenced = False
+    table_width = None
+    for n, line in enumerate(text.splitlines(), 1):
+        if re.match(r'^\s*(```|~~~)', line):
+            fenced = not fenced
+            continue
+        if fenced:
+            continue
+        if line.startswith('|'):
+            width = len(re.split(r'(?<!\\)\|', line))
+            if table_width is None:
+                table_count += 1
+                table_width = width
+            require(width == table_width, f'{path}:{n}: table width')
+        else:
+            table_width = None
+        for match in re.finditer(r'(?<!!)\[[^\]]*\]\(([^)\s]+)\)', line):
+            target = match.group(1)
+            if re.match(r'^[a-zA-Z][a-zA-Z0-9+.-]*:', target):
+                continue
+            destination, _, fragment = unquote(target).partition('#')
+            linked = (path.parent / destination).resolve() if destination else path
+            require(linked.exists(), f'{path}:{n}: missing {target}')
+            link_count += 1
+            if fragment and linked.exists() and linked.suffix == '.md':
+                fragment_count += 1
+                require(fragment in anchors(linked.read_text()), f'{path}:{n}: missing fragment {target}')
+    require(not fenced, str(path) + ': code fences')
+
+before_tasks = (SCRATCH / 'before-tasks.md').read_bytes()
+marker = '## 2026-10-06：Anthropic Messages 规格采纳，实施依赖未满足\n'.encode()
+old_next = '## 2026-10-06：tools 独立动态验证未运行，原任务停止\n'.encode()
+new_tasks = TASKS.read_bytes()
+left, added = new_tasks.split(marker, 1)
+_, right = added.split(old_next, 1)
+require(left + old_next + right == before_tasks, 'tasks historical bytes changed')
+before_recovery = (SCRATCH / 'before-recovery-2026-10-06.md').read_bytes()
+require(RECOVERY.read_bytes().startswith(before_recovery), 'recovery historical bytes changed')
+
+argv = ['git', 'diff', '--check', '--', *[str(p.relative_to(ROOT)) for p in DOCS]]
+result = subprocess.run(argv, cwd=ROOT, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+require(result.returncode == 0 and not result.stdout and not result.stderr, 'scoped diff check')
+(SCRATCH / 'scoped-diff-check.stdout').write_bytes(result.stdout)
+(SCRATCH / 'scoped-diff-check.stderr').write_bytes(result.stderr)
+
+# Original evidence stays byte-exact even if upstream formatting differs.
+manifest = json.loads((EVIDENCE / 'archive-manifest.json').read_text())
+original_whitespace = []
+for item in manifest['artifacts']:
+    raw = (EVIDENCE / item['path']).read_bytes()
+    try:
+        text = raw.decode('utf-8')
+    except UnicodeDecodeError:
+        continue
+    bad = [n for n, line in enumerate(text.splitlines(), 1) if line != line.rstrip()]
+    if bad or b'\r' in raw or (raw and not raw.endswith(b'\n')):
+        original_whitespace.append({'path': item['path'], 'trailing_lines': bad,
+                                    'has_cr': b'\r' in raw, 'final_newline': raw.endswith(b'\n')})
+
+out = {'status': 'PASS' if not errors else 'FAIL', 'files': [str(p.relative_to(ROOT)) for p in DOCS],
+       'links': link_count, 'fragments': fragment_count, 'tables': table_count,
+       'format': 'UTF-8/LF/final newline/no trailing whitespace/balanced fences/table widths',
+       'tasks_historical_bytes_identical': left + old_next + right == before_tasks,
+       'recovery_historical_bytes_identical': RECOVERY.read_bytes().startswith(before_recovery),
+       'scoped_diff_check_argv': argv, 'scoped_diff_check_exit': result.returncode,
+       'new_files_checked_by_byte_and_line_scan': True,
+       'original_evidence_format_exceptions_preserved': original_whitespace,
+       'errors': errors, 'product_execution': False}
+(SCRATCH / 'document-checks.json').write_text(json.dumps(out, ensure_ascii=False, indent=2) + '\n')
+print(json.dumps(out, ensure_ascii=False, indent=2))
+raise SystemExit(bool(errors))

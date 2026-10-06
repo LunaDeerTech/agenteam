@@ -1,0 +1,1350 @@
+{
+  "format": 1,
+  "scope": "STATIC PASS specification archive; not product acceptance",
+  "official_commit": "18f25547f20cf5f01da69ac611e700e3bc9ebf21",
+  "official_files": 66,
+  "official_bytes": 297810,
+  "fixed_git_inputs": [
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "AGENTS.md",
+      "archive_path": "git-inputs/392dec49ba8a7781adf7af1ac28d5a93e8abadbf339db724e2375c9c91538df0.txt",
+      "sha256": "392dec49ba8a7781adf7af1ac28d5a93e8abadbf339db724e2375c9c91538df0",
+      "bytes": 18245,
+      "git_blob": "4f2cac629840e78aa94ded7430d2af5a4951db2f"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": ".agents/skills/agenteam-design/SKILL.md",
+      "archive_path": "git-inputs/81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81.txt",
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81",
+      "bytes": 3874,
+      "git_blob": "dc06833821245cc578b46febc741c5740b3ec7f0"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "docs/development/agent-team/README.md",
+      "archive_path": "git-inputs/484c5c9998cffee13083df540e389d02e885fe8da57248636ee9aa8ad2b71116.txt",
+      "sha256": "484c5c9998cffee13083df540e389d02e885fe8da57248636ee9aa8ad2b71116",
+      "bytes": 14169,
+      "git_blob": "942aebd537859977c768dfc02167db4f6e7840a5"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "docs/development/work-items/d09-model-system-token-usage-design.md",
+      "archive_path": "git-inputs/2c362366c8e52f28b16b92aa574e6a245489ba17eaaff79ac27aacffc704c133.txt",
+      "sha256": "2c362366c8e52f28b16b92aa574e6a245489ba17eaaff79ac27aacffc704c133",
+      "bytes": 66903,
+      "git_blob": "1859386f46db6eaf2555282407043f372476e2a4"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "docs/development/work-items/d09-model-system-token-usage.md",
+      "archive_path": "git-inputs/928c20d4f29586622e615af2c8a3f6b6d9fcd0db425951a13158b722f6f4831e.txt",
+      "sha256": "928c20d4f29586622e615af2c8a3f6b6d9fcd0db425951a13158b722f6f4831e",
+      "bytes": 11913,
+      "git_blob": "bf65472a94276514a13d13f49589da7e0809998f"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "docs/development/work-items/recovery-d09-openai-chat-wire.md",
+      "archive_path": "git-inputs/ed7c50ecd20156362dfbfab2a2e542ddec2b64c89d816a73a4db1843599ab824.txt",
+      "sha256": "ed7c50ecd20156362dfbfab2a2e542ddec2b64c89d816a73a4db1843599ab824",
+      "bytes": 29152,
+      "git_blob": "51b919df4d9f3308ad70fd6bebeef7d13928e77c"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "docs/development/work-items/recovery-d09-openai-chat-structured-wire.md",
+      "archive_path": "git-inputs/7774aff73cec0626271895a3abcb1f3c88e5ff9efdd05382777c6c0894b56356.txt",
+      "sha256": "7774aff73cec0626271895a3abcb1f3c88e5ff9efdd05382777c6c0894b56356",
+      "bytes": 21860,
+      "git_blob": "66007c2ce3d30eab39c70b1ad61c7b54b0704f73"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "docs/development/work-items/recovery-d09-openai-chat-tools-wire.md",
+      "archive_path": "git-inputs/bd20d74ce497df08fe3276387e5d143b7dc5f8deeb2ceef89905cb6e2f186e37.txt",
+      "sha256": "bd20d74ce497df08fe3276387e5d143b7dc5f8deeb2ceef89905cb6e2f186e37",
+      "bytes": 28164,
+      "git_blob": "90e528b6467ea9266dc5a3b63aa4b39d41e61e30"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "docs/architecture/platform-infrastructure/model-system/chat-model-runtime.md",
+      "archive_path": "git-inputs/bc8179f1aedec56f7f67ff8bcbdbf534226bfa07a28b305796ca49a484c034e3.txt",
+      "sha256": "bc8179f1aedec56f7f67ff8bcbdbf534226bfa07a28b305796ca49a484c034e3",
+      "bytes": 14910,
+      "git_blob": "8cb1e7f20fa8a55efa5b41a7b519aade5ff8ba4b"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "internal/central/model/contract/chat.go",
+      "archive_path": "git-inputs/01f2abe8a8d5be54ed3193f22be75094f3868e2b09a6d8ca5dab6fb70aac2d88.txt",
+      "sha256": "01f2abe8a8d5be54ed3193f22be75094f3868e2b09a6d8ca5dab6fb70aac2d88",
+      "bytes": 16536,
+      "git_blob": "a86f88076232f316fcb1b33d9ffc256e547e5515"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "internal/central/model/contract/types.go",
+      "archive_path": "git-inputs/3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4.txt",
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+      "bytes": 19439,
+      "git_blob": "6616abfdfcb4d19f4c5a00fdce414bf1bc8b65fd"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "internal/central/model/resolution_policy.go",
+      "archive_path": "git-inputs/538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee.txt",
+      "sha256": "538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee",
+      "bytes": 4230,
+      "git_blob": "f063591eaae4d3d5b49c4110c97ba15f76181745"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "internal/central/model/adapter/openai_chat.go",
+      "archive_path": "git-inputs/1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556.txt",
+      "sha256": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556",
+      "bytes": 11254,
+      "git_blob": "86d47d135cea76014afefaaf4a0aca7a23bce73f"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "internal/central/model/adapter/transport.go",
+      "archive_path": "git-inputs/5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf.txt",
+      "sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf",
+      "bytes": 11948,
+      "git_blob": "b3dd84b0ece9f2e9fa6129c06dda0e18fafb949b"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "internal/central/model/adapter/errors.go",
+      "archive_path": "git-inputs/24f7aa4cf23f3835bd911a2bb9fedee129045abde698c21bb5711a2ed494e499.txt",
+      "sha256": "24f7aa4cf23f3835bd911a2bb9fedee129045abde698c21bb5711a2ed494e499",
+      "bytes": 11274,
+      "git_blob": "f3977d242224faa70dc4644dcae62f7559d52a7c"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "internal/central/model/adapter/sse.go",
+      "archive_path": "git-inputs/2996e01864c0a0504a429e9bafb9e4305003bfe7a40270a1e75bf5aefec8f025.txt",
+      "sha256": "2996e01864c0a0504a429e9bafb9e4305003bfe7a40270a1e75bf5aefec8f025",
+      "bytes": 3680,
+      "git_blob": "21cc70275ba869f923e1113d69cbbb29b7f3c6b5"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "internal/central/model/adapter/budget.go",
+      "archive_path": "git-inputs/5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a.txt",
+      "sha256": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a",
+      "bytes": 2607,
+      "git_blob": "7a7339a5b72f3fa7637d0c963f4f298875718e1a"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "tests/model/openai_chat_wire_fixture_test.go",
+      "archive_path": "git-inputs/cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8.txt",
+      "sha256": "cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8",
+      "bytes": 10655,
+      "git_blob": "48ee3589d6f49a9bbad4223fd517aedcf97b2183"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "tests/testsupport/outbound/cmd/server/main.go",
+      "archive_path": "git-inputs/2ca0951c43f5dede7defd35443b67c31aa7e910f36ecdfe9fbb8212070ef6071.txt",
+      "sha256": "2ca0951c43f5dede7defd35443b67c31aa7e910f36ecdfe9fbb8212070ef6071",
+      "bytes": 10592,
+      "git_blob": "e6b0255304ada4da12b4d6e27d2a293974bb40fc"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "tests/testsupport/outbound/fixture.go",
+      "archive_path": "git-inputs/525e7cc33d887fb1d741a5c34fddd048c5827cdef1943bc9fae924ce4f754cbc.txt",
+      "sha256": "525e7cc33d887fb1d741a5c34fddd048c5827cdef1943bc9fae924ce4f754cbc",
+      "bytes": 5394,
+      "git_blob": "00bdb8caede093e2df50e341c07793097cc7936e"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "scripts/test-security.sh",
+      "archive_path": "git-inputs/3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be.txt",
+      "sha256": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be",
+      "bytes": 1117,
+      "git_blob": "cb64fdd4d6787e5646a9ff5cae3402e93e5a9b91"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "scripts/test-objects.sh",
+      "archive_path": "git-inputs/71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87.txt",
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+      "bytes": 1029,
+      "git_blob": "12ab48fcf0cd9c9cb8b2e9a2f9dfff27fa2720a7"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "scripts/test-models.sh",
+      "archive_path": "git-inputs/f9187e2e17cd58bc22557d75af8cf60ab32362a6e9a6848569c298860291374b.txt",
+      "sha256": "f9187e2e17cd58bc22557d75af8cf60ab32362a6e9a6848569c298860291374b",
+      "bytes": 290,
+      "git_blob": "e398b421bd3bb91112acfbb206a9a93e83eafab8"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "go.mod",
+      "archive_path": "git-inputs/294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758.txt",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "bytes": 1468,
+      "git_blob": "2db97d5624d9575b72eb8e345b064bc4185388dc"
+    },
+    {
+      "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+      "repo_path": "go.sum",
+      "archive_path": "git-inputs/6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245.txt",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "bytes": 8391,
+      "git_blob": "7f96b9efaf394930b1df6f095e0879e33cd95403"
+    },
+    {
+      "commit": "71f276f374fb1846adcd94bbc2dec2285be63e59",
+      "repo_path": "docs/development/agent-team/tasks.md",
+      "archive_path": "git-inputs/268fdff145c9048bb4a3ba2c2845ce57baa1790254eff65035f67453d9a4cc76.txt",
+      "sha256": "268fdff145c9048bb4a3ba2c2845ce57baa1790254eff65035f67453d9a4cc76",
+      "bytes": 224679,
+      "git_blob": "53587795cff3e0d2279119b64991ea5c15a1989e"
+    },
+    {
+      "commit": "71f276f374fb1846adcd94bbc2dec2285be63e59",
+      "repo_path": "docs/development/agent-team/recovery-2026-10-06.md",
+      "archive_path": "git-inputs/d9d5990a227b641de9f1688bb15b2931f8a6d1825edf227129ce8cb9e78b7d41.txt",
+      "sha256": "d9d5990a227b641de9f1688bb15b2931f8a6d1825edf227129ce8cb9e78b7d41",
+      "bytes": 14344,
+      "git_blob": "eb47577fa57894136d654034a606c5c6f3dbf566"
+    }
+  ],
+  "delivery": {
+    "commit": "f349303bf6aa8b5c796f76cc43a34271e8c186e0",
+    "repo_path": "docs/development/work-items/recovery-d09-anthropic-messages-wire.md",
+    "sha256": "506f2a11a049f69e14d2a097c99c7594071df248b2244bf33deda06abacb374d",
+    "bytes": 37509,
+    "archive_path": "author/spec-adopted01/spec.md.txt",
+    "git_blob": "10f3b5411b085463d4280236aab621ab03a45a07"
+  },
+  "original_roots": {
+    "author": "/workspace/scratch/agenteam-anthropic-spec-76c077li",
+    "independent": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6"
+  },
+  "artifacts": [
+    {
+      "path": "author/README.md.txt",
+      "sha256": "7e1c560d3b3b5ba832fd8660197efe1a1fd0d51c3bdf6b18371c7fcca8cba7df",
+      "bytes": 2685,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/README.md"
+    },
+    {
+      "path": "author/baseline-inputs.json",
+      "sha256": "56432466a5cb3494b0adcb8fe816a1555f79062427f0b5fc299bf8326ad3d523",
+      "bytes": 4734,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/baseline-inputs.json"
+    },
+    {
+      "path": "author/source-manifest.json",
+      "sha256": "28ea317726e14967d13f17197c9f4b1c2cd9980bba41f815dbddcbec5259c3b8",
+      "bytes": 26468,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source-manifest.json"
+    },
+    {
+      "path": "author/field-manifest.json",
+      "sha256": "952f91098081f448235425f3b4406e5e4dbc921e9e13e85f7ec3fccfc84af075",
+      "bytes": 17164,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/field-manifest.json"
+    },
+    {
+      "path": "author/fetch-commands.json",
+      "sha256": "aee144dad533a850be520c064543f11652f5c3fd91d49811403dbc91acaf8a38",
+      "bytes": 1116,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/fetch-commands.json"
+    },
+    {
+      "path": "author/fetch-0.stdout",
+      "sha256": "62f51c056461d41a48d1570b5129a8e0a33b13d08a03049d28c44b5079613137",
+      "bytes": 101,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/fetch-0.stdout"
+    },
+    {
+      "path": "author/fetch-0.stderr",
+      "sha256": "3e70934f1909b0f5a846d62237fcc1509d733b9fb0321187024723dfc67176d3",
+      "bytes": 586,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/fetch-0.stderr"
+    },
+    {
+      "path": "author/fetch-1.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/fetch-1.stdout"
+    },
+    {
+      "path": "author/fetch-1.stderr",
+      "sha256": "5e6c868b93e8c359a4134903297d8094e64af8c7eac3288b84054d5a17e86e34",
+      "bytes": 132,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/fetch-1.stderr"
+    },
+    {
+      "path": "author/commit-object.txt",
+      "sha256": "da45a0b4c47f608723323e876bbac8e73c972839fd677d8ce0d8071354a31d1d",
+      "bytes": 1189,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/commit-object.txt"
+    },
+    {
+      "path": "author/verify-inputs.py.txt",
+      "sha256": "d053f102933c9290f234ae4bab5532e5d16e7053858db725c58478ea0e18d4cb",
+      "bytes": 1968,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/verify-inputs.py"
+    },
+    {
+      "path": "author/source-check.stdout",
+      "sha256": "262b88958bdf47490bd44f51f2eb5a6d9704354bf83a6050c3b9d68a190f1c1c",
+      "bytes": 251,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source-check.stdout"
+    },
+    {
+      "path": "author/source-check.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source-check.stderr"
+    },
+    {
+      "path": "author/spec-checks.json",
+      "sha256": "0b35b98ad362ac14075ea73a47db0583898eb62f6590c2b622b88d435002c734",
+      "bytes": 710,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-checks.json"
+    },
+    {
+      "path": "author/spec-diff-check.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-diff-check.stdout"
+    },
+    {
+      "path": "author/spec-diff-check.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-diff-check.stderr"
+    },
+    {
+      "path": "author/spec-freeze01/manifest.json",
+      "sha256": "58f655e0eb079c7efd97ec10249af0b94dfa7c77b16f98d1e30536aa4d661dfb",
+      "bytes": 1555,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze01/manifest.json"
+    },
+    {
+      "path": "author/spec-freeze01/spec.md.txt",
+      "sha256": "bc3830cf43ca262e560ac7668f2cc1547c33aedb264fef432bd9d00c2335d2b7",
+      "bytes": 35959,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze01/spec.md"
+    },
+    {
+      "path": "author/spec-freeze02/checks.json",
+      "sha256": "980aa7beb74fa6503b3151adb579310ecd7b1ddeb2c963db7d62f8aad12b7038",
+      "bytes": 578,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/checks.json"
+    },
+    {
+      "path": "author/spec-freeze02/delta.patch",
+      "sha256": "8305083204fe2afe514cfca307ede763b648222b29c758ba672351c75a2672b9",
+      "bytes": 5194,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/delta.patch"
+    },
+    {
+      "path": "author/spec-freeze02/diff-check.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/diff-check.stderr"
+    },
+    {
+      "path": "author/spec-freeze02/diff-check.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/diff-check.stdout"
+    },
+    {
+      "path": "author/spec-freeze02/manifest.json",
+      "sha256": "36353b7a4d69f78c838128668dee12ebe33c01843592552a1674ae2cd0d8f700",
+      "bytes": 999,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/manifest.json"
+    },
+    {
+      "path": "author/spec-freeze02/spec.md.txt",
+      "sha256": "31d2ca9247e2b41b7432bf94e5bef06748166c54e6f00ae41111b84443535e00",
+      "bytes": 36716,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/spec.md"
+    },
+    {
+      "path": "author/spec-freeze03/checks.json",
+      "sha256": "3f0c681745c1db882e6b8092053f5cc3fe38a9865a55b33f563bd27424832211",
+      "bytes": 402,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/checks.json"
+    },
+    {
+      "path": "author/spec-freeze03/delta.patch",
+      "sha256": "5fa2fc477c10e85c0d81f730d4fa36524b3fb0c314c917b3f99cefd911e9aeae",
+      "bytes": 2438,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/delta.patch"
+    },
+    {
+      "path": "author/spec-freeze03/diff-check.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/diff-check.stderr"
+    },
+    {
+      "path": "author/spec-freeze03/diff-check.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/diff-check.stdout"
+    },
+    {
+      "path": "author/spec-freeze03/manifest.json",
+      "sha256": "c601881387308045b77dc9e9ec8e0e30197ae862a1f8c2d6d61533f08e64bfb3",
+      "bytes": 783,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/manifest.json"
+    },
+    {
+      "path": "author/spec-freeze03/spec.md.txt",
+      "sha256": "abbed65ecd40a99336a05f281c33c0efa8992883df2f55f9c44758da426f4d18",
+      "bytes": 36879,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/spec.md"
+    },
+    {
+      "path": "author/spec-adopted01/checks.json",
+      "sha256": "ed2d929ededeff35b1b4f28d4dafaab608b569c630b5ecee774a199d558d3e68",
+      "bytes": 478,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-adopted01/checks.json"
+    },
+    {
+      "path": "author/spec-adopted01/delta.patch",
+      "sha256": "aaec703e75baf0e3445073189f34557b814054efe076e86eddc5c83d3debc542",
+      "bytes": 2250,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-adopted01/delta.patch"
+    },
+    {
+      "path": "author/spec-adopted01/diff-check.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-adopted01/diff-check.stderr"
+    },
+    {
+      "path": "author/spec-adopted01/diff-check.stdout",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-adopted01/diff-check.stdout"
+    },
+    {
+      "path": "author/spec-adopted01/manifest.json",
+      "sha256": "6299d40e4ee7fc2059331dbb50cf3bf2cc5e6b9acfbb2ce808f1d212f802b931",
+      "bytes": 790,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-adopted01/manifest.json"
+    },
+    {
+      "path": "author/spec-adopted01/spec.md.txt",
+      "sha256": "506f2a11a049f69e14d2a097c99c7594071df248b2244bf33deda06abacb374d",
+      "bytes": 37509,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-adopted01/spec.md"
+    },
+    {
+      "path": "official/LICENSE.txt",
+      "sha256": "8bf96984ff8bcfae7e48cae76a529e8a25317ba9e02abf7fd3cc64fdf95657a6",
+      "bytes": 1056,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/LICENSE"
+    },
+    {
+      "path": "official/src/anthropic/_version.py.txt",
+      "sha256": "feaceff8789a2360e4866730abdfe9cb69f2fd76b709c2e59504634de938fa76",
+      "bytes": 75,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/_version.py"
+    },
+    {
+      "path": "official/src/anthropic/_client.py.txt",
+      "sha256": "ac8af83df47c29a246ca31f09c6c933eee3ca8a16f59a5d11a8c0ced976202ed",
+      "bytes": 49524,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/_client.py"
+    },
+    {
+      "path": "official/src/anthropic/_streaming.py.txt",
+      "sha256": "1bd8aa290b9583992bdaa63772735300ecca47d63c99bf2e489e53d8753eca3e",
+      "bytes": 19627,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/_streaming.py"
+    },
+    {
+      "path": "official/src/anthropic/resources/messages/messages.py.txt",
+      "sha256": "84cdd72a903199e010076ba41aebb62e54c3ab3d0bf8109d51ad37935ab8dbd0",
+      "bytes": 140768,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/resources/messages/messages.py"
+    },
+    {
+      "path": "official/src/anthropic/lib/streaming/_messages.py.txt",
+      "sha256": "b628629188df66541a35d052a0ebdbfb4d5d18efd17d25f3655e9cd28c1204af",
+      "bytes": 19944,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/lib/streaming/_messages.py"
+    },
+    {
+      "path": "official/src/anthropic/types/message_create_params.py.txt",
+      "sha256": "d845662fe7f49f21231c38ca82ec8756a8b10fbb4353f1364b458f6c1dfc65ea",
+      "bytes": 12503,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/message_create_params.py"
+    },
+    {
+      "path": "official/src/anthropic/types/message_param.py.txt",
+      "sha256": "0b2e98db9187b43ac288596a56dcf5ae6346f72931b0845f0ffd9c5665ba74b2",
+      "bytes": 2334,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/message_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/message.py.txt",
+      "sha256": "cdf6b3feba97d806d76922253de41539cb36b2c87d911052d1412fd16b4f3da4",
+      "bytes": 4565,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/message.py"
+    },
+    {
+      "path": "official/src/anthropic/types/content_block.py.txt",
+      "sha256": "3c835c016c489c319ad4bf3fbbdc7aae6caece672d625e9528adaed262a0f03b",
+      "bytes": 1363,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/content_block.py"
+    },
+    {
+      "path": "official/src/anthropic/types/content_block_param.py.txt",
+      "sha256": "fc525b88e05a8c016be54d75aefcf7f410a571195d75a99079c0d1076164f217",
+      "bytes": 1766,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/content_block_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/tool_param.py.txt",
+      "sha256": "5dca1daae3478dbe1a7e82d87bd02b9098fb9e6928c46ad1adbd487834d5d4f9",
+      "bytes": 2703,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/tool_choice_param.py.txt",
+      "sha256": "80efd97cca1260d54545383ddc2c8e9470f82fa23d921f605ef24e32b9fe73dc",
+      "bytes": 474,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_choice_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/tool_choice_any_param.py.txt",
+      "sha256": "8ade1b2bfe0f33680db2530b7e62f6c78a18ad4d42d3d9136884026c92453abf",
+      "bytes": 449,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_choice_any_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/tool_choice_auto_param.py.txt",
+      "sha256": "40168cd069dfdcdcbbf1b7b6cb2df69049f351ead2778e65e24176f45951d63a",
+      "bytes": 470,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_choice_auto_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/tool_choice_none_param.py.txt",
+      "sha256": "c50272a4ad4c88f2f5f4ad4bfd9aebba0af0b9f0479b2bfd8f6e61acb34b90f3",
+      "bytes": 274,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_choice_none_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/tool_choice_tool_param.py.txt",
+      "sha256": "7a5f58a37f771b9e392d023ba95691829eb44583f3d3839ced0716a0df33f443",
+      "bytes": 539,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_choice_tool_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/tool_use_block.py.txt",
+      "sha256": "a4e5a1e312b86c6ae639b6941bfb1fe3d61a87eb1e5f018eebba490b0894dd14",
+      "bytes": 736,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_use_block.py"
+    },
+    {
+      "path": "official/src/anthropic/types/tool_use_block_param.py.txt",
+      "sha256": "2f729bb8899d3f9f5d5722c3c4516f8853a34fc457209568ebd1583abbe53107",
+      "bytes": 989,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_use_block_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/tool_result_block_param.py.txt",
+      "sha256": "b9fed327482dbe01f93d90255a8554f876951e3e8a5e1afbc26ee820cfc6b5cc",
+      "bytes": 1220,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_result_block_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/text_block.py.txt",
+      "sha256": "8a2fa22bdec6b206ff52603468f1c3a39e59a3d68c4554ceb65f79ba19cc29ea",
+      "bytes": 575,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/text_block.py"
+    },
+    {
+      "path": "official/src/anthropic/types/text_block_param.py.txt",
+      "sha256": "68936d0c6fa87c3d8cd4969c0e87d6a13d782c64bdc2189deebcb9e46a09eeda",
+      "bytes": 572,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/text_block_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/text_delta.py.txt",
+      "sha256": "e03f74988420ca49c4690d0d81c88ce8297f6921c2db27a29aabe69e24317acf",
+      "bytes": 173,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/text_delta.py"
+    },
+    {
+      "path": "official/src/anthropic/types/input_json_delta.py.txt",
+      "sha256": "8f560cdf085fda89a426706b61fa9c3862711b810d7f5733fda7d81a873c39d0",
+      "bytes": 249,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/input_json_delta.py"
+    },
+    {
+      "path": "official/src/anthropic/types/raw_message_start_event.py.txt",
+      "sha256": "aa96d0631bb78bae454f054e0d97090764b42065f6f70b8dbeefd7f883f68c9c",
+      "bytes": 234,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_message_start_event.py"
+    },
+    {
+      "path": "official/src/anthropic/types/raw_message_delta_event.py.txt",
+      "sha256": "962c1474629ae4510079448f2d1ea0c8a42bb5ffa602830a3fe70eb4d106decf",
+      "bytes": 1669,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_message_delta_event.py"
+    },
+    {
+      "path": "official/src/anthropic/types/raw_message_stop_event.py.txt",
+      "sha256": "0f69a4dcca8ce04ec6168f2462f49a9eca2a01424a27cbd9ff672e5114beb780",
+      "bytes": 180,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_message_stop_event.py"
+    },
+    {
+      "path": "official/src/anthropic/types/raw_message_stream_event.py.txt",
+      "sha256": "beaff46afc835a3db874134aa2135152f2f1835a108420e22259a3b18413d489",
+      "bytes": 824,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_message_stream_event.py"
+    },
+    {
+      "path": "official/src/anthropic/types/raw_content_block_start_event.py.txt",
+      "sha256": "5b113dd03313910a8181ae7c48afb5e965ece9b37d1cd70e40f31cddc531e3bc",
+      "bytes": 1548,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_content_block_start_event.py"
+    },
+    {
+      "path": "official/src/anthropic/types/raw_content_block_delta_event.py.txt",
+      "sha256": "a154d67c32e80549a3bcd85bea7cfa3bbd2a2fd3165f44d1ca250959a4961519",
+      "bytes": 306,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_content_block_delta_event.py"
+    },
+    {
+      "path": "official/src/anthropic/types/raw_content_block_stop_event.py.txt",
+      "sha256": "94ffc25bd0a1831711583cc3b2eaf08fa1ed77c0e1c9179e37f0aba54b319838",
+      "bytes": 212,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_content_block_stop_event.py"
+    },
+    {
+      "path": "official/src/anthropic/types/raw_content_block_delta.py.txt",
+      "sha256": "bdaf294ddf3646e477cfa951fbc564e90de1ca11b0b6220e53c81507c49b4edf",
+      "bytes": 523,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_content_block_delta.py"
+    },
+    {
+      "path": "official/src/anthropic/types/usage.py.txt",
+      "sha256": "067d4e2d9fa8b623af5d05010351709078d803234260569b841a0f9ba460c271",
+      "bytes": 1568,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/usage.py"
+    },
+    {
+      "path": "official/src/anthropic/types/message_delta_usage.py.txt",
+      "sha256": "8ad15dff7eb7dee758ac8370a7ee9525a6e0cc32ac671c11e3e176aaf62d9b4e",
+      "bytes": 1210,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/message_delta_usage.py"
+    },
+    {
+      "path": "official/src/anthropic/types/output_tokens_details.py.txt",
+      "sha256": "691e4e601042536f65d67db6655c52cc622efab2a82dde7e640033c68f9e0592",
+      "bytes": 658,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/output_tokens_details.py"
+    },
+    {
+      "path": "official/src/anthropic/types/stop_reason.py.txt",
+      "sha256": "895e7da6cf2dccedc73dc955f94b40e34328b873ed14d173c11b79916f495d4b",
+      "bytes": 227,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/stop_reason.py"
+    },
+    {
+      "path": "official/src/anthropic/types/output_config_param.py.txt",
+      "sha256": "55fd9fa7855463e780a6fe1b5e98a02cb46b0f69db56d7e2baaf219447919314",
+      "bytes": 771,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/output_config_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/json_output_format_param.py.txt",
+      "sha256": "92372f3d59b1abf11803d3c02863024841a21cf21e3fc51abc245a4c4a0e2cfc",
+      "bytes": 335,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/json_output_format_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/thinking_config_enabled_param.py.txt",
+      "sha256": "243e219d1d6e106223cb178805983b435d9a63ff66c022c7ab586686abb8c083",
+      "bytes": 1001,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/thinking_config_enabled_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/thinking_config_adaptive_param.py.txt",
+      "sha256": "00d04d81cb527a7aabbd747d31866e498beb91333e681f853de74b55b7f3a748",
+      "bytes": 597,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/thinking_config_adaptive_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/thinking_block_param.py.txt",
+      "sha256": "3eb800d231c1bee3625f2abb82cbc3ecbad790877fa72e9dc5daecb8b7c4aec6",
+      "bytes": 672,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/thinking_block_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/redacted_thinking_block_param.py.txt",
+      "sha256": "4c9574b6e4a27038596540bce75f6a3be182be7abc0752bdbce688db8bade925",
+      "bytes": 446,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/redacted_thinking_block_param.py"
+    },
+    {
+      "path": "official/src/anthropic/types/shared/error_type.py.txt",
+      "sha256": "6008bc83d9a8c963cb71cdc1151fcec96fa8dbcaebdc5c0ed3ebb6888fe14589",
+      "bytes": 320,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/error_type.py"
+    },
+    {
+      "path": "official/src/anthropic/types/shared/error_object.py.txt",
+      "sha256": "af23c931cfeddf379644b70ebfc11a78b7312adf4a550fa5ff985132f2f82e19",
+      "bytes": 894,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/error_object.py"
+    },
+    {
+      "path": "official/src/anthropic/types/shared/error_response.py.txt",
+      "sha256": "f75657b325c377a1692725247aba18f80745d13e759a5fd8f9ac37382e36aa9e",
+      "bytes": 290,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/error_response.py"
+    },
+    {
+      "path": "official/src/anthropic/_exceptions.py.txt",
+      "sha256": "10418f63dd4396903f6da4e90d4b776704a5438bb3b67b8023c4c20db075618d",
+      "bytes": 5619,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/_exceptions.py"
+    },
+    {
+      "path": "official/src/anthropic/types/cache_creation.py.txt",
+      "sha256": "3f874c714ccf030e8877496320562956f845ec3fc4fdc51c3d94c980994a7f9d",
+      "bytes": 320,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/cache_creation.py"
+    },
+    {
+      "path": "official/src/anthropic/types/server_tool_usage.py.txt",
+      "sha256": "9c4aab40aaa34a42797d4fd959eff6e4450a6a3a9878cd6389ce761777c3f15d",
+      "bytes": 256,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/server_tool_usage.py"
+    },
+    {
+      "path": "official/src/anthropic/types/direct_caller.py.txt",
+      "sha256": "4a4135687f8eb7207b3ccad3f2597f57ff6b3dbeca37faec3fe4e36bc8686052",
+      "bytes": 212,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/direct_caller.py"
+    },
+    {
+      "path": "official/src/anthropic/types/refusal_stop_details.py.txt",
+      "sha256": "d39582a6e0bba339ac250aea505ce84fb39e385c709ce219e7b973505166cd11",
+      "bytes": 1716,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/refusal_stop_details.py"
+    },
+    {
+      "path": "official/src/anthropic/types/shared/billing_error.py.txt",
+      "sha256": "2b584764d0145886c9120a7be72467eabe1bb708589dd6a64aae96fb11e586a7",
+      "bytes": 186,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/billing_error.py"
+    },
+    {
+      "path": "official/src/anthropic/types/shared/not_found_error.py.txt",
+      "sha256": "31132471ea16790d42baa70db30c981403449d67f6bdf7e54974ad8946eac8c9",
+      "bytes": 190,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/not_found_error.py"
+    },
+    {
+      "path": "official/src/anthropic/types/shared/api_error_object.py.txt",
+      "sha256": "924ceacd0e7163eac9a5d52d6e50ca45ffe45ad27b95c007c85e879c0c03eafd",
+      "bytes": 186,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/api_error_object.py"
+    },
+    {
+      "path": "official/src/anthropic/types/shared/overloaded_error.py.txt",
+      "sha256": "b23b68a973880e7f43b92288db0c52ceb7d22ad617716c988168bcd2b9279f9a",
+      "bytes": 195,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/overloaded_error.py"
+    },
+    {
+      "path": "official/src/anthropic/types/shared/permission_error.py.txt",
+      "sha256": "a175c6649a767983406db2332af5eecf9ef5b4519ea3a5124897d87b4999212a",
+      "bytes": 195,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/permission_error.py"
+    },
+    {
+      "path": "official/src/anthropic/types/shared/rate_limit_error.py.txt",
+      "sha256": "669c8e9bcb4fdedaef1fdc29cc9dd8cd51c8d34f8a97a5f7b5ec11ddf62f6c0a",
+      "bytes": 193,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/rate_limit_error.py"
+    },
+    {
+      "path": "official/src/anthropic/types/shared/authentication_error.py.txt",
+      "sha256": "af0cd168ac6ca1d561ce45b56060dda57306e0f3cb2f15c1b58074c2094308a1",
+      "bytes": 207,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/authentication_error.py"
+    },
+    {
+      "path": "official/src/anthropic/types/shared/gateway_timeout_error.py.txt",
+      "sha256": "3280e0d6f4a3c66087581ff6fb8a5873642777e527e83106d82cafb9c9df7c16",
+      "bytes": 200,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/gateway_timeout_error.py"
+    },
+    {
+      "path": "official/src/anthropic/types/shared/invalid_request_error.py.txt",
+      "sha256": "50e1b622d4565bc7854a3c3132be825983db5ec70c8488ced7a3005577b1fb9d",
+      "bytes": 208,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/invalid_request_error.py"
+    },
+    {
+      "path": "official/tests/lib/streaming/fixtures/basic_response.txt.txt",
+      "sha256": "4cef9a87292eb74b7c282f7de5a2b407160d36a9dfed25be05f59047a59033bd",
+      "bytes": 1046,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/basic_response.txt"
+    },
+    {
+      "path": "official/tests/lib/streaming/fixtures/tool_use_response.txt.txt",
+      "sha256": "53787cbf836155a1f5dffb60cde0cf0fa42e21db2dbed0aa76f51c76a70b02f6",
+      "bytes": 2000,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/tool_use_response.txt"
+    },
+    {
+      "path": "official/tests/lib/streaming/fixtures/message_delta_fields_response.txt.txt",
+      "sha256": "194442cb0bb34fa71ebfe7779221ed0761f6ca1714e626c01178e81dd3b79600",
+      "bytes": 1249,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/message_delta_fields_response.txt"
+    },
+    {
+      "path": "official/tests/lib/streaming/fixtures/message_delta_omitted_usage_response.txt.txt",
+      "sha256": "163b57c8fbb83a2bd74c474b8afa130159a00c8fbce96d7d24e42c082f1fb76f",
+      "bytes": 980,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/message_delta_omitted_usage_response.txt"
+    },
+    {
+      "path": "official/tests/lib/streaming/fixtures/refusal_response.txt.txt",
+      "sha256": "13f671d69252664542d26b8e85a5c29406eb349b1d77ef13127c39b76ceb7f5e",
+      "bytes": 752,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/refusal_response.txt"
+    },
+    {
+      "path": "official/tests/lib/streaming/fixtures/incomplete_partial_json_response.txt.txt",
+      "sha256": "e0e79ee10c18063861f4cc191ff6c6bdda767cd7407bec1c050c7831ff41f90d",
+      "bytes": 2448,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/incomplete_partial_json_response.txt"
+    },
+    {
+      "path": "official/tests/lib/streaming/fixtures/tool_use_invalid_json_response.txt.txt",
+      "sha256": "7596d5fa191b4e23b98b1a4e781ee1351f7237812039a5e007a9a5e7c2a1dfdb",
+      "bytes": 2019,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/tool_use_invalid_json_response.txt"
+    },
+    {
+      "path": "independent/check_final_revision.py.txt",
+      "sha256": "3a45cb0ba89ddc53e7a4cb58c38c94134648efda273e30fcd538a6567a9ccb27",
+      "bytes": 5362,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/check_final_revision.py"
+    },
+    {
+      "path": "independent/check_static_inputs.py.txt",
+      "sha256": "5964bf8a07ebd0be251ec75138f6896c46237203c55e8d52c6869a122e9836ef",
+      "bytes": 5471,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/check_static_inputs.py"
+    },
+    {
+      "path": "independent/evidence-index.json",
+      "sha256": "e4adaeb2b37f3f042c5a359dde6e5a71ab843b48555c72b6432e141da252cf6e",
+      "bytes": 3628,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/evidence-index.json"
+    },
+    {
+      "path": "independent/final-check-run.json",
+      "sha256": "1f7d77573abb94c6404d55e353c94d126630f16d4d86d248c3831b24cfe8fa12",
+      "bytes": 725,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/final-check-run.json"
+    },
+    {
+      "path": "independent/final-check.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/final-check.stderr"
+    },
+    {
+      "path": "independent/final-check.stdout",
+      "sha256": "d5f16f7ffcd307f9aae9cd71cb065bc659a0a8d13a036f0406206004b0853ac2",
+      "bytes": 188,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/final-check.stdout"
+    },
+    {
+      "path": "independent/final-checks.json",
+      "sha256": "732b10e27cce50763743edb93cdfaf9217e3a6b3e5ab18beff0d3792d9d9f787",
+      "bytes": 3973,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/final-checks.json"
+    },
+    {
+      "path": "independent/review.md.txt",
+      "sha256": "6be56df7a56463d7c5791b87b79d35a0ca8ee2decc69ada006b930b374dccfbf",
+      "bytes": 7945,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/review.md"
+    },
+    {
+      "path": "independent/static-check01-runner.py.txt",
+      "sha256": "003ebce39947221dde7ee0b6a270ac6a29a2b6ec9e3fa2cb8a939885f698dd8f",
+      "bytes": 5438,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-check01-runner.py.txt"
+    },
+    {
+      "path": "independent/static-check01.json",
+      "sha256": "3fef8c2bfb8b6dcd3e1beacd8efcaeb3dc9c4d36d9800252626fa92b70cb9254",
+      "bytes": 400,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-check01.json"
+    },
+    {
+      "path": "independent/static-check02.json",
+      "sha256": "54db210e0bdd898d70e0877f56fc1f1d25464122a332a4446fc3e66a1f26d3a2",
+      "bytes": 676,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-check02.json"
+    },
+    {
+      "path": "independent/static-check02.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-check02.stderr"
+    },
+    {
+      "path": "independent/static-check02.stdout",
+      "sha256": "e053b4814ba332a2823d2e3c520932f744357ed34efb44ed9d4af8d87e673f4b",
+      "bytes": 177,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-check02.stdout"
+    },
+    {
+      "path": "independent/static-input-checks.json",
+      "sha256": "5bdc54dee04958584527e053dffc1083ad354c0e18b019c9b2d8edaefbc51097",
+      "bytes": 26125,
+      "origin": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-input-checks.json"
+    },
+    {
+      "path": "git-inputs/392dec49ba8a7781adf7af1ac28d5a93e8abadbf339db724e2375c9c91538df0.txt",
+      "sha256": "392dec49ba8a7781adf7af1ac28d5a93e8abadbf339db724e2375c9c91538df0",
+      "bytes": 18245,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "AGENTS.md"
+      }
+    },
+    {
+      "path": "git-inputs/81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81.txt",
+      "sha256": "81834a981f226cc663c42b9dcdfd9b56001d2cfcd649107064bf865af4d61b81",
+      "bytes": 3874,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": ".agents/skills/agenteam-design/SKILL.md"
+      }
+    },
+    {
+      "path": "git-inputs/484c5c9998cffee13083df540e389d02e885fe8da57248636ee9aa8ad2b71116.txt",
+      "sha256": "484c5c9998cffee13083df540e389d02e885fe8da57248636ee9aa8ad2b71116",
+      "bytes": 14169,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "docs/development/agent-team/README.md"
+      }
+    },
+    {
+      "path": "git-inputs/2c362366c8e52f28b16b92aa574e6a245489ba17eaaff79ac27aacffc704c133.txt",
+      "sha256": "2c362366c8e52f28b16b92aa574e6a245489ba17eaaff79ac27aacffc704c133",
+      "bytes": 66903,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "docs/development/work-items/d09-model-system-token-usage-design.md"
+      }
+    },
+    {
+      "path": "git-inputs/928c20d4f29586622e615af2c8a3f6b6d9fcd0db425951a13158b722f6f4831e.txt",
+      "sha256": "928c20d4f29586622e615af2c8a3f6b6d9fcd0db425951a13158b722f6f4831e",
+      "bytes": 11913,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "docs/development/work-items/d09-model-system-token-usage.md"
+      }
+    },
+    {
+      "path": "git-inputs/ed7c50ecd20156362dfbfab2a2e542ddec2b64c89d816a73a4db1843599ab824.txt",
+      "sha256": "ed7c50ecd20156362dfbfab2a2e542ddec2b64c89d816a73a4db1843599ab824",
+      "bytes": 29152,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "docs/development/work-items/recovery-d09-openai-chat-wire.md"
+      }
+    },
+    {
+      "path": "git-inputs/7774aff73cec0626271895a3abcb1f3c88e5ff9efdd05382777c6c0894b56356.txt",
+      "sha256": "7774aff73cec0626271895a3abcb1f3c88e5ff9efdd05382777c6c0894b56356",
+      "bytes": 21860,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "docs/development/work-items/recovery-d09-openai-chat-structured-wire.md"
+      }
+    },
+    {
+      "path": "git-inputs/bd20d74ce497df08fe3276387e5d143b7dc5f8deeb2ceef89905cb6e2f186e37.txt",
+      "sha256": "bd20d74ce497df08fe3276387e5d143b7dc5f8deeb2ceef89905cb6e2f186e37",
+      "bytes": 28164,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "docs/development/work-items/recovery-d09-openai-chat-tools-wire.md"
+      }
+    },
+    {
+      "path": "git-inputs/bc8179f1aedec56f7f67ff8bcbdbf534226bfa07a28b305796ca49a484c034e3.txt",
+      "sha256": "bc8179f1aedec56f7f67ff8bcbdbf534226bfa07a28b305796ca49a484c034e3",
+      "bytes": 14910,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "docs/architecture/platform-infrastructure/model-system/chat-model-runtime.md"
+      }
+    },
+    {
+      "path": "git-inputs/01f2abe8a8d5be54ed3193f22be75094f3868e2b09a6d8ca5dab6fb70aac2d88.txt",
+      "sha256": "01f2abe8a8d5be54ed3193f22be75094f3868e2b09a6d8ca5dab6fb70aac2d88",
+      "bytes": 16536,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "internal/central/model/contract/chat.go"
+      }
+    },
+    {
+      "path": "git-inputs/3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4.txt",
+      "sha256": "3310f4f106bb727e7cf4bdc4d5868c8a6973c5b18d9db7ea04e64f0f3c2e19a4",
+      "bytes": 19439,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "internal/central/model/contract/types.go"
+      }
+    },
+    {
+      "path": "git-inputs/538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee.txt",
+      "sha256": "538836cb339df24a1895d2e355de4ffa27ffb183e89a17013b4314083a175fee",
+      "bytes": 4230,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "internal/central/model/resolution_policy.go"
+      }
+    },
+    {
+      "path": "git-inputs/1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556.txt",
+      "sha256": "1f257a1eadc98818f1031dcf8e0e5cd96d3a63048c01709579bae42251339556",
+      "bytes": 11254,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "internal/central/model/adapter/openai_chat.go"
+      }
+    },
+    {
+      "path": "git-inputs/5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf.txt",
+      "sha256": "5a2283ece2538286c14a0cf201c885c077ab3fc6d5c288bdc42c36e271e5b3cf",
+      "bytes": 11948,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "internal/central/model/adapter/transport.go"
+      }
+    },
+    {
+      "path": "git-inputs/24f7aa4cf23f3835bd911a2bb9fedee129045abde698c21bb5711a2ed494e499.txt",
+      "sha256": "24f7aa4cf23f3835bd911a2bb9fedee129045abde698c21bb5711a2ed494e499",
+      "bytes": 11274,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "internal/central/model/adapter/errors.go"
+      }
+    },
+    {
+      "path": "git-inputs/2996e01864c0a0504a429e9bafb9e4305003bfe7a40270a1e75bf5aefec8f025.txt",
+      "sha256": "2996e01864c0a0504a429e9bafb9e4305003bfe7a40270a1e75bf5aefec8f025",
+      "bytes": 3680,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "internal/central/model/adapter/sse.go"
+      }
+    },
+    {
+      "path": "git-inputs/5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a.txt",
+      "sha256": "5d2ac59998abb856883b1010a61ab882c5edf20546fac4fc2dad5c33e9119f6a",
+      "bytes": 2607,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "internal/central/model/adapter/budget.go"
+      }
+    },
+    {
+      "path": "git-inputs/cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8.txt",
+      "sha256": "cb3d0d524810c100524eea46fc78235bdc02dc34a727c69e82941f382a4aa5d8",
+      "bytes": 10655,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "tests/model/openai_chat_wire_fixture_test.go"
+      }
+    },
+    {
+      "path": "git-inputs/2ca0951c43f5dede7defd35443b67c31aa7e910f36ecdfe9fbb8212070ef6071.txt",
+      "sha256": "2ca0951c43f5dede7defd35443b67c31aa7e910f36ecdfe9fbb8212070ef6071",
+      "bytes": 10592,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "tests/testsupport/outbound/cmd/server/main.go"
+      }
+    },
+    {
+      "path": "git-inputs/525e7cc33d887fb1d741a5c34fddd048c5827cdef1943bc9fae924ce4f754cbc.txt",
+      "sha256": "525e7cc33d887fb1d741a5c34fddd048c5827cdef1943bc9fae924ce4f754cbc",
+      "bytes": 5394,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "tests/testsupport/outbound/fixture.go"
+      }
+    },
+    {
+      "path": "git-inputs/3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be.txt",
+      "sha256": "3b6697d8353a824d58b06affb7056324af5a8dadd6763a02d52ea59fca9388be",
+      "bytes": 1117,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "scripts/test-security.sh"
+      }
+    },
+    {
+      "path": "git-inputs/71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87.txt",
+      "sha256": "71aff74a122d5935ec02d8b80fc27be0a7cb3020650ac40dc1c0d48b9d012d87",
+      "bytes": 1029,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "scripts/test-objects.sh"
+      }
+    },
+    {
+      "path": "git-inputs/f9187e2e17cd58bc22557d75af8cf60ab32362a6e9a6848569c298860291374b.txt",
+      "sha256": "f9187e2e17cd58bc22557d75af8cf60ab32362a6e9a6848569c298860291374b",
+      "bytes": 290,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "scripts/test-models.sh"
+      }
+    },
+    {
+      "path": "git-inputs/294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758.txt",
+      "sha256": "294a95594aa10b67474d8c82b01a6def9d64ca132fca53a1afff081736fe8758",
+      "bytes": 1468,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "go.mod"
+      }
+    },
+    {
+      "path": "git-inputs/6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245.txt",
+      "sha256": "6bc1fd93b203eefb8360ed556980575429b0a35f999f5c8c984f611203633245",
+      "bytes": 8391,
+      "origin": {
+        "commit": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+        "repo_path": "go.sum"
+      }
+    },
+    {
+      "path": "git-inputs/268fdff145c9048bb4a3ba2c2845ce57baa1790254eff65035f67453d9a4cc76.txt",
+      "sha256": "268fdff145c9048bb4a3ba2c2845ce57baa1790254eff65035f67453d9a4cc76",
+      "bytes": 224679,
+      "origin": {
+        "commit": "71f276f374fb1846adcd94bbc2dec2285be63e59",
+        "repo_path": "docs/development/agent-team/tasks.md"
+      }
+    },
+    {
+      "path": "git-inputs/d9d5990a227b641de9f1688bb15b2931f8a6d1825edf227129ce8cb9e78b7d41.txt",
+      "sha256": "d9d5990a227b641de9f1688bb15b2931f8a6d1825edf227129ce8cb9e78b7d41",
+      "bytes": 14344,
+      "origin": {
+        "commit": "71f276f374fb1846adcd94bbc2dec2285be63e59",
+        "repo_path": "docs/development/agent-team/recovery-2026-10-06.md"
+      }
+    }
+  ],
+  "origin_map": {
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/README.md": "author/README.md.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/baseline-inputs.json": "author/baseline-inputs.json",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source-manifest.json": "author/source-manifest.json",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/field-manifest.json": "author/field-manifest.json",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/fetch-commands.json": "author/fetch-commands.json",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/fetch-0.stdout": "author/fetch-0.stdout",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/fetch-0.stderr": "author/fetch-0.stderr",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/fetch-1.stdout": "author/fetch-1.stdout",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/fetch-1.stderr": "author/fetch-1.stderr",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/commit-object.txt": "author/commit-object.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/verify-inputs.py": "author/verify-inputs.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source-check.stdout": "author/source-check.stdout",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source-check.stderr": "author/source-check.stderr",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-checks.json": "author/spec-checks.json",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-diff-check.stdout": "author/spec-diff-check.stdout",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-diff-check.stderr": "author/spec-diff-check.stderr",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze01/manifest.json": "author/spec-freeze01/manifest.json",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze01/spec.md": "author/spec-freeze01/spec.md.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/checks.json": "author/spec-freeze02/checks.json",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/delta.patch": "author/spec-freeze02/delta.patch",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/diff-check.stderr": "author/spec-freeze02/diff-check.stderr",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/diff-check.stdout": "author/spec-freeze02/diff-check.stdout",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/manifest.json": "author/spec-freeze02/manifest.json",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/spec.md": "author/spec-freeze02/spec.md.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/checks.json": "author/spec-freeze03/checks.json",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/delta.patch": "author/spec-freeze03/delta.patch",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/diff-check.stderr": "author/spec-freeze03/diff-check.stderr",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/diff-check.stdout": "author/spec-freeze03/diff-check.stdout",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/manifest.json": "author/spec-freeze03/manifest.json",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/spec.md": "author/spec-freeze03/spec.md.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-adopted01/checks.json": "author/spec-adopted01/checks.json",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-adopted01/delta.patch": "author/spec-adopted01/delta.patch",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-adopted01/diff-check.stderr": "author/spec-adopted01/diff-check.stderr",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-adopted01/diff-check.stdout": "author/spec-adopted01/diff-check.stdout",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-adopted01/manifest.json": "author/spec-adopted01/manifest.json",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-adopted01/spec.md": "author/spec-adopted01/spec.md.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/LICENSE": "official/LICENSE.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/_version.py": "official/src/anthropic/_version.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/_client.py": "official/src/anthropic/_client.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/_streaming.py": "official/src/anthropic/_streaming.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/resources/messages/messages.py": "official/src/anthropic/resources/messages/messages.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/lib/streaming/_messages.py": "official/src/anthropic/lib/streaming/_messages.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/message_create_params.py": "official/src/anthropic/types/message_create_params.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/message_param.py": "official/src/anthropic/types/message_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/message.py": "official/src/anthropic/types/message.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/content_block.py": "official/src/anthropic/types/content_block.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/content_block_param.py": "official/src/anthropic/types/content_block_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_param.py": "official/src/anthropic/types/tool_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_choice_param.py": "official/src/anthropic/types/tool_choice_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_choice_any_param.py": "official/src/anthropic/types/tool_choice_any_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_choice_auto_param.py": "official/src/anthropic/types/tool_choice_auto_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_choice_none_param.py": "official/src/anthropic/types/tool_choice_none_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_choice_tool_param.py": "official/src/anthropic/types/tool_choice_tool_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_use_block.py": "official/src/anthropic/types/tool_use_block.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_use_block_param.py": "official/src/anthropic/types/tool_use_block_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/tool_result_block_param.py": "official/src/anthropic/types/tool_result_block_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/text_block.py": "official/src/anthropic/types/text_block.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/text_block_param.py": "official/src/anthropic/types/text_block_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/text_delta.py": "official/src/anthropic/types/text_delta.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/input_json_delta.py": "official/src/anthropic/types/input_json_delta.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_message_start_event.py": "official/src/anthropic/types/raw_message_start_event.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_message_delta_event.py": "official/src/anthropic/types/raw_message_delta_event.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_message_stop_event.py": "official/src/anthropic/types/raw_message_stop_event.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_message_stream_event.py": "official/src/anthropic/types/raw_message_stream_event.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_content_block_start_event.py": "official/src/anthropic/types/raw_content_block_start_event.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_content_block_delta_event.py": "official/src/anthropic/types/raw_content_block_delta_event.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_content_block_stop_event.py": "official/src/anthropic/types/raw_content_block_stop_event.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/raw_content_block_delta.py": "official/src/anthropic/types/raw_content_block_delta.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/usage.py": "official/src/anthropic/types/usage.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/message_delta_usage.py": "official/src/anthropic/types/message_delta_usage.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/output_tokens_details.py": "official/src/anthropic/types/output_tokens_details.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/stop_reason.py": "official/src/anthropic/types/stop_reason.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/output_config_param.py": "official/src/anthropic/types/output_config_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/json_output_format_param.py": "official/src/anthropic/types/json_output_format_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/thinking_config_enabled_param.py": "official/src/anthropic/types/thinking_config_enabled_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/thinking_config_adaptive_param.py": "official/src/anthropic/types/thinking_config_adaptive_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/thinking_block_param.py": "official/src/anthropic/types/thinking_block_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/redacted_thinking_block_param.py": "official/src/anthropic/types/redacted_thinking_block_param.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/error_type.py": "official/src/anthropic/types/shared/error_type.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/error_object.py": "official/src/anthropic/types/shared/error_object.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/error_response.py": "official/src/anthropic/types/shared/error_response.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/_exceptions.py": "official/src/anthropic/_exceptions.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/cache_creation.py": "official/src/anthropic/types/cache_creation.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/server_tool_usage.py": "official/src/anthropic/types/server_tool_usage.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/direct_caller.py": "official/src/anthropic/types/direct_caller.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/refusal_stop_details.py": "official/src/anthropic/types/refusal_stop_details.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/billing_error.py": "official/src/anthropic/types/shared/billing_error.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/not_found_error.py": "official/src/anthropic/types/shared/not_found_error.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/api_error_object.py": "official/src/anthropic/types/shared/api_error_object.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/overloaded_error.py": "official/src/anthropic/types/shared/overloaded_error.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/permission_error.py": "official/src/anthropic/types/shared/permission_error.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/rate_limit_error.py": "official/src/anthropic/types/shared/rate_limit_error.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/authentication_error.py": "official/src/anthropic/types/shared/authentication_error.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/gateway_timeout_error.py": "official/src/anthropic/types/shared/gateway_timeout_error.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/src/anthropic/types/shared/invalid_request_error.py": "official/src/anthropic/types/shared/invalid_request_error.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/basic_response.txt": "official/tests/lib/streaming/fixtures/basic_response.txt.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/tool_use_response.txt": "official/tests/lib/streaming/fixtures/tool_use_response.txt.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/message_delta_fields_response.txt": "official/tests/lib/streaming/fixtures/message_delta_fields_response.txt.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/message_delta_omitted_usage_response.txt": "official/tests/lib/streaming/fixtures/message_delta_omitted_usage_response.txt.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/refusal_response.txt": "official/tests/lib/streaming/fixtures/refusal_response.txt.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/incomplete_partial_json_response.txt": "official/tests/lib/streaming/fixtures/incomplete_partial_json_response.txt.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-76c077li/source/tests/lib/streaming/fixtures/tool_use_invalid_json_response.txt": "official/tests/lib/streaming/fixtures/tool_use_invalid_json_response.txt.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/check_final_revision.py": "independent/check_final_revision.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/check_static_inputs.py": "independent/check_static_inputs.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/evidence-index.json": "independent/evidence-index.json",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/final-check-run.json": "independent/final-check-run.json",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/final-check.stderr": "independent/final-check.stderr",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/final-check.stdout": "independent/final-check.stdout",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/final-checks.json": "independent/final-checks.json",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/review.md": "independent/review.md.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/reviewed-spec-freeze02-checks.json": "author/spec-freeze02/checks.json",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/reviewed-spec-freeze02-delta.patch": "author/spec-freeze02/delta.patch",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/reviewed-spec-freeze02-manifest.json": "author/spec-freeze02/manifest.json",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/reviewed-spec-freeze02-spec.md": "author/spec-freeze02/spec.md.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/reviewed-spec-freeze03-checks.json": "author/spec-freeze03/checks.json",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/reviewed-spec-freeze03-delta.patch": "author/spec-freeze03/delta.patch",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/reviewed-spec-freeze03-manifest.json": "author/spec-freeze03/manifest.json",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/reviewed-spec-freeze03-spec.md": "author/spec-freeze03/spec.md.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/reviewed-spec01.md": "author/spec-freeze01/spec.md.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-check01-runner.py.txt": "independent/static-check01-runner.py.txt",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-check01.json": "independent/static-check01.json",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-check02.json": "independent/static-check02.json",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-check02.stderr": "independent/static-check02.stderr",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-check02.stdout": "independent/static-check02.stdout",
+    "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-input-checks.json": "independent/static-input-checks.json",
+    "/workspace/scratch/agenteam-anthropic-spec-archive-handoff/check_documents.py": "document-checker.py.txt"
+  },
+  "archive_generated_files": [
+    "README.md",
+    "git-proofs.json",
+    "verify-evidence.py",
+    "document-checks.json",
+    "document-checker.py.txt"
+  ],
+  "excluded_self_and_run_evidence": [
+    "archive-manifest.json",
+    "archive-checks.json",
+    "archive-check.stdout",
+    "archive-check.stderr"
+  ],
+  "implementation_authorized": false,
+  "tools_product_accepted": false,
+  "product_or_sdk_execution": false,
+  "network_during_archive": false,
+  "generated_artifacts": [
+    {
+      "path": "README.md",
+      "sha256": "5efb81f9e5da6e1f07325f6678039e4728c15956b306bf83499c88714ab0c4c5",
+      "bytes": 3561
+    },
+    {
+      "path": "git-proofs.json",
+      "sha256": "f77a571b864c81b946113c3e72b118c09c53b67e3a114ad70583f141960f1e5a",
+      "bytes": 68912
+    },
+    {
+      "path": "verify-evidence.py",
+      "sha256": "732a9d326838ff3848c5e605990a1583d7508b5412455a5a577f42670c33f625",
+      "bytes": 9512
+    },
+    {
+      "path": "document-checks.json",
+      "sha256": "d90a7e68d85b8ca519765d0e6248301928bc38f7d3a0ad278f7400882d941b7a",
+      "bytes": 2923
+    },
+    {
+      "path": "document-checker.py.txt",
+      "sha256": "6f02ca1493e8967ba58dd64289f245e0740b4011b26ebbbc4d3e7faf0367c6ba",
+      "bytes": 5505
+    }
+  ]
+}

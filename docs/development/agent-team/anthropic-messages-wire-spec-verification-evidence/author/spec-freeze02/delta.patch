@@ -1,0 +1,26 @@
+--- spec-freeze01/spec.md
++++ spec-freeze02/spec.md
+@@ -94,7 +94,7 @@
+ | stop_reason | 本修订结果 |
+ | --- | --- |
+ | end_turn | stop；不得带工具，required/named不得零工具成功 |
+-| stop_sequence | stop；stop_sequence 必须为非空字符串且≤4KiB，其余正常 stop_sequence 字段只能 null/省略；本卡不发送自定义 stop_sequences，不将原停止串投影成正文 |
++| stop_sequence | 仅无工具且ToolChoice非required/named的文本可成功为stop；任何工具内容或required/named零工具均为protocol_invalid。stop_sequence必须为非空字符串且≤4KiB，其余正常stop_sequence字段只能null/省略；本卡不发送自定义stop_sequences，不将原停止串投影成正文 |
+ | tool_use | tool_calls；至少一个完整合法工具，none不得工具，named只能该名，parallel=false最多一个；全部校验后才发布 |
+ | max_tokens | 无工具且非强制工具时为 length 的文本结果；任何工具内容/强制工具不满足均安全 protocol_invalid，不能发可执行的半工具 |
+ | refusal | content_filter，零 Result/零成功 StreamEnd，保可靠 usage |
+@@ -190,10 +190,12 @@
+ 
+ | 顶层 | 必须实际观察 |
+ | --- | --- |
+-| `TestModelAnthropicMessagesHTTP` | base `/v1`/代理escaped prefix/origin的精确RequestURI，无双v1/猜补；X-Api-Key而非Bearer、版本header、POST/零重定向/请求计数；system/多text/assistant混排/空块/多工具历史/乱序结果/is_error/四choice/parallel native编码；有序JSON Message通过C0；不支持请求零Do；有效usage后坏工具/拒绝仍保usage、零Result；529/错误body/安全request-id/诊断canary，无自动重发 |
+-| `TestModelAnthropicMessagesStream` | text/tool/text及空块位置、native index与dense工具index分离、活块交错/重复/late/缺stop反例；start input与partial_json替换/无delta直接input、UTF-8拆片、完整C0工具；实际320KiB参数以≤64KiB片段过256KiB队列；累计覆盖/省略/null保值/1→0/cache独立/无total/>2^53；startusage后断流/error、缺message_delta/message_stop、一错误后EOF；ToolComplete后取消仍零StreamEnd |
++| `TestModelAnthropicMessagesHTTP` | base `/v1`/代理escaped prefix/origin的精确RequestURI，无双v1/猜补；X-Api-Key而非Bearer、版本header、POST/零重定向/请求计数；system/多text/assistant混排/空块/多工具历史/乱序结果/is_error/四choice/parallel native编码；有序JSON Message通过C0；不支持请求零Do；有效usage后坏工具/拒绝仍保usage、零Result；stop_sequence带完整合法工具、required零工具、named零工具分别protocol_invalid/零Result且保usage；529/错误body/安全request-id/诊断canary，无自动重发 |
++| `TestModelAnthropicMessagesStream` | text/tool/text及空块位置、native index与dense工具index分离、活块交错/重复/late/缺stop反例；start input与partial_json替换/无delta直接input、UTF-8拆片、完整C0工具；实际320KiB参数以≤64KiB片段过256KiB队列；累计覆盖/省略/null保值/1→0/cache独立/无total/>2^53；startusage后断流/error、缺message_delta/message_stop、一错误后EOF；message_delta的stop_sequence带完整合法工具、required零工具、named零工具分别protocol_invalid/零ToolComplete/零StreamEnd且保usage；ToolComplete后取消仍零StreamEnd |
+ | `TestModelAnthropicMessagesCloseAndBudget` | JSON headers/body hold与SSE背压/校验期间取消，无迟到Message/End；同一具体Budget混用OpenAI text/structured/tools/Anthropic保持64/8，超额零Do；未join保slot/material，正常/Force同剩余预算；server handler/connection+Client.Drain双观察，真实零发送拒绝与实际Sent分别断言 |
+ 
++上述stop_sequence六个反例均使用准入合法的工具声明/choice及已实际收到的合法envelope/usage；有工具分支的参数本身完整并通过C0，不能用准入失败或坏参数冒充终止关系校验。两模式另保none/auto、无工具文本的合法stop_sequence成功正例；SSE在实际message_stop与join前不发布成功。
++
+ 纯测精确补1MiB单工具及+1、16MiB总content及+1、256parts/257、128tools/129、32/33 C0深度（Anthropic input嵌入普通JSON和start事件、SSE partial JSON分别验证）、有限>2^53词法原样与1e400、重复key/尾随/非法Unicode/NUL、索引稀疏/溢出、声明/选择/ID约束、request/schema大小和全部深clone。实际1MiB/16MiB超过既有512KiB场景cap，只能按纯parser检查报告，不扩大fixture或假称真实网络已跑。取消在长扫描/背压内部用确定信号/channel观察，不用早取消冒充处理中取消，也不为测试加生产hook。
+ 
+ 复用/补验依语义逐组记录：原text三组 `TestModelOpenAIChatWireHTTP/Stream/JoinAndBudget`、structured三组 `TestModelOpenAIChatStructuredHTTP/Stream/CloseAndBudget`、tools已接受的三组 `TestModelOpenAIChatToolsHTTP/Stream/CloseAndBudget`，以及未改作者 `TestUsageInvocationWireLedger`。保原断言与真实模式覆盖；可以按原预算分组，不称一次单体全绿，不把no-tests算PASS。当前卡不运行这些命令。

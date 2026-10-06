@@ -1,0 +1,41 @@
+[
+  {
+    "argv": [
+      "git",
+      "-c",
+      "credential.helper=",
+      "-c",
+      "http.extraHeader=",
+      "init",
+      "--bare",
+      "/workspace/scratch/agenteam-anthropic-spec-76c077li/objects.git"
+    ],
+    "started": 1791251479.583964,
+    "finished": 1791251479.587838,
+    "exit": 0,
+    "official_repository": "https://github.com/anthropics/anthropic-sdk-python.git",
+    "commit": "18f25547f20cf5f01da69ac611e700e3bc9ebf21",
+    "GIT_TERMINAL_PROMPT": "0"
+  },
+  {
+    "argv": [
+      "git",
+      "-c",
+      "credential.helper=",
+      "-c",
+      "http.extraHeader=",
+      "--git-dir=/workspace/scratch/agenteam-anthropic-spec-76c077li/objects.git",
+      "fetch",
+      "--no-tags",
+      "--depth=1",
+      "https://github.com/anthropics/anthropic-sdk-python.git",
+      "18f25547f20cf5f01da69ac611e700e3bc9ebf21"
+    ],
+    "started": 1791251479.5879383,
+    "finished": 1791251480.4440901,
+    "exit": 0,
+    "official_repository": "https://github.com/anthropics/anthropic-sdk-python.git",
+    "commit": "18f25547f20cf5f01da69ac611e700e3bc9ebf21",
+    "GIT_TERMINAL_PROMPT": "0"
+  }
+]

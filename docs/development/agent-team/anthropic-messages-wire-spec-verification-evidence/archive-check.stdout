@@ -1,0 +1,24 @@
+{
+  "result": "PASS (archive integrity only)",
+  "original_artifacts": 143,
+  "official_files": 66,
+  "official_bytes": 297810,
+  "git_baseline_files": 27,
+  "git_commit_objects": 4,
+  "git_tree_objects": 44,
+  "field_fact_groups": 9,
+  "exact_field_lines": 75,
+  "spec_versions": [
+    "spec-freeze01",
+    "spec-freeze02",
+    "spec-freeze03",
+    "spec-adopted01"
+  ],
+  "exact_revision_deltas": 3,
+  "candidate_paths_not_authorized": 19,
+  "technical_sections_sha256": "3c813284980346ec5fbcb517756220f4ca4b02a796b4fb34619a276067c4d9db",
+  "spec_delivery": "f349303bf6aa8b5c796f76cc43a34271e8c186e0",
+  "independent_conclusion": "STATIC PASS",
+  "implementation_authorized": false,
+  "network_sdk_go_docker_or_blocked_task_execution": false
+}

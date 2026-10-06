@@ -1,0 +1,35 @@
+from pathlib import Path
+import hashlib
+import json
+import subprocess
+
+root = Path(__file__).resolve().parent
+repo = Path('/workspace/agenteam')
+sha = lambda raw: hashlib.sha256(raw).hexdigest()
+manifest = json.loads((root / 'source-manifest.json').read_text())
+for item in manifest['files']:
+    raw = (root / 'source' / item['path']).read_bytes()
+    assert sha(raw) == item['sha256'] and len(raw) == item['bytes'], item['path']
+    assert hashlib.sha1(b'blob ' + str(len(raw)).encode() + b'\0' + raw).hexdigest() == item['git_blob']
+commit = (root / 'commit-object.txt').read_bytes()
+assert sha(commit) == manifest['commit_object_sha256']
+assert hashlib.sha1(b'commit ' + str(len(commit)).encode() + b'\0' + commit).hexdigest() == manifest['commit']
+baseline = json.loads((root / 'baseline-inputs.json').read_text())
+for revision, key in [(baseline['baseline'], 'sources'), (baseline['status_commit'], 'status_sources')]:
+    for path, record in baseline[key].items():
+        raw = subprocess.check_output(['git', 'show', f'{revision}:{path}'], cwd=repo)
+        assert sha(raw) == record['sha256'] and len(raw) == record['bytes'], path
+facts = json.loads((root / 'field-manifest.json').read_text())
+for fact in facts['facts']:
+    for item in fact['files']:
+        raw = (root / 'source' / item['path']).read_bytes()
+        assert sha(raw) == item['sha256']
+        lines = raw.decode().splitlines()
+        for match in item['matches']:
+            assert lines[match['line'] - 1].strip() == match['text']
+print(json.dumps({'status': 'PASS', 'official_commit': manifest['commit'],
+                  'official_files': len(manifest['files']),
+                  'official_bytes': sum(x['bytes'] for x in manifest['files']),
+                  'accepted_baseline_paths': len(baseline['sources']),
+                  'status_paths': len(baseline['status_sources']),
+                  'fact_groups': len(facts['facts']), 'network_or_sdk_execution': False}, indent=2))

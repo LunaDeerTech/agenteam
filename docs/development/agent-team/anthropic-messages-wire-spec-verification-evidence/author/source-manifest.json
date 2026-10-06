@@ -1,0 +1,470 @@
+{
+  "official_repository": "https://github.com/anthropics/anthropic-sdk-python",
+  "commit": "18f25547f20cf5f01da69ac611e700e3bc9ebf21",
+  "retrieved_at": "2026-10-06T01:51:45.471080+00:00",
+  "commit_object_sha256": "da45a0b4c47f608723323e876bbac8e73c972839fd677d8ce0d8071354a31d1d",
+  "files": [
+    {
+      "path": "LICENSE",
+      "bytes": 1056,
+      "sha256": "8bf96984ff8bcfae7e48cae76a529e8a25317ba9e02abf7fd3cc64fdf95657a6",
+      "git_blob": "ac71a66cf790ec2b4cc699891aed7671a6233dd7",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/LICENSE"
+    },
+    {
+      "path": "src/anthropic/_version.py",
+      "bytes": 75,
+      "sha256": "feaceff8789a2360e4866730abdfe9cb69f2fd76b709c2e59504634de938fa76",
+      "git_blob": "2979aaad097540d43785be53316e2cb6a011035a",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/_version.py"
+    },
+    {
+      "path": "src/anthropic/_client.py",
+      "bytes": 49524,
+      "sha256": "ac8af83df47c29a246ca31f09c6c933eee3ca8a16f59a5d11a8c0ced976202ed",
+      "git_blob": "766b719a247d43d5d19a999b263f6b99ad7f35e0",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/_client.py"
+    },
+    {
+      "path": "src/anthropic/_streaming.py",
+      "bytes": 19627,
+      "sha256": "1bd8aa290b9583992bdaa63772735300ecca47d63c99bf2e489e53d8753eca3e",
+      "git_blob": "6b973b6c64caf9063b7e6b65589689e6e353d931",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/_streaming.py"
+    },
+    {
+      "path": "src/anthropic/resources/messages/messages.py",
+      "bytes": 140768,
+      "sha256": "84cdd72a903199e010076ba41aebb62e54c3ab3d0bf8109d51ad37935ab8dbd0",
+      "git_blob": "4f83316886f299c221ec7143665b0dc91f0c0739",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/resources/messages/messages.py"
+    },
+    {
+      "path": "src/anthropic/lib/streaming/_messages.py",
+      "bytes": 19944,
+      "sha256": "b628629188df66541a35d052a0ebdbfb4d5d18efd17d25f3655e9cd28c1204af",
+      "git_blob": "d036a04d1f96e0063fa9b7c7046b60750c874f11",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/lib/streaming/_messages.py"
+    },
+    {
+      "path": "src/anthropic/types/message_create_params.py",
+      "bytes": 12503,
+      "sha256": "d845662fe7f49f21231c38ca82ec8756a8b10fbb4353f1364b458f6c1dfc65ea",
+      "git_blob": "585e92451d6399aba980aff392fbc0ba942e85d4",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/message_create_params.py"
+    },
+    {
+      "path": "src/anthropic/types/message_param.py",
+      "bytes": 2334,
+      "sha256": "0b2e98db9187b43ac288596a56dcf5ae6346f72931b0845f0ffd9c5665ba74b2",
+      "git_blob": "c3a2046f2ad752cd87722fac4bae8545e317d474",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/message_param.py"
+    },
+    {
+      "path": "src/anthropic/types/message.py",
+      "bytes": 4565,
+      "sha256": "cdf6b3feba97d806d76922253de41539cb36b2c87d911052d1412fd16b4f3da4",
+      "git_blob": "34dc178ccec1f6b49bfacd0743dcd18689bc3c0d",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/message.py"
+    },
+    {
+      "path": "src/anthropic/types/content_block.py",
+      "bytes": 1363,
+      "sha256": "3c835c016c489c319ad4bf3fbbdc7aae6caece672d625e9528adaed262a0f03b",
+      "git_blob": "a0baaeb69bab7c74ae6e6aa9613f3381ad416811",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/content_block.py"
+    },
+    {
+      "path": "src/anthropic/types/content_block_param.py",
+      "bytes": 1766,
+      "sha256": "fc525b88e05a8c016be54d75aefcf7f410a571195d75a99079c0d1076164f217",
+      "git_blob": "b6a481a0ab64424475760b6e63316ed9177dc532",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/content_block_param.py"
+    },
+    {
+      "path": "src/anthropic/types/tool_param.py",
+      "bytes": 2703,
+      "sha256": "5dca1daae3478dbe1a7e82d87bd02b9098fb9e6928c46ad1adbd487834d5d4f9",
+      "git_blob": "71622bbac25918aec2c1e4b59a28b30e83ef5683",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/tool_param.py"
+    },
+    {
+      "path": "src/anthropic/types/tool_choice_param.py",
+      "bytes": 474,
+      "sha256": "80efd97cca1260d54545383ddc2c8e9470f82fa23d921f605ef24e32b9fe73dc",
+      "git_blob": "83d55fc1adf97553a5991f1b597e634f5f53704f",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/tool_choice_param.py"
+    },
+    {
+      "path": "src/anthropic/types/tool_choice_any_param.py",
+      "bytes": 449,
+      "sha256": "8ade1b2bfe0f33680db2530b7e62f6c78a18ad4d42d3d9136884026c92453abf",
+      "git_blob": "e1394b3e62c356b568bfdef7f71e510f32181344",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/tool_choice_any_param.py"
+    },
+    {
+      "path": "src/anthropic/types/tool_choice_auto_param.py",
+      "bytes": 470,
+      "sha256": "40168cd069dfdcdcbbf1b7b6cb2df69049f351ead2778e65e24176f45951d63a",
+      "git_blob": "1c2b38954cf2d949d65deca71b6b2ba0e9175163",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/tool_choice_auto_param.py"
+    },
+    {
+      "path": "src/anthropic/types/tool_choice_none_param.py",
+      "bytes": 274,
+      "sha256": "c50272a4ad4c88f2f5f4ad4bfd9aebba0af0b9f0479b2bfd8f6e61acb34b90f3",
+      "git_blob": "7dde0049e5c391fd531b6ca2379573e8ba9fc5c0",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/tool_choice_none_param.py"
+    },
+    {
+      "path": "src/anthropic/types/tool_choice_tool_param.py",
+      "bytes": 539,
+      "sha256": "7a5f58a37f771b9e392d023ba95691829eb44583f3d3839ced0716a0df33f443",
+      "git_blob": "575ad4b7698035be2ac4fddb7e591ae191c4b7a7",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/tool_choice_tool_param.py"
+    },
+    {
+      "path": "src/anthropic/types/tool_use_block.py",
+      "bytes": 736,
+      "sha256": "a4e5a1e312b86c6ae639b6941bfb1fe3d61a87eb1e5f018eebba490b0894dd14",
+      "git_blob": "5552bdd91c9c9c7aa3d0fd0f3a87433642508b64",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/tool_use_block.py"
+    },
+    {
+      "path": "src/anthropic/types/tool_use_block_param.py",
+      "bytes": 989,
+      "sha256": "2f729bb8899d3f9f5d5722c3c4516f8853a34fc457209568ebd1583abbe53107",
+      "git_blob": "bdc7d1c15ca97d5b6b4df21f9af4afc3f7d87dc0",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/tool_use_block_param.py"
+    },
+    {
+      "path": "src/anthropic/types/tool_result_block_param.py",
+      "bytes": 1220,
+      "sha256": "b9fed327482dbe01f93d90255a8554f876951e3e8a5e1afbc26ee820cfc6b5cc",
+      "git_blob": "0d71cb9b953e1b993f010da18fba401640fec51d",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/tool_result_block_param.py"
+    },
+    {
+      "path": "src/anthropic/types/text_block.py",
+      "bytes": 575,
+      "sha256": "8a2fa22bdec6b206ff52603468f1c3a39e59a3d68c4554ceb65f79ba19cc29ea",
+      "git_blob": "44e450e5964c044b6356379d4f13bdb989b491ca",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/text_block.py"
+    },
+    {
+      "path": "src/anthropic/types/text_block_param.py",
+      "bytes": 572,
+      "sha256": "68936d0c6fa87c3d8cd4969c0e87d6a13d782c64bdc2189deebcb9e46a09eeda",
+      "git_blob": "b34ff8f911a0c5dcac7cbc571f9b4f7ee7ebbe11",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/text_block_param.py"
+    },
+    {
+      "path": "src/anthropic/types/text_delta.py",
+      "bytes": 173,
+      "sha256": "e03f74988420ca49c4690d0d81c88ce8297f6921c2db27a29aabe69e24317acf",
+      "git_blob": "08207ece17c5947dd6ec06943083721f4c15542e",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/text_delta.py"
+    },
+    {
+      "path": "src/anthropic/types/input_json_delta.py",
+      "bytes": 249,
+      "sha256": "8f560cdf085fda89a426706b61fa9c3862711b810d7f5733fda7d81a873c39d0",
+      "git_blob": "25c98a7b091493d8d8615cf004eb5cf72214d18f",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/input_json_delta.py"
+    },
+    {
+      "path": "src/anthropic/types/raw_message_start_event.py",
+      "bytes": 234,
+      "sha256": "aa96d0631bb78bae454f054e0d97090764b42065f6f70b8dbeefd7f883f68c9c",
+      "git_blob": "139c155497db4331a6e296951b807311d8d128fa",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/raw_message_start_event.py"
+    },
+    {
+      "path": "src/anthropic/types/raw_message_delta_event.py",
+      "bytes": 1669,
+      "sha256": "962c1474629ae4510079448f2d1ea0c8a42bb5ffa602830a3fe70eb4d106decf",
+      "git_blob": "f0ba9692c70aaf916e27a9aaf1ea43bca27fabb0",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/raw_message_delta_event.py"
+    },
+    {
+      "path": "src/anthropic/types/raw_message_stop_event.py",
+      "bytes": 180,
+      "sha256": "0f69a4dcca8ce04ec6168f2462f49a9eca2a01424a27cbd9ff672e5114beb780",
+      "git_blob": "1bd5778fa16e179119c526d93623fd804cee398f",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/raw_message_stop_event.py"
+    },
+    {
+      "path": "src/anthropic/types/raw_message_stream_event.py",
+      "bytes": 824,
+      "sha256": "beaff46afc835a3db874134aa2135152f2f1835a108420e22259a3b18413d489",
+      "git_blob": "1639ff2fec9ccfefe13f0bc0c2041edd264e8389",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/raw_message_stream_event.py"
+    },
+    {
+      "path": "src/anthropic/types/raw_content_block_start_event.py",
+      "bytes": 1548,
+      "sha256": "5b113dd03313910a8181ae7c48afb5e965ece9b37d1cd70e40f31cddc531e3bc",
+      "git_blob": "ff11cdaf2e44851db595f1cc99216e3422c23035",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/raw_content_block_start_event.py"
+    },
+    {
+      "path": "src/anthropic/types/raw_content_block_delta_event.py",
+      "bytes": 306,
+      "sha256": "a154d67c32e80549a3bcd85bea7cfa3bbd2a2fd3165f44d1ca250959a4961519",
+      "git_blob": "0a72fcad33fd8026d850df223465490dc70c7648",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/raw_content_block_delta_event.py"
+    },
+    {
+      "path": "src/anthropic/types/raw_content_block_stop_event.py",
+      "bytes": 212,
+      "sha256": "94ffc25bd0a1831711583cc3b2eaf08fa1ed77c0e1c9179e37f0aba54b319838",
+      "git_blob": "58b24ff090e374eeb1d3723774be261211b98296",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/raw_content_block_stop_event.py"
+    },
+    {
+      "path": "src/anthropic/types/raw_content_block_delta.py",
+      "bytes": 523,
+      "sha256": "bdaf294ddf3646e477cfa951fbc564e90de1ca11b0b6220e53c81507c49b4edf",
+      "git_blob": "7a7daf065bd7f9a6145739b8c79836bb6d2cf89c",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/raw_content_block_delta.py"
+    },
+    {
+      "path": "src/anthropic/types/usage.py",
+      "bytes": 1568,
+      "sha256": "067d4e2d9fa8b623af5d05010351709078d803234260569b841a0f9ba460c271",
+      "git_blob": "3f668ea10a0b6f43db0b866a06f3ef7d6ca30d1a",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/usage.py"
+    },
+    {
+      "path": "src/anthropic/types/message_delta_usage.py",
+      "bytes": 1210,
+      "sha256": "8ad15dff7eb7dee758ac8370a7ee9525a6e0cc32ac671c11e3e176aaf62d9b4e",
+      "git_blob": "c71d748b30e81b09ca8c70ed995d85ebba283afd",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/message_delta_usage.py"
+    },
+    {
+      "path": "src/anthropic/types/output_tokens_details.py",
+      "bytes": 658,
+      "sha256": "691e4e601042536f65d67db6655c52cc622efab2a82dde7e640033c68f9e0592",
+      "git_blob": "13883b8ea92b5f0584bc5d6d75dba2f9ba76ac7d",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/output_tokens_details.py"
+    },
+    {
+      "path": "src/anthropic/types/stop_reason.py",
+      "bytes": 227,
+      "sha256": "895e7da6cf2dccedc73dc955f94b40e34328b873ed14d173c11b79916f495d4b",
+      "git_blob": "d28f681b8464057da3ddac61a83548e266880e10",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/stop_reason.py"
+    },
+    {
+      "path": "src/anthropic/types/output_config_param.py",
+      "bytes": 771,
+      "sha256": "55fd9fa7855463e780a6fe1b5e98a02cb46b0f69db56d7e2baaf219447919314",
+      "git_blob": "a2f26eb93bb4120098abe41b0ba0f1fc695968fc",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/output_config_param.py"
+    },
+    {
+      "path": "src/anthropic/types/json_output_format_param.py",
+      "bytes": 335,
+      "sha256": "92372f3d59b1abf11803d3c02863024841a21cf21e3fc51abc245a4c4a0e2cfc",
+      "git_blob": "8d4eab864dfb5efb7a4a7973f027166c73e37c2e",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/json_output_format_param.py"
+    },
+    {
+      "path": "src/anthropic/types/thinking_config_enabled_param.py",
+      "bytes": 1001,
+      "sha256": "243e219d1d6e106223cb178805983b435d9a63ff66c022c7ab586686abb8c083",
+      "git_blob": "853e7d3f10a7c8f0d45491769c5620ca7b329a8b",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/thinking_config_enabled_param.py"
+    },
+    {
+      "path": "src/anthropic/types/thinking_config_adaptive_param.py",
+      "bytes": 597,
+      "sha256": "00d04d81cb527a7aabbd747d31866e498beb91333e681f853de74b55b7f3a748",
+      "git_blob": "dd6fd5059c372281feb018f8a3d125e6ab01cf10",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/thinking_config_adaptive_param.py"
+    },
+    {
+      "path": "src/anthropic/types/thinking_block_param.py",
+      "bytes": 672,
+      "sha256": "3eb800d231c1bee3625f2abb82cbc3ecbad790877fa72e9dc5daecb8b7c4aec6",
+      "git_blob": "577b73a3b5ae41d9109fa15ab8b0842038ef1a84",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/thinking_block_param.py"
+    },
+    {
+      "path": "src/anthropic/types/redacted_thinking_block_param.py",
+      "bytes": 446,
+      "sha256": "4c9574b6e4a27038596540bce75f6a3be182be7abc0752bdbce688db8bade925",
+      "git_blob": "065e0569e849675861ba9048218a296c6ba3fe5c",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/redacted_thinking_block_param.py"
+    },
+    {
+      "path": "src/anthropic/types/shared/error_type.py",
+      "bytes": 320,
+      "sha256": "6008bc83d9a8c963cb71cdc1151fcec96fa8dbcaebdc5c0ed3ebb6888fe14589",
+      "git_blob": "ecba71ff1cd564d366e1f1225ecd993a2a37caec",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/shared/error_type.py"
+    },
+    {
+      "path": "src/anthropic/types/shared/error_object.py",
+      "bytes": 894,
+      "sha256": "af23c931cfeddf379644b70ebfc11a78b7312adf4a550fa5ff985132f2f82e19",
+      "git_blob": "1af484c995f46e5f2f6f1baa39fd6e67939e0719",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/shared/error_object.py"
+    },
+    {
+      "path": "src/anthropic/types/shared/error_response.py",
+      "bytes": 290,
+      "sha256": "f75657b325c377a1692725247aba18f80745d13e759a5fd8f9ac37382e36aa9e",
+      "git_blob": "a3ee673e39cfed94a00ad2561a4efd61ac816cd2",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/shared/error_response.py"
+    },
+    {
+      "path": "src/anthropic/_exceptions.py",
+      "bytes": 5619,
+      "sha256": "10418f63dd4396903f6da4e90d4b776704a5438bb3b67b8023c4c20db075618d",
+      "git_blob": "901ac066a29a0ce52ac85fd99feb01c0e448cb93",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/_exceptions.py"
+    },
+    {
+      "path": "src/anthropic/types/cache_creation.py",
+      "bytes": 320,
+      "sha256": "3f874c714ccf030e8877496320562956f845ec3fc4fdc51c3d94c980994a7f9d",
+      "git_blob": "6759b5bc1140de423a09ae616761d49496c7fb46",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/cache_creation.py"
+    },
+    {
+      "path": "src/anthropic/types/server_tool_usage.py",
+      "bytes": 256,
+      "sha256": "9c4aab40aaa34a42797d4fd959eff6e4450a6a3a9878cd6389ce761777c3f15d",
+      "git_blob": "53cf0954c4235efb5495127320c248064ba83f00",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/server_tool_usage.py"
+    },
+    {
+      "path": "src/anthropic/types/direct_caller.py",
+      "bytes": 212,
+      "sha256": "4a4135687f8eb7207b3ccad3f2597f57ff6b3dbeca37faec3fe4e36bc8686052",
+      "git_blob": "89a6c1de03558c1738533d1ef66a52804ca56300",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/direct_caller.py"
+    },
+    {
+      "path": "src/anthropic/types/refusal_stop_details.py",
+      "bytes": 1716,
+      "sha256": "d39582a6e0bba339ac250aea505ce84fb39e385c709ce219e7b973505166cd11",
+      "git_blob": "f186759e66a7f4a1b4eff59dbdbcaa5cc896d693",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/refusal_stop_details.py"
+    },
+    {
+      "path": "src/anthropic/types/shared/billing_error.py",
+      "bytes": 186,
+      "sha256": "2b584764d0145886c9120a7be72467eabe1bb708589dd6a64aae96fb11e586a7",
+      "git_blob": "41d15f68fb7d5964aedd7ee817f063b0d8c4ab89",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/shared/billing_error.py"
+    },
+    {
+      "path": "src/anthropic/types/shared/not_found_error.py",
+      "bytes": 190,
+      "sha256": "31132471ea16790d42baa70db30c981403449d67f6bdf7e54974ad8946eac8c9",
+      "git_blob": "9dd7d74dd74456e59602118c7763e2750c6dc73e",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/shared/not_found_error.py"
+    },
+    {
+      "path": "src/anthropic/types/shared/api_error_object.py",
+      "bytes": 186,
+      "sha256": "924ceacd0e7163eac9a5d52d6e50ca45ffe45ad27b95c007c85e879c0c03eafd",
+      "git_blob": "1750d05638e41359a5632fab218ef9d614f213b6",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/shared/api_error_object.py"
+    },
+    {
+      "path": "src/anthropic/types/shared/overloaded_error.py",
+      "bytes": 195,
+      "sha256": "b23b68a973880e7f43b92288db0c52ceb7d22ad617716c988168bcd2b9279f9a",
+      "git_blob": "2f549404bed460512c813ee2e9dcccb210711c73",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/shared/overloaded_error.py"
+    },
+    {
+      "path": "src/anthropic/types/shared/permission_error.py",
+      "bytes": 195,
+      "sha256": "a175c6649a767983406db2332af5eecf9ef5b4519ea3a5124897d87b4999212a",
+      "git_blob": "107a4c45a33990875b1070aa2fe746e195769b68",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/shared/permission_error.py"
+    },
+    {
+      "path": "src/anthropic/types/shared/rate_limit_error.py",
+      "bytes": 193,
+      "sha256": "669c8e9bcb4fdedaef1fdc29cc9dd8cd51c8d34f8a97a5f7b5ec11ddf62f6c0a",
+      "git_blob": "ebea73a358e21b3b17cd1bbb5635d0fc9680b648",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/shared/rate_limit_error.py"
+    },
+    {
+      "path": "src/anthropic/types/shared/authentication_error.py",
+      "bytes": 207,
+      "sha256": "af0cd168ac6ca1d561ce45b56060dda57306e0f3cb2f15c1b58074c2094308a1",
+      "git_blob": "a77693688dec1bc0ffeb0a82d67e1a96f98ebd7f",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/shared/authentication_error.py"
+    },
+    {
+      "path": "src/anthropic/types/shared/gateway_timeout_error.py",
+      "bytes": 200,
+      "sha256": "3280e0d6f4a3c66087581ff6fb8a5873642777e527e83106d82cafb9c9df7c16",
+      "git_blob": "9c05f8d27c37ca86a216f5212d24b4347415627d",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/shared/gateway_timeout_error.py"
+    },
+    {
+      "path": "src/anthropic/types/shared/invalid_request_error.py",
+      "bytes": 208,
+      "sha256": "50e1b622d4565bc7854a3c3132be825983db5ec70c8488ced7a3005577b1fb9d",
+      "git_blob": "559fa242dc47cd2bff744929583c539cbaf8f789",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/src/anthropic/types/shared/invalid_request_error.py"
+    },
+    {
+      "path": "tests/lib/streaming/fixtures/basic_response.txt",
+      "bytes": 1046,
+      "sha256": "4cef9a87292eb74b7c282f7de5a2b407160d36a9dfed25be05f59047a59033bd",
+      "git_blob": "94e31d05797fbb93ea35937b65d2114ce0d5844b",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/tests/lib/streaming/fixtures/basic_response.txt"
+    },
+    {
+      "path": "tests/lib/streaming/fixtures/tool_use_response.txt",
+      "bytes": 2000,
+      "sha256": "53787cbf836155a1f5dffb60cde0cf0fa42e21db2dbed0aa76f51c76a70b02f6",
+      "git_blob": "fc23f558755d48a1a7492e3d89a28f2e50813ca1",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/tests/lib/streaming/fixtures/tool_use_response.txt"
+    },
+    {
+      "path": "tests/lib/streaming/fixtures/message_delta_fields_response.txt",
+      "bytes": 1249,
+      "sha256": "194442cb0bb34fa71ebfe7779221ed0761f6ca1714e626c01178e81dd3b79600",
+      "git_blob": "3b28f34cb0716aac2968d6d24722154d82087f15",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/tests/lib/streaming/fixtures/message_delta_fields_response.txt"
+    },
+    {
+      "path": "tests/lib/streaming/fixtures/message_delta_omitted_usage_response.txt",
+      "bytes": 980,
+      "sha256": "163b57c8fbb83a2bd74c474b8afa130159a00c8fbce96d7d24e42c082f1fb76f",
+      "git_blob": "0e619cf6c9bef37404d9ec0e5a3b070aeabf977e",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/tests/lib/streaming/fixtures/message_delta_omitted_usage_response.txt"
+    },
+    {
+      "path": "tests/lib/streaming/fixtures/refusal_response.txt",
+      "bytes": 752,
+      "sha256": "13f671d69252664542d26b8e85a5c29406eb349b1d77ef13127c39b76ceb7f5e",
+      "git_blob": "ae47459f68f3159bce3b8f8f676c30b155889b58",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/tests/lib/streaming/fixtures/refusal_response.txt"
+    },
+    {
+      "path": "tests/lib/streaming/fixtures/incomplete_partial_json_response.txt",
+      "bytes": 2448,
+      "sha256": "e0e79ee10c18063861f4cc191ff6c6bdda767cd7407bec1c050c7831ff41f90d",
+      "git_blob": "86573fe8448c381ede054e942565b18559caf678",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/tests/lib/streaming/fixtures/incomplete_partial_json_response.txt"
+    },
+    {
+      "path": "tests/lib/streaming/fixtures/tool_use_invalid_json_response.txt",
+      "bytes": 2019,
+      "sha256": "7596d5fa191b4e23b98b1a4e781ee1351f7237812039a5e007a9a5e7c2a1dfdb",
+      "git_blob": "14f5a17bb873820b56b54173cd91685046e9f0a1",
+      "url": "https://github.com/anthropics/anthropic-sdk-python/blob/18f25547f20cf5f01da69ac611e700e3bc9ebf21/tests/lib/streaming/fixtures/tool_use_invalid_json_response.txt"
+    }
+  ]
+}

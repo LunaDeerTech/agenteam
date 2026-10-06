@@ -1,0 +1,41 @@
+{
+  "repo_path": "docs/development/work-items/recovery-d09-anthropic-messages-wire.md",
+  "sha256": "bc3830cf43ca262e560ac7668f2cc1547c33aedb264fef432bd9d00c2335d2b7",
+  "bytes": 35959,
+  "baseline": "0d22c7fd9202a81478804f2b810ebaddc350e856",
+  "current_status_commit": "71f276f374fb1846adcd94bbc2dec2285be63e59",
+  "documents": {
+    "source-manifest.json": {
+      "bytes": 26468,
+      "sha256": "28ea317726e14967d13f17197c9f4b1c2cd9980bba41f815dbddcbec5259c3b8"
+    },
+    "field-manifest.json": {
+      "bytes": 17164,
+      "sha256": "952f91098081f448235425f3b4406e5e4dbc921e9e13e85f7ec3fccfc84af075"
+    },
+    "baseline-inputs.json": {
+      "bytes": 4734,
+      "sha256": "56432466a5cb3494b0adcb8fe816a1555f79062427f0b5fc299bf8326ad3d523"
+    },
+    "fetch-commands.json": {
+      "bytes": 1116,
+      "sha256": "aee144dad533a850be520c064543f11652f5c3fd91d49811403dbc91acaf8a38"
+    },
+    "commit-object.txt": {
+      "bytes": 1189,
+      "sha256": "da45a0b4c47f608723323e876bbac8e73c972839fd677d8ce0d8071354a31d1d"
+    },
+    "verify-inputs.py": {
+      "bytes": 1968,
+      "sha256": "d053f102933c9290f234ae4bab5532e5d16e7053858db725c58478ea0e18d4cb"
+    },
+    "spec-checks.json": {
+      "bytes": 710,
+      "sha256": "0b35b98ad362ac14075ea73a47db0583898eb62f6590c2b622b88d435002c734"
+    }
+  },
+  "source_manifest": "../source-manifest.json",
+  "author_writing_stopped": true,
+  "implementation_authorized": false,
+  "tools_product_dependency": "UNACCEPTED; blocked original independent execution NOT RUN; do not retry/reassign/rebuild"
+}

@@ -1,0 +1,97 @@
+{
+  "kind": "independent document static review",
+  "checked_at_utc": "2026-10-06T02:19:46.069920+00:00",
+  "result": "STATIC PASS",
+  "accepted_spec_sha256": "abbed65ecd40a99336a05f281c33c0efa8992883df2f55f9c44758da426f4d18",
+  "chain": [
+    {
+      "spec": {
+        "path": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze01/spec.md",
+        "sha256": "bc3830cf43ca262e560ac7668f2cc1547c33aedb264fef432bd9d00c2335d2b7",
+        "bytes": 35959
+      },
+      "manifest": {
+        "path": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze01/manifest.json",
+        "sha256": "58f655e0eb079c7efd97ec10249af0b94dfa7c77b16f98d1e30536aa4d661dfb",
+        "bytes": 1555
+      }
+    },
+    {
+      "spec": {
+        "path": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/spec.md",
+        "sha256": "31d2ca9247e2b41b7432bf94e5bef06748166c54e6f00ae41111b84443535e00",
+        "bytes": 36716
+      },
+      "manifest": {
+        "path": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/manifest.json",
+        "sha256": "36353b7a4d69f78c838128668dee12ebe33c01843592552a1674ae2cd0d8f700",
+        "bytes": 999
+      },
+      "delta": {
+        "path": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/delta.patch",
+        "sha256": "8305083204fe2afe514cfca307ede763b648222b29c758ba672351c75a2672b9",
+        "bytes": 5194
+      },
+      "author_checks": {
+        "path": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze02/checks.json",
+        "sha256": "980aa7beb74fa6503b3151adb579310ecd7b1ddeb2c963db7d62f8aad12b7038",
+        "bytes": 578
+      }
+    },
+    {
+      "spec": {
+        "path": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/spec.md",
+        "sha256": "abbed65ecd40a99336a05f281c33c0efa8992883df2f55f9c44758da426f4d18",
+        "bytes": 36879
+      },
+      "manifest": {
+        "path": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/manifest.json",
+        "sha256": "c601881387308045b77dc9e9ec8e0e30197ae862a1f8c2d6d61533f08e64bfb3",
+        "bytes": 783
+      },
+      "delta": {
+        "path": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/delta.patch",
+        "sha256": "5fa2fc477c10e85c0d81f730d4fa36524b3fb0c314c917b3f99cefd911e9aeae",
+        "bytes": 2438
+      },
+      "author_checks": {
+        "path": "/workspace/scratch/agenteam-anthropic-spec-76c077li/spec-freeze03/checks.json",
+        "sha256": "3f0c681745c1db882e6b8092053f5cc3fe38a9865a55b33f563bd27424832211",
+        "bytes": 402
+      }
+    }
+  ],
+  "original_input_checks": {
+    "path": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/static-input-checks.json",
+    "sha256": "5bdc54dee04958584527e053dffc1083ad354c0e18b019c9b2d8edaefbc51097",
+    "bytes": 26125
+  },
+  "all_7_metadata_and_66_official_sources_unchanged": true,
+  "prior_fixed_git_inputs_verified": 27,
+  "official_source_bytes": 297810,
+  "field_fact_groups": 9,
+  "field_line_matches": 75,
+  "candidate_paths": 19,
+  "local_links_unchanged": 14,
+  "format_utf8_lf_no_trailing_whitespace": true,
+  "findings": {
+    "F1_stop_sequence": "CLOSED in freeze02",
+    "F2_diagnostic_output_scope": "CLOSED in freeze03"
+  },
+  "remaining_blocking_spec_findings": [],
+  "report": {
+    "path": "/workspace/scratch/agenteam-anthropic-spec-independent-7SHOD6/review.md",
+    "sha256": "6be56df7a56463d7c5791b87b79d35a0ca8ee2decc69ada006b930b374dccfbf",
+    "bytes": 7945
+  },
+  "execution_boundaries": {
+    "implementation_authorized": false,
+    "tools_product_accepted": false,
+    "go_or_product_execution": false,
+    "docker_or_browser": false,
+    "network": false,
+    "sdk_execution": false,
+    "blocked_tools_dynamic_task": "NOT RUN; remains stopped; originals untouched"
+  },
+  "implementation_dependency": "tools product acceptance and shared-file handoff remain unmet; specification review grants no implementation authority"
+}
