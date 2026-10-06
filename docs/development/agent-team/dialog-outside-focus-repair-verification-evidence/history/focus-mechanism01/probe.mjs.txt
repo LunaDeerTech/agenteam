@@ -1,0 +1,55 @@
+import { chromium } from '@playwright/test'
+import { writeFileSync } from 'node:fs'
+
+const browser = await chromium.launch({ executablePath: '/usr/bin/chromium', args: ['--no-sandbox'] })
+const cases = []
+try {
+  for (const prevent of [false, true]) {
+    const page = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce', serviceWorkers: 'block' })
+    await page.route('**/*', route => route.abort())
+    await page.setContent('<!doctype html><html><body><main id="app"><button id="trigger">Open</button></main></body></html>')
+    await page.evaluate(prevent => {
+      const log = []
+      const identify = element => element?.id || element?.tagName?.toLowerCase() || 'none'
+      const record = (phase, event) => log.push({ phase, type: event?.type || 'internal', target: identify(event?.target), active: identify(document.activeElement), defaultPrevented: event?.defaultPrevented || false })
+      for (const name of ['pointerdown', 'mousedown', 'mouseup', 'click', 'focusin', 'focusout']) {
+        document.addEventListener(name, event => record('capture', event), true)
+        document.addEventListener(name, event => record('bubble', event))
+      }
+      window.focusTrace = log
+      const trigger = document.getElementById('trigger')
+      const app = document.getElementById('app')
+      trigger.addEventListener('click', () => {
+        const overlay = document.createElement('div')
+        overlay.id = 'overlay'
+        overlay.style.cssText = 'position:fixed;inset:0;background:#ccc'
+        overlay.innerHTML = '<section id="panel" role="dialog" tabindex="-1" style="position:absolute;left:110px;right:0;height:100%;background:#fff"><button id="close">Close</button></section>'
+        document.body.append(overlay)
+        app.inert = true
+        document.getElementById('close').focus()
+        overlay.addEventListener('pointerdown', event => {
+          if (event.target !== overlay) return
+          if (prevent) event.preventDefault()
+          record('before-restore', event)
+          document.getElementById('panel').inert = true
+          app.inert = false
+          trigger.focus({ preventScroll: true })
+          record('after-restore', event)
+          queueMicrotask(() => { overlay.remove(); record('after-remove') })
+        })
+      })
+    }, prevent)
+    await page.locator('#trigger').click()
+    await page.locator('#overlay').click({ position: { x: 1, y: 1 } })
+    await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+    const result = await page.evaluate(() => ({ active: document.activeElement.id || document.activeElement.tagName.toLowerCase(), events: window.focusTrace }))
+    cases.push({ preventDefault: prevent, ...result })
+    await page.close()
+  }
+} finally {
+  await browser.close()
+}
+const record = { scope: 'Real Chromium mechanism only; no Vue/product/HTTP/fixture. page.setContent with all network requests blocked.', cases, browser_close_completed: true }
+writeFileSync(process.env.AGENTEAM_FOCUS_MECHANISM_RECORD, JSON.stringify(record, null, 2) + '\n', { mode: 0o600 })
+console.log(JSON.stringify({ cases: cases.map(({ preventDefault, active }) => ({ preventDefault, active })), browser_close_completed: true }))
+if (cases[0].active !== 'body' || cases[1].active !== 'trigger') throw new Error('Pointer default focus hypothesis not confirmed')

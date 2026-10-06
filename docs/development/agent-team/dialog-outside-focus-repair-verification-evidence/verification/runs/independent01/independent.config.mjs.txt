@@ -1,0 +1,11 @@
+import { defineConfig } from '@playwright/test'
+import { isAbsolute } from 'node:path'
+const run = process.env.AGENTEAM_DIALOG_PROBE_RUN
+const source = process.env.AGENTEAM_DIALOG_PROBE_SOURCE
+if (!run || !source || !isAbsolute(run) || !isAbsolute(source)) throw new Error('FIXED_PRIVATE_INPUT_REQUIRED')
+export default defineConfig({
+  testDir: '.', testMatch: 'independent.spec.ts', timeout: 45_000,
+  workers: 1, retries: 0, reporter: 'line', outputDir: `${run}/playwright`,
+  use: { browserName: 'chromium', launchOptions: { executablePath: '/usr/bin/chromium', args: ['--no-sandbox'] },
+    screenshot: 'off', video: 'off', trace: 'off' },
+})

@@ -1,6 +1,6 @@
 # D27 前置修复：遮罩关闭后保持触发按钮焦点
 
-状态：rev1，2026-10-06 已独立静审通过（STATIC PASS）并获主线程采纳，被审稿 SHA256 `787a893476b2f925ea1d855a9ee5616517252f3a0a8f1393ba8baf9d055fdb5e`。主线程已授权 `directory_backend`（改任 frontend_worker）按 §4 四路径实施；本次仅更新页首，技术 §1–4 保持被审稿原字节。静审采纳与实施授权不代表产品通过；该共享组件结果须独立验收、提交，再由系统用户目录 UI 消费，不代表整张未验 UI 卡通过。
+状态：rev1，2026-10-06 四路径已由 `directory_backend` 完成、`recovery_verification` 独立 PASS，主线程采纳提交推送 `b53895f7eb1d020276e8f54a99a7c0821b286481`，远端一致。[正式报告与最小持久证据](../agent-team/dialog-outside-focus-repair-verification.md)保留旧组件真实红、新组件11例通过、独立一组两轮通过，以及作者旧轮两个 PPID1 Z 和独立首轮原 clean=false 的限制。本次仅更新页首，技术 §1–4 保持被审稿 SHA256 `787a893476b2f925ea1d855a9ee5616517252f3a0a8f1393ba8baf9d055fdb5e` 的原字节。接受范围仅为共享组件修复；系统用户目录 UI 须消费已接受版本并另行组合验收，当前未接受。
 
 ## 1. 已证问题与输入
 

@@ -1,0 +1,105 @@
+from pathlib import Path
+import argparse, ctypes, hashlib, importlib.util, json, os, signal, subprocess, tempfile, time, shutil
+
+root = Path(__file__).resolve().parent
+helper = Path('/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/run_ui_fixture.py')
+spec = importlib.util.spec_from_file_location('monitor', helper)
+m = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(m)
+
+def listeners():
+    values = []
+    for family in ['tcp', 'tcp6']:
+        for line in Path('/proc/net/' + family).read_text().splitlines()[1:]:
+            fields = line.split()
+            if fields[3] == '0A':
+                values.append({'family': family, 'local': fields[1], 'inode': fields[9]})
+    return sorted(values, key=lambda x: (x['family'], x['local'], x['inode']))
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--name', required=True)
+parser.add_argument('--input', required=True, type=Path)
+args = parser.parse_args()
+if '/' in args.name or '..' in args.name:
+    raise ValueError('simple private run name required')
+fixed = json.loads(args.input.read_text())
+source = Path(fixed['source_root'])
+hashes = lambda: {name: hashlib.sha256((source / name).read_bytes()).hexdigest() for name in fixed['files']}
+if hashes() != fixed['files']:
+    raise RuntimeError('fixed component closure mismatch')
+run = root / 'runs' / args.name
+run.mkdir(parents=True, mode=0o700)
+runtime = Path(tempfile.mkdtemp(prefix='agtdialog-', dir='/tmp'))
+assert ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0
+probes = {name: (root / 'probes' / name).read_bytes() for name in ['independent.config.mjs', 'independent.spec.ts']}
+for name, data in probes.items():
+    (run / (name + '.txt')).write_bytes(data)
+helper_bytes = helper.read_bytes()
+(run / 'monitor.py.txt').write_bytes(helper_bytes)
+(run / 'driver.py.txt').write_bytes(Path(__file__).read_bytes())
+(run / 'input.json').write_bytes(args.input.read_bytes())
+env = os.environ.copy()
+env.update({'TMPDIR': str(runtime), 'AGENTEAM_DIALOG_PROBE_RUN': str(run), 'AGENTEAM_DIALOG_PROBE_SOURCE': str(source)})
+argv = ['node', '/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js', 'test', '--config', str(root / 'probes/independent.config.mjs')]
+record = {'argv': argv, 'cwd': str(root), 'env': {key: env[key] for key in ['TMPDIR', 'AGENTEAM_DIALOG_PROBE_RUN', 'AGENTEAM_DIALOG_PROBE_SOURCE']}, 'started_utc': m.utc(),
+          'input_sha256': hashlib.sha256(args.input.read_bytes()).hexdigest(), 'probe_sha256': {name: hashlib.sha256(data).hexdigest() for name, data in probes.items()}, 'monitor_sha256': hashlib.sha256(helper_bytes).hexdigest()}
+m.write(run / 'command.json', record)
+baseline = listeners()
+m.write(run / 'listeners-before.json', baseline)
+start = time.monotonic()
+seen, waited = {}, []
+with (run / 'raw.log').open('wb') as out:
+    process = subprocess.Popen(argv, cwd=root, env=env, stdout=out, stderr=subprocess.STDOUT, start_new_session=True)
+    print(json.dumps({'name': args.name, 'pid': process.pid}), flush=True)
+    while process.poll() is None:
+        current = m.processes()
+        owned = {process.pid} | {pid for pid, row in current.items() if row['ppid'] == os.getpid() or str(runtime).encode() in row['raw']}
+        for _ in range(12):
+            extended = owned | {pid for pid, row in current.items() if row['ppid'] in owned}
+            if extended == owned:
+                break
+            owned = extended
+        for pid in owned:
+            if pid in current:
+                row = current[pid]
+                key = str(pid) + ':' + row['starttime']
+                seen[key] = {'pid': pid, 'starttime': row['starttime'], 'ppid': row['ppid'], 'name': row['name'], 'executable': row['executable'] or seen.get(key, {}).get('executable', '')}
+        m.reap_adopted(seen, process.pid, waited)
+        if time.monotonic() - start > 95:
+            os.killpg(process.pid, signal.SIGKILL)
+        time.sleep(.1)
+    exit_code = process.wait()
+m.reap_adopted(seen, process.pid, waited)
+record.update({'exit': exit_code, 'seconds': round(time.monotonic() - start, 3), 'ended_utc': m.utc(), 'actual_wait_completed': True, 'source_unchanged': hashes() == fixed['files'],
+               'probes_unchanged': all((root / 'probes' / name).read_bytes() == data for name, data in probes.items()), 'monitor_unchanged': helper.read_bytes() == helper_bytes,
+               'raw_sha256': hashlib.sha256((run / 'raw.log').read_bytes()).hexdigest()})
+m.write(run / 'command.json', record)
+checks = []
+cache = runtime / 'playwright-transform-cache-1000'
+current = m.processes()
+alive = [row for row in seen.values() if row['pid'] in current and current[row['pid']]['starttime'] == row['starttime']]
+if cache.is_dir() and not cache.is_symlink() and not alive:
+    cached = list(cache.rglob('*'))
+    if all(not path.is_symlink() and (path.is_dir() or path.suffix in {'.js', '.map'}) for path in cached):
+        m.write(run / 'removed-transform-cache.json', [{'path': str(path.relative_to(runtime)), 'sha256': hashlib.sha256(path.read_bytes()).hexdigest()} for path in cached if path.is_file()])
+        shutil.rmtree(cache)
+for _ in range(2):
+    m.reap_adopted(seen, process.pid, waited)
+    current = m.processes()
+    checks.append({'time_utc': m.utc(), 'listeners': listeners(), 'baseline_listeners_unchanged': listeners() == baseline,
+                   'owned_processes': [row for row in seen.values() if row['pid'] in current and current[row['pid']]['starttime'] == row['starttime']],
+                   'browser_runtime_entries': [path.name for path in runtime.iterdir()]})
+    time.sleep(.2)
+m.write(run / 'observed-processes.json', seen)
+m.write(run / 'adopted-waits.json', waited)
+m.write(run / 'cleanup.json', checks)
+if not list(runtime.iterdir()):
+    runtime.rmdir()
+summary = {'actual_exit': exit_code, 'actual_wait_completed': True, 'seconds': record['seconds'], 'source_unchanged': record['source_unchanged'],
+           'probes_unchanged': record['probes_unchanged'], 'observed_processes': len(seen), 'adopted_waits': len(waited),
+           'node_processes': sum(row['executable'] in {'node', 'nodejs'} for row in seen.values()),
+           'browser_processes': sum(row['name'] in {'chromium', 'chrome_crashpad'} for row in seen.values()),
+           'clean': all(row['baseline_listeners_unchanged'] and not row['owned_processes'] and not row['browser_runtime_entries'] for row in checks), 'browser_runtime_removed': not runtime.exists()}
+m.write(run / 'result.json', summary)
+print(json.dumps(summary), flush=True)
+raise SystemExit(0 if exit_code == 0 and summary['clean'] and summary['source_unchanged'] and summary['probes_unchanged'] and summary['browser_runtime_removed'] else 1)

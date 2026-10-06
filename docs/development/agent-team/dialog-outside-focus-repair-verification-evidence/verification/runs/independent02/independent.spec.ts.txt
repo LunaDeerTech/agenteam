@@ -1,0 +1,129 @@
+import { test, expect, type Page } from '@playwright/test'
+import { createRequire } from 'node:module'
+import { pathToFileURL } from 'node:url'
+import { mkdirSync, copyFileSync, writeFileSync, readFileSync } from 'node:fs'
+import { join, dirname } from 'node:path'
+import { createHash, randomUUID } from 'node:crypto'
+
+const run = process.env.AGENTEAM_DIALOG_PROBE_RUN!
+const source = process.env.AGENTEAM_DIALOG_PROBE_SOURCE!
+const requireWeb = createRequire('/workspace/agenteam/web/package.json')
+const files = ['src/components/ui/UiDialog.vue', 'src/components/ui/UiDrawer.vue', 'src/components/ui/UiButton.vue', 'src/components/ui/UiIcon.vue', 'src/components/ui/UiSpinner.vue', 'src/components/ui/types.ts', 'src/composables/useLayer.ts', 'src/styles/base.css', 'src/styles/components.css', 'src/styles/tokens.css']
+const fingerprint = () => Object.fromEntries(files.map(name => [name, createHash('sha256').update(readFileSync(join(source, name))).digest('hex')]))
+let server: { close(): Promise<void>; httpServer?: { address(): string | { port: number } | null } }
+let origin = ''
+const nonce = randomUUID()
+let fixed: Record<string, string>
+test.beforeAll(async () => {
+  fixed = fingerprint()
+  const project = join(run, 'project')
+  mkdirSync(project, { recursive: true, mode: 0o700 })
+  for (const file of files) {
+    const target = join(project, file)
+    mkdirSync(dirname(target), { recursive: true, mode: 0o700 })
+    copyFileSync(join(source, file), target)
+  }
+  writeFileSync(join(project, 'index.html'), `<!doctype html><html data-theme="light"><head><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="probe-nonce" content="${nonce}"></head><body><div id="app"></div><script type="module" src="/main.js"></script></body></html>`)
+  writeFileSync(join(project, 'main.js'), `import {createApp} from 'vue';import App from './Probe.vue';import './src/styles/tokens.css';import './src/styles/base.css';import './src/styles/components.css';createApp(App).mount('#app')`)
+  writeFileSync(join(project, 'Probe.vue'), `<script setup>
+import {ref} from 'vue';import UiDialog from './src/components/ui/UiDialog.vue';import UiDrawer from './src/components/ui/UiDrawer.vue';
+const open=ref(false), child=ref(false), drawer=ref(false), outside=ref(true), escape=ref(true), events=ref([]);
+function begin(value){drawer.value=value;open.value=true}function closed(reason){events.value.push(reason)}
+</script><template><main style="padding:24px"><h1>Independent component probe</h1>
+<label><input id="allow-outside" v-model="outside" type="checkbox">Allow outside</label><label><input id="allow-escape" v-model="escape" type="checkbox">Allow escape</label>
+<button id="dialog-trigger" @click="begin(false)">Open dialog</button><button id="drawer-trigger" @click="begin(true)">Open drawer</button><label>After close<input id="after-input"></label><output id="events">{{events.join(',')}}</output>
+<component :is="drawer?UiDrawer:UiDialog" v-model:open="open" title="Outer" :close-on-outside="outside" :close-on-escape="escape" @close="closed"><label>Inside<input id="inside-input"></label><button id="child-trigger" @click="child=true">Open inner</button>
+<UiDialog v-model:open="child" title="Inner" @close="reason=>events.push('inner:'+reason)"><label>Child<input id="child-input"></label></UiDialog>
+<template #footer="scope"><button id="footer-action" @click="scope.close()">Finish</button></template></component></main></template>`)
+  const vite = await import(pathToFileURL(requireWeb.resolve('vite')).href)
+  const plugin = await import(pathToFileURL(requireWeb.resolve('@vitejs/plugin-vue')).href)
+  server = await vite.createServer({ configFile: false, root: project, publicDir: false, logLevel: 'error', cacheDir: join(run, 'vite-cache'),
+    plugins: [plugin.default()], resolve: { alias: { vue: requireWeb.resolve('vue/dist/vue.runtime.esm-bundler.js') }, dedupe: ['vue'] },
+    server: { host: '127.0.0.1', port: 0, strictPort: true, hmr: false, cors: false, fs: { strict: true, allow: [project, '/workspace/agenteam/web/node_modules'] } } })
+  await (server as unknown as { listen(): Promise<void> }).listen()
+  const address = server.httpServer?.address()
+  if (!address || typeof address === 'string') throw new Error('OWNED_LOOPBACK_LISTENER_REQUIRED')
+  origin = `http://127.0.0.1:${address.port}`
+  writeFileSync(join(run, 'closure-input.json'), JSON.stringify({ source, fixed, origin, nonce }, null, 2) + '\n')
+})
+test.afterAll(async () => {
+  if (server) await server.close()
+  expect(fingerprint()).toEqual(fixed)
+  writeFileSync(join(run, 'server-terminal.json'), JSON.stringify({ actual_server_close: true, source_unchanged: true }) + '\n')
+})
+async function start(page: Page) {
+  await page.route('**/*', route => new URL(route.request().url()).origin === origin ? route.continue() : route.abort())
+  await page.addInitScript(() => {
+    const events: { prevented: boolean; count: number }[] = []
+    ;(window as unknown as { focusEvents: typeof events }).focusEvents = events
+    document.addEventListener('pointerdown', event => {
+      if ((event.target as Element)?.classList?.contains('ui-overlay')) events.push({ prevented: event.defaultPrevented, count: document.querySelectorAll('.ui-overlay').length })
+    })
+  })
+  await page.goto(`${origin}/?nonce=${nonce}`)
+  await expect(page.locator('meta[name="probe-nonce"]')).toHaveAttribute('content', nonce)
+  await expect(page.locator('h1')).toHaveText('Independent component probe')
+}
+const pointerEvents = (page: Page) => page.evaluate(() => (window as unknown as { focusEvents: { prevented: boolean; count: number }[] }).focusEvents)
+async function restored(page: Page, trigger: string) {
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(page.locator(trigger)).toBeFocused()
+  expect(await page.locator('#app').evaluate(element => (element as HTMLElement).inert)).toBe(false)
+  expect(await page.locator('body').evaluate(element => element.style.overflow)).not.toBe('hidden')
+}
+
+test('independent native pointer cancellation, default gates and nested restoration', async ({ page }) => {
+  await start(page)
+  for (const item of [{ drawer: false, width: 1440, motion: 'no-preference' as const }, { drawer: true, width: 390, motion: 'reduce' as const }]) {
+    await page.setViewportSize({ width: item.width, height: 900 })
+    await page.emulateMedia({ reducedMotion: item.motion })
+    const trigger = item.drawer ? '#drawer-trigger' : '#dialog-trigger'
+    await page.locator(trigger).click()
+    const dialog = page.getByRole('dialog', { name: 'Outer', exact: true })
+    await expect(dialog).toBeVisible()
+    expect(await dialog.evaluate(element => element.contains(document.activeElement))).toBe(true)
+    expect(await page.locator('#app').evaluate(element => (element as HTMLElement).inert)).toBe(true)
+    await page.locator('#inside-input').click()
+    await page.locator('#inside-input').fill('typed through original input')
+    await expect(page.locator('#inside-input')).toBeFocused()
+    await expect(page.locator('#inside-input')).toHaveValue('typed through original input')
+    await page.screenshot({ path: join(run, item.drawer ? 'independent-drawer-390.png' : 'independent-dialog-1440.png') })
+    await page.locator('.ui-overlay').click({ position: { x: 1, y: 1 } })
+    await restored(page, trigger)
+    expect((await pointerEvents(page)).at(-1)?.prevented).toBe(true)
+    await page.locator('#after-input').click()
+    await page.locator('#after-input').fill('new focus remains owned by user')
+    await page.waitForTimeout(300)
+    await expect(page.locator('#after-input')).toBeFocused()
+  }
+  await expect(page.locator('#events')).toHaveText('outside,outside')
+  await page.locator('#allow-outside').uncheck()
+  await page.locator('#allow-escape').uncheck()
+  await page.locator('#dialog-trigger').click()
+  await page.locator('.ui-overlay').click({ position: { x: 1, y: 1 } })
+  await expect(page.getByRole('dialog')).toHaveCount(1)
+  expect((await pointerEvents(page)).at(-1)?.prevented).toBe(false)
+  await page.keyboard.press('Escape')
+  await expect(page.getByRole('dialog')).toHaveCount(1)
+  await expect(page.locator('#events')).toHaveText('outside,outside')
+  await page.locator('#footer-action').click()
+  await restored(page, '#dialog-trigger')
+  await page.locator('#allow-outside').check()
+  await page.locator('#allow-escape').check()
+  await page.locator('#dialog-trigger').click()
+  await page.locator('#child-trigger').click()
+  await expect(page.locator('[role="dialog"]')).toHaveCount(2)
+  // A covered lower overlay cannot be hit by a real pointer. This is only
+  // the synthetic non-top gate; the subsequent top click is a native hit.
+  await page.locator('.ui-overlay').first().dispatchEvent('pointerdown', { bubbles: true, cancelable: true, pointerId: 7, pointerType: 'mouse' })
+  expect((await pointerEvents(page)).at(-1)?.prevented).toBe(false)
+  await expect(page.locator('[role="dialog"]')).toHaveCount(2)
+  await page.locator('.ui-overlay').last().click({ position: { x: 1, y: 1 } })
+  await expect(page.getByRole('dialog')).toHaveCount(1)
+  await expect(page.locator('#child-trigger')).toBeFocused()
+  expect((await pointerEvents(page)).at(-1)?.prevented).toBe(true)
+  await page.keyboard.press('Escape')
+  await restored(page, '#dialog-trigger')
+  await expect(page.locator('#events')).toHaveText('outside,outside,action,inner:outside,escape')
+  writeFileSync(join(run, 'independent-result.json'), JSON.stringify({ completed: true, pointerEvents: await pointerEvents(page), native_pointer_cases: ['dialog1440 normal motion', 'drawer390 reduced motion', 'disabled outside', 'nested top outside'], synthetic_gate: 'covered lower overlay only', late_focus_not_stolen: true }, null, 2) + '\n')
+})

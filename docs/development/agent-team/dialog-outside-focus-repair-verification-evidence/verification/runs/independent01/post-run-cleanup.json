@@ -1,0 +1,40 @@
+{
+  "reason": "Initial driver correctly observed all processes/listeners gone but left only bounded task-owned Playwright transform cache. Original result/cleanup retained as such; no test rerun.",
+  "removed_owned_transform_cache_files": [
+    {
+      "path": "playwright-transform-cache-1000/61/615072e304_e70069d_independentspec.js",
+      "size": 39467,
+      "sha256": "ba3e76210031ffccfe919bc470249c5bb253547584d7326f2c4ffa805dd5fce2"
+    },
+    {
+      "path": "playwright-transform-cache-1000/61/615072e304_e70069d_independentspec.map",
+      "size": 21327,
+      "sha256": "3138630fc391637de8a2d0428021ced2f7dd6376a2d67cd4b6150c43ff80a1fb"
+    },
+    {
+      "path": "playwright-transform-cache-1000/bf/bf50be3e87_677e698_independentconfig.js",
+      "size": 3077,
+      "sha256": "cc6df6ea203f9d2bc4f6198dc296bcea6c4de4757601cb8d6fa07713bd69ba23"
+    },
+    {
+      "path": "playwright-transform-cache-1000/bf/bf50be3e87_677e698_independentconfig.map",
+      "size": 1736,
+      "sha256": "64d213280687c5e9b6dd18a10026b96b9a74ce0437a37d70cb2163f825ad43a9"
+    }
+  ],
+  "checks": [
+    {
+      "time_utc": "2026-10-06T05:15:05.236078+00:00",
+      "owned_processes": [],
+      "baseline_listeners_unchanged": true,
+      "browser_runtime_removed": true
+    },
+    {
+      "time_utc": "2026-10-06T05:15:05.441749+00:00",
+      "owned_processes": [],
+      "baseline_listeners_unchanged": true,
+      "browser_runtime_removed": true
+    }
+  ],
+  "final_clean": true
+}

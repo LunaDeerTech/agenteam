@@ -1,0 +1,30 @@
+{
+  "adopted_waits": 12,
+  "browser_processes": 33,
+  "browser_runtime_removed": true,
+  "double_cleanup": true,
+  "driver_exit": 1,
+  "monitor_errors": 0,
+  "node_processes": 6,
+  "observed_processes": 115,
+  "observed_resources": 7,
+  "run": "new02",
+  "run_directory": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02",
+  "selected_tests_passed": false,
+  "source_files_unchanged": true,
+  "top_levels": [
+    [
+      "PASS",
+      "TestAccountSystemUserDirectoryWebReadAndPagination"
+    ],
+    [
+      "FAIL",
+      "TestAccountSystemUserDirectoryWebAuthorityAndIdentity"
+    ],
+    [
+      "FAIL",
+      "TestAccountSystemUserDirectoryWebNavigationAndLayouts"
+    ]
+  ],
+  "verification_inputs_unchanged": true
+}

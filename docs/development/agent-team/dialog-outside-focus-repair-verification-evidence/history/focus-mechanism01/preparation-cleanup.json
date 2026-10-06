@@ -1,0 +1,13 @@
+{
+  "time_utc": "2026-10-06T05:01:20.499199+00:00",
+  "preparation_error": "Chromium Unix socket path too long before any page; original log/cleanup retained",
+  "owned_runtime_entries_before": [
+    {
+      "path": "org.chromium.Chromium.6Sgcuv",
+      "kind": "directory",
+      "size": 4096
+    }
+  ],
+  "owned_runtime_entries_after": [],
+  "action": "Removed only empty task-owned Chromium runtime directory; no files removed"
+}

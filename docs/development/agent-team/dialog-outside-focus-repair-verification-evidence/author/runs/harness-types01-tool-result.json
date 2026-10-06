@@ -1,0 +1,20 @@
+{
+  "tool_output": "c27f81",
+  "cwd": "/workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/candidate",
+  "exit": 2,
+  "command": [
+    "web/node_modules/.bin/tsc",
+    "--noEmit",
+    "--module",
+    "nodenext",
+    "--moduleResolution",
+    "nodenext",
+    "--target",
+    "es2023",
+    "--lib",
+    "es2023,dom,dom.iterable",
+    "--skipLibCheck",
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts"
+  ],
+  "diagnostics": "TS2307 node:crypto/fs/promises/module/path/url; TS2580 process/Buffer. Standalone tsc did not include web Node type root. Repeated with explicit --types node --typeRoots web/node_modules/@types passed; source unchanged."
+}

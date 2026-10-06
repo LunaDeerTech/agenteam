@@ -1,0 +1,17 @@
+{
+  "argv": [
+    "tests/account-captcha-web/node_modules/.bin/playwright",
+    "test",
+    "--config",
+    "tests/account-captcha-web/dialog-outside-focus.config.js"
+  ],
+  "cwd": "/workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/candidate",
+  "env": {
+    "AGENTEAM_DIALOG_WEB_ROOT": "/workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/candidate/web",
+    "AGENTEAM_DIALOG_RUN_DIR": "/workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/runs/new01",
+    "AGENTEAM_DIALOG_CHROMIUM": "/usr/lib/chromium/chromium",
+    "TMPDIR": "/tmp/df-7enwbv6m",
+    "CI": "1",
+    "NO_COLOR": "1"
+  }
+}

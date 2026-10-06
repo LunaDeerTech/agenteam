@@ -1,0 +1,33 @@
+{
+  "completed": true,
+  "pointerEvents": [
+    {
+      "prevented": true,
+      "count": 1
+    },
+    {
+      "prevented": true,
+      "count": 1
+    },
+    {
+      "prevented": false,
+      "count": 1
+    },
+    {
+      "prevented": false,
+      "count": 2
+    },
+    {
+      "prevented": true,
+      "count": 2
+    }
+  ],
+  "native_pointer_cases": [
+    "dialog1440 normal motion",
+    "drawer390 reduced motion",
+    "disabled outside",
+    "nested top outside"
+  ],
+  "synthetic_gate": "covered lower overlay only",
+  "late_focus_not_stolen": true
+}

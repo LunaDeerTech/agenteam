@@ -1,0 +1,51 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "node",
+        "--check",
+        "tests/account-captcha-web/dialog-outside-focus.config.js"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.026
+    },
+    {
+      "argv": [
+        "web/node_modules/.bin/tsc",
+        "--noEmit",
+        "--module",
+        "nodenext",
+        "--moduleResolution",
+        "nodenext",
+        "--target",
+        "es2023",
+        "--lib",
+        "es2023,dom,dom.iterable",
+        "--skipLibCheck",
+        "--types",
+        "node",
+        "--typeRoots",
+        "web/node_modules/@types",
+        "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.766
+    },
+    {
+      "argv": [
+        "node",
+        "web/node_modules/prettier/bin/prettier.cjs",
+        "--check",
+        "--config",
+        "web/.prettierrc.json",
+        "web/src/components/ui/UiDialog.vue",
+        "web/src/tests/dialog-outside-focus.spec.ts",
+        "tests/account-captcha-web/dialog-outside-focus.config.js",
+        "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts"
+      ],
+      "exit": 0,
+      "elapsed_seconds": 0.337
+    }
+  ],
+  "raw_sha256": "17aa973d3f004560237d9a95171210b0671deff23d61628eecf7322ff5938f20"
+}

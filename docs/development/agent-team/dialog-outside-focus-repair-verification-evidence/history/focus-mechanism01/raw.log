@@ -1,0 +1,30 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+browserType.launch: Target page, context or browser has been closed
+Browser logs:
+
+<launching> /usr/bin/chromium --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --no-sandbox --user-data-dir=/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/focus-mechanism01/runtime/playwright_chromiumdev_profile-8qwwip --remote-debugging-pipe --no-startup-window
+<launched> pid=172396
+[pid=172396][err] [172396:172396:1006/050056.353511:FATAL:chrome/browser/process_singleton_posix.cc:313] Socket path too long: /workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/focus-mechanism01/runtime/org.chromium.Chromium.6Sgcuv/SingletonSocket.
+[pid=172396][err] [1006/050056.357647:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq: No such file or directory (2)
+[pid=172396][err] [1006/050056.357820:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq: No such file or directory (2)
+Call log:
+[2m  - <launching> /usr/bin/chromium --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --no-sandbox --user-data-dir=/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/focus-mechanism01/runtime/playwright_chromiumdev_profile-8qwwip --remote-debugging-pipe --no-startup-window[22m
+[2m  - <launched> pid=172396[22m
+[2m  - [pid=172396][err] [172396:172396:1006/050056.353511:FATAL:chrome/browser/process_singleton_posix.cc:313] Socket path too long: /workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/focus-mechanism01/runtime/org.chromium.Chromium.6Sgcuv/SingletonSocket.[22m
+[2m  - [pid=172396][err] [1006/050056.357647:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /sys/devices/system/cpu/cpu0/cpufreq/scaling_cur_freq: No such file or directory (2)[22m
+[2m  - [pid=172396][err] [1006/050056.357820:ERROR:third_party/crashpad/crashpad/util/file/file_io_posix.cc:145] open /sys/devices/system/cpu/cpu0/cpufreq/scaling_max_freq: No such file or directory (2)[22m
+[2m  - [pid=172396] <gracefully close start>[22m
+[2m  - [pid=172396] <kill>[22m
+[2m  - [pid=172396] <will force kill>[22m
+[2m  - [pid=172396] <process did exit: exitCode=null, signal=SIGABRT>[22m
+[2m  - [pid=172396] starting temporary directories cleanup[22m
+[2m  - [pid=172396] finished temporary directories cleanup[22m
+[2m  - [pid=172396] <gracefully close end>[22m
+
+    at /workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/probes/focus-pointer-mechanism.mjs:4:32
+    at async node:internal/modules/esm/loader:643:26
+
+Node.js v24.19.0

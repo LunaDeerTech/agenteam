@@ -2,6 +2,13 @@
 
 按真实依赖与文件、迁移和资源唯一所有权并行推进；当前协作规则见团队流程与活动任务卡。新会话先核对实际仓库状态与文件历史，再恢复未完成项。
 
+## 2026-10-06：共享遮罩关闭焦点修复独立交付
+
+- [基础修复 rev1](../work-items/d27-dialog-outside-focus-repair.md)四路径由 `directory_backend` 实现、`recovery_verification` 独立 PASS；主线程采纳提交推送 `b53895f7eb1d020276e8f54a99a7c0821b286481`，远端一致。[正式报告与去重证据](dialog-outside-focus-repair-verification.md)固定作者 input01 `5a2300ba7a852feea5ad39ea48aa20c1e10f04e3ca4d76a5d335b0e3ea01a140`，四源与交付 Git 匹配。仅 UiDialog 的顶层/允许 outside handler 先 preventDefault 再关闭，UiDrawer 继承；层栈、样式和业务页均未在本卡改动。
+- 同一真实浏览器断言旧组件 old01 红、新组件 new01 11/11 PASS；隔离已提交 web 的 pure02 13文件/161测试、格式/类型/build 通过；独立一个组件顶层两轮 PASS。原 UI new02 首红、原生 DOM 机制、漏颜色文档/typeRoot/长TMPDIR准备失败均保留，不将机制或组件壳通过算作完整 UI 通过。
+- 作者 old01 留有两个已退出、PPID1、Z 的 Chromium 记录，当前父进程未 wait；后轮成功不覆盖该限制。独立首轮原 clean=false 与实际后续缓存清理另记；作者新轮及独立最终轮均有实际 wait/双次进程与监听检查。未归档依赖缓存、完整 web、dist 或可执行文件。
+- [系统用户目录 UI](../work-items/d27-system-user-directory-ui.md)正固定消费已接受 `b53895f` 重新组合，原遮罩焦点期望不变，页面仍未接受；邀请读口/00019 不属于此结果。Summary 待决、Object/tools 原停止、Artifact/Project 阻塞、ready503、完整 D08–D28/E01 未完成与 E01 未开始保持。以下旧记录保留当时事实。
+
 ## 2026-10-06：System 用户目录注册时间读口接受
 
 - [读口 rev2](../work-items/d27-system-user-directory-read.md)最终六路径已由 `directory_backend` 完成、`recovery_verification` 独立 PASS，主线程采纳提交推送 `3affc0194214101cfa1e6fdc583afa5d60005db8`，实际远端一致。[正式报告与最小持久证据](system-user-directory-read-verification.md)固定 input02 `004ced3247661feca93ef7899dbc539f9f638a17daa824c30692881f26622c96`，六源与交付 Git 匹配。

@@ -1,0 +1,8017 @@
+[
+  {
+    "title": "dialog 390 no-preference: outside keeps trigger focus",
+    "status": "passed",
+    "blocked": [],
+    "events": [
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "ui-overlay",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "ui-overlay dialog-leave-from dialog-leave-active",
+        "active": "launch",
+        "defaultPrevented": true
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": {},
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "footer-close",
+        "active": "launch",
+        "defaultPrevented": false
+      }
+    ]
+  },
+  {
+    "title": "dialog 390 reduce: outside keeps trigger focus",
+    "status": "passed",
+    "blocked": [],
+    "events": [
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "ui-overlay",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "ui-overlay dialog-leave-from dialog-leave-active",
+        "active": "launch",
+        "defaultPrevented": true
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": {},
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "footer-close",
+        "active": "launch",
+        "defaultPrevented": false
+      }
+    ]
+  },
+  {
+    "title": "dialog 1440 no-preference: outside keeps trigger focus",
+    "status": "passed",
+    "blocked": [],
+    "events": [
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "ui-overlay",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "ui-overlay dialog-leave-from dialog-leave-active",
+        "active": "launch",
+        "defaultPrevented": true
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": {},
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "footer-close",
+        "active": "launch",
+        "defaultPrevented": false
+      }
+    ]
+  },
+  {
+    "title": "dialog 1440 reduce: outside keeps trigger focus",
+    "status": "passed",
+    "blocked": [],
+    "events": [
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "ui-overlay",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "ui-overlay dialog-leave-from dialog-leave-active",
+        "active": "launch",
+        "defaultPrevented": true
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": {},
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "footer-close",
+        "active": "launch",
+        "defaultPrevented": false
+      }
+    ]
+  },
+  {
+    "title": "dialog: disabled outside and Escape preserve editing and action",
+    "status": "passed",
+    "blocked": [],
+    "events": [
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "ui-overlay dialog-enter-active dialog-enter-to",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "ui-overlay dialog-enter-active dialog-enter-to",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "ui-overlay dialog-enter-active dialog-enter-to",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "ui-overlay dialog-enter-active dialog-enter-to",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "ui-overlay dialog-enter-active dialog-enter-to",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "ui-overlay dialog-enter-active dialog-enter-to",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "ui-overlay dialog-enter-active dialog-enter-to",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "ui-overlay dialog-enter-active dialog-enter-to",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-button",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-button",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-button",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-button",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-button",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-button",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-button",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-button",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-button",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-button",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-link",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-link",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-link",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-link",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-button",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-button",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-link",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-link",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-link",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-link",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-link",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-link",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-link",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-link",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "footer-close",
+        "active": "launch",
+        "defaultPrevented": false
+      }
+    ]
+  },
+  {
+    "title": "drawer 390 no-preference: outside keeps trigger focus",
+    "status": "passed",
+    "blocked": [],
+    "events": [
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "ui-overlay drawer-overlay",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "ui-overlay drawer-overlay drawer-leave-from drawer-leave-active",
+        "active": "launch",
+        "defaultPrevented": true
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": {},
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "footer-close",
+        "active": "launch",
+        "defaultPrevented": false
+      }
+    ]
+  },
+  {
+    "title": "drawer 390 reduce: outside keeps trigger focus",
+    "status": "passed",
+    "blocked": [],
+    "events": [
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "ui-overlay drawer-overlay",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "ui-overlay drawer-overlay drawer-leave-from drawer-leave-active",
+        "active": "launch",
+        "defaultPrevented": true
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": {},
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "footer-close",
+        "active": "launch",
+        "defaultPrevented": false
+      }
+    ]
+  },
+  {
+    "title": "drawer 1440 no-preference: outside keeps trigger focus",
+    "status": "passed",
+    "blocked": [],
+    "events": [
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "ui-overlay drawer-overlay",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "ui-overlay drawer-overlay drawer-leave-from drawer-leave-active",
+        "active": "launch",
+        "defaultPrevented": true
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": {},
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "footer-close",
+        "active": "launch",
+        "defaultPrevented": false
+      }
+    ]
+  },
+  {
+    "title": "drawer 1440 reduce: outside keeps trigger focus",
+    "status": "passed",
+    "blocked": [],
+    "events": [
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "ui-overlay drawer-overlay",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "ui-overlay drawer-overlay drawer-leave-from drawer-leave-active",
+        "active": "launch",
+        "defaultPrevented": true
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "BODY",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "later-input",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "later-input",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "later-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "later-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": {},
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": {},
+        "active": "ui-button ghost icon-only",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "ui-button ghost icon-only",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": {},
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "footer-close",
+        "active": "launch",
+        "defaultPrevented": false
+      }
+    ]
+  },
+  {
+    "title": "drawer: disabled outside and Escape preserve editing and action",
+    "status": "passed",
+    "blocked": [],
+    "events": [
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "ui-overlay drawer-overlay drawer-enter-active drawer-enter-to",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "ui-overlay drawer-overlay drawer-enter-active drawer-enter-to",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "ui-overlay drawer-overlay drawer-enter-active drawer-enter-to",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "ui-overlay drawer-overlay drawer-enter-active drawer-enter-to",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "ui-overlay drawer-overlay drawer-enter-active drawer-enter-to",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "ui-overlay drawer-overlay drawer-enter-active drawer-enter-to",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "ui-overlay drawer-overlay drawer-enter-active drawer-enter-to",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "ui-overlay drawer-overlay drawer-enter-active drawer-enter-to",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-button",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-button",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-button",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-button",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-button",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-button",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-button",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-button",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-button",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-button",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-link",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-link",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-link",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-link",
+        "active": "inside-button",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-button",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-button",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-link",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-link",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-link",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-link",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-link",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-link",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "footer-close",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "footer-close",
+        "active": "inside-link",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-link",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-link",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "footer-close",
+        "active": "footer-close",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "footer-close",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "footer-close",
+        "active": "launch",
+        "defaultPrevented": false
+      }
+    ]
+  },
+  {
+    "title": "two modal layers close only the top and restore the lower trigger",
+    "status": "passed",
+    "blocked": [],
+    "events": [
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "nested-launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "nested-launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "nested-launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "nested-launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "nested-launch",
+        "active": "nested-launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "nested-launch",
+        "active": "nested-launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "nested-launch",
+        "active": "nested-launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "nested-launch",
+        "active": "nested-launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "nested-launch",
+        "active": "nested-launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "nested-launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "nested-launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "nested-input",
+        "active": "nested-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "nested-input",
+        "active": "nested-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "nested-launch",
+        "active": "nested-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "ui-overlay dialog-enter-active dialog-enter-to",
+        "active": "nested-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "nested-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "nested-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "nested-launch",
+        "active": "nested-launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "nested-launch",
+        "active": "nested-launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "ui-overlay dialog-leave-from dialog-leave-active",
+        "active": "nested-launch",
+        "defaultPrevented": true
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "BODY",
+        "active": "nested-launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "BODY",
+        "active": "nested-launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "nested-launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "nested-launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      }
+    ]
+  }
+]

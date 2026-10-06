@@ -1,0 +1,74 @@
+{
+  "reviewed_utc": "2026-10-06T05:02:27.222798+00:00",
+  "scope": "UI input02 two-test repair; product/dist unchanged from input01. Additional real focus mechanism only.",
+  "input02_sha256": "0a2a8e7628a4afade78700ee31c14aa84469d36fc3979bf8ecbecef6794d340b",
+  "combined_input_sha256": "b846d531a803d374b07ff2096afb62d1713f9706a11c80d3577929c5c471b0ec",
+  "review_result": "UI still blocked by observed focus failure and authority observer failure. No product files modified by verifier.",
+  "new02": {
+    "adopted_waits": 12,
+    "browser_processes": 33,
+    "browser_runtime_removed": true,
+    "double_cleanup": true,
+    "driver_exit": 1,
+    "monitor_errors": 0,
+    "node_processes": 6,
+    "observed_processes": 115,
+    "observed_resources": 7,
+    "run": "new02",
+    "run_directory": "/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02",
+    "selected_tests_passed": false,
+    "source_files_unchanged": true,
+    "top_levels": [
+      [
+        "PASS",
+        "TestAccountSystemUserDirectoryWebReadAndPagination"
+      ],
+      [
+        "FAIL",
+        "TestAccountSystemUserDirectoryWebAuthorityAndIdentity"
+      ],
+      [
+        "FAIL",
+        "TestAccountSystemUserDirectoryWebNavigationAndLayouts"
+      ]
+    ],
+    "verification_inputs_unchanged": true
+  },
+  "confirmed_findings": [
+    {
+      "kind": "test-observer defect",
+      "evidence": "Author component11/11 includes exact real component trailing-space preservation. new02 ReadAndPagination PASS6.74s with untrimmed DOM; first-red wire already matched.",
+      "fix_scope": "Only test observations, product display unchanged."
+    },
+    {
+      "kind": "test-observer defect",
+      "evidence": "Actual401 passed; clone JSON parsing aborted with stage=body,codePresent=false,requestAborted=true,parseFailure=abort; new02 Authority FAIL6.76s.",
+      "required": "Keep original strict status+code assertions; replace observation without altering product cancellation or extending owner."
+    },
+    {
+      "kind": "actual UI focus failure",
+      "evidence": "new02 Navigation FAIL12.49s: after real overlay click closed drawer, trigger was not focused for5s; earlier Escape returned focus correctly. UiDialog and useLayer baseline bytes unchanged.",
+      "required": "Separate shared component repair and real component regression; do not hide with retries or change test to dispatchEvent."
+    },
+    {
+      "kind": "visual review",
+      "evidence": "Actually viewed new02 light1440 and light834; long-email first column occupied horizontal viewport, other columns outside initial visible area. Global th/td white-space:nowrap remains inherited despite scoped overflow-wrap.",
+      "required": "Author investigate scoped wrapping in SystemUsersView and verify long text/columns/mobile visually; no global CSS change."
+    }
+  ],
+  "native_focus_mechanism": {
+    "run": "runs/focus-mechanism02",
+    "events_sha256": "d4e3bfa501955bfe0815f682a763db9ba1791f2f8f476c07a7f8ab05852ca989",
+    "actual_exit": 0,
+    "seconds": 1.189,
+    "result": "Without preventDefault: pointerdown restored trigger, microtask removed overlay, subsequent mousedown targeted body and focusout moved focus to body. With preventDefault: trigger retained.",
+    "limit": "Native DOM only; not actual Vue UiDialog/UiDrawer. No server/fixture/credentials; all page requests blocked.",
+    "terminal": "browser.close and Node actualwait;15ownedPID/starttime gone;4adoptedwaits;short runtime removed.",
+    "preparation_failure": "focus-mechanism01 long TMPDIR caused Chromium Unix socket startup failure; original command/raw/cleanup plus exact empty directory cleanup preserved."
+  },
+  "open_work": [
+    "Shared component focus work item by architecture; independent actual component verification before UI composition.",
+    "Authority correct real response observer and scoped directory wrapping repair by original author.",
+    "Then new3, necessary old3, independent browser1; fixture resources currently zero."
+  ]
+}

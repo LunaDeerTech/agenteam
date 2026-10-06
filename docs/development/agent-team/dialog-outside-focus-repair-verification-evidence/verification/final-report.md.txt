@@ -1,0 +1,19 @@
+# 遮罩焦点修复独立验收
+
+结论：**PASS，范围仅为共享 UiDialog/UiDrawer 遮罩关闭焦点修复**。主线程已接受提交 `b53895f7eb1d020276e8f54a99a7c0821b286481`；本结论不包含尚在验证的系统用户目录 UI 组合。
+
+四路径输入为作者 `input01.json`，SHA256 `5a2300ba7a852feea5ad39ea48aa20c1e10f04e3ca4d76a5d335b0e3ea01a140`。唯一生产变化 UiDialog SHA256 `65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065`：模板保留 `.self`，仅顶层且允许 outside 时先同步 preventDefault，再调用原 close(outside)。未改 useLayer、UiDrawer、样式或关闭策略。独立十文件闭包 `input01.json` SHA256 `c37736517c75b406841fc62b6e92ec2fdab01b72ac47b31c33014d7e4aa1856a`；九个依赖直接取已提交 `0f68d445df66bb05228fca3604618d4f2a7e6ffa` 并与作者真实执行闭包逐项核对，排除活动 UI。
+
+实际结果：作者同一浏览器断言旧版红 `old01` exit1/6.643s，新版 `new01` exit0/21.443s、11/11，包括 Dialog/Drawer × 390/1440 × normal/reduced-motion、禁 outside/Escape、编辑/action及嵌套恢复。独立复核原件与窄源码变化；隔离已提交 web 的完整 `pure02` 实际通过13文件161测试、格式、类型和构建。漏复制既有颜色文档及 standalone tsc 缺 Node typeRoot 的首次准备失败均保留，不作产品失败或通过掩盖。
+
+我方独立真实组件一组执行两轮：`runs/independent01` exit0/4.609s，raw SHA256 `d507cf37a432c51fc1395eaec8140ad92dd1092b3852262d5a45cc0e0f4104a8`；随后为独立壳补页面 nonce 与已知转译缓存清理，组件和行为断言不变，`runs/independent02` exit0/6.361s，raw SHA256 `902b70ea9faf0e393bf1f1ebbaa592e1653f55243648c10a6fcd006d70402298`。均使用真实 Vue 组件、锁定 Playwright1.56.1 与 Chromium151.0.7922.173，单worker、零retry、每test45秒。核验真实遮罩 pointer 完整序列、原内部输入、禁止 outside/Escape、footer action、嵌套顶层返回下层触发器、用户随后主动选择的焦点不被迟到代码抢回；对应 pointer defaultPrevented 序列为 true、true、false、false、true。被遮挡下层的合成事件明确只用于非顶层门禁，未称真实命中。已实际查看独立1440 Dialog与390 Drawer截图。
+
+两轮我方 Node 均实际 wait，server.close 完成，各13个所属 PID/starttime 全部消失、4个 adopted waitpid，监听基线两次不变。第一轮初次 driver result 保留 clean=false，原因仅为4个任务自有 Playwright 转译缓存文件；`post-run-cleanup.json`（SHA256 `f586c3b7cecc41aff45c06b0f25e36897777ad5562297cff11f6d13580d3eb0c`）记录实际清理及两次最终核验。第二轮直接 clean=true，短 TMPDIR 移除，无业务服务、后端或 Docker。
+
+历史尾部限制：作者旧红首 runner 未设 subreaper；独立于 2026-10-06 05:13 UTC 核实 PID180182/180185、starttime408854 均为 PPID1、Z、cmdline0B。它们已经退出，不是运行浏览器；当前验证者并非父进程，不能 waitpid。未触碰 PID1 或非自有进程，未声称后续新轮回收了这两个旧 PID。`author-old01-orphans.json` SHA256 `81378868a202695817b5ea8a66974f7c80118f9a66583312ab3672c884ca15db` 与作者旧轮原件必须一并保存。作者新轮实际回收结论仅适用于新轮所属 PID。
+
+原 UI `new02` 焦点首红与原生 DOM 机制对照分别保留在 `/workspace/scratch/agenteam-d27-directory-ui-verification-nrfghn71/runs/new02`、`runs/focus-mechanism01`、`runs/focus-mechanism02`。new02 raw SHA256 `ea421557434f5d918b9849297d6cbd208e4df76bfd3fd64a7dfb9918db255409`；机制 events SHA256 `d4e3bfa501955bfe0815f682a763db9ba1791f2f8f476c07a7f8ab05852ca989`。机制首次长 TMPDIR 启动失败原件保留。原生 DOM 只作机制归因，本报告真实组件结果来自后续独立组件壳。
+
+最小归档范围：作者报告/输入/版本、四候选与旧 UiDialog、old01/new01/pure01/pure02/harness 检查的命令/原日志/终局/事件原件；我方本报告、固定输入、probe/driver、两轮顶层原件、旧 Z 核验及上述 UI/机制原件。按 SHA 去重；不复制全 web、依赖缓存、二进制、运行时目录。作者旧红 trace 可作为可选原始诊断附件。注册 Playwright 技能不可用，本次沿主线程授权使用仓库锁定 harness。仅验证 Chromium 组件行为，不作其他浏览器、生产托管、Vite业务代理或完整 D27 声明。
+
+本报告及以上已执行证据范围停止写入；无我方组件资源活动。目录 UI 正消费已接受基础继续独立组合验证，其活跃日志不属于本冻结范围。

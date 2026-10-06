@@ -77,3 +77,13 @@ author01 首红为合法 admin HEAD 实际405、原断言要求200；rev1 规格
 三轮均已 actual wait，各四容器/三网络 exact-ID 双次 absent，原两容器/四网络的 ID/name/labels 不变，所属进程与 runtime 为空，窗口已交还。归档只保留原报告、精确源码版本、命令/raw、静审纠正与资源终局；文档负责人只做离线原字节/Git/链接核查，没有重跑业务。
 
 该结果只接受专用九字段目录与 GET/HEAD 读口，原共享八字段 User 保持。[系统用户目录 UI](../work-items/d27-system-user-directory-ui.md)的后端依赖现已满足，后续页面、同一 Cookie owner 组合及浏览器验收另行推进；没有前端、邀请投递补口或完整 D27 通过声明。Summary 待决、Object/tools 原任务停止、Artifact/Project 阻塞、生产未绑定、ready503、完整 D08–D28/E01 未完成与 E01 未开始保持。
+
+## 8. 共享遮罩焦点修复接受，UI 组合继续
+
+系统用户目录 UI 的真实 new02 在390px遮罩关闭后未保持触发按钮焦点，原 Navigation 第544行严格断言失败；同轮 Read通过、Authority另有失败。原生 Chromium 对照说明同步恢复后默认 mousedown 可再次使 trigger失焦，但对照本身不是组件验收。主线程据此独立拆出[基础修复卡](../work-items/d27-dialog-outside-focus-repair.md)，不改原 UI 焦点期望。
+
+`directory_backend` 完成四路径，唯一生产变化是 UiDialog 对顶层且允许 outside 的真实遮罩事件先 preventDefault、再走原关闭路径；UiDrawer 自然继承，useLayer、样式和业务壳未改。旧组件同一浏览器断言实际红，新候选11例 PASS；隔离基线 web 的161测试及格式/类型/build通过，`recovery_verification` 独立一个真实组件顶层两轮 PASS。主线程采纳提交推送 `b53895f7eb1d020276e8f54a99a7c0821b286481`，并核远端一致；[正式报告与最小证据](dialog-outside-focus-repair-verification.md)记录固定四源、原始失败和实际命令。
+
+作者 old01 首 runner 缺 subreaper，两个 PID1 所属 Z 记录已经退出，但当前父进程无法 wait；该轮不写成全清零。作者新轮的实际回收只适用于新轮；独立首轮原 clean=false 及之后实际转换缓存清理分别保留，最终轮实际 wait/双清与监听基线不变。漏复制颜色文档、standalone tsc 缺 Node typeRoot、机制首次长 TMPDIR 启动失败也保留。归档按 SHA 去重，不复制全 web、依赖、dist 或可执行文件，没有重跑浏览器或业务测试。
+
+基础结果先独立交付，系统用户目录 UI 正按已接受 `b53895f` 重建冻结组合，仍须复验原 Navigation、权限与布局，尚无页面接受结论；本次仅在 UI 卡页首追加此基础依赖，其技术正文不变。邀请读口/00019 未进入该组合；完整 D27、D08–D28/E01 未完成，E01 未开始。既有 Summary 待决、Object/tools 原停止任务、Artifact/Project 阻塞、生产未绑定和 ready503 边界保持。

@@ -1,0 +1,19 @@
+{
+  "argv": [
+    "tests/account-captcha-web/node_modules/.bin/playwright",
+    "test",
+    "--config",
+    "tests/account-captcha-web/dialog-outside-focus.config.js",
+    "--grep",
+    "dialog 390 no-preference: outside keeps trigger focus"
+  ],
+  "cwd": "/workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/candidate",
+  "env": {
+    "AGENTEAM_DIALOG_WEB_ROOT": "/workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/baseline/web",
+    "AGENTEAM_DIALOG_RUN_DIR": "/workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/runs/old01",
+    "AGENTEAM_DIALOG_CHROMIUM": "/usr/lib/chromium/chromium",
+    "TMPDIR": "/tmp/df-b9vbjf5s",
+    "CI": "1",
+    "NO_COLOR": "1"
+  }
+}

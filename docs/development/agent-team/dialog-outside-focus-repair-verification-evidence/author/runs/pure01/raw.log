@@ -1,0 +1,40 @@
+
+> @agenteam/web@0.0.0 check
+> npm run format:check && npm run test:unit && npm run build
+
+
+> @agenteam/web@0.0.0 format:check
+> prettier --check .
+
+Checking formatting...
+All matched files use Prettier code style!
+
+> @agenteam/web@0.0.0 test:unit
+> vitest run
+
+
+ RUN  v4.1.11 /workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/candidate/web
+
+ ❯ src/tests/styles.spec.ts (4 tests | 1 failed) 9ms
+   × keeps every documented theme token in sync with the stylesheet 4ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/tests/styles.spec.ts > keeps every documented theme token in sync with the stylesheet
+Error: ENOENT: no such file or directory, open '/workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/candidate/docs/frontend-design/styles/colors-and-themes.md'
+ ❯ src/tests/styles.spec.ts:24:16
+     22| }
+     23| it('keeps every documented theme token in sync with the stylesheet', (…
+     24|   const docs = readFileSync(resolve('../docs/frontend-design/styles/co…
+       |                ^
+     25|   const entries = [...docs.matchAll(/\| `(--[\w-]+)` \| `([^`]+)` \| `…
+     26|   expect(entries.length).toBeGreaterThanOrEqual(30)
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed | 12 passed (13)
+      Tests  1 failed | 160 passed (161)
+   Start at  05:13:04
+   Duration  6.32s (transform 2.38s, setup 0ms, import 4.25s, tests 4.45s, environment 7.14s)
+

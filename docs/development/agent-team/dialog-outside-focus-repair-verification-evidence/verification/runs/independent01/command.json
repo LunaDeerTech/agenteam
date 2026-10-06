@@ -1,0 +1,30 @@
+{
+  "actual_wait_completed": true,
+  "argv": [
+    "node",
+    "/workspace/agenteam/tests/account-captcha-web/node_modules/@playwright/test/cli.js",
+    "test",
+    "--config",
+    "/workspace/scratch/agenteam-dialog-focus-verification-vqncynra/probes/independent.config.mjs"
+  ],
+  "cwd": "/workspace/scratch/agenteam-dialog-focus-verification-vqncynra",
+  "ended_utc": "2026-10-06T05:14:30.026868+00:00",
+  "env": {
+    "AGENTEAM_DIALOG_PROBE_RUN": "/workspace/scratch/agenteam-dialog-focus-verification-vqncynra/runs/independent01",
+    "AGENTEAM_DIALOG_PROBE_SOURCE": "/workspace/scratch/agenteam-dialog-focus-verification-vqncynra/input01/web",
+    "TMPDIR": "/tmp/agtdialog-teewwvcq"
+  },
+  "exit": 0,
+  "input_sha256": "c37736517c75b406841fc62b6e92ec2fdab01b72ac47b31c33014d7e4aa1856a",
+  "monitor_sha256": "1efa7021bb8a02c79bd58c31c7bf2f4ede8feec437bd221d5ef2abe7b9ec3cee",
+  "monitor_unchanged": true,
+  "probe_sha256": {
+    "independent.config.mjs": "fa685345edd7abce7de69011958ce97cca46aeb7af8d5ce1503aba193a4a09a6",
+    "independent.spec.ts": "2fbe4498c11ea8cd726a3f76a9582d58ad0811c589a9b76c7dfeb3b58e13ad3f"
+  },
+  "probes_unchanged": true,
+  "raw_sha256": "d507cf37a432c51fc1395eaec8140ad92dd1092b3852262d5a45cc0e0f4104a8",
+  "seconds": 4.609,
+  "source_unchanged": true,
+  "started_utc": "2026-10-06T05:14:25.414386+00:00"
+}

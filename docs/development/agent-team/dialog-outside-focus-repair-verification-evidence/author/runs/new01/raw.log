@@ -1,0 +1,23 @@
+
+Running 11 tests using 1 worker
+
+[1A[2K(node:180787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:180787) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/11] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:216:7 › dialog 390 no-preference: outside keeps trigger focus
+[1A[2K[2/11] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:216:7 › dialog 390 reduce: outside keeps trigger focus
+[1A[2K[3/11] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:216:7 › dialog 1440 no-preference: outside keeps trigger focus
+[1A[2K[4/11] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:216:7 › dialog 1440 reduce: outside keeps trigger focus
+[1A[2K[5/11] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:252:3 › dialog: disabled outside and Escape preserve editing and action
+[1A[2K[6/11] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:216:7 › drawer 390 no-preference: outside keeps trigger focus
+[1A[2K[7/11] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:216:7 › drawer 390 reduce: outside keeps trigger focus
+[1A[2K[8/11] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:216:7 › drawer 1440 no-preference: outside keeps trigger focus
+[1A[2K[9/11] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:216:7 › drawer 1440 reduce: outside keeps trigger focus
+[1A[2K[10/11] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:252:3 › drawer: disabled outside and Escape preserve editing and action
+[1A[2K[11/11] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:281:1 › two modal layers close only the top and restore the lower trigger
+[1A[2K  11 passed (20.3s)

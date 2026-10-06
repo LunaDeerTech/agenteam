@@ -1,0 +1,25 @@
+{
+  "time_utc": "2026-10-06T05:13:01.111109+00:00",
+  "scope": "Exact two old01 author orphan identities only; read-only /proc, no signal/ptrace/PID1 changes",
+  "rows": [
+    {
+      "pid": 180182,
+      "ppid": 1,
+      "state": "Z",
+      "starttime": "408854",
+      "comm": "chromium",
+      "cmdline_bytes": 0,
+      "expected_starttime_matched": true
+    },
+    {
+      "pid": 180185,
+      "ppid": 1,
+      "state": "Z",
+      "starttime": "408854",
+      "comm": "chromium",
+      "cmdline_bytes": 0,
+      "expected_starttime_matched": true
+    }
+  ],
+  "interpretation": "Z means exited, not executing and cannot be killed into reaping; PPID1 is not this verifier, so verifier cannot waitpid these processes. Historical old01 join/reaping limit retained. No later success can imply these exact old PID were reaped."
+}

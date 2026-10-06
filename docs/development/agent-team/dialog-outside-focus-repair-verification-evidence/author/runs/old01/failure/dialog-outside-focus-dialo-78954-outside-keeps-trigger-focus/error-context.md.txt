@@ -1,0 +1,10 @@
+# Page snapshot
+
+```yaml
+- main [ref=e3]:
+  - button "Open surface" [ref=e4] [cursor=pointer]
+  - generic [ref=e5]:
+    - text: Later input
+    - textbox "Later input" [ref=e6]
+  - status [ref=e7]: "[\"update:false\",\"close:outside\"]"
+```

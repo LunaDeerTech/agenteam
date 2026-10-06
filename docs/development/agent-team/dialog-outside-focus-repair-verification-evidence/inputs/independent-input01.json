@@ -1,0 +1,25 @@
+{
+  "source_root": "/workspace/scratch/agenteam-dialog-focus-verification-vqncynra/input01/web",
+  "files": {
+    "src/components/ui/UiDialog.vue": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065",
+    "src/components/ui/UiDrawer.vue": "e62cc686f6fe8c3981680c3c88ec4880effbb9e84aedf80a5aff9978939a2def",
+    "src/components/ui/UiButton.vue": "af03eda76b9d74f9c74e788f239397bfac9bdb67f9c7454ac8bf1a29e5e5abf9",
+    "src/components/ui/UiIcon.vue": "180fd280018366204978a388b933543be597c9f8c654c5af1b6eb8f9d262e280",
+    "src/components/ui/UiSpinner.vue": "b8568ad14952ddb87bf13e8877c89d30e5c69f23fd38bc7c72c44562f602689c",
+    "src/components/ui/types.ts": "5cde2f860f7088f599aa86a485787d79c5f0f8886e5bfb766dfccac8e0b29ec7",
+    "src/composables/useLayer.ts": "48fb1cd2a063168f7ece5ba7f3df4e16183367b466f906f63a5c8384f23e03a6",
+    "src/styles/tokens.css": "e71b59daf59c53187796c061bc8486649e2aa0ad92d5b9c9c292165613a466b8",
+    "src/styles/base.css": "95406edff72418d7ca07d37f638b0718ec8ad711eab9b6c579cd4e1cebe55b72",
+    "src/styles/components.css": "0f8289238b3f4af109e233cea7f76a3759d79c45f737c575467af771b05d96eb"
+  },
+  "dependency_base": "0f68d445df66bb05228fca3604618d4f2a7e6ffa",
+  "candidate_four_paths": {
+    "web/src/components/ui/UiDialog.vue": "65ddffc60af0494f600cc0eae318576585e4e0093085e4b8b2d6a59d071f5065",
+    "web/src/tests/dialog-outside-focus.spec.ts": "12d38d793d5b7864f7f262e8799965e1749bfebc999024a656a6bace4fc8ba50",
+    "tests/account-captcha-web/dialog-outside-focus.config.js": "42516eb6ed5db78278a3169818a67e579e94a8b8671e067ade97830540adafd5",
+    "tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts": "8c1af0a58af17d41a84686457ea70994ddd2b629d895730936d4e9b9b0df8649"
+  },
+  "author_input_path": "/workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/input01.json",
+  "author_input_sha256": "5a2300ba7a852feea5ad39ea48aa20c1e10f04e3ca4d76a5d335b0e3ea01a140",
+  "notes": "Exactly10-file component closure,9 dependencies independently recovered from committed0f68d44; only UiDialog candidate replaces baseline. No active UI inputs."
+}

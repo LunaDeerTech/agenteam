@@ -1,0 +1,261 @@
+[
+  {
+    "title": "dialog 390 no-preference: outside keeps trigger focus",
+    "status": "failed",
+    "blocked": [],
+    "events": [
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "launch",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "inside-input",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": true,
+        "target": "ui-overlay",
+        "active": "inside-input",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "inside-input",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": true,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusin",
+        "capture": false,
+        "target": "launch",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "pointerdown",
+        "capture": false,
+        "target": "ui-overlay dialog-leave-from dialog-leave-active",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": true,
+        "target": "ui-overlay dialog-leave-from dialog-leave-active",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mousedown",
+        "capture": false,
+        "target": "ui-overlay dialog-leave-from dialog-leave-active",
+        "active": "launch",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": true,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "focusout",
+        "capture": false,
+        "target": "launch",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": true,
+        "target": "MAIN",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "mouseup",
+        "capture": false,
+        "target": "MAIN",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": true,
+        "target": "BODY",
+        "active": "BODY",
+        "defaultPrevented": false
+      },
+      {
+        "type": "click",
+        "capture": false,
+        "target": "BODY",
+        "active": "BODY",
+        "defaultPrevented": false
+      }
+    ]
+  }
+]

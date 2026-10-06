@@ -1,0 +1,59 @@
+from pathlib import Path
+import subprocess, importlib.util, ctypes, os, hashlib, time, tempfile, signal
+
+root = Path(__file__).resolve().parent
+run = root / 'runs/focus-mechanism02'
+run.mkdir(mode=0o700)
+runtime = Path(tempfile.mkdtemp(prefix='agtd27-focus-', dir='/tmp'))
+spec = importlib.util.spec_from_file_location('monitor', root / 'run_ui_fixture.py')
+m = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(m)
+assert ctypes.CDLL(None, use_errno=True).prctl(36, 1, 0, 0, 0) == 0
+probe = root / 'probes/focus-pointer-mechanism.mjs'
+data = probe.read_bytes()
+(run / 'probe.mjs.txt').write_bytes(data)
+(run / 'driver.py.txt').write_bytes(Path(__file__).read_bytes())
+env = os.environ.copy()
+env.update({'TMPDIR': str(runtime), 'AGENTEAM_FOCUS_MECHANISM_RECORD': str(run / 'events.json')})
+argv = ['node', str(probe)]
+record = {'argv': argv, 'cwd': str(root), 'env': {k: env[k] for k in ['TMPDIR', 'AGENTEAM_FOCUS_MECHANISM_RECORD']}, 'started_utc': m.utc(), 'input_sha256': hashlib.sha256(data).hexdigest()}
+m.write(run / 'command.json', record)
+start = time.monotonic()
+seen, waited = {}, []
+with (run / 'raw.log').open('wb') as out:
+    p = subprocess.Popen(argv, cwd=root, env=env, stdout=out, stderr=subprocess.STDOUT, start_new_session=True)
+    while p.poll() is None:
+        rows = m.processes()
+        owned = {p.pid} | {pid for pid, row in rows.items() if row['ppid'] == os.getpid() or str(runtime).encode() in row['raw']}
+        for _ in range(12):
+            nxt = owned | {pid for pid, row in rows.items() if row['ppid'] in owned}
+            if nxt == owned:
+                break
+            owned = nxt
+        for pid in owned:
+            if pid in rows:
+                row = rows[pid]
+                seen[str(pid) + ':' + row['starttime']] = {'pid': pid, 'starttime': row['starttime'], 'ppid': row['ppid'], 'name': row['name'], 'executable': row['executable']}
+        m.reap_adopted(seen, p.pid, waited)
+        if time.monotonic() - start > 30:
+            os.killpg(p.pid, signal.SIGKILL)
+        time.sleep(.1)
+    exit_code = p.wait()
+m.reap_adopted(seen, p.pid, waited)
+record.update({'exit': exit_code, 'actual_wait_completed': True, 'seconds': round(time.monotonic() - start, 3), 'ended_utc': m.utc(), 'input_unchanged': probe.read_bytes() == data, 'raw_sha256': hashlib.sha256((run / 'raw.log').read_bytes()).hexdigest()})
+m.write(run / 'command.json', record)
+checks = []
+for _ in range(2):
+    m.reap_adopted(seen, p.pid, waited)
+    rows = m.processes()
+    checks.append({'owned_processes': [row for row in seen.values() if row['pid'] in rows and rows[row['pid']]['starttime'] == row['starttime']], 'runtime_entries': [x.name for x in runtime.iterdir()]})
+    time.sleep(.1)
+m.write(run / 'observed-processes.json', seen)
+m.write(run / 'adopted-waits.json', waited)
+m.write(run / 'cleanup.json', checks)
+if not list(runtime.iterdir()):
+    runtime.rmdir()
+print(record)
+print((run / 'raw.log').read_text())
+print({'observed_processes': len(seen), 'adopted_waits': len(waited), 'cleanup': checks, 'runtime_removed': not runtime.exists()})
+raise SystemExit(0 if exit_code == 0 and all(not x['owned_processes'] and not x['runtime_entries'] for x in checks) else 1)

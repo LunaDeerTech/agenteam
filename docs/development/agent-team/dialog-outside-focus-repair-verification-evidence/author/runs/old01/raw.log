@@ -1,0 +1,55 @@
+
+Running 1 test using 1 worker
+
+[1A[2K(node:180165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K(node:180165) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+
+
+[1A[2K[1/1] tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:216:7 › dialog 390 no-preference: outside keeps trigger focus
+[1A[2K  1) tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:216:7 › dialog 390 no-preference: outside keeps trigger focus 
+
+    Error: [2mexpect([22m[31mlocator[39m[2m).[22mtoBeFocused[2m([22m[2m)[22m failed
+
+    Locator:  getByTestId('launch')
+    Expected: focused
+    Received: inactive
+    Timeout:  3000ms
+
+    Call log:
+    [2m  - Expect "toBeFocused" with timeout 3000ms[22m
+    [2m  - waiting for getByTestId('launch')[22m
+    [2m    7 × locator resolved to <button data-testid="launch">Open surface</button>[22m
+    [2m      - unexpected value "inactive"[22m
+
+
+      233 | async function restored(page: Page) {
+      234 |   await expect(page.getByRole('dialog')).toHaveCount(0)
+    > 235 |   await expect(page.getByTestId('launch')).toBeFocused()
+          |                                            ^
+      236 |   await expect(page.locator('#app')).toHaveJSProperty('inert', false)
+      237 |   await expect(page.locator('body')).toHaveCSS('overflow', 'auto')
+      238 | }
+        at restored (/workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:235:44)
+        at /workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/candidate/tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:255:9
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../runs/old01/results/dialog-outside-focus-dialo-78954-outside-keeps-trigger-focus/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../runs/old01/results/dialog-outside-focus-dialo-78954-outside-keeps-trigger-focus/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../runs/old01/results/dialog-outside-focus-dialo-78954-outside-keeps-trigger-focus/trace.zip
+    Usage:
+
+        npx playwright show-trace ../runs/old01/results/dialog-outside-focus-dialo-78954-outside-keeps-trigger-focus/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+
+[1A[2K  1 failed
+    tests/account-captcha-web/e2e/dialog-outside-focus.spec.ts:216:7 › dialog 390 no-preference: outside keeps trigger focus 

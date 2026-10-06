@@ -1,0 +1,143 @@
+{
+  "exit": 1,
+  "timed_out": false,
+  "elapsed_seconds": 6.643,
+  "tracked_processes": [
+    {
+      "pid": 180131,
+      "state": "S",
+      "ppid": 180127,
+      "session": 180131,
+      "starttime": 408702,
+      "command": "node tests/account-captcha-web/node_modules/.bin/playwright test --config tests/account-captcha-web/dialog-outside-focus.config.js --grep dialog 390 no-preference: outside keeps trigger focus "
+    },
+    {
+      "pid": 180165,
+      "state": "R",
+      "ppid": 180131,
+      "session": 180131,
+      "starttime": 408794,
+      "command": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node /workspace/scratch/agenteam-dialog-focus-author-je2dVDnE/baseline/tests/account-captcha-web/node_modules/playwright/lib/common/process.js "
+    },
+    {
+      "pid": 180178,
+      "state": "S",
+      "ppid": 180165,
+      "session": 180178,
+      "starttime": 408850,
+      "command": "/usr/lib/chromium/chromium --disable-field-trial-config --disable-background-networking --disable-background-timer-throttling --disable-backgrounding-occluded-windows --disable-back-forward-cache --disable-breakpad --disable-client-side-phishing-detection --disable-component-extensions-with-background-pages --disable-component-update --no-default-browser-check --disable-default-apps --disable-dev-shm-usage --disable-extensions --disable-features=AcceptCHFrame,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,ThirdPartyStoragePartitioning,Translate,AutoDeElevate,RenderDocument --enable-features=CDPScreenshotNewSurface --allow-pre-commit-input --disable-hang-monitor --disable-ipc-flooding-protection --disable-popup-blocking --disable-prompt-on-repost --disable-renderer-backgrounding --force-color-profile=srgb --metrics-recording-only --no-first-run --password-store=basic --use-mock-keychain --no-service-autorun --export-tagged-pdf --disable-search-engine-choice-screen --unsafely-disable-devtools-self-xss-warnings --edge-skip-compat-layer-relaunch --enable-automation --headless --hide-scrollbars --mute-audio --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --no-sandbox --no-sandbox --disable-dev-shm-usage --user-data-dir=/tmp/df-b9vbjf5s/playwright_chromiumdev_profile-0lsiy8 --remote-debugging-pipe --no-startup-window "
+    },
+    {
+      "pid": 180182,
+      "state": "Z",
+      "ppid": 1,
+      "session": 180178,
+      "starttime": 408854,
+      "command": ""
+    },
+    {
+      "pid": 180185,
+      "state": "Z",
+      "ppid": 1,
+      "session": 180178,
+      "starttime": 408854,
+      "command": ""
+    },
+    {
+      "pid": 180207,
+      "state": "S",
+      "ppid": 180182,
+      "session": 180178,
+      "starttime": 408859,
+      "command": "/usr/lib/chromium/chromium --type=gpu-process --no-sandbox --disable-dev-shm-usage --disable-breakpad --headless --ozone-platform=headless --use-angle=swiftshader-webgl --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/tmp/df-b9vbjf5s/playwright_chromiumdev_profile-0lsiy8 --change-stack-guard-on-fork=enable --gpu-preferences=YAAAAAAAAAAgAAAEAAAAAAAAAAAAAGAASAAAAAAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAAAAAAAAAAAMAAAAAAAAAAwAAAAAAAAAAAAAAAAAAAACAAAAAAAAAAMAAAAAQAAAAAAAAAAAAAACAAAAAAAAAAIAAAAAAAAAA== --shared-files --field-trial-handle=3,i,852632915533184264,2779993589714278491,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,14875580245683246489,13508052551588950163,4 --trace-process-track-uuid=3190708988185955192 "
+    },
+    {
+      "pid": 180216,
+      "state": "S",
+      "ppid": 180178,
+      "session": 180178,
+      "starttime": 408861,
+      "command": "/usr/lib/chromium/chromium --type=utility --utility-sub-type=network.mojom.NetworkService --lang=en-US --service-sandbox-type=none --no-sandbox --disable-dev-shm-usage --use-angle=swiftshader-webgl --mute-audio --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/tmp/df-b9vbjf5s/playwright_chromiumdev_profile-0lsiy8 --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,852632915533184264,2779993589714278491,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,14875580245683246489,13508052551588950163,4 --trace-process-track-uuid=3190708989122997041 "
+    },
+    {
+      "pid": 180223,
+      "state": "S",
+      "ppid": 180185,
+      "session": 180178,
+      "starttime": 408864,
+      "command": "/usr/lib/chromium/chromium --type=utility --utility-sub-type=storage.mojom.StorageService --lang=en-US --service-sandbox-type=utility --no-sandbox --disable-dev-shm-usage --use-angle=swiftshader-webgl --mute-audio --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/tmp/df-b9vbjf5s/playwright_chromiumdev_profile-0lsiy8 --change-stack-guard-on-fork=enable --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,852632915533184264,2779993589714278491,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,14875580245683246489,13508052551588950163,4 --trace-process-track-uuid=3190708990060038890 "
+    },
+    {
+      "pid": 180252,
+      "state": "S",
+      "ppid": 180185,
+      "session": 180178,
+      "starttime": 408872,
+      "command": "/usr/lib/chromium/chromium --type=renderer --top-chrome-webui --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/tmp/df-b9vbjf5s/playwright_chromiumdev_profile-0lsiy8 --disable-print-preview --change-stack-guard-on-fork=enable --no-sandbox --disable-dev-shm-usage --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --enable-automation --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --ozone-platform=headless --disable-gpu-compositing --lang=en-US --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=5 --time-ticks-at-unix-epoch=-1791259447040894 --launch-time-ticks=4088723917 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,852632915533184264,2779993589714278491,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,14875580245683246489,13508052551588950163,4 --trace-process-track-uuid=3190708990997080739 "
+    },
+    {
+      "pid": 180261,
+      "state": "S",
+      "ppid": 180185,
+      "session": 180178,
+      "starttime": 408874,
+      "command": "/usr/lib/chromium/chromium --type=renderer --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/tmp/df-b9vbjf5s/playwright_chromiumdev_profile-0lsiy8 --disable-print-preview --change-stack-guard-on-fork=enable --no-sandbox --disable-dev-shm-usage --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --enable-automation --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --ozone-platform=headless --disable-gpu-compositing --lang=en-US --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=7 --time-ticks-at-unix-epoch=-1791259447040894 --launch-time-ticks=4088746839 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,852632915533184264,2779993589714278491,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,14875580245683246489,13508052551588950163,4 --trace-process-track-uuid=3190708992871164437 "
+    },
+    {
+      "pid": 180262,
+      "state": "S",
+      "ppid": 180185,
+      "session": 180178,
+      "starttime": 408875,
+      "command": "/usr/lib/chromium/chromium --type=renderer --crashpad-handler-pid=0 --enable-crash-reporter=, --noerrdialogs --user-data-dir=/tmp/df-b9vbjf5s/playwright_chromiumdev_profile-0lsiy8 --disable-print-preview --change-stack-guard-on-fork=enable --no-sandbox --disable-dev-shm-usage --disable-back-forward-cache --disable-background-timer-throttling --disable-breakpad --enable-automation --force-color-profile=srgb --remote-debugging-pipe --allow-pre-commit-input --blink-settings=primaryHoverType=2,availableHoverTypes=2,primaryPointerType=4,availablePointerTypes=4 --ozone-platform=headless --disable-gpu-compositing --lang=en-US --num-raster-threads=2 --enable-main-frame-before-activation --renderer-client-id=6 --time-ticks-at-unix-epoch=-1791259447040894 --launch-time-ticks=4088748990 --shared-files=v8_context_snapshot_data:100 --field-trial-handle=3,i,852632915533184264,2779993589714278491,262144 --enable-features=CDPScreenshotNewSurface --disable-features=AcceptCHFrame,AutoDeElevate,AvoidUnnecessaryBeforeUnloadCheckSync,DestroyProfileOnBrowserClose,DialMediaRouteProvider,GlobalMediaControls,HttpsUpgrades,LensOverlay,MediaRouter,PaintHolding,RenderDocument,ThirdPartyStoragePartitioning,Translate --variations-seed-version --pseudonymization-salt-handle=7,i,14875580245683246489,13508052551588950163,4 --trace-process-track-uuid=3190708991934122588 "
+    }
+  ],
+  "remaining_first": [
+    {
+      "pid": 180182,
+      "state": "Z",
+      "ppid": 1,
+      "session": 180178,
+      "starttime": 408854,
+      "command": ""
+    },
+    {
+      "pid": 180185,
+      "state": "Z",
+      "ppid": 1,
+      "session": 180178,
+      "starttime": 408854,
+      "command": ""
+    }
+  ],
+  "remaining_second": [
+    {
+      "pid": 180182,
+      "state": "Z",
+      "ppid": 1,
+      "session": 180178,
+      "starttime": 408854,
+      "command": ""
+    },
+    {
+      "pid": 180185,
+      "state": "Z",
+      "ppid": 1,
+      "session": 180178,
+      "starttime": 408854,
+      "command": ""
+    }
+  ],
+  "ports_after": "State  Recv-Q Send-Q Local Address:Port Peer Address:PortProcess                                \nLISTEN 0      0          127.0.0.1:9001      0.0.0.0:*                                          \nLISTEN 0      0          127.0.0.1:9000      0.0.0.0:*                                          \nLISTEN 0      0            0.0.0.0:1040      0.0.0.0:*    users:((\"caas-prefix-tra\",pid=2,fd=3))\nLISTEN 0      0          127.0.0.1:5432      0.0.0.0:*                                          \n",
+  "tmpdir": "/tmp/df-b9vbjf5s",
+  "tmp_contents": [
+    "playwright-transform-cache-1000",
+    "playwright-transform-cache-1000/34",
+    "playwright-transform-cache-1000/14",
+    "playwright-transform-cache-1000/34/34badbb8ec_0b3be39_dialogoutsidefocusspec.js",
+    "playwright-transform-cache-1000/34/34badbb8ec_0b3be39_dialogoutsidefocusspec.map",
+    "playwright-transform-cache-1000/14/14b909d5d1_7e56dc6_dialogoutsidefocusconfig.js",
+    "playwright-transform-cache-1000/14/14b909d5d1_7e56dc6_dialogoutsidefocusconfig.map"
+  ],
+  "raw_sha256": "7f77da84ffc6379a998207abb53bb9b8a67e9b37b0fe7a74fb3d4127d898610b"
+}

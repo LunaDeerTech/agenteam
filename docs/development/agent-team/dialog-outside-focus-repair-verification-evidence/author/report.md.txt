@@ -1,0 +1,34 @@
+# UiDialog outside focus repair author handoff
+
+Four candidate sources are frozen; no further writes or browser/service starts. Browser window released to recovery_verification. No Git mutations performed.
+
+- Baseline: `0f68d445df66bb05228fca3604618d4f2a7e6ffa`.
+- Production delta: UiDialog top/allowed outside PointerEvent handler first preventDefault, then existing close(outside), retaining template .self. UiDrawer inherits the behavior. useLayer, styles, locks and active UI inputs untouched.
+- `input01.json`: four candidate SHA256s. `frozen-input.json`: exact 10-component/style closure, locks and isolated pure-check inputs. Input SHA256 `f2e2008a6d7161110c11535a003d428e03fa0ffc1ff62f07307c8f285a5e2506`.
+- Old/new browser config and spec are identical byte-for-byte; old01/input preserves the original test/config and old UiDialog bytes. Comparing the two 10-file closures changes only UiDialog.
+
+## Actual checks
+
+| Run | Actual exit | Result |
+| --- | --- | --- |
+| old01 | 1, 6.643s | Expected target red: native overlay pointer/click closes old UiDialog, launch focus assertion fails at 390px/no-preference. |
+| new01 | 0, 21.443s | 11/11 real Chromium cases pass: Dialog/Drawer × 390/1440 × normal/reduce, disabled outside/Escape with editing/action, and nested top-only restoration. Same old-red assertion retained. |
+| pure01 | 1, 9.534s | 160 passed / 1 missing-file failure: isolated copy initially omitted the existing styles test's committed colors document. Original raw retained. |
+| pure02 | 0, 12.065s | npm run check: formatting, 13 files/161 tests, Vue type-check and production build pass after copying that single baseline document. |
+| harness-pure02 | 0 each | Node config syntax, standalone TypeScript with explicit locked web Node type root, and four-file formatting pass. First direct tsc without Node type root exit2 is retained in harness-types01-tool-result.json. |
+
+Each run directory preserves exact commands, raw logs, actual status/timing and SHA. Browser reports retain bounded pointer/focus/defaultPrevented event attachments; pointer-events.json extracts them without changing originals. Old screenshot/trace retained. Browser network route allowed only its nonce-owned loopback origin; blocked-origin arrays empty.
+
+## Fixed bounded preparation
+
+Private baseline/candidate contain only `git archive 0f68d445df66bb05228fca3604618d4f2a7e6ffa web tests/account-captcha-web/package.json tests/account-captcha-web/package-lock.json` plus the existing styles-test read dependency `docs/frontend-design/styles/colors-and-themes.md` from the same commit. The 90 baseline web files were compared: only UiDialog differs, and the new component unit test is added. Three other authorized sources are copied into the candidate tests package. No active UI source was consumed.
+
+Existing locked web and Playwright dependency directories were copied with reflink into private baseline; candidate dependency links point only to these private copies. No package or lock modifications or installs. versions.json records actual Node/npm/Vue/Vite/plugin/test/Chromium versions and binary SHA. Browser fixture copies only its explicit 10 input files, generates its own mount shell, creates configFile=false Vite with one Vue resolution, and removes only that owned temporary source directory after await server.close.
+
+## Resource terminal
+
+new01: actual Playwright wait completed; subreaper enabled before starting Node and adopted child statuses reaped after primary Popen wait. Owned server closed, two PID/starttime sweeps empty, private Chromium TMPDIR removed, original listening ports unchanged. No backend or Docker started.
+
+old01: server closed and no live browser/owned process remains. First runner lacked a subreaper and left two already-exited Chromium zombie records parented to PID1: 180182 and 180185, starttime 408854, state Z. These cannot be reaped by this non-parent and are explicitly preserved, independently confirmed by verification. No PID1 or unrelated process touched. Only the old owned Playwright transform-cache TMPDIR was removed, separately logged. Later new01 cleanup does not claim to clear these historical PIDs.
+
+Original business-UI new02 red and original native mechanism evidence remain with recovery_verification. This component author result does not claim independent acceptance or UI composition PASS.
