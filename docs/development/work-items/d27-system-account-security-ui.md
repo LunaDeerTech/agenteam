@@ -1,6 +1,8 @@
 # D27：System 账号安全配置 UI
 
-状态：rev1，2026-10-06 已获独立静审通过（STATIC PASS）并由主线程采纳；被审全文 SHA256 `06602abcb845274af15f72e9f744a9487db59f156f8eda6ac397edb4f95125e5`，技术§1–7 SHA256 `e83033c44b4eff79987913dc9baf9f2a82fe4a5d77a5e175e37663d22c7dbc1a`。本次仅同步页首实施前置，技术正文保持被审原字节及采纳语义；architecture_worker仅获本规格页首唯一写权，产品实施和真实资源仍待主线程正式授予，不得自行启动。
+状态：rev2，2026-10-06 单层确认的显式焦点后备接缝已获独立静审通过（STATIC PASS）并由主线程采纳；被审全文 SHA256 `9e207a3735e1eab592f4c335318b48a08f8b6be3c93811414094b409d5b83a44`，技术§1–7 SHA256 `35c2f7f00917213642d9897ae37bc9509728f9921f9f71f674b59505bf06a146`。本次仅同步页首，技术正文保持被审原字节；当前仅规格接受，共享五条产品及本卡返修/资源仍待主线程另授。原rev1已独立静审通过/采纳，被审全文 SHA256 `06602abcb845274af15f72e9f744a9487db59f156f8eda6ac397edb4f95125e5`、技术§1–7 `e83033c44b4eff79987913dc9baf9f2a82fe4a5d77a5e175e37663d22c7dbc1a`不被改写为已覆盖本次缺口；原完整固定副本保留在 Git `cb9ad6c6ae5a34a6f123e6f8aad0db90646d5cb7:docs/development/work-items/d27-system-account-security-ui.md`，全文 SHA256 `4d1a74de35c2ead183697cb44caac8d26dc475c649947bf5efcc8da0d649809d`。
+
+当前产品冻结input01的26源、原27路径/编号保持；new01四组通过及Navigation原红保留，new02仅诊断确认关闭后activeElement=BODY、overlay=0/checking=false，未直接采样开层trigger。固定输入、原log及实际清零证据见[独立共享前置规格](d27-dialog-fallback-focus.md#1-责任边界与固定证据)。本次仅授权两卡文档修订，不授产品返修/资源；须先独立接受共享可选fallbackFocus，再由主线程移交本卡第9/12/22接缝及业务组合验证。§1–4原字节不变，以下两段为rev1历史移交定位；当前暂停/前置以本段为准。
 
 [Selection rev2](d27-system-model-selection-ui.md)的26路径完整结果已获独立最终PASS、主线程采纳，提交推送 `870ebbb986f56bb62be34ccdfa2c77819ce995a6`，远端一致且所有资源已双清；本卡前置已满足，后继固定产品/前端基线采用该提交，沿已接受后端及迁移1–19。已只读核实该固定提交的六依赖签名（useSession第292–299行）、分域/CSRF/当前权限及实际尾部分类、公开WriteOptions/PersonalIdentity/SessionController和client严格纯工具、五叶子/九return、App期controller/Promise与View末尾确认宿主；不存在为接本卡第七依赖而新增导出或扩路径的缺口。Account后端、Account OpenAPI、迁移、共享Ui/SettingsShell/useLayer及account.ts相对原`a55e250`均无差量。
 
@@ -81,11 +83,17 @@ Selection 接受的前六个依赖后追加第七个可选 `SystemAccountSecurit
 
 App 创建/provide `createSystemAccountSecurity`，拥有观察、编辑基线/草稿、确认状态与 Promise。View 只承载 DOM，在本叶子且身份确认后 attach；dirty 包含字段变化、冲突草稿、进行中/未确认写。取消、显式覆盖重载、菜单/本人入口/退出和浏览器返回统一询问“继续编辑 / 放弃修改”，路由确认先于 Session 重验；beforeunload 沿原原生提示，不承诺强关保存。
 
-放弃确认 UiDialog 固定在本 View 模板末尾，App 不增常驻确认宿主。checking 卸载 RouterView 时确认随 View 全部撤离，App Promise/草稿保留；检查失败时原 App 恢复按钮可用，无残留 overlay/inert/滚动锁。同完整身份/admin恢复后同序重挂，确认仍可见、顶层、可真实响应，零自动 PUT/答案。确认打开时 mounted 标题不抢焦点；任何 await 后 DOM 操作先核实例仍挂载与目标当前可用，关闭确认只消费已验共享恢复，不用全局选择器、手动 focus 或反复重挂修层序。真实离页/新身份/失权/dispose以false结算待决确认并清旧状态，旧 route/退出续体不得移交新身份，继续/放弃至多结算一次。
+放弃确认 UiDialog 固定在本 View 模板末尾，App 不增常驻确认宿主。Dialog组件在该View内保留，移除其外层 `v-if="confirmation.open"`，仅以open表达正常打开/关闭，组件内部overlay仍按open挂载；不能把正常“继续编辑”伪装成组件卸载。checking 卸载 RouterView 时确认随 View 全部撤离，App Promise/草稿保留；检查失败时原 App 恢复按钮可用，无残留 overlay/inert/滚动锁。同完整身份/admin恢复后同序重挂，确认仍可见、顶层、可真实响应，零自动 PUT/答案。
+
+在[显式后备目标共享结果](d27-dialog-fallback-focus.md#2-最小-api-与恢复生命周期)独立接受后，向本Dialog提供当前View标题的 `fallbackFocus`。沿已有本地heading ref/tabindex=-1，在View仍有效、personalContext=current、完整UserID/SessionID/epoch与本实例捕获身份一致、当前admin且system未拒绝时提供最新节点，否则null；不保存旧DOM到App/controller、不给全局选择器/回调、不在open时snapshot当时null。正常关闭仍优先合法原trigger，原trigger失效且无剩余modal时才由共享层核合法性并聚焦当前标题；同身份重挂后使用新View节点，随后Tab可达当前页面控件。组件卸载不尝试新增fallback，原共享卸载规则不扩大；真实身份失效不得提供旧后备目标。
+
+确认打开时 mounted 标题不抢焦点；任何 await 后 DOM 操作先核实例仍挂载与目标当前可用，关闭确认只消费上述共享恢复，不用业务手动focus或反复重挂修层序，原普通写操作后的合法焦点恢复不借机改动。真实离页/新身份/失权/dispose以false结算待决确认并清旧状态，旧 route/退出续体不得移交新身份，继续/放弃至多结算一次。
 
 ## 6. 唯一候选路径与实施移交
 
 以下27条仅为规格候选。Selection 最终接受后，主线程先核两API接入、实际第六依赖与分域分类、五叶子/九return及下列旧测试断言；无必要的旧测试候选可剔除，不能为凑数修改。共享产品文件和测试/README与 Selection 串行，未通过的活动实现不作为本卡依赖。
+
+rev2新增实施前置为独立共享fallbackFocus结果接受，原27路径行及用途不变，不取得UiDialog/useLayer/组件文档写权。该接缝只使用第9 View、第12页面纯测及第22真实browser：正常open关闭、当前本地ref/身份门禁、卸载阴性与原恢复断言；其它业务实现不因这次修订重写。原固定输入只用于归因/保持证据，后继产品须固定共享接受提交并由主线程另授返修和资源。
 
 | # | 路径 | 唯一用途 |
 | --- | --- | --- |
@@ -128,6 +136,8 @@ App 创建/provide `createSystemAccountSecurity`，拥有观察、编辑基线/�
 生产controller+受控transport设置显式异步屏障，分别阻塞fetch、body read与cancel；30秒可见结束/取消/放弃/身份变化后仍忙，迟到零发布，实际join才释放，后续GET/PUT/Session/其它域不能越过。双向核个人、users、邀请、Provider、Model、Selection的abandon隔离；覆盖当前和迟到401/403/CSRF、同User新Session/换账号、原请求恢复前Session检查及原CSRF不符销毁。冲突读取保留草稿，只有用户明确采用当前值后才可建立新意图，不自动重基。
 
 页面纯测先打开dirty或未确认的放弃确认，再向真实App listener合成pageshow并保持Session GET待决；checking零本域overlay，失败后App恢复按钮可操作，同身份恢复确认仍顶层/可响应且零PUT。通过按钮完成继续/放弃各一次，覆盖待决路由/退出、新身份/失权/dispose的false终点、断开的旧View续体与标题不抢焦点。jsdom状态/DOM证据和真实浏览器焦点分列，不直接结算Promise替代交互。
+
+rev2追加原失败的精确焦点验收：正常取消/遮罩/Escape仍恢复存活原trigger；dirty离页确认经checking/一次Session失败/同Session恢复后，继续编辑以open=false关闭而不销毁本View内Dialog，旧trigger失效时精确落在当前标题，随后Tab到当前可操作控件，overlay=0且零新PUT。重挂时最初null的ref不能阻断关闭时最新目标；checking/失权/新身份或真离页卸载不尝试新fallback，旧实例不聚焦新页。保留原“非BODY、connected、非inert/aria-hidden”和Tab强断言并增加目标关联，不靠放宽时点、手动focus或直接结算Promise过关。共享最小组件红绿与本业务真实Navigation分别成立；适用旧证据按未变语义/输入复用，不能因原四组通过就省略本次恢复组合。
 
 | 新真实顶层 | 必须覆盖 |
 | --- | --- |
