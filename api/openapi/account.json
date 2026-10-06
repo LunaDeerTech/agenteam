@@ -3101,6 +3101,223 @@
           "x-max-bytes": 16384
         }
       }
+    },
+    "/api/v1/system/mail-jobs/management": {
+      "get": {
+        "operationId": "listMailJobManagement",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "GET only, no request body. Requires a current administrator before dispatch and again in the same read transaction. A maximum three-second budget starts before HTTP authentication and inherits earlier cancellation. HEAD and other methods return 405 with Allow: GET. No CSRF write token or Idempotency-Key is required. Current state is not a command receipt and does not grant retry authority.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailJobManagementList"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "GET only; HEAD and other methods are not supported.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/Cursor"
+          },
+          {
+            "$ref": "#/components/parameters/Limit"
+          }
+        ]
+      }
+    },
+    "/api/v1/system/mail-jobs/{id}/management": {
+      "get": {
+        "operationId": "getMailJobManagement",
+        "security": [
+          {
+            "Session": []
+          },
+          {
+            "LocalSession": []
+          }
+        ],
+        "description": "GET only, no request body. Requires a current administrator before dispatch and again in the same read transaction. A maximum three-second budget starts before HTTP authentication and inherits earlier cancellation. HEAD and other methods return 405 with Allow: GET. No CSRF write token or Idempotency-Key is required. Current state is not a command receipt and does not grant retry authority. The ID must be a canonical UUIDv7 JobID; invalid IDs return 400, and valid IDs without an intent return 404. Query parameters are forbidden.",
+        "responses": {
+          "200": {
+            "description": "Success",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MailJobManagement"
+                }
+              }
+            }
+          },
+          "default": {
+            "description": "Safe RFC 9457 error. No secrets or raw diagnostics. Invalid Session responses clear the Session cookie; anonymous errors never clear it. COMMIT_UNKNOWN is 503 with retry_hint=lookup and must not be blindly resent under a new key.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          },
+          "405": {
+            "description": "GET only; HEAD and other methods are not supported.",
+            "headers": {
+              "Cache-Control": {
+                "schema": {
+                  "const": "no-store"
+                }
+              },
+              "X-Content-Type-Options": {
+                "schema": {
+                  "const": "nosniff"
+                }
+              },
+              "Referrer-Policy": {
+                "schema": {
+                  "const": "no-referrer"
+                }
+              },
+              "Allow": {
+                "schema": {
+                  "const": "GET"
+                }
+              }
+            },
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "./common.json#/components/schemas/Problem"
+                }
+              }
+            }
+          }
+        },
+        "parameters": [
+          {
+            "$ref": "#/components/parameters/ID"
+          }
+        ]
+      }
     }
   },
   "components": {
@@ -4564,6 +4781,131 @@
         ],
         "additionalProperties": false,
         "description": "Latest accepted invitation task across all resend and manual retry roots, ordered by command completed_at then job_id descending. accepted_at is the recorded final transaction completion time, not a commit sequence or delivery time. channel and attempt_result reflect only the persisted current attempt and are null when not recorded. retry_wait may retain an unknown result; legacy processing projects unknown. sent means SMTP acceptance or a durable backend log write, not inbox arrival."
+      },
+      "MailJobManagement": {
+        "type": "object",
+        "properties": {
+          "job_id": {
+            "$ref": "./common.json#/components/schemas/ID"
+          },
+          "phase": {
+            "type": "string",
+            "enum": [
+              "enqueue_pending",
+              "pending",
+              "claimed",
+              "sending",
+              "retry_wait",
+              "sent",
+              "failed",
+              "unknown",
+              "cancelled"
+            ]
+          },
+          "attempts": {
+            "type": "string",
+            "pattern": "^[0-6]$",
+            "description": "Persisted claim count, not a count of actual sends."
+          },
+          "version": {
+            "$ref": "./common.json#/components/schemas/Version"
+          },
+          "reason": {
+            "type": "string",
+            "enum": [
+              "sent",
+              "token_invalid",
+              "configuration_invalid",
+              "policy_rejected",
+              "network_failed",
+              "smtp_rejected",
+              "timeout",
+              "cancelled",
+              "unknown"
+            ]
+          },
+          "channel": {
+            "type": "string",
+            "enum": [
+              "smtp",
+              "backend_log"
+            ],
+            "description": "Compatibility summary only: exact current attempt channel when present; otherwise current singleton configured selects smtp or backend_log, independently of enabled. It is not evidence of an actual attempt or a promise of the next route."
+          },
+          "created_at": {
+            "$ref": "./common.json#/components/schemas/Instant",
+            "description": "Intent creation time, not command acceptance, enqueue or delivery time."
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "invitation",
+              "password_reset",
+              "test"
+            ]
+          },
+          "attempt_channel": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "smtp",
+              "backend_log",
+              null
+            ],
+            "description": "Only the exact current attempt channel, or null. Never inferred from current configuration or a previous attempt."
+          },
+          "attempt_result": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "enum": [
+              "sent",
+              "failed",
+              "unknown",
+              "cancelled",
+              null
+            ],
+            "description": "Only the exact current attempt terminal result, or null before a terminal result. sent proves SMTP acceptance or durable restricted-log output, not inbox delivery."
+          }
+        },
+        "required": [
+          "job_id",
+          "phase",
+          "attempts",
+          "version",
+          "channel",
+          "created_at",
+          "kind",
+          "attempt_channel",
+          "attempt_result"
+        ],
+        "additionalProperties": false,
+        "description": "Safe current-administrator management facts. Nine fields are required; only reason may be omitted. Old processing maps to unknown and may have no recorded attempt. retry_wait may retain an unknown attempt result; the next claim replaces current attempt. A read is neither a write receipt nor permission to retry."
+      },
+      "MailJobManagementList": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MailJobManagement"
+            },
+            "maxItems": 100
+          },
+          "next_cursor": {
+            "type": "string",
+            "maxLength": 8192,
+            "minLength": 1
+          }
+        },
+        "required": [
+          "items"
+        ],
+        "additionalProperties": false,
+        "description": "Descending intent created_at and job_id, with an independently signed mail-job-management cursor. Defaults to 25 items. Each page is a statement snapshot; separate pages do not share a snapshot."
       }
     }
   }

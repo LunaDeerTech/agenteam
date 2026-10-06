@@ -96,7 +96,9 @@ func (h *accountHTTP) httpRoutes() []accountHTTPRoute {
 		{"POST", "/system/smtp/unconfigure", "admin", true, h.httpUnconfigureSMTP},
 		{"POST", "/system/smtp/test", "admin", true, h.httpTestSMTP},
 		{"GET", "/system/mail-jobs", "admin", false, h.httpListMailJobs},
+		{"GET", "/system/mail-jobs/management", "admin", false, h.httpListMailJobManagement},
 		{"GET", "/system/mail-jobs/{id}", "admin", false, h.httpGetMailJob},
+		{"GET", "/system/mail-jobs/{id}/management", "admin", false, h.httpGetMailJobManagement},
 		{"POST", "/system/mail-jobs/{id}/retry", "admin", true, h.httpRetryMailJob},
 	}
 }
@@ -140,6 +142,11 @@ func (h *accountHTTP) httpHandler() http.Handler {
 	})
 }
 func (h *accountHTTP) httpDispatch(w http.ResponseWriter, r *http.Request, route accountHTTPRoute) {
+	if httpMailJobManagementRoute(route) {
+		bounded, cancel := httpMailJobManagementRequest(r)
+		defer cancel()
+		r = bounded
+	}
 	var input httpRequest
 	var e error
 	switch route.authority {
@@ -166,7 +173,7 @@ func (h *accountHTTP) httpDispatch(w http.ResponseWriter, r *http.Request, route
 			return
 		}
 	}
-	list := route.method == http.MethodGet && (route.path == "/system/users" || route.path == "/system/invitations" || route.path == "/system/mail-jobs")
+	list := route.method == http.MethodGet && (route.path == "/system/users" || route.path == "/system/invitations" || route.path == "/system/mail-jobs" || route.path == "/system/mail-jobs/management")
 	list = list || route.method == http.MethodHead && route.path == "/system/users"
 	if !list && (r.URL.RawQuery != "" || r.URL.ForceQuery) {
 		httpProblem(w, r, invalid())
